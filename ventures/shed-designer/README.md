@@ -54,6 +54,14 @@ At the starting prices that design is 150 pieces from 88 boards: $636.90 of lumb
 
   The test found a real bug on 2026-10-29: every wall member was placed starting at the floor, so the top plates, headers and sills sat at floor level in 3D. It also found that the two plies of each header overlapped, and that the new eave blocks collided with rafter ties. All three are fixed, and the tests stop them coming back.
 - **Prices with sources** (`prices.mjs`). Starting prices are Home Depot listings seen on 2026-10-29, most read from the search result's copy of the product page, so they can be stale and they vary by store. Each line of the shopping list links its listing. Lengths without a listing are scaled per foot from the nearest listed length and marked "(scaled)". Items with no listing at all (rake board, paneling, glitter, gravel, blocks, accent and interior paint) say "estimate". Every price is editable.
+- **How to build** (`instructions.mjs`, its own tab). Nineteen sections in build order, written from the design with its own numbers:
+  - permits and tools; the gravel pad with its diagonal; the skid centres;
+  - floor joist layout marks and the frame diagonal; the subfloor cuts;
+  - each wall's centre marks for every stud, king, jack and cripple, from the left end as seen from outside, with the opening framing and the wall diagonal;
+  - the ridge beam height; the rafter's plumb and birdsmouth layout (speed-square reading, run, heel and seat); the gable studs and vents;
+  - roofing order, siding, trim, paint (with a polka-dot stencil method) and the interior.
+
+  Every piece is called by its cut-sheet mark. You can print it or download it as Markdown. Fastener spacings are typical values to check against local code and product instructions.
 - **Options made for you** (`candidates.mjs`). Seven close variations of the design you are editing: rafter spacing, ridge beam or board, a steeper or lower roof, a foot of overhang, a foot wider. Each is framed, priced and structurally checked, then ranked with passing designs first and cheapest first. "Use this one" adds it to your designs.
 - **Roof edge.** A 2x6 sub-fascia across the rafter tails (in the cut list), a 1x6 fascia, a vented soffit under the tails and a 1x4 rake board on each gable edge. Blocking between the rafters closes each wall top.
 - **Looks.** Siding, roof and trim colours, polka dots and a glitter finish. The siding paint (two coats, 350 sq ft a gallon) and glitter packets are added to the list. A "teen bedroom" interior adds pink paneling, generic poster art of an invented band, string lights, a rug and a beanbag. The big poster can show a picture you upload, which stays in your browser. "Look inside" opens the front wall.
@@ -85,6 +93,7 @@ Serve this folder as static files, for example `python3 -m http.server` here, th
 | `integrity.mjs` | nothing floats, nothing overlaps |
 | `prices.mjs` | starting prices and their sources |
 | `candidates.mjs` | the options made for you |
+| `instructions.mjs` | step-by-step build instructions from the design |
 | `app.mjs`, `index.html` | the page |
 | `shed-plans-with-cut-list.html` | the 8x12 worked example, for people searching the question |
 

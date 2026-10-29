@@ -11,6 +11,7 @@ import { fmtIn, fmtFtIn, actual, STANDARD_LENGTHS_FT, EXAMPLE_ITEMS } from './lu
 import { recordUsage, clearUsage } from './usage.mjs';
 import { structuralChecks } from './checks.mjs';
 import { generateCandidates } from './candidates.mjs';
+import { buildInstructions, instructionsMarkdown } from './instructions.mjs';
 
 const $ = (sel) => /** @type {any} */ (document.querySelector(sel));
 const $$ = (sel) => /** @type {any[]} */ ([...document.querySelectorAll(sel)]);
@@ -237,6 +238,13 @@ function renderPlans(shed, est) {
   $('#plans').innerHTML = sheetsCache.map((s, i) => `<figure class="sheet" id="sheet-${s.id}">${sheetSvg(s, { name: shed.design.name, number: i + 1, of: sheetsCache.length })}<figcaption>${i + 1}. ${esc(s.title)} <button type="button" class="link" data-svg="${i}">Download SVG</button> <button type="button" class="link" data-dxf="${i}">DXF</button></figcaption></figure>`).join('');
 }
 
+let buildMd = '';
+function renderBuild(shed, est) {
+  const sections = buildInstructions(shed, est);
+  buildMd = instructionsMarkdown(sections, shed.design.name);
+  $('#build-steps').innerHTML = sections.map((s) => `<li><h3>${esc(s.title)}</h3>${s.why ? `<p class="muted">${esc(s.why)}</p>` : ''}<ol>${s.steps.map((x) => `<li>${esc(x)}</li>`).join('')}</ol>${s.check?.length ? `<div class="check"><strong>Check:</strong> ${s.check.map(esc).join(' ')}</div>` : ''}</li>`).join('');
+}
+
 function renderTabs() {
   const nav = $('#design-tabs');
   nav.innerHTML = state.designs.map((d, i) => `<button type="button" role="tab" aria-selected="${i === state.active}" data-design="${i}">${esc(d.name)}</button>`).join('');
@@ -311,6 +319,7 @@ function render() {
   renderCuts(est);
   renderParts(est);
   renderPlans(shed, est);
+  renderBuild(shed, est);
   renderCompare();
   queueThumbs();
   $('#undo').disabled = !undo.length;
@@ -531,6 +540,8 @@ function wire() {
     window.print();
   };
   $('#print-plans').addEventListener('click', () => printWhat('plans'));
+  $('#print-build').addEventListener('click', () => printWhat('build'));
+  $('#md-build').addEventListener('click', () => { download(`${slug()}-how-to-build.md`, buildMd, 'text/markdown'); count('csv-downloads'); });
   $('#print-cuts').addEventListener('click', () => printWhat('cuts'));
   window.addEventListener('afterprint', () => { delete document.body.dataset.print; });
 

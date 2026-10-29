@@ -114,6 +114,10 @@
     .meter { display: inline-block; width: 70px; height: 8px; border-radius: 4px; background: #e7e1d4; vertical-align: middle; margin-right: 6px; overflow: hidden; }
     .meter span { display: block; height: 100%; background: #24392b; }
     .meter.hot span { background: #c0392b; }
+    ol.build > li { margin: 14px 0; }
+    ol.build h3 { margin: 0 0 4px; }
+    ol.build ol { margin: 6px 0; padding-left: 22px; line-height: 1.5; }
+    ol.build .check { background: #eef5ee; border-radius: 8px; padding: 6px 10px; font-size: .9rem; }
     #option-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; margin-top: 12px; }
     #compare-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
     .card { border: 1px solid var(--line); border-radius: 12px; padding: 12px; background: #fff; }
@@ -134,7 +138,7 @@
       body { max-width: none; padding: 0; background: #fff; }
       body[data-print] > *:not(.results) { display: none !important; }
       body[data-print] .results > *:not(.print-target) { display: none !important; }
-      body[data-print="plans"] #panel-plans, body[data-print="cuts"] #panel-cuts { display: block !important; }
+      body[data-print="plans"] #panel-plans, body[data-print="cuts"] #panel-cuts, body[data-print="build"] #panel-build { display: block !important; }
       body[data-print] .result-panel { display: none; }
       body[data-print] section.results { border: none; box-shadow: none; padding: 0; }
       figure.sheet { break-after: page; border: none; }
@@ -301,6 +305,7 @@
       <button type="button" role="tab" aria-selected="false" data-panel="panel-parts">Parts list</button>
       <button type="button" role="tab" aria-selected="false" data-panel="panel-structure">Structure</button>
       <button type="button" role="tab" aria-selected="false" data-panel="panel-plans">Plans</button>
+      <button type="button" role="tab" aria-selected="false" data-panel="panel-build">How to build</button>
     </div>
     <div class="result-panel print-target" id="panel-shopping">
       <div class="table-wrap"><table id="shopping"><thead><tr><th scope="col">Item</th><th scope="col" class="n">Qty</th><th scope="col">Unit</th><th scope="col" class="n">Each</th><th scope="col" class="n">Total</th><th scope="col">Price source</th></tr></thead><tbody></tbody></table></div>
@@ -322,6 +327,11 @@
     <div class="result-panel" id="panel-structure" hidden>
       <p class="muted" id="structure-note"></p>
       <div class="table-wrap"><table id="structure"><thead><tr><th scope="col">Member</th><th scope="col">Size</th><th scope="col">What it carries</th><th scope="col" class="n">Use of capacity</th><th scope="col">Result</th></tr></thead><tbody></tbody></table></div>
+    </div>
+    <div class="result-panel print-target" id="panel-build" hidden>
+      <p class="muted">Written from this design: every length, mark and angle below is this shed's. Methods are common practice for a small wood-framed shed; fastener spacings are typical values, and your local code and each product's instructions win.</p>
+      <div class="toolrow"><button type="button" class="btn" id="md-build">Download as Markdown</button><button type="button" class="btn" id="print-build">Print instructions</button></div>
+      <ol id="build-steps" class="build"></ol>
     </div>
     <div class="result-panel print-target" id="panel-plans" hidden>
       <div class="toolrow"><button type="button" class="btn primary" id="print-plans">Print all plans</button><button type="button" class="btn" id="dxf-all">Download all as DXF</button></div>
