@@ -7,7 +7,7 @@
 //   3. a team plays at the same venue as on its previous night where it can (fewer trips).
 // Each division keeps the circle-method round robin of calc.mjs (home/away balance and byes), so only
 // the dates, courts and times are decided here.
-import { roundRobin, mulberry32, parseDate, parseDateList, parseWeekdays, parseTimes, parseNameList, parseCourtClosures, parseOfficials, dayIso, dayOfWeek, courtClosedOn } from "./calc.mjs";
+import { roundRobin, mulberry32, parseDate, parseDateList, parseWeekdays, parseTimes, parseNameList, parseCourtClosures, parseOfficials, dayIso, dayOfWeek, courtClosedOn, icsEscape, icsFold } from "./calc.mjs";
 
 const MAX_NIGHTS = 800;
 const W_CLASH = 1000;
@@ -724,6 +724,35 @@ export function divisionsCsv(schedule) {
   const rows = [["Date", "Time", "Court", "Venue", "Division", "Round", "Home", "Away", ...(withOfficial ? ["Official"] : [])]];
   for (const night of schedule.nights) for (const m of night.matches) rows.push([dayIso(night.day), m.time, m.court, m.venue, m.division, m.round + 1, m.homeName, m.awayName, ...(withOfficial ? [m.official || ""] : [])]);
   return rows.map((r) => r.map(q).join(",")).join("\n") + "\n";
+}
+
+/**
+ * An iCalendar file for the whole multi-division schedule, one division (`division`), or one team
+ * (`team`, with `division` to tell apart teams that share a name). Times are floating local times;
+ * `stamp` (YYYYMMDDTHHMMSSZ) is injectable for reproducible output; `minutes` is the game length.
+ */
+export function divisionsIcs(schedule, { division = null, team = null, stamp = null, minutes = 60 } = {}) {
+  const dtstamp = stamp || new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d+/, "");
+  const compact = (day) => dayIso(day).replace(/-/g, "");
+  const hhmm = (min) => `${String(Math.floor(min / 60)).padStart(2, "0")}${String(min % 60).padStart(2, "0")}00`;
+  const name = team !== null ? `${team} schedule` : division !== null ? `${division} schedule` : "League schedule";
+  const out = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//league-schedule-generator//EN", "CALSCALE:GREGORIAN", `X-WR-CALNAME:${icsEscape(name)}`];
+  for (const night of schedule.nights) {
+    night.matches.forEach((m, i) => {
+      if (division !== null && m.division !== division) return;
+      if (team !== null && m.homeName !== team && m.awayName !== team) return;
+      const summary = team !== null ? `${team} vs ${m.homeName === team ? m.awayName : m.homeName} (${m.homeName === team ? "home" : "away"})` : `[${m.division}] ${m.homeName} vs ${m.awayName}`;
+      out.push("BEGIN:VEVENT", `UID:${m.division}-${m.homeName}-${m.awayName}-${compact(night.day)}-${i}@league-schedule-generator`.replace(/\s+/g, "_"), `DTSTAMP:${dtstamp}`);
+      if (m.time) {
+        const [hh, mm] = m.time.split(":").map(Number);
+        const end = hh * 60 + mm + minutes;
+        out.push(`DTSTART:${compact(night.day)}T${hhmm(hh * 60 + mm)}`, `DTEND:${compact(night.day + Math.floor(end / 1440))}T${hhmm(end % 1440)}`);
+      } else out.push(`DTSTART;VALUE=DATE:${compact(night.day)}`, `DTEND;VALUE=DATE:${compact(night.day + 1)}`);
+      out.push(`SUMMARY:${icsEscape(summary)}`, `LOCATION:${icsEscape(m.venue && m.venue !== m.court ? `${m.court}, ${m.venue}` : m.court)}`, `DESCRIPTION:${icsEscape(`${m.division}, round ${m.round + 1}${m.official ? `, official ${m.official}` : ""}`)}`, "END:VEVENT");
+    });
+  }
+  out.push("END:VCALENDAR");
+  return out.map(icsFold).join("\r\n") + "\r\n";
 }
 
 /** Plain-text read-out for a command line or a group chat. */
