@@ -177,6 +177,43 @@ export function moveWall(sk, wallId, dx, dy) {
   return moveEnds(sk, [w.a, w.b].map((p) => ({ from: { ...p }, to: { x: p.x + dx, y: p.y + dy } })));
 }
 
+/**
+ * Slide an opening along its wall so its centre is at `along` inches from the
+ * wall's `a` end. Clamped to the wall; refused (nothing changes) when it would
+ * overlap another opening on that wall.
+ * @param {Sketch} sk @param {number} id @param {number} along
+ * @returns {{ ok: true } | { ok: false, error: string }}
+ */
+export function moveOpening(sk, id, along) {
+  const o = sk.openings.find((x) => x.id === id);
+  if (!o) return { ok: false, error: "No such opening." };
+  const w = /** @type {SketchWall} */ (sk.walls.find((x) => x.id === o.wall));
+  const offset = Math.round(Math.min(Math.max(along - o.width / 2, 0), len(w) - o.width) * 16) / 16;
+  if (sk.openings.some((x) => x !== o && x.wall === o.wall && offset < x.offset + x.width && x.offset < offset + o.width)) return { ok: false, error: "That would overlap another opening." };
+  o.offset = offset;
+  return { ok: true };
+}
+
+/**
+ * Drag one edge of an opening to `pos` inches along its wall; the other edge
+ * stays put. Refused when the opening would be under 6 in wide, run past the
+ * wall, or overlap a neighbour.
+ * @param {Sketch} sk @param {number} id @param {"a"|"b"} edge @param {number} pos
+ * @returns {{ ok: true } | { ok: false, error: string }}
+ */
+export function resizeOpening(sk, id, edge, pos) {
+  const o = sk.openings.find((x) => x.id === id);
+  if (!o) return { ok: false, error: "No such opening." };
+  const w = /** @type {SketchWall} */ (sk.walls.find((x) => x.id === o.wall));
+  const p = Math.round(pos * 16) / 16;
+  const lo = edge === "a" ? p : o.offset, hi = edge === "a" ? o.offset + o.width : p;
+  if (hi - lo < 6) return { ok: false, error: "An opening under 6 in wide is not worth framing." };
+  if (lo < 0 || hi > len(w) + 1e-9) return { ok: false, error: "That would run past the end of the wall." };
+  if (sk.openings.some((x) => x !== o && x.wall === o.wall && lo < x.offset + x.width && x.offset < hi)) return { ok: false, error: "That would overlap another opening." };
+  o.offset = lo; o.width = hi - lo;
+  return { ok: true };
+}
+
 /** Remove a wall and the openings on it. @param {Sketch} sk @param {number} id */
 export function removeWall(sk, id) {
   sk.walls = sk.walls.filter((w) => w.id !== id);
