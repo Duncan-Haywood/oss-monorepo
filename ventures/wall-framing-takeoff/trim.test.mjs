@@ -35,3 +35,14 @@ test("prices, waste and bad inputs", () => {
   assert.equal(validateTrim({ waste: 0.9 }).length, 1);
   assert.equal(layoutTrim({ baseStock: 10 }, plan).ok, false);
 });
+
+test("shoe moulding follows the baseboard runs in its own stock, off by default", () => {
+  const plan = { walls: [{ id: "A", length: 144, sheathed: false, openings: [{ kind: "door", width: 32, height: 80 }] }] };
+  assert.equal(layoutTrim({ waste: 0 }, plan).shoeBoards, 0);
+  const t = layoutTrim({ waste: 0, shoe: true, shoeStock: 96, shoePrice: 5 }, plan);
+  assert.ok(Math.abs(t.shoeFeet - 224 / 12) < 1e-9); // four 56 in runs
+  assert.equal(t.shoeBoards, 4); // two 56 in runs do not fit one 96 in board
+  assert.equal(t.cost, 4 * 5);
+  assert.ok(trimText(t).some((x) => x.includes("Shoe moulding")));
+  assert.equal(layoutTrim({ shoe: true, shoeStock: 10 }, plan).ok, false);
+});
