@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { hasCiChannels, injectChrome } from './build.mjs';
+import { DOWNLOADABLE_CLI_FILES, hasCiChannels, injectChrome } from './build.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const BASE = 'https://example.test/site/';
@@ -21,6 +21,8 @@ test('every generated action has a hook, a flake app and a published check.py', 
     assert.match(hooks, new RegExp(`^- id: ${slug}$`, 'm'), slug);
     assert.ok(flake.includes(`"${slug}" = tool "${slug}"`), slug);
     assert.ok(fs.existsSync(path.join(ROOT, 'ventures', slug, 'check.py')), slug);
+    // The curl line downloads it from the site, which publishes only listed .py files.
+    assert.ok((DOWNLOADABLE_CLI_FILES[slug] || []).includes('check.py'), `${slug} check.py is not published`);
   }
 });
 

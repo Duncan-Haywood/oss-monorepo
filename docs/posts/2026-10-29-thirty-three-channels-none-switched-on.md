@@ -1,7 +1,7 @@
 ---
 title: "Thirty-three distribution channels, none switched on"
 date: 2026-10-29
-description: "An honest count of how the free tools reach people: 33 publishing pipelines built, 0 live, about 27 page loads recorded, and the one channel that needed no account."
+description: "How the free tools reach people today: 33 publishing pipelines built, none live, about 27 page loads recorded, and the channel that needed no account."
 tags: [distribution, measurement, portfolio]
 ---
 
