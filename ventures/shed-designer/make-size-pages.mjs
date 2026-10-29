@@ -143,6 +143,7 @@ export function indexPage(all) {
   ${ICON}
   <title>Shed Lumber List by Size: 8x8 to 12x24, Boards and Cost</title>
   <meta name="description" content="How many boards and how much money a gable shed takes at ${all.length + 1} common sizes from 8x8 to 12x24, each framed stud by stud, with the cut list for your own size free in the browser.">
+  <script type="application/ld+json">${JSON.stringify({ '@context': 'https://schema.org', '@type': 'Article', headline: 'Shed lumber list by size' })}</script>
   <style>
 ${CSS}
   </style>
