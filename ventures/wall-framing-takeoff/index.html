@@ -371,8 +371,10 @@
 
   <section class="card" aria-labelledby="h-schedule" id="scheduleCard">
     <h2 id="h-schedule">Build schedule (critical path)</h2>
-    <p class="note">Optional and separate from the wall list. Paste your own schedule as JSON (<code>start</code>, <code>crews</code>, <code>activities</code> with <code>id, name, days, after, crew, lag</code>, and <code>slips</code>), or load the invented example. Durations are working days (Mon-Fri) that you supply; none are shipped. Holidays and weather are not modelled.</p>
+    <p class="note">Optional and separate from the wall list. Paste your own schedule as JSON (<code>start</code>, <code>crews</code>, <code>activities</code> with <code>id, name, days, after, crew, lag</code>, and <code>slips</code>), or load the invented example. Durations are working days (Mon-Fri) that you supply; none are shipped. Holidays and weather days you list below are skipped; weather is not forecast.</p>
     <textarea id="schedIn" rows="12" spellcheck="false" aria-label="Schedule JSON" style="width:100%;font-family:monospace"></textarea>
+    <p><label for="schedHol">Holidays (YYYY-MM-DD, comma or space separated)</label><input id="schedHol" type="text" autocomplete="off" style="width:100%"></p>
+    <p><label for="schedWx">Weather days the crew will not work (YYYY-MM-DD)</label><input id="schedWx" type="text" autocomplete="off" style="width:100%"></p>
     <p><button type="button" class="secondary" id="schedEx">Load example schedule</button> <button type="button" id="schedRun">Find the critical path</button></p>
     <div id="schedOut" aria-live="polite"></div>
   </section>
@@ -1216,6 +1218,11 @@
     $("#schedRun").addEventListener("click", () => {
       let input;
       try { input = JSON.parse($("#schedIn").value); } catch (e) { $("#schedOut").innerHTML = `<div class="err">That is not valid JSON: ${esc(e.message)}</div>`; return; }
+      if (!input || typeof input !== "object") input = {};
+      const dates = (id) => $(id).value.split(/[\s,;]+/).filter(Boolean);
+      const hol = dates("#schedHol"), wx = dates("#schedWx");
+      if (hol.length) input.holidays = [...(input.holidays || []), ...hol];
+      if (wx.length) input.weatherDays = [...(input.weatherDays || []), ...wx];
       const s = schedule(input);
       $("#schedOut").innerHTML = `<pre style="white-space:pre-wrap;overflow-x:auto">${esc(scheduleText(s).join("\n"))}</pre>`;
       if (s.ok) record("schedule_run");
