@@ -39,3 +39,14 @@ test('a ridge-board shed gets ridge-board and rafter-tie steps instead of beam s
   assert.match(md, /rafter tie/);
   assert.ok(!/Ridge beam and posts/.test(md));
 });
+
+test('a site-built door names its frame pieces by their cut-sheet marks', () => {
+  const shed = buildShed({ ...defaultDesign(), length: 168, openings: [{ id: 'o1', kind: 'door', wall: 'front', offset: 40, width: 60, height: 78, product: 'site-built' }] });
+  const est = estimate(shed);
+  const step = buildInstructions(shed, est).find((s) => /door o1/.test(s.title)).steps.find((t) => /stiles/.test(t));
+  for (const kind of ['door stile', 'door rail', 'door brace']) {
+    const marks = est.parts.filter((p) => p.kind === kind).map((p) => p.mark);
+    assert.equal(marks.length, 1, `${kind}: one mark for identical pieces`);
+    assert.match(step, new RegExp(`\\(mark ${marks[0]}\\)`), kind);
+  }
+});

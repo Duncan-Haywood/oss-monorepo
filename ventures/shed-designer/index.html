@@ -107,8 +107,8 @@
     .muted { color: var(--muted); font-size: .85em; }
     .results { margin-top: 14px; }
     .result-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
-    .boards { padding-left: 34px; margin: 6px 0 16px; }
-    .boards li { display: grid; grid-template-columns: 90px minmax(0, 1fr) 110px; gap: 8px; align-items: center; margin: 4px 0; font-size: .82rem; }
+    .boards { list-style: none; padding-left: 0; margin: 6px 0 16px; }
+    .boards li { display: grid; grid-template-columns: 110px minmax(0, 1fr) 110px; gap: 8px; align-items: center; margin: 4px 0; font-size: .82rem; }
     .boards .bar { position: relative; height: 24px; background: repeating-linear-gradient(45deg, #eee7d8, #eee7d8 4px, #e2d8c3 4px, #e2d8c3 8px); border-radius: 4px; border: 1px solid #c9bea7; overflow: hidden; }
     .boards .cut { position: absolute; top: 0; bottom: 0; background: #f1dfb9; border-right: 2px solid #6b4f2a; font-size: .72rem; line-height: 24px; padding-left: 4px; white-space: nowrap; overflow: hidden; }
     .boards .off { color: var(--muted); }
@@ -145,17 +145,26 @@
     footer { font-size: .82rem; color: var(--muted); margin-top: 24px; }
     footer p { line-height: 1.5; }
     .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
-    @media (max-width: 900px) { .workspace { grid-template-columns: 1fr; } .boards li { grid-template-columns: 70px minmax(0, 1fr); } .boards .off { grid-column: 2; } }
+    @media (max-width: 900px) { .workspace { grid-template-columns: 1fr; } .boards li { grid-template-columns: 96px minmax(0, 1fr); } .boards .off { grid-column: 2; } }
+    @page plan-sheet { size: letter landscape; margin: 0.35in; }
     @media print {
       body { max-width: none; padding: 0; background: #fff; }
-      body[data-print] > *:not(.results) { display: none !important; }
+      /* The results live inside <main>, so hide main's other children, not main itself. */
+      body[data-print] > *:not(main), body[data-print] main > *:not(.results) { display: none !important; }
       body[data-print] .results > *:not(.print-target) { display: none !important; }
       body[data-print="plans"] #panel-plans, body[data-print="cuts"] #panel-cuts, body[data-print="build"] #panel-build { display: block !important; }
       body[data-print] .result-panel { display: none; }
       body[data-print] section.results { border: none; box-shadow: none; padding: 0; }
-      figure.sheet { break-after: page; border: none; }
+      /* Plan sheets are drawn landscape: give each its own landscape page, full width. */
+      figure.sheet { page: plan-sheet; break-after: page; border: none; margin: 0; }
+      figure.sheet svg { width: 100%; height: auto; max-height: 7.6in; }
       figure.sheet figcaption { display: none; }
-      .boards li { break-inside: avoid; }
+      body[data-print] #plans { display: block; }
+      body[data-print] .toolrow { display: none; }
+      .boards li { break-inside: avoid; grid-template-columns: 110px minmax(0, 1fr) 110px; }
+      .boards .off { grid-column: auto; }
+      /* The cuts and the hatched offcut are backgrounds, which browsers drop when printing unless asked. */
+      .boards .bar, .boards .cut { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     }
   </style>
 </head>
@@ -363,7 +372,7 @@
       </details>
     </div>
     <div class="result-panel print-target" id="panel-cuts" hidden>
-      <p class="muted">One line per board to buy. Letters are part marks (see Parts list and the plans); the hatched end is offcut. Kerf is allowed between cuts.</p>
+      <p class="muted">One line per board to buy, with identical boards counted together. Letters are part marks (see Parts list and the plans); the hatched end is offcut. Kerf is allowed between cuts.</p>
       <div id="cuts"></div>
       <div class="toolrow"><button type="button" class="btn" id="csv-cuts">Download CSV</button><button type="button" class="btn" id="print-cuts">Print cut sheet</button></div>
     </div>
