@@ -10,7 +10,11 @@
 // crew works. House wrap is the wall area less openings, plus the lap
 // allowance, in rolls whose coverage you type. Corner boards are two per
 // outside corner (default four corners, a plain rectangle), full wall height.
-// Not counted: gable triangles, soffit and fascia, window and door trim
+// A wall with `gable: {pitch, peak?}` also gets its triangle (2026-10-29): the
+// courses above the eave line are as long as the triangle is wide at the
+// course's lower edge (boards are cut to the slope), the wrap is the exact
+// triangle area, and openings are only clipped to the eave line.
+// Not counted: soffit and fascia, window and door trim
 // boards, flashing, nails, caulk, paint, and the starter strip's rip.
 // Wall height defaults to the plan's stud length plus the plates, as the
 // drywall hang height does.
@@ -33,9 +37,18 @@ export function validateSiding(d) {
   return e;
 }
 
+/** Rise and the two slopes (rise per inch) of a gable wall, or null for a level wall. */
+function gableOf(/** @type {any} */ w, /** @type {number} */ eave) {
+  if (!w.gable || !(w.gable.pitch > 0)) return null;
+  const peak = w.gable.peak ?? w.length / 2;
+  if (!(peak > 0 && peak < w.length)) return null;
+  const s1 = w.gable.pitch / 12, rise = peak * s1;
+  return { rise, s1, s2: rise / (w.length - peak), eave };
+}
+
 /**
  * @param {Siding} d
- * @param {{ studLength: number, defaultHeaderHeight: number, walls: { id: string, length: number, sheathed?: boolean, openings?: { kind: string, offset: number, width: number, height: number, headerHeight?: number }[] }[] }} plan
+ * @param {{ studLength: number, defaultHeaderHeight: number, walls: { id: string, length: number, sheathed?: boolean, gable?: { pitch: number, peak?: number }, openings?: { kind: string, offset: number, width: number, height: number, headerHeight?: number }[] }[] }} plan
  */
 export function layoutSiding(d, plan) {
   const errors = validateSiding(d);
@@ -53,12 +66,18 @@ export function layoutSiding(d, plan) {
       const top = o.headerHeight ?? plan.defaultHeaderHeight;
       return { x0: Math.max(0, o.offset), x1: Math.min(w.length, o.offset + o.width), y0: Math.max(0, top - o.height), y1: Math.min(height, top) };
     });
-    areaIn += w.length * height;
+    const g = gableOf(w, height);
+    areaIn += w.length * height + (g ? 0.5 * w.length * g.rise : 0);
     for (const o of ops) openIn += Math.max(0, o.x1 - o.x0) * Math.max(0, o.y1 - o.y0);
-    const nCourses = Math.ceil(height / exposure - 1e-9);
+    const nCourses = Math.ceil((height + (g ? g.rise : 0)) / exposure - 1e-9);
     courses += nCourses;
     for (let k = 0; k < nCourses; k++) {
-      const y0 = k * exposure, y1 = Math.min(height, y0 + exposure);
+      const y0 = k * exposure, y1 = Math.min(height + (g ? g.rise : 0), y0 + exposure);
+      if (y0 >= height - 1e-9) { // wholly in the triangle: the width at the lower edge
+        const up = y0 - height, run = w.length - up / g.s1 - up / g.s2;
+        if (run > 1e-9) runs.push(Math.min(w.length, run));
+        continue;
+      }
       // openings that cut this course, left to right; overlapping ones merge into one gap
       const cuts = ops.filter((o) => o.y0 < y1 - 1e-9 && o.y1 > y0 + 1e-9 && o.x1 > o.x0).sort((a, b) => a.x0 - b.x0);
       let x = 0;
@@ -89,6 +108,6 @@ export function sidingText(s) {
   l.push(`  Siding: ${s.walls} exterior wall(s), ${s.height / 12} ft high, ${s.courses} courses at ${s.exposure} in exposure; ${s.runFeet.toFixed(0)} ft of runs cut round openings and packed into ${s.stock / 12} ft boards -> ${s.boards} boards (${(100 * s.waste).toFixed(0)}% waste added)${s.boardPrice != null ? `, ${(s.boards * s.boardPrice).toFixed(2)} at ${s.boardPrice} each` : ""}`);
   l.push(`  House wrap: ${s.netSqFt.toFixed(0)} sq ft of wall net of ${s.openingSqFt.toFixed(0)} sq ft of openings, ${s.wrapSqFt.toFixed(0)} with laps -> ${s.wrapRolls} roll(s) of ${s.wrapRollSqFt} sq ft${s.wrapPrice != null ? `, ${(s.wrapRolls * s.wrapPrice).toFixed(2)} at ${s.wrapPrice} each` : ""}`);
   l.push(`  Corner boards: ${s.corners} outside corners x 2 = ${s.cornerBoards} boards of ${s.cornerStock / 12} ft${s.cornerPrice != null ? `, ${(s.cornerBoards * s.cornerPrice).toFixed(2)} at ${s.cornerPrice} each` : ""}`);
-  l.push("  Gable triangles, soffit and fascia, window and door trim, flashing, nails, caulk and paint are not counted; exposure, stock lengths, coverage and prices are figures you type.");
+  l.push("  Soffit and fascia, window and door trim, flashing, nails, caulk and paint are not counted; exposure, stock lengths, coverage and prices are figures you type.");
   return l;
 }
