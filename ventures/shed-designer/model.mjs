@@ -749,6 +749,49 @@ function buildFramed(d) {
     for (const [s0, s1] of top.runs) addM('top plate', d.studSize, s0, s1, H - 3, H - 1.5);
     for (const [s0, s1] of cap.runs) addM('cap plate', d.studSize, s0, s1, H - 1.5, H, spec.eave ? `stops ${D}" short of each end; the end walls' cap laps over it` : `runs ${D}" past each end to lap over the long walls`);
     if (top.runs.length > 1) notes.push(`${WALL_LABEL[name]}: plates are longer than your longest board, so they splice over studs; the cap plate's joints are kept 4 ft from the top plate's where the layout allows, and never under the code's 24".`);
+    // Siding nailers: a 4 ft siding joint needs wood under both panel edges.
+    // Where an opening's king, jack or cripples leave one side (or both) bare
+    // between the plates, add a nailer flush with the framing that is there.
+    if (d.siding) {
+      const faceLen = spec.eave ? L : W;
+      const holes = ops.map((p) => ({ s0: p.a, s1: p.a + p.w, z0: p.bottom, z1: p.bottom + p.op.height }));
+      const at = (x, z) => wm.find((m) => m.local.s0 <= x + 1e-9 && m.local.s1 >= x - 1e-9 && m.local.z0 <= z + 1e-9 && m.local.z1 >= z - 1e-9);
+      for (let f = 48; f < faceLen - 1e-9; f += 48) {
+        const x = f - start;
+        if (x < 0.75 || x > len - 0.75) continue;
+        /** @type {{ s0: number, z0: number, z1: number }[]} */
+        const runs = [];
+        for (let z = 1.5 + 0.25; z < H - 3; z += 0.5) {
+          if (holes.some((h) => x > h.s0 - 0.5 && x < h.s1 + 0.5 && z > h.z0 && z < h.z1)) continue;
+          const left = at(x - 0.5, z);
+          const right = at(x + 0.5, z);
+          if (left && right) continue;
+          const s0 = left ? left.local.s1 : right ? right.local.s0 - 1.5 : x - 0.75;
+          const last = runs[runs.length - 1];
+          if (last && Math.abs(last.s0 - s0) < 1e-9 && Math.abs(last.z1 - (z - 0.25)) < 1e-9) last.z1 = z + 0.25;
+          else runs.push({ s0, z0: z - 0.25, z1: z + 0.25 });
+        }
+        for (const r of runs) {
+          // Between two members closer than 1-1/2" (a king beside an end stud) the nailer is ripped to the gap.
+          const beside = (m) => m.local.z0 < r.z1 - 1e-9 && m.local.z1 > r.z0 + 1e-9;
+          const nextRight = wm.filter((m) => beside(m) && m.local.s0 >= r.s0 + 1e-9).reduce((t, m) => Math.min(t, m.local.s0), len);
+          const s1 = Math.min(r.s0 + 1.5, nextRight);
+          const s0 = s1 - r.s0 < 1.5 - 1e-9 && r.s0 === x - 0.75 ? Math.max(0, s1 - 1.5) : r.s0;
+          // It has to put wood under whichever panel edge was bare.
+          const zm = (r.z0 + r.z1) / 2;
+          const wooded = (xx) => Boolean(at(xx, zm)) || (s0 <= xx + 1e-9 && s1 >= xx - 1e-9);
+          if (s1 - s0 < 0.5 || !wooded(x - 0.5) || !wooded(x + 0.5)) continue;
+          // Snap to the members above and below, and keep it only if it clashes with nothing.
+          const over = (m) => m.local.s0 < s1 - 1e-9 && m.local.s1 > s0 + 1e-9;
+          const below = wm.filter((m) => over(m) && m.local.z1 <= r.z0 + 0.5 + 1e-9).reduce((t, m) => Math.max(t, m.local.z1), 1.5);
+          const above = wm.filter((m) => over(m) && m.local.z0 >= r.z1 - 0.5 - 1e-9).reduce((t, m) => Math.min(t, m.local.z0), H - 3);
+          if (above - below < 3) continue;
+          if (wm.some((m) => over(m) && m.local.z0 < above - 1e-9 && m.local.z1 > below + 1e-9) || s0 < 0 || s1 > len) continue;
+          const m = addM('siding nailer', d.studSize, s0, s1, below, above, s1 - s0 < 1.5 - 1e-9 ? `behind a siding joint beside an opening; ripped to ${fmtIn(s1 - s0)} to fit` : 'behind a siding joint beside an opening');
+          m.length = ceil16(above - below);
+        }
+      }
+    }
     walls[name] = { name, len, start, members: wm, openings: ops, eave: spec.eave };
   }
 
