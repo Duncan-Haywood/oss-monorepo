@@ -66,6 +66,16 @@
       <itunes:explicit>false</itunes:explicit>
     </item>
     <item>
+      <title>The Warm Pack</title>
+      <link>https://example.invalid/hearth-and-horizon/the-warm-pack.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-warm-pack.html</guid>
+      <pubDate>Thu, 29 Oct 2026 12:00:00 GMT</pubDate>
+      <description>On Saint Martin's evening a volunteer in a parish bicycle library finds one e-bike battery swollen in a shed with eighteen others on charge. It reads 41 degrees against its neighbours' 29. The shed's assistant works out that the charger cannot be the cause, that the heat is coming from inside at about 19 watts, and that the number to watch is the rate and not the value. It will not say the pack is safe, and it will not say the pack will burn. It says what to do in the next twenty minutes, in what order, and who stands where. Setting: Sint-Willibrord, an invented parish in Overijssel, the Netherlands, 11 November 2046. Read the full text at https://example.invalid/hearth-and-horizon/the-warm-pack.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>On Saint Martin's evening a volunteer in a parish bicycle library finds one e-bike battery swollen in a shed with eighteen others on charge. It reads 41 degrees against its neighbours' 29. The shed's assistant works out that the charger cannot be the cause, that the heat is coming from inside at about 19 watts, and that the number to watch is the rate and not the value. It will not say the pack is safe, and it will not say the pack will burn. It says what to do in the next twenty minutes, in what order, and who stands where.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>The Warm Stack</title>
       <link>https://example.invalid/hearth-and-horizon/the-warm-stack.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-warm-stack.html</guid>
