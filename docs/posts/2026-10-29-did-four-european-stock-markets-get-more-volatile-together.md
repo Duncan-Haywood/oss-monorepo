@@ -16,7 +16,7 @@ Standard deviation of daily returns, before and after row 1482: DAX 0.90 to 1.43
 
 - DAX and SMI cut at rows 1482 and 1489 under `--bootstrap` and `--dispersion`.
 - FTSE cuts about 60 rows later, at 1545 to 1550.
-- CAC, the smallest rise at 29%, is cut at 1417 by the plain model and at 1179 as well under `--bootstrap`, and not at all under `--dispersion` or `--robust`.
+- CAC, the smallest rise at 29%, is cut at rows 1179 and 1417 (nowhere near 1482) by the plain and `--bootstrap` runs, and not at all under `--dispersion` or `--robust`.
 
 So the rise is shared, but how clearly a detector sees it depends on how big it is against clustered, heavy-tailed noise. A 29% rise in volatility over this many days is below what the stricter penalties will call a change, and the tool says so instead of inventing one. Not checked: calendar dates, or what moved the markets.
 
