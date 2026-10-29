@@ -20,9 +20,12 @@ photographer's real picks yet; the report says so.
 
 from __future__ import annotations
 
+import base64
 import html
 import json
 import re
+import subprocess
+import tempfile
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from pathlib import Path
@@ -30,13 +33,15 @@ from pathlib import Path
 from shootflow.faces import FaceReport, detect_faces
 from shootflow.ffmpeg_media import PHOTO_EXTENSIONS, FfmpegMediaError, FfmpegTools, find_ffmpeg_tools
 from shootflow.frame_analysis import FrameMetrics, analyze_media, hamming_distance
-from shootflow.raw_preview import RAW_EXTENSIONS
+from shootflow.raw_preview import RAW_EXTENSIONS, extract_preview, is_raw_path
 
 NEAR_DUPLICATE_MAX_DISTANCE = 8
 BLURRY_BELOW = 0.2
 BAD_EXPOSURE_BELOW = 0.25
 CLOSED_EYES_BELOW = 0.3
 _MAX_FILES = 20000
+THUMB_WIDTH = 220
+_THUMB_TIMEOUT_SECONDS = 60.0
 _SIDECAR_RATING = {"keeper": 4, "alternate": 2, "reject": -1}
 _SAFE_NAME = re.compile(r"[^\x20-\x7e]")
 
@@ -147,6 +152,54 @@ def cull_folder(
             )
     items.sort(key=lambda item: (item.group, item.path))
     return CullResult(str(root), tuple(items), tuple(unreadable), (), ())
+
+
+def make_thumbnail(tools: FfmpegTools, path: Path) -> bytes:
+    """A small JPEG of one photo (RAW: its embedded preview), read through ffmpeg; never written to disk."""
+
+    def run(source: Path) -> bytes:
+        command = [
+            tools.ffmpeg, "-v", "error", "-nostdin", "-i", str(source),
+            "-frames:v", "1", "-vf", f"scale='min({THUMB_WIDTH},iw)':-2",
+            "-q:v", "5", "-f", "image2pipe", "-c:v", "mjpeg", "-",
+        ]
+        try:
+            done = subprocess.run(
+                command, stdin=subprocess.DEVNULL, capture_output=True,
+                timeout=_THUMB_TIMEOUT_SECONDS, check=False,
+            )
+        except (OSError, subprocess.TimeoutExpired) as exc:
+            raise FfmpegMediaError(f"thumbnail failed for {source.name}: {exc}") from exc
+        if done.returncode != 0 or not done.stdout:
+            raise FfmpegMediaError(f"thumbnail failed for {path.name}")
+        return done.stdout
+
+    if is_raw_path(path):
+        preview = extract_preview(path)
+        if preview is None:
+            raise FfmpegMediaError(f"no embedded preview in {path.name}")
+        with tempfile.TemporaryDirectory(prefix="shootflow-thumb-") as scratch:
+            jpeg = Path(scratch) / "preview.jpg"
+            jpeg.write_bytes(preview)
+            return run(jpeg)
+    return run(path)
+
+
+def thumbnail_data_uris(
+    result: CullResult, tools: FfmpegTools | None = None, maker: Callable[[Path], bytes] | None = None
+) -> dict[str, str]:
+    """``data:`` URIs by relative path; a photo whose thumbnail fails is left out, not fatal."""
+
+    make = maker or (lambda p, t=tools or find_ffmpeg_tools(): make_thumbnail(t, p))
+    root = Path(result.folder)
+    uris: dict[str, str] = {}
+    for item in result.items:
+        try:
+            data = make(root / item.path)
+        except (FfmpegMediaError, OSError):
+            continue
+        uris[item.path] = "data:image/jpeg;base64," + base64.b64encode(data).decode("ascii")
+    return uris
 
 
 def _score(metrics: FrameMetrics, faces: FaceReport | None) -> float:
@@ -329,7 +382,9 @@ def result_to_dict(result: CullResult, score: PickScore | None = None) -> dict[s
     }
 
 
-def render_html(result: CullResult, score: PickScore | None = None) -> str:
+def render_html(
+    result: CullResult, score: PickScore | None = None, thumbs: dict[str, str] | None = None
+) -> str:
     summary = result_to_dict(result)["summary"]
     assert isinstance(summary, dict)
     rows = []
@@ -340,6 +395,7 @@ def render_html(result: CullResult, score: PickScore | None = None) -> str:
             f"<td>{item.role}</td><td>{item.score:.2f}</td><td>{item.sharpness:.2f}</td>"
             f"<td>{item.exposure:.2f}</td><td>{html.escape(reasons)}</td></tr>"
         )
+    sheet = _contact_sheet(result, thumbs) if thumbs else ""
     pick_html = ""
     if score:
         rate = lambda v: "n/a" if v is None else f"{v:.0%}"  # noqa: E731
@@ -358,10 +414,10 @@ def render_html(result: CullResult, score: PickScore | None = None) -> str:
         '<meta name="viewport" content="width=device-width,initial-scale=1"><title>Cull report</title>'
         "<style>body{font:15px system-ui;margin:24px;max-width:960px}table{border-collapse:collapse;width:100%}"
         "td,th{padding:4px 8px;border-bottom:1px solid #8884;text-align:left}"
-        "tr.keeper td{background:#2a82}tr.reject td{background:#d222}</style></head><body>"
+        "tr.keeper td{background:#2a82}tr.reject td{background:#d222}.burst{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px;padding:8px;border:1px solid #8884;border-radius:6px}figure{margin:0;width:220px;font-size:12px}figure img{display:block;width:220px;border:4px solid #8884;box-sizing:border-box}figure.keeper img{border-color:#2a8}figure.reject img{border-color:#d33}figure.alternate img{opacity:.75}</style></head><body>"
         f"<h1>Cull report</h1><p>{summary['photos']} photos in {summary['groups']} groups: "
         f"{summary['keepers']} keepers, {summary['alternates']} alternates, {summary['rejects']} rejects.</p>"
-        + pick_html +
+        + pick_html + sheet +
         "<table><tr><th>Group</th><th>Photo</th><th>Role</th><th>Score</th><th>Sharp</th><th>Exposure</th>"
         "<th>Why rejected</th></tr>" + "".join(rows) + "</table>"
         "<p>Technical scores only; not checked against a photographer's real picks. "
@@ -369,12 +425,34 @@ def render_html(result: CullResult, score: PickScore | None = None) -> str:
     )
 
 
+def _contact_sheet(result: CullResult, thumbs: dict[str, str]) -> str:
+    bursts: dict[int, list[CullItem]] = {}
+    for item in result.items:
+        bursts.setdefault(item.group, []).append(item)
+    parts = ["<h2>Contact sheet</h2><p>Green border: keeper. Red: reject. Faded: alternate.</p>"]
+    for number, members in bursts.items():
+        figs = []
+        for item in members:
+            uri = thumbs.get(item.path)
+            img = f'<img src="{uri}" alt="{html.escape(item.path)}">' if uri else "<p>(no preview)</p>"
+            why = f" ({html.escape(', '.join(item.reasons))})" if item.reasons else ""
+            figs.append(
+                f'<figure class="{item.role}">{img}<figcaption>{html.escape(item.path)}<br>'
+                f"{item.role}{why}, {item.score:.2f}</figcaption></figure>"
+            )
+        parts.append(f'<div class="burst" title="group {number}">' + "".join(figs) + "</div>")
+    return "".join(parts)
+
+
 def write_report(
-    result: CullResult, out_dir: Path | str, score: PickScore | None = None
+    result: CullResult,
+    out_dir: Path | str,
+    score: PickScore | None = None,
+    thumbs: dict[str, str] | None = None,
 ) -> tuple[Path, Path]:
     out = Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)
     json_path, html_path = out / "cull_report.json", out / "cull_report.html"
     json_path.write_text(json.dumps(result_to_dict(result, score), indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    html_path.write_text(render_html(result, score), encoding="utf-8")
+    html_path.write_text(render_html(result, score, thumbs), encoding="utf-8")
     return json_path, html_path
