@@ -64,6 +64,37 @@ function sheetCount(lengths) {
 }
 
 /**
+ * Whole 4x8 sheets for a layout of rectangular pieces, each { len, w } with len
+ * along the sheet's 8 ft and w across its 4 ft. Full-width pieces are packed
+ * along 8 ft sheets. A narrower row (the last row of a floor that is not a
+ * multiple of 4 ft wide, the course at the ridge) is packed into 8 ft strips
+ * of its width, and as many of those strips as fit across a sheet come from
+ * one sheet. Rips are counted without a kerf: two 24" strips from a 48" sheet
+ * leave the second a saw cut narrow, which the rim or the gap at the ridge
+ * takes up (tongue-and-groove sheets cover about 47-1/2" anyway). Strips of
+ * different widths are not mixed, so the count is one a builder can cut.
+ * @param {{ len: number, w: number }[]} pieces
+ */
+export function sheetCount2d(pieces) {
+  /** @type {Map<number, number[]>} */
+  const byWidth = new Map();
+  for (const p of pieces) {
+    const w = Math.round(Math.min(48, p.w) * 16) / 16;
+    if (!byWidth.has(w)) byWidth.set(w, []);
+    /** @type {number[]} */ (byWidth.get(w)).push(p.len);
+  }
+  let sheets = 0;
+  for (const [w, lens] of byWidth) {
+    const strips = sheetCount(lens);
+    sheets += w >= 48 - 1e-9 ? strips : Math.ceil(strips / Math.max(1, Math.floor(48 / w + 1e-9)));
+  }
+  return sheets;
+}
+
+/** The { len, w } of each panel of one kind, from its rectangle. @param {any[]} panels @param {string} kind */
+const panelPieces = (panels, kind) => panels.filter((p) => p.kind === kind).map((p) => ({ len: p.geom.profile[2][0], w: p.geom.profile[2][1] }));
+
+/**
  * @param {Shed} shed
  * @param {Prices} [prices]
  */
@@ -142,8 +173,8 @@ export function estimate(shed, prices = examplePrices()) {
   const item = (k) => Number(prices.items?.[k] ?? itemPrice(k).price);
   const src = (k) => ({ ...sourceOf(item(k), itemPrice(k)), key: k });
   const label = (k) => /** @type {any} */ (EXAMPLE_ITEMS)[k].name;
-  const floorSheets = sheetCount(shed.floorPieces);
-  const roofSheets = sheetCount(shed.roofPieces);
+  const floorSheets = sheetCount2d(panelPieces(shed.panels, 'floor sheet'));
+  const roofSheets = sheetCount2d(panelPieces(shed.panels, 'roof sheathing'));
   const floorKey = d.floorPanel === 'OSB' ? 'floorOSB' : 'floorSheet';
   line('Sheet goods', label(floorKey), floorSheets, 'sheet', item(floorKey), src(floorKey));
   line('Sheet goods', label('roofSheet'), roofSheets, 'sheet', item('roofSheet'), src('roofSheet'));

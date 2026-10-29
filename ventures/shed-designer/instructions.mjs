@@ -200,7 +200,7 @@ export function buildInstructions(shed, est) {
   out.push({
     title: 'Roof sheathing and roofing',
     steps: [
-      `Sheathe with 7/16" OSB, long edges across the rafters (${est.roofSheets} sheets, ${k.roofRows} courses a side). Start at the eave with full sheets flush with the sub-fascia, stagger the next course by half a sheet, and land every end joint on a rafter. Leave 1/8" between sheets.`,
+      `Sheathe with 7/16" OSB, long edges across the rafters (${est.roofSheets} sheets, ${k.roofRows} courses a side). Start at the eave with full sheets flush with the sub-fascia, stagger the next course by half a sheet, and land every end joint on a rafter. Leave 1/8" between sheets. The course at the ridge is narrower than a sheet: rip its strips side by side from whole sheets, as many to a sheet as fit (the sheet count assumes that).`,
       'Nail with 8d every 6" on the edges and every 12" in the field.',
       'Drip edge along the eaves first, under the underlayment.',
       'Roll the underlayment from the eave up, each course lapped over the one below by the maker\'s mark, over the ridge.',
