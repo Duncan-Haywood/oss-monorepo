@@ -1650,3 +1650,13 @@ or `ventures`) until its success rate passes 80% over 20 runs?
 - Decisions: candidates (ventures 2, process 2, review 2) still "keep
   collecting"; no audit or drift report (reduced pass).
 - Result: (next review)
+
+## E110: review 2026-10-29 (reduced pass, thirty-seventh run)
+
+- Change: `prompts/redteam/prompt-0.md` says a stdlib `unittest` target needs no
+  `pyenv.py` either (live report 2026-10-29T11:28). No derive re-run.
+- Metric: friction reports naming `prompts/redteam/prompt-0.md` about
+  `pyenv.py`; compare the next 40 runs.
+- Decisions: candidates (ventures 2, process 2, review 2) still "keep
+  collecting: the intervals overlap"; no audit or drift report (reduced pass).
+- Result: (next review)
