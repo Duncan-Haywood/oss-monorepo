@@ -2,7 +2,7 @@
 title: "A gate stops one bad audio sync from ruining a camera's whole hour"
 date: 2026-10-29
 description: "Tracking a camera's audio delay from its own history locked 37% of cameras onto a wrong alias for an hour. Re-acquiring on a stronger peak cuts that to 8-10%."
-tags: [research, audio-sync, multi-camera, negative-results]
+tags: [research, audio-sync, multi-camera, negative-result]
 ---
 
 Syncing several cameras by their audio drifts: each clock runs a few tens of
