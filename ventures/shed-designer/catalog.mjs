@@ -79,7 +79,19 @@ export function storeComparison(est) {
     return [s, { total: Math.round(t * 100) / 100, missing }];
   }));
   const cheapestMix = Math.round(rows.reduce((t, row) => t + row.best.price * row.line.qty, 0) * 100) / 100;
-  return { rows, stores, totals, cheapestMix, seen: SEEN };
+  // Where to buy what: each compared line at its cheapest store, and the saving
+  // against the cheapest single store that lists every compared line.
+  /** @type {Record<string, { lines: string[], total: number }>} */
+  const split = {};
+  for (const row of rows) {
+    const st = row.best.store;
+    split[st] = split[st] || { lines: [], total: 0 };
+    split[st].lines.push(`${row.line.qty} x ${row.line.name}`);
+    split[st].total = Math.round((split[st].total + row.best.price * row.line.qty) * 100) / 100;
+  }
+  const complete = stores.filter((st) => totals[st].missing === 0).sort((a, b) => totals[a].total - totals[b].total);
+  const oneStop = complete.length ? { store: complete[0], total: totals[complete[0]].total } : null;
+  return { rows, stores, totals, cheapestMix, split, oneStop, splitSaving: oneStop ? Math.round((oneStop.total - cheapestMix) * 100) / 100 : null, seen: SEEN };
 }
 
 /** Swaps that apply to this design. @param {any} design */

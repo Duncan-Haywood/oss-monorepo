@@ -103,6 +103,9 @@ test('store offers: every one has a store, a price, a model and a link; comparis
   assert.ok(cmp.rows.length >= 2);
   const mix = cmp.rows.reduce((t, r) => t + r.best.price * r.line.qty, 0);
   assert.ok(Math.abs(mix - cmp.cheapestMix) < 0.01);
+  const splitTotal = Object.values(cmp.split).reduce((t, g) => t + g.total, 0);
+  assert.ok(Math.abs(splitTotal - cmp.cheapestMix) < 0.01);
+  assert.ok(cmp.oneStop && cmp.splitSaving >= 0);
 });
 
 test('primed LP siding in two thicknesses changes the panels bought and the siding depth', () => {
