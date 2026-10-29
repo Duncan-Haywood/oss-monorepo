@@ -158,7 +158,8 @@ flagships:
       catalog, ffmpeg proxies, LUT-graded masters, reels and carousels.
     next: >-
       `shootflow cull` (2026-10-29) turns that into a standalone folder cull with XMP
-      sidecars; wanted: a real shoot's keepers from a photographer to score it against.
+      sidecars; `--picks FILE` (2026-10-29) now scores it against a photographer's keepers
+      (keeper hit rate, false-reject rate); wanted: a real shoot and its picks to run it on.
       Sharpness, exposure, motion and dHash near-duplicate grouping now run
       on real frames (src/shootflow/frame_analysis.py). Subject framing without a
       model landed 2026-10-21 (detail-energy centroid against thirds points plus

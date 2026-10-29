@@ -229,8 +229,78 @@ def write_sidecars(result: CullResult) -> CullResult:
     return CullResult(result.folder, result.items, result.unreadable, tuple(written), tuple(skipped))
 
 
-def result_to_dict(result: CullResult) -> dict[str, object]:
+@dataclass(frozen=True)
+class PickScore:
+    """How the cull compares with a photographer's own picks."""
+
+    picks: int
+    matched: int
+    unmatched: tuple[str, ...]
+    groups_with_a_pick: int
+    keeper_hits: int  # groups with a pick whose keeper is one of the picks
+    picks_rejected: tuple[str, ...]  # the costly miss: a frame you wanted, flagged reject
+    picks_kept: int  # picks the cull left as keeper or alternate
+
+    @property
+    def keeper_hit_rate(self) -> float | None:
+        return self.keeper_hits / self.groups_with_a_pick if self.groups_with_a_pick else None
+
+    @property
+    def false_reject_rate(self) -> float | None:
+        return len(self.picks_rejected) / self.matched if self.matched else None
+
+
+def read_picks(path: Path | str) -> list[str]:
+    """One file name or relative path per line; blank lines and ``#`` comments are ignored."""
+
+    lines = Path(path).read_text(encoding="utf-8").splitlines()
+    return [line.strip() for line in lines if line.strip() and not line.strip().startswith("#")]
+
+
+def score_against_picks(result: CullResult, picks: Sequence[str]) -> PickScore:
+    """Match picks to photos by relative path, else by file name or stem (case-insensitive)."""
+
+    by_path = {i.path.lower(): i for i in result.items}
+    by_name: dict[str, list[CullItem]] = {}
+    for item in result.items:
+        name = item.path.lower().rsplit("/", 1)[-1]
+        by_name.setdefault(name, []).append(item)
+        by_name.setdefault(name.rsplit(".", 1)[0], []).append(item)
+    matched: dict[str, CullItem] = {}
+    unmatched: list[str] = []
+    for pick in picks:
+        key = pick.replace("\\", "/").lstrip("./").lower()
+        item = by_path.get(key)
+        if item is None:
+            candidates = by_name.get(key.rsplit("/", 1)[-1], [])
+            item = candidates[0] if len(candidates) == 1 else None  # ambiguous names do not match
+        if item is None:
+            unmatched.append(pick)
+        else:
+            matched[item.path] = item
+    picked_groups = {item.group for item in matched.values()}
+    keepers = {i.group: i.path for i in result.items if i.role == "keeper"}
+    hits = sum(1 for g in picked_groups if keepers.get(g) in matched)
+    rejected = tuple(sorted(p for p, i in matched.items() if i.role == "reject"))
+    return PickScore(
+        picks=len(picks), matched=len(matched), unmatched=tuple(unmatched),
+        groups_with_a_pick=len(picked_groups), keeper_hits=hits, picks_rejected=rejected,
+        picks_kept=len(matched) - len(rejected),
+    )
+
+
+def pick_score_to_dict(score: PickScore) -> dict[str, object]:
     return {
+        "picks": score.picks, "matched": score.matched, "unmatched": list(score.unmatched),
+        "groups_with_a_pick": score.groups_with_a_pick, "keeper_hits": score.keeper_hits,
+        "keeper_hit_rate": score.keeper_hit_rate, "picks_rejected": list(score.picks_rejected),
+        "false_reject_rate": score.false_reject_rate, "picks_kept": score.picks_kept,
+    }
+
+
+def result_to_dict(result: CullResult, score: PickScore | None = None) -> dict[str, object]:
+    return {
+        **({"against_your_picks": pick_score_to_dict(score)} if score else {}),
         "schema_version": 1,
         "folder": result.folder,
         "summary": {
@@ -259,7 +329,7 @@ def result_to_dict(result: CullResult) -> dict[str, object]:
     }
 
 
-def render_html(result: CullResult) -> str:
+def render_html(result: CullResult, score: PickScore | None = None) -> str:
     summary = result_to_dict(result)["summary"]
     assert isinstance(summary, dict)
     rows = []
@@ -270,6 +340,19 @@ def render_html(result: CullResult) -> str:
             f"<td>{item.role}</td><td>{item.score:.2f}</td><td>{item.sharpness:.2f}</td>"
             f"<td>{item.exposure:.2f}</td><td>{html.escape(reasons)}</td></tr>"
         )
+    pick_html = ""
+    if score:
+        rate = lambda v: "n/a" if v is None else f"{v:.0%}"  # noqa: E731
+        pick_html = (
+            f"<h2>Against your picks</h2><p>{score.matched} of {score.picks} picks found. "
+            f"The keeper was one of your picks in {score.keeper_hits} of {score.groups_with_a_pick} groups "
+            f"({rate(score.keeper_hit_rate)}). Picks flagged reject: {len(score.picks_rejected)} "
+            f"({rate(score.false_reject_rate)}).</p>"
+        )
+        if score.picks_rejected:
+            pick_html += "<p>Rejected but picked: " + html.escape(", ".join(score.picks_rejected)) + "</p>"
+        if score.unmatched:
+            pick_html += "<p>Not found in the folder: " + html.escape(", ".join(score.unmatched[:50])) + "</p>"
     return (
         '<!doctype html><html lang="en"><head><meta charset="utf-8">'
         '<meta name="viewport" content="width=device-width,initial-scale=1"><title>Cull report</title>'
@@ -278,6 +361,7 @@ def render_html(result: CullResult) -> str:
         "tr.keeper td{background:#2a82}tr.reject td{background:#d222}</style></head><body>"
         f"<h1>Cull report</h1><p>{summary['photos']} photos in {summary['groups']} groups: "
         f"{summary['keepers']} keepers, {summary['alternates']} alternates, {summary['rejects']} rejects.</p>"
+        + pick_html +
         "<table><tr><th>Group</th><th>Photo</th><th>Role</th><th>Score</th><th>Sharp</th><th>Exposure</th>"
         "<th>Why rejected</th></tr>" + "".join(rows) + "</table>"
         "<p>Technical scores only; not checked against a photographer's real picks. "
@@ -285,10 +369,12 @@ def render_html(result: CullResult) -> str:
     )
 
 
-def write_report(result: CullResult, out_dir: Path | str) -> tuple[Path, Path]:
+def write_report(
+    result: CullResult, out_dir: Path | str, score: PickScore | None = None
+) -> tuple[Path, Path]:
     out = Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)
     json_path, html_path = out / "cull_report.json", out / "cull_report.html"
-    json_path.write_text(json.dumps(result_to_dict(result), indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    html_path.write_text(render_html(result), encoding="utf-8")
+    json_path.write_text(json.dumps(result_to_dict(result, score), indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    html_path.write_text(render_html(result, score), encoding="utf-8")
     return json_path, html_path

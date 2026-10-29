@@ -34,6 +34,19 @@ const amountBucket = (cents) => `amt:${Math.min(12, Math.floor(Math.log2(Math.ab
 // keyword that fits two accounts is left out, so the line goes to review rather
 // than being guessed. `dir` limits a rule to money in or money out.
 export const BUILT_IN = [
+  // Tutors and online teachers (2026-10-29, tutor.test.mjs; agent-written from the companies' public names, not from a real export):
+  // marketplace payouts, classroom software, lesson materials, exam fees and library or coffee-shop meeting rooms.
+  ["4000", "in", /outschool|varsity tutors|preply|superprof|tutor\.com payout|cambly|italki/],
+  ["6060", "out", /prodigy (education|game)|kahoot|nearpod|gimkit|blooket|mathigon|desmos/],
+  ["6100", "out", /teachers pay teachers|teacherspayteachers|lakeshore learning|wacom/],
+  ["6170", "out", /\bets\b.*(praxis|toefl|gre)|praxis (registration|exam)|\bnea\b.*(member|dues)|aft membership/],
+  ["6080", "out", /(library|meeting|study|conference) room (rental|rent)\b/],
+  // Photographers (2026-10-29, photographer.test.mjs; agent-written from the companies' public names, not from a real export):
+  // gallery and CRM software, trade-body dues, second shooters and print labs.
+  ["6060", "out", /shootproof|sprout studio|dubsado|\btave\b|17hats|pixieset|smugmug|lightroom/],
+  ["6170", "out", /\bppa\b.*(member|photograph)|professional photographers|\bwppi\b|creativelive|\bspa\b.*photograph/],
+  ["6020", "out", /second shooter|associate photographer|photo editing service|\bretouch/],
+  ["6100", "out", /\bwhcc\b|miller.?s (professional )?lab|bay photo lab|printique|nations photo lab/],
   // Personal trainers and coaches (2026-10-29, trainer.test.mjs; agent-written from the companies' public names, not from a real export):
   // coaching apps, certification renewals and gym-floor rent. First so "gym rental" is rent, not left blank.
   ["6060", "out", /trainerize|truecoach|trainheroic|everfit|my ?pt ?hub|myfitnesspal|\bwodify\b|\bhevy\b/],

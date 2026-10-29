@@ -336,7 +336,7 @@ This repo currently contains the first testable core utilities:
   summaries/receipts, carries the same root observe-only `workflow_authority`
   contract. Write-capable next actions are command-free descriptors so JSON
   payloads cannot double as executable workflow plans.
-- `shootflow.cull` (`shootflow cull FOLDER --out REPORT_DIR [--recursive] [--write-xmp]`)
+- `shootflow.cull` (`shootflow cull FOLDER --out REPORT_DIR [--recursive] [--write-xmp] [--picks FILE]`)
   is the standalone culling pass: it scores each still (JPEG, PNG, TIFF, or a
   RAW file's embedded preview), groups near-identical frames by dHash (Hamming
   distance 8 or less, single linkage), keeps the best frame per group as the
@@ -346,6 +346,12 @@ This repo currently contains the first testable core utilities:
   alternate 2, reject -1). Photos are read-only and an existing `.xmp` is never
   overwritten. Tested on stubbed metrics and two real ffmpeg-made JPEGs; not yet
   compared with a photographer's real picks on a wedding or event set.
+  `--picks FILE` (one file name or path per line, `#` comments allowed) scores
+  the cull against the frames you would keep and adds an "Against your picks"
+  block to the report: how often the keeper is one of your picks, and how many
+  of your picks the cull flagged reject (the costly miss). Names match by path,
+  else by file name or stem; an ambiguous name matches nothing. Tested on stubs;
+  it gives the first real measurement as soon as someone supplies a shoot.
 - `shootflow.workspace_index` builds a metadata-only
   `shootflow_workspace_index.json` handoff for Mac apps, background agents, and
   continuation runs. It summarizes trusted ingest, production-status,

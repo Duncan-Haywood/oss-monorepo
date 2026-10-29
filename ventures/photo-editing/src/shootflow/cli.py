@@ -7,7 +7,16 @@ from collections.abc import Sequence
 from pathlib import Path
 from typing import TextIO
 
-from shootflow.cull import CullError, cull_folder, result_to_dict, write_report, write_sidecars
+from shootflow.cull import (
+    CullError,
+    cull_folder,
+    pick_score_to_dict,
+    read_picks,
+    result_to_dict,
+    score_against_picks,
+    write_report,
+    write_sidecars,
+)
 from shootflow.ffmpeg_media import FfmpegMediaError
 from shootflow.assembly import (
     AssemblyPlan,
@@ -690,9 +699,12 @@ def _run_cull_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
     result = cull_folder(args.folder, recursive=args.recursive)
     if args.write_xmp:
         result = write_sidecars(result)
-    json_path, html_path = write_report(result, args.out)
-    summary = result_to_dict(result)["summary"]
-    stdout.write(json.dumps({"summary": summary, "report_json": str(json_path), "report_html": str(html_path)}, sort_keys=True) + "\n")
+    score = score_against_picks(result, read_picks(args.picks)) if args.picks else None
+    json_path, html_path = write_report(result, args.out, score)
+    out = {"summary": result_to_dict(result)["summary"], "report_json": str(json_path), "report_html": str(html_path)}
+    if score:
+        out["against_your_picks"] = pick_score_to_dict(score)
+    stdout.write(json.dumps(out, sort_keys=True) + "\n")
 
 
 def _run_create_demo_workspace_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
@@ -1128,6 +1140,11 @@ def _build_parser() -> argparse.ArgumentParser:
         "--write-xmp",
         action="store_true",
         help="Write Lightroom/Bridge .xmp rating sidecars (keeper 4, alternate 2, reject -1); never overwrites one.",
+    )
+
+    cull.add_argument(
+        "--picks",
+        help="Text file of the photos you would keep (one name or path per line); the report scores the cull against it.",
     )
 
     create_demo = subparsers.add_parser(
