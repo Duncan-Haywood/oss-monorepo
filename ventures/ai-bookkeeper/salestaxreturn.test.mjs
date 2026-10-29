@@ -373,6 +373,7 @@ test("stateDiscounts presets IL, TX and FL under their <ST> state label and noth
   assert.deepEqual(stateDiscounts("il"), { "IL state": { rate: 0.0175, capPerMonth: 100000 } });
   assert.deepEqual(stateDiscounts("TX"), { "TX state": { rate: 0.005 } });
   assert.deepEqual(stateDiscounts("FL"), { "FL state": { rate: 0.025, cap: 3000 } });
+  assert.deepEqual(stateDiscounts("oh"), { "OH state": { rate: 0.0075, capPerMonth: 75000 } });
   assert.deepEqual(stateDiscounts("CA"), {});
   assert.equal(stateDiscounts("ga")["GA state"].tiers.length, 2);
   assert.deepEqual(stateDiscounts(undefined), {});
@@ -406,6 +407,15 @@ test("GA vendor's compensation: 3% of the first $3,000 of tax, 0.5% of the rest,
   assert.equal(run(500000).discount, 9000 + 1000);     // $90 + $10: $3,000 x 3% + $2,000 x 0.5%
   assert.equal(run(500000).payable, 500000 - 10000);
   assert.throws(() => salesTaxReturn(mk(100), { discounts: { "GA state": { rate: 0.03, tiers: [{ rate: 2 }] } } }));
+});
+
+test("OH vendor discount: 0.75% of tax, capped at $750 for the month (R.C. 5739.12 as amended for 2026)", async () => {
+  const { salesTaxReturn, stateDiscounts } = await import("./salestaxreturn.mjs");
+  const mk = (cents) => addDocuments(importStatement(newBooks(), "Date,Description,Amount\n2026-03-01,X,1.00\n", "1000").books,
+    `type,number,date,due,party,amount,account,description\ninvoice,1,2026-03-10,,A Co,1000.00,4000,Goods\ninvoice,1,2026-03-10,,A Co,${cents / 100}.00,2100,OH state\n`).books;
+  const run = (cents) => salesTaxReturn(mk(cents), { frequency: "monthly", discounts: stateDiscounts("OH") }).periods[0].rows.find((x) => x.jurisdiction === "OH state");
+  assert.equal(run(1000000).discount, 7500);           // $10,000 x 0.75%
+  assert.equal(run(20000000).discount, 75000);         // $200,000 x 0.75% = $1,500, capped at $750
 });
 
 test("Utah monthly returns are due at the end of the next month (tax.utah.gov due-dates page, read 2026-10-28)", async () => {
