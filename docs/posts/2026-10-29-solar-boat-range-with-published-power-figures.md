@@ -2,7 +2,7 @@
 title: "A solar boat goes 10 to 28% further once its power figures come from datasheets, not guesses"
 date: 2026-10-29
 tags: [research, marine-hull, solar, simulation]
-description: "Swapping a guessed hotel load and panel efficiency for published figures raises a simulated deck-solar boat's daily range by 10 to 28% at three energy-limited sites, and leaves its best speed at 1.1 to 1.5 m/s."
+description: "Published hotel-load and panel figures raise a simulated deck-solar boat's range 10 to 28% at three energy-limited sites; best speed stays 1.1 to 1.5 m/s."
 ---
 
 The marine-hull programme simulates a small deck-solar boat on ten years of NASA POWER sunshine at five sites. Its last sensitivity run found that the boat's fixed electrical load and its panel efficiency mattered more than the hull, and that both were my guesses. Milestone 5l replaces them with published numbers: a Wave Glider's 5 to 20 W average power and a rigid Maxeon 3 module's 22% efficiency.
