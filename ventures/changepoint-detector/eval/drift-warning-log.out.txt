@@ -1,0 +1,8 @@
+airline (growing season)         no trend raw warns yes steps 20  log warns yes steps 21  window: 3 steps -> 9 log steps near it
+airline (growing season)         bend     raw warns yes steps 8  log warns yes steps 10  window: 3 steps -> 6 log steps near it
+UK gas (growing season)          no trend raw warns yes steps 15  log warns yes steps 13  window: 3 steps -> 4 log steps near it
+UK gas (growing season)          bend     raw warns yes steps 7  log warns yes steps 6  window: 3 steps -> 5 log steps near it
+J&J (growing season)             no trend raw warns yes steps 17  log warns yes steps 14  window: 3 steps -> 4 log steps near it
+J&J (growing season)             bend     raw warns no  steps 5  log warns no  steps 3  window: none
+UK driver deaths (1973 shock)    no trend raw warns yes steps 6  log warns yes steps 6  window: 4 steps -> 4 log steps near it
+UK driver deaths (1973 shock)    bend     raw warns yes steps 4  log warns yes steps 4  window: 3 steps -> 3 log steps near it

@@ -1079,4 +1079,14 @@ The untried idea from the section above: refit with a seasonal amplitude that sc
 - J&J without trend: 3 or more become 4 (the bent fit does not warn at all).
 - UK driver deaths (the shock): 4 become 4 and 3 become 4. Stays, as a shock should.
 
-So it separates one of three growing-season series from the shock. On the airline series the multiplicative fit finds more steps than the drift fit (22 against 20 in all with no trend, 15 against 8 with bend): a fixed multiplicative factor does not fit a shape that also changes in form, and the mean model has no growth term. Not adopted, and the warning text is unchanged. Both attempts to tell a shape from a shock automatically (cancellation, refit) failed on four real series with one shock; the note's wording ("check the dates against the series") stays the honest answer. Not tried: a multiplicative fit on the log, which turns a growing amplitude into a fixed one. Wanted: a second real series with a documented shock inside a seasonal series.
+So it separates one of three growing-season series from the shock. On the airline series the multiplicative fit finds more steps than the drift fit (22 against 20 in all with no trend, 15 against 8 with bend): a fixed multiplicative factor does not fit a shape that also changes in form, and the mean model has no growth term. Not adopted, and the warning text is unchanged. Both attempts to tell a shape from a shock automatically (cancellation, refit) failed on four real series with one shock; the note's wording ("check the dates against the series") stays the honest answer. Wanted: a second real series with a documented shock inside a seasonal series.
+
+### Third try: take logs first (2026-10-29)
+
+The idea left open above: take logs, which turns a growing amplitude into a fixed one, and run the ordinary drift fit on the logged series. `eval/drift-warning-log.mjs` (output `eval/drift-warning-log.out.txt`) counts steps in the window where the raw drift fit warns, against steps near it on the log fit.
+
+- Airline: 3 steps become 9 (no trend) and 6 (bend). More, not fewer.
+- UK gas: 3 become 4 and 5. J&J: 3 become 4; with bend neither fit warns.
+- UK driver deaths (the shock): 4 stay 4 and 3 stay 3.
+
+The log fit warns on every series the raw fit warns on and does not clear a single growing-season window, so it does not tell a shape from a shock either. Not adopted; the warning text is unchanged. That makes three attempts (cancellation, level-scaled season, log) that fail; stop trying automatic fixes on these four series. Still wanted: a second real series with a documented shock inside a seasonal series.
