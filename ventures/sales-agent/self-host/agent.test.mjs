@@ -225,3 +225,45 @@ test("a bounce naming several failed recipients stops every one of them (real DS
   assert.deepEqual(r.prospects.filter((p) => p.status === "bounced").map((p) => p.email).sort(), [...m.dsn.failed].sort());
   assert.equal(r.prospects.find((p) => p.email === "keep@acme.test").status || "", "");
 });
+
+test("M8a CRM write-back: note on an existing contact, opt-out on unsubscribe, nothing created, token never logged, CRM down does not stop triage", async () => {
+  const { createServer } = await import("node:http");
+  const calls = [];
+  const known = { "dana@bright.example": 7, "lee@corp.example": 9 };
+  const srv = createServer(async (req, res) => {
+    let b = ""; for await (const c of req) b += c;
+    calls.push({ m: req.method, u: req.url, h: req.headers, b: b ? JSON.parse(b) : null });
+    res.setHeader("content-type", "application/json");
+    if (req.url.startsWith("/v1/persons/search")) { const e = new URL(req.url, "http://x").searchParams.get("term"); return res.end(JSON.stringify({ data: { items: known[e] ? [{ item: { id: known[e] } }] : [] } })); }
+    if (req.url.startsWith("/crm/v3/objects/contacts/search")) { const e = JSON.parse(b).filterGroups[0].filters[0].value; return res.end(JSON.stringify({ results: known[e] ? [{ id: String(known[e]) }] : [] })); }
+    res.end("{}");
+  });
+  await new Promise((r) => srv.listen(0, "127.0.0.1", r));
+  const base = `http://127.0.0.1:${srv.address().port}`;
+  const env = { ADMIN_TOKEN: "x".repeat(16), DATA_DIR: mkdtempSync(join(tmpdir(), "sa-")), PIPEDRIVE_API_TOKEN: "pd-secret-token", PIPEDRIVE_BASE: base, HUBSPOT_TOKEN: "hs-secret-token", HUBSPOT_BASE: base };
+  const a = createAgent(env, { now: () => Date.parse("2026-10-26T10:00:00Z") });
+  await a.ingest([
+    { id: "<1@x>", block: "From: Dana <dana@bright.example>\nSubject: Re: routes\n\nUnsubscribe me please, stop emailing." },
+    { id: "<2@x>", block: "From: Zed <zed@nobody.example>\nSubject: Re: routes\n\nUnsubscribe me please, stop emailing." },
+  ]);
+  const writes = calls.filter((c) => c.m !== "GET" && !/search/.test(c.u));
+  assert.ok(writes.every((c) => /\/(notes|persons\/7|contacts\/7)$/.test(c.u) || c.u.endsWith("/notes")), "only notes and opt-outs, only on the known contact");
+  assert.equal(calls.filter((c) => c.u === "/v1/notes").length, 1);
+  assert.match(calls.find((c) => c.u === "/v1/notes").b.content, /Added to the suppression list/);
+  assert.equal(calls.find((c) => c.u === "/v1/persons/7").b.marketing_status, "unsubscribed");
+  assert.equal(calls.find((c) => c.u === "/crm/v3/objects/contacts/7").b.properties.hs_email_optout, "true");
+  assert.equal(calls.find((c) => c.u === "/crm/v3/objects/notes").b.associations[0].to.id, "7");
+  assert.equal(calls.find((c) => c.u === "/v1/notes").h["x-api-token"], "pd-secret-token");
+  const audit = readFileSync(join(env.DATA_DIR, "audit.jsonl"), "utf8");
+  assert.match(audit, /"found":false/);
+  assert.ok(!/secret-token/.test(audit));
+  await new Promise((r) => srv.close(r));
+  // CRM unreachable: triage still lands, error is audited without the token
+  const dirB = mkdtempSync(join(tmpdir(), "sa-"));
+  const b = createAgent({ ...env, DATA_DIR: dirB, PIPEDRIVE_BASE: base, HUBSPOT_TOKEN: "" }, { now: () => Date.parse("2026-10-26T10:00:00Z") });
+  assert.equal(await b.ingest([{ id: "<3@x>", block: "From: Dana <dana@bright.example>\nSubject: Re: routes\n\nUnsubscribe me please." }]), 1);
+  assert.equal(b.state.suppression.length, 1);
+  const a2 = readFileSync(join(dirB, "audit.jsonl"), "utf8");
+  assert.match(a2, /"crm_writeback".*"ok":false/);
+  assert.ok(!/secret-token/.test(a2));
+});
