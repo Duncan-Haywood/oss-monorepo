@@ -1,0 +1,100 @@
+fear: corpus 6683, prevalence 0.0115, groups rarest first by train prevalence: tv-dating 0.0066, personal 0.0088, video-cringe 0.0093, sports 0.0127; 500 draws: coder | n | design | rule | coverage % | mean half-width pts
+LLM score>0 | 400 | 4 groups | human Wilson | 93.6 | 1.083
+LLM score>0 | 400 | 4 groups | P Wilson n_eff | 92.4 | 1.028
+LLM score>0 | 400 | 4 groups | P normal | 89.2 | 0.949
+LLM score>0 | 400 | 3 (two rarest merged) | human Wilson | 93.4 | 1.058
+LLM score>0 | 400 | 3 (two rarest merged) | P Wilson n_eff | 92.8 | 1.006
+LLM score>0 | 400 | 3 (two rarest merged) | P normal | 88.0 | 0.926
+LLM score>0 | 400 | 2 (rarest pair | commonest pair) | human Wilson | 95.2 | 1.084
+LLM score>0 | 400 | 2 (rarest pair | commonest pair) | P Wilson n_eff | 93.4 | 1.031
+LLM score>0 | 400 | 2 (rarest pair | commonest pair) | P normal | 91.0 | 0.950
+LLM score>0 | 400 | 1 (simple random) | human Wilson | 95.2 | 1.077
+LLM score>0 | 400 | 1 (simple random) | P Wilson n_eff | 94.8 | 1.024
+LLM score>0 | 400 | 1 (simple random) | P normal | 91.6 | 0.942
+LLM score>0 | 1000 | 4 groups | human Wilson | 91.8 | 0.621
+LLM score>0 | 1000 | 4 groups | P Wilson n_eff | 92.2 | 0.596
+LLM score>0 | 1000 | 4 groups | P normal | 92.2 | 0.579
+LLM score>0 | 1000 | 3 (two rarest merged) | human Wilson | 93.2 | 0.619
+LLM score>0 | 1000 | 3 (two rarest merged) | P Wilson n_eff | 92.8 | 0.594
+LLM score>0 | 1000 | 3 (two rarest merged) | P normal | 91.2 | 0.576
+LLM score>0 | 1000 | 2 (rarest pair | commonest pair) | human Wilson | 95.6 | 0.623
+LLM score>0 | 1000 | 2 (rarest pair | commonest pair) | P Wilson n_eff | 95.6 | 0.598
+LLM score>0 | 1000 | 2 (rarest pair | commonest pair) | P normal | 94.0 | 0.581
+LLM score>0 | 1000 | 1 (simple random) | human Wilson | 94.4 | 0.630
+LLM score>0 | 1000 | 1 (simple random) | P Wilson n_eff | 94.0 | 0.605
+LLM score>0 | 1000 | 1 (simple random) | P normal | 93.8 | 0.587
+LLM 3x cut | 400 | 4 groups | human Wilson | 94.2 | 1.074
+LLM 3x cut | 400 | 4 groups | P Wilson n_eff | 92.2 | 0.994
+LLM 3x cut | 400 | 4 groups | P normal | 88.2 | 0.919
+LLM 3x cut | 400 | 3 (two rarest merged) | human Wilson | 93.8 | 1.068
+LLM 3x cut | 400 | 3 (two rarest merged) | P Wilson n_eff | 91.8 | 0.989
+LLM 3x cut | 400 | 3 (two rarest merged) | P normal | 86.8 | 0.913
+LLM 3x cut | 400 | 2 (rarest pair | commonest pair) | human Wilson | 95.0 | 1.082
+LLM 3x cut | 400 | 2 (rarest pair | commonest pair) | P Wilson n_eff | 93.0 | 1.007
+LLM 3x cut | 400 | 2 (rarest pair | commonest pair) | P normal | 90.0 | 0.929
+LLM 3x cut | 400 | 1 (simple random) | human Wilson | 95.2 | 1.077
+LLM 3x cut | 400 | 1 (simple random) | P Wilson n_eff | 93.6 | 0.998
+LLM 3x cut | 400 | 1 (simple random) | P normal | 90.6 | 0.918
+LLM 3x cut | 1000 | 4 groups | human Wilson | 94.8 | 0.618
+LLM 3x cut | 1000 | 4 groups | P Wilson n_eff | 94.8 | 0.583
+LLM 3x cut | 1000 | 4 groups | P normal | 93.2 | 0.566
+LLM 3x cut | 1000 | 3 (two rarest merged) | human Wilson | 93.4 | 0.622
+LLM 3x cut | 1000 | 3 (two rarest merged) | P Wilson n_eff | 93.2 | 0.587
+LLM 3x cut | 1000 | 3 (two rarest merged) | P normal | 95.6 | 0.570
+LLM 3x cut | 1000 | 2 (rarest pair | commonest pair) | human Wilson | 93.8 | 0.623
+LLM 3x cut | 1000 | 2 (rarest pair | commonest pair) | P Wilson n_eff | 94.2 | 0.586
+LLM 3x cut | 1000 | 2 (rarest pair | commonest pair) | P normal | 94.4 | 0.569
+LLM 3x cut | 1000 | 1 (simple random) | human Wilson | 94.4 | 0.630
+LLM 3x cut | 1000 | 1 (simple random) | P Wilson n_eff | 94.2 | 0.593
+LLM 3x cut | 1000 | 1 (simple random) | P normal | 93.2 | 0.576
+
+sadness: corpus 6683, prevalence 0.0230, groups rarest first by train prevalence: tv-dating 0.0199, sports 0.0212, video-cringe 0.0293, personal 0.0298; 500 draws: coder | n | design | rule | coverage % | mean half-width pts
+LLM score>0 | 400 | 4 groups | human Wilson | 94.2 | 1.454
+LLM score>0 | 400 | 4 groups | P Wilson n_eff | 94.2 | 1.303
+LLM score>0 | 400 | 4 groups | P normal | 91.6 | 1.259
+LLM score>0 | 400 | 3 (two rarest merged) | human Wilson | 95.8 | 1.447
+LLM score>0 | 400 | 3 (two rarest merged) | P Wilson n_eff | 94.8 | 1.307
+LLM score>0 | 400 | 3 (two rarest merged) | P normal | 92.6 | 1.262
+LLM score>0 | 400 | 2 (rarest pair | commonest pair) | human Wilson | 95.8 | 1.454
+LLM score>0 | 400 | 2 (rarest pair | commonest pair) | P Wilson n_eff | 94.4 | 1.308
+LLM score>0 | 400 | 2 (rarest pair | commonest pair) | P normal | 91.6 | 1.263
+LLM score>0 | 400 | 1 (simple random) | human Wilson | 94.6 | 1.477
+LLM score>0 | 400 | 1 (simple random) | P Wilson n_eff | 95.6 | 1.325
+LLM score>0 | 400 | 1 (simple random) | P normal | 94.0 | 1.280
+LLM score>0 | 1000 | 4 groups | human Wilson | 95.6 | 0.854
+LLM score>0 | 1000 | 4 groups | P Wilson n_eff | 96.0 | 0.773
+LLM score>0 | 1000 | 4 groups | P normal | 94.6 | 0.764
+LLM score>0 | 1000 | 3 (two rarest merged) | human Wilson | 95.2 | 0.859
+LLM score>0 | 1000 | 3 (two rarest merged) | P Wilson n_eff | 95.4 | 0.781
+LLM score>0 | 1000 | 3 (two rarest merged) | P normal | 94.0 | 0.771
+LLM score>0 | 1000 | 2 (rarest pair | commonest pair) | human Wilson | 92.8 | 0.860
+LLM score>0 | 1000 | 2 (rarest pair | commonest pair) | P Wilson n_eff | 93.2 | 0.781
+LLM score>0 | 1000 | 2 (rarest pair | commonest pair) | P normal | 92.8 | 0.771
+LLM score>0 | 1000 | 1 (simple random) | human Wilson | 95.6 | 0.872
+LLM score>0 | 1000 | 1 (simple random) | P Wilson n_eff | 95.6 | 0.793
+LLM score>0 | 1000 | 1 (simple random) | P normal | 95.2 | 0.783
+LLM 3x cut | 400 | 4 groups | human Wilson | 96.0 | 1.449
+LLM 3x cut | 400 | 4 groups | P Wilson n_eff | 93.0 | 1.336
+LLM 3x cut | 400 | 4 groups | P normal | 92.8 | 1.289
+LLM 3x cut | 400 | 3 (two rarest merged) | human Wilson | 95.2 | 1.457
+LLM 3x cut | 400 | 3 (two rarest merged) | P Wilson n_eff | 93.4 | 1.343
+LLM 3x cut | 400 | 3 (two rarest merged) | P normal | 92.8 | 1.297
+LLM 3x cut | 400 | 2 (rarest pair | commonest pair) | human Wilson | 96.2 | 1.454
+LLM 3x cut | 400 | 2 (rarest pair | commonest pair) | P Wilson n_eff | 95.2 | 1.341
+LLM 3x cut | 400 | 2 (rarest pair | commonest pair) | P normal | 92.0 | 1.293
+LLM 3x cut | 400 | 1 (simple random) | human Wilson | 94.6 | 1.477
+LLM 3x cut | 400 | 1 (simple random) | P Wilson n_eff | 95.0 | 1.360
+LLM 3x cut | 400 | 1 (simple random) | P normal | 92.8 | 1.312
+LLM 3x cut | 1000 | 4 groups | human Wilson | 97.4 | 0.854
+LLM 3x cut | 1000 | 4 groups | P Wilson n_eff | 97.0 | 0.793
+LLM 3x cut | 1000 | 4 groups | P normal | 95.2 | 0.783
+LLM 3x cut | 1000 | 3 (two rarest merged) | human Wilson | 95.8 | 0.860
+LLM 3x cut | 1000 | 3 (two rarest merged) | P Wilson n_eff | 95.0 | 0.798
+LLM 3x cut | 1000 | 3 (two rarest merged) | P normal | 92.0 | 0.788
+LLM 3x cut | 1000 | 2 (rarest pair | commonest pair) | human Wilson | 94.0 | 0.857
+LLM 3x cut | 1000 | 2 (rarest pair | commonest pair) | P Wilson n_eff | 96.4 | 0.798
+LLM 3x cut | 1000 | 2 (rarest pair | commonest pair) | P normal | 94.4 | 0.787
+LLM 3x cut | 1000 | 1 (simple random) | human Wilson | 95.6 | 0.872
+LLM 3x cut | 1000 | 1 (simple random) | P Wilson n_eff | 94.4 | 0.810
+LLM 3x cut | 1000 | 1 (simple random) | P normal | 94.8 | 0.800
+
