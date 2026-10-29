@@ -337,6 +337,8 @@ takeoff with no check failures; erase; typed length; a corner dragged out 4 ft, 
 **Move tool (2026-10-29):** drag a wall end and every wall meeting at that corner follows; drag a wall's body to slide it
 with its neighbours' ends. `moveEnds`/`moveCorner`/`moveWall` refuse (changing nothing) a move that shrinks a wall under
 1 in, lays one wall on another, or leaves a door or window too long for its shortened wall (3 tests). **Openings (2026-10-29):** in the Move tool, drag a door or window to slide it along its wall (width kept), or drag either
+
+**Sketch persistence (2026-10-29):** the drawing is saved to local storage after each change (`wall-framing-takeoff-plan.sketch`) and restored on load; Clear forgets it. `eval-sketch-click.mjs` reloads the page and checks both.
 end to resize it (`moveOpening`, `resizeOpening`; refused, changing nothing, on an overlap, a sliver under 6 in or a run
 past the wall; 1 test, plus real mouse drags in `eval-sketch-click.mjs`). Not yet: moving an opening to another wall
 (erase and re-place), non-square snapping aids, a background image to trace, and sketch persistence across reloads.
