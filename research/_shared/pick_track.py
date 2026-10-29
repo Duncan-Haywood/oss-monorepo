@@ -170,7 +170,11 @@ if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] in ("-h", "--help"):
         print(__doc__)
         sys.exit(0)
-    r = float(sys.argv[1]) if len(sys.argv) > 1 else random.random()
+    try:
+        r = float(sys.argv[1]) if len(sys.argv) > 1 else random.random()
+    except ValueError:
+        sys.exit(f"usage: pick_track.py [draw]  (draw is a number in [0,1), e.g. 0.42; got {sys.argv[1]!r}. "
+                 "It redraws at random each call: pass the first draw back to reproduce it.)")
     progs = programmes()
     if progs and random.Random(r).random() < PROGRAMME_SHARE:
         slug, has, skipped = draw_programme(r, progs)
