@@ -116,3 +116,26 @@ test("buildingSMART's wall-with-opening-and-window: window size, offset and sill
   assert.ok(Math.abs(o.headerHeight - o.height - 500 / 25.4) < 0.1, "sill 500 mm from the opening element's z");
   assert.ok(!r.notes.some((n) => /heights are defaults/.test(n)));
 });
+
+// Two storeys over one footprint: the upper walls duplicate the lower ones and must not merge into them.
+const twoStorey = ifc.replace("ENDSEC;\nEND-ISO", () => `${wallEnt(30, 0, 0, 1, 0, 10)}${wallEnt(31, 10, 0, 0, 1, 6)}${wallEnt(32, 10, 6, -1, 0, 10)}${wallEnt(33, 0, 6, 0, -1, 6)}
+#700=IFCBUILDINGSTOREY('s1',#2,'Ground',$,$,#900,$,$,.ELEMENT.,0.);
+#701=IFCBUILDINGSTOREY('s2',#2,'Upper',$,$,#900,$,$,.ELEMENT.,2.7);
+#710=IFCRELCONTAINEDINSPATIALSTRUCTURE('r1',#2,$,$,(#109,#119,#129,#139,#149,#203),#700);
+#711=IFCRELCONTAINEDINSPATIALSTRUCTURE('r2',#2,$,$,(#309,#319,#329,#339,#214),#701);
+ENDSEC;
+END-ISO`);
+
+test("a multi-storey IFC is read one storey at a time", () => {
+  const all = planFromIfc(ifc);
+  const g = planFromIfc(twoStorey);
+  const u = planFromIfc(twoStorey, { storey: 2 });
+  assert.ok(g.ok && u.ok);
+  assert.equal(g.plan.walls.length, all.plan.walls.length);
+  assert.equal(g.stats.openings, 1, "ground");
+  assert.equal(u.plan.walls.length, 4);
+  assert.equal(u.stats.openings, 1, "upper");
+  assert.ok(g.notes.some((n) => /2 storeys/.test(n)));
+  assert.equal(planFromIfc(twoStorey, { storey: "upper" }).plan.walls.length, 4);
+  assert.equal(planFromIfc(twoStorey, { storey: 3 }).ok, false);
+});

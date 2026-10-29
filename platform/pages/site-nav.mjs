@@ -227,6 +227,12 @@ export const SITE_HEADER_CSS = `
   overflow-wrap:anywhere}
 [data-pfs-head] .pfs-crumbs a{text-decoration:underline;text-underline-offset:2px}
 .pfs-sep{margin:0 7px}
+@media (max-width:600px){
+  /* One line on a phone: the current page's title (often a sentence) is cut with an ellipsis instead of wrapping to three lines. */
+  .pfs-crumbs{display:flex;flex-wrap:nowrap;align-items:baseline;overflow:hidden;white-space:nowrap}
+  .pfs-crumbs>a,.pfs-crumbs>.pfs-sep{flex:0 0 auto}
+  .pfs-crumbs>[aria-current]{flex:1 1 0;min-width:0;overflow:hidden;text-overflow:ellipsis}
+}
 @media (max-width:1080px){
   .pfs-search{display:none}
   [data-pfs-head] .pfs-searchlink{display:inline-block}

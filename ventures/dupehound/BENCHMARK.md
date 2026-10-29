@@ -77,3 +77,12 @@ dupehound's lexer is generic: one token per string or template literal.
   reported clone, and every reported clone's tokens really are equal), plus
   `web/dupehound.test.mjs`, which requires the WebAssembly build to return
   exactly the native CLI's JSON.
+
+## Normalised mode (2026-10-29)
+
+`dupehound --normalize --ext mjs ventures` on the same 9,461 files
+(1.27 million lines): 129,081 clones, 60.41% of lines duplicated, 1.65 s,
+against 36,830 clones and 40.55% without it (2.77 s in that run). jscpd has no
+equivalent mode, so there is no second tool to compare with, and no one has
+labelled these matches: the extra 20 points are matches of shape, not
+confirmed duplication.

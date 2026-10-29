@@ -93,9 +93,14 @@ through a detector you supply: set `SHOOTFLOW_FACE_DETECTOR` to a command that
 takes an image path and prints `{"faces": [{"size": 0.1, "eyes_open": 0.9}]}`
 (`src/shootflow/faces.py`). A prominent face (1% of the frame or more) with eyes
 open adds 0.03 to `story_score`; the least-open eye costs up to 0.25; off by
-default, run without a shell, and any failure keeps the measured score. Tested
-against made-up detector output and a fake command only, not yet a real model
-or human picks. `story_score` is otherwise only a blend of the measured scores, so
+default, run without a shell, and any failure keeps the measured score. `tools/opencv_face_detector.py` (2026-10-29) is a reference detector for that contract: OpenCV Haar
+cascades (`pip install "opencv-python-headless<5"`; 5.x dropped the cascade classifier), on your machine, nothing
+uploaded. `eyes_open` is 0.95, 0.5 or 0.1 for two, one or no eyes found in the upper face, and null under 70 px wide.
+It is a classical detector, not a blink classifier: the eye cascade was trained on open eyes, so sunglasses,
+shadow and head turns read as blinks. Checked on one real portrait (scikit-image's astronaut: one face, eyes
+0.95; coffee, camera-man and cat: no faces) and with that face's eye band blurred harder (kernel 9 to 31: 0.95,
+0.5, 0.5, 0.1), a crude stand-in for a closed lid. Not run on real closed-eye photos or human picks. Tested
+against made-up detector output and a fake command, and the tool's no-face path (`tests/test_opencv_face_detector.py`). `story_score` is otherwise only a blend of the measured scores, so
 *which* shot wins is technical, not taste-based. The scene and look stages are
 still deterministic stand-ins. The grade is your LUT, or no color change if you have
 none. Every asset is graded before selection; grading only the selected

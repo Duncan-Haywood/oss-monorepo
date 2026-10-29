@@ -1,20 +1,26 @@
 name: ventures tests
 
-# One workflow for every venture's `node --test` suite. 421 ventures had no
-# per-venture workflow, so their tests ran only on a contributor's machine
-# (validate_workflows.py invariant 7). Rather than 421 copies, this runs the
-# suites of just the ventures a change touches. It publishes nothing,
-# registers nothing, and spends no API budget.
+# One workflow for every venture's `node --test` suite: it runs the suites of
+# just the ventures a change touches, and is the only workflow that does
+# (P016 removed 384 identical per-venture copies on 2026-10-16, the 418
+# near-identical ones went on 2026-10-29). Every step is a repository script
+# a contributor can run locally the same way:
+#   python3 platform/ci/run_workflow_locally.py ventures-tests.yml
+# It publishes nothing, registers nothing, and spends no API budget.
 
 on:
   pull_request:
     paths:
       - "ventures/**"
+      - "platform/ci/run_venture_tests.py"
+      - "platform/ci/test_run_venture_tests.py"
       - ".github/workflows/ventures-tests.yml"
   push:
     branches: [main]
     paths:
       - "ventures/**"
+      - "platform/ci/run_venture_tests.py"
+      - "platform/ci/test_run_venture_tests.py"
       - ".github/workflows/ventures-tests.yml"
   workflow_dispatch:
 
@@ -58,27 +64,21 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: "22"
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.12"
+      - name: Runner unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_run_venture_tests
+      # The same command a contributor runs locally (`--changed` there): one
+      # `node --test` per touched venture, from its own directory, in
+      # parallel. It replaced 418 per-venture <slug>-ci.yml workflows that ran
+      # only this, so a venture PR now takes one job and one checkout instead
+      # of two (docs/history/ci-local-first-2026-10-29.md).
       - name: node --test in each touched venture
         env:
           BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
-        run: |
-          set -u
-          if [ -z "${BASE:-}" ] || [ "$BASE" = "0000000000000000000000000000000000000000" ]; then
-            slugs=$(ls ventures)
-          else
-            slugs=$(git diff --name-only "$BASE" HEAD -- ventures | cut -d/ -f2 | sort -u)
-          fi
-          rc=0
-          for s in $slugs; do
-            [ -d "ventures/$s" ] || continue
-            files=$(find "ventures/$s" -name '*.test.mjs' -not -path '*/node_modules/*')
-            [ -n "$files" ] || continue
-            echo "::group::$s"
-            # shellcheck disable=SC2086
-            node --test $files || { echo "FAILED $s"; rc=1; }
-            echo "::endgroup::"
-          done
-          exit $rc
+        run: python3 platform/ci/run_venture_tests.py --since "${BASE:-}"
       # PRODUCT_PLAYBOOK.md 5b/5f: every published page carries the no-warranty
       # clause, and a vs-<competitor> page the not-affiliated one. Runs for
       # every venture the change touched, tests or not, so the PR that breaks a

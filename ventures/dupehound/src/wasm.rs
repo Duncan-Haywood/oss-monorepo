@@ -29,7 +29,7 @@ fn read_u32(b: &[u8], at: usize) -> Option<u32> {
         .map(|x| u32::from_le_bytes([x[0], x[1], x[2], x[3]]))
 }
 
-fn parse(buf: &[u8]) -> Vec<SourceFile> {
+fn parse(buf: &[u8], normalize: bool) -> Vec<SourceFile> {
     let mut files = Vec::new();
     let mut i = 0;
     while let Some(pl) = read_u32(buf, i) {
@@ -44,9 +44,10 @@ fn parse(buf: &[u8]) -> Vec<SourceFile> {
         let Some(src) = buf.get(s0..s0 + sl as usize) else {
             break;
         };
-        files.push(SourceFile::from_bytes(
+        files.push(SourceFile::from_bytes_with(
             String::from_utf8_lossy(path).into_owned(),
             src,
+            normalize,
         ));
         i = s0 + sl as usize;
     }
@@ -62,12 +63,14 @@ pub unsafe extern "C" fn dh_analyze(
     len: usize,
     min_tokens: u32,
     min_lines: u32,
+    normalize: u32,
 ) -> *const u8 {
     let buf = std::slice::from_raw_parts(ptr, len);
-    let files = parse(buf);
+    let files = parse(buf, normalize != 0);
     let opts = Options {
         min_tokens: min_tokens.max(1) as usize,
         min_lines,
+        normalize: normalize != 0,
     };
     let clones = detect(&files, opts);
     let st = stats(&files, &clones);
