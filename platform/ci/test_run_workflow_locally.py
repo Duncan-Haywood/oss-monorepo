@@ -126,7 +126,7 @@ class Collect(unittest.TestCase):
               a:
                 steps:
                   - name: templated
-                    run: echo ${{ github.sha }}
+                    run: echo ${{ github.event_name }}
         """)
         self.assertEqual(steps[0].status, "skipped")
         self.assertIn("expression", steps[0].reason)
@@ -1001,11 +1001,41 @@ class ForChanges(unittest.TestCase):
         # guard that a session verifying only `portfolio-validate.yml` misses.
         names = self.selected(["ventures/cloud-egress-calculator/index.html"])
         self.assertIn("portfolio-pages.yml", names)
-        self.assertIn("cloud-egress-calculator-ci.yml", names)
+        self.assertIn("ventures-tests.yml", names)
 
     def test_a_venture_change_does_not_select_an_unrelated_venture(self):
         names = self.selected(["ventures/cloud-egress-calculator/index.html"])
-        self.assertNotIn("amazon-fba-calculator-ci.yml", names)
+        self.assertNotIn("no-show-fee-calculator-ci.yml", names)
+
+
+class LocalContext(unittest.TestCase):
+    """`${{ }}` values with an honest local answer run instead of skipping."""
+
+    def test_the_pull_request_base_is_the_local_merge_base(self):
+        base = runner._git_out("merge-base", runner.LOCAL_BASE["ref"], "HEAD")
+        if not base:
+            self.skipTest("no merge base with " + runner.LOCAL_BASE["ref"])
+        text, names = runner.resolve_context(
+            'x=${{ github.event.pull_request.base.sha || github.event.before }}')
+        self.assertEqual(text, "x=" + base)
+        self.assertEqual(names,
+                         ["github.event.pull_request.base.sha || github.event.before"])
+
+    def test_an_expression_without_a_local_meaning_is_left_for_the_skip(self):
+        text, names = runner.resolve_context("${{ github.event_name }} ${{ steps.a.outputs.b }}")
+        self.assertEqual(text, "${{ github.event_name }} ${{ steps.a.outputs.b }}")
+        self.assertEqual(names, [])
+
+    def test_a_diff_scoped_step_is_collected_as_runnable(self):
+        workflow = {"jobs": {"j": {"steps": [{
+            "name": "diff",
+            # `github.sha` always has a local value; the PR base needs a merge
+            # base with origin/main, which a depth-1 CI checkout lacks.
+            "env": {"BASE": "${{ github.sha }}"},
+            "run": 'git diff --stat "$BASE" HEAD'}]}}}
+        steps, _ = runner.collect(workflow)
+        self.assertNotEqual(steps[0].status, "skipped")
+        self.assertNotIn("${{", steps[0].env["BASE"])
 
     def test_naming_a_workflow_and_for_changes_together_is_refused(self):
         self.assertEqual(runner.main(["portfolio-validate.yml", "--for-changes"]), 2)

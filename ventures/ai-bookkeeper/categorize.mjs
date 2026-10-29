@@ -34,6 +34,12 @@ const amountBucket = (cents) => `amt:${Math.min(12, Math.floor(Math.log2(Math.ab
 // keyword that fits two accounts is left out, so the line goes to review rather
 // than being guessed. `dir` limits a rule to money in or money out.
 export const BUILT_IN = [
+  // Pet sitters, dog walkers and groomers (2026-10-29, petcare.test.mjs; agent-written from the companies' public names, not from a real export):
+  // marketplace payouts, scheduling software, pet-store supplies and sitter association dues.
+  ["4000", "in", /\brover\b.*payout|\bwag\b.*(labs|payment|payout)|rover\.com/],
+  ["6060", "out", /time ?to ?pet|pet ?sitter ?plus|\bgingr\b|pawfinity/],
+  ["6100", "out", /petco|petsmart|chewy|poop bags?|dog treats|grooming supplies/],
+  ["6170", "out", /professional pet sitters|\bnappspet\b|pet sitters international|\bpsi\b dues|pet first aid/],
   // Tutors and online teachers (2026-10-29, tutor.test.mjs; agent-written from the companies' public names, not from a real export):
   // marketplace payouts, classroom software, lesson materials, exam fees and library or coffee-shop meeting rooms.
   ["4000", "in", /outschool|varsity tutors|preply|superprof|tutor\.com payout|cambly|italki/],
