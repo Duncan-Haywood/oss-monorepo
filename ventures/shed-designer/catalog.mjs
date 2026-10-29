@@ -18,11 +18,11 @@ const SEEN = '2026-10-29';
 /** Offers for each shopping-list item key (keys as in lumber.mjs EXAMPLE_ITEMS). @type {Record<string, Offer[]>} */
 export const OFFERS = {
   siding8: [
-    { store: 'Home Depot', name: 'Plytanium T1-11 8 in. OC, 19/32 x 4 x 8 (not primed)', model: 'model 113699, internet 100000016', price: 43.98, url: 'https://www.homedepot.com/p/Plytanium-Plywood-Siding-Panel-T1-11-8-IN-OC-Nominal-19-32-in-x-4-ft-x-8-ft-Actual-0-563-in-x-48-in-x-96-in-113699/100000016' },
+    { store: 'Home Depot', name: 'Plytanium T1-11 8 in. OC, 19/32 x 4 x 8 (not primed)', model: 'model 113699, internet 100000016', price: 46.78, url: 'https://www.homedepot.com/p/Plytanium-Plywood-Siding-Panel-T1-11-8-IN-OC-Nominal-19-32-in-x-4-ft-x-8-ft-Actual-0-563-in-x-48-in-x-96-in-113699/100000016', note: 'the price the shopping list uses (prices.mjs); another copy of this page showed $43.98' },
     { store: "Lowe's", name: 'Plytanium SYP T1-11 8 in. groove, 0.594 x 48 x 96 (not primed)', model: 'see category page', price: 44.78, url: 'https://www.lowes.com/pl/siding-stone-veneer/wood-siding-accessories/plytanium/t1-11/2365411302-4294851170-328841971', note: 'category page; copies showed up to $47.48' },
   ],
   lpPanel: [
-    { store: 'Home Depot', name: 'LP SmartSide 38 Series Cedar Texture 8 in. OC panel, 3/8 x 4 x 8', model: 'model 27874, internet 100055901', price: 45.98, url: 'https://www.homedepot.com/p/LP-SmartSide-LP-SmartSide-Cedar-Texture-8-in-OC-Panel-Engineered-Treated-Wood-Siding-8-in-Application-as-3-8-in-x-4-ft-x-8-ft-27874/100055901', note: 'copies showed $42.78-$53.58' },
+    { store: 'Home Depot', name: 'LP SmartSide 38 Series Cedar Texture 8 in. OC panel, 3/8 x 4 x 8', model: 'model 27874, internet 100055901', price: 39.96, url: 'https://www.homedepot.com/p/LP-SmartSide-LP-SmartSide-Cedar-Texture-8-in-OC-Panel-Engineered-Treated-Wood-Siding-8-in-Application-as-3-8-in-x-4-ft-x-8-ft-27874/100055901', note: 'the price the shopping list uses (prices.mjs); other copies of this page showed $42.78-$53.58' },
     { store: "Lowe's", name: 'LP SmartSide 38 Series primed panel, 3/8 x 48 x 96', model: 'item 55897, model 27874', price: 45.98, url: 'https://www.lowes.com/pd/SmartSide-38-Series-Primed-Engineered-Treated-Wood-Siding-Panel-Common-0-375-in-x-48-in-x-96-in-Actual-0-315-in-x-48-563-in-x-95-875-in/3058153', note: 'copies showed $42.78-$53.98' },
     { store: 'Menards', name: 'LP SmartSide 3/8 x 4 x 8 grooved 8 in. OC, factory primed', model: 'model 27874 (page slug)', price: 54.98, url: 'https://www.menards.com/main/building-materials/siding/engineered-wood-siding/lp-reg-smartside-reg-3-8-grooved-8-oc-strand-panel-siding/27874/p-1444438201579.htm', note: 'model and SKU pairing not confirmed' },
   ],
@@ -129,11 +129,16 @@ export function storeComparison(est) {
     const key = r.source?.key;
     const listed = key && OFFERS[key];
     if (!listed) continue;
-    // The listing the line was priced from counts as that store's offer.
-    const own = r.source?.url && r.source.kind === 'listed' && !listed.some((o) => o.store === r.source.store)
-      ? [{ store: r.source.store, name: r.name, model: 'see the listing', price: r.source.price ?? r.price, url: r.source.url, note: r.source.note }]
-      : [];
-    const offers = [...own, ...listed];
+    // The listing the line was priced from is that store's offer (keeping the
+    // catalogue's model number where it has one), so the table never shows a
+    // store at a price other than the one the line uses.
+    const s = r.source;
+    const own = s?.url && s.kind === 'listed' ? s.store : null;
+    const same = own && listed.find((o) => o.store === own);
+    const offers = [
+      ...(own ? [{ store: own, name: same?.name ?? r.name, model: same?.model ?? 'see the listing', price: r.price, url: s.url, note: s.note }] : []),
+      ...listed.filter((o) => o.store !== own),
+    ];
     if (offers.length < 2) continue;
     const at = offers.map((o) => ({ ...o, price: offerPrice(o, r.qty) }));
     const best = at.reduce((a, b) => (b.price < a.price ? b : a));
