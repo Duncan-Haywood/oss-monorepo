@@ -1,0 +1,24 @@
+{
+  "id": "P059",
+  "title": "Pre-push post hook blocks on posts only main changed (diff against merge base)",
+  "status": "open",
+  "owner": "agent",
+  "effect": 2,
+  "cost": 1,
+  "problem": "check_posts_before_push.py diffs `origin/main HEAD` (two tips), so once main moves past your branch point, another run's bad post shows as modified and blocks your push, although its docstring promises it never will.",
+  "evidence": [
+    "doc_friction 2026-10-29T01:09 and 01:11: push blocked over another session's merged 178-char post; merging main cleared it",
+    "doc_friction 2026-10-29T03:08: the hook blocked a compound commit+push, so the fix in the same command never ran"
+  ],
+  "change": "In .claude/hooks/check_posts_before_push.py diff `origin/main...HEAD` (merge base), falling back to the two-tip diff only when no merge base exists in a shallow clone. A process run tried this on 2026-10-29 and the auto-mode classifier denied editing the hook as self-modification, so it needs a session or owner that may edit .claude/.",
+  "touches": [
+    ".claude/hooks/check_posts_before_push.py"
+  ],
+  "metric": "doc_friction reports naming check_posts_before_push.py per 3 days",
+  "baseline": "3 (2026-10-26 to 2026-10-29)",
+  "opened": "2026-10-29",
+  "source": "process run, measure 'doc friction'",
+  "pr": null,
+  "result": null,
+  "history": []
+}
