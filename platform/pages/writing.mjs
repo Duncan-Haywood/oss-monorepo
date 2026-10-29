@@ -172,6 +172,9 @@ function loadPost(root, POSTS_DIR, name) {
   if (meta.description.length > 160) {
     throw new Error(`${POSTS_DIR}/${name}: description is ${meta.description.length} characters; keep it to 160`);
   }
+  if (meta.seo_title && String(meta.seo_title).length > TITLE_BUDGET) {
+    throw new Error(`${POSTS_DIR}/${name}: seo_title is ${String(meta.seo_title).length} characters; keep it to ${TITLE_BUDGET}`);
+  }
   const date = String(meta.date || fm[1]);
   if (date !== fm[1]) throw new Error(`${POSTS_DIR}/${name}: date ${date} does not match the file name`);
   if (RESERVED_SLUGS.has(fm[2])) throw new Error(`${POSTS_DIR}/${name}: the slug "${fm[2]}" is a section of the blog; pick another`);
@@ -184,6 +187,7 @@ function loadPost(root, POSTS_DIR, name) {
     slug: fm[2],
     date,
     title: meta.title,
+    seoTitle: meta.seo_title ? String(meta.seo_title) : undefined,
     description: meta.description,
     tags,
     topic: topicOf(tags, meta.topic),
@@ -268,6 +272,9 @@ export { TITLE_BUDGET };
  * A post's `<title>`: the headline plus the site name when both fit, else the
  * headline alone, so the words that make a searcher click are never the ones cut.
  * Most headlines here are long enough that the suffix would push them over.
+ * A post can pass its optional `seo_title:` front-matter value instead of the
+ * headline, a shorter query-shaped title for the results page; the `h1` and
+ * the structured data keep the full headline.
  */
 export function postPageTitle(headline) {
   const full = `${headline} · ${SITE_NAME}`;
@@ -508,7 +515,7 @@ function renderPostPage(post, posts, { baseUrl = '', socialCard = '', episode = 
   const topic = `<a class="topic" href="../?topic=${esc(post.topic)}">${esc(topicLabel(post.topic))}</a>`;
   const markdown = isAgents ? ` · <a href="../${esc(post.slug)}.txt" type="text/plain">Markdown (plain text)</a>` : '';
   return shell({
-    title: postPageTitle(post.title),
+    title: postPageTitle(post.seoTitle || post.title),
     description: post.description,
     canonical,
     socialCard,
