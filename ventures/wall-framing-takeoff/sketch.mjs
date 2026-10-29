@@ -328,3 +328,14 @@ export function rescaleTrace(t, p1, p2, realInches) {
   if (f < 1 / 50 || f > 50) return null;
   return { x: p1.x + (t.x - p1.x) * f, y: p1.y + (t.y - p1.y) * f, w: t.w * f, h: t.h * f };
 }
+
+/**
+ * Slide a trace image so the point `from` on it lands on `to`. Size is kept.
+ * @param {Trace} t @param {Pt} from @param {Pt} to
+ * @returns {Trace | null}
+ */
+export function moveTrace(t, from, to) {
+  const dx = to.x - from.x, dy = to.y - from.y;
+  if (![dx, dy].every(Number.isFinite) || Math.abs(dx) > 5000 || Math.abs(dy) > 5000) return null;
+  return { x: t.x + dx, y: t.y + dy, w: t.w, h: t.h };
+}

@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { fitTrace, rescaleTrace, emptySketch, addWall, addOpening, snapPoint, pointAtLength, nearestWall, removeWall, moveCorner, moveWall, moveOpening, resizeOpening, planFromSketch, sketchToDxf, restoreSketch } from "./sketch.mjs";
+import { fitTrace, rescaleTrace, moveTrace, emptySketch, addWall, addOpening, snapPoint, pointAtLength, nearestWall, removeWall, moveCorner, moveWall, moveOpening, resizeOpening, planFromSketch, sketchToDxf, restoreSketch } from "./sketch.mjs";
 import { takeoff } from "./engine.mjs";
 
 const ft = (n) => n * 12;
@@ -159,4 +159,11 @@ test("a trace image is fitted, then rescaled so two picked points are a known di
   assert.equal(rescaleTrace(t, { x: 0, y: 0 }, { x: 0.2, y: 0 }, 100), null);
   assert.equal(rescaleTrace(t, { x: 0, y: 0 }, { x: 10, y: 0 }, 0), null);
   assert.equal(rescaleTrace(t, { x: 0, y: 0 }, { x: 10, y: 0 }, 100000), null);
+});
+
+test("a trace image slides so a picked point lands on the target, size unchanged", () => {
+  const t = { x: 0, y: 0, w: 480, h: 240 };
+  assert.deepEqual(moveTrace(t, { x: 10, y: 10 }, { x: 34, y: -6 }), { x: 24, y: -16, w: 480, h: 240 });
+  assert.equal(moveTrace(t, { x: 0, y: 0 }, { x: 1e6, y: 0 }), null);
+  assert.equal(moveTrace(t, { x: 0, y: 0 }, { x: NaN, y: 0 }), null);
 });
