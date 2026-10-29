@@ -545,3 +545,32 @@ test("suggestFairnessWeight reads the league's own travel: free evenness on two 
   const zero = three.rows.find((r) => r.weight === 0), pick = three.rows.find((r) => r.weight === three.weight);
   assert.ok(pick.imbalance <= zero.imbalance / 2);
 });
+
+test("officials: every match gets a valid official across divisions", async () => {
+  const { parseDivisionOfficials, assignDivisionOfficials, validateDivisionOfficials, divisionsCsv } = await import("./divisions.mjs");
+  const { spec } = readDivisionsSpec(JSON.parse(readFileSync(new URL("./example-divisions.json", import.meta.url), "utf8")));
+  const s = buildDivisions(spec);
+  const text = "Ana (Hawks)\nBo (Rams): Tue\nCy\nDee\nEli\nFay\nGus";
+  const po = parseDivisionOfficials(text, spec.divisions);
+  assert.deepEqual(po.errors, []);
+  const a = assignDivisionOfficials(s, po.officials);
+  assert.deepEqual(validateDivisionOfficials(a.schedule, po.officials), []);
+  assert.equal(a.total + a.unfilled.length, s.stats.matches);
+  assert.equal(a.unfilled.length, 0);
+  assert.ok(a.schedule.nights.every((n) => n.matches.every((m) => m.official)));
+  assert.match(divisionsCsv(a.schedule).split("\n")[0], /,Official$/);
+  assert.ok(!/Official/.test(divisionsCsv(s).split("\n")[0]));
+});
+
+test("officials: caps leave matches unfilled with a reason, and a bad team is an error", async () => {
+  const { parseDivisionOfficials, assignDivisionOfficials, validateDivisionOfficials } = await import("./divisions.mjs");
+  const { spec } = readDivisionsSpec(JSON.parse(readFileSync(new URL("./example-divisions.json", import.meta.url), "utf8")));
+  const s = buildDivisions(spec);
+  const po = parseDivisionOfficials("Ana max 2\nBo (Nobody)", spec.divisions);
+  assert.equal(po.errors.length, 1);
+  const a = assignDivisionOfficials(s, po.officials.slice(0, 1));
+  assert.equal(a.total, 2);
+  assert.equal(a.unfilled.length, s.stats.matches - 2);
+  assert.ok(a.unfilled.every((u) => /at their match cap|already on another match/.test(u.reason)));
+  assert.deepEqual(validateDivisionOfficials(a.schedule, po.officials.slice(0, 1)), []);
+});
