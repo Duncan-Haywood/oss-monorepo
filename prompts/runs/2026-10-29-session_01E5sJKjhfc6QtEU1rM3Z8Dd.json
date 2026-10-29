@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/11502",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -26,14 +26,22 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": null,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
-  "doc_friction": [],
+  "doc_friction": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "issue": "Long for a scheduled run; the claim and dupe checks did not apply to a programme draw."
+    }
+  ],
   "deviations": [],
-  "writeups": [],
+  "writeups": [
+    "docs/posts/2026-10-29-rough-weeks-solar-boat-back-off.md",
+    "research/marine-hull/LOG.md"
+  ],
   "goal": null,
-  "notes": "",
+  "notes": "marine-hull 6c; plan mislabelled spell=1 as iid, corrected in the log. Local checks: homepage build and md-link check.",
   "corrections": [],
   "redteam": null
 }
