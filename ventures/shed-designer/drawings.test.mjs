@@ -7,8 +7,8 @@ const classic = () => PRESETS['8x12 classic']();
 
 const sheets = buildSheets(buildShed(classic()));
 
-test('a full set: foundation, floor, four walls, roof and a section', () => {
-  assert.deepEqual(sheets.map((s) => s.id), ['foundation', 'floor', 'wall-front', 'wall-right', 'wall-back', 'wall-left', 'roof', 'section']);
+test('a full set: cover, foundation, floor, four walls, roof, section, rafter and corner details', () => {
+  assert.deepEqual(sheets.map((s) => s.id), ['cover', 'foundation', 'floor', 'wall-front', 'wall-right', 'wall-back', 'wall-left', 'roof', 'section', 'rafter', 'corner']);
   for (const s of sheets) assert.ok(s.items.length > 5, s.id);
 });
 
@@ -21,7 +21,8 @@ test('SVG sheets are self-contained and scoped', () => {
     // Styles only reach inside the sheet, so an inline sheet cannot restyle the page.
     for (const rule of svg.match(/<style>([^<]*)<\/style>/)[1].split('\n').filter((l) => l.startsWith('.'))) assert.ok(rule.startsWith('.sds '), rule);
   }
-  assert.match(sheetSvg(sheets[3]), /VENT/);
+  assert.match(sheetSvg(sheets.find((x) => x.id === 'wall-right')), /VENT/);
+  assert.match(sheetSvg(sheets[0]), /DOORS, WINDOWS AND VENTS/);
 });
 
 test('DXF is R12 ASCII with layers and balanced sections', () => {

@@ -135,7 +135,16 @@ export function buildSheets(shed, marks = new Map()) {
       const tail = d.pitch / 12 * (d.overhang + k.stud);
       items.push({ t: 'poly', pts: [[0, H], [face, H], [face, H - tail + k.plumbH], [0, H - tail + k.plumbH]], cls: 'roofline' });
     }
-    items.push(dim([0, -floorBand], [face, -floorBand], -34));
+    // Centre of every full-height piece, from the left end, so the plates can be laid out from the sheet.
+    const verts = wall.members.filter((m) => /stud/.test(m.kind) && !m.group.startsWith('gable'));
+    for (const m of verts) {
+      const l = /** @type {any} */ (m.local);
+      const c = hx((l.s0 + l.s1) / 2 + off);
+      items.push(line([c, -floorBand], [c, -floorBand - 1.5], 'dim'));
+      items.push({ t: 'text', at: [c + 0.8, -floorBand - 2], text: fmtIn(hx((l.s0 + l.s1) / 2 + off)), size: 7, anchor: 'end', cls: 'dimt', rot: 90 });
+    }
+    items.push(text([-2, -floorBand - 3], 'centres from left:', 7, 'end', 'muted'));
+    items.push(dim([0, -floorBand], [face, -floorBand], -70));
     items.push(dim([face, 0], [face, H], eave ? -34 : -18, `${fmtFtIn(H)} wall`));
     for (const p of wall.openings) {
       const a = hx(p.a + off);
@@ -147,7 +156,7 @@ export function buildSheets(shed, marks = new Map()) {
       items.push(line([x1, p.bottom], [x0, p.bottom + p.op.height], 'opening'));
       items.push(text([(x0 + x1) / 2, p.bottom + p.op.height / 2 + 4], `${p.op.kind === 'door' ? 'DOOR' : 'WINDOW'} R.O.`, 9));
       items.push(text([(x0 + x1) / 2, p.bottom + p.op.height / 2 - 8], `${fmtIn(p.w)} x ${fmtIn(p.op.height)}`, 9));
-      items.push(dim([0, -floorBand], [x0, -floorBand], -16, fmtIn(x0)));
+      items.push(dim([0, -floorBand], [x0, -floorBand], -52, `${fmtIn(x0)} to opening`));
       items.push(dim([x0, p.bottom], [x1, p.bottom], p.op.kind === 'window' ? -14 : 14));
       if (p.op.kind === 'window') items.push(dim([x1, 0], [x1, p.bottom], -14, `sill ${fmtIn(p.bottom)}`));
     }
@@ -237,12 +246,136 @@ export function buildSheets(shed, marks = new Map()) {
     items.push(dim([0, 0], [W, 0], -30));
     const tailZ = k.plateTop - (d.overhang + k.stud) * (d.pitch / 12) - 4;
     items.push(dim([-d.overhang, tailZ], [0, tailZ], 12, `${fmtIn(d.overhang)} overhang`));
+    // Roof build-up, eave and wall finishes.
+    const tt = d.pitch / 12;
+    const cosA = 1 / Math.sqrt(1 + tt * tt);
+    const zt = (dist) => k.plateTop + (dist - k.stud) * tt + k.plumbH;
+    const zb = (dist) => k.plateTop + (dist - k.stud) * tt;
+    const sh = (7 / 16) / cosA;
+    const o = d.overhang;
+    for (const back of [false, true]) {
+      const Yv = (y) => (back ? W - y : y);
+      items.push({ t: 'poly', pts: [[Yv(-o), zt(-o)], [Yv(W / 2), zt(W / 2)], [Yv(W / 2), zt(W / 2) + sh], [Yv(-o), zt(-o) + sh]], closed: true, cls: 'sheet' });
+      items.push({ t: 'poly', pts: [[Yv(-o), zt(-o) + sh + 0.4], [Yv(W / 2), zt(W / 2) + sh + 0.4]], cls: 'roofline' });
+      if (o > 0) {
+        items.push(rect(Math.min(Yv(-o - 1.5), Yv(-o)), zt(-o) - 5.5, Math.max(Yv(-o - 1.5), Yv(-o)), zt(-o), 'member'));
+        items.push(rect(Math.min(Yv(-o - 2.25), Yv(-o - 1.5)), zt(-o) - 6, Math.max(Yv(-o - 2.25), Yv(-o - 1.5)), zt(-o), 'plate'));
+        items.push(line([Yv(-o), zb(-o) - 0.3], [Yv(0), zb(0) - 0.3], 'thin'));
+      }
+      if (d.siding) items.push(rect(Math.min(Yv(-0.6), Yv(0)), k.skidTop, Math.max(Yv(-0.6), Yv(0)), k.plateTop, 'sheet'));
+    }
+    const block = shed.members.find((m) => m.kind === 'eave blocking');
+    if (block) items.push({ t: 'poly', pts: block.geom.profile.map((p) => /** @type {P} */ ([p[0], p[1]])), closed: true, cls: 'member' });
+    if (shed.interior) for (const y0 of [k.stud, W - k.stud - 0.25]) items.push(rect(y0, k.floorTop, y0 + 0.25, k.plateTop - 3, 'sheet'));
+    const lbl = (y, z, s2, anchor = 'start') => items.push(text([y, z], s2, 8, anchor, 'label'));
+    lbl(W * 0.62, zt(W * 0.38) + 4, `7/16" OSB, underlayment, ${d.roofCover === 'metal' ? 'metal panels' : 'shingles'}`);
+    lbl(W * 0.62, zt(W * 0.38) - 8, `${d.rafterSize} rafters at ${d.rafterSpacing}" o.c.`);
+    if (o > 0) lbl(W + o + 3, zt(-o) - 4, '2x6 sub-fascia + 1x6 fascia; vented soffit under the tails', 'start');
+    if (block) lbl(k.stud + 2, k.plateTop + 6, 'eave block between rafters', 'start');
+    if (d.siding) lbl(W + 3, k.floorTop + 40, `${d.sidingType === 'T1-11' || d.sidingType === 'LP SmartSide' ? d.sidingType + ' panels' : d.sidingType + ' over OSB'}`, 'start');
+    lbl(k.stud + 4, k.floorTop + 10, `${d.studSize} studs at ${d.studSpacing}" o.c., double top plate`);
+    lbl(W / 2 + 4, k.skidTop + 2, `${d.joistSize} joists at ${d.joistSpacing}" o.c. on ${k.skidCount} ${d.skidSize} skids`);
     items.push(text([W / 2, k.floorTop + 30], 'SECTION', 12, 'middle', 'muted'));
     sheets.push({
       id: 'section', title: 'Building section',
       note: `${d.pitch}/12 gable roof. Heights from the top of the gravel: floor ${fmtFtIn(k.floorTop)}, top plate ${fmtFtIn(k.plateTop)}, peak about ${fmtFtIn(k.peak)}. Birdsmouth heel ${fmtIn(k.heel)} with a ${fmtIn(k.stud)} seat.`,
       items,
     });
+  }
+  // 9. Rafter detail: the pattern rafter, drawn as it sits, with every cut.
+  {
+    const items = /** @type {Item[]} */ ([]);
+    const tt = d.pitch / 12;
+    const D2 = k.stud;
+    const o = d.overhang;
+    const rh = d.roofType === 'ridgeBeam' ? 1.5 : 0.75;
+    const r = W / 2 - rh;
+    const zb = (y) => (y - D2) * tt;
+    const zt = (y) => zb(y) + k.plumbH;
+    const raf = shed.members.find((m) => m.kind === 'rafter');
+    const prof = raf ? raf.geom.profile.map(([y, z]) => /** @type {P} */ ([y, z - k.plateTop])) : [];
+    items.push({ t: 'poly', pts: prof, closed: true, cls: 'member' });
+    // The wall under it, for reference.
+    items.push(rect(0, -6, D2, 0, 'hidden'));
+    items.push(text([D2 / 2, -10], 'wall top plates', 8, 'middle', 'muted'));
+    items.push(dim([D2, zb(D2)], [r, zb(r)], -18, `${fmtIn((r - D2) / Math.cos(Math.atan(tt)))} along the bottom edge (run ${fmtIn(r - D2)})`));
+    items.push(dim([0, -6], [D2, -6], -14, `seat ${fmtIn(D2)}`));
+    items.push(dim([0, zb(0)], [0, 0], 12, `heel ${fmtIn(D2 * tt)}`));
+    if (o > 0) items.push(dim([-o, zb(-o) - 2], [0, zb(-o) - 2], -14, `${fmtIn(o)} tail`));
+    items.push(dim([r, zb(r)], [r, zt(r)], -16, `plumb ${fmtIn(k.plumbH)}`));
+    items.push(dim([-o, zt(-o)], [r, zt(r)], 24, `${fmtIn(k.rafterCut)} cut length from a square end (mark on the cut sheet)`));
+    items.push(text([r - 2, zt(r) + 6], `ridge plumb cut: ${d.pitch} on the common scale`, 9, 'end'));
+    items.push(text([-o, zt(-o) + 6], o > 0 ? `tail plumb cut: ${d.pitch} on the common scale` : '', 9, 'start'));
+    sheets.push({
+      id: 'rafter', title: 'Rafter detail',
+      note: `${d.rafterSize} rafter at ${d.pitch}/12 (${(Math.atan(tt) * 180 / Math.PI).toFixed(1)} deg). Lay out one pattern rafter from this sheet, test it at both gable ends and the middle, then trace the rest. Never overcut the birdsmouth corner; finish it with a handsaw.`,
+      items,
+    });
+  }
+
+  // 10. Corner detail: how the double top plate interlocks.
+  {
+    const items = /** @type {Item[]} */ ([]);
+    const D2 = k.stud;
+    const run = 30;
+    const panel = (dx, title, layer) => {
+      // Long (front) wall runs along x; end (left) wall runs along y. Corner at (dx, 0).
+      if (layer === 'top') {
+        items.push(rect(dx, 0, dx + run, D2, 'plate'));
+        items.push(rect(dx, D2, dx + D2, run, 'plate'));
+        items.push(text([dx + run / 2, D2 / 2 - 1], 'long wall top plate (full length)', 7));
+        items.push({ t: 'text', at: [dx + D2 / 2 + 1, D2 + (run - D2) / 2], text: 'end wall top plate (between)', size: 7, anchor: 'middle', rot: 90 });
+      } else {
+        items.push(rect(dx + D2, 0, dx + run, D2, 'header'));
+        items.push(rect(dx, 0, dx + D2, run, 'header'));
+        items.push(text([dx + D2 + (run - D2) / 2, D2 / 2 - 1], `long wall cap, stops ${fmtIn(D2)} short`, 7));
+        items.push({ t: 'text', at: [dx + D2 / 2 + 1, run / 2], text: `end wall cap, runs ${fmtIn(D2)} long`, size: 7, anchor: 'middle', rot: 90 });
+        items.push(dim([dx, 0], [dx + D2, 0], -12, fmtIn(D2)));
+      }
+      items.push(text([dx + run / 2, run + 6], title, 10, 'middle'));
+      items.push(text([dx - 2, -3], 'outside corner', 7, 'end', 'muted'));
+    };
+    panel(0, 'First layer: top plates', 'top');
+    panel(run + 18, 'Second layer: cap plates (laps the corner)', 'cap');
+    sheets.push({
+      id: 'corner', title: 'Corner detail: interlocking top plates',
+      note: `Plan view of a corner from above. The first top plates butt at the corner; the long wall's cap stops ${fmtIn(D2)} short and the end wall's cap runs over the long wall's top plate, locking the walls together. Nail the lap with two 16d down into the plate below. A flat steel strap across the corner is optional extra hold.`,
+      items,
+    });
+  }
+
+  // 0. Cover sheet: what this is, the data, the schedule and the index. Built last so the index is complete.
+  {
+    const items = /** @type {Item[]} */ ([]);
+    const lines = [];
+    const row = (s2, size = 10, cls = 'label') => lines.push({ s2, size, cls });
+    row(d.name, 18);
+    row(`${fmtFtIn(L)} x ${fmtFtIn(W)} gable shed, ${d.pitch}/12 roof, peak about ${fmtFtIn(k.peak)} above the gravel`, 11);
+    row('');
+    row('DESIGN DATA', 9, 'muted');
+    row(`Walls: ${d.studSize} at ${d.studSpacing}" o.c., ${fmtFtIn(d.wallHeight)} floor to top of plates (studs ${fmtIn(k.studLen)}), double top plate interlocked at corners.`);
+    row(`Floor: ${d.joistSize} joists at ${d.joistSpacing}" o.c. on ${k.skidCount} PT ${d.skidSize} skids, ${d.foundation === 'blocks' ? 'on concrete blocks' : 'on a compacted gravel pad'}; 3/4" T&G plywood.`);
+    row(`Roof: ${d.rafterSize} rafters at ${d.rafterSpacing}" o.c., ${d.roofType === 'ridgeBeam' ? `two-ply ${k.ridgeSize} ridge beam on posts, no ties` : `${k.ridgeSize} ridge board with ${d.tieSize} rafter ties`}, ${fmtIn(d.overhang)} overhang; ${d.roofCover === 'metal' ? 'corrugated metal' : 'shingles'} on 7/16" OSB.`);
+    row(`Siding: ${d.siding ? d.sidingType : 'none'}. Inside: ${d.interior === 'none' ? 'bare framing' : d.interior}${d.insulation ? ', R-13 insulation' : ''}.`);
+    row(`Loads used for the strength checks: ${d.snowLoad} psf roof snow, ${d.windLoad} psf wind on the walls, 15 psf roof dead, 40 psf floor live.`);
+    row('');
+    row('DOORS, WINDOWS AND VENTS (rough openings)', 9, 'muted');
+    for (const [name, wall] of Object.entries(shed.walls)) for (const p of wall.openings) {
+      row(`${p.op.kind === 'door' ? 'Door' : 'Window'} on the ${name} wall: ${fmtIn(p.w)} wide x ${fmtIn(p.op.height)} high${p.op.kind === 'window' ? `, sill ${fmtIn(p.bottom)} above the floor` : ''}; header 2-ply ${p.hdr}.`);
+    }
+    const nv = Object.values(shed.vents || {}).flat().length;
+    if (nv) row(`Gable vents: ${nv}, each ${fmtIn(d.ventWidth)} x ${fmtIn(d.ventHeight)}.`);
+    row('');
+    row('SHEETS', 9, 'muted');
+    sheets.forEach((sh2, i) => row(`${i + 2}. ${sh2.title}`));
+    row('');
+    row('NOTES', 9, 'muted');
+    row('Written dimensions govern; do not scale the drawings. Letters on members are marks in the cut sheet and parts list.');
+    row('All lumber in ground contact or on the skids is pressure-treated. Fasteners as the build instructions and each maker specify.');
+    row('Not engineered and not checked against any building code. Confirm permits, setbacks, snow and wind loads with your building department.');
+    lines.forEach((ln, i) => { if (ln.s2) items.push(text([0, -i * 22], ln.s2, ln.size, 'start', ln.cls)); });
+    items.push(rect(-10, -lines.length * 22, 1000, 30, 'outline'));
+    sheets.unshift({ id: 'cover', title: 'Cover sheet', note: 'Design summary, opening schedule and sheet index.', items });
   }
   return sheets;
 }
@@ -318,7 +451,8 @@ export function sheetSvg(sheet, meta = {}) {
       const pts = it.pts.map(([x, y]) => `${X(x)},${Y(y)}`).join(' ');
       parts.push(it.closed ? `<polygon class="${it.cls}" points="${pts}"/>` : `<polyline class="${it.cls}" points="${pts}"/>`);
     } else if (it.t === 'text') {
-      parts.push(`<text class="${it.cls || 'label'}" x="${X(it.at[0])}" y="${Y(it.at[1])}" text-anchor="${it.anchor || 'middle'}" style="font-size:${it.size || 11}px">${esc(it.text)}</text>`);
+      const rot = it.rot ? ` transform="rotate(${-it.rot} ${X(it.at[0])} ${Y(it.at[1])})"` : '';
+      parts.push(`<text class="${it.cls || 'label'}" x="${X(it.at[0])}" y="${Y(it.at[1])}" text-anchor="${it.anchor || 'middle'}" style="font-size:${it.size || 11}px"${rot}>${esc(it.text)}</text>`);
     } else {
       const ax = X(it.a[0]); const ay = Y(it.a[1]); const bx = X(it.b[0]); const by = Y(it.b[1]);
       const dx = bx - ax; const dy = by - ay; const len = Math.hypot(dx, dy) || 1;
@@ -387,7 +521,7 @@ export function sheetsDxf(sheets) {
         for (let i = 0; i + 1 < pts.length; i++) ln(pts[i], pts[i + 1], layerOf(it.cls));
         if (it.closed && pts.length > 2) ln(pts[pts.length - 1], pts[0], layerOf(it.cls));
       } else if (it.t === 'text') {
-        tx(T(it.at), h * (it.size || 11) / 11, it.text, 'TEXT', it.anchor === 'start' ? 0 : it.anchor === 'end' ? 2 : 1);
+        tx(T(it.at), h * (it.size || 11) / 11, it.text, 'TEXT', it.anchor === 'start' ? 0 : it.anchor === 'end' ? 2 : 1, it.rot || 0);
       } else {
         const a = T(it.a); const bb = T(it.b);
         const vx = bb[0] - a[0]; const vy = bb[1] - a[1]; const len = Math.hypot(vx, vy) || 1;
