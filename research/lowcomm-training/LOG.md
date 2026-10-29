@@ -2,6 +2,21 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-29 · Milestone 6a (H6 pilot): does rand-k compression's excess loss compose additively with the outer delay H? (planned before running)
+
+- Why: H6, the main claim, has no data yet: every run so far varies one axis. The cheapest crossed cells reuse existing runs: uncompressed H in {4, 16, 64} (3d, lr 2e-3, M = 4) and rand-k at H = 16 (4a). New cells: keep p in {1/4, 1/16} x H in {4, 64}, seeds 0 to 2 (12 runs, `experiments/gpt_composition/composition.py`, about 10 minutes each, 4 in parallel).
+- Rule tested: additive, excess(H, p) = excess(16, p), where excess is over the uncompressed cell at the same H (the no-cross-term case of a composition rule).
+- **H6a-i:** the additive rule predicts all four corner excesses within 0.03 nats. Refuted if any corner misses by more than 0.03 (a cross term exists and H6's rule needs an H x omega term).
+- Prior: 45% supported. 4a's excess is +0.017 at p = 1/4 and +0.083 at p = 1/16, the same order as the seed spread (about 0.01), so the cells at p = 1/4 can hardly miss by 0.03; the p = 1/16 cells decide it. I do not predict the direction.
+- Limits known in advance: three seeds (no interval beyond the spread); one model, one corpus, one compressor; this tests the no-cross-term rule only, not the fitted H6 comparison against a scaling law, which needs a larger grid.
+
+### Outcome of 6a (`experiments/gpt_composition/`: `composition.jsonl`, `composition_results.txt`, `run.out`; 12 new runs, seeds 0 to 2, about 9.5 minutes each)
+- Rand-k excess over the uncompressed cell at the same H (nats), p = 1/4: H = 4 **+0.009**, H = 16 +0.017, H = 64 **+0.010**; p = 1/16: H = 4 **+0.040**, H = 16 +0.083, H = 64 **+0.099**. Cells are 3-seed means; seed spread inside a cell is about 0.01.
+- **H6a-i refuted.** The additive rule misses by 0.042 at (H = 4, p = 1/16) and 0.016 at (H = 64, p = 1/16), the first above the 0.03 line; the p = 1/4 corners miss by under 0.01 (within seed spread, as the prior said).
+- Reading: at p = 1/16 the compression cost is not independent of H. It halves going from H = 16 to H = 4 (+0.083 to +0.040, outside the seed spread) and rises a little at H = 64 (+0.099, a 0.016 change that is about 1.5 seed spreads, not established). So a composition rule needs an H x omega cross term, at least for the downward direction. Why is untested; a guess, not a finding: with more rounds, each carrying a smaller delta, the compression noise is averaged over more outer steps.
+- Limits: three seeds, no interval on the differences; one compressor and model; only two compression levels, so a functional form (for example excess proportional to omega times a function of H) is not fitted; the 0.03 threshold was my choice.
+- Next: fit excess = f(omega) g(H) on these nine excesses plus 4a's other keeps, check it on held-out H (H = 32 or 8), then the fitted-versus-scaling-law comparison H6 asks for.
+
 ## 2026-10-29 · Milestone 7b: machine-check the proposal's citations and add related work to the breakdown section (no training)
 
 - Why: 7a's draft cited nothing, and the proposal's 16 arXiv ids had been unchecked since 2026-10-24 (host refused then).
