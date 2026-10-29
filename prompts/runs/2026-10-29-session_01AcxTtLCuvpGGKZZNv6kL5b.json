@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": 11499,
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -26,14 +26,26 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": null,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
-  "doc_friction": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "Most open wall-framing-takeoff items need a real architect's file that is not reachable from the sandbox, so the slice had to be a robustness fix found on other real DXF files."
+    },
+    {
+      "file": ".claude/hooks/check_posts_before_push.py",
+      "issue": "The hook runs before the whole bash command, so a fix chained before git push in one command is blocked too; fix and commit in a separate call."
+    }
+  ],
   "deviations": [],
-  "writeups": [],
+  "writeups": [
+    "docs/posts/2026-10-29-real-dxf-files-wall-framing-layer-flags.md",
+    "wall-framing-takeoff README, DXF section"
+  ],
   "goal": null,
-  "notes": "",
+  "notes": "Ran cli.test.mjs (26 pass). Did not run venture-preflight or the full suite, and did not rewrite flagships next:. Merged on local checks only.",
   "corrections": [],
   "redteam": null
 }
