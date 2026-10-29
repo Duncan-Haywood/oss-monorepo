@@ -7,7 +7,7 @@ import unittest
 from pathlib import Path
 
 from shootflow.cli import main
-from shootflow.cull import CullError, cull_folder, write_report, write_sidecars
+from shootflow.cull import CullError, cull_folder, read_picks, score_against_picks, write_report, write_sidecars
 from shootflow.frame_analysis import FrameMetrics
 from shootflow.faces import FaceReport
 
@@ -67,6 +67,37 @@ class CullTests(unittest.TestCase):
         self.assertIn("Cull report", html_path.read_text())
         with tempfile.TemporaryDirectory() as empty, self.assertRaises(CullError):
             cull_folder(empty, analyzer=self.analyzer)
+
+    def test_scores_against_photographer_picks(self) -> None:
+        result = cull_folder(self.root, analyzer=self.analyzer)
+        # a2 is the keeper; the photographer also wanted a3 (rejected: closed eyes) and b1 (blurry),
+        # named by stem, with different case, and one name that is not in the folder.
+        score = score_against_picks(result, ["A2.JPG", "a3", "./b1.jpg", "missing.jpg"])
+        self.assertEqual((score.picks, score.matched), (4, 3))
+        self.assertEqual(score.unmatched, ("missing.jpg",))
+        self.assertEqual(score.groups_with_a_pick, 2)
+        self.assertEqual(score.keeper_hits, 1)  # group of a2 yes; b1's group keeper is none (all rejects)
+        self.assertEqual(score.picks_rejected, ("a3.jpg", "b1.jpg"))
+        self.assertAlmostEqual(score.false_reject_rate or 0, 2 / 3)
+
+    def test_picks_file_and_report(self) -> None:
+        picks = self.root / "picks.txt"
+        picks.write_text("# keepers\n\na2.jpg\nc1.jpg\n", encoding="utf-8")
+        result = cull_folder(self.root, analyzer=self.analyzer)
+        score = score_against_picks(result, read_picks(picks))
+        self.assertEqual(score.keeper_hit_rate, 1.0)
+        self.assertEqual(score.false_reject_rate, 0.0)
+        json_path, html_path = write_report(result, self.root / "out", score)
+        self.assertEqual(json.loads(json_path.read_text())["against_your_picks"]["keeper_hits"], 2)
+        self.assertIn("Against your picks", html_path.read_text())
+
+    def test_ambiguous_names_do_not_match(self) -> None:
+        (self.root / "sub").mkdir()
+        (self.root / "sub" / "a2.jpg").write_bytes(b"x")
+        table = {"a2.jpg": (_metrics("0" * 16), None)}
+        result = cull_folder(self.root, recursive=True, analyzer=lambda p: table.get(p.name, self.analyzer(p)))
+        self.assertEqual(score_against_picks(result, ["a2.jpg"]).matched, 1)  # top-level path wins
+        self.assertEqual(score_against_picks(result, ["a2"]).matched, 0)  # stem is ambiguous
 
     @unittest.skipUnless(shutil.which("ffmpeg"), "ffmpeg not installed")
     def test_cli_on_real_jpegs(self) -> None:
