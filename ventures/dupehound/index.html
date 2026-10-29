@@ -237,7 +237,7 @@ dupehound --threshold 5 src/         # exit 1 if over 5% duplicated (for CI)</pr
         ...Array.from({ length: 8 }, (_, i) => `${indent}const leg${i} = order.weight * rates[${i}] + surcharge(order, ${i}, "zone");`),
         `${indent}return leg0 + leg7;`, "}"].join("\n");
       $("snipA").value = "// checkout.js\n" + body("  ");
-      $("snipB").value = "// invoice.js: pasted, re-indented and re-commented\nimport { surcharge } from './fees.js';\n\n" + body("\t");
+      $("snipB").value = "// invoice.js: pasted, re-indented and re-commented\nimport { surcharge } from 'shipping-fees';\n\n" + body("\t");
       $("folder").value = "";
       record("example_loaded");
     });

@@ -72,6 +72,8 @@ WEB_SUFFIXES = frozenset(
         ".xml",
         ".webmanifest",
         ".map",
+        # dupehound's browser build; GitHub Pages serves it as application/wasm.
+        ".wasm",
     }
 )
 
@@ -97,7 +99,8 @@ def _is_test_module(name: str) -> bool:
     return bool(_TEST_MODULE_RE.search(name)) or name.endswith((".spec.mjs", ".spec.js"))
 
 EXCLUDED_DIRS = frozenset(
-    {"node_modules", ".git", "dist", "build", "coverage", "__pycache__", ".pytest_cache"}
+    # `tests` matches platform/pages/build.mjs; `target` is cargo's build output.
+    {"node_modules", ".git", "dist", "build", "coverage", "__pycache__", ".pytest_cache", "tests", "target"}
 )
 
 # Hosts the ventures currently point their sitemaps at. Each is a guess made
