@@ -159,6 +159,7 @@ export function buildSheets(shed, marks = new Map()) {
       items.push(dim([0, -floorBand], [x0, -floorBand], -52, `${fmtIn(x0)} to opening`));
       items.push(dim([x0, p.bottom], [x1, p.bottom], p.op.kind === 'window' ? -14 : 14));
       if (p.op.kind === 'window') items.push(dim([x1, 0], [x1, p.bottom], -14, `sill ${fmtIn(p.bottom)}`));
+      items.push(dim([x0, 0], [x0, p.bottom + p.op.height], 14, `${fmtIn(p.bottom + p.op.height)} to header`));
     }
     for (const vent of shed.vents?.[name] || []) {
       const a = hx(vent.s0); const b = hx(vent.s1);
@@ -282,6 +283,154 @@ export function buildSheets(shed, marks = new Map()) {
       items,
     });
   }
+  // Exterior elevations: the finished outside of each wall, two to a sheet.
+  {
+    const tt = d.pitch / 12;
+    const cosA = 1 / Math.sqrt(1 + tt * tt);
+    const o = d.overhang;
+    const zt = (dist) => k.plateTop + (dist - k.stud) * tt + k.plumbH;
+    const roofTop = (dist) => zt(dist) + (7 / 16 + (d.roofCover === 'metal' ? 0.6 : 0.35)) / cosA;
+    const face = (name) => (name === 'front' || name === 'back' ? L : W);
+    const hxOf = (name, a) => (name === 'front' || name === 'right' ? a : face(name) - a);
+    const elevation = (name, dx, items) => {
+      const eave = name === 'front' || name === 'back';
+      const F = face(name);
+      const X = (a) => dx + a;
+      items.push(line([X(-o - 24), 0], [X(F + o + 24), 0], 'outline'));
+      items.push(rect(X(0), 0, X(F), k.skidTop, 'pt'));
+      // Siding panels as they hang.
+      for (const p of shed.panels.filter((x) => x.kind === 'siding' && x.wall === name)) {
+        const g = p.geom;
+        const pts = g.profile.map(([a, z]) => /** @type {P} */ ([X(hxOf(name, a)), z]));
+        items.push({ t: 'poly', pts, closed: true, cls: 'sheet' });
+      }
+      // Roof seen from this side.
+      if (eave) {
+        items.push(rect(X(0), zt(-o) - 6, X(F), zt(-o), 'plate'));
+        items.push({ t: 'poly', pts: [[X(0), zt(-o)], [X(F), zt(-o)], [X(F), k.peak], [X(0), k.peak]], closed: true, cls: 'roof' });
+      } else {
+        const pts = /** @type {P[]} */ ([[X(-o), roofTop(-o)], [X(F / 2), k.peak], [X(F + o), roofTop(-o)], [X(F + o), roofTop(-o) - 4], [X(F / 2), k.peak - 4 / cosA], [X(-o), roofTop(-o) - 4]]);
+        items.push({ t: 'poly', pts, closed: true, cls: 'plate' });
+      }
+      // Doors, windows and vents.
+      const w = shed.walls[name];
+      const off = eave ? 0 : k.stud;
+      for (const p of w.openings) {
+        const a = hxOf(name, p.a + off);
+        const b = hxOf(name, p.a + p.w + off);
+        const x0 = Math.min(a, b);
+        const x1 = Math.max(a, b);
+        items.push(rect(X(x0), k.floorTop + p.bottom, X(x1), k.floorTop + p.bottom + p.op.height, p.op.kind === 'door' ? 'door' : 'glass'));
+        items.push(text([X((x0 + x1) / 2), k.floorTop + p.bottom + p.op.height / 2], `${p.op.kind === 'door' ? 'DOOR' : 'WINDOW'} ${fmtIn(p.w)} x ${fmtIn(p.op.height)} R.O.`, 7));
+      }
+      for (const v of shed.vents?.[name] || []) {
+        const a = hxOf(name, v.s0); const b = hxOf(name, v.s1);
+        items.push(rect(X(Math.min(a, b)), k.floorTop + v.z0, X(Math.max(a, b)), k.floorTop + v.z1, 'glass'));
+      }
+      items.push(dim([X(0), 0], [X(F), 0], -28, fmtFtIn(F)));
+      items.push(dim([X(F), 0], [X(F), eave ? zt(-o) : k.peak], -26, eave ? `${fmtFtIn(zt(-o))} to eave` : `${fmtFtIn(k.peak)} to peak`));
+      items.push(text([X(F / 2), -48], `${name.toUpperCase()} (${eave ? 'EAVE SIDE' : 'GABLE END'})`, 10, 'middle', 'muted'));
+    };
+    for (const pair of [['front', 'back'], ['left', 'right']]) {
+      const items = /** @type {Item[]} */ ([]);
+      elevation(pair[0], 0, items);
+      elevation(pair[1], face(pair[0]) + 2 * o + 96, items);
+      sheets.push({
+        id: `exterior-${pair[0]}-${pair[1]}`, title: `Exterior elevations: ${pair[0]} and ${pair[1]}`,
+        note: `Finished outside as seen from each side: ${d.siding ? `${d.sidingType} siding (panel and sheet joints shown)` : 'no siding'}, ${d.roofCover === 'metal' ? 'metal roof' : 'shingle roof'}, rough openings for doors, windows and vents. Heights from the top of the gravel.`,
+        items,
+      });
+    }
+  }
+
+  // Sheathing layout: every floor and roof sheet, where it goes and its size.
+  {
+    const items = /** @type {Item[]} */ ([]);
+    for (const p of shed.panels.filter((x) => x.kind === 'floor sheet')) {
+      const g = p.geom; const [x0, y0] = [g.origin[0], g.origin[1]];
+      const w = g.profile[1][0]; const h = g.profile[2][1];
+      items.push(rect(x0, y0, x0 + w, y0 + h, 'sheet'));
+      items.push(text([x0 + w / 2, y0 + h / 2 - 3], `${fmtIn(w)} x ${fmtIn(h)}`, 8));
+    }
+    items.push(text([L / 2, -14], 'FLOOR: 3/4" T&G plywood, 8 ft edges across the joists, end joints on joists', 9));
+    const slope = k.slopeLen;
+    const gap = 60;
+    for (const side of ['front', 'back']) {
+      const base = side === 'front' ? W + gap : W + gap + slope + 30;
+      for (const p of shed.panels.filter((x) => x.kind === 'roof sheathing' && x.side === side)) {
+        const [x0, q0] = /** @type {number[]} */ (p.pos);
+        const w = p.geom.profile[1][0]; const h = p.geom.profile[2][1];
+        items.push(rect(x0, base + q0, x0 + w, base + q0 + h, 'sheet'));
+        items.push(text([x0 + w / 2, base + q0 + h / 2 - 3], `${fmtIn(w)} x ${fmtIn(h)}`, 8));
+      }
+      items.push(text([L / 2, base - 10], `ROOF, ${side} slope, laid flat (eave at the bottom): 7/16" OSB, staggered, end joints on rafters`, 9));
+    }
+    sheets.push({
+      id: 'sheathing', title: 'Sheathing layout',
+      note: `Each rectangle is one piece, with its size; pieces under 8 ft are cut from whole sheets (the shopping list counts the sheets after packing the cuts). Floor ${fmtFtIn(L)} x ${fmtFtIn(W)}; each roof slope ${fmtFtIn(L)} x ${fmtIn(slope)} along the slope.`,
+      items,
+    });
+  }
+
+  // Typical details and nailing schedule.
+  {
+    const items = /** @type {Item[]} */ ([]);
+    const D2 = k.stud;
+    // Header section: two plies, spacer, on the jack, under the cripple and plates.
+    const hd = shed.walls.front?.openings?.[0]?.hd ?? 5.5;
+    const hx0 = 0;
+    items.push(rect(hx0, 0, hx0 + 1.5, hd, 'header'));
+    if (D2 > 3) items.push(rect(hx0 + 1.5, 0, hx0 + D2 - 1.5, hd, 'sheet'));
+    items.push(rect(hx0 + D2 - 1.5, 0, hx0 + D2, hd, 'header'));
+    items.push(rect(hx0, hd, hx0 + D2, hd + 4, 'member'));
+    items.push(rect(hx0, hd + 4, hx0 + D2, hd + 5.5, 'plate'));
+    items.push(rect(hx0, hd + 5.5, hx0 + D2, hd + 7, 'plate'));
+    items.push(text([hx0 + D2 / 2, -6], 'HEADER SECTION', 9, 'middle', 'muted'));
+    items.push(text([hx0 + D2 + 2, hd / 2], `2 plies ${shed.walls.front?.openings?.[0]?.hdr ?? '2x6'}${D2 > 3 ? ` + ${fmtIn(D2 - 3)} plywood spacer` : ''}`, 7, 'start'));
+    items.push(text([hx0 + D2 + 2, hd + 2], 'cripple on layout', 7, 'start'));
+    items.push(text([hx0 + D2 + 2, hd + 6], 'top plate + cap plate', 7, 'start'));
+    // Skid and floor section.
+    const sx = 40;
+    const sk = shed.members.find((m) => m.kind === 'skid');
+    const st = sk ? sk.geom.thickness : 3.5;
+    items.push(rect(sx - 6, -4, sx + 30, 0, 'gravel'));
+    items.push(rect(sx, 0, sx + st, k.skidTop, 'pt'));
+    items.push(rect(sx, k.skidTop, sx + 1.5, k.skidTop + k.joistDepth, 'pt'));
+    items.push(rect(sx + 1.5, k.skidTop, sx + 24, k.skidTop + k.joistDepth, 'pt'));
+    items.push(rect(sx, k.floorTop - 0.75, sx + 24, k.floorTop, 'sheet'));
+    items.push(rect(sx, k.floorTop, sx + D2, k.floorTop + 1.5, 'plate'));
+    items.push(rect(sx, k.floorTop + 1.5, sx + D2, k.floorTop + 12, 'member'));
+    items.push(rect(sx - 0.6, k.skidTop, sx, k.floorTop + 12, 'sheet'));
+    items.push(text([sx + 12, -9], 'SKID AND FLOOR EDGE', 9, 'middle', 'muted'));
+    items.push(text([sx + 26, k.skidTop / 2], `PT ${d.skidSize} skid on ${d.foundation === 'blocks' ? 'a block' : 'compacted gravel'}`, 7, 'start'));
+    items.push(text([sx + 26, k.skidTop + k.joistDepth / 2], `PT ${d.joistSize} rim and joists, toenailed to the skid`, 7, 'start'));
+    items.push(text([sx + 26, k.floorTop + 1], '3/4" T&G plywood, glued and screwed', 7, 'start'));
+    items.push(text([sx + 26, k.floorTop + 8], 'bottom plate nailed through into the rim; siding laps the rim', 7, 'start'));
+    // Nailing schedule (typical; check local code and maker instructions).
+    const rows = [
+      ['Stud to plate (end nail)', '2-16d'],
+      ['Jack to king', '16d at 16" o.c., staggered'],
+      ['Header to king, each end', '4-16d'],
+      ['Header plies together', '16d at 16" o.c., both faces'],
+      ['Cap plate to top plate', '16d at 16" o.c.; 2-16d at each lap'],
+      ['Bottom plate to floor', '2-16d at 16" o.c. into rim or joist'],
+      ['Rim to joist end', '3-16d'],
+      ['Joist to skid', '2-16d toenail, or a framing tie'],
+      ['Rafter to plate', 'rafter-to-plate tie each rafter, maker\'s nails'],
+      [d.roofType === 'ridgeBeam' ? 'Rafter to ridge beam' : 'Rafter to ridge board', d.roofType === 'ridgeBeam' ? 'face-mount hanger, maker\'s nails' : '3-16d end or toenail'],
+      ['Subfloor', '1-5/8" screws 6" edges, 12" field, with adhesive'],
+      ['Wall and roof sheathing', '8d at 6" edges, 12" field'],
+      ['Siding panels', '8d galvanized 6" edges, 12" field'],
+    ];
+    const tx = 140;
+    items.push(text([tx, 18], 'NAILING SCHEDULE (typical; your code and each maker\'s instructions win)', 9, 'start', 'muted'));
+    rows.forEach(([a, b], i) => { items.push(text([tx, 10 - i * 5], a, 8, 'start')); items.push(text([tx + 42, 10 - i * 5], b, 8, 'start')); });
+    // Frame the table so the sheet's fit includes the text, which has no width of its own here.
+    items.push(rect(tx - 3, 10 - rows.length * 5, tx + 125, 22, 'outline'));
+    items.push(line([tx + 40, 10 - rows.length * 5], [tx + 40, 14], 'thin'));
+    sheets.push({ id: 'details', title: 'Typical details and nailing schedule', note: 'Header and floor-edge sections, not to scale with each other. Fastener counts are common practice for a light wood-framed shed, given for planning; confirm them against your local code.', items });
+  }
+
   // 9. Rafter detail: the pattern rafter, drawn as it sits, with every cut.
   {
     const items = /** @type {Item[]} */ ([]);
@@ -400,6 +549,9 @@ const SVG_STYLE = `
 .sds .plate{fill:#e8d3a6;stroke:#6b4f2a;stroke-width:.8}
 .sds .header{fill:#e2b978;stroke:#6b4f2a;stroke-width:.8}
 .sds .sheet{fill:#d9c9a8;stroke:#6b4f2a;stroke-width:.6}
+.sds .roof{fill:#5b616a;stroke:#2c2f33;stroke-width:.8}
+.sds .door{fill:#8a6a48;stroke:#3d2c1b;stroke-width:.8}
+.sds .glass{fill:#cfe3f3;stroke:#2563a8;stroke-width:.8}
 .sds .block{fill:#c9c9c9;stroke:#555;stroke-width:.8}
 .sds .gravel{fill:#eeeae2;stroke:#9a958a;stroke-width:.8;stroke-dasharray:4 3}
 .sds .outline{fill:none;stroke:#222;stroke-width:1.2}

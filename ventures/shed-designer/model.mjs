@@ -317,7 +317,7 @@ function buildAuto(d0) {
 function buildFramed(d) {
   /** @type {Member[]} */
   const members = [];
-  /** @type {{ id: string, kind: string, item: string, geom: Geom, group: string }[]} */
+  /** @type {{ id: string, kind: string, item: string, geom: Geom, group: string, wall?: string, side?: string, pos?: number[] }[]} */
   const panels = [];
   /** @type {{ kind: string, geom: Geom, group: string, tex?: string }[]} */
   const fixtures = [];
@@ -914,7 +914,7 @@ function buildFramed(d) {
       for (let i = 0; i + 1 < cuts.length; i++) {
         roofPieces.push(cuts[i + 1] - cuts[i]);
         {
-          panels.push({ id: nextId('RS'), kind: 'roof sheathing', item: 'roofSheet', group: 'sheathing', geom: rectGeom(add(add(eave, X, cuts[i]), v, q0), X, v, w, cuts[i + 1] - cuts[i], h, 7 / 16) });
+          panels.push({ id: nextId('RS'), kind: 'roof sheathing', item: 'roofSheet', group: 'sheathing', side: back ? 'back' : 'front', pos: [cuts[i], q0], geom: rectGeom(add(add(eave, X, cuts[i]), v, q0), X, v, w, cuts[i + 1] - cuts[i], h, 7 / 16) });
         }
       }
     }
@@ -950,7 +950,7 @@ function buildFramed(d) {
         if (sheet) sidingFull.push({ wall: name, length: sheet });
         else { sidingFull.push({ wall: name, length: 96 }); sidingUpper.push(Math.ceil(need - 96)); }
         panels.push({
-          id: nextId('SD'), kind: 'siding', item: 'siding', group: 'siding',
+          id: nextId('SD'), kind: 'siding', item: 'siding', group: 'siding', wall: name,
           geom: { origin: /** @type {Vec} */ (origin), u, v: Z, w, profile: prof, thickness: sidingT },
         });
       }
