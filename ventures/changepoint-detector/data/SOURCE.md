@@ -248,3 +248,16 @@ Growth is steady until the war ends, then the civil boom starts.
 - **Licence:** R datasets (GPL-2 or later with R); the figures are Civil
   Aeronautics Board statistics. Used here as test data only.
 - **Used by:** `eval/airmiles.mjs`, `airmiles.test.mjs`.
+
+# Example data: WWWusage and nhtemp (R datasets)
+
+`www-usage.csv`: users logged on to an internet server each minute, 100 minutes
+(R's `datasets::WWWusage`, columns renamed `time`, `users`). `nhtemp.csv`: mean
+annual temperature at New Haven, Connecticut, 1912-1971, degrees F
+(`datasets::nhtemp`, columns `year`, `temp`).
+
+- **Retrieved:** 2026-10-29 from the Rdatasets mirror,
+  <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/datasets/>
+  `WWWusage.csv` and `nhtemp.csv`.
+- **Licence:** R datasets (GPL-2 or later with R). Test data only.
+- **Used by:** `wwwusage-nhtemp.test.mjs`.
