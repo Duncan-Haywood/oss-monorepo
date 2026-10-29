@@ -2,6 +2,13 @@
 
 Newest first.
 
+## 2026-10-29 · Milestone 2h: at what open-centre neutral pressure does load-sensing stop winning?
+- Not pre-registered (written and run in one step; `experiments/idle_breakeven.py`, `idle_breakeven_results.txt`, 1,500 cycles per evaluation, 12-step bisection). Purpose: 2g left the ranking dependent on two unsourced numbers; this finds the break-even so a datasheet reading decides it. Datasheet hosts (Rexroth PDFs, Zenodo) were unreachable from this session, so no sourced value was added; a retailer page claiming an 18 bar standby and 14 bar margin for an A10VO is unverified and not used.
+- Result: the neutral pressure p_n* above which median LS/OC < 1, with LS standby flow 0 to 8 L/min: load factor 0.346: 6.4 to 10.8 bar; 0.375: 6.8 to 11.2 bar; 0.5: 10.5 to 14.9 bar. Each extra L/min of standby flow moves p_n* by about 0.5 bar.
+- Reading: the whole question reduces to one number, the pressure an open-centre block holds with levers neutral. If it is above about 11 bar (a typical centre-bypass drop through several valve sections is plausibly in that range, but I have no source), load-sensing wins at the measured load factor for any standby flow tested; below about 6 bar it loses. Standby flow matters far less than p_n.
+- Limits: same assumptions as 2g (idle demand, margins from two different machines); p_n and q_sb remain swept, not measured. H4 still untested.
+- Next: a sourced centre-bypass pressure drop at neutral (valve datasheet or measured paper), then parts cost (milestone 4).
+
 ## 2026-10-29 · Milestone 2g: does 2f's idle-time ranking survive a physical idle model for each circuit?
 - Not pre-registered: written and run in one step (`experiments/idle_models.py`, `idle_models_results.txt`). Check on the script: its "OC bleed, LS standby 0" cells reproduce 2f's table exactly (0.942, 0.820, 0.786, 0.662), so only the idle charge changed.
 - Method: 2f charged idle to open-centre as full pump flow at (p + 6 bar) and to load-sensing with no standby flow. Here open-centre idles through its centre bypass at a neutral pressure p_n (40, 20 or 8 bar) and load-sensing pays its idle demand at (p + 25 bar) plus a standby flow q_sb (0, 2 or 6 L/min) at 25 bar. p_n, q_sb and the idle demand are assumed (swept, no measured source).
