@@ -18,6 +18,9 @@ import { THICK, DEPTH, formatLength, formatInches } from "./engine.mjs";
 
 export const STAIR_LIMITS = { maxRiser: 7.75, minTread: 10, riserVariance: 0.375, headroom: 80, minWidth: 36, maxRise: 147, minThroat: 3.5 };
 
+/** Longest span a stair tread board may run between stringers, by board thickness (typed, model-code-style figures: under 1-1/4 in 12 in, under 1-1/2 in 16 in, 1-1/2 in and thicker 24 in; the local book rules). */
+export function maxTreadSpan(thickness) { return thickness < 1.25 ? 12 : thickness < 1.5 ? 16 : 24; }
+
 /** Guard and handrail limits (model residential code's usual ones, typed so the local book can change them): 36 in guard, handrail 34 to 38 in above the nose line, balusters with no clear gap a 4 in sphere passes, posts no more than 72 in apart, 4 in under the bottom rail. */
 export const RAIL_LIMITS = { guardHeight: 36, handrailMin: 34, handrailMax: 38, maxGap: 4, maxPostSpacing: 72, bottomGap: 4 };
 
@@ -82,6 +85,8 @@ export function layoutStair(input, plan) {
   // Stringers: outer two at the stair edges, others no more than the spacing apart (16 in for 5/4 decking or 2x treads at 16 is the usual limit; type yours).
   const span = s.width - THICK;
   const stringers = Math.max(3, Math.ceil(span / s.stringerSpacing - 1e-9) + 1);
+  const treadSpan = span / (stringers - 1), treadSpanMax = input.treadSpanMax ?? maxTreadSpan(s.treadThickness);
+  if (treadSpan > treadSpanMax + 1e-9) notes.push(`${formatInches(s.treadThickness)} treads span ${formatInches(treadSpan)} between stringers; ${formatInches(treadSpanMax)} is the usual most: use a smaller stringer spacing or thicker treads.`);
   // Board length: the pitch line plus what the plumb cut at the top and the level cut at the bottom take along the board's edge
   // (a conservative bound: the full board depth projected on the slope at each end).
   const slope = Math.hypot(riser, tread);
@@ -103,7 +108,7 @@ export function layoutStair(input, plan) {
   const sumRise = firstRiserCut + (risers - 1) * riser;
   return {
     ok: true, id: s.id, totalRise: s.totalRise, risers, treads, riser, tread, run, angle, pitch, firstRiserCut, comfort,
-    stringer: { size: s.stringer, count: stringers, length: stringerLength, throat, spacing: span / (stringers - 1), depth },
+    stringer: { size: s.stringer, count: stringers, length: stringerLength, throat, spacing: treadSpan, depth, treadSpanMax },
     treadBoards, openRisers: !!s.openRisers, riserBoards: s.openRisers ? 0 : risers, riserStock: riserBoards, width: s.width,
     minOpening: Math.ceil(minOpening * 16) / 16, opening, rail, marks, sumRise, notes, limits: L, nosing: s.nosing,
   };
