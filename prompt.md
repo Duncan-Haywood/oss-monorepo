@@ -19,8 +19,11 @@ that fits no track takes the closest one by the work's nature (`process` for rep
 prompt work, else `ventures` or `research`); note it in `deviations`.
 
 ```
-python3 prompts/promptctl.py route
+python3 prompts/promptctl.py route --task "<the message that started the session>"
 ```
+
+`--task` reads phrases like "revenue", "venture" or "research programme" and picks
+that track; with none, the weighted draw stands (an explicit `--track` wins).
 
 It names the sub-prompt to follow, its version, and the commit trailer. Read
 that file and follow it for the rest of the run.
