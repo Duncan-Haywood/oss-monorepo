@@ -10,6 +10,7 @@ from typing import TextIO
 from shootflow.cull import (
     CullError,
     cull_folder,
+    thumbnail_data_uris,
     pick_score_to_dict,
     read_picks,
     result_to_dict,
@@ -700,7 +701,8 @@ def _run_cull_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
     if args.write_xmp:
         result = write_sidecars(result)
     score = score_against_picks(result, read_picks(args.picks)) if args.picks else None
-    json_path, html_path = write_report(result, args.out, score)
+    thumbs = thumbnail_data_uris(result) if args.thumbs else None
+    json_path, html_path = write_report(result, args.out, score, thumbs)
     out = {"summary": result_to_dict(result)["summary"], "report_json": str(json_path), "report_html": str(html_path)}
     if score:
         out["against_your_picks"] = pick_score_to_dict(score)
@@ -1142,6 +1144,11 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Write Lightroom/Bridge .xmp rating sidecars (keeper 4, alternate 2, reject -1); never overwrites one.",
     )
 
+    cull.add_argument(
+        "--thumbs",
+        action="store_true",
+        help="Embed small thumbnails in cull_report.html as a contact sheet by burst (the file stays on your machine).",
+    )
     cull.add_argument(
         "--picks",
         help="Text file of the photos you would keep (one name or path per line); the report scores the cull against it.",
