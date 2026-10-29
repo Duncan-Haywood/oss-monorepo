@@ -48,11 +48,15 @@ keep their "read from a search result" notes. The window maker's four prices
 and the shed-door seller's three matched their own pages to the cent.
 
 Menards pages do show a price, with a catch: the schema.org price on the page
-is the value after Menards' 11% mail-in rebate, not the shelf price. The
-shelf price is a separate field (`salePrice`). Read that way, nine Menards
-prices were unchanged and four had moved by $0.33 to $1.36, in both
-directions. Those readings go into the next change, together with a small
-script that re-reads them on demand.
+is the value after Menards' 11% mail-in rebate, not the shelf price, which is
+a separate field. Read that way, four of thirteen Menards prices looked to
+have moved by $0.33 to $1.36, in both directions. Those numbers were not
+committed. Menards answered the later requests with a bot challenge, and
+big-box terms of use forbid scraping, so a script that reads their pages is
+not something this tool should ship. The four stay as they were, flagged for
+a person to check in a browser. Sellers whose robots.txt invites it (the
+window maker, the door seller, a hardware store) get a small re-check script
+instead.
 
 The tool is free and runs in the browser. Nothing in it is engineered or
 code-checked; a building department or a designer who can stamp drawings
