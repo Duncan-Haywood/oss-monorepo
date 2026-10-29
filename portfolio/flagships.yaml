@@ -167,8 +167,10 @@ flagships:
       patches only, not yet checked against human picks). Horizon tilt
       (tilt_degrees, 2026-10-22; synthetic horizons only) costs a crooked frame up to 8% of story score. Grain (noise_sigma, 2026-10-23; synthetic Gaussian noise only) is taken out of sharpness and costs technical score. Face and closed-eye
       scores landed 2026-10-26 as an opt-in external detector command
-      (SHOOTFLOW_FACE_DETECTOR, faces.py; made-up output only). Next: wire a real
-      small on-device model to that contract and check it against human picks.
+      (SHOOTFLOW_FACE_DETECTOR, faces.py; made-up output only). A Haar-cascade
+      reference detector (tools/opencv_face_detector.py, 2026-10-29) fills it (one
+      real portrait, no real blinks). Next: a trained blink model behind the same
+      contract, checked against a photographer's picks (wanted: a labelled portrait set).
       RAW stills are scored from their embedded JPEG preview (raw_preview.py,
       2026-10-22; synthetic containers only, so try real CR2/CR3/NEF/ARW/DNG
       files); developing RAW into proxies and masters (a RAW developer) is
