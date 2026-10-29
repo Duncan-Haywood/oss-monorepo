@@ -106,9 +106,7 @@ export function invariants(input, prices = examplePrices()) {
   for (const row of sc.rows) if (!finite(row.ratio) || row.ratio < 0) bad.push(`check ${row.member} ratio ${row.ratio}`);
   for (const n of ['Floor joists', 'Rafters', 'Wall studs']) if (!sc.rows.some((x) => x.member === n)) bad.push(`check missing: ${n}`);
   const cc = connectionChecks(shed);
-  // Known gap, being fixed next (docs/reports/shed-designer-overnight-lane5.md): a 4 ft siding
-  // joint that lands on a door or window has no stud behind it.
-  for (const row of cc.rows) if (!row.ok && !(process.env.FUZZ_STRICT ? false : /^Siding joints on framing/.test(row.check))) bad.push(`connection: ${row.check}: ${row.detail.slice(0, 120)}`);
+  for (const row of cc.rows) if (!row.ok) bad.push(`connection: ${row.check}: ${row.detail.slice(0, 120)}`);
   const sheets = buildSheets(shed);
   for (const s of sheets) {
     const svg = sheetSvg(s, { name: shed.design.name });
@@ -263,4 +261,19 @@ test('every roof sheathing end joint lands on a rafter, even where an inner raft
   assert.ok(s.dims.rafterCenters.includes(94.25));
   const row = connectionChecks(s).rows.find((r) => /^Roof sheathing/.test(r.check));
   assert.ok(row.ok, row.detail);
+});
+
+test('a siding joint beside a window gets a nailer, ripped to fit where the gap is narrow', () => {
+  // Found by the sweep: the right gable of an 8'6" wide shed, a window ending 2-3/4" short of
+  // the 8 ft joint. The king stud covered one panel edge and the end stud stood 3/4" past it.
+  const base = { ...PRESETS['8x12 classic'](), autoWall: false, autoPitch: false, autoOverhang: false };
+  const s = buildShed({ ...base, width: 102, wallHeight: 74.75, gableVents: false,
+    openings: [{ id: 'o1', kind: 'window', wall: 'right', offset: 69, width: 24.25, height: 27.25, sill: 39 }] });
+  const row = connectionChecks(s).rows.find((r) => /^Siding joints/.test(r.check));
+  assert.ok(row.ok, row.detail);
+  const nailers = s.members.filter((m) => m.kind === 'siding nailer');
+  assert.ok(nailers.length > 0);
+  assert.deepEqual(integrity(s).clashes, []);
+  // A wall with no opening near a joint needs no nailer.
+  assert.equal(buildShed({ ...base, openings: [] }).members.filter((m) => m.kind === 'siding nailer').length, 0);
 });
