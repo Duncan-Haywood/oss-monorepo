@@ -1,7 +1,7 @@
 ---
 title: "A free tax calendar for freelancers and sellers, as an .ics file"
 date: 2026-10-29
-description: "AI Bookkeeper's tax calendar is now a web page: federal estimates, payroll and 1099-NEC dates and your state's sales tax returns, downloadable for Google, Apple or Outlook."
+description: "AI Bookkeeper tax calendar is now a web page: federal, payroll, 1099-NEC and state sales tax dates as a list or an .ics file for your calendar."
 tags: [ai-bookkeeper, tax, open-source]
 ---
 
