@@ -98,8 +98,9 @@ flagships:
       Landed history (Poisson, seasonal, AR(1), trend, holidays, bursts,
       --log, change-date range95, bootstrap penalty, excursions,
       driftWarning) and every measurement live in the README and git. Open:
-      (1) range95 on a real count series with a true holiday closure or
-      documented slope break (log GDP is a near-unit-root; coal disasters
+      (1) range95 now holds on a real closure, Ansett's 1989 pilots' dispute
+      (4 of 4 setups, 2026-10-29, README); wanted: a closure series quiet
+      outside it, as this one returns 24 to 43 other changes (log GDP is a near-unit-root; coal disasters
       hold 1890); (2) the steep-bump (0.04) clumpy-count cell is under-
       covered, 65/79 (82%) over six seeds, and the CLI and JSON carry that
       caveat; (3) a GARCH-filtered series has 1% false alarms but loses the

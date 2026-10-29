@@ -195,3 +195,17 @@ R's `datasets::ldeaths`, `mdeaths`, `fdeaths` and `USAccDeaths`.
   statistics counts (Diggle 1990; Brockwell and Davis 1991). Used here as
   test data only.
 - **Used by:** `eval/drift-warning-trendless.mjs`.
+
+# Example data: Ansett Melbourne-Sydney economy-class passengers, 1987-1992
+
+`ansett-melsyd-economy.csv`: weekly economy-class passengers (thousands) on
+Ansett's Melbourne-Sydney route, 283 weeks from 1987-06-29 (week start dates
+computed from the series' start). R's `fpp2::melsyd`, column `Economy.Class`.
+The airline's pilots' dispute from 18 August 1989 is in the data as seven zero
+weeks.
+
+- **Retrieved:** 2026-10-29 from the Rdatasets mirror,
+  <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/fpp2/melsyd.csv>.
+- **Licence:** the fpp2 package is GPL-3 (Hyndman); the figures are airline
+  traffic counts. Used here as test data only.
+- **Used by:** `eval/ansett-strike.mjs`, `ansett-strike.test.mjs`.
