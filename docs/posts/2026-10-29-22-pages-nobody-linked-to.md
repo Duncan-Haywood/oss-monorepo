@@ -1,6 +1,8 @@
 ---
 title: "22 product pages that nothing linked to"
 date: 2026-10-29
+tags: [seo, site-health]
+description: "A sweep of the built site found 22 product pages with no inbound internal link; they are linked now and a new check keeps it that way."
 ---
 
 A sweep of the built Pages site (3,194 HTML pages) for pages with no inbound
