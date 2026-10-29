@@ -2,7 +2,7 @@
 title: "ShootFlow now makes review proxies from RAW files"
 seo_title: "RAW photo review proxies without a RAW developer"
 date: 2026-10-29
-description: "ShootFlow builds 1024 px review JPEGs for CR3, NEF, ARW and DNG stills from the preview the camera embedded, so a RAW shoot can be reviewed before it is developed."
+description: "ShootFlow builds 1024 px review JPEGs for CR3, NEF, ARW and DNG stills from the preview the camera embedded, so a RAW shoot can be reviewed."
 tags: [photo-editing, shootflow, raw]
 ---
 
