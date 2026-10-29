@@ -1,6 +1,6 @@
 ---
 title: "One catalogue number flipped our excavator hydraulics ranking"
-seo_title: "Load-sensing vs open-centre excavator hydraulics: a sourced neutral pressure reverses the energy ranking"
+seo_title: "Load-sensing vs open-centre hydraulics: sourced neutral pressure"
 date: 2026-10-29
 description: "Reading the open-centre neutral pressure from a real valve catalogue turned a modelled 21% load-sensing saving into an 8 to 12% loss."
 tags: [research, heavy-hydraulics, hydraulics, negative-result]
