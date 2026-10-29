@@ -611,6 +611,25 @@ work or a wrapper around an existing C library rarely pays off. The opinion piec
 with the test and four candidates from this repository:
 [`portfolio/opinions/2026-10-20-rust-where-it-is-essential.md`](../portfolio/opinions/2026-10-20-rust-where-it-is-essential.md).
 
+## Direction: dev tools in Rust, common and niche
+
+Set by the owner on 2026-10-29: "I think one cool project direction is
+common dev tools rewritten in rust", and a moment later, "but also just
+common and niche tools."
+
+So rewriting developer tools in Rust is a standing direction, for widely
+used tools and for niche ones. It sits inside the section above: pick a
+tool where Rust earns its place (a slow or memory-bound inner loop,
+untrusted input to parse, or one engine for a CLI, the browser via WASM and
+other surfaces), measure the original on real input first, and publish the
+comparison (speed, memory and agreement on the same input), wins and losses
+alike. Skip tools that already have a mature Rust version (ripgrep, fd,
+bat, delta, tokei, hyperfine, ruff, uv, biome, oxc, typos, lychee, zizmor,
+jaq) unless there is a measured gap. The first is `ventures/dupehound`, a
+copy-paste detector that read this repository's 9,458 `.mjs` files in
+1.2 s where jscpd needed 337 s and 6.2 GB. Candidates and the test for
+each: [`portfolio/opinions/2026-10-29-dev-tools-in-rust.md`](../portfolio/opinions/2026-10-29-dev-tools-in-rust.md).
+
 ## Direction: open construction, mining and heavy equipment
 
 Set by the owner on 2026-10-24: "I want one of the directions to be working
