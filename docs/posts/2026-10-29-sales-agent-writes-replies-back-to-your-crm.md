@@ -1,7 +1,7 @@
 ---
 title: "Sales Agent now writes what it read back into your CRM"
 date: 2026-10-29
-description: "The self-hosted Sales Agent notes each reply it reads on the Pipedrive or HubSpot contact and sets the CRM opt-out on an unsubscribe. It only records or reduces contact."
+description: "Sales Agent can now note each reply it reads on the Pipedrive or HubSpot contact and set the CRM opt-out on unsubscribes. It only records or reduces contact."
 tags: [sales-agent, crm, open-source]
 ---
 
