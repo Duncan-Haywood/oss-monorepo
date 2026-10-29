@@ -27,6 +27,22 @@ const CLS_FOR = {
 };
 
 /**
+ * Plan footprint of a member from its 3D geometry: x along the shed's length, y across it.
+ * @param {any} m
+ */
+function planBox(m) {
+  const g = m.geom;
+  const xs = []; const ys = [];
+  for (const [a, b] of g.profile) {
+    for (const t of [0, g.thickness]) {
+      xs.push(g.origin[0] + g.u[0] * a + g.v[0] * b + g.w[0] * t);
+      ys.push(g.origin[1] + g.u[1] * a + g.v[1] * b + g.w[1] * t);
+    }
+  }
+  return { x0: Math.min(...xs), x1: Math.max(...xs), y0: Math.min(...ys), y1: Math.max(...ys) };
+}
+
+/**
  * @param {import('./model.mjs').Shed} shed
  * @param {Map<string, string>} [marks] member id -> mark letter from the parts list
  * @returns {Sheet[]}
@@ -38,6 +54,9 @@ export function buildSheets(shed, marks = new Map()) {
   const W = d.width;
   const sheets = /** @type {Sheet[]} */ ([]);
   const markText = (m) => marks.get(m.id) || '';
+  // Where the rafter's underside meets the plate line, measured in from the wall's outside face:
+  // the inside edge of the plate at a birdsmouth, the outside edge on a connector.
+  const seat = k.connector ? 0 : k.stud;
   const treatedNote = d.floorTreated ? 'pressure-treated' : 'untreated (you chose untreated floor framing)';
 
   // 1. Foundation plan (top view, front wall at the bottom).
@@ -48,6 +67,7 @@ export function buildSheets(shed, marks = new Map()) {
     for (const m of shed.members.filter((x) => x.kind === 'skid')) {
       const l = /** @type {any} */ (m.local);
       items.push(rect(l.s0, l.z0, l.s1, l.z1, 'pt'));
+      items.push(text([L * 0.2, (l.z0 + l.z1) / 2 - 1.5], markText(m), 8, 'middle', 'mark'));
     }
     for (const f of shed.fixtures.filter((x) => x.kind === 'block')) {
       const o = f.geom.origin;
@@ -75,6 +95,7 @@ export function buildSheets(shed, marks = new Map()) {
       const l = /** @type {any} */ (m.local);
       items.push(rect(l.s0, l.z0, l.s1, l.z1, 'pt'));
       if (m.kind === 'floor joist') items.push(text([(l.s0 + l.s1) / 2, W / 2 + 10], markText(m), 9, 'middle', 'mark'));
+      else if (l.s1 - l.s0 > l.z1 - l.z0) items.push(text([l.s0 + (l.s1 - l.s0) * 0.3, (l.z0 + l.z1) / 2 - 1.5], markText(m), 8, 'middle', 'mark'));
     }
     for (const y of k.skidYs) items.push(line([0, y], [L, y], 'hidden'));
     const c = k.joistCenters;
@@ -120,19 +141,26 @@ export function buildSheets(shed, marks = new Map()) {
       const mk = markText(m);
       const vertical = l.z1 - l.z0 > x1 - x0;
       if (mk && vertical && l.z1 - l.z0 > 14) items.push({ t: 'text', at: [(x0 + x1) / 2, (l.z0 + Math.min(l.z1, l.z0 + 60)) / 2], text: mk, size: 8, anchor: 'middle', cls: 'mark' });
-      if (mk && !vertical && x1 - x0 > 14 && m.kind !== 'top plate' && m.kind !== 'cap plate' && m.kind !== 'bottom plate') items.push(text([(x0 + x1) / 2, (l.z0 + l.z1) / 2 - 3], mk, 8, 'middle', 'mark'));
+      // Short pieces (cripples, gable studs, vent framing) are marked at their middle, in smaller letters.
+      else if (mk && vertical) items.push(text([(x0 + x1) / 2, l.z0 + Math.min(l.z1 - l.z0, gable && l.top ? Math.min(l.top[0][1], l.top[1][1]) - l.z0 : Infinity) / 2 - 1], mk, 6, 'middle', 'mark'));
+      // Plates are marked near the left end of each piece, so splices read piece by piece.
+      else if (mk && /plate/.test(m.kind)) items.push(text([x0 + 3, (l.z0 + l.z1) / 2 - 0.5], mk, 6, 'start', 'mark'));
+      else if (mk && !vertical && x1 - x0 > 14) items.push(text([(x0 + x1) / 2, (l.z0 + l.z1) / 2 - 3], mk, 8, 'middle', 'mark'));
+      else if (mk) items.push(text([(x0 + x1) / 2, (l.z0 + l.z1) / 2 - 1], mk, 6, 'middle', 'mark'));
     }
     const H = d.wallHeight;
     if (!eave) {
       // Roof line over the gable: underside of the end rafter, and its top.
-      const zb = (dist) => H + (dist - k.stud) * (d.pitch / 12);
-      const pts = /** @type {P[]} */ ([[-d.overhang, zb(-d.overhang)], [W / 2, zb(W / 2 - 0.75)], [W + d.overhang, zb(-d.overhang)]]);
+      const zb = (dist) => H + (dist - seat) * (d.pitch / 12);
+      // The rafters stop at the ridge's faces, so the line is flat across the ridge.
+      const rh = d.roofType === 'ridgeBeam' ? 1.5 : 0.75;
+      const pts = /** @type {P[]} */ ([[-d.overhang, zb(-d.overhang)], [W / 2 - rh, zb(W / 2 - rh)], [W / 2 + rh, zb(W / 2 - rh)], [W + d.overhang, zb(-d.overhang)]]);
       items.push({ t: 'poly', pts, cls: 'roofline' });
       items.push({ t: 'poly', pts: pts.map(([x, z]) => /** @type {P} */ ([x, z + k.plumbH])), cls: 'roofline' });
       items.push(dim([W, 0], [W, k.ridgeTop - k.floorTop], -40, `${fmtFtIn(k.ridgeTop - k.floorTop)} to ridge top`));
     } else {
       // Rafter tails past the wall, as a band.
-      const tail = d.pitch / 12 * (d.overhang + k.stud);
+      const tail = d.pitch / 12 * (d.overhang + seat);
       items.push({ t: 'poly', pts: [[0, H], [face, H], [face, H - tail + k.plumbH], [0, H - tail + k.plumbH]], cls: 'roofline' });
     }
     // Centre of every full-height piece, from the left end, so the plates can be laid out from the sheet.
@@ -161,12 +189,13 @@ export function buildSheets(shed, marks = new Map()) {
       if (p.op.kind === 'window') items.push(dim([x1, 0], [x1, p.bottom], -14, `sill ${fmtIn(p.bottom)}`));
       items.push(dim([x0, 0], [x0, p.bottom + p.op.height], 14, `${fmtIn(p.bottom + p.op.height)} to header`));
     }
-    for (const vent of shed.vents?.[name] || []) {
+    for (const [i, vent] of (shed.vents?.[name] || []).entries()) {
       const a = hx(vent.s0); const b = hx(vent.s1);
       const x0 = Math.min(a, b); const x1 = Math.max(a, b);
       items.push(rect(x0, vent.z0, x1, vent.z1, 'opening'));
       items.push(text([(x0 + x1) / 2, vent.z0 + (vent.z1 - vent.z0) / 2 - 3], 'VENT', 8));
-      items.push(dim([x0, vent.z1], [x1, vent.z1], 10, `${fmtIn(x1 - x0)} x ${fmtIn(vent.z1 - vent.z0)} vent`));
+      // A pair of vents flanks the post: stack their labels so they do not run into each other.
+      items.push(dim([x0, vent.z1], [x1, vent.z1], 10 + 14 * i, `${fmtIn(x1 - x0)} x ${fmtIn(vent.z1 - vent.z0)} vent`));
     }
     const studs = wall.members.filter((m) => m.kind === 'stud').length;
     sheets.push({
@@ -198,6 +227,18 @@ export function buildSheets(shed, marks = new Map()) {
     items.push(dim([0, -o], [L, -o], -38));
     items.push(dim([L, -o], [L, 0], -30, `${fmtIn(o)} overhang`));
     items.push(dim([L, 0], [L, W], -30));
+    // Blocking and sub-fascia from the model, and the mark of every roof member.
+    for (const m of shed.members.filter((x) => x.group === 'roof')) {
+      const bx = planBox(m);
+      if (m.kind === 'eave blocking' || m.kind === 'sub-fascia') items.push(rect(bx.x0, bx.y0, bx.x1, bx.y1, 'member'));
+      const mk = markText(m);
+      if (!mk) continue;
+      // Rafters a third of the way up from the eave, ties clear of the ridge, the rest at their middle.
+      const y = m.kind === 'rafter' ? (bx.y0 < W / 2 - 2 ? bx.y0 + (bx.y1 - bx.y0) * 0.3 : bx.y1 - (bx.y1 - bx.y0) * 0.3)
+        : m.kind === 'rafter tie' ? bx.y0 + (bx.y1 - bx.y0) * 0.42 : (bx.y0 + bx.y1) / 2;
+      const x = m.kind === 'rafter' || m.kind === 'rafter tie' || m.kind === 'eave blocking' ? (bx.x0 + bx.x1) / 2 : bx.x0 + Math.min(18, (bx.x1 - bx.x0) / 2);
+      items.push(text([x, y - 1.5], mk, m.kind === 'eave blocking' ? 6 : 8, 'middle', 'mark'));
+    }
     items.push(text([L / 2, W / 2 + 10], d.roofType === 'ridgeBeam' ? `two-ply ${k.ridgeSize} ridge beam on posts` : `${k.ridgeSize} ridge board`, 11));
     items.push(text([L / 2, W / 4], `${d.rafterSize} rafters at ${d.rafterSpacing}" on centre`, 11));
     sheets.push({
@@ -238,20 +279,22 @@ export function buildSheets(shed, marks = new Map()) {
     }
     const run = 12;
     const ax = W * 0.18;
-    const az = k.plateTop + (ax - k.stud) * (d.pitch / 12) + k.plumbH + 10;
-    items.push({ t: 'poly', pts: [[ax, az], [ax + run, az], [ax + run, az + d.pitch]], cls: 'thin' });
+    const az = k.plateTop + (ax - seat) * (d.pitch / 12) + k.plumbH + 10;
+    items.push({ t: 'poly', pts: [[ax, az], [ax + run, az], [ax + run, az + d.pitch]], closed: true, cls: 'thin' });
     items.push(text([ax + run / 2, az + 1.5], '12', 9));
     items.push(text([ax + run + 3, az + d.pitch / 2 - 3], String(d.pitch), 9, 'start'));
     items.push(dim([0, k.floorTop], [0, k.plateTop], 34, `${fmtFtIn(d.wallHeight)} wall`));
-    items.push(dim([W, 0], [W, k.peak], -40, `${fmtFtIn(k.peak)} to peak`));
+    const sidingLabel = d.siding ? (d.sidingType === 'T1-11' || d.sidingType.startsWith('LP SmartSide') ? `${d.sidingType} panels` : `${d.sidingType} over OSB`) : '';
+    // Clear of the siding label, which sits between the wall and this dimension.
+    items.push(dim([W, 0], [W, k.peak], -(40 + textWidth(sidingLabel, 8)), `${fmtFtIn(k.peak)} to peak`));
     items.push(dim([0, 0], [W, 0], -30));
-    const tailZ = k.plateTop - (d.overhang + k.stud) * (d.pitch / 12) - 4;
-    items.push(dim([-d.overhang, tailZ], [0, tailZ], 12, `${fmtIn(d.overhang)} overhang`));
+    const tailZ = k.plateTop - (d.overhang + seat) * (d.pitch / 12) - 8;
+    if (d.overhang > 0) items.push(dim([-d.overhang, tailZ], [0, tailZ], -10, `${fmtIn(d.overhang)} overhang`));
     // Roof build-up, eave and wall finishes.
     const tt = d.pitch / 12;
     const cosA = 1 / Math.sqrt(1 + tt * tt);
-    const zt = (dist) => k.plateTop + (dist - k.stud) * tt + k.plumbH;
-    const zb = (dist) => k.plateTop + (dist - k.stud) * tt;
+    const zt = (dist) => k.plateTop + (dist - seat) * tt + k.plumbH;
+    const zb = (dist) => k.plateTop + (dist - seat) * tt;
     const sh = (7 / 16) / cosA;
     const o = d.overhang;
     for (const back of [false, true]) {
@@ -273,13 +316,13 @@ export function buildSheets(shed, marks = new Map()) {
     lbl(W * 0.62, zt(W * 0.38) - 8, `${d.rafterSize} rafters at ${d.rafterSpacing}" o.c.`);
     if (o > 0) lbl(W + o + 3, zt(-o) - 4, '2x6 sub-fascia + 1x6 fascia; vented soffit under the tails', 'start');
     if (block) lbl(k.stud + 2, k.plateTop + 6, 'eave block between rafters', 'start');
-    if (d.siding) lbl(W + 3, k.floorTop + 40, `${d.sidingType === 'T1-11' || d.sidingType.startsWith('LP SmartSide') ? d.sidingType + ' panels' : d.sidingType + ' over OSB'}`, 'start');
+    if (d.siding) lbl(W + 3, k.floorTop + 40, sidingLabel, 'start');
     lbl(k.stud + 4, k.floorTop + 10, `${d.studSize} studs at ${d.studSpacing}" o.c., double top plate`);
     lbl(W / 2 + 4, k.skidTop + 2, `${d.joistSize} joists at ${d.joistSpacing}" o.c. on ${k.skidCount} ${d.skidSize} skids`);
     items.push(text([W / 2, k.floorTop + 30], 'SECTION', 12, 'middle', 'muted'));
     sheets.push({
       id: 'section', title: 'Building section',
-      note: `${d.pitch}/12 gable roof. Heights from the top of the gravel: floor ${fmtFtIn(k.floorTop)}, top plate ${fmtFtIn(k.plateTop)}, peak about ${fmtFtIn(k.peak)}. Birdsmouth heel ${fmtIn(k.heel)} with a ${fmtIn(k.stud)} seat.`,
+      note: `${d.pitch}/12 gable roof. Heights from the top of the gravel: floor ${fmtFtIn(k.floorTop)}, top plate ${fmtFtIn(k.plateTop)}, peak about ${fmtFtIn(k.peak)}. ${k.connector ? 'Rafters sit on variable-pitch connectors at the plate, with no birdsmouth.' : `Birdsmouth heel ${fmtIn(k.heel)} with a ${fmtIn(k.stud)} seat.`}`,
       items,
     });
   }
@@ -456,7 +499,13 @@ export function buildSheets(shed, marks = new Map()) {
     }
     if (o > 0) items.push(dim([-o, zb(-o) - 2], [0, zb(-o) - 2], -14, `${fmtIn(o)} tail`));
     items.push(dim([r, zb(r)], [r, zt(r)], -16, `plumb ${fmtIn(k.plumbH)}`));
-    items.push(dim([-o, zt(-o)], [r, zt(r)], 24, `${fmtIn(k.rafterCut)} cut length from a square end (mark on the cut sheet)`));
+    // The board's length runs along the rafter from the tail's long point to the ridge's: the
+    // top edge plus the depth's run along the slope, which is what the cut list counts.
+    const cosA = Math.cos(Math.atan(tt));
+    const back = k.rafterDepth * tt; // the long point lies this far behind the tail's top corner, along the slope
+    const lp = /** @type {P} */ ([-o - back * cosA, zt(-o) - back * tt * cosA]);
+    items.push(line(lp, [-o, zt(-o)], 'hidden'));
+    items.push(dim(lp, [r, zt(r)], 24, `${fmtIn(k.rafterCut)} cut length from a square end (mark on the cut sheet)`));
     items.push(text([r - 2, zt(r) + 6], `ridge plumb cut: ${d.pitch} on the common scale`, 9, 'end'));
     items.push(text([-o, zt(-o) + 6], o > 0 ? `tail plumb cut: ${d.pitch} on the common scale` : '', 9, 'start'));
     sheets.push({
@@ -487,6 +536,11 @@ export function buildSheets(shed, marks = new Map()) {
     items.push(dim([w, 0], [w, h], -16, `${fmtIn(h)} (1/4" top and bottom)`));
     items.push(dim([T, h], [w - T, h], 10, `rails ${fmtIn(railLen)}`));
     items.push(text([w / 2, T + bay / 2], `Z brace, ${dr.braceAngle.toFixed(0)} deg, cut to fit`, 8));
+    // Part marks, as on the cut sheet.
+    const doorMark = (kind) => markText(/** @type {any} */ ((shed.doorParts || []).find((p) => p.kind === kind && p.note.startsWith(`door ${dr.id}:`)) || {}));
+    for (const x of [T / 2, w - T / 2]) items.push(text([x, h * 0.62], doorMark('door stile'), 8, 'middle', 'mark'));
+    for (const z of [0, T + bay, h - T]) items.push(text([w * 0.62, z + T / 2 - 1.2], doorMark('door rail'), 8, 'middle', 'mark'));
+    for (const z0 of [T, 2 * T + bay]) items.push(text([w * 0.7, z0 + bay * 0.7 - bh / 2], doorMark('door brace'), 8, 'middle', 'mark'));
     sheets.push({
       id: `door-${dr.id}`, title: `Door ${dr.id}: site-built shed door`,
       note: `Seen from inside, hinges on the left in this view. ${dr.leaves > 1 ? `A pair of leaves, each ${fmtIn(w)} wide. ` : ''}Skin: the siding cut out of the door opening, best face out. Frame: 2x4s laid flat, glued and screwed through the skin with 1-1/4" exterior screws every 8". The braces run down toward the hinges so the door cannot sag. Hang on three tee hinges with a 1/4" gap all round, the hinge straps over the rails.`,
@@ -573,6 +627,51 @@ function bounds(items) {
   return { x0, y0, x1, y1 };
 }
 
+/** Rough width of a line of lettering in pixels. */
+const textWidth = (s, size) => String(s).length * size * 0.56;
+
+/**
+ * Every point a sheet draws, with how far its marks reach on screen from it in
+ * pixels (x right, y down), whatever the scale: lettering, and a dimension's
+ * offset, ticks and label. The same arithmetic as sheetSvg below.
+ * @param {Item[]} items
+ */
+function screenReach(items) {
+  /** @type {{ x: number, y: number, dx0: number, dx1: number, dy0: number, dy1: number }[]} */
+  const out = [];
+  const box = (x, y, cx, cy, w, h, ang, anchor = 'middle') => {
+    // A w x h label whose baseline point sits (cx, cy) px from the model point, turned ang degrees on screen.
+    const a0 = anchor === 'start' ? 0 : anchor === 'end' ? -w : -w / 2;
+    const c = Math.cos(ang * Math.PI / 180); const sn = Math.sin(ang * Math.PI / 180);
+    const pts = [[a0, -h], [a0 + w, -h], [a0, h * 0.3], [a0 + w, h * 0.3]].map(([u, v]) => [cx + u * c - v * sn, cy + u * sn + v * c]);
+    out.push({ x, y, dx0: Math.min(...pts.map((p) => p[0])), dx1: Math.max(...pts.map((p) => p[0])), dy0: Math.min(...pts.map((p) => p[1])), dy1: Math.max(...pts.map((p) => p[1])) });
+  };
+  for (const it of items) {
+    if (it.t === 'poly') for (const [x, y] of it.pts) out.push({ x, y, dx0: -1, dx1: 1, dy0: -1, dy1: 1 });
+    else if (it.t === 'text') { if (it.text) box(it.at[0], it.at[1], 0, 0, textWidth(it.text, it.size || 11), it.size || 11, -(it.rot || 0), it.anchor || 'middle'); }
+    else {
+      const dx = it.b[0] - it.a[0]; const dy = -(it.b[1] - it.a[1]); const len = Math.hypot(dx, dy) || 1;
+      const nx = dy / len; const ny = -dx / len;
+      const o = it.off; const sg = Math.sign(o || 1);
+      for (const p of [it.a, it.b]) {
+        const ex = [nx * (o + sg * 4), ny * (o + sg * 4)];
+        out.push({ x: p[0], y: p[1], dx0: Math.min(0, ex[0]) - 4, dx1: Math.max(0, ex[0]) + 4, dy0: Math.min(0, ex[1]) - 4, dy1: Math.max(0, ex[1]) + 4 });
+      }
+      let ang = Math.atan2(dy, dx) * 180 / Math.PI;
+      if (ang > 90) ang -= 180;
+      if (ang <= -90) ang += 180;
+      const label = it.text || fmtFtIn(Math.hypot(it.b[0] - it.a[0], it.b[1] - it.a[1]));
+      const mx = (it.a[0] + it.b[0]) / 2; const my = (it.a[1] + it.b[1]) / 2;
+      const cx = nx * (o + sg * 4); const cy = ny * (o + sg * 4);
+      const w = textWidth(label, 10); // the label hangs to one side of its point or the other: allow both
+      const c = Math.cos(ang * Math.PI / 180); const sn = Math.sin(ang * Math.PI / 180);
+      const pts = [[-w / 2, -11], [w / 2, -11], [-w / 2, 11], [w / 2, 11]].map(([u, v]) => [cx + u * c - v * sn, cy + u * sn + v * c]);
+      out.push({ x: mx, y: my, dx0: Math.min(...pts.map((p) => p[0])), dx1: Math.max(...pts.map((p) => p[0])), dy0: Math.min(...pts.map((p) => p[1])), dy1: Math.max(...pts.map((p) => p[1])) });
+    }
+  }
+  return out;
+}
+
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
 const SVG_STYLE = `
@@ -624,9 +723,28 @@ export function sheetSvg(sheet, meta = {}) {
   const margin = 70;
   const tbH = 88;
   const b = bounds(sheet.items);
-  const scale = Math.min((PW - 2 * margin) / (b.x1 - b.x0 || 1), (PH - 2 * margin - tbH) / (b.y1 - b.y0 || 1));
-  const ox = (PW - (b.x1 - b.x0) * scale) / 2;
-  const oy = margin + (PH - 2 * margin - tbH - (b.y1 - b.y0) * scale) / 2;
+  // Dimension offsets, ticks and lettering are drawn in screen pixels beside
+  // the geometry, so the fit has to leave room for them: find the largest
+  // scale at which every piece, offset included, stays inside the frame and
+  // clear of the title block, then centre what is left over.
+  const reach = screenReach(sheet.items);
+  const left = margin; const right = PW - margin; const top = margin; const bottom = PH - margin - tbH;
+  const fits = (s) => {
+    let xlo = -Infinity; let xhi = Infinity; let ylo = -Infinity; let yhi = Infinity;
+    for (const r of reach) {
+      const x = (r.x - b.x0) * s; const y = (b.y1 - r.y) * s;
+      xlo = Math.max(xlo, left - x - r.dx0); xhi = Math.min(xhi, right - x - r.dx1);
+      ylo = Math.max(ylo, top - y - r.dy0); yhi = Math.min(yhi, bottom - y - r.dy1);
+    }
+    return xlo <= xhi + 1e-9 && ylo <= yhi + 1e-9 ? { ox: (xlo + xhi) / 2, oy: (ylo + yhi) / 2 } : null;
+  };
+  let lo = 0; let hi = Math.min((right - left) / (b.x1 - b.x0 || 1), (bottom - top) / (b.y1 - b.y0 || 1));
+  if (fits(hi)) lo = hi;
+  else for (let i = 0; i < 40; i++) { const mid = (lo + hi) / 2; if (fits(mid)) lo = mid; else hi = mid; }
+  const scale = lo;
+  const at = fits(scale) || { ox: left, oy: top };
+  const ox = at.ox;
+  const oy = at.oy;
   const X = (x) => +(ox + (x - b.x0) * scale).toFixed(2);
   const Y = (y) => +(oy + (b.y1 - y) * scale).toFixed(2);
   const parts = [];

@@ -277,6 +277,35 @@ export function splitRun(start, end, maxLen, breaks, avoid = [], minAway = 0) {
   return { runs, forced };
 }
 
+/**
+ * Every way to break a run at framing centres into pieces no longer than
+ * maxLen (with splitRun's limits on stubs), each joint passing `ok`, longest
+ * first piece first, so the first answer is splitRun's when that one is
+ * allowed. Stops after `limit` dead ends.
+ * @param {number} start @param {number} end @param {number} maxLen
+ * @param {number[]} breaks @param {(b: number) => boolean} ok @param {number} limit
+ * @returns {Generator<number[]>}
+ */
+/** IRC R602.3.2: end joints in double top plates offset at least 24". */
+export const PLATE_OFFSET_MIN = 24;
+
+export function* jointSets(start, end, maxLen, breaks, ok, limit) {
+  const sorted = [...breaks].sort((a, b) => b - a);
+  let budget = limit;
+  /** @returns {Generator<number[]>} */
+  function* from(c) {
+    if (end - c <= maxLen + 1e-9) { yield []; return; }
+    for (const b of sorted) {
+      if (budget <= 0) return;
+      if (!(b > c + 12 && b <= c + maxLen + 1e-9 && b < end - 6 && ok(b))) continue;
+      let any = false;
+      for (const rest of from(b)) { any = true; yield [b, ...rest]; }
+      if (!any) budget -= 1;
+    }
+  }
+  yield* from(start);
+}
+
 /** Layout centres k*spacing between two limits, measured from the building corner. */
 function layoutCenters(spacing, lo, hi) {
   const out = [];
@@ -678,16 +707,35 @@ function buildFramed(d) {
     for (const [r0, r1] of bottomRuns) {
       for (const [s0, s1] of splitRun(r0, r1, maxStock, breakCenters).runs) addM('bottom plate', d.studSize, s0, s1, 0, 1.5);
     }
-    const top = splitRun(0, len, maxStock, breakCenters);
-    for (const [s0, s1] of top.runs) addM('top plate', d.studSize, s0, s1, H - 3, H - 1.5);
-    const topJoints = top.runs.slice(1).map((r) => r[0]);
     // The cap plate interlocks the corners: on the eave walls it stops one wall
     // depth short of each end, and the gable walls' cap runs that much long to
     // lap over the eave walls' top plate.
     const [c0, c1] = spec.eave ? [D, len - D] : [-D, len + D];
-    const cap = splitRun(c0, c1, maxStock, breakCenters, topJoints, 48);
+    let top = splitRun(0, len, maxStock, breakCenters);
+    let topJoints = top.runs.slice(1).map((r) => r[0]);
+    let cap = splitRun(c0, c1, maxStock, breakCenters, topJoints, 48);
+    // The greedy split takes the longest top-plate piece first, which can leave
+    // the cap no joint 4 ft clear of it (a window can remove the stud the cap
+    // joint needs). Then choose both plates' joints together.
+    // 4 ft is the aim; the IRC's minimum (R602.3.2) is 24", the fallback.
+    const clearOf = (tj, gap) => (b) => tj.every((t) => Math.abs(t - b) >= gap - 1e-9);
+    const capJoints = (r) => r.runs.slice(1).map((x) => x[0]);
+    if (topJoints.length && !capJoints(cap).every(clearOf(topJoints, 48))) {
+      search: for (const gap of [48, PLATE_OFFSET_MIN]) {
+        for (const tj of jointSets(0, len, maxStock, breakCenters, () => true, 400)) {
+          const cj = jointSets(c0, c1, maxStock, breakCenters, clearOf(tj, gap), 400).next().value;
+          if (!cj) continue;
+          const runs = (a, b, js) => /** @type {[number, number][]} */ ([a, ...js].map((x, i) => [x, [...js, b][i]]));
+          top = { runs: runs(0, len, tj), forced: false };
+          topJoints = tj;
+          cap = { runs: runs(c0, c1, cj), forced: false };
+          break search;
+        }
+      }
+    }
+    for (const [s0, s1] of top.runs) addM('top plate', d.studSize, s0, s1, H - 3, H - 1.5);
     for (const [s0, s1] of cap.runs) addM('cap plate', d.studSize, s0, s1, H - 1.5, H, spec.eave ? `stops ${D}" short of each end; the end walls' cap laps over it` : `runs ${D}" past each end to lap over the long walls`);
-    if (top.runs.length > 1) notes.push(`${WALL_LABEL[name]}: plates are longer than your longest board, so they splice over studs; the cap plate's joints are kept away from the top plate's where the layout allows.`);
+    if (top.runs.length > 1) notes.push(`${WALL_LABEL[name]}: plates are longer than your longest board, so they splice over studs; the cap plate's joints are kept 4 ft from the top plate's where the layout allows, and never under the code's 24".`);
     walls[name] = { name, len, start, members: wm, openings: ops, eave: spec.eave };
   }
 
@@ -1167,12 +1215,13 @@ function buildFramed(d) {
     const braceLen = Math.hypot(railLen, bay);
     const braceAngle = (Math.atan2(bay, railLen) * 180) / Math.PI;
     doors.push({ id: op.id, leaves, w, h, railLen, braceLen, braceAngle });
+    // Pieces that are the same in both leaves and in every rail position share one note, so they share a part mark.
     for (let i = 0; i < leaves; i++) {
-      const tag = `door ${op.id}${leaves > 1 ? (i ? ' right' : ' left') : ''}`;
+      const tag = `door ${op.id}`;
       const part = (kind, length, note) => doorParts.push({ id: nextId('DR'), group: 'door', kind, material: '2x4', length: Math.ceil(length * 8) / 8, note: `${tag}: ${note}` });
       part('door stile', h, 'laid flat, full height');
       part('door stile', h, 'laid flat, full height');
-      for (const r of ['top', 'middle', 'bottom']) part('door rail', railLen, `${r} rail between the stiles`);
+      for (let r = 0; r < 3; r++) part('door rail', railLen, 'top, middle and bottom rails between the stiles');
       part('door brace', braceLen + 3.5, `Z brace, ends cut at ${braceAngle.toFixed(0)} deg to fit between rails, low end at the hinge side`);
       part('door brace', braceLen + 3.5, `Z brace, ends cut at ${braceAngle.toFixed(0)} deg to fit between rails, low end at the hinge side`);
     }
