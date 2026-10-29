@@ -19,7 +19,7 @@ from idle_sensitivity import useful_power
 
 ETA, DP_SPOOL, DP_LS = 0.883, 6.0, 25.0
 
-def ratio(target_lf, p_n, q_sb, n_per_seed=1000):
+def ratio(target_lf, p_n, q_sb, n_per_seed=1000, dp_ls=DP_LS):
     """LS/OC shaft energy; p_n None = 2f's bleed at (p+dp_spool)."""
     out = []
     for s in pc.SEEDS:
@@ -30,11 +30,11 @@ def ratio(target_lf, p_n, q_sb, n_per_seed=1000):
             e = sum(useful_power(p) * p.seconds for p in c)
             t_idle = max(0.0, e / (target_lf * peak) - sum(p.seconds for p in c))
             p_i, q_i = rng.uniform(10, 25), rng.uniform(2, 8)
-            kw = dict(pump_flow=pc.Q_PUMP, dp_spool=DP_SPOOL, dp_ls=DP_LS, dp_m=dpm, eta_pump=ETA)
+            kw = dict(pump_flow=pc.Q_PUMP, dp_spool=DP_SPOOL, dp_ls=dp_ls, dp_m=dpm, eta_pump=ETA)
             oc = cycle_energy(c, "open_centre", **kw)["shaft_J"]
             ls = cycle_energy(c, "load_sensing", **kw)["shaft_J"]
             h_oc = pc.Q_PUMP * (p_i + DP_SPOOL if p_n is None else p_n)
-            h_ls = q_i * (p_i + DP_LS) + q_sb * DP_LS
+            h_ls = q_i * (p_i + dp_ls) + q_sb * dp_ls
             oc += h_oc * W_PER_BAR_LPM * t_idle / ETA
             ls += h_ls * W_PER_BAR_LPM * t_idle / ETA
             out.append(ls / oc)

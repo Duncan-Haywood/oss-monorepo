@@ -24,6 +24,8 @@ All ratios are medians over 5,000 to 20,000 seeded model cycles.
 
 **3.1a A sourced neutral pressure reverses the idle ranking (milestone 2i).** Reading the open-centre neutral drop from the Salami VD8A sectional-valve catalogue (about 1 bar per section at the 75 L/min nominal flow; 8-spool curve about 12.7 bar at 90 L/min; Q-squared scaling) gives 1.1 to 3.2 bar at our 45 L/min pump for 3 to 8 sections, below the 6 to 11 bar break-even. At load factor 0.346 the median LS/OC is then 1.08 to 1.12 (LS worse in 72 to 80% of cycles), and 1.02 to 1.03 with an assumed extra 5 bar for return line and cooler (`neutral_sourced_results.txt`). The abstract's "21% less" therefore holds only if the neutral path holds 6 to 8 bar or more; this is one valve family and the LS margin is still unsourced.
 
+**3.1b The load-sensing margin reverses it again (milestone 2j).** The 25 bar margin is one thesis model of a midi excavator. Rexroth Canada's A10VO manual (Module 3A, s. 7.2) gives a factory standby setting of "usually 200 PSI" (13.8 bar), and reseller listings give a 14 bar LS differential for A10VO DFR units. With dp_ls 14 bar and the same sourced valve drop, the median LS/OC at load factor 0.346 is 0.893 (extra neutral drop 0) and 0.817 (extra 5 bar): load-sensing is ahead (`dpls_sourced_results.txt`). At 25 bar it is 1.115 and 1.021. The sign of the circuit gap therefore turns on a margin on which the two sources disagree by 11 bar; we found no excavator main-valve value and no standby flow.
+
 **3.1 The ranking depends on idle time and neutral pressure.**
 
 | Condition (LS shaft energy / open-centre) | Median | Share of cycles LS > OC | Source file |
