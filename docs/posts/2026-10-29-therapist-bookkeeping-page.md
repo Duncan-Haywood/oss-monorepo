@@ -1,7 +1,7 @@
 ---
 title: "A bookkeeping page for therapists, and why it runs in the browser"
 date: 2026-10-29
-description: "ai-bookkeeper gets a worked October for a solo therapist. Eight of fourteen lines went unfiled until insurance-panel payouts, CE, supervision and dues got rules."
+description: "ai-bookkeeper gets a worked October for a solo therapist. Eight of fourteen lines went unfiled until insurance-panel payouts, CE, supervision and dues got rules"
 tags: [ai-bookkeeper, small-business, bookkeeping]
 ---
 
