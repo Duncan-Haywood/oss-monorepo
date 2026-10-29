@@ -128,6 +128,55 @@ export function addOpening(sk, wallId, kind, along, width) {
   return { ok: true, opening };
 }
 
+/**
+ * Move wall ends. Every wall end at one of the `moves[i].from` points goes to
+ * `moves[i].to`, so walls that met at a corner still meet. The move is refused
+ * (and nothing changes) when a wall would shrink under 1 in or collapse onto
+ * another wall, or when an opening would no longer fit on its shortened wall.
+ * @param {Sketch} sk @param {{ from: Pt, to: Pt }[]} moves
+ * @returns {{ ok: true } | { ok: false, error: string }}
+ */
+export function moveEnds(sk, moves) {
+  const next = sk.walls.map((w) => {
+    const mv = (p) => { const m = moves.find((x) => same(x.from, p)); return m ? { x: m.to.x, y: m.to.y } : { x: p.x, y: p.y }; };
+    return { id: w.id, a: mv(w.a), b: mv(w.b) };
+  });
+  for (let i = 0; i < next.length; i++) {
+    const w = next[i];
+    if (len(w) < 1) return { ok: false, error: "That would shrink a wall to nothing." };
+    for (let j = i + 1; j < next.length; j++) {
+      const v = next[j];
+      if ((same(w.a, v.a) && same(w.b, v.b)) || (same(w.a, v.b) && same(w.b, v.a))) return { ok: false, error: "That would lay one wall on top of another." };
+    }
+  }
+  for (const o of sk.openings) {
+    const w = next.find((x) => x.id === o.wall);
+    if (w && o.offset + o.width > len(w) + 1e-9) return { ok: false, error: `A ${o.kind} would no longer fit on its ${Math.round(len(w) * 16) / 16} in wall.` };
+  }
+  sk.walls.forEach((w, i) => { w.a = next[i].a; w.b = next[i].b; });
+  return { ok: true };
+}
+
+/**
+ * Drag one end of a wall (and every wall end sharing that corner) to `to`.
+ * @param {Sketch} sk @param {number} wallId @param {"a"|"b"} end @param {Pt} to
+ */
+export function moveCorner(sk, wallId, end, to) {
+  const w = sk.walls.find((x) => x.id === wallId);
+  if (!w) return { ok: false, error: "No such wall." };
+  return moveEnds(sk, [{ from: { ...w[end] }, to }]);
+}
+
+/**
+ * Slide a whole wall by (dx, dy); walls meeting its ends follow at those ends.
+ * @param {Sketch} sk @param {number} wallId @param {number} dx @param {number} dy
+ */
+export function moveWall(sk, wallId, dx, dy) {
+  const w = sk.walls.find((x) => x.id === wallId);
+  if (!w) return { ok: false, error: "No such wall." };
+  return moveEnds(sk, [w.a, w.b].map((p) => ({ from: { ...p }, to: { x: p.x + dx, y: p.y + dy } })));
+}
+
 /** Remove a wall and the openings on it. @param {Sketch} sk @param {number} id */
 export function removeWall(sk, id) {
   sk.walls = sk.walls.filter((w) => w.id !== id);

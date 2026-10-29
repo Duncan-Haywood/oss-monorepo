@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { emptySketch, addWall, addOpening, snapPoint, pointAtLength, nearestWall, removeWall, planFromSketch, sketchToDxf } from "./sketch.mjs";
+import { emptySketch, addWall, addOpening, snapPoint, pointAtLength, nearestWall, removeWall, moveCorner, moveWall, planFromSketch, sketchToDxf } from "./sketch.mjs";
 import { takeoff } from "./engine.mjs";
 
 const ft = (n) => n * 12;
@@ -72,4 +72,30 @@ test("an empty sketch says to draw a wall; an open outline still reads", () => {
   const sk = emptySketch(); addWall(sk, { x: 0, y: 0 }, { x: 120, y: 0 });
   const r = planFromSketch(sk);
   assert.ok(r.ok); assert.equal(r.plan.walls[0].length, 120);
+});
+
+test("dragging a corner moves both walls that meet there and keeps the loop closed", () => {
+  const { sk, ws } = house();
+  assert.ok(moveCorner(sk, ws[1].id, "b", { x: ft(44), y: ft(28) }).ok);   // far corner out 4 ft
+  assert.deepEqual(sk.walls[2].a, { x: ft(44), y: ft(28) });
+  const r = planFromSketch(sk);
+  assert.ok(r.ok, r.errors.join());
+  assert.equal(r.stats.exterior, 4);
+});
+
+test("sliding a wall drags the walls that meet its ends", () => {
+  const { sk, ws } = house();
+  assert.ok(moveWall(sk, ws[2].id, 0, ft(2)).ok);                          // back wall 2 ft out
+  assert.deepEqual(sk.walls[2].a, { x: ft(40), y: ft(30) });
+  assert.equal(Math.round(Math.hypot(sk.walls[1].b.x - sk.walls[1].a.x, sk.walls[1].b.y - sk.walls[1].a.y)), ft(30));
+});
+
+test("a move that would crush a wall or strand an opening is refused and changes nothing", () => {
+  const { sk, ws } = house();
+  assert.ok(addOpening(sk, ws[1].id, "door", ft(14), 36).ok);              // on the 28 ft right wall
+  const before = JSON.stringify(sk);
+  const r = moveCorner(sk, ws[1].id, "b", { x: ft(40), y: ft(2) });        // right wall now 2 ft: door no longer fits
+  assert.equal(r.ok, false);
+  assert.equal(moveCorner(sk, ws[0].id, "b", { x: 0, y: 0 }).ok, false);   // front wall to nothing
+  assert.equal(JSON.stringify(sk), before);
 });
