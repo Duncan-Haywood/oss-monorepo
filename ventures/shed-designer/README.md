@@ -22,7 +22,7 @@ For assistants: [llms.txt](llms.txt).
   - *Roof:* rafters with a birdsmouth (full plate-width seat) and plumb cuts, a ridge board, rafter ties at the plate, gable studs cut to the roof line, and a post under the ridge.
   - *Gable vents:* a trimmer each side, a flat header as high as the roof allows, a sill block and short posts.
   - *Coverings:* T1-11 siding (4x8, 4x9 or 4x10, picked to reach the eave or the gable line), OSB roof sheathing in staggered courses, shingles, underlayment and drip edge.
-- **Producer cut sheet.** For each material the pieces are packed into the board lengths you tick (8 to 20 ft) at the prices you type, with kerf between cuts. The method is best-fit-decreasing, tried once with each stock length as the default board; each board is then shrunk to the cheapest length that still holds its cuts, and the cheapest plan is kept. The result shows a lower bound: every inch bought at the cheapest price per inch of any board long enough for it. Each board is drawn as a bar of its cuts, by part mark, with the offcut hatched. A CSV is available (`optimize.mjs`, `estimate.mjs`).
+- **Producer cut sheet.** For each material the pieces are packed into the board lengths you tick (8 to 20 ft) at the prices you type, with kerf between cuts. The method is best-fit-decreasing, tried once with each stock length as the default board, with each board then shrunk to the cheapest length that still holds its cuts. The problem's linear relaxation is then solved by column generation (Gilmore and Gomory): a small simplex over cutting patterns, with each new pattern found by an exact knapsack search per stock length. Its whole patterns are kept, the leftover pieces are packed as before, and that plan wins when it is cheaper. The relaxation's optimum is a proven lower bound, shown beside the cut sheet's cost; over the 257 cut lists of the presets and their options the orders are 0.3% above it in all, and 189 of them meet it exactly. Each board is drawn as a bar of its cuts, by part mark, with the offcut hatched. A CSV is available (`optimize.mjs`, `estimate.mjs`).
 - **Plans.** Eight sheets: foundation plan, floor framing plan, the four wall framing elevations (seen from outside, every opening dimensioned, part marks on members), the roof framing plan and a building section with pitch, heights and overhang. Print them, or download each sheet (or all of them) as SVG, or as DXF R12 in inches at full size with layers FRAMING, OUTLINE, HIDDEN, OPENINGS, DIMS and TEXT (`drawings.mjs`).
 - **3D view.** A small WebGL renderer, no library. Every board is an extruded profile, so rafters show their birdsmouth and gable studs their angled tops. You can orbit, zoom, switch to front, gable end or top views, and toggle layers (foundation, floor, walls, roof, sheathing, siding, roofing). "Framing only" strips it to the frame (`render3d.mjs`).
 - **Several designs, compared.** You can start new designs from presets (8x12, 8x10, 10x12, 12x16, 8x8) or copy the current one. Each design gets a card with a 3D thumbnail, its footprint, peak, board count, total and cost per square foot, and the lowest-cost design is marked. You can save a design to a file, open one from a file, or copy a link that carries the design inside the URL.
@@ -32,10 +32,10 @@ The starting design is the owner's spec: an 8x12 with a single 38" x 78" (6'6") 
 All three automatic choices are ticked:
 
 - **Walls:** 86-1/2". That is 78 for the door, 5-1/2 for a 2x6 header and three 1-1/2" plates.
-- **Pitch:** 5/12. No pitch keeps the peak under 8 ft with that door, so the tool takes the lowest pitch at which the vents still fit, and the warning says the peak is about 10'1". Even 3/12 would be about 9'5-1/2".
-- **Overhang:** 6". Any longer and the 59-3/16" rafters cost more lumber.
+- **Pitch:** 4/12. No pitch keeps the peak under 8 ft with that door, so the tool takes the lowest pitch at which the vents still fit, and the warning says the peak is 10' 2-3/8" above the gravel. Even 3/12 would be 9' 10-3/8".
+- **Overhang:** 6". Any longer and the 57-3/16" rafters cost more lumber. (Before the cut optimizer solved the relaxation, 6" to 9" all priced the same and the tool chose 9"; the exact optimizer finds 6" cheaper by $2.87 of 2x6.)
 
-At the starting prices that design is 150 pieces from 88 boards: $636.90 of lumber against a lower bound of $606.61, and $2,058.67 in all. Every structural check passes, and the ridge beam is the most loaded member at 80%. The "8x12 classic" preset (8 ft walls, 6/12, ridge board and ties, 38" x 82" door, unpainted) is 144 pieces from 93 boards and $2,166.66.
+At the starting prices that design is 149 pieces from 84 boards. The cut sheet's boards cost $639.32 against a proven lower bound of $638.34; with spare boards the lumber is $736.72, and the whole shed is $3,098.61 before sales tax. Every structural check passes, and the ridge beam is the most loaded member at 80%. The "8x12 classic" preset (8 ft walls, 6/12, ridge board and ties, 38" x 82" door, unpainted) is 140 pieces from 92 boards and $3,281.02 before sales tax.
 
 ## Structure, integrity and prices
 
@@ -100,7 +100,7 @@ Serve this folder as static files, for example `python3 -m http.server` here, th
 | --- | --- |
 | `lumber.mjs` | actual sizes, standard lengths, length formatting, example prices |
 | `model.mjs` | the framing engine: design in, every member with geometry out |
-| `optimize.mjs` | cutting-stock heuristic with a lower bound |
+| `optimize.mjs` | cutting-stock packing, column-generation relaxation and its proven lower bound |
 | `estimate.mjs` | parts list with marks, cut sheet, shopping list, CSVs |
 | `drawings.mjs` | plan sheets as primitives, rendered to SVG and DXF |
 | `render3d.mjs` | WebGL viewer and ear-clipping triangulation |
