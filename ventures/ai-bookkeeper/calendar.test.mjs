@@ -54,3 +54,13 @@ test("cli --planned puts the four amounts in the events and rejects a bad list",
   const bad = spawnSync("node", [cli, "calendar", "--planned", "1,2,3"], { encoding: "utf8" });
   assert.equal(bad.status, 2);
 });
+
+test("toIcs does not need Node's Buffer, so the browser page can call it", () => {
+  const B = globalThis.Buffer;
+  try {
+    delete globalThis.Buffer;
+    const ics = toIcs([{ date: "2026-04-15", title: "Zahlung für die Steuer ".repeat(6), notes: "ü" }]);
+    assert.match(ics, /BEGIN:VCALENDAR/);
+    assert.ok(ics.split("\r\n").every((l) => new TextEncoder().encode(l).length <= 75));
+  } finally { globalThis.Buffer = B; }
+});

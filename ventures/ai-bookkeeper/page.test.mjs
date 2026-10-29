@@ -186,3 +186,12 @@ test("the sales tax return worksheet is on the page and shares its spec parsers 
   assert.match(script(), /import \{ salesTaxReturn, parseRateSpecs, parseDiscountSpecs,/);
   assert.match(html, /id="str-box" hidden/);
 });
+
+test("tax-calendar page has the disclaimer, a labelled form and no network calls", () => {
+  const html = page("tax-calendar.html");
+  assert.match(html, /No warranty/);
+  assert.match(html, /not legal, tax, or financial advice/);
+  for (const id of ["year", "state", "freq"]) assert.match(html, new RegExp(`<label for="${id}">`), id);
+  assert.doesNotMatch(html, /fetch\(|XMLHttpRequest|sendBeacon/);
+  for (const m of html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/gs)) JSON.parse(m[1]);
+});
