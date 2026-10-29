@@ -1,5 +1,6 @@
 ---
 title: "A solar boat goes 10 to 28% further once its power figures come from datasheets, not guesses"
+seo_title: "Solar boat range from datasheet power figures"
 date: 2026-10-29
 tags: [research, marine-hull, solar, simulation]
 description: "Published hotel-load and panel figures raise a simulated deck-solar boat's range 10 to 28% at three energy-limited sites; best speed stays 1.1 to 1.5 m/s."

@@ -1,5 +1,6 @@
 ---
 title: "Three months, ten thousand pull requests: development lessons from an AI-agent monorepo"
+seo_title: "Ten thousand PRs in an AI-agent monorepo: lessons"
 date: 2026-10-29
 description: "A retrospective from the first commit: 9,783 merged PRs, 1,326 products, about 20 measured page loads, and nine lessons about building with AI agents."
 tags: [retrospective, ai-agents, software-engineering, lessons, postmortem]

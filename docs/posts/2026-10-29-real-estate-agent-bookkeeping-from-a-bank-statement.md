@@ -1,5 +1,6 @@
 ---
 title: "Real estate agent bookkeeping from a bank statement: two closings, seven costs"
+seo_title: "Real estate agent bookkeeping from a bank statement"
 date: 2026-10-29
 description: "A synthetic August in AI Bookkeeper: two commission deposits of $10,115.00, $1,163.00 of MLS, dues, leads and insurance, $8,952.00 profit before mileage."
 tags: [ai-bookkeeper, real-estate, bookkeeping, open-source]

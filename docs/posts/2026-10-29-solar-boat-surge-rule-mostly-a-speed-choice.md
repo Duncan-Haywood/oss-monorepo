@@ -1,5 +1,6 @@
 ---
 title: "A solar survey boat's clever speed rule was mostly just a better constant speed"
+seo_title: "Solar survey boat speed rule: mostly a better constant speed"
 date: 2026-10-29
 description: "Held-out test on ten years of daily NASA POWER sunshine: a pack-level surge rule adds under 3% over the best constant speed for a small deck-solar boat."
 tags: [research, marine-hull, solar, negative-result]
