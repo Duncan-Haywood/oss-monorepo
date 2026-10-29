@@ -1,6 +1,6 @@
 ---
 title: "Ohio quarterly sales tax returns: the 23rd, and where the sources disagree"
-seo_title: "Ohio quarterly sales tax return due dates (April, July, October, January 23)"
+seo_title: "Ohio quarterly sales tax return due dates (Apr, Jul, Oct, Jan 23)"
 date: 2026-10-29
 description: "ai-bookkeeper's sales tax worksheet now pins Ohio's quarterly due dates, and says plainly that guides disagree on who files quarterly."
 tags: [ai-bookkeeper, sales-tax, ohio]
