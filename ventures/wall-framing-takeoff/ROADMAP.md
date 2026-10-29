@@ -124,5 +124,4 @@ Ticked items are on `main`.
       with a permissive licence) rather than our invented house.
 - [x] Advanced framing's material savings, measured on the same models with
       the same engine (2026-10-29, `advanced-bench.mjs`: all details + 24 in spacing -24 to -26% lumber cost on two houses; README; lumber only, no code check).
-- [ ] Panelised vs stick framing: what the model can say about labour from the
-      piece counts (cuts, members, nails) without inventing labour rates.
+- [x] Panelised vs stick framing, from piece counts (2026-10-29, `panelised-bench.mjs`: members handled, saw cuts and site nails; no labour rate; two generated or invented houses, no real time study; README). Not yet: a real crew's time study to turn counts into hours.
