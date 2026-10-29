@@ -2,6 +2,11 @@
 
 Newest first.
 
+## 2026-10-29 · Milestone 6 (first draft): paper/draft.md
+- No new experiment. Drafted the paper from the landed results (`paper/draft.md`): abstract, model, ranking-versus-idle table, metering bound, payback, recovery bound, threats and "what would settle it". Every number was copied from a results file; the one I re-checked against the files before writing was the sourced no-idle LS/OC median (1.043; 12,503 of 20,000 cycles, 62.5%).
+- Not paper-ready: no measured hydraulic trace (H4 untested), the neutral pressure drop and LS valve price are unsourced, citations were confirmed by search only (Crossref 403), and no figure exists yet. The draft lists these as the four inputs that would settle it.
+- Next: source one of the four inputs (neutral pressure drop first, since the ranking reduces to it), then figures and a `check_numbers.py`.
+
 ## 2026-10-29 · Milestone 5b: does 5a's lift-phase cap decide its numbers? (`experiments/regen_uncapped.py`, `regen_uncapped_results.txt`)
 - Prediction written before running: at the central point the cap never binds (uncapped = capped); at the upper corner (600 kg, 1.2 m, 0.92) it binds in most cycles and the uncapped share is above 10%. Refuted if the central cap binds in more than 5% of cycles.
 - Outcome (5,000 cycles, same force model, sourced margins): central point (300 kg, 0.8 m, 0.7) uncapped 3.33% (open-centre) and 3.21% (load-sensing), identical to 5a's, cap binds in 0.0% of cycles. Lowest corner and (150 kg, 1.2 m, 0.92) also never bind (0.5%, 3.9%). Upper corner: uncapped 11.8% / 11.4% against 5a's 10.0% / 10.3%; the cap binds in 75% of cycles (26% at eta_rt 0.7, where uncapped is 9.0% / 8.7%). Both predictions held.
