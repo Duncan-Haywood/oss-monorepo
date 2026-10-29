@@ -9,3 +9,10 @@ test('generated product llms.txt carries title, description, links and the cavea
   assert.match(t, /ventures\/x-tool\)/);
   assert.match(t, /not legal, tax, financial or professional advice/);
 });
+
+test('generated product llms.txt states when its source last changed, only when known', () => {
+  const p = { slug: 'x-tool', title: 'X', description: 'd' };
+  assert.match(renderProductLlmsTxt({ ...p, updated: '2026-10-27T09:00:00+00:00' }, 'https://h/'), /Source last changed: 2026-10-27 /);
+  assert.doesNotMatch(renderProductLlmsTxt(p, 'https://h/'), /last changed/);
+  assert.doesNotMatch(renderProductLlmsTxt({ ...p, updated: 'today' }, 'https://h/'), /last changed/);
+});
