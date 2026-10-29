@@ -1,7 +1,7 @@
 ---
 title: "Can a changepoint detector find an airline strike? A real-data check"
 date: 2026-10-29
-description: "Ansett's 1989 pilots' dispute is a documented closure in a public weekly series. The changepoint detector finds the stop and the restart, and about twenty other changes."
+description: "Ansett's 1989 pilots' dispute is a documented closure in a public weekly series. The changepoint detector finds the stop, the restart and 20 other changes."
 tags: [changepoint-detector, evaluation, real-data]
 ---
 
