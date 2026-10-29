@@ -23,12 +23,11 @@ worth sending. Then it stops and waits for you.
 ## The problem, as you would put it
 
 "Every reply needs something different, and in a busy week I miss one. The
-unsubscribe I didn't log is the one that turns into a complaint. The 'try me in
-January' I meant to write down is the deal I lost."
+unsubscribe I didn't log turns into a complaint; the 'try me in January' I
+forgot is a lost deal."
 
-The commercial "AI SDR" products answer this by sending in your name at
-volume. You find out a reply was misread after it has gone out. This project
-was built on the opposite rule.
+Many "AI SDR" products send in your name, so you learn about a misread reply
+after it has gone out. This project takes the opposite approach.
 
 ## The one rule
 
@@ -60,9 +59,9 @@ it may turn an "unclear" reply into an unsubscribe, but it can never turn a
   lacks an opt-out line is flagged before you can approve it.
 - **Files for your other tools**: updated prospects, suppression additions,
   new deal rows for Deal Keeper, a task list and your approved drafts.
-- **A daily queue.** Give it the task list from Sales Cadence Builder and it
-  tells you what is due today, minus anyone who unsubscribed, bounced, replied
-  or is paused, and lists everyone it left out with the reason.
+- **A daily queue.** From a Sales Cadence Builder task list it shows what is
+  due today, minus anyone stopped or paused, with the reason for each one left
+  out.
 - **Before and after calls**: a one-page prep brief that quotes what the person
   actually wrote, and a follow-up draft built only from your call notes.
 
