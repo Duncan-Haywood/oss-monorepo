@@ -34,6 +34,11 @@ const amountBucket = (cents) => `amt:${Math.min(12, Math.floor(Math.log2(Math.ab
 // keyword that fits two accounts is left out, so the line goes to review rather
 // than being guessed. `dir` limits a rule to money in or money out.
 export const BUILT_IN = [
+  // Home daycare and family child care providers (2026-10-29, daycare.test.mjs; agent-written from the companies' public names, not from a real export):
+  // tuition by Zelle or app, food-program reimbursements and sponsor fees, accreditation dues, and craft and toy supplies.
+  ["4000", "in", /tuition|\bprocare\b|brightwheel.*payout|\bkangarootime\b|\bhi ?mama\b/],
+  ["6100", "out", /hobby lobby|craft supplies|toys and books|\bdiapers?\b/],
+  ["6170", "out", /\bnafcc\b|cacfp.*(sponsor|fee)|infant cpr|child ?care (association|licen[cs]e)/],
   // Farmers-market, craft-fair and cottage-food vendors (2026-10-29, marketvendor.test.mjs; agent-written from the companies' public names, not from a real export):
   // wholesale food-service stores and ingredient buys are supplies. Market fees and cottage permits were already filed under taxes and licenses.
   ["6100", "out", /\bgfs\b|gordon food|smart ?& ?final|cash ?(and|&|n) ?carry|baking ingredients|packaging|jars? and lids?/],
