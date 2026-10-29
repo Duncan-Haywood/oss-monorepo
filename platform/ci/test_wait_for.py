@@ -30,6 +30,22 @@ class WaitFor(unittest.TestCase):
         t = [0.0]
         self.assertFalse(wait_until("false", timeout=3, clock=lambda: t[0], nap=lambda s: t.__setitem__(0, t[0] + s)))
 
+    def test_until_runs_through_a_shell(self):
+        self.assertTrue(wait_until("exit 0", timeout=1))
+        self.assertTrue(wait_until("false || true", timeout=1))
+
+    def test_until_polls_until_the_command_succeeds(self):
+        t = [0.0]
+        codes = iter([1, 1, 0])
+        calls = []
+        def run(cmd, **kw):
+            calls.append(cmd)
+            return next(codes)
+        ok = wait_until("c", timeout=10, interval=2, clock=lambda: t[0],
+                        nap=lambda s: t.__setitem__(0, t[0] + s), run=run)
+        self.assertTrue(ok)
+        self.assertEqual(len(calls), 3)
+
     def test_deadline_is_inclusive(self):
         def nap(_):
             raise AssertionError("slept past the deadline")
