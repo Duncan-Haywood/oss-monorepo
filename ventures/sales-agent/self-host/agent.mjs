@@ -117,6 +117,19 @@ export function createAgent(env = process.env, { now = () => Date.now(), fetchIm
   }
 
   /** Send an approved draft over SMTP. Every refusal is a { error } and nothing leaves; every attempt is audited. */
+  /** M8b: a person clicked "move deal" on an interested reply. Moves the contact's single open deal to the named stage. */
+  async function moveDeal(id) {
+    const it = state.items.find((x) => x.id === id);
+    if (!it) return null;
+    if (!crm || !Object.keys(crm.stages).length) return { error: "stage moves are off: set PIPEDRIVE_MEETING_STAGE_ID or HUBSPOT_MEETING_STAGE" };
+    if (it.triage.category !== "interested") return { error: "only an interested reply can move a deal" };
+    if (it.dealMovedAt) return { error: "already moved" };
+    const results = await crm.moveStage({ from: it.from });
+    for (const r of results) audit("crm_stage", { id, ...r });
+    if (results.some((r) => r.moved)) { it.dealMovedAt = new Date(now()).toISOString(); save(); }
+    return { ok: true, results };
+  }
+
   async function send(id) {
     const it = state.items.find((x) => x.id === id);
     if (!it || !it.draft) return null;
@@ -150,7 +163,7 @@ export function createAgent(env = process.env, { now = () => Date.now(), fetchIm
     const url = new URL(req.url, "http://x");
     if (url.pathname === "/healthz") return json(res, 200, { ok: true, lastPoll: state.lastPoll, lastError: state.lastError });
     if (!authed(req)) { res.writeHead(401, { "content-type": "text/plain", "www-authenticate": "Bearer" }); return res.end("Add ?token=YOUR_ADMIN_TOKEN"); }
-    if (req.method === "GET" && url.pathname === "/") { res.writeHead(200, { "content-type": "text/html; charset=utf-8", "cache-control": "no-store", "referrer-policy": "no-referrer" }); return res.end(page(state, url.searchParams.get("token") || "", !!env.SMTP_HOST)); }
+    if (req.method === "GET" && url.pathname === "/") { res.writeHead(200, { "content-type": "text/html; charset=utf-8", "cache-control": "no-store", "referrer-policy": "no-referrer" }); return res.end(page(state, url.searchParams.get("token") || "", !!env.SMTP_HOST, !!(crm && Object.keys(crm.stages).length))); }
     if (req.method === "GET" && url.pathname === "/api/queue") return json(res, 200, { lastPoll: state.lastPoll, lastError: state.lastError, items: state.items });
     if (req.method === "GET" && url.pathname === "/api/prospects.csv") { res.writeHead(200, { "content-type": "text/csv" }); return res.end(toCsv(state.prospects, ["email", "first_name", "company", "status", "stage", "paused_until", "last_reply"])); }
     if (req.method === "GET" && url.pathname === "/api/suppression.csv") { res.writeHead(200, { "content-type": "text/csv" }); return res.end(toCsv(state.suppression, ["email", "reason", "date", "evidence"])); }
@@ -168,6 +181,12 @@ export function createAgent(env = process.env, { now = () => Date.now(), fetchIm
       if (!b.crm) return json(res, 422, { error: "send { crm: <CSV text>, icp?, top? }" });
       return json(res, 200, queueResearch(b));
     }
+    if (req.method === "POST" && url.pathname === "/api/crm-stage") {
+      let raw = ""; for await (const ch of req) { raw += ch; if (raw.length > 10000) return json(res, 413, { error: "too large" }); }
+      let b; try { b = JSON.parse(raw); } catch { return json(res, 400, { error: "bad json" }); }
+      const r = await moveDeal(b.id);
+      return r ? json(res, r.error ? 422 : 200, r) : json(res, 404, { error: "no such reply" });
+    }
     if (req.method === "POST" && url.pathname === "/api/send") {
       let raw = ""; for await (const ch of req) { raw += ch; if (raw.length > 10000) return json(res, 413, { error: "too large" }); }
       let b; try { b = JSON.parse(raw); } catch { return json(res, 400, { error: "bad json" }); }
@@ -176,16 +195,17 @@ export function createAgent(env = process.env, { now = () => Date.now(), fetchIm
     }
     json(res, 404, { error: "not found" });
   });
-  return { server, state, poll, ingest, queueResearch, decide, send, audit };
+  return { server, state, poll, ingest, queueResearch, decide, send, moveDeal, audit };
 }
 
-function page(state, token, canSend) {
+function page(state, token, canSend, canMove) {
   const t = encodeURIComponent(token);
   const rows = state.items.slice().reverse().map((it) => {
     const d = it.draft;
     const mailto = d ? `mailto:${encodeURIComponent(it.from)}?subject=${encodeURIComponent(it.outbound || /^re:/i.test(it.subject) ? it.subject : "Re: " + it.subject)}&body=${encodeURIComponent(d.body)}` : "";
     return `<article data-id="${esc(it.id)}"><h3>${esc(it.name || it.from)} <small>&lt;${esc(it.from)}&gt;</small> <span class="tag">${esc(it.triage.category)}</span></h3>
 <p class="re">${esc(it.subject)}</p><blockquote>${esc(it.body).replace(/\n/g, "<br>")}</blockquote>
+${canMove && it.triage.category === "interested" && !it.dealMovedAt ? `<button data-move="1">Move their open deal to the meeting stage</button>` : it.dealMovedAt ? `<p>Deal moved ${esc(it.dealMovedAt)}.</p>` : ""}
 <ul>${it.applied.map((a) => `<li>${esc(a)}</li>`).join("")}</ul>
 ${d ? `<textarea rows="7" ${it.decision !== "pending" ? "disabled" : ""}>${esc(d.body)}</textarea>
 <p>${it.approval === "guess_check_first" ? "<b>A guess: read the reply and check first.</b> " : ""}${it.lint && !it.lint.ok ? `<b>Checks failed:</b> ${esc(JSON.stringify(it.lint.errors))} ` : ""}Status: <b>${esc(it.decision)}</b></p>
@@ -197,6 +217,7 @@ ${it.decision === "pending" ? `<button data-d="approved">Approve</button> <butto
 <p>${canSend ? "Approving a draft does not send it. Press Send on an approved draft to send it from your mailbox, once, with an unsubscribe header." : "Sending is off (no SMTP_HOST). Approving marks a draft approved in the audit log and gives you a link to send it yourself."}</p>${rows}
 <script>const T=${JSON.stringify(token)};const H={authorization:"Bearer "+T,"content-type":"application/json"};
 document.getElementById("poll").onclick=async()=>{await fetch("/api/poll",{method:"POST",headers:H});location.reload()};
+document.querySelectorAll("article button[data-move]").forEach(b=>b.onclick=async()=>{b.disabled=true;const a=b.closest("article");const r=await fetch("/api/crm-stage",{method:"POST",headers:H,body:JSON.stringify({id:a.dataset.id})});const j=await r.json();if(!r.ok){alert(j.error);b.disabled=false}else{alert(j.results.map(x=>x.crm+": "+(x.moved?"moved":x.error||x.reason)).join("\\n"));location.reload()}});
 document.querySelectorAll("article button[data-send]").forEach(b=>b.onclick=async()=>{b.disabled=true;const a=b.closest("article");const r=await fetch("/api/send",{method:"POST",headers:H,body:JSON.stringify({id:a.dataset.id})});if(!r.ok){alert((await r.json()).error);b.disabled=false}else location.reload()});
 document.querySelectorAll("article button[data-d]").forEach(b=>b.onclick=async()=>{const a=b.closest("article");const r=await fetch("/api/decide",{method:"POST",headers:H,body:JSON.stringify({id:a.dataset.id,decision:b.dataset.d,body:a.querySelector("textarea").value})});if(!r.ok){alert((await r.json()).error)}else location.reload()});</script></html>`;
 }
