@@ -1,4 +1,5 @@
-"""Milestone 6a (H6 pilot): does rand-k compression's excess loss compose additively with the outer delay H on the 413k-parameter GPT?
+"""Milestone 6b adds held-out H in {8, 32} (uncompressed and keep 1/16) via `python3 composition.py run8_32`; see LOG.md.
+Milestone 6a (H6 pilot): does rand-k compression's excess loss compose additively with the outer delay H on the 413k-parameter GPT?
 Same model, data, budget (3,840 steps), M = 4, inner lr 2e-3, plain outer step as 3d/4a. New cells: keep p in {0.25, 0.0625} x H in {4, 64}, seeds 0 to 2.
 Existing cells read from gpt_retune_all (uncompressed, H in {4, 16, 64}, lr 2e-3) and gpt_compression (H = 16 rand-k).
 Usage: python3 composition.py run   then   python3 composition.py report. Results append to composition.jsonl."""
@@ -8,6 +9,7 @@ from multiprocessing import Pool
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, "..", "..", "src"))
 M, B, STEPS, LR = 4, 16, 3840, 2e-3
+HOLD = [8, 32]
 KEEPS, HS, SEEDS = [0.25, 0.0625], [4, 64], [0, 1, 2]
 PATH = os.path.join(HERE, "composition.jsonl")
 OLD = os.path.join(HERE, "..", "gpt_retune_all", "retune.jsonl")
@@ -26,7 +28,7 @@ def run(job):
     inner = lambda p: torch.optim.AdamW(p, lr=LR, betas=(0.9, 0.95), weight_decay=0.0)
     outer = lambda p: torch.optim.SGD(p, lr=1.0)
     t0 = time.time()
-    d = DiLoCo(model, lambda m, rng: m(*data.batch("train", B, rng)), workers=M, H=H, inner=inner, outer=outer, seed=seed, compress=rand_k(keep))
+    d = DiLoCo(model, lambda m, rng: m(*data.batch("train", B, rng)), workers=M, H=H, inner=inner, outer=outer, seed=seed, compress=None if keep == 1.0 else rand_k(keep))
     for _ in range(STEPS // H):
         d.round()
     model.eval()
@@ -71,7 +73,8 @@ if __name__ == "__main__":
     if sys.argv[1] == "report":
         report(); sys.exit()
     have = {(r["keep"], r["H"], r["seed"]) for r in load(PATH)}
-    jobs = [(k, H, s) for s in SEEDS for H in HS for k in KEEPS if (k, H, s) not in have]
+    hs, ks = (HOLD, [1.0, 0.0625]) if sys.argv[1] == "run8_32" else (HS, KEEPS)
+    jobs = [(k, H, s) for s in SEEDS for H in hs for k in ks if (k, H, s) not in have]
     with Pool(4) as p, open(PATH, "a") as f:
         for r in p.imap_unordered(run, jobs):
             f.write(json.dumps(r) + "\n"); f.flush(); print(r, flush=True)

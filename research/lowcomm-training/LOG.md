@@ -2,6 +2,16 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-29 · Milestone 6b (H6): does a product rule excess = f(p) g(H), fitted on H in {4, 16, 64}, predict held-out H in {8, 32}? (planned before running)
+
+- Why: 6a's "Next". The cross term is real at p = 1/16, so the additive rule is out; the smallest replacement is separable, excess(H, p) = f(p) g(H). It is tested the only way a fitted rule can be: on H it was not fitted on.
+- Fit (before seeing H = 8, 32): normalise g(16) = 1. From 6a at p = 1/16, g(4) = 0.0402/0.0826 = 0.49, g(64) = 0.0987/0.0826 = 1.19. g is interpolated linearly in log2 H, so the predicted excess at p = 1/16 is H = 8: **+0.062**, H = 32: **+0.091** (rival, the additive rule: +0.083 at both).
+- New runs: uncompressed and keep 1/16 at H in {8, 32}, seeds 0 to 2 (12 runs, `composition.py run8_32`, same model, budget and lr as 6a; the uncompressed cells use `compress=None`).
+- **H6b-i:** the product rule's predicted excess is within 0.02 nats of the measured one at both H = 8 and H = 32. Refuted if either misses by more than 0.02.
+- **H6b-ii:** the product rule's absolute error is smaller than the additive rule's at H = 8 (where they differ most, 0.062 vs 0.083). Refuted otherwise.
+- Prior: i 60%, ii 55%. A cell mean has a seed spread of about 0.01 and an excess is a difference of two cells (about 0.014), so H6b-ii at H = 8, where the two rules are 0.021 apart, is close to a coin flip.
+- Limits known in advance: one compression level carries the test (p = 1/4 excess is within seed spread); three seeds; g is read off three points; one model, corpus and compressor; 0.02 is my choice.
+
 ## 2026-10-29 · Milestone 6a (H6 pilot): does rand-k compression's excess loss compose additively with the outer delay H? (planned before running)
 
 - Why: H6, the main claim, has no data yet: every run so far varies one axis. The cheapest crossed cells reuse existing runs: uncompressed H in {4, 16, 64} (3d, lr 2e-3, M = 4) and rand-k at H = 16 (4a). New cells: keep p in {1/4, 1/16} x H in {4, 64}, seeds 0 to 2 (12 runs, `experiments/gpt_composition/composition.py`, about 10 minutes each, 4 in parallel).
