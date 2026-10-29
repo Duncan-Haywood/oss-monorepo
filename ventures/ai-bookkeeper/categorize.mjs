@@ -34,6 +34,13 @@ const amountBucket = (cents) => `amt:${Math.min(12, Math.floor(Math.log2(Math.ab
 // keyword that fits two accounts is left out, so the line goes to review rather
 // than being guessed. `dir` limits a rule to money in or money out.
 export const BUILT_IN = [
+  // Owner-operator truckers (2026-10-29, trucking.test.mjs; agent-written from the companies' public names, not from a real export):
+  // factoring and broker payments are sales; fuel-card payments, scales and truck washes are vehicle costs; ELD subscriptions are software; Form 2290 is a tax; a lumper fee is a direct job cost.
+  ["4000", "in", /triumph pay|rts financial|\botr solutions|\bapex capital|\btql\b|\bc\.?h\.? robinson|\bcoyote logistics|freight (payment|broker)/],
+  ["6160", "out", /comdata|\befs\b.*fuel|fleetone|\bfuel card\b|cat scale|blue beacon|truck wash/],
+  ["6060", "out", /\beld\b.*(subscription|fee)|motive eld/],
+  ["6110", "out", /form 2290|heavy highway use/],
+  ["5000", "out", /lumper/],
   // Mobile detailers and car-wash operators (2026-10-29, detailing.test.mjs; agent-written from the companies' public names, not from a real export):
   // detailing chemicals and polish are supplies; a transfer to the owner is a draw.
   ["6100", "out", /chemical guys|meguiars?|\bgriots? garage\b|detailing supplies|\bcar wash (soap|supplies)\b/],
