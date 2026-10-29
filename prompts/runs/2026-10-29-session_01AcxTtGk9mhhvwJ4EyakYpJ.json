@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/11407",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -26,14 +26,28 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": null,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
-  "doc_friction": [],
-  "deviations": [],
-  "writeups": [],
+  "doc_friction": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "issue": "flagship 1 next: list is mostly trade-keyword blocks needing real data; switched to flagship 4 where public data was reachable"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "top row is ai-bookkeeper; took changepoint-detector because its open item could be met with real public data",
+      "did": "added airmiles series",
+      "result": "one change at 1946"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-29-airline-miles-one-change-after-the-war.md"
+  ],
   "goal": null,
-  "notes": "",
+  "notes": "Merged PR #11407 with a post description of 162 chars (limit 160) because the merge call ran in parallel with a push the hook blocked; fixed in follow-up PR.",
   "corrections": [],
   "redteam": null
 }
