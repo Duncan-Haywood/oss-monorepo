@@ -252,3 +252,24 @@ test('grabbing a door near its end does not jump it, and a phone-size target let
   await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
   assert.ok(await offset() > nudged + 10, 'dragging right moved it right');
 });
+
+test('on a phone the end view fills its box and every label is inside it', { skip }, async (t) => {
+  const { page } = await open(t, pw.devices['Pixel 7']);
+  for (const preset of [null, '12x16']) {
+    if (preset) {
+      const opt = await page.$$eval('#new-design option', (os, p) => os.find((o) => o.textContent.includes(p))?.value, preset);
+      if (!opt) continue;
+      await page.selectOption('#new-design', opt);
+      await settle(page);
+    }
+    const r = await page.evaluate(() => {
+      const box = document.querySelector('#endview').getBoundingClientRect();
+      const wall = document.querySelector('#endview .endwall').getBoundingClientRect();
+      const out = [...document.querySelectorAll('#endview text')].map((x) => x.getBoundingClientRect())
+        .filter((b) => b.left < box.left - 1 || b.right > box.right + 1 || b.top < box.top - 1 || b.bottom > box.bottom + 1).length;
+      return { share: wall.width / box.width, out };
+    });
+    assert.ok(r.share > 0.35, `the gable end is ${(r.share * 100).toFixed(0)}% of the box width (${preset || 'default'})`);
+    assert.equal(r.out, 0, `labels outside the end view (${preset || 'default'})`);
+  }
+});

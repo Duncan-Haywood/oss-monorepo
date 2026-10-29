@@ -289,10 +289,14 @@ export function drawEnd(svg, design, dims, hooks) {
   const o = design.overhang;
   const t = design.pitch / 12;
   const rise = (W / 2) * t;
-  const maxRise = (W / 2) * (14 / 12);
+  // Room above the roof for four more pitch steps (to the 14/12 limit), not
+  // always the full 14/12: reserving that letterboxed an 8 ft gable end to
+  // about 76 px wide on a phone. A steeper drag rescales on release.
+  const roomRise = Math.min((W / 2) * (14 / 12), rise + (W / 2) * (4 / 12));
   const pad = 40;
-  const top = H + maxRise + 20;
-  const viewW = W + 2 * o + 2 * pad;
+  const padRight = 80; // the wall-height label sits to the right of the eave
+  const top = H + roomRise + 20;
+  const viewW = W + 2 * o + pad + padRight;
   // Room below the ground line for the width label under it.
   const viewH = top + pad + 14;
   svg.setAttribute('viewBox', `${-o - pad} ${-pad / 2} ${viewW} ${viewH}`);
