@@ -60,6 +60,13 @@ test('a breadcrumb names the page last, unlinked', () => {
   assert.match(html, /<span aria-current="page">A &lt;b&gt; page<\/span>/);
 });
 
+test('on a phone the breadcrumb stays on one line and the current page truncates', () => {
+  assert.match(
+    SITE_HEADER_CSS,
+    /@media \(max-width:600px\)\{\s*\.pfs-crumbs\{display:flex;flex-wrap:nowrap[^}]*\}[^@]*\[aria-current\]\{[^}]*text-overflow:ellipsis/,
+  );
+});
+
 test('a venture header opens with the exact tag rates.mjs and jobs.mjs look for', () => {
   const html = renderSiteHeader({ toRoot: '../', extraClass: 'pf-chrome pf-chrome-top' });
   assert.ok(html.startsWith('<nav class="pf-chrome pf-chrome-top" aria-label="Site"'));

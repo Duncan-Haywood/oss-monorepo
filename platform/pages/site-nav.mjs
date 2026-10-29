@@ -227,6 +227,11 @@ export const SITE_HEADER_CSS = `
   overflow-wrap:anywhere}
 [data-pfs-head] .pfs-crumbs a{text-decoration:underline;text-underline-offset:2px}
 .pfs-sep{margin:0 7px}
+@media (max-width:600px){
+  .pfs-crumbs{display:flex;flex-wrap:nowrap;align-items:baseline;white-space:nowrap}
+  .pfs-crumbs>*{flex:none}
+  .pfs-crumbs>[aria-current]{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis}
+}
 @media (max-width:1080px){
   .pfs-search{display:none}
   [data-pfs-head] .pfs-searchlink{display:inline-block}
