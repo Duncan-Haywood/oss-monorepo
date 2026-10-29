@@ -73,3 +73,15 @@ test("rim joist bays: width x joist depth less joist ends, both sides, by hand",
   assert.equal(layoutInsulation({ rim: true }, plan, r).ok, false);
   assert.equal(layoutInsulation({ rim: true }, { ...plan, floor: { ...floor, rim: false } }, r).ok, false);
 });
+
+test("attic eave baffles: one per bay on both eaves, by hand", () => {
+  const r = { walls: [wall([m(0, 0, 96, 96)])] };
+  const roof = { width: 336, length: 480, spacing: 24 };
+  const l = layoutInsulation({ attic: { baffles: true } }, { defaultHeaderHeight: 82.5, walls: [], roof }, r);
+  assert.equal(l.attic.baffles.bays, 20); // 480 / 24
+  assert.equal(l.attic.baffles.count, 40);
+  const t = layoutInsulation({ attic: { baffles: true } }, { defaultHeaderHeight: 82.5, walls: [], roof: { ...roof, spacing: 16, trusses: { spacing: 24 } } }, r);
+  assert.equal(t.attic.baffles.count, 40); // truss spacing wins
+  const n = layoutInsulation({ attic: { baffles: true } }, { defaultHeaderHeight: 82.5, walls: [] }, r);
+  assert.equal(n.ok, false);
+});
