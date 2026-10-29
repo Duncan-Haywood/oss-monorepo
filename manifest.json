@@ -1,0 +1,330 @@
+{
+ "started_at": "2026-10-29T09:58:40+00:00",
+ "sources": {
+  "venues": {
+   "files": [
+    {
+     "path": "venues/checks.json",
+     "url": "communities.json",
+     "bytes": 24810,
+     "sha256": "ec62b0392b8fa1702bf8a93f79775082a8015172b010f1ca6b9110d0ab487d79",
+     "retrieved_at": "2026-10-29T09:58:58+00:00"
+    }
+   ],
+   "errors": [],
+   "notes": [],
+   "status": "fetched"
+  },
+  "acs5": {
+   "files": [
+    {
+     "path": "acs5/2024/groups_B01001.json",
+     "url": "https://api.census.gov/data/2024/acs/acs5/groups/B01001.json",
+     "bytes": 251518,
+     "sha256": "0f0422e346fdd3369363f040127fe61a3e35a47215755bcd300615bbfc7abcc6",
+     "retrieved_at": "2026-10-29T09:58:59+00:00"
+    },
+    {
+     "path": "acs5/2024/groups_B12002.json",
+     "url": "https://api.census.gov/data/2024/acs/acs5/groups/B12002.json",
+     "bytes": 471086,
+     "sha256": "4a345ae8ae3fe798b7baa245fdda12b9e696e0e00b713f0aee80697797d0f8cb",
+     "retrieved_at": "2026-10-29T09:59:00+00:00"
+    },
+    {
+     "path": "acs5/2024/groups_B01003.json",
+     "url": "https://api.census.gov/data/2024/acs/acs5/groups/B01003.json",
+     "bytes": 199994,
+     "sha256": "f692fa121bf007948893c312945d86abc83c6bae6420540ccf4c66891467b904",
+     "retrieved_at": "2026-10-29T09:59:00+00:00"
+    },
+    {
+     "path": "acs5/2024/sf/acsdt5y2024-b01001.dat",
+     "url": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData/acsdt5y2024-b01001.dat",
+     "bytes": 1762346,
+     "sha256": "c8e7d6fabbaa58e5b77810d21c7bdee9135b76dc24709b187c26f21c2a9e32f4",
+     "retrieved_at": "2026-10-29T09:59:06+00:00"
+    },
+    {
+     "path": "acs5/2024/sf/acsdt5y2024-b01003.dat",
+     "url": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData/acsdt5y2024-b01003.dat",
+     "bytes": 134016,
+     "sha256": "f118579373f1247bf42fdeaec51d167351a13d1377d3208a48e9dd1bdfaf197e",
+     "retrieved_at": "2026-10-29T09:59:07+00:00"
+    },
+    {
+     "path": "acs5/2024/sf/acsdt5y2024-b12002.dat",
+     "url": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData/acsdt5y2024-b12002.dat",
+     "bytes": 5304227,
+     "sha256": "42ce9d5d01ef8ad92d428523f01b871be50801bd2cca616a74aad1a65770c787",
+     "retrieved_at": "2026-10-29T09:59:16+00:00"
+    },
+    {
+     "path": "acs5/2024/sf/ACS20241YR_Table_Shells.txt",
+     "url": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/documentation/ACS20241YR_Table_Shells.txt",
+     "bytes": 7230781,
+     "sha256": "2e4d8a460131be19ca06e87bb478e12ccb4dd44892369245049ee0e463454ad4",
+     "retrieved_at": "2026-10-29T09:59:17+00:00"
+    },
+    {
+     "path": "acs5/2024/sf/ACS20245YR_Table_Shells.txt",
+     "url": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/documentation/ACS20245YR_Table_Shells.txt",
+     "bytes": 5622840,
+     "sha256": "5b46f4af873744a415c4974204010db976e2a61ff916674732f81c496a6b517d",
+     "retrieved_at": "2026-10-29T09:59:17+00:00"
+    },
+    {
+     "path": "acs5/2024/sf/ACS2024_Table_Shells.xlsx",
+     "url": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/documentation/ACS2024_Table_Shells.xlsx",
+     "bytes": 2252868,
+     "sha256": "32a33a97cb54d736f93e6af07944d48b4be5a8f33f8f659994a8831b87cb0771",
+     "retrieved_at": "2026-10-29T09:59:17+00:00"
+    },
+    {
+     "path": "acs5/2024/sf/Geos20245YR.txt",
+     "url": "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/documentation/Geos20245YR.txt",
+     "bytes": 444408,
+     "sha256": "793416b967e62dadfdca37160669d36a3302e6b7ee9dea235b6f1bb73920a911",
+     "retrieved_at": "2026-10-29T09:59:19+00:00"
+    }
+   ],
+   "errors": [],
+   "notes": [
+    "data/5YRData/ listing (1198): ['https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData/acsdt5y2024-b01001.dat', 'https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData/acsdt5y2024-b01001a.dat', 'https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData/acsdt5y2024-b01001b.dat', 'https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData/acsdt5y2024-b01001c.dat', 'https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData/acsdt5y2024-b01001d.dat', 'https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData/acsdt5y2024-b01001e.dat', 'https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData/acsdt5y2024-b01001f.dat', 'https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData/acsdt5y2024-b01001g.dat', 'https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData/acsdt5y2024-b01001h.dat', 'https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData/acsdt5y2024-b01001i.dat', 'https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData/acsdt5y2024-b01002.dat', 'https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData/acsdt5y2024-b01002a.dat', 'https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData/acsdt5y2024-b01002b.dat', 'https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData/acsdt5y2024-b01002c.dat', 'https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData/acsdt5y2024-b01002d.dat', 'https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData/acsdt5y2024-b01002e.dat', 'https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData/acsdt5y2024-b01002f.dat', 'https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData/acsdt5y2024-b01002g.dat', 'https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData/acsdt5y2024-b01002h.dat', 'https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData/acsdt5y2024-b01002i.dat', 'https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData/acsdt5y2024-b01003.dat', 'https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData/acsdt5y2024-b02001.dat', 'https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData/acsdt5y2024-b02008.dat', 'https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData/acsdt5y2024-b02009.dat', 'https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData/acsdt5y2024-b02010.dat', 'https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData/acsdt5y2024-b02011.dat', 'https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData/acsdt5y2024-b02012.dat', 'https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData/acsdt5y2024-b02013.dat', 'https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData/acsdt5y2024-b02015.dat', 'https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData/acsdt5y2024-b02016.dat']",
+    "documentation/ listing (6): ['https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/documentation/ACS20241YR_Table_Shells.txt', 'https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/documentation/ACS20245YR_Table_Shells.txt', 'https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/documentation/ACS2024_Table_Shells.xlsx', 'https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/documentation/Geos20241YR.txt', 'https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/documentation/Geos20245YR.txt', 'https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/documentation/README.txt']"
+   ],
+   "vintage": 2024,
+   "dataset_url": "https://api.census.gov/data/2024/acs/acs5",
+   "status": "fetched"
+  },
+  "census_geo": {
+   "files": [
+    {
+     "path": "census_geo/2024_Gaz_counties_national.zip",
+     "url": "https://www2.census.gov/geo/docs/maps-data/data/gazetteer/2024_Gazetteer/2024_Gaz_counties_national.zip",
+     "bytes": 141679,
+     "sha256": "3c337402b5c6e8d5aa26b4278ccf4edc8989f2683765b3ffbf22296cdb2df3a0",
+     "retrieved_at": "2026-10-29T09:59:19+00:00"
+    },
+    {
+     "path": "census_geo/cb_2024_us_county_20m.zip",
+     "url": "https://www2.census.gov/geo/tiger/GENZ2024/shp/cb_2024_us_county_20m.zip",
+     "bytes": 900230,
+     "sha256": "c9a54fd95422436b8822e0b070a45a9bc3de08eb13f943cdba66e7a9c2a135ff",
+     "retrieved_at": "2026-10-29T09:59:20+00:00"
+    },
+    {
+     "path": "census_geo/list1_2023.xlsx",
+     "url": "https://www2.census.gov/programs-surveys/metro-micro/geographies/reference-files/2023/delineation-files/list1_2023.xlsx",
+     "bytes": 143798,
+     "sha256": "952c4b1e78acbb54e6ec9412434b7602fedacbf021736351a63c181bdb753629",
+     "retrieved_at": "2026-10-29T09:59:20+00:00"
+    }
+   ],
+   "errors": [],
+   "notes": [],
+   "status": "fetched"
+  },
+  "usrc2020": {
+   "files": [
+    {
+     "path": "usrc2020/pages/https_www_usreligioncensus_org_node_1639.html",
+     "url": "https://www.usreligioncensus.org/node/1639",
+     "bytes": 54423,
+     "sha256": "69967eb76f7f416242fccdbb64875cd6dbb23909838a2b4178357daaa03943f8",
+     "retrieved_at": "2026-10-29T09:59:20+00:00"
+    },
+    {
+     "path": "usrc2020/pages/https_www_usreligioncensus_org_index_php_node_1639.html",
+     "url": "https://www.usreligioncensus.org/index.php/node/1639",
+     "bytes": 54494,
+     "sha256": "3933db08419d86af64f0e764d259fc7dd51c6f2e89b897fd4106c342f868c217",
+     "retrieved_at": "2026-10-29T09:59:21+00:00"
+    },
+    {
+     "path": "usrc2020/pages/https_www_thearda_com_data_archive_fid_RCMSCY20.html",
+     "url": "https://www.thearda.com/data-archive?fid=RCMSCY20",
+     "bytes": 278941,
+     "sha256": "13e5fd87187466bca3b7e912caafa61f7ae5c572dd8dd87dd43a8452c7e637fd",
+     "retrieved_at": "2026-10-29T09:59:22+00:00"
+    },
+    {
+     "path": "usrc2020/pages/https_www_thearda_com_data_archive_fid_RCMSST20.html",
+     "url": "https://www.thearda.com/data-archive?fid=RCMSST20",
+     "bytes": 278297,
+     "sha256": "367e405811f34640ca86ec6f7851a4632112a0bb804a8f3148791586875ec245",
+     "retrieved_at": "2026-10-29T09:59:23+00:00"
+    },
+    {
+     "path": "usrc2020/files/2020_USRC_Group_Detail.xlsx",
+     "url": "https://www.usreligioncensus.org/sites/default/files/2023-06/2020_USRC_Group_Detail.xlsx",
+     "bytes": 8460461,
+     "sha256": "06d42b268029e828a68b033282573a160ffe5f512a6d1c991288b919324329d1",
+     "retrieved_at": "2026-10-29T09:59:24+00:00"
+    },
+    {
+     "path": "usrc2020/files/2020_USRC_Summaries.xlsx",
+     "url": "https://www.usreligioncensus.org/sites/default/files/2023-06/2020_USRC_Summaries.xlsx",
+     "bytes": 525846,
+     "sha256": "f6ba1441ca21eb4e9cfceea61718e3c09b90da355389576dd9eb6c1962830915",
+     "retrieved_at": "2026-10-29T09:59:24+00:00"
+    }
+   ],
+   "errors": [],
+   "notes": [
+    "https://www.usreligioncensus.org/data: HTTP Error 404: Not Found",
+    "candidate links: ['https://www.usreligioncensus.org/sites/default/files/2023-06/2020_USRC_Group_Detail.xlsx', 'https://www.usreligioncensus.org/sites/default/files/2023-06/2020_USRC_Summaries.xlsx']"
+   ],
+   "status": "fetched"
+  },
+  "gss": {
+   "files": [
+    {
+     "path": "gss/gss_2000plus_selected.csv.gz",
+     "url": "https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2000_stata.zip; https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2002_stata.zip; https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2004_stata.zip; https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2006_stata.zip; https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2008_stata.zip; https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2010_stata.zip; https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2012_stata.zip; https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2014_stata.zip; https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2016_stata.zip; https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2018_stata.zip; https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2021_stata.zip; https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2022_stata.zip; https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2024_stata.zip",
+     "bytes": 1583367,
+     "sha256": "79f118cb29de9c9696223e7f165b9422088b965f812ac0a9ccb8bfd1f546fa90",
+     "retrieved_at": "2026-10-29T09:59:35+00:00"
+    },
+    {
+     "path": "gss/gss_selected_labels.json",
+     "url": "https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2000_stata.zip; https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2002_stata.zip; https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2004_stata.zip; https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2006_stata.zip; https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2008_stata.zip; https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2010_stata.zip; https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2012_stata.zip; https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2014_stata.zip; https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2016_stata.zip; https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2018_stata.zip; https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2021_stata.zip; https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2022_stata.zip; https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2024_stata.zip",
+     "bytes": 25553,
+     "sha256": "9abbf18f404a2d0e75aa8a06b8b2a82ed1108b49448942bfd8fadd17534093f7",
+     "retrieved_at": "2026-10-29T09:59:35+00:00"
+    }
+   ],
+   "errors": [],
+   "notes": [
+    "zip links: ['https://gss.norc.org/content/dam/gss/get-documentation/pdf/other/Paradata2021.zip', 'https://gss.norc.org/content/dam/gss/get-the-data/documents/spss/1975_stata.zip', 'https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/1972_stata.zip', 'https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/1973_stata.zip', 'https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/1974_stata.zip', 'https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/1976_stata.zip', 'https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/1977_stata.zip', 'https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/1978_stata.zip', 'https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/1980_stata.zip', 'https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/1982_stata.zip', 'https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/1983_stata.zip', 'https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/1984_stata.zip', 'https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/1985_stata.zip', 'https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/1986_stata.zip', 'https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/1987_stata.zip', 'https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/1988_stata.zip', 'https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/1989_stata.zip', 'https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/1990_stata.zip', 'https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/1991_stata.zip', 'https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/1993_stata.zip', 'https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/1994_stata.zip', 'https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/1996_stata.zip', 'https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/1998_stata.zip', 'https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2000_stata.zip', 'https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2002_stata.zip', 'https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2004_stata.zip', 'https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2006_stata.zip', 'https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2008_stata.zip', 'https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2010_stata.zip', 'https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2012_stata.zip', 'https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2014_stata.zip', 'https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2016_stata.zip', 'https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2018_stata.zip', 'https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2021_stata.zip', 'https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2022_stata.zip', 'https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2024_stata.zip', 'https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/GSS_2006_Panel_Stata.zip', 'https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/GSS_2008_Merged_stata.zip', 'https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/GSS_2008_Panel_stata.zip', 'https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/GSS_2010_Merged_Stata.zip']",
+    "https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2000_stata.zip -> GSS2000.dta: 2817 rows, missing ['wtssnrps', 'wtsscomp', 'fehome', 'hunt1', 'formwt']",
+    "https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2002_stata.zip -> GSS2002.dta: 2765 rows, missing ['wtssnrps', 'wtsscomp', 'fehome', 'hunt1', 'formwt']",
+    "https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2004_stata.zip -> GSS2004.dta: 2812 rows, missing ['wtsscomp', 'fehome', 'hunt1', 'formwt']",
+    "https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2006_stata.zip -> GSS2006.dta: 4510 rows, missing ['wtsscomp', 'fehome', 'hunt1', 'formwt']",
+    "https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2008_stata.zip -> GSS2008.dta: 2023 rows, missing ['wtsscomp', 'fehome', 'hunt1', 'formwt']",
+    "https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2010_stata.zip -> GSS2010.dta: 2044 rows, missing ['wtsscomp', 'fehome', 'hunt1', 'formwt']",
+    "https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2012_stata.zip -> GSS2012.dta: 1974 rows, missing ['wtsscomp', 'fehome', 'hunt1', 'formwt']",
+    "https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2014_stata.zip -> GSS2014.dta: 2538 rows, missing ['wtsscomp', 'fehome', 'hunt1', 'formwt']",
+    "https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2016_stata.zip -> GSS2016.dta: 2867 rows, missing ['wtsscomp', 'fehome', 'formwt']",
+    "https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2018_stata.zip -> GSS2018.dta: 2348 rows, missing ['wtsscomp', 'fehome', 'formwt']",
+    "https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2021_stata.zip -> 2021/GSS2021.dta: 4032 rows, missing ['wtssall', 'wtsscomp', 'reliten', 'fehome', 'divlaw', 'postlife', 'bible', 'formwt', 'sampcode']",
+    "https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2022_stata.zip -> 2022/GSS2022.dta: 4149 rows, missing ['wtssall', 'wtsscomp', 'fehome']",
+    "https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2024_stata.zip -> 2024/GSS2024.dta: 3986 rows, missing ['wtssall', 'wtsscomp', 'fehome', 'srcbelt', 'formwt']"
+   ],
+   "status": "fetched"
+  },
+  "nsfg": {
+   "files": [
+    {
+     "path": "nsfg/nsfg-2022-2023-puf.html",
+     "url": "https://www.cdc.gov/nchs/nsfg/nsfg-2022-2023-puf.htm",
+     "bytes": 98555,
+     "sha256": "2808c44c7e3ecf2a0189c93fe860a6a713d001b7908031d8f1f36c87c991e0e6",
+     "retrieved_at": "2026-10-29T09:59:37+00:00"
+    },
+    {
+     "path": "nsfg/NSFG-2022-2023-FemPregPUFData.zip",
+     "url": "https://ftp.cdc.gov/pub/Health_Statistics/NCHS/NSFG/NSFG-2022-2023-FemPregPUFData.zip",
+     "bytes": 287269,
+     "sha256": "fbfc973265e57568984f59b0fd14a8fe659e150e0261f3f4abc2327f33dd672d",
+     "retrieved_at": "2026-10-29T09:59:37+00:00"
+    },
+    {
+     "path": "nsfg/NSFG-2022-2023-FemRespPUFData.zip",
+     "url": "https://ftp.cdc.gov/pub/Health_Statistics/NCHS/NSFG/NSFG-2022-2023-FemRespPUFData.zip",
+     "bytes": 2541378,
+     "sha256": "ef9f0ec715ce7909b50f1ea67958166b2cd1ad3482c4b083174898ec8c7ceaaa",
+     "retrieved_at": "2026-10-29T09:59:38+00:00"
+    }
+   ],
+   "errors": [],
+   "notes": [
+    "https://ftp.cdc.gov/pub/Health_Statistics/NCHS/Datasets/NSFG/2022-2023/: HTTP Error 404: Not Found",
+    "listing matches: []",
+    "doc page links: ['https://ftp.cdc.gov/pub/Health_Statistics/NCHS/NSFG/NSFG-2022-2023-FemPregPUFData.zip', 'https://ftp.cdc.gov/pub/Health_Statistics/NCHS/NSFG/NSFG-2022-2023-FemRespPUFData.zip', 'https://www.cdc.gov/nchs/data/nsfg/capilite/2022-2023-NSFG-Capilite-FemaleQuestionnaire.pdf', 'https://www.cdc.gov/nchs/data/nsfg/codebooks/2022-2023-NSFG-FemPregPUFCodebook.pdf', 'https://www.cdc.gov/nchs/data/nsfg/codebooks/2022-2023-NSFG-FemRespPUFCodebook.pdf', 'https://www.cdc.gov/nchs/data/nsfg/crqs/2022-2023-NSFG-CRQ-FemaleQuestionnaire.pdf', 'https://www.cdc.gov/nchs/data/nsfg/fileindex/2022-2023-NSFG-FileIndex-FemPregPUF.pdf', 'https://www.cdc.gov/nchs/data/nsfg/fileindex/2022-2023-NSFG-FileIndex-FemRespPUF.pdf', 'https://www.cdc.gov/nchs/data/nsfg/recodespecs/2022-2023-NSFG-FemPreg-RecodeSpecs.pdf', 'https://www.cdc.gov/nchs/data/nsfg/recodespecs/2022-2023-NSFG-FemResp-RecodeSpecs.pdf', 'https://www.cdc.gov/nchs/data/nsfg/restrictedvarlist/2022-2023-NSFG-RestrictedUseAnalyticVars-FemalePregnancyFile.pdf', 'https://www.cdc.gov/nchs/data/nsfg/restrictedvarlist/2022-2023-NSFG-RestrictedUseAnalyticVars-FemaleRespondentFile.pdf']"
+   ],
+   "status": "fetched"
+  },
+  "wpp2024": {
+   "files": [
+    {
+     "path": "wpp2024/demographic_indicators_selected.csv",
+     "url": "https://population.un.org/wpp/assets/Excel%20Files/1_Indicator%20(Standard)/CSV_FILES/WPP2024_Demographic_Indicators_Medium.csv.gz",
+     "bytes": 435499,
+     "sha256": "1b04ff65efd285826e12f821b7479e8811a9fcdebcbb0fe78780c74b1591189f",
+     "retrieved_at": "2026-10-29T09:59:39+00:00"
+    }
+   ],
+   "errors": [],
+   "notes": [],
+   "status": "fetched"
+  },
+  "worldbank": {
+   "files": [
+    {
+     "path": "worldbank/SP.DYN.TFRT.IN.json",
+     "url": "https://api.worldbank.org/v2/country/USA;POL;ESP;PRT;DEU;HRV;SVK;HUN;PHL;MEX;COL;PER;BRA;ARG;KOR;VNM;ITA;CHL;GTM;CRI;AUT;IRL/indicator/SP.DYN.TFRT.IN?format=json&per_page=20000&date=1990:2025",
+     "bytes": 173828,
+     "sha256": "1bf49b9ac95d6492a458bb259c125d3ebab2d7ab630cc6a45671ad0bb8ca9f67",
+     "retrieved_at": "2026-10-29T09:59:39+00:00"
+    },
+    {
+     "path": "worldbank/SP.POP.TOTL.json",
+     "url": "https://api.worldbank.org/v2/country/USA;POL;ESP;PRT;DEU;HRV;SVK;HUN;PHL;MEX;COL;PER;BRA;ARG;KOR;VNM;ITA;CHL;GTM;CRI;AUT;IRL/indicator/SP.POP.TOTL?format=json&per_page=20000&date=1990:2025",
+     "bytes": 155957,
+     "sha256": "30e513af66cd80b5674df32b0a1703b5740b482941c0f32f553130e3544d92f6",
+     "retrieved_at": "2026-10-29T09:59:39+00:00"
+    }
+   ],
+   "errors": [],
+   "notes": [],
+   "status": "fetched"
+  },
+  "eurostat": {
+   "files": [
+    {
+     "path": "eurostat/demo_ndivind.json",
+     "url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/demo_ndivind?format=JSON&lang=EN",
+     "bytes": 94410,
+     "sha256": "cb31ddd21616ee51f436fd2b94341f6b1dd5a569f28b27fc528b917011d1e77f",
+     "retrieved_at": "2026-10-29T09:59:40+00:00"
+    },
+    {
+     "path": "eurostat/demo_nind.json",
+     "url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/demo_nind?format=JSON&lang=EN",
+     "bytes": 179394,
+     "sha256": "1deaeefc267c110fab27854b6ce8cedbb53adb887795078c40e549fe1c3e3d1d",
+     "retrieved_at": "2026-10-29T09:59:42+00:00"
+    }
+   ],
+   "errors": [],
+   "notes": [],
+   "status": "fetched"
+  },
+  "mit_election": {
+   "files": [
+    {
+     "path": "mit_election/dataset.json",
+     "url": "https://dataverse.harvard.edu/api/datasets/:persistentId/?persistentId=doi:10.7910/DVN/VOQCHQ",
+     "bytes": 7165,
+     "sha256": "0ace3f1b569c05dee2721e78c7da1d4a23ff669cb9a4c289708926213f858a94",
+     "retrieved_at": "2026-10-29T09:59:42+00:00"
+    }
+   ],
+   "errors": [
+    "https://dataverse.harvard.edu/api/access/datafile/13573089: HTTP Error 400: Bad Request"
+   ],
+   "notes": [],
+   "status": "failed"
+  },
+  "homeschool": {
+   "files": [],
+   "errors": [
+    "https://education.jhu.edu/edpolicy/policy-research-initiatives/homeschool-hub/: HTTP Error 403: Forbidden"
+   ],
+   "notes": [],
+   "status": "failed"
+  }
+ },
+ "finished_at": "2026-10-29T09:59:43+00:00"
+}
