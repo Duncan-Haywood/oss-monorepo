@@ -336,5 +336,7 @@ Chromium (`node eval-sketch-click.mjs`: draws a 20 x 14 ft house with a partitio
 takeoff with no check failures; erase; typed length; a corner dragged out 4 ft, then undone).
 **Move tool (2026-10-29):** drag a wall end and every wall meeting at that corner follows; drag a wall's body to slide it
 with its neighbours' ends. `moveEnds`/`moveCorner`/`moveWall` refuse (changing nothing) a move that shrinks a wall under
-1 in, lays one wall on another, or leaves a door or window too long for its shortened wall (3 tests). Not yet: moving or
-resizing an opening after it is placed (erase and re-place), non-square snapping aids, a background image to trace, and sketch persistence across reloads.
+1 in, lays one wall on another, or leaves a door or window too long for its shortened wall (3 tests). **Openings (2026-10-29):** in the Move tool, drag the middle of a door or window to slide it along its wall, or either end to
+resize it about the fixed other end. `moveOpening`/`resizeOpening` keep it inside the wall and refuse (changing nothing) an
+overlap or a width longer than the wall (1 test); real mouse drags checked in `eval-sketch-click.mjs`. Not yet: hopping an
+opening to another wall by dragging (the model call `moveOpening(sk, id, along, wallId)` supports it), non-square snapping aids, a background image to trace, and sketch persistence across reloads.

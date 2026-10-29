@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { emptySketch, addWall, addOpening, snapPoint, pointAtLength, nearestWall, removeWall, moveCorner, moveWall, planFromSketch, sketchToDxf } from "./sketch.mjs";
+import { emptySketch, addWall, addOpening, snapPoint, pointAtLength, nearestWall, removeWall, moveCorner, moveOpening, resizeOpening, moveWall, planFromSketch, sketchToDxf } from "./sketch.mjs";
 import { takeoff } from "./engine.mjs";
 
 const ft = (n) => n * 12;
@@ -98,4 +98,30 @@ test("a move that would crush a wall or strand an opening is refused and changes
   assert.equal(r.ok, false);
   assert.equal(moveCorner(sk, ws[0].id, "b", { x: 0, y: 0 }).ok, false);   // front wall to nothing
   assert.equal(JSON.stringify(sk), before);
+});
+
+test("a placed opening slides along its wall, hops walls, and resizes about its centre; bad moves change nothing", () => {
+  const { sk, ws } = house();
+  const d = addOpening(sk, ws[0].id, "door", 100, 36).opening;
+  const win = addOpening(sk, ws[0].id, "window", 300, 48).opening;
+  assert.ok(moveOpening(sk, d.id, 200).ok);
+  assert.equal(d.offset, 182);
+  assert.ok(moveOpening(sk, d.id, -50).ok);                                // slid to the wall's start
+  assert.equal(d.offset, 0);
+  assert.ok(moveOpening(sk, d.id, 100, ws[1].id).ok);                      // onto the right wall
+  assert.equal(d.wall, ws[1].id);
+  assert.ok(resizeOpening(sk, win.id, 60).ok);
+  assert.equal(win.offset + win.width / 2, 300);
+  assert.equal(win.width, 60);
+  const before = JSON.stringify(sk);
+  assert.equal(moveOpening(sk, d.id, 100, ws[0].id).ok, true);             // front wall is free at 100
+  assert.equal(moveOpening(sk, d.id, 300).ok, false);                      // would sit on the window
+  assert.equal(resizeOpening(sk, win.id, 9999).ok, false);
+  assert.equal(resizeOpening(sk, win.id, 0).ok, false);
+  assert.equal(resizeOpening(sk, 9999, 30).ok, false);
+  assert.notEqual(JSON.stringify(sk), before);                             // the one good move above stuck
+  const after = JSON.stringify(sk);
+  moveOpening(sk, d.id, 300); resizeOpening(sk, win.id, 9999);
+  assert.equal(JSON.stringify(sk), after);
+  assert.ok(planFromSketch(sk).ok);
 });

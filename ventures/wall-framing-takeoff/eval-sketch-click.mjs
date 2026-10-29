@@ -79,6 +79,17 @@ check(labels.some((l) => l.includes("24")), "dragging a corner out 4 ft makes a 
 await page.click("#skUndo");
 const back = await page.evaluate(() => [...document.querySelectorAll("#skSvg text")].map((t) => t.textContent));
 check(!back.some((l) => l.includes("24")), "undo puts the corner back");
+// opening: place a 36 in door on the top wall, slide it 5 ft left, then drag its right end 12 in to widen it
+await page.fill("#skWidth", "36"); await page.selectOption("#skTool", "door"); await click(120, 0);
+await page.selectOption("#skTool", "move");
+const door = () => page.evaluate(() => { const l = document.querySelector("#skSvg [data-opening]"); return [Math.round(Number(l.getAttribute("x1"))), Math.round(Number(l.getAttribute("x2")))]; });
+check((await door()).join() === "102,138", "door placed centred at 120 in: " + await door());
+let d0 = await toScreen(120, 0), d1 = await toScreen(60, 0);
+await page.mouse.move(d0.x, d0.y); await page.mouse.down(); await page.mouse.move(d1.x, d1.y, { steps: 6 }); await page.mouse.up();
+check((await door()).join() === "42,78", "dragging the door's middle slides it to 60 in: " + await door());
+d0 = await toScreen(78, 0); d1 = await toScreen(90, 0);
+await page.mouse.move(d0.x, d0.y); await page.mouse.down(); await page.mouse.move(d1.x, d1.y, { steps: 6 }); await page.mouse.up();
+check((await door()).join() === "42,90", "dragging its right end widens it to 48 in: " + await door());
 check(errors.length === 0, "no page errors" + (errors.length ? ": " + errors.join("; ") : ""));
 await browser.close(); server.close();
 process.exit(bad ? 1 : 0);

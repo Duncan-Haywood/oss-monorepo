@@ -79,7 +79,7 @@
 
   <section class="card" aria-labelledby="h-sketch">
     <h2 id="h-sketch">Draw the plan instead of typing it</h2>
-    <p class="note">Pick a tool and click on the grid. <strong>Wall</strong>: click the start, then each corner; a wall chain ends with Finish (or Escape) and ends meeting an existing wall snap to it. <strong>Door</strong> and <strong>Window</strong>: click a wall. <strong>Move</strong>: drag a wall end to move that corner (walls meeting there follow), or drag a wall to slide it; a move that would crush a wall or strand a door is refused. <strong>Erase</strong>: click a wall or an opening. Type a length to fix the next wall's length and let the mouse choose the direction. "Use this sketch" fills the walls and openings below (corners, tees, the outside loop and opening positions are worked out from the drawing; heights and headers are defaults to check).</p>
+    <p class="note">Pick a tool and click on the grid. <strong>Wall</strong>: click the start, then each corner; a wall chain ends with Finish (or Escape) and ends meeting an existing wall snap to it. <strong>Door</strong> and <strong>Window</strong>: click a wall. <strong>Move</strong>: drag a wall end to move that corner (walls meeting there follow), drag a wall to slide it, drag the middle of a door or window to slide it along its wall, or an end of it to resize it; a move that would crush a wall or strand a door is refused. <strong>Erase</strong>: click a wall or an opening. Type a length to fix the next wall's length and let the mouse choose the direction. "Use this sketch" fills the walls and openings below (corners, tees, the outside loop and opening positions are worked out from the drawing; heights and headers are defaults to check).</p>
     <div class="grid">
       <div><label for="skTool">Tool</label><select id="skTool"><option value="wall">Wall</option><option value="door">Door</option><option value="window">Window</option><option value="move">Move</option><option value="erase">Erase</option></select></div>
       <div><label for="skGrid">Snap to</label><select id="skGrid"><option value="1">1 in</option><option value="6" selected>6 in</option><option value="12">1 ft</option><option value="24">2 ft</option></select></div>
@@ -432,7 +432,7 @@
   <script type="module">
     import { takeoff, samplePlan, defaultStock, parseLength, formatLength, formatInches, toCsv, verifyWall, PRECUT, DEPTH } from "./engine.mjs";
     import { planFromDxf } from "./dxf.mjs";
-    import { emptySketch, addWall, addOpening, snapPoint, pointAtLength, nearestWall, moveCorner, moveWall, removeWall, removeOpening, openingEnds, planFromSketch, wallLength } from "./sketch.mjs";
+    import { emptySketch, addWall, addOpening, snapPoint, pointAtLength, nearestWall, moveCorner, moveWall, moveOpening, resizeOpening, removeWall, removeOpening, openingEnds, planFromSketch, wallLength } from "./sketch.mjs";
     import { drawingSetHtml } from "./drawings.mjs";
     import { drawingSetPdf } from "./pdf.mjs";
     import { panelOrder, panelOrderText, panelPullText } from "./panels.mjs";
@@ -1266,7 +1266,18 @@
           if (d <= 12 && (!best || d < best.d)) best = { d, w, end };
         }
         const base = JSON.stringify(sk);
-        if (best) drag = { base, kind: "corner", id: best.w.id, end: best.end };
+        let hitOp = null;
+        for (const o of sk.openings) {
+          const ends = openingEnds(sk, o), wl = sk.walls.find((x) => x.id === o.wall);
+          const L = wallLength(wl), ux = (wl.b.x - wl.a.x) / L, uy = (wl.b.y - wl.a.y) / L;
+          const t = (raw.x - wl.a.x) * ux + (raw.y - wl.a.y) * uy - o.offset, dist = Math.abs((raw.x - wl.a.x) * uy - (raw.y - wl.a.y) * ux);
+          if (dist > 9 || t < -6 || t > o.width + 6) continue;
+          const grab = Math.min(8, o.width / 3);
+          hitOp = { t, o, mode: t <= grab ? "start" : t >= o.width - grab ? "end" : "slide", wl, ux, uy };
+          break;
+        }
+        if (hitOp) drag = { base, kind: "opening", id: hitOp.o.id, mode: hitOp.mode, ux: hitOp.ux, uy: hitOp.uy, wa: hitOp.wl.a, off: hitOp.o.offset, width: hitOp.o.width, grabAt: hitOp.t - hitOp.o.width / 2 };
+        else if (best) drag = { base, kind: "corner", id: best.w.id, end: best.end };
         else { const hit = nearestWall(sk, raw, 10); if (hit) drag = { base, kind: "wall", id: hit.wall.id, from: raw }; }
         if (drag) { try { svg.setPointerCapture(e.pointerId); } catch (x) { /* optional */ } e.preventDefault(); }
       });
@@ -1278,7 +1289,16 @@
           const raw = cursor(e), g = Number($("#skGrid").value);
           sk = JSON.parse(drag.base);
           let r;
-          if (drag.kind === "corner") r = moveCorner(sk, drag.id, drag.end, snapPoint(raw, { walls: [] }, { grid: g }));
+          if (drag.kind === "opening") {
+            const t = (raw.x - drag.wa.x) * drag.ux + (raw.y - drag.wa.y) * drag.uy, sn = (v) => g > 0 ? Math.round(v / g) * g : v;
+            if (drag.mode === "slide") r = moveOpening(sk, drag.id, sn(t - drag.grabAt) );
+            else {
+              const fixed = drag.mode === "start" ? drag.off + drag.width : drag.off, edge = sn(t);
+              const width = Math.abs(edge - fixed), centre = (edge + fixed) / 2;
+              r = resizeOpening(sk, drag.id, width);
+              if (r.ok) r = moveOpening(sk, drag.id, centre);
+            }
+          } else if (drag.kind === "corner") r = moveCorner(sk, drag.id, drag.end, snapPoint(raw, { walls: [] }, { grid: g }));
           else r = moveWall(sk, drag.id, g > 0 ? Math.round((raw.x - drag.from.x) / g) * g : raw.x - drag.from.x, g > 0 ? Math.round((raw.y - drag.from.y) / g) * g : raw.y - drag.from.y);
           if (!r.ok) { sk = JSON.parse(drag.base); draw(); $("#skInfo").textContent = r.error; } else draw();
           return;
