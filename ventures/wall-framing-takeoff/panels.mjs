@@ -104,8 +104,16 @@ export function panelParts(w, pan, opts = {}) {
     }
     const pieces = [...rows.values()].sort((a, b) => a.kind.localeCompare(b.kind) || b.length - a.length);
     let sheathLb = 0;
-    if (opts.sheathPsf > 0 && !w.gable && w.height > 0) {
+    const g = w.gable;
+    if (opts.sheathPsf > 0 && w.height > 0 && (!g || g.eave > 0)) {
       let area = p.width * w.height;
+      if (g) {
+        // a gable wall is sheathed up to its roof line: the eave rectangle plus the triangle's area under this panel's span
+        const mid = g.peak, L = w.length;
+        const rise = (x) => (x <= mid ? g.peakRise * x / mid : g.peakRise * (L - x) / (L - mid));
+        const tri = (a, b) => (b - a) * (rise(a) + rise(b)) / 2; // linear between a and b when both lie on one slope
+        area = p.width * g.eave + (p.x1 <= mid || p.x0 >= mid ? tri(p.x0, p.x1) : tri(p.x0, mid) + tri(mid, p.x1));
+      }
       for (const o of opts.openings || []) {
         const ov = Math.min(o.offset + o.width, p.x1) - Math.max(o.offset, p.x0);
         if (ov > EPS) area -= ov * Math.min(o.height, w.height);
