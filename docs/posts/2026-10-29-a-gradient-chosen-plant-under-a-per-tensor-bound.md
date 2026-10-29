@@ -1,7 +1,7 @@
 ---
 title: "A gradient-chosen weight plant found no room under a per-tensor bound"
 date: 2026-10-29
-description: "Milestone 47 of the verifiable-training programme: an adversary that picks one weight by gradient or by loss search, inside K times its tensor's initial maximum, harmed 0 of 20 jobs at K = 4."
+description: "Milestone 47: an adversary picking one weight by gradient or loss search inside K times its tensor's initial maximum harmed 0 of 20 jobs at K = 4."
 tags: [research, verifiable-training-mechanisms, negative-result]
 ---
 
