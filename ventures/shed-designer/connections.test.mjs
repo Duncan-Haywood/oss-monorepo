@@ -2,6 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { buildShed, defaultDesign, PRESETS } from './model.mjs';
 import { connectionChecks } from './connections.mjs';
+import { bbox } from './integrity.mjs';
+
+const bboxMid = (m) => { const b = bbox(m.geom); return (b.lo[1] + b.hi[1]) / 2; };
 
 const variants = [{}, { foundation: 'blocks' }, { roofType: 'ridgeBoard' }, { roofType: 'ridgeBeam' }, { length: 240 }, { studSize: '2x6' }, { overhang: 0 },
   { foundation: 'blocks', lengths: [8, 10, 12] }, { foundation: 'deck blocks', lengths: [8, 10, 12] }, { studSpacing: 24, rafterSpacing: 24 }, { length: 150, width: 102 }];
@@ -66,4 +69,20 @@ test('sheathing and subfloor joints off the framing are caught', () => {
   const shift = (kind) => ({ ...s, panels: s.panels.map((p) => (p.kind === kind ? { ...p, geom: { ...p.geom, origin: [p.geom.origin[0] + 4, p.geom.origin[1], p.geom.origin[2]] } } : p)) });
   assert.ok(!connectionChecks(shift('floor sheet')).rows.find((r) => r.check === 'Subfloor edges on joists').ok);
   assert.ok(!connectionChecks(shift('roof sheathing')).rows.find((r) => r.check === 'Roof sheathing edges on rafters').ok);
+});
+
+// Found 2026-10-29: four skids under a 10 ft wide ridge-beam shed left the
+// gable posts 19" from the nearest skid, mid-span on a single 2x6 end joist.
+test('a ridge beam always has a skid under its gable posts', () => {
+  for (const width of [84, 96, 108, 120, 132, 144]) {
+    for (const skidSpacing of [36, 48, 60]) {
+      const s = buildShed({ ...PRESETS['10x12'](), width, skidSpacing, roofType: 'ridgeBeam' });
+      const row = connectionChecks(s).rows.find((r) => r.check === 'Ridge-beam posts bear on a skid');
+      assert.ok(row?.ok, `${width} ${skidSpacing}: ${row?.detail}`);
+      assert.ok(s.dims.skidYs.some((y) => Math.abs(y - width / 2) < 1e-9));
+    }
+  }
+  const s = buildShed({ ...PRESETS['10x12'](), roofType: 'ridgeBeam' });
+  const noMiddle = { ...s, members: s.members.filter((m) => !(m.kind === 'skid' && Math.abs(bboxMid(m) - 60) < 1)) };
+  assert.ok(!connectionChecks(noMiddle).rows.find((r) => r.check === 'Ridge-beam posts bear on a skid').ok);
 });

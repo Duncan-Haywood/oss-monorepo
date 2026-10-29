@@ -413,7 +413,12 @@ function buildFramed(d) {
   const block = /** @type {any} */ (BLOCKS)[d.foundation] || null;
   const blockH = block ? block.h : 0;
   const skidTop = blockH + skid.depth;
-  const skidCount = Math.max(2, Math.ceil((W - skid.thick) / d.skidSpacing) + 1);
+  let skidCount = Math.max(2, Math.ceil((W - skid.thick) / d.skidSpacing) + 1);
+  // A ridge beam brings about half its load down each gable post to the floor
+  // at mid-width. An odd number of skids puts one right under the posts;
+  // otherwise the post lands mid-span on the end joist (a 10x12 at 48" skid
+  // spacing put 1,403 lb there, 1.38 times a single 2x6 joist's allowable bending).
+  if (d.roofType === 'ridgeBeam' && skidCount % 2 === 0) skidCount += 1;
   const skidYs = [];
   for (let i = 0; i < skidCount; i++) skidYs.push(skid.thick / 2 + (i * (W - skid.thick)) / (skidCount - 1));
   const skidSplit = splitRun(0, L, maxStock, [], [], 0);

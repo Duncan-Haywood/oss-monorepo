@@ -128,6 +128,13 @@ export function connectionChecks(shed) {
     const base = k.block ? k.block.h : 0;
     const skidFails = skids.filter((s) => !near(s.lo[2], base)).map((s) => fmtIn(s.lo[1]));
     add('Skids bear on the ground', skidFails, skids.length, k.block ? `skids on the ${k.block.plural}` : 'skids on the gravel pad');
+    // A ridge beam's gable posts come down the post studs at mid-width: a skid
+    // has to be under them, or the end joist takes the post as a point load.
+    const posts = shed.members.filter((m) => m.kind === 'post stud').map((m) => bbox(m.geom));
+    if (posts.length) {
+      const postFails = posts.filter((p) => !skids.some((s) => s.lo[1] <= p.lo[1] + EPS && s.hi[1] >= p.hi[1] - EPS && s.lo[0] <= p.hi[0] && s.hi[0] >= p.lo[0])).map((p) => `post stud at ${fmtIn(p.lo[0])}, ${fmtIn(p.lo[1])}`);
+      add('Ridge-beam posts bear on a skid', postFails, posts.length, 'post studs with a skid straight under them');
+    }
     if (k.block) {
       // A butt joint between blocks hangs in the air: both ends need 1-1/2" on a block.
       const blocks = shed.fixtures.filter((f) => f.kind === 'block').map((f) => bbox(f.geom));
