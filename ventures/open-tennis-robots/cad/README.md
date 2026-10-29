@@ -91,6 +91,16 @@ the part you actually buy before cutting metal.
   **Known gaps, found by this model:** the hose end swings about 450 mm as the
   head tilts (`mouth_world`), which the 600 mm cut length only just absorbs; the
   1.4 m posts need bracing before the tub is filled.
+  **Launch checks (added 2026-10-29, `Feeder.check_launch`):** the wheel gap and
+  nip are tied to the flight model's launcher. For an assumed 25 m/s with 3000 rpm
+  topspin the wheels must turn 6425 and 1065 rpm (the same figures as
+  `tennisbots.launcher.WheelLauncher.wheel_rpm`, tested), close to the 7000 rpm
+  limit, so the top wheel's motor is the part to size first. The ball is in the
+  nip for 74 mm, so taking it from rest to 25 m/s needs a mean push of 241 N,
+  against 416 N of friction at the 13 mm squeeze (assumed 20 N/mm stiffness and
+  mu 0.8: measure both). That is far above the 60 N `wheel_pull_n` the retainer
+  check assumes; the 17 N retainer drag stays safe either way. The head plates
+  must also extend past the ball's exit from the nip.
   **Not yet modelled:** the netting and trough, hopper agitator, brackets for
   the shuttle and elevation actuators, azimuth drive and cabling. The BOM
   lists the actuators and drive as bought parts without a mount.
