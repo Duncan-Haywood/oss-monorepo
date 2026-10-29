@@ -19,7 +19,7 @@
   "tool_calls": 28,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": 11406,
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -28,14 +28,26 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": null,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
-  "doc_friction": [],
+  "doc_friction": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "issue": "Routed to a programme already at milestone 6ag; the Landing work checklist assumes a new project and gives little guidance for deep in-programme steps."
+    },
+    {
+      "file": ".claude/hooks/check_posts_before_push.py",
+      "issue": "Blocks a whole compound command containing git push even when the same command fixes the post; run the fix in a separate call."
+    }
+  ],
   "deviations": [],
-  "writeups": [],
+  "writeups": [
+    "docs/posts/2026-10-29-a-pilot-allocated-llm-audit-looks-better-and-is-wrong.md",
+    "research/llm-coding-inference/LOG.md (6ah)"
+  ],
   "goal": null,
-  "notes": "",
+  "notes": "Milestone 6ah: pilot-estimated allocation over coder cells; negative result (coverage 49-84% at n=400). Local checks: homepage build ok, md links ok, live links ok, 15 tests pass.",
   "corrections": [],
   "redteam": null,
   "usage": {
