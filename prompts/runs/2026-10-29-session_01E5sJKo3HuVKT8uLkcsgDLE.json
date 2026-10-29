@@ -1,0 +1,53 @@
+{
+  "date": "2026-10-29",
+  "session": "https://claude.ai/code/session_01E5sJKo3HuVKT8uLkcsgDLE",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-29T21:24:03Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "Says the build prints no DONE marker and to use wait_for.py; the build itself was fast here (~3 min) and check.mjs exceeds the 120s tool timeout locally; also check.mjs reports 'states no date' for most llms.txt in a shallow clone, which is not a real defect."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "The build on main was failing, so I fixed that instead of a visual pass.",
+      "did": "shortened one post description; added a fail-fast front-matter step to portfolio-pages.yml",
+      "result": "build completes"
+    }
+  ],
+  "writeups": [
+    "docs/reports/polish-2026-10-29-pages-build-fail-fast.md"
+  ],
+  "goal": null,
+  "notes": "No new blog post: a one-line build fix; no reader-facing finding. Local check.mjs not conclusive (shallow clone dates).",
+  "corrections": [],
+  "redteam": null
+}
