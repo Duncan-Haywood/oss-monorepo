@@ -20,7 +20,11 @@ export function bbox(g) {
 
 const touches = (a, b) => [0, 1, 2].every((i) => a.lo[i] <= b.hi[i] + TOL && b.lo[i] <= a.hi[i] + TOL);
 const overlap = (a, b) => [0, 1, 2].every((i) => Math.min(a.hi[i], b.hi[i]) - Math.max(a.lo[i], b.lo[i]) > TOL);
-const axisRect = (g) => g.profile.length === 4 && [g.u, g.v, g.w].every((v) => v.filter((c) => Math.abs(c) > 1e-9).length === 1);
+// A four-point profile is only a box when every edge runs along p or q: a
+// rafter with no tail or notch, or a stud with its top cut to the roof, has
+// four points too, and its bounding box holds wood it does not have.
+const squareProfile = (pts) => pts.every(([p, q], i) => { const [p1, q1] = pts[(i + 1) % pts.length]; return Math.abs(p1 - p) < 1e-9 || Math.abs(q1 - q) < 1e-9; });
+const axisRect = (g) => g.profile.length === 4 && squareProfile(g.profile) && [g.u, g.v, g.w].every((v) => v.filter((c) => Math.abs(c) > 1e-9).length === 1);
 
 /** @param {import('./model.mjs').Shed} shed */
 export function integrity(shed) {

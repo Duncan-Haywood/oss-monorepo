@@ -4,7 +4,10 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { PassThrough } from 'node:stream';
-import { forbiddenImports, inspect, collect, buildBundle, writeBundle, manifest, registryManifest, run, load } from './mcp.mjs';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
+import { fileURLToPath } from 'node:url';
+import { DEFAULT_NAME, forbiddenImports, inspect, collect, buildBundle, writeBundle, manifest, registryManifest, run, load } from './mcp.mjs';
 import { handle, listTools, callTool, serve, TOOLS } from './mcp-server.mjs';
 
 async function fixture(files) {
@@ -140,4 +143,28 @@ test('run --pack writes the bundle to the named directory and does not publish',
 test('registry description is capped at 100 characters', () => {
   assert.ok(registryManifest({ count: 3 }).description.length <= 100);
   assert.equal(registryManifest({ count: '9'.repeat(40) }).description.length, 100);
+});
+
+test('run --pack marks server.mjs executable and leaves other files plain', async () => {
+  const root = await fixture({ ...venture('ok'), LICENSE: MIT });
+  const out = await fs.mkdtemp(path.join(os.tmpdir(), 'mcpmode-'));
+  await run({ env: {}, log() {}, root, argv: ['--pack', out] });
+  assert.equal((await fs.stat(path.join(out, 'server.mjs'))).mode & 0o111, 0o111);
+  assert.equal((await fs.stat(path.join(out, 'package.json'))).mode & 0o111, 0);
+});
+
+test('run: MCP_PACKAGE_NAME overrides the package name, otherwise the default is used', async () => {
+  const root = await fixture({ ...venture('ok'), LICENSE: MIT });
+  for (const [env, want] of [[{ MCP_PACKAGE_NAME: 'custom-mcp' }, 'custom-mcp'], [{}, DEFAULT_NAME]]) {
+    const out = await fs.mkdtemp(path.join(os.tmpdir(), 'mcpname-'));
+    await run({ env, log() {}, root, argv: ['--pack', out] });
+    assert.equal(JSON.parse(await fs.readFile(path.join(out, 'package.json'), 'utf8')).name, want);
+  }
+});
+
+test('running mcp.mjs directly performs the dry run; importing it does not', async () => {
+  const file = fileURLToPath(new URL('./mcp.mjs', import.meta.url));
+  const { stdout } = await promisify(execFile)(process.execPath, [file], { env: { PATH: process.env.PATH } });
+  assert.match(stdout, /^mcp bundle: \d+ tools/);
+  assert.match(stdout, /dry run/);
 });
