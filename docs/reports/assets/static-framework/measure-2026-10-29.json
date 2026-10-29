@@ -1,0 +1,165 @@
+{
+  "files": 18636,
+  "bytes": 403247741,
+  "byExt": {
+    ".png": {
+      "files": 3689,
+      "bytes": 195937259
+    },
+    ".html": {
+      "files": 5344,
+      "bytes": 135524003
+    },
+    ".mjs": {
+      "files": 3883,
+      "bytes": 33491237
+    },
+    ".json": {
+      "files": 242,
+      "bytes": 14429214
+    },
+    ".svg": {
+      "files": 842,
+      "bytes": 11882171
+    },
+    ".txt": {
+      "files": 1529,
+      "bytes": 2298888
+    },
+    ".xml": {
+      "files": 1371,
+      "bytes": 2207099
+    },
+    ".js": {
+      "files": 60,
+      "bytes": 1497563
+    },
+    "(none)": {
+      "files": 1407,
+      "bytes": 1465289
+    },
+    ".csv": {
+      "files": 176,
+      "bytes": 910752
+    },
+    ".mp4": {
+      "files": 1,
+      "bytes": 907776
+    },
+    ".webm": {
+      "files": 1,
+      "bytes": 862626
+    }
+  },
+  "htmlPages": 5344,
+  "html": {
+    "bytes": {
+      "p50": 23049,
+      "p90": 34242,
+      "p99": 75721,
+      "max": 1422597,
+      "total": 135524003
+    },
+    "gzip": {
+      "p50": 7381,
+      "p90": 10257,
+      "p99": 21317,
+      "total": 41194333
+    },
+    "inlineCss": {
+      "p50": 2900,
+      "p90": 8778,
+      "total": 22200657
+    },
+    "inlineJs": {
+      "p50": 380,
+      "p90": 5906,
+      "total": 12274184
+    },
+    "pagesWithExternalJs": 3249,
+    "pagesWithExternalCss": 5343
+  },
+  "inlineBlocks": {
+    "distinct": 3026,
+    "sharedByTwoOrMorePages": 397,
+    "totalInlineBytes": 34474841,
+    "repeatedInlineBytes": 20970237,
+    "top": [
+      {
+        "kind": "css",
+        "bytes": 7797,
+        "pages": 1055,
+        "repeatedBytes": 8218038
+      },
+      {
+        "kind": "css",
+        "bytes": 5940,
+        "pages": 998,
+        "repeatedBytes": 5922180
+      },
+      {
+        "kind": "js",
+        "bytes": 377,
+        "pages": 3150,
+        "repeatedBytes": 1187173
+      },
+      {
+        "kind": "css",
+        "bytes": 981,
+        "pages": 1055,
+        "repeatedBytes": 1033974
+      },
+      {
+        "kind": "js",
+        "bytes": 380,
+        "pages": 2153,
+        "repeatedBytes": 817760
+      },
+      {
+        "kind": "css",
+        "bytes": 8848,
+        "pages": 46,
+        "repeatedBytes": 398160
+      },
+      {
+        "kind": "css",
+        "bytes": 2853,
+        "pages": 123,
+        "repeatedBytes": 348066
+      },
+      {
+        "kind": "css",
+        "bytes": 7523,
+        "pages": 44,
+        "repeatedBytes": 323489
+      }
+    ]
+  },
+  "heaviest": [
+    {
+      "p": "/research/index.html",
+      "bytes": 1422597,
+      "gz": 237996
+    },
+    {
+      "p": "/writing/index.html",
+      "bytes": 962215,
+      "gz": 161878
+    },
+    {
+      "p": "/guides/index.html",
+      "bytes": 804565,
+      "gz": 163485
+    },
+    {
+      "p": "/compare/index.html",
+      "bytes": 414558,
+      "gz": 76928
+    },
+    {
+      "p": "/research/topics/twins/index.html",
+      "bytes": 316152,
+      "gz": 94903
+    }
+  ]
+}
