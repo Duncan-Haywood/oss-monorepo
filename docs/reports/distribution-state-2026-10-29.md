@@ -12,7 +12,7 @@ Every number below was read on 2026-10-29 from the command named next to it.
   `portfolio/distribution/channels.yaml` is at the `artifact` rung (listing
   and dry run built, nothing published). Rungs counted with
   `grep rung: portfolio/distribution/channels.yaml`.
-- **Users measured: about 27 page loads in total, ever.** The counter has been
+- **Users measured: about 24 page loads in total, ever.** The counter has been
   live since 2026-10-24 (`curl <counter>/counts`, the URL is in
   `platform/counter/site.json`). Its whole record is 3 days with hits:
   2026-10-24 (13), 2026-10-26 (7), 2026-10-28 (4). They land on `about`,

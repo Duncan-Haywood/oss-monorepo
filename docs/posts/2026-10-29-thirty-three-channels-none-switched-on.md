@@ -1,7 +1,7 @@
 ---
 title: "Thirty-three distribution channels, none switched on"
 date: 2026-10-29
-description: "How the free tools reach people today: 33 publishing pipelines built, none live, about 27 page loads recorded, and the channel that needed no account."
+description: "How the free tools reach people today: 33 publishing pipelines built, none live, about 24 page loads recorded, and the channel that needed no account."
 tags: [distribution, measurement, portfolio]
 ---
 
@@ -17,7 +17,7 @@ waiting for a person to create an account and flip a switch. None has been
 flipped.
 
 The visitor counter tells the rest. It has been running since 24 October and
-has recorded about 27 page loads in total, all on the about page, the
+has recorded about 24 page loads in total, all on the about page, the
 assistant page and the catalogue home. Not one tool page has a recorded load.
 Searching the web for the site's address returns the repository's pull
 requests on GitHub, not the site. The pages themselves are in good shape
