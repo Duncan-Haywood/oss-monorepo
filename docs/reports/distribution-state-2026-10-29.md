@@ -52,7 +52,8 @@ Three of them have been usable since 2026-10-17 without anyone knowing:
 | Nix flake app (`nix run github:…#<slug>`) | yes, same 20 | no |
 | Single-file download (`<site>/<slug>/check.py`, stdlib only) | yes, served by Pages | no |
 
-**Shipped in this PR:** the entry page of each of those 20 linters now carries
+**Shipped in this PR:** the entry page of each of those linters (19; the 20th,
+`actions-continue-on-error-check`, has no page yet) now carries
 a "Run this check from a terminal, in CI or as a pre-commit hook" box in its
 footer, with the four snippets above (`renderCiInstall` in
 `platform/pages/build.mjs`, tests in `platform/pages/ci-install.test.mjs`).

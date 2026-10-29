@@ -21,8 +21,11 @@ test('every generated action has a hook, a flake app and a published check.py', 
     assert.match(hooks, new RegExp(`^- id: ${slug}$`, 'm'), slug);
     assert.ok(flake.includes(`"${slug}" = tool "${slug}"`), slug);
     assert.ok(fs.existsSync(path.join(ROOT, 'ventures', slug, 'check.py')), slug);
-    // The curl line downloads it from the site, which publishes only listed .py files.
-    assert.ok((DOWNLOADABLE_CLI_FILES[slug] || []).includes('check.py'), `${slug} check.py is not published`);
+    // The box is on the tool page, and its curl line downloads check.py from the
+    // site, which publishes only listed .py files. A linter with no page gets no box.
+    if (fs.existsSync(path.join(ROOT, 'ventures', slug, 'index.html'))) {
+      assert.ok((DOWNLOADABLE_CLI_FILES[slug] || []).includes('check.py'), `${slug} check.py is not published`);
+    }
   }
 });
 

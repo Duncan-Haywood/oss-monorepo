@@ -37,7 +37,7 @@ Action, a pre-commit hook and a Nix app, and each is a single dependency-free
 Python file. But the tool's own page never said so. Someone who found the
 checker had no way to learn they could run it on every push.
 
-Now they do. Each of those 20 pages carries a short box with the four ways to
+Now they do. Each of their pages (19; one linter has no page yet) carries a short box with the four ways to
 run it: download one file, add one `uses:` line, add a pre-commit hook, or
 `nix run`. Try it on the
 [GitHub Actions timeout checker](https://duncan-haywood.github.io/oss-monorepo/actions-timeout-check/).
