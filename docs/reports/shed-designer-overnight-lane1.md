@@ -52,6 +52,8 @@ Each PR was verified the same way before merging:
 
 `run_workflow_locally.py --for-changes` is no help in this container. Most steps stop at its 300 s per-workflow budget, and the Pages artifact steps need a `_site` that the skipped `uses:` steps would have built, so its failures said nothing about the change. CI is the check that counts.
 
+One slip: #11315 merged after another lane added `make-size-pages.mjs` and its generated `how-much-lumber-for-a-*-shed.html` pages. The extra tie nails changed those pages' totals, and `size-pages.test.mjs` went red on `main`. The PR carrying this report regenerates them. Any change to `model.mjs`, `checks.mjs` or `estimate.mjs` that moves a price or count needs `node make-size-pages.mjs` before merging; merge `main` in first to see the current pages.
+
 ## What is still open
 
 - **Plate splice with a wide door and only 8 ft boards.** On the 12x16 left wall, a 72" door with `lengths: [8]` leaves no split with cap joints 24" from top joints. The only fix is to allow plate joints over a header, which framers do: the header carries the joint. The connection check flags it honestly.
