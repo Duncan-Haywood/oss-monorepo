@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { newBooks, addDocuments, importStatement, confirm } from "./engine.mjs";
-import { salesTaxReturn, dueDate, stateDueDay, stateEndMonth, stateFilingNote, STATE_DUE_DAYS } from "./salestaxreturn.mjs";
+import { salesTaxDueDates, salesTaxReturn, dueDate, stateDueDay, stateEndMonth, stateFilingNote, STATE_DUE_DAYS } from "./salestaxreturn.mjs";
 
 const csv = [
   "type,number,date,due,party,amount,account,description",
@@ -421,4 +421,16 @@ test("OH vendor discount: 0.75% of tax, capped at $750 for the month (R.C. 5739.
 test("Utah monthly returns are due at the end of the next month (tax.utah.gov due-dates page, read 2026-10-28)", async () => {
   const { stateDueDay } = await import("./salestaxreturn.mjs");
   assert.equal(dueDate("2026-08", stateDueDay("UT", "monthly")), "2026-09-30");
+});
+
+test("a due date that rolls across New Year lands in the later year's calendar (WI monthly, last-day states)", () => {
+  // Nov 2023 is due Sun 2023-12-31, moves past the Jan 1 holiday to Tue 2024-01-02, so 2024 lists 13 returns and 2023 lists 12 (Nov 2022 rolled in from 2022-12-31).
+  const y24 = salesTaxDueDates(2024, { state: "WI", frequency: "monthly" });
+  assert.equal(y24.length, 13);
+  assert.deepEqual(y24[0], { period: "2023-11", due: "2024-01-02" });
+  assert.equal(y24[1].period, "2023-12");
+  assert.equal(salesTaxDueDates(2023, { state: "WI", frequency: "monthly" }).length, 12);
+  // no due date falls on a weekend in any year, any state, any frequency
+  for (const s of Object.keys(STATE_DUE_DAYS)) for (const f of ["monthly", "quarterly", "semiannual", "annual"]) for (const y of [2026, 2027, 2028])
+    for (const e of salesTaxDueDates(y, { state: s, frequency: f })) assert.ok(![0, 6].includes(new Date(`${e.due}T00:00:00Z`).getUTCDay()), `${s} ${f} ${e.due}`);
 });
