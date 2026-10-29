@@ -35,7 +35,7 @@ is robust to the unsourced inputs, and the absolute range is not**:
 5. **Threats to validity**, to be written in full: wave term not compared with a published tank
    curve; Holtrop-Mennen not run; hotel-load and module sources opened only as search snippets;
    derate, soiling and temperature factors are the author's ranges; glider and foil coefficients
-   partly swept; no seakeeping or stability; sea-state loss only as a free resistance multiplier (milestone 6a: f = 2 costs 21% of km/day, shifts the best speed down 0.2 to 0.3 m/s, keeps the site ordering; running the calm-water speed in f = 2 water loses 12 to 27%).
+   partly swept; no seakeeping or stability; sea-state loss only as a free resistance multiplier (milestone 6a: f = 2 costs 21% of km/day, shifts the best speed down 0.2 to 0.3 m/s, keeps the site ordering; running the calm-water speed in f = 2 water loses 12 to 27%; milestones 6b/6c: a day-by-day back-off beats the best constant speed by 3 to 8% with a 10 kWh pack and up to 15% with a 1 kWh pack when rough spells last a week, as an in-sample perfect-foresight upper bound with swept, not sourced, spell lengths).
 
 ## 3. What would make it submittable
 
