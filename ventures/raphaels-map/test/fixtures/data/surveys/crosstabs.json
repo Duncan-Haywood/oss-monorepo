@@ -1,0 +1,113 @@
+{
+ "synthetic": true,
+ "tables": [
+  {
+   "id": "t1",
+   "dataset_id": "gss",
+   "variable": "chldidel",
+   "years": [
+    2018,
+    2022
+   ],
+   "filters": {
+    "sex": "female",
+    "age_band": "18-29",
+    "relig": "catholic",
+    "attend": "any",
+    "marital": "any"
+   },
+   "rows": [
+    {
+     "category": "Four or more",
+     "pct": 31.5,
+     "ci_low": 22.1,
+     "ci_high": 40.9
+    },
+    {
+     "category": "Two",
+     "pct": 40.2,
+     "ci_low": 30,
+     "ci_high": 50.4
+    }
+   ],
+   "n": 140,
+   "n_eff": 112,
+   "weighted_base": 140,
+   "excluded": {
+    "dk": 3,
+    "refused": 1,
+    "iap": 10
+   },
+   "flags": []
+  },
+  {
+   "id": "t2",
+   "dataset_id": "gss",
+   "variable": "chldidel",
+   "years": [
+    2018,
+    2022
+   ],
+   "filters": {
+    "sex": "female",
+    "age_band": "18-29",
+    "relig": "catholic",
+    "attend": "weekly",
+    "marital": "never_married"
+   },
+   "rows": null,
+   "n": 31,
+   "n_eff": 22,
+   "weighted_base": 31,
+   "excluded": {
+    "dk": 3,
+    "refused": 1,
+    "iap": 10
+   },
+   "flags": [
+    "suppressed_small_sample"
+   ]
+  },
+  {
+   "id": "t3",
+   "dataset_id": "gss",
+   "variable": "fefam",
+   "years": [
+    2018,
+    2022
+   ],
+   "filters": {
+    "sex": "female",
+    "age_band": "18-29",
+    "relig": "catholic",
+    "attend": "any",
+    "marital": "any"
+   },
+   "rows": [
+    {
+     "category": "Agree",
+     "pct": 18,
+     "ci_low": 9.5,
+     "ci_high": 26.5
+    },
+    {
+     "category": "Disagree",
+     "pct": 82,
+     "ci_low": 73.5,
+     "ci_high": 90.5
+    }
+   ],
+   "n": 88,
+   "n_eff": 64,
+   "weighted_base": 88,
+   "excluded": {
+    "dk": 3,
+    "refused": 1,
+    "iap": 10
+   },
+   "flags": [
+    "exploratory_sample"
+   ]
+  }
+ ]
+}

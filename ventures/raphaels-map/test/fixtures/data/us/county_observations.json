@@ -1,0 +1,1732 @@
+{
+ "synthetic": true,
+ "vintage_label": "Fixture ACS 5-year · Fixture Religion Census",
+ "source_ids": [
+  "acs5",
+  "usrc2020"
+ ],
+ "observations": {
+  "56001": {
+   "total_population": {
+    "e": 777036,
+    "moe": 13,
+    "flags": []
+   },
+   "female_population": {
+    "e": 388518,
+    "moe": 115,
+    "flags": []
+   },
+   "women_18_19": {
+    "e": 31896,
+    "moe": 77,
+    "flags": []
+   },
+   "women_20_24": {
+    "e": 8508,
+    "moe": 567,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "women_25_29": {
+    "e": 37200,
+    "moe": 127,
+    "flags": []
+   },
+   "women_30_34": {
+    "e": 55092,
+    "moe": 410,
+    "flags": []
+   },
+   "women_20_29": {
+    "e": 45708,
+    "moe": 472,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "never_married_women_20_24": {
+    "e": 7540,
+    "moe": 414,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "never_married_women_25_29": {
+    "e": 19060,
+    "moe": 157,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "never_married_women_20_29": {
+    "e": 26600,
+    "moe": 752,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "never_married_women_30_34": {
+    "e": 11374,
+    "moe": 177,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "never_married_share_women_20_29": {
+    "e": 58.2,
+    "moe": null,
+    "flags": [
+     "derived"
+    ]
+   },
+   "women_20_29_per_1000": {
+    "e": 58.8,
+    "moe": null,
+    "flags": [
+     "derived"
+    ]
+   },
+   "rep_pres_share_2024": {
+    "e": null,
+    "moe": null,
+    "flags": [
+     "not_ingested"
+    ]
+   },
+   "public_venues": {
+    "e": 2,
+    "moe": null,
+    "flags": []
+   },
+   "catholic_adherents": {
+    "e": 255898,
+    "moe": null,
+    "flags": []
+   },
+   "catholic_congregations": {
+    "e": 105,
+    "moe": null,
+    "flags": []
+   },
+   "catholic_adherents_per_1000": {
+    "e": 329.3,
+    "moe": null,
+    "flags": [
+     "denominator_all_ages",
+     "vintage_mismatch",
+     "derived"
+    ]
+   },
+   "catholic_congregations_per_100k": {
+    "e": 13.5,
+    "moe": null,
+    "flags": [
+     "denominator_all_ages",
+     "vintage_mismatch",
+     "derived"
+    ]
+   }
+  },
+  "56003": {
+   "total_population": {
+    "e": 997416,
+    "moe": 4,
+    "flags": []
+   },
+   "female_population": {
+    "e": 498708,
+    "moe": 105,
+    "flags": []
+   },
+   "women_18_19": {
+    "e": 31800,
+    "moe": 298,
+    "flags": []
+   },
+   "women_20_24": {
+    "e": 45348,
+    "moe": 223,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "women_25_29": {
+    "e": 25896,
+    "moe": 207,
+    "flags": []
+   },
+   "women_30_34": {
+    "e": 56340,
+    "moe": 569,
+    "flags": []
+   },
+   "women_20_29": {
+    "e": 71244,
+    "moe": 156,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "never_married_women_20_24": {
+    "e": 36807,
+    "moe": 377,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "never_married_women_25_29": {
+    "e": 12606,
+    "moe": 102,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "never_married_women_20_29": {
+    "e": 49413,
+    "moe": 334,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "never_married_women_30_34": {
+    "e": 13831,
+    "moe": 358,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "never_married_share_women_20_29": {
+    "e": 69.4,
+    "moe": null,
+    "flags": [
+     "derived"
+    ]
+   },
+   "women_20_29_per_1000": {
+    "e": 71.4,
+    "moe": null,
+    "flags": [
+     "derived"
+    ]
+   },
+   "rep_pres_share_2024": {
+    "e": null,
+    "moe": null,
+    "flags": [
+     "not_ingested"
+    ]
+   },
+   "public_venues": {
+    "e": 0,
+    "moe": null,
+    "flags": []
+   },
+   "catholic_adherents": {
+    "e": 169557,
+    "moe": null,
+    "flags": []
+   },
+   "catholic_congregations": {
+    "e": 9,
+    "moe": null,
+    "flags": []
+   },
+   "catholic_adherents_per_1000": {
+    "e": 170,
+    "moe": null,
+    "flags": [
+     "denominator_all_ages",
+     "vintage_mismatch",
+     "derived"
+    ]
+   },
+   "catholic_congregations_per_100k": {
+    "e": 0.9,
+    "moe": null,
+    "flags": [
+     "denominator_all_ages",
+     "vintage_mismatch",
+     "derived"
+    ]
+   }
+  },
+  "56005": {
+   "total_population": {
+    "e": 159945,
+    "moe": 4,
+    "flags": []
+   },
+   "female_population": {
+    "e": 79973,
+    "moe": 390,
+    "flags": []
+   },
+   "women_18_19": {
+    "e": 551,
+    "moe": 201,
+    "flags": []
+   },
+   "women_20_24": {
+    "e": 3707,
+    "moe": 182,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "women_25_29": {
+    "e": 6956,
+    "moe": 266,
+    "flags": []
+   },
+   "women_30_34": {
+    "e": 599,
+    "moe": 514,
+    "flags": []
+   },
+   "women_20_29": {
+    "e": 10663,
+    "moe": 515,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "never_married_women_20_24": {
+    "e": 2599,
+    "moe": 318,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "never_married_women_25_29": {
+    "e": 4229,
+    "moe": 254,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "never_married_women_20_29": {
+    "e": 6828,
+    "moe": 241,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "never_married_women_30_34": {
+    "e": 208,
+    "moe": 212,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "never_married_share_women_20_29": {
+    "e": 64,
+    "moe": null,
+    "flags": [
+     "derived"
+    ]
+   },
+   "women_20_29_per_1000": {
+    "e": 66.7,
+    "moe": null,
+    "flags": [
+     "derived"
+    ]
+   },
+   "rep_pres_share_2024": {
+    "e": null,
+    "moe": null,
+    "flags": [
+     "not_ingested"
+    ]
+   },
+   "public_venues": {
+    "e": 0,
+    "moe": null,
+    "flags": []
+   },
+   "catholic_adherents": {
+    "e": 47893,
+    "moe": null,
+    "flags": []
+   },
+   "catholic_congregations": {
+    "e": 13,
+    "moe": null,
+    "flags": []
+   },
+   "catholic_adherents_per_1000": {
+    "e": 299.4,
+    "moe": null,
+    "flags": [
+     "denominator_all_ages",
+     "vintage_mismatch",
+     "derived"
+    ]
+   },
+   "catholic_congregations_per_100k": {
+    "e": 8.1,
+    "moe": null,
+    "flags": [
+     "denominator_all_ages",
+     "vintage_mismatch",
+     "derived"
+    ]
+   }
+  },
+  "08001": {
+   "total_population": {
+    "e": 2148528,
+    "moe": 23,
+    "flags": []
+   },
+   "female_population": {
+    "e": 1074264,
+    "moe": 319,
+    "flags": []
+   },
+   "women_18_19": {
+    "e": 27252,
+    "moe": 128,
+    "flags": []
+   },
+   "women_20_24": {
+    "e": 33108,
+    "moe": 297,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "women_25_29": {
+    "e": 93276,
+    "moe": 244,
+    "flags": []
+   },
+   "women_30_34": {
+    "e": 73548,
+    "moe": 179,
+    "flags": []
+   },
+   "women_20_29": {
+    "e": 126384,
+    "moe": 336,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "never_married_women_20_24": {
+    "e": 30686,
+    "moe": 454,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "never_married_women_25_29": {
+    "e": 44153,
+    "moe": 406,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "never_married_women_20_29": {
+    "e": 74839,
+    "moe": 436,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "never_married_women_30_34": {
+    "e": 29238,
+    "moe": 233,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "never_married_share_women_20_29": {
+    "e": 59.2,
+    "moe": null,
+    "flags": [
+     "derived"
+    ]
+   },
+   "women_20_29_per_1000": {
+    "e": 58.8,
+    "moe": null,
+    "flags": [
+     "derived"
+    ]
+   },
+   "rep_pres_share_2024": {
+    "e": null,
+    "moe": null,
+    "flags": [
+     "not_ingested"
+    ]
+   },
+   "public_venues": {
+    "e": 3,
+    "moe": null,
+    "flags": []
+   },
+   "catholic_adherents": {
+    "e": 207846,
+    "moe": null,
+    "flags": []
+   },
+   "catholic_congregations": {
+    "e": 93,
+    "moe": null,
+    "flags": []
+   },
+   "catholic_adherents_per_1000": {
+    "e": 96.7,
+    "moe": null,
+    "flags": [
+     "denominator_all_ages",
+     "vintage_mismatch",
+     "derived"
+    ]
+   },
+   "catholic_congregations_per_100k": {
+    "e": 4.3,
+    "moe": null,
+    "flags": [
+     "denominator_all_ages",
+     "vintage_mismatch",
+     "derived"
+    ]
+   }
+  },
+  "08003": {
+   "total_population": {
+    "e": 2063664,
+    "moe": 41,
+    "flags": []
+   },
+   "female_population": {
+    "e": 1031832,
+    "moe": 269,
+    "flags": []
+   },
+   "women_18_19": {
+    "e": 15948,
+    "moe": 71,
+    "flags": []
+   },
+   "women_20_24": {
+    "e": 49428,
+    "moe": 315,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "women_25_29": {
+    "e": 65220,
+    "moe": 455,
+    "flags": []
+   },
+   "women_30_34": {
+    "e": 33180,
+    "moe": 151,
+    "flags": []
+   },
+   "women_20_29": {
+    "e": 114648,
+    "moe": 525,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "never_married_women_20_24": {
+    "e": 43624,
+    "moe": 320,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "never_married_women_25_29": {
+    "e": 28449,
+    "moe": 181,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "never_married_women_20_29": {
+    "e": 72073,
+    "moe": 234,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "never_married_women_30_34": {
+    "e": 13171,
+    "moe": 351,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "never_married_share_women_20_29": {
+    "e": 62.9,
+    "moe": null,
+    "flags": [
+     "derived"
+    ]
+   },
+   "women_20_29_per_1000": {
+    "e": 55.6,
+    "moe": null,
+    "flags": [
+     "derived"
+    ]
+   },
+   "rep_pres_share_2024": {
+    "e": null,
+    "moe": null,
+    "flags": [
+     "not_ingested"
+    ]
+   },
+   "public_venues": {
+    "e": 0,
+    "moe": null,
+    "flags": []
+   },
+   "catholic_adherents": {
+    "e": 217270,
+    "moe": null,
+    "flags": []
+   },
+   "catholic_congregations": {
+    "e": 51,
+    "moe": null,
+    "flags": []
+   },
+   "catholic_adherents_per_1000": {
+    "e": 105.3,
+    "moe": null,
+    "flags": [
+     "denominator_all_ages",
+     "vintage_mismatch",
+     "derived"
+    ]
+   },
+   "catholic_congregations_per_100k": {
+    "e": 2.5,
+    "moe": null,
+    "flags": [
+     "denominator_all_ages",
+     "vintage_mismatch",
+     "derived"
+    ]
+   }
+  },
+  "08005": {
+   "total_population": {
+    "e": 158576,
+    "moe": 47,
+    "flags": []
+   },
+   "female_population": {
+    "e": 79288,
+    "moe": 210,
+    "flags": []
+   },
+   "women_18_19": {
+    "e": 1626,
+    "moe": 224,
+    "flags": []
+   },
+   "women_20_24": {
+    "e": 3172,
+    "moe": 102,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "women_25_29": {
+    "e": 4036,
+    "moe": 98,
+    "flags": []
+   },
+   "women_30_34": {
+    "e": 4347,
+    "moe": 492,
+    "flags": []
+   },
+   "women_20_29": {
+    "e": 7208,
+    "moe": 480,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "never_married_women_20_24": {
+    "e": 2711,
+    "moe": 461,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "never_married_women_25_29": {
+    "e": 1815,
+    "moe": 104,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "never_married_women_20_29": {
+    "e": 4526,
+    "moe": 800,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "never_married_women_30_34": {
+    "e": 976,
+    "moe": 262,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "never_married_share_women_20_29": {
+    "e": 62.8,
+    "moe": null,
+    "flags": [
+     "derived"
+    ]
+   },
+   "women_20_29_per_1000": {
+    "e": 45.5,
+    "moe": null,
+    "flags": [
+     "derived"
+    ]
+   },
+   "rep_pres_share_2024": {
+    "e": null,
+    "moe": null,
+    "flags": [
+     "not_ingested"
+    ]
+   },
+   "public_venues": {
+    "e": 0,
+    "moe": null,
+    "flags": []
+   },
+   "catholic_adherents": {
+    "e": 36626,
+    "moe": null,
+    "flags": []
+   },
+   "catholic_congregations": {
+    "e": 24,
+    "moe": null,
+    "flags": []
+   },
+   "catholic_adherents_per_1000": {
+    "e": 231,
+    "moe": null,
+    "flags": [
+     "denominator_all_ages",
+     "vintage_mismatch",
+     "derived"
+    ]
+   },
+   "catholic_congregations_per_100k": {
+    "e": 15.1,
+    "moe": null,
+    "flags": [
+     "denominator_all_ages",
+     "vintage_mismatch",
+     "derived"
+    ]
+   }
+  },
+  "08007": {
+   "total_population": {
+    "e": 77724,
+    "moe": 3,
+    "flags": []
+   },
+   "female_population": {
+    "e": 38862,
+    "moe": 289,
+    "flags": []
+   },
+   "women_18_19": {
+    "e": 2172,
+    "moe": 78,
+    "flags": []
+   },
+   "women_20_24": {
+    "e": 1068,
+    "moe": 242,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "women_25_29": {
+    "e": 3504,
+    "moe": 143,
+    "flags": []
+   },
+   "women_30_34": {
+    "e": 7914,
+    "moe": 133,
+    "flags": []
+   },
+   "women_20_29": {
+    "e": 4572,
+    "moe": 149,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "never_married_women_20_24": {
+    "e": 984,
+    "moe": 263,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "never_married_women_25_29": {
+    "e": 1444,
+    "moe": 376,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "never_married_women_20_29": {
+    "e": 2428,
+    "moe": 183,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "never_married_women_30_34": {
+    "e": 2206,
+    "moe": 220,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "never_married_share_women_20_29": {
+    "e": 53.1,
+    "moe": null,
+    "flags": [
+     "derived"
+    ]
+   },
+   "women_20_29_per_1000": {
+    "e": 58.8,
+    "moe": null,
+    "flags": [
+     "derived"
+    ]
+   },
+   "rep_pres_share_2024": {
+    "e": null,
+    "moe": null,
+    "flags": [
+     "not_ingested"
+    ]
+   },
+   "public_venues": {
+    "e": 4,
+    "moe": null,
+    "flags": []
+   },
+   "catholic_adherents": {
+    "e": 14776,
+    "moe": null,
+    "flags": []
+   },
+   "catholic_congregations": {
+    "e": 15,
+    "moe": null,
+    "flags": []
+   },
+   "catholic_adherents_per_1000": {
+    "e": 190.1,
+    "moe": null,
+    "flags": [
+     "denominator_all_ages",
+     "vintage_mismatch",
+     "derived"
+    ]
+   },
+   "catholic_congregations_per_100k": {
+    "e": 19.3,
+    "moe": null,
+    "flags": [
+     "denominator_all_ages",
+     "vintage_mismatch",
+     "derived"
+    ]
+   }
+  },
+  "08009": {
+   "total_population": {
+    "e": 154497,
+    "moe": 47,
+    "flags": []
+   },
+   "female_population": {
+    "e": 77249,
+    "moe": 293,
+    "flags": []
+   },
+   "women_18_19": {
+    "e": 2753,
+    "moe": 132,
+    "flags": []
+   },
+   "women_20_24": {
+    "e": 1505,
+    "moe": 329,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "women_25_29": {
+    "e": 5852,
+    "moe": 349,
+    "flags": []
+   },
+   "women_30_34": {
+    "e": 1573,
+    "moe": 404,
+    "flags": []
+   },
+   "women_20_29": {
+    "e": 7357,
+    "moe": 689,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "never_married_women_20_24": {
+    "e": 1184,
+    "moe": 493,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "never_married_women_25_29": {
+    "e": 2287,
+    "moe": 577,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "never_married_women_20_29": {
+    "e": 3471,
+    "moe": 623,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "never_married_women_30_34": {
+    "e": 527,
+    "moe": 369,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "never_married_share_women_20_29": {
+    "e": 47.2,
+    "moe": null,
+    "flags": [
+     "derived"
+    ]
+   },
+   "women_20_29_per_1000": {
+    "e": 47.6,
+    "moe": null,
+    "flags": [
+     "derived"
+    ]
+   },
+   "rep_pres_share_2024": {
+    "e": null,
+    "moe": null,
+    "flags": [
+     "not_ingested"
+    ]
+   },
+   "public_venues": {
+    "e": 0,
+    "moe": null,
+    "flags": []
+   },
+   "catholic_adherents": {
+    "e": 19977,
+    "moe": null,
+    "flags": []
+   },
+   "catholic_congregations": {
+    "e": 5,
+    "moe": null,
+    "flags": []
+   },
+   "catholic_adherents_per_1000": {
+    "e": 129.3,
+    "moe": null,
+    "flags": [
+     "denominator_all_ages",
+     "vintage_mismatch",
+     "derived"
+    ]
+   },
+   "catholic_congregations_per_100k": {
+    "e": 3.2,
+    "moe": null,
+    "flags": [
+     "denominator_all_ages",
+     "vintage_mismatch",
+     "derived"
+    ]
+   }
+  },
+  "08011": {
+   "total_population": {
+    "e": 155227,
+    "moe": 26,
+    "flags": []
+   },
+   "female_population": {
+    "e": 77614,
+    "moe": 341,
+    "flags": []
+   },
+   "women_18_19": {
+    "e": 1007,
+    "moe": 253,
+    "flags": []
+   },
+   "women_20_24": {
+    "e": 4907,
+    "moe": 343,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "women_25_29": {
+    "e": 4224,
+    "moe": 513,
+    "flags": []
+   },
+   "women_30_34": {
+    "e": 5866,
+    "moe": 566,
+    "flags": []
+   },
+   "women_20_29": {
+    "e": 9131,
+    "moe": 257,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "never_married_women_20_24": {
+    "e": 3778,
+    "moe": 184,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "never_married_women_25_29": {
+    "e": 1815,
+    "moe": 390,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "never_married_women_20_29": {
+    "e": 5593,
+    "moe": 195,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "never_married_women_30_34": {
+    "e": 2072,
+    "moe": 233,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "never_married_share_women_20_29": {
+    "e": 61.3,
+    "moe": null,
+    "flags": [
+     "derived"
+    ]
+   },
+   "women_20_29_per_1000": {
+    "e": 58.8,
+    "moe": null,
+    "flags": [
+     "derived"
+    ]
+   },
+   "rep_pres_share_2024": {
+    "e": null,
+    "moe": null,
+    "flags": [
+     "not_ingested"
+    ]
+   },
+   "public_venues": {
+    "e": 0,
+    "moe": null,
+    "flags": []
+   },
+   "catholic_adherents": {
+    "e": 51649,
+    "moe": null,
+    "flags": []
+   },
+   "catholic_congregations": {
+    "e": 7,
+    "moe": null,
+    "flags": []
+   },
+   "catholic_adherents_per_1000": {
+    "e": 332.7,
+    "moe": null,
+    "flags": [
+     "denominator_all_ages",
+     "vintage_mismatch",
+     "derived"
+    ]
+   },
+   "catholic_congregations_per_100k": {
+    "e": 4.5,
+    "moe": null,
+    "flags": [
+     "denominator_all_ages",
+     "vintage_mismatch",
+     "derived"
+    ]
+   }
+  },
+  "08013": {
+   "total_population": {
+    "e": 174720,
+    "moe": 40,
+    "flags": []
+   },
+   "female_population": {
+    "e": 87360,
+    "moe": 347,
+    "flags": []
+   },
+   "women_18_19": {
+    "e": 831,
+    "moe": 70,
+    "flags": []
+   },
+   "women_20_24": {
+    "e": 3920,
+    "moe": 413,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "women_25_29": {
+    "e": 4816,
+    "moe": 589,
+    "flags": []
+   },
+   "women_30_34": {
+    "e": 4139,
+    "moe": 133,
+    "flags": []
+   },
+   "women_20_29": {
+    "e": 8736,
+    "moe": 768,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "never_married_women_20_24": {
+    "e": 3702,
+    "moe": 139,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "never_married_women_25_29": {
+    "e": 2518,
+    "moe": 152,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "never_married_women_20_29": {
+    "e": 6220,
+    "moe": 243,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "never_married_women_30_34": {
+    "e": 1233,
+    "moe": 230,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "never_married_share_women_20_29": {
+    "e": 71.2,
+    "moe": null,
+    "flags": [
+     "derived"
+    ]
+   },
+   "women_20_29_per_1000": {
+    "e": 50,
+    "moe": null,
+    "flags": [
+     "derived"
+    ]
+   },
+   "rep_pres_share_2024": {
+    "e": null,
+    "moe": null,
+    "flags": [
+     "not_ingested"
+    ]
+   },
+   "public_venues": {
+    "e": 3,
+    "moe": null,
+    "flags": []
+   },
+   "catholic_adherents": {
+    "e": 29042,
+    "moe": null,
+    "flags": []
+   },
+   "catholic_congregations": {
+    "e": 29,
+    "moe": null,
+    "flags": []
+   },
+   "catholic_adherents_per_1000": {
+    "e": 166.2,
+    "moe": null,
+    "flags": [
+     "denominator_all_ages",
+     "vintage_mismatch",
+     "derived"
+    ]
+   },
+   "catholic_congregations_per_100k": {
+    "e": 16.6,
+    "moe": null,
+    "flags": [
+     "denominator_all_ages",
+     "vintage_mismatch",
+     "derived"
+    ]
+   }
+  },
+  "08015": {
+   "total_population": {
+    "e": 24448,
+    "moe": 15,
+    "flags": []
+   },
+   "female_population": {
+    "e": 12224,
+    "moe": 366,
+    "flags": []
+   },
+   "women_18_19": {
+    "e": 2619,
+    "moe": 252,
+    "flags": []
+   },
+   "women_20_24": {
+    "e": 744,
+    "moe": 98,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "women_25_29": {
+    "e": 784,
+    "moe": 228,
+    "flags": []
+   },
+   "women_30_34": {
+    "e": 5237,
+    "moe": 270,
+    "flags": []
+   },
+   "women_20_29": {
+    "e": 1528,
+    "moe": 530,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "never_married_women_20_24": {
+    "e": 572,
+    "moe": 420,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "never_married_women_25_29": {
+    "e": 455,
+    "moe": 511,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "never_married_women_20_29": {
+    "e": 1027,
+    "moe": 182,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "never_married_women_30_34": {
+    "e": 1401,
+    "moe": 189,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "never_married_share_women_20_29": {
+    "e": 67.2,
+    "moe": null,
+    "flags": [
+     "derived"
+    ]
+   },
+   "women_20_29_per_1000": {
+    "e": 62.5,
+    "moe": null,
+    "flags": [
+     "derived"
+    ]
+   },
+   "rep_pres_share_2024": {
+    "e": null,
+    "moe": null,
+    "flags": [
+     "not_ingested"
+    ]
+   },
+   "public_venues": {
+    "e": 0,
+    "moe": null,
+    "flags": []
+   },
+   "catholic_adherents": {
+    "e": 2552,
+    "moe": null,
+    "flags": []
+   },
+   "catholic_congregations": {
+    "e": 10,
+    "moe": null,
+    "flags": []
+   },
+   "catholic_adherents_per_1000": {
+    "e": 104.4,
+    "moe": null,
+    "flags": [
+     "denominator_all_ages",
+     "vintage_mismatch",
+     "derived"
+    ]
+   },
+   "catholic_congregations_per_100k": {
+    "e": 40.9,
+    "moe": null,
+    "flags": [
+     "denominator_all_ages",
+     "vintage_mismatch",
+     "derived"
+    ]
+   }
+  },
+  "08017": {
+   "total_population": {
+    "e": 231693,
+    "moe": 15,
+    "flags": []
+   },
+   "female_population": {
+    "e": 115847,
+    "moe": 277,
+    "flags": []
+   },
+   "women_18_19": {
+    "e": 1336,
+    "moe": 132,
+    "flags": []
+   },
+   "women_20_24": {
+    "e": 4811,
+    "moe": 324,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "women_25_29": {
+    "e": 6222,
+    "moe": 376,
+    "flags": []
+   },
+   "women_30_34": {
+    "e": 7230,
+    "moe": 480,
+    "flags": []
+   },
+   "women_20_29": {
+    "e": 11033,
+    "moe": 706,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "never_married_women_20_24": {
+    "e": 4351,
+    "moe": 253,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "never_married_women_25_29": {
+    "e": 3134,
+    "moe": 280,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "never_married_women_20_29": {
+    "e": 7485,
+    "moe": 702,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "never_married_women_30_34": {
+    "e": 2864,
+    "moe": 222,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "never_married_share_women_20_29": {
+    "e": 67.8,
+    "moe": null,
+    "flags": [
+     "derived"
+    ]
+   },
+   "women_20_29_per_1000": {
+    "e": 47.6,
+    "moe": null,
+    "flags": [
+     "derived"
+    ]
+   },
+   "rep_pres_share_2024": {
+    "e": null,
+    "moe": null,
+    "flags": [
+     "not_ingested"
+    ]
+   },
+   "public_venues": {
+    "e": 0,
+    "moe": null,
+    "flags": []
+   },
+   "catholic_adherents": {
+    "e": 42981,
+    "moe": null,
+    "flags": []
+   },
+   "catholic_congregations": {
+    "e": 34,
+    "moe": null,
+    "flags": []
+   },
+   "catholic_adherents_per_1000": {
+    "e": 185.5,
+    "moe": null,
+    "flags": [
+     "denominator_all_ages",
+     "vintage_mismatch",
+     "derived"
+    ]
+   },
+   "catholic_congregations_per_100k": {
+    "e": 14.7,
+    "moe": null,
+    "flags": [
+     "denominator_all_ages",
+     "vintage_mismatch",
+     "derived"
+    ]
+   }
+  },
+  "08019": {
+   "total_population": {
+    "e": 260244,
+    "moe": 5,
+    "flags": []
+   },
+   "female_population": {
+    "e": 130122,
+    "moe": 191,
+    "flags": []
+   },
+   "women_18_19": {
+    "e": 446,
+    "moe": 107,
+    "flags": []
+   },
+   "women_20_24": {
+    "e": 8142,
+    "moe": 261,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "women_25_29": {
+    "e": 6316,
+    "moe": 365,
+    "flags": []
+   },
+   "women_30_34": {
+    "e": 5267,
+    "moe": 558,
+    "flags": []
+   },
+   "women_20_29": {
+    "e": 14458,
+    "moe": 488,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "never_married_women_20_24": {
+    "e": 6672,
+    "moe": 209,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "never_married_women_25_29": {
+    "e": 2367,
+    "moe": 234,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "never_married_women_20_29": {
+    "e": 9039,
+    "moe": 437,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "never_married_women_30_34": {
+    "e": 1330,
+    "moe": 137,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "never_married_share_women_20_29": {
+    "e": 62.5,
+    "moe": null,
+    "flags": [
+     "derived"
+    ]
+   },
+   "women_20_29_per_1000": {
+    "e": 55.6,
+    "moe": null,
+    "flags": [
+     "derived"
+    ]
+   },
+   "rep_pres_share_2024": {
+    "e": null,
+    "moe": null,
+    "flags": [
+     "not_ingested"
+    ]
+   },
+   "public_venues": {
+    "e": 2,
+    "moe": null,
+    "flags": []
+   },
+   "catholic_adherents": {
+    "e": 37858,
+    "moe": null,
+    "flags": []
+   },
+   "catholic_congregations": {
+    "e": 33,
+    "moe": null,
+    "flags": []
+   },
+   "catholic_adherents_per_1000": {
+    "e": 145.5,
+    "moe": null,
+    "flags": [
+     "denominator_all_ages",
+     "vintage_mismatch",
+     "derived"
+    ]
+   },
+   "catholic_congregations_per_100k": {
+    "e": 12.7,
+    "moe": null,
+    "flags": [
+     "denominator_all_ages",
+     "vintage_mismatch",
+     "derived"
+    ]
+   }
+  },
+  "08023": {
+   "total_population": {
+    "e": 173408,
+    "moe": 1,
+    "flags": []
+   },
+   "female_population": {
+    "e": 86704,
+    "moe": 343,
+    "flags": []
+   },
+   "women_18_19": {
+    "e": 1388,
+    "moe": 101,
+    "flags": []
+   },
+   "women_20_24": {
+    "e": 6930,
+    "moe": 237,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "women_25_29": {
+    "e": 3908,
+    "moe": 184,
+    "flags": []
+   },
+   "women_30_34": {
+    "e": 7628,
+    "moe": 133,
+    "flags": []
+   },
+   "women_20_29": {
+    "e": 10838,
+    "moe": 426,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "never_married_women_20_24": {
+    "e": 5364,
+    "moe": 140,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "never_married_women_25_29": {
+    "e": 1706,
+    "moe": 534,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "never_married_women_20_29": {
+    "e": 7070,
+    "moe": 614,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "never_married_women_30_34": {
+    "e": 2237,
+    "moe": 202,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "never_married_share_women_20_29": {
+    "e": 65.2,
+    "moe": null,
+    "flags": [
+     "derived"
+    ]
+   },
+   "women_20_29_per_1000": {
+    "e": 62.5,
+    "moe": null,
+    "flags": [
+     "derived"
+    ]
+   },
+   "rep_pres_share_2024": {
+    "e": null,
+    "moe": null,
+    "flags": [
+     "not_ingested"
+    ]
+   },
+   "public_venues": {
+    "e": 0,
+    "moe": null,
+    "flags": []
+   },
+   "catholic_adherents": {
+    "e": null,
+    "moe": null,
+    "flags": [
+     "not_published"
+    ]
+   },
+   "catholic_congregations": {
+    "e": null,
+    "moe": null,
+    "flags": [
+     "not_published"
+    ]
+   },
+   "catholic_adherents_per_1000": {
+    "e": null,
+    "moe": null,
+    "flags": [
+     "not_published"
+    ]
+   },
+   "catholic_congregations_per_100k": {
+    "e": null,
+    "moe": null,
+    "flags": [
+     "not_published"
+    ]
+   }
+  }
+ }
+}

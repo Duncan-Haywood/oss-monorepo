@@ -1,0 +1,309 @@
+{
+ "synthetic": true,
+ "metrics": [
+  {
+   "metric_id": "total_population",
+   "label": "Total population",
+   "short": "Total population",
+   "universe": "Fixture universe for Total population",
+   "unit": "persons",
+   "definition": "Fixture definition of Total population.",
+   "source_variable_ids": [
+    "FIXTURE_001"
+   ],
+   "method": "Fixture method",
+   "source_id": "acs5",
+   "class": "observed",
+   "caveats": "Fixture caveat.",
+   "higher_is": "more"
+  },
+  {
+   "metric_id": "female_population",
+   "label": "Female population",
+   "short": "Female population",
+   "universe": "Fixture universe for Female population",
+   "unit": "persons",
+   "definition": "Fixture definition of Female population.",
+   "source_variable_ids": [
+    "FIXTURE_001"
+   ],
+   "method": "Fixture method",
+   "source_id": "acs5",
+   "class": "observed",
+   "caveats": "Fixture caveat.",
+   "higher_is": "more"
+  },
+  {
+   "metric_id": "women_18_19",
+   "label": "Women 18–19",
+   "short": "Women 18–19",
+   "universe": "Fixture universe for Women 18–19",
+   "unit": "persons",
+   "definition": "Fixture definition of Women 18–19.",
+   "source_variable_ids": [
+    "FIXTURE_001"
+   ],
+   "method": "Fixture method",
+   "source_id": "acs5",
+   "class": "observed",
+   "caveats": "Fixture caveat.",
+   "higher_is": "more"
+  },
+  {
+   "metric_id": "women_20_24",
+   "label": "Women 20–24",
+   "short": "Women 20–24",
+   "universe": "Fixture universe for Women 20–24",
+   "unit": "persons",
+   "definition": "Fixture definition of Women 20–24.",
+   "source_variable_ids": [
+    "FIXTURE_001"
+   ],
+   "method": "Fixture method",
+   "source_id": "acs5",
+   "class": "observed",
+   "caveats": "Fixture caveat.",
+   "higher_is": "more"
+  },
+  {
+   "metric_id": "women_25_29",
+   "label": "Women 25–29",
+   "short": "Women 25–29",
+   "universe": "Fixture universe for Women 25–29",
+   "unit": "persons",
+   "definition": "Fixture definition of Women 25–29.",
+   "source_variable_ids": [
+    "FIXTURE_001"
+   ],
+   "method": "Fixture method",
+   "source_id": "acs5",
+   "class": "observed",
+   "caveats": "Fixture caveat.",
+   "higher_is": "more"
+  },
+  {
+   "metric_id": "women_30_34",
+   "label": "Women 30–34",
+   "short": "Women 30–34",
+   "universe": "Fixture universe for Women 30–34",
+   "unit": "persons",
+   "definition": "Fixture definition of Women 30–34.",
+   "source_variable_ids": [
+    "FIXTURE_001"
+   ],
+   "method": "Fixture method",
+   "source_id": "acs5",
+   "class": "observed",
+   "caveats": "Fixture caveat.",
+   "higher_is": "more"
+  },
+  {
+   "metric_id": "women_20_29",
+   "label": "Women 20–29",
+   "short": "Women 20–29",
+   "universe": "Fixture universe for Women 20–29",
+   "unit": "persons",
+   "definition": "Fixture definition of Women 20–29.",
+   "source_variable_ids": [
+    "FIXTURE_001"
+   ],
+   "method": "Fixture method",
+   "source_id": "acs5",
+   "class": "observed",
+   "caveats": "Fixture caveat.",
+   "higher_is": "more"
+  },
+  {
+   "metric_id": "never_married_women_20_24",
+   "label": "Never-married women 20–24",
+   "short": "Never-married women 20–24",
+   "universe": "Fixture universe for Never-married women 20–24",
+   "unit": "persons",
+   "definition": "Fixture definition of Never-married women 20–24.",
+   "source_variable_ids": [
+    "FIXTURE_001"
+   ],
+   "method": "Fixture method",
+   "source_id": "acs5",
+   "class": "observed",
+   "caveats": "Fixture caveat.",
+   "higher_is": "more"
+  },
+  {
+   "metric_id": "never_married_women_25_29",
+   "label": "Never-married women 25–29",
+   "short": "Never-married women 25–29",
+   "universe": "Fixture universe for Never-married women 25–29",
+   "unit": "persons",
+   "definition": "Fixture definition of Never-married women 25–29.",
+   "source_variable_ids": [
+    "FIXTURE_001"
+   ],
+   "method": "Fixture method",
+   "source_id": "acs5",
+   "class": "observed",
+   "caveats": "Fixture caveat.",
+   "higher_is": "more"
+  },
+  {
+   "metric_id": "never_married_women_20_29",
+   "label": "Never-married women 20–29",
+   "short": "Never-married women 20–29",
+   "universe": "Fixture universe for Never-married women 20–29",
+   "unit": "persons",
+   "definition": "Fixture definition of Never-married women 20–29.",
+   "source_variable_ids": [
+    "FIXTURE_001"
+   ],
+   "method": "Fixture method",
+   "source_id": "acs5",
+   "class": "observed",
+   "caveats": "Fixture caveat.",
+   "higher_is": "more"
+  },
+  {
+   "metric_id": "never_married_women_30_34",
+   "label": "Never-married women 30–34",
+   "short": "Never-married women 30–34",
+   "universe": "Fixture universe for Never-married women 30–34",
+   "unit": "persons",
+   "definition": "Fixture definition of Never-married women 30–34.",
+   "source_variable_ids": [
+    "FIXTURE_001"
+   ],
+   "method": "Fixture method",
+   "source_id": "acs5",
+   "class": "observed",
+   "caveats": "Fixture caveat.",
+   "higher_is": "more"
+  },
+  {
+   "metric_id": "never_married_share_women_20_29",
+   "label": "Never-married share, women 20–29",
+   "short": "Never-married share, women 20–29",
+   "universe": "Fixture universe for Never-married share, women 20–29",
+   "unit": "percent",
+   "definition": "Fixture definition of Never-married share, women 20–29.",
+   "source_variable_ids": [
+    "FIXTURE_001"
+   ],
+   "method": "Fixture method",
+   "source_id": "acs5",
+   "class": "observed",
+   "caveats": "Fixture caveat.",
+   "higher_is": "more"
+  },
+  {
+   "metric_id": "women_20_29_per_1000",
+   "label": "Women 20–29 per 1,000 residents",
+   "short": "Women 20–29 per 1,000 residents",
+   "universe": "Fixture universe for Women 20–29 per 1,000 residents",
+   "unit": "per 1,000",
+   "definition": "Fixture definition of Women 20–29 per 1,000 residents.",
+   "source_variable_ids": [
+    "FIXTURE_001"
+   ],
+   "method": "Fixture method",
+   "source_id": "acs5",
+   "class": "observed",
+   "caveats": "Fixture caveat.",
+   "higher_is": "more"
+  },
+  {
+   "metric_id": "catholic_adherents",
+   "label": "Catholic adherents",
+   "short": "Catholic adherents",
+   "universe": "Fixture universe for Catholic adherents",
+   "unit": "persons",
+   "definition": "Fixture definition of Catholic adherents.",
+   "source_variable_ids": [
+    "FIXTURE_001"
+   ],
+   "method": "Fixture method",
+   "source_id": "usrc2020",
+   "class": "proxy",
+   "caveats": "Fixture caveat.",
+   "higher_is": "more"
+  },
+  {
+   "metric_id": "catholic_congregations",
+   "label": "Catholic congregations",
+   "short": "Catholic congregations",
+   "universe": "Fixture universe for Catholic congregations",
+   "unit": "congregations",
+   "definition": "Fixture definition of Catholic congregations.",
+   "source_variable_ids": [
+    "FIXTURE_001"
+   ],
+   "method": "Fixture method",
+   "source_id": "usrc2020",
+   "class": "proxy",
+   "caveats": "Fixture caveat.",
+   "higher_is": "more"
+  },
+  {
+   "metric_id": "catholic_adherents_per_1000",
+   "label": "Catholic adherents per 1,000",
+   "short": "Catholic adherents per 1,000",
+   "universe": "Fixture universe for Catholic adherents per 1,000",
+   "unit": "per 1,000",
+   "definition": "Fixture definition of Catholic adherents per 1,000.",
+   "source_variable_ids": [
+    "FIXTURE_001"
+   ],
+   "method": "Fixture method",
+   "source_id": "usrc2020",
+   "class": "proxy",
+   "caveats": "Fixture caveat.",
+   "higher_is": "more"
+  },
+  {
+   "metric_id": "catholic_congregations_per_100k",
+   "label": "Catholic congregations per 100,000",
+   "short": "Catholic congregations per 100,000",
+   "universe": "Fixture universe for Catholic congregations per 100,000",
+   "unit": "per 100,000",
+   "definition": "Fixture definition of Catholic congregations per 100,000.",
+   "source_variable_ids": [
+    "FIXTURE_001"
+   ],
+   "method": "Fixture method",
+   "source_id": "usrc2020",
+   "class": "proxy",
+   "caveats": "Fixture caveat.",
+   "higher_is": "more"
+  },
+  {
+   "metric_id": "rep_pres_share_2024",
+   "label": "Republican presidential vote share",
+   "short": "Republican presidential vote share",
+   "universe": "Fixture universe for Republican presidential vote share",
+   "unit": "percent",
+   "definition": "Fixture definition of Republican presidential vote share.",
+   "source_variable_ids": [
+    "FIXTURE_001"
+   ],
+   "method": "Fixture method",
+   "source_id": "mit_election",
+   "class": "unvalidated_hypothesis",
+   "caveats": "Fixture caveat.",
+   "higher_is": "more"
+  },
+  {
+   "metric_id": "public_venues",
+   "label": "Public venues listed",
+   "short": "Public venues listed",
+   "universe": "Fixture universe for Public venues listed",
+   "unit": "venues",
+   "definition": "Fixture definition of Public venues listed.",
+   "source_variable_ids": [
+    "FIXTURE_001"
+   ],
+   "method": "Fixture method",
+   "source_id": "communities",
+   "class": "user_listing",
+   "caveats": "Fixture caveat.",
+   "higher_is": "more"
+  }
+ ]
+}

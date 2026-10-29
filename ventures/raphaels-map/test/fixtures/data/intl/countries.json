@@ -1,0 +1,41 @@
+{
+ "synthetic": true,
+ "countries": [
+  {
+   "iso3": "AAA",
+   "name": "Fixtureland",
+   "observations": {
+    "tfr_2023": {
+     "e": 1.4,
+     "moe": null,
+     "flags": [],
+     "year": 2023
+    }
+   }
+  },
+  {
+   "iso3": "BBB",
+   "name": "Testonia",
+   "observations": {
+    "tfr_2023": {
+     "e": null,
+     "moe": null,
+     "flags": [
+      "not_ingested"
+     ]
+    }
+   }
+  }
+ ],
+ "metrics": [
+  {
+   "metric_id": "tfr_2023",
+   "label": "Total fertility rate",
+   "year": 2023,
+   "source_id": "wpp2024",
+   "class": "observed",
+   "definition": "Fixture TFR definition."
+  }
+ ],
+ "notes": "Fixture notes."
+}

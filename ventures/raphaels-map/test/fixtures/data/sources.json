@@ -1,0 +1,110 @@
+{
+ "synthetic": true,
+ "sources": [
+  {
+   "id": "acs5",
+   "title": "American Community Survey 5-year (fixture)",
+   "provider": "Fixture provider",
+   "landing_url": "https://example.org/acs5",
+   "dataset_version": "fixture-1",
+   "reference_period": "fixture 5-year",
+   "retrieved_at": "2026-10-29T00:00:00Z",
+   "license": "Fixture licence",
+   "access": "public download",
+   "citation": "Fixture citation for American Community Survey 5-year (fixture).",
+   "status": "ingested",
+   "files": [
+    {
+     "url": "https://example.org/acs5/file.csv",
+     "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    }
+   ],
+   "notes": ""
+  },
+  {
+   "id": "usrc2020",
+   "title": "U.S. Religion Census (fixture)",
+   "provider": "Fixture provider",
+   "landing_url": "https://example.org/usrc2020",
+   "dataset_version": "fixture-1",
+   "reference_period": "fixture period",
+   "retrieved_at": "2026-10-29T00:00:00Z",
+   "license": "Fixture licence",
+   "access": "public download",
+   "citation": "Fixture citation for U.S. Religion Census (fixture).",
+   "status": "ingested",
+   "files": [
+    {
+     "url": "https://example.org/usrc2020/file.csv",
+     "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    }
+   ],
+   "notes": ""
+  },
+  {
+   "id": "mit_election",
+   "title": "County presidential returns (fixture)",
+   "provider": "Fixture provider",
+   "landing_url": "https://example.org/mit_election",
+   "dataset_version": "fixture-1",
+   "reference_period": "fixture period",
+   "retrieved_at": "2026-10-29T00:00:00Z",
+   "license": "Fixture licence",
+   "access": "public download",
+   "citation": "Fixture citation for County presidential returns (fixture).",
+   "status": "not_ingested",
+   "files": [],
+   "notes": ""
+  },
+  {
+   "id": "gss",
+   "title": "General Social Survey (fixture)",
+   "provider": "Fixture provider",
+   "landing_url": "https://example.org/gss",
+   "dataset_version": "fixture-1",
+   "reference_period": "fixture period",
+   "retrieved_at": "2026-10-29T00:00:00Z",
+   "license": "Fixture licence",
+   "access": "public download",
+   "citation": "Fixture citation for General Social Survey (fixture).",
+   "status": "ingested",
+   "files": [
+    {
+     "url": "https://example.org/gss/file.csv",
+     "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    }
+   ],
+   "notes": ""
+  },
+  {
+   "id": "issp2022",
+   "title": "International Social Survey Programme 2022 (fixture)",
+   "provider": "Fixture provider",
+   "landing_url": "https://example.org/issp2022",
+   "dataset_version": "fixture-1",
+   "reference_period": "fixture period",
+   "retrieved_at": "2026-10-29T00:00:00Z",
+   "license": "Fixture licence",
+   "access": "registration required",
+   "citation": "Fixture citation for International Social Survey Programme 2022 (fixture).",
+   "status": "gated",
+   "files": [],
+   "notes": ""
+  },
+  {
+   "id": "wpp2024",
+   "title": "World Population Prospects (fixture)",
+   "provider": "Fixture provider",
+   "landing_url": "https://example.org/wpp2024",
+   "dataset_version": "fixture-1",
+   "reference_period": "fixture period",
+   "retrieved_at": "2026-10-29T00:00:00Z",
+   "license": "Fixture licence",
+   "access": "public download",
+   "citation": "Fixture citation for World Population Prospects (fixture).",
+   "status": "failed",
+   "files": [],
+   "notes": "fixture failure"
+  }
+ ]
+}

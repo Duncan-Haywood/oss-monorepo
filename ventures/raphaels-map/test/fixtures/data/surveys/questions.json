@@ -1,0 +1,65 @@
+{
+ "synthetic": true,
+ "datasets": [
+  {
+   "id": "gss",
+   "title": "General Social Survey (fixture)",
+   "source_id": "gss",
+   "years": [
+    2018,
+    2021,
+    2022
+   ],
+   "weight_variable": "wtssps",
+   "design": "Fixture design note"
+  }
+ ],
+ "questions": [
+  {
+   "dataset_id": "gss",
+   "variable": "chldidel",
+   "original_text": "Fixture question text: ideal number of children?",
+   "response_map": {
+    "0": "None",
+    "4": "Four or more"
+   },
+   "harmonized_concept": "ideal_family_size",
+   "alignment": "direct",
+   "years": [
+    2018,
+    2021,
+    2022
+   ]
+  },
+  {
+   "dataset_id": "gss",
+   "variable": "fefam",
+   "original_text": "Fixture question text: roles in the family?",
+   "response_map": {
+    "1": "Strongly agree",
+    "4": "Strongly disagree"
+   },
+   "harmonized_concept": "role_norm",
+   "alignment": "partial",
+   "years": [
+    2018,
+    2022
+   ]
+  },
+  {
+   "dataset_id": "gss",
+   "variable": "divlaw",
+   "original_text": "Fixture question text: divorce law?",
+   "response_map": {
+    "1": "Easier",
+    "2": "More difficult"
+   },
+   "harmonized_concept": "divorce_law_attitude",
+   "alignment": "related",
+   "years": [
+    2018,
+    2022
+   ]
+  }
+ ]
+}

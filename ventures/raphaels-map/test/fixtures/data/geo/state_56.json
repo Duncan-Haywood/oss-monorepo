@@ -1,0 +1,13 @@
+{
+ "synthetic": true,
+ "viewBox": "0 0 308 100",
+ "projection": "fixture-grid",
+ "paths": {
+  "56001": "M0,0h100v100h-100Z",
+  "56003": "M104,0h100v100h-100Z",
+  "56005": "M208,0h100v100h-100Z"
+ },
+ "states": {
+  "56": "M0,0h308v100h-308Z"
+ }
+}

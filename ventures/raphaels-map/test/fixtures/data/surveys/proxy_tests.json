@@ -1,0 +1,31 @@
+{
+ "synthetic": true,
+ "tests": [
+  {
+   "id": "p1",
+   "hypothesis": "Fixture: weekly attendance predicts ideal 4+",
+   "outcome": "chldidel>=4",
+   "predictors": [
+    "attend"
+   ],
+   "train_years": [
+    2018
+   ],
+   "test_years": [
+    2022
+   ],
+   "n_train": 400,
+   "n_test": 200,
+   "auc": 0.61,
+   "auc_ci": [
+    0.55,
+    0.67
+   ],
+   "baseline_auc": 0.5,
+   "brier": 0.2,
+   "baseline_brier": 0.22,
+   "verdict": "weak",
+   "notes": "Fixture."
+  }
+ ]
+}

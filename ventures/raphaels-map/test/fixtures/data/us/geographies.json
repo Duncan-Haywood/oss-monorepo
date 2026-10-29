@@ -1,0 +1,211 @@
+{
+ "synthetic": true,
+ "vintage": "fixture",
+ "counties": [
+  {
+   "id": "08001",
+   "name": "Fixture County A",
+   "state": "08",
+   "state_name": "Fixture State Eight",
+   "county": "001",
+   "cbsa": "99901",
+   "cbsa_name": "Fixture Metro",
+   "lat": 40,
+   "lon": -105,
+   "land_sqmi": 483
+  },
+  {
+   "id": "08003",
+   "name": "Fixture County B",
+   "state": "08",
+   "state_name": "Fixture State Eight",
+   "county": "003",
+   "cbsa": "99901",
+   "cbsa_name": "Fixture Metro",
+   "lat": 40,
+   "lon": -104.4,
+   "land_sqmi": 506
+  },
+  {
+   "id": "08005",
+   "name": "Fixture County C",
+   "state": "08",
+   "state_name": "Fixture State Eight",
+   "county": "005",
+   "cbsa": "99901",
+   "cbsa_name": "Fixture Metro",
+   "lat": 40,
+   "lon": -103.8,
+   "land_sqmi": 1286
+  },
+  {
+   "id": "08007",
+   "name": "Fixture County D",
+   "state": "08",
+   "state_name": "Fixture State Eight",
+   "county": "007",
+   "cbsa": "99901",
+   "cbsa_name": "Fixture Metro",
+   "lat": 40,
+   "lon": -103.2,
+   "land_sqmi": 1794
+  },
+  {
+   "id": "08009",
+   "name": "Fixture County E",
+   "state": "08",
+   "state_name": "Fixture State Eight",
+   "county": "009",
+   "cbsa": null,
+   "cbsa_name": null,
+   "lat": 39.5,
+   "lon": -105,
+   "land_sqmi": 2248
+  },
+  {
+   "id": "08011",
+   "name": "Fixture County F",
+   "state": "08",
+   "state_name": "Fixture State Eight",
+   "county": "011",
+   "cbsa": null,
+   "cbsa_name": null,
+   "lat": 39.5,
+   "lon": -104.4,
+   "land_sqmi": 824
+  },
+  {
+   "id": "08013",
+   "name": "Fixture County G",
+   "state": "08",
+   "state_name": "Fixture State Eight",
+   "county": "013",
+   "cbsa": null,
+   "cbsa_name": null,
+   "lat": 39.5,
+   "lon": -103.8,
+   "land_sqmi": 939
+  },
+  {
+   "id": "08015",
+   "name": "Fixture County H",
+   "state": "08",
+   "state_name": "Fixture State Eight",
+   "county": "015",
+   "cbsa": null,
+   "cbsa_name": null,
+   "lat": 39.5,
+   "lon": -103.2,
+   "land_sqmi": 1444
+  },
+  {
+   "id": "08017",
+   "name": "Fixture County I",
+   "state": "08",
+   "state_name": "Fixture State Eight",
+   "county": "017",
+   "cbsa": null,
+   "cbsa_name": null,
+   "lat": 39,
+   "lon": -105,
+   "land_sqmi": 1201
+  },
+  {
+   "id": "08019",
+   "name": "Fixture County J",
+   "state": "08",
+   "state_name": "Fixture State Eight",
+   "county": "019",
+   "cbsa": null,
+   "cbsa_name": null,
+   "lat": 39,
+   "lon": -104.4,
+   "land_sqmi": 968
+  },
+  {
+   "id": "08021",
+   "name": "Fixture County K",
+   "state": "08",
+   "state_name": "Fixture State Eight",
+   "county": "021",
+   "cbsa": null,
+   "cbsa_name": null,
+   "lat": 39,
+   "lon": -103.8,
+   "land_sqmi": 1864
+  },
+  {
+   "id": "08023",
+   "name": "Fixture County L",
+   "state": "08",
+   "state_name": "Fixture State Eight",
+   "county": "023",
+   "cbsa": null,
+   "cbsa_name": null,
+   "lat": 39,
+   "lon": -103.2,
+   "land_sqmi": 1653
+  },
+  {
+   "id": "56001",
+   "name": "Fixture County A2",
+   "state": "56",
+   "state_name": "Fixture State Fifty-six",
+   "county": "001",
+   "cbsa": null,
+   "cbsa_name": null,
+   "lat": 43,
+   "lon": -105,
+   "land_sqmi": 691
+  },
+  {
+   "id": "56003",
+   "name": "Fixture County B2",
+   "state": "56",
+   "state_name": "Fixture State Fifty-six",
+   "county": "003",
+   "cbsa": null,
+   "cbsa_name": null,
+   "lat": 43,
+   "lon": -104.4,
+   "land_sqmi": 1653
+  },
+  {
+   "id": "56005",
+   "name": "Fixture County C2",
+   "state": "56",
+   "state_name": "Fixture State Fifty-six",
+   "county": "005",
+   "cbsa": null,
+   "cbsa_name": null,
+   "lat": 43,
+   "lon": -103.8,
+   "land_sqmi": 1477
+  }
+ ],
+ "states": [
+  {
+   "id": "08",
+   "name": "Fixture State Eight",
+   "abbr": "F8"
+  },
+  {
+   "id": "56",
+   "name": "Fixture State Fifty-six",
+   "abbr": "F5"
+  }
+ ],
+ "cbsas": [
+  {
+   "id": "99901",
+   "name": "Fixture Metro",
+   "kind": "metro",
+   "counties": [
+    "08001",
+    "08003",
+    "08005",
+    "08007"
+   ]
+  }
+ ]
+}

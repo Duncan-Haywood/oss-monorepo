@@ -1,0 +1,48 @@
+{
+ "synthetic": true,
+ "vintage_label": "Fixture ACS 5-year · Fixture Religion Census",
+ "source_ids": [
+  "acs5",
+  "usrc2020"
+ ],
+ "observations": {
+  "99901": {
+   "total_population": {
+    "e": 1949063,
+    "moe": 33,
+    "flags": []
+   },
+   "women_20_24": {
+    "e": 52139,
+    "moe": 432,
+    "flags": []
+   },
+   "women_25_29": {
+    "e": 54209,
+    "moe": 728,
+    "flags": []
+   },
+   "never_married_women_20_24": {
+    "e": 64231,
+    "moe": 666,
+    "flags": [
+     "moe_approx"
+    ]
+   },
+   "catholic_adherents": {
+    "e": 200280,
+    "moe": null,
+    "flags": []
+   },
+   "catholic_adherents_per_1000": {
+    "e": 180.4,
+    "moe": null,
+    "flags": [
+     "denominator_all_ages",
+     "vintage_mismatch",
+     "derived"
+    ]
+   }
+  }
+ }
+}

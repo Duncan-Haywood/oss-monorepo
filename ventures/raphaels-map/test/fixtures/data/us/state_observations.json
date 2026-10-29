@@ -1,0 +1,34 @@
+{
+ "synthetic": true,
+ "vintage_label": "Fixture ACS 5-year · Fixture Religion Census",
+ "source_ids": [
+  "acs5",
+  "usrc2020"
+ ],
+ "observations": {
+  "56": {
+   "total_population": {
+    "e": 534823,
+    "moe": 21,
+    "flags": []
+   },
+   "women_20_24": {
+    "e": 26584,
+    "moe": 615,
+    "flags": []
+   }
+  },
+  "08": {
+   "total_population": {
+    "e": 168194,
+    "moe": 28,
+    "flags": []
+   },
+   "women_20_24": {
+    "e": 42612,
+    "moe": 123,
+    "flags": []
+   }
+  }
+ }
+}
