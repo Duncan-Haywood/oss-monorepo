@@ -6,17 +6,14 @@
 // take the same path.
 
 import { fmtFtIn, fmtIn } from './lumber.mjs';
-import { wallFaceLength } from './model.mjs';
+import { axisStart, wallFaceLength } from './model.mjs';
 
 const NS = 'http://www.w3.org/2000/svg';
 const snap = (v, step) => Math.round(v / step) * step;
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 
-/** Opening's start along its wall's axis (x for eave walls, y for gable ends). */
-export function axisStart(design, op) {
-  if (op.wall === 'front' || op.wall === 'right') return op.offset;
-  return wallFaceLength(design, op.wall) - op.offset - op.width;
-}
+// The framing and the plan view must agree where an opening sits, so both use the model's.
+export { axisStart };
 
 /**
  * Where an opening dragged to model point (x, y) lands: nearest wall, and the

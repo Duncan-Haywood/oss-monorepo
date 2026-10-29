@@ -496,9 +496,9 @@ function wire() {
       if (e.type === 'change' && t.tagName === 'SELECT') { $('#openings tbody').innerHTML = ''; renderOpenings(design()); }
       return;
     }
-    if (t.dataset.mat) { state.prices.lumber[t.dataset.mat][t.dataset.ft] = Number(t.value); render(); return; }
-    if (t.dataset.item) { state.prices.items[t.dataset.item] = Number(t.value); render(); return; }
-    if (t.dataset.delivery) { state.prices.delivery = { ...(state.prices.delivery || {}), [t.dataset.delivery]: Number(t.value) }; render(); return; }
+    if (t.dataset.mat) { (state.prices.lumber[t.dataset.mat] ||= {})[t.dataset.ft] = t.value === '' ? '' : Number(t.value); render(); return; }
+    if (t.dataset.item) { state.prices.items[t.dataset.item] = t.value === '' ? '' : Number(t.value); render(); return; }
+    if (t.dataset.delivery) { state.prices.delivery = { ...(state.prices.delivery || {}), [t.dataset.delivery]: t.value === '' ? '' : Number(t.value) }; render(); return; }
     if (t.closest('#settings')) {
       const next = readForm();
       // Typing a pitch or wall height means you want that number, not the automatic one.
