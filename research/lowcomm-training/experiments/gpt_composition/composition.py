@@ -1,4 +1,5 @@
-"""Milestone 6b adds held-out H in {8, 32} (uncompressed and keep 1/16) via `python3 composition.py run8_32`; see LOG.md.
+"""Milestone 6c adds keep 1/8 and 1/32 at H in {4, 64} via `python3 composition.py run_p`; see LOG.md.
+Milestone 6b adds held-out H in {8, 32} (uncompressed and keep 1/16) via `python3 composition.py run8_32`; see LOG.md.
 Milestone 6a (H6 pilot): does rand-k compression's excess loss compose additively with the outer delay H on the 413k-parameter GPT?
 Same model, data, budget (3,840 steps), M = 4, inner lr 2e-3, plain outer step as 3d/4a. New cells: keep p in {0.25, 0.0625} x H in {4, 64}, seeds 0 to 2.
 Existing cells read from gpt_retune_all (uncompressed, H in {4, 16, 64}, lr 2e-3) and gpt_compression (H = 16 rand-k).
@@ -11,6 +12,7 @@ sys.path.insert(0, os.path.join(HERE, "..", "..", "src"))
 M, B, STEPS, LR = 4, 16, 3840, 2e-3
 HOLD = [8, 32]
 KEEPS, HS, SEEDS = [0.25, 0.0625], [4, 64], [0, 1, 2]
+PLEVELS = [0.125, 0.03125]
 PATH = os.path.join(HERE, "composition.jsonl")
 OLD = os.path.join(HERE, "..", "gpt_retune_all", "retune.jsonl")
 RAND = os.path.join(HERE, "..", "gpt_compression", "compression.jsonl")
@@ -79,11 +81,33 @@ def report():
                 print(f"H={H}: measured {m:+.4f}  product {pr:+.4f} (err {pr - m:+.4f})  additive {ad:+.4f} (err {ad - m:+.4f})")
 
 
+def report_p():
+    """6c: excess vs omega = 1/p - 1 at H = 4, 64. H6c-i: fit through the origin on p = 1/4, 1/16; predict 1/8, 1/32. H6c-ii: power-law exponent over all four."""
+    import math
+    c = cells()
+    mean = lambda d: sum(d.values()) / len(d)
+    om = lambda p: 1 / p - 1
+    for H in (4, 64):
+        pts = {p: mean(c[(H, p)]) - mean(c[(H, 1.0)]) for p in (0.25, 0.125, 0.0625, 0.03125) if (H, p) in c}
+        print(f"H={H} excess by omega:", {om(p): round(v, 4) for p, v in pts.items()})
+        fit = [p for p in (0.25, 0.0625) if p in pts]
+        slope = sum(pts[p] * om(p) for p in fit) / sum(om(p) ** 2 for p in fit)
+        for p in (0.125, 0.03125):
+            if p in pts: print(f"  p={p}: measured {pts[p]:+.4f} linear-fit {slope * om(p):+.4f} err {slope * om(p) - pts[p]:+.4f}")
+        pos = [(math.log(om(p)), math.log(v)) for p, v in pts.items() if v > 0]
+        if len(pos) >= 3:
+            mx, my = sum(x for x, _ in pos) / len(pos), sum(y for _, y in pos) / len(pos)
+            b = sum((x - mx) * (y - my) for x, y in pos) / sum((x - mx) ** 2 for x, _ in pos)
+            print(f"  power-law exponent b = {b:.2f} from {len(pos)} points")
+
+
 if __name__ == "__main__":
     if sys.argv[1] == "report":
         report(); sys.exit()
+    if sys.argv[1] == "report_p":
+        report_p(); sys.exit()
     have = {(r["keep"], r["H"], r["seed"]) for r in load(PATH)}
-    hs, ks = (HOLD, [1.0, 0.0625]) if sys.argv[1] == "run8_32" else (HS, KEEPS)
+    hs, ks = {"run8_32": (HOLD, [1.0, 0.0625]), "run_p": (HS, PLEVELS)}.get(sys.argv[1], (HS, KEEPS))
     jobs = [(k, H, s) for s in SEEDS for H in hs for k in ks if (k, H, s) not in have]
     with Pool(4) as p, open(PATH, "a") as f:
         for r in p.imap_unordered(run, jobs):

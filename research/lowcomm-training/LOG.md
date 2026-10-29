@@ -2,6 +2,24 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-29 · Milestone 6c (H6): is f(p) proportional to the compressor variance factor omega = 1/p - 1? (planned before running)
+
+- Why: 6b's "Next". The product rule excess(H, p) = f(p) g(H) leaves f(p) free. Theory for unbiased compressors puts the variance penalty proportional to omega = 1/p - 1 (Stich 2018; Beznosikov et al. 2020), so f(p)/omega should be flat. Measured so far at H = 16: omega 3 -> +0.017, omega 15 -> +0.083 (ratio 4.9 for an omega ratio of 5).
+- New runs: keep p in {1/8, 1/32} x H in {4, 64}, seeds 0 to 2 (12 runs, `composition.py run_p`, same model, budget and lr as 6a/6b). With 6a's p in {1/4, 1/16} that gives four omega levels (3, 7, 15, 31) at H = 4 and 64.
+- Prediction made before seeing the cells: excess is linear in omega at each H, fitted on omega = 3 and 15 only, and predicted for omega = 7 and 31.
+- **H6c-i:** the linear-in-omega fit (through the origin, per H, on p = 1/4 and 1/16) predicts the p = 1/8 and p = 1/32 excesses at H = 4 and 64 within 0.02 nats each. Refuted if any of the four misses by more than 0.02.
+- **H6c-ii:** a power law excess = a omega^b fitted on the same two points has |b - 1| < 0.3 once all four omega levels are refitted at each H. Refuted otherwise.
+- Prior: i 40% (p = 1/32 is far outside the fitted range and the loss response may be convex in omega, since 6a's excess at p = 1/4 is within seed spread); ii 50%.
+- Limits known in advance: three seeds; one compressor, model and corpus; the 1/4 cell is near the noise floor so the fit through the origin leans on one informative point; 0.02 and 0.3 are my choices.
+
+### Outcome of 6c (`experiments/gpt_composition/`: `composition.jsonl` gained 12 rows, `run_p.out`, `composition_p_results.txt`; seeds 0 to 2, about 11 minutes per run)
+- Rand-k excess over the uncompressed cell (nats), omega = 3 / 7 / 15 / 31: H = 4 +0.009 / +0.019 / +0.040 / +0.077; H = 64 +0.010 / +0.037 / +0.099 / +0.183.
+- **H6c-i supported.** The linear fit through the origin on omega 3 and 15 predicts omega 7 and 31 with errors 0.000 and +0.006 (H = 4) and +0.009 and +0.017 (H = 64); the worst, 0.017, is under 0.02, and every miss is an over-prediction at H = 64, so the response is slightly concave there.
+- **H6c-ii supported.** Fitted power-law exponents in omega: b = 0.94 (H = 4) and 1.25 (H = 64); both within 0.3 of 1.
+- Reading: the excess is close to proportional to omega at both H, with slope about 0.0025 per unit omega at H = 4 and 0.006 at H = 64 (so g(64)/g(4) is about 2.4 at these levels). That is consistent with the product rule f(p) g(H) with f proportional to omega, but H = 64 sits at b = 1.25, so the linear form is not exact there; the omega = 3 cells are at the seed-spread floor (about 0.01) and set the exponent fit.
+- Limits: three seeds, no interval on exponents; the exponent uses all four points including the noisy omega = 3 one; one compressor (rand-k), model and corpus, so "proportional to omega" is not separated from "proportional to 1/p" for other compressors; top-k (biased) not tested.
+- Next: the same-size fitted scaling-law comparison H6 asks for, and a second compressor (top-k or quantisation) to see whether omega, not p, is the variable.
+
 ## 2026-10-29 · Milestone 6b (H6): does a product rule excess = f(p) g(H), fitted on H in {4, 16, 64}, predict held-out H in {8, 32}? (planned before running)
 
 - Why: 6a's "Next". The cross term is real at p = 1/16, so the additive rule is out; the smallest replacement is separable, excess(H, p) = f(p) g(H). It is tested the only way a fitted rule can be: on H it was not fitted on.
