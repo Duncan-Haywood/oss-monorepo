@@ -115,7 +115,9 @@ ACS_GEOS = {
 
 @attempt("acs5")
 def fetch_acs(out: Path) -> None:
-    key = os.environ.get("CENSUS_API_KEY", "")
+    # Group metadata from the API (no key needed), data from the table-based
+    # Summary File (plain downloads; the API now answers "Missing Key" to
+    # keyless group() queries).
     for year in (2024, 2023):
         base = f"https://api.census.gov/data/{year}/acs/acs5"
         try:
@@ -127,12 +129,23 @@ def fetch_acs(out: Path) -> None:
         save(out, "acs5", f"{year}/groups_B01001.json", meta, f"{base}/groups/B01001.json")
         for g in ACS_GROUPS[1:]:
             save(out, "acs5", f"{year}/groups_{g}.json", get(f"{base}/groups/{g}.json"), f"{base}/groups/{g}.json")
-        for g in ACS_GROUPS:
-            for geo, clause in ACS_GEOS.items():
-                url = f"{base}?get=NAME,group({g})&{clause}" + (f"&key={key}" if key else "")
-                shown = url.replace(key, "KEY") if key else url
-                data = get(url, timeout=300)
-                save(out, "acs5", f"{year}/{g}_{geo}.json", data, shown)
+        sf = f"https://www2.census.gov/programs-surveys/acs/summary_file/{year}/table-based-SF/"
+        for sub in ("data/5YRData/", "documentation/"):
+            try:
+                listing = links(sf + sub, r"\.(dat|txt|csv|xlsx)$")
+            except RuntimeError as e:
+                record("acs5", notes=[f"listing {sf + sub}: {e}"])
+                continue
+            want = [u for u in listing if re.search(r"(b01001|b12002|b01003)\.dat$", u, re.I)
+                    or re.search(r"geos?.*5y", u, re.I) or re.search(r"ACS20\d\dSF_?5Y?R?_?Table_?Shells|table.?shells", u, re.I)]
+            record("acs5", notes=[f"{sub} listing ({len(listing)}): {listing[:30]}"])
+            for u in want:
+                save(out, "acs5", f"{year}/sf/" + u.rsplit("/", 1)[1], get(u, timeout=600), u)
+        key = os.environ.get("CENSUS_API_KEY", "")
+        if key:
+            for g in ACS_GROUPS:
+                url = f"{base}?get=NAME,group({g})&for=county:*&key={key}"
+                save(out, "acs5", f"{year}/{g}_county_api.json", get(url, timeout=300), url.replace(key, "KEY"))
         return
     raise RuntimeError("no ACS 5-year vintage in (2024, 2023) answered")
 
@@ -237,38 +250,42 @@ def fetch_gss(out: Path) -> None:
             record("gss", notes=[str(e)])
     cands = sorted(set(cands))
     record("gss", notes=[f"zip links: {cands[:40]}"])
-    cumul = [c for c in cands if re.search(r"cumul|7224|_stata\.zip$", c, re.I) and "stata" in c.lower()]
-    tries = cumul + ["https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/GSS_stata.zip"]
-    for url in tries:
+    yearly = [c for c in cands if re.search(r"/stata/(20(0[0-9]|1[0-9]|2[0-9]))_stata\.zip$", c)]
+    frames, labels = [], {}
+    import pyreadstat
+    for url in yearly:
         try:
             blob = get(url, timeout=900)
-        except RuntimeError as e:
-            record("gss", notes=[str(e)])
+            z = zipfile.ZipFile(io.BytesIO(blob))
+        except Exception as e:  # noqa: BLE001
+            record("gss", notes=[f"{url}: {e}"])
             continue
-        z = zipfile.ZipFile(io.BytesIO(blob))
         dta = [n for n in z.namelist() if n.lower().endswith(".dta")]
-        record("gss", notes=[f"{url} members: {z.namelist()[:20]}"])
         if not dta:
+            record("gss", notes=[f"{url}: no .dta in {z.namelist()[:10]}"])
             continue
         member = max(dta, key=lambda n: z.getinfo(n).file_size)
         tmp = out / "gss" / "_tmp.dta"
         tmp.parent.mkdir(parents=True, exist_ok=True)
         tmp.write_bytes(z.read(member))
-        cols = None
-        import pyreadstat
         _, meta = pyreadstat.read_dta(str(tmp), metadataonly=True)
-        have = [c for c in GSS_COLS if c in meta.column_names]
+        lower = {c.lower(): c for c in meta.column_names}
+        have = [lower[c] for c in GSS_COLS if c in lower]
         df, meta = pyreadstat.read_dta(str(tmp), usecols=have, apply_value_formats=False)
-        df = df[df["year"] >= 2000]
+        df.columns = [c.lower() for c in df.columns]
+        frames.append(df)
+        for c in df.columns:
+            orig = lower[c]
+            labels.setdefault(c, {"label": meta.column_names_to_labels.get(orig),
+                                  "values": {str(k): v for k, v in (meta.variable_value_labels.get(orig) or {}).items()}})
+        record("gss", notes=[f"{url} -> {member}: {len(df)} rows, missing {[c for c in GSS_COLS if c not in lower]}"])
+        tmp.unlink()
+    if frames:
+        df = pd.concat(frames, ignore_index=True)
         buf = io.StringIO()
         df.to_csv(buf, index=False)
-        save(out, "gss", "gss_2000plus_selected.csv.gz", gzip.compress(buf.getvalue().encode()), url)
-        labels = {c: {"label": meta.column_names_to_labels.get(c),
-                      "values": {str(k): v for k, v in (meta.variable_value_labels.get(c) or {}).items()}}
-                  for c in have}
-        save(out, "gss", "gss_selected_labels.json", json.dumps(labels, indent=1).encode(), url)
-        record("gss", notes=[f"member {member}; missing columns: {[c for c in GSS_COLS if c not in have]}"])
-        tmp.unlink()
+        save(out, "gss", "gss_2000plus_selected.csv.gz", gzip.compress(buf.getvalue().encode()), "; ".join(yearly))
+        save(out, "gss", "gss_selected_labels.json", json.dumps(labels, indent=1).encode(), "; ".join(yearly))
         return
     raise RuntimeError("no GSS cumulative Stata file could be read")
 
@@ -353,7 +370,7 @@ def fetch_election(out: Path) -> None:
     for f in files:
         df = f["dataFile"]
         if re.search(r"\.(csv|tab)$", df.get("filename", ""), re.I):
-            url = f"https://dataverse.harvard.edu/api/access/datafile/{df['id']}?format=original"
+            url = f"https://dataverse.harvard.edu/api/access/datafile/{df['id']}"
             save(out, "mit_election", df["filename"], get(url, timeout=600), url)
 
 
