@@ -1,6 +1,6 @@
 ---
 title: "Making a simulated coat hanger blunter stops helping at about 6 cm"
-seo_title: "Hanger design in simulation: does a larger end radius reduce garment drape error?"
+seo_title: "Does a larger hanger end radius reduce garment drape error?"
 date: 2026-10-29
 description: "Lifting the end-radius cap of a simulated 3D-designed hanger from 6 to 10 and 15 cm left the drape error flat (1.08 and 1.21 cm against 1.12 cm, 8 seeds each)."
 tags: [research, hanger, simulation]

@@ -1,6 +1,6 @@
 ---
 title: "Pier footings now go in the wall framing takeoff page"
-seo_title: "Pier and deck post footing concrete and rebar calculator for a house takeoff"
+seo_title: "Pier footings in the wall framing takeoff page"
 date: 2026-10-29
 description: "The free wall framing takeoff page now takes pier groups: pad size, column, rebar, concrete yards and trucks, no plan file needed."
 tags: [wall-framing-takeoff, construction, foundation]
