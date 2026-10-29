@@ -267,6 +267,7 @@
       <div><label for="fnCorner">Corner bars</label><select id="fnCorner"><option value="" selected>Bars bent into one loop on site</option><option value="true">Straight side bars with an L-bar at each corner</option></select></div>
       <div><label for="fnAnchor">Anchor bolt spacing (in; blank: no bolts counted)</label><input id="fnAnchor" type="number" min="12" max="120" placeholder="e.g. 72"></div>
       <div><label for="fnAnchorEnd">Anchor bolt distance from plate end (in)</label><input id="fnAnchorEnd" type="number" min="4" max="24" value="12"></div>
+      <div style="grid-column:1/-1"><label for="fnPiers">Piers, one group per line: <code>count, pad in, pad depth in, column in, column height in, bars, bar #, name</code> (the last five are optional; blank: none)</label><textarea id="fnPiers" rows="2" placeholder="e.g. 6, 24, 12, 8, 30, 4, 4, deck posts"></textarea></div>
       <div><label for="fnPrice">Concrete price per cu yd (blank: none)</label><input id="fnPrice" type="number" min="0" step="1" placeholder="e.g. 165"></div>
     </div>
     <p><input type="checkbox" id="rfOn" style="width:auto"> <label for="rfOn" style="display:inline">Also frame a roof, gable or hip (rafters, ridge, ceiling joists, collar ties, roof sheathing, shingles and felt; the lumber joins the order)</label></p>
@@ -659,6 +660,19 @@
         if (fn.type === "stem") fn.stem = { height: Number($("#fnStemH").value), thickness: Number($("#fnStemT").value) };
         if ($("#fnCorner").value) fn.cornerBars = true;
         if ($("#fnAnchor").value.trim()) fn.anchorBolts = { spacing: Number($("#fnAnchor").value), endDistance: Number($("#fnAnchorEnd").value) };
+        const piers = [];
+        for (const [i, line] of $("#fnPiers").value.split("\n").map((t) => t.trim()).filter(Boolean).entries()) {
+          const c = line.split(",").map((t) => t.trim());
+          const n = c.slice(0, 7).map((t) => (t === "" ? undefined : Number(t)));
+          if (c.length < 3 || c.length > 8 || n.slice(0, 3).some((v) => !Number.isFinite(v)) || n.some((v) => v !== undefined && !Number.isFinite(v))) { bad.push(`Pier line ${i + 1} ("${line}") needs: count, pad in, pad depth in, then optionally column, column height, bars, bar #, name.`); continue; }
+          const pier = { count: n[0], pad: n[1], padDepth: n[2] };
+          if (n[3]) { pier.column = n[3]; pier.columnHeight = n[4]; }
+          if (n[5]) pier.bars = n[5];
+          if (n[6]) pier.bar = n[6];
+          if (c[7]) pier.name = c[7];
+          piers.push(pier);
+        }
+        if (piers.length) fn.piers = piers;
         if ($("#fnPrice").value.trim()) fn.price = Number($("#fnPrice").value);
         plan.foundation = fn;
       }
@@ -1077,7 +1091,8 @@
         $("#fnStemH").value = String(fn.stem?.height ?? 32); $("#fnStemT").value = String(fn.stem?.thickness ?? 8);
         $("#fnSlab").value = String(fn.slab?.thickness ?? 4); $("#fnPrice").value = fn.price != null ? String(fn.price) : ""; $("#fnCorner").value = fn.cornerBars ? "true" : "";
         $("#fnAnchor").value = fn.anchorBolts ? String(fn.anchorBolts.spacing ?? 72) : ""; $("#fnAnchorEnd").value = String(fn.anchorBolts?.endDistance ?? 12);
-      }
+        $("#fnPiers").value = (fn.piers || []).map((p) => [p.count, p.pad, p.padDepth, p.column ?? "", p.columnHeight ?? "", p.bars ?? "", p.bar ?? "", p.name ?? ""].join(", ").replace(/(, )+$/, "")).join("\n");
+      } else $("#fnPiers").value = "";
       const rf = plan.roof;
       $("#rfOn").checked = Boolean(rf); $("#rfFields").hidden = !rf;
       if (rf) {
