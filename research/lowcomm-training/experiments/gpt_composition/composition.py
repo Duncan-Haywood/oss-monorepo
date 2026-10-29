@@ -1,4 +1,5 @@
-"""Milestone 6c adds keep 1/8 and 1/32 at H in {4, 64} via `python3 composition.py run_p`; see LOG.md.
+"""Milestone 6d adds plain top-k at keep 1/16, H in {4, 64}, via `python3 composition.py run_topk`, results in topk_composition.jsonl; see LOG.md.
+Milestone 6c adds keep 1/8 and 1/32 at H in {4, 64} via `python3 composition.py run_p`; see LOG.md.
 Milestone 6b adds held-out H in {8, 32} (uncompressed and keep 1/16) via `python3 composition.py run8_32`; see LOG.md.
 Milestone 6a (H6 pilot): does rand-k compression's excess loss compose additively with the outer delay H on the 413k-parameter GPT?
 Same model, data, budget (3,840 steps), M = 4, inner lr 2e-3, plain outer step as 3d/4a. New cells: keep p in {0.25, 0.0625} x H in {4, 64}, seeds 0 to 2.
@@ -14,6 +15,8 @@ HOLD = [8, 32]
 KEEPS, HS, SEEDS = [0.25, 0.0625], [4, 64], [0, 1, 2]
 PLEVELS = [0.125, 0.03125]
 PATH = os.path.join(HERE, "composition.jsonl")
+TOPK = os.path.join(HERE, "topk_composition.jsonl")
+TOPK_OLD = os.path.join(HERE, "..", "gpt_topk_ef", "topk_ef.jsonl")
 OLD = os.path.join(HERE, "..", "gpt_retune_all", "retune.jsonl")
 RAND = os.path.join(HERE, "..", "gpt_compression", "compression.jsonl")
 load = lambda p: [json.loads(l) for l in open(p)] if os.path.exists(p) else []
@@ -22,15 +25,16 @@ load = lambda p: [json.loads(l) for l in open(p)] if os.path.exists(p) else []
 def run(job):
     import torch
     torch.set_num_threads(1)
-    from lowcomm import DiLoCo, GPT, GPTConfig, CharData, load_shakespeare, rand_k
-    keep, H, seed = job
+    from lowcomm import DiLoCo, GPT, GPTConfig, CharData, load_shakespeare, rand_k, top_k
+    keep, H, seed = job[:3]
+    comp = rand_k if len(job) == 3 else top_k
     data = CharData(load_shakespeare(os.path.join(HERE, "..", "tinyshakespeare.txt")))
     torch.manual_seed(seed)
     model = GPT(GPTConfig(vocab=data.vocab, block=64, layers=2, heads=4, dim=128))
     inner = lambda p: torch.optim.AdamW(p, lr=LR, betas=(0.9, 0.95), weight_decay=0.0)
     outer = lambda p: torch.optim.SGD(p, lr=1.0)
     t0 = time.time()
-    d = DiLoCo(model, lambda m, rng: m(*data.batch("train", B, rng)), workers=M, H=H, inner=inner, outer=outer, seed=seed, compress=None if keep == 1.0 else rand_k(keep))
+    d = DiLoCo(model, lambda m, rng: m(*data.batch("train", B, rng)), workers=M, H=H, inner=inner, outer=outer, seed=seed, compress=None if keep == 1.0 else comp(keep))
     for _ in range(STEPS // H):
         d.round()
     model.eval()
@@ -101,7 +105,33 @@ def report_p():
             print(f"  power-law exponent b = {b:.2f} from {len(pos)} points")
 
 
+def report_topk():
+    """6d: plain top-k at keep 1/16. H6d-i: rand-k's g(4) = 0.49, g(64) = 1.19 (6b) times top-k's H = 16 excess predicts H = 4, 64 within 0.02."""
+    c = cells()
+    mean = lambda v: sum(v) / len(v)
+    tk = {16: {r["seed"]: r["loss"] for r in load(TOPK_OLD) if r["arm"] == "topk" and r["keep"] == 0.0625}}
+    for r in load(TOPK): tk.setdefault(r["H"], {})[r["seed"]] = r["loss"]
+    ex = lambda H: mean(list(tk[H].values())) - mean(list(c[(H, 1.0)].values()))
+    rk = lambda H: mean(list(c[(H, 0.0625)].values())) - mean(list(c[(H, 1.0)].values()))
+    print("plain top-k keep 1/16 excess over uncompressed (nats), with rand-k:")
+    for H in (4, 16, 64):
+        if H in tk: print(f"H={H}: topk {ex(H):+.4f} (n={len(tk[H])}, per seed {[round(v - c[(H, 1.0)][s], 4) for s, v in sorted(tk[H].items())]})  randk {rk(H):+.4f}")
+    for H in (4, 64):
+        if H in tk:
+            pred = ex(16) * rk(H) / rk(16)
+            print(f"H={H}: g-scaled prediction {pred:+.4f} err {pred - ex(H):+.4f};  H-independent rival {ex(16):+.4f} err {ex(16) - ex(H):+.4f}")
+
+
 if __name__ == "__main__":
+    if sys.argv[1] == "report_topk":
+        report_topk(); sys.exit()
+    if sys.argv[1] == "run_topk":
+        have = {(r["H"], r["seed"]) for r in load(TOPK)}
+        jobs = [(0.0625, H, s, "topk") for s in SEEDS for H in HS if (H, s) not in have]
+        with Pool(4) as p, open(TOPK, "a") as f:
+            for r in p.imap_unordered(run, jobs):
+                f.write(json.dumps(r) + "\n"); f.flush(); print(r, flush=True)
+        sys.exit()
     if sys.argv[1] == "report":
         report(); sys.exit()
     if sys.argv[1] == "report_p":

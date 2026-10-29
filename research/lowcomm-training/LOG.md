@@ -2,6 +2,16 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-29 · Milestone 6d (H6): does 6b's H-shape g(H) carry over to a biased compressor, plain top-k? (planned before running)
+
+- Why: 6c's "Next". 6a to 6c found excess(H, p) close to f(p) g(H) for rand-k. If g(H) is a property of the outer loop and not of rand-k, the same g should scale a different compressor's excess. Plain top-k at keep 1/16 is already measured at H = 16 (4b, +0.0639 over uncompressed, 3 seeds).
+- New runs: plain top-k (no error feedback, per tensor), keep 1/16, H in {4, 64}, seeds 0 to 2 (6 runs, `composition.py run_topk`, same model, budget and lr as 6a to 6c). Uncompressed comparators are the existing 3d cells.
+- Prediction made before seeing the cells: top-k excess(H) = top-k excess(16) x rand-k excess(H)/rand-k excess(16) at p = 1/16, i.e. +0.031 at H = 4 (g = 0.49) and +0.076 at H = 64 (g = 1.19). Rival: top-k excess does not depend on H (+0.064).
+- **H6d-i:** the g-scaled prediction is within 0.02 nats of the measured excess at both H = 4 and 64. Refuted if either misses by more than 0.02.
+- **H6d-ii:** its absolute error is smaller than the H-independent rival's at H = 4 (where they differ by 0.033). Refuted otherwise.
+- Prior: i 40%, ii 55%. Top-k is biased and keeps the largest coordinates, so how much its error averages out over more rounds need not follow rand-k's variance story.
+- Limits known in advance: three seeds; one model, corpus and keep level; 0.02 is my choice; the H = 16 top-k cell comes from 4b (same code and seeds), not rerun here.
+
 ## 2026-10-29 · Milestone 6c (H6): is f(p) proportional to the compressor variance factor omega = 1/p - 1? (planned before running)
 
 - Why: 6b's "Next". The product rule excess(H, p) = f(p) g(H) leaves f(p) free. Theory for unbiased compressors puts the variance penalty proportional to omega = 1/p - 1 (Stich 2018; Beznosikov et al. 2020), so f(p)/omega should be flat. Measured so far at H = 16: omega 3 -> +0.017, omega 15 -> +0.083 (ratio 4.9 for an omega ratio of 5).
