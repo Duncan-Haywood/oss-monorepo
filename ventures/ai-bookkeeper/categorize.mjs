@@ -34,6 +34,14 @@ const amountBucket = (cents) => `amt:${Math.min(12, Math.floor(Math.log2(Math.ab
 // keyword that fits two accounts is left out, so the line goes to review rather
 // than being guessed. `dir` limits a rule to money in or money out.
 export const BUILT_IN = [
+  // Massage therapists and estheticians (2026-10-29, massage.test.mjs; agent-written from the companies' public names, not from a real export):
+  // booking-platform payouts, booking software, lotions, waxes and linens, association dues, continuing education, state board licences and suite rent.
+  ["4000", "in", /vagaro.*(payout|deposit)|\bmindbody\b.*payout|\bboulevard\b.*payout|\bglossgenius\b.*payout|massagebook.*payout/],
+  ["6060", "out", /massage ?book|\bbookedby\b|\bschedulicity\b|\bglossgenius\b|\bmassage ?works\b|\bnoterro\b/],
+  ["6100", "out", /biotone|\bbiofreeze\b|massage (lotion|oil|table)|wax and sugaring|sugaring supplies|linen supply|sheets and towels|\bsally beauty\b|\bsalon ?centric\b/],
+  ["6170", "out", /\babmp\b(?!.*insur)|\bamta\b|\bncbtmb\b|continuing education|\bceu\b|esthetician association/],
+  ["6110", "out", /board of (massage|esthetic|cosmetology)[^,]*(licen[cs]e|renew)/],
+  ["6080", "out", /(salon|massage|treatment|esthetics?) (suite|room|studio) rent|booth rent/],
   // Therapists and counselors in private practice (2026-10-29, therapist.test.mjs; agent-written from the companies' public names, not from a real export):
   // insurance-panel and matching-platform payouts are sales; CE courses, supervision, association dues and directory listings are education and dues or advertising.
   ["4000", "in", /headway|\balma\b.*reimburs|grow therapy|rula health|\bspring health\b.*payment|claims deposit/],
