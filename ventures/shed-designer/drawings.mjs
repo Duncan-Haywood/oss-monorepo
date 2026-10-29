@@ -7,6 +7,7 @@
 
 import { fmtFtIn, fmtIn } from './lumber.mjs';
 import { WALLS, WALL_LABEL } from './model.mjs';
+import { heelJoint } from './checks.mjs';
 
 /** @typedef {[number, number]} P */
 /**
@@ -461,6 +462,7 @@ export function buildSheets(shed, marks = new Map()) {
       ['Joist to skid', '2-16d toenail, or a framing tie'],
       ['Rafter to plate', 'rafter-to-plate tie each rafter, maker\'s nails'],
       [d.roofType === 'ridgeBeam' ? 'Rafter to ridge beam' : 'Rafter to ridge board', d.roofType === 'ridgeBeam' ? 'face-mount hanger, maker\'s nails' : '3-16d end or toenail'],
+      ...(heelJoint(shed) ? [['Rafter tie to rafter, each end', `${heelJoint(shed)?.nails}-16d common, face nailed`]] : []),
       ['Subfloor', '1-5/8" screws 6" edges, 12" field, with adhesive'],
       ['Wall and roof sheathing', '8d at 6" edges, 12" field'],
       ['Siding panels', '8d galvanized 6" edges, 12" field'],
