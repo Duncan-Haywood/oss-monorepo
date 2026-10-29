@@ -233,3 +233,16 @@ test("rail: the handrail is bought as one board of the pitch plus the overhangs"
   assert.equal(row.length, Math.round((l.pitch + 22) * 16) / 16);
   assert.ok(!stairCuts(layoutStair({ totalRise: 108, tread: 10, rail: { handrail: false } }, plan())).some((r) => r.kind === "stair handrail"));
 });
+
+test("tread span between stringers is checked against the tread thickness", () => {
+  // width 60, spacing 24, 1 in treads: span 58.5 -> 4 stringers, 19.5 in apart, over the 12 in limit for under 1-1/4 in.
+  const bad = layoutStair({ totalRise: 108, width: 60, stringerSpacing: 24, treadThickness: 1 }, plan());
+  assert.equal(bad.stringer.count, 4);
+  assert.equal(bad.stringer.spacing, 19.5);
+  assert.equal(bad.stringer.treadSpanMax, 12);
+  assert.ok(bad.notes.some((n) => /between stringers/.test(n)));
+  // the same stair with 2x treads (24 in) and the sample 36 in stair raise no span note
+  const ok = layoutStair({ totalRise: 108, width: 60, stringerSpacing: 24, treadThickness: 1.5 }, plan());
+  assert.ok(!ok.notes.some((n) => /between stringers/.test(n)));
+  assert.ok(!layoutStair({ totalRise: 108 }, plan()).notes.some((n) => /between stringers/.test(n)));
+});
