@@ -23,3 +23,11 @@ test('a hand-written llms.txt gets the git date appended unless it already state
   assert.equal(withLlmsAsOf('# T\nLast updated: 2026-09-01\n', d), '# T\nLast updated: 2026-09-01\n');
   assert.equal(withLlmsAsOf('# T\n', undefined), '# T\n');
 });
+
+test('check flags an undated llms.txt only where dates are available', async () => {
+  const { llmsTxtMissingDate } = await import('./check.mjs');
+  const dated = '# T\n\nSource last changed: 2026-10-20 (from git).\n';
+  assert.deepEqual(llmsTxtMissingDate(new Map([['a', dated], ['b', '# B\n']])), ['b']);
+  assert.deepEqual(llmsTxtMissingDate(new Map([['a', '# A\n'], ['b', '# B\n']])), []);
+  assert.deepEqual(llmsTxtMissingDate(new Map()), []);
+});

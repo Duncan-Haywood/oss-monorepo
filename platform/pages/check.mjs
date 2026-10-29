@@ -610,6 +610,18 @@ export function checkServedExtensions(files, nginxConf) {
   return problems;
 }
 
+const LLMS_DATE = /\b\d{4}-\d{2}-\d{2}\b/;
+
+/**
+ * Products whose `llms.txt` text carries no ISO date, given a Map of slug to
+ * text. Empty when no file is dated at all: that is a build without git
+ * history, not a defect in the files.
+ */
+export function llmsTxtMissingDate(texts) {
+  const undated = [...texts].filter(([, t]) => !LLMS_DATE.test(t)).map(([slug]) => slug);
+  return undated.length === texts.size ? [] : undated;
+}
+
 export async function checkSite(site, { minProducts = 1 } = {}) {
   const problems = [];
 
@@ -939,6 +951,21 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
       if (!productDirs.includes(slug) && !SITE_OWN_DIRS.has(slug)) {
         problems.push(`llms-full.txt: lists "${slug}" but no such product shipped`);
       }
+    }
+  }
+
+  // Every built `/<product>/llms.txt` should say when it was last true, so an
+  // assistant quoting it can say "as of". The build stamps the git date; a
+  // build with no git history stamps none, so the check only bites when at
+  // least one file is dated (the dates are available) and another is not.
+  {
+    const texts = new Map();
+    for (const product of productDirs) {
+      const text = await fs.readFile(path.join(site, product, 'llms.txt'), 'utf8').catch(() => null);
+      if (text !== null) texts.set(product, text);
+    }
+    for (const product of llmsTxtMissingDate(texts)) {
+      problems.push(`${product}/llms.txt: states no date, so an assistant cannot say how current it is`);
     }
   }
 
