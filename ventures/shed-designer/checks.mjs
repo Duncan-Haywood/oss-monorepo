@@ -124,7 +124,10 @@ export function structuralChecks(shed) {
   for (const [name, wall] of Object.entries(shed.walls)) {
     for (const p of wall.openings) {
       const eave = name === 'front' || name === 'back';
-      const wPlf = eave ? deadPlf + snowPlf + 10 : 40; // gable-end headers carry the gable wall above, not the roof
+      // A gable-wall header carries the gable framing above it (40 lb/ft) and
+      // the strip of roof the end rafter brings down the gable studs: half a
+      // rafter spacing, as the roof does not overhang the gable.
+      const wPlf = eave ? deadPlf + snowPlf + 10 : 40 + (15 / cos + snow) * (d.rafterSpacing / 2) / 12;
       const r = headerCheck(p.hdr, p.w, wPlf, 2, 1, d.studSize);
       add(`Header over the ${name} ${p.op.kind}`, `2-ply ${p.hdr}`, `${fmtIn(p.w)} opening, ${Math.round(wPlf)} lb/ft`, r, 'bending, shear, deflection or bearing');
     }
