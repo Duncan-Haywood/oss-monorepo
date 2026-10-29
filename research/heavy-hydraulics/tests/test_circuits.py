@@ -41,3 +41,15 @@ def test_pump_too_small_raises():
 def test_energy_conserved():
     r = cycle_energy(REFERENCE_CYCLE, "load_sensing")
     assert r["shaft_J"] == pytest.approx(r["useful_J"] + r["heat_J"])
+
+
+def test_idle_sensitivity_hits_target_load_factor():
+    import io, contextlib, os, random, sys
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "experiments"))
+    with contextlib.redirect_stdout(io.StringIO()):
+        import idle_sensitivity as i
+    c, *_ = i.pc.one(random.Random(1))
+    c2 = i.with_idle(c, 0.35, random.Random(2))
+    peak = max(i.useful_power(p) for p in c)
+    lf = sum(i.useful_power(p) * p.seconds for p in c2) / sum(p.seconds for p in c2) / peak
+    assert 0.34 < lf < 0.36
