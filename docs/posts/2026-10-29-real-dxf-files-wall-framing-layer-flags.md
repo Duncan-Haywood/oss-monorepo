@@ -1,7 +1,7 @@
 ---
 title: "Five real DXF files, five failures: layer flags for the wall-framing takeoff"
 date: 2026-10-29
-description: "Running the wall-framing takeoff's DXF reader on real files from the ezdxf test set showed it only found walls on layers named like 'wall'. New CLI flags fix that."
+description: "Real DXF files from the ezdxf test set showed the wall-framing takeoff only found walls on layers named like 'wall'. New CLI flags name the layers."
 tags: [wall-framing-takeoff, dxf, construction]
 ---
 
