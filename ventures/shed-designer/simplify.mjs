@@ -64,7 +64,7 @@ function moves(d, base, resize) {
   set(d.roofType === 'ridgeBeam' ? 'ridge board and ties' : 'ridge beam on posts', { roofType: d.roofType === 'ridgeBeam' ? 'ridgeBoard' : 'ridgeBeam' });
   // Only when asked: a foot either way on the length or width, never below 85% of the floor asked for.
   if (!resize) return out;
-  for (const [k, dv] of [['length', 12], ['length', -12], ['width', 12], ['width', -12]]) {
+  for (const [k, dv] of /** @type {[string, number][]} */ ([['length', 12], ['length', -12], ['width', 12], ['width', -12]])) {
     const next = { ...d, [k]: d[k] + dv };
     if (next.length < 72 || next.width < 72) continue;
     if (next.length * next.width < 0.85 * base.length * base.width) continue;

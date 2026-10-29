@@ -25,7 +25,7 @@ import { productById } from './products.mjs';
  * @typedef {{ id: string, group: string, kind: string, material: string, length: number,
  *   note?: string, geom: Geom, local?: { s0: number, s1: number, z0: number, z1: number, top?: [number, number][] } }} Member
  */
-/** @typedef {{ id: string, kind: 'door'|'window', wall: 'front'|'back'|'left'|'right', offset: number, width: number, height: number, sill?: number, header?: string }} Opening */
+/** @typedef {{ id: string, kind: 'door'|'window', wall: 'front'|'back'|'left'|'right', offset: number, width: number, height: number, sill?: number, header?: string, product?: string }} Opening */
 
 export const WALLS = /** @type {const} */ (['front', 'right', 'back', 'left']);
 
@@ -345,7 +345,7 @@ function buildFramed(d) {
   const members = [];
   /** @type {{ id: string, kind: string, item: string, geom: Geom, group: string, wall?: string, side?: string, pos?: number[] }[]} */
   const panels = [];
-  /** @type {{ kind: string, geom: Geom, group: string, tex?: string }[]} */
+  /** @type {{ kind: string, geom: Geom, group: string, tex?: string, from?: number, bottom?: number }[]} */
   const fixtures = [];
   /** @type {string[]} */
   const warnings = [];

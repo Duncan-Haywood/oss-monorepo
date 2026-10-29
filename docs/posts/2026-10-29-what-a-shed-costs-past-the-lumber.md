@@ -1,7 +1,7 @@
 ---
 title: "What a shed costs past the lumber, and what $81 of brackets buys"
 date: 2026-10-29
-description: "Shed Designer now prices trim, nails, caulk, flashing, blocks, gravel and a site-built door, compares stores, and searches for the build with the fewest saw cuts."
+description: "Shed Designer now prices trim, nails, caulk, flashing, blocks, gravel and a site-built door, compares stores, and finds the build with the fewest saw cuts."
 tags: [shed-designer, construction, optimization]
 ---
 
