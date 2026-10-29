@@ -176,7 +176,7 @@ export function normalize(input) {
     maxPeak: Math.min(240, Math.max(0, num(o.maxPeak, d.maxPeak))),
     snowLoad: Math.min(150, Math.max(0, num(o.snowLoad, d.snowLoad))),
     windLoad: Math.min(80, Math.max(0, num(o.windLoad, d.windLoad))),
-    sidingColor: pick(o.sidingColor, ['natural', 'red', 'pink', 'hot pink', 'lavender', 'mint', 'gray', 'blue', 'green', 'white'], d.sidingColor),
+    sidingColor: pick(o.sidingColor, ['natural', 'unfinished', 'red', 'pink', 'hot pink', 'lavender', 'mint', 'gray', 'blue', 'green', 'white'], d.sidingColor),
     polkaDots: o.polkaDots === true,
     autoWall: o.autoWall === true,
     autoPitch: o.autoPitch === true,
@@ -1079,6 +1079,11 @@ function buildFramed(d) {
     heel: connector ? 0 : D * t, maxStock, connector,
   };
 
+  if (d.siding && d.sidingColor === 'unfinished' && d.sidingType !== 'vinyl') {
+    warnings.push(d.sidingType.startsWith('LP SmartSide')
+      ? 'Unfinished LP SmartSide: the factory primer is not a finish. LP asks for a paint topcoat within 180 days of installing it to keep the warranty.'
+      : 'Unfinished siding: bare wood and plywood siding grey, check and absorb water. Leaving it unfinished is a choice you can make, but paint or stain makes it last.');
+  }
   if (d.siding && d.studSpacing > 16 && (d.sidingType === 'T1-11' || d.sidingType === 'LP SmartSide')) {
     warnings.push(`${d.sidingType === 'T1-11' ? 'T1-11' : 'LP SmartSide 3/8"'} panels are rated for studs at 16" on centre; at ${d.studSpacing}" use the 7/16" LP panel, lap siding over OSB, or studs at 16".`);
   }

@@ -227,7 +227,7 @@ export function buildInstructions(shed, est) {
     });
   }
 
-  if (d.siding && d.sidingColor !== 'natural') {
+  if (d.siding && d.sidingColor !== 'natural' && d.sidingColor !== 'unfinished') {
     out.push({
       title: 'Paint',
       steps: [

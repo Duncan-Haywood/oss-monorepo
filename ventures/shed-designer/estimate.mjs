@@ -115,7 +115,7 @@ export function estimate(shed, prices = examplePrices()) {
     for (const [len, qty] of [...counts.entries()].sort((a, b) => a[0] - b[0])) {
       const ft = len / 12;
       const p = Number(prices.lumber?.[l.material]?.[ft] ?? boardPrice(l.material, ft).price);
-      line('Lumber', `${l.material} x ${ft}'`, qty, 'board', p, sourceOf(p, boardPrice(l.material, ft)));
+      line('Lumber', `${l.material} x ${ft}'`, qty, 'board', p, { ...sourceOf(p, boardPrice(l.material, ft)), key: `lumber:${l.material}:${ft}` });
     }
   }
   const item = (k) => Number(prices.items?.[k] ?? itemPrice(k).price);
@@ -148,7 +148,7 @@ export function estimate(shed, prices = examplePrices()) {
         line('Siding', label('hardiePlank'), Math.ceil((area * 1.1) / 5), 'piece', item('hardiePlank'), src('hardiePlank'));
       }
     }
-    if (type !== 'vinyl') {
+    if (type !== 'vinyl' && d.sidingColor !== 'unfinished') {
       // Two coats: 350 sq ft per gallon for paint, 300 for solid stain (typical label coverage).
       const stain = d.sidingColor === 'natural';
       line('Paint', stain ? label('stain') : `${label('paint')} (${d.sidingColor})`, Math.ceil((area * 2) / (stain ? 300 : 350)), 'gallon', item(stain ? 'stain' : 'paint'), src(stain ? 'stain' : 'paint'));
@@ -308,8 +308,12 @@ export function cutSheetCsv(est) {
 
 /** CSV of the shopping list. */
 export function shoppingCsv(est) {
-  const rows = [['section', 'item', 'qty', 'unit', 'unit price', 'total']];
-  for (const r of est.shopping) rows.push([r.section, r.name, String(r.qty), r.unit, r.price.toFixed(2), r.total.toFixed(2)]);
-  rows.push(['', 'Total', '', '', '', est.total.toFixed(2)]);
+  const rows = [['section', 'item', 'qty', 'unit', 'unit price', 'total', 'price source', 'listing']];
+  for (const r of est.shopping) {
+    const s = r.source || {};
+    const from = s.kind === 'yours' ? 'your price' : s.kind === 'estimate' ? 'estimate' : `${s.store || ''}${s.seen ? `, ${s.seen}` : ''}${s.kind === 'derived' ? ' (scaled)' : ''}`;
+    rows.push([r.section, r.name, String(r.qty), r.unit, r.price.toFixed(2), r.total.toFixed(2), from, s.url || '']);
+  }
+  rows.push(['', 'Total', '', '', '', est.total.toFixed(2), '', '']);
   return rows.map((r) => r.map((c) => (/[",\n]/.test(c) ? `"${c.replace(/"/g, '""')}"` : c)).join(',')).join('\n') + '\n';
 }

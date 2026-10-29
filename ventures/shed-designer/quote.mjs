@@ -6,10 +6,11 @@
 // copies it or opens it in their own email app and attaches the plans.
 
 import { fmtFtIn } from './lumber.mjs';
+import { OFFERS } from './catalog.mjs';
 
 export const STORES = {
-  homedepot: { name: 'Home Depot', desk: 'Pro Desk', note: 'The Pro Desk at your local store can quote a whole order; ask about volume pricing on large orders.' },
-  lowes: { name: "Lowe's", desk: 'Pro Desk', note: "The Pro Desk at your local store can quote a whole order; ask about volume pricing on large orders." },
+  homedepot: { name: 'Home Depot', offerStore: 'Home Depot', desk: 'Pro Desk', note: 'The Pro Desk at your local store can quote a whole order; ask about volume pricing on large orders.' },
+  lowes: { name: "Lowe's", offerStore: "Lowe's", desk: 'Pro Desk', note: "The Pro Desk at your local store can quote a whole order; ask about volume pricing on large orders." },
   yard: { name: 'your local lumberyard', desk: 'sales desk', note: 'Independent yards often quote contractors and bulk orders directly and deliver.' },
 };
 
@@ -45,6 +46,9 @@ export function quoteRequest(shed, est, storeKey = 'homedepot', who = {}) {
   for (const r of est.shopping) {
     if (r.section !== section) { section = r.section; lines.push(`${section}:`); }
     lines.push(`  ${r.qty} ${r.unit}${r.qty === 1 ? '' : 's'}  ${r.name}  (est. ${money(r.price)} each, ${money(r.total)})`);
+    // The store's own listing where we have one, so the desk can find the exact item.
+    const ref = itemRef(r, /** @type {any} */ (store).offerStore);
+    if (ref) lines.push(`      ${ref}`);
   }
   lines.push('');
   lines.push(`Estimated total: ${money(est.total)}`);
@@ -55,6 +59,19 @@ export function quoteRequest(shed, est, storeKey = 'homedepot', who = {}) {
   lines.push(who.phone || '[Your phone]');
   const body = lines.join('\n');
   return { subject, body, store };
+}
+
+/**
+ * This store's listing for a shopping line: its item or model number and link.
+ * @param {any} r a shopping line @param {string | undefined} storeName
+ */
+export function itemRef(r, storeName) {
+  if (!storeName) return '';
+  const key = r.source?.key;
+  const offer = key && /** @type {Record<string, any[]>} */ (OFFERS)[key]?.find((o) => o.store === storeName);
+  if (offer) return `${storeName}: ${offer.model}, ${offer.url}`;
+  if (r.source?.url && r.source.store === storeName) return `${storeName} listing: ${r.source.url}`;
+  return '';
 }
 
 /** A mailto: link, or null when the draft is too long for a link to carry reliably. */

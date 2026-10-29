@@ -132,7 +132,9 @@ export function solidsOf(shed) {
     const color = /^PT /.test(m.material) ? COLORS.pt : (m.kind === 'header' || m.kind === 'ridge board' || m.kind === 'ridge beam') ? COLORS.header : COLORS.framing;
     out.push({ geom: m.geom, color: /** @type {any} */ (color), layer });
   }
-  const siding = /** @type {any} */ (SIDING_COLORS)[d.sidingColor] || COLORS.siding;
+  // Unfinished: bare plywood, or LP's factory primer (a pale grey).
+  const bare = d.sidingType?.startsWith('LP SmartSide') ? [0.84, 0.83, 0.79] : [0.78, 0.62, 0.43];
+  const siding = d.sidingColor === 'unfinished' ? bare : /** @type {any} */ (SIDING_COLORS)[d.sidingColor] || COLORS.siding;
   for (const p of shed.panels) {
     const layer = p.kind === 'floor sheet' ? 'floor' : p.kind === 'roof sheathing' ? 'sheathing' : 'siding';
     const color = p.kind === 'floor sheet' ? COLORS.floor : p.kind === 'roof sheathing' ? COLORS.osb : siding;

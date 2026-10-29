@@ -12,6 +12,8 @@ import { connectionChecks } from './connections.mjs';
 import { integrity } from './integrity.mjs';
 import { buildSheets } from './drawings.mjs';
 import { buildInstructions } from './instructions.mjs';
+import { quoteRequest, itemRef } from './quote.mjs';
+import { shoppingCsv } from './estimate.mjs';
 
 test('1x4 trim: two boards a corner, and a casing round every opening', () => {
   const shed = buildShed(defaultDesign());
@@ -90,7 +92,7 @@ test('every listed price has a link, and every item used has a price', () => {
 
 test('store offers: every one has a store, a price, a model and a link; comparison sums', () => {
   for (const [k, list] of Object.entries(OFFERS)) {
-    assert.ok(EXAMPLE_ITEMS[k], k);
+    assert.ok(EXAMPLE_ITEMS[k] || /^lumber:[^:]+:\d+$/.test(k), k);
     for (const o of list) {
       assert.ok(o.store && o.model && o.price > 0, `${k} ${o.store}`);
       assert.match(o.url, /^https:\/\//);
@@ -146,4 +148,26 @@ test('simplicity search: winners pass every check, keep the limits and are no wo
   const c = cutMetrics(buildShed(d), estimate(buildShed(d)));
   assert.equal(c.notches, 0, 'connectors: no notches');
   assert.ok(c.angled > 0 && c.straight > 0);
+});
+
+test('quote emails name the store\'s own item and link where we have it; the CSV carries sources', () => {
+  const shed = buildShed(defaultDesign());
+  const est = estimate(shed);
+  const body = quoteRequest(shed, est, 'lowes').body;
+  assert.match(body, /Lowe's: item 131203, model L51844416, https:\/\/www\.lowes\.com\//);
+  const hd = quoteRequest(shed, est, 'homedepot').body;
+  assert.match(hd, /Home Depot: model 702636, internet 307424572/);
+  assert.equal(itemRef({ source: { key: 'trim1x4x16' } }, undefined), '');
+  const csv = shoppingCsv(est).split('\n');
+  assert.match(csv[0], /price source,listing$/);
+  assert.ok(csv.some((l) => /https:\/\/www\.homedepot\.com\//.test(l)));
+});
+
+test('unfinished siding: no paint bought, a warning, and the swap offers it', () => {
+  const d = normalize({ ...defaultDesign(), sidingColor: 'unfinished' });
+  const shed = buildShed(d);
+  assert.ok(!estimate(shed).shopping.some((r) => r.section === 'Paint'));
+  assert.ok(shed.warnings.some((w) => /nfinished/.test(w)));
+  assert.ok(swapsFor(defaultDesign()).some((s) => s.id === 'nopaint'));
+  assert.ok(!swapsFor(d).some((s) => s.id === 'nopaint'));
 });
