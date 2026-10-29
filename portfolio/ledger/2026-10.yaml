@@ -4216,3 +4216,14 @@ entries:
         passed the gate (10 ind. holdout Sharpe 0.50 vs 0.53 EW; 49 ind. 0.62 vs 0.55, DSR
         0.890; crypto 20-day SMA 2.07 -> -0.08, PBO 0.81). Usage unmeasured.
     mrr_end: 0
+  - venture: dupehound
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Built at the owner's direction (2026-10-29: dev tools in Rust, common and niche). The
+        repository's first Rust crate: a token-based copy-paste detector, one engine as a CLI and
+        a 195 KB WebAssembly page. On ventures/ (9,458 .mjs files) 1.2 s and 500 MB against
+        jscpd 4.3.0's 337 s and 6.2 GB (out of memory at the default heap); line-level agreement
+        93.6% / 95.5%. Brute-force cross-check and CLI-WASM parity tests in CI. Usage unmeasured.
+    mrr_end: 0

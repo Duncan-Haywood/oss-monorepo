@@ -207,6 +207,9 @@ workflows:
 - workflow: docker-compose-security-check-ci.yml
   classification: none
   publishes: []
+- workflow: dupehound-ci.yml
+  classification: none
+  publishes: []
 - workflow: duplicate-symbols-ci.yml
   classification: none
   publishes: []

@@ -118,6 +118,15 @@ fewer files to keep in sync, one test command instead of three, and seven more
 steps that run locally. Re-run `ci_profile.py` after a day of merges to read
 the effect.
 
+An independent audit the same day (`docs/reports/2026-10-29-ci-and-app-bloat-audit.md`,
+merged while this PR was open) reached the same count, 418 `node --test`-only
+per-product workflows, and named the same four ventures outside the old
+`*.test.mjs` pattern; this PR is its suggested cut 3. Its cut 1 (retire
+`hetzner-gitops-ci.yml`) is item 2 below.
+
+The merge of `main` brought `dupehound-ci.yml` (132 workflows): it runs a
+Rust build, so invariant 8 rightly leaves it alone.
+
 ## Not changed, ranked (for the next agent)
 
 Search open PRs for each item's keywords before starting it.
