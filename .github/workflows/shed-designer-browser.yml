@@ -43,8 +43,11 @@ jobs:
           node-version: "22"
       - name: Install Playwright and axe-core outside the checkout
         env:
-          # The pair browser-checks-ci.yml verified together.
-          PLAYWRIGHT_VERSION: "1.56.0"
+          # 1.63.0, the version the tests were written against. 1.56.x (the
+          # pin in browser-checks-ci.yml and platform/uitest) cannot install
+          # Chromium on the ubuntu-latest image of 2026-10 (Ubuntu 26.04):
+          # "Playwright does not support chromium on ubuntu26.04-x64".
+          PLAYWRIGHT_VERSION: "1.63.0"
           AXE_VERSION: "4.13.0"
         run: |
           set -euo pipefail
