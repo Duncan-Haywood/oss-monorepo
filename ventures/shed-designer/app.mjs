@@ -3,7 +3,7 @@
 // plan sheets, all rebuilt from one design object on every change.
 
 import { buildShed, normalize, defaultDesign, PRESETS, WALLS, WALL_LABEL, wallFaceLength } from './model.mjs';
-import { estimate, examplePrices, cutSheetCsv, shoppingCsv } from './estimate.mjs';
+import { estimate, examplePrices, cutSheetCsv, shoppingCsv, sourceLabel } from './estimate.mjs';
 import { buildSheets, sheetSvg, sheetsDxf } from './drawings.mjs';
 import { createViewer, LAYERS } from './render3d.mjs';
 import { drawPlan, drawEnd } from './editor.mjs';
@@ -169,6 +169,7 @@ function renderSummary(shed, est) {
     ['Peak above the gravel', fmtFtIn(shed.dims.peak)],
     ['Boards to buy', `${est.boards} for ${est.pieces} pieces`],
     ['Lumber', `${money(est.lumberCost)}; the cut sheet's boards, ${money(est.cutSheetCost)}, are ${est.cutSheetCost - est.lowerBound < 0.005 ? 'proven the cheapest possible' : `within ${((est.cutSheetCost / est.lowerBound - 1) * 100).toFixed(1)}% of the least any order could cost (${money(est.lowerBound)})`}`],
+    ...(est.unpriced.length ? [['Not in the total', `${est.unpriced.length} custom-size opening${est.unpriced.length > 1 ? 's' : ''} with no unit picked; see the shopping list`]] : []),
     ['Sheets', `${est.floorSheets} floor, ${est.roofSheets} roof${d.siding ? `, ${shed.sidingFull.length + (shed.sidingUpper.length ? 1 : 0)}+ siding` : ''}`],
     ['Your time', (() => { const h = laborHours(shed, est); return `about ${Math.round(h)} hours${d.laborRate ? `, ${money(h * d.laborRate)} at ${money(d.laborRate)} an hour (materials and time ${money(est.total + h * d.laborRate)})` : ''}`; })()],
     ['Saw cuts', (() => { const c = cutMetrics(shed, est); return `${c.straight} straight, ${c.angled} angled${c.notches ? `, ${c.notches} notches` : ''}; ${(c.waste * 100).toFixed(1)}% offcut`; })()],
@@ -197,6 +198,7 @@ function renderShopping(est) {
   if (tax) html += `<tr><th colspan="4" scope="row">Sales tax at ${design().taxRate}%</th><td class="n">${money(tax)}</td><td></td><td></td></tr>`;
   if (est.deliveryFee) html += `<tr><th colspan="4" scope="row">Delivery</th><td class="n">${money(est.deliveryFee)}</td><td></td><td></td></tr>`;
   if (tax || est.deliveryFee) html += `<tr class="tot"><th colspan="4" scope="row">Estimated total</th><td class="n">${money(est.total - had + tax + est.deliveryFee)}</td><td></td><td></td></tr>`;
+  if (est.unpriced.length) html += `<tr><td colspan="7" class="muted"><strong>Not in the total:</strong> ${est.unpriced.map(esc).join('; ')}. Pick a unit for each under Doors and windows, choose "Build it on site" for a door, or add its price to your budget.</td></tr>`;
   $('#shopping tbody').innerHTML = html;
   const sl = est.storeList;
   $('#buy-at-note').textContent = sl ? `${sl.here} of ${sl.lines.length} lines (${sl.share}% of the money) at ${sl.store}, its own prices and item numbers; the rest are marked with where we found them.` : 'Each line at wherever it was priced.';
@@ -215,9 +217,8 @@ function renderShopping(est) {
 function sourceCell(s) {
   if (!s) return '';
   const tip = esc(s.note || '');
-  if (s.kind === 'yours') return '<span class="muted">your price</span>';
-  if (s.url) return `<a href="${esc(s.url)}" target="_blank" rel="noopener" title="${tip}">${esc(s.store || 'listing')}, ${esc(s.seen || '')}</a>${s.kind === 'derived' ? ' <span class="muted">(scaled)</span>' : ''}`;
-  return `<span class="muted" title="${tip}">estimate</span>`;
+  const label = esc(sourceLabel(s));
+  return s.url && s.kind !== 'yours' ? `<a href="${esc(s.url)}" target="_blank" rel="noopener" title="${tip}">${label}</a>` : `<span class="muted" title="${tip}">${label}</span>`;
 }
 
 function renderStructure(shed) {

@@ -1,0 +1,53 @@
+{
+  "date": "2026-10-29",
+  "session": "https://claude.ai/code/session_01XpHqyeS6gsz3tkQdJ13SA8",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Overnight lane 4 for ventures/shed-designer: cost honesty, marketing page, llms.txt and SEO.",
+  "input_sha256": "7dd0d6365baeceaa3f636d647eba9b85fe511588788918f45fa00e337ce95ec4",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-29T05:32:51Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "shed-designer overnight lane 4: cost honesty, marketing page, llms.txt, SEO",
+  "projects": [
+    "ventures/shed-designer"
+  ],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [
+    "shed-designer showed estimates (gravel, then also CMU/solid block) as plain store links with a date, indistinguishable from listed prices; fixed with one sourceLabel() for page and CSV",
+    "shed-designer store comparison and storeTotals priced T1-11 at Home Depot $43.98 while the shopping line used $46.78 (two copies of the same page), claiming a $16.80 saving buying at Home Depot instead of Home Depot; aligned and tested",
+    "shed-designer '8x12 classic' total ($3,284.59) silently excluded the custom-size door and two windows; now listed as 'not in the total'",
+    "shed-designer marketing page and llms.txt quoted stale engine output (144 pieces/93 boards/$2,166.66 at first; 140/$650.85/$3,281.02 after PR #11311, already stale hours later); every number is now recomputed by marketing.test.mjs"
+  ],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "'files first' plus a no-model-identifier rule for pushed artifacts conflicts with promptctl record --model, which writes the model id into the committed run record; left model null"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-10-29-shed-designer-numbers-that-drift.md"
+  ],
+  "goal": null,
+  "notes": "Verification: node --test *.test.mjs in ventures/shed-designer: 96 pass (new: marketing.test.mjs 2, prices-honesty.test.mjs 4); the new store-comparison tests fail on main's catalog.mjs and pass with the fix. Page driven in headless Chromium: gravel line reads '(estimate)', 'Not in the total' row and summary line render, no console errors on index.html or the marketing page. Price re-check 2026-10-29: homedepot.com product pages load but the pricing value is null until a store is chosen; lowes.com and hellogravel.com 403. Shed Windows and More (4) and Shed Repair (3) match their own pages. Menards schema.org Offer price is the after-11%-rebate value; shelf price is salePrice: 9 unchanged, 4 moved (2x10x12 25.99->24.63, PT 4x4x12 25.72->24.58, PT 2x6x8 12.52->12.19, 7/16 OSB 13.48->14.51); Hemlock drywall tape 7.49->9.49; DK Hardware z-flashing 7.33->7.10. Those updates go in the next PR.",
+  "corrections": [],
+  "redteam": null
+}
