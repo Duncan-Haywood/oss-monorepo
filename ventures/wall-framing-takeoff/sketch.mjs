@@ -263,3 +263,42 @@ export const totalLength = (sk) => sk.walls.reduce((t, w) => t + len(w), 0);
 
 /** One-line description of a wall for labels: its length. @param {SketchWall} w */
 export const wallLength = (w) => len(w);
+
+/**
+ * Read a sketch back from stored JSON (the page keeps one in local storage so a
+ * reload does not lose a drawing). The input is untrusted: another version of
+ * the page, a hand edit or a full disk can leave anything there. Walls that are
+ * malformed, duplicated by id, shorter than 1 in or far off the page are dropped;
+ * so are openings on a dropped wall, past a wall's end, narrower than 6 in or
+ * overlapping an earlier one. `nextId` is rebuilt above every kept id, so a new
+ * wall never reuses one. Returns null when no wall survives.
+ * @param {unknown} raw
+ * @returns {{ sketch: Sketch, dropped: number } | null}
+ */
+export function restoreSketch(raw) {
+  if (!raw || typeof raw !== "object" || !Array.isArray(/** @type {any} */ (raw).walls)) return null;
+  const r = /** @type {any} */ (raw);
+  const LIM = 1e5;
+  const pt = (p) => p && typeof p === "object" && Number.isFinite(p.x) && Number.isFinite(p.y) && Math.abs(p.x) <= LIM && Math.abs(p.y) <= LIM;
+  const ids = new Set();
+  const sk = emptySketch();
+  let dropped = 0;
+  for (const w of r.walls) {
+    const ok = w && Number.isInteger(w.id) && w.id > 0 && !ids.has(w.id) && pt(w.a) && pt(w.b) && len(w) >= 1;
+    if (!ok) { dropped++; continue; }
+    ids.add(w.id);
+    sk.walls.push({ id: w.id, a: { x: w.a.x, y: w.a.y }, b: { x: w.b.x, y: w.b.y } });
+  }
+  if (!sk.walls.length) return null;
+  for (const o of Array.isArray(r.openings) ? r.openings : []) {
+    const w = o && sk.walls.find((x) => x.id === o.wall);
+    const ok = w && Number.isInteger(o.id) && o.id > 0 && !ids.has(o.id) && (o.kind === "door" || o.kind === "window")
+      && Number.isFinite(o.offset) && Number.isFinite(o.width) && o.offset >= 0 && o.width >= 6 && o.offset + o.width <= len(w) + 0.01
+      && !sk.openings.some((p) => p.wall === o.wall && o.offset < p.offset + p.width && p.offset < o.offset + o.width);
+    if (!ok) { dropped++; continue; }
+    ids.add(o.id);
+    sk.openings.push({ id: o.id, wall: o.wall, kind: o.kind, offset: o.offset, width: o.width });
+  }
+  sk.nextId = Math.max(0, ...ids) + 1;
+  return { sketch: sk, dropped };
+}

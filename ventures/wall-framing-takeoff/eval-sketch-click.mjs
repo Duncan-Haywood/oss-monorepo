@@ -96,6 +96,9 @@ check(Math.abs(z1 - y1) < 1 && Math.abs(z2 - z1 - 48) < 1.5, `dragging its right
 const wallsBefore = await page.evaluate(() => document.querySelectorAll("#skSvg text").length);
 await page.reload();
 check(wallsBefore > 0 && await page.evaluate(() => document.querySelectorAll("#skSvg text").length) === wallsBefore, "the sketch is restored after a reload (" + wallsBefore + " wall labels)");
+await page.evaluate(() => { const k = "wall-framing-takeoff-plan.sketch", s = JSON.parse(localStorage.getItem(k)); s.walls.push({ id: 900, a: { x: 0, y: 0 }, b: { x: "NaN", y: 5 } }); localStorage.setItem(k, JSON.stringify(s)); });
+await page.reload();
+check(/1 damaged stored item/.test(await page.textContent("#skInfo")) && await page.evaluate(() => document.querySelectorAll("#skSvg text").length) === wallsBefore, "a damaged stored wall is left out, the rest kept");
 await page.click("#skClear"); await page.reload();
 check(await page.evaluate(() => document.querySelectorAll("#skSvg text").length) === 0, "Clear the sketch is remembered across a reload");
 check(errors.length === 0, "no page errors" + (errors.length ? ": " + errors.join("; ") : ""));
