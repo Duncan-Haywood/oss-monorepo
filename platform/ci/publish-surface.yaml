@@ -351,6 +351,9 @@ workflows:
 - workflow: quote-margin-check-ci.yml
   classification: none
   publishes: []
+- workflow: raphaels-map-fetch.yml
+  classification: none
+  publishes: []
 - workflow: readme-live-links-ci.yml
   classification: none
   publishes: []

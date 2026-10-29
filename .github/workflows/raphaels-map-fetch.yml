@@ -1,0 +1,56 @@
+# Downloads the official source files for ventures/raphaels-map (Census ACS,
+# U.S. Religion Census, GSS, NSFG, UN WPP, World Bank, Eurostat, MIT Election
+# Lab) on a GitHub runner, because the cloud agent containers' network policy
+# refuses those hosts. It only downloads: the raw files go to the
+# `raphaels-map-raw` branch (one replaced commit, never main), and
+# pipeline/build.py turns them into the committed aggregates in a normal PR.
+# Manual or on a push that changes the fetch script; no schedule, no paid API.
+name: raphaels-map fetch
+on:
+  workflow_dispatch:
+    inputs:
+      only:
+        description: "comma list of source ids (empty = all)"
+        required: false
+        default: ""
+  push:
+    branches: ["claude/raphaels-map**"]
+    paths:
+      - "ventures/raphaels-map/pipeline/fetch.py"
+      - ".github/workflows/raphaels-map-fetch.yml"
+permissions:
+  contents: read
+concurrency:
+  group: raphaels-map-fetch
+  cancel-in-progress: true
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.12"
+      - run: pip install pandas pyreadstat openpyxl xlrd
+      - name: Fetch
+        env:
+          CENSUS_API_KEY: ${{ secrets.CENSUS_API_KEY }}
+          ONLY: ${{ github.event.inputs.only }}
+        run: python3 ventures/raphaels-map/pipeline/fetch.py --out /tmp/raw --only "$ONLY"
+      - name: Push raw files to the raphaels-map-raw branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          cd /tmp/raw
+          find . -type f -size +95M -print -delete
+          git init -q -b raphaels-map-raw
+          git add -A
+          git -c user.name="monorepo-projects bot" -c user.email="noreply@users.noreply.github.com" \
+            commit -q -m "raphaels-map raw source files ($(date -u +%F))"
+          git push -f "https://x-access-token:${GH_TOKEN}@github.com/${REPO}.git" HEAD:raphaels-map-raw
