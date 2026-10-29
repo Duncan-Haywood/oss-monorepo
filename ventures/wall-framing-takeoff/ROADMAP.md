@@ -74,8 +74,7 @@ Ticked items are on `main`.
 - [x] **Gable walls** (2026-10-21, `layoutGable` in `engine.mjs`): wall `gable: {pitch}` (rise per 12 in), symmetric about the middle; studs cut to the long point of the angled cut, top and cap plates along the slope with joints over studs. Openings below the eave line landed 2026-10-21. Openings that rise into the triangle landed 2026-10-21 (header may top out above the eave line; cripples only where the roof clears it; a header that meets the slope at its lower end is rejected; engine and plan files, not the page). Sheathing the triangle landed 2026-10-22 (vertical sheets, own order). Not yet (the off-centre peak landed in PR 9202), walls that step in height.
 - [x] **Shop drawings** (2026-10-21, `drawings.mjs`): one printable sheet per
       wall (SVG elevation with member marks, dimension chain, parts table; CLI
-      `--drawings`, page button). Per-panel weights and cut lists (plates trimmed to the panel) landed 2026-10-22 in the shop drawings. Not yet: sheathing weight on panels, per-panel sheets that split a long wall
-      into transportable panels, sheathing marks. A PDF without the browser landed 2026-10-27 (`pdf.mjs`, CLI `--pdf`, page button).
+      `--drawings`, page button). Per-panel weights and cut lists (plates trimmed to the panel) landed 2026-10-22 in the shop drawings. Sheathing weight on panels (gable walls too, 2026-10-29) and per-panel sheets landed. Not yet: sheathing marks. A PDF without the browser landed 2026-10-27 (`pdf.mjs`, CLI `--pdf`, page button).
 
 ### 2. Getting the house in without typing
 
