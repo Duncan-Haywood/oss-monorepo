@@ -4,11 +4,14 @@
 Checks, on real tags (not text inside scripts, comments or JSON-LD):
 `<html lang>`, a viewport meta, a charset, `<img alt>`, `target="_blank"`
 links with `rel` containing noopener or noreferrer, no positive `tabindex`,
-and no `http://` subresource or link (mixed content, except localhost).
+no `http://` subresource or link (mixed content, except localhost), and no
+third-party `<script src>` or stylesheet/preconnect/preload `<link>` (the pages
+promise visitors no outside requests; use system fonts).
 
     python3 platform/ci/check_markup_basics.py [--root DIR]   # exit 1 if any
 """
 import argparse
+import re
 import sys
 from html.parser import HTMLParser
 from pathlib import Path
@@ -42,6 +45,11 @@ class Scan(HTMLParser):
         ti = a.get("tabindex")
         if ti and ti.strip().isdigit() and int(ti) > 0:
             self.found.add("positive tabindex")
+        if tag == "script" or (tag == "link" and set((a.get("rel") or "").lower().split())
+                               & {"stylesheet", "preconnect", "preload", "dns-prefetch"}):
+            u = (a.get("src") if tag == "script" else a.get("href") or "") or ""
+            if re.match(r"(https?:)?//", u.strip().lower()):
+                self.found.add("third-party " + tag + " request")
         for k in ("src", "href"):
             v = (a.get(k) or "").strip().lower()
             if v.startswith("http://") and not v.startswith(("http://localhost", "http://127.0.0.1")):
