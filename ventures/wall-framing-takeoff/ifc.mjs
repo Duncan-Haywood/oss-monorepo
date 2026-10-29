@@ -135,13 +135,28 @@ export function planFromIfc(text, opt = {}) {
       }
     }
   };
+  // storeys: element -> IfcBuildingStorey through IfcRelContainedInSpatialStructure, ordered by elevation
+  const storeys = [...ents.entries()].filter(([, e]) => e.type === "IFCBUILDINGSTOREY")
+    .map(([id, e]) => ({ id, name: typeof e.args[2] === "string" ? e.args[2] : id, z: zOf(e.args[5]) + (typeof e.args[9] === "number" && !zOf(e.args[5]) ? e.args[9] : 0) }))
+    .sort((p, q) => p.z - q.z);
+  const storeyOf = new Map();
+  for (const e of ents.values()) if (e.type === "IFCRELCONTAINEDINSPATIALSTRUCTURE") for (const el of e.args[4] ?? []) storeyOf.set(el, e.args[5]);
+  let pick = null;
+  if (storeys.length > 1) {
+    const want = opt.storey;
+    pick = typeof want === "number" ? storeys[want - 1] : want != null ? storeys.find((q) => q.name.toLowerCase() === String(want).toLowerCase()) : storeys[0];
+    if (!pick) return { ok: false, errors: [`No storey ${JSON.stringify(want)}; the file has ${storeys.map((q, i) => `${i + 1} = ${q.name}`).join(", ")}.`], notes };
+    notes.push(`The file has ${storeys.length} storeys (${storeys.map((q, i) => `${i + 1} = ${q.name}`).join(", ")}); reading storey ${storeys.indexOf(pick) + 1} (${pick.name}) only. Pass storey (CLI --storey=N or a name) for the others; floors are framed one at a time. Elements the file does not place in a storey are kept.`);
+  }
+  const inPick = (id) => !pick || !storeyOf.has(id) || storeyOf.get(id) === pick.id;
   /** @type {{ layer: string, a: {x:number,y:number}, b: {x:number,y:number} }[]} */
   const lines = [];
   let nWalls = 0, noGeom = 0, nOpen = 0, nMesh = 0, nHeights = 0;
   const sizes = [];
   const r16 = (v) => Math.round(v * 16) / 16;
-  for (const e of ents.values()) {
+  for (const [eid, e] of ents) {
     if (e.type !== "IFCWALL" && e.type !== "IFCWALLSTANDARDCASE") continue;
+    if (!inPick(eid)) continue;
     const T = placement(e.args[5]);
     let local = null;
     for (const r of reps(e)) {
@@ -176,8 +191,9 @@ export function planFromIfc(text, opt = {}) {
     lines.push({ layer: "A-WALL", a, b });
     nWalls++;
   }
-  for (const e of ents.values()) {
+  for (const [eid, e] of ents) {
     if (e.type !== "IFCDOOR" && e.type !== "IFCWINDOW") continue;
+    if (!inPick(eid)) continue;
     const w = e.args[9];
     if (!(w > 0)) continue;
     const T = placement(e.args[5]);
@@ -188,7 +204,7 @@ export function planFromIfc(text, opt = {}) {
     nOpen++;
   }
   // sills are measured from the lowest wall base, so a file with a raised storey origin still reads
-  const base = Math.min(0, ...[...ents.values()].filter((e) => e.type === "IFCWALL" || e.type === "IFCWALLSTANDARDCASE").map((e) => zOf(e.args[5]) * toIn));
+  const base = (pick ? Math.min : (...v) => Math.min(0, ...v))(...[...ents.entries()].filter(([id, e]) => (e.type === "IFCWALL" || e.type === "IFCWALLSTANDARDCASE") && inPick(id)).map(([, e]) => zOf(e.args[5]) * toIn));
   const openingSize = (mid) => {
     let best = null;
     for (const q of sizes) { const d = Math.hypot(q.mid.x - mid.x, q.mid.y - mid.y); if (!best || d < best.d) best = { d, q }; }
