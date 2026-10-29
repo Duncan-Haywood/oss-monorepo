@@ -34,6 +34,11 @@ const amountBucket = (cents) => `amt:${Math.min(12, Math.floor(Math.log2(Math.ab
 // keyword that fits two accounts is left out, so the line goes to review rather
 // than being guessed. `dir` limits a rule to money in or money out.
 export const BUILT_IN = [
+  // Vending route operators (2026-10-29, vending.test.mjs; agent-written from the companies' public names, not from a real export):
+  // cashless-reader settlements and route cash deposits are sales; location commissions are rent; machine parts are repairs and maintenance (before the older "vending" meals rule).
+  ["4000", "in", /cantaloupe deposit|nayax.*(settlement|deposit)|cash deposit vending|vending (route )?(cash|deposit)/],
+  ["6080", "out", /location commission|site commission|host commission/],
+  ["6090", "out", /vending machine parts|vending parts|machine parts direct/],
   // Small farms and CSAs (2026-10-29, smallfarm.test.mjs; agent-written from the companies' public names, not from a real export):
   // CSA-platform payouts, market and co-op deposits are sales; seed houses are supplies; land and pasture leases are rent; CSA software is software; farm diesel is vehicle fuel.
   ["4000", "in", /local line.*(payout|payment)|farmers.? market deposit|wholesale co-?op deposit|harvest (share|box) payout/],
