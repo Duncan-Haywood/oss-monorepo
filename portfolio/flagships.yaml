@@ -110,7 +110,7 @@ flagships:
       real shock and rebound (1973 UK driver deaths): wanted a way to tell a
       shape from a shock; net/abs of the window's shifts fails with --trend
       bend, a level-scaled refit and a refit on the log each separate only UK gas
-      (2026-10-29, README); a second shock series (Australian arrivals, 2026-10-29) warns in 7 of 8 cells on trend steps; trendless 72-month series (UK lung deaths 1976 spike) warns in 11 of 12 cells but also 3 of 4 on a no-shock null (2026-10-29): wanted a longer one; (5) bootstrap and holiday
+      (2026-10-29, README); a second shock series (Australian arrivals, 2026-10-29) warns in 7 of 8 cells on trend steps; trendless 72-month series (UK lung deaths 1976 spike) warns in 11 of 12 cells but also 3 of 4 on a no-shock null (2026-10-29): a 195-month euro factory-orders series (2008-09 collapse) warns in 4 of 4 cells with 16 to 22 steps, so length did not help (2026-10-29): wanted a same-length null; (5) bootstrap and holiday
       false-alarm cuts are synthetic only.
   - venture: einvoice-preflight
     why: >-
