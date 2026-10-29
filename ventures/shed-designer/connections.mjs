@@ -8,7 +8,7 @@
 // - Every stud, king and post stud stands on a bottom plate and runs to the top plate.
 // - Every header bears on a jack at each end; every jack carries a header.
 // - Cripples bear on a header or sill, and rough sills sit on cripples.
-// - Every rafter's birdsmouth seat bears on a wall's top plates, and its top end meets the ridge.
+// - Every rafter's seat (a birdsmouth, or the plate edge under a connector) bears on a wall's top plates, and its top end meets the ridge.
 // - Every floor joist bears on at least two skids; every skid bears on the pad or blocks.
 
 import { bbox } from './integrity.mjs';
@@ -114,7 +114,7 @@ export function connectionChecks(shed) {
       if (!seated) fails.push(`${r.id} seat`);
       if (!meets) fails.push(`${r.id} ridge`);
     }
-    add('Rafters seat on the plates and meet the ridge', fails, rafters.length, 'rafters with a full birdsmouth seat on a long wall and their top end at the ridge');
+    add('Rafters seat on the plates and meet the ridge', fails, rafters.length, k.connector ? 'rafters resting on the outside edge of a long wall\'s cap plate for a variable-pitch connector, their top end at the ridge' : 'rafters with a full birdsmouth seat on a long wall and their top end at the ridge');
   }
 
   // Floor on skids, skids on the ground.

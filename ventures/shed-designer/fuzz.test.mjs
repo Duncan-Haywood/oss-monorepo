@@ -106,7 +106,7 @@ export function invariants(input, prices = examplePrices()) {
   for (const row of sc.rows) if (!finite(row.ratio) || row.ratio < 0) bad.push(`check ${row.member} ratio ${row.ratio}`);
   for (const n of ['Floor joists', 'Rafters', 'Wall studs']) if (!sc.rows.some((x) => x.member === n)) bad.push(`check missing: ${n}`);
   const cc = connectionChecks(shed);
-  for (const row of cc.rows || []) if (row.ratio !== undefined && !finite(row.ratio)) bad.push(`connection ${row.member || row.name} ratio ${row.ratio}`);
+  for (const row of cc.rows) if (!row.ok) bad.push(`connection: ${row.check}: ${row.detail.slice(0, 120)}`);
   const sheets = buildSheets(shed);
   for (const s of sheets) {
     const svg = sheetSvg(s, { name: shed.design.name });
@@ -245,4 +245,11 @@ test('DXF text is plain ASCII: other characters are written as \\U+ escapes', ()
   assert.equal(dxfText('a\nb'), 'a b');
   const shed = buildShed({ ...defaultDesign(), name: 'Café shed' });
   assert.deepEqual(dxfProblems(sheetsDxf(buildSheets(shed))), []);
+});
+
+test('the connection check describes a connector seat as a connector seat', () => {
+  const row = (d) => connectionChecks(buildShed(d)).rows.find((r) => /^Rafters seat/.test(r.check)).detail;
+  assert.match(row({ ...defaultDesign(), rafterSeat: 'connector' }), /connector/);
+  assert.doesNotMatch(row({ ...defaultDesign(), rafterSeat: 'connector' }), /birdsmouth/);
+  assert.match(row({ ...defaultDesign(), rafterSeat: 'birdsmouth' }), /birdsmouth/);
 });
