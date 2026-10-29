@@ -1660,3 +1660,14 @@ or `ventures`) until its success rate passes 80% over 20 runs?
 - Decisions: candidates (ventures 2, process 2, review 2) still "keep
   collecting: the intervals overlap"; no audit or drift report (reduced pass).
 - Result: (next review)
+
+## E111: review 2026-10-29 (reduced pass, thirty-eighth run)
+
+- Change: `prompts/review/prompt-1.md` step 1 says `wait_for.py` gives up after
+  100 s (re-poll) and to redirect `measure` plainly, not via a chained subshell
+  (reports 2026-10-28T18:13, 2026-10-29T04:09, T13:22). No derive re-run.
+- Metric: friction reports naming `prompts/review/prompt-1.md` about
+  `measure` or `wait_for` timing; compare the next 40 runs.
+- Decisions: candidates (ventures 2, process 2, review 2) not re-decided here
+  beyond the standing "keep collecting"; no audit or drift report (reduced pass).
+- Result: (next review)
