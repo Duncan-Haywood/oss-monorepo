@@ -42,6 +42,12 @@ export const BUILT_IN = [
   ["6170", "out", /\babmp\b(?!.*insur)|\bamta\b|\bncbtmb\b|continuing education|\bceu\b|esthetician association/],
   ["6110", "out", /board of (massage|esthetic|cosmetology)[^,]*(licen[cs]e|renew)/],
   ["6080", "out", /(salon|massage|treatment|esthetics?) (suite|room|studio) rent|booth rent/],
+  // Therapists and counselors in private practice (2026-10-29, therapist.test.mjs; agent-written from the companies' public names, not from a real export):
+  // insurance-panel and matching-platform payouts are sales; CE courses, supervision, association dues and directory listings are education and dues or advertising.
+  ["4000", "in", /headway|\balma\b.*reimburs|grow therapy|rula health|\bspring health\b.*payment|claims deposit/],
+  ["6170", "out", /\bce course|continuing education|psychotherapy\.net|clinical supervision|american (psychological|counseling) assoc|\bnasw\b|\baamft\b|\bapa dues/],
+  ["6000", "out", /psychology today|therapyden|good ?therapy listing|zencare/],
+  ["6110", "out", /state board (license|licence)|board of (behavioral|psychology|counsel)/],
   // Home daycare and family child care providers (2026-10-29, daycare.test.mjs; agent-written from the companies' public names, not from a real export):
   // tuition by Zelle or app, food-program reimbursements and sponsor fees, accreditation dues, and craft and toy supplies.
   ["4000", "in", /tuition|\bprocare\b|brightwheel.*payout|\bkangarootime\b|\bhi ?mama\b/],
