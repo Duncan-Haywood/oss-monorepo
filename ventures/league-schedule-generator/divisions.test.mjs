@@ -600,3 +600,13 @@ test("calendar export: every match once, per division and per team, lines folded
   const one = divisionsIcs({ ...s, nights: [{ day: s.nights[0].day, matches: [first] }] }, { stamp, minutes: 90 });
   assert.match(one, new RegExp(`DTEND:\\d{8}T${String(Math.floor(end / 60) % 24).padStart(2, "0")}${String(end % 60).padStart(2, "0")}00`));
 });
+
+test("officials field: survives a share link and the page wires parse, assign and validate", async () => {
+  const { encodeDivisionFields, decodeDivisionFields } = await import("./divisions.mjs");
+  const { readFileSync } = await import("node:fs");
+  const f = { divisions: "U10: A, B, C, D", courts: "C1", times: "18:00", start: "2026-10-06", weekdays: "Tue", officials: "Ana (A): Tue max 6\nBo", seed: "1" };
+  assert.equal(decodeDivisionFields("#d=" + encodeDivisionFields(f)).officials, f.officials);
+  const html = readFileSync(new URL("./multi-division-league-schedule.html", import.meta.url), "utf8");
+  assert.match(html, /id="officials"/);
+  for (const fn of ["parseDivisionOfficials", "assignDivisionOfficials", "validateDivisionOfficials"]) assert.ok(html.includes(fn), fn);
+});

@@ -205,7 +205,7 @@ flagships:
     next: >-
       Done so far (README holds the measurements and the fuzz scripts under
       eval/): multi-division scheduling on shared venues, venue-to-venue
-      travel times, rainouts with make-up dates, share links, partial-night
+      travel times, rainouts with make-up dates, share links, officials on the multi-division page, partial-night
       filling, home/away break balance and flip pass, make-up relocation and
       swapNights, venue fairness with multi-season carry-over,
       suggestFairnessWeight (CLI --suggest-weight and a page button), play-
