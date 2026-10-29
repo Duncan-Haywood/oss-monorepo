@@ -2,7 +2,7 @@
 title: "Bookkeeping for tattoo artists and piercers, from a bank statement"
 date: 2026-10-29
 tags: [ai-bookkeeper, small-business]
-description: "A free worked October for a booth-renting tattoo artist: Square deposits against ink, needles, a health permit, safety training and booth rent, booked from a bank CSV."
+description: "A free worked October for a booth-renting tattoo artist: Square deposits against ink, needles, a health permit, training and booth rent, from a bank CSV."
 ---
 
 The free AI bookkeeper has a new page for tattoo artists and piercers. It walks a synthetic October through the importer: $2,290.00 in (two Square deposits and one client Zelle), $1,108.24 out, $1,181.76 profit.
