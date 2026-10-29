@@ -1617,11 +1617,11 @@ export function standingsCsv(table) {
   return lines.join("\r\n") + "\r\n";
 }
 
-function icsEscape(s) {
+export function icsEscape(s) {
   return String(s).replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n");
 }
 
-function icsFold(line) {
+export function icsFold(line) {
   const enc = new TextEncoder();
   if (enc.encode(line).length <= 75) return line;
   const out = [];
