@@ -34,6 +34,12 @@ const amountBucket = (cents) => `amt:${Math.min(12, Math.floor(Math.log2(Math.ab
 // keyword that fits two accounts is left out, so the line goes to review rather
 // than being guessed. `dir` limits a rule to money in or money out.
 export const BUILT_IN = [
+  // Tattoo artists and piercers (2026-10-29, tattoo.test.mjs; agent-written from the companies' public names, not from a real export):
+  // needles, ink, stencils, gloves and sharps pickup are supplies; booking software; bloodborne-pathogen training; the health-department artist licence.
+  ["6100", "out", /tattoo supply|stencil stuff|\bnitrile gloves?\b|sharps pickup|medical waste/],
+  ["6060", "out", /\bbooksy\b|\bprocreate\b/],
+  ["6170", "out", /bloodborne|pathogens? (cert|training)/],
+  ["6110", "out", /health dept.*(license|licence)|(tattoo|piercing) artist licen[cs]e/],
   // Massage therapists and estheticians (2026-10-29, massage.test.mjs; agent-written from the companies' public names, not from a real export):
   // booking-platform payouts, booking software, lotions, waxes and linens, association dues, continuing education, state board licences and suite rent.
   ["4000", "in", /vagaro.*(payout|deposit)|\bmindbody\b.*payout|\bboulevard\b.*payout|\bglossgenius\b.*payout|massagebook.*payout/],
