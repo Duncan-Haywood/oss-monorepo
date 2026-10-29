@@ -139,15 +139,21 @@
     footer p { line-height: 1.5; }
     .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
     @media (max-width: 900px) { .workspace { grid-template-columns: 1fr; } .boards li { grid-template-columns: 70px minmax(0, 1fr); } .boards .off { grid-column: 2; } }
+    @page plan-sheet { size: letter landscape; margin: 0.35in; }
     @media print {
       body { max-width: none; padding: 0; background: #fff; }
-      body[data-print] > *:not(.results) { display: none !important; }
+      /* The results live inside <main>, so hide main's other children, not main itself. */
+      body[data-print] > *:not(main), body[data-print] main > *:not(.results) { display: none !important; }
       body[data-print] .results > *:not(.print-target) { display: none !important; }
       body[data-print="plans"] #panel-plans, body[data-print="cuts"] #panel-cuts, body[data-print="build"] #panel-build { display: block !important; }
       body[data-print] .result-panel { display: none; }
       body[data-print] section.results { border: none; box-shadow: none; padding: 0; }
-      figure.sheet { break-after: page; border: none; }
+      /* Plan sheets are drawn landscape: give each its own landscape page, full width. */
+      figure.sheet { page: plan-sheet; break-after: page; border: none; margin: 0; }
+      figure.sheet svg { width: 100%; height: auto; max-height: 7.6in; }
       figure.sheet figcaption { display: none; }
+      body[data-print] #plans { display: block; }
+      body[data-print] .toolrow { display: none; }
       .boards li { break-inside: avoid; }
     }
   </style>
