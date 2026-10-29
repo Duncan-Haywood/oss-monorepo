@@ -1,6 +1,6 @@
 ---
 title: "Does load-sensing hydraulics beat open-centre? It hangs on one unmeasured number"
-seo_title: "Load-sensing vs open-centre excavator hydraulics: energy model and break-even neutral pressure"
+seo_title: "Load-sensing vs open-centre excavator hydraulics: energy model"
 date: 2026-10-29
 description: "An open model of a small excavator's hydraulics finds the load-sensing versus open-centre ranking flips with the pressure an open-centre valve holds at neutral."
 tags: [research, hydraulics, heavy-hydraulics]
