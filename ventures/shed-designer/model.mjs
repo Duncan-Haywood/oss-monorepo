@@ -1135,12 +1135,13 @@ function buildFramed(d) {
     const braceLen = Math.hypot(railLen, bay);
     const braceAngle = (Math.atan2(bay, railLen) * 180) / Math.PI;
     doors.push({ id: op.id, leaves, w, h, railLen, braceLen, braceAngle });
+    // Pieces that are the same in both leaves and in every rail position share one note, so they share a part mark.
     for (let i = 0; i < leaves; i++) {
-      const tag = `door ${op.id}${leaves > 1 ? (i ? ' right' : ' left') : ''}`;
+      const tag = `door ${op.id}`;
       const part = (kind, length, note) => doorParts.push({ id: nextId('DR'), group: 'door', kind, material: '2x4', length: Math.ceil(length * 8) / 8, note: `${tag}: ${note}` });
       part('door stile', h, 'laid flat, full height');
       part('door stile', h, 'laid flat, full height');
-      for (const r of ['top', 'middle', 'bottom']) part('door rail', railLen, `${r} rail between the stiles`);
+      for (let r = 0; r < 3; r++) part('door rail', railLen, 'top, middle and bottom rails between the stiles');
       part('door brace', braceLen + 3.5, `Z brace, ends cut at ${braceAngle.toFixed(0)} deg to fit between rails, low end at the hinge side`);
       part('door brace', braceLen + 3.5, `Z brace, ends cut at ${braceAngle.toFixed(0)} deg to fit between rails, low end at the hinge side`);
     }
