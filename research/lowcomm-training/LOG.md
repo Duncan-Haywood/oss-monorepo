@@ -2,6 +2,14 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-29 · Milestone 6a (H6 pilot): does rand-k compression's excess loss compose additively with the outer delay H? (planned before running)
+
+- Why: H6, the main claim, has no data yet: every run so far varies one axis. The cheapest crossed cells reuse existing runs: uncompressed H in {4, 16, 64} (3d, lr 2e-3, M = 4) and rand-k at H = 16 (4a). New cells: keep p in {1/4, 1/16} x H in {4, 64}, seeds 0 to 2 (12 runs, `experiments/gpt_composition/composition.py`, about 10 minutes each, 4 in parallel).
+- Rule tested: additive, excess(H, p) = excess(16, p), where excess is over the uncompressed cell at the same H (the no-cross-term case of a composition rule).
+- **H6a-i:** the additive rule predicts all four corner excesses within 0.03 nats. Refuted if any corner misses by more than 0.03 (a cross term exists and H6's rule needs an H x omega term).
+- Prior: 45% supported. 4a's excess is +0.017 at p = 1/4 and +0.083 at p = 1/16, the same order as the seed spread (about 0.01), so the cells at p = 1/4 can hardly miss by 0.03; the p = 1/16 cells decide it. I do not predict the direction.
+- Limits known in advance: three seeds (no interval beyond the spread); one model, one corpus, one compressor; this tests the no-cross-term rule only, not the fitted H6 comparison against a scaling law, which needs a larger grid.
+
 ## 2026-10-29 · Milestone 7b: machine-check the proposal's citations and add related work to the breakdown section (no training)
 
 - Why: 7a's draft cited nothing, and the proposal's 16 arXiv ids had been unchecked since 2026-10-24 (host refused then).
