@@ -31,3 +31,9 @@ test("play-off race and odds agree with a brute force over every outcome", () =>
   assert.equal(r.status, 0, r.stdout + r.stderr);
   assert.match(r.stdout, /invalid 0/);
 });
+
+test("iCalendar and CSV exports of random leagues are well-formed", () => {
+  const r = spawnSync(process.execPath, ["eval/fuzz-exports.mjs", "60", "3"], { cwd: new URL(".", import.meta.url).pathname, encoding: "utf8" });
+  assert.equal(r.status, 0, r.stdout + r.stderr);
+  assert.match(r.stdout, /invalid 0/);
+});
