@@ -432,7 +432,7 @@
   <script type="module">
     import { takeoff, samplePlan, defaultStock, parseLength, formatLength, formatInches, toCsv, verifyWall, PRECUT, DEPTH } from "./engine.mjs";
     import { planFromDxf } from "./dxf.mjs";
-    import { emptySketch, addWall, addOpening, snapPoint, pointAtLength, nearestWall, moveCorner, moveWall, moveOpening, resizeOpening, removeWall, removeOpening, openingEnds, planFromSketch, wallLength } from "./sketch.mjs";
+    import { emptySketch, addWall, addOpening, snapPoint, pointAtLength, nearestWall, moveCorner, moveWall, moveOpening, resizeOpening, removeWall, removeOpening, openingEnds, planFromSketch, wallLength, restoreSketch } from "./sketch.mjs";
     import { drawingSetHtml } from "./drawings.mjs";
     import { drawingSetPdf } from "./pdf.mjs";
     import { panelOrder, panelOrderText, panelPullText } from "./panels.mjs";
@@ -1207,11 +1207,11 @@
     {
       const svg = /** @type {SVGSVGElement} */ ($("#skSvg"));
       const NS = "http://www.w3.org/2000/svg";
-      let sk = emptySketch(), chain = null, hover = null;
+      let sk = emptySketch(), chain = null, hover = null, restoreNote = "";
       const SKEY = KEY + ".sketch";
       try {
-        const saved = JSON.parse(localStorage.getItem(SKEY) || "null");
-        if (saved && Array.isArray(saved.walls) && Array.isArray(saved.openings) && saved.walls.length <= 500) { sk = Object.assign(emptySketch(), saved); }
+        const back = restoreSketch(JSON.parse(localStorage.getItem(SKEY) || "null"));
+        if (back) { sk = back.sketch; if (back.dropped) restoreNote = ` ${back.dropped} damaged stored item${back.dropped === 1 ? "" : "s"} left out.`; }
       } catch (e) { /* storage is optional */ }
       const persist = () => { try { sk.walls.length ? localStorage.setItem(SKEY, JSON.stringify(sk)) : localStorage.removeItem(SKEY); } catch (e) { /* optional */ } };
       const history = [];
@@ -1260,7 +1260,7 @@
           }
         } else if (hover && $("#skTool").value === "wall") svg.append(el("circle", { cx: hover.x, cy: hover.y, r: 4, fill: "#c0392b" }));
         const d = sk.openings.filter((o) => o.kind === "door").length, wi = sk.openings.length - d;
-        $("#skInfo").textContent = sk.walls.length ? `${sk.walls.length} wall${sk.walls.length === 1 ? "" : "s"}, ${d} door${d === 1 ? "" : "s"}, ${wi} window${wi === 1 ? "" : "s"}.${chain ? " Click the next corner, or Finish." : ""}` : "Nothing drawn yet.";
+        $("#skInfo").textContent = sk.walls.length ? `${sk.walls.length} wall${sk.walls.length === 1 ? "" : "s"}, ${d} door${d === 1 ? "" : "s"}, ${wi} window${wi === 1 ? "" : "s"}.${chain ? " Click the next corner, or Finish." : ""}${restoreNote}` : "Nothing drawn yet.";
       }
       const finish = () => { chain = null; hover = null; draw(); };
       let drag = null;

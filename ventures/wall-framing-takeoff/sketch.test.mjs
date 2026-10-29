@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { emptySketch, addWall, addOpening, snapPoint, pointAtLength, nearestWall, removeWall, moveCorner, moveWall, moveOpening, resizeOpening, planFromSketch, sketchToDxf } from "./sketch.mjs";
+import { emptySketch, addWall, addOpening, snapPoint, pointAtLength, nearestWall, removeWall, moveCorner, moveWall, moveOpening, resizeOpening, planFromSketch, sketchToDxf, restoreSketch } from "./sketch.mjs";
 import { takeoff } from "./engine.mjs";
 
 const ft = (n) => n * 12;
@@ -119,4 +119,30 @@ test("an opening slides along its wall and resizes from either edge, refusing ov
   assert.ok(resizeOpening(sk, b.id, "a", b.offset - 12).ok);
   assert.equal(b.width, 60);
   assert.ok(planFromSketch(sk).ok);
+});
+
+test("a stored sketch comes back whole, and a damaged one loses only the bad parts", () => {
+  const { sk, ws } = house();
+  assert.ok(addOpening(sk, ws[0].id, "door", ft(10), 36).ok);
+  const back = restoreSketch(JSON.parse(JSON.stringify(sk)));
+  assert.deepEqual(back.sketch, sk);
+  assert.equal(back.dropped, 0);
+  // junk in, null out
+  for (const bad of [null, 5, "x", {}, { walls: "no" }, { walls: [] }, { walls: [{ id: 1, a: { x: 0, y: 0 }, b: { x: 0, y: 0 } }] }]) assert.equal(restoreSketch(bad), null);
+  // damage: a NaN end, a repeated id, a huge coordinate, an opening past its wall, an overlap, a sliver, a missing wall
+  const raw = JSON.parse(JSON.stringify(sk));
+  raw.walls.push({ id: 99, a: { x: 0, y: "7" }, b: { x: 10, y: 10 } });
+  raw.walls.push({ id: ws[0].id, a: { x: 0, y: 0 }, b: { x: 50, y: 0 } });
+  raw.walls.push({ id: 98, a: { x: 0, y: 0 }, b: { x: 1e9, y: 0 } });
+  raw.openings.push({ id: 90, wall: ws[0].id, kind: "window", offset: 470, width: 36 });
+  raw.openings.push({ id: 91, wall: ws[0].id, kind: "window", offset: sk.openings[0].offset + 10, width: 36 });
+  raw.openings.push({ id: 92, wall: ws[1].id, kind: "window", offset: 5, width: 2 });
+  raw.openings.push({ id: 93, wall: 777, kind: "door", offset: 0, width: 36 });
+  raw.openings.push({ id: 94, wall: ws[1].id, kind: "skylight", offset: 5, width: 36 });
+  const r = restoreSketch(raw);
+  assert.equal(r.dropped, 8);
+  assert.deepEqual(r.sketch.walls, sk.walls);
+  assert.deepEqual(r.sketch.openings, sk.openings);
+  assert.ok(r.sketch.nextId > Math.max(...sk.walls.map((w) => w.id), ...sk.openings.map((o) => o.id)));
+  assert.ok(planFromSketch(r.sketch).ok);
 });
