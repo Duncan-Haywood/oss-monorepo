@@ -81,9 +81,31 @@ def report():
                 print(f"H={H}: measured {m:+.4f}  product {pr:+.4f} (err {pr - m:+.4f})  additive {ad:+.4f} (err {ad - m:+.4f})")
 
 
+def report_p():
+    """6c: excess vs omega = 1/p - 1 at H = 4, 64. H6c-i: fit through the origin on p = 1/4, 1/16; predict 1/8, 1/32. H6c-ii: power-law exponent over all four."""
+    import math
+    c = cells()
+    mean = lambda d: sum(d.values()) / len(d)
+    om = lambda p: 1 / p - 1
+    for H in (4, 64):
+        pts = {p: mean(c[(H, p)]) - mean(c[(H, 1.0)]) for p in (0.25, 0.125, 0.0625, 0.03125) if (H, p) in c}
+        print(f"H={H} excess by omega:", {om(p): round(v, 4) for p, v in pts.items()})
+        fit = [p for p in (0.25, 0.0625) if p in pts]
+        slope = sum(pts[p] * om(p) for p in fit) / sum(om(p) ** 2 for p in fit)
+        for p in (0.125, 0.03125):
+            if p in pts: print(f"  p={p}: measured {pts[p]:+.4f} linear-fit {slope * om(p):+.4f} err {slope * om(p) - pts[p]:+.4f}")
+        pos = [(math.log(om(p)), math.log(v)) for p, v in pts.items() if v > 0]
+        if len(pos) >= 3:
+            mx, my = sum(x for x, _ in pos) / len(pos), sum(y for _, y in pos) / len(pos)
+            b = sum((x - mx) * (y - my) for x, y in pos) / sum((x - mx) ** 2 for x, _ in pos)
+            print(f"  power-law exponent b = {b:.2f} from {len(pos)} points")
+
+
 if __name__ == "__main__":
     if sys.argv[1] == "report":
         report(); sys.exit()
+    if sys.argv[1] == "report_p":
+        report_p(); sys.exit()
     have = {(r["keep"], r["H"], r["seed"]) for r in load(PATH)}
     hs, ks = {"run8_32": (HOLD, [1.0, 0.0625]), "run_p": (HS, PLEVELS)}.get(sys.argv[1], (HS, KEEPS))
     jobs = [(k, H, s) for s in SEEDS for H in hs for k in ks if (k, H, s) not in have]
