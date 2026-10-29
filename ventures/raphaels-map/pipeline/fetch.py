@@ -113,6 +113,16 @@ ACS_GEOS = {
 }
 
 
+# Nation, states, counties, metro/micro areas. The full files carry every
+# summary level (tracts, places, ZCTAs...) and B12002 alone is over 300 MB.
+SF_GEO = re.compile(rb"(^|\|)(0100000US|0400000US\d{2}|0500000US\d{5}|310M\d00US\d{5})(\||$)")
+
+
+def keep_geos(data: bytes) -> bytes:
+    lines = data.split(b"\n")
+    return b"\n".join([lines[0]] + [ln for ln in lines[1:] if SF_GEO.search(ln)]) + b"\n"
+
+
 @attempt("acs5")
 def fetch_acs(out: Path) -> None:
     # Group metadata from the API (no key needed), data from the table-based
@@ -140,7 +150,10 @@ def fetch_acs(out: Path) -> None:
                     or re.search(r"geos?.*5y", u, re.I) or re.search(r"ACS20\d\dSF_?5Y?R?_?Table_?Shells|table.?shells", u, re.I)]
             record("acs5", notes=[f"{sub} listing ({len(listing)}): {listing[:30]}"])
             for u in want:
-                save(out, "acs5", f"{year}/sf/" + u.rsplit("/", 1)[1], get(u, timeout=600), u)
+                data = get(u, timeout=900)
+                if u.endswith((".dat", ".txt")) and "Table_Shells" not in u:
+                    data = keep_geos(data)
+                save(out, "acs5", f"{year}/sf/" + u.rsplit("/", 1)[1], data, u)
         key = os.environ.get("CENSUS_API_KEY", "")
         if key:
             for g in ACS_GROUPS:
@@ -268,10 +281,19 @@ def fetch_gss(out: Path) -> None:
         tmp = out / "gss" / "_tmp.dta"
         tmp.parent.mkdir(parents=True, exist_ok=True)
         tmp.write_bytes(z.read(member))
-        _, meta = pyreadstat.read_dta(str(tmp), metadataonly=True)
-        lower = {c.lower(): c for c in meta.column_names}
-        have = [lower[c] for c in GSS_COLS if c in lower]
-        df, meta = pyreadstat.read_dta(str(tmp), usecols=have, apply_value_formats=False)
+        enc = None
+        for enc in (None, "latin1"):
+            try:
+                _, meta = pyreadstat.read_dta(str(tmp), metadataonly=True, encoding=enc)
+                lower = {c.lower(): c for c in meta.column_names}
+                have = [lower[c] for c in GSS_COLS if c in lower]
+                df, meta = pyreadstat.read_dta(str(tmp), usecols=have, apply_value_formats=False, encoding=enc)
+                break
+            except Exception as e:  # noqa: BLE001 - some yearly files are not UTF-8
+                err = e
+        else:
+            record("gss", notes=[f"{url}: unreadable: {err}"])
+            continue
         df.columns = [c.lower() for c in df.columns]
         frames.append(df)
         for c in df.columns:
