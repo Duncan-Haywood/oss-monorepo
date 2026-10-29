@@ -1,7 +1,7 @@
 ---
 title: "Trace a floor plan: the wall-framing sketch editor takes a picture underlay"
 date: 2026-10-29
-description: "The wall-framing-takeoff plan sketch can now show a scan or photo of a plan under the grid, scaled from one known length, so you trace walls instead of typing them."
+description: "The wall-framing-takeoff plan sketch can show a scan or photo of a plan under the grid, scaled from one known length, so you trace walls instead of typing."
 tags: [wall-framing-takeoff, construction, sketch-editor]
 ---
 
