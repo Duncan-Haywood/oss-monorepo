@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%231b587e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EA%3C/text%3E%3C/svg%3E"><meta name="viewport" content="width=device-width, initial-scale=1">
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#1c2430;background:#f3f5f2}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#23613f}.eyebrow{font-weight:700;letter-spacing:.04em;color:#23613f;font-size:.85rem}h1{font-size:clamp(1.7rem,5vw,2.5rem);line-height:1.08;margin:.3rem 0;color:#183d2a}.lede{font-size:1.05rem;max-width:66ch;color:#4a5560}section{background:#fff;border:1px solid #d5ddd6;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #183d2a10;margin:1rem 0}h2{margin-top:0;color:#183d2a}p,li{line-height:1.55}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:.95rem}caption{caption-side:bottom;color:#4a5560;font-size:.85rem;text-align:left;padding-top:.6rem}th,td{border-bottom:1px solid #e1e7e2;padding:.5rem .45rem;text-align:right}th:first-child,td:first-child{text-align:left}tr.total td,tr.total th{font-weight:700}.fine,footer{font-size:.86rem;color:#4a5560}@media (max-width:600px){body{padding:1rem}}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; AI Bookkeeper</a></p>
+<header>
+<h1>Farmers market and cottage food bookkeeping: Saturday Square deposits against the ingredients and permits behind them</h1>
+<p class="lede">A market vendor's income lands as Square deposits after each market day and the odd Venmo cash-out; the costs are ingredients from a restaurant-supply store, packaging, the booth fee, a cottage-food permit and gas. The bank statement holds both, so the month's profit starts there.</p>
+</header>
+<section>
+<h2>Worked example: one October</h2>
+<p>The tool ships a <strong>synthetic</strong> statement for a solo baker selling at a weekend market (<code>fixtures/marketvendor-checking.csv</code>): four Square deposits, a Venmo cash-out and twelve costs. Every cost and the four Square deposits get a suggested account with no rules taught; the Venmo cash-out stays in review, because it could be a customer, a friend or your own money moving.</p>
+<div class="table-wrap">
+<table>
+<caption>Read by the tool's importer. Synthetic data, not a real vendor.</caption>
+<thead><tr><th scope="col">October 2026</th><th scope="col">Amount</th></tr></thead>
+<tbody>
+<tr><th scope="row">Four Square deposits (sales)</th><td>$1,848.65</td></tr>
+<tr><th scope="row">Venmo cash-out (left in review; you file it)</th><td>$150.00</td></tr>
+<tr class="total"><th scope="row">Money in</th><td>$1,998.65</td></tr>
+<tr><th scope="row">Restaurant Depot, Webstaurantstore, GFS, Sam's Club and Uline (supplies)</th><td>&minus;$750.40</td></tr>
+<tr><th scope="row">Market vendor fee and cottage-food permit (taxes and licenses)</th><td>&minus;$120.00</td></tr>
+<tr><th scope="row">Food-handler card (education and dues)</th><td>&minus;$15.00</td></tr>
+<tr><th scope="row">Food liability insurance (insurance)</th><td>&minus;$38.00</td></tr>
+<tr><th scope="row">Gas (vehicle and fuel)</th><td>&minus;$52.40</td></tr>
+<tr><th scope="row">Squarespace and Canva (software)</th><td>&minus;$37.99</td></tr>
+<tr class="total"><th scope="row">Profit</th><td>$984.86</td></tr>
+</tbody>
+</table>
+</div>
+<p>The profit counts the Venmo cash-out as income; if it was your own money coming back from a Venmo balance, file it as a transfer and profit falls by $150.00. Square pays net of its fees.</p>
+</section>
+<section>
+<h2>What the tool does for a market vendor</h2>
+<ol>
+<li><strong>Imports the bank CSV</strong> and suggests <em>Sales</em> for Square deposits.</li>
+<li><strong>Files the recurring costs</strong>: ingredients, packaging, booth fees, permits, insurance, gas and software.</li>
+<li><strong>Reports</strong> a P&amp;L and a Schedule C worksheet, with a mileage log for drives to the market and quarterly estimated-tax dates in the tax calendar.</li>
+</ol>
+<p>Rules are written from company names; no real vendor's statement has been tried.</p>
+</section>
+<section>
+<h2>Questions</h2>
+<h3>Where do Square deposits at a market go?</h3><p>The importer files a Square deposit under sales. Square keeps its card fee before paying out, so the deposit is net of the fee; only what lands in your bank account shows.</p><h3>How are ingredients, fees and permits filed?</h3><p>Restaurant Depot, Webstaurantstore, GFS, Sam's Club ingredient buys and Uline packaging are filed under supplies and materials. A farmers-market vendor fee and a state cottage-food permit go under taxes and licenses, a food-handler card under education and dues, and food liability insurance under insurance. A Venmo cash-out stays in the review queue; you file it.</p><h3>Is it free?</h3><p>Yes. It is open source (MIT), runs in your browser and nothing is uploaded. Not tax advice: a self-employed vendor owes self-employment tax on profit, the Schedule C worksheet in this tool shows the figure, and your accountant decides what applies to you. Whether ingredients belong in cost of goods sold or supplies is a choice to settle with your accountant.</p>
+</section>
+<p><a href="./">Open AI Bookkeeper</a> and import your bank statement.</p>
+</main>
+<footer>
+<p><strong>No warranty.</strong> This page and the tool are provided free and as-is, without warranty of any kind. They are not legal, tax, or financial advice and do not replace a qualified professional. You are responsible for reviewing and verifying any output before relying on it. The example is synthetic data, not a real business. Platform names are trademarks of their owners, named only to describe a payee.</p>
+</footer>
+</body>
+</html>

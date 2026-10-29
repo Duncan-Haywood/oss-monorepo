@@ -34,6 +34,9 @@ const amountBucket = (cents) => `amt:${Math.min(12, Math.floor(Math.log2(Math.ab
 // keyword that fits two accounts is left out, so the line goes to review rather
 // than being guessed. `dir` limits a rule to money in or money out.
 export const BUILT_IN = [
+  // Farmers-market, craft-fair and cottage-food vendors (2026-10-29, marketvendor.test.mjs; agent-written from the companies' public names, not from a real export):
+  // wholesale food-service stores and ingredient buys are supplies. Market fees and cottage permits were already filed under taxes and licenses.
+  ["6100", "out", /\bgfs\b|gordon food|smart ?& ?final|cash ?(and|&|n) ?carry|baking ingredients|packaging|jars? and lids?/],
   // Pet sitters, dog walkers and groomers (2026-10-29, petcare.test.mjs; agent-written from the companies' public names, not from a real export):
   // marketplace payouts, scheduling software, pet-store supplies and sitter association dues.
   ["4000", "in", /\brover\b.*payout|\bwag\b.*(labs|payment|payout)|rover\.com/],
