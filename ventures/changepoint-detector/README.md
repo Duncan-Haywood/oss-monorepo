@@ -1091,3 +1091,12 @@ The idea left untried above: take logs first (`log: true`, no drift), so a seaso
 - UK driver deaths (the shock): 6 become 8 and 4 stay 4 (no trend); 4 become 6 and 3 stay 3 (bend). Stays, as a shock should.
 
 So the log refit clears one growing series (UK gas) and thins J&J, but leaves the airline's window untouched or worse, and the shock behaves the same as the airline. A rule "the window empties, so it was a shape" would call one of three shapes right and miss two. Third failed automatic test (cancellation, level-scaled refit, log refit) on four real series with one shock; not adopted, the warning text is unchanged. Wanted, still: a second real seasonal series with a documented shock.
+
+## Shape or shock, a second real series with shocks (2026-10-29)
+
+The README asked for a second real seasonal series with a documented shock. Quarterly arrivals to Australia, 1981Q1 to 2012Q3, from the US (11 Sept 2001, the 2003 Iraq war and SARS) and from Japan (SARS, 2003): `data/au-arrivals-*.csv`, `eval/drift-warning-arrivals.mjs`, output `eval/drift-warning-arrivals.out.txt`, test `drift-warning-arrivals.test.mjs`. Same cells as the other real series (`--drift --period 4`, raw and log, with and without `--trend bend`).
+
+- The warning fires in 7 of 8 cells (only US raw with bend is silent). These series trend hard, so the fit cuts 7 to 17 steps and some window always holds three. The warning cannot tell a shape from a shock here, and it has no way to say the cause is a trend the fit cut into steps.
+- The dated shock is found: in all four US cells the fit puts a downward step at 2001Q3, the quarter of the attacks (the visitor drop shows in the quarter itself). The Japan SARS dip appears as a pair, a fall at 2003Q1 or Q2 and a rise at 2003Q4 (cancelling, as a shock does), in all four cells.
+- So the "cancelling pair" signature from the earlier negative result holds on this shock too, but only a person reading the dates sees it: the warning window sits on the trend steps, not on the shock, and the 3-in-2-cycles rule would fire without it. Not adopted; the warning text is unchanged. One series pair, one fit, no ground truth beyond the event dates.
+- Wanted: a trendless seasonal series with a shock, which would test the warning without the trend confound.
