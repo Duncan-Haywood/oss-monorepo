@@ -332,8 +332,9 @@ def _median(values: list[float]) -> float | None:
     return round(statistics.median(values), 2) if values else None
 
 
-# The owner's project-size bars: 20 human hours (2026-10-21), then 200 (2026-10-29).
-PROJECT_HOUR_BARS = (20, 200)
+# The owner's project-size bars: 20 human hours (2026-10-21), then 200 and
+# "maybe above 300" (both 2026-10-29).
+PROJECT_HOUR_BARS = (20, 200, 300)
 
 
 def _human_hours(rec: dict[str, Any]) -> float | None:

@@ -555,20 +555,21 @@ twenty estimated human hours; 92% of runs took under fifteen active minutes
 ([the post](../docs/posts/2026-10-21-work-that-takes-more-than-twenty-hours.md)).
 `runcost.py report` tracks it.
 
-**Raise the bar to two hundred hours** (owner, 2026-10-29): "i think it
-makes sense to focus more on porjects that are at least estimated to be 200+
-human equivalent hours worth of work." This supersedes the twenty-hour line
-above as the main-effort bar. It is per project, not per run: no session does
-200 human hours, so the test is whether a run builds toward a project a
-person would estimate at 200 hours or more (a flagship, a research programme
-in `research/PROGRAMMES.md`). Starting a new project needs a written plan of
-that size and a first step that works on its own. Pass `--human-hours` to
-`runcost.py attach` so `runcost.py report` ("by project") can add it up: on
-2026-10-29, 0 of 253 projects showed more than 200 estimated hours, but only
-46 of 1,930 records after 2026-10-20 carried an estimate, and none of the
-flagship bookkeeper's 62. Small fixes, upkeep, docs and write-ups still
-count; padding a project to look big does not
-([the post](../docs/posts/2026-10-29-aim-at-projects-worth-two-hundred-hours.md)).
+**Lean towards projects of about three hundred hours** (owner, 2026-10-29, "not a hard bar, an opinion or suggestion"): "i think
+it makes sense to focus more on porjects that are at least estimated to be
+200+ human equivalent hours worth of work", then "idk maybe above 300 hours is
+a better rule of thumb." It updates the twenty-hour suggestion above; it is a rule of thumb,
+not a cutoff. It is per project, not
+per run: no session does 300 human hours, so the question is whether a run builds
+toward a project a person would estimate at about 300 hours or more (a
+flagship, a research programme in `research/PROGRAMMES.md`). Before starting a
+new project, a written plan of that size and a first step that works on its
+own help. Pass `--human-hours` to `runcost.py attach` so `runcost.py report` ("by
+project") can add it up: on 2026-10-29, no project of 253 showed more than
+200 estimated hours, but only 46 of 1,930 records after 2026-10-20 carried an
+estimate, and none of the flagship bookkeeper's 62. Small fixes, upkeep, docs
+and write-ups still count; padding a project to look big does not
+([the post](../docs/posts/2026-10-29-aim-at-projects-worth-three-hundred-hours.md)).
 
 **Beat asking a chatbot** (owner, 2026-10-21, on finding a day-count adder
 at the front of the site): "the tools need to justify their existence by

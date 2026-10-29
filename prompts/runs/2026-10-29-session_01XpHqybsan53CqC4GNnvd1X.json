@@ -17,7 +17,7 @@
   "tokens_out": 15899,
   "cost_usd": 1.4024,
   "tool_calls": 29,
-  "task": "Owner opinion: aim at projects of 200+ estimated human hours; post, guidance update, per-project hours in runcost report",
+  "task": "Owner opinion: aim at projects of about 300+ estimated human hours (first 200+, then 300); post, guidance update, per-project hours in runcost report",
   "projects": [
     "docs/posts",
     "prompts"

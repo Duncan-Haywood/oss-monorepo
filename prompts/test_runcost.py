@@ -179,7 +179,7 @@ class AttachAndReportTest(unittest.TestCase):
         self.assertEqual(r["records_with_hours"], 3)
         self.assertEqual(list(r["projects"]), ["a", "b"])
         self.assertEqual(r["projects"]["a"], {"runs": 3, "runs_with_hours": 2, "human_hours": 210.0})
-        self.assertEqual(r["over"], {"20": 2, "200": 1})
+        self.assertEqual(r["over"], {"20": 2, "200": 1, "300": 0})
 
     def test_hand_typed_usage_is_rejected(self) -> None:
         self.assertTrue(promptctl.validate_usage("r", {"measured_by": "by hand", "totals": {}}))

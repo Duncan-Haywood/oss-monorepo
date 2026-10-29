@@ -1,13 +1,13 @@
 ---
-title: "Aim at projects worth two hundred hours"
+title: "Aim at projects worth three hundred hours"
 date: 2026-10-29
-description: "The owner raises the bar for what is worth starting from twenty human hours to two hundred. The run records show no project measured above 94."
+description: "An opinion, not a rule: aim the main effort at projects worth about three hundred human hours. The run records show none measured above 94."
 tags: [opinion, ai-agents, product, research, measurement]
 ---
 
-# Aim at projects worth two hundred hours
+# Aim at projects worth three hundred hours
 
-*An opinion piece from the owner of this repository, with numbers from the
+*An opinion piece, a suggestion rather than a rule, from the owner of this repository, with numbers from the
 agents' own run records. The code here is written mostly by unattended AI
 coding agents, with the owner steering.*
 
@@ -16,10 +16,17 @@ In my own words, from 29 October 2026:
 > "i think it makes sense to focus more on porjects that are at least
 > estimated to be 200+ human equivalent hours worth of work."
 
-Eight days ago the bar was twenty hours
+And a few minutes later:
+
+> "idk maybe above 300 hours is a better rule of thumb."
+
+> "not a hard bar, an opinion or suggestion piece."
+
+Eight days ago the suggested size was twenty hours
 ([the earlier post](2026-10-21-work-that-takes-more-than-twenty-hours.md)).
-This post argues for moving it by a factor of ten, and then looks at what
-the records say.
+This post argues for thinking about fifteen times bigger, around three
+hundred, and then looks at what the records say. It is a direction to lean
+in, not a line to enforce.
 
 ## Why twenty hours is too low
 
@@ -32,9 +39,11 @@ A few sessions on one project clear twenty without anyone planning for it.
 If one afternoon of agent work can pass the line by accident, the line is
 not choosing anything.
 
-Two hundred hours is about five working weeks for one competent person.
-That is roughly the size of a small product that holds up when real people
-use it, or the work behind one solid research paper. At that size a
+Three hundred hours is seven or eight working weeks for one competent
+person, close to two months full time. That is roughly the size of a small
+product that holds up when real people use it, or the work behind one solid
+research paper. Two hundred, the first number, is in the same range; three
+hundred leaves room for how generous agents' own estimates tend to be. At that size a
 project picks up things that are hard to redo:
 
 - **Data someone had to collect**, such as a real bank export, a labelled
@@ -70,10 +79,10 @@ From the 1,015 records with both figures (16 to 28 October 2026):
   from about 102 hours of active agent time.** That is roughly 35 human
   hours for each agent hour.
 - **Summed by project, 6 of 253 projects pass 20 hours and none pass
-  200.** The largest is the site builder (`platform/pages`) at 93.5 hours
+  200, let alone 300.** The largest is the site builder (`platform/pages`) at 93.5 hours
   over 8 estimated runs. The median project is 6 hours.
 
-By that measure, nothing here has reached the new bar yet.
+By that measure, nothing here has reached that size yet.
 
 ## The measurement has a blind spot
 
@@ -91,40 +100,40 @@ rule of thumb of 10 to 20 tested lines per hour for a person, that would
 be between 1,400 and 2,700 hours. Line counts are a poor measure: the
 biggest venture by lines, a site generator at 170,000, is one the
 flagship list calls "bloated" with a thin core. Still, it is very likely
-that at least a few projects here have passed 200 hours and the records
+that at least a few projects here have passed 300 hours and the records
 cannot show it.
 
 Only 29 of the 1,324 venture directories have 4,000 or more lines of
 code. The median has 669.
 
-## What changes
+## What this suggests
 
 The steering file every session reads,
-[`prompts/goals.md`](../../prompts/goals.md), now says this under
-"Direction: depth over calculators":
+[`prompts/goals.md`](../../prompts/goals.md), now carries this as a
+suggestion under "Direction: depth over calculators". Like everything there
+outside the liability guardrails, a session uses judgment about it:
 
-- **The bar is 200 estimated human hours per project, not per run.** No
-  session does 200 hours of human work. A project gets there over many
+- **Think in projects of about 300 estimated human hours, not single
+  runs.** It is a rule of thumb, not a cutoff. No session does 300 hours of human work. A project gets there over many
   sessions, so the question for each session is whether it is building
   toward such a project.
 - **With a free choice, deepen a project that is already on that path**:
   a [flagship](../../portfolio/flagships.yaml) or a research programme in
-  [`research/PROGRAMMES.md`](../../research/PROGRAMMES.md). Starting
-  something new needs a written plan that a person would estimate at 200
-  hours or more, and a first step that works on its own.
+  [`research/PROGRAMMES.md`](../../research/PROGRAMMES.md). Before starting
+  something new, it helps to write a plan that a person would estimate at about
+  300 hours or more, and a first step that works on its own.
 - **Write the estimate down.** `runcost.py report` now has a
   per-project table that adds up estimated hours and counts the runs
-  with no estimate. That only works if sessions pass `--human-hours`.
+  with no estimate, and how many projects pass 20, 200 and 300 hours. That only works if sessions pass `--human-hours`.
 - **Small work still counts.** Fixes, upkeep of tools people use, docs
   and write-ups like this one are not banned. They just aren't the main
   effort.
 
-There is a real risk here. "Two hundred hours" can turn into "make it
+There is a real risk here. "Three hundred hours" can turn into "make it
 big". Hours are an input, and padding a project to look large is easy,
 especially when the estimator is the same agent that did the work. The
 test is still what the earlier post said: real use and real findings.
-What has changed is how large a project has to be before it is worth
-starting.
+What has changed is the size of project worth leaning towards.
 
 *Figures from `prompts/runs/*.json` on `main`, 29 October 2026, via
 `python3 prompts/runcost.py report`. Agent minutes are measured from
