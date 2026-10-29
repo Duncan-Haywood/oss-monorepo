@@ -58,6 +58,7 @@ function save() {
   if (!storage || !$('#keep').checked) return;
   try { storage.setItem(STORE, JSON.stringify(state)); } catch { /* storage full or denied */ }
 }
+let linkNote = '';
 function load() {
   try {
     const raw = storage?.getItem(STORE);
@@ -72,28 +73,45 @@ function load() {
       }
     }
   } catch { /* a bad saved state starts fresh */ }
-  const m = /#d=([A-Za-z0-9_-]+)/.exec(location.hash);
+  const m = /#d=([^&]*)/.exec(location.hash);
   if (m) {
     try {
       const json = decodeURIComponent(escape(atob(m[1].replace(/-/g, '+').replace(/_/g, '/'))));
-      state.designs.push(normalize(JSON.parse(json)));
+      const parsed = JSON.parse(json);
+      if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) throw new Error('not a design');
+      state.designs.push(normalize(parsed));
       state.active = state.designs.length - 1;
-      history.replaceState(null, '', location.pathname + location.search);
-    } catch { /* ignore a broken link */ }
+      linkNote = `Opened the shared design "${state.designs[state.active].name}" as a new design.`;
+    } catch {
+      // Usually a link cut short when it was pasted; say so rather than open the last design silently.
+      linkNote = 'That shared link is broken or cut short, so it could not be opened. Your own designs are shown instead.';
+    }
+    history.replaceState(null, '', location.pathname + location.search);
   }
   if (!state.designs.length) state.designs = [defaultDesign()];
 }
 const design = () => state.designs[state.active];
 
 // ---------- changes ----------
-function commit(next, label = 'edit') {
-  undo.push(JSON.stringify(design()));
-  if (undo.length > 100) undo.shift();
+// Typing "16" into a field is one change, not three: keystrokes into the same
+// field share one undo step until focus leaves it or another edit comes in.
+let typing = null;
+function commit(next, label = 'edit', field = null) {
+  const before = JSON.stringify(design());
+  const after = normalize(next);
+  if (JSON.stringify(after) === before) return;
+  if (!field || field !== typing) {
+    undo.push(before);
+    if (undo.length > 100) undo.shift();
+  }
+  typing = field;
   redo.length = 0;
-  state.designs[state.active] = normalize(next);
+  state.designs[state.active] = after;
   if (/moved|resized|changed/.test(label)) count('drags');
-  render();
-  $('#status').textContent = `Updated: ${label}.`;
+  if (!render()) return;
+  // One announcement per change, with the result, rather than a live region
+  // that a screen reader would read on every frame of a drag.
+  $('#status').textContent = `Updated: ${label}. ${$('#live').textContent}.`;
 }
 
 let previewQueued = null;
@@ -260,9 +278,9 @@ function renderStores(est, d) {
   const cmp = storeComparison(est);
   const whole = storeTotals(est);
   const two = whole.stores.filter((x) => x.lines > 0);
-  let html = `<h4>The whole list at each store</h4><div class="table-wrap"><table><thead><tr><th scope="col">Store</th><th scope="col" class="n">Lines priced there</th><th scope="col" class="n">Those lines</th><th scope="col" class="n">Other lines, at the list's price</th><th scope="col" class="n">Total</th></tr></thead><tbody>${two.map((x) => `<tr><th scope="row">${esc(x.store)}</th><td class="n">${x.lines} of ${x.of}</td><td class="n">${money(x.priced)}</td><td class="n">${money(x.carried)}</td><td class="n">${money(x.total)}</td></tr>`).join('')}</tbody></table></div>`;
+  let html = `<h3 class="h4">The whole list at each store</h3><div class="table-wrap"><table><thead><tr><th scope="col">Store</th><th scope="col" class="n">Lines priced there</th><th scope="col" class="n">Those lines</th><th scope="col" class="n">Other lines, at the list's price</th><th scope="col" class="n">Total</th></tr></thead><tbody>${two.map((x) => `<tr><th scope="row">${esc(x.store)}</th><td class="n">${x.lines} of ${x.of}</td><td class="n">${money(x.priced)}</td><td class="n">${money(x.carried)}</td><td class="n">${money(x.total)}</td></tr>`).join('')}</tbody></table></div>`;
   if (whole.shared) html += `<p class="muted">Like for like, on the ${whole.shared} lines every store here lists: ${Object.entries(whole.sharedTotals).map(([st, t]) => `${esc(st)} ${money(t)}`).join(', ')}.</p>`;
-  html += `<h4>Line by line</h4><div class="table-wrap"><table><thead><tr><th scope="col">Item</th><th scope="col" class="n">Qty</th>${cmp.stores.map((s) => `<th scope="col">${esc(s)}</th>`).join('')}<th scope="col" class="n">Saving at the cheapest</th></tr></thead><tbody>`;
+  html += `<h3 class="h4">Line by line</h3><div class="table-wrap"><table><thead><tr><th scope="col">Item</th><th scope="col" class="n">Qty</th>${cmp.stores.map((s) => `<th scope="col">${esc(s)}</th>`).join('')}<th scope="col" class="n">Saving at the cheapest</th></tr></thead><tbody>`;
   for (const row of cmp.rows) {
     html += `<tr><td>${esc(row.line.name)}</td><td class="n">${row.line.qty}</td>${cmp.stores.map((st) => {
       const o = row.offers.find((x) => x.store === st);
@@ -282,7 +300,7 @@ function renderStores(est, d) {
   html += `<p class="muted">Prices read from search-result copies of each product page on ${cmp.seen}; follow the link to check today's price and see the product. Lines with no listing at a second store are not shown.</p>`;
   const swaps = swapsFor(d);
   if (swaps.length) {
-    html += '<h4>Swaps worth a look</h4><ul class="swaps">';
+    html += '<h3 class="h4">Swaps worth a look</h3><ul class="swaps">';
     for (const sw of swaps) {
       const alt = estimate(buildShed(normalize({ ...d, ...sw.change })), state.prices);
       const diff = alt.total - est.total;
@@ -308,7 +326,7 @@ function renderCuts(est) {
   let html = '';
   for (const l of est.lumber) {
     const s = actual(l.material);
-    html += `<h4>${l.material} <span class="muted">(actual ${fmtIn(s.thick)} x ${fmtIn(s.depth)})</span>: ${l.result.boards.length} boards, ${money(l.result.cost)}, ${(l.result.waste * 100).toFixed(1)}% offcut</h4><ul class="boards">`;
+    html += `<h3 class="h4">${l.material} <span class="muted">(actual ${fmtIn(s.thick)} x ${fmtIn(s.depth)})</span>: ${l.result.boards.length} boards, ${money(l.result.cost)}, ${(l.result.waste * 100).toFixed(1)}% offcut</h3><ul class="boards">`;
     for (const b of groupBoards(l.result.boards)) {
       let x = 0;
       const segs = b.cuts.map((c) => {
@@ -322,7 +340,7 @@ function renderCuts(est) {
     html += '</ul>';
   }
   if (est.trimCuts) {
-    html += `<h4>1x4 wall trim <span class="muted">(primed, actual 3/4 x 3-1/2)</span>: ${est.trimCuts.boards.length} boards</h4><ul class="boards">`;
+    html += `<h3 class="h4">1x4 wall trim <span class="muted">(primed, actual 3/4 x 3-1/2)</span>: ${est.trimCuts.boards.length} boards</h3><ul class="boards">`;
     for (const b of groupBoards(est.trimCuts.boards)) {
       let x = 0;
       const segs = b.cuts.map((len) => { const w = (len / b.stock) * 100; const seg = `<span class="cut" style="left:${x}%;width:${w}%" title="${fmtIn(len)}">${fmtIn(len)}</span>`; x += w; return seg; }).join('');
@@ -392,7 +410,7 @@ function renderCompare() {
   $('#compare-cards').innerHTML = rows.map(({ d, i, shed, est }) => `
     <article class="card${i === state.active ? ' active' : ''}">
       ${thumbs.get(JSON.stringify(d)) ? `<img src="${thumbs.get(JSON.stringify(d))}" alt="3D view of ${esc(d.name)}" width="360" height="240">` : '<div class="thumb-wait">rendering...</div>'}
-      <h4>${esc(d.name)}${est.total === cheapest && rows.length > 1 ? ' <span class="pill">lowest cost</span>' : ''}</h4>
+      <h3 class="h4">${esc(d.name)}${est.total === cheapest && rows.length > 1 ? ' <span class="pill">lowest cost</span>' : ''}</h3>
       <dl>
         <div><dt>Footprint</dt><dd>${fmtFtIn(d.length)} x ${fmtFtIn(d.width)}</dd></div>
         <div><dt>Floor area</dt><dd>${est.footprintSqFt.toFixed(0)} sq ft</dd></div>
@@ -430,7 +448,20 @@ function queueThumbs() {
 }
 
 let lastEst = null;
+// If a design ever fails to draw, say so and offer undo, rather than leave a
+// half-updated page that looks fine. The error still goes to the console.
 function render() {
+  try {
+    renderNow();
+    return true;
+  } catch (err) {
+    console.error(err);
+    $('#status').textContent = `This design could not be drawn (${/** @type {any} */ (err)?.message || err}). Undo the last change, or start a new design from a preset.`;
+    $('#undo').disabled = !undo.length;
+    return false;
+  }
+}
+function renderNow() {
   const d = design();
   const shed = buildShed(d);
   const est = storeEstimate(shed);
@@ -440,7 +471,9 @@ function render() {
   renderTabs();
   const hooks = { onChange: commit, onPreview: preview };
   drawPlan($('#plan'), d, hooks);
-  drawEnd($('#endview'), d, shed.dims, hooks);
+  // The end view shows what is built: with the automatic boxes ticked, the
+  // pitch, wall height and overhang come from buildShed, not from the form.
+  drawEnd($('#endview'), shed.design, shed.dims, hooks);
   viewer?.show(shed);
   renderSummary(shed, est);
   const sc = renderStructure(shed);
@@ -448,19 +481,32 @@ function render() {
   const cc = connectionChecks(shed);
   $('#summary-lines').insertAdjacentHTML('beforeend', `<div><dt>Structure</dt><dd>${sc.ok ? `all ${sc.rows.length} load checks pass` : `${sc.rows.filter((x) => !x.ok).length} over capacity`} (highest ${Math.round(worst * 100)}%); ${cc.ok ? `all ${cc.rows.length} connection checks pass` : `${cc.rows.filter((x) => !x.ok).length} connection checks fail`}</dd></div>`);
   renderShopping(est);
-  renderStores(est, d);
   renderPrices(est, d);
-  renderCuts(est);
-  renderParts(est);
-  renderPlans(shed, est);
-  renderBuild(shed, est);
-  renderQuote(shed, est);
-  renderCompare();
-  queueThumbs();
+  renderLate(shed, est, d);
   $('#undo').disabled = !undo.length;
   $('#redo').disabled = !redo.length;
   count('builds');
   save();
+}
+
+// The store comparison re-prices every swap (about 90 ms on a 40 x 20 ft
+// design), and the other tabs and the design cards are mostly out of sight.
+// They are drawn just after the next frame, so the plan, the 3D view and the
+// total answer an edit first; a burst of edits draws them once.
+let lateTurn = 0;
+function renderLate(shed, est, d) {
+  const turn = ++lateTurn;
+  requestAnimationFrame(() => setTimeout(() => {
+    if (turn !== lateTurn) return; // a newer render has its own turn queued
+    renderStores(est, d);
+    renderCuts(est);
+    renderParts(est);
+    renderPlans(shed, est);
+    renderBuild(shed, est);
+    renderQuote(shed, est);
+    renderCompare();
+    queueThumbs();
+  }, 0));
 }
 
 // ---------- downloads ----------
@@ -492,7 +538,7 @@ function wire() {
       if (t.dataset.k === 'kind' && t.value === 'window' && op.sill === undefined) op.sill = 42;
       if (t.dataset.k === 'kind' || t.dataset.k === 'width' || t.dataset.k === 'height') delete op.product;
       if (t.dataset.k === 'product' && !t.value) delete op.product;
-      commit(d, `changed opening ${i + 1}`);
+      commit(d, `changed opening ${i + 1}`, e.type === 'input' || t === typing ? t : null);
       if (e.type === 'change' && t.tagName === 'SELECT') { $('#openings tbody').innerHTML = ''; renderOpenings(design()); }
       return;
     }
@@ -505,11 +551,22 @@ function wire() {
       if (t.id === 'pitch') next.autoPitch = false;
       if (t.id === 'wallHeight') next.autoWall = false;
       if (t.id === 'overhang') next.autoOverhang = false;
-      commit(next, `changed ${t.labels?.[0]?.textContent?.trim().toLowerCase() || t.id}`);
+      commit(next, `changed ${t.labels?.[0]?.textContent?.trim().toLowerCase() || t.id}`, e.type === 'input' || t === typing ? t : null);
     }
   };
-  form.addEventListener('change', onForm);
-  form.addEventListener('input', (e) => { if (e.target.type === 'number' || e.target.type === 'text') onForm(e); });
+  // The change when you leave a field you typed in belongs to the same undo step.
+  form.addEventListener('change', (e) => { onForm(e); typing = null; });
+  // While typing, wait for a pause and skip half-typed values (an empty box, or
+  // the "1" on the way to "16"), which would otherwise rebuild a 4 ft shed.
+  let typeTimer = /** @type {any} */ (0);
+  form.addEventListener('input', (e) => {
+    const t = e.target;
+    if (t.type !== 'number' && t.type !== 'text') return;
+    clearTimeout(typeTimer);
+    if (t.type === 'number' && (t.value === '' || !t.checkValidity())) return;
+    typeTimer = setTimeout(() => onForm(e), 250);
+  });
+  form.addEventListener('focusout', () => { typing = null; });
   $('#price-grid').addEventListener('change', onForm);
   $('#openings').addEventListener('click', (e) => {
     const i = e.target.dataset.remove;
@@ -565,12 +622,14 @@ function wire() {
     render();
   });
   $('#undo').addEventListener('click', () => {
+    typing = null;
     if (!undo.length) return;
     redo.push(JSON.stringify(design()));
     state.designs[state.active] = JSON.parse(/** @type {string} */ (undo.pop()));
     render();
   });
   $('#redo').addEventListener('click', () => {
+    typing = null;
     if (!redo.length) return;
     undo.push(JSON.stringify(design()));
     state.designs[state.active] = JSON.parse(/** @type {string} */ (redo.pop()));
@@ -578,8 +637,10 @@ function wire() {
   });
   document.addEventListener('keydown', (e) => {
     if (!(e.ctrlKey || e.metaKey) || /** @type {any} */ (e.target).closest?.('input, select, textarea')) return;
-    if (e.key === 'z' && !e.shiftKey) { e.preventDefault(); $('#undo').click(); }
-    if ((e.key === 'z' && e.shiftKey) || e.key === 'y') { e.preventDefault(); $('#redo').click(); }
+    // With Shift held the key reads "Z", so compare in lower case.
+    const k = e.key.toLowerCase();
+    if (k === 'z' && !e.shiftKey) { e.preventDefault(); $('#undo').click(); }
+    if ((k === 'z' && e.shiftKey) || k === 'y') { e.preventDefault(); $('#redo').click(); }
   });
 
   for (const cb of $$('#layers input')) cb.addEventListener('change', () => viewer?.setLayer(cb.value, cb.checked));
@@ -615,7 +676,7 @@ function wire() {
     $('#option-cards').innerHTML = opts.map((o, i) => {
       let img = '';
       if (tv) { tv.show(buildShed(o.design), { refit: true }); img = `<img src="${tv.snapshot()}" alt="3D view of option ${i + 1}" width="480" height="320">`; }
-      return `<article class="card"><div>${img}</div><h4>${i === 0 ? '<span class="pill">best value</span> ' : ''}${esc(o.label)}</h4>
+      return `<article class="card"><div>${img}</div><h3 class="h4">${i === 0 ? '<span class="pill">best value</span> ' : ''}${esc(o.label)}</h3>
         <dl><div><dt>Total</dt><dd>${money(o.total)}</dd></div><div><dt>Lumber</dt><dd>${money(o.lumber)}, ${o.boards} boards</dd></div>
         <div><dt>Roof</dt><dd>${esc(o.summary)}</dd></div><div><dt>Structure</dt><dd class="${o.ok ? 'ok' : 'fail'}">${o.ok ? 'passes' : 'over capacity'} (${Math.round(o.worst * 100)}%)</dd></div>
         ${o.warnings ? `<div><dt>Warnings</dt><dd>${o.warnings}</dd></div>` : ''}</dl>
@@ -800,3 +861,4 @@ buildStatic();
 load();
 wire();
 render();
+if (linkNote) $('#status').textContent = linkNote;

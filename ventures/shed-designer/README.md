@@ -13,7 +13,8 @@ For assistants: [llms.txt](llms.txt).
 - **Height-led roof.** Set a most-height-at-the-peak limit and tick the two auto boxes. The walls drop to the lowest the tallest door or window allows, and the roof takes the steepest whole pitch that stays under the limit. When no pitch can, the tool says by how much the limit is missed and what would fix it (`buildAuto` in `model.mjs`).
 - **Ridge beam or ridge board.** A ridge beam is two plies of 2x8 to 2x12 bearing on a two-ply post in each gable, over two post studs in the wall. Rafters stop at the beam face and get hangers, and there are no ties. A ridge board gets rafter ties at the plate on every pair. Gable vents centre under a ridge board and flank the post under a beam.
 - **Colour.** Siding paint colours, and purple polka dots, show in the 3D view. Paint is added to the shopping list at two coats and 350 sq ft per gallon.
-- **Design by dragging.** On the plan view you drag the footprint corner or edges (6" steps) and slide doors and windows along a wall or onto another wall. On the end view you drag the peak (roof pitch), the wall top (wall height) and the eave tip (overhang). Every number is also a labelled field. Undo and redo cover both.
+- **Design by dragging.** On the plan view you drag the footprint corner or edges (6" steps) and slide doors and windows along a wall or onto another wall. On the end view you drag the peak (roof pitch), the wall top (wall height) and the eave tip (overhang). Every number is also a labelled field. Undo and redo cover both (Ctrl+Z, Ctrl+Shift+Z or Ctrl+Y), and typing a number is one undo step.
+- **Keyboard, touch and screen readers.** Every handle, door and window takes the arrow keys (6" on the footprint, 24" with Shift; 1" on an opening along its wall; a pitch step on the peak; 1" on the wall height and overhang), and keeps focus after the drawing is rebuilt. Each handle has a touch target at least 44 px across. The 3D view takes the arrow keys and + and -, and two-finger pinch. Each change is announced once, with the new size, pitch and overhang. A broken share link says so. `browser.test.mjs` drives all of this in headless Chromium at laptop and phone size, with an axe check on every results tab and no console errors allowed; the `shed-designer-browser` workflow runs it.
 - **True dimensional lumber.** A 2x4 is framed at 1-1/2" x 3-1/2", a 2x6 at 5-1/2", a 2x8 at 7-1/4", a 2x10 at 9-1/4" and a 2x12 at 11-1/4"; 4x4 and 4x6 skids at 3-1/2". Stud length is the wall height less three plates. A rafter's cut length includes its plumb cut. The ridge is the first 2x size deeper than the rafter that also covers the plumb cut (`lumber.mjs`, `model.mjs`).
 - **Foundation, floor, four walls and a gable roof.**
   - *Foundation:* pressure-treated skids, spaced no more than the gap you allow, on a gravel pad (volume in cubic yards and tons) or on solid concrete blocks.
@@ -43,6 +44,7 @@ At the starting prices that design is 149 pieces from 84 boards. The cut sheet's
   - the floor joists between skids;
   - the rafters;
   - the ridge beam and its posts, using column stability on the posts;
+  - under a ridge board, the rafter-tie heel joint: the pair's outward thrust (wL²/8h) against 16d common nails at the NDS yield-limit value for SPF (about 120 lb each), which sets the nail count in the instructions, the nailing schedule and the shopping list;
   - every door and window header;
   - the eave-wall studs under roof load plus wind on the wall face.
 

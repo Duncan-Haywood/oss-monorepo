@@ -7,6 +7,7 @@ import { EXAMPLE_ITEMS, fmtIn } from './lumber.mjs';
 import { boardPrice, itemPrice } from './prices.mjs';
 import { productById } from './products.mjs';
 import { optimizeCuts } from './optimize.mjs';
+import { heelJoint } from './checks.mjs';
 
 /** @typedef {import('./model.mjs').Shed} Shed */
 /** @typedef {{ lumber: Record<string, Record<string, number>>, items: Record<string, number>, delivery?: Record<string, number> }} Prices */
@@ -283,10 +284,11 @@ export function estimate(shed, prices = examplePrices()) {
   {
     const per = { stud: 4, 'corner stud': 6, 'king stud': 6, 'jack stud': 6, 'post stud': 6, 'top cripple': 4, 'bottom cripple': 4, 'rough sill': 4, 'floor joist': 6, 'rim joist': 0, rafter: 4, 'rafter tie': 6, 'eave blocking': 4, 'gable stud': 4, 'vent trimmer': 4, 'vent header': 4, 'door stile': 0, 'door rail': 0, 'door brace': 0 };
     let n16 = 0;
+    const tieNails = heelJoint(shed)?.nails ?? 3;
     for (const m of all) {
       const k = /** @type {Record<string, number>} */ (per)[m.kind];
       // Plates, headers, rims, skids, beams and anything long: two nails every 16".
-      n16 += k !== undefined ? k : 2 * Math.ceil(m.length / 16);
+      n16 += m.kind === 'rafter tie' ? 2 * tieNails : k !== undefined ? k : 2 * Math.ceil(m.length / 16);
     }
     // 16d galvanized commons run about 45 to the pound (a 5 lb box holds about 225).
     line('Fasteners and sealants', label('framingNails'), Math.ceil(n16 / 225), 'box', item('framingNails'), src('framingNails'));
