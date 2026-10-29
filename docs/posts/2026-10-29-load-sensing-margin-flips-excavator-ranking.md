@@ -2,7 +2,7 @@
 title: "One number decides whether load-sensing hydraulics save fuel on a small excavator"
 seo_title: "Load-sensing vs open-centre excavator hydraulics: the LS margin flips the ranking"
 date: 2026-10-29
-description: "Sourcing the load-sensing pump margin from a Rexroth A10VO manual reverses an earlier result in our heavy-hydraulics model: the ranking turns on a margin two sources put 11 bar apart."
+description: "Sourcing the load-sensing margin from a Rexroth A10VO manual reverses our earlier excavator result: the ranking turns on a margin two sources put 11 bar apart."
 tags: [research, heavy-hydraulics, hydraulics, negative-result]
 ---
 
