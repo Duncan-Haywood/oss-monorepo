@@ -50,7 +50,7 @@
   ],
   "writeups": [],
   "goal": null,
-  "notes": "Local checks: every prompts/test_*.py passes under unittest (pytest absent). Figures in the post come from `python3 prompts/runcost.py report` on 2026-10-29.",
+  "notes": "Local checks: every prompts/test_*.py passes under unittest (pytest absent). Figures in the post come from `python3 prompts/runcost.py report` on 2026-10-29. CI `test` (platform/pages) was red on main's content: faq-visible found FAQPage JSON-LD answers on ai-bookkeeper/tax-calendar.html and trainer-bookkeeping.html that differed from the visible copy (arrived with #11274/#11276). Fixed here by setting the JSON-LD to the visible text; faq-visible.test.mjs 4/4 and ventures/ai-bookkeeper/page.test.mjs 25/25 pass locally.",
   "corrections": [],
   "redteam": null,
   "usage": {
