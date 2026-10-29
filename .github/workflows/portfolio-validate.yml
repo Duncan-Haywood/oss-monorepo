@@ -477,6 +477,14 @@ jobs:
         working-directory: platform/ci
         run: python3 -m unittest test_check_main_landmark
 
+      # A script, font, frame or image from another host leaks the visitor's IP.
+      - name: Check venture pages load nothing from third-party hosts
+        run: python3 platform/ci/check_third_party_requests.py
+
+      - name: Third-party-request checker unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_check_third_party_requests
+
       # lang, viewport, charset, img alt, rel=noopener, tabindex, http:// links.
       - name: Check venture pages for markup basics
         run: python3 platform/ci/check_markup_basics.py
