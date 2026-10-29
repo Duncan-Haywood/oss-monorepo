@@ -1,6 +1,6 @@
 ---
 title: "Can you plan a coder-assisted audit from a pilot? Mostly not"
-seo_title: "Pilot-estimated Neyman allocation for LLM-coded text audits: coverage results"
+seo_title: "Pilot-estimated Neyman allocation for LLM-coded text audits"
 date: 2026-10-29
 description: "Two repairs for a pilot-estimated audit of LLM-coded text, a per-cell floor and an independent pilot, tested on GoEmotions with a real Qwen coder."
 tags: [research, llm-coding-inference, statistics]

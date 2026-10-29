@@ -1,6 +1,6 @@
 ---
 title: "A wandering series is not a staircase: two more real checks for the changepoint detector"
-seo_title: "Changepoint detection on a wandering series: 21 false steps, 0 with AR(1)"
+seo_title: "Changepoint detection on a wandering series: 21 false steps vs 0"
 date: 2026-10-29
 description: "Real internet-usage and temperature series show when a changepoint detector reports steps that are not there, and which switch fixes it."
 tags: [changepoint-detector, time-series, evaluation]

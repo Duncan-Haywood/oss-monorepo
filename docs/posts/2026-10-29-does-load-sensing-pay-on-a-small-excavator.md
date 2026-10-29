@@ -1,6 +1,6 @@
 ---
 title: "Does load-sensing pay on a small excavator? A first paper draft says: it depends on one number"
-seo_title: "Load-sensing vs open-centre hydraulics on a small excavator: energy and payback"
+seo_title: "Load-sensing vs open-centre hydraulics on a small excavator"
 date: 2026-10-29
 description: "Draft paper: load-sensing beats open-centre on a small excavator only with enough idle time, and its parts cost does not repay in fuel in 2,000 hours."
 tags: [research, heavy-hydraulics, hydraulics, excavator]
