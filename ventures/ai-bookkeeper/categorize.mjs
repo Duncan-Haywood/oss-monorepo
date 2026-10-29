@@ -41,6 +41,10 @@ export const BUILT_IN = [
   ["6060", "out", /\beld\b.*(subscription|fee)|motive eld/],
   ["6110", "out", /form 2290|heavy highway use/],
   ["5000", "out", /lumper/],
+  // Wedding DJs, planners and florists (2026-10-29, eventpro.test.mjs; agent-written from the companies' public names, not from a real export):
+  // wholesale flowers are supplies; planner software; Sweetwater gear is filed by the creator-gear rule under 6070, event rentals and WeddingWire are already filed.
+  ["6100", "out", /wholesale flowers?|\bgrowers? direct\b|\bfloral supply\b|\bflorist supply\b/],
+  ["6060", "out", /aisle planner|planning pod|dj event planner/],
   // Mobile detailers and car-wash operators (2026-10-29, detailing.test.mjs; agent-written from the companies' public names, not from a real export):
   // detailing chemicals and polish are supplies; a transfer to the owner is a draw.
   ["6100", "out", /chemical guys|meguiars?|\bgriots? garage\b|detailing supplies|\bcar wash (soap|supplies)\b/],
