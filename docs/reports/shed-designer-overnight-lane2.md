@@ -10,12 +10,17 @@ Session: https://claude.ai/code/session_01XpHqycCR7esoCNZ2PusK5P (2026-10-29). R
 | #11314 | Plans print (they were blank), fit the page (overall wall length was under the title block), rafter cut length dimensioned long point to long point, connector-seat roof line, every part mark lettered on some sheet. New `plans.test.mjs`. | 6 of its 7 tests fail on the pre-fix code. ezdxf 1.4.5 audits the DXF from all 7 presets with 0 errors. |
 | #11319 | The cut sheet counts identical boards together (the default shed's printed cut sheet goes from 6 pages to 2), keeps its colours in print, gives trim offcuts the kerf, and the CSV gets one row per set of boards. The site-built door's build step names its marks. | Tests in `estimate.test.mjs` and `instructions.test.mjs`; PDFs printed in headless Chromium. |
 
+| #11320 | Floor and roof sheet counts rip narrow rows from shared sheets (`sheetCount2d`, the lower of that and plain length packing). Also fixed three red checks that #11322 and #11315 left on `main`: a run record without `pr`, a `money()` signing inside the `$`, and the size-page index with no JSON-LD; and regenerated the size pages. | Default roof 6 to 4 sheets, 8x12 classic roof 6 to 5, 10x12 floor 5 to 4; no count below the area; no size page's total went up. |
+
 ## Tools left in the scratchpad pattern (rebuild them if needed)
 
 - Print check: load the page in Playwright, click a results tab, set `document.body.dataset.print` to `plans`, `cuts` or `build`, then `page.pdf({ preferCSSPageSize: true })`. Count the pages, and run `pdftotext` to confirm there is text.
 - Optimizer comparison: for every preset and `generateCandidates` variant, feed each material's cut pieces to the old and new `optimizeCuts` at `examplePrices()`.
 
 ## Open, for the next run
+
+- **Size pages drift on every pricing change.** `size-pages.test.mjs` compares the committed `how-much-lumber-for-a-*-shed.html` pages with what the engine prints now, so any PR that moves a whole-shed total (#11315's nail count did) turns `changed-ventures` red for the next PR until someone runs `node ventures/shed-designer/make-size-pages.mjs`. Either print only figures that change rarely (pieces, boards, lumber) on those pages, or build them in the Pages workflow instead of committing them. The second is the "software for the routine" answer.
+- **shift-roster-builder `page.test.mjs` #171** ("call-out page's table is what the engine returns for the sample cafe") fails on `main` as of 2026-10-29 06:20 UTC. It is not shed-designer's; reproduced locally.
 
 - **Spares rule** (`estimate.mjs`, "Spare boards"): one spare per material in the most common length. A better cut plan can switch which length is most common and make the spare dearer. On the default design it ate the $3.06 the 2x6 cut plan saved, plus $0.60. A spare in the cheapest length that holds the longest piece of that material would be steadier. This is a pricing choice, not a bug.
 - **Optimizer gap:** 86 of 257 cut lists are not yet proven optimal (0.4% in all). Iterated LP rounding (re-solve on the leftovers, fix the strongest pattern, repeat) closed only $32 of it and made 5 more proven optimal, at up to 240 ms per list. That is too slow for the design searches, so it is not shipped. Branch-and-price would close the rest. It is not worth it at these sizes unless prices change the picture.
