@@ -77,6 +77,9 @@ export function defaultDesign() {
     trimColor: 'white',
     glitter: false,
     interior: 'none',
+    insulation: false,
+    sidingType: 'T1-11',
+    roofCover: 'shingles',
     kerf: 0.125,
     lengths: [...DEFAULT_LENGTHS_FT],
     openings: /** @type {Opening[]} */ ([
@@ -164,7 +167,10 @@ export function normalize(input) {
     roofColor: pick(o.roofColor, ['charcoal', 'brown', 'pink', 'purple', 'teal'], d.roofColor),
     trimColor: pick(o.trimColor, ['white', 'purple', 'pink', 'black', 'gold'], d.trimColor),
     glitter: o.glitter === true,
-    interior: pick(o.interior, ['none', 'teen bedroom'], d.interior),
+    interior: pick(o.interior, ['none', 'OSB', 'plywood', 'drywall', 'beadboard', 'pegboard', 'teen bedroom'], d.interior),
+    insulation: o.insulation === true,
+    sidingType: pick(o.sidingType, ['T1-11', 'LP SmartSide', 'board and batten', 'vinyl', 'fiber cement'], d.sidingType),
+    roofCover: pick(o.roofCover, ['shingles', 'metal'], d.roofCover),
     ventWidth: Math.min(36, Math.max(6, num(o.ventWidth, d.ventWidth))),
     ventHeight: Math.min(36, Math.max(6, num(o.ventHeight, d.ventHeight))),
     kerf: Math.min(0.25, Math.max(0, num(o.kerf, d.kerf))),
@@ -535,7 +541,9 @@ function buildFramed(d) {
       }
       if (p.op.kind === 'window') {
         addM('rough sill', d.studSize, p.a, p.a + p.w, p.bottom - 1.5, p.bottom);
-        const below = [p.a, ...crippleSpots.filter((s) => s > p.a + 1.5 && s < p.a + p.w - 3), p.a + p.w - 1.5];
+        // Sill cripples stay on the stud layout, in line with the studs; only an
+        // opening too narrow for two layout positions gets one at each end.
+        const below = inside.length >= 2 ? inside : [p.a, p.a + p.w - 1.5];
         if (p.bottom - 3 >= 1.5) for (const s of below) addM('bottom cripple', d.studSize, s, s + 1.5, 1.5, p.bottom - 1.5);
       }
       fixtures.push({
@@ -765,12 +773,12 @@ function buildFramed(d) {
   }
 
   // ---------------- Interior ----------------
-  // "Teen bedroom": 1/4" paneling on the inside of every wall (painted), with
-  // the door and windows left open, then posters, string lights along the
-  // plates, a rug and a beanbag. Poster art is generic and drawn in the
+  // A lining on the inside of every wall (OSB, plywood, drywall, beadboard or
+  // pegboard), with the door and windows left open. "Teen bedroom" adds pink
+  // paneling, posters, string lights along the plates, a rug and a beanbag. Poster art is generic and drawn in the
   // browser; the big poster can show a picture the viewer uploads.
   let interior = null;
-  if (d.interior === 'teen bedroom') {
+  if (d.interior !== 'none') {
     const pt = 0.25;
     const faces = {
       front: { origin: /** @type {Vec} */ ([0, D, floorTop]), u: X, w: Y, from: D, to: L - D },
@@ -806,45 +814,47 @@ function buildFramed(d) {
       if (f.to - 4 > cur) spans.push([cur, f.to - 4]);
       free[name] = /** @type {[number, number][]} */ (spans);
     }
-    // Big poster on the widest free stretch, then 18x24 posters on the rest.
-    let bigAt = null;
-    for (const name of WALLS) for (const sp of free[name]) if (sp[1] - sp[0] >= 40 && (!bigAt || sp[1] - sp[0] > bigAt.sp[1] - bigAt.sp[0])) bigAt = { name, sp };
-    const posterAt = (name, x0, w, h, z0, tex) => {
-      const f = faces[name];
-      const o0 = add(add(add(f.origin, f.u, x0), Z, z0), f.w, pt + 0.05);
-      fixtures.push({ kind: 'poster', group: name === 'front' ? 'front lining' : 'decor', tex, geom: rectGeom(o0, f.u, Z, f.w, w, h, 0.05) });
-    };
-    let n = 0;
-    for (const name of WALLS) {
-      for (const sp of free[name]) {
-        let a = sp[0];
-        let b = sp[1];
-        if (bigAt && bigAt.name === name && bigAt.sp === sp) {
-          const mid = (a + b) / 2;
-          posterAt(name, mid - 18, 36, 48, 30, 'big');
-          continue;
-        }
-        while (b - a >= 20 && n < 12) {
-          posterAt(name, a + (b - a >= 44 ? (b - a - 40) / 2 : (b - a - 18) / 2), 18, 24, 52, `poster-${n % 4}`);
-          n += 1;
-          if (b - a >= 44) { posterAt(name, a + (b - a - 40) / 2 + 22, 18, 24, 52, `poster-${n % 4}`); n += 1; }
-          a = b;
+    if (d.interior === 'teen bedroom') {
+      // Big poster on the widest free stretch, then 18x24 posters on the rest.
+      let bigAt = null;
+      for (const name of WALLS) for (const sp of free[name]) if (sp[1] - sp[0] >= 40 && (!bigAt || sp[1] - sp[0] > bigAt.sp[1] - bigAt.sp[0])) bigAt = { name, sp };
+      const posterAt = (name, x0, w, h, z0, tex) => {
+        const f = faces[name];
+        const o0 = add(add(add(f.origin, f.u, x0), Z, z0), f.w, pt + 0.05);
+        fixtures.push({ kind: 'poster', group: name === 'front' ? 'front lining' : 'decor', tex, geom: rectGeom(o0, f.u, Z, f.w, w, h, 0.05) });
+      };
+      let n = 0;
+      for (const name of WALLS) {
+        for (const sp of free[name]) {
+          let a = sp[0];
+          let b = sp[1];
+          if (bigAt && bigAt.name === name && bigAt.sp === sp) {
+            const mid = (a + b) / 2;
+            posterAt(name, mid - 18, 36, 48, 30, 'big');
+            continue;
+          }
+          while (b - a >= 20 && n < 12) {
+            posterAt(name, a + (b - a >= 44 ? (b - a - 40) / 2 : (b - a - 18) / 2), 18, 24, 52, `poster-${n % 4}`);
+            n += 1;
+            if (b - a >= 44) { posterAt(name, a + (b - a - 40) / 2 + 22, 18, 24, 52, `poster-${n % 4}`); n += 1; }
+            a = b;
+          }
         }
       }
-    }
-    // String lights just under the top plates, one bulb every 8".
-    let bulb = 0;
-    for (const name of WALLS) {
-      const f = faces[name];
-      for (let x = f.from + 6; x < f.to - 6; x += 8) {
-        fixtures.push({ kind: `bulb-${bulb++ % 4}`, group: name === 'front' ? 'front lining' : 'decor', geom: rectGeom(add(add(add(f.origin, f.u, x), Z, H - 8 - (bulb % 2) * 1.5), f.w, pt), f.u, Z, f.w, 1.6, 1.6, 1.6) });
+      // String lights just under the top plates, one bulb every 8".
+      let bulb = 0;
+      for (const name of WALLS) {
+        const f = faces[name];
+        for (let x = f.from + 6; x < f.to - 6; x += 8) {
+          fixtures.push({ kind: `bulb-${bulb++ % 4}`, group: name === 'front' ? 'front lining' : 'decor', geom: rectGeom(add(add(add(f.origin, f.u, x), Z, H - 8 - (bulb % 2) * 1.5), f.w, pt), f.u, Z, f.w, 1.6, 1.6, 1.6) });
+        }
       }
+      // A rug and a beanbag on the floor.
+      fixtures.push({ kind: 'rug', group: 'decor', geom: rectGeom([L / 2 - 30, W / 2 - 20, floorTop], X, Y, Z, 60, 40, 0.4) });
+      fixtures.push({ kind: 'beanbag', group: 'decor', geom: rectGeom([L - D - 34, W - D - 34, floorTop], X, Y, Z, 28, 28, 14) });
+      fixtures.push({ kind: 'beanbag', group: 'decor', geom: rectGeom([L - D - 31, W - D - 31, floorTop + 14], X, Y, Z, 22, 22, 6) });
     }
-    // A rug and a beanbag on the floor.
-    fixtures.push({ kind: 'rug', group: 'decor', geom: rectGeom([L / 2 - 30, W / 2 - 20, floorTop], X, Y, Z, 60, 40, 0.4) });
-    fixtures.push({ kind: 'beanbag', group: 'decor', geom: rectGeom([L - D - 34, W - D - 34, floorTop], X, Y, Z, 28, 28, 14) });
-    fixtures.push({ kind: 'beanbag', group: 'decor', geom: rectGeom([L - D - 31, W - D - 31, floorTop + 14], X, Y, Z, 22, 22, 6) });
-    interior = { sqft, panels: Math.ceil((sqft * 1.1) / 32), paint: 'pink' };
+    interior = { type: d.interior, sqft, panels: Math.ceil((sqft * 1.1) / 32), paint: d.interior === 'teen bedroom' ? 'pink' : 'white' };
   }
 
   // ---------------- Fascia, soffit, rake trim ----------------
@@ -947,6 +957,13 @@ function buildFramed(d) {
     }
   }
 
+  const sidingArea = panels.filter((p) => p.kind === 'siding').reduce((t, p) => {
+    let a2 = 0;
+    const pts = p.geom.profile;
+    for (let i = 0; i < pts.length; i++) { const [x0, y0] = pts[i]; const [x1, y1] = pts[(i + 1) % pts.length]; a2 += x0 * y1 - x1 * y0; }
+    return t + Math.abs(a2) / 2 / 144;
+  }, 0);
+
   const dims = {
     length: L, width: W, wallHeight: H, pitch: d.pitch, overhang: o,
     skidTop, floorTop, plateTop, ridgeTop, peak: ridgeTop + (d.roofing ? 7 / 16 / cos + 0.35 / cos : 7 / 16 / cos),
@@ -962,7 +979,7 @@ function buildFramed(d) {
     warnings.push(`The peak is ${fmtFt(dims.peak)} above the gravel, ${fmtFt(dims.peak - d.maxPeak)} over your ${fmtFt(d.maxPeak)} limit. Your tallest opening needs walls of at least ${fmtFt(minWall)}; with those walls and a 3/12 roof (about the least that sheds water under shingles) the peak would still be ${fmtFt(low)}. To get lower: a shorter door, a door in the gable end, a lower floor or a narrower shed${d.gableVents ? ', or smaller or no gable vents (they need a steeper roof to fit)' : ''}.`);
   }
 
-  return { design: d, members, panels, fixtures, walls, warnings, notes, dims, vents: ventInfo, trim, interior, floorPieces, roofPieces, sidingFull, sidingUpper };
+  return { design: d, members, panels, fixtures, walls, warnings, notes, dims, vents: ventInfo, trim, interior, sidingArea, floorPieces, roofPieces, sidingFull, sidingUpper };
 }
 
 /** @typedef {ReturnType<typeof buildFramed>} Shed */

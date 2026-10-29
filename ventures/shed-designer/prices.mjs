@@ -64,16 +64,37 @@ export const LISTED_ITEMS = {
   hurricaneTie: { price: 0.58, url: 'https://www.homedepot.com/p/Simpson-Strong-Tie-H2-5A-18-Gauge-Galvanized-Hurricane-Tie-H2-5A/203302239', note: `${SNIP}; Simpson H2.5A` },
   rafterHanger: { price: 1.77, url: 'https://www.homedepot.com/p/Simpson-Strong-Tie-LUS-Galvanized-Face-Mount-Joist-Hanger-for-2x6-Nominal-Lumber-LUS26/100374889', note: `${SNIP}; Simpson LUS26` },
   gableVent: { price: 22.98, url: 'https://www.homedepot.com/p/Gibraltar-Building-Products-12-in-x-12-in-Square-White-Galvanized-Steel-Built-in-Screen-Gable-Louver-Vent-GLFF1212WH-1-8/310198861', note: `${SNIP}; a 12x12 vent, the nearest listed size` },
+  lpPanel: { price: 39.96, url: 'https://www.homedepot.com/p/LP-SmartSide-SmartSide-38-Series-8-in-Application-as-4-ft-x-8-ft-Cedar-Texture-OC-Panel-Engineered-Treated-Wood-Siding-27874/100055901', note: `${SNIP}; LP SmartSide 38 Series 3/8" 4x8 panel` },
+  vinylBox: { price: 169, url: 'https://www.homedepot.com/p/Double-4-5-in-x-145-in-White-Dutch-Lap-Vinyl-Siding-PCD4504H/301738325', note: `${SNIP}; one box covers 200 sq ft` },
+  boardBox: { price: 89.18, url: 'https://www.homedepot.com/p/CMPC-1-in-x-8-in-x-8-ft-Primed-Finger-Joint-Pine-Board-Actual-Size-0-75-in-x-7-25-in-x-8-ft-3-Piece-Per-Box-CMPC0028777/300125808', note: `${SNIP}; box of three primed 1x8x8 boards` },
+  battenBox: { price: 25.08, url: 'https://homedepot.com/p/1-in-x-3-in-x-8-ft-Spruce-Pine-Fir-Furring-Strip-Common-Board-10-Per-box-EHD0000368/326303094', note: `${SNIP}; box of ten 1x3x8 furring strips` },
+  hardiePlank: { price: 9.68, url: 'https://www.homedepot.com/p/James-Hardie-Hardie-Plank-HZ10-6-25-in-x-144-in-Primed-Cedarmill-Fiber-Cement-Lap-Siding-215570/100075705', note: `${SNIP}; 6-1/4" x 12 ft plank, 5" exposure` },
+  metalPanel: { price: 19.98, url: 'https://homedepot.com/p/Gibraltar-Building-Products-8-ft-Corrugated-Galvanized-Steel-31-Gauge-Roof-Panel-13513/202092961', note: `${SNIP}; 8 ft corrugated panel, about 21-1/2" net cover (inferred)` },
+  metalRidge: { price: 21.88, url: 'https://homedepot.com/p/Union-Corrugating-10-1-2-ft-x-14-in-29-Gauge-Galvanized-Steel-Black-Ridge-Cap-ST-RC-0812-003/322332805', note: `${SNIP}; 10-1/2 ft ridge cap` },
+  stain: { price: 49.98, url: 'https://www.homedepot.com/p/BEHR-Premium-1-gal-Deep-Base-Solid-Color-Waterproofing-Stain-Sealer-501301/202263885', note: `${SNIP}; solid-colour exterior stain` },
+  drywall: { price: 15.58, url: 'https://homedepot.com/b/Building-Materials-Drywall-Drywall-Sheets/4x8/N-5yc1vZbb52Z1z18jbl', note: `${SNIP} (category page); 1/2" UltraLight 4x8` },
+  plywoodLining: { price: 27.56, url: 'https://www.homedepot.com/p/Plytanium-15-32-in-x-4-ft-x-8-ft-3-Ply-RTD-Sheathing-132411/100067329', note: `${SNIP}; 15/32" 4x8; listings vary $23.48-$29.23` },
+  osbLining: { price: 11.68, url: 'https://www.homedepot.com/p/OSB-7-16-Application-as-4ft-X-8-ft-Sheathing-Panel-386081/202106230', note: `${SNIP}; 7/16" 4x8` },
+  pegboard: { price: 23.98, url: 'https://homedepot.com/p/Pegboard-White-Panel-Common-3-16-in-x-4-ft-x-8-ft-Actual-0-155-in-x-47-7-in-x-95-7-in-486140/202189722', note: `${SNIP}; 3/16" 4x8` },
+  beadboard: { price: 22.78, url: 'https://homedepot.com/p/3-16-in-x-4-ft-x-8-ft-MDF-Beadboard-Panel-739558/202090200', note: `${SNIP}; 3/16" MDF 4x8` },
+  insulation: { price: 77.97, url: 'https://homedepot.com/p/CertainTeed-R13-Kraft-Faced-Fiberglass-Insulation-Batt-15-in-x-93-in-13-Pieces-645710/330975699', note: `${SNIP}; R-13 kraft-faced, 125.94 sq ft a bag` },
+  jointCompound: { price: 21.84, url: 'https://www.homedepot.com/p/USG-Sheetrock-Brand-4-5-Gal-Plus-3-Lightweight-All-Purpose-Pre-Mixed-Joint-Compound-381466/100321602', note: `${SNIP}; 4.5 gal` },
+  drywallTape: { price: 7.49, url: 'https://hemlockhardware.com/products/266811-sheetrock-2-1-16-in-x-500-ft-paper-joint-drywall-tape', store: 'Hemlock Hardware', note: `${SNIP}; 500 ft paper tape (no big-box listing found)` },
+  interiorPaint: { price: 31.98, url: 'https://www.homedepot.com/p/BEHR-PREMIUM-PLUS-1-gal-Deep-Base-Eggshell-Enamel-Low-Odor-Interior-Paint-Primer-230001/202761523', note: `${SNIP}; Behr Premium Plus interior` },
   paint: { price: 45.98, url: 'https://www.homedepot.com/p/BEHR-PREMIUM-PLUS-1-gal-Medium-Base-Satin-Enamel-Exterior-Paint-Primer-940001/202301640', note: `${SNIP}; Behr Premium Plus exterior` },
 };
+
+/** Wall sheathing under lap and board-and-batten siding is the same OSB panel as the roof. */
+/** @type {any} */ (LISTED_ITEMS).wallSheathing = LISTED_ITEMS.roofSheet;
 
 /** Items with no listing: our own rough figure, marked as an estimate. */
 const ESTIMATES = {
   siding9: ['siding8', 108 / 96], siding10: ['siding8', 120 / 96],
-  rakeTrim: 11, glitter: 10, interiorPanel: 30, interiorPaint: 40, accentPaint: 18, concreteBlock: 3.5, gravelTon: 45,
+  rakeTrim: 11, glitter: 10, interiorPanel: 30, accentPaint: 18, concreteBlock: 3.5, gravelTon: 45,
+  lpPanel9: ['lpPanel', 108 / 96], lpPanel10: ['lpPanel', 120 / 96],
 };
 
-const withSource = (l) => ({ ...l, store: HD, seen: SEEN, kind: /** @type {const} */ ('listed') });
+const withSource = (l) => ({ store: HD, ...l, seen: SEEN, kind: /** @type {const} */ ('listed') });
 
 /**
  * Price and source for one board.
@@ -104,7 +125,7 @@ export function itemPrice(key) {
   const e = /** @type {Record<string, any>} */ (ESTIMATES)[key];
   if (Array.isArray(e)) {
     const base = itemPrice(e[0]);
-    return { price: Math.round(base.price * e[1] * 100) / 100, url: base.url, store: base.store, seen: base.seen, note: `no listing found; scaled by area from the listed 4x8 panel`, kind: 'derived' };
+    return { price: Math.round(base.price * e[1] * 100) / 100, url: base.url, store: base.store, seen: base.seen, note: 'no listing found for this length; scaled by area from the listed 4x8 panel', kind: 'derived' };
   }
   if (typeof e === 'number') return { price: e, note: 'no listing found; our estimate', kind: 'estimate' };
   return { price: 0, note: 'no price', kind: 'estimate' };

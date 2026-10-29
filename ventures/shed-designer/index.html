@@ -65,6 +65,8 @@
     .endwall { fill: #e9dcc0; stroke: #6b4f2a; }
     .roofline-edit { fill: none; stroke: #7a2f1d; stroke-width: 3; }
     .viewer { position: relative; }
+    .dim-overlay { position: absolute; inset: 0; pointer-events: none; }
+    .dim-overlay span { position: absolute; transform: translate(-50%, -50%); background: #ffffffd9; color: #1f4e8c; font: 600 12px ui-sans-serif, system-ui, sans-serif; padding: 1px 5px; border-radius: 4px; white-space: nowrap; }
     #view3d { width: 100%; aspect-ratio: 4 / 3; display: block; border-radius: 10px; border: 1px solid var(--line); background: #edf1f5; touch-action: none; cursor: grab; }
     .toolrow { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; align-items: center; }
     .check { display: inline-flex; align-items: center; gap: 6px; font-size: .88rem; font-weight: 600; }
@@ -205,6 +207,7 @@
         <button type="button" class="btn" id="zoom-out" aria-label="Zoom out">−</button>
       </div>
       <div class="toolrow" id="layers" aria-label="Layers"></div>
+      <div class="toolrow"><label class="check"><input type="checkbox" id="show-dims" checked> Dimensions</label></div>
 
       <div class="panel summary" id="summary" aria-live="polite">
         <h2>Estimated cost</h2>
@@ -212,7 +215,7 @@
         <dl id="summary-lines"></dl>
         <div id="warnings"></div>
         <div id="notes"></div>
-        <p class="muted">Prices are examples, not quotes. Type your yard's prices under Shopping list.</p>
+        <p class="muted">Prices are store listings seen 2026-10-29, linked line by line under Shopping list; they change, so type your yard's prices there.</p>
       </div>
     </section>
   </div>
@@ -281,13 +284,16 @@
     <fieldset>
       <legend>Covering and boards</legend>
       <div class="fields">
-        <label class="check"><input id="siding" type="checkbox"> T1-11 siding panels</label>
-        <label>Siding colour<select id="sidingColor"><option value="natural">Natural (stained)</option><option value="red">Barn red</option><option value="pink">Pink</option><option value="hot pink">Hot pink</option><option value="lavender">Lavender</option><option value="mint">Mint</option><option value="gray">Gray</option><option value="blue">Blue</option><option value="green">Green</option><option value="white">White</option></select></label>
+        <label class="check"><input id="siding" type="checkbox"> Siding</label>
+        <label>Siding type<select id="sidingType"><option value="T1-11">T1-11 plywood panels</option><option value="LP SmartSide">LP SmartSide panels</option><option value="board and batten">Board and batten over OSB</option><option value="vinyl">Vinyl lap over OSB</option><option value="fiber cement">Fiber cement lap over OSB</option></select></label>
+        <label>Roof covering<select id="roofCover"><option value="shingles">Architectural shingles</option><option value="metal">Corrugated metal panels</option></select></label>
+        <label>Siding colour<select id="sidingColor"><option value="natural">Stained (solid colour)</option><option value="red">Barn red</option><option value="pink">Pink</option><option value="hot pink">Hot pink</option><option value="lavender">Lavender</option><option value="mint">Mint</option><option value="gray">Gray</option><option value="blue">Blue</option><option value="green">Green</option><option value="white">White</option></select></label>
         <label class="check"><input id="polkaDots" type="checkbox"> Purple polka dots</label>
         <label class="check"><input id="glitter" type="checkbox"> Glitter finish</label>
         <label>Roof colour<select id="roofColor"><option value="charcoal">Charcoal</option><option value="brown">Brown</option><option value="pink">Pink</option><option value="purple">Purple</option><option value="teal">Teal</option></select></label>
         <label>Trim colour (fascia, soffit, rake)<select id="trimColor"><option value="white">White</option><option value="purple">Purple</option><option value="pink">Pink</option><option value="black">Black</option><option value="gold">Gold</option></select></label>
-        <label>Inside<select id="interior"><option value="none">Bare framing</option><option value="teen bedroom">Teen bedroom: pink walls, posters, lights</option></select></label>
+        <label>Inside walls<select id="interior"><option value="none">Bare framing</option><option value="OSB">OSB</option><option value="plywood">Plywood, painted</option><option value="drywall">Drywall, taped and painted</option><option value="beadboard">Beadboard, painted</option><option value="pegboard">Pegboard (workshop)</option><option value="teen bedroom">Teen bedroom: pink walls, posters, lights</option></select></label>
+        <label class="check"><input id="insulation" type="checkbox"> Insulate the walls (R-13 batts)</label>
         <label>Big poster picture (stays in your browser)<input id="posterFile" type="file" accept="image/*"></label>
         <label class="check"><input id="roofing" type="checkbox"> Shingle roof</label>
         <label>Saw kerf (in)<input id="kerf" type="number" min="0" max="0.25" step="0.0625"></label>

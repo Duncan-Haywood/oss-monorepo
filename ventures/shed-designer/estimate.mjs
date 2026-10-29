@@ -124,19 +124,35 @@ export function estimate(shed, prices = examplePrices()) {
   line('Sheet goods', label('floorSheet'), floorSheets, 'sheet', item('floorSheet'), src('floorSheet'));
   line('Sheet goods', label('roofSheet'), roofSheets, 'sheet', item('roofSheet'), src('roofSheet'));
   if (d.siding) {
-    const by = { 96: 0, 108: 0, 120: 0 };
-    for (const s of shed.sidingFull) by[s.length] += 1;
-    by[96] += sheetCount(shed.sidingUpper);
-    line('Sheet goods', label('siding8'), by[96], 'sheet', item('siding8'), src('siding8'));
-    line('Sheet goods', label('siding9'), by[108], 'sheet', item('siding9'), src('siding9'));
-    line('Sheet goods', label('siding10'), by[120], 'sheet', item('siding10'), src('siding10'));
-  }
-  if (d.siding && d.sidingColor !== 'natural') {
-    // Two coats at 350 sq ft per gallon, the usual coverage printed on exterior paint.
-    const sqft = shed.panels.filter((p) => p.kind === 'siding').reduce((t, p) => t + Math.abs(polyArea(p.geom.profile)), 0) / 144;
-    line('Paint', `${label('paint')} (${d.sidingColor})`, Math.ceil((sqft * 2) / 350), 'gallon', item('paint'), src('paint'));
-    if (d.glitter) line('Paint', label('glitter'), Math.ceil((sqft * 2) / 350), 'packet', item('glitter'), src('glitter'));
-    if (d.polkaDots) line('Paint', `${label('accentPaint')} (purple, for the polka dots)`, 1, 'quart', item('accentPaint'), src('accentPaint'));
+    const area = shed.sidingArea ?? 0;
+    const type = d.sidingType || 'T1-11';
+    if (type === 'T1-11' || type === 'LP SmartSide') {
+      // Panel siding is its own sheathing: one panel per 4 ft column, the length that reaches.
+      const by = { 96: 0, 108: 0, 120: 0 };
+      for (const x of shed.sidingFull) by[x.length] += 1;
+      by[96] += sheetCount(shed.sidingUpper);
+      const keys = type === 'T1-11' ? ['siding8', 'siding9', 'siding10'] : ['lpPanel', 'lpPanel9', 'lpPanel10'];
+      [96, 108, 120].forEach((len, i) => line('Siding', label(keys[i]), by[len], 'sheet', item(keys[i]), src(keys[i])));
+    } else {
+      // Lap and board-and-batten siding go over OSB sheathing.
+      line('Siding', label('wallSheathing'), Math.ceil((area * 1.1) / 32), 'sheet', item('wallSheathing'), src('wallSheathing'));
+      if (type === 'board and batten') {
+        const boards = Math.ceil((area * 144 * 1.1) / (7.25 * 96));
+        line('Siding', label('boardBox'), Math.ceil(boards / 3), 'box', item('boardBox'), src('boardBox'));
+        line('Siding', label('battenBox'), Math.ceil(boards / 10), 'box', item('battenBox'), src('battenBox'));
+      } else if (type === 'vinyl') {
+        line('Siding', label('vinylBox'), Math.ceil((area * 1.1) / 200), 'box', item('vinylBox'), src('vinylBox'));
+      } else {
+        line('Siding', label('hardiePlank'), Math.ceil((area * 1.1) / 5), 'piece', item('hardiePlank'), src('hardiePlank'));
+      }
+    }
+    if (type !== 'vinyl') {
+      // Two coats: 350 sq ft per gallon for paint, 300 for solid stain (typical label coverage).
+      const stain = d.sidingColor === 'natural';
+      line('Paint', stain ? label('stain') : `${label('paint')} (${d.sidingColor})`, Math.ceil((area * 2) / (stain ? 300 : 350)), 'gallon', item(stain ? 'stain' : 'paint'), src(stain ? 'stain' : 'paint'));
+      if (d.glitter) line('Paint', label('glitter'), Math.ceil((area * 2) / 350), 'packet', item('glitter'), src('glitter'));
+      if (d.polkaDots) line('Paint', `${label('accentPaint')} (purple, for the polka dots)`, 1, 'quart', item('accentPaint'), src('accentPaint'));
+    }
   }
   if (shed.trim) {
     const t = shed.trim;
@@ -145,12 +161,33 @@ export function estimate(shed, prices = examplePrices()) {
     line('Roof trim', label('rakeTrim'), Math.ceil((t.rakeFt * 1.1) / 12), 'piece', item('rakeTrim'), src('rakeTrim'));
   }
   if (shed.interior) {
-    line('Interior', label('interiorPanel'), shed.interior.panels, 'sheet', item('interiorPanel'), src('interiorPanel'));
-    line('Interior', `${label('interiorPaint')} (${shed.interior.paint})`, Math.ceil((shed.interior.sqft * 2) / 350), 'gallon', item('interiorPaint'), src('interiorPaint'));
+    const it = shed.interior;
+    const key = { OSB: 'osbLining', plywood: 'plywoodLining', drywall: 'drywall', beadboard: 'beadboard', pegboard: 'pegboard', 'teen bedroom': 'beadboard' }[it.type] || 'interiorPanel';
+    line('Interior', label(key), it.panels, 'sheet', item(key), src(key));
+    if (it.type === 'drywall') {
+      line('Interior', label('jointCompound'), Math.max(1, Math.ceil(it.sqft / 400)), 'bucket', item('jointCompound'), src('jointCompound'));
+      line('Interior', label('drywallTape'), Math.max(1, Math.ceil((it.sqft * 0.4) / 500)), 'roll', item('drywallTape'), src('drywallTape'));
+    }
+    if (['plywood', 'drywall', 'beadboard', 'teen bedroom'].includes(it.type)) {
+      line('Interior', `${label('interiorPaint')} (${it.paint})`, Math.ceil((it.sqft * 2) / 350), 'gallon', item('interiorPaint'), src('interiorPaint'));
+    }
+  }
+  if (d.insulation) {
+    // Batts fill the bays between studs: about 90% of the wall area.
+    const wallSqFt = (2 * (d.length + d.width) * shed.design.wallHeight) / 144;
+    line('Interior', label('insulation'), Math.ceil((wallSqFt * 0.9) / 125.94), 'bag', item('insulation'), src('insulation'));
   }
   if (d.roofing) {
     const area = dims.roofAreaSqFt * 1.1;
-    line('Roofing', label('shingleBundle'), Math.ceil(area / 32.8), 'bundle', item('shingleBundle'), src('shingleBundle'));
+    if (d.roofCover === 'metal') {
+      // 8 ft panels with 6" end laps, about 21-1/2" of cover each, two slopes; ridge cap with 6" laps.
+      const cols = Math.ceil(d.length / 21.5);
+      const rows = Math.ceil(dims.slopeLen / 90);
+      line('Roofing', label('metalPanel'), 2 * cols * rows, 'piece', item('metalPanel'), src('metalPanel'));
+      line('Roofing', label('metalRidge'), Math.ceil(d.length / 120), 'piece', item('metalRidge'), src('metalRidge'));
+    } else {
+      line('Roofing', label('shingleBundle'), Math.ceil(area / 32.8), 'bundle', item('shingleBundle'), src('shingleBundle'));
+    }
     line('Roofing', label('underlayment'), Math.ceil(area / 1000), 'roll', item('underlayment'), src('underlayment'));
     const dripFt = (2 * d.length + 4 * dims.slopeLen) / 12;
     line('Roofing', label('dripEdge'), Math.ceil(dripFt / 10), 'piece', item('dripEdge'), src('dripEdge'));

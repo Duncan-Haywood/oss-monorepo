@@ -136,7 +136,9 @@ export function solidsOf(shed) {
   for (const p of shed.panels) {
     const layer = p.kind === 'floor sheet' ? 'floor' : p.kind === 'roof sheathing' ? 'sheathing' : 'siding';
     const color = p.kind === 'floor sheet' ? COLORS.floor : p.kind === 'roof sheathing' ? COLORS.osb : siding;
-    out.push({ geom: p.geom, color: /** @type {any} */ (color), layer, flags: p.kind === 'siding' ? (d.polkaDots ? 1 : 0) + glitter : 0 });
+    const texture = d.sidingType === 'board and batten' ? 8 : (d.sidingType === 'vinyl' || d.sidingType === 'fiber cement') ? 4 : 0;
+    const vinyl = d.sidingType === 'vinyl' && d.sidingColor === 'natural' ? [0.93, 0.92, 0.88] : null;
+    out.push({ geom: p.geom, color: /** @type {any} */ (p.kind === 'siding' && vinyl ? vinyl : color), layer, flags: p.kind === 'siding' ? (d.polkaDots ? 1 : 0) + glitter + texture : 0 });
   }
   const roof = /** @type {any} */ (ROOF_COLORS)[d.roofColor] || COLORS.shingles;
   const trim = /** @type {any} */ (TRIM_COLORS)[d.trimColor] || TRIM_COLORS.white;
@@ -145,8 +147,39 @@ export function solidsOf(shed) {
     const layer = f.kind === 'shingles' ? 'roofing'
       : (f.kind === 'door' || f.kind === 'window' || f.kind === 'vent') ? 'siding'
         : (['trim', 'interior', 'decor', 'front lining'].includes(f.group) ? f.group : 'foundation');
-    const color = f.kind === 'shingles' ? roof : (f.kind === 'fascia' || f.kind === 'soffit') ? trim : /** @type {any} */ (COLORS)[f.kind] || COLORS.block;
-    out.push({ geom: f.geom, color, layer, flags: f.kind === 'shingles' ? glitter : 0 });
+    const lining = { OSB: [0.8, 0.66, 0.44], plywood: [0.93, 0.92, 0.88], drywall: [0.95, 0.95, 0.94], beadboard: [0.96, 0.95, 0.9], pegboard: [0.72, 0.58, 0.42] }[d.interior] || COLORS.lining;
+    const color = f.kind === 'shingles' ? roof : (f.kind === 'fascia' || f.kind === 'soffit') ? trim : f.kind === 'lining' ? lining : /** @type {any} */ (COLORS)[f.kind] || COLORS.block;
+    const metal = d.roofCover === 'metal' ? 16 : 0;
+    out.push({ geom: f.geom, color: /** @type {any} */ (color), layer, flags: f.kind === 'shingles' ? glitter + metal : 0 });
+  }
+  return out;
+}
+
+/**
+ * Dimension lines for the 3D view: overall length, width and peak height on
+ * the ground beside the shed, and each door's rough opening.
+ * @param {import('./model.mjs').Shed} shed
+ * @returns {{ a: number[], b: number[], ticks: number[][], label: string }[]}
+ */
+export function dimensionsOf(shed, fmt = (x) => `${x}`) {
+  const d = shed.design;
+  const k = shed.dims;
+  const L = d.length;
+  const W = d.width;
+  const o = 30;
+  const out = [];
+  const seg = (a, b, ext, label) => out.push({ a, b, ticks: ext, label });
+  seg([0, -o, 0], [L, -o, 0], [[0, 0, 0], [0, -o - 4, 0], [L, 0, 0], [L, -o - 4, 0]], `${fmt(L)} long`);
+  seg([L + o, 0, 0], [L + o, W, 0], [[L, 0, 0], [L + o + 4, 0, 0], [L, W, 0], [L + o + 4, W, 0]], `${fmt(W)} wide`);
+  seg([L + o, W / 2, 0], [L + o, W / 2, k.peak], [[L, W / 2, k.peak], [L + o + 4, W / 2, k.peak]], `${fmt(k.peak)} gravel to peak`);
+  seg([-o, 0, 0], [-o, 0, k.plateTop], [[0, 0, k.plateTop], [-o - 4, 0, k.plateTop]], `${fmt(k.plateTop)} gravel to wall top`);
+  for (const f of shed.fixtures.filter((x) => x.kind === 'door')) {
+    const g = f.geom;
+    const w = g.profile[1][0];
+    const h = g.profile[2][1];
+    const at = (p, q, t) => [0, 1, 2].map((i) => g.origin[i] + p * g.u[i] + q * g.v[i] + t * g.w[i]);
+    seg(at(0, h + 6, 3), at(w, h + 6, 3), [at(0, h, 3), at(0, h + 8, 3), at(w, h, 3), at(w, h + 8, 3)], `door ${fmt(w)} wide`);
+    seg(at(-6, 0, 3), at(-6, h, 3), [at(0, h, 3), at(-8, h, 3)], `${fmt(h)} high`);
   }
   return out;
 }
@@ -193,6 +226,18 @@ export function posterCanvas(id, image = null) {
   return c;
 }
 
+/** Feet and inches, as on the drawings. */
+function fmtFtInLocal(inches) {
+  const t = Math.round(inches * 16);
+  const ft = Math.floor(t / 192);
+  let r = t - ft * 192;
+  const whole = Math.floor(r / 16);
+  let f = r % 16;
+  let frac = '';
+  if (f) { let den = 16; while (f % 2 === 0) { f /= 2; den /= 2; } frac = `-${f}/${den}`; }
+  return `${ft ? `${ft}' ` : ''}${whole}${frac}"`;
+}
+
 // ---- tiny matrix helpers (column-major, like WebGL) ----
 function perspective(fovy, aspect, near, far) {
   const f = 1 / Math.tan(fovy / 2); const nf = 1 / (near - far);
@@ -225,9 +270,13 @@ void main(){ vec3 n = normalize(vn); vec3 base = vc.rgb; vec3 an = abs(n);
  if (mod(f, 2.0) > 0.5) {
   vec2 cell = floor(uv / 9.0); vec2 g = fract(uv / 9.0) - 0.5; if (mod(cell.y, 2.0) > 0.5) g = fract(uv / 9.0 + vec2(0.5, 0.0)) - 0.5;
   if (length(g) < 0.17) base = vec3(0.47, 0.23, 0.66); }
+ // 4 = lap siding (a shadow line every 5"), 8 = board and batten (a batten every 8"), 16 = metal ribs.
+ if (mod(floor(f / 4.0), 2.0) > 0.5 && fract(vp.z / 5.0) < 0.12) base *= 0.72;
+ if (mod(floor(f / 8.0), 2.0) > 0.5) { float bx = an.x > an.y ? vp.y : vp.x; if (fract(bx / 8.0) < 0.3) base *= 0.85; }
+ if (mod(floor(f / 16.0), 2.0) > 0.5 && fract(vp.x / 2.67) < 0.25) base *= 0.78;
  float a = abs(dot(n, normalize(vec3(0.45,-0.6,0.75)))); float b = abs(dot(n, normalize(vec3(-0.6,0.5,0.3))));
  vec3 col = base * (0.42 + 0.5*a + 0.18*b);
- if (f > 1.5) { float h = hash(floor(uv * 1.3)); float s = h > 0.95 ? pow(0.5 + 0.5 * sin(t * 3.0 + h * 90.0), 8.0) : 0.0;
+ if (mod(floor(f / 2.0), 2.0) > 0.5) { float h = hash(floor(uv * 1.3)); float s = h > 0.95 ? pow(0.5 + 0.5 * sin(t * 3.0 + h * 90.0), 8.0) : 0.0;
   col = col * (0.96 + 0.08 * hash(floor(uv * 4.0))) + vec3(1.0, 0.92, 1.0) * s; }
  gl_FragColor = vec4(mix(base, col, lit), 1.0); }`;
 
@@ -269,6 +318,18 @@ export function createViewer(canvas) {
   let posters = [];
   let glitter = false;
   let animating = false;
+  /** Dimension lines and their labels, drawn over the canvas. */
+  let dims = /** @type {{ a: number[], b: number[], ticks: number[][], label: string }[]} */ ([]);
+  let dimBuf = null;
+  let dimCount = 0;
+  let showDims = true;
+  const overlay = canvas.parentElement && canvas.isConnected ? document.createElement('div') : null;
+  if (overlay && canvas.parentElement) {
+    overlay.className = 'dim-overlay';
+    overlay.setAttribute('aria-hidden', 'true');
+    canvas.parentElement.style.position = 'relative';
+    canvas.insertAdjacentElement('afterend', overlay);
+  }
 
   /** @type {Record<string, any>} */
   const layers = {};
@@ -294,6 +355,15 @@ export function createViewer(canvas) {
       return { tex: /** @type {any} */ (f).tex || 'poster-0', layer: f.group === 'front lining' ? 'front lining' : 'decor', p: buf(new Float32Array(pos)), uv: buf(new Float32Array(uv)) };
     });
     glitter = Boolean(shed.design.glitter);
+    if (overlay) {
+      dims = dimensionsOf(shed, (x) => fmtFtInLocal(x));
+      const pts = [];
+      for (const dm of dims) { pts.push(...dm.a, ...dm.b); for (let i = 0; i + 1 < dm.ticks.length; i += 2) pts.push(...dm.ticks[i], ...dm.ticks[i + 1]); }
+      if (dimBuf) gl.deleteBuffer(dimBuf);
+      dimBuf = buf(new Float32Array(pts));
+      dimCount = pts.length / 3;
+      overlay.innerHTML = dims.map((dm) => `<span>${dm.label}</span>`).join('');
+    }
     const solids = solidsOf(shed);
     for (const name of LAYERS) {
       const mesh = meshOf(solids.filter((s) => s.layer === name));
@@ -332,6 +402,29 @@ export function createViewer(canvas) {
       attr(L.l, loc.p); attr(L.ln, loc.n); attr(L.lc, loc.c, 4);
       gl.drawArrays(gl.LINES, 0, L.lcount);
     }
+    if (overlay && dimCount && showDims) {
+      gl.uniform1f(loc.lit, 0); gl.uniform1f(loc.bias, 0.001);
+      attr(dimBuf, loc.p);
+      gl.disableVertexAttribArray(loc.n); gl.vertexAttrib3f(loc.n, 0, 0, 1);
+      gl.disableVertexAttribArray(loc.c); gl.vertexAttrib4f(loc.c, 0.12, 0.3, 0.55, 0);
+      gl.drawArrays(gl.LINES, 0, dimCount);
+      // Labels at each line's midpoint, projected to the screen.
+      const cw = canvas.clientWidth; const ch = canvas.clientHeight;
+      const spans = overlay.children;
+      dims.forEach((dm, i) => {
+        const mid = [0, 1, 2].map((j) => (dm.a[j] + dm.b[j]) / 2);
+        const x = m[0] * mid[0] + m[4] * mid[1] + m[8] * mid[2] + m[12];
+        const y = m[1] * mid[0] + m[5] * mid[1] + m[9] * mid[2] + m[13];
+        const w4 = m[3] * mid[0] + m[7] * mid[1] + m[11] * mid[2] + m[15];
+        const el = /** @type {HTMLElement} */ (spans[i]);
+        if (!el) return;
+        if (w4 <= 0) { el.style.display = 'none'; return; }
+        el.style.display = '';
+        el.style.left = `${canvas.offsetLeft + ((x / w4 + 1) / 2) * cw}px`;
+        el.style.top = `${canvas.offsetTop + ((1 - y / w4) / 2) * ch}px`;
+      });
+    }
+    if (overlay) overlay.style.display = showDims ? '' : 'none';
     for (const l of [loc.p, loc.n, loc.c]) gl.disableVertexAttribArray(l);
     if (posters.length) {
       gl.useProgram(tprog);
@@ -372,6 +465,7 @@ export function createViewer(canvas) {
     draw,
     zoom,
     setLayer(name, on) { if (on) visible.add(name); else visible.delete(name); draw(); },
+    setDimensions(on) { showDims = on; draw(); },
     view(theta, phi) { cam.theta = theta; cam.phi = phi; cam.dist = cam.fit; draw(); },
     reset() { cam.theta = -0.95; cam.phi = 0.42; cam.dist = cam.fit; draw(); },
     snapshot() { draw(); return canvas.toDataURL('image/png'); },
