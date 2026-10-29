@@ -127,7 +127,7 @@ export function connectionChecks(shed) {
     add('Floor joists bear on skids', fails, joists.length, 'joists resting on at least two skids');
     const base = k.block ? k.block.h : 0;
     const skidFails = skids.filter((s) => !near(s.lo[2], base)).map((s) => fmtIn(s.lo[1]));
-    add('Skids bear on the ground', skidFails, skids.length, k.block ? `skids on the ${k.block.name}s` : 'skids on the gravel pad');
+    add('Skids bear on the ground', skidFails, skids.length, k.block ? `skids on the ${k.block.plural}` : 'skids on the gravel pad');
   }
   return { rows, ok: rows.every((r) => r.ok) };
 }

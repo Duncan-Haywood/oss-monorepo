@@ -81,13 +81,14 @@
     #warnings ul, #notes ul { margin: 6px 0 0; padding-left: 18px; }
     #notes { font-size: .85rem; opacity: .9; }
     form#settings { margin-top: 14px; }
-    fieldset { border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; margin: 0 0 12px; }
+    fieldset { border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; margin: 0 0 12px; min-width: 0; }
+    #new-design { max-width: 100%; }
     legend { font-weight: 800; padding: 0 6px; }
     .fields { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px 14px; }
     .fields label { display: grid; gap: 4px; font-size: .85rem; font-weight: 700; }
     .fields input, .fields select, #openings input, #openings select { border: 1px solid #aaa394; border-radius: 8px; padding: 7px 8px; background: #fff; color: inherit; min-width: 0; }
     #stock { display: flex; flex-wrap: wrap; gap: 12px; }
-    .table-wrap { overflow-x: auto; }
+    .table-wrap { overflow-x: auto; position: relative; }
     table { border-collapse: collapse; width: 100%; font-size: .9rem; }
     th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #e7e1d4; vertical-align: top; }
     td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
@@ -262,6 +263,8 @@
       <legend>Foundation</legend>
       <div class="fields">
         <label>Foundation<select id="foundation"><option value="gravel">Skids on a gravel pad</option><option value="blocks">Skids on solid 4x8x16 concrete blocks</option><option value="deck blocks">Skids on concrete deck blocks</option><option value="CMU">Skids on 8x8x16 CMU (cinder) blocks</option></select></label>
+        <label>Gravel<select id="pad"><option value="full">A pad under the whole shed (bulk stone)</option><option value="under blocks">Only under each block (bagged paver base; needs a block foundation)</option></select></label>
+        <label>Subfloor<select id="floorPanel"><option value="plywood">3/4" tongue-and-groove plywood</option><option value="OSB">23/32" tongue-and-groove OSB</option></select></label>
         <label>Compacting the gravel<select id="compaction"><option value="hand tamper">Buy a hand tamper</option><option value="plate compactor">Rent a plate compactor for a day</option></select></label>
         <label>Skids (pressure-treated)<select id="skidSize"><option>4x4</option><option>4x6</option></select></label>
         <label>Most space between skids (in)<input id="skidSpacing" type="number" min="24" max="72" step="1"></label>
@@ -377,6 +380,10 @@
     <p class="muted">Close variations of the design you are editing, each framed, priced and checked. They keep your size, doors, windows, colours and wall framing, and change one thing a builder would weigh. Pick one to add it to your designs.</p>
     <div class="toolrow"><button type="button" class="btn primary" id="make-options">Make options</button></div>
     <div id="option-cards"></div>
+    <h3 style="margin-top:16px">Bring the price down, same size</h3>
+    <p class="muted">Tries cheaper off-the-shelf parts and settings one at a time (stock doors and windows, siding, roofing, the foundation and its gravel, the subfloor, overhang, pitch and spacing), keeps your footprint and the ridge and rafter-seat choices you made, and keeps a change only if the shed still passes every check and the peak rises by no more than 6". It lists each saving so you can take some and leave others.</p>
+    <div class="toolrow"><button type="button" class="btn primary" id="budget">Find a cheaper build</button></div>
+    <div id="budget-out"></div>
     <h3 style="margin-top:16px">Simplify the build</h3>
     <p class="muted">Searches small changes (roof pitch, overhang, rafter and stud spacing, connectors or notches, ridge type) for the cheapest build, the one with the fewest saw cuts, and a balance of the two. It counts every saw cut and every angled cut and notch, and keeps only designs that pass every check.</p>
     <div class="toolrow"><button type="button" class="btn primary" id="simplify">Find a simpler build</button><label class="check"><input type="checkbox" id="simplify-resize"> Let it change the length or width by a foot (within your floor-area limit)</label></div>

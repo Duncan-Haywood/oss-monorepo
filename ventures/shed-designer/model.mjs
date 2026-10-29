@@ -16,7 +16,7 @@
 // roof line. The same profile drives the 3D view and the drawings.
 
 import { actual, ceil16, TWO_BY, DEFAULT_LENGTHS_FT, fmtFtIn as fmtFt, fmtIn } from './lumber.mjs';
-import { estimate } from './estimate.mjs';
+import { lumberCostOf } from './estimate.mjs';
 import { productById } from './products.mjs';
 
 /** @typedef {[number, number, number]} Vec */
@@ -61,6 +61,8 @@ export function defaultDesign() {
     skidSpacing: 48,
     foundation: 'gravel',
     compaction: 'hand tamper',
+    pad: 'full',
+    floorPanel: 'plywood',
     floorTreated: true,
     siding: true,
     sidingColor: 'natural',
@@ -102,9 +104,9 @@ export function defaultDesign() {
  * Every block sits on the compacted gravel pad.
  */
 export const BLOCKS = {
-  blocks: { name: 'solid concrete block, 4 x 8 x 16', h: 4, along: 16, across: 8, item: 'concreteBlock' },
-  'deck blocks': { name: 'concrete deck block (pier block)', h: 8, along: 11, across: 11, item: 'deckBlock' },
-  CMU: { name: 'concrete masonry unit (CMU), 8 x 8 x 16, cores vertical', h: 8, along: 16, across: 8, item: 'cmuBlock' },
+  blocks: { name: 'solid concrete block, 4 x 8 x 16', plural: 'solid 4 x 8 x 16 concrete blocks', h: 4, along: 16, across: 8, item: 'concreteBlock' },
+  'deck blocks': { name: 'concrete deck block (pier block)', plural: 'concrete deck blocks', h: 8, along: 11, across: 11, item: 'deckBlock' },
+  CMU: { name: 'concrete masonry unit (CMU), 8 x 8 x 16, cores vertical', plural: '8 x 8 x 16 CMU blocks, cores vertical', h: 8, along: 16, across: 8, item: 'cmuBlock' },
 };
 
 const classic = () => ({ ...defaultDesign(), wallHeight: 96, pitch: 6, skidSize: '4x6', roofType: 'ridgeBoard', sidingColor: 'natural', polkaDots: false, maxPeak: 0, ventHeight: 12, autoWall: false, autoPitch: false, autoOverhang: false, rafterSeat: 'birdsmouth', maxFootprint: 0, roofColor: 'charcoal', trimColor: 'white', glitter: false, interior: 'none' });
@@ -165,6 +167,8 @@ export function normalize(input) {
     tieSize: pick(o.tieSize, ['2x4', '2x6'], d.tieSize),
     skidSize: pick(o.skidSize, ['4x4', '4x6'], d.skidSize),
     skidSpacing: Math.min(72, Math.max(24, num(o.skidSpacing, d.skidSpacing))),
+    pad: pick(o.pad, ['full', 'under blocks'], d.pad),
+    floorPanel: pick(o.floorPanel, ['plywood', 'OSB'], d.floorPanel),
     compaction: pick(o.compaction, ['hand tamper', 'plate compactor'], d.compaction),
     foundation: pick(o.foundation, ['gravel', ...Object.keys(BLOCKS)], d.foundation),
     floorTreated: o.floorTreated !== false,
@@ -275,9 +279,19 @@ function layoutCenters(spacing, lo, hi) {
  */
 export function buildShed(input) {
   const d0 = normalize(input);
-  if (d0.autoWall || d0.autoPitch || d0.autoOverhang) return buildAuto(d0);
-  return buildFramed(d0);
+  // The page, the swaps, the options and the simplicity search rebuild the same
+  // designs again and again; a built shed is never modified, so keep recent ones.
+  const key = JSON.stringify(d0);
+  const hit = BUILT.get(key);
+  if (hit) { BUILT.delete(key); BUILT.set(key, hit); return hit; }
+  const shed = d0.autoWall || d0.autoPitch || d0.autoOverhang ? buildAuto(d0) : buildFramed(d0);
+  BUILT.set(key, shed);
+  if (BUILT.size > 200) BUILT.delete(BUILT.keys().next().value);
+  return shed;
 }
+
+/** Recently built sheds by normalized design, least recently used first. @type {Map<string, Shed>} */
+const BUILT = new Map();
 
 /** Lowest wall (floor to top of plates) that frames every door and window with its header. */
 export function minWallFor(d) {
@@ -302,15 +316,26 @@ function buildAuto(d0) {
   let shed;
   let why = '';
   if (d0.autoPitch) {
-    for (let p = 12; p >= 3; p--) {
-      const s = buildFramed(normalize({ ...d, pitch: p }));
-      if (!d0.maxPeak || s.dims.peak <= d0.maxPeak + 1e-9) { shed = s; why = d0.maxPeak ? `the steepest whole pitch that keeps the peak under ${fmtFt(d0.maxPeak)}` : 'the steepest the tool offers with no height limit'; break; }
+    // The peak rises with the pitch and so does the room for a gable vent, so
+    // both searches are binary searches over the whole pitches 3 to 12.
+    const at = new Map();
+    const build = (p) => { if (!at.has(p)) at.set(p, buildFramed(normalize({ ...d, pitch: p }))); return at.get(p); };
+    /** The first pitch in [lo, hi] where ok holds, if ok is false below some pitch and true above. */
+    const firstTrue = (lo, hi, ok) => { while (lo < hi) { const mid = (lo + hi) >> 1; if (ok(build(mid))) hi = mid; else lo = mid + 1; } return lo; };
+    const fits = (s) => !d0.maxPeak || s.dims.peak <= d0.maxPeak + 1e-9;
+    if (!d0.maxPeak) {
+      shed = build(12);
+      why = 'the steepest the tool offers with no height limit';
+    } else if (fits(build(3))) {
+      // Steepest that fits: the last pitch before the first that does not.
+      shed = build(firstTrue(3, 13, (s) => !fits(s)) - 1);
+      why = `the steepest whole pitch that keeps the peak under ${fmtFt(d0.maxPeak)}`;
     }
     if (!shed) {
-      for (let p = 3; p <= 12; p++) {
-        const s = buildFramed(normalize({ ...d, pitch: p }));
-        if (!d0.gableVents || Object.keys(s.vents).length === 2 || p === 12) { shed = s; why = d0.gableVents ? 'the lowest pitch at which the gable vents still fit, since no pitch meets the height limit' : 'the lowest pitch for a shingle roof, since no pitch meets the height limit'; break; }
-      }
+      const ventsFit = (s) => !d0.gableVents || Object.keys(s.vents).length === 2;
+      const p = ventsFit(build(12)) ? firstTrue(3, 12, ventsFit) : 12;
+      shed = build(p);
+      why = d0.gableVents ? 'the lowest pitch at which the gable vents still fit, since no pitch meets the height limit' : 'the lowest pitch for a shingle roof, since no pitch meets the height limit';
     }
   } else {
     shed = buildFramed(normalize(d));
@@ -320,11 +345,18 @@ function buildAuto(d0) {
   if (d0.autoOverhang) {
     // The longest overhang from 6" to 18" that needs no more lumber money than the shortest:
     // past that point the rafters (or sub-fascia) need longer boards.
+    // Only some materials change from try to try, so only those are re-priced;
+    // the others cost the same in every try and cannot change which is cheapest.
     const tries = [];
     for (let oh = 6; oh <= 18; oh++) {
       const t = buildFramed(normalize({ ...s.design, autoWall: false, autoPitch: false, autoOverhang: false, overhang: oh }));
-      tries.push({ oh, t, cost: estimate(t).lumberCost });
+      tries.push({ oh, t, cost: 0 });
     }
+    // A material is re-priced if its cut list differs between any two tries.
+    const cutList = (t, mat) => t.members.filter((m) => m.material === mat).map((m) => m.length).sort((a, b) => a - b).join(',');
+    const mats = [...new Set(tries.flatMap((x) => x.t.members.map((m) => m.material)))];
+    const moved = mats.filter((mat) => new Set(tries.map((x) => cutList(x.t, mat))).size > 1);
+    for (const x of tries) x.cost = lumberCostOf(x.t, moved);
     const min = Math.min(...tries.map((x) => x.cost));
     const best = tries.filter((x) => x.cost <= min + 0.01).pop();
     s = /** @type {any} */ (best).t;
@@ -400,8 +432,20 @@ function buildFramed(d) {
   });
   const blockCount = block ? skidCount * (Math.ceil(L / 48) + 1) : 0;
   const pad = 12;
-  fixtures.push({ kind: 'gravel', group: 'foundation', geom: rectGeom([-pad, -pad, -4], X, Z, Y, L + 2 * pad, 4, W + 2 * pad) });
-  const gravelCuYd = ((L + 2 * pad) * (W + 2 * pad) * 4) / 46656;
+  // With blocks, the gravel can go under each block alone (a 4"-deep bed 2" wider
+  // than the block all round, from bags) instead of under the whole shed.
+  const underBlocks = Boolean(block) && d.pad === 'under blocks';
+  let baseCuFt = 0;
+  if (underBlocks) {
+    for (const f of fixtures.filter((x) => x.kind === 'block')) {
+      const o = f.geom.origin;
+      fixtures.push({ kind: 'gravel', group: 'foundation', geom: rectGeom([o[0] - 2, o[1] - 2, -4], X, Z, Y, block.along + 4, 4, block.across + 4) });
+      baseCuFt += ((block.along + 4) * (block.across + 4) * 4) / 1728;
+    }
+  } else {
+    fixtures.push({ kind: 'gravel', group: 'foundation', geom: rectGeom([-pad, -pad, -4], X, Z, Y, L + 2 * pad, 4, W + 2 * pad) });
+  }
+  const gravelCuYd = underBlocks ? 0 : ((L + 2 * pad) * (W + 2 * pad) * 4) / 46656;
 
   // ---------------- Floor ----------------
   const joist = actual(d.joistSize);
@@ -1075,7 +1119,7 @@ function buildFramed(d) {
     length: L, width: W, wallHeight: H, pitch: d.pitch, overhang: o,
     skidTop, floorTop, plateTop, ridgeTop, peak: ridgeTop + (d.roofing ? 7 / 16 / cos + 0.35 / cos : 7 / 16 / cos),
     studLen, rafterCut, slopeLen, plumbH, ridgeSize, ridgeD, stud: D, joistDepth: joist.depth, rafterDepth: rd,
-    skidCount, skidYs, joistCenters, rafterCenters, gravelCuYd, padSqFt: ((L + 2 * pad) * (W + 2 * pad)) / 144, blockCount, block, roofAreaSqFt, floorRows, roofRows,
+    skidCount, skidYs, joistCenters, rafterCenters, gravelCuYd, padSqFt: underBlocks ? 0 : ((L + 2 * pad) * (W + 2 * pad)) / 144, baseBags: Math.ceil(baseCuFt / 0.5), underBlocks, blockCount, block, roofAreaSqFt, floorRows, roofRows,
     heel: connector ? 0 : D * t, maxStock, connector,
   };
 

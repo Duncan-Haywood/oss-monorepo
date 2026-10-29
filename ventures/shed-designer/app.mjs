@@ -16,7 +16,7 @@ import { buildInstructions, instructionsMarkdown } from './instructions.mjs';
 import { quoteRequest, mailtoLink, STORES } from './quote.mjs';
 import { PRODUCTS } from './products.mjs';
 import { storeComparison, swapsFor } from './catalog.mjs';
-import { simplify, cutMetrics } from './simplify.mjs';
+import { simplify, cutMetrics, budget } from './simplify.mjs';
 
 const $ = (sel) => /** @type {any} */ (document.querySelector(sel));
 const $$ = (sel) => /** @type {any[]} */ ([...document.querySelectorAll(sel)]);
@@ -98,7 +98,7 @@ function preview(next) {
 const FIELDS = ['name', 'lengthFt', 'widthFt', 'wallHeight', 'pitch', 'overhang', 'studSize', 'studSpacing', 'joistSize', 'joistSpacing',
   'rafterSize', 'rafterSpacing', 'tieSize', 'skidSize', 'skidSpacing', 'foundation', 'floorTreated', 'siding', 'roofing', 'gableVents', 'ventWidth', 'ventHeight', 'kerf',
   'roofType', 'beamSize', 'sidingColor', 'polkaDots', 'autoWall', 'autoPitch',
-  'autoOverhang', 'snowLoad', 'windLoad', 'roofColor', 'trimColor', 'glitter', 'interior', 'sidingType', 'roofCover', 'insulation', 'wallTrim', 'rafterSeat', 'maxFootprint', 'compaction'];
+  'autoOverhang', 'snowLoad', 'windLoad', 'roofColor', 'trimColor', 'glitter', 'interior', 'sidingType', 'roofCover', 'insulation', 'wallTrim', 'rafterSeat', 'maxFootprint', 'compaction', 'pad', 'floorPanel'];
 
 function fillForm(d) {
   const set = (id, v) => { const e = /** @type {any} */ (document.getElementById(id)); if (!e || e === document.activeElement) return; if (e.type === 'checkbox') e.checked = Boolean(v); else e.value = String(v); };
@@ -118,7 +118,7 @@ function readForm() {
   d.width = Math.round(Number(v('widthFt').value) * 12);
   d.maxPeak = Math.round(Number(v('maxPeakFt').value) * 12);
   for (const f of ['wallHeight', 'pitch', 'overhang', 'studSpacing', 'joistSpacing', 'rafterSpacing', 'skidSpacing', 'ventWidth', 'ventHeight', 'kerf', 'snowLoad', 'windLoad', 'maxFootprint']) d[f] = Number(v(f).value);
-  for (const f of ['studSize', 'joistSize', 'rafterSize', 'tieSize', 'skidSize', 'foundation', 'roofType', 'beamSize', 'sidingColor', 'roofColor', 'trimColor', 'interior', 'sidingType', 'roofCover', 'wallTrim', 'rafterSeat', 'compaction']) d[f] = v(f).value;
+  for (const f of ['studSize', 'joistSize', 'rafterSize', 'tieSize', 'skidSize', 'foundation', 'roofType', 'beamSize', 'sidingColor', 'roofColor', 'trimColor', 'interior', 'sidingType', 'roofCover', 'wallTrim', 'rafterSeat', 'compaction', 'pad', 'floorPanel']) d[f] = v(f).value;
   for (const f of ['floorTreated', 'siding', 'roofing', 'gableVents', 'polkaDots', 'autoWall', 'autoPitch', 'autoOverhang', 'glitter', 'insulation']) d[f] = v(f).checked;
   d.lengths = $$('input[name="stock"]:checked').map((c) => Number(c.value));
   return d;
@@ -576,6 +576,40 @@ function wire() {
       render();
       $('#workspace').scrollIntoView({ behavior: 'smooth' });
     };
+  });
+  $('#budget').addEventListener('click', () => {
+    $('#budget').disabled = true;
+    $('#budget-out').innerHTML = '<p class="muted">Pricing the alternatives...</p>';
+    setTimeout(() => {
+      const r = budget(design(), state.prices);
+      const b = r.best;
+      const ft = (x) => fmtFtIn(Math.round(x * 8) / 8);
+      let html = '';
+      if (!b.steps.length) {
+        html = `<p>Nothing cheaper passed the checks: your design is already the cheapest of the ${r.evaluated} tried.</p>`;
+      } else {
+        const thumbCanvas = document.createElement('canvas'); thumbCanvas.width = 480; thumbCanvas.height = 320;
+        const tv = createViewer(thumbCanvas);
+        let img = '';
+        if (tv) { tv.show(buildShed(b.design), { refit: true }); img = `<img src="${tv.snapshot()}" alt="3D view of the cheaper build" width="480" height="320" style="max-width:100%;height:auto">`; }
+        html += `<article class="card">${img}<h4>${money(b.total)}, ${money(r.base.total - b.total)} less than your ${money(r.base.total)}</h4>
+          <ol>${b.steps.map((st) => `<li>${esc(st.label)}: saves ${money(st.saving)}</li>`).join('')}</ol>
+          <p class="muted">Same ${fmtFtIn(b.design.length)} x ${fmtFtIn(b.design.width)} footprint. Peak ${ft(b.peak)}${Math.abs(b.peak - r.base.peak) > 0.06 ? ` (yours is ${ft(r.base.peak)})` : ''}. ${r.evaluated} designs priced and checked.</p>
+          <button type="button" data-budget-use>Use this one</button></article>`;
+      }
+      if (r.also.length) html += `<p><strong>Also possible, if you will change the structure you chose:</strong> ${r.also.map((a) => `${esc(a.label)} saves ${money(a.saving)} more`).join('; ')}.</p>`;
+      if (r.taller.length) html += `<p><strong>Held back by height:</strong> ${r.taller.map((a) => `${esc(a.label)} would save ${money(a.saving)} more but put the peak at ${ft(a.peak)}`).join('; ')}.</p>`;
+      $('#budget-out').innerHTML = html;
+      $('#budget-out').onclick = (ev) => {
+        if (!ev.target.closest('button[data-budget-use]')) return;
+        state.designs.push(normalize({ ...b.design, name: `${design().name}: cheaper build` }));
+        state.active = state.designs.length - 1;
+        count('designs');
+        render();
+        $('#workspace').scrollIntoView({ behavior: 'smooth' });
+      };
+      $('#budget').disabled = false;
+    }, 30);
   });
   $('#simplify').addEventListener('click', () => {
     $('#simplify').disabled = true;

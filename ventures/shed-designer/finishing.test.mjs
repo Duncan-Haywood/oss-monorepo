@@ -7,7 +7,7 @@ import { estimate } from './estimate.mjs';
 import { itemPrice } from './prices.mjs';
 import { EXAMPLE_ITEMS } from './lumber.mjs';
 import { OFFERS, storeComparison, swapsFor } from './catalog.mjs';
-import { simplify, cutMetrics, sidingSpan } from './simplify.mjs';
+import { simplify, cutMetrics, sidingSpan, budget } from './simplify.mjs';
 import { connectionChecks } from './connections.mjs';
 import { integrity } from './integrity.mjs';
 import { buildSheets } from './drawings.mjs';
@@ -177,4 +177,43 @@ test('unfinished siding: no paint bought, a warning, and the swap offers it', ()
   assert.ok(shed.warnings.some((w) => /nfinished/.test(w)));
   assert.ok(swapsFor(defaultDesign()).some((s) => s.id === 'nopaint'));
   assert.ok(!swapsFor(d).some((s) => s.id === 'nopaint'));
+});
+
+test('budget search: same footprint, kept structure, off-the-shelf only, every step a real saving', () => {
+  const d = defaultDesign();
+  const r = budget(d);
+  const b = r.best;
+  assert.ok(b.total < r.base.total, 'finds something cheaper');
+  assert.equal(b.design.length, d.length);
+  assert.equal(b.design.width, d.width);
+  assert.equal(b.design.roofType, d.roofType);
+  assert.equal(b.design.rafterSeat, d.rafterSeat);
+  assert.ok(b.ok, 'passes every check');
+  assert.ok(b.peak <= r.peakCap + 0.01);
+  assert.ok(!b.design.openings.some((o) => o.product === 'site-built'), 'off the shelf');
+  assert.ok(!['vinyl', 'fiber cement'].includes(b.design.sidingType), 'no siding whose trim pieces are unpriced');
+  for (const st of b.steps) assert.ok(st.saving > 0, st.label);
+  const sum = b.steps.reduce((t, st) => t + st.saving, 0);
+  assert.ok(Math.abs(sum - (r.base.total - b.total)) < 0.05, 'the steps add up');
+  for (const t of r.taller) assert.ok(t.peak > r.peakCap);
+});
+
+test('gravel only under the blocks: no pad, no fabric, paver base by the bag', () => {
+  const shed = buildShed(normalize({ ...defaultDesign(), foundation: 'blocks', pad: 'under blocks' }));
+  assert.equal(shed.dims.gravelCuYd, 0);
+  assert.ok(shed.dims.baseBags > 0);
+  const names = estimate(shed).shopping.filter((r) => r.section === 'Site prep').map((r) => r.name).join('|');
+  assert.match(names, /Paver base/);
+  assert.doesNotMatch(names, /fabric|Crushed stone/i);
+  assert.equal(shed.fixtures.filter((f) => f.kind === 'gravel').length, shed.dims.blockCount);
+  // Without blocks the choice has no effect.
+  assert.ok(buildShed(normalize({ ...defaultDesign(), pad: 'under blocks' })).dims.gravelCuYd > 0);
+  const osb = estimate(buildShed(normalize({ ...defaultDesign(), floorPanel: 'OSB' })));
+  assert.ok(osb.shopping.some((r) => /OSB subfloor/.test(r.name)));
+});
+
+test('the build cache returns the same shed for the same design, and a new one for a change', () => {
+  const a = buildShed(defaultDesign());
+  assert.equal(buildShed(defaultDesign()), a);
+  assert.notEqual(buildShed({ ...defaultDesign(), overhang: 10, autoOverhang: false }), a);
 });

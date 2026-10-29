@@ -46,7 +46,17 @@ export function buildInstructions(shed, est) {
   });
 
   const pad = { l: L + 24, w: W + 24 };
-  out.push({
+  if (k.underBlocks) out.push({
+    title: 'Gravel under each block',
+    steps: [
+      `Mark the shed's outline with stakes and string, square it (diagonals ${fmtFtIn(Math.hypot(L, W))} each), and mark where each of the ${k.blockCount} blocks goes.`,
+      `At each mark, dig a hole 4" wider than the block (${fmtIn(k.block.along + 4)} x ${fmtIn(k.block.across + 4)}) down through the turf and soft soil, about 4" deep plus whatever it takes to reach firm ground.`,
+      `Fill with paver base (${k.baseBags} bags of 0.5 cu ft in all) in 2" lifts, tamping each lift hard.`,
+      'Level each bed to the others with a long straight board or a string line: the tops of all the beds in one plane.',
+    ],
+    check: ['Every bed level with the others within 1/4".', 'Firm under foot: no give when you stand on it.'],
+  });
+  else out.push({
     title: 'Gravel pad',
     steps: [
       `Mark out a ${fmtFtIn(pad.l)} x ${fmtFtIn(pad.w)} pad: the shed plus 12" on every side. Drive a stake at each corner and run string between them.`,
@@ -65,7 +75,7 @@ export function buildInstructions(shed, est) {
       `Lay ${k.skidCount} pressure-treated ${d.skidSize} skids (mark ${marks((m) => m.kind === 'skid')}, ${skids.length} pieces) on edge, running the ${fmtFtIn(L)} length of the shed.`,
       `Centre them at ${list(k.skidYs)} from the front edge of the shed (the first and last flush with the front and back edges).`,
       k.block
-        ? `Set ${k.blockCount} ${k.block.name}s on the compacted gravel under the skids (${k.block.h}" tall), one at each end and the rest no more than 4 ft apart, then shim the blocks (not the skids) until every skid is level and all skids are level with each other.`
+        ? `Set ${k.blockCount} ${k.block.plural} on the ${k.underBlocks ? 'paver-base beds' : 'compacted gravel'} under the skids (${k.block.h}" tall), one at each end and the rest no more than 4 ft apart, then shim the blocks (not the skids) until every skid is level and all skids are level with each other.`
         : 'Bed each skid into the gravel and check it with a level along its length and across to the next skid; add or scrape gravel under it rather than shimming with wood.',
       skids.length > k.skidCount ? 'Skids are spliced: butt the pieces tight, stagger the joints from skid to skid, and land each joint on firm gravel or a block.' : 'Each skid is one piece.',
     ],
@@ -87,7 +97,7 @@ export function buildInstructions(shed, est) {
   out.push({
     title: 'Subfloor',
     steps: [
-      `Lay 3/4" tongue-and-groove plywood with the 8 ft edges across the joists (${est.floorSheets} sheets). Start the first row at the front, groove facing out, in a bead of construction adhesive on each joist.`,
+      `Lay ${d.floorPanel === 'OSB' ? '23/32" tongue-and-groove OSB' : '3/4" tongue-and-groove plywood'} with the 8 ft edges across the joists (${est.floorSheets} sheets). Start the first row at the front, groove facing out, in a bead of construction adhesive on each joist.`,
       `Rows are 4 ft wide; ${k.floorRows} rows cover the ${fmtFtIn(W)} width. Start every other row with a half sheet (48") so the end joints are staggered; every end joint must land on a joist centre.`,
       `Cuts along the length: ${shed.floorPieces.map((x) => fmtIn(x)).join(', ')} (in row order). Rip the last row to width if the shed is not a multiple of 4 ft wide.`,
       'Screw every 6" along sheet edges and every 12" across the middle of each joist, 3/8" from edges. Leave a 1/8" gap at butt ends.',

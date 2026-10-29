@@ -13,6 +13,8 @@ import { buildShed, normalize } from './model.mjs';
 import { estimate } from './estimate.mjs';
 import { structuralChecks } from './checks.mjs';
 import { connectionChecks } from './connections.mjs';
+import { BLOCKS } from './model.mjs';
+import { PRODUCTS } from './products.mjs';
 
 /**
  * Saw cuts the build needs. A board cut into n pieces takes n cuts (one fewer
@@ -42,6 +44,8 @@ export function cutMetrics(shed, est) {
   return { straight, angled, notches, total: straight + angled + 2 * notches, waste: bought ? offcut / bought : 0 };
 }
 
+const SIDING_NAMES = { 'T1-11': 'T1-11 plywood panels', 'LP SmartSide': 'LP SmartSide 38 Series primed panels, 3/8"', 'LP SmartSide 7/16': 'LP SmartSide 76 Series primed panels, 7/16"', 'board and batten': 'board and batten over OSB' };
+
 /** The widest stud spacing the siding is rated for, in inches. */
 export function sidingSpan(d) {
   if (!d.siding) return 24;
@@ -51,9 +55,9 @@ export function sidingSpan(d) {
 }
 
 /** The moves the search may make from a design. */
-function moves(d, base, resize) {
+function moves(d, base, resize, opts = {}) {
   const out = [];
-  const set = (label, change) => out.push({ label, change });
+  const set = (label, change, group = Object.keys(change).join('+')) => out.push({ label, change, group });
   // Shingles want 4/12 or steeper (makers allow 2-4/12 only with a double underlayment); metal goes to 3/12.
   for (const p of [3, 4, 5, 6, 7, 8]) if (p >= (d.roofCover === 'metal' ? 3 : 4) && (p !== d.pitch || d.autoPitch)) set(`roof ${p}/12`, { pitch: p, autoPitch: false });
   // Some overhang always: it keeps rain off the siding and the trim.
@@ -62,15 +66,40 @@ function moves(d, base, resize) {
   if (d.studSpacing === 24 || sidingSpan(d) >= 24) set(`studs ${d.studSpacing === 24 ? 16 : 24}" o.c.`, { studSpacing: d.studSpacing === 24 ? 16 : 24 });
   set(d.rafterSeat === 'connector' ? 'birdsmouth seats' : 'variable-pitch connectors', { rafterSeat: d.rafterSeat === 'connector' ? 'birdsmouth' : 'connector' });
   set(d.roofType === 'ridgeBeam' ? 'ridge board and ties' : 'ridge beam on posts', { roofType: d.roofType === 'ridgeBeam' ? 'ridgeBoard' : 'ridgeBeam' });
+  // Off-the-shelf swaps, when asked: another stock door or window, siding,
+  // roofing, foundation, gravel and subfloor.
+  if (opts.products) {
+    for (const op of d.openings.filter((o) => o.kind === 'door' && o.product !== 'site-built')) {
+      for (const pr of PRODUCTS.filter((x) => x.kind === 'door' && x.id !== op.product)) {
+        set(`door ${op.id}: ${pr.name}`, { openings: d.openings.map((o) => (o.id === op.id ? { ...o, product: pr.id } : o)) }, `door ${op.id}`);
+      }
+    }
+    if (d.openings.some((o) => o.kind === 'window')) {
+      for (const pr of PRODUCTS.filter((x) => x.kind === 'window')) {
+        if (d.openings.every((o) => o.kind !== 'window' || o.product === pr.id)) continue;
+        set(`windows: ${pr.name}`, { openings: d.openings.map((o) => (o.kind === 'window' ? { ...o, product: pr.id } : o)) }, 'windows');
+      }
+    }
+    // Vinyl and fiber cement are left out: their J-channel, starter and corner pieces are not priced yet,
+    // so they would look cheaper than they are.
+    for (const t of ['T1-11', 'LP SmartSide', 'LP SmartSide 7/16', 'board and batten']) if (d.siding && t !== d.sidingType) set(`siding: ${SIDING_NAMES[t] || t}`, { sidingType: t });
+    set(d.roofCover === 'metal' ? 'shingle roof' : 'metal roof', { roofCover: d.roofCover === 'metal' ? 'shingles' : 'metal' });
+    for (const f of ['gravel', ...Object.keys(BLOCKS)]) if (f !== d.foundation) set(f === 'gravel' ? 'skids on a gravel pad' : `skids on ${/** @type {any} */ (BLOCKS)[f].plural}`, { foundation: f }, 'foundation');
+    if (d.foundation !== 'gravel') set(d.pad === 'full' ? 'gravel only under the blocks' : 'a full gravel pad', { pad: d.pad === 'full' ? 'under blocks' : 'full' });
+    // Blocks pay off only with the gravel cut back to under them, so offer the pair as one move.
+    for (const f of Object.keys(BLOCKS)) if (f !== d.foundation || d.pad !== 'under blocks') set(`skids on ${/** @type {any} */ (BLOCKS)[f].plural}, gravel only under the blocks`, { foundation: f, pad: 'under blocks' }, 'foundation');
+    set(d.floorPanel === 'OSB' ? 'plywood subfloor' : 'OSB subfloor', { floorPanel: d.floorPanel === 'OSB' ? 'plywood' : 'OSB' });
+  }
   // Only when asked: a foot either way on the length or width, never below 85% of the floor asked for.
-  if (!resize) return out;
+  const kept = () => (opts.keep ? out.filter((m) => !Object.keys(m.change).some((k) => opts.keep.includes(k))) : out);
+  if (!resize) return kept();
   for (const [k, dv] of /** @type {[string, number][]} */ ([['length', 12], ['length', -12], ['width', 12], ['width', -12]])) {
     const next = { ...d, [k]: d[k] + dv };
     if (next.length < 72 || next.width < 72) continue;
     if (next.length * next.width < 0.85 * base.length * base.width) continue;
     set(`${dv > 0 ? '+' : '-'}1 ft ${k}`, { [k]: d[k] + dv });
   }
-  return out;
+  return kept();
 }
 
 /** Goals: dollars, plus a price on each cut and each angled cut or notch (your time). */
@@ -83,7 +112,7 @@ export const GOALS = {
 /**
  * @param {any} design
  * @param {import('./estimate.mjs').Prices} [prices]
- * @param {{ rounds?: number, resize?: boolean }} [opts]
+ * @param {{ rounds?: number, resize?: boolean, products?: boolean, peakSlack?: number, goals?: string[] }} [opts]
  */
 export function simplify(design, prices, opts = {}) {
   const rounds = opts.rounds ?? 6;
@@ -97,25 +126,28 @@ export function simplify(design, prices, opts = {}) {
     return cache.get(k);
   };
   // Never over the peak limit if the design meets it, and never more than 1" taller than it is.
-  const peakCap = start.maxPeak > 0 && base.peak <= start.maxPeak ? start.maxPeak : base.peak + 1;
+  const peakCap = start.maxPeak > 0 && base.peak <= start.maxPeak ? start.maxPeak : base.peak + (opts.peakSlack ?? 1);
   const feasible = (r) => r.ok && (!(start.maxFootprint > 0) || r.footprint <= start.maxFootprint + 1e-9) && r.peak <= peakCap + 0.01;
   const winners = {};
-  for (const [goal, g] of Object.entries(GOALS)) {
+  for (const [goal, g] of Object.entries(GOALS).filter(([k]) => !opts.goals || opts.goals.includes(k))) {
     const score = (r) => r.total + g.perCut * r.cuts.straight + g.perAngled * (r.cuts.angled + 2 * r.cuts.notches);
     let cur = base;
     const path = [];
+    /** @type {{ label: string, saving: number }[]} */
+    const steps = [];
     for (let i = 0; i < rounds; i++) {
       let best = null;
-      for (const mv of moves(cur.design, start, Boolean(opts.resize))) {
+      for (const mv of moves(cur.design, start, Boolean(opts.resize), opts)) {
         const r = get(normalize({ ...cur.design, ...mv.change }));
         if (!feasible(r)) continue;
         if (score(r) < score(best ? best.r : cur) - 0.5) best = { r, mv };
       }
       if (!best) break;
+      steps.push({ label: best.mv.label, saving: Math.round((cur.total - best.r.total) * 100) / 100 });
       cur = best.r;
       path.push(best.mv.label);
     }
-    winners[goal] = { ...cur, goal: g.label, changes: path, score: score(cur) };
+    winners[goal] = { ...cur, goal: g.label, changes: path, steps, score: score(cur) };
   }
   // Every feasible design found that nothing else beats on cost, cuts and angled cuts at once.
   const found = [...cache.values()].filter(feasible);
@@ -125,6 +157,73 @@ export function simplify(design, prices, opts = {}) {
   const front = found.filter((a) => !found.some((b) => beats(b, a))).sort((a, b) => a.total - b.total)
     .filter((a) => { const k = `${a.total}|${a.cuts.straight}|${a.cuts.angled}|${a.cuts.notches}`; if (seenFront.has(k)) return false; seenFront.add(k); return true; });
   return { base, winners, front, evaluated: cache.size };
+}
+
+/**
+ * The cheapest build of the same footprint from off-the-shelf parts: stock doors
+ * and windows, siding, roofing, foundation, gravel and subfloor as well as the
+ * framing moves. It may raise the peak by up to 6" (a taller stock door needs
+ * taller walls) and says so.
+ * @param {any} design @param {import('./estimate.mjs').Prices} [prices]
+ * @param {{ keep?: string[] }} [opts] design keys the search leaves as they are
+ */
+export function budget(design, prices, opts = {}) {
+  const start = normalize(design);
+  const keep = opts.keep ?? ['roofType', 'rafterSeat'];
+  const base = evaluate(start, prices);
+  /** @type {Map<string, any>} */
+  const cache = new Map([[keyOf(start), base]]);
+  const get = (d) => { const k = keyOf(d); if (!cache.has(k)) cache.set(k, evaluate(d, prices)); return cache.get(k); };
+  const peakCap = start.maxPeak > 0 && base.peak <= start.maxPeak ? start.maxPeak : base.peak + 6;
+  const feasible = (r) => r.ok && (!(start.maxFootprint > 0) || r.footprint <= start.maxFootprint + 1e-9) && r.peak <= peakCap + 0.01;
+  const mopts = { products: true, keep };
+  // 1. Price every single move from your design.
+  const singles = moves(start, start, false, mopts).map((mv) => ({ mv, r: get(normalize({ ...start, ...mv.change })) }))
+    .filter((x) => feasible(x.r) && x.r.total < base.total - 0.5).sort((a, b) => a.r.total - b.r.total);
+  // 2. Apply them biggest saving first, one per group, keeping each only if it still saves.
+  let cur = base;
+  /** @type {{ label: string, saving: number }[]} */
+  const steps = [];
+  const used = new Set();
+  for (const { mv } of singles) {
+    if (used.has(mv.group)) continue;
+    const r = get(normalize({ ...cur.design, ...mv.change, ...(mv.group.startsWith('door') || mv.group === 'windows' ? { openings: mergeOpenings(cur.design.openings, mv.change.openings) } : {}) }));
+    if (!feasible(r) || r.total >= cur.total - 0.5) continue;
+    used.add(mv.group);
+    steps.push({ label: mv.label, saving: Math.round((cur.total - r.total) * 100) / 100 });
+    cur = r;
+  }
+  // 3. Polish: from there, the best remaining single move, until none saves.
+  for (let i = 0; i < 4; i++) {
+    let best = null;
+    for (const mv of moves(cur.design, start, false, mopts)) {
+      const r = get(normalize({ ...cur.design, ...mv.change }));
+      if (feasible(r) && r.total < (best ? best.r.total : cur.total) - 0.5) best = { r, mv };
+    }
+    if (!best) break;
+    steps.push({ label: best.mv.label, saving: Math.round((cur.total - best.r.total) * 100) / 100 });
+    cur = best.r;
+  }
+  // What the kept structure choices would save on top, each on its own.
+  const alsoKept = moves(cur.design, start, false, { products: true }).filter((mv) => Object.keys(mv.change).some((k) => keep.includes(k)))
+    .map((mv) => ({ label: mv.label, r: get(normalize({ ...cur.design, ...mv.change })) }))
+    .filter((x) => feasible(x.r) && x.r.total < cur.total - 0.5)
+    .map((x) => ({ label: x.label, saving: Math.round((cur.total - x.r.total) * 100) / 100, cuts: x.r.cuts }));
+  // Savings held back only by the height allowance, with the peak each would give.
+  const okButTall = (r) => r.ok && (!(start.maxFootprint > 0) || r.footprint <= start.maxFootprint + 1e-9) && r.peak > peakCap + 0.01;
+  const taller = moves(cur.design, start, false, mopts).map((mv) => ({ label: mv.label, r: get(normalize({ ...cur.design, ...mv.change })) }))
+    .filter((x) => okButTall(x.r) && x.r.total < cur.total - 0.5)
+    .map((x) => ({ label: x.label, saving: Math.round((cur.total - x.r.total) * 100) / 100, peak: x.r.peak }))
+    .sort((a, b) => b.saving - a.saving).slice(0, 4);
+  return { base, best: { ...cur, steps }, also: alsoKept, taller, peakCap, evaluated: cache.size, keep };
+}
+
+/** Openings from one move laid over another's: each opening keeps the latest product chosen for it. */
+function mergeOpenings(current, changed) {
+  return current.map((o) => {
+    const c = changed.find((x) => x.id === o.id);
+    return c && c.product !== o.product ? { ...o, product: c.product } : o;
+  });
 }
 
 function keyOf(d) { return JSON.stringify({ ...d, name: '' }); }

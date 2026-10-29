@@ -59,11 +59,11 @@ export function buildSheets(shed, marks = new Map()) {
     const ys = k.skidYs;
     for (let i = 0; i + 1 < ys.length; i++) items.push(dim([L, ys[i]], [L, ys[i + 1]], -34, fmtIn(ys[i + 1] - ys[i])));
     items.push(text([L / 2, W / 2 + 4], `${k.skidCount} skids, PT ${d.skidSize} on edge`, 12));
-    items.push(text([L / 2, W / 2 - 12], k.block ? `on ${k.blockCount} ${k.block.name}s` : 'on compacted gravel', 11));
+    items.push(text([L / 2, W / 2 - 12], k.block ? `on ${k.blockCount} ${k.block.plural}` : 'on compacted gravel', 11));
     items.push(text([L / 2, -12 - 4], 'FRONT', 10, 'middle', 'muted'));
     sheets.push({
       id: 'foundation', title: 'Foundation plan',
-      note: `Gravel pad 4" deep, 12" past the shed on every side: about ${k.gravelCuYd.toFixed(1)} cu yd. Skids ${fmtFtIn(L)} long at the centres shown. Level the pad${k.block ? ' and the blocks' : ''} before setting skids; check local rules on setbacks and permits.`,
+      note: `${k.underBlocks ? `A 4" bed of paver base under each block, 2" wider than the block all round (${k.baseBags} bags of 0.5 cu ft).` : `Gravel pad 4" deep, 12" past the shed on every side: about ${k.gravelCuYd.toFixed(1)} cu yd.`} Skids ${fmtFtIn(L)} long at the centres shown. Level the pad${k.block ? ' and the blocks' : ''} before setting skids; check local rules on setbacks and permits.`,
       items,
     });
   }
@@ -84,7 +84,7 @@ export function buildSheets(shed, marks = new Map()) {
     items.push(text([L / 2, -14], `${d.joistSize} joists at ${d.joistSpacing}" on centre, ${treatedNote}`, 11));
     sheets.push({
       id: 'floor', title: 'Floor framing plan',
-      note: `${c.length} joists ${fmtIn(W - 3)} long between two ${fmtFtIn(L)} rim joists; skids dashed below. 3/4" tongue-and-groove plywood laid across the joists, 8 ft edges staggered, glued and screwed.`,
+      note: `${c.length} joists ${fmtIn(W - 3)} long between two ${fmtFtIn(L)} rim joists; skids dashed below. ${d.floorPanel === 'OSB' ? '23/32" tongue-and-groove OSB' : '3/4" tongue-and-groove plywood'} laid across the joists, 8 ft edges staggered, glued and screwed.`,
       items,
     });
   }
@@ -352,7 +352,7 @@ export function buildSheets(shed, marks = new Map()) {
       items.push(rect(x0, y0, x0 + w, y0 + h, 'sheet'));
       items.push(text([x0 + w / 2, y0 + h / 2 - 3], `${fmtIn(w)} x ${fmtIn(h)}`, 8));
     }
-    items.push(text([L / 2, -14], 'FLOOR: 3/4" T&G plywood, 8 ft edges across the joists, end joints on joists', 9));
+    items.push(text([L / 2, -14], `FLOOR: ${d.floorPanel === 'OSB' ? '23/32" T&G OSB' : '3/4" T&G plywood'}, 8 ft edges across the joists, end joints on joists`, 9));
     const slope = k.slopeLen;
     const gap = 60;
     for (const side of ['front', 'back']) {
@@ -404,7 +404,7 @@ export function buildSheets(shed, marks = new Map()) {
     items.push(text([sx + 12, -9], 'SKID AND FLOOR EDGE', 9, 'middle', 'muted'));
     items.push(text([sx + 26, k.skidTop / 2], `PT ${d.skidSize} skid on ${k.block ? 'a block' : 'compacted gravel'}`, 7, 'start'));
     items.push(text([sx + 26, k.skidTop + k.joistDepth / 2], `PT ${d.joistSize} rim and joists, toenailed to the skid`, 7, 'start'));
-    items.push(text([sx + 26, k.floorTop + 1], '3/4" T&G plywood, glued and screwed', 7, 'start'));
+    items.push(text([sx + 26, k.floorTop + 1], `${d.floorPanel === 'OSB' ? '23/32" T&G OSB' : '3/4" T&G plywood'}, glued and screwed`, 7, 'start'));
     items.push(text([sx + 26, k.floorTop + 8], 'bottom plate nailed through into the rim; siding laps the rim', 7, 'start'));
     // Nailing schedule (typical; check local code and maker instructions).
     const rows = [
@@ -535,7 +535,7 @@ export function buildSheets(shed, marks = new Map()) {
     row('');
     row('DESIGN DATA', 9, 'muted');
     row(`Walls: ${d.studSize} at ${d.studSpacing}" o.c., ${fmtFtIn(d.wallHeight)} floor to top of plates (studs ${fmtIn(k.studLen)}), double top plate interlocked at corners.`);
-    row(`Floor: ${d.joistSize} joists at ${d.joistSpacing}" o.c. on ${k.skidCount} PT ${d.skidSize} skids, ${k.block ? `on ${k.block.name}s on a compacted gravel pad` : 'on a compacted gravel pad'}; 3/4" T&G plywood.`);
+    row(`Floor: ${d.joistSize} joists at ${d.joistSpacing}" o.c. on ${k.skidCount} PT ${d.skidSize} skids, ${k.block ? `on ${k.block.plural} on ${k.underBlocks ? 'a bed of paver base each' : 'a compacted gravel pad'}` : 'on a compacted gravel pad'}; ${d.floorPanel === 'OSB' ? '23/32" T&G OSB' : '3/4" T&G plywood'}.`);
     row(`Roof: ${d.rafterSize} rafters at ${d.rafterSpacing}" o.c., ${d.roofType === 'ridgeBeam' ? `two-ply ${k.ridgeSize} ridge beam on posts, no ties` : `${k.ridgeSize} ridge board with ${d.tieSize} rafter ties`}, ${fmtIn(d.overhang)} overhang; ${d.roofCover === 'metal' ? 'corrugated metal' : 'shingles'} on 7/16" OSB.`);
     row(`Siding: ${d.siding ? d.sidingType : 'none'}. Inside: ${d.interior === 'none' ? 'bare framing' : d.interior}${d.insulation ? ', R-13 insulation' : ''}.`);
     row(`Loads used for the strength checks: ${d.snowLoad} psf roof snow, ${d.windLoad} psf wind on the walls, 15 psf roof dead, 40 psf floor live.`);

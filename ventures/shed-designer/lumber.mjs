@@ -115,6 +115,8 @@ export function examplePrice(material, lengthFt) {
 /** Sheet goods and other items, also example prices to be replaced. */
 export const EXAMPLE_ITEMS = Object.freeze({
   floorSheet: { name: '3/4" tongue-and-groove plywood, 4x8', unit: 'sheet', price: 48 },
+  floorOSB: { name: '23/32" tongue-and-groove OSB subfloor, 4x8', unit: 'sheet', price: 36 },
+  paverBase: { name: 'Paver base, 0.5 cu ft bag (a 4" bed under each block)', unit: 'bag', price: 6 },
   roofSheet: { name: '7/16" OSB roof sheathing, 4x8', unit: 'sheet', price: 16 },
   siding8: { name: 'T1-11 siding panel, 4x8', unit: 'sheet', price: 52 },
   siding9: { name: 'T1-11 siding panel, 4x9', unit: 'sheet', price: 62 },

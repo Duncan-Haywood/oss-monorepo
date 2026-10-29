@@ -123,7 +123,8 @@ export function estimate(shed, prices = examplePrices()) {
   const label = (k) => /** @type {any} */ (EXAMPLE_ITEMS)[k].name;
   const floorSheets = sheetCount(shed.floorPieces);
   const roofSheets = sheetCount(shed.roofPieces);
-  line('Sheet goods', label('floorSheet'), floorSheets, 'sheet', item('floorSheet'), src('floorSheet'));
+  const floorKey = d.floorPanel === 'OSB' ? 'floorOSB' : 'floorSheet';
+  line('Sheet goods', label(floorKey), floorSheets, 'sheet', item(floorKey), src(floorKey));
   line('Sheet goods', label('roofSheet'), roofSheets, 'sheet', item('roofSheet'), src('roofSheet'));
   if (d.siding) {
     const area = shed.sidingArea ?? 0;
@@ -221,11 +222,12 @@ export function estimate(shed, prices = examplePrices()) {
     const p = Number(prices.items?.[`product:${pr.id}`] ?? pr.price);
     line('Doors and windows', pr.name, qty, 'each', p, sourceOf(p, { price: pr.price, url: pr.url, store: pr.store, seen: '2026-10-29', note: pr.note, kind: 'listed' }));
   }
-  line('Site prep', label('landscapeFabric'), Math.ceil((dims.padSqFt * 1.15) / 150), 'roll', item('landscapeFabric'), src('landscapeFabric'));
+  if (dims.padSqFt) line('Site prep', label('landscapeFabric'), Math.ceil((dims.padSqFt * 1.15) / 150), 'roll', item('landscapeFabric'), src('landscapeFabric'));
+  if (dims.baseBags) line('Site prep', label('paverBase'), dims.baseBags, 'bag', item('paverBase'), src('paverBase'));
   // Compact the pad in 2" lifts: a hand tamper does a shed pad; a rented plate compactor is faster on a big one.
   if (d.compaction === 'plate compactor') line('Site prep', label('plateCompactor'), 1, 'day', item('plateCompactor'), src('plateCompactor'));
   else line('Site prep', label('handTamper'), 1, 'each', item('handTamper'), src('handTamper'));
-  line('Site prep', label('gravelTon'), Math.ceil(dims.gravelCuYd * 1.4 * 10) / 10, 'ton', item('gravelTon'), src('gravelTon'));
+  if (dims.gravelCuYd) line('Site prep', label('gravelTon'), Math.ceil(dims.gravelCuYd * 1.4 * 10) / 10, 'ton', item('gravelTon'), src('gravelTon'));
   if (dims.block) line('Foundation and hardware', label(dims.block.item), dims.blockCount, 'each', item(dims.block.item), src(dims.block.item));
   const vents = Object.values(shed.vents || {}).reduce((t, v) => t + v.length, 0);
   line('Foundation and hardware', `${label('gableVent')}, ${d.ventWidth}" x ${d.ventHeight}"`, vents, 'each', item('gableVent'), src('gableVent'));
@@ -292,6 +294,23 @@ export function estimate(shed, prices = examplePrices()) {
 }
 
 /** @typedef {ReturnType<typeof estimate>} Estimate */
+
+/**
+ * Lumber cost of only some materials: what a search needs when a change can
+ * move only those materials (the rest cost the same either way).
+ * @param {Shed} shed @param {string[]} materials @param {Prices} [prices]
+ */
+export function lumberCostOf(shed, materials, prices = examplePrices()) {
+  const d = shed.design;
+  let cost = 0;
+  for (const material of materials) {
+    const pieces = shed.members.filter((m) => m.material === material).map((m) => ({ len: m.length, id: m.id, kind: m.kind }));
+    if (!pieces.length) continue;
+    const stocks = d.lengths.map((ft) => ({ length: ft * 12, price: Number(prices.lumber?.[material]?.[ft] ?? boardPrice(material, ft).price) }));
+    cost += optimizeCuts(pieces, stocks, d.kerf).cost;
+  }
+  return Math.round(cost * 100) / 100;
+}
 
 /** CSV of the cut sheet: one row per board, its cuts and its offcut. */
 export function cutSheetCsv(est) {
