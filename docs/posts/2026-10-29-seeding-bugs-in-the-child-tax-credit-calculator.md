@@ -2,7 +2,7 @@
 title: "We seeded 12 bugs in the child tax credit calculator; the tests caught 5"
 date: 2026-10-29
 tags: [child-tax-credit-calculator, testing]
-description: "A red-team run on the free Child Tax Credit calculator: the original suite caught 5 of 12 seeded faults, six new tests lifted that to 11 of 11 non-equivalent ones."
+description: "A red-team run on the free Child Tax Credit calculator: the suite caught 5 of 12 seeded faults; six new tests lifted that to every non-equivalent one."
 ---
 
 The free [Child Tax Credit calculator](https://duncan-haywood.github.io/oss-monorepo/) did the arithmetic right, but its tests only checked the numbers, not the explanatory notes a filer reads next to them. We seeded 12 small faults (a `>` turned into `>=`, an `&&` into `||`) into its calculation file. The suite caught 5.
