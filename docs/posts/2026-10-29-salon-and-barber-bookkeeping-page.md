@@ -1,7 +1,7 @@
 ---
 title: "A bookkeeping page for hair salons and barbers"
 date: 2026-10-29
-description: "ai-bookkeeper gets a worked September for a stylist: Square deposits, supplies, licence and insurance filed from a bank CSV, one unplaceable line left for you."
+description: "ai-bookkeeper gets a worked September for a stylist: Square deposits, supplies, licence and insurance filed from a bank CSV, one unplaced line left for you."
 tags: [ai-bookkeeper, small-business, bookkeeping]
 ---
 
