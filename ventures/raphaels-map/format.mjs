@@ -153,7 +153,7 @@ export function vintageLine(countyObs, sources) {
   return 'Data vintage not loaded yet';
 }
 
-/** @param {string} label @param {string} text */
+/** @param {string} text */
 export function vintageHtml(text) {
   return `<p class="vintage"><span class="vintage-k">Data vintage</span> ${esc(text)}</p>`;
 }

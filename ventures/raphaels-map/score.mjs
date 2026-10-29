@@ -187,7 +187,7 @@ export function computeDimensions(input) {
     const dimOut = {};
     for (const d of dims) {
       const parts = comps[d].map((c) => {
-        const o = observations[id] && observations[id][c.metric];
+        const o = /** @type {{e?: number, moe?: number, flags?: string[]} | undefined} */ (observations[id] && observations[id][c.metric]);
         return { metric: c.metric, scale: c.scale, weight: c.weight, value: o && finite(o.e) ? o.e : null, moe: o && finite(o.moe) ? o.moe : null, flags: (o && o.flags) || [], norm: norm[d][c.metric][i] };
       });
       const avail = parts.filter((p) => p.norm !== null);
