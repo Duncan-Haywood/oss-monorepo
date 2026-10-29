@@ -1,6 +1,6 @@
 ---
 title: "The Hall with the Doors Shut: a wildfire-smoke story and the sum behind it"
-seo_title: "How much do box-fan air filters cut wildfire smoke indoors? A worked story"
+seo_title: "The Hall with the Doors Shut: a wildfire smoke story"
 date: 2026-10-29
 description: "A new Hearth & Horizon story: a parish hall in smoke, four then eight filter boxes, and why one propped door costs a factor of three."
 tags: [hearth-and-horizon, fiction, wildfire-smoke]
