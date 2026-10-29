@@ -42,7 +42,9 @@
     }
   ],
   "deviations": [],
-  "writeups": "none: reduced scheduled pass, no post (experiments.md E109 only)",
+  "writeups": [
+    "prompts/experiments.md"
+  ],
   "goal": null,
   "notes": "Reduced pass: steps 1 (derive fetch/build, friction section), 7, 8 and one step-5 fix. No audit or drift report. validate ok.",
   "corrections": [],
