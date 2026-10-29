@@ -18,12 +18,13 @@
       "city": "Denver",
       "state": "CO",
       "public_url": "https://archden.org/eflm/dcya/",
-      "verified_at": null,
-      "verification": "listed_from_search",
+      "verified_at": "2026-10-29",
+      "verification": "fetched_official_page",
       "ministry": "Archdiocesan young adult network and monthly event email",
       "age_scope_published": null,
       "public_event_frequency": null,
-      "notes": "Search result (archden.org page titled 'Denver Catholic Young Adults') described it as a hub for young adult events and ministries, aimed at young adults in their late teens, 20s and 30s, married or single, with a monthly Flocknote email of parish events. Age wording is from the search summary, not a fetched page, so age_scope_published is left null. Diocese-wide office: geo_id is null on purpose so it is not counted as a venue in any one county."
+      "notes": "Search result (archden.org page titled 'Denver Catholic Young Adults') described it as a hub for young adult events and ministries, aimed at young adults in their late teens, 20s and 30s, married or single, with a monthly Flocknote email of parish events. Age wording is from the search summary, not a fetched page, so age_scope_published is left null. Diocese-wide office: geo_id is null on purpose so it is not counted as a venue in any one county.",
+      "verified_title": "Denver Catholic Young Adults - Evangelization and Family Life Ministries"
     },
     {
       "id": "co-denver-cathedral-corda",
@@ -34,12 +35,13 @@
       "city": "Denver",
       "state": "CO",
       "public_url": "https://www.denvercathedral.org/young-adults/",
-      "verified_at": null,
-      "verification": "listed_from_search",
+      "verified_at": "2026-10-29",
+      "verification": "fetched_official_page",
       "ministry": "Parish young adult event series",
       "age_scope_published": null,
       "public_event_frequency": null,
-      "notes": "Search result for denvercathedral.org/young-adults described CORDA as the cathedral's young adult series (summary said intended for adults 18 to 30s) with swing dance, trivia and 'Pints with a Priest' nights during the academic year; the page referenced a 2024-25 season, so the schedule may have changed."
+      "notes": "Search result for denvercathedral.org/young-adults described CORDA as the cathedral's young adult series (summary said intended for adults 18 to 30s) with swing dance, trivia and 'Pints with a Priest' nights during the academic year; the page referenced a 2024-25 season, so the schedule may have changed.",
+      "verified_title": "Young Adults | Cathedral Basilica"
     },
     {
       "id": "co-denver-st-dominic-ya",
@@ -55,7 +57,8 @@
       "ministry": "Parish young adult group",
       "age_scope_published": null,
       "public_event_frequency": null,
-      "notes": "Search result for the parish's young-adults page described a group for people in their 20s, 30s and 40s, a philosophy and theology study group, and monthly evenings of adoration and confession."
+      "notes": "Search result for the parish's young-adults page described a group for people in their 20s, 30s and 40s, a philosophy and theology study group, and monthly evenings of adoration and confession.",
+      "link_status": "404 on 2026-10-29"
     },
     {
       "id": "co-denver-du-csf",
@@ -66,12 +69,13 @@
       "city": "Denver",
       "state": "CO",
       "public_url": "https://crimsonconnect.du.edu/csf/home/",
-      "verified_at": null,
-      "verification": "listed_from_search",
+      "verified_at": "2026-10-29",
+      "verification": "fetched_official_page",
       "ministry": "Catholic campus ministry (university-affiliated)",
       "age_scope_published": null,
       "public_event_frequency": null,
-      "notes": "Search result described Catholic Student Fellowship as the Catholic community on the University of Denver campus, run with a religious order that provides campus ministry; activities listed included Sunday night Mass and suppers, Bible studies and retreats. Eligibility appears tied to the university."
+      "notes": "Search result described Catholic Student Fellowship as the Catholic community on the University of Denver campus, run with a religious order that provides campus ministry; activities listed included Sunday night Mass and suppers, Bible studies and retreats. Eligibility appears tied to the university.",
+      "verified_title": "Home - Catholic Student Fellowship | University of Denver"
     },
     {
       "id": "co-golden-mines-catholic",
@@ -87,7 +91,8 @@
       "ministry": "Catholic campus ministry (university-affiliated)",
       "age_scope_published": null,
       "public_event_frequency": null,
-      "notes": "Search result for the ministry's own page described a student-led Catholic ministry with Sunday evening Mass on campus, weekly adoration and social events; other listings showed different times, so check the page."
+      "notes": "Search result for the ministry's own page described a student-led Catholic ministry with Sunday evening Mass on campus, weekly adoration and social events; other listings showed different times, so check the page.",
+      "link_status": "404 on 2026-10-29"
     },
     {
       "id": "co-littleton-olmc-fssp",
@@ -103,7 +108,8 @@
       "ministry": "Personal parish offering the Traditional Latin Mass",
       "age_scope_published": null,
       "public_event_frequency": null,
-      "notes": "Search result for the Fraternity's apostolate page and directory listings described a personal parish of the Archdiocese of Denver at a Littleton street address offering the Traditional Latin Mass for the greater Denver area; the parish's own site was given as olmcfssp.org. No young adult group was named in the results. Littleton spans more than one county, so geo_id is null for the pipeline to join."
+      "notes": "Search result for the Fraternity's apostolate page and directory listings described a personal parish of the Archdiocese of Denver at a Littleton street address offering the Traditional Latin Mass for the greater Denver area; the parish's own site was given as olmcfssp.org. No young adult group was named in the results. Littleton spans more than one county, so geo_id is null for the pipeline to join.",
+      "link_status": "202 on 2026-10-29 (not readable by the checker)"
     },
     {
       "id": "co-boulder-st-thomas-aquinas",
@@ -114,12 +120,13 @@
       "city": "Boulder",
       "state": "CO",
       "public_url": "https://thomascenter.org/",
-      "verified_at": null,
-      "verification": "listed_from_search",
+      "verified_at": "2026-10-29",
+      "verification": "fetched_official_page",
       "ministry": "Catholic university ministry and parish serving CU Boulder",
       "age_scope_published": null,
       "public_event_frequency": null,
-      "notes": "The URL is the website a Mass-times directory and a Newman Connection listing gave for the center; it did not appear as a search result itself. News coverage (2023) described it as the Catholic university ministry and parish serving the University of Colorado Boulder, with student suppers, Bible studies and retreats. Directory listings disagreed on the street address."
+      "notes": "The URL is the website a Mass-times directory and a Newman Connection listing gave for the center; it did not appear as a search result itself. News coverage (2023) described it as the Catholic university ministry and parish serving the University of Colorado Boulder, with student suppers, Bible studies and retreats. Directory listings disagreed on the street address.",
+      "verified_title": "St. Thomas Aquinas Catholic Center"
     },
     {
       "id": "co-fort-collins-st-john-xxiii",
@@ -130,12 +137,13 @@
       "city": "Fort Collins",
       "state": "CO",
       "public_url": "https://saintjohn.church/",
-      "verified_at": null,
-      "verification": "listed_from_search",
+      "verified_at": "2026-10-29",
+      "verification": "fetched_official_page",
       "ministry": "University parish and campus ministry for Colorado State University",
       "age_scope_published": null,
       "public_event_frequency": null,
-      "notes": "Search results for saintjohn.church described a parish across from the Colorado State University campus whose main focus is CSU students, and which calls itself a 'landing pad' to the graduate student and young professional community in Fort Collins. A Newman Connection listing said its groups welcome Fort Collins Catholic young adults."
+      "notes": "Search results for saintjohn.church described a parish across from the Colorado State University campus whose main focus is CSU students, and which calls itself a 'landing pad' to the graduate student and young professional community in Fort Collins. A Newman Connection listing said its groups welcome Fort Collins Catholic young adults.",
+      "verified_title": "Saint John XXIII Catholic Church | RamCatholic | 1220 University Avenue, Fort Collins, CO, USA"
     },
     {
       "id": "co-colorado-springs-diocese-yam",
@@ -151,7 +159,8 @@
       "ministry": "Diocesan young adult office",
       "age_scope_published": null,
       "public_event_frequency": null,
-      "notes": "Search result for this page (titled 'Young Adult Ministry Late Teens 20s and 30s') said annual programming includes about 12 to 15 events a month: Bible studies, retreats, Mass, adoration, outings, service and speakers. Age wording is from the page title as shown in search, not a fetched page. Diocese-wide office: geo_id is null on purpose so it is not counted as a venue in any one county."
+      "notes": "Search result for this page (titled 'Young Adult Ministry Late Teens 20s and 30s') said annual programming includes about 12 to 15 events a month: Bible studies, retreats, Mass, adoration, outings, service and speakers. Age wording is from the page title as shown in search, not a fetched page. Diocese-wide office: geo_id is null on purpose so it is not counted as a venue in any one county.",
+      "link_status": "403 on 2026-10-29 (not readable by the checker)"
     },
     {
       "id": "co-colorado-springs-mountain-lion-catholic",
@@ -167,7 +176,8 @@
       "ministry": "Catholic campus ministry for the University of Colorado Colorado Springs",
       "age_scope_published": null,
       "public_event_frequency": null,
-      "notes": "Named on the Diocese of Colorado Springs ministries page in search results as the campus ministry for college-age students, meeting on campus or at a Newman Catholic Student Center next to UCCS. A search for its own page found none, so the URL is the diocese's listing."
+      "notes": "Named on the Diocese of Colorado Springs ministries page in search results as the campus ministry for college-age students, meeting on campus or at a Newman Catholic Student Center next to UCCS. A search for its own page found none, so the URL is the diocese's listing.",
+      "link_status": "403 on 2026-10-29 (not readable by the checker)"
     },
     {
       "id": "co-colorado-springs-immaculate-conception-fssp",
@@ -183,7 +193,8 @@
       "ministry": "Parish offering the Traditional Latin Mass daily",
       "age_scope_published": null,
       "public_event_frequency": null,
-      "notes": "Search result for the Fraternity's apostolate page described the only parish in the Diocese of Colorado Springs offering the Traditional Latin Mass and sacraments daily. Two directories gave different Mass schedules. Not to be confused with a separate Colorado Springs group the diocese has said is not in communion with the Church. No young adult group was named in the results."
+      "notes": "Search result for the Fraternity's apostolate page described the only parish in the Diocese of Colorado Springs offering the Traditional Latin Mass and sacraments daily. Two directories gave different Mass schedules. Not to be confused with a separate Colorado Springs group the diocese has said is not in communion with the Church. No young adult group was named in the results.",
+      "link_status": "202 on 2026-10-29 (not readable by the checker)"
     },
     {
       "id": "il-chicago-old-st-pats-encounter",
@@ -194,12 +205,13 @@
       "city": "Chicago",
       "state": "IL",
       "public_url": "https://www.oldstpats.org/encounter.html",
-      "verified_at": null,
-      "verification": "listed_from_search",
+      "verified_at": "2026-10-29",
+      "verification": "fetched_official_page",
       "ministry": "Parish young adult community",
       "age_scope_published": null,
       "public_event_frequency": null,
-      "notes": "Search result for the parish's Encounter page described a community for young singles and couples; a 2026 job posting for its director described the ministry as serving adults under 40 in the West Loop."
+      "notes": "Search result for the parish's Encounter page described a community for young singles and couples; a 2026 job posting for its director described the ministry as serving adults under 40 in the West Loop.",
+      "verified_title": "Encounter - OLD ST. PATRICK'S CHURCH"
     },
     {
       "id": "ny-archny-young-catholics",
@@ -210,12 +222,13 @@
       "city": "New York",
       "state": "NY",
       "public_url": "https://www.archny.org/young-catholics",
-      "verified_at": null,
-      "verification": "listed_from_search",
+      "verified_at": "2026-10-29",
+      "verification": "fetched_official_page",
       "ministry": "Archdiocesan young adult office",
       "age_scope_published": null,
       "public_event_frequency": "monthly Young Adult Mass (per search result)",
-      "notes": "Search results said the office supports parish and campus young adult ministry across the archdiocese and helps run a monthly Young Adult Mass at St. Patrick's Cathedral; the summary said its site lists young adults as ages 18 to 35. Diocese-wide office: geo_id is null on purpose so it is not counted as a venue in any one county."
+      "notes": "Search results said the office supports parish and campus young adult ministry across the archdiocese and helps run a monthly Young Adult Mass at St. Patrick's Cathedral; the summary said its site lists young adults as ages 18 to 35. Diocese-wide office: geo_id is null on purpose so it is not counted as a venue in any one county.",
+      "verified_title": "Youth Ministry & Young Adult Ministry & the University Apostolate - Archdiocese of New York - Archdiocese of New York"
     },
     {
       "id": "dc-adw-young-adult",
@@ -226,12 +239,13 @@
       "city": "Washington",
       "state": "DC",
       "public_url": "https://adw.org/?p=334",
-      "verified_at": null,
-      "verification": "listed_from_search",
+      "verified_at": "2026-10-29",
+      "verification": "fetched_official_page",
       "ministry": "Archdiocesan young adult office",
       "age_scope_published": null,
       "public_event_frequency": null,
-      "notes": "Search results described the archdiocese's Young Adult and Campus Ministry page and an office that supports more than 25 parish and regional young adult communities; a donation listing gave an office address in Hyattsville, Maryland. Diocese-wide office: geo_id is null on purpose so it is not counted as a venue in any one county."
+      "notes": "Search results described the archdiocese's Young Adult and Campus Ministry page and an office that supports more than 25 parish and regional young adult communities; a donation listing gave an office address in Hyattsville, Maryland. Diocese-wide office: geo_id is null on purpose so it is not counted as a venue in any one county.",
+      "verified_title": "Young Adult and Campus Ministry - Archdiocese of Washington"
     },
     {
       "id": "mn-archspm-young-adults",
@@ -242,12 +256,13 @@
       "city": "Saint Paul",
       "state": "MN",
       "public_url": "https://www.archspm.org/young-adults/",
-      "verified_at": null,
-      "verification": "listed_from_search",
+      "verified_at": "2026-10-29",
+      "verification": "fetched_official_page",
       "ministry": "Archdiocesan young adult page and small-group directory",
       "age_scope_published": null,
       "public_event_frequency": null,
-      "notes": "Search result for the archdiocese's young-adults page described small groups, retreats and a list of parish and regional groups, including Basilica Young Adults and a university Newman center. Diocese-wide office: geo_id is null on purpose so it is not counted as a venue in any one county."
+      "notes": "Search result for the archdiocese's young-adults page described small groups, retreats and a list of parish and regional groups, including Basilica Young Adults and a university Newman center. Diocese-wide office: geo_id is null on purpose so it is not counted as a venue in any one county.",
+      "verified_title": "Young Adults - Archdiocese of Saint Paul and Minneapolis"
     },
     {
       "id": "mn-minneapolis-basilica-young-adults",
@@ -258,12 +273,13 @@
       "city": "Minneapolis",
       "state": "MN",
       "public_url": "https://mary.org/bya/",
-      "verified_at": null,
-      "verification": "listed_from_search",
+      "verified_at": "2026-10-29",
+      "verification": "fetched_official_page",
       "ministry": "Parish young adult group",
       "age_scope_published": null,
       "public_event_frequency": null,
-      "notes": "Search result title for the parish page read 'Basilica Young Adults (BYA) Faith, fun, & service for people in their 20s and 30s'; the summary said single and married young adults gather for social, learning, spiritual and service events. A 2024 to 2027 renovation was reported."
+      "notes": "Search result title for the parish page read 'Basilica Young Adults (BYA) Faith, fun, & service for people in their 20s and 30s'; the summary said single and married young adults gather for social, learning, spiritual and service events. A 2024 to 2027 renovation was reported.",
+      "verified_title": "Basilica Young Adults (BYA) | The Basilica of Saint Mary"
     },
     {
       "id": "mn-st-paul-cathedral-young-adults",
@@ -279,7 +295,8 @@
       "ministry": "Parish young adult group",
       "age_scope_published": null,
       "public_event_frequency": null,
-      "notes": "The URL is the one two Newman Connection listings gave for the group's calendar; it did not appear as a search result itself. Those listings described a group for young adults 18 to 39 with Bible study, a speaker series, sports nights and prayer, open to Catholics and non-Catholics."
+      "notes": "The URL is the one two Newman Connection listings gave for the group's calendar; it did not appear as a search result itself. Those listings described a group for young adults 18 to 39 with Bible study, a speaker series, sports nights and prayer, open to Catholics and non-Catholics.",
+      "link_status": "403 on 2026-10-29 (not readable by the checker)"
     },
     {
       "id": "wa-archseattle-young-adults",
@@ -290,12 +307,13 @@
       "city": "Seattle",
       "state": "WA",
       "public_url": "https://archseattle.org/living-catholic/young-adults",
-      "verified_at": null,
-      "verification": "listed_from_search",
+      "verified_at": "2026-10-29",
+      "verification": "fetched_official_page",
       "ministry": "Archdiocesan young adult office and regional group list",
       "age_scope_published": null,
       "public_event_frequency": null,
-      "notes": "Search result for this page described a ministry for young adults 18 to 39 with Theology on Tap, retreats, a Holy Thursday pilgrimage and sports, plus regional lists of parish young adult groups. Diocese-wide office: geo_id is null on purpose so it is not counted as a venue in any one county."
+      "notes": "Search result for this page described a ministry for young adults 18 to 39 with Theology on Tap, retreats, a Holy Thursday pilgrimage and sports, plus regional lists of parish young adult groups. Diocese-wide office: geo_id is null on purpose so it is not counted as a venue in any one county.",
+      "verified_title": "Young Adults | Archdiocese of Seattle"
     },
     {
       "id": "tx-dallas-oyyacm-the-635",
@@ -306,12 +324,13 @@
       "city": "Dallas",
       "state": "TX",
       "public_url": "https://dallascatholic.org/youth-young-adult-campus-ministries/",
-      "verified_at": null,
-      "verification": "listed_from_search",
+      "verified_at": "2026-10-29",
+      "verification": "fetched_official_page",
       "ministry": "Diocesan office; hosts The 635 young adult gathering",
       "age_scope_published": null,
       "public_event_frequency": "quarterly (The 635, per search result)",
-      "notes": "Search results (diocesan page and Texas Catholic reports) described The 635 as a diocese-wide young adult event hosted quarterly by this office at public venues around the Dallas area. Diocese-wide office: geo_id is null on purpose so it is not counted as a venue in any one county."
+      "notes": "Search results (diocesan page and Texas Catholic reports) described The 635 as a diocese-wide young adult event hosted quarterly by this office at public venues around the Dallas area. Diocese-wide office: geo_id is null on purpose so it is not counted as a venue in any one county.",
+      "verified_title": "Youth, Young Adult, & Campus Ministries - Catholic Diocese of Dallas"
     },
     {
       "id": "ga-archatl-young-adults",
@@ -322,12 +341,13 @@
       "city": "Atlanta",
       "state": "GA",
       "public_url": "https://resources.archatl.com/?p=5705",
-      "verified_at": null,
-      "verification": "listed_from_search",
+      "verified_at": "2026-10-29",
+      "verification": "fetched_official_page",
       "ministry": "Archdiocesan young adult office",
       "age_scope_published": null,
       "public_event_frequency": null,
-      "notes": "Search result for this archdiocesan resource page ('Serving Young Adults in Our Community') said campus and young adult ministries serve people ages 18 to 39; a 2020 memo named a hub called Generation ATL. Sources were dated. Diocese-wide office: geo_id is null on purpose so it is not counted as a venue in any one county."
+      "notes": "Search result for this archdiocesan resource page ('Serving Young Adults in Our Community') said campus and young adult ministries serve people ages 18 to 39; a 2020 memo named a hub called Generation ATL. Sources were dated. Diocese-wide office: geo_id is null on purpose so it is not counted as a venue in any one county.",
+      "verified_title": "Young Adults – Resources.archatl.com"
     },
     {
       "id": "az-tempe-asu-all-saints-newman",
@@ -338,12 +358,13 @@
       "city": "Tempe",
       "state": "AZ",
       "public_url": "https://asucatholic.org/campus-ministry",
-      "verified_at": null,
-      "verification": "listed_from_search",
+      "verified_at": "2026-10-29",
+      "verification": "fetched_official_page",
       "ministry": "Catholic campus ministry (university-affiliated)",
       "age_scope_published": null,
       "public_event_frequency": null,
-      "notes": "Search result for the center's own site described it as the hub for Catholic life on ASU's Tempe campus with weekly Mass, retreats, small groups and social events. Listings disagreed on the street address."
+      "notes": "Search result for the center's own site described it as the hub for Catholic life on ASU's Tempe campus with weekly Mass, retreats, small groups and social events. Listings disagreed on the street address.",
+      "verified_title": "Campus Ministry - Turning (Sun) Devils into Saints at ASU - All Saints Catholic Newman Center, Tempe, AZ"
     }
   ]
 }

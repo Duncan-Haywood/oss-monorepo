@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Raphael's Map: where to look for marriage-minded Catholic community, from public data</title>
+  <meta name="description" content="A free research tool for Catholic singles: compare U.S. counties on public American Community Survey demographics, the U.S. Religion Census and publicly listed Catholic venues. Research priorities, not predictions; it never profiles individuals. Runs in your browser.">
+  <link rel="canonical" href="https://duncan-haywood.github.io/oss-monorepo/raphaels-map/index.html">
+  <meta name="color-scheme" content="light dark">
+  <link rel="stylesheet" href="style.css">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "name": "Raphael's Map", "applicationCategory": "ReferenceApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Compare U.S. counties on public aggregates (American Community Survey demographics, the 2020 U.S. Religion Census, publicly listed Catholic venues and national survey estimates) to choose where to look further for marriage-minded Catholic community. Shows sources, margins of error and missing data; never profiles individuals."}</script>
+  <script type="module" src="app.mjs"></script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site">
+    <div class="brand">
+      <h1><a href="#home">Raphael's Map</a></h1>
+      <p class="tagline">Public data on <em>where</em> a Catholic single might meet marriage-minded Catholics. Places, never people.</p>
+    </div>
+    <nav id="nav" aria-label="Views">
+      <a href="#home" data-view="home">Home</a>
+      <a href="#explore" data-view="explore">Explore map</a>
+      <a href="#compare" data-view="compare">Compare</a>
+      <a href="#rank" data-view="rank">Rank</a>
+      <a href="#surveys" data-view="surveys">Surveys</a>
+      <a href="#communities" data-view="communities">Communities</a>
+      <a href="#toolkit" data-view="toolkit">Toolkit</a>
+      <a href="#methodology" data-view="methodology">Methodology</a>
+      <a href="#intl" data-view="intl">International</a>
+    </nav>
+  </header>
+  <div id="synthetic-banner" class="synthetic" role="alert" hidden></div>
+  <main id="main">
+    <div id="app-root">
+      <section id="view-home" aria-label="Home"></section>
+      <section id="view-explore" aria-label="Explore map" hidden></section>
+      <section id="view-compare" aria-label="Compare" hidden></section>
+      <section id="view-rank" aria-label="Rank" hidden></section>
+      <section id="view-surveys" aria-label="Surveys" hidden></section>
+      <section id="view-communities" aria-label="Communities" hidden></section>
+      <section id="view-toolkit" aria-label="Toolkit" hidden></section>
+      <section id="view-methodology" aria-label="Methodology" hidden></section>
+      <section id="view-intl" aria-label="International" hidden></section>
+    </div>
+    <noscript><p class="empty">Raphael's Map runs in your browser and needs JavaScript. The <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/raphaels-map/data">published data files</a> can be read without it.</p></noscript>
+  </main>
+  <footer class="site">
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, financial, relationship, religious or professional advice, and it does not replace a qualified professional, your priest or a spiritual director. Rankings are exploratory research priorities built from public aggregates; they say nothing about any individual. <strong>You are responsible for reviewing and verifying what it shows before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This is free and experimental and may be slow, broken, moved or taken offline without notice. Export anything you want to keep.</p>
+    <p><strong>Privacy.</strong> Everything runs in your browser; nothing you choose is uploaded, and there are no accounts, cookies or analytics vendors. Your preferences (age band, weights, mode, origin and radius, shortlist) stay in this browser's local storage. We count anonymous feature events (which views and buttons get used, nothing about who) only in local storage on your device; Do Not Track and Global Privacy Control are honoured. <button type="button" id="usage-optout" class="link">Turn anonymous counting off</button></p>
+    <p>Free and open source under the MIT licence: <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/raphaels-map" rel="noopener">code and pipeline</a> · <a href="for-catholic-singles.html">Who this is for</a> · <a href="llms.txt">llms.txt</a> · <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Sponsor</a> (optional; it never changes what the tool shows).</p>
+  </footer>
+</body>
+</html>

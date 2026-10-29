@@ -1,0 +1,404 @@
+{
+ "sources": [
+  {
+   "id": "wpp2024",
+   "title": "World Population Prospects 2024, demographic indicators (medium variant)",
+   "provider": "United Nations, Department of Economic and Social Affairs, Population Division",
+   "landing_url": "https://population.un.org/wpp/",
+   "dataset_version": "WPP 2024",
+   "reference_period": "1990-2030 (estimates to 2023, projections after)",
+   "retrieved_at": "2026-10-29T09:43:54+00:00",
+   "license": "CC BY 3.0 IGO (UN WPP terms of use)",
+   "access": "public download",
+   "status": "ingested",
+   "files": [
+    {
+     "url": "https://population.un.org/wpp/assets/Excel%20Files/1_Indicator%20(Standard)/CSV_FILES/WPP2024_Demographic_Indicators_Medium.csv.gz",
+     "sha256": "1b04ff65efd285826e12f821b7479e8811a9fcdebcbb0fe78780c74b1591189f"
+    }
+   ],
+   "citation": "United Nations, Department of Economic and Social Affairs, Population Division (2024). World Population Prospects 2024.",
+   "notes": "Population columns are published in thousands; multiplied by 1,000 here. The file has no age-by-sex detail. WPP note codes kept per country as wpp_note_code (ESP 25, USA 32); their text is in the WPP notes table, not fetched."
+  },
+  {
+   "id": "worldbank",
+   "title": "World Development Indicators: SP.DYN.TFRT.IN, SP.POP.TOTL",
+   "provider": "World Bank",
+   "landing_url": "https://data.worldbank.org/",
+   "dataset_version": "API lastupdated 2026-10-08",
+   "reference_period": "1990-2025",
+   "retrieved_at": "2026-10-29T09:43:54+00:00",
+   "license": "CC BY 4.0",
+   "access": "public API",
+   "status": "ingested",
+   "files": [
+    {
+     "url": "https://api.worldbank.org/v2/country/USA;POL;ESP;PRT;DEU;HRV;SVK;HUN;PHL;MEX;COL;PER;BRA;ARG;KOR;VNM;ITA;CHL;GTM;CRI;AUT;IRL/indicator/SP.DYN.TFRT.IN?format=json&per_page=20000&date=1990:2025",
+     "sha256": "1bf49b9ac95d6492a458bb259c125d3ebab2d7ab630cc6a45671ad0bb8ca9f67"
+    },
+    {
+     "url": "https://api.worldbank.org/v2/country/USA;POL;ESP;PRT;DEU;HRV;SVK;HUN;PHL;MEX;COL;PER;BRA;ARG;KOR;VNM;ITA;CHL;GTM;CRI;AUT;IRL/indicator/SP.POP.TOTL?format=json&per_page=20000&date=1990:2025",
+     "sha256": "30e513af66cd80b5674df32b0a1703b5740b482941c0f32f553130e3544d92f6"
+    }
+   ],
+   "citation": "World Bank, World Development Indicators.",
+   "notes": "Cross-check only. WDI fertility and population for many countries draw on UN WPP and national statistics, so agreement is not independent confirmation."
+  },
+  {
+   "id": "eurostat",
+   "title": "Eurostat divorce indicators (demo_ndivind) and marriage indicators (demo_nind)",
+   "provider": "Eurostat",
+   "landing_url": "https://ec.europa.eu/eurostat/databrowser/view/demo_ndivind/default/table?lang=en",
+   "dataset_version": "demo_ndivind updated 2026-04-09T23:00:00+0200; demo_nind updated 2026-04-30T23:00:00+0200",
+   "reference_period": "1960-2024 (varies by country)",
+   "retrieved_at": "2026-10-29T09:43:56+00:00",
+   "license": "Eurostat reuse policy (CC BY 4.0)",
+   "access": "public API",
+   "status": "ingested",
+   "files": [
+    {
+     "url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/demo_ndivind?format=JSON&lang=EN",
+     "sha256": "cb31ddd21616ee51f436fd2b94341f6b1dd5a569f28b27fc528b917011d1e77f"
+    },
+    {
+     "url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/demo_nind?format=JSON&lang=EN",
+     "sha256": "1deaeefc267c110fab27854b6ce8cedbb53adb887795078c40e549fe1c3e3d1d"
+    }
+   ],
+   "citation": "Eurostat, demo_ndivind and demo_nind, doi:10.2908/DEMO_NDIVIND, doi:10.2908/DEMO_NIND.",
+   "notes": "EU/EFTA reporting countries only. Status codes (p provisional, e estimated, b break in series, i imputed) kept per value. Divorces in the year per 1,000 average population (all ages). Not the probability that a marriage ends in divorce; depends on how many people are married, on law and on registration."
+  },
+  {
+   "id": "issp2022",
+   "title": "ISSP 2022: Family and Changing Gender Roles V",
+   "provider": "International Social Survey Programme / GESIS",
+   "landing_url": "https://www.gesis.org/en/issp/data-and-documentation/family-and-changing-gender-roles/2022",
+   "dataset_version": null,
+   "reference_period": "fieldwork years vary by country",
+   "retrieved_at": null,
+   "license": "GESIS data use terms; registration required; respondent-level file must not be redistributed",
+   "access": "registration required; user-supplied file via pipeline/import_issp.py",
+   "status": "gated",
+   "files": [],
+   "citation": "ISSP Research Group, International Social Survey Programme: Family and Changing Gender Roles V - ISSP 2022 (GESIS). Cite the exact version and DOI of the file you import.",
+   "notes": "SPEC 4 lists US, Poland, Spain, Germany, Croatia, Slovakia and Philippines among participants; confirm on import."
+  },
+  {
+   "id": "issp_family_waves",
+   "title": "ISSP Family and Changing Gender Roles, earlier waves",
+   "provider": "International Social Survey Programme / GESIS",
+   "landing_url": "https://www.gesis.org/en/issp/data-and-documentation/family-and-changing-gender-roles",
+   "dataset_version": null,
+   "reference_period": "1988, 1994, 2002, 2012",
+   "retrieved_at": null,
+   "license": "GESIS data use terms; registration required",
+   "access": "registration required; no importer yet",
+   "status": "gated",
+   "files": [],
+   "citation": "ISSP Research Group (GESIS). Cite the wave and DOI.",
+   "notes": "Older data are historical, not current estimates (SPEC 4, 6.2)."
+  },
+  {
+   "id": "evs_wvs_2017_2022",
+   "title": "Joint EVS/WVS 2017-2022 dataset",
+   "provider": "European Values Study / World Values Survey Association (GESIS)",
+   "landing_url": "https://www.gesis.org/en/european-values-study/data-and-documentation/joint-evs/wvs-2017-2022-dataset",
+   "dataset_version": null,
+   "reference_period": "2017-2022",
+   "retrieved_at": null,
+   "license": "EVS/WVS terms of use; registration required; respondent-level file must not be redistributed",
+   "access": "registration required (GESIS, or the WVS site https://www.worldvaluessurvey.org/WVSEVSjoint2017.jsp); user-supplied file via pipeline/import_wvs_evs.py",
+   "status": "gated",
+   "files": [],
+   "citation": "EVS/WVS (2022). Joint EVS/WVS 2017-2022 Dataset. Cite the exact version and DOI.",
+   "notes": "Variable availability differs by country and survey."
+  },
+  {
+   "id": "latinobarometro2024",
+   "title": "Latinobarometro 2024",
+   "provider": "Corporacion Latinobarometro",
+   "landing_url": "https://www.latinobarometro.org/latinobarometro-2024",
+   "dataset_version": null,
+   "reference_period": "2024",
+   "retrieved_at": null,
+   "license": "Latinobarometro terms; registration required",
+   "access": "registration required; no importer yet",
+   "status": "gated",
+   "files": [],
+   "citation": "Corporacion Latinobarometro, Latinobarometro 2024.",
+   "notes": "18 Latin American territories; check the 2024 questionnaire wording before use."
+  },
+  {
+   "id": "dhs",
+   "title": "Demographic and Health Surveys",
+   "provider": "The DHS Program (ICF, USAID-funded)",
+   "landing_url": "https://dhsprogram.com/data/",
+   "dataset_version": null,
+   "reference_period": "varies by country wave",
+   "retrieved_at": null,
+   "license": "DHS data use terms; account and project approval required",
+   "access": "account and per-project permission; no importer yet",
+   "status": "gated",
+   "files": [],
+   "citation": "The DHS Program. Cite the country survey and recode.",
+   "notes": "Ideal number of children (V613) where a country wave exists; not all countries."
+  }
+ ],
+ "metrics": [
+  {
+   "metric_id": "tfr_2023",
+   "label": "Total fertility rate, 2023 (estimate)",
+   "short": "TFR",
+   "universe": "Women of reproductive age, whole country",
+   "unit": "births per woman",
+   "definition": "Average number of live births a woman would have over her reproductive life at the period's age-specific rates.",
+   "source_variable_ids": [
+    "TFR"
+   ],
+   "method": "Read from WPP 2024",
+   "source_id": "wpp2024",
+   "class": "observed",
+   "caveats": "Childbearing behaviour in the period, not ideal or intended family size.",
+   "higher_is": "neither",
+   "level": "country",
+   "year": 2023
+  },
+  {
+   "metric_id": "tfr_2030_projection",
+   "label": "Total fertility rate, 2030 (UN projection)",
+   "short": "TFR projected",
+   "universe": "Women of reproductive age, whole country",
+   "unit": "births per woman",
+   "definition": "WPP 2024 medium-variant projection.",
+   "source_variable_ids": [
+    "TFR"
+   ],
+   "method": "Read from WPP 2024 medium variant",
+   "source_id": "wpp2024",
+   "class": "projection",
+   "caveats": "Childbearing behaviour in the period, not ideal or intended family size. A model projection, not an observation.",
+   "higher_is": "neither",
+   "level": "country",
+   "year": 2030
+  },
+  {
+   "metric_id": "mean_age_childbearing_2023",
+   "label": "Mean age at childbearing, 2023",
+   "short": "Mean age at childbearing",
+   "universe": "Births in the year",
+   "unit": "years",
+   "definition": "Mean age of mothers at the birth of their children (all birth orders).",
+   "source_variable_ids": [
+    "MAC"
+   ],
+   "method": "Read from WPP 2024",
+   "source_id": "wpp2024",
+   "class": "observed",
+   "caveats": "All births, not first births.",
+   "higher_is": "neither",
+   "level": "country",
+   "year": 2023
+  },
+  {
+   "metric_id": "population_2023",
+   "label": "Population, 1 July 2023",
+   "short": "Population",
+   "universe": "All residents",
+   "unit": "persons",
+   "definition": "Total population at 1 July.",
+   "source_variable_ids": [
+    "TPopulation1July"
+   ],
+   "method": "WPP thousands x 1,000",
+   "source_id": "wpp2024",
+   "class": "observed",
+   "caveats": "Published in thousands.",
+   "higher_is": "more",
+   "level": "country",
+   "year": 2023
+  },
+  {
+   "metric_id": "female_population_2023",
+   "label": "Female population, 1 July 2023",
+   "short": "Female population",
+   "universe": "Female residents, all ages",
+   "unit": "persons",
+   "definition": "Female population, all ages.",
+   "source_variable_ids": [
+    "TPopulationFemale1July"
+   ],
+   "method": "WPP thousands x 1,000",
+   "source_id": "wpp2024",
+   "class": "observed",
+   "caveats": "All ages, not the 20-29 target band.",
+   "higher_is": "more",
+   "level": "country",
+   "year": 2023
+  },
+  {
+   "metric_id": "women_20_29_2023",
+   "label": "Women 20-29, 2023",
+   "short": "Women 20-29",
+   "universe": "Female residents 20-29",
+   "unit": "persons",
+   "definition": "Female population aged 20-29.",
+   "source_variable_ids": [],
+   "method": "Not built",
+   "source_id": "wpp2024",
+   "class": "observed",
+   "caveats": "Not ingested: needs the WPP population-by-age file.",
+   "higher_is": "more",
+   "level": "country",
+   "year": 2023
+  },
+  {
+   "metric_id": "crude_marriage_rate",
+   "label": "Crude marriage rate",
+   "short": "Marriages per 1,000",
+   "universe": "All residents (all ages)",
+   "unit": "marriages per 1,000 population",
+   "definition": "Marriages in the year per 1,000 average population.",
+   "source_variable_ids": [
+    "demo_nind/GNUPRT"
+   ],
+   "method": "Latest available year from Eurostat",
+   "source_id": "eurostat",
+   "class": "observed",
+   "caveats": "Year differs by country; all-age denominator.",
+   "higher_is": "neither",
+   "level": "country"
+  },
+  {
+   "metric_id": "mean_age_first_marriage_women",
+   "label": "Mean age at first marriage, women",
+   "short": "Women's mean age at first marriage",
+   "universe": "Women marrying for the first time in the year",
+   "unit": "years",
+   "definition": "Mean age of women at first marriage in the year.",
+   "source_variable_ids": [
+    "demo_nind/FAGEMAR1"
+   ],
+   "method": "Latest available year from Eurostat",
+   "source_id": "eurostat",
+   "class": "observed",
+   "caveats": "Year differs by country.",
+   "higher_is": "neither",
+   "level": "country"
+  },
+  {
+   "metric_id": "crude_divorce_rate",
+   "label": "Crude divorce rate",
+   "short": "Divorces per 1,000",
+   "universe": "All residents (all ages)",
+   "unit": "divorces per 1,000 population",
+   "definition": "Divorces in the year per 1,000 average population.",
+   "source_variable_ids": [
+    "demo_ndivind/GDIVRT"
+   ],
+   "method": "Latest available year from Eurostat",
+   "source_id": "eurostat",
+   "class": "proxy",
+   "caveats": "Divorces in the year per 1,000 average population (all ages). Not the probability that a marriage ends in divorce; depends on how many people are married, on law and on registration.",
+   "higher_is": "neither",
+   "level": "country"
+  },
+  {
+   "metric_id": "tfr_worldbank",
+   "label": "Total fertility rate, World Bank, 2023 (cross-check)",
+   "short": "TFR (World Bank)",
+   "universe": "Whole country",
+   "unit": "births per woman",
+   "definition": "World Development Indicators SP.DYN.TFRT.IN.",
+   "source_variable_ids": [
+    "SP.DYN.TFRT.IN"
+   ],
+   "method": "Compared with WPP, same year",
+   "source_id": "worldbank",
+   "class": "observed",
+   "caveats": "Cross-check only; often derived from WPP or national statistics.",
+   "higher_is": "neither",
+   "level": "country",
+   "year": 2023,
+   "role": "cross_check"
+  },
+  {
+   "metric_id": "population_worldbank",
+   "label": "Population, World Bank, 2023 (cross-check)",
+   "short": "Population (World Bank)",
+   "universe": "All residents",
+   "unit": "persons",
+   "definition": "World Development Indicators SP.POP.TOTL (midyear, de facto).",
+   "source_variable_ids": [
+    "SP.POP.TOTL"
+   ],
+   "method": "Compared with WPP, same year",
+   "source_id": "worldbank",
+   "class": "observed",
+   "caveats": "Cross-check only.",
+   "higher_is": "more",
+   "level": "country",
+   "year": 2023,
+   "role": "cross_check"
+  },
+  {
+   "metric_id": "values_issp2022",
+   "label": "Values survey cells: issp2022",
+   "short": "issp2022",
+   "universe": "Survey respondents (see crosstabs)",
+   "unit": "percent",
+   "definition": "Weighted shares from imported microdata.",
+   "source_variable_ids": [],
+   "method": "pipeline/import_*.py on a user-supplied file",
+   "source_id": "issp2022",
+   "class": "survey_estimate",
+   "caveats": "Not imported: registration-gated dataset.",
+   "higher_is": "neither",
+   "level": "country"
+  },
+  {
+   "metric_id": "values_evs_wvs_2017_2022",
+   "label": "Values survey cells: evs_wvs_2017_2022",
+   "short": "evs_wvs_2017_2022",
+   "universe": "Survey respondents (see crosstabs)",
+   "unit": "percent",
+   "definition": "Weighted shares from imported microdata.",
+   "source_variable_ids": [],
+   "method": "pipeline/import_*.py on a user-supplied file",
+   "source_id": "evs_wvs_2017_2022",
+   "class": "survey_estimate",
+   "caveats": "Not imported: registration-gated dataset.",
+   "higher_is": "neither",
+   "level": "country"
+  },
+  {
+   "metric_id": "values_latinobarometro2024",
+   "label": "Values survey cells: latinobarometro2024",
+   "short": "latinobarometro2024",
+   "universe": "Survey respondents (see crosstabs)",
+   "unit": "percent",
+   "definition": "Weighted shares from imported microdata.",
+   "source_variable_ids": [],
+   "method": "pipeline/import_*.py on a user-supplied file",
+   "source_id": "latinobarometro2024",
+   "class": "survey_estimate",
+   "caveats": "Not imported: registration-gated dataset.",
+   "higher_is": "neither",
+   "level": "country"
+  },
+  {
+   "metric_id": "values_dhs",
+   "label": "Values survey cells: dhs",
+   "short": "dhs",
+   "universe": "Survey respondents (see crosstabs)",
+   "unit": "percent",
+   "definition": "Weighted shares from imported microdata.",
+   "source_variable_ids": [],
+   "method": "pipeline/import_*.py on a user-supplied file",
+   "source_id": "dhs",
+   "class": "survey_estimate",
+   "caveats": "Not imported: registration-gated dataset.",
+   "higher_is": "neither",
+   "level": "country"
+  }
+ ]
+}
