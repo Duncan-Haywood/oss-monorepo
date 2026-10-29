@@ -287,7 +287,7 @@ yourself.
 **Privacy.** Everything runs in your browser. Your plan is never uploaded, and
 there are no accounts, tracking cookies, or analytics vendor. The page counts
 anonymous events (`takeoff_run`, `example_loaded`, `csv_downloaded`, `drawings_downloaded`, `drawings_pdf_downloaded`, `panel_order_downloaded`,
-`plan_saved`, `plan_opened`, `dxf_opened`, `sketch_wall`, `sketch_opening`, `sketch_used`) in your browser's local storage only, and keeps
+`plan_saved`, `plan_opened`, `dxf_opened`, `sketch_wall`, `sketch_opening`, `sketch_move`, `sketch_used`) in your browser's local storage only, and keeps
 your last plan there so it is back when you return; the footer has a switch to
 turn counting off.
 
@@ -333,5 +333,8 @@ code as a real floor plan, not a second copy. Heights and headers are the DXF de
 header): check them. Checked by `sketch.test.mjs` (a 40 x 28 ft rectangle with a partition gives 4 corner walls and 2
 tees; door and window land on the drawn offsets; snapping, overlap and oversize cases) and by real mouse clicks in
 Chromium (`node eval-sketch-click.mjs`: draws a 20 x 14 ft house with a partition, door and window, loads it, runs the
-takeoff with no check failures; erase; typed length). Not yet: moving or resizing a wall or opening after it is placed,
-non-square snapping aids, a background image to trace, and sketch persistence across reloads.
+takeoff with no check failures; erase; typed length; a corner dragged out 4 ft, then undone).
+**Move tool (2026-10-29):** drag a wall end and every wall meeting at that corner follows; drag a wall's body to slide it
+with its neighbours' ends. `moveEnds`/`moveCorner`/`moveWall` refuse (changing nothing) a move that shrinks a wall under
+1 in, lays one wall on another, or leaves a door or window too long for its shortened wall (3 tests). Not yet: moving or
+resizing an opening after it is placed (erase and re-place), non-square snapping aids, a background image to trace, and sketch persistence across reloads.
