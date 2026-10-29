@@ -3,7 +3,7 @@ title: "How noisy can a flight test be before the adjustable tail stops working?
 seo_title: "Pitch-mode identification noise and an adjustable tail on a sub-scale cargo UAV"
 date: 2026-10-29
 tags: [research, aerolog-scaling]
-description: "A least-squares fit of a simulated noisy free response shows what sensor noise and record length the adjustable-tail correction for a sub-scale cargo drone can tolerate."
+description: "A least-squares fit of a simulated noisy free response shows what sensor noise and record length the adjustable-tail fix for a sub-scale cargo drone tolerates."
 ---
 
 The aerolog-scaling programme asks whether a small model of a cargo aircraft can stand in for the full-size one. Earlier steps found that no fixed tail copes if the real tail lift slope is 20 to 25% below the airfoil code's estimate, but a tail whose area is set in flight from the measured short-period mode does. That only helps if the mode can be measured.
