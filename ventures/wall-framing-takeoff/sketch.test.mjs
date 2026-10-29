@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { emptySketch, addWall, addOpening, snapPoint, pointAtLength, nearestWall, removeWall, moveCorner, moveWall, planFromSketch, sketchToDxf } from "./sketch.mjs";
+import { emptySketch, addWall, addOpening, snapPoint, pointAtLength, nearestWall, removeWall, moveOpening, resizeOpening, moveCorner, moveWall, planFromSketch, sketchToDxf } from "./sketch.mjs";
 import { takeoff } from "./engine.mjs";
 
 const ft = (n) => n * 12;
@@ -98,4 +98,24 @@ test("a move that would crush a wall or strand an opening is refused and changes
   assert.equal(r.ok, false);
   assert.equal(moveCorner(sk, ws[0].id, "b", { x: 0, y: 0 }).ok, false);   // front wall to nothing
   assert.equal(JSON.stringify(sk), before);
+});
+
+test("a placed opening slides along its wall and resizes, refusing overlaps", () => {
+  const { sk, ws } = house();
+  const a = addOpening(sk, ws[0].id, "door", ft(5), 36).opening;
+  const b = addOpening(sk, ws[0].id, "window", ft(20), 48).opening;
+  assert.ok(moveOpening(sk, a.id, ft(8)).ok);
+  assert.equal(a.offset, ft(8) - 18);
+  assert.ok(moveOpening(sk, a.id, -50).ok);                                // clamped to the wall start
+  assert.equal(a.offset, 0);
+  const before = JSON.stringify(sk);
+  assert.equal(moveOpening(sk, a.id, ft(20)).ok, false);                   // onto the window
+  assert.equal(resizeOpening(sk, a.id, "b", b.offset + 5).ok, false);      // stretched into it
+  assert.equal(resizeOpening(sk, a.id, "b", 0.5).ok, false);               // under 1 in
+  assert.equal(JSON.stringify(sk), before);
+  assert.ok(resizeOpening(sk, a.id, "b", 60).ok);
+  assert.deepEqual([a.offset, a.width], [0, 60]);
+  assert.ok(resizeOpening(sk, a.id, "a", 12).ok);                          // far end stays at 60
+  assert.deepEqual([a.offset, a.width], [12, 48]);
+  assert.ok(planFromSketch(sk).ok);
 });

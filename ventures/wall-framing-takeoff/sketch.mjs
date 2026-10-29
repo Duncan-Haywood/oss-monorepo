@@ -177,6 +177,48 @@ export function moveWall(sk, wallId, dx, dy) {
   return moveEnds(sk, [w.a, w.b].map((p) => ({ from: { ...p }, to: { x: p.x + dx, y: p.y + dy } })));
 }
 
+/**
+ * Slide a placed opening along its wall so its centre is `along` inches from
+ * the wall's `a` end, and optionally give it a new `width`. The opening is
+ * kept inside the wall; the change is refused (nothing changes) when it would
+ * overlap another opening or the wall is shorter than the width.
+ * @param {Sketch} sk @param {number} id @param {number} along @param {number} [width]
+ * @returns {{ ok: true, opening: SketchOpening } | { ok: false, error: string }}
+ */
+export function moveOpening(sk, id, along, width) {
+  const o = sk.openings.find((x) => x.id === id);
+  if (!o) return { ok: false, error: "No such opening." };
+  const w = sk.walls.find((x) => x.id === o.wall);
+  if (!w) return { ok: false, error: "No such wall." };
+  const wd = width === undefined ? o.width : width;
+  if (!(wd > 0)) return { ok: false, error: "The opening needs a width." };
+  const L = len(w);
+  if (wd > L) return { ok: false, error: `A ${wd} in opening does not fit a ${Math.round(L * 16) / 16} in wall.` };
+  const offset = Math.round(Math.min(Math.max(along - wd / 2, 0), L - wd) * 16) / 16;
+  for (const x of sk.openings) {
+    if (x.id !== id && x.wall === o.wall && offset < x.offset + x.width && x.offset < offset + wd) return { ok: false, error: "That would overlap another opening." };
+  }
+  o.offset = offset; o.width = wd;
+  return { ok: true, opening: o };
+}
+
+/**
+ * Drag one end of an opening to `along` inches from the wall's `a` end, keeping
+ * the other end fixed (a resize). Refused under 1 in wide, off the wall, or
+ * over a neighbour.
+ * @param {Sketch} sk @param {number} id @param {"a"|"b"} end @param {number} along
+ */
+export function resizeOpening(sk, id, end, along) {
+  const o = sk.openings.find((x) => x.id === id);
+  if (!o) return { ok: false, error: "No such opening." };
+  const w = sk.walls.find((x) => x.id === o.wall);
+  if (!w) return { ok: false, error: "No such wall." };
+  const at = Math.round(Math.min(Math.max(along, 0), len(w)) * 16) / 16;
+  const lo = end === "a" ? at : o.offset, hi = end === "a" ? o.offset + o.width : at;
+  if (hi - lo < 1) return { ok: false, error: "An opening needs to be at least 1 in wide." };
+  return moveOpening(sk, id, (lo + hi) / 2, hi - lo);
+}
+
 /** Remove a wall and the openings on it. @param {Sketch} sk @param {number} id */
 export function removeWall(sk, id) {
   sk.walls = sk.walls.filter((w) => w.id !== id);

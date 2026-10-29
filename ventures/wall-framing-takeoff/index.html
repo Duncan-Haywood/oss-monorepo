@@ -432,7 +432,7 @@
   <script type="module">
     import { takeoff, samplePlan, defaultStock, parseLength, formatLength, formatInches, toCsv, verifyWall, PRECUT, DEPTH } from "./engine.mjs";
     import { planFromDxf } from "./dxf.mjs";
-    import { emptySketch, addWall, addOpening, snapPoint, pointAtLength, nearestWall, moveCorner, moveWall, removeWall, removeOpening, openingEnds, planFromSketch, wallLength } from "./sketch.mjs";
+    import { emptySketch, addWall, addOpening, snapPoint, pointAtLength, nearestWall, moveCorner, moveWall, moveOpening, resizeOpening, removeWall, removeOpening, openingEnds, planFromSketch, wallLength } from "./sketch.mjs";
     import { drawingSetHtml } from "./drawings.mjs";
     import { drawingSetPdf } from "./pdf.mjs";
     import { panelOrder, panelOrderText, panelPullText } from "./panels.mjs";
@@ -1266,7 +1266,19 @@
           if (d <= 12 && (!best || d < best.d)) best = { d, w, end };
         }
         const base = JSON.stringify(sk);
-        if (best) drag = { base, kind: "corner", id: best.w.id, end: best.end };
+        let op = null;
+        for (const o of sk.openings) {
+          const w = sk.walls.find((x) => x.id === o.wall), e = openingEnds(sk, o), L = wallLength(w);
+          const ux = (w.b.x - w.a.x) / L, uy = (w.b.y - w.a.y) / L;
+          const t = (raw.x - w.a.x) * ux + (raw.y - w.a.y) * uy, perp = Math.abs((raw.x - w.a.x) * uy - (raw.y - w.a.y) * ux);
+          if (perp > 9 || t < o.offset - 6 || t > o.offset + o.width + 6) continue;
+          const da = Math.hypot(e.a.x - raw.x, e.a.y - raw.y), db = Math.hypot(e.b.x - raw.x, e.b.y - raw.y);
+          const end = da <= 6 && da <= db ? "a" : db <= 6 ? "b" : null;
+          op = { id: o.id, end, w, ux, uy, grab: t - (o.offset + o.width / 2) };
+          break;
+        }
+        if (op && !(best && best.d <= 6)) drag = { base, kind: "opening", ...op };
+        else if (best) drag = { base, kind: "corner", id: best.w.id, end: best.end };
         else { const hit = nearestWall(sk, raw, 10); if (hit) drag = { base, kind: "wall", id: hit.wall.id, from: raw }; }
         if (drag) { try { svg.setPointerCapture(e.pointerId); } catch (x) { /* optional */ } e.preventDefault(); }
       });
@@ -1278,7 +1290,11 @@
           const raw = cursor(e), g = Number($("#skGrid").value);
           sk = JSON.parse(drag.base);
           let r;
-          if (drag.kind === "corner") r = moveCorner(sk, drag.id, drag.end, snapPoint(raw, { walls: [] }, { grid: g }));
+          if (drag.kind === "opening") {
+            const t = (raw.x - drag.w.a.x) * drag.ux + (raw.y - drag.w.a.y) * drag.uy;
+            const sn = (v) => g > 0 ? Math.round(v / g) * g : v;
+            r = drag.end ? resizeOpening(sk, drag.id, drag.end, sn(t)) : moveOpening(sk, drag.id, t - drag.grab);
+          } else if (drag.kind === "corner") r = moveCorner(sk, drag.id, drag.end, snapPoint(raw, { walls: [] }, { grid: g }));
           else r = moveWall(sk, drag.id, g > 0 ? Math.round((raw.x - drag.from.x) / g) * g : raw.x - drag.from.x, g > 0 ? Math.round((raw.y - drag.from.y) / g) * g : raw.y - drag.from.y);
           if (!r.ok) { sk = JSON.parse(drag.base); draw(); $("#skInfo").textContent = r.error; } else draw();
           return;

@@ -336,5 +336,8 @@ Chromium (`node eval-sketch-click.mjs`: draws a 20 x 14 ft house with a partitio
 takeoff with no check failures; erase; typed length; a corner dragged out 4 ft, then undone).
 **Move tool (2026-10-29):** drag a wall end and every wall meeting at that corner follows; drag a wall's body to slide it
 with its neighbours' ends. `moveEnds`/`moveCorner`/`moveWall` refuse (changing nothing) a move that shrinks a wall under
-1 in, lays one wall on another, or leaves a door or window too long for its shortened wall (3 tests). Not yet: moving or
-resizing an opening after it is placed (erase and re-place), non-square snapping aids, a background image to trace, and sketch persistence across reloads.
+1 in, lays one wall on another, or leaves a door or window too long for its shortened wall (3 tests). Not yet: non-square snapping aids, a background image to trace, and sketch persistence across reloads.
+
+**Move and resize openings (2026-10-29):** in the Move tool, drag a door or window along its wall, or drag one of its ends to
+resize it (the other end stays put; grid-snapped). `moveOpening`/`resizeOpening` clamp to the wall and refuse, changing
+nothing, an overlap with a neighbour or a width under 1 in (1 test). The page drag itself is not covered by the click eval.
