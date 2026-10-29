@@ -105,8 +105,8 @@ class ProductionPlanningTests(unittest.TestCase):
         self.assertEqual(
             proxy_outputs,
             [
-                "proxies/proxy_asset_00000/IMG_0001.CR3",
-                "proxies/proxy_asset_00001/IMG_0001.CR3",
+                "proxies/proxy_asset_00000/IMG_0001.CR3.jpg",
+                "proxies/proxy_asset_00001/IMG_0001.CR3.jpg",
             ],
         )
         self.assertEqual(

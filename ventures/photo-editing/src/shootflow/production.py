@@ -4,6 +4,7 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 
+from shootflow.raw_preview import is_raw_path
 from shootflow.deliverables import (
     DeliverableSpec,
     MediaAsset,
@@ -58,7 +59,7 @@ def build_production_plan(assets: list[MediaAsset], shoot_slug: str) -> Producti
             job_id=_asset_job_id("proxy", index),
             output_kind="proxy_media",
             inputs=(asset.path,),
-            outputs=(_artifact_path("proxies", _asset_job_id("proxy", index), asset),),
+            outputs=(_proxy_path(_asset_job_id("proxy", index), asset),),
         )
         for index, asset in enumerate(assets)
     )
@@ -142,6 +143,15 @@ def _asset_job_id(prefix: str, index: int) -> str:
 
 def _artifact_path(root: str, job_id: str, asset: MediaAsset) -> str:
     return f"{root}/{job_id}/{Path(asset.path).name}"
+
+
+def _proxy_path(job_id: str, asset: MediaAsset) -> str:
+    # A RAW still's proxy is a JPEG made from the preview the camera embedded
+    # in it (raw_preview.py), so it is named for what it holds.
+    path = _artifact_path("proxies", job_id, asset)
+    if asset.media_type == "photo" and is_raw_path(Path(asset.path)):
+        return path + ".jpg"
+    return path
 
 
 def _build_instagram_jobs(

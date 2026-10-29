@@ -174,8 +174,9 @@ flagships:
       contract, checked against a photographer's picks (wanted: a labelled portrait set).
       RAW stills are scored from their embedded JPEG preview (raw_preview.py,
       2026-10-22; synthetic containers only, so try real CR2/CR3/NEF/ARW/DNG
-      files); developing RAW into proxies and masters (a RAW developer) is
-      still open.
+      files); review proxies of RAW stills are
+      the embedded preview downscaled (2026-10-29, synthetic containers); developing
+      RAW into graded masters (a RAW developer) is still open.
   - venture: quick-pick-survey
     why: >-
       Next.js + Postgres app with Glicko-2 ranking, adaptive pairing and a

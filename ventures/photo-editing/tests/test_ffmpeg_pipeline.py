@@ -224,7 +224,7 @@ class LocalPipelineTests(unittest.TestCase):
             self.assertFalse((manifest.parent / "deliverables" / "instagram_reel.mp4").exists())
             status = json.loads((manifest.parent / "production_status.json").read_text())
             messages = [job["error_message"] for job in status["job_statuses"] if job["state"] == "retryable"]
-            self.assertTrue(any("RAW developer" in message for message in messages))
+            self.assertTrue(any("no embedded JPEG preview" in message for message in messages))
 
     def test_cli_exit_code_reports_review_needed(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
