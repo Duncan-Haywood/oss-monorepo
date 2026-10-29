@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%231b587e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EA%3C/text%3E%3C/svg%3E"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cleaning Business Bookkeeping From a Bank Statement</title>
+<meta name="description" content="Zelle, Thumbtack and Stripe deposits are sales; supplies, fuel, scheduling software, lead fees, insurance and payroll fees are the costs. A worked September: $1,285.00 in, $447.80 out, $837.20 profit.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="./cleaning-bookkeeping.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Cleaning business bookkeeping from a bank statement">
+<meta property="og:description" content="A worked month of house-cleaning deposits and costs, booked from a bank CSV.">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Are Zelle payments from clients income?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, payments clients send for cleaning are sales. The importer files Zelle payments from a named person, Thumbtack payouts and Stripe transfers under Sales. Check any Zelle line that is a reimbursement or a personal transfer and move it."}}, {"@type": "Question", "name": "Where do supplies, fuel and a lead-marketplace fee go?", "acceptedAnswer": {"@type": "Answer", "text": "Fuel goes to vehicle and fuel, scheduling and payroll tools to software, Thumbtack lead fees to advertising and liability insurance to insurance. Supplies bought at a warehouse club are left for you, since the payee alone does not say what was bought."}}, {"@type": "Question", "name": "Is it free?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. It is open source (MIT), runs in your browser and nothing is uploaded."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#1c2430;background:#f3f5f2}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#23613f}.eyebrow{font-weight:700;letter-spacing:.04em;color:#23613f;font-size:.85rem}h1{font-size:clamp(1.7rem,5vw,2.5rem);line-height:1.08;margin:.3rem 0;color:#183d2a}.lede{font-size:1.05rem;max-width:66ch;color:#4a5560}section{background:#fff;border:1px solid #d5ddd6;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #183d2a10;margin:1rem 0}h2{margin-top:0;color:#183d2a}p,li{line-height:1.55}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:.95rem}caption{caption-side:bottom;color:#4a5560;font-size:.85rem;text-align:left;padding-top:.6rem}th,td{border-bottom:1px solid #e1e7e2;padding:.5rem .45rem;text-align:right}th:first-child,td:first-child{text-align:left}tr.total td,tr.total th{font-weight:700}.fine,footer{font-size:.86rem;color:#4a5560}@media (max-width:600px){body{padding:1rem}}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; AI Bookkeeper</a></p>
+<header>
+<h1>Cleaning business bookkeeping: many small deposits against supplies, fuel and leads</h1>
+<p class="lede">A house-cleaning business is paid by Zelle, a lead marketplace and card processor, in small amounts, and spends on supplies, fuel and a few subscriptions. The bank statement holds all of it, so the month's profit starts there.</p>
+</header>
+<section>
+<h2>Worked example: one September</h2>
+<p>The tool ships a <strong>synthetic</strong> statement for a cleaner (<code>fixtures/cleaning-checking.csv</code>): three deposits and six costs. Eight of nine lines get a suggested account with no rules taught; the warehouse-club line is left for you, since it could be supplies or something else.</p>
+<div class="table-wrap">
+<table>
+<caption>Read by the tool's importer. Synthetic data, not a real business.</caption>
+<thead><tr><th scope="col">September 2026</th><th scope="col">Amount</th></tr></thead>
+<tbody>
+<tr><th scope="row">Zelle, Thumbtack and Stripe deposits</th><td>$1,285.00</td></tr>
+<tr class="total"><th scope="row">Sales</th><td>$1,285.00</td></tr>
+<tr><th scope="row">Sam's Club cleaning supplies (left for you)</th><td>&minus;$142.60</td></tr>
+<tr><th scope="row">Fuel (vehicle and fuel)</th><td>&minus;$58.20</td></tr>
+<tr><th scope="row">Jobber, Gusto fee (software)</th><td>&minus;$115.00</td></tr>
+<tr><th scope="row">Thumbtack lead fee (advertising)</th><td>&minus;$48.00</td></tr>
+<tr><th scope="row">General liability, The Hartford (insurance)</th><td>&minus;$84.00</td></tr>
+<tr class="total"><th scope="row">Profit</th><td>$837.20</td></tr>
+</tbody>
+</table>
+</div>
+<p>Cash tips, wages paid to helpers outside the payroll fee and mileage between jobs are not on this statement. Add trips in the mileage log; the profit here is before them. Only the fuel is booked, so choose actual costs or the standard mileage rate, not both.</p>
+</section>
+<section>
+<h2>What the tool does for a cleaning business</h2>
+<ol>
+<li><strong>Imports the bank CSV</strong> and suggests <em>Sales</em> for Zelle, Thumbtack and Stripe deposits.</li>
+<li><strong>Files the recurring costs</strong>: fuel, scheduling and payroll software, lead fees and liability insurance, and leaves unfamiliar payees such as a warehouse club for your call.</li>
+<li><strong>Reports</strong> a P&amp;L and a Schedule C worksheet, with a mileage log and quarterly estimated-tax dates in the tax calendar.</li>
+</ol>
+<p>Rules are written from company names; no real cleaning business's statement has been tried.</p>
+</section>
+<section>
+<h2>Questions</h2>
+<h3>Are Zelle payments from clients income?</h3><p>Yes, payments clients send for cleaning are sales. The importer files Zelle payments from a named person, Thumbtack payouts and Stripe transfers under Sales. Check any Zelle line that is a reimbursement or a personal transfer and move it.</p><h3>Where do supplies, fuel and a lead-marketplace fee go?</h3><p>Fuel goes to vehicle and fuel, scheduling and payroll tools to software, Thumbtack lead fees to advertising and liability insurance to insurance. Supplies bought at a warehouse club are left for you, since the payee alone does not say what was bought.</p><h3>Is it free?</h3><p>Yes. It is open source (MIT), runs in your browser and nothing is uploaded.</p>
+</section>
+<p><a href="./">Open AI Bookkeeper</a> and import your bank statement.</p>
+</main>
+<footer>
+<p><strong>No warranty.</strong> This page and the tool are provided free and as-is, without warranty of any kind. They are not legal, tax, or financial advice and do not replace a qualified professional. You are responsible for reviewing and verifying any output before relying on it. The example is synthetic data, not a real business. Platform names are trademarks of their owners, named only to describe a payee.</p>
+</footer>
+</body>
+</html>
