@@ -19,7 +19,7 @@
   "tool_calls": 21,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/11484",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -28,14 +28,22 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": null,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
-  "doc_friction": [],
+  "doc_friction": [
+    {
+      "file": ".claude/hooks/check_posts_before_push.py",
+      "issue": "Hook checks the working tree before the whole Bash command runs, so a fix chained in the same command is blocked; fix and push in separate calls."
+    }
+  ],
   "deviations": [],
-  "writeups": [],
+  "writeups": [
+    "docs/posts/2026-10-29-does-the-schedule-checker-notice-a-planted-fault.md",
+    "docs/reports/league-schedule-validator-mutation.md"
+  ],
   "goal": null,
-  "notes": "",
+  "notes": "Picked league-schedule-generator (flagships 1-5 had heavy same-day activity). node --test fuzz-build.test.mjs 7/7; mutation run 3 seeds 0 missed. Preflight not run (no page change).",
   "corrections": [],
   "redteam": null,
   "usage": {
