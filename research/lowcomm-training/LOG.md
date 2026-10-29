@@ -2,6 +2,16 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-29 · Milestone 6c (H6): is f(p) proportional to the compressor variance factor omega = 1/p - 1? (planned before running)
+
+- Why: 6b's "Next". The product rule excess(H, p) = f(p) g(H) leaves f(p) free. Theory for unbiased compressors puts the variance penalty proportional to omega = 1/p - 1 (Stich 2018; Beznosikov et al. 2020), so f(p)/omega should be flat. Measured so far at H = 16: omega 3 -> +0.017, omega 15 -> +0.083 (ratio 4.9 for an omega ratio of 5).
+- New runs: keep p in {1/8, 1/32} x H in {4, 64}, seeds 0 to 2 (12 runs, `composition.py run_p`, same model, budget and lr as 6a/6b). With 6a's p in {1/4, 1/16} that gives four omega levels (3, 7, 15, 31) at H = 4 and 64.
+- Prediction made before seeing the cells: excess is linear in omega at each H, fitted on omega = 3 and 15 only, and predicted for omega = 7 and 31.
+- **H6c-i:** the linear-in-omega fit (through the origin, per H, on p = 1/4 and 1/16) predicts the p = 1/8 and p = 1/32 excesses at H = 4 and 64 within 0.02 nats each. Refuted if any of the four misses by more than 0.02.
+- **H6c-ii:** a power law excess = a omega^b fitted on the same two points has |b - 1| < 0.3 once all four omega levels are refitted at each H. Refuted otherwise.
+- Prior: i 40% (p = 1/32 is far outside the fitted range and the loss response may be convex in omega, since 6a's excess at p = 1/4 is within seed spread); ii 50%.
+- Limits known in advance: three seeds; one compressor, model and corpus; the 1/4 cell is near the noise floor so the fit through the origin leans on one informative point; 0.02 and 0.3 are my choices.
+
 ## 2026-10-29 · Milestone 6b (H6): does a product rule excess = f(p) g(H), fitted on H in {4, 16, 64}, predict held-out H in {8, 32}? (planned before running)
 
 - Why: 6a's "Next". The cross term is real at p = 1/16, so the additive rule is out; the smallest replacement is separable, excess(H, p) = f(p) g(H). It is tested the only way a fitted rule can be: on H it was not fitted on.
