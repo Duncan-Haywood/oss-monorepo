@@ -2,7 +2,7 @@
 title: "A sign error hid the attack: how many weights does a cheater need to plant in a trained model?"
 seo_title: "Weight-magnitude checks for verifying outsourced ML training: how much harm fits under the bound"
 date: 2026-10-29
-description: "Milestones 47 and 48 of the verifiable-training programme: a sign bug made a gradient-chosen weight plant look harmless; corrected, one weight harms 40 to 45% of runs and 16 harm 95%."
+description: "A sign bug made a gradient-chosen weight plant look harmless in a verifiable-training test; fixed, one weight harms 45% of runs and 16 harm 95%."
 tags: [research, verifiable-training-mechanisms, ml-security]
 ---
 
