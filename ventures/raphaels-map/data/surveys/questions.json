@@ -1,0 +1,806 @@
+{
+ "generated_by": "pipeline/build_surveys.py",
+ "datasets": [
+  {
+   "id": "gss",
+   "title": "General Social Survey (NORC at the University of Chicago), yearly files",
+   "source_id": "gss",
+   "years": [
+    2000,
+    2002,
+    2004,
+    2006,
+    2008,
+    2010,
+    2012,
+    2014,
+    2016,
+    2018,
+    2021,
+    2022,
+    2024
+   ],
+   "weight_variable": "wtssps",
+   "design": "Stratified multistage area probability sample (2000-2018, 2022, 2024 in-person component); 2021 address-based push-to-web. Variance: Taylor linearisation, strata = year x VSTRAT, PSU = VPSU, with-replacement first-stage approximation. Cases without WTSSPS (2022 and 2024 AmeriSpeak oversample frames) excluded. Years pooled within period with their own weights (each year counts in proportion to its sample size).",
+   "periods": {
+    "2010-2018": {
+     "years": [
+      2010,
+      2012,
+      2014,
+      2016,
+      2018
+     ],
+     "mode": "in-person (face-to-face) interviews"
+    },
+    "2021-2024": {
+     "years": [
+      2021,
+      2022,
+      2024
+     ],
+     "mode": "2021 address-based push-to-web (web, some phone); 2022 and 2024 multimode (in-person and web)"
+    }
+   },
+   "filter_definitions": {
+    "sex": "GSS SEX: 1 male, 2 female",
+    "age_band": "GSS AGE at interview (89 = 89 or older); '18+' = all adult respondents incl. age not recorded",
+    "relig": "GSS RELIG = 2 'catholic' (current religious preference, i.e. affiliation, not practice)",
+    "attend": "GSS ATTEND: weekly = 7 'every week' or 8 'several times a week'; less = 0-6; DK/NA excluded from both",
+    "marital": "GSS MARITAL = 5 'never married' (cohabiting is not separately identified)"
+   },
+   "files": [
+    {
+     "path": "gss/gss_2000plus_selected.csv.gz",
+     "url": "https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2000_stata.zip; https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2002_stata.zip; https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2004_stata.zip; https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2006_stata.zip; https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2008_stata.zip; https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2010_stata.zip; https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2012_stata.zip; https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2014_stata.zip; https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2016_stata.zip; https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2018_stata.zip; https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2021_stata.zip; https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2022_stata.zip; https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2024_stata.zip",
+     "bytes": 1583367,
+     "sha256": "c8cf67fc0c808822b1382aab6a8afce725dd87806af5446f9438a2504e7275fb",
+     "retrieved_at": "2026-10-29T09:50:14+00:00"
+    },
+    {
+     "path": "gss/gss_selected_labels.json",
+     "url": "https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2000_stata.zip; https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2002_stata.zip; https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2004_stata.zip; https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2006_stata.zip; https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2008_stata.zip; https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2010_stata.zip; https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2012_stata.zip; https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2014_stata.zip; https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2016_stata.zip; https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2018_stata.zip; https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2021_stata.zip; https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2022_stata.zip; https://gss.norc.org/content/dam/gss/get-the-data/documents/stata/2024_stata.zip",
+     "bytes": 25553,
+     "sha256": "9abbf18f404a2d0e75aa8a06b8b2a82ed1108b49448942bfd8fadd17534093f7",
+     "retrieved_at": "2026-10-29T09:50:14+00:00"
+    }
+   ]
+  },
+  {
+   "id": "nsfg",
+   "title": "National Survey of Family Growth 2022-2023, Female Respondent public-use file (NCHS, CDC)",
+   "source_id": "nsfg",
+   "years": [
+    2022,
+    2023
+   ],
+   "weight_variable": "WGT2022_2023",
+   "design": "Stratified clustered probability sample; variance strata VEST (20 strata) and clusters VECL (4 per stratum), Taylor linearisation with-replacement approximation; domain estimation over the whole 15-49 file. Women only (the male file is not ingested).",
+   "files": [
+    {
+     "path": "nsfg/nsfg-2022-2023-puf.html",
+     "url": "https://www.cdc.gov/nchs/nsfg/nsfg-2022-2023-puf.htm",
+     "bytes": 98555,
+     "sha256": "2808c44c7e3ecf2a0189c93fe860a6a713d001b7908031d8f1f36c87c991e0e6",
+     "retrieved_at": "2026-10-29T09:50:15+00:00"
+    },
+    {
+     "path": "nsfg/NSFG-2022-2023-FemPregPUFData.zip",
+     "url": "https://ftp.cdc.gov/pub/Health_Statistics/NCHS/NSFG/NSFG-2022-2023-FemPregPUFData.zip",
+     "bytes": 287269,
+     "sha256": "fbfc973265e57568984f59b0fd14a8fe659e150e0261f3f4abc2327f33dd672d",
+     "retrieved_at": "2026-10-29T09:50:15+00:00"
+    },
+    {
+     "path": "nsfg/NSFG-2022-2023-FemRespPUFData.zip",
+     "url": "https://ftp.cdc.gov/pub/Health_Statistics/NCHS/NSFG/NSFG-2022-2023-FemRespPUFData.zip",
+     "bytes": 2541378,
+     "sha256": "ef9f0ec715ce7909b50f1ea67958166b2cd1ad3482c4b083174898ec8c7ceaaa",
+     "retrieved_at": "2026-10-29T09:50:15+00:00"
+    }
+   ]
+  }
+ ],
+ "questions": [
+  {
+   "dataset_id": "gss",
+   "variable": "chldidel",
+   "original_text": "GSS variable label (short label, not the full question wording): \"Ideal number of children\"",
+   "text_kind": "variable_label",
+   "response_map": {
+    "0": "None (0)",
+    "1": "One",
+    "2": "Two",
+    "3": "Three",
+    "4": "Four or more",
+    "5": "Four or more",
+    "6": "Four or more",
+    "7": "7 or more",
+    "8": "as many as you want"
+   },
+   "missing_codes": {
+    "d": "don't know",
+    "i": "iap",
+    "j": "I don't have a job",
+    "m": "dk, na, iap",
+    "n": "no answer",
+    "p": "not imputable",
+    "r": "refused",
+    "s": "skipped on web",
+    "u": "uncodeable",
+    "x": "not available in this release",
+    "y": "not available in this year",
+    "z": "see codebook"
+   },
+   "tabulated_categories": {
+    "None (0)": [
+     0
+    ],
+    "One": [
+     1
+    ],
+    "Two": [
+     2
+    ],
+    "Three": [
+     3
+    ],
+    "Four or more": [
+     4,
+     5,
+     6,
+     7
+    ],
+    "As many as you want": [
+     8
+    ]
+   },
+   "harmonized_concept": "ideal_family_size",
+   "alignment": "direct",
+   "years": [
+    2000,
+    2002,
+    2004,
+    2006,
+    2008,
+    2010,
+    2012,
+    2014,
+    2016,
+    2018,
+    2021,
+    2022,
+    2024
+   ],
+   "coding_source": "Stata value labels in the GSS yearly files (raw/gss/gss_selected_labels.json)",
+   "coding_unconfirmed": false,
+   "note": "General ideal for 'a family', not the respondent's own intention or expected births. Code 7 is '7 or more'. 'As many as you want' is a valid answer kept in the denominator; its share roughly doubles from 2021 (mode change), so 2010-2018 and 2021-2024 are not comparable."
+  },
+  {
+   "dataset_id": "gss",
+   "variable": "fefam",
+   "original_text": "GSS variable label (short label, not the full question wording): \"Better for man to work, woman tend home\"",
+   "text_kind": "variable_label",
+   "response_map": {
+    "1": "strongly agree",
+    "2": "agree",
+    "3": "disagree",
+    "4": "strongly disagree"
+   },
+   "missing_codes": {
+    "d": "don't know",
+    "i": "iap",
+    "j": "I don't have a job",
+    "m": "dk, na, iap",
+    "n": "no answer",
+    "p": "not imputable",
+    "r": "refused",
+    "s": "skipped on web",
+    "u": "uncodeable",
+    "x": "not available in this release",
+    "y": "not available in this year",
+    "z": "see codebook"
+   },
+   "tabulated_categories": {
+    "Strongly agree": [
+     1
+    ],
+    "Agree": [
+     2
+    ],
+    "Disagree": [
+     3
+    ],
+    "Strongly disagree": [
+     4
+    ]
+   },
+   "harmonized_concept": "role_norm_male_earner_female_homemaker",
+   "alignment": "related",
+   "years": [
+    2000,
+    2002,
+    2004,
+    2006,
+    2008,
+    2010,
+    2012,
+    2014,
+    2016,
+    2018,
+    2021,
+    2022,
+    2024
+   ],
+   "coding_source": "Stata value labels in the GSS yearly files (raw/gss/gss_selected_labels.json)",
+   "coding_unconfirmed": false,
+   "note": "A general role norm about families, not the respondent's own preference for her own life."
+  },
+  {
+   "dataset_id": "gss",
+   "variable": "fepresch",
+   "original_text": "GSS variable label (short label, not the full question wording): \"Preschool kids suffer if mother works\"",
+   "text_kind": "variable_label",
+   "response_map": {
+    "1": "strongly agree",
+    "2": "agree",
+    "3": "disagree",
+    "4": "strongly disagree"
+   },
+   "missing_codes": {
+    "d": "don't know",
+    "i": "iap",
+    "j": "I don't have a job",
+    "m": "dk, na, iap",
+    "n": "no answer",
+    "p": "not imputable",
+    "r": "refused",
+    "s": "skipped on web",
+    "u": "uncodeable",
+    "x": "not available in this release",
+    "y": "not available in this year",
+    "z": "see codebook"
+   },
+   "tabulated_categories": {
+    "Strongly agree": [
+     1
+    ],
+    "Agree": [
+     2
+    ],
+    "Disagree": [
+     3
+    ],
+    "Strongly disagree": [
+     4
+    ]
+   },
+   "harmonized_concept": "role_norm_maternal_employment_preschool",
+   "alignment": "related",
+   "years": [
+    2000,
+    2002,
+    2004,
+    2006,
+    2008,
+    2010,
+    2012,
+    2014,
+    2016,
+    2018,
+    2021,
+    2022,
+    2024
+   ],
+   "coding_source": "Stata value labels in the GSS yearly files (raw/gss/gss_selected_labels.json)",
+   "coding_unconfirmed": false,
+   "note": "A general belief about mothers' employment, not a personal plan."
+  },
+  {
+   "dataset_id": "gss",
+   "variable": "fechld",
+   "original_text": "GSS variable label (short label, not the full question wording): \"Mother working doesn't hurt children\"",
+   "text_kind": "variable_label",
+   "response_map": {
+    "1": "strongly agree",
+    "2": "agree",
+    "3": "disagree",
+    "4": "strongly disagree"
+   },
+   "missing_codes": {
+    "d": "don't know",
+    "i": "iap",
+    "j": "I don't have a job",
+    "m": "dk, na, iap",
+    "n": "no answer",
+    "p": "not imputable",
+    "r": "refused",
+    "s": "skipped on web",
+    "u": "uncodeable",
+    "x": "not available in this release",
+    "y": "not available in this year",
+    "z": "see codebook"
+   },
+   "tabulated_categories": {
+    "Strongly agree": [
+     1
+    ],
+    "Agree": [
+     2
+    ],
+    "Disagree": [
+     3
+    ],
+    "Strongly disagree": [
+     4
+    ]
+   },
+   "harmonized_concept": "role_norm_maternal_employment_children",
+   "alignment": "related",
+   "years": [
+    2000,
+    2002,
+    2004,
+    2006,
+    2008,
+    2010,
+    2012,
+    2014,
+    2016,
+    2018,
+    2021,
+    2022,
+    2024
+   ],
+   "coding_source": "Stata value labels in the GSS yearly files (raw/gss/gss_selected_labels.json)",
+   "coding_unconfirmed": false,
+   "note": "Agreement means the respondent thinks a working mother can relate as well to children; a general belief, not a personal plan."
+  },
+  {
+   "dataset_id": "gss",
+   "variable": "meovrwrk",
+   "original_text": "GSS variable label (short label, not the full question wording): \"Men hurt family when focus on work too much\"",
+   "text_kind": "variable_label",
+   "response_map": {
+    "1": "strongly agree",
+    "2": "agree",
+    "3": "neither agree nor disagree",
+    "4": "disagree",
+    "5": "strongly disagree"
+   },
+   "missing_codes": {
+    "d": "can't choose",
+    "i": "iap",
+    "j": "I don't have a job",
+    "m": "dk, na, iap",
+    "n": "no answer",
+    "p": "not imputable",
+    "r": "refused",
+    "s": "skipped on web",
+    "u": "uncodeable",
+    "x": "not available in this release",
+    "y": "not available in this year",
+    "z": "see codebook"
+   },
+   "tabulated_categories": {
+    "Strongly agree": [
+     1
+    ],
+    "Agree": [
+     2
+    ],
+    "Neither agree nor disagree": [
+     3
+    ],
+    "Disagree": [
+     4
+    ],
+    "Strongly disagree": [
+     5
+    ]
+   },
+   "harmonized_concept": "role_norm_fathers_work_focus",
+   "alignment": "related",
+   "years": [
+    2000,
+    2002,
+    2004,
+    2006,
+    2008,
+    2010,
+    2012,
+    2014,
+    2016,
+    2018,
+    2021,
+    2022,
+    2024
+   ],
+   "coding_source": "Stata value labels in the GSS yearly files (raw/gss/gss_selected_labels.json)",
+   "coding_unconfirmed": false,
+   "note": "General belief about fathers; code d is 'can't choose' and is excluded."
+  },
+  {
+   "dataset_id": "gss",
+   "variable": "divlaw",
+   "original_text": "GSS variable label (short label, not the full question wording): \"Divorce laws\"",
+   "text_kind": "variable_label",
+   "response_map": {
+    "1": "easier",
+    "2": "more difficult",
+    "3": "stay as is"
+   },
+   "missing_codes": {
+    "d": "don't know",
+    "i": "iap",
+    "j": "I don't have a job",
+    "m": "dk, na, iap",
+    "n": "no answer",
+    "p": "not imputable",
+    "r": "refused",
+    "s": "skipped on web",
+    "u": "uncodeable",
+    "x": "not available in this release",
+    "y": "not available in this year",
+    "z": "see codebook"
+   },
+   "tabulated_categories": {
+    "Easier": [
+     1
+    ],
+    "More difficult": [
+     2
+    ],
+    "Stay as is": [
+     3
+    ]
+   },
+   "harmonized_concept": "divorce_law_attitude",
+   "alignment": "related",
+   "years": [
+    2000,
+    2002,
+    2004,
+    2006,
+    2008,
+    2010,
+    2012,
+    2014,
+    2016,
+    2018,
+    2022,
+    2024
+   ],
+   "coding_source": "Stata value labels in the GSS yearly files (raw/gss/gss_selected_labels.json)",
+   "coding_unconfirmed": false,
+   "note": "An opinion on whether divorce in this country should be easier or more difficult to obtain by law. It is not the respondent's view of her own marriage and not a probability that a marriage lasts. Not asked in 2021."
+  },
+  {
+   "dataset_id": "gss",
+   "variable": "attend",
+   "original_text": "GSS variable label (short label, not the full question wording): \"How often R attends religious services\"",
+   "text_kind": "variable_label",
+   "response_map": {
+    "0": "never",
+    "1": "less than once a year",
+    "2": "about once or twice a year",
+    "3": "several times a year",
+    "4": "about once a month",
+    "5": "2-3 times a month",
+    "6": "nearly every week",
+    "7": "every week",
+    "8": "several times a week"
+   },
+   "missing_codes": {
+    "d": "don't know",
+    "i": "iap",
+    "j": "I don't have a job",
+    "m": "dk, na, iap",
+    "n": "no answer",
+    "p": "not imputable",
+    "r": "refused",
+    "s": "skipped on web",
+    "u": "uncodeable",
+    "x": "not available in this release",
+    "y": "not available in this year",
+    "z": "see codebook"
+   },
+   "tabulated_categories": {
+    "Several times a week": [
+     8
+    ],
+    "Every week": [
+     7
+    ],
+    "Nearly every week": [
+     6
+    ],
+    "2-3 times a month": [
+     5
+    ],
+    "About once a month": [
+     4
+    ],
+    "Several times a year": [
+     3
+    ],
+    "About once or twice a year": [
+     2
+    ],
+    "Less than once a year": [
+     1
+    ],
+    "Never": [
+     0
+    ]
+   },
+   "harmonized_concept": "religious_service_attendance",
+   "alignment": "direct",
+   "years": [
+    2000,
+    2002,
+    2004,
+    2006,
+    2008,
+    2010,
+    2012,
+    2014,
+    2016,
+    2018,
+    2021,
+    2022,
+    2024
+   ],
+   "coding_source": "Stata value labels in the GSS yearly files (raw/gss/gss_selected_labels.json)",
+   "coding_unconfirmed": false,
+   "note": "Self-reported attendance at religious services (any religion's services). Tabulated by affiliation so 'Catholic' (affiliation) and 'attends weekly' (practice) are separate numbers."
+  },
+  {
+   "dataset_id": "nsfg",
+   "variable": "age_r",
+   "original_text": "Variable name AGE_R; the file's readme calls it \"R's age at interview AGE_R with values 15-49\" (full question wording not in raw/).",
+   "text_kind": "readme_description",
+   "response_map": {
+    "15-49": "age in years"
+   },
+   "harmonized_concept": "age",
+   "alignment": "direct",
+   "years": [
+    2022,
+    2023
+   ],
+   "coding_source": "raw/nsfg/.../NSFG_2022_2023_FemRespPUFData_readme.txt names AGE_R as age at interview, values 15-49 (one record has 50).",
+   "coding_unconfirmed": false,
+   "confirmed_from": "NSFG_2022_2023_FemRespPUFData_readme.txt (in the downloaded zip)",
+   "note": ""
+  },
+  {
+   "dataset_id": "nsfg",
+   "variable": "addexp",
+   "original_text": "Variable name ADDEXP only (a recode; no label or wording in raw/). Candidate meaning: central number of additional births the respondent expects.",
+   "text_kind": "variable_name_only",
+   "response_map": {
+    "0-110 step 5": "candidate: expected additional births x 10 (half-births from 'between' answers)"
+   },
+   "harmonized_concept": "expected_additional_births",
+   "alignment": "partial",
+   "years": [
+    2022,
+    2023
+   ],
+   "coding_source": "candidate only: raw values are 0,5,10,...,110 (multiples of 5, suggesting births x 10); scale and meaning not confirmed from any file in raw/",
+   "coding_unconfirmed": true,
+   "confirmed_from": null,
+   "note": "Expected births: a different measure from ideal family size (SPEC 5.2). Never compared with GSS CHLDIDEL as if equivalent."
+  },
+  {
+   "dataset_id": "nsfg",
+   "variable": "intent",
+   "original_text": "Variable name INTENT only (a recode; no label or wording in raw/). Candidate meaning: whether the respondent intends to have (more) children.",
+   "text_kind": "variable_name_only",
+   "response_map": {
+    "1": "candidate: intends to have (more) children",
+    "2": "candidate: does not intend",
+    "3": "candidate: don't know intent",
+    "4": "unknown (17 cases): not recalled"
+   },
+   "harmonized_concept": "intended_additional_births",
+   "alignment": "partial",
+   "years": [
+    2022,
+    2023
+   ],
+   "coding_source": "candidate only: four raw codes (1, 2, 3, 4) observed; meaning of code 4 not known; nothing in raw/ confirms any of them",
+   "coding_unconfirmed": true,
+   "confirmed_from": null,
+   "note": "Intended births: a different measure from ideal family size."
+  },
+  {
+   "dataset_id": "nsfg",
+   "variable": "religion",
+   "original_text": "Variable name RELIGION only (a recode of current religious affiliation; no label or wording in raw/).",
+   "text_kind": "variable_name_only",
+   "response_map": {
+    "1": "candidate: no religion",
+    "2": "candidate: Catholic",
+    "3": "candidate: Protestant",
+    "4": "candidate: other religions"
+   },
+   "harmonized_concept": "religious_identification",
+   "alignment": "partial",
+   "years": [
+    2022,
+    2023
+   ],
+   "coding_source": "candidate only: four raw codes observed; recollection of earlier NSFG recodes",
+   "coding_unconfirmed": true,
+   "confirmed_from": null,
+   "note": ""
+  },
+  {
+   "dataset_id": "nsfg",
+   "variable": "attndnow",
+   "original_text": "Variable name ATTNDNOW only (no label or wording in raw/). Candidate meaning: current frequency of attending religious services.",
+   "text_kind": "variable_name_only",
+   "response_map": {
+    "1": "candidate: more than once a week",
+    "2": "candidate: once a week",
+    "3": "candidate: 2-3 times a month",
+    "4": "candidate: once a month",
+    "5": "candidate: 3-4 times a year",
+    "6": "candidate: less often",
+    "7": "candidate: never",
+    "8": "candidate: refused",
+    "9": "candidate: don't know"
+   },
+   "harmonized_concept": "religious_service_attendance",
+   "alignment": "direct",
+   "years": [
+    2022,
+    2023
+   ],
+   "coding_source": "candidate only: raw codes 1-9 observed; recollection of the NSFG 1-7 attendance scale with 8/9 refused/don't know",
+   "coding_unconfirmed": true,
+   "confirmed_from": null,
+   "note": ""
+  },
+  {
+   "dataset_id": "nsfg",
+   "variable": "fmarital",
+   "original_text": "Variable name FMARITAL only (a recode of formal marital status; no label or wording in raw/).",
+   "text_kind": "variable_name_only",
+   "response_map": {
+    "1": "candidate: married",
+    "2": "candidate: widowed",
+    "3": "candidate: divorced or annulled",
+    "4": "candidate: separated",
+    "5": "candidate: never married"
+   },
+   "harmonized_concept": "formal_marital_status",
+   "alignment": "partial",
+   "years": [
+    2022,
+    2023
+   ],
+   "coding_source": "candidate only: structural check FMARITAL==5 coincides case-for-case with EVRMARRY==0 (see diagnostics), consistent with 5 = never married, but EVRMARRY's own coding is also unconfirmed",
+   "coding_unconfirmed": true,
+   "confirmed_from": null,
+   "note": ""
+  }
+ ],
+ "diagnostics": {
+  "gss": {
+   "dropped": {
+    "dropped_no_weight": {
+     "(2022, 12)": 605,
+     "(2024, 14)": 677
+    }
+   },
+   "n_analysis": 37583,
+   "columns_absent_every_year": [
+    "fehome"
+   ]
+  },
+  "nsfg": {
+   "structural_checks": {
+    "FMARITAL_5_equals_EVRMARRY_0": {
+     "FMARITAL==5": 3024,
+     "EVRMARRY==0": 3024,
+     "both": 3024
+    },
+    "ADDEXP_by_INTENT": {
+     "1": {
+      "0": 9,
+      "5": 0,
+      "10": 621,
+      "15": 7,
+      "20": 865,
+      "25": 2,
+      "30": 284,
+      "40": 76,
+      "45": 0,
+      "50": 13,
+      "60": 3,
+      "70": 2,
+      "80": 4,
+      "90": 1,
+      "110": 1
+     },
+     "2": {
+      "0": 3593,
+      "5": 0,
+      "10": 0,
+      "15": 0,
+      "20": 0,
+      "25": 0,
+      "30": 0,
+      "40": 0,
+      "45": 0,
+      "50": 0,
+      "60": 0,
+      "70": 0,
+      "80": 0,
+      "90": 0,
+      "110": 0
+     },
+     "3": {
+      "0": 18,
+      "5": 20,
+      "10": 34,
+      "15": 10,
+      "20": 2,
+      "25": 1,
+      "30": 2,
+      "40": 0,
+      "45": 1,
+      "50": 0,
+      "60": 0,
+      "70": 0,
+      "80": 0,
+      "90": 0,
+      "110": 0
+     },
+     "4": {
+      "0": 14,
+      "5": 0,
+      "10": 1,
+      "15": 0,
+      "20": 2,
+      "25": 0,
+      "30": 0,
+      "40": 0,
+      "45": 0,
+      "50": 0,
+      "60": 0,
+      "70": 0,
+      "80": 0,
+      "90": 0,
+      "110": 0
+     }
+    },
+    "ADDEXP_raw_values": [
+     0,
+     5,
+     10,
+     15,
+     20,
+     25,
+     30,
+     40,
+     45,
+     50,
+     60,
+     70,
+     80,
+     90,
+     110
+    ],
+    "AGE_R_range": [
+     15,
+     50
+    ]
+   },
+   "n_file": 5586
+  }
+ }
+}

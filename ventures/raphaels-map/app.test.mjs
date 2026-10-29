@@ -84,8 +84,8 @@ test('compare: missing values sort last both ways; warnings name gaps and mixed 
   assert.deepEqual(sortAreas(areas, 'name', 'asc').map((a) => a.name), ['One', 'Three', 'Two']);
   const w = comparisonWarnings(areas, ['m'], new Map([['m', { label: 'Metric M' }]])).join('\n');
   assert.match(w, /mixes counties and metros/);
-  assert.match(w, /Metric M: not available for Two/);
-  assert.match(w, /vintage mismatch/);
+  assert.match(w, /Two: no value for Metric M/);
+  assert.match(w, /vintage mismatch/i);
   assert.match(comparisonWarnings([areas[0]], [], new Map()).join(''), /at least one more/);
   assert.equal(intervalsOverlap({ e: 100, moe: 20 }, { e: 115, moe: 10 }), true);
   assert.equal(intervalsOverlap({ e: 100, moe: 5 }, { e: 200, moe: 5 }), false);

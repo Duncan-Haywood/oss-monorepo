@@ -35,12 +35,15 @@ export function comparisonWarnings(areas, metricIds, metricsById) {
   if (areas.length && areas.length < 2) w.push('Add at least one more area to compare.');
   const kinds = new Set(areas.map((a) => a.kind));
   if (kinds.size > 1) w.push('This mixes counties and metros. A metro is its own published unit, not a sum of the counties shown; compare like with like.');
-  for (const m of metricIds) {
-    const missing = areas.filter((a) => !(a.observations && a.observations[m] && isNum(a.observations[m].e)));
-    if (missing.length && missing.length < areas.length) w.push(`${metricLabel(metricsById, m)}: not available for ${missing.map((a) => a.name).join(', ')}.`);
-    const vm = areas.filter((a) => a.observations && a.observations[m] && (a.observations[m].flags || []).includes('vintage_mismatch'));
-    if (vm.length) w.push(`${metricLabel(metricsById, m)}: numerator and denominator come from different years (vintage mismatch).`);
+  // One line per area listing what it lacks, so ten gaps are one sentence, not ten.
+  for (const a of areas) {
+    const lacks = metricIds.filter((m) => !(a.observations && a.observations[m] && isNum(a.observations[m].e)));
+    const others = areas.filter((b) => b !== a);
+    const comparable = lacks.filter((m) => others.some((b) => b.observations && b.observations[m] && isNum(b.observations[m].e)));
+    if (a.observations && comparable.length) w.push(`${a.name}: no value for ${comparable.map((m) => metricLabel(metricsById, m)).join(', ')}.`);
   }
+  const vm = metricIds.filter((m) => areas.some((a) => a.observations && a.observations[m] && (a.observations[m].flags || []).includes('vintage_mismatch')));
+  if (vm.length) w.push(`Vintage mismatch (numerator and denominator from different years): ${vm.map((m) => metricLabel(metricsById, m)).join(', ')}.`);
   return [...new Set(w)];
 }
 
@@ -59,7 +62,8 @@ function barsSVG(areas, metric, unit) {
   const rows = areas.map((a, i) => {
     const o = vals[i];
     const y = i * rowH + 4;
-    const name = a.name.length > 20 ? `${a.name.slice(0, 19)}…` : a.name;
+    const short = a.short || a.name;
+    const name = short.length > 20 ? `${short.slice(0, 19)}…` : short;
     if (!o || !isNum(o.e)) {
       return `<g><text x="${labelW - 6}" y="${y + 12}" class="bar-label" text-anchor="end">${esc(name)}</text><rect x="${labelW}" y="${y + 2}" width="${plotW}" height="12" class="bar-missing"/><text x="${labelW + 6}" y="${y + 12}" class="bar-na">Not available</text></g>`;
     }
@@ -99,10 +103,10 @@ export async function update(ctx) {
     if (ref.startsWith('m')) {
       const id = ref.slice(1);
       const c = cbsas.get(id);
-      return { ref, id, name: c ? c.name : `Metro ${id}`, kind: 'metro', observations: isMissing(cbsaObs) ? null : (cbsaObs.observations || {})[id] || null };
+      return { ref, id, name: c ? c.name : `Metro ${id}`, short: c ? c.name : `Metro ${id}`, kind: 'metro', observations: isMissing(cbsaObs) ? null : (cbsaObs.observations || {})[id] || null };
     }
     const c = counties.get(ref);
-    return { ref, id: ref, name: c ? `${c.name}${c.state_name ? `, ${c.state_name}` : ''}` : `County ${ref}`, kind: 'county', observations: isMissing(core.county) ? null : (core.county.observations || {})[ref] || null };
+    return { ref, id: ref, name: c ? `${c.name}${c.state_name ? `, ${c.state_name}` : ''}` : `County ${ref}`, short: c ? c.name : `County ${ref}`, kind: 'county', observations: isMissing(core.county) ? null : (core.county.observations || {})[ref] || null };
   });
 
   const order = [...metricsById.keys()];
@@ -119,19 +123,23 @@ export async function update(ctx) {
   const countyOpts = [...counties.values()].filter((c) => c.state === pickSt && !ids.includes(c.id)).sort((a, b) => a.name.localeCompare(b.name)).map((c) => `<option value="${esc(c.id)}">${esc(c.name)}</option>`).join('');
   const metroOpts = [...cbsas.values()].filter((c) => !ids.includes(`m${c.id}`)).sort((a, b) => a.name.localeCompare(b.name)).map((c) => `<option value="m${esc(c.id)}">${esc(c.name)} (${esc(c.kind || 'metro')})</option>`).join('');
 
-  const sortHead = (key, label) => {
+  // Metrics as rows, areas as columns: up to 10 areas fit; 20 metric columns would not.
+  // Sorting reorders the area columns by a metric (missing always last) or by name.
+  const sortBtn = (key, label) => {
     const active = sortBy === key;
     const next = active && dir === 'desc' ? 'asc' : active ? 'desc' : key === 'name' ? 'asc' : 'desc';
-    return `<th scope="col" aria-sort="${active ? (dir === 'asc' ? 'ascending' : 'descending') : 'none'}"><button type="button" class="sort" data-sort="${esc(key)}" data-dir="${next}">${esc(label)}${active ? (dir === 'asc' ? ' ▲' : ' ▼') : ''}</button></th>`;
+    return `<button type="button" class="sort" data-sort="${esc(key)}" data-dir="${next}" aria-label="Sort areas by ${esc(label)}${active ? (dir === 'asc' ? ', now ascending' : ', now descending') : ''}">${esc(label)}${active ? (dir === 'asc' ? ' ▲' : ' ▼') : ' ↕'}</button>`;
   };
   const table = areas.length
-    ? `<div class="table-scroll"><table class="data compare-table"><caption>Areas compared. Values with 90% margins of error where published.</caption><thead><tr>${sortHead('name', 'Area')}${metricIds.map((m) => sortHead(m, metricLabel(metricsById, m))).join('')}<th scope="col"><span class="sr-only">Remove</span></th></tr></thead><tbody>
-      ${sorted.map((a) => `<tr><th scope="row">${esc(a.name)}<span class="sub">${a.kind === 'metro' ? 'Metro' : 'County'} ${esc(a.id)}</span></th>${metricIds.map((m) => {
-        const o = a.observations ? a.observations[m] : null;
+    ? `<div class="table-scroll"><table class="data compare-table"><caption>Areas compared, one column each, ${sortBy === 'name' ? 'in name order' : `sorted by ${esc(metricLabel(metricsById, sortBy))}`}. Values carry 90% margins of error where published.</caption>
+      <thead><tr><th scope="col">${sortBtn('name', 'Metric / area')}</th>${sorted.map((a) => `<th scope="col">${esc(a.name)}<span class="sub">${a.kind === 'metro' ? 'Metro' : 'County'} ${esc(a.id)}</span><button type="button" class="link remove" data-ref="${esc(a.ref)}" aria-label="Remove ${esc(a.name)}">Remove</button></th>`).join('')}</tr></thead>
+      <tbody>${metricIds.map((m) => {
         const d = metricsById.get(m) || {};
-        return `<td class="num">${o && isNum(o.e) ? esc(obsText(o, d.unit)) : '<span class="na">Not available</span>'}${o ? `<span class="flags">${flagBadges((o.flags || []).filter((f) => f !== 'moe_approx' && f !== 'derived'))}</span>` : ''}</td>`;
-      }).join('')}<td><button type="button" class="link remove" data-ref="${esc(a.ref)}" aria-label="Remove ${esc(a.name)}">Remove</button></td></tr>`).join('')}
-      </tbody></table></div>`
+        return `<tr><th scope="row">${sortBtn(m, metricLabel(metricsById, m))} ${classBadge(d.class)}</th>${sorted.map((a) => {
+          const o = a.observations ? a.observations[m] : null;
+          return `<td class="num">${o && isNum(o.e) ? esc(obsText(o, d.unit)) : '<span class="na">Not available</span>'}${o ? `<span class="flags">${flagBadges((o.flags || []).filter((f) => f !== 'moe_approx' && f !== 'derived' && !(o.e === null && (f === 'not_published' || f === 'not_ingested'))))}</span>` : ''}</td>`;
+        }).join('')}</tr>`;
+      }).join('')}</tbody></table></div>`
     : '';
 
   const multiples = areas.length >= 1 && metricIds.length

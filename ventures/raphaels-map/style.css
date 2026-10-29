@@ -308,3 +308,8 @@ table.data.rank-table td.num.raw { min-width: 5.5rem; }
 .rank-table td:last-child { white-space: nowrap; }
 svg.ci { width: 100%; max-width: 160px; min-width: 80px; height: 12px; }
 .survey { min-width: 0; }
+.compare-table thead th { white-space: normal; min-width: 8rem; vertical-align: bottom; }
+.compare-table thead th button.remove { font-size: .8rem; }
+.compare-table tbody th { min-width: 12rem; }
+.compare-table tbody th button.sort { white-space: normal; text-align: left; }
+table.data.compare-table td.num { white-space: normal; }

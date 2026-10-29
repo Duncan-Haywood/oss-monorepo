@@ -145,7 +145,7 @@ for (const [label, viewport] of [['desktop', { width: 1280, height: 900 }], ['mo
     await page.waitForSelector('.compare-table tbody tr');
     const t = await page.textContent('#view-compare');
     assert.match(t, /mixes counties and metros/);
-    assert.match(t, /not available for/);
+    assert.match(t, /no value for/);
     const [dl] = await Promise.all([page.waitForEvent('download'), page.click('#cmp-csv')]);
     const csv = readFileSync(await dl.path(), 'utf8');
     assert.match(csv, /^geo_id,geo_name/);

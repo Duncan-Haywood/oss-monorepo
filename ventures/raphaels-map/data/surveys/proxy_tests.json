@@ -1,0 +1,2122 @@
+{
+ "generated_by": "pipeline/proxy_tests.py",
+ "preregistration": "pipeline/proxy_tests_prereg.md",
+ "dataset_id": "gss",
+ "weight": "wtssps",
+ "bootstrap_reps": 1000,
+ "universe": "GSS adults 18-44 (subgroup W: women 18-34) with a valid answer to the outcome",
+ "scope_note": "Individual-level associations within the GSS. Not evidence about county or other ecological versions of these proxies, which remain unvalidated hypotheses.",
+ "tests": [
+  {
+   "id": "H1",
+   "hypothesis": "Weekly attendance adds out-of-sample discrimination for ideal 4+ children",
+   "outcome": "ideal number of children 4+ (CHLDIDEL 4-7 vs 0-3; 'as many as you want' excluded)",
+   "predictors": [
+    "attends religious services weekly or more (ATTEND 7-8)"
+   ],
+   "controls": "age, age squared, sex, highest degree (5 levels), Census region (4)",
+   "train_years": [
+    2000,
+    2002,
+    2004,
+    2006,
+    2008,
+    2010,
+    2012
+   ],
+   "test_years": [
+    2014,
+    2016,
+    2018
+   ],
+   "n_train": 4181,
+   "n_test": 1873,
+   "n_test_positive": 265,
+   "confirmatory": true,
+   "auc": 0.6689,
+   "auc_ci": [
+    0.6369,
+    0.6979
+   ],
+   "baseline_auc": 0.6455,
+   "baseline_auc_ci": [
+    0.6144,
+    0.6767
+   ],
+   "brier": 0.11146,
+   "baseline_brier": 0.11191,
+   "delta_auc": 0.0235,
+   "delta_auc_ci95": [
+    0.0115,
+    0.0342
+   ],
+   "delta_brier": -0.00045,
+   "delta_brier_ci95": [
+    -0.0009,
+    -0.0
+   ],
+   "test_prevalence_weighted": 0.1343,
+   "calibration": {
+    "mean_predicted": 0.1163,
+    "mean_observed": 0.1343,
+    "slope": 1.228
+   },
+   "baseline_calibration": {
+    "mean_predicted": 0.1173,
+    "mean_observed": 0.1343,
+    "slope": 1.161
+   },
+   "train_odds_ratios": {
+    "weekly": {
+     "odds_ratio": 1.346,
+     "ci_low": 1.006,
+     "ci_high": 1.802
+    }
+   },
+   "delta_auc_ci_adjusted": [
+    0.0071,
+    0.0386
+   ],
+   "adjusted_level": 0.9929,
+   "verdict": "supported out of sample",
+   "notes": "Bootstrap: PSUs resampled within strata on the test set, model held fixed (training uncertainty not propagated). Odds ratios: training fit, PSU-cluster-robust SE, stratification ignored."
+  },
+  {
+   "id": "H2",
+   "hypothesis": "Catholic affiliation adds out-of-sample discrimination for ideal 4+ children",
+   "outcome": "ideal number of children 4+ (CHLDIDEL 4-7 vs 0-3; 'as many as you want' excluded)",
+   "predictors": [
+    "Catholic affiliation (RELIG 2), any attendance"
+   ],
+   "controls": "age, age squared, sex, highest degree (5 levels), Census region (4)",
+   "train_years": [
+    2000,
+    2002,
+    2004,
+    2006,
+    2008,
+    2010,
+    2012
+   ],
+   "test_years": [
+    2014,
+    2016,
+    2018
+   ],
+   "n_train": 4192,
+   "n_test": 1864,
+   "n_test_positive": 265,
+   "confirmatory": true,
+   "auc": 0.6556,
+   "auc_ci": [
+    0.6236,
+    0.6847
+   ],
+   "baseline_auc": 0.6472,
+   "baseline_auc_ci": [
+    0.6155,
+    0.6779
+   ],
+   "brier": 0.11254,
+   "baseline_brier": 0.11287,
+   "delta_auc": 0.0084,
+   "delta_auc_ci95": [
+    0.0024,
+    0.014
+   ],
+   "delta_brier": -0.000329,
+   "delta_brier_ci95": [
+    -0.0006,
+    -0.0001
+   ],
+   "test_prevalence_weighted": 0.1356,
+   "calibration": {
+    "mean_predicted": 0.1171,
+    "mean_observed": 0.1356,
+    "slope": 1.162
+   },
+   "baseline_calibration": {
+    "mean_predicted": 0.1173,
+    "mean_observed": 0.1356,
+    "slope": 1.147
+   },
+   "train_odds_ratios": {
+    "catholic": {
+     "odds_ratio": 1.145,
+     "ci_low": 0.881,
+     "ci_high": 1.487
+    }
+   },
+   "delta_auc_ci_adjusted": [
+    0.0011,
+    0.016
+   ],
+   "adjusted_level": 0.9929,
+   "verdict": "supported out of sample",
+   "notes": "Bootstrap: PSUs resampled within strata on the test set, model held fixed (training uncertainty not propagated). Odds ratios: training fit, PSU-cluster-robust SE, stratification ignored."
+  },
+  {
+   "id": "H3",
+   "hypothesis": "Weekly attendance adds more discrimination than Catholic affiliation (ideal 4+)",
+   "outcome": "ideal number of children 4+ (CHLDIDEL 4-7 vs 0-3; 'as many as you want' excluded)",
+   "predictors": [
+    "attends religious services weekly or more (ATTEND 7-8)",
+    "versus",
+    "Catholic affiliation (RELIG 2), any attendance"
+   ],
+   "controls": "age, age squared, sex, highest degree (5 levels), Census region (4)",
+   "train_years": [
+    2000,
+    2002,
+    2004,
+    2006,
+    2008,
+    2010,
+    2012
+   ],
+   "test_years": [
+    2014,
+    2016,
+    2018
+   ],
+   "n_train": 4172,
+   "n_test": 1863,
+   "n_test_positive": 264,
+   "confirmatory": true,
+   "auc": 0.669,
+   "auc_ci": [
+    0.6367,
+    0.6989
+   ],
+   "baseline_auc": 0.6458,
+   "brier": 0.11207,
+   "baseline_brier": 0.11251,
+   "comparator_auc": 0.6551,
+   "comparator_brier": 0.11215,
+   "delta_auc_weekly": 0.0231,
+   "delta_auc_catholic": 0.0092,
+   "difference": 0.0139,
+   "difference_ci95": [
+    0.0023,
+    0.0257
+   ],
+   "difference_ci_adjusted": [
+    -0.0007,
+    0.0306
+   ],
+   "adjusted_level": 0.9929,
+   "verdict": "not supported",
+   "notes": "auc/brier fields are the weekly-attendance model; comparator_* the Catholic-affiliation model; both fitted on the same rows. Paired bootstrap of the \u0394AUC difference."
+  },
+  {
+   "id": "H4",
+   "hypothesis": "Republican/conservative identification adds discrimination for ideal 4+",
+   "outcome": "ideal number of children 4+ (CHLDIDEL 4-7 vs 0-3; 'as many as you want' excluded)",
+   "predictors": [
+    "Republican incl. leaners (PARTYID 4-6) and conservative (POLVIEWS 5-7), entered together"
+   ],
+   "controls": "age, age squared, sex, highest degree (5 levels), Census region (4)",
+   "train_years": [
+    2000,
+    2002,
+    2004,
+    2006,
+    2008,
+    2010,
+    2012
+   ],
+   "test_years": [
+    2014,
+    2016,
+    2018
+   ],
+   "n_train": 4027,
+   "n_test": 1803,
+   "n_test_positive": 246,
+   "confirmatory": true,
+   "auc": 0.6542,
+   "auc_ci": [
+    0.6212,
+    0.6836
+   ],
+   "baseline_auc": 0.6522,
+   "baseline_auc_ci": [
+    0.6218,
+    0.6795
+   ],
+   "brier": 0.10969,
+   "baseline_brier": 0.10968,
+   "delta_auc": 0.0019,
+   "delta_auc_ci95": [
+    -0.0073,
+    0.0106
+   ],
+   "delta_brier": 8e-06,
+   "delta_brier_ci95": [
+    -0.0003,
+    0.0003
+   ],
+   "test_prevalence_weighted": 0.1307,
+   "calibration": {
+    "mean_predicted": 0.1127,
+    "mean_observed": 0.1307,
+    "slope": 1.102
+   },
+   "baseline_calibration": {
+    "mean_predicted": 0.1133,
+    "mean_observed": 0.1307,
+    "slope": 1.126
+   },
+   "train_odds_ratios": {
+    "republican": {
+     "odds_ratio": 1.165,
+     "ci_low": 0.869,
+     "ci_high": 1.564
+    },
+    "conservative": {
+     "odds_ratio": 1.131,
+     "ci_low": 0.852,
+     "ci_high": 1.503
+    }
+   },
+   "delta_auc_ci_adjusted": [
+    -0.0107,
+    0.0139
+   ],
+   "adjusted_level": 0.9929,
+   "verdict": "not supported",
+   "notes": "Bootstrap: PSUs resampled within strata on the test set, model held fixed (training uncertainty not propagated). Odds ratios: training fit, PSU-cluster-robust SE, stratification ignored."
+  },
+  {
+   "id": "H5",
+   "hypothesis": "Rural/small-place residence adds discrimination for ideal 4+",
+   "outcome": "ideal number of children 4+ (CHLDIDEL 4-7 vs 0-3; 'as many as you want' excluded)",
+   "predictors": [
+    "lives in a town under 10,000 or open country (XNORCSIZ 8-10)"
+   ],
+   "controls": "age, age squared, sex, highest degree (5 levels), Census region (4)",
+   "train_years": [
+    2000,
+    2002,
+    2004,
+    2006,
+    2008,
+    2010,
+    2012
+   ],
+   "test_years": [
+    2014,
+    2016,
+    2018
+   ],
+   "n_train": 4205,
+   "n_test": 1879,
+   "n_test_positive": 266,
+   "confirmatory": true,
+   "auc": 0.6477,
+   "auc_ci": [
+    0.6138,
+    0.6771
+   ],
+   "baseline_auc": 0.6467,
+   "baseline_auc_ci": [
+    0.6119,
+    0.6766
+   ],
+   "brier": 0.1121,
+   "baseline_brier": 0.11213,
+   "delta_auc": 0.001,
+   "delta_auc_ci95": [
+    -0.0001,
+    0.0021
+   ],
+   "delta_brier": -3.3e-05,
+   "delta_brier_ci95": [
+    -0.0001,
+    0.0
+   ],
+   "test_prevalence_weighted": 0.1346,
+   "calibration": {
+    "mean_predicted": 0.1175,
+    "mean_observed": 0.1346,
+    "slope": 1.146
+   },
+   "baseline_calibration": {
+    "mean_predicted": 0.1173,
+    "mean_observed": 0.1346,
+    "slope": 1.144
+   },
+   "train_odds_ratios": {
+    "rural": {
+     "odds_ratio": 0.952,
+     "ci_low": 0.673,
+     "ci_high": 1.346
+    }
+   },
+   "delta_auc_ci_adjusted": [
+    -0.0005,
+    0.0024
+   ],
+   "adjusted_level": 0.9929,
+   "verdict": "not supported",
+   "notes": "Bootstrap: PSUs resampled within strata on the test set, model held fixed (training uncertainty not propagated). Odds ratios: training fit, PSU-cluster-robust SE, stratification ignored."
+  },
+  {
+   "id": "H6",
+   "hypothesis": "Intact family at 16 adds discrimination for ideal 4+",
+   "outcome": "ideal number of children 4+ (CHLDIDEL 4-7 vs 0-3; 'as many as you want' excluded)",
+   "predictors": [
+    "lived with both own parents at 16 (FAMILY16 1)"
+   ],
+   "controls": "age, age squared, sex, highest degree (5 levels), Census region (4)",
+   "train_years": [
+    2000,
+    2002,
+    2004,
+    2006,
+    2008,
+    2010,
+    2012
+   ],
+   "test_years": [
+    2014,
+    2016,
+    2018
+   ],
+   "n_train": 4205,
+   "n_test": 1879,
+   "n_test_positive": 266,
+   "confirmatory": true,
+   "auc": 0.6515,
+   "auc_ci": [
+    0.6177,
+    0.681
+   ],
+   "baseline_auc": 0.6467,
+   "baseline_auc_ci": [
+    0.6119,
+    0.6766
+   ],
+   "brier": 0.11198,
+   "baseline_brier": 0.11213,
+   "delta_auc": 0.0048,
+   "delta_auc_ci95": [
+    0.0009,
+    0.0085
+   ],
+   "delta_brier": -0.000144,
+   "delta_brier_ci95": [
+    -0.0003,
+    -0.0
+   ],
+   "test_prevalence_weighted": 0.1346,
+   "calibration": {
+    "mean_predicted": 0.1168,
+    "mean_observed": 0.1346,
+    "slope": 1.164
+   },
+   "baseline_calibration": {
+    "mean_predicted": 0.1173,
+    "mean_observed": 0.1346,
+    "slope": 1.144
+   },
+   "train_odds_ratios": {
+    "intact16": {
+     "odds_ratio": 1.093,
+     "ci_low": 0.86,
+     "ci_high": 1.389
+    }
+   },
+   "delta_auc_ci_adjusted": [
+    -0.0005,
+    0.0096
+   ],
+   "adjusted_level": 0.9929,
+   "verdict": "not supported",
+   "notes": "Bootstrap: PSUs resampled within strata on the test set, model held fixed (training uncertainty not propagated). Odds ratios: training fit, PSU-cluster-robust SE, stratification ignored."
+  },
+  {
+   "id": "H7",
+   "hypothesis": "Hunting adds discrimination for ideal 4+",
+   "outcome": "ideal number of children 4+ (CHLDIDEL 4-7 vs 0-3; 'as many as you want' excluded)",
+   "predictors": [
+    "respondent hunts (HUNT 1 or 3)"
+   ],
+   "controls": "age, age squared, sex, highest degree (5 levels), Census region (4)",
+   "train_years": [
+    2000,
+    2002,
+    2004,
+    2006,
+    2008,
+    2010,
+    2012
+   ],
+   "test_years": [
+    2014,
+    2016,
+    2018
+   ],
+   "n_train": 2075,
+   "n_test": 923,
+   "n_test_positive": 128,
+   "confirmatory": true,
+   "auc": 0.6332,
+   "auc_ci": [
+    0.5913,
+    0.6733
+   ],
+   "baseline_auc": 0.6446,
+   "baseline_auc_ci": [
+    0.5999,
+    0.6878
+   ],
+   "brier": 0.11587,
+   "baseline_brier": 0.11596,
+   "delta_auc": -0.0114,
+   "delta_auc_ci95": [
+    -0.0289,
+    0.0051
+   ],
+   "delta_brier": -8.8e-05,
+   "delta_brier_ci95": [
+    -0.0007,
+    0.0006
+   ],
+   "test_prevalence_weighted": 0.1396,
+   "calibration": {
+    "mean_predicted": 0.124,
+    "mean_observed": 0.1396,
+    "slope": 1.047
+   },
+   "baseline_calibration": {
+    "mean_predicted": 0.1231,
+    "mean_observed": 0.1396,
+    "slope": 1.117
+   },
+   "train_odds_ratios": {
+    "hunts": {
+     "odds_ratio": 0.617,
+     "ci_low": 0.368,
+     "ci_high": 1.034
+    }
+   },
+   "delta_auc_ci_adjusted": [
+    -0.0362,
+    0.0096
+   ],
+   "adjusted_level": 0.9929,
+   "verdict": "not supported",
+   "notes": "Bootstrap: PSUs resampled within strata on the test set, model held fixed (training uncertainty not propagated). Odds ratios: training fit, PSU-cluster-robust SE, stratification ignored."
+  },
+  {
+   "id": "H8",
+   "hypothesis": "Weekly attendance adds discrimination for 'divorce should be more difficult'",
+   "outcome": "divorce should be more difficult to obtain (DIVLAW 2 vs 1 or 3)",
+   "predictors": [
+    "attends religious services weekly or more (ATTEND 7-8)"
+   ],
+   "controls": "age, age squared, sex, highest degree (5 levels), Census region (4)",
+   "train_years": [
+    2000,
+    2002,
+    2004,
+    2006,
+    2008,
+    2010,
+    2012
+   ],
+   "test_years": [
+    2014,
+    2016,
+    2018
+   ],
+   "n_train": 4466,
+   "n_test": 2042,
+   "n_test_positive": 720,
+   "confirmatory": true,
+   "auc": 0.6194,
+   "auc_ci": [
+    0.5968,
+    0.6415
+   ],
+   "baseline_auc": 0.5627,
+   "baseline_auc_ci": [
+    0.5422,
+    0.5834
+   ],
+   "brier": 0.22474,
+   "baseline_brier": 0.23469,
+   "delta_auc": 0.0567,
+   "delta_auc_ci95": [
+    0.0421,
+    0.0706
+   ],
+   "delta_brier": -0.009954,
+   "delta_brier_ci95": [
+    -0.0121,
+    -0.0077
+   ],
+   "test_prevalence_weighted": 0.3402,
+   "calibration": {
+    "mean_predicted": 0.4426,
+    "mean_observed": 0.3402,
+    "slope": 1.173
+   },
+   "baseline_calibration": {
+    "mean_predicted": 0.45,
+    "mean_observed": 0.3402,
+    "slope": 0.779
+   },
+   "train_odds_ratios": {
+    "weekly": {
+     "odds_ratio": 2.097,
+     "ci_low": 1.748,
+     "ci_high": 2.516
+    }
+   },
+   "delta_auc_ci_adjusted": [
+    0.0398,
+    0.072
+   ],
+   "adjusted_level": 0.975,
+   "verdict": "supported out of sample",
+   "notes": "Bootstrap: PSUs resampled within strata on the test set, model held fixed (training uncertainty not propagated). Odds ratios: training fit, PSU-cluster-robust SE, stratification ignored."
+  },
+  {
+   "id": "H9",
+   "hypothesis": "Weekly attendance adds more discrimination than Catholic affiliation (divorce law)",
+   "outcome": "divorce should be more difficult to obtain (DIVLAW 2 vs 1 or 3)",
+   "predictors": [
+    "attends religious services weekly or more (ATTEND 7-8)",
+    "versus",
+    "Catholic affiliation (RELIG 2), any attendance"
+   ],
+   "controls": "age, age squared, sex, highest degree (5 levels), Census region (4)",
+   "train_years": [
+    2000,
+    2002,
+    2004,
+    2006,
+    2008,
+    2010,
+    2012
+   ],
+   "test_years": [
+    2014,
+    2016,
+    2018
+   ],
+   "n_train": 4455,
+   "n_test": 2033,
+   "n_test_positive": 715,
+   "confirmatory": true,
+   "auc": 0.6184,
+   "auc_ci": [
+    0.5976,
+    0.6397
+   ],
+   "baseline_auc": 0.5604,
+   "brier": 0.22475,
+   "baseline_brier": 0.23481,
+   "comparator_auc": 0.5572,
+   "comparator_brier": 0.235,
+   "delta_auc_weekly": 0.058,
+   "delta_auc_catholic": -0.0032,
+   "difference": 0.0612,
+   "difference_ci95": [
+    0.0465,
+    0.0765
+   ],
+   "difference_ci_adjusted": [
+    0.0446,
+    0.0781
+   ],
+   "adjusted_level": 0.975,
+   "verdict": "supported out of sample",
+   "notes": "auc/brier fields are the weekly-attendance model; comparator_* the Catholic-affiliation model; both fitted on the same rows. Paired bootstrap of the \u0394AUC difference."
+  },
+  {
+   "id": "E_B_weekly",
+   "hypothesis": "[exploratory] weekly on ideal 4+, transported to the 2021-2024 mode",
+   "outcome": "ideal number of children 4+ (CHLDIDEL 4-7 vs 0-3; 'as many as you want' excluded)",
+   "predictors": [
+    "attends religious services weekly or more (ATTEND 7-8)"
+   ],
+   "controls": "age, age squared, sex, highest degree (5 levels), Census region (4)",
+   "train_years": [
+    2000,
+    2002,
+    2004,
+    2006,
+    2008,
+    2010,
+    2012,
+    2014,
+    2016,
+    2018
+   ],
+   "test_years": [
+    2021,
+    2022,
+    2024
+   ],
+   "n_train": 6054,
+   "n_test": 1940,
+   "n_test_positive": 231,
+   "confirmatory": false,
+   "auc": 0.6189,
+   "auc_ci": [
+    0.5793,
+    0.6592
+   ],
+   "baseline_auc": 0.604,
+   "baseline_auc_ci": [
+    0.5608,
+    0.6486
+   ],
+   "brier": 0.1114,
+   "baseline_brier": 0.11162,
+   "delta_auc": 0.0149,
+   "delta_auc_ci95": [
+    -0.0007,
+    0.0293
+   ],
+   "delta_brier": -0.000217,
+   "delta_brier_ci95": [
+    -0.001,
+    0.0006
+   ],
+   "test_prevalence_weighted": 0.1299,
+   "calibration": {
+    "mean_predicted": 0.1193,
+    "mean_observed": 0.1299,
+    "slope": 0.722
+   },
+   "baseline_calibration": {
+    "mean_predicted": 0.1214,
+    "mean_observed": 0.1299,
+    "slope": 0.671
+   },
+   "train_odds_ratios": {
+    "weekly": {
+     "odds_ratio": 1.547,
+     "ci_low": 1.217,
+     "ci_high": 1.966
+    }
+   },
+   "verdict": "exploratory (no confirmatory verdict)",
+   "notes": "Split B crosses the 2021 mode change; a drop here may be mode, not substance. Bootstrap: PSUs resampled within strata on the test set, model held fixed (training uncertainty not propagated). Odds ratios: training fit, PSU-cluster-robust SE, stratification ignored."
+  },
+  {
+   "id": "E_B_catholic",
+   "hypothesis": "[exploratory] catholic on ideal 4+, transported to the 2021-2024 mode",
+   "outcome": "ideal number of children 4+ (CHLDIDEL 4-7 vs 0-3; 'as many as you want' excluded)",
+   "predictors": [
+    "Catholic affiliation (RELIG 2), any attendance"
+   ],
+   "controls": "age, age squared, sex, highest degree (5 levels), Census region (4)",
+   "train_years": [
+    2000,
+    2002,
+    2004,
+    2006,
+    2008,
+    2010,
+    2012,
+    2014,
+    2016,
+    2018
+   ],
+   "test_years": [
+    2021,
+    2022,
+    2024
+   ],
+   "n_train": 6056,
+   "n_test": 1926,
+   "n_test_positive": 228,
+   "confirmatory": false,
+   "auc": 0.5927,
+   "auc_ci": [
+    0.551,
+    0.6354
+   ],
+   "baseline_auc": 0.5909,
+   "baseline_auc_ci": [
+    0.5512,
+    0.6307
+   ],
+   "brier": 0.10832,
+   "baseline_brier": 0.1082,
+   "delta_auc": 0.0018,
+   "delta_auc_ci95": [
+    -0.0121,
+    0.0178
+   ],
+   "delta_brier": 0.000121,
+   "delta_brier_ci95": [
+    -0.0003,
+    0.0005
+   ],
+   "test_prevalence_weighted": 0.1237,
+   "calibration": {
+    "mean_predicted": 0.12,
+    "mean_observed": 0.1237,
+    "slope": 0.534
+   },
+   "baseline_calibration": {
+    "mean_predicted": 0.1211,
+    "mean_observed": 0.1237,
+    "slope": 0.552
+   },
+   "train_odds_ratios": {
+    "catholic": {
+     "odds_ratio": 1.259,
+     "ci_low": 1.01,
+     "ci_high": 1.57
+    }
+   },
+   "verdict": "exploratory (no confirmatory verdict)",
+   "notes": "Split B crosses the 2021 mode change; a drop here may be mode, not substance. Bootstrap: PSUs resampled within strata on the test set, model held fixed (training uncertainty not propagated). Odds ratios: training fit, PSU-cluster-robust SE, stratification ignored."
+  },
+  {
+   "id": "E_B_political",
+   "hypothesis": "[exploratory] political on ideal 4+, transported to the 2021-2024 mode",
+   "outcome": "ideal number of children 4+ (CHLDIDEL 4-7 vs 0-3; 'as many as you want' excluded)",
+   "predictors": [
+    "Republican incl. leaners (PARTYID 4-6) and conservative (POLVIEWS 5-7), entered together"
+   ],
+   "controls": "age, age squared, sex, highest degree (5 levels), Census region (4)",
+   "train_years": [
+    2000,
+    2002,
+    2004,
+    2006,
+    2008,
+    2010,
+    2012,
+    2014,
+    2016,
+    2018
+   ],
+   "test_years": [
+    2021,
+    2022,
+    2024
+   ],
+   "n_train": 5830,
+   "n_test": 1897,
+   "n_test_positive": 219,
+   "confirmatory": false,
+   "auc": 0.61,
+   "auc_ci": [
+    0.5694,
+    0.6541
+   ],
+   "baseline_auc": 0.5821,
+   "baseline_auc_ci": [
+    0.5412,
+    0.6283
+   ],
+   "brier": 0.10648,
+   "baseline_brier": 0.10706,
+   "delta_auc": 0.0279,
+   "delta_auc_ci95": [
+    0.0131,
+    0.0433
+   ],
+   "delta_brier": -0.000583,
+   "delta_brier_ci95": [
+    -0.0011,
+    -0.0001
+   ],
+   "test_prevalence_weighted": 0.1215,
+   "calibration": {
+    "mean_predicted": 0.1164,
+    "mean_observed": 0.1215,
+    "slope": 0.598
+   },
+   "baseline_calibration": {
+    "mean_predicted": 0.1171,
+    "mean_observed": 0.1215,
+    "slope": 0.497
+   },
+   "train_odds_ratios": {
+    "republican": {
+     "odds_ratio": 1.027,
+     "ci_low": 0.807,
+     "ci_high": 1.308
+    },
+    "conservative": {
+     "odds_ratio": 1.283,
+     "ci_low": 1.009,
+     "ci_high": 1.632
+    }
+   },
+   "verdict": "exploratory (no confirmatory verdict)",
+   "notes": "Split B crosses the 2021 mode change; a drop here may be mode, not substance. Bootstrap: PSUs resampled within strata on the test set, model held fixed (training uncertainty not propagated). Odds ratios: training fit, PSU-cluster-robust SE, stratification ignored."
+  },
+  {
+   "id": "E_B_rural",
+   "hypothesis": "[exploratory] rural on ideal 4+, transported to the 2021-2024 mode",
+   "outcome": "ideal number of children 4+ (CHLDIDEL 4-7 vs 0-3; 'as many as you want' excluded)",
+   "predictors": [
+    "lives in a town under 10,000 or open country (XNORCSIZ 8-10)"
+   ],
+   "controls": "age, age squared, sex, highest degree (5 levels), Census region (4)",
+   "train_years": [
+    2000,
+    2002,
+    2004,
+    2006,
+    2008,
+    2010,
+    2012,
+    2014,
+    2016,
+    2018
+   ],
+   "test_years": [
+    2021,
+    2022,
+    2024
+   ],
+   "n_train": 6084,
+   "n_test": 1950,
+   "n_test_positive": 233,
+   "confirmatory": false,
+   "auc": 0.6034,
+   "auc_ci": [
+    0.5563,
+    0.6457
+   ],
+   "baseline_auc": 0.6033,
+   "baseline_auc_ci": [
+    0.5562,
+    0.6454
+   ],
+   "brier": 0.11202,
+   "baseline_brier": 0.11199,
+   "delta_auc": 0.0001,
+   "delta_auc_ci95": [
+    -0.0026,
+    0.0029
+   ],
+   "delta_brier": 2.8e-05,
+   "delta_brier_ci95": [
+    -0.0001,
+    0.0001
+   ],
+   "test_prevalence_weighted": 0.1304,
+   "calibration": {
+    "mean_predicted": 0.1218,
+    "mean_observed": 0.1304,
+    "slope": 0.661
+   },
+   "baseline_calibration": {
+    "mean_predicted": 0.1214,
+    "mean_observed": 0.1304,
+    "slope": 0.668
+   },
+   "train_odds_ratios": {
+    "rural": {
+     "odds_ratio": 0.909,
+     "ci_low": 0.678,
+     "ci_high": 1.219
+    }
+   },
+   "verdict": "exploratory (no confirmatory verdict)",
+   "notes": "Split B crosses the 2021 mode change; a drop here may be mode, not substance. Bootstrap: PSUs resampled within strata on the test set, model held fixed (training uncertainty not propagated). Odds ratios: training fit, PSU-cluster-robust SE, stratification ignored."
+  },
+  {
+   "id": "E_B_intact16",
+   "hypothesis": "[exploratory] intact16 on ideal 4+, transported to the 2021-2024 mode",
+   "outcome": "ideal number of children 4+ (CHLDIDEL 4-7 vs 0-3; 'as many as you want' excluded)",
+   "predictors": [
+    "lived with both own parents at 16 (FAMILY16 1)"
+   ],
+   "controls": "age, age squared, sex, highest degree (5 levels), Census region (4)",
+   "train_years": [
+    2000,
+    2002,
+    2004,
+    2006,
+    2008,
+    2010,
+    2012,
+    2014,
+    2016,
+    2018
+   ],
+   "test_years": [
+    2021,
+    2022,
+    2024
+   ],
+   "n_train": 6084,
+   "n_test": 1948,
+   "n_test_positive": 231,
+   "confirmatory": false,
+   "auc": 0.5775,
+   "auc_ci": [
+    0.5349,
+    0.621
+   ],
+   "baseline_auc": 0.5873,
+   "baseline_auc_ci": [
+    0.5456,
+    0.6286
+   ],
+   "brier": 0.10924,
+   "baseline_brier": 0.10884,
+   "delta_auc": -0.0098,
+   "delta_auc_ci95": [
+    -0.021,
+    0.0003
+   ],
+   "delta_brier": 0.000409,
+   "delta_brier_ci95": [
+    0.0001,
+    0.0008
+   ],
+   "test_prevalence_weighted": 0.1245,
+   "calibration": {
+    "mean_predicted": 0.1205,
+    "mean_observed": 0.1245,
+    "slope": 0.498
+   },
+   "baseline_calibration": {
+    "mean_predicted": 0.1206,
+    "mean_observed": 0.1245,
+    "slope": 0.548
+   },
+   "train_odds_ratios": {
+    "intact16": {
+     "odds_ratio": 1.179,
+     "ci_low": 0.974,
+     "ci_high": 1.428
+    }
+   },
+   "verdict": "exploratory (no confirmatory verdict)",
+   "notes": "Split B crosses the 2021 mode change; a drop here may be mode, not substance. Bootstrap: PSUs resampled within strata on the test set, model held fixed (training uncertainty not propagated). Odds ratios: training fit, PSU-cluster-robust SE, stratification ignored."
+  },
+  {
+   "id": "E_B_hunt",
+   "hypothesis": "[exploratory] hunt on ideal 4+, transported to the 2021-2024 mode",
+   "outcome": "ideal number of children 4+ (CHLDIDEL 4-7 vs 0-3; 'as many as you want' excluded)",
+   "predictors": [
+    "respondent hunts (HUNT 1 or 3)"
+   ],
+   "controls": "age, age squared, sex, highest degree (5 levels), Census region (4)",
+   "train_years": [
+    2000,
+    2002,
+    2004,
+    2006,
+    2008,
+    2010,
+    2012,
+    2014,
+    2016,
+    2018
+   ],
+   "test_years": [
+    2021,
+    2022,
+    2024
+   ],
+   "n_train": 2998,
+   "n_test": 1284,
+   "n_test_positive": 148,
+   "confirmatory": false,
+   "auc": 0.5608,
+   "auc_ci": [
+    0.5168,
+    0.6082
+   ],
+   "baseline_auc": 0.5695,
+   "baseline_auc_ci": [
+    0.5265,
+    0.6148
+   ],
+   "brier": 0.10671,
+   "baseline_brier": 0.10609,
+   "delta_auc": -0.0087,
+   "delta_auc_ci95": [
+    -0.0252,
+    0.0071
+   ],
+   "delta_brier": 0.000615,
+   "delta_brier_ci95": [
+    -0.0,
+    0.0013
+   ],
+   "test_prevalence_weighted": 0.12,
+   "calibration": {
+    "mean_predicted": 0.1301,
+    "mean_observed": 0.12,
+    "slope": 0.419
+   },
+   "baseline_calibration": {
+    "mean_predicted": 0.1287,
+    "mean_observed": 0.12,
+    "slope": 0.503
+   },
+   "train_odds_ratios": {
+    "hunts": {
+     "odds_ratio": 0.676,
+     "ci_low": 0.445,
+     "ci_high": 1.027
+    }
+   },
+   "verdict": "exploratory (no confirmatory verdict)",
+   "notes": "Split B crosses the 2021 mode change; a drop here may be mode, not substance. Bootstrap: PSUs resampled within strata on the test set, model held fixed (training uncertainty not propagated). Odds ratios: training fit, PSU-cluster-robust SE, stratification ignored."
+  },
+  {
+   "id": "E_S1_weekly",
+   "hypothesis": "[exploratory] weekly on ideal 4+ incl. 'as many as you want'",
+   "outcome": "ideal number of children 4+ or 'as many as you want' (CHLDIDEL 4-8 vs 0-3)",
+   "predictors": [
+    "attends religious services weekly or more (ATTEND 7-8)"
+   ],
+   "controls": "age, age squared, sex, highest degree (5 levels), Census region (4)",
+   "train_years": [
+    2000,
+    2002,
+    2004,
+    2006,
+    2008,
+    2010,
+    2012
+   ],
+   "test_years": [
+    2014,
+    2016,
+    2018
+   ],
+   "n_train": 4599,
+   "n_test": 2102,
+   "n_test_positive": 494,
+   "confirmatory": false,
+   "auc": 0.6025,
+   "auc_ci": [
+    0.5746,
+    0.6286
+   ],
+   "baseline_auc": 0.5824,
+   "baseline_auc_ci": [
+    0.5545,
+    0.6075
+   ],
+   "brier": 0.17187,
+   "baseline_brier": 0.17272,
+   "delta_auc": 0.0201,
+   "delta_auc_ci95": [
+    0.0082,
+    0.0323
+   ],
+   "delta_brier": -0.000849,
+   "delta_brier_ci95": [
+    -0.0016,
+    -0.0
+   ],
+   "test_prevalence_weighted": 0.2265,
+   "calibration": {
+    "mean_predicted": 0.1882,
+    "mean_observed": 0.2265,
+    "slope": 1.142
+   },
+   "baseline_calibration": {
+    "mean_predicted": 0.1904,
+    "mean_observed": 0.2265,
+    "slope": 1.094
+   },
+   "train_odds_ratios": {
+    "weekly": {
+     "odds_ratio": 1.44,
+     "ci_low": 1.151,
+     "ci_high": 1.802
+    }
+   },
+   "verdict": "exploratory (no confirmatory verdict)",
+   "notes": "Bootstrap: PSUs resampled within strata on the test set, model held fixed (training uncertainty not propagated). Odds ratios: training fit, PSU-cluster-robust SE, stratification ignored."
+  },
+  {
+   "id": "E_S1_catholic",
+   "hypothesis": "[exploratory] catholic on ideal 4+ incl. 'as many as you want'",
+   "outcome": "ideal number of children 4+ or 'as many as you want' (CHLDIDEL 4-8 vs 0-3)",
+   "predictors": [
+    "Catholic affiliation (RELIG 2), any attendance"
+   ],
+   "controls": "age, age squared, sex, highest degree (5 levels), Census region (4)",
+   "train_years": [
+    2000,
+    2002,
+    2004,
+    2006,
+    2008,
+    2010,
+    2012
+   ],
+   "test_years": [
+    2014,
+    2016,
+    2018
+   ],
+   "n_train": 4611,
+   "n_test": 2094,
+   "n_test_positive": 495,
+   "confirmatory": false,
+   "auc": 0.583,
+   "auc_ci": [
+    0.5555,
+    0.6101
+   ],
+   "baseline_auc": 0.5833,
+   "baseline_auc_ci": [
+    0.5554,
+    0.6101
+   ],
+   "brier": 0.17408,
+   "baseline_brier": 0.17402,
+   "delta_auc": -0.0003,
+   "delta_auc_ci95": [
+    -0.0017,
+    0.001
+   ],
+   "delta_brier": 5.2e-05,
+   "delta_brier_ci95": [
+    -0.0,
+    0.0001
+   ],
+   "test_prevalence_weighted": 0.2286,
+   "calibration": {
+    "mean_predicted": 0.1908,
+    "mean_observed": 0.2286,
+    "slope": 1.069
+   },
+   "baseline_calibration": {
+    "mean_predicted": 0.1908,
+    "mean_observed": 0.2286,
+    "slope": 1.076
+   },
+   "train_odds_ratios": {
+    "catholic": {
+     "odds_ratio": 0.978,
+     "ci_low": 0.797,
+     "ci_high": 1.2
+    }
+   },
+   "verdict": "exploratory (no confirmatory verdict)",
+   "notes": "Bootstrap: PSUs resampled within strata on the test set, model held fixed (training uncertainty not propagated). Odds ratios: training fit, PSU-cluster-robust SE, stratification ignored."
+  },
+  {
+   "id": "E_Y2_catholic",
+   "hypothesis": "[exploratory] catholic on 'divorce should be more difficult'",
+   "outcome": "divorce should be more difficult to obtain (DIVLAW 2 vs 1 or 3)",
+   "predictors": [
+    "Catholic affiliation (RELIG 2), any attendance"
+   ],
+   "controls": "age, age squared, sex, highest degree (5 levels), Census region (4)",
+   "train_years": [
+    2000,
+    2002,
+    2004,
+    2006,
+    2008,
+    2010,
+    2012
+   ],
+   "test_years": [
+    2014,
+    2016,
+    2018
+   ],
+   "n_train": 4478,
+   "n_test": 2035,
+   "n_test_positive": 715,
+   "confirmatory": false,
+   "auc": 0.557,
+   "auc_ci": [
+    0.536,
+    0.5767
+   ],
+   "baseline_auc": 0.5604,
+   "baseline_auc_ci": [
+    0.5385,
+    0.5804
+   ],
+   "brier": 0.23497,
+   "baseline_brier": 0.23474,
+   "delta_auc": -0.0033,
+   "delta_auc_ci95": [
+    -0.0058,
+    -0.0009
+   ],
+   "delta_brier": 0.000231,
+   "delta_brier_ci95": [
+    -0.0,
+    0.0005
+   ],
+   "test_prevalence_weighted": 0.339,
+   "calibration": {
+    "mean_predicted": 0.4497,
+    "mean_observed": 0.339,
+    "slope": 0.721
+   },
+   "baseline_calibration": {
+    "mean_predicted": 0.45,
+    "mean_observed": 0.339,
+    "slope": 0.761
+   },
+   "train_odds_ratios": {
+    "catholic": {
+     "odds_ratio": 1.062,
+     "ci_low": 0.9,
+     "ci_high": 1.253
+    }
+   },
+   "verdict": "exploratory (no confirmatory verdict)",
+   "notes": "Bootstrap: PSUs resampled within strata on the test set, model held fixed (training uncertainty not propagated). Odds ratios: training fit, PSU-cluster-robust SE, stratification ignored."
+  },
+  {
+   "id": "E_Y2_political",
+   "hypothesis": "[exploratory] political on 'divorce should be more difficult'",
+   "outcome": "divorce should be more difficult to obtain (DIVLAW 2 vs 1 or 3)",
+   "predictors": [
+    "Republican incl. leaners (PARTYID 4-6) and conservative (POLVIEWS 5-7), entered together"
+   ],
+   "controls": "age, age squared, sex, highest degree (5 levels), Census region (4)",
+   "train_years": [
+    2000,
+    2002,
+    2004,
+    2006,
+    2008,
+    2010,
+    2012
+   ],
+   "test_years": [
+    2014,
+    2016,
+    2018
+   ],
+   "n_train": 4310,
+   "n_test": 1958,
+   "n_test_positive": 691,
+   "confirmatory": false,
+   "auc": 0.6219,
+   "auc_ci": [
+    0.5996,
+    0.643
+   ],
+   "baseline_auc": 0.556,
+   "baseline_auc_ci": [
+    0.5354,
+    0.5756
+   ],
+   "brier": 0.22592,
+   "baseline_brier": 0.23575,
+   "delta_auc": 0.0659,
+   "delta_auc_ci95": [
+    0.0467,
+    0.0863
+   ],
+   "delta_brier": -0.009825,
+   "delta_brier_ci95": [
+    -0.013,
+    -0.0069
+   ],
+   "test_prevalence_weighted": 0.3429,
+   "calibration": {
+    "mean_predicted": 0.4454,
+    "mean_observed": 0.3429,
+    "slope": 1.029
+   },
+   "baseline_calibration": {
+    "mean_predicted": 0.4516,
+    "mean_observed": 0.3429,
+    "slope": 0.738
+   },
+   "train_odds_ratios": {
+    "republican": {
+     "odds_ratio": 1.627,
+     "ci_low": 1.371,
+     "ci_high": 1.93
+    },
+    "conservative": {
+     "odds_ratio": 1.529,
+     "ci_low": 1.298,
+     "ci_high": 1.802
+    }
+   },
+   "verdict": "exploratory (no confirmatory verdict)",
+   "notes": "Bootstrap: PSUs resampled within strata on the test set, model held fixed (training uncertainty not propagated). Odds ratios: training fit, PSU-cluster-robust SE, stratification ignored."
+  },
+  {
+   "id": "E_Y2_rural",
+   "hypothesis": "[exploratory] rural on 'divorce should be more difficult'",
+   "outcome": "divorce should be more difficult to obtain (DIVLAW 2 vs 1 or 3)",
+   "predictors": [
+    "lives in a town under 10,000 or open country (XNORCSIZ 8-10)"
+   ],
+   "controls": "age, age squared, sex, highest degree (5 levels), Census region (4)",
+   "train_years": [
+    2000,
+    2002,
+    2004,
+    2006,
+    2008,
+    2010,
+    2012
+   ],
+   "test_years": [
+    2014,
+    2016,
+    2018
+   ],
+   "n_train": 4493,
+   "n_test": 2049,
+   "n_test_positive": 721,
+   "confirmatory": false,
+   "auc": 0.5643,
+   "auc_ci": [
+    0.545,
+    0.5843
+   ],
+   "baseline_auc": 0.5626,
+   "baseline_auc_ci": [
+    0.5434,
+    0.5832
+   ],
+   "brier": 0.23388,
+   "baseline_brier": 0.23464,
+   "delta_auc": 0.0017,
+   "delta_auc_ci95": [
+    -0.0061,
+    0.0093
+   ],
+   "delta_brier": -0.000756,
+   "delta_brier_ci95": [
+    -0.0015,
+    0.0
+   ],
+   "test_prevalence_weighted": 0.3398,
+   "calibration": {
+    "mean_predicted": 0.4471,
+    "mean_observed": 0.3398,
+    "slope": 0.772
+   },
+   "baseline_calibration": {
+    "mean_predicted": 0.45,
+    "mean_observed": 0.3398,
+    "slope": 0.781
+   },
+   "train_odds_ratios": {
+    "rural": {
+     "odds_ratio": 1.374,
+     "ci_low": 1.092,
+     "ci_high": 1.728
+    }
+   },
+   "verdict": "exploratory (no confirmatory verdict)",
+   "notes": "Bootstrap: PSUs resampled within strata on the test set, model held fixed (training uncertainty not propagated). Odds ratios: training fit, PSU-cluster-robust SE, stratification ignored."
+  },
+  {
+   "id": "E_Y2_intact16",
+   "hypothesis": "[exploratory] intact16 on 'divorce should be more difficult'",
+   "outcome": "divorce should be more difficult to obtain (DIVLAW 2 vs 1 or 3)",
+   "predictors": [
+    "lived with both own parents at 16 (FAMILY16 1)"
+   ],
+   "controls": "age, age squared, sex, highest degree (5 levels), Census region (4)",
+   "train_years": [
+    2000,
+    2002,
+    2004,
+    2006,
+    2008,
+    2010,
+    2012
+   ],
+   "test_years": [
+    2014,
+    2016,
+    2018
+   ],
+   "n_train": 4493,
+   "n_test": 2049,
+   "n_test_positive": 721,
+   "confirmatory": false,
+   "auc": 0.5648,
+   "auc_ci": [
+    0.5447,
+    0.5862
+   ],
+   "baseline_auc": 0.5626,
+   "baseline_auc_ci": [
+    0.5434,
+    0.5832
+   ],
+   "brier": 0.23414,
+   "baseline_brier": 0.23464,
+   "delta_auc": 0.0021,
+   "delta_auc_ci95": [
+    -0.0062,
+    0.0095
+   ],
+   "delta_brier": -0.000496,
+   "delta_brier_ci95": [
+    -0.0012,
+    0.0003
+   ],
+   "test_prevalence_weighted": 0.3398,
+   "calibration": {
+    "mean_predicted": 0.4479,
+    "mean_observed": 0.3398,
+    "slope": 0.769
+   },
+   "baseline_calibration": {
+    "mean_predicted": 0.45,
+    "mean_observed": 0.3398,
+    "slope": 0.781
+   },
+   "train_odds_ratios": {
+    "intact16": {
+     "odds_ratio": 1.177,
+     "ci_low": 1.011,
+     "ci_high": 1.37
+    }
+   },
+   "verdict": "exploratory (no confirmatory verdict)",
+   "notes": "Bootstrap: PSUs resampled within strata on the test set, model held fixed (training uncertainty not propagated). Odds ratios: training fit, PSU-cluster-robust SE, stratification ignored."
+  },
+  {
+   "id": "E_Y2_hunt",
+   "hypothesis": "[exploratory] hunt on 'divorce should be more difficult'",
+   "outcome": "divorce should be more difficult to obtain (DIVLAW 2 vs 1 or 3)",
+   "predictors": [
+    "respondent hunts (HUNT 1 or 3)"
+   ],
+   "controls": "age, age squared, sex, highest degree (5 levels), Census region (4)",
+   "train_years": [
+    2000,
+    2002,
+    2004,
+    2006,
+    2008,
+    2010,
+    2012
+   ],
+   "test_years": [
+    2014,
+    2016,
+    2018
+   ],
+   "n_train": 2201,
+   "n_test": 1000,
+   "n_test_positive": 355,
+   "confirmatory": false,
+   "auc": 0.5477,
+   "auc_ci": [
+    0.5204,
+    0.5739
+   ],
+   "baseline_auc": 0.5339,
+   "baseline_auc_ci": [
+    0.5041,
+    0.559
+   ],
+   "brier": 0.23799,
+   "baseline_brier": 0.23803,
+   "delta_auc": 0.0139,
+   "delta_auc_ci95": [
+    -0.0012,
+    0.0286
+   ],
+   "delta_brier": -3.3e-05,
+   "delta_brier_ci95": [
+    -0.0018,
+    0.0017
+   ],
+   "test_prevalence_weighted": 0.3372,
+   "calibration": {
+    "mean_predicted": 0.4529,
+    "mean_observed": 0.3372,
+    "slope": 0.435
+   },
+   "baseline_calibration": {
+    "mean_predicted": 0.4543,
+    "mean_observed": 0.3372,
+    "slope": 0.443
+   },
+   "train_odds_ratios": {
+    "hunts": {
+     "odds_ratio": 1.66,
+     "ci_low": 1.238,
+     "ci_high": 2.226
+    }
+   },
+   "verdict": "exploratory (no confirmatory verdict)",
+   "notes": "Bootstrap: PSUs resampled within strata on the test set, model held fixed (training uncertainty not propagated). Odds ratios: training fit, PSU-cluster-robust SE, stratification ignored."
+  },
+  {
+   "id": "E_Y3_weekly",
+   "hypothesis": "[exploratory] weekly on agreeing with the male-earner/female-homemaker norm",
+   "outcome": "agrees it is better for the man to work and the woman to tend the home (FEFAM 1-2 vs 3-4); a role norm",
+   "predictors": [
+    "attends religious services weekly or more (ATTEND 7-8)"
+   ],
+   "controls": "age, age squared, sex, highest degree (5 levels), Census region (4)",
+   "train_years": [
+    2000,
+    2002,
+    2004,
+    2006,
+    2008,
+    2010,
+    2012
+   ],
+   "test_years": [
+    2014,
+    2016,
+    2018
+   ],
+   "n_train": 4633,
+   "n_test": 2146,
+   "n_test_positive": 504,
+   "confirmatory": false,
+   "auc": 0.6429,
+   "auc_ci": [
+    0.6199,
+    0.6669
+   ],
+   "baseline_auc": 0.6164,
+   "baseline_auc_ci": [
+    0.5899,
+    0.6425
+   ],
+   "brier": 0.17678,
+   "baseline_brier": 0.18035,
+   "delta_auc": 0.0265,
+   "delta_auc_ci95": [
+    0.0115,
+    0.0414
+   ],
+   "delta_brier": -0.003568,
+   "delta_brier_ci95": [
+    -0.0058,
+    -0.0014
+   ],
+   "test_prevalence_weighted": 0.2427,
+   "calibration": {
+    "mean_predicted": 0.2899,
+    "mean_observed": 0.2427,
+    "slope": 0.892
+   },
+   "baseline_calibration": {
+    "mean_predicted": 0.2971,
+    "mean_observed": 0.2427,
+    "slope": 0.923
+   },
+   "train_odds_ratios": {
+    "weekly": {
+     "odds_ratio": 2.386,
+     "ci_low": 1.964,
+     "ci_high": 2.898
+    }
+   },
+   "verdict": "exploratory (no confirmatory verdict)",
+   "notes": "Bootstrap: PSUs resampled within strata on the test set, model held fixed (training uncertainty not propagated). Odds ratios: training fit, PSU-cluster-robust SE, stratification ignored."
+  },
+  {
+   "id": "E_Y3_catholic",
+   "hypothesis": "[exploratory] catholic on agreeing with the male-earner/female-homemaker norm",
+   "outcome": "agrees it is better for the man to work and the woman to tend the home (FEFAM 1-2 vs 3-4); a role norm",
+   "predictors": [
+    "Catholic affiliation (RELIG 2), any attendance"
+   ],
+   "controls": "age, age squared, sex, highest degree (5 levels), Census region (4)",
+   "train_years": [
+    2000,
+    2002,
+    2004,
+    2006,
+    2008,
+    2010,
+    2012
+   ],
+   "test_years": [
+    2014,
+    2016,
+    2018
+   ],
+   "n_train": 4648,
+   "n_test": 2138,
+   "n_test_positive": 502,
+   "confirmatory": false,
+   "auc": 0.6185,
+   "auc_ci": [
+    0.5927,
+    0.6442
+   ],
+   "baseline_auc": 0.6185,
+   "baseline_auc_ci": [
+    0.5926,
+    0.6443
+   ],
+   "brier": 0.18018,
+   "baseline_brier": 0.18022,
+   "delta_auc": 0.0,
+   "delta_auc_ci95": [
+    -0.0003,
+    0.0003
+   ],
+   "delta_brier": -4.2e-05,
+   "delta_brier_ci95": [
+    -0.0001,
+    -0.0
+   ],
+   "test_prevalence_weighted": 0.2434,
+   "calibration": {
+    "mean_predicted": 0.2965,
+    "mean_observed": 0.2434,
+    "slope": 0.941
+   },
+   "baseline_calibration": {
+    "mean_predicted": 0.2965,
+    "mean_observed": 0.2434,
+    "slope": 0.94
+   },
+   "train_odds_ratios": {
+    "catholic": {
+     "odds_ratio": 1.011,
+     "ci_low": 0.847,
+     "ci_high": 1.206
+    }
+   },
+   "verdict": "exploratory (no confirmatory verdict)",
+   "notes": "Bootstrap: PSUs resampled within strata on the test set, model held fixed (training uncertainty not propagated). Odds ratios: training fit, PSU-cluster-robust SE, stratification ignored."
+  },
+  {
+   "id": "E_Y3_political",
+   "hypothesis": "[exploratory] political on agreeing with the male-earner/female-homemaker norm",
+   "outcome": "agrees it is better for the man to work and the woman to tend the home (FEFAM 1-2 vs 3-4); a role norm",
+   "predictors": [
+    "Republican incl. leaners (PARTYID 4-6) and conservative (POLVIEWS 5-7), entered together"
+   ],
+   "controls": "age, age squared, sex, highest degree (5 levels), Census region (4)",
+   "train_years": [
+    2000,
+    2002,
+    2004,
+    2006,
+    2008,
+    2010,
+    2012
+   ],
+   "test_years": [
+    2014,
+    2016,
+    2018
+   ],
+   "n_train": 4457,
+   "n_test": 2045,
+   "n_test_positive": 472,
+   "confirmatory": false,
+   "auc": 0.6241,
+   "auc_ci": [
+    0.5989,
+    0.6496
+   ],
+   "baseline_auc": 0.6089,
+   "baseline_auc_ci": [
+    0.5837,
+    0.6331
+   ],
+   "brier": 0.17747,
+   "baseline_brier": 0.17921,
+   "delta_auc": 0.0152,
+   "delta_auc_ci95": [
+    0.0024,
+    0.028
+   ],
+   "delta_brier": -0.001735,
+   "delta_brier_ci95": [
+    -0.0039,
+    0.0001
+   ],
+   "test_prevalence_weighted": 0.2383,
+   "calibration": {
+    "mean_predicted": 0.2879,
+    "mean_observed": 0.2383,
+    "slope": 0.799
+   },
+   "baseline_calibration": {
+    "mean_predicted": 0.2922,
+    "mean_observed": 0.2383,
+    "slope": 0.852
+   },
+   "train_odds_ratios": {
+    "republican": {
+     "odds_ratio": 1.222,
+     "ci_low": 1.028,
+     "ci_high": 1.452
+    },
+    "conservative": {
+     "odds_ratio": 1.79,
+     "ci_low": 1.49,
+     "ci_high": 2.15
+    }
+   },
+   "verdict": "exploratory (no confirmatory verdict)",
+   "notes": "Bootstrap: PSUs resampled within strata on the test set, model held fixed (training uncertainty not propagated). Odds ratios: training fit, PSU-cluster-robust SE, stratification ignored."
+  },
+  {
+   "id": "E_Y3_rural",
+   "hypothesis": "[exploratory] rural on agreeing with the male-earner/female-homemaker norm",
+   "outcome": "agrees it is better for the man to work and the woman to tend the home (FEFAM 1-2 vs 3-4); a role norm",
+   "predictors": [
+    "lives in a town under 10,000 or open country (XNORCSIZ 8-10)"
+   ],
+   "controls": "age, age squared, sex, highest degree (5 levels), Census region (4)",
+   "train_years": [
+    2000,
+    2002,
+    2004,
+    2006,
+    2008,
+    2010,
+    2012
+   ],
+   "test_years": [
+    2014,
+    2016,
+    2018
+   ],
+   "n_train": 4664,
+   "n_test": 2155,
+   "n_test_positive": 506,
+   "confirmatory": false,
+   "auc": 0.6167,
+   "auc_ci": [
+    0.5899,
+    0.6437
+   ],
+   "baseline_auc": 0.6167,
+   "baseline_auc_ci": [
+    0.5898,
+    0.6435
+   ],
+   "brier": 0.18014,
+   "baseline_brier": 0.18026,
+   "delta_auc": 0.0,
+   "delta_auc_ci95": [
+    -0.0018,
+    0.0019
+   ],
+   "delta_brier": -0.00012,
+   "delta_brier_ci95": [
+    -0.0003,
+    0.0001
+   ],
+   "test_prevalence_weighted": 0.2425,
+   "calibration": {
+    "mean_predicted": 0.2963,
+    "mean_observed": 0.2425,
+    "slope": 0.921
+   },
+   "baseline_calibration": {
+    "mean_predicted": 0.2971,
+    "mean_observed": 0.2425,
+    "slope": 0.922
+   },
+   "train_odds_ratios": {
+    "rural": {
+     "odds_ratio": 1.107,
+     "ci_low": 0.877,
+     "ci_high": 1.397
+    }
+   },
+   "verdict": "exploratory (no confirmatory verdict)",
+   "notes": "Bootstrap: PSUs resampled within strata on the test set, model held fixed (training uncertainty not propagated). Odds ratios: training fit, PSU-cluster-robust SE, stratification ignored."
+  },
+  {
+   "id": "E_Y3_intact16",
+   "hypothesis": "[exploratory] intact16 on agreeing with the male-earner/female-homemaker norm",
+   "outcome": "agrees it is better for the man to work and the woman to tend the home (FEFAM 1-2 vs 3-4); a role norm",
+   "predictors": [
+    "lived with both own parents at 16 (FAMILY16 1)"
+   ],
+   "controls": "age, age squared, sex, highest degree (5 levels), Census region (4)",
+   "train_years": [
+    2000,
+    2002,
+    2004,
+    2006,
+    2008,
+    2010,
+    2012
+   ],
+   "test_years": [
+    2014,
+    2016,
+    2018
+   ],
+   "n_train": 4664,
+   "n_test": 2155,
+   "n_test_positive": 506,
+   "confirmatory": false,
+   "auc": 0.6152,
+   "auc_ci": [
+    0.5899,
+    0.6422
+   ],
+   "baseline_auc": 0.6167,
+   "baseline_auc_ci": [
+    0.5898,
+    0.6435
+   ],
+   "brier": 0.17978,
+   "baseline_brier": 0.18026,
+   "delta_auc": -0.0015,
+   "delta_auc_ci95": [
+    -0.0097,
+    0.0071
+   ],
+   "delta_brier": -0.000473,
+   "delta_brier_ci95": [
+    -0.0013,
+    0.0005
+   ],
+   "test_prevalence_weighted": 0.2425,
+   "calibration": {
+    "mean_predicted": 0.294,
+    "mean_observed": 0.2425,
+    "slope": 0.9
+   },
+   "baseline_calibration": {
+    "mean_predicted": 0.2971,
+    "mean_observed": 0.2425,
+    "slope": 0.922
+   },
+   "train_odds_ratios": {
+    "intact16": {
+     "odds_ratio": 1.348,
+     "ci_low": 1.145,
+     "ci_high": 1.587
+    }
+   },
+   "verdict": "exploratory (no confirmatory verdict)",
+   "notes": "Bootstrap: PSUs resampled within strata on the test set, model held fixed (training uncertainty not propagated). Odds ratios: training fit, PSU-cluster-robust SE, stratification ignored."
+  },
+  {
+   "id": "E_Y3_hunt",
+   "hypothesis": "[exploratory] hunt on agreeing with the male-earner/female-homemaker norm",
+   "outcome": "agrees it is better for the man to work and the woman to tend the home (FEFAM 1-2 vs 3-4); a role norm",
+   "predictors": [
+    "respondent hunts (HUNT 1 or 3)"
+   ],
+   "controls": "age, age squared, sex, highest degree (5 levels), Census region (4)",
+   "train_years": [
+    2000,
+    2002,
+    2004,
+    2006,
+    2008,
+    2010,
+    2012
+   ],
+   "test_years": [
+    2014,
+    2016,
+    2018
+   ],
+   "n_train": 2275,
+   "n_test": 1051,
+   "n_test_positive": 228,
+   "confirmatory": false,
+   "auc": 0.6444,
+   "auc_ci": [
+    0.6115,
+    0.6796
+   ],
+   "baseline_auc": 0.6339,
+   "baseline_auc_ci": [
+    0.6031,
+    0.6674
+   ],
+   "brier": 0.16914,
+   "baseline_brier": 0.17141,
+   "delta_auc": 0.0105,
+   "delta_auc_ci95": [
+    0.0012,
+    0.0199
+   ],
+   "delta_brier": -0.002268,
+   "delta_brier_ci95": [
+    -0.0037,
+    -0.0006
+   ],
+   "test_prevalence_weighted": 0.2201,
+   "calibration": {
+    "mean_predicted": 0.2947,
+    "mean_observed": 0.2201,
+    "slope": 0.898
+   },
+   "baseline_calibration": {
+    "mean_predicted": 0.2958,
+    "mean_observed": 0.2201,
+    "slope": 0.852
+   },
+   "train_odds_ratios": {
+    "hunts": {
+     "odds_ratio": 1.613,
+     "ci_low": 1.198,
+     "ci_high": 2.172
+    }
+   },
+   "verdict": "exploratory (no confirmatory verdict)",
+   "notes": "Bootstrap: PSUs resampled within strata on the test set, model held fixed (training uncertainty not propagated). Odds ratios: training fit, PSU-cluster-robust SE, stratification ignored."
+  },
+  {
+   "id": "E_W_weekly",
+   "hypothesis": "[exploratory] weekly on ideal 4+ among women 18-34",
+   "outcome": "ideal number of children 4+ (CHLDIDEL 4-7 vs 0-3; 'as many as you want' excluded)",
+   "predictors": [
+    "attends religious services weekly or more (ATTEND 7-8)"
+   ],
+   "controls": "age, age squared, sex, highest degree (5 levels), Census region (4)",
+   "train_years": [
+    2000,
+    2002,
+    2004,
+    2006,
+    2008,
+    2010,
+    2012
+   ],
+   "test_years": [
+    2014,
+    2016,
+    2018
+   ],
+   "n_train": 1349,
+   "n_test": 657,
+   "n_test_positive": 114,
+   "confirmatory": false,
+   "auc": 0.6257,
+   "auc_ci": [
+    0.5839,
+    0.6686
+   ],
+   "baseline_auc": 0.6224,
+   "baseline_auc_ci": [
+    0.5801,
+    0.6663
+   ],
+   "brier": 0.13301,
+   "baseline_brier": 0.13317,
+   "delta_auc": 0.0032,
+   "delta_auc_ci95": [
+    -0.0004,
+    0.0067
+   ],
+   "delta_brier": -0.000162,
+   "delta_brier_ci95": [
+    -0.0003,
+    -0.0001
+   ],
+   "test_prevalence_weighted": 0.1614,
+   "calibration": {
+    "mean_predicted": 0.1291,
+    "mean_observed": 0.1614,
+    "slope": 1.03
+   },
+   "baseline_calibration": {
+    "mean_predicted": 0.1292,
+    "mean_observed": 0.1614,
+    "slope": 1.005
+   },
+   "train_odds_ratios": {
+    "weekly": {
+     "odds_ratio": 1.034,
+     "ci_low": 0.651,
+     "ci_high": 1.643
+    }
+   },
+   "verdict": "exploratory (no confirmatory verdict)",
+   "notes": "Women 18-34 only; sex dropped from the baseline. Bootstrap: PSUs resampled within strata on the test set, model held fixed (training uncertainty not propagated). Odds ratios: training fit, PSU-cluster-robust SE, stratification ignored."
+  },
+  {
+   "id": "E_W_catholic",
+   "hypothesis": "[exploratory] catholic on ideal 4+ among women 18-34",
+   "outcome": "ideal number of children 4+ (CHLDIDEL 4-7 vs 0-3; 'as many as you want' excluded)",
+   "predictors": [
+    "Catholic affiliation (RELIG 2), any attendance"
+   ],
+   "controls": "age, age squared, sex, highest degree (5 levels), Census region (4)",
+   "train_years": [
+    2000,
+    2002,
+    2004,
+    2006,
+    2008,
+    2010,
+    2012
+   ],
+   "test_years": [
+    2014,
+    2016,
+    2018
+   ],
+   "n_train": 1356,
+   "n_test": 656,
+   "n_test_positive": 114,
+   "confirmatory": false,
+   "auc": 0.6218,
+   "auc_ci": [
+    0.5769,
+    0.6652
+   ],
+   "baseline_auc": 0.6213,
+   "baseline_auc_ci": [
+    0.5767,
+    0.6663
+   ],
+   "brier": 0.13349,
+   "baseline_brier": 0.13332,
+   "delta_auc": 0.0005,
+   "delta_auc_ci95": [
+    -0.0043,
+    0.0054
+   ],
+   "delta_brier": 0.00017,
+   "delta_brier_ci95": [
+    -0.0001,
+    0.0004
+   ],
+   "test_prevalence_weighted": 0.1616,
+   "calibration": {
+    "mean_predicted": 0.1302,
+    "mean_observed": 0.1616,
+    "slope": 0.953
+   },
+   "baseline_calibration": {
+    "mean_predicted": 0.13,
+    "mean_observed": 0.1616,
+    "slope": 0.966
+   },
+   "train_odds_ratios": {
+    "catholic": {
+     "odds_ratio": 0.919,
+     "ci_low": 0.579,
+     "ci_high": 1.46
+    }
+   },
+   "verdict": "exploratory (no confirmatory verdict)",
+   "notes": "Women 18-34 only; sex dropped from the baseline. Bootstrap: PSUs resampled within strata on the test set, model held fixed (training uncertainty not propagated). Odds ratios: training fit, PSU-cluster-robust SE, stratification ignored."
+  }
+ ]
+}
