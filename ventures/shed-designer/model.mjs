@@ -60,6 +60,7 @@ export function defaultDesign() {
     skidSize: '4x4',
     skidSpacing: 48,
     foundation: 'gravel',
+    compaction: 'hand tamper',
     floorTreated: true,
     siding: true,
     sidingColor: 'natural',
@@ -80,6 +81,7 @@ export function defaultDesign() {
     interior: 'none',
     insulation: false,
     sidingType: 'T1-11',
+    wallTrim: '1x4',
     roofCover: 'shingles',
     rafterSeat: 'connector',
     maxFootprint: 100,
@@ -94,6 +96,17 @@ export function defaultDesign() {
 }
 
 /** The classic shape the presets start from: 8 ft walls, ridge board with rafter ties, unpainted siding, no height limit. */
+/**
+ * What the skids can sit on besides the gravel itself. Sizes are the block's
+ * own (inches): its height, its length along the skid and its width across.
+ * Every block sits on the compacted gravel pad.
+ */
+export const BLOCKS = {
+  blocks: { name: 'solid concrete block, 4 x 8 x 16', h: 4, along: 16, across: 8, item: 'concreteBlock' },
+  'deck blocks': { name: 'concrete deck block (pier block)', h: 8, along: 11, across: 11, item: 'deckBlock' },
+  CMU: { name: 'concrete masonry unit (CMU), 8 x 8 x 16, cores vertical', h: 8, along: 16, across: 8, item: 'cmuBlock' },
+};
+
 const classic = () => ({ ...defaultDesign(), wallHeight: 96, pitch: 6, skidSize: '4x6', roofType: 'ridgeBoard', sidingColor: 'natural', polkaDots: false, maxPeak: 0, ventHeight: 12, autoWall: false, autoPitch: false, autoOverhang: false, rafterSeat: 'birdsmouth', maxFootprint: 0, roofColor: 'charcoal', trimColor: 'white', glitter: false, interior: 'none' });
 
 /** @typedef {ReturnType<typeof defaultDesign>} Design */
@@ -152,7 +165,8 @@ export function normalize(input) {
     tieSize: pick(o.tieSize, ['2x4', '2x6'], d.tieSize),
     skidSize: pick(o.skidSize, ['4x4', '4x6'], d.skidSize),
     skidSpacing: Math.min(72, Math.max(24, num(o.skidSpacing, d.skidSpacing))),
-    foundation: pick(o.foundation, ['gravel', 'blocks'], d.foundation),
+    compaction: pick(o.compaction, ['hand tamper', 'plate compactor'], d.compaction),
+    foundation: pick(o.foundation, ['gravel', ...Object.keys(BLOCKS)], d.foundation),
     floorTreated: o.floorTreated !== false,
     siding: o.siding !== false,
     roofing: o.roofing !== false,
@@ -172,7 +186,8 @@ export function normalize(input) {
     glitter: o.glitter === true,
     interior: pick(o.interior, ['none', 'OSB', 'plywood', 'drywall', 'beadboard', 'pegboard', 'teen bedroom'], d.interior),
     insulation: o.insulation === true,
-    sidingType: pick(o.sidingType, ['T1-11', 'LP SmartSide', 'board and batten', 'vinyl', 'fiber cement'], d.sidingType),
+    wallTrim: pick(o.wallTrim, ['1x4', 'none'], d.wallTrim),
+    sidingType: pick(o.sidingType, ['T1-11', 'LP SmartSide', 'LP SmartSide 7/16', 'board and batten', 'vinyl', 'fiber cement'], d.sidingType),
     roofCover: pick(o.roofCover, ['shingles', 'metal'], d.roofCover),
     rafterSeat: pick(o.rafterSeat, ['birdsmouth', 'connector'], d.rafterSeat),
     maxFootprint: Math.min(1000, Math.max(0, num(o.maxFootprint, d.maxFootprint))),
@@ -183,6 +198,7 @@ export function normalize(input) {
     // A product, when chosen, sets the rough opening to the maker's.
     openings: (Array.isArray(o.openings) ? o.openings : []).map((op) => {
       const pr = productById(op.product);
+      if (op.kind === 'door' && op.product === 'site-built') return op;
       return pr && pr.kind === (op.kind === 'window' ? 'window' : 'door') ? { ...op, width: pr.roW, height: pr.roH } : { ...op, product: undefined };
     }).map((op, i) => ({
       id: String(op.id || `o${i + 1}`),
@@ -351,14 +367,15 @@ function buildFramed(d) {
 
   // ---------------- Foundation ----------------
   const skid = actual(d.skidSize); // laid on edge: thick across, depth up
-  const blockH = d.foundation === 'blocks' ? 4 : 0;
+  const block = /** @type {any} */ (BLOCKS)[d.foundation] || null;
+  const blockH = block ? block.h : 0;
   const skidTop = blockH + skid.depth;
   const skidCount = Math.max(2, Math.ceil((W - skid.thick) / d.skidSpacing) + 1);
   const skidYs = [];
   for (let i = 0; i < skidCount; i++) skidYs.push(skid.thick / 2 + (i * (W - skid.thick)) / (skidCount - 1));
   const skidSplit = splitRun(0, L, maxStock, [], [], 0);
   if (skidSplit.runs.length > 1) {
-    notes.push(`Skids are longer than the longest board you allowed (${maxStock / 12} ft), so each is spliced; stagger the joints between skids${d.foundation === 'blocks' ? ' and land each joint on a block' : ''}.`);
+    notes.push(`Skids are longer than the longest board you allowed (${maxStock / 12} ft), so each is spliced; stagger the joints between skids${block ? ' and land each joint on a block' : ''}.`);
   }
   // Even pieces read better than one long and one stub.
   const skidPieces = skidSplit.runs.length;
@@ -373,15 +390,15 @@ function buildFramed(d) {
         local: { s0, s1, z0: y - skid.thick / 2, z1: y + skid.thick / 2 },
       });
     }
-    if (d.foundation === 'blocks') {
+    if (block) {
       const n = Math.ceil(L / 48) + 1;
       for (let k = 0; k < n; k++) {
-        const x = Math.min(L - 8, Math.max(0, (k * (L - 16)) / (n - 1)));
-        fixtures.push({ kind: 'block', group: 'foundation', geom: rectGeom([x, y - 4, 0], X, Z, Y, 16, 4, 8) });
+        const x = (k * (L - block.along)) / (n - 1);
+        fixtures.push({ kind: 'block', group: 'foundation', geom: rectGeom([x, y - block.across / 2, 0], X, Z, Y, block.along, block.h, block.across) });
       }
     }
   });
-  const blockCount = d.foundation === 'blocks' ? skidCount * (Math.ceil(L / 48) + 1) : 0;
+  const blockCount = block ? skidCount * (Math.ceil(L / 48) + 1) : 0;
   const pad = 12;
   fixtures.push({ kind: 'gravel', group: 'foundation', geom: rectGeom([-pad, -pad, -4], X, Z, Y, L + 2 * pad, 4, W + 2 * pad) });
   const gravelCuYd = ((L + 2 * pad) * (W + 2 * pad) * 4) / 46656;
@@ -557,7 +574,7 @@ function buildFramed(d) {
         if (p.bottom - 3 >= 1.5) for (const s of below) addM('bottom cripple', d.studSize, s, s + 1.5, 1.5, p.bottom - 1.5);
       }
       fixtures.push({
-        kind: p.op.kind, group: `wall:${name}`,
+        kind: p.op.kind, group: `wall:${name}`, from: spec.start + p.a, bottom: p.bottom,
         geom: rectGeom(add(add(spec.base, spec.axis, p.a), Z, p.bottom), spec.axis, Z, neg(spec.w), p.w, p.op.height, d.siding ? 1.0 : 0.4),
       });
     }
@@ -941,7 +958,7 @@ function buildFramed(d) {
   }
   const roofAreaSqFt = (2 * slopeLen * L) / 144;
 
-  const sidingT = 19 / 32;
+  const sidingT = d.sidingType === 'LP SmartSide' ? 3 / 8 : d.sidingType === 'LP SmartSide 7/16' ? 7 / 16 : 19 / 32;
   /** @type {{ wall: string, length: number }[]} */
   const sidingFull = [];
   /** @type {number[]} */
@@ -974,6 +991,79 @@ function buildFramed(d) {
     }
   }
 
+  // ---------------- Wall trim: 1x4 corner boards and casings ----------------
+  // Nominal 1x4 (3/4 x 3-1/2) over the siding: a board on each face of every
+  // corner (the eave-face board covers the edge of the gable-face one), and a
+  // picture-frame casing round each door and window (no sill board under a door).
+  /** @type {{ where: string, length: number }[]} */
+  const wallTrim = [];
+  if (d.siding && d.wallTrim !== 'none') {
+    const tw = 3.5;
+    const tt = 0.75;
+    const bottomZ = skidTop;
+    const rakeUnder = (dist) => zt(dist) + (7 / 16) / cos - 3.5 / cos;
+    for (const name of WALLS) {
+      const eave = name === 'front' || name === 'back';
+      const faceLen = eave ? L : W;
+      const origin = /** @type {Vec} */ (name === 'back' ? [0, W, 0] : name === 'right' ? [L, 0, 0] : [0, 0, 0]);
+      const u = eave ? X : Y;
+      const w = name === 'front' ? neg(Y) : name === 'back' ? Y : name === 'left' ? neg(X) : X;
+      const at = add(origin, w, sidingT);
+      const topAt = (s) => (eave ? plateTop : rakeUnder(Math.min(s, faceLen - s)));
+      const board = (kind, prof, where) => {
+        fixtures.push({ kind: 'casing', group: 'trim', geom: { origin: at, u, v: Z, w, profile: prof, thickness: tt } });
+        const zs = prof.map((p) => p[1]);
+        const ss = prof.map((p) => p[0]);
+        wallTrim.push({ where, length: Math.ceil(kind === 'v' ? Math.max(...zs) - Math.min(...zs) : Math.max(...ss) - Math.min(...ss)) });
+      };
+      // Corner boards: eave faces reach past the gable siding and its board.
+      const ends = eave ? [[-(sidingT + tt), tw - (sidingT + tt)], [faceLen + sidingT + tt - tw, faceLen + sidingT + tt]] : [[-sidingT, tw - sidingT], [faceLen + sidingT - tw, faceLen + sidingT]];
+      for (const [s0, s1] of ends) board('v', [[s0, bottomZ], [s1, bottomZ], [s1, topAt(s1)], [s0, topAt(s0)]], `${name} corner`);
+      const spec = wallSpecs[name];
+      for (const p of walls[name].openings) {
+        const a0 = spec.start + p.a;
+        const a1 = a0 + p.w;
+        const z0 = floorTop + p.bottom;
+        const z1 = z0 + p.op.height;
+        const door = p.op.kind === 'door';
+                const label = `${p.op.kind} ${p.op.id}`;
+        board('v', [[a0 - tw, z0], [a0, z0], [a0, z1], [a0 - tw, z1]], `${label} side`);
+        board('v', [[a1, z0], [a1 + tw, z0], [a1 + tw, z1], [a1, z1]], `${label} side`);
+        board('h', [[a0 - tw, z1], [a1 + tw, z1], [a1 + tw, z1 + tw], [a0 - tw, z1 + tw]], `${label} head`);
+        if (!door) board('h', [[a0 - tw, z0 - tw], [a1 + tw, z0 - tw], [a1 + tw, z0], [a0 - tw, z0]], `${label} sill`);
+      }
+    }
+  }
+
+  // ---------------- Site-built doors ----------------
+  // A shed door built on site: the siding cut out of the opening is the skin,
+  // screwed and glued to a frame of 2x4s laid flat (two stiles, three rails and
+  // a Z of two braces that runs down toward the hinges), hung on tee hinges with
+  // a 1/4" gap all round. Over 48" wide it is a pair of doors.
+  /** @type {any[]} */
+  const doorParts = [];
+  /** @type {{ id: string, leaves: number, w: number, h: number, railLen: number, braceLen: number, braceAngle: number }[]} */
+  const doors = [];
+  for (const op of d.openings.filter((x) => x.kind === 'door' && x.product === 'site-built')) {
+    const leaves = op.width > 48 ? 2 : 1;
+    const w = (op.width - 0.25 * (leaves + 1)) / leaves;
+    const h = op.height - 0.5;
+    const railLen = w - 7;
+    const bay = (h - 3 * 3.5) / 2;
+    const braceLen = Math.hypot(railLen, bay);
+    const braceAngle = (Math.atan2(bay, railLen) * 180) / Math.PI;
+    doors.push({ id: op.id, leaves, w, h, railLen, braceLen, braceAngle });
+    for (let i = 0; i < leaves; i++) {
+      const tag = `door ${op.id}${leaves > 1 ? (i ? ' right' : ' left') : ''}`;
+      const part = (kind, length, note) => doorParts.push({ id: nextId('DR'), group: 'door', kind, material: '2x4', length: Math.ceil(length * 8) / 8, note: `${tag}: ${note}` });
+      part('door stile', h, 'laid flat, full height');
+      part('door stile', h, 'laid flat, full height');
+      for (const r of ['top', 'middle', 'bottom']) part('door rail', railLen, `${r} rail between the stiles`);
+      part('door brace', braceLen + 3.5, `Z brace, ends cut at ${braceAngle.toFixed(0)} deg to fit between rails, low end at the hinge side`);
+      part('door brace', braceLen + 3.5, `Z brace, ends cut at ${braceAngle.toFixed(0)} deg to fit between rails, low end at the hinge side`);
+    }
+  }
+
   const sidingArea = panels.filter((p) => p.kind === 'siding').reduce((t, p) => {
     let a2 = 0;
     const pts = p.geom.profile;
@@ -985,10 +1075,13 @@ function buildFramed(d) {
     length: L, width: W, wallHeight: H, pitch: d.pitch, overhang: o,
     skidTop, floorTop, plateTop, ridgeTop, peak: ridgeTop + (d.roofing ? 7 / 16 / cos + 0.35 / cos : 7 / 16 / cos),
     studLen, rafterCut, slopeLen, plumbH, ridgeSize, ridgeD, stud: D, joistDepth: joist.depth, rafterDepth: rd,
-    skidCount, skidYs, joistCenters, rafterCenters, gravelCuYd, blockCount, roofAreaSqFt, floorRows, roofRows,
+    skidCount, skidYs, joistCenters, rafterCenters, gravelCuYd, padSqFt: ((L + 2 * pad) * (W + 2 * pad)) / 144, blockCount, block, roofAreaSqFt, floorRows, roofRows,
     heel: connector ? 0 : D * t, maxStock, connector,
   };
 
+  if (d.siding && d.studSpacing > 16 && (d.sidingType === 'T1-11' || d.sidingType === 'LP SmartSide')) {
+    warnings.push(`${d.sidingType === 'T1-11' ? 'T1-11' : 'LP SmartSide 3/8"'} panels are rated for studs at 16" on centre; at ${d.studSpacing}" use the 7/16" LP panel, lap siding over OSB, or studs at 16".`);
+  }
   if (d.maxFootprint > 0 && (L * W) / 144 > d.maxFootprint + 1e-9) {
     warnings.push(`The footprint is ${((L * W) / 144).toFixed(0)} sq ft, over your ${d.maxFootprint} sq ft limit (often the size below which a shed needs no permit; check your local rule).`);
   }
@@ -999,7 +1092,7 @@ function buildFramed(d) {
     warnings.push(`The peak is ${fmtFt(dims.peak)} above the gravel, ${fmtFt(dims.peak - d.maxPeak)} over your ${fmtFt(d.maxPeak)} limit. Your tallest opening needs walls of at least ${fmtFt(minWall)}; with those walls and a 3/12 roof (about the least that sheds water under shingles) the peak would still be ${fmtFt(low)}. To get lower: a shorter door, a door in the gable end, a lower floor or a narrower shed${d.gableVents ? ', or smaller or no gable vents (they need a steeper roof to fit)' : ''}.`);
   }
 
-  return { design: d, members, panels, fixtures, walls, warnings, notes, dims, vents: ventInfo, trim, interior, sidingArea, floorPieces, roofPieces, sidingFull, sidingUpper };
+  return { design: d, members, panels, fixtures, walls, warnings, notes, dims, vents: ventInfo, trim, wallTrim, doorParts, doors, interior, sidingArea, floorPieces, roofPieces, sidingFull, sidingUpper };
 }
 
 /** @typedef {ReturnType<typeof buildFramed>} Shed */

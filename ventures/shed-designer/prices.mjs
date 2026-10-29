@@ -65,6 +65,31 @@ export const LISTED_ITEMS = {
   rafterHanger: { price: 1.77, url: 'https://www.homedepot.com/p/Simpson-Strong-Tie-LUS-Galvanized-Face-Mount-Joist-Hanger-for-2x6-Nominal-Lumber-LUS26/100374889', note: `${SNIP}; Simpson LUS26` },
   gableVent: { price: 22.98, url: 'https://www.homedepot.com/p/Gibraltar-Building-Products-12-in-x-12-in-Square-White-Galvanized-Steel-Built-in-Screen-Gable-Louver-Vent-GLFF1212WH-1-8/310198861', note: `${SNIP}; a 12x12 vent, the nearest listed size` },
   lpPanel: { price: 39.96, url: 'https://www.homedepot.com/p/LP-SmartSide-SmartSide-38-Series-8-in-Application-as-4-ft-x-8-ft-Cedar-Texture-OC-Panel-Engineered-Treated-Wood-Siding-27874/100055901', note: `${SNIP}; LP SmartSide 38 Series 3/8" 4x8 panel` },
+  lpPanel76: { price: 64.88, url: 'https://www.homedepot.com/p/LP-SmartSide-LP-SmartSide-Cedar-Texture-Panel-OC-Engineered-Treated-Wood-Siding-4-in-Application-as-7-16-in-x-4-ft-x-8-ft-25831/100089302', note: `${SNIP}; LP SmartSide 76 Series 7/16" 4x8, model 25831; another copy of the page showed $41.98` },
+  trim1x4x8: { price: 10.58, url: 'https://www.homedepot.com/p/PrimeLinx-1-in-x-4-in-x-8-ft-Radiata-Pine-Finger-Joint-Primed-Board-252978/304819679', note: `${SNIP}; PrimeLinx finger-joint primed, model 252978; copies showed $8.58-$10.58` },
+  trim1x4x12: { price: 15.25, url: 'https://www.homedepot.com/p/PrimeLinx-1-in-x-4-in-x-12-ft-Radiata-Pine-Finger-Joint-Primed-Board-253128/304798035', note: `${SNIP}; PrimeLinx finger-joint primed, model 253128` },
+  trim1x4x16: { price: 21.34, url: 'https://www.homedepot.com/p/1-in-x-4-in-x-16-ft-Primed-Pine-Finger-Joint-Board-702636/307424572', note: `${SNIP}; primed pine finger-joint, model 702636` },
+  framingNails: { price: 25.2, url: 'https://www.homedepot.com/p/Grip-Rite-3-1-2-in-x-8-Gauge-16-penny-Exterior-Galvanized-Steel-Common-Nails-5-lb-Box-16HGC5/202308475', note: `${SNIP}; Grip-Rite 16HGC5` },
+  sheathingNails: { price: 26.85, url: 'https://www.homedepot.com/p/Everbilt-2-1-2-in-x-8D-Hot-Dipped-Galvanized-Common-Nails-5-lbs-478-Count-EB0054155/328605368', note: `${SNIP}; Everbilt EB0054155, 478 nails` },
+  sidingNails: { price: 5.57, url: 'https://www.homedepot.com/p/Everbilt-2-1-2-in-x-8D-Hot-Dipped-Galvanized-Siding-1-lbs-140-Count-EB0004158/328604774', note: `${SNIP}; Everbilt EB0004158, 140 nails; another copy showed $6.98` },
+  roofingNails: { price: 15.5, url: 'https://www.homedepot.com/p/PRO-FIT-1-1-4-in-Electro-Galvanized-Roofing-Nails-5-lbs-Box-0132075/318170189', note: `${SNIP}; PRO-FIT 0132075` },
+  trimNails: { price: 9.98, url: 'https://www.homedepot.com/p/321812794', note: `${SNIP}; Everbilt 816630, about 168 nails` },
+  connectorNails: { price: 4.88, url: 'https://homedepot.com/p/Simpson-Strong-Tie-Strong-Drive-1-1-2-in-x-0-148-in-SCN-Smooth-Shank-HDG-Connector-Nail-120-Pack-N10DHDG-R/206101770', note: `${SNIP}; Simpson N10DHDG-R` },
+  caulk: { price: 5.61, url: 'https://homedepot.com/p/100035980', note: `${SNIP}; DAP Dynaflex 230 white, model 18275` },
+  zFlashing: { price: 7.33, store: 'DK Hardware', url: 'https://www.dkhardware.com/amerimax-5651100120-roof-flashing-drip-cap-5-8-w-x-10-ft-l-galvanized-steel-silver-silver-product-5607192.html', note: 'Amerimax 5651100120; no Home Depot or Lowe\'s price was readable (Home Depot sells Gibraltar 17845 at https://www.homedepot.com/p/Gibraltar-Building-Products-5-8-in-x-10-ft-Galvanized-Steel-Z-Flashing-17845/100319849)' },
+  starterShingle: { price: 54.97, url: 'https://www.homedepot.com/p/GAF-Pro-Start-120-lin-ft-Eave-and-Rake-Roofing-Starter-Strip-Shingles-1126000/202052408', note: `${SNIP}; GAF Pro-Start 1126000, 120 lin ft` },
+  ridgeCapShingle: { price: 61.09, url: 'https://homedepot.com/p/GAF-Seal-A-Ridge-Hickory-Hip-and-Ridge-Cap-Roofing-Shingles-25-Linear-ft-Per-Bundle-0850395/207158984', note: `${SNIP}; GAF Seal-A-Ridge 0850395, 25 lin ft` },
+  tHinge: { price: 8.47, url: 'https://homedepot.com/p/Everbilt-8-in-Zinc-Plated-Gate-Tee-Hinge-15409/202034080', note: `${SNIP}; Everbilt 15409` },
+  hasp: { price: 6.6, url: 'https://www.homedepot.com/p/Everbilt-4-1-2-in-Zinc-Plated-Adjustable-Staple-Safety-Hasp-24592/327600239', note: `${SNIP}; Everbilt 24592` },
+  doorPull: { price: 7.47, url: 'https://homedepot.com/p/Everbilt-6-1-2-in-Black-Polymer-Door-Pull-30057/326243297', note: `${SNIP}; Everbilt 30057` },
+  deckBlock: { price: 10.47, url: 'https://www.homedepot.com/p/7-3-4-in-x-10-3-4-in-x-10-3-4-in-Concrete-Deck-Block-100002709/204827028', note: 'price read from the search result for the Home Depot category page; 10-3/4 x 10-3/4 x 7-3/4 in., model 100002709' },
+  cmuBlock: { price: 2.5, kind: 'estimate', url: 'https://www.homedepot.com/p/8-in-x-8-in-x-16-in-Concrete-Block-597767/202532685', note: "our estimate: Home Depot (model 597767) and Lowe's (item 10383) list the block but showed no price we could read; it is sold in select stores" },
+  concreteBlock: { price: 3.5, kind: 'estimate', url: 'https://www.homedepot.com/p/4-in-x-8-in-x-16-in-Solid-Concrete-Block-30168621/100350217', note: "our estimate: Home Depot (model 30168621) and Lowe's (cap block item 10335) list the block but showed no price we could read" },
+  gravelTon: { price: 120, kind: 'estimate', store: 'Hello Gravel cost guide', url: 'https://hellogravel.com/guides/2025-gravel-prices-per-ton-complete-cost-guide-for-crushed-stone-pea-gravel-delivery/', note: 'low end of the guide\'s $120-$255 a ton delivered for #57 crushed stone (often a 3-ton minimum); picking it up at a quarry or yard usually costs less. Bagged, Quikrete all-purpose gravel is $8.99 per 0.5 cu ft at Ace (https://www.acehardware.com/departments/building-supplies/concrete-cement-and-masonry/sand-and-gravel/5419049), about $485 a cubic yard' },
+  landscapeFabric: { price: 13.96, url: 'https://homedepot.com/p/Dalen-3-ft-X-50-ft-Weed-Shield-Landscape-Fabric-and-Weed-Barrier-WS3-50/329107996', note: `${SNIP}; Dalen WS3-50, 3 x 50 ft` },
+  handTamper: { price: 37.25, url: 'https://homedepot.com/p/WaLensee-48-in-Steel-Handle-8-in-x-8-in-Tamper-GS001/322932130', note: `${SNIP}; WaLensee GS001, 8 x 8 in.` },
+  plateCompactor: { price: 125, store: 'Gertens (Minnesota)', url: 'https://www.gertens.com/wacker-plate-compactor', note: "price read from the search result for the rental page: $80 for 4 hours, $125 for 24 hours. Home Depot rents one (https://www.homedepot.com/tool-truck-rental/Vibratory-Plate-Compactor-20/0008708/) but shows the rate only once you pick a store" },
+  accentPaint: { price: 22.98, url: 'https://www.homedepot.com/p/BEHR-PREMIUM-PLUS-1-qt-W-B-400-Vermont-Cream-Satin-Enamel-Exterior-Paint-Primer-905004/311059379', note: `${SNIP}; Behr Premium Plus exterior, quart` },
   vinylBox: { price: 169, url: 'https://www.homedepot.com/p/Double-4-5-in-x-145-in-White-Dutch-Lap-Vinyl-Siding-PCD4504H/301738325', note: `${SNIP}; one box covers 200 sq ft` },
   boardBox: { price: 89.18, url: 'https://www.homedepot.com/p/CMPC-1-in-x-8-in-x-8-ft-Primed-Finger-Joint-Pine-Board-Actual-Size-0-75-in-x-7-25-in-x-8-ft-3-Piece-Per-Box-CMPC0028777/300125808', note: `${SNIP}; box of three primed 1x8x8 boards` },
   battenBox: { price: 25.08, url: 'https://homedepot.com/p/1-in-x-3-in-x-8-ft-Spruce-Pine-Fir-Furring-Strip-Common-Board-10-Per-box-EHD0000368/326303094', note: `${SNIP}; box of ten 1x3x8 furring strips` },
@@ -87,15 +112,18 @@ export const LISTED_ITEMS = {
 
 /** Wall sheathing under lap and board-and-batten siding is the same OSB panel as the roof. */
 /** @type {any} */ (LISTED_ITEMS).wallSheathing = LISTED_ITEMS.roofSheet;
+/** The rake board is the same primed 1x4 as the wall trim. */
+/** @type {any} */ (LISTED_ITEMS).rakeTrim = LISTED_ITEMS.trim1x4x12;
 
 /** Items with no listing: our own rough figure, marked as an estimate. */
 const ESTIMATES = {
   siding9: ['siding8', 108 / 96], siding10: ['siding8', 120 / 96],
-  rakeTrim: 11, glitter: 10, interiorPanel: 30, accentPaint: 18, concreteBlock: 3.5, gravelTon: 45,
+  glitter: 10, interiorPanel: 30,
   lpPanel9: ['lpPanel', 108 / 96], lpPanel10: ['lpPanel', 120 / 96],
+  lpPanel76x9: ['lpPanel76', 108 / 96], lpPanel76x10: ['lpPanel76', 120 / 96],
 };
 
-const withSource = (l) => ({ store: HD, ...l, seen: SEEN, kind: /** @type {const} */ ('listed') });
+const withSource = (l) => ({ store: HD, seen: SEEN, kind: /** @type {const} */ ('listed'), ...l });
 
 /**
  * Price and source for one board.

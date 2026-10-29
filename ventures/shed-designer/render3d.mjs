@@ -148,7 +148,7 @@ export function solidsOf(shed) {
       : (f.kind === 'door' || f.kind === 'window' || f.kind === 'vent') ? 'siding'
         : (['trim', 'interior', 'decor', 'front lining'].includes(f.group) ? f.group : 'foundation');
     const lining = { OSB: [0.8, 0.66, 0.44], plywood: [0.93, 0.92, 0.88], drywall: [0.95, 0.95, 0.94], beadboard: [0.96, 0.95, 0.9], pegboard: [0.72, 0.58, 0.42] }[d.interior] || COLORS.lining;
-    const color = f.kind === 'shingles' ? roof : (f.kind === 'fascia' || f.kind === 'soffit') ? trim : f.kind === 'lining' ? lining : /** @type {any} */ (COLORS)[f.kind] || COLORS.block;
+    const color = f.kind === 'shingles' ? roof : (f.kind === 'fascia' || f.kind === 'soffit' || f.kind === 'casing') ? trim : f.kind === 'lining' ? lining : /** @type {any} */ (COLORS)[f.kind] || COLORS.block;
     const metal = d.roofCover === 'metal' ? 16 : 0;
     out.push({ geom: f.geom, color: /** @type {any} */ (color), layer, flags: f.kind === 'shingles' ? glitter + metal : 0 });
   }
@@ -159,7 +159,7 @@ export function solidsOf(shed) {
  * Dimension lines for the 3D view: overall length, width and peak height on
  * the ground beside the shed, and each door's rough opening.
  * @param {import('./model.mjs').Shed} shed
- * @returns {{ a: number[], b: number[], ticks: number[][], label: string }[]}
+ * @returns {{ a: number[], b: number[], ticks: number[][], label: string, n?: number[] }[]}
  */
 export function dimensionsOf(shed, fmt = (x) => `${x}`) {
   const d = shed.design;
@@ -168,19 +168,33 @@ export function dimensionsOf(shed, fmt = (x) => `${x}`) {
   const W = d.width;
   const o = 30;
   const out = [];
-  const seg = (a, b, ext, label) => out.push({ a, b, ticks: ext, label });
+  /** @type {number[] | undefined} */
+  let facing;
+  const seg = (a, b, ext, label) => out.push({ a, b, ticks: ext, label, ...(facing ? { n: facing } : {}) });
   seg([0, -o, 0], [L, -o, 0], [[0, 0, 0], [0, -o - 4, 0], [L, 0, 0], [L, -o - 4, 0]], `${fmt(L)} long`);
   seg([L + o, 0, 0], [L + o, W, 0], [[L, 0, 0], [L + o + 4, 0, 0], [L, W, 0], [L + o + 4, W, 0]], `${fmt(W)} wide`);
   seg([L + o, W / 2, 0], [L + o, W / 2, k.peak], [[L, W / 2, k.peak], [L + o + 4, W / 2, k.peak]], `${fmt(k.peak)} gravel to peak`);
   seg([-o, 0, 0], [-o, 0, k.plateTop], [[0, 0, k.plateTop], [-o - 4, 0, k.plateTop]], `${fmt(k.plateTop)} gravel to wall top`);
-  for (const f of shed.fixtures.filter((x) => x.kind === 'door')) {
+  seg([-o, W, 0], [-o, W, k.floorTop], [[0, W, k.floorTop], [-o - 4, W, k.floorTop]], `${fmt(k.floorTop)} gravel to floor`);
+  // Overhang and roof slope on the left gable.
+  const eaveZ = k.plateTop + (k.connector ? 0 : -k.stud * (d.pitch / 12)) + k.plumbH;
+  if (k.overhang > 0) seg([-6, -k.overhang, eaveZ + 6], [-6, 0, eaveZ + 6], [[-6, 0, k.plateTop], [-6, 0, eaveZ + 8]], `${fmt(k.overhang)} overhang`);
+  seg([-12, -k.overhang, eaveZ + 14], [-12, W / 2, k.peak + 8], [], `${d.pitch}/12 roof, ${fmt(k.slopeLen)} eave to ridge`);
+  // Every door and window: its rough size, its distance from the corner, and a window's sill height.
+  for (const f of shed.fixtures.filter((x) => x.kind === 'door' || x.kind === 'window')) {
     const g = f.geom;
     const w = g.profile[1][0];
     const h = g.profile[2][1];
     const at = (p, q, t) => [0, 1, 2].map((i) => g.origin[i] + p * g.u[i] + q * g.v[i] + t * g.w[i]);
-    seg(at(0, h + 6, 3), at(w, h + 6, 3), [at(0, h, 3), at(0, h + 8, 3), at(w, h, 3), at(w, h + 8, 3)], `door ${fmt(w)} wide`);
-    seg(at(-6, 0, 3), at(-6, h, 3), [at(0, h, 3), at(-8, h, 3)], `${fmt(h)} high`);
+    const name = f.kind === 'door' ? 'door' : 'window';
+    facing = g.w; // labels on a wall turned away from the camera are hidden
+    seg(at(0, h + 6, 3), at(w, h + 6, 3), [at(0, h, 3), at(0, h + 8, 3), at(w, h, 3), at(w, h + 8, 3)], `${name} ${fmt(w)} wide`);
+    seg(at(-6, 0, 3), at(-6, h, 3), [at(0, h, 3), at(-8, h, 3), at(0, 0, 3), at(-8, 0, 3)], `${fmt(h)} high`);
+    const ground = 4 - g.origin[2];
+    if (f.from !== undefined) seg(at(-f.from, ground, 3), at(0, ground, 3), [at(0, ground, 3), at(0, ground + 6, 3)], `${fmt(f.from)} from corner`);
+    if (f.kind === 'window' && f.bottom !== undefined) seg(at(w + 6, -f.bottom, 3), at(w + 6, 0, 3), [at(w, 0, 3), at(w + 8, 0, 3)], `sill ${fmt(f.bottom)} above floor`);
   }
+  facing = undefined;
   return out;
 }
 
@@ -319,7 +333,7 @@ export function createViewer(canvas) {
   let glitter = false;
   let animating = false;
   /** Dimension lines and their labels, drawn over the canvas. */
-  let dims = /** @type {{ a: number[], b: number[], ticks: number[][], label: string }[]} */ ([]);
+  let dims = /** @type {{ a: number[], b: number[], ticks: number[][], label: string, n?: number[] }[]} */ ([]);
   let dimBuf = null;
   let dimCount = 0;
   let showDims = true;
@@ -418,7 +432,8 @@ export function createViewer(canvas) {
         const w4 = m[3] * mid[0] + m[7] * mid[1] + m[11] * mid[2] + m[15];
         const el = /** @type {HTMLElement} */ (spans[i]);
         if (!el) return;
-        if (w4 <= 0) { el.style.display = 'none'; return; }
+        const away = dm.n && dm.n[0] * (eye[0] - mid[0]) + dm.n[1] * (eye[1] - mid[1]) + dm.n[2] * (eye[2] - mid[2]) < 0;
+        if (w4 <= 0 || away) { el.style.display = 'none'; return; }
         el.style.display = '';
         el.style.left = `${canvas.offsetLeft + ((x / w4 + 1) / 2) * cw}px`;
         el.style.top = `${canvas.offsetTop + ((1 - y / w4) / 2) * ch}px`;

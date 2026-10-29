@@ -15,6 +15,8 @@ import { generateCandidates } from './candidates.mjs';
 import { buildInstructions, instructionsMarkdown } from './instructions.mjs';
 import { quoteRequest, mailtoLink, STORES } from './quote.mjs';
 import { PRODUCTS } from './products.mjs';
+import { storeComparison, swapsFor } from './catalog.mjs';
+import { simplify, cutMetrics } from './simplify.mjs';
 
 const $ = (sel) => /** @type {any} */ (document.querySelector(sel));
 const $$ = (sel) => /** @type {any[]} */ ([...document.querySelectorAll(sel)]);
@@ -92,7 +94,7 @@ function preview(next) {
 const FIELDS = ['name', 'lengthFt', 'widthFt', 'wallHeight', 'pitch', 'overhang', 'studSize', 'studSpacing', 'joistSize', 'joistSpacing',
   'rafterSize', 'rafterSpacing', 'tieSize', 'skidSize', 'skidSpacing', 'foundation', 'floorTreated', 'siding', 'roofing', 'gableVents', 'ventWidth', 'ventHeight', 'kerf',
   'roofType', 'beamSize', 'sidingColor', 'polkaDots', 'autoWall', 'autoPitch',
-  'autoOverhang', 'snowLoad', 'windLoad', 'roofColor', 'trimColor', 'glitter', 'interior', 'sidingType', 'roofCover', 'insulation'];
+  'autoOverhang', 'snowLoad', 'windLoad', 'roofColor', 'trimColor', 'glitter', 'interior', 'sidingType', 'roofCover', 'insulation', 'wallTrim', 'rafterSeat', 'maxFootprint', 'compaction'];
 
 function fillForm(d) {
   const set = (id, v) => { const e = /** @type {any} */ (document.getElementById(id)); if (!e || e === document.activeElement) return; if (e.type === 'checkbox') e.checked = Boolean(v); else e.value = String(v); };
@@ -111,8 +113,8 @@ function readForm() {
   d.length = Math.round(Number(v('lengthFt').value) * 12);
   d.width = Math.round(Number(v('widthFt').value) * 12);
   d.maxPeak = Math.round(Number(v('maxPeakFt').value) * 12);
-  for (const f of ['wallHeight', 'pitch', 'overhang', 'studSpacing', 'joistSpacing', 'rafterSpacing', 'skidSpacing', 'ventWidth', 'ventHeight', 'kerf', 'snowLoad', 'windLoad']) d[f] = Number(v(f).value);
-  for (const f of ['studSize', 'joistSize', 'rafterSize', 'tieSize', 'skidSize', 'foundation', 'roofType', 'beamSize', 'sidingColor', 'roofColor', 'trimColor', 'interior', 'sidingType', 'roofCover']) d[f] = v(f).value;
+  for (const f of ['wallHeight', 'pitch', 'overhang', 'studSpacing', 'joistSpacing', 'rafterSpacing', 'skidSpacing', 'ventWidth', 'ventHeight', 'kerf', 'snowLoad', 'windLoad', 'maxFootprint']) d[f] = Number(v(f).value);
+  for (const f of ['studSize', 'joistSize', 'rafterSize', 'tieSize', 'skidSize', 'foundation', 'roofType', 'beamSize', 'sidingColor', 'roofColor', 'trimColor', 'interior', 'sidingType', 'roofCover', 'wallTrim', 'rafterSeat', 'compaction']) d[f] = v(f).value;
   for (const f of ['floorTreated', 'siding', 'roofing', 'gableVents', 'polkaDots', 'autoWall', 'autoPitch', 'autoOverhang', 'glitter', 'insulation']) d[f] = v(f).checked;
   d.lengths = $$('input[name="stock"]:checked').map((c) => Number(c.value));
   return d;
@@ -128,7 +130,7 @@ function renderOpenings(d) {
     tr.innerHTML = `
       <td><select data-i="${i}" data-k="kind" aria-label="Opening ${i + 1} type"><option value="door"${op.kind === 'door' ? ' selected' : ''}>Door</option><option value="window"${op.kind === 'window' ? ' selected' : ''}>Window</option></select></td>
       <td><select data-i="${i}" data-k="wall" aria-label="Opening ${i + 1} wall">${wallOpts}</select></td>
-      <td><select data-i="${i}" data-k="product" aria-label="Opening ${i + 1} product"><option value="">Custom size</option>${PRODUCTS.filter((p) => p.kind === op.kind).map((p) => `<option value="${p.id}"${p.id === op.product ? ' selected' : ''}>${esc(p.name)} (R.O. ${fmtIn(p.roW)} x ${fmtIn(p.roH)}, $${p.price.toFixed(2)})</option>`).join('')}</select></td>
+      <td><select data-i="${i}" data-k="product" aria-label="Opening ${i + 1} product"><option value="">Custom size</option>${op.kind === 'door' ? `<option value="site-built"${op.product === 'site-built' ? ' selected' : ''}>Build it on site: siding skin on a 2x4 Z frame, tee hinges (keeps this rough opening)</option>` : ''}${PRODUCTS.filter((p) => p.kind === op.kind).map((p) => `<option value="${p.id}"${p.id === op.product ? ' selected' : ''}>${esc(p.name)} (R.O. ${fmtIn(p.roW)} x ${fmtIn(p.roH)}, $${p.price.toFixed(2)})</option>`).join('')}</select></td>
       <td><input type="number" min="0" max="480" step="1" data-i="${i}" data-k="offset" value="${op.offset}" aria-label="Opening ${i + 1} distance from the wall's left corner, as seen from outside (in)"></td>
       <td><input type="number" min="12" max="144" step="1" data-i="${i}" data-k="width" value="${op.width}" aria-label="Opening ${i + 1} rough opening width (in)"></td>
       <td><input type="number" min="12" max="120" step="1" data-i="${i}" data-k="height" value="${op.height}" aria-label="Opening ${i + 1} rough opening height (in)"></td>
@@ -148,6 +150,7 @@ function renderSummary(shed, est) {
     ['Boards to buy', `${est.boards} for ${est.pieces} pieces`],
     ['Lumber', `${money(est.lumberCost)} (lower bound ${money(est.lowerBound)})`],
     ['Sheets', `${est.floorSheets} floor, ${est.roofSheets} roof${d.siding ? `, ${shed.sidingFull.length + (shed.sidingUpper.length ? 1 : 0)}+ siding` : ''}`],
+    ['Saw cuts', (() => { const c = cutMetrics(shed, est); return `${c.straight} straight, ${c.angled} angled${c.notches ? `, ${c.notches} notches` : ''}; ${(c.waste * 100).toFixed(1)}% offcut`; })()],
   ].map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join('');
   const msgs = [...shed.warnings, ...est.problems];
   $('#warnings').innerHTML = msgs.length ? `<strong>Check these:</strong><ul>${msgs.map((m) => `<li>${esc(m)}</li>`).join('')}</ul>` : '';
@@ -206,6 +209,41 @@ function renderPrices(est, d) {
 }
 const labelOfItem = (k) => /** @type {any} */ (EXAMPLE_ITEMS)[k]?.name;
 
+/** The same parts at other stores, and design swaps priced against this design. */
+function renderStores(est, d) {
+  const cmp = storeComparison(est);
+  let html = `<div class="table-wrap"><table><thead><tr><th scope="col">Item</th><th scope="col" class="n">Qty</th>${cmp.stores.map((s) => `<th scope="col">${esc(s)}</th>`).join('')}<th scope="col" class="n">Saving at the cheapest</th></tr></thead><tbody>`;
+  for (const row of cmp.rows) {
+    html += `<tr><td>${esc(row.line.name)}</td><td class="n">${row.line.qty}</td>${cmp.stores.map((st) => {
+      const o = row.offers.find((x) => x.store === st);
+      if (!o) return '<td class="muted">no listing found</td>';
+      const best = o === row.best ? ' <strong>cheapest</strong>' : '';
+      return `<td><a href="${esc(o.url)}" target="_blank" rel="noopener" title="${esc(o.note || '')}">${money(o.price)}</a>${best}<br><span class="muted">${esc(o.name)}; ${esc(o.model)}</span></td>`;
+    }).join('')}<td class="n">${money(row.saving)}</td></tr>`;
+  }
+  html += `<tr class="tot"><th colspan="2" scope="row">These lines at one store</th>${cmp.stores.map((st) => `<td>${cmp.totals[st].missing === cmp.rows.length ? '<span class="muted">none of these</span>' : `${money(cmp.totals[st].total)}${cmp.totals[st].missing ? ` <span class="muted">(${cmp.totals[st].missing} not listed)</span>` : ''}`}</td>`).join('')}<td class="n">${money(cmp.cheapestMix)} mixed</td></tr></tbody></table></div>`;
+  html += `<p class="muted">Prices read from search-result copies of each product page on ${cmp.seen}; follow the link to check today's price and see the product. Lines with no listing at a second store are not shown.</p>`;
+  const swaps = swapsFor(d);
+  if (swaps.length) {
+    html += '<h4>Swaps worth a look</h4><ul class="swaps">';
+    for (const sw of swaps) {
+      const alt = estimate(buildShed(normalize({ ...d, ...sw.change })), state.prices);
+      const diff = alt.total - est.total;
+      html += `<li><strong>${esc(sw.title)}</strong>: ${diff < 0 ? `saves ${money(-diff)}` : `adds ${money(diff)}`}. ${esc(sw.why)} <span class="muted">${esc(sw.cost)}</span> <button type="button" class="btn" data-swap="${esc(sw.id)}">Try it and show me</button></li>`;
+    }
+    html += '</ul>';
+  }
+  $('#stores').innerHTML = html;
+  for (const b of $$('#stores [data-swap]')) {
+    b.addEventListener('click', () => {
+      const sw = swapsFor(d).find((x) => x.id === b.dataset.swap);
+      if (!sw) return;
+      commit({ ...design(), ...sw.change }, `swap: ${sw.title}`);
+      $('#v3d-h')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }
+}
+
 function renderCuts(est) {
   let html = '';
   let n = 0;
@@ -224,6 +262,15 @@ function renderCuts(est) {
       html += `<li><span class="board-name">${b.stock / 12}' board</span><span class="bar">${segs}</span><span class="off">offcut ${fmtIn(b.offcut)}</span></li>`;
     }
     html += '</ol>';
+  }
+  if (est.trimCuts) {
+    html += `<h4>1x4 wall trim <span class="muted">(primed, actual 3/4 x 3-1/2)</span>: ${est.trimCuts.boards.length} boards</h4><ol class="boards">`;
+    for (const b of est.trimCuts.boards) {
+      let x = 0;
+      const segs = b.cuts.map((len) => { const w = (len / b.stock) * 100; const seg = `<span class="cut" style="left:${x}%;width:${w}%" title="${fmtIn(len)}">${fmtIn(len)}</span>`; x += w; return seg; }).join('');
+      html += `<li><span class="board-name">${b.stock / 12}' board</span><span class="bar">${segs}</span><span class="off">offcut ${fmtIn(b.stock - b.cuts.reduce((t, c) => t + c, 0))}</span></li>`;
+    }
+    html += `</ol><p class="muted">Trim pieces: ${est.trimCuts.pieces.map((p) => `${esc(p.where)} ${fmtIn(p.length)}`).join('; ')}. Cut each to fit on site; these are the longest each needs.</p>`;
   }
   $('#cuts').innerHTML = html;
 }
@@ -337,6 +384,7 @@ function render() {
   const cc = connectionChecks(shed);
   $('#summary-lines').insertAdjacentHTML('beforeend', `<div><dt>Structure</dt><dd>${sc.ok ? `all ${sc.rows.length} load checks pass` : `${sc.rows.filter((x) => !x.ok).length} over capacity`} (highest ${Math.round(worst * 100)}%); ${cc.ok ? `all ${cc.rows.length} connection checks pass` : `${cc.rows.filter((x) => !x.ok).length} connection checks fail`}</dd></div>`);
   renderShopping(est);
+  renderStores(est, d);
   renderPrices(est, d);
   renderCuts(est);
   renderParts(est);
@@ -517,6 +565,46 @@ function wire() {
       render();
       $('#workspace').scrollIntoView({ behavior: 'smooth' });
     };
+  });
+  $('#simplify').addEventListener('click', () => {
+    $('#simplify').disabled = true;
+    $('#simplify-out').innerHTML = '<p class="muted">Building and checking variations...</p>';
+    setTimeout(() => {
+      const r = simplify(design(), state.prices, { resize: $('#simplify-resize').checked });
+      const cutsText = (c) => `${c.straight} straight, ${c.angled} angled${c.notches ? `, ${c.notches} birdsmouth notches` : ''}`;
+      // One card per distinct design; goals that land on the same one share it.
+      const picks = [];
+      for (const w of Object.values(r.winners)) {
+        const same = picks.find((p) => JSON.stringify(p.design) === JSON.stringify(w.design));
+        if (same) same.goal += ` / ${w.goal.toLowerCase()}`; else picks.push({ ...w });
+      }
+      const thumbCanvas = document.createElement('canvas'); thumbCanvas.width = 480; thumbCanvas.height = 320;
+      const tv = createViewer(thumbCanvas);
+      let html = `<p class="muted">Tried ${r.evaluated} designs; each kept passes every load and connection check${design().maxFootprint ? `, stays within ${design().maxFootprint} sq ft` : ''} and is no more than 1" taller. Your design: ${money(r.base.total)}, ${cutsText(r.base.cuts)} cuts, ${(r.base.cuts.waste * 100).toFixed(1)}% offcut.</p><div class="cards">`;
+      html += picks.map((w, i) => {
+        let img = '';
+        if (tv) { tv.show(buildShed(w.design), { refit: true }); img = `<img src="${tv.snapshot()}" alt="3D view of the ${esc(w.goal.toLowerCase())} pick" width="480" height="320">`; }
+        return `<article class="card"><div>${img}</div><h4>${esc(w.goal)}</h4>
+          <dl><div><dt>Changes</dt><dd>${w.changes.length ? esc(w.changes.join(', ')) : 'none: yours is already best for this goal'}</dd></div>
+          <div><dt>Total</dt><dd>${money(w.total)} (${w.total <= r.base.total ? 'saves' : 'adds'} ${money(Math.abs(r.base.total - w.total))})</dd></div>
+          <div><dt>Saw cuts</dt><dd>${cutsText(w.cuts)}</dd></div><div><dt>Offcut</dt><dd>${(w.cuts.waste * 100).toFixed(1)}% of the lumber bought</dd></div></dl>
+          <button type="button" data-pick="${i}">Use this one</button></article>`;
+      }).join('');
+      html += '</div><h4>Every design found that nothing else beats on cost, cuts and angled cuts at once</h4><div class="table-wrap"><table><thead><tr><th scope="col" class="n">Total</th><th scope="col" class="n">Straight cuts</th><th scope="col" class="n">Angled</th><th scope="col" class="n">Notches</th><th scope="col">Roof</th><th scope="col">Size</th></tr></thead><tbody>';
+      html += r.front.map((f) => `<tr><td class="n">${money(f.total)}</td><td class="n">${f.cuts.straight}</td><td class="n">${f.cuts.angled}</td><td class="n">${f.cuts.notches}</td><td>${f.design.pitch}/12, ${fmtIn(f.design.overhang)} overhang, ${f.design.roofType === 'ridgeBeam' ? 'ridge beam' : 'ridge board and ties'}, ${f.design.rafterSeat === 'connector' ? 'connectors' : 'birdsmouth'}</td><td>${fmtFtIn(f.design.length)} x ${fmtFtIn(f.design.width)}</td></tr>`).join('');
+      html += '</tbody></table></div>';
+      $('#simplify-out').innerHTML = html;
+      $('#simplify-out').onclick = (ev) => {
+        const b = ev.target.closest('button[data-pick]');
+        if (!b) return;
+        state.designs.push(normalize({ ...picks[Number(b.dataset.pick)].design, name: `${design().name}: ${picks[Number(b.dataset.pick)].goal.toLowerCase()}` }));
+        state.active = state.designs.length - 1;
+        count('designs');
+        render();
+        $('#workspace').scrollIntoView({ behavior: 'smooth' });
+      };
+      $('#simplify').disabled = false;
+    }, 30);
   });
   $('#zoom-in').addEventListener('click', () => viewer?.zoom(1 / 1.2));
   $('#zoom-out').addEventListener('click', () => viewer?.zoom(1.2));

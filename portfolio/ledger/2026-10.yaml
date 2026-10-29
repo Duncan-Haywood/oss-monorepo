@@ -4232,6 +4232,12 @@ entries:
         studs under snow and wind), a floating/overlap geometry test that found wall members
         placed at floor level in 3D (fixed), Home Depot prices with a link per line, generated
         priced variations, fascia, soffit, rake, eave blocking, overhang chosen for lumber,
-        colours, glitter and a decorated interior. 50 node tests; driven in Chromium.
+        colours, glitter and a decorated interior. Later rounds: interlocking cap plates, quote
+        emails, a 16-sheet plan set, off-the-shelf doors and windows setting rough openings,
+        variable-pitch connectors, 1x4 corner and casing trim, a site-built Z-frame door, deck
+        block and CMU foundations, cited fasteners, caulk, flashing and site prep, a Home
+        Depot/Lowe's/Menards comparison with item numbers, priced design swaps, and a search for
+        the cheapest and fewest-cut build (default 8x12: $3,868 as specified; $3,746 keeping
+        connectors, $3,665 with 14 birdsmouth notches). 69 node tests; driven in Chromium.
         Usage unmeasured.
     mrr_end: 0

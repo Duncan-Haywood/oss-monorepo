@@ -33,7 +33,7 @@ export function sourceOf(price, start) {
 const WHERE = {
   foundation: 'foundation', floor: 'floor', roof: 'roof',
   'wall:front': 'front wall', 'wall:back': 'back wall', 'wall:left': 'left wall', 'wall:right': 'right wall',
-  'gable:left': 'left gable', 'gable:right': 'right gable',
+  'gable:left': 'left gable', 'gable:right': 'right gable', door: 'door',
 };
 
 const MATERIAL_ORDER = ['PT 4x6', 'PT 4x4', 'PT 2x12', 'PT 2x10', 'PT 2x8', 'PT 2x6', 'PT 2x4', '2x12', '2x10', '2x8', '2x6', '2x4'];
@@ -72,7 +72,8 @@ export function estimate(shed, prices = examplePrices()) {
   // Parts list with marks.
   /** @type {Map<string, any>} */
   const byKey = new Map();
-  for (const m of shed.members) {
+  const all = [...shed.members, ...(shed.doorParts || [])];
+  for (const m of all) {
     const key = `${m.material}|${m.length}|${m.kind}|${m.note || ''}`;
     if (!byKey.has(key)) byKey.set(key, { material: m.material, length: m.length, kind: m.kind, note: m.note || '', qty: 0, where: {}, ids: [] });
     const p = byKey.get(key);
@@ -91,7 +92,7 @@ export function estimate(shed, prices = examplePrices()) {
   // Cut sheet per material.
   const materials = [...new Set(parts.map((p) => p.material))].sort((a, b) => MATERIAL_ORDER.indexOf(a) - MATERIAL_ORDER.indexOf(b));
   const lumber = materials.map((material) => {
-    const pieces = shed.members.filter((m) => m.material === material).map((m) => ({ len: m.length, mark: markOf.get(m.id), id: m.id, kind: m.kind }));
+    const pieces = all.filter((m) => m.material === material).map((m) => ({ len: m.length, mark: markOf.get(m.id), id: m.id, kind: m.kind }));
     const stocks = d.lengths.map((ft) => ({ length: ft * 12, price: Number(prices.lumber?.[material]?.[ft] ?? boardPrice(material, ft).price) }));
     const result = optimizeCuts(pieces, stocks, d.kerf);
     return { material, pieces: pieces.length, result };
@@ -118,7 +119,7 @@ export function estimate(shed, prices = examplePrices()) {
     }
   }
   const item = (k) => Number(prices.items?.[k] ?? itemPrice(k).price);
-  const src = (k) => sourceOf(item(k), itemPrice(k));
+  const src = (k) => ({ ...sourceOf(item(k), itemPrice(k)), key: k });
   const label = (k) => /** @type {any} */ (EXAMPLE_ITEMS)[k].name;
   const floorSheets = sheetCount(shed.floorPieces);
   const roofSheets = sheetCount(shed.roofPieces);
@@ -127,12 +128,12 @@ export function estimate(shed, prices = examplePrices()) {
   if (d.siding) {
     const area = shed.sidingArea ?? 0;
     const type = d.sidingType || 'T1-11';
-    if (type === 'T1-11' || type === 'LP SmartSide') {
+    if (type === 'T1-11' || type === 'LP SmartSide' || type === 'LP SmartSide 7/16') {
       // Panel siding is its own sheathing: one panel per 4 ft column, the length that reaches.
       const by = { 96: 0, 108: 0, 120: 0 };
       for (const x of shed.sidingFull) by[x.length] += 1;
       by[96] += sheetCount(shed.sidingUpper);
-      const keys = type === 'T1-11' ? ['siding8', 'siding9', 'siding10'] : ['lpPanel', 'lpPanel9', 'lpPanel10'];
+      const keys = type === 'T1-11' ? ['siding8', 'siding9', 'siding10'] : type === 'LP SmartSide' ? ['lpPanel', 'lpPanel9', 'lpPanel10'] : ['lpPanel76', 'lpPanel76x9', 'lpPanel76x10'];
       [96, 108, 120].forEach((len, i) => line('Siding', label(keys[i]), by[len], 'sheet', item(keys[i]), src(keys[i])));
     } else {
       // Lap and board-and-batten siding go over OSB sheathing.
@@ -155,11 +156,26 @@ export function estimate(shed, prices = examplePrices()) {
       if (d.polkaDots) line('Paint', `${label('accentPaint')} (purple, for the polka dots)`, 1, 'quart', item('accentPaint'), src('accentPaint'));
     }
   }
+  let roofNailBoxes = 0;
   if (shed.trim) {
     const t = shed.trim;
     line('Roof trim', label('fasciaTrim'), Math.ceil(t.fasciaFt / 12), 'piece', item('fasciaTrim'), src('fasciaTrim'));
     line('Roof trim', label('soffitPanel'), Math.ceil((t.soffitSqFt * 1.1) / 12.75), 'panel', item('soffitPanel'), src('soffitPanel'));
     line('Roof trim', label('rakeTrim'), Math.ceil((t.rakeFt * 1.1) / 12), 'piece', item('rakeTrim'), src('rakeTrim'));
+  }
+  // Wall trim: the 1x4 corner boards and casings, cut from whichever mix of
+  // 8, 12 and 16 ft boards costs least (the same optimizer as the framing).
+  /** @type {{ boards: { stock: number, cuts: number[] }[], pieces: { where: string, length: number }[] } | null} */
+  let trimCuts = null;
+  if (shed.wallTrim && shed.wallTrim.length) {
+    const keys = { 96: 'trim1x4x8', 144: 'trim1x4x12', 192: 'trim1x4x16' };
+    const stocks = Object.entries(keys).map(([len, k]) => ({ length: Number(len), price: item(k) }));
+    const r = optimizeCuts(shed.wallTrim.map((t) => ({ len: t.length, kind: t.where })), stocks, d.kerf);
+    trimCuts = { boards: r.boards.map((b) => ({ stock: b.stock, cuts: b.cuts.map((c) => c.len) })), pieces: shed.wallTrim };
+    for (const [len, k] of Object.entries(keys)) {
+      const n = r.boards.filter((b) => b.stock === Number(len)).length;
+      if (n) line('Wall trim', label(k), n, 'piece', item(k), src(k));
+    }
   }
   if (shed.interior) {
     const it = shed.interior;
@@ -188,6 +204,11 @@ export function estimate(shed, prices = examplePrices()) {
       line('Roofing', label('metalRidge'), Math.ceil(d.length / 120), 'piece', item('metalRidge'), src('metalRidge'));
     } else {
       line('Roofing', label('shingleBundle'), Math.ceil(area / 32.8), 'bundle', item('shingleBundle'), src('shingleBundle'));
+      // A starter course along both eaves and up the four rakes; cap shingles along the ridge.
+      line('Roofing', label('starterShingle'), Math.ceil((2 * d.length + 4 * dims.slopeLen) / 12 / 120), 'bundle', item('starterShingle'), src('starterShingle'));
+      line('Roofing', label('ridgeCapShingle'), Math.ceil(d.length / 12 / 25), 'bundle', item('ridgeCapShingle'), src('ridgeCapShingle'));
+      // Four nails a shingle, about 2-1/2 lb of 1-1/4" nails a square (100 sq ft) with starter and cap.
+      roofNailBoxes = Math.ceil(((area / 100) * 2.5) / 5);
     }
     line('Roofing', label('underlayment'), Math.ceil(area / 1000), 'roll', item('underlayment'), src('underlayment'));
     const dripFt = (2 * d.length + 4 * dims.slopeLen) / 12;
@@ -200,8 +221,12 @@ export function estimate(shed, prices = examplePrices()) {
     const p = Number(prices.items?.[`product:${pr.id}`] ?? pr.price);
     line('Doors and windows', pr.name, qty, 'each', p, sourceOf(p, { price: pr.price, url: pr.url, store: pr.store, seen: '2026-10-29', note: pr.note, kind: 'listed' }));
   }
-  line('Foundation and hardware', label('gravelTon'), Math.ceil(dims.gravelCuYd * 1.4 * 10) / 10, 'ton', item('gravelTon'), src('gravelTon'));
-  line('Foundation and hardware', label('concreteBlock'), dims.blockCount, 'each', item('concreteBlock'), src('concreteBlock'));
+  line('Site prep', label('landscapeFabric'), Math.ceil((dims.padSqFt * 1.15) / 150), 'roll', item('landscapeFabric'), src('landscapeFabric'));
+  // Compact the pad in 2" lifts: a hand tamper does a shed pad; a rented plate compactor is faster on a big one.
+  if (d.compaction === 'plate compactor') line('Site prep', label('plateCompactor'), 1, 'day', item('plateCompactor'), src('plateCompactor'));
+  else line('Site prep', label('handTamper'), 1, 'each', item('handTamper'), src('handTamper'));
+  line('Site prep', label('gravelTon'), Math.ceil(dims.gravelCuYd * 1.4 * 10) / 10, 'ton', item('gravelTon'), src('gravelTon'));
+  if (dims.block) line('Foundation and hardware', label(dims.block.item), dims.blockCount, 'each', item(dims.block.item), src(dims.block.item));
   const vents = Object.values(shed.vents || {}).reduce((t, v) => t + v.length, 0);
   line('Foundation and hardware', `${label('gableVent')}, ${d.ventWidth}" x ${d.ventHeight}"`, vents, 'each', item('gableVent'), src('gableVent'));
   if (d.roofType === 'ridgeBeam') line('Foundation and hardware', label('rafterHanger'), shed.members.filter((m) => m.kind === 'rafter').length, 'each', item('rafterHanger'), src('rafterHanger'));
@@ -209,14 +234,59 @@ export function estimate(shed, prices = examplePrices()) {
   if (dims.connector) line('Foundation and hardware', label('pitchConnector'), dims.rafterCenters.length * 2, 'each', item('pitchConnector'), src('pitchConnector'));
   else line('Foundation and hardware', label('hurricaneTie'), dims.rafterCenters.length * 2, 'each', item('hurricaneTie'), src('hurricaneTie'));
 
+  // Fasteners, sealants and flashing. Counts follow the nailing schedule on
+  // the details sheet (rounded up); boxes are rounded up from the counts.
+  {
+    const per = { stud: 4, 'corner stud': 6, 'king stud': 6, 'jack stud': 6, 'post stud': 6, 'top cripple': 4, 'bottom cripple': 4, 'rough sill': 4, 'floor joist': 6, 'rim joist': 0, rafter: 4, 'rafter tie': 6, 'eave blocking': 4, 'gable stud': 4, 'vent trimmer': 4, 'vent header': 4, 'door stile': 0, 'door rail': 0, 'door brace': 0 };
+    let n16 = 0;
+    for (const m of all) {
+      const k = /** @type {Record<string, number>} */ (per)[m.kind];
+      // Plates, headers, rims, skids, beams and anything long: two nails every 16".
+      n16 += k !== undefined ? k : 2 * Math.ceil(m.length / 16);
+    }
+    // 16d galvanized commons run about 45 to the pound (a 5 lb box holds about 225).
+    line('Fasteners and sealants', label('framingNails'), Math.ceil(n16 / 225), 'box', item('framingNails'), src('framingNails'));
+    // Sheathing: about 60 8d nails a 4x8 sheet (6" at edges, 12" in the field); 478 in a 5 lb box.
+    const panelSiding = d.siding && ['T1-11', 'LP SmartSide', 'LP SmartSide 7/16'].includes(d.sidingType);
+    const sheathingSheets = floorSheets + roofSheets + (d.siding && !panelSiding ? Math.ceil(((shed.sidingArea ?? 0) * 1.1) / 32) : 0);
+    line('Fasteners and sealants', label('sheathingNails'), Math.ceil((sheathingSheets * 60) / 478), 'box', item('sheathingNails'), src('sheathingNails'));
+    if (panelSiding) {
+      const sheets = shed.sidingFull.length + sheetCount(shed.sidingUpper);
+      line('Fasteners and sealants', label('sidingNails'), Math.ceil((sheets * 60) / 140), 'box', item('sidingNails'), src('sidingNails'));
+    }
+    line('Fasteners and sealants', label('roofingNails'), roofNailBoxes, 'box', item('roofingNails'), src('roofingNails'));
+    // Trim: two nails every 16" along each board, about 168 to the pound.
+    const trimIn = (shed.wallTrim || []).reduce((t, x) => t + x.length, 0) + (shed.trim ? (shed.trim.fasciaFt + shed.trim.rakeFt) * 12 : 0);
+    if (trimIn) line('Fasteners and sealants', label('trimNails'), Math.ceil((2 * Math.ceil(trimIn / 16)) / 168), 'box', item('trimNails'), src('trimNails'));
+    // Connector nails: the rafter connectors, hangers or ties, about 8 each (check the maker's schedule).
+    const connectors = dims.rafterCenters.length * 2 + (d.roofType === 'ridgeBeam' ? shed.members.filter((m) => m.kind === 'rafter').length : 0);
+    line('Fasteners and sealants', label('connectorNails'), Math.ceil((connectors * 8) / 120), 'pack', item('connectorNails'), src('connectorNails'));
+    // Exterior caulk: round each door and window (unit to casing, casing to siding), along
+    // the inside edge of each corner board, plus 10 ft for vents and odd joints; a tube runs about 25 ft.
+    let caulkIn = 120;
+    for (const op of d.openings) caulkIn += 2 * 2 * (op.width + op.height);
+    caulkIn += 8 * 96;
+    if (d.siding) line('Fasteners and sealants', label('caulk'), Math.ceil(caulkIn / 12 / 25), 'tube', item('caulk'), src('caulk'));
+    // Z-flashing over every door and window head and over any horizontal siding joint.
+    let zIn = d.openings.reduce((t, op) => t + op.width + 9, 0);
+    zIn += (shed.sidingUpper || []).length * 48;
+    if (d.siding) line('Fasteners and sealants', label('zFlashing'), Math.ceil(zIn / 120), 'piece', item('zFlashing'), src('zFlashing'));
+  }
+  // Site-built doors: tee hinges (three a leaf), a pull a leaf and a hasp.
+  for (const dr of shed.doors || []) {
+    line('Door hardware', `${label('tHinge')} (door ${dr.id})`, 3 * dr.leaves, 'each', item('tHinge'), src('tHinge'));
+    line('Door hardware', `${label('doorPull')} (door ${dr.id})`, dr.leaves, 'each', item('doorPull'), src('doorPull'));
+    line('Door hardware', `${label('hasp')} (door ${dr.id})`, 1, 'each', item('hasp'), src('hasp'));
+  }
+
   const sum = (rows) => Math.round(rows.reduce((t, r) => t + r.total, 0) * 100) / 100;
   const lumberCost = sum(shopping.filter((r) => r.section === 'Lumber'));
   const total = sum(shopping);
   const boards = lumber.reduce((t, l) => t + l.result.boards.length, 0);
   const lowerBound = Math.round(lumber.reduce((t, l) => t + l.result.lowerBound, 0) * 100) / 100;
   return {
-    parts, lumber, shopping, problems, total, lumberCost, lowerBound, boards,
-    pieces: shed.members.length, floorSheets, roofSheets,
+    parts, lumber, shopping, problems, total, trimCuts, lumberCost, lowerBound, boards,
+    pieces: all.length, floorSheets, roofSheets,
     footprintSqFt: (d.length * d.width) / 144,
   };
 }

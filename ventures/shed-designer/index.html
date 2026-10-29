@@ -121,7 +121,7 @@
     ol.build h3 { margin: 0 0 4px; }
     ol.build ol { margin: 6px 0; padding-left: 22px; line-height: 1.5; }
     ol.build .check { background: #eef5ee; border-radius: 8px; padding: 6px 10px; font-size: .9rem; }
-    #option-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; margin-top: 12px; }
+    #option-cards, #simplify-out .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; margin-top: 12px; }
     #compare-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
     .card { border: 1px solid var(--line); border-radius: 12px; padding: 12px; background: #fff; }
     .card.active { border-color: var(--accent2); box-shadow: 0 0 0 2px var(--accent2) inset; }
@@ -230,6 +230,7 @@
         <label>Length along the ridge (ft)<input id="lengthFt" type="number" min="4" max="40" step="0.5"></label>
         <label>Width across the gable (ft)<input id="widthFt" type="number" min="4" max="20" step="0.5"></label>
         <label>Most height at the peak, above the gravel (ft, 0 for no limit)<input id="maxPeakFt" type="number" min="0" max="20" step="0.25"></label>
+        <label>Most floor area (sq ft, 0 for no limit; many towns need no permit under 100 or 120)<input id="maxFootprint" type="number" min="0" max="400" step="1"></label>
         <label class="check"><input id="autoWall" type="checkbox"> Walls as low as the tallest door or window allows</label>
         <label>Wall height, floor to top plate (in)<input id="wallHeight" type="number" min="60" max="144" step="0.5"></label>
         <label class="check"><input id="autoPitch" type="checkbox"> Roof pitch from the height limit</label>
@@ -250,6 +251,7 @@
         <label>Rafters<select id="rafterSize"><option>2x4</option><option>2x6</option><option>2x8</option><option>2x10</option></select></label>
         <label>Rafter spacing (in on centre)<select id="rafterSpacing"><option value="12">12</option><option value="16">16</option><option value="24">24</option></select></label>
         <label>Roof structure<select id="roofType"><option value="ridgeBeam">Ridge beam on posts (open inside, no ties)</option><option value="ridgeBoard">Ridge board with rafter ties</option></select></label>
+        <label>Rafter seat<select id="rafterSeat"><option value="connector">Variable-pitch connector (no notch)</option><option value="birdsmouth">Birdsmouth notch and hurricane tie</option></select></label>
         <label>Ridge beam (two plies)<select id="beamSize"><option>2x8</option><option>2x10</option><option>2x12</option></select></label>
         <label>Rafter ties (ridge board roof)<select id="tieSize"><option>2x4</option><option>2x6</option></select></label>
         <label class="check"><input id="floorTreated" type="checkbox"> Pressure-treated floor framing</label>
@@ -258,7 +260,8 @@
     <fieldset>
       <legend>Foundation</legend>
       <div class="fields">
-        <label>Foundation<select id="foundation"><option value="gravel">Skids on a gravel pad</option><option value="blocks">Skids on concrete blocks</option></select></label>
+        <label>Foundation<select id="foundation"><option value="gravel">Skids on a gravel pad</option><option value="blocks">Skids on solid 4x8x16 concrete blocks</option><option value="deck blocks">Skids on concrete deck blocks</option><option value="CMU">Skids on 8x8x16 CMU (cinder) blocks</option></select></label>
+        <label>Compacting the gravel<select id="compaction"><option value="hand tamper">Buy a hand tamper</option><option value="plate compactor">Rent a plate compactor for a day</option></select></label>
         <label>Skids (pressure-treated)<select id="skidSize"><option>4x4</option><option>4x6</option></select></label>
         <label>Most space between skids (in)<input id="skidSpacing" type="number" min="24" max="72" step="1"></label>
       </div>
@@ -286,7 +289,8 @@
       <legend>Covering and boards</legend>
       <div class="fields">
         <label class="check"><input id="siding" type="checkbox"> Siding</label>
-        <label>Siding type<select id="sidingType"><option value="T1-11">T1-11 plywood panels</option><option value="LP SmartSide">LP SmartSide panels</option><option value="board and batten">Board and batten over OSB</option><option value="vinyl">Vinyl lap over OSB</option><option value="fiber cement">Fiber cement lap over OSB</option></select></label>
+        <label>Siding type<select id="sidingType"><option value="T1-11">T1-11 plywood panels</option><option value="LP SmartSide">LP SmartSide 38 Series primed panels, 3/8"</option><option value="LP SmartSide 7/16">LP SmartSide 76 Series primed panels, 7/16"</option><option value="board and batten">Board and batten over OSB</option><option value="vinyl">Vinyl lap over OSB</option><option value="fiber cement">Fiber cement lap over OSB</option></select></label>
+        <label>Wall trim<select id="wallTrim"><option value="1x4">1x4 corner boards and casings</option><option value="none">None</option></select></label>
         <label>Roof covering<select id="roofCover"><option value="shingles">Architectural shingles</option><option value="metal">Corrugated metal panels</option></select></label>
         <label>Siding colour<select id="sidingColor"><option value="natural">Stained (solid colour)</option><option value="red">Barn red</option><option value="pink">Pink</option><option value="hot pink">Hot pink</option><option value="lavender">Lavender</option><option value="mint">Mint</option><option value="gray">Gray</option><option value="blue">Blue</option><option value="green">Green</option><option value="white">White</option></select></label>
         <label class="check"><input id="polkaDots" type="checkbox"> Purple polka dots</label>
@@ -316,7 +320,11 @@
     </div>
     <div class="result-panel print-target" id="panel-shopping">
       <div class="table-wrap"><table id="shopping"><thead><tr><th scope="col">Item</th><th scope="col" class="n">Qty</th><th scope="col">Unit</th><th scope="col" class="n">Each</th><th scope="col" class="n">Total</th><th scope="col">Price source</th></tr></thead><tbody></tbody></table></div>
-      <p class="muted">Prices are Home Depot listings seen on 2026-10-29, most read from the search result's copy of the product page, so they can be days or weeks old and vary by store. Lengths with no listing are scaled by the foot from the nearest listed length; anything with no listing at all says "estimate". Type your own store's prices below.</p>
+      <p class="muted">Prices are store listings seen on 2026-10-29 (mostly Home Depot), most read from the search result's copy of the product page, so they can be days or weeks old and vary by store. Lengths with no listing are scaled by the foot from the nearest listed length; anything with no listing at all says "estimate". Type your own store's prices below.</p>
+      <details style="margin-top:12px" open>
+        <summary><strong>Compare stores and swap parts</strong> (Home Depot, Lowe's and Menards, with item numbers and links)</summary>
+        <div id="stores" style="margin-top:10px"></div>
+      </details>
       <div class="toolrow"><button type="button" class="btn" id="csv-shopping">Download CSV</button></div>
       <details style="margin-top:12px" open>
         <summary><strong>Ask stores for a quote</strong> (a draft email from this list, asking for bulk pricing and delivery)</summary>
@@ -368,6 +376,10 @@
     <p class="muted">Close variations of the design you are editing, each framed, priced and checked. They keep your size, doors, windows, colours and wall framing, and change one thing a builder would weigh. Pick one to add it to your designs.</p>
     <div class="toolrow"><button type="button" class="btn primary" id="make-options">Make options</button></div>
     <div id="option-cards"></div>
+    <h3 style="margin-top:16px">Simplify the build</h3>
+    <p class="muted">Searches small changes (roof pitch, overhang, rafter and stud spacing, connectors or notches, ridge type) for the cheapest build, the one with the fewest saw cuts, and a balance of the two. It counts every saw cut and every angled cut and notch, and keeps only designs that pass every check.</p>
+    <div class="toolrow"><button type="button" class="btn primary" id="simplify">Find a simpler build</button><label class="check"><input type="checkbox" id="simplify-resize"> Let it change the length or width by a foot (within your floor-area limit)</label></div>
+    <div id="simplify-out"></div>
   </section>
 
   <section style="margin-top:14px" aria-labelledby="compare-h">

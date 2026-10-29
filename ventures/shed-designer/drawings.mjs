@@ -59,11 +59,11 @@ export function buildSheets(shed, marks = new Map()) {
     const ys = k.skidYs;
     for (let i = 0; i + 1 < ys.length; i++) items.push(dim([L, ys[i]], [L, ys[i + 1]], -34, fmtIn(ys[i + 1] - ys[i])));
     items.push(text([L / 2, W / 2 + 4], `${k.skidCount} skids, PT ${d.skidSize} on edge`, 12));
-    items.push(text([L / 2, W / 2 - 12], d.foundation === 'blocks' ? `on ${k.blockCount} solid concrete blocks` : 'on compacted gravel', 11));
+    items.push(text([L / 2, W / 2 - 12], k.block ? `on ${k.blockCount} ${k.block.name}s` : 'on compacted gravel', 11));
     items.push(text([L / 2, -12 - 4], 'FRONT', 10, 'middle', 'muted'));
     sheets.push({
       id: 'foundation', title: 'Foundation plan',
-      note: `Gravel pad 4" deep, 12" past the shed on every side: about ${k.gravelCuYd.toFixed(1)} cu yd. Skids ${fmtFtIn(L)} long at the centres shown. Level the pad${d.foundation === 'blocks' ? ' and the blocks' : ''} before setting skids; check local rules on setbacks and permits.`,
+      note: `Gravel pad 4" deep, 12" past the shed on every side: about ${k.gravelCuYd.toFixed(1)} cu yd. Skids ${fmtFtIn(L)} long at the centres shown. Level the pad${k.block ? ' and the blocks' : ''} before setting skids; check local rules on setbacks and permits.`,
       items,
     });
   }
@@ -215,8 +215,8 @@ export function buildSheets(shed, marks = new Map()) {
     for (const y of k.skidYs) {
       const sk = shed.members.find((m) => m.kind === 'skid');
       const th = sk ? (sk.geom.thickness) : 3.5;
-      items.push(rect(y - th / 2, d.foundation === 'blocks' ? 4 : 0, y + th / 2, k.skidTop, 'pt'));
-      if (d.foundation === 'blocks') items.push(rect(y - 4, 0, y + 4, 4, 'block'));
+      items.push(rect(y - th / 2, k.block ? k.block.h : 0, y + th / 2, k.skidTop, 'pt'));
+      if (k.block) items.push(rect(y - k.block.across / 2, 0, y + k.block.across / 2, k.block.h, 'block'));
     }
     items.push(rect(0, k.skidTop, W, k.floorTop - 0.75, 'pt'));
     items.push(rect(0, k.floorTop - 0.75, W, k.floorTop, 'sheet'));
@@ -273,7 +273,7 @@ export function buildSheets(shed, marks = new Map()) {
     lbl(W * 0.62, zt(W * 0.38) - 8, `${d.rafterSize} rafters at ${d.rafterSpacing}" o.c.`);
     if (o > 0) lbl(W + o + 3, zt(-o) - 4, '2x6 sub-fascia + 1x6 fascia; vented soffit under the tails', 'start');
     if (block) lbl(k.stud + 2, k.plateTop + 6, 'eave block between rafters', 'start');
-    if (d.siding) lbl(W + 3, k.floorTop + 40, `${d.sidingType === 'T1-11' || d.sidingType === 'LP SmartSide' ? d.sidingType + ' panels' : d.sidingType + ' over OSB'}`, 'start');
+    if (d.siding) lbl(W + 3, k.floorTop + 40, `${d.sidingType === 'T1-11' || d.sidingType.startsWith('LP SmartSide') ? d.sidingType + ' panels' : d.sidingType + ' over OSB'}`, 'start');
     lbl(k.stud + 4, k.floorTop + 10, `${d.studSize} studs at ${d.studSpacing}" o.c., double top plate`);
     lbl(W / 2 + 4, k.skidTop + 2, `${d.joistSize} joists at ${d.joistSpacing}" o.c. on ${k.skidCount} ${d.skidSize} skids`);
     items.push(text([W / 2, k.floorTop + 30], 'SECTION', 12, 'middle', 'muted'));
@@ -402,7 +402,7 @@ export function buildSheets(shed, marks = new Map()) {
     items.push(rect(sx, k.floorTop + 1.5, sx + D2, k.floorTop + 12, 'member'));
     items.push(rect(sx - 0.6, k.skidTop, sx, k.floorTop + 12, 'sheet'));
     items.push(text([sx + 12, -9], 'SKID AND FLOOR EDGE', 9, 'middle', 'muted'));
-    items.push(text([sx + 26, k.skidTop / 2], `PT ${d.skidSize} skid on ${d.foundation === 'blocks' ? 'a block' : 'compacted gravel'}`, 7, 'start'));
+    items.push(text([sx + 26, k.skidTop / 2], `PT ${d.skidSize} skid on ${k.block ? 'a block' : 'compacted gravel'}`, 7, 'start'));
     items.push(text([sx + 26, k.skidTop + k.joistDepth / 2], `PT ${d.joistSize} rim and joists, toenailed to the skid`, 7, 'start'));
     items.push(text([sx + 26, k.floorTop + 1], '3/4" T&G plywood, glued and screwed', 7, 'start'));
     items.push(text([sx + 26, k.floorTop + 8], 'bottom plate nailed through into the rim; siding laps the rim', 7, 'start'));
@@ -466,6 +466,34 @@ export function buildSheets(shed, marks = new Map()) {
     });
   }
 
+  // Site-built door: the frame seen from inside, with the cut sizes.
+  for (const dr of shed.doors || []) {
+    const items = /** @type {Item[]} */ ([]);
+    const { w, h, railLen } = dr;
+    const T = 3.5;
+    const bay = (h - 3 * T) / 2;
+    const bh = T / Math.cos(Math.atan2(bay, railLen));
+    items.push(rect(0, 0, w, h, 'hidden'));
+    items.push(rect(0, 0, T, h, 'member'));
+    items.push(rect(w - T, 0, w, h, 'member'));
+    for (const z of [0, T + bay, h - T]) items.push(rect(T, z, w - T, z + T, 'member'));
+    for (const z0 of [T, 2 * T + bay]) items.push({ t: 'poly', pts: [[T, z0], [w - T, z0 + bay - bh], [w - T, z0 + bay], [T, z0 + bh]], closed: true, cls: 'header' });
+    for (const z of [T / 2, T + bay + T / 2, h - T / 2]) {
+      items.push(rect(-1, z - 0.75, 8, z + 0.75, 'block'));
+      items.push(text([9, z + 2.5], 'tee hinge', 7, 'start', 'muted'));
+    }
+    items.push(text([w - 6, h / 2 + 2], 'pull / hasp', 7, 'end', 'muted'));
+    items.push(dim([0, 0], [w, 0], -14, `${fmtIn(w)} door (opening less 1/4" each side${dr.leaves > 1 ? ' and between the pair' : ''})`));
+    items.push(dim([w, 0], [w, h], -16, `${fmtIn(h)} (1/4" top and bottom)`));
+    items.push(dim([T, h], [w - T, h], 10, `rails ${fmtIn(railLen)}`));
+    items.push(text([w / 2, T + bay / 2], `Z brace, ${dr.braceAngle.toFixed(0)} deg, cut to fit`, 8));
+    sheets.push({
+      id: `door-${dr.id}`, title: `Door ${dr.id}: site-built shed door`,
+      note: `Seen from inside, hinges on the left in this view. ${dr.leaves > 1 ? `A pair of leaves, each ${fmtIn(w)} wide. ` : ''}Skin: the siding cut out of the door opening, best face out. Frame: 2x4s laid flat, glued and screwed through the skin with 1-1/4" exterior screws every 8". The braces run down toward the hinges so the door cannot sag. Hang on three tee hinges with a 1/4" gap all round, the hinge straps over the rails.`,
+      items,
+    });
+  }
+
   // 10. Corner detail: how the double top plate interlocks.
   {
     const items = /** @type {Item[]} */ ([]);
@@ -507,7 +535,7 @@ export function buildSheets(shed, marks = new Map()) {
     row('');
     row('DESIGN DATA', 9, 'muted');
     row(`Walls: ${d.studSize} at ${d.studSpacing}" o.c., ${fmtFtIn(d.wallHeight)} floor to top of plates (studs ${fmtIn(k.studLen)}), double top plate interlocked at corners.`);
-    row(`Floor: ${d.joistSize} joists at ${d.joistSpacing}" o.c. on ${k.skidCount} PT ${d.skidSize} skids, ${d.foundation === 'blocks' ? 'on concrete blocks' : 'on a compacted gravel pad'}; 3/4" T&G plywood.`);
+    row(`Floor: ${d.joistSize} joists at ${d.joistSpacing}" o.c. on ${k.skidCount} PT ${d.skidSize} skids, ${k.block ? `on ${k.block.name}s on a compacted gravel pad` : 'on a compacted gravel pad'}; 3/4" T&G plywood.`);
     row(`Roof: ${d.rafterSize} rafters at ${d.rafterSpacing}" o.c., ${d.roofType === 'ridgeBeam' ? `two-ply ${k.ridgeSize} ridge beam on posts, no ties` : `${k.ridgeSize} ridge board with ${d.tieSize} rafter ties`}, ${fmtIn(d.overhang)} overhang; ${d.roofCover === 'metal' ? 'corrugated metal' : 'shingles'} on 7/16" OSB.`);
     row(`Siding: ${d.siding ? d.sidingType : 'none'}. Inside: ${d.interior === 'none' ? 'bare framing' : d.interior}${d.insulation ? ', R-13 insulation' : ''}.`);
     row(`Loads used for the strength checks: ${d.snowLoad} psf roof snow, ${d.windLoad} psf wind on the walls, 15 psf roof dead, 40 psf floor live.`);

@@ -125,9 +125,9 @@ export function connectionChecks(shed) {
       return skids.filter((s) => near(s.hi[2], b.lo[2]) && s.lo[0] < b.hi[0] && s.hi[0] > b.lo[0] && s.lo[1] < b.hi[1] && s.hi[1] > b.lo[1]).length < 2;
     }).map((j) => j.id);
     add('Floor joists bear on skids', fails, joists.length, 'joists resting on at least two skids');
-    const base = d.foundation === 'blocks' ? 4 : 0;
+    const base = k.block ? k.block.h : 0;
     const skidFails = skids.filter((s) => !near(s.lo[2], base)).map((s) => fmtIn(s.lo[1]));
-    add('Skids bear on the ground', skidFails, skids.length, d.foundation === 'blocks' ? 'skids on the blocks' : 'skids on the gravel pad');
+    add('Skids bear on the ground', skidFails, skids.length, k.block ? `skids on the ${k.block.name}s` : 'skids on the gravel pad');
   }
   return { rows, ok: rows.every((r) => r.ok) };
 }

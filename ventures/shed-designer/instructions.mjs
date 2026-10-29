@@ -64,8 +64,8 @@ export function buildInstructions(shed, est) {
     steps: [
       `Lay ${k.skidCount} pressure-treated ${d.skidSize} skids (mark ${marks((m) => m.kind === 'skid')}, ${skids.length} pieces) on edge, running the ${fmtFtIn(L)} length of the shed.`,
       `Centre them at ${list(k.skidYs)} from the front edge of the shed (the first and last flush with the front and back edges).`,
-      d.foundation === 'blocks'
-        ? `Set ${k.blockCount} solid concrete blocks under the skids, one at each end and the rest no more than 4 ft apart, then shim the blocks (not the skids) until every skid is level and all skids are level with each other.`
+      k.block
+        ? `Set ${k.blockCount} ${k.block.name}s on the compacted gravel under the skids (${k.block.h}" tall), one at each end and the rest no more than 4 ft apart, then shim the blocks (not the skids) until every skid is level and all skids are level with each other.`
         : 'Bed each skid into the gravel and check it with a level along its length and across to the next skid; add or scrape gravel under it rather than shimming with wood.',
       skids.length > k.skidCount ? 'Skids are spliced: butt the pieces tight, stagger the joints from skid to skid, and land each joint on firm gravel or a block.' : 'Each skid is one piece.',
     ],
@@ -196,7 +196,7 @@ export function buildInstructions(shed, est) {
       'Every vertical panel edge lands on a stud. Nail 8d galvanized every 6" on edges and every 12" on intermediate studs.',
       shed.sidingUpper.length ? 'Where a gable needs a second panel above the first, put Z-flashing over the lower panel\'s top edge before the upper one.' : 'Each panel reaches from the bottom to the top in one piece.',
       'Cut the door and window openings with a circular saw from inside, along the framing, after the panel is nailed.',
-      'Caulk the corner joints or cover them with corner trim boards.',
+      shed.wallTrim && shed.wallTrim.length ? 'The corners get 1x4 corner boards in the trim step; leave the panel edges flush with the corner.' : 'No corner boards: caulk the corner joints and paint the panel edges.',
     ],
   });
 
@@ -206,9 +206,26 @@ export function buildInstructions(shed, est) {
       d.overhang > 0 ? `Fascia: nail the 1x6 fascia over the sub-fascia, and fit the vented soffit (${Math.ceil((shed.trim.soffitSqFt * 1.1) / 12.75)} panels) to the underside of the rafter tails from the wall to the fascia.` : '',
       'Rake: a 1x4 board up each gable edge under the drip edge.',
       vents.length ? 'Gable vents: set each one in its opening over a bead of exterior sealant and screw through its flange; screen side in.' : '',
-      'Door and windows: follow each maker\'s instructions. Flash the sill and sides, shim plumb and square in the rough opening, and leave the gap they specify around the frame.',
+      d.openings.some((o) => o.product !== 'site-built') ? 'Door and windows: follow each maker\'s instructions. Flash the sill and sides, shim plumb and square in the rough opening, and leave the gap they specify around the frame.' : '',
+      d.openings.length ? 'Z-flashing: before the head casing goes on, slip a length of Z-flashing behind the siding above each door and window head, its lip over the head trim, so water runs off and not behind it.' : '',
+      shed.wallTrim && shed.wallTrim.length ? `Wall trim: nail the 1x4 corner boards (${shed.wallTrim.filter((t) => t.where.endsWith('corner')).length}) with 8d galvanized finish nails, two every 16"; on each corner the board on the long wall laps the edge of the end-wall board. Then case each door and window: sides first, head across the top lapping the sides, and for windows a sill board under. The cut list is on the Cut sheet tab.` : '',
+      d.siding ? 'Caulk: run exterior caulk where each casing meets the door or window frame and the siding, and along the inside edge of every corner board. Leave the bottom edge of the head casing and the weep gaps the window maker shows open so water can drain.' : '',
     ].filter(Boolean),
   });
+
+  for (const dr of shed.doors || []) {
+    out.push({
+      title: `Build door ${dr.id} on site`,
+      steps: [
+        `Cut the door skin from the siding you cut out of the opening: ${dr.leaves > 1 ? `two leaves, each ${fmtIn(dr.w)} x ${fmtIn(dr.h)}` : `${fmtIn(dr.w)} x ${fmtIn(dr.h)}`}, which leaves a 1/4" gap all round${dr.leaves > 1 ? ' and between the pair' : ''}.`,
+        `Cut the frame from 2x4s (marks on the cut sheet): two stiles ${fmtIn(dr.h)}, three rails ${fmtIn(dr.railLen)}${dr.leaves > 1 ? ' for each leaf' : ''}.`,
+        'Lay the skin face down on a flat floor. Glue and screw the stiles along its long edges and the rails across the top, middle and bottom, all laid flat, with 1-1/4" exterior screws through the skin every 8".',
+        `Braces: in each bay, hold a 2x4 corner to corner and scribe it; the ends come out about ${dr.braceAngle.toFixed(0)} degrees. The low end of each brace goes on the hinge side so the brace holds the latch side up.`,
+        'Hang: three 8" tee hinges, the straps across the rails, the leaves on the casing. Shim the door to keep the 1/4" gap while you screw the hinges. Then the pull and the hasp.',
+        'Paint or seal the skin edges and all six faces of the door before it sees rain.',
+      ],
+    });
+  }
 
   if (d.siding && d.sidingColor !== 'natural') {
     out.push({
