@@ -79,6 +79,19 @@ check(labels.some((l) => l.includes("24")), "dragging a corner out 4 ft makes a 
 await page.click("#skUndo");
 const back = await page.evaluate(() => [...document.querySelectorAll("#skSvg text")].map((t) => t.textContent));
 check(!back.some((l) => l.includes("24")), "undo puts the corner back");
+// openings: put a 36 in door on the top wall, slide it 4 ft right, then drag its right edge 1 ft out
+await page.selectOption("#skTool", "door"); await page.fill("#skWidth", "36"); await click(60, 0);
+await page.selectOption("#skTool", "move");
+const openingX = () => page.evaluate(() => { const l = document.querySelector("#skSvg line[data-opening]"); return [Number(l.getAttribute("x1")), Number(l.getAttribute("x2"))]; });
+const [x1, x2] = await openingX();
+const d0 = await toScreen((x1 + x2) / 2, 0), d1 = await toScreen((x1 + x2) / 2 + 48, 0);
+await page.mouse.move(d0.x, d0.y); await page.mouse.down(); await page.mouse.move(d1.x, d1.y, { steps: 6 }); await page.mouse.up();
+const [y1, y2] = await openingX();
+check(Math.abs(y1 - x1 - 48) < 1 && Math.abs(y2 - y1 - 36) < 1, `dragging a door slides it 4 ft, width kept (${x1}-${x2} -> ${y1}-${y2})`);
+const e0 = await toScreen(y2 - 1, 0), e1 = await toScreen(y2 + 11, 0);
+await page.mouse.move(e0.x, e0.y); await page.mouse.down(); await page.mouse.move(e1.x, e1.y, { steps: 6 }); await page.mouse.up();
+const [z1, z2] = await openingX();
+check(Math.abs(z1 - y1) < 1 && Math.abs(z2 - z1 - 48) < 1.5, `dragging its right edge 1 ft widens it to 48 in (${z1}-${z2})`);
 check(errors.length === 0, "no page errors" + (errors.length ? ": " + errors.join("; ") : ""));
 await browser.close(); server.close();
 process.exit(bad ? 1 : 0);
