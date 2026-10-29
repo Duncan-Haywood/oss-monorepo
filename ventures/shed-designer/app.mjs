@@ -10,6 +10,7 @@ import { drawPlan, drawEnd } from './editor.mjs';
 import { fmtIn, fmtFtIn, actual, STANDARD_LENGTHS_FT, EXAMPLE_ITEMS } from './lumber.mjs';
 import { recordUsage, clearUsage } from './usage.mjs';
 import { structuralChecks } from './checks.mjs';
+import { connectionChecks } from './connections.mjs';
 import { generateCandidates } from './candidates.mjs';
 import { buildInstructions, instructionsMarkdown } from './instructions.mjs';
 
@@ -172,6 +173,8 @@ function sourceCell(s) {
 }
 
 function renderStructure(shed) {
+  const c = connectionChecks(shed);
+  $('#connections tbody').innerHTML = c.rows.map((x) => `<tr><th scope="row">${esc(x.check)}</th><td>${esc(x.detail)}</td><td class="${x.ok ? 'ok' : 'fail'}">${x.ok ? 'passes' : 'needs fixing'}</td></tr>`).join('');
   const r = structuralChecks(shed);
   $('#structure-note').textContent = `Loads you set: ${r.loads.snow} psf snow on the roof, ${r.loads.wind} psf wind on the walls, plus ${r.loads.roofDead} psf roof dead load and ${r.loads.floorLive} psf on the floor. SPF No. 2 lumber, allowable-stress (NDS) checks of the kind a span table encodes: a screening check, not an engineer's review. Connections, uplift, racking and the foundation are not checked; ask your building department for your area's snow and wind loads.`;
   $('#structure tbody').innerHTML = r.rows.map((x) => {
@@ -313,7 +316,8 @@ function render() {
   renderSummary(shed, est);
   const sc = renderStructure(shed);
   const worst = sc.rows.reduce((m, x) => Math.max(m, x.ratio), 0);
-  $('#summary-lines').insertAdjacentHTML('beforeend', `<div><dt>Structure</dt><dd>${sc.ok ? `all ${sc.rows.length} checks pass` : `${sc.rows.filter((x) => !x.ok).length} over capacity`} (highest ${Math.round(worst * 100)}%)</dd></div>`);
+  const cc = connectionChecks(shed);
+  $('#summary-lines').insertAdjacentHTML('beforeend', `<div><dt>Structure</dt><dd>${sc.ok ? `all ${sc.rows.length} load checks pass` : `${sc.rows.filter((x) => !x.ok).length} over capacity`} (highest ${Math.round(worst * 100)}%); ${cc.ok ? `all ${cc.rows.length} connection checks pass` : `${cc.rows.filter((x) => !x.ok).length} connection checks fail`}</dd></div>`);
   renderShopping(est);
   renderPrices(est, d);
   renderCuts(est);

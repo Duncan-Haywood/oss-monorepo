@@ -27,7 +27,7 @@ For assistants: [llms.txt](llms.txt).
 - **3D view.** A small WebGL renderer, no library. Every board is an extruded profile, so rafters show their birdsmouth and gable studs their angled tops. You can orbit, zoom, switch to front, gable end or top views, and toggle layers (foundation, floor, walls, roof, sheathing, siding, roofing). "Framing only" strips it to the frame (`render3d.mjs`).
 - **Several designs, compared.** You can start new designs from presets (8x12, 8x10, 10x12, 12x16, 8x8) or copy the current one. Each design gets a card with a 3D thumbnail, its footprint, peak, board count, total and cost per square foot, and the lowest-cost design is marked. You can save a design to a file, open one from a file, or copy a link that carries the design inside the URL.
 
-The starting design is the owner's spec: an 8x12 with a single 38" x 78" (6'6") door on one 12 ft side and two 24" x 36" windows on the opposite side. The 2x4 walls are 16" on centre. The roof is a ridge beam (two-ply 2x10 on two-ply posts, so no rafter ties and an open inside), with 12" x 8" gable vents flanking each post. The outside is hot pink with purple polka dots and glitter under a purple roof with white trim, the inside is a pink teen bedroom, and the peak is limited to 8 ft.
+The starting design is the owner's spec: an 8x12 with a single 38" x 78" (6'6") door on one 12 ft side and two 24" x 36" windows on the opposite side. The 2x4 walls are 16" on centre. The roof is a ridge beam (two-ply 2x10 on two-ply posts, so no rafter ties and an open inside), with 12" x 8" gable vents flanking each post. It is finished the common way (stained T1-11 siding, charcoal shingles, white trim, bare framing inside), and the peak is limited to 8 ft. Paint colours, polka dots, glitter and a decorated interior are options.
 
 All three automatic choices are ticked:
 
@@ -35,7 +35,7 @@ All three automatic choices are ticked:
 - **Pitch:** 5/12. No pitch keeps the peak under 8 ft with that door, so the tool takes the lowest pitch at which the vents still fit, and the warning says the peak is about 10'1". Even 3/12 would be about 9'5-1/2".
 - **Overhang:** 6". Any longer and the 59-3/16" rafters cost more lumber.
 
-At the starting prices that design is 150 pieces from 88 boards: $636.90 of lumber against a lower bound of $606.82, and $2,538.63 in all, interior included. Every structural check passes, and the ridge beam is the most loaded member at 80%. The "8x12 classic" preset (8 ft walls, 6/12, ridge board and ties, 38" x 82" door, unpainted) is 144 pieces from 93 boards and $2,166.66.
+At the starting prices that design is 150 pieces from 88 boards: $636.90 of lumber against a lower bound of $606.61, and $2,058.67 in all. Every structural check passes, and the ridge beam is the most loaded member at 80%. The "8x12 classic" preset (8 ft walls, 6/12, ridge board and ties, 38" x 82" door, unpainted) is 144 pieces from 93 boards and $2,166.66.
 
 ## Structure, integrity and prices
 

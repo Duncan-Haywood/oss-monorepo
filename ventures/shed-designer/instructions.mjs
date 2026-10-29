@@ -126,7 +126,8 @@ export function buildInstructions(shed, est) {
     title: 'Tie the walls together',
     steps: [
       'Nail each corner: end stud to the corner stud of the eave wall, 16d every 12".',
-      'Lay the cap plates so they lap the top plates at every corner (the gable-wall cap runs over the eave wall top plate), and break any cap joint at least 4 ft from a top-plate joint. Nail cap to top plate with 16d every 16", two at each lap.',
+      `Lap the cap plates to lock the corners. On the long walls the cap (mark ${marks((m) => (m.group === 'wall:front' || m.group === 'wall:back') && m.kind === 'cap plate')}) stops ${fmtIn(k.stud)} short of each end; on the end walls the cap (mark ${marks((m) => (m.group === 'wall:left' || m.group === 'wall:right') && m.kind === 'cap plate')}) runs ${fmtIn(k.stud)} past each end and sits over the long wall's top plate. Break any cap joint at least 4 ft from a top-plate joint. Nail cap to top plate with 16d every 16", and two 16d down through each lap into the plate below.`,
+      'Optional: a flat steel strap tie across each corner on top of the caps adds hold, but the lap is what ties the walls.',
       `Check the box: diagonals across the top plates must match at ${fmtFtIn(Math.hypot(L, W))}. Rack the walls with the braces until they do.`,
     ],
   });

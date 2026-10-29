@@ -51,7 +51,7 @@ test('CSV exports have a header and one row per board', () => {
 });
 
 test('pink siding with purple polka dots gets paint, and the ridge beam gets hangers', () => {
-  const shed = buildShed(defaultDesign());
+  const shed = buildShed({ ...defaultDesign(), sidingColor: 'pink', polkaDots: true });
   const est = estimate(shed);
   const paint = est.shopping.filter((r) => r.section === 'Paint');
   assert.ok(paint.some((r) => /pink/.test(r.name) && r.qty >= 1));

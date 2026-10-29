@@ -35,8 +35,9 @@ export const WALL_LABEL = {
 /** The starter: an 8x12 with a single door on one 12 ft eave wall, two windows on the other, and a vent in each gable. */
 /**
  * The starter, as asked for: an 8x12 with a single 6'6" door on one 12 ft side,
- * two windows on the other, gable vents, a ridge-beam roof, an 8 ft peak limit
- * and pink siding with purple polka dots.
+ * two windows on the other, gable vents, a ridge-beam roof and an 8 ft peak limit,
+ * finished the common way (stained T1-11, charcoal shingles, white trim, bare
+ * framing inside). The colours, glitter and decorated interior are options.
  */
 export function defaultDesign() {
   return {
@@ -60,8 +61,8 @@ export function defaultDesign() {
     foundation: 'gravel',
     floorTreated: true,
     siding: true,
-    sidingColor: 'hot pink',
-    polkaDots: true,
+    sidingColor: 'natural',
+    polkaDots: false,
     roofing: true,
     gableVents: true,
     ventWidth: 12,
@@ -72,10 +73,10 @@ export function defaultDesign() {
     autoWall: true,
     autoPitch: true,
     autoOverhang: true,
-    roofColor: 'purple',
+    roofColor: 'charcoal',
     trimColor: 'white',
-    glitter: true,
-    interior: 'teen bedroom',
+    glitter: false,
+    interior: 'none',
     kerf: 0.125,
     lengths: [...DEFAULT_LENGTHS_FT],
     openings: /** @type {Opening[]} */ ([
@@ -554,8 +555,12 @@ function buildFramed(d) {
     const top = splitRun(0, len, maxStock, breakCenters);
     for (const [s0, s1] of top.runs) addM('top plate', d.studSize, s0, s1, H - 3, H - 1.5);
     const topJoints = top.runs.slice(1).map((r) => r[0]);
-    const cap = splitRun(0, len, maxStock, breakCenters, topJoints, 48);
-    for (const [s0, s1] of cap.runs) addM('cap plate', d.studSize, s0, s1, H - 1.5, H);
+    // The cap plate interlocks the corners: on the eave walls it stops one wall
+    // depth short of each end, and the gable walls' cap runs that much long to
+    // lap over the eave walls' top plate.
+    const [c0, c1] = spec.eave ? [D, len - D] : [-D, len + D];
+    const cap = splitRun(c0, c1, maxStock, breakCenters, topJoints, 48);
+    for (const [s0, s1] of cap.runs) addM('cap plate', d.studSize, s0, s1, H - 1.5, H, spec.eave ? `stops ${D}" short of each end; the end walls' cap laps over it` : `runs ${D}" past each end to lap over the long walls`);
     if (top.runs.length > 1) notes.push(`${WALL_LABEL[name]}: plates are longer than your longest board, so they splice over studs; the cap plate's joints are kept away from the top plate's where the layout allows.`);
     walls[name] = { name, len, start, members: wm, openings: ops, eave: spec.eave };
   }
