@@ -144,7 +144,7 @@ priced      150    84.7%         29.3%            100.0%               0.53% / 9
 Sample house, n copies: cost against the LP lower bound (price 1 per linear foot)
 copies  pieces  boards     cost    bound    gap    FFD cost   each piece alone   ms
      1     345     253  2384.16  2384.12  0.002%    2450.00            2915.04   117
-     2     690     503  4769.16  4768.23  0.020%    4901.72            5830.08   148
+     2     690     504  4768.88  4768.23  0.014%    4901.72            5830.08   148
      4    1380    1004  9532.60  9531.45  0.012%    9786.00           11660.16   180
 ```
 
@@ -152,7 +152,7 @@ copies  pieces  boards     cost    bound    gap    FFD cost   each piece alone  
 length, as longer boards often do. Rounding the LP finds the exact cheapest
 order on 85% of small cases; first-fit-decreasing on 65% with flat prices and
 29% with priced ones, where its habit of starting every board on the longest
-length costs 9.5% on average. On whole houses the order is within 0.02% of the
+length costs 9.5% on average. On whole houses the order is within 0.014% of the
 LP bound, so there is almost nothing left for a better integer method to find
 there; the gap that matters is against planning by hand (the "each piece alone"
 column is the extreme case: 22% more board).
