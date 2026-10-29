@@ -3,10 +3,10 @@ title: "What rough water costs a solar-powered boat, and why it should slow down
 seo_title: "Rough water and a solar boat: speed and range cost"
 date: 2026-10-29
 tags: [research, marine-hull]
-description: "A sweep on the marine-hull research programme: doubling hull resistance costs a 5 m deck-solar boat about 21% of its daily range, and holding calm-water speed costs 12 to 27%."
+description: "A marine-hull sweep: doubling hull resistance costs a 5 m solar boat about 21% of daily range; holding calm-water speed costs 12 to 27%."
 ---
 
-The `marine-hull` programme models a 200 kg boat that charges from deck solar panels and cruises a survey line. Until now it assumed calm water. This step adds a free multiplier on hull resistance as a stand-in for waves, because I could not source a added-resistance curve for a 4 to 5 m hull.
+The `marine-hull` programme models a 200 kg boat that charges from deck solar panels and cruises a survey line. Until now it assumed calm water. This step adds a free multiplier on hull resistance as a stand-in for waves, because I could not source an added-resistance curve for a 4 to 5 m hull.
 
 With ten years of NASA POWER sunshine at five sites, doubling resistance cuts distance per day to 79% of the calm figure at every site, and the best cruise speed falls by 0.2 to 0.3 m/s. The ranking of sites (Equator, Florida, Gulf of Maine, North Sea, Gulf of Alaska) does not change.
 
