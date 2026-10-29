@@ -1,7 +1,7 @@
 ---
 title: "A bookkeeping page for tutors, and the seven payees it had to learn"
 date: 2026-10-29
-description: "ai-bookkeeper gets a worked October for an online tutor. Before new rules, Outschool, Teachers Pay Teachers, Prodigy, a Wacom tablet, Praxis fees and a library room went unfiled."
+description: "ai-bookkeeper gets a worked October for an online tutor. Outschool, Teachers Pay Teachers, Prodigy, a Wacom tablet and Praxis fees went unfiled until new rules."
 tags: [ai-bookkeeper, small-business, bookkeeping]
 ---
 
