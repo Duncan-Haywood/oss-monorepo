@@ -1080,3 +1080,14 @@ The untried idea from the section above: refit with a seasonal amplitude that sc
 - UK driver deaths (the shock): 4 become 4 and 3 become 4. Stays, as a shock should.
 
 So it separates one of three growing-season series from the shock. On the airline series the multiplicative fit finds more steps than the drift fit (22 against 20 in all with no trend, 15 against 8 with bend): a fixed multiplicative factor does not fit a shape that also changes in form, and the mean model has no growth term. Not adopted, and the warning text is unchanged. Both attempts to tell a shape from a shock automatically (cancellation, refit) failed on four real series with one shock; the note's wording ("check the dates against the series") stays the honest answer. Not tried: a multiplicative fit on the log, which turns a growing amplitude into a fixed one. Wanted: a second real series with a documented shock inside a seasonal series.
+
+## Shape or shock, third try: refit on the log (2026-10-29)
+
+The idea left untried above: take logs first (`log: true`, no drift), so a season that grows with the level has a fixed amplitude, and see whether the steps near the drift warning vanish. `eval/drift-warning-log.mjs` (output `eval/drift-warning-log.out.txt`, test `drift-warning-log.test.mjs`), same four series and same window as the multiplicative try:
+
+- UK gas: 15 steps in all fall to 5 (no trend) and 7 to 2 (bend); the 3 steps in the window become 1 and 0. Works.
+- J&J: 17 fall to 11 (no trend), the window's 3 steps stay 3; the bent fit, which never warned, goes 5 to 2.
+- Airline: no trend, 20 become 22 and the window's 3 become 11, worse; with bend, 8 become 8 and 3 stay 3.
+- UK driver deaths (the shock): 6 become 8 and 4 stay 4 (no trend); 4 become 6 and 3 stay 3 (bend). Stays, as a shock should.
+
+So the log refit clears one growing series (UK gas) and thins J&J, but leaves the airline's window untouched or worse, and the shock behaves the same as the airline. A rule "the window empties, so it was a shape" would call one of three shapes right and miss two. Third failed automatic test (cancellation, level-scaled refit, log refit) on four real series with one shock; not adopted, the warning text is unchanged. Wanted, still: a second real seasonal series with a documented shock.
