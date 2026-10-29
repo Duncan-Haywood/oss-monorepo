@@ -3,7 +3,7 @@ title: "Thirty real airline series, none of them quiet: testing a changepoint de
 seo_title: "Testing changepoint detection on 30 real airline series"
 date: 2026-10-29
 tags: [changepoint-detector, statistics]
-description: "The free changepoint detector's date ranges held the start of Australia's 1989 pilots' dispute in 29 of 30 real passenger series with the count model, and 19 of 30 with the mean model. No series was quiet outside the strike."
+description: "The changepoint detector's date ranges held the start of the 1989 Australian pilots' strike in 29 of 30 real passenger series with the count model. None was quiet."
 ---
 
 In 1989 Australia's airline pilots went on strike and flights stopped for about seven weeks. The data for ten Ansett routes in three fare classes (30 weekly passenger series) is public, so we ran the free changepoint detector on all of them.
