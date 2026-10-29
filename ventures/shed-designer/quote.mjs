@@ -50,6 +50,7 @@ export function quoteRequest(shed, est, storeKey = 'homedepot', who = {}) {
     // The store's own listing where we have one, so the desk can find the exact item.
     const ref = itemRef(r, /** @type {any} */ (store).offerStore);
     if (ref) lines.push(`      ${ref}`);
+    else if (/** @type {any} */ (r).elsewhere) lines.push('      (we found no listing of yours for this: please quote your equivalent)');
   }
   lines.push('');
   lines.push(`Estimated total: ${money(est.total)}`);

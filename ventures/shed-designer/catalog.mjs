@@ -196,7 +196,7 @@ export function storeTotals(est, stores = ['Home Depot', "Lowe's", 'Menards']) {
     const key = r.source?.key;
     const offer = key && OFFERS[key]?.find((o) => o.store === st);
     if (offer) return offerPrice(offer, r.qty);
-    if (r.source?.kind === 'listed' && r.source.store === st) return r.source.price ?? r.price;
+    if ((r.source?.kind === 'listed' || r.source?.kind === 'derived') && r.source.store === st) return r.source.price ?? r.price;
     return null;
   };
   const out = stores.map((st) => {
@@ -211,6 +211,50 @@ export function storeTotals(est, stores = ['Home Depot', "Lowe's", 'Menards']) {
   const shared = est.shopping.filter((r) => stores.every((st) => priceAt(r, st) !== null));
   const sharedTotals = Object.fromEntries(stores.map((st) => [st, Math.round(shared.reduce((t, r) => t + /** @type {number} */ (priceAt(r, st)) * r.qty, 0) * 100) / 100]));
   return { stores: out, shared: shared.length, sharedTotals, priceAt };
+}
+
+const STORE_NAMES = { homedepot: 'Home Depot', lowes: "Lowe's", menards: 'Menards' };
+
+/**
+ * Prices as one store charges them: its board and item prices where it lists
+ * them, the starting list's elsewhere. Estimating with these re-runs the cut
+ * optimizer on that store's prices, so the order buys the lengths that store
+ * sells cheapest.
+ * @param {string} storeKey @param {import('./estimate.mjs').Prices} base
+ */
+export function pricesFor(storeKey, base) {
+  const st = /** @type {any} */ (STORE_NAMES)[storeKey] || storeKey;
+  const p = { lumber: Object.fromEntries(Object.entries(base.lumber).map(([m, v]) => [m, { ...v }])), items: { ...base.items }, delivery: { ...(base.delivery || {}) } };
+  if (st === 'Home Depot') return p;
+  for (const [key, offers] of Object.entries(OFFERS)) {
+    const o = offers.find((x) => x.store === st);
+    if (!o) continue;
+    const lm = /^lumber:(.+):(\d+)$/.exec(key);
+    if (lm) { p.lumber[lm[1]] = p.lumber[lm[1]] || {}; p.lumber[lm[1]][lm[2]] = o.price; } else if (!key.startsWith('product:')) p.items[key] = o.price;
+  }
+  return p;
+}
+
+/**
+ * The shopping list as one store would sell it: each line at that store's own
+ * listing (its price, bulk price and item number), and the few it has no listing
+ * for marked to come from the other store at their list price. This is the list
+ * to take to one store's Pro desk for a whole-order price.
+ * @param {import('./estimate.mjs').Estimate} est @param {string} storeKey
+ */
+export function storeList(est, storeKey) {
+  const st = /** @type {any} */ (STORE_NAMES)[storeKey] || storeKey;
+  const { priceAt } = storeTotals(est, [st]);
+  const lines = est.shopping.map((r) => {
+    const p = priceAt(r, st);
+    if (p === null) return { ...r, store: r.source?.store || 'elsewhere', elsewhere: true };
+    const offer = r.source?.key && OFFERS[r.source.key]?.find((o) => o.store === st);
+    const source = offer ? { price: offer.price, url: offer.url, store: st, seen: SEEN, note: [offer.name, offer.model, offer.note].filter(Boolean).join('; '), kind: 'listed', key: r.source.key, model: offer.model } : r.source;
+    return { ...r, price: p, total: Math.round(p * r.qty * 100) / 100, source, store: st, elsewhere: false };
+  });
+  const here = lines.filter((l) => !l.elsewhere);
+  const sum = (ls) => Math.round(ls.reduce((t, l) => t + l.total, 0) * 100) / 100;
+  return { store: st, lines, here: here.length, total: sum(lines), hereTotal: sum(here), elsewhereTotal: sum(lines.filter((l) => l.elsewhere)), share: Math.round((sum(here) / Math.max(1, sum(lines))) * 100) };
 }
 
 /** Swaps that apply to this design. @param {any} design */

@@ -6,7 +6,7 @@ import { buildShed, defaultDesign, normalize, BLOCKS } from './model.mjs';
 import { estimate } from './estimate.mjs';
 import { itemPrice } from './prices.mjs';
 import { EXAMPLE_ITEMS } from './lumber.mjs';
-import { OFFERS, storeComparison, swapsFor, storeTotals } from './catalog.mjs';
+import { OFFERS, storeComparison, swapsFor, storeTotals, storeList, pricesFor } from './catalog.mjs';
 import { simplify, cutMetrics, sidingSpan, budget, laborHours } from './simplify.mjs';
 import { connectionChecks } from './connections.mjs';
 import { integrity } from './integrity.mjs';
@@ -265,4 +265,21 @@ test('labour: hours rise with the work, and the rate turns them into money', () 
   assert.ok(laborHours(notched, estimate(notched)) > h, 'notching rafters takes longer than setting connectors');
   const big = buildShed(normalize({ ...d, length: 192, width: 144, maxFootprint: 0 }));
   assert.ok(laborHours(big, estimate(big)) > h, 'a bigger shed takes longer');
+});
+
+test('one store only: its own prices and item numbers, re-optimized, the gaps marked', () => {
+  const shed = buildShed(defaultDesign());
+  for (const k of ['homedepot', 'lowes']) {
+    const est = estimate(shed, pricesFor(k, examplePrices()));
+    const l = storeList(est, k);
+    assert.ok(l.share >= 70, `${k} supplies most of the order (${l.share}%)`);
+    assert.equal(l.lines.length, est.shopping.length);
+    assert.ok(Math.abs(l.hereTotal + l.elsewhereTotal - l.total) < 0.02);
+    for (const line of l.lines.filter((x) => !x.elsewhere)) if (line.source?.url) assert.ok(line.source.store === l.store, line.name);
+    const body = quoteRequest(shed, { ...est, shopping: l.lines, total: l.total }, k).body;
+    if (l.lines.some((x) => x.elsewhere && !x.source?.url)) assert.match(body, /please quote your equivalent/);
+  }
+  // Lowe's own lumber prices change what the optimizer buys there.
+  const lw = estimate(shed, pricesFor('lowes', examplePrices()));
+  assert.notEqual(lw.lumberCost, estimate(shed).lumberCost);
 });

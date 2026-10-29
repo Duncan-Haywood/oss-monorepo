@@ -15,7 +15,7 @@ import { generateCandidates } from './candidates.mjs';
 import { buildInstructions, instructionsMarkdown } from './instructions.mjs';
 import { quoteRequest, mailtoLink, STORES } from './quote.mjs';
 import { PRODUCTS } from './products.mjs';
-import { storeComparison, swapsFor, storeTotals } from './catalog.mjs';
+import { storeComparison, swapsFor, storeTotals, storeList, pricesFor } from './catalog.mjs';
 import { simplify, cutMetrics, budget, laborHours } from './simplify.mjs';
 
 const $ = (sel) => /** @type {any} */ (document.querySelector(sel));
@@ -35,8 +35,21 @@ try { storage = globalThis.localStorage; } catch { storage = null; }
 const optedOut = () => Boolean($('#optout')?.checked);
 const count = (event) => recordUsage(storage, optedOut(), event);
 
-/** @type {{ designs: any[], active: number, prices: any, have: string[] }} */
-const state = { designs: [], active: 0, prices: examplePrices(), have: [] };
+/** @type {{ designs: any[], active: number, prices: any, have: string[], buyAt: string }} */
+const state = { designs: [], active: 0, prices: examplePrices(), have: [], buyAt: 'mixed' };
+
+/**
+ * The estimate as one store would sell it, or line by line from wherever each
+ * was priced ('mixed'). One store's version re-runs the cut optimizer on its
+ * prices and marks the lines it has no listing for.
+ */
+function storeEstimate(shed, key = state.buyAt) {
+  if (key === 'mixed') return estimate(shed, state.prices);
+  const est = estimate(shed, pricesFor(key, state.prices));
+  const sl = storeList(est, key);
+  const tax = Math.round(sl.total * shed.design.taxRate) / 100;
+  return { ...est, shopping: sl.lines, total: sl.total, tax, grandTotal: Math.round((sl.total + tax + est.deliveryFee) * 100) / 100, storeList: sl };
+}
 const undo = []; const redo = [];
 const thumbs = new Map();
 
@@ -53,6 +66,7 @@ function load() {
       if (Array.isArray(s.designs) && s.designs.length) {
         state.designs = s.designs.map(normalize);
         state.active = Math.min(s.designs.length - 1, Math.max(0, Number(s.active) || 0));
+        if (typeof s.buyAt === 'string') state.buyAt = s.buyAt;
         if (Array.isArray(s.have)) state.have = s.have.filter((x) => typeof x === 'string');
         if (s.prices?.lumber) state.prices = { lumber: { ...state.prices.lumber, ...s.prices.lumber }, items: { ...state.prices.items, ...s.prices.items }, delivery: { ...(state.prices.delivery || {}), ...(s.prices.delivery || {}) } };
       }
@@ -175,7 +189,7 @@ function renderShopping(est) {
     if (r.section !== section) { section = r.section; html += `<tr class="sec"><th colspan="7" scope="colgroup">${esc(section)}</th></tr>`; }
     const got = have.has(r.name);
     if (got) had += r.total;
-    html += `<tr${got ? ' class="have"' : ''}><td>${esc(r.name)}</td><td class="n">${r.qty}</td><td>${r.unit}</td><td class="n">${money(r.price)}</td><td class="n">${money(r.total)}</td><td>${sourceCell(r.source)}</td><td><input type="checkbox" data-have="${esc(r.name)}"${got ? ' checked' : ''} aria-label="I already have: ${esc(r.name)}"></td></tr>`;
+    html += `<tr${got ? ' class="have"' : ''}><td>${esc(r.name)}</td><td class="n">${r.qty}</td><td>${r.unit}</td><td class="n">${money(r.price)}</td><td class="n">${money(r.total)}</td><td>${r.elsewhere ? `<span class="muted">not listed at ${esc(est.storeList.store)}: </span>` : ''}${sourceCell(r.source)}</td><td><input type="checkbox" data-have="${esc(r.name)}"${got ? ' checked' : ''} aria-label="I already have: ${esc(r.name)}"></td></tr>`;
   }
   html += `<tr class="tot"><th colspan="4" scope="row">Materials</th><td class="n">${money(est.total)}</td><td></td><td></td></tr>`;
   if (had) html += `<tr><th colspan="4" scope="row">Less what you already have</th><td class="n">-${money(had)}</td><td></td><td></td></tr><tr class="tot"><th colspan="4" scope="row">Still to buy</th><td class="n">${money(est.total - had)}</td><td></td><td></td></tr>`;
@@ -184,6 +198,8 @@ function renderShopping(est) {
   if (est.deliveryFee) html += `<tr><th colspan="4" scope="row">Delivery</th><td class="n">${money(est.deliveryFee)}</td><td></td><td></td></tr>`;
   if (tax || est.deliveryFee) html += `<tr class="tot"><th colspan="4" scope="row">Estimated total</th><td class="n">${money(est.total - had + tax + est.deliveryFee)}</td><td></td><td></td></tr>`;
   $('#shopping tbody').innerHTML = html;
+  const sl = est.storeList;
+  $('#buy-at-note').textContent = sl ? `${sl.here} of ${sl.lines.length} lines (${sl.share}% of the money) at ${sl.store}, its own prices and item numbers; the rest are marked with where we found them.` : 'Each line at wherever it was priced.';
   for (const cb of $$('#shopping input[data-have]')) {
     cb.addEventListener('change', () => {
       const set = new Set(state.have);
@@ -342,7 +358,7 @@ function renderQuote(shed, est) {
   const pick = $('#quote-store').value;
   // "Both": one draft per store, each naming that store's own item numbers.
   const keys = pick === 'both' ? ['homedepot', 'lowes'] : [pick];
-  const drafts = keys.map((k) => quoteRequest(shed, est, /** @type {any} */ (k), who));
+  const drafts = keys.map((k) => quoteRequest(shed, k === 'yard' ? est : storeEstimate(shed, k === 'homedepot' || k === 'lowes' ? k : 'mixed'), /** @type {any} */ (k), who));
   lastQuote = drafts[0];
   box.value = drafts.map((q) => `Subject: ${q.subject}\n\n${q.body}`).join('\n\n----- next email -----\n\n');
   const setLink = (a, q) => { const href = q && mailtoLink(q); if (href) { a.href = href; a.removeAttribute('aria-disabled'); } else { a.href = '#'; a.setAttribute('aria-disabled', 'true'); } };
@@ -416,7 +432,7 @@ let lastEst = null;
 function render() {
   const d = design();
   const shed = buildShed(d);
-  const est = estimate(shed, state.prices);
+  const est = storeEstimate(shed);
   lastEst = est;
   fillForm(shed.design);
   renderOpenings(d);
@@ -738,6 +754,8 @@ function wire() {
   $('#print-plans').addEventListener('click', () => printWhat('plans'));
   for (const id of ['#quote-store', '#quote-name', '#quote-phone', '#quote-zip', '#quote-date']) $(id).addEventListener('input', () => quoteCtx && renderQuote(quoteCtx.shed, quoteCtx.est));
   $('#quote-store').addEventListener('change', () => quoteCtx && renderQuote(quoteCtx.shed, quoteCtx.est));
+  $('#buy-at').value = state.buyAt;
+  $('#buy-at').addEventListener('change', () => { state.buyAt = $('#buy-at').value; render(); });
   $('#quote-copy').addEventListener('click', async () => {
     try { await navigator.clipboard.writeText($('#quote-body').value); $('#status').textContent = 'Email copied.'; } catch { $('#quote-body').select(); }
   });
