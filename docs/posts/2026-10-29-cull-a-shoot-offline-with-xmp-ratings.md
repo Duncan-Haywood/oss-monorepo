@@ -2,7 +2,7 @@
 title: "Cull a shoot offline and get Lightroom star ratings, free"
 date: 2026-10-29
 tags: [photo-editing, shootflow, open-source]
-description: "ShootFlow's cull command groups burst frames, keeps the sharpest, rejects blurred ones and writes XMP sidecars. Nothing is uploaded, and it can score itself against your picks."
+description: "ShootFlow's cull command groups burst frames, keeps the sharpest, rejects blurred ones and writes XMP sidecars. Nothing is uploaded."
 ---
 
 After a wedding or event, the first job is the dullest: pick one frame from each burst and throw out the blurred and badly exposed ones. `shootflow cull FOLDER --out REPORT` does a first pass on your own machine. It scores each still, groups near-identical frames by perceptual hash, keeps the technically best frame of each group and flags the rest. With `--write-xmp` it writes a sidecar next to each photo that Lightroom and Bridge read (keeper 4 stars, alternate 2, reject -1). Your photos are only read, and an existing sidecar is never overwritten.
