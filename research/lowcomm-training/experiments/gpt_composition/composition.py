@@ -67,6 +67,16 @@ def report():
                 miss = ex(H, p) - ex(16, p); worst = max(worst, abs(miss))
                 print(f"H={H} keep {p}: measured {ex(H, p):+.4f} predicted {ex(16, p):+.4f} miss {miss:+.4f}")
     print(f"worst miss {worst:.4f}")
+    if (8, 1.0) in c and (32, 1.0) in c:
+        import math
+        p = 0.0625
+        g4, g64 = ex(4, p) / ex(16, p), ex(64, p) / ex(16, p)
+        g = lambda H: 1 + (g4 - 1) * (4 - math.log2(H)) / 2 * (1 if H < 16 else 0) + (g64 - 1) * (math.log2(H) - 4) / 2 * (1 if H > 16 else 0)
+        print("\n6b held-out H at keep 1/16: product rule vs additive rule vs measured excess")
+        for H in (8, 32):
+            if (H, p) in c:
+                m, pr, ad = ex(H, p), g(H) * ex(16, p), ex(16, p)
+                print(f"H={H}: measured {m:+.4f}  product {pr:+.4f} (err {pr - m:+.4f})  additive {ad:+.4f} (err {ad - m:+.4f})")
 
 
 if __name__ == "__main__":
