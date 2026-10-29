@@ -11,64 +11,64 @@
  "n": 20,
  "cells": {
   "randk_k1": {
-   "n": 4,
+   "n": 20,
    "harmful": 0,
    "nonfinite": 0,
-   "median_dL": 0.00014972686767578125
+   "median_dL": 0.00011539459228515625
   },
   "topk_k1": {
-   "n": 4,
-   "harmful": 0,
+   "n": 20,
+   "harmful": 9,
    "nonfinite": 0,
-   "median_dL": 4.76837158203125e-07
+   "median_dL": 0.00962066650390625
   },
   "randk_k4": {
-   "n": 4,
-   "harmful": 0,
-   "nonfinite": 0,
-   "median_dL": 0.0009028911590576172
-  },
-  "topk_k4": {
-   "n": 4,
-   "harmful": 0,
-   "nonfinite": 0,
-   "median_dL": 1.1920928955078125e-05
-  },
-  "randk_k16": {
-   "n": 4,
-   "harmful": 1,
-   "nonfinite": 0,
-   "median_dL": 0.0009599924087524414
-  },
-  "topk_k16": {
-   "n": 4,
-   "harmful": 0,
-   "nonfinite": 0,
-   "median_dL": 1.4424324035644531e-05
-  },
-  "randk_k64": {
-   "n": 4,
+   "n": 20,
    "harmful": 2,
    "nonfinite": 0,
-   "median_dL": 0.010841608047485352
+   "median_dL": 0.0006629228591918945
   },
-  "topk_k64": {
-   "n": 4,
-   "harmful": 0,
+  "topk_k4": {
+   "n": 20,
+   "harmful": 14,
    "nonfinite": 0,
-   "median_dL": 0.00032210350036621094
+   "median_dL": 0.030860304832458496
   },
-  "randk_k256": {
-   "n": 4,
+  "randk_k16": {
+   "n": 20,
    "harmful": 4,
    "nonfinite": 0,
-   "median_dL": 0.04447829723358154
+   "median_dL": 0.0027666091918945312
+  },
+  "topk_k16": {
+   "n": 20,
+   "harmful": 19,
+   "nonfinite": 0,
+   "median_dL": 0.07803559303283691
+  },
+  "randk_k64": {
+   "n": 20,
+   "harmful": 17,
+   "nonfinite": 0,
+   "median_dL": 0.031960248947143555
+  },
+  "topk_k64": {
+   "n": 20,
+   "harmful": 20,
+   "nonfinite": 0,
+   "median_dL": 0.15063703060150146
+  },
+  "randk_k256": {
+   "n": 20,
+   "harmful": 20,
+   "nonfinite": 0,
+   "median_dL": 0.10346221923828125
   },
   "topk_k256": {
-   "n": 4,
-   "harmful": 0,
+   "n": 20,
+   "harmful": 20,
    "nonfinite": 0,
-   "median_dL": 0.0021589994430541992
+   "median_dL": 0.2652069330215454
   }
  }
 }

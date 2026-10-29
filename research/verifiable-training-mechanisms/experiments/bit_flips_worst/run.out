@@ -10,3 +10,10 @@ Consider using tensor.detach() first. (Triggered internally at /__w/pytorch/pyto
 /home/user/oss-monorepo/research/verifiable-training-mechanisms/experiments/bit_flips_worst/run.py:56: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
 Consider using tensor.detach() first. (Triggered internally at /__w/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:820.)
   mt = [float(p.abs().max()) for p in params]
+K=2 random n=20 harmful  1 (0.05)  non-finite 0  median |dL| 0.0001  median m_t 0.177
+K=2 grad   n=20 harmful  7 (0.35)  non-finite 0  median |dL| 0.0084  median m_t 1.000
+K=2 eval   n=20 harmful  7 (0.35)  non-finite 0  median |dL| 0.0061  median m_t 1.000
+K=4 random n=20 harmful  0 (0.00)  non-finite 0  median |dL| 0.0001  median m_t 0.177
+K=4 grad   n=20 harmful  8 (0.40)  non-finite 0  median |dL| 0.0047  median m_t 3.846
+K=4 eval   n=20 harmful  7 (0.35)  non-finite 0  median |dL| 0.0051  median m_t 1.000
+DONE
