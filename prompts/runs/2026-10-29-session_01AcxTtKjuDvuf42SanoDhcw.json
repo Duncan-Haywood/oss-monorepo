@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/11425",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -26,14 +26,17 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": null,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [],
   "deviations": [],
-  "writeups": [],
+  "writeups": [
+    "docs/posts/2026-10-29-does-load-sensing-pay-on-a-small-excavator.md",
+    "research/heavy-hydraulics/paper/draft.md"
+  ],
   "goal": null,
-  "notes": "",
+  "notes": "Programme heavy-hydraulics milestone 6: first paper draft from landed results, no new experiment. Checks: homepage build ok, md links ok.",
   "corrections": [],
   "redteam": null
 }
