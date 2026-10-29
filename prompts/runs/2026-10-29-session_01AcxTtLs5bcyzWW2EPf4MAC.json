@@ -43,7 +43,9 @@
       "result": "validate ok"
     }
   ],
-  "writeups": "none: reduced review pass; E111 in experiments.md",
+  "writeups": [
+    "prompts/experiments.md"
+  ],
   "goal": null,
   "notes": "",
   "corrections": [],
