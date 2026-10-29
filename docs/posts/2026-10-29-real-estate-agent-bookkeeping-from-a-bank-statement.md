@@ -11,7 +11,7 @@ coming. The month's profit is the gap, and it is easy to lose in a stack of
 subscriptions.
 
 AI Bookkeeper now has a page for this
-([realtor-bookkeeping](https://duncan-haywood.github.io/oss-monorepo/ventures/ai-bookkeeper/realtor-bookkeeping.html))
+([realtor-bookkeeping](https://duncan-haywood.github.io/oss-monorepo/ai-bookkeeper/realtor-bookkeeping.html))
 built on a made-up August of nine lines. With no rules taught, the importer
 files both commission deposits as Sales ($10,115.00), the MLS fee under taxes
 and licenses, NAR dues under education and dues, Supra lockbox keys under

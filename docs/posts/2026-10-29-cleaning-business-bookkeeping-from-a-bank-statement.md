@@ -10,7 +10,7 @@ payout from a lead marketplace, a card-processor transfer. It spends in small
 pieces too. That makes the bank statement the only place the month adds up.
 
 AI Bookkeeper now has a page for this
-([cleaning-bookkeeping](https://duncan-haywood.github.io/oss-monorepo/ventures/ai-bookkeeper/cleaning-bookkeeping.html))
+([cleaning-bookkeeping](https://duncan-haywood.github.io/oss-monorepo/ai-bookkeeper/cleaning-bookkeeping.html))
 built on a made-up September of nine lines. With no rules taught, the importer
 files the three deposits as Sales ($1,285.00), fuel under vehicle and fuel,
 Jobber and Gusto as software, the Thumbtack lead fee as advertising and the
