@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of the median load-sensing to open-centre shaft-energy ratio against duty-cycle load factor for four open-centre idle models; load-sensing wins (ratio below 1) at every load factor tested except an 8 bar neutral pressure at load factor 0.5, where the ratio is 1.02">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Load-sensing vs open-centre shaft energy, by load factor</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="274.4" y2="274.4" stroke="#ddd"/><text x="58" y="278.4" text-anchor="end" font-family="sans-serif" font-size="11">0.2</text>
+<line x1="64" x2="624" y1="224.9" y2="224.9" stroke="#ddd"/><text x="58" y="228.9" text-anchor="end" font-family="sans-serif" font-size="11">0.4</text>
+<line x1="64" x2="624" y1="175.3" y2="175.3" stroke="#ddd"/><text x="58" y="179.3" text-anchor="end" font-family="sans-serif" font-size="11">0.6</text>
+<line x1="64" x2="624" y1="125.7" y2="125.7" stroke="#ddd"/><text x="58" y="129.7" text-anchor="end" font-family="sans-serif" font-size="11">0.8</text>
+<line x1="64" x2="624" y1="76.1" y2="76.1" stroke="#ddd"/><text x="58" y="80.1" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.25</text>
+<text x="279.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.346</text>
+<text x="344.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.375</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.5</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">load factor (mean / peak useful power)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">LS / OC median shaft energy</text>
+<line x1="64" x2="624" y1="76.1" y2="76.1" stroke="#555" stroke-dasharray="4 3"/>
+<polyline points="64.0,159.9 279.0,129.2 344.0,120.7 624.0,90.5" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="159.9" r="3" fill="#c0392b"/>
+<circle cx="279.0" cy="129.2" r="3" fill="#c0392b"/>
+<circle cx="344.0" cy="120.7" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="90.5" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">OC idle bleed (2f)</text>
+<polyline points="64.0,201.1 279.0,164.6 344.0,153.7 624.0,107.6" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="201.1" r="3" fill="#1f6fb2"/>
+<circle cx="279.0" cy="164.6" r="3" fill="#1f6fb2"/>
+<circle cx="344.0" cy="153.7" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="107.6" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">p_n 40 bar</text>
+<polyline points="64.0,149.5 279.0,121.0 344.0,113.6 624.0,86.5" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="149.5" r="3" fill="#2e8b57"/>
+<circle cx="279.0" cy="121.0" r="3" fill="#2e8b57"/>
+<circle cx="344.0" cy="113.6" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="86.5" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">p_n 20 bar</text>
+<polyline points="64.0,91.2 279.0,80.8 344.0,78.4 624.0,71.2" fill="none" stroke="#8e44ad" stroke-width="2"/>
+<circle cx="64.0" cy="91.2" r="3" fill="#8e44ad"/>
+<circle cx="279.0" cy="80.8" r="3" fill="#8e44ad"/>
+<circle cx="344.0" cy="78.4" r="3" fill="#8e44ad"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#8e44ad"/>
+<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">p_n 8 bar</text>
+</svg>

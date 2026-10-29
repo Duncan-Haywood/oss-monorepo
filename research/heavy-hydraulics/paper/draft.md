@@ -35,6 +35,10 @@ All ratios are medians over 5,000 to 20,000 seeded model cycles.
 | LF 0.346, p_n 8 bar, no standby | 0.981 | 43.9% | `idle_models_results.txt` |
 | LF 0.346, p_n 8 bar, 6 L/min standby | 1.035 | 61.1% | same |
 
+![LS/OC median against load factor for four open-centre idle models](../experiments/ranking_vs_load_factor.svg)
+
+*Figure 1 (`experiments/figure.py`, parsed from `idle_models_results.txt`; LS standby 0): the ranking moves with the open-centre neutral pressure; 8 bar is the only curve above 1, and only at load factor 0.5.*
+
 The load factor 0.346 is mean over peak electrical input power of one **electric** excavator (Zenodo 18862594, CC-BY-4.0), a different and larger machine; it fixes a shape, not a hydraulic load. The break-even neutral pressure above which LS wins is 6.4 to 10.8 bar at that load factor, depending on standby flow (`idle_breakeven_results.txt`). We found no sourced neutral pressure drop.
 
 **3.2 Independent metering.** The ideal-metering to LS ratio is 0.64 to 0.66 across all force-model conditions and below 0.85 in every cycle. It is a lower bound: no valve dynamics, no pump-controlled alternatives, no price.
@@ -65,5 +69,7 @@ python3 experiments/physics_cycle.py --sourced > experiments/physics_cycle_sourc
 python3 experiments/idle_sensitivity.py > experiments/idle_sensitivity_results.txt
 python3 experiments/idle_models.py > experiments/idle_models_results.txt
 python3 experiments/payback.py > experiments/payback_results.txt
+python3 experiments/figure.py
+python3 paper/check_numbers.py
 PYTHONPATH=src python3 experiments/regen_bound.py > experiments/regen_bound_results.txt
 ```

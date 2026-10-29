@@ -17,6 +17,10 @@ Newest first.
 - Limits: as planned. The 8-spool figure value is a reading, the extra bar is assumed, and 2h's finding stands that whichever way the ranking falls it is set by p_n and dp_ls.
 - Next: source dp_ls (LS margin pressure; pump datasheet) and an excavator-class open-centre block drop; regenerate the 2g table and the paper's ranking table with the sourced p_n.
 
+## 2026-10-29 · Milestone 6b: figure and number check for the paper draft
+- No new experiment. Added `experiments/figure.py` (LS/OC median against load factor for four open-centre idle models, parsed from `idle_models_results.txt`) and `paper/check_numbers.py` (13 draft claims matched against the results files they cite; 0 missing). The figure shows 8 bar neutral pressure is the only curve above 1, and only at load factor 0.5 (1.020).
+- Still open before the paper is ready: a measured hydraulic trace (H4), a sourced neutral pressure drop, an LS valve price, arm mass; citations opened and run through `cite_check.py`.
+
 ## 2026-10-29 · Milestone 6 (first draft): paper/draft.md
 - No new experiment. Drafted the paper from the landed results (`paper/draft.md`): abstract, model, ranking-versus-idle table, metering bound, payback, recovery bound, threats and "what would settle it". Every number was copied from a results file; the one I re-checked against the files before writing was the sourced no-idle LS/OC median (1.043; 12,503 of 20,000 cycles, 62.5%).
 - Not paper-ready: no measured hydraulic trace (H4 untested), the neutral pressure drop and LS valve price are unsourced, citations were confirmed by search only (Crossref 403), and no figure exists yet. The draft lists these as the four inputs that would settle it.

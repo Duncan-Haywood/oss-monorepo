@@ -1,0 +1,6 @@
+17 cells, 6 fit / 11 held out, 300 usable random splits
+mean held-out MAPE: rule (3 constants) 0.914%  additive power-law baseline (5) 1.717%
+median: rule 0.571%  baseline 1.443%
+splits where rule is better: 288/300
+paired bootstrap, MAPE ratio rule/baseline: 0.535, 95% interval [0.390, 0.720]  (H6 refuted if the lower end exceeds 1.10)
+H=16 slice fit (3 cells), 14 held out: rule 6.752%  baseline 2.399%

@@ -2,6 +2,13 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-29 · Milestone 40: can a fixed multiplier turn the 16-point pilot estimate of iota^(k) into a bound? (negative; exploratory, no predictions written before the script ran)
+- Why: milestone 38 left the pilot-side regret certificate open, with "an inflation whose validity is not proved". `experiments/theory/kth_inflate.py` (about 5 s, no flow run) reuses milestone 38's 55 cells and seeded pilots and asks what multiplier c makes c x (pilot estimate) >= the full-table iota^(k) in 80% of draws, and whether one c chosen on other designs transfers to a held-out design.
+- Outcome (`kth_inflate_results.txt`): coverage >= 0.8 in 0 / 6 / 18 / 35 / 44 / 49 of 55 cells for c = 1 / 1.25 / 1.5 / 2 / 3 / 5. Per-cell multiplier for 80%: median 1.75, p90 5.79, and no finite multiplier in 2 cells (pilot value 0 in over 20% of draws). Leave-one-design-out: the multiplier picked on the other nine designs (3 to 5) covers 44 of 55 held-out cells; per design it fails in 3 of 6 cells for adder_op16 and crc16, 2 of 6 for fifo8x4 and mac4, and the single adder_ripple16 cell.
+- Reading: a fixed inflation does not give a bound. The factor needed spans 1 to above 5 across cells and the pilot can be exactly 0, so any certificate from this estimator would need a model of how the k-th rival excess grows with pool size, not a constant. The regret bound stays a full-table diagnostic; the paper's claim is unchanged.
+- Limits: empirical coverage over 300 pilots per cell on one table and tool version; the grid of multipliers is coarse; no proof either way; no tests (script only).
+- Next: the paper's theory section with iota^(k) stated as a full-table diagnostic, or an extreme-value argument for the pilot maximum.
+
 ## 2026-10-29 · Paper sync: section 6 item 4 now cites milestones 36 and 38 (documentation only; no experiment)
 - Why: `PAPER.md` section 6 item 4 still described the milestone 35 state (disjoint pairs unproved) and did not mention the proved independent-pairs pilot (milestone 36, coverage 0.826 or more over 60 cells) or the failed pilot estimate of iota^(k) (milestone 38, median 0.85 of the true value, no coverage statement). Section 4 already carried milestones 37 and 39.
 - Outcome: item 4 updated with both, numbers copied from the result files. No new measurement.
