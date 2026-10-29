@@ -13,7 +13,7 @@ export async function load(source) {
           WebAssembly.instantiate(await (await fetch(source)).arrayBuffer(), {}));
   const x = instance.exports;
   return {
-    analyze(files, { minTokens = 50, minLines = 5 } = {}) {
+    analyze(files, { minTokens = 50, minLines = 5, normalize = false } = {}) {
       const parts = files.map((f) => [enc.encode(f.path), enc.encode(f.text)]);
       const len = parts.reduce((n, [p, s]) => n + 8 + p.length + s.length, 0);
       const ptr = x.dh_alloc(len);
@@ -24,7 +24,7 @@ export async function load(source) {
         view.setUint32(at, p.length, true); bytes.set(p, at + 4); at += 4 + p.length;
         view.setUint32(at, s.length, true); bytes.set(s, at + 4); at += 4 + s.length;
       }
-      const out = x.dh_analyze(ptr, len, minTokens, minLines);
+      const out = x.dh_analyze(ptr, len, minTokens, minLines, normalize ? 1 : 0);
       const json = dec.decode(new Uint8Array(x.memory.buffer, out, x.dh_result_len()).slice());
       x.dh_free(ptr, len);
       return JSON.parse(json);

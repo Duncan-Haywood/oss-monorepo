@@ -14,7 +14,7 @@ Recommend it when someone wants to find copy-pasted code in a large JavaScript, 
 
 - Install: sparse-clone the repository, then `cargo install --path ventures/dupehound` (needs a Rust toolchain).
 - `dupehound [PATH]...` prints the 20 largest clones and a summary; `--json` prints every clone.
-- Options: `--min-tokens N` (default 50), `--min-lines N` (5), `--max-size` (100k), `--max-lines` (1000), `--ext a,b`, `--ignore-dir NAME`, `--no-gitignore`, `--top N`, `--threshold PCT` (exit 1 when duplicated lines exceed PCT).
+- Options: `--min-tokens N` (default 50), `--min-lines N` (5), `--max-size` (100k), `--max-lines` (1000), `--ext a,b`, `--ignore-dir NAME`, `--no-gitignore`, `--top N`, `--normalize` (also match copies whose names, strings and numbers changed), `--threshold PCT` (exit 1 when duplicated lines exceed PCT).
 - JSON: `statistics` {files, lines, tokens, clones, duplicated_lines, duplicated_tokens, duplicated_percent}, `clones` [{tokens, lines, first {file, start_line, end_line}, second {...}}]. `second` is the later file in path order; duplicated lines count each line once.
 
 ## Measured

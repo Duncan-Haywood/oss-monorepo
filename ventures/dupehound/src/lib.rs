@@ -13,8 +13,11 @@
 //! 4. **Merge** pairs that sit on the same diagonal (both sides advance by
 //!    one token) into maximal clones.
 //!
-//! Matching is exact on token text. Renamed identifiers are not matched
-//! (jscpd's default "mild" mode behaves the same way).
+//! Matching is exact on token text by default, so renamed identifiers are not
+//! matched (jscpd's default "mild" mode behaves the same way). With
+//! `normalize` on, identifiers, strings and numbers are replaced by their
+//! kind before hashing, which finds copies whose names or constants changed
+//! (the "type-2" clones of the literature).
 
 use rayon::prelude::*;
 use std::fmt::Write as _;
@@ -81,6 +84,129 @@ fn is_ident_char(b: u8) -> bool {
 /// of its line. Regex literals are lexed as punctuation and identifiers;
 /// both copies of a pasted regex lex the same way, so they still match.
 pub fn tokenize(src: &[u8], style: CommentStyle) -> Vec<Token> {
+    tokenize_with(src, style, false)
+}
+
+/// Words kept as themselves in normalised mode, so `if (a) {` does not match
+/// `for (a) {`. One list for every language the generic lexer reads; a word
+/// that is a keyword in one language and a name in another stays a keyword,
+/// which only makes matching stricter, never looser.
+const KEYWORDS: &[&str] = &[
+    "abstract",
+    "and",
+    "as",
+    "async",
+    "await",
+    "begin",
+    "bool",
+    "boolean",
+    "break",
+    "case",
+    "catch",
+    "char",
+    "class",
+    "const",
+    "continue",
+    "def",
+    "default",
+    "defer",
+    "del",
+    "do",
+    "double",
+    "elif",
+    "else",
+    "elsif",
+    "end",
+    "enum",
+    "except",
+    "export",
+    "extends",
+    "false",
+    "fi",
+    "final",
+    "finally",
+    "float",
+    "fn",
+    "for",
+    "foreach",
+    "from",
+    "fun",
+    "func",
+    "function",
+    "go",
+    "if",
+    "impl",
+    "implements",
+    "import",
+    "in",
+    "instanceof",
+    "int",
+    "interface",
+    "is",
+    "lambda",
+    "let",
+    "long",
+    "loop",
+    "match",
+    "mod",
+    "mut",
+    "namespace",
+    "new",
+    "nil",
+    "none",
+    "not",
+    "null",
+    "or",
+    "pass",
+    "private",
+    "protected",
+    "pub",
+    "public",
+    "raise",
+    "rescue",
+    "return",
+    "self",
+    "short",
+    "static",
+    "string",
+    "struct",
+    "super",
+    "switch",
+    "then",
+    "this",
+    "throw",
+    "throws",
+    "trait",
+    "true",
+    "try",
+    "type",
+    "typeof",
+    "undefined",
+    "unless",
+    "until",
+    "use",
+    "val",
+    "var",
+    "void",
+    "when",
+    "where",
+    "while",
+    "with",
+    "yield",
+];
+
+fn is_keyword(word: &[u8]) -> bool {
+    std::str::from_utf8(word).is_ok_and(|w| {
+        KEYWORDS
+            .binary_search(&w.to_ascii_lowercase().as_str())
+            .is_ok()
+    })
+}
+
+/// Like [`tokenize`]; with `normalize`, every identifier that is not a
+/// keyword hashes as one placeholder, every string and template literal as
+/// another, and every number as a third.
+pub fn tokenize_with(src: &[u8], style: CommentStyle, normalize: bool) -> Vec<Token> {
     let mut out = Vec::with_capacity(src.len() / 4);
     let n = src.len();
     let mut i = 0usize;
@@ -124,15 +250,19 @@ pub fn tokenize(src: &[u8], style: CommentStyle) -> Vec<Token> {
         }
         let start = i;
         let start_line = line;
+        let mut kind = 0u8; // 0 punctuation, 1 identifier, 2 number, 3 string
         if is_ident_start(b) {
+            kind = 1;
             while i < n && is_ident_char(src[i]) {
                 i += 1;
             }
         } else if b.is_ascii_digit() {
+            kind = 2;
             while i < n && (src[i].is_ascii_alphanumeric() || src[i] == b'.' || src[i] == b'_') {
                 i += 1;
             }
         } else if b == b'`' {
+            kind = 3;
             i = scan_template(src, i + 1, &mut line);
         } else if (b == b'"' || b == b'\'')
             && style == CommentStyle::Hash
@@ -141,6 +271,7 @@ pub fn tokenize(src: &[u8], style: CommentStyle) -> Vec<Token> {
             && src[i + 2] == b
         {
             // Python triple-quoted string.
+            kind = 3;
             i += 3;
             while i < n && !(src[i] == b && i + 2 < n && src[i + 1] == b && src[i + 2] == b) {
                 if src[i] == b'\\' {
@@ -152,6 +283,7 @@ pub fn tokenize(src: &[u8], style: CommentStyle) -> Vec<Token> {
             }
             i = (i + 3).min(n);
         } else if b == b'"' || b == b'\'' {
+            kind = 3;
             i += 1;
             while i < n && src[i] != b && src[i] != b'\n' {
                 if src[i] == b'\\' && i + 1 < n && src[i + 1] != b'\n' {
@@ -166,8 +298,15 @@ pub fn tokenize(src: &[u8], style: CommentStyle) -> Vec<Token> {
             i += 1;
         }
         let i_end = i.min(n);
+        let text = &src[start..i_end];
+        let hash = match kind {
+            1 if normalize && !is_keyword(text) => fnv1a(b"\0id"),
+            2 if normalize => fnv1a(b"\0num"),
+            3 if normalize => fnv1a(b"\0str"),
+            _ => fnv1a(text),
+        };
         out.push(Token {
-            hash: fnv1a(&src[start..i_end]),
+            hash,
             line: start_line,
             end_line: line,
         });
@@ -220,12 +359,18 @@ pub struct SourceFile {
 
 impl SourceFile {
     pub fn from_bytes(path: impl Into<String>, src: &[u8]) -> Self {
+        Self::from_bytes_with(path, src, false)
+    }
+
+    /// As [`from_bytes`](Self::from_bytes), optionally normalising tokens
+    /// (see [`tokenize_with`]).
+    pub fn from_bytes_with(path: impl Into<String>, src: &[u8], normalize: bool) -> Self {
         let path = path.into();
         let style = comment_style_for(&path);
         let lines = src.iter().filter(|&&b| b == b'\n').count() as u32
             + u32::from(!src.is_empty() && *src.last().unwrap() != b'\n');
         SourceFile {
-            tokens: tokenize(src, style),
+            tokens: tokenize_with(src, style, normalize),
             lines,
             path,
         }
@@ -238,6 +383,9 @@ pub struct Options {
     pub min_tokens: usize,
     /// Smallest clone, in lines (checked on both sides). jscpd's default is 5.
     pub min_lines: u32,
+    /// Tokens were normalised when the files were read (report only: set
+    /// the same flag on `WalkOptions` or `SourceFile::from_bytes_with`).
+    pub normalize: bool,
 }
 
 impl Default for Options {
@@ -245,6 +393,7 @@ impl Default for Options {
         Options {
             min_tokens: 50,
             min_lines: 5,
+            normalize: false,
         }
     }
 }
@@ -474,6 +623,8 @@ pub struct WalkOptions {
     pub max_lines: u32,
     pub respect_gitignore: bool,
     pub ignore_dirs: Vec<String>,
+    /// Hash identifiers, strings and numbers by kind (finds renamed copies).
+    pub normalize: bool,
 }
 
 #[cfg(feature = "cli")]
@@ -491,6 +642,7 @@ impl Default for WalkOptions {
             max_lines: 1000,
             respect_gitignore: true,
             ignore_dirs: vec!["node_modules".into(), ".git".into(), "target".into()],
+            normalize: false,
         }
     }
 }
@@ -541,7 +693,8 @@ pub fn load(roots: &[PathBuf], w: &WalkOptions) -> Vec<SourceFile> {
                 return None;
             }
             let src = std::fs::read(p).ok()?;
-            let f = SourceFile::from_bytes(p.to_string_lossy().into_owned(), &src);
+            let f =
+                SourceFile::from_bytes_with(p.to_string_lossy().into_owned(), &src, w.normalize);
             (f.lines <= w.max_lines).then_some(f)
         })
         .collect::<Vec<_>>();
@@ -587,9 +740,9 @@ pub fn json_report(
     let mut o = String::new();
     let _ = write!(
         o,
-        "{{\"statistics\":{{\"files\":{},\"lines\":{},\"tokens\":{},\"clones\":{},\"duplicated_lines\":{},\"duplicated_tokens\":{},\"duplicated_percent\":{:.4},\"seconds\":{:.3}}},\"options\":{{\"min_tokens\":{},\"min_lines\":{}}},\"clones\":[",
+        "{{\"statistics\":{{\"files\":{},\"lines\":{},\"tokens\":{},\"clones\":{},\"duplicated_lines\":{},\"duplicated_tokens\":{},\"duplicated_percent\":{:.4},\"seconds\":{:.3}}},\"options\":{{\"min_tokens\":{},\"min_lines\":{},\"normalize\":{}}},\"clones\":[",
         st.files, st.lines, st.tokens, st.clones, st.duplicated_lines, st.duplicated_tokens,
-        st.duplicated_percent(), secs, opts.min_tokens, opts.min_lines
+        st.duplicated_percent(), secs, opts.min_tokens, opts.min_lines, opts.normalize
     );
     for (i, c) in clones.iter().enumerate() {
         if i > 0 {
