@@ -3,6 +3,21 @@
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
 
+## 2026-10-29 · Milestone 9f: how much noise in the identified modes can the adjustable tail (9d, 9e) tolerate? (planned before running)
+- Why: 9e's "Next". It set f from the exact short-period and phugoid; a real pitch doublet and phugoid trace give frequencies and damping with error. The 10% gust bar only holds in flight if it survives that.
+- Plan (`experiments/noisy_identification/run.py`): the 78 mode-matched designs; true tail-slope scales 0.75, 0.9, 1.0; the pilot observes phugoid frequency, short-period frequency and short-period damping ratio with independent multiplicative Gaussian error sigma = 0, 2, 5, 10%, and picks f on the 0.05 grid minimising the worst observed-mode error against the n = 1 reference; 200 draws per design and scale; the true model at the chosen f is scored on modes and the three gust peaks.
+- **Predictions (before running):** (1) at sigma 2% the share of draws with worst gust error within 10% stays at least 85% of its noiseless value (prior 70%). (2) At sigma 5% the share falls below half of the noiseless value (prior 55%), because the damping ratio is the quantity most sensitive to f and the hardest to measure. (3) At sigma 10% fewer than 20 of 78 designs have 90% of draws within 10% gust (prior 80%). Refuted: (1) below 85%; (2) at least half; (3) 20 or more.
+- Limits known in advance: errors are independent per mode (real doublet errors in frequency and damping are correlated); the noise is applied to the mode summary, not to a time-domain fit; as 9d and 9e otherwise.
+
+
+### Outcome of 9f (`experiments/noisy_identification/`: `run.py`, `results.txt`; about 20 min)
+- Share of (design, draw) pairs with worst gust error within 10%, noiseless 86 to 87% (67 to 68 of 78 designs as in 9e): **84 to 86% at sigma 2%**, **58 to 61% at 5%**, **33 to 35% at 10%** (scales 0.75, 0.9, 1.0). Median worst gust error 4.6 to 4.7% noiseless, 5.6% at 2%, 8.6 to 8.8% at 5%, 14.3 to 14.7% at 10%. Median worst mode error 2.3 to 2.4%, 3.2 to 3.3%, 4.9 to 5.1%, 8.1 to 8.2%. The median chosen f is 0.05 off the noiseless f at 2%, 0.05 to 0.10 at 5%, 0.15 to 0.20 at 10%.
+- **(1) held:** at 2% the share is 84 to 86% against 86 to 87%, i.e. 97 to 100% of noiseless. **(2) refuted:** at 5% the share is 58 to 61%, about 68% of noiseless, not under half. **(3) held, trivially:** 0 of 78 designs have 90% of draws within 10% at 5% or 10% noise (54 to 61 of 78 at 2%), so on a strict per-design reliability bar the tolerance is between 2% and 5%.
+- Reading: the adjustable tail of 9d and 9e needs the in-flight mode estimate good to about 2 to 3% (frequencies and damping ratio each) to keep the 10% gust bar for most designs; at 5% roughly 6 draws in 10 still pass, but no design is reliable. Gust error rises about linearly with the mode noise (4.7, 5.6, 8.7, 14.5% at 0, 2, 5, 10%), roughly 1.4 times the observed-mode noise at the upper end. Damping ratio is the quantity a short doublet measures worst, so the requirement is a demonstrator test-card requirement, not a given.
+- Limits: independent errors per mode (real errors are correlated, and could be better or worse); noise on the mode summary, not a time-domain fit of a simulated doublet; 200 draws per cell, one seed (20261029); other limits as 9d and 9e.
+- Next: a time-domain doublet with sensor noise and a fit of the 4-state model, to get actual mode errors for a given record length; NACA 0012/0015 data; thrust law; AIAA template.
+
+
 ## 2026-10-29 · Milestone 9e: does the tail-area multiplier that recovers the modes also recover the gust peaks? (planned before running)
 - Why: 9d's "Next". 9c found the gust peaks more slope-sensitive than the modes (none of 78 within 10% at scale 0.75); 9d recovered the modes with an adjustable area f. The demonstrator specification only holds if the same f, set from the modes alone (what an in-flight pitch doublet identifies), also brings the gust peaks back.
 - Plan (`experiments/adjustable_gust/run.py`): the 78 mode-matched designs; for each true slope scale 0.75, 0.8, 0.9, 1.0 choose f in 0.6 to 1.8 (step 0.05) minimising the worst mode error, then compute the worst gust error over H = 5, 12.5, 25 chords against the unchanged n = 1 reference. Nothing is tuned on gust.
