@@ -42,22 +42,29 @@
     .btn.primary { background: var(--accent2); color: #f8f5eb; }
     .btn[disabled] { opacity: .4; cursor: not-allowed; }
     .link { background: none; border: none; color: #1f4e8c; text-decoration: underline; cursor: pointer; padding: 0; font-weight: 600; }
+    #openings .link { padding: 12px 4px; }
     .workspace { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 14px; }
     .editors { display: grid; gap: 14px; }
     svg.edit { width: 100%; height: auto; display: block; touch-action: none; background: #fbfaf6; border-radius: 10px; border: 1px solid var(--line); }
     #plan { aspect-ratio: 4 / 3; }
-    #endview { aspect-ratio: 16 / 8; }
+    /* The end view takes its picture's own shape (set by its viewBox), up to a height. */
+    #endview { max-height: 26rem; }
     .hint { color: var(--muted); font-size: .85rem; margin: 6px 0 0; }
     .pad { fill: #ece8df; stroke: #b8b1a3; stroke-dasharray: 4 3; }
     .floor { fill: #e9dcc0; stroke: #6b4f2a; }
     .wallband { fill: #c99d62; }
     .ridge { stroke: #7a2f1d; stroke-dasharray: 6 4; stroke-width: 1.2; }
-    .opening { cursor: grab; stroke: #1b2a3a; stroke-width: 1; }
+    .opening { stroke: #1b2a3a; stroke-width: 1; }
     .opening.door { fill: #8a5a2b; }
     .opening.window { fill: #8fc2ea; }
-    .opening:focus { outline: none; stroke: #e0662f; stroke-width: 3; }
+    .opening { pointer-events: none; }
+    .opening-hit { fill: transparent; cursor: grab; }
+    .opening-hit:focus { outline: none; }
+    .opening-hit:focus-visible { stroke: #e0662f; stroke-width: 3; stroke-dasharray: 5 3; }
     .handle { fill: #e0662f; stroke: #fff; stroke-width: 2; }
-    .handle:focus { outline: none; stroke: #1f2420; }
+    .handle-hit { fill: transparent; stroke: none; }
+    .handle-hit:focus { outline: none; }
+    .handle-hit:focus-visible { stroke: #1f2420; stroke-width: 2; stroke-dasharray: 4 3; }
     .ghost { fill: none; stroke: #e0662f; stroke-width: 2; stroke-dasharray: 6 4; }
     .plan-label { font: 600 9px ui-sans-serif, system-ui, sans-serif; fill: #3a3f37; }
     .plan-muted { font: 8px ui-sans-serif, system-ui, sans-serif; fill: #8a8a80; letter-spacing: .1em; }
@@ -67,6 +74,7 @@
     .viewer { position: relative; }
     .dim-overlay { position: absolute; inset: 0; pointer-events: none; }
     .dim-overlay span { position: absolute; transform: translate(-50%, -50%); background: #ffffffd9; color: #1f4e8c; font: 600 12px ui-sans-serif, system-ui, sans-serif; padding: 1px 5px; border-radius: 4px; white-space: nowrap; }
+    #view3d:focus-visible { outline: 3px solid #e0662f; outline-offset: 2px; }
     #view3d { width: 100%; aspect-ratio: 4 / 3; display: block; border-radius: 10px; border: 1px solid var(--line); background: #edf1f5; touch-action: none; cursor: grab; }
     .toolrow { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; align-items: center; }
     .check { display: inline-flex; align-items: center; gap: 6px; font-size: .88rem; font-weight: 600; }
@@ -105,7 +113,7 @@
     .boards .bar { position: relative; height: 24px; background: repeating-linear-gradient(45deg, #eee7d8, #eee7d8 4px, #e2d8c3 4px, #e2d8c3 8px); border-radius: 4px; border: 1px solid #c9bea7; overflow: hidden; }
     .boards .cut { position: absolute; top: 0; bottom: 0; background: #f1dfb9; border-right: 2px solid #6b4f2a; font-size: .72rem; line-height: 24px; padding-left: 4px; white-space: nowrap; overflow: hidden; }
     .boards .off { color: var(--muted); }
-    h4 { margin: 14px 0 4px; font-size: .95rem; }
+    h4, h3.h4 { margin: 14px 0 4px; font-size: .95rem; }
     .grid input { width: 74px; }
     .items { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; margin-top: 12px; }
     .items label { display: grid; gap: 4px; font-size: .82rem; font-weight: 600; }
@@ -201,12 +209,12 @@
       <section aria-labelledby="end-h">
         <h2 id="end-h">End view: wall height, pitch, overhang</h2>
         <svg id="endview" class="edit" role="group" aria-label="Gable end view. Drag the peak for pitch, the wall corner for height, the eave tip for overhang."></svg>
-        <p class="hint" id="live" aria-live="polite"></p>
+        <p class="hint" id="live"></p>
       </section>
     </div>
     <section class="viewer" aria-labelledby="v3d-h">
       <h2 id="v3d-h">3D view</h2>
-      <canvas id="view3d" aria-label="3D model of the framed shed. Drag to turn it, scroll to zoom."></canvas>
+      <canvas id="view3d" tabindex="0" role="img" aria-label="3D model of the framed shed. Drag to turn it, scroll or pinch to zoom; with the keyboard, the arrow keys turn it and + and - zoom."></canvas>
       <p id="view3d-fallback" hidden>This browser has no WebGL, so the 3D view is off. The plans, cut sheet and estimate below still work.</p>
       <div class="toolrow">
         <button type="button" class="btn" id="framing-only">Framing only</button>
@@ -418,7 +426,7 @@
     <details><summary>Is the design checked for strength or against building code?</summary><p>Not by an engineer. The Structure tab runs allowable-stress (NDS) checks on the floor joists, rafters, ridge beam and posts, headers and wall studs under the snow and wind loads you set, the kind of check a span table encodes, and the tests check that no piece floats or overlaps another. It does not check connections, uplift, racking, the foundation or your local code. Many places need a permit for a shed over a certain size; ask your building department.</p></details>
     <details><summary>Can I open the plans in CAD?</summary><p>Yes. Each sheet downloads as DXF (full size, in inches, with layers for framing, outlines, hidden lines, openings, dimensions and text) or SVG, and the whole set prints from the browser.</p></details>
     <details><summary>Is my design uploaded anywhere?</summary><p>No. Everything runs in your browser. Your designs are saved in this browser's local storage so they are there next time (you can turn that off), and a shared link carries the design inside the link itself.</p></details>
-    <p>More: <a href="shed-plans-with-cut-list.html">how much lumber an 8x12 shed takes, worked through</a>. Related free tools: <a href="../cut-list-optimizer/">Cut List Optimizer</a> for any list of boards or sheets, <a href="../wall-framing-takeoff/">Wall Framing Takeoff</a> for a whole house, and <a href="../shed-install-bid-calculator/">Shed Install Bid Calculator</a> if you install sheds for a living.</p>
+    <p>More: <a href="shed-plans-with-cut-list.html">how much lumber an 8x12 shed takes, worked through</a>, and <a href="shed-lumber-list-by-size.html">the lumber list for 12 other sizes</a>. Related free tools: <a href="../cut-list-optimizer/">Cut List Optimizer</a> for any list of boards or sheets, <a href="../wall-framing-takeoff/">Wall Framing Takeoff</a> for a whole house, and <a href="../shed-install-bid-calculator/">Shed Install Bid Calculator</a> if you install sheds for a living.</p>
   </section>
 
   </main>

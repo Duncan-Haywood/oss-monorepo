@@ -1,0 +1,104 @@
+admiration: corpus 6683, prevalence 0.0811 (by group: sports 0.084, tv-dating 0.089, personal 0.064, video-cringe 0.093), 500 draws: coder | strata | n | rule | coverage % | mean half-width pts
+# LLM score>0: sens 0.830, spec 0.821
+LLM score>0 | 4 | 400 | human normal | 95.0 | 2.574
+LLM score>0 | 4 | 400 | human Wilson (WH) | 95.6 | 2.590
+LLM score>0 | 4 | 400 | P Wilson n_eff (WE) | 94.8 | 2.340
+LLM score>0 | 4 | 1000 | human normal | 95.8 | 1.552
+LLM score>0 | 4 | 1000 | human Wilson (WH) | 95.4 | 1.555
+LLM score>0 | 4 | 1000 | P Wilson n_eff (WE) | 95.6 | 1.410
+LLM score>0 | 3 | 400 | human normal | 94.2 | 2.590
+LLM score>0 | 3 | 400 | human Wilson (WH) | 95.2 | 2.606
+LLM score>0 | 3 | 400 | P Wilson n_eff (WE) | 94.4 | 2.355
+LLM score>0 | 3 | 1000 | human normal | 93.4 | 1.563
+LLM score>0 | 3 | 1000 | human Wilson (WH) | 93.2 | 1.566
+LLM score>0 | 3 | 1000 | P Wilson n_eff (WE) | 94.4 | 1.418
+LLM score>0 | 2 | 400 | human normal | 92.6 | 2.577
+LLM score>0 | 2 | 400 | human Wilson (WH) | 93.8 | 2.593
+LLM score>0 | 2 | 400 | P Wilson n_eff (WE) | 93.8 | 2.342
+LLM score>0 | 2 | 1000 | human normal | 95.4 | 1.556
+LLM score>0 | 2 | 1000 | human Wilson (WH) | 95.2 | 1.560
+LLM score>0 | 2 | 1000 | P Wilson n_eff (WE) | 95.2 | 1.412
+LLM score>0 | 1 | 400 | human normal | 94.8 | 2.601
+LLM score>0 | 1 | 400 | human Wilson (WH) | 92.8 | 2.617
+LLM score>0 | 1 | 400 | P Wilson n_eff (WE) | 95.0 | 2.365
+LLM score>0 | 1 | 1000 | human normal | 95.6 | 1.562
+LLM score>0 | 1 | 1000 | human Wilson (WH) | 94.8 | 1.566
+LLM score>0 | 1 | 1000 | P Wilson n_eff (WE) | 95.2 | 1.417
+# LLM 3x cut: sens 0.843, spec 0.806
+LLM 3x cut | 4 | 400 | human normal | 94.6 | 2.579
+LLM 3x cut | 4 | 400 | human Wilson (WH) | 95.6 | 2.595
+LLM 3x cut | 4 | 400 | P Wilson n_eff (WE) | 95.0 | 2.357
+LLM 3x cut | 4 | 1000 | human normal | 95.8 | 1.557
+LLM 3x cut | 4 | 1000 | human Wilson (WH) | 96.2 | 1.561
+LLM 3x cut | 4 | 1000 | P Wilson n_eff (WE) | 95.0 | 1.422
+LLM 3x cut | 3 | 400 | human normal | 94.6 | 2.564
+LLM 3x cut | 3 | 400 | human Wilson (WH) | 95.4 | 2.580
+LLM 3x cut | 3 | 400 | P Wilson n_eff (WE) | 95.6 | 2.347
+LLM 3x cut | 3 | 1000 | human normal | 95.0 | 1.558
+LLM 3x cut | 3 | 1000 | human Wilson (WH) | 95.4 | 1.562
+LLM 3x cut | 3 | 1000 | P Wilson n_eff (WE) | 94.4 | 1.422
+LLM 3x cut | 2 | 400 | human normal | 92.6 | 2.577
+LLM 3x cut | 2 | 400 | human Wilson (WH) | 93.8 | 2.593
+LLM 3x cut | 2 | 400 | P Wilson n_eff (WE) | 94.0 | 2.356
+LLM 3x cut | 2 | 1000 | human normal | 95.4 | 1.556
+LLM 3x cut | 2 | 1000 | human Wilson (WH) | 95.2 | 1.560
+LLM 3x cut | 2 | 1000 | P Wilson n_eff (WE) | 94.8 | 1.420
+LLM 3x cut | 1 | 400 | human normal | 94.8 | 2.601
+LLM 3x cut | 1 | 400 | human Wilson (WH) | 92.8 | 2.617
+LLM 3x cut | 1 | 400 | P Wilson n_eff (WE) | 95.4 | 2.379
+LLM 3x cut | 1 | 1000 | human normal | 95.6 | 1.562
+LLM 3x cut | 1 | 1000 | human Wilson (WH) | 94.8 | 1.566
+LLM 3x cut | 1 | 1000 | P Wilson n_eff (WE) | 94.8 | 1.425
+
+neutral: corpus 6683, prevalence 0.2327 (by group: sports 0.278, tv-dating 0.227, personal 0.187, video-cringe 0.250), 500 draws: coder | strata | n | rule | coverage % | mean half-width pts
+# LLM score>0: sens 0.517, spec 0.656
+LLM score>0 | 4 | 400 | human normal | 96.2 | 3.992
+LLM score>0 | 4 | 400 | human Wilson (WH) | 96.0 | 3.982
+LLM score>0 | 4 | 400 | P Wilson n_eff (WE) | 96.0 | 3.934
+LLM score>0 | 4 | 1000 | human normal | 94.0 | 2.405
+LLM score>0 | 4 | 1000 | human Wilson (WH) | 94.4 | 2.402
+LLM score>0 | 4 | 1000 | P Wilson n_eff (WE) | 94.0 | 2.375
+LLM score>0 | 3 | 400 | human normal | 95.4 | 3.999
+LLM score>0 | 3 | 400 | human Wilson (WH) | 95.6 | 3.989
+LLM score>0 | 3 | 400 | P Wilson n_eff (WE) | 95.2 | 3.940
+LLM score>0 | 3 | 1000 | human normal | 94.8 | 2.405
+LLM score>0 | 3 | 1000 | human Wilson (WH) | 94.4 | 2.403
+LLM score>0 | 3 | 1000 | P Wilson n_eff (WE) | 94.6 | 2.375
+LLM score>0 | 2 | 400 | human normal | 93.8 | 4.000
+LLM score>0 | 2 | 400 | human Wilson (WH) | 94.0 | 3.990
+LLM score>0 | 2 | 400 | P Wilson n_eff (WE) | 93.6 | 3.942
+LLM score>0 | 2 | 1000 | human normal | 94.4 | 2.406
+LLM score>0 | 2 | 1000 | human Wilson (WH) | 94.2 | 2.404
+LLM score>0 | 2 | 1000 | P Wilson n_eff (WE) | 94.4 | 2.376
+LLM score>0 | 1 | 400 | human normal | 95.8 | 4.010
+LLM score>0 | 1 | 400 | human Wilson (WH) | 96.4 | 3.999
+LLM score>0 | 1 | 400 | P Wilson n_eff (WE) | 96.8 | 3.949
+LLM score>0 | 1 | 1000 | human normal | 95.2 | 2.413
+LLM score>0 | 1 | 1000 | human Wilson (WH) | 95.8 | 2.411
+LLM score>0 | 1 | 1000 | P Wilson n_eff (WE) | 96.2 | 2.383
+# LLM 3x cut: sens 0.641, spec 0.554
+LLM 3x cut | 4 | 400 | human normal | 95.2 | 4.011
+LLM 3x cut | 4 | 400 | human Wilson (WH) | 94.8 | 4.000
+LLM 3x cut | 4 | 400 | P Wilson n_eff (WE) | 94.6 | 3.943
+LLM 3x cut | 4 | 1000 | human normal | 93.4 | 2.404
+LLM 3x cut | 4 | 1000 | human Wilson (WH) | 93.8 | 2.402
+LLM 3x cut | 4 | 1000 | P Wilson n_eff (WE) | 93.4 | 2.369
+LLM 3x cut | 3 | 400 | human normal | 95.0 | 3.999
+LLM 3x cut | 3 | 400 | human Wilson (WH) | 95.0 | 3.989
+LLM 3x cut | 3 | 400 | P Wilson n_eff (WE) | 95.0 | 3.934
+LLM 3x cut | 3 | 1000 | human normal | 94.2 | 2.404
+LLM 3x cut | 3 | 1000 | human Wilson (WH) | 94.6 | 2.402
+LLM 3x cut | 3 | 1000 | P Wilson n_eff (WE) | 93.6 | 2.370
+LLM 3x cut | 2 | 400 | human normal | 93.8 | 4.000
+LLM 3x cut | 2 | 400 | human Wilson (WH) | 94.0 | 3.990
+LLM 3x cut | 2 | 400 | P Wilson n_eff (WE) | 93.8 | 3.934
+LLM 3x cut | 2 | 1000 | human normal | 94.4 | 2.406
+LLM 3x cut | 2 | 1000 | human Wilson (WH) | 94.2 | 2.404
+LLM 3x cut | 2 | 1000 | P Wilson n_eff (WE) | 94.8 | 2.372
+LLM 3x cut | 1 | 400 | human normal | 95.8 | 4.010
+LLM 3x cut | 1 | 400 | human Wilson (WH) | 96.4 | 3.999
+LLM 3x cut | 1 | 400 | P Wilson n_eff (WE) | 95.8 | 3.939
+LLM 3x cut | 1 | 1000 | human normal | 95.2 | 2.413
+LLM 3x cut | 1 | 1000 | human Wilson (WH) | 95.8 | 2.411
+LLM 3x cut | 1 | 1000 | P Wilson n_eff (WE) | 95.6 | 2.377
+

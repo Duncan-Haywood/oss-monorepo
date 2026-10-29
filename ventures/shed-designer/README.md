@@ -13,7 +13,8 @@ For assistants: [llms.txt](llms.txt).
 - **Height-led roof.** Set a most-height-at-the-peak limit and tick the two auto boxes. The walls drop to the lowest the tallest door or window allows, and the roof takes the steepest whole pitch that stays under the limit. When no pitch can, the tool says by how much the limit is missed and what would fix it (`buildAuto` in `model.mjs`).
 - **Ridge beam or ridge board.** A ridge beam is two plies of 2x8 to 2x12 bearing on a two-ply post in each gable, over two post studs in the wall. Rafters stop at the beam face and get hangers, and there are no ties. A ridge board gets rafter ties at the plate on every pair. Gable vents centre under a ridge board and flank the post under a beam.
 - **Colour.** Siding paint colours, and purple polka dots, show in the 3D view. Paint is added to the shopping list at two coats and 350 sq ft per gallon.
-- **Design by dragging.** On the plan view you drag the footprint corner or edges (6" steps) and slide doors and windows along a wall or onto another wall. On the end view you drag the peak (roof pitch), the wall top (wall height) and the eave tip (overhang). Every number is also a labelled field. Undo and redo cover both.
+- **Design by dragging.** On the plan view you drag the footprint corner or edges (6" steps) and slide doors and windows along a wall or onto another wall. On the end view you drag the peak (roof pitch), the wall top (wall height) and the eave tip (overhang). Every number is also a labelled field. Undo and redo cover both (Ctrl+Z, Ctrl+Shift+Z or Ctrl+Y), and typing a number is one undo step.
+- **Keyboard, touch and screen readers.** Every handle, door and window takes the arrow keys (6" on the footprint, 24" with Shift; 1" on an opening along its wall; a pitch step on the peak; 1" on the wall height and overhang), and keeps focus after the drawing is rebuilt. Each handle has a touch target at least 44 px across. The 3D view takes the arrow keys and + and -, and two-finger pinch. Each change is announced once, with the new size, pitch and overhang. A broken share link says so. `browser.test.mjs` drives all of this in headless Chromium at laptop and phone size, with an axe check on every results tab and no console errors allowed; the `shed-designer-browser` workflow runs it.
 - **True dimensional lumber.** A 2x4 is framed at 1-1/2" x 3-1/2", a 2x6 at 5-1/2", a 2x8 at 7-1/4", a 2x10 at 9-1/4" and a 2x12 at 11-1/4"; 4x4 and 4x6 skids at 3-1/2". Stud length is the wall height less three plates. A rafter's cut length includes its plumb cut. The ridge is the first 2x size deeper than the rafter that also covers the plumb cut (`lumber.mjs`, `model.mjs`).
 - **Foundation, floor, four walls and a gable roof.**
   - *Foundation:* pressure-treated skids, spaced no more than the gap you allow, on a gravel pad (volume in cubic yards and tons) or on solid concrete blocks.
@@ -35,7 +36,7 @@ All three automatic choices are ticked:
 - **Pitch:** 4/12. No pitch keeps the peak under 8 ft with that door, so the tool takes the lowest pitch at which the vents still fit, and the warning says the peak is 10' 2-3/8" above the gravel. Even 3/12 would be 9' 10-3/8".
 - **Overhang:** 6". Any longer and the 57-3/16" rafters cost more lumber. (Before the cut optimizer solved the relaxation, 6" to 9" all priced the same and the tool chose 9"; the exact optimizer finds 6" cheaper by $2.87 of 2x6.)
 
-At the starting prices that design is 149 pieces from 84 boards. The cut sheet's boards cost $639.32 against a proven lower bound of $638.34; with spare boards the lumber is $736.72, and the whole shed is $3,098.61 before sales tax. Every structural check passes, and the ridge beam is the most loaded member at 80%. The "8x12 classic" preset (8 ft walls, 6/12, ridge board and ties, 38" x 82" door, unpainted) is 140 pieces from 92 boards and $3,281.02 before sales tax.
+At the starting prices that design is 151 pieces from 84 boards. The cut sheet's boards cost $639.32 against a proven lower bound of $638.34; with spare boards the lumber is $736.72, and the whole shed is $3,048.40 before sales tax. Every structural check passes, and the ridge beam is the most loaded member at 80%. The "8x12 classic" preset (8 ft walls, 6/12, ridge board and ties, 38" x 82" door, unpainted) is 143 pieces from 92 boards and $3,272.91 before sales tax.
 
 ## Structure, integrity and prices
 
@@ -43,6 +44,7 @@ At the starting prices that design is 149 pieces from 84 boards. The cut sheet's
   - the floor joists between skids;
   - the rafters;
   - the ridge beam and its posts, using column stability on the posts;
+  - under a ridge board, the rafter-tie heel joint: the pair's outward thrust (wL²/8h) against 16d common nails at the NDS yield-limit value for SPF (about 120 lb each), which sets the nail count in the instructions, the nailing schedule and the shopping list;
   - every door and window header;
   - the eave-wall studs under roof load plus wind on the wall face.
 
@@ -56,6 +58,7 @@ At the starting prices that design is 149 pieces from 84 boards. The cut sheet's
   The test found a real bug on 2026-10-29: every wall member was placed starting at the floor, so the top plates, headers and sills sat at floor level in 3D. It also found that the two plies of each header overlapped, and that the new eave blocks collided with rafter ties. All three are fixed, and the tests stop them coming back.
 
   The load-path and nailing checks found four more the same night, all fixed with tests (see `docs/posts/2026-10-29-four-framing-faults-the-shed-checks-missed.md`): with an even number of skids a ridge-beam post stood mid-span on one 2x6 end joist (1,403 lb on the 10x12, 1.38 times its allowable bending); the eave-wall headers and studs under a ridge board were checked with the ridge-beam roof load, about 40% too little; a spliced skid's joint fell between two blocks; and two kinds of window left a siding joint with no stud behind it.
+- **Fuzz test** (`fuzz.test.mjs`). A seeded sweep of random designs (sizes, pitches, walls, overhangs, spacings, foundations, roofs, loads, doors and windows anywhere) and of junk saved state and links. Every design must build without throwing, have no NaN or negative lengths or prices, pass the integrity test, run every structural check, and give well-formed SVG and R12 DXF. Its first run broke 135 of 1,000 designs; the root causes (rafters and ties inside the gable wall, inverted eave blocks, false overlap reports, unbuilt openings still bought, a cleared price read as $0, junk links that crashed the builder, raw UTF-8 in DXF text) are fixed and each has a pinned test. `FUZZ_N=2000 FUZZ_SEED=5 node --test fuzz.test.mjs` runs a wider sweep.
 - **Prices with sources** (`prices.mjs`). Starting prices are Home Depot listings seen on 2026-10-29, most read from the search result's copy of the product page, so they can be stale and they vary by store. Each line of the shopping list links its listing. Lengths without a listing are scaled per foot from the nearest listed length and marked "(scaled)". Items with no readable listing (paneling, glitter, solid and CMU blocks, interior paint) say "estimate" and link the product page where there is one; the gravel price is the low end of a supplier's published per-ton range, with the bagged alternative in its note. Every price is editable.
 - **How to build** (`instructions.mjs`, its own tab). Nineteen sections in build order, written from the design with its own numbers:
   - permits and tools; the gravel pad with its diagonal; the skid centres;
@@ -90,7 +93,7 @@ At the starting prices that design is 149 pieces from 84 boards. The cut sheet's
 - The structure check is a screening check, not a code review or an engineer's design: it does not check connections, uplift, racking, the foundation or point loads. Header sizes follow a rule of thumb by opening width (2x6 up to 48", 2x8 up to 72", 2x10 up to 96") and the Structure tab then checks each one. Warnings flag a birdsmouth deeper than a third of the rafter, an opening that does not fit, and a vent too big for the gable.
 - Gable sheds on skids only. It does not do lofts, hip or single-slope roofs, porches, ramps or slabs.
 - Fastener counts follow a common nailing schedule and are rounded up to whole boxes; they are for buying, not a code schedule.
-- Sheet counts pack pieces along an 8 ft sheet. Narrow strips are not combined, so the counts lean high.
+- Sheet counts pack pieces along an 8 ft sheet, and rip a narrow row (a floor that is not a multiple of 4 ft wide, the course at the ridge) into strips side by side from whole sheets. Strips of different widths are not combined, and offcuts of full sheets are not ripped for strips, so the counts can still lean a little high.
 - It has been checked with hand-counted unit tests and by driving the page in headless Chromium. It has not been checked by building a shed from it.
 
 ## Run it
@@ -114,6 +117,7 @@ Serve this folder as static files, for example `python3 -m http.server` here, th
 | `candidates.mjs` | the options made for you |
 | `instructions.mjs` | step-by-step build instructions from the design |
 | `app.mjs`, `index.html` | the page |
+| `make-size-pages.mjs`, `how-much-lumber-for-a-*-shed.html`, `shed-lumber-list-by-size.html` | one page per common size (8x8 to 12x24) written from the engine; `node make-size-pages.mjs` rewrites them and `size-pages.test.mjs` fails if they drift |
 | `shed-plans-with-cut-list.html` | the 8x12 worked example, for people searching the question |
 
 ## No warranty

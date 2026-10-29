@@ -30,7 +30,8 @@
   "tests_added": 9,
   "outcome": "success",
   "errors": [
-    "A `git checkout HEAD -- model.mjs` while comparing totals discarded an uncommitted fix; caught by the failing test and re-applied before push."
+    "A `git checkout HEAD -- model.mjs` while comparing totals discarded an uncommitted fix; caught by the failing test and re-applied before push.",
+    "#11315 merged after another lane added generated size pages; its nail change left size-pages.test.mjs red on main until the next PR regenerated them."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -48,10 +49,12 @@
     }
   ],
   "writeups": [
-    "docs/posts/2026-10-29-four-framing-faults-the-shed-checks-missed.md"
+    "docs/posts/2026-10-29-four-framing-faults-the-shed-checks-missed.md",
+    "docs/posts/2026-10-29-how-many-nails-hold-a-shed-rafter-tie.md",
+    "docs/reports/shed-designer-overnight-lane1.md"
   ],
   "goal": null,
-  "notes": "Local verification: node --test in ventures/shed-designer 87 pass on fresh main + these commits; typecheck.mjs shed-designer 0 diagnostics. Pages build + check.mjs passed (1319 products, no dead links) on a local merge of main into #11268 at 04:32. Hand-calcs: header, stud (NDS 3.9-3), floor joist, rafter, ridge beam all match structure.mjs. Open: cap-plate joints within 4 ft of top-plate joints with 8-10 ft stock (needs joint choice across both plates); README totals stale.",
+  "notes": "Local verification: node --test in ventures/shed-designer 87 pass on fresh main + these commits; typecheck.mjs shed-designer 0 diagnostics. Pages build + check.mjs passed (1319 products, no dead links) on a local merge of main into #11268 at 04:32. Hand-calcs: header, stud (NDS 3.9-3), floor joist, rafter, ridge beam all match structure.mjs. Open: cap-plate joints within 4 ft of top-plate joints with 8-10 ft stock (needs joint choice across both plates); README totals stale. Later PRs in the same session: #11313 (plate joints chosen together, IRC 24\" offset), #11315 (rafter-tie heel joint nailed for thrust), and the gable-header + lane report PR, which also regenerates the size pages #11315 left stale.",
   "corrections": [],
   "redteam": null
 }

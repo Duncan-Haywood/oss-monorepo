@@ -136,6 +136,10 @@ test('the field count is capped in both directions', () => {
     MAX_LINK_FIELDS);
 });
 
+test('the field cap is a form\'s worth, pinned so a bump is deliberate', () => {
+  assert.equal(MAX_LINK_FIELDS, 120);
+});
+
 test('a payload whose every field is rejected yields nothing at all', () => {
   const payload = encodeURIComponent(JSON.stringify({ v: 1, f: { usageOptOut: true } }));
   assert.equal(decodeBidLink('#' + BID_LINK_PREFIX + payload), null);

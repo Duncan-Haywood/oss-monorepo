@@ -52,7 +52,8 @@ Start long commands with `run_in_background`, no `&` or subshell (the harness
 would report completion early), output to a file, `echo DONE` at the end. Wait
 with `python3 platform/ci/wait_for.py out.log` (up to 100 s per call, exit 1 means
 still running: call again; for a job with no output, e.g. a pip install, use
-`--until "python3 -c 'import torch'"`; `sleep` loops and Monitor have been blocked). Don't grep
+`--until "python3 -c 'import torch'"`; for a job of many minutes, run wait_for itself with
+`run_in_background` and `--timeout 3600`: you are woken once when it exits (read the log afterwards; do not pipe it or chain an echo); `sleep` loops and Monitor have been blocked). Don't grep
 the process list for the script's own name: it matches itself and never ends.
 
 - `platform/marketing/regen.mjs --verify` and the pages test suites (over 10 min)

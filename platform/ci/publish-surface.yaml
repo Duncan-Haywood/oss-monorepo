@@ -396,6 +396,9 @@ workflows:
 - workflow: sbom-diff-check-ci.yml
   classification: none
   publishes: []
+- workflow: shed-designer-browser.yml
+  classification: none
+  publishes: []
 - workflow: shopify-permission-drift-ci.yml
   classification: none
   publishes: []

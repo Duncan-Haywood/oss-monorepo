@@ -7,6 +7,7 @@
 
 import { fmtFtIn, fmtIn } from './lumber.mjs';
 import { WALLS, WALL_LABEL } from './model.mjs';
+import { heelJoint } from './checks.mjs';
 
 /** @typedef {[number, number]} P */
 /**
@@ -461,6 +462,7 @@ export function buildSheets(shed, marks = new Map()) {
       ['Joist to skid', '2-16d toenail, or a framing tie'],
       ['Rafter to plate', 'rafter-to-plate tie each rafter, maker\'s nails'],
       [d.roofType === 'ridgeBeam' ? 'Rafter to ridge beam' : 'Rafter to ridge board', d.roofType === 'ridgeBeam' ? 'face-mount hanger, maker\'s nails' : '3-16d end or toenail'],
+      ...(heelJoint(shed) ? [['Rafter tie to rafter, each end', `${heelJoint(shed)?.nails}-16d common, face nailed`]] : []),
       ['Subfloor', '1-5/8" screws 6" edges, 12" field, with adhesive'],
       ['Wall and roof sheathing', '8d at 6" edges, 12" field'],
       ['Siding panels', '8d galvanized 6" edges, 12" field'],
@@ -795,6 +797,18 @@ export function sheetSvg(sheet, meta = {}) {
  * Layers: FRAMING, OUTLINE, HIDDEN, OPENINGS, DIMS, TEXT.
  * @param {Sheet[]} sheets
  */
+/**
+ * Text for an R12 DXF: one line, ASCII only. Anything else (a design named
+ * "Café shed", a curly quote) is written as \U+XXXX, which AutoCAD, LibreCAD and
+ * ezdxf read back as the character; raw UTF-8 shows as mojibake there.
+ */
+export function dxfText(s) {
+  return [...String(s).replace(/[\r\n\t]+/g, ' ')].map((ch) => {
+    const c = /** @type {number} */ (ch.codePointAt(0));
+    return c >= 0x20 && c < 0x7f ? ch : c <= 0xffff ? `\\U+${c.toString(16).toUpperCase().padStart(4, '0')}` : '?';
+  }).join('').slice(0, 250);
+}
+
 export function sheetsDxf(sheets) {
   const out = [];
   const g = (code, v) => { out.push(String(code), String(v)); };
@@ -807,7 +821,7 @@ export function sheetsDxf(sheets) {
   g(0, 'SECTION'); g(2, 'ENTITIES');
   const ln = (a, b, layer) => { g(0, 'LINE'); g(8, layer); g(10, a[0].toFixed(4)); g(20, a[1].toFixed(4)); g(30, 0); g(11, b[0].toFixed(4)); g(21, b[1].toFixed(4)); g(31, 0); };
   const tx = (p, h, s, layer, align = 1, rot = 0) => {
-    g(0, 'TEXT'); g(8, layer); g(10, p[0].toFixed(4)); g(20, p[1].toFixed(4)); g(30, 0); g(40, h.toFixed(3)); g(1, String(s).replace(/[\r\n]/g, ' '));
+    g(0, 'TEXT'); g(8, layer); g(10, p[0].toFixed(4)); g(20, p[1].toFixed(4)); g(30, 0); g(40, h.toFixed(3)); g(1, dxfText(s));
     if (rot) g(50, rot.toFixed(2));
     if (align) { g(72, align); g(11, p[0].toFixed(4)); g(21, p[1].toFixed(4)); g(31, 0); }
   };

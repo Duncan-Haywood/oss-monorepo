@@ -61,7 +61,7 @@ Ticked items are on `main`.
       plan `blocking: {rows, fire}` adds evenly spaced flat-2x rows between
       neighbouring full-height studs, skips openings, and `fire` adds enough
       rows that no stud run passes 10 ft; they join the cut list and order.
-      The page has the controls (rows, fire blocking; 2026-10-21, saved in plan files). Not yet: staggered blocks, nailers for horizontal sheets.
+      The page has the controls (rows, fire blocking; 2026-10-21, saved in plan files). Staggered blocks landed 2026-10-29 (`blocking.stagger`: alternate bays sit 1.5 in above and below the row line; fire-block rows allow for it; engine and plan files, not the page). Not yet: nailers for horizontal sheets.
 - [x] **Corner plate laps** (2026-10-21, `plateLaps` in `engine.mjs`): top plate
       through one way, cap the other, piece lengths change, totals do not. Tee
       laps (2026-10-21, wall `tee: {wall, at, end}`): the partition's cap runs
@@ -79,7 +79,7 @@ Ticked items are on `main`.
 
 ### 2. Getting the house in without typing
 
-- [ ] A browser plan editor: draw walls on a grid, drop doors and windows,
+- [x] (2026-10-29, `sketch.mjs`, page card; click-checked in Chromium; no move/resize or tracing yet) A browser plan editor: draw walls on a grid, drop doors and windows,
       emit the plan JSON (corners and tees detected from geometry).
 - [x] DXF floor plans landed 2026-10-27 (`dxf.mjs`, CLI and page; centre lines, tees, openings from lines; hand-built files only, no real plan yet). Still open: IFC
       `IfcWall` / `IfcOpeningElement`, both parsed in the browser.
@@ -96,7 +96,7 @@ Ticked items are on `main`.
       joists, collar ties, roof sheathing, underlayment and shingle squares.
       Hip roofs landed 2026-10-22 (`shape: "hip"`: commons, hips, jacks, trapezoid and triangle sheathing). Not yet: valleys, the page.
 - [x] Foundation quantities (2026-10-24, `foundation.mjs`, CLI `--foundation`): footing, stem wall and slab (or a monolithic slab with thickened edge) concrete from closed-form geometry, trucks and short-load warning, rebar with lap splices and weight, form area and plywood, gravel base, vapor barrier. Hand-arithmetic tests only. Corner L-bars landed 2026-10-28 (`cornerBars`, page select; hand-arithmetic test). Anchor bolt spacing and end distance on the page 2026-10-27. Not yet: piers and columns, walkout/stepped footings, checking against a real foundation plan.
-- [ ] Interior: drywall sheet counts per wall and ceiling landed 2026-10-24 (`drywall.mjs`, CLI `--drywall`, hand-count tests; joints not on studs, no page). Wall-cavity insulation bags landed 2026-10-24 (`insulation.mjs`, CLI `--insulation`, cavity measured from placed members; hand-arithmetic tests, no page). Joints on studs landed 2026-10-26 (walls; page control `Wall end joints` 2026-10-27). Insulation bags (wall, rim, attic) are in the budget from 2026-10-27. Trim (baseboard, casing boards) landed 2026-10-28 (`trim.mjs`, CLI `--trim`, budget lines; hand tests, no page). Not yet: ceiling joints on joists, the trim page controls, shoe moulding.
+- [ ] Interior: drywall sheet counts per wall and ceiling landed 2026-10-24 (`drywall.mjs`, CLI `--drywall`, hand-count tests; joints not on studs, no page). Wall-cavity insulation bags landed 2026-10-24 (`insulation.mjs`, CLI `--insulation`, cavity measured from placed members; hand-arithmetic tests, no page). Joints on studs landed 2026-10-26 (walls; page control `Wall end joints` 2026-10-27). Insulation bags (wall, rim, attic) are in the budget from 2026-10-27. Trim (baseboard, casing boards) landed 2026-10-28 (`trim.mjs`, CLI `--trim`, budget lines; hand tests, no page). Shoe moulding landed 2026-10-29 (`trim.shoe`, own stock, hand test). Not yet: ceiling joints on joists, the trim page controls.
 
 - [x] Exterior siding, house wrap and corner boards (2026-10-28, `siding.mjs`, CLI `--siding`, budget lines; hand tests; page card, browser-checked on the example house). Soffit, fascia and J-channel landed 2026-10-28 (`eaves.mjs`, CLI `--eaves`, hand tests, no page). Not yet: gables, window and door trim, vertical siding, a real siding order.
 

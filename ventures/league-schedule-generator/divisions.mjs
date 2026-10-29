@@ -7,7 +7,7 @@
 //   3. a team plays at the same venue as on its previous night where it can (fewer trips).
 // Each division keeps the circle-method round robin of calc.mjs (home/away balance and byes), so only
 // the dates, courts and times are decided here.
-import { roundRobin, mulberry32, parseDate, parseDateList, parseWeekdays, parseTimes, parseNameList, parseCourtClosures, dayIso, dayOfWeek, courtClosedOn } from "./calc.mjs";
+import { roundRobin, mulberry32, parseDate, parseDateList, parseWeekdays, parseTimes, parseNameList, parseCourtClosures, parseOfficials, dayIso, dayOfWeek, courtClosedOn, icsEscape, icsFold } from "./calc.mjs";
 
 const MAX_NIGHTS = 800;
 const W_CLASH = 1000;
@@ -648,11 +648,111 @@ export function validateDivisions(schedule) {
   return { ok: errors.length === 0, errors };
 }
 
+/**
+ * Officials for a multi-division schedule: the same list format as `parseOfficials` (`Name (Hawks): Tue, Thu max 6`);
+ * a team in brackets is matched by name in every division that has it. Returns { officials, errors }.
+ */
+export function parseDivisionOfficials(text, divisions) {
+  const names = [...new Set(divisions.flatMap((d) => d.teams))];
+  const r = parseOfficials(text, names);
+  return { officials: r.officials.map((o) => ({ ...o, teamName: o.team >= 0 ? names[o.team] : "" })), errors: r.errors };
+}
+
+/**
+ * Give every match one official. Hard rules as in `assignOfficials`: weekday, not from either team, one match per
+ * time slot of a night, under their cap. Least-loaded first, then list order. Deterministic; the schedule is copied.
+ */
+export function assignDivisionOfficials(schedule, officials) {
+  const s = JSON.parse(JSON.stringify(schedule));
+  const load = officials.map(() => 0);
+  const unfilled = [];
+  for (const night of s.nights) {
+    const wd = dayOfWeek(night.day);
+    const busy = new Set();
+    for (const m of night.matches) {
+      const why = { weekday: 0, team: 0, busy: 0, cap: 0 };
+      const ok = [];
+      officials.forEach((o, i) => {
+        if (o.days && !o.days.includes(wd)) { why.weekday++; return; }
+        if (o.teamName && (o.teamName === m.homeName || o.teamName === m.awayName)) { why.team++; return; }
+        if (busy.has(`${i}|${m.time ?? ""}`)) { why.busy++; return; }
+        if (load[i] >= o.max) { why.cap++; return; }
+        ok.push(i);
+      });
+      if (!ok.length) {
+        m.official = "";
+        const reason = !officials.length ? "no officials were listed" : Object.entries({ "off that weekday": why.weekday, "belong to a team in this match": why.team, "already on another match at that time": why.busy, "at their match cap": why.cap }).filter(([, c]) => c).map(([t, c]) => `${c} ${t}`).join(", ");
+        unfilled.push({ day: night.day, time: m.time, court: m.court, division: m.division, home: m.homeName, away: m.awayName, reason });
+        continue;
+      }
+      ok.sort((a, b) => load[a] - load[b] || a - b);
+      load[ok[0]]++;
+      busy.add(`${ok[0]}|${m.time ?? ""}`);
+      m.official = officials[ok[0]].name;
+    }
+  }
+  return { schedule: s, loads: officials.map((o, i) => ({ name: o.name, matches: load[i] })), unfilled, total: load.reduce((a, b) => a + b, 0) };
+}
+
+/** Independent re-check of `match.official` on a multi-division schedule. Empty list = clean. */
+export function validateDivisionOfficials(schedule, officials) {
+  const errors = [];
+  const byName = new Map(officials.map((o) => [o.name, o]));
+  const count = new Map();
+  for (const night of schedule.nights) {
+    const used = new Set();
+    for (const m of night.matches) {
+      if (!m.official) continue;
+      const o = byName.get(m.official);
+      const tag = `${dayIso(night.day)} ${m.division}: ${m.homeName} v ${m.awayName}`;
+      if (!o) { errors.push(`${tag}: ${m.official} is not a listed official.`); continue; }
+      if (o.days && !o.days.includes(dayOfWeek(night.day))) errors.push(`${tag}: ${o.name} is off that weekday.`);
+      if (o.teamName && (o.teamName === m.homeName || o.teamName === m.awayName)) errors.push(`${tag}: ${o.name} belongs to a team in the match.`);
+      const key = `${o.name}|${m.time ?? ""}`;
+      if (used.has(key)) errors.push(`${tag}: ${o.name} is on two matches at ${m.time || "the same time"}.`);
+      used.add(key);
+      count.set(o.name, (count.get(o.name) || 0) + 1);
+    }
+  }
+  for (const o of officials) if ((count.get(o.name) || 0) > o.max) errors.push(`${o.name}: ${count.get(o.name)} matches is over their cap of ${o.max}.`);
+  return errors;
+}
+
 export function divisionsCsv(schedule) {
   const q = (s) => (/[",\n]/.test(String(s)) ? `"${String(s).replace(/"/g, '""')}"` : String(s));
-  const rows = [["Date", "Time", "Court", "Venue", "Division", "Round", "Home", "Away"]];
-  for (const night of schedule.nights) for (const m of night.matches) rows.push([dayIso(night.day), m.time, m.court, m.venue, m.division, m.round + 1, m.homeName, m.awayName]);
+  const withOfficial = schedule.nights.some((n) => n.matches.some((m) => m.official !== undefined));
+  const rows = [["Date", "Time", "Court", "Venue", "Division", "Round", "Home", "Away", ...(withOfficial ? ["Official"] : [])]];
+  for (const night of schedule.nights) for (const m of night.matches) rows.push([dayIso(night.day), m.time, m.court, m.venue, m.division, m.round + 1, m.homeName, m.awayName, ...(withOfficial ? [m.official || ""] : [])]);
   return rows.map((r) => r.map(q).join(",")).join("\n") + "\n";
+}
+
+/**
+ * An iCalendar file for the whole multi-division schedule, one division (`division`), or one team
+ * (`team`, with `division` to tell apart teams that share a name). Times are floating local times;
+ * `stamp` (YYYYMMDDTHHMMSSZ) is injectable for reproducible output; `minutes` is the game length.
+ */
+export function divisionsIcs(schedule, { division = null, team = null, stamp = null, minutes = 60 } = {}) {
+  const dtstamp = stamp || new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d+/, "");
+  const compact = (day) => dayIso(day).replace(/-/g, "");
+  const hhmm = (min) => `${String(Math.floor(min / 60)).padStart(2, "0")}${String(min % 60).padStart(2, "0")}00`;
+  const name = team !== null ? `${team} schedule` : division !== null ? `${division} schedule` : "League schedule";
+  const out = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//league-schedule-generator//EN", "CALSCALE:GREGORIAN", `X-WR-CALNAME:${icsEscape(name)}`];
+  for (const night of schedule.nights) {
+    night.matches.forEach((m, i) => {
+      if (division !== null && m.division !== division) return;
+      if (team !== null && m.homeName !== team && m.awayName !== team) return;
+      const summary = team !== null ? `${team} vs ${m.homeName === team ? m.awayName : m.homeName} (${m.homeName === team ? "home" : "away"})` : `[${m.division}] ${m.homeName} vs ${m.awayName}`;
+      out.push("BEGIN:VEVENT", `UID:${m.division}-${m.homeName}-${m.awayName}-${compact(night.day)}-${i}@league-schedule-generator`.replace(/\s+/g, "_"), `DTSTAMP:${dtstamp}`);
+      if (m.time) {
+        const [hh, mm] = m.time.split(":").map(Number);
+        const end = hh * 60 + mm + minutes;
+        out.push(`DTSTART:${compact(night.day)}T${hhmm(hh * 60 + mm)}`, `DTEND:${compact(night.day + Math.floor(end / 1440))}T${hhmm(end % 1440)}`);
+      } else out.push(`DTSTART;VALUE=DATE:${compact(night.day)}`, `DTEND;VALUE=DATE:${compact(night.day + 1)}`);
+      out.push(`SUMMARY:${icsEscape(summary)}`, `LOCATION:${icsEscape(m.venue && m.venue !== m.court ? `${m.court}, ${m.venue}` : m.court)}`, `DESCRIPTION:${icsEscape(`${m.division}, round ${m.round + 1}${m.official ? `, official ${m.official}` : ""}`)}`, "END:VEVENT");
+    });
+  }
+  out.push("END:VCALENDAR");
+  return out.map(icsFold).join("\r\n") + "\r\n";
 }
 
 /** Plain-text read-out for a command line or a group chat. */
@@ -660,7 +760,7 @@ export function divisionsText(schedule) {
   const lines = [];
   for (const night of schedule.nights) {
     lines.push(dayIso(night.day));
-    for (const m of night.matches) lines.push(`  ${m.time || "--"} ${m.court} [${m.division}] ${m.homeName} v ${m.awayName}`);
+    for (const m of night.matches) lines.push(`  ${m.time || "--"} ${m.court} [${m.division}] ${m.homeName} v ${m.awayName}${m.official ? ` (official: ${m.official})` : ""}`);
   }
   const s = schedule.stats;
   lines.push("", `${s.matches} matches over ${s.nights} nights, ${s.trips} venue changes${s.travelMinutes !== undefined ? ` (${s.travelMinutes} min of travel)` : ""}, ${s.clashes} linked-team clash(es), ${(s.utilisation * 100).toFixed(0)}% of court slots used.`);
@@ -733,6 +833,15 @@ if (typeof process !== "undefined" && process.argv && import.meta.url === `file:
   }
   const v = validateDivisions(s);
   if (!v.ok) { console.error(v.errors.join("\n")); process.exit(1); }
+  if (raw.officials) {
+    const po = parseDivisionOfficials(raw.officials, spec.divisions);
+    if (po.errors.length) { console.error(po.errors.join("\n")); process.exit(1); }
+    const a = assignDivisionOfficials(s, po.officials);
+    s = a.schedule;
+    const oe = validateDivisionOfficials(s, po.officials);
+    if (oe.length) { console.error(oe.join("\n")); process.exit(1); }
+    for (const u of a.unfilled) console.error(`No official: ${dayIso(u.day)} ${u.time || ""} ${u.division} ${u.home} v ${u.away} (${u.reason})`);
+  }
   if (process.argv.includes("--history")) { process.stdout.write(JSON.stringify(carryVenueHistory(s), null, 1) + "\n"); process.exit(0); }
   process.stdout.write(process.argv.includes("--csv") ? divisionsCsv(s) : divisionsText(s));
 }

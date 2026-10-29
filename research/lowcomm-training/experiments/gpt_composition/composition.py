@@ -1,4 +1,5 @@
-"""Milestone 6a (H6 pilot): does rand-k compression's excess loss compose additively with the outer delay H on the 413k-parameter GPT?
+"""Milestone 6b adds held-out H in {8, 32} (uncompressed and keep 1/16) via `python3 composition.py run8_32`; see LOG.md.
+Milestone 6a (H6 pilot): does rand-k compression's excess loss compose additively with the outer delay H on the 413k-parameter GPT?
 Same model, data, budget (3,840 steps), M = 4, inner lr 2e-3, plain outer step as 3d/4a. New cells: keep p in {0.25, 0.0625} x H in {4, 64}, seeds 0 to 2.
 Existing cells read from gpt_retune_all (uncompressed, H in {4, 16, 64}, lr 2e-3) and gpt_compression (H = 16 rand-k).
 Usage: python3 composition.py run   then   python3 composition.py report. Results append to composition.jsonl."""
@@ -8,6 +9,7 @@ from multiprocessing import Pool
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, "..", "..", "src"))
 M, B, STEPS, LR = 4, 16, 3840, 2e-3
+HOLD = [8, 32]
 KEEPS, HS, SEEDS = [0.25, 0.0625], [4, 64], [0, 1, 2]
 PATH = os.path.join(HERE, "composition.jsonl")
 OLD = os.path.join(HERE, "..", "gpt_retune_all", "retune.jsonl")
@@ -26,7 +28,7 @@ def run(job):
     inner = lambda p: torch.optim.AdamW(p, lr=LR, betas=(0.9, 0.95), weight_decay=0.0)
     outer = lambda p: torch.optim.SGD(p, lr=1.0)
     t0 = time.time()
-    d = DiLoCo(model, lambda m, rng: m(*data.batch("train", B, rng)), workers=M, H=H, inner=inner, outer=outer, seed=seed, compress=rand_k(keep))
+    d = DiLoCo(model, lambda m, rng: m(*data.batch("train", B, rng)), workers=M, H=H, inner=inner, outer=outer, seed=seed, compress=None if keep == 1.0 else rand_k(keep))
     for _ in range(STEPS // H):
         d.round()
     model.eval()
@@ -65,13 +67,24 @@ def report():
                 miss = ex(H, p) - ex(16, p); worst = max(worst, abs(miss))
                 print(f"H={H} keep {p}: measured {ex(H, p):+.4f} predicted {ex(16, p):+.4f} miss {miss:+.4f}")
     print(f"worst miss {worst:.4f}")
+    if (8, 1.0) in c and (32, 1.0) in c:
+        import math
+        p = 0.0625
+        g4, g64 = ex(4, p) / ex(16, p), ex(64, p) / ex(16, p)
+        g = lambda H: 1 + (g4 - 1) * (4 - math.log2(H)) / 2 * (1 if H < 16 else 0) + (g64 - 1) * (math.log2(H) - 4) / 2 * (1 if H > 16 else 0)
+        print("\n6b held-out H at keep 1/16: product rule vs additive rule vs measured excess")
+        for H in (8, 32):
+            if (H, p) in c:
+                m, pr, ad = ex(H, p), g(H) * ex(16, p), ex(16, p)
+                print(f"H={H}: measured {m:+.4f}  product {pr:+.4f} (err {pr - m:+.4f})  additive {ad:+.4f} (err {ad - m:+.4f})")
 
 
 if __name__ == "__main__":
     if sys.argv[1] == "report":
         report(); sys.exit()
     have = {(r["keep"], r["H"], r["seed"]) for r in load(PATH)}
-    jobs = [(k, H, s) for s in SEEDS for H in HS for k in KEEPS if (k, H, s) not in have]
+    hs, ks = (HOLD, [1.0, 0.0625]) if sys.argv[1] == "run8_32" else (HS, KEEPS)
+    jobs = [(k, H, s) for s in SEEDS for H in hs for k in ks if (k, H, s) not in have]
     with Pool(4) as p, open(PATH, "a") as f:
         for r in p.imap_unordered(run, jobs):
             f.write(json.dumps(r) + "\n"); f.flush(); print(r, flush=True)

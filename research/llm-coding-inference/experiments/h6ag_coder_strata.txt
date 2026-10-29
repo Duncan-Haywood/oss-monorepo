@@ -1,0 +1,208 @@
+fear: corpus 6683, prevalence 0.0115, 500 draws: coder | design | n | rule | coverage % | mean half-width pts
+# LLM score>0: coder-positive 304 items, prevalence there 0.1382; coder-negative 6379, prevalence there 0.0055
+LLM score>0 | 1 pooled | 400 | human normal | 94.4 | 0.984
+LLM score>0 | 1 pooled | 400 | human Wilson (WH) | 95.2 | 1.077
+LLM score>0 | 1 pooled | 400 | P Wilson n_eff (WE) | 94.8 | 1.024
+LLM score>0 | 1 pooled | 1000 | human normal | 95.0 | 0.610
+LLM score>0 | 1 pooled | 1000 | human Wilson (WH) | 94.4 | 0.630
+LLM score>0 | 1 pooled | 1000 | P Wilson n_eff (WE) | 94.0 | 0.605
+LLM score>0 | 4 groups | 400 | human normal | 88.8 | 0.994
+LLM score>0 | 4 groups | 400 | human Wilson (WH) | 93.6 | 1.083
+LLM score>0 | 4 groups | 400 | P Wilson n_eff (WE) | 92.4 | 1.028
+LLM score>0 | 4 groups | 1000 | human normal | 92.4 | 0.601
+LLM score>0 | 4 groups | 1000 | human Wilson (WH) | 91.8 | 0.621
+LLM score>0 | 4 groups | 1000 | P Wilson n_eff (WE) | 92.2 | 0.596
+LLM score>0 | 2 coder cells | 400 | human normal | 88.6 | 0.772
+LLM score>0 | 2 coder cells | 400 | human Wilson (WH) | 88.8 | 0.813
+LLM score>0 | 2 coder cells | 400 | P Wilson n_eff (WE) | 88.8 | 0.813
+LLM score>0 | 2 coder cells | 1000 | human normal | 93.4 | 0.468
+LLM score>0 | 2 coder cells | 1000 | human Wilson (WH) | 94.0 | 0.477
+LLM score>0 | 2 coder cells | 1000 | P Wilson n_eff (WE) | 94.0 | 0.477
+LLM score>0 | 8 group x cell | 400 | human normal | 88.8 | 0.764
+LLM score>0 | 8 group x cell | 400 | human Wilson (WH) | 88.2 | 0.803
+LLM score>0 | 8 group x cell | 400 | P Wilson n_eff (WE) | 88.2 | 0.803
+LLM score>0 | 8 group x cell | 1000 | human normal | 92.6 | 0.455
+LLM score>0 | 8 group x cell | 1000 | human Wilson (WH) | 93.6 | 0.463
+LLM score>0 | 8 group x cell | 1000 | P Wilson n_eff (WE) | 93.6 | 0.463
+# LLM 3x cut: coder-positive 167 items, prevalence there 0.2216; coder-negative 6516, prevalence there 0.0061
+LLM 3x cut | 1 pooled | 400 | human normal | 94.4 | 0.984
+LLM 3x cut | 1 pooled | 400 | human Wilson (WH) | 95.2 | 1.077
+LLM 3x cut | 1 pooled | 400 | P Wilson n_eff (WE) | 93.6 | 0.998
+LLM 3x cut | 1 pooled | 1000 | human normal | 95.0 | 0.610
+LLM 3x cut | 1 pooled | 1000 | human Wilson (WH) | 94.4 | 0.630
+LLM 3x cut | 1 pooled | 1000 | P Wilson n_eff (WE) | 94.2 | 0.593
+LLM 3x cut | 4 groups | 400 | human normal | 88.0 | 0.987
+LLM 3x cut | 4 groups | 400 | human Wilson (WH) | 94.2 | 1.074
+LLM 3x cut | 4 groups | 400 | P Wilson n_eff (WE) | 92.2 | 0.994
+LLM 3x cut | 4 groups | 1000 | human normal | 93.4 | 0.599
+LLM 3x cut | 4 groups | 1000 | human Wilson (WH) | 94.8 | 0.618
+LLM 3x cut | 4 groups | 1000 | P Wilson n_eff (WE) | 94.8 | 0.583
+LLM 3x cut | 2 coder cells | 400 | human normal | 90.0 | 0.786
+LLM 3x cut | 2 coder cells | 400 | human Wilson (WH) | 88.0 | 0.827
+LLM 3x cut | 2 coder cells | 400 | P Wilson n_eff (WE) | 88.0 | 0.827
+LLM 3x cut | 2 coder cells | 1000 | human normal | 92.0 | 0.471
+LLM 3x cut | 2 coder cells | 1000 | human Wilson (WH) | 91.6 | 0.480
+LLM 3x cut | 2 coder cells | 1000 | P Wilson n_eff (WE) | 91.6 | 0.480
+LLM 3x cut | 8 group x cell | 400 | human normal | 87.2 | 0.736
+LLM 3x cut | 8 group x cell | 400 | human Wilson (WH) | 88.8 | 0.774
+LLM 3x cut | 8 group x cell | 400 | P Wilson n_eff (WE) | 88.8 | 0.774
+LLM 3x cut | 8 group x cell | 1000 | human normal | 89.0 | 0.456
+LLM 3x cut | 8 group x cell | 1000 | human Wilson (WH) | 90.2 | 0.465
+LLM 3x cut | 8 group x cell | 1000 | P Wilson n_eff (WE) | 90.2 | 0.465
+
+sadness: corpus 6683, prevalence 0.0230, 500 draws: coder | design | n | rule | coverage % | mean half-width pts
+# LLM score>0: coder-positive 217 items, prevalence there 0.3502; coder-negative 6466, prevalence there 0.0121
+LLM score>0 | 1 pooled | 400 | human normal | 96.4 | 1.418
+LLM score>0 | 1 pooled | 400 | human Wilson (WH) | 94.6 | 1.477
+LLM score>0 | 1 pooled | 400 | P Wilson n_eff (WE) | 95.6 | 1.325
+LLM score>0 | 1 pooled | 1000 | human normal | 96.0 | 0.859
+LLM score>0 | 1 pooled | 1000 | human Wilson (WH) | 95.6 | 0.872
+LLM score>0 | 1 pooled | 1000 | P Wilson n_eff (WE) | 95.6 | 0.793
+LLM score>0 | 4 groups | 400 | human normal | 94.0 | 1.397
+LLM score>0 | 4 groups | 400 | human Wilson (WH) | 94.2 | 1.454
+LLM score>0 | 4 groups | 400 | P Wilson n_eff (WE) | 94.2 | 1.303
+LLM score>0 | 4 groups | 1000 | human normal | 94.0 | 0.842
+LLM score>0 | 4 groups | 1000 | human Wilson (WH) | 95.6 | 0.854
+LLM score>0 | 4 groups | 1000 | P Wilson n_eff (WE) | 96.0 | 0.773
+LLM score>0 | 2 coder cells | 400 | human normal | 90.8 | 1.107
+LLM score>0 | 2 coder cells | 400 | human Wilson (WH) | 90.8 | 1.134
+LLM score>0 | 2 coder cells | 400 | P Wilson n_eff (WE) | 90.8 | 1.134
+LLM score>0 | 2 coder cells | 1000 | human normal | 93.0 | 0.669
+LLM score>0 | 2 coder cells | 1000 | human Wilson (WH) | 93.2 | 0.675
+LLM score>0 | 2 coder cells | 1000 | P Wilson n_eff (WE) | 93.2 | 0.675
+LLM score>0 | 8 group x cell | 400 | human normal | 91.4 | 1.084
+LLM score>0 | 8 group x cell | 400 | human Wilson (WH) | 92.2 | 1.110
+LLM score>0 | 8 group x cell | 400 | P Wilson n_eff (WE) | 92.2 | 1.110
+LLM score>0 | 8 group x cell | 1000 | human normal | 93.4 | 0.648
+LLM score>0 | 8 group x cell | 1000 | human Wilson (WH) | 94.2 | 0.653
+LLM score>0 | 8 group x cell | 1000 | P Wilson n_eff (WE) | 94.2 | 0.653
+# LLM 3x cut: coder-positive 492 items, prevalence there 0.2134; coder-negative 6191, prevalence there 0.0079
+LLM 3x cut | 1 pooled | 400 | human normal | 96.4 | 1.418
+LLM 3x cut | 1 pooled | 400 | human Wilson (WH) | 94.6 | 1.477
+LLM 3x cut | 1 pooled | 400 | P Wilson n_eff (WE) | 95.0 | 1.360
+LLM 3x cut | 1 pooled | 1000 | human normal | 96.0 | 0.859
+LLM 3x cut | 1 pooled | 1000 | human Wilson (WH) | 95.6 | 0.872
+LLM 3x cut | 1 pooled | 1000 | P Wilson n_eff (WE) | 94.4 | 0.810
+LLM 3x cut | 4 groups | 400 | human normal | 92.6 | 1.392
+LLM 3x cut | 4 groups | 400 | human Wilson (WH) | 96.0 | 1.449
+LLM 3x cut | 4 groups | 400 | P Wilson n_eff (WE) | 93.0 | 1.336
+LLM 3x cut | 4 groups | 1000 | human normal | 94.8 | 0.841
+LLM 3x cut | 4 groups | 1000 | human Wilson (WH) | 97.4 | 0.854
+LLM 3x cut | 4 groups | 1000 | P Wilson n_eff (WE) | 97.0 | 0.793
+LLM 3x cut | 2 coder cells | 400 | human normal | 90.2 | 1.011
+LLM 3x cut | 2 coder cells | 400 | human Wilson (WH) | 92.4 | 1.032
+LLM 3x cut | 2 coder cells | 400 | P Wilson n_eff (WE) | 92.4 | 1.032
+LLM 3x cut | 2 coder cells | 1000 | human normal | 93.6 | 0.601
+LLM 3x cut | 2 coder cells | 1000 | human Wilson (WH) | 94.0 | 0.605
+LLM 3x cut | 2 coder cells | 1000 | P Wilson n_eff (WE) | 94.0 | 0.605
+LLM 3x cut | 8 group x cell | 400 | human normal | 90.4 | 0.944
+LLM 3x cut | 8 group x cell | 400 | human Wilson (WH) | 92.2 | 0.962
+LLM 3x cut | 8 group x cell | 400 | P Wilson n_eff (WE) | 92.2 | 0.962
+LLM 3x cut | 8 group x cell | 1000 | human normal | 93.8 | 0.555
+LLM 3x cut | 8 group x cell | 1000 | human Wilson (WH) | 93.6 | 0.558
+LLM 3x cut | 8 group x cell | 1000 | P Wilson n_eff (WE) | 93.6 | 0.558
+
+admiration: corpus 6683, prevalence 0.0811, 500 draws: coder | design | n | rule | coverage % | mean half-width pts
+# LLM score>0: coder-positive 1547 items, prevalence there 0.2909; coder-negative 5136, prevalence there 0.0179
+LLM score>0 | 1 pooled | 400 | human normal | 95.2 | 2.589
+LLM score>0 | 1 pooled | 400 | human Wilson (WH) | 95.2 | 2.605
+LLM score>0 | 1 pooled | 400 | P Wilson n_eff (WE) | 95.8 | 2.350
+LLM score>0 | 1 pooled | 1000 | human normal | 96.0 | 1.561
+LLM score>0 | 1 pooled | 1000 | human Wilson (WH) | 95.4 | 1.564
+LLM score>0 | 1 pooled | 1000 | P Wilson n_eff (WE) | 94.4 | 1.415
+LLM score>0 | 4 groups | 400 | human normal | 94.8 | 2.570
+LLM score>0 | 4 groups | 400 | human Wilson (WH) | 95.8 | 2.586
+LLM score>0 | 4 groups | 400 | P Wilson n_eff (WE) | 96.4 | 2.335
+LLM score>0 | 4 groups | 1000 | human normal | 95.6 | 1.555
+LLM score>0 | 4 groups | 1000 | human Wilson (WH) | 94.8 | 1.558
+LLM score>0 | 4 groups | 1000 | P Wilson n_eff (WE) | 94.6 | 1.411
+LLM score>0 | 2 coder cells | 400 | human normal | 93.8 | 1.930
+LLM score>0 | 2 coder cells | 400 | human Wilson (WH) | 96.2 | 1.936
+LLM score>0 | 2 coder cells | 400 | P Wilson n_eff (WE) | 96.2 | 1.936
+LLM score>0 | 2 coder cells | 1000 | human normal | 94.6 | 1.139
+LLM score>0 | 2 coder cells | 1000 | human Wilson (WH) | 94.8 | 1.141
+LLM score>0 | 2 coder cells | 1000 | P Wilson n_eff (WE) | 94.8 | 1.141
+LLM score>0 | 8 group x cell | 400 | human normal | 94.4 | 1.932
+LLM score>0 | 8 group x cell | 400 | human Wilson (WH) | 95.2 | 1.939
+LLM score>0 | 8 group x cell | 400 | P Wilson n_eff (WE) | 95.2 | 1.939
+LLM score>0 | 8 group x cell | 1000 | human normal | 95.0 | 1.130
+LLM score>0 | 8 group x cell | 1000 | human Wilson (WH) | 95.8 | 1.131
+LLM score>0 | 8 group x cell | 1000 | P Wilson n_eff (WE) | 95.8 | 1.131
+# LLM 3x cut: coder-positive 1651 items, prevalence there 0.2768; coder-negative 5032, prevalence there 0.0169
+LLM 3x cut | 1 pooled | 400 | human normal | 95.2 | 2.589
+LLM 3x cut | 1 pooled | 400 | human Wilson (WH) | 95.2 | 2.605
+LLM 3x cut | 1 pooled | 400 | P Wilson n_eff (WE) | 96.2 | 2.363
+LLM 3x cut | 1 pooled | 1000 | human normal | 96.0 | 1.561
+LLM 3x cut | 1 pooled | 1000 | human Wilson (WH) | 95.4 | 1.564
+LLM 3x cut | 1 pooled | 1000 | P Wilson n_eff (WE) | 94.0 | 1.423
+LLM 3x cut | 4 groups | 400 | human normal | 94.6 | 2.582
+LLM 3x cut | 4 groups | 400 | human Wilson (WH) | 95.4 | 2.597
+LLM 3x cut | 4 groups | 400 | P Wilson n_eff (WE) | 95.4 | 2.358
+LLM 3x cut | 4 groups | 1000 | human normal | 95.8 | 1.554
+LLM 3x cut | 4 groups | 1000 | human Wilson (WH) | 96.2 | 1.557
+LLM 3x cut | 4 groups | 1000 | P Wilson n_eff (WE) | 94.6 | 1.418
+LLM 3x cut | 2 coder cells | 400 | human normal | 94.4 | 1.940
+LLM 3x cut | 2 coder cells | 400 | human Wilson (WH) | 94.6 | 1.947
+LLM 3x cut | 2 coder cells | 400 | P Wilson n_eff (WE) | 94.6 | 1.947
+LLM 3x cut | 2 coder cells | 1000 | human normal | 95.4 | 1.130
+LLM 3x cut | 2 coder cells | 1000 | human Wilson (WH) | 95.2 | 1.132
+LLM 3x cut | 2 coder cells | 1000 | P Wilson n_eff (WE) | 95.2 | 1.132
+LLM 3x cut | 8 group x cell | 400 | human normal | 95.0 | 1.936
+LLM 3x cut | 8 group x cell | 400 | human Wilson (WH) | 94.8 | 1.943
+LLM 3x cut | 8 group x cell | 400 | P Wilson n_eff (WE) | 94.8 | 1.943
+LLM 3x cut | 8 group x cell | 1000 | human normal | 94.4 | 1.130
+LLM 3x cut | 8 group x cell | 1000 | human Wilson (WH) | 95.0 | 1.131
+LLM 3x cut | 8 group x cell | 1000 | P Wilson n_eff (WE) | 95.0 | 1.131
+
+neutral: corpus 6683, prevalence 0.2327, 500 draws: coder | design | n | rule | coverage % | mean half-width pts
+# LLM score>0: coder-positive 2567 items, prevalence there 0.3132; coder-negative 4116, prevalence there 0.1825
+LLM score>0 | 1 pooled | 400 | human normal | 95.8 | 4.012
+LLM score>0 | 1 pooled | 400 | human Wilson (WH) | 96.0 | 4.001
+LLM score>0 | 1 pooled | 400 | P Wilson n_eff (WE) | 95.6 | 3.950
+LLM score>0 | 1 pooled | 1000 | human normal | 94.6 | 2.414
+LLM score>0 | 1 pooled | 1000 | human Wilson (WH) | 95.0 | 2.412
+LLM score>0 | 1 pooled | 1000 | P Wilson n_eff (WE) | 95.6 | 2.383
+LLM score>0 | 4 groups | 400 | human normal | 94.8 | 3.997
+LLM score>0 | 4 groups | 400 | human Wilson (WH) | 95.2 | 3.987
+LLM score>0 | 4 groups | 400 | P Wilson n_eff (WE) | 94.8 | 3.936
+LLM score>0 | 4 groups | 1000 | human normal | 95.6 | 2.404
+LLM score>0 | 4 groups | 1000 | human Wilson (WH) | 95.4 | 2.401
+LLM score>0 | 4 groups | 1000 | P Wilson n_eff (WE) | 95.6 | 2.373
+LLM score>0 | 2 coder cells | 400 | human normal | 94.0 | 3.952
+LLM score>0 | 2 coder cells | 400 | human Wilson (WH) | 93.8 | 3.942
+LLM score>0 | 2 coder cells | 400 | P Wilson n_eff (WE) | 93.8 | 3.942
+LLM score>0 | 2 coder cells | 1000 | human normal | 94.8 | 2.376
+LLM score>0 | 2 coder cells | 1000 | human Wilson (WH) | 94.0 | 2.374
+LLM score>0 | 2 coder cells | 1000 | P Wilson n_eff (WE) | 94.0 | 2.374
+LLM score>0 | 8 group x cell | 400 | human normal | 94.6 | 3.931
+LLM score>0 | 8 group x cell | 400 | human Wilson (WH) | 95.2 | 3.920
+LLM score>0 | 8 group x cell | 400 | P Wilson n_eff (WE) | 95.2 | 3.920
+LLM score>0 | 8 group x cell | 1000 | human normal | 94.8 | 2.366
+LLM score>0 | 8 group x cell | 1000 | human Wilson (WH) | 94.8 | 2.363
+LLM score>0 | 8 group x cell | 1000 | P Wilson n_eff (WE) | 94.8 | 2.363
+# LLM 3x cut: coder-positive 3285 items, prevalence there 0.3032; coder-negative 3398, prevalence there 0.1645
+LLM 3x cut | 1 pooled | 400 | human normal | 95.8 | 4.012
+LLM 3x cut | 1 pooled | 400 | human Wilson (WH) | 96.0 | 4.001
+LLM 3x cut | 1 pooled | 400 | P Wilson n_eff (WE) | 94.4 | 3.940
+LLM 3x cut | 1 pooled | 1000 | human normal | 94.6 | 2.414
+LLM 3x cut | 1 pooled | 1000 | human Wilson (WH) | 95.0 | 2.412
+LLM 3x cut | 1 pooled | 1000 | P Wilson n_eff (WE) | 95.2 | 2.377
+LLM 3x cut | 4 groups | 400 | human normal | 94.8 | 3.992
+LLM 3x cut | 4 groups | 400 | human Wilson (WH) | 95.8 | 3.981
+LLM 3x cut | 4 groups | 400 | P Wilson n_eff (WE) | 94.8 | 3.924
+LLM 3x cut | 4 groups | 1000 | human normal | 95.2 | 2.403
+LLM 3x cut | 4 groups | 1000 | human Wilson (WH) | 95.6 | 2.400
+LLM 3x cut | 4 groups | 1000 | P Wilson n_eff (WE) | 96.6 | 2.368
+LLM 3x cut | 2 coder cells | 400 | human normal | 95.0 | 3.940
+LLM 3x cut | 2 coder cells | 400 | human Wilson (WH) | 95.0 | 3.930
+LLM 3x cut | 2 coder cells | 400 | P Wilson n_eff (WE) | 95.0 | 3.930
+LLM 3x cut | 2 coder cells | 1000 | human normal | 95.0 | 2.364
+LLM 3x cut | 2 coder cells | 1000 | human Wilson (WH) | 94.8 | 2.361
+LLM 3x cut | 2 coder cells | 1000 | P Wilson n_eff (WE) | 94.8 | 2.361
+LLM 3x cut | 8 group x cell | 400 | human normal | 95.8 | 3.926
+LLM 3x cut | 8 group x cell | 400 | human Wilson (WH) | 96.4 | 3.916
+LLM 3x cut | 8 group x cell | 400 | P Wilson n_eff (WE) | 96.4 | 3.916
+LLM 3x cut | 8 group x cell | 1000 | human normal | 94.0 | 2.355
+LLM 3x cut | 8 group x cell | 1000 | human Wilson (WH) | 94.4 | 2.353
+LLM 3x cut | 8 group x cell | 1000 | P Wilson n_eff (WE) | 94.4 | 2.353
+

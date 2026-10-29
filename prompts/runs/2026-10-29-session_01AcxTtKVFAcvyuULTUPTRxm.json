@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-29",
+  "session": "https://claude.ai/code/session_01AcxTtKVFAcvyuULTUPTRxm",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: read ./prompt.md",
+  "input_sha256": "309d74eee7a943668cd28140b1420200644d428dcdd742af9d32a7d7ced9746f",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-29T07:15:36Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/11343",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/promptctl.py",
+      "why": "venture-preflight (5+ min) and runcost not run; local sketch/page/usage tests and a Chromium drag check run instead"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-29-drag-a-wall-framing-takeoff-sketch.md"
+  ],
+  "goal": null,
+  "notes": "Flagship 2 (wall-framing-takeoff): Move tool in plan sketch. node --test page/sketch/usage: 46 pass; eval-sketch-click.mjs all ok.",
+  "corrections": [],
+  "redteam": null
+}

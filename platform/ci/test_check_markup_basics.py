@@ -26,6 +26,26 @@ class MarkupBasics(unittest.TestCase):
         out = c.problems(OK.format('<a tabindex="2" href="http://example.com">z</a>'))
         self.assertEqual(out, ['http:// href', 'positive tabindex'])
 
+    def test_tabindex_zero_negative_and_signed(self):
+        self.assertEqual(c.problems(OK.format('<p tabindex="0">a</p><p tabindex="-1">b</p>')), [])
+        for v in ("+2", " 3 ", "2px"):
+            self.assertEqual(c.problems(OK.format('<p tabindex="%s">a</p>' % v)), ["positive tabindex"], v)
+
+    def test_main_exit_code_and_count(self):
+        import contextlib, io, tempfile
+        from pathlib import Path
+        with tempfile.TemporaryDirectory() as d:
+            (Path(d) / "ok.html").write_text(OK.format("<p>x</p>"))
+            buf = io.StringIO()
+            with contextlib.redirect_stdout(buf):
+                self.assertEqual(c.main(["--root", d]), 0)
+            self.assertIn("0 problem(s)", buf.getvalue())
+            (Path(d) / "bad.html").write_text(OK.format('<img src="a"><p tabindex="2">x</p>'))
+            buf = io.StringIO()
+            with contextlib.redirect_stdout(buf):
+                self.assertEqual(c.main(["--root", d]), 1)
+            self.assertIn("2 problem(s)", buf.getvalue())
+
     def test_fragment_needs_no_head(self):
         self.assertEqual(c.problems('<p>hi</p>'), [])
 
