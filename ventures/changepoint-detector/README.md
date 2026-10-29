@@ -1120,3 +1120,14 @@ The last section wanted a longer seasonal series with a documented event. Euro-a
 - **The warning fires in all four cells, and so do 12 to 18 other steps**, from 1996-12 to 2011-06: the series is a business cycle with a long run of small shifts, not one event. So the 3-in-2-cycles rule again does not separate a shock from a shape; with this many steps it cannot fail to find three close together.
 - Takeaway: on a longer series the warning is no better evidence than on 72 months. The text's advice (check the dates against the series) is what a reader should do; the number of steps cut (16 to 22 here) is the stronger signal that the segmentation is chasing a cycle, and a candidate for a rule.
 - Still wanted: a null series of the same length with no event, so the warning rate means something. No such series is in the repository.
+
+### A same-length null (2026-10-29)
+
+`eval/drift-warning-null195.mjs` (output `eval/drift-warning-null195.out.txt`, test `drift-warning-null195.test.mjs`) builds 195 synthetic months: a fixed 12-month shape, a slow rise of 0.2% a month and Gaussian noise (sd 1%, 2% or 4% of the level), no shock and no drifting shape. 40 seeds per noise setting, `--drift --period 12`, raw and log, with and without `--trend bend`. Synthetic, so it says what the rule does on a clean null, not on real data.
+
+- **White noise, with `--trend bend`:** the warning fires in 0 to 3 of 40 (0% to 8%) in every cell, with 0.4 to 1.1 steps on average. On a clean series the warning is quiet.
+- **White noise, no trend term:** the rise is read as steps. At sd 1% it fires in 40 of 40 (16 steps on average); at sd 2%, 8 to 17 of 40; at sd 4%, 2 to 3 of 40. Whether it fires depends on how the noise compares with the drift, so it is no test of a seasonal shape here.
+- **Autocorrelated noise (rho 0.5), even with `--trend bend`:** 30 to 35 of 40 at every noise level, with 7 to 9 steps. This is the finding: autocorrelation alone, with no shock and no changing shape, makes the warning fire as often as it did on the real euro series (4 of 4).
+
+So the 16 to 22 steps on the real euro series are what a white-noise null does with no trend term (16 steps), and the warning on it is also what a null with autocorrelation does (8 to 9 steps, trend modelled). Neither a trend nor the warning is evidence of a shock or a shape. The real series' step count was above both nulls, which is weak evidence of a cycle; one real series against a synthetic null with a made-up shape does not fix a rule. Not changed: the rule or its text. Candidate next: point the warning's text at `--ar1` when the residuals are autocorrelated (the `rangeWarning` already does this).
+
