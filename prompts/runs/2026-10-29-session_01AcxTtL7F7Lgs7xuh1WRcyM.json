@@ -1,0 +1,54 @@
+{
+  "date": "2026-10-29",
+  "session": "https://claude.ai/code/session_01AcxTtL7F7Lgs7xuh1WRcyM",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-29T21:09:37Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 11479,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "docs/reports/polish-2026-10-29-site-scan.md",
+      "issue": "Next-run list named shift-roster-builder/changepoint-detector as lacking a first-screen button; both already had one, costing an audit."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "Skipped waiting for the 20-minute site build and screenshots; the chosen work was a source-level test that needed no built site.",
+      "did": "audited flagship sources directly",
+      "result": "fine, but no before/after screenshots this run"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-29-keeping-the-first-screen-button.md",
+    "docs/reports/polish-2026-10-29-flagship-cta-check.md"
+  ],
+  "goal": null,
+  "notes": "",
+  "corrections": [],
+  "redteam": null
+}
