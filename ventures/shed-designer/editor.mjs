@@ -42,11 +42,99 @@ export function pitchFromRise(rise, width) {
   return clamp(Math.round((rise * 12) / (width / 2)), 2, 14);
 }
 
+const ARROWS = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, 1], ArrowDown: [0, -1] };
+
+/**
+ * The keyboard twin of a plan-view resize handle: arrows move the edge the
+ * handle sits on by 6" (24" with Shift), as a drag would. Null when the key
+ * does nothing to this handle.
+ * @param {'len'|'wid'|'both'} id
+ */
+export function nudgePlan(design, id, key, shift = false) {
+  const dir = ARROWS[key];
+  if (!dir) return null;
+  const step = shift ? 24 : 6;
+  const next = { ...design };
+  if (id !== 'wid' && dir[0]) next.length = clamp(snap(design.length + dir[0] * step, 6), 48, 480);
+  if (id !== 'len' && dir[1]) next.width = clamp(snap(design.width + dir[1] * step, 6), 48, 240);
+  return next.length === design.length && next.width === design.width ? null : next;
+}
+
+/**
+ * Arrow keys on a door or window move it 1" (12" with Shift) in the direction
+ * of the arrow on the plan picture, along its wall.
+ */
+export function nudgeOpening(design, op, key, shift = false) {
+  const dir = ARROWS[key];
+  if (!dir) return null;
+  const a = axisStart(design, op);
+  const L = design.length; const W = design.width;
+  const c = op.wall === 'front' ? [a + op.width / 2, 0] : op.wall === 'back' ? [a + op.width / 2, W]
+    : op.wall === 'left' ? [0, a + op.width / 2] : [L, a + op.width / 2];
+  const step = shift ? 12 : 1;
+  const drop = dropOpening(design, op, c[0] + dir[0] * step, c[1] + dir[1] * step);
+  if (drop.wall === op.wall && drop.offset === op.offset) return null;
+  return { ...design, openings: design.openings.map((o) => (o.id === op.id ? { ...o, ...drop } : o)) };
+}
+
+/**
+ * Arrow keys on an end-view handle: the peak changes the pitch a whole step,
+ * the wall top the wall height by 1" (12" with Shift), the eave tip the
+ * overhang by 1" (6" with Shift; left is longer, as the tip sits on the left).
+ * Each turns off the matching automatic choice, as a drag does.
+ * @param {'peak'|'wall'|'eave'} id
+ */
+export function nudgeEnd(design, id, key, shift = false) {
+  const dir = ARROWS[key];
+  if (!dir) return null;
+  const next = { ...design };
+  if (id === 'peak' && dir[1]) { next.pitch = clamp(design.pitch + dir[1], 2, 14); next.autoPitch = false; }
+  else if (id === 'wall' && dir[1]) { next.wallHeight = clamp(design.wallHeight + dir[1] * (shift ? 12 : 1), 60, 144); next.autoWall = false; }
+  else if (id === 'eave' && (dir[0] || dir[1])) { next.overhang = clamp(design.overhang + (dir[0] ? -dir[0] : dir[1]) * (shift ? 6 : 1), 0, 36); next.autoOverhang = false; }
+  else return null;
+  return next.pitch === design.pitch && next.wallHeight === design.wallHeight && next.overhang === design.overhang ? null : next;
+}
+
 function el(name, attrs = {}, parent) {
   const e = document.createElementNS(NS, name);
   for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, String(v));
   if (parent) parent.appendChild(e);
   return e;
+}
+
+/** The data-key of the focused handle or opening in this svg, so a redraw can give focus back. */
+function focusedKey(svg) {
+  const a = /** @type {any} */ (document.activeElement);
+  return a && svg.contains(a) ? a.getAttribute('data-key') : null;
+}
+function refocus(svg, key) {
+  if (!key) return;
+  const e = /** @type {any} */ (svg.querySelector(`[data-key="${key}"]`));
+  e?.focus({ preventScroll: true });
+}
+
+/**
+ * SVG user units per screen pixel, so a handle can be made big enough to hit
+ * with a finger. The picture is letterboxed into the box, so the tighter of
+ * the two directions sets the scale.
+ */
+function unitsPerPx(svg, viewWidth, viewHeight) {
+  const r = svg.getBoundingClientRect?.();
+  return r && r.width > 0 && r.height > 0 ? Math.max(viewWidth / r.width, viewHeight / r.height) : 1;
+}
+
+/**
+ * A round drag handle: the visible dot, plus a transparent circle around it at
+ * least 44 px across on screen (the usual minimum touch target), which takes
+ * the pointer and the keyboard. The hit circle sits under the doors and
+ * windows, so one close to a handle can still be dragged; the dot sits on top.
+ */
+function handleAt(layers, x, y, upp, attrs) {
+  const r = Math.max(7, 9 * upp);
+  const hit = el('circle', { cx: x, cy: y, r: Math.max(r, 23 * upp), class: 'handle-hit', ...attrs }, layers.hit);
+  const dot = el('circle', { cx: x, cy: y, r, class: 'handle', 'aria-hidden': 'true' }, layers.dot);
+  const moveTo = (cx, cy) => { for (const c of [dot, hit]) { c.setAttribute('cx', String(cx)); c.setAttribute('cy', String(cy)); } };
+  return { hit, moveTo };
 }
 
 /** Model point under a pointer event, given a function from svg user units to model. */
@@ -64,12 +152,15 @@ function svgPoint(svg, evt) {
  * @param {{ onChange: (d: any, label: string) => void, onPreview?: (d: any) => void, warnings?: string[] }} hooks
  */
 export function drawPlan(svg, design, hooks) {
+  const keep = focusedKey(svg);
   while (svg.firstChild) svg.removeChild(svg.firstChild);
   const L = design.length;
   const W = design.width;
   const pad = 46;
   const extent = Math.max(L, W) + 2 * pad;
-  svg.setAttribute('viewBox', `${-pad} ${-pad} ${Math.max(L + 2 * pad, extent * 0.9)} ${W + 2 * pad}`);
+  const viewW = Math.max(L + 2 * pad, extent * 0.9);
+  svg.setAttribute('viewBox', `${-pad} ${-pad} ${viewW} ${W + 2 * pad}`);
+  const upp = unitsPerPx(svg, viewW, W + 2 * pad);
   const Y = (y) => W - y; // front (y = 0) at the bottom of the picture
   const g = el('g', {}, svg);
   el('rect', { x: -12, y: -12, width: L + 24, height: W + 24, class: 'pad' }, g);
@@ -84,6 +175,7 @@ export function drawPlan(svg, design, hooks) {
   const side = lab(-26, W / 2, fmtFtIn(W));
   side.setAttribute('transform', `rotate(-90 -26 ${W / 2})`);
 
+  const layers = { hit: el('g', {}, g), dot: /** @type {any} */ (null) };
   // Openings.
   const openingBox = (op, dsg = design) => {
     const a = axisStart(dsg, op);
@@ -95,8 +187,14 @@ export function drawPlan(svg, design, hooks) {
   };
   for (const op of design.openings) {
     const { x, y, w, h } = openingBox(op);
-    const r = el('rect', { x, y, width: w, height: h, rx: 2, class: `opening ${op.kind}`, tabindex: 0, role: 'button',
-      'aria-label': `${op.kind} ${op.width} by ${op.height} inches on the ${op.wall} wall, ${op.offset} inches from its left corner. Drag to move.` }, g);
+    const r = el('rect', { x, y, width: w, height: h, rx: 2, class: `opening ${op.kind}`, tabindex: 0, role: 'button', 'data-key': `op-${op.id}`,
+      'aria-label': `${op.kind} ${op.width} by ${op.height} inches on the ${op.wall} wall, ${op.offset} inches from its left corner. Drag, or use the arrow keys, to move it along the wall.` }, g);
+    r.addEventListener('keydown', (e) => {
+      if (!ARROWS[e.key]) return;
+      e.preventDefault();
+      const next = nudgeOpening(design, op, e.key, e.shiftKey);
+      if (next) hooks.onChange(next, `moved ${op.kind}`);
+    });
     const tl = el('title', {}, r); tl.textContent = `${op.kind === 'door' ? 'Door' : 'Window'} ${fmtIn(op.width)} x ${fmtIn(op.height)}: drag along a wall or onto another wall`;
     r.addEventListener('pointerdown', (e) => {
       e.preventDefault();
@@ -119,6 +217,7 @@ export function drawPlan(svg, design, hooks) {
     });
   }
 
+  layers.dot = el('g', {}, g);
   // Resize handles: right edge (length), back edge (width), back-right corner (both).
   const handles = [
     { id: 'len', x: L, y: W / 2, cursor: 'ew-resize', label: 'Drag to change the length' },
@@ -126,8 +225,15 @@ export function drawPlan(svg, design, hooks) {
     { id: 'both', x: L, y: 0, cursor: 'nwse-resize', label: 'Drag to change length and width' },
   ];
   for (const hd of handles) {
-    const c = el('circle', { cx: hd.x, cy: hd.y, r: 7, class: 'handle', style: `cursor:${hd.cursor}`, tabindex: 0, role: 'button', 'aria-label': hd.label }, g);
+    const label = `${hd.label} (now ${fmtFtIn(L)} by ${fmtFtIn(W)}); arrow keys work too`;
+    const { hit: c, moveTo } = handleAt(layers, hd.x, hd.y, upp, { style: `cursor:${hd.cursor}`, tabindex: 0, role: 'button', 'aria-label': label, 'data-key': `plan-${hd.id}` });
     const tl = el('title', {}, c); tl.textContent = hd.label;
+    c.addEventListener('keydown', (e) => {
+      if (!ARROWS[e.key]) return;
+      e.preventDefault();
+      const next = nudgePlan(design, /** @type {any} */ (hd.id), e.key, e.shiftKey);
+      if (next) hooks.onChange(next, 'resized footprint');
+    });
     c.addEventListener('pointerdown', (e) => {
       e.preventDefault();
       c.setPointerCapture(e.pointerId);
@@ -140,8 +246,7 @@ export function drawPlan(svg, design, hooks) {
         if (hd.id !== 'len') next.width = clamp(snap(W - p.y, 6), 48, 240);
         last = next;
         ghost.setAttribute('width', String(next.length)); ghost.setAttribute('y', String(W - next.width)); ghost.setAttribute('height', String(next.width));
-        c.setAttribute('cx', String(hd.id === 'wid' ? next.length / 2 : next.length));
-        c.setAttribute('cy', String(hd.id === 'len' ? W - next.width / 2 : W - next.width));
+        moveTo(hd.id === 'wid' ? next.length / 2 : next.length, hd.id === 'len' ? W - next.width / 2 : W - next.width);
         hooks.onPreview?.(next);
       };
       const up = () => {
@@ -151,6 +256,7 @@ export function drawPlan(svg, design, hooks) {
       c.addEventListener('pointermove', move); c.addEventListener('pointerup', up); c.addEventListener('pointercancel', up);
     });
   }
+  refocus(svg, keep);
 }
 
 /**
@@ -162,6 +268,7 @@ export function drawPlan(svg, design, hooks) {
  * @param {{ onChange: (d: any, label: string) => void, onPreview?: (d: any) => void }} hooks
  */
 export function drawEnd(svg, design, dims, hooks) {
+  const keep = focusedKey(svg);
   while (svg.firstChild) svg.removeChild(svg.firstChild);
   const W = design.width;
   const H = design.wallHeight;
@@ -171,7 +278,11 @@ export function drawEnd(svg, design, dims, hooks) {
   const maxRise = (W / 2) * (14 / 12);
   const pad = 40;
   const top = H + maxRise + 20;
-  svg.setAttribute('viewBox', `${-o - pad} ${-pad / 2} ${W + 2 * o + 2 * pad} ${top + pad}`);
+  const viewW = W + 2 * o + 2 * pad;
+  // Room below the ground line for the width label under it.
+  const viewH = top + pad + 14;
+  svg.setAttribute('viewBox', `${-o - pad} ${-pad / 2} ${viewW} ${viewH}`);
+  const upp = unitsPerPx(svg, viewW, viewH);
   const Y = (z) => top - z;
   const g = el('g', {}, svg);
   el('line', { x1: -o - 20, y1: Y(0), x2: W + o + 20, y2: Y(0), class: 'ground' }, g);
@@ -188,8 +299,15 @@ export function drawEnd(svg, design, dims, hooks) {
     { id: 'eave', x: -o, z: H - o * t, cursor: 'ew-resize', label: 'Drag to change the eave overhang' },
   ];
   for (const hd of handles) {
-    const c = el('circle', { cx: hd.x, cy: Y(hd.z), r: 7, class: 'handle', style: `cursor:${hd.cursor}`, tabindex: 0, role: 'button', 'aria-label': hd.label }, g);
+    const now = hd.id === 'peak' ? `${design.pitch}/12` : hd.id === 'wall' ? fmtFtIn(H) : fmtIn(o);
+    const { hit: c, moveTo } = handleAt({ hit: g, dot: g }, hd.x, Y(hd.z), upp, { style: `cursor:${hd.cursor}`, tabindex: 0, role: 'button', 'aria-label': `${hd.label} (now ${now}); arrow keys work too`, 'data-key': `end-${hd.id}` });
     const tl = el('title', {}, c); tl.textContent = hd.label;
+    c.addEventListener('keydown', (e) => {
+      if (!ARROWS[e.key]) return;
+      e.preventDefault();
+      const next = nudgeEnd(design, /** @type {any} */ (hd.id), e.key, e.shiftKey);
+      if (next) hooks.onChange(next, hd.id === 'peak' ? 'changed pitch' : hd.id === 'wall' ? 'changed wall height' : 'changed overhang');
+    });
     c.addEventListener('pointerdown', (e) => {
       e.preventDefault();
       c.setPointerCapture(e.pointerId);
@@ -201,12 +319,12 @@ export function drawEnd(svg, design, dims, hooks) {
         const next = { ...design };
         if (hd.id === 'peak') { next.pitch = pitchFromRise(z - H, W); next.autoPitch = false; }
         if (hd.id === 'wall') { next.wallHeight = clamp(snap(z, 1), 60, 144); next.autoWall = false; }
-        if (hd.id === 'eave') next.overhang = clamp(snap(-p.x, 1), 0, 36);
+        if (hd.id === 'eave') { next.overhang = clamp(snap(-p.x, 1), 0, 36); next.autoOverhang = false; }
         last = next;
         const t2 = next.pitch / 12; const H2 = next.wallHeight; const o2 = next.overhang; const r2 = (W / 2) * t2;
         ghost.setAttribute('points', `${-o2},${Y(H2 - o2 * t2)} ${W / 2},${Y(H2 + r2)} ${W + o2},${Y(H2 - o2 * t2)}`);
         const at = hd.id === 'peak' ? [W / 2, H2 + r2] : hd.id === 'wall' ? [W, H2] : [-o2, H2 - o2 * t2];
-        c.setAttribute('cx', String(at[0])); c.setAttribute('cy', String(Y(at[1])));
+        moveTo(at[0], Y(at[1]));
         hooks.onPreview?.(next);
       };
       const up = () => {
@@ -216,4 +334,5 @@ export function drawEnd(svg, design, dims, hooks) {
       c.addEventListener('pointermove', move); c.addEventListener('pointerup', up); c.addEventListener('pointercancel', up);
     });
   }
+  refocus(svg, keep);
 }
