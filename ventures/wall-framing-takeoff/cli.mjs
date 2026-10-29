@@ -48,7 +48,7 @@ Usage:
   node cli.mjs plan.json --gutters    add gutters, downspouts, hangers, caps and elbows along the roof's eaves (needs a roof; plan gutters: gutterStock, downspoutStock, eaveHeight, hangerSpacing, maxRunFeet, sqFtPerDownspout, strapSpacing, waste, and a price for each part)
   node cli.mjs plan.json --eaves       add soffit panels, fascia boards and J-channel under the roof overhangs (needs a roof; plan eaves: panelWidth, panelStock, fasciaStock, channelStock, waste, rakeSoffit, panelPrice, fasciaPrice, channelPrice)
   node cli.mjs plan.json --siding      add exterior lap siding courses, house wrap and corner boards (plan siding: exposure, stock, waste, wrapRollSqFt, wrapLap, corners, cornerStock, height, boardPrice, wrapPrice, cornerPrice)
-  node cli.mjs plan.json --trim        add baseboard and door and window casing boards (plan trim: baseSides, baseStock, casingStock, casingWidth, reveal, waste, basePrice, casingPrice)
+  node cli.mjs plan.json --trim        add baseboard and door and window casing boards (plan trim: scarf, shoe, shoeStock, shoePrice, baseSides, baseStock, casingStock, casingWidth, reveal, waste, basePrice, casingPrice)
   node cli.mjs plan.json --insulation  add wall-cavity insulation bags (measured from the framing placed; plan insulation: bagSqFt, rValue, waste, price)
   node cli.mjs plan.json --drywall     add interior drywall (inside faces, partitions both sides, optional ceilings; plan drywall: sheetLength, ceiling, price)
   node cli.mjs plan.json --foundation  add the plan's foundation (footing, stem wall and slab concrete, trucks, rebar, forms, gravel, vapor barrier)

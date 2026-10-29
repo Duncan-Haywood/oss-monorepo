@@ -4,7 +4,7 @@ import { readFileSync, writeFileSync, mkdtempSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { parseDivisions, parseDivisionLinks, buildDivisions, applyDivisionRainouts, rainoutOptions, validateDivisions, linkConflicts, divisionsCsv, divisionsText, readDivisionsSpec, parseTravel, divisionStats, carryVenueHistory, venueImbalance, suggestFairnessWeight, encodeDivisionFields, decodeDivisionFields } from "./divisions.mjs";
+import { parseDivisions, parseDivisionLinks, buildDivisions, applyDivisionRainouts, rainoutOptions, validateDivisions, linkConflicts, divisionsCsv, divisionsText, divisionsIcs, readDivisionsSpec, parseTravel, divisionStats, carryVenueHistory, venueImbalance, suggestFairnessWeight, encodeDivisionFields, decodeDivisionFields } from "./divisions.mjs";
 import { parseDate, dayIso } from "./calc.mjs";
 
 const example = JSON.parse(readFileSync(new URL("./example-divisions.json", import.meta.url), "utf8"));
@@ -573,4 +573,30 @@ test("officials: caps leave matches unfilled with a reason, and a bad team is an
   assert.equal(a.unfilled.length, s.stats.matches - 2);
   assert.ok(a.unfilled.every((u) => /at their match cap|already on another match/.test(u.reason)));
   assert.deepEqual(validateDivisionOfficials(a.schedule, po.officials.slice(0, 1)), []);
+});
+
+test("calendar export: every match once, per division and per team, lines folded", () => {
+  const s = build();
+  const stamp = "20261029T000000Z";
+  const count = (t) => (t.match(/BEGIN:VEVENT/g) || []).length;
+  const all = divisionsIcs(s, { stamp });
+  assert.equal(count(all), s.stats.matches);
+  assert.equal(all, divisionsIcs(s, { stamp }));
+  assert.ok(all.startsWith("BEGIN:VCALENDAR\r\n") && all.endsWith("END:VCALENDAR\r\n"));
+  assert.ok(all.split("\r\n").every((l) => new TextEncoder().encode(l).length <= 75));
+  const uids = all.match(/^UID:.*$/gm);
+  assert.equal(new Set(uids).size, uids.length);
+  const d = s.divisions[0];
+  const per = divisionsIcs(s, { division: d.name, stamp });
+  assert.equal(count(per), d.rounds.reduce((n, r) => n + r.matches.length, 0));
+  const t = d.teams[0];
+  const mine = divisionsIcs(s, { team: t, stamp });
+  const expect = s.nights.flatMap((n) => n.matches).filter((m) => m.homeName === t || m.awayName === t).length;
+  assert.equal(count(mine), expect);
+  assert.match(mine, new RegExp(`SUMMARY:${t} vs .* \\((home|away)\\)`));
+  const first = s.nights[0].matches.find((m) => m.time);
+  const [hh, mm] = first.time.split(":").map(Number);
+  const end = hh * 60 + mm + 90;
+  const one = divisionsIcs({ ...s, nights: [{ day: s.nights[0].day, matches: [first] }] }, { stamp, minutes: 90 });
+  assert.match(one, new RegExp(`DTEND:\\d{8}T${String(Math.floor(end / 60) % 24).padStart(2, "0")}${String(end % 60).padStart(2, "0")}00`));
 });

@@ -1,0 +1,27 @@
+{
+  "date": "2026-10-29",
+  "session": "https://claude.ai/code/session_01EhTJVKQAb1AH5gDuo3gzw2",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "scheduled: continue work on the repo (ventures brief)",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "ended": "2026-10-29T12:00:00Z",
+  "task": "Deepen (flagship 1): ai-bookkeeper",
+  "projects": ["ai-bookkeeper"],
+  "pr": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "ai-bookkeeper next: every item needs outside real data; a no-outside-data slice (trade page) is not listed, so I followed recent runs' pattern. Returns are diminishing: a real labelled export would add more than another made-up trade."
+    }
+  ],
+  "deviations": ["Did not run venture-preflight (over 5 min) or rewrite flagships next:."],
+  "writeups": ["docs/posts/2026-10-29-therapist-bookkeeping-page.md"],
+  "notes": "Full ai-bookkeeper node suite 1902 pass 0 fail. Therapist fixture 6/14 suggested before rules, 13/14 after (Amazon blank by design); tuned on the fixture. See PR for suite output.",
+  "corrections": [],
+  "redteam": null
+}

@@ -34,6 +34,26 @@ const amountBucket = (cents) => `amt:${Math.min(12, Math.floor(Math.log2(Math.ab
 // keyword that fits two accounts is left out, so the line goes to review rather
 // than being guessed. `dir` limits a rule to money in or money out.
 export const BUILT_IN = [
+  // Tattoo artists and piercers (2026-10-29, tattoo.test.mjs; agent-written from the companies' public names, not from a real export):
+  // needles, ink, stencils, gloves and sharps pickup are supplies; booking software; bloodborne-pathogen training; the health-department artist licence.
+  ["6100", "out", /tattoo supply|stencil stuff|\bnitrile gloves?\b|sharps pickup|medical waste/],
+  ["6060", "out", /\bbooksy\b|\bprocreate\b/],
+  ["6170", "out", /bloodborne|pathogens? (cert|training)/],
+  ["6110", "out", /health dept.*(license|licence)|(tattoo|piercing) artist licen[cs]e/],
+  // Massage therapists and estheticians (2026-10-29, massage.test.mjs; agent-written from the companies' public names, not from a real export):
+  // booking-platform payouts, booking software, lotions, waxes and linens, association dues, continuing education, state board licences and suite rent.
+  ["4000", "in", /vagaro.*(payout|deposit)|\bmindbody\b.*payout|\bboulevard\b.*payout|\bglossgenius\b.*payout|massagebook.*payout/],
+  ["6060", "out", /massage ?book|\bbookedby\b|\bschedulicity\b|\bglossgenius\b|\bmassage ?works\b|\bnoterro\b/],
+  ["6100", "out", /biotone|\bbiofreeze\b|massage (lotion|oil|table)|wax and sugaring|sugaring supplies|linen supply|sheets and towels|\bsally beauty\b|\bsalon ?centric\b/],
+  ["6170", "out", /\babmp\b(?!.*insur)|\bamta\b|\bncbtmb\b|continuing education|\bceu\b|esthetician association/],
+  ["6110", "out", /board of (massage|esthetic|cosmetology)[^,]*(licen[cs]e|renew)/],
+  ["6080", "out", /(salon|massage|treatment|esthetics?) (suite|room|studio) rent|booth rent/],
+  // Therapists and counselors in private practice (2026-10-29, therapist.test.mjs; agent-written from the companies' public names, not from a real export):
+  // insurance-panel and matching-platform payouts are sales; CE courses, supervision, association dues and directory listings are education and dues or advertising.
+  ["4000", "in", /headway|\balma\b.*reimburs|grow therapy|rula health|\bspring health\b.*payment|claims deposit/],
+  ["6170", "out", /\bce course|continuing education|psychotherapy\.net|clinical supervision|american (psychological|counseling) assoc|\bnasw\b|\baamft\b|\bapa dues/],
+  ["6000", "out", /psychology today|therapyden|good ?therapy listing|zencare/],
+  ["6110", "out", /state board (license|licence)|board of (behavioral|psychology|counsel)/],
   // Home daycare and family child care providers (2026-10-29, daycare.test.mjs; agent-written from the companies' public names, not from a real export):
   // tuition by Zelle or app, food-program reimbursements and sponsor fees, accreditation dues, and craft and toy supplies.
   ["4000", "in", /tuition|\bprocare\b|brightwheel.*payout|\bkangarootime\b|\bhi ?mama\b/],

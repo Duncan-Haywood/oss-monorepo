@@ -222,3 +222,17 @@ Maria made landfall on 2017-09-20.
 - **Licence:** the dslabs package is GPL-2 (Irizarry); the figures are
   government vital-statistics death counts. Used here as test data only.
 - **Used by:** `eval/maria-deaths.mjs`, `maria-deaths.test.mjs`.
+
+# Example data: euro-area electrical-equipment orders, 1996-2012
+
+`eu-elecequip.csv`: monthly index of new orders of electrical equipment in the
+euro area (2005 = 100), 195 months from 1996-01 to 2012-03 (R's
+`fpp2::elecequip`; the row-number and decimal-year columns are replaced by a
+`YYYY-MM` label). The late-2008 collapse and the 2009-10 recovery are the dated
+shock.
+
+- **Retrieved:** 2026-10-29 from the Rdatasets mirror,
+  <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/fpp2/elecequip.csv>.
+- **Licence:** the fpp2 package is GPL-3 (Hyndman); the figures are Eurostat
+  order indices. Used here as test data only.
+- **Used by:** `eval/drift-warning-elecequip.mjs`, `drift-warning-elecequip.test.mjs`.
