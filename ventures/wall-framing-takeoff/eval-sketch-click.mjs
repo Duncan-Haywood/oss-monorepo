@@ -92,6 +92,12 @@ const e0 = await toScreen(y2 - 1, 0), e1 = await toScreen(y2 + 11, 0);
 await page.mouse.move(e0.x, e0.y); await page.mouse.down(); await page.mouse.move(e1.x, e1.y, { steps: 6 }); await page.mouse.up();
 const [z1, z2] = await openingX();
 check(Math.abs(z1 - y1) < 1 && Math.abs(z2 - z1 - 48) < 1.5, `dragging its right edge 1 ft widens it to 48 in (${z1}-${z2})`);
+// the drawing survives a reload, and Clear forgets it
+const wallsBefore = await page.evaluate(() => document.querySelectorAll("#skSvg text").length);
+await page.reload();
+check(wallsBefore > 0 && await page.evaluate(() => document.querySelectorAll("#skSvg text").length) === wallsBefore, "the sketch is restored after a reload (" + wallsBefore + " wall labels)");
+await page.click("#skClear"); await page.reload();
+check(await page.evaluate(() => document.querySelectorAll("#skSvg text").length) === 0, "Clear the sketch is remembered across a reload");
 check(errors.length === 0, "no page errors" + (errors.length ? ": " + errors.join("; ") : ""));
 await browser.close(); server.close();
 process.exit(bad ? 1 : 0);
