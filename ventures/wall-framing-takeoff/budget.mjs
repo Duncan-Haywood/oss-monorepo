@@ -66,6 +66,7 @@ export function budget(result, prices = {}) {
   const tr = result.trim;
   if (tr?.ok) {
     add("Interior", "Baseboard boards", tr.baseBoards, "boards", P("baseboard") ?? tr.basePrice, `${tr.baseFeet.toFixed(0)} ft in ${tr.baseStock / 12} ft boards`);
+    if (tr.shoeBoards) add("Interior", "Shoe moulding boards", tr.shoeBoards, "boards", P("shoeMoulding") ?? tr.shoePrice, `${tr.shoeFeet.toFixed(0)} ft in ${tr.shoeStock / 12} ft boards`);
     add("Interior", "Casing boards", tr.casingBoards, "boards", P("casing") ?? tr.casingPrice, `${tr.doorFaces} door and ${tr.windowFaces} window faces`);
   }
   const sd = result.siding;

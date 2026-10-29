@@ -13,13 +13,13 @@
 // are not modelled: a run longer than the stock is split, the waste figure
 // covers the rest.
 
-/** @typedef {{ baseSides?: 1|2, baseStock?: number, casingStock?: number, casingWidth?: number, reveal?: number, waste?: number, basePrice?: number, casingPrice?: number, base?: boolean, casing?: boolean }} Trim */
+/** @typedef {{ baseSides?: 1|2, baseStock?: number, casingStock?: number, casingWidth?: number, reveal?: number, waste?: number, basePrice?: number, casingPrice?: number, base?: boolean, casing?: boolean, shoe?: boolean, shoeStock?: number, shoePrice?: number }} Trim */
 
 /** @param {Trim} d */
 export function validateTrim(d) {
   const e = [];
   if (d.baseSides != null && d.baseSides !== 1 && d.baseSides !== 2) e.push("Baseboard sides must be 1 or 2.");
-  for (const k of /** @type {const} */ (["baseStock", "casingStock"])) if (d[k] != null && !(d[k] >= 48 && d[k] <= 240)) e.push(`${k} must be between 48 and 240 inches.`);
+  for (const k of /** @type {const} */ (["baseStock", "casingStock", "shoeStock"])) if (d[k] != null && !(d[k] >= 48 && d[k] <= 240)) e.push(`${k} must be between 48 and 240 inches.`);
   if (d.casingWidth != null && !(d.casingWidth > 0 && d.casingWidth <= 8)) e.push("Casing width must be between 0 and 8 inches.");
   if (d.reveal != null && !(d.reveal >= 0 && d.reveal <= 1)) e.push("Reveal must be between 0 and 1 inch.");
   if (d.waste != null && !(d.waste >= 0 && d.waste <= 0.3)) e.push("Trim waste must be between 0 and 0.3.");
@@ -52,6 +52,7 @@ export function layoutTrim(d, plan) {
   if (errors.length) return { ok: false, errors };
   const waste = d.waste ?? 0.1, reveal = d.reveal ?? 0.1875, cw = d.casingWidth ?? 2.25;
   const baseStock = d.baseStock ?? 144, casingStock = d.casingStock ?? 96;
+  const shoeStock = d.shoeStock ?? 96;
   /** @type {number[]} */ const base = [], casing = [];
   const doors = { n: 0 }, windows = { n: 0 };
   for (const w of plan.walls) {
@@ -76,13 +77,16 @@ export function layoutTrim(d, plan) {
       }
     }
   }
-  const b = packPieces(base, baseStock), c = packPieces(casing, casingStock);
+  // shoe moulding follows the baseboard runs exactly, in its own stock length
+  const b = packPieces(base, baseStock), c = packPieces(casing, casingStock), sh = d.shoe ? packPieces(base, shoeStock) : null;
+  const shoeBoards = sh ? Math.ceil(sh.boards * (1 + waste) - 1e-9) : 0;
   const baseBoards = Math.ceil(b.boards * (1 + waste) - 1e-9), casingBoards = Math.ceil(c.boards * (1 + waste) - 1e-9);
   return {
     ok: true, errors: [], waste, reveal, casingWidth: cw, baseStock, casingStock,
     baseFeet: b.usedIn / 12, casingFeet: c.usedIn / 12, baseBoards, casingBoards,
+    shoeBoards, shoeStock, shoeFeet: sh ? sh.usedIn / 12 : 0, shoePrice: d.shoePrice ?? null,
     doorFaces: doors.n, windowFaces: windows.n,
-    cost: d.basePrice != null || d.casingPrice != null ? baseBoards * (d.basePrice ?? 0) + casingBoards * (d.casingPrice ?? 0) : null,
+    cost: d.basePrice != null || d.casingPrice != null || d.shoePrice != null ? baseBoards * (d.basePrice ?? 0) + casingBoards * (d.casingPrice ?? 0) + shoeBoards * (d.shoePrice ?? 0) : null,
     basePrice: d.basePrice ?? null, casingPrice: d.casingPrice ?? null,
   };
 }
@@ -92,6 +96,7 @@ export function trimText(t) {
   const l = [];
   l.push(`  Baseboard: ${t.baseFeet.toFixed(0)} ft in ${t.baseStock / 12} ft boards -> ${t.baseBoards} boards (${(100 * t.waste).toFixed(0)}% waste added)${t.basePrice != null ? `, ${(t.baseBoards * t.basePrice).toFixed(2)} at ${t.basePrice} each` : ""}`);
   l.push(`  Casing: ${t.casingFeet.toFixed(0)} ft for ${t.doorFaces} door faces and ${t.windowFaces} window faces, ${t.casingWidth} in wide with a ${t.reveal} in reveal, in ${t.casingStock / 12} ft boards -> ${t.casingBoards} boards${t.casingPrice != null ? `, ${(t.casingBoards * t.casingPrice).toFixed(2)} at ${t.casingPrice} each` : ""}`);
-  l.push("  Mitres, scarf joints, shoe moulding, door stops, closets' shelving and exterior trim are not counted; stock lengths, widths and prices are figures you type.");
+  if (t.shoeBoards) l.push(`  Shoe moulding: ${t.shoeFeet.toFixed(0)} ft along the baseboard runs in ${t.shoeStock / 12} ft boards -> ${t.shoeBoards} boards${t.shoePrice != null ? `, ${(t.shoeBoards * t.shoePrice).toFixed(2)} at ${t.shoePrice} each` : ""}`);
+  l.push(`  Mitres, scarf joints, ${t.shoeBoards ? "" : "shoe moulding, "}door stops, closets' shelving and exterior trim are not counted; stock lengths, widths and prices are figures you type.`);
   return l;
 }
