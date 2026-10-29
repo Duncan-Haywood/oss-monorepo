@@ -341,6 +341,8 @@ with its neighbours' ends. `moveEnds`/`moveCorner`/`moveWall` refuse (changing n
 **Sketch persistence (2026-10-29):** the drawing is saved to local storage after each change (`wall-framing-takeoff-plan.sketch`) and restored on load; Clear forgets it. `eval-sketch-click.mjs` reloads the page and checks both.
 end to resize it (`moveOpening`, `resizeOpening`; refused, changing nothing, on an overlap, a sliver under 6 in or a run
 past the wall; 1 test, plus real mouse drags in `eval-sketch-click.mjs`). Not yet: moving an opening to another wall
-(erase and re-place), non-square snapping aids, a background image to trace, and sketch persistence across reloads.
+(erase and re-place), non-square snapping aids, and (landed 2026-10-29, below) a background image to trace.
 
 **Stored-sketch validation (2026-10-29):** `restoreSketch` reads the saved sketch as untrusted JSON: malformed or repeated-id walls, walls under 1 in or far off the page, and openings past a wall, under 6 in, overlapping or on a missing wall are dropped and counted (the page says how many); `sketch.test.mjs` 1 test with eight kinds of damage, plus a damaged-store reload in `eval-sketch-click.mjs`.
+
+**Trace-over picture (2026-10-29):** under the sketch, "Trace over a picture" takes an image file (a scanned or photographed plan; read in the browser, never uploaded or stored), places it 40 ft wide, and sets its scale from a distance you know: type it, press the button, click the two ends on the picture (`rescaleTrace`, scaled about the first click). A strength slider fades it; "Remove picture" drops it. Tested in `sketch.test.mjs` (fit and rescale arithmetic) and `eval-sketch-click.mjs` (upload, two clicks, width doubles). Not yet: moving or rotating the picture, PDF pages (export one page to an image first), keeping the picture across reloads.

@@ -101,6 +101,18 @@ await page.reload();
 check(/1 damaged stored item/.test(await page.textContent("#skInfo")) && await page.evaluate(() => document.querySelectorAll("#skSvg text").length) === wallsBefore, "a damaged stored wall is left out, the rest kept");
 await page.click("#skClear"); await page.reload();
 check(await page.evaluate(() => document.querySelectorAll("#skSvg text").length) === 0, "Clear the sketch is remembered across a reload");
+// trace image: load a picture, set its scale from two clicks, check the image grows to the real size
+await page.click("#skClear");
+const png = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAIAAAABCAYAAAD0In+KAAAAD0lEQVR4nGP4z8Dwn4EBAAv/Af9iX1p6AAAAAElFTkSuQmCC", "base64");
+await page.setInputFiles("#skImg", { name: "plan.png", mimeType: "image/png", buffer: png });
+await page.waitForSelector("#skSvg image");
+const imgW = () => page.evaluate(() => Number(document.querySelector("#skSvg image").getAttribute("width")));
+check(Math.abs((await imgW()) - 480) < 0.01, "picture placed 480 in (40 ft) wide");
+await page.fill("#skScaleLen", "20 ft"); await page.click("#skScale");
+await click(0, 0); await click(120, 0);
+check(Math.abs((await imgW()) - 960) < 15, "two points 10 ft apart set to 20 ft doubles the picture (" + await imgW() + ")");
+await page.click("#skImgOff");
+check((await page.$("#skSvg image")) === null, "remove picture clears it");
 check(errors.length === 0, "no page errors" + (errors.length ? ": " + errors.join("; ") : ""));
 await browser.close(); server.close();
 process.exit(bad ? 1 : 0);
