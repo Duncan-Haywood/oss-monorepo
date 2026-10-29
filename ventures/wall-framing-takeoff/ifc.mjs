@@ -16,7 +16,7 @@
 //    local X runs along the wall (the usual export), width = OverallWidth;
 //  - walls of a storey are drawn at one elevation; every storey is merged
 //    into one plan, so feed one storey's file or accept the overlap.
-// Heights and headers are not read (defaults from planFromDxf apply).
+// Opening heights and sills are read from OverallHeight and the placement elevation; headers are not read (placeholder from planFromDxf).
 import { planFromDxf } from "./dxf.mjs";
 
 /** Split a STEP argument string into nested arrays, strings, numbers, refs ("#12"), enums (".X.") and null. */
@@ -100,6 +100,14 @@ export function planFromIfc(text, opt = {}) {
     // child -> parent -> world
     return { o: { x: parent.o.x + parent.c * o.x - parent.s * o.y, y: parent.o.y + parent.s * o.x + parent.c * o.y }, c: parent.c * c - parent.s * s, s: parent.s * c + parent.c * s };
   };
+  /** Elevation of an IfcLocalPlacement chain (sum of the Z translations). */
+  const zOf = (r, depth = 0) => {
+    const e = get(r);
+    if (!e || e.type !== "IFCLOCALPLACEMENT" || depth > 20) return 0;
+    const ax = get(e.args[1]);
+    const z = ax && ax.type === "IFCAXIS2PLACEMENT3D" ? get(ax.args[0])?.args?.[0]?.[2] ?? 0 : 0;
+    return z + zOf(e.args[0], depth + 1);
+  };
   const apply = (T, p) => ({ x: T.o.x + T.c * p.x - T.s * p.y, y: T.o.y + T.s * p.x + T.c * p.y });
 
   const reps = (prod) => {
@@ -129,7 +137,9 @@ export function planFromIfc(text, opt = {}) {
   };
   /** @type {{ layer: string, a: {x:number,y:number}, b: {x:number,y:number} }[]} */
   const lines = [];
-  let nWalls = 0, noGeom = 0, nOpen = 0, nMesh = 0;
+  let nWalls = 0, noGeom = 0, nOpen = 0, nMesh = 0, nHeights = 0;
+  const sizes = [];
+  const r16 = (v) => Math.round(v * 16) / 16;
   for (const e of ents.values()) {
     if (e.type !== "IFCWALL" && e.type !== "IFCWALLSTANDARDCASE") continue;
     const T = placement(e.args[5]);
@@ -173,8 +183,19 @@ export function planFromIfc(text, opt = {}) {
     const T = placement(e.args[5]);
     const a = T.o, b = { x: T.o.x + T.c * w, y: T.o.y + T.s * w };
     lines.push({ layer: e.type === "IFCDOOR" ? "A-DOOR" : "A-GLAZ-WINDOW", a, b });
+    const h = e.args[8];
+    if (h > 0) sizes.push({ mid: { x: (a.x + b.x) / 2 * toIn, y: (a.y + b.y) / 2 * toIn }, height: h * toIn, z: zOf(e.args[5]) * toIn });
     nOpen++;
   }
+  // sills are measured from the lowest wall base, so a file with a raised storey origin still reads
+  const base = Math.min(0, ...[...ents.values()].filter((e) => e.type === "IFCWALL" || e.type === "IFCWALLSTANDARDCASE").map((e) => zOf(e.args[5]) * toIn));
+  const openingSize = (mid) => {
+    let best = null;
+    for (const q of sizes) { const d = Math.hypot(q.mid.x - mid.x, q.mid.y - mid.y); if (!best || d < best.d) best = { d, q }; }
+    if (!best || best.d > 6) return null;
+    nHeights++;
+    return { height: r16(best.q.height), headerHeight: r16(Math.max(0, best.q.z - base) + best.q.height) };
+  };
   if (!nWalls) return { ok: false, errors: [`No IfcWall with an Axis line or a rectangle profile was found${noGeom ? ` (${noGeom} wall${noGeom === 1 ? "" : "s"} had other geometry: swept or boolean bodies are not read)` : ""}.`], notes };
   if (noGeom) notes.push(`${noGeom} wall${noGeom === 1 ? "" : "s"} skipped: geometry other than an Axis line or a rectangle profile.`);
   if (nMesh) notes.push(`${nMesh} wall${nMesh === 1 ? "" : "s"} had no axis: centre line taken from the plan bounding box of the body mesh (the longer side is the length; check that no wall is L-shaped or slanted).`);
@@ -184,6 +205,7 @@ export function planFromIfc(text, opt = {}) {
   let d = g(0, "SECTION") + g(2, "HEADER") + g(9, "$INSUNITS") + g(70, 1) + g(0, "ENDSEC") + g(0, "SECTION") + g(2, "ENTITIES");
   for (const l of lines) d += g(0, "LINE") + g(8, l.layer) + g(10, l.a.x * toIn) + g(20, l.a.y * toIn) + g(30, 0) + g(11, l.b.x * toIn) + g(21, l.b.y * toIn) + g(31, 0);
   d += g(0, "ENDSEC") + g(0, "EOF");
-  const r = planFromDxf(d, { ...opt, units: undefined });
-  return { ...r, notes: [...notes, ...r.notes.filter((n) => !/units/i.test(n))] };
+  const r = planFromDxf(d, { ...opt, units: undefined, openingSize });
+  const own = nHeights ? [`Opening height and sill read from the IFC for ${nHeights} opening${nHeights === 1 ? "" : "s"} (OverallHeight and the placement elevation above the lowest wall base); the others keep the defaults.`] : [];
+  return { ...r, notes: [...notes, ...own, ...r.notes.filter((n) => !/units/i.test(n))] };
 }

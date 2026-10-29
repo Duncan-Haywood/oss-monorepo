@@ -102,3 +102,17 @@ for (const f of ["ifc2x3", "ifc43"]) {
     assert.ok(r.notes.some((n) => /bounding box of the body mesh/.test(n)));
   });
 }
+
+test("buildingSMART's wall-with-opening-and-window: window size, offset and sill come from the file", () => {
+  const r = planFromIfc(readFileSync(new URL("./fixtures/bsi-wall-with-opening-and-window-ifc4.ifc", import.meta.url), "utf8"));
+  assert.ok(r.ok, r.errors?.join());
+  assert.equal(r.plan.walls.length, 1);
+  assert.ok(Math.abs(r.plan.walls[0].length - 3000 / 25.4) < 0.1);
+  const [o] = r.plan.walls[0].openings;
+  assert.equal(o.kind, "window");
+  assert.ok(Math.abs(o.offset - 1000 / 25.4) < 0.1, "x = 1000 mm");
+  assert.ok(Math.abs(o.width - 1000 / 25.4) < 0.1);
+  assert.ok(Math.abs(o.height - 1000 / 25.4) < 0.1, "OverallHeight 1000 mm, not the 48 in default");
+  assert.ok(Math.abs(o.headerHeight - o.height - 500 / 25.4) < 0.1, "sill 500 mm from the opening element's z");
+  assert.ok(!r.notes.some((n) => /heights are defaults/.test(n)));
+});
