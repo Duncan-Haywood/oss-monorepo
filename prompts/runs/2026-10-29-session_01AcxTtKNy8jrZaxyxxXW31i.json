@@ -1,0 +1,54 @@
+{
+  "date": "2026-10-29",
+  "session": "https://claude.ai/code/session_01AcxTtKNy8jrZaxyxxXW31i",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there (scheduled)",
+  "input_sha256": "4089edbb83e0eda8db85acdf10601b9c582ad7e98bb6145969ccaadf7186a02b",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-29T22:10:47Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/11491",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/heavy-hydraulics/LOG.md",
+      "issue": "Next step 'source neutral pressure' was blocked on hosts for several runs; a web search plus curl of a distributor-hosted PDF worked where manufacturer hosts reset."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/PROGRAMMES.md",
+      "why": "pick_track drew marine-hull; its milestone 3 stayed blocked on tank data (Wigley data only in figures), so advanced heavy-hydraulics instead.",
+      "did": "advanced heavy-hydraulics milestone 2i",
+      "result": "landed a sourced input that reverses a prior result"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-29-sourced-neutral-pressure-flips-load-sensing-ranking.md",
+    "research/heavy-hydraulics/LOG.md"
+  ],
+  "goal": null,
+  "notes": "Local checks: research homepage build ok, md link check ok. No pytest run (experiment script reuses tested modules).",
+  "corrections": [],
+  "redteam": null
+}
