@@ -236,3 +236,15 @@ shock.
 - **Licence:** the fpp2 package is GPL-3 (Hyndman); the figures are Eurostat
   order indices. Used here as test data only.
 - **Used by:** `eval/drift-warning-elecequip.mjs`, `drift-warning-elecequip.test.mjs`.
+
+# Example data: US airline passenger miles, 1937-1960
+
+`airmiles.csv`: revenue passenger miles flown by US commercial airlines each
+year, 24 values (R's `datasets::airmiles`; columns renamed `year`, `miles`).
+Growth is steady until the war ends, then the civil boom starts.
+
+- **Retrieved:** 2026-10-29 from the Rdatasets mirror,
+  <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/datasets/airmiles.csv>.
+- **Licence:** R datasets (GPL-2 or later with R); the figures are Civil
+  Aeronautics Board statistics. Used here as test data only.
+- **Used by:** `eval/airmiles.mjs`, `airmiles.test.mjs`.

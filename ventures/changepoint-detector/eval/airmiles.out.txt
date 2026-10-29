@@ -1,0 +1,13 @@
+n 24, 1937 to 1960, natural logs
+
+trend: 1 change(s)
+  1946  range95 1945 to 1948
+
+mean (level only): 7 change(s)
+  1939  range95 1939 to 1939
+  1941  range95 1941 to 1941
+  1944  range95 1944 to 1944
+  1946  range95 1946 to 1946
+  1951  range95 1950 to 1951
+  1953  range95 1953 to 1954
+  1956  range95 1955 to 1957
