@@ -34,6 +34,13 @@ const amountBucket = (cents) => `amt:${Math.min(12, Math.floor(Math.log2(Math.ab
 // keyword that fits two accounts is left out, so the line goes to review rather
 // than being guessed. `dir` limits a rule to money in or money out.
 export const BUILT_IN = [
+  // Food trucks (2026-10-29, foodtruck.test.mjs; agent-written from the companies' public names, not from a real export):
+  // catering deposits are sales; commissary rent is rent, propane is utilities, event and festival fees are advertising, generator and truck-equipment service is repairs.
+  ["4000", "in", /catering (deposit|payment)|food truck (event|festival) (payout|payment)/],
+  ["6080", "out", /commissary( kitchen)? (rent|fee|lease)/],
+  ["6140", "out", /propane|united site services|amerigas|suburban propane/],
+  ["6000", "out", /roaming hunger|(food truck|truck) (festival|event) fee|event fee|street food finder/],
+  ["6090", "out", /generator (repair|service)|(food )?truck (equipment|hood|fryer) (repair|service)|hood cleaning/],
   // Mobile notaries and loan signing agents (2026-10-29, notary.test.mjs; agent-written from the companies' public names, not from a real export):
   // title-company platform payouts are sales; notary dues, E&O cover, stamps and the state commission land in their own accounts, ahead of the older bare "notary" rule (legal and professional fees).
   ["4000", "in", /snapdocs.*(payout|payment)|notary ?go (payment|payout)|signing ?order (deposit|payment)|123notary|notary rotary/],
