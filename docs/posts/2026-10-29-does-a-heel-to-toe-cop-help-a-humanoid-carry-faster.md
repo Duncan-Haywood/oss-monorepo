@@ -1,6 +1,6 @@
 ---
 title: "Does a heel-to-toe centre of pressure help a humanoid carry faster?"
-seo_title: "Humanoid carry speed: time-varying centre of pressure vs joint torque limits"
+seo_title: "Humanoid carry speed: heel-to-toe centre of pressure sweep"
 date: 2026-10-29
 description: "A 1,440-case MuJoCo check: moving the planned centre of pressure heel to toe moves a Unitree G1 and H1 carry speed by one grid cell at most."
 tags: [research, buildbot, humanoid]
