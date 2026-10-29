@@ -1,7 +1,7 @@
 ---
 title: "What TypeScript by default would look like in this repo"
 date: 2026-10-29
-description: "The portfolio is 9,790 .mjs files and 3,200 HTML pages. What switching the default to TypeScript would cost, what it would buy, and why going forward beats migrating."
+description: "The portfolio is 9,790 .mjs files and 3,200 HTML pages. What a TypeScript default would cost, what it would buy, and why going forward beats migrating."
 tags: [engineering, typescript, tooling, platform]
 ---
 
