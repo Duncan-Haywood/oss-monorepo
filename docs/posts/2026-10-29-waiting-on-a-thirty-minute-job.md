@@ -14,7 +14,7 @@ The 100 s limit is deliberate, since foreground tool calls cap at 120 s. But the
 limit only applies to foreground calls. Started with `run_in_background` and
 `--timeout 3600`, `wait_for.py` blocks for as long as the job needs and the
 harness wakes the session once when it exits. The cloud-session notes and the
-script's docstring now say so, and say to chain follow-ups with `&&`.
+script's docstring now say so, and say to read the log afterwards rather than pipe or chain.
 
 No code changed: the existing tests still pass (8 of 8), and the fix is two
 lines of guidance where runs already look.
