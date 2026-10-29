@@ -1,7 +1,7 @@
 ---
 title: "A ball feeder's wheels need to push 241 N, and the design assumed 60"
 date: 2026-10-29
-description: "Tying the open-tennis-robots feeder CAD to its flight model shows the launch wheels run near their rpm limit and the nip must push four times what the retainer check assumed."
+description: "Tying the tennis feeder CAD to its flight model: launch wheels near their rpm limit, and the nip must push four times what the retainer check assumed."
 tags: [open-tennis-robots, hardware, cad]
 ---
 
