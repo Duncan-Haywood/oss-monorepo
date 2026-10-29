@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Where to Meet Marriage-Minded Catholic Women: A Free Research Map</title>
+<meta name="description" content="A free, private research tool for Catholic men looking to marry: compare U.S. counties by young adult population and Catholic presence from public data, find public parish and campus young adult groups, and draft an honest profile. No tracking of people.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/oss-monorepo/raphaels-map/for-catholic-singles.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Where could I meet a Catholic woman who wants what I want?">
+<meta property="og:description" content="Raphael's Map: a free research tool built on public county data and public parish and campus groups. It never lists or profiles private people.">
+<meta property="og:url" content="https://duncan-haywood.github.io/oss-monorepo/raphaels-map/for-catholic-singles.html">
+<meta name="twitter:card" content="summary">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"Can this tool tell me how many Catholic women in a county want to get married?","acceptedAnswer":{"@type":"Answer","text":"No. No public dataset measures that jointly. The tool shows separate, sourced measures (women in an age band, never-married women where the Census publishes it, Catholic adherents of all ages, public young adult groups) side by side, and says which are proxies. It does not multiply them into an estimate."}},
+{"@type":"Question","name":"Does it list or profile any women?","acceptedAnswer":{"@type":"Answer","text":"No. It uses county-level aggregates and publicly advertised organizations only. It has no profiles, no names, no scraping of dating apps and no messaging."}},
+{"@type":"Question","name":"Is my information uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Preferences, profile drafts and notes are kept in your browser's local storage. The page counts anonymous feature use, which you can switch off."}}
+]}</script>
+<style>
+:root{--bg:#f6f4ef;--card:#fff;--ink:#1e2329;--muted:#525c66;--line:#ddd6c8;--accent:#1f4e79;--accent-ink:#163a5b;--note:#fbf6e6;color-scheme:light dark}
+@media (prefers-color-scheme:dark){:root{--bg:#14181d;--card:#1c2229;--ink:#e8ebee;--muted:#a7b0b9;--line:#2f3842;--accent:#8db8e6;--accent-ink:#b9d4f2;--note:#2a2618}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:860px;margin:0 auto;padding:1.5rem 16px 3rem}
+a{color:var(--accent)}
+.eyebrow{font-weight:700;letter-spacing:.04em;font-size:.85rem;color:var(--accent);margin:0}
+h1{font-size:clamp(1.7rem,5vw,2.5rem);line-height:1.12;margin:.35rem 0 .6rem;color:var(--accent-ink)}
+h2{margin:0 0 .5rem;font-size:1.3rem;color:var(--accent-ink)}
+h3{margin:1rem 0 .3rem;font-size:1.05rem}
+.lede{font-size:1.1rem;color:var(--muted);max-width:66ch}
+section{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:1.1rem 1.3rem;margin:1rem 0}
+.cta{display:inline-block;margin:.6rem 0;padding:.65rem 1.1rem;border-radius:10px;background:var(--accent);color:var(--bg);font-weight:700;text-decoration:none}
+.cta:focus-visible,a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+ol li,ul li{margin:.35rem 0}
+.note{background:var(--note);border-left:4px solid var(--accent);padding:.7rem 1rem;border-radius:6px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+@media (max-width:640px){.grid{grid-template-columns:1fr}section{padding:1rem}}
+footer{font-size:.88rem;color:var(--muted);max-width:860px;margin:0 auto;padding:0 16px 2rem}
+blockquote{margin:.5rem 0;padding-left:1rem;border-left:3px solid var(--line);color:var(--muted)}
+</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; Raphael's Map</a></p>
+<header>
+<h1>Where could I meet a Catholic woman who wants what I want?</h1>
+<p class="lede">You go to Mass, you want to marry, and you hope for a family, maybe a large one. Your parish has few people your age, the apps feel like a lottery, and you wonder whether the next town, the next diocese or the next job offer would make a difference. Raphael's Map is a free research tool for that question. It uses public data and public groups, and it never looks at private people.</p>
+<a class="cta" href="index.html#explore">Open the map</a>
+</header>
+
+<section>
+<h2>Who it is for</h2>
+<p>A practicing Catholic man looking for a marriage-minded Catholic woman, deciding where to spend his evenings, his weekends, or his next move. The defaults follow that case (women aged 20 to 25, Catholic, wants marriage and children), and every one of them can be changed: the age band (never below 18), the places you compare and how much each measure counts.</p>
+<p>It is named for the archangel Raphael, who in the Book of Tobit guides Tobias on his journey to Sarah, his future wife. He is the patron of happy meetings. The tool is a map, not a matchmaker.</p>
+</section>
+
+<section>
+<h2>What it shows, and what it will not pretend to know</h2>
+<div class="grid">
+<div>
+<h3>Opportunity</h3>
+<ul>
+<li>Women in your age band by county, and never-married women where the Census Bureau's American Community Survey publishes the cells, with margins of error.</li>
+<li>Catholic adherents and parishes by county, from the 2020 U.S. Religion Census, which counts all ages and does not measure Mass attendance.</li>
+<li>Public young adult groups, campus ministries and Traditional Latin Mass communities, each marked with how it was checked.</li>
+</ul>
+</div>
+<div>
+<h3>Values</h3>
+<ul>
+<li>What national surveys say about family size, marriage and work, only where the survey asked it and the sample is large enough.</li>
+<li>Where a measure is a guess at values (a proxy), it is labelled as one and left out of the default weights.</li>
+</ul>
+</div>
+</div>
+<p class="note">These are two separate scorecards on purpose. Nobody has measured how many unmarried, practicing Catholic women in a county want four children, and multiplying percentages from different surveys does not produce that number; it produces a false one. Where data has not been loaded, the tool says <em>Not available</em> instead of showing zero.</p>
+</section>
+
+<section>
+<h2>A worked example</h2>
+<p>Say you live near Lafayette, Colorado, and wonder whether your evenings would be better spent in Boulder, Denver or Fort Collins.</p>
+<ol>
+<li><strong>Explore.</strong> The map opens on the Colorado Front Range. Switch the shaded measure between women aged 20 to 24, never-married women, and Catholic adherents per 1,000 residents. Click a county to see the raw count, its margin of error, the year and the source behind each figure.</li>
+<li><strong>Compare.</strong> Put Boulder, Denver, Larimer and El Paso counties side by side. The table keeps the American Community Survey years and the 2020 Religion Census year next to each column, so you can see when you are comparing different years.</li>
+<li><strong>Rank, carefully.</strong> The research priority index lets you weight what matters to you and shows how much the order changes when you change the weights. It ranks places to look into, not people or chances.</li>
+<li><strong>Communities.</strong> Filter the list to Colorado and look at campus ministries, parish young adult series and Latin Mass parishes. A <em>Not verified</em> badge means the listing came from a web search and nobody has yet checked the group's own page, so check it before you go.</li>
+<li><strong>Toolkit.</strong> Sort your own hopes into must-have, nice-to-have and things to discover in conversation. Pick sentences in a warm, plain or playful tone to build a few profile drafts, with a character counter (check your app's limits; they change). Keep a checklist of the app settings to look for, and a set of open questions to explore over several conversations.</li>
+</ol>
+<p>None of this tells you who to marry. It helps you decide where to show up.</p>
+</section>
+
+<section>
+<h2>When to use something else</h2>
+<ul>
+<li><strong>Your parish priest or a spiritual director</strong> for discernment. A map cannot tell you whether you are ready, or what God is asking of you.</li>
+<li><strong>Your diocese's young adult office</strong> for current events. Its calendar is more up to date than any list here.</li>
+<li><strong>Friends, family and your parish community</strong>, who are still how many couples meet. Tell people you are looking.</li>
+<li><strong>Catholic dating apps and sites</strong> to actually meet people. This tool does not message anyone, and the toolkit only helps you write your own profile.</li>
+<li><strong>A matchmaker</strong> if you want someone who knows both people to make an introduction.</li>
+</ul>
+</section>
+
+<section>
+<h2>Respect first</h2>
+<p>Meeting someone is mutual. The tool is built so it cannot be used to find or judge a particular woman:</p>
+<ul>
+<li>It uses county totals and publicly advertised organizations only. No names, photos or profiles of private people, and no data from dating apps.</li>
+<li>It scores places for further research, never people. The conversation questions come with a reminder: share your own answers first, let her ask the same, skip anything, and never grade anyone.</li>
+<li>Go to a young adult group for the community and the faith. If you meet someone there, that is a gift, not a target met.</li>
+</ul>
+<blockquote>"Do not be afraid, for she was destined for you from eternity." (Tobit 6:17, Revised Standard Version)</blockquote>
+<a class="cta" href="index.html#explore">Open the map</a>
+</section>
+
+<section>
+<h2>Privacy</h2>
+<p>Everything runs in your browser. Your preferences, drafts and notes stay in this browser's local storage and are never uploaded. There are no accounts, tracking cookies or analytics vendor. The page counts anonymous events (which features get used, nothing about who used them), and you can switch that off in the app.</p>
+</section>
+</main>
+<footer>
+<p><strong>No warranty.</strong> This page and the tool are provided free and as-is, without warranty of any kind, express or implied. They are not relationship, religious, legal or professional advice, and they do not replace your priest, a spiritual director or another qualified person. You are responsible for reviewing and verifying anything the tool shows before relying on it; community listings in particular may be out of date. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p>Free and open source (MIT). <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/raphaels-map">Source and methods</a> · <a href="llms.txt">llms.txt</a> · <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor</a></p>
+</footer>
+</body>
+</html>

@@ -537,6 +537,8 @@ export function mount(el, ctx = {}) {
     record('toolkit_copy');
   };
 
+  const ac = new AbortController();
+  const opt = { signal: ac.signal };
   el.addEventListener('click', (ev) => {
     const b = /** @type {HTMLElement} */ (ev.target).closest('[data-act]');
     if (!b || b.tagName === 'FORM' || b.tagName === 'SELECT' || b.tagName === 'INPUT') return;
@@ -552,7 +554,7 @@ export function mount(el, ctx = {}) {
     else if (act === 'copy-questions') doCopy(questionsText(), 'questions');
     else if (act === 'copy-all') doCopy(fullText(ts), 'everything');
     else if (act === 'print') { record('toolkit_print'); printText("Raphael's Map toolkit", fullText(ts)); }
-  });
+  }, opt);
 
   el.addEventListener('submit', (ev) => {
     const f = /** @type {HTMLFormElement} */ (ev.target);
@@ -561,7 +563,7 @@ export function mount(el, ctx = {}) {
     const text = input ? input.value : '';
     if (f.getAttribute('data-act') === 'add') { update({ prefs: addPreference(ts.prefs, f.getAttribute('data-tier') || '', text) }); record('toolkit_pref_edit'); }
     else if (f.getAttribute('data-act') === 'add-custom' && text.trim()) { update({ custom: [...ts.custom, text.trim()] }); record('toolkit_draft'); }
-  });
+  }, opt);
 
   el.addEventListener('change', (ev) => {
     const t = /** @type {HTMLInputElement} */ (ev.target);
@@ -577,9 +579,9 @@ export function mount(el, ctx = {}) {
       update({ prefs: movePreference(ts.prefs, t.getAttribute('data-tier') || '', Number(t.getAttribute('data-i')), t.value) });
       record('toolkit_pref_edit');
     }
-  });
+  }, opt);
 
   render();
   record('toolkit_view');
-  return { destroy() { el.innerHTML = ''; } };
+  return { destroy() { ac.abort(); el.innerHTML = ''; } };
 }
