@@ -1,0 +1,50 @@
+{
+ "date": "2026-10-29",
+ "session": "https://claude.ai/code/session_01XpHqycgnBSZwGAeAk4DiVj",
+ "track": "process",
+ "prompt_version": 1,
+ "input": "let's look at the red team activity in general. how destructive has it been. let's do a blog report on it. / follow-up: do a contrast to what the blue team has been able to accomplish",
+ "input_sha256": "58d452a93ee37c904c11e5af83849419b5cd9ff3d38d284652696b9da9b8dcff",
+ "follow_up_inputs": [],
+ "model": "claude-opus-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-10-29T04:14:01Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": null,
+ "projects": [
+  "ai-bookkeeper"
+ ],
+ "pr": "11295",
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": 2,
+ "outcome": "success",
+ "errors": [
+  "First draft of the post's description was 169 chars (limit 160), the defect the post itself reports; check_post_frontmatter caught it before commit."
+ ],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "prompts/runs/*.json",
+   "issue": "Redteam records leave merged, lines_added and tests_added null in nearly all 294 runs (merged true in 2), so blue-team output had to be derived from mutant triage rather than the summary fields."
+  }
+ ],
+ "deviations": [],
+ "writeups": [
+  "docs/posts/2026-10-29-red-team-fifteen-days-damage-and-repairs.md"
+ ],
+ "goal": null,
+ "notes": "User-directed: audit red-team activity (how destructive) and contrast with blue-team output, as a blog post. Read all 294 redteam run records; rebuilt each of 3,429 seeded mutant lines and searched current files: 0 present on main. Blue team: 864/904 gaps guarded, 89/92 defects patched (one patched here: ai-bookkeeper unclosed CSV quote, open since 2026-10-21). First-pass catch rate flat 63-77%; boundary mutants escape ~50%. Checks: formats.test.mjs 18/18 (2 new fail without fix); run_venture_tests ai-bookkeeper 0 failed; check_post_frontmatter OK; writing/hub/podcast 28/28.",
+ "corrections": [],
+ "redteam": null
+}
