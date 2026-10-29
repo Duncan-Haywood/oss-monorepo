@@ -613,6 +613,13 @@ decisions:
     portfolio's name.
   unlocks:
     - A demand measurement on a developer-buyer channel, and submission access to the git/PR-based channels.
+    - >-
+      (Added 2026-10-29.) crates.io is a registry this covers too: `cargo
+      install dupehound` for the Rust copy-paste detector in
+      ventures/dupehound, and later tools of the "dev tools in Rust"
+      direction. crates.io logs in with a GitHub account; publishing under
+      the portfolio's name is the owner's call. index.crates.io answered 200
+      from a cloud session on 2026-10-29, so egress is not the blocker there.
   blocked_by: [egress-policy]
   note: >-
     Listed as blocked, and this is the correction the #139 table does not

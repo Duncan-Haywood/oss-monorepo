@@ -570,6 +570,9 @@ workflows:
 - workflow: dumpster-rental-margin-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: dupehound-ci.yml
+  classification: none
+  publishes: []
 - workflow: duplicate-payment-audit-ci.yml
   classification: none
   publishes: []
