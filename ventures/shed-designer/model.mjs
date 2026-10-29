@@ -422,6 +422,26 @@ function buildFramed(d) {
   }
   // Even pieces read better than one long and one stub.
   const skidPieces = skidSplit.runs.length;
+  // Block centres along each skid: one at each end, one under every skid joint
+  // (a butt joint between blocks would hang in the air), and more between so no
+  // two are over 4 ft apart. Without a joint this is the even layout of
+  // ceil(L / 4 ft) + 1 blocks.
+  const blockXs = [];
+  if (block) {
+    const fixed = [0];
+    for (let k = 1; k < skidPieces; k++) fixed.push((L * k) / skidPieces - block.along / 2);
+    fixed.push(L - block.along);
+    if (skidPieces === 1) {
+      const n = Math.ceil(L / 48) + 1;
+      for (let k = 0; k < n; k++) blockXs.push((k * (L - block.along)) / (n - 1));
+    } else {
+      for (let i = 0; i + 1 < fixed.length; i++) {
+        const n = Math.max(1, Math.ceil((fixed[i + 1] - fixed[i]) / 48 - 1e-9));
+        for (let k = 0; k < n; k++) blockXs.push(fixed[i] + (k * (fixed[i + 1] - fixed[i])) / n);
+      }
+      blockXs.push(fixed[fixed.length - 1]);
+    }
+  }
   skidYs.forEach((y, i) => {
     for (let k = 0; k < skidPieces; k++) {
       const s0 = (L * k) / skidPieces;
@@ -434,14 +454,12 @@ function buildFramed(d) {
       });
     }
     if (block) {
-      const n = Math.ceil(L / 48) + 1;
-      for (let k = 0; k < n; k++) {
-        const x = (k * (L - block.along)) / (n - 1);
+      for (const x of blockXs) {
         fixtures.push({ kind: 'block', group: 'foundation', geom: rectGeom([x, y - block.across / 2, 0], X, Z, Y, block.along, block.h, block.across) });
       }
     }
   });
-  const blockCount = block ? skidCount * (Math.ceil(L / 48) + 1) : 0;
+  const blockCount = skidCount * blockXs.length;
   const pad = 12;
   // With blocks, the gravel can go under each block alone (a 4"-deep bed 2" wider
   // than the block all round, from bags) instead of under the whole shed.
@@ -627,9 +645,11 @@ function buildFramed(d) {
       }
       if (p.op.kind === 'window') {
         addM('rough sill', d.studSize, p.a, p.a + p.w, p.bottom - 1.5, p.bottom);
-        // Sill cripples stay on the stud layout, in line with the studs; only an
-        // opening too narrow for two layout positions gets one at each end.
-        const below = inside.length >= 2 ? inside : [p.a, p.a + p.w - 1.5];
+        // Sill cripples stay on the stud layout, in line with the studs, so a
+        // siding joint on a layout line has wood under the window too. An
+        // opening with fewer than two layout positions also gets one at each end.
+        const ends = inside.length >= 2 ? [] : [p.a, p.a + p.w - 1.5];
+        const below = [...ends, ...inside.filter((s) => ends.every((e) => Math.abs(s - e) >= 1.5 - 1e-9))].sort((x, y) => x - y);
         if (p.bottom - 3 >= 1.5) for (const s of below) addM('bottom cripple', d.studSize, s, s + 1.5, 1.5, p.bottom - 1.5);
       }
       fixtures.push({

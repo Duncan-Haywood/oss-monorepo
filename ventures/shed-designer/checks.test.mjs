@@ -40,3 +40,31 @@ test('a post fails when it is too slender for its load', () => {
   assert.ok(postCheck(2, '2x4', 14, 1000) < 1);
   assert.ok(postCheck(2, '2x4', 200, 6000) > 1);
 });
+
+// Under a ridge board the rafter pair and its tie are a truss and the board
+// carries nothing, so each eave wall carries the whole half roof. The check
+// once used half the rafter run (right only under a ridge beam), which put
+// about 40% too little roof on the eave-wall headers and studs.
+test('a ridge-board roof puts the whole half roof on each eave wall: the header is the hand calculation', () => {
+  const s = buildShed(PRESETS['8x12 classic']()); // 8 ft wide, 6/12, 12" overhang, 30 psf snow
+  const cos = 12 / Math.sqrt(12 ** 2 + 6 ** 2);
+  const tribFt = (96 / 2 + 12) / 12; // ridge to eave tip, on plan
+  const wPlf = (15 / cos) * tribFt + 30 * tribFt + 10;
+  const row = structuralChecks(s).rows.find((x) => x.member === 'Header over the front door');
+  assert.match(row.detail, new RegExp(`${Math.round(wPlf)} lb/ft`));
+  // 2-ply 2x6 over the 38" door: shear governs, V = wL/2 at CD 1.15.
+  const w = wPlf / 12;
+  const V = (w * 38) / 2;
+  const shear = (1.5 * V) / (3 * 5.5) / (135 * 1.15);
+  const bending = (w * 38 ** 2) / 8 / ((3 * 5.5 ** 2) / 6) / (875 * 1.15 * 1.3);
+  assert.ok(shear > bending);
+  assert.ok(Math.abs(row.ratio - shear) < 1e-9, `${row.ratio} vs ${shear}`);
+});
+
+test('a ridge beam takes the upper half of the rafters off the eave walls', () => {
+  const load = (roofType) => Number(/(\d+) lb\/ft/.exec(structuralChecks(buildShed({ ...PRESETS['8x12 classic'](), roofType })).rows.find((x) => x.member === 'Header over the front door').detail)[1]);
+  // Beam: 43-1/4" run / 2 + 3-1/2" wall + 12" overhang = 37-1/8"; board: 48 + 12 = 60".
+  assert.ok(load('ridgeBeam') < load('ridgeBoard'));
+  const cos = 12 / Math.sqrt(180);
+  assert.equal(load('ridgeBeam'), Math.round((15 / cos + 30) * ((96 / 2 - 1.5 - 3.5) / 2 + 3.5 + 12) / 12 + 10));
+});
