@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { emptySketch, addWall, addOpening, snapPoint, pointAtLength, nearestWall, removeWall, moveCorner, moveWall, moveOpening, resizeOpening, planFromSketch, sketchToDxf, restoreSketch } from "./sketch.mjs";
+import { emptySketch, addWall, addOpening, snapPoint, pointAtLength, nearestWall, removeWall, moveCorner, moveWall, moveOpening, resizeOpening, planFromSketch, sketchToDxf, restoreSketch, newTrace, scaleTrace } from "./sketch.mjs";
 import { takeoff } from "./engine.mjs";
 
 const ft = (n) => n * 12;
@@ -145,4 +145,23 @@ test("a stored sketch comes back whole, and a damaged one loses only the bad par
   assert.deepEqual(r.sketch.openings, sk.openings);
   assert.ok(r.sketch.nextId > Math.max(...sk.walls.map((w) => w.id), ...sk.openings.map((o) => o.id)));
   assert.ok(planFromSketch(r.sketch).ok);
+});
+
+test("a trace picture is placed, then scaled about the first clicked point", () => {
+  assert.equal(newTrace(0, 10), null);
+  assert.equal(newTrace(NaN, 10), null);
+  const t = newTrace(1000, 500);
+  assert.deepEqual(t, { x: 0, y: 0, w: 600, h: 300 });
+  // two points 100 in apart on the picture are really 200 in: everything doubles about p1
+  const r = scaleTrace(t, { x: 100, y: 50 }, { x: 200, y: 50 }, 200);
+  assert.ok(r.ok);
+  assert.equal(r.factor, 2);
+  assert.deepEqual(r.trace, { x: -100, y: -50, w: 1200, h: 600 });
+  // p1 maps to itself: its picture-relative spot is unchanged
+  assert.equal(r.trace.x + (100 - t.x) * 2, 100);
+  // refusals leave the input alone
+  assert.equal(scaleTrace(t, { x: 5, y: 5 }, { x: 5, y: 5 }, 100).ok, false);
+  assert.equal(scaleTrace(t, { x: 0, y: 0 }, { x: 10, y: 0 }, -3).ok, false);
+  assert.equal(scaleTrace(t, { x: 0, y: 0 }, { x: 10, y: 0 }, 1e6).ok, false);
+  assert.deepEqual(t, { x: 0, y: 0, w: 600, h: 300 });
 });

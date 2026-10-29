@@ -341,6 +341,8 @@ with its neighbours' ends. `moveEnds`/`moveCorner`/`moveWall` refuse (changing n
 **Sketch persistence (2026-10-29):** the drawing is saved to local storage after each change (`wall-framing-takeoff-plan.sketch`) and restored on load; Clear forgets it. `eval-sketch-click.mjs` reloads the page and checks both.
 end to resize it (`moveOpening`, `resizeOpening`; refused, changing nothing, on an overlap, a sliver under 6 in or a run
 past the wall; 1 test, plus real mouse drags in `eval-sketch-click.mjs`). Not yet: moving an opening to another wall
-(erase and re-place), non-square snapping aids, a background image to trace, and sketch persistence across reloads.
+(erase and re-place) and non-square snapping aids.
+
+**Trace-over picture (2026-10-29):** choose a scan or photo of a plan, pick "Set picture scale", click both ends of a dimensioned length and type what it measures; `newTrace`/`scaleTrace` (sketch.mjs, 1 test) scale the picture about the first point and refuse a zero length, a bad length or a result under 10 ft or over 1,000 ft wide. It is a guide only: kept in memory, not stored, never uploaded. Checked with a real file upload and mouse clicks in `eval-sketch-click.mjs` (a 400 px picture set by a 100 in length to 20 ft comes out 2.4x, within click rounding). Not yet: moving or rotating the picture, perspective correction for a photo.
 
 **Stored-sketch validation (2026-10-29):** `restoreSketch` reads the saved sketch as untrusted JSON: malformed or repeated-id walls, walls under 1 in or far off the page, and openings past a wall, under 6 in, overlapping or on a missing wall are dropped and counted (the page says how many); `sketch.test.mjs` 1 test with eight kinds of damage, plus a damaged-store reload in `eval-sketch-click.mjs`.

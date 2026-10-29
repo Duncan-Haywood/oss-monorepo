@@ -302,3 +302,44 @@ export function restoreSketch(raw) {
   sk.nextId = Math.max(0, ...ids) + 1;
   return { sketch: sk, dropped };
 }
+
+/**
+ * A picture of a plan to trace over, placed on the sketch's inch grid. It is a
+ * page-side extra: the walls never depend on it, and it is not stored.
+ * @typedef {{ x: number, y: number, w: number, h: number }} Trace
+ */
+
+/**
+ * Place a picture of `nw` x `nh` pixels with its top-left at the origin and a
+ * guessed width of 50 ft (the grid's usual extent), until the user sets the
+ * scale from a known length. Null for a picture with no size.
+ * @param {number} nw
+ * @param {number} nh
+ * @returns {Trace | null}
+ */
+export function newTrace(nw, nh) {
+  if (!(nw > 0) || !(nh > 0) || !Number.isFinite(nw) || !Number.isFinite(nh)) return null;
+  return { x: 0, y: 0, w: 600, h: (600 * nh) / nw };
+}
+
+/**
+ * Set the picture's scale: `p1` and `p2` are two points clicked on a known
+ * length in the picture (a dimensioned wall), `realInches` what it really
+ * measures. The picture grows or shrinks about `p1`, so that point stays put.
+ * Refused (picture unchanged) for coincident points, a non-positive length, or
+ * a result under 10 ft or over 1,000 ft wide.
+ * @param {Trace} t
+ * @param {Pt} p1
+ * @param {Pt} p2
+ * @param {number} realInches
+ * @returns {{ ok: true, trace: Trace, factor: number } | { ok: false, error: string }}
+ */
+export function scaleTrace(t, p1, p2, realInches) {
+  const d = Math.hypot(p2.x - p1.x, p2.y - p1.y);
+  if (!(d >= 1)) return { ok: false, error: "Click two different points on the picture." };
+  if (!(realInches > 0) || !Number.isFinite(realInches)) return { ok: false, error: "Enter the real length between the two points." };
+  const f = realInches / d;
+  const w = t.w * f;
+  if (w < 120 || w > 12000) return { ok: false, error: "That scale puts the picture under 10 ft or over 1,000 ft wide. Check the length." };
+  return { ok: true, factor: f, trace: { x: p1.x + (t.x - p1.x) * f, y: p1.y + (t.y - p1.y) * f, w, h: t.h * f } };
+}

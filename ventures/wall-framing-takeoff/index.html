@@ -81,12 +81,18 @@
     <h2 id="h-sketch">Draw the plan instead of typing it</h2>
     <p class="note">Pick a tool and click on the grid. <strong>Wall</strong>: click the start, then each corner; a wall chain ends with Finish (or Escape) and ends meeting an existing wall snap to it. <strong>Door</strong> and <strong>Window</strong>: click a wall. <strong>Move</strong>: drag a wall end to move that corner (walls meeting there follow), or drag a wall to slide it; drag a door or window to slide it along its wall, or drag its end to resize it; a move that would crush a wall or strand a door is refused. <strong>Erase</strong>: click a wall or an opening. Type a length to fix the next wall's length and let the mouse choose the direction. "Use this sketch" fills the walls and openings below (corners, tees, the outside loop and opening positions are worked out from the drawing; heights and headers are defaults to check).</p>
     <div class="grid">
-      <div><label for="skTool">Tool</label><select id="skTool"><option value="wall">Wall</option><option value="door">Door</option><option value="window">Window</option><option value="move">Move</option><option value="erase">Erase</option></select></div>
+      <div><label for="skTool">Tool</label><select id="skTool"><option value="wall">Wall</option><option value="door">Door</option><option value="window">Window</option><option value="move">Move</option><option value="erase">Erase</option><option value="scale">Set picture scale</option></select></div>
       <div><label for="skGrid">Snap to</label><select id="skGrid"><option value="1">1 in</option><option value="6" selected>6 in</option><option value="12">1 ft</option><option value="24">2 ft</option></select></div>
       <div><label for="skLen">Next wall length (blank: from the mouse)</label><input id="skLen" placeholder="e.g. 14 ft"></div>
       <div><label for="skWidth">Opening width</label><input id="skWidth" value="36"></div>
       <div><label for="skOrtho"><input id="skOrtho" type="checkbox" checked> Keep walls square (horizontal or vertical)</label></div>
     </div>
+    <div class="grid">
+      <div><label for="skPic">Picture to trace (optional; stays on your device)</label><input id="skPic" type="file" accept="image/png,image/jpeg,image/webp,image/gif"></div>
+      <div><label for="skPicOpacity">Picture strength</label><input id="skPicOpacity" type="range" min="10" max="100" value="50"></div>
+      <div><button type="button" class="secondary" id="skPicClear">Remove the picture</button></div>
+    </div>
+    <p class="note">To trace a scanned or photographed plan: choose the picture, pick <strong>Set picture scale</strong>, click both ends of a dimensioned length on it, and type what it really measures. The picture is only a guide: it is not saved with the sketch and never leaves the page.</p>
     <svg id="skSvg" viewBox="-24 -24 648 448" role="img" aria-label="Plan sketch grid" style="width:100%;max-height:70vh;background:#fffdf7;border:1px solid #c9c3b3;touch-action:manipulation;cursor:crosshair"></svg>
     <p class="note" id="skInfo" aria-live="polite">Nothing drawn yet.</p>
     <button type="button" class="secondary" id="skFinish">Finish this wall chain</button>
@@ -423,7 +429,7 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, construction, building-code, legal or financial advice, and it does not replace a qualified professional, your plans or your building department. Header sizes, jack counts and stud spacing are your inputs and are not checked against any span table or code. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including every length before you cut. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Independent.</strong> Not affiliated with any lumberyard, builder, code body or software company. No lumber price is stated or implied; prices are what you type.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record: save your plan file. Your last entries stay in this browser's local storage only.</p>
-    <p>Everything runs in your browser. Your plan is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>takeoff_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>budget_csv_downloaded</code>, <code>bids_leveled</code>, <code>drawings_downloaded</code>, <code>drawings_pdf_downloaded</code>, <code>panel_order_downloaded</code>, <code>floor_on</code>, <code>roof_on</code>, <code>foundation_on</code>, <code>drywall_on</code>, <code>insulation_on</code>, <code>trim_on</code>, <code>siding_on</code>, <code>eaves_on</code>, <code>gutters_on</code>, <code>stairs_on</code>, <code>fasteners_on</code>, <code>schedule_run</code>, <code>schedule_example_loaded</code>, <code>plan_saved</code>, <code>plan_opened</code>, <code>dxf_opened</code>, <code>sketch_wall</code>, <code>sketch_opening</code>, <code>sketch_move</code>, <code>sketch_used</code>) are counted only in local storage on your device, never with anything you typed.</p>
+    <p>Everything runs in your browser. Your plan is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>takeoff_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>budget_csv_downloaded</code>, <code>bids_leveled</code>, <code>drawings_downloaded</code>, <code>drawings_pdf_downloaded</code>, <code>panel_order_downloaded</code>, <code>floor_on</code>, <code>roof_on</code>, <code>foundation_on</code>, <code>drywall_on</code>, <code>insulation_on</code>, <code>trim_on</code>, <code>siding_on</code>, <code>eaves_on</code>, <code>gutters_on</code>, <code>stairs_on</code>, <code>fasteners_on</code>, <code>schedule_run</code>, <code>schedule_example_loaded</code>, <code>plan_saved</code>, <code>plan_opened</code>, <code>dxf_opened</code>, <code>sketch_wall</code>, <code>sketch_opening</code>, <code>sketch_move</code>, <code>sketch_used</code>, <code>sketch_trace_loaded</code>, <code>sketch_trace_scaled</code>) are counted only in local storage on your device, never with anything you typed.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Related tools: the <a href="../cut-list-optimizer/">cut list optimizer</a> for sheet goods and shop stock, and the <a href="../tile-layout-planner/">tile layout planner</a>. Command line and source: <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/wall-framing-takeoff" rel="noopener">wall-framing-takeoff on GitHub</a>.</p>
     <p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
@@ -432,7 +438,7 @@
   <script type="module">
     import { takeoff, samplePlan, defaultStock, parseLength, formatLength, formatInches, toCsv, verifyWall, PRECUT, DEPTH } from "./engine.mjs";
     import { planFromDxf } from "./dxf.mjs";
-    import { emptySketch, addWall, addOpening, snapPoint, pointAtLength, nearestWall, moveCorner, moveWall, moveOpening, resizeOpening, removeWall, removeOpening, openingEnds, planFromSketch, wallLength, restoreSketch } from "./sketch.mjs";
+    import { emptySketch, addWall, addOpening, snapPoint, pointAtLength, nearestWall, moveCorner, moveWall, moveOpening, resizeOpening, removeWall, removeOpening, openingEnds, planFromSketch, wallLength, restoreSketch, newTrace, scaleTrace } from "./sketch.mjs";
     import { drawingSetHtml } from "./drawings.mjs";
     import { drawingSetPdf } from "./pdf.mjs";
     import { panelOrder, panelOrderText, panelPullText } from "./panels.mjs";
@@ -1207,7 +1213,7 @@
     {
       const svg = /** @type {SVGSVGElement} */ ($("#skSvg"));
       const NS = "http://www.w3.org/2000/svg";
-      let sk = emptySketch(), chain = null, hover = null, restoreNote = "";
+      let sk = emptySketch(), chain = null, hover = null, restoreNote = "", trace = null, traceHref = "", scalePt = null;
       const SKEY = KEY + ".sketch";
       try {
         const back = restoreSketch(JSON.parse(localStorage.getItem(SKEY) || "null"));
@@ -1240,7 +1246,9 @@
         for (const w of sk.walls) for (const p of [w.a, w.b]) { minX = Math.min(minX, p.x - 36); minY = Math.min(minY, p.y - 36); maxX = Math.max(maxX, p.x + 36); maxY = Math.max(maxY, p.y + 36); }
         minX = Math.floor(minX / 12) * 12; minY = Math.floor(minY / 12) * 12; maxX = Math.ceil(maxX / 12) * 12; maxY = Math.ceil(maxY / 12) * 12;
         svg.setAttribute("viewBox", `${minX} ${minY} ${maxX - minX} ${maxY - minY}`);
+        if (trace) { minX = Math.min(minX, Math.floor(trace.x / 12) * 12); minY = Math.min(minY, Math.floor(trace.y / 12) * 12); maxX = Math.max(maxX, Math.ceil((trace.x + trace.w) / 12) * 12); maxY = Math.max(maxY, Math.ceil((trace.y + trace.h) / 12) * 12); svg.setAttribute("viewBox", `${minX} ${minY} ${maxX - minX} ${maxY - minY}`); }
         const wpx = maxX - minX;
+        if (trace) svg.append(el("image", { href: traceHref, x: trace.x, y: trace.y, width: trace.w, height: trace.h, opacity: Number($("#skPicOpacity").value) / 100, preserveAspectRatio: "none" }));
         for (let x = minX; x <= maxX; x += 12) svg.append(el("line", { x1: x, y1: minY, x2: x, y2: maxY, stroke: x % 120 === 0 ? "#cfc8b4" : "#ebe6d8", "stroke-width": x % 120 === 0 ? 1.2 : 0.6 }));
         for (let y = minY; y <= maxY; y += 12) svg.append(el("line", { x1: minX, y1: y, x2: maxX, y2: y, stroke: y % 120 === 0 ? "#cfc8b4" : "#ebe6d8", "stroke-width": y % 120 === 0 ? 1.2 : 0.6 }));
         const fs = Math.max(8, wpx / 55);
@@ -1252,6 +1260,7 @@
           const e = openingEnds(sk, o);
           svg.append(el("line", { x1: e.a.x, y1: e.a.y, x2: e.b.x, y2: e.b.y, stroke: o.kind === "door" ? "#b5651d" : "#2b6cb0", "stroke-width": 9, "stroke-linecap": "butt", "data-opening": o.id }));
         }
+        if (scalePt) svg.append(el("circle", { cx: scalePt.x, cy: scalePt.y, r: 6, fill: "#2b6cb0" }));
         if (chain) {
           svg.append(el("circle", { cx: chain.x, cy: chain.y, r: 6, fill: "#c0392b" }));
           if (hover) {
@@ -1312,6 +1321,17 @@
       svg.addEventListener("click", (e) => {
         const raw = cursor(e), tool = $("#skTool").value;
         if (tool === "move") return;
+        if (tool === "scale") {
+          if (!trace) { $("#skInfo").textContent = "Choose a picture first."; return; }
+          if (!scalePt) { scalePt = raw; draw(); $("#skInfo").textContent = "Now click the other end of the length you know."; return; }
+          const first = scalePt; scalePt = null;
+          const typed = parseLength(window.prompt("What does that length really measure? (e.g. 14 ft, 168)") || "");
+          const r = scaleTrace(trace, first, raw, typed);
+          if (!r.ok) { draw(); $("#skInfo").textContent = r.error; return; }
+          trace = r.trace; record("sketch_trace_scaled"); draw();
+          $("#skInfo").textContent = "Picture scaled. Trace over it with the Wall tool.";
+          return;
+        }
         if (tool === "wall") {
           const p = target(raw);
           if (!chain) { chain = p; }
@@ -1341,7 +1361,23 @@
         draw();
       });
       document.addEventListener("keydown", (e) => { if (e.key === "Escape" && chain) finish(); });
-      $("#skTool").addEventListener("change", finish);
+      $("#skTool").addEventListener("change", () => { scalePt = null; finish(); });
+      $("#skPicOpacity").addEventListener("input", draw);
+      const dropPic = () => { if (traceHref) URL.revokeObjectURL(traceHref); trace = null; traceHref = ""; scalePt = null; };
+      $("#skPicClear").addEventListener("click", () => { dropPic(); $("#skPic").value = ""; draw(); });
+      $("#skPic").addEventListener("change", (e) => {
+        const f = e.target.files && e.target.files[0];
+        if (!f) return;
+        const href = URL.createObjectURL(f), img = new Image();
+        img.onload = () => {
+          const t = newTrace(img.naturalWidth, img.naturalHeight);
+          if (!t) { URL.revokeObjectURL(href); $("#skInfo").textContent = "That picture has no size."; return; }
+          dropPic(); trace = t; traceHref = href; record("sketch_trace_loaded"); draw();
+          $("#skInfo").textContent = "Picture placed at a guessed 50 ft wide. Pick Set picture scale and click both ends of a known length.";
+        };
+        img.onerror = () => { URL.revokeObjectURL(href); $("#skInfo").textContent = "That file is not a picture the browser can read."; };
+        img.src = href;
+      });
       $("#skFinish").addEventListener("click", finish);
       $("#skUndo").addEventListener("click", () => { const h = history.pop(); if (h) { sk = JSON.parse(h); chain = null; hover = null; draw(); } });
       $("#skClear").addEventListener("click", () => { if (!sk.walls.length) return; snap(); sk = emptySketch(); chain = null; hover = null; draw(); });

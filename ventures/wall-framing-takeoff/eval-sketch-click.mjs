@@ -101,6 +101,18 @@ await page.reload();
 check(/1 damaged stored item/.test(await page.textContent("#skInfo")) && await page.evaluate(() => document.querySelectorAll("#skSvg text").length) === wallsBefore, "a damaged stored wall is left out, the rest kept");
 await page.click("#skClear"); await page.reload();
 check(await page.evaluate(() => document.querySelectorAll("#skSvg text").length) === 0, "Clear the sketch is remembered across a reload");
+// a picture to trace: load a 400 x 200 PNG, set its scale from a 100 px length that is really 20 ft
+const png = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAZAAAADICAIAAABJdyC1AAACqklEQVR4nO3UwQkAIBDAsNt/WidQV/AnhUAG6Ktz9gJImO8FAI8MC8gwLCDDsIAMwwIyDAvIMCwgw7CADMMCMgwLyDAsIMOwgAzDAjIMC8gwLCDDsIAMwwIyDAvIMCwgw7CADMMCMgwLyDAsIMOwgAzDAjIMC8gwLCDDsIAMwwIyDAvIMCwgw7CADMMCMgwLyDAsIMOwgAzDAjIMC8gwLCDDsIAMwwIyDAvIMCwgw7CADMMCMgwLyDAsIMOwgAzDAjIMC8gwLCDDsIAMwwIyDAvIMCwgw7CADMMCMgwLyDAsIMOwgAzDAjIMC8gwLCDDsIAMwwIyDAvIMCwgw7CADMMCMgwLyDAsIMOwgAzDAjIMC8gwLCDDsIAMwwIyDAvIMCwgw7CADMMCMgwLyDAsIMOwgAzDAjIMC8gwLCDDsIAMwwIyDAvIMCwgw7CADMMCMgwLyDAsIMOwgAzDAjIMC8gwLCDDsIAMwwIyDAvIMCwgw7CADMMCMgwLyDAsIMOwgAzDAjIMC8gwLCDDsIAMwwIyDAvIMCwgw7CADMMCMgwLyDAsIMOwgAzDAjIMC8gwLCDDsIAMwwIyDAvIMCwgw7CADMMCMgwLyDAsIMOwgAzDAjIMC8gwLCDDsIAMwwIyDAvIMCwgw7CADMMCMgwLyDAsIMOwgAzDAjIMC8gwLCDDsIAMwwIyDAvIMCwgw7CADMMCMgwLyDAsIMOwgAzDAjIMC8gwLCDDsIAMwwIyDAvIMCwgw7CADMMCMgwLyDAsIMOwgAzDAjIMC8gwLCDDsIAMwwIyDAvIMCwgw7CADMMCMgwLyDAsIMOwgAzDAjIMC8gwLCDDsIAMwwIyDAvIMCwgw7CADMMCMgwLyDAsIMOwgAzDAjIMC8gwLCDDsIAMwwIyDAvIMCwg4wJh3IQPGCqhfgAAAABJRU5ErkJggg==", "base64");
+await page.setInputFiles("#skPic", { name: "plan.png", mimeType: "image/png", buffer: png });
+await page.waitForSelector("#skSvg image");
+const imgW = () => page.evaluate(() => Number(document.querySelector("#skSvg image").getAttribute("width")));
+check(await imgW() === 600, "a picture to trace is placed 50 ft wide until scaled");
+page.once("dialog", (d) => d.accept("20 ft"));
+await page.selectOption("#skTool", "scale");
+await click(60, 60); await click(160, 60);
+check(Math.abs(await imgW() - 1440) < 30, "100 in on the picture set to 20 ft scales it x2.4 (width " + await imgW() + ")");
+await page.click("#skPicClear");
+check(await page.evaluate(() => document.querySelectorAll("#skSvg image").length) === 0, "Remove the picture clears it");
 check(errors.length === 0, "no page errors" + (errors.length ? ": " + errors.join("; ") : ""));
 await browser.close(); server.close();
 process.exit(bad ? 1 : 0);
