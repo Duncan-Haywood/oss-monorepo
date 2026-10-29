@@ -261,3 +261,15 @@ annual temperature at New Haven, Connecticut, 1912-1971, degrees F
   `WWWusage.csv` and `nhtemp.csv`.
 - **Licence:** R datasets (GPL-2 or later with R). Test data only.
 - **Used by:** `wwwusage-nhtemp.test.mjs`.
+
+# Example data: Ansett Melbourne-Sydney first-class passengers, 1987-1992
+
+`ansett-melsyd-first.csv`: weekly first-class passengers (thousands) on the
+same route, 270 weeks from 1988-03-28. R's `fpp2::melsyd`, column
+`First.Class`. The first 13 weeks are dropped because week 13 of the source is
+blank (not filled in). The dispute is in the data as seven zero weeks.
+
+- **Retrieved:** 2026-10-29 from the same Rdatasets mirror as
+  `ansett-melsyd-economy.csv`.
+- **Licence:** fpp2 is GPL-3 (Hyndman); airline traffic counts, test data only.
+- **Used by:** `eval/ansett-first.mjs`, `ansett-first.test.mjs`.
