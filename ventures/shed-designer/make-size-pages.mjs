@@ -14,7 +14,11 @@ export const SIZES = [
 const HAND = '8x12 page: shed-plans-with-cut-list.html';
 const HAND_FILE = 'shed-plans-with-cut-list.html';
 const slug = (w, l) => `how-much-lumber-for-a-${w}x${l}-shed.html`;
-const money = (n) => `$${n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+const money = (n) => {
+  const format = (n) => `$${n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const text = format(Math.abs(n));
+  return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+};
 const ft = (inch) => `${inch / 12}'`;
 
 export function design(w, l, base) {
