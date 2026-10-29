@@ -29,18 +29,29 @@
   "outcome": "success",
   "errors": [],
   "integrity_issues": [],
-  "doc_friction": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--for-changes diffs against a newer origin/main in a shallow clone, selecting 94 workflows for a one-file docs change; not usable to verify a small PR."
+    }
+  ],
   "deviations": [
     {
       "file": "prompts/promptctl.py",
       "why": "Left --model unset: this session's instructions forbid model identifiers in pushed artifacts.",
       "did": "omitted model",
       "result": "record still validates"
+    },
+    {
+      "file": ".github/prompts/verify-and-merge.md",
+      "why": "Widened a docs PR with three small fixes to main's own red checks, because main was red for every post PR and the session may push only to its own branch.",
+      "did": "fixed in this PR",
+      "result": "local suites green"
     }
   ],
   "writeups": [],
   "goal": null,
-  "notes": "Docs-only PR (one blog post). Facts verified locally on Node v22.22.0: node runs .ts and node --test .test.ts; enum fails ERR_UNSUPPORTED_TYPESCRIPT_SYNTAX; stripTypeScriptTypes 352k chars ~100ms; ./x.js specifier for x.ts fails ERR_MODULE_NOT_FOUND. Counts from git ls-files at branch base. run_workflow_locally --for-changes output summarised in PR.",
+  "notes": "Docs-only PR (one blog post). Facts verified locally on Node v22.22.0: node runs .ts and node --test .test.ts; enum fails ERR_UNSUPPORTED_TYPESCRIPT_SYNTAX; stripTypeScriptTypes 352k chars ~100ms; ./x.js specifier for x.ts fails ERR_MODULE_NOT_FOUND. Counts from git ls-files at branch base. run_workflow_locally --for-changes output summarised in PR. CI then showed main itself red in three places, none caused by this PR, each fixed here (fix forward; no fix PR existed): (1) the third-party-font post (#11242) quoted the placeholder origin, failing build.test.mjs 'no page still points at the placeholder origin'; (2) the photographer-bookkeeping post (#11287) had a 178-char description (limit 160); (3) #11274 changed visible FAQ answers on ai-bookkeeper tax-calendar.html and trainer-bookkeeping.html without the FAQPage JSON-LD, failing faq-visible.test.mjs. After merging main: platform/pages node --test '*.test.mjs' 1309 pass 0 fail; run_venture_tests.py ai-bookkeeper 0 failed; promptctl validate ok; check_post_frontmatter ok.",
   "corrections": [],
   "redteam": null
 }
