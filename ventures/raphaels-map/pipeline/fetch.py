@@ -405,7 +405,35 @@ def fetch_homeschool(out: Path) -> None:
         save(out, "homeschool", urllib.parse.unquote(href.rsplit("/", 1)[1].split("?")[0]), get(href), href)
 
 
-ALL = [fetch_acs, fetch_census_geo, fetch_usrc, fetch_gss, fetch_nsfg, fetch_wpp, fetch_wb,
+@attempt("venues")
+def fetch_venues(out: Path) -> None:
+    # Fetch each listed venue's own page so the build can mark it verified
+    # (status, final URL, <title>, and a text excerpt; no page is kept whole).
+    path = Path(__file__).resolve().parent.parent / "data" / "communities.json"
+    venues = json.loads(path.read_text())["venues"]
+    checks = []
+    for v in venues:
+        url = v.get("public_url")
+        row = {"id": v["id"], "url": url, "checked_at": now()}
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": UA})
+            with urllib.request.urlopen(req, timeout=30) as r:
+                body = r.read(400_000).decode("utf-8", "replace")
+                row.update(status=r.status, final_url=r.geturl())
+            t = re.search(r"<title[^>]*>(.*?)</title>", body, re.I | re.S)
+            row["title"] = html.unescape(t.group(1)).strip()[:200] if t else None
+            text = re.sub(r"<(script|style)[^>]*>.*?</\1>", " ", body, flags=re.I | re.S)
+            text = re.sub(r"\s+", " ", html.unescape(re.sub(r"<[^>]+>", " ", text)))
+            row["excerpt"] = text[:1500]
+        except urllib.error.HTTPError as e:
+            row.update(status=e.code, error=str(e)[:200])
+        except Exception as e:  # noqa: BLE001 - recorded per venue
+            row.update(status=None, error=str(e)[:200])
+        checks.append(row)
+    save(out, "venues", "checks.json", json.dumps(checks, indent=1).encode(), str(path.name))
+
+
+ALL = [fetch_venues, fetch_acs, fetch_census_geo, fetch_usrc, fetch_gss, fetch_nsfg, fetch_wpp, fetch_wb,
        fetch_eurostat, fetch_election, fetch_homeschool]
 
 
