@@ -47,7 +47,8 @@
     .editors { display: grid; gap: 14px; }
     svg.edit { width: 100%; height: auto; display: block; touch-action: none; background: #fbfaf6; border-radius: 10px; border: 1px solid var(--line); }
     #plan { aspect-ratio: 4 / 3; }
-    #endview { aspect-ratio: 16 / 8; }
+    /* The end view takes its picture's own shape (set by its viewBox), up to a height. */
+    #endview { max-height: 26rem; }
     .hint { color: var(--muted); font-size: .85rem; margin: 6px 0 0; }
     .pad { fill: #ece8df; stroke: #b8b1a3; stroke-dasharray: 4 3; }
     .floor { fill: #e9dcc0; stroke: #6b4f2a; }
