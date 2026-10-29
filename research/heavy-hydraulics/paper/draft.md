@@ -22,6 +22,8 @@ Loads come from a force model (`experiments/physics_cycle.py`): dig force from R
 
 All ratios are medians over 5,000 to 20,000 seeded model cycles.
 
+**3.1a A sourced neutral pressure reverses the idle ranking (milestone 2i).** Reading the open-centre neutral drop from the Salami VD8A sectional-valve catalogue (about 1 bar per section at the 75 L/min nominal flow; 8-spool curve about 12.7 bar at 90 L/min; Q-squared scaling) gives 1.1 to 3.2 bar at our 45 L/min pump for 3 to 8 sections, below the 6 to 11 bar break-even. At load factor 0.346 the median LS/OC is then 1.08 to 1.12 (LS worse in 72 to 80% of cycles), and 1.02 to 1.03 with an assumed extra 5 bar for return line and cooler (`neutral_sourced_results.txt`). The abstract's "21% less" therefore holds only if the neutral path holds 6 to 8 bar or more; this is one valve family and the LS margin is still unsourced.
+
 **3.1 The ranking depends on idle time and neutral pressure.**
 
 | Condition (LS shaft energy / open-centre) | Median | Share of cycles LS > OC | Source file |
@@ -44,7 +46,7 @@ The load factor 0.346 is mean over peak electrical input power of one **electric
 ## 4. Threats to validity
 
 1. No measured hydraulic pressure and flow trace; H4 is untested.
-2. The idle model and the neutral pressure are assumptions; the whole LS-versus-OC ranking reduces to the latter.
+2. The idle model is an assumption, and the neutral pressure is read from one manufacturer's 75 L/min-class valve catalogue (a figure reading, valve only; section 3.1a), not from an excavator block; the whole LS-versus-OC ranking reduces to it and to the unsourced LS margin.
 3. Margins come from two different machines, one simulated.
 4. The force model's lift phase carries 5.6 times the gravity work of the bucket load (median), so its phases are not purely gravitational.
 5. Parts are retail listings of different brands; the LS valve price is unsourced; diesel is from a secondary summary.

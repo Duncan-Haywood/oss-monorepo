@@ -2,6 +2,21 @@
 
 Newest first.
 
+## 2026-10-29 · Milestone 2i: with the open-centre neutral pressure read from a published valve curve, who wins at idle? (planned before running)
+- Why: the log's standing "Next" (since 2h): the ranking reduces to one number, p_n, and no source was found. This session found one: the Salami VD8A sectional-valve catalogue (PDF from psifluidpower.ca, opened and read; E0.06.0911.02.02), nominal 75 L/min, text "approximatively 1 bar for each spool at nominal flow" with spools in neutral, and a P-to-T curve per spool count (p. 7) that reads about 12.7 bar at 90 L/min for 8 spools (read off the figure, +-0.5 bar). Drop scales as Q^2. At the model's 45 L/min pump that is about 0.36 bar per section by the text, 0.4 by the curve.
+- Plan (`experiments/neutral_sourced.py`, 2g's `ratio`, load factor 0.346, LS standby 2 L/min): p_n = valve drop for 3, 4, 6, 8 sections under both readings (text, curve), plus an ASSUMED extra 0, 2 or 5 bar for return line, filter and cooler (not in a valve catalogue). Report LS/OC median (5 to 95%) and the share of cycles where LS loses.
+- **Predictions (before running):** (1) valve-only (extra 0) LS/OC is above 1.05 for every section count up to 8, both readings (prior 85%): p_n* in 2h was 6.4 to 10.8 bar and the valve alone is under 4 bar. (2) With extra 5 bar and 4 sections or fewer, LS/OC stays above 1.0 (prior 80%). (3) The text and curve readings give p_n within 1 bar of each other at 4 sections (prior 70%). Refuted: (1) any cell at 1.05 or under; (2) any such cell below 1.0; (3) gap of 1 bar or more.
+- Limits known in advance: one catalogue, one manufacturer's valve, a 75 L/min class part rather than an excavator block; a figure reading; excavators add boom-holding, anti-cavitation and flow-share elements, and many open-centre blocks have a parallel-series path with more drop; the extra bar is assumed; the LS side (standby, dp_ls 25 bar) is still unsourced.
+
+### Outcome of 2i (`experiments/neutral_sourced.py`, about 1 minute, seeded; `experiments/neutral_sourced_results.txt`; 3,000 cycles per cell)
+- Valve drop at 45 L/min: 1.1 to 1.2 bar (3 sections), 1.4 to 1.6 (4), 2.2 to 2.4 (6), 2.9 to 3.2 (8); the text and curve readings differ by under 0.4 bar everywhere.
+- **(1) held:** valve-only LS/OC median is 1.081 to 1.122 in every cell, i.e. load-sensing uses 8 to 12% MORE shaft energy than open-centre at the measured load factor; LS is the worse circuit in 72 to 80% of cycles.
+- **(2) held:** with an assumed extra 5 bar and 3 or 4 sections the ratio is 1.019 to 1.027, still above 1.
+- **(3) held:** the readings differ by 0.15 bar at 4 sections.
+- Reading: on this valve family the open-centre neutral drop is a few bar, below the 6 to 11 bar break-even of 2h, so 2f's headline "load-sensing saves 21% at the measured load factor" does not survive a sourced p_n; it flips to open-centre ahead by about 10% unless something else in the neutral path (return filter, cooler, a high-drop excavator block, a relief-limited bypass) adds 6 to 8 bar. Together with 4 (payback not met) this makes the sourced case against load-sensing on a small excavator, for energy, stronger. It remains a single manufacturer's 75 L/min-class valve; the LS side (dp_ls 25 bar, standby flow) is still unsourced and is the next input.
+- Limits: as planned. The 8-spool figure value is a reading, the extra bar is assumed, and 2h's finding stands that whichever way the ranking falls it is set by p_n and dp_ls.
+- Next: source dp_ls (LS margin pressure; pump datasheet) and an excavator-class open-centre block drop; regenerate the 2g table and the paper's ranking table with the sourced p_n.
+
 ## 2026-10-29 · Milestone 6 (first draft): paper/draft.md
 - No new experiment. Drafted the paper from the landed results (`paper/draft.md`): abstract, model, ranking-versus-idle table, metering bound, payback, recovery bound, threats and "what would settle it". Every number was copied from a results file; the one I re-checked against the files before writing was the sourced no-idle LS/OC median (1.043; 12,503 of 20,000 cycles, 62.5%).
 - Not paper-ready: no measured hydraulic trace (H4 untested), the neutral pressure drop and LS valve price are unsourced, citations were confirmed by search only (Crossref 403), and no figure exists yet. The draft lists these as the four inputs that would settle it.
