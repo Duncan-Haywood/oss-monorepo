@@ -1,0 +1,53 @@
+name: dupehound CI
+
+# The repository's first Rust crate. One engine, two surfaces: the native CLI
+# and the WebAssembly build the page loads (web/dupehound.wasm, committed so
+# the Pages build needs no Rust toolchain). The parity test runs the
+# committed .wasm against the freshly built CLI, so a source change that
+# alters results without a rebuilt .wasm fails here.
+on:
+  pull_request:
+    paths:
+      - "ventures/dupehound/**"
+      - ".github/workflows/dupehound-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "ventures/dupehound/**"
+      - ".github/workflows/dupehound-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dupehound-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: ventures/dupehound
+
+jobs:
+  test:
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "22"
+      - name: Toolchain
+        run: rustup component add rustfmt clippy && rustup target add wasm32-unknown-unknown && cargo --version
+      - name: Format
+        run: cargo fmt --check
+      - name: Lint
+        run: cargo clippy --release --all-targets -- -D warnings
+      - name: Unit tests (tokenizer, detector, brute-force cross-check)
+        run: cargo test --release
+      - name: WebAssembly build compiles
+        run: cargo build --release --lib --target wasm32-unknown-unknown --no-default-features
+      - name: Committed .wasm matches the CLI, page and usage tests
+        run: node --test web/dupehound.test.mjs page.test.mjs usage.test.mjs

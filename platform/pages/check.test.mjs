@@ -874,9 +874,9 @@ const nginxWith = (...extensions) =>
     .join('');
 
 test('an extension nothing knows how to type fails the check', () => {
-  const problems = checkServedExtensions(['tool/model.wasm'], nginxWith('.mjs'));
+  const problems = checkServedExtensions(['tool/model.glb'], nginxWith('.mjs'));
   assert.equal(problems.length, 1);
-  assert.match(problems[0], /nothing says how nginx should type "\.wasm"/);
+  assert.match(problems[0], /nothing says how nginx should type "\.glb"/);
   // The message has to carry the fix, because the person who trips it is
   // adding an asset to a venture and has no reason to know nginx's mime.types.
   assert.match(problems[0], /SERVED_EXTENSIONS/);
@@ -921,12 +921,12 @@ test('the allowlist still applies when the manifest is not on disk', () => {
   // to cross-check against. The extension allowlist is still meaningful there;
   // only the manifest half is skipped.
   assert.deepEqual(checkServedExtensions(['tool/calc.mjs'], null), []);
-  assert.match(checkServedExtensions(['tool/model.wasm'], null)[0], /nothing says how/);
+  assert.match(checkServedExtensions(['tool/model.glb'], null)[0], /nothing says how/);
 });
 
 test('each extension is reported once, not once per file', () => {
   // 552 .mjs files must not produce 552 problems.
-  const files = Array.from({ length: 50 }, (_, i) => `tool/a${i}.wasm`);
+  const files = Array.from({ length: 50 }, (_, i) => `tool/a${i}.glb`);
   assert.equal(checkServedExtensions(files, '').length, 1);
 });
 

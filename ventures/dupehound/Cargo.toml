@@ -1,0 +1,30 @@
+[package]
+name = "dupehound"
+version = "0.1.0"
+edition = "2021"
+description = "Fast copy-paste (code clone) detector: token-based, parallel, jscpd-compatible defaults"
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/duncan-haywood/oss-monorepo"
+keywords = ["copy-paste", "duplicate-code", "clone-detection", "jscpd", "lint"]
+categories = ["command-line-utilities", "development-tools"]
+
+[lib]
+crate-type = ["rlib", "cdylib"]
+
+[[bin]]
+name = "dupehound"
+required-features = ["cli"]
+
+[features]
+default = ["cli"]
+# The directory walker; the browser build reads files the page hands it.
+cli = ["dep:ignore"]
+
+[dependencies]
+ignore = { version = "0.4", optional = true }
+rayon = "1"
+
+[profile.release]
+lto = "thin"
+codegen-units = 1

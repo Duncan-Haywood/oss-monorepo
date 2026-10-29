@@ -1,0 +1,48 @@
+name: dupehound
+description: Free, open-source (MIT) copy-paste (code clone) detector written in Rust. One engine runs as a native CLI (a CI gate with --threshold) and, compiled to WebAssembly, in a browser page that uploads nothing. Measured against jscpd 4.3.0 on 9,458 files of this repository - 1.2 s and 500 MB against 337 s and 6.2 GB, flagging the same lines to within about 5% (BENCHMARK.md).
+stage: prototype
+
+owner: duncan
+
+# First tool of the "dev tools in Rust, common and niche" direction the owner
+# set on 2026-10-29 (prompts/goals.md). Screened with
+# `python3 portfolio/pipeline/duplicate_check.py`: top score 0.17
+# (claude-code-settings-check, an unrelated config checker); nothing in the
+# portfolio detects duplicated code. `npm-lockfile-duplicates-check` (0.11)
+# is about duplicate package versions in a lockfile, not code.
+#
+# Why Rust (prompts/goals.md, "Rust where it is essential"): the inner loop is
+# the measured constraint (jscpd ran out of memory on this repository), and
+# the same engine ships to a CLI and the browser.
+hypotheses:
+  - claim: >-
+      A developer whose JavaScript or TypeScript monorepo is large enough that
+      jscpd is slow or runs out of memory will search for a faster copy-paste
+      detector and use dupehound's CLI or page instead.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      A team will wire `dupehound --threshold` into CI as a duplication gate,
+      the way jscpd's `--threshold` is used today.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found running dupehound within 120 days of a crates.io release.
+
+links:
+  production: https://duncan-haywood.github.io/oss-monorepo/dupehound/
+  analytics: null

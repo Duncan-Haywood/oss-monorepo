@@ -449,6 +449,8 @@ const NON_WEB_EXTENSIONS = new Set([
   // Labelled data sets (sales-agent's eval/*.jsonl): read by scripts in the repo, of no use to a visitor, and
   // nginx has no type for them.
   '.jsonl',
+  // Rust sources (dupehound): the page loads the compiled .wasm, never the source.
+  '.rs',
 ]);
 
 // Files whose contents get the placeholder origin swapped for the real one.
