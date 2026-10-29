@@ -299,6 +299,14 @@ export function estimate(shed, prices = examplePrices()) {
     const p = priceOr(prices.items?.[`product:${pr.id}`], pr.price);
     line('Doors and windows', pr.name, qty, 'each', p, { ...sourceOf(p, { price: pr.price, url: pr.url, store: pr.store, seen: '2026-10-29', note: pr.note, kind: 'listed' }), key: `product:${pr.id}` });
   }
+  // A custom-size opening is framed but has no unit to buy: say so, rather than
+  // leave it silently out of the total.
+  /** @type {string[]} */
+  const unpriced = [];
+  for (const op of d.openings) {
+    if (op.product === 'site-built' || productById(op.product)) continue;
+    unpriced.push(`${op.kind === 'door' ? 'Door' : 'Window'} ${fmtIn(op.width)} x ${fmtIn(op.height)} on the ${WHERE[`wall:${op.wall}`] || op.wall} (custom size)`);
+  }
   if (dims.padSqFt) line('Site prep', label('landscapeFabric'), Math.ceil((dims.padSqFt * 1.15) / 150), 'roll', item('landscapeFabric'), src('landscapeFabric'));
   if (dims.baseBags) line('Site prep', label('paverBase'), dims.baseBags, 'bag', item('paverBase'), src('paverBase'));
   // Compact the pad in 2" lifts: a hand tamper does a shed pad; a rented plate compactor is faster on a big one.
@@ -386,7 +394,7 @@ export function estimate(shed, prices = examplePrices()) {
   // a bound on. lumberCost adds spares and any bulk prices on top.
   const cutSheetCost = Math.round(lumber.reduce((t, l) => t + l.result.cost, 0) * 100) / 100;
   return {
-    parts, lumber, shopping, problems, total, tax, deliveryFee, grandTotal, trimCuts, lumberCost, cutSheetCost, lowerBound, boards,
+    parts, lumber, shopping, problems, total, unpriced, tax, deliveryFee, grandTotal, trimCuts, lumberCost, cutSheetCost, lowerBound, boards,
     pieces: all.length, floorSheets, roofSheets,
     footprintSqFt: (d.length * d.width) / 144,
   };
@@ -449,14 +457,28 @@ export function cutSheetCsv(est) {
   return rows.map((r) => r.map((c) => (/[",\n]/.test(c) ? `"${c.replace(/"/g, '""')}"` : c)).join(',')).join('\n') + '\n';
 }
 
+/**
+ * Where a price came from, in words: the store and date for a listing, with
+ * "(scaled)" or "(estimate)" whenever the number is not the listing's own.
+ * An estimate can still name the page it was estimated from.
+ * @param {any} s a shopping line's source
+ */
+export function sourceLabel(s) {
+  if (!s) return '';
+  if (s.kind === 'yours') return 'your price';
+  const tag = s.kind === 'derived' ? ' (scaled)' : s.kind === 'estimate' ? ' (estimate)' : '';
+  if (!s.store && !s.seen) return s.kind === 'estimate' ? 'estimate' : tag.trim();
+  return `${s.store || 'listing'}${s.seen ? `, ${s.seen}` : ''}${tag}`;
+}
+
 /** CSV of the shopping list. */
 export function shoppingCsv(est) {
   const rows = [['section', 'item', 'qty', 'unit', 'unit price', 'total', 'price source', 'listing']];
   for (const r of est.shopping) {
     const s = r.source || {};
-    const from = s.kind === 'yours' ? 'your price' : s.kind === 'estimate' ? 'estimate' : `${s.store || ''}${s.seen ? `, ${s.seen}` : ''}${s.kind === 'derived' ? ' (scaled)' : ''}`;
-    rows.push([r.section, r.name, String(r.qty), r.unit, r.price.toFixed(2), r.total.toFixed(2), from, s.url || '']);
+    rows.push([r.section, r.name, String(r.qty), r.unit, r.price.toFixed(2), r.total.toFixed(2), sourceLabel(s), s.url || '']);
   }
   rows.push(['', 'Total', '', '', '', est.total.toFixed(2), '', '']);
+  for (const u of est.unpriced) rows.push(['Not in the total', u, '1', 'each', '', '', 'no unit picked', '']);
   return rows.map((r) => r.map((c) => (/[",\n]/.test(c) ? `"${c.replace(/"/g, '""')}"` : c)).join(',')).join('\n') + '\n';
 }
