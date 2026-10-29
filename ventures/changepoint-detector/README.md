@@ -986,6 +986,13 @@ Read plainly: without a change the note is rare, but with monthly data and two g
 It is silent on the series with a fixed season and no change, and fires where the season grows, as intended. The UK driver deaths row is the miss: the warning says "usually marks a seasonal shape that is still changing", but its four packed steps (1972-11, 1973-11, 1974-06, 1974-11) are the winter-1973 fuel-rationing dip and the rebound, genuine regime changes in a fixed-season series. The same steps are named in the seat-belt section above. The signs do not separate the cases either: dip-and-rebound (-, +, -) in the deaths, but airline and UK gas also carry mixed signs (1953-03+ 1953-06-; 1970Q2+ 1970Q4- 1971Q2+). Five series, one wrong, no rule found on them; a run-sign test would be fitted to this sample. Not changed: the threshold or the text. Open: more real series, and a way to tell a seasonal shape from a short-lived real shock (a seasonal-profile refit at each step is the candidate).
 
 
+## Two more real series: WWWusage and nhtemp (2026-10-29)
+
+`data/www-usage.csv` (users on an internet server each minute, 100 points) and `data/nhtemp.csv` (New Haven annual temperature, 1912 to 1971), both R datasets (`data/SOURCE.md`). `wwwusage-nhtemp.test.mjs` pins what the detector does; neither series has a documented break.
+
+- **WWWusage wanders and has no steps.** Defaults cut it into 22 segments (21 "changes", 2 to 6 noise sds each); `--trend bend` still gives 15 segments; `--ar1` gives none; `--ar1 joint` gives one (minute 82, up from 125 to 190, only 0.53 noise sds). So on a wandering real series the plain mean model reports a staircase, and `--ar1` is the right switch, as on Lake Huron. One series; no detection-rate claim.
+- **nhtemp: one rise at 1944** (50.5 to 51.9 F, 1.2 sds) under the default, `--ar1` and `--ar1 joint`, with a 95% range of 1927 to 1949, wide because the shift is small. `--trend bend` finds no change: a straight line explains the warming. The literature gives no single break to score against.
+
 ## A real autocorrelated series: Lake Huron levels (2026-10-27)
 
 `data/lake-huron.csv` is the annual mean level of Lake Huron, 1875 to 1972 (98 points, R's `LakeHuron`, source in `data/SOURCE.md`). The literature puts one drop near 1920; the series has lag-1 autocorrelation of about 0.8, so it is the case the Nile is not. `lake-huron.test.mjs` pins what the detector does today (no eval script; three runs of `analyze`).
