@@ -1,7 +1,7 @@
 ---
 title: "A CI check that no venture page loads a third-party script, font or image"
 date: 2026-10-29
-description: "Scanning 1,300 venture pages for resources fetched from other hosts found one: Google Fonts on a product that advertises GDPR-first. Now a CI check keeps it that way."
+description: "Scanning 1,300 venture pages for resources fetched from other hosts found one: Google Fonts on a GDPR-first product. A CI check now keeps it that way."
 tags: [privacy, ci, retail-pilot-intel]
 ---
 
