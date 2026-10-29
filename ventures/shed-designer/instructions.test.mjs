@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { buildShed, defaultDesign, PRESETS } from './model.mjs';
 import { estimate } from './estimate.mjs';
 import { buildInstructions, instructionsMarkdown } from './instructions.mjs';
+import { fmtIn } from './lumber.mjs';
 
 const make = (d) => { const s = buildShed(d); return { s, sections: buildInstructions(s, estimate(s)) }; };
 
@@ -15,8 +16,8 @@ test('instructions run in build order and carry this design\'s numbers', () => {
   const md = instructionsMarkdown(sections, s.design.name);
   assert.match(md, /Cut 12 full studs at 82"/); // 86-1/2" wall less three plates
   assert.match(md, /diagonals must read 14' 5-1\/16"/); // floor frame: hypot(144, 96)
-  assert.match(md, /read 5 on the COMMON scale/);
-  assert.match(md, /Cut length from a square end: 59-3\/16"/);
+  assert.ok(md.includes(`read ${s.design.pitch} on the COMMON scale`));
+  assert.ok(md.includes(`Cut length from a square end: ${fmtIn(s.dims.rafterCut)}`));
   assert.match(md, /a jack each side at 76-1\/2"/); // 78" door less the 1-1/2" plate
   assert.ok(!/undefined|NaN/.test(md));
 });

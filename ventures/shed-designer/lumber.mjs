@@ -151,6 +151,7 @@ export const EXAMPLE_ITEMS = Object.freeze({
   insulation: { name: 'R-13 kraft-faced batts (125.94 sq ft a bag)', unit: 'bag', price: 78 },
   jointCompound: { name: 'Joint compound, 4.5 gal', unit: 'bucket', price: 22 },
   drywallTape: { name: 'Paper drywall tape, 500 ft', unit: 'roll', price: 7.5 },
+  pitchConnector: { name: 'Variable-pitch rafter connector (Simpson VPA2 or equal)', unit: 'each', price: 6.39 },
   hurricaneTie: { name: 'Rafter-to-plate tie', unit: 'each', price: 1.2 },
   concreteBlock: { name: 'Solid concrete block under skids', unit: 'each', price: 3.5 },
   gravelTon: { name: 'Crushed gravel for the pad', unit: 'ton', price: 45 },

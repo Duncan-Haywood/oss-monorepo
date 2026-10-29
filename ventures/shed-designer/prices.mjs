@@ -81,6 +81,7 @@ export const LISTED_ITEMS = {
   jointCompound: { price: 21.84, url: 'https://www.homedepot.com/p/USG-Sheetrock-Brand-4-5-Gal-Plus-3-Lightweight-All-Purpose-Pre-Mixed-Joint-Compound-381466/100321602', note: `${SNIP}; 4.5 gal` },
   drywallTape: { price: 7.49, url: 'https://hemlockhardware.com/products/266811-sheetrock-2-1-16-in-x-500-ft-paper-joint-drywall-tape', store: 'Hemlock Hardware', note: `${SNIP}; 500 ft paper tape (no big-box listing found)` },
   interiorPaint: { price: 31.98, url: 'https://www.homedepot.com/p/BEHR-PREMIUM-PLUS-1-gal-Deep-Base-Eggshell-Enamel-Low-Odor-Interior-Paint-Primer-230001/202761523', note: `${SNIP}; Behr Premium Plus interior` },
+  pitchConnector: { price: 6.39, url: 'https://www.homedepot.com/p/Simpson-Strong-Tie-VPA-Galvanized-Variable-Pitch-Connector-for-1-1-2-in-Engineered-Wood-VPA2/204842454', note: `${SNIP}; Simpson VPA2 for 1-1/2" members` },
   paint: { price: 45.98, url: 'https://www.homedepot.com/p/BEHR-PREMIUM-PLUS-1-gal-Medium-Base-Satin-Enamel-Exterior-Paint-Primer-940001/202301640', note: `${SNIP}; Behr Premium Plus exterior` },
 };
 

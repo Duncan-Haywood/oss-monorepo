@@ -14,6 +14,7 @@ import { connectionChecks } from './connections.mjs';
 import { generateCandidates } from './candidates.mjs';
 import { buildInstructions, instructionsMarkdown } from './instructions.mjs';
 import { quoteRequest, mailtoLink, STORES } from './quote.mjs';
+import { PRODUCTS } from './products.mjs';
 
 const $ = (sel) => /** @type {any} */ (document.querySelector(sel));
 const $$ = (sel) => /** @type {any[]} */ ([...document.querySelectorAll(sel)]);
@@ -127,6 +128,7 @@ function renderOpenings(d) {
     tr.innerHTML = `
       <td><select data-i="${i}" data-k="kind" aria-label="Opening ${i + 1} type"><option value="door"${op.kind === 'door' ? ' selected' : ''}>Door</option><option value="window"${op.kind === 'window' ? ' selected' : ''}>Window</option></select></td>
       <td><select data-i="${i}" data-k="wall" aria-label="Opening ${i + 1} wall">${wallOpts}</select></td>
+      <td><select data-i="${i}" data-k="product" aria-label="Opening ${i + 1} product"><option value="">Custom size</option>${PRODUCTS.filter((p) => p.kind === op.kind).map((p) => `<option value="${p.id}"${p.id === op.product ? ' selected' : ''}>${esc(p.name)} (R.O. ${fmtIn(p.roW)} x ${fmtIn(p.roH)}, $${p.price.toFixed(2)})</option>`).join('')}</select></td>
       <td><input type="number" min="0" max="480" step="1" data-i="${i}" data-k="offset" value="${op.offset}" aria-label="Opening ${i + 1} distance from the wall's left corner, as seen from outside (in)"></td>
       <td><input type="number" min="12" max="144" step="1" data-i="${i}" data-k="width" value="${op.width}" aria-label="Opening ${i + 1} rough opening width (in)"></td>
       <td><input type="number" min="12" max="120" step="1" data-i="${i}" data-k="height" value="${op.height}" aria-label="Opening ${i + 1} rough opening height (in)"></td>
@@ -376,6 +378,8 @@ function wire() {
       op[t.dataset.k] = t.type === 'number' ? Number(t.value) : t.value;
       if (t.dataset.k === 'wall') op.offset = Math.max(0, Math.min(op.offset, wallFaceLength(d, op.wall) - op.width));
       if (t.dataset.k === 'kind' && t.value === 'window' && op.sill === undefined) op.sill = 42;
+      if (t.dataset.k === 'kind' || t.dataset.k === 'width' || t.dataset.k === 'height') delete op.product;
+      if (t.dataset.k === 'product' && !t.value) delete op.product;
       commit(d, `changed opening ${i + 1}`);
       if (e.type === 'change' && t.tagName === 'SELECT') { $('#openings tbody').innerHTML = ''; renderOpenings(design()); }
       return;

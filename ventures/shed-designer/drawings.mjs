@@ -439,7 +439,7 @@ export function buildSheets(shed, marks = new Map()) {
     const o = d.overhang;
     const rh = d.roofType === 'ridgeBeam' ? 1.5 : 0.75;
     const r = W / 2 - rh;
-    const zb = (y) => (y - D2) * tt;
+    const zb = (y) => (y - (k.connector ? 0 : D2)) * tt;
     const zt = (y) => zb(y) + k.plumbH;
     const raf = shed.members.find((m) => m.kind === 'rafter');
     const prof = raf ? raf.geom.profile.map(([y, z]) => /** @type {P} */ ([y, z - k.plateTop])) : [];
@@ -447,9 +447,13 @@ export function buildSheets(shed, marks = new Map()) {
     // The wall under it, for reference.
     items.push(rect(0, -6, D2, 0, 'hidden'));
     items.push(text([D2 / 2, -10], 'wall top plates', 8, 'middle', 'muted'));
-    items.push(dim([D2, zb(D2)], [r, zb(r)], -18, `${fmtIn((r - D2) / Math.cos(Math.atan(tt)))} along the bottom edge (run ${fmtIn(r - D2)})`));
-    items.push(dim([0, -6], [D2, -6], -14, `seat ${fmtIn(D2)}`));
-    items.push(dim([0, zb(0)], [0, 0], 12, `heel ${fmtIn(D2 * tt)}`));
+    if (!k.connector) items.push(dim([D2, zb(D2)], [r, zb(r)], -18, `${fmtIn((r - D2) / Math.cos(Math.atan(tt)))} along the bottom edge (run ${fmtIn(r - D2)})`));
+    if (k.connector) {
+      items.push(text([D2 / 2, -16], 'variable-pitch connector here (no notch)', 8, 'middle'));
+    } else {
+      items.push(dim([0, -6], [D2, -6], -14, `seat ${fmtIn(D2)}`));
+      items.push(dim([0, zb(0)], [0, 0], 12, `heel ${fmtIn(D2 * tt)}`));
+    }
     if (o > 0) items.push(dim([-o, zb(-o) - 2], [0, zb(-o) - 2], -14, `${fmtIn(o)} tail`));
     items.push(dim([r, zb(r)], [r, zt(r)], -16, `plumb ${fmtIn(k.plumbH)}`));
     items.push(dim([-o, zt(-o)], [r, zt(r)], 24, `${fmtIn(k.rafterCut)} cut length from a square end (mark on the cut sheet)`));
@@ -457,7 +461,7 @@ export function buildSheets(shed, marks = new Map()) {
     items.push(text([-o, zt(-o) + 6], o > 0 ? `tail plumb cut: ${d.pitch} on the common scale` : '', 9, 'start'));
     sheets.push({
       id: 'rafter', title: 'Rafter detail',
-      note: `${d.rafterSize} rafter at ${d.pitch}/12 (${(Math.atan(tt) * 180 / Math.PI).toFixed(1)} deg). Lay out one pattern rafter from this sheet, test it at both gable ends and the middle, then trace the rest. Never overcut the birdsmouth corner; finish it with a handsaw.`,
+      note: `${d.rafterSize} rafter at ${d.pitch}/12 (${(Math.atan(tt) * 180 / Math.PI).toFixed(1)} deg). Lay out one pattern rafter from this sheet, test it at both gable ends and the middle, then trace the rest.${k.connector ? ' No birdsmouth: the rafter sits on a variable-pitch connector at the wall.' : ' Never overcut the birdsmouth corner; finish it with a handsaw.'}`,
       items,
     });
   }

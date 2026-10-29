@@ -17,6 +17,7 @@
 
 import { actual, ceil16, TWO_BY, DEFAULT_LENGTHS_FT, fmtFtIn as fmtFt, fmtIn } from './lumber.mjs';
 import { estimate } from './estimate.mjs';
+import { productById } from './products.mjs';
 
 /** @typedef {[number, number, number]} Vec */
 /** @typedef {{ origin: Vec, u: Vec, v: Vec, w: Vec, profile: [number, number][], thickness: number }} Geom */
@@ -80,18 +81,20 @@ export function defaultDesign() {
     insulation: false,
     sidingType: 'T1-11',
     roofCover: 'shingles',
+    rafterSeat: 'connector',
+    maxFootprint: 100,
     kerf: 0.125,
     lengths: [...DEFAULT_LENGTHS_FT],
     openings: /** @type {Opening[]} */ ([
-      { id: 'o1', kind: 'door', wall: 'front', offset: 53, width: 38, height: 78 },
-      { id: 'o2', kind: 'window', wall: 'back', offset: 30, width: 24, height: 36, sill: 36 },
-      { id: 'o3', kind: 'window', wall: 'back', offset: 90, width: 24, height: 36, sill: 36 },
+      { id: 'o1', kind: 'door', wall: 'front', offset: 53, width: 38.5, height: 78, product: 'sr-36x76' },
+      { id: 'o2', kind: 'window', wall: 'back', offset: 30, width: 24.25, height: 36.25, sill: 36, product: 'swm-2436' },
+      { id: 'o3', kind: 'window', wall: 'back', offset: 90, width: 24.25, height: 36.25, sill: 36, product: 'swm-2436' },
     ]),
   };
 }
 
 /** The classic shape the presets start from: 8 ft walls, ridge board with rafter ties, unpainted siding, no height limit. */
-const classic = () => ({ ...defaultDesign(), wallHeight: 96, pitch: 6, skidSize: '4x6', roofType: 'ridgeBoard', sidingColor: 'natural', polkaDots: false, maxPeak: 0, ventHeight: 12, autoWall: false, autoPitch: false, autoOverhang: false, roofColor: 'charcoal', trimColor: 'white', glitter: false, interior: 'none' });
+const classic = () => ({ ...defaultDesign(), wallHeight: 96, pitch: 6, skidSize: '4x6', roofType: 'ridgeBoard', sidingColor: 'natural', polkaDots: false, maxPeak: 0, ventHeight: 12, autoWall: false, autoPitch: false, autoOverhang: false, rafterSeat: 'birdsmouth', maxFootprint: 0, roofColor: 'charcoal', trimColor: 'white', glitter: false, interior: 'none' });
 
 /** @typedef {ReturnType<typeof defaultDesign>} Design */
 
@@ -102,7 +105,7 @@ export const PRESETS = {
     { id: 'o2', kind: 'window', wall: 'right', offset: 32, width: 32, height: 24, sill: 48 },
   ] }),
   '8x12': () => defaultDesign(),
-  '8x12 classic': () => ({ ...classic(), name: '8x12 gable shed', openings: defaultDesign().openings.map((o) => (o.kind === 'door' ? { ...o, height: 82 } : o)) }),
+  '8x12 classic': () => ({ ...classic(), name: '8x12 gable shed', openings: defaultDesign().openings.map((o) => (o.kind === 'door' ? { id: o.id, kind: 'door', wall: 'front', offset: 53, width: 38, height: 82 } : { id: o.id, kind: 'window', wall: 'back', offset: o.offset, width: 24, height: 36, sill: 36 })) }),
   '10x12': () => ({ ...classic(), name: '10x12 gable shed', length: 144, width: 120, openings: [
     { id: 'o1', kind: 'door', wall: 'front', offset: 46, width: 52, height: 80 },
     { id: 'o2', kind: 'window', wall: 'left', offset: 44, width: 32, height: 24, sill: 48 },
@@ -171,11 +174,17 @@ export function normalize(input) {
     insulation: o.insulation === true,
     sidingType: pick(o.sidingType, ['T1-11', 'LP SmartSide', 'board and batten', 'vinyl', 'fiber cement'], d.sidingType),
     roofCover: pick(o.roofCover, ['shingles', 'metal'], d.roofCover),
+    rafterSeat: pick(o.rafterSeat, ['birdsmouth', 'connector'], d.rafterSeat),
+    maxFootprint: Math.min(1000, Math.max(0, num(o.maxFootprint, d.maxFootprint))),
     ventWidth: Math.min(36, Math.max(6, num(o.ventWidth, d.ventWidth))),
     ventHeight: Math.min(36, Math.max(6, num(o.ventHeight, d.ventHeight))),
     kerf: Math.min(0.25, Math.max(0, num(o.kerf, d.kerf))),
     lengths: lengths.length ? lengths : d.lengths,
-    openings: (Array.isArray(o.openings) ? o.openings : []).map((op, i) => ({
+    // A product, when chosen, sets the rough opening to the maker's.
+    openings: (Array.isArray(o.openings) ? o.openings : []).map((op) => {
+      const pr = productById(op.product);
+      return pr && pr.kind === (op.kind === 'window' ? 'window' : 'door') ? { ...op, width: pr.roW, height: pr.roH } : { ...op, product: undefined };
+    }).map((op, i) => ({
       id: String(op.id || `o${i + 1}`),
       kind: op.kind === 'window' ? 'window' : 'door',
       wall: pick(op.wall, WALLS, 'front'),
@@ -184,6 +193,7 @@ export function normalize(input) {
       height: Math.min(120, Math.max(12, num(op.height, 36))),
       ...(op.kind === 'window' ? { sill: Math.max(6, num(op.sill, 42)) } : {}),
       ...(op.header ? { header: String(op.header) } : {}),
+      ...(op.product ? { product: String(op.product) } : {}),
     })),
   };
 }
@@ -583,7 +593,11 @@ function buildFramed(d) {
   const o = d.overhang;
   const rh = beam ? 1.5 : 0.75; // half the ridge's thickness: one board, or a two-ply beam
   const r = W / 2 - rh;
-  const zb = (dist) => plateTop + (dist - D) * t; // underside of rafter at a distance from the eave wall's outside face
+  // With a birdsmouth the rafter's underside passes through the inside top edge of the plate;
+  // on a variable-pitch connector (no notch) it rests on the outside top edge instead.
+  const connector = d.rafterSeat === 'connector';
+  const seatAt = connector ? 0 : D;
+  const zb = (dist) => plateTop + (dist - seatAt) * t; // underside of rafter at a distance from the eave wall's outside face
   const zt = (dist) => zb(dist) + plumbH; // top of rafter
   const ridgeTop = zt(r);
   let ridgeSize = beam ? d.beamSize : TWO_BY.find((s) => TWO_BY.indexOf(s) > TWO_BY.indexOf(d.rafterSize) && actual(s).depth >= plumbH - 1e-9);
@@ -595,7 +609,7 @@ function buildFramed(d) {
     warnings.push(`At ${d.pitch}/12 the rafter's plumb cut is ${plumbH.toFixed(2)}" deep, more than a 2x12 ridge; use a built-up or engineered ridge.`);
   }
   const ridgeD = actual(ridgeSize).depth;
-  if (D * t > rd / 3 + 1e-9) {
+  if (!connector && D * t > rd / 3 + 1e-9) {
     warnings.push(`The birdsmouth is ${(D * t).toFixed(2)}" deep, more than a third of the ${d.rafterSize} rafter; a deeper rafter or lower pitch keeps more wood over the wall.`);
   }
   const rafterCut = ceil16((r + o) / cos + rd * Math.tan(Math.atan(t)));
@@ -606,11 +620,14 @@ function buildFramed(d) {
     /** @type {[number, number][]} */
     const pts = [];
     if (o > 0) pts.push([yOf(-o, back), zb(-o)]);
-    pts.push([yOf(0, back), zb(0)], [yOf(0, back), plateTop], [yOf(D, back), plateTop], [yOf(r, back), zb(r)], [yOf(r, back), zt(r)], [yOf(-o, back), zt(-o)]);
-    if (o === 0) pts.splice(0, 1); // tail is the heel cut: start at the plate seat
+    if (connector) pts.push([yOf(0, back), zb(0)], [yOf(r, back), zb(r)], [yOf(r, back), zt(r)], [yOf(-o, back), zt(-o)]);
+    else pts.push([yOf(0, back), zb(0)], [yOf(0, back), plateTop], [yOf(D, back), plateTop], [yOf(r, back), zb(r)], [yOf(r, back), zt(r)], [yOf(-o, back), zt(-o)]);
+    if (o === 0 && !connector) pts.splice(0, 1); // tail is the heel cut: start at the plate seat
     return pts;
   };
-  const birdNote = `${d.pitch}/12 plumb cuts at ridge and tail; birdsmouth ${((D * t)).toFixed(2).replace(/\.?0+$/, '')}" heel, ${D}" seat`;
+  const birdNote = connector
+    ? `${d.pitch}/12 plumb cuts at ridge and tail; no birdsmouth: sits on a variable-pitch connector`
+    : `${d.pitch}/12 plumb cuts at ridge and tail; birdsmouth ${((D * t)).toFixed(2).replace(/\.?0+$/, '')}" heel, ${D}" seat`;
   for (const c of rafterCenters) {
     for (const back of [false, true]) {
       push({
@@ -969,9 +986,12 @@ function buildFramed(d) {
     skidTop, floorTop, plateTop, ridgeTop, peak: ridgeTop + (d.roofing ? 7 / 16 / cos + 0.35 / cos : 7 / 16 / cos),
     studLen, rafterCut, slopeLen, plumbH, ridgeSize, ridgeD, stud: D, joistDepth: joist.depth, rafterDepth: rd,
     skidCount, skidYs, joistCenters, rafterCenters, gravelCuYd, blockCount, roofAreaSqFt, floorRows, roofRows,
-    heel: D * t, maxStock,
+    heel: connector ? 0 : D * t, maxStock, connector,
   };
 
+  if (d.maxFootprint > 0 && (L * W) / 144 > d.maxFootprint + 1e-9) {
+    warnings.push(`The footprint is ${((L * W) / 144).toFixed(0)} sq ft, over your ${d.maxFootprint} sq ft limit (often the size below which a shed needs no permit; check your local rule).`);
+  }
   if (d.maxPeak > 0 && dims.peak > d.maxPeak + 1e-9) {
     const tallest = Math.max(0, ...Object.values(walls).flatMap((w) => w.openings.map((p) => p.headerTop)));
     const minWall = Math.max(60, Math.ceil((tallest + 3) * 2) / 2);

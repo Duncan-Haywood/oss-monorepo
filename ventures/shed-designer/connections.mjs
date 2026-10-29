@@ -101,10 +101,14 @@ export function connectionChecks(shed) {
       const xs = [b.lo[0], b.hi[0]];
       const seatPts = r.geom.profile.filter((p) => near(p[1], k.plateTop));
       const seatY = seatPts.map((p) => p[0]);
-      const y0 = Math.min(...seatY); const y1 = Math.max(...seatY);
+      const back = Math.min(...r.geom.profile.map((p) => p[0])) > d.width / 2 - 2;
+      // A rafter on a variable-pitch connector has no notch: it touches the outside top edge of the caps.
+      const onEdge = k.connector && r.geom.profile.some((p) => near(p[0], back ? d.width : 0) && near(p[1], k.plateTop));
+      const y0 = k.connector ? (back ? d.width - k.stud : 0) : Math.min(...seatY);
+      const y1 = k.connector ? (back ? d.width : k.stud) : Math.max(...seatY);
       // The whole seat (rafter thickness x seat length) must rest on cap plates.
       const under = topPlates.filter((t) => near(t.hi[2], k.plateTop) && t.lo[1] <= y0 + EPS && t.hi[1] >= y1 - EPS);
-      const seated = seatY.length >= 2 && covered(xs[0], xs[1], under.map((t) => ({ s0: t.lo[0], s1: t.hi[0] })));
+      const seated = (k.connector ? onEdge : seatY.length >= 2) && covered(xs[0], xs[1], under.map((t) => ({ s0: t.lo[0], s1: t.hi[0] })));
       const meets = ridge.some((g) => b.lo[1] <= g.hi[1] + EPS && b.hi[1] >= g.lo[1] - EPS && b.hi[2] <= g.hi[2] + EPS && b.hi[2] >= g.lo[2]);
       if (!seated) fails.push(`${r.id} seat`);
       if (!meets) fails.push(`${r.id} ridge`);

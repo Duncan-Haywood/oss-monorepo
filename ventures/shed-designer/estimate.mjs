@@ -5,6 +5,7 @@
 
 import { EXAMPLE_ITEMS, fmtIn } from './lumber.mjs';
 import { boardPrice, itemPrice } from './prices.mjs';
+import { productById } from './products.mjs';
 import { optimizeCuts } from './optimize.mjs';
 
 /** @typedef {import('./model.mjs').Shed} Shed */
@@ -192,12 +193,21 @@ export function estimate(shed, prices = examplePrices()) {
     const dripFt = (2 * d.length + 4 * dims.slopeLen) / 12;
     line('Roofing', label('dripEdge'), Math.ceil(dripFt / 10), 'piece', item('dripEdge'), src('dripEdge'));
   }
+  // Doors and windows the visitor picked from the catalogue.
+  const picked = new Map();
+  for (const op of d.openings) { const pr = productById(op.product); if (pr) picked.set(pr.id, { pr, qty: (picked.get(pr.id)?.qty || 0) + 1 }); }
+  for (const { pr, qty } of picked.values()) {
+    const p = Number(prices.items?.[`product:${pr.id}`] ?? pr.price);
+    line('Doors and windows', pr.name, qty, 'each', p, sourceOf(p, { price: pr.price, url: pr.url, store: pr.store, seen: '2026-10-29', note: pr.note, kind: 'listed' }));
+  }
   line('Foundation and hardware', label('gravelTon'), Math.ceil(dims.gravelCuYd * 1.4 * 10) / 10, 'ton', item('gravelTon'), src('gravelTon'));
   line('Foundation and hardware', label('concreteBlock'), dims.blockCount, 'each', item('concreteBlock'), src('concreteBlock'));
   const vents = Object.values(shed.vents || {}).reduce((t, v) => t + v.length, 0);
   line('Foundation and hardware', `${label('gableVent')}, ${d.ventWidth}" x ${d.ventHeight}"`, vents, 'each', item('gableVent'), src('gableVent'));
   if (d.roofType === 'ridgeBeam') line('Foundation and hardware', label('rafterHanger'), shed.members.filter((m) => m.kind === 'rafter').length, 'each', item('rafterHanger'), src('rafterHanger'));
-  line('Foundation and hardware', label('hurricaneTie'), dims.rafterCenters.length * 2, 'each', item('hurricaneTie'), src('hurricaneTie'));
+  // A variable-pitch connector both seats and fastens the rafter at the wall; a notched rafter gets a tie.
+  if (dims.connector) line('Foundation and hardware', label('pitchConnector'), dims.rafterCenters.length * 2, 'each', item('pitchConnector'), src('pitchConnector'));
+  else line('Foundation and hardware', label('hurricaneTie'), dims.rafterCenters.length * 2, 'each', item('hurricaneTie'), src('hurricaneTie'));
 
   const sum = (rows) => Math.round(rows.reduce((t, r) => t + r.total, 0) * 100) / 100;
   const lumberCost = sum(shopping.filter((r) => r.section === 'Lumber'));

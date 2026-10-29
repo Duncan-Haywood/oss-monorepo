@@ -119,7 +119,7 @@ test('the starter is the spec as asked: 8x12, 6\'6" door on a 12 ft side, two wi
   const d = defaultDesign();
   assert.equal(d.length, 144);
   assert.equal(d.width, 96);
-  assert.deepEqual(d.openings.map((o) => [o.kind, o.wall, o.height]), [['door', 'front', 78], ['window', 'back', 36], ['window', 'back', 36]]);
+  assert.deepEqual(d.openings.map((o) => [o.kind, o.wall, o.height]), [['door', 'front', 78], ['window', 'back', 36.25], ['window', 'back', 36.25]]);
   assert.equal(d.studSize, '2x4');
   assert.equal(d.studSpacing, 16);
   assert.equal(d.roofType, 'ridgeBeam');
@@ -136,7 +136,10 @@ test('auto walls: 78" door + 5-1/2" 2x6 header + three plates = 86-1/2"', () => 
 
 test('auto pitch: an 8 ft peak cannot be met with a 6\'6" door, so the lowest pitch that keeps the vents is used and the miss is stated', () => {
   const s = buildShed(defaultDesign());
-  assert.equal(s.design.pitch, 5);
+  // The lowest pitch at which both gables' vents fit (4/12 on connectors, 5/12 notched).
+  assert.equal(Object.keys(s.vents).length, 2);
+  assert.equal(Object.keys(buildShed({ ...defaultDesign(), autoPitch: false, pitch: s.design.pitch - 1 }).vents).length, 0);
+  assert.equal(buildShed({ ...defaultDesign(), rafterSeat: 'birdsmouth' }).design.pitch, 5);
   assert.ok(s.dims.peak > 96);
   const w = s.warnings.find((x) => /over your 8' 0" limit/.test(x));
   assert.ok(w, 'peak warning');
@@ -163,4 +166,21 @@ test('ridge beam: two plies on two-ply posts over post studs, no rafter ties, ve
   // Rafters stop at the beam's face, 1-1/2" from the centre.
   const ridgeFace = Math.max(...s.members.find((m) => m.kind === 'rafter').geom.profile.map((p) => p[0]));
   assert.equal(ridgeFace, 48 - 1.5);
+});
+
+test('picking a catalogue product sets the rough opening to the maker\'s and lists the unit', async () => {
+  const { estimate } = await import('./estimate.mjs');
+  const d = defaultDesign();
+  assert.equal(d.openings[0].product, 'sr-36x76');
+  const s = buildShed({ ...d, openings: d.openings.map((o) => (o.kind === 'window' ? { ...o, product: 'swm-1823', width: 99, height: 99 } : o)) });
+  const win = s.design.openings.find((o) => o.kind === 'window');
+  assert.equal(win.width, 18.25);
+  assert.equal(win.height, 23.25);
+  const est = estimate(s);
+  const row = est.shopping.find((r) => r.section === 'Doors and windows' && /18 x 23/.test(r.name));
+  assert.equal(row.qty, 2);
+  assert.match(row.source.url, /lowes\.com/);
+  // A door product on a window is ignored, not misapplied.
+  const bad = buildShed({ ...d, openings: [{ ...d.openings[1], product: 'sr-36x76' }] });
+  assert.equal(bad.design.openings[0].product, undefined);
 });
