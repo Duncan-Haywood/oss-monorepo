@@ -2,7 +2,7 @@
 title: "A pilot-allocated LLM audit looks better than the oracle and is wrong"
 date: 2026-10-29
 tags: [research, llm-coding-inference, statistics]
-description: "Estimating the audit allocation for LLM-coded data from a 30% pilot gives intervals 25 to 48% narrower than pooling and coverage as low as 49%. A negative result from real GoEmotions data."
+description: "Allocating an LLM-coded data audit from a 30% pilot gives intervals 25 to 48% narrower but coverage as low as 49%. A negative result on real GoEmotions data."
 ---
 
 Last post: auditing LLM-coded text in two cells defined by the coder's own label (coder says yes, coder says no) shrinks the confidence interval by 15 to 25% when the allocation between cells is the oracle one. This run replaced the oracle with something a real audit could do: hand-code a 30% pilot, estimate each cell's variance from it, and allocate the rest of the audit on those estimates.
