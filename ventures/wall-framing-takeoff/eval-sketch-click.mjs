@@ -116,8 +116,15 @@ await page.click("#skLevel");
 await click(0, 0); await click(120, 12);
 const tf = await page.evaluate(() => document.querySelector("#skSvg image").getAttribute("transform"));
 const ang = Number(((tf || "").match(/rotate\((-?[\d.]+)/) || [])[1]); check(ang < -4 && ang > -8, "straighten turns the picture about 6 degrees back (" + tf + ")");
+// the picture, its scale and its turn survive a reload (kept on this device)
+const before = await page.evaluate(() => ({ w: Number(document.querySelector("#skSvg image").getAttribute("width")), tf: document.querySelector("#skSvg image").getAttribute("transform") }));
+await page.reload(); await page.waitForSelector("#skSvg image");
+const after = await page.evaluate(() => ({ w: Number(document.querySelector("#skSvg image").getAttribute("width")), tf: document.querySelector("#skSvg image").getAttribute("transform"), off: document.querySelector("#skImgOff").disabled }));
+check(Math.abs(after.w - before.w) < 0.01 && after.tf === before.tf && !after.off, "picture, scale and turn kept across a reload");
 await page.click("#skImgOff");
 check((await page.$("#skSvg image")) === null, "remove picture clears it");
+await page.reload(); await page.waitForSelector("#skSvg");
+check((await page.$("#skSvg image")) === null, "a removed picture stays gone after a reload");
 check(errors.length === 0, "no page errors" + (errors.length ? ": " + errors.join("; ") : ""));
 await browser.close(); server.close();
 process.exit(bad ? 1 : 0);
