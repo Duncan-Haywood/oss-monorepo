@@ -1,5 +1,6 @@
 ---
 title: "Would an S corporation save you tax? Now a button on the bookkeeper page"
+seo_title: "Would an S corporation save you tax? A bookkeeper button"
 date: 2026-10-29
 tags: [ai-bookkeeper, tax]
 description: "The free AI bookkeeper now compares a sole proprietorship with an S corporation in your browser: tax, payroll tax, a salary sweep and the break-even profit."

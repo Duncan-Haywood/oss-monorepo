@@ -1,5 +1,6 @@
 ---
 title: "Your self-hosted team schedule can now ping your own Slack, Discord or phone"
+seo_title: "Self-hosted team schedule alerts to Slack, Discord, phone"
 date: 2026-10-29
 tags: [shift-roster-builder, self-hosted]
 description: "The free shift-roster server can post to a webhook you own when staff send a call-out, trade or time-off ask, and when you publish a week."

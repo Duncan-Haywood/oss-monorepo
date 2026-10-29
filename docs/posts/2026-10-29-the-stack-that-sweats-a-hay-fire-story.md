@@ -1,5 +1,6 @@
 ---
 title: "The Stack That Sweats: a Hearth & Horizon story about hay that cooks itself"
+seo_title: "The Stack That Sweats: a story about self-heating hay"
 date: 2026-10-29
 description: "A new science fiction story: hay baled at 24% water, a sum that puts 55 degrees inside one percent of the dry matter, and a rule written in advance."
 tags: [hearth-and-horizon, fiction]

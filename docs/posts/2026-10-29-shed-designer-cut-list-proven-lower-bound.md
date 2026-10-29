@@ -1,5 +1,6 @@
 ---
 title: "How close is a lumber cut list to the cheapest possible? Shed Designer now proves it"
+seo_title: "Lumber cut list: how close to the cheapest possible?"
 date: 2026-10-29
 description: "Shed Designer now solves the cutting-stock relaxation: on 257 real cut lists its proven bound sits 0.4% under the orders, down from 7%."
 tags: [shed-designer, optimization, cutting-stock]

@@ -1,5 +1,6 @@
 ---
 title: "Shed Designer, driven like a first-time visitor: six editor bugs a unit test could not see"
+seo_title: "Shed Designer: six editor bugs unit tests missed"
 date: 2026-10-29
 tags: [shed-designer, accessibility, testing]
 description: "We drove the free shed designer in a headless browser on a laptop and a phone. What broke, what we fixed, and the tests that keep it fixed."

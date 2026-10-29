@@ -97,7 +97,10 @@
     <h2 style="margin-top:18px">3. Teams that share a coach or players (optional)</h2>
     <label for="links">One group per line, written Division/Team</label>
     <textarea id="links" rows="3" placeholder="U10/Hawks, U12/Hawks"></textarea>
-    <h2 style="margin-top:18px">4. Rainouts (optional)</h2>
+    <h2 style="margin-top:18px">4. Referees, umpires or scorekeepers (optional)</h2>
+    <label for="officials">One per line: Name, with an optional team in brackets, weekdays and a cap, such as <code>Ana (Hawks): Tue, Thu max 6</code>. Every match gets one, shared out evenly; nobody works their own team's match or two matches at once</label>
+    <textarea id="officials" rows="3" placeholder="Ana (Hawks): Tue, Thu max 6&#10;Bo&#10;Cy (Rams)"></textarea>
+    <h2 style="margin-top:18px">5. Rainouts (optional)</h2>
     <label for="rainouts">One per line: a date alone cancels the night; add a division or Division/Team to cancel just those matches; end with <code>-&gt; 2026-12-01</code> to name the make-up night</label>
     <textarea id="rainouts" rows="2" placeholder="2026-10-13 U10/Hawks, U12/Owls"></textarea>
     <label style="font-weight:normal"><input type="checkbox" id="balance" style="width:auto"> Keep home and away in order: pick the make-up night that breaks a team's home/away pattern least (ends the season a few days later)</label>
@@ -116,10 +119,12 @@
     <div id="notices"></div>
     <div class="big" id="big"></div>
     <p id="check-line"></p>
-    <div class="scroll"><table id="nights"><thead><tr><th>Date</th><th>Time</th><th>Court</th><th>Venue</th><th>Division</th><th class="n">Rd</th><th>Home</th><th>Away</th></tr></thead><tbody></tbody></table></div>
+    <div class="scroll"><table id="nights"><thead><tr><th>Date</th><th>Time</th><th>Court</th><th>Venue</th><th>Division</th><th class="n">Rd</th><th>Home</th><th>Away</th><th class="off-col" hidden>Official</th></tr></thead><tbody></tbody></table></div>
     <div id="history-box" hidden><label for="next-history">Next season's venue history (paste it into the box above next season)</label><textarea id="next-history" class="mono" rows="3" readonly></textarea></div>
     <button type="button" id="dl-csv">Download CSV</button>
     <button type="button" class="secondary" id="dl-ics">Download calendar (.ics)</button>
+    <button type="button" class="secondary" id="dl-team-msgs">Download a message per team (.txt)</button>
+    <button type="button" class="secondary" id="dl-off-msgs" hidden>Download a message per official (.txt)</button>
     <button type="button" class="secondary" id="copy-text">Copy as plain text</button>
     <button type="button" class="secondary" id="print-page">Print or save as PDF</button>
     <button type="button" class="secondary" id="share-link">Copy share link</button>
@@ -144,7 +149,7 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal or financial advice and does not replace your league's rules or a venue's booking system. <strong>You are responsible for reviewing and verifying the schedule</strong> (every date, court and pairing) before you send it to a league. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Independent.</strong> Not affiliated with any league, sports body, club or scheduling software company, and none is named or ranked here. The example teams are invented.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — your setup is remembered only in this browser ("Clear" forgets it), so download the CSV.</p>
-    <p>Everything runs in your browser. Your team names and dates are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>divisions_built</code>, <code>divisions_example_loaded</code>, <code>divisions_link_copied</code>, <code>divisions_link_opened</code>, <code>divisions_weight_suggested</code>, <code>divisions_csv_downloaded</code>, <code>divisions_ics_downloaded</code>, <code>divisions_text_copied</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p>Everything runs in your browser. Your team names and dates are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>divisions_built</code>, <code>divisions_example_loaded</code>, <code>divisions_link_copied</code>, <code>divisions_link_opened</code>, <code>divisions_weight_suggested</code>, <code>divisions_csv_downloaded</code>, <code>divisions_ics_downloaded</code>, <code>divisions_text_copied</code>, <code>divisions_text_shared</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Related tool: the <a href="../shift-cover-optimizer/">shift cover optimizer</a> for staff rotas the <a href="../volunteer-shift-scheduler/">volunteer shift scheduler</a> for the people who run your league day, the <a href="../tournament-pairing-manager/">tournament pairing manager</a> for Swiss events and brackets, and the <a href="../youth-lineup-rotator/">youth lineup rotator</a> for who plays where inside each game.</p>
     <p>Running the league committee? <a href="../meeting-action-items/">Meeting action items</a> turns your meeting notes into owned, dated action items and a follow-up email.</p>
@@ -152,11 +157,11 @@
   </footer>
 
   <script type="module">
-    import { suggestFairnessWeight, encodeDivisionFields, decodeDivisionFields, readDivisionsSpec, buildDivisions, applyDivisionRainouts, rainoutOptions, validateDivisions, carryVenueHistory, divisionsCsv, divisionsText, divisionsIcs } from "./divisions.mjs";
+    import { parseDivisionOfficials, assignDivisionOfficials, validateDivisionOfficials, suggestFairnessWeight, encodeDivisionFields, decodeDivisionFields, readDivisionsSpec, buildDivisions, applyDivisionRainouts, rainoutOptions, validateDivisions, carryVenueHistory, divisionsCsv, divisionsText, divisionsIcs, divisionsTeamMessages, divisionsOfficialMessages } from "./divisions.mjs";
     import { dayIso } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
     const $ = (s) => document.querySelector(s);
-    const FIELDS = ["divisions", "courts", "times", "start", "weekdays", "skip", "courtClosures", "travel", "links", "rainouts", "venueHistory", "fairnessWeight"];
+    const FIELDS = ["divisions", "courts", "times", "start", "weekdays", "skip", "courtClosures", "travel", "links", "rainouts", "venueHistory", "fairnessWeight", "officials"];
     const OPTS = ["balance", "flip", "relocate", "swapNights"];
     const EXAMPLE = {
       divisions: "U10: Hawks, Owls, Lynx, Otters, Foxes, Wolves\nU12: Hawks, Owls, Lynx, Otters, Foxes, Wolves, Bears, Eagles\nAdult: Rams, Kings, Stars, Comets, Pilots, Bolts (double)",
@@ -184,16 +189,27 @@
       let s, v;
       let moved = null;
       try { s = buildDivisions(spec); if (f.rainouts.trim()) { moved = applyDivisionRainouts(s, f.rainouts, rainoutOptions(f)); s = moved.schedule; } v = validateDivisions(s); } catch (e) { status.textContent = e.message; $("#report").hidden = true; return false; }
+      let offs = null, offNote = "";
+      if (f.officials.trim()) {
+        const po = parseDivisionOfficials(f.officials, spec.divisions);
+        if (po.errors.length) { status.textContent = po.errors.join(" "); $("#report").hidden = true; return false; }
+        const a = assignDivisionOfficials(s, po.officials);
+        s = a.schedule; offs = po.officials;
+        const bad = validateDivisionOfficials(s, offs);
+        offNote = (a.unfilled.length ? `<div class="warn"><strong>No official for ${a.unfilled.length} match${a.unfilled.length === 1 ? "" : "es"}:</strong><ul>${a.unfilled.map((u) => `<li>${dayIso(u.day)} ${esc(u.time || "")} ${esc(u.division)}: ${esc(u.home)} v ${esc(u.away)} (${esc(u.reason)})</li>`).join("")}</ul></div>` : "") + (bad.length ? `<div class="warn"><strong>Official check:</strong> ${bad.map(esc).join(" ")}</div>` : "") + `<p class="note">Officials' matches: ${a.loads.map((l) => `${esc(l.name)} ${l.matches}`).join(", ")}.</p>`;
+      }
+      document.querySelectorAll(".off-col").forEach((e) => { e.hidden = !offs; });
+      $("#dl-off-msgs").hidden = !offs;
       last = s;
       const st = s.stats;
       status.textContent = "Built.";
       $("#big").innerHTML = [[st.matches, "matches"], [st.nights, "nights"], [st.trips, "venue changes"], ...(st.travelMinutes !== undefined ? [[st.travelMinutes, "minutes of travel"]] : []), [st.clashes, "linked-team clashes"], [Math.round(st.utilisation * 100) + "%", "court slots used"]]
         .map(([n, l]) => `<div><strong>${n}</strong>${l}</div>`).join("");
       const rain = moved ? (moved.moves.length ? `<div class="warn"><strong>Moved for rainouts:</strong><ul>${moved.moves.map((m) => `<li>${esc(m.division)} ${esc(m.home)} v ${esc(m.away)}: ${dayIso(m.from)} to ${dayIso(m.to)} ${esc(m.time)} ${esc(m.court)}</li>`).join("")}</ul></div>` : "") + (moved.errors.length ? `<div class="warn"><strong>Not moved:</strong><ul>${moved.errors.map((c) => `<li>${esc(c)}</li>`).join("")}</ul></div>` : "") : "";
-      $("#notices").innerHTML = rain + (s.conflicts.length ? `<div class="warn"><strong>Conflicts that could not be avoided:</strong><ul>${s.conflicts.map((c) => `<li>${esc(c)}</li>`).join("")}</ul></div>` : "");
+      $("#notices").innerHTML = rain + offNote + (s.conflicts.length ? `<div class="warn"><strong>Conflicts that could not be avoided:</strong><ul>${s.conflicts.map((c) => `<li>${esc(c)}</li>`).join("")}</ul></div>` : "");
       $("#check-line").innerHTML = v.ok ? '<span class="pill good">checked</span> Every pair meets the right number of times, home and away is balanced, and no court is booked twice.' : `<span class="pill high">problem</span> ${v.errors.map(esc).join(" ")}`;
       const rows = [];
-      for (const n of s.nights) for (const m of n.matches) rows.push(`<tr><td>${dayIso(n.day)}</td><td>${esc(m.time || "")}</td><td>${esc(m.court)}</td><td>${esc(m.venue || "")}</td><td>${esc(m.division)}</td><td class="n">${m.round + 1}</td><td>${esc(m.homeName)}</td><td>${esc(m.awayName)}</td></tr>`);
+      for (const n of s.nights) for (const m of n.matches) rows.push(`<tr><td>${dayIso(n.day)}</td><td>${esc(m.time || "")}</td><td>${esc(m.court)}</td><td>${esc(m.venue || "")}</td><td>${esc(m.division)}</td><td class="n">${m.round + 1}</td><td>${esc(m.homeName)}</td><td>${esc(m.awayName)}</td>${offs ? `<td>${esc(m.official || "")}</td>` : ""}</tr>`);
       $("#nights tbody").innerHTML = rows.join("");
       $("#history-box").hidden = !s.config.venueFairness;
       $("#next-history").value = s.config.venueFairness ? JSON.stringify(carryVenueHistory(s)) : "";
@@ -226,6 +242,8 @@
     });
     $("#dl-csv").addEventListener("click", () => { if (!last) return; download("division-schedule.csv", divisionsCsv(last), "text/csv"); record("divisions_csv_downloaded"); });
     $("#dl-ics").addEventListener("click", () => { if (!last) return; download("division-schedule.ics", divisionsIcs(last), "text/calendar"); record("divisions_ics_downloaded"); });
+    $("#dl-team-msgs").addEventListener("click", () => { if (!last) return; download("team-messages.txt", divisionsTeamMessages(last).map((m) => m.text).join("\n\n----\n\n"), "text/plain"); record("divisions_text_shared"); });
+    $("#dl-off-msgs").addEventListener("click", () => { if (!last) return; download("official-messages.txt", divisionsOfficialMessages(last).map((m) => m.text).join("\n\n----\n\n"), "text/plain"); record("divisions_text_shared"); });
     $("#copy-text").addEventListener("click", async () => { if (!last) return; try { await navigator.clipboard.writeText(divisionsText(last)); $("#form-status").textContent = "Copied."; } catch { $("#form-status").textContent = "Copy blocked by the browser; use Download CSV."; } record("divisions_text_copied"); });
     $("#share-link").addEventListener("click", async () => {
       const url = location.href.split("#")[0] + "#d=" + encodeDivisionFields(read());

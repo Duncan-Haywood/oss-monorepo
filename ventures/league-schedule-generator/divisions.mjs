@@ -7,7 +7,7 @@
 //   3. a team plays at the same venue as on its previous night where it can (fewer trips).
 // Each division keeps the circle-method round robin of calc.mjs (home/away balance and byes), so only
 // the dates, courts and times are decided here.
-import { roundRobin, mulberry32, parseDate, parseDateList, parseWeekdays, parseTimes, parseNameList, parseCourtClosures, parseOfficials, dayIso, dayOfWeek, courtClosedOn, icsEscape, icsFold } from "./calc.mjs";
+import { roundRobin, mulberry32, parseDate, parseDateList, parseWeekdays, parseTimes, parseNameList, parseCourtClosures, parseOfficials, dayIso, dayOfWeek, courtClosedOn, dayLabel, icsEscape, icsFold } from "./calc.mjs";
 
 const MAX_NIGHTS = 800;
 const W_CLASH = 1000;
@@ -755,6 +755,42 @@ export function divisionsIcs(schedule, { division = null, team = null, stamp = n
   return out.map(icsFold).join("\r\n") + "\r\n";
 }
 
+/**
+ * One ready-to-paste note per team on a multi-division schedule: every match in date order with time, court,
+ * venue and opponent, plus the division. Teams that share a name in two divisions get one note each.
+ * Returns [{ division, team, matches, text }] in division order.
+ */
+export function divisionsTeamMessages(schedule) {
+  const out = [];
+  for (const d of schedule.divisions) {
+    for (const team of d.teams) {
+      const lines = [];
+      for (const night of schedule.nights) {
+        for (const m of night.matches) {
+          if (m.division !== d.name || (m.homeName !== team && m.awayName !== team)) continue;
+          const home = m.homeName === team;
+          lines.push(`${dayLabel(night.day)}${m.time ? " " + m.time : ""}, ${m.court}${m.venue && m.venue !== m.court ? " (" + m.venue + ")" : ""}: ${home ? "vs" : "at"} ${home ? m.awayName : m.homeName}`);
+        }
+      }
+      out.push({ division: d.name, team, matches: lines.length, text: [`Hi ${team} (${d.name}), your ${lines.length} fixtures:`, ...lines, "Check the dates before you plan around them."].join("\n") });
+    }
+  }
+  return out;
+}
+
+/** One note per official (set by assignDivisionOfficials), in date order; officials with no match are left out. */
+export function divisionsOfficialMessages(schedule) {
+  const by = new Map();
+  for (const night of schedule.nights) {
+    for (const m of night.matches) {
+      if (!m.official) continue;
+      if (!by.has(m.official)) by.set(m.official, []);
+      by.get(m.official).push(`${dayLabel(night.day)}${m.time ? " " + m.time : ""}, ${m.court}${m.venue && m.venue !== m.court ? " (" + m.venue + ")" : ""}: [${m.division}] ${m.homeName} vs ${m.awayName}`);
+    }
+  }
+  return [...by].map(([official, lines]) => ({ official, matches: lines.length, text: [`Hi ${official}, the matches you are officiating (${lines.length}):`, ...lines, "Check the dates before you plan around them."].join("\n") }));
+}
+
 /** Plain-text read-out for a command line or a group chat. */
 export function divisionsText(schedule) {
   const lines = [];
@@ -848,7 +884,7 @@ if (typeof process !== "undefined" && process.argv && import.meta.url === `file:
 
 // ---------------------------------------------------------------- share link
 
-const SHARE_FIELDS = ["divisions", "courts", "times", "start", "weekdays", "skip", "courtClosures", "travel", "links", "rainouts", "split", "venueFairness", "venueHistory", "fairnessWeight", "balance", "flip", "relocate", "swapNights", "seed"];
+const SHARE_FIELDS = ["divisions", "courts", "times", "start", "weekdays", "skip", "courtClosures", "travel", "links", "rainouts", "officials", "split", "venueFairness", "venueHistory", "fairnessWeight", "balance", "flip", "relocate", "swapNights", "seed"];
 
 /** Form fields -> URL-safe text for the `#` part of a link (`#d=...`). The fragment is never sent to a server. */
 export function encodeDivisionFields(f) {

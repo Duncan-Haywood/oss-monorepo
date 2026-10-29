@@ -1,5 +1,6 @@
 ---
 title: "Bookkeeping for small farms and CSAs: nine of fourteen lines had no account"
+seo_title: "Bookkeeping for small farms and CSAs"
 date: 2026-10-29
 description: "ai-bookkeeper gets a worked October for a small farm. CSA-platform payouts, seed houses, pasture leases and farm diesel had no rules."
 tags: [ai-bookkeeper, small-business, bookkeeping, farming]

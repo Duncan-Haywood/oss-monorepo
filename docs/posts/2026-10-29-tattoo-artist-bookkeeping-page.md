@@ -1,5 +1,6 @@
 ---
 title: "A bookkeeping page for tattoo artists: five of thirteen lines filed before the rules"
+seo_title: "Bookkeeping page for tattoo artists"
 date: 2026-10-29
 description: "ai-bookkeeper gets a worked October for a booth-renting tattoo artist. Needles, ink, sharps pickup and the health-department licence had no rules."
 tags: [ai-bookkeeper, small-business, bookkeeping]

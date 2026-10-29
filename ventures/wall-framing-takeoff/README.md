@@ -192,6 +192,20 @@ backing). This counts lumber only. Whether a given wall may use either detail
 is a code and engineer's call (clip stiffness, nailing for the partition), not
 something this tool checks; the options are off by default.
 
+## Advanced framing, measured on three layouts (2026-10-29)
+
+`node advanced-bench.mjs` runs the same engine on each plan with the options alone and together, priced order cost against the standard 16 in layout (lumber only):
+
+| option | example house (invented) | Open House Plans 1 (CC0, generated) |
+|---|---|---|
+| 24 in stud spacing | -14.4% | -12.0% |
+| two-stud corners + ladder tees | -4.8% | -5.3% |
+| single top plate | -8.8% | -8.2% |
+| all three details, 16 in | -13.6% | -13.5% |
+| all three details + 24 in | -25.5% | -23.9% |
+
+Standard totals: $2,384.16 (253 boards) and $2,678.80 (276 boards). Open House Plans 2 does not lay out (two windows 3 in apart). The savings are in lumber only: 24 in spacing needs a stress check on the studs and sheathing, single top plate needs framing in line, and both need the engineer's say; the tool does not check either. Two generated or invented houses, no permit set, no builder's real order. `advanced-bench.test.mjs` checks ordering and a hand-counted 20 ft wall (5 fewer studs at 24 in).
+
 ## Counted order against allowances (measured 2026-10-28)
 
 `node allowance-bench.mjs` sets the optimised order against two rules of thumb
