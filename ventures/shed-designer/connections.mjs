@@ -4,7 +4,7 @@
 // looked at and passes only if every instance does.
 //
 // - The cap plates lap the corners (the end walls' cap over the long walls' top plate).
-// - Cap-plate joints sit away from top-plate joints, and every plate joint lands on a stud.
+// - Cap-plate joints sit at least 24" from top-plate joints (IRC R602.3.2), and every plate joint lands on a stud.
 // - Every stud, king and post stud stands on a bottom plate and runs to the top plate.
 // - Every header bears on a jack at each end; every jack carries a header.
 // - Cripples bear on a header or sill, and rough sills sit on cripples.
@@ -13,6 +13,7 @@
 
 import { bbox } from './integrity.mjs';
 import { fmtIn } from './lumber.mjs';
+import { PLATE_OFFSET_MIN } from './model.mjs';
 
 const EPS = 0.01;
 const near = (a, b) => Math.abs(a - b) < EPS;
@@ -84,8 +85,8 @@ export function connectionChecks(shed) {
     const tj = joints(tops);
     const cj = joints(caps);
     const jointFails = [...tj, ...cj].filter((x) => !centres.some((c) => near(c, x))).map((x) => `joint at ${fmtIn(x)}`);
-    const clearFails = cj.filter((c) => tj.some((t) => Math.abs(c - t) < 48 - EPS)).map((x) => `cap joint at ${fmtIn(x)}`);
-    if (tj.length || cj.length) add(`${name} wall: plate splices`, [...jointFails, ...clearFails], tj.length + cj.length, 'plate joints on a stud, cap joints 4 ft from top-plate joints');
+    const clearFails = cj.filter((c) => tj.some((t) => Math.abs(c - t) < PLATE_OFFSET_MIN - EPS)).map((x) => `cap joint at ${fmtIn(x)}`);
+    if (tj.length || cj.length) add(`${name} wall: plate splices`, [...jointFails, ...clearFails], tj.length + cj.length, `plate joints on a stud, cap joints at least ${PLATE_OFFSET_MIN}" from top-plate joints (IRC R602.3.2)`);
   }
 
   // Rafters seat on the plates and meet the ridge.
