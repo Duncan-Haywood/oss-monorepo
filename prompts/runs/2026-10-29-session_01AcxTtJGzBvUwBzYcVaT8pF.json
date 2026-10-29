@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/11500",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -26,14 +26,29 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": null,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
-  "doc_friction": [],
-  "deviations": [],
-  "writeups": [],
+  "doc_friction": [
+    {
+      "file": "research/PROGRAMMES.md",
+      "issue": "pick_track drew sim2real-inference, whose log says all remaining items are owner steps; I switched to heavy-hydraulics by judgment."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/sim2real-inference/PROPOSAL.md",
+      "why": "Programme saturated (only owner steps left)",
+      "did": "advanced heavy-hydraulics instead",
+      "result": "landed milestone 2j"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-29-load-sensing-margin-flips-excavator-ranking.md",
+    "research/heavy-hydraulics/LOG.md"
+  ],
   "goal": null,
-  "notes": "",
+  "notes": "Exploratory, no pre-registered predictions; pytest unavailable so unit tests not run; 25 bar row reproduces 2i.",
   "corrections": [],
   "redteam": null
 }
