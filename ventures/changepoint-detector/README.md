@@ -1060,3 +1060,12 @@ What it says: on a series that grows by a constant percentage, take logs first (
 ### `--log` (2026-10-28)
 
 `--log` (engine option `log: true`) takes natural logs before any other step, for `mean`, `meanvar` and `trend` (counts refuse it: they already model the rate as a factor). Values must be positive; a zero or negative row is an error naming the row. Results come back in original units where that is meaningful: each segment (without a trend) carries `geometricMean` (e^mean), each change a `ratio` (e^shift, the factor the level moves by), and `values` holds the original series. Means, shifts and noise sd stay in log units, and the summary says so. On J&J it gives the same changes as logging the column by hand (`--period 4`: 11 steps; with `--trend` 5; with `--trend bend` 2), pinned in `johnson-johnson.test.mjs`. Not done: the page has no log checkbox yet; `--log` with `--multiplicative` is redundant (a log already makes the season multiplicative) and is not rejected. The page has the same option as a checkbox, "Take logs first" (2026-10-28); checked in headless Chromium on J&J earnings: 12 changes off, 10 on, no page errors, same result as `node cli.mjs --log`. `page.test.mjs` pins the wiring only.
+
+## Shape or shock? A negative result on the drift warning (2026-10-29)
+
+The drift warning fires on UK driver deaths (fixed season, a real 1973 fuel-crisis dip and rebound) as well as on the three series whose seasonal shape really grows (README, drift warning). Idea tested: a shock cancels (dip then rebound) while a growing shape does not, so `net/abs` of the shifts in the warning's window would separate them. `eval/drift-warning-shape.mjs` (output `eval/drift-warning-shape.out.txt`, 14 warned cells on 4 series):
+
+- Airline and J&J, no trend: `net/abs` 1.00 (all steps up), as hoped. Driver deaths: -0.06 to -0.04 raw and log, no trend: cancelling, as hoped.
+- With `--trend bend` the shape series cancel too: airline 0.06 (raw) and 0.30 (log), gas 0.10 and 0.04. Gas without trend is 0.38 and 0.50. Driver deaths with bend is -0.56 and -0.44.
+
+So the statistic separates the series only when no trend is fitted, and a cut between the groups (about 0.3) would label UK gas and the bent airline fits as shocks. Not adopted; the warning text is unchanged. Not tried: a joint refit with a seasonal amplitude that scales with level, to see whether the steps vanish (a shape) or stay (a shock). Four series, one shock.
