@@ -16,24 +16,33 @@
   "cost_usd": null,
   "tool_calls": null,
   "task": null,
-  "projects": [],
-  "pr": null,
+  "projects": [
+    "ai-bookkeeper"
+  ],
+  "pr": 11400,
   "repo": null,
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
-  "merged": null,
+  "merged": true,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": null,
-  "outcome": null,
+  "tests_added": 2,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [],
-  "deviations": [],
-  "writeups": [],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "why": "Took the small vertical-page slice instead of a hard flagship milestone; a first draft rule overrode an older Safety-Kleen rule and probe 3 caught it. flagship next: not rewritten; no agent doc written."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-29-auto-repair-shop-bookkeeping-page.md"
+  ],
   "goal": null,
-  "notes": "",
+  "notes": "Local checks: autorepair, probe-trades3, page tests pass. Venture preflight not run.",
   "corrections": [],
   "redteam": null
 }
