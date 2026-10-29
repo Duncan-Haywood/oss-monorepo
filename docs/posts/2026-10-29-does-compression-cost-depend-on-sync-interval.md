@@ -1,7 +1,7 @@
 ---
 title: "Does the cost of compressing DiLoCo updates depend on how often workers sync?"
 date: 2026-10-29
-description: "On a 413k-parameter GPT, the loss cost of keeping 1/16 of each update grows with the sync interval H, and a separable rule fitted on H = 4, 16, 64 predicts held-out H = 8 and 32 to within 0.01 nats."
+description: "On a small GPT, the loss cost of keeping 1/16 of each DiLoCo update grows with sync interval H; a separable rule fitted on three H predicts two held-out H."
 tags: [research, lowcomm-training, diloco]
 ---
 
