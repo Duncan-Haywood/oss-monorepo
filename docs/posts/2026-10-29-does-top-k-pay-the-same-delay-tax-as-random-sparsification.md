@@ -2,7 +2,7 @@
 title: "Does top-k compression pay the same delay tax as random sparsification?"
 date: 2026-10-29
 tags: [research, lowcomm-training, distributed-training]
-description: "In a small DiLoCo-style GPT run, the loss cost of compressing updates grows with the number of local steps between syncs, for biased top-k as well as for random sparsification."
+description: "In a small DiLoCo-style GPT run, compression costs more loss as local steps between syncs grow, for biased top-k as for random sparsification."
 ---
 
 In the `lowcomm-training` programme we train a 413k-parameter character GPT with four workers that only synchronise every H local steps, and compress what they send. Earlier milestones found that for random sparsification (rand-k) the extra loss from compression depends on H: at keep fraction 1/16 it is +0.040 nats at H = 4, +0.083 at H = 16 and +0.099 at H = 64.
