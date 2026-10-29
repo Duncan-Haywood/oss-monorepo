@@ -39,3 +39,18 @@ test("accountLedger sums only the requested account's lines in a two-account ent
   assert.equal(rows.length, 1);
   assert.equal(Math.abs(rows[0].amount), 700);
 });
+
+// Red-team campaign on ledger.mjs (2026-10-29): cashFlowByMonth boundaries.
+import { cashFlowByMonth } from "./ledger.mjs";
+
+test("cashFlowByMonth: empty books give a zero burn, a month ends on its last day, and recent burn counts fixed-asset purchases", () => {
+  assert.deepEqual(cashFlowByMonth([], DEFAULT_ACCOUNTS, {}), { months: [], recentBurn: 0, recentRunwayMonths: null });
+  const bank = DEFAULT_ACCOUNTS.find((a) => a.bank).code;
+  const fixed = DEFAULT_ACCOUNTS.find((a) => a.type === "asset" && a.code >= "1500" && a.code !== "1590").code;
+  const e = (id, date, debit, credit, amt) => ({ id, date, memo: id, lines: [{ account: debit, debit: amt, credit: 0 }, { account: credit, debit: 0, credit: amt }] });
+  const books = [e("a", "2026-01-01", bank, "3000", 1000000), e("b", "2026-01-31", "6060", bank, 100000), e("c", "2026-02-01", "6060", bank, 300000), e("d", "2026-02-10", fixed, bank, 200000)];
+  const r = cashFlowByMonth(books, DEFAULT_ACCOUNTS, {});
+  assert.deepEqual(r.months.map((m) => m.operating), [-100000, -300000], "1 Feb belongs to February");
+  assert.deepEqual(r.months.map((m) => m.investing), [0, -200000]);
+  assert.equal(r.recentBurn, 300000, "(100k + 300k + 200k) over two months");
+});
