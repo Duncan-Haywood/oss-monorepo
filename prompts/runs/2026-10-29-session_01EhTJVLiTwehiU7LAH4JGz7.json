@@ -1,0 +1,51 @@
+{
+  "date": "2026-10-29",
+  "session": "https://claude.ai/code/session_01EhTJVLiTwehiU7LAH4JGz7",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: continue work on revenue-generating products",
+  "input_sha256": "cff201b615ebc2003116e6381e5d7785501e13f7175346ab5fb80e22eea17ced",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-29T01:00:50Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/11252",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/promptctl.py route",
+      "issue": "Router picked the research track for a scheduled run asking for revenue products; I followed CLAUDE.md's venture default instead."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/promptctl.py route",
+      "why": "Task text asked for revenue products, so I worked a venture flagship (ai-bookkeeper) not research.",
+      "did": "tax calendar page",
+      "result": "landed"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Tests: run_venture_tests ai-bookkeeper 0 failed; headless Chromium check. State sites blocked by proxy; 2027 rev proc not out.",
+  "corrections": [],
+  "redteam": null
+}
