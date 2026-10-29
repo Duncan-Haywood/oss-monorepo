@@ -13,6 +13,33 @@ const MAX_BODY = 64 * 1024, MAX_REPLIES = 200, MAX_CALLOUTS = 100, MAX_TRADES = 
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 const same = (a, b) => { const x = Buffer.from(String(a)), y = Buffer.from(String(b)); return x.length === y.length && timingSafeEqual(x, y); };
 
+// Optional alerts to a webhook the deployer owns (Slack, Discord, ntfy or plain JSON), off unless a URL is set.
+// NOTIFY_WEBHOOK_URL gets manager alerts (a new call-out, trade, open-shift ask, time-off ask or availability reply);
+// TEAM_WEBHOOK_URL gets each person's shifts when a week is published. Nothing goes to a service we run. Messages
+// carry no admin key and no wages. Fire and forget: a dead webhook never blocks a staff request.
+export function webhookBody(format, text) {
+  const t = String(text).replace(/[\u0000-\u0008\u000b-\u001f\u007f]/g, " ").slice(0, 1800);
+  if (format === "discord") return { type: "application/json", body: JSON.stringify({ content: t, allowed_mentions: { parse: [] } }) };
+  if (format === "ntfy") return { type: "text/plain; charset=utf-8", body: t };
+  if (format === "json") return { type: "application/json", body: JSON.stringify({ text: t }) };
+  // Slack: stop staff-typed text from pinging a channel (<!channel>, <@U1>, links).
+  return { type: "application/json", body: JSON.stringify({ text: t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") }) };
+}
+export function notifier(env, fetchImpl = globalThis.fetch) {
+  const format = String(env.NOTIFY_FORMAT || "slack").toLowerCase();
+  const base = String(env.PUBLIC_URL || "").replace(/\/+$/, "");
+  const post = (url, text) => {
+    if (!/^https?:\/\//i.test(url || "") || typeof fetchImpl !== "function") return Promise.resolve(false);
+    const { type, body } = webhookBody(format, text);
+    return Promise.resolve().then(() => fetchImpl(url, { method: "POST", headers: { "content-type": type }, body, signal: AbortSignal.timeout(5000) }))
+      .then((r) => !!(r && r.ok), (e) => { console.error("webhook failed:", e && e.message); return false; });
+  };
+  return {
+    manager: (text) => post(env.NOTIFY_WEBHOOK_URL, text + (base ? `\nOpen ${base}/admin and enter your admin key.` : "")),
+    team: (text) => post(env.TEAM_WEBHOOK_URL, text),
+  };
+}
+
 const CSS = `body{font:16px/1.5 system-ui,sans-serif;max-width:60rem;margin:0 auto;padding:1rem;color:#1a1a1a}table{border-collapse:collapse;width:100%}th,td{border-bottom:1px solid #ddd;padding:.35rem .5rem;text-align:left}textarea,input{width:100%;font:inherit;box-sizing:border-box}textarea{font-family:ui-monospace,monospace;min-height:9rem}button{font:inherit;padding:.5rem 1rem;margin:.5rem .5rem .5rem 0}.note{color:#555;font-size:.9rem}.err{color:#b00020}.ok{color:#176f2c}`;
 const page = (title, body, head = "") => `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex">${head}<title>${esc(title)}</title><style>${CSS}</style></head><body><h1>${esc(title)}</h1>${body}<p class="note">Self-hosted with <a href="https://duncan-haywood.github.io/monorepo-projects/shift-roster-builder/">Shift Roster Builder</a> (MIT). Not legal advice: check breaks, minors and predictive-scheduling rules yourself.</p></body></html>`;
 
@@ -180,8 +207,9 @@ ${offBlock}
 <p class="note">${p ? `Published ${esc(p.at)}: ${p.unfilled} open shift(s).` : "Nothing published yet."} Staff link: <code>/team?t=TEAM_TOKEN</code></p>`);
 }
 
-export function handler(state, save, env = process.env, now = Date.now) {
+export function handler(state, save, env = process.env, now = Date.now, fetchImpl = globalThis.fetch) {
   const adminKey = env.ADMIN_KEY || "", teamToken = env.TEAM_TOKEN || "";
+  const notify = notifier(env, fetchImpl);
   return async (req, res) => {
     const send = (code, body, type = "text/html; charset=utf-8", extra = {}) => { res.writeHead(code, { "content-type": type, "x-content-type-options": "nosniff", "referrer-policy": "no-referrer", ...extra }); res.end(body); };
     const url = new URL(req.url, "http://x");
@@ -213,6 +241,7 @@ export function handler(state, save, env = process.env, now = Date.now) {
         const r = parseAvailabilityReply(line);
         if (r.error) return send(400, page("Could not read that", `<p class="err">${esc(r.error)}</p><p><a href="/team?t=${esc(t)}">Back</a></p>`));
         state.replies.push({ line, at: new Date(now()).toISOString() });
+        notify.manager(`New availability reply: ${line}`);
         if (state.replies.length > MAX_REPLIES) state.replies.shift();
         save();
         return send(200, page("Thanks", `<p class="ok">Sent to your manager.</p><p><a href="/team?t=${esc(t)}">Back to the schedule</a></p>`));
@@ -223,6 +252,7 @@ export function handler(state, save, env = process.env, now = Date.now) {
         if (!hit) return send(400, page("Could not read that", `<p class="err">That shift is not on the published schedule.</p><p><a href="/team?t=${esc(t)}">Back</a></p>`));
         const note = String(form.get("note") || "").replace(/[\r\n]+/g, " ").trim().slice(0, 140);
         state.callouts.push({ person, day: hit.slot.day, startMin: hit.slot.startMin, endMin: hit.slot.endMin, note, at: new Date(now()).toISOString() });
+        notify.manager(`${person} cannot make their ${DAYS[hit.slot.day]} ${fmtClock(hit.slot.startMin)}-${fmtClock(hit.slot.endMin)} shift.${note ? ` "${note}"` : ""}`);
         if (state.callouts.length > MAX_CALLOUTS) state.callouts.shift();
         save();
         return send(200, page("Thanks", `<p class="ok">Your manager has been told. Your shift stays yours until they change it.</p><p><a href="/team?t=${esc(t)}">Back to the schedule</a></p>`));
@@ -236,6 +266,7 @@ export function handler(state, save, env = process.env, now = Date.now) {
         const ref = (a) => ({ person: a.person, day: a.slot.day, startMin: a.slot.startMin, endMin: a.slot.endMin });
         const note = String(form.get("note") || "").replace(/[\r\n]+/g, " ").trim().slice(0, 140);
         state.trades.push({ a: ref(A), b: ref(B), note, at: new Date(now()).toISOString() });
+        notify.manager(`${A.person} asks to trade their ${DAYS[A.slot.day]} ${fmtClock(A.slot.startMin)} shift for ${B.person}'s ${DAYS[B.slot.day]} ${fmtClock(B.slot.startMin)} shift.${note ? ` "${note}"` : ""}`);
         if (state.trades.length > MAX_TRADES) state.trades.shift();
         save();
         return send(200, page("Thanks", `<p class="ok">Your manager has been asked. Both shifts stay as they are until they approve.</p><p><a href="/team?t=${esc(t)}">Back to the schedule</a></p>`));
@@ -250,6 +281,7 @@ export function handler(state, save, env = process.env, now = Date.now) {
         if (!state.claims.some((c) => c.person === person && sameShift(c, ref))) {
           const note = String(form.get("note") || "").replace(/[\r\n]+/g, " ").trim().slice(0, 140);
           state.claims.push({ ...ref, note, at: new Date(now()).toISOString() });
+        notify.manager(`${person} asks to take the open ${DAYS[hit.slot.day]} ${fmtClock(hit.slot.startMin)}-${fmtClock(hit.slot.endMin)} shift.${note ? ` "${note}"` : ""}`);
           if (state.claims.length > MAX_CLAIMS) state.claims.shift();
           save();
         }
@@ -264,6 +296,7 @@ export function handler(state, save, env = process.env, now = Date.now) {
         if (!state.offs.some((o) => o.person === person && o.entry === r.entry)) {
           const note = String(form.get("note") || "").replace(/[\r\n]+/g, " ").trim().slice(0, 140);
           state.offs.push({ person, entry: r.entry, note, at: new Date(now()).toISOString() });
+        notify.manager(`${person} asks for ${r.entry.replace("..", " to ")} off.${note ? ` "${note}"` : ""}`);
           if (state.offs.length > MAX_OFFS) state.offs.shift();
           save();
         }
@@ -282,6 +315,8 @@ export function handler(state, save, env = process.env, now = Date.now) {
         const out = publish(state, now());
         if (out.error) { save(); return send(400, adminPage(state, adminKey, `<p class="err">${esc(out.error)}</p>`)); }
         save();
+        const pub = state.published, link = env.PUBLIC_URL ? `\nSee it: ${String(env.PUBLIC_URL).replace(/\/+$/, "")}/team?t=${teamToken}` : "";
+        notify.team(`New schedule${pub.weekStart ? ` for the week of ${pub.weekStart}` : ""}:\n` + rosterMessages({ assignments: pub.assignments, people: pub.people }, pub.weekStart).map((m) => m.text).join("\n\n") + link);
         return back(here, `Published. Payroll ${money(out.cost)}; staff cannot see this.${out.flags && out.flags.length ? " Flags: " + out.flags.length : ""}`);
       }
       save();
