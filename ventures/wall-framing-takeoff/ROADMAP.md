@@ -79,7 +79,7 @@ Ticked items are on `main`.
 
 ### 2. Getting the house in without typing
 
-- [ ] A browser plan editor: draw walls on a grid, drop doors and windows,
+- [x] (2026-10-29, `sketch.mjs`, page card; click-checked in Chromium; no move/resize or tracing yet) A browser plan editor: draw walls on a grid, drop doors and windows,
       emit the plan JSON (corners and tees detected from geometry).
 - [x] DXF floor plans landed 2026-10-27 (`dxf.mjs`, CLI and page; centre lines, tees, openings from lines; hand-built files only, no real plan yet). Still open: IFC
       `IfcWall` / `IfcOpeningElement`, both parsed in the browser.

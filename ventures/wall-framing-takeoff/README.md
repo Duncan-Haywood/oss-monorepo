@@ -287,7 +287,7 @@ yourself.
 **Privacy.** Everything runs in your browser. Your plan is never uploaded, and
 there are no accounts, tracking cookies, or analytics vendor. The page counts
 anonymous events (`takeoff_run`, `example_loaded`, `csv_downloaded`, `drawings_downloaded`, `drawings_pdf_downloaded`, `panel_order_downloaded`,
-`plan_saved`, `plan_opened`, `dxf_opened`) in your browser's local storage only, and keeps
+`plan_saved`, `plan_opened`, `dxf_opened`, `sketch_wall`, `sketch_opening`, `sketch_used`) in your browser's local storage only, and keeps
 your last plan there so it is back when you return; the footer has a switch to
 turn counting off.
 
@@ -320,3 +320,18 @@ Fix 2026-10-28: panel cut lists on a gable wall (HTML panel sheets, `panelParts`
 ## Bid leveling (2026-10-28)
 
 `node cli.mjs plan.json --level-bids` (`bidlevel.mjs`) lines each sub's bid up against the budget's lines, so the low number is compared on the same scope. A plan's `bids` is `[{ bidder, lines: [{ item, qty, unitPrice | amount }] }]`, `item` naming a budget line. A bid more than 5% short of the model's quantity is priced up at its own unit price; a line left out is priced at the plan's typed price or the median of the other bids' unit prices; a gap with neither is listed as unleveled, never guessed. Over-quantity is flagged and not removed. Exit code 1 on an unknown item or a line without an amount. Tests (`bidlevel.test.mjs`, 5, bids made up): no real bid has been run through it. Page card "Level subcontractor bids" (2026-10-28): lines of `bidder; item; qty; unit price` (or `bidder; item; amount`) under the budget table, saved into and restored from `plan.bids`, usage event `bids_leveled`; checked in headless Chromium on the example house with made-up bids (page.test.mjs asserts the wiring only).
+
+## Plan sketch editor (2026-10-29)
+
+`sketch.mjs`, the page's "Draw the plan instead of typing it" card, `sketch.test.mjs` and `eval-sketch-click.mjs`.
+Draw wall centre lines on a snap grid (1 in, 6 in, 1 ft, 2 ft; walls kept square by default; ends snap to existing wall
+ends), type a length to fix the next wall while the mouse picks the direction, click a wall to drop a door or window of a
+typed width (slid to fit, refused when it overlaps or is wider than the wall), erase, undo, then "Use this sketch" fills
+the walls and openings tables. The sketch is written as the ASCII DXF a CAD program would save (inches, WALLS, DOORS and
+WINDOWS layers) and read back by `planFromDxf`, so corners, tees, the outside loop and opening offsets come from the same
+code as a real floor plan, not a second copy. Heights and headers are the DXF defaults (door 82.5 in, window 48 in, 2x10
+header): check them. Checked by `sketch.test.mjs` (a 40 x 28 ft rectangle with a partition gives 4 corner walls and 2
+tees; door and window land on the drawn offsets; snapping, overlap and oversize cases) and by real mouse clicks in
+Chromium (`node eval-sketch-click.mjs`: draws a 20 x 14 ft house with a partition, door and window, loads it, runs the
+takeoff with no check failures; erase; typed length). Not yet: moving or resizing a wall or opening after it is placed,
+non-square snapping aids, a background image to trace, and sketch persistence across reloads.
