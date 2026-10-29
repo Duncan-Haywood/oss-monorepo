@@ -1,0 +1,53 @@
+{
+  "date": "2026-10-29",
+  "session": "https://claude.ai/code/session_01AcxTtHBgBaUz69VzJkxdgF",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-29T22:07:31Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/11489",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "No numpy or scipy in the default python3; the milestone analysis had to be stdlib-only, which pyenv.py advice does not mention for pure-analysis steps."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Most PRs carry a blog post; this analysis-only programme step has none because its result is already in LOG.md and the programme will post at a paper-level milestone.",
+      "did": "LOG entry only",
+      "result": "landed without a post"
+    }
+  ],
+  "writeups": [
+    "research/lowcomm-training/LOG.md entry 6f (no blog post: analysis-only step on a long programme; no separate agent doc)"
+  ],
+  "goal": null,
+  "notes": "Analysis-only milestone 6f; no new training. Checks run: research/_homepage/build.py ok, check_md_links ok. Deviation from the 'post per PR' default: none written.",
+  "corrections": [],
+  "redteam": null
+}
