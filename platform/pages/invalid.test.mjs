@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
+import vm from 'node:vm';
 import { fileURLToPath } from 'node:url';
 
 import {
@@ -313,4 +314,179 @@ test('every venture that promises a highlight is covered by the gate', async () 
     const html = await fs.readFile(path.join(VENTURES, slug, 'index.html'), 'utf8');
     assert.notEqual(injectInvalidField(html), html, `${slug} would not receive the runtime`);
   }
+});
+
+// ---------------------------------------------------------------------------
+// The shipped runtime, executed
+//
+// Everything above reads the module as text. These run it against a small
+// fake DOM, because a mutation campaign (redteam, 2026-10-29) flipped eight
+// lines of the browser script, including the do-not-track opt-out, and no
+// test noticed.
+// ---------------------------------------------------------------------------
+
+class FakeNode {
+  constructor(tag, { text = '', attrs = {}, visible = true, valid = true, selected = null } = {}) {
+    this.tag = tag;
+    this._text = text;
+    this.attrs = { ...attrs };
+    this.id = attrs.id || '';
+    this.children = [];
+    this.parentElement = null;
+    this.classes = new Set();
+    this.visible = visible;
+    this.valid = valid;
+    this.selectedOptions = selected ? [selected] : [];
+    this.onText = null;
+    this.classList = {
+      add: (c) => this.classes.add(c),
+      remove: (c) => this.classes.delete(c),
+      length: 0,
+    };
+  }
+  get textContent() { return this._text; }
+  set textContent(value) { this._text = value; if (this.onText) this.onText(); }
+  get type() { return this.attrs.type || ''; }
+  get offsetWidth() { return 0; }
+  get offsetHeight() { return this.visible ? 10 : 0; }
+  getClientRects() { return []; }
+  getBoundingClientRect() { return { top: 0, bottom: 5 }; }
+  scrollIntoView() {}
+  checkValidity() { return this.valid; }
+  getAttribute(name) { return name in this.attrs ? this.attrs[name] : null; }
+  setAttribute(name, value) { this.attrs[name] = value; }
+  removeAttribute(name) { delete this.attrs[name]; }
+  get previousElementSibling() {
+    const siblings = this.parentElement ? this.parentElement.children : [];
+    return siblings[siblings.indexOf(this) - 1] || null;
+  }
+  closest(selector) {
+    if (selector === 'label') return this.tag === 'label' ? this : (this.parentElement?.closest(selector) || null);
+    for (let el = this; el; el = el.parentElement) if (el.attrs['data-row'] !== undefined) return el;
+    return null;
+  }
+  querySelector() { return null; }
+  querySelectorAll(selector) {
+    return selector === 'select' ? this.children.filter((c) => c.tag === 'select') : [];
+  }
+  append(...kids) { for (const k of kids) { k.parentElement = this; this.children.push(k); } return this; }
+}
+
+function runInvalidModule({ message, fields, opts = {} }) {
+  const all = [];
+  const body = new FakeNode('body');
+  const hero = new FakeNode('div', { text: message });
+  const promise = new FakeNode('div', { text: HIGHLIGHT_PROMISE });
+  body.append(hero, promise, ...fields);
+  const walk = (n) => { all.push(n); n.children.forEach(walk); };
+  body.children.forEach(walk);
+  const storage = new Map(Object.entries(opts.store || {}));
+  const observers = [];
+  const doc = {
+    readyState: 'complete',
+    body,
+    activeElement: null,
+    documentElement: { clientHeight: 100 },
+    querySelectorAll(sel) {
+      if (sel === '*') return all;
+      if (sel.startsWith('[')) return all.filter((n) => 'data-pf-invalid' in n.attrs);
+      return all.filter((n) => n.tag === 'input');
+    },
+  };
+  const sandbox = {
+    document: doc,
+    navigator: opts.navigator || {},
+    window: { localStorage: { getItem: (k) => storage.get(k) ?? null, setItem: (k, v) => storage.set(k, v) } },
+    MutationObserver: class { constructor(fn) { observers.push(fn); } observe() {} },
+    JSON, Date, Set, Map,
+  };
+  // Wired first: the page's own rewrite of the label fires the observer
+  // synchronously, which is the re-entry the module's guard exists for.
+  promise.onText = () => observers.forEach((fn) => fn());
+  vm.runInNewContext(renderInvalidModule(), sandbox);
+  const counts = () => JSON.parse(storage.get('portfolio-hub-usage') || '{}');
+  return { hero, promise, body, counts, fire: () => observers.forEach((fn) => fn()) };
+}
+
+const labelled = (text, extra = {}) => {
+  const input = new FakeNode('input', { attrs: { type: 'number' }, ...extra });
+  const wrap = new FakeNode('label', { text });
+  wrap.append(input);
+  input.parentElement = wrap;
+  input.closest = (s) => (s === 'label' ? wrap : wrap.closest(s));
+  input.getAttribute = (n) => (n === 'aria-label' ? text : FakeNode.prototype.getAttribute.call(input, n));
+  return input;
+};
+
+test('the script marks the named field once and counts it once', () => {
+  const price = labelled('Price');
+  const other = labelled('Crew size');
+  const run = runInvalidModule({ message: 'Price must be at least 0', fields: [other, price] });
+  assert.equal(price.attrs['aria-invalid'], 'true');
+  assert.equal(other.attrs['aria-invalid'], undefined);
+  run.fire(); run.fire();
+  assert.deepEqual({ ...run.counts(), last_day: undefined }, { invalid_field_marked: 1, last_day: undefined });
+});
+
+test('a promise label that is not the first element is still found', () => {
+  const price = labelled('Price');
+  const run = runInvalidModule({ message: 'Price must be at least 0', fields: [price] });
+  // hero, promise, field wrapper, field: the promise sits at index 1.
+  assert.equal(run.body.children.indexOf(run.promise), 1);
+  assert.equal(price.attrs['aria-invalid'], 'true');
+});
+
+test('a field that is visible only by height still counts as visible', () => {
+  const price = labelled('Price');
+  const run = runInvalidModule({ message: 'Price must be at least 0', fields: [price] });
+  assert.equal(price.offsetWidth, 0);
+  assert.equal(price.attrs['aria-invalid'], 'true');
+  assert.ok(run);
+});
+
+test('a page with no visible field is left alone', () => {
+  const price = labelled('Price', { visible: false });
+  const run = runInvalidModule({ message: 'Price must be at least 0', fields: [price] });
+  assert.equal(price.attrs['aria-invalid'], undefined);
+  assert.equal(run.promise.textContent, NO_FIELD_LABEL);
+});
+
+test('a repeated-row message marks the row its prefix names, not the first', () => {
+  const rowA = new FakeNode('div', { attrs: { 'data-row': '' } });
+  const rowB = new FakeNode('div', { attrs: { 'data-row': '' } });
+  const optionA = new FakeNode('option', { text: 'Chain link' });
+  const optionB = new FakeNode('option', { text: 'Wood privacy, 6 ft' });
+  const first = labelled('Linear feet');
+  const second = labelled('Linear feet');
+  rowA.append(new FakeNode('select', { selected: optionA }), first.parentElement);
+  rowB.append(new FakeNode('select', { selected: optionB }), second.parentElement);
+  runInvalidModule({ message: 'Wood privacy, 6 ft: linear feet must be at least 0', fields: [rowA, rowB] });
+  assert.equal(second.attrs['aria-invalid'], 'true');
+  assert.equal(first.attrs['aria-invalid'], undefined);
+});
+
+test('a message that names no field says so, once, and does not recount on the rewrite', () => {
+  const price = labelled('Price');
+  const run = runInvalidModule({ message: 'Add at least one fence run to price', fields: [price] });
+  assert.equal(price.attrs['aria-invalid'], undefined);
+  assert.equal(run.promise.textContent, NO_FIELD_LABEL);
+  assert.equal(run.counts().invalid_no_field, 1);
+  // The page puts its own sentence back on the next keystroke: same message,
+  // so no second count.
+  // Twice: the first sync runs before the observer exists, so only from the
+  // second does the label rewrite re-enter the observer.
+  run.promise.textContent = HIGHLIGHT_PROMISE;
+  run.promise.textContent = HIGHLIGHT_PROMISE;
+  assert.equal(run.counts().invalid_no_field, 1);
+});
+
+test('the counter stays silent for do-not-track and for global privacy control', () => {
+  for (const navigator of [{ doNotTrack: '1' }, { globalPrivacyControl: true }]) {
+    const run = runInvalidModule({ message: 'Price must be at least 0', fields: [labelled('Price')], opts: { navigator } });
+    assert.deepEqual(run.counts(), {}, JSON.stringify(navigator));
+  }
+  const optedOut = runInvalidModule({
+    message: 'Price must be at least 0', fields: [labelled('Price')], opts: { store: { 'portfolio-hub-optout': '1' } },
+  });
+  assert.deepEqual(optedOut.counts(), {});
 });
