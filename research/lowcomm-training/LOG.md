@@ -2,6 +2,23 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-29 · Milestone 6b (H6): does a product rule excess = f(p) g(H), fitted on H in {4, 16, 64}, predict held-out H in {8, 32}? (planned before running)
+
+- Why: 6a's "Next". The cross term is real at p = 1/16, so the additive rule is out; the smallest replacement is separable, excess(H, p) = f(p) g(H). It is tested the only way a fitted rule can be: on H it was not fitted on.
+- Fit (before seeing H = 8, 32): normalise g(16) = 1. From 6a at p = 1/16, g(4) = 0.0402/0.0826 = 0.49, g(64) = 0.0987/0.0826 = 1.19. g is interpolated linearly in log2 H, so the predicted excess at p = 1/16 is H = 8: **+0.062**, H = 32: **+0.091** (rival, the additive rule: +0.083 at both).
+- New runs: uncompressed and keep 1/16 at H in {8, 32}, seeds 0 to 2 (12 runs, `composition.py run8_32`, same model, budget and lr as 6a; the uncompressed cells use `compress=None`).
+- **H6b-i:** the product rule's predicted excess is within 0.02 nats of the measured one at both H = 8 and H = 32. Refuted if either misses by more than 0.02.
+- **H6b-ii:** the product rule's absolute error is smaller than the additive rule's at H = 8 (where they differ most, 0.062 vs 0.083). Refuted otherwise.
+- Prior: i 60%, ii 55%. A cell mean has a seed spread of about 0.01 and an excess is a difference of two cells (about 0.014), so H6b-ii at H = 8, where the two rules are 0.021 apart, is close to a coin flip.
+- Limits known in advance: one compression level carries the test (p = 1/4 excess is within seed spread); three seeds; g is read off three points; one model, corpus and compressor; 0.02 is my choice.
+
+### Outcome of 6b (`experiments/gpt_composition/`: `composition.jsonl` gained 12 rows, `run8_32.out`, `composition_results.txt`; seeds 0 to 2, about 9 minutes per run)
+- Measured rand-k excess at p = 1/16 over the uncompressed cell at the same H: H = 8 **+0.0669**, H = 32 **+0.0978**. Product rule predicted +0.0614 and +0.0906 (errors -0.0055 and -0.0071); the additive rule's constant +0.0826 errs by +0.0157 and -0.0152.
+- **H6b-i supported** (both product errors are under 0.02). **H6b-ii supported** (0.0055 against 0.0157 at H = 8).
+- Reading, with the limit that matters: the additive rule also lands inside 0.02 at both held-out H, so H6b-i alone does not separate the rules. The evidence for the product rule is that its errors are about a third of the additive rule's at both H and have the right sign pattern, and that the whole curve (H = 4 to 64: +0.040, +0.067, +0.083, +0.098, +0.099) is monotone in log H with a flattening above H = 32. Each difference is of order the seed spread of a cell mean (about 0.01), so this is consistent with the separable form, not a strong test of it.
+- Limits: one compression level carries the test; g is interpolated from the three fitted points; three seeds with no interval on the errors; one model, corpus and compressor. Not tested: whether f(p) is the compressor variance factor (1+omega), which needs more levels of p.
+- Next: more p levels (1/8, 1/32) at H = 4 and 64 to fit f(p) against 1+omega, then the comparison with a same-size fitted scaling law that H6 asks for.
+
 ## 2026-10-29 · Milestone 6a (H6 pilot): does rand-k compression's excess loss compose additively with the outer delay H? (planned before running)
 
 - Why: H6, the main claim, has no data yet: every run so far varies one axis. The cheapest crossed cells reuse existing runs: uncompressed H in {4, 16, 64} (3d, lr 2e-3, M = 4) and rand-k at H = 16 (4a). New cells: keep p in {1/4, 1/16} x H in {4, 64}, seeds 0 to 2 (12 runs, `experiments/gpt_composition/composition.py`, about 10 minutes each, 4 in parallel).
