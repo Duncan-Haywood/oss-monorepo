@@ -1069,3 +1069,14 @@ The drift warning fires on UK driver deaths (fixed season, a real 1973 fuel-cris
 - With `--trend bend` the shape series cancel too: airline 0.06 (raw) and 0.30 (log), gas 0.10 and 0.04. Gas without trend is 0.38 and 0.50. Driver deaths with bend is -0.56 and -0.44.
 
 So the statistic separates the series only when no trend is fitted, and a cut between the groups (about 0.3) would label UK gas and the bent airline fits as shocks. Not adopted; the warning text is unchanged. Not tried: a joint refit with a seasonal amplitude that scales with level, to see whether the steps vanish (a shape) or stay (a shock). Four series, one shock.
+
+## Shape or shock, second try: a level-scaled season (2026-10-29)
+
+The untried idea from the section above: refit with a seasonal amplitude that scales with the level (`seasonMode: 'multiplicative'`, no `--drift`) and see whether the steps near the drift warning vanish (a shape) or stay (a shock). `eval/drift-warning-multiplicative.mjs` (output `eval/drift-warning-multiplicative.out.txt`), same four real series, steps in the first two-cycle window the drift fit warns on, then steps from the multiplicative fit within one cycle either side of that window:
+
+- UK gas: 3 steps become 1 (no trend) and 0 (bend). Works as hoped.
+- Airline: 3 become 6 (no trend) and 5 (bend). Worse, not better.
+- J&J without trend: 3 or more become 4 (the bent fit does not warn at all).
+- UK driver deaths (the shock): 4 become 4 and 3 become 4. Stays, as a shock should.
+
+So it separates one of three growing-season series from the shock. On the airline series the multiplicative fit finds more steps than the drift fit (22 against 20 in all with no trend, 15 against 8 with bend): a fixed multiplicative factor does not fit a shape that also changes in form, and the mean model has no growth term. Not adopted, and the warning text is unchanged. Both attempts to tell a shape from a shock automatically (cancellation, refit) failed on four real series with one shock; the note's wording ("check the dates against the series") stays the honest answer. Not tried: a multiplicative fit on the log, which turns a growing amplitude into a fixed one. Wanted: a second real series with a documented shock inside a seasonal series.
