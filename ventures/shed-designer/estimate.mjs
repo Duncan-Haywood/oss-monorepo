@@ -26,6 +26,19 @@ export function examplePrices() {
   return p;
 }
 
+/**
+ * A typed price, or the starting one when what was typed (or saved, or carried
+ * in a link) is blank, not a number or below zero. Zero stays: you may have the part.
+ */
+export function priceOr(typed, start) {
+  if (typed === '' || typed === null || typed === undefined) return start;
+  const n = Number(typed);
+  return Number.isFinite(n) && n >= 0 ? n : start;
+}
+
+/** Price of one board: the visitor's, else the listing's (or its per-foot scaling). */
+const boardCost = (prices, material, ft) => priceOr(prices.lumber?.[material]?.[ft], boardPrice(material, ft).price);
+
 /** Where a price came from: the listing, unless the visitor typed a different number. */
 export function sourceOf(price, start) {
   return Math.abs(price - start.price) < 0.005 ? start : { price, note: 'your price', kind: /** @type {const} */ ('yours') };
@@ -94,7 +107,7 @@ export function estimate(shed, prices = examplePrices()) {
   const materials = [...new Set(parts.map((p) => p.material))].sort((a, b) => MATERIAL_ORDER.indexOf(a) - MATERIAL_ORDER.indexOf(b));
   const lumber = materials.map((material) => {
     const pieces = all.filter((m) => m.material === material).map((m) => ({ len: m.length, mark: markOf.get(m.id), id: m.id, kind: m.kind }));
-    const stocks = d.lengths.map((ft) => ({ length: ft * 12, price: Number(prices.lumber?.[material]?.[ft] ?? boardPrice(material, ft).price) }));
+    const stocks = d.lengths.map((ft) => ({ length: ft * 12, price: boardCost(prices, material, ft) }));
     const result = optimizeCuts(pieces, stocks, d.kerf);
     return { material, pieces: pieces.length, result };
   });
@@ -121,7 +134,7 @@ export function estimate(shed, prices = examplePrices()) {
     for (const b of l.result.boards) counts.set(b.stock, (counts.get(b.stock) || 0) + 1);
     for (const [len, qty] of [...counts.entries()].sort((a, b) => a[0] - b[0])) {
       const ft = len / 12;
-      const p = Number(prices.lumber?.[l.material]?.[ft] ?? boardPrice(l.material, ft).price);
+      const p = boardCost(prices, l.material, ft);
       line('Lumber', `${l.material} x ${ft}'`, qty, 'board', p, { ...sourceOf(p, boardPrice(l.material, ft)), key: `lumber:${l.material}:${ft}` });
     }
   }
@@ -135,11 +148,11 @@ export function estimate(shed, prices = examplePrices()) {
       const [len] = [...counts.entries()].sort((a, b) => b[1] - a[1] || a[0] - b[0])[0];
       const ft = len / 12;
       const qty = Math.ceil((l.result.boards.length * d.spares) / 100);
-      const p = Number(prices.lumber?.[l.material]?.[ft] ?? boardPrice(l.material, ft).price);
+      const p = boardCost(prices, l.material, ft);
       line('Lumber', `${l.material} x ${ft}' spares (${d.spares}% for culls and mis-cuts)`, qty, 'board', p, { ...sourceOf(p, boardPrice(l.material, ft)), key: `lumber:${l.material}:${ft}` });
     }
   }
-  const item = (k) => Number(prices.items?.[k] ?? itemPrice(k).price);
+  const item = (k) => priceOr(prices.items?.[k], itemPrice(k).price);
   const src = (k) => ({ ...sourceOf(item(k), itemPrice(k)), key: k });
   const label = (k) => /** @type {any} */ (EXAMPLE_ITEMS)[k].name;
   const floorSheets = sheetCount(shed.floorPieces);
@@ -246,9 +259,9 @@ export function estimate(shed, prices = examplePrices()) {
   }
   // Doors and windows the visitor picked from the catalogue.
   const picked = new Map();
-  for (const op of d.openings) { const pr = productById(op.product); if (pr) picked.set(pr.id, { pr, qty: (picked.get(pr.id)?.qty || 0) + 1 }); }
+  for (const op of shed.framedOpenings) { const pr = productById(op.product); if (pr) picked.set(pr.id, { pr, qty: (picked.get(pr.id)?.qty || 0) + 1 }); }
   for (const { pr, qty } of picked.values()) {
-    const p = Number(prices.items?.[`product:${pr.id}`] ?? pr.price);
+    const p = priceOr(prices.items?.[`product:${pr.id}`], pr.price);
     line('Doors and windows', pr.name, qty, 'each', p, { ...sourceOf(p, { price: pr.price, url: pr.url, store: pr.store, seen: '2026-10-29', note: pr.note, kind: 'listed' }), key: `product:${pr.id}` });
   }
   if (dims.padSqFt) line('Site prep', label('landscapeFabric'), Math.ceil((dims.padSqFt * 1.15) / 150), 'roll', item('landscapeFabric'), src('landscapeFabric'));
@@ -295,11 +308,11 @@ export function estimate(shed, prices = examplePrices()) {
     // Exterior caulk: round each door and window (unit to casing, casing to siding), along
     // the inside edge of each corner board, plus 10 ft for vents and odd joints; a tube runs about 25 ft.
     let caulkIn = 120;
-    for (const op of d.openings) caulkIn += 2 * 2 * (op.width + op.height);
+    for (const op of shed.framedOpenings) caulkIn += 2 * 2 * (op.width + op.height);
     caulkIn += 8 * 96;
     if (d.siding) line('Fasteners and sealants', label('caulk'), Math.ceil(caulkIn / 12 / 25), 'tube', item('caulk'), src('caulk'));
     // Z-flashing over every door and window head and over any horizontal siding joint.
-    let zIn = d.openings.reduce((t, op) => t + op.width + 9, 0);
+    let zIn = shed.framedOpenings.reduce((t, op) => t + op.width + 9, 0);
     zIn += (shed.sidingUpper || []).length * 48;
     if (d.siding) line('Fasteners and sealants', label('zFlashing'), Math.ceil(zIn / 120), 'piece', item('zFlashing'), src('zFlashing'));
   }
@@ -329,7 +342,7 @@ export function estimate(shed, prices = examplePrices()) {
   // What the order costs at the till: sales tax at the rate you set, and the
   // store's delivery charge if you chose delivery.
   const tax = Math.round(total * d.taxRate) / 100;
-  const deliveryFee = d.delivery === 'pickup' ? 0 : Number(prices.delivery?.[d.delivery] ?? DELIVERY[d.delivery]?.fee ?? 0);
+  const deliveryFee = d.delivery === 'pickup' ? 0 : priceOr(prices.delivery?.[d.delivery], DELIVERY[d.delivery]?.fee ?? 0);
   const grandTotal = Math.round((total + tax + deliveryFee) * 100) / 100;
   const boards = lumber.reduce((t, l) => t + l.result.boards.length, 0);
   const lowerBound = Math.round(lumber.reduce((t, l) => t + l.result.lowerBound, 0) * 100) / 100;
@@ -357,7 +370,7 @@ export function lumberCostOf(shed, materials, prices = examplePrices()) {
   for (const material of materials) {
     const pieces = shed.members.filter((m) => m.material === material).map((m) => ({ len: m.length, id: m.id, kind: m.kind }));
     if (!pieces.length) continue;
-    const stocks = d.lengths.map((ft) => ({ length: ft * 12, price: Number(prices.lumber?.[material]?.[ft] ?? boardPrice(material, ft).price) }));
+    const stocks = d.lengths.map((ft) => ({ length: ft * 12, price: boardCost(prices, material, ft) }));
     cost += optimizeCuts(pieces, stocks, d.kerf).cost;
   }
   return Math.round(cost * 100) / 100;

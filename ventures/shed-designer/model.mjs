@@ -156,10 +156,17 @@ export function normalize(input) {
   const d = defaultDesign();
   const o = { ...d, ...input };
   const pick = (v, list, def) => (list.includes(v) ? v : def);
+  const ids = new Set();
+  const idOf = (id, i) => {
+    let out = typeof id === 'string' && id.trim() ? id.slice(0, 40) : Number.isFinite(id) ? String(id) : `o${i + 1}`;
+    for (let k = i + 1; ids.has(out); k++) out = `o${k}`;
+    ids.add(out);
+    return out;
+  };
   const lengths = Array.isArray(o.lengths) ? o.lengths.map(Number).filter((n) => n >= 4 && n <= 24).sort((a, b) => a - b) : d.lengths;
   return {
     ...o,
-    name: String(o.name || d.name).slice(0, 80),
+    name: (typeof o.name === 'string' && o.name.trim() ? o.name : d.name).slice(0, 80),
     length: Math.min(480, Math.max(48, num(o.length, d.length))),
     width: Math.min(240, Math.max(48, num(o.width, d.width))),
     wallHeight: Math.min(144, Math.max(60, num(o.wallHeight, d.wallHeight))),
@@ -211,19 +218,21 @@ export function normalize(input) {
     kerf: Math.min(0.25, Math.max(0, num(o.kerf, d.kerf))),
     lengths: lengths.length ? lengths : d.lengths,
     // A product, when chosen, sets the rough opening to the maker's.
-    openings: (Array.isArray(o.openings) ? o.openings : []).map((op) => {
+    // A saved file or a pasted link can carry anything; an opening that is not an object is dropped,
+    // and one with a blank or repeated id gets a fresh one (the editor and the door parts go by id).
+    openings: (Array.isArray(o.openings) ? o.openings : []).filter((op) => op && typeof op === 'object' && !Array.isArray(op)).map((op) => {
       const pr = productById(op.product);
       if (op.kind === 'door' && op.product === 'site-built') return op;
       return pr && pr.kind === (op.kind === 'window' ? 'window' : 'door') ? { ...op, width: pr.roW, height: pr.roH } : { ...op, product: undefined };
     }).map((op, i) => ({
-      id: String(op.id || `o${i + 1}`),
+      id: idOf(op.id, i),
       kind: op.kind === 'window' ? 'window' : 'door',
       wall: pick(op.wall, WALLS, 'front'),
       offset: Math.max(0, num(op.offset, 24)),
       width: Math.min(144, Math.max(12, num(op.width, 36))),
       height: Math.min(120, Math.max(12, num(op.height, 36))),
       ...(op.kind === 'window' ? { sill: Math.max(6, num(op.sill, 42)) } : {}),
-      ...(op.header ? { header: String(op.header) } : {}),
+      ...(TWO_BY.includes(op.header) ? { header: op.header } : {}),
       ...(op.product ? { product: String(op.product) } : {}),
     })),
   };
@@ -232,6 +241,12 @@ export function normalize(input) {
 /** Outside length of a wall as you face it: eave walls run the shed's length, gable ends its width. */
 export function wallFaceLength(design, wall) {
   return wall === 'front' || wall === 'back' ? design.length : design.width;
+}
+
+/** Where an opening's left edge sits along its wall's axis (x for eave walls, y for gable ends); offsets run from the left corner as seen from outside. */
+export function axisStart(design, op) {
+  if (op.wall === 'front' || op.wall === 'right') return op.offset;
+  return wallFaceLength(design, op.wall) - op.offset - op.width;
 }
 
 /** Header depth by rough-opening width. A rule of thumb for a light shed, not a span table. */
@@ -512,11 +527,6 @@ function buildFramed(d) {
   const plateTop = floorTop + H;
   if (studLen > maxStock) warnings.push(`Studs are ${Math.ceil(studLen / 12)} ft long, longer than any board you allowed.`);
 
-  /** Axis coordinate (x for eave walls, y for gable ends) where an opening's left edge sits. */
-  const openingAxisStart = (op) => {
-    if (op.wall === 'front' || op.wall === 'right') return op.offset;
-    return wallFaceLength(d, op.wall) - op.offset - op.width;
-  };
 
   /** @type {Record<string, any>} */
   const walls = {};
@@ -548,14 +558,17 @@ function buildFramed(d) {
     // Openings on this wall, in framed coordinates, rejected if they do not fit.
     const ops = [];
     for (const op of d.openings.filter((o) => o.wall === name)) {
-      const a = openingAxisStart(op) - start;
-      const hdr = op.header && actual(op.header) ? op.header : defaultHeader(op.width);
+      const a = axisStart(d, op) - start;
+      const hdr = op.header || defaultHeader(op.width);
       const hd = actual(hdr).depth;
       const bottom = op.kind === 'window' ? op.sill ?? 42 : 0;
       const headerTop = bottom + op.height + hd;
       const label = `${op.kind === 'door' ? 'Door' : 'Window'} ${op.width}" x ${op.height}" on the ${name} wall`;
       if (a - 3 < endZone - 1e-9 || a + op.width + 3 > len - endZone + 1e-9) {
-        warnings.push(`${label} is too close to a corner to frame with king and jack studs; it is left out of the framing.`);
+        const off = op.offset + op.width > wallFaceLength(d, name);
+        warnings.push(off
+          ? `${label} runs past the end of the ${wallFaceLength(d, name) / 12} ft wall (it starts ${fmtIn(op.offset)} from the corner); it is left out. Slide it back onto the wall.`
+          : `${label} is too close to a corner to frame with king and jack studs; it is left out of the framing.`);
         continue;
       }
       if (headerTop > H - 3 + 1e-9) {
@@ -689,7 +702,14 @@ function buildFramed(d) {
     warnings.push(`The birdsmouth is ${(D * t).toFixed(2)}" deep, more than a third of the ${d.rafterSize} rafter; a deeper rafter or lower pitch keeps more wood over the wall.`);
   }
   const rafterCut = ceil16((r + o) / cos + rd * Math.tan(Math.atan(t)));
-  const rafterCenters = [0.75, ...layoutCenters(d.rafterSpacing, 0.75 + 1.5, L - 0.75 - 1.5), L - 0.75];
+  // The end rafters sit over the gable walls. An inner rafter (and the tie
+  // nailed to its far side) must clear the gable wall's studs, so one that
+  // lands within a wall's depth of an end moves in to the nearest clear spot;
+  // that shortens its bay rather than widening one past the spacing.
+  const innerLo = D + 0.75;
+  const innerHi = L - D - 0.75 - (beam ? 0 : 1.5);
+  const rafterCenters = [0.75, ...[...new Set(layoutCenters(d.rafterSpacing, 0.75 + 1.5, L - 0.75 - 1.5)
+    .map((c) => Math.min(innerHi, Math.max(innerLo, c))))].filter((c) => innerLo <= innerHi), L - 0.75];
   /** @param {number} dist @param {boolean} back */
   const yOf = (dist, back) => (back ? W - dist : dist);
   const rafterProfile = (back) => {
@@ -741,6 +761,9 @@ function buildFramed(d) {
   // rafters rolling.
   {
     const topAt = (y) => zt(y) - plateTop;
+    // A birdsmouth deep enough to leave no rafter above the plate's outside
+    // edge leaves no room for a block either (the birdsmouth warning says so).
+    if (topAt(0) > 0.5) {
     /** @type {[number, number][]} */
     const front = [[0, plateTop], [1.5, plateTop], [1.5, plateTop + topAt(1.5)], [0, plateTop + topAt(0)]];
     for (const back of [false, true]) {
@@ -757,6 +780,7 @@ function buildFramed(d) {
           geom: { origin: [x0, 0, 0], u: Y, v: Z, w: X, profile: prof, thickness: gap },
         });
       }
+    }
     }
   }
   if (beam) {
@@ -783,6 +807,13 @@ function buildFramed(d) {
   // Rafter ties at plate height on every pair but the gable ends, which the gable wall ties.
   const tie = actual(d.tieSize);
   const topAt0 = zt(0) - plateTop;
+  // On a flat, narrow roof the ridge can hang lower than the ties (or, for a
+  // beam, the gable walls' plates) it has to clear.
+  const ridgeBottom = ridgeTop - ridgeD;
+  const clearAbove = beam ? plateTop : plateTop + tie.depth;
+  if (ridgeBottom < clearAbove - 1 / 16) {
+    warnings.push(`The ridge sits too low: its underside is ${fmtIn(clearAbove - ridgeBottom)} below the ${beam ? 'top of the gable walls' : 'tops of the rafter ties'}, so the two run into each other as drawn. Steepen the roof${beam ? ', use a shallower beam' : ''} or widen the shed.`);
+  }
   if (beam) {
     // no ties: the ridge beam holds the rafters up, so they do not push the walls out
   } else if (topAt0 <= 0.5) {
@@ -809,7 +840,6 @@ function buildFramed(d) {
   // vent replaces the studs it covers with trimmers, a flat header as high as
   // the roof allows and a sill block. Under a ridge board the vent is centred;
   // under a beam the post is in the middle, so a pair of vents flanks it.
-  const ridgeBottom = ridgeTop - ridgeD;
   const ventInfo = /** @type {Record<string, any[]>} */ ({});
   const postZone = beam ? [W / 2 - 1.5, W / 2 + 1.5] : [W / 2 - 0.75, W / 2 + 0.75];
   for (const name of ['left', 'right']) {
@@ -1126,7 +1156,10 @@ function buildFramed(d) {
   const doorParts = [];
   /** @type {{ id: string, leaves: number, w: number, h: number, railLen: number, braceLen: number, braceAngle: number }[]} */
   const doors = [];
-  for (const op of d.openings.filter((x) => x.kind === 'door' && x.product === 'site-built')) {
+  // Only the openings the walls could frame get built, bought and flashed; the
+  // rest are left out with a warning.
+  const framedOpenings = Object.values(walls).flatMap((w) => w.openings.map((p) => p.op));
+  for (const op of framedOpenings.filter((x) => x.kind === 'door' && x.product === 'site-built')) {
     const leaves = op.width > 48 ? 2 : 1;
     const w = (op.width - 0.25 * (leaves + 1)) / leaves;
     const h = op.height - 0.5;
@@ -1179,7 +1212,7 @@ function buildFramed(d) {
     warnings.push(`The peak is ${fmtFt(dims.peak)} above the gravel, ${fmtFt(dims.peak - d.maxPeak)} over your ${fmtFt(d.maxPeak)} limit. Your tallest opening needs walls of at least ${fmtFt(minWall)}; with those walls and a 3/12 roof (about the least that sheds water under shingles) the peak would still be ${fmtFt(low)}. To get lower: a shorter door, a door in the gable end, a lower floor or a narrower shed${d.gableVents ? ', or smaller or no gable vents (they need a steeper roof to fit)' : ''}.`);
   }
 
-  return { design: d, members, panels, fixtures, walls, warnings, notes, dims, vents: ventInfo, trim, wallTrim, doorParts, doors, interior, sidingArea, floorPieces, roofPieces, sidingFull, sidingUpper };
+  return { design: d, members, panels, fixtures, walls, framedOpenings, warnings, notes, dims, vents: ventInfo, trim, wallTrim, doorParts, doors, interior, sidingArea, floorPieces, roofPieces, sidingFull, sidingUpper };
 }
 
 /** @typedef {ReturnType<typeof buildFramed>} Shed */
