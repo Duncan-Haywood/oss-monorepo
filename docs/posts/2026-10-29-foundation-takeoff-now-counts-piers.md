@@ -2,7 +2,7 @@
 title: "Foundation takeoff now counts piers: pads, columns and rebar"
 seo_title: "Pier footing concrete and rebar takeoff: free open-source calculator"
 date: 2026-10-29
-description: "The wall-framing takeoff's foundation module now takes pier groups (square pads with optional columns) and returns concrete and rebar, with the arithmetic shown."
+description: "The wall-framing takeoff's foundation module now takes pier groups (square pads with optional columns) and returns concrete and rebar, with arithmetic shown."
 tags: [wall-framing-takeoff, construction, foundation]
 ---
 
