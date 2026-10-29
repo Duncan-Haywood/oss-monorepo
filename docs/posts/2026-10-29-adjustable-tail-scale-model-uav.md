@@ -2,7 +2,7 @@
 title: "A scale-model drone with a 35% bigger tail can recover the flight modes"
 date: 2026-10-29
 tags: [research, aerolog-scaling, uav, scaling]
-description: "A fifth-scale model of a cargo drone flies wrong unless its tail is right. If the tail's lift slope is 25% off, an adjustable tail area restores the flight modes in 77 of 78 designs."
+description: "A fifth-scale cargo drone model flies wrong if its tail slope is off by 25%. An adjustable tail area restores the flight modes in 77 of 78 designs."
 ---
 
 A 1:5 Froude-scaled model of a cargo aircraft does not behave like the real one: its short-period mode is off by 15 to 25%. Earlier steps in the `aerolog-scaling` programme found tails that fix this, but only if the tail's lift slope matches the airfoil surrogate (NeuralFoil). With a slope 25% lower, none of 78 designs stayed within 5%.
