@@ -3,6 +3,19 @@
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
 
+## 2026-10-29 · Milestone 9f: how much noise in the identified short-period frequency can the adjustable tail tolerate? (planned before running)
+- Why: 9e's "Next". 9d and 9e set the tail-area multiplier f from the model's own exact short-period error. In flight f would come from a pitch doublet whose frequency estimate has error.
+- Plan (`experiments/identification_noise/run.py`): the 78 mode-matched designs; at true tail-slope scale 0.75 and 1.0, f is the grid value (0.6 to 1.8, step 0.05) whose short-period frequency times (1 + noise) is closest to the n = 1 value; noise normal with relative sd 0, 1, 2, 5, 10%, 400 draws per design. Report worst gust error and mode error at the chosen f, and the number of designs with 90% of draws within 10% (gust) and 10% (modes).
+- **Predictions (before running):** (1) at sd 2% the median-over-designs median worst gust error is within 1.5 points of the sd 0 value (prior 70%). (2) At sd 5% at least 40 of 78 designs have 90% of draws within 10% gust at scale 0.75 (prior 50%). (3) At sd 10% fewer than 20 of 78 do (prior 65%). Refuted: (1) gap above 1.5; (2) fewer than 40; (3) 20 or more.
+- Limits known in advance: only the short-period frequency is identified (not damping); noise is independent of f and Gaussian; no estimator model (a real doublet gives biased, correlated estimates); the reference is the same surrogate.
+
+### Outcome of 9f (`experiments/identification_noise/`: `run.py`, `results.txt`; about 20 min)
+- Choosing f from the short-period frequency alone, with no noise, 72 of 78 designs have every draw within 10% on gust (both slope scales) and all 78 are within 10% on every mode; the median worst gust error is 5.6%. With relative noise sd 1%, 2%, 5%, 10% the number of designs with at least 90% of draws within 10% gust falls to 63, 51, 0, 0 of 78 (scale 0.75; scale 1.0: 61, 53, 0, 0). The 90th-percentile worst gust error is 6.6%, 8.2%, 17.1%, 32.8% (scale 0.75). Modes are more tolerant: all 78 stay within 10% at sd 2%, 55 of 78 at sd 5%, none at 10%.
+- **(1) held** on the median (5.6% at sd 0 and sd 2%, gap 0.0), though the 90th percentile already rises 2.6 points. **(2) refuted:** at sd 5% no design reaches 40 of 78 (it is 0). **(3) held** (0 of 78 at sd 10%, bar under 20).
+- Reading: the adjustable tail of 9d and 9e is only as good as the frequency estimate. A gust match within 10% needs the short-period frequency identified to about 2% (1 sigma); a mode match within 10% needs about 5%. The grid step of 0.05 in f is itself coarse at this scale, which is why the 5% gust bar is lost at sd 2%.
+- Limits: as planned (Gaussian noise independent of f, frequency only, grid f); sd 0 here (frequency rule, 72) differs from 9e's mode rule (67) because the rules differ.
+- Next: estimator model (a simulated doublet with turbulence and sensor noise, giving the actual frequency error); a finer f grid; NACA 0012/0015 data; thrust law; AIAA template.
+
 ## 2026-10-29 · Milestone 9e: does the tail-area multiplier that recovers the modes also recover the gust peaks? (planned before running)
 - Why: 9d's "Next". 9c found the gust peaks more slope-sensitive than the modes (none of 78 within 10% at scale 0.75); 9d recovered the modes with an adjustable area f. The demonstrator specification only holds if the same f, set from the modes alone (what an in-flight pitch doublet identifies), also brings the gust peaks back.
 - Plan (`experiments/adjustable_gust/run.py`): the 78 mode-matched designs; for each true slope scale 0.75, 0.8, 0.9, 1.0 choose f in 0.6 to 1.8 (step 0.05) minimising the worst mode error, then compute the worst gust error over H = 5, 12.5, 25 chords against the unchanged n = 1 reference. Nothing is tuned on gust.
