@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e551b'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EE%3C/text%3E%3C/svg%3E"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Israel e-invoicing: allocation numbers for tax invoices, the NIS 5,000 threshold, and a free ID check digit test | E-invoice Preflight</title>
+<meta name="description" content="Israel requires an allocation number from the Tax Authority on larger business tax invoices before the buyer can deduct input VAT; the threshold fell to NIS 5,000 (before VAT) on 1 June 2026. How it works, where sources are thin, and a free ID and company number check digit test.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/israel-allocation-number-e-invoice-mandate.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Israel e-invoicing: allocation numbers for tax invoices, the NIS 5,000 threshold, and a free ID check digit test | E-invoice Preflight">
+<meta property="og:description" content="Israel requires an allocation number from the Tax Authority on larger business tax invoices before the buyer can deduct input VAT; the threshold fell to NIS 5,000 (before VAT) on 1 June 2026. How it works, where sources are thin, and a free ID and company number check digit test.">
+<meta property="og:url" content="https://example.invalid/einvoice-preflight/israel-allocation-number-e-invoice-mandate.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is an Israeli allocation number?","acceptedAnswer":{"@type":"Answer","text":"Under the invoice reform, a seller asks the Israel Tax Authority (SHAAM) for an allocation number for a tax invoice above a threshold before issuing it, and the number is shown on the invoice. Summaries say the buyer's input VAT deduction depends on the invoice carrying one (VAT Law section 38(a1))."}},{"@type":"Question","name":"What is the threshold?","acceptedAnswer":{"@type":"Answer","text":"Summaries from law firms and vendors report that the threshold, before VAT, was NIS 25,000 from 2024, NIS 20,000 in 2025, NIS 10,000 from 1 January 2026 and NIS 5,000 from 1 June 2026, brought forward by VAT Execution Directive 01/2025. The directive itself was not read; check the Tax Authority before relying on a date."}},{"@type":"Question","name":"What is a valid Israeli ID or company number?","acceptedAnswer":{"@type":"Answer","text":"A personal ID, company number or dealer number has up to 9 digits, padded with leading zeros. Multiply the digits by 1 and 2 alternately from the left, add the digits of each product, and the total must be a multiple of 10. A matching result does not mean the number is registered or belongs to the name on the invoice."}},{"@type":"Question","name":"Can this checker validate an Israeli invoice?","acceptedAnswer":{"@type":"Answer","text":"No. It does not call SHAAM, cannot request or verify an allocation number, and has no Israeli rules. It tests an ID's shape and check digit on this page, and a clean result is not an approval by the Tax Authority."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch}.lede{font-size:1.05rem;max-width:64ch;color:#3d4f5f}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #15202b10;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #d3dbe4;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#3d4f5f}.fine,.note{font-size:.88rem;color:#3d4f5f}footer{color:#3d4f5f;font-size:.86rem}footer p{margin:.6rem 0}.out{min-height:1.4em}.good{color:#0a6b3a;font-weight:600}.bad{color:#a12d1b}input{font:inherit;padding:.4rem .5rem;border:1px solid #9fb0c0;border-radius:8px}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; E-invoice Preflight</a></p>
+<header>
+<h1>Israel: allocation numbers, now from NIS 5,000</h1>
+<p class="lede">In Israel, per the sources read, a tax invoice above a threshold needs an allocation number from the Tax Authority before the buyer can deduct input VAT, and the threshold fell to NIS 5,000 before VAT on 1 June 2026. Below: how it works as secondary summaries report it, where the sources are thin, and a local check of an ID or company number&rsquo;s check digit.</p>
+</header>
+<section>
+<h2>How it works (as secondary summaries report)</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Step</th><th scope="col">What happens</th></tr></thead>
+<tbody>
+<tr><td>Identify</td><td>The seller and buyer are identified by an authorised dealer, company or personal ID number of up to 9 digits.</td></tr>
+<tr><td>Request</td><td>For a tax invoice above the threshold, the seller&rsquo;s system asks the Tax Authority&rsquo;s SHAAM service for an allocation number before the invoice is issued.</td></tr>
+<tr><td>Issue</td><td>The number is printed or embedded on the invoice. Reported consequence: without it the buyer&rsquo;s input VAT deduction is at risk (VAT Law section 38(a1)).</td></tr>
+<tr><td>Threshold</td><td>Reported steps, before VAT: NIS 25,000 (2024), NIS 20,000 (2025), NIS 10,000 (1 January 2026), NIS 5,000 (1 June 2026), earlier than the 2028 date first planned.</td></tr>
+<tr><td>Dealers&rsquo; unions</td><td>One summary reports that from 1 July 2026 transactions between members of a dealers&rsquo; union also need numbers, with a consolidated monthly invoice option until 1 July 2027.</td></tr>
+</tbody>
+</table>
+</div>
+<p class="fine">Reported by KPMG TaxNewsFlash, Sovos, Banqup, vatupdate.com and Israeli law-firm excerpts, read through web search only; VAT Execution Directive 01/2025 and the Tax Authority&rsquo;s own pages were not read. Where it is unsettled: the exact scope of exempt transactions, and the dealers&rsquo; union dates, rest on single secondary sources.</p>
+</section>
+<section>
+<h2>Check an ID or company number</h2>
+<p>Tests the shape (5 to 9 digits; spaces and hyphens are ignored) and the check digit. It does not look anything up, so it cannot say whether the number is registered, active, or belongs to the name on the invoice.</p>
+<label>ID or company number <input id="id" size="14" maxlength="14" autocomplete="off" spellcheck="false" placeholder="000000018"></label>
+<p id="id-out" class="out" aria-live="polite"></p>
+<p class="fine">The rule (digits weighted 1 and 2 alternately, the digits of each product added, total a multiple of 10) is the one the python-stdnum library documents for Israeli IDs; it reproduces 000000018 by hand. It was not read from the Tax Authority&rsquo;s specification.</p>
+</section>
+<section>
+<h2>What this checker does and does not cover</h2>
+<p>The main checker reads UBL, CII and Factur-X and applies EN 16931 and Peppol rules. It does <strong>not</strong> call the Israeli Tax Authority&rsquo;s service, cannot obtain or verify an allocation number, and has no Israeli schema or codes. Treat the ID test here as a typo catch only.</p>
+</section>
+<section>
+<h2>Test a file before you send it</h2>
+<p>For a European or Peppol invoice, open the <a href="./">checker</a>, drop your XML and read the findings, each with a rule ID and a fix (<a href="what-does-this-e-invoice-error-code-mean.html">the rule reference</a>). No account, nothing uploaded. No invoice yet? The <a href="create.html">e-invoice creator</a> turns a form into UBL or CII XML and checks it. Other countries: <a href="e-invoicing-mandates-by-country.html">all mandates by country</a>.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>What is an Israeli allocation number?</h3>
+<p>Under the invoice reform, a seller asks the Israel Tax Authority (SHAAM) for an allocation number for a tax invoice above a threshold before issuing it, and the number is shown on the invoice. Summaries say the buyer's input VAT deduction depends on the invoice carrying one (VAT Law section 38(a1)).</p>
+<h3>What is the threshold?</h3>
+<p>Summaries from law firms and vendors report that the threshold, before VAT, was NIS 25,000 from 2024, NIS 20,000 in 2025, NIS 10,000 from 1 January 2026 and NIS 5,000 from 1 June 2026, brought forward by VAT Execution Directive 01/2025. The directive itself was not read; check the Tax Authority before relying on a date.</p>
+<h3>What is a valid Israeli ID or company number?</h3>
+<p>A personal ID, company number or dealer number has up to 9 digits, padded with leading zeros. Multiply the digits by 1 and 2 alternately from the left, add the digits of each product, and the total must be a multiple of 10. A matching result does not mean the number is registered or belongs to the name on the invoice.</p>
+<h3>Can this checker validate an Israeli invoice?</h3>
+<p>No. It does not call SHAAM, cannot request or verify an allocation number, and has no Israeli rules. It tests an ID's shape and check digit on this page, and a clean result is not an approval by the Tax Authority.</p>
+<p class="note">Open the <a href="./">E-invoice Preflight</a> checker to validate your own invoice file.</p>
+</section>
+<section>
+<h2>More countries</h2>
+<p><a href="australia-e-invoice-mandate.html">Australia</a> <a href="austria-e-invoice-mandate.html">Austria</a> <a href="belgium-e-invoice-mandate.html">Belgium</a> <a href="brazil-nfe-e-invoice-mandate.html">Brazil</a> <a href="bulgaria-e-invoice-mandate.html">Bulgaria</a> <a href="croatia-e-invoice-mandate.html">Croatia</a> <a href="cyprus-e-invoice-mandate.html">Cyprus</a> <a href="czech-republic-e-invoice-mandate.html">Czech Republic</a> <a href="denmark-e-invoice-mandate.html">Denmark</a> <a href="estonia-e-invoice-mandate.html">Estonia</a> <a href="finland-e-invoice-mandate.html">Finland</a> <a href="france-e-invoice-mandate.html">France</a> <a href="germany-e-invoice-mandate.html">Germany</a> <a href="greece-mydata-e-invoice-mandate.html">Greece</a> <a href="hungary-e-invoice-mandate.html">Hungary</a> <a href="ireland-e-invoice-mandate.html">Ireland</a> <a href="israel-allocation-number-e-invoice-mandate.html">Israel</a> <a href="italy-sdi-e-invoice-mandate.html">Italy</a> <a href="latvia-e-invoice-mandate.html">Latvia</a> <a href="lithuania-e-invoice-mandate.html">Lithuania</a> <a href="luxembourg-e-invoice-mandate.html">Luxembourg</a> <a href="malta-e-invoice-mandate.html">Malta</a> <a href="netherlands-e-invoice-mandate.html">Netherlands</a> <a href="norway-e-invoice-mandate.html">Norway</a> <a href="poland-ksef-e-invoice-mandate.html">Poland</a> <a href="portugal-e-invoice-mandate.html">Portugal</a> <a href="romania-e-factura-e-invoice-mandate.html">Romania</a> <a href="serbia-e-invoice-mandate.html">Serbia</a> <a href="singapore-invoicenow-e-invoice-mandate.html">Singapore Invoicenow</a> <a href="slovakia-e-invoice-mandate.html">Slovakia</a> <a href="slovenia-e-invoice-mandate.html">Slovenia</a> <a href="spain-verifactu-e-invoice-mandate.html">Spain</a> <a href="switzerland-e-invoice-mandate.html">Switzerland</a> <a href="uk-e-invoice-mandate.html">Uk</a> <a href="india-gst-e-invoice-mandate.html">India</a> <a href="malaysia-myinvois-e-invoice-mandate.html">Malaysia</a> <a href="saudi-arabia-zatca-e-invoice-mandate.html">Saudi Arabia</a> <a href="sweden-e-invoice-mandate.html">Sweden</a> <a href="turkey-e-invoice-mandate.html">Turkey</a> <a href="uae-e-invoice-mandate.html">United Arab Emirates</a> <a href="peru-sunat-e-invoice-mandate.html">Peru</a> <a href="chile-sii-e-invoice-mandate.html">Chile</a> <a href="colombia-dian-e-invoice-mandate.html">Colombia</a> <a href="uruguay-dgi-e-invoice-mandate.html">Uruguay</a> <a href="paraguay-dnit-e-invoice-mandate.html">Paraguay</a> <a href="ecuador-sri-e-invoice-mandate.html">Ecuador</a></p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or accounting advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for.</p>
+<p><strong>Nothing leaves your browser.</strong> Every check runs locally. This page is static and summarises the Israeli position from search excerpts of secondary summaries, not from the directive or the Tax Authority&rsquo;s pages; things can change, so check the Israel Tax Authority and the current rules before relying on it.</p>
+<p class="support">Free and open source. If it caught a defect before a rejection, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+</footer>
+<script type="module">
+import{checkIsraeliId}from"./israel.mjs";
+const $=i=>document.getElementById(i);
+const esc=t=>String(t).replace(/[&<>"']/g,c=>"&#"+c.charCodeAt(0)+";");
+function r(){const v=$("id").value;if(!v.trim()){$("id-out").innerHTML="";return}const x=checkIsraeliId(v);$("id-out").innerHTML=x.ok?'<span class="good">Shape and check digit are consistent.</span>':x.problems.map(p=>`<span class="bad">${esc(p)}</span>`).join("<br>")}
+$("id").addEventListener("input",r);
+</script>
+</body>
+</html>
