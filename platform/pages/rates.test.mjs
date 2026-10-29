@@ -705,3 +705,43 @@ test('the stylesheet strips every card style the venture sets on a bare section'
   assert.match(renderShopRatesStyle(),
     /section\.pf-rates\{background:none;border:0;border-radius:0;box-shadow:none;min-height:0\}/);
 });
+
+// ---------------------------------------------------------------------------
+// Red-team 2026-10-29: four mutants escaped the suite; these catch them.
+// ---------------------------------------------------------------------------
+test('pageCarriesShopRates is false for anything that is not a string', () => {
+  for (const junk of [undefined, null, 42, {}, ['<input id="hourlyWage">']]) {
+    assert.equal(pageCarriesShopRates(junk), false, String(junk));
+  }
+});
+
+test('the list items in the bar carry no margin of their own', () => {
+  assert.match(renderShopRatesStyle(), /\.pf-rates-list li\{margin:0\}/);
+});
+
+test('a bid link keeps the sender rate on load and offers to apply the saved one', () => {
+  const stored = JSON.stringify({ hourlyWage: 20, burdenRate: 10 });
+  const m = mount({ stored, hash: '#wage=45', inputs: { wage: '45', burden: '' } });
+  assert.equal(m.nodes.wage.value, '45', 'the sender wage must survive');
+  assert.equal(m.nodes.burden.value, 10, 'a field the link does not set is filled');
+  assert.equal(m.buttons.apply.hidden, false);
+  assert.match(m.nodes['pf-rates-status'].textContent, /came from a link/);
+  m.click('apply');
+  assert.equal(m.nodes.wage.value, 20, 'asking overrides the link');
+});
+
+test('saving keeps stored rates for fields this page does not carry', () => {
+  const stored = JSON.stringify({ v: 1, rates: { overheadRate: 12, hourlyWage: 1, burdenRate: 1 } });
+  const m = mount({ stored });
+  m.nodes.wage.value = '25';
+  m.nodes.burden.value = '5';
+  m.click('save');
+  assert.deepEqual(JSON.parse(m.data.get(SHOP_RATES_KEY)).rates,
+    { overheadRate: 12, hourlyWage: 25, burdenRate: 5 });
+});
+
+test('saving keeps a bare (unversioned) stored object too', () => {
+  const m = mount({ stored: JSON.stringify({ overheadRate: 12 }), inputs: { wage: '25', burden: '5' } });
+  m.click('save');
+  assert.equal(JSON.parse(m.data.get(SHOP_RATES_KEY)).rates.overheadRate, 12);
+});
