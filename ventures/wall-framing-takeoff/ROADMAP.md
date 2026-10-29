@@ -122,7 +122,7 @@ Ticked items are on `main`.
 - [ ] How much does an optimised order save over the allowance methods
       builders use? Needs real plans (public permit sets or open house plans
       with a permissive licence) rather than our invented house.
-- [ ] Advanced framing's material savings, measured on the same models with
-      the same engine.
+- [x] Advanced framing's material savings, measured on the same models with
+      the same engine (2026-10-29, `advanced-bench.mjs`: all details + 24 in spacing -24 to -26% lumber cost on two houses; README; lumber only, no code check).
 - [ ] Panelised vs stick framing: what the model can say about labour from the
       piece counts (cuts, members, nails) without inventing labour rates.
