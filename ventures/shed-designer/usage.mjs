@@ -20,7 +20,7 @@ function honorsBrowserSignal() {
 }
 
 /** @param {Storage | null | undefined} storage @param {boolean} optOut @param {string} event */
-export function recordUsage(storage, optOut, event) {
+export function recordUsage(storage, optOut, event = 'builds') {
   if (optOut || !storage || honorsBrowserSignal() || !EVENTS.includes(event)) return;
   const key = PREFIX + event;
   try { storage.setItem(key, String(Number(storage.getItem(key) || 0) + 1)); } catch { /* private browsing can deny storage */ }

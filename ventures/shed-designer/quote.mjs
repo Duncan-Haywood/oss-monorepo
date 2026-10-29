@@ -13,7 +13,11 @@ export const STORES = {
   yard: { name: 'your local lumberyard', desk: 'sales desk', note: 'Independent yards often quote contractors and bulk orders directly and deliver.' },
 };
 
-const money = (n) => `$${Number(n).toFixed(2)}`;
+const money = (n) => {
+  const format = (n) => `$${Number(n).toFixed(2)}`;
+  const text = format(Math.abs(n));
+  return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+};
 
 /**
  * @param {import('./model.mjs').Shed} shed

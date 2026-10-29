@@ -23,7 +23,11 @@ const $$ = (sel) => /** @type {any[]} */ ([...document.querySelectorAll(sel)]);
 const STORE = 'shed-designer-state-v1';
 const OPT = 'shed-designer-usage-preference';
 const KEEP = 'shed-designer-keep-designs';
-const money = (n) => `$${Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+const money = (n) => {
+  const format = (n) => `$${Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const text = format(Math.abs(n));
+  return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+};
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
 let storage = null;
