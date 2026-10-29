@@ -66,7 +66,7 @@ blackouts.
 ## Your first ten minutes
 
 1. **Open the tool** at
-   [duncan-haywood.github.io/oss-monorepo/league-schedule-generator/](https://duncan-haywood.github.io/oss-monorepo/league-schedule-generator/).
+   [its live page](https://duncan-haywood.github.io/oss-monorepo/league-schedule-generator/).
    "Load an example" fills it in if you want to look first.
 2. **Section 1, Teams.** Type your team names, one per line.
 3. **Section 2, When.** Enter the first date (YYYY-MM-DD) and tick the

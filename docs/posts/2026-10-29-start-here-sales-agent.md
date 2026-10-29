@@ -68,7 +68,7 @@ it may turn an "unclear" reply into an unsubscribe, but it can never turn a
 ## Your first ten minutes
 
 1. **Open the tool** at
-   [duncan-haywood.github.io/oss-monorepo/sales-agent/](https://duncan-haywood.github.io/oss-monorepo/sales-agent/).
+   [its live page](https://duncan-haywood.github.io/oss-monorepo/sales-agent/).
 2. **Press "Load an example"** to fill the page with sample replies, so you can
    see a full run before using your own mail.
 3. **Section 1, The replies.** Paste your own replies instead. Start each one

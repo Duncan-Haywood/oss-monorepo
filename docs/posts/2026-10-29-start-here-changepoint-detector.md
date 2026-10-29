@@ -29,7 +29,7 @@ Under the hood are two published methods, both cited on the page: PELT (Killick,
 
 ## Your first ten minutes
 
-1. **Open the tool** at [duncan-haywood.github.io/oss-monorepo/changepoint-detector/](https://duncan-haywood.github.io/oss-monorepo/changepoint-detector/).
+1. **Open the tool** at [its live page](https://duncan-haywood.github.io/oss-monorepo/changepoint-detector/).
 2. **Try the example first.** Click "Load example: Nile river flow 1871–1970", then "Find changepoints". You should see one change: from 1899, the mean annual flow moves down from about 1,098 to about 850, roughly 2.15 noise standard deviations, with the Bayesian method putting 79% on a change within three points of it. Seeing a known answer first tells you how to read your own.
 3. **Bring your data.** Paste a CSV into the box, or one number per line, or use "Or open a CSV file". A header row and a date column are optional; if you have dates, the results are labelled with them.
 4. **Pick the column.** If your file has several numeric columns, type the name or number in "Value column". Left blank, it uses the last numeric column.
@@ -76,7 +76,7 @@ It is statistical analysis of data you supply, not advice, and it comes with no 
 
 ## Where to go next
 
-- The tool: [duncan-haywood.github.io/oss-monorepo/changepoint-detector/](https://duncan-haywood.github.io/oss-monorepo/changepoint-detector/)
+- The tool: [its live page](https://duncan-haywood.github.io/oss-monorepo/changepoint-detector/)
 - Source, tests and every measured claim with its seeds: `ventures/changepoint-detector/README.md`
 - A short description for AI assistants: `ventures/changepoint-detector/llms.txt`
 - Calling it from scripts and agents: [Start here: AI agents and MCP](2026-10-29-start-here-ai-agents-and-mcp.md)

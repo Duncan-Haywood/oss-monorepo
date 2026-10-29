@@ -53,4 +53,4 @@ These posts answer it, one kind of reader at a time. Each one says who it is for
 - **Honest about what is proven.** Each project's README says what was measured on real data, what only on made-up data, and what is still wanted. When a post here says "synthetic" or "hand-checked only", it means exactly that.
 - **Written with AI agents.** Most of the code and these posts were written by AI agents and are steered by one person. Mistakes happen; [report them](https://github.com/duncan-haywood/oss-monorepo/issues/new?template=bug.yml) and a later session can fix them.
 
-The full catalogue is at [duncan-haywood.github.io/oss-monorepo](https://duncan-haywood.github.io/oss-monorepo/). The rest of the blog covers what each tool does and what the research found, one change at a time.
+[Browse the full catalogue](https://duncan-haywood.github.io/oss-monorepo/). The rest of the blog covers what each tool does and what the research found, one change at a time.

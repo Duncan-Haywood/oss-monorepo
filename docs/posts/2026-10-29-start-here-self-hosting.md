@@ -30,7 +30,7 @@ Permission is not protection, so be clear about the other side.
 
 ## What there is to run
 
-The catalogue's "Self-hosted business apps" section lists 31 apps, browsable at [duncan-haywood.github.io/oss-monorepo/c/self-hosted/](https://duncan-haywood.github.io/oss-monorepo/c/self-hosted/). They are open-source alternatives to paid software, run on your server with your keys. A sample:
+The catalogue's "Self-hosted business apps" section lists 31 apps, browsable at [the self-hosted section](https://duncan-haywood.github.io/oss-monorepo/c/self-hosted/). They are open-source alternatives to paid software, run on your server with your keys. A sample:
 
 - **Payments and revenue:** Dunning Engine (failed Stripe payment recovery), Cancel Flow (save offers at cancellation), Trial Converter, MRR Pulse, Rev Rec (deferred revenue), Meter Keeper (usage metering), License Keeper and Referral Keeper.
 - **Running a product:** status-keeper (status page and uptime monitor), Error Keeper, Cron Heartbeat, Flag Keeper (feature flags), webhook-relay and Changelog Keeper.
@@ -82,7 +82,7 @@ The software costs nothing. You pay whatever your host charges. The data stays w
 
 ## Where to go next
 
-- The self-hosted section: [duncan-haywood.github.io/oss-monorepo/c/self-hosted/](https://duncan-haywood.github.io/oss-monorepo/c/self-hosted/)
+- [The self-hosted section of the catalogue](https://duncan-haywood.github.io/oss-monorepo/c/self-hosted/)
 - Every tool, with source links: `ventures/README.md`
 - The licence: `LICENSE`
 - Two app READMEs worth reading first: `ventures/status-keeper/README.md`, `ventures/dunning-engine/README.md`

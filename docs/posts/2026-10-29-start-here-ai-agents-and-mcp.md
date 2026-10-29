@@ -9,7 +9,7 @@ description: "For developers and Claude Code or Cursor users: call any tool's en
 
 This guide is for developers, and for anyone who works through an AI assistant such as Claude Code, Cursor, Claude Desktop or VS Code with an MCP client. If you have ever watched a model do arithmetic in its head for a roofing quote, a loan comparison or a CSV check and wondered whether to trust it, this is for you.
 
-The repository holds about 1,300 free tools, each a web page at [duncan-haywood.github.io/oss-monorepo](https://duncan-haywood.github.io/oss-monorepo/). Behind almost every page is a small JavaScript engine that does the actual calculation. One script lets your terminal, your scripts or your agent call those engines directly, with JSON in and JSON out, and no browser.
+The repository holds about 1,300 free tools, each a web page at [the live site](https://duncan-haywood.github.io/oss-monorepo/). Behind almost every page is a small JavaScript engine that does the actual calculation. One script lets your terminal, your scripts or your agent call those engines directly, with JSON in and JSON out, and no browser.
 
 ## The problem, in your words
 
@@ -46,7 +46,7 @@ The repository holds about 1,300 free tools, each a web page at [duncan-haywood.
          "slug": "changepoint-detector",
          "title": "Changepoint Detector — find when a time series changed (PELT + Bayesian)",
          "description": "Free changepoint detection for any time series. ...",
-         "url": "https://duncan-haywood.github.io/oss-monorepo/changepoint-detector/"
+         "url": ".../changepoint-detector/"
        }
      ]
    }

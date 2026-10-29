@@ -63,7 +63,7 @@ sketch of how the rules behave, not a promise about your job.
 ## Your first ten minutes
 
 1. **Open the tool** at
-   [duncan-haywood.github.io/oss-monorepo/wall-framing-takeoff/](https://duncan-haywood.github.io/oss-monorepo/wall-framing-takeoff/).
+   [its live page](https://duncan-haywood.github.io/oss-monorepo/wall-framing-takeoff/).
    It opens on an invented example house so you can see a finished takeoff
    before typing anything. "Load the example house" brings it back later;
    "Start empty" clears it.

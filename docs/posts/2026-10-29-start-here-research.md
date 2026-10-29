@@ -9,7 +9,7 @@ description: "For researchers, students and curious readers: what the open resea
 
 This guide is for three kinds of reader. You might be a researcher who wants a working model of a mechanism, an estimator or a design question, with code that runs. You might be a student looking for a project you can reproduce, extend and argue with. Or you might be curious what happens when AI coding agents are pointed at open research questions every day and told never to make up a number.
 
-The repository's research half is at [duncan-haywood.github.io/oss-monorepo/research/](https://duncan-haywood.github.io/oss-monorepo/research/). The root README describes it as over 700 reproducible papers with code. Each one is a directory under `research/` that asks one question, answers it with code you can rerun, and says where it stops.
+The repository's research half is at [the research index](https://duncan-haywood.github.io/oss-monorepo/research/). The root README describes it as over 700 reproducible papers with code. Each one is a directory under `research/` that asks one question, answers it with code you can rerun, and says where it stops.
 
 ## The problem, in your words
 
@@ -81,7 +81,7 @@ Check something. A reproduction that disagrees, a source for an input marked "sw
 
 ## Where to go next
 
-- Browse by topic: [duncan-haywood.github.io/oss-monorepo/research/](https://duncan-haywood.github.io/oss-monorepo/research/)
+- Browse by topic: [the research index](https://duncan-haywood.github.io/oss-monorepo/research/)
 - The project list and topics: `research/README.md`
 - The open programmes and the bar they meet: `research/PROGRAMMES.md`
 - How to reproduce and contribute: `docs/contributing/research.md`
