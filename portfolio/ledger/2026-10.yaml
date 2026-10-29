@@ -4252,3 +4252,18 @@ entries:
         jscpd 4.3.0's 337 s and 6.2 GB (out of memory at the default heap); line-level agreement
         93.6% / 95.5%. Brute-force cross-check and CLI-WASM parity tests in CI. Usage unmeasured.
     mrr_end: 0
+  - venture: raphaels-map
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Built from the owner's own specification (2026-10-29, renamed from "Covenant Atlas").
+        A static page over committed aggregates: all 3,222 U.S. counties and 935 metro areas from
+        ACS 2020-2024 (age, never-married by age, margins of error; county sums equal state rows
+        exactly), Catholic adherents for 2,953 counties (2020 Religion Census), 1,256 weighted
+        GSS/NSFG tables with suppression, nine preregistered proxy tests (weekly attendance
+        predicts ideal 4+ children out of sample; politics, rurality, family of origin, hunting
+        do not), 22 countries, 21 public venues (14 checked against their own pages). Data
+        fetched on a GitHub runner because the agent container cannot reach census.gov.
+        82 node tests, 76 pipeline tests, Playwright e2e. Usage unmeasured.
+    mrr_end: 0

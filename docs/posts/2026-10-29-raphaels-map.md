@@ -52,19 +52,64 @@ priority index". The index is computed only over the dimensions that have
 data, it shows how much the order moves when the weights change, and it
 ranks places to look into, never people or probabilities.
 
-<!-- FINDINGS: coordinator fills in after the data lands -->
+## What the first build found
 
-## The community list is marked as unchecked
+All numbers below come from files the pipeline downloaded and checked. The
+methods, intervals and caveats are in
+[`docs/survey-methods.md`](https://github.com/duncan-haywood/oss-monorepo/blob/main/ventures/raphaels-map/docs/survey-methods.md).
+
+**The counties are real and add up.** The map covers all 3,222 counties and
+county-equivalents and 935 metro and micro areas from the 2020-2024 American
+Community Survey 5-year tables, with Catholic adherents for 2,953 counties
+from the 2020 Religion Census. County sums equal the published state rows
+exactly, and the states sum to the national row (10,662,308 women aged 20 to
+24). On the Colorado Front Range, El Paso County has 25,132 women aged 20 to
+24 (±982) and Denver 22,265 (±908), while Denver has the highest share of
+Catholic adherents of the Front Range counties (248 per 1,000 residents of
+all ages, 2020) and Larimer the lowest (99).
+
+**The question the tool most wants answered cannot be answered from public
+surveys.** In the General Social Survey's in-person years 2010 to 2018,
+never-married Catholic women aged 18 to 29 who attend Mass weekly number 19
+respondents, an effective sample of 13. The tool shows "Insufficient sample"
+there rather than a percentage. What the data do support, for women 18 to 29:
+14.9% give an ideal family size of four or more (95% interval 11.7 to 18.7,
+effective n 431), and among weekly churchgoers of any religion it is 24.3%
+(15.6 to 35.8, flagged exploratory at effective n 87).
+
+**"Catholic" and "practicing" are different populations.** Only 18.6% of
+Catholic women aged 18 to 29 in those years attend weekly or more. A county's
+Catholic share is mostly people who are not at Mass on Sunday.
+
+**Practice predicts, affiliation barely does, and the folk proxies do not.**
+Nine hypotheses were written down before any model was fitted, then tested
+by training on 2000-2012 and scoring 2014-2018. Weekly attendance improved
+out-of-sample prediction of an ideal of four or more children (AUC 0.646 to
+0.669, interval excluding zero). Catholic affiliation also passed, by a
+negligible margin (+0.008), and attendance did not clearly beat it on that
+outcome. On saying divorce should be harder to get, attendance helped
+clearly and affiliation added nothing.
+Political party, rural residence, growing up with both parents and hunting
+did not improve prediction. So the tool keeps those proxies switched off and
+labelled "unvalidated".
+
+**A survey changed under our feet.** When the GSS moved to web interviews in
+2021, the share answering "as many as you want" to the ideal-family question
+rose from 10 to 12% of adults in 2006-2018 to between 22% and 29%, while the share naming four or
+more barely moved. The tool publishes 2010-2018 and 2021-2024 separately and
+flags anything that mixes them.
+
+## The community list is a sample, and it says so
 
 The communities view lists public organizations only: parish young adult
-series, campus ministries, diocesan young adult offices and Traditional Latin
-Mass parishes, starting with the Colorado Front Range and a few other large
-metros. The organizations' own websites could not be reached from the
-environment that compiled the list, so every row carries a **Not verified**
-badge, with a note saying what the search result showed. The badge goes away
-only when someone opens the official page and records the date. Rows checked
-more than 180 days ago are marked stale. And an organization being on the
-list does not mean it has many people your age, or anyone looking to marry.
+series, campus ministries, diocesan young adult offices and Traditional
+Latin Mass parishes, 21 of them, mostly on the Colorado Front Range. A
+build step fetched each one's own page: 14 answered with the organization's
+own title and are marked verified with the date, 2 links were dead, and 5
+could not be read and keep a **Not verified** badge. Because the list is a
+hand-picked sample rather than a census of parishes, a county with nothing
+listed means "none listed yet", so meeting access is weighted zero in the
+default index until the list is systematic.
 
 ## What it will not do
 

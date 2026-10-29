@@ -117,3 +117,27 @@ Access:
 | `compare.mjs`, `rank.mjs`, `explore.mjs`, `surveys.mjs`, `communities.mjs`, `toolkit.mjs`, `methodology.mjs`, `intl.mjs` | One view each. |
 | `export.mjs` | Markdown and CSV report with definitions and citations. Pure, tested. |
 | `usage.mjs` | Anonymous local counters, the repo pattern. |
+
+## Extensions added during the first build
+
+- **URL state.** Metro ids carry an `m` prefix in the hash (`#compare?ids=08013,m19740`)
+  because CBSA codes are five digits like county FIPS. Shared ranking settings
+  live in the hash (`#rank?st=08&band=20_24&mode=volume&w=70,30,0,0,0`) and
+  override saved preferences; preferences are stored under
+  `raphaels-map-prefs`, toolkit text under `raphaels-map-toolkit`, venue notes
+  under `raphaels-map-community-notes`.
+- **Values evidence hook.** A metric counts toward `values_evidence` only when
+  `metrics.json` gives it `"dimension": "values_evidence"` and class
+  `survey_estimate`. None does at county level today.
+- **Default weights.** Meeting access is 0 in both modes because
+  `communities.json` is a sample (`score.mjs`, `MODES`).
+- **Survey tables** may carry `period`, `mode`, `text_kind` (`label` when only
+  the short variable label exists), `filters.country` (imported surveys),
+  `excluded.missing_unsplit`, and flags `mode_mixed`, `coding_unconfirmed`,
+  `missing_codes_collapsed`, `approx_ci`. Proxy tests may carry `difference`
+  (head-to-head tests), `delta_auc_ci95`, `confirmatory`, and the verdict
+  `exploratory (no confirmatory verdict)`.
+- **International observations** may carry `year`, `source_id`, `indicator`,
+  `status_code`, `class` and `note`; the file has `groups` (countries by data
+  availability).
+- **Venues** may carry `county_name`, `verified_title` and `link_status`.
