@@ -1,0 +1,20 @@
+UK lung deaths, all (Jan 1976 peak)
+  raw no trend steps  5  warning yes  1976-02+ 1976-04- 1976-11+ 1977-02- 1977-04+
+  raw bend     steps  5  warning yes  1976-02+ 1976-04- 1976-11+ 1977-02- 1977-04+
+  log no trend steps  5  warning yes  1976-02+ 1976-04- 1976-11+ 1977-02- 1977-04+
+  log bend     steps  5  warning yes  1976-02+ 1976-04- 1976-11+ 1977-02- 1977-04+
+UK lung deaths, male (Jan 1976 peak)
+  raw no trend steps  7  warning yes  1974-04+ 1976-02+ 1976-04- 1976-11+ 1977-02- 1977-04+ 1979-02-
+  raw bend     steps  6  warning yes  1974-04+ 1976-02+ 1976-04- 1976-11+ 1977-02- 1977-04+
+  log no trend steps  8  warning yes  1974-04+ 1974-12- 1976-02+ 1976-04- 1976-11+ 1977-02- 1977-04+ 1978-11-
+  log bend     steps  7  warning yes  1974-04+ 1976-02+ 1976-04- 1976-11+ 1977-02- 1977-04+ 1978-02+
+UK lung deaths, female (Jan 1976 peak)
+  raw no trend steps  5  warning yes  1976-02+ 1976-04- 1976-11+ 1977-02- 1977-04+
+  raw bend     steps  5  warning yes  1976-02+ 1976-04- 1976-11+ 1977-02- 1977-04+
+  log no trend steps  2  warning no   1976-02+ 1976-04-
+  log bend     steps  3  warning yes  1976-02+ 1976-04- 1976-09+
+US accidental deaths (no shock; null)
+  raw no trend steps  8  warning yes  1973-11- 1974-01- 1974-08+ 1975-09- 1976-02+ 1976-04- 1976-12+ 1978-08+
+  raw bend     steps  4  warning yes  1973-11- 1974-01- 1975-09- 1978-08+
+  log no trend steps  8  warning yes  1973-11- 1974-01- 1974-03+ 1975-09- 1976-02+ 1976-04- 1976-12+ 1978-08+
+  log bend     steps  2  warning no   1974-01- 1974-08+
