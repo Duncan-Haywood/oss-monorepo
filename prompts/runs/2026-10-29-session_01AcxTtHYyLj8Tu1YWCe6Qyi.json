@@ -1,0 +1,49 @@
+{
+  "date": "2026-10-29",
+  "session": "https://claude.ai/code/session_01AcxTtHYyLj8Tu1YWCe6Qyi",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-29T05:07:11Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 11302,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "Did not run the 7 to 20 minute full build; verified the shared header CSS by rendering the header alone in Playwright at 390 px.",
+      "did": "site-nav unit tests plus isolated render",
+      "result": "crumb bar 27 px, no sideways scroll"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-29-one-line-breadcrumb-on-phones.md",
+    "docs/reports/polish-2026-10-29-phone-breadcrumb.md"
+  ],
+  "goal": null,
+  "notes": "Fixed the previous polish run's top item (3-line breadcrumb on phones). CTA on flagship first screen still open.",
+  "corrections": [],
+  "redteam": null
+}
