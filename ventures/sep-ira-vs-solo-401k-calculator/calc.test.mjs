@@ -107,3 +107,30 @@ test("money formats and does not print negative zero", () => {
   assert.equal(money(1234.5), "$1,234.50");
   assert.equal(money(-0.001), "$0.00");
 });
+
+test("money treats a non-number as zero, not one", () => {
+  assert.equal(money(undefined), "$0.00");
+  assert.equal(money(NaN), "$0.00");
+  assert.equal(money("abc"), "$0.00");
+});
+
+test("comparePlans with no input is an empty profit, not a $1 one", () => {
+  const c = comparePlans();
+  assert.equal(c.earnings, 0);
+  assert.equal(c.findings[0].severity, "high");
+});
+
+test("a $1 profit still has earnings to contribute from", () => {
+  const c = comparePlans({ netProfit: 1 });
+  assert.ok(c.earnings > 0 && c.earnings < 1);
+  assert.ok(!c.findings.some((f) => /No net self-employment earnings/.test(f.title)));
+});
+
+test("profit needed to max the Solo 401(k) includes the catch-up on top of $72,000", () => {
+  for (const age of [0, 55, 61]) {
+    const target = LIMITS_2026.annualAdditions + catchUpFor(age);
+    const p = comparePlans({ netProfit: 1, age }).profitToMaxSolo;
+    close(solo401kContribution(p, { age }).total, target, 1);
+    assert.ok(solo401kContribution(p - 5, { age }).total < target);
+  }
+});
