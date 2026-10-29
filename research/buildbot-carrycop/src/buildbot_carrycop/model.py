@@ -39,3 +39,30 @@ def cop_offset(c):
 def score(su, L, T, mass, c, **kw):
     with cop_offset(c):
         return C.score(su, L, T, mass, **kw)
+
+
+def lipm_x_ramp(L, T, zc, t, c0, c1):
+    """COM x with the CoP moving linearly from c0 (t = 0) to c1 (t = T), x(0) = -L/2, x(T) = L/2.
+
+    For c(t) linear, x = c(t) solves x'' = (g / z)(x - c) exactly (both sides are zero), so the orbit is
+    c(t) + A cosh(t / Tc) + B sinh(t / Tc) with A and B fixed by the endpoints. c0 = c1 is `lipm_x_cop`."""
+    Tc = np.sqrt(zc / G)
+    A = -L / 2 - c0
+    B = (L / 2 - c1 - A * np.cosh(T / Tc)) / np.sinh(T / Tc)
+    return c0 + (c1 - c0) * t / T + A * np.cosh(t / Tc) + B * np.sinh(t / Tc)
+
+
+@contextmanager
+def cop_ramp(c0, c1):
+    """Run buildbot_carryphase's gait with the CoP planned to travel from c0 to c1 (m) over the step."""
+    saved = C.lipm_x
+    C.lipm_x = lambda L, T, zc, t: lipm_x_ramp(L, T, zc, t, c0, c1)
+    try:
+        yield
+    finally:
+        C.lipm_x = saved
+
+
+def score_ramp(su, L, T, mass, c0, c1, **kw):
+    with cop_ramp(c0, c1):
+        return C.score(su, L, T, mass, **kw)
