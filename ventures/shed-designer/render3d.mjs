@@ -147,10 +147,11 @@ export function solidsOf(shed) {
   for (const f of shed.fixtures) {
     if (f.kind === 'poster') continue; // drawn with its picture in the texture pass
     const layer = f.kind === 'shingles' ? 'roofing'
+      : f.kind === 'connector' ? 'roof'
       : (f.kind === 'door' || f.kind === 'window' || f.kind === 'vent') ? 'siding'
         : (['trim', 'interior', 'decor', 'front lining'].includes(f.group) ? f.group : 'foundation');
     const lining = { OSB: [0.8, 0.66, 0.44], plywood: [0.93, 0.92, 0.88], drywall: [0.95, 0.95, 0.94], beadboard: [0.96, 0.95, 0.9], pegboard: [0.72, 0.58, 0.42] }[d.interior] || COLORS.lining;
-    const color = f.kind === 'shingles' ? roof : (f.kind === 'fascia' || f.kind === 'soffit' || f.kind === 'casing') ? trim : f.kind === 'lining' ? lining : /** @type {any} */ (COLORS)[f.kind] || COLORS.block;
+    const color = f.kind === 'shingles' ? roof : (f.kind === 'fascia' || f.kind === 'soffit' || f.kind === 'casing') ? trim : f.kind === 'connector' ? [0.62, 0.64, 0.66] : f.kind === 'lining' ? lining : /** @type {any} */ (COLORS)[f.kind] || COLORS.block;
     const metal = d.roofCover === 'metal' ? 16 : 0;
     out.push({ geom: f.geom, color: /** @type {any} */ (color), layer, flags: f.kind === 'shingles' ? glitter + metal : 0 });
   }
@@ -175,9 +176,9 @@ export function dimensionsOf(shed, fmt = (x) => `${x}`) {
   const seg = (a, b, ext, label) => out.push({ a, b, ticks: ext, label, ...(facing ? { n: facing } : {}) });
   seg([0, -o, 0], [L, -o, 0], [[0, 0, 0], [0, -o - 4, 0], [L, 0, 0], [L, -o - 4, 0]], `${fmt(L)} long`);
   seg([L + o, 0, 0], [L + o, W, 0], [[L, 0, 0], [L + o + 4, 0, 0], [L, W, 0], [L + o + 4, W, 0]], `${fmt(W)} wide`);
-  seg([L + o, W / 2, 0], [L + o, W / 2, k.peak], [[L, W / 2, k.peak], [L + o + 4, W / 2, k.peak]], `${fmt(k.peak)} gravel to peak`);
-  seg([-o, 0, 0], [-o, 0, k.plateTop], [[0, 0, k.plateTop], [-o - 4, 0, k.plateTop]], `${fmt(k.plateTop)} gravel to wall top`);
-  seg([-o, W, 0], [-o, W, k.floorTop], [[0, W, k.floorTop], [-o - 4, W, k.floorTop]], `${fmt(k.floorTop)} gravel to floor`);
+  seg([L + o, W / 2, 0], [L + o, W / 2, k.peak], [[L, W / 2, k.peak], [L + o + 4, W / 2, k.peak]], `${fmt(k.peak)} ground to peak`);
+  seg([-o, 0, 0], [-o, 0, k.plateTop], [[0, 0, k.plateTop], [-o - 4, 0, k.plateTop]], `${fmt(k.plateTop)} ground to wall top`);
+  seg([-o, W, 0], [-o, W, k.floorTop], [[0, W, k.floorTop], [-o - 4, W, k.floorTop]], `${fmt(k.floorTop)} ground to floor`);
   // Overhang and roof slope on the left gable.
   const eaveZ = k.plateTop + (k.connector ? 0 : -k.stud * (d.pitch / 12)) + k.plumbH;
   if (k.overhang > 0) seg([-6, -k.overhang, eaveZ + 6], [-6, 0, eaveZ + 6], [[-6, 0, k.plateTop], [-6, 0, eaveZ + 8]], `${fmt(k.overhang)} overhang`);

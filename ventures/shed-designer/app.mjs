@@ -15,8 +15,8 @@ import { generateCandidates } from './candidates.mjs';
 import { buildInstructions, instructionsMarkdown } from './instructions.mjs';
 import { quoteRequest, mailtoLink, STORES } from './quote.mjs';
 import { PRODUCTS } from './products.mjs';
-import { storeComparison, swapsFor } from './catalog.mjs';
-import { simplify, cutMetrics, budget } from './simplify.mjs';
+import { storeComparison, swapsFor, storeTotals } from './catalog.mjs';
+import { simplify, cutMetrics, budget, laborHours } from './simplify.mjs';
 
 const $ = (sel) => /** @type {any} */ (document.querySelector(sel));
 const $$ = (sel) => /** @type {any[]} */ ([...document.querySelectorAll(sel)]);
@@ -35,8 +35,8 @@ try { storage = globalThis.localStorage; } catch { storage = null; }
 const optedOut = () => Boolean($('#optout')?.checked);
 const count = (event) => recordUsage(storage, optedOut(), event);
 
-/** @type {{ designs: any[], active: number, prices: any }} */
-const state = { designs: [], active: 0, prices: examplePrices() };
+/** @type {{ designs: any[], active: number, prices: any, have: string[] }} */
+const state = { designs: [], active: 0, prices: examplePrices(), have: [] };
 const undo = []; const redo = [];
 const thumbs = new Map();
 
@@ -53,7 +53,8 @@ function load() {
       if (Array.isArray(s.designs) && s.designs.length) {
         state.designs = s.designs.map(normalize);
         state.active = Math.min(s.designs.length - 1, Math.max(0, Number(s.active) || 0));
-        if (s.prices?.lumber) state.prices = { lumber: { ...state.prices.lumber, ...s.prices.lumber }, items: { ...state.prices.items, ...s.prices.items } };
+        if (Array.isArray(s.have)) state.have = s.have.filter((x) => typeof x === 'string');
+        if (s.prices?.lumber) state.prices = { lumber: { ...state.prices.lumber, ...s.prices.lumber }, items: { ...state.prices.items, ...s.prices.items }, delivery: { ...(state.prices.delivery || {}), ...(s.prices.delivery || {}) } };
       }
     }
   } catch { /* a bad saved state starts fresh */ }
@@ -98,7 +99,7 @@ function preview(next) {
 const FIELDS = ['name', 'lengthFt', 'widthFt', 'wallHeight', 'pitch', 'overhang', 'studSize', 'studSpacing', 'joistSize', 'joistSpacing',
   'rafterSize', 'rafterSpacing', 'tieSize', 'skidSize', 'skidSpacing', 'foundation', 'floorTreated', 'siding', 'roofing', 'gableVents', 'ventWidth', 'ventHeight', 'kerf',
   'roofType', 'beamSize', 'sidingColor', 'polkaDots', 'autoWall', 'autoPitch',
-  'autoOverhang', 'snowLoad', 'windLoad', 'roofColor', 'trimColor', 'glitter', 'interior', 'sidingType', 'roofCover', 'insulation', 'wallTrim', 'rafterSeat', 'maxFootprint', 'compaction', 'pad', 'floorPanel'];
+  'autoOverhang', 'snowLoad', 'windLoad', 'roofColor', 'trimColor', 'glitter', 'interior', 'sidingType', 'roofCover', 'insulation', 'wallTrim', 'rafterSeat', 'maxFootprint', 'compaction', 'pad', 'floorPanel', 'spares', 'taxRate', 'delivery', 'laborRate'];
 
 function fillForm(d) {
   const set = (id, v) => { const e = /** @type {any} */ (document.getElementById(id)); if (!e || e === document.activeElement) return; if (e.type === 'checkbox') e.checked = Boolean(v); else e.value = String(v); };
@@ -117,8 +118,8 @@ function readForm() {
   d.length = Math.round(Number(v('lengthFt').value) * 12);
   d.width = Math.round(Number(v('widthFt').value) * 12);
   d.maxPeak = Math.round(Number(v('maxPeakFt').value) * 12);
-  for (const f of ['wallHeight', 'pitch', 'overhang', 'studSpacing', 'joistSpacing', 'rafterSpacing', 'skidSpacing', 'ventWidth', 'ventHeight', 'kerf', 'snowLoad', 'windLoad', 'maxFootprint']) d[f] = Number(v(f).value);
-  for (const f of ['studSize', 'joistSize', 'rafterSize', 'tieSize', 'skidSize', 'foundation', 'roofType', 'beamSize', 'sidingColor', 'roofColor', 'trimColor', 'interior', 'sidingType', 'roofCover', 'wallTrim', 'rafterSeat', 'compaction', 'pad', 'floorPanel']) d[f] = v(f).value;
+  for (const f of ['wallHeight', 'pitch', 'overhang', 'studSpacing', 'joistSpacing', 'rafterSpacing', 'skidSpacing', 'ventWidth', 'ventHeight', 'kerf', 'snowLoad', 'windLoad', 'maxFootprint', 'spares', 'taxRate', 'laborRate']) d[f] = Number(v(f).value);
+  for (const f of ['studSize', 'joistSize', 'rafterSize', 'tieSize', 'skidSize', 'foundation', 'roofType', 'beamSize', 'sidingColor', 'roofColor', 'trimColor', 'interior', 'sidingType', 'roofCover', 'wallTrim', 'rafterSeat', 'compaction', 'pad', 'floorPanel', 'delivery']) d[f] = v(f).value;
   for (const f of ['floorTreated', 'siding', 'roofing', 'gableVents', 'polkaDots', 'autoWall', 'autoPitch', 'autoOverhang', 'glitter', 'insulation']) d[f] = v(f).checked;
   d.lengths = $$('input[name="stock"]:checked').map((c) => Number(c.value));
   return d;
@@ -147,13 +148,15 @@ function renderOpenings(d) {
 // ---------- results ----------
 function renderSummary(shed, est) {
   const d = shed.design;
-  $('#total').textContent = money(est.total);
+  $('#total').textContent = money(est.grandTotal);
   $('#summary-lines').innerHTML = [
+    ['Materials', `${money(est.total)}${est.tax ? ` + ${money(est.tax)} tax (${d.taxRate}%)` : ' (no sales tax set)'}${d.delivery !== 'pickup' ? (est.deliveryFee ? ` + ${money(est.deliveryFee)} delivery` : ' + delivery (type your store\'s charge under Prices)') : ''}`],
     ['Footprint', `${fmtFtIn(d.length)} x ${fmtFtIn(d.width)} (${est.footprintSqFt.toFixed(0)} sq ft)`],
     ['Peak above the gravel', fmtFtIn(shed.dims.peak)],
     ['Boards to buy', `${est.boards} for ${est.pieces} pieces`],
     ['Lumber', `${money(est.lumberCost)} (lower bound ${money(est.lowerBound)})`],
     ['Sheets', `${est.floorSheets} floor, ${est.roofSheets} roof${d.siding ? `, ${shed.sidingFull.length + (shed.sidingUpper.length ? 1 : 0)}+ siding` : ''}`],
+    ['Your time', (() => { const h = laborHours(shed, est); return `about ${Math.round(h)} hours${d.laborRate ? `, ${money(h * d.laborRate)} at ${money(d.laborRate)} an hour (materials and time ${money(est.total + h * d.laborRate)})` : ''}`; })()],
     ['Saw cuts', (() => { const c = cutMetrics(shed, est); return `${c.straight} straight, ${c.angled} angled${c.notches ? `, ${c.notches} notches` : ''}; ${(c.waste * 100).toFixed(1)}% offcut`; })()],
   ].map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join('');
   const msgs = [...shed.warnings, ...est.problems];
@@ -165,12 +168,31 @@ function renderSummary(shed, est) {
 function renderShopping(est) {
   let html = '';
   let section = '';
+  // Lines you already have stay on the list (so the plans and quotes are whole) but come off what is left to buy.
+  const have = new Set(state.have);
+  let had = 0;
   for (const r of est.shopping) {
-    if (r.section !== section) { section = r.section; html += `<tr class="sec"><th colspan="6" scope="colgroup">${esc(section)}</th></tr>`; }
-    html += `<tr><td>${esc(r.name)}</td><td class="n">${r.qty}</td><td>${r.unit}</td><td class="n">${money(r.price)}</td><td class="n">${money(r.total)}</td><td>${sourceCell(r.source)}</td></tr>`;
+    if (r.section !== section) { section = r.section; html += `<tr class="sec"><th colspan="7" scope="colgroup">${esc(section)}</th></tr>`; }
+    const got = have.has(r.name);
+    if (got) had += r.total;
+    html += `<tr${got ? ' class="have"' : ''}><td>${esc(r.name)}</td><td class="n">${r.qty}</td><td>${r.unit}</td><td class="n">${money(r.price)}</td><td class="n">${money(r.total)}</td><td>${sourceCell(r.source)}</td><td><input type="checkbox" data-have="${esc(r.name)}"${got ? ' checked' : ''} aria-label="I already have: ${esc(r.name)}"></td></tr>`;
   }
-  html += `<tr class="tot"><th colspan="4" scope="row">Estimated total</th><td class="n">${money(est.total)}</td><td></td></tr>`;
+  html += `<tr class="tot"><th colspan="4" scope="row">Materials</th><td class="n">${money(est.total)}</td><td></td><td></td></tr>`;
+  if (had) html += `<tr><th colspan="4" scope="row">Less what you already have</th><td class="n">-${money(had)}</td><td></td><td></td></tr><tr class="tot"><th colspan="4" scope="row">Still to buy</th><td class="n">${money(est.total - had)}</td><td></td><td></td></tr>`;
+  const tax = (Math.round((est.total - had) * design().taxRate) / 100);
+  if (tax) html += `<tr><th colspan="4" scope="row">Sales tax at ${design().taxRate}%</th><td class="n">${money(tax)}</td><td></td><td></td></tr>`;
+  if (est.deliveryFee) html += `<tr><th colspan="4" scope="row">Delivery</th><td class="n">${money(est.deliveryFee)}</td><td></td><td></td></tr>`;
+  if (tax || est.deliveryFee) html += `<tr class="tot"><th colspan="4" scope="row">Estimated total</th><td class="n">${money(est.total - had + tax + est.deliveryFee)}</td><td></td><td></td></tr>`;
   $('#shopping tbody').innerHTML = html;
+  for (const cb of $$('#shopping input[data-have]')) {
+    cb.addEventListener('change', () => {
+      const set = new Set(state.have);
+      if (cb.checked) set.add(cb.dataset.have); else set.delete(cb.dataset.have);
+      state.have = [...set];
+      save();
+      renderShopping(est);
+    });
+  }
 }
 
 /** A price's source as a short cell: a link to the listing, or what kind of estimate it is. */
@@ -209,6 +231,10 @@ function renderPrices(est, d) {
     const key = Object.entries(state.prices.items).find(([k]) => labelOfItem(k) && r.name.startsWith(labelOfItem(k)))?.[0];
     if (key) html += `<label>${esc(r.name)} ($ per ${r.unit})<input type="number" min="0" step="0.01" data-item="${key}" value="${state.prices.items[key]}"></label>`;
   }
+  if (d.delivery !== 'pickup') {
+    const fee = state.prices.delivery?.[d.delivery];
+    html += `<label>${d.delivery === 'lowes' ? "Lowe's" : 'Home Depot'} delivery charge ($)<input type="number" min="0" step="1" data-delivery="${d.delivery}" value="${fee ?? ''}" placeholder="your store's charge"></label>`;
+  }
   box.innerHTML = html + '</div>';
 }
 const labelOfItem = (k) => /** @type {any} */ (EXAMPLE_ITEMS)[k]?.name;
@@ -216,7 +242,11 @@ const labelOfItem = (k) => /** @type {any} */ (EXAMPLE_ITEMS)[k]?.name;
 /** The same parts at other stores, and design swaps priced against this design. */
 function renderStores(est, d) {
   const cmp = storeComparison(est);
-  let html = `<div class="table-wrap"><table><thead><tr><th scope="col">Item</th><th scope="col" class="n">Qty</th>${cmp.stores.map((s) => `<th scope="col">${esc(s)}</th>`).join('')}<th scope="col" class="n">Saving at the cheapest</th></tr></thead><tbody>`;
+  const whole = storeTotals(est);
+  const two = whole.stores.filter((x) => x.lines > 0);
+  let html = `<h4>The whole list at each store</h4><div class="table-wrap"><table><thead><tr><th scope="col">Store</th><th scope="col" class="n">Lines priced there</th><th scope="col" class="n">Those lines</th><th scope="col" class="n">Other lines, at the list's price</th><th scope="col" class="n">Total</th></tr></thead><tbody>${two.map((x) => `<tr><th scope="row">${esc(x.store)}</th><td class="n">${x.lines} of ${x.of}</td><td class="n">${money(x.priced)}</td><td class="n">${money(x.carried)}</td><td class="n">${money(x.total)}</td></tr>`).join('')}</tbody></table></div>`;
+  if (whole.shared) html += `<p class="muted">Like for like, on the ${whole.shared} lines every store here lists: ${Object.entries(whole.sharedTotals).map(([st, t]) => `${esc(st)} ${money(t)}`).join(', ')}.</p>`;
+  html += `<h4>Line by line</h4><div class="table-wrap"><table><thead><tr><th scope="col">Item</th><th scope="col" class="n">Qty</th>${cmp.stores.map((s) => `<th scope="col">${esc(s)}</th>`).join('')}<th scope="col" class="n">Saving at the cheapest</th></tr></thead><tbody>`;
   for (const row of cmp.rows) {
     html += `<tr><td>${esc(row.line.name)}</td><td class="n">${row.line.qty}</td>${cmp.stores.map((st) => {
       const o = row.offers.find((x) => x.store === st);
@@ -309,12 +339,18 @@ function renderQuote(shed, est) {
   const box = $('#quote-body');
   if (box === document.activeElement) return;
   const who = { name: $('#quote-name').value, phone: $('#quote-phone').value, zip: $('#quote-zip').value, date: $('#quote-date').value };
-  lastQuote = quoteRequest(shed, est, $('#quote-store').value, who);
-  box.value = `Subject: ${lastQuote.subject}\n\n${lastQuote.body}`;
-  const href = mailtoLink(lastQuote);
-  const a = $('#quote-mail');
-  if (href) { a.href = href; a.removeAttribute('aria-disabled'); } else { a.href = '#'; a.setAttribute('aria-disabled', 'true'); }
-  $('#quote-note').textContent = `${STORES[$('#quote-store').value].note} Nothing is sent from this page: the draft opens in your own email app (or copy it), and you attach the files.`;
+  const pick = $('#quote-store').value;
+  // "Both": one draft per store, each naming that store's own item numbers.
+  const keys = pick === 'both' ? ['homedepot', 'lowes'] : [pick];
+  const drafts = keys.map((k) => quoteRequest(shed, est, /** @type {any} */ (k), who));
+  lastQuote = drafts[0];
+  box.value = drafts.map((q) => `Subject: ${q.subject}\n\n${q.body}`).join('\n\n----- next email -----\n\n');
+  const setLink = (a, q) => { const href = q && mailtoLink(q); if (href) { a.href = href; a.removeAttribute('aria-disabled'); } else { a.href = '#'; a.setAttribute('aria-disabled', 'true'); } };
+  setLink($('#quote-mail'), drafts[0]);
+  $('#quote-mail').textContent = drafts.length > 1 ? 'Open the Home Depot email' : 'Open in my email app';
+  $('#quote-mail2').hidden = drafts.length < 2;
+  setLink($('#quote-mail2'), drafts[1]);
+  $('#quote-note').textContent = `${keys.map((k) => /** @type {any} */ (STORES)[k].note).join(' ')} Nothing is sent from this page: the draft opens in your own email app (or copy it), and you attach the files.`;
 }
 
 let buildMd = '';
@@ -445,6 +481,7 @@ function wire() {
     }
     if (t.dataset.mat) { state.prices.lumber[t.dataset.mat][t.dataset.ft] = Number(t.value); render(); return; }
     if (t.dataset.item) { state.prices.items[t.dataset.item] = Number(t.value); render(); return; }
+    if (t.dataset.delivery) { state.prices.delivery = { ...(state.prices.delivery || {}), [t.dataset.delivery]: Number(t.value) }; render(); return; }
     if (t.closest('#settings')) {
       const next = readForm();
       // Typing a pitch or wall height means you want that number, not the automatic one.
@@ -592,12 +629,12 @@ function wire() {
         const tv = createViewer(thumbCanvas);
         let img = '';
         if (tv) { tv.show(buildShed(b.design), { refit: true }); img = `<img src="${tv.snapshot()}" alt="3D view of the cheaper build" width="480" height="320" style="max-width:100%;height:auto">`; }
-        html += `<article class="card">${img}<h4>${money(b.total)}, ${money(r.base.total - b.total)} less than your ${money(r.base.total)}</h4>
-          <ol>${b.steps.map((st) => `<li>${esc(st.label)}: saves ${money(st.saving)}</li>`).join('')}</ol>
+        html += `<article class="card">${img}<h4>${money(b.total)} of materials, ${money(r.base.total - b.total)} less than your ${money(r.base.total)}; about ${Math.round(b.hours)} hours of work (yours: ${Math.round(r.base.hours)})</h4>
+          <ol>${b.steps.map((st) => `<li>${esc(st.label)}: saves ${money(st.saving)}${st.hours ? ` (${st.materials >= 0 ? `${money(st.materials)} of materials` : `${money(-st.materials)} more materials`}, ${Math.abs(st.hours)} h ${st.hours > 0 ? 'less' : 'more'} work)` : ''}</li>`).join('')}</ol>
           <p class="muted">Same ${fmtFtIn(b.design.length)} x ${fmtFtIn(b.design.width)} footprint. Peak ${ft(b.peak)}${Math.abs(b.peak - r.base.peak) > 0.06 ? ` (yours is ${ft(r.base.peak)})` : ''}. ${r.evaluated} designs priced and checked.</p>
           <button type="button" data-budget-use>Use this one</button></article>`;
       }
-      if (r.also.length) html += `<p><strong>Also possible, if you will change the structure you chose:</strong> ${r.also.map((a) => `${esc(a.label)} saves ${money(a.saving)} more`).join('; ')}.</p>`;
+      if (r.also.length) html += `<p><strong>Also possible, if you will change the structure you chose:</strong> ${r.also.map((a) => `${esc(a.label)} saves ${money(a.saving)} more counting your time (${money(a.materials)} of materials, ${a.hours >= 0 ? `${a.hours} h less` : `${-a.hours} h more`} work)`).join('; ')}.</p>`;
       if (r.taller.length) html += `<p><strong>Held back by height:</strong> ${r.taller.map((a) => `${esc(a.label)} would save ${money(a.saving)} more but put the peak at ${ft(a.peak)}`).join('; ')}.</p>`;
       $('#budget-out').innerHTML = html;
       $('#budget-out').onclick = (ev) => {

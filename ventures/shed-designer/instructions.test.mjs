@@ -10,7 +10,7 @@ const make = (d) => { const s = buildShed(d); return { s, sections: buildInstruc
 test('instructions run in build order and carry this design\'s numbers', () => {
   const { s, sections } = make(defaultDesign());
   const titles = sections.map((x) => x.title);
-  const order = ['Before you start', 'Gravel pad', 'Skids', 'Floor frame', 'Subfloor', 'Tie the walls together', 'Ridge beam and posts', 'Rafters', 'Gable ends', 'Roof sheathing and roofing', 'Siding', 'Final checks'];
+  const order = ['Before you start', 'Ground under each block', 'Skids', 'Floor frame', 'Subfloor', 'Tie the walls together', 'Ridge beam and posts', 'Rafters', 'Gable ends', 'Roof sheathing and roofing', 'Siding', 'Final checks'];
   let last = -1;
   for (const t of order) { const i = titles.indexOf(t); assert.ok(i > last, t); last = i; }
   const md = instructionsMarkdown(sections, s.design.name);

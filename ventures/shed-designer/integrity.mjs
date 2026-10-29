@@ -2,7 +2,7 @@
 // Geometry checks that keep the model honest: nothing floats, and no two
 // boards occupy the same wood.
 //
-// Floating: starting from the gravel pad, follow every piece that touches a
+// Floating: starting from the ground (the gravel pad, or blocks set on the soil), follow every piece that touches a
 // piece already reached (boxes within 1/16"). Anything never reached is not
 // held up by anything. Clashes: two members whose shapes are plain rectangles
 // lined up with the axes, overlapping by more than 1/16" in all three
@@ -29,7 +29,8 @@ export function integrity(shed) {
     ...shed.panels.map((p) => ({ id: p.id, kind: p.kind, member: false, rect: false, b: bbox(p.geom) })),
     ...shed.fixtures.map((f, i) => ({ id: `fixture-${i}`, kind: f.kind, member: false, rect: false, b: bbox(f.geom) })),
   ];
-  const reached = new Set(items.filter((x) => x.kind === 'gravel'));
+  // Grounded: the gravel, and anything whose underside is on the ground itself (blocks on tamped soil).
+  const reached = new Set(items.filter((x) => x.kind === 'gravel' || Math.abs(x.b.lo[2]) < 0.01));
   const queue = [...reached];
   while (queue.length) {
     const a = /** @type {any} */ (queue.shift());

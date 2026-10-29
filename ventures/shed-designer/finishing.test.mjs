@@ -6,14 +6,15 @@ import { buildShed, defaultDesign, normalize, BLOCKS } from './model.mjs';
 import { estimate } from './estimate.mjs';
 import { itemPrice } from './prices.mjs';
 import { EXAMPLE_ITEMS } from './lumber.mjs';
-import { OFFERS, storeComparison, swapsFor } from './catalog.mjs';
-import { simplify, cutMetrics, sidingSpan, budget } from './simplify.mjs';
+import { OFFERS, storeComparison, swapsFor, storeTotals } from './catalog.mjs';
+import { simplify, cutMetrics, sidingSpan, budget, laborHours } from './simplify.mjs';
 import { connectionChecks } from './connections.mjs';
 import { integrity } from './integrity.mjs';
 import { buildSheets } from './drawings.mjs';
 import { buildInstructions } from './instructions.mjs';
 import { quoteRequest, itemRef } from './quote.mjs';
-import { shoppingCsv } from './estimate.mjs';
+import { shoppingCsv, examplePrices } from './estimate.mjs';
+const examplePricesWith = (extra) => ({ ...examplePrices(), ...extra });
 
 test('1x4 trim: two boards a corner, and a casing round every opening', () => {
   const shed = buildShed(defaultDesign());
@@ -66,7 +67,7 @@ test('deck blocks, CMU and solid blocks: skids sit on them, nothing floats, bloc
 });
 
 test('site prep: fabric, compaction (tamper or a rented compactor) and gravel', () => {
-  const tamp = estimate(buildShed(defaultDesign())).shopping.filter((r) => r.section === 'Site prep').map((r) => r.name).join('|');
+  const tamp = estimate(buildShed(normalize({ ...defaultDesign(), foundation: 'gravel', pad: 'full' }))).shopping.filter((r) => r.section === 'Site prep').map((r) => r.name).join('|');
   assert.match(tamp, /fabric/i);
   assert.match(tamp, /tamper/i);
   assert.match(tamp, /stone/i);
@@ -92,7 +93,7 @@ test('every listed price has a link, and every item used has a price', () => {
 
 test('store offers: every one has a store, a price, a model and a link; comparison sums', () => {
   for (const [k, list] of Object.entries(OFFERS)) {
-    assert.ok(EXAMPLE_ITEMS[k] || /^lumber:[^:]+:\d+$/.test(k), k);
+    assert.ok(EXAMPLE_ITEMS[k] || /^lumber:[^:]+:\d+$/.test(k) || /^product:/.test(k), k);
     for (const o of list) {
       assert.ok(o.store && o.model && o.price > 0, `${k} ${o.store}`);
       assert.match(o.url, /^https:\/\//);
@@ -160,9 +161,9 @@ test('quote emails name the store\'s own item and link where we have it; the CSV
   const shed = buildShed(defaultDesign());
   const est = estimate(shed);
   const body = quoteRequest(shed, est, 'lowes').body;
-  assert.match(body, /Lowe's: item 131203, model L51844416, https:\/\/www\.lowes\.com\//);
+  assert.match(body, /\n      Lowe's: [^\n]+, https:\/\/www\.lowes\.com\//);
   const hd = quoteRequest(shed, est, 'homedepot').body;
-  assert.match(hd, /Home Depot: model 702636, internet 307424572/);
+  assert.match(hd, /\n      Home Depot[^\n]*: [^\n]*https:\/\/(www\.)?homedepot\.com\//);
   assert.equal(itemRef({ source: { key: 'trim1x4x16' } }, undefined), '');
   assert.match(quoteRequest(shed, est, 'menards').body, /Menards: SKU 1511823, https:\/\/www\.menards\.com\//);
   const csv = shoppingCsv(est).split('\n');
@@ -190,11 +191,12 @@ test('budget search: same footprint, kept structure, off-the-shelf only, every s
   assert.equal(b.design.rafterSeat, d.rafterSeat);
   assert.ok(b.ok, 'passes every check');
   assert.ok(b.peak <= r.peakCap + 0.01);
-  assert.ok(!b.design.openings.some((o) => o.product === 'site-built'), 'off the shelf');
-  assert.ok(!['vinyl', 'fiber cement'].includes(b.design.sidingType), 'no siding whose trim pieces are unpriced');
+  for (const o of b.design.openings) if (o.product === 'site-built') assert.ok(d.openings.find((x) => x.id === o.id).product === 'site-built', 'never swaps a stock part for a site-built one');
+  assert.ok(b.design.sidingType !== 'fiber cement', 'no siding whose trim pieces are unpriced');
   for (const st of b.steps) assert.ok(st.saving > 0, st.label);
   const sum = b.steps.reduce((t, st) => t + st.saving, 0);
-  assert.ok(Math.abs(sum - (r.base.total - b.total)) < 0.05, 'the steps add up');
+  assert.ok(Math.abs(sum - (r.base.total + r.base.timeCost - b.total - b.timeCost)) < 0.05, 'the steps add up, materials and time');
+  for (const st of b.steps) assert.ok(Math.abs(st.saving - (st.materials + st.hours * d.laborRate)) < 6, 'each step is materials plus hours at the rate');
   for (const t of r.taller) assert.ok(t.peak > r.peakCap);
 });
 
@@ -207,7 +209,12 @@ test('gravel only under the blocks: no pad, no fabric, paver base by the bag', (
   assert.doesNotMatch(names, /fabric|Crushed stone/i);
   assert.equal(shed.fixtures.filter((f) => f.kind === 'gravel').length, shed.dims.blockCount);
   // Without blocks the choice has no effect.
-  assert.ok(buildShed(normalize({ ...defaultDesign(), pad: 'under blocks' })).dims.gravelCuYd > 0);
+  assert.ok(buildShed(normalize({ ...defaultDesign(), foundation: 'gravel', pad: 'under blocks' })).dims.gravelCuYd > 0);
+  // No gravel at all: blocks on the soil, nothing to buy for the pad.
+  const bare = buildShed(normalize({ ...defaultDesign(), foundation: 'blocks', pad: 'none' }));
+  assert.equal(bare.dims.gravelCuYd + bare.dims.baseBags, 0);
+  assert.equal(bare.fixtures.filter((f) => f.kind === 'gravel').length, 0);
+  assert.doesNotMatch(estimate(bare).shopping.map((r) => r.name).join('|'), /stone|Paver base|fabric/i);
   const osb = estimate(buildShed(normalize({ ...defaultDesign(), floorPanel: 'OSB' })));
   assert.ok(osb.shopping.some((r) => /OSB subfloor/.test(r.name)));
 });
@@ -216,4 +223,46 @@ test('the build cache returns the same shed for the same design, and a new one f
   const a = buildShed(defaultDesign());
   assert.equal(buildShed(defaultDesign()), a);
   assert.notEqual(buildShed({ ...defaultDesign(), overhang: 10, autoOverhang: false }), a);
+});
+
+test('a realistic order: spare boards, consumables, sales tax and delivery', () => {
+  const plain = estimate(buildShed(normalize({ ...defaultDesign(), spares: 0 })));
+  const est = estimate(buildShed(defaultDesign()));
+  const spares = est.shopping.filter((r) => /spares/.test(r.name));
+  assert.equal(spares.length, est.lumber.filter((l) => l.result.boards.length).length, 'one spares line a material');
+  for (const l of est.lumber) {
+    const line = spares.find((r) => r.name.startsWith(`${l.material} x`));
+    assert.equal(line.qty, Math.ceil(l.result.boards.length * 0.05), l.material);
+  }
+  assert.ok(!plain.shopping.some((r) => /spares/.test(r.name)));
+  for (const re of [/adhesive/i, /screws/i, /Flashing tape/, /shims/i]) assert.ok(est.shopping.some((r) => re.test(r.name)), String(re));
+  assert.ok(Math.abs(est.tax - est.total * 0.0753) < 0.011, 'US average sales tax by default');
+  assert.equal(estimate(buildShed(normalize({ ...defaultDesign(), taxRate: 0 }))).tax, 0);
+  const taxed = estimate(buildShed(normalize({ ...defaultDesign(), taxRate: 7.5, delivery: 'homedepot' })), { ...examplePricesWith({ delivery: { homedepot: 79 } }) });
+  assert.ok(Math.abs(taxed.tax - taxed.total * 0.075) < 0.01);
+  assert.equal(taxed.deliveryFee, 79);
+  assert.ok(Math.abs(taxed.grandTotal - (taxed.total + taxed.tax + 79)) < 0.011);
+});
+
+test('whole list at each store: every line counted once, priced or carried', () => {
+  const est = estimate(buildShed(defaultDesign()));
+  const w = storeTotals(est);
+  for (const x of w.stores) {
+    assert.ok(Math.abs(x.priced + x.carried - x.total) < 0.011);
+    assert.equal(x.of, est.shopping.length);
+    assert.ok(x.lines <= x.of);
+  }
+  assert.ok(w.stores.find((x) => x.store === 'Home Depot').lines > est.shopping.length / 2);
+});
+
+test('labour: hours rise with the work, and the rate turns them into money', () => {
+  const d = defaultDesign();
+  const s = buildShed(d);
+  const est = estimate(s);
+  const h = laborHours(s, est);
+  assert.ok(h > 10 && h < 120, `a shed is days of work, not minutes or months (${h} h)`);
+  const notched = buildShed(normalize({ ...d, rafterSeat: 'birdsmouth' }));
+  assert.ok(laborHours(notched, estimate(notched)) > h, 'notching rafters takes longer than setting connectors');
+  const big = buildShed(normalize({ ...d, length: 192, width: 144, maxFootprint: 0 }));
+  assert.ok(laborHours(big, estimate(big)) > h, 'a bigger shed takes longer');
 });

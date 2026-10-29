@@ -119,7 +119,7 @@ test('the starter is the spec as asked: 8x12, 6\'6" door on a 12 ft side, two wi
   const d = defaultDesign();
   assert.equal(d.length, 144);
   assert.equal(d.width, 96);
-  assert.deepEqual(d.openings.map((o) => [o.kind, o.wall, o.height]), [['door', 'front', 78], ['window', 'back', 36.25], ['window', 'back', 36.25]]);
+  assert.deepEqual(d.openings.map((o) => [o.kind, o.wall, o.height]), [['door', 'front', 78], ['window', 'back', 21.25], ['window', 'back', 21.25]]);
   assert.equal(d.studSize, '2x4');
   assert.equal(d.studSpacing, 16);
   assert.equal(d.roofType, 'ridgeBeam');
@@ -171,7 +171,7 @@ test('ridge beam: two plies on two-ply posts over post studs, no rafter ties, ve
 test('picking a catalogue product sets the rough opening to the maker\'s and lists the unit', async () => {
   const { estimate } = await import('./estimate.mjs');
   const d = defaultDesign();
-  assert.equal(d.openings[0].product, 'sr-36x76');
+  assert.equal(d.openings[0].product, 'site-built');
   const s = buildShed({ ...d, openings: d.openings.map((o) => (o.kind === 'window' ? { ...o, product: 'swm-1823', width: 99, height: 99 } : o)) });
   const win = s.design.openings.find((o) => o.kind === 'window');
   assert.equal(win.width, 18.25);

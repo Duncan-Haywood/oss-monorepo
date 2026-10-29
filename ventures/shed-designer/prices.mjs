@@ -22,27 +22,40 @@ export const LISTED_LUMBER = {
     10: { price: 7.72, url: 'https://www.homedepot.com/p/2-in-x-4-in-x-10-ft-2-and-BTR-S-Dry-Spruce-Pine-Fir-Lumber-0133160/303335795', note: SNIP },
     12: { price: 8.46, url: 'https://www.homedepot.com/p/2-in-x-4-in-x-12-ft-Premium-Kiln-Dried-Heat-Treated-Whitewood-Dimensional-Lumber-244S12P/319459507', note: SNIP },
     16: { price: 13.17, url: 'https://www.homedepot.com/p/2-in-x-4-in-x-16-ft-2-Premium-Grade-SPF-Dimensional-Lumber-0133166/303335813', note: SNIP },
+    14: { price: 8.32, url: 'https://www.homedepot.com/p/2-in-x-4-in-x-14-ft-2-Premium-Grade-SPF-Dimensional-Lumber-161675/100023769', note: `price read from a search result for this product page; the category page showed $9.32; $7.49 each for 35 or more`, bulk: { min: 35, price: 7.49 } },
   },
   '2x6': {
     8: { price: 6.83, url: 'https://www.homedepot.com/p/2-in-x-6-in-x-8-ft-2-Premium-Grade-SPF-Dimensional-Lumber-0200352/203445784', note: `${SNIP}; listings vary $6.75-$9.62` },
     12: { price: 10.68, url: 'https://www.homedepot.com/p/2-in-x-6-in-x-12-ft-2-and-Better-PRIME-Kiln-Dried-Heat-Treated-Spruce-Pine-Fir-Lumber-S206SE-1-12/311720641', note: SNIP },
     16: { price: 14.34, url: 'https://www.homedepot.com/p/2-in-x-6-in-x-16-ft-2-Premium-Grade-SPF-Dimensional-Lumber-058447/312528849', note: SNIP },
+    10: { price: 12.48, url: 'https://www.homedepot.com/p/2-in-x-6-in-x-10-ft-Better-Prime-Douglas-Fir-Lumber-2023-10/206019464', note: `price read from a search result for this product page (Douglas fir; SPF 2x6x10 copies showed $9.07-$12.47); $11.23 each for 35 or more`, bulk: { min: 35, price: 11.23 } },
+    14: { price: 14.78, url: 'https://www.homedepot.com/p/2-in-x-6-in-x-14-ft-Premium-Kiln-Dried-Heat-Treated-Whitewood-Dimensional-Lumber-161772/100035171', note: `the higher of the prices read from search results for this page ($12.54-$14.78)` },
   },
   '2x8': {
     12: { price: 12.34, url: 'https://www.homedepot.com/p/2-in-x-8-in-x-12-ft-2-Premium-Grade-Southern-Yellow-Pine-Dimensional-Lumber-560499/202085927', note: `${SNIP}; Southern yellow pine; other copies of the page show $15.38-$15.52` },
+    8: { price: 10.25, url: 'https://www.homedepot.com/b/Lumber-Composites-Dimensional-Lumber/2x8/N-5yc1vZc3tcZ1z0ywxx', note: `the higher of $8.22-$10.25 read from a search result for the Home Depot category page (model 689238, Southern yellow pine)` },
+    10: { price: 12.82, url: 'https://www.homedepot.com/b/Lumber-Composites-Dimensional-Lumber-Framing-Lumber/2x8/N-5yc1vZc55wZ1z0ywxx', note: `the higher of $10.28-$12.82 read from a search result for the Home Depot category page (model 689246)` },
+    16: { price: 21.76, url: 'https://www.homedepot.com/p/2-in-x-8-in-x-16-ft-SYP-2-Standard-Grade-Dimensional-Lumber-581968/316632061', note: `the higher of $16.46-$21.76 read from search results for this page; bulk price for 24 or more seen at $14.81-$19.58` },
   },
   '2x10': {
     12: { price: 25.46, url: 'https://www.homedepot.com/p/2-in-x-10-in-x-12-ft-2-Premium-Grade-Fir-Dimensional-Lumber-603708/206182035', note: `${SNIP}; Douglas fir (western pricing); pine is often cheaper` },
+    10: { price: 21.76, url: 'https://www.homedepot.com/b/Lumber-Composites-Dimensional-Lumber/2x10/10-ft/N-5yc1vZc3tcZ1z0ywxpZ1z1rkse', note: `the higher of $20.98-$21.76 read from a search result for the Home Depot category page (Douglas fir, model 734446); a pine 2x10x10 showed $16.32` },
+    16: { price: 27.54, url: 'https://www.homedepot.com/p/2-in-x-10-in-x-16-ft-2-Premium-Grade-Southern-Yellow-Pine-Dimensional-Lumber-852-562/326965961', note: `the higher of $27.38-$27.54 read from search results for this page` },
   },
   'PT 2x6': {
     12: { price: 14.18, url: 'https://www.homedepot.com/p/WeatherShield-2-in-x-6-in-x-12-ft-2-Prime-Ground-Contact-Pressure-Treated-Southern-Yellow-Pine-Lumber-253921/206967802', note: `${SNIP}; ground contact` },
     16: { price: 19.48, url: 'https://www.homedepot.com/p/WeatherShield-2-in-x-6-in-x-16-ft-2-Prime-Ground-Contact-Pressure-Treated-Southern-Yellow-Pine-Lumber-253921/206967797', note: `${SNIP}; ground contact` },
+    8: { price: 10.98, url: 'https://www.homedepot.com/p/WeatherShield-2-in-x-6-in-x-8-ft-2-Prime-Ground-Contact-Pressure-Treated-Lumber-262P8/206936146', note: `the higher of $9.68-$10.98 read from search results for this page; ground contact` },
+    10: { price: 12.28, url: 'https://www.homedepot.com/b/Lumber-Composites-Pressure-Treated-Lumber/10-ft/N-5yc1vZc3srZ1z1rkse', note: `the commonest price ($10.28-$13.48 seen) read from a search result for the Home Depot category page; ground contact; $11.05 each for 32 or more`, bulk: { min: 32, price: 11.05 } },
   },
   'PT 4x4': {
     12: { price: 22.88, url: 'https://www.homedepot.com/p/4-in-x-4-in-x-12-ft-2-Pressure-Treated-Ground-Contact-Southern-Pine-Timber-4230254/100073070', note: `${SNIP}; ground contact` },
+    8: { price: 11.28, url: 'https://www.homedepot.com/p/4-in-x-4-in-x-8-ft-2-Ground-Contact-Pressure-Treated-Southern-Yellow-Pine-Wood-Post-194354/205220341', note: `price read from a search result for this product page; ground contact; $10.15 each for 50 or more`, bulk: { min: 50, price: 10.15 } },
+    10: { price: 19.68, url: 'https://www.homedepot.com/p/4-in-x-4-in-x-10-ft-2-Ground-Contact-Pressure-Treated-Timber-288741/301913694', note: `the higher of $16.78-$19.68 read from search results for this page; ground contact` },
   },
   'PT 4x6': {
     12: { price: 32.88, url: 'https://www.homedepot.com/p/4-in-x-6-in-x-12-ft-2-Pressure-Treated-Ground-Contact-Southern-Pine-Timber-260430/100062638', note: `${SNIP}; ground contact` },
+    8: { price: 24.18, url: 'https://www.homedepot.com/p/4-in-x-6-in-x-8-ft-2-Ground-Contact-Pressure-Treated-Timber-259270/100026579', note: `price read from an old copy of this page in search results; ground contact; $21.76 each for 20 or more`, bulk: { min: 20, price: 21.76 } },
   },
 };
 
@@ -83,8 +96,6 @@ export const LISTED_ITEMS = {
   hasp: { price: 6.6, url: 'https://www.homedepot.com/p/Everbilt-4-1-2-in-Zinc-Plated-Adjustable-Staple-Safety-Hasp-24592/327600239', note: `${SNIP}; Everbilt 24592` },
   doorPull: { price: 7.47, url: 'https://homedepot.com/p/Everbilt-6-1-2-in-Black-Polymer-Door-Pull-30057/326243297', note: `${SNIP}; Everbilt 30057` },
   deckBlock: { price: 10.47, url: 'https://www.homedepot.com/p/7-3-4-in-x-10-3-4-in-x-10-3-4-in-Concrete-Deck-Block-100002709/204827028', note: 'price read from the search result for the Home Depot category page; 10-3/4 x 10-3/4 x 7-3/4 in., model 100002709' },
-  cmuBlock: { price: 2.5, kind: 'estimate', url: 'https://www.homedepot.com/p/8-in-x-8-in-x-16-in-Concrete-Block-597767/202532685', note: "our estimate: Home Depot (model 597767) and Lowe's (item 10383) list the block but showed no price we could read; it is sold in select stores" },
-  concreteBlock: { price: 3.5, kind: 'estimate', url: 'https://www.homedepot.com/p/4-in-x-8-in-x-16-in-Solid-Concrete-Block-30168621/100350217', note: "our estimate: Home Depot (model 30168621) and Lowe's (cap block item 10335) list the block but showed no price we could read" },
   gravelTon: { price: 120, kind: 'estimate', store: 'Hello Gravel cost guide', url: 'https://hellogravel.com/guides/2025-gravel-prices-per-ton-complete-cost-guide-for-crushed-stone-pea-gravel-delivery/', note: 'low end of the guide\'s $120-$255 a ton delivered for #57 crushed stone (often a 3-ton minimum); picking it up at a quarry or yard usually costs less. Bagged, Quikrete all-purpose gravel is $8.99 per 0.5 cu ft at Ace (https://www.acehardware.com/departments/building-supplies/concrete-cement-and-masonry/sand-and-gravel/5419049), about $485 a cubic yard' },
   floorOSB: { price: 35.67, store: 'Home Depot (Uber Eats listing)', url: 'https://www.ubereats.com/store/the-home-depot-17111-statesville-road/1Tb7cROeXRiHt0g3Mzgczg/ec9b1de6-82aa-56a7-afaf-f64e28ecf566/9f41003a-b135-5c28-aecb-1ec5d8e8bbaf/89b91a4e-82ca-598e-9eaa-cf30fe47bb47', note: "LP Legacy Premium 23/32 T&G OSB subfloor as listed for one Home Depot store (Cornelius, NC) on Uber Eats, read from a search result; delivery listings can carry a markup and this one may be stale. Home Depot's own page showed no readable price" },
   paverBase: { price: 5.97, kind: 'estimate', url: 'https://www.homedepot.com/p/100580973', note: 'Pavestone 0.5 cu ft paver base (model 98001): $5.97 read from a category-page search result and matched to this item by its position on the page, so not certain' },
@@ -92,6 +103,19 @@ export const LISTED_ITEMS = {
   handTamper: { price: 37.25, url: 'https://homedepot.com/p/WaLensee-48-in-Steel-Handle-8-in-x-8-in-Tamper-GS001/322932130', note: `${SNIP}; WaLensee GS001, 8 x 8 in.` },
   plateCompactor: { price: 125, store: 'Gertens (Minnesota)', url: 'https://www.gertens.com/wacker-plate-compactor', note: "price read from the search result for the rental page: $80 for 4 hours, $125 for 24 hours. Home Depot rents one (https://www.homedepot.com/tool-truck-rental/Vibratory-Plate-Compactor-20/0008708/) but shows the rate only once you pick a store" },
   accentPaint: { price: 22.98, url: 'https://www.homedepot.com/p/BEHR-PREMIUM-PLUS-1-qt-W-B-400-Vermont-Cream-Satin-Enamel-Exterior-Paint-Primer-905004/311059379', note: `${SNIP}; Behr Premium Plus exterior, quart` },
+  cmuBlock: { price: 2.85, url: 'https://www.homedepot.com/p/8-in-x-8-in-x-16-in-Concrete-Block-597767/202532685', note: `${SNIP}; model 597767, sold in select stores; regional versions showed $1.85-$2.78` },
+  concreteBlock: { price: 2.67, url: 'https://www.homedepot.com/b/Building-Materials-Concrete-Cement-Masonry-Cinder-Blocks/N-5yc1vZcdpe', note: 'read from a search result for the Home Depot category page (4x8x16 solid block, model 30168621)' },
+  interiorPanel: { price: 14.25, url: 'https://www.homedepot.com/b/Lumber-Composites/Hardboard/N-5yc1vZbqpgZ1z1wei7', note: 'read from a search result for the Home Depot category page: 1/8 in. tempered hardboard 4x8 (model 832777)' },
+  glitter: { price: 7.98, url: 'https://www.homedepot.com/p/Glitter-Silver-Paint-Additive-300-1S/336145367', note: `${SNIP}; model 300-1S` },
+  adhesive: { price: 8.98, url: 'https://www.homedepot.com/p/Loctite-PL-400-Subfloor-28-oz-All-Weather-Latex-Construction-Adhesive-Tan-Cartridge-each-2136221/300751977', note: `${SNIP}; Loctite PL 400 subfloor, 28 oz; $8.08 each for 12 or more`, bulk: { min: 12, price: 8.08 } },
+  screws: { price: 10.97, url: 'https://www.homedepot.com/p/Grip-Rite-8-x-1-5-8-in-2-Phillips-Bugle-Head-Coarse-Thread-Coated-Exterior-Wood-Deck-Screws-1-lb-Box-PTN158S1/100192216', note: `${SNIP}; Grip-Rite #8 x 1-5/8 in. exterior screws, 1 lb box (model PTN158S1); the category page showed $8.97` },
+  flashingTape: { price: 24.77, url: 'https://www.homedepot.com/p/Typar-4-in-x-75-ft-Butyl-Rubber-Copolmer-Window-and-Door-Flashing-Roll-BUTYL-001/302640122', note: `${SNIP}; Typar 4 in. x 75 ft butyl flashing` },
+  shims: { price: 1.78, url: 'https://www.homedepot.com/p/8-in-Wood-Shims-12-Piece-per-Bundle-WSSHW08/300723328', note: `${SNIP}; 8 in. pine shims, 12 a bundle; the result did not tie the price firmly to this item` },
+  lpPanel10: { price: 59.98, url: 'https://www.homedepot.com/b/Building-Materials-Siding/LP-SmartSide/N-5yc1vZaripZ6j2', note: 'read from a search result for the Home Depot LP SmartSide category page: 3/8 in. 4x10 cedar texture primed panel (model 25825)' },
+  lpPanel76x9: { price: 85.48, url: 'https://www.homedepot.com/p/LP-SmartSide-SmartSide-76-Series-Cedar-Texture-Panel-8-in-OC-Engineered-Treated-Wood-Siding-Application-As-4-ft-x-9-ft-316207/202524764', note: `${SNIP}; model 316207; showed out of stock` },
+  vinylJ: { price: 7.98, url: 'https://www.homedepot.com/p/Ply-Gem-5-8-in-x-1-1-2-in-x-12-6-ft-Pewter-J-Channel-VJC581NPH/202666288', note: `${SNIP}; Ply Gem J-channel, 12.6 ft; white $7.77-$8.48` },
+  vinylStarter: { price: 9.48, url: 'https://www.homedepot.com/p/Ply-Gem-Vinyl-Starter-Strip-VS12-00/306293860', note: `${SNIP}; Ply Gem starter strip (VS12 00), taken as 12 ft from its model number` },
+  vinylCorner: { price: 25.98, url: 'https://www.homedepot.com/p/Ply-Gem-3-in-x-3-4-in-White-Outside-Corner-Post-V0CP33404H/202666279', note: `the higher of $24.98-$25.98 read from search results for this page; Ply Gem outside corner post, taken as 10 ft` },
   vinylBox: { price: 169, url: 'https://www.homedepot.com/p/Double-4-5-in-x-145-in-White-Dutch-Lap-Vinyl-Siding-PCD4504H/301738325', note: `${SNIP}; one box covers 200 sq ft` },
   boardBox: { price: 89.18, url: 'https://www.homedepot.com/p/CMPC-1-in-x-8-in-x-8-ft-Primed-Finger-Joint-Pine-Board-Actual-Size-0-75-in-x-7-25-in-x-8-ft-3-Piece-Per-Box-CMPC0028777/300125808', note: `${SNIP}; box of three primed 1x8x8 boards` },
   battenBox: { price: 25.08, url: 'https://homedepot.com/p/1-in-x-3-in-x-8-ft-Spruce-Pine-Fir-Furring-Strip-Common-Board-10-Per-box-EHD0000368/326303094', note: `${SNIP}; box of ten 1x3x8 furring strips` },
@@ -120,9 +144,8 @@ export const LISTED_ITEMS = {
 /** Items with no listing: our own rough figure, marked as an estimate. */
 const ESTIMATES = {
   siding9: ['siding8', 108 / 96], siding10: ['siding8', 120 / 96],
-  glitter: 10, interiorPanel: 30,
-  lpPanel9: ['lpPanel', 108 / 96], lpPanel10: ['lpPanel', 120 / 96],
-  lpPanel76x9: ['lpPanel76', 108 / 96], lpPanel76x10: ['lpPanel76', 120 / 96],
+  lpPanel9: ['lpPanel', 108 / 96],
+  lpPanel76x10: ['lpPanel76', 120 / 96],
 };
 
 const withSource = (l) => ({ store: HD, seen: SEEN, kind: /** @type {const} */ ('listed'), ...l });
@@ -161,3 +184,14 @@ export function itemPrice(key) {
   if (typeof e === 'number') return { price: e, note: 'no listing found; our estimate', kind: 'estimate' };
   return { price: 0, note: 'no price', kind: 'estimate' };
 }
+
+/**
+ * Delivery charges for a building-materials order. Filled from each store's
+ * published policy when one could be read; otherwise null and the page asks
+ * you to type your store's charge.
+ * @type {Record<string, { fee: number | null, url?: string, note: string }>}
+ */
+export const DELIVERY = {
+  homedepot: { fee: 79, url: 'https://www.homedepot.com/l/Lawrence/KS/Lawrence/66046/2211/garden-center', note: 'flatbed or box-truck delivery as listed on a Home Depot store page (tiers of about $3 by car, $35 by van, $79 by flatbed); free above a threshold that varies by store' },
+  lowes: { fee: null, url: 'https://www.lowes.com/l/help/truck-delivery', note: 'Lowe\'s does not publish a truck-delivery fee we could read: type your store\'s charge' },
+};

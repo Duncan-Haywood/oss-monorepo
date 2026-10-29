@@ -46,7 +46,17 @@ export function buildInstructions(shed, est) {
   });
 
   const pad = { l: L + 24, w: W + 24 };
-  if (k.underBlocks) out.push({
+  if (k.noPad) out.push({
+    title: 'Ground under each block',
+    steps: [
+      `Mark the shed's outline with stakes and string, square it (diagonals ${fmtFtIn(Math.hypot(L, W))} each), and mark where each of the ${k.blockCount} blocks goes.`,
+      'At each mark, strip the turf and soft topsoil down to firm, undisturbed soil, a little wider than the block, and tamp the bottom hard.',
+      'Set the blocks and level them to each other with a long straight board or a string line, adding or scraping soil under a block rather than stacking shims.',
+      'On soft, wet or frost-prone ground, a bed of compacted gravel under each block (the "only under each block" choice) holds up better.',
+    ],
+    check: ['Every block level with the others within 1/4".', 'No block rocks or sinks when you stand on it.'],
+  });
+  else if (k.underBlocks) out.push({
     title: 'Gravel under each block',
     steps: [
       `Mark the shed's outline with stakes and string, square it (diagonals ${fmtFtIn(Math.hypot(L, W))} each), and mark where each of the ${k.blockCount} blocks goes.`,
@@ -75,7 +85,7 @@ export function buildInstructions(shed, est) {
       `Lay ${k.skidCount} pressure-treated ${d.skidSize} skids (mark ${marks((m) => m.kind === 'skid')}, ${skids.length} pieces) on edge, running the ${fmtFtIn(L)} length of the shed.`,
       `Centre them at ${list(k.skidYs)} from the front edge of the shed (the first and last flush with the front and back edges).`,
       k.block
-        ? `Set ${k.blockCount} ${k.block.plural} on the ${k.underBlocks ? 'paver-base beds' : 'compacted gravel'} under the skids (${k.block.h}" tall), one at each end and the rest no more than 4 ft apart, then shim the blocks (not the skids) until every skid is level and all skids are level with each other.`
+        ? `Set ${k.blockCount} ${k.block.plural} on the ${k.noPad ? 'tamped ground' : k.underBlocks ? 'paver-base beds' : 'compacted gravel'} under the skids (${k.block.h}" tall), one at each end and the rest no more than 4 ft apart, then shim the blocks (not the skids) until every skid is level and all skids are level with each other.`
         : 'Bed each skid into the gravel and check it with a level along its length and across to the next skid; add or scrape gravel under it rather than shimming with wood.',
       skids.length > k.skidCount ? 'Skids are spliced: butt the pieces tight, stagger the joints from skid to skid, and land each joint on firm gravel or a block.' : 'Each skid is one piece.',
     ],

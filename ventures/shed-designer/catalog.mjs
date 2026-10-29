@@ -6,7 +6,12 @@
 // photos: follow the link to see the product). Prices move; the link is the
 // check.
 
-/** @typedef {{ store: string, name: string, model: string, price: number, url: string, note?: string }} Offer */
+import { LOWES } from './lowes.mjs';
+
+/** @typedef {{ store: string, name: string, model: string, price: number, url: string, note?: string, bulk?: { min: number, price: number } }} Offer */
+
+/** An offer's price for a quantity: the bulk price once the quantity reaches it. @param {Offer} o @param {number} qty */
+export const offerPrice = (o, qty) => (o.bulk && qty >= o.bulk.min ? o.bulk.price : o.price);
 
 const SEEN = '2026-10-29';
 
@@ -92,6 +97,12 @@ export const OFFERS = {
   ],
 };
 
+// The independent Lowe's list replaces any older Lowe's entry for the same item.
+for (const l of LOWES) {
+  const { key, ...offer } = l;
+  OFFERS[key] = [...(OFFERS[key] || []).filter((o) => o.store !== "Lowe's"), { store: "Lowe's", ...offer }];
+}
+
 /**
  * Swaps that change the design, not just the store. Each names the design
  * change, why, and what it gives up; the page prices both and offers a button
@@ -124,19 +135,21 @@ export function storeComparison(est) {
       : [];
     const offers = [...own, ...listed];
     if (offers.length < 2) continue;
-    const best = offers.reduce((a, b) => (b.price < a.price ? b : a));
-    rows.push({ line: r, offers, best, saving: Math.max(0, Math.round((r.price - best.price) * r.qty * 100) / 100) });
+    const at = offers.map((o) => ({ ...o, price: offerPrice(o, r.qty) }));
+    const best = at.reduce((a, b) => (b.price < a.price ? b : a));
+    rows.push({ line: r, offers: at, best, saving: Math.max(0, Math.round((r.price - best.price) * r.qty * 100) / 100) });
   }
   const stores = [...new Set(rows.flatMap((row) => row.offers.map((o) => o.store)))].sort((a, b) => (a === 'Home Depot' ? -1 : b === 'Home Depot' ? 1 : a.localeCompare(b)));
   /** What the compared lines cost if bought all at one store (null where that store has no offer). */
   const totals = Object.fromEntries(stores.map((s) => {
     let t = 0;
     let missing = 0;
+    let carried = 0;
     for (const row of rows) {
       const o = row.offers.find((x) => x.store === s);
-      if (o) t += o.price * row.line.qty; else missing += 1;
+      if (o) t += o.price * row.line.qty; else { missing += 1; carried += row.line.price * row.line.qty; }
     }
-    return [s, { total: Math.round(t * 100) / 100, missing }];
+    return [s, { total: Math.round(t * 100) / 100, missing, withCarry: Math.round((t + carried) * 100) / 100 }];
   }));
   const cheapestMix = Math.round(rows.reduce((t, row) => t + row.best.price * row.line.qty, 0) * 100) / 100;
   // Where to buy what: each compared line at its cheapest store, and the saving
@@ -149,23 +162,55 @@ export function storeComparison(est) {
     split[st].lines.push(`${row.line.qty} x ${row.line.name}`);
     split[st].total = Math.round((split[st].total + row.best.price * row.line.qty) * 100) / 100;
   }
-  const complete = stores.filter((st) => totals[st].missing === 0).sort((a, b) => totals[a].total - totals[b].total);
-  const oneStop = complete.length ? { store: complete[0], total: totals[complete[0]].total } : null;
+  // One stop: the store whose prices make these lines cheapest, a line it has no
+  // listing for carried at the list's own price.
+  const ranked = [...stores].sort((a, b) => totals[a].withCarry - totals[b].withCarry);
+  const oneStop = ranked.length ? { store: ranked[0], total: totals[ranked[0]].withCarry } : null;
   // One extra stop: for each other store, what buying only its cheaper lines there saves.
   const addOns = oneStop ? stores.filter((st) => st !== oneStop.store).map((st) => {
     let saving = 0;
     const lines = [];
     for (const row of rows) {
-      const here = row.offers.find((o) => o.store === oneStop.store);
+      const hereOffer = row.offers.find((o) => o.store === oneStop.store);
+      const here = hereOffer ? hereOffer.price : row.line.price;
       const there = row.offers.find((o) => o.store === st);
-      if (here && there && there.price < here.price) {
-        saving += (here.price - there.price) * row.line.qty;
+      if (there && there.price < here) {
+        saving += (here - there.price) * row.line.qty;
         lines.push(row.line.name);
       }
     }
     return { store: st, saving: Math.round(saving * 100) / 100, lines };
   }).filter((a) => a.saving > 0).sort((a, b) => b.saving - a.saving) : [];
   return { rows, stores, totals, cheapestMix, split, oneStop, addOns, splitSaving: oneStop ? Math.round((oneStop.total - cheapestMix) * 100) / 100 : null, seen: SEEN };
+}
+
+/**
+ * The whole shopping list priced at each store on its own: every line at that
+ * store's listing where we have one, and how many lines that covers. Lines a
+ * store has no readable listing for are carried at the list's own price and
+ * counted, so two stores are compared on the lines both price.
+ * @param {import('./estimate.mjs').Estimate} est
+ */
+export function storeTotals(est, stores = ['Home Depot', "Lowe's", 'Menards']) {
+  const priceAt = (r, st) => {
+    const key = r.source?.key;
+    const offer = key && OFFERS[key]?.find((o) => o.store === st);
+    if (offer) return offerPrice(offer, r.qty);
+    if (r.source?.kind === 'listed' && r.source.store === st) return r.source.price ?? r.price;
+    return null;
+  };
+  const out = stores.map((st) => {
+    let priced = 0; let carried = 0; let n = 0;
+    for (const r of est.shopping) {
+      const p = priceAt(r, st);
+      if (p === null) carried += r.total; else { priced += p * r.qty; n += 1; }
+    }
+    return { store: st, lines: n, of: est.shopping.length, priced: Math.round(priced * 100) / 100, carried: Math.round(carried * 100) / 100, total: Math.round((priced + carried) * 100) / 100 };
+  });
+  // Like for like: only the lines every store prices.
+  const shared = est.shopping.filter((r) => stores.every((st) => priceAt(r, st) !== null));
+  const sharedTotals = Object.fromEntries(stores.map((st) => [st, Math.round(shared.reduce((t, r) => t + /** @type {number} */ (priceAt(r, st)) * r.qty, 0) * 100) / 100]));
+  return { stores: out, shared: shared.length, sharedTotals, priceAt };
 }
 
 /** Swaps that apply to this design. @param {any} design */

@@ -9,19 +9,20 @@ import { productById } from './products.mjs';
 import { optimizeCuts } from './optimize.mjs';
 
 /** @typedef {import('./model.mjs').Shed} Shed */
-/** @typedef {{ lumber: Record<string, Record<string, number>>, items: Record<string, number> }} Prices */
+/** @typedef {{ lumber: Record<string, Record<string, number>>, items: Record<string, number>, delivery?: Record<string, number> }} Prices */
 
 export const MATERIALS = ['2x4', '2x6', '2x8', '2x10', '2x12', 'PT 2x4', 'PT 2x6', 'PT 2x8', 'PT 2x10', 'PT 2x12', 'PT 4x4', 'PT 4x6'];
 
 /** Starting prices for every material, length and item: listed where a listing was found (prices.mjs). */
 export function examplePrices() {
   /** @type {Prices} */
-  const p = { lumber: {}, items: {} };
+  const p = { lumber: {}, items: {}, delivery: {} };
   for (const m of MATERIALS) {
     p.lumber[m] = {};
     for (const ft of [8, 10, 12, 14, 16, 18, 20]) p.lumber[m][ft] = boardPrice(m, ft).price;
   }
   for (const k of Object.keys(EXAMPLE_ITEMS)) p.items[k] = itemPrice(k).price;
+  for (const [k, v] of Object.entries(DELIVERY)) if (v.fee !== null) p.delivery[k] = v.fee;
   return p;
 }
 
@@ -107,7 +108,13 @@ export function estimate(shed, prices = examplePrices()) {
   /** @type {{ section: string, name: string, qty: number, unit: string, price: number, total: number, source?: any }[]} */
   const shopping = [];
   const line = (section, name, qty, unit, price, source) => {
-    if (qty > 0) shopping.push({ section, name, qty, unit, price, total: Math.round(qty * price * 100) / 100, source });
+    if (!(qty > 0)) return;
+    // A listing's bulk price applies once the quantity reaches it (not to a price you typed).
+    if (source?.kind === 'listed' && source.bulk && qty >= source.bulk.min) {
+      price = source.bulk.price;
+      source = { ...source, note: `${source.note || ''}; bulk price for ${source.bulk.min} or more` };
+    }
+    shopping.push({ section, name, qty, unit, price, total: Math.round(qty * price * 100) / 100, source });
   };
   for (const l of lumber) {
     const counts = new Map();
@@ -116,6 +123,20 @@ export function estimate(shed, prices = examplePrices()) {
       const ft = len / 12;
       const p = Number(prices.lumber?.[l.material]?.[ft] ?? boardPrice(l.material, ft).price);
       line('Lumber', `${l.material} x ${ft}'`, qty, 'board', p, { ...sourceOf(p, boardPrice(l.material, ft)), key: `lumber:${l.material}:${ft}` });
+    }
+  }
+  // Spare boards: real orders carry a few extra for warped, split or mis-cut
+  // boards. A share of each material's boards, rounded up, in its commonest length.
+  if (d.spares > 0) {
+    for (const l of lumber) {
+      if (!l.result.boards.length) continue;
+      const counts = new Map();
+      for (const b of l.result.boards) counts.set(b.stock, (counts.get(b.stock) || 0) + 1);
+      const [len] = [...counts.entries()].sort((a, b) => b[1] - a[1] || a[0] - b[0])[0];
+      const ft = len / 12;
+      const qty = Math.ceil((l.result.boards.length * d.spares) / 100);
+      const p = Number(prices.lumber?.[l.material]?.[ft] ?? boardPrice(l.material, ft).price);
+      line('Lumber', `${l.material} x ${ft}' spares (${d.spares}% for culls and mis-cuts)`, qty, 'board', p, { ...sourceOf(p, boardPrice(l.material, ft)), key: `lumber:${l.material}:${ft}` });
     }
   }
   const item = (k) => Number(prices.items?.[k] ?? itemPrice(k).price);
@@ -145,6 +166,14 @@ export function estimate(shed, prices = examplePrices()) {
         line('Siding', label('battenBox'), Math.ceil(boards / 10), 'box', item('battenBox'), src('battenBox'));
       } else if (type === 'vinyl') {
         line('Siding', label('vinylBox'), Math.ceil((area * 1.1) / 200), 'box', item('vinylBox'), src('vinylBox'));
+        // Vinyl's own trim: starter along the bottom of every wall, J-channel round
+        // each opening and under the eaves and rakes, a corner post at each corner.
+        const perimFt = (2 * (d.length + d.width)) / 12;
+        const openFt = d.openings.reduce((t, o) => t + (2 * (o.width + o.height)) / 12, 0);
+        const jFt = openFt + (2 * d.length + 4 * (d.width / 2 / Math.cos(Math.atan(d.pitch / 12)))) / 12;
+        line('Siding', label('vinylStarter'), Math.ceil((perimFt * 1.05) / 12), 'piece', item('vinylStarter'), src('vinylStarter'));
+        line('Siding', label('vinylJ'), Math.ceil((jFt * 1.1) / 12.6), 'piece', item('vinylJ'), src('vinylJ'));
+        line('Siding', label('vinylCorner'), 4 * Math.ceil((dims.plateTop - dims.skidTop) / 120), 'piece', item('vinylCorner'), src('vinylCorner'));
       } else {
         line('Siding', label('hardiePlank'), Math.ceil((area * 1.1) / 5), 'piece', item('hardiePlank'), src('hardiePlank'));
       }
@@ -220,7 +249,7 @@ export function estimate(shed, prices = examplePrices()) {
   for (const op of d.openings) { const pr = productById(op.product); if (pr) picked.set(pr.id, { pr, qty: (picked.get(pr.id)?.qty || 0) + 1 }); }
   for (const { pr, qty } of picked.values()) {
     const p = Number(prices.items?.[`product:${pr.id}`] ?? pr.price);
-    line('Doors and windows', pr.name, qty, 'each', p, sourceOf(p, { price: pr.price, url: pr.url, store: pr.store, seen: '2026-10-29', note: pr.note, kind: 'listed' }));
+    line('Doors and windows', pr.name, qty, 'each', p, { ...sourceOf(p, { price: pr.price, url: pr.url, store: pr.store, seen: '2026-10-29', note: pr.note, kind: 'listed' }), key: `product:${pr.id}` });
   }
   if (dims.padSqFt) line('Site prep', label('landscapeFabric'), Math.ceil((dims.padSqFt * 1.15) / 150), 'roll', item('landscapeFabric'), src('landscapeFabric'));
   if (dims.baseBags) line('Site prep', label('paverBase'), dims.baseBags, 'bag', item('paverBase'), src('paverBase'));
@@ -274,6 +303,19 @@ export function estimate(shed, prices = examplePrices()) {
     zIn += (shed.sidingUpper || []).length * 48;
     if (d.siding) line('Fasteners and sealants', label('zFlashing'), Math.ceil(zIn / 120), 'piece', item('zFlashing'), src('zFlashing'));
   }
+  // Consumables the build steps call for: adhesive under the subfloor (a tube
+  // does about a sheet and a half on joists at 16") and in a site-built door
+  // frame; screws for the subfloor and door skins (about 60 a sheet, about 100
+  // to a 1 lb box); flashing tape round each opening; shims for doors and windows.
+  {
+    const doorsBuilt = (shed.doors || []).reduce((t, x) => t + x.leaves, 0);
+    line('Fasteners and sealants', label('adhesive'), Math.ceil(floorSheets / 1.5) + doorsBuilt, 'tube', item('adhesive'), src('adhesive'));
+    line('Fasteners and sealants', label('screws'), Math.max(1, Math.ceil((floorSheets * 60 + doorsBuilt * 60) / 100)), 'box', item('screws'), src('screws'));
+    const bought = d.openings.filter((o) => o.product !== 'site-built');
+    const tapeFt = bought.reduce((t, o) => t + (2 * (o.width + o.height)) / 12, 0);
+    if (tapeFt) line('Fasteners and sealants', label('flashingTape'), Math.ceil(tapeFt / 75), 'roll', item('flashingTape'), src('flashingTape'));
+    if (bought.length) line('Fasteners and sealants', label('shims'), Math.ceil(bought.length / 2), 'bundle', item('shims'), src('shims'));
+  }
   // Site-built doors: tee hinges (three a leaf), a pull a leaf and a hasp.
   for (const dr of shed.doors || []) {
     line('Door hardware', `${label('tHinge')} (door ${dr.id})`, 3 * dr.leaves, 'each', item('tHinge'), src('tHinge'));
@@ -284,14 +326,23 @@ export function estimate(shed, prices = examplePrices()) {
   const sum = (rows) => Math.round(rows.reduce((t, r) => t + r.total, 0) * 100) / 100;
   const lumberCost = sum(shopping.filter((r) => r.section === 'Lumber'));
   const total = sum(shopping);
+  // What the order costs at the till: sales tax at the rate you set, and the
+  // store's delivery charge if you chose delivery.
+  const tax = Math.round(total * d.taxRate) / 100;
+  const deliveryFee = d.delivery === 'pickup' ? 0 : Number(prices.delivery?.[d.delivery] ?? DELIVERY[d.delivery]?.fee ?? 0);
+  const grandTotal = Math.round((total + tax + deliveryFee) * 100) / 100;
   const boards = lumber.reduce((t, l) => t + l.result.boards.length, 0);
   const lowerBound = Math.round(lumber.reduce((t, l) => t + l.result.lowerBound, 0) * 100) / 100;
   return {
-    parts, lumber, shopping, problems, total, trimCuts, lumberCost, lowerBound, boards,
+    parts, lumber, shopping, problems, total, tax, deliveryFee, grandTotal, trimCuts, lumberCost, lowerBound, boards,
     pieces: all.length, floorSheets, roofSheets,
     footprintSqFt: (d.length * d.width) / 144,
   };
 }
+
+/** Store delivery charges for building materials (see prices.mjs for sources). */
+export { DELIVERY } from './prices.mjs';
+import { DELIVERY } from './prices.mjs';
 
 /** @typedef {ReturnType<typeof estimate>} Estimate */
 

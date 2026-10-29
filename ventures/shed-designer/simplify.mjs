@@ -44,7 +44,7 @@ export function cutMetrics(shed, est) {
   return { straight, angled, notches, total: straight + angled + 2 * notches, waste: bought ? offcut / bought : 0 };
 }
 
-const SIDING_NAMES = { 'T1-11': 'T1-11 plywood panels', 'LP SmartSide': 'LP SmartSide 38 Series primed panels, 3/8"', 'LP SmartSide 7/16': 'LP SmartSide 76 Series primed panels, 7/16"', 'board and batten': 'board and batten over OSB' };
+const SIDING_NAMES = { 'T1-11': 'T1-11 plywood panels', 'LP SmartSide': 'LP SmartSide 38 Series primed panels, 3/8"', 'LP SmartSide 7/16': 'LP SmartSide 76 Series primed panels, 7/16"', 'board and batten': 'board and batten over OSB', vinyl: 'vinyl lap over OSB, with its starter, J-channel and corner posts' };
 
 /** The widest stud spacing the siding is rated for, in inches. */
 export function sidingSpan(d) {
@@ -52,6 +52,46 @@ export function sidingSpan(d) {
   // Panel siding is its own sheathing: T1-11 and LP's 3/8" panel are rated for studs at 16" (see the panel's stamp);
   // LP's 7/16" panel and lap siding over OSB take 24".
   return d.sidingType === 'T1-11' || d.sidingType === 'LP SmartSide' ? 16 : 24;
+}
+
+/**
+ * Minutes to put each bought unit in place, by shopping-list item: our own
+ * planning figures for one capable person with a helper for lifts, not a
+ * measured rate.
+ */
+export const MINUTES = {
+  floorSheet: 12, floorOSB: 12, roofSheet: 12, wallSheathing: 12,
+  siding8: 15, siding9: 16, siding10: 18, lpPanel: 15, lpPanel9: 16, lpPanel10: 18, lpPanel76: 15, lpPanel76x9: 16, lpPanel76x10: 18,
+  vinylBox: 240, vinylJ: 10, vinylStarter: 8, vinylCorner: 15, hardiePlank: 10, boardBox: 20, battenBox: 30,
+  shingleBundle: 25, starterShingle: 20, ridgeCapShingle: 30, underlayment: 45, dripEdge: 10, metalPanel: 10, metalRidge: 15,
+  fasciaTrim: 15, soffitPanel: 20, rakeTrim: 15, gableVent: 30, zFlashing: 10,
+  paint: 45, stain: 45, accentPaint: 60, interiorPaint: 45, glitter: 0,
+  insulation: 30, drywall: 20, plywoodLining: 15, osbLining: 15, pegboard: 15, beadboard: 15, interiorPanel: 15, jointCompound: 120,
+  deckBlock: 10, cmuBlock: 10, concreteBlock: 10, gravelTon: 90, paverBase: 4, landscapeFabric: 15,
+};
+
+/**
+ * A rough count of the hours to build it, for weighing your time against
+ * material: every cut (a straight cut 1 minute, an angled one 2.5, a birdsmouth
+ * 4), every framing member placed and nailed (2.5), every connector or hanger
+ * (2), every trim board (8), each window (45) and door (prehung 90, site-built
+ * 180), and each bought unit at the minutes in MINUTES.
+ * @param {import('./model.mjs').Shed} shed
+ * @param {import('./estimate.mjs').Estimate} est
+ * @param {ReturnType<typeof cutMetrics>} [cuts]
+ */
+export function laborHours(shed, est, cuts = cutMetrics(shed, est)) {
+  const d = shed.design;
+  let min = cuts.straight * 1 + cuts.angled * 2.5 + cuts.notches * 4;
+  min += (shed.members.length + (shed.doorParts || []).length) * 2.5;
+  min += shed.fixtures.filter((f) => f.kind === 'connector').length;
+  min += (shed.wallTrim || []).length * 8;
+  for (const r of est.shopping) {
+    const m = /** @type {Record<string, number>} */ (MINUTES)[r.source?.key];
+    if (m) min += m * r.qty;
+  }
+  for (const o of d.openings) min += o.kind === 'window' ? 45 : o.product === 'site-built' ? 180 : 90;
+  return Math.round((min / 60) * 10) / 10;
 }
 
 /** The moves the search may make from a design. */
@@ -63,6 +103,8 @@ function moves(d, base, resize, opts = {}) {
   // Some overhang always: it keeps rain off the siding and the trim.
   for (const o of [4, 6, 8, 12, 16]) if (o !== d.overhang || d.autoOverhang) set(`${o}" overhang`, { overhang: o, autoOverhang: false });
   set(`rafters ${d.rafterSpacing === 24 ? 16 : 24}" o.c.`, { rafterSpacing: d.rafterSpacing === 24 ? 16 : 24 });
+  // Smaller or larger rafters: kept only if the strength checks still pass.
+  for (const sz of ['2x4', '2x6', '2x8']) if (sz !== d.rafterSize) set(`${sz} rafters`, { rafterSize: sz });
   if (d.studSpacing === 24 || sidingSpan(d) >= 24) set(`studs ${d.studSpacing === 24 ? 16 : 24}" o.c.`, { studSpacing: d.studSpacing === 24 ? 16 : 24 });
   set(d.rafterSeat === 'connector' ? 'birdsmouth seats' : 'variable-pitch connectors', { rafterSeat: d.rafterSeat === 'connector' ? 'birdsmouth' : 'connector' });
   set(d.roofType === 'ridgeBeam' ? 'ridge board and ties' : 'ridge beam on posts', { roofType: d.roofType === 'ridgeBeam' ? 'ridgeBoard' : 'ridgeBeam' });
@@ -80,12 +122,11 @@ function moves(d, base, resize, opts = {}) {
         set(`windows: ${pr.name}`, { openings: d.openings.map((o) => (o.kind === 'window' ? { ...o, product: pr.id } : o)) }, 'windows');
       }
     }
-    // Vinyl and fiber cement are left out: their J-channel, starter and corner pieces are not priced yet,
-    // so they would look cheaper than they are.
-    for (const t of ['T1-11', 'LP SmartSide', 'LP SmartSide 7/16', 'board and batten']) if (d.siding && t !== d.sidingType) set(`siding: ${SIDING_NAMES[t] || t}`, { sidingType: t });
+    // Fiber cement is left out: its trim boards are not priced yet, so it would look cheaper than it is.
+    for (const t of ['T1-11', 'LP SmartSide', 'LP SmartSide 7/16', 'board and batten', 'vinyl']) if (d.siding && t !== d.sidingType) set(`siding: ${SIDING_NAMES[t] || t}`, { sidingType: t });
     set(d.roofCover === 'metal' ? 'shingle roof' : 'metal roof', { roofCover: d.roofCover === 'metal' ? 'shingles' : 'metal' });
     for (const f of ['gravel', ...Object.keys(BLOCKS)]) if (f !== d.foundation) set(f === 'gravel' ? 'skids on a gravel pad' : `skids on ${/** @type {any} */ (BLOCKS)[f].plural}`, { foundation: f }, 'foundation');
-    if (d.foundation !== 'gravel') set(d.pad === 'full' ? 'gravel only under the blocks' : 'a full gravel pad', { pad: d.pad === 'full' ? 'under blocks' : 'full' });
+    if (d.foundation !== 'gravel') for (const pd of ['full', 'under blocks', 'none']) if (pd !== d.pad) set({ full: 'a full gravel pad', 'under blocks': 'gravel only under the blocks', none: 'no gravel: blocks on tamped soil' }[pd], { pad: pd }, 'pad');
     // Blocks pay off only with the gravel cut back to under them, so offer the pair as one move.
     for (const f of Object.keys(BLOCKS)) if (f !== d.foundation || d.pad !== 'under blocks') set(`skids on ${/** @type {any} */ (BLOCKS)[f].plural}, gravel only under the blocks`, { foundation: f, pad: 'under blocks' }, 'foundation');
     set(d.floorPanel === 'OSB' ? 'plywood subfloor' : 'OSB subfloor', { floorPanel: d.floorPanel === 'OSB' ? 'plywood' : 'OSB' });
@@ -104,9 +145,9 @@ function moves(d, base, resize, opts = {}) {
 
 /** Goals: dollars, plus a price on each cut and each angled cut or notch (your time). */
 export const GOALS = {
-  cheapest: { label: 'Cheapest', perCut: 0, perAngled: 0 },
-  balanced: { label: 'Fewer cuts for a little more', perCut: 1, perAngled: 4 },
-  simplest: { label: 'Fewest and simplest cuts', perCut: 5, perAngled: 20 },
+  cheapest: { label: 'Cheapest materials', perCut: 0, perAngled: 0, time: false },
+  balanced: { label: 'Cheapest counting your time', perCut: 0, perAngled: 0, time: true },
+  simplest: { label: 'Fewest and simplest cuts', perCut: 5, perAngled: 20, time: false },
 };
 
 /**
@@ -130,10 +171,10 @@ export function simplify(design, prices, opts = {}) {
   const feasible = (r) => r.ok && (!(start.maxFootprint > 0) || r.footprint <= start.maxFootprint + 1e-9) && r.peak <= peakCap + 0.01;
   const winners = {};
   for (const [goal, g] of Object.entries(GOALS).filter(([k]) => !opts.goals || opts.goals.includes(k))) {
-    const score = (r) => r.total + g.perCut * r.cuts.straight + g.perAngled * (r.cuts.angled + 2 * r.cuts.notches);
+    const score = (r) => r.total + (g.time ? r.timeCost : 0) + g.perCut * r.cuts.straight + g.perAngled * (r.cuts.angled + 2 * r.cuts.notches);
     let cur = base;
     const path = [];
-    /** @type {{ label: string, saving: number }[]} */
+    /** @type {{ label: string, saving: number, materials?: number, hours?: number }[]} */
     const steps = [];
     for (let i = 0; i < rounds; i++) {
       let best = null;
@@ -169,6 +210,10 @@ export function simplify(design, prices, opts = {}) {
  */
 export function budget(design, prices, opts = {}) {
   const start = normalize(design);
+  // Materials plus your time at your labour rate: the apples-to-apples cost.
+  const cost = (r) => r.total + r.timeCost;
+  /** A step's saving, in all and split into materials and hours. */
+  const step = (label, from, to) => ({ label, saving: Math.round((cost(from) - cost(to)) * 100) / 100, materials: Math.round((from.total - to.total) * 100) / 100, hours: Math.round((from.hours - to.hours) * 10) / 10 });
   const keep = opts.keep ?? ['roofType', 'rafterSeat'];
   const base = evaluate(start, prices);
   /** @type {Map<string, any>} */
@@ -179,18 +224,18 @@ export function budget(design, prices, opts = {}) {
   const mopts = { products: true, keep };
   // 1. Price every single move from your design.
   const singles = moves(start, start, false, mopts).map((mv) => ({ mv, r: get(normalize({ ...start, ...mv.change })) }))
-    .filter((x) => feasible(x.r) && x.r.total < base.total - 0.5).sort((a, b) => a.r.total - b.r.total);
+    .filter((x) => feasible(x.r) && cost(x.r) < cost(base) - 0.5).sort((a, b) => cost(a.r) - cost(b.r));
   // 2. Apply them biggest saving first, one per group, keeping each only if it still saves.
   let cur = base;
-  /** @type {{ label: string, saving: number }[]} */
+  /** @type {{ label: string, saving: number, materials?: number, hours?: number }[]} */
   const steps = [];
   const used = new Set();
   for (const { mv } of singles) {
     if (used.has(mv.group)) continue;
     const r = get(normalize({ ...cur.design, ...mv.change, ...(mv.group.startsWith('door') || mv.group === 'windows' ? { openings: mergeOpenings(cur.design.openings, mv.change.openings) } : {}) }));
-    if (!feasible(r) || r.total >= cur.total - 0.5) continue;
+    if (!feasible(r) || cost(r) >= cost(cur) - 0.5) continue;
     used.add(mv.group);
-    steps.push({ label: mv.label, saving: Math.round((cur.total - r.total) * 100) / 100 });
+    steps.push(step(mv.label, cur, r));
     cur = r;
   }
   // 3. Polish: from there, the best remaining single move, until none saves.
@@ -198,22 +243,22 @@ export function budget(design, prices, opts = {}) {
     let best = null;
     for (const mv of moves(cur.design, start, false, mopts)) {
       const r = get(normalize({ ...cur.design, ...mv.change }));
-      if (feasible(r) && r.total < (best ? best.r.total : cur.total) - 0.5) best = { r, mv };
+      if (feasible(r) && cost(r) < cost(best ? best.r : cur) - 0.5) best = { r, mv };
     }
     if (!best) break;
-    steps.push({ label: best.mv.label, saving: Math.round((cur.total - best.r.total) * 100) / 100 });
+    steps.push(step(best.mv.label, cur, best.r));
     cur = best.r;
   }
   // What the kept structure choices would save on top, each on its own.
   const alsoKept = moves(cur.design, start, false, { products: true }).filter((mv) => Object.keys(mv.change).some((k) => keep.includes(k)))
     .map((mv) => ({ label: mv.label, r: get(normalize({ ...cur.design, ...mv.change })) }))
-    .filter((x) => feasible(x.r) && x.r.total < cur.total - 0.5)
-    .map((x) => ({ label: x.label, saving: Math.round((cur.total - x.r.total) * 100) / 100, cuts: x.r.cuts }));
+    .filter((x) => feasible(x.r) && cost(x.r) < cost(cur) - 0.5)
+    .map((x) => ({ ...step(x.label, cur, x.r), cuts: x.r.cuts }));
   // Savings held back only by the height allowance, with the peak each would give.
   const okButTall = (r) => r.ok && (!(start.maxFootprint > 0) || r.footprint <= start.maxFootprint + 1e-9) && r.peak > peakCap + 0.01;
   const taller = moves(cur.design, start, false, mopts).map((mv) => ({ label: mv.label, r: get(normalize({ ...cur.design, ...mv.change })) }))
-    .filter((x) => okButTall(x.r) && x.r.total < cur.total - 0.5)
-    .map((x) => ({ label: x.label, saving: Math.round((cur.total - x.r.total) * 100) / 100, peak: x.r.peak }))
+    .filter((x) => okButTall(x.r) && cost(x.r) < cost(cur) - 0.5)
+    .map((x) => ({ ...step(x.label, cur, x.r), peak: x.r.peak }))
     .sort((a, b) => b.saving - a.saving).slice(0, 4);
   return { base, best: { ...cur, steps }, also: alsoKept, taller, peakCap, evaluated: cache.size, keep };
 }
@@ -234,7 +279,9 @@ function evaluate(d, prices) {
   const sc = structuralChecks(shed);
   const cc = connectionChecks(shed);
   const cuts = cutMetrics(shed, est);
+  const hours = laborHours(shed, est, cuts);
   return {
+    hours, timeCost: Math.round(hours * (shed.design.laborRate ?? 0) * 100) / 100,
     design: shed.design, total: est.total, boards: est.boards, cuts, ok: sc.ok && cc.ok,
     peak: shed.dims.peak, footprint: (shed.design.length * shed.design.width) / 144,
     pitch: shed.design.pitch, overhang: shed.design.overhang,

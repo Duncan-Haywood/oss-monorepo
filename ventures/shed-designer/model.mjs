@@ -33,12 +33,14 @@ export const WALL_LABEL = {
   front: 'Front (eave side)', back: 'Back (eave side)', left: 'Left (gable end)', right: 'Right (gable end)',
 };
 
-/** The starter: an 8x12 with a single door on one 12 ft eave wall, two windows on the other, and a vent in each gable. */
 /**
  * The starter, as asked for: an 8x12 with a single 6'6" door on one 12 ft side,
  * two windows on the other, gable vents, a ridge-beam roof and an 8 ft peak limit,
  * finished the common way (stained T1-11, charcoal shingles, white trim, bare
- * framing inside). The colours, glitter and decorated interior are options.
+ * framing inside). Built the way the owner asked on 2026-10-29: a door built on
+ * site from the siding rather than a prehung one, the small 14 x 21 shed window
+ * Home Depot sells, and solid blocks on tamped soil with no crushed stone. The
+ * colours, glitter and decorated interior are options.
  */
 export function defaultDesign() {
   return {
@@ -59,9 +61,14 @@ export function defaultDesign() {
     beamSize: '2x10',
     skidSize: '4x4',
     skidSpacing: 48,
-    foundation: 'gravel',
+    foundation: 'blocks',
     compaction: 'hand tamper',
-    pad: 'full',
+    pad: 'none',
+    spares: 5,
+    laborRate: 50,
+    // The US average combined state and local sales tax (Tax Foundation, mid-2026: 7.53%); set your own.
+    taxRate: 7.53,
+    delivery: 'pickup',
     floorPanel: 'plywood',
     floorTreated: true,
     siding: true,
@@ -90,9 +97,9 @@ export function defaultDesign() {
     kerf: 0.125,
     lengths: [...DEFAULT_LENGTHS_FT],
     openings: /** @type {Opening[]} */ ([
-      { id: 'o1', kind: 'door', wall: 'front', offset: 53, width: 38.5, height: 78, product: 'sr-36x76' },
-      { id: 'o2', kind: 'window', wall: 'back', offset: 30, width: 24.25, height: 36.25, sill: 36, product: 'swm-2436' },
-      { id: 'o3', kind: 'window', wall: 'back', offset: 90, width: 24.25, height: 36.25, sill: 36, product: 'swm-2436' },
+      { id: 'o1', kind: 'door', wall: 'front', offset: 53, width: 38.5, height: 78, product: 'site-built' },
+      { id: 'o2', kind: 'window', wall: 'back', offset: 32, width: 14.25, height: 21.25, sill: 44, product: 'swm-1421' },
+      { id: 'o3', kind: 'window', wall: 'back', offset: 98, width: 14.25, height: 21.25, sill: 44, product: 'swm-1421' },
     ]),
   };
 }
@@ -109,7 +116,7 @@ export const BLOCKS = {
   CMU: { name: 'concrete masonry unit (CMU), 8 x 8 x 16, cores vertical', plural: '8 x 8 x 16 CMU blocks, cores vertical', h: 8, along: 16, across: 8, item: 'cmuBlock' },
 };
 
-const classic = () => ({ ...defaultDesign(), wallHeight: 96, pitch: 6, skidSize: '4x6', roofType: 'ridgeBoard', sidingColor: 'natural', polkaDots: false, maxPeak: 0, ventHeight: 12, autoWall: false, autoPitch: false, autoOverhang: false, rafterSeat: 'birdsmouth', maxFootprint: 0, roofColor: 'charcoal', trimColor: 'white', glitter: false, interior: 'none' });
+const classic = () => ({ ...defaultDesign(), foundation: 'gravel', pad: 'full', wallHeight: 96, pitch: 6, skidSize: '4x6', roofType: 'ridgeBoard', sidingColor: 'natural', polkaDots: false, maxPeak: 0, ventHeight: 12, autoWall: false, autoPitch: false, autoOverhang: false, rafterSeat: 'birdsmouth', maxFootprint: 0, roofColor: 'charcoal', trimColor: 'white', glitter: false, interior: 'none' });
 
 /** @typedef {ReturnType<typeof defaultDesign>} Design */
 
@@ -167,7 +174,11 @@ export function normalize(input) {
     tieSize: pick(o.tieSize, ['2x4', '2x6'], d.tieSize),
     skidSize: pick(o.skidSize, ['4x4', '4x6'], d.skidSize),
     skidSpacing: Math.min(72, Math.max(24, num(o.skidSpacing, d.skidSpacing))),
-    pad: pick(o.pad, ['full', 'under blocks'], d.pad),
+    spares: Math.min(25, Math.max(0, num(o.spares, d.spares))),
+    laborRate: Math.min(500, Math.max(0, num(o.laborRate, d.laborRate))),
+    taxRate: Math.min(15, Math.max(0, num(o.taxRate, d.taxRate))),
+    delivery: pick(o.delivery, ['pickup', 'homedepot', 'lowes'], d.delivery),
+    pad: pick(o.pad, ['full', 'under blocks', 'none'], d.pad),
     floorPanel: pick(o.floorPanel, ['plywood', 'OSB'], d.floorPanel),
     compaction: pick(o.compaction, ['hand tamper', 'plate compactor'], d.compaction),
     foundation: pick(o.foundation, ['gravel', ...Object.keys(BLOCKS)], d.foundation),
@@ -435,8 +446,12 @@ function buildFramed(d) {
   // With blocks, the gravel can go under each block alone (a 4"-deep bed 2" wider
   // than the block all round, from bags) instead of under the whole shed.
   const underBlocks = Boolean(block) && d.pad === 'under blocks';
+  // Or no gravel at all: the blocks sit on stripped, tamped firm soil.
+  const noPad = Boolean(block) && d.pad === 'none';
   let baseCuFt = 0;
-  if (underBlocks) {
+  if (noPad) {
+    // nothing under the blocks but the ground
+  } else if (underBlocks) {
     for (const f of fixtures.filter((x) => x.kind === 'block')) {
       const o = f.geom.origin;
       fixtures.push({ kind: 'gravel', group: 'foundation', geom: rectGeom([o[0] - 2, o[1] - 2, -4], X, Z, Y, block.along + 4, 4, block.across + 4) });
@@ -445,7 +460,7 @@ function buildFramed(d) {
   } else {
     fixtures.push({ kind: 'gravel', group: 'foundation', geom: rectGeom([-pad, -pad, -4], X, Z, Y, L + 2 * pad, 4, W + 2 * pad) });
   }
-  const gravelCuYd = underBlocks ? 0 : ((L + 2 * pad) * (W + 2 * pad) * 4) / 46656;
+  const gravelCuYd = underBlocks || noPad ? 0 : ((L + 2 * pad) * (W + 2 * pad) * 4) / 46656;
 
   // ---------------- Floor ----------------
   const joist = actual(d.joistSize);
@@ -695,6 +710,29 @@ function buildFramed(d) {
         id: nextId('RF'), group: 'roof', kind: 'rafter', material: d.rafterSize, length: rafterCut, note: birdNote,
         geom: { origin: [c - 0.75, 0, 0], u: Y, v: Z, w: X, profile: rafterProfile(back), thickness: 1.5 },
       });
+    }
+  }
+  // The metal you buy, shown where it goes: a variable-pitch connector's two side
+  // plates at each rafter seat, and a hanger's two flanges where a rafter meets
+  // the ridge beam (thin steel, so drawn 1/16" thick).
+  {
+    const steel = 1 / 16;
+    const sides = (c) => [c - 0.75 - steel, c + 0.75];
+    for (const c of rafterCenters) {
+      for (const back of [false, true]) {
+        if (connector) {
+          for (const x of sides(c)) {
+            const y0 = back ? W - D : 0;
+            fixtures.push({ kind: 'connector', group: 'roof', geom: rectGeom([x, y0, plateTop], Y, Z, X, D, 3, steel) });
+          }
+        }
+        if (beam) {
+          for (const x of sides(c)) {
+            const y0 = back ? W / 2 + rh : W / 2 - rh - 2;
+            fixtures.push({ kind: 'connector', group: 'roof', geom: rectGeom([x, y0, zb(r) - 0.5], Y, Z, X, 2, Math.min(4.5, plumbH), steel) });
+          }
+        }
+      }
     }
   }
   // Eave blocking: a block between each pair of rafters on top of each eave
@@ -1119,7 +1157,7 @@ function buildFramed(d) {
     length: L, width: W, wallHeight: H, pitch: d.pitch, overhang: o,
     skidTop, floorTop, plateTop, ridgeTop, peak: ridgeTop + (d.roofing ? 7 / 16 / cos + 0.35 / cos : 7 / 16 / cos),
     studLen, rafterCut, slopeLen, plumbH, ridgeSize, ridgeD, stud: D, joistDepth: joist.depth, rafterDepth: rd,
-    skidCount, skidYs, joistCenters, rafterCenters, gravelCuYd, padSqFt: underBlocks ? 0 : ((L + 2 * pad) * (W + 2 * pad)) / 144, baseBags: Math.ceil(baseCuFt / 0.5), underBlocks, blockCount, block, roofAreaSqFt, floorRows, roofRows,
+    skidCount, skidYs, joistCenters, rafterCenters, gravelCuYd, padSqFt: underBlocks || noPad ? 0 : ((L + 2 * pad) * (W + 2 * pad)) / 144, baseBags: Math.ceil(baseCuFt / 0.5), underBlocks, noPad, blockCount, block, roofAreaSqFt, floorRows, roofRows,
     heel: connector ? 0 : D * t, maxStock, connector,
   };
 

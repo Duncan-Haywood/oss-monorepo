@@ -89,6 +89,7 @@
     .fields input, .fields select, #openings input, #openings select { border: 1px solid #aaa394; border-radius: 8px; padding: 7px 8px; background: #fff; color: inherit; min-width: 0; }
     #stock { display: flex; flex-wrap: wrap; gap: 12px; }
     .table-wrap { overflow-x: auto; position: relative; }
+    #shopping tr.have td:not(:last-child) { text-decoration: line-through; color: var(--muted, #6b6457); }
     table { border-collapse: collapse; width: 100%; font-size: .9rem; }
     th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #e7e1d4; vertical-align: top; }
     td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
@@ -263,7 +264,7 @@
       <legend>Foundation</legend>
       <div class="fields">
         <label>Foundation<select id="foundation"><option value="gravel">Skids on a gravel pad</option><option value="blocks">Skids on solid 4x8x16 concrete blocks</option><option value="deck blocks">Skids on concrete deck blocks</option><option value="CMU">Skids on 8x8x16 CMU (cinder) blocks</option></select></label>
-        <label>Gravel<select id="pad"><option value="full">A pad under the whole shed (bulk stone)</option><option value="under blocks">Only under each block (bagged paver base; needs a block foundation)</option></select></label>
+        <label>Gravel<select id="pad"><option value="full">A pad under the whole shed (bulk stone)</option><option value="under blocks">Only under each block (bagged paver base; needs a block foundation)</option><option value="none">None: blocks on tamped firm soil (needs a block foundation)</option></select></label>
         <label>Subfloor<select id="floorPanel"><option value="plywood">3/4" tongue-and-groove plywood</option><option value="OSB">23/32" tongue-and-groove OSB</option></select></label>
         <label>Compacting the gravel<select id="compaction"><option value="hand tamper">Buy a hand tamper</option><option value="plate compactor">Rent a plate compactor for a day</option></select></label>
         <label>Skids (pressure-treated)<select id="skidSize"><option>4x4</option><option>4x6</option></select></label>
@@ -306,6 +307,10 @@
         <label>Big poster picture (stays in your browser)<input id="posterFile" type="file" accept="image/*"></label>
         <label class="check"><input id="roofing" type="checkbox"> Shingle roof</label>
         <label>Saw kerf (in)<input id="kerf" type="number" min="0" max="0.25" step="0.0625"></label>
+        <label>Your time ($ an hour, to weigh labour against material; 0 to ignore)<input id="laborRate" type="number" min="0" max="500" step="5"></label>
+        <label>Spare boards (% of each size, for culls and mis-cuts)<input id="spares" type="number" min="0" max="25" step="1"></label>
+        <label>Sales tax (% where you buy)<input id="taxRate" type="number" min="0" max="15" step="0.05"></label>
+        <label>Delivery<select id="delivery"><option value="pickup">I'll pick it up</option><option value="homedepot">Home Depot delivery</option><option value="lowes">Lowe's delivery</option></select></label>
       </div>
       <p class="hint">Board lengths your yard has:</p>
       <div id="stock"></div>
@@ -323,7 +328,7 @@
       <button type="button" role="tab" aria-selected="false" data-panel="panel-build">How to build</button>
     </div>
     <div class="result-panel print-target" id="panel-shopping">
-      <div class="table-wrap"><table id="shopping"><thead><tr><th scope="col">Item</th><th scope="col" class="n">Qty</th><th scope="col">Unit</th><th scope="col" class="n">Each</th><th scope="col" class="n">Total</th><th scope="col">Price source</th></tr></thead><tbody></tbody></table></div>
+      <div class="table-wrap"><table id="shopping"><thead><tr><th scope="col">Item</th><th scope="col" class="n">Qty</th><th scope="col">Unit</th><th scope="col" class="n">Each</th><th scope="col" class="n">Total</th><th scope="col">Price source</th><th scope="col">Have it</th></tr></thead><tbody></tbody></table></div>
       <p class="muted">Prices are store listings seen on 2026-10-29 (mostly Home Depot), most read from the search result's copy of the product page, so they can be days or weeks old and vary by store. Lengths with no listing are scaled by the foot from the nearest listed length; anything with no listing at all says "estimate". Type your own store's prices below.</p>
       <details style="margin-top:12px" open>
         <summary><strong>Compare stores and swap parts</strong> (Home Depot, Lowe's and Menards, with item numbers and links)</summary>
@@ -333,7 +338,7 @@
       <details style="margin-top:12px" open>
         <summary><strong>Ask stores for a quote</strong> (a draft email from this list, asking for bulk pricing and delivery)</summary>
         <div class="fields" style="margin-top:10px">
-          <label>Store<select id="quote-store"><option value="homedepot">Home Depot Pro Desk</option><option value="lowes">Lowe's Pro Desk</option><option value="menards">Menards contractor desk</option><option value="yard">Local lumberyard</option></select></label>
+          <label>Store<select id="quote-store"><option value="both">Home Depot and Lowe's (two emails)</option><option value="homedepot">Home Depot Pro Desk</option><option value="lowes">Lowe's Pro Desk</option><option value="menards">Menards contractor desk</option><option value="yard">Local lumberyard</option></select></label>
           <label>Your name<input id="quote-name" type="text" maxlength="80"></label>
           <label>Your phone<input id="quote-phone" type="text" maxlength="40"></label>
           <label>Delivery ZIP code<input id="quote-zip" type="text" maxlength="10"></label>
@@ -341,7 +346,7 @@
         </div>
         <label class="sr-only" for="quote-body">Quote request email</label>
         <textarea id="quote-body" rows="14" style="width:100%;margin-top:10px;font:13px ui-monospace,Menlo,monospace;border:1px solid #aaa394;border-radius:8px;padding:10px"></textarea>
-        <div class="toolrow"><button type="button" class="btn" id="quote-copy">Copy email</button><a class="btn" id="quote-mail" href="#">Open in my email app</a><button type="button" class="btn" id="quote-attach">Download plans and cut list to attach</button></div>
+        <div class="toolrow"><button type="button" class="btn" id="quote-copy">Copy email</button><a class="btn" id="quote-mail" href="#">Open in my email app</a><a class="btn" id="quote-mail2" href="#" hidden>Open the Lowe's email</a><button type="button" class="btn" id="quote-attach">Download plans and cut list to attach</button></div>
         <p class="muted" id="quote-note">Nothing is sent from this page: the draft opens in your own email app (or copy it), and you attach the files. Find your store's Pro Desk email or phone on its store page.</p>
       </details>
       <details style="margin-top:12px">
@@ -381,7 +386,7 @@
     <div class="toolrow"><button type="button" class="btn primary" id="make-options">Make options</button></div>
     <div id="option-cards"></div>
     <h3 style="margin-top:16px">Bring the price down, same size</h3>
-    <p class="muted">Tries cheaper off-the-shelf parts and settings one at a time (stock doors and windows, siding, roofing, the foundation and its gravel, the subfloor, overhang, pitch and spacing), keeps your footprint and the ridge and rafter-seat choices you made, and keeps a change only if the shed still passes every check and the peak rises by no more than 6". It lists each saving so you can take some and leave others.</p>
+    <p class="muted">Counts your time at the hourly rate you set (in the buying settings) as well as materials. Tries cheaper off-the-shelf parts and settings one at a time (stock doors and windows, siding, roofing, the foundation and its gravel, the subfloor, overhang, pitch and spacing), keeps your footprint and the ridge and rafter-seat choices you made, and keeps a change only if the shed still passes every check and the peak rises by no more than 6". It lists each saving so you can take some and leave others.</p>
     <div class="toolrow"><button type="button" class="btn primary" id="budget">Find a cheaper build</button></div>
     <div id="budget-out"></div>
     <h3 style="margin-top:16px">Simplify the build</h3>

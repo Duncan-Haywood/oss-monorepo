@@ -63,7 +63,7 @@ export function buildSheets(shed, marks = new Map()) {
     items.push(text([L / 2, -12 - 4], 'FRONT', 10, 'middle', 'muted'));
     sheets.push({
       id: 'foundation', title: 'Foundation plan',
-      note: `${k.underBlocks ? `A 4" bed of paver base under each block, 2" wider than the block all round (${k.baseBags} bags of 0.5 cu ft).` : `Gravel pad 4" deep, 12" past the shed on every side: about ${k.gravelCuYd.toFixed(1)} cu yd.`} Skids ${fmtFtIn(L)} long at the centres shown. Level the pad${k.block ? ' and the blocks' : ''} before setting skids; check local rules on setbacks and permits.`,
+      note: `${k.noPad ? 'Blocks on stripped, tamped firm soil; no gravel.' : k.underBlocks ? `A 4" bed of paver base under each block, 2" wider than the block all round (${k.baseBags} bags of 0.5 cu ft).` : `Gravel pad 4" deep, 12" past the shed on every side: about ${k.gravelCuYd.toFixed(1)} cu yd.`} Skids ${fmtFtIn(L)} long at the centres shown. Level the pad${k.block ? ' and the blocks' : ''} before setting skids; check local rules on setbacks and permits.`,
       items,
     });
   }
@@ -535,7 +535,7 @@ export function buildSheets(shed, marks = new Map()) {
     row('');
     row('DESIGN DATA', 9, 'muted');
     row(`Walls: ${d.studSize} at ${d.studSpacing}" o.c., ${fmtFtIn(d.wallHeight)} floor to top of plates (studs ${fmtIn(k.studLen)}), double top plate interlocked at corners.`);
-    row(`Floor: ${d.joistSize} joists at ${d.joistSpacing}" o.c. on ${k.skidCount} PT ${d.skidSize} skids, ${k.block ? `on ${k.block.plural} on ${k.underBlocks ? 'a bed of paver base each' : 'a compacted gravel pad'}` : 'on a compacted gravel pad'}; ${d.floorPanel === 'OSB' ? '23/32" T&G OSB' : '3/4" T&G plywood'}.`);
+    row(`Floor: ${d.joistSize} joists at ${d.joistSpacing}" o.c. on ${k.skidCount} PT ${d.skidSize} skids, ${k.block ? `on ${k.block.plural} on ${k.noPad ? 'tamped firm soil' : k.underBlocks ? 'a bed of paver base each' : 'a compacted gravel pad'}` : 'on a compacted gravel pad'}; ${d.floorPanel === 'OSB' ? '23/32" T&G OSB' : '3/4" T&G plywood'}.`);
     row(`Roof: ${d.rafterSize} rafters at ${d.rafterSpacing}" o.c., ${d.roofType === 'ridgeBeam' ? `two-ply ${k.ridgeSize} ridge beam on posts, no ties` : `${k.ridgeSize} ridge board with ${d.tieSize} rafter ties`}, ${fmtIn(d.overhang)} overhang; ${d.roofCover === 'metal' ? 'corrugated metal' : 'shingles'} on 7/16" OSB.`);
     row(`Siding: ${d.siding ? d.sidingType : 'none'}. Inside: ${d.interior === 'none' ? 'bare framing' : d.interior}${d.insulation ? ', R-13 insulation' : ''}.`);
     row(`Loads used for the strength checks: ${d.snowLoad} psf roof snow, ${d.windLoad} psf wind on the walls, 15 psf roof dead, 40 psf floor live.`);
