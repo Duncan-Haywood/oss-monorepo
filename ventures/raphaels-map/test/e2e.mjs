@@ -162,6 +162,7 @@ for (const [label, viewport] of [['desktop', { width: 1280, height: 900 }], ['mo
     assert.match(s, /Insufficient sample/);
     assert.match(s, /n_eff/);
     assert.match(s, /Direct measure/);
+    await noHorizontalScroll(page);
     await page.goto(BASE + 'index.html#methodology');
     await page.waitForSelector('table.methods');
     assert.match(await page.textContent('#view-methodology'), /never multiplied/i);

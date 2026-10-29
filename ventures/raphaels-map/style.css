@@ -306,3 +306,5 @@ table.data.rank-table td.num.raw { min-width: 5.5rem; }
   .rank-table td[data-label]:not(.rank-no)::before { content: attr(data-label); display: block; font-size: .72rem; color: var(--ink-3); text-transform: uppercase; letter-spacing: .03em; }
 }
 .rank-table td:last-child { white-space: nowrap; }
+svg.ci { width: 100%; max-width: 160px; min-width: 80px; height: 12px; }
+.survey { min-width: 0; }

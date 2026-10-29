@@ -48,7 +48,7 @@ function ciBar(r) {
   if (![r.pct, r.ci_low, r.ci_high].every((x) => typeof x === 'number')) return '';
   const W = 160;
   const x = (v) => (Math.max(0, Math.min(100, v)) / 100) * W;
-  return `<svg class="ci" viewBox="0 0 ${W} 12" width="${W}" height="12" aria-hidden="true"><rect x="0" y="5" width="${W}" height="2" class="ci-axis"/><rect x="${x(r.ci_low)}" y="3" width="${Math.max(1, x(r.ci_high) - x(r.ci_low))}" height="6" rx="2" class="ci-span"/><circle cx="${x(r.pct)}" cy="6" r="3.5" class="ci-dot"/></svg>`;
+  return `<svg class="ci" viewBox="0 0 ${W} 12" aria-hidden="true"><rect x="0" y="5" width="${W}" height="2" class="ci-axis"/><rect x="${x(r.ci_low)}" y="3" width="${Math.max(1, x(r.ci_high) - x(r.ci_low))}" height="6" rx="2" class="ci-span"/><circle cx="${x(r.pct)}" cy="6" r="3.5" class="ci-dot"/></svg>`;
 }
 
 let rootEl = null;
@@ -99,7 +99,7 @@ export async function update(ctx) {
     const filters = Object.entries(t.filters || {}).filter(([, v]) => v !== null && v !== undefined).map(([k, v]) => `${FILTER_LABELS[k] || k}: ${String(v).replace(/_/g, ' ')}`).join(' · ');
     const rows = suppressed
       ? `<p class="na"><strong>Insufficient sample.</strong> Effective sample size ${esc(num(t.n_eff, { digits: 0 }))} is below 30, so no percentage is shown.</p>`
-      : `<table class="data compact"><thead><tr><th scope="col">Response</th><th scope="col">Weighted %</th><th scope="col">Confidence interval</th><th scope="col"><span class="sr-only">Interval chart</span></th></tr></thead><tbody>${t.rows.map((r) => `<tr><th scope="row">${esc(r.category)}</th><td class="num">${esc(num(r.pct, { unit: 'percent', digits: 1 }))}</td><td class="num">${typeof r.ci_low === 'number' ? `${esc(num(r.ci_low, { digits: 1 }))}–${esc(num(r.ci_high, { digits: 1 }))}` : 'Not available'}</td><td>${ciBar(r)}</td></tr>`).join('')}</tbody></table>`;
+      : `<div class="table-scroll"><table class="data compact"><thead><tr><th scope="col">Response</th><th scope="col">Weighted %</th><th scope="col">Confidence interval</th><th scope="col"><span class="sr-only">Interval chart</span></th></tr></thead><tbody>${t.rows.map((r) => `<tr><th scope="row">${esc(r.category)}</th><td class="num">${esc(num(r.pct, { unit: 'percent', digits: 1 }))}</td><td class="num">${typeof r.ci_low === 'number' ? `${esc(num(r.ci_low, { digits: 1 }))}–${esc(num(r.ci_high, { digits: 1 }))}` : 'Not available'}</td><td class="ci-cell">${ciBar(r)}</td></tr>`).join('')}</tbody></table></div>`;
     const ex = t.excluded || {};
     return `<article class="card survey">
       <header><h3>${esc(q.original_text || `${t.dataset_id}.${t.variable}`)}</h3>
