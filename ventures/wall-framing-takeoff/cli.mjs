@@ -23,6 +23,16 @@ import { budget, budgetText, budgetCsv } from "./budget.mjs";
 import { levelBids, levelText } from "./bidlevel.mjs";
 import { schedule, scheduleText } from "./schedule.mjs";
 import { planFromDxf } from "./dxf.mjs";
+
+/** `--wall-layer=RE`, `--door-layer=RE`, `--window-layer=RE`: layer-name patterns (case-insensitive) for drawings whose layers are not named like "wall". */
+function layerOptions(argv) {
+  const out = {};
+  for (const [flag, key] of [["wall", "wallLayer"], ["door", "doorLayer"], ["window", "windowLayer"]]) {
+    const v = argv.find((a) => a.startsWith(`--${flag}-layer=`))?.slice(flag.length + 9);
+    if (v) out[key] = new RegExp(v, "i");
+  }
+  return out;
+}
 import { planFromIfc } from "./ifc.mjs";
 import { takeoff, samplePlan, toCsv, formatLength, formatInches, parseLength } from "./engine.mjs";
 
@@ -59,7 +69,7 @@ Usage:
   node cli.mjs plan.json --pdf > walls.pdf   the same shop drawings as a PDF file (no browser; add --panel-max=12ft for panel cut lines)
   node cli.mjs plan.json --headers  size headers from the plan's own headerTable ({upTo, header, plies?} rows from your span table; an opening with "header": "auto" takes the first row that covers it) and list hand-picked ones the table says are too light
   node cli.mjs house.ifc [--storey=N|name]  the same from an IFC file (one storey at a time; the lowest by default) (IfcWall axis lines, IfcDoor/IfcWindow; hand-written fixtures only so far)
-  node cli.mjs house.dxf --plan-only  read a DXF floor plan (wall centre lines on a layer named like "wall", openings as lines on "door"/"window" layers; --units=in|ft|mm|cm|m when the file does not say; walls drawn as two face lines are paired into centre lines automatically, --double-line forces it, --single-line turns it off) and print the plan JSON; without --plan-only it goes straight on to the takeoff
+  node cli.mjs house.dxf --plan-only  read a DXF floor plan (wall centre lines on a layer named like "wall", openings as lines on "door"/"window" layers; --units=in|ft|mm|cm|m when the file does not say; --wall-layer=RE, --door-layer=RE and --window-layer=RE name the layers when they are not called like that; walls drawn as two face lines are paired into centre lines automatically, --double-line forces it, --single-line turns it off) and print the plan JSON; without --plan-only it goes straight on to the takeoff
   node cli.mjs --example            print the example plan (an invented 40 x 28 ft ranch) to start from
   cat plan.json | node cli.mjs -    read the plan from stdin
 
@@ -102,7 +112,7 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
   try {
     if (/\.(dxf|ifc)$/i.test(args[0])) {
       const units = argv.find((a) => a.startsWith("--units="))?.slice(8);
-      const r = /** @type {{ ok: boolean, errors: string[], notes: string[], plan?: any, stats?: any }} */ ((/\.ifc$/i.test(args[0]) ? planFromIfc : planFromDxf)(readInput(args[0]), { units: /** @type {any} */ (units), storey: (() => { const v = argv.find((a) => a.startsWith("--storey="))?.slice(9); return v == null ? undefined : /^\d+$/.test(v) ? Number(v) : v; })(), doubleLine: argv.includes("--single-line") ? false : argv.includes("--double-line") ? true : "auto" }));
+      const r = /** @type {{ ok: boolean, errors: string[], notes: string[], plan?: any, stats?: any }} */ ((/\.ifc$/i.test(args[0]) ? planFromIfc : planFromDxf)(readInput(args[0]), { units: /** @type {any} */ (units), storey: (() => { const v = argv.find((a) => a.startsWith("--storey="))?.slice(9); return v == null ? undefined : /^\d+$/.test(v) ? Number(v) : v; })(), doubleLine: argv.includes("--single-line") ? false : argv.includes("--double-line") ? true : "auto", ...layerOptions(argv) }));
       if (!r.ok) return { code: 2, out: `Could not read the drawing: ${r.errors.join(" ")}` };
       const note = r.notes.map((n) => `  - ${n}`).join("\n");
       if (flags.has("--plan-only")) return { code: 0, out: JSON.stringify(r.plan, null, 2) + `\n\nNotes (not part of the JSON):\n${note}` };
