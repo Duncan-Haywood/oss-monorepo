@@ -1,7 +1,7 @@
 ---
 title: "Does a change detector find a hurricane? Puerto Rico's daily deaths"
 date: 2026-10-29
-description: "The changepoint detector on 1,201 real days of Puerto Rico deaths: it dates Hurricane Maria to the day in five of five setups, and also reports nine or more other changes."
+description: "The changepoint detector on 1,201 real days of Puerto Rico deaths dates Hurricane Maria to the day in five of five setups, with nine or more other changes."
 tags: [changepoint-detector, evaluation]
 ---
 
