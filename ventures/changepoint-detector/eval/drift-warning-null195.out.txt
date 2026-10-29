@@ -1,0 +1,24 @@
+sd 0.01 rho 0  raw no trend   warned 40/40  mean steps 16.5
+sd 0.01 rho 0  raw bend       warned  3/40  mean steps 1.1
+sd 0.01 rho 0  log no trend   warned 40/40  mean steps 16.4
+sd 0.01 rho 0  log bend       warned  1/40  mean steps 0.4
+sd 0.01 rho 0.5  raw no trend   warned 40/40  mean steps 18.2
+sd 0.01 rho 0.5  raw bend       warned 33/40  mean steps 9.2
+sd 0.01 rho 0.5  log no trend   warned 40/40  mean steps 17.9
+sd 0.01 rho 0.5  log bend       warned 32/40  mean steps 8.9
+sd 0.02 rho 0  raw no trend   warned 17/40  mean steps 10.5
+sd 0.02 rho 0  raw bend       warned  2/40  mean steps 1.0
+sd 0.02 rho 0  log no trend   warned  8/40  mean steps 10.0
+sd 0.02 rho 0  log bend       warned  0/40  mean steps 0.5
+sd 0.02 rho 0.5  raw no trend   warned 34/40  mean steps 13.0
+sd 0.02 rho 0.5  raw bend       warned 33/40  mean steps 9.2
+sd 0.02 rho 0.5  log no trend   warned 34/40  mean steps 12.7
+sd 0.02 rho 0.5  log bend       warned 34/40  mean steps 8.8
+sd 0.04 rho 0  raw no trend   warned  3/40  mean steps 6.3
+sd 0.04 rho 0  raw bend       warned  0/40  mean steps 0.7
+sd 0.04 rho 0  log no trend   warned  2/40  mean steps 6.3
+sd 0.04 rho 0  log bend       warned  0/40  mean steps 0.4
+sd 0.04 rho 0.5  raw no trend   warned 36/40  mean steps 10.8
+sd 0.04 rho 0.5  raw bend       warned 35/40  mean steps 7.7
+sd 0.04 rho 0.5  log no trend   warned 37/40  mean steps 10.4
+sd 0.04 rho 0.5  log bend       warned 30/40  mean steps 7.5

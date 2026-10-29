@@ -774,3 +774,21 @@ test("an opening near a wall end uses the end stud as its king", () => {
   plan.walls[0].openings[0].offset = 2.9;
   assert.ok(validatePlan(plan).some((e) => /jacks must clear the end stud/.test(e)));
 });
+
+test("blocking: stagger alternates bays above and below the row line, and fire blocking still holds 10 ft", () => {
+  const plan = { ...base(), studLength: 140.625, blocking: { fire: true, stagger: true } };
+  const wall = { id: "A", length: 240, stud: "2x4", openings: [] };
+  plan.walls = [wall];
+  const w = layoutWall(plan, wall);
+  const bl = w.members.filter((m) => m.kind === "blocking");
+  assert.ok(bl.length >= 2);
+  const mid = 1.5 + 140.625 / 2 - 0.75;
+  assert.deepEqual(verifyWall(w, wall), []);
+  const offs = new Set(bl.map((m) => Math.round((m.y - mid) * 1000) / 1000));
+  assert.ok(offs.has(1.5) && offs.has(-1.5) && offs.size === 2);
+  const flat = layoutWall({ ...plan, blocking: { fire: true } }, wall).members.filter((m) => m.kind === "blocking");
+  assert.equal(bl.length, flat.length);
+  // a 10 ft run limit: the worst staggered gap between plate, rows and plate stays within 120 in
+  const ys = [...new Set(bl.map((m) => m.y))].sort((a, b) => a - b);
+  assert.ok(ys[0] - 1.5 <= 120 && (plan.studLength + 3) - (ys[ys.length - 1] + 1.5) <= 120);
+});

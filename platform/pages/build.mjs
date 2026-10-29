@@ -10475,7 +10475,8 @@ export function renderCatalog(surfaces, baseUrl, launched = {}) {
  * the tool's page and its source, and the standing caveat. Nothing is added
  * that the page does not already say.
  */
-export function renderProductLlmsTxt({ slug, title, description, fullDescription }, baseUrl) {
+export function renderProductLlmsTxt({ slug, title, description, fullDescription, updated }, baseUrl) {
+  const asOf = /^\d{4}-\d{2}-\d{2}/.test(updated ?? '') ? `\nSource last changed: ${updated.slice(0, 10)} (from the repository's git history).\n` : '';
   const one = (t) => String(t ?? '').replace(/\s+/g, ' ').trim();
   const body = one(fullDescription || description);
   return `# ${one(title)}
@@ -10491,7 +10492,7 @@ export function renderProductLlmsTxt({ slug, title, description, fullDescription
 ## Limits
 
 Results are estimates from the values typed in, not legal, tax, financial or professional advice. Check the figures with a qualified professional before relying on them.
-`;
+${asOf}`;
 }
 
 /**
@@ -11090,7 +11091,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
     // /<slug>/llms.txt instead of 1,300 products having none.
     const ownLlmsDoc = existsSync(path.join(destination, 'llms.txt'));
     if (!ownLlmsDoc) {
-      await fs.writeFile(path.join(destination, 'llms.txt'), renderProductLlmsTxt({ slug: surface.slug, title, description, fullDescription }, base));
+      await fs.writeFile(path.join(destination, 'llms.txt'), renderProductLlmsTxt({ slug: surface.slug, title, description, fullDescription, updated: sourceDates.get(path.relative(REPO_ROOT, path.join(surface.sourceDir, 'index.html')).split(path.sep).join('/')) }, base));
     }
 
     surfaces.push({

@@ -7,6 +7,7 @@
 
 import { fmtIn, fmtFtIn } from './lumber.mjs';
 import { WALL_LABEL } from './model.mjs';
+import { heelJoint } from './checks.mjs';
 
 /** @typedef {{ title: string, why?: string, steps: string[], check?: string[] }} Section */
 
@@ -180,7 +181,7 @@ export function buildInstructions(shed, est) {
       `Cut length from a square end: ${fmtIn(k.rafterCut)} (mark ${marks((m) => m.kind === 'rafter')}, ${qty((m) => m.kind === 'rafter')} rafters, ${d.rafterSize}).`,
       `Mark rafter centres on the top plates and the ${beam ? 'beam' : 'ridge'}: the first and last flush with the gable ends, the rest at ${list(k.rafterCenters.slice(1, -1))} from the left end.`,
       `Set rafters in opposite pairs so the ${beam ? 'beam' : 'ridge'} stays straight. ${beam ? 'Hang each one from the beam with a 2x6 rafter hanger (on the list)' : 'Nail through the ridge board into each rafter (three 16d)'}, ${k.connector ? '' : ' and fix each one to the wall plate with a rafter-to-plate tie'}.`,
-      beam ? 'There are no rafter ties: the beam carries the rafters, so the inside is open to the roof.' : `Nail a ${d.tieSize} rafter tie (mark ${marks((m) => m.kind === 'rafter tie')}) beside every pair but the gable ends, on top of the wall plates, three 16d into each rafter.`,
+      beam ? 'There are no rafter ties: the beam carries the rafters, so the inside is open to the roof.' : `Nail a ${d.tieSize} rafter tie (mark ${marks((m) => m.kind === 'rafter tie')}) beside every pair but the gable ends, on top of the wall plates, ${heelJoint(shed)?.nails ?? 3} 16d commons into each rafter (the tie holds the rafters' outward push; the Structure tab shows the count's working).`,
       `Fit the blocks between rafters on top of each eave wall (mark ${marks((m) => m.kind === 'eave blocking')}), top edges bevelled to ${d.pitch}/12. Drill or screen them for venting if you vent the soffit.`,
       d.overhang > 0 ? `Nail the 2x6 sub-fascia (mark ${marks((m) => m.kind === 'sub-fascia')}) across the rafter tails, top flush with the rafter tops, two 16d per tail.` : '',
     ].filter(Boolean),
@@ -200,7 +201,7 @@ export function buildInstructions(shed, est) {
   out.push({
     title: 'Roof sheathing and roofing',
     steps: [
-      `Sheathe with 7/16" OSB, long edges across the rafters (${est.roofSheets} sheets, ${k.roofRows} courses a side). Start at the eave with full sheets flush with the sub-fascia, stagger the next course by half a sheet, and land every end joint on a rafter. Leave 1/8" between sheets.`,
+      `Sheathe with 7/16" OSB, long edges across the rafters (${est.roofSheets} sheets, ${k.roofRows} courses a side). Start at the eave with full sheets flush with the sub-fascia, stagger the next course by half a sheet, and land every end joint on a rafter. Leave 1/8" between sheets. The course at the ridge is narrower than a sheet: rip its strips side by side from whole sheets, as many to a sheet as fit (the sheet count assumes that).`,
       'Nail with 8d every 6" on the edges and every 12" in the field.',
       'Drip edge along the eaves first, under the underlayment.',
       'Roll the underlayment from the eave up, each course lapped over the one below by the maker\'s mark, over the ridge.',

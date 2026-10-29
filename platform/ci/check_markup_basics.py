@@ -9,6 +9,7 @@ and no `http://` subresource or link (mixed content, except localhost).
     python3 platform/ci/check_markup_basics.py [--root DIR]   # exit 1 if any
 """
 import argparse
+import re
 import sys
 from html.parser import HTMLParser
 from pathlib import Path
@@ -40,7 +41,8 @@ class Scan(HTMLParser):
             if "noopener" not in rel and "noreferrer" not in rel:
                 self.found.add('target="_blank" without rel=noopener')
         ti = a.get("tabindex")
-        if ti and ti.strip().isdigit() and int(ti) > 0:
+        m = re.match(r"[+-]?[0-9]+", (ti or "").strip())  # HTML integer parsing: "+2" is 2
+        if m and int(m.group()) > 0:
             self.found.add("positive tabindex")
         for k in ("src", "href"):
             v = (a.get(k) or "").strip().lower()

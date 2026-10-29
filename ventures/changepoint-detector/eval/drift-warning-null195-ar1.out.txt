@@ -1,0 +1,12 @@
+sd 0.01 rho 0  raw bend       warned  3/40  mean steps 1.1
+sd 0.01 rho 0  raw bend ar1   warned  2/40  mean steps 0.7
+sd 0.01 rho 0.5  raw bend       warned 33/40  mean steps 9.2
+sd 0.01 rho 0.5  raw bend ar1   warned  0/40  mean steps 0.3
+sd 0.02 rho 0  raw bend       warned  2/40  mean steps 1.0
+sd 0.02 rho 0  raw bend ar1   warned  2/40  mean steps 0.7
+sd 0.02 rho 0.5  raw bend       warned 33/40  mean steps 9.2
+sd 0.02 rho 0.5  raw bend ar1   warned  0/40  mean steps 0.5
+sd 0.04 rho 0  raw bend       warned  0/40  mean steps 0.7
+sd 0.04 rho 0  raw bend ar1   warned  0/40  mean steps 0.5
+sd 0.04 rho 0.5  raw bend       warned 35/40  mean steps 7.7
+sd 0.04 rho 0.5  raw bend ar1   warned  1/40  mean steps 0.3

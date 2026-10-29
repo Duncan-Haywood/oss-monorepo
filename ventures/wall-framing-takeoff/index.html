@@ -77,6 +77,30 @@
     </div>
   </section>
 
+  <section class="card" aria-labelledby="h-sketch">
+    <h2 id="h-sketch">Draw the plan instead of typing it</h2>
+    <p class="note">Pick a tool and click on the grid. <strong>Wall</strong>: click the start, then each corner; a wall chain ends with Finish (or Escape) and ends meeting an existing wall snap to it. <strong>Door</strong> and <strong>Window</strong>: click a wall. <strong>Move</strong>: drag a wall end to move that corner (walls meeting there follow), or drag a wall to slide it; drag a door or window to slide it along its wall, or drag its end to resize it; a move that would crush a wall or strand a door is refused. <strong>Erase</strong>: click a wall or an opening. Type a length to fix the next wall's length and let the mouse choose the direction. "Use this sketch" fills the walls and openings below (corners, tees, the outside loop and opening positions are worked out from the drawing; heights and headers are defaults to check).</p>
+    <div class="grid">
+      <div><label for="skTool">Tool</label><select id="skTool"><option value="wall">Wall</option><option value="door">Door</option><option value="window">Window</option><option value="move">Move</option><option value="erase">Erase</option></select></div>
+      <div><label for="skGrid">Snap to</label><select id="skGrid"><option value="1">1 in</option><option value="6" selected>6 in</option><option value="12">1 ft</option><option value="24">2 ft</option></select></div>
+      <div><label for="skLen">Next wall length (blank: from the mouse)</label><input id="skLen" placeholder="e.g. 14 ft"></div>
+      <div><label for="skWidth">Opening width</label><input id="skWidth" value="36"></div>
+      <div><label for="skOrtho"><input id="skOrtho" type="checkbox" checked> Keep walls square (horizontal or vertical)</label></div>
+    </div>
+    <div class="grid">
+      <div><label for="skImg">Trace over a picture (optional; stays on your device)</label><input id="skImg" type="file" accept="image/*"></div>
+      <div><label for="skScaleLen">Real distance between two points on it</label><input id="skScaleLen" placeholder="e.g. 24 ft"></div>
+      <div><button type="button" class="secondary" id="skScale" disabled>Set scale: click the two points</button> <button type="button" class="secondary" id="skMovePic" disabled>Move picture: click a spot, then where it goes</button> <button type="button" class="secondary" id="skLevel" disabled>Straighten picture: click two points that should be level</button> <button type="button" class="secondary" id="skPlumb" disabled>…or plumb (straight up and down)</button> <button type="button" class="secondary" id="skImgOff" disabled>Remove picture</button></div>
+      <div><label for="skImgOpacity">Picture strength</label><input id="skImgOpacity" type="range" min="10" max="100" value="45"></div>
+    </div>
+    <svg id="skSvg" viewBox="-24 -24 648 448" role="img" aria-label="Plan sketch grid" style="width:100%;max-height:70vh;background:#fffdf7;border:1px solid #c9c3b3;touch-action:manipulation;cursor:crosshair"></svg>
+    <p class="note" id="skInfo" aria-live="polite">Nothing drawn yet.</p>
+    <button type="button" class="secondary" id="skFinish">Finish this wall chain</button>
+    <button type="button" class="secondary" id="skUndo">Undo</button>
+    <button type="button" class="secondary" id="skClear">Clear the sketch</button>
+    <button type="button" id="skUse">Use this sketch</button>
+  </section>
+
   <section class="card" aria-labelledby="h-walls">
     <h2 id="h-walls">2. Walls</h2>
     <p class="note">"Corner at start" adds corner backing at the start end. "Walls meet at" lists where other walls tee into this one (comma-separated positions), which adds backing there. "Butts into" is optional and used with the corner-lap setting: <code>Front @ 14'</code> means this wall's start ends against wall Front 14' along it (add <code>end</code> for its far end); its cap plate then runs over that wall and that wall's cap is cut for it.</p>
@@ -405,7 +429,7 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, construction, building-code, legal or financial advice, and it does not replace a qualified professional, your plans or your building department. Header sizes, jack counts and stud spacing are your inputs and are not checked against any span table or code. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including every length before you cut. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Independent.</strong> Not affiliated with any lumberyard, builder, code body or software company. No lumber price is stated or implied; prices are what you type.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record: save your plan file. Your last entries stay in this browser's local storage only.</p>
-    <p>Everything runs in your browser. Your plan is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>takeoff_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>budget_csv_downloaded</code>, <code>bids_leveled</code>, <code>drawings_downloaded</code>, <code>drawings_pdf_downloaded</code>, <code>panel_order_downloaded</code>, <code>floor_on</code>, <code>roof_on</code>, <code>foundation_on</code>, <code>drywall_on</code>, <code>insulation_on</code>, <code>trim_on</code>, <code>siding_on</code>, <code>eaves_on</code>, <code>gutters_on</code>, <code>stairs_on</code>, <code>fasteners_on</code>, <code>schedule_run</code>, <code>schedule_example_loaded</code>, <code>plan_saved</code>, <code>plan_opened</code>, <code>dxf_opened</code>) are counted only in local storage on your device, never with anything you typed.</p>
+    <p>Everything runs in your browser. Your plan is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>takeoff_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>budget_csv_downloaded</code>, <code>bids_leveled</code>, <code>drawings_downloaded</code>, <code>drawings_pdf_downloaded</code>, <code>panel_order_downloaded</code>, <code>floor_on</code>, <code>roof_on</code>, <code>foundation_on</code>, <code>drywall_on</code>, <code>insulation_on</code>, <code>trim_on</code>, <code>siding_on</code>, <code>eaves_on</code>, <code>gutters_on</code>, <code>stairs_on</code>, <code>fasteners_on</code>, <code>schedule_run</code>, <code>schedule_example_loaded</code>, <code>plan_saved</code>, <code>plan_opened</code>, <code>dxf_opened</code>, <code>sketch_wall</code>, <code>sketch_opening</code>, <code>sketch_move</code>, <code>sketch_used</code>, <code>sketch_trace_image</code>, <code>sketch_trace_scaled</code>, <code>sketch_trace_moved</code>, <code>sketch_trace_straightened</code>) are counted only in local storage on your device, never with anything you typed.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Related tools: the <a href="../cut-list-optimizer/">cut list optimizer</a> for sheet goods and shop stock, and the <a href="../tile-layout-planner/">tile layout planner</a>. Command line and source: <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/wall-framing-takeoff" rel="noopener">wall-framing-takeoff on GitHub</a>.</p>
     <p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
@@ -414,6 +438,7 @@
   <script type="module">
     import { takeoff, samplePlan, defaultStock, parseLength, formatLength, formatInches, toCsv, verifyWall, PRECUT, DEPTH } from "./engine.mjs";
     import { planFromDxf } from "./dxf.mjs";
+    import { emptySketch, addWall, addOpening, snapPoint, pointAtLength, nearestWall, moveCorner, moveWall, moveOpening, resizeOpening, removeWall, removeOpening, openingEnds, planFromSketch, wallLength, restoreSketch, fitTrace, rescaleTrace, moveTrace, levelTrace, traceCorners } from "./sketch.mjs";
     import { drawingSetHtml } from "./drawings.mjs";
     import { drawingSetPdf } from "./pdf.mjs";
     import { panelOrder, panelOrderText, panelPullText } from "./panels.mjs";
@@ -1182,6 +1207,245 @@
     });
     $("#rfOn").addEventListener("change", () => { $("#rfFields").hidden = !$("#rfOn").checked; if ($("#rfOn").checked) record("roof_on"); });
     if (usageOptedOut()) { const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; }
+
+
+    // ---- plan sketch editor ------------------------------------------------
+    {
+      const svg = /** @type {SVGSVGElement} */ ($("#skSvg"));
+      const NS = "http://www.w3.org/2000/svg";
+      let sk = emptySketch(), chain = null, hover = null, restoreNote = "";
+      const SKEY = KEY + ".sketch";
+      try {
+        const back = restoreSketch(JSON.parse(localStorage.getItem(SKEY) || "null"));
+        if (back) { sk = back.sketch; if (back.dropped) restoreNote = ` ${back.dropped} damaged stored item${back.dropped === 1 ? "" : "s"} left out.`; }
+      } catch (e) { /* storage is optional */ }
+      const persist = () => { try { sk.walls.length ? localStorage.setItem(SKEY, JSON.stringify(sk)) : localStorage.removeItem(SKEY); } catch (e) { /* optional */ } };
+      const history = [];
+      const snap = () => { history.push(JSON.stringify(sk)); if (history.length > 100) history.shift(); };
+      const num = (id, d) => { const v = parseLength($(id).value); return Number.isFinite(v) && v > 0 ? v : d; };
+      const cursor = (e) => {
+        const pt = svg.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY;
+        const m = svg.getScreenCTM(); const q = m ? pt.matrixTransform(m.inverse()) : pt;
+        return { x: q.x, y: q.y };
+      };
+      const opts = () => ({ grid: Number($("#skGrid").value), ortho: $("#skOrtho").checked, from: chain });
+      const target = (raw) => {
+        const typed = parseLength($("#skLen").value);
+        if (chain && Number.isFinite(typed) && typed > 0) {
+          const dir = snapPoint(raw, sk, { grid: 0, from: chain, ortho: $("#skOrtho").checked, tol: 0 });
+          const q = pointAtLength(chain, dir, typed, $("#skOrtho").checked);
+          if (q) return q;
+        }
+        return snapPoint(raw, sk, opts());
+      };
+      const el = (name, attrs, text) => { const n = document.createElementNS(NS, name); for (const k in attrs) n.setAttribute(k, attrs[k]); if (text !== undefined) n.textContent = text; return n; };
+      let trace = null, traceHref = "", scalePts = null, movePts = null, levelPts = null, levelAxis = "h";
+      // The picture is kept on this device only: downscaled to a JPEG data URL with its placement.
+      const TKEY = KEY + ".trace";
+      let traceSaved = "";
+      const enableTrace = (on) => { for (const id of ["#skScale", "#skMovePic", "#skLevel", "#skPlumb", "#skImgOff"]) $(id).disabled = !on; };
+      const persistTrace = () => {
+        const now = trace && traceHref.startsWith("data:") ? JSON.stringify({ trace, href: traceHref }) : "";
+        if (now === traceSaved) return;
+        traceSaved = now;
+        try { now ? localStorage.setItem(TKEY, now) : localStorage.removeItem(TKEY); } catch (e) { /* too big or no storage: the picture just won't survive a reload */ }
+      };
+      try {
+        const back = JSON.parse(localStorage.getItem(TKEY) || "null");
+        const t = back && back.trace;
+        if (t && typeof back.href === "string" && back.href.startsWith("data:image/") && ["x", "y", "w", "h"].every((k) => Number.isFinite(t[k])) && t.w > 0 && t.h > 0) {
+          trace = { x: t.x, y: t.y, w: t.w, h: t.h, ...(Number.isFinite(t.a) && t.a ? { a: t.a } : {}) };
+          traceHref = back.href; traceSaved = localStorage.getItem(TKEY) || ""; enableTrace(true);
+        }
+      } catch (e) { /* storage is optional */ }
+      function draw() {
+        persist(); persistTrace();
+        svg.replaceChildren();
+        let minX = 0, minY = 0, maxX = 600, maxY = 400;
+        if (trace) for (const c of traceCorners(trace)) { minX = Math.min(minX, c.x); minY = Math.min(minY, c.y); maxX = Math.max(maxX, c.x); maxY = Math.max(maxY, c.y); }
+        for (const w of sk.walls) for (const p of [w.a, w.b]) { minX = Math.min(minX, p.x - 36); minY = Math.min(minY, p.y - 36); maxX = Math.max(maxX, p.x + 36); maxY = Math.max(maxY, p.y + 36); }
+        minX = Math.floor(minX / 12) * 12; minY = Math.floor(minY / 12) * 12; maxX = Math.ceil(maxX / 12) * 12; maxY = Math.ceil(maxY / 12) * 12;
+        svg.setAttribute("viewBox", `${minX} ${minY} ${maxX - minX} ${maxY - minY}`);
+        const wpx = maxX - minX;
+        for (let x = minX; x <= maxX; x += 12) svg.append(el("line", { x1: x, y1: minY, x2: x, y2: maxY, stroke: x % 120 === 0 ? "#cfc8b4" : "#ebe6d8", "stroke-width": x % 120 === 0 ? 1.2 : 0.6 }));
+        for (let y = minY; y <= maxY; y += 12) svg.append(el("line", { x1: minX, y1: y, x2: maxX, y2: y, stroke: y % 120 === 0 ? "#cfc8b4" : "#ebe6d8", "stroke-width": y % 120 === 0 ? 1.2 : 0.6 }));
+        if (trace) svg.insertBefore(el("image", { href: traceHref, x: trace.x, y: trace.y, width: trace.w, height: trace.h, ...(trace.a ? { transform: `rotate(${trace.a} ${trace.x + trace.w / 2} ${trace.y + trace.h / 2})` } : {}), opacity: Number($("#skImgOpacity").value) / 100, preserveAspectRatio: "none", "pointer-events": "none" }), svg.firstChild);
+        const fs = Math.max(8, wpx / 55);
+        if (scalePts || levelPts) for (const p of scalePts || levelPts) svg.append(el("circle", { cx: p.x, cy: p.y, r: 5, fill: "none", stroke: "#2b6cb0", "stroke-width": 2 }));
+        for (const w of sk.walls) {
+          svg.append(el("line", { x1: w.a.x, y1: w.a.y, x2: w.b.x, y2: w.b.y, stroke: "#33302a", "stroke-width": 5, "stroke-linecap": "round" }));
+          svg.append(el("text", { x: (w.a.x + w.b.x) / 2, y: (w.a.y + w.b.y) / 2 - 7, "font-size": fs, "text-anchor": "middle", fill: "#555044" }, formatLength(wallLength(w))));
+        }
+        for (const o of sk.openings) {
+          const e = openingEnds(sk, o);
+          svg.append(el("line", { x1: e.a.x, y1: e.a.y, x2: e.b.x, y2: e.b.y, stroke: o.kind === "door" ? "#b5651d" : "#2b6cb0", "stroke-width": 9, "stroke-linecap": "butt", "data-opening": o.id }));
+        }
+        if (chain) {
+          svg.append(el("circle", { cx: chain.x, cy: chain.y, r: 6, fill: "#c0392b" }));
+          if (hover) {
+            svg.append(el("line", { x1: chain.x, y1: chain.y, x2: hover.x, y2: hover.y, stroke: "#c0392b", "stroke-width": 3, "stroke-dasharray": "8 5" }));
+            svg.append(el("text", { x: (chain.x + hover.x) / 2, y: (chain.y + hover.y) / 2 - 8, "font-size": fs, "text-anchor": "middle", fill: "#c0392b" }, formatLength(Math.hypot(hover.x - chain.x, hover.y - chain.y))));
+          }
+        } else if (hover && $("#skTool").value === "wall") svg.append(el("circle", { cx: hover.x, cy: hover.y, r: 4, fill: "#c0392b" }));
+        const d = sk.openings.filter((o) => o.kind === "door").length, wi = sk.openings.length - d;
+        $("#skInfo").textContent = sk.walls.length ? `${sk.walls.length} wall${sk.walls.length === 1 ? "" : "s"}, ${d} door${d === 1 ? "" : "s"}, ${wi} window${wi === 1 ? "" : "s"}.${chain ? " Click the next corner, or Finish." : ""}${restoreNote}` : "Nothing drawn yet.";
+      }
+      const finish = () => { chain = null; hover = null; draw(); };
+      let drag = null;
+      svg.addEventListener("pointerdown", (e) => {
+        if ($("#skTool").value !== "move") return;
+        const raw = cursor(e);
+        let best = null;
+        for (const w of sk.walls) for (const end of ["a", "b"]) {
+          const d = Math.hypot(w[end].x - raw.x, w[end].y - raw.y);
+          if (d <= 12 && (!best || d < best.d)) best = { d, w, end };
+        }
+        const base = JSON.stringify(sk);
+        const alongOf = (o, p) => { const w = sk.walls.find((x) => x.id === o.wall), L = wallLength(w); return ((p.x - w.a.x) * (w.b.x - w.a.x) + (p.y - w.a.y) * (w.b.y - w.a.y)) / L; };
+        let op = null;
+        if (!best) for (const o of sk.openings) {
+          const e = openingEnds(sk, o), w = sk.walls.find((x) => x.id === o.wall), L = wallLength(w);
+          const t = alongOf(o, raw), off = Math.abs((raw.x - w.a.x) * (w.b.y - w.a.y) - (raw.y - w.a.y) * (w.b.x - w.a.x)) / L;
+          if (off > 9 || t < o.offset - 4 || t > o.offset + o.width + 4) continue;
+          const edge = Math.min(6, o.width / 4);
+          op = { o, mode: t - o.offset <= edge ? "a" : o.offset + o.width - t <= edge ? "b" : "slide", grab: t - (o.offset + o.width / 2) };
+          break;
+        }
+        if (best) drag = { base, kind: "corner", id: best.w.id, end: best.end };
+        else if (op) drag = { base, kind: "opening", id: op.o.id, mode: op.mode, grab: op.grab, alongOf };
+        else { const hit = nearestWall(sk, raw, 10); if (hit) drag = { base, kind: "wall", id: hit.wall.id, from: raw }; }
+        if (drag) { try { svg.setPointerCapture(e.pointerId); } catch (x) { /* optional */ } e.preventDefault(); }
+      });
+      const endDrag = () => { if (!drag) return; const moved = JSON.stringify(sk) !== drag.base; if (moved) { history.push(drag.base); if (history.length > 100) history.shift(); record("sketch_move"); } drag = null; draw(); };
+      svg.addEventListener("pointerup", endDrag);
+      svg.addEventListener("pointercancel", () => { if (drag) { sk = JSON.parse(drag.base); drag = null; draw(); } });
+      svg.addEventListener("pointermove", (e) => {
+        if (drag) {
+          const raw = cursor(e), g = Number($("#skGrid").value);
+          sk = JSON.parse(drag.base);
+          let r;
+          if (drag.kind === "corner") r = moveCorner(sk, drag.id, drag.end, snapPoint(raw, { walls: [] }, { grid: g }));
+          else if (drag.kind === "opening") {
+            const o = sk.openings.find((x) => x.id === drag.id), t = drag.alongOf(o, raw), q = (v) => (g > 0 ? Math.round(v / g) * g : v);
+            r = drag.mode === "slide" ? moveOpening(sk, drag.id, o.offset + o.width / 2 + q(t - drag.grab - (o.offset + o.width / 2))) : resizeOpening(sk, drag.id, drag.mode, q(t));
+          }
+          else r = moveWall(sk, drag.id, g > 0 ? Math.round((raw.x - drag.from.x) / g) * g : raw.x - drag.from.x, g > 0 ? Math.round((raw.y - drag.from.y) / g) * g : raw.y - drag.from.y);
+          if (!r.ok) { sk = JSON.parse(drag.base); draw(); $("#skInfo").textContent = r.error; } else draw();
+          return;
+        }
+        const raw = cursor(e), tool = $("#skTool").value;
+        hover = tool === "wall" ? target(raw) : raw;
+        draw();
+      });
+      svg.addEventListener("click", (e) => {
+        const raw = cursor(e), tool = $("#skTool").value;
+        if (movePts) {
+          movePts.push({ x: raw.x, y: raw.y });
+          if (movePts.length < 2) { $("#skInfo").textContent = "Now click where that spot should go."; return; }
+          const m = moveTrace(trace, movePts[0], movePts[1]);
+          movePts = null;
+          if (m) { trace = m; record("sketch_trace_moved"); }
+          draw(); return;
+        }
+        if (levelPts) {
+          levelPts.push({ x: raw.x, y: raw.y });
+          if (levelPts.length < 2) { $("#skInfo").textContent = "Now click the other end of that line."; draw(); return; }
+          const r = levelTrace(trace, levelPts[0], levelPts[1], levelAxis);
+          levelPts = null;
+          if (!r) { $("#skInfo").textContent = "Those points are too close, or that line is more than 45 degrees off; pick two further apart on a line that is nearly " + (levelAxis === "v" ? "plumb" : "level") + "."; draw(); return; }
+          trace = r; record("sketch_trace_straightened"); draw(); return;
+        }
+        if (scalePts) {
+          scalePts.push({ x: raw.x, y: raw.y });
+          if (scalePts.length < 2) { $("#skInfo").textContent = "Now click the other end of that distance."; draw(); return; }
+          const real = parseLength($("#skScaleLen").value), r = rescaleTrace(trace, scalePts[0], scalePts[1], real);
+          scalePts = null;
+          if (!r) { $("#skInfo").textContent = "Type the real distance (for example 24 ft) in the box, then try again with two points further apart."; draw(); return; }
+          trace = r; record("sketch_trace_scaled"); draw(); return;
+        }
+        if (tool === "move") return;
+        if (tool === "wall") {
+          const p = target(raw);
+          if (!chain) { chain = p; }
+          else {
+            snap();
+            const w = addWall(sk, chain, p);
+            if (!w) history.pop();
+            else record("sketch_wall");
+            chain = p;
+            $("#skLen").value = "";
+          }
+        } else if (tool === "door" || tool === "window") {
+          const hit = nearestWall(sk, raw, 14);
+          if (!hit) { $("#skInfo").textContent = "Click on a wall to place it."; return; }
+          snap();
+          const r = addOpening(sk, hit.wall.id, tool, hit.along, num("#skWidth", 36));
+          if (!r.ok) { history.pop(); $("#skInfo").textContent = r.error; return; }
+          record("sketch_opening");
+        } else {
+          const near = sk.openings.map((o) => ({ o, e: openingEnds(sk, o) })).find(({ e }) => {
+            const L = Math.hypot(e.b.x - e.a.x, e.b.y - e.a.y), t = ((raw.x - e.a.x) * (e.b.x - e.a.x) + (raw.y - e.a.y) * (e.b.y - e.a.y)) / (L * L);
+            return t >= 0 && t <= 1 && Math.abs((raw.x - e.a.x) * (e.b.y - e.a.y) - (raw.y - e.a.y) * (e.b.x - e.a.x)) / L <= 8;
+          });
+          if (near) { snap(); removeOpening(sk, near.o.id); }
+          else { const hit = nearestWall(sk, raw, 10); if (hit) { snap(); removeWall(sk, hit.wall.id); } }
+        }
+        draw();
+      });
+      document.addEventListener("keydown", (e) => { if (e.key === "Escape" && chain) finish(); });
+      $("#skTool").addEventListener("change", finish);
+      $("#skFinish").addEventListener("click", finish);
+      $("#skImg").addEventListener("change", (e) => {
+        const f = /** @type {HTMLInputElement} */ (e.target).files?.[0];
+        if (!f || !/^image\//.test(f.type)) return;
+        const url = URL.createObjectURL(f), im = new Image();
+        im.onload = () => {
+          const t = fitTrace(im.naturalWidth, im.naturalHeight);
+          if (!t) { URL.revokeObjectURL(url); $("#skInfo").textContent = "That picture has no size."; return; }
+          if (traceHref.startsWith("blob:")) URL.revokeObjectURL(traceHref);
+          let href = url;
+          try {
+            const k = Math.min(1, 1600 / Math.max(im.naturalWidth, im.naturalHeight)), c = document.createElement("canvas");
+            c.width = Math.max(1, Math.round(im.naturalWidth * k)); c.height = Math.max(1, Math.round(im.naturalHeight * k));
+            const g = c.getContext("2d"); g.fillStyle = "#fff"; g.fillRect(0, 0, c.width, c.height); g.drawImage(im, 0, 0, c.width, c.height);
+            href = c.toDataURL("image/jpeg", 0.8); URL.revokeObjectURL(url);
+          } catch (e) { /* keep the blob URL: shown now, not kept across reloads */ }
+          trace = t; traceHref = href; enableTrace(true); record("sketch_trace_image");
+          $("#skInfo").textContent = "Picture placed 40 ft wide. Set its scale: type a distance you know on it, press the button, then click its two ends.";
+          draw();
+        };
+        im.onerror = () => { URL.revokeObjectURL(url); $("#skInfo").textContent = "That file could not be read as a picture."; };
+        im.src = url;
+      });
+      $("#skScale").addEventListener("click", () => {
+        if (!trace) return;
+        if (!(parseLength($("#skScaleLen").value) > 0)) { $("#skInfo").textContent = "Type the real distance between the two points first (for example 24 ft)."; return; }
+        finish(); movePts = null; levelPts = null; scalePts = []; $("#skInfo").textContent = "Click one end of that distance on the picture.";
+      });
+      $("#skMovePic").addEventListener("click", () => {
+        if (!trace) return;
+        finish(); scalePts = null; levelPts = null; movePts = []; $("#skInfo").textContent = "Click a spot on the picture (a wall corner, say).";
+      });
+      for (const [id, axis] of [["#skLevel", "h"], ["#skPlumb", "v"]]) $(id).addEventListener("click", () => {
+        if (!trace) return;
+        finish(); scalePts = null; movePts = null; levelAxis = axis; levelPts = []; $("#skInfo").textContent = "Click one end of a line on the picture that should be " + (axis === "v" ? "plumb" : "level") + " (a wall edge, say).";
+      });
+      $("#skImgOff").addEventListener("click", () => { enableTrace(false); levelPts = null; movePts = null; if (traceHref.startsWith("blob:")) URL.revokeObjectURL(traceHref); trace = null; traceHref = ""; scalePts = null; draw(); });
+      $("#skImgOpacity").addEventListener("input", draw);
+      $("#skUndo").addEventListener("click", () => { const h = history.pop(); if (h) { sk = JSON.parse(h); chain = null; hover = null; draw(); } });
+      $("#skClear").addEventListener("click", () => { if (!sk.walls.length) return; snap(); sk = emptySketch(); chain = null; hover = null; draw(); });
+      $("#skUse").addEventListener("click", () => {
+        const r = planFromSketch(sk);
+        if (!r.ok) { $("#skInfo").textContent = r.errors.join(" "); return; }
+        const base = samplePlan(), plan = r.plan;
+        for (const k of ["studSpacing", "studLength", "kerf", "topPlateLap", "cornerExtraStuds", "teeExtraStuds", "defaultHeaderHeight", "stock"]) if (!(k in plan)) plan[k] = base[k];
+        load(plan);
+        record("sketch_used");
+        $("#status").textContent = `Sketch loaded: ${r.stats.walls} walls, ${r.stats.tees} tees, ${r.stats.openings} openings. ${r.notes.join(" ")}`;
+        $("#skInfo").textContent = `Loaded into the walls and openings tables below (${r.stats.walls} walls, ${r.stats.openings} openings). Run the takeoff when the details are right.`;
+      });
+      draw();
+    }
 
     let restored = false;
     try {

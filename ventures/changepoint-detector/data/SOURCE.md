@@ -180,3 +180,71 @@ from The World Almanac and Book of Facts, as in R's `datasets::discoveries`.
   <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/fpp2/arrivals.csv> (row numbers rewritten as `1981Q1` labels).
 - **Licence:** the fpp2 package is GPL-3; the series are published counts. Not checked further.
 - **Used by:** `drift-warning-arrivals.test.mjs`, `eval/drift-warning-arrivals.mjs`.
+
+# Example data: UK lung deaths 1974-79 and US accidental deaths 1973-78
+
+`uk-ldeaths.csv`, `uk-mdeaths.csv`, `uk-fdeaths.csv`: monthly UK deaths from
+bronchitis, emphysema and asthma, all / male / female, 72 months from 1974-01.
+`us-accidental-deaths.csv`: monthly US accidental deaths, 72 months from 1973-01.
+R's `datasets::ldeaths`, `mdeaths`, `fdeaths` and `USAccDeaths`.
+
+- **Retrieved:** 2026-10-29 from the Rdatasets mirror,
+  <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/datasets/>
+  (`ldeaths.csv`, `mdeaths.csv`, `fdeaths.csv`, `USAccDeaths.csv`).
+- **Licence:** R's datasets package is GPL-2/3; the figures are national
+  statistics counts (Diggle 1990; Brockwell and Davis 1991). Used here as
+  test data only.
+- **Used by:** `eval/drift-warning-trendless.mjs`.
+
+# Example data: Ansett Melbourne-Sydney economy-class passengers, 1987-1992
+
+`ansett-melsyd-economy.csv`: weekly economy-class passengers (thousands) on
+Ansett's Melbourne-Sydney route, 283 weeks from 1987-06-29 (week start dates
+computed from the series' start). R's `fpp2::melsyd`, column `Economy.Class`.
+The airline's pilots' dispute from 18 August 1989 is in the data as seven zero
+weeks.
+
+- **Retrieved:** 2026-10-29 from the Rdatasets mirror,
+  <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/fpp2/melsyd.csv>.
+- **Licence:** the fpp2 package is GPL-3 (Hyndman); the figures are airline
+  traffic counts. Used here as test data only.
+- **Used by:** `eval/ansett-strike.mjs`, `ansett-strike.test.mjs`.
+
+# Example data: Puerto Rico daily deaths, 2015-2018 (Hurricane Maria)
+
+`puerto-rico-daily-deaths.csv`: all-cause deaths per day in Puerto Rico, 1,201
+days from 2015-01-01 to 2018-04-15 (R's `dslabs::pr_death_counts`). Hurricane
+Maria made landfall on 2017-09-20.
+
+- **Retrieved:** 2026-10-29 from the Rdatasets mirror,
+  <https://vincentarelbundock.github.io/Rdatasets/csv/dslabs/pr_death_counts.csv>
+  (columns `date`, `deaths`; the row-number column is dropped).
+- **Licence:** the dslabs package is GPL-2 (Irizarry); the figures are
+  government vital-statistics death counts. Used here as test data only.
+- **Used by:** `eval/maria-deaths.mjs`, `maria-deaths.test.mjs`.
+
+# Example data: euro-area electrical-equipment orders, 1996-2012
+
+`eu-elecequip.csv`: monthly index of new orders of electrical equipment in the
+euro area (2005 = 100), 195 months from 1996-01 to 2012-03 (R's
+`fpp2::elecequip`; the row-number and decimal-year columns are replaced by a
+`YYYY-MM` label). The late-2008 collapse and the 2009-10 recovery are the dated
+shock.
+
+- **Retrieved:** 2026-10-29 from the Rdatasets mirror,
+  <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/fpp2/elecequip.csv>.
+- **Licence:** the fpp2 package is GPL-3 (Hyndman); the figures are Eurostat
+  order indices. Used here as test data only.
+- **Used by:** `eval/drift-warning-elecequip.mjs`, `drift-warning-elecequip.test.mjs`.
+
+# Example data: US airline passenger miles, 1937-1960
+
+`airmiles.csv`: revenue passenger miles flown by US commercial airlines each
+year, 24 values (R's `datasets::airmiles`; columns renamed `year`, `miles`).
+Growth is steady until the war ends, then the civil boom starts.
+
+- **Retrieved:** 2026-10-29 from the Rdatasets mirror,
+  <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/datasets/airmiles.csv>.
+- **Licence:** R datasets (GPL-2 or later with R); the figures are Civil
+  Aeronautics Board statistics. Used here as test data only.
+- **Used by:** `eval/airmiles.mjs`, `airmiles.test.mjs`.

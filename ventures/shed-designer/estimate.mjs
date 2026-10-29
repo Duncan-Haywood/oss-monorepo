@@ -7,6 +7,7 @@ import { EXAMPLE_ITEMS, fmtIn } from './lumber.mjs';
 import { boardPrice, itemPrice } from './prices.mjs';
 import { productById } from './products.mjs';
 import { optimizeCuts } from './optimize.mjs';
+import { heelJoint } from './checks.mjs';
 
 /** @typedef {import('./model.mjs').Shed} Shed */
 /** @typedef {{ lumber: Record<string, Record<string, number>>, items: Record<string, number>, delivery?: Record<string, number> }} Prices */
@@ -75,6 +76,40 @@ function sheetCount(lengths) {
   if (!lengths.length) return 0;
   return optimizeCuts(lengths.map((len) => ({ len })), [{ length: 96, price: 1 }], 0).boards.length;
 }
+
+/**
+ * Whole 4x8 sheets for a layout of rectangular pieces, each { len, w } with len
+ * along the sheet's 8 ft and w across its 4 ft. Full-width pieces are packed
+ * along 8 ft sheets. A narrower row (the last row of a floor that is not a
+ * multiple of 4 ft wide, the course at the ridge) is packed into 8 ft strips
+ * of its width, and as many of those strips as fit across a sheet come from
+ * one sheet. Rips are counted without a kerf: two 24" strips from a 48" sheet
+ * leave the second a saw cut narrow, which the rim or the gap at the ridge
+ * takes up (tongue-and-groove sheets cover about 47-1/2" anyway). Strips of
+ * different widths are not mixed in strips; the count is the lower of that and
+ * packing lengths alone, either of which a builder can cut.
+ * @param {{ len: number, w: number }[]} pieces
+ */
+export function sheetCount2d(pieces) {
+  /** @type {Map<number, number[]>} */
+  const byWidth = new Map();
+  for (const p of pieces) {
+    const w = Math.round(Math.min(48, p.w) * 16) / 16;
+    if (!byWidth.has(w)) byWidth.set(w, []);
+    /** @type {number[]} */ (byWidth.get(w)).push(p.len);
+  }
+  let sheets = 0;
+  for (const [w, lens] of byWidth) {
+    const strips = sheetCount(lens);
+    sheets += w >= 48 - 1e-9 ? strips : Math.ceil(strips / Math.max(1, Math.floor(48 / w + 1e-9)));
+  }
+  // Packing lengths alone, every piece as if full width, is always cuttable too, and
+  // wins when a narrow piece can share a sheet's length with a full-width one.
+  return Math.min(sheets, sheetCount(pieces.map((p) => p.len)));
+}
+
+/** The { len, w } of each panel of one kind, from its rectangle. @param {any[]} panels @param {string} kind */
+const panelPieces = (panels, kind) => panels.filter((p) => p.kind === kind).map((p) => ({ len: p.geom.profile[2][0], w: p.geom.profile[2][1] }));
 
 /**
  * @param {Shed} shed
@@ -155,8 +190,8 @@ export function estimate(shed, prices = examplePrices()) {
   const item = (k) => priceOr(prices.items?.[k], itemPrice(k).price);
   const src = (k) => ({ ...sourceOf(item(k), itemPrice(k)), key: k });
   const label = (k) => /** @type {any} */ (EXAMPLE_ITEMS)[k].name;
-  const floorSheets = sheetCount(shed.floorPieces);
-  const roofSheets = sheetCount(shed.roofPieces);
+  const floorSheets = sheetCount2d(panelPieces(shed.panels, 'floor sheet'));
+  const roofSheets = sheetCount2d(panelPieces(shed.panels, 'roof sheathing'));
   const floorKey = d.floorPanel === 'OSB' ? 'floorOSB' : 'floorSheet';
   line('Sheet goods', label(floorKey), floorSheets, 'sheet', item(floorKey), src(floorKey));
   line('Sheet goods', label('roofSheet'), roofSheets, 'sheet', item('roofSheet'), src('roofSheet'));
@@ -283,10 +318,11 @@ export function estimate(shed, prices = examplePrices()) {
   {
     const per = { stud: 4, 'corner stud': 6, 'king stud': 6, 'jack stud': 6, 'post stud': 6, 'top cripple': 4, 'bottom cripple': 4, 'rough sill': 4, 'floor joist': 6, 'rim joist': 0, rafter: 4, 'rafter tie': 6, 'eave blocking': 4, 'gable stud': 4, 'vent trimmer': 4, 'vent header': 4, 'door stile': 0, 'door rail': 0, 'door brace': 0 };
     let n16 = 0;
+    const tieNails = heelJoint(shed)?.nails ?? 3;
     for (const m of all) {
       const k = /** @type {Record<string, number>} */ (per)[m.kind];
       // Plates, headers, rims, skids, beams and anything long: two nails every 16".
-      n16 += k !== undefined ? k : 2 * Math.ceil(m.length / 16);
+      n16 += m.kind === 'rafter tie' ? 2 * tieNails : k !== undefined ? k : 2 * Math.ceil(m.length / 16);
     }
     // 16d galvanized commons run about 45 to the pound (a 5 lb box holds about 225).
     line('Fasteners and sealants', label('framingNails'), Math.ceil(n16 / 225), 'box', item('framingNails'), src('framingNails'));

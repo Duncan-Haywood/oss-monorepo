@@ -1,0 +1,53 @@
+{
+ "date": "2026-10-29",
+ "session": "https://claude.ai/code/session_01E5sJKiSBg15Vw5aWzhDUD8",
+ "track": "ventures",
+ "prompt_version": 1,
+ "input": "read ./prompt.md and follow the instructions there",
+ "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+ "follow_up_inputs": [],
+ "model": "claude-sonnet-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-10-29T09:22:01Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": null,
+ "projects": [],
+ "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/11369",
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "portfolio/flagships.yaml",
+   "issue": "Flagship next: texts are very long and saturated with real-data items; league-schedule-generator's only item (real travel times) needs outside data, so I chose a self-contained slice."
+  }
+ ],
+ "deviations": [
+  {
+   "file": "portfolio/flagships.yaml",
+   "why": "Did not rewrite league-schedule-generator next: (its item, a real league's travel times, is unchanged); landed officials for divisions instead.",
+   "did": "added officials to divisions.mjs",
+   "result": "tests pass"
+  }
+ ],
+ "writeups": [
+  "docs/posts/2026-10-29-referees-across-divisions.md"
+ ],
+ "goal": null,
+ "notes": "Ran divisions.test.mjs only (about 100 s); venture-preflight and full CI not run locally.",
+ "corrections": [],
+ "redteam": null
+}

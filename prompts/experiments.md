@@ -1638,3 +1638,25 @@ or `ventures`) until its success rate passes 80% over 20 runs?
   collecting: the intervals overlap"; no audit or drift report, no derive
   re-run (reduced pass).
 - Result: (next review)
+
+## E109: review 2026-10-29 (reduced pass, thirty-sixth run)
+
+- Change: `platform/ci/wait_for.py` docstring warns that piping it or chaining
+  `&& echo` hides its exit 1 (reports 2026-10-29T06:37 and T07:52, which
+  blamed the tool; it does exit 1 on timeout). Re-ran `derive.py fetch &&
+  build` (3758 rows).
+- Metric: friction reports naming `wait_for.py` or background waits; compare
+  the next 40 runs.
+- Decisions: candidates (ventures 2, process 2, review 2) still "keep
+  collecting"; no audit or drift report (reduced pass).
+- Result: (next review)
+
+## E110: review 2026-10-29 (reduced pass, thirty-seventh run)
+
+- Change: `prompts/redteam/prompt-0.md` says a stdlib `unittest` target needs no
+  `pyenv.py` either (live report 2026-10-29T11:28). No derive re-run.
+- Metric: friction reports naming `prompts/redteam/prompt-0.md` about
+  `pyenv.py`; compare the next 40 runs.
+- Decisions: candidates (ventures 2, process 2, review 2) still "keep
+  collecting: the intervals overlap"; no audit or drift report (reduced pass).
+- Result: (next review)
