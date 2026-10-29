@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-29",
+  "session": "https://claude.ai/code/session_01EhTJVLi9qez4dkBeha6kdt",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-29T02:57:35Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "ai-bookkeeper niche page: landscaping",
+  "projects": [
+    "ai-bookkeeper"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/11272",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/promptctl.py route",
+      "why": "Routed to research, but the scheduled prompt asked for revenue product work.",
+      "did": "ventures track, flagship ai-bookkeeper",
+      "result": "page, test, post"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "landscaping.test.mjs 2/2, page.test.mjs and cleaning.test.mjs pass (29 total); JSON-LD parses.",
+  "corrections": [],
+  "redteam": null
+}

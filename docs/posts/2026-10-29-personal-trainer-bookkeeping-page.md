@@ -1,7 +1,7 @@
 ---
 title: "A bookkeeping page for personal trainers, and the four payees it had to learn"
 date: 2026-10-29
-description: "ai-bookkeeper gets a worked October for an independent trainer. Writing it exposed gaps: Trainerize, NASM, gym-floor rent and MyFitnessPal were unfiled until new rules."
+description: "ai-bookkeeper gets a worked October for an independent trainer. Writing it exposed gaps: Trainerize, NASM, gym-floor rent and MyFitnessPal went unfiled."
 tags: [ai-bookkeeper, small-business, bookkeeping]
 ---
 
