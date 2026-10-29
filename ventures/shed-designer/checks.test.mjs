@@ -141,3 +141,14 @@ test('the nailing schedule and the nail count carry the heel-joint nails', async
   assert.match(JSON.stringify(buildSheets(s)), /Rafter tie to rafter, each end.{0,120}"5-16d common/);
   assert.doesNotMatch(JSON.stringify(buildSheets(buildShed(defaultDesign()))), /Rafter tie to rafter/);
 });
+
+// Gable-wall headers were given a flat 40 lb/ft for the gable framing, with
+// nothing for the end rafter, which bears on the gable studs all along the slope.
+test('a gable-wall header carries the end rafter\'s strip of roof as well as the gable framing', () => {
+  const s = buildShed(PRESETS['12x16']()); // 72" door in the left gable wall, 5/12, rafters at 24"
+  const row = structuralChecks(s).rows.find((x) => x.member === 'Header over the left door');
+  const cos = 12 / 13;
+  const wPlf = 40 + (15 / cos + 30) * (12 / 12);
+  assert.match(row.detail, new RegExp(`${Math.round(wPlf)} lb/ft`));
+  assert.ok(row.ok);
+});
