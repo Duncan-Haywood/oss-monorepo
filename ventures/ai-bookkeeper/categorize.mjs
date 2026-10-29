@@ -34,6 +34,12 @@ const amountBucket = (cents) => `amt:${Math.min(12, Math.floor(Math.log2(Math.ab
 // keyword that fits two accounts is left out, so the line goes to review rather
 // than being guessed. `dir` limits a rule to money in or money out.
 export const BUILT_IN = [
+  // Personal trainers and coaches (2026-10-29, trainer.test.mjs; agent-written from the companies' public names, not from a real export):
+  // coaching apps, certification renewals and gym-floor rent. First so "gym rental" is rent, not left blank.
+  ["6060", "out", /trainerize|truecoach|trainheroic|everfit|my ?pt ?hub|myfitnesspal|\bwodify\b|\bhevy\b/],
+  ["6170", "out", /\bnasm\b|\bace fitness\b|\bissa\b|\bnsca\b|\bacsm\b|precision nutrition|\bcpt\b.*recert/],
+  ["6080", "out", /(gym|studio|floor|facility) (space )?(rental|rent)\b|gym rent/],
+  ["6100", "out", /rep fitness|\bperform better\b|fitness equipment|resistance bands?/],
   // Small-business spend probe 4 (2026-10-28, eval/probe-trades4.mjs, 72 descriptors; agent-written from the companies' public names, not from a real export; tuned on itself):
   // contractors, consultants who travel, nonprofits and churches, event venues and caterers.
   ["6100", "out", /\b84 lumber|builders firstsource|\bhilti\b|floral wholesale/],
