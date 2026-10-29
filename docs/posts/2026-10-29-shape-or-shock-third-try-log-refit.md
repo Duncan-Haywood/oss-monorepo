@@ -1,6 +1,8 @@
 ---
 title: "Telling a growing season from a real shock: a third try that mostly failed"
 date: 2026-10-29
+description: "Refitting on the log clears one growing seasonal series but not the airline one, so the changepoint drift warning stays as it is."
+tags: [changepoint-detector, negative-result, time-series]
 ---
 
 Our changepoint detector warns when its detected changes cluster like a seasonal shape that is still changing rather than real regime changes. The warning is right on three series whose season grows (airline passengers, UK gas, J&J earnings) and wrong on one: UK driver deaths, where the 1973 fuel-crisis dip and rebound are genuine.
