@@ -332,14 +332,53 @@ def _median(values: list[float]) -> float | None:
     return round(statistics.median(values), 2) if values else None
 
 
+# The owner's project-size bars: 20 human hours (2026-10-21), then 200 and
+# "maybe above 300" (both 2026-10-29).
+PROJECT_HOUR_BARS = (20, 200, 300)
+
+
+def _human_hours(rec: dict[str, Any]) -> float | None:
+    u = rec.get("usage")
+    h = (u.get("human_equivalent") or {}).get("hours") if isinstance(u, dict) else None
+    return h if isinstance(h, (int, float)) else None
+
+
+def by_project(records: list[dict[str, Any]]) -> dict[str, Any]:
+    """Estimated human hours summed per project named in `projects`.
+
+    A run naming several projects counts in full for each: the estimate is for
+    the run, and splitting it would guess at shares the record does not hold.
+    """
+    projects: dict[str, dict[str, Any]] = defaultdict(lambda: {"runs": 0, "runs_with_hours": 0, "human_hours": 0.0})
+    with_hours = 0
+    for rec in records:
+        h = _human_hours(rec)
+        with_hours += h is not None
+        for name in rec.get("projects") or []:
+            if not isinstance(name, str):
+                continue
+            row = projects[name]
+            row["runs"] += 1
+            if h is not None:
+                row["runs_with_hours"] += 1
+                row["human_hours"] = round(row["human_hours"] + h, 2)
+    ranked = dict(sorted(projects.items(), key=lambda kv: (-kv[1]["human_hours"], kv[0])))
+    return {"records": len(records), "records_with_hours": with_hours,
+            "projects": ranked,
+            "over": {str(bar): sum(r["human_hours"] > bar for r in ranked.values()) for bar in PROJECT_HOUR_BARS}}
+
+
 def report(root: Path = ROOT) -> dict[str, Any]:
-    recs = []
+    recs, every = [], []
     for path in sorted((root / "runs").glob("*.json")):
         try:
             rec = json.loads(path.read_text())
         except (OSError, json.JSONDecodeError):
             continue
-        if isinstance(rec, dict) and isinstance(rec.get("usage"), dict) and rec["usage"].get("measured_by"):
+        if not isinstance(rec, dict):
+            continue
+        every.append(rec)
+        if isinstance(rec.get("usage"), dict) and rec["usage"].get("measured_by"):
             recs.append(rec)
     groups: dict[str, dict[str, list[dict[str, Any]]]] = {
         "model": defaultdict(list), "track": defaultdict(list), "prompt": defaultdict(list)}
@@ -371,6 +410,7 @@ def report(root: Path = ROOT) -> dict[str, Any]:
 
     return {"records_with_usage": len(recs),
             **{f"by_{k}": {name: summary(rs) for name, rs in sorted(g.items())} for k, g in groups.items()},
+            "by_project": by_project(every),
             "caveat": "API-equivalent at list prices; human-equivalent is each agent's own estimate (low "
                       "certainty). Compare groups only once each has ~10 runs."}
 
@@ -385,6 +425,13 @@ def print_report(r: dict[str, Any]) -> None:
         for name, s in r[key].items():
             print(f"  | {name} | " + " | ".join(str(s[c]) for c in cols) + " |")
         print()
+    bp = r["by_project"]
+    print(f"by project: {bp['records_with_hours']} of {bp['records']} run records carry a human-hours estimate; "
+          + ", ".join(f"{n} project(s) over {bar} h" for bar, n in bp["over"].items()))
+    print("  | project | runs | runs with hours | estimated human hours |")
+    for name, row in list(bp["projects"].items())[:15]:
+        print(f"  | {name} | {row['runs']} | {row['runs_with_hours']} | {row['human_hours']} |")
+    print()
     print(r["caveat"])
 
 
