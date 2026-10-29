@@ -19,7 +19,7 @@
   "tool_calls": 28,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/11430",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -28,14 +28,24 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": null,
-  "errors": [],
+  "outcome": "success",
+  "errors": [
+    "Overwrote tracked experiments/gpt_quant/quant.py and deleted run.out by reusing an existing directory name via mkdir -p; restored with git checkout and moved my experiment to gpt_omega before any commit."
+  ],
   "integrity_issues": [],
-  "doc_friction": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "No hint to check that a new experiments/<name> directory does not already exist; gpt_quant was taken by a parallel run."
+    }
+  ],
   "deviations": [],
-  "writeups": [],
+  "writeups": [
+    "docs/posts/2026-10-29-lowcomm-compression-cost-is-omega.md",
+    "research/lowcomm-training/LOG.md entry 6d"
+  ],
   "goal": null,
-  "notes": "",
+  "notes": "Milestone 6d of lowcomm-training: 12 runs; omega prediction within 0.005 nats vs p-only 0.017-0.112. Homepage build ok, md link check ok. No agent doc in docs/reports (nothing new for the next run beyond the LOG).",
   "corrections": [],
   "redteam": null,
   "usage": {
@@ -43,36 +53,36 @@
     "session_id": "54b41785-3db5-58d8-b32c-3619569193f1",
     "transcripts": 1,
     "first": "2026-10-29T15:38:27Z",
-    "last": "2026-10-29T16:17:58Z",
+    "last": "2026-10-29T16:18:06Z",
     "primary_model": "claude-sonnet-5-5",
     "models": {
       "claude-sonnet-5-5": {
-        "requests": 29,
-        "input": 62,
-        "output": 13283,
-        "thinking": 1964,
-        "cache_read": 2451819,
+        "requests": 30,
+        "input": 64,
+        "output": 14188,
+        "thinking": 1991,
+        "cache_read": 2554751,
         "cache_write_5m": 0,
-        "cache_write_1h": 72790,
-        "api_equivalent_usd": 0.9145,
+        "cache_write_1h": 73491,
+        "api_equivalent_usd": 0.9469,
         "fast_requests": 0
       }
     },
     "totals": {
-      "requests": 29,
-      "input": 62,
-      "output": 13283,
-      "thinking": 1964,
-      "cache_read": 2451819,
+      "requests": 30,
+      "input": 64,
+      "output": 14188,
+      "thinking": 1991,
+      "cache_read": 2554751,
       "cache_write_5m": 0,
-      "cache_write_1h": 72790,
-      "api_equivalent_usd": 0.9145,
+      "cache_write_1h": 73491,
+      "api_equivalent_usd": 0.9469,
       "api_equivalent_complete": true
     },
-    "cache_hit_share": 0.971,
-    "tool_calls": 28,
+    "cache_hit_share": 0.972,
+    "tool_calls": 29,
     "tools": {
-      "Bash": 24,
+      "Bash": 25,
       "Read": 1,
       "ReadNotifications": 1,
       "ToolSearch": 1,
@@ -80,10 +90,10 @@
     },
     "web_searches": 0,
     "time": {
-      "wall_minutes": 39.52,
-      "active_minutes": 7.3,
-      "model_minutes": 2.69,
-      "tool_minutes": 4.61,
+      "wall_minutes": 39.66,
+      "active_minutes": 7.44,
+      "model_minutes": 2.8,
+      "tool_minutes": 4.64,
       "waiting_on_human_minutes": 32.22,
       "human_prompts": 3,
       "stalls": 0,
