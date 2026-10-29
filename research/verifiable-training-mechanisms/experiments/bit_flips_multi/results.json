@@ -1,0 +1,74 @@
+{
+ "d": 32,
+ "K": 4,
+ "ks": [
+  1,
+  4,
+  16,
+  64,
+  256
+ ],
+ "n": 20,
+ "cells": {
+  "randk_k1": {
+   "n": 4,
+   "harmful": 0,
+   "nonfinite": 0,
+   "median_dL": 0.00014972686767578125
+  },
+  "topk_k1": {
+   "n": 4,
+   "harmful": 0,
+   "nonfinite": 0,
+   "median_dL": 4.76837158203125e-07
+  },
+  "randk_k4": {
+   "n": 4,
+   "harmful": 0,
+   "nonfinite": 0,
+   "median_dL": 0.0009028911590576172
+  },
+  "topk_k4": {
+   "n": 4,
+   "harmful": 0,
+   "nonfinite": 0,
+   "median_dL": 1.1920928955078125e-05
+  },
+  "randk_k16": {
+   "n": 4,
+   "harmful": 1,
+   "nonfinite": 0,
+   "median_dL": 0.0009599924087524414
+  },
+  "topk_k16": {
+   "n": 4,
+   "harmful": 0,
+   "nonfinite": 0,
+   "median_dL": 1.4424324035644531e-05
+  },
+  "randk_k64": {
+   "n": 4,
+   "harmful": 2,
+   "nonfinite": 0,
+   "median_dL": 0.010841608047485352
+  },
+  "topk_k64": {
+   "n": 4,
+   "harmful": 0,
+   "nonfinite": 0,
+   "median_dL": 0.00032210350036621094
+  },
+  "randk_k256": {
+   "n": 4,
+   "harmful": 4,
+   "nonfinite": 0,
+   "median_dL": 0.04447829723358154
+  },
+  "topk_k256": {
+   "n": 4,
+   "harmful": 0,
+   "nonfinite": 0,
+   "median_dL": 0.0021589994430541992
+  }
+ }
+}

@@ -1,0 +1,10 @@
+k=1   randk n=4 harmful  0 (0.00)  non-finite 0  median |dL| 0.0001  median m_t 0.177  mean |v| 0.75
+k=1   topk  n=4 harmful  0 (0.00)  non-finite 0  median |dL| 0.0000  median m_t 3.896  mean |v| 0.00
+k=4   randk n=4 harmful  0 (0.00)  non-finite 0  median |dL| 0.0009  median m_t 0.177  mean |v| 4.31
+k=4   topk  n=4 harmful  0 (0.00)  non-finite 0  median |dL| 0.0000  median m_t 3.896  mean |v| 0.00
+k=16  randk n=4 harmful  1 (0.25)  non-finite 0  median |dL| 0.0010  median m_t 0.177  mean |v| 2.05
+k=16  topk  n=4 harmful  0 (0.00)  non-finite 0  median |dL| 0.0000  median m_t 3.896  mean |v| 0.00
+k=64  randk n=4 harmful  2 (0.50)  non-finite 0  median |dL| 0.0108  median m_t 0.177  mean |v| 2.55
+k=64  topk  n=4 harmful  0 (0.00)  non-finite 0  median |dL| 0.0003  median m_t 3.896  mean |v| 0.00
+k=256 randk n=4 harmful  4 (1.00)  non-finite 0  median |dL| 0.0445  median m_t 0.177  mean |v| 2.29
+k=256 topk  n=4 harmful  0 (0.00)  non-finite 0  median |dL| 0.0022  median m_t 3.896  mean |v| 0.00

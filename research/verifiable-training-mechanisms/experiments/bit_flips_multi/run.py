@@ -3,7 +3,7 @@
 Protocol of ../bit_flips_tensor/run.py (d = 32, plain SGD in fp32, 600 steps, 4 seeds, harm = |dL_heldout| > 0.01 or non-finite).
 At a random step t the adversary sees the training-batch gradient g of that step and overwrites k weights, each with a value inside [-K x m_t, K x m_t] of its own tensor (so every plant passes the per-tensor bound). Sites:
   randk : k uniform weights (zero-init tensors excluded), values +-K m_t with random signs (control);
-  topk  : the k weights with the largest first-order loss rise g_i (v_i - w_i), v_i = -sign(g_i) K m_t (one gradient, no extra forward passes).
+  topk  : the k weights with the largest first-order loss rise g_i (v_i - w_i), v_i = +sign(g_i) K m_t (one gradient, no extra forward passes).
 K = 4 (the smallest factor that accepts honest growth in milestone 46); k = 1, 4, 16, 64, 256 of the ~14k weights. n = 20 draws (seed, step) per cell, shared by both sites.
 Run from this directory:  OMP_NUM_THREADS=1 python3 run.py [scale]   (needs torch; writes results.json, results.txt)"""
 import json
@@ -75,7 +75,7 @@ def run(seed, site=None, step=0, k=1, u=0.0, sgn=1):
                     idxs = rng.choice(ok, size=k, replace=False)
                     vals = rng.choice([-1.0, 1.0], size=k) * K * bound[idxs].numpy()
                 else:
-                    target = -torch.sign(g) * K * bound
+                    target = torch.sign(g) * K * bound
                     score = torch.where(bound > 0, g * (target - w), torch.full_like(score_ := g, -np.inf))
                     idxs = torch.topk(score, k).indices.numpy()
                     vals = target[idxs].numpy()
