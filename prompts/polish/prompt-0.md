@@ -42,7 +42,10 @@ Steps: [`.github/prompts/land-your-work.md`](../../.github/prompts/land-your-wor
 
 Look before you choose. Build the site locally
 (`node platform/pages/build.mjs`, which writes a dist folder beside it and
-takes over 120 s: use `run_in_background` and `platform/ci/wait_for.py`; then
+takes 7 to 20 minutes in a cloud session (run friction 2026-10-28/29): start it as
+`node platform/pages/build.mjs > build.log 2>&1; echo DONE >> build.log` in `run_in_background`
+(the build prints no DONE marker itself), re-run `platform/ci/wait_for.py build.log` until it
+returns, and look at the repo while it runs; then
 `node platform/pages/check.mjs`; see `platform/pages/README.md`)
 and screenshot it with the pre-installed Playwright (from an ESM script in the
 repo `import pw from '/opt/node-tools/node_modules/playwright/index.js'`;
