@@ -218,3 +218,18 @@ test("jamb pieces and swing arcs read as one door, not several 4 in doors", () =
   const bare = planFromDxf(dxf(lines));
   assert.ok(!bare.notes.some((n) => /joined into one opening/.test(n)));
 });
+
+test("nested block symbols: a door made of a leaf block inside a frame block, mirrored and turned", () => {
+  const g = (c, v) => `${c}\n${v}\n`;
+  const line = (x1, y1, x2, y2) => g(0, "LINE") + g(8, "0") + g(10, x1) + g(20, y1) + g(11, x2) + g(21, y2);
+  const ins = (name, x, y, o = {}) => g(0, "INSERT") + g(8, o.layer ?? "0") + g(2, name) + g(10, x) + g(20, y) + (o.sx ? g(41, o.sx) + g(42, 1) : "") + (o.rot ? g(50, o.rot) : "");
+  const blk = (name, body) => g(0, "BLOCK") + g(2, name) + g(10, 0) + g(20, 0) + body + g(0, "ENDBLK");
+  // LEAF is 18 in long; DOOR36 holds two LEAFs, the second mirrored and moved 18 in over: 36 in in all
+  const blocks = g(0, "SECTION") + g(2, "BLOCKS") + blk("LEAF", line(0, 0, 18, 0) + line(0, 0, 0, 2)) + blk("DOOR36", ins("LEAF", 0, 0) + ins("LEAF", 36, 0, { sx: -1 })) + g(0, "ENDSEC");
+  const withBlocks = dxf(house().filter((l) => l[0] !== "A-DOOR"), 1, ins("DOOR36", ft(17), 0, { layer: "A-DOOR" })).replace(g(0, "SECTION") + g(2, "ENTITIES"), blocks + g(0, "SECTION") + g(2, "ENTITIES"));
+  const p = parseDxf(withBlocks);
+  assert.deepEqual(p.blocks.DOOR36, { minx: 0, miny: 0, maxx: 36, maxy: 2 });
+  const r = planFromDxf(withBlocks);
+  assert.ok(r.ok, r.errors.join());
+  assert.deepEqual(r.plan.walls[0].openings.map((o) => [o.kind, o.offset, o.width]), [["door", 204, 36]]);
+});
