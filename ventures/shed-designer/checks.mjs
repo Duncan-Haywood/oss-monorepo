@@ -28,6 +28,48 @@ export function postCheck(plies, stud, lengthIn, P, CD = 1.15) {
 }
 
 /**
+ * Reference lateral design value Z (lb) of one nail in single shear, wood to
+ * wood, by the NDS yield limit equations (NDS 12.3.1, Rd = 2.2 for D <= 0.17").
+ * D diameter, side member thickness ls, main-member penetration lm (inches),
+ * specific gravity G of both members, Fyb nail bending yield strength (psi).
+ */
+export function nailZ(D, ls, lm, G = 0.42, Fyb = 90000) {
+  const Fe = 16600 * G ** 1.84; // dowel bearing strength for D < 1/4"
+  const Re = 1, Rt = lm / ls, Rd = 2.2;
+  const k1 = (Math.sqrt(Re + 2 * Re ** 2 * (1 + Rt + Rt ** 2) + Rt ** 2 * Re ** 3) - Re * (1 + Rt)) / (1 + Re);
+  const k2 = -1 + Math.sqrt(2 * (1 + Re) + (2 * Fyb * (1 + 2 * Re) * D ** 2) / (3 * Fe * lm ** 2));
+  const k3 = -1 + Math.sqrt((2 * (1 + Re)) / Re + (2 * Fyb * (2 + Re) * D ** 2) / (3 * Fe * ls ** 2));
+  return Math.min(
+    (D * lm * Fe) / Rd,
+    (D * ls * Fe) / Rd,
+    (k1 * D * ls * Fe) / Rd,
+    (k2 * D * lm * Fe) / ((1 + 2 * Re) * Rd),
+    (k3 * D * ls * Fe) / ((2 + Re) * Rd),
+    ((D ** 2) / Rd) * Math.sqrt((2 * Fe * Fyb) / (3 * (1 + Re))),
+  );
+}
+
+/**
+ * The heel joint of a ridge-board roof: the rafter tie at the plate holds the
+ * pair's outward thrust, H = wL^2 / 8h for the pair's load w (lb/ft on plan)
+ * over the span L with the ridge h above the tie. It is face-nailed to each
+ * rafter with 16d commons (0.162" x 3-1/2", SPF, CD 1.15 for snow); at least
+ * three. Null for a ridge beam, which has no ties.
+ * @param {import('./model.mjs').Shed} shed
+ */
+export function heelJoint(shed) {
+  const d = shed.design;
+  if (d.roofType === 'ridgeBeam') return null;
+  const cos = 1 / Math.sqrt(1 + (d.pitch / 12) ** 2);
+  const w = (15 / cos + d.snowLoad) * (d.rafterSpacing / 12);
+  const L = d.width / 12;
+  const h = (L / 2) * (d.pitch / 12);
+  const thrust = (w * L * L) / (8 * h);
+  const perNail = nailZ(0.162, 1.5, 2.0) * 1.15;
+  return { thrust, perNail, nails: Math.max(3, Math.ceil(thrust / perNail - 1e-9)) };
+}
+
+/**
  * @param {import('./model.mjs').Shed} shed
  */
 export function structuralChecks(shed) {
@@ -75,6 +117,8 @@ export function structuralChecks(shed) {
       Math.max(postCheck(2, d.studSize, postH, P), postCheck(2, d.studSize, k.studLen, P)), 'compression');
   } else {
     add('Ridge board', d.ridgeSize || k.ridgeSize, 'not a beam: rafter ties at the plate carry the rafters\' outward thrust', 0, 'none');
+    const heel = /** @type {NonNullable<ReturnType<typeof heelJoint>>} */ (heelJoint(shed));
+    add('Rafter tie nailing (heel joint)', `${d.tieSize} tie, ${heel.nails} 16d commons a rafter`, `${Math.round(heel.thrust)} lb outward thrust per pair; ${Math.round(heel.perNail)} lb a nail (NDS yield limit, SPF)`, heel.thrust / (heel.nails * heel.perNail), 'nail shear');
   }
   // Headers over doors and windows.
   for (const [name, wall] of Object.entries(shed.walls)) {
