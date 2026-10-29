@@ -1,6 +1,6 @@
 ---
 title: "ShootFlow cull: a local command that picks the keeper from every burst"
-date: 2026-10-29
+description: "A new ShootFlow command groups near-identical photos, picks a keeper per group, flags blurry frames and writes Lightroom rating sidecars, all locally."
 description: "A new ShootFlow command groups near-identical photos, picks one keeper per group, flags blurry and badly exposed frames and writes Lightroom star-rating sidecars, all on your own machine."
 tags: [photo-editing, shootflow, culling]
 ---
