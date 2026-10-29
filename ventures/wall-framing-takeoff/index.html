@@ -197,6 +197,10 @@
       <div><label for="trWaste">Waste (fraction; blank: 0.1)</label><input id="trWaste" type="number" min="0" max="0.3" step="0.01" placeholder="0.1"></div>
       <div><label for="trBasePrice">Price per baseboard (blank: none)</label><input id="trBasePrice" type="number" min="0" step="0.01" placeholder="e.g. 14"></div>
       <div><label for="trCasPrice">Price per casing board (blank: none)</label><input id="trCasPrice" type="number" min="0" step="0.01" placeholder="e.g. 9"></div>
+      <div><label for="trShoe">Shoe moulding</label><select id="trShoe"><option value="">Not counted</option><option value="true">Along the baseboard runs</option></select></div>
+      <div><label for="trShoeStock">Shoe stock length, in (blank: 96)</label><input id="trShoeStock" type="number" min="48" max="240" step="1" placeholder="96"></div>
+      <div><label for="trShoePrice">Price per shoe board (blank: none)</label><input id="trShoePrice" type="number" min="0" step="0.01" placeholder="e.g. 6"></div>
+      <div><label for="trScarf">Scarf overlap per splice, in (blank: butt joint)</label><input id="trScarf" type="number" min="0" max="12" step="0.5" placeholder="0"></div>
     </div>
     <p><input type="checkbox" id="sdOn" style="width:auto"> <label for="sdOn" style="display:inline">Also count exterior lap siding, house wrap and corner boards (course by course on sheathed walls, openings cut out; the reveal and board length are the siding you buy)</label></p>
     <div class="grid" id="sdFields" hidden>
@@ -626,7 +630,8 @@
       }
       if ($("#trOn").checked) {
         const tr = {};
-        for (const [id, key] of [["trSides", "baseSides"], ["trBaseStock", "baseStock"], ["trCasStock", "casingStock"], ["trCasWidth", "casingWidth"], ["trReveal", "reveal"], ["trWaste", "waste"], ["trBasePrice", "basePrice"], ["trCasPrice", "casingPrice"]]) if ($("#" + id).value.trim()) tr[key] = Number($("#" + id).value);
+        for (const [id, key] of [["trSides", "baseSides"], ["trBaseStock", "baseStock"], ["trCasStock", "casingStock"], ["trCasWidth", "casingWidth"], ["trReveal", "reveal"], ["trWaste", "waste"], ["trBasePrice", "basePrice"], ["trCasPrice", "casingPrice"], ["trShoeStock", "shoeStock"], ["trShoePrice", "shoePrice"], ["trScarf", "scarf"]]) if ($("#" + id).value.trim()) tr[key] = Number($("#" + id).value);
+        if ($("#trShoe").value) tr.shoe = true;
         plan.trim = tr;
       }
       if ($("#sdOn").checked) {
@@ -849,7 +854,7 @@
     function renderTrim(tr) {
       $("#trimCard").hidden = !tr;
       if (!tr) return;
-      $("#trimOut").innerHTML = `<pre style="white-space:pre-wrap;overflow-x:auto">${esc(trimText(tr).join("\n"))}</pre><p class="note">Pieces are packed first fit decreasing into the stock lengths you typed; mitres and scarf joints are not modelled, the waste figure covers them. Not checked against a real trim order.</p>`;
+      $("#trimOut").innerHTML = `<pre style="white-space:pre-wrap;overflow-x:auto">${esc(trimText(tr).join("\n"))}</pre><p class="note">Pieces are packed first fit decreasing into the stock lengths you typed; mitres are not modelled; scarf joints are counted only if you type an overlap, otherwise the waste figure covers them. Not checked against a real trim order.</p>`;
     }
     function renderFasteners(fa) {
       $("#fastenersCard").hidden = !fa;
@@ -1067,8 +1072,8 @@
       $("#stWidth").value = stp?.width != null ? formatLength(stp.width) : ""; $("#stOpen").value = stp?.openingLength != null ? formatLength(stp.openingLength) : "";
       $("#stStringer").value = stp?.stringer || "2x12"; $("#stTreadBoard").value = stp?.treadBoard || "2x12"; $("#stLanding").value = stp?.landing ? "true" : "";
       const trm = plan.trim;
-      $("#trOn").checked = Boolean(trm); $("#trFields").hidden = !trm;
-      for (const [id, key] of [["trSides", "baseSides"], ["trBaseStock", "baseStock"], ["trCasStock", "casingStock"], ["trCasWidth", "casingWidth"], ["trReveal", "reveal"], ["trWaste", "waste"], ["trBasePrice", "basePrice"], ["trCasPrice", "casingPrice"]]) $("#" + id).value = trm && trm[key] != null ? String(trm[key]) : "";
+      $("#trOn").checked = Boolean(trm); $("#trFields").hidden = !trm; $("#trShoe").value = trm && trm.shoe ? "true" : "";
+      for (const [id, key] of [["trSides", "baseSides"], ["trBaseStock", "baseStock"], ["trCasStock", "casingStock"], ["trCasWidth", "casingWidth"], ["trReveal", "reveal"], ["trWaste", "waste"], ["trBasePrice", "basePrice"], ["trCasPrice", "casingPrice"], ["trShoeStock", "shoeStock"], ["trShoePrice", "shoePrice"], ["trScarf", "scarf"]]) $("#" + id).value = trm && trm[key] != null ? String(trm[key]) : "";
       const sdg = plan.siding;
       $("#sdOn").checked = Boolean(sdg); $("#sdFields").hidden = !sdg;
       for (const [id, key] of [["sdExposure", "exposure"],["sdStock", "stock"],["sdWaste", "waste"],["sdWrapRoll", "wrapRollSqFt"],["sdCorners", "corners"],["sdBoardPrice", "boardPrice"],["sdWrapPrice", "wrapPrice"],["sdCornerPrice", "cornerPrice"]]) $("#" + id).value = sdg && sdg[key] != null ? String(sdg[key]) : "";

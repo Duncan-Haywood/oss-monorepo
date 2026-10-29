@@ -218,8 +218,10 @@ test("the stair controls are read into plan.stairs, restored from a saved plan a
 
 test("the trim controls are read into plan.trim, restored from a saved plan and feed the budget", () => {
   const html = page("index.html");
-  for (const id of ["trOn", "trSides", "trBaseStock", "trCasStock", "trCasWidth", "trReveal", "trWaste", "trBasePrice", "trCasPrice", "trimOut"]) assert.match(html, new RegExp(`id="${id}"`));
+  for (const id of ["trOn", "trSides", "trBaseStock", "trCasStock", "trCasWidth", "trReveal", "trWaste", "trBasePrice", "trCasPrice", "trShoe", "trShoeStock", "trShoePrice", "trScarf", "trimOut"]) assert.match(html, new RegExp(`id="${id}"`));
   assert.match(html, /plan\.trim = tr/);
+  assert.match(html, /tr\.shoe = true/);
+  assert.match(html, /\["trScarf", "scarf"\]/);
   assert.match(html, /layoutTrim\(plan\.trim, plan\)/);
   assert.match(html, /trim: last\.trim/);
   assert.match(html, /\$\("#trOn"\)\.checked = Boolean\(trm\)/);
