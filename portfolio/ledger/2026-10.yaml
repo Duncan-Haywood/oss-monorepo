@@ -4227,6 +4227,11 @@ entries:
         eight plan sheets (SVG, DXF R12), renders a WebGL 3D view, packs a producer cut sheet over
         8-20 ft boards with a lower bound, and prices a shopping list; several designs compared.
         Starter is the owner's spec (8x12, 6'6" door, two windows, vents, ridge beam, 8 ft peak
-        limit, which it reports cannot be met with that door). 37 node tests; driven in Chromium.
+        limit, which it reports cannot be met with that door). Second round the same day, on
+        owner feedback: NDS screening checks (joists, rafters, ridge beam and posts, headers,
+        studs under snow and wind), a floating/overlap geometry test that found wall members
+        placed at floor level in 3D (fixed), Home Depot prices with a link per line, generated
+        priced variations, fascia, soffit, rake, eave blocking, overhang chosen for lumber,
+        colours, glitter and a decorated interior. 50 node tests; driven in Chromium.
         Usage unmeasured.
     mrr_end: 0

@@ -4,19 +4,24 @@
 // count studs. No library; drag to orbit, wheel or buttons to zoom.
 
 /** @typedef {import('./model.mjs').Geom} Geom */
-/** @typedef {{ geom: Geom, color: [number, number, number], layer: string, dots?: boolean }} Solid */
+/** @typedef {{ geom: Geom, color: [number, number, number], layer: string, flags?: number }} Solid */
 
 const COLORS = {
   pt: [0.71, 0.77, 0.58], framing: [0.9, 0.79, 0.57], header: [0.85, 0.66, 0.38], floor: [0.83, 0.7, 0.47],
   osb: [0.79, 0.65, 0.43], siding: [0.64, 0.36, 0.27], shingles: [0.3, 0.32, 0.35], door: [0.42, 0.29, 0.17],
   window: [0.62, 0.78, 0.9], vent: [0.88, 0.88, 0.86], gravel: [0.74, 0.71, 0.66], block: [0.6, 0.6, 0.6],
+  lining: [1.0, 0.78, 0.88], rug: [0.98, 0.55, 0.78], beanbag: [0.58, 0.32, 0.8], poster: [1, 1, 1],
+  'bulb-0': [1.0, 0.95, 0.6], 'bulb-1': [1.0, 0.5, 0.8], 'bulb-2': [0.6, 0.85, 1.0], 'bulb-3': [0.75, 1.0, 0.7],
 };
 
 /** Paint colours for the siding; natural is the stained T1-11 look. */
 export const SIDING_COLORS = {
-  natural: [0.64, 0.36, 0.27], red: [0.62, 0.16, 0.13], pink: [0.96, 0.62, 0.76], gray: [0.6, 0.62, 0.62],
+  natural: [0.64, 0.36, 0.27], red: [0.62, 0.16, 0.13], pink: [0.96, 0.62, 0.76], 'hot pink': [1.0, 0.33, 0.66],
+  lavender: [0.76, 0.64, 0.93], mint: [0.6, 0.9, 0.78], gray: [0.6, 0.62, 0.62],
   blue: [0.38, 0.52, 0.66], green: [0.42, 0.55, 0.38], white: [0.93, 0.92, 0.88],
 };
+export const ROOF_COLORS = { charcoal: [0.3, 0.32, 0.35], brown: [0.38, 0.27, 0.2], pink: [0.93, 0.45, 0.66], purple: [0.5, 0.28, 0.68], teal: [0.2, 0.55, 0.58] };
+export const TRIM_COLORS = { white: [0.97, 0.97, 0.97], purple: [0.5, 0.28, 0.68], pink: [1.0, 0.55, 0.78], black: [0.13, 0.13, 0.15], gold: [0.92, 0.76, 0.3] };
 
 /** Signed area of a 2D polygon. @param {[number, number][]} pts */
 function area2(pts) {
@@ -92,17 +97,17 @@ function world(g, p, t) {
  */
 export function meshOf(solids) {
   const pos = []; const nor = []; const col = []; const lines = [];
-  let dots = 0;
+  let flags = 0;
   const tri = (a, b, c, color) => {
     const ux = b[0] - a[0]; const uy = b[1] - a[1]; const uz = b[2] - a[2];
     const vx = c[0] - a[0]; const vy = c[1] - a[1]; const vz = c[2] - a[2];
     let nx = uy * vz - uz * vy; let ny = uz * vx - ux * vz; let nz = ux * vy - uy * vx;
     const l = Math.hypot(nx, ny, nz) || 1; nx /= l; ny /= l; nz /= l;
-    for (const p of [a, b, c]) { pos.push(p[0], p[1], p[2]); nor.push(nx, ny, nz); col.push(color[0], color[1], color[2], dots); }
+    for (const p of [a, b, c]) { pos.push(p[0], p[1], p[2]); nor.push(nx, ny, nz); col.push(color[0], color[1], color[2], flags); }
   };
   for (const s of solids) {
     const g = s.geom;
-    dots = s.dots ? 1 : 0;
+    flags = s.flags || 0;
     const { pts, tris } = triangulate(g.profile);
     const front = pts.map((p) => world(g, p, 0));
     const back = pts.map((p) => world(g, p, g.thickness));
@@ -116,29 +121,77 @@ export function meshOf(solids) {
   return { pos: new Float32Array(pos), nor: new Float32Array(nor), col: new Float32Array(col), lines: new Float32Array(lines) };
 }
 
-/** Colour and layer for each piece of a built shed. @param {import('./model.mjs').Shed} shed */
+/** Colour, layer and finish for each piece of a built shed. @param {import('./model.mjs').Shed} shed */
 export function solidsOf(shed) {
+  const d = shed.design;
+  const glitter = d.glitter ? 2 : 0;
   /** @type {Solid[]} */
   const out = [];
   for (const m of shed.members) {
-    const layer = m.group === 'foundation' ? 'foundation' : m.group === 'floor' ? 'floor' : m.group === 'roof' ? 'roof' : 'walls';
-    const color = /^PT /.test(m.material) ? COLORS.pt : (m.kind === 'header' || m.kind === 'ridge board') ? COLORS.header : COLORS.framing;
+    const layer = m.group === 'foundation' ? 'foundation' : m.group === 'floor' ? 'floor' : m.group === 'roof' ? 'roof' : m.group === 'wall:front' ? 'front wall' : 'walls';
+    const color = /^PT /.test(m.material) ? COLORS.pt : (m.kind === 'header' || m.kind === 'ridge board' || m.kind === 'ridge beam') ? COLORS.header : COLORS.framing;
     out.push({ geom: m.geom, color: /** @type {any} */ (color), layer });
   }
+  const siding = /** @type {any} */ (SIDING_COLORS)[d.sidingColor] || COLORS.siding;
   for (const p of shed.panels) {
     const layer = p.kind === 'floor sheet' ? 'floor' : p.kind === 'roof sheathing' ? 'sheathing' : 'siding';
-    const siding = /** @type {any} */ (SIDING_COLORS)[shed.design.sidingColor] || COLORS.siding;
     const color = p.kind === 'floor sheet' ? COLORS.floor : p.kind === 'roof sheathing' ? COLORS.osb : siding;
-    out.push({ geom: p.geom, color: /** @type {any} */ (color), layer, dots: p.kind === 'siding' && shed.design.polkaDots });
+    out.push({ geom: p.geom, color: /** @type {any} */ (color), layer, flags: p.kind === 'siding' ? (d.polkaDots ? 1 : 0) + glitter : 0 });
   }
+  const roof = /** @type {any} */ (ROOF_COLORS)[d.roofColor] || COLORS.shingles;
+  const trim = /** @type {any} */ (TRIM_COLORS)[d.trimColor] || TRIM_COLORS.white;
   for (const f of shed.fixtures) {
-    const layer = f.kind === 'shingles' ? 'roofing' : (f.kind === 'door' || f.kind === 'window' || f.kind === 'vent') ? 'siding' : 'foundation';
-    out.push({ geom: f.geom, color: /** @type {any} */ (COLORS[f.kind === 'shingles' ? 'shingles' : f.kind] || COLORS.block), layer });
+    if (f.kind === 'poster') continue; // drawn with its picture in the texture pass
+    const layer = f.kind === 'shingles' ? 'roofing'
+      : (f.kind === 'door' || f.kind === 'window' || f.kind === 'vent') ? 'siding'
+        : (['trim', 'interior', 'decor', 'front lining'].includes(f.group) ? f.group : 'foundation');
+    const color = f.kind === 'shingles' ? roof : (f.kind === 'fascia' || f.kind === 'soffit') ? trim : /** @type {any} */ (COLORS)[f.kind] || COLORS.block;
+    out.push({ geom: f.geom, color, layer, flags: f.kind === 'shingles' ? glitter : 0 });
   }
   return out;
 }
 
-export const LAYERS = ['foundation', 'floor', 'walls', 'roof', 'sheathing', 'siding', 'roofing'];
+export const LAYERS = ['foundation', 'floor', 'walls', 'front wall', 'roof', 'sheathing', 'siding', 'roofing', 'trim', 'interior', 'front lining', 'decor'];
+
+/** Generic poster art drawn on a canvas: no real person, an invented band. @param {string} id */
+export function posterCanvas(id, image = null) {
+  const c = document.createElement('canvas');
+  c.width = 384; c.height = id === 'big' ? 512 : 512;
+  const g = /** @type {CanvasRenderingContext2D} */ (c.getContext('2d'));
+  if (image) {
+    const s = Math.max(c.width / image.width, c.height / image.height);
+    g.drawImage(image, (c.width - image.width * s) / 2, (c.height - image.height * s) / 2, image.width * s, image.height * s);
+    return c;
+  }
+  const palettes = [['#ff5fa2', '#7b3fd1'], ['#56ccf2', '#ff8ad8'], ['#ffd166', '#ef476f'], ['#b388ff', '#64ffda'], ['#ff7eb9', '#ffe066']];
+  const i = id === 'big' ? 4 : Number(id.split('-')[1]) || 0;
+  const [a, b] = palettes[i % palettes.length];
+  const grad = g.createLinearGradient(0, 0, 0, c.height);
+  grad.addColorStop(0, a); grad.addColorStop(1, b);
+  g.fillStyle = grad; g.fillRect(0, 0, c.width, c.height);
+  // Sparkles and hearts.
+  g.fillStyle = 'rgba(255,255,255,0.8)';
+  for (let k = 0; k < 40; k++) { const x = (k * 97) % c.width; const y = (k * 53) % 200; g.fillRect(x, y, 3, 3); }
+  const heart = (x, y, s, col) => { g.fillStyle = col; g.beginPath(); g.moveTo(x, y + s / 4); g.bezierCurveTo(x, y, x - s / 2, y, x - s / 2, y + s / 4); g.bezierCurveTo(x - s / 2, y + s / 2, x, y + s * 0.7, x, y + s); g.bezierCurveTo(x, y + s * 0.7, x + s / 2, y + s / 2, x + s / 2, y + s / 4); g.bezierCurveTo(x + s / 2, y, x, y, x, y + s / 4); g.fill(); };
+  heart(60, 40, 40, '#fff0f6'); heart(320, 70, 30, '#fff0f6');
+  // Silhouettes of a made-up band: heads with swoopy fringes, shoulders.
+  const n = id === 'big' ? 1 : 3 + (i % 2);
+  for (let k = 0; k < n; k++) {
+    const cx = (c.width / (n + 1)) * (k + 1);
+    const cy = id === 'big' ? 250 : 300;
+    const r = id === 'big' ? 90 : 42;
+    g.fillStyle = 'rgba(40,10,60,0.85)';
+    g.beginPath(); g.ellipse(cx, cy + r * 2.2, r * 1.6, r * 1.1, 0, Math.PI, 0); g.fill();
+    g.beginPath(); g.arc(cx, cy, r, 0, Math.PI * 2); g.fill();
+    g.beginPath(); g.ellipse(cx - r * 0.25, cy - r * 0.55, r * 1.05, r * 0.6, -0.35, 0, Math.PI * 2); g.fill();
+  }
+  const titles = ['HEARTBEAT', 'XOXO TOUR', 'BOY BAND', 'FOREVER 4', 'SUPERSTAR'];
+  g.fillStyle = '#ffffff';
+  g.font = `bold ${id === 'big' ? 54 : 46}px system-ui, sans-serif`;
+  g.textAlign = 'center';
+  g.fillText(titles[i % titles.length], c.width / 2, c.height - 40);
+  return c;
+}
 
 // ---- tiny matrix helpers (column-major, like WebGL) ----
 function perspective(fovy, aspect, near, far) {
@@ -162,14 +215,24 @@ function mul(a, b) {
 
 const VS = `attribute vec3 p; attribute vec3 n; attribute vec4 c; uniform mat4 m; uniform float bias; varying vec3 vn; varying vec4 vc; varying vec3 vp;
 void main(){ gl_Position = m * vec4(p,1.0); gl_Position.z -= bias * gl_Position.w; vn = n; vc = c; vp = p; }`;
-// Polka dots (vc.a = 1): 3 in purple dots on a 9 in grid in the face's own plane.
-const FS = `precision highp float; varying vec3 vn; varying vec4 vc; varying vec3 vp; uniform float lit;
-void main(){ vec3 n = normalize(vn); vec3 base = vc.rgb;
- if (vc.a > 0.5) { vec3 an = abs(n); vec2 uv = an.x > an.y ? (an.x > an.z ? vp.yz : vp.xy) : (an.y > an.z ? vp.xz : vp.xy);
+// Finish flags in vc.a: 1 = purple polka dots (3" on a 9" staggered grid, in the
+// face's own plane), 2 = glitter (sparse flecks that twinkle with time t).
+const FS = `precision highp float; varying vec3 vn; varying vec4 vc; varying vec3 vp; uniform float lit; uniform float t;
+float hash(vec2 q){ return fract(sin(dot(q, vec2(12.9898,78.233))) * 43758.5453); }
+void main(){ vec3 n = normalize(vn); vec3 base = vc.rgb; vec3 an = abs(n);
+ vec2 uv = an.x > an.y ? (an.x > an.z ? vp.yz : vp.xy) : (an.y > an.z ? vp.xz : vp.xy);
+ float f = floor(vc.a + 0.5);
+ if (mod(f, 2.0) > 0.5) {
   vec2 cell = floor(uv / 9.0); vec2 g = fract(uv / 9.0) - 0.5; if (mod(cell.y, 2.0) > 0.5) g = fract(uv / 9.0 + vec2(0.5, 0.0)) - 0.5;
   if (length(g) < 0.17) base = vec3(0.47, 0.23, 0.66); }
  float a = abs(dot(n, normalize(vec3(0.45,-0.6,0.75)))); float b = abs(dot(n, normalize(vec3(-0.6,0.5,0.3))));
- vec3 col = base * (0.42 + 0.5*a + 0.18*b); gl_FragColor = vec4(mix(base, col, lit), 1.0); }`;
+ vec3 col = base * (0.42 + 0.5*a + 0.18*b);
+ if (f > 1.5) { float h = hash(floor(uv * 1.3)); float s = h > 0.95 ? pow(0.5 + 0.5 * sin(t * 3.0 + h * 90.0), 8.0) : 0.0;
+  col = col * (0.96 + 0.08 * hash(floor(uv * 4.0))) + vec3(1.0, 0.92, 1.0) * s; }
+ gl_FragColor = vec4(mix(base, col, lit), 1.0); }`;
+
+const TVS = `attribute vec3 p; attribute vec2 uv; uniform mat4 m; varying vec2 vuv; void main(){ gl_Position = m * vec4(p,1.0); vuv = uv; }`;
+const TFS = `precision mediump float; varying vec2 vuv; uniform sampler2D tex; void main(){ gl_FragColor = texture2D(tex, vuv); }`;
 
 /**
  * Attach a viewer to a canvas. Returns an object with `show(shed)`, `setLayer(name, on)`,
@@ -183,8 +246,29 @@ export function createViewer(canvas) {
   const prog = /** @type {WebGLProgram} */ (gl.createProgram());
   gl.attachShader(prog, sh(gl.VERTEX_SHADER, VS)); gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, FS)); gl.linkProgram(prog);
   gl.useProgram(prog);
-  const loc = { p: gl.getAttribLocation(prog, 'p'), n: gl.getAttribLocation(prog, 'n'), c: gl.getAttribLocation(prog, 'c'), m: gl.getUniformLocation(prog, 'm'), lit: gl.getUniformLocation(prog, 'lit'), bias: gl.getUniformLocation(prog, 'bias') };
+  const loc = { p: gl.getAttribLocation(prog, 'p'), n: gl.getAttribLocation(prog, 'n'), c: gl.getAttribLocation(prog, 'c'), m: gl.getUniformLocation(prog, 'm'), lit: gl.getUniformLocation(prog, 'lit'), bias: gl.getUniformLocation(prog, 'bias'), t: gl.getUniformLocation(prog, 't') };
   gl.enable(gl.DEPTH_TEST);
+  const tprog = /** @type {WebGLProgram} */ (gl.createProgram());
+  gl.attachShader(tprog, sh(gl.VERTEX_SHADER, TVS)); gl.attachShader(tprog, sh(gl.FRAGMENT_SHADER, TFS)); gl.linkProgram(tprog);
+  const tloc = { p: gl.getAttribLocation(tprog, 'p'), uv: gl.getAttribLocation(tprog, 'uv'), m: gl.getUniformLocation(tprog, 'm') };
+  /** @type {Record<string, WebGLTexture>} */
+  const textures = {};
+  let posterImage = null;
+  const texture = (id) => {
+    if (textures[id]) return textures[id];
+    const tex = /** @type {WebGLTexture} */ (gl.createTexture());
+    gl.bindTexture(gl.TEXTURE_2D, tex);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, posterCanvas(id, id === 'big' ? posterImage : null));
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    textures[id] = tex;
+    return tex;
+  };
+  /** @type {{ tex: string, layer: string, p: WebGLBuffer, uv: WebGLBuffer }[]} */
+  let posters = [];
+  let glitter = false;
+  let animating = false;
 
   /** @type {Record<string, any>} */
   const layers = {};
@@ -196,6 +280,20 @@ export function createViewer(canvas) {
 
   function show(shed, { refit = false } = {}) {
     for (const k of Object.keys(layers)) { const L = layers[k]; for (const b of [L.p, L.n, L.c, L.l, L.lc]) gl.deleteBuffer(b); delete layers[k]; }
+    for (const q of posters) { gl.deleteBuffer(q.p); gl.deleteBuffer(q.uv); }
+    posters = shed.fixtures.filter((f) => f.kind === 'poster').map((f) => {
+      const g = f.geom;
+      const [, [w], [, h]] = [g.profile[0], g.profile[1], g.profile[2]];
+      const corner = (a, b) => world(g, [a, b], g.thickness);
+      // Someone in the room looks along -w; their right hand is (-w) x up. Flip the
+      // picture if the wall's axis u runs the other way.
+      const flip = g.u[0] * -g.w[1] + g.u[1] * g.w[0] < 0;
+      const u0 = flip ? 1 : 0; const u1 = flip ? 0 : 1;
+      const pos = [...corner(0, 0), ...corner(w, 0), ...corner(w, h), ...corner(0, 0), ...corner(w, h), ...corner(0, h)];
+      const uv = [u0, 1, u1, 1, u1, 0, u0, 1, u1, 0, u0, 0];
+      return { tex: /** @type {any} */ (f).tex || 'poster-0', layer: f.group === 'front lining' ? 'front lining' : 'decor', p: buf(new Float32Array(pos)), uv: buf(new Float32Array(uv)) };
+    });
+    glitter = Boolean(shed.design.glitter);
     const solids = solidsOf(shed);
     for (const name of LAYERS) {
       const mesh = meshOf(solids.filter((s) => s.layer === name));
@@ -220,7 +318,9 @@ export function createViewer(canvas) {
     gl.clearColor(0.93, 0.95, 0.97, 1); gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     const eye = [cam.target[0] + cam.dist * Math.cos(cam.phi) * Math.cos(cam.theta), cam.target[1] + cam.dist * Math.cos(cam.phi) * Math.sin(cam.theta), cam.target[2] + cam.dist * Math.sin(cam.phi)];
     const m = mul(perspective(0.75, canvas.width / canvas.height, cam.dist * 0.08, cam.dist * 4), lookAt(eye, cam.target, [0, 0, 1]));
+    gl.useProgram(prog);
     gl.uniformMatrix4fv(loc.m, false, new Float32Array(m));
+    gl.uniform1f(loc.t, (globalThis.performance?.now?.() ?? 0) / 1000);
     const attr = (b, l, size = 3) => { gl.bindBuffer(gl.ARRAY_BUFFER, b); gl.enableVertexAttribArray(l); gl.vertexAttribPointer(l, size, gl.FLOAT, false, 0, 0); };
     for (const name of LAYERS) {
       const L = layers[name];
@@ -231,6 +331,24 @@ export function createViewer(canvas) {
       gl.uniform1f(loc.lit, 0); gl.uniform1f(loc.bias, 0.00004);
       attr(L.l, loc.p); attr(L.ln, loc.n); attr(L.lc, loc.c, 4);
       gl.drawArrays(gl.LINES, 0, L.lcount);
+    }
+    for (const l of [loc.p, loc.n, loc.c]) gl.disableVertexAttribArray(l);
+    if (posters.length) {
+      gl.useProgram(tprog);
+      gl.uniformMatrix4fv(tloc.m, false, new Float32Array(m));
+      for (const q of posters) {
+        if (!visible.has(q.layer)) continue;
+        gl.bindTexture(gl.TEXTURE_2D, texture(q.tex));
+        attr(q.p, tloc.p); attr(q.uv, tloc.uv, 2);
+        gl.drawArrays(gl.TRIANGLES, 0, 6);
+      }
+      gl.disableVertexAttribArray(tloc.p); gl.disableVertexAttribArray(tloc.uv);
+      gl.useProgram(prog);
+    }
+    // Glitter twinkles, so keep drawing while it is on screen.
+    if (glitter && !animating && canvas.isConnected) {
+      animating = true;
+      requestAnimationFrame(() => { animating = false; if (glitter) draw(); });
     }
   }
 
@@ -257,5 +375,7 @@ export function createViewer(canvas) {
     view(theta, phi) { cam.theta = theta; cam.phi = phi; cam.dist = cam.fit; draw(); },
     reset() { cam.theta = -0.95; cam.phi = 0.42; cam.dist = cam.fit; draw(); },
     snapshot() { draw(); return canvas.toDataURL('image/png'); },
+    /** Show a picture of the viewer's own on the big poster (it stays in the browser). */
+    setPosterImage(img) { posterImage = img; if (textures.big) { gl.deleteTexture(textures.big); delete textures.big; } draw(); },
   };
 }

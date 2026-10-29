@@ -15,7 +15,8 @@
 // parallelogram with its birdsmouth notch; a gable stud has its top cut to the
 // roof line. The same profile drives the 3D view and the drawings.
 
-import { actual, ceil16, TWO_BY, DEFAULT_LENGTHS_FT, fmtFtIn as fmtFt } from './lumber.mjs';
+import { actual, ceil16, TWO_BY, DEFAULT_LENGTHS_FT, fmtFtIn as fmtFt, fmtIn } from './lumber.mjs';
+import { estimate } from './estimate.mjs';
 
 /** @typedef {[number, number, number]} Vec */
 /** @typedef {{ origin: Vec, u: Vec, v: Vec, w: Vec, profile: [number, number][], thickness: number }} Geom */
@@ -59,15 +60,22 @@ export function defaultDesign() {
     foundation: 'gravel',
     floorTreated: true,
     siding: true,
-    sidingColor: 'pink',
+    sidingColor: 'hot pink',
     polkaDots: true,
     roofing: true,
     gableVents: true,
     ventWidth: 12,
     ventHeight: 8,
     maxPeak: 96,
+    snowLoad: 30,
+    windLoad: 20,
     autoWall: true,
     autoPitch: true,
+    autoOverhang: true,
+    roofColor: 'purple',
+    trimColor: 'white',
+    glitter: true,
+    interior: 'teen bedroom',
     kerf: 0.125,
     lengths: [...DEFAULT_LENGTHS_FT],
     openings: /** @type {Opening[]} */ ([
@@ -79,7 +87,7 @@ export function defaultDesign() {
 }
 
 /** The classic shape the presets start from: 8 ft walls, ridge board with rafter ties, unpainted siding, no height limit. */
-const classic = () => ({ ...defaultDesign(), wallHeight: 96, pitch: 6, skidSize: '4x6', roofType: 'ridgeBoard', sidingColor: 'natural', polkaDots: false, maxPeak: 0, ventHeight: 12, autoWall: false, autoPitch: false });
+const classic = () => ({ ...defaultDesign(), wallHeight: 96, pitch: 6, skidSize: '4x6', roofType: 'ridgeBoard', sidingColor: 'natural', polkaDots: false, maxPeak: 0, ventHeight: 12, autoWall: false, autoPitch: false, autoOverhang: false, roofColor: 'charcoal', trimColor: 'white', glitter: false, interior: 'none' });
 
 /** @typedef {ReturnType<typeof defaultDesign>} Design */
 
@@ -145,10 +153,17 @@ export function normalize(input) {
     roofType: pick(o.roofType, ['ridgeBeam', 'ridgeBoard'], d.roofType),
     beamSize: pick(o.beamSize, ['2x8', '2x10', '2x12'], d.beamSize),
     maxPeak: Math.min(240, Math.max(0, num(o.maxPeak, d.maxPeak))),
-    sidingColor: pick(o.sidingColor, ['natural', 'red', 'pink', 'gray', 'blue', 'green', 'white'], d.sidingColor),
+    snowLoad: Math.min(150, Math.max(0, num(o.snowLoad, d.snowLoad))),
+    windLoad: Math.min(80, Math.max(0, num(o.windLoad, d.windLoad))),
+    sidingColor: pick(o.sidingColor, ['natural', 'red', 'pink', 'hot pink', 'lavender', 'mint', 'gray', 'blue', 'green', 'white'], d.sidingColor),
     polkaDots: o.polkaDots === true,
     autoWall: o.autoWall === true,
     autoPitch: o.autoPitch === true,
+    autoOverhang: o.autoOverhang === true,
+    roofColor: pick(o.roofColor, ['charcoal', 'brown', 'pink', 'purple', 'teal'], d.roofColor),
+    trimColor: pick(o.trimColor, ['white', 'purple', 'pink', 'black', 'gold'], d.trimColor),
+    glitter: o.glitter === true,
+    interior: pick(o.interior, ['none', 'teen bedroom'], d.interior),
     ventWidth: Math.min(36, Math.max(6, num(o.ventWidth, d.ventWidth))),
     ventHeight: Math.min(36, Math.max(6, num(o.ventHeight, d.ventHeight))),
     kerf: Math.min(0.25, Math.max(0, num(o.kerf, d.kerf))),
@@ -227,7 +242,7 @@ function layoutCenters(spacing, lo, hi) {
  */
 export function buildShed(input) {
   const d0 = normalize(input);
-  if (d0.autoWall || d0.autoPitch) return buildAuto(d0);
+  if (d0.autoWall || d0.autoPitch || d0.autoOverhang) return buildAuto(d0);
   return buildFramed(d0);
 }
 
@@ -249,7 +264,7 @@ export function minWallFor(d) {
  * @param {Design} d0
  */
 function buildAuto(d0) {
-  let d = { ...d0, autoWall: false, autoPitch: false };
+  let d = { ...d0, autoWall: false, autoPitch: false, autoOverhang: false };
   if (d0.autoWall) d.wallHeight = minWallFor(d0);
   let shed;
   let why = '';
@@ -267,12 +282,27 @@ function buildAuto(d0) {
   } else {
     shed = buildFramed(normalize(d));
   }
-  const s = /** @type {Shed} */ (shed);
+  let s = /** @type {Shed} */ (shed);
+  let overhangWhy = '';
+  if (d0.autoOverhang) {
+    // The longest overhang from 6" to 18" that needs no more lumber money than the shortest:
+    // past that point the rafters (or sub-fascia) need longer boards.
+    const tries = [];
+    for (let oh = 6; oh <= 18; oh++) {
+      const t = buildFramed(normalize({ ...s.design, autoWall: false, autoPitch: false, autoOverhang: false, overhang: oh }));
+      tries.push({ oh, t, cost: estimate(t).lumberCost });
+    }
+    const min = Math.min(...tries.map((x) => x.cost));
+    const best = tries.filter((x) => x.cost <= min + 0.01).pop();
+    s = /** @type {any} */ (best).t;
+    overhangWhy = `overhang ${fmtIn(s.design.overhang)}, the longest that needs no longer rafter boards (the rafters are ${fmtIn(s.dims.rafterCut)})`;
+  }
   const auto = [];
   if (d0.autoWall) auto.push(`walls ${fmtFt(s.design.wallHeight)}, the lowest that frames the tallest door or window`);
   if (d0.autoPitch) auto.push(`roof ${s.design.pitch}/12, ${why}`);
+  if (overhangWhy) auto.push(overhangWhy);
   s.notes.unshift(`Set for you: ${auto.join('; ')}.`);
-  s.design = { ...s.design, autoWall: d0.autoWall, autoPitch: d0.autoPitch };
+  s.design = { ...s.design, autoWall: d0.autoWall, autoPitch: d0.autoPitch, autoOverhang: d0.autoOverhang };
   return s;
 }
 
@@ -282,7 +312,7 @@ function buildFramed(d) {
   const members = [];
   /** @type {{ id: string, kind: string, item: string, geom: Geom, group: string }[]} */
   const panels = [];
-  /** @type {{ kind: string, geom: Geom, group: string }[]} */
+  /** @type {{ kind: string, geom: Geom, group: string, tex?: string }[]} */
   const fixtures = [];
   /** @type {string[]} */
   const warnings = [];
@@ -415,7 +445,7 @@ function buildFramed(d) {
       const m = push({
         id: nextId(`${P}`), group: `wall:${name}`, kind, material, note,
         length: ceil16(kind.includes('plate') || kind === 'header' || kind === 'rough sill' ? s1 - s0 : z1 - z0),
-        geom: rectGeom(add(spec.base, spec.axis, s0), spec.axis, Z, spec.w, s1 - s0, z1 - z0, D),
+        geom: rectGeom(add(add(spec.base, spec.axis, s0), Z, z0), spec.axis, Z, spec.w, s1 - s0, z1 - z0, D),
         local: { s0, s1, z0, z1 },
       });
       wm.push(m);
@@ -490,6 +520,9 @@ function buildFramed(d) {
       for (let ply = 0; ply < 2; ply++) {
         const m = addM('header', p.hdr, p.a - 1.5, p.a + p.w + 1.5, hb, hb + p.hd, spacer);
         m.material = p.hdr;
+        // Each ply is 1-1/2" thick: one at the outside face, one at the inside, the spacer between.
+        const t0 = ply === 0 ? 0 : D - 1.5;
+        m.geom = rectGeom(add(add(add(spec.base, spec.axis, p.a - 1.5), Z, hb), spec.w, t0), spec.axis, Z, spec.w, p.w + 3, p.hd, 1.5);
       }
       const inside = layout.filter((c) => c - 0.75 >= p.a - 1e-9 && c + 0.75 <= p.a + p.w + 1e-9).map((c) => c - 0.75);
       const crippleSpots = inside.length ? inside : (p.w > 6 ? [p.a + p.w / 2 - 0.75] : []);
@@ -571,6 +604,30 @@ function buildFramed(d) {
         id: nextId('RF'), group: 'roof', kind: 'rafter', material: d.rafterSize, length: rafterCut, note: birdNote,
         geom: { origin: [c - 0.75, 0, 0], u: Y, v: Z, w: X, profile: rafterProfile(back), thickness: 1.5 },
       });
+    }
+  }
+  // Eave blocking: a block between each pair of rafters on top of each eave
+  // wall, flush with the outside, its top bevelled to the roof. It closes the
+  // wall top between rafters (screen or drill it for venting) and stops the
+  // rafters rolling.
+  {
+    const topAt = (y) => zt(y) - plateTop;
+    /** @type {[number, number][]} */
+    const front = [[0, plateTop], [1.5, plateTop], [1.5, plateTop + topAt(1.5)], [0, plateTop + topAt(0)]];
+    for (const back of [false, true]) {
+      const prof = /** @type {[number, number][]} */ (front.map(([y, z]) => [yOf(y, back), z]));
+      for (let i = 0; i + 1 < rafterCenters.length; i++) {
+        // A rafter tie sits on the plate beside every rafter but the end ones; start past it.
+        const tied = !beam && i > 0 && i < rafterCenters.length - 1 && zt(0) - plateTop > 0.5;
+        const x0 = rafterCenters[i] + 0.75 + (tied ? 1.5 : 0);
+        const gap = rafterCenters[i + 1] - 0.75 - x0;
+        if (gap < 1) continue;
+        push({
+          id: nextId('EB'), group: 'roof', kind: 'eave blocking', material: d.rafterSize, length: ceil16(gap),
+          note: `between rafters on the plate, top bevelled to ${d.pitch}/12`,
+          geom: { origin: [x0, 0, 0], u: Y, v: Z, w: X, profile: prof, thickness: gap },
+        });
+      }
     }
   }
   if (beam) {
@@ -702,6 +759,127 @@ function buildFramed(d) {
     if (vents.length) ventInfo[name] = vents.map((v) => ({ s0: v.v0, s1: v.v1, z0: H + v.ventBottom, z1: H + v.ventTop }));
   }
 
+  // ---------------- Interior ----------------
+  // "Teen bedroom": 1/4" paneling on the inside of every wall (painted), with
+  // the door and windows left open, then posters, string lights along the
+  // plates, a rug and a beanbag. Poster art is generic and drawn in the
+  // browser; the big poster can show a picture the viewer uploads.
+  let interior = null;
+  if (d.interior === 'teen bedroom') {
+    const pt = 0.25;
+    const faces = {
+      front: { origin: /** @type {Vec} */ ([0, D, floorTop]), u: X, w: Y, from: D, to: L - D },
+      back: { origin: /** @type {Vec} */ ([0, W - D, floorTop]), u: X, w: neg(Y), from: D, to: L - D },
+      left: { origin: /** @type {Vec} */ ([D, 0, floorTop]), u: Y, w: X, from: D, to: W - D },
+      right: { origin: /** @type {Vec} */ ([L - D, 0, floorTop]), u: Y, w: neg(X), from: D, to: W - D },
+    };
+    let sqft = 0;
+    /** @type {Record<string, [number, number][]>} */
+    const free = {};
+    for (const name of WALLS) {
+      const f = faces[name];
+      const spec = wallSpecs[name];
+      // Openings on this wall, in the face's axis coordinate, as [a0, a1, z0, z1].
+      const holes = walls[name].openings.map((p) => [spec.start + p.a, spec.start + p.a + p.w, p.bottom, p.bottom + p.op.height]);
+      const xs = [...new Set([f.from, f.to, ...holes.flatMap((h) => [h[0], h[1]])])].filter((x) => x >= f.from && x <= f.to).sort((a, b) => a - b);
+      for (let i = 0; i + 1 < xs.length; i++) {
+        const x0 = xs[i]; const x1 = xs[i + 1];
+        const cut = holes.filter((h) => h[0] < x1 - 1e-9 && h[1] > x0 + 1e-9).sort((a, b) => a[2] - b[2]);
+        let z = 0;
+        for (const h of [...cut, [0, 0, H, H]]) {
+          if (h[2] > z + 0.5) {
+            fixtures.push({ kind: 'lining', group: name === 'front' ? 'front lining' : 'interior', geom: rectGeom(add(add(f.origin, f.u, x0), Z, z), f.u, Z, f.w, x1 - x0, h[2] - z, pt) });
+            sqft += ((x1 - x0) * (h[2] - z)) / 144;
+          }
+          z = Math.max(z, h[3]);
+        }
+      }
+      // Free stretches of wall for posters: away from openings and corners.
+      const spans = [];
+      let cur = f.from + 4;
+      for (const h of holes.sort((a, b) => a[0] - b[0])) { if (h[0] - 4 > cur) spans.push([cur, h[0] - 4]); cur = Math.max(cur, h[1] + 4); }
+      if (f.to - 4 > cur) spans.push([cur, f.to - 4]);
+      free[name] = /** @type {[number, number][]} */ (spans);
+    }
+    // Big poster on the widest free stretch, then 18x24 posters on the rest.
+    let bigAt = null;
+    for (const name of WALLS) for (const sp of free[name]) if (sp[1] - sp[0] >= 40 && (!bigAt || sp[1] - sp[0] > bigAt.sp[1] - bigAt.sp[0])) bigAt = { name, sp };
+    const posterAt = (name, x0, w, h, z0, tex) => {
+      const f = faces[name];
+      const o0 = add(add(add(f.origin, f.u, x0), Z, z0), f.w, pt + 0.05);
+      fixtures.push({ kind: 'poster', group: name === 'front' ? 'front lining' : 'decor', tex, geom: rectGeom(o0, f.u, Z, f.w, w, h, 0.05) });
+    };
+    let n = 0;
+    for (const name of WALLS) {
+      for (const sp of free[name]) {
+        let a = sp[0];
+        let b = sp[1];
+        if (bigAt && bigAt.name === name && bigAt.sp === sp) {
+          const mid = (a + b) / 2;
+          posterAt(name, mid - 18, 36, 48, 30, 'big');
+          continue;
+        }
+        while (b - a >= 20 && n < 12) {
+          posterAt(name, a + (b - a >= 44 ? (b - a - 40) / 2 : (b - a - 18) / 2), 18, 24, 52, `poster-${n % 4}`);
+          n += 1;
+          if (b - a >= 44) { posterAt(name, a + (b - a - 40) / 2 + 22, 18, 24, 52, `poster-${n % 4}`); n += 1; }
+          a = b;
+        }
+      }
+    }
+    // String lights just under the top plates, one bulb every 8".
+    let bulb = 0;
+    for (const name of WALLS) {
+      const f = faces[name];
+      for (let x = f.from + 6; x < f.to - 6; x += 8) {
+        fixtures.push({ kind: `bulb-${bulb++ % 4}`, group: name === 'front' ? 'front lining' : 'decor', geom: rectGeom(add(add(add(f.origin, f.u, x), Z, H - 8 - (bulb % 2) * 1.5), f.w, pt), f.u, Z, f.w, 1.6, 1.6, 1.6) });
+      }
+    }
+    // A rug and a beanbag on the floor.
+    fixtures.push({ kind: 'rug', group: 'decor', geom: rectGeom([L / 2 - 30, W / 2 - 20, floorTop], X, Y, Z, 60, 40, 0.4) });
+    fixtures.push({ kind: 'beanbag', group: 'decor', geom: rectGeom([L - D - 34, W - D - 34, floorTop], X, Y, Z, 28, 28, 14) });
+    fixtures.push({ kind: 'beanbag', group: 'decor', geom: rectGeom([L - D - 31, W - D - 31, floorTop + 14], X, Y, Z, 22, 22, 6) });
+    interior = { sqft, panels: Math.ceil((sqft * 1.1) / 32), paint: 'pink' };
+  }
+
+  // ---------------- Fascia, soffit, rake trim ----------------
+  // A 2x6 sub-fascia nailed across the rafter tails (in the cut list), a 1x6
+  // fascia board over it, a vented soffit on the underside of the tails, and a
+  // 1x4 rake board up each gable edge (those three are bought, not cut from framing).
+  const trim = { fasciaFt: 0, soffitSqFt: 0, rakeFt: 0 };
+  if (o > 0) {
+    const fz = zt(-o);
+    const sf = actual('2x6');
+    const fsplit = splitRun(0, L, maxStock, rafterCenters);
+    for (const back of [false, true]) {
+      const y0 = back ? W + o : -o - 1.5;
+      for (const [s0, s1] of fsplit.runs) {
+        push({
+          id: nextId('SF'), group: 'roof', kind: 'sub-fascia', material: '2x6', length: ceil16(s1 - s0),
+          note: fsplit.runs.length > 1 ? 'joint on a rafter tail' : 'across the rafter tails',
+          geom: rectGeom([s0, y0, fz - sf.depth], X, Z, Y, s1 - s0, sf.depth, 1.5),
+        });
+      }
+      fixtures.push({ kind: 'fascia', group: 'trim', geom: rectGeom([0, back ? W + o + 1.5 : -o - 1.5 - 0.75, fz - sf.depth - 0.5], X, Z, Y, L, sf.depth + 0.5, 0.75) });
+      // Soffit on the underside of the tails, from the wall to the sub-fascia.
+      const sv = /** @type {Vec} */ ([0, back ? -cos : cos, sin]);
+      const sw = /** @type {Vec} */ ([0, back ? -sin : sin, -cos]);
+      const start = /** @type {Vec} */ ([0, back ? W + o : -o, zb(-o)]);
+      fixtures.push({ kind: 'soffit', group: 'trim', geom: rectGeom(start, X, sv, sw, L, o / cos, 0.3) });
+    }
+    trim.fasciaFt = (2 * L) / 12;
+    trim.soffitSqFt = (2 * L * (o / cos)) / 144;
+  }
+  trim.rakeFt = (4 * ((W / 2 + o) / cos)) / 12;
+  // Rake boards: a 3-1/2" band under the roof edge on each gable face, eave tail to peak.
+  {
+    const top = (dist) => zt(dist) + (7 / 16) / cos;
+    const band = 3.5 / cos;
+    /** @type {[number, number][]} */
+    const prof = [[-o, top(-o) - band], [W / 2, top(W / 2) - band], [W + o, top(-o) - band], [W + o, top(-o)], [W / 2, top(W / 2)], [-o, top(-o)]];
+    for (const x0 of [-0.75, L]) fixtures.push({ kind: 'fascia', group: 'trim', geom: { origin: [x0, 0, 0], u: Y, v: Z, w: X, profile: prof, thickness: 0.75 } });
+  }
+
   // ---------------- Sheathing, siding, roofing ----------------
   const slopeLen = (W / 2 + o) / cos; // eave tail to the ridge line, along the roof
   /** @type {number[]} */
@@ -779,7 +957,7 @@ function buildFramed(d) {
     warnings.push(`The peak is ${fmtFt(dims.peak)} above the gravel, ${fmtFt(dims.peak - d.maxPeak)} over your ${fmtFt(d.maxPeak)} limit. Your tallest opening needs walls of at least ${fmtFt(minWall)}; with those walls and a 3/12 roof (about the least that sheds water under shingles) the peak would still be ${fmtFt(low)}. To get lower: a shorter door, a door in the gable end, a lower floor or a narrower shed${d.gableVents ? ', or smaller or no gable vents (they need a steeper roof to fit)' : ''}.`);
   }
 
-  return { design: d, members, panels, fixtures, walls, warnings, notes, dims, vents: ventInfo, floorPieces, roofPieces, sidingFull, sidingUpper };
+  return { design: d, members, panels, fixtures, walls, warnings, notes, dims, vents: ventInfo, trim, interior, floorPieces, roofPieces, sidingFull, sidingUpper };
 }
 
 /** @typedef {ReturnType<typeof buildFramed>} Shed */

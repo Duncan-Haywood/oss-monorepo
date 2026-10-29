@@ -9,6 +9,8 @@ import { createViewer, LAYERS } from './render3d.mjs';
 import { drawPlan, drawEnd } from './editor.mjs';
 import { fmtIn, fmtFtIn, actual, STANDARD_LENGTHS_FT, EXAMPLE_ITEMS } from './lumber.mjs';
 import { recordUsage, clearUsage } from './usage.mjs';
+import { structuralChecks } from './checks.mjs';
+import { generateCandidates } from './candidates.mjs';
 
 const $ = (sel) => /** @type {any} */ (document.querySelector(sel));
 const $$ = (sel) => /** @type {any[]} */ ([...document.querySelectorAll(sel)]);
@@ -85,7 +87,8 @@ function preview(next) {
 // ---------- form ----------
 const FIELDS = ['name', 'lengthFt', 'widthFt', 'wallHeight', 'pitch', 'overhang', 'studSize', 'studSpacing', 'joistSize', 'joistSpacing',
   'rafterSize', 'rafterSpacing', 'tieSize', 'skidSize', 'skidSpacing', 'foundation', 'floorTreated', 'siding', 'roofing', 'gableVents', 'ventWidth', 'ventHeight', 'kerf',
-  'roofType', 'beamSize', 'sidingColor', 'polkaDots', 'autoWall', 'autoPitch'];
+  'roofType', 'beamSize', 'sidingColor', 'polkaDots', 'autoWall', 'autoPitch',
+  'autoOverhang', 'snowLoad', 'windLoad', 'roofColor', 'trimColor', 'glitter', 'interior'];
 
 function fillForm(d) {
   const set = (id, v) => { const e = /** @type {any} */ (document.getElementById(id)); if (!e || e === document.activeElement) return; if (e.type === 'checkbox') e.checked = Boolean(v); else e.value = String(v); };
@@ -104,9 +107,9 @@ function readForm() {
   d.length = Math.round(Number(v('lengthFt').value) * 12);
   d.width = Math.round(Number(v('widthFt').value) * 12);
   d.maxPeak = Math.round(Number(v('maxPeakFt').value) * 12);
-  for (const f of ['wallHeight', 'pitch', 'overhang', 'studSpacing', 'joistSpacing', 'rafterSpacing', 'skidSpacing', 'ventWidth', 'ventHeight', 'kerf']) d[f] = Number(v(f).value);
-  for (const f of ['studSize', 'joistSize', 'rafterSize', 'tieSize', 'skidSize', 'foundation', 'roofType', 'beamSize', 'sidingColor']) d[f] = v(f).value;
-  for (const f of ['floorTreated', 'siding', 'roofing', 'gableVents', 'polkaDots', 'autoWall', 'autoPitch']) d[f] = v(f).checked;
+  for (const f of ['wallHeight', 'pitch', 'overhang', 'studSpacing', 'joistSpacing', 'rafterSpacing', 'skidSpacing', 'ventWidth', 'ventHeight', 'kerf', 'snowLoad', 'windLoad']) d[f] = Number(v(f).value);
+  for (const f of ['studSize', 'joistSize', 'rafterSize', 'tieSize', 'skidSize', 'foundation', 'roofType', 'beamSize', 'sidingColor', 'roofColor', 'trimColor', 'interior']) d[f] = v(f).value;
+  for (const f of ['floorTreated', 'siding', 'roofing', 'gableVents', 'polkaDots', 'autoWall', 'autoPitch', 'autoOverhang', 'glitter']) d[f] = v(f).checked;
   d.lengths = $$('input[name="stock"]:checked').map((c) => Number(c.value));
   return d;
 }
@@ -151,11 +154,31 @@ function renderShopping(est) {
   let html = '';
   let section = '';
   for (const r of est.shopping) {
-    if (r.section !== section) { section = r.section; html += `<tr class="sec"><th colspan="5" scope="colgroup">${esc(section)}</th></tr>`; }
-    html += `<tr><td>${esc(r.name)}</td><td class="n">${r.qty}</td><td>${r.unit}</td><td class="n">${money(r.price)}</td><td class="n">${money(r.total)}</td></tr>`;
+    if (r.section !== section) { section = r.section; html += `<tr class="sec"><th colspan="6" scope="colgroup">${esc(section)}</th></tr>`; }
+    html += `<tr><td>${esc(r.name)}</td><td class="n">${r.qty}</td><td>${r.unit}</td><td class="n">${money(r.price)}</td><td class="n">${money(r.total)}</td><td>${sourceCell(r.source)}</td></tr>`;
   }
-  html += `<tr class="tot"><th colspan="4" scope="row">Estimated total</th><td class="n">${money(est.total)}</td></tr>`;
+  html += `<tr class="tot"><th colspan="4" scope="row">Estimated total</th><td class="n">${money(est.total)}</td><td></td></tr>`;
   $('#shopping tbody').innerHTML = html;
+}
+
+/** A price's source as a short cell: a link to the listing, or what kind of estimate it is. */
+function sourceCell(s) {
+  if (!s) return '';
+  const tip = esc(s.note || '');
+  if (s.kind === 'yours') return '<span class="muted">your price</span>';
+  if (s.url) return `<a href="${esc(s.url)}" target="_blank" rel="noopener" title="${tip}">${esc(s.store || 'listing')}, ${esc(s.seen || '')}</a>${s.kind === 'derived' ? ' <span class="muted">(scaled)</span>' : ''}`;
+  return `<span class="muted" title="${tip}">estimate</span>`;
+}
+
+function renderStructure(shed) {
+  const r = structuralChecks(shed);
+  $('#structure-note').textContent = `Loads you set: ${r.loads.snow} psf snow on the roof, ${r.loads.wind} psf wind on the walls, plus ${r.loads.roofDead} psf roof dead load and ${r.loads.floorLive} psf on the floor. SPF No. 2 lumber, allowable-stress (NDS) checks of the kind a span table encodes: a screening check, not an engineer's review. Connections, uplift, racking and the foundation are not checked; ask your building department for your area's snow and wind loads.`;
+  $('#structure tbody').innerHTML = r.rows.map((x) => {
+    const pct = Math.round(x.ratio * 100);
+    const meter = `<span class="meter${x.ratio > 0.9 ? ' hot' : ''}"><span style="width:${Math.min(100, pct)}%"></span></span>${pct}%`;
+    return `<tr><th scope="row">${esc(x.member)}</th><td>${esc(x.size)}</td><td>${esc(x.detail)}</td><td class="n">${x.governs === 'none' ? '-' : meter}</td><td class="${x.ok ? 'ok' : 'fail'}">${x.governs === 'none' ? 'not a beam' : x.ok ? 'passes' : 'over capacity'}</td></tr>`;
+  }).join('');
+  return r;
 }
 
 function renderPrices(est, d) {
@@ -280,6 +303,9 @@ function render() {
   drawEnd($('#endview'), d, shed.dims, hooks);
   viewer?.show(shed);
   renderSummary(shed, est);
+  const sc = renderStructure(shed);
+  const worst = sc.rows.reduce((m, x) => Math.max(m, x.ratio), 0);
+  $('#summary-lines').insertAdjacentHTML('beforeend', `<div><dt>Structure</dt><dd>${sc.ok ? `all ${sc.rows.length} checks pass` : `${sc.rows.filter((x) => !x.ok).length} over capacity`} (highest ${Math.round(worst * 100)}%)</dd></div>`);
   renderShopping(est);
   renderPrices(est, d);
   renderCuts(est);
@@ -331,6 +357,7 @@ function wire() {
       // Typing a pitch or wall height means you want that number, not the automatic one.
       if (t.id === 'pitch') next.autoPitch = false;
       if (t.id === 'wallHeight') next.autoWall = false;
+      if (t.id === 'overhang') next.autoOverhang = false;
       commit(next, `changed ${t.labels?.[0]?.textContent?.trim().toLowerCase() || t.id}`);
     }
   };
@@ -410,13 +437,52 @@ function wire() {
 
   for (const cb of $$('#layers input')) cb.addEventListener('change', () => viewer?.setLayer(cb.value, cb.checked));
   $('#framing-only').addEventListener('click', () => {
-    for (const cb of $$('#layers input')) { cb.checked = !['sheathing', 'siding', 'roofing'].includes(cb.value); viewer?.setLayer(cb.value, cb.checked); }
+    for (const cb of $$('#layers input')) { cb.checked = !['sheathing', 'siding', 'roofing', 'trim', 'interior', 'front lining', 'decor'].includes(cb.value); viewer?.setLayer(cb.value, cb.checked); }
   });
   $('#finished').addEventListener('click', () => { for (const cb of $$('#layers input')) { cb.checked = true; viewer?.setLayer(cb.value, true); } });
   $('#view-front').addEventListener('click', () => viewer?.view(-Math.PI / 2, 0.12));
   $('#view-side').addEventListener('click', () => viewer?.view(0, 0.12));
   $('#view-top').addEventListener('click', () => viewer?.view(-Math.PI / 2 + 0.01, 1.45));
   $('#view-reset').addEventListener('click', () => viewer?.reset());
+  $('#view-inside').addEventListener('click', () => {
+    for (const cb of $$('#layers input')) {
+      cb.checked = !['sheathing', 'siding', 'roofing', 'roof', 'trim', 'front wall', 'front lining'].includes(cb.value);
+      viewer?.setLayer(cb.value, cb.checked);
+    }
+    viewer?.view(-Math.PI / 2, 0.35);
+  });
+  $('#posterFile').addEventListener('change', async (e) => {
+    const f = e.target.files?.[0];
+    if (!f || !viewer) return;
+    try {
+      const img = await createImageBitmap(f);
+      viewer.setPosterImage(img);
+      $('#status').textContent = 'Your picture is on the big poster. It stays in this browser and is not saved with the design.';
+    } catch { $('#status').textContent = 'That file could not be read as a picture.'; }
+  });
+  $('#make-options').addEventListener('click', () => {
+    const opts = generateCandidates(design(), state.prices);
+    const thumbCanvas = document.createElement('canvas'); thumbCanvas.width = 480; thumbCanvas.height = 320;
+    const tv = createViewer(thumbCanvas);
+    $('#option-cards').innerHTML = opts.map((o, i) => {
+      let img = '';
+      if (tv) { tv.show(buildShed(o.design), { refit: true }); img = `<img src="${tv.snapshot()}" alt="3D view of option ${i + 1}" width="480" height="320">`; }
+      return `<article class="card"><div>${img}</div><h4>${i === 0 ? '<span class="pill">best value</span> ' : ''}${esc(o.label)}</h4>
+        <dl><div><dt>Total</dt><dd>${money(o.total)}</dd></div><div><dt>Lumber</dt><dd>${money(o.lumber)}, ${o.boards} boards</dd></div>
+        <div><dt>Roof</dt><dd>${esc(o.summary)}</dd></div><div><dt>Structure</dt><dd class="${o.ok ? 'ok' : 'fail'}">${o.ok ? 'passes' : 'over capacity'} (${Math.round(o.worst * 100)}%)</dd></div>
+        ${o.warnings ? `<div><dt>Warnings</dt><dd>${o.warnings}</dd></div>` : ''}</dl>
+        <button type="button" data-option="${i}">Use this one</button></article>`;
+    }).join('');
+    $('#option-cards').onclick = (ev) => {
+      const b = ev.target.closest('button[data-option]');
+      if (!b) return;
+      state.designs.push(normalize(opts[Number(b.dataset.option)].design));
+      state.active = state.designs.length - 1;
+      count('designs');
+      render();
+      $('#workspace').scrollIntoView({ behavior: 'smooth' });
+    };
+  });
   $('#zoom-in').addEventListener('click', () => viewer?.zoom(1 / 1.2));
   $('#zoom-out').addEventListener('click', () => viewer?.zoom(1.2));
 

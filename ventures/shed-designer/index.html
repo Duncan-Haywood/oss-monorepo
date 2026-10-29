@@ -21,7 +21,7 @@
     "description": "A free browser tool that frames a gable shed board by board and produces construction drawings, a 3D model, a cut sheet and a cost estimate. Runs entirely on the visitor's device."
   }
   </script>
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does it use the real size of a 2x4?","acceptedAnswer":{"@type":"Answer","text":"Yes. Every board is framed at its dressed size: a 2x4 is 1-1/2 by 3-1/2 inches, a 2x6 is 1-1/2 by 5-1/2, a 2x8 is 1-1/2 by 7-1/4, a 2x10 is 1-1/2 by 9-1/4 and a 2x12 is 1-1/2 by 11-1/4. Stud lengths, plate stack heights, rafter plumb cuts and the parts list all use those numbers."}},{"@type":"Question","name":"How does it decide which board lengths to buy?","acceptedAnswer":{"@type":"Answer","text":"It treats the order as a cutting-stock problem: every piece is placed into 8, 10, 12, 14 or 16 ft boards (18 and 20 ft if you tick them) to minimise cost at the prices you type, with your saw kerf between cuts. It prints a lower bound beside the result so you can see how close the order is to the cheapest possible."}},{"@type":"Question","name":"Is the design checked by an engineer or against building code?","acceptedAnswer":{"@type":"Answer","text":"No. It frames what you draw with common practice, and it warns about a few things it can see (a birdsmouth deeper than a third of the rafter, a header that does not fit, a vent too big for the gable), but nothing is checked against a span table, a snow or wind load or your local code. Many places need a permit for a shed over a certain size; ask your building department."}},{"@type":"Question","name":"Can I open the plans in CAD?","acceptedAnswer":{"@type":"Answer","text":"Yes. Each sheet downloads as DXF (full size, in inches, with layers for framing, outlines, hidden lines, openings, dimensions and text) or SVG, and the whole set prints from the browser."}},{"@type":"Question","name":"Is my design uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. Everything runs in your browser. Your designs are saved in this browser's local storage so they are there next time (you can turn that off), and a shared link carries the design inside the link itself."}}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does it use the real size of a 2x4?","acceptedAnswer":{"@type":"Answer","text":"Yes. Every board is framed at its dressed size: a 2x4 is 1-1/2 by 3-1/2 inches, a 2x6 is 1-1/2 by 5-1/2, a 2x8 is 1-1/2 by 7-1/4, a 2x10 is 1-1/2 by 9-1/4 and a 2x12 is 1-1/2 by 11-1/4. Stud lengths, plate stack heights, rafter plumb cuts and the parts list all use those numbers."}},{"@type":"Question","name":"How does it decide which board lengths to buy?","acceptedAnswer":{"@type":"Answer","text":"Starting prices are Home Depot listings seen on 2026-10-29, each linked. It treats the order as a cutting-stock problem: every piece is placed into 8, 10, 12, 14 or 16 ft boards (18 and 20 ft if you tick them) to minimise cost at the prices you type, with your saw kerf between cuts. It prints a lower bound beside the result so you can see how close the order is to the cheapest possible."}},{"@type":"Question","name":"Is the design checked for strength or against building code?","acceptedAnswer":{"@type":"Answer","text":"Not by an engineer. The Structure tab runs allowable-stress (NDS) checks on the floor joists, rafters, ridge beam and posts, headers and wall studs under the snow and wind loads you set, the kind of check a span table encodes, and the tests check that no piece floats or overlaps another. It does not check connections, uplift, racking, the foundation or your local code. Many places need a permit for a shed over a certain size; ask your building department."}},{"@type":"Question","name":"Can I open the plans in CAD?","acceptedAnswer":{"@type":"Answer","text":"Yes. Each sheet downloads as DXF (full size, in inches, with layers for framing, outlines, hidden lines, openings, dimensions and text) or SVG, and the whole set prints from the browser."}},{"@type":"Question","name":"Is my design uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. Everything runs in your browser. Your designs are saved in this browser's local storage so they are there next time (you can turn that off), and a shared link carries the design inside the link itself."}}]}</script>
   <style>
     :root { --ink:#1f2420; --muted:#5b6157; --paper:#f4f1ea; --card:#fffdf8; --line:#d8d1c2; --accent:#8a4a1f; --accent2:#24392b; --gold:#e9be76; --warn:#fdf1e6;
       font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif; color: var(--ink); background: var(--paper); }
@@ -109,6 +109,12 @@
     figure.sheet { margin: 0; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: #fff; }
     figure.sheet svg { width: 100%; height: auto; display: block; }
     figure.sheet figcaption { padding: 8px 12px; font-size: .88rem; font-weight: 600; border-top: 1px solid var(--line); }
+    .ok { color: #1d6b3a; font-weight: 700; }
+    .fail { color: #a32020; font-weight: 700; }
+    .meter { display: inline-block; width: 70px; height: 8px; border-radius: 4px; background: #e7e1d4; vertical-align: middle; margin-right: 6px; overflow: hidden; }
+    .meter span { display: block; height: 100%; background: #24392b; }
+    .meter.hot span { background: #c0392b; }
+    #option-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; margin-top: 12px; }
     #compare-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
     .card { border: 1px solid var(--line); border-radius: 12px; padding: 12px; background: #fff; }
     .card.active { border-color: var(--accent2); box-shadow: 0 0 0 2px var(--accent2) inset; }
@@ -189,6 +195,7 @@
         <button type="button" class="btn" id="view-front">Front</button>
         <button type="button" class="btn" id="view-side">Gable end</button>
         <button type="button" class="btn" id="view-top">Top</button>
+        <button type="button" class="btn" id="view-inside">Look inside</button>
         <button type="button" class="btn" id="view-reset">Reset</button>
         <button type="button" class="btn" id="zoom-in" aria-label="Zoom in">+</button>
         <button type="button" class="btn" id="zoom-out" aria-label="Zoom out">−</button>
@@ -219,7 +226,10 @@
         <label>Wall height, floor to top plate (in)<input id="wallHeight" type="number" min="60" max="144" step="0.5"></label>
         <label class="check"><input id="autoPitch" type="checkbox"> Roof pitch from the height limit</label>
         <label>Roof pitch (rise per 12)<input id="pitch" type="number" min="2" max="14" step="1"></label>
+        <label class="check"><input id="autoOverhang" type="checkbox"> Overhang that wastes the least lumber</label>
         <label>Eave overhang (in)<input id="overhang" type="number" min="0" max="36" step="1"></label>
+        <label>Roof snow load (psf)<input id="snowLoad" type="number" min="0" max="150" step="5"></label>
+        <label>Wind pressure on the walls (psf)<input id="windLoad" type="number" min="0" max="80" step="5"></label>
       </div>
     </fieldset>
     <fieldset>
@@ -268,8 +278,13 @@
       <legend>Covering and boards</legend>
       <div class="fields">
         <label class="check"><input id="siding" type="checkbox"> T1-11 siding panels</label>
-        <label>Siding colour<select id="sidingColor"><option value="natural">Natural (stained)</option><option value="red">Barn red</option><option value="pink">Pink</option><option value="gray">Gray</option><option value="blue">Blue</option><option value="green">Green</option><option value="white">White</option></select></label>
+        <label>Siding colour<select id="sidingColor"><option value="natural">Natural (stained)</option><option value="red">Barn red</option><option value="pink">Pink</option><option value="hot pink">Hot pink</option><option value="lavender">Lavender</option><option value="mint">Mint</option><option value="gray">Gray</option><option value="blue">Blue</option><option value="green">Green</option><option value="white">White</option></select></label>
         <label class="check"><input id="polkaDots" type="checkbox"> Purple polka dots</label>
+        <label class="check"><input id="glitter" type="checkbox"> Glitter finish</label>
+        <label>Roof colour<select id="roofColor"><option value="charcoal">Charcoal</option><option value="brown">Brown</option><option value="pink">Pink</option><option value="purple">Purple</option><option value="teal">Teal</option></select></label>
+        <label>Trim colour (fascia, soffit, rake)<select id="trimColor"><option value="white">White</option><option value="purple">Purple</option><option value="pink">Pink</option><option value="black">Black</option><option value="gold">Gold</option></select></label>
+        <label>Inside<select id="interior"><option value="none">Bare framing</option><option value="teen bedroom">Teen bedroom: pink walls, posters, lights</option></select></label>
+        <label>Big poster picture (stays in your browser)<input id="posterFile" type="file" accept="image/*"></label>
         <label class="check"><input id="roofing" type="checkbox"> Shingle roof</label>
         <label>Saw kerf (in)<input id="kerf" type="number" min="0" max="0.25" step="0.0625"></label>
       </div>
@@ -284,10 +299,12 @@
       <button type="button" role="tab" aria-selected="true" data-panel="panel-shopping">Shopping list</button>
       <button type="button" role="tab" aria-selected="false" data-panel="panel-cuts">Cut sheet</button>
       <button type="button" role="tab" aria-selected="false" data-panel="panel-parts">Parts list</button>
+      <button type="button" role="tab" aria-selected="false" data-panel="panel-structure">Structure</button>
       <button type="button" role="tab" aria-selected="false" data-panel="panel-plans">Plans</button>
     </div>
     <div class="result-panel print-target" id="panel-shopping">
-      <div class="table-wrap"><table id="shopping"><thead><tr><th scope="col">Item</th><th scope="col" class="n">Qty</th><th scope="col">Unit</th><th scope="col" class="n">Each</th><th scope="col" class="n">Total</th></tr></thead><tbody></tbody></table></div>
+      <div class="table-wrap"><table id="shopping"><thead><tr><th scope="col">Item</th><th scope="col" class="n">Qty</th><th scope="col">Unit</th><th scope="col" class="n">Each</th><th scope="col" class="n">Total</th><th scope="col">Price source</th></tr></thead><tbody></tbody></table></div>
+      <p class="muted">Prices are Home Depot listings seen on 2026-10-29, most read from the search result's copy of the product page, so they can be days or weeks old and vary by store. Lengths with no listing are scaled by the foot from the nearest listed length; anything with no listing at all says "estimate". Type your own store's prices below.</p>
       <div class="toolrow"><button type="button" class="btn" id="csv-shopping">Download CSV</button></div>
       <details style="margin-top:12px">
         <summary><strong>Your prices</strong> (examples until you change them; saved in this browser)</summary>
@@ -302,10 +319,21 @@
     <div class="result-panel" id="panel-parts" hidden>
       <div class="table-wrap"><table id="parts"><thead><tr><th scope="col">Mark</th><th scope="col">Part</th><th scope="col">Lumber (actual size)</th><th scope="col" class="n">Cut length</th><th scope="col" class="n">Qty</th><th scope="col">Where</th><th scope="col">Note</th></tr></thead><tbody></tbody></table></div>
     </div>
+    <div class="result-panel" id="panel-structure" hidden>
+      <p class="muted" id="structure-note"></p>
+      <div class="table-wrap"><table id="structure"><thead><tr><th scope="col">Member</th><th scope="col">Size</th><th scope="col">What it carries</th><th scope="col" class="n">Use of capacity</th><th scope="col">Result</th></tr></thead><tbody></tbody></table></div>
+    </div>
     <div class="result-panel print-target" id="panel-plans" hidden>
       <div class="toolrow"><button type="button" class="btn primary" id="print-plans">Print all plans</button><button type="button" class="btn" id="dxf-all">Download all as DXF</button></div>
       <div id="plans"></div>
     </div>
+  </section>
+
+  <section style="margin-top:14px" aria-labelledby="options-h">
+    <h2 id="options-h">Options made for you</h2>
+    <p class="muted">Close variations of the design you are editing, each framed, priced and checked. They keep your size, doors, windows, colours and wall framing, and change one thing a builder would weigh. Pick one to add it to your designs.</p>
+    <div class="toolrow"><button type="button" class="btn primary" id="make-options">Make options</button></div>
+    <div id="option-cards"></div>
   </section>
 
   <section style="margin-top:14px" aria-labelledby="compare-h">
@@ -317,8 +345,8 @@
   <section class="faq" style="margin-top:14px" aria-labelledby="faq-h">
     <h2 id="faq-h">Questions</h2>
     <details><summary>Does it use the real size of a 2x4?</summary><p>Yes. Every board is framed at its dressed size: a 2x4 is 1-1/2 by 3-1/2 inches, a 2x6 is 1-1/2 by 5-1/2, a 2x8 is 1-1/2 by 7-1/4, a 2x10 is 1-1/2 by 9-1/4 and a 2x12 is 1-1/2 by 11-1/4. Stud lengths, plate stack heights, rafter plumb cuts and the parts list all use those numbers.</p></details>
-    <details><summary>How does it decide which board lengths to buy?</summary><p>It treats the order as a cutting-stock problem: every piece is placed into 8, 10, 12, 14 or 16 ft boards (18 and 20 ft if you tick them) to minimise cost at the prices you type, with your saw kerf between cuts. It prints a lower bound beside the result so you can see how close the order is to the cheapest possible.</p></details>
-    <details><summary>Is the design checked by an engineer or against building code?</summary><p>No. It frames what you draw with common practice, and it warns about a few things it can see (a birdsmouth deeper than a third of the rafter, a header that does not fit, a vent too big for the gable), but nothing is checked against a span table, a snow or wind load or your local code. Many places need a permit for a shed over a certain size; ask your building department.</p></details>
+    <details><summary>How does it decide which board lengths to buy?</summary><p>Starting prices are Home Depot listings seen on 2026-10-29, each linked. It treats the order as a cutting-stock problem: every piece is placed into 8, 10, 12, 14 or 16 ft boards (18 and 20 ft if you tick them) to minimise cost at the prices you type, with your saw kerf between cuts. It prints a lower bound beside the result so you can see how close the order is to the cheapest possible.</p></details>
+    <details><summary>Is the design checked for strength or against building code?</summary><p>Not by an engineer. The Structure tab runs allowable-stress (NDS) checks on the floor joists, rafters, ridge beam and posts, headers and wall studs under the snow and wind loads you set, the kind of check a span table encodes, and the tests check that no piece floats or overlaps another. It does not check connections, uplift, racking, the foundation or your local code. Many places need a permit for a shed over a certain size; ask your building department.</p></details>
     <details><summary>Can I open the plans in CAD?</summary><p>Yes. Each sheet downloads as DXF (full size, in inches, with layers for framing, outlines, hidden lines, openings, dimensions and text) or SVG, and the whole set prints from the browser.</p></details>
     <details><summary>Is my design uploaded anywhere?</summary><p>No. Everything runs in your browser. Your designs are saved in this browser's local storage so they are there next time (you can turn that off), and a shared link carries the design inside the link itself.</p></details>
     <p>More: <a href="shed-plans-with-cut-list.html">how much lumber an 8x12 shed takes, worked through</a>. Related free tools: <a href="../cut-list-optimizer/">Cut List Optimizer</a> for any list of boards or sheets, <a href="../wall-framing-takeoff/">Wall Framing Takeoff</a> for a whole house, and <a href="../shed-install-bid-calculator/">Shed Install Bid Calculator</a> if you install sheds for a living.</p>

@@ -27,17 +27,43 @@ For assistants: [llms.txt](llms.txt).
 - **3D view.** A small WebGL renderer, no library. Every board is an extruded profile, so rafters show their birdsmouth and gable studs their angled tops. You can orbit, zoom, switch to front, gable end or top views, and toggle layers (foundation, floor, walls, roof, sheathing, siding, roofing). "Framing only" strips it to the frame (`render3d.mjs`).
 - **Several designs, compared.** You can start new designs from presets (8x12, 8x10, 10x12, 12x16, 8x8) or copy the current one. Each design gets a card with a 3D thumbnail, its footprint, peak, board count, total and cost per square foot, and the lowest-cost design is marked. You can save a design to a file, open one from a file, or copy a link that carries the design inside the URL.
 
-The starting design is the owner's spec: an 8x12 with a single 38" x 78" (6'6") door on one 12 ft side and two 24" x 36" windows on the opposite side. The 2x4 walls are 16" on centre. The roof is a ridge beam (two-ply 2x10 on two-ply posts, so no rafter ties and an open inside), with 12" x 8" gable vents flanking each post. The siding is pink with purple polka dots, and the peak is limited to 8 ft.
+The starting design is the owner's spec: an 8x12 with a single 38" x 78" (6'6") door on one 12 ft side and two 24" x 36" windows on the opposite side. The 2x4 walls are 16" on centre. The roof is a ridge beam (two-ply 2x10 on two-ply posts, so no rafter ties and an open inside), with 12" x 8" gable vents flanking each post. The outside is hot pink with purple polka dots and glitter under a purple roof with white trim, the inside is a pink teen bedroom, and the peak is limited to 8 ft.
 
-With "walls as low as the tallest opening allows" and "roof pitch from the height limit" ticked, the walls come out at 86-1/2". That is 78 for the door, 5-1/2 for a 2x6 header and three 1-1/2" plates. No pitch keeps the peak under 8 ft with that door, so the tool picks 5/12, the lowest at which the vents still fit, and the warning says the peak is about 10'1". Even 3/12 would be about 9'5-1/2". At the example prices that design is 136 pieces from 51 boards: $552.30 of lumber against a lower bound of $538.28, and $2,001.60 in all. The "8x12 classic" preset (8 ft walls, 6/12, ridge board and ties, 38" x 82" door) is 130 pieces from 52 boards and $1,950.90.
+All three automatic choices are ticked:
+
+- **Walls:** 86-1/2". That is 78 for the door, 5-1/2 for a 2x6 header and three 1-1/2" plates.
+- **Pitch:** 5/12. No pitch keeps the peak under 8 ft with that door, so the tool takes the lowest pitch at which the vents still fit, and the warning says the peak is about 10'1". Even 3/12 would be about 9'5-1/2".
+- **Overhang:** 6". Any longer and the 59-3/16" rafters cost more lumber.
+
+At the starting prices that design is 150 pieces from 88 boards: $636.90 of lumber against a lower bound of $606.82, and $2,538.63 in all, interior included. Every structural check passes, and the ridge beam is the most loaded member at 80%. The "8x12 classic" preset (8 ft walls, 6/12, ridge board and ties, 38" x 82" door, unpainted) is 144 pieces from 93 boards and $2,166.66.
+
+## Structure, integrity and prices
+
+- **Structural checks** (`checks.mjs`, Structure tab). The members checked are:
+  - the floor joists between skids;
+  - the rafters;
+  - the ridge beam and its posts, using column stability on the posts;
+  - every door and window header;
+  - the eave-wall studs under roof load plus wind on the wall face.
+
+  These are allowable-stress (NDS) checks on SPF No. 2 under a roof snow load and a wall wind pressure you set (defaults 30 and 20 psf), with 15 psf roof dead load and 40 + 10 psf on the floor. The engine is `structure.mjs`, copied unchanged from `open-house-plans`, where it is pinned against the research track's Python; its fixture test comes with it. Each member shows its use of capacity. This is a screening check: connections, uplift, racking and the foundation are not checked.
+- **Integrity tests** (`integrity.mjs`, `integrity.test.mjs`).
+  - Starting from the gravel pad, every board, sheet and fixture must be reachable through pieces that touch it, so nothing floats.
+  - No two square-cut members may overlap by more than 1/16".
+  - Every preset and variation is checked.
+
+  The test found a real bug on 2026-10-29: every wall member was placed starting at the floor, so the top plates, headers and sills sat at floor level in 3D. It also found that the two plies of each header overlapped, and that the new eave blocks collided with rafter ties. All three are fixed, and the tests stop them coming back.
+- **Prices with sources** (`prices.mjs`). Starting prices are Home Depot listings seen on 2026-10-29, most read from the search result's copy of the product page, so they can be stale and they vary by store. Each line of the shopping list links its listing. Lengths without a listing are scaled per foot from the nearest listed length and marked "(scaled)". Items with no listing at all (rake board, paneling, glitter, gravel, blocks, accent and interior paint) say "estimate". Every price is editable.
+- **Options made for you** (`candidates.mjs`). Seven close variations of the design you are editing: rafter spacing, ridge beam or board, a steeper or lower roof, a foot of overhang, a foot wider. Each is framed, priced and structurally checked, then ranked with passing designs first and cheapest first. "Use this one" adds it to your designs.
+- **Roof edge.** A 2x6 sub-fascia across the rafter tails (in the cut list), a 1x6 fascia, a vented soffit under the tails and a 1x4 rake board on each gable edge. Blocking between the rafters closes each wall top.
+- **Looks.** Siding, roof and trim colours, polka dots and a glitter finish. The siding paint (two coats, 350 sq ft a gallon) and glitter packets are added to the list. A "teen bedroom" interior adds pink paneling, generic poster art of an invented band, string lights, a rug and a beanbag. The big poster can show a picture you upload, which stays in your browser. "Look inside" opens the front wall.
 
 ## What it does not do
 
 - The ridge beam size is your choice, not a span-table result.
-- No structural, span-table, snow, wind or code check. Header sizes follow a rule of thumb by opening width (2x6 up to 48", 2x8 up to 72", 2x10 up to 96") and are not a span table. Warnings flag a birdsmouth deeper than a third of the rafter, an opening that does not fit, and a vent too big for the gable.
+- The structure check is a screening check, not a code review or an engineer's design: it does not check connections, uplift, racking, the foundation or point loads. Header sizes follow a rule of thumb by opening width (2x6 up to 48", 2x8 up to 72", 2x10 up to 96") and the Structure tab then checks each one. Warnings flag a birdsmouth deeper than a third of the rafter, an opening that does not fit, and a vent too big for the gable.
 - Gable sheds on skids only. It does not do lofts, hip or single-slope roofs, porches, ramps, slabs, fascia or trim, drywall, door slabs or nails.
 - Sheet counts pack pieces along an 8 ft sheet. Narrow strips are not combined, so the counts lean high.
-- The prices are example placeholders, not collected from any store. Type your own.
 - It has been checked with hand-counted unit tests and by driving the page in headless Chromium. It has not been checked by building a shed from it.
 
 ## Run it
@@ -55,6 +81,10 @@ Serve this folder as static files, for example `python3 -m http.server` here, th
 | `drawings.mjs` | plan sheets as primitives, rendered to SVG and DXF |
 | `render3d.mjs` | WebGL viewer and ear-clipping triangulation |
 | `editor.mjs` | drag editing of the plan and end view |
+| `checks.mjs`, `structure.mjs` | structural checks (NDS, SPF No. 2) |
+| `integrity.mjs` | nothing floats, nothing overlaps |
+| `prices.mjs` | starting prices and their sources |
+| `candidates.mjs` | the options made for you |
 | `app.mjs`, `index.html` | the page |
 | `shed-plans-with-cut-list.html` | the 8x12 worked example, for people searching the question |
 
