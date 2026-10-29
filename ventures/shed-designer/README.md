@@ -43,6 +43,7 @@ At the starting prices that design is 150 pieces from 88 boards: $636.90 of lumb
   - the floor joists between skids;
   - the rafters;
   - the ridge beam and its posts, using column stability on the posts;
+  - under a ridge board, the rafter-tie heel joint: the pair's outward thrust (wL²/8h) against 16d common nails at the NDS yield-limit value for SPF (about 120 lb each), which sets the nail count in the instructions, the nailing schedule and the shopping list;
   - every door and window header;
   - the eave-wall studs under roof load plus wind on the wall face.
 
