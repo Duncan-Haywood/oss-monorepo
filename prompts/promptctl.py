@@ -226,15 +226,42 @@ def expired(cfg: dict[str, Any], today: date | None = None) -> bool:
     return bool(until) and (today or date.today()) > date.fromisoformat(until)
 
 
+# Phrases in the message that started a run which name a track's work. The
+# first track with a hit wins; no hit leaves the weighted draw alone. Doc
+# friction, 2026-10-27 to 29: eight runs asked for revenue products, were drawn
+# research or process, and followed the prompt by hand.
+TASK_HINTS: list[tuple[str, tuple[str, ...]]] = [
+    ("ventures", ("revenue", "products in production", "venture", "sell and support",
+                  "ios android", "marketing sites", "portfolio site")),
+    ("research", ("research programme", "research program", "phd", "paper")),
+    ("process", ("the prompts", "the process", "routing", "backlog")),
+]
+
+
+def infer_track(task: str, tracks: dict[str, Any]) -> str | None:
+    """The track a run's starting message asks for, or None when it names none."""
+    low = task.lower()
+    for track, words in TASK_HINTS:
+        if track in tracks and any(w in low for w in words):
+            return track
+    return None
+
+
 def route(root: Path = ROOT, track: str | None = None, skip_review: bool = False,
-          rng: random.Random | None = None, today: date | None = None) -> dict[str, Any]:
+          rng: random.Random | None = None, today: date | None = None,
+          task: str | None = None) -> dict[str, Any]:
     rng = rng or random.Random()
     routing = load_routing(root)
     tracks = routing["tracks"]
     every = int(routing["review_every"])
     since = runs_since_review(load_runs(root))
+    inferred = infer_track(task, tracks) if task and track is None else None
+    if inferred:
+        track = inferred
 
-    if track is not None:
+    if inferred:
+        reason = f"the starting message asks for {inferred} work (--task)"
+    elif track is not None:
         if track not in tracks:
             raise SystemExit(f"unknown track {track!r}; tracks: {', '.join(tracks)}")
         reason = "chosen by the session (--track)"
@@ -1199,6 +1226,8 @@ def main(argv: list[str] | None = None) -> int:
     sub = parser.add_subparsers(dest="cmd", required=True)
     p = sub.add_parser("route", help="pick this run's sub-prompt and version")
     p.add_argument("--track", help="force a track (the session's task decides it)")
+    p.add_argument("--task", help="the message that started the run; names like 'revenue "
+                   "products' pick the track, otherwise the draw stands")
     p.add_argument("--skip-review", action="store_true",
                    help="a review is due but another run has already claimed it")
     p.add_argument("--seed", type=int, help="deterministic draw, for tests")
@@ -1228,7 +1257,7 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.cmd == "route":
         rng = random.Random(args.seed) if args.seed is not None else None
-        r = route(ROOT, args.track, args.skip_review, rng)
+        r = route(ROOT, args.track, args.skip_review, rng, task=args.task)
         print(json.dumps(r, indent=2)) if args.json else print_route(r)
         return 0
     if args.cmd == "record":
