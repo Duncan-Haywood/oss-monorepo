@@ -78,3 +78,19 @@ test('identical boards are grouped with a count, and the cut sheet still account
   // Trim offcuts allow for the kerf, like the framing.
   if (est.trimCuts) for (const b of est.trimCuts.boards) assert.ok(Math.abs(b.offcut - (b.stock - b.cuts.reduce((t, c) => t + c, 0) - b.cuts.length * defaultDesign().kerf)) < 1e-6 || b.offcut === 0);
 });
+
+test('narrow sheet rows are ripped from shared sheets, and the count never beats the area', async () => {
+  const { sheetCount2d } = await import('./estimate.mjs');
+  // Two 24" rows' worth of strips come from one 48" sheet; full-width pieces pack along 8 ft.
+  assert.equal(sheetCount2d([{ len: 96, w: 48 }, { len: 48, w: 48 }, { len: 48, w: 48 }, { len: 96, w: 48 }, { len: 96, w: 24 }, { len: 48, w: 24 }]), 4);
+  // A 9" course at the ridge: five strips to a sheet.
+  assert.equal(sheetCount2d(Array.from({ length: 5 }, () => ({ len: 96, w: 9 }))), 1);
+  assert.equal(sheetCount2d(Array.from({ length: 6 }, () => ({ len: 96, w: 9 }))), 2);
+  for (const make of [defaultDesign, ...Object.values(PRESETS)]) {
+    const shed = buildShed(make());
+    const est = estimate(shed);
+    const area = (kind) => shed.panels.filter((p) => p.kind === kind).reduce((t, p) => t + p.geom.profile[2][0] * p.geom.profile[2][1], 0) / (96 * 48);
+    assert.ok(est.floorSheets >= Math.ceil(area('floor sheet') - 1e-9), shed.design.name);
+    assert.ok(est.roofSheets >= Math.ceil(area('roof sheathing') - 1e-9), shed.design.name);
+  }
+});
