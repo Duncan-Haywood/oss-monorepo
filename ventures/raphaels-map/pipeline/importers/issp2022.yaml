@@ -1,0 +1,155 @@
+# Variable mapping for ISSP 2022 "Family and Changing Gender Roles V"
+# (GESIS study ZA10000; check the exact study number and version on the
+# download page). Used by pipeline/import_issp.py.
+#
+# NOTHING HERE HAS BEEN CHECKED AGAINST THE REAL FILE. The names, codes and
+# label patterns were written from general knowledge of how ISSP files are
+# laid out. Open the official codebook / variable report, check every entry,
+# fix what differs, then set `confirm_against_codebook: false` on it. The
+# importer refuses to run while any entry still says `true` (or pass
+# --i-checked-the-codebook once you have checked them all).
+#
+# How entries work:
+#   variable:       name in the file (matched case-insensitively)
+#   expect_labels:  {code: regex} - the importer fails unless the file's value
+#                   label for that code matches (a cheap check that the codes
+#                   mean what you think)
+#   levels / categories: each is {codes: [...]} and/or {labels: regex}; a
+#                   regex is matched against the file's value labels, and must
+#                   hit at least one, or the import stops.
+#   missing:        {dk|refused|iap: regex} over value labels; codes that match
+#                   are counted as excluded, never as answers.
+
+dataset_id: issp2022
+source_id: issp2022
+title: "ISSP 2022: Family and Changing Gender Roles V"
+years: [2022]   # fieldwork years differ by country; set year.variable if the file has one
+design: >-
+  National probability samples; fieldwork mode and year differ by country
+  (see the study monitoring report). Intervals are approximate (Wald on n_eff),
+  not design-based.
+confirm_against_codebook: true
+
+weight:
+  variable: WEIGHT           # ISSP's combined design/post-stratification weight; check its name and that it is the recommended one
+  confirm_against_codebook: true
+
+country:
+  variable: c_alphan         # ISO 3166 alpha-2 country code as a string (e.g. "DE"); alternatively `country` (numeric, labelled)
+  kind: code                 # code: use the value as-is; labelled: use the value label as the country name
+  confirm_against_codebook: true
+
+year:
+  variable: null             # e.g. DATEYR if the file records the interview year; null uses `years` above
+  confirm_against_codebook: true
+
+filters:
+  sex:
+    variable: SEX
+    levels:
+      female: {labels: "^\\s*female"}
+      male: {labels: "^\\s*male"}
+    confirm_against_codebook: true
+  age:
+    variable: AGE
+    kind: numeric
+    bands:
+      "18-29": [18, 29]
+      "20-29": [20, 29]
+      "30-44": [30, 44]
+    confirm_against_codebook: true   # check that AGE is years and which codes mean missing (they fall outside every band)
+  relig:
+    variable: RELIGGRP       # grouped religious affiliation; the country-specific denomination variables are XX_RELIG
+    levels:
+      catholic: {labels: "catholic"}
+      no_religion: {labels: "no religion|none"}
+    confirm_against_codebook: true
+  attend:
+    variable: ATTEND
+    levels:
+      weekly_or_more: {labels: "once a week|several times a week|every week|more than once a week|more often"}
+    confirm_against_codebook: true   # check the exact categories: weekly must not swallow "2-3 times a month"
+  marital:
+    variable: MARITAL
+    levels:
+      never_married: {labels: "never married|single"}
+    confirm_against_codebook: true
+
+questions:
+  # Substantive items. ISSP numbers them v1, v2, ...; the item order below is a
+  # guess. Replace each `variable` with the right name, copy the exact English
+  # source question text into original_text, and confirm.
+  - variable: v1
+    original_text: "CONFIRM FROM CODEBOOK: A working mother can establish just as warm and secure a relationship with her children as a mother who does not work."
+    harmonized_concept: working_mother_relationship
+    alignment: related
+    expect_labels: {1: "strongly agree"}
+    categories:
+      Agree: {labels: "^\\s*(strongly )?agree"}
+      Neither: {labels: "neither"}
+      Disagree: {labels: "^\\s*(strongly )?disagree"}
+    confirm_against_codebook: true
+  - variable: v4
+    original_text: "CONFIRM FROM CODEBOOK: A job is all right, but what most women really want is a home and children."
+    harmonized_concept: women_want_home_children
+    alignment: partial
+    expect_labels: {1: "strongly agree"}
+    categories:
+      Agree: {labels: "^\\s*(strongly )?agree"}
+      Neither: {labels: "neither"}
+      Disagree: {labels: "^\\s*(strongly )?disagree"}
+    confirm_against_codebook: true
+  - variable: v5
+    original_text: "CONFIRM FROM CODEBOOK: Being a housewife is just as fulfilling as working for pay."
+    harmonized_concept: homemaking_fulfilling
+    alignment: partial
+    expect_labels: {1: "strongly agree"}
+    categories:
+      Agree: {labels: "^\\s*(strongly )?agree"}
+      Neither: {labels: "neither"}
+      Disagree: {labels: "^\\s*(strongly )?disagree"}
+    confirm_against_codebook: true
+  - variable: v7
+    original_text: "CONFIRM FROM CODEBOOK: A man's job is to earn money; a woman's job is to look after the home and family."
+    harmonized_concept: role_norm
+    alignment: partial
+    expect_labels: {1: "strongly agree"}
+    categories:
+      Agree: {labels: "^\\s*(strongly )?agree"}
+      Neither: {labels: "neither"}
+      Disagree: {labels: "^\\s*(strongly )?disagree"}
+    confirm_against_codebook: true
+  - variable: v15
+    original_text: "CONFIRM FROM CODEBOOK: Do you think that women should work outside the home full-time, part-time or not at all when there is a child under school age?"
+    harmonized_concept: mother_employment_preschool
+    alignment: related   # a general norm, not her own plan (SPEC 5.2)
+    categories:
+      Full-time: {labels: "full.?time"}
+      Part-time: {labels: "part.?time"}
+      Stay at home: {labels: "stay at home|not at all"}
+    confirm_against_codebook: true
+  - variable: v25
+    original_text: "CONFIRM FROM CODEBOOK: Divorce is usually the best solution when a couple can't seem to work out their marriage problems."
+    harmonized_concept: divorce_attitude
+    alignment: related
+    expect_labels: {1: "strongly agree"}
+    categories:
+      Agree: {labels: "^\\s*(strongly )?agree"}
+      Neither: {labels: "neither"}
+      Disagree: {labels: "^\\s*(strongly )?disagree"}
+    confirm_against_codebook: true
+  - variable: v30
+    original_text: "CONFIRM FROM CODEBOOK: ideal number of children for a family (only if ISSP 2022 asks it; delete this entry otherwise)."
+    harmonized_concept: ideal_family_size
+    alignment: direct
+    categories:
+      "0": {codes: [0]}
+      "1": {codes: [1]}
+      "2": {codes: [2]}
+      "3": {codes: [3]}
+      "4 or more": {codes: [4, 5, 6, 7, 8, 9, 10]}
+    missing:
+      dk: "can.?t choose|don.?t know|as many as"
+      refused: "no answer|refused"
+      iap: "not applicable|NAP|not asked"
+    confirm_against_codebook: true   # check top-coding: if codes 7+ are missing-value codes, remove them from "4 or more"

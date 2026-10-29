@@ -1,0 +1,193 @@
+{
+ "about": "NSFG 2022-2023 female respondent file: the CSV has no value labels and the codebook (https://www.cdc.gov/nchs/data/nsfg/codebooks/2022-2023-NSFG-FemRespPUFCodebook.pdf) is not in raw/ (cdc.gov is unreachable from the agent containers; fetch.py downloads only the data zips). Every 'candidate_*' coding below is UNCONFIRMED: it comes from the analyst's recollection of earlier NSFG codebooks plus the structural checks recorded in data/surveys/questions.json diagnostics, and build_surveys.py publishes no estimate for a variable until 'confirmed_from' names the codebook page or file that confirms it. To confirm: open the codebook, check each code, set confirmed_from to e.g. 'FemResp codebook p.123 (2022-2023)', fix any code that differs, rebuild.",
+ "variables": {
+  "AGE_R": {
+   "role": "filter",
+   "concept": "age",
+   "alignment": "direct",
+   "label_text": "Variable name AGE_R; the file's readme calls it \"R's age at interview AGE_R with values 15-49\" (full question wording not in raw/).",
+   "text_kind": "readme_description",
+   "candidate_response_map": {
+    "15-49": "age in years"
+   },
+   "coding_source": "raw/nsfg/.../NSFG_2022_2023_FemRespPUFData_readme.txt names AGE_R as age at interview, values 15-49 (one record has 50).",
+   "confirmed_from": "NSFG_2022_2023_FemRespPUFData_readme.txt (in the downloaded zip)"
+  },
+  "ADDEXP": {
+   "role": "outcome",
+   "concept": "expected_additional_births",
+   "alignment": "partial",
+   "label_text": "Variable name ADDEXP only (a recode; no label or wording in raw/). Candidate meaning: central number of additional births the respondent expects.",
+   "text_kind": "variable_name_only",
+   "scale_divisor": 10,
+   "candidate_categories": {
+    "None": [
+     0,
+     0.5
+    ],
+    "One": [
+     1,
+     1.5
+    ],
+    "Two": [
+     2,
+     2.5
+    ],
+    "Three": [
+     3
+    ],
+    "Four or more": [
+     4,
+     4.5,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11
+    ]
+   },
+   "candidate_response_map": {
+    "0-110 step 5": "candidate: expected additional births x 10 (half-births from 'between' answers)"
+   },
+   "coding_source": "candidate only: raw values are 0,5,10,...,110 (multiples of 5, suggesting births x 10); scale and meaning not confirmed from any file in raw/",
+   "confirmed_from": null,
+   "note": "Expected births: a different measure from ideal family size (SPEC 5.2). Never compared with GSS CHLDIDEL as if equivalent.",
+   "measure_flag": "expected_not_ideal"
+  },
+  "INTENT": {
+   "role": "outcome",
+   "concept": "intended_additional_births",
+   "alignment": "partial",
+   "label_text": "Variable name INTENT only (a recode; no label or wording in raw/). Candidate meaning: whether the respondent intends to have (more) children.",
+   "text_kind": "variable_name_only",
+   "candidate_categories": {
+    "Intends (more) children": [
+     1
+    ],
+    "Does not intend": [
+     2
+    ],
+    "Does not know": [
+     3
+    ]
+   },
+   "candidate_response_map": {
+    "1": "candidate: intends to have (more) children",
+    "2": "candidate: does not intend",
+    "3": "candidate: don't know intent",
+    "4": "unknown (17 cases): not recalled"
+   },
+   "coding_source": "candidate only: four raw codes (1, 2, 3, 4) observed; meaning of code 4 not known; nothing in raw/ confirms any of them",
+   "confirmed_from": null,
+   "note": "Intended births: a different measure from ideal family size.",
+   "measure_flag": "intended_not_ideal"
+  },
+  "RELIGION": {
+   "role": "filter",
+   "concept": "religious_identification",
+   "alignment": "partial",
+   "label_text": "Variable name RELIGION only (a recode of current religious affiliation; no label or wording in raw/).",
+   "text_kind": "variable_name_only",
+   "candidate_categories": {
+    "No religion": [
+     1
+    ],
+    "Catholic": [
+     2
+    ],
+    "Protestant": [
+     3
+    ],
+    "Other religions": [
+     4
+    ]
+   },
+   "candidate_response_map": {
+    "1": "candidate: no religion",
+    "2": "candidate: Catholic",
+    "3": "candidate: Protestant",
+    "4": "candidate: other religions"
+   },
+   "coding_source": "candidate only: four raw codes observed; recollection of earlier NSFG recodes",
+   "confirmed_from": null
+  },
+  "ATTNDNOW": {
+   "role": "filter",
+   "concept": "religious_service_attendance",
+   "alignment": "direct",
+   "label_text": "Variable name ATTNDNOW only (no label or wording in raw/). Candidate meaning: current frequency of attending religious services.",
+   "text_kind": "variable_name_only",
+   "candidate_categories": {
+    "More than once a week": [
+     1
+    ],
+    "Once a week": [
+     2
+    ],
+    "2-3 times a month": [
+     3
+    ],
+    "Once a month": [
+     4
+    ],
+    "3-4 times a year": [
+     5
+    ],
+    "Less often": [
+     6
+    ],
+    "Never": [
+     7
+    ]
+   },
+   "candidate_response_map": {
+    "1": "candidate: more than once a week",
+    "2": "candidate: once a week",
+    "3": "candidate: 2-3 times a month",
+    "4": "candidate: once a month",
+    "5": "candidate: 3-4 times a year",
+    "6": "candidate: less often",
+    "7": "candidate: never",
+    "8": "candidate: refused",
+    "9": "candidate: don't know"
+   },
+   "coding_source": "candidate only: raw codes 1-9 observed; recollection of the NSFG 1-7 attendance scale with 8/9 refused/don't know",
+   "confirmed_from": null
+  },
+  "FMARITAL": {
+   "role": "filter",
+   "concept": "formal_marital_status",
+   "alignment": "partial",
+   "label_text": "Variable name FMARITAL only (a recode of formal marital status; no label or wording in raw/).",
+   "text_kind": "variable_name_only",
+   "candidate_categories": {
+    "Married": [
+     1
+    ],
+    "Widowed": [
+     2
+    ],
+    "Divorced": [
+     3
+    ],
+    "Separated": [
+     4
+    ],
+    "Never married": [
+     5
+    ]
+   },
+   "candidate_response_map": {
+    "1": "candidate: married",
+    "2": "candidate: widowed",
+    "3": "candidate: divorced or annulled",
+    "4": "candidate: separated",
+    "5": "candidate: never married"
+   },
+   "coding_source": "candidate only: structural check FMARITAL==5 coincides case-for-case with EVRMARRY==0 (see diagnostics), consistent with 5 = never married, but EVRMARRY's own coding is also unconfirmed",
+   "confirmed_from": null
+  }
+ }
+}

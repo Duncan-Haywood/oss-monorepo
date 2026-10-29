@@ -1,0 +1,129 @@
+# Variable mapping for the Joint EVS/WVS 2017-2022 dataset (GESIS ZA7505;
+# check the study number and version you download). Used by
+# pipeline/import_wvs_evs.py.
+#
+# NOTHING HERE HAS BEEN CHECKED AGAINST THE REAL FILE. Names follow the
+# Integrated Values Surveys letter-number scheme (A..., C..., D..., F...,
+# X...) as we remember it. Check every entry in the official variable report /
+# codebook, fix what differs, then set `confirm_against_codebook: false` on it.
+# The importer refuses to run while any entry still says `true` (or pass
+# --i-checked-the-codebook once you have checked them all).
+#
+# Entry syntax: see pipeline/importers/issp2022.yaml.
+
+dataset_id: evs_wvs_2017_2022
+source_id: evs_wvs_2017_2022
+title: "Joint EVS/WVS 2017-2022 dataset"
+years: [2017, 2018, 2019, 2020, 2021, 2022]
+design: >-
+  One national survey per country (EVS 2017 or WVS wave 7); fieldwork year,
+  mode and sampling differ by country. Intervals are approximate (Wald on
+  n_eff), not design-based. Do not pool countries.
+confirm_against_codebook: true
+
+weight:
+  variable: gwght            # within-country design/calibration weight; pwght is the population-size weight for pooling, do not use it for country tables
+  confirm_against_codebook: true
+
+country:
+  variable: cntry_AN         # ISO 3166 alpha-2 as a string; or `cntry` (numeric ISO 3166, labelled)
+  kind: code
+  confirm_against_codebook: true
+
+year:
+  variable: year             # survey year of the country survey
+  confirm_against_codebook: true
+
+missing:                     # IVS negative codes; check their labels in the file
+  dk: "don.?t know"
+  refused: "no answer|refused"
+  iap: "not applicable|not asked|missing|inapplicable"
+
+filters:
+  sex:
+    variable: X001
+    levels:
+      female: {labels: "^\\s*female"}
+      male: {labels: "^\\s*male"}
+    confirm_against_codebook: true
+  age:
+    variable: X003
+    kind: numeric
+    bands:
+      "18-29": [18, 29]
+      "20-29": [20, 29]
+      "30-44": [30, 44]
+    confirm_against_codebook: true   # negative codes are missing and fall outside every band
+  relig:
+    variable: F025           # religious denomination (major groups)
+    levels:
+      catholic: {labels: "roman catholic|^\\s*catholic"}
+      no_religion: {labels: "do not belong|no religion|none"}
+    confirm_against_codebook: true
+  attend:
+    variable: F028           # how often attend religious services
+    levels:
+      weekly_or_more: {labels: "more than once a week|once a week"}
+    expect_labels: {1: "more than once a week"}
+    confirm_against_codebook: true
+  marital:
+    variable: X007
+    levels:
+      never_married: {labels: "single|never married"}
+    confirm_against_codebook: true
+
+questions:
+  - variable: D057
+    original_text: "CONFIRM FROM CODEBOOK: Being a housewife is just as fulfilling as working for pay."
+    harmonized_concept: homemaking_fulfilling
+    alignment: partial
+    expect_labels: {1: "agree strongly|strongly agree"}
+    categories:
+      Agree: {labels: "^\\s*(agree|strongly agree|agree strongly)\\s*$"}
+      Disagree: {labels: "^\\s*(disagree|strongly disagree|disagree strongly)\\s*$"}
+    confirm_against_codebook: true
+  - variable: D061
+    original_text: "CONFIRM FROM CODEBOOK: When a mother works for pay, the children suffer."
+    harmonized_concept: working_mother_children_suffer
+    alignment: related
+    categories:
+      Agree: {labels: "^\\s*(agree|strongly agree|agree strongly)\\s*$"}
+      Disagree: {labels: "^\\s*(disagree|strongly disagree|disagree strongly)\\s*$"}
+    confirm_against_codebook: true
+  - variable: C001
+    original_text: "CONFIRM FROM CODEBOOK: When jobs are scarce, men should have more right to a job than women."
+    harmonized_concept: role_norm
+    alignment: related
+    categories:
+      Agree: {labels: "^\\s*(agree|strongly agree|agree strongly)\\s*$"}
+      Neither: {labels: "neither"}
+      Disagree: {labels: "^\\s*(disagree|strongly disagree|disagree strongly)\\s*$"}
+    confirm_against_codebook: true
+  - variable: F121
+    original_text: "CONFIRM FROM CODEBOOK: Please tell me whether you think divorce can always be justified, never be justified, or something in between (1 never - 10 always)."
+    harmonized_concept: divorce_attitude
+    alignment: related
+    expect_labels: {1: "never"}
+    categories:
+      "Never justifiable (1)": {codes: [1]}
+      "2-5": {codes: [2, 3, 4, 5]}
+      "6-10": {codes: [6, 7, 8, 9, 10]}
+    confirm_against_codebook: true
+  - variable: F034
+    original_text: "CONFIRM FROM CODEBOOK: Independently of whether you attend religious services or not, would you say you are a religious person, not a religious person, or an atheist?"
+    harmonized_concept: religiosity_self
+    alignment: related
+    categories:
+      Religious: {labels: "^\\s*(a )?religious person"}
+      Not religious: {labels: "not (a )?religious"}
+      Atheist: {labels: "atheist"}
+    confirm_against_codebook: true
+  - variable: F028
+    original_text: "CONFIRM FROM CODEBOOK: Apart from weddings and funerals, about how often do you attend religious services these days?"
+    harmonized_concept: religious_attendance
+    alignment: direct
+    categories:
+      Weekly or more: {labels: "more than once a week|once a week"}
+      Monthly: {labels: "once a month"}
+      Less often or never: {labels: "special holy days|christmas|once a year|less often|never"}
+    confirm_against_codebook: true

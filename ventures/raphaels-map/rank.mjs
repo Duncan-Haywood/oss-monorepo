@@ -3,7 +3,7 @@
 // sliders with the re-normalised weights shown, two modes, a missing-data
 // policy, rank sensitivity, and the reasons behind each position.
 import { isMissing, loadCore, metricIndex, sourceIndex, countyIndex, statesWithCounties, milesBetween } from './data.mjs';
-import { esc, obsText, flagBadges, emptyState, vintageLine, vintageHtml, acronyms, metricLabel } from './format.mjs';
+import { esc, obsText, missingReason, flagBadges, emptyState, vintageLine, vintageHtml, acronyms, metricLabel } from './format.mjs';
 import {
   DIMENSIONS, PROXY_DIMENSION, DIMENSION_LABELS, DIMENSION_HELP, MODES, AGE_BANDS,
   availableBands, scoreAreas, rankSensitivity, explainRow, renormalise, proxyMetricIds,
@@ -85,7 +85,7 @@ const pctW = (w) => `${Math.round(w * 100)}%`;
 /** A small rank-range strip: base rank dot over the min–max range. */
 function rangeSVG(s, n) {
   if (!s || s.base === null || !n) return '<span class="muted">Not ranked</span>';
-  const W = 120, x = (r) => 4 + ((r - 1) / Math.max(1, n - 1)) * (W - 8);
+  const W = 90, x = (r) => 4 + ((r - 1) / Math.max(1, n - 1)) * (W - 8);
   const lo = s.min ?? s.base, hi = s.max ?? s.base;
   return `<svg class="range" viewBox="0 0 ${W} 14" width="${W}" height="14" role="img" aria-label="Rank ${s.base}; between ${lo} and ${hi} under the weight changes"><line x1="4" y1="7" x2="${W - 4}" y2="7" class="range-axis"/><line x1="${x(lo)}" y1="7" x2="${x(hi)}" y2="7" class="range-span"/><circle cx="${x(s.base)}" cy="7" r="4" class="range-dot"/></svg> <span class="range-text">${lo === hi ? 'stable' : `${lo}–${hi}`}</span>`;
 }
@@ -113,6 +113,9 @@ export async function update(ctx) {
   const ax = acronyms();
   const states = statesWithCounties(r.core.geos);
   const dims = s.includeProxies ? [...DIMENSIONS, PROXY_DIMENSION] : DIMENSIONS;
+  // Open on wide screens; on phones the results come first and settings fold away.
+  const prevOpen = el.querySelector('#rank-settings');
+  const settingsOpen = prevOpen ? prevOpen.hasAttribute('open') : !(typeof matchMedia === 'function' && matchMedia('(max-width: 700px)').matches);
 
   const stateOptions = [`<option value="us"${s.st === 'us' ? ' selected' : ''}>All U.S. counties</option>`, ...states.map((x) => `<option value="${esc(x.id)}"${x.id === s.st ? ' selected' : ''}>${esc(x.name)}</option>`)].join('');
   const bandOptions = (r.bands.length ? r.bands : AGE_BANDS).map((b) => `<option value="${b.id}"${b.id === (r.band || s.band) ? ' selected' : ''}>${b.label}</option>`).join('');
@@ -126,7 +129,8 @@ export async function update(ctx) {
     </div>`).join('');
 
   const controls = `
-  <form class="controls card" id="rank-controls" onsubmit="return false">
+  <details class="card settings" id="rank-settings"${settingsOpen ? ' open' : ''}><summary>Settings: ${esc(MODES[s.mode].label)}, women ${esc((AGE_BANDS.find((b) => b.id === (r.band || s.band)) || {}).label || '')}, ${esc(weightsSummary(s.weights, dims))}</summary>
+  <form class="controls" id="rank-controls" onsubmit="return false">
     <div class="grid">
       <div><label for="rank-st">Area</label><select id="rank-st">${stateOptions}</select></div>
       <div><label for="rank-band">Women's age band</label><select id="rank-band">${bandOptions}</select><p class="hint">Only bands the published tables support. Adults only.</p></div>
@@ -145,7 +149,7 @@ export async function update(ctx) {
       <div><label for="rank-delta">Sensitivity test</label><select id="rank-delta">${[0.05, 0.1, 0.2].map((d) => `<option value="${d}"${d === s.delta ? ' selected' : ''}>Each weight ± ${Math.round(d * 100)}</option>`).join('')}</select></div>
     </div>
     <p><button type="button" id="rank-reset" class="secondary">Reset weights to this mode's defaults</button></p>
-  </form>`;
+  </form></details>`;
 
   let body = '';
   if (isMissing(r.core.county)) body = emptyState('us/county_observations.json');
@@ -162,8 +166,10 @@ export async function update(ctx) {
   wire(el, ctx, s, r);
 }
 
-function resultsHTML(r, s, dims, ax) {
+function resultsHTML(r, s, allDims, ax) {
   const rows = r.result.rows;
+  // A dimension with zero weight and no data anywhere is a column of "Not available"; the note above says so instead.
+  const dims = allDims.filter((d) => (s.weights[d] || 0) > 0 || rows.some((x) => x.dims[d].score !== null));
   const n = rows.filter((x) => x.rank !== null).length;
   const label = (id) => metricLabel(r.metricsById, id);
   const bandLabel = (AGE_BANDS.find((b) => b.id === r.band) || {}).label || r.band;
@@ -176,23 +182,30 @@ function resultsHTML(r, s, dims, ax) {
   if (r.missingIds && r.missingIds.length) notes.push(`${r.missingIds.length} count${r.missingIds.length === 1 ? 'y has' : 'ies have'} no row in the published observations and ${r.missingIds.length === 1 ? 'is' : 'are'} not listed.`);
   if (s.includeProxies) notes.push('Unvalidated hypotheses are switched on. Their dimension is labelled; treat any rank change they cause as exploratory.');
 
-  const head = `<tr><th scope="col">Rank</th><th scope="col">Area</th><th scope="col">Index</th><th scope="col">Coverage</th>${dims.map((d) => `<th scope="col">${esc(DIMENSION_LABELS[d])}</th>`).join('')}<th scope="col">Women ${esc(bandLabel)}</th><th scope="col">Never married ${esc(bandLabel)}</th><th scope="col">Catholic adherents</th><th scope="col">Public venues</th><th scope="col">Rank under ± ${Math.round(s.delta * 100)}</th></tr>`;
+  const SHORT = { demographic_capacity: 'Demographic', catholic_ecosystem: 'Catholic', meeting_access: 'Access', values_evidence: 'Values', exploratory_proxies: 'Proxies (unvalidated)' };
+  const th = (short, full) => `<th scope="col"${full && full !== short ? ` title="${esc(full)}"` : ''}>${esc(short)}</th>`;
+  const rawLabels = { women: `Women ${bandLabel}`, nm: `Never married ${bandLabel}`, cath: 'Catholic adherents', venues: 'Public venues' };
+  const head = `<tr>${th('Rank')}${th('Area')}${th('Index', 'Research priority index, 0–100')}${th('Coverage', 'Weighted dimensions with data')}${dims.map((d) => th(SHORT[d], DIMENSION_LABELS[d])).join('')}${th(rawLabels.women)}${th(rawLabels.nm)}${th(rawLabels.cath)}${th(rawLabels.venues)}${th(`Rank under ± ${Math.round(s.delta * 100)}`)}</tr>`;
   const obs = r.core.county.observations;
   const trs = rows.map((row) => {
     const o = obs[row.id] || {};
     const why = explainRow(row, label, n).map((l) => `<li>${esc(l)}</li>`).join('');
     const dimCells = dims.map((d) => {
       const x = row.dims[d];
-      return `<td class="num">${x.score === null ? '<span class="na">Not available</span>' : Math.round(x.score)}${x.total && x.score !== null && x.available < x.total ? `<span class="sub">${x.available} of ${x.total} parts</span>` : ''}</td>`;
+      return `<td class="num" data-label="${esc(DIMENSION_LABELS[d])}">${x.score === null ? '<span class="na">Not available</span>' : Math.round(x.score)}${x.total && x.score !== null && x.available < x.total ? `<span class="sub">${x.available} of ${x.total} parts</span>` : ''}</td>`;
     }).join('');
-    const raw = (m) => `<td class="num raw">${esc(obsText(o[m], (r.metricsById.get(m) || {}).unit))}${o[m] ? ` ${flagBadges((o[m].flags || []).filter((f) => f !== 'moe_approx' && f !== 'derived'))}` : ''}</td>`;
+    const raw = (m, lab) => {
+      const x = o[m];
+      const fl = x ? (x.flags || []).filter((f) => f !== 'moe_approx' && f !== 'derived' && !(x.e === null && (f === 'not_published' || f === 'not_ingested'))) : [];
+      return `<td class="num raw" data-label="${esc(lab)}">${x && x.e !== null ? esc(obsText(x, (r.metricsById.get(m) || {}).unit)) : `<span class="na" title="${esc(missingReason(x))}">Not available</span>`}${fl.length ? ` ${flagBadges(fl)}` : ''}</td>`;
+    };
     return `<tr class="${row.rank === null ? 'unranked' : ''}">
-      <td class="num">${row.rank ?? '—'}</td>
+      <td class="num rank-no" data-label="Rank">${row.rank ?? '—'}</td>
       <th scope="row"><a href="#explore?id=${esc(row.id)}&st=${esc(row.id.slice(0, 2))}">${esc(r.names[row.id] || row.id)}</a><details><summary>Why here</summary><ul>${why}</ul></details></th>
-      <td class="num strong">${row.index === null ? '<span class="na">Not ranked</span>' : row.index.toFixed(1)}</td>
-      <td>${row.coverage.scored} of ${row.coverage.considered} dimensions</td>
-      ${dimCells}${raw(`women_${r.band}`)}${raw(`never_married_women_${r.band}`)}${raw('catholic_adherents')}${raw('public_venues')}
-      <td>${rangeSVG(r.sens.get(row.id), n)}</td></tr>`;
+      <td class="num strong" data-label="Index">${row.index === null ? '<span class="na">Not ranked</span>' : row.index.toFixed(1)}</td>
+      <td data-label="Coverage">${row.coverage.scored} of ${row.coverage.considered}</td>
+      ${dimCells}${raw(`women_${r.band}`, rawLabels.women)}${raw(`never_married_women_${r.band}`, rawLabels.nm)}${raw('catholic_adherents', rawLabels.cath)}${raw('public_venues', rawLabels.venues)}
+      <td data-label="Rank under ± ${Math.round(s.delta * 100)}">${rangeSVG(r.sens.get(row.id), n)}</td></tr>`;
   }).join('');
   const top = rows.filter((x) => x.rank !== null).slice(0, 5).map((x) => x.id);
   return `

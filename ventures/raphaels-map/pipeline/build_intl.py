@@ -422,7 +422,7 @@ def build_registry(manifest: dict, ingested: set, wb_meta: dict, euro_meta: dict
          "provider": "United Nations, Department of Economic and Social Affairs, Population Division",
          "landing_url": "https://population.un.org/wpp/", "dataset_version": "WPP 2024",
          "reference_period": f"1990-{WPP_PROJECTION_YEAR} (estimates to {y0}, projections after)",
-         "retrieved_at": retrieved("wpp2024"), "license": "CC BY 3.0 IGO (UN WPP terms of use)",
+         "retrieved_at": retrieved("wpp2024"), "license": "CC BY 3.0 IGO (UN WPP terms of use; verify on the landing page)",
          "access": "public download", "status": status("wpp2024"), "files": files("wpp2024"),
          "citation": "United Nations, Department of Economic and Social Affairs, Population Division (2024). "
                      "World Population Prospects 2024.",
@@ -441,7 +441,7 @@ def build_registry(manifest: dict, ingested: set, wb_meta: dict, euro_meta: dict
          "provider": "Eurostat", "landing_url": "https://ec.europa.eu/eurostat/databrowser/view/demo_ndivind/default/table?lang=en",
          "dataset_version": "; ".join(f"{k} updated {v.get('updated')}" for k, v in sorted(euro_meta.items())) or None,
          "reference_period": "1960-2024 (varies by country)", "retrieved_at": retrieved("eurostat"),
-         "license": "Eurostat reuse policy (CC BY 4.0)", "access": "public API", "status": status("eurostat"),
+         "license": "Eurostat reuse policy (CC BY 4.0; verify on the landing page)", "access": "public API", "status": status("eurostat"),
          "files": files("eurostat"),
          "citation": "Eurostat, demo_ndivind and demo_nind, doi:10.2908/DEMO_NDIVIND, doi:10.2908/DEMO_NIND.",
          "notes": "EU/EFTA reporting countries only. Status codes (p provisional, e estimated, b break in series, "

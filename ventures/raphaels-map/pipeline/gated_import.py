@@ -20,10 +20,11 @@ redistributing respondent-level data), and we have not seen them, so:
    with the dataset's documented weight; n, n_eff = (sum w)^2 / sum w^2,
    suppression at n_eff < 30, `exploratory_sample` at 30 <= n_eff < 100.
 
-Weighted-statistics helpers: pipeline/survey_stats.py did not exist when
-this was written, so `n_eff` and the weighted shares are computed by the
-small local helpers below. If survey_stats.py appears and exposes `n_eff`,
-that one is used instead (same formula).
+Weighted statistics come from pipeline/survey_stats.py (`estimate_table`:
+Kish n_eff, weighted shares, logit intervals, design-based Taylor SEs when the
+mapping names strata and PSU variables, the n_eff guardrails). If that module
+cannot be imported, a small local fallback below computes the same n_eff and
+guardrails with Kish-adjusted Wald intervals, and the output says which ran.
 """
 from __future__ import annotations
 
@@ -37,8 +38,7 @@ from pathlib import Path
 
 SUPPRESS_BELOW = 30
 EXPLORATORY_BELOW = 100
-Z90 = 1.6449  # ARCHITECTURE: the page uses 90% intervals for ACS MOEs; we use 95% for survey CIs below
-Z95 = 1.96
+Z95 = 1.96  # 95% interval for survey shares
 
 
 class MappingError(Exception):
@@ -47,21 +47,21 @@ class MappingError(Exception):
 
 # ------------------------------------------------------------ weighted stats
 
-def _local_n_eff(w) -> float:
+try:  # the shared helper (pipeline/survey_stats.py)
+    import survey_stats as _ss  # type: ignore
+    _ss.estimate_table  # noqa: B018 - fail over to the fallback if the API differs
+    STATS_HELPER = "survey_stats.estimate_table"
+except Exception:  # noqa: BLE001 - absent or broken: use the local fallback
+    _ss = None
+    STATS_HELPER = "gated_import local fallback (Kish n_eff, Wald interval)"
+
+
+def n_eff(w) -> float:
+    if _ss is not None:
+        return _ss.kish_n_eff(w)
     s = float(sum(w))
     s2 = float(sum(x * x for x in w))
     return (s * s) / s2 if s2 > 0 else 0.0
-
-
-try:  # coordinate with the shared helper if another agent has landed it
-    import survey_stats as _ss  # type: ignore
-    n_eff = getattr(_ss, "n_eff", _local_n_eff)
-    if not callable(n_eff):
-        n_eff = _local_n_eff
-    STATS_HELPER = "survey_stats.n_eff" if n_eff is not _local_n_eff else "gated_import local helper"
-except Exception:  # noqa: BLE001 - absent or broken: use the local helper
-    n_eff = _local_n_eff
-    STATS_HELPER = "gated_import local helper"
 
 
 def reliability_flags(neff: float) -> list[str]:
@@ -72,18 +72,42 @@ def reliability_flags(neff: float) -> list[str]:
     return []
 
 
-def weighted_rows(codes, weights, categories: dict, neff: float) -> list[dict]:
-    """categories: {label: set(codes)}. Wald interval on n_eff (approximate)."""
-    total = sum(weights)
+def _fallback_table(codes, w, categories, domain, missing_kind):
+    import numpy as np
+    inscope = domain & np.isfinite(w) & (w > 0)
+    valid = np.zeros(len(codes), bool)
+    for cs in categories.values():
+        valid |= np.isin(codes, list(cs))
+    d = inscope & valid
+    wd = w[d]
+    base = float(wd.sum())
+    ne = n_eff(wd) if len(wd) else 0.0
+    miss = inscope & ~valid
+    excl = {k: int(np.sum(miss & (missing_kind == k))) for k in ("dk", "refused", "iap")}
+    excl["missing_unsplit"] = int(miss.sum()) - sum(excl.values())
+    flags = reliability_flags(ne) if len(wd) else ["suppressed_small_sample"]
+    out = {"rows": None, "n": int(d.sum()), "n_eff": round(ne, 1), "weighted_base": round(base, 3),
+           "excluded": excl, "flags": flags}
+    if "suppressed_small_sample" in flags:
+        return out
+    flags.append("approx_ci")
     rows = []
-    for label, cs in categories.items():
-        wsum = sum(w for c, w in zip(codes, weights) if c in cs)
-        p = wsum / total if total > 0 else float("nan")
-        half = Z95 * math.sqrt(p * (1 - p) / neff) if neff > 0 else float("nan")
-        rows.append({"category": label, "pct": round(100 * p, 1),
-                     "ci_low": round(max(0.0, 100 * (p - half)), 1),
+    for name, cs in categories.items():
+        p = float(wd[np.isin(codes[d], list(cs))].sum()) / base
+        half = Z95 * math.sqrt(p * (1 - p) / ne)
+        rows.append({"category": name, "pct": round(100 * p, 1), "ci_low": round(max(0.0, 100 * (p - half)), 1),
                      "ci_high": round(min(100.0, 100 * (p + half)), 1)})
-    return rows
+    out["rows"] = rows
+    return out
+
+
+def estimate(codes, w, categories, domain, missing_kind, design=None):
+    if _ss is not None:
+        from collections import OrderedDict
+        return _ss.estimate_table(codes, w, OrderedDict(categories), domain=domain, design=design,
+                                  missing_kind=missing_kind, suppress_below=SUPPRESS_BELOW,
+                                  exploratory_below=EXPLORATORY_BELOW)
+    return _fallback_table(codes, w, categories, domain, missing_kind)
 
 
 # ------------------------------------------------------------- mapping file
@@ -249,6 +273,12 @@ def resolve(mapping: dict, labels_of, columns_present: set) -> dict:
     if y.get("variable") and need(y["variable"], "year"):
         plan["year"] = y["variable"]
     plan["years"] = mapping.get("years")
+    dv = mapping.get("design_variables") or {}
+    if dv.get("strata") or dv.get("psu"):
+        if not (dv.get("strata") and dv.get("psu")):
+            problems.append("design_variables: give both strata and psu, or neither")
+        elif need(dv["strata"], "design_variables.strata") and need(dv["psu"], "design_variables.psu"):
+            plan["strata"], plan["psu"] = dv["strata"], dv["psu"]
 
     for dim, spec in (mapping.get("filters") or {}).items():
         if not spec or not spec.get("variable"):
@@ -304,94 +334,111 @@ def resolve(mapping: dict, labels_of, columns_present: set) -> dict:
 
 # --------------------------------------------------------------- crosstabs
 
-def _level_mask(values, spec, level):
-    if level == "any":
-        return [True] * len(values)
-    if spec["kind"] == "numeric":
-        lo, hi = spec["bands"][level]
-        return [v is not None and not (isinstance(v, float) and math.isnan(v)) and lo <= v <= hi for v in values]
-    cs = spec["levels"][level]
-    return [_norm_code(v) in cs if v is not None and not (isinstance(v, float) and math.isnan(v)) else False
-            for v in values]
-
-
 FILTER_DIMS = ["sex", "age_band", "relig", "attend", "marital"]
 DIM_SOURCE = {"sex": "sex", "age_band": "age", "relig": "relig", "attend": "attend", "marital": "marital"}
 
 
-def crosstabs(df, plan: dict, mapping: dict, dataset_id: str) -> tuple[list, dict]:
-    """Tables for every country x filter combination x question."""
-    wcol = plan["weight"]
-    ccol = plan["country"]["variable"]
-    country_labels = plan.get("country_labels") or {}
-    weights_all = [float(x) if x is not None else float("nan") for x in df[wcol].tolist()]
-    report = {"rows_in_file": len(df), "rows_bad_weight": sum(1 for x in weights_all if not (x > 0))}
+def _codes_array(series):
+    """Numeric column -> float array (NaN for missing); string column -> object array."""
+    import numpy as np
+    import pandas as pd
+    num = pd.to_numeric(series, errors="coerce")
+    if num.notna().sum() == series.notna().sum():
+        return num.to_numpy(dtype=float)
+    return series.astype(object).where(series.notna(), None).to_numpy()
 
-    levels_for = {}
+
+def _in(arr, codes):
+    import numpy as np
+    if arr.dtype == object:
+        return np.array([_norm_code(v) in codes if v is not None else False for v in arr], dtype=bool)
+    nums = [c for c in codes if isinstance(c, (int, float))]
+    return np.isin(arr, nums) if nums else np.zeros(len(arr), dtype=bool)
+
+
+def _level_mask(arr, spec, level):
+    import numpy as np
+    if level == "any":
+        return None
+    if spec["kind"] == "numeric":
+        lo, hi = spec["bands"][level]
+        with np.errstate(invalid="ignore"):
+            return (arr >= lo) & (arr <= hi)
+    return _in(arr, spec["levels"][level])
+
+
+def crosstabs(df, plan: dict, mapping: dict, dataset_id: str) -> tuple[list, dict]:
+    """Tables for every country x filter combination x question.
+
+    Each country is estimated on its own rows (one national survey each; never
+    pooled). Strata/PSU, when the mapping names them, give design-based SEs.
+    """
+    import numpy as np
+    w_all = np.asarray(_codes_array(df[plan["weight"]]), dtype=float)
+    good_w = np.isfinite(w_all) & (w_all > 0)
+    report = {"rows_in_file": int(len(df)), "rows_bad_weight": int((~good_w).sum())}
+    country = _codes_array(df[plan["country"]["variable"]])
+    country_labels = plan.get("country_labels") or {}
+    years = _codes_array(df[plan["year"]]) if plan.get("year") else None
+    strata = df[plan["strata"]].to_numpy() if plan.get("strata") else None
+    psu = df[plan["psu"]].to_numpy() if plan.get("psu") else None
+
+    levels_for, masks_all = {}, {}
     for dim in FILTER_DIMS:
         spec = plan["filters"].get(DIM_SOURCE[dim])
         if spec is None:
             levels_for[dim] = ["any"]
-        else:
-            lv = list(spec["bands"]) if spec["kind"] == "numeric" else list(spec["levels"])
-            levels_for[dim] = lv + ["any"]
-    col_values = {dim: df[plan["filters"][DIM_SOURCE[dim]]["variable"]].tolist()
-                  for dim in FILTER_DIMS if DIM_SOURCE[dim] in plan["filters"]}
-    masks = {}
-    for dim in FILTER_DIMS:
-        for lv in levels_for[dim]:
-            if lv == "any":
-                masks[(dim, lv)] = None
-            else:
-                masks[(dim, lv)] = _level_mask(col_values[dim], plan["filters"][DIM_SOURCE[dim]], lv)
+            continue
+        arr = _codes_array(df[spec["variable"]])
+        lv = list(spec["bands"]) if spec["kind"] == "numeric" else list(spec["levels"])
+        levels_for[dim] = lv + ["any"]
+        for level in lv:
+            masks_all[(dim, level)] = _level_mask(arr, spec, level)
 
-    countries = df[ccol].tolist()
-    years = df[plan["year"]].tolist() if plan.get("year") else None
+    q_all = {}
+    for q in plan["questions"]:
+        arr = np.asarray(pd_numeric(df[q["variable"]]), dtype=float)
+        kind = np.full(len(arr), "", dtype=object)
+        for cls, cs in q["resolved_missing"].items():
+            kind[_in(arr, cs)] = cls
+        cats = {name: sorted(c for c in cs if isinstance(c, (int, float))) for name, cs in q["resolved_categories"].items()}
+        q_all[q["variable"]] = (arr, kind, cats)
+
+    cvals = sorted({_norm_code(v) for v in country if v is not None and v == v}, key=str)
     tables = []
-    for cval in sorted({_norm_code(x) for x in countries if x is not None and x == x}, key=str):
-        cmask = [_norm_code(x) == cval for x in countries]
+    for cval in cvals:
+        idx = np.flatnonzero(_in(country, {cval}))
+        w = w_all[idx]
         cname = country_labels.get(cval, str(cval))
-        cyears = sorted({int(years[i]) for i, m in enumerate(cmask) if m and years[i] == years[i]}) if years else plan.get("years")
+        if years is not None:
+            cyears = sorted({int(y) for y in years[idx][good_w[idx]] if y == y})
+        else:
+            cyears = plan.get("years")
+        design = None
+        if _ss is not None and strata is not None and psu is not None:
+            design = _ss.Design(strata[idx], psu[idx])
+        masks = {k: m[idx] for k, m in masks_all.items()}
         for combo in itertools.product(*[levels_for[d] for d in FILTER_DIMS]):
-            base = list(cmask)
-            for dim, lv in zip(FILTER_DIMS, combo):
-                mk = masks[(dim, lv)]
-                if mk is not None:
-                    base = [a and b for a, b in zip(base, mk)]
+            dom = np.ones(len(idx), dtype=bool)
+            for dim, level in zip(FILTER_DIMS, combo):
+                if level != "any":
+                    dom &= masks[(dim, level)]
             for q in plan["questions"]:
-                var = q["variable"]
-                vals = df[var].tolist()
-                cats = q["resolved_categories"]
-                valid = set().union(*cats.values())
-                codes, ws = [], []
-                excl = {"dk": 0, "refused": 0, "iap": 0, "other": 0}
-                for i, m in enumerate(base):
-                    if not m or not (weights_all[i] > 0):
-                        continue
-                    v = vals[i]
-                    code = None if v is None or (isinstance(v, float) and math.isnan(v)) else _norm_code(v)
-                    if code in valid:
-                        codes.append(code)
-                        ws.append(weights_all[i])
-                        continue
-                    for cls in ("dk", "refused", "iap"):
-                        if code in q["resolved_missing"].get(cls, set()):
-                            excl[cls] += 1
-                            break
-                    else:
-                        excl["iap" if code is None else "other"] += 1
-                ne = n_eff(ws) if ws else 0.0
-                flags = reliability_flags(ne)
-                filt = {"country": cname, "sex": combo[0], "age_band": combo[1], "relig": combo[2],
-                        "attend": combo[3], "marital": combo[4]}
+                arr, kind, cats = q_all[q["variable"]]
+                body = estimate(arr[idx], w, cats, dom, kind[idx], design)
                 tables.append({
-                    "id": ":".join([dataset_id, str(cval), var] + list(combo)),
-                    "dataset_id": dataset_id, "variable": var, "years": cyears, "filters": filt,
-                    "rows": None if "suppressed_small_sample" in flags else weighted_rows(codes, ws, cats, ne),
-                    "n": len(codes), "n_eff": round(ne, 1), "weighted_base": round(sum(ws), 2),
-                    "excluded": excl, "flags": flags, "ci_method": "approximate: Wald on n_eff, not design-based",
+                    "id": ":".join([dataset_id, str(cval), q["variable"]] + list(combo)),
+                    "dataset_id": dataset_id, "variable": q["variable"], "years": cyears,
+                    "filters": {"country": cname, "sex": combo[0], "age_band": combo[1], "relig": combo[2],
+                                "attend": combo[3], "marital": combo[4]},
+                    **body,
                 })
     return tables, report
+
+
+def pd_numeric(series):
+    import pandas as pd
+    return pd.to_numeric(series, errors="coerce").to_numpy(dtype=float)
 
 
 def questions_doc(mapping: dict, plan: dict, dataset_id: str) -> dict:
@@ -437,6 +484,7 @@ def run_import(*, dataset_id: str, file: Path, out: Path, mapping_path: Path, ch
     wanted = [mapping["weight"]["variable"], mapping["country"]["variable"]]
     if (mapping.get("year") or {}).get("variable"):
         wanted.append(mapping["year"]["variable"])
+    wanted += [v for v in (mapping.get("design_variables") or {}).values() if isinstance(v, str) and v]
     wanted += [s["variable"] for s in (mapping.get("filters") or {}).values() if s and s.get("variable")]
     wanted += [q["variable"] for q in mapping["questions"]]
     df, actual, labels, missing = read_labelled(file, wanted)

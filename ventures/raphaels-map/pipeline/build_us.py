@@ -143,8 +143,8 @@ def ratio_obs(num: dict, den: dict, scale: float, *, subset: bool, digits: int =
     denominator) or ratios, flagged moe_approx; null when an input is null."""
     flags = ["derived", *extra_flags]
     if num["e"] is None or den["e"] is None:
-        return obs(None, None, flags + [f for f in num["flags"] + den["flags"]
-                                        if f not in ("moe_approx", "derived")] or ["not_published"])
+        why = [f for f in num["flags"] + den["flags"] if f not in ("moe_approx", "derived")]
+        return obs(None, None, flags + (why or ["not_published"]))
     if den["e"] == 0:
         return obs(None, None, flags + ["not_published"])
     r = num["e"] / den["e"]
@@ -249,6 +249,15 @@ def resolve_acs_cells(meta_dir: Path, shells: dict[str, str] | None = None) -> d
     for key, age in B12002_NEVER_MARRIED_AGES.items():
         cells[f"never_married_women_{key}"] = [find_by_label(labels, B12002_PREFIX + age)]
     cells["never_married_women_20_29"] = cells["never_married_women_20_24"] + cells["never_married_women_25_29"]
+    # Check-only cells: every B12002 female cell for ages 20-29, any marital
+    # status (the leaves under Female). Their sum must equal B01001 women 20-29
+    # for the never-married share to have one consistent denominator.
+    check = sorted(k for k, v in labels.items() if k.startswith("B12002_") and k.endswith("E")
+                   and v.startswith("Estimate!!Total:!!Female:!!")
+                   and (v.endswith("!!20 to 24 years") or v.endswith("!!25 to 29 years")))
+    if len(check) != 12:
+        raise BuildError(f"B12002: expected 12 female 20-29 cells (6 marital statuses x 2 ages), found {len(check)}")
+    cells["_check_b12002_female_20_29"] = check
     if shells is not None:  # second, independent check: the Summary File table shells
         for codes in cells.values():
             for code in codes:
@@ -258,7 +267,7 @@ def resolve_acs_cells(meta_dir: Path, shells: dict[str, str] | None = None) -> d
                     raise BuildError(f"{uid} missing from the table shells")
                 if shells[uid].rstrip(":") != api.rstrip(":"):
                     raise BuildError(f"{uid}: shell label {shells[uid]!r} != API label {api!r}")
-    return {"cells": cells, "labels": {c: labels[c] for cs in cells.values() for c in cs}}
+    return {"cells": cells, "labels": {c: labels[c] for m, cs in cells.items() if not m.startswith("_") for c in cs}}
 
 
 def sf_columns(code: str) -> tuple[str, str]:
@@ -331,6 +340,7 @@ def acs_observations(sf_dir: Path, meta_dir: Path) -> tuple[dict, dict]:
         for g, vals in read_sf(p, sorted(codes)).items():
             raw[g].update(vals)
     out: dict[str, dict] = {"us": {}, "state": {}, "county": {}, "cbsa": {}}
+    mismatch: list[str] = []
     for g, vals in raw.items():
         kind = geo_kind(g)
         if not kind:
@@ -338,6 +348,8 @@ def acs_observations(sf_dir: Path, meta_dir: Path) -> tuple[dict, dict]:
         level, key = kind
         o = {}
         for metric, codes in cells.items():
+            if metric.startswith("_"):
+                continue
             parts = []
             for c in codes:
                 if c not in vals:
@@ -354,7 +366,12 @@ def acs_observations(sf_dir: Path, meta_dir: Path) -> tuple[dict, dict]:
         o["never_married_share_women_20_29"] = ratio_obs(
             o["never_married_women_20_29"], o["women_20_29"], 100, subset=True)
         o["women_20_29_per_1000"] = ratio_obs(o["women_20_29"], o["total_population"], 1000, subset=True)
+        chk = [vals[c][0] for c in cells["_check_b12002_female_20_29"] if c in vals]
+        if o["women_20_29"]["e"] is not None and len(chk) == 12 and None not in chk and sum(chk) != o["women_20_29"]["e"]:
+            mismatch.append(g)
+            o["never_married_share_women_20_29"]["flags"].append("unvalidated")
         out[level][key] = o
+    resolved["b01001_b12002_female_20_29_mismatches"] = mismatch
     return out, resolved
 
 
@@ -813,8 +830,9 @@ class Topology:
 
 
 def fmt_tenths(v: int) -> str:
-    s = str(abs(v) // 10) + ("" if v % 10 == 0 and v >= 0 or (v < 0 and (-v) % 10 == 0) else "." + str(abs(v) % 10))
-    return ("-" if v < 0 else "") + s
+    """Integer tenths -> shortest decimal string (-15 -> '-1.5', 20 -> '2')."""
+    a = abs(v)
+    return ("-" if v < 0 else "") + str(a // 10) + ("" if a % 10 == 0 else "." + str(a % 10))
 
 
 def ring_path(pts_tenths: list[tuple[int, int]]) -> str:
@@ -1015,7 +1033,7 @@ def national_projector(feats: dict, states: dict):
         boxes[st] = [round(left, 1), round(bottom - h, 1), round(w, 1), round(h, 1)]
 
     def project(fid, lon, lat):
-        pr, k, tx_, ty_ = transforms.get(states[fid], transforms[None]) if states[fid] in INSETS else transforms[None]
+        pr, k, tx_, ty_ = transforms.get(states[fid], transforms[None])
         x, y = pr(lon, lat)
         return tx_ + k * x, ty_ - k * y
     return project, f"0 0 {int(NATIONAL_W)} {int(NATIONAL_H)}", boxes
@@ -1041,7 +1059,7 @@ def state_projector(feats: dict, fids: list[str], max_w=800.0, max_h=600.0):
     return project, f"0 0 {W} {H}", desc
 
 
-def build_geo(shp_zip: Path, keep: set[str] | None = None, tol_national=0.25, tol_state=0.35):
+def build_geo(shp_zip: Path, keep: set[str] | None = None, tol_national=0.1, tol_state=0.15):
     """Return {'us_counties': {...}, 'state_08': {...}, ...}."""
     feats, states = read_counties_shp(shp_zip)
     if keep is not None:
@@ -1196,16 +1214,16 @@ def base_sources(manifest: dict, status: dict) -> list[dict]:
                   "notes": "Importer only: a user-supplied licensed file can be loaded locally; nothing is shown until then."})
     simple = [
         ("gss", "General Social Survey", "NORC at the University of Chicago", "https://gssdataexplorer.norc.org/gss_data", "1972-2024"),
-        ("nsfg2022_2023", "National Survey of Family Growth 2022-2023 public-use files", "CDC National Center for Health Statistics",
+        ("nsfg", "National Survey of Family Growth 2022-2023 public-use files", "CDC National Center for Health Statistics",
          "https://www.cdc.gov/nchs/nsfg/nsfg-2022-2023-puf.htm", "2022-2023"),
         ("wpp2024", "UN World Population Prospects 2024", "United Nations, Department of Economic and Social Affairs, Population Division",
          "https://population.un.org/wpp/", "1950-2100 (estimates to 2023, projections after)"),
         ("worldbank", "World Bank World Development Indicators (fertility, population)", "World Bank",
          "https://data.worldbank.org/", "1990-2025"),
-        ("eurostat_divorce", "Eurostat divorce indicators demo_ndivind", "Eurostat",
+        ("eurostat", "Eurostat divorce indicators demo_ndivind", "Eurostat",
          "https://ec.europa.eu/eurostat/databrowser/view/demo_ndivind/default/table?lang=en", "varies"),
     ]
-    mid = {"gss": "gss", "nsfg2022_2023": "nsfg", "wpp2024": "wpp2024", "worldbank": "worldbank", "eurostat_divorce": "eurostat"}
+    mid = {"gss": "gss", "nsfg": "nsfg", "wpp2024": "wpp2024", "worldbank": "worldbank", "eurostat": "eurostat"}
     for sid, title, prov, url, period in simple:
         m = manifest_source(manifest, mid[sid])
         fl = files_of(manifest, mid[sid])
@@ -1373,6 +1391,9 @@ def merge_registry(base_sources: list, base_metrics: list, registry_dir: Path) -
             frag = json.loads(p.read_text(encoding="utf-8"))
         except json.JSONDecodeError as e:
             raise BuildError(f"{p}: not valid JSON ({e})")
+        if not isinstance(frag, dict) or not ({"sources", "metrics"} & set(frag)):
+            notes.append(f"{p.name} skipped: not a {{sources, metrics}} fragment")
+            continue
         for s in frag.get("sources", []):
             sid = s.get("id")
             if not sid:
@@ -1530,6 +1551,7 @@ def build(raw: Path, out: Path, registry_dir: Path = HERE / "registry", *, geo: 
                                         for k, v in c_rep.items()},
                    "usrc_cbsa_join": {"joined": b_rep["joined"], "geo_changed": len(b_rep["geo_changed"])},
                    "venues": v_rep, "counties_without_gazetteer": missing_gaz, "registry_merge": merge_notes,
+                   "b01001_b12002_female_20_29_mismatches": resolved["b01001_b12002_female_20_29_mismatches"],
                    "acs_cells": resolved["labels"]})
 
     sizes = {}

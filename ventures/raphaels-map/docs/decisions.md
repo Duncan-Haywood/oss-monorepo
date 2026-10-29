@@ -37,3 +37,24 @@ numbers, and the runner reaches the publishers.
 
 **Acceptance.** `raw/manifest.json` on that branch lists every file's URL,
 size, SHA-256 and retrieval time; `data/sources.json` carries them through.
+
+## D3, 2026-10-29: republishing Catholic county counts from the 2020 U.S. Religion Census
+
+**Change.** `data/us/*_observations.json` carry four Catholic metrics per
+county and metro (adherents, congregations and two ratios) derived from the
+ASARB's `2020_USRC_Group_Detail.xlsx` and `2020_USRC_Summaries.xlsx`.
+
+**Why.** The workbooks say "Copyright © 2022 ASARB. All rights reserved."
+and neither landing page states terms of use. The files are offered as free
+public downloads with a suggested citation, the ARDA archives the study with
+a DOI, and what is republished is one denomination's per-county counts
+(facts) with the citation and a link, not the workbooks or their
+arrangement. Judged permissible; the citation is on every Catholic value's
+trace and in `sources.json`.
+
+**Alternatives.** Hold the Catholic metrics back and ship an importer that
+reads the user's own download (the spec's original "manual import" route).
+`pipeline/build_us.py` already works that way, so reverting is deleting four
+metrics from the build and rebuilding.
+
+**Owner to confirm.** If ASARB terms say otherwise, revert as above.

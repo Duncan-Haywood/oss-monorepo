@@ -165,7 +165,7 @@ test('explanations name dimensions, weights and the relative scale', () => {
   const text = explainRow(d, (x) => x.toUpperCase(), 4).join('\n');
   assert.match(text, /Demographic capacity \d+ × weight 63%/);
   assert.match(text, /WOMEN_20_24 scores/);
-  assert.match(text, /Catholic ecosystem: no data .* not counted as zero/);
+  assert.match(text, /Catholic ecosystem: no data .*not counted as zero/);
   assert.match(text, /relative to the 4 areas/);
 });
 
