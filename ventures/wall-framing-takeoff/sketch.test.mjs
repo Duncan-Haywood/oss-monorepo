@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { emptySketch, addWall, addOpening, snapPoint, pointAtLength, nearestWall, removeWall, moveCorner, moveWall, moveOpening, resizeOpening, planFromSketch, sketchToDxf, restoreSketch } from "./sketch.mjs";
+import { fitTrace, rescaleTrace, emptySketch, addWall, addOpening, snapPoint, pointAtLength, nearestWall, removeWall, moveCorner, moveWall, moveOpening, resizeOpening, planFromSketch, sketchToDxf, restoreSketch } from "./sketch.mjs";
 import { takeoff } from "./engine.mjs";
 
 const ft = (n) => n * 12;
@@ -145,4 +145,18 @@ test("a stored sketch comes back whole, and a damaged one loses only the bad par
   assert.deepEqual(r.sketch.openings, sk.openings);
   assert.ok(r.sketch.nextId > Math.max(...sk.walls.map((w) => w.id), ...sk.openings.map((o) => o.id)));
   assert.ok(planFromSketch(r.sketch).ok);
+});
+
+test("a trace image is fitted, then rescaled so two picked points are a known distance apart", () => {
+  const t = fitTrace(2000, 1000, 480);
+  assert.deepEqual(t, { x: 0, y: 0, w: 480, h: 240 });
+  assert.equal(fitTrace(0, 10), null);
+  // two points 120 in apart on the grid are really 20 ft: scale x2 about the first point
+  const r = rescaleTrace(t, { x: 100, y: 50 }, { x: 220, y: 50 }, 240);
+  assert.deepEqual(r, { x: 100 - 200, y: 50 - 100, w: 960, h: 480 });
+  // the first point still sits at the same fraction of the image
+  assert.equal((100 - r.x) / r.w, (100 - t.x) / t.w);
+  assert.equal(rescaleTrace(t, { x: 0, y: 0 }, { x: 0.2, y: 0 }, 100), null);
+  assert.equal(rescaleTrace(t, { x: 0, y: 0 }, { x: 10, y: 0 }, 0), null);
+  assert.equal(rescaleTrace(t, { x: 0, y: 0 }, { x: 10, y: 0 }, 100000), null);
 });

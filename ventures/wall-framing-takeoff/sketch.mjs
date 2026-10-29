@@ -302,3 +302,29 @@ export function restoreSketch(raw) {
   sk.nextId = Math.max(0, ...ids) + 1;
   return { sketch: sk, dropped };
 }
+
+/**
+ * A picture to trace over, placed on the grid in inches: top-left `x`,`y`,
+ * size `w`,`h`. `fitTrace` sizes it to `width` inches across, from the origin.
+ * @typedef {{ x: number, y: number, w: number, h: number }} Trace
+ * @param {number} pxW @param {number} pxH @param {number} [width]
+ * @returns {Trace | null}
+ */
+export function fitTrace(pxW, pxH, width = 480) {
+  if (!(pxW > 0) || !(pxH > 0) || !(width > 0)) return null;
+  return { x: 0, y: 0, w: width, h: (width * pxH) / pxW };
+}
+
+/**
+ * Rescale a trace image so two points picked on it, now `p1` and `p2` on the
+ * grid, are `realInches` apart. The scale is taken about `p1`, which stays put.
+ * @param {Trace} t @param {Pt} p1 @param {Pt} p2 @param {number} realInches
+ * @returns {Trace | null}
+ */
+export function rescaleTrace(t, p1, p2, realInches) {
+  const d = Math.hypot(p2.x - p1.x, p2.y - p1.y);
+  if (!(d >= 1) || !(realInches > 0)) return null;
+  const f = realInches / d;
+  if (f < 1 / 50 || f > 50) return null;
+  return { x: p1.x + (t.x - p1.x) * f, y: p1.y + (t.y - p1.y) * f, w: t.w * f, h: t.h * f };
+}
