@@ -116,8 +116,15 @@ await page.click("#skLevel");
 await click(0, 0); await click(120, 12);
 const tf = await page.evaluate(() => document.querySelector("#skSvg image").getAttribute("transform"));
 const ang = Number(((tf || "").match(/rotate\((-?[\d.]+)/) || [])[1]); check(ang < -4 && ang > -8, "straighten turns the picture about 6 degrees back (" + tf + ")");
+// the picture and its scale survive a reload (IndexedDB on this device)
+const wBefore = await imgW(); await page.waitForTimeout(300); await page.reload();
+await page.waitForSelector("#skSvg image", { timeout: 5000 }).catch(() => {});
+check((await page.$("#skSvg image")) !== null && Math.abs((await imgW()) - wBefore) < 0.01, "picture and scale are kept across a reload");
+check(!(await page.$eval("#skImgOff", (b) => b.disabled)), "picture buttons are enabled after the restore");
 await page.click("#skImgOff");
 check((await page.$("#skSvg image")) === null, "remove picture clears it");
+await page.waitForTimeout(300); await page.reload(); await page.waitForTimeout(500);
+check((await page.$("#skSvg image")) === null, "a removed picture stays removed after a reload");
 check(errors.length === 0, "no page errors" + (errors.length ? ": " + errors.join("; ") : ""));
 await browser.close(); server.close();
 process.exit(bad ? 1 : 0);

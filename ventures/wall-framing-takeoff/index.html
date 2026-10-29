@@ -1239,9 +1239,16 @@
         return snapPoint(raw, sk, opts());
       };
       const el = (name, attrs, text) => { const n = document.createElementNS(NS, name); for (const k in attrs) n.setAttribute(k, attrs[k]); if (text !== undefined) n.textContent = text; return n; };
-      let trace = null, traceHref = "", scalePts = null, movePts = null, levelPts = null, levelAxis = "h";
+      let trace = null, traceHref = "", traceBlob = null, savedTrace = "", scalePts = null, movePts = null, levelPts = null, levelAxis = "h";
+      // The trace picture lives in IndexedDB on this device (a blob does not fit localStorage); it never leaves the browser.
+      const picDb = () => new Promise((ok, no) => { try { const r = indexedDB.open("wft-trace", 1); r.onupgradeneeded = () => r.result.createObjectStore("pic"); r.onsuccess = () => ok(r.result); r.onerror = () => no(r.error); } catch (e) { no(e); } });
+      const picPut = (v) => picDb().then((db) => new Promise((ok) => { const tx = db.transaction("pic", "readwrite"); v ? tx.objectStore("pic").put(v, "last") : tx.objectStore("pic").delete("last"); tx.oncomplete = tx.onerror = () => { db.close(); ok(); }; })).catch(() => {});
+      const picGet = () => picDb().then((db) => new Promise((ok) => { const rq = db.transaction("pic").objectStore("pic").get("last"); rq.onsuccess = () => { db.close(); ok(rq.result || null); }; rq.onerror = () => { db.close(); ok(null); }; })).catch(() => null);
+      const savePic = () => { const key = trace && traceBlob ? JSON.stringify(trace) : ""; if (key === savedTrace) return; savedTrace = key; picPut(key ? { blob: traceBlob, trace } : null); };
+      const picButtons = (on) => { for (const id of ["#skScale", "#skMovePic", "#skLevel", "#skPlumb", "#skImgOff"]) $(id).disabled = !on; };
       function draw() {
         persist();
+        savePic();
         svg.replaceChildren();
         let minX = 0, minY = 0, maxX = 600, maxY = 400;
         if (trace) for (const c of traceCorners(trace)) { minX = Math.min(minX, c.x); minY = Math.min(minY, c.y); maxX = Math.max(maxX, c.x); maxY = Math.max(maxY, c.y); }
@@ -1385,7 +1392,7 @@
           const t = fitTrace(im.naturalWidth, im.naturalHeight);
           if (!t) { URL.revokeObjectURL(url); $("#skInfo").textContent = "That picture has no size."; return; }
           if (traceHref) URL.revokeObjectURL(traceHref);
-          trace = t; traceHref = url; $("#skScale").disabled = false; $("#skMovePic").disabled = false; $("#skLevel").disabled = false; $("#skPlumb").disabled = false; $("#skImgOff").disabled = false; record("sketch_trace_image");
+          trace = t; traceHref = url; traceBlob = f; savedTrace = ""; picButtons(true); record("sketch_trace_image");
           $("#skInfo").textContent = "Picture placed 40 ft wide. Set its scale: type a distance you know on it, press the button, then click its two ends.";
           draw();
         };
@@ -1405,7 +1412,13 @@
         if (!trace) return;
         finish(); scalePts = null; movePts = null; levelAxis = axis; levelPts = []; $("#skInfo").textContent = "Click one end of a line on the picture that should be " + (axis === "v" ? "plumb" : "level") + " (a wall edge, say).";
       });
-      $("#skImgOff").addEventListener("click", () => { $("#skMovePic").disabled = true; $("#skLevel").disabled = true; $("#skPlumb").disabled = true; levelPts = null; movePts = null; if (traceHref) URL.revokeObjectURL(traceHref); trace = null; traceHref = ""; scalePts = null; $("#skScale").disabled = true; $("#skImgOff").disabled = true; draw(); });
+      $("#skImgOff").addEventListener("click", () => { $("#skMovePic").disabled = true; $("#skLevel").disabled = true; $("#skPlumb").disabled = true; levelPts = null; movePts = null; if (traceHref) URL.revokeObjectURL(traceHref); trace = null; traceHref = ""; traceBlob = null; scalePts = null; $("#skScale").disabled = true; $("#skImgOff").disabled = true; draw(); });
+      picGet().then((v) => {
+        if (!v || trace || !(v.blob instanceof Blob) || !v.trace || !(v.trace.w > 0) || !(v.trace.h > 0)) return;
+        trace = v.trace; traceBlob = v.blob; traceHref = URL.createObjectURL(v.blob); savedTrace = JSON.stringify(trace); picButtons(true);
+        $("#skInfo").textContent = "Your trace picture was restored from this device.";
+        draw();
+      });
       $("#skImgOpacity").addEventListener("input", draw);
       $("#skUndo").addEventListener("click", () => { const h = history.pop(); if (h) { sk = JSON.parse(h); chain = null; hover = null; draw(); } });
       $("#skClear").addEventListener("click", () => { if (!sk.walls.length) return; snap(); sk = emptySketch(); chain = null; hover = null; draw(); });
