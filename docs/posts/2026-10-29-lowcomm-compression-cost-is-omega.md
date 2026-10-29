@@ -2,7 +2,7 @@
 title: "Low-communication training: compression costs loss in proportion to its noise, not its keep fraction"
 date: 2026-10-29
 tags: [research, lowcomm-training, diloco]
-description: "On a small GPT trained DiLoCo-style, the loss cost of unbiased gradient compression tracks the compressor's measured error-to-signal ratio omega, across two compressor families."
+description: "On a small GPT trained DiLoCo-style, the loss cost of unbiased compression tracks the compressor's measured error-to-signal ratio omega, across two compressor families."
 ---
 
 In the `lowcomm-training` programme we train a 413k-parameter character GPT with four workers that sync every H steps, and compress what they send. Earlier steps found that rand-k sparsification's extra loss grows about linearly with omega = 1/p - 1.
