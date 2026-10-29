@@ -255,6 +255,14 @@ class Feeder:
     petg_strain_max: float = 0.02  # working strain limit for a printed arm (assumption)
     ball_g: float = 57.0          # ITF ball mass is 56 to 59.4 g
     wheel_pull_n: float = 60.0    # force the wheels put on a ball along the path (assumption: measure it)
+    # Launch: top speed and spin the head must reach, and the traction the nip must give.
+    launch_v_max: float = 25.0    # m/s off the muzzle (assumption: a fast practice drive)
+    launch_topspin_rpm: float = 3000.0  # at that speed (assumption)
+    speed_eff: float = 0.85       # exit speed / mean wheel surface speed: tennisbots.launcher.WheelLauncher default
+    spin_eff: float = 0.5         # exit spin / no-slip spin: same default
+    wheel_rpm_max: float = 7000.0  # same default: motor and bearing limit (assumption)
+    ball_stiff_n_mm: float = 20.0  # force per mm of squeeze between the wheels (assumption: measure it)
+    wheel_mu: float = 0.8         # rubber on felt (assumption: measure it)
     hose_id: float = 72.0
     hose_od: float = 82.0
     hose_min_bend: float = 150.0  # smallest bend radius the hose tolerates
@@ -409,6 +417,32 @@ class Feeder:
         return self.ball_g / 1000 * 9.81 * math.sin(math.radians(-self.elev_min))
 
     @property
+    def nip_len(self) -> float:
+        """Distance the ball's centre travels while it touches both wheels (rigid-ball geometry), mm."""
+        return -2 * self.nip_x
+
+    @property
+    def launch_rpm(self) -> tuple[float, float]:
+        """(top, bottom) wheel rpm for `launch_v_max` with `launch_topspin_rpm`, as WheelLauncher.wheel_rpm."""
+        r = self.wheel_head_d / 2000
+        total = 2 * self.launch_v_max / self.speed_eff
+        diff = 2 * (self.ball_d / 2000) * self.launch_topspin_rpm * 2 * math.pi / 60 / self.spin_eff
+        per = 60 / (2 * math.pi * r)
+        return (total + diff) / 2 * per, (total - diff) / 2 * per
+
+    @property
+    def launch_force_n(self) -> float:
+        """Mean push along the path to take a ball from rest to `launch_v_max` within the nip."""
+        if self.nip_len <= 0:
+            return math.inf
+        return self.ball_g / 1000 * self.launch_v_max ** 2 / (2 * self.nip_len / 1000)
+
+    @property
+    def launch_traction_n(self) -> float:
+        """Most the two wheels can push with, at the full squeeze (Coulomb friction, both sides)."""
+        return 2 * self.wheel_mu * self.ball_stiff_n_mm * (self.ball_d - self.wheel_gap)
+
+    @property
     def shuttle_rear(self) -> float:
         """Rear end of the shuttle: it still shuts the column when pushed fully forward."""
         return self.feed_col_x - self.hole_d / 2 - 2.0 - self.feed_stroke
@@ -480,6 +514,20 @@ class Feeder:
         if self.cheek_x_half > self.head_x1:
             bad.append("cheeks reach past the muzzle")
         bad += self.check_feed()
+        bad += self.check_launch()
+        return bad
+
+    def check_launch(self) -> list[str]:
+        bad = []
+        rt, rb = self.launch_rpm
+        if rb < 0 or max(rt, rb) > self.wheel_rpm_max:
+            bad.append(f"launch of {self.launch_v_max:g} m/s with {self.launch_topspin_rpm:g} rpm topspin needs wheels at "
+                       f"{rt:.0f} and {rb:.0f} rpm, outside 0 to {self.wheel_rpm_max:g}")
+        if self.launch_force_n * 1.5 > self.launch_traction_n:
+            bad.append(f"nip pushes at most {self.launch_traction_n:.0f} N but {self.launch_v_max:g} m/s needs "
+                       f"{self.launch_force_n:.0f} N over {self.nip_len:.0f} mm (1.5x margin)")
+        if self.head_x1 < -self.nip_x + self.ball_d / 2 + 5:
+            bad.append("head plates end before the ball has left the wheels")
         return bad
 
     def retain_strain_bad(self) -> str:
