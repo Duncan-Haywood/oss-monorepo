@@ -114,6 +114,7 @@ Serve this folder as static files, for example `python3 -m http.server` here, th
 | `checks.mjs`, `structure.mjs` | structural checks (NDS, SPF No. 2) |
 | `integrity.mjs` | nothing floats, nothing overlaps |
 | `prices.mjs` | starting prices and their sources |
+| `recheck_prices.py` | re-reads, by hand, the prices of sellers whose robots.txt allows reading product pages (the window maker, the door seller, Hemlock Hardware) and prints any that moved; Home Depot, Lowe's and Menards are never fetched and are checked in a browser |
 | `candidates.mjs` | the options made for you |
 | `instructions.mjs` | step-by-step build instructions from the design |
 | `app.mjs`, `index.html` | the page |
