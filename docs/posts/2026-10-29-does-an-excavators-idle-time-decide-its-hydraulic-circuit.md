@@ -1,7 +1,7 @@
 ---
 title: "Does an excavator's idle time decide which hydraulic circuit wins?"
 date: 2026-10-29
-description: "A sensitivity run on a small-excavator energy model: load-sensing's 21% advantage at a measured load factor shrinks to nothing if the open-centre bypass idles at low pressure."
+description: "Load-sensing's 21% edge at a measured load factor shrinks to nothing if the open-centre bypass idles at low pressure, in a small-excavator energy model."
 tags: [research, heavy-hydraulics, excavator, hydraulics]
 ---
 
