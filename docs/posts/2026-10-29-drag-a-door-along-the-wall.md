@@ -15,4 +15,4 @@ Edits that make no sense change nothing: an opening that would overlap its neigh
 
 It is checked by a unit test and by real mouse drags in headless Chromium (a 36 in door slides 4 ft, then its right edge is pulled out 1 ft to 48 in). Heights and headers are still defaults to check, and nothing here is a structural check.
 
-Try it on the [takeoff page](https://duncan-haywood.github.io/oss-monorepo/ventures/wall-framing-takeoff/).
+Try it on the [takeoff page](../../ventures/wall-framing-takeoff/).
