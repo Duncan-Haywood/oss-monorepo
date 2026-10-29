@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": 11391,
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -38,7 +38,7 @@
   "deviations": [],
   "writeups": [],
   "goal": null,
-  "notes": "3 campaigns on platform/ci checks (social_proof, inline_scripts, heading_order). 22/24 pre-fix catch; 2 gap tests added, 1 equivalent. No real defects found. No blog post: small run.",
+  "notes": "3 campaigns on platform/ci checks (social_proof, inline_scripts, heading_order). 21/24 pre-fix catch; 2 gap tests added, 1 equivalent. No real defects found. No blog post: small run.",
   "corrections": [],
   "redteam": {
     "campaigns": [
