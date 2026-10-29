@@ -2,6 +2,25 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-29 · Milestone 6d (H6): is omega, not the keep fraction p, the variable? A different compressor on rand-k's line (planned before running)
+
+- Why: 6c's "Next". Rand-k alone cannot separate "excess is proportional to omega" from "excess depends on p": they are the same variable there. A compressor with a different structure but the same realised omega separates them.
+- Pilot (`experiments/gpt_omega/omega_probe.py`, 20 rounds at H = 16, seed 0, realised omega = sum ||C(x)-x||^2 / sum ||x||^2 over the actual per-tensor deltas): rand-k at p = 1/16 gives 15.01 (theory 15, so the probe is sound); `quantise(1)` (ternary, QSGD-style) gives only 2.53, too small to read against a seed spread of 0.01 (predicted excess ~0.006). The probe was cut at the 120 s tool limit before levels 2, 3, 7, which would be smaller still.
+- Design: compose two unbiased compressors, whose omegas multiply, (1+w) = (1+w1)(1+w2). Cells: A = rand-k(1/4) then ternary (nominal keep 1/4, expected omega about 4 x 3.5 - 1 = 13); B = rand-k(1/8) then ternary (nominal keep 1/8, expected omega about 8 x 3.5 - 1 = 27). H in {4, 64}, seeds 0 to 2 (12 runs, `gpt_omega/omega.py run`, same model, budget and lr as 6a to 6c). Realised omega is logged per run.
+- Prediction made before any loss is read: excess = piecewise-linear interpolation in omega of the rand-k excesses at the same H (6a/6c cells at omega 3, 7, 15, 31), evaluated at the cell's realised omega. Rival: excess depends on p only, so the cell takes the rand-k excess at its nominal keep (1/4 or 1/8).
+- **H6d-i:** the omega-interpolation predicts all four cell excesses (A, B x H = 4, 64) within 0.02 nats. Refuted if any misses by more than 0.02.
+- **H6d-ii:** the omega prediction has a smaller absolute error than the p-only rival in at least three of the four cells (the rival predicts +0.009 to +0.040, far from the omega prediction for A and B).
+- Prior: i 45% (a quantiser's error is dense and correlated with magnitude where rand-k's is sparse, and the unbiased-variance argument may not carry over to a non-iid error); ii 70%.
+- Limits known in advance: three seeds; the composition is one non-rand-k family; the realised omega is read off the run's own deltas and so differs slightly per seed; 0.02 is my choice; the biased top-k compressor is not tested here.
+
+### Outcome of 6d (`experiments/gpt_omega/`: `omega.py`, `omega.jsonl`, `omega_results.txt`, `run.out`; 12 runs, seeds 0 to 2)
+- Realised omega (from each run's own deltas) was lower than the product estimate: A 10.7 (H = 4) and 12.7 (H = 64), B 21.6 and 25.0, so the compressors' errors are not exactly multiplicative, and omega moves with H.
+- Excess over uncompressed (nats), measured / omega-interpolation prediction: A at H = 4 +0.026 / +0.029, B at H = 4 +0.060 / +0.056, A at H = 64 +0.076 / +0.081, B at H = 64 +0.148 / +0.152. Errors: +0.003, -0.004, +0.005, +0.004. The p-only rival is off by 0.017 to 0.112.
+- **H6d-i supported** (worst error 0.005 against 0.02). **H6d-ii supported** (omega beats p-only in 4 of 4; the prior was 70% and 45%).
+- Reading: for two compressor families (sparsifier, sparsifier then ternary quantiser) the excess is a function of the realised error-to-signal ratio omega at fixed H, within about 0.005 nats, which is the seed spread of a cell mean. The nominal keep fraction is not the variable. Together with 6c this makes "excess = omega g(H)" the working form for unbiased compressors.
+- Limits: three seeds, no interval on errors; the prediction interpolates between four rand-k points per H, and the two new cells lie between them (no extrapolation); omega is measured after the fact, so it is a covariate, not a design-time prediction; one model and corpus; biased compressors (top-k) untested.
+- Next: predict omega at design time for a quantiser and check; top-k with error feedback; then the same-size fitted scaling-law comparison H6 asks for.
+
 ## 2026-10-29 · Milestone 6c (H6): is f(p) proportional to the compressor variance factor omega = 1/p - 1? (planned before running)
 
 - Why: 6b's "Next". The product rule excess(H, p) = f(p) g(H) leaves f(p) free. Theory for unbiased compressors puts the variance penalty proportional to omega = 1/p - 1 (Stich 2018; Beznosikov et al. 2020), so f(p)/omega should be flat. Measured so far at H = 16: omega 3 -> +0.017, omega 15 -> +0.083 (ratio 4.9 for an omega ratio of 5).
