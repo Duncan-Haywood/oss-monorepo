@@ -115,7 +115,8 @@ export function stateFilingNote(state, frequency = "quarterly") {
 export function stateDiscounts(state) {
   const s = String(state ?? "").toUpperCase();
   // GA vendor's compensation (ST-3 instructions via search 2026-10-28; dor.georgia.gov not reachable): 3% of the first $3,000 of tax on a return, 0.5% of the rest, only when return and payment are both timely. A 2026 fiscal note describes a proposal to raise the $3,000 step to $10,000: unconfirmed, not modelled. The tax of one return is the whole base here, local tax included only if booked under the same label.
-  const d = { IL: { rate: 0.0175, capPerMonth: 100000 }, TX: { rate: 0.005 }, FL: { rate: 0.025, cap: 3000 }, GA: { rate: 0.03, tiers: [{ upTo: 300000, rate: 0.03 }, { rate: 0.005 }] } }[s];
+  // OH vendor discount (R.C. 5739.12, ODT notice ST 2025-02 via search excerpts 2026-10-29; tax.ohio.gov not reachable): 0.75% of tax, capped at $750 per vendor's license per month covered, on returns due on or after 2026-01-01; motor vehicle dealers' vehicle sales are uncapped (not modelled); timely return and payment required.
+  const d = { OH: { rate: 0.0075, capPerMonth: 75000 }, IL: { rate: 0.0175, capPerMonth: 100000 }, TX: { rate: 0.005 }, FL: { rate: 0.025, cap: 3000 }, GA: { rate: 0.03, tiers: [{ upTo: 300000, rate: 0.03 }, { rate: 0.005 }] } }[s];
   return d ? { [`${s} state`]: { ...d } } : {};
 }
 export function stateEndMonth(state, frequency = "quarterly") {
