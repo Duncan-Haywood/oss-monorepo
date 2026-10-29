@@ -17,23 +17,30 @@
   "tool_calls": null,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": 11440,
   "repo": null,
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
-  "merged": null,
+  "merged": true,
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": null,
+  "outcome": "partial",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [],
-  "deviations": [],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No new blog post: nothing new to tell readers",
+      "did": "one-line prompt edit",
+      "result": "small"
+    }
+  ],
   "writeups": [],
   "goal": null,
-  "notes": "",
+  "notes": "Idea: sweep for untyped buttons, href=#, missing rel=icon. All clean; only a skip-list line shipped. No build found in this run; explore skip list is long, next run should build.",
   "corrections": [],
   "redteam": null
 }
