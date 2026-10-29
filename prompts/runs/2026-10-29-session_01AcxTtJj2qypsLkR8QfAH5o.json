@@ -49,7 +49,9 @@
       "result": "landed"
     }
   ],
-  "writeups": "experiments.md E108; no blog post (reduced review pass)",
+  "writeups": [
+    "prompts/experiments.md"
+  ],
   "goal": null,
   "notes": "Also shortened another run's over-length post description so validate passes.",
   "corrections": [],
