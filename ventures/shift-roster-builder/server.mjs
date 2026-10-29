@@ -162,6 +162,17 @@ function applyClaim(state, c) {
   return true;
 }
 
+// Hand a called-out shift to the chosen cover and keep the per-person hours in step.
+function applyCover(state, c, name) {
+  const p = state.published;
+  const a = p && p.assignments.find((x) => x.person === c.person && sameShift({ day: x.slot.day, startMin: x.slot.startMin, endMin: x.slot.endMin }, c));
+  const from = p && p.people.find((x) => x.name === c.person), to = p && p.people.find((x) => x.name === name);
+  if (!a || !from || !to) return false;
+  const h = (a.slot.endMin - a.slot.startMin) / 60;
+  a.person = name; from.hours -= h; to.hours += h;
+  return true;
+}
+
 // Swap the two people on the published roster and keep the per-person hours in step.
 function applyTrade(state, t) {
   const p = state.published;
@@ -179,8 +190,8 @@ const slotText = (x) => `${esc(DAYS[x.day])} ${esc(fmtClock(x.startMin))}-${esc(
 
 function adminPage(state, key, note = "") {
   const k = esc(key), p = state.published;
-  const calls = calloutRows(state).map(({ c, fits, note: n }) => `<tr><td><strong>${esc(c.person)}</strong> cannot make ${esc(DAYS[c.day])} ${esc(fmtClock(c.startMin))}-${esc(fmtClock(c.endMin))}${c.note ? `<br><span class="note">"${esc(c.note)}"</span>` : ""}</td><td>${n ? esc(n) : fits.length ? fits.map((f) => `${esc(f.name)} (${f.extraCost >= 0 ? "+" : "-"}${esc(money(Math.abs(f.extraCost)))}${f.overtimeAfter > 0 ? ", overtime" : ""})`).join("; ") : "nobody free can take it without changing someone else's week"}</td></tr>`).join("");
-  const callBlock = state.callouts.length ? `<h2>Call-outs (${state.callouts.length})</h2><table><thead><tr><th>Request</th><th>Could cover, cheapest first</th></tr></thead><tbody>${calls}</tbody></table><form method="post" action="/admin/clear-callouts?key=${k}"><button>Clear call-outs</button></form>` : "";
+  const calls = calloutRows(state).map(({ c, fits, note: n }, i) => `<tr><td><strong>${esc(c.person)}</strong> cannot make ${esc(DAYS[c.day])} ${esc(fmtClock(c.startMin))}-${esc(fmtClock(c.endMin))}${c.note ? `<br><span class="note">"${esc(c.note)}"</span>` : ""}</td><td>${n ? esc(n) : fits.length ? fits.map((f) => `${esc(f.name)} (${f.extraCost >= 0 ? "+" : "-"}${esc(money(Math.abs(f.extraCost)))}${f.overtimeAfter > 0 ? ", overtime" : ""})`).join("; ") : "nobody free can take it without changing someone else's week"}</td><td>${fits && fits.length ? `<form method="post" action="/admin/cover?key=${k}"><input type="hidden" name="i" value="${i}">${fits.map((f) => `<button name="name" value="${esc(f.name)}">Give to ${esc(f.name)}</button>`).join(" ")}</form>` : ""}</td></tr>`).join("");
+  const callBlock = state.callouts.length ? `<h2>Call-outs (${state.callouts.length})</h2><table><thead><tr><th>Request</th><th>Could cover, cheapest first</th><th></th></tr></thead><tbody>${calls}</tbody></table><form method="post" action="/admin/clear-callouts?key=${k}"><button>Clear call-outs</button></form>` : "";
   const tr = tradeRows(state).map(({ t, v, note: n }, i) => `<tr><td><strong>${esc(t.a.person)}</strong> gives ${slotText(t.a)}<br><strong>${esc(t.b.person)}</strong> gives ${slotText(t.b)}${t.note ? `<br><span class="note">"${esc(t.note)}"</span>` : ""}</td><td>${n ? esc(n) : v.ok ? `<span class="ok">Keeps both weeks inside the rules</span> (payroll ${v.extraCost >= 0 ? "+" : "-"}${esc(money(Math.abs(v.extraCost)))})` : `<span class="err">Blocked:</span> ${v.problems.map((x) => `${esc(x.name)} ${esc(x.reason)}`).join("; ")}`}</td><td><form method="post" action="/admin/trade?key=${k}"><input type="hidden" name="i" value="${i}"><button name="act" value="approve" ${v && v.ok ? "" : "disabled"}>Approve</button><button name="act" value="decline">Decline</button></form></td></tr>`).join("");
   const tradeBlock = state.trades.length ? `<h2>Trade requests (${state.trades.length})</h2><table><thead><tr><th>Request</th><th>Check</th><th></th></tr></thead><tbody>${tr}</tbody></table>` : "";
   const cl = claimRows(state).map(({ c, fit, blocked, note: n }, i) => `<tr><td><strong>${esc(c.person)}</strong> asks to take ${slotText(c)}${c.note ? `<br><span class="note">"${esc(c.note)}"</span>` : ""}</td><td>${n ? esc(n) : fit ? `<span class="ok">Fits inside the rules</span> (payroll ${fit.extraCost >= 0 ? "+" : "-"}${esc(money(Math.abs(fit.extraCost)))}${fit.overtimeAfter > 0 ? ", overtime" : ""})` : `<span class="err">Blocked:</span> ${esc(c.person)} ${esc(blocked)}`}</td><td><form method="post" action="/admin/claim?key=${k}"><input type="hidden" name="i" value="${i}">${fit ? `<button name="act" value="approve">Approve</button>` : blocked ? `<button name="act" value="override">Approve anyway</button>` : ""}<button name="act" value="decline">Decline</button></form></td></tr>`).join("");
@@ -371,6 +382,16 @@ export function handler(state, save, env = process.env, now = Date.now, fetchImp
       state.offs.splice(i, 1);
       save();
       return back(here, "Request declined.");
+    }
+    if (req.method === "POST" && url.pathname === "/admin/cover") {
+      const row = calloutRows(state)[Number(form.get("i"))], name = String(form.get("name") || "");
+      if (!row || !row.fits || !row.fits.some((f) => f.name === name) || !applyCover(state, row.c, name)) return back(here, "Not assigned: the shift changed or the person no longer fits.");
+      // Asks that named this shift were checked against the old week: drop the call-out and any trade on it.
+      const onIt = (x) => x.person === row.c.person && sameShift(x, row.c);
+      state.callouts = state.callouts.filter((c) => !onIt(c));
+      state.trades = state.trades.filter((t) => !onIt(t.a) && !onIt(t.b));
+      save();
+      return back(here, `Shift given to ${name}. The staff page shows it; tell them with the links below.`);
     }
     if (req.method === "POST" && url.pathname === "/admin/clear-callouts") {
       state.callouts = [];

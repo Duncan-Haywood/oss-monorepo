@@ -291,3 +291,23 @@ test("webhook formats and a failing webhook never block the staff request", asyn
   assert.equal(state.replies.length, 1);
   srv.close();
 });
+
+test("a manager gives a called-out shift to a cover in one click", async () => {
+  const s = await boot();
+  const staff = "name, wage, max hours, min hours, availability\nAna, 23.17, 40, 0, Mon 9-17\nBen, 19.43, 40, 0, any\nCy, 17.10, 40, 0, Tue-Fri 9-17";
+  await post(s.base + "/admin/save?key=adm", { act: "publish", weekStart: "2026-10-19", staff, shifts: "day, start, end, people needed, label\nMon, 9, 17, 1, day" });
+  const shift = s.state.published.assignments.find((a) => a.person);
+  const from = shift.person, to = from === "Ana" ? "Ben" : "Ana";
+  await post(s.base + "/team/callout?t=tm", { shift: [from, shift.slot.day, shift.slot.startMin, shift.slot.endMin].join("|") });
+  const admin = await (await fetch(s.base + "/admin?key=adm")).text();
+  assert.match(admin, new RegExp(`Give to ${to}`));
+  const hours = (n) => s.state.published.people.find((q) => q.name === n).hours;
+  const h0 = [hours(from), hours(to)];
+  assert.equal((await post(s.base + "/admin/cover?key=adm", { i: "0", name: "Nobody" })).status, 303);
+  assert.equal(s.state.published.assignments.find((a) => a.person).person, from);
+  await post(s.base + "/admin/cover?key=adm", { i: "0", name: to });
+  assert.equal(s.state.published.assignments.find((a) => a.slot.day === shift.slot.day).person, to);
+  assert.equal(hours(from), h0[0] - 8); assert.equal(hours(to), h0[1] + 8);
+  assert.equal(s.state.callouts.length, 0);
+  s.close();
+});
