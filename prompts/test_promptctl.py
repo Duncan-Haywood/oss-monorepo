@@ -143,6 +143,19 @@ class RouteTest(PromptTestCase):
         self.fx.routing(data)
         self.assertTrue(any("review_when_due" in e for e in promptctl.validate(self.fx.root)))
 
+    def test_task_text_picks_the_track_it_names(self):
+        for seed in range(20):
+            r = promptctl.route(self.fx.root, rng=random.Random(seed),
+                                task="develop, deploy and sell revenue generating software products")
+            self.assertEqual(r["track"], "ventures")
+        r = promptctl.route(self.fx.root, rng=random.Random(0), track="research", task="revenue")
+        self.assertEqual(r["track"], "research")  # an explicit --track wins over the text
+
+    def test_task_text_without_a_hint_leaves_the_draw(self):
+        a = promptctl.route(self.fx.root, rng=random.Random(3), task="tidy up")
+        b = promptctl.route(self.fx.root, rng=random.Random(3))
+        self.assertEqual(a["track"], b["track"])
+
     def test_skip_review_routes_to_work_when_a_review_is_claimed(self):
         for i in range(3):
             self.fx.run(f"2026-10-0{i + 1}-s{i}.json", _record(day=f"2026-10-0{i + 1}"))

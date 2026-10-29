@@ -1627,3 +1627,14 @@ or `ventures`) until its success rate passes 80% over 20 runs?
 - Decisions: candidates (ventures 2, process 2, review 2) still "keep
   collecting: the intervals overlap"; no audit or drift report (reduced pass).
 - Result: (next review)
+
+## E108: review 2026-10-29 (reduced pass, thirty-fifth run)
+
+- Change: `prompts/redteam/prompt-0.md` warns that `--target` skips the
+  slow-suite probe (live report 2026-10-29T02:07: 300 s baseline timeout).
+- Metric: friction reports naming `prompts/redteam/prompt-0.md` about baseline
+  timeouts; compare the next 40 runs.
+- Decisions: candidates (ventures 2, process 2, review 2) still "keep
+  collecting: the intervals overlap"; no audit or drift report, no derive
+  re-run (reduced pass).
+- Result: (next review)

@@ -1,6 +1,6 @@
 # Which open hydraulic circuit gets a small excavator closest to stock energy use for the least money?
 
-**Status: open research programme (proposal stage), milestone 1 done, 2a (cycle-robustness) done; the sourced duty cycle (2) is still open.** A stdlib energy model
+**Status: open research programme (proposal stage), milestone 1 done, 2a to 2f (cycle robustness, sourced margins, idle-time sensitivity) done; the sourced duty cycle (2) is still open.** A stdlib energy model
 of three excavator hydraulic circuits (fixed open-centre, load-sensing, ideal independent
 metering) over a work cycle (`src/heavy_hydraulics/`, 6 tests) and a first sweep of 2,916 cases
 on an illustrative cycle: load-sensing uses a median **47%** of open-centre pump-shaft energy
@@ -25,6 +25,7 @@ cd research/heavy-hydraulics
 PYTHONPATH=src python3 -m pytest tests -q                      # 6 tests
 python3 experiments/run.py > experiments/results.txt           # 2,916 cases, under 5 s
 python3 experiments/envelope.py > experiments/envelope_results.txt  # 20,000 random cycles
+python3 experiments/idle_sensitivity.py > experiments/idle_sensitivity_results.txt  # milestone 2f, ~20 s
 ```
 
 ## Method
@@ -90,3 +91,18 @@ stays below load-sensing in every cycle (median 0.66). The two margins come from
 and the pressures are still the assumed force model, so this is a sensitivity result, not an energy
 figure. Run `python3 experiments/physics_cycle.py --sourced`; output in
 `experiments/physics_cycle_sourced_results.txt`; reasoning in [`LOG.md`](LOG.md).
+
+## Milestone 2e: is the assumed cycle's load shape like a measured excavator's?
+
+A public electrical power trace of an electric excavator (Zenodo 18862594, CC-BY-4.0; copied to
+`experiments/data/`) has a load factor (mean over peak) of 0.346 and spends 52% of the time below
+30% of its peak. The force-model cycles have a median load factor of 0.606 (5 to 95%: 0.41 to 0.78)
+and a median 14% of time below 30% of peak, so the model has *less* low-load time than the machine,
+and the 2d finding is not an artefact of too many idle phases. The trace is electrical input to a
+different, larger machine, so this is a shape check only; it says nothing about which circuit wins.
+Run `python3 experiments/trace_shape.py`; output in `experiments/trace_shape_results.txt`; reasoning
+in [`LOG.md`](LOG.md).
+
+## Milestone 2f: idle time decides whether load-sensing beats open-centre
+
+With sourced margins (6 bar spool, 25 bar load-sensing, 0.883 pump efficiency) and a force-model cycle with no idle time, load-sensing used a median 104% of open-centre energy (2d). Adding idle time until the cycle's load factor matches the measured electric-excavator traces (0.346 to 0.375, Zenodo 18862594) turns that to 79 to 82%, with load-sensing losing in 8 to 12% of cycles. The break-even load factor is near 0.5 to 0.55. Idle demand is assumed and the load factor comes from a different machine's electrical power, so this is a sensitivity result, not a measurement. Table: [`experiments/idle_sensitivity_results.txt`](experiments/idle_sensitivity_results.txt); detail in [`LOG.md`](LOG.md).
