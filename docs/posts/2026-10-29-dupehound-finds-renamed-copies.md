@@ -1,7 +1,7 @@
 ---
 title: "dupehound now finds copies whose names changed"
 date: 2026-10-29
-description: "A --normalize mode for the Rust copy-paste detector: identifiers, strings and numbers hash by kind. 40.6% duplicated lines becomes 60.4% on this repo, and why that is not the whole story."
+description: "A --normalize mode for the Rust copy-paste detector hashes identifiers, strings and numbers by kind: 40.6% duplicated lines becomes 60.4% on this repo."
 tags: [rust, dupehound, dev-tools]
 ---
 
