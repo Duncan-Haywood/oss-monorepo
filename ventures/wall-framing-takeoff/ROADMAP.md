@@ -61,7 +61,7 @@ Ticked items are on `main`.
       plan `blocking: {rows, fire}` adds evenly spaced flat-2x rows between
       neighbouring full-height studs, skips openings, and `fire` adds enough
       rows that no stud run passes 10 ft; they join the cut list and order.
-      The page has the controls (rows, fire blocking; 2026-10-21, saved in plan files). Not yet: staggered blocks, nailers for horizontal sheets.
+      The page has the controls (rows, fire blocking; 2026-10-21, saved in plan files). Staggered blocks landed 2026-10-29 (`blocking.stagger`: alternate bays sit 1.5 in above and below the row line; fire-block rows allow for it; engine and plan files, not the page). Not yet: nailers for horizontal sheets.
 - [x] **Corner plate laps** (2026-10-21, `plateLaps` in `engine.mjs`): top plate
       through one way, cap the other, piece lengths change, totals do not. Tee
       laps (2026-10-21, wall `tee: {wall, at, end}`): the partition's cap runs
