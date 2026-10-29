@@ -4216,3 +4216,17 @@ entries:
         passed the gate (10 ind. holdout Sharpe 0.50 vs 0.53 EW; 49 ind. 0.62 vs 0.55, DSR
         0.890; crypto 20-day SMA 2.07 -> -0.08, PBO 0.81). Usage unmeasured.
     mrr_end: 0
+  - venture: shed-designer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Built at the owner's request (2026-10-29): click-and-drag gable shed designer. Frames
+        foundation (skids on gravel or blocks), floor, four walls and a ridge-board or ridge-beam
+        roof board by board at true 2x4-2x12 sizes, with doors, windows and gable vents; prints
+        eight plan sheets (SVG, DXF R12), renders a WebGL 3D view, packs a producer cut sheet over
+        8-20 ft boards with a lower bound, and prices a shopping list; several designs compared.
+        Starter is the owner's spec (8x12, 6'6" door, two windows, vents, ridge beam, 8 ft peak
+        limit, which it reports cannot be met with that door). 37 node tests; driven in Chromium.
+        Usage unmeasured.
+    mrr_end: 0

@@ -1371,6 +1371,9 @@ workflows:
 - workflow: sewer-line-replace-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: shed-designer-ci.yml
+  classification: none
+  publishes: []
 - workflow: shed-install-bid-calculator-ci.yml
   classification: none
   publishes: []

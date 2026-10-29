@@ -1,0 +1,785 @@
+// @ts-check
+// The shed framing engine. A design (footprint, wall height, roof pitch,
+// lumber sizes, doors and windows) goes in; every board comes out with its
+// real cross-section, its cut length and where it sits in 3D, plus the sheet
+// goods that cover it.
+//
+// Coordinates are inches. x runs along the ridge (the shed's length), y across
+// the gable span (its width) from the front eave wall at y = 0 to the back eave
+// wall at y = width, and z is up from the top of the gravel pad.
+//
+// Front and back are the eave walls (full length, the roof's low edges); left
+// and right are the gable ends, framed between them. Every member's geometry is
+// a flat profile (a list of [p, q] points) extruded `thickness` along `w`:
+// world = origin + p*u + q*v + t*w. A stud is a rectangle; a rafter is a
+// parallelogram with its birdsmouth notch; a gable stud has its top cut to the
+// roof line. The same profile drives the 3D view and the drawings.
+
+import { actual, ceil16, TWO_BY, DEFAULT_LENGTHS_FT, fmtFtIn as fmtFt } from './lumber.mjs';
+
+/** @typedef {[number, number, number]} Vec */
+/** @typedef {{ origin: Vec, u: Vec, v: Vec, w: Vec, profile: [number, number][], thickness: number }} Geom */
+/**
+ * @typedef {{ id: string, group: string, kind: string, material: string, length: number,
+ *   note?: string, geom: Geom, local?: { s0: number, s1: number, z0: number, z1: number, top?: [number, number][] } }} Member
+ */
+/** @typedef {{ id: string, kind: 'door'|'window', wall: 'front'|'back'|'left'|'right', offset: number, width: number, height: number, sill?: number, header?: string }} Opening */
+
+export const WALLS = /** @type {const} */ (['front', 'right', 'back', 'left']);
+
+export const WALL_LABEL = {
+  front: 'Front (eave side)', back: 'Back (eave side)', left: 'Left (gable end)', right: 'Right (gable end)',
+};
+
+/** The starter: an 8x12 with a single door on one 12 ft eave wall, two windows on the other, and a vent in each gable. */
+/**
+ * The starter, as asked for: an 8x12 with a single 6'6" door on one 12 ft side,
+ * two windows on the other, gable vents, a ridge-beam roof, an 8 ft peak limit
+ * and pink siding with purple polka dots.
+ */
+export function defaultDesign() {
+  return {
+    name: '8x12 ridge-beam shed',
+    length: 144,
+    width: 96,
+    wallHeight: 86.5,
+    pitch: 5,
+    overhang: 12,
+    studSize: '2x4',
+    studSpacing: 16,
+    joistSize: '2x6',
+    joistSpacing: 16,
+    rafterSize: '2x6',
+    rafterSpacing: 24,
+    tieSize: '2x4',
+    roofType: 'ridgeBeam',
+    beamSize: '2x10',
+    skidSize: '4x4',
+    skidSpacing: 48,
+    foundation: 'gravel',
+    floorTreated: true,
+    siding: true,
+    sidingColor: 'pink',
+    polkaDots: true,
+    roofing: true,
+    gableVents: true,
+    ventWidth: 12,
+    ventHeight: 8,
+    maxPeak: 96,
+    autoWall: true,
+    autoPitch: true,
+    kerf: 0.125,
+    lengths: [...DEFAULT_LENGTHS_FT],
+    openings: /** @type {Opening[]} */ ([
+      { id: 'o1', kind: 'door', wall: 'front', offset: 53, width: 38, height: 78 },
+      { id: 'o2', kind: 'window', wall: 'back', offset: 30, width: 24, height: 36, sill: 36 },
+      { id: 'o3', kind: 'window', wall: 'back', offset: 90, width: 24, height: 36, sill: 36 },
+    ]),
+  };
+}
+
+/** The classic shape the presets start from: 8 ft walls, ridge board with rafter ties, unpainted siding, no height limit. */
+const classic = () => ({ ...defaultDesign(), wallHeight: 96, pitch: 6, skidSize: '4x6', roofType: 'ridgeBoard', sidingColor: 'natural', polkaDots: false, maxPeak: 0, ventHeight: 12, autoWall: false, autoPitch: false });
+
+/** @typedef {ReturnType<typeof defaultDesign>} Design */
+
+/** Starting points for the "New design" menu. */
+export const PRESETS = {
+  '8x10': () => ({ ...classic(), name: '8x10 gable shed', length: 120, width: 96, openings: [
+    { id: 'o1', kind: 'door', wall: 'front', offset: 34, width: 52, height: 80 },
+    { id: 'o2', kind: 'window', wall: 'right', offset: 32, width: 32, height: 24, sill: 48 },
+  ] }),
+  '8x12': () => defaultDesign(),
+  '8x12 classic': () => ({ ...classic(), name: '8x12 gable shed', openings: defaultDesign().openings.map((o) => (o.kind === 'door' ? { ...o, height: 82 } : o)) }),
+  '10x12': () => ({ ...classic(), name: '10x12 gable shed', length: 144, width: 120, openings: [
+    { id: 'o1', kind: 'door', wall: 'front', offset: 46, width: 52, height: 80 },
+    { id: 'o2', kind: 'window', wall: 'left', offset: 44, width: 32, height: 24, sill: 48 },
+    { id: 'o3', kind: 'window', wall: 'right', offset: 44, width: 32, height: 24, sill: 48 },
+  ] }),
+  '12x16': () => ({ ...classic(), name: '12x16 gable shed', length: 192, width: 144, pitch: 5, openings: [
+    { id: 'o1', kind: 'door', wall: 'left', offset: 36, width: 72, height: 80 },
+    { id: 'o2', kind: 'window', wall: 'front', offset: 36, width: 36, height: 36, sill: 42 },
+    { id: 'o3', kind: 'window', wall: 'front', offset: 120, width: 36, height: 36, sill: 42 },
+  ] }),
+  '8x8 lean': () => ({ ...classic(), name: '8x8 garden shed', length: 96, width: 96, wallHeight: 84, pitch: 8, rafterSpacing: 24, openings: [
+    { id: 'o1', kind: 'door', wall: 'left', offset: 22, width: 52, height: 72 },
+  ] }),
+};
+
+const fmtSpan = (inches) => `${Math.round(inches / 12 * 10) / 10} ft`;
+
+const num = (v, d) => (Number.isFinite(Number(v)) && v !== '' && v !== null ? Number(v) : d);
+
+/**
+ * Fill gaps and clamp nonsense so a half-typed form still draws something.
+ * @param {Partial<Design>} input
+ * @returns {Design}
+ */
+export function normalize(input) {
+  const d = defaultDesign();
+  const o = { ...d, ...input };
+  const pick = (v, list, def) => (list.includes(v) ? v : def);
+  const lengths = Array.isArray(o.lengths) ? o.lengths.map(Number).filter((n) => n >= 4 && n <= 24).sort((a, b) => a - b) : d.lengths;
+  return {
+    ...o,
+    name: String(o.name || d.name).slice(0, 80),
+    length: Math.min(480, Math.max(48, num(o.length, d.length))),
+    width: Math.min(240, Math.max(48, num(o.width, d.width))),
+    wallHeight: Math.min(144, Math.max(60, num(o.wallHeight, d.wallHeight))),
+    pitch: Math.min(14, Math.max(2, num(o.pitch, d.pitch))),
+    overhang: Math.min(36, Math.max(0, num(o.overhang, d.overhang))),
+    studSize: pick(o.studSize, ['2x4', '2x6'], d.studSize),
+    studSpacing: pick(num(o.studSpacing, 16), [12, 16, 24], 16),
+    joistSize: pick(o.joistSize, ['2x4', '2x6', '2x8', '2x10', '2x12'], d.joistSize),
+    joistSpacing: pick(num(o.joistSpacing, 16), [12, 16, 24], 16),
+    rafterSize: pick(o.rafterSize, ['2x4', '2x6', '2x8', '2x10'], d.rafterSize),
+    rafterSpacing: pick(num(o.rafterSpacing, 24), [12, 16, 24], 24),
+    tieSize: pick(o.tieSize, ['2x4', '2x6'], d.tieSize),
+    skidSize: pick(o.skidSize, ['4x4', '4x6'], d.skidSize),
+    skidSpacing: Math.min(72, Math.max(24, num(o.skidSpacing, d.skidSpacing))),
+    foundation: pick(o.foundation, ['gravel', 'blocks'], d.foundation),
+    floorTreated: o.floorTreated !== false,
+    siding: o.siding !== false,
+    roofing: o.roofing !== false,
+    gableVents: o.gableVents !== false,
+    roofType: pick(o.roofType, ['ridgeBeam', 'ridgeBoard'], d.roofType),
+    beamSize: pick(o.beamSize, ['2x8', '2x10', '2x12'], d.beamSize),
+    maxPeak: Math.min(240, Math.max(0, num(o.maxPeak, d.maxPeak))),
+    sidingColor: pick(o.sidingColor, ['natural', 'red', 'pink', 'gray', 'blue', 'green', 'white'], d.sidingColor),
+    polkaDots: o.polkaDots === true,
+    autoWall: o.autoWall === true,
+    autoPitch: o.autoPitch === true,
+    ventWidth: Math.min(36, Math.max(6, num(o.ventWidth, d.ventWidth))),
+    ventHeight: Math.min(36, Math.max(6, num(o.ventHeight, d.ventHeight))),
+    kerf: Math.min(0.25, Math.max(0, num(o.kerf, d.kerf))),
+    lengths: lengths.length ? lengths : d.lengths,
+    openings: (Array.isArray(o.openings) ? o.openings : []).map((op, i) => ({
+      id: String(op.id || `o${i + 1}`),
+      kind: op.kind === 'window' ? 'window' : 'door',
+      wall: pick(op.wall, WALLS, 'front'),
+      offset: Math.max(0, num(op.offset, 24)),
+      width: Math.min(144, Math.max(12, num(op.width, 36))),
+      height: Math.min(120, Math.max(12, num(op.height, 36))),
+      ...(op.kind === 'window' ? { sill: Math.max(6, num(op.sill, 42)) } : {}),
+      ...(op.header ? { header: String(op.header) } : {}),
+    })),
+  };
+}
+
+/** Outside length of a wall as you face it: eave walls run the shed's length, gable ends its width. */
+export function wallFaceLength(design, wall) {
+  return wall === 'front' || wall === 'back' ? design.length : design.width;
+}
+
+/** Header depth by rough-opening width. A rule of thumb for a light shed, not a span table. */
+export function defaultHeader(width) {
+  if (width <= 48) return '2x6';
+  if (width <= 72) return '2x8';
+  if (width <= 96) return '2x10';
+  return '2x12';
+}
+
+/** @param {Vec} a @param {Vec} b @param {number} k */
+const add = (a, b, k = 1) => /** @type {Vec} */ ([a[0] + b[0] * k, a[1] + b[1] * k, a[2] + b[2] * k]);
+
+/** @returns {Geom} */
+function rectGeom(origin, u, v, w, lu, lv, thickness) {
+  return { origin, u, v, w, profile: [[0, 0], [lu, 0], [lu, lv], [0, lv]], thickness };
+}
+
+/**
+ * Break a run longer than the longest board at framing centres.
+ * @param {number} start @param {number} end @param {number} maxLen
+ * @param {number[]} breaks positions a joint may land on (stud, joist or rafter centres)
+ * @param {number[]} [avoid] joints to keep at least `minAway` from (a cap plate's from the top plate's)
+ * @param {number} [minAway]
+ * @returns {{ runs: [number, number][], forced: boolean }}
+ */
+export function splitRun(start, end, maxLen, breaks, avoid = [], minAway = 0) {
+  const runs = /** @type {[number, number][]} */ ([]);
+  let cur = start;
+  let forced = false;
+  const sorted = [...breaks].sort((a, b) => a - b);
+  while (end - cur > maxLen + 1e-9) {
+    const ok = (b) => b > cur + 12 && b <= cur + maxLen + 1e-9 && b < end - 6 && avoid.every((a) => Math.abs(a - b) >= minAway);
+    let cand = sorted.filter(ok);
+    if (!cand.length) cand = sorted.filter((b) => b > cur + 12 && b <= cur + maxLen + 1e-9 && b < end - 6);
+    let b;
+    if (cand.length) b = cand[cand.length - 1];
+    else { b = cur + maxLen; forced = true; }
+    runs.push([cur, b]);
+    cur = b;
+  }
+  runs.push([cur, end]);
+  return { runs, forced };
+}
+
+/** Layout centres k*spacing between two limits, measured from the building corner. */
+function layoutCenters(spacing, lo, hi) {
+  const out = [];
+  for (let c = spacing; c < hi; c += spacing) if (c > lo) out.push(c);
+  return out;
+}
+
+/**
+ * Build the whole shed.
+ * @param {Partial<Design>} input
+ */
+export function buildShed(input) {
+  const d0 = normalize(input);
+  if (d0.autoWall || d0.autoPitch) return buildAuto(d0);
+  return buildFramed(d0);
+}
+
+/** Lowest wall (floor to top of plates) that frames every door and window with its header. */
+export function minWallFor(d) {
+  let need = 60;
+  for (const op of d.openings) {
+    const bottom = op.kind === 'window' ? op.sill ?? 42 : 0;
+    need = Math.max(need, bottom + op.height + actual(op.header || defaultHeader(op.width)).depth + 3);
+  }
+  return Math.ceil(need * 8) / 8;
+}
+
+/**
+ * Let the doorway and the height limit set the walls and the roof: walls as low
+ * as the tallest opening allows, and the steepest whole pitch whose peak stays
+ * under the limit. When no pitch fits, the lowest pitch at which the gable vents
+ * still fit is used and the warning says by how much the limit is missed.
+ * @param {Design} d0
+ */
+function buildAuto(d0) {
+  let d = { ...d0, autoWall: false, autoPitch: false };
+  if (d0.autoWall) d.wallHeight = minWallFor(d0);
+  let shed;
+  let why = '';
+  if (d0.autoPitch) {
+    for (let p = 12; p >= 3; p--) {
+      const s = buildFramed(normalize({ ...d, pitch: p }));
+      if (!d0.maxPeak || s.dims.peak <= d0.maxPeak + 1e-9) { shed = s; why = d0.maxPeak ? `the steepest whole pitch that keeps the peak under ${fmtFt(d0.maxPeak)}` : 'the steepest the tool offers with no height limit'; break; }
+    }
+    if (!shed) {
+      for (let p = 3; p <= 12; p++) {
+        const s = buildFramed(normalize({ ...d, pitch: p }));
+        if (!d0.gableVents || Object.keys(s.vents).length === 2 || p === 12) { shed = s; why = d0.gableVents ? 'the lowest pitch at which the gable vents still fit, since no pitch meets the height limit' : 'the lowest pitch for a shingle roof, since no pitch meets the height limit'; break; }
+      }
+    }
+  } else {
+    shed = buildFramed(normalize(d));
+  }
+  const s = /** @type {Shed} */ (shed);
+  const auto = [];
+  if (d0.autoWall) auto.push(`walls ${fmtFt(s.design.wallHeight)}, the lowest that frames the tallest door or window`);
+  if (d0.autoPitch) auto.push(`roof ${s.design.pitch}/12, ${why}`);
+  s.notes.unshift(`Set for you: ${auto.join('; ')}.`);
+  s.design = { ...s.design, autoWall: d0.autoWall, autoPitch: d0.autoPitch };
+  return s;
+}
+
+/** @param {Design} d */
+function buildFramed(d) {
+  /** @type {Member[]} */
+  const members = [];
+  /** @type {{ id: string, kind: string, item: string, geom: Geom, group: string }[]} */
+  const panels = [];
+  /** @type {{ kind: string, geom: Geom, group: string }[]} */
+  const fixtures = [];
+  /** @type {string[]} */
+  const warnings = [];
+  /** @type {string[]} */
+  const notes = [];
+  const counters = {};
+  const nextId = (p) => { counters[p] = (counters[p] || 0) + 1; return `${p}${counters[p]}`; };
+
+  const L = d.length;
+  const W = d.width;
+  const maxStock = Math.max(...d.lengths) * 12;
+  const X = /** @type {Vec} */ ([1, 0, 0]);
+  const Y = /** @type {Vec} */ ([0, 1, 0]);
+  const Z = /** @type {Vec} */ ([0, 0, 1]);
+  const neg = (v) => /** @type {Vec} */ ([-v[0], -v[1], -v[2]]);
+  const treated = (n) => (d.floorTreated ? `PT ${n}` : n);
+
+  const push = (m) => { members.push(m); return m; };
+
+  // ---------------- Foundation ----------------
+  const skid = actual(d.skidSize); // laid on edge: thick across, depth up
+  const blockH = d.foundation === 'blocks' ? 4 : 0;
+  const skidTop = blockH + skid.depth;
+  const skidCount = Math.max(2, Math.ceil((W - skid.thick) / d.skidSpacing) + 1);
+  const skidYs = [];
+  for (let i = 0; i < skidCount; i++) skidYs.push(skid.thick / 2 + (i * (W - skid.thick)) / (skidCount - 1));
+  const skidSplit = splitRun(0, L, maxStock, [], [], 0);
+  if (skidSplit.runs.length > 1) {
+    notes.push(`Skids are longer than the longest board you allowed (${maxStock / 12} ft), so each is spliced; stagger the joints between skids${d.foundation === 'blocks' ? ' and land each joint on a block' : ''}.`);
+  }
+  // Even pieces read better than one long and one stub.
+  const skidPieces = skidSplit.runs.length;
+  skidYs.forEach((y, i) => {
+    for (let k = 0; k < skidPieces; k++) {
+      const s0 = (L * k) / skidPieces;
+      const s1 = (L * (k + 1)) / skidPieces;
+      push({
+        id: nextId('SK'), group: 'foundation', kind: 'skid', material: `PT ${d.skidSize}`, length: ceil16(s1 - s0),
+        note: skidPieces > 1 ? 'butt joint, stagger between skids' : undefined,
+        geom: rectGeom([s0, y - skid.thick / 2, blockH], X, Z, Y, s1 - s0, skid.depth, skid.thick),
+        local: { s0, s1, z0: y - skid.thick / 2, z1: y + skid.thick / 2 },
+      });
+    }
+    if (d.foundation === 'blocks') {
+      const n = Math.ceil(L / 48) + 1;
+      for (let k = 0; k < n; k++) {
+        const x = Math.min(L - 8, Math.max(0, (k * (L - 16)) / (n - 1)));
+        fixtures.push({ kind: 'block', group: 'foundation', geom: rectGeom([x, y - 4, 0], X, Z, Y, 16, 4, 8) });
+      }
+    }
+  });
+  const blockCount = d.foundation === 'blocks' ? skidCount * (Math.ceil(L / 48) + 1) : 0;
+  const pad = 12;
+  fixtures.push({ kind: 'gravel', group: 'foundation', geom: rectGeom([-pad, -pad, -4], X, Z, Y, L + 2 * pad, 4, W + 2 * pad) });
+  const gravelCuYd = ((L + 2 * pad) * (W + 2 * pad) * 4) / 46656;
+
+  // ---------------- Floor ----------------
+  const joist = actual(d.joistSize);
+  const jz = skidTop;
+  const floorTop = jz + joist.depth + 0.75;
+  const joistCenters = [0.75, ...layoutCenters(d.joistSpacing, 0.75 + 1.5, L - 0.75 - 1.5), L - 0.75];
+  const rimSplit = splitRun(0, L, maxStock, joistCenters);
+  for (const y0 of [0, W - 1.5]) {
+    for (const [s0, s1] of rimSplit.runs) {
+      push({
+        id: nextId('RJ'), group: 'floor', kind: 'rim joist', material: treated(d.joistSize), length: ceil16(s1 - s0),
+        note: rimSplit.runs.length > 1 ? 'splice centred on a joist' : undefined,
+        geom: rectGeom([s0, y0, jz], X, Z, Y, s1 - s0, joist.depth, 1.5),
+        local: { s0, s1, z0: y0, z1: y0 + 1.5 },
+      });
+    }
+  }
+  for (const c of joistCenters) {
+    push({
+      id: nextId('FJ'), group: 'floor', kind: 'floor joist', material: treated(d.joistSize), length: ceil16(W - 3),
+      geom: rectGeom([c - 0.75, 1.5, jz], Y, Z, X, W - 3, joist.depth, 1.5),
+      local: { s0: c - 0.75, s1: c + 0.75, z0: 1.5, z1: W - 1.5 },
+    });
+  }
+  if (W - 3 > maxStock) warnings.push(`Floor joists need ${Math.ceil((W - 3) / 12)} ft boards; add that length to your stock list or add a centre beam (not modelled).`);
+  // Floor sheets: 8 ft across the joists, rows of 4 ft, odd rows staggered half a sheet.
+  /** @type {number[]} */
+  const floorPieces = [];
+  const floorRows = Math.ceil(W / 48 - 1e-9);
+  for (let r = 0; r < floorRows; r++) {
+    const y0 = r * 48;
+    const h = Math.min(48, W - y0);
+    const cuts = [0];
+    for (let x = r % 2 ? 48 : 96; x < L; x += 96) cuts.push(x);
+    cuts.push(L);
+    for (let i = 0; i + 1 < cuts.length; i++) {
+      const len = cuts[i + 1] - cuts[i];
+      floorPieces.push(len);
+      panels.push({ id: nextId('FS'), kind: 'floor sheet', item: 'floorSheet', group: 'floor', geom: rectGeom([cuts[i], y0, floorTop - 0.75], X, Y, Z, len, h, 0.75) });
+    }
+  }
+
+  // ---------------- Walls ----------------
+  const stud = actual(d.studSize);
+  const D = stud.depth;
+  const beam = d.roofType === 'ridgeBeam';
+  const H = d.wallHeight;
+  const studLen = H - 4.5;
+  const plateTop = floorTop + H;
+  if (studLen > maxStock) warnings.push(`Studs are ${Math.ceil(studLen / 12)} ft long, longer than any board you allowed.`);
+
+  /** Axis coordinate (x for eave walls, y for gable ends) where an opening's left edge sits. */
+  const openingAxisStart = (op) => {
+    if (op.wall === 'front' || op.wall === 'right') return op.offset;
+    return wallFaceLength(d, op.wall) - op.offset - op.width;
+  };
+
+  /** @type {Record<string, any>} */
+  const walls = {};
+  const wallSpecs = {
+    front: { axis: X, start: 0, len: L, base: /** @type {Vec} */ ([0, 0, floorTop]), w: Y, eave: true },
+    back: { axis: X, start: 0, len: L, base: /** @type {Vec} */ ([0, W, floorTop]), w: neg(Y), eave: true },
+    left: { axis: Y, start: D, len: W - 2 * D, base: /** @type {Vec} */ ([0, D, floorTop]), w: X, eave: false },
+    right: { axis: Y, start: D, len: W - 2 * D, base: /** @type {Vec} */ ([L, D, floorTop]), w: neg(X), eave: false },
+  };
+  const prefix = { front: 'F', back: 'B', left: 'L', right: 'R' };
+
+  for (const name of WALLS) {
+    const spec = wallSpecs[name];
+    const { len, start } = spec;
+    const P = prefix[name];
+    /** @type {Member[]} */
+    const wm = [];
+    const addM = (kind, material, s0, s1, z0, z1, note) => {
+      const m = push({
+        id: nextId(`${P}`), group: `wall:${name}`, kind, material, note,
+        length: ceil16(kind.includes('plate') || kind === 'header' || kind === 'rough sill' ? s1 - s0 : z1 - z0),
+        geom: rectGeom(add(spec.base, spec.axis, s0), spec.axis, Z, spec.w, s1 - s0, z1 - z0, D),
+        local: { s0, s1, z0, z1 },
+      });
+      wm.push(m);
+      return m;
+    };
+    const endZone = spec.eave ? D + 1.5 : 1.5;
+    // Openings on this wall, in framed coordinates, rejected if they do not fit.
+    const ops = [];
+    for (const op of d.openings.filter((o) => o.wall === name)) {
+      const a = openingAxisStart(op) - start;
+      const hdr = op.header && actual(op.header) ? op.header : defaultHeader(op.width);
+      const hd = actual(hdr).depth;
+      const bottom = op.kind === 'window' ? op.sill ?? 42 : 0;
+      const headerTop = bottom + op.height + hd;
+      const label = `${op.kind === 'door' ? 'Door' : 'Window'} ${op.width}" x ${op.height}" on the ${name} wall`;
+      if (a - 3 < endZone - 1e-9 || a + op.width + 3 > len - endZone + 1e-9) {
+        warnings.push(`${label} is too close to a corner to frame with king and jack studs; it is left out of the framing.`);
+        continue;
+      }
+      if (headerTop > H - 3 + 1e-9) {
+        warnings.push(`${label} needs ${(headerTop + 3).toFixed(1)}" of wall with a ${hdr} header but the wall is ${H}"; it is left out. Lower it, use a shallower header or raise the wall.`);
+        continue;
+      }
+      if (op.kind === 'window' && bottom < 4.5) {
+        warnings.push(`${label} has its sill ${bottom}" above the floor; leave at least 4-1/2" for the plate and rough sill. It is left out.`);
+        continue;
+      }
+      if (beam && !spec.eave && a - 3 < W / 2 + 1.5 - start && a + op.width + 3 > W / 2 - 1.5 - start) {
+        warnings.push(`${label} is where the ridge-beam post runs down the gable wall; move it to one side. It is left out.`);
+        continue;
+      }
+      const clash = ops.find((p) => a - 3 < p.a + p.w + 3 && a + op.width + 3 > p.a - 3);
+      if (clash) {
+        warnings.push(`${label} overlaps another opening's king studs; it is left out.`);
+        continue;
+      }
+      ops.push({ op, a, w: op.width, hdr, hd, bottom, headerTop });
+    }
+    // Studs: ends, corner studs on eave walls, layout, then openings replace what they cover.
+    const layout = layoutCenters(d.studSpacing, start, start + len).map((c) => c - start);
+    const verticals = [];
+    verticals.push({ s: 0, kind: 'stud' });
+    verticals.push({ s: len - 1.5, kind: 'stud' });
+    if (spec.eave) {
+      verticals.push({ s: D, kind: 'corner stud' });
+      verticals.push({ s: len - D - 1.5, kind: 'corner stud' });
+    }
+    if (beam && !spec.eave) {
+      // Two studs under the ridge-beam post carry it down to the floor.
+      verticals.push({ s: W / 2 - 1.5 - start, kind: 'post stud' });
+      verticals.push({ s: W / 2 - start, kind: 'post stud' });
+    }
+    const occupied = (s0) => verticals.some((v) => s0 < v.s + 1.5 - 1e-9 && s0 + 1.5 > v.s + 1e-9);
+    const inOpening = (s0) => ops.some((p) => s0 < p.a + p.w + 3 - 1e-9 && s0 + 1.5 > p.a - 3 + 1e-9);
+    for (const c of layout) {
+      const s0 = c - 0.75;
+      if (s0 < 0 || s0 + 1.5 > len) continue;
+      if (occupied(s0) || inOpening(s0)) continue;
+      verticals.push({ s: s0, kind: 'stud' });
+    }
+    for (const v of verticals) addM(v.kind, d.studSize, v.s, v.s + 1.5, 1.5, 1.5 + studLen);
+    const breakCenters = verticals.map((v) => v.s + 0.75);
+    for (const p of ops) {
+      const jack = p.bottom + p.op.height - 1.5;
+      addM('king stud', d.studSize, p.a - 3, p.a - 1.5, 1.5, 1.5 + studLen);
+      addM('king stud', d.studSize, p.a + p.w + 1.5, p.a + p.w + 3, 1.5, 1.5 + studLen);
+      addM('jack stud', d.studSize, p.a - 1.5, p.a, 1.5, 1.5 + jack);
+      addM('jack stud', d.studSize, p.a + p.w, p.a + p.w + 1.5, 1.5, 1.5 + jack);
+      breakCenters.push(p.a - 2.25, p.a + p.w + 2.25);
+      const hb = 1.5 + jack;
+      const spacer = D - 3 > 0 ? `two plies with a ${D - 3}" plywood spacer` : 'two plies';
+      for (let ply = 0; ply < 2; ply++) {
+        const m = addM('header', p.hdr, p.a - 1.5, p.a + p.w + 1.5, hb, hb + p.hd, spacer);
+        m.material = p.hdr;
+      }
+      const inside = layout.filter((c) => c - 0.75 >= p.a - 1e-9 && c + 0.75 <= p.a + p.w + 1e-9).map((c) => c - 0.75);
+      const crippleSpots = inside.length ? inside : (p.w > 6 ? [p.a + p.w / 2 - 0.75] : []);
+      const topGap = H - 3 - p.headerTop;
+      if (topGap >= 1.5) {
+        for (const s of crippleSpots) addM('top cripple', d.studSize, s, s + 1.5, p.headerTop, H - 3);
+      } else if (topGap > 0.01) {
+        notes.push(`${P} wall: the header over the ${p.op.kind} leaves a ${topGap.toFixed(2)}" gap to the top plate; fill it with plywood rather than cripples.`);
+      }
+      if (p.op.kind === 'window') {
+        addM('rough sill', d.studSize, p.a, p.a + p.w, p.bottom - 1.5, p.bottom);
+        const below = [p.a, ...crippleSpots.filter((s) => s > p.a + 1.5 && s < p.a + p.w - 3), p.a + p.w - 1.5];
+        if (p.bottom - 3 >= 1.5) for (const s of below) addM('bottom cripple', d.studSize, s, s + 1.5, 1.5, p.bottom - 1.5);
+      }
+      fixtures.push({
+        kind: p.op.kind, group: `wall:${name}`,
+        geom: rectGeom(add(add(spec.base, spec.axis, p.a), Z, p.bottom), spec.axis, Z, neg(spec.w), p.w, p.op.height, d.siding ? 1.0 : 0.4),
+      });
+    }
+    // Plates: bottom plate is cut out at doors; top and cap plates break on studs, cap joints kept 4 ft from top joints.
+    const doorGaps = ops.filter((p) => p.op.kind === 'door').map((p) => [p.a, p.a + p.w]).sort((a, b) => a[0] - b[0]);
+    const bottomRuns = [];
+    let cur = 0;
+    for (const [g0, g1] of doorGaps) { if (g0 > cur) bottomRuns.push([cur, g0]); cur = g1; }
+    if (cur < len) bottomRuns.push([cur, len]);
+    for (const [r0, r1] of bottomRuns) {
+      for (const [s0, s1] of splitRun(r0, r1, maxStock, breakCenters).runs) addM('bottom plate', d.studSize, s0, s1, 0, 1.5);
+    }
+    const top = splitRun(0, len, maxStock, breakCenters);
+    for (const [s0, s1] of top.runs) addM('top plate', d.studSize, s0, s1, H - 3, H - 1.5);
+    const topJoints = top.runs.slice(1).map((r) => r[0]);
+    const cap = splitRun(0, len, maxStock, breakCenters, topJoints, 48);
+    for (const [s0, s1] of cap.runs) addM('cap plate', d.studSize, s0, s1, H - 1.5, H);
+    if (top.runs.length > 1) notes.push(`${WALL_LABEL[name]}: plates are longer than your longest board, so they splice over studs; the cap plate's joints are kept away from the top plate's where the layout allows.`);
+    walls[name] = { name, len, start, members: wm, openings: ops, eave: spec.eave };
+  }
+
+  // ---------------- Roof ----------------
+  const t = d.pitch / 12;
+  const cos = 1 / Math.sqrt(1 + t * t);
+  const sin = t * cos;
+  const raf = actual(d.rafterSize);
+  const rd = raf.depth;
+  const plumbH = rd / cos;
+  const o = d.overhang;
+  const rh = beam ? 1.5 : 0.75; // half the ridge's thickness: one board, or a two-ply beam
+  const r = W / 2 - rh;
+  const zb = (dist) => plateTop + (dist - D) * t; // underside of rafter at a distance from the eave wall's outside face
+  const zt = (dist) => zb(dist) + plumbH; // top of rafter
+  const ridgeTop = zt(r);
+  let ridgeSize = beam ? d.beamSize : TWO_BY.find((s) => TWO_BY.indexOf(s) > TWO_BY.indexOf(d.rafterSize) && actual(s).depth >= plumbH - 1e-9);
+  if (beam && actual(d.beamSize).depth < plumbH - 1e-9) {
+    warnings.push(`A ${d.beamSize} ridge beam is shallower than the rafters' ${plumbH.toFixed(2)}" plumb cut; choose a deeper beam.`);
+  }
+  if (!ridgeSize) {
+    ridgeSize = '2x12';
+    warnings.push(`At ${d.pitch}/12 the rafter's plumb cut is ${plumbH.toFixed(2)}" deep, more than a 2x12 ridge; use a built-up or engineered ridge.`);
+  }
+  const ridgeD = actual(ridgeSize).depth;
+  if (D * t > rd / 3 + 1e-9) {
+    warnings.push(`The birdsmouth is ${(D * t).toFixed(2)}" deep, more than a third of the ${d.rafterSize} rafter; a deeper rafter or lower pitch keeps more wood over the wall.`);
+  }
+  const rafterCut = ceil16((r + o) / cos + rd * Math.tan(Math.atan(t)));
+  const rafterCenters = [0.75, ...layoutCenters(d.rafterSpacing, 0.75 + 1.5, L - 0.75 - 1.5), L - 0.75];
+  /** @param {number} dist @param {boolean} back */
+  const yOf = (dist, back) => (back ? W - dist : dist);
+  const rafterProfile = (back) => {
+    /** @type {[number, number][]} */
+    const pts = [];
+    if (o > 0) pts.push([yOf(-o, back), zb(-o)]);
+    pts.push([yOf(0, back), zb(0)], [yOf(0, back), plateTop], [yOf(D, back), plateTop], [yOf(r, back), zb(r)], [yOf(r, back), zt(r)], [yOf(-o, back), zt(-o)]);
+    if (o === 0) pts.splice(0, 1); // tail is the heel cut: start at the plate seat
+    return pts;
+  };
+  const birdNote = `${d.pitch}/12 plumb cuts at ridge and tail; birdsmouth ${((D * t)).toFixed(2).replace(/\.?0+$/, '')}" heel, ${D}" seat`;
+  for (const c of rafterCenters) {
+    for (const back of [false, true]) {
+      push({
+        id: nextId('RF'), group: 'roof', kind: 'rafter', material: d.rafterSize, length: rafterCut, note: birdNote,
+        geom: { origin: [c - 0.75, 0, 0], u: Y, v: Z, w: X, profile: rafterProfile(back), thickness: 1.5 },
+      });
+    }
+  }
+  if (beam) {
+    // Structural ridge beam: two plies, one piece each, rafters hung from it.
+    for (const y0 of [W / 2 - 1.5, W / 2]) {
+      push({
+        id: nextId('RB'), group: 'roof', kind: 'ridge beam', material: ridgeSize, length: ceil16(L),
+        note: 'two plies nailed together; one piece, bears on the gable posts',
+        geom: rectGeom([0, y0, ridgeTop - actual(ridgeSize).depth], X, Z, Y, L, actual(ridgeSize).depth, 1.5),
+      });
+    }
+    if (L > maxStock) warnings.push(`The ridge beam should be one piece ${Math.ceil(L / 12)} ft long; add that length to your board list.`);
+    notes.push(`Ridge-beam roof: the beam carries the rafters (fix them with hangers), so there are no rafter ties and the inside is open to the roof. The beam size is your choice, not a span-table result; check it for a ${fmtSpan(L)} span and your snow load.`);
+  } else {
+    const ridgeSplit = splitRun(0, L, maxStock, rafterCenters);
+    for (const [s0, s1] of ridgeSplit.runs) {
+      push({
+        id: nextId('RB'), group: 'roof', kind: 'ridge board', material: ridgeSize, length: ceil16(s1 - s0),
+        note: ridgeSplit.runs.length > 1 ? 'joint centred on a rafter pair' : undefined,
+        geom: rectGeom([s0, W / 2 - 0.75, ridgeTop - ridgeD], X, Z, Y, s1 - s0, ridgeD, 1.5),
+      });
+    }
+  }
+  // Rafter ties at plate height on every pair but the gable ends, which the gable wall ties.
+  const tie = actual(d.tieSize);
+  const topAt0 = zt(0) - plateTop;
+  if (beam) {
+    // no ties: the ridge beam holds the rafters up, so they do not push the walls out
+  } else if (topAt0 <= 0.5) {
+    warnings.push('The rafters are too shallow over the wall for a rafter tie at the plate; deepen the rafters.');
+  } else {
+    const clipped = topAt0 < tie.depth;
+    const dc = clipped ? D + (tie.depth - plumbH) / t : 0;
+    /** @type {[number, number][]} */
+    const prof = clipped
+      ? [[0, plateTop], [W, plateTop], [W, plateTop + topAt0], [W - dc, plateTop + tie.depth], [dc, plateTop + tie.depth], [0, plateTop + topAt0]]
+      : [[0, plateTop], [W, plateTop], [W, plateTop + tie.depth], [0, plateTop + tie.depth]];
+    rafterCenters.slice(1, -1).forEach((c) => {
+      push({
+        id: nextId('RT'), group: 'roof', kind: 'rafter tie', material: d.tieSize, length: ceil16(W),
+        note: clipped ? 'ends cut to the roof slope' : 'nail to rafter at the plate',
+        geom: { origin: [c + 0.75, 0, 0], u: Y, v: Z, w: X, profile: prof, thickness: 1.5 },
+      });
+    });
+    if (W > maxStock) warnings.push(`Rafter ties need ${Math.ceil(W / 12)} ft boards; add that length to your stock list.`);
+  }
+  // Gable studs between the gable wall's top plate and the end rafter. With a
+  // ridge board, one post sits under the ridge; with a ridge beam, a two-ply
+  // post carries the beam down onto the post studs in the wall below. A gable
+  // vent replaces the studs it covers with trimmers, a flat header as high as
+  // the roof allows and a sill block. Under a ridge board the vent is centred;
+  // under a beam the post is in the middle, so a pair of vents flanks it.
+  const ridgeBottom = ridgeTop - ridgeD;
+  const ventInfo = /** @type {Record<string, any[]>} */ ({});
+  const postZone = beam ? [W / 2 - 1.5, W / 2 + 1.5] : [W / 2 - 0.75, W / 2 + 0.75];
+  for (const name of ['left', 'right']) {
+    const x0 = name === 'left' ? 0 : L - D;
+    const gableMember = (kind, e0, e1, h0, h1, note, z0rel = 0) => {
+      const m = push({
+        id: nextId(name === 'left' ? 'LG' : 'RG'), group: `gable:${name}`, kind, material: d.studSize,
+        length: ceil16(Math.max(h0, h1) - z0rel),
+        note,
+        geom: { origin: [x0, 0, 0], u: Y, v: Z, w: X, profile: [[e0, plateTop + z0rel], [e1, plateTop + z0rel], [e1, plateTop + h1], [e0, plateTop + h0]], thickness: D },
+        local: { s0: e0, s1: e1, z0: H + z0rel, z1: H + Math.max(h0, h1), top: [[e0, H + h0], [e1, H + h1]] },
+      });
+      walls[name].members.push(m);
+      return m;
+    };
+    const rafterUnder = (y) => zb(Math.min(y, W - y)) - plateTop;
+    /** @type {{ v0: number, v1: number, ventTop: number, ventBottom: number, headerTop: number }[]} */
+    const vents = [];
+    if (d.gableVents) {
+      const vw = d.ventWidth;
+      const vh = d.ventHeight;
+      const spans = beam ? [[W / 2 - 1.5 - vw, W / 2 - 1.5], [W / 2 + 1.5, W / 2 + 1.5 + vw]] : [[W / 2 - vw / 2, W / 2 + vw / 2]];
+      for (const [v0, v1] of spans) {
+        const headerTop = Math.floor(Math.min(beam ? Infinity : ridgeBottom - plateTop, rafterUnder(v0), rafterUnder(v1)) * 8) / 8;
+        const ventTop = headerTop - 1.5;
+        const ventBottom = ventTop - vh;
+        const outer = v0 < W / 2 ? v0 - 1.5 : v1 + 1.5;
+        if (ventBottom - 1.5 < 0 || rafterUnder(outer) < 3) {
+          warnings.push(`A ${vw}" x ${vh}" gable vent does not fit under the ${name} gable at ${d.pitch}/12${beam ? ' beside the ridge-beam post' : ''}; make it smaller, steepen the roof or widen the shed. ${beam ? 'They are' : 'It is'} left out.`);
+          vents.length = 0;
+          break;
+        }
+        vents.push({ v0, v1, ventTop, ventBottom, headerTop });
+      }
+    }
+    const blocked = (e0, e1) => (e1 > postZone[0] - 1e-9 && e0 < postZone[1] + 1e-9) || vents.some((v) => e1 > v.v0 - 1.5 - 1e-9 && e0 < v.v1 + 1.5 + 1e-9);
+    for (const c of layoutCenters(d.studSpacing, 0, W)) {
+      const e0 = c - 0.75;
+      const e1 = c + 0.75;
+      if (blocked(e0 - (beam ? 0 : 1.5), e1 + (beam ? 0 : 1.5))) continue;
+      const h0 = rafterUnder(e0);
+      const h1 = rafterUnder(e1);
+      if (Math.min(h0, h1) < 3) continue;
+      gableMember('gable stud', e0, e1, h0, h1, `top cut to ${d.pitch}/12`);
+    }
+    // The post (under a centred vent, it stands on the vent header instead).
+    const centreVent = vents.find((v) => v.v0 < W / 2 && v.v1 > W / 2);
+    const postBase = centreVent ? centreVent.headerTop : 0;
+    const postH = ridgeBottom - plateTop;
+    if (postH - postBase >= 3) {
+      if (beam) {
+        for (const e0 of [W / 2 - 1.5, W / 2]) gableMember('beam post', e0, e0 + 1.5, postH, postH, 'square top under the ridge beam, over the post studs');
+      } else {
+        gableMember('ridge post', W / 2 - 0.75, W / 2 + 0.75, postH, postH, centreVent ? 'from the vent header to the ridge' : 'square top under the ridge', postBase);
+      }
+    }
+    for (const v of vents) {
+      const { v0, v1, ventTop, ventBottom } = v;
+      for (const [e0, e1] of [[v0 - 1.5, v0], [v1, v1 + 1.5]]) {
+        if (e1 > postZone[0] + 1e-9 && e0 < postZone[1] - 1e-9) continue; // the post is this side's trimmer
+        gableMember('vent trimmer', e0, e1, rafterUnder(e0), rafterUnder(e1), `top cut to ${d.pitch}/12`);
+      }
+      for (const [kind, z0] of /** @type {[string, number][]} */ ([['vent header', ventTop], ['vent sill', ventBottom - 1.5]])) {
+        const m = push({
+          id: nextId(name === 'left' ? 'LG' : 'RG'), group: `gable:${name}`, kind, material: d.studSize, length: ceil16(v1 - v0),
+          note: 'flat between the trimmers',
+          geom: rectGeom([x0, v0, plateTop + z0], Y, Z, X, v1 - v0, 1.5, D),
+          local: { s0: v0, s1: v1, z0: H + z0, z1: H + z0 + 1.5 },
+        });
+        walls[name].members.push(m);
+      }
+      const mid = (v0 + v1) / 2;
+      if (ventBottom - 1.5 >= 1.5) gableMember('vent cripple', mid - 0.75, mid + 0.75, ventBottom - 1.5, ventBottom - 1.5, 'under the vent sill');
+      fixtures.push({ kind: 'vent', group: `gable:${name}`, geom: rectGeom([name === 'left' ? 0 : L, v0, plateTop + ventBottom], Y, Z, name === 'left' ? neg(X) : X, v1 - v0, d.ventHeight, d.siding ? 1.0 : 0.4) });
+    }
+    if (vents.length) ventInfo[name] = vents.map((v) => ({ s0: v.v0, s1: v.v1, z0: H + v.ventBottom, z1: H + v.ventTop }));
+  }
+
+  // ---------------- Sheathing, siding, roofing ----------------
+  const slopeLen = (W / 2 + o) / cos; // eave tail to the ridge line, along the roof
+  /** @type {number[]} */
+  const roofPieces = [];
+  const roofRows = Math.ceil(slopeLen / 48 - 1e-9);
+  for (const back of [false, true]) {
+    const vy = back ? -cos : cos;
+    const eave = /** @type {Vec} */ ([0, yOf(-o, back), zt(-o)]);
+    const v = /** @type {Vec} */ ([0, vy, sin]);
+    const w = /** @type {Vec} */ ([0, back ? sin : -sin, cos]);
+    for (let rr = 0; rr < roofRows; rr++) {
+      const q0 = rr * 48;
+      const h = Math.min(48, slopeLen - q0);
+      const cuts = [0];
+      for (let x = rr % 2 ? 48 : 96; x < L; x += 96) cuts.push(x);
+      cuts.push(L);
+      for (let i = 0; i + 1 < cuts.length; i++) {
+        roofPieces.push(cuts[i + 1] - cuts[i]);
+        {
+          panels.push({ id: nextId('RS'), kind: 'roof sheathing', item: 'roofSheet', group: 'sheathing', geom: rectGeom(add(add(eave, X, cuts[i]), v, q0), X, v, w, cuts[i + 1] - cuts[i], h, 7 / 16) });
+        }
+      }
+    }
+    if (d.roofing) {
+      fixtures.push({ kind: 'shingles', group: 'roofing', geom: rectGeom(add(eave, w, 7 / 16), X, v, w, L, slopeLen, 0.35) });
+    }
+  }
+  const roofAreaSqFt = (2 * slopeLen * L) / 144;
+
+  const sidingT = 19 / 32;
+  /** @type {{ wall: string, length: number }[]} */
+  const sidingFull = [];
+  /** @type {number[]} */
+  const sidingUpper = [];
+  if (d.siding) {
+    const bottomZ = skidTop; // siding laps down over the rim joist
+    const sheetFor = (h) => [96, 108, 120].find((s) => s >= h - 1e-9);
+    for (const name of WALLS) {
+      const eave = name === 'front' || name === 'back';
+      const faceLen = eave ? L : W;
+      const clip = (s) => (eave ? plateTop : zt(Math.min(s, W - s)));
+      const origin = name === 'front' ? [0, 0, 0] : name === 'back' ? [0, W, 0] : name === 'left' ? [0, 0, 0] : [L, 0, 0];
+      const u = eave ? X : Y;
+      const w = name === 'front' ? neg(Y) : name === 'back' ? Y : name === 'left' ? neg(X) : X;
+      for (let s0 = 0; s0 < faceLen - 1e-9; s0 += 48) {
+        const s1 = Math.min(faceLen, s0 + 48);
+        /** @type {[number, number][]} */
+        const prof = [[s0, bottomZ], [s1, bottomZ], [s1, clip(s1)]];
+        if (!eave && s0 < W / 2 && s1 > W / 2) prof.push([W / 2, clip(W / 2)]);
+        prof.push([s0, clip(s0)]);
+        const need = Math.max(...prof.map((p) => p[1])) - bottomZ;
+        const sheet = sheetFor(need);
+        if (sheet) sidingFull.push({ wall: name, length: sheet });
+        else { sidingFull.push({ wall: name, length: 96 }); sidingUpper.push(Math.ceil(need - 96)); }
+        panels.push({
+          id: nextId('SD'), kind: 'siding', item: 'siding', group: 'siding',
+          geom: { origin: /** @type {Vec} */ (origin), u, v: Z, w, profile: prof, thickness: sidingT },
+        });
+      }
+    }
+  }
+
+  const dims = {
+    length: L, width: W, wallHeight: H, pitch: d.pitch, overhang: o,
+    skidTop, floorTop, plateTop, ridgeTop, peak: ridgeTop + (d.roofing ? 7 / 16 / cos + 0.35 / cos : 7 / 16 / cos),
+    studLen, rafterCut, slopeLen, plumbH, ridgeSize, ridgeD, stud: D, joistDepth: joist.depth, rafterDepth: rd,
+    skidCount, skidYs, joistCenters, rafterCenters, gravelCuYd, blockCount, roofAreaSqFt, floorRows, roofRows,
+    heel: D * t, maxStock,
+  };
+
+  if (d.maxPeak > 0 && dims.peak > d.maxPeak + 1e-9) {
+    const tallest = Math.max(0, ...Object.values(walls).flatMap((w) => w.openings.map((p) => p.headerTop)));
+    const minWall = Math.max(60, Math.ceil((tallest + 3) * 2) / 2);
+    const low = buildFramed(normalize({ ...d, wallHeight: minWall, pitch: 3, maxPeak: 0, autoWall: false, autoPitch: false })).dims.peak;
+    warnings.push(`The peak is ${fmtFt(dims.peak)} above the gravel, ${fmtFt(dims.peak - d.maxPeak)} over your ${fmtFt(d.maxPeak)} limit. Your tallest opening needs walls of at least ${fmtFt(minWall)}; with those walls and a 3/12 roof (about the least that sheds water under shingles) the peak would still be ${fmtFt(low)}. To get lower: a shorter door, a door in the gable end, a lower floor or a narrower shed${d.gableVents ? ', or smaller or no gable vents (they need a steeper roof to fit)' : ''}.`);
+  }
+
+  return { design: d, members, panels, fixtures, walls, warnings, notes, dims, vents: ventInfo, floorPieces, roofPieces, sidingFull, sidingUpper };
+}
+
+/** @typedef {ReturnType<typeof buildFramed>} Shed */

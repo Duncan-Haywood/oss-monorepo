@@ -1,0 +1,31 @@
+name: shed-designer
+description: A browser tool that designs a gable shed by click-and-drag and frames it board by board with true dimensional lumber sizes, producing construction drawings (print, SVG, DXF), a 3D view, a producer cut sheet over standard 8 to 16 ft boards, and a shopping list with cost; several designs can be compared side by side.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Owner-builders planning a backyard shed will use a free designer that hands them a cut sheet and plans in their own size, because fixed plan sets list boards but not how to cut them and do not change with the footprint.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Dragging the footprint and openings, rather than typing, is how most visitors will shape a design; the drags counter against builds will say whether the drag editor earns its place.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The DXF export matters to a minority who take the plans into CAD or to a permit office; dxf-downloads against plans-printed separates them.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than five people print plans or download a cut sheet within 90 days.
+  - A builder reports a framing count or cut length that is wrong and the cause is the engine, not their input, twice without a fix.
+links:
+  production: https://duncan-haywood.github.io/oss-monorepo/shed-designer/
+  analytics: null

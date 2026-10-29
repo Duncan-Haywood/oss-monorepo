@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23784421'/%3E%3Cpath%20d='M6%2015L16%207l10%208v10H6z'%20fill='%23fff'/%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shed Designer: Free Gable Shed Plans, 3D View and Lumber Cut List</title>
+  <meta name="description" content="Design a gable shed by dragging: get framing plans for the foundation, floor, four walls and roof, a 3D view, a lumber cut sheet using real 2x4 to 2x12 sizes and 8 to 16 ft boards, and a cost estimate. Free, nothing uploaded.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Shed Designer: drag out a gable shed, get the plans and the cut list">
+  <meta property="og:description" content="Framing plans, a 3D view, a producer cut sheet and a lumber order for an 8x12 (or any size) gable shed. Free, in your browser.">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Shed Designer",
+    "applicationCategory": "DesignApplication",
+    "operatingSystem": "Any modern browser",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "featureList": "click-and-drag shed layout, gable roof, doors, windows and gable vents, true dimensional lumber sizes, framing plans for foundation floor walls and roof, building section, DXF and SVG export, 3D view, producer cut sheet from 8 to 20 ft boards, shopping list and cost estimate, compare several designs",
+    "description": "A free browser tool that frames a gable shed board by board and produces construction drawings, a 3D model, a cut sheet and a cost estimate. Runs entirely on the visitor's device."
+  }
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does it use the real size of a 2x4?","acceptedAnswer":{"@type":"Answer","text":"Yes. Every board is framed at its dressed size: a 2x4 is 1-1/2 by 3-1/2 inches, a 2x6 is 1-1/2 by 5-1/2, a 2x8 is 1-1/2 by 7-1/4, a 2x10 is 1-1/2 by 9-1/4 and a 2x12 is 1-1/2 by 11-1/4. Stud lengths, plate stack heights, rafter plumb cuts and the parts list all use those numbers."}},{"@type":"Question","name":"How does it decide which board lengths to buy?","acceptedAnswer":{"@type":"Answer","text":"It treats the order as a cutting-stock problem: every piece is placed into 8, 10, 12, 14 or 16 ft boards (18 and 20 ft if you tick them) to minimise cost at the prices you type, with your saw kerf between cuts. It prints a lower bound beside the result so you can see how close the order is to the cheapest possible."}},{"@type":"Question","name":"Is the design checked by an engineer or against building code?","acceptedAnswer":{"@type":"Answer","text":"No. It frames what you draw with common practice, and it warns about a few things it can see (a birdsmouth deeper than a third of the rafter, a header that does not fit, a vent too big for the gable), but nothing is checked against a span table, a snow or wind load or your local code. Many places need a permit for a shed over a certain size; ask your building department."}},{"@type":"Question","name":"Can I open the plans in CAD?","acceptedAnswer":{"@type":"Answer","text":"Yes. Each sheet downloads as DXF (full size, in inches, with layers for framing, outlines, hidden lines, openings, dimensions and text) or SVG, and the whole set prints from the browser."}},{"@type":"Question","name":"Is my design uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. Everything runs in your browser. Your designs are saved in this browser's local storage so they are there next time (you can turn that off), and a shared link carries the design inside the link itself."}}]}</script>
+  <style>
+    :root { --ink:#1f2420; --muted:#5b6157; --paper:#f4f1ea; --card:#fffdf8; --line:#d8d1c2; --accent:#8a4a1f; --accent2:#24392b; --gold:#e9be76; --warn:#fdf1e6;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif; color: var(--ink); background: var(--paper); }
+    body { max-width: 1280px; margin: auto; padding: 26px 16px 40px; }
+    header { max-width: 860px; }
+    .eyebrow { color: var(--accent); font-weight: 800; letter-spacing: .12em; font-size: .75rem; margin: 0; text-transform: uppercase; }
+    h1 { font: 800 clamp(2rem, 5.2vw, 3.6rem)/1 Georgia, serif; letter-spacing: -.035em; margin: 8px 0 12px; }
+    p { line-height: 1.55; }
+    section, .panel { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 18px; box-shadow: 0 8px 24px #3328170b; }
+    h2 { margin: 0 0 10px; font-size: 1.1rem; }
+    h3 { margin: 0 0 8px; font-size: 1rem; }
+    .bar-top { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 18px 0 12px; }
+    .tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+    .tabs button, .result-tabs button { font: inherit; font-weight: 700; cursor: pointer; padding: 8px 14px; border: 1px solid var(--line); border-radius: 999px; background: var(--card); color: var(--ink); }
+    .tabs button[aria-selected="true"], .result-tabs button[aria-selected="true"] { background: var(--accent2); color: #f8f5eb; border-color: var(--accent2); }
+    button, select, input { font: inherit; }
+    .btn { cursor: pointer; padding: 8px 14px; border-radius: 999px; border: 1px solid var(--accent2); background: var(--card); color: var(--accent2); font-weight: 700; }
+    .btn.primary { background: var(--accent2); color: #f8f5eb; }
+    .btn[disabled] { opacity: .4; cursor: not-allowed; }
+    .link { background: none; border: none; color: #1f4e8c; text-decoration: underline; cursor: pointer; padding: 0; font-weight: 600; }
+    .workspace { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 14px; }
+    .editors { display: grid; gap: 14px; }
+    svg.edit { width: 100%; height: auto; display: block; touch-action: none; background: #fbfaf6; border-radius: 10px; border: 1px solid var(--line); }
+    #plan { aspect-ratio: 4 / 3; }
+    #endview { aspect-ratio: 16 / 8; }
+    .hint { color: var(--muted); font-size: .85rem; margin: 6px 0 0; }
+    .pad { fill: #ece8df; stroke: #b8b1a3; stroke-dasharray: 4 3; }
+    .floor { fill: #e9dcc0; stroke: #6b4f2a; }
+    .wallband { fill: #c99d62; }
+    .ridge { stroke: #7a2f1d; stroke-dasharray: 6 4; stroke-width: 1.2; }
+    .opening { cursor: grab; stroke: #1b2a3a; stroke-width: 1; }
+    .opening.door { fill: #8a5a2b; }
+    .opening.window { fill: #8fc2ea; }
+    .opening:focus { outline: none; stroke: #e0662f; stroke-width: 3; }
+    .handle { fill: #e0662f; stroke: #fff; stroke-width: 2; }
+    .handle:focus { outline: none; stroke: #1f2420; }
+    .ghost { fill: none; stroke: #e0662f; stroke-width: 2; stroke-dasharray: 6 4; }
+    .plan-label { font: 600 9px ui-sans-serif, system-ui, sans-serif; fill: #3a3f37; }
+    .plan-muted { font: 8px ui-sans-serif, system-ui, sans-serif; fill: #8a8a80; letter-spacing: .1em; }
+    .ground { stroke: #6f6a5f; stroke-width: 2; }
+    .endwall { fill: #e9dcc0; stroke: #6b4f2a; }
+    .roofline-edit { fill: none; stroke: #7a2f1d; stroke-width: 3; }
+    .viewer { position: relative; }
+    #view3d { width: 100%; aspect-ratio: 4 / 3; display: block; border-radius: 10px; border: 1px solid var(--line); background: #edf1f5; touch-action: none; cursor: grab; }
+    .toolrow { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; align-items: center; }
+    .check { display: inline-flex; align-items: center; gap: 6px; font-size: .88rem; font-weight: 600; }
+    .summary { background: var(--accent2); color: #f8f5eb; border-color: var(--accent2); margin-top: 14px; }
+    .summary .big { font: 800 clamp(2rem, 5vw, 2.8rem) Georgia, serif; color: var(--gold); margin: 2px 0 8px; }
+    .summary dl { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 8px 18px; margin: 0; }
+    .summary dl div { border-top: 1px solid #ffffff30; padding-top: 6px; }
+    .summary dt { font-size: .78rem; opacity: .8; }
+    .summary dd { margin: 0; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .summary .muted { color: #d9e0d5; }
+    #warnings:not(:empty) { background: var(--warn); color: var(--ink); border: 1px solid #d9a273; border-radius: 10px; padding: 10px 12px; margin-top: 12px; font-size: .9rem; }
+    #warnings ul, #notes ul { margin: 6px 0 0; padding-left: 18px; }
+    #notes { font-size: .85rem; opacity: .9; }
+    form#settings { margin-top: 14px; }
+    fieldset { border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; margin: 0 0 12px; }
+    legend { font-weight: 800; padding: 0 6px; }
+    .fields { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px 14px; }
+    .fields label { display: grid; gap: 4px; font-size: .85rem; font-weight: 700; }
+    .fields input, .fields select, #openings input, #openings select { border: 1px solid #aaa394; border-radius: 8px; padding: 7px 8px; background: #fff; color: inherit; min-width: 0; }
+    #stock { display: flex; flex-wrap: wrap; gap: 12px; }
+    .table-wrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; font-size: .9rem; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #e7e1d4; vertical-align: top; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.sec th { background: #f1ece1; font-size: .8rem; letter-spacing: .06em; text-transform: uppercase; }
+    tr.tot th, tr.tot td { font-weight: 800; border-top: 2px solid var(--ink); }
+    #openings input { width: 80px; }
+    .muted { color: var(--muted); font-size: .85em; }
+    .results { margin-top: 14px; }
+    .result-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+    .boards { padding-left: 34px; margin: 6px 0 16px; }
+    .boards li { display: grid; grid-template-columns: 90px minmax(0, 1fr) 110px; gap: 8px; align-items: center; margin: 4px 0; font-size: .82rem; }
+    .boards .bar { position: relative; height: 24px; background: repeating-linear-gradient(45deg, #eee7d8, #eee7d8 4px, #e2d8c3 4px, #e2d8c3 8px); border-radius: 4px; border: 1px solid #c9bea7; overflow: hidden; }
+    .boards .cut { position: absolute; top: 0; bottom: 0; background: #f1dfb9; border-right: 2px solid #6b4f2a; font-size: .72rem; line-height: 24px; padding-left: 4px; white-space: nowrap; overflow: hidden; }
+    .boards .off { color: var(--muted); }
+    h4 { margin: 14px 0 4px; font-size: .95rem; }
+    .grid input { width: 74px; }
+    .items { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; margin-top: 12px; }
+    .items label { display: grid; gap: 4px; font-size: .82rem; font-weight: 600; }
+    .items input { border: 1px solid #aaa394; border-radius: 8px; padding: 6px 8px; }
+    #plans { display: grid; gap: 18px; }
+    figure.sheet { margin: 0; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: #fff; }
+    figure.sheet svg { width: 100%; height: auto; display: block; }
+    figure.sheet figcaption { padding: 8px 12px; font-size: .88rem; font-weight: 600; border-top: 1px solid var(--line); }
+    #compare-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
+    .card { border: 1px solid var(--line); border-radius: 12px; padding: 12px; background: #fff; }
+    .card.active { border-color: var(--accent2); box-shadow: 0 0 0 2px var(--accent2) inset; }
+    .card img, .thumb-wait { width: 100%; height: auto; aspect-ratio: 3 / 2; border-radius: 8px; background: #edf1f5; display: grid; place-items: center; color: var(--muted); }
+    .card dl { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 10px; font-size: .85rem; margin: 8px 0; }
+    .card dt { color: var(--muted); }
+    .card dd { margin: 0; font-weight: 700; }
+    .pill { background: var(--gold); color: var(--ink); border-radius: 999px; padding: 1px 8px; font-size: .72rem; }
+    #status { min-height: 1.3em; font-size: .88rem; color: var(--muted); }
+    .faq details { border-top: 1px solid var(--line); padding: 10px 0; }
+    .faq summary { font-weight: 700; cursor: pointer; }
+    footer { font-size: .82rem; color: var(--muted); margin-top: 24px; }
+    footer p { line-height: 1.5; }
+    .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+    @media (max-width: 900px) { .workspace { grid-template-columns: 1fr; } .boards li { grid-template-columns: 70px minmax(0, 1fr); } .boards .off { grid-column: 2; } }
+    @media print {
+      body { max-width: none; padding: 0; background: #fff; }
+      body[data-print] > *:not(.results) { display: none !important; }
+      body[data-print] .results > *:not(.print-target) { display: none !important; }
+      body[data-print="plans"] #panel-plans, body[data-print="cuts"] #panel-cuts { display: block !important; }
+      body[data-print] .result-panel { display: none; }
+      body[data-print] section.results { border: none; box-shadow: none; padding: 0; }
+      figure.sheet { break-after: page; border: none; }
+      figure.sheet figcaption { display: none; }
+      .boards li { break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">Free shed plans you draw yourself</p>
+    <h1>Shed Designer</h1>
+    <p>Drag out a gable shed and get what you need to build it: <strong>framing plans</strong> for the foundation, floor, all four walls and the roof, a <strong>3D view</strong>, a <strong>producer cut sheet</strong> that says which 8, 10, 12, 14 or 16 ft board each piece comes out of, and a <strong>shopping list with a cost</strong>. Every 2x4 to 2x12 is framed at its real size (a 2x4 is 1-1/2" x 3-1/2"). Make a few designs and compare them side by side.</p>
+  </header>
+
+  <div class="bar-top">
+    <nav class="tabs" id="design-tabs" role="tablist" aria-label="Your designs"></nav>
+    <label class="sr-only" for="new-design">New design</label>
+    <select id="new-design" class="btn" aria-label="Start a new design">
+      <option value="">+ New design...</option>
+      <option value="copy">Copy this design</option>
+      <option value="8x12">8x12 ridge beam, 6'6" door, 8 ft height limit</option>
+      <option value="8x12 classic">8x12 classic, 8 ft walls</option>
+      <option value="8x10">8x10</option>
+      <option value="10x12">10x12</option>
+      <option value="12x16">12x16, double door on the gable</option>
+      <option value="8x8 lean">8x8 garden shed</option>
+    </select>
+    <button type="button" class="btn" id="undo" title="Undo (Ctrl+Z)">Undo</button>
+    <button type="button" class="btn" id="redo" title="Redo (Ctrl+Shift+Z)">Redo</button>
+    <button type="button" class="btn" id="share">Copy link</button>
+    <button type="button" class="btn" id="json-export">Save file</button>
+    <label class="btn">Open file<input type="file" id="json-import" accept=".json,application/json" hidden></label>
+    <button type="button" class="btn" id="delete-design">Delete</button>
+  </div>
+  <p id="status" role="status" aria-live="polite"></p>
+
+  <div class="workspace" id="workspace">
+    <div class="editors">
+      <section aria-labelledby="plan-h">
+        <h2 id="plan-h">Plan: drag to design</h2>
+        <svg id="plan" class="edit" role="group" aria-label="Plan view of the shed. Orange handles resize it; doors and windows can be dragged along or between walls."></svg>
+        <p class="hint">Drag the orange handles to resize (6" steps). Drag a door (brown) or window (blue) along a wall, or onto another wall. The ridge runs left to right; front is at the bottom.</p>
+      </section>
+      <section aria-labelledby="end-h">
+        <h2 id="end-h">End view: wall height, pitch, overhang</h2>
+        <svg id="endview" class="edit" role="group" aria-label="Gable end view. Drag the peak for pitch, the wall corner for height, the eave tip for overhang."></svg>
+        <p class="hint" id="live" aria-live="polite"></p>
+      </section>
+    </div>
+    <section class="viewer" aria-labelledby="v3d-h">
+      <h2 id="v3d-h">3D view</h2>
+      <canvas id="view3d" aria-label="3D model of the framed shed. Drag to turn it, scroll to zoom."></canvas>
+      <p id="view3d-fallback" hidden>This browser has no WebGL, so the 3D view is off. The plans, cut sheet and estimate below still work.</p>
+      <div class="toolrow">
+        <button type="button" class="btn" id="framing-only">Framing only</button>
+        <button type="button" class="btn" id="finished">Finished</button>
+        <button type="button" class="btn" id="view-front">Front</button>
+        <button type="button" class="btn" id="view-side">Gable end</button>
+        <button type="button" class="btn" id="view-top">Top</button>
+        <button type="button" class="btn" id="view-reset">Reset</button>
+        <button type="button" class="btn" id="zoom-in" aria-label="Zoom in">+</button>
+        <button type="button" class="btn" id="zoom-out" aria-label="Zoom out">−</button>
+      </div>
+      <div class="toolrow" id="layers" aria-label="Layers"></div>
+
+      <div class="panel summary" id="summary" aria-live="polite">
+        <h2>Estimated cost</h2>
+        <p class="big" id="total">$0</p>
+        <dl id="summary-lines"></dl>
+        <div id="warnings"></div>
+        <div id="notes"></div>
+        <p class="muted">Prices are examples, not quotes. Type your yard's prices under Shopping list.</p>
+      </div>
+    </section>
+  </div>
+
+  <form id="settings" class="panel" onsubmit="return false" aria-labelledby="settings-h">
+    <h2 id="settings-h">Exact sizes</h2>
+    <fieldset>
+      <legend>Size and roof</legend>
+      <div class="fields">
+        <label>Design name<input id="name" type="text" maxlength="80"></label>
+        <label>Length along the ridge (ft)<input id="lengthFt" type="number" min="4" max="40" step="0.5"></label>
+        <label>Width across the gable (ft)<input id="widthFt" type="number" min="4" max="20" step="0.5"></label>
+        <label>Most height at the peak, above the gravel (ft, 0 for no limit)<input id="maxPeakFt" type="number" min="0" max="20" step="0.25"></label>
+        <label class="check"><input id="autoWall" type="checkbox"> Walls as low as the tallest door or window allows</label>
+        <label>Wall height, floor to top plate (in)<input id="wallHeight" type="number" min="60" max="144" step="0.5"></label>
+        <label class="check"><input id="autoPitch" type="checkbox"> Roof pitch from the height limit</label>
+        <label>Roof pitch (rise per 12)<input id="pitch" type="number" min="2" max="14" step="1"></label>
+        <label>Eave overhang (in)<input id="overhang" type="number" min="0" max="36" step="1"></label>
+      </div>
+    </fieldset>
+    <fieldset>
+      <legend>Framing</legend>
+      <div class="fields">
+        <label>Wall studs<select id="studSize"><option>2x4</option><option>2x6</option></select></label>
+        <label>Stud spacing (in on centre)<select id="studSpacing"><option value="12">12</option><option value="16">16</option><option value="24">24</option></select></label>
+        <label>Floor joists<select id="joistSize"><option>2x4</option><option>2x6</option><option>2x8</option><option>2x10</option><option>2x12</option></select></label>
+        <label>Joist spacing (in on centre)<select id="joistSpacing"><option value="12">12</option><option value="16">16</option><option value="24">24</option></select></label>
+        <label>Rafters<select id="rafterSize"><option>2x4</option><option>2x6</option><option>2x8</option><option>2x10</option></select></label>
+        <label>Rafter spacing (in on centre)<select id="rafterSpacing"><option value="12">12</option><option value="16">16</option><option value="24">24</option></select></label>
+        <label>Roof structure<select id="roofType"><option value="ridgeBeam">Ridge beam on posts (open inside, no ties)</option><option value="ridgeBoard">Ridge board with rafter ties</option></select></label>
+        <label>Ridge beam (two plies)<select id="beamSize"><option>2x8</option><option>2x10</option><option>2x12</option></select></label>
+        <label>Rafter ties (ridge board roof)<select id="tieSize"><option>2x4</option><option>2x6</option></select></label>
+        <label class="check"><input id="floorTreated" type="checkbox"> Pressure-treated floor framing</label>
+      </div>
+    </fieldset>
+    <fieldset>
+      <legend>Foundation</legend>
+      <div class="fields">
+        <label>Foundation<select id="foundation"><option value="gravel">Skids on a gravel pad</option><option value="blocks">Skids on concrete blocks</option></select></label>
+        <label>Skids (pressure-treated)<select id="skidSize"><option>4x4</option><option>4x6</option></select></label>
+        <label>Most space between skids (in)<input id="skidSpacing" type="number" min="24" max="72" step="1"></label>
+      </div>
+    </fieldset>
+    <fieldset>
+      <legend>Doors, windows and vents</legend>
+      <div class="table-wrap">
+        <table id="openings">
+          <thead><tr><th scope="col">Type</th><th scope="col">Wall</th><th scope="col">From left corner (in)</th><th scope="col">Width (in)</th><th scope="col">Height (in)</th><th scope="col">Sill (in)</th><th scope="col"><span class="sr-only">Remove</span></th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p class="hint">Sizes are rough openings. Offsets are measured from the left corner of that wall as you face it from outside.</p>
+      <div class="toolrow">
+        <button type="button" class="btn" id="add-door">Add door</button>
+        <button type="button" class="btn" id="add-window">Add window</button>
+      </div>
+      <div class="fields" style="margin-top:10px">
+        <label class="check"><input id="gableVents" type="checkbox"> A vent in each gable</label>
+        <label>Gable vent width (in)<input id="ventWidth" type="number" min="6" max="36" step="1"></label>
+        <label>Gable vent height (in)<input id="ventHeight" type="number" min="6" max="36" step="1"></label>
+      </div>
+    </fieldset>
+    <fieldset>
+      <legend>Covering and boards</legend>
+      <div class="fields">
+        <label class="check"><input id="siding" type="checkbox"> T1-11 siding panels</label>
+        <label>Siding colour<select id="sidingColor"><option value="natural">Natural (stained)</option><option value="red">Barn red</option><option value="pink">Pink</option><option value="gray">Gray</option><option value="blue">Blue</option><option value="green">Green</option><option value="white">White</option></select></label>
+        <label class="check"><input id="polkaDots" type="checkbox"> Purple polka dots</label>
+        <label class="check"><input id="roofing" type="checkbox"> Shingle roof</label>
+        <label>Saw kerf (in)<input id="kerf" type="number" min="0" max="0.25" step="0.0625"></label>
+      </div>
+      <p class="hint">Board lengths your yard has:</p>
+      <div id="stock"></div>
+    </fieldset>
+  </form>
+
+  <section class="results" aria-labelledby="results-h">
+    <h2 id="results-h">What to buy, how to cut it, how to build it</h2>
+    <div class="result-tabs" role="tablist">
+      <button type="button" role="tab" aria-selected="true" data-panel="panel-shopping">Shopping list</button>
+      <button type="button" role="tab" aria-selected="false" data-panel="panel-cuts">Cut sheet</button>
+      <button type="button" role="tab" aria-selected="false" data-panel="panel-parts">Parts list</button>
+      <button type="button" role="tab" aria-selected="false" data-panel="panel-plans">Plans</button>
+    </div>
+    <div class="result-panel print-target" id="panel-shopping">
+      <div class="table-wrap"><table id="shopping"><thead><tr><th scope="col">Item</th><th scope="col" class="n">Qty</th><th scope="col">Unit</th><th scope="col" class="n">Each</th><th scope="col" class="n">Total</th></tr></thead><tbody></tbody></table></div>
+      <div class="toolrow"><button type="button" class="btn" id="csv-shopping">Download CSV</button></div>
+      <details style="margin-top:12px">
+        <summary><strong>Your prices</strong> (examples until you change them; saved in this browser)</summary>
+        <div id="price-grid" class="table-wrap"></div>
+      </details>
+    </div>
+    <div class="result-panel print-target" id="panel-cuts" hidden>
+      <p class="muted">One line per board to buy. Letters are part marks (see Parts list and the plans); the hatched end is offcut. Kerf is allowed between cuts.</p>
+      <div id="cuts"></div>
+      <div class="toolrow"><button type="button" class="btn" id="csv-cuts">Download CSV</button><button type="button" class="btn" id="print-cuts">Print cut sheet</button></div>
+    </div>
+    <div class="result-panel" id="panel-parts" hidden>
+      <div class="table-wrap"><table id="parts"><thead><tr><th scope="col">Mark</th><th scope="col">Part</th><th scope="col">Lumber (actual size)</th><th scope="col" class="n">Cut length</th><th scope="col" class="n">Qty</th><th scope="col">Where</th><th scope="col">Note</th></tr></thead><tbody></tbody></table></div>
+    </div>
+    <div class="result-panel print-target" id="panel-plans" hidden>
+      <div class="toolrow"><button type="button" class="btn primary" id="print-plans">Print all plans</button><button type="button" class="btn" id="dxf-all">Download all as DXF</button></div>
+      <div id="plans"></div>
+    </div>
+  </section>
+
+  <section style="margin-top:14px" aria-labelledby="compare-h">
+    <h2 id="compare-h">Compare your designs</h2>
+    <p class="muted">Every design you make is kept here with its cost at your prices. Use "+ New design" to start another, or "Copy this design" to try a change without losing the original.</p>
+    <div id="compare-cards"></div>
+  </section>
+
+  <section class="faq" style="margin-top:14px" aria-labelledby="faq-h">
+    <h2 id="faq-h">Questions</h2>
+    <details><summary>Does it use the real size of a 2x4?</summary><p>Yes. Every board is framed at its dressed size: a 2x4 is 1-1/2 by 3-1/2 inches, a 2x6 is 1-1/2 by 5-1/2, a 2x8 is 1-1/2 by 7-1/4, a 2x10 is 1-1/2 by 9-1/4 and a 2x12 is 1-1/2 by 11-1/4. Stud lengths, plate stack heights, rafter plumb cuts and the parts list all use those numbers.</p></details>
+    <details><summary>How does it decide which board lengths to buy?</summary><p>It treats the order as a cutting-stock problem: every piece is placed into 8, 10, 12, 14 or 16 ft boards (18 and 20 ft if you tick them) to minimise cost at the prices you type, with your saw kerf between cuts. It prints a lower bound beside the result so you can see how close the order is to the cheapest possible.</p></details>
+    <details><summary>Is the design checked by an engineer or against building code?</summary><p>No. It frames what you draw with common practice, and it warns about a few things it can see (a birdsmouth deeper than a third of the rafter, a header that does not fit, a vent too big for the gable), but nothing is checked against a span table, a snow or wind load or your local code. Many places need a permit for a shed over a certain size; ask your building department.</p></details>
+    <details><summary>Can I open the plans in CAD?</summary><p>Yes. Each sheet downloads as DXF (full size, in inches, with layers for framing, outlines, hidden lines, openings, dimensions and text) or SVG, and the whole set prints from the browser.</p></details>
+    <details><summary>Is my design uploaded anywhere?</summary><p>No. Everything runs in your browser. Your designs are saved in this browser's local storage so they are there next time (you can turn that off), and a shared link carries the design inside the link itself.</p></details>
+    <p>More: <a href="shed-plans-with-cut-list.html">how much lumber an 8x12 shed takes, worked through</a>.</p>
+  </section>
+
+  <footer>
+    <p><label class="check"><input id="keep" type="checkbox" checked> Remember my designs and prices in this browser</label></p>
+    <p><label class="check"><input id="optout" type="checkbox"> Do not keep anonymous local usage counts</label></p>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, construction, building-code or legal advice, and it does not replace a qualified professional or your building department. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including every dimension, size and quantity, and for permits and inspections. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Privacy.</strong> Everything runs in your browser. Your designs are never uploaded, and there are no accounts, tracking cookies or analytics vendor. Your designs and prices are kept in this browser's local storage (untick the box above to stop), and we count anonymous events on this device only (which features get used, nothing about who used them); tick the other box to turn that off and clear them.</p>
+    <p>Open source under the MIT license. <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/shed-designer">Source and README</a>. If it saved you a trip to the yard, <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> or <a href="https://buymeacoffee.com/duncanhaywood">Buy Me a Coffee</a> are optional and never change what the tool does.</p>
+  </footer>
+  <script type="module" src="./app.mjs"></script>
+</body>
+</html>
