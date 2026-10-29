@@ -2,7 +2,7 @@
 title: "An adjustable tail fixes what no fixed tail could: sub-scale cargo UAV modes"
 date: 2026-10-29
 tags: [research, aerolog-scaling, uav, scaling]
-description: "In a Froude-scaled cargo UAV model, no fixed tail survives a 25% error in tail lift slope, but a tail whose area varies about 0.85 to 1.3 times nominal recovers the flight modes for 76 of 78 designs."
+description: "No fixed tail survives a 25% tail-slope error in a scaled cargo UAV model, but a tail area adjustable 0.85 to 1.3 times recovers the modes for 76 of 78 designs."
 ---
 
 The `aerolog-scaling` programme asks what a 1:5 model of a cargo drone tells you about the full-size aircraft. Earlier milestones found a tail design that restores the longitudinal modes (phugoid, short period, damping), but that result rests on NeuralFoil's tail lift slope, which UIUC wind-tunnel data suggest is 20 to 35% too high at the tail's Reynolds number. With the slope that much lower, none of 78 fixed tails keeps the modes within 5%.
