@@ -13,6 +13,7 @@ import { structuralChecks } from './checks.mjs';
 import { connectionChecks } from './connections.mjs';
 import { generateCandidates } from './candidates.mjs';
 import { buildInstructions, instructionsMarkdown } from './instructions.mjs';
+import { quoteRequest, mailtoLink, STORES } from './quote.mjs';
 
 const $ = (sel) => /** @type {any} */ (document.querySelector(sel));
 const $$ = (sel) => /** @type {any[]} */ ([...document.querySelectorAll(sel)]);
@@ -241,6 +242,21 @@ function renderPlans(shed, est) {
   $('#plans').innerHTML = sheetsCache.map((s, i) => `<figure class="sheet" id="sheet-${s.id}">${sheetSvg(s, { name: shed.design.name, number: i + 1, of: sheetsCache.length })}<figcaption>${i + 1}. ${esc(s.title)} <button type="button" class="link" data-svg="${i}">Download SVG</button> <button type="button" class="link" data-dxf="${i}">DXF</button></figcaption></figure>`).join('');
 }
 
+let lastQuote = null;
+let quoteCtx = null;
+function renderQuote(shed, est) {
+  quoteCtx = { shed, est };
+  const box = $('#quote-body');
+  if (box === document.activeElement) return;
+  const who = { name: $('#quote-name').value, phone: $('#quote-phone').value, zip: $('#quote-zip').value, date: $('#quote-date').value };
+  lastQuote = quoteRequest(shed, est, $('#quote-store').value, who);
+  box.value = `Subject: ${lastQuote.subject}\n\n${lastQuote.body}`;
+  const href = mailtoLink(lastQuote);
+  const a = $('#quote-mail');
+  if (href) { a.href = href; a.removeAttribute('aria-disabled'); } else { a.href = '#'; a.setAttribute('aria-disabled', 'true'); }
+  $('#quote-note').textContent = `${STORES[$('#quote-store').value].note} Nothing is sent from this page: the draft opens in your own email app (or copy it), and you attach the files.`;
+}
+
 let buildMd = '';
 function renderBuild(shed, est) {
   const sections = buildInstructions(shed, est);
@@ -324,6 +340,7 @@ function render() {
   renderParts(est);
   renderPlans(shed, est);
   renderBuild(shed, est);
+  renderQuote(shed, est);
   renderCompare();
   queueThumbs();
   $('#undo').disabled = !undo.length;
@@ -545,6 +562,17 @@ function wire() {
     window.print();
   };
   $('#print-plans').addEventListener('click', () => printWhat('plans'));
+  for (const id of ['#quote-store', '#quote-name', '#quote-phone', '#quote-zip', '#quote-date']) $(id).addEventListener('input', () => quoteCtx && renderQuote(quoteCtx.shed, quoteCtx.est));
+  $('#quote-store').addEventListener('change', () => quoteCtx && renderQuote(quoteCtx.shed, quoteCtx.est));
+  $('#quote-copy').addEventListener('click', async () => {
+    try { await navigator.clipboard.writeText($('#quote-body').value); $('#status').textContent = 'Email copied.'; } catch { $('#quote-body').select(); }
+  });
+  $('#quote-attach').addEventListener('click', () => {
+    download(`${slug()}-plans.dxf`, sheetsDxf(sheetsCache), 'application/dxf');
+    download(`${slug()}-cut-sheet.csv`, cutSheetCsv(lastEst), 'text/csv');
+    download(`${slug()}-shopping-list.csv`, shoppingCsv(lastEst), 'text/csv');
+    count('csv-downloads');
+  });
   $('#print-build').addEventListener('click', () => printWhat('build'));
   $('#md-build').addEventListener('click', () => { download(`${slug()}-how-to-build.md`, buildMd, 'text/markdown'); count('csv-downloads'); });
   $('#print-cuts').addEventListener('click', () => printWhat('cuts'));
