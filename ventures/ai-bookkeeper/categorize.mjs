@@ -34,6 +34,12 @@ const amountBucket = (cents) => `amt:${Math.min(12, Math.floor(Math.log2(Math.ab
 // keyword that fits two accounts is left out, so the line goes to review rather
 // than being guessed. `dir` limits a rule to money in or money out.
 export const BUILT_IN = [
+  // Home inspectors (2026-10-29, inspector.test.mjs; agent-written from the companies' public names, not from a real export):
+  // inspection-software payouts are sales; report software is software; a state inspector licence is a licence; a thermal camera is equipment (6070, a depreciation decision left to the owner).
+  ["4000", "in", /spectora.*(payout|payment)|\bhomegauge\b.*payout|\bisn\b.*payout|horizon.*payout/],
+  ["6060", "out", /spectora.*(subscription|software)|\bhomegauge\b|\bhorizon (software|inspection)|\binspectit\b/],
+  ["6110", "out", /home inspector licen[cs]e/],
+  ["6070", "out", /thermal camera|\bflir\b|moisture meter|infrared camera/],
   // Owner-operator truckers (2026-10-29, trucking.test.mjs; agent-written from the companies' public names, not from a real export):
   // factoring and broker payments are sales; fuel-card payments, scales and truck washes are vehicle costs; ELD subscriptions are software; Form 2290 is a tax; a lumper fee is a direct job cost.
   ["4000", "in", /triumph pay|rts financial|\botr solutions|\bapex capital|\btql\b|\bc\.?h\.? robinson|\bcoyote logistics|freight (payment|broker)/],
