@@ -13,6 +13,8 @@ a condition instead: `--until "python3 -c 'import torch'"` returns 0 once that c
 
 Exit 0 and the log's last lines once the marker line appears; exit 1 on timeout
 (the job may still run: call again). The default stays under the 120 s tool limit.
+Do not pipe it (`| tail`) or chain `&& echo DONE`: a pipe hides the exit 1 and the chained echo fires falsely
+(friction 2026-10-29); read the log file afterwards instead.
 """
 import argparse, os, subprocess, sys, time
 
