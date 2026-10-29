@@ -1,0 +1,46 @@
+{
+ "d": 32,
+ "KS": [
+  2,
+  4
+ ],
+ "n": 20,
+ "cells": {
+  "random_K2": {
+   "n": 20,
+   "harmful": 1,
+   "nonfinite": 0,
+   "median_dL": 8.630752563476562e-05
+  },
+  "grad_K2": {
+   "n": 20,
+   "harmful": 1,
+   "nonfinite": 0,
+   "median_dL": 0.0002669095993041992
+  },
+  "eval_K2": {
+   "n": 20,
+   "harmful": 1,
+   "nonfinite": 0,
+   "median_dL": 0.0002582073211669922
+  },
+  "random_K4": {
+   "n": 20,
+   "harmful": 0,
+   "nonfinite": 0,
+   "median_dL": 0.00013685226440429688
+  },
+  "grad_K4": {
+   "n": 20,
+   "harmful": 0,
+   "nonfinite": 0,
+   "median_dL": 3.9458274841308594e-05
+  },
+  "eval_K4": {
+   "n": 20,
+   "harmful": 0,
+   "nonfinite": 0,
+   "median_dL": 2.3484230041503906e-05
+  }
+ }
+}
