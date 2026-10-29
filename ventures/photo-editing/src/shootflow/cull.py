@@ -270,14 +270,14 @@ def score_against_picks(result: CullResult, picks: Sequence[str]) -> PickScore:
     unmatched: list[str] = []
     for pick in picks:
         key = pick.replace("\\", "/").lstrip("./").lower()
-        item = by_path.get(key)
-        if item is None:
+        found = by_path.get(key)
+        if found is None:
             candidates = by_name.get(key.rsplit("/", 1)[-1], [])
-            item = candidates[0] if len(candidates) == 1 else None  # ambiguous names do not match
-        if item is None:
+            found = candidates[0] if len(candidates) == 1 else None  # ambiguous names do not match
+        if found is None:
             unmatched.append(pick)
         else:
-            matched[item.path] = item
+            matched[found.path] = found
     picked_groups = {item.group for item in matched.values()}
     keepers = {i.group: i.path for i in result.items if i.role == "keeper"}
     hits = sum(1 for g in picked_groups if keepers.get(g) in matched)

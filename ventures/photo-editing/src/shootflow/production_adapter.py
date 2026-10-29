@@ -5,6 +5,7 @@ import json
 import math
 import os
 import stat
+import tempfile
 import uuid
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
@@ -25,6 +26,7 @@ from shootflow.ffmpeg_media import (
 from shootflow.faces import FaceReport, detect_faces
 from shootflow.frame_analysis import FrameMetrics, analyze_media
 from shootflow.production import ProductionJob, ProductionPlan
+from shootflow.raw_preview import extract_preview, is_raw_path
 from shootflow.production_status import (
     ProductionJobStatus,
     ProductionStatusError,
@@ -1140,18 +1142,26 @@ def _materialize_ffmpeg_proxy_production_outputs(
 
     _validate_proxy_action_shape(action, expected_adapter=_FFMPEG_PROXY_PRODUCTION_ADAPTER)
     root = _workspace_root(workspace_root)
-    source_path = _ffmpeg_source_path(root, action.inputs[0], label="proxy production input")
+    source_path = _ffmpeg_source_path(root, action.inputs[0], label="proxy production input", allow_raw=True)
     materialized: list[str] = []
     try:
         tools = find_ffmpeg_tools()
-        for output in action.outputs:
-            _validate_ffmpeg_output(root, output)
-            encode_new_output(
-                root,
-                output,
-                build_command=lambda temp_path: proxy_command(tools, source_path, temp_path),
-            )
-            materialized.append(output)
+        with tempfile.TemporaryDirectory(prefix="shootflow-raw-") as scratch:
+            if is_raw_path(source_path):
+                # No RAW developer: the proxy is the camera's own embedded JPEG, downscaled.
+                preview = extract_preview(source_path)
+                if preview is None:
+                    raise FfmpegMediaError(f"no embedded JPEG preview in {source_path.name}; develop it first")
+                source_path = Path(scratch) / "preview.jpg"
+                source_path.write_bytes(preview)
+            for output in action.outputs:
+                _validate_ffmpeg_output(root, output)
+                encode_new_output(
+                    root,
+                    output,
+                    build_command=lambda temp_path: proxy_command(tools, source_path, temp_path),
+                )
+                materialized.append(output)
     except FfmpegMediaError as exc:
         raise ProductionAdapterError(str(exc)) from exc
     return tuple(materialized)
@@ -1196,16 +1206,17 @@ def _materialize_ffmpeg_grade_production_outputs(
     return tuple(materialized)
 
 
-def _ffmpeg_source_path(root: Path, input_ref: str, *, label: str) -> Path:
+def _ffmpeg_source_path(root: Path, input_ref: str, *, label: str, allow_raw: bool = False) -> Path:
     input_path = _workspace_input_path(root, input_ref, label=label)
     _reject_symlink_path(input_path.parent, root, f"{label} directory")
     _reject_symlink_path(input_path, root, label)
     if not input_path.is_file():
         raise ProductionAdapterError(f"Missing {label}: {input_ref}")
-    try:
-        media_kind_for_path(input_path.name)
-    except FfmpegMediaError as exc:
-        raise ProductionAdapterError(str(exc)) from exc
+    if not (allow_raw and is_raw_path(input_path)):
+        try:
+            media_kind_for_path(input_path.name)
+        except FfmpegMediaError as exc:
+            raise ProductionAdapterError(str(exc)) from exc
     return input_path
 
 

@@ -2,6 +2,8 @@
 
 **No. Lifting the end-radius cap from 6 cm to 10 or 15 cm does not lower the whole-sheet error: 1.08 ± 0.29 cm at a 10 cm cap and 1.21 ± 0.32 cm at 15 cm, against 1.12 ± 0.25 cm at 6 cm (8 seeds each; differences −0.04 cm, p = 0.77, and +0.08 cm, p = 0.57). The chosen radius grows with the cap (mean 8.2 and 10.6 cm) but the error has plateaued, so the earlier "optimum sits on the bound" is a flat ridge in the objective, not a missing gain.** Crease and edge sag keep falling slowly (see table), which is the only thing blunter ends still buy.
 
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/research/hanger-3dradius/
+
 ## Why this question
 
 `hanger-3dseeds` found 3D-designed hangers beat 2D-designed ones, but three of eight wide-bound optima sat exactly on its 6 cm radius cap, and its next step was to widen the cap until the optimum stopped sitting on it. This runs that step.
