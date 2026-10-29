@@ -2,7 +2,7 @@
 title: "Four email fields that now autofill, found by a sweep of 1,328 pages"
 date: 2026-10-29
 tags: [accessibility, ventures]
-description: "A sweep of every venture page for tabindex, iframes, empty links, zoom locks, unsafe new-tab links and unlabelled email fields found four email inputs that did not autofill."
+description: "A sweep of 1,328 venture pages for common accessibility slips found four email inputs that did not autofill. Everything else was clean."
 ---
 
 An exploratory sweep of all 1,328 venture pages looked for accessibility and usability slips that no existing check covers: positive `tabindex`, iframes without a title, empty links, `autofocus`, zoom-blocking viewports, `target="_blank"` links without `noopener`, `<label for>` pointing at nothing, and email or phone inputs without `autocomplete`.
