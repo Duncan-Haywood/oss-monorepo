@@ -21,7 +21,7 @@
   "projects": [
     "ventures/dupehound"
   ],
-  "pr": null,
+  "pr": 11285,
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -33,7 +33,8 @@
   "outcome": "success",
   "errors": [
     "First jscpd timing used a pattern relative to the wrong root and matched nothing (0.7 s, no report); rerun with **/*.mjs.",
-    "/usr/bin/time is not installed in the container; timed with a /proc poller and then getrusage (tests/bench/rss.py). The poller under-reports peak memory for sub-second runs, so dupehound's memory figures come from getrusage only."
+    "/usr/bin/time is not installed in the container; timed with a /proc poller and then getrusage (tests/bench/rss.py). The poller under-reports peak memory for sub-second runs, so dupehound's memory figures come from getrusage only.",
+    "sibling-links: shipped the page with no sibling link (caught locally before CI); fixed in the second commit."
   ],
   "integrity_issues": [
     "Caught before commit: a draft of the candidates note said the usage.mjs copy reached 'about 994 ventures' (that was the number paired with one source file; the true figure is all 1,283 that ship one) and 'about forty' check_*.py scripts (28). Both corrected against the data."
@@ -62,7 +63,7 @@
     "ventures/dupehound/BENCHMARK.md"
   ],
   "goal": null,
-  "notes": "Local checks before push: cargo fmt --check, cargo clippy -D warnings (native and wasm32), cargo test (12, incl. brute-force cross-check run at 400 rounds once), node --test web/dupehound.test.mjs page.test.mjs usage.test.mjs (14 pass), node --test platform/pages/check.test.mjs (99 pass), validate_workflows.py, publish_surface.py --write, router validate, decision_queue --check, clauses.mjs dupehound, check_post_frontmatter, check_md_links. Page exercised in headless Chromium: example and a real folder pick, no console errors, only same-origin requests, no horizontal scroll at 375 px.",
+  "notes": "Local checks before push: cargo fmt --check, cargo clippy -D warnings (native and wasm32), cargo test (12, incl. brute-force cross-check run at 400 rounds once), node --test web/dupehound.test.mjs page.test.mjs usage.test.mjs (14 pass), node --test platform/pages/check.test.mjs (99 pass), validate_workflows.py, publish_surface.py --write, router validate, decision_queue --check, clauses.mjs dupehound, check_post_frontmatter, check_md_links. Page exercised in headless Chromium: example and a real folder pick, no console errors, only same-origin requests, no horizontal scroll at 375 px. After the first push: sibling-links-ci failed locally (dupehound was a crawlable orphan); paired it with npm-lockfile-duplicates-check both ways, with tests. readme_titles flagged the bare-slug README title; fixed. Ran check_md_links, check_code_refs, checklist_coverage, research/venture live links, readme_titles, conflict markers, prompts validate: all exit 0.",
   "corrections": [],
   "redteam": null
 }

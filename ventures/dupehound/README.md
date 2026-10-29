@@ -1,4 +1,4 @@
-# dupehound
+# dupehound: a fast copy-paste detector in Rust
 
 Find copy-pasted code, fast. A token-based copy-paste (code clone) detector
 written in Rust, with the same engine compiled to WebAssembly for a browser

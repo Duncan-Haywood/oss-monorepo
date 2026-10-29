@@ -47,3 +47,8 @@ test("llms.txt and sitemap exist", () => {
   assert.ok(existsSync(new URL("./llms.txt", import.meta.url)));
   assert.match(readFileSync(new URL("./sitemap.xml", import.meta.url), "utf8"), /index\.html/);
 });
+
+// Closest sibling: the same question at the dependency level.
+test("index links one hop to the npm-lockfile-duplicates-check sibling", () => {
+  assert.match(html, /href="\.\.\/npm-lockfile-duplicates-check\/"/);
+});
