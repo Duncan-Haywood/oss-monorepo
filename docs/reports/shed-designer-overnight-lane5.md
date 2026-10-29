@@ -20,7 +20,11 @@
     - raw UTF-8 in the DXF;
     - one shared `axisStart`.
   - Post: `docs/posts/2026-10-29-breaking-the-shed-designer-on-purpose.md`.
-- **PR #11317**: the connection check called a connector seat a birdsmouth. The fuzz invariants now require every connection check to pass.
+- **PR #11317**:
+  - The fuzz invariants now require every connection check to pass. That found a regression from #11312: moving an inner rafter clear of the gable wall left an 8 ft roof-sheathing joint with nothing under it (35 of 1,500 designs). Sheet joints now snap to the rafter at or before each 4 ft mark.
+  - The connection check called a connector seat a birdsmouth.
+  - It ported the `money()` sign fix and the size index page's JSON-LD, which had both been red on `main` since PR #11322. PR #11334 carried the same fix and was closed once `main` had it.
+- **PR #11326**: siding nailers. A 4 ft siding joint that landed on or beside a door or window had no wood behind one panel edge (70 of 1,500 designs, about 5%). Each wall now adds a stud-size nailer flush with the framing that is there, ripped to fit where the gap is under 1-1/2". The fuzz test's siding exemption is gone: 0 of 1,500 fail. No preset or size page changes. Post: `docs/posts/2026-10-29-the-window-that-ate-the-stud.md`.
 
 ## Checked and found sound
 
@@ -36,4 +40,5 @@
 - **Site-built door.** It accepts a 12"-tall leaf. The Z brace then comes out at about 1 degree, because the rails take the whole height. A minimum leaf size, or a warning, would help.
 - **Form fields.** `app.mjs` reads `Number(field.value)`, so a cleared wall-height field means 0, which normalize clamps to 60". It works, but a blank field should probably keep the last value.
 - **Siding-driven price dip.** On the 8x8 preset, walls 108" to 114" cost about $30 less, because the siding switches from one tall panel to two rows of 4x8. It is correct, but surprising, and could be explained in the UI.
+- **Merging generated pages.** Any model change that moves a price or count must re-run `node make-size-pages.mjs` before merging, and after each merge of `main`. When the size pages conflict, take `main`'s copy and regenerate; don't hand-merge them.
 - **Fuzz cost.** At the default N (150) the fuzz test takes about 7 s of the suite. `FUZZ_N=2000 FUZZ_SEED=<n>` gives a wide sweep. A nightly wide sweep would be software doing the routine part, but it needs a workflow, so it is the owner's call.
