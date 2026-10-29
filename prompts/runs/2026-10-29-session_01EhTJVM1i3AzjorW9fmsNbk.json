@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-29",
+  "session": "https://claude.ai/code/session_01EhTJVM1i3AzjorW9fmsNbk",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-29T03:57:37Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship 7 photo-editing: cull --picks",
+  "projects": [
+    "photo-editing"
+  ],
+  "pr": 11286,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/routing.json",
+      "why": "Router sent a review run; the scheduled task asked for product work, so a flagship slice shipped instead.",
+      "did": "skipped the review track",
+      "result": "review remains due"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Unit tests tests.test_cull: 7 pass. Not run on a real shoot.",
+  "corrections": [],
+  "redteam": null
+}
