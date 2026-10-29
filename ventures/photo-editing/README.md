@@ -336,6 +336,16 @@ This repo currently contains the first testable core utilities:
   summaries/receipts, carries the same root observe-only `workflow_authority`
   contract. Write-capable next actions are command-free descriptors so JSON
   payloads cannot double as executable workflow plans.
+- `shootflow.cull` (`shootflow cull FOLDER --out REPORT_DIR [--recursive] [--write-xmp]`)
+  is the standalone culling pass: it scores each still (JPEG, PNG, TIFF, or a
+  RAW file's embedded preview), groups near-identical frames by dHash (Hamming
+  distance 8 or less, single linkage), keeps the best frame per group as the
+  keeper, and rejects blurred, badly exposed or (with `SHOOTFLOW_FACE_DETECTOR`)
+  closed-eye frames. It writes `cull_report.json` and `cull_report.html`, and
+  with `--write-xmp` a Lightroom/Bridge sidecar per photo (keeper 4 stars,
+  alternate 2, reject -1). Photos are read-only and an existing `.xmp` is never
+  overwritten. Tested on stubbed metrics and two real ffmpeg-made JPEGs; not yet
+  compared with a photographer's real picks on a wedding or event set.
 - `shootflow.workspace_index` builds a metadata-only
   `shootflow_workspace_index.json` handoff for Mac apps, background agents, and
   continuation runs. It summarizes trusted ingest, production-status,

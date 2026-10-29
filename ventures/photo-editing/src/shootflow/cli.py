@@ -7,6 +7,8 @@ from collections.abc import Sequence
 from pathlib import Path
 from typing import TextIO
 
+from shootflow.cull import CullError, cull_folder, result_to_dict, write_report, write_sidecars
+from shootflow.ffmpeg_media import FfmpegMediaError
 from shootflow.assembly import (
     AssemblyPlan,
     AssemblyPlanError,
@@ -199,6 +201,8 @@ def main(
             _run_pilot_cohort_brief_command(args, stdout=out)
         elif args.command == "inspect-render-workspace":
             _run_inspect_render_workspace_command(args, stdout=out)
+        elif args.command == "cull":
+            _run_cull_command(args, stdout=out)
         elif args.command == "create-demo-workspace":
             _run_create_demo_workspace_command(args, stdout=out)
         elif args.command == "create-card-dump-demo-workspace":
@@ -235,6 +239,8 @@ def main(
         StorageDiscoveryError,
         WorkflowAuthorityError,
         LocalPipelineError,
+        CullError,
+        FfmpegMediaError,
     ) as exc:
         print(f"shootflow: {exc}", file=err)
         return 1
@@ -680,6 +686,15 @@ def _run_inspect_render_workspace_command(args: argparse.Namespace, *, stdout: T
     stdout.write(_render_workspace_report_json(report))
 
 
+def _run_cull_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
+    result = cull_folder(args.folder, recursive=args.recursive)
+    if args.write_xmp:
+        result = write_sidecars(result)
+    json_path, html_path = write_report(result, args.out)
+    summary = result_to_dict(result)["summary"]
+    stdout.write(json.dumps({"summary": summary, "report_json": str(json_path), "report_html": str(html_path)}, sort_keys=True) + "\n")
+
+
 def _run_create_demo_workspace_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
     demo = create_persisted_cli_demo_workspace(
         args.workspace,
@@ -1100,6 +1115,19 @@ def _build_parser() -> argparse.ArgumentParser:
         "--workspace",
         default=".",
         help="Workspace containing deliverables/render_tasks.json.",
+    )
+
+    cull = subparsers.add_parser(
+        "cull",
+        help="Group near-identical photos, pick a keeper per group and flag rejects (read-only on photos).",
+    )
+    cull.add_argument("folder", help="Folder of photos (JPEG, PNG, TIFF, RAW with embedded preview).")
+    cull.add_argument("--out", required=True, help="Folder for cull_report.json and cull_report.html.")
+    cull.add_argument("--recursive", action="store_true", help="Include sub-folders.")
+    cull.add_argument(
+        "--write-xmp",
+        action="store_true",
+        help="Write Lightroom/Bridge .xmp rating sidecars (keeper 4, alternate 2, reject -1); never overwrites one.",
     )
 
     create_demo = subparsers.add_parser(

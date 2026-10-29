@@ -17,6 +17,6 @@ electronic transaction reporting from 1 July 2030. That is a separate measure
 from the domestic invoicing mandate, and we could not reach the Chamber's site
 to read the bill, so check the full text before planning around it.
 
-The [Luxembourg page](https://duncan-haywood.github.io/oss-monorepo/ventures/einvoice-preflight/luxembourg-e-invoice-mandate.html)
+The [Luxembourg page](https://duncan-haywood.github.io/oss-monorepo/einvoice-preflight/luxembourg-e-invoice-mandate.html)
 now carries this status. To test a file against Peppol BIS Billing 3.0 before
 2028, use the checker on the same site.

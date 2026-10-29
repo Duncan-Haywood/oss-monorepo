@@ -10,7 +10,7 @@ cost sit together. A POS payout lands one day, DoorDash, Uber Eats and Grubhub
 land on their own schedules, and Sysco and US Foods debit in between.
 
 AI Bookkeeper now has a page for this
-([restaurant-bookkeeping](https://duncan-haywood.github.io/oss-monorepo/ventures/ai-bookkeeper/restaurant-bookkeeping.html))
+([restaurant-bookkeeping](https://duncan-haywood.github.io/oss-monorepo/ai-bookkeeper/restaurant-bookkeeping.html))
 built on a made-up July statement of eleven lines. With no rules taught, the
 importer files the four payouts as Sales ($6,095.70), the two distributors as
 Supplies ($2,128.58), the POS and scheduling subscriptions as software, and the
