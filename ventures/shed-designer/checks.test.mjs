@@ -40,3 +40,67 @@ test('a post fails when it is too slender for its load', () => {
   assert.ok(postCheck(2, '2x4', 14, 1000) < 1);
   assert.ok(postCheck(2, '2x4', 200, 6000) > 1);
 });
+
+// Under a ridge board the rafter pair and its tie are a truss and the board
+// carries nothing, so each eave wall carries the whole half roof. The check
+// once used half the rafter run (right only under a ridge beam), which put
+// about 40% too little roof on the eave-wall headers and studs.
+test('a ridge-board roof puts the whole half roof on each eave wall: the header is the hand calculation', () => {
+  const s = buildShed(PRESETS['8x12 classic']()); // 8 ft wide, 6/12, 12" overhang, 30 psf snow
+  const cos = 12 / Math.sqrt(12 ** 2 + 6 ** 2);
+  const tribFt = (96 / 2 + 12) / 12; // ridge to eave tip, on plan
+  const wPlf = (15 / cos) * tribFt + 30 * tribFt + 10;
+  const row = structuralChecks(s).rows.find((x) => x.member === 'Header over the front door');
+  assert.match(row.detail, new RegExp(`${Math.round(wPlf)} lb/ft`));
+  // 2-ply 2x6 over the 38" door: shear governs, V = wL/2 at CD 1.15.
+  const w = wPlf / 12;
+  const V = (w * 38) / 2;
+  const shear = (1.5 * V) / (3 * 5.5) / (135 * 1.15);
+  const bending = (w * 38 ** 2) / 8 / ((3 * 5.5 ** 2) / 6) / (875 * 1.15 * 1.3);
+  assert.ok(shear > bending);
+  assert.ok(Math.abs(row.ratio - shear) < 1e-9, `${row.ratio} vs ${shear}`);
+});
+
+test('a ridge beam takes the upper half of the rafters off the eave walls', () => {
+  const load = (roofType) => Number(/(\d+) lb\/ft/.exec(structuralChecks(buildShed({ ...PRESETS['8x12 classic'](), roofType })).rows.find((x) => x.member === 'Header over the front door').detail)[1]);
+  // Beam: 43-1/4" run / 2 + 3-1/2" wall + 12" overhang = 37-1/8"; board: 48 + 12 = 60".
+  assert.ok(load('ridgeBeam') < load('ridgeBoard'));
+  const cos = 12 / Math.sqrt(180);
+  assert.equal(load('ridgeBeam'), Math.round((15 / cos + 30) * ((96 / 2 - 1.5 - 3.5) / 2 + 3.5 + 12) / 12 + 10));
+});
+
+test('the eave-wall stud check is the hand calculation (NDS 3.9-3, D + 0.6W governs)', () => {
+  // 8x12 classic: 2x4 at 16", 91-1/2" studs, ridge board, 6/12, 12" overhang, 30 psf snow, 20 psf wind.
+  const s = buildShed(PRESETS['8x12 classic']());
+  const row = structuralChecks(s).rows.find((x) => x.member === 'Wall studs');
+  const cos = 12 / Math.sqrt(180);
+  const deadPlf = (15 / cos) * 5; // 5 ft of roof on plan, ridge to eave tip
+  const A = 1.5 * 3.5, S = (1.5 * 3.5 ** 2) / 6;
+  const FcE = (0.822 * 510e3) / (91.5 / 3.5) ** 2;
+  const CD = 1.6;
+  const FcStar = 1150 * CD * 1.15;
+  const a = FcE / FcStar, b = (1 + a) / 1.6;
+  const Cp = b - Math.sqrt(b * b - a / 0.8);
+  const fc = (deadPlf * 16) / 12 / A;
+  const fb = ((0.6 * 20 * 16) / 144) * 91.5 ** 2 / 8 / S;
+  const Fb1 = 875 * CD * 1.5 * 1.15;
+  const hand = (fc / (FcStar * Cp)) ** 2 + fb / (Fb1 * (1 - fc / FcE));
+  assert.ok(Math.abs(row.ratio - hand) < 1e-9, `${row.ratio} vs ${hand}`);
+  assert.ok(hand > 0.19 && hand < 0.2);
+});
+
+test('the floor joist and rafter checks are the hand calculation', () => {
+  const s = buildShed(PRESETS['8x12 classic']());
+  const rows = structuralChecks(s).rows;
+  // Floor: 2x6 at 16", 42-3/4" clear between 4x6 skids + 3-1/2" bearing, 50 psf, CD 1.0, CF 1.3, Cr 1.15.
+  const Lf = 42.75 + 3.5;
+  const wf = (50 * 16) / 144;
+  const floor = (wf * Lf ** 2) / 8 / ((1.5 * 5.5 ** 2) / 6) / (875 * 1.3 * 1.15);
+  assert.ok(Math.abs(rows.find((x) => x.member === 'Floor joists').ratio - floor) < 1e-9);
+  // Rafter: 2x6 at 24", run 48 - 3/4 - 3-1/2 = 43-3/4" + 3-1/2" seat, 6/12; dead on slope, snow on plan; CD 1.15.
+  const cos = 12 / Math.sqrt(180);
+  const Lr = 43.75 + 3.5;
+  const wr = ((15 / cos + 30) * 24) / 144;
+  const rafter = (wr * Lr ** 2) / 8 / ((1.5 * 5.5 ** 2) / 6) / (875 * 1.15 * 1.3 * 1.15);
+  assert.ok(Math.abs(rows.find((x) => x.member === 'Rafters').ratio - rafter) < 1e-9);
+});
