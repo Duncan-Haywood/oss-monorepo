@@ -7,7 +7,7 @@ every polish change merged after that post was unpublished until fixed. It is th
 #11445.
 
 **Change.**
-- Shortened that post's `description` (now under 160; `check_post_frontmatter.py` exits 0).
+- The post's description was fixed on `main` by a parallel run (`polish-2026-10-29-build-broke-on-post-description.md`) while this PR was open; this PR keeps only the guard below.
 - `portfolio-pages.yml` runs `platform/ci/check_post_frontmatter.py` (about a second) before
   "Build the site" (7 to 20 minutes), so the next such slip fails at once with the file named.
   The checker already ran on PRs (`portfolio-validate.yml`); this covers the push-to-main path.

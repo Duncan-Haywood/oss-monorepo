@@ -1,0 +1,55 @@
+{
+  "date": "2026-10-29",
+  "session": "https://claude.ai/code/session_01E5sJKoAGLxLNxRLwuxyi1e",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "scheduled: read prompt.md and follow it",
+  "input_sha256": "2abc11ce438e08917dbfbd5f6a49fe9cdcb2b7d6c1dd885255dfd4b7b4c9fbca",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-29T21:21:00Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 11483,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [
+    "site build threw on a 170-char post description on main"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "build takes long and can fail late at post loading; no quick pre-check named besides loadPosts()"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "planned screenshots skipped: build broken by post description; fixed that instead",
+      "did": "shortened description, wrote report",
+      "result": "loadPosts loads all 1137 posts"
+    }
+  ],
+  "writeups": [
+    "docs/reports/polish-2026-10-29-build-broke-on-post-description.md (no blog post: one-line fix)"
+  ],
+  "goal": null,
+  "notes": "Full rebuild and screenshots not rerun after fix.",
+  "corrections": [],
+  "redteam": null
+}
