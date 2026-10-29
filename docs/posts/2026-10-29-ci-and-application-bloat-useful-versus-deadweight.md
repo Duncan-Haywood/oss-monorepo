@@ -1,7 +1,7 @@
 ---
 title: "CI and application bloat: how much is useful and how much is deadweight"
 date: 2026-10-29
-description: "A week of CI runs and a byte count of 1,324 products: what is load-bearing, what is dead, and what is useful but broken."
+description: "A week of CI runs and a byte count of 1,324 products: what is load-bearing, what is dead, and what is useful but noisy."
 tags: [ci, bloat, audit, github-actions, monorepo]
 ---
 
@@ -23,12 +23,12 @@ from a byte count of every file under `ventures/` on today's `main`.
   `hetzner-gitops CI`, tests infrastructure for a server that was deleted on
   1 October. It took **18.6%** of all job-minutes in the timed window and
   failed 99 of its 134 runs last week.
-- **The biggest share is useful but broken.** The site build and the
+- **The biggest share is useful but noisy.** The site build and the
   portfolio validator (44% of job-minutes together) are real checks, but
   they were red on most `main` pushes all week. The cause was mostly
   metadata length limits. One blog description 26 characters too long failed
-  182 site-builder tests, and the live site went **53 hours** without a
-  successful deploy.
+  182 site-builder tests. The deploy kept going, because it does not wait
+  for the tests, so the red was noise more often than news.
 - **414 of 478 per-product workflows duplicate another one.** They run
   `node --test` on files `ventures-tests.yml` already runs for every product
   a change touches. They are cheap (about 3% of job-minutes) but they are
@@ -89,7 +89,7 @@ to do with the dead cluster. Some of its tests probably guard live code, such
 as the usage aggregator and the publish script. Those belong in the
 workflows for that code. The rest can go.
 
-### Useful but broken: red `main` as the normal state
+### Useful but noisy: red `main` as the normal state
 
 `Portfolio validate` failed **788 of 1,301** `main` runs last week (61%).
 On 22 October it failed 12 of 183; by 28 October, 180 of 215. Of 14 failed
@@ -107,21 +107,25 @@ sampled, 12 failed in the site builder's test suite. One I read in full had
 182 failing tests and 1,094 passing. The first failure said
 `2026-10-25-camt-samples-from-other-projects.md: description is 186
 characters; keep it to 160`. The builder throws on that post, so every test
-that builds the site failed too. A style rule on one post's metadata blocked
-the deploy of 1,300 products.
+that builds the site failed too.
 
-The cost is concrete. A successful `main` deploy takes about 10 minutes,
-and the workflow cancels a run in progress when a newer push arrives. Pushes
-to `main` came every 2.6 minutes (median), so 875 of the week's `main`
-pushes cancelled before finishing, which is by design. Combined with the red
-builds, the longest gap between successful deploys was **53.5 hours**, from
-25 October 22:29 UTC to 28 October. The last success before this post was
-at 12:35 UTC on 28 October.
+The site still shipped. The `deploy` job needs only `build`, not `test`, and
+on `main` the build leaves a malformed post out with a warning
+(`PAGES_SKIP_BAD_POSTS`). I first read the workflow's red runs as missed
+deploys, and that was wrong. Reading the jobs of all 1,035 finished `main`
+runs: **685 deployed**. 394 of those deploys came from runs marked
+failed, because the test job was red while build and deploy were green.
+Another 343 runs failed in the build job itself (a dead link, a file type
+the checker did not know, one crash) and did not deploy. Pushes to `main`
+came every 2.6 minutes (median) and a run takes about 10, so a further 875
+were cancelled by newer pushes, which is by design. The median gap between
+deploys was 8 minutes and the longest was 8.7 hours, on 25 October.
 
-These checks are not deadweight. They catch real mistakes, and the post
-with the long description was a real mistake. The waste is in the coupling.
-When a check that guards formatting can stop a deploy, and the check is red
-most of the time, nobody can see real breakage among the noise. Each agent
+So these checks are not deadweight. They catch real mistakes, and the post
+with the long description was a real mistake. The waste is in the signal.
+More than half of the `main` runs of both workflows end red, often for a
+length cap, and many of those red runs shipped anyway. When red is the
+normal state, nobody can see real breakage among the noise. Each agent
 learns that `main` is red and merges anyway.
 
 ### Duplicate: one workflow per product
@@ -207,11 +211,11 @@ nobody has measured them, which is a different finding.
 1. **Retire `hetzner-gitops CI`.** First move any test that guards live code
    (the usage aggregator, the publish script) into that code's workflow.
    Saves about a fifth of job-minutes on busy days.
-2. **Stop metadata caps from blocking the deploy.** Make the post
-   description and flagship `next:` limits warnings in the build, or fix
-   them automatically in a pre-merge check, so the site builder never throws
-   on them. Make `main` green the normal state again, so red means
-   something.
+2. **Stop metadata caps from turning `main` red.** Catch the post
+   description and flagship `next:` limits on the pull request (or trim
+   them automatically there), and make the site-builder tests skip a bad
+   post the way the `main` build already does. Make a green `main` the
+   normal state again, so red means something.
 3. **Delete the 414 duplicate per-product workflows**, after widening
    `ventures-tests.yml` to the four test-file patterns it misses.
 4. **Move `local-site-studio`'s decision archive out of `src/`** into a

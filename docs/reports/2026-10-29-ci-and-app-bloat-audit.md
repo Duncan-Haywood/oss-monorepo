@@ -59,10 +59,17 @@ description is 186 characters; keep it to 160`, thrown from `loadPost`
 (`platform/pages/writing.mjs`) inside `buildSite`, so every test that builds
 the site fails with it.
 
-Successful `main` deploys of Portfolio Pages: 291 in the week, median gap 9
-minutes, longest gap 53.5 hours (2026-10-25 22:29Z to 2026-10-28 ~04:00Z).
-Median successful run about 10 minutes; median gap between `main` pushes 2.6
-minutes; the workflow cancels in-progress runs.
+Deploys: `deploy` needs only `build`, and the `main` build sets
+`PAGES_SKIP_BAD_POSTS=1`, so a red `test` job does not stop the site. Jobs of
+the 1,035 finished (success or failure) `main` runs, as (run, test, build,
+deploy): failure/failure/success/success 394; all success 291;
+failure/failure/failure/skipped 256; failure/success/failure/skipped 87;
+failure/failure/cancelled/skipped 6; other 2. 685 deploys in the week, median
+gap 8 minutes, longest 8.7 h (from 2026-10-25 07:13Z), then 8.3 h
+(2026-10-24 04:29Z). A first pass used run conclusion as the deploy signal
+and got a 53.5 h gap; that was wrong, and the post does not use it. Median
+successful run about 10 minutes; median gap between `main` pushes 2.6
+minutes; the workflow cancels in-progress runs (875 `main` pushes).
 
 On `main` at d222a59f, `portfolio/router/validate.py` and
 `check_post_frontmatter.py` both pass, and the flagship `next:` lengths are
@@ -127,8 +134,9 @@ Search open PRs for each before starting it.
 
 1. Retire `hetzner-gitops-ci.yml` after moving the tests that guard live
    code. Measure with `ci_profile.py` before and after.
-2. Make metadata length caps (post `description`, flagship `next:`) unable
-   to stop `buildSite` or the validator on `main`: warn, or trim in a
+2. Make metadata length caps (post `description`, flagship `next:`) stop
+   turning `main` red: have `build.test.mjs` skip a bad post the way the
+   `main` build does, and catch the caps on the PR, or trim in a
    pre-merge fixer (`platform/ci/shorten_descriptions.py` already exists for
    descriptions). Track `main` failure rate of the two workflows as the
    outcome.
