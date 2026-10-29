@@ -1,7 +1,7 @@
 ---
 title: "Breaking the shed designer on purpose: what a fuzz test found in a framing engine"
 date: 2026-10-29
-description: "A seeded property test swept 1,000 random shed designs and junk links through Shed Designer; 135 designs broke a rule and junk state crashed it. Every root cause is now fixed and pinned."
+description: "A seeded fuzz test swept 1,000 random shed designs and junk links through Shed Designer; 135 broke a rule. Every root cause is now fixed and pinned."
 tags: [shed-designer, testing, fuzzing]
 ---
 
