@@ -2,7 +2,7 @@
 title: "What breaks when eight agents merge into one shed designer at once"
 seo_title: "Eight agents, one shed designer: what broke at the seams"
 date: 2026-10-30
-description: "Round 4 of the shed designer: two option clashes found by an all-pairs test, five repo-wide reds from other projects, and render hashes that moved with no pixel."
+description: "Round 4 of the shed designer: two option clashes found by an all-pairs test, five repo-wide reds from other projects, and render hashes that moved, no pixels."
 tags: [shed-designer, testing]
 ---
 
