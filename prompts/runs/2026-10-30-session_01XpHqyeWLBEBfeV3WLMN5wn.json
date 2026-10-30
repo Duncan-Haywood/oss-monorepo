@@ -3,8 +3,8 @@
   "session": "https://claude.ai/code/session_01XpHqyeWLBEBfeV3WLMN5wn",
   "track": "ventures",
   "prompt_version": 1,
-  "input": "working on tools for a christian babysitting sole prop single operator business. taxes. scheduling. lead gen lead qualification. reference request/elicitation storage and management. marketing website, automated sales. automated marketing. content marketing. this is an ongoing project for a friend. / other potential features that would be helpful. / i don't think browser only is required / lets have 10 agents work on this project.",
-  "input_sha256": "533868dfae38b21d1bdd9ec778496e38e75b5bb5ab2717d9d30a69c2bc0424e6",
+  "input": "Build tools for a one-person babysitting business: taxes, scheduling, lead generation and qualification, references, a marketing website, automated sales and marketing, content marketing. Follow-ups: more features, a server is fine, ten parallel agents (twice), run it locally, a privacy and harm check. (Paraphrased; the original request is not stored here.)",
+  "input_sha256": "3cb954aadde023adc3fb0cbf8fc416f8a90b61ef745a58c4611ad79707a48f50",
   "follow_up_inputs": [],
   "model": "claude-opus-5-5",
   "models_seen": [
@@ -49,7 +49,7 @@
     },
     {
       "file": "prompts/ventures/prompt-1.md",
-      "why": "The brief names its own work (a friend's babysitting business), so it takes precedence over the default of deepening the top flagship.",
+      "why": "The brief names its own work (a named babysitting business), so it takes precedence over the default of deepening the top flagship.",
       "did": "New venture babysitting-business-kit.",
       "result": null
     },
