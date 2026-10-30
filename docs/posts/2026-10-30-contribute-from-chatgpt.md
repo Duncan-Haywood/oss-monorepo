@@ -88,3 +88,6 @@ The ChatGPT app's own connectors expect a remote server, and this one runs local
 - [`CONTRIBUTING.md`](../../CONTRIBUTING.md): the ground rules and how a pull request lands.
 - [Start here: how to help](2026-10-29-start-here-contributing.md): a fix step by step, with a sparse clone that takes seconds.
 - [Steering agents](../contributing/steering-agents.md): if you want to run the same agent-driven process on a repository of your own, with whichever assistant you prefer.
+- [Start here: every way to help](2026-10-30-start-here-every-way-to-help.md): the master guide to contributing.
+
+The rest of the series is on the hub page: [Start here](2026-10-29-start-here.md).

@@ -11,7 +11,7 @@
 // (drawings.mjs, from the lot you type), reused as is.
 
 import { fmtFtIn, fmtIn } from './lumber.mjs';
-import { paletteOf, finishName, SIDING_FINISHES, TRIM_FINISHES, DOOR_FINISHES, SHINGLE_FAMILIES } from './looks.mjs';
+import { paletteOf, doorRgb, finishName, SIDING_FINISHES, TRIM_FINISHES, DOOR_FINISHES, SHINGLE_FAMILIES } from './looks.mjs';
 import { buildSheets, sheetSvg } from './drawings.mjs';
 import { productById } from './products.mjs';
 import { LAP_PRODUCTS } from './lap.mjs';
@@ -254,7 +254,7 @@ export function elevationSvg(shed, name) {
     if (cas) parts.push(`<rect x="${(xa - cas).toFixed(2)}" y="${Y(zb + cas)}" width="${(xb - xa + 2 * cas).toFixed(2)}" height="${(zb - za + cas + (p.op.kind === 'window' ? cas : 0)).toFixed(2)}" fill="${trim}" stroke="#555" stroke-width="0.3"/>`);
     if (p.op.kind === 'door') {
       const site = p.op.product === 'site-built';
-      const fill = d.doorColor && d.doorColor !== 'stained' ? hex(paletteOf(d).door) : site ? sid : '#f3f1ec';
+      const fill = site && !d.siding && d.doorColor === 'stained' ? sid : hex(doorRgb(d, p.op));
       parts.push(`<rect x="${xa.toFixed(2)}" y="${Y(zb)}" width="${(xb - xa).toFixed(2)}" height="${(zb - za).toFixed(2)}" fill="${fill}" stroke="#333" stroke-width="0.6" data-kind="door"/>`);
       const leaves = xb - xa > 60 ? 2 : 1;
       const lw = (xb - xa) / leaves;
