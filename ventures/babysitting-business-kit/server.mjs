@@ -12,6 +12,7 @@
 //   GET  /calendar.ics?t=  your sits as a feed your phone's calendar can subscribe to
 //   GET|PUT /api/desk      the desk as JSON (Authorization: Bearer ADMIN_KEY)
 //   GET  /api/today        today's to-do list (Authorization: Bearer ADMIN_KEY)
+//   GET|POST /intake/<t>   a family's one-time info sheet (token made in the app's Families tab)
 //   a daily digest at DIGEST_HOUR (server time) to your webhook or email
 //
 // Every outside service is off until you set its variables, on your own accounts:
@@ -26,11 +27,12 @@ import { readFileSync, writeFileSync, renameSync, existsSync } from "node:fs";
 import { timingSafeEqual } from "node:crypto";
 import { normalizeDesk, emptyDesk, buildSite, leadFromForm, scoreLead, leadReply, followUpMessage, todayQueue, toICS, newId } from "./engine.mjs";
 import { openSlots, bookingRequest, bookPage, localMinutes } from "./slots.mjs";
+import { intakeFormPage, parseIntake, mergeIntake, keepIntakes, isIntakeToken, MAX_INTAKE_BYTES } from "./intake.mjs";
 
 const MAX_BODY = 64 * 1024;
 const MAX_DESK = 8 * 1024 * 1024;
 const MAX_LEADS = 2000;
-const FILES = { "/": "index.html", "/index.html": "index.html", "/engine.mjs": "engine.mjs", "/usage.mjs": "usage.mjs", "/taxes.mjs": "taxes.mjs", "/slots.mjs": "slots.mjs" };
+const FILES = { "/": "index.html", "/index.html": "index.html", "/engine.mjs": "engine.mjs", "/usage.mjs": "usage.mjs", "/taxes.mjs": "taxes.mjs", "/slots.mjs": "slots.mjs", "/intake.mjs": "intake.mjs", "/meet-and-greet.html": "meet-and-greet.html" };
 const TYPES = { html: "text/html; charset=utf-8", mjs: "text/javascript; charset=utf-8" };
 
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -139,6 +141,23 @@ export function handler(state, save, env = process.env, now = Date.now, fetchImp
       await msg.sitter(`Booking request: ${r.lead.name}, ${r.lead.schedule}`, [`Contact: ${r.lead.contact}`, r.lead.kids.length && `Kids: ${r.lead.kids.join(", ")}`, r.lead.notes && `Notes: ${r.lead.notes}`, "Approve or decline it in the app's Schedule tab."].filter(Boolean).join("\n"));
       return send(200, thanks);
     }
+    if (url.pathname.startsWith("/intake/")) {
+      const token = url.pathname.slice(8);
+      const i = isIntakeToken(token) ? state.desk.families.findIndex((f) => f.intakeToken && same(f.intakeToken, token)) : -1;
+      const nostore = { "cache-control": "no-store" };
+      if (i < 0) return send(404, page("Link not found", "<p>This info-sheet link has already been used or is not valid. Please ask your babysitter directly.</p>"), TYPES.html, nostore);
+      if (req.method === "GET") return send(200, intakeFormPage(state.desk, state.desk.families[i], { action: url.pathname }), TYPES.html, nostore);
+      if (req.method !== "POST") return send(405, "method not allowed\n", "text/plain");
+      const raw = await readBody(req, MAX_INTAKE_BYTES);
+      if (raw === null) return send(413, page("Too long", "<p>That was too long to send. Please shorten the longest answers.</p>"));
+      const fields = Object.fromEntries(new URLSearchParams(raw));
+      const done = page("Thank you!", `<p>${esc(state.desk.profile.name)} has your information. Tell them directly about anything that changes.</p>`);
+      if (fields.website) return send(200, done, TYPES.html, nostore);
+      const fam = state.desk.families[i] = mergeIntake(state.desk.families[i], parseIntake(fields), today);
+      save();
+      await msg.sitter(`Family info sheet received: ${fam.name || fam.contactName || "a family"}`, "Sync the app to see it in the Families tab.");
+      return send(200, done, TYPES.html, nostore);
+    }
     if (req.method === "GET" && url.pathname === "/calendar.ics") {
       if (!env.CAL_TOKEN || !same(url.searchParams.get("t") || "", env.CAL_TOKEN)) return send(401, "calendar link required\n", "text/plain");
       return send(200, toICS(state.desk, { from: today.slice(0, 4) + "-01-01" }), "text/calendar; charset=utf-8");
@@ -157,7 +176,7 @@ export function handler(state, save, env = process.env, now = Date.now, fetchImp
         const ids = new Set((incoming.leads || []).map((l) => l && l.id));
         const known = new Set(incoming.knownLeadIds || []);
         const fresh = state.desk.leads.filter((l) => !ids.has(l.id) && !known.has(l.id));
-        state.desk = normalizeDesk(incoming);
+        state.desk = normalizeDesk(keepIntakes(state.desk, incoming));
         state.desk.leads.push(...fresh);
         save();
         return send(200, JSON.stringify({ ok: true, added: fresh.length, desk: state.desk }), "application/json");
