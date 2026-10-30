@@ -252,6 +252,56 @@
     }
    }
   },
+  "8x12-lean-to": {
+   "key": "8x12 lean-to",
+   "name": "8x12 lean-to shed",
+   "hash": "d76c9180e9ac8133",
+   "designKey": "5396dea5",
+   "files": {
+    "hero": {
+     "file": "8x12-lean-to-hero.webp",
+     "w": 960,
+     "h": 640,
+     "bytes": 18908,
+     "alt": "3D render of the 8x12 lean-to shed, 8 by 12 ft, seen from the front corner: stained T1-11 panel siding, charcoal shingles, 4/12 lean-to roof, 10' 7-1/16\" to the high edge, showing a 39\" door on the front (tall side) and a 14\" window on the front (tall side) and a 14\" window on the right (end wall)."
+    },
+    "card": {
+     "file": "8x12-lean-to-card.webp",
+     "w": 480,
+     "h": 320,
+     "bytes": 7264,
+     "alt": "3D render of the 8x12 lean-to shed, 8 by 12 ft, seen from the front corner: stained T1-11 panel siding, charcoal shingles, 4/12 lean-to roof, 10' 7-1/16\" to the high edge, showing a 39\" door on the front (tall side) and a 14\" window on the front (tall side) and a 14\" window on the right (end wall)."
+    },
+    "front": {
+     "file": "8x12-lean-to-front.webp",
+     "w": 480,
+     "h": 320,
+     "bytes": 5646,
+     "alt": "3D render of the 8x12 lean-to shed, 8 by 12 ft, seen from the front: stained T1-11 panel siding, charcoal shingles, 4/12 lean-to roof, 10' 7-1/16\" to the high edge, showing a 39\" door and a 14\" window."
+    },
+    "side": {
+     "file": "8x12-lean-to-side.webp",
+     "w": 480,
+     "h": 320,
+     "bytes": 5596,
+     "alt": "3D render of the 8x12 lean-to shed, 8 by 12 ft, seen from the gable end: stained T1-11 panel siding, charcoal shingles, 4/12 lean-to roof, 10' 7-1/16\" to the high edge, showing a 14\" window."
+    },
+    "back": {
+     "file": "8x12-lean-to-back.webp",
+     "w": 480,
+     "h": 320,
+     "bytes": 4902,
+     "alt": "3D render of the 8x12 lean-to shed, 8 by 12 ft, seen from the back: stained T1-11 panel siding, charcoal shingles, 4/12 lean-to roof, 10' 7-1/16\" to the high edge."
+    },
+    "framing": {
+     "file": "8x12-lean-to-framing.webp",
+     "w": 640,
+     "h": 427,
+     "bytes": 17726,
+     "alt": "Framing of the 8x12 lean-to shed (8 by 12 ft) with the siding, sheathing and roofing removed: studs at 16\" on centre and rafters at 24\" running from the tall front wall down to the low back wall (a lean-to, no ridge)."
+    }
+   }
+  },
   "8x8-lean": {
    "key": "8x8 lean",
    "name": "8x8 garden shed",
