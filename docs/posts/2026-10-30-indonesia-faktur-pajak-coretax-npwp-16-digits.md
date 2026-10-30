@@ -3,7 +3,7 @@ title: "Indonesia's e-invoice now lives in Coretax, and the tax number has 16 di
 seo_title: "Indonesia e-invoicing: Coretax faktur pajak and the 16-digit NPWP"
 date: 2026-10-30
 tags: [einvoice-preflight, indonesia, e-invoicing]
-description: "Since 1 January 2025 Indonesian VAT invoices are approved in the tax authority's Coretax system. What the sources agree on, where they differ, and a free NPWP format check."
+description: "Since 1 January 2025 Indonesian VAT invoices are approved in Coretax. What the sources agree on, where they differ, and a free NPWP format check."
 ---
 
 Indonesian VAT invoices (faktur pajak) are issued and approved in the tax authority's Coretax system, which replaced the older e-Faktur application from 1 January 2025 under PMK 81/2024. The [Indonesia page](https://duncan-haywood.github.io/oss-monorepo/einvoice-preflight/indonesia-coretax-e-invoice-mandate.html) in E-invoice Preflight is the 54th country page and sits in the side-by-side table of mandates.
