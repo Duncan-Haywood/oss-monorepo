@@ -36,7 +36,7 @@ All three automatic choices are ticked:
 - **Pitch:** 4/12. No pitch keeps the peak under 8 ft with that door, so the tool takes the lowest pitch at which the vents still fit, and the warning says the peak is 10' 2-3/8" above the gravel. Even 3/12 would be 9' 10-3/8".
 - **Overhang:** 6". Any longer and the 57-3/16" rafters cost more lumber. (Before the cut optimizer solved the relaxation, 6" to 9" all priced the same and the tool chose 9"; the exact optimizer finds 6" cheaper by $2.87 of 2x6.)
 
-At the starting prices that design is 151 pieces from 84 boards. The cut sheet's boards cost $639.32 against a proven lower bound of $638.34; with spare boards the lumber is $736.72, and the whole shed is $3,048.40 before sales tax. Every structural check passes, and the ridge beam is the most loaded member at 80%. The "8x12 classic" preset (8 ft walls, 6/12, ridge board and ties, 38" x 82" door, unpainted) is 143 pieces from 92 boards and $3,272.91 before sales tax.
+At the starting prices that design is 151 pieces from 84 boards. The cut sheet's boards cost $639.32 against a proven lower bound of $638.34; with spare boards the lumber is $736.72, and the whole shed is $3,131.98 before sales tax, with a 4" bed of paver base under each block. Every structural check passes, and the ridge beam is the most loaded member at 80%. (The starter set its blocks straight on the ground until 2026-10-30 and cost $3,048.40; the new soil check put that at 1.32 times what the IRC presumes clay or silt carries.) The "8x12 classic" preset (8 ft walls, 6/12, ridge board and ties, 38" x 82" door, unpainted) is 143 pieces from 92 boards and $3,272.91 before sales tax.
 
 ## Structure, integrity and prices
 
@@ -46,9 +46,10 @@ At the starting prices that design is 151 pieces from 84 boards. The cut sheet's
   - the ridge beam and its posts, using column stability on the posts;
   - under a ridge board, the rafter-tie heel joint: the pair's outward thrust (wL²/8h) against 16d common nails at the NDS yield-limit value for SPF (about 120 lb each), which sets the nail count in the instructions, the nailing schedule and the shopping list;
   - every door and window header;
-  - the eave-wall studs under roof load plus wind on the wall face.
+  - the eave-wall studs under roof load plus wind on the wall face;
+  - on blocks, the worst skid as a beam from block to block (bending, shear, deflection, bearing on the block), as wet-service Southern pine No. 2, and the block's pressure on the soil against the IRC's 1,500 psf for clay or silt (R401.4.1), spread 2" each side through a gravel bed.
 
-  These are allowable-stress (NDS) checks on SPF No. 2 under a roof snow load and a wall wind pressure you set (defaults 30 and 20 psf), with 15 psf roof dead load and 40 + 10 psf on the floor. The engine is `structure.mjs`, copied unchanged from `open-house-plans`, where it is pinned against the research track's Python; its fixture test comes with it. Each member shows its use of capacity. This is a screening check: connections, uplift, racking and the foundation are not checked.
+  These are allowable-stress (NDS) checks on SPF No. 2 (treated floor joists and skids as Southern pine No. 2, SPIB's 2013 values) under a roof snow load and a wall wind pressure you set (defaults 30 and 20 psf), with 15 psf roof dead load and 40 + 10 psf on the floor. The engine is `structure.mjs`, copied unchanged from `open-house-plans`, where it is pinned against the research track's Python; its fixture test comes with it. Each member shows its use of capacity. This is a screening check: uplift and racking are not checked, and the soil check assumes the weakest soil the code lists.
 - **Integrity tests** (`integrity.mjs`, `integrity.test.mjs`).
   - Starting from the gravel pad, every board, sheet and fixture must be reachable through pieces that touch it, so nothing floats.
   - No two square-cut members may overlap by more than 1/16".

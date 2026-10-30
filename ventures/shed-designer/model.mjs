@@ -63,7 +63,9 @@ export function defaultDesign() {
     skidSpacing: 48,
     foundation: 'blocks',
     compaction: 'hand tamper',
-    pad: 'none',
+    // Gravel under each block: on bare clay or silt the starter's blocks would
+    // carry about 1,970 psf, over the IRC's 1,500 (see checks.mjs, skidOnBlocks).
+    pad: 'under blocks',
     spares: 5,
     laborRate: 50,
     // The US average combined state and local sales tax (Tax Foundation, mid-2026: 7.53%); set your own.

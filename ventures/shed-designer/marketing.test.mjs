@@ -48,7 +48,9 @@ function facts() {
     defaultRafter: len(low, 'rafter'),
     beam: `${Math.round(checks.rows.find((r) => /Ridge beam$/.test(r.member)).ratio * 100)}%`,
     snow: String(checks.loads.snow),
-    _othersUnder30: checks.rows.filter((r) => !/Ridge beam$/.test(r.member)).every((r) => r.ratio < 0.3),
+    skid: `${Math.round(checks.rows.find((r) => r.member === 'Skids on blocks').ratio * 100)}%`,
+    soil: `${Math.round(checks.rows.find((r) => r.member === 'Blocks on the soil').ratio * 100)}%`,
+    _othersUnder30: checks.rows.filter((r) => !/Ridge beam$|^Skids on blocks$|^Blocks on the soil$/.test(r.member)).every((r) => r.ratio < 0.3),
     _unpriced: est.unpriced.length,
   };
 }
