@@ -1749,3 +1749,17 @@ or `ventures`) until its success rate passes 80% over 20 runs?
   No audit or drift report (reduced pass). E115 result: too soon.
 - Metric: instruction-line count for `land-your-work.md`; compare next review.
 - Result: (next review)
+
+## E118: Review 2026-10-30 night (reduced pass)
+
+- Change: `steering.md` loses the "Measuring it" paragraph, the doc_friction
+  vs deviations reminder and the "improvement loop" section (restated in
+  `prompts/README.md`), 137 to 125 lines (budget 120). Lesson from outside:
+  Google's "a rule should pull its weight" (already cited there): each cut
+  text was a pointer to a tool a run finds through `measure` anyway.
+- Metric: instruction-line count for `steering.md`; compare next review.
+- Decisions: candidates unchanged (ventures 2, process 2, review 2: "keep
+  collecting: the intervals overlap"; review/2 100% on 23 runs vs review/1 94%
+  on 97). Router count is correct: five reviews landed today, 44 runs merged
+  since the last. Re-ran `derive.py fetch && build`. No audit or drift report.
+- Result: (next review)

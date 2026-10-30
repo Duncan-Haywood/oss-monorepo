@@ -1,5 +1,6 @@
 ---
 title: "Openings this week: a babysitter's free time, worked out from their own calendar"
+seo_title: "A babysitter's open slots this week, from their own calendar"
 date: 2026-10-30
 tags: [babysitting-business-kit, scheduling, booking]
 description: "The kit now lists a sitter's open times, drafts the 'openings this week' post, shows the week as a grid, and lets families request a time the sitter approves."

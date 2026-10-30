@@ -41,3 +41,9 @@ class MichellTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+def test_wigley_wetted_matches_ju_formula():
+    # Ju (1983) via Wang et al. 2017: Aw = 0.661 L (2D + B); the standard 4 m Wigley must agree
+    from marine_hull.michell import wigley_wetted
+    assert abs(wigley_wetted(4.0, 0.4, 0.25) / (0.661 * 4.0 * (2 * 0.25 + 0.4)) - 1) < 0.002

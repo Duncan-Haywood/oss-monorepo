@@ -39,7 +39,7 @@ export function sidingLook(type) {
   if (lap) return { direction: 'horizontal', pattern: 'lap', spacing: lap.exposure, label: `${lap.short} siding (horizontal, ${fmtIn(lap.exposure)} exposure)` };
   if (t === 'fiber cement' || /lap|hardie|plank|clapboard/.test(t)) return { direction: 'horizontal', pattern: 'lap', spacing: 7, label: `${type} lap siding (horizontal, 7" exposure)` };
   if (t === 't1-11') return { direction: 'vertical', pattern: 'grooves', spacing: 8, label: 'T1-11 panel siding (vertical grooves 8" apart)' };
-  if (t === 'board and batten') return { direction: 'vertical', pattern: 'battens', spacing: 12, label: 'board and batten (vertical battens about 12" apart)' };
+  if (t === 'board and batten') return { direction: 'vertical', pattern: 'battens', spacing: 5.5, label: 'board and batten (vertical battens about 5-1/2" apart)' };
   return { direction: 'vertical', pattern: 'panel', spacing: 48, label: `${type} panel siding (smooth, 4 ft panel joints)` };
 }
 

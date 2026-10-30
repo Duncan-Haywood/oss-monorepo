@@ -1,5 +1,6 @@
 ---
 title: "A drift warning that also fires on real steps: testing it on a staircase"
+seo_title: "A drift warning that fires on real steps, tested on a staircase"
 date: 2026-10-30
 tags: [changepoint-detector, evaluation, time-series]
 description: "The changepoint detector warns many steps may be slow drift. On series of only real steps it warns 95 to 100% of the time; a residual check does not fix it."
