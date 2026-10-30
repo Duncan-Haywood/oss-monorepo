@@ -110,7 +110,7 @@ test('margin report on the default: the beam is above a 70% target; joists and r
 });
 
 test('a lighter option is only offered when it is built and passes every check', () => {
-  const shed = buildShed({ ...defaultDesign(), sidingType: 'LP SmartSide 7/16' });
+  const shed = buildShed({ ...defaultDesign(), sidingType: 'LP SmartSide 7/16', autoStuds: false });
   const studs = marginReport(shed, 0.7).far.find((f) => f.use.member === 'Wall studs');
   assert.equal(studs.reason, 'oversized');
   assert.equal(studs.option.label, '2x4 studs at 24"');

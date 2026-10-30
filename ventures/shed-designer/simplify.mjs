@@ -120,7 +120,7 @@ function moves(d, base, resize, opts = {}) {
   set(`rafters ${d.rafterSpacing === 24 ? 16 : 24}" o.c.`, { rafterSpacing: d.rafterSpacing === 24 ? 16 : 24 });
   // Smaller or larger rafters: kept only if the strength checks still pass.
   for (const sz of ['2x4', '2x6', '2x8']) if (sz !== d.rafterSize) set(`${sz} rafters`, { rafterSize: sz });
-  if (d.studSpacing === 24 || sidingSpan(d) >= 24) set(`studs ${d.studSpacing === 24 ? 16 : 24}" o.c.`, { studSpacing: d.studSpacing === 24 ? 16 : 24 });
+  if (d.studSpacing === 24 || sidingSpan(d) >= 24) set(`studs ${d.studSpacing === 24 ? 16 : 24}" o.c.`, { studSpacing: d.studSpacing === 24 ? 16 : 24, autoStuds: false });
   floorMoves(d, set);
   set(d.rafterSeat === 'connector' ? 'birdsmouth seats' : 'variable-pitch connectors', { rafterSeat: d.rafterSeat === 'connector' ? 'birdsmouth' : 'connector' });
   // A lean-to has no ridge, so no roof structure to change.
