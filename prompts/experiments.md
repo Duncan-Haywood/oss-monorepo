@@ -1715,3 +1715,17 @@ or `ventures`) until its success rate passes 80% over 20 runs?
   record's `notes`; pool-wide, checkout share and job-minutes per merged PR
   from `ci_profile.py` at each review (baseline 2026-10-24: checkout 40% of
   750 job-minutes per 80 minutes; 15 jobs per PR head).
+
+## E115: Review 2026-10-30 (reduced pass)
+
+- Change: `promptctl.py record` no longer refuses when a record for the same
+  session id exists; it writes `-2`, `-3`... (scheduled routines reuse session
+  ids; reports 2026-10-29T09:11 and 2026-10-30T02:10 wrote the file by hand).
+  Re-ran `derive.py fetch && build` (3976 rows).
+- Metric: friction reports naming `promptctl.py record`; compare the next 40 runs.
+- Decisions: candidates (ventures 2, process 2, review 2) still "keep
+  collecting: the intervals overlap" (review/2 100% on 23 runs vs review/1 95%
+  on 94; ventures/2 86% vs 87%; process/2 74% vs 78%). No audit or drift
+  report (reduced pass). Still over budget: steering.md (137/120),
+  land-your-work.md (167/160).
+- Result: (next review)
