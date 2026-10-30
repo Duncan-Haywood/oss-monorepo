@@ -1,0 +1,51 @@
+{
+  "date": "2026-10-30",
+  "session": "https://claude.ai/code/session_01E5sJKn8LysG3ocD7qKutTM",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: read prompt.md and follow it",
+  "input_sha256": "2abc11ce438e08917dbfbd5f6a49fe9cdcb2b7d6c1dd885255dfd4b7b4c9fbca",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-30T22:19:30Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/11924",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Duplicate-PR check is advised before opening a PR, but I only searched after the code was written; the flagship next: line was the shared claim and the overlapping run had already edited it on main."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "docs/posts",
+      "why": "No post: the only work duplicated #11923",
+      "did": "dropped my post",
+      "result": "run shipped no new value"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Built the page warnings block for changepoint-detector, then found #11923 had landed the same change first; took main's version and dropped my diff and post. Nothing else shipped. security-alerts branch did not exist, so step 0 was skipped.",
+  "corrections": [],
+  "redteam": null
+}
