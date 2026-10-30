@@ -16,7 +16,7 @@
 // roof line. The same profile drives the 3D view and the drawings.
 
 import { actual, ceil16, TWO_BY, DEFAULT_LENGTHS_FT, fmtFtIn as fmtFt, fmtIn } from './lumber.mjs';
-import { lumberCostOf } from './estimate.mjs';
+import { estimate } from './estimate.mjs';
 import { productById } from './products.mjs';
 import { headerCheck } from './structure.mjs';
 import { gambrelShape, gambrelParts, gambrelAnalysis, loftSpan, bandAbove, zOnPoly, GUSSET_T as GAMBREL_GUSSET_T, LOFT_LIVE } from './gambrel.mjs';
@@ -111,6 +111,9 @@ export function defaultDesign() {
     autoWall: true,
     autoPitch: true,
     autoOverhang: true,
+    // The automatic overhang takes the longest from 6" to 18" whose materials
+    // cost at most this many dollars more than the cheapest overhang's.
+    overhangBudget: 25,
     roofColor: 'charcoal',
     trimColor: 'white',
     doorColor: 'stained',
@@ -298,6 +301,7 @@ export function normalize(input) {
     autoWall: o.autoWall === true,
     autoPitch: o.autoPitch === true,
     autoOverhang: o.autoOverhang === true,
+    overhangBudget: Math.min(500, Math.max(0, num(o.overhangBudget, d.overhangBudget))),
     roofColor: pickFinish(o.roofColor, SHINGLE_FAMILIES, d.roofColor, false),
     trimColor: pickFinish(o.trimColor, TRIM_FINISHES, d.trimColor),
     doorColor: pickFinish(o.doorColor, DOOR_FINISHES, d.doorColor),
@@ -603,25 +607,33 @@ function buildAuto(d0) {
   }
   let s = /** @type {Shed} */ (shed);
   let overhangWhy = '';
+  /** @type {any} */
+  let overhangChoice = null;
   if (d0.autoOverhang) {
-    // The longest overhang from 6" to 18" that needs no more lumber money than the shortest:
-    // past that point the rafters (or sub-fascia) need longer boards.
-    // Only some materials change from try to try, so only those are re-priced;
-    // the others cost the same in every try and cannot change which is cheapest.
-    const tries = [];
+    // The longest overhang from 6" to 18" whose whole order (rafters, sub-fascia,
+    // sheathing, roofing, drip edge, trim) costs at most overhangBudget dollars
+    // more than the cheapest overhang's, at the starting prices. A longer eave
+    // keeps rain off the siding, so a little money buys it; 0 takes the cheapest.
+    // An overhang that leaves a door or window unframed prices without it, so it
+    // looks cheap; those are skipped unless no overhang frames every opening.
+    const all = [];
     for (let oh = 6; oh <= 18; oh++) {
       const t = buildFramed(normalize({ ...s.design, autoWall: false, autoPitch: false, autoOverhang: false, overhang: oh }));
-      tries.push({ oh, t, cost: 0 });
+      const framed = new Set((t.framedOpenings || []).map((/** @type {any} */ p) => p.op?.id ?? p.id));
+      all.push({ oh, t, cost: estimate(t).total, frames: t.design.openings.every((o) => framed.has(o.id)) });
     }
-    // A material is re-priced if its cut list differs between any two tries.
-    const cutList = (t, mat) => t.members.filter((m) => m.material === mat).map((m) => m.length).sort((a, b) => a - b).join(',');
-    const mats = [...new Set(tries.flatMap((x) => x.t.members.map((m) => m.material)))];
-    const moved = mats.filter((mat) => new Set(tries.map((x) => cutList(x.t, mat))).size > 1);
-    for (const x of tries) x.cost = lumberCostOf(x.t, moved);
+    const tries = all.some((x) => x.frames) ? all.filter((x) => x.frames) : all;
     const min = Math.min(...tries.map((x) => x.cost));
-    const best = tries.filter((x) => x.cost <= min + 0.01).pop();
-    s = /** @type {any} */ (best).t;
-    overhangWhy = `overhang ${fmtIn(s.design.overhang)}, the longest that needs no longer rafter boards (the rafters are ${fmtIn(s.dims.rafterCut)})`;
+    const cheapest = /** @type {any} */ (tries.find((x) => x.cost <= min + 0.005));
+    const best = /** @type {any} */ (tries.filter((x) => x.cost <= min + d0.overhangBudget + 0.005).pop());
+    const next = tries.find((x) => x.oh > best.oh && x.cost > min + d0.overhangBudget + 0.005);
+    s = best.t;
+    overhangChoice = { overhang: best.oh, adds: best.cost - min, cheapest: cheapest.oh, budget: d0.overhangBudget, next: next ? { overhang: next.oh, adds: next.cost - min } : null };
+    const money = (n) => `$${n.toFixed(2)}`;
+    overhangWhy = best.cost - min < 0.005
+      ? `overhang ${fmtIn(best.oh)}, the longest from 6" to 18" at the lowest materials cost`
+      : `overhang ${fmtIn(best.oh)}, the longest from 6" to 18" within ${money(d0.overhangBudget)} of the cheapest (${fmtIn(cheapest.oh)}); it adds ${money(best.cost - min)}`;
+    if (next) overhangWhy += `, and ${fmtIn(next.oh)} would add ${money(next.cost - min)}`;
   }
   const auto = [];
   if (d0.autoWall) auto.push(`walls ${fmtFt(s.design.wallHeight)}, the lowest that frames the tallest door or window`);
@@ -629,6 +641,7 @@ function buildAuto(d0) {
   if (overhangWhy) auto.push(overhangWhy);
   s.notes.unshift(`Set for you: ${auto.join('; ')}.`);
   s.design = { ...s.design, autoWall: d0.autoWall, autoPitch: d0.autoPitch, autoOverhang: d0.autoOverhang };
+  if (overhangChoice) /** @type {any} */ (s).overhangChoice = overhangChoice;
   return s;
 }
 

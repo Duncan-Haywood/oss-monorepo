@@ -432,7 +432,8 @@
         <label data-gambrel>Gambrel knee, in from the wall (in; 0 for a quarter of the width)<input id="gambrelKnee" type="number" min="0" max="120" step="1"></label>
         <label data-gambrel>Loft on the gambrel's ties<select id="loft"><option value="none">None (ties only)</option><option value="half">Over half the length</option><option value="full">Over the whole length</option></select></label>
         <label data-gambrel>Loft joists<select id="loftJoist"><option>2x6</option><option>2x8</option><option>2x10</option></select></label>
-        <label class="check"><input id="autoOverhang" type="checkbox"> Overhang that wastes the least lumber</label>
+        <label class="check"><input id="autoOverhang" type="checkbox"> Longest overhang (6" to 18") within a budget of the cheapest</label>
+        <label>Extra to spend on a longer overhang ($; a longer eave keeps rain off the siding)<input id="overhangBudget" type="number" min="0" max="500" step="5"></label>
         <label>Eave overhang (in)<input id="overhang" type="number" min="0" max="36" step="1"></label>
         <label>Roof snow load (psf)<input id="snowLoad" type="number" min="0" max="150" step="5"></label>
         <label>Wind pressure on the walls (psf)<input id="windLoad" type="number" min="0" max="80" step="5"></label>
