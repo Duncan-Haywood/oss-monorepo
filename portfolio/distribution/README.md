@@ -125,6 +125,54 @@ one switch per channel:
 Never put a token in the tree, a log or a PR. A pipeline that needs a paid
 API is out of scope for this goal.
 
+## Allow-list and versions
+
+**Since 2026-10-30, a tool reaches a registry or a release only if it is on
+[`allowlist.json`](allowlist.json).** Before that, the npm channel would have
+published every one of 180 qualifying CLIs and PyPI every one of 24. npm's
+and PyPI's policies on spam and name squatting (`channels.yaml` lists them
+for the owner to confirm) weigh against bulk-publishing near-identical small
+packages, so the channels now publish a curated set, and each entry says why
+it earns a package. The npm, PyPI, Homebrew and GHCR publishers and the
+release channel all read the list. Add a tool with one entry: `slug`,
+`channels` (`release`, `npm`, `pypi`, `pypi-packages`) and `why`. Then run
+`node platform/distribution/versions.mjs --write`.
+
+Where a family of checks has an umbrella product, publish the umbrella. The
+security `*-check` linters ship inside devsec-toolkit, so they get release
+tags (for `uses:` and pre-commit pins) but no registry package each.
+
+**Versions follow what ships.** [`versions.json`](versions.json) holds each
+allow-listed tool's version and a SHA-256 over the files its channels would
+publish: the npm and PyPI package contents (built at a placeholder version),
+its composite action and `check.py`, and devsec-toolkit's `bundle` output.
+Editing a test or a page leaves the version alone. Editing a shipped file
+makes `versions.mjs --check` fail until `--write` bumps the patch. The
+`Distribution versions` workflow runs that check on pull requests. For a
+minor or major release, run `--write` and then raise `version` by hand. The
+check compares hashes only, so the raised number stands.
+
+Each publisher then asks the registry for that exact version. It publishes
+it when missing, skips it when present, and skips with a note any name that
+belongs to another project (judged by the repository URL in the registry's
+record). On 2026-10-30 that applied to `llm-spend-guard` and
+`llms-txt-generator` on npm, which can only go out under `NPM_SCOPE`.
+
+**Releases** ([`tool-releases.mjs`](../../platform/distribution/tool-releases.mjs),
+off until `DISTRIBUTE_TOOL_RELEASES=true`) create one tag `<slug>-v<version>`
+and one GitHub release per allow-listed version on `main`, at most five per
+run. A run refuses to tag while `versions.json` is stale, so a tag's content
+always matches its recorded hash. devsec-toolkit's release attaches a
+reproducible `devsec-toolkit-<version>.tar.gz` (its `bundle`, about 130 KB,
+with `VERSION` stamped) and its SHA-256. A user can then pin
+`uses: duncan-haywood/oss-monorepo/platform/distribution/actions/<slug>@<slug>-v0.1.0`
+or a pre-commit `rev:` instead of following `@main`.
+
+A tag does not shrink what a `uses:` line downloads, which is still the
+whole repository (about 900 MB of tracked files on 2026-10-30). Only a
+standalone repository per action fixes that, and creating one is the
+owner's step (devsec-toolkit `ROADMAP.md`, phase 5).
+
 ## The hub: every platform from one command, and what works best
 
 **Owner request, 2026-10-20:** output to "most platforms" (Substack,
@@ -276,15 +324,17 @@ the owner step is the account, two secrets and `DISTRIBUTE_BLUESKY=true`.
 
 `hashnode-crosspost` is at `artifact` (2026-10-15): the dev.to pattern on Hashnode's GraphQL API (drafts by default, canonical link back). Dry run: `node platform/distribution/hashnode.mjs`.
 
+`tool-releases` is at `artifact` (2026-10-30): a `<slug>-v<version>` tag and release per allow-listed tool version (31 tools), so `uses:` and pre-commit can pin a version; devsec-toolkit's release carries its bundle. Needs no external account, only `DISTRIBUTE_TOOL_RELEASES=true`. Dry run: `node platform/distribution/tool-releases.mjs`.
+
 `github-release-digest` is at `artifact` (2026-10-15): a weekly release on this repository listing the week's launches, needing no external account (only `DISTRIBUTE_RELEASES=true`). Dry run: `node platform/distribution/releases.mjs`.
 
-`npm-cli-packages` is at `artifact` (2026-10-15): 142 venture CLIs become `npx`-runnable npm packages, five new ones per weekly run, none overwritten. Dry run: `node platform/distribution/npm.mjs`; inspect one with `node platform/distribution/npm.mjs --pack <slug> <dir>`. Owner step: npm account, `NPM_TOKEN`, optional `NPM_SCOPE`, `DISTRIBUTE_NPM=true`.
+`npm-cli-packages` is at `artifact` (2026-10-15): venture CLIs become `npx`-runnable npm packages, five per weekly run, none overwritten; since 2026-10-30 only the 7 on the allow-list (see "Allow-list and versions"). Dry run: `node platform/distribution/npm.mjs`; inspect one with `node platform/distribution/npm.mjs --pack <slug> <dir>`. Owner step: npm account, `NPM_TOKEN`, optional `NPM_SCOPE`, `DISTRIBUTE_NPM=true`.
 
 `mcp-server` is at `artifact` (2026-10-16): one npm package, an MCP server that lets Claude Desktop, Cursor and VS Code search and run 133 venture CLIs locally, with a generated `server.json` for the official MCP registry. Dry run: `node platform/distribution/mcp.mjs` (`--skipped` lists the 9 excluded for network or process access, `--pack <dir>` writes the package). Owner step: the npm token from `npm-cli-packages` and `DISTRIBUTE_MCP=true`.
 
-`pypi-python-clis` is at `artifact` (2026-10-16): 22 stdlib-only Python venture CLIs (the `*-check` linters) become `pipx run`-able PyPI projects, five new per weekly run, none overwritten. Dry run: `node platform/distribution/pypi.mjs`; inspect one with `node platform/distribution/pypi.mjs --pack <slug> <dir>`.
+`pypi-python-clis` is at `artifact` (2026-10-16): stdlib-only Python venture CLIs become `pipx run`-able PyPI projects, five per weekly run, none overwritten; since 2026-10-30 only the 3 on the allow-list. Dry run: `node platform/distribution/pypi.mjs`; inspect one with `node platform/distribution/pypi.mjs --pack <slug> <dir>`.
 
-`pypi-pyproject-packages` is at `artifact` (2026-10-16): the five dependency-free Python ventures that already have a pyproject become PyPI projects, three new per weekly run; same owner step as `pypi-python-clis`. Dry run: `node platform/distribution/pypi-packages.mjs`.
+`pypi-pyproject-packages` is at `artifact` (2026-10-16): dependency-free Python ventures that already have a pyproject become PyPI projects, three per weekly run; same owner step as `pypi-python-clis`. None is allow-listed on 2026-10-30, so it publishes nothing until one is. Dry run: `node platform/distribution/pypi-packages.mjs`.
 
 `homebrew-tap` is at `artifact` (2026-10-16): formulas for the venture CLIs that npm-cli-packages has published, written into the owner's own tap repository (`brew install <tap>/<slug>`); needs `DISTRIBUTE_NPM` live first. Dry run: `node platform/distribution/homebrew.mjs`.
 
