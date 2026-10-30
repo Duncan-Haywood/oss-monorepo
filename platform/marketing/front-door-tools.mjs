@@ -621,6 +621,9 @@ export const SYNC_OPTIONS = 'ServerSideApply=true';
 export const SERVABLE_EXTENSIONS = new Set(['.html', '.mjs', '.css', '.js']);
 export const SERVABLE_NAMES = new Set(['LICENSE']);
 
+/** Relative image links `validateLinks` does not hold a venture to: the mirror stores no images. */
+export const MIRROR_UNSERVED_IMAGE = /\.(?:webp|png|jpe?g|gif|avif|svg)$/i;
+
 /**
  * `<link rel="...">` values `injectMirrorTags` removes from every mirrored
  * page, and which `validateLinks` therefore must not hold a venture to.
@@ -2154,6 +2157,12 @@ export function validateLinks(files) {
         }
         continue;
       }
+      // An image the mirror never serves (SERVABLE_EXTENSIONS has none) is a
+      // missing picture on the mirrored page, not a dead link: the page still
+      // works. Counting it dropped shed-designer, and every venture that links
+      // to it, off the mirror when the venture added rendered pictures
+      // (2026-10-30).
+      if (MIRROR_UNSERVED_IMAGE.test(target)) continue;
       // Resolved against the linking file's own directory, not the venture
       // root. The two are the same thing for every flat page — which is why
       // this read `join(slug, target)` until page subdirectories existed — but
