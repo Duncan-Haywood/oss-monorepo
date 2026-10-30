@@ -44,3 +44,29 @@ def cell_allocation(n, sizes, s2, floor=FLOOR):
         alloc[k] -= d
         over -= d
     return alloc
+
+
+def plan_audit(f_all, pilot_y, n, tau=TAU, guard=GUARD, floor=FLOOR):
+    """One call from a hand-coded pilot to the rest of the audit. f_all: the coder's 0/1 codes on every corpus item;
+    pilot_y: {item index: human 0/1} for a simple random pilot (about PILOT_SHARE * n items); n: total audit budget.
+    Returns {"design", "cells", "to_label"}: design is "pooled" or "cells" (`screen`); cells are lists of item
+    indices (one cell for pooled, coder-negative then coder-positive for cells); to_label is how many more items to
+    draw at random from each cell's unpiloted items, so pilot items count toward n. The coder's codes feed only the
+    design; the pilot must be a random draw or J_hat is biased."""
+    idx = sorted(pilot_y)
+    y = [pilot_y[i] for i in idx]
+    f = [f_all[i] for i in idx]
+    if screen(y, f, tau, guard) == "pooled":
+        return {"design": "pooled", "cells": [list(range(len(f_all)))], "to_label": [max(0, n - len(idx))]}
+    cells = [[i for i, c in enumerate(f_all) if c == k] for k in (0, 1)]
+    s2 = []
+    for cell in cells:
+        res = [pilot_y[i] - f_all[i] for i in cell if i in pilot_y]
+        if len(res) > 1:
+            m = sum(res) / len(res)
+            s2.append(max(1e-4, sum((r - m) ** 2 for r in res) / (len(res) - 1)))
+        else:
+            s2.append(0.25)
+    alloc = cell_allocation(n, [len(c) for c in cells], s2, floor)
+    return {"design": "cells", "cells": cells,
+            "to_label": [max(0, a - sum(1 for i in c if i in pilot_y)) for a, c in zip(alloc, cells)]}

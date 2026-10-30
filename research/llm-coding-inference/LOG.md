@@ -2,6 +2,11 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-30 · Milestone 7b: `plan_audit`, one call from a pilot to the rest of the audit
+- Why: 7a exported `screen` and `cell_allocation`, but a user still had to glue the pilot, the cell split and the per-cell variances together. `plan_audit(f_all, pilot_y, n)` returns the design ("pooled" or "cells"), the cells as item indices and how many more items to label in each, counting pilot items toward n.
+- Test added (19 pass): a good coder (J about 0.85, 3,000 items, 120-item pilot) gets two cells covering every item once, with to_label summing to about 400 minus the pilot; a random-noise coder pools and gets 280 more items. No new experiment, so no new claim; the rule's status in the paper is unchanged (heuristic, no coverage theorem). Per-cell variance is the plain sample variance of y - f in the pilot, not the lambda-tuned S2 of the experiment code, so allocations can differ slightly from `h6ai_floor_indep.est_s2`; not compared.
+- Next: an informative coder on a second corpus once model weights are reachable.
+
 ## 2026-10-30 · Milestone 7a: the screened-audit rule becomes library code (`llmci/audit_design.py`)
 - Why: 6ak to 6am settled the rule (pilot 30%, J_hat >= 0.3, at least 20 pilot positives, else pool; coder cells get a 0.35 floor) but it lived only inside experiment scripts, so nobody could use it without copying them.
 - Added `informedness`, `screen`, `cell_allocation` (stdlib) and 3 tests (known J values and degenerate pilots, the two-condition screen including the perfect-coder-but-10-positives case, allocation sums to budget / honours floor / caps at cell size). 18 tests pass.
