@@ -1,14 +1,14 @@
 ---
-title: "An excavator valve's own neutral drop puts load-sensing back ahead"
+title: "One number decides whether load-sensing beats open-centre on a small excavator"
 date: 2026-10-30
-tags: [heavy-hydraulics, hydraulics, load-sensing, excavator]
-description: "Danfoss PVG 32 gives about 11 bar of open-centre neutral drop at 45 L/min, which moves the break-even load-sensing margin from 19 bar to 28 bar."
+tags: [heavy-hydraulics, hydraulics, excavator, research]
+description: "Reading an excavator-class valve's neutral bypass drop (about 11 bar) from a Danfoss curve moves the load-sensing break-even margin to 28 bar, reversing an earlier result that used a 1.4 bar catalogue valve."
 ---
 
-The [heavy-hydraulics programme](https://duncan-haywood.github.io/oss-monorepo/research/heavy-hydraulics/) asks which hydraulic circuit gets a small excavator closest to stock energy use. For a week its answer flipped with each source: an open-centre valve idling at 1.4 bar (from a 75 L/min catalogue valve) made open-centre win, a 14 bar load-sensing margin made load-sensing win again, and a 25 bar margin flipped it back.
+In the [heavy-hydraulics programme](https://github.com/Duncan-Haywood/oss-monorepo/tree/main/research/heavy-hydraulics) we compare open-centre, load-sensing (LS) and independently metered excavator circuits by shaft energy over a work cycle. Over six milestones the LS-versus-open-centre sign flipped each time we replaced one assumed input with a sourced one.
 
-The missing input was the open-centre neutral drop of an excavator-class valve. The Danfoss PVG 32 Technical Information (May 2021, page 16) plots the pressure drop of the open-centre input module's bypass in neutral: about 8.5 bar at near-zero flow, about 16 bar at 140 L/min, read off the figure to within 0.5 bar. At the model's 45 L/min pump that is 10.9 bar.
+The input that matters most is the pressure an open-centre block holds with its levers neutral. A 75 L/min catalogue valve gave 1.4 bar. Danfoss's PVG 32 manual (an excavator-class valve) plots its input-module bypass drop at about 8.5 bar near zero flow rising to about 16 bar at 140 L/min, which is 10.9 bar at our 45 L/min pump (a figure reading, +-0.5 bar).
 
-**Result.** With that neutral drop, load-sensing uses less pump-shaft energy than open-centre at the measured load factor (0.346) whenever its margin is under 28.0 bar (27.5 to 28.4 over the reading band). At the Rexroth 14 bar margin the median ratio is 0.759; at the thesis 25 bar it is 0.949, with load-sensing worse in 34% of cycles. The earlier break-even had been 19.3 bar. The prediction written beforehand (about 28) held.
+**Result.** With that neutral drop and the measured load factor of 0.346, LS beats open-centre up to an LS margin of 28.0 bar (27.5 to 28.4 over the reading band). Both sourced margins, 14 bar (Rexroth manual) and 25 bar (a thesis simulation), now favour LS: median LS/open-centre energy 0.76 and 0.95. We wrote the 28 bar prediction down before running it, from an earlier fitted line, and it held.
 
-**Caveats.** One manufacturer, a figure reading, a Danfoss valve paired with other sources' margin, and a standby flow of 2 L/min that is still assumed. The log and script are in `research/heavy-hydraulics/` (`pvg_neutral.py`).
+**Caveats.** The drop is the input module's bypass path from one manufacturer; the margin comes from a different machine; the LS standby flow (2 L/min) is assumed. The honest conclusion is that the ranking follows one measured neutral drop, and a measurement on a real block would settle it. The paper draft and its number checker are updated to match.
