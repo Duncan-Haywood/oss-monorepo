@@ -2282,6 +2282,39 @@ export function seventhDayPay(r, { firstHours = 8, firstMult = 1.5, laterMult = 
   return { rows, total: rows.reduce((t, x) => t + x.extra, 0) };
 }
 
+// What split-shift and spread-of-hours premiums would add, for scale. Several places (California, New York State) owe
+// one extra hour at the minimum wage on a day with an unpaid gap longer than `splitGap` hours (split shift) or with
+// first-to-last clock time longer than `spread` hours (spread of hours); one premium per person-day even if both
+// apply. Real rules differ (New York exempts people paid above minimum for some cases, California credits wages above
+// minimum), so `minWage` and `premiumHours` are yours to set and `credit` lets pay above `minWage` offset the premium.
+// An estimate, not the search's objective and not legal advice.
+export function splitShiftPay(r, { minWage = 0, premiumHours = 1, splitGap = 1, spread = 10, burdenPct = 0, credit = false } = {}) {
+  const wages = new Map((r.people || []).map((p) => [p.name, p.wage]));
+  const byKey = new Map();
+  for (const a of r.assignments || []) {
+    if (!a.person) continue;
+    const k = a.person + "|" + a.slot.day;
+    if (!byKey.has(k)) byKey.set(k, { person: a.person, day: a.slot.day, spans: [] });
+    byKey.get(k).spans.push([a.slot.startMin, a.slot.endMin]);
+  }
+  const burden = 1 + burdenPct / 100;
+  const rows = [];
+  for (const g of byKey.values()) {
+    g.spans.sort((x, y) => x[0] - y[0]);
+    let gap = 0, end = g.spans[0][1];
+    for (const [a, b] of g.spans.slice(1)) { gap = Math.max(gap, (a - end) / 60); end = Math.max(end, b); }
+    const span = (end - g.spans[0][0]) / 60, worked = g.spans.reduce((t, [a, b]) => t + (b - a) / 60, 0);
+    const split = gap > splitGap + 1e-9, wide = span > spread + 1e-9;
+    if (!split && !wide) continue;
+    const wage = wages.get(g.person) || 0;
+    // California-style credit: wages above minimum for the hours worked that day count toward the premium.
+    const owed = credit ? Math.max(0, minWage * premiumHours - Math.max(0, wage - minWage) * worked) : minWage * premiumHours;
+    rows.push({ person: g.person, day: DAYS[g.day], reason: split && wide ? "split and spread" : split ? "split" : "spread", gapHours: gap, spanHours: span, extra: owed * burden });
+  }
+  rows.sort((a, b) => a.person.localeCompare(b.person) || DAYS.indexOf(a.day) - DAYS.indexOf(b.day));
+  return { rows, total: rows.reduce((t, x) => t + x.extra, 0) };
+}
+
 // Puts a meal break on the clock for every straight stretch longer than `mealAfter` hours (back-to-back shifts joined).
 // The break starts on a `step`-minute mark, no earlier than `earliest` minutes into the stretch, early enough to begin
 // before `mealAfter` hours have passed and to leave `tail` minutes after it. Among those starts it picks the one that

@@ -1602,3 +1602,24 @@ test("coverRepair: openShiftWeight prices an open shift in hours, so the repair 
   // the weighted objective (hours + weight x open shifts) is never worse than the default roster's under the same weight
   assert.ok(hrs(heavy) + 100 * heavy.unfilled.length <= hrs(def) + 100 * def.unfilled.length + 1e-9);
 });
+
+test("splitShiftPay: one premium hour per split or over-spread person-day, optional wage credit", async () => {
+  const { splitShiftPay } = await import("./calc.mjs");
+  const sh = (day, a, b, person) => ({ slot: { day, startMin: a * 60, endMin: b * 60 }, person });
+  const r = {
+    people: [{ name: "Sam", wage: 20 }, { name: "Ana", wage: 15 }],
+    assignments: [sh(0, 9, 12, "Sam"), sh(0, 16, 20, "Sam"), // split, 4h gap
+      sh(1, 8, 12, "Ana"), sh(1, 12, 19, "Ana"), // continuous 11h: spread only
+      sh(2, 8, 12, "Ana"), sh(2, 16, 20, "Ana"), // split, 12h spread: one premium
+      sh(3, 9, 17, "Sam")], // plain day
+  };
+  const p = splitShiftPay(r, { minWage: 15 });
+  assert.deepEqual(p.rows.map((x) => [x.person, x.day, x.reason]), [["Ana", "Tue", "spread"], ["Ana", "Wed", "split and spread"], ["Sam", "Mon", "split and spread"]]);
+  assert.equal(p.total, 45);
+  assert.equal(splitShiftPay(r, { minWage: 15, burdenPct: 10 }).total, 49.5);
+  // credit: Sam earns $5 over minimum for 7 hours = $35, more than the $15 premium, so nothing owed
+  const c = splitShiftPay(r, { minWage: 15, credit: true });
+  assert.equal(c.rows.find((x) => x.person === "Sam").extra, 0);
+  assert.equal(c.total, 30);
+  assert.equal(splitShiftPay({}).total, 0);
+});

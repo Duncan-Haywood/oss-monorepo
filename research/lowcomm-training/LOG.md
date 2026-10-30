@@ -2,6 +2,19 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-30 · Milestone 6g (H6): does the 6f rule, fitted on rand-k only, predict plain top-k cells it never saw? (analysis of existing cells; script written after the top-k cells of 6e were already known, so the predictions below are not blind)
+
+- Why: 6f's "Next". Top-k is biased, so omega = 1/p - 1 has no theory behind it for it; the test is whether the nominal-keep omega still works with no new constant.
+- Setup (`experiments/gpt_composition/topk_heldout.py`, `topk_heldout_results.txt`): rule (3 constants) and additive power-law baseline (5 constants) from 6f, fitted on all 17 rand-k and uncompressed cell means, scored on the three plain top-k cells at keep 1/16, H = 4, 16, 64 (6e, with H = 16 from 4b). Then a one-constant extension, top-k excess = kappa x the rule's excess, fitted on two H levels and scored on the third.
+- **H6g-i:** the rule's MAPE on the three top-k cells is at most the baseline's, and under 1%. **H6g-ii:** the leave-one-H-out kappa predicts the held-out top-k excess within 0.02 nats at all three H. Prior (stated with the cells' values already seen in 6e, so weak): i 70%, ii 50%.
+
+### Outcome of 6g
+- Loss measured / rule / baseline: H = 4 1.6154 / 1.6261 / 1.6318; H = 16 1.6397 / 1.6482 / 1.6523; H = 64 1.6843 / 1.6817 / 1.6792. MAPE **0.444%** rule, **0.695%** baseline. **H6g-i supported** (3 cells, no interval).
+- The rule over-predicts top-k at small H (+0.011, +0.009 nats) and under-predicts at H = 64 (-0.003), the same pattern 6e found: top-k's excess rises more steeply with H than rand-k's. 
+- kappa left-one-H-out: 0.970, 0.975, 0.849; held-out excess errors +0.0094, +0.0067, -0.0158 nats, all under 0.02. **H6g-ii supported**, but the miss at H = 64 (-0.016) is the largest and one constant does not fix the H-shape; the compressor-specific part is in g(H), not only a scale.
+- Limits: three top-k cells, one keep level, three seeds each, no intervals; the rule's form was chosen after seeing these cells' rand-k siblings; nominal omega for a biased compressor is a convention, not a measured error ratio; the baseline is the same five-constant reading as 6f; one model and corpus.
+- Next: the scale-up check (Milestone 6) with a second model size, where the rule's constants are refitted, not borrowed.
+
 ## 2026-10-29 · Milestone 6f (H6): does the three-constant rule beat a same-size fitted additive power law on held-out cells? (analysis of existing cells; script written before reading the result)
 
 - Why: 6e's "Next" and Milestone 5. H6 asks for a composition rule with at most three constants, fitted on a third of the grid, against a refitted scaling law.

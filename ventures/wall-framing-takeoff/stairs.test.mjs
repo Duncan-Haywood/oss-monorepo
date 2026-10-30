@@ -197,13 +197,19 @@ test("landing guard: a 48 in end edge and a 36 in side edge keep gaps under 4 in
   assert.ok(r.ok && r.landing.guard);
   const g = r.landing.guard;
   assert.deepEqual(g.edges, [36, 36]); // width 36 default, depth 36
-  assert.equal(g.posts.count, 4); // one segment per edge, 2 posts each
+  assert.equal(g.posts.count, 3); // one segment per edge, 2 posts each, the shared corner post counted once
   assert.ok(g.balusters.maxGap <= 4 + 1e-9);
   // hand check, 36 in edge: clear 32.5, ceil((32.5-4)/5.5)=6 balusters, gap (32.5-9)/7 = 3.357
   assert.equal(g.balusters.count, 12);
   assert.ok(Math.abs(g.balusters.length - 29) < 1e-9); // 36 - 2x1.5 rails - 4 bottom gap
   assert.equal(landingCuts(r).filter((c) => c.kind === "landing guard rail").length, 2);
   assert.ok(landingText(r).some((t) => /Landing guard/.test(t)));
+});
+
+test("landing guard: two end edges and one side edge share two corners", () => {
+  const r = layoutStairWithLanding({ totalRise: 160, tread: 10, landing: { openEdges: ["end", "end", "side"] } }, plan());
+  assert.equal(r.landing.guard.posts.count, 6 - 2);
+  assert.equal(layoutLandingGuard([36, 36], {}, 1).posts.count, 3);
 });
 
 test("landing guard: an edge over 72 in gets a middle post", () => {
