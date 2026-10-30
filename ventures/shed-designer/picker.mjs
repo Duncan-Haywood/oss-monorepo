@@ -94,7 +94,8 @@ export function mountPicker(opts) {
     return renderFor(manifest, slugOf(id), view);
   };
   const thumb = (id) => {
-    const r = stored(id, 'hero');
+    // The strip's cards are about 260 px wide: the 480 px card picture, not the hero.
+    const r = stored(id, 'card') || stored(id, 'hero');
     if (r) return `<img src="${esc(r.src)}" alt="" width="${r.width}" height="${r.height}">`;
     return shots.has(shotKey(id)) ? `<img src="${shots.get(shotKey(id))}" alt="" width="600" height="400">` : '';
   };
