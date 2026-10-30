@@ -53,3 +53,20 @@ def test_idle_sensitivity_hits_target_load_factor():
     peak = max(i.useful_power(p) for p in c)
     lf = sum(i.useful_power(p) * p.seconds for p in c2) / sum(p.seconds for p in c2) / peak
     assert 0.34 < lf < 0.36
+
+
+def test_flow_share_single_actuator_unchanged():
+    from heavy_hydraulics.flow_share import phase_slowdown
+    assert phase_slowdown([(100.0, 20.0)], 45.0, 10.9) == 1.0
+
+
+def test_flow_share_equal_loads_split_evenly_within_pump_flow():
+    from heavy_hydraulics.flow_share import shared_flows
+    got = shared_flows([(100.0, 10.0), (100.0, 10.0)], 45.0, 10.9)
+    assert abs(got[0] - got[1]) < 1e-6 and 10.0 <= got[0] and sum(got) <= 45.0 + 1e-6
+
+
+def test_flow_share_low_pressure_actuator_steals():
+    from heavy_hydraulics.flow_share import shared_flows
+    hi, lo = shared_flows([(150.0, 10.0), (40.0, 10.0)], 45.0, 10.9)
+    assert hi < 10.0 < lo

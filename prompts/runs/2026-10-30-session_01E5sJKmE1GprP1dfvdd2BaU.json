@@ -1,0 +1,50 @@
+{
+ "date": "2026-10-30",
+ "session": "https://claude.ai/code/session_01E5sJKmE1GprP1dfvdd2BaU",
+ "track": "creative",
+ "prompt_version": 0,
+ "input": "read ./prompt.md and follow the instructions there",
+ "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+ "follow_up_inputs": [],
+ "model": "claude-sonnet-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-10-30T12:32:30Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": null,
+ "projects": [],
+ "pr": 11765,
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [],
+ "deviations": [
+  {
+   "file": "prompts/creative/prompt-0.md",
+   "why": "Story is ~2,400 words, under the 3,500 bible range, like recent shelf pieces.",
+   "did": "kept short",
+   "result": "tests pass"
+  },
+  {
+   "file": "prompt.md",
+   "why": "No separate blog post or runcost attach this run (cost-limited)."
+  }
+ ],
+ "writeups": [],
+ "goal": null,
+ "notes": "hearth-and-horizon, story the-gauge-reads-fifteen, text only (audio 423 MB over 400 MB cap). Process times deliberately not quoted; facts to check against current extension guide.",
+ "corrections": [],
+ "redteam": null
+}

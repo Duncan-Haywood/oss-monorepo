@@ -283,6 +283,46 @@ export function buildDivisions(spec) {
 const BALANCE_WINDOW = 6; // nights a make-up may be weighed over when keeping home/away alternating
 
 /**
+ * Team unavailable dates across divisions, one team per line: "U10/Hawks: 2026-11-05, 2026-11-12 to 2026-11-19" or
+ * "U10/Hawks cannot play 2026-11-05". Returns { blackouts{"divIndex/teamIndex": days[]}, errors[] }.
+ */
+export function parseDivisionBlackouts(text, divisions) {
+  const blackouts = {}, errors = [];
+  for (const [i, raw] of String(text ?? "").split(/\r?\n/).entries()) {
+    const line = raw.trim();
+    if (!line) continue;
+    const m = line.match(/^(.*?)\s*(?::|\bcannot play\b|\bcan't play\b|\bunavailable\b)\s*(.+)$/i);
+    if (!m) { errors.push(`Line ${i + 1}: write Division/Team, a colon, then the dates (U10/Hawks: 2026-11-05).`); continue; }
+    const [dn, ...tn] = m[1].trim().split("/");
+    const di = divisions.findIndex((d) => d.name.toLowerCase() === dn.trim().toLowerCase());
+    const ti = di < 0 || !tn.length ? -1 : divisions[di].teams.findIndex((t) => t.toLowerCase() === tn.join("/").trim().toLowerCase());
+    if (ti < 0) { errors.push(`Line ${i + 1}: "${m[1].trim()}" is not a Division/Team in this league.`); continue; }
+    const { days, errors: e } = parseDateList(m[2]);
+    for (const x of e) errors.push(`Line ${i + 1}: ${x}`);
+    const k = `${di}/${ti}`;
+    blackouts[k] = [...new Set([...(blackouts[k] || []), ...days])].sort((a, b) => a - b);
+  }
+  return { blackouts, errors };
+}
+
+/**
+ * Moves every match that falls on a night one of its teams cannot play to the earliest later night both teams are free
+ * (the rainout mover, which also keeps every moved match off the teams' unavailable dates). Takes the rainout options.
+ * Returns what `applyDivisionRainouts` does.
+ */
+export function applyDivisionBlackouts(schedule, blackouts, opts = {}) {
+  const byDay = new Map();
+  for (const n of schedule.nights) for (const m of n.matches) for (const t of [m.home, m.away]) {
+    if ((blackouts[`${m.div}/${t}`] || []).includes(n.day)) {
+      if (!byDay.has(n.day)) byDay.set(n.day, new Set());
+      byDay.get(n.day).add(`${m.division}/${t === m.home ? m.homeName : m.awayName}`);
+    }
+  }
+  const text = [...byDay.entries()].sort((a, b) => a[0] - b[0]).map(([d, ts]) => `${dayIso(d)} ${[...ts].join(", ")}`).join("\n");
+  return applyDivisionRainouts(schedule, text, { ...opts, blackouts });
+}
+
+/**
  * Rainouts across divisions, one per line: "2026-10-13" (the whole night), "2026-10-13 U10" (a division) or
  * "2026-10-13 U10/Hawks, U12/Owls" (those teams' matches), optionally ending "-> 2026-10-20" for a make-up date
  * you agreed. Each cancelled match moves to the earliest later play night where both teams are free and a court
@@ -298,7 +338,7 @@ const BALANCE_WINDOW = 6; // nights a make-up may be weighed over when keeping h
  * "->") when that lowers the total breaks, so it never adds delay and can shorten it; the move's `to` and a
  * `relocated` flag show it. It runs before `flip`.
  */
-export function applyDivisionRainouts(schedule, text, { balance = false, flip = false, relocate = false, swapNights = false } = {}) {
+export function applyDivisionRainouts(schedule, text, { balance = false, flip = false, relocate = false, swapNights = false, blackouts = null } = {}) {
   const s = JSON.parse(JSON.stringify(schedule));
   const cfg = s.config;
   const weekdays = new Set(cfg.weekdays || []), skip = new Set(cfg.skipDays || []);
@@ -355,6 +395,7 @@ export function applyDivisionRainouts(schedule, text, { balance = false, flip = 
       const runs = [runOf(mt.home, true), runOf(mt.away, false)];
       const options = [];
       for (const d of cand) {
+        if (blackouts && [mt.home, mt.away].some((t) => (blackouts[`${mt.div}/${t}`] || []).includes(d))) { why = `${dayIso(d)}: a team is unavailable`; continue; }
         const target = nightOf(d);
         const there = target ? target.matches : [];
         if (there.some((x) => x.div === mt.div && [x.home, x.away].some((t) => t === mt.home || t === mt.away))) { why = `${dayIso(d)}: a team already plays`; continue; }
@@ -916,6 +957,13 @@ if (typeof process !== "undefined" && process.argv && import.meta.url === `file:
   }
   let s = buildDivisions(spec);
   const raw = JSON.parse(readFileSync(file, "utf8"));
+  if (raw.blackouts) {
+    const pb = parseDivisionBlackouts(raw.blackouts, spec.divisions);
+    if (pb.errors.length) { console.error(pb.errors.join("\n")); process.exit(1); }
+    const r = applyDivisionBlackouts(s, pb.blackouts, rainoutOptions(raw));
+    for (const e of r.errors) console.error(`Unavailable: ${e}`);
+    s = r.schedule;
+  }
   const rainouts = raw.rainouts;
   if (rainouts) {
     const r = applyDivisionRainouts(s, rainouts, rainoutOptions(raw));
@@ -939,7 +987,7 @@ if (typeof process !== "undefined" && process.argv && import.meta.url === `file:
 
 // ---------------------------------------------------------------- share link
 
-const SHARE_FIELDS = ["divisions", "courts", "times", "start", "weekdays", "skip", "courtClosures", "travel", "links", "rainouts", "officials", "split", "venueFairness", "venueHistory", "fairnessWeight", "balance", "flip", "relocate", "swapNights", "seed"];
+const SHARE_FIELDS = ["divisions", "courts", "times", "start", "weekdays", "skip", "courtClosures", "travel", "links", "blackouts", "rainouts", "officials", "split", "venueFairness", "venueHistory", "fairnessWeight", "balance", "flip", "relocate", "swapNights", "seed"];
 
 /** Form fields -> URL-safe text for the `#` part of a link (`#d=...`). The fragment is never sent to a server. */
 export function encodeDivisionFields(f) {

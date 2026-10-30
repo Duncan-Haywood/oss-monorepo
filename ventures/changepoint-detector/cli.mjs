@@ -105,6 +105,7 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
     lines.push('', 'Likely range for each change (95%, neighbouring changes held fixed):');
     if (r.rangeWarning) lines.push(`  (${r.rangeWarning})`);
     if (r.driftWarning) lines.push(`  (${r.driftWarning})`);
+    if (r.cycleWarning) lines.push(`  (${r.cycleWarning})`);
     for (const x of ch) lines.push(`  ${x.label}: ${x.range95.from === x.range95.to ? 'that point only' : `${x.range95.from} – ${x.range95.to}`}`);
   }
   if (r.trend && r.trend.growthChangeRange95) {

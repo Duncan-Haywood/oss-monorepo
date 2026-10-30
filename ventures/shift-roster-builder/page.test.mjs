@@ -457,3 +457,24 @@ test("14-day notice page: 3-days-out column repeats the posted-schedule table, F
   const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
   for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
 });
+
+test("limits page's tables are what the engine returns for the sample cafe, FAQ matches, linked", async () => {
+  const { parseStaff, parseShifts, buildRoster, sampleStaff, sampleShifts } = await import("./calc.mjs");
+  const staff = parseStaff(sampleStaff()).staff, slots = parseShifts(sampleShifts()).slots;
+  const html = page("days-in-a-row-and-daily-hour-limits.html");
+  const cases = [[{}, 3, 216, 3622], [{ maxDailyHours: 12 }, 3, 216, 3622], [{ maxDailyHours: 10 }, 3, 216, 3622], [{ maxDailyHours: 9 }, 4, 209, 3505],
+    [{ maxDailyHours: 8 }, 4, 209, 3505], [{ maxDailyHours: 6 }, 27, 15, 261], [{ maxConsecDays: 5 }, 4, 218, 3658], [{ maxConsecDays: 4 }, 5, 220, 3690], [{ maxConsecDays: 3 }, 7, 204, 3402]];
+  for (const [o, open, covered, pay] of cases) {
+    const r = buildRoster(staff, slots, o);
+    assert.equal(r.unfilled.length, open, JSON.stringify(o));
+    assert.equal(r.hours, covered, JSON.stringify(o));
+    assert.equal(r.cost, pay, JSON.stringify(o));
+    assert.match(html, new RegExp(`<td class="n">${open}</td><td class="n">${covered}</td><td class="n">\\$${pay.toLocaleString("en-US")}</td>`));
+  }
+  assert.match(page("sitemap.xml"), /days-in-a-row-and-daily-hour-limits\.html/);
+  assert.match(page("index.html"), /days-in-a-row-and-daily-hour-limits\.html/);
+  assert.match(page("llms.txt"), /days-in-a-row-and-daily-hour-limits\.html/);
+  assert.ok(html.includes("No warranty"));
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
+});

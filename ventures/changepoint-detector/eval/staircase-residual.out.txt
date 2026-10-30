@@ -1,0 +1,9 @@
+treering 38 6.0 1.3
+us-inflation 12 28.9 0.8
+nile 1 6.5 2.2
+dax-returns 6 1.6 1.2
+great-discoveries 3 2.3 0.5
+nhtemp 1 2.6 1.1
+stair 5 2 median 0.69 max 1.22
+stair 8 2 median 0.64 max 0.95
+stair 12 3 median 0.60 max 0.91

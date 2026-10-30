@@ -100,7 +100,10 @@
     <h2 style="margin-top:18px">4. Referees, umpires or scorekeepers (optional)</h2>
     <label for="officials">One per line: Name, with an optional team in brackets, weekdays and a cap, such as <code>Ana (Hawks): Tue, Thu max 6</code>. Every match gets one, shared out evenly; nobody works their own team's match or two matches at once</label>
     <textarea id="officials" rows="3" placeholder="Ana (Hawks): Tue, Thu max 6&#10;Bo&#10;Cy (Rams)"></textarea>
-    <h2 style="margin-top:18px">5. Rainouts (optional)</h2>
+    <h2 style="margin-top:18px">5. Team unavailable dates (optional)</h2>
+    <label for="blackouts">One team per line, written Division/Team: dates (a range works: <code>2026-11-05 to 2026-11-19</code>). A match on one of these nights moves to the next night both teams are free</label>
+    <textarea id="blackouts" rows="2" placeholder="U10/Hawks: 2026-11-05, 2026-12-22 to 2026-12-30"></textarea>
+    <h2 style="margin-top:18px">6. Rainouts (optional)</h2>
     <label for="rainouts">One per line: a date alone cancels the night; add a division or Division/Team to cancel just those matches; end with <code>-&gt; 2026-12-01</code> to name the make-up night</label>
     <textarea id="rainouts" rows="2" placeholder="2026-10-13 U10/Hawks, U12/Owls"></textarea>
     <label style="font-weight:normal"><input type="checkbox" id="balance" style="width:auto"> Keep home and away in order: pick the make-up night that breaks a team's home/away pattern least (ends the season a few days later)</label>
@@ -158,11 +161,11 @@
   </footer>
 
   <script type="module">
-    import { parseDivisionOfficials, assignDivisionOfficials, validateDivisionOfficials, suggestFairnessWeight, encodeDivisionFields, decodeDivisionFields, readDivisionsSpec, buildDivisions, applyDivisionRainouts, rainoutOptions, validateDivisions, carryVenueHistory, divisionsCsv, divisionsSeasonGridCsv, divisionsText, divisionsIcs, divisionsTeamMessages, divisionsOfficialMessages } from "./divisions.mjs";
+    import { parseDivisionOfficials, assignDivisionOfficials, validateDivisionOfficials, suggestFairnessWeight, encodeDivisionFields, decodeDivisionFields, readDivisionsSpec, buildDivisions, applyDivisionRainouts, parseDivisionBlackouts, applyDivisionBlackouts, rainoutOptions, validateDivisions, carryVenueHistory, divisionsCsv, divisionsSeasonGridCsv, divisionsText, divisionsIcs, divisionsTeamMessages, divisionsOfficialMessages } from "./divisions.mjs";
     import { dayIso } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
     const $ = (s) => document.querySelector(s);
-    const FIELDS = ["divisions", "courts", "times", "start", "weekdays", "skip", "courtClosures", "travel", "links", "rainouts", "venueHistory", "fairnessWeight", "officials"];
+    const FIELDS = ["divisions", "courts", "times", "start", "weekdays", "skip", "courtClosures", "travel", "links", "blackouts", "rainouts", "venueHistory", "fairnessWeight", "officials"];
     const OPTS = ["balance", "flip", "relocate", "swapNights"];
     const EXAMPLE = {
       divisions: "U10: Hawks, Owls, Lynx, Otters, Foxes, Wolves\nU12: Hawks, Owls, Lynx, Otters, Foxes, Wolves, Bears, Eagles\nAdult: Rams, Kings, Stars, Comets, Pilots, Bolts (double)",
@@ -189,7 +192,7 @@
       if (errors.length) { status.textContent = errors.join(" "); $("#report").hidden = true; return false; }
       let s, v;
       let moved = null;
-      try { s = buildDivisions(spec); if (f.rainouts.trim()) { moved = applyDivisionRainouts(s, f.rainouts, rainoutOptions(f)); s = moved.schedule; } v = validateDivisions(s); } catch (e) { status.textContent = e.message; $("#report").hidden = true; return false; }
+      try { s = buildDivisions(spec); if ((f.blackouts || "").trim()) { const pb = parseDivisionBlackouts(f.blackouts, s.divisions); if (pb.errors.length) { status.textContent = pb.errors.join(" "); $("#report").hidden = true; return false; } moved = applyDivisionBlackouts(s, pb.blackouts, rainoutOptions(f)); s = moved.schedule; } if (f.rainouts.trim()) { const m2 = applyDivisionRainouts(s, f.rainouts, rainoutOptions(f)); moved = moved ? { moves: [...moved.moves, ...m2.moves], errors: [...moved.errors, ...m2.errors] } : m2; s = m2.schedule; } v = validateDivisions(s); } catch (e) { status.textContent = e.message; $("#report").hidden = true; return false; }
       let offs = null, offNote = "";
       if (f.officials.trim()) {
         const po = parseDivisionOfficials(f.officials, spec.divisions);
