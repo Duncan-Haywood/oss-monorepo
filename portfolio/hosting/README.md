@@ -8,14 +8,16 @@ Read it for study; nothing in it is current instruction.
 
 ## What is served now
 
-- **The catalogue is served by Cloudflare** at
-  **https://monorepo-projects-site.duncan-andrew-haywood.workers.dev/**
-  (owner, 2026-10-29: "we are moving from ghp to cloudflare"). Two free-plan
+- **The catalogue is served by Cloudflare** at **https://marisstella.app/**
+  (owner, 2026-10-29: "we are moving from ghp to cloudflare"; the domain was
+  added to the Cloudflare account on 2026-10-30). The first address,
+  https://monorepo-projects-site.duncan-andrew-haywood.workers.dev/, serves
+  the same files with canonicals naming the domain. Two free-plan
   Workers serve it as static files, because one free Worker holds at most
   20,000 files and the site is past that: `platform/pages/cloudflare/README.md`.
   `.github/workflows/portfolio-pages.yml` builds for that origin and deploys
   on every merge and every three hours. `vars.PAGES_ENABLED=false` pauses it;
-  `vars.PAGES_BASE_URL` moves it (a custom domain, once its route exists).
+  `vars.PAGES_BASE_URL` overrides the origin the build names.
 - **GitHub Pages now serves redirect pages.** The old address,
   https://duncan-haywood.github.io/oss-monorepo/, carries one page per old
   URL with a canonical link, a zero-second refresh and a script redirect to
@@ -25,13 +27,16 @@ Read it for study; nothing in it is current instruction.
   published and answered. Without the Cloudflare secrets the workflow falls
   back to serving the full site on GitHub Pages, as before.
 - **The Hetzner boxes, the k3s cluster and Argo CD were deleted on
-  2026-10-01.** That route is retired, not down. Manifests under
-  `gitops/prod` describe a dead origin, and its old IP addresses may now
-  belong to a stranger, so nothing should connect to them.
-- **`marisstella.dev` DNS still points at a released IP.** Repointing or
-  removing it is the owner's `pages-custom-domain` row in
-  `portfolio/ledger/asks.yaml`. If it is repointed at Pages, the Pages
-  publisher carries the `CNAME` file forward (see "Lessons" below).
+  2026-10-01.** That route is retired, not down. Its trees (`infra/`,
+  `bootstrap/`, `gitops/`) and the `marisstella.dev` front-door generators
+  were deleted on 2026-10-30; `git log --diff-filter=D -- gitops/` finds
+  them. Its old IP addresses may now belong to a stranger, so nothing should
+  connect to them.
+- **`marisstella.dev` resolves to nothing.** Checked 2026-10-30: it is still
+  registered and delegated to Hetzner's DNS servers, which refuse queries for
+  it (the zone went with the servers), so the released-IP takeover risk in
+  `asks.yaml`'s `pages-custom-domain` row is gone. The site's domain is
+  `marisstella.app` instead (above).
 - **Readers that are known to be stale.** `pages_state.py`'s "source" and
   "snapshot" lines still describe the retired `gh-pages` branch route.
   `indexnow_state.py` reads `portfolio-pages.yml`'s deploy runs and is
@@ -115,16 +120,16 @@ the history file.
 - **A force-pushed publish branch deletes what the build did not make.**
   `publish-branch.sh` built an orphan commit, which would have silently
   dropped the `CNAME` file that holds a custom domain, with every check
-  green. The script now carries the file forward (`gitops/tests/test_publish_branch.py`).
+  green. The script now carries the file forward.
   Ask what a publisher deletes, not only what it writes.
 - **Prefer a reading from something present** (a run id, a status code, a
   dated measurement) over reasoning from manifests or from an absence. This
   file once told runs for days that the catalogue was live while nothing
   listened on port 443, and later that it was dark while Pages served it.
   Two of its paragraphs went stale the same way twice.
-- **A copied list goes stale; an import does not.** The front-door mirror
-  once restated `build.mjs`'s entry-point rules and lost live products twice;
-  it now imports `ENTRY_OVERRIDES` from the builder.
+- **A copied list goes stale; an import does not.** The retired front-door
+  mirror once restated `build.mjs`'s entry-point rules and lost live products
+  twice, until it imported `ENTRY_OVERRIDES` from the builder.
 - **Amendments stacked on a reference doc hide the current state.** By
   2026-10-24 this file carried nine dated amendments and corrections, the
   newest at the bottom, and a run had to read 360 lines to learn which host

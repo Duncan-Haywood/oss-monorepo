@@ -98,13 +98,11 @@ REPO = Path(__file__).resolve().parent.parent.parent
 # directory should be *noticed*, not auto-adopted. If you add a suite to the
 # checklist, add it here in the same commit.
 SUITES = (
-    "gitops/tests",
     "portfolio/ledger",
     "portfolio/scoring",
     "portfolio/router",
     "portfolio/usage",
     "portfolio/pipeline",
-    "infra/tests",
 )
 
 # reason-substring -> (what is missing, the one command that supplies it)

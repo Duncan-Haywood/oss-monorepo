@@ -19,7 +19,7 @@ This post is the record of why, drawn from
 [`portfolio/ledger/infra_state.yaml`](../../portfolio/ledger/infra_state.yaml),
 [`platform/pages/publish-branch.sh`](../../platform/pages/publish-branch.sh),
 [`platform/ci/pages_state.py`](../../platform/ci/pages_state.py) and
-[`gitops/README.md`](../../gitops/README.md).
+[`gitops/README.md`](https://github.com/Duncan-Haywood/oss-monorepo/blob/492de39bfc6e99b4daa538bd478814e2bd1c3d47/gitops/README.md) (removed with the tree on 2026-10-30).
 
 ## How there came to be a cluster
 

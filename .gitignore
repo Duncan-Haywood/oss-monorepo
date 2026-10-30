@@ -29,12 +29,10 @@ tmp/
 /.claude/worktrees/
 /.claude/settings.local.json
 
-# OpenTofu (infra/)
+# OpenTofu state, should anyone add Terraform again
 **/.terraform/
 **/*.tfstate
 **/*.tfstate.*
-infra/*.tfvars
-!infra/terraform.tfvars.example
 
 # Built GitHub Pages sites. Regenerated on every deploy; never committed.
 # `platform/pages/dist/` is what actually publishes (build.mjs, the documented

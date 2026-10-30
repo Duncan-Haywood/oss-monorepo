@@ -50,7 +50,7 @@ runs on a PR or on `main`.
    squash (`prompt.md`). No need to wait for a human or for bot approvals.
    If the merge won't go:
    - **Conflict:** merge `origin/main` into your branch, re-run what the
-     checklist says (`node platform/marketing/regen.mjs`, `sync_tree_counts.py`), re-verify, and
+     checklist says (`sync_tree_counts.py`), re-verify, and
      merge. Before pushing the merge, run
      `python3 platform/ci/check_conflict_markers.py`: #11273 merged with markers
      left in `ventures/ai-bookkeeper/index.html` and `README.md` (its `validate`
