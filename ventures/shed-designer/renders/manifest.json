@@ -6,7 +6,7 @@
    "key": "10x10 barn",
    "name": "10x10 gambrel barn with loft",
    "hash": "29930cc1fe942025",
-   "designKey": "8841e105",
+   "designKey": "a3df04b8",
    "files": {
     "hero": {
      "file": "10x10-barn-hero.webp",
@@ -56,7 +56,7 @@
    "key": "10x12",
    "name": "10x12 gable shed",
    "hash": "ef3e56e0e7d52f66",
-   "designKey": "6eced2a2",
+   "designKey": "17ca8cd5",
    "files": {
     "hero": {
      "file": "10x12-hero.webp",
@@ -106,7 +106,7 @@
    "key": "12x16",
    "name": "12x16 gable shed",
    "hash": "16d5bd24d53f0c2e",
-   "designKey": "851063f8",
+   "designKey": "5f898a0d",
    "files": {
     "hero": {
      "file": "12x16-hero.webp",
@@ -156,7 +156,7 @@
    "key": "8x10",
    "name": "8x10 gable shed",
    "hash": "1f74c7e9c8bcd9cb",
-   "designKey": "340de29a",
+   "designKey": "f29e68fd",
    "files": {
     "hero": {
      "file": "8x10-hero.webp",
@@ -206,7 +206,7 @@
    "key": "8x12",
    "name": "8x12 ridge-beam shed",
    "hash": "b68016ffdc57dd45",
-   "designKey": "d0c90193",
+   "designKey": "9211e872",
    "files": {
     "hero": {
      "file": "8x12-hero.webp",
@@ -256,7 +256,7 @@
    "key": "8x12 classic",
    "name": "8x12 gable shed",
    "hash": "ecade481b075998c",
-   "designKey": "306ff10e",
+   "designKey": "d53f86f1",
    "files": {
     "hero": {
      "file": "8x12-classic-hero.webp",
@@ -306,7 +306,7 @@
    "key": "8x12 lean-to",
    "name": "8x12 lean-to shed",
    "hash": "e5cb3bc5ca9a7ebb",
-   "designKey": "b9f7c073",
+   "designKey": "331b758a",
    "files": {
     "hero": {
      "file": "8x12-lean-to-hero.webp",
@@ -356,7 +356,7 @@
    "key": "8x8 lean",
    "name": "8x8 garden shed",
    "hash": "954b7a0778b3586e",
-   "designKey": "09b750c8",
+   "designKey": "49644ffd",
    "files": {
     "hero": {
      "file": "8x8-lean-hero.webp",
@@ -406,7 +406,7 @@
    "key": "Balanced 8x11",
    "name": "Balanced 8x11",
    "hash": "9f778c5215c38844",
-   "designKey": "5f47a0f6",
+   "designKey": "8b4090ca",
    "files": {
     "card": {
      "file": "gallery-balanced-card.webp",
@@ -420,15 +420,15 @@
   "gallery-barn": {
    "key": "Barn for storage 7x14",
    "name": "Barn for storage 7x14",
-   "hash": "311ca8dd6a8972bd",
-   "designKey": "66a0ed4a",
+   "hash": "1641295daaf39c69",
+   "designKey": "94dbd497",
    "files": {
     "card": {
      "file": "gallery-barn-card.webp",
      "w": 480,
      "h": 320,
-     "bytes": 7908,
-     "alt": "3D render of the Barn for storage 7x14, 7 by 14 ft, seen from the front corner: red fiber cement siding, charcoal shingles, 6/12 roof, 12' 5/8\" to the peak, showing a 39\" door on the front (eave side)."
+     "bytes": 7884,
+     "alt": "3D render of the Barn for storage 7x14, 7 by 14 ft, seen from the front corner: red fiber cement siding, charcoal shingles, 6/12 roof, 11' 10-5/8\" to the peak, showing a 39\" door on the front (eave side)."
     }
    }
   },
@@ -436,7 +436,7 @@
    "key": "Cheapest 8x10",
    "name": "Cheapest 8x10",
    "hash": "56eb1d693476feea",
-   "designKey": "09b6a600",
+   "designKey": "eec0ec9c",
    "files": {
     "card": {
      "file": "gallery-cheapest-card.webp",
@@ -451,7 +451,7 @@
    "key": "10x10 to match the house",
    "name": "10x10 to match the house",
    "hash": "0c78e314d64b6176",
-   "designKey": "7d5565bd",
+   "designKey": "846cbabd",
    "files": {
     "card": {
      "file": "gallery-house-card.webp",
@@ -465,15 +465,15 @@
   "gallery-house-cheapest": {
    "key": "Cheapest lap-sided 7x12",
    "name": "Cheapest lap-sided 7x12",
-   "hash": "81a9b66713bc82fd",
-   "designKey": "84d3b80c",
+   "hash": "001c5103ae7bfc0c",
+   "designKey": "1e994f34",
    "files": {
     "card": {
      "file": "gallery-house-cheapest-card.webp",
      "w": 480,
      "h": 320,
-     "bytes": 6192,
-     "alt": "3D render of the Cheapest lap-sided 7x12, 12 by 7 ft, seen from the front corner: cream fiber cement siding, charcoal shingles, 6/12 roof, 11' 6-11/16\" to the peak, showing a 39\" door on the right (gable end)."
+     "bytes": 6246,
+     "alt": "3D render of the Cheapest lap-sided 7x12, 12 by 7 ft, seen from the front corner: cream fiber cement siding, charcoal shingles, 6/12 roof, 11' 4-11/16\" to the peak, showing a 39\" door on the right (gable end)."
     }
    }
   },
@@ -481,7 +481,7 @@
    "key": "Long 6x16",
    "name": "Long 6x16",
    "hash": "cf48d19d6d11e837",
-   "designKey": "af078eb6",
+   "designKey": "16318d9c",
    "files": {
     "card": {
      "file": "gallery-long-card.webp",
@@ -496,7 +496,7 @@
    "key": "Best looking 9x10",
    "name": "Best looking 9x10",
    "hash": "978878bac2e0e9e0",
-   "designKey": "395571fc",
+   "designKey": "1d9d8fce",
    "files": {
     "card": {
      "file": "gallery-looks-card.webp",
@@ -511,7 +511,7 @@
    "key": "Mower shed 10x10",
    "name": "Mower shed 10x10",
    "hash": "9fe82392a7c17e03",
-   "designKey": "68561987",
+   "designKey": "18362e81",
    "files": {
     "card": {
      "file": "gallery-mower-card.webp",
@@ -526,7 +526,7 @@
    "key": "10x10 square",
    "name": "10x10 square",
    "hash": "48c7e087a1bdfbc2",
-   "designKey": "cf76d8a3",
+   "designKey": "e42506f7",
    "files": {
     "card": {
      "file": "gallery-square-card.webp",
@@ -541,7 +541,7 @@
    "key": "Most storage 9x11",
    "name": "Most storage 9x11",
    "hash": "84d171734bcba7bc",
-   "designKey": "6fe98f14",
+   "designKey": "f43476a6",
    "files": {
     "card": {
      "file": "gallery-storage-card.webp",
@@ -556,7 +556,7 @@
    "key": "Most room per dollar, 8x12",
    "name": "Most room per dollar, 8x12",
    "hash": "c43345c190bd68c8",
-   "designKey": "1a88e666",
+   "designKey": "ad625434",
    "files": {
     "card": {
      "file": "gallery-value-card.webp",
@@ -571,7 +571,7 @@
    "key": "10x10 size page",
    "name": "10x10 gable shed",
    "hash": "2995a6d7550e71c8",
-   "designKey": "b9d57417",
+   "designKey": "1a0527a4",
    "files": {
     "hero": {
      "file": "size-10x10-hero.webp",
@@ -586,7 +586,7 @@
    "key": "10x12 size page",
    "name": "10x12 gable shed",
    "hash": "ef3e56e0e7d52f66",
-   "designKey": "6eced2a2",
+   "designKey": "17ca8cd5",
    "files": {
     "hero": {
      "file": "size-10x12-hero.webp",
@@ -601,7 +601,7 @@
    "key": "10x14 size page",
    "name": "10x14 gable shed",
    "hash": "ffea7746637917cd",
-   "designKey": "65933d0a",
+   "designKey": "89bf014d",
    "files": {
     "hero": {
      "file": "size-10x14-hero.webp",
@@ -616,7 +616,7 @@
    "key": "10x16 size page",
    "name": "10x16 gable shed",
    "hash": "def5d534897abcde",
-   "designKey": "8e7b2df3",
+   "designKey": "81f01f1a",
    "files": {
     "hero": {
      "file": "size-10x16-hero.webp",
@@ -631,7 +631,7 @@
    "key": "10x20 size page",
    "name": "10x20 gable shed",
    "hash": "0b1189782088bee0",
-   "designKey": "4e1d8a44",
+   "designKey": "6e06ed7b",
    "files": {
     "hero": {
      "file": "size-10x20-hero.webp",
@@ -646,7 +646,7 @@
    "key": "12x12 size page",
    "name": "12x12 gable shed",
    "hash": "5796c98cb017b54d",
-   "designKey": "9227cad9",
+   "designKey": "bba88414",
    "files": {
     "hero": {
      "file": "size-12x12-hero.webp",
@@ -661,7 +661,7 @@
    "key": "12x14 size page",
    "name": "12x14 gable shed",
    "hash": "78b5d8d472de917a",
-   "designKey": "02e0cae5",
+   "designKey": "1342b3d0",
    "files": {
     "hero": {
      "file": "size-12x14-hero.webp",
@@ -676,7 +676,7 @@
    "key": "12x16 size page",
    "name": "12x16 gable shed",
    "hash": "16d5bd24d53f0c2e",
-   "designKey": "851063f8",
+   "designKey": "5f898a0d",
    "files": {
     "hero": {
      "file": "size-12x16-hero.webp",
@@ -691,7 +691,7 @@
    "key": "12x20 size page",
    "name": "12x20 gable shed",
    "hash": "7e432d9bc895113c",
-   "designKey": "fe2494a5",
+   "designKey": "adfd6ad6",
    "files": {
     "hero": {
      "file": "size-12x20-hero.webp",
@@ -706,7 +706,7 @@
    "key": "12x24 size page",
    "name": "12x24 gable shed",
    "hash": "e9115797cd95d3e3",
-   "designKey": "8c48ebe5",
+   "designKey": "0cf24b16",
    "files": {
     "hero": {
      "file": "size-12x24-hero.webp",
@@ -721,7 +721,7 @@
    "key": "12x32 size page",
    "name": "12x32 gable shed",
    "hash": "1646a1f171a55631",
-   "designKey": "668aac6b",
+   "designKey": "5384e300",
    "files": {
     "hero": {
      "file": "size-12x32-hero.webp",
@@ -736,7 +736,7 @@
    "key": "14x14 size page",
    "name": "14x14 gable shed",
    "hash": "27ccaee45fbfcee9",
-   "designKey": "09007285",
+   "designKey": "743a1a70",
    "files": {
     "hero": {
      "file": "size-14x14-hero.webp",
@@ -751,7 +751,7 @@
    "key": "14x20 size page",
    "name": "14x20 gable shed",
    "hash": "d842b21f7e1b3ff8",
-   "designKey": "f42db275",
+   "designKey": "f6fa4846",
    "files": {
     "hero": {
      "file": "size-14x20-hero.webp",
@@ -766,7 +766,7 @@
    "key": "16x20 size page",
    "name": "16x20 gable shed",
    "hash": "e4df2e22e6e02847",
-   "designKey": "9756f04e",
+   "designKey": "009e1e5f",
    "files": {
     "hero": {
      "file": "size-16x20-hero.webp",
@@ -781,7 +781,7 @@
    "key": "16x24 size page",
    "name": "16x24 gable shed",
    "hash": "a749d230184bc9d7",
-   "designKey": "52904bbe",
+   "designKey": "6b87836f",
    "files": {
     "hero": {
      "file": "size-16x24-hero.webp",
@@ -796,7 +796,7 @@
    "key": "8x10 size page",
    "name": "8x10 gable shed",
    "hash": "feca38988ab41a0c",
-   "designKey": "1a54042b",
+   "designKey": "4ddb0f9c",
    "files": {
     "hero": {
      "file": "size-8x10-hero.webp",
@@ -811,7 +811,7 @@
    "key": "8x16 size page",
    "name": "8x16 gable shed",
    "hash": "39830e425506ca50",
-   "designKey": "ecfb1cb4",
+   "designKey": "27fb0eb9",
    "files": {
     "hero": {
      "file": "size-8x16-hero.webp",
@@ -826,7 +826,7 @@
    "key": "8x8 size page",
    "name": "8x8 gable shed",
    "hash": "762f684322165a62",
-   "designKey": "4211bf29",
+   "designKey": "cbf365de",
    "files": {
     "hero": {
      "file": "size-8x8-hero.webp",

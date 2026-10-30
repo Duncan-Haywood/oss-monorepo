@@ -90,7 +90,7 @@ export function mountPicker(opts) {
   const allFacts = () => entries.map((e) => factsOf(e.id));
   // The design's own roofing and paint, which store kits leave out (value.mjs).
   const leftOutOf = (f) => {
-    const shed = buildShed(normalize(f.design));
+    const shed = buildShed(normalize(f.design), opts.prices?.());
     const est = opts.priceOf ? opts.priceOf(shed) : estimate(shed, opts.prices?.() || examplePrices());
     return est.shopping.filter((l) => l.section === 'Roofing' || l.section === 'Paint').reduce((t, l) => t + (l.total || 0), 0);
   };

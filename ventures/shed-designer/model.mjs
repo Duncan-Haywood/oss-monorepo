@@ -128,6 +128,8 @@ export function defaultDesign() {
     customRange: false,
     sidingType: 'T1-11',
     wallTrim: '1x4',
+    // For fiber cement: James Hardie sells HZ5 plank where winters freeze and HZ10 where they don't.
+    climate: 'mild',
     roofCover: 'shingles',
     rafterSeat: 'connector',
     maxFootprint: 100,
@@ -313,7 +315,8 @@ export function normalize(input) {
     insulation: o.insulation === true,
     atticStorage: o.atticStorage === true,
     customRange: o.customRange === true,
-    wallTrim: pick(o.wallTrim, ['1x4', 'none'], d.wallTrim),
+    wallTrim: pick(o.wallTrim, ['1x4', '5/4', 'none'], d.wallTrim),
+    climate: pick(o.climate, ['mild', 'freezing'], d.climate),
     sidingType: pick(o.sidingType, ['T1-11', 'LP SmartSide', 'LP SmartSide 7/16', 'board and batten', 'vinyl', 'fiber cement', 'LP SmartSide lap'], d.sidingType),
     roofCover: pick(o.roofCover, ['shingles', 'metal'], d.roofCover),
     rafterSeat: pick(o.rafterSeat, ['birdsmouth', 'connector'], d.rafterSeat),
@@ -569,14 +572,21 @@ function siteWarnings(d) {
   return out;
 }
 
-export function buildShed(input) {
+/**
+ * Frame a design. `prices` are the prices the page is pricing at (the
+ * visitor's own, as typed); only the automatic overhang reads them, to weigh
+ * each eave length at those prices rather than the starting ones.
+ * @param {any} input
+ * @param {import('./estimate.mjs').Prices} [prices]
+ */
+export function buildShed(input, prices) {
   const d0 = normalize(input);
   // The page, the swaps, the options and the simplicity search rebuild the same
   // designs again and again; a built shed is never modified, so keep recent ones.
-  const key = JSON.stringify(d0);
+  const key = JSON.stringify(d0) + (prices && d0.autoOverhang ? `|${JSON.stringify(prices)}` : '');
   const hit = BUILT.get(key);
   if (hit) { BUILT.delete(key); BUILT.set(key, hit); return hit; }
-  const shed = d0.autoWall || d0.autoPitch || d0.autoOverhang ? buildAuto(d0) : buildFramed(d0);
+  const shed = d0.autoWall || d0.autoPitch || d0.autoOverhang ? buildAuto(d0, prices) : buildFramed(d0);
   BUILT.set(key, shed);
   if (BUILT.size > 200) BUILT.delete(BUILT.keys().next().value);
   return shed;
@@ -603,8 +613,9 @@ export function minWallFor(d) {
  * under the limit. When no pitch fits, the lowest pitch at which the gable vents
  * still fit is used and the warning says by how much the limit is missed.
  * @param {Design} d0
+ * @param {import('./estimate.mjs').Prices} [prices] the page's prices, for the overhang (else the starting ones)
  */
-function buildAuto(d0) {
+function buildAuto(d0, prices) {
   let d = { ...d0, autoWall: false, autoPitch: false, autoOverhang: false };
   if (d0.autoWall) d.wallHeight = minWallFor(d0);
   let shed;
@@ -645,7 +656,8 @@ function buildAuto(d0) {
   if (d0.autoOverhang) {
     // The longest overhang from 6" to 18" whose whole order (rafters, sub-fascia,
     // sheathing, roofing, drip edge, trim) costs at most overhangBudget dollars
-    // more than the cheapest overhang's, at the starting prices. A longer eave
+    // more than the cheapest overhang's, at the prices the page is using (the
+    // visitor's own when they have typed any; the starting prices otherwise). A longer eave
     // keeps rain off the siding, so a little money buys it; 0 takes the cheapest.
     // An overhang that leaves a door or window unframed prices without it, so it
     // looks cheap; those are skipped unless no overhang frames every opening.
@@ -653,7 +665,7 @@ function buildAuto(d0) {
     for (let oh = 6; oh <= 18; oh++) {
       const t = buildFramed(normalize({ ...s.design, autoWall: false, autoPitch: false, autoOverhang: false, overhang: oh }));
       const framed = new Set((t.framedOpenings || []).map((/** @type {any} */ p) => p.op?.id ?? p.id));
-      all.push({ oh, t, cost: estimate(t).total, frames: t.design.openings.every((o) => framed.has(o.id)) });
+      all.push({ oh, t, cost: estimate(t, prices).total, frames: t.design.openings.every((o) => framed.has(o.id)) });
     }
     const tries = all.some((x) => x.frames) ? all.filter((x) => x.frames) : all;
     const min = Math.min(...tries.map((x) => x.cost));

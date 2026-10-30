@@ -465,7 +465,8 @@ export function estimate(shed, prices = examplePrices()) {
   /** @type {{ boards: { stock: number, cuts: number[], offcut: number }[], pieces: { where: string, length: number }[] } | null} */
   let trimCuts = null;
   if (shed.wallTrim && shed.wallTrim.length) {
-    const keys = { 96: 'trim1x4x8', 144: 'trim1x4x12', 192: 'trim1x4x16' };
+    // 5/4 trim comes in one length per maker: HardieTrim 12 ft with fiber cement, LP 540 16 ft otherwise.
+    const keys = d.wallTrim === '5/4' ? (d.sidingType === 'fiber cement' ? { 144: 'trim54Hardie' } : { 192: 'trim54LP' }) : { 96: 'trim1x4x8', 144: 'trim1x4x12', 192: 'trim1x4x16' };
     const stocks = Object.entries(keys).map(([len, k]) => ({ length: Number(len), price: item(k) }));
     const r = cutWithinHaul(shed.wallTrim.map((t) => ({ len: t.length, kind: t.where })), stocks, d.kerf, d.maxHaulFt);
     trimCuts = { boards: r.boards.map((b) => ({ stock: b.stock, cuts: b.cuts.map((c) => c.len), offcut: b.offcut })), pieces: shed.wallTrim };

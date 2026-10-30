@@ -61,3 +61,5 @@ ventures/einvoice-preflight/browser/
 # (platform/pages/build.mjs, GENERATED_PAGES), never committed.
 ventures/shed-designer/how-much-lumber-for-a-*-shed.html
 ventures/shed-designer/shed-lumber-list-by-size.html
+# make-gallery.mjs's note of the sources it last searched from (lets repeat build calls skip)
+ventures/shed-designer/.gallery-stamp

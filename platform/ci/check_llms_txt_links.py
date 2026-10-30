@@ -20,7 +20,8 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[2]
 LINK = re.compile(r"\]\((https?://[^)\s]+)\)")
 GH = re.compile(r"https://github\.com/[^/]+/(?:oss-monorepo|monorepo-projects)/(?:tree|blob)/main/(.*)", re.I)
-GENERATED = re.compile(r"^\s*'([\w-]+)':\s*'([\w.-]+)'", re.M)
+GENERATED = re.compile(r"^\s*'([\w-]+)':\s*(\[[^\]]*\]|'[\w.-]+')", re.M)
+SCRIPT = re.compile(r"'([\w.-]+)'")
 SITE = re.compile(r"https://(?:[\w-]+\.github\.io/(?:oss-monorepo|monorepo-projects)|example\.invalid)/(.*)", re.I)
 
 
@@ -31,10 +32,11 @@ def generated_pages(root: Path) -> dict[str, str]:
     if not reg.exists():
         return {}
     out = {}
-    for slug, script in GENERATED.findall(reg.read_text()):
-        src = root / "ventures" / slug / script
-        if src.exists():
-            out[slug] = src.read_text()
+    for slug, scripts in GENERATED.findall(reg.read_text()):
+        srcs = [root / "ventures" / slug / name for name in SCRIPT.findall(scripts)]
+        text = "\n".join(src.read_text() for src in srcs if src.exists())
+        if text:
+            out[slug] = text
     return out
 
 
