@@ -38,6 +38,7 @@ function siteNote(shed) {
   const k = shed.dims;
   const block = /** @type {any} */ (BLOCKS)[d.foundation];
   if (!block) return `Strip the turf over a pad 1 ft bigger than the shed all round, lay fabric, then about ${k.gravelCuYd.toFixed(1)} cu yd of crushed stone in 4" lifts, compacted, and level. Drains well and spreads the load; the most digging and hauling.`;
+  if (block.pier) return `${k.blockCount} holes dug ${d.pierDepth}" deep (set the depth to your frost line), a tube in each and ${k.pierBags} bags of concrete mixed and poured. The most digging and the most work, but nothing to settle or heave where the ground freezes; call 811 before digging.`;
   const n = `${k.blockCount} ${block.plural}`;
   if (k.noPad) return `${n} on stripped, tamped firm soil, each levelled by hand. The least work and material; on soft or wet ground the blocks can settle, so check the Structure tab's soil row where it is shown.`;
   if (k.underBlocks) return `${n}, each on a 4" bed of paver base (${k.baseBags} bags) in its own hole. Less stone to haul than a full pad; each block is levelled on its own bed.`;
@@ -60,7 +61,7 @@ function windowNote(d) {
 export function leverOptions(design, prices) {
   const start = normalize(design);
   const base = evaluate(start, prices);
-  /** @type {{ title: string, rows: any[] }[]} */
+  /** @type {{ title: string, rows: any[], locked?: boolean }[]} */
   const groups = [];
   // A choice you fixed shows only as it is: no alternatives are priced for it.
   let lockKey = '';
@@ -80,11 +81,11 @@ export function leverOptions(design, prices) {
   lockKey = 'foundation';
   // Foundation: skids on a gravel pad, or on each kind of block with each kind of gravel.
   {
-    const name = (f, pad) => (f === 'gravel' ? 'Skids on a full gravel pad' : `Skids on ${/** @type {any} */ (BLOCKS)[f].plural}, ${{ full: 'on a full gravel pad', 'under blocks': 'gravel only under each block', none: 'on tamped soil, no gravel' }[pad]}`);
+    const name = (f, pad) => (f === 'gravel' ? 'Skids on a full gravel pad' : /** @type {any} */ (BLOCKS)[f].pier ? 'Skids on concrete piers in 12" form tubes' : `Skids on ${/** @type {any} */ (BLOCKS)[f].plural}, ${{ full: 'on a full gravel pad', 'under blocks': 'gravel only under each block', none: 'on tamped soil, no gravel' }[pad]}`);
     const rows = [];
     for (const f of ['gravel', ...Object.keys(BLOCKS)]) {
-      for (const pad of f === 'gravel' ? ['full'] : ['full', 'under blocks', 'none']) {
-        const isCur = start.foundation === f && (f === 'gravel' || start.pad === pad);
+      for (const pad of f === 'gravel' ? ['full'] : /** @type {any} */ (BLOCKS)[f].pier ? ['none'] : ['full', 'under blocks', 'none']) {
+        const isCur = start.foundation === f && (f === 'gravel' || /** @type {any} */ (BLOCKS)[f].pier || start.pad === pad);
         rows.push(isCur ? current(name(f, pad), siteNote) : row(name(f, pad), { foundation: f, pad }, siteNote));
       }
     }

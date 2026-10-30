@@ -117,7 +117,7 @@ export function finishName(v, table) {
  * @param {any} d a normalized design
  */
 export function paletteOf(d) {
-  const bare = d.sidingType?.startsWith('LP SmartSide') ? /** @type {RGB} */ ([0.84, 0.83, 0.79]) : SIDING_FINISHES.unfinished.rgb;
+  const bare = d.sidingType?.startsWith('LP SmartSide') || d.sidingType === 'fiber cement' ? /** @type {RGB} */ ([0.84, 0.83, 0.79]) : SIDING_FINISHES.unfinished.rgb;
   // Vinyl comes coloured; its "stained" default reads as a white vinyl.
   const siding = d.sidingColor === 'unfinished' ? bare
     : d.sidingType === 'vinyl' && d.sidingColor === 'natural' ? PAINTS.white.rgb

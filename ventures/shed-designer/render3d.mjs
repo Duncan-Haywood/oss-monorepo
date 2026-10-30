@@ -189,11 +189,13 @@ export function solidsOf(shed, heat) {
   if (heat) return out;
   const pal = paletteOf(d);
   const siding = pal.siding;
-  const texture = d.sidingType === 'board and batten' ? FINISH.batten : (d.sidingType === 'vinyl' || d.sidingType === 'fiber cement') ? FINISH.lap : d.sidingType === 'T1-11' ? FINISH.grooves : 0;
+  // Lap siding is modelled course by course, so it needs no painted-on shadow lines.
+  const texture = d.sidingType === 'board and batten' ? FINISH.batten : d.sidingType === 'vinyl' ? FINISH.lap : d.sidingType === 'T1-11' ? FINISH.grooves : 0;
   for (const p of shed.panels) {
-    const layer = p.kind === 'floor sheet' ? 'floor' : p.kind === 'roof sheathing' ? 'sheathing' : 'siding';
-    const color = p.kind === 'floor sheet' ? COLORS.floor : p.kind === 'roof sheathing' ? COLORS.osb : siding;
-    out.push({ geom: p.geom, color: /** @type {any} */ (color), layer, flags: p.kind === 'siding' ? (d.polkaDots ? 1 : 0) + glitter + texture : 0 });
+    const sheathing = p.kind === 'roof sheathing' || p.kind === 'wall sheathing';
+    const layer = p.kind === 'floor sheet' ? 'floor' : sheathing ? 'sheathing' : 'siding';
+    const color = p.kind === 'floor sheet' ? COLORS.floor : sheathing ? COLORS.osb : siding;
+    out.push({ geom: p.geom, color: /** @type {any} */ (color), layer, flags: p.kind === 'siding' ? (d.polkaDots ? 1 : 0) + glitter + texture : p.kind === 'lap siding' ? (d.polkaDots ? 1 : 0) + glitter : 0 });
   }
   const roof = pal.roof;
   const trim = pal.trim;
@@ -400,7 +402,7 @@ const TFS = `precision mediump float; varying vec2 vuv; uniform sampler2D tex; v
  * `snapshot()` and `reset()`, or null when WebGL is unavailable.
  * @param {HTMLCanvasElement} canvas
  */
-export function createViewer(canvas) {
+export function createViewer(canvas, { presentation = false } = {}) {
   const gl = /** @type {WebGLRenderingContext|null} */ (canvas.getContext('webgl', { antialias: true, preserveDrawingBuffer: true }));
   if (!gl) return null;
   const sh = (type, src) => { const s = /** @type {WebGLShader} */ (gl.createShader(type)); gl.shaderSource(s, src); gl.compileShader(s); return s; };
@@ -466,11 +468,11 @@ export function createViewer(canvas) {
   let pickables = [];
   let hl = null;
   let hlIds = /** @type {string[]} */ ([]);
-  let lastM = null;
   /** @type {((id: string|null) => void) | null} */
   let onPick = null;
   const visible = new Set(LAYERS);
-  const cam = { theta: -0.95, phi: 0.42, dist: 400, target: [0, 0, 0], fit: 400, pan: [0, 0, 0] };
+  // A presentation viewer (pictures for cards and the HOA packet) looks from lower, with sky behind the roof.
+  const cam = { theta: -0.95, phi: presentation ? 0.2 : 0.42, dist: 400, target: [0, 0, 0], fit: 400, pan: [0, 0, 0] };
   let fitted = false;
 
   const buf = (data) => { const b = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, b); gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW); return b; };
@@ -479,7 +481,9 @@ export function createViewer(canvas) {
   let ground = null;
   let foot = [0, 0, 0, 0];
   let scenery = true;
-  let outlines = true;
+  let outlines = !presentation;
+  /** True while a pointer orbits or pinches: the outline pass is skipped until it lets go. */
+  let moving = false;
 
   /** @type {any} */
   let shown = null;
@@ -545,7 +549,6 @@ export function createViewer(canvas) {
     const tgt = [0, 1, 2].map((i) => cam.target[i] + cam.pan[i]);
     const eye = [tgt[0] + cam.dist * Math.cos(cam.phi) * Math.cos(cam.theta), tgt[1] + cam.dist * Math.cos(cam.phi) * Math.sin(cam.theta), tgt[2] + cam.dist * Math.sin(cam.phi)];
     const m = mul(perspective(0.75, canvas.width / canvas.height, cam.dist * 0.08, cam.dist * 8), lookAt(eye, tgt, [0, 0, 1]));
-    lastM = m;
     const attr = (b, l, size = 3) => { gl.bindBuffer(gl.ARRAY_BUFFER, b); gl.enableVertexAttribArray(l); gl.vertexAttribPointer(l, size, gl.FLOAT, false, 0, 0); };
     const horizon = 0.5 + 0.5 * Math.tan(cam.phi) / Math.tan(0.375);
     if (scenery && horizon < 1) {
@@ -570,7 +573,7 @@ export function createViewer(canvas) {
       use(name === 'siding' ? variants.siding : name === 'roofing' ? variants.roof : variants.plain, 1, 0);
       attr(L.p, loc.p); attr(L.n, loc.n); attr(L.c, loc.c, 4);
       gl.drawArrays(gl.TRIANGLES, 0, L.count);
-      if (!outlines) continue;
+      if (!outlines || moving) continue;
       use(variants.plain, 0, 0.00004);
       attr(L.l, loc.p); attr(L.ln, loc.n); attr(L.lc, loc.c, 4);
       gl.drawArrays(gl.LINES, 0, L.lcount);
@@ -675,32 +678,21 @@ export function createViewer(canvas) {
     hl = { p: buf(tris), n: buf(nor), c: buf(col), count: n, l: buf(new Float32Array(lines)), ln: buf(ln), lc: buf(lc), lcount: lines.length / 3 };
   }
 
-  /** The member under a point on the canvas (client coordinates), nearest the eye, in a visible layer. */
+  /** The framing member under a point on the canvas (client pixels), among the layers shown, or null: a ray through the panned view. */
   function pick(clientX, clientY) {
-    if (!lastM) return null;
+    if (!shown) return null;
     const r = canvas.getBoundingClientRect();
-    const px = ((clientX - r.left) / r.width) * 2 - 1; const py = 1 - ((clientY - r.top) / r.height) * 2;
-    const m = lastM;
-    let best = null; let bestZ = Infinity;
-    for (const q of pickables) {
-      if (!visible.has(q.layer)) continue;
-      const P = q.pos; const sx = []; const sy = []; const sz = [];
-      for (let i = 0; i < P.length; i += 3) {
-        const x = P[i]; const y = P[i + 1]; const z = P[i + 2];
-        const w = m[3] * x + m[7] * y + m[11] * z + m[15];
-        sx.push((m[0] * x + m[4] * y + m[8] * z + m[12]) / w); sy.push((m[1] * x + m[5] * y + m[9] * z + m[13]) / w); sz.push(w > 0 ? (m[2] * x + m[6] * y + m[10] * z + m[14]) / w : Infinity);
-      }
-      for (let t = 0; t < sx.length; t += 3) {
-        const [ax, bx, cx] = [sx[t], sx[t + 1], sx[t + 2]]; const [ay, by, cy] = [sy[t], sy[t + 1], sy[t + 2]];
-        const d = (by - cy) * (ax - cx) + (cx - bx) * (ay - cy);
-        if (Math.abs(d) < 1e-12) continue;
-        const l1 = ((by - cy) * (px - cx) + (cx - bx) * (py - cy)) / d; const l2 = ((cy - ay) * (px - cx) + (ax - cx) * (py - cy)) / d; const l3 = 1 - l1 - l2;
-        if (l1 < 0 || l2 < 0 || l3 < 0) continue;
-        const z = l1 * sz[t] + l2 * sz[t + 1] + l3 * sz[t + 2];
-        if (z < bestZ && z > -1) { bestZ = z; best = q.id; }
-      }
-    }
-    return best;
+    const nx = ((clientX - r.left) / (r.width || 1)) * 2 - 1;
+    const ny = 1 - ((clientY - r.top) / (r.height || 1)) * 2;
+    const tgt = [0, 1, 2].map((i) => cam.target[i] + cam.pan[i]);
+    const eye = [tgt[0] + cam.dist * Math.cos(cam.phi) * Math.cos(cam.theta), tgt[1] + cam.dist * Math.cos(cam.phi) * Math.sin(cam.theta), tgt[2] + cam.dist * Math.sin(cam.phi)];
+    const norm = (v) => { const l = Math.hypot(v[0], v[1], v[2]) || 1; return [v[0] / l, v[1] / l, v[2] / l]; };
+    const f = norm([tgt[0] - eye[0], tgt[1] - eye[1], tgt[2] - eye[2]]);
+    const rt = norm([f[1], -f[0], 0]);
+    const up = [rt[1] * f[2] - rt[2] * f[1], rt[2] * f[0] - rt[0] * f[2], rt[0] * f[1] - rt[1] * f[0]];
+    const th = Math.tan(0.375); const asp = (r.width || 1) / (r.height || 1);
+    const dir = [0, 1, 2].map((i) => f[i] + nx * th * asp * rt[i] + ny * th * up[i]);
+    return pickMember(shown.members.filter((m) => visible.has(layerOf(m))), eye, dir)?.id ?? null;
   }
 
   // One draw per frame however many pointer events arrive: on a big design a
@@ -744,6 +736,7 @@ export function createViewer(canvas) {
     if (!pointers.has(e.pointerId)) return;
     pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
     if (pinch && pointers.size === 2) {
+      moving = true;
       cam.dist = Math.max(cam.fit * 0.25, Math.min(cam.fit * 3, pinch.dist * (pinch.d / spread())));
       const m2 = mid();
       panBy(m2.x - pinch.mid.x, m2.y - pinch.mid.y);
@@ -751,6 +744,7 @@ export function createViewer(canvas) {
       return;
     }
     if (!drag) return;
+    moving = true;
     if (drag.pan) { panBy(e.clientX - drag.x, e.clientY - drag.y); drag.x = e.clientX; drag.y = e.clientY; return; }
     cam.theta = drag.theta - (e.clientX - drag.x) * 0.008;
     cam.phi = Math.max(-0.15, Math.min(1.45, drag.phi + (e.clientY - drag.y) * 0.008));
@@ -766,6 +760,7 @@ export function createViewer(canvas) {
     // Lifting one finger of a pinch carries on as an orbit from where it is.
     const [rest] = [...pointers.values()];
     drag = rest ? { x: rest.x, y: rest.y, theta: cam.theta, phi: cam.phi } : null;
+    if (!rest && moving) { moving = false; requestDraw(); }
   };
   canvas.addEventListener('pointerup', end); canvas.addEventListener('pointercancel', end);
   canvas.addEventListener('wheel', (e) => { e.preventDefault(); zoom(e.deltaY > 0 ? 1.1 : 1 / 1.1); }, { passive: false });
@@ -806,21 +801,6 @@ export function createViewer(canvas) {
     /** How far the view is panned from the shed's centre, in inches (for tests). */
     panned() { return Math.hypot(...cam.pan); },
     snapshot() { draw(); return canvas.toDataURL('image/png'); },
-    /** The framing member under a point on the canvas (client pixels), among the layers shown, or null. */
-    pick(clientX, clientY) {
-      if (!shown) return null;
-      const r = canvas.getBoundingClientRect();
-      const nx = ((clientX - r.left) / (r.width || 1)) * 2 - 1;
-      const ny = 1 - ((clientY - r.top) / (r.height || 1)) * 2;
-      const eye = [cam.target[0] + cam.dist * Math.cos(cam.phi) * Math.cos(cam.theta), cam.target[1] + cam.dist * Math.cos(cam.phi) * Math.sin(cam.theta), cam.target[2] + cam.dist * Math.sin(cam.phi)];
-      const norm = (v) => { const l = Math.hypot(v[0], v[1], v[2]) || 1; return [v[0] / l, v[1] / l, v[2] / l]; };
-      const f = norm([cam.target[0] - eye[0], cam.target[1] - eye[1], cam.target[2] - eye[2]]);
-      const rt = norm([f[1], -f[0], 0]);
-      const up = [rt[1] * f[2] - rt[2] * f[1], rt[2] * f[0] - rt[0] * f[2], rt[0] * f[1] - rt[1] * f[0]];
-      const th = Math.tan(0.375); const asp = (r.width || 1) / (r.height || 1);
-      const dir = [0, 1, 2].map((i) => f[i] + nx * th * asp * rt[i] + ny * th * up[i]);
-      return pickMember(shown.members.filter((m) => visible.has(layerOf(m))), eye, dir)?.id ?? null;
-    },
     /** Show a picture of the viewer's own on the big poster (it stays in the browser). */
     setPosterImage(img) { posterImage = img; if (textures.big) { gl.deleteTexture(textures.big); delete textures.big; } draw(); },
   };
