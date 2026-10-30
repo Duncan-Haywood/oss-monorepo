@@ -7,7 +7,7 @@
 //   3. a team plays at the same venue as on its previous night where it can (fewer trips).
 // Each division keeps the circle-method round robin of calc.mjs (home/away balance and byes), so only
 // the dates, courts and times are decided here.
-import { roundRobin, mulberry32, parseDate, parseDateList, parseWeekdays, parseTimes, parseNameList, parseCourtClosures, parseOfficials, dayIso, dayOfWeek, courtClosedOn, dayLabel, icsEscape, icsFold, icsAlarm } from "./calc.mjs";
+import { roundRobin, mulberry32, parseDate, parseDateList, parseWeekdays, parseTimes, parseNameList, parseCourtClosures, parseOfficials, dayIso, dayOfWeek, courtClosedOn, dayLabel, htmlEsc, icsEscape, icsFold, icsAlarm } from "./calc.mjs";
 
 const MAX_NIGHTS = 800;
 const W_CLASH = 1000;
@@ -818,6 +818,33 @@ export function divisionsSeasonGridCsv(schedule) {
   const q = (s) => (/[",\n]/.test(String(s)) ? `"${String(s).replace(/"/g, '""')}"` : String(s));
   const { header, rows } = divisionsSeasonGrid(schedule);
   return [header, ...rows].map((r) => r.map(q).join(",")).join("\r\n") + "\r\n";
+}
+
+/**
+ * Printable score sheets for a multi-division league: one page per playing night, matches grouped by
+ * venue then ordered by time and court, each with its division and round, blank score boxes and a forfeit
+ * tick. Self-contained HTML (no scripts, no external files); every name is escaped.
+ */
+export function divisionsScoreSheetsHtml(schedule, { title = "League score sheets" } = {}) {
+  const t = htmlEsc(title);
+  const withOfficial = schedule.nights.some((n) => n.matches.some((m) => m.official !== undefined));
+  const pages = schedule.nights.map((night) => {
+    const venues = [...new Set(night.matches.map((m) => m.venue))].sort();
+    const tables = venues.map((v) => {
+      const ms = night.matches.filter((m) => m.venue === v).sort((a, b) => String(a.time).localeCompare(String(b.time)) || String(a.court).localeCompare(String(b.court)));
+      const rows = ms.map((m) => `<tr><td>${htmlEsc(m.time)}</td><td>${htmlEsc(m.court)}</td><td>${htmlEsc(m.division)} R${m.round + 1}</td><td class="n">${htmlEsc(m.homeName)}</td><td class="b"></td><td class="b"></td><td class="n">${htmlEsc(m.awayName)}</td><td class="f">&#9744;</td>${withOfficial ? `<td>${htmlEsc(m.official ?? "")}</td>` : ""}</tr>`);
+      return `<h3>${htmlEsc(v)}</h3><table><thead><tr><th>Time</th><th>Court</th><th>Division</th><th>Home</th><th colspan="2">Score</th><th>Away</th><th>Forfeit</th>${withOfficial ? "<th>Official</th>" : ""}</tr></thead><tbody>${rows.join("")}</tbody></table>`;
+    }).join("");
+    return `<section class="sheet"><h2>${htmlEsc(dayLabel(night.day))}</h2>${tables}<p class="sig">Scorekeeper: ____________________ &nbsp; Notes (injuries, protests, rainouts): ______________________________________</p></section>`;
+  }).join("\n");
+  return `<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${t}</title>
+<style>body{font:16px/1.5 system-ui,sans-serif;margin:0 auto;max-width:56rem;padding:1rem;color:#1a1a1a;background:#fff}table{border-collapse:collapse;width:100%}th,td{border:1px solid #888;padding:.5rem;text-align:left}td.b{width:3.5rem;height:2.4rem}td.n{font-weight:600}td.f{text-align:center;font-size:1.3rem}.sheet{page-break-after:always;margin-bottom:2rem}.sig{margin-top:1.5rem}@media(prefers-color-scheme:dark){body{background:#111;color:#eee}th,td{border-color:#666}}@media print{body{background:#fff;color:#000}}</style></head>
+<body><h1>${t}</h1>
+${pages}
+</body></html>
+`;
 }
 
 /**
