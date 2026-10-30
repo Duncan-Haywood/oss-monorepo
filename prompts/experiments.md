@@ -1671,3 +1671,15 @@ or `ventures`) until its success rate passes 80% over 20 runs?
 - Decisions: candidates (ventures 2, process 2, review 2) not re-decided here
   beyond the standing "keep collecting"; no audit or drift report (reduced pass).
 - Result: (next review)
+
+## E112: review 2026-10-30 (reduced pass, thirty-ninth run)
+
+- Change: `.claude/hooks/check_posts_before_push.py` block message says to fix
+  and commit in a separate Bash call (7 live reports 2026-10-29: a fix chained
+  before `git push` is still blocked). Re-ran `derive.py fetch && build`
+  (3884 rows).
+- Metric: friction reports naming `check_posts_before_push.py`; compare the
+  next 40 runs.
+- Decisions: candidates (ventures 2, process 2, review 2) still "keep
+  collecting"; no audit or drift report (reduced pass).
+- Result: (next review)
