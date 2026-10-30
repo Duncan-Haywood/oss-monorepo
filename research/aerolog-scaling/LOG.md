@@ -3,6 +3,12 @@
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
 
+## 2026-10-30 · Milestone 9j: does the output-error fit of 9i still hold at 10% sensor noise, where 9h's least squares was unusable? (planned before running)
+- Why: 9i's "Next" and its stated limit: the 10% noise case was not rerun. 9i showed OE at 3% noise costs almost nothing; a demonstrator IMU may be noisier, so the question is where OE breaks.
+- Plan (`experiments/output_error_fit_10pct/run.py`, a copy of 9i's with noise 0.10 of channel rms and the record length chosen by environment variable so the three lengths run in parallel): 78 designs, scale 0.75, records of 1, 2, 4 phugoid periods, 20 paired draws per design, LS and OE on the same noisy record, f picked and scored as in 9f. Seeds differ per record length (20261031 + 7 x periods).
+- **Predictions (before running):** (1) OE median short-period frequency error at 10% noise stays under 2% at every record length (prior 70%). (2) OE share of draws within 10% gust at 4 periods is at least 70% (prior 60%). (3) LS is worse than OE on short-period error by at least a factor of 5 at every record length (prior 85%). Refuted: (1) any length at or above 2%; (2) below 70%; (3) a length with a ratio under 5.
+- Limits known in advance: as 9i (known initial state, white noise, one scale); different seeds from 9i, so the 3% and 10% rows are not paired draws.
+
 ## 2026-10-30 · Milestone 9i: does an output-error fit beat 9h's equation-error least squares on the same noisy free response? (planned before running)
 - Why: 9h's "Next". Its least-squares floor got worse with longer records because noise in the regressors biases the transition matrix.
 - Plan (`experiments/output_error_fit/run.py`): 9h's 78 designs, true tail-slope scale 0.75, 3% channel noise, records of 1, 2, 4 phugoid periods, 20 paired draws per design. Both estimators see the same noisy record: LS as in 9h, and an output-error fit (Levenberg-Marquardt on the 16 entries of the continuous A, simulated from the known initial state, started at the log of the LS transition matrix). f is picked and scored as in 9f and 9h.
