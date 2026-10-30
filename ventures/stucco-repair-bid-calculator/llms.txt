@@ -1,0 +1,16 @@
+# Bid the cracks, the tear-off, and the stories.
+
+> Price a stucco or EIFS repair from crack linear feet, hollow area, tear-off to the substrate, stories and scaffolding, window flashing, color match, and moisture investigation — not a published price per square foot. See the walk-away number before you match a cheaper crack-patch quote.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/stucco-repair-bid-calculator/)
+- [How much to charge for stucco repair](https://duncan-haywood.github.io/oss-monorepo/stucco-repair-bid-calculator/how-much-to-charge-for-stucco-repair.html)
+- [This calculator vs. a flat rate per square foot](https://duncan-haywood.github.io/oss-monorepo/stucco-repair-bid-calculator/vs-a-flat-rate-per-square-foot.html)
+- [This calculator vs. Jobber](https://duncan-haywood.github.io/oss-monorepo/stucco-repair-bid-calculator/vs-jobber.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/stucco-repair-bid-calculator): MIT licensed.

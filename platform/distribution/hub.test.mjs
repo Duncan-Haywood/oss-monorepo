@@ -7,7 +7,7 @@ import { PLATFORMS, MODES, HUB_REFS, byId } from './hub/platforms.mjs';
 import { TEMPLATES, templateOf, toolItem, postItem, variant, digest, glen, pickTemplate } from './hub/compose.mjs';
 import { ADAPTERS } from './hub/adapters.mjs';
 import { READERS, reading, scoreboard, arrivals, collect, MIN_POSTS } from './hub/metrics.mjs';
-import { main, parseArgs, gatherItems, planAll, publish, writePack, toCsv, EMAIL } from './hub.mjs';
+import { main, parseArgs, gatherItems, planAll, publish, writePack, toCsv, toMarkdown, EMAIL } from './hub.mjs';
 import { REFS } from '../counter/counter.mjs';
 
 const LONG = 'A very long description that keeps going. '.repeat(40);
@@ -269,4 +269,19 @@ test('main: publish with no switches set runs dry and reports it', async () => {
   });
   assert.equal(results.length, 1);
   assert.match(out.join('\n'), /threads: DRY RUN \(DISTRIBUTE_THREADS is not "true"\)/);
+});
+
+test('gatherItems: a post dated today and one exactly postDays old are in, one day older and a future-dated post are out', async () => {
+  const mk = (slug, date) => ({ slug, date, title: slug, description: 'd', tags: [] });
+  const posts = [mk('today', '2026-10-30'), mk('edge', '2026-10-23'), mk('old', '2026-10-22'), mk('future', '2026-10-31')];
+  const items = await gatherItems({ today: '2026-10-30', days: 7, postDays: 7, launched: {}, posts });
+  assert.deepEqual(items.map((i) => i.id).sort(), ['post:edge', 'post:today']);
+});
+
+test('toMarkdown: "Nothing to post" only when there is a note and no variants', () => {
+  const p = PLATFORMS[0];
+  const [v] = planAll([tool], { today: '2026-10-20' }).find((x) => x.variants.length).variants;
+  assert.match(toMarkdown({ platform: p, variants: [], note: 'x' }), /Nothing to post\./);
+  assert.doesNotMatch(toMarkdown({ platform: p, variants: [v], note: 'x' }), /Nothing to post\./);
+  assert.doesNotMatch(toMarkdown({ platform: p, variants: [], note: '' }), /Nothing to post\./);
 });

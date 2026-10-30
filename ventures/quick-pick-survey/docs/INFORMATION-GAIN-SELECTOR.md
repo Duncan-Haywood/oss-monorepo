@@ -307,4 +307,25 @@ At bias 0.5 the hybrid was 0.083 below shipped and is now 0.009 above it. At
 does not randomise slots (the route does, so a real share sits near 0.5 for an
 unbiased person and the false-trigger rate through the route is unmeasured);
 synthetic, 30 items. Unit test: `pairing.test.ts`. Open: the same through the
-route with Postgres; 1000+ items at deep budgets.
+route with Postgres at 1000+ items with several respondents and noisy answers.
+
+### Through the route, 1000 items (2026-10-30)
+
+`src/app/api/trials/deepBudget.integration.test.ts`: one survey of 1000 items
+(`pairSelector: "staged"`), one respondent with a noiseless hidden order,
+answering through the real `trials/next` and `trials/answer` routes against
+local Postgres 16. Latency is the `next` call alone.
+
+| answers | next() p50 / p95 / max | items rated | Pearson(order, stored rating), rated items |
+|---|---|---|---|
+| 300 | 15 / 19 / 37 ms | 73 | 0.879 |
+| 1000 | 22 / 37 / 60 ms | 213 | 0.733 |
+
+The route adds no stall at depth: the question stays under 60 ms with 1000
+answers behind it (the 400-item pool cap holds). Honest limits: one run, one
+respondent, no noise, no bias; a single respondent touches only 7% to 21% of
+1000 items at these budgets, so a 1000-item survey needs many respondents to
+rank everything. The correlation is over rated items only and falls from 0.88
+to 0.73 as more items enter at default rating, which is not a ranking quality
+claim. Reproduce: `scripts/test-db.sh start`, then
+`DEEP_OUT=/tmp/o.txt DEEP_ANSWERS=1000 npx vitest run -c vitest.integration.config.ts src/app/api/trials/deepBudget`.

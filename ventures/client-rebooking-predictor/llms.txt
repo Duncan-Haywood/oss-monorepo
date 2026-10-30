@@ -1,0 +1,13 @@
+# Who is overdue to rebook, and who has already left?
+
+> Free lapsed-client report for salons, barbers, groomers, physio, dental and cleaning businesses. Paste your visits (client, date, amount) to see who is overdue and still worth a call, who has probably gone, and a back-test that says whether to trust the ranking. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/client-rebooking-predictor/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/client-rebooking-predictor): MIT licensed.

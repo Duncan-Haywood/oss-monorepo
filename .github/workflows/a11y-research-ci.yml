@@ -1,0 +1,149 @@
+name: a11y research CI
+
+# One job for the pure-Python suites of the a11y research directories under
+# portfolio/research/ (was nine workflows, one per directory, each with its own
+# runner start-up and checkout for a few seconds of work: backlog P060). Each
+# suite runs its unit tests and re-derives its committed result set offline
+# (no network, no browser, no API spend); the measurements themselves need
+# Playwright and the built ventures, which this job does not have. The suites
+# read each other's directories and ventures/local-site-studio's preview
+# components, so one trigger set covers them all. Every step runs even when an
+# earlier one fails, so a red run lists every broken suite.
+
+on:
+  pull_request:
+    paths:
+      - "portfolio/pipeline/probes/eaa-wcag-triage/**"
+      - "portfolio/research/a11y-axe-recall/**"
+      - "portfolio/research/a11y-contrast-decidability/**"
+      - "portfolio/research/a11y-delivered-contrast/**"
+      - "portfolio/research/a11y-engine-agreement/**"
+      - "portfolio/research/a11y-evidence-record/**"
+      - "portfolio/research/a11y-external-coverage-reference/**"
+      - "portfolio/research/a11y-generated-sites/**"
+      - "portfolio/research/a11y-own-sites/**"
+      - "portfolio/research/a11y-render-recovery/**"
+      - "portfolio/research/a11y-theme-resolution/**"
+      - "ventures/local-site-studio/scripts/eaa-evidence-job/**"
+      - "ventures/local-site-studio/src/app/layout.tsx"
+      - "ventures/local-site-studio/src/components/preview/**"
+      - ".github/workflows/a11y-research-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "portfolio/pipeline/probes/eaa-wcag-triage/**"
+      - "portfolio/research/a11y-axe-recall/**"
+      - "portfolio/research/a11y-contrast-decidability/**"
+      - "portfolio/research/a11y-delivered-contrast/**"
+      - "portfolio/research/a11y-engine-agreement/**"
+      - "portfolio/research/a11y-evidence-record/**"
+      - "portfolio/research/a11y-external-coverage-reference/**"
+      - "portfolio/research/a11y-generated-sites/**"
+      - "portfolio/research/a11y-own-sites/**"
+      - "portfolio/research/a11y-render-recovery/**"
+      - "portfolio/research/a11y-theme-resolution/**"
+      - "ventures/local-site-studio/scripts/eaa-evidence-job/**"
+      - "ventures/local-site-studio/src/app/layout.tsx"
+      - "ventures/local-site-studio/src/components/preview/**"
+      - ".github/workflows/a11y-research-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# A second push to the same branch makes the first run irrelevant.
+concurrency:
+  group: a11y-research-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.12"
+      - name: a11y-axe-recall tests
+        if: ${{ !cancelled() }}
+        working-directory: portfolio/research/a11y-axe-recall
+        run: python3 -m unittest discover -p 'test_*.py'
+      - name: a11y-axe-recall recompute
+        if: ${{ !cancelled() }}
+        working-directory: portfolio/research/a11y-axe-recall
+        run: python3 measure.py --recompute-from results-2026-08-22.json
+      - name: a11y-contrast-decidability tests
+        if: ${{ !cancelled() }}
+        working-directory: portfolio/research/a11y-contrast-decidability
+        run: python3 -m unittest discover -p 'test_*.py'
+      - name: a11y-contrast-decidability recompute
+        if: ${{ !cancelled() }}
+        working-directory: portfolio/research/a11y-contrast-decidability
+        run: python3 measure.py --recompute-from results-2026-08-21.json
+      - name: a11y-delivered-contrast tests
+        if: ${{ !cancelled() }}
+        working-directory: portfolio/research/a11y-delivered-contrast
+        run: python3 -m unittest discover -p 'test_*.py'
+      - name: a11y-delivered-contrast recompute
+        if: ${{ !cancelled() }}
+        working-directory: portfolio/research/a11y-delivered-contrast
+        run: python3 measure.py --recompute-from results-2026-08-21.json
+      - name: a11y-engine-agreement tests
+        if: ${{ !cancelled() }}
+        working-directory: portfolio/research/a11y-engine-agreement
+        run: python3 -m unittest discover -p 'test_*.py'
+      - name: a11y-engine-agreement recompute
+        if: ${{ !cancelled() }}
+        working-directory: portfolio/research/a11y-engine-agreement
+        run: python3 reconcile.py --recompute-from results-2026-08-21.json
+      - name: a11y-evidence-record tests
+        if: ${{ !cancelled() }}
+        working-directory: portfolio/research/a11y-evidence-record
+        run: python3 -m unittest discover -p 'test_*.py'
+      - name: a11y-external-coverage-reference tests
+        if: ${{ !cancelled() }}
+        working-directory: portfolio/research/a11y-external-coverage-reference
+        run: python3 -m unittest discover -p 'test_*.py'
+      - name: a11y-external-coverage-reference recompute
+        if: ${{ !cancelled() }}
+        working-directory: portfolio/research/a11y-external-coverage-reference
+        run: python3 measure.py --recompute-from results-2026-08-21-as-found.json
+      - name: a11y-external-coverage-reference recompute
+        if: ${{ !cancelled() }}
+        working-directory: portfolio/research/a11y-external-coverage-reference
+        run: python3 measure.py --recompute-from results-2026-08-21-after-disclosure.json
+      - name: a11y-external-coverage-reference recompute
+        if: ${{ !cancelled() }}
+        working-directory: portfolio/research/a11y-external-coverage-reference
+        run: python3 measure.py --recompute-from results-2026-08-22-after-rules.json
+      - name: a11y-generated-sites tests
+        if: ${{ !cancelled() }}
+        working-directory: portfolio/research/a11y-generated-sites
+        run: python3 -m unittest discover -p 'test_*.py'
+      - name: a11y-generated-sites recompute
+        if: ${{ !cancelled() }}
+        working-directory: portfolio/research/a11y-generated-sites
+        run: python3 audit_generated_sites.py --recompute-from results-2026-08-22.json
+      - name: a11y-own-sites tests
+        if: ${{ !cancelled() }}
+        working-directory: portfolio/research/a11y-own-sites
+        run: python3 -m unittest discover -p 'test_*.py'
+      - name: a11y-own-sites recompute
+        if: ${{ !cancelled() }}
+        working-directory: portfolio/research/a11y-own-sites
+        run: python3 audit_own_sites.py --recompute-from results-2026-08-22.json
+      - name: a11y-render-recovery tests
+        if: ${{ !cancelled() }}
+        working-directory: portfolio/research/a11y-render-recovery
+        run: python3 -m unittest discover -p 'test_*.py'
+      - name: a11y-theme-resolution tests
+        if: ${{ !cancelled() }}
+        working-directory: portfolio/research/a11y-theme-resolution
+        run: python3 -m unittest discover -p 'test_*.py'
+      - name: a11y-theme-resolution recompute
+        if: ${{ !cancelled() }}
+        working-directory: portfolio/research/a11y-theme-resolution
+        run: python3 resolve.py --recompute-from results-2026-08-20.json

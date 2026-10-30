@@ -1,0 +1,24 @@
+5 m boat, hotel 10.0 W, eta_pv 0.2, derate 0.85; rough share p, multiplier F; seed 1
+Equator-Pacific  pack 10kWh spell=1d: A   94.4 B  108.9 C  114.8 (C/B +5.4%) E  114.8 (E/B +5.4%) hit rate 0.00 share of C-B gap +1.00
+Equator-Pacific  pack 10kWh spell=7d: A   95.6 B  105.8 C  114.6 (C/B +8.2%) E  112.6 (E/B +6.4%) hit rate 0.85 share of C-B gap +0.77
+Equator-Pacific  pack 1kWh  spell=1d: A   94.4 B  107.0 C  112.9 (C/B +5.5%) E  112.8 (E/B +5.5%) hit rate 0.00 share of C-B gap +1.00
+Equator-Pacific  pack 1kWh  spell=7d: A   94.2 B   98.1 C  112.8 (C/B +14.9%) E  109.3 (E/B +11.4%) hit rate 0.85 share of C-B gap +0.76
+Florida-Straits  pack 10kWh spell=1d: A   89.1 B  103.3 C  107.4 (C/B +4.0%) E  107.4 (E/B +4.0%) hit rate 0.00 share of C-B gap +1.00
+Florida-Straits  pack 10kWh spell=7d: A   90.4 B  100.8 C  107.6 (C/B +6.7%) E  105.7 (E/B +4.9%) hit rate 0.85 share of C-B gap +0.73
+Florida-Straits  pack 1kWh  spell=1d: A   89.0 B  100.7 C  104.5 (C/B +3.7%) E  104.5 (E/B +3.7%) hit rate 0.00 share of C-B gap +1.00
+Florida-Straits  pack 1kWh  spell=7d: A   88.1 B   94.4 C  104.7 (C/B +10.8%) E  102.1 (E/B +8.1%) hit rate 0.85 share of C-B gap +0.75
+Gulf-of-Maine    pack 10kWh spell=1d: A   71.1 B   81.7 C   84.1 (C/B +3.0%) E   84.1 (E/B +3.0%) hit rate 0.00 share of C-B gap +1.00
+Gulf-of-Maine    pack 10kWh spell=7d: A   72.6 B   80.5 C   84.3 (C/B +4.8%) E   83.4 (E/B +3.6%) hit rate 0.85 share of C-B gap +0.75
+Gulf-of-Maine    pack 1kWh  spell=1d: A   70.8 B   79.0 C   81.1 (C/B +2.7%) E   81.1 (E/B +2.7%) hit rate 0.00 share of C-B gap +1.00
+Gulf-of-Maine    pack 1kWh  spell=7d: A   69.9 B   76.9 C   81.3 (C/B +5.8%) E   80.0 (E/B +4.1%) hit rate 0.85 share of C-B gap +0.71
+North-Sea        pack 10kWh spell=1d: A   58.6 B   64.9 C   66.6 (C/B +2.7%) E   66.6 (E/B +2.7%) hit rate 0.00 share of C-B gap +1.01
+North-Sea        pack 10kWh spell=7d: A   59.8 B   63.8 C   67.0 (C/B +5.0%) E   66.2 (E/B +3.7%) hit rate 0.85 share of C-B gap +0.74
+North-Sea        pack 1kWh  spell=1d: A   58.2 B   62.6 C   63.9 (C/B +2.2%) E   63.9 (E/B +2.2%) hit rate 0.00 share of C-B gap +1.00
+North-Sea        pack 1kWh  spell=7d: A   57.0 B   60.4 C   64.3 (C/B +6.4%) E   63.5 (E/B +5.1%) hit rate 0.85 share of C-B gap +0.80
+Gulf-of-Alaska   pack 10kWh spell=1d: A   54.6 B   58.3 C   60.3 (C/B +3.4%) E   60.3 (E/B +3.4%) hit rate 0.00 share of C-B gap +1.00
+Gulf-of-Alaska   pack 10kWh spell=7d: A   55.0 B   57.4 C   60.8 (C/B +6.0%) E   59.7 (E/B +4.1%) hit rate 0.85 share of C-B gap +0.68
+Gulf-of-Alaska   pack 1kWh  spell=1d: A   50.9 B   56.5 C   57.6 (C/B +1.9%) E   57.6 (E/B +1.9%) hit rate 0.00 share of C-B gap +1.01
+Gulf-of-Alaska   pack 1kWh  spell=7d: A   50.5 B   54.8 C   58.1 (C/B +5.9%) E   57.3 (E/B +4.4%) hit rate 0.85 share of C-B gap +0.74
+spell 1d: share of C-B gap captured by persistence, median +1.00, min +1.00, max +1.01; cells with E < B: 0
+spell 7d: share of C-B gap captured by persistence, median +0.75, min +0.68, max +0.80; cells with E < B: 0
+cells with E < B overall: 0 of 20

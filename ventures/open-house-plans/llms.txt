@@ -1,0 +1,13 @@
+# Free house plan generator: describe a home, download the whole plan set
+
+> Generate a free house plan from a sentence: floor plan, elevations, 3D model (IFC, OBJ), CAD (DXF), bill of materials and a cost estimate. 1 to 5 bedrooms, farmhouse, craftsman, modern, ranch and cottage styles. Public domain, runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/open-house-plans/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/open-house-plans): MIT licensed.

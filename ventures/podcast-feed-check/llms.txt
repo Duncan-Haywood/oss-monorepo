@@ -1,0 +1,15 @@
+# Will Apple Podcasts accept your feed?
+
+> Paste your podcast RSS feed to check it against Apple Podcasts requirements and the RSS 2.0 spec: missing tags, bad pubDates, duplicate guids. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/podcast-feed-check/)
+- [Podcast Feed Validator vs. the W3C Feed Validator](https://duncan-haywood.github.io/oss-monorepo/podcast-feed-check/vs-w3c-feed-validator.html)
+- [Why podcast feeds fail validation](https://duncan-haywood.github.io/oss-monorepo/podcast-feed-check/why-podcast-feeds-fail-validation.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/podcast-feed-check): MIT licensed.

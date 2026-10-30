@@ -79,7 +79,7 @@ file the two new problems you hit along the way.
 
 - `python3 platform/ci/main_health.py` (40 s to 3 min: use `run_in_background`; includes `promptctl validate`) runs every argument-free CI check on main and lists the red ones: the quickest way to find a live fault when only blocked or owner rows are open.
 - History in a cloud clone is shallow. `promptctl.py measure` deepens it by 14
-  days itself (70 s to 3 min: use `run_in_background`; `--no-fetch` skips); for other recent dates, `git fetch
+  days itself (70 s to 3 min: use `run_in_background`, then `wait_for.py <log>`: it ends with a DONE line; `--no-fetch` skips); for other recent dates, `git fetch
   --shallow-since=<7 days ago> origin main && git merge --ff-only origin/main`; a full `--unshallow` takes minutes (background it). Check `git rev-list --count origin/main` rather than
   trusting the shallow flag.
 - For a random sample of merged PRs, list `git log origin/main --merges

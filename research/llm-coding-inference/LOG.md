@@ -2,6 +2,51 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-30 · Milestone 7d: does the library path really cover below 94.6% on admiration at n = 1000? (planned before running)
+- Why: 7c's "Next". 7c's 500 draws gave 92.0% against 6al's 94.6%, a 2.6-point gap that is about two sd of a difference. `experiments/h7d_admiration_2000.py` runs 2,000 fresh draws (seed B.SEED + 7) of the same library audit on that one cell; the standard error at 2,000 draws is about 0.5 points.
+- **Prediction (before running):** coverage 93.0% or higher (noise, as 7c read it), half-width within 3% of 1.152. Refuted if coverage is under 93.0%, which would mean the library's plain-variance allocation really undercovers there and the screen's validity claim needs the lambda-tuned S2 back.
+
+### Outcome (`experiments/h7d_admiration_2000.py`, about 5 min; `experiments/h7d_admiration_2000.txt`)
+- Coverage 94.1% (se 0.5) over 2,000 draws; by block of 500: 94.6, 94.6, 93.8, 93.4%. Half-width 1.165 points against 7c's 1.152 (1.1% wider); cells used in 86% of draws. 6al's 94.6% is 1 se from this.
+- **Prediction held** (coverage at least 93.0%, width within 3%): 7c's 92.0% was Monte Carlo noise; the library path does not undercover on this cell. The last block reaching 93.4% shows 500 draws can wander by more than a point either way.
+- Limits: one cell, one coder; still no theorem for the data-dependent screen; no informative coder on a second corpus (weights unreachable).
+- Next: an informative coder on a second corpus once weights are reachable; fold `plan_audit` / `audit_interval` into the paper's recipe section.
+
+## 2026-10-30 · Milestone 7c: `audit_interval`, and does the library path (`plan_audit` -> draw -> interval) reproduce 6al? (planned before running)
+- Why: 7a and 7b put the design rule in the library, but the interval that closes the audit (pooled lambda, stratified variance, Wilson on n_eff; 6ac, 6ad) still lived in experiment scripts, and nothing had checked the library path end to end. Added `audit_interval(plan, f_all, labels)` and a test that it equals the stratified estimator with the pooled weight fixed plus the Wilson n_eff formula (20 tests pass). `experiments/h7c_end_to_end.py` runs the whole audit through the library only on 6al's corpora, cached Qwen codes, seed rule, n = 400 and 1000, 500 draws.
+- **Prediction (before running):** coverage within 2 points and half-width within 3% of 6al's "screen + guard G=20" WE row in every cell. Known difference that could move it: `plan_audit` estimates a cell's variance as the plain sample variance of y - f, 6al used the lambda-tuned S2 with plus-one smoothing, so the allocation, and so the width in cells-draws, may differ a little. Refuted if any cell moves more than that.
+
+### Outcome (`experiments/h7c_end_to_end.py`, about 4 min; `experiments/h7c_end_to_end.txt`; 500 draws per cell)
+- Half-width: within 2.0% of 6al's G = 20 WE row in all 14 cells (largest: fear n = 400, 1.014 vs 1.035; admiration n = 1000, 1.152 vs 1.166, cells used in 87% of draws against 86%). The 3% bound held. Share of draws using cells matches 6al to a few points (NaijaSenti 1.5B n = 400: 18% vs 16%).
+- Coverage: 92.0 to 96.6% across cells; 12 of 14 within 2 points of 6al's, and two outside it: admiration n = 1000 (92.0 vs 94.6, the library's lowest) and NaijaSenti 0.5B n = 400 (96.0 vs 93.2, the library higher). Independent 500-draw samples differ by about 1.4 points (sd of a difference), so 2.6 and 2.8 are about two sd among 14 comparisons; I read this as noise, not as a different estimator, but a sample of 2,000 draws at admiration n = 1000 would settle whether the library path really sits 1 to 2 points under 6al's 94.6%. **Prediction: width held, coverage held in 12 of 14 cells, refuted as stated in two.**
+- Reading: the library path (`plan_audit`, then `audit_interval`) gives the 6al numbers within Monte Carlo noise, including with the plain-variance allocation rather than 6al's lambda-tuned S2 (no width difference visible). The coverage caveat of 6al stands: no theorem, one admiration cell at 92%.
+- Limits: same corpora and coders as 6al, so nothing new about transfer; still no informative coder on a second corpus (weights unreachable: Hugging Face 403, no torch).
+- Next: 2,000 draws at admiration n = 1000; an informative coder on a second corpus once weights are reachable.
+
+## 2026-10-30 · Milestone 7b: `plan_audit`, one call from a pilot to the rest of the audit
+- Why: 7a exported `screen` and `cell_allocation`, but a user still had to glue the pilot, the cell split and the per-cell variances together. `plan_audit(f_all, pilot_y, n)` returns the design ("pooled" or "cells"), the cells as item indices and how many more items to label in each, counting pilot items toward n.
+- Test added (19 pass): a good coder (J about 0.85, 3,000 items, 120-item pilot) gets two cells covering every item once, with to_label summing to about 400 minus the pilot; a random-noise coder pools and gets 280 more items. No new experiment, so no new claim; the rule's status in the paper is unchanged (heuristic, no coverage theorem). Per-cell variance is the plain sample variance of y - f in the pilot, not the lambda-tuned S2 of the experiment code, so allocations can differ slightly from `h6ai_floor_indep.est_s2`; not compared.
+- Next: an informative coder on a second corpus once model weights are reachable.
+
+## 2026-10-30 · Milestone 7a: the screened-audit rule becomes library code (`llmci/audit_design.py`)
+- Why: 6ak to 6am settled the rule (pilot 30%, J_hat >= 0.3, at least 20 pilot positives, else pool; coder cells get a 0.35 floor) but it lived only inside experiment scripts, so nobody could use it without copying them.
+- Added `informedness`, `screen`, `cell_allocation` (stdlib) and 3 tests (known J values and degenerate pilots, the two-condition screen including the perfect-coder-but-10-positives case, allocation sums to budget / honours floor / caps at cell size). 18 tests pass.
+- Check against the evidence code: `cell_allocation` equals `h6ai_floor_indep.floored(h6r_rare_pilot.allocate(...))` on 2,000 random (sizes, variances, n in {400, 1000}) inputs, 0 differences. No new experiment, so no new claim; the rule keeps the status the paper gives it (heuristic, no coverage theorem).
+- Next: an informative coder on a second corpus once model weights are reachable (Hugging Face still returns 403 here).
+
+## 2026-10-30 · Milestone 6am: is the guarded screen's J_hat cutoff (0.3) a knife edge? (planned before running; ran straight through)
+- Why: 6ak chose 0.3 before looking and never swept it (6al's "Limits"). `experiments/h6am_tau.py` reruns 6al's screen + guard G = 20 with TAU in {0.1, 0.2, 0.3, 0.4, 0.5}; same data, cached Qwen scores, seed, rules and 500 draws (+/- 2 points). A second corpus with a new informative coder was not possible this session (Hugging Face returns 403 through the proxy and torch is not installed), so this closes the cheaper limit instead.
+- **Prediction (before running):** WE coverage stays at least 92.5% and half-width within 3% of the TAU = 0.3 row in every cell, except that TAU = 0.1 picks cells more often on NaijaSenti 1.5B and 3B and is up to 3% wider there. Refuted if any cell moves more.
+
+### Outcome (`experiments/h6am_tau.txt`)
+- GoEmotions admiration, fear and sadness are identical across TAU 0.1 to 0.4 (the guard decides: cells 0% at n = 400, 86% for admiration at n = 1000; fear and sadness 0%). Admiration at TAU 0.5 loses 2 draws in 100 to pooling, half-width 1.167 vs 1.166.
+- Neutral (J about 0.17) is the only category where TAU matters: cells in 74% / 87% of draws at 0.1 (n = 400 / 1000), 13% / 2% at 0.3, 0% at 0.5, with half-width 3.928 to 3.955 (n = 400) and 2.370 to 2.381 (n = 1000), under 1% apart. Coverage 93.8 to 96.4%.
+- NaijaSenti: 0.5B (true J 0.008) never uses cells at TAU 0.2 and up (0.1: 2% of draws at n = 400, half-width 4.435 vs 4.421). 3B: TAU 0.1 uses cells in 18% of draws at n = 400 and is 3.9% wider (4.534 vs 4.364); from 0.2 it is level with 0.3. 1.5B (J 0.208) goes from cells in 87% / 97% of draws at 0.1 to 0% at 0.4, with half-width 4.315 to 4.325 (n = 400) and 2.585 to 2.590 (n = 1000); coverage 94.0 to 96.6%.
+- Lowest WE coverage in any cell is 92.6% (NaijaSenti 0.5B, n = 1000, identical at every TAU, so not a TAU effect). **Prediction held except one cell:** NaijaSenti 3B at TAU 0.1, n = 400 is 3.9% wider, over the 3% bound.
+- Reading: with the prevalence guard in place, any TAU from 0.2 to 0.5 gives the same answer to within 1% in width; 0.3 is not a knife edge, and the one place the cutoff has any effect (a coder with J near 0.2) it costs under 1% either way. 0.1 is a little too eager on an empty coder.
+- Limits: the same four coders and two corpora as 6al; no new informative coder on a second corpus (still open, needs model weights); 500 draws.
+- Next: an informative coder on a second corpus once weights are reachable.
+
 ## 2026-10-30 · Milestone 6al: does a prevalence guard (cells only if the pilot holds at least G human positives) make 6ak's screen valid on rare categories? (planned before running)
 - Why: 6ak's "Next". `experiments/h6al_guard.py` adds to 6ak's screen the condition "pilot human positives >= G", G in {10, 20}, else one pooled stratum. Same data, coders, rules, seed, n = 400 and 1000, 500 draws (+/- 2 points).
 - **Predictions (before running):** (1) With G = 20 the screen covers at least 93% (WE) in fear and sadness at both n, since it almost always pools there. (2) On admiration at n = 1000 (about 24 pilot positives of 300) G = 20 still uses cells in over half of draws and keeps at least 70% of the gain; at n = 400 (about 10 pilot positives) G = 20 pools in over 90% of draws, so the gain is lost there. (3) G = 10 is a middle: admiration n = 400 uses cells in over half of draws, fear/sadness at n = 1000 may still undercover. (4) NaijaSenti and neutral are unchanged from 6ak (within 0.5 point and 1% width).

@@ -1,0 +1,14 @@
+# Will an S3 lifecycle rule actually save money?
+
+> Paste an S3 Inventory CSV and see current monthly cost by storage class and the net 12-month saving of moving objects to Standard-IA, Glacier or Intelligent-Tiering after transition fees, minimum sizes, minimum durations and retrieval. Free, runs in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/s3-storage-class-savings/)
+- [How to move S3 objects to Glacier without losing money](https://duncan-haywood.github.io/oss-monorepo/s3-storage-class-savings/how-to-move-s3-objects-to-glacier-without-losing-money.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/s3-storage-class-savings): MIT licensed.

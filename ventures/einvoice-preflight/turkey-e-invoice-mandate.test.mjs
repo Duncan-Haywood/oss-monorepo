@@ -58,3 +58,8 @@ test("links to Germany and the hub and the sitemap entry is its own url block", 
   assert.match(html, /href="e-invoicing-mandates-by-country\.html"/);
   assert.match(sitemap, /<\/url>\s*<url>\s*<loc>[^<]*turkey-e-invoice-mandate\.html<\/loc>\s*<\/url>/);
 });
+
+test("the VKN/TCKN check is wired to its module", () => {
+  assert.match(html, /import\{checkTurkishTaxId\}from"\.\/turkey\.mjs"/);
+  assert.match(html, /id="id-out"/);
+});

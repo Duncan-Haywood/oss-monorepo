@@ -1,0 +1,17 @@
+# What's the overtime pay — and what if there were two rates?
+
+> Free overtime pay calculator: standard time-and-a-half for one hourly rate, plus the FLSA weighted-average (blended rate) calculator for a week worked at two or more different pay rates. Entirely client-side, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/overtime-pay-calculator/)
+- [Does a bonus or shift differential change the overtime rate?](https://duncan-haywood.github.io/oss-monorepo/overtime-pay-calculator/does-a-bonus-change-the-overtime-rate.html)
+- [This calculator vs. doing it by hand](https://duncan-haywood.github.io/oss-monorepo/overtime-pay-calculator/vs-doing-it-by-hand.html)
+- [This calculator vs. a spreadsheet](https://duncan-haywood.github.io/oss-monorepo/overtime-pay-calculator/vs-spreadsheet.html)
+- [Why overtime is calculated per workweek, not per pay period](https://duncan-haywood.github.io/oss-monorepo/overtime-pay-calculator/why-overtime-resets-every-workweek.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/overtime-pay-calculator): MIT licensed.

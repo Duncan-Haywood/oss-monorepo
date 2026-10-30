@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { buildShed, defaultDesign, normalize, PRESETS } from './model.mjs';
-import { estimate, examplePrices, markName, cutSheetCsv, shoppingCsv, boardUse, lumberUses, groupBoards } from './estimate.mjs';
+import { estimate, examplePrices, markName, cutSheetCsv, shoppingCsv, boardUse, lumberUses, groupBoards, sectionTotals } from './estimate.mjs';
 
 const classic = () => PRESETS['8x12 classic']();
 
@@ -159,14 +159,18 @@ test('gable siding pieces that slope the same way nest head to toe', async () =>
   }
 });
 
-test('the siding note explains why a taller wall can cost less', () => {
-  const at = (h) => estimate(buildShed(normalize({ ...PRESETS['8x8 lean'](), wallHeight: h, autoWall: false })));
-  const [low, high] = [at(112), at(114)];
-  // Before the gable pieces nested (2026-10-30), 114" walls cost less than 112". Nesting the four
-  // sloped strips at 112" into one panel took that dip away; the note still explains the panel rule.
-  assert.ok(low.total < high.total, `112" walls now cost less than 114" (${low.total} vs ${high.total})`);
-  assert.match(low.notes.join(' '), /4 use a 9 or 10 ft panel and 4 use a strip \(of 8 columns\)/);
-  assert.match(high.notes.join(' '), /8 use a strip \(of 8 columns\)/);
+test('the siding note speaks only when taller walls would really make the siding cheaper', () => {
+  const at = (name, h) => estimate(buildShed(normalize({ ...PRESETS[name](), wallHeight: h, autoWall: false })));
+  // 8x8 lean at 112": its strips nest into one panel, so 114" costs more and there is nothing to say.
+  const [low, high] = [at('8x8 lean', 112), at('8x8 lean', 114)];
+  assert.ok(low.total < high.total, `112" walls cost less than 114" (${low.total} vs ${high.total})`);
+  assert.ok(!low.notes.some((n) => n.startsWith('Siding:')), 'no siding note when no taller wall is cheaper');
+  // 8x12 lean-to at 112": 2" more wall tips its 10 ft columns into 4x8s and strips, and the shed costs less.
+  const lt = at('8x12 lean-to', 112);
+  const note = lt.notes.find((n) => n.startsWith('Siding:'));
+  assert.ok(note, 'the note appears where a taller wall is cheaper');
+  assert.match(note, /use a 9 or 10 ft panel .*\(of \d+ columns\)\. Walls 2" taller would tip columns into the 4x8-and-strip layout and make the siding panels about \$\d+\.\d\d cheaper/);
+  assert.ok(at('8x12 lean-to', 114).total < lt.total, 'and the whole shed really is cheaper 2" taller');
   const bare = estimate(buildShed(normalize({ ...PRESETS['8x8 lean'](), siding: false })));
   assert.deepEqual(bare.notes, [], 'no siding, no note');
 });
@@ -182,5 +186,19 @@ test('each board and each lumber line says what it is for', () => {
   for (const r of est.shopping.filter((x) => x.section === 'Lumber' && !/spares/.test(x.name))) {
     const m = /^(.+) x (\d+)'/.exec(r.name);
     assert.ok(uses.get(`${m[1]}:${m[2]}`), r.name);
+  }
+});
+
+test('the shopping list has a subtotal per section, on the page and in the CSV', () => {
+  for (const d of [defaultDesign(), PRESETS['12x16'](), { ...PRESETS['8x8 lean'](), foundation: 'deck blocks' }]) {
+    const est = estimate(buildShed(normalize(d)));
+    // Sections come in one run each, so a subtotal closes each one once.
+    const order = est.shopping.map((r) => r.section).filter((s, i, a) => s !== a[i - 1]);
+    assert.equal(new Set(order).size, order.length, `sections are contiguous: ${order.join(', ')}`);
+    const subs = sectionTotals(est.shopping);
+    assert.equal(Math.round(subs.reduce((t, x) => t + x.total, 0) * 100) / 100, est.total);
+    assert.ok(Math.abs(subs.reduce((t, x) => t + x.share, 0) - 1) < 1e-9);
+    const csv = shoppingCsv(est);
+    for (const x of subs) assert.ok(csv.includes(`"Subtotal, ${x.section.toLowerCase()}",,,,${x.total.toFixed(2)}`), x.section);
   }
 });

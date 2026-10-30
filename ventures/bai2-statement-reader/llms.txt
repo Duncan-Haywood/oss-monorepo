@@ -1,0 +1,13 @@
+# What is actually in this BAI2 file?
+
+> Free BAI2 file viewer and checker: turns a bank's BAI2 statement into accounts, balances and a transaction list you can download as CSV, and checks the 49, 98 and 99 control totals and record counts. Runs in your browser; the file is never uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/bai2-statement-reader/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/bai2-statement-reader): MIT licensed.

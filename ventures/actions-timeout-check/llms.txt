@@ -1,0 +1,14 @@
+# Which of your Actions jobs can hang for six hours?
+
+> Paste your GitHub Actions workflow YAML and find every job with no timeout-minutes (or one set to the 360-minute default) — the jobs that can hang for six hours of billed runner time. Free, runs in your browser, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/actions-timeout-check/)
+- [GitHub Actions timeout-minutes: the default, the cost, and what to set](https://duncan-haywood.github.io/oss-monorepo/actions-timeout-check/what-is-github-actions-timeout-minutes.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/actions-timeout-check): MIT licensed.

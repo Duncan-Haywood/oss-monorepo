@@ -1,0 +1,15 @@
+# CODEOWNERS Shadow Checker
+
+> Free tool: paste your CODEOWNERS file and your repo's file list to see exactly which earlier, more specific rules a later, broader rule silently overrides -- GitHub's own last-match-wins resolution, the most common way a CODEOWNERS file quietly stops reviewing what you think it reviews. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/codeowners-shadow-check/)
+- [This checker vs. reading CODEOWNERS by eye](https://duncan-haywood.github.io/oss-monorepo/codeowners-shadow-check/vs-reading-codeowners-by-eye.html)
+- [Why a CODEOWNERS review requirement can silently stop firing](https://duncan-haywood.github.io/oss-monorepo/codeowners-shadow-check/why-codeowners-review-stops-being-required.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/codeowners-shadow-check): MIT licensed.

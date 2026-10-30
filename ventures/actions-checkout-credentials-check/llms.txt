@@ -1,0 +1,13 @@
+# Which of your Actions jobs leave the token in .git/config?
+
+> Paste your GitHub Actions workflow YAML and find every actions/checkout step without persist-credentials: false, with jobs that also upload artifacts (the artipacked pattern) listed first. Free, runs in your browser, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/actions-checkout-credentials-check/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/actions-checkout-credentials-check): MIT licensed.

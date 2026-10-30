@@ -200,11 +200,13 @@ test("the drywall ceiling field reads and restores ceiling steps (length x drop)
 
 test("the insulation controls are read into plan.insulation and restored from a saved plan", () => {
   const html = page("index.html");
-  for (const id of ["inOn", "inBag", "inWaste", "inR", "inPrice", "inRim", "inAtticR", "inAtticPer", "inAtticBag", "insulationOut"]) assert.match(html, new RegExp(`id="${id}"`));
+  for (const id of ["inOn", "inBag", "inWaste", "inR", "inPrice", "inRim", "inAtticR", "inAtticPer", "inAtticBag", "inAtticHeel", "insulationOut"]) assert.match(html, new RegExp(`id="${id}"`));
   assert.match(html, /ins\.bagSqFt = Number\(\$\("#inBag"\)\.value\)/);
   assert.match(html, /plan\.insulation = ins/);
   assert.match(html, /layoutInsulation\(plan\.insulation, plan, result\)/);
   assert.match(html, /\$\("#inAtticBag"\)\.value = ins\.attic\?\.bagCuFt/);
+  assert.match(html, /ins\.attic\.heel = Number\(\$\("#inAtticHeel"\)\.value\)/);
+  assert.match(html, /\$\("#inAtticHeel"\)\.value = ins\.attic\?\.heel/);
   assert.match(html, /<code>insulation_on<\/code>/);
 });
 
@@ -212,7 +214,7 @@ test("the stair controls are read into plan.stairs, restored from a saved plan a
   const html = page("index.html");
   for (const id of ["stOn", "stRise", "stTread", "stWidth", "stStringer", "stTreadBoard", "stOpen", "stLanding", "stairsOut"]) assert.match(html, new RegExp(`id="${id}"`));
   assert.match(html, /plan\.stairs = st/);
-  assert.match(html, /layoutStairWithLanding\(plan\.stairs, plan\)/);
+  assert.match(html, /layoutStairWithLanding\(stairPlan, plan\)/);
   assert.match(html, /\$\("#stOn"\)\.checked = Boolean\(stp\)/);
   assert.match(html, /<code>stairs_on<\/code>/);
 });
@@ -231,7 +233,10 @@ test("the trim controls are read into plan.trim, restored from a saved plan and 
 
 test("the siding controls are read into plan.siding, restored from a saved plan and feed the budget", () => {
   const html = page("index.html");
-  for (const id of ["sdOn", "sdExposure", "sdStock", "sdWaste", "sdWrapRoll", "sdCorners", "sdBoardPrice", "sdWrapPrice", "sdCornerPrice", "sidingOut"]) assert.match(html, new RegExp(`id="${id}"`));
+  for (const id of ["sdOn", "sdExposure", "sdStock", "sdWaste", "sdWrapRoll", "sdCorners", "sdBoardPrice", "sdWrapPrice", "sdCornerPrice", "sdStyle", "sdBoardWidth", "sdBattens", "sdBattenStock", "sdBattenPrice", "sdOpeningTrim", "sdTrimWidth", "sdTrimStock", "sdTrimPrice", "sidingOut"]) assert.match(html, new RegExp(`id="${id}"`));
+  assert.match(html, /sd\.style = \$\("#sdStyle"\)\.value/);
+  assert.match(html, /sd\.battens = true/);
+  assert.match(html, /sd\.openingTrim = true/);
   assert.match(html, /plan\.siding = sd/);
   assert.match(html, /layoutSiding\(plan\.siding, plan\)/);
   assert.match(html, /siding: last\.siding/);
@@ -302,10 +307,15 @@ test("the bid leveling card parses lines into plan.bids, restores them and level
 
 test("the deck controls are read into plan.deck, restored from a saved plan and drawn in the deck card", () => {
   const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
-  for (const id of ["dkOn", "dkWidth", "dkDepth", "dkHeight", "dkJoist", "dkSpacing", "dkBeam", "dkPost", "dkFree", "deckOut"]) assert.match(html, new RegExp(`id="${id}"`));
+  for (const id of ["dkOn", "dkWidth", "dkDepth", "dkHeight", "dkJoist", "dkSpacing", "dkBeam", "dkPost", "dkFree", "dkGuard", "dkGuardSides", "dkStair", "deckOut"]) assert.match(html, new RegExp(`id="${id}"`));
   assert.match(html, /plan\.deck = dk/);
   assert.match(html, /layoutDeck\(plan\.deck\)/);
   assert.match(html, /\$\("#dkOn"\)\.checked = Boolean\(dkp\)/);
+  assert.match(html, /dk\.guard = false/);
+  assert.match(html, /dk\.stairs = \{\}/);
+  assert.match(html, /totalRise: plan\.deck\.height/);
+  assert.match(html, /\$\("#dkStair"\)\.value = dkp\?\.stairs/);
+  assert.match(html, /\$\("#dkGuard"\)\.value = dkp\?\.guard === false/);
   assert.match(html, /<code>deck_on<\/code>/);
 });
 

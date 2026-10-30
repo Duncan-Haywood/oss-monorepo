@@ -1,0 +1,16 @@
+# Bid the yards and the forms, not the square footage.
+
+> Price a concrete driveway, patio, or slab from cubic yards, form footage, finish labor, and access — not a flat price per square foot. See yards to order, price per yard, and the walk-away number.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/concrete-bid-calculator/)
+- [How much concrete for a driveway?](https://duncan-haywood.github.io/oss-monorepo/concrete-bid-calculator/how-much-concrete-for-a-driveway.html)
+- [This calculator vs. a flat price per square foot](https://duncan-haywood.github.io/oss-monorepo/concrete-bid-calculator/vs-a-flat-price-per-square-foot.html)
+- [This calculator vs. STACK](https://duncan-haywood.github.io/oss-monorepo/concrete-bid-calculator/vs-stack.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/concrete-bid-calculator): MIT licensed.

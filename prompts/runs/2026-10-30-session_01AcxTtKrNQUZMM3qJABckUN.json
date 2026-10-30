@@ -1,0 +1,47 @@
+{
+ "date": "2026-10-30",
+ "session": "https://claude.ai/code/session_01AcxTtKrNQUZMM3qJABckUN",
+ "track": "research",
+ "prompt_version": 0,
+ "input": "read ./prompt.md and follow the instructions there",
+ "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+ "follow_up_inputs": [],
+ "model": "claude-sonnet-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-10-30T20:14:18Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": null,
+ "projects": [],
+ "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/11845",
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "platform/ci/research_live_links.py",
+   "issue": "--write also rewrote an unrelated project's README (marine-path); had to revert it by hand"
+  }
+ ],
+ "deviations": [],
+ "writeups": [
+  "docs/posts/2026-10-30-a-toy-civilization-that-never-cycles.md",
+  "research/civ-levers/LOG.md"
+ ],
+ "goal": null,
+ "notes": "Null result: 0/864 cells cycle. tests/test_history.py 3 passed; build.py ok; check_md_links ok.",
+ "corrections": [],
+ "redteam": null
+}

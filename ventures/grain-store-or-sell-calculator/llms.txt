@@ -1,0 +1,14 @@
+# Is storing your grain worth it? Find the break-even price
+
+> Free store-or-sell calculator for grain farmers. Enter harvest moisture, drying, storage and interest costs and later bids; it shows what each later price nets versus selling at harvest and the break-even price. Private, in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/grain-store-or-sell-calculator/)
+- [Store corn or sell at harvest: the math](https://duncan-haywood.github.io/oss-monorepo/grain-store-or-sell-calculator/corn-store-or-sell-at-harvest.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/grain-store-or-sell-calculator): MIT licensed.

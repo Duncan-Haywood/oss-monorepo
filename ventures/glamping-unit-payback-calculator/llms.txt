@@ -1,0 +1,13 @@
+# Will your glamping site pay for itself? Payback, debt coverage and break-even occupancy
+
+> Free payback calculator for glamping and cabin sites: build cost, shared infrastructure, seasonal nightly rates and occupancy, commission, turnovers and a loan become operating income, debt coverage, cash after the loan, payback in years and break-even occupancy. Private, runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/glamping-unit-payback-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/glamping-unit-payback-calculator): MIT licensed.

@@ -1,0 +1,14 @@
+# Why is your Databricks bill so high?
+
+> Paste your Databricks clusters (kind, DBUs used, autotermination) and get what each costs, scheduled work running on pricier all-purpose compute, clusters that never terminate and long autotermination tails, with the setting to change. Free, runs in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/databricks-cluster-cost-advisor/)
+- [Databricks cost: autotermination, Jobs compute and DBU rates](https://duncan-haywood.github.io/oss-monorepo/databricks-cluster-cost-advisor/databricks-autotermination-and-jobs-compute.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/databricks-cluster-cost-advisor): MIT licensed.

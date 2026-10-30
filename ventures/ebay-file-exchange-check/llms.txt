@@ -1,0 +1,13 @@
+# Why did eBay reject my bulk listing file?
+
+> Catch what breaks an eBay bulk listing upload, with the line number, before you upload. Nothing leaves your device.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/ebay-file-exchange-check/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/ebay-file-exchange-check): MIT licensed.

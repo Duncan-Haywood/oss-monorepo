@@ -1,0 +1,15 @@
+# Is your sitemap's <lastmod> telling the truth?
+
+> Paste a sitemap.xml and check its lastmod dates for the freshness-faking patterns Google warns about: bad formats, future dates and uniform dates. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/sitemap-lastmod-freshness-check/)
+- [Sitemap lastmod Freshness Check vs. XML-Sitemaps.com's Sitemap Validator](https://duncan-haywood.github.io/oss-monorepo/sitemap-lastmod-freshness-check/vs-xml-sitemaps-validator.html)
+- [Why sitemap lastmod freshness matters](https://duncan-haywood.github.io/oss-monorepo/sitemap-lastmod-freshness-check/why-sitemap-lastmod-matters.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/sitemap-lastmod-freshness-check): MIT licensed.

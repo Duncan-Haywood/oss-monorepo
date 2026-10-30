@@ -1,0 +1,13 @@
+# How many heads a week does your indoor or hydroponic farm have to sell to break even, and how much cash does the ramp-up eat?
+
+> Free hydroponic and indoor farm profit calculator: growing area, plant density, crop cycle, prices, lights, labour and rent become heads a week, monthly profit, break-even, the cash reserve for ramp-up, loan coverage and payback. Private, runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/hydroponic-farm-profit-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/hydroponic-farm-profit-calculator): MIT licensed.

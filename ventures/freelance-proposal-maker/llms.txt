@@ -1,0 +1,13 @@
+# Freelance Proposal Maker: win the job before you write the contract
+
+> Free freelance proposal generator: state the client's problem, list deliverables, set a dated timeline and offer up to three priced options with deposits and an expiry date. Print, save as PDF or copy. No account, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/freelance-proposal-maker/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/freelance-proposal-maker): MIT licensed.

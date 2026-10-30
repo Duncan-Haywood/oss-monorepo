@@ -1,0 +1,13 @@
+# What is this mobile home park worth, and what is the next lot rent increase worth?
+
+> Free mobile home park valuation calculator: type lots, occupancy, lot rent and expenses from a T-12 to see NOI, value at your cap rate, implied cap rate on the asking price, DSCR, and what a lot rent increase is worth after move-outs. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/mobile-home-park-valuation-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/mobile-home-park-valuation-calculator): MIT licensed.

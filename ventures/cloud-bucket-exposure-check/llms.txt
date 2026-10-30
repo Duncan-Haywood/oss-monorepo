@@ -1,0 +1,17 @@
+# Cloud Bucket Exposure Checker
+
+> Free tool: run a CLI that sends one real, read-only request to an AWS S3 bucket, a Google Cloud Storage bucket, or an Azure Blob container you name, then paste the JSON here for a plain-English report on whether anyone on the internet can list its contents with no credentials.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/cloud-bucket-exposure-check/)
+- [How to fix a publicly listable bucket](https://duncan-haywood.github.io/oss-monorepo/cloud-bucket-exposure-check/how-to-fix-a-publicly-listable-bucket.html)
+- [Public listing vs. public read: why fixing one doesn't fix the other](https://duncan-haywood.github.io/oss-monorepo/cloud-bucket-exposure-check/public-listing-vs-public-read.html)
+- [Cloud Bucket Exposure Checker vs. Manually Checking in the Cloud Console](https://duncan-haywood.github.io/oss-monorepo/cloud-bucket-exposure-check/vs-manually-checking-in-the-cloud-console.html)
+- [Why do cloud buckets end up publicly listable?](https://duncan-haywood.github.io/oss-monorepo/cloud-bucket-exposure-check/why-do-cloud-buckets-end-up-publicly-listable.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/cloud-bucket-exposure-check): MIT licensed.

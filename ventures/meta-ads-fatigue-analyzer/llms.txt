@@ -1,0 +1,13 @@
+# Which of your Facebook and Instagram ads are worn out, and how much spend got nothing?
+
+> Free Meta Ads fatigue analyzer: drop in your Ads Manager ad-level CSV and see cost per result, ROAS and CTR per ad, which creatives show fatigue signals, how much spend produced no results, and which ads beat the account median. Runs in your browser, the file is never uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/meta-ads-fatigue-analyzer/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/meta-ads-fatigue-analyzer): MIT licensed.

@@ -17,7 +17,7 @@ const pct = (part, whole) => (whole > 0 ? Math.round((part / whole) * 100) : 0);
 
 /** The breakdown of a design at a set of prices, for comparing two designs like for like. */
 export function breakdownOf(design, prices) {
-  const shed = buildShed(design);
+  const shed = buildShed(design, prices);
   return costBreakdown(shed, estimate(shed, prices));
 }
 

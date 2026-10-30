@@ -1,0 +1,13 @@
+# Which prescriptions actually make money?
+
+> Free calculator for independent pharmacies: what each kind of prescription really earns after drug cost, supplies, PBM claim fees, DIR fees, rejected claims, delivery and staff time. Margin by prescription type, copay for a target margin, insured vs cash, break-even prescriptions. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/independent-pharmacy-rx-margin-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/independent-pharmacy-rx-margin-calculator): MIT licensed.

@@ -1,0 +1,16 @@
+# Which job do you take first?
+
+> Paste your job list, answer a handful of this-or-that questions, and get a ranked work order. Free, private, runs entirely in your browser with no account.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/which-job-first/)
+- [How do I decide which job to take first?](https://duncan-haywood.github.io/oss-monorepo/which-job-first/how-do-i-decide-which-job-to-take-first.html)
+- [This tool vs. Jobber](https://duncan-haywood.github.io/oss-monorepo/which-job-first/vs-jobber.html)
+- [This tool vs. scoring every job out of ten](https://duncan-haywood.github.io/oss-monorepo/which-job-first/vs-scoring-every-job-out-of-ten.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/which-job-first): MIT licensed.

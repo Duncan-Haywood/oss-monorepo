@@ -1,0 +1,17 @@
+# Price the drive, not just the driveway.
+
+> Price a pressure washing or soft-wash job from each surface's production rate, plus drive time, setup, chemicals, and a minimum job. See the after-travel hourly and the walk-away number before you send the quote.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/pressure-washing-bid-calculator/)
+- [How much should I charge for pressure washing?](https://duncan-haywood.github.io/oss-monorepo/pressure-washing-bid-calculator/how-much-to-charge.html)
+- [This calculator vs. a flat 10¢ a square foot price](https://duncan-haywood.github.io/oss-monorepo/pressure-washing-bid-calculator/vs-a-flat-10-cents-a-square-foot-price.html)
+- [This calculator vs. GorillaDesk](https://duncan-haywood.github.io/oss-monorepo/pressure-washing-bid-calculator/vs-gorilladesk.html)
+- [This calculator vs. Jobber](https://duncan-haywood.github.io/oss-monorepo/pressure-washing-bid-calculator/vs-jobber.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/pressure-washing-bid-calculator): MIT licensed.

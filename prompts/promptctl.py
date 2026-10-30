@@ -326,8 +326,10 @@ def record(root: Path, track: str, version: int, session: str, model: str | None
     day = day or date.today().isoformat()
     slug = re.sub(r"[^A-Za-z0-9_-]+", "-", session.rstrip("/").rsplit("/", 1)[-1]).strip("-")
     path = root / "runs" / f"{day}-{slug or 'session'}.json"
-    if path.exists():
-        raise SystemExit(f"{path.relative_to(root.parent)} already exists; edit it instead")
+    n = 1
+    while path.exists():  # scheduled routines reuse a session id across firings
+        n += 1
+        path = root / "runs" / f"{day}-{slug or 'session'}-{n}.json"
     rec = json.loads(json.dumps(RECORD_FIELDS))
     rec.update({"date": day, "session": session, "track": track, "prompt_version": version,
                 "model": model, "input": text, "repo": repo,
@@ -1280,6 +1282,8 @@ def main(argv: list[str] | None = None) -> int:
             print(json.dumps(m, indent=2))
         else:
             print_measure_section(m, args.section)
+            # wait_for.py's default marker: lets a background run be polled (friction 2026-10-30)
+            print("DONE", flush=True)
         return 0
     if args.cmd == "backfill-pr":
         found = backfill_prs(ROOT, not args.dry_run)

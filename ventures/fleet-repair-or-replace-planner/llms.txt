@@ -1,0 +1,17 @@
+# Is it cheaper to repair or replace it this year?
+
+> Free browser planner for trade and service fleets: cost out repair-versus-replace for every van, truck and machine including the downtime days most owners leave out, then rank which ones to replace against a fixed capital budget. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/fleet-repair-or-replace-planner/)
+- [Is it cheaper to repair or replace a work truck?](https://duncan-haywood.github.io/oss-monorepo/fleet-repair-or-replace-planner/is-it-cheaper-to-repair-or-replace-a-work-truck.html)
+- [This planner vs. comparing the repair bill to a new price](https://duncan-haywood.github.io/oss-monorepo/fleet-repair-or-replace-planner/vs-comparing-the-repair-bill-to-a-new-price.html)
+- [This planner vs. paid fleet management software](https://duncan-haywood.github.io/oss-monorepo/fleet-repair-or-replace-planner/vs-fleet-management-software.html)
+- [This planner vs. a spreadsheet](https://duncan-haywood.github.io/oss-monorepo/fleet-repair-or-replace-planner/vs-spreadsheet.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/fleet-repair-or-replace-planner): MIT licensed.

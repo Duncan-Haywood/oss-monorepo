@@ -1,0 +1,13 @@
+# Is your asking rent too high, or too low?
+
+> Free rental rent optimizer for small landlords. Paste your past listings (asking rent, days on market, leased or still vacant) to see how fast your units lease at each rent, the asking rent with the highest expected net income after vacancy and turnover, and what asking 5% too high costs.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/rental-rent-optimizer/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/rental-rent-optimizer): MIT licensed.

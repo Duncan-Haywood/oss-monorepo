@@ -1,0 +1,13 @@
+# How much should you charge to ghostwrite this book? Price it from your hours.
+
+> Free ghostwriter quote calculator: build a book fee from drafting, interview, research and revision hours, add confidentiality and rush premiums, see per-word and per-page rates, a payment schedule and what a client's lower budget really pays you. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/ghostwriter-book-quote-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/ghostwriter-book-quote-calculator): MIT licensed.

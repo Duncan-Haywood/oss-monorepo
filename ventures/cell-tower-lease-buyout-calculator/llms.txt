@@ -1,0 +1,13 @@
+# Is the lump sum for my cell tower lease worth taking?
+
+> Free cell tower lease buyout calculator: compare a lump-sum offer with the rent you would keep collecting. Present value at your discount rate, the buyer's implied return, colocation upside, tenant-exit risk and an after-tax comparison. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/cell-tower-lease-buyout-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/cell-tower-lease-buyout-calculator): MIT licensed.

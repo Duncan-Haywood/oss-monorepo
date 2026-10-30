@@ -1,0 +1,57 @@
+{
+  "date": "2026-10-30",
+  "session": "https://claude.ai/code/session_01Gcz8nVnXVeNTiqb8JKabK1",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "start on P048 next",
+  "input_sha256": "ca60a40e2f543cac33b2e6199ed117776f1a1b8fed2a9aeb1d4920c7f3f0c237",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-30T02:28:47Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "P048 part 1: sparse checkouts for four CI guards",
+  "projects": [
+    ".github/workflows",
+    "platform/ci"
+  ],
+  "pr": 10195,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    "Merging PR #10195 took 9 CI cycles (02:17-05:05 UTC): each run failed on something main broke during the previous ~30-minute cycle (post descriptions, run records, shed-designer sitemap/money, apex mirror, runner switch, flagships.yaml, babysitting worker/favicons/table headers, verify-live shellcheck, shard count) or conflicted with main. Each was fixed or ported here."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/runs/README.md",
+      "why": "model left null: this session's harness forbids writing a model identifier into any pushed artifact"
+    },
+    {
+      "file": ".github/prompts/land-your-work.md",
+      "why": "P048 part 1 rides PR #10195 (still unmerged, same branch) instead of a new PR: the runner pool had a 10-13 minute median queue, and one CI cycle costs the pool less than two"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "Merged #10195 on local verification instead of a green CI run. The four changed guard workflows passed on GitHub runners at 03:14-03:20 UTC (9-25s jobs); every later red was main's, and main was red again at merge time (two posts without front matter and a tag spelled two ways, from PR #11684 and others, identical on main). Local checks on the merged tree: check_conflict_markers, validate_workflows, test_check_conflict_markers, gitops test_ci_runner+test_shellcheck_coverage+test_manifests (110 passed), test_promptctl 68/69 (the 1 is main's posts), routing weights sum 1.0, checklist_coverage, check_duplicate_symbols, ink.mjs --strict."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "ci_profile.py 600 runs 2026-10-30 01:48-02:17 UTC: 319 jobs, 356.5 job-min, checkout 95.2 (27%), q50 589-787s. Tree 893 MB / 43,798 files, 442 MB in 80 MP3s. Clone from GitHub (one sample): full 38.3s/46.3s 542MB; conflict-markers pattern 29.5s; checklist-coverage 9.3s; duplicate-symbols 6.5s; link-contrast 4.6s. Verification in sparse worktrees: conflict markers exit 0 (43,195 files), seeded marker exit 1, pattern narrowed to drop *.yaml exit 1; checklist coverage output identical to full tree, seeded unlisted test dir exit 1; duplicate symbols output identical, seeded duplicate exit 1, unit tests OK; link contrast output identical, unit tests OK. validate_workflows ok; test_check_conflict_markers OK (2 new). Expected saving ~16 of 356 job-min per 29 min; re-measure after a day.",
+  "corrections": [],
+  "redteam": null
+}

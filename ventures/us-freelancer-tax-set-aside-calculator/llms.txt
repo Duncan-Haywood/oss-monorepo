@@ -1,0 +1,13 @@
+# How much of what you earn should you set aside for tax?
+
+> Free US freelancer and 1099 tax calculator for 2026: enter revenue and expenses to see self-employment tax, federal income tax with the QBI deduction, a state estimate, quarterly payments and how much of every invoice to set aside. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/us-freelancer-tax-set-aside-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/us-freelancer-tax-set-aside-calculator): MIT licensed.

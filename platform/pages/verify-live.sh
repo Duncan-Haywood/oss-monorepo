@@ -41,15 +41,18 @@ for path in "/" "/research/" "/writing/" "/sitemap.xml" "/sitemap-hub.xml" "/rob
   echo "${code}  ${base}${path}"
   [ "$code" = "200" ] || { echo "::error::${base}${path} returned ${code}"; exit 1; }
 done
-curl -sS "${base}/sitemap.xml" -o "$RUNNER_TEMP/sitemap.xml" && grep -q "<sitemapindex" "$RUNNER_TEMP/sitemap.xml" \
-  || { echo "::error::sitemap.xml served without a sitemap index"; exit 1; }
+if ! { curl -sS "${base}/sitemap.xml" -o "$RUNNER_TEMP/sitemap.xml" && grep -q "<sitemapindex" "$RUNNER_TEMP/sitemap.xml"; }; then
+  echo "::error::sitemap.xml served without a sitemap index"; exit 1
+fi
 # A 200 on llms.txt is not enough: Pages would serve an empty file
 # just as happily, and an assistant reading it would find no tools.
-curl -sS "${base}/llms.txt" -o "$RUNNER_TEMP/llms.txt" && grep -q "^- \[" "$RUNNER_TEMP/llms.txt" \
-  || { echo "::error::llms.txt served without any tool entries"; exit 1; }
+if ! { curl -sS "${base}/llms.txt" -o "$RUNNER_TEMP/llms.txt" && grep -q "^- \[" "$RUNNER_TEMP/llms.txt"; }; then
+  echo "::error::llms.txt served without any tool entries"; exit 1
+fi
 # Same argument for the feed, and one more: a feed that serves 200
 # with zero entries is indistinguishable from a healthy one to every
 # subscriber, who simply never hears about a new tool again.
-curl -sS "${base}/feed.xml" -o "$RUNNER_TEMP/feed.xml" && grep -q "<entry>" "$RUNNER_TEMP/feed.xml" \
-  || { echo "::error::feed.xml served without any entries"; exit 1; }
+if ! { curl -sS "${base}/feed.xml" -o "$RUNNER_TEMP/feed.xml" && grep -q "<entry>" "$RUNNER_TEMP/feed.xml"; }; then
+  echo "::error::feed.xml served without any entries"; exit 1
+fi
 echo "Published and verified: ${base}/ (product page /${slug}/)"

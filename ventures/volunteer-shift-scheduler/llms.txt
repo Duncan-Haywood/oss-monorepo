@@ -1,0 +1,14 @@
+# Make a fair volunteer schedule in a few minutes
+
+> Free volunteer shift scheduler for churches, PTAs, food banks and youth sports. Paste your volunteers with the days they can do and their maximum shifts, list the shifts, and get a fair roster with unfilled slots flagged. CSV, calendar and reminder exports. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/volunteer-shift-scheduler/)
+- [How to schedule volunteers fairly, with a worked example](https://duncan-haywood.github.io/oss-monorepo/volunteer-shift-scheduler/how-to-schedule-volunteers-fairly.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/volunteer-shift-scheduler): MIT licensed.

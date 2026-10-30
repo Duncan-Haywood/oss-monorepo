@@ -1,0 +1,12 @@
+civ-history results (written by experiments/history/run.py; do not edit by hand)
+864 parameter cells; 2500 years from N0 = 0.5, first 500 dropped; cycle = autocorrelation peak > 0.2 in N; secular-cycle band 150-400 years
+grid: {'rho': (0.01, 0.03, 0.06, 0.12), 'm': (0.02, 0.05, 0.1), 'me': (0.04, 0.1), 'k': (4, 8, 16), 'tau': (0.2, 0.4), 'g': (0.5, 1.0, 2.0), 'e0f': (0.05, 0.2)}
+
+none         cycles 0/864  in-band 0  mean unrest-share 0.003  mean min N 0.757
+tax x2       cycles 0/864  in-band 0  mean unrest-share 0.000  mean min N 0.850
+elite cap    cycles 0/864  in-band 0  mean unrest-share 0.003  mean min N 0.757
+welfare 0.1  cycles 0/864  in-band 0  mean unrest-share 0.003  mean min N 0.917
+largest population swing (std/mean) over all cells with no lever: 0.0023
+cells stuck in permanent unrest (psi > 0.5 in over 90% of years), no lever: 3
+
+cells with a cycle under no lever, and the effect of each lever on them (unrest share):

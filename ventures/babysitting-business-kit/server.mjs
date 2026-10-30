@@ -9,12 +9,17 @@
 //   POST /inquiry          the website's form: becomes a scored lead; optional auto-reply and alert
 //   GET|POST /book         open times only (no family data); a request becomes a lead with
 //                          status "requested" that the sitter approves in the app
+//   POST /book/waitlist    a family asks to be told if a taken time opens up (waitlist-server.mjs)
 //   GET|POST /ref/<token>  a referee's private link: their words and two separate consents
+//   GET|POST /agree/<t>    a family's single-use link to read and sign the agreement (agreements.mjs)
 //   GET  /calendar.ics?t=  your sits as a feed your phone's calendar can subscribe to
 //   GET|PUT /api/desk      the desk as JSON (Authorization: Bearer ADMIN_KEY)
 //   GET  /api/today        today's to-do list (Authorization: Bearer ADMIN_KEY)
 //   GET|POST /intake/<t>   a family's one-time info sheet (token made in the app's Families tab)
+//   GET|POST /safe/<t>     the sitter's late-sit check-in link; PUT /api/safety/checkin (safety-server.mjs)
+//   GET|POST /event/<t>    a parents' night out sign-up form (link made in the app's Packages tab)
 //   GET  /admin            status page; /api/status, /api/backup, /api/restore (backup.mjs)
+//   POST /network/handoff  a signed pass-on from another sitter's kit server (network-server.mjs)
 //   a daily digest at DIGEST_HOUR (server time) to your webhook or email
 //
 // Every outside service is off until you set its variables, on your own accounts:
@@ -25,13 +30,17 @@
 //   AUTO_FOLLOW_UP=1: send due follow-ups to emailed leads with the daily digest
 //   TWILIO_ACCOUNT_SID + TWILIO_AUTH_TOKEN + TWILIO_FROM, PUBLIC_URL: texts and unsubscribe
 //     links for the automations the sitter turns on in Settings (automations-server.mjs)
+//   STRIPE_SECRET_KEY + STRIPE_WEBHOOK_SECRET: card payments on invoices, to your own
+//     Stripe account (invoices-server.mjs)
 //   LLM_PROVIDER (+ LLM_API_KEY, LLM_MODEL, LLM_BASE_URL; or OLLAMA_HOST): POST /api/draft
 //     drafts a blog post on your own model key; /site/blog serves posts you approved
+//   NETWORK_ID + NETWORK_PEERS (name=secret pairs): the sitter-network handoff between two kit servers
 
 import http from "node:http";
 import { readFileSync, writeFileSync, renameSync, existsSync } from "node:fs";
 import { timingSafeEqual } from "node:crypto";
 import { handleRef, mergeReferences, LIMITS as REF_LIMITS } from "./references.mjs";
+import { handleAgreement, mergeAgreements, LIMITS as AGREE_LIMITS } from "./agreements.mjs";
 import { normalizeDesk, emptyDesk, leadFromForm, scoreLead, leadReply, followUpMessage, todayQueue, toICS, newId } from "./engine.mjs";
 import { openSlots, bookingRequest, bookPage, localMinutes } from "./slots.mjs";
 import { intakeFormPage, parseIntake, mergeIntake, keepIntakes, isIntakeToken, MAX_INTAKE_BYTES } from "./intake.mjs";
@@ -40,15 +49,24 @@ import { creditReferral } from "./print.mjs";
 import { mergeAutomationState } from "./automations.mjs";
 import { automationRoutes, runAutomations } from "./automations-server.mjs";
 import { blogRoute, serverDraft } from "./content.mjs";
+import { sitReportApi, mergeSitReports } from "./sitreport.mjs";
+import { handleEventRoute, mergeEventSignups, MAX_SIGNUP_BYTES } from "./packages.mjs";
 import { loadDesk, atomicWrite, backupApi, backupDir, dailyBackup } from "./backup.mjs";
+import { networkRoutes, mergeNetwork } from "./network-server.mjs";
+import { mergeSafety } from "./safety.mjs";
+import { safetyRoutes, runSafety } from "./safety-server.mjs";
+import { mergeInvoicePayments } from "./invoices.mjs";
+import { invoiceRoutes } from "./invoices-server.mjs";
+import { mergeWaitlist } from "./waitlist.mjs";
+import { waitlistRoutes } from "./waitlist-server.mjs";
 
 const MAX_BODY = 64 * 1024;
 const MAX_DESK = 8 * 1024 * 1024;
 const MAX_LEADS = 2000;
-const FILES = { "/": "index.html", "/index.html": "index.html", "/engine.mjs": "engine.mjs", "/usage.mjs": "usage.mjs", "/taxes.mjs": "taxes.mjs", "/slots.mjs": "slots.mjs", "/intake.mjs": "intake.mjs", "/meet-and-greet.html": "meet-and-greet.html", "/references.mjs": "references.mjs", "/site.mjs": "site.mjs", "/print.mjs": "print.mjs", "/qr.mjs": "qr.mjs", "/automations.mjs": "automations.mjs", "/automations-ui.mjs": "automations-ui.mjs", "/content.mjs": "content.mjs", "/content-ui.mjs": "content-ui.mjs", "/byok.mjs": "byok.mjs", "/admin": "admin.html" };
+const FILES = { "/": "index.html", "/index.html": "index.html", "/engine.mjs": "engine.mjs", "/usage.mjs": "usage.mjs", "/taxes.mjs": "taxes.mjs", "/slots.mjs": "slots.mjs", "/intake.mjs": "intake.mjs", "/meet-and-greet.html": "meet-and-greet.html", "/references.mjs": "references.mjs", "/site.mjs": "site.mjs", "/print.mjs": "print.mjs", "/qr.mjs": "qr.mjs", "/automations.mjs": "automations.mjs", "/automations-ui.mjs": "automations-ui.mjs", "/content.mjs": "content.mjs", "/content-ui.mjs": "content-ui.mjs", "/byok.mjs": "byok.mjs", "/agreements.mjs": "agreements.mjs", "/agreements-ui.mjs": "agreements-ui.mjs", "/admin": "admin.html", "/safety.mjs": "safety.mjs", "/safety-ui.mjs": "safety-ui.mjs", "/sitreport.mjs": "sitreport.mjs", "/sitreport-ui.mjs": "sitreport-ui.mjs", "/packages.mjs": "packages.mjs", "/packages-ui.mjs": "packages-ui.mjs", "/waitlist.mjs": "waitlist.mjs", "/waitlist-ui.mjs": "waitlist-ui.mjs" };
 const TYPES = { html: "text/html; charset=utf-8", mjs: "text/javascript; charset=utf-8" };
 // The installable app (PWA) and the guide pages, so a self-hosted copy works offline and links resolve.
-for (const f of ["tabs.mjs", "sw.js", "manifest.webmanifest", "icon.svg", "icon-192.png", "icon-512.png", "icon-maskable-512.png", "apple-touch-icon.png", "babysitting-taxes.html", "how-to-start-a-babysitting-business.html", "how-much-to-charge-for-babysitting.html", "babysitting-references.html", "self-host.html"]) FILES[`/${f}`] = f;
+for (const f of ["tabs.mjs", "sw.js", "manifest.webmanifest", "icon.svg", "icon-192.png", "icon-512.png", "icon-maskable-512.png", "apple-touch-icon.png", "babysitting-taxes.html", "how-to-start-a-babysitting-business.html", "how-much-to-charge-for-babysitting.html", "babysitting-references.html", "self-host.html", "network.mjs", "network-ui.mjs", "credentials.mjs", "credentials-ui.mjs", "babysitting-business-setup.html", "insights.mjs", "insights-ui.mjs", "invoices.mjs", "invoices-ui.mjs", "activities.mjs", "activities-ui.mjs"]) FILES[`/${f}`] = f;
 Object.assign(TYPES, { js: "text/javascript; charset=utf-8", webmanifest: "application/manifest+json", svg: "image/svg+xml", png: "image/png" });
 
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -98,12 +116,20 @@ export function handler(state, save, env = process.env, now = Date.now, fetchImp
   const msg = messenger(env, fetchImpl);
   const hits = new Map();
   const auto = automationRoutes(state, save, env, now, fetchImpl, msg.sitter);
+  const net = networkRoutes(state, save, env, now, fetchImpl, msg.sitter); // sitter network handoffs (network-server.mjs)
+  const safe = safetyRoutes(state, save, env, now, fetchImpl, msg.sitter); // late-sit check-in (safety-server.mjs)
+  const pay = invoiceRoutes(state, save, env, now, fetchImpl, msg.sitter); // invoices-server.mjs: /pay/<token>, /stripe/webhook
+  const waitlist = waitlistRoutes(state, save, env, now, msg.sitter); // holds expire; POST /book/waitlist
   return async (req, res) => {
     const send = (code, body, type = TYPES.html, extra = {}) => { res.writeHead(code, { "content-type": type, "x-content-type-options": "nosniff", "referrer-policy": "no-referrer", ...extra }); res.end(body); };
     const url = new URL(req.url, "http://x");
     const today = localDate(now(), env.TZ);
     if (url.pathname === "/healthz") return send(200, "ok\n", "text/plain");
     if (await auto(req, url, send)) return;
+    if (await net(req, url, send)) return;
+    if (await safe(req, url, send)) return;
+    if (await pay(req, url, send)) return;
+    if (await waitlist(req, url, send)) return;
     if (req.method === "GET" && FILES[url.pathname]) {
       const f = FILES[url.pathname];
       return send(200, readFileSync(new URL(f, dir)), TYPES[f.split(".").pop()]);
@@ -185,6 +211,18 @@ export function handler(state, save, env = process.env, now = Date.now, fetchImp
       await msg.sitter(`Family info sheet received: ${fam.name || fam.contactName || "a family"}`, "Sync the app to see it in the Families tab.");
       return send(200, done, TYPES.html, nostore);
     }
+    if (url.pathname.startsWith("/event/") && (req.method === "GET" || req.method === "POST")) {
+      // A parents' night out sign-up link (packages.mjs): made in the Packages tab, put here by Sync.
+      let fields = null;
+      if (req.method === "POST") {
+        const raw = await readBody(req, MAX_SIGNUP_BYTES);
+        if (raw === null) return send(413, page("Too long", "<p>That was too long to send.</p>"));
+        fields = Object.fromEntries(new URLSearchParams(raw));
+      }
+      const out = handleEventRoute(state.desk, req.method, url.pathname.slice(7), fields, today, new Date(now()).toISOString());
+      if (out.desk) { state.desk = out.desk; save(); await msg.sitter(`Event sign-up: ${out.signup.parent}${out.waitlisted ? " (waitlist)" : ""}`, `${out.event.title} ${out.event.date}: ${out.signup.kids.length} child(ren). Sync the app to see it in the Packages tab.`); }
+      return send(out.code, out.html, TYPES.html, { "cache-control": "no-store" });
+    }
     if (url.pathname.startsWith("/ref/") && (req.method === "GET" || req.method === "POST")) {
       // A referee's private link: their words and two separate consents (references.mjs).
       let fields = null;
@@ -198,6 +236,20 @@ export function handler(state, save, env = process.env, now = Date.now, fetchImp
       if (out.notice) await msg.sitter("Babysitting reference", out.notice);
       return send(out.code, out.html, TYPES.html, out.headers);
     }
+    if (url.pathname.startsWith("/agree/") && (req.method === "GET" || req.method === "POST")) {
+      // A family's single-use signing link: the exact text, a typed name, its SHA-256 (agreements.mjs).
+      let fields = null;
+      if (req.method === "POST") {
+        const raw = await readBody(req, AGREE_LIMITS.body);
+        if (raw === null) return send(413, page("Too long", "<p>That was too long to send.</p>"));
+        fields = Object.fromEntries(new URLSearchParams(raw));
+      }
+      const out = handleAgreement(state.desk, req.method, url.pathname.slice(7), fields, now());
+      if (out.family) state.desk.families = state.desk.families.map((f) => (f.id === out.family.id ? out.family : f));
+      if (out.family || out.versionAdded) save();
+      if (out.notice) await msg.sitter("Babysitting agreement signed", out.notice);
+      return send(out.code, out.html, TYPES.html, out.headers);
+    }
     if (req.method === "GET" && url.pathname === "/calendar.ics") {
       if (!env.CAL_TOKEN || !same(url.searchParams.get("t") || "", env.CAL_TOKEN)) return send(401, "calendar link required\n", "text/plain");
       return send(200, toICS(state.desk, { from: today.slice(0, 4) + "-01-01" }), "text/calendar; charset=utf-8");
@@ -207,6 +259,7 @@ export function handler(state, save, env = process.env, now = Date.now, fetchImp
       const auth = String(req.headers.authorization || "").replace(/^Bearer\s+/i, "");
       if (!same(auth, env.ADMIN_KEY)) return send(401, "admin key required\n", "text/plain");
       if (await backupApi(req, url, send, state, save, env, now, readBody)) return; // backup.mjs: status, backup, restore
+      if (await sitReportApi(req, url, send, state, save, { email: msg.email, configured: !!(env.RESEND_API_KEY && env.FROM_EMAIL), readBody, now })) return; // email a sit report to the parent (sitreport.mjs)
       if (url.pathname === "/api/desk" && req.method === "GET") return send(200, JSON.stringify(state.desk), "application/json");
       if (url.pathname === "/api/desk" && req.method === "PUT") {
         const raw = await readBody(req, MAX_DESK);
@@ -218,7 +271,14 @@ export function handler(state, save, env = process.env, now = Date.now, fetchImp
         const known = new Set(incoming.knownLeadIds || []);
         const fresh = state.desk.leads.filter((l) => !ids.has(l.id) && !known.has(l.id));
         incoming.automations = mergeAutomationState(state.desk.automations, incoming.automations);
+        if (incoming.network || state.desk.network) incoming.network = mergeNetwork(state.desk.network, incoming.network); // keep handoffs the server sent
+        incoming.waitlist = mergeWaitlist(state.desk.waitlist, incoming.waitlist, today); // keep families who joined through /book
         if (Array.isArray(incoming.references)) incoming.references = mergeReferences(state.desk, incoming.references); // keep answers that arrived by link
+        mergeAgreements(state.desk, incoming); // and signatures, used links and photo choices (agreements.mjs)
+        incoming.safety = mergeSafety(state.desk.safety, incoming.safety, now()); // keep check-in taps and alerts from the server
+        mergeSitReports(state.desk, incoming); // reports the email route saved, and their "emailed" stamps
+        mergeInvoicePayments(state.desk, incoming); // card payments the server recorded
+        mergeEventSignups(state.desk, incoming); // and event sign-ups that arrived by link (packages.mjs)
         state.desk = normalizeDesk(keepIntakes(state.desk, incoming)); // and info sheets families filled in
         state.desk.leads.push(...fresh);
         save();
@@ -277,4 +337,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     if (d.getHours() === digestHour && lastDigest !== today) { lastDigest = today; state.lastDigest = today; dailyDigest(state, save, process.env, today).catch((e) => console.error("digest failed:", e.message)); }
     backup();
   }, 5 * 60 * 1000).unref?.();
+  // Late-sit check-ins every minute, at any hour: safety alerts ignore quiet hours.
+  const sitterMsg = messenger(process.env).sitter;
+  setInterval(() => { runSafety(state, save, process.env, Date.now(), globalThis.fetch, sitterMsg).catch((e) => console.error("safety check failed:", e.message)); }, 60 * 1000).unref?.();
 }

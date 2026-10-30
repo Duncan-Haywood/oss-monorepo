@@ -1,0 +1,14 @@
+# How much should you charge for this embroidery job?
+
+> Price an embroidery job from your own machine time and costs: per-piece price that hits your target margin, quantity breaks, stitch-count sensitivity, and whether a per-1000-stitches rule loses money. Free, runs in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/embroidery-shop-quote-calculator/)
+- [How much to charge for embroidery: per-stitch pricing, setup and quantity breaks](https://duncan-haywood.github.io/oss-monorepo/embroidery-shop-quote-calculator/how-much-to-charge-for-embroidery.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/embroidery-shop-quote-calculator): MIT licensed.

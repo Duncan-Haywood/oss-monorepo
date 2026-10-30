@@ -1,0 +1,16 @@
+# Bid the trucks, the depth, and the dirt work.
+
+> Price a gravel driveway from crusher-run, clean stone, recycled concrete, or pea gravel: compacted depth, whole truckloads, soil prep, fabric, and apron — plus the walk-away price a $4-a-foot special cannot see.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/gravel-driveway-bid-calculator/)
+- [How much to charge for a gravel driveway](https://duncan-haywood.github.io/oss-monorepo/gravel-driveway-bid-calculator/how-much-to-charge-for-a-gravel-driveway.html)
+- [This calculator vs. a flat $4-a-square-foot special](https://duncan-haywood.github.io/oss-monorepo/gravel-driveway-bid-calculator/vs-a-flat-4-per-square-foot-special.html)
+- [This calculator vs. Jobber](https://duncan-haywood.github.io/oss-monorepo/gravel-driveway-bid-calculator/vs-jobber.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/gravel-driveway-bid-calculator): MIT licensed.

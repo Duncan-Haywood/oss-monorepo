@@ -1,0 +1,14 @@
+# How much will you really walk away with when you sell your home?
+
+> Free home sale net proceeds calculator. See cash at closing after commissions, fees and payoff, estimate capital gains tax, find the list price that nets a target, and compare offers with concessions. Private, in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/home-sale-net-proceeds-calculator/)
+- [How to calculate net proceeds from selling a house](https://duncan-haywood.github.io/oss-monorepo/home-sale-net-proceeds-calculator/how-to-calculate-net-proceeds-from-selling-a-house.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/home-sale-net-proceeds-calculator): MIT licensed.

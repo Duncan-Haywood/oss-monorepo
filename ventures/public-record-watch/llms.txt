@@ -1,0 +1,15 @@
+# Public-Record Watch
+
+> Free, no-signup, no-upload tool that compares two dated public-register snapshots (licenses, permits, registrations) in your browser and reports what changed. Runs entirely client-side.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/public-record-watch/)
+- [How do I track changes to a public licence register?](https://duncan-haywood.github.io/oss-monorepo/public-record-watch/how-do-i-track-changes-to-a-public-register.html)
+- [This tool vs. Visualping](https://duncan-haywood.github.io/oss-monorepo/public-record-watch/vs-visualping.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/public-record-watch): MIT licensed.

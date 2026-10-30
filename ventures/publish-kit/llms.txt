@@ -1,0 +1,14 @@
+# Publish your podcast, audiobook or book yourself
+
+> Free podcast RSS feed generator, Markdown to EPUB converter, ACX audiobook checker and KDP spine calculator. Runs in your browser, or as a CLI for AI agents.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/publish-kit/)
+- [ACX audiobook requirements, and how to check your files before you upload](https://duncan-haywood.github.io/oss-monorepo/publish-kit/acx-audiobook-requirements.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/publish-kit): MIT licensed.

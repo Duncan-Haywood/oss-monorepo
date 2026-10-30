@@ -1,0 +1,13 @@
+# What does each panel really pay you per hour?
+
+> Payer mix calculator for therapists and counselors in private practice. See what each insurance panel and your cash fee really net per session and per clinical hour after denials, billing time and slow payment, and what dropping a panel is worth. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/private-practice-payer-mix-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/private-practice-payer-mix-calculator): MIT licensed.

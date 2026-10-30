@@ -75,7 +75,7 @@ export function sidingSpan(d) {
 export const MINUTES = {
   floorSheet: 12, floorOSB: 12, roofSheet: 12, wallSheathing: 12,
   siding8: 15, siding9: 16, siding10: 18, lpPanel: 15, lpPanel9: 16, lpPanel10: 18, lpPanel76: 15, lpPanel76x9: 16, lpPanel76x10: 18,
-  vinylBox: 240, vinylJ: 10, vinylStarter: 8, vinylCorner: 15, hardiePlank: 10, lapHardie: 12, lapLP12: 10, lapLP16: 12, houseWrap: 45, jointFlashing: 20, boardBox: 20, battenBox: 30,
+  vinylBox: 240, vinylJ: 10, vinylStarter: 8, vinylCorner: 15, hardiePlank: 10, lapHardie: 12, lapHardie5: 12, lapLP12: 10, lapLP16: 12, houseWrap: 45, jointFlashing: 20, boardBox: 20, battenBox: 30,
   shingleBundle: 25, starterShingle: 20, ridgeCapShingle: 30, underlayment: 45, dripEdge: 10, metalPanel: 10, metalRidge: 15,
   fasciaTrim: 15, soffitPanel: 20, rakeTrim: 15, gableVent: 30, zFlashing: 10,
   paint: 45, stain: 45, accentPaint: 60, interiorPaint: 45, glitter: 0,
@@ -120,7 +120,7 @@ function moves(d, base, resize, opts = {}) {
   set(`rafters ${d.rafterSpacing === 24 ? 16 : 24}" o.c.`, { rafterSpacing: d.rafterSpacing === 24 ? 16 : 24 });
   // Smaller or larger rafters: kept only if the strength checks still pass.
   for (const sz of ['2x4', '2x6', '2x8']) if (sz !== d.rafterSize) set(`${sz} rafters`, { rafterSize: sz });
-  if (d.studSpacing === 24 || sidingSpan(d) >= 24) set(`studs ${d.studSpacing === 24 ? 16 : 24}" o.c.`, { studSpacing: d.studSpacing === 24 ? 16 : 24 });
+  if (d.studSpacing === 24 || sidingSpan(d) >= 24) set(`studs ${d.studSpacing === 24 ? 16 : 24}" o.c.`, { studSpacing: d.studSpacing === 24 ? 16 : 24, autoStuds: false });
   floorMoves(d, set);
   set(d.rafterSeat === 'connector' ? 'birdsmouth seats' : 'variable-pitch connectors', { rafterSeat: d.rafterSeat === 'connector' ? 'birdsmouth' : 'connector' });
   // A lean-to has no ridge, so no roof structure to change.
@@ -302,7 +302,7 @@ function mergeOpenings(current, changed, field = 'product') {
 function keyOf(d) { return JSON.stringify({ ...d, name: '' }); }
 
 function evaluate(d, prices) {
-  const shed = buildShed(d);
+  const shed = buildShed(d, prices);
   const est = estimate(shed, prices);
   const sc = structuralChecks(shed);
   const cc = connectionChecks(shed);

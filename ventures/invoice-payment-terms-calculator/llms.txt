@@ -1,0 +1,21 @@
+# Price the wait, not just the work.
+
+> Calculate invoice due dates, when cash actually lands on your client's payment run, late-fee scenarios, cash-flow exposure, whether a 2/10 Net 30 discount still beats waiting, and whether factoring still beats waiting after your carrying cost.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/invoice-payment-terms-calculator/)
+- [It is already late. Now what?](https://duncan-haywood.github.io/oss-monorepo/invoice-payment-terms-calculator/chasing-a-late-invoice.html)
+- [Should I ask for a deposit?](https://duncan-haywood.github.io/oss-monorepo/invoice-payment-terms-calculator/should-i-ask-for-a-deposit.html)
+- [Should I factor this invoice?](https://duncan-haywood.github.io/oss-monorepo/invoice-payment-terms-calculator/should-i-factor-this-invoice.html)
+- [Should I offer 2/10 Net 30?](https://duncan-haywood.github.io/oss-monorepo/invoice-payment-terms-calculator/should-i-offer-2-10-net-30.html)
+- [What interest can I add to a late UK invoice?](https://duncan-haywood.github.io/oss-monorepo/invoice-payment-terms-calculator/uk-late-payment-interest.html)
+- [This calculator vs. FreshBooks](https://duncan-haywood.github.io/oss-monorepo/invoice-payment-terms-calculator/vs-freshbooks.html)
+- [This calculator vs. QuickBooks Online invoicing](https://duncan-haywood.github.io/oss-monorepo/invoice-payment-terms-calculator/vs-quickbooks-online-invoicing.html)
+- [This calculator vs. a spreadsheet](https://duncan-haywood.github.io/oss-monorepo/invoice-payment-terms-calculator/vs-spreadsheet.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/invoice-payment-terms-calculator): MIT licensed.

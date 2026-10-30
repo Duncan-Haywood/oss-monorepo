@@ -1,0 +1,13 @@
+# Which of your Turo cars actually makes money?
+
+> Free analyzer for Turo hosts: drop in your earnings or trip history CSV and see profit per car and per trip after Turo's fee, cleaning, fuel, delivery and monthly loan, insurance and depreciation, plus utilization and which cars lose money. Runs in your browser, the file is never uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/turo-earnings-report-analyzer/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/turo-earnings-report-analyzer): MIT licensed.

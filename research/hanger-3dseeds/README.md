@@ -37,6 +37,20 @@ The comparison is a difference of means with a 4,000-resample bootstrap interval
 - 3d-wide designs are blunt: end radius 4.7 to 6 cm, and three of eight sit exactly on the 6 cm limit, so the bound still binds. They roughly halve the crease and the sag. Whether such a blunt end is a usable hanger is not tested here.
 - 3d-orig seed spread (1.29 to 2.11) is about twice the 2D spread, which is why two seeds could not settle it.
 
+## Raising the radius limit (`experiments/radius_cap.py`, `experiments/radius_cap_results.txt`)
+
+The 3d-wide optimum sat on the 6 cm limit in three of eight seeds, so the loop was rerun with the limit at 9 and 12 cm (same other bounds, 8 seeds, 64 drapes).
+
+| end-radius limit | whole-sheet error, cm (mean ± sd) | seeds on the limit | optimum radius range, cm |
+|---|---|---|---|
+| 6 (3d-wide) | 1.12 ± 0.25 | 3 of 8 | 4.7 to 6.0 |
+| 9 | 1.02 ± 0.22 | 2 of 8 | 5.6 to 9.0 |
+| 12 | 1.01 ± 0.32 | 0 of 8 | 4.8 to 10.4 |
+
+- At 12 cm no seed sits on the limit, so the bound has stopped binding. The error barely moves: 9 against 6 cm is −0.10 cm (CI −0.32 to +0.11, p = 0.41), 12 against 6 cm is −0.11 cm (CI −0.36 to +0.16, p = 0.45). Both are within seed noise, so a wider limit gains nothing measurable.
+- The optimum radius is poorly determined: it ranges from 4.8 to 10.4 cm across seeds at nearly equal error, so the error is flat along the radius. A 10 cm half-width end is not a usable hanger tip, which supports the next step (a contact-width penalty) rather than a still wider box.
+- In `radius_cap_results.txt` the summary labels read `mean3d`/`mean2d`; there `mean2d` is the 6 cm-limit group, not the 2D route.
+
 ## Limitations
 
 - One garment (M tee), one arm depth (3 cm), 64 drapes per 3D loop against 150 for 2D, so the budgets differ; the 3D loop wins with less compute, and a longer search could change the gap (untested).
@@ -46,7 +60,7 @@ The comparison is a difference of means with a 4,000-resample bootstrap interval
 
 ## Next steps
 
-Widen the radius bound again until the optimum stops sitting on it; add a width or contact-patch constraint so blunt ends are penalised; repeat across garments and depths; measure real garments (owner step).
+Add a width or contact-patch constraint so blunt ends are penalised; repeat across garments and depths; measure real garments (owner step).
 
 ## Reproduce
 

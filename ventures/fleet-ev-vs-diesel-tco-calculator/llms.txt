@@ -1,0 +1,13 @@
+# Would electric vans save your fleet money?
+
+> Free fleet EV vs diesel cost calculator: purchase, chargers, energy, demand charges, maintenance, insurance and resale in; year-by-year cost, payback, break-even fuel price and mileage, a sensitivity grid and a range check out. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/fleet-ev-vs-diesel-tco-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/fleet-ev-vs-diesel-tco-calculator): MIT licensed.

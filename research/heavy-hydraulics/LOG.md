@@ -2,6 +2,87 @@
 
 Newest first.
 
+## 2026-10-30 · Milestone 3e: was 3d's k = 20 row only a bracket bug? (planned before running)
+- Why: 3d put the bad k = 20 row at 10.9 bar down to `section_area` bracketing the supply pressure at p_i + 400 bar. Fixed the bracket (it now grows until the sign changes; 1 new test) and reran `experiments/flow_share_shape.py` with k up to 50.
+- **Prediction (before running):** after the fix the median penalty is 0% for k = 20 at p_n 10.9 bar (prior 60%). Refuted if it is above 1%.
+
+### Outcome of 3e (`experiments/flow_share_shape_results.txt`, 5 s, seeded)
+- k <= 10 rows are unchanged to two decimals (the old bracket only failed above that). **Prediction refuted:** at p_n 10.9 bar k = 20 gives a median penalty of 17.1% (stall share 35.9%) and k = 50 gives 21.6% (100%); at p_n 1.44 bar k = 50 gives 11.8%.
+- Reading: the remaining rise is not a solver bug. With k this large each section is sized for a supply pressure above the 250 bar relief setting (its area is about 0.6 to 1.3, against 2 to 12 at k = 1), so with all sections open the pump flow cannot pass below relief and the lighter actuators are starved. That is a model-validity limit: the sizing rule "passes its demand alone at the supply pressure the closing law implies" stops describing a real valve when that pressure exceeds relief. So 3d's usable range is k up to about 10 at 10.9 bar and up to about 20 at 1.44 bar; the conclusion that a bypass closing inside the dead band (k >= 3 to 5) makes the open-centre time penalty small stands for k in range, and rows beyond are outside the model.
+- Limits: validity range read off the results, not enforced in code; sizing by rated flows A to E from the manual (3d "Next") would remove the issue and is still not done.
+- Next: size sections from the PVG 32 rated flows, add the compensator and feathering, then the time-penalised energy ranking.
+
+## 2026-10-30 · Milestone 3d: what does the PVG 32 manual say about how fast the bypass closes? (planned before running)
+- Why: 3b's "Next" was to fit k from a bypass-versus-stroke curve. Opened this session (assets.danfoss.com now resolves): Danfoss PVG 32 Technical Information BC152886483664en-001601, July 2024 (the 2n source was the May 2021 revision), p. 95: "In total neutral position the connection to tank is less than 10 % of the full flow function. But when moving the spool out of neutral position but still within dead band area the connection will close." The same page's flow-versus-stroke curves show zero work-port flow for roughly the first 1.5 to 2 mm of a 7 mm stroke. The manual has **no** bypass-area-versus-stroke curve, so k cannot be fitted; it gives a bound: the bypass is shut before any section opens, which in 3a's terms is a large k.
+- Plan: add k = 5, 10, 20 to `experiments/flow_share_shape.py` (same cycles as 3b).
+- **Prediction (before running):** at p_n 10.9 bar the median penalty is 0% and the dig-phase stall share is under 2% for k >= 3 (prior 75%). Refuted if the median is above 1% at k = 5 or 10.
+
+### Outcome of 3d (`experiments/flow_share_shape_results.txt`, 5 s, seeded)
+- p_n 10.9 bar: median penalty 0.00% for k = 1.5 to 10; p95 0.07% (k 5), 6.69% (k 10); stall share 0.0% for k >= 3. Prediction held for k = 5 and 10.
+- p_n 1.44 bar: median 0% from k = 5, p95 21.6% (k 5), 1.68% (k 10), 0.00% (k 20).
+- **k = 20 at p_n 10.9 is a solver artefact, not physics:** median 8.66%, non-monotone. `section_area` brackets the supply pressure at p_i + 400 bar, above the 250 bar relief; with a huge k the sizing root lies outside it. Do not read k > 10 rows at 10.9 bar.
+- Reading: if the bypass closes inside the dead band, as the manual states, 3a's open-centre cycle-time penalty is small for the PVG 32 neutral drop (median 0, p95 under 7%), and 3a's "6.4%" was a product of k = 1, a closing law the manual contradicts. At the 1.44 bar catalogue-valve drop the penalty survives to k of about 3 to 5. So the cost of open-centre in time is not established; the energy ranking of 2n stands without a time penalty for this valve.
+- Limits: "closes in the dead band" is a qualitative statement read from a manual page, not a curve; k is still a one-number family; the factor-2 stall bound and the sizing-alone assumption remain; the section-sizing solver needs a wider bracket before k > 10 is usable (not fixed here).
+- Next: fix the bracket (or size sections by the manual's rated flows A to E), add the compensator and feathering, then a time-penalised energy ranking.
+
+## 2026-10-30 · Milestone 3c: how much of 3a's penalty is open-centre, and how much is just the pump limit? (planned before running)
+- Why: 3a and 3b set load-sensing's cycle-time factor to 1.0 by construction. But a compensated valve also slows when the actuators' demands add to more than the 45 L/min pump flow. `experiments/flow_share_ls.py` charges LS `max(1, sum q / Q_pump)` per phase, floors open-centre at that, and reports open-centre cycle time over load-sensing cycle time. The PVG 32 bypass-versus-stroke data for fitting k is not reachable this session (Danfoss document URLs return 404/403), so k stays 1.
+- **Prediction (before running):** load-sensing's own median penalty is under 1% (most demands fit in the pump flow), and the net open-centre median at p_n 10.9 bar is within 1 point of 3a's 6.4% (prior 65%). Refuted if the LS median is 1% or more, or the net median differs from 6.4% by more than 1 point.
+
+### Outcome of 3c (`experiments/flow_share_ls.py`, `flow_share_ls_results.txt`, 2 s, seeded; 1 new test)
+- Load-sensing's own pump-limit penalty is **0.00%** (median and 95th percentile) at both neutral drops; across 5 x 300 sampled cycles no phase's summed demand exceeds the 45 L/min pump, so no phase was floored. Net open-centre over load-sensing: p_n 10.9 bar median **5.80%**, p95 21.62%; p_n 1.44 bar median 21.62%. **Prediction held** (LS median under 1%; 5.80% is within 1 point of 3a's 6.4%; the 5.80 is 3b's k = 1 row, 300 cycles per seed instead of 1,000).
+- Reading: 3a's "one-sided comparison" caveat is closed for the sampled cycles: the penalty is entirely the uncompensated open-centre valve's flow sharing, none of it a pump limit both circuits share. This holds only for the duty-cycle generator's demands (2d); a larger excavator task could exceed the pump.
+- Limits: unchanged from 3a/3b (k = 1, factor-2 stall bound, no feathering, no dynamics). k still needs the PVG 32 bypass-versus-stroke curve, not reachable this session.
+
+## 2026-10-30 · Milestone 3b: is 3a's cycle-time penalty an artefact of the bypass closing law? (planned before running)
+- Why: 3a listed "one bypass shape (area closes linearly with section area)" as a limit. `flow_share.py` now takes k, the bypass area closed per unit of section area (k = 1 is 3a); `experiments/flow_share_shape.py` sweeps k = 0.5, 1, 1.5, 2, 3 at both sourced neutral drops, 5 seeds x 300 cycles (3a used 1,000 per seed, so the k = 1 row differs slightly from 3a).
+- **Prediction (before running):** the 3a median (6.4%) moves by more than a factor of 2 across k = 0.5 to 2: prior 70%. Refuted if it stays within 3.2% to 12.8%.
+
+### Outcome of 3b (`experiments/flow_share_shape_results.txt`, 3 s, seeded; 1 new test, all pass)
+- p_n 10.9 bar: median penalty 21.6% (k 0.5), 5.8% (k 1), **0.0%** (k 1.5, 2, 3); p95 21.6, 21.6, 21.6, 9.6, 1.9. Dig phases at the stall bound: 82.9, 34.7, 10.3, 1.1, 0.0%. Prediction held.
+- p_n 1.44 bar: median 21.6% for every k up to 2 and 20.0% at k = 3: the stall bound is hit in 49 to 100% of dig phases whatever the closing law.
+- Reading: 3a's "median 6.4%" is a statement about one assumed closing law, not about open-centre valves. What is robust is the sign (never faster than load-sensing) and that a low neutral drop (1.44 bar) leaves little pressure rise to unstall the heavy actuator. How fast a real spool closes its bypass is a datasheet quantity (the PVG 32 curve behind 2n has it) and is the next thing to source.
+- Limits: k is a single-number family, not a measured area curve; the factor-2 stall bound is still an assumption; no dynamics.
+- Next: fit k from the PVG 32 bypass-versus-spool-stroke data behind 2n, then rerun 3a with it.
+
+## 2026-10-30 · Milestone 3a: how much longer does an open-centre parallel valve make the dig phase? (planned before running)
+- Why: milestone 3 (dynamics) was never started and every ranking so far is energy only; cycle time is the other half of the question. Full dynamics (compensator, line volumes) need component data I do not have, so this step is the steady-state part: `src/heavy_hydraulics/flow_share.py`, orifice sections sized to pass their demand alone, a bypass that closes as sections open, p_n 10.9 bar (2n) and 1.44 bar (2i), 5 x 1,000 random cycles of 2d. Only the dig phase has two actuators. No operator feathering (so an upper-ish bound before a person corrects it); a stalled actuator (supply pressure below its load) is charged the bound factor 2 (sequential motion).
+- **Prediction (before running):** median cycle-time penalty under 2% but 95th percentile 10% or more (prior 55%): most cycles lose little because the closing bypass lifts supply pressure, a tail where the high-pressure actuator stalls. Refuted if the median is 2% or more, or the 95th percentile is under 10%.
+- Limits known in advance: orifice law, one bypass shape (area closes linearly with section area), sections sized alone, no compensator dynamics, no line volume: this is not yet the dynamic model.
+
+### Outcome of 3a (`experiments/flow_share.py`, `flow_share_results.txt`, about 1 minute, seeded; 3 new tests, 10 pass)
+- p_n 10.9 bar: cycle-time penalty median **6.4%**, 95th percentile 21.6% (the cap); 65.5% of cycles slow at all; 35.6% of dig phases sit at the stall bound (factor 2). p_n 1.44 bar: 21.6% median, 98.4% of dig phases at the bound.
+- **Prediction half refuted:** median 6.4% is not under 2% (the 95th percentile of at least 10% held). The closing bypass did not save most cycles.
+- Reading: with no operator feathering, an uncompensated open-centre valve loses real cycle time in the dig phase because the lighter actuator takes the flow, and a freer centre (smaller p_n) makes it worse, not better. That is a cost the energy-only rankings (2f to 2o) leave out, and it works against open-centre exactly where 2i to 2k had it winning on energy. Load-sensing is 1.0 here by construction, so the comparison is one-sided until a compensator model exists.
+- Limits: the 21.6% cap and the 98% stall share are mostly the bound I set (factor 2), not a measurement; the result depends on sizing each section alone and on the linear bypass closure; real operators feather. Treat it as a direction (open-centre pays in time, not only in energy), not a number. Next: a dynamic model with pressure compensators and a feathering rule, then a time-penalised energy ranking.
+
+## 2026-10-30 · Milestone 2o: how far does the unsourced LS standby flow move 2n's break-even? (planned before running)
+- Why: 2m and 2n both end with "a standby flow from a pump datasheet". Hosts for datasheets are still unreachable, so sweep it instead: `experiments/standby_sweep.py`, p_n 10.91 bar (2n), load factor 0.346, q_sb 0, 1, 2, 4, 6, 8, 10 L/min, dp_ls 10 to 40 bar.
+- **Prediction (before running):** break-even falls monotonically with q_sb, reproduces 28.0 bar at 2 L/min, is above 30 bar at 0 and below 25 bar by 8 L/min (prior 70%), so at q_sb of 6 L/min or more the thesis 25 bar margin loses again. Refuted if non-monotone, or if the 8 L/min break-even is 25 bar or more.
+
+### Outcome of 2o (`experiments/standby_sweep.py`, `standby_sweep_results.txt`, about 1 minute, seeded)
+- Break-even dp_ls (bar) by standby flow: **29.1** (0 L/min), 28.5 (1), 28.0 (2, reproduces 2n), 26.9 (4), 25.9 (6), **25.0** (8), 24.0 (10). Monotone; about 0.5 bar of margin lost per L/min.
+- **Prediction refuted on both numeric lines.** At 0 L/min the break-even is 29.1, not above 30; at 8 L/min it is 25.0 (not under 25). Direction and the 2 L/min reproduction held.
+- Reading: the standby flow, unsourced, is a weak lever: across 0 to 10 L/min the break-even stays within 24 to 29 bar, so the thesis 25 bar margin sits on the boundary only for 8 L/min or more, and the Rexroth 14 bar margin wins at every standby flow tested (LS/OC 0.75 to 0.80). 2n's ranking (load-sensing ahead at both sourced margins) holds unless the pump's standby flow is about 8 L/min or more, which is large for a 45 L/min pump.
+- Limits: same as 2n (one valve curve reading, one load factor); the standby flow is swept, not sourced.
+- Next: a sourced standby flow would only narrow a 5 bar band; larger remaining gaps are the dynamic model (milestone 3) and a measured trace (H4).
+
+## 2026-10-30 · Milestone 6c: paper draft regenerated for 2n (no new experiment)
+- Added section 3.1d, revised the abstract, threat 2/limits text and 'what would settle it' (b) to carry the PVG 32 neutral drop (10.9 bar, break-even 28.0 bar). `paper/check_numbers.py` now checks 22 claims, 0 missing. Danfoss, Rexroth and Zenodo hosts all refuse connections this session, so no standby-flow source was reachable.
+
+## 2026-10-30 · Milestone 2n: with the open-centre neutral drop read from Danfoss's PVG 32 curve, who wins at idle? (planned before running)
+- Why: every ranking since 2i hinged on p_n = 1.44 bar from one Salami valve catalogue (a 75 L/min valve, no input module). This session the Danfoss host is reachable. The PVG 32 Technical Information (BC152886483664, rev. May 2021; PDF opened, p. 16) has a curve "pressure drop, bypass in neutral" for its open-centre PVP input module: about 8.5 bar at near-zero flow rising linearly to about 16 bar at 140 L/min (read off the figure, +-0.5 bar). PVG 32 is a mobile/excavator-class proportional valve, rated 140 L/min. At the model's 45 L/min pump, p_n = 8.5 + 7.5 x 45/140 = 10.9 bar. The same manual has no LS margin or standby flow I could find (searched for margin, standby, bypass in the German text); the pump's are still 2j's.
+- Plan (`experiments/pvg_neutral.py`, `ratio` from 2g, load factor 0.346, LS standby 2 L/min assumed, 600 cycles x 5 seeds): p_n = 10.9 bar (and the +-0.5 bar reading band at both ends: 10.4 and 11.4), dp_ls 10, 14, 20, 25, 28 bar, and the break-even dp_ls by interpolation on a 2 bar grid.
+- **Prediction (before running):** the break-even dp_ls is about 28 bar (2l's line 19.3 + 0.92 (p_n - 1.44) gives 28.0; prior 70%), so load-sensing wins at 14, 20 and 25 bar, both sourced margins, reversing 2i for this valve. Refuted if the break-even is under 25 or over 31 bar, or if LS/OC at dp_ls 25 is 1.0 or more.
+- Limits known in advance: the drop is the PVP module's bypass curve (sections add more in neutral, so p_n here is if anything low); a figure reading; a Danfoss valve paired with a Rexroth LS margin; one load factor; standby flow assumed.
+
+### Outcome of 2n (`experiments/pvg_neutral.py`, 8 s, seeded; `pvg_neutral_results.txt`)
+- p_n at 45 L/min is 10.91 bar. Break-even dp_ls **28.0** bar (27.5 to 28.4 across the +-0.5 bar reading band); LS/OC median is monotone in dp_ls.
+- **Prediction held** (28.0 against "about 28", inside 25 to 31; LS/OC at 25 bar is 0.949, under 1.0). LS/OC median at dp_ls 14: 0.759 (LS worse in 0.8% of cycles), 20: 0.863 (11.8%), 25: 0.949 (33.6%).
+- Reading: on a PVG 32-class excavator valve's own bypass curve, load-sensing uses less shaft energy than open-centre at the measured load factor for BOTH sourced margins (Rexroth 14 bar, thesis 25 bar), up to a margin of 28 bar. This reverses 2i (which used a 1.4 bar neutral drop from a 75 L/min catalogue valve) and 2l's "no further simulation resolves the sign": the neutral drop that matters for an excavator-class valve is about 11 bar, not 1.4. 2f's headline (load-sensing saves energy at the measured load factor) is back, now with a sourced p_n. The open-centre neutral drop of a valve with sections adds to this, so 10.9 bar is if anything low.
+- Limits: as planned. A figure reading (+-0.5 bar), one manufacturer, the LS margin and standby flow are not from the same machine, the Salami and Danfoss values differ by 9.5 bar because the Danfoss curve is for the input module's bypass (relief/bypass path) and I have not shown which one a given excavator's neutral path matches.
+- Next: a standby flow and a working LS margin from one pump family; regenerate the paper's ranking table with p_n 10.9 (the draft's ranking claims cite 2i's caveat).
+
 ## 2026-10-30 · Milestone 2m: how far does the break-even LS margin move with load factor? (planned before running)
 - Why: 2l's "Next": it is one load factor (0.346, the measured one). A reader's machine idles more or less than that. `experiments/ranking_map_lf.py`, 2l's model unchanged, load factor 0.15, 0.25, 0.346, 0.5, 0.7, p_n 1.44 and 6.44 bar, dp_ls 4 to 60 bar.
 - **Prediction (before running):** the break-even falls monotonically as load factor rises (less idle time means less for load-sensing's low idle power to win back), from above 30 bar at 0.15 to under 20 bar at 0.7 at p_n 1.44, and at 0.346 it reproduces 2l's 19.3 (prior 80%). Refuted if non-monotone in load factor, or if the 0.7 break-even is 20 bar or more.

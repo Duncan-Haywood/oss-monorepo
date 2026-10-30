@@ -1,0 +1,13 @@
+# Find the commissions your carriers did not pay.
+
+> Free commission statement reconciler for independent insurance agencies: load your policy book and your carriers' commission statements, find unpaid policies, short-paid rates, chargebacks on policies still in force and duplicate lines, and get a review request per carrier. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/insurance-commission-reconciler/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/insurance-commission-reconciler): MIT licensed.

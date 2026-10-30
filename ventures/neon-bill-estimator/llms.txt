@@ -1,0 +1,14 @@
+# What will your Neon bill be, and what cuts it most?
+
+> Estimate a monthly Neon serverless Postgres bill from your own usage (compute CU-hours, storage, restore history, branches, data transfer) at editable list prices, and see which changes cut it most, with a dollar saving for each. Free, runs in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/neon-bill-estimator/)
+- [How to reduce your Neon Postgres bill: levers ranked by dollar impact](https://duncan-haywood.github.io/oss-monorepo/neon-bill-estimator/how-to-reduce-your-neon-bill.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/neon-bill-estimator): MIT licensed.

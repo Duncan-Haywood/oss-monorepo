@@ -1,0 +1,17 @@
+# What does this book keep exclusive versus wide?
+
+> See what a Kindle book keeps on KDP exclusive (paid sales plus Kindle Unlimited page reads) versus going wide. Paperback print cost, 70% vs 35% ebook, and Ingram wholesale are boxes you type from your own dashboard. Free, runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/kdp-royalty-calculator/)
+- [How much does Amazon KDP take from author royalties?](https://duncan-haywood.github.io/oss-monorepo/kdp-royalty-calculator/how-much-does-kdp-take.html)
+- [Should I enroll this book in Kindle Unlimited?](https://duncan-haywood.github.io/oss-monorepo/kdp-royalty-calculator/should-i-enroll-this-book-in-kindle-unlimited.html)
+- [This calculator vs. a spreadsheet](https://duncan-haywood.github.io/oss-monorepo/kdp-royalty-calculator/vs-a-spreadsheet.html)
+- [This calculator vs. Amazon's KDP royalty calculator](https://duncan-haywood.github.io/oss-monorepo/kdp-royalty-calculator/vs-amazon-kdp-royalty-calculator.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/kdp-royalty-calculator): MIT licensed.

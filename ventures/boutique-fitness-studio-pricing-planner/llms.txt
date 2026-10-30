@@ -1,0 +1,13 @@
+# Are your unlimited, pack and drop-in prices making your studio money?
+
+> Free pricing planner for yoga, pilates, barre and cycling studios: unlimited memberships, class packs and drop-ins in; monthly profit, what each plan earns per visit, break-even class size, empty-seat value and the best unlimited price out. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/boutique-fitness-studio-pricing-planner/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/boutique-fitness-studio-pricing-planner): MIT licensed.

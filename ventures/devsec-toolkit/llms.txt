@@ -1,0 +1,13 @@
+# Every DevSecOps check, one command
+
+> One zero-dependency command that runs your repository through 23 open-source DevSecOps checks: GitHub Actions injection and poisoning, Docker and Compose, Kubernetes, dependency confusion, JWT misuse, ReDoS, AI-agent permissions. One report, SARIF for code scanning, baselines. MIT licensed, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/devsec-toolkit/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/devsec-toolkit): MIT licensed.

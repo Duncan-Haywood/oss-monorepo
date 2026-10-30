@@ -1,0 +1,13 @@
+# Convert a BAI2 bank file to OFX, QBO, QIF or a Xero CSV
+
+> Free BAI2 converter: check the file's control totals and balances, then download OFX/QBO for QuickBooks and Quicken, QIF, or a Xero statement CSV, with stable transaction IDs. Runs in your browser; the file is never uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/bai2-to-ofx-converter/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/bai2-to-ofx-converter): MIT licensed.

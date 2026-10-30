@@ -8,7 +8,8 @@ kinds of link are resolved against the tree:
   - `github.com/<owner>/oss-monorepo/(tree|blob)/main/<path>`: the path exists;
   - the Pages site (`.../oss-monorepo/`, the retired `.../monorepo-projects/`
     path, or the `example.invalid` placeholder the build rewrites):
-    `<slug>/[page]` maps to `ventures/<slug>/[page|page.html|page/index.html]`.
+    `<slug>/[page]` maps to `ventures/<slug>/[page|page.html|page/index.html]`,
+    or names a page that the venture's build-time generator (`GENERATED_PAGES`) writes.
 
     python3 platform/ci/check_llms_txt_links.py     # exit 1 on any dead link
 """
@@ -19,11 +20,29 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[2]
 LINK = re.compile(r"\]\((https?://[^)\s]+)\)")
 GH = re.compile(r"https://github\.com/[^/]+/(?:oss-monorepo|monorepo-projects)/(?:tree|blob)/main/(.*)", re.I)
+GENERATED = re.compile(r"^\s*'([\w-]+)':\s*(\[[^\]]*\]|'[\w.-]+')", re.M)
+SCRIPT = re.compile(r"'([\w.-]+)'")
 SITE = re.compile(r"https://(?:[\w-]+\.github\.io/(?:oss-monorepo|monorepo-projects)|example\.invalid)/(.*)", re.I)
+
+
+def generated_pages(root: Path) -> dict[str, str]:
+    """Venture slug -> source of the script that writes pages at build time
+    (`platform/pages/generated-pages.mjs`, `GENERATED_PAGES`); those pages are not committed."""
+    reg = root / "platform" / "pages" / "generated-pages.mjs"
+    if not reg.exists():
+        return {}
+    out = {}
+    for slug, scripts in GENERATED.findall(reg.read_text()):
+        srcs = [root / "ventures" / slug / name for name in SCRIPT.findall(scripts)]
+        text = "\n".join(src.read_text() for src in srcs if src.exists())
+        if text:
+            out[slug] = text
+    return out
 
 
 def dead_links(root: Path) -> list[tuple[Path, str, str]]:
     bad = []
+    generated = generated_pages(root)
     for f in sorted((root / "ventures").glob("*/llms.txt")):
         for url in sorted(set(LINK.findall(f.read_text()))):
             m = GH.match(url)
@@ -38,7 +57,9 @@ def dead_links(root: Path) -> list[tuple[Path, str, str]]:
             base = root / "ventures" / slug
             if not base.is_dir():
                 bad.append((f, url, "no such venture"))
-            elif rest and not any(c.exists() for c in (base / rest, base / (rest + ".html"), base / rest / "index.html")):
+            elif rest and rest in generated.get(slug, ""):
+                continue
+            elif rest and not any(c.exists() for b in (base, base / "site") for c in (b / rest, b / (rest + ".html"), b / rest / "index.html")):
                 bad.append((f, url, "page missing"))
     return bad
 

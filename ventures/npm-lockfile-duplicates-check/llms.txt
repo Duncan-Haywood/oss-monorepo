@@ -1,0 +1,14 @@
+# Why is node_modules installing the same package five times?
+
+> Paste your package-lock.json and see every package installed at more than one version, who pulls each copy in, and which ones npm dedupe can remove. Free duplicate dependency finder, runs in your browser, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/npm-lockfile-duplicates-check/)
+- [How to remove duplicate packages from node_modules](https://duncan-haywood.github.io/oss-monorepo/npm-lockfile-duplicates-check/duplicate-packages-npm-guide.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/npm-lockfile-duplicates-check): MIT licensed.

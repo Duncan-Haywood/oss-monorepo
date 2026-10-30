@@ -1,0 +1,14 @@
+# How many trays should you seed, and of what?
+
+> Free planner for microgreens growers: what to seed on which day for your harvest days, how many rack spaces the busiest weekday needs, which crop earns the most per rack space, and the best mix when the rack is full. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/microgreens-tray-planner/)
+- [How many microgreen trays per week?](https://duncan-haywood.github.io/oss-monorepo/microgreens-tray-planner/how-many-microgreen-trays-per-week.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/microgreens-tray-planner): MIT licensed.

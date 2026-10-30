@@ -61,3 +61,57 @@ test("an off-centre peak: the far side has the steeper-or-shallower pitch to the
   assert.equal(s.courses, 13);
   assert.ok(Math.abs(s.runFeet * 12 - (1000 + 84 + 44 + 4)) < 1e-9);
 });
+
+test("opening trim: head, jambs and a window sill, packed by hand (2026-10-30)", () => {
+  const p = plan([{ id: "A", length: 240, openings: [
+    { kind: "window", offset: 20, width: 36, height: 36, headerHeight: 72 },
+    { kind: "door", offset: 120, width: 36, height: 80, headerHeight: 80 },
+  ] }]);
+  const off = layoutSiding({ waste: 0 }, p);
+  assert.equal(off.trim, null); // off by default: earlier totals do not move
+  const s = layoutSiding({ waste: 0, openingTrim: true, trimStock: 96, trimPrice: 10 }, p);
+  // 3.5 in boards: window head and sill 43, jambs 36 x2; door head 43, jambs 80 x2
+  // pieces 80 80 43 43 43 36 36 = 361 in; first fit decreasing into 96 in: [80] [80] [43 43] [43 36] [36] = 5 boards
+  assert.equal(s.trim.doors, 1); assert.equal(s.trim.windows, 1);
+  assert.ok(Math.abs(s.trim.feet - 361 / 12) < 1e-9);
+  assert.equal(s.trim.boards, 5);
+  assert.equal(s.cost, 50);
+  assert.ok(sidingText(s).some((x) => x.includes("Opening trim: 1 door(s)")));
+  assert.equal(layoutSiding({ trimWidth: 9 }, p).ok, false);
+});
+
+test("vertical siding: columns, pieces round an opening, gable and refusal, by hand (2026-10-30)", () => {
+  // 120 in wall, 8 ft high, 12 in boards: 10 columns; window x 40..76 (36 wide), y 36..72 touches columns 3,4,5,6 (x 36..84)
+  const p = plan([{ id: "A", length: 120, openings: [{ kind: "window", offset: 40, width: 36, height: 36, headerHeight: 72 }] }]);
+  const s = layoutSiding({ waste: 0, style: "vertical", boardWidth: 12, stock: 96 }, p);
+  assert.equal(s.style, "vertical");
+  assert.equal(s.courses, 10);
+  // 6 full 96 in boards + 4 columns x (36 below + 24 above) = 576 + 240 = 816 in
+  assert.ok(Math.abs(s.runFeet * 12 - 816) < 1e-9);
+  // 6 boards of 96; the eight pieces of 36 and 24 pack into 96 in boards: 36+36+24 | 36+36+24 | 24+24 -> 3 boards
+  assert.equal(s.boards, 6 + 3);
+  assert.ok(sidingText(s)[0].includes("Siding (vertical)"));
+  // gable: 120 wide, 6:12, 12 in columns; the column holding the peak (x 60) is 96 + 30 long; first column 96 + 0.5 * 12 = 102
+  const g = layoutSiding({ waste: 0, style: "vertical", boardWidth: 12, stock: 144 }, plan([{ id: "G", length: 120, gable: { pitch: 6 } }]));
+  assert.ok(g.ok); assert.ok(Math.abs(g.runFeet * 12 - 2 * (102 + 108 + 114 + 120 + 126)) < 1e-9);
+  assert.equal(layoutSiding({ style: "vertical", stock: 72 }, plan([{ id: "A", length: 100 }])).ok, false);
+  assert.equal(validateSiding({ style: "slate" }).length, 1);
+  assert.equal(validateSiding({ boardWidth: 1 }).length, 1);
+});
+
+test("vertical siding battens: one per seam, cut at an opening and by the gable line, by hand (2026-10-30)", () => {
+  // 120 in wall, 12 in columns: 9 seams at x = 12..108; window x 40..76 y 36..72 crosses seams 48, 60, 72
+  const p = plan([{ id: "A", length: 120, openings: [{ kind: "window", offset: 40, width: 36, height: 36, headerHeight: 72 }] }]);
+  const s = layoutSiding({ waste: 0, style: "vertical", boardWidth: 12, stock: 96, battens: true, battenPrice: 2 }, p);
+  assert.equal(s.battens.pieces, 6 + 3 * 2);
+  assert.ok(Math.abs(s.battens.feet * 12 - (6 * 96 + 3 * 60)) < 1e-9);
+  // six 96s, then six 36s and 24s: 36+36+24 | 36+24+24 | 24 ... 3 x 36 + 3 x 24 = 180 in -> 2 boards
+  assert.equal(s.battens.boards, 6 + 2);
+  assert.equal(s.cost, 2 * s.battens.boards);
+  assert.equal(layoutSiding({ waste: 0, style: "vertical", boardWidth: 12, stock: 96 }, p).battens, null);
+  // gable 120 wide, 6:12: seams at 12..108 stand 96 + 0.5 x, 96 + 0.5 x(120-x)
+  const g = layoutSiding({ waste: 0, style: "vertical", boardWidth: 12, stock: 144, battens: true }, plan([{ id: "G", length: 120, gable: { pitch: 6 } }]));
+  assert.ok(Math.abs(g.battens.feet * 12 - (2 * (102 + 108 + 114 + 120) + 126)) < 1e-9);
+  assert.ok(sidingText(s).some((x) => x.includes("Battens:")));
+  assert.equal(validateSiding({ battenStock: 10 }).length, 1);
+});

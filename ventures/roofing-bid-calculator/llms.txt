@@ -1,0 +1,17 @@
+# Bid the roof, not the floor plan.
+
+> Price a residential reroof from roof squares, pitch, waste, and tear-off layers — labor, material, dump, overhead, and the walk-away number. Free, runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/roofing-bid-calculator/)
+- [How to price a roof by the square — not the house square footage](https://duncan-haywood.github.io/oss-monorepo/roofing-bid-calculator/how-to-price-a-roof-by-the-square.html)
+- [This calculator vs. a flat price per house square foot](https://duncan-haywood.github.io/oss-monorepo/roofing-bid-calculator/vs-a-flat-price-per-house-square-foot.html)
+- [This calculator vs. AccuLynx](https://duncan-haywood.github.io/oss-monorepo/roofing-bid-calculator/vs-acculynx.html)
+- [This calculator vs. Jobber](https://duncan-haywood.github.io/oss-monorepo/roofing-bid-calculator/vs-jobber.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/roofing-bid-calculator): MIT licensed.

@@ -1,0 +1,13 @@
+# Turn a year of bank transactions into Schedule C lines.
+
+> Free tool for freelancers, sole proprietors and gig workers: drop in your bank or card CSV and get income and expenses sorted into Schedule C lines, with estimated-tax payments, health insurance and equipment held out, a platform-fee check against your 1099 gross, and a CSV for your preparer.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/self-employed-schedule-c-categorizer/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/self-employed-schedule-c-categorizer): MIT licensed.

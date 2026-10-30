@@ -1,0 +1,17 @@
+# Check the CAM math before you argue about the bill.
+
+> Free CAM reconciliation calculator for small commercial landlords and tenants. Check area-share math, credits, billed charges, and variance privately in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/cam-reconciliation-check/)
+- [How much CAM do you owe based on square footage?](https://duncan-haywood.github.io/oss-monorepo/cam-reconciliation-check/how-much-cam-do-i-owe-based-on-square-footage.html)
+- [This calculator vs. AppFolio CAM reconciliation](https://duncan-haywood.github.io/oss-monorepo/cam-reconciliation-check/vs-appfolio.html)
+- [This worksheet vs. reconciling CAM by square footage alone](https://duncan-haywood.github.io/oss-monorepo/cam-reconciliation-check/vs-square-footage-alone.html)
+- [This calculator vs. Yardi Voyager CAM reconciliation](https://duncan-haywood.github.io/oss-monorepo/cam-reconciliation-check/vs-yardi.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/cam-reconciliation-check): MIT licensed.

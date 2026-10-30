@@ -1,0 +1,13 @@
+# What should a fractional executive charge to replace a full-time salary?
+
+> Free fractional executive rate calculator: convert a full-time salary into the day rate, hourly rate and monthly retainer that cover unsold days, benefits and payroll tax, then test a client mix against capacity. Runs in your browser, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/fractional-executive-rate-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/fractional-executive-rate-calculator): MIT licensed.

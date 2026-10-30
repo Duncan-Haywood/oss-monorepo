@@ -1,0 +1,13 @@
+# Which music distributor leaves you the most?
+
+> Free calculator comparing what an independent artist keeps on DistroKid, TuneCore, CD Baby, Amuse, RouteNote and UnitedMasters at their own release count and stream volume, with the streams-per-month crossover where the cheapest distributor changes. Entirely client-side, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/music-distribution-fee-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/music-distribution-fee-calculator): MIT licensed.

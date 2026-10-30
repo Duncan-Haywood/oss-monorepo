@@ -228,9 +228,10 @@ class RecordTest(PromptTestCase):
         self.assertRegex(json.loads(path.read_text())["ended"], r"^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ$")
 
     def test_record_never_overwrites(self):
-        promptctl.record(self.fx.root, "research", 0, "https://x/s1", day="2026-10-12")
-        with self.assertRaises(SystemExit):
-            promptctl.record(self.fx.root, "research", 0, "https://x/s1", day="2026-10-12")
+        a = promptctl.record(self.fx.root, "research", 0, "https://x/s1", day="2026-10-12")
+        b = promptctl.record(self.fx.root, "research", 0, "https://x/s1", day="2026-10-12")
+        self.assertNotEqual(a, b)
+        self.assertTrue(b.name.endswith("-s1-2.json"))
 
 
 class ValidateTest(PromptTestCase):
@@ -419,6 +420,13 @@ class RepositoryTest(unittest.TestCase):
         weights = {t: float(c["weight"]) for t, c in tracks.items() if t != promptctl.REVIEW}
         self.assertAlmostEqual(weights["polish"] / sum(weights.values()), 0.05, places=3)
         self.assertTrue(tracks["polish"].get("until"))
+
+    def test_performance_engineering_gets_about_five_percent(self):
+        # The owner, 2026-10-24: "add some work distribution to overall
+        # performance engineering across the repo" (prompts/perf/prompt-0.md).
+        tracks = promptctl.load_routing(promptctl.ROOT)["tracks"]
+        weights = {t: float(c["weight"]) for t, c in tracks.items() if t != promptctl.REVIEW}
+        self.assertAlmostEqual(weights["perf"] / sum(weights.values()), 0.05, places=3)
 
 
 

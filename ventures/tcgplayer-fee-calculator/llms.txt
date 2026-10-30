@@ -1,0 +1,15 @@
+# What TCGplayer really takes from an order.
+
+> Free TCGplayer seller fee calculator: 10.75% marketplace commission (capped at $75 per product, charged on cards plus shipping) and 2.5% + $0.30 per-order transaction fee. See your payout, profit per order, the price for a target profit, and Pro or pre-February-2026 rates side by side. Nothing leaves your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/tcgplayer-fee-calculator/)
+- [The TCGplayer $0.30 fee, and why order size decides your margin](https://duncan-haywood.github.io/oss-monorepo/tcgplayer-fee-calculator/tcgplayer-30-cent-fee-and-order-size.html)
+- [TCGplayer fee calculator vs. tracking your sales in a spreadsheet](https://duncan-haywood.github.io/oss-monorepo/tcgplayer-fee-calculator/vs-tracking-tcgplayer-sales-in-a-spreadsheet.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/tcgplayer-fee-calculator): MIT licensed.

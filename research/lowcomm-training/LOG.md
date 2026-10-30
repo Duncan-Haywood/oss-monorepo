@@ -2,6 +2,59 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-30 · Milestone 6m (H6 scale-up): which form in H describes the size-2 excess? (analysis of existing runs; no new training)
+
+- Why: 6l's "Next". Forms fixed in `refit.py` before the first run of it, but I did not log the plan first (deviation from the log-before-result rule; nothing was tuned afterwards). Data: the six paired excess cells at size 2 (H = 4, 16, 32, 64, 128 at keep 1/16; H = 16 at keep 1/4), each weighted by 1/se^2. Forms, all times omega = 1/keep - 1: power a (H/16)^b, saturating a H/(H + h0), plateau a, and a + c log2(H/16). Score: leave-one-cell-out error.
+- **H6m-i** (prior 60%): saturating beats power on leave-one-cell-out RMSE by at least 20%. **H6m-ii** (prior 50%): no form predicts the held-out H = 4 cell within 2 se.
+
+### Outcome of 6m (`experiments/gpt_scale/refit.py`, `refit_results_6m.txt`)
+- Leave-one-cell-out RMSE (nats): saturating 0.0141, power 0.0145, linlog 0.0150, plateau 0.0158. **H6m-i refuted**: saturating beats power by 3%. **H6m-ii held**: every form over-predicts H = 4 by +0.031 to +0.037 (3.8 to 4.5 se); H = 4 carries 2 seeds and is the edge cell, so the miss is mostly where the excess is near zero and any form with an H-independent plateau at small omega-scaling fails.
+- Reading: the four forms are not separable with these cells. Weighted SSE favours saturating (5.8, h0 about 6) over power (10.8, b = 0.15) and plateau (19.9), but the leave-one-out score does not, because the score is dominated by the H = 4 cell and H = 16 (the first plateau cell, under-predicted by 2.8 se in three forms). The power law's fitted exponent drops from the rule's 0.55 to 0.15 once the excess is fitted directly with paired errors. Keep-level dependence is one cell (1/4 at H = 16, excess +0.0056, se 0.0069, predictions 0.003 to 0.009): omega-linearity is untested.
+- Limits: six cells, 2 to 4 free parameters including the fixed grid; the standard errors treat cells as independent; one width and one corpus.
+- Next: the discriminating cells are H = 8 (the knee, between +0.008 and +0.045) and a second keep level (1/4 or 1/64) at H = 64; six seeds each is 12 to 24 runs of about 18 min.
+
+## 2026-10-30 · Milestone 6l (H6 scale-up): is the size-2 excess rise at H = 128 real with six seeds? (planned before running)
+
+- Why: 6k's "Next". The excess is a plateau near +0.044 over H = 16 to 64 (six seeds each); H = 128 is +0.063 on three seeds (sd 0.003), the only evidence for a rise.
+- Setup (`scale.py run h128`): seeds 3 to 5 at H = 128, both keep levels (6 runs, nothing else changes), so H = 128 has six seeds. H = 8 is left for a later step (12 runs).
+- **H6l-i:** the six-seed H = 128 excess stays above H = 64's (+0.044) by more than 0.01 (the rise is real). Prior 65%.
+- Limits to state: one width; one keep level; H = 4 still two seeds; the rule is not refitted here.
+
+### Outcome of 6l (`experiments/gpt_scale/scale.jsonl`, `scale_results_6l.txt`; 6 runs, about 21 min each)
+- Paired excess at keep 1/16, six seeds each: H = 16 +0.0452, H = 32 +0.0431, H = 64 +0.0440, **H = 128 +0.0505** (sd 0.0154, standard error 0.0063). The three-seed +0.063 from 6j fell to +0.051 with three more seeds.
+- **H6l-i refuted.** H = 128 sits 0.0065 above H = 64's, under the 0.01 bound and about one standard error. Six seeds do not support a real rise: from H = 16 to 128 the excess is flat within roughly one standard error of +0.045 to +0.05.
+- Reading: at size 2 the excess is flat in H from 16 to 128, so the rule's power law in H (b = 0.55 to 0.60) over-predicts growth; the 6h/6i/6j "structure" was largely seed noise at H = 128 plus the flat middle. The refit on the seven original cells still shows leave-one-out MAPE 2.13% (held-out (64, 1/16) misses by 0.143 nats). Not tested: H = 8, other keep levels, a saturating-in-H form refitted on all cells.
+- Limits: H = 4 keeps two seeds; one width; one keep level; the rule is not refitted here.
+- Next: refit with a form saturating in H (constant above a small H) on all six-seed cells and score it leave-one-cell-out against the power law.
+
+## 2026-10-30 · Milestone 6k (H6 scale-up): is the flat stretch of the size-2 excess between H = 16 and 64 seed noise? (planned before running)
+
+- Why: 6j's "Next". The excess at keep 1/16 is +0.054 (H = 16, two seeds), +0.045 (H = 32, three), +0.044 (H = 64, six), +0.063 (H = 128, three). The 16 to 64 dip is at most 2 standard errors, with only 2 and 3 seeds at the first two levels.
+- Setup (`scale.py run hfill`): seeds 2 to 5 at H = 16 and seeds 3 to 5 at H = 32, both keep levels (14 runs, nothing else changes), so H = 16, 32, 64 have six seeds each.
+- **H6k-i:** with six seeds the H = 16 excess is within 0.01 of H = 64's (the dip was seed noise). **H6k-ii:** the six-seed excess is monotone non-decreasing over 16, 32, 64 within one standard error each. Priors: i 55%, ii 50%.
+- Limits to state: H = 4 and 128 keep two to three seeds; one width; one keep level; the rule is not refitted here.
+
+### Outcome of 6k (`experiments/gpt_scale/scale.jsonl`, `scale_results_6k.txt`; 14 runs, about 18 min each)
+- Paired excess at keep 1/16 with six seeds each: H = 16 **+0.0452** (se 0.0047), H = 32 +0.0431 (se 0.0038), H = 64 +0.0440 (se 0.0041). H = 4 (+0.008, 2 seeds) and H = 128 (+0.063, 3 seeds) unchanged.
+- **H6k-i supported.** The H = 16 excess is 0.0012 from H = 64's, far under the 0.01 bound: the 6j "dip" came from two-seed noise (H = 16 was +0.054 on two seeds). **H6k-ii supported**: 16, 32, 64 differ by under 0.002, inside one standard error each (a plateau, not a rise).
+- Reading: the size-2 excess is a plateau near +0.044 over H = 16 to 64, small at H = 4 and larger at 128. That shape is not the rule's smooth power law in H (b = 0.55), which is why the 6h/6i leave-one-out miss at (64, 1/16) was structural. Not tested: whether the 128 rise is real (3 seeds), and whether size 1 has the same plateau (its H = 16 and 64 cells are +0.083 and +0.099, three seeds, no H = 32).
+- Limits: H = 4 and 128 keep two and three seeds; one width; one keep level; the rule is not refitted here.
+- Next: six seeds at H = 128 and H = 8, then refit the rule with a saturating form in H.
+
+## 2026-10-30 · Milestone 6j (H6 scale-up): does the size-2 compression excess saturate in H between 16 and 64? (planned before running)
+
+- Why: 6i's "Next". The size-2 excess at keep 1/16 is +0.054 at H = 16 and +0.044 at H = 64 (six seeds, so measured to about 0.004): it does not rise, while the rule's power law in H (b = 0.55) says it should. If it is flat or falling, the power-law form in H is what breaks at size 2.
+- Setup (`experiments/gpt_scale/scale.py run hshape`): size 2 (dim 192, 914,880 parameters), same budget, M = 4, lr 2e-3. Cells keep in {1, 1/16} x H in {32, 128}, seeds 0 to 2 (12 runs). The report prints the paired excess (compressed minus uncompressed, same seed) at every H with its seed-difference sd.
+- **H6j-i:** the excess at H = 128 is not larger than at H = 64 by more than 0.01 nats (saturation or decline; the rule predicts +0.06 or more). **H6j-ii:** the excess is non-monotone in H over 4, 16, 32, 64, 128 (a rise then a fall), not a plateau. Priors: i 60%, ii 35%.
+- Limits to state: three seeds on the new cells against six at H = 64; one width; the report's seed pairing uses seeds 0 to 2 only for the new H; same corpus.
+
+### Outcome of 6j (`experiments/gpt_scale/scale.jsonl`, `scale_results_6j.txt`; 12 runs, about 18 min each)
+- Paired excess at keep 1/16 (compressed minus uncompressed, same seed): H = 4 +0.008 (2 seeds), 16 +0.054 (2), 32 +0.045 (3, sd 0.012), 64 +0.044 (6, sd 0.010), 128 +0.063 (3, sd 0.003).
+- **H6j-i refuted.** The H = 128 excess is 0.019 above H = 64's, over the 0.01 bound: the excess does not saturate. **H6j-ii not supported.** The 16 to 64 dip is 0.010 with standard errors of about 0.004 to 0.007 per cell, so it is at most 1.5 to 2 standard errors; the sequence reads as a flat stretch between 16 and 64 followed by a rise at 128, not a clean rise then fall.
+- Reading: 6i's suspicion that the power law in H is the weak part is only half right. The excess is not falling; it is roughly flat across 16 to 64 and rises again by 128, so the rule's smooth power law over-predicts the middle and fits the ends. Not tested: whether the 16 to 64 flat stretch is seed noise (two seeds at H = 16 and three at 32 each), which would make the power law fine and the 6h/6i leave-one-out miss a pure identifiability problem.
+- Limits: two to three seeds on four of the five H levels; one width; one keep level; rule not refitted on these cells here.
+- Next: more seeds at H = 16 and 32, and refit the rule on all five H levels to see whether b is stable.
+
 ## 2026-10-30 · Milestone 6i (H6 scale-up): do four more seeds on the two H = 64 cells make the size-2 refit identifiable? (planned before running)
 
 - Why: 6h refuted H6h-i (leave-one-cell-out MAPE 2.54% against 0.71% at size 1) and traced most of the miss to one cell (0.174 of the 0.289 nats of summed absolute leave-one-out error): (H = 64, keep 1/16), the only cell that pins the H exponent. Its two seeds differ by 0.027 nats (1.6614, 1.6341), as large as the 0.044 excess being fitted. So the cell is noisy, and "weakly identified" is a statement about seed noise that more seeds can test.

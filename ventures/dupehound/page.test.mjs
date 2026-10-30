@@ -52,3 +52,9 @@ test("llms.txt and sitemap exist", () => {
 test("index links one hop to the npm-lockfile-duplicates-check sibling", () => {
   assert.match(html, /href="\.\.\/npm-lockfile-duplicates-check\/"/);
 });
+
+// Result rows are keyboard-focusable (tabindex=0), so focus must stay visible.
+test("focusable result rows keep a visible focus outline", () => {
+  assert.match(html, /tr\.clone:focus-visible\s*\{[^}]*outline:\s*2px solid/);
+  assert.doesNotMatch(html, /tr\.clone:focus[^-][^}]*outline:\s*none/);
+});

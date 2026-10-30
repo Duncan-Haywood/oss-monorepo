@@ -1,0 +1,16 @@
+# MCP Config Risk Check
+
+> Paste an mcp.json, claude_desktop_config.json, or any MCP server config and get every risky pattern flagged: servers granted broad filesystem/shell access, API keys hardcoded instead of referenced from env, missing version pins, and duplicate tool names across servers. Free, private, runs entirely in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/mcp-config-risk-check/)
+- [MCP Config Risk Check vs. MCP-Scan](https://duncan-haywood.github.io/oss-monorepo/mcp-config-risk-check/vs-mcp-scan.html)
+- [MCP Config Risk Check vs. reading the config by hand](https://duncan-haywood.github.io/oss-monorepo/mcp-config-risk-check/vs-reading-the-config-by-hand.html)
+- [Why a clean scan isn't a safety guarantee](https://duncan-haywood.github.io/oss-monorepo/mcp-config-risk-check/why-a-clean-scan-isnt-a-safety-guarantee.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/mcp-config-risk-check): MIT licensed.

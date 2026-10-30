@@ -76,7 +76,7 @@
     <h1>Build this week's schedule without the spreadsheet puzzle</h1>
     <p>List <strong>the shifts you need covered</strong> and <strong>your people</strong> with their availability, weekly hour limits and wages. The tool assigns people to shifts so that <strong>every shift is covered if it can be</strong>, nobody works outside their availability, gets less rest than you allow, or goes into <strong>overtime</strong> when someone cheaper is free. Shifts it cannot fill come back with the reason, and it shows <strong>who the week depends on</strong>. Download the roster as a CSV.</p>
     <p class="cta-row"><a class="cta" href="#start">Build a schedule</a> <a class="cta alt" href="#start" id="cta-example">Try an example</a></p>
-    <p class="note">Your staff list never leaves this browser tab. Planning aid, not legal, tax, or financial advice. It does not know your local scheduling-notice, break or minor-labor laws. See <a href="how-to-make-an-employee-schedule.html">how to make an employee schedule</a> for the method, and <a href="do-i-need-to-hire-another-employee.html">do I need to hire another employee?</a> for testing a hire before you post the job. Checking payroll against sales? See <a href="labor-cost-percentage-by-day.html">labor cost percentage by day</a>. Worried about close-then-open shifts? See <a href="how-to-avoid-clopening.html">what a rest gap costs</a>, or <a href="how-to-reduce-overtime-in-a-schedule.html">how to reduce overtime in a schedule</a>. Scheduling a 14 or 15 year old? See <a href="scheduling-14-and-15-year-olds.html">what the youth hour limits do to a roster</a>, <a href="free-alternative-to-7shifts-when-i-work-homebase.html">a free alternative to paid scheduling apps for the rota</a>. Need a blank grid to print? See the <a href="employee-schedule-template.html">free weekly employee schedule template</a>. Closes and weekends landing on the same people? See <a href="how-to-rotate-closing-and-weekend-shifts-fairly.html">how to rotate them fairly</a>. Someone just called out? See <a href="how-to-cover-a-shift-when-someone-calls-out.html">patch it or rebuild the week</a>. Weekend requests piling up? See <a href="how-to-handle-time-off-requests.html">how many you can grant</a>, <a href="schedule-change-after-posting.html">changing a posted schedule</a>. Shifts staying open? See <a href="whose-availability-is-worth-widening.html">whose availability is worth asking to widen</a>.</p>
+    <p class="note">Your staff list never leaves this browser tab. Planning aid, not legal, tax, or financial advice. It does not know your local scheduling-notice, break or minor-labor laws. See <a href="how-to-make-an-employee-schedule.html">how to make an employee schedule</a> for the method, and <a href="do-i-need-to-hire-another-employee.html">do I need to hire another employee?</a> for testing a hire before you post the job. Checking payroll against sales? See <a href="labor-cost-percentage-by-day.html">labor cost percentage by day</a>. Worried about close-then-open shifts? See <a href="how-to-avoid-clopening.html">what a rest gap costs</a>, or <a href="how-to-reduce-overtime-in-a-schedule.html">how to reduce overtime in a schedule</a>. Scheduling a 14 or 15 year old? See <a href="scheduling-14-and-15-year-olds.html">what the youth hour limits do to a roster</a>, <a href="free-alternative-to-7shifts-when-i-work-homebase.html">a free alternative to paid scheduling apps for the rota</a>. Need a blank grid to print? See the <a href="employee-schedule-template.html">free weekly employee schedule template</a>. Closes and weekends landing on the same people? See <a href="how-to-rotate-closing-and-weekend-shifts-fairly.html">how to rotate them fairly</a>. Someone just called out? See <a href="how-to-cover-a-shift-when-someone-calls-out.html">patch it or rebuild the week</a>. Weekend requests piling up? See <a href="how-to-handle-time-off-requests.html">how many you can grant</a>, <a href="schedule-change-after-posting.html">changing a posted schedule</a>, <a href="predictive-scheduling-14-day-notice.html">what a late change costs inside a 14-day notice window</a>. Running a salon? See <a href="salon-staff-schedule.html">covering chairs with a small team</a>. Running a childcare centre? See <a href="daycare-staff-schedule.html">covering opening, core hours and pickup</a>. Capping long days or runs of days? See <a href="days-in-a-row-and-daily-hour-limits.html">what daily hour and days-in-a-row limits cost</a>. Shifts staying open? See <a href="whose-availability-is-worth-widening.html">whose availability is worth asking to widen</a>.</p>
   </header>
 <main>
 
@@ -88,9 +88,13 @@
     <h2>Shifts to cover</h2>
     <label for="shifts">One requirement per line: day(s), start, end, people needed, label (optional)</label>
     <textarea id="shifts" spellcheck="false" placeholder="Mon-Fri, 6, 14, 2, open&#10;Sat, 12, 22, 2, close&#10;Fri, 22, 6, 1, night"></textarea>
+    <label for="import-shifts-file">…or convert a published-schedule export from another scheduler (one row per shift: date, start, end, position)</label>
+    <input id="import-shifts-file" type="file" accept=".csv,.tsv,.txt,text/csv,text/plain">
     <p class="note">Days can be a range (<code>Mon-Fri</code>) or a list (<code>Mon/Wed/Fri</code>). Times can be <code>9</code>, <code>9:30</code> or <code>9am</code>. An end at or before the start runs overnight into the next day. People needed makes that many separate shifts. To lock a shift to someone, add <code>fixed: Ana</code> as a last cell (use <code>fixed: Ana + Ben</code> to pin two copies); the tool plans everyone else around it.</p>
     <label for="file">…or upload a staff CSV</label>
     <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv,text/plain">
+    <label for="import-file">…or convert a staff export from 7shifts, When I Work, Homebase or similar (name, hourly rate, hours and position columns; availability is not in most exports)</label>
+    <input id="import-file" type="file" accept=".csv,.tsv,.txt,text/csv,text/plain">
     <div class="row3">
       <div><label for="rest">Minimum rest between shifts (hours)</label><input id="rest" inputmode="decimal" value="10"></div>
       <div><label for="consec">Most days in a row</label><input id="consec" inputmode="decimal" value="6"></div>
@@ -260,6 +264,8 @@
   </footer>
 
   <script type="module">
+    import { importStaffCsv } from "./import-staff.mjs";
+    import { importShiftsCsv } from "./import-shifts.mjs";
     import { planWeeks, planFairness, parseAvailability, placeBreaks, placeRestBreaks, scheduleChanges, carryOverStaff, scheduleFlags, unsupervisedStretches, loneStretches, shortShifts, seventhDayPay, parseStaff, parseShifts, buildRoster, optimalityText, laborPercent, budgetCheck, dailyLabor, salesPerLaborHour, coverageGrid, fairnessReport, hoursThresholds, tipPool, trimOptions, coverOptions, absencePlan, swapOptions, checkTrade, rosterCsv, hoursCsv, rosterIcs, splitShiftPay, rosterMessages, openShiftPost, mergeAvailabilityReplies, sampleStaff, sampleShifts, TEMPLATES, fmtClock, money, money2, num, DAYS } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
@@ -564,6 +570,18 @@
       const f = e.target.files[0]; if (!f) return;
       const rd = new FileReader();
       rd.onload = () => { const r = carryOverStaff($("#staff").value, String(rd.result)); $("#staff").value = r.text; persist(); status.textContent = r.changed ? `Set "prev:" and the running "tough:" tally for ${r.changed} ${r.changed === 1 ? "person" : "people"} from ${f.name}. Click the button to rebuild.` : `No names in ${f.name} matched your people. Is it a roster CSV from this tool?`; };
+      rd.readAsText(f);
+    });
+    $("#import-file").addEventListener("change", (e) => {
+      const f = e.target.files[0]; if (!f) return;
+      const rd = new FileReader();
+      rd.onload = () => { const r = importStaffCsv(String(rd.result)); if (r.rows) { $("#staff").value = r.staffText; persist(); } status.textContent = r.rows ? `Imported ${r.rows} ${r.rows === 1 ? "person" : "people"} from ${f.name}. ${r.notes.join(" ")}${r.skipped.length ? " Skipped: " + r.skipped.join("; ") + "." : ""}` : r.notes.join(" "); };
+      rd.readAsText(f);
+    });
+    $("#import-shifts-file").addEventListener("change", (e) => {
+      const f = e.target.files[0]; if (!f) return;
+      const rd = new FileReader();
+      rd.onload = () => { const r = importShiftsCsv(String(rd.result)); if (r.shifts) { $("#shifts").value = r.shiftsText; persist(); } status.textContent = r.shifts ? `Imported ${r.shifts} shift ${r.shifts === 1 ? "line" : "lines"} from ${f.name}. ${r.notes.join(" ")}${r.skipped.length ? " Skipped: " + r.skipped.join("; ") + "." : ""}` : r.notes.join(" "); };
       rd.readAsText(f);
     });
     $("#setup-file").addEventListener("change", (e) => {

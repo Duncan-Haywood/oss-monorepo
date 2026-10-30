@@ -94,11 +94,11 @@ const RAW = [
   T("yard-games", "activities", [], "Outdoor games that need nothing but a yard", "babysitter activities", ["Red light, green light", "Hide and seek with boundaries", "Relay races with silly walks"]),
   T("screen-free-evening", "activities", [], "Screen-free evenings: what we do instead", "evening babysitter", ["Board games for mixed ages", "Building with blocks or cardboard", "A read-aloud before bed"]),
   T("kitchen-helpers", "activities", [], "Kitchen helpers: simple snacks kids can make", "babysitter", ["Fruit kabobs and yogurt parfaits", "Only foods you have said yes to", "Clean-up is part of the job"]),
-  T("toddler-sensory", "activities", [], "Sensory play for toddlers", "toddler babysitter", ["Water play with cups and spoons", "Play dough and cookie cutters", "Nothing small enough to choke on"]),
+  T("toddler-sensory", "activities", [], "Sensory play for toddlers", "toddler babysitter", ["Water play with cups and spoons, within arm's reach the whole time", "Play dough and cookie cutters", "Nothing small enough to choke on"]),
   T("story-time", "activities", [], "Story time: how reading aloud fits into a sit", "babysitter", ["Kids pick the book", "Asking what happens next", "A calm bridge to bedtime"]),
   T("kitchen-science", "activities", [], "Kitchen-table science experiments", "babysitter activities", ["Baking soda and vinegar volcanoes", "Sink or float guesses", "Growing a bean in a cup"]),
   T("recycled-crafts", "activities", [], "Crafts from the recycling bin", "babysitter crafts", ["Cardboard tube binoculars", "Box houses and cars", "Asking before using anything you're keeping"]),
-  T("dance-party", "activities", [], "Dance parties and music games", "babysitter", ["Freeze dance", "Homemade shakers", "Songs that wind down before bed"]),
+  T("dance-party", "activities", [], "Dance parties and music games", "babysitter", ["Freeze dance", "Homemade shakers (lids taped shut; not for under-3s)", "Songs that wind down before bed"]),
   T("mixed-ages", "activities", [], "Activities that work for siblings of different ages", "babysitter for siblings", ["Jobs for the older child, not just babysitting", "Games with roles for everyone", "Separate quiet time when needed"]),
   // routines
   T("bedtime-routine", "routines", [], "A bedtime routine that sticks when you're out", "evening babysitter", ["Your steps, in your order", "Same books, same songs", "What I do if someone can't sleep"]),
@@ -118,7 +118,7 @@ const RAW = [
   // faith, only when the sitter turns faith on; offered to families who ask for it
   T("bible-stories", "faith", [], "Bible stories for little ones, when parents ask", "Christian babysitter", ["Short stories with pictures", "Only when your family asks", "Questions kids can answer"], true),
   T("easter-meaning", "faith", [3, 4], "Easter with kids: crafts with meaning", "Christian babysitter", ["An empty-tomb garden in a pot", "Reading the story together", "Only for families who want it"], true),
-  T("advent-candle", "faith", [11, 12], "Advent with kids: a candle a week", "Christian babysitter", ["A paper Advent wreath", "One short reading each week", "Following your family's tradition"], true),
+  T("advent-candle", "faith", [11, 12], "Advent with kids: a candle a week", "Christian babysitter", ["A paper Advent wreath with paper or battery candles (the parents light any real one)", "One short reading each week", "Following your family's tradition"], true),
   T("nativity-craft", "faith", [12], "Telling the Christmas story with a nativity craft", "Christian babysitter", ["Paper-bag or clothespin figures", "Kids retell the story", "Displaying it at home"], true),
   T("gratitude-journal", "faith", [11], "Gratitude journals for kids", "Christian babysitter", ["One thing each day", "Drawings for kids who don't write yet", "Sharing at dinner if you like"], true),
   T("bedtime-prayers", "faith", [], "Simple bedtime prayers, if your family uses them", "Christian babysitter", ["Your family's words, not mine", "A short and calm end to the day", "Only when you ask"], true),

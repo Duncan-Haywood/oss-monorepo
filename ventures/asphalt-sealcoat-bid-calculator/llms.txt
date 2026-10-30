@@ -1,0 +1,16 @@
+# Bid the coats and the cracks, not the driveway special.
+
+> Price a sealcoating job from square feet, coats, oil spots, crack fill, and the drive — not a cents-per-foot special. See gallons, walk-away price, and margin before you quote.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/asphalt-sealcoat-bid-calculator/)
+- [How much should I charge for sealcoating?](https://duncan-haywood.github.io/oss-monorepo/asphalt-sealcoat-bid-calculator/how-much-to-charge.html)
+- [This calculator vs. a flat per-square-foot price](https://duncan-haywood.github.io/oss-monorepo/asphalt-sealcoat-bid-calculator/vs-a-flat-per-square-foot-price.html)
+- [This calculator vs. Bitumio](https://duncan-haywood.github.io/oss-monorepo/asphalt-sealcoat-bid-calculator/vs-bitumio.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/asphalt-sealcoat-bid-calculator): MIT licensed.

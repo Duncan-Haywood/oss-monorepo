@@ -1,0 +1,13 @@
+# What does a house call really cost you, and what should it cost the client?
+
+> Free calculator for mobile veterinarians: what a house call really costs after drive time, mileage, supplies, assistant time and no-shows, the visit fee and travel-zone surcharge that reach your margin, and profit per day. Runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/mobile-vet-house-call-fee-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/mobile-vet-house-call-fee-calculator): MIT licensed.

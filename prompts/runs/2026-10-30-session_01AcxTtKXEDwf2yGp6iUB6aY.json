@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-30",
+  "session": "https://claude.ai/code/session_01AcxTtKXEDwf2yGp6iUB6aY",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-30T16:08:28Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/11796",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "research/CLAUDE.md",
+      "why": "No predictions were written before the script ran (logged as exploratory); no blog post or homepage change, to keep the step small.",
+      "did": "logged as exploratory",
+      "result": "honest but below the default"
+    }
+  ],
+  "writeups": [
+    "research/verified-dse/LOG.md milestone 44"
+  ],
+  "goal": null,
+  "notes": "Milestone 44: optimum_rank.py; 11 of 40 cells guaranteed zero regret, 0 violations; homepage build ok. CI not waited on; local checks only.",
+  "corrections": [],
+  "redteam": null
+}

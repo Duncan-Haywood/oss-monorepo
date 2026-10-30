@@ -734,6 +734,62 @@ export function ar1Rho(x) {
   return Math.max(0, Math.min(0.95, 1 + 2 * rd));
 }
 
+/** Residuals of x about the segment means set by changepoints (indices where a new segment starts). */
+export function stepResiduals(x, cps) {
+  const b = [0, ...cps, x.length], r = [];
+  for (let s = 0; s + 1 < b.length; s++) {
+    let m = 0;
+    for (let i = b[s]; i < b[s + 1]; i++) m += x[i];
+    m /= b[s + 1] - b[s];
+    for (let i = b[s]; i < b[s + 1]; i++) r.push(x[i] - m);
+  }
+  return r;
+}
+
+/** Fisher's g (largest periodogram share) with its exact p-value, over Fourier frequencies 1..floor((n-1)/2). */
+export function fisherG(r) {
+  const n = r.length, q = Math.floor((n - 1) / 2);
+  if (q < 2) return { g: 0, p: 1, period: null };
+  let tot = 0, best = 0, bk = 1;
+  for (let k = 1; k <= q; k++) {
+    let c = 0, s = 0;
+    for (let t = 0; t < n; t++) { const a = 2 * Math.PI * k * t / n; c += r[t] * Math.cos(a); s += r[t] * Math.sin(a); }
+    const I = c * c + s * s;
+    tot += I;
+    if (I > best) { best = I; bk = k; }
+  }
+  const g = tot > 0 ? best / tot : 0;
+  let p = 0;
+  for (let j = 1; j <= Math.min(q, Math.floor(1 / g)); j++) {
+    let lc = 0;
+    for (let i = 1; i <= j; i++) lc += Math.log(q - i + 1) - Math.log(i); // log C(q,j)
+    p += (j % 2 ? 1 : -1) * Math.exp(lc + (q - 1) * Math.log(1 - j * g));
+  }
+  return { g, p: Math.min(1, Math.max(0, p)), period: n / bk };
+}
+
+/**
+ * Variance ratio of block means: the spread of means of blocks of ~n/20 points against what independent noise
+ * of the series' own difference-based sd would give (1 for white noise; 95th percentile of white noise 1.6 at
+ * n >= 200, 2.5 at n = 48). Long memory, cycles and level shifts all push it up, and it does not tell them apart;
+ * unlike ar1Rho it sees slow wandering that has a small lag-1 correlation (treering: rho 0.16, ratio 6).
+ */
+export function blockVarianceRatio(x) {
+  const n = x.length;
+  if (n < 40) return 1;
+  const d = [];
+  for (let i = 1; i < n; i++) d.push(x[i] - x[i - 1]);
+  const md = median(d);
+  const mad = median(d.map((v) => Math.abs(v - md))) / 0.6744897501960817;
+  if (!(mad > 0)) return 1;
+  const m = Math.max(4, Math.round(n / 20)), k = Math.floor(n / m);
+  const mu = [];
+  for (let b = 0; b < k; b++) { let t = 0; for (let i = 0; i < m; i++) t += x[b * m + i]; mu.push(t / m); }
+  const g = mu.reduce((a, c) => a + c, 0) / k;
+  const v = mu.reduce((a, c) => a + (c - g) ** 2, 0) / (k - 1);
+  return v / (mad * mad / 2 / m);
+}
+
 /** Long-run noise sd of AR(1) noise from the difference-based sd: sd * sqrt(1 + rho) / (1 - rho). */
 export function longRunSd(sd, rho) {
   return sd * Math.sqrt(1 + rho) / (1 - rho);
@@ -1777,7 +1833,9 @@ export function analyze(input = {}) {
   let rangeWarning = null;
   if (ranges && model === 'mean' && !o.ar1 && values.length >= 20) {
     const r0 = ar1Rho(values);
-    if (r0 >= 0.3) rangeWarning = `The series looks autocorrelated (rho about ${round(r0, 2)}), so these ranges are too narrow: use --ar1 (page: allow for autocorrelation).`;
+    const vr0 = r0 < 0.3 ? blockVarianceRatio(values) : 0;
+    if (r0 < 0.3 && p.changepoints.length >= 5 && vr0 >= 3) rangeWarning = `The series' level wanders more than independent noise allows (block means vary ${round(vr0, 1)} times as much; white noise gives about 1) although the lag-1 correlation is small (rho about ${round(r0, 2)}), so these ${p.changepoints.length} steps and their ranges may be false alarms from slow drift or a cycle rather than separate regime changes: on 7,980 yearly tree rings with no documented step the default found 38, --ar1 still 11 (README, quiet series). A real step raises this ratio too, so read it as a prompt to check dates, not as a verdict.`;
+    if (r0 >= 0.3) rangeWarning = `The series looks autocorrelated (rho about ${round(r0, 2)}), so these ranges are too narrow: use --ar1 (page: allow for autocorrelation).${p.changepoints.length >= 5 ? ` With ${p.changepoints.length} steps at this rho, many may be false alarms: on real cycles with no documented step the default found 23 (lynx) and 46 (sunspots), --ar1 found none and --ar1 joint kept a 2 sd step (README, cyclic series).` : ''}`;
   }
   // the same for counts that vary more than Poisson: the plain Poisson range held the date in 6% to 42% of overdispersed series (README)
   if (ranges && !rangeWarning && model === 'poisson' && !phi && !(isFinite(nbSize) && nbSize > 0) && values.length >= 90) {
@@ -1805,6 +1863,13 @@ export function analyze(input = {}) {
     // autocorrelated noise alone fires this warning (75% to 88% of null series at rho 0.5, eval/drift-warning-null195-ar1.mjs); --ar1 cut that to 0 to 3%
     const hintAr1 = !o.ar1 && ar1Rho(values) >= 0.3 ? ` The residuals look autocorrelated (rho about ${round(ar1Rho(values), 2)}), which alone can cause such a run of steps: re-run with --ar1 (page: allow for autocorrelation) before reading them as a changing shape.` : '';
     if (k >= 0) driftWarning = `With a drifting seasonal shape, ${cp.slice(k).filter((c) => c - cp[k] <= 2 * period).length} steps fall within two cycles of ${labels[cp[k]]}: that usually marks a seasonal shape that is still changing (for example an amplitude that grows), not separate regime changes. Check the dates against the series.${hintAr1}`;
+  }
+  // a cycle read as steps leaves a spectral peak in the residuals (Fisher's g; sunspots p 2e-6, ~1-3% false on synthetic nulls,
+  // README 2026-10-30); with --period the season is already modelled, so the hint stays off
+  let cycleWarning = null;
+  if (!period && model !== 'poisson' && p.changepoints.length >= 5 && values.length >= 60) {
+    const fg = fisherG(stepResiduals(values, p.changepoints));
+    if (fg.p < 0.01 && fg.period >= 3) cycleWarning = `The residuals about these ${p.changepoints.length} steps carry a periodic component (peak at about ${round(fg.period, 1)} points, p ${fg.p < 1e-4 ? '< 0.0001' : round(fg.p, 4)}), so some steps may be a cycle read as regime changes, not separate changes: on sunspots (an 11-year cycle) the default found 46 steps and none were real. If the period is known, give it with --period; otherwise read the dates with care.`;
   }
   const changes = p.changepoints.map((i, k) => {
     const before = segments[k];
@@ -1849,6 +1914,7 @@ export function analyze(input = {}) {
     ...(bootstrap ? { bootstrapPenalty: bootstrap } : {}),
     ...(rangeWarning ? { rangeWarning } : {}),
     ...(driftWarning ? { driftWarning } : {}),
+    ...(cycleWarning ? { cycleWarning } : {}),
     ...(rho !== null ? { ar1: { rho: round(rho, 3) } } : {}),
     ...(phi !== null ? { dispersion: round(phi, 3) } : {}),
     ...(burstInfo ? { bursts: burstInfo } : {}),

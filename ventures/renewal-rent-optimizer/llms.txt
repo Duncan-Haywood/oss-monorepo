@@ -1,0 +1,13 @@
+# Are you raising rent too little, or too much?
+
+> Free lease renewal rent calculator for small landlords. Paste your past renewal offers (current rent, offered rent, renewed or left) to see how your tenants' chance of staying falls as the increase rises, what a move-out really costs, and the rent increase with the highest expected income.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/renewal-rent-optimizer/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/renewal-rent-optimizer): MIT licensed.

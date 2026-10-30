@@ -1,0 +1,13 @@
+# Which IDR disputes are worth filing, and what should you offer?
+
+> No Surprises Act IDR offer calculator for out-of-network providers and billing teams. Enter billed charge, QPA and amount paid to see the offer with the best expected net, the win chance you need after fees, which claims are worth filing, and the negotiation and IDR deadlines. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/nsa-idr-offer-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/nsa-idr-offer-calculator): MIT licensed.

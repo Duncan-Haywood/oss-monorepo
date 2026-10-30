@@ -1,0 +1,15 @@
+# Turn an axe scan into a Title II evidence record.
+
+> Turn a government website's axe-core JSON scan into a dated WCAG 2.1 AA evidence record for ADA Title II, split into required findings and best-practice extras. Runs locally in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/ada-title-ii-evidence/)
+- [Which ADA Title II website deadline applies to you?](https://duncan-haywood.github.io/oss-monorepo/ada-title-ii-evidence/deadline.html)
+- [This evidence report vs. accessiBe](https://duncan-haywood.github.io/oss-monorepo/ada-title-ii-evidence/vs-accessibe.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/ada-title-ii-evidence): MIT licensed.

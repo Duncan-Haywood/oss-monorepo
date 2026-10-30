@@ -1,0 +1,13 @@
+# Which items on your menu are Stars, Plowhorses, Puzzles and Dogs?
+
+> Free tool for restaurant owners: drop in your POS item-sales export and see every menu item as a Star, Plowhorse, Puzzle or Dog, the dollar impact of a price rise on Plowhorses, and what to cut or re-promote. Runs in your browser, the file is never uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/restaurant-pos-menu-mix-analyzer/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/restaurant-pos-menu-mix-analyzer): MIT licensed.

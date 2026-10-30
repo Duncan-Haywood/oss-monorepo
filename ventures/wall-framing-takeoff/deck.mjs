@@ -179,7 +179,19 @@ export function layoutDeck(d) {
   } else notes.push("No span table given: joist, beam and post sizes are your inputs and are not checked. Add `spanTable` rows from your code's table to get a warning.");
   notes.push("Footing depth, diameter and bearing are typed figures (frost depth is local); the takeoff does not size footings. Guard-rail post count is by spacing only.");
 
+  // Blocking: optional rows across the joists (`blocking: { every: 96 }` in inches); each block fills the gap between
+  // two joists, so a row is one piece per bay and the rows split the joist length into equal parts.
+  let blocking = null;
+  if (d.blocking && d.blocking.every > 0) {
+    const rowsN = Math.max(0, Math.ceil(joistLen / d.blocking.every - 1e-9) - 1);
+    const bays = centres.slice(1).map((c, i) => c - centres[i] - THICK);
+    if (rowsN) {
+      blocking = { rows: rowsN, pieces: rowsN * bays.length, bays };
+      notes.push(`Blocking: ${rowsN} row${rowsN > 1 ? "s" : ""} at ${formatLength(joistLen / (rowsN + 1))} spacing (${blocking.pieces} pieces), staggered so each can be face-nailed; whether your code asks for it is your call.`);
+    }
+  }
   const lumber = [
+    ...(blocking ? Array.from({ length: blocking.rows }, () => blocking.bays.map((length) => ({ size: `${joist} PT`, length, kind: "blocking" }))).flat() : []),
     ...joists.map((j) => ({ size: `${joist} PT`, length: j.length, kind: "joist" })),
     ...rims.flatMap((r) => rowPieces(r.length, longest(`${joist} PT`), centres, longest(`${joist} PT`)).map((length) => ({ size: `${joist} PT`, length, kind: r.side === "outer" ? "outer rim" : r.side === "inner" ? "inner rim" : "ledger" }))),
     ...beamBoards.map((b) => ({ size: `${beam} PT`, length: b.length, kind: "beam ply" })),
@@ -200,7 +212,7 @@ export function layoutDeck(d) {
   const area = (d.width * d.depth) / 144;
   return {
     ok: true, id, width: d.width, depth: d.depth, height: d.height, joistSize: joist, beamSize: beam, beamPlies: plies, postSize, spacing, freestanding, overhang,
-    centres, joists, rims, posts, postLength: postLen, beamPieces, beamBoards, concrete, rows, deckBoards, joints, screws, screwBoxes: Math.ceil(screws / screwsPerBox), hardware, railPosts, guard,
+    centres, joists, rims, posts, postLength: postLen, beamPieces, beamBoards, concrete, rows, deckBoards, joints, screws, screwBoxes: Math.ceil(screws / screwsPerBox), hardware, railPosts, guard, blocking,
     lumber, orders, area, cost: orders.reduce((s, o) => s + o.cost, 0), joistSpan, warnings, notes,
   };
 }

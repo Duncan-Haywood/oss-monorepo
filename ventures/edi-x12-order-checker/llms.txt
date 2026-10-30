@@ -1,0 +1,13 @@
+# Will the retailer accept this EDI file?
+
+> Free EDI X12 file checker and reader for suppliers: finds wrong SE/GE/IEA counts and control numbers, UPC and SSCC check-digit errors, invoice totals that do not match the lines and broken ship-notice hierarchies, and translates 997 rejections. Runs in your browser; the file is never uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/edi-x12-order-checker/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/edi-x12-order-checker): MIT licensed.

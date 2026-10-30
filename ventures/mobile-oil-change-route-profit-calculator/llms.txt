@@ -1,0 +1,13 @@
+# What does a mobile oil change really earn once you count the drive, the oil and the no-shows, and is solo, a franchise or a job the better way to run the van?
+
+> Find out what a mobile oil change really earns after the drive, the oil and filter, the used-oil disposal and the no-shows, and whether solo, a franchise or a job pays the route better.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/mobile-oil-change-route-profit-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/mobile-oil-change-route-profit-calculator): MIT licensed.

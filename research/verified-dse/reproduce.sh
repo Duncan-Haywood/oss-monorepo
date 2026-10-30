@@ -24,6 +24,6 @@ $PY experiments/heldout_signif/test.py     # milestone 29 (about 2 min, no flow)
 $PY experiments/fanout_rich/analyse.py; $PY experiments/fanout_rich/replay.py   # milestone 30
 $PY experiments/mf_tpe/tpe.py               # milestone 23 (about 20 min)
 $PY experiments/proof_success/analyse.py
-for s in bound quantile topk sweep kth kth_pilot; do $PY experiments/theory/$s.py; done
+for s in bound quantile topk sweep kth kth_pilot kth_inflate quantile_g; do $PY experiments/theory/$s.py; done
 $PY -m unittest discover -s tests
 git diff --stat -- experiments   # empty when the committed tables are reproduced exactly

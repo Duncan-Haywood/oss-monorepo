@@ -16,9 +16,9 @@
 // roof line. The same profile drives the 3D view and the drawings.
 
 import { actual, ceil16, TWO_BY, DEFAULT_LENGTHS_FT, fmtFtIn as fmtFt, fmtIn } from './lumber.mjs';
-import { lumberCostOf } from './estimate.mjs';
+import { estimate } from './estimate.mjs';
 import { productById } from './products.mjs';
-import { headerCheck } from './structure.mjs';
+import { headerCheck, studCheck } from './structure.mjs';
 import { gambrelShape, gambrelParts, gambrelAnalysis, loftSpan, bandAbove, zOnPoly, GUSSET_T as GAMBREL_GUSSET_T, LOFT_LIVE } from './gambrel.mjs';
 import { needsKingPost, trussForces } from './truss.mjs';
 import { LAP_PRODUCTS, layoutFace, lapStocks, lapStagger, evenExposure, lapStudLimit } from './lap.mjs';
@@ -67,6 +67,8 @@ export function defaultDesign() {
     overhang: 12,
     studSize: '2x4',
     studSpacing: 16,
+    // Studs as far apart as the siding and the stud check allow (autoStudSpacing).
+    autoStuds: true,
     joistSize: '2x6',
     joistSpacing: 16,
     rafterSize: '2x6',
@@ -111,6 +113,9 @@ export function defaultDesign() {
     autoWall: true,
     autoPitch: true,
     autoOverhang: true,
+    // The automatic overhang takes the longest from 6" to 18" whose materials
+    // cost at most this many dollars more than the cheapest overhang's.
+    overhangBudget: 25,
     roofColor: 'charcoal',
     trimColor: 'white',
     doorColor: 'stained',
@@ -123,6 +128,8 @@ export function defaultDesign() {
     customRange: false,
     sidingType: 'T1-11',
     wallTrim: '1x4',
+    // For fiber cement: James Hardie sells HZ5 plank where winters freeze and HZ10 where they don't.
+    climate: 'mild',
     roofCover: 'shingles',
     rafterSeat: 'connector',
     maxFootprint: 100,
@@ -296,8 +303,10 @@ export function normalize(input) {
     sidingColor: pickFinish(o.sidingColor, SIDING_FINISHES, d.sidingColor),
     polkaDots: o.polkaDots === true,
     autoWall: o.autoWall === true,
+    autoStuds: o.autoStuds === true,
     autoPitch: o.autoPitch === true,
     autoOverhang: o.autoOverhang === true,
+    overhangBudget: Math.min(500, Math.max(0, num(o.overhangBudget, d.overhangBudget))),
     roofColor: pickFinish(o.roofColor, SHINGLE_FAMILIES, d.roofColor, false),
     trimColor: pickFinish(o.trimColor, TRIM_FINISHES, d.trimColor),
     doorColor: pickFinish(o.doorColor, DOOR_FINISHES, d.doorColor),
@@ -306,7 +315,8 @@ export function normalize(input) {
     insulation: o.insulation === true,
     atticStorage: o.atticStorage === true,
     customRange: o.customRange === true,
-    wallTrim: pick(o.wallTrim, ['1x4', 'none'], d.wallTrim),
+    wallTrim: pick(o.wallTrim, ['1x4', '5/4', 'none'], d.wallTrim),
+    climate: pick(o.climate, ['mild', 'freezing'], d.climate),
     sidingType: pick(o.sidingType, ['T1-11', 'LP SmartSide', 'LP SmartSide 7/16', 'board and batten', 'vinyl', 'fiber cement', 'LP SmartSide lap'], d.sidingType),
     roofCover: pick(o.roofCover, ['shingles', 'metal'], d.roofCover),
     rafterSeat: pick(o.rafterSeat, ['birdsmouth', 'connector'], d.rafterSeat),
@@ -347,6 +357,8 @@ export function normalize(input) {
   // overhang); a loft goes on a gambrel's ties only.
   if (out.style === 'gambrel') Object.assign(out, { roofType: 'ridgeBoard', rafterSeat: 'birdsmouth', overhang: 0, autoOverhang: false });
   else out.loft = 'none';
+  // Resolved here, not in buildShed, so every reader of the design (moves, checks, the page) sees the spacing framed.
+  if (out.autoStuds) out.studSpacing = autoStudSpacing(out);
   return out;
 }
 
@@ -379,25 +391,53 @@ export function defaultHeader(width) {
  * @param {Partial<Design>} d @param {string} wall
  */
 export function headerLoadPlf(d, wall) {
-  const cos = 1 / Math.sqrt(1 + ((d.pitch ?? 0) / 12) ** 2);
-  const roof = 15 / cos + (d.snowLoad ?? 0);
   if (wall === 'front' || wall === 'back') {
-    if (d.style === 'gambrel') {
-      // The gambrel trusses' reactions, a loft's storage load counted as dead.
-      const g = gambrelAnalysis(/** @type {any} */ (d)).wall;
-      return g.dead + g.loft + g.snow + 10;
-    }
-    const D = actual(d.studSize || '2x4').depth;
-    const lean = d.style === 'leanTo';
-    const beam = !lean && d.roofType === 'ridgeBeam';
-    const truss = !lean && d.roofType === 'truss';
-    const run = (d.width ?? 0) / 2 - (beam ? 1.5 : truss ? 0 : 0.75) - D;
-    const tribFt = (beam ? run / 2 + D + (d.overhang ?? 0) : (d.width ?? 0) / 2 + (d.overhang ?? 0)) / 12;
-    // Under trusses the eave wall also carries half the attic (bottom chord) load.
-    const attic = truss ? (trussForces(/** @type {any} */ (d)).wc * (d.width ?? 0)) / 2 / 12 / ((d.rafterSpacing ?? 24) / 12) : 0;
-    return roof * tribFt + attic + 10;
+    const e = eaveWallLoads(d);
+    return e.dead + e.snow + 10;
   }
-  return 40 + roof * ((d.rafterSpacing ?? 24) / 2) / 12;
+  const cos = 1 / Math.sqrt(1 + ((d.pitch ?? 0) / 12) ** 2);
+  return 40 + (15 / cos + (d.snowLoad ?? 0)) * ((d.rafterSpacing ?? 24) / 2) / 12;
+}
+
+/**
+ * The roof's load on an eave wall, lb/ft, as dead and snow: the same numbers
+ * checks.mjs's eaveRoofPlf gives (a test pins them together).
+ * @param {Partial<Design>} d
+ */
+export function eaveWallLoads(d) {
+  const cos = 1 / Math.sqrt(1 + ((d.pitch ?? 0) / 12) ** 2);
+  if (d.style === 'gambrel') {
+    // The gambrel trusses' reactions, a loft's storage load counted as dead.
+    const g = gambrelAnalysis(/** @type {any} */ (d)).wall;
+    return { dead: g.dead + g.loft, snow: g.snow };
+  }
+  const D = actual(d.studSize || '2x4').depth;
+  const lean = d.style === 'leanTo';
+  const beam = !lean && d.roofType === 'ridgeBeam';
+  const truss = !lean && d.roofType === 'truss';
+  const run = (d.width ?? 0) / 2 - (beam ? 1.5 : truss ? 0 : 0.75) - D;
+  const tribFt = (beam ? run / 2 + D + (d.overhang ?? 0) : (d.width ?? 0) / 2 + (d.overhang ?? 0)) / 12;
+  // Under trusses the eave wall also carries half the attic (bottom chord) load.
+  const attic = truss ? (trussForces(/** @type {any} */ (d)).wc * (d.width ?? 0)) / 2 / 12 / ((d.rafterSpacing ?? 24) / 12) : 0;
+  return { dead: (15 / cos) * tribFt + attic, snow: (d.snowLoad ?? 0) * tribFt };
+}
+
+/**
+ * The widest stud spacing the siding allows: lap siding over OSB as its
+ * maker's install guide says (lap.mjs), T1-11 and LP's 3/8" panel 16" (their
+ * span rating), LP's 7/16" panel and siding over OSB 24". With autoStuds on
+ * (the default) the walls are framed at that spacing, if the wall studs still
+ * pass their check there (studCheck: roof load and wind, NDS 3.9-3), else at
+ * 16". A shed is framed to what it needs, not to a house's habit of 16".
+ * @param {Partial<Design>} d
+ */
+export function autoStudSpacing(d) {
+  const allowed = !d.siding ? 16 : lapStudLimit(d) ?? (d.sidingType === 'T1-11' || d.sidingType === 'LP SmartSide' ? 16 : 24);
+  if (allowed < 24) return 16;
+  // The stud check at 24" on the tallest wall: the auto wall's height when it sets the walls.
+  const H = (d.autoWall ? minWallFor(/** @type {any} */ (d)) : d.wallHeight ?? 96) + (d.style === 'leanTo' ? ((d.width ?? 0) * (d.pitch ?? 0)) / 12 : 0);
+  const e = eaveWallLoads({ ...d, studSpacing: 24 });
+  return studCheck(d.studSize || '2x4', 24, H - 4.5, [e.dead, e.snow], d.windLoad ?? 0) <= 1 ? 24 : 16;
 }
 
 /**
@@ -532,14 +572,21 @@ function siteWarnings(d) {
   return out;
 }
 
-export function buildShed(input) {
+/**
+ * Frame a design. `prices` are the prices the page is pricing at (the
+ * visitor's own, as typed); only the automatic overhang reads them, to weigh
+ * each eave length at those prices rather than the starting ones.
+ * @param {any} input
+ * @param {import('./estimate.mjs').Prices} [prices]
+ */
+export function buildShed(input, prices) {
   const d0 = normalize(input);
   // The page, the swaps, the options and the simplicity search rebuild the same
   // designs again and again; a built shed is never modified, so keep recent ones.
-  const key = JSON.stringify(d0);
+  const key = JSON.stringify(d0) + (prices && d0.autoOverhang ? `|${JSON.stringify(prices)}` : '');
   const hit = BUILT.get(key);
   if (hit) { BUILT.delete(key); BUILT.set(key, hit); return hit; }
-  const shed = d0.autoWall || d0.autoPitch || d0.autoOverhang ? buildAuto(d0) : buildFramed(d0);
+  const shed = d0.autoWall || d0.autoPitch || d0.autoOverhang ? buildAuto(d0, prices) : buildFramed(d0);
   BUILT.set(key, shed);
   if (BUILT.size > 200) BUILT.delete(BUILT.keys().next().value);
   return shed;
@@ -566,8 +613,9 @@ export function minWallFor(d) {
  * under the limit. When no pitch fits, the lowest pitch at which the gable vents
  * still fit is used and the warning says by how much the limit is missed.
  * @param {Design} d0
+ * @param {import('./estimate.mjs').Prices} [prices] the page's prices, for the overhang (else the starting ones)
  */
-function buildAuto(d0) {
+function buildAuto(d0, prices) {
   let d = { ...d0, autoWall: false, autoPitch: false, autoOverhang: false };
   if (d0.autoWall) d.wallHeight = minWallFor(d0);
   let shed;
@@ -603,25 +651,38 @@ function buildAuto(d0) {
   }
   let s = /** @type {Shed} */ (shed);
   let overhangWhy = '';
+  /** @type {any} */
+  let overhangChoice = null;
   if (d0.autoOverhang) {
-    // The longest overhang from 6" to 18" that needs no more lumber money than the shortest:
-    // past that point the rafters (or sub-fascia) need longer boards.
-    // Only some materials change from try to try, so only those are re-priced;
-    // the others cost the same in every try and cannot change which is cheapest.
-    const tries = [];
+    // The longest overhang from 6" to 18" whose whole order (rafters, sub-fascia,
+    // sheathing, roofing, drip edge, trim) costs at most overhangBudget dollars
+    // more than the cheapest overhang's, at the prices the page is using (the
+    // visitor's own when they have typed any; the starting prices otherwise). A longer eave
+    // keeps rain off the siding, so a little money buys it; 0 takes the cheapest.
+    // An overhang that leaves a door or window unframed prices without it, so it
+    // looks cheap; those are skipped unless no overhang frames every opening.
+    const all = [];
     for (let oh = 6; oh <= 18; oh++) {
       const t = buildFramed(normalize({ ...s.design, autoWall: false, autoPitch: false, autoOverhang: false, overhang: oh }));
-      tries.push({ oh, t, cost: 0 });
+      const framed = new Set((t.framedOpenings || []).map((/** @type {any} */ p) => p.op?.id ?? p.id));
+      all.push({ oh, t, cost: estimate(t, prices).total, frames: t.design.openings.every((o) => framed.has(o.id)) });
     }
-    // A material is re-priced if its cut list differs between any two tries.
-    const cutList = (t, mat) => t.members.filter((m) => m.material === mat).map((m) => m.length).sort((a, b) => a - b).join(',');
-    const mats = [...new Set(tries.flatMap((x) => x.t.members.map((m) => m.material)))];
-    const moved = mats.filter((mat) => new Set(tries.map((x) => cutList(x.t, mat))).size > 1);
-    for (const x of tries) x.cost = lumberCostOf(x.t, moved);
+    const tries = all.some((x) => x.frames) ? all.filter((x) => x.frames) : all;
     const min = Math.min(...tries.map((x) => x.cost));
-    const best = tries.filter((x) => x.cost <= min + 0.01).pop();
-    s = /** @type {any} */ (best).t;
-    overhangWhy = `overhang ${fmtIn(s.design.overhang)}, the longest that needs no longer rafter boards (the rafters are ${fmtIn(s.dims.rafterCut)})`;
+    const cheapest = /** @type {any} */ (tries.find((x) => x.cost <= min + 0.005));
+    const best = /** @type {any} */ (tries.filter((x) => x.cost <= min + d0.overhangBudget + 0.005).pop());
+    const next = tries.find((x) => x.oh > best.oh && x.cost > min + d0.overhangBudget + 0.005);
+    s = best.t;
+    overhangChoice = { overhang: best.oh, adds: best.cost - min, cheapest: cheapest.oh, budget: d0.overhangBudget, next: next ? { overhang: next.oh, adds: next.cost - min } : null };
+    const money = (n) => {
+      const format = (n) => `$${n.toFixed(2)}`;
+      const text = format(Math.abs(n));
+      return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
+    overhangWhy = best.cost - min < 0.005
+      ? `overhang ${fmtIn(best.oh)}, the longest from 6" to 18" at the lowest materials cost`
+      : `overhang ${fmtIn(best.oh)}, the longest from 6" to 18" within ${money(d0.overhangBudget)} of the cheapest (${fmtIn(cheapest.oh)}); it adds ${money(best.cost - min)}`;
+    if (next) overhangWhy += `, and ${fmtIn(next.oh)} would add ${money(next.cost - min)}`;
   }
   const auto = [];
   if (d0.autoWall) auto.push(`walls ${fmtFt(s.design.wallHeight)}, the lowest that frames the tallest door or window`);
@@ -629,6 +690,7 @@ function buildAuto(d0) {
   if (overhangWhy) auto.push(overhangWhy);
   s.notes.unshift(`Set for you: ${auto.join('; ')}.`);
   s.design = { ...s.design, autoWall: d0.autoWall, autoPitch: d0.autoPitch, autoOverhang: d0.autoOverhang };
+  if (overhangChoice) /** @type {any} */ (s).overhangChoice = overhangChoice;
   return s;
 }
 
@@ -638,7 +700,7 @@ function buildFramed(d) {
   const members = [];
   /** @type {{ id: string, kind: string, item: string, geom: Geom, group: string, wall?: string, side?: string, pos?: number[], course?: number, face?: [number, number][], where?: string }[]} */
   const panels = [];
-  /** @type {{ kind: string, geom: Geom, group: string, tex?: string, from?: number, bottom?: number }[]} */
+  /** @type {{ id?: string, kind: string, geom: Geom, group: string, op?: string, tex?: string, from?: number, bottom?: number }[]} */
   const fixtures = [];
   /** @type {string[]} */
   const warnings = [];
@@ -928,7 +990,7 @@ function buildFramed(d) {
     const headerBreaks = [];
     for (const p of ops) {
       const fixture = () => fixtures.push({
-        kind: p.op.kind, group: `wall:${name}`, from: spec.start + p.a, bottom: p.bottom,
+        kind: p.op.kind, group: `wall:${name}`, op: p.op.id, from: spec.start + p.a, bottom: p.bottom,
         geom: rectGeom(add(add(spec.base, spec.axis, p.a), Z, p.bottom), spec.axis, Z, neg(spec.w), p.w, p.op.height, d.siding ? 1.0 : 0.4),
       });
       if (p.bay) {
@@ -1771,7 +1833,7 @@ function buildFramed(d) {
   const lapSpec = lapBase && { ...lapBase, exposure: /** @type {number} */ (lapExposure) };
   const sheathT = 7 / 16;
   const sidingT = lapSpec ? sheathT + 2 * lapSpec.thickness : d.sidingType === 'LP SmartSide' ? 3 / 8 : d.sidingType === 'LP SmartSide 7/16' ? 7 / 16 : 19 / 32;
-  /** @type {{ wall: string, length: number }[]} */
+  /** @type {{ wall: string, length: number, need?: number }[]} */
   const sidingFull = [];
   /** @type {number[]} */
   const sidingUpper = [];
@@ -1798,9 +1860,9 @@ function buildFramed(d) {
         prof.push([s0, clip(s0)]);
         const need = Math.max(...prof.map((p) => p[1])) - bottomZ;
         const sheet = sheetFor(need);
-        if (sheet) sidingFull.push({ wall: name, length: sheet });
+        if (sheet) sidingFull.push({ wall: name, length: sheet, need });
         else {
-          sidingFull.push({ wall: name, length: 96 });
+          sidingFull.push({ wall: name, length: 96, need });
           sidingUpper.push(Math.ceil(need - 96));
           const above = (x) => Math.max(0, clip(x) - bottomZ - 96);
           sidingUpperShapes.push({ h0: above(s0), h1: above(s1), peak: prof.length > 4 });
@@ -1933,14 +1995,30 @@ function buildFramed(d) {
       warnings.push(`The site-built ${fmtIn(op.width)} x ${fmtIn(op.height)} door on the ${wallLabel(d, op.wall).toLowerCase()} wall makes ${leaves > 1 ? 'leaves' : 'a leaf'} ${fmtIn(w)} wide and ${fmtIn(h)} tall, so its Z brace runs at ${braceAngle.toFixed(0)} deg and will not keep the door from sagging; it works best between about 30 and 60 deg. ${braceAngle < 25 ? 'Make the door taller or narrower' : 'Make the door wider'}, or choose a ready-made door.`);
     }
     // Pieces that are the same in both leaves and in every rail position share one note, so they share a part mark.
+    // Each piece is drawn too, laid flat on the back of the door in its opening,
+    // so the parts list can point at it in 3D.
+    const slab = fixtures.find((f) => f.op === op.id);
+    const frameAt = (profile) => (slab ? { origin: slab.geom.origin, u: slab.geom.u, v: slab.geom.v, w: neg(slab.geom.w), profile, thickness: 1.5 } : undefined);
+    const box = (u0, v0, lu, lv) => frameAt([[u0, v0], [u0 + lu, v0], [u0 + lu, v0 + lv], [u0, v0 + lv]]);
     for (let i = 0; i < leaves; i++) {
       const tag = `door ${op.id}`;
-      const part = (kind, length, note) => doorParts.push({ id: nextId('DR'), group: 'door', kind, material: '2x4', length: Math.ceil(length * 8) / 8, note: `${tag}: ${note}` });
-      part('door stile', h, 'laid flat, full height');
-      part('door stile', h, 'laid flat, full height');
-      for (let r = 0; r < 3; r++) part('door rail', railLen, 'top, middle and bottom rails between the stiles');
-      part('door brace', braceLen + 3.5, `Z brace, ends cut at ${braceAngle.toFixed(0)} deg to fit between rails, low end at the hinge side`);
-      part('door brace', braceLen + 3.5, `Z brace, ends cut at ${braceAngle.toFixed(0)} deg to fit between rails, low end at the hinge side`);
+      const part = (kind, length, note, geom) => doorParts.push({ id: nextId('DR'), group: 'door', kind, material: '2x4', length: Math.ceil(length * 8) / 8, note: `${tag}: ${note}`, ...(geom ? { geom } : {}) });
+      const u0 = 0.25 + i * (w + 0.25);
+      const v0 = 0.25;
+      part('door stile', h, 'laid flat, full height', box(u0, v0, 3.5, h));
+      part('door stile', h, 'laid flat, full height', box(u0 + w - 3.5, v0, 3.5, h));
+      for (let r = 0; r < 3; r++) part('door rail', railLen, 'top, middle and bottom rails between the stiles', box(u0 + 3.5, v0 + r * (3.5 + bay), railLen, 3.5));
+      // A brace fills its bay corner to corner; the low end is at the hinge side
+      // (the outer edge of each leaf: left on the first, right on a pair's second).
+      const dx = 3.5 / Math.sin(Math.atan2(bay, railLen));
+      const a = u0 + 3.5;
+      const b = a + railLen;
+      for (let k = 0; k < 2; k++) {
+        const y0 = v0 + 3.5 + k * (3.5 + bay);
+        const y1 = y0 + bay;
+        const pts = /** @type {[number, number][]} */ (i === 0 ? [[a, y0], [a + dx, y0], [b, y1], [b - dx, y1]] : [[b - dx, y0], [b, y0], [a + dx, y1], [a, y1]]);
+        part('door brace', braceLen + 3.5, `Z brace, ends cut at ${braceAngle.toFixed(0)} deg to fit between rails, low end at the hinge side`, frameAt(pts));
+      }
     }
   }
 
@@ -1990,6 +2068,9 @@ function buildFramed(d) {
     const low = buildFramed(normalize({ ...d, wallHeight: minWall, pitch: 3, maxPeak: 0, autoWall: false, autoPitch: false })).dims.peak;
     warnings.push(`The peak is ${fmtFt(dims.peak)} above the gravel, ${fmtFt(dims.peak - d.maxPeak)} over your ${fmtFt(d.maxPeak)} limit. Your tallest opening needs walls of at least ${fmtFt(minWall)}; with those walls and a 3/12 roof (about the least that sheds water under shingles) the peak would still be ${fmtFt(low)}. To get lower: a shorter door, ${lean ? 'a door in an end wall or the low back wall' : 'a door in the gable end'}, a lower floor or a narrower shed${d.gableVents && !lean ? ', or smaller or no gable vents (they need a steeper roof to fit)' : ''}.`);
   }
+
+  // Every fixture gets an id too, so the 3D view can pick and highlight it.
+  for (const f of fixtures) f.id ??= nextId('FX');
 
   return { design: d, members, panels, fixtures, walls, framedOpenings, warnings, notes, dims, vents: ventInfo, trim, wallTrim, doorParts, doors, interior, sidingArea, floorPieces, roofPieces, sidingFull, sidingUpper, sidingUpperShapes, lap, lapExposure, sidingStudLimit: lapStudLimit(d) };
 }

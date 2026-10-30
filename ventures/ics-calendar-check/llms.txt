@@ -1,0 +1,13 @@
+# Why won't this calendar file import?
+
+> Free iCalendar (.ics) checker: finds the missing UID, DTSTAMP and VERSION, events that end before they start, bad recurrence rules, time zones without definitions, duplicate UIDs and long lines that make Google Calendar, Outlook and Apple Calendar reject a file, and writes it back fixed.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/ics-calendar-check/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/ics-calendar-check): MIT licensed.

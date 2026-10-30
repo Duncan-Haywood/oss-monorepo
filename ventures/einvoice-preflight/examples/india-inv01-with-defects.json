@@ -1,0 +1,49 @@
+{
+  "Version": "1.1",
+  "TranDtls": {
+    "TaxSch": "GST",
+    "SupTyp": "B2B"
+  },
+  "DocDtls": {
+    "Typ": "INV",
+    "No": "INV/2026/001",
+    "Dt": "31/02/2026"
+  },
+  "SellerDtls": {
+    "Gstin": "27AAPFU0939F1ZV",
+    "LglNm": "Example Seller",
+    "Addr1": "1 Road",
+    "Loc": "Mumbai",
+    "Pin": 40001,
+    "Stcd": "27"
+  },
+  "BuyerDtls": {
+    "Gstin": "29AAFCC9980M1ZR",
+    "LglNm": "Example Buyer",
+    "Addr1": "2 Road",
+    "Loc": "Bengaluru",
+    "Pin": 560001,
+    "Stcd": "29",
+    "Pos": "29"
+  },
+  "ItemList": [
+    {
+      "SlNo": "1",
+      "IsServc": "N",
+      "HsnCd": "8517",
+      "Qty": 2,
+      "UnitPrice": 500,
+      "TotAmt": 1000,
+      "Discount": 0,
+      "AssAmt": 1000,
+      "GstRt": 18,
+      "IgstAmt": 180,
+      "TotItemVal": 1200
+    }
+  ],
+  "ValDtls": {
+    "AssVal": 1000,
+    "IgstVal": 180,
+    "TotInvVal": 1500
+  }
+}

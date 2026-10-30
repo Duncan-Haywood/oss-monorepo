@@ -1,0 +1,15 @@
+# Dotenv Exposure Checker
+
+> Paste your site's URL to see whether its .env file is publicly reachable. Reports which variable names are declared, never their values. Free, runs from your browser or a CLI, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/dotenv-exposure-check/)
+- [Dotenv Exposure Checker vs. checking by hand](https://duncan-haywood.github.io/oss-monorepo/dotenv-exposure-check/vs-checking-by-hand.html)
+- [Why .env files end up in production](https://duncan-haywood.github.io/oss-monorepo/dotenv-exposure-check/why-env-files-end-up-in-production.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/dotenv-exposure-check): MIT licensed.

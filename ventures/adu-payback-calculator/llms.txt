@@ -1,0 +1,13 @@
+# Will your ADU pay for itself?
+
+> ADU payback calculator for homeowners and builders. Enter build cost, loan, rent and operating costs and see cash flow, yield on cost, payback, IRR, NPV and break-even rent. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/adu-payback-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/adu-payback-calculator): MIT licensed.

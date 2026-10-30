@@ -1,0 +1,14 @@
+# What will a CDN cost at your GB-per-month bandwidth, and who is cheapest?
+
+> Enter your monthly CDN bandwidth (GB delivered) and see what Amazon CloudFront, Google Cloud CDN, Fastly, Bunny CDN and KeyCDN charge, the 12-month spend under your growth rate, and the volume where the cheapest provider changes. Free, runs in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/cdn-bandwidth-pricing-calculator/)
+- [How to choose a CDN by GB delivered](https://duncan-haywood.github.io/oss-monorepo/cdn-bandwidth-pricing-calculator/how-to-choose-a-cdn-by-gb-delivered.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/cdn-bandwidth-pricing-calculator): MIT licensed.

@@ -1,0 +1,13 @@
+# Where do you sit on the 2026 Medicare IRMAA cliffs?
+
+> Free 2026 Medicare IRMAA calculator: enter your MAGI from two years ago to see your Part B and Part D tier, the surcharge, how many dollars until the next cliff, how much Roth conversion fits under it, and an SSA-44 appeal checklist. Entirely client-side, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/medicare-irmaa-cliff-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/medicare-irmaa-cliff-calculator): MIT licensed.

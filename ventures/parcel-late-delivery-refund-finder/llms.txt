@@ -1,0 +1,13 @@
+# How many of your UPS and FedEx parcels arrived late, and what were you charged for them?
+
+> Free tool for shippers: drop in your UPS or FedEx shipment report and see which parcels were delivered after the promised day, the shipping charge on each, the last day to file, and a draft claim request. Also flags duplicate charges. Runs in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/parcel-late-delivery-refund-finder/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/parcel-late-delivery-refund-finder): MIT licensed.

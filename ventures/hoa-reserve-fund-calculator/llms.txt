@@ -1,0 +1,16 @@
+# Know the special assessment before it happens.
+
+> Free calculator for HOA/condo board treasurers: project whether your current reserve contribution covers known roof, repaving, painting, pool, elevator, and HVAC replacements, or find the year a special assessment hits, then solve the minimum contribution to avoid it.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/hoa-reserve-fund-calculator/)
+- [How much should be in an HOA reserve fund?](https://duncan-haywood.github.io/oss-monorepo/hoa-reserve-fund-calculator/how-much-should-be-in-an-hoa-reserve-fund.html)
+- [This calculator vs. a spreadsheet](https://duncan-haywood.github.io/oss-monorepo/hoa-reserve-fund-calculator/vs-spreadsheet.html)
+- [Why did our HOA get hit with a special assessment?](https://duncan-haywood.github.io/oss-monorepo/hoa-reserve-fund-calculator/why-did-our-hoa-get-hit-with-a-special-assessment.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/hoa-reserve-fund-calculator): MIT licensed.

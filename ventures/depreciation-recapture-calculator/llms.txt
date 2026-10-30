@@ -1,0 +1,16 @@
+# What will selling this rental property actually cost you in tax?
+
+> Free calculator for landlords selling a rental or investment property: estimates depreciation recapture (Section 1250, capped at 25%), remaining capital-gains tax, and Net Investment Income Tax, then shows how much a 1031 exchange would defer. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/depreciation-recapture-calculator/)
+- [Is 1031 exchange boot taxed at my average rate?](https://duncan-haywood.github.io/oss-monorepo/depreciation-recapture-calculator/is-1031-boot-taxed-at-my-average-rate.html)
+- [This calculator vs. doing depreciation recapture by hand](https://duncan-haywood.github.io/oss-monorepo/depreciation-recapture-calculator/vs-doing-it-by-hand.html)
+- [This calculator vs. Realized (realized1031.com)](https://duncan-haywood.github.io/oss-monorepo/depreciation-recapture-calculator/vs-realized1031.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/depreciation-recapture-calculator): MIT licensed.

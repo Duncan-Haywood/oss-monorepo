@@ -4257,8 +4257,8 @@ entries:
     human_hours: 0
     outcomes:
       - >-
-        New venture on a direct request (tools for a friend's Christian babysitting sole
-        proprietorship). Browser app: lead scoring with reasons and reply drafts, rate quotes,
+        New venture on a direct request (tools for a one-person babysitting
+        business). Browser app: lead scoring with reasons and reply drafts, rate quotes,
         schedule with conflict checks and .ics, unpaid sits, SE-tax set-aside with 2026 quarterly
         dates and household-employee / 1099-K flags, family year-end statements, references with
         separate consent, generated website, content calendar. Optional zero-dependency server:
@@ -4270,4 +4270,12 @@ entries:
         six opt-in email/SMS automations with quiet hours and STOP; a topic bank, blog and BYOK
         drafts; Render/Fly/Docker, snapshots and S3 backup; installable PWA, keyboard tabs and
         three guides. 197 tests. Usage unmeasured.
+      - >-
+        Round 2 (PR #11668), ten more lanes: service agreements and policies with e-sign records;
+        a referral network of trusted sitters; safety (emergency cards, incident log, allergy and
+        medication sheets); credentials tracker with renewal reminders and a business-setup guide;
+        business insights; sit reports for parents; invoices; prepaid packages and gift
+        certificates; a waitlist; an activity planner. Corrected an earlier error: a sole
+        proprietor gives families their SSN on Form W-10, not an EIN (IRS W-10 instructions).
+        Family statements now count packages when bought, not credits when used. 321 tests.
     mrr_end: 0

@@ -20,6 +20,7 @@
     .box { background: #fff; border: 1px solid #e8ded8; border-radius: 12px; padding: 14px 18px; overflow-x: auto; } footer { font-size: .86rem; color: #5f5669; margin-top: 40px; }
     .cta { display: inline-block; background: #9b3f68; color: #fff; padding: 11px 16px; border-radius: 8px; font-weight: 700; text-decoration: none; }
   </style>
+  <script>/* offline + install; reading navigator.serviceWorker throws in sandboxed frames, so guard it */ try { if ("serviceWorker" in navigator && location.protocol !== "file:") addEventListener("load", () => { try { navigator.serviceWorker.register("sw.js").catch(() => {}); } catch { /* no service worker here */ } }); } catch { /* no service worker here */ }</script>
 </head>
 <body>
   <p><a href="./index.html">← Babysitting Business Kit</a></p>
@@ -82,5 +83,6 @@
     <p><strong>No warranty.</strong> This guide and tool are provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. The example rates are arithmetic illustrations, not market data. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p>Not affiliated with Care.com, Sittercity, UrbanSitter or the IRS. Free and open source under the MIT licence. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional.</p>
   </footer>
+  <script>/* offline + install; reading navigator.serviceWorker throws in sandboxed frames, so guard it */ try { if ("serviceWorker" in navigator && location.protocol !== "file:") addEventListener("load", () => { try { navigator.serviceWorker.register("sw.js").catch(() => {}); } catch { /* no service worker here */ } }); } catch { /* no service worker here */ }</script>
 </body>
 </html>

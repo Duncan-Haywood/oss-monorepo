@@ -1,0 +1,14 @@
+# Why is your Postgres query slow?
+
+> Paste a PostgreSQL EXPLAIN ANALYZE plan (text or JSON) and see where the time went per node, missing indexes, bad row estimates and disk spills, each with a suggested fix. Free, runs in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/postgres-explain-analyzer/)
+- [How to read a Postgres EXPLAIN ANALYZE plan and fix a slow query](https://duncan-haywood.github.io/oss-monorepo/postgres-explain-analyzer/how-to-read-a-postgres-explain-analyze-plan-and-fix-a-slow-query.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/postgres-explain-analyzer): MIT licensed.

@@ -1,0 +1,18 @@
+# Bid the closet, the bowl, and the extras.
+
+> Price a toilet replacement from toilet count, two-piece versus comfort-height versus one-piece versus bidet-combo, swap-only versus flange-repair, owner-supplied versus plumber-supplied, weekday versus Saturday emergency, and extras — plus the walk-away price a $249 installed special cannot see.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/toilet-replacement-bid-calculator/)
+- [How much to charge to replace a toilet](https://duncan-haywood.github.io/oss-monorepo/toilet-replacement-bid-calculator/how-much-to-charge-to-replace-a-toilet.html)
+- [Should I install a customer-supplied toilet?](https://duncan-haywood.github.io/oss-monorepo/toilet-replacement-bid-calculator/should-i-install-a-customer-supplied-toilet.html)
+- [Should I take a Saturday toilet call?](https://duncan-haywood.github.io/oss-monorepo/toilet-replacement-bid-calculator/should-i-take-a-saturday-toilet-call.html)
+- [This calculator vs. a flat installed price](https://duncan-haywood.github.io/oss-monorepo/toilet-replacement-bid-calculator/vs-a-flat-installed-price.html)
+- [This calculator vs. ServiceTitan](https://duncan-haywood.github.io/oss-monorepo/toilet-replacement-bid-calculator/vs-servicetitan.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/toilet-replacement-bid-calculator): MIT licensed.

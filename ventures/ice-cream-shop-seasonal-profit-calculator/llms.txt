@@ -1,0 +1,13 @@
+# Will a seasonal ice cream shop pay its loan, and which months should stay closed?
+
+> Free ice cream shop profit calculator: twelve months of days open and customers per day become monthly profit, break-even customers, open-or-close verdicts, loan coverage and the cash reserve the slow months need. Private, runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/ice-cream-shop-seasonal-profit-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/ice-cream-shop-seasonal-profit-calculator): MIT licensed.

@@ -103,3 +103,27 @@ test("CLI repairs a PDF to a file and the API returns the PDF in base64", async 
   assert.equal(dec(await extractEmbeddedInvoiceXml(new Uint8Array(rf(`${dir}/out.pdf`)))), clean);
   void execFileSync;
 });
+
+// A third-party reader (poppler), when installed, opens the repaired example:
+// the pages are intact and it hands back the corrected XML, not the original.
+import { spawnSync } from "node:child_process";
+import { mkdtempSync, writeFileSync, readFileSync as readFile } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+
+const hasPoppler = spawnSync("pdfdetach", ["-v"]).error === undefined;
+test("poppler opens the repaired PDF and extracts the corrected XML", { skip: !hasPoppler }, async () => {
+  const src = readFile(new URL("./examples/factur-x-credit-note-with-defects.pdf", import.meta.url));
+  const x = await repairFacturX(new Uint8Array(src));
+  assert.ok(x.repaired && x.pdfRewritten);
+  const dir = mkdtempSync(join(tmpdir(), "fx-"));
+  const pdf = join(dir, "fixed.pdf");
+  writeFileSync(pdf, x.pdf);
+  const info = spawnSync("pdfinfo", [pdf], { encoding: "utf8" });
+  assert.match(info.stdout, /Pages:\s+1/);
+  assert.doesNotMatch(info.stderr, /Syntax Error/);
+  const out = join(dir, "out.xml");
+  const det = spawnSync("pdfdetach", ["-save", "1", "-o", out, pdf], { encoding: "utf8" });
+  assert.equal(det.status, 0, det.stderr);
+  assert.equal(readFile(out, "utf8"), x.xml);
+});

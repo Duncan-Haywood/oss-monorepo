@@ -1,0 +1,48 @@
+{
+ "date": "2026-10-30",
+ "session": "https://claude.ai/code/session_01AcxTtH1yH29EQcvzXYE8Uh",
+ "track": "research",
+ "prompt_version": 0,
+ "input": "read ./prompt.md and follow the instructions there",
+ "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+ "follow_up_inputs": [],
+ "model": "claude-sonnet-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-10-30T07:08:52Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": null,
+ "projects": [],
+ "pr": 11708,
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "partial",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [],
+ "deviations": [
+  {
+   "file": "research/PROGRAMMES.md",
+   "why": "No new experiment run; documentation step only, as the next experiment needs unreachable weights.",
+   "did": "paper+post",
+   "result": "landed"
+  }
+ ],
+ "writeups": [
+  "docs/posts/2026-10-30-is-the-informedness-cutoff-a-knife-edge.md"
+ ],
+ "goal": null,
+ "notes": "Small step: carried milestone 6am into paper section 6 plus a post. No new experiment; the programme is blocked on model weights (HF 403).",
+ "corrections": [],
+ "redteam": null
+}

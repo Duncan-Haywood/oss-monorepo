@@ -1,0 +1,15 @@
+# Know who to follow up with today — and which sources actually reply.
+
+> Free job application tracker that stays on your device: no account, nothing uploaded. Log applications, get follow-up reminders (calendar export), see which sources actually reply, and export to CSV any time.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/job-application-tracker/)
+- [Job application tracker vs. a spreadsheet](https://duncan-haywood.github.io/oss-monorepo/job-application-tracker/vs-a-spreadsheet.html)
+- [When to follow up on a job application](https://duncan-haywood.github.io/oss-monorepo/job-application-tracker/when-to-follow-up-on-a-job-application.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/job-application-tracker): MIT licensed.

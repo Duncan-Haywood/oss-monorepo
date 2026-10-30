@@ -1,0 +1,14 @@
+# Turn meeting notes into action items with an owner and a date
+
+> Paste meeting notes or a transcript and get action items with owner and due date, decisions and open questions, plus a follow-up email. Free, private, no upload.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/meeting-action-items/)
+- [How to write meeting action items that get done](https://duncan-haywood.github.io/oss-monorepo/meeting-action-items/how-to-write-meeting-action-items.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/meeting-action-items): MIT licensed.

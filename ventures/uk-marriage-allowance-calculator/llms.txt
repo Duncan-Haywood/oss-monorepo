@@ -1,0 +1,13 @@
+# Do we qualify for Marriage Allowance, and what can we claim back?
+
+> Free UK Marriage Allowance calculator for 2025/26 and 2026/27: enter both partners' incomes to see if you qualify, how much tax you save (up to £252 a year) and what a four-year backdated claim is worth. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/uk-marriage-allowance-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/uk-marriage-allowance-calculator): MIT licensed.

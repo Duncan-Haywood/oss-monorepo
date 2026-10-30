@@ -3,7 +3,7 @@
 // plan sheets, all rebuilt from one design object on every change.
 
 import { buildShed, normalize, defaultDesign, PRESETS, WALLS, wallLabel, wallFaceLength, ROOF_TYPES } from './model.mjs';
-import { estimate, examplePrices, cutSheetCsv, shoppingCsv, groupBoards, sourceLabel, boardUse, lumberUses } from './estimate.mjs';
+import { estimate, examplePrices, cutSheetCsv, shoppingCsv, groupBoards, sourceLabel, boardUse, lumberUses, sectionTotals } from './estimate.mjs';
 import { buildSheets, sheetSvg, sheetsDxf } from './drawings.mjs';
 import { createViewer, LAYERS } from './render3d.mjs';
 import { mountPicker } from './picker.mjs';
@@ -14,18 +14,19 @@ import { structuralChecks, anchorageText } from './checks.mjs';
 import { encodeDesign } from './hoa.mjs';
 import { initUtilisation, renderUtilisation, heatOption } from './utilisation-ui.mjs';
 import { connectionChecks } from './connections.mjs';
-import { generateCandidates } from './candidates.mjs';
+import { generateCandidates, designDiff, openingCosts } from './candidates.mjs';
 import { buildInstructions, instructionsMarkdown } from './instructions.mjs';
 import { quoteRequest, mailtoLink, STORES } from './quote.mjs';
 import { PRODUCTS } from './products.mjs';
 import { storeComparison, swapsFor, storeTotals, storeList, pricesFor } from './catalog.mjs';
 import { simplify, cutMetrics, budget, laborHours } from './simplify.mjs';
-import { galleryEntries, mountMatchHouse, mountStripNav } from './gallery-ui.mjs';
+import { galleryEntries, mountMatchHouse, mountStripNav, matchesHouse } from './gallery-ui.mjs';
 import { showCosts, wireCosts, bridgeHtml, breakdownOf, deltaSentence } from './costview.mjs';
 import { costDelta, deltaPhrase } from './costs.mjs';
 import { valueComparison, valueHtml } from './value.mjs';
 import { finishOptions, isHex, paletteOf, rgbToHex, SIDING_FINISHES, TRIM_FINISHES, DOOR_FINISHES, SHINGLE_FAMILIES } from './looks.mjs';
 import { leverOptions, leverTableHtml } from './costlevers.mjs';
+import { idsForLine, describePiece } from './xref.mjs';
 
 const $ = (sel) => /** @type {any} */ (document.querySelector(sel));
 const $$ = (sel) => /** @type {any[]} */ ([...document.querySelectorAll(sel)]);
@@ -144,7 +145,7 @@ function preview(next) {
   requestAnimationFrame(() => {
     const d = normalize(previewQueued);
     previewQueued = null;
-    const shed = buildShed(d);
+    const shed = buildShed(d, state.prices);
     viewer?.show(shed);
     $('#live').textContent = `${fmtFtIn(d.length)} x ${fmtFtIn(d.width)}, ${fmtFtIn(d.wallHeight)} walls, ${d.pitch}/12 roof, ${d.overhang}" overhang`;
   });
@@ -154,8 +155,8 @@ function preview(next) {
 const SITE_FIELDS = ['lotWidthFt', 'lotDepthFt', 'siteLeftFt', 'siteRearFt', 'setbackFt', 'houseWidthFt', 'houseDepthFt', 'houseLeftFt', 'houseFrontFt'];
 const FIELDS = ['name', 'lengthFt', 'widthFt', 'style', 'wallHeight', 'pitch', 'overhang', 'studSize', 'studSpacing', 'joistSize', 'joistSpacing',
   'rafterSize', 'rafterSpacing', 'tieSize', 'skidSize', 'skidSpacing', 'foundation', 'floorTreated', 'siding', 'roofing', 'gableVents', 'ventWidth', 'ventHeight', 'kerf',
-  'roofType', 'beamSize', 'sidingColor', 'polkaDots', 'autoWall', 'autoPitch',
-  'autoOverhang', 'snowLoad', 'windLoad', 'roofColor', 'trimColor', 'doorColor', 'glitter', 'interior', 'sidingType', 'roofCover', 'insulation', 'customRange', 'atticStorage', 'wallTrim', 'rafterSeat', 'maxFootprint', 'pierDepth', 'compaction', 'pad', 'floorPanel', 'spares', 'taxRate', 'delivery', 'laborRate', 'maxHaulFt', 'gambrelLower', 'gambrelKnee', 'loft', 'loftJoist', ...SITE_FIELDS];
+  'roofType', 'beamSize', 'sidingColor', 'polkaDots', 'autoWall', 'autoStuds', 'autoPitch',
+  'autoOverhang', 'overhangBudget', 'snowLoad', 'windLoad', 'roofColor', 'trimColor', 'doorColor', 'glitter', 'interior', 'sidingType', 'roofCover', 'insulation', 'customRange', 'atticStorage', 'wallTrim', 'climate', 'rafterSeat', 'maxFootprint', 'pierDepth', 'compaction', 'pad', 'floorPanel', 'spares', 'taxRate', 'delivery', 'laborRate', 'maxHaulFt', 'gambrelLower', 'gambrelKnee', 'loft', 'loftJoist', ...SITE_FIELDS];
 
 
 /** A colour select keeps one "Your colour" option for a hex code typed or picked. @param {HTMLSelectElement} sel @param {string} v */
@@ -194,9 +195,9 @@ function readForm() {
   d.length = Math.round(num('lengthFt', d.length / 12) * 12);
   d.width = Math.round(num('widthFt', d.width / 12) * 12);
   d.maxPeak = Math.round(num('maxPeakFt', d.maxPeak / 12) * 12);
-  for (const f of ['wallHeight', 'pitch', 'overhang', 'studSpacing', 'joistSpacing', 'rafterSpacing', 'skidSpacing', 'ventWidth', 'ventHeight', 'kerf', 'snowLoad', 'windLoad', 'maxFootprint', 'pierDepth', 'spares', 'taxRate', 'laborRate', 'maxHaulFt', 'gambrelLower', 'gambrelKnee', ...SITE_FIELDS]) d[f] = num(f, d[f]);
-  for (const f of ['style', 'studSize', 'joistSize', 'rafterSize', 'tieSize', 'skidSize', 'foundation', 'roofType', 'beamSize', 'sidingColor', 'roofColor', 'trimColor', 'doorColor', 'interior', 'sidingType', 'roofCover', 'wallTrim', 'rafterSeat', 'compaction', 'pad', 'floorPanel', 'delivery', 'loft', 'loftJoist']) d[f] = v(f).value;
-  for (const f of ['floorTreated', 'siding', 'roofing', 'gableVents', 'polkaDots', 'autoWall', 'autoPitch', 'autoOverhang', 'glitter', 'insulation', 'customRange', 'atticStorage']) d[f] = v(f).checked;
+  for (const f of ['wallHeight', 'pitch', 'overhang', 'studSpacing', 'joistSpacing', 'rafterSpacing', 'skidSpacing', 'ventWidth', 'ventHeight', 'kerf', 'snowLoad', 'windLoad', 'maxFootprint', 'pierDepth', 'spares', 'taxRate', 'laborRate', 'maxHaulFt', 'gambrelLower', 'gambrelKnee', ...SITE_FIELDS, 'overhangBudget']) d[f] = num(f, d[f]);
+  for (const f of ['style', 'studSize', 'joistSize', 'rafterSize', 'tieSize', 'skidSize', 'foundation', 'roofType', 'beamSize', 'sidingColor', 'roofColor', 'trimColor', 'doorColor', 'interior', 'sidingType', 'roofCover', 'wallTrim', 'climate', 'rafterSeat', 'compaction', 'pad', 'floorPanel', 'delivery', 'loft', 'loftJoist']) d[f] = v(f).value;
+  for (const f of ['floorTreated', 'siding', 'roofing', 'gableVents', 'polkaDots', 'autoWall', 'autoStuds', 'autoPitch', 'autoOverhang', 'glitter', 'insulation', 'customRange', 'atticStorage']) d[f] = v(f).checked;
   d.lengths = $$('input[name="stock"]:checked').map((c) => Number(c.value));
   d.locked = $$('input[name="lock"]:checked').map((c) => c.value);
   return d;
@@ -217,9 +218,11 @@ function renderOpenings(d) {
       <td><input type="number" min="12" max="144" step="1" data-i="${i}" data-k="width" value="${op.width}" aria-label="Opening ${i + 1} rough opening width (in)"></td>
       <td><input type="number" min="12" max="120" step="1" data-i="${i}" data-k="height" value="${op.height}" aria-label="Opening ${i + 1} rough opening height (in)"></td>
       <td>${op.kind === 'window' ? `<input type="number" min="6" max="96" step="1" data-i="${i}" data-k="sill" value="${op.sill ?? 42}" aria-label="Opening ${i + 1} sill height above the floor (in)">` : '<span class="muted">floor</span>'}</td>
+      <td class="n" data-cost="${esc(op.id)}"><span class="muted">...</span></td>
       <td><button type="button" class="link" data-remove="${i}" aria-label="Remove opening ${i + 1}">Remove</button></td>`;
     tbody.appendChild(tr);
   });
+  queueOpeningCosts();
 }
 
 // ---------- results ----------
@@ -228,7 +231,7 @@ function haulLine(shed, est) {
   const d = shed.design;
   const longest = Math.max(...est.lumber.flatMap((l) => l.result.boards.map((b) => b.stock))) / 12;
   if (!d.maxHaulFt) return `${longest} ft (no limit set)`;
-  const free = estimate(buildShed(normalize({ ...d, maxHaulFt: 0 })), state.prices);
+  const free = estimate(buildShed(normalize({ ...d, maxHaulFt: 0 }), state.prices), state.prices);
   const diff = est.total - free.total;
   const vs = Math.abs(diff) < 0.005 ? 'the same as with no limit' : `${money(Math.abs(diff))} ${diff > 0 ? 'more' : 'less'} than with no limit`;
   const over = longest > d.maxHaulFt ? `; ${longest} ft boards only where a piece needs one (see the cut sheet)` : '';
@@ -240,8 +243,11 @@ function renderSummary(shed, est) {
   const buy = toBuy(est);
   $('#total').textContent = money(buy.total);
   $('#total-pill-n').textContent = money(buy.total);
+  // The gallery and the cards price materials before tax; say what this total adds, so the jump is not a surprise.
+  $('#total-pill-l').textContent = buy.tax && est.deliveryFee ? 'Total incl. tax + delivery' : buy.tax ? 'Total incl. tax' : est.deliveryFee ? 'Total incl. delivery' : 'Total';
   $('#summary-lines').innerHTML = [
     ['Materials', `${money(buy.sub)}${buy.less ? ` (${money(est.total)} less ${money(buy.less)} you have or left out)` : ''}${buy.tax ? ` + ${money(buy.tax)} tax (${d.taxRate}%)` : ' (no sales tax set)'}${d.delivery !== 'pickup' ? (est.deliveryFee ? ` + ${money(est.deliveryFee)} delivery` : ' + delivery (type your store\'s charge under Prices)') : ''}`],
+    ['Where the money goes', sectionTotals(est.shopping).sort((a, b) => b.total - a.total).slice(0, 5).map((x) => `${esc(x.section)} ${money(x.total)} (${Math.round(x.share * 100)}%)`).join(', ')],
     ['Footprint', `${fmtFtIn(d.length)} x ${fmtFtIn(d.width)} (${est.footprintSqFt.toFixed(0)} sq ft)`],
     ['Peak above the gravel', fmtFtIn(shed.dims.peak)],
     ['Boards to buy', `${est.boards} for ${est.pieces} pieces`],
@@ -276,16 +282,25 @@ function renderShopping(est) {
   const skip = new Set(state.skip);
   // What each length of lumber is for, so a 14 ft board on an 8x12 explains itself.
   const uses = lumberUses(est);
-  for (const r of est.shopping) {
+  const subs = new Map(sectionTotals(est.shopping).map((x) => [x.section, x]));
+  est.shopping.forEach((r, i) => {
     if (r.section !== section) { section = r.section; html += `<tr class="sec"><th colspan="8" scope="colgroup">${esc(section)}</th></tr>`; }
     const got = have.has(r.name);
     const left = skip.has(r.name);
     const lm = r.section === 'Lumber' ? /^(.+) x (\d+)'/.exec(r.name) : null;
     const use = lm && uses.get(`${lm[1]}:${lm[2]}`);
-    html += `<tr${got ? ' class="have"' : left ? ' class="skip"' : ''}><td>${esc(r.name)}${use ? `<div class="use">for ${esc(use)}</div>` : ''}</td><td class="n">${r.qty}</td><td>${r.unit}</td><td class="n">${money(r.price)}</td><td class="n">${money(r.total)}</td><td>${r.elsewhere ? `<span class="muted">not listed at ${esc(est.storeList.store)}: </span>` : ''}${sourceCell(r.source)}</td>`
+    // Sheet goods, siding, roofing, trim and hardware point at their own panels and fixtures.
+    const drawn = !lm && lastShed && idsForLine(lastShed, r).length;
+    const xbtn = lm ? `<button type="button" class="link xref-btn" data-xref-lumber="${esc(`${lm[1]}:${lm[2]}`)}">Show in 3D</button>`
+      : drawn ? `<button type="button" class="link xref-btn" data-xref-line="${i}">Show in 3D</button>` : '';
+    html += `<tr data-line="${i}"${got ? ' class="have"' : left ? ' class="skip"' : ''}><td>${esc(r.name)}${xbtn}${use ? `<div class="use">for ${esc(use)}</div>` : ''}</td><td class="n">${r.qty}</td><td>${r.unit}</td><td class="n">${money(r.price)}</td><td class="n">${money(r.total)}</td><td>${r.elsewhere ? `<span class="muted">not listed at ${esc(est.storeList.store)}: </span>` : ''}${sourceCell(r.source)}</td>`
       + `<td><input type="checkbox" data-have="${esc(r.name)}"${got ? ' checked' : ''} aria-label="I already have: ${esc(r.name)}"></td>`
       + `<td><input type="checkbox" data-skip="${esc(r.name)}"${left ? ' checked' : ''} aria-label="Leave out of the total: ${esc(r.name)}"></td></tr>`;
-  }
+    if (est.shopping[i + 1]?.section !== r.section) {
+      const x = subs.get(r.section);
+      html += `<tr class="subtot"><th colspan="4" scope="row">${esc(r.section)} subtotal <span class="muted">(${Math.round(x.share * 100)}% of the materials)</span></th><td class="n">${money(x.total)}</td><td></td><td></td><td></td></tr>`;
+    }
+  });
   const buy = toBuy(est);
   const row = (label, v, cls = '') => `<tr${cls ? ` class="${cls}"` : ''}><th colspan="4" scope="row">${label}</th><td class="n">${v}</td><td></td><td></td><td></td></tr>`;
   html += row('Materials', money(est.total), 'tot');
@@ -360,8 +375,9 @@ function renderStores(est, d) {
   const cmp = storeComparison(est);
   const whole = storeTotals(est);
   const two = whole.stores.filter((x) => x.lines > 0);
-  let html = `<h3 class="h4">The whole list at each store</h3><div class="table-wrap"><table><thead><tr><th scope="col">Store</th><th scope="col" class="n">Lines priced there</th><th scope="col" class="n">Those lines</th><th scope="col" class="n">Other lines, at the list's price</th><th scope="col" class="n">Total</th></tr></thead><tbody>${two.map((x) => `<tr><th scope="row">${esc(x.store)}</th><td class="n">${x.lines} of ${x.of}</td><td class="n">${money(x.priced)}</td><td class="n">${money(x.carried)}</td><td class="n">${money(x.total)}</td></tr>`).join('')}</tbody></table></div>`;
-  if (whole.shared) html += `<p class="muted">Like for like, on the ${whole.shared} lines every store here lists: ${Object.entries(whole.sharedTotals).map(([st, t]) => `${esc(st)} ${money(t)}`).join(', ')}.</p>`;
+  // Coverage first: a store that lists fewer lines is not cheaper for leaving them out.
+  let html = `<h3 class="h4">The whole list at each store</h3><div class="table-wrap"><table><thead><tr><th scope="col">Store</th><th scope="col" class="n">Lines it lists</th><th scope="col" class="n">The ${whole.shared} lines both list</th></tr></thead><tbody>${two.map((x) => `<tr><th scope="row">${esc(x.store)}</th><td class="n"><strong>${x.lines} of ${x.of}</strong></td><td class="n">${money(whole.sharedTotals[x.store])}</td></tr>`).join('')}</tbody></table></div>`;
+  for (const x of two) if (x.missing.length) html += `<p class="muted"><strong>No ${esc(x.store)} listing found yet for ${x.missing.length} line${x.missing.length === 1 ? '' : 's'}:</strong> ${x.missing.map(esc).join('; ')}. Store totals compare only the lines both stores list.</p>`;
   html += `<h3 class="h4">Line by line</h3><div class="table-wrap"><table><thead><tr><th scope="col">Item</th><th scope="col" class="n">Qty</th>${cmp.stores.map((s) => `<th scope="col">${esc(s)}</th>`).join('')}<th scope="col" class="n">Saving at the cheapest</th></tr></thead><tbody>`;
   for (const row of cmp.rows) {
     html += `<tr><td>${esc(row.line.name)}</td><td class="n">${row.line.qty}</td>${cmp.stores.map((st) => {
@@ -371,20 +387,22 @@ function renderStores(est, d) {
       return `<td><a href="${esc(o.url)}" target="_blank" rel="noopener" title="${esc(o.note || '')}">${money(o.price)}</a>${best}<br><span class="muted">${esc(o.name)}; ${esc(o.model)}</span></td>`;
     }).join('')}<td class="n">${money(row.saving)}</td></tr>`;
   }
-  html += `<tr class="tot"><th colspan="2" scope="row">These lines at one store</th>${cmp.stores.map((st) => `<td>${cmp.totals[st].missing === cmp.rows.length ? '<span class="muted">none of these</span>' : `${money(cmp.totals[st].total)}${cmp.totals[st].missing ? ` <span class="muted">(${cmp.totals[st].missing} not listed)</span>` : ''}`}</td>`).join('')}<td class="n">${money(cmp.cheapestMix)} mixed</td></tr></tbody></table></div>`;
+  html += `<tr class="tot"><th colspan="2" scope="row">The ${cmp.both} lines both stores list</th>${cmp.stores.map((st) => `<td>${cmp.totals[st].total === null ? '' : money(cmp.totals[st].total)}</td>`).join('')}<td class="n">${money(cmp.cheapestMix)} mixed</td></tr></tbody></table></div>`;
   // A second trip or delivery is only worth it for a real saving.
   const worth = cmp.addOns.filter((a) => a.saving >= 25);
+  const stale = cmp.oneStop ? Object.entries(cmp.stale).filter(([, n]) => n > 0).map(([st, n]) => `${n} of the ${esc(st)} prices`).join(' and ') : '';
+  const caveat = stale ? ` ${stale} compared come from copies of the page over a year old, so check them before choosing a store.` : '';
   if (cmp.oneStop && worth.length) {
-    html += `<p><strong>Where to buy:</strong> ${esc(cmp.oneStop.store)} is the cheapest single store for these lines (${money(cmp.oneStop.total)}). ${worth.map((a) => `Adding ${esc(a.store)} for ${a.lines.map(esc).join(', ')} saves ${money(a.saving)}`).join('; ')}. Buying every line at its cheapest store saves ${money(cmp.splitSaving)} in all. Savings are before any delivery charge for a second order.</p>`;
+    html += `<p><strong>Where to buy:</strong> on the ${cmp.both} lines both stores list, ${esc(cmp.oneStop.store)} comes to ${money(cmp.oneStop.total)}, ${money(cmp.oneStop.by)} less than ${esc(cmp.oneStop.other)}. ${worth.map((a) => `Buying ${a.lines.map(esc).join(', ')} at ${esc(a.store)} instead saves ${money(a.saving)}`).join('; ')}. Savings are before any delivery charge for a second order.${caveat}</p>`;
   } else if (cmp.oneStop) {
-    html += `<p><strong>One stop:</strong> ${esc(cmp.oneStop.store)}${cmp.splitSaving > 0 ? `, within ${money(cmp.splitSaving)} of splitting the order between stores, which is not worth a second trip` : ' is cheapest or tied on every compared line'}.</p>`;
+    html += `<p><strong>One stop:</strong> on the ${cmp.both} lines both stores list, ${esc(cmp.oneStop.store)}${cmp.splitSaving > 0 ? ` is ${money(cmp.oneStop.by)} less, and within ${money(cmp.splitSaving)} of splitting the order between stores, which is not worth a second trip` : ' is cheapest or tied on every line'}.${caveat}</p>`;
   }
   html += `<p class="muted">Prices read from search-result copies of each product page on ${cmp.seen}; follow the link to check today's price and see the product. Lines with no listing at a second store are not shown.</p>`;
   const swaps = swapsFor(d);
   if (swaps.length) {
     html += '<h3 class="h4">Swaps worth a look</h3><ul class="swaps">';
     for (const sw of swaps) {
-      const alt = estimate(buildShed(normalize({ ...d, ...sw.change })), state.prices);
+      const alt = estimate(buildShed(normalize({ ...d, ...sw.change }), state.prices), state.prices);
       const diff = alt.total - est.total;
       html += `<li><strong>${esc(sw.title)}</strong>: ${diff < 0 ? `saves ${money(-diff)}` : `adds ${money(diff)}`}. ${esc(sw.why)} <span class="muted">${esc(sw.cost)}</span> <button type="button" class="btn" data-swap="${esc(sw.id)}">Try it and show me</button></li>`;
     }
@@ -417,7 +435,7 @@ function renderCuts(est) {
         x += w;
         return seg;
       }).join('');
-      html += `<li><span class="board-name">${boardName(b)}</span><span class="bar">${segs}</span><span class="off">offcut ${fmtIn(b.offcut)}${b.count > 1 ? ' each' : ''}</span><span class="use">${b.stock / 12} ft &rarr; ${esc(boardUse(b))}</span></li>`;
+      html += `<li data-marks="${esc([...new Set(b.cuts.map((c) => c.mark))].join(' '))}"><span class="board-name">${boardName(b)}<button type="button" class="link xref-btn" data-xref-marks="${esc([...new Set(b.cuts.map((c) => c.mark))].join(' '))}">Show in 3D</button></span><span class="bar">${segs}</span><span class="off">offcut ${fmtIn(b.offcut)}${b.count > 1 ? ' each' : ''}</span><span class="use">${b.stock / 12} ft &rarr; ${esc(boardUse(b))}</span></li>`;
     }
     html += '</ul>';
   }
@@ -447,7 +465,7 @@ function renderParts(est) {
   $('#parts tbody').innerHTML = est.parts.map((p) => {
     const s = actual(p.material);
     const where = Object.entries(p.where).map(([k, v]) => `${k} ${v}`).join(', ');
-    return `<tr><th scope="row">${p.mark}</th><td>${esc(p.kind)}</td><td>${p.material} <span class="muted">${fmtIn(s.thick)} x ${fmtIn(s.depth)}</span></td><td class="n">${fmtIn(p.length)}</td><td class="n">${p.qty}</td><td>${esc(where)}</td><td>${esc(p.note)}</td></tr>`;
+    return `<tr data-mark="${p.mark}"><th scope="row">${p.mark} <button type="button" class="link xref-btn" data-xref-marks="${p.mark}" aria-label="Show part ${p.mark} in 3D">Show in 3D</button></th><td>${esc(p.kind)}</td><td>${p.material} <span class="muted">${fmtIn(s.thick)} x ${fmtIn(s.depth)}</span></td><td class="n">${fmtIn(p.length)}</td><td class="n">${p.qty}</td><td>${esc(where)}</td><td>${esc(p.note)}</td></tr>`;
   }).join('');
 }
 
@@ -481,8 +499,62 @@ function renderQuote(shed, est) {
 }
 
 let buildMd = '';
+let buildSections = /** @type {any[]} */ ([]);
+
+// ---------- cross-reference: lists <-> 3D view <-> build steps ----------
+/** The first build section that names one of these marks ("mark F", "(F)", "marks K, L"). */
+function stepFor(marks) {
+  const res = marks.map((m) => new RegExp(`(?:\\bmarks? |\\(|, |and )${m}(?![A-Za-z])`));
+  return buildSections.findIndex((sec) => { const text = sec.steps.join(' '); return res.some((r) => r.test(text)); });
+}
+function idsForMarks(marks) {
+  const want = new Set(marks);
+  return lastEst.parts.filter((p) => want.has(p.mark)).flatMap((p) => p.ids);
+}
+/** For each shopping line, the ids of the panels and fixtures drawn for it (once per estimate). */
+let lineSetsFor = null;
+let lineSetsCache = /** @type {Set<string>[]} */ ([]);
+function lineSets() {
+  if (lineSetsFor !== lastEst) { lineSetsFor = lastEst; lineSetsCache = lastEst.shopping.map((r) => new Set(idsForLine(lastShed, r))); }
+  return lineSetsCache;
+}
+/** Highlight pieces in 3D and the lists, and say what they are with links onward. */
+function showPieces(ids, title, { scroll = false } = {}) {
+  const set = new Set(ids);
+  const parts = lastEst.parts.filter((p) => p.ids.some((id) => set.has(id)));
+  const marks = parts.map((p) => p.mark);
+  viewer?.highlight(ids);
+  for (const el of $$('.xref-on')) el.classList.remove('xref-on');
+  for (const tr of $$('#parts tr[data-mark]')) if (marks.includes(tr.dataset.mark)) tr.classList.add('xref-on');
+  for (const li of $$('#cuts li[data-marks]')) if (li.dataset.marks.split(' ').some((m) => marks.includes(m))) li.classList.add('xref-on');
+  // On the plan sheets, the part marks drawn on those members.
+  const onSheets = [];
+  for (const fig of $$('#plans figure.sheet')) {
+    let hit = false;
+    for (const t of fig.querySelectorAll('text.mark')) if (marks.includes(t.textContent.trim())) { t.classList.add('xref-on'); hit = true; }
+    if (hit) onSheets.push(fig.querySelector('figcaption')?.firstChild?.textContent?.replace(/^\d+\.\s*/, '').trim() || fig.id);
+  }
+  // Panels and fixtures have no part mark: name them and the shopping lines they are bought as.
+  const loose = ids.filter((id) => !parts.some((p) => p.ids.includes(id)));
+  const lines = lineSets().flatMap((ls, i) => (loose.some((id) => ls.has(id)) ? [i] : []));
+  for (const tr of $$('#shopping tr[data-line]')) if (lines.includes(Number(tr.dataset.line))) tr.classList.add('xref-on');
+  const others = [...new Set(loose.map((id) => describePiece(lastShed, id)?.replace(/,.*$| [a-z]*\d+$/i, '')).filter(Boolean))];
+  const step = stepFor(marks);
+  const box = $('#xref');
+  box.hidden = false;
+  const said = [...parts.map((p) => `${esc(p.kind)} (${p.mark}): ${p.qty} x ${fmtIn(p.length)} ${p.material}`), ...(others.length ? [esc(others.join(', '))] : [])];
+  box.innerHTML = `<h3>${esc(title)}</h3><p>${said.join('; ') || 'Nothing drawn for this line.'}</p>
+    ${lines.length ? `<p class="muted">Bought as: ${lines.map((i) => esc(lastEst.shopping[i].name)).join('; ')}</p>` : ''}
+    <div class="toolrow">${step >= 0 ? `<button type="button" class="btn" data-xstep="${step}">Build step: ${esc(buildSections[step].title)}</button>` : ''}
+    ${lines.length ? '<button type="button" class="btn" data-xgo="panel-shopping">Shopping list</button>' : ''}
+    ${onSheets.length ? `<button type="button" class="btn" data-xgo="panel-plans">Plans: ${esc(onSheets.slice(0, 3).join(', '))}${onSheets.length > 3 ? ` and ${onSheets.length - 3} more` : ''}</button>` : ''}
+    <button type="button" class="btn" data-xgo="panel-cuts">Cut sheet</button><button type="button" class="btn" data-xgo="panel-parts">Parts list</button><button type="button" class="btn" data-xclear>Clear</button></div>`;
+  if (scroll) $('#view3d').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
 function renderBuild(shed, est) {
   const sections = buildInstructions(shed, est);
+  buildSections = sections;
   buildMd = instructionsMarkdown(sections, shed.design.name);
   $('#build-steps').innerHTML = sections.map((s) => `<li><h3>${esc(s.title)}</h3>${s.why ? `<p class="muted">${esc(s.why)}</p>` : ''}<ol>${s.steps.map((x) => `<li>${esc(x)}</li>`).join('')}</ol>${s.check?.length ? `<div class="check"><strong>Check:</strong> ${s.check.map(esc).join(' ')}</div>` : ''}</li>`).join('');
 }
@@ -494,11 +566,12 @@ function renderTabs() {
 
 function renderCompare() {
   const rows = state.designs.map((d, i) => {
-    const shed = buildShed(d);
+    const shed = buildShed(d, state.prices);
     const est = estimate(shed, state.prices);
     return { d, i, shed, est };
   });
   const cheapest = Math.min(...rows.map((r) => r.est.total));
+  const here = rows[state.active];
   $('#compare-cards').innerHTML = rows.map(({ d, i, shed, est }) => `
     <article class="card${i === state.active ? ' active' : ''}">
       ${thumbs.get(JSON.stringify(d)) ? `<img src="${thumbs.get(JSON.stringify(d))}" alt="3D view of ${esc(d.name)}" width="360" height="240">` : '<div class="thumb-wait">rendering...</div>'}
@@ -511,9 +584,32 @@ function renderCompare() {
         <div><dt>Boards</dt><dd>${est.boards}</dd></div>
         <div><dt>Total</dt><dd>${money(est.total)}</dd></div>
         <div><dt>Per sq ft</dt><dd>${money(est.total / est.footprintSqFt)}</dd></div>
+        ${i !== state.active && here ? (() => { const ch = designDiff(here.shed, shed); const dlt = est.total - here.est.total; return `<div class="wide"><dt>Against the one you're editing</dt><dd>${Math.abs(dlt) < 0.005 ? 'same price' : `${money(Math.abs(dlt))} ${dlt > 0 ? 'more' : 'less'}`}${ch.length ? `<ul class="changes">${ch.map((c) => `<li>${esc(c)}</li>`).join('')}</ul>` : '; the same design'}</dd></div>`; })() : ''}
       </dl>
       <button type="button" data-design="${i}">${i === state.active ? 'Editing' : 'Open this design'}</button>
     </article>`).join('');
+}
+
+// What each door and window costs in all needs the shed priced once more per
+// opening, so it fills in just after the edit, like the other out-of-sight work.
+let costTimer = /** @type {any} */ (0);
+let costKey = '';
+let costs = /** @type {any[]} */ ([]);
+function fillOpeningCosts() {
+  for (const c of costs) {
+    const td = document.querySelector(`#openings td[data-cost="${CSS.escape(c.id)}"]`);
+    if (td) td.innerHTML = `${money(c.total)}${c.unpriced ? '<br><span class="muted">plus the unit (custom size, not priced)</span>' : ''}<br><span class="muted">lumber ${money(c.lumber)}</span>`;
+  }
+}
+function queueOpeningCosts() {
+  const key = JSON.stringify([design(), state.prices]);
+  if (key === costKey) { fillOpeningCosts(); return; }
+  clearTimeout(costTimer);
+  costTimer = setTimeout(() => {
+    costs = openingCosts(design(), state.prices);
+    costKey = key;
+    fillOpeningCosts();
+  }, 400);
 }
 
 // Thumbnails come from a second, off-page viewer so the main view never flickers.
@@ -531,7 +627,7 @@ function queueThumbs() {
     for (const d of state.designs) {
       const key = JSON.stringify(d);
       if (thumbs.has(key)) continue;
-      thumbViewer.show(buildShed(d), { refit: true });
+      thumbViewer.show(buildShed(d, state.prices), { refit: true });
       thumbs.set(key, thumbViewer.snapshot());
       changed = true;
     }
@@ -556,7 +652,7 @@ function render() {
 }
 function renderNow() {
   const d = design();
-  const shed = buildShed(d);
+  const shed = buildShed(d, state.prices);
   const est = storeEstimate(shed);
   lastEst = est;
   lastShed = shed;
@@ -661,6 +757,7 @@ function wire() {
       // Typing a pitch or wall height means you want that number, not the automatic one.
       if (t.id === 'pitch') next.autoPitch = false;
       if (t.id === 'wallHeight') next.autoWall = false;
+      if (t.id === 'studSpacing') next.autoStuds = false;
       if (t.id === 'overhang') next.autoOverhang = false;
       commit(next, `changed ${t.labels?.[0]?.textContent?.trim().toLowerCase() || t.id}`, e.type === 'input' || t === typing ? t : null);
     }
@@ -823,9 +920,11 @@ function wire() {
     $('#option-cards').innerHTML = opts.map((o, i) => {
       const change = deltaPhrase(costDelta(here, breakdownOf(o.design, state.prices)));
       let img = '';
-      if (tv) { tv.show(buildShed(o.design), { refit: true }); img = `<img src="${tv.snapshot()}" alt="3D view of option ${i + 1}" width="480" height="320">`; }
+      if (tv) { tv.show(buildShed(o.design, state.prices), { refit: true }); img = `<img src="${tv.snapshot()}" alt="3D view of option ${i + 1}" width="480" height="320">`; }
       return `<article class="card"><div>${img}</div><h3 class="h4">${i === 0 ? '<span class="pill">best value</span> ' : ''}${esc(o.label)}</h3>
         <dl><div><dt>Total</dt><dd>${money(o.total)}</dd></div><div><dt>Lumber</dt><dd>${money(o.lumber)}, ${o.boards} boards</dd></div>
+        <div><dt>Against your design</dt><dd>${o.delta > 0.005 ? `${money(o.delta)} more` : o.delta < -0.005 ? `${money(-o.delta)} less` : 'same price'}</dd></div>
+        <div class="wide"><dt>What changes</dt><dd>${o.changes.length ? `<ul class="changes">${o.changes.map((c) => `<li>${esc(c)}</li>`).join('')}</ul>` : 'nothing: this is your design'}</dd></div>
         <div><dt>Roof</dt><dd>${esc(o.summary)}</dd></div><div><dt>Structure</dt><dd class="${o.ok ? 'ok' : 'fail'}">${o.ok ? 'passes' : 'over capacity'} (${Math.round(o.worst * 100)}%)</dd></div>
         ${change ? `<div><dt>Against yours</dt><dd>${esc(change)}</dd></div>` : ''}
         ${o.warnings ? `<div><dt>Warnings</dt><dd>${o.warnings}</dd></div>` : ''}</dl>
@@ -857,7 +956,7 @@ function wire() {
         let img = '';
         const fromB = breakdownOf(design(), state.prices);
         const toB = breakdownOf(b.design, state.prices);
-        if (tv) { tv.show(buildShed(b.design), { refit: true }); img = `<img src="${tv.snapshot()}" alt="3D view of the cheaper build" width="480" height="320" style="max-width:100%;height:auto">`; }
+        if (tv) { tv.show(buildShed(b.design, state.prices), { refit: true }); img = `<img src="${tv.snapshot()}" alt="3D view of the cheaper build" width="480" height="320" style="max-width:100%;height:auto">`; }
         html += `<article class="card">${img}<h4>${money(b.total)} of materials, ${money(r.base.total - b.total)} less than your ${money(r.base.total)}; about ${Math.round(b.hours)} hours of work (yours: ${Math.round(r.base.hours)})</h4>
           <p>${esc(deltaSentence(fromB, toB, 'By assembly'))}</p>
           <ol>${b.steps.map((st) => `<li>${esc(st.label)}: saves ${money(st.saving)}${st.hours ? ` (${st.materials >= 0 ? `${money(st.materials)} of materials` : `${money(-st.materials)} more materials`}, ${Math.abs(st.hours)} h ${st.hours > 0 ? 'less' : 'more'} work)` : ''}</li>`).join('')}</ol>
@@ -915,7 +1014,7 @@ function wire() {
       let html = `<p class="muted">Tried ${r.evaluated} designs; each kept passes every load and connection check${design().maxFootprint ? `, stays within ${design().maxFootprint} sq ft` : ''} and is no more than 1" taller. Your design: ${money(r.base.total)}, ${cutsText(r.base.cuts)} cuts, ${(r.base.cuts.waste * 100).toFixed(1)}% offcut.</p><div class="cards">`;
       html += picks.map((w, i) => {
         let img = '';
-        if (tv) { tv.show(buildShed(w.design), { refit: true }); img = `<img src="${tv.snapshot()}" alt="3D view of the ${esc(w.goal.toLowerCase())} pick" width="480" height="320">`; }
+        if (tv) { tv.show(buildShed(w.design, state.prices), { refit: true }); img = `<img src="${tv.snapshot()}" alt="3D view of the ${esc(w.goal.toLowerCase())} pick" width="480" height="320">`; }
         return `<article class="card"><div>${img}</div><h4>${esc(w.goal)}</h4>
           <dl><div><dt>Changes</dt><dd>${w.changes.length ? esc(w.changes.join(', ')) : 'none: yours is already best for this goal'}</dd></div>
           <div><dt>Total</dt><dd>${money(w.total)} (${w.total <= r.base.total ? 'saves' : 'adds'} ${money(Math.abs(r.base.total - w.total))})</dd></div>
@@ -940,6 +1039,56 @@ function wire() {
   });
   $('#zoom-in').addEventListener('click', () => viewer?.zoom(1 / 1.2));
   $('#zoom-out').addEventListener('click', () => viewer?.zoom(1.2));
+
+  // "Show in 3D" on a list line, and the links in the box under the 3D view.
+  $('.results').addEventListener('click', (e) => {
+    const b = e.target.closest('button.xref-btn');
+    if (!b || !lastEst) return;
+    if (b.dataset.xrefLumber) {
+      const [mat, ft] = b.dataset.xrefLumber.split(':');
+      const ids = lastEst.lumber.filter((l) => l.material === mat).flatMap((l) => l.result.boards.filter((x) => x.stock === Number(ft) * 12).flatMap((x) => x.cuts.map((c) => c.id)));
+      showPieces(ids, `${mat} x ${ft}': where its pieces go`, { scroll: true });
+    } else if (b.dataset.xrefLine) {
+      const r = lastEst.shopping[Number(b.dataset.xrefLine)];
+      showPieces(idsForLine(lastShed, r), `${r.name}: where it goes`, { scroll: true });
+    } else {
+      const marks = b.dataset.xrefMarks.split(' ');
+      showPieces(idsForMarks(marks), `Mark${marks.length > 1 ? 's' : ''} ${marks.join(', ')}`, { scroll: true });
+    }
+  });
+  $('#xref').addEventListener('click', (e) => {
+    const b = e.target.closest('button');
+    if (!b) return;
+    if (b.dataset.xclear !== undefined) { viewer?.highlight([]); $('#xref').hidden = true; for (const el of $$('.xref-on')) el.classList.remove('xref-on'); return; }
+    const go = b.dataset.xgo || (b.dataset.xstep !== undefined ? 'panel-build' : '');
+    $(`.result-tabs button[data-panel="${go}"]`)?.click();
+    const target = b.dataset.xstep !== undefined ? $('#build-steps').children[Number(b.dataset.xstep)] : $(`#${go} .xref-on`) || $('#results-h');
+    if (b.dataset.xstep !== undefined) { for (const li of $$('#build-steps > li')) li.classList.remove('xref-on'); target?.classList.add('xref-on'); }
+    target?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+  if (viewer) viewer.onPick = (id) => {
+    if (!id || !lastEst) return;
+    const part = lastEst.parts.find((p) => p.ids.includes(id));
+    if (part) { showPieces(part.ids, `${part.kind[0].toUpperCase()}${part.kind.slice(1)}, mark ${part.mark}`); return; }
+    // A panel or fixture: light every piece of its first shopping line, so a click on one siding course shows the whole run.
+    const lines = lineSets().flatMap((ls, i) => (ls.has(id) ? [i] : []));
+    const what = describePiece(lastShed, id);
+    if (what) showPieces(lines.length ? idsForLine(lastShed, lastEst.shopping[lines[0]]) : [id], what);
+  };
+
+  // The section bar is sticky, so scrolling by hand can park a plan handle under
+  // it. While one is, the bar fades and lets the pointer through to the handle.
+  let barQueued = false;
+  const clearHandles = () => {
+    barQueued = false;
+    const bar = $('#jump');
+    const r = bar.getBoundingClientRect();
+    const covered = r.height > 0 && $$('.handle-hit').some((h) => { const b = h.getBoundingClientRect(); return b.bottom > r.top && b.top < r.bottom && b.right > r.left && b.left < r.right; });
+    bar.classList.toggle('over-handle', covered);
+  };
+  const queueBar = () => { if (!barQueued) { barQueued = true; requestAnimationFrame(clearHandles); } };
+  addEventListener('scroll', queueBar, { passive: true });
+  addEventListener('resize', queueBar);
 
   // The section bar at the top opens a results tab and scrolls to it.
   $('#jump').addEventListener('click', (e) => {
@@ -1006,6 +1155,8 @@ function wire() {
   $('#print-all').addEventListener('click', () => printWhat('all'));
   // The HOA packet is its own page, carrying the design in its link as "Copy link" does.
   $('#hoa-packet').addEventListener('click', () => { window.open(`hoa-packet.html#d=${encodeDesign(design())}`, '_blank', 'noopener'); });
+  // The packet is what an HOA asks for, so the section bar links it too, not only the Plans tab.
+  $('#jump-hoa').addEventListener('click', () => $('#hoa-packet').click());
   for (const id of ['#quote-store', '#quote-name', '#quote-phone', '#quote-zip', '#quote-date']) $(id).addEventListener('input', () => quoteCtx && renderQuote(quoteCtx.shed, quoteCtx.est));
   $('#quote-store').addEventListener('change', () => quoteCtx && renderQuote(quoteCtx.shed, quoteCtx.est));
   $('#buy-at').value = state.buyAt;
@@ -1072,6 +1223,12 @@ picker = mountPicker({
     $('#workspace').scrollIntoView({ behavior: 'smooth' });
   },
 });
+// Say how many ready designs there are, and how many match a house, from the list itself.
+{
+  const all = galleryEntries();
+  const lap = all.filter((e) => matchesHouse(e.design)).length;
+  $('#gallery-count').textContent = `${all.length} sheds under 100 sq ft (${lap} in painted lap siding and asphalt shingles, to match a house)`;
+}
 const stripNav = mountStripNav({ track: $('#starts .pick-list'), prev: $('#starts-prev'), next: $('#starts-next'), pos: $('#starts-pos') });
 if (picker) mountMatchHouse({ box: $('#match-house'), picker, nav: stripNav, storage });
 if (linkNote) $('#status').textContent = linkNote;

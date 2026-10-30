@@ -219,6 +219,8 @@ test('the page explains the siding price step and that undo is per design', { sk
   await page.selectOption('#new-design', '8x8 lean');
   assert.match(await page.textContent('#status'), /Undo and redo start fresh for each design/);
   assert.equal(await page.$eval('#undo', (b) => b.disabled), true);
+  // The siding note shows only where taller walls are cheaper: an 8x12 lean-to at 112".
+  await page.selectOption('#new-design', '8x12 lean-to');
   await page.fill('#wallHeight', '112');
   await page.press('#wallHeight', 'Tab');
   await page.waitForFunction(() => document.querySelector('#wallHeight').value === '112' && /4x8-and-strip/.test(document.querySelector('#notes').textContent));
@@ -271,8 +273,98 @@ test('the section bar opens each results tab, and a left-out line comes off the 
   assert.ok(Math.abs(drop - num(line.total) * (1 + rate / 100)) < 0.02, `the total fell by the line and its tax (${drop})`);
   assert.equal(await page.$eval(`#shopping input[data-skip="${line.name}"]`, (cb) => cb.closest('tr').className), 'skip');
   assert.match(await page.textContent('#summary-lines'), /you have or left out/);
-  assert.match(await page.textContent('#shopping'), /PT 4x4 x \d+'for skid/, 'lumber lines say what they are for');
+  assert.match(await page.textContent('#shopping'), /PT 4x4 x \d+'(Show in 3D)?for skid/, 'lumber lines say what they are for');
+  assert.match(await page.textContent('#shopping'), /Lumber subtotal \(\d+% of the materials\)\$[\d,]+\.\d\d/, 'each section has a subtotal');
+  assert.match(await page.textContent('#summary-lines'), /Where the money goes.*Lumber \$/);
   assert.match(await page.textContent('#cuts'), /\d+ ft → .*\(\w+\)/, 'cut sheet boards say what they are cut into');
+});
+
+test('each option and each design card says what it changes and what it costs against yours', { skip }, async (t) => {
+  const { page } = await open(t);
+  await page.click('#make-options');
+  await page.waitForSelector('#option-cards article');
+  const cards = await page.$$eval('#option-cards article', (as) => as.map((a) => a.textContent));
+  const ridge = cards.find((c) => /Ridge board with rafter ties/.test(c));
+  assert.match(ridge, /roof ridge beam on posts → ridge board with rafter ties/);
+  assert.match(ridge, /\+\d+ rafter tie/);
+  assert.match(ridge, /\$[\d,.]+ less/);
+  await page.selectOption('#new-design', '8x12 classic');
+  await page.click('#design-tabs [data-design="0"]');
+  await page.waitForFunction(() => /Against the one you're editing/.test(document.querySelector('#compare-cards').textContent));
+  assert.match(await page.textContent('#compare-cards'), /walls [^→]+ → 8' 0"/);
+});
+
+test('each door and window says what it costs in all', { skip }, async (t) => {
+  const { page } = await open(t);
+  await page.waitForFunction(() => [...document.querySelectorAll('#openings td[data-cost]')].every((td) => /^\$/.test(td.textContent)));
+  const cells = await page.$$eval('#openings td[data-cost]', (tds) => tds.map((td) => td.textContent));
+  assert.equal(cells.length, 3);
+  // Removing the first window takes about that much off the total.
+  const num = (x) => Number(/\$([\d,.]+)/.exec(x)[1].replace(/,/g, ''));
+  const before = num(await page.textContent('#summary-lines'));
+  await page.click('#openings button[data-remove="1"]');
+  await page.waitForFunction((b) => !document.querySelector('#summary-lines').textContent.includes(b), String(before));
+  const after = num(await page.textContent('#summary-lines'));
+  assert.ok(Math.abs(before - after - num(cells[1])) < 0.02, `removing it saved ${before - after}, the column said ${cells[1]}`);
+});
+
+test('lists, 3D view and build steps point at each other', { skip }, async (t) => {
+  const { page } = await open(t);
+  const canvas = page.locator('#view3d');
+  await page.click('#jump [data-jump="panel-shopping"]');
+  const plain = await canvas.screenshot();
+  // A lumber line: its pieces light up in 3D and the box says what they are.
+  await page.click('#shopping button[data-xref-lumber^="PT 4x4"]');
+  await page.waitForSelector('#xref:not([hidden])');
+  assert.match(await page.textContent('#xref'), /skid \(A\): \d+ x/);
+  await settle(page);
+  assert.ok(!(await canvas.screenshot()).equals(plain), 'the skids are highlighted');
+  // The box links to the build step that uses them.
+  await page.click('#xref button[data-xstep]');
+  await page.waitForFunction(() => !document.querySelector('#panel-build').hidden && document.querySelector('#build-steps > li.xref-on'));
+  assert.match(await page.textContent('#build-steps > li.xref-on h3'), /Skids/);
+  // A part's row, and the cut sheet marks the boards it comes from.
+  await page.click('#jump [data-jump="panel-parts"]');
+  await page.click('#parts tr[data-mark="F"] button.xref-btn');
+  await page.waitForFunction(() => /rafter \(F\)/.test(document.querySelector('#xref').textContent));
+  assert.ok(await page.$('#cuts li.xref-on'), 'the cut sheet marks the rafter boards');
+  assert.ok(await page.$('#plans text.mark.xref-on'), 'the plans mark the rafters');
+  await page.click('#xref button[data-xgo="panel-plans"]');
+  await page.waitForFunction(() => !document.querySelector('#panel-plans').hidden);
+  assert.match(await page.textContent('#xref'), /Plans: .*Roof framing plan/);
+  // Clicking a board in the 3D view names it.
+  await page.click('#xref button[data-xclear]');
+  await canvas.scrollIntoViewIfNeeded();
+  const box = await canvas.boundingBox();
+  let named = '';
+  for (const [fx, fy] of [[0.5, 0.5], [0.45, 0.6], [0.55, 0.4], [0.5, 0.75], [0.4, 0.45]]) {
+    await page.mouse.click(box.x + box.width * fx, box.y + box.height * fy);
+    named = await page.$eval('#xref', (e) => (e.hidden ? '' : e.textContent));
+    if (named) break;
+  }
+  // The outside of the shed is siding and shingles now, not the stud behind them.
+  assert.match(named, /mark [A-Z]+|Bought as: /, 'a click on the model names a board or a panel');
+});
+
+test('sheet goods, siding, roofing, trim and door hardware lines show in 3D too', { skip }, async (t) => {
+  const { page } = await open(t);
+  const canvas = page.locator('#view3d');
+  await page.click('#jump [data-jump="panel-shopping"]');
+  const plain = await canvas.screenshot();
+  const buttons = page.locator('#shopping button[data-xref-line]');
+  assert.ok(await buttons.count() >= 8, 'most non-lumber lines can be shown');
+  // The roof sheathing line: the sheets light up, and its row is marked.
+  const sheathing = page.locator('#shopping tr', { hasText: 'roof sheathing' }).locator('button[data-xref-line]');
+  await sheathing.click();
+  await page.waitForFunction(() => /Roof sheathing/.test(document.querySelector('#xref').textContent));
+  assert.match(await page.textContent('#xref'), /Bought as: .*roof sheathing/i);
+  await settle(page);
+  assert.ok(!(await canvas.screenshot()).equals(plain), 'the sheets are highlighted');
+  assert.ok(await page.$('#shopping tr.xref-on'), 'the shopping line is marked');
+  // A hinge points at its door, and the door's frame parts are in the parts list.
+  await page.locator('#shopping tr', { hasText: 'tee hinge' }).locator('button[data-xref-line]').click();
+  await page.waitForFunction(() => /door stile \([A-Z]+\)/.test(document.querySelector('#xref').textContent));
+  assert.ok(await page.$('#parts tr.xref-on'), 'the door parts are marked in the parts list');
 });
 
 test('on a phone: no sideways scroll, finger-size handles, touch drag and pinch', { skip }, async (t) => {
@@ -315,6 +407,44 @@ test('the 3D view takes the keyboard', { skip }, async (t) => {
   await page.keyboard.press('+');
   await settle(page);
   assert.notDeepEqual(await canvas.screenshot(), before);
+});
+
+test('the 3D view pans with Shift and the arrows, a right-drag and two fingers, and stays near the shed', { skip }, async (t) => {
+  const { ctx, page } = await open(t);
+  const canvas = page.locator('#view3d');
+  await canvas.scrollIntoViewIfNeeded();
+  await page.click('#view-reset');
+  await canvas.focus();
+  await settle(page);
+  const start = await canvas.screenshot();
+  await page.keyboard.press('Shift+ArrowLeft');
+  await settle(page);
+  const moved = await canvas.screenshot();
+  assert.ok(!(moved).equals(start), 'Shift+arrow slides the view');
+  // However far you push, the view stops near the shed.
+  for (let i = 0; i < 30; i++) await page.keyboard.press('Shift+ArrowLeft');
+  await settle(page);
+  const far = await canvas.screenshot();
+  for (let i = 0; i < 10; i++) await page.keyboard.press('Shift+ArrowLeft');
+  await settle(page);
+  assert.ok((await canvas.screenshot()).equals(far), 'the pan is clamped');
+  await page.click('#view-reset');
+  await canvas.focus();
+  await settle(page);
+  assert.ok((await canvas.screenshot()).equals(start), 'Reset clears the pan');
+  const [x, y] = await center(canvas);
+  await page.mouse.move(x, y); await page.mouse.down({ button: 'right' }); await page.mouse.move(x + 60, y + 20, { steps: 4 }); await page.mouse.up({ button: 'right' });
+  await settle(page);
+  const right = await canvas.screenshot();
+  assert.ok(!(right).equals(start), 'a right-drag slides the view');
+  await page.click('#view-reset'); await settle(page);
+  // Two fingers moving together (no spread change) pan.
+  const cdp = await ctx.newCDPSession(page);
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: x - 30, y, id: 1 }, { x: x + 30, y, id: 2 }] });
+  for (let i = 1; i <= 5; i++) await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: x - 30 + i * 10, y, id: 1 }, { x: x + 30 + i * 10, y, id: 2 }] });
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+  await settle(page);
+  assert.ok(!(await canvas.screenshot()).equals(start), 'two fingers slide the view');
 });
 
 test('orbiting the 3D view measures each dimension label once, not every frame', { skip }, async (t) => {
@@ -639,4 +769,44 @@ test('Save picture downloads the 3D view as a PNG', { skip }, async (t) => {
   const path = await dl.path();
   const head = readFileSync(/** @type {string} */ (path)).subarray(0, 8);
   assert.deepEqual([...head], [137, 80, 78, 71, 13, 10, 26, 10], 'a PNG file');
+});
+
+test('the sticky section bar fades and lets a click through when a plan handle is under it', { skip }, async (t) => {
+  const { page } = await open(t);
+  const handle = page.locator('.handle-hit').first();
+  await handle.scrollIntoViewIfNeeded();
+  const bar = await page.locator('#jump').boundingBox();
+  const hb = await handle.boundingBox();
+  // Scroll so the handle sits in the middle of the bar.
+  await page.evaluate((dy) => scrollBy(0, dy), hb.y + hb.height / 2 - (bar.y + bar.height / 2));
+  await page.waitForFunction(() => document.querySelector('#jump').classList.contains('over-handle'));
+  const h2 = await handle.boundingBox();
+  const under = await page.evaluate(([x, y]) => document.elementFromPoint(x, y)?.getAttribute('class'), [h2.x + h2.width / 2, h2.y + h2.height / 2]);
+  assert.match(under || '', /^handle(-hit)?$/, 'the pointer reaches the handle, not the bar');
+  // Scroll the handle clear and the bar comes back.
+  await page.evaluate(() => scrollBy(0, -300));
+  await page.waitForFunction(() => !document.querySelector('#jump').classList.contains('over-handle'));
+});
+
+test('first-time pass: the HOA packet is one click from the section bar, and on a phone every shopping line can be left out without a sideways scroll', { skip }, async (t) => {
+  const { page } = await open(t);
+  // The bar says what its total adds over the before-tax prices on the gallery cards.
+  const taxed = /\+ \$[\d,.]+ tax/.test(await page.textContent('#summary-lines'));
+  assert.match(await page.textContent('#total-pill-l'), taxed ? /^Total incl\. tax/ : /^Total/);
+  const [pop] = await Promise.all([page.context().waitForEvent('page'), page.click('#jump #jump-hoa')]);
+  await pop.waitForLoadState();
+  assert.match(pop.url(), /hoa-packet\.html#d=/);
+  await pop.close();
+  const { page: phone } = await open(t, { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+  // The gallery's long explanation is folded away, so the first card is near the top.
+  assert.equal(await phone.locator('.hint-more').getAttribute('open'), null, 'how the designs were picked starts folded');
+  await phone.click('#jump [data-jump="panel-shopping"]');
+  const box = phone.locator('#shopping tr[data-line] input[data-skip]').first();
+  await box.scrollIntoViewIfNeeded();
+  const b = await box.boundingBox();
+  assert.ok(b && b.x >= 0 && b.x + b.width <= 390, `the Leave out box is on screen: ${JSON.stringify(b)}`);
+  const before = await phone.textContent('#total-pill-n');
+  await box.tap();
+  await phone.waitForFunction((x) => document.querySelector('#total-pill-n').textContent !== x, before);
+  assert.equal(await phone.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, 'no sideways scroll');
 });

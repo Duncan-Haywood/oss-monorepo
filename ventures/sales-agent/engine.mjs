@@ -220,6 +220,9 @@ const RULES = {
     P("\\b(never|didn'?t|did not) (gave|give|given|opt(ed)? in|sign(ed)? up|consent|agree)\\b.*\\b(permission|consent|to (this|your))"), P("\\bunsub\\b"), P("\\btake (it|my \\w+|this) off\\b"), P("\\bwhat(ever)? list you\\b"),
     P("\\bno (longer )?(wish|want)s? to (receive|get|hear)\\b"), P("\\bne souhaite plus recevoir\\b"), P("\\bplus recevoir (de |vos )?(messages|mails|courriels|e-?mails)\\b"), P("\\bkeine e-?mails mehr\\b"), P("\\bno quiero recibir\\b"),
     P("\\bunsolicited\\b.*\\b(remove|strike|delete|stop)\\b"),
+    // Added 2026-10-30 after a fifth set (eval/fresh-2026-10-30.jsonl) missed 4 of 10 opt-outs: "take this address off", "cease all
+    // correspondence", "struck my name from", and a CCPA delete/do-not-sell request.
+    P("\\btake (this|my|our) (address|email|name|number) off\\b"), P("\\bcease (all )?(correspondence|communication|contact)\\b"), P("\\bstruck (my|our) (name|email|address)\\b"), P("\\bccpa\\b.*\\b(delete|do not sell|opt)"), P("\\bdo not sell\\b"),
     // Added 2026-10-26: non-English opt-outs and auto-replies fell to "unclear" in a probe (DE, FR, ES, IT, PT, NL). Written by the
     // agent from common phrasings, not scored on real mail. No \\b around accented letters: JS \\b is ASCII-only.
     P("entfernen sie mich"), P("aus (ihrem|dem|ihrer) (e-?mail-?)?(verteiler|liste|datenbank)"), P("\\b(abmelden|austragen|abbestellen)\\b"), P("\\bnicht mehr (per )?(e-?mail )?(zu)?(kontaktier|anschreib|belästig|beläst)"), P("l[öo]schen sie (meine|unsere) (daten|e-?mail|adresse)"),

@@ -1,0 +1,15 @@
+# PDF Accessibility Tag Checker
+
+> Free tool: drop a PDF in your browser and get an evidence report on tagging, title, language, image alt text, and form-field labels -- the structural checks behind PDF/UA and Section 508. The file never leaves your device. Also a zero-dependency CLI for batch-scanning a whole document library.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/pdf-accessibility-tag-check/)
+- [PDF/UA checker: in-browser vs. uploading to an online checker](https://duncan-haywood.github.io/oss-monorepo/pdf-accessibility-tag-check/vs-uploading-to-an-online-checker.html)
+- [Why does a PDF that looks fine fail this accessibility check?](https://duncan-haywood.github.io/oss-monorepo/pdf-accessibility-tag-check/why-does-my-pdf-fail-when-it-looks-fine.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/pdf-accessibility-tag-check): MIT licensed.

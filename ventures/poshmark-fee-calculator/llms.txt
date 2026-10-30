@@ -1,0 +1,17 @@
+# Under $15, the flat fee can cost more than 20% would.
+
+> Free Poshmark seller fee calculator. The flat $2.95 fee under $15, 20% at $15+, the $14.75 break-even price, your real profit after item cost, and whether a lower offer costs you more than the discount. Nothing leaves your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/poshmark-fee-calculator/)
+- [How much does Poshmark take per sale?](https://duncan-haywood.github.io/oss-monorepo/poshmark-fee-calculator/how-much-does-poshmark-take.html)
+- [Is a lower offer worth it on Poshmark?](https://duncan-haywood.github.io/oss-monorepo/poshmark-fee-calculator/is-a-lower-offer-worth-it-on-poshmark.html)
+- [This calculator vs. Poshmark's own How It Works page](https://duncan-haywood.github.io/oss-monorepo/poshmark-fee-calculator/vs-poshmarks-how-it-works-page.html)
+- [Poshmark Fee Calculator vs. tracking payouts in a spreadsheet](https://duncan-haywood.github.io/oss-monorepo/poshmark-fee-calculator/vs-tracking-poshmark-payouts-in-a-spreadsheet.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/poshmark-fee-calculator): MIT licensed.

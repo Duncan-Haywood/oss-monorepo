@@ -1,0 +1,16 @@
+# Bid the base and the waste, not the square footage.
+
+> Price a paver patio from pattern waste, base depth, excavation, edge restraint, and haul-away — then see price per square foot, crew hours, and the walk-away number.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/paver-patio-bid-calculator/)
+- [How much to charge for a paver patio](https://duncan-haywood.github.io/oss-monorepo/paver-patio-bid-calculator/how-much-to-charge-for-a-paver-patio.html)
+- [This calculator vs. a flat rate per square foot](https://duncan-haywood.github.io/oss-monorepo/paver-patio-bid-calculator/vs-a-flat-rate-per-square-foot.html)
+- [This calculator vs. Aspire](https://duncan-haywood.github.io/oss-monorepo/paver-patio-bid-calculator/vs-aspire.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/paver-patio-bid-calculator): MIT licensed.

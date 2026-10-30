@@ -1,0 +1,13 @@
+# Should you surcharge cards, discount cash, or eat the fee?
+
+> Free credit card surcharge vs cash discount calculator for small merchants: see monthly processing cost, the surcharge that recovers it, and how many customers you can lose before each option stops paying off. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/card-surcharge-vs-cash-discount-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/card-surcharge-vs-cash-discount-calculator): MIT licensed.

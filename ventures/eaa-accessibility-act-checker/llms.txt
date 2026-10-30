@@ -1,0 +1,13 @@
+# Does the European Accessibility Act apply to your product or service?
+
+> Free European Accessibility Act checker: pick what you make or sell, your role and your size to see whether Directive (EU) 2019/882 likely applies, whether the microenterprise exemption covers you, and the main duties. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/eaa-accessibility-act-checker/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/eaa-accessibility-act-checker): MIT licensed.

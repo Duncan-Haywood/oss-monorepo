@@ -111,6 +111,7 @@ function apply(base, pt) {
     autoWall: false,
     autoPitch: false,
     autoOverhang: false,
+    ...('studSpacing' in pt ? { autoStuds: false } : {}),
     overhang: base.overhang,
     maxPeak: 0,
     openings: refitOpenings(base.openings, length, width),
@@ -223,7 +224,7 @@ export function audit(starts, opts = {}) {
  * offers and give the gap to the cheapest look-alike that holds as much. A
  * design with no gap here is locally optimal; audit() looks further.
  * @param {any} design
- * @param {{ fine?: any, prices?: any, maxFootprint?: number }} [opts]
+ * @param {{ fine?: any, prices?: any, maxFootprint?: number, maxUtilisation?: number }} [opts]
  */
 export function neighbourGap(design, opts = {}) {
   const start = evaluate(design, opts.prices);
@@ -242,5 +243,8 @@ export function neighbourGap(design, opts = {}) {
       }
     }
   }
-  return { ...gapOf(start, pool), evaluated: pool.length };
+  // A rival must keep every member within the start's own utilisation limit
+  // (the gallery holds its designs to 90%), when one is given.
+  const within = opts.maxUtilisation ? pool.filter((c) => c.worst <= opts.maxUtilisation + 1e-9) : pool;
+  return { ...gapOf(start, within), evaluated: pool.length };
 }

@@ -1,0 +1,13 @@
+# What should you charge for UGC videos?
+
+> Free UGC rate calculator: price your videos plus paid-ad usage rights, whitelisting, exclusivity, raw footage and rush fees. Get a quote range, a walk-away floor and a message to send the brand. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/ugc-creator-rate-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/ugc-creator-rate-calculator): MIT licensed.

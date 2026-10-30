@@ -194,6 +194,15 @@ global media culture met with probability B per step (Shibanai, Yasuno and Ishig
 F, q, B and the single global media culture are chosen, not measured; the finding is about
 simulated agents. Next: noise, and the L = 50 to 150 runs (a compiled core would be needed).
 
+## Follow-up: public goods with peer punishment (`experiments/commons/`, `src/civ_levers/commons.py`)
+
+Milestone 5. Groups play the public-goods game (return 1.6/n per token, endowment 20) with free riders and conditional cooperators; a punishment stage costs 1 token to remove 3. 10 rounds, 240 people, 30 seeds (`results.txt`).
+
+- Without punishment contributions decay from 7.5 to 1.9 of 20.
+- Punishment with no behavioural response changes nothing and costs payoff (21.1 to 19.8): the effect is entirely the assumed response of the punished.
+- With the response swept, round-10 contributions are 5.4, 10.2 and 12.2 (react 0.5, 1, 2). In stranger groups of 40, contributions reach 16.1 but net payoff falls to 2.9 against 21.0 with no punishment, since the all-to-all fining rule makes enforcement cost grow with group size.
+- Not yet compared numerically with Fehr and Gächter (2000); the response, type shares and punisher share are assumptions. See `LOG.md`.
+
 ## What this does and does not say
 
 - It is a model of opinion *positions*, not of prejudice or affect. Contact in Pettigrew and
@@ -245,3 +254,10 @@ Needs Python 3.9+ with numpy (and pytest); the app has no dependencies.
 - Watts, D. J. and Strogatz, S. H. (1998). Collective dynamics of 'small-world' networks.
   *Nature* 393:440–442.
 - Sherif, M. and Hovland, C. I. (1961). *Social Judgment*. Yale University Press.
+
+## Follow-up: a toy structural-demographic civilization (`experiments/history/`, `src/civ_levers/history.py`)
+
+Milestone 7 of track 24 (Turchin 2003; Turchin and Nefedov 2009). A fixed-land economy (Cobb-Douglas output, labour share 0.5) with peasants, elites and a state; elites multiply when their income beats their aspiration, and political stress (elite numbers, low wages, weak state) triggers instability that kills peasants and elites. Seven unmeasured parameters were swept over 864 cells, with three levers (doubled tax, elite cap, welfare transfer).
+
+**Result, a negative one:** no cell produces secular cycles (0 of 864; none with any lever; largest population swing 0.23% of the mean). The model settles at its Malthusian equilibrium, or in 3 cells stays in permanent unrest. The levers only change how deep the early fall goes (mean minimum population 0.757 with none, 0.850 with doubled tax, 0.917 with welfare). So this closure is too damped to say which policy levers flatten cycles; the missing ingredients (lagged elite recruitment, state collapse resetting stress) are the next step, and the acceptance check stays the published 150 to 400 year period. All inputs are swept, not measured, and the results are about the model only. See `LOG.md` (2026-10-30) and `experiments/history/results.txt`.
+

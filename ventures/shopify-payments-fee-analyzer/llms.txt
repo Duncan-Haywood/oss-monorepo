@@ -1,0 +1,13 @@
+# What is Shopify Payments really costing you?
+
+> Free Shopify Payments fee analyzer: drop in your Transactions export CSV and see your real effective rate, fees by card brand and card source, refund and chargeback cost, and what-if rates. Runs in your browser, the file is never uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/shopify-payments-fee-analyzer/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/shopify-payments-fee-analyzer): MIT licensed.

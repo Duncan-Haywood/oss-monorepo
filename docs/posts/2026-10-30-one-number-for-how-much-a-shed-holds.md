@@ -1,5 +1,6 @@
 ---
 title: "One number for how much a shed holds, and a search that leaves no cheaper twin"
+seo_title: "One number for how much a shed holds, and a search with no twin"
 date: 2026-10-30
 tags: [shed-designer, design-search, storage]
 description: "The shed designer's detail panel and its search quoted different cubic feet for one shed. They now share one definition, and the search polishes its front."

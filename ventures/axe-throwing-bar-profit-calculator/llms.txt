@@ -1,0 +1,14 @@
+# Will an axe throwing bar make money? Monthly profit, payback and break-even fill
+
+> Free calculator for axe throwing bars and venues. Enter thrower capacity, sessions, fill, ticket price, private events, leagues, staff, rent and the build; it shows monthly profit, margin, payback, break-even fill and the lowest ticket for your target margin and payback. Private, in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/axe-throwing-bar-profit-calculator/)
+- [How much does an axe throwing bar make?](https://duncan-haywood.github.io/oss-monorepo/axe-throwing-bar-profit-calculator/how-much-does-an-axe-throwing-bar-make.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/axe-throwing-bar-profit-calculator): MIT licensed.

@@ -1,0 +1,14 @@
+# Which scrap yard nets you more? Payout after the drive, split or not, strip wire or not
+
+> Free scrap metal calculator: type your lots, each yard's per-pound or per-ton prices, the miles and minutes to get there, and see what the load nets at each yard after fuel, time and fees, whether to split it, and whether to strip copper wire. Private, in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/scrap-metal-yard-payout-calculator/)
+- [Is a farther scrap yard worth the drive?](https://duncan-haywood.github.io/oss-monorepo/scrap-metal-yard-payout-calculator/is-a-farther-scrap-yard-worth-the-drive.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/scrap-metal-yard-payout-calculator): MIT licensed.

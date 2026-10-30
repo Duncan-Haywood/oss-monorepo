@@ -1,0 +1,16 @@
+# Buy less stock. Cut with a plan.
+
+> Free cut list optimizer for woodworkers and sign shops. Lay out plywood, MDF, or acrylic, compare 4×8 vs 5×5 sheets, and rank 8 ft vs 10 ft vs 12 ft boards before you buy. Nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/cut-list-optimizer/)
+- [4×8 vs 5×5: buy the size that costs less, not the one that sounds cheaper.](https://duncan-haywood.github.io/oss-monorepo/cut-list-optimizer/compare-4x8-vs-5x5.html)
+- [This cut list optimizer vs. optiCutter and CutList Optimizer](https://duncan-haywood.github.io/oss-monorepo/cut-list-optimizer/vs-opticutter-and-cutlist-optimizer.html)
+- [Cut list optimizer vs. planning cuts by hand](https://duncan-haywood.github.io/oss-monorepo/cut-list-optimizer/vs-planning-cuts-by-hand.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/cut-list-optimizer): MIT licensed.

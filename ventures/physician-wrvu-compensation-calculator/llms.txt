@@ -1,0 +1,13 @@
+# What is this wRVU offer really worth?
+
+> Free physician wRVU compensation calculator. Compare base-plus-productivity, pure wRVU and fixed salary, find the break-even wRVUs, effective $/wRVU, pay per hour, shortfall exposure and signing-bonus clawback, and compare two offers. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/physician-wrvu-compensation-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/physician-wrvu-compensation-calculator): MIT licensed.

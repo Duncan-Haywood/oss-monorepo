@@ -1,0 +1,13 @@
+# Does my camt.053 bank statement balance, and why won't it import?
+
+> Free camt.053 checker: finds why an ISO 20022 XML bank statement fails to import or does not balance (opening plus entries versus closing, gaps between statements, batch totals, declared counts, repeats, missing dates), with line numbers, and converts it to CSV. Runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/camt053-statement-check/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/camt053-statement-check): MIT licensed.

@@ -66,3 +66,8 @@ test("every other country page links to the India page", () => {
     assert.match(page, /href="india-gst-e-invoice-mandate\.html"/, f);
   }
 });
+
+test("page wires the INV-01 payload check to the module", () => {
+  assert.match(html, /id="p-json"/);
+  assert.match(html, /import\{checkInv01\}from"\.\/india-inv01\.mjs"/);
+});

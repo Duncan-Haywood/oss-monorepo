@@ -1,0 +1,13 @@
+# What will that card processor really cost you?
+
+> Free payment processing fee calculator: enter your monthly card sales, average sale and each processor's quote, and see the effective rate, monthly and yearly cost side by side. Flat rate vs interchange-plus. Runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/payment-processor-fee-comparison-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/payment-processor-fee-comparison-calculator): MIT licensed.

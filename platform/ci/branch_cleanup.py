@@ -299,7 +299,10 @@ class MainContainment:
     """
 
     def __init__(self, main_commits, compare, budget=DEFAULT_COMPARE_BUDGET):
-        self._known = dict(main_commits)  # sha -> ISO committer date
+        # sha -> ISO committer date; a callable is read on first use, so a
+        # run that never meets a moved branch skips the ~50 history requests.
+        self._main_commits = main_commits
+        self._loaded = None
         self._compare = compare  # sha -> (ahead_by, ISO date) or None
         self._budget = budget
         self._cache = {}
@@ -308,8 +311,11 @@ class MainContainment:
         """(contained True/False/None, tip datetime or None)."""
         if not sha:
             return None, None
-        if sha in self._known:
-            return True, parse_time(self._known[sha])
+        if self._loaded is None:
+            main = self._main_commits
+            self._loaded = dict(main() if callable(main) else main)
+        if sha in self._loaded:
+            return True, parse_time(self._loaded[sha])
         if sha in self._cache:
             return self._cache[sha]
         if self._budget <= 0:
@@ -556,7 +562,12 @@ def run(github, prs, protected, grace_hours, dry_run, out,
     each run uses the wall clock. The live tip/reserved recheck uses the same
     instant — grace cannot expire mid-sweep just because deletions were paced.
     """
-    branch_shas = github.branch_shas()
+    if len(prs) == 1:
+        # One ref is all `decide` looks up; skip listing every branch.
+        sha = github.branch_sha(prs[0]["head_ref"]) if prs[0]["head_ref"] else None
+        branch_shas = {prs[0]["head_ref"]: sha} if sha else {}
+    else:
+        branch_shas = github.branch_shas()
     reserved = github.open_pr_refs(exclude={pr["number"] for pr in prs})
     now = datetime.now(timezone.utc) if now is None else now
     # A single-PR run (the on-close `--pr` job) does not see other closed
@@ -737,7 +748,8 @@ def main(argv=None, out=sys.stdout):
         protected.append(default_branch)
     base = default_branch or "main"
     containment = MainContainment(
-        github.main_commits(base), github.compare_to(base), args.compare_budget
+        lambda: github.main_commits(base), github.compare_to(base),
+        args.compare_budget
     )
 
     strays = []

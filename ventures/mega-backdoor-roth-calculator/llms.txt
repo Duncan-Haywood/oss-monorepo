@@ -1,0 +1,15 @@
+# How much mega backdoor Roth headroom do you have left this year?
+
+> Free browser calculator for the mega backdoor Roth 401(k) strategy: enter your YTD elective deferral, employer contributions, and after-tax contributions and get your remaining after-tax headroom under the 2025/2026 IRS 415(c) limit, plus the per-paycheck amount to use it up by year-end.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/mega-backdoor-roth-calculator/)
+- [This calculator vs. working out your headroom by hand](https://duncan-haywood.github.io/oss-monorepo/mega-backdoor-roth-calculator/vs-doing-the-math-by-hand.html)
+- [Which Roth conversion cadence should I use?](https://duncan-haywood.github.io/oss-monorepo/mega-backdoor-roth-calculator/which-conversion-cadence-should-i-use.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/mega-backdoor-roth-calculator): MIT licensed.

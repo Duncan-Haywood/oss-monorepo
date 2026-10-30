@@ -1,0 +1,13 @@
+# How much of your recorded time becomes cash?
+
+> Free law firm realization calculator: realization, collection rate and yield per lawyer, dollars lost before and after billing, lockup days, and what a point of realization is worth. Runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/law-firm-realization-rate-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/law-firm-realization-rate-calculator): MIT licensed.

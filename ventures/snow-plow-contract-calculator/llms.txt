@@ -1,0 +1,14 @@
+# Which snow plow contract pays you the most per hour: per push, per inch or seasonal?
+
+> Compare per-push, seasonal flat, capped and hybrid snow plow contracts across low, normal and high snow years, with break-even storms and a walk-away price.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/snow-plow-contract-calculator/)
+- [How to price a snow plow contract: per push vs seasonal](https://duncan-haywood.github.io/oss-monorepo/snow-plow-contract-calculator/how-to-price-a-snow-plow-contract-per-push-vs-seasonal.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/snow-plow-contract-calculator): MIT licensed.

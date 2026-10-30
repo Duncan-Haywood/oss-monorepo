@@ -46,6 +46,82 @@ function ieShape(body) {
   return false;
 }
 
+const digitsOf = (text) => [...text].map(Number);
+const weighted = (text, weights) => digitsOf(text).reduce((sum, digit, i) => sum + digit * weights[i], 0);
+
+// Checksums for countries that were shape-only. Each entry is tried only when
+// `applies` matches the body, so a variant not implemented here (for example a
+// 10-digit Bulgarian or 12-digit Lithuanian number) stays a shape check.
+// Algorithms are the public ones (as in python-stdnum); each is exercised in
+// vat.test.mjs on a published example number plus a one-digit mutation.
+const MOD11_WEIGHTS = [1, 2, 3, 4, 5, 6, 7, 8];
+const MOD11_RETRY = { LT: [3, 4, 5, 6, 7, 8, 9, 1], BG: [3, 4, 5, 6, 7, 8, 9, 10] };
+
+function mod11Retry(body, retry) {
+  let sum = weighted(body.slice(0, 8), MOD11_WEIGHTS) % 11;
+  if (sum === 10) sum = weighted(body.slice(0, 8), retry) % 11;
+  if (sum === 10) sum = 0;
+  return sum === Number(body[8]);
+}
+
+const EXTRA_CHECKS = {
+  EE: { applies: (b) => /^\d{9}$/.test(b), ok: (b) => b[0] === "1" && weighted(b, [3, 7, 1, 3, 7, 1, 3, 7, 1]) % 10 === 0 },
+  HU: { applies: (b) => /^\d{8}$/.test(b), ok: (b) => weighted(b, [9, 7, 3, 1, 9, 7, 3, 1]) % 10 === 0 },
+  SI: {
+    applies: (b) => /^\d{8}$/.test(b),
+    ok: (b) => {
+      if (b[0] === "0") return false;
+      let check = 11 - (weighted(b.slice(0, 7), [8, 7, 6, 5, 4, 3, 2]) % 11);
+      if (check === 10) check = 0;
+      return check === Number(b[7]);
+    },
+  },
+  SK: { applies: (b) => /^\d{10}$/.test(b), ok: (b) => b[0] !== "0" && "234789".includes(b[2]) && Number(b) % 11 === 0 },
+  HR: { applies: (b) => /^\d{11}$/.test(b), ok: (b) => deOkIso7064(b.slice(0, 10), Number(b[10])) },
+  // Legal entities only (first digit 4-9); natural persons use a birth date.
+  LV: { applies: (b) => /^[4-9]\d{10}$/.test(b), ok: (b) => weighted(b, [9, 1, 4, 8, 3, 10, 2, 5, 7, 6, 1]) % 11 === 3 },
+  LT: { applies: (b) => /^\d{9}$/.test(b), ok: (b) => b[7] === "1" && mod11Retry(b, MOD11_RETRY.LT) },
+  BG: { applies: (b) => /^\d{9}$/.test(b), ok: (b) => mod11Retry(b, MOD11_RETRY.BG) },
+  RO: {
+    applies: (b) => /^[1-9]\d{1,9}$/.test(b),
+    ok: (b) => {
+      const padded = b.padStart(10, "0");
+      let check = (weighted(padded.slice(0, 9), [7, 5, 3, 2, 1, 7, 5, 3, 2]) * 10) % 11;
+      if (check === 10) check = 0;
+      return check === Number(padded[9]);
+    },
+  },
+  EL: {
+    applies: (b) => /^\d{9}$/.test(b),
+    ok: (b) => {
+      let total = 0;
+      for (let i = 0; i < 8; i += 1) total += Number(b[i]) * 2 ** (8 - i);
+      return (total % 11) % 10 === Number(b[8]);
+    },
+  },
+  // 8-digit legal entities only; 9- and 10-digit numbers (individuals) stay shape-only.
+  CZ: {
+    applies: (b) => /^[0-8]\d{7}$/.test(b),
+    ok: (b) => {
+      let check = 11 - (weighted(b.slice(0, 7), [8, 7, 6, 5, 4, 3, 2]) % 11);
+      if (check === 10) check = 0;
+      if (check === 11) check = 1;
+      return check === Number(b[7]);
+    },
+  },
+};
+EXTRA_CHECKS.GR = EXTRA_CHECKS.EL;
+
+function deOkIso7064(first, check) {
+  let product = 10;
+  for (const char of first) {
+    let step = (Number(char) + product) % 10;
+    if (step === 0) step = 10;
+    product = (2 * step) % 11;
+  }
+  return (11 - product) % 10 === check;
+}
+
 function classify(country, body) {
   if (country === "DE") return /^\d{9}$/.test(body) ? "checksum" : "bad-format";
   if (country === "FR") return body.length === 11 && /^\d+$/.test(body.slice(2)) ? "checksum" : "bad-format";
@@ -71,6 +147,7 @@ function classify(country, body) {
   if (country === "GB" || country === "UK") return /^\d+$/.test(body) && (body.length === 9 || body.length === 12) ? "checksum" : "bad-format";
   const lengths = FORMAT_ONLY[country];
   if (lengths === undefined) return "unknown";
+  if (EXTRA_CHECKS[country]?.applies(body)) return "checksum";
   if (/^[A-Z0-9]+$/.test(body) && lengths.includes(body.length)) return "format";
   return "bad-format";
 }
@@ -276,6 +353,7 @@ function checksumOk(country, body) {
   if (country === "LU") return luOk(body);
   if (country === "IE") return ieOk(body);
   if (country === "GB" || country === "UK") return gbOk(body);
+  if (EXTRA_CHECKS[country]) return EXTRA_CHECKS[country].ok(body);
   return false;
 }
 

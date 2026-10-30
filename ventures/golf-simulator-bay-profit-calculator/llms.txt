@@ -1,0 +1,14 @@
+# Will an indoor golf simulator room make money? Monthly profit, payback and break-even utilization
+
+> Free calculator for indoor golf simulator lounges and bay-rental venues. Enter bays, peak and off-peak rates, utilization, members, food and drink, rent and staff; it shows monthly profit, margin, payback on the build, break-even utilization, the lowest rates for your target margin, and compares a second scenario.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/golf-simulator-bay-profit-calculator/)
+- [How much does a golf simulator lounge make?](https://duncan-haywood.github.io/oss-monorepo/golf-simulator-bay-profit-calculator/how-much-does-a-golf-simulator-lounge-make.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/golf-simulator-bay-profit-calculator): MIT licensed.

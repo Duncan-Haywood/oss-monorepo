@@ -1,0 +1,14 @@
+# What will transcription cost for your audio hours, and who is cheapest?
+
+> Type your monthly audio hours and growth, get every speech-to-text API priced side by side and the volume where self-hosting Whisper starts to win. No account, no upload.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/speech-to-text-pricing-calculator/)
+- [How to choose a speech-to-text API](https://duncan-haywood.github.io/oss-monorepo/speech-to-text-pricing-calculator/how-to-choose-a-speech-to-text-api.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/speech-to-text-pricing-calculator): MIT licensed.

@@ -86,6 +86,25 @@ class Repository(unittest.TestCase):
                 self.assertEqual(guard.main(), 1)
             self.assertIn("ledger.yaml:1", out.getvalue())
 
+    def test_a_text_file_missing_from_a_sparse_checkout_fails_the_check(self):
+        # CI checks out a sparse tree (P048). If it left out a file that could
+        # hold a marker, scanning fewer files must not read as a clean pass.
+        with TemporaryDirectory() as root:
+            gone = Path(root) / "ventures" / "x" / "VENTURE.yaml"
+            with mock.patch.object(guard, "tracked_files", return_value=[gone]), \
+                    mock.patch.object(guard, "REPO_ROOT", Path(root)), \
+                    contextlib.redirect_stdout(io.StringIO()) as out:
+                self.assertEqual(guard.main(), 1)
+            self.assertIn("ventures/x/VENTURE.yaml", out.getvalue())
+
+    def test_a_binary_format_may_be_left_out_of_the_checkout(self):
+        with TemporaryDirectory() as root:
+            audio = Path(root) / "docs" / "episode.mp3"
+            with mock.patch.object(guard, "tracked_files", return_value=[audio]), \
+                    mock.patch.object(guard, "REPO_ROOT", Path(root)), \
+                    contextlib.redirect_stdout(io.StringIO()):
+                self.assertEqual(guard.main(), 0)
+
 
 if __name__ == "__main__":
     unittest.main()

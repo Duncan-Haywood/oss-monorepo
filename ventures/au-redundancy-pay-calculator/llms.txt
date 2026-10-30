@@ -1,0 +1,13 @@
+# What redundancy pay, notice and leave are owed on this termination?
+
+> Free Australian redundancy pay calculator: enter pay, start and end dates, age and employer size to see NES redundancy weeks, notice pay and accrued leave. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/au-redundancy-pay-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/au-redundancy-pay-calculator): MIT licensed.

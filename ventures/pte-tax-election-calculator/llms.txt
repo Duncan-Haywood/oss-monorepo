@@ -1,0 +1,13 @@
+# Is a pass-through entity tax election worth it?
+
+> Free calculator for S corporation and partnership owners: does a state pass-through entity tax (PTET) election save federal tax once the SALT cap, its income phase-out, your credit and the 20% pass-through deduction are counted? See the saving, why, and the income where it starts to pay. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/pte-tax-election-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/pte-tax-election-calculator): MIT licensed.

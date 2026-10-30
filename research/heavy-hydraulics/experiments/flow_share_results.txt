@@ -1,0 +1,2 @@
+p_n 10.9 bar: cycle-time penalty % median 6.40, p95 21.62, max 21.62; dig slowdown factor median 1.296, p95 2.000; dig phases at the stall bound (factor 2) 35.6%; share of cycles with any slowdown 65.5%
+p_n 1.44 bar: cycle-time penalty % median 21.62, p95 21.62, max 21.62; dig slowdown factor median 2.000, p95 2.000; dig phases at the stall bound (factor 2) 98.4%; share of cycles with any slowdown 99.7%

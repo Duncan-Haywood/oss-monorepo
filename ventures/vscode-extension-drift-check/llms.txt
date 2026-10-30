@@ -1,0 +1,16 @@
+# Did an extension you already trust just change what it does?
+
+> Paste a snapshot of your installed VS Code, Cursor, Windsurf, or VSCodium extensions and see exactly which ones changed their activation surface -- a new startup trigger, a new extension dependency, or a changed entry point -- since your last check.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/vscode-extension-drift-check/)
+- [This tool vs. VSCan](https://duncan-haywood.github.io/oss-monorepo/vscode-extension-drift-check/vs-vscan.html)
+- [This checker vs. vsix-audit](https://duncan-haywood.github.io/oss-monorepo/vscode-extension-drift-check/vs-vsix-audit.html)
+- [Why VS Code doesn't warn you when an extension is delisted](https://duncan-haywood.github.io/oss-monorepo/vscode-extension-drift-check/why-vs-code-does-not-warn-you-when-an-extension-is-delisted.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/vscode-extension-drift-check): MIT licensed.

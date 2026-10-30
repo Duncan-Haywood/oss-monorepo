@@ -1,0 +1,13 @@
+# Which parts should the van carry?
+
+> Free truck stock planner for HVAC, plumbing, electrical and appliance technicians. Paste your parts list and past jobs to get the van inventory that finishes the most jobs on the first visit for your budget and shelf space. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/service-van-stock-optimizer/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/service-van-stock-optimizer): MIT licensed.

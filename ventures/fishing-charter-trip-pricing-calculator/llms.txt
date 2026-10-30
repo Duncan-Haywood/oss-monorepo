@@ -1,0 +1,13 @@
+# What to charge per charter trip: break-even, target price and what weather cancellations really cost
+
+> Free pricing calculator for fishing charter captains: fuel, deckhand, fixed costs, weather cancellations and the profit you want become a break-even price, a target price per trip and per angler. Private, runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/fishing-charter-trip-pricing-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/fishing-charter-trip-pricing-calculator): MIT licensed.

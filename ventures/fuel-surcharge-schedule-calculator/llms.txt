@@ -1,0 +1,13 @@
+# Does that fuel surcharge really cover your fuel?
+
+> Free fuel surcharge calculator for truckers and brokers: enter the DOE diesel price, the peg, the mpg basis and your trip, and see what each fuel surcharge program pays against the fuel you really burned. Runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/fuel-surcharge-schedule-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/fuel-surcharge-schedule-calculator): MIT licensed.

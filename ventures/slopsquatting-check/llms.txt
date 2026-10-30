@@ -1,0 +1,16 @@
+# Did an AI assistant just suggest a package that doesn't exist?
+
+> Paste your package.json and this offline check flags any dependency name that looks like a one- or two-letter typo of a famous npm package -- the same shape as a hallucinated name an AI coding assistant invents.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/slopsquatting-check/)
+- [Slopsquatting Check vs. Eyeballing package.json by Hand](https://duncan-haywood.github.io/oss-monorepo/slopsquatting-check/vs-checking-package-names-by-eye.html)
+- [This checker vs. Socket](https://duncan-haywood.github.io/oss-monorepo/slopsquatting-check/vs-socket.html)
+- [What is slopsquatting, and why doesn't a lockfile already protect you?](https://duncan-haywood.github.io/oss-monorepo/slopsquatting-check/what-is-slopsquatting.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/slopsquatting-check): MIT licensed.

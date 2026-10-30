@@ -1,0 +1,13 @@
+# Find out if your business insurance meets your client's contract, and what it quietly excludes.
+
+> Free business insurance policy reader: paste a general liability, professional liability or BOP policy and get the limits, deductible, claims-made trigger and renewal dates (downloadable .ics), whether the limits meet a client's contract requirement, and the exclusions to ask your broker about.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/business-insurance-policy-reader/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/business-insurance-policy-reader): MIT licensed.

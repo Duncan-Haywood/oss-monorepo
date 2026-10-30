@@ -1,6 +1,6 @@
 // `driftWarning` on trendless monthly seasonal series (no trend confound), 72 months each:
 // UK deaths from bronchitis, emphysema and asthma 1974-79 (all, male, female; the cold-winter/flu peak of
-// January 1976 is the dated shock) and US accidental deaths 1973-78 (no documented shock: the null).
+// January 1976 is the dated shock) and US accidental deaths 1973-78 (not a null after all: see us-accidental-deaths.mjs).
 // usage: node eval/drift-warning-trendless.mjs
 import { readFileSync } from 'node:fs';
 import { analyze } from '../engine.mjs';
@@ -8,7 +8,7 @@ const SERIES = [
   ['UK lung deaths, all (Jan 1976 peak)', 'uk-ldeaths.csv'],
   ['UK lung deaths, male (Jan 1976 peak)', 'uk-mdeaths.csv'],
   ['UK lung deaths, female (Jan 1976 peak)', 'uk-fdeaths.csv'],
-  ['US accidental deaths (no shock; null)', 'us-accidental-deaths.csv'],
+  ['US accidental deaths (drop at 1973-12 in every seasonal setup: eval/us-accidental-deaths.mjs)', 'us-accidental-deaths.csv'],
 ];
 for (const [name, file] of SERIES) {
   const rows = readFileSync(new URL(`../data/${file}`, import.meta.url), 'utf8').trim().split('\n').slice(1).map((l) => l.split(','));

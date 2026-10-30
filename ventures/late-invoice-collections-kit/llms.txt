@@ -1,0 +1,13 @@
+# An overdue invoice, turned into a dated plan to get paid.
+
+> Free tool for freelancers and small agencies with an overdue invoice: late fee and interest today and on later dates, four ready-to-copy letters (reminder, firm notice, final demand, referral) with your numbers, a small-claims break-even, and .ics reminders. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/late-invoice-collections-kit/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/late-invoice-collections-kit): MIT licensed.

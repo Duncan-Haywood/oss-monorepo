@@ -1,0 +1,13 @@
+# Why did my QuickBooks chart of accounts import skip accounts?
+
+> Free QuickBooks Online chart of accounts import CSV checker: unknown account types, blank detail types, duplicate names and numbers, sub-accounts before their parent, balances on income and expense accounts and missing as-of dates, with line numbers and safe fixes. Runs in your browser; the file is never uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/quickbooks-chart-of-accounts-csv-check/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/quickbooks-chart-of-accounts-csv-check): MIT licensed.

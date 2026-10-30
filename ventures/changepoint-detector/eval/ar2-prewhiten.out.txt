@@ -1,0 +1,14 @@
+lynx (n=114, rho from differences 0.95)
+  AR(1) prewhitened: false steps 21 (a=-0.20, b=0.00)
+    inserted step 1 sd found: 0 of 6
+    inserted step 2 sd found: 0 of 6
+  AR(2) prewhitened: false steps 22 (a=-0.22, b=-0.12)
+    inserted step 1 sd found: 0 of 6
+    inserted step 2 sd found: 0 of 6
+sunspot-year (n=289, rho from differences 0.95)
+  AR(1) prewhitened: false steps 34 (a=0.66, b=0.00)
+    inserted step 1 sd found: 0 of 6
+    inserted step 2 sd found: 0 of 6
+  AR(2) prewhitened: false steps 16 (a=1.07, b=-0.48)
+    inserted step 1 sd found: 0 of 6
+    inserted step 2 sd found: 0 of 6

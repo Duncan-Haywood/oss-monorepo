@@ -1,0 +1,13 @@
+# Short links on your own domain, with stats that don't track people.
+
+> A free, open-source alternative to Bitly, Dub and Rebrandly: your own short domain, UTM-tagged campaign links, iOS/Android app routing, expiry, click limits and privacy-friendly stats with no cookies and no stored IPs. Plan a batch of links in your browser first.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/link-keeper/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/link-keeper): MIT licensed.

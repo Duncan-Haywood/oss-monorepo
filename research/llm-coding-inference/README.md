@@ -67,5 +67,7 @@ Related labs: none claimed; this is methods work for computational social scienc
 
 `llmci/estimators.py` (stdlib only) holds the estimators the programme compares: human-only, naive,
 PPI, PPI++, design-based IPW audit, stratified PPI, stratified human-only and binary label-shift correction.
-Tests: `python3 -m pytest research/llm-coding-inference/test_llmci.py`. Checked against closed
+`llmci/audit_design.py` holds the screened audit-design rule of milestones 6ak to 6am (`informedness`, `screen`, `cell_allocation`; a heuristic with no coverage theorem). Tests: `python3 -m pytest research/llm-coding-inference/test_llmci.py`. Checked against closed
 forms and a 600-study simulation; not yet against a published dataset.
+
+`audit_interval(plan, f_all, labels)` closes `plan_audit` with the interval of milestones 6ac and 6ad (pooled control-variate weight, stratified variance, Wilson interval on the effective sample size). Run through the library only (`experiments/h7c_end_to_end.py`, 500 draws), the half-width is within 2% of 6al's guarded screen in all 14 corpus/coder/n cells and coverage is 92.0 to 96.6% (12 of 14 within 2 points of 6al's; two cells differ by 2.6 and 2.8 points, about two sd of the difference).

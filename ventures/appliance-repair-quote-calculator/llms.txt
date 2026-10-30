@@ -1,0 +1,17 @@
+# Price the service call, not just the part.
+
+> Price an appliance repair service call, then see whether finishing the repair still beats recommending replace — customer cost per remaining year versus what you keep if they decline.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/appliance-repair-quote-calculator/)
+- [Should I repair or replace this appliance?](https://duncan-haywood.github.io/oss-monorepo/appliance-repair-quote-calculator/should-i-repair-or-replace-this-appliance.html)
+- [This calculator vs. a flat rate repair price](https://duncan-haywood.github.io/oss-monorepo/appliance-repair-quote-calculator/vs-a-flat-rate-repair-price.html)
+- [This calculator vs. Housecall Pro](https://duncan-haywood.github.io/oss-monorepo/appliance-repair-quote-calculator/vs-housecall-pro.html)
+- [This calculator vs. Jobber](https://duncan-haywood.github.io/oss-monorepo/appliance-repair-quote-calculator/vs-jobber.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/appliance-repair-quote-calculator): MIT licensed.

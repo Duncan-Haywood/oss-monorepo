@@ -1,0 +1,13 @@
+# What does the EU Pay Transparency Directive require of your company?
+
+> Free EU Pay Transparency Directive checker for employers: which duties apply at your headcount, which are still open, and which job categories hit the 5% pay gap trigger. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/pay-transparency-directive-checker/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/pay-transparency-directive-checker): MIT licensed.

@@ -6,7 +6,8 @@ import { buildShed, defaultDesign, normalize, BLOCKS } from './model.mjs';
 import { estimate } from './estimate.mjs';
 import { itemPrice } from './prices.mjs';
 import { EXAMPLE_ITEMS } from './lumber.mjs';
-import { OFFERS, storeComparison, swapsFor, storeTotals, storeList, pricesFor } from './catalog.mjs';
+import { OFFERS, storeComparison, swapsFor, storeTotals, storeList, pricesFor, MAIN_STORES, copyAgeDays } from './catalog.mjs';
+import { STORES } from './quote.mjs';
 import { simplify, cutMetrics, sidingSpan, budget, laborHours } from './simplify.mjs';
 import { connectionChecks } from './connections.mjs';
 import { structuralChecks } from './checks.mjs';
@@ -115,12 +116,20 @@ test('store offers: every one has a store, a price, a model and a link; comparis
   const est = estimate(buildShed(defaultDesign()));
   const cmp = storeComparison(est);
   assert.ok(cmp.rows.length >= 2);
-  const mix = cmp.rows.reduce((t, r) => t + r.best.price * r.line.qty, 0);
+  const both = cmp.rows.filter((r) => MAIN_STORES.every((st) => r.offers.some((o) => o.store === st)));
+  const mix = both.reduce((t, r) => t + Math.min(...r.offers.filter((o) => MAIN_STORES.includes(o.store)).map((o) => o.price)) * r.line.qty, 0);
   assert.ok(Math.abs(mix - cmp.cheapestMix) < 0.01);
   const splitTotal = Object.values(cmp.split).reduce((t, g) => t + g.total, 0);
   assert.ok(Math.abs(splitTotal - cmp.cheapestMix) < 0.01);
   assert.ok(cmp.oneStop && cmp.splitSaving >= 0);
   for (const a of cmp.addOns) assert.ok(a.saving > 0 && a.saving <= cmp.splitSaving + 0.01 && a.store !== cmp.oneStop.store);
+  // Like for like: store totals and the one-stop pick use only the lines both chains list.
+  assert.equal(cmp.both, both.length);
+  for (const st of MAIN_STORES) {
+    const sum = both.reduce((t, r) => t + r.offers.find((o) => o.store === st).price * r.line.qty, 0);
+    assert.ok(Math.abs(cmp.totals[st].total - sum) < 0.011, st);
+  }
+  assert.ok(MAIN_STORES.includes(cmp.oneStop.store) && cmp.oneStop.by >= 0);
   // The line's own listing is one of the offers compared.
   assert.ok(cmp.rows.some((r) => r.line.section === 'Lumber' && r.offers.some((o) => o.store === 'Home Depot')));
 });
@@ -132,7 +141,7 @@ test('primed LP siding in two thicknesses changes the panels bought and the sidi
   }
   assert.equal(sidingSpan({ siding: true, sidingType: 'T1-11' }), 16);
   assert.equal(sidingSpan({ siding: true, sidingType: 'LP SmartSide 7/16' }), 24);
-  const warn = buildShed(normalize({ ...defaultDesign(), studSpacing: 24 })).warnings.join(' ');
+  const warn = buildShed(normalize({ ...defaultDesign(), studSpacing: 24, autoStuds: false })).warnings.join(' ');
   assert.match(warn, /rated for studs at 16/);
 });
 
@@ -178,7 +187,6 @@ test('quote emails name the store\'s own item and link where we have it; the CSV
   const hd = quoteRequest(shed, est, 'homedepot').body;
   assert.match(hd, /\n      Home Depot[^\n]*: [^\n]*https:\/\/(www\.)?homedepot\.com\//);
   assert.equal(itemRef({ source: { key: 'trim1x4x16' } }, undefined), '');
-  assert.match(quoteRequest(shed, est, 'menards').body, /Menards: SKU 1511823, https:\/\/www\.menards\.com\//);
   const csv = shoppingCsv(est).split('\n');
   assert.match(csv[0], /price source,listing$/);
   assert.ok(csv.some((l) => /https:\/\/www\.homedepot\.com\//.test(l)));
@@ -266,6 +274,20 @@ test('whole list at each store: every line counted once, priced or carried', () 
     assert.ok(x.lines <= x.of);
   }
   assert.ok(w.stores.find((x) => x.store === 'Home Depot').lines > est.shopping.length / 2);
+  for (const x of w.stores) assert.equal(x.missing.length, x.of - x.lines, `${x.store} names every line it has no listing for`);
+});
+
+test('Home Depot and Lowe\'s only (owner, 2026-10-30): no Menards offers, totals or quote desk', () => {
+  assert.deepEqual(MAIN_STORES, ['Home Depot', "Lowe's"]);
+  for (const list of Object.values(OFFERS)) assert.ok(!list.some((o) => /menards/i.test(o.store + o.url)));
+  assert.ok(!('menards' in STORES));
+  assert.deepEqual(storeTotals(estimate(buildShed(defaultDesign()))).stores.map((x) => x.store), MAIN_STORES);
+});
+
+test('a copy\'s age is read from its note', () => {
+  assert.equal(copyAgeDays({ note: 'category copies 643-1,790 days old' }), 1790);
+  assert.equal(copyAgeDays({ note: 'a copy about 1,443 days old; $20.98 on another page' }), 1443);
+  assert.equal(copyAgeDays({ note: 'the higher of $9.78-$10.58' }), 0);
 });
 
 test('labour: hours rise with the work, and the rate turns them into money', () => {
@@ -305,4 +327,19 @@ test('the budget search may move floor joists to 24" and resize them, and every 
   const sc = structuralChecks(buildShed(r.best.design));
   assert.ok(sc.ok);
   assert.ok(sc.rows.find((x) => x.member === 'Subfloor').ratio <= 1);
+});
+
+test('fiber cement follows the climate (HZ5 where winters freeze) and 5/4 trim follows the siding maker', () => {
+  const lap = { ...defaultDesign(), sidingType: 'fiber cement' };
+  const keys = (d) => estimate(buildShed(normalize(d))).shopping.map((r) => r.source?.key);
+  assert.ok(keys(lap).includes('lapHardie') && !keys(lap).includes('lapHardie5'));
+  assert.ok(keys({ ...lap, climate: 'freezing' }).includes('lapHardie5'));
+  assert.ok(!keys({ ...lap, climate: 'freezing' }).includes('lapHardie'));
+  // The climate setting only touches fiber cement.
+  assert.deepEqual(keys({ ...defaultDesign(), climate: 'freezing' }), keys(defaultDesign()));
+  const fc54 = keys({ ...lap, wallTrim: '5/4' });
+  assert.ok(fc54.includes('trim54Hardie') && !fc54.some((k) => k?.startsWith('trim1x4')));
+  const lp54 = keys({ ...lap, sidingType: 'LP SmartSide lap', wallTrim: '5/4' });
+  assert.ok(lp54.includes('trim54LP') && !lp54.includes('trim54Hardie'));
+  assert.equal(normalize({ ...defaultDesign(), wallTrim: '2x6', climate: 'arctic' }).wallTrim, '1x4');
 });

@@ -1,0 +1,13 @@
+# Which of your Airbnb listings, months and stay lengths actually make money?
+
+> Free Airbnb earnings analyzer: drop in your Transaction history CSV and see net earnings, fee share, nightly rate and occupancy per listing, which months and stay lengths earn the most, and whether your cleaning fee covers your cleaning cost. Runs in your browser, the file is never uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/airbnb-earnings-report-analyzer/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/airbnb-earnings-report-analyzer): MIT licensed.

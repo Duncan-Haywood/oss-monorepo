@@ -1,0 +1,27 @@
+# Normalize a 3PL quote before you sign it.
+
+> Compare a third-party logistics quote with in-house fulfillment costs, minimum monthly spend, and true cost per order.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/3pl-quote-normalizer/)
+- [Compare two normalized 3PL quotes](https://duncan-haywood.github.io/oss-monorepo/3pl-quote-normalizer/compare.html)
+- [Does long-term storage flip a 3PL quote?](https://duncan-haywood.github.io/oss-monorepo/3pl-quote-normalizer/does-long-term-storage-flip-a-3pl-quote.html)
+- [Rank the largest lines in a 3PL quote](https://duncan-haywood.github.io/oss-monorepo/3pl-quote-normalizer/drivers.html)
+- [Download a reviewable 3PL record](https://duncan-haywood.github.io/oss-monorepo/3pl-quote-normalizer/export.html)
+- [Which inbound method is the warehouse actually cheaper on?](https://duncan-haywood.github.io/oss-monorepo/3pl-quote-normalizer/inbound.html)
+- [Create a 3PL negotiation brief](https://duncan-haywood.github.io/oss-monorepo/3pl-quote-normalizer/negotiation.html)
+- [Why pallet inbound usually beats carton inbound on the same 3PL quote](https://duncan-haywood.github.io/oss-monorepo/3pl-quote-normalizer/pallet-vs-carton-inbound.html)
+- [When do return fees flip a 3PL quote?](https://duncan-haywood.github.io/oss-monorepo/3pl-quote-normalizer/returns-sensitivity.html)
+- [How does 3PL volume change the real price?](https://duncan-haywood.github.io/oss-monorepo/3pl-quote-normalizer/sensitivity.html)
+- [Should I pay the 3PL to kit, or skip the bundle?](https://duncan-haywood.github.io/oss-monorepo/3pl-quote-normalizer/should-i-pay-the-3pl-to-kit.html)
+- [Should I restock a 3PL return or let the customer keep it?](https://duncan-haywood.github.io/oss-monorepo/3pl-quote-normalizer/should-i-restock-or-let-the-customer-keep-a-3pl-return.html)
+- [3PL Quote Normalizer vs. Extensiv](https://duncan-haywood.github.io/oss-monorepo/3pl-quote-normalizer/vs-extensiv.html)
+- [3PL Quote Normalizer vs. normalizing the quote yourself in a spreadsheet](https://duncan-haywood.github.io/oss-monorepo/3pl-quote-normalizer/vs-normalizing-a-quote-in-a-spreadsheet.html)
+- [3PL Quote Normalizer vs. ShipBob](https://duncan-haywood.github.io/oss-monorepo/3pl-quote-normalizer/vs-shipbob.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/3pl-quote-normalizer): MIT licensed.

@@ -1,0 +1,16 @@
+# The surcharge is not another tax rate.
+
+> Work your IFTA quarterly return from your own trip and fuel records: average fleet MPG, taxable gallons and net taxable gallons per jurisdiction, the Indiana/Kentucky/Virginia surcharge charged the way it is actually charged, and interest on a late return. Free, private, nothing leaves your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/ifta-quarterly-fuel-tax-calculator/)
+- [How is IFTA quarterly tax calculated?](https://duncan-haywood.github.io/oss-monorepo/ifta-quarterly-fuel-tax-calculator/how-to-calculate-ifta-quarterly-tax.html)
+- [This calculator vs. a spreadsheet](https://duncan-haywood.github.io/oss-monorepo/ifta-quarterly-fuel-tax-calculator/vs-a-spreadsheet.html)
+- [This calculator vs. ExpressIFTA](https://duncan-haywood.github.io/oss-monorepo/ifta-quarterly-fuel-tax-calculator/vs-expressifta.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/ifta-quarterly-fuel-tax-calculator): MIT licensed.

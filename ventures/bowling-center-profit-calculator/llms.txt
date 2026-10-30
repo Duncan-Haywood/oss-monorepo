@@ -1,0 +1,13 @@
+# What share of its lane-hours does a bowling center need to sell to break even, and how much cash does the ramp-up eat?
+
+> Free bowling center profit calculator: lanes, peak and off-peak lane-hour prices, utilization, leagues, parties and events, food and drink, staffing, rent and a loan become monthly profit, break-even lane utilization, the price change that hits a target margin, the ramp-up cash reserve and payback.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/bowling-center-profit-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/bowling-center-profit-calculator): MIT licensed.

@@ -119,3 +119,34 @@ test("dates ignores blank or impossible input and the ics has one event per row"
   assert.equal((ics.match(/BEGIN:VEVENT/g) || []).length, r.rows.length);
   assert.match(ics, /^BEGIN:VCALENDAR/);
 });
+
+test("continuation: next-year pay starts the wage base at zero, and net is the sum of both years", () => {
+  // Already over the Social Security wage base this year: this year's weeks pay no SS, next year's do.
+  const o = { ...DEFAULTS, annualSalary: 260000, ytdWages: 260000, weeksLeftInYear: 4 };
+  const gross = 8 * 260000 / 52;
+  const c = shapes(o, gross).continuation;
+  const half = gross / 2;
+  assert.ok(Math.abs(c.fica - (0.0145 * half + 0.062 * half + 0.0145 * half)) < 1e-6);
+  assert.ok(Math.abs(c.net - (c.gross - c.fica - c.fed - c.state)) < 1e-6);
+});
+
+test("WARN flag fires at 59 days of notice and not at exactly 60", () => {
+  const at = (sep) => dates({ age: 30, largeEmployerLayoff: true, releaseReceived: "2026-11-01", separationDate: sep }).rows.some((x) => /WARN/.test(x.label));
+  assert.equal(at("2026-12-30"), true); // 59 days
+  assert.equal(at("2026-12-31"), false); // 60 days
+});
+
+test("savings feed the cash runway", () => {
+  const a = analyze({ annualSalary: 100000 }), b = analyze({ annualSalary: 100000, savings: DEFAULTS.savings + 1 });
+  assert.ok(b.runwayMonthsNoSeverance > a.runwayMonthsNoSeverance);
+});
+
+test("continuation: next-year pay owes Social Security on the full wage base", () => {
+  const o = { ...DEFAULTS, annualSalary: 52000, ytdWages: 0, ssWageBase: 1000, weeksLeftInYear: 0 };
+  const c = shapes(o, 10000).continuation; // all 10000 falls in next year, base 1000
+  assert.ok(Math.abs(c.fica - (0.062 * 1000 + 0.0145 * 10000)) < 1e-9);
+});
+
+test("default savings is 20000", () => {
+  assert.equal(DEFAULTS.savings, 20000);
+});

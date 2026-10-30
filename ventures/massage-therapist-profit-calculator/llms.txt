@@ -1,0 +1,13 @@
+# Which of your sessions actually pay?
+
+> Massage therapist profit calculator for solo therapists and clinic owners. Enter session types, minutes, supplies, no-shows and sessions per week to see profit per hour after overhead, the price that hits your target, and own practice versus room rent versus employee split. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/massage-therapist-profit-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/massage-therapist-profit-calculator): MIT licensed.

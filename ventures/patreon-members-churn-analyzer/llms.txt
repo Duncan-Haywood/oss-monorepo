@@ -1,0 +1,13 @@
+# Who is leaving your Patreon, and what is it costing you?
+
+> Free analyzer for Patreon creators: drop in your Members export CSV and see active, declined and former patrons, MRR by tier, churn by tenure cohort, at-risk declined payments, concentration and the fee take. Runs in your browser, the file is never uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/patreon-members-churn-analyzer/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/patreon-members-churn-analyzer): MIT licensed.

@@ -1,0 +1,16 @@
+# Does secrets: inherit hand your secrets to the wrong workflow?
+
+> Paste your GitHub Actions workflow YAML and find every secrets: inherit call that hands your whole secret set to an external reusable workflow, or to a job a fork can trigger. Free, runs in your browser, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/actions-secrets-inherit-check/)
+- [GitHub Actions secrets: inherit Check vs. reviewing workflows by eye](https://duncan-haywood.github.io/oss-monorepo/actions-secrets-inherit-check/vs-checking-by-hand.html)
+- [GitHub Actions secrets: inherit Check vs. zizmor](https://duncan-haywood.github.io/oss-monorepo/actions-secrets-inherit-check/vs-zizmor.html)
+- [What is GitHub Actions secrets: inherit, and when is it risky?](https://duncan-haywood.github.io/oss-monorepo/actions-secrets-inherit-check/what-is-github-actions-secrets-inherit.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/actions-secrets-inherit-check): MIT licensed.

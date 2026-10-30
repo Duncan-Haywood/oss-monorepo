@@ -1,0 +1,13 @@
+# Is CDL school worth it? What it costs to get in, and how many months of driving pay it back
+
+> Free CDL school payback calculator: tuition, fees, weeks out of work, weekly miles and pay per mile become the cost to get in, the monthly gain over your current job, months to pay it back and company-paid training versus paying yourself. Private, runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/cdl-school-payback-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/cdl-school-payback-calculator): MIT licensed.

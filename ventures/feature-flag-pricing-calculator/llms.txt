@@ -1,0 +1,14 @@
+# What will feature flags cost at your requests-per-month volume, and who is cheapest?
+
+> Enter your monthly flag-evaluation volume (thousands of requests) and see what PostHog, Flagsmith and ConfigCat charge, the 12-month spend under your growth rate, and the volume where the cheapest provider changes. Free, runs in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/feature-flag-pricing-calculator/)
+- [How to choose a feature flag service by request volume](https://duncan-haywood.github.io/oss-monorepo/feature-flag-pricing-calculator/how-to-choose-a-feature-flag-service-by-requests.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/feature-flag-pricing-calculator): MIT licensed.

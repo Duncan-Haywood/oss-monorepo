@@ -1,0 +1,63 @@
+{
+  "date": "2026-10-24",
+  "session": "https://claude.ai/code/session_012Aa9y1fmABadZ5bA7HbKkZ",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "write up the process in a blog post and agent docs and merge. can we get more detailed tracking including crawlers etc.",
+  "input_sha256": "a05ba8e15dc46168a268ac7b371373a9b999f185ea0e977d9c6cd14a54b242c0",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-24T16:57:13Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Verify the Cloudflare edge Worker and usage pull end to end, write it up, and add country/device/crawler breakdowns to the page-view counts.",
+  "projects": [
+    "platform/edge",
+    "platform/counter"
+  ],
+  "pr": 10177,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": 12,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/counter/README.md",
+      "issue": "Still says no workflow commits counts unattended and describes a self-hosted Node counter; the live path is the platform/edge Worker plus site-usage-pull, which does commit to main. Fixed in this PR."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "platform/edge/README.md",
+      "why": "Sent a test message to the live /feedback route and started site-usage-pull by hand at the owner's request; the test message is now feedback id 1 permanently (no delete route).",
+      "did": "Documented id 1 as a test in the edge README and the agent report.",
+      "result": "Pipeline proven end to end (commits e29a7cea, 2223ddb0)."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "Fixed failures inherited from main inside this PR instead of waiting for separate PRs, because CI tests the PR merged with main and those failures blocked it for six days.",
+      "did": "Small, verified ports of each fix, each commit naming the main failure.",
+      "result": "CI green apart from one main-only failure that has since cleared."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-24-free-site-analytics-on-a-cloudflare-worker.md",
+    "docs/reports/2026-10-24-site-usage-pipeline-live.md"
+  ],
+  "goal": null,
+  "notes": "Live checks 2026-10-24: /healthz ok; /counts and /feedback served; scheduled site-usage-pull pushed e29a7cea, a manual run pushed 2223ddb0 with the test message. The PR then stayed open to 2026-10-30 while main kept breaking checks this PR's CI inherits; each was fixed here (copying an existing fix where one was open, e.g. #11571): post descriptions over 160 chars, flagships next: over 2,000 chars (three times), front-door dead image links and stale mirror/shard count, shed-designer sitemap and build-time size pages, runner-switch fork guards on three workflows and the runs-on count, verify-live.sh shellcheck, two blank run records (later filled by their own sessions; main's versions kept), babysitting-business-kit favicons, table headers and service-worker registration, shed-designer money() sign. Mistakes and fixes: a generated mirror (6,856 files under gitops/prod/front-door-tools/) was committed by git add -A and removed; a favicon fixer edited a generated page and the icon moved to its generator; twice a piped grep/tail hid a failing exit code. Final local verification on the merged tree: site builder 1341 pass 0 fail; gitops 603 pass 25 skipped; marketing/mirror 263 pass; venture tests babysitting-business-kit and shed-designer pass; counter/edge/attribution/sitemap/counter-wiring/feedback-page pass; venture, run-record, favicon, table-header, money-sign and runs-on count checks exit 0. CI on 611fc65b3 green except promptctl validate, which failed only on another session's blank record and passes on main now.",
+  "corrections": [],
+  "redteam": null
+}

@@ -1,0 +1,13 @@
+# How much will the slow season cost you?
+
+> Free seasonal sales forecaster for small shops and restaurants. Paste your monthly sales to get a 12-month forecast with ranges, your slow and peak months, a back-test against last year, and the cash cushion for the slow season. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/sales-seasonality-forecaster/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/sales-seasonality-forecaster): MIT licensed.

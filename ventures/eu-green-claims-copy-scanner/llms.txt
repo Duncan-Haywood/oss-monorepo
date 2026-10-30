@@ -1,0 +1,13 @@
+# Is your “eco-friendly” copy now illegal in the EU?
+
+> Free greenwashing scanner for product pages, ads and packaging text under the EU Empowering Consumers Directive (2024/825), in force since 27 September 2026: flags carbon-neutral claims, vague words like eco-friendly, home-made badges, future net-zero promises and legal-minimum claims, with the fix for each.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/eu-green-claims-copy-scanner/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/eu-green-claims-copy-scanner): MIT licensed.

@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%235f1b7e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3ES%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Days In A Row And Daily Hour Limits In An Employee Schedule</title>
+  <meta name="description" content="What does capping daily hours or consecutive workdays cost a small cafe? Daily caps of 6 to 12 hours and runs of 3 to 6 days on the same invented roster: open shifts, hours covered and payroll. Free, private roster builder included.">
+  <meta property="og:title" content="What a daily hour cap and a days-in-a-row limit cost">
+  <meta property="og:description" content="Same cafe, ten settings. Measured with the free roster builder.">
+  <link rel="canonical" href="./days-in-a-row-and-daily-hour-limits.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How many days in a row can an employee work?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on where you operate and on your own policy; some places require a day of rest in a set period for some workers. Check the rules that apply to you. The roster builder lets you set the most days in a row and will not schedule past it."}}, {"@type": "Question", "name": "How do I cap daily hours in a schedule?", "acceptedAnswer": {"@type": "Answer", "text": "Set the daily hour cap before you build. The roster builder then refuses to give anyone more than that many hours in a day, so a person cannot take a lunch shift and a closing shift that together pass the cap, and it reports any shift that goes open as a result."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2330; background: #f2f4f7; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.05; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #1f5f86; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d9dfe6; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 14px; border-radius: 8px; background: #1f5f86; color: #ffffff; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4c5a68; }
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; Shift roster builder</a></p>
+  <h1>Days in a row and daily hour limits: what each one costs your schedule</h1>
+  <p>Two limits show up in almost every scheduling policy: the most hours one person works in a day, and the most days they work in a row. Both protect people, and both take away options. We measured how much on one cafe, changing one limit at a time.</p>
+  <p><a class="cta" href="./">Open the free roster builder</a></p>
+  <h2>The experiment</h2>
+  <p>The roster builder's built-in invented example: a seven-person cafe, 32 shifts, 235 hours to cover, a 40-hour overtime line and a 10-hour rest gap. Only the limit shown changed between runs; the rest is the tool's defaults. Each row is a fresh build.</p>
+  <h2>Daily hour cap</h2>
+  <table>
+    <tr><th>Most hours in a day</th><th class="n">Shifts left open</th><th class="n">Hours covered of 235</th><th class="n">Payroll</th></tr>
+    <tr><td>No cap</td><td class="n">3</td><td class="n">216</td><td class="n">$3,622</td></tr>
+    <tr><td>12 hours</td><td class="n">3</td><td class="n">216</td><td class="n">$3,622</td></tr>
+    <tr><td>10 hours</td><td class="n">3</td><td class="n">216</td><td class="n">$3,622</td></tr>
+    <tr><td>9 hours</td><td class="n">4</td><td class="n">209</td><td class="n">$3,505</td></tr>
+    <tr><td>8 hours</td><td class="n">4</td><td class="n">209</td><td class="n">$3,505</td></tr>
+    <tr><td>6 hours</td><td class="n">27</td><td class="n">15</td><td class="n">$261</td></tr>
+  </table>
+  <p>A cap of 10 or more changes nothing here: nobody was working past 10 hours. At 9 and 8 hours, a person can no longer take a lunch shift and a closing shift on the same day (3 + 8 hours), and one more shift goes empty. A cap below the length of your longest shift (6 hours against 8-hour shifts) rules out almost every shift: that is a typing mistake to look for, not a policy.</p>
+  <h2>Days in a row</h2>
+  <table>
+    <tr><th>Most days in a row</th><th class="n">Shifts left open</th><th class="n">Hours covered of 235</th><th class="n">Payroll</th></tr>
+    <tr><td>6 days (default)</td><td class="n">3</td><td class="n">216</td><td class="n">$3,622</td></tr>
+    <tr><td>5 days</td><td class="n">4</td><td class="n">218</td><td class="n">$3,658</td></tr>
+    <tr><td>4 days</td><td class="n">5</td><td class="n">220</td><td class="n">$3,690</td></tr>
+    <tr><td>3 days</td><td class="n">7</td><td class="n">204</td><td class="n">$3,402</td></tr>
+  </table>
+  <p>The default of six cost nothing. Tightening it to five leaves one more shift open and pays $36 more, because the work moves to people with fewer hours banked. At three days the week loses seven shifts. Hours covered can even rise (220 at four days) while shifts go empty, because the builder gives up the short shifts first, so count open shifts as well as hours. Payroll falls at three days only because the open shifts are unpaid. The effect depends on crew size: with more people the same limit costs less.</p>
+  <p><a class="cta" href="./">Try your own limits</a></p>
+  <h2>How to do it by hand</h2>
+  <h3>1. Write the limit as a number</h3>
+  <p>"No long days" cannot be checked; "no more than 10 hours in a day" can.</p>
+  <h3>2. Check double shifts first</h3>
+  <p>The daily cap bites when a short mid-day shift is stacked on a closing shift. Count those pairs.</p>
+  <h3>3. Look at runs, not weeks</h3>
+  <p>A person with 40 hours spread over six days is closer to the days-in-a-row limit than one working five longer days. Count from the previous week's last shifts too.</p>
+  <h2>Questions</h2>
+  <h3>How many days in a row can an employee work?</h3>
+  <p>It depends on where you operate and on your own policy; some places require a day of rest in a set period for some workers. Check the rules that apply to you. The roster builder lets you set the most days in a row and will not schedule past it.</p>
+  <h3>How do I cap daily hours in a schedule?</h3>
+  <p>Set the daily hour cap before you build. The roster builder then refuses to give anyone more than that many hours in a day, so a person cannot take a lunch shift and a closing shift that together pass the cap, and it reports any shift that goes open as a result.</p>
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not legal, tax or financial advice, and it does not tell you what scheduling law requires of you. The example is invented and the numbers come from running this tool's own engine on it (<code>node cli.mjs --example --daily 9</code>, <code>--consec 5</code>).</p>
+    <p>Everything the roster builder does runs in your browser; your staff list is never uploaded. Free and open source: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional. See also <a href="how-to-avoid-clopening.html">avoiding clopening</a> and <a href="how-to-reduce-overtime-in-a-schedule.html">reducing overtime</a>.</p>
+  </footer>
+</body>
+</html>

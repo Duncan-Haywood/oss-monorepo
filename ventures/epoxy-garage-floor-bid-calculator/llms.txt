@@ -1,0 +1,17 @@
+# Bid the grind, the flake, and the drive.
+
+> Price an epoxy or polyaspartic garage floor from grind hours, flake load, waste, cracks, and travel — not a $4/sq ft special. See kit cost, walk-away price, and whether a proposed number loses money.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/epoxy-garage-floor-bid-calculator/)
+- [How much to charge for an epoxy garage floor](https://duncan-haywood.github.io/oss-monorepo/epoxy-garage-floor-bid-calculator/how-much-to-charge-for-an-epoxy-garage-floor.html)
+- [How much to charge for a polyaspartic garage floor](https://duncan-haywood.github.io/oss-monorepo/epoxy-garage-floor-bid-calculator/how-much-to-charge-for-polyaspartic-garage-floor.html)
+- [This calculator vs. a flat rate per square foot](https://duncan-haywood.github.io/oss-monorepo/epoxy-garage-floor-bid-calculator/vs-a-flat-rate-per-square-foot.html)
+- [This calculator vs. CoatingOS](https://duncan-haywood.github.io/oss-monorepo/epoxy-garage-floor-bid-calculator/vs-coatingos.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/epoxy-garage-floor-bid-calculator): MIT licensed.

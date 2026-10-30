@@ -1,0 +1,13 @@
+# Furnish it for 30-day-plus stays, rent it nightly, or lease it out? See what each nets.
+
+> Free mid-term rental calculator: compare a furnished 30-day-plus rental with a long-term lease and with Airbnb-style nightly renting. See the monthly rate, empty days and furnishing payback that make it worth it. Private, runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/midterm-rental-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/midterm-rental-calculator): MIT licensed.

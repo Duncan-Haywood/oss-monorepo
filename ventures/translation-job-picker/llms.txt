@@ -1,0 +1,14 @@
+# Ten job offers, one translator: which should you accept?
+
+> Paste the translation jobs you have been offered and get the set that earns the most before the due dates, the order to work them, and the fee each declined file would need. Free, runs in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/translation-job-picker/)
+- [How to choose which translation jobs to accept: capacity and due-date math](https://duncan-haywood.github.io/oss-monorepo/translation-job-picker/how-to-choose-which-translation-jobs-to-accept.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/translation-job-picker): MIT licensed.

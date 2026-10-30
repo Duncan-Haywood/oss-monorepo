@@ -1,5 +1,6 @@
 ---
 title: "The line where load-sensing stops beating open-centre on a small excavator"
+seo_title: "When load-sensing stops beating open-centre on a small excavator"
 date: 2026-10-30
 tags: [research, heavy-hydraulics, excavator]
 description: "Two margins decide whether a load-sensing pump beats an open-centre one on a small excavator. A sweep draws the boundary instead of arguing over one point."

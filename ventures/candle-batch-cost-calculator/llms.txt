@@ -1,0 +1,13 @@
+# What does one candle really cost — and what must you charge?
+
+> Candle and soap maker cost calculator. Enter wax, fragrance load, vessel and labor to see cost per candle, margin online, at craft fairs and wholesale, the price floor for your target margin, break-even units and what a wax price rise costs. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/candle-batch-cost-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/candle-batch-cost-calculator): MIT licensed.
