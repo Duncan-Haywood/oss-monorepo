@@ -1,0 +1,51 @@
+{
+  "date": "2026-10-30",
+  "session": "https://claude.ai/code/session_01AcxTtHgAvVEbvD2rRHRhuX",
+  "track": "review",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-30T16:11:24Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 11797,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/review/prompt-1.md",
+      "issue": "A review (E115) already ran earlier the same day, yet the router sent another; the 'runs since last review' count seems not to reset for reduced passes."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/review/prompt-1.md",
+      "why": "Scheduled run: took the documented reduced pass (steps 1,3,7,8 plus one trim); no audit or drift report.",
+      "did": "trimmed land-your-work.md duplicate tip",
+      "result": "167 to 163 lines"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "No blog post: reduced scheduled review. validate flags pre-existing record 2026-10-30-session_01EhTJVP2LYJGk5RmcoFeD9q.json with pr null (another run's).",
+  "corrections": [],
+  "redteam": null
+}
