@@ -16,7 +16,7 @@
 //   { travelMph, localRate, localRateNote }
 // travelMph is only used for a sit with miles and no drive time typed in; it is the
 // sitter's own assumption, shown on screen and editable. localRate is a comparison the
-// sitter types herself; this file never supplies a "market rate".
+// sitter types in themselves; this file never supplies a "market rate".
 // Drive time: booking.travelMinutes, else family.travelMinutes, both round trip, matching
 // the round-trip miles a booking holds.
 import { expandBookings, quote, payments, mileageRate, parseWeekly, dayOf, addDays, daysBetween, toMin, DAYS } from "./engine.mjs";
@@ -102,7 +102,7 @@ function totals(sits) {
     miles: r1(t.miles), mileageCost: r2(t.mileageCost), earned: r2(t.earned), net: r2(t.earned - t.mileageCost),
     // What the sitter sees on the rate card per hour at the family's house...
     perSitHour: t.hours > 0 ? r2(t.earned / t.hours) : 0,
-    // ...and what she keeps per hour of her day once the drive and the car are counted.
+    // ...and what the sitter keeps per hour of their day once the drive and the car are counted.
     effectiveHourly: realHours > 0 ? r2((t.earned - t.mileageCost) / realHours) : 0,
     realHours: r2(realHours), estimatedTravel: t.estimatedTravel,
   };
@@ -280,8 +280,8 @@ const usd = (x) => {
   return x < 0 && /[1-9]/.test(text) ? `-${text}` : text;
 };
 
-// A year-to-date income summary she signs. Gross receipts by month from recorded payments;
-// optionally her recorded expenses and mileage too, so a reader sees net as well as gross.
+// A year-to-date income summary the sitter signs. Gross receipts by month from recorded payments;
+// optionally their recorded expenses and mileage too, so a reader sees net as well as gross.
 export function incomeLetter(desk, { year, today, addressee = "", purpose = "", includeNet = false } = {}) {
   const p = desk.profile || {};
   const Y = Number(year || String(today).slice(0, 4));

@@ -49,8 +49,8 @@ const clone = (desk) => ensure(structuredClone(desk));
 // ---------- packages ----------
 
 /**
- * Starting points the sitter edits. Prices are her list price for the same work, less
- * the discount she chooses (default 10%); she can type any price instead.
+ * Starting points the sitter edits. Prices are their list price for the same work, less
+ * the discount they choose (default 10%); they can type any price instead.
  */
 export function planTemplates(profile = DEFAULT_PROFILE, discountPct = 10) {
   const base = [
@@ -315,7 +315,7 @@ ${gift.message ? `<p><em>${esc(gift.message)}</em></p>` : ""}
 
 // ---------- parents' night out ----------
 
-/** Children allowed: adults × ratio, and never more than maxKids if she set one. */
+/** Children allowed: adults × ratio, and never more than maxKids if the sitter set one. */
 export function eventCapacity(ev) {
   const byRatio = Math.max(1, Math.round(num(ev.adults, 1))) * Math.max(1, Math.round(num(ev.ratio, 4)));
   const cap = num(ev.maxKids) > 0 ? Math.min(byRatio, Math.round(num(ev.maxKids))) : byRatio;
@@ -360,7 +360,7 @@ const kidCount = (s) => (Array.isArray(s.kids) ? s.kids.length : 0);
 /**
  * Head count, money and warnings for an event. Confirmed sign-ups fill places in the
  * order they came in; the rest are a waitlist. Warnings are the ratio being exceeded,
- * children under her youngest age, and allergies to plan for.
+ * children under the sitter's youngest age, and allergies to plan for.
  */
 export function eventStatus(ev) {
   const { byRatio, capacity } = eventCapacity(ev);

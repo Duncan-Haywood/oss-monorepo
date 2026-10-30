@@ -66,12 +66,12 @@ test("a family's contact reaches the backup only after the family said so, and t
   assert.deepEqual(N.suggestBackups(d, faith).map((x) => [x.sitter.id, x.score]), N.suggestBackups(d, req).map((x) => [x.sitter.id, x.score]));
 });
 
-test("overflow lists inquiries she has to turn down", () => {
+test("overflow lists inquiries the sitter has to turn down", () => {
   const d = deskWith();
   d.leads.push({ id: "l_far", name: "Far Away", kids: ["4"], schedule: "Sun 9-12", status: "new" }); // Sunday is off
   const ids = N.overflowLeads(d).map((x) => x.lead.id);
   assert.ok(ids.includes("l_far"));
-  assert.ok(ids.includes("lead_2"), "the 4-month-old full-time lead is under her youngest age");
+  assert.ok(ids.includes("lead_2"), "the 4-month-old full-time lead is under the sitter's youngest age");
   assert.ok(!ids.includes("lead_1"));
 });
 
