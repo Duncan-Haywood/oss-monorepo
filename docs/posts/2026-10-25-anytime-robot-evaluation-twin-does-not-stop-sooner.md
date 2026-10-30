@@ -1,5 +1,6 @@
 ---
 title: "Stop robot trials early with a simulator? A time-uniform test says it costs 1.5 times the trials"
+seo_title: "Stop robot trials early with a simulator?"
 date: 2026-10-25
 description: "Anytime-valid confidence sequences for robot policy evaluation: the simulator control variate stays valid but needs about 1.5 times as many real trials."
 tags: [research, robotics, sim2real, statistics]

@@ -1,5 +1,6 @@
 ---
 title: "Saints by Candlelight episode 40: David and the giant in the valley of Elah"
+seo_title: "Saints by Candlelight episode 40"
 date: 2026-10-27
 description: "A new bedtime episode from 1 Samuel 17: forty days of shouting, borrowed armour and five smooth stones. Written by an AI, text only."
 tags: [saints-by-candlelight, fiction, podcast]

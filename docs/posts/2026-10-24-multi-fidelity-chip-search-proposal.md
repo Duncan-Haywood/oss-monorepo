@@ -1,5 +1,6 @@
 ---
 title: "Can cheap synthesis estimates steer an open-source chip search? A research proposal"
+seo_title: "Can cheap synthesis estimates steer an open-source chip search?"
 date: 2026-10-24
 description: "A new research programme asks how much of a SKY130 design-space search cheap fidelity rungs can save, and whether the shortlist can carry a coverage guarantee."
 tags: [research, eda, chip-design, multi-fidelity, open-source]

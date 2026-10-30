@@ -1,5 +1,6 @@
 ---
 title: "Can a planing hull out-range a slow monohull on a survey mission? Not in 48 cases"
+seo_title: "Can a planing hull out-range a slow monohull on a survey mission?"
 date: 2026-10-28
 description: "A Savitsky planing-hull model for a 200 kg autonomous boat reaches at most 14% of a 4 m displacement monohull's range at survey-style battery and hotel load."
 tags: [research, marine-hull, autonomous-boats]

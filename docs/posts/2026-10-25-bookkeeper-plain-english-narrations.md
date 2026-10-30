@@ -1,5 +1,6 @@
 ---
 title: "A bookkeeper that ignored \"Paying the rent\": scoring on Beancount's example ledger"
+seo_title: "A bookkeeper that ignored \\\"Paying the rent\\\""
 date: 2026-10-25
 description: "ai-bookkeeper's keywords suggested an account for 36% of Beancount's example ledger. Three phrase fixes took it to 85%, with no wrong suggestions."
 tags: [ai-bookkeeper, evaluation, bookkeeping, beancount]

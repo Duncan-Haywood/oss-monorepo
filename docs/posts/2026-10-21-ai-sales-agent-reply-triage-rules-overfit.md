@@ -1,5 +1,6 @@
 ---
 title: "An AI sales agent that never sends: what reading 160 sales replies taught us"
+seo_title: "An AI sales agent that never sends"
 date: 2026-10-21
 description: "Keyword rules for sorting sales replies scored 100% on the replies they were tuned on and 37.5% on 40 fresh ones. So the agent acts only on what lowers contact."
 tags: [ai-agents, sales, evaluation, open-source]

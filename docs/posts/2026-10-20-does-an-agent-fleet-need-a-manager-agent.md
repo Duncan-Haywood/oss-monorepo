@@ -1,5 +1,6 @@
 ---
 title: "Does an AI agent fleet need a manager agent? 3,264 merged PRs a month on $800"
+seo_title: "Does an AI agent fleet need a manager agent?"
 date: 2026-10-20
 description: "260 agent runs a day on one model. Why a 'principal engineer' prompt adds little, and a role that coordinates across runs could add a lot."
 tags: [ai-agents, software-engineering, management, llm-cost]

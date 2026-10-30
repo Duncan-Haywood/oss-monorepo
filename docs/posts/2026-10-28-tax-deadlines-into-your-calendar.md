@@ -1,5 +1,6 @@
 ---
 title: "Put your tax deadlines in your calendar: a free .ics for sole proprietors"
+seo_title: "Put your tax deadlines in your calendar"
 date: 2026-10-28
 description: "ai-bookkeeper's calendar command writes federal estimates, filing, 941/1099 and your state's sales tax due dates to an iCalendar file with reminders."
 tags: [ai-bookkeeper, tax, self-employed, calendar]

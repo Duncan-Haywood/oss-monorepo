@@ -1,5 +1,6 @@
 ---
 title: "Standard mileage already covers your car insurance: a Schedule C worksheet warning"
+seo_title: "Standard mileage already covers your car insurance"
 date: 2026-10-25
 description: "ai-bookkeeper's Schedule C worksheet now warns when insurance on line 15 sits next to a standard-mileage deduction."
 tags: [ventures, ai-bookkeeper, tax, rideshare]

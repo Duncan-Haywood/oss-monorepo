@@ -1,5 +1,6 @@
 ---
 title: "What does a designer coat cost to make? 45 open models of engineered clothing"
+seo_title: "What does a designer coat cost to make?"
 date: 2026-10-20
 description: "Garment cost teardowns, cutting waste, sizing, thermal comfort, exosuits and RF fabrics: what 45 open clothing models found, and how far to trust them."
 tags: [research, clothing, textiles, operations-research, open-source]
