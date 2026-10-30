@@ -1,8 +1,8 @@
 ---
 title: "What does compressing worker updates cost in DiLoCo-style training? A paper section, and what it had to retract"
-seo_title: "Compression cost in DiLoCo low-communication training: omega scaling and the H plateau"
+seo_title: "Compression cost in DiLoCo training: omega scaling, H plateau"
 date: 2026-10-30
-description: "Drafting the compression section of a low-communication training paper forced a retraction: a three-constant rule that wins at 413k parameters does not survive six-seed data at 915k."
+description: "Writing the compression section of a low-communication training paper forced a retraction: a rule that wins at 413k parameters fails at 915k."
 tags: [research, lowcomm-training, local-sgd]
 ---
 
