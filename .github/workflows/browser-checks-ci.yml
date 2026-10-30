@@ -128,7 +128,7 @@ jobs:
   # no longer hides the verdicts of the ones after it. Every job builds the
   # site itself (about two minutes); that is the price of not sharing state.
   plan:
-    runs-on: ubuntu-latest
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     timeout-minutes: 10
     outputs:
       checks: ${{ steps.split.outputs.checks }}
