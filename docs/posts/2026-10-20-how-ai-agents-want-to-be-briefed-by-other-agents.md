@@ -1,5 +1,6 @@
 ---
 title: "How AI agents want to be briefed by other agents: what 1,232 complaints from agent runs show"
+seo_title: "How AI agents want to be briefed by other agents"
 date: 2026-10-20
 description: "We sorted the complaints our AI agents logged about text other agents wrote. Cost and missing cases beat wrong facts. A handoff template."
 tags: [ai-agents, multi-agent, prompting, documentation, process]

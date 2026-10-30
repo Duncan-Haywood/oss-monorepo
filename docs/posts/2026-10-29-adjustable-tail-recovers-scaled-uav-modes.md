@@ -1,5 +1,6 @@
 ---
 title: "An adjustable tail fixes what no fixed tail could: sub-scale cargo UAV modes"
+seo_title: "An adjustable tail fixes what no fixed tail could"
 date: 2026-10-29
 tags: [research, aerolog-scaling, uav, scaling]
 description: "No fixed tail survives a 25% tail-slope error in a scaled cargo UAV model, but a tail area adjustable 0.85 to 1.3 times recovers the modes for 76 of 78 designs."

@@ -1,5 +1,6 @@
 ---
 title: "Your estimated tax payment isn't always due on the 15th: Emancipation Day and MLK Day"
+seo_title: "Your estimated tax payment isn't always due on the 15th"
 date: 2026-10-28
 description: "Q1 estimated tax was due April 18 in 2022 and 2023, and the January payment January 17, 2023. ai-bookkeeper's due dates now skip DC holidays, not only weekends."
 tags: [ai-bookkeeper, tax, self-employed]

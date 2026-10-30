@@ -1,5 +1,6 @@
 ---
 title: "A pan of boiling water at 1,950 metres: the check behind a pasteuriser story"
+seo_title: "A pan of boiling water at 1,950 metres"
 date: 2026-10-27
 description: "Sixty-One Point Three, a Hearth & Horizon story: why water boils at 93.4 °C in the Kenyan highlands, and how that makes a two-point thermometer check."
 tags: [fiction, dairy, hearth-and-horizon]

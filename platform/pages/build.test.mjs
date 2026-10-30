@@ -4195,6 +4195,14 @@ test('every tool points at a share card of its own, and that card exists', async
     if (!(await exists(entry))) continue;
     const html = await fs.readFile(entry, 'utf8');
     const expected = `${BASE}${toolCardFileFor(surface.slug)}`;
+    // A venture that names its own picture (shed-designer's render) keeps it,
+    // as injectDiscoveryTags intends; it must be on this site and exist.
+    const own = /<meta property="og:image" content="([^"]+)">/.exec(html)?.[1];
+    if (own && own !== expected && own !== `${BASE}${SOCIAL_CARD_FILE}`) {
+      assert.ok(own.startsWith(`${BASE}${surface.slug}/`), `${surface.slug}'s own og:image ${own} is not under its own directory`);
+      assert.ok(await exists(path.join(outDir, own.slice(BASE.length))), `${surface.slug}'s own og:image ${own} was never written`);
+      continue;
+    }
     assert.ok(
       html.includes(`<meta property="og:image" content="${expected}">`),
       `${surface.slug} does not point at ${expected}`,

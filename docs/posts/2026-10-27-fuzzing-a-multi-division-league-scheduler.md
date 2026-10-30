@@ -1,5 +1,6 @@
 ---
 title: "Fuzzing a multi-division league scheduler: 996 random leagues, no invalid schedule"
+seo_title: "Fuzzing a multi-division league scheduler"
 date: 2026-10-27
 description: "Random multi-division leagues and rainout make-ups through the league-schedule-generator's independent validator found no fault in 996 leagues."
 tags: [scheduling, testing, league-schedule-generator]

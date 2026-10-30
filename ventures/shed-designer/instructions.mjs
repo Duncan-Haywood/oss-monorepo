@@ -14,6 +14,9 @@ import { lapSteps } from './lap.mjs';
 import { sidingUpperSheets } from './estimate.mjs';
 import { finishName, SIDING_FINISHES } from './looks.mjs';
 
+/** The panel siding's name in the Siding step. @param {string} type */
+export const sidingPanelName = (type) => (type === 'LP SmartSide' ? 'LP SmartSide 3/8" panels' : type === 'LP SmartSide 7/16' ? 'LP SmartSide 7/16" panels' : type === 'T1-11' ? 'T1-11 panels' : `${type} siding`);
+
 /** @typedef {{ title: string, why?: string, steps: string[], check?: string[] }} Section */
 
 const deg = (r) => `${(r * 180 / Math.PI).toFixed(1)} deg`;
@@ -46,14 +49,15 @@ export function buildInstructions(shed, est) {
     steps: [
       `Ask your building department whether a ${fmtFtIn(L)} x ${fmtFtIn(W)} (${est.footprintSqFt.toFixed(0)} sq ft) shed with a peak about ${fmtFtIn(k.peak)} above grade needs a permit, and what setbacks from property lines apply. Many places exempt small sheds; the size limit varies.`,
       'Call 811 (in the US) a few days before digging so buried lines are marked.',
-      `Order from the Shopping list (${est.boards} boards, ${est.floorSheets} floor sheets, ${est.roofSheets} roof sheets and the rest). Print the Cut sheet and the Plans; every piece below is called by its letter mark from those lists.`,
+      `Order from the Shopping list (${est.boards} boards, ${est.floorSheets ? `${est.floorSheets} floor sheets, ` : ''}${est.roofSheets} roof sheets and the rest). Print the Cut sheet and the Plans; every piece below is called by its letter mark from those lists.`,
       'Tools: tape, chalk line, speed square and framing square, 4 ft level, circular saw, handsaw (to finish notches and the corners of cut-outs), drill/driver, framing hammer or nailer, a string line, two step ladders, safety glasses, hearing protection and gloves.',
       `Fasteners (typical, check your code): 16d galvanized commons for framing; 8d galvanized commons for the subfloor and roof sheathing; 8d galvanized siding nails; 8d galvanized finish nails for trim; 1-1/4" roofing nails; construction adhesive for the subfloor${(shed.doors || []).length ? '; #8 x 1-5/8" exterior screws for the door skin' : ''}; ${k.truss ? 'and the rafter-to-plate ties on the list, with the 1-1/2" x 0.148" connector nails for them and for the truss gussets.' : `and the ${k.connector || beam ? 'connectors and hangers' : 'rafter ties'} on the list with the 10d connector nails their maker specifies.`}`,
     ],
   });
 
   const pad = { l: L + 24, w: W + 24 };
-  if (k.block?.pier) out.push({
+  if (k.floorless) out.push(...floorlessSections(shed, marks));
+  else if (k.block?.pier) out.push({
     title: 'Concrete piers',
     steps: [
       `Mark the shed's outline with stakes and string, square it (diagonals ${fmtFtIn(Math.hypot(L, W))} each), and mark the centre of each of the ${k.blockCount} piers under the skid lines.`,
@@ -98,7 +102,7 @@ export function buildInstructions(shed, est) {
   });
 
   const skids = shed.members.filter((m) => m.kind === 'skid');
-  out.push({
+  if (!k.floorless) out.push({
     title: 'Skids',
     steps: [
       `Lay ${k.skidCount} pressure-treated ${d.skidSize} skids (mark ${marks((m) => m.kind === 'skid')}, ${skids.length} pieces)${d.skidSize === '4x4' ? '' : ' on edge'}, running the ${fmtFtIn(L)} length of the shed.`,
@@ -106,16 +110,16 @@ export function buildInstructions(shed, est) {
       k.block?.pier
         ? `Lay the skids on the ${k.blockCount} piers, centred on each. Check each skid with a level along its length and across to the next; a pier top that came out low takes a pressure-treated or composite packer the full width of the skid, never loose shims.`
         : k.block && k.noPad
-        ? `Lay the skids on the ${k.blockCount} blocks you levelled, a block under each end and the rest no more than 4 ft apart. Check each skid with a level along its length and across to the next; correct a low block by packing soil or gravel under it, not with shims on top.`
+        ? `Lay the skids on the ${k.blockCount} blocks you levelled, a block under each end and the rest no more than ${fmtFtIn(d.blockSpacing)} apart. Check each skid with a level along its length and across to the next; correct a low block by packing soil or gravel under it, not with shims on top.`
         : k.block
-        ? `Set ${k.blockCount} ${k.block.plural} on the ${k.noPad ? 'tamped ground' : k.underBlocks ? 'paver-base beds' : 'compacted gravel'} under the skids (${k.block.h}" tall), one at each end and the rest no more than 4 ft apart, then level the blocks by adding or scraping ${k.underBlocks ? 'paver base' : 'gravel'} under them (not with shims on top) until every skid is level and all skids are level with each other.`
+        ? `Set ${k.blockCount} ${k.block.plural} on the ${k.noPad ? 'tamped ground' : k.underBlocks ? 'paver-base beds' : 'compacted gravel'} under the skids (${k.block.h}" tall), one at each end and the rest no more than ${fmtFtIn(d.blockSpacing)} apart, then level the blocks by adding or scraping ${k.underBlocks ? 'paver base' : 'gravel'} under them (not with shims on top) until every skid is level and all skids are level with each other.`
         : 'Bed each skid into the gravel and check it with a level along its length and across to the next skid; add or scrape gravel under it rather than shimming with wood.',
       skids.length > k.skidCount ? 'Skids are spliced: butt the pieces tight, stagger the joints from skid to skid, and land each joint on firm gravel or a block.' : 'Each skid is one piece.',
     ],
   });
 
   const joists = k.joistCenters;
-  out.push({
+  if (!k.floorless) out.push({
     title: 'Floor frame',
     steps: [
       `Cut the two rim joists (mark ${marks((m) => m.kind === 'rim joist')}) and the ${joists.length} floor joists (mark ${marks((m) => m.kind === 'floor joist')}, ${fmtIn(W - 3)} each) from pressure-treated ${d.joistSize}.`,
@@ -127,7 +131,7 @@ export function buildInstructions(shed, est) {
     check: ['Diagonals within 1/8".', 'Frame flush with the skids at the front and back.'],
   });
 
-  out.push({
+  if (!k.floorless) out.push({
     title: 'Subfloor',
     steps: [
       `Lay ${d.floorPanel === 'OSB' ? '23/32" tongue-and-groove OSB' : '3/4" tongue-and-groove plywood'} with the 8 ft edges across the joists (${est.floorSheets} sheets). Start the first row at the front, groove facing out, in a bead of construction adhesive on each joist.`,
@@ -149,7 +153,7 @@ export function buildInstructions(shed, est) {
     const marksList = kinds.map(([kind, label]) => [label, at(kind)]).filter(([, xs]) => xs.length).map(([label, xs]) => `${label} at ${list(xs)}`).join('; ');
     const steps = [
       `Cut the plates: bottom (mark ${marks((m) => m.group === `wall:${name}` && m.kind === 'bottom plate')}), top (${marks((m) => m.group === `wall:${name}` && m.kind === 'top plate')}) and cap (${marks((m) => m.group === `wall:${name}` && m.kind === 'cap plate')}). The wall is ${fmtFtIn(w.len)} long${eave ? ', the full length of the shed' : `, fitting between the front and back walls`}.`,
-      `Lay the bottom and top plates together on the deck and square a line across both for the centre of each piece, measured from the left end as you will face the wall from outside: ${marksList}.`,
+      `Lay the bottom and top plates together ${k.floorless ? 'on a flat surface (a driveway, or sheets laid on the pad)' : 'on the deck'} and square a line across both for the centre of each piece, measured from the left end as you will face the wall from outside: ${marksList}.`,
       `Cut ${qty((m) => m.group === `wall:${name}` && m.kind === 'stud') + qty((m) => m.group === `wall:${name}` && m.kind === 'corner stud') + qty((m) => m.group === `wall:${name}` && m.kind === 'king stud') + qty((m) => m.group === `wall:${name}` && m.kind === 'post stud')} full studs at ${fmtIn(k.studLen)} (wall height ${fmtFtIn(d.wallHeight)} less three 1-1/2" plates).`,
     ];
     for (const p of w.openings) {
@@ -164,9 +168,9 @@ export function buildInstructions(shed, est) {
     const hasDoor = w.openings.some((p) => p.op.kind === 'door');
     if (hasDoor) steps.push('The bottom plate stops at each side of the door: the cut sheet has it in pieces, with the door opening left out. Nail a scrap of 2x4 across the foot of each door opening, jack to jack on the inside face, so the opening keeps its width while the wall is lifted.');
     steps.push(
-      'Nail the wall together flat on the deck: two 16d through the plates into each stud end; nail jacks to kings every 16" staggered; header to kings with four 16d each end.',
-      `Square the wall (equal diagonals of ${fmtFtIn(Math.hypot(w.len, (w.height ?? d.wallHeight) - 1.5))} plate to plate), tack a diagonal brace across it, then stand it up with a helper and set it on the line${eave ? ' flush with the edge of the floor' : ' between the eave walls'}.`,
-      'Nail the bottom plate through the subfloor into the rim or joists, two 16d every 16". Plumb the ends with a level and brace to stakes until the next wall is in.',
+      `Nail the wall together flat ${k.floorless ? 'on that flat surface' : 'on the deck'}: two 16d through the plates into each stud end; nail jacks to kings every 16" staggered; header to kings with four 16d each end.`,
+      `Square the wall (equal diagonals of ${fmtFtIn(Math.hypot(w.len, (w.height ?? d.wallHeight) - 1.5))} plate to plate), tack a diagonal brace across it, then stand it up with a helper and set it on the line${eave ? (k.floorless ? ' flush with the outside of its timber' : ' flush with the edge of the floor') : ' between the eave walls'}.`,
+      `${k.floorless ? 'Nail the bottom plate down into the timber' : 'Nail the bottom plate through the subfloor into the rim or joists'}, two 16d every 16". Plumb the ends with a level and brace to stakes until the next wall is in.`,
     );
     if (hasDoor) steps.push('Once the bottom plate is nailed down, take the scrap off the foot of the door opening.');
     out.push({ title: `${wallLabel(d, name)} wall`, steps, check: ['Wall plumb at both ends and straight along the top (string line).'] });
@@ -202,9 +206,9 @@ export function buildInstructions(shed, est) {
         `Bottom chords (mark ${marks((m) => m.kind === 'bottom chord')}, ${d.tieSize}): ${fmtIn(W)}, square both ends, the wall's full width.`,
         king ? `King posts (mark ${marks((m) => m.kind === 'king post')}, ${d.tieSize}): ${fmtIn(shed.members.find((m) => m.kind === 'king post')?.length ?? 0)}, the top cut to a point at ${d.pitch}/12 each way so it fits up under the peak.` : `No king post: at this span the ${d.tieSize} bottom chord carries the ceiling load wall to wall on its own (the Structure tab checks it).`,
         `Gussets from 7/16" OSB (${est.shopping.find((r) => /truss gussets/.test(r.name))?.qty ?? 0} sheets on the list): at each heel, ${G ? fmtIn(G.heel) : ''} along the bottom chord, top edge cut to follow the top chord; at the peak, ${G ? fmtIn(2 * G.peak) : ''} wide following both top chords${king ? `; at the king post's foot, ${G ? fmtIn(2 * G.foot) : ''} wide` : ''}. Two of each per truss, one a face. The Truss detail sheet shows their shapes.`,
-        `Lay the first truss out flat on the floor deck: bottom chord straight, top chords meeting at the peak with their undersides on the bottom chord's top outside corners${king ? ', king post centred' : ''}. Check that the two heels are ${fmtIn(W)} apart and that the peak is centred.`,
+        `Lay the first truss out flat ${k.floorless ? 'on a flat surface (sheets laid on the pad)' : 'on the floor deck'}: bottom chord straight, top chords meeting at the peak with their undersides on the bottom chord's top outside corners${king ? ', king post centred' : ''}. Check that the two heels are ${fmtIn(W)} apart and that the peak is centred.`,
         `Glue and nail a gusset on the top face of each joint with 1-1/2" x 0.148" connector nails: at each heel ${n.heelBottom / 2} into the bottom chord and ${n.heelTop / 2} into the top chord; at the peak ${n.peak / 2} into each top chord${king ? `; at the king post's foot ${n.foot / 2} into the post and ${n.foot / 2} into the chord` : ''}. Stagger the nails and keep them back from the gusset edges. Turn the truss over and do the same on the other face (the counts above are per face; the Structure tab shows the working).`,
-        `Screw blocks to the deck round the first truss as a jig, and build the other ${Math.max(0, inner - 1)} in it.`,
+        `Screw blocks to the ${k.floorless ? 'sheets' : 'deck'} round the first truss as a jig, and build the other ${Math.max(0, inner - 1)} in it.`,
       ],
       check: ['Every truss the same: stack them and sight down the peaks.', 'No gusset nail tip shows through the far side of a chord.'],
     });
@@ -215,6 +219,7 @@ export function buildInstructions(shed, est) {
         `The gable ends have no truss: at each corner set a heel block (mark ${marks((m) => m.kind === 'heel block')}) on the long wall's plate, then cut the end pair of top chords like the rest and nail them to each other at the peak and onto the heel blocks; brace them plumb. The gable studs go in under them later, and the gable siding, nailed to the chords, studs and wall, ties them together.`,
         `Lift each truss upside down between the walls, rotate it up, set its heels on the plates at its mark and toenail each heel with two 16d. Fix each heel to the plate with a rafter-to-plate tie (on the list).`,
         `Brace them plumb and on their marks with a 1x4 or 2x4 nailed across the top chords near the peak until the roof is sheathed.`,
+        qty((m) => m.kind === 'chord brace') ? `Chord brace (mark ${marks((m) => m.kind === 'chord brace')}, 2x4): lay it flat across the tops of the bottom chords at mid-span, from the gable framing at one end to the other, joints on a truss. Two 10d into every chord, and toenail each end into the gable studs with three 10d. At the ${d.windLoad} psf you set, the wind can lift the roof harder than it weighs, which turns the bottom chords from ties into struts; this brace halves the length that can buckle (the Structure tab's "Truss heels (uplift)" row). Leave it in for good.` : '',
         shed.panels.some((p) => p.kind === 'attic deck') ? `Attic storage: once the roof is sheathed, lay the deck (${est.shopping.find((r) => /attic storage deck/.test(r.name))?.qty ?? 0} sheets of ${d.floorPanel === 'OSB' ? 'OSB' : 'plywood'} on the list) across the inside trusses' bottom chords, ${fmtIn(shed.panels.find((p) => p.kind === 'attic deck')?.geom.profile[2][1] ?? 0)} strips${qty((m) => m.kind === 'king post') ? ' either side of the king posts' : ''}, every end joint on a chord; nail with 8d every 6" at the ends and 12" along each chord. Leave the two end bays open to reach it. The chords are checked for 20 psf of storage: boxes and seasonal things, not people or heavy tools.` : '',
         `Fit the blocks between the truss heels on the plates (mark ${marks((m) => m.kind === 'eave blocking')}), outside faces flush with the wall.${d.overhang > 0 ? ' The space above each block is the vent path from the soffit into the roof: staple insect screen across it.' : ''}`,
         d.overhang > 0 ? `Nail the 2x6 sub-fascia (mark ${marks((m) => m.kind === 'sub-fascia')}) across the top chord tails, top flush with the chord tops, two 16d per tail.` : '',
@@ -319,11 +324,24 @@ export function buildInstructions(shed, est) {
   const upperPanels = sidingUpperSheets(shed);
   const nested = d.siding && upperPanels < sidingUpperSheets(shed, false) ? upperPanels : 0;
   if (d.siding && shed.lap?.length && est.lapCuts) out.push({ title: 'Wall sheathing, wrap and lap siding', why: 'Trim before siding here: lap courses butt into the corner boards and casings, and each course laps the one below so water runs off.', steps: lapSteps(shed, est) });
+  else if (d.siding && (d.sidingType === 'board and batten' || d.sidingType === 'vinyl')) out.push({
+    title: 'Wall sheathing and siding',
+    steps: [
+      `Sheathe the walls with 7/16" OSB, 4x8 sheets standing up, every edge on a stud or plate. Keep the bottom edge level with the top of the skids so it laps the rim joist and floor. Nail 8d every 6" on the edges and every 12" on intermediate studs: this sheathing is what braces the walls.`,
+      `Cut the ${openings && vents.length ? 'door, window and gable vent openings' : openings ? 'door and window openings' : vents.length ? 'gable vent openings' : 'sheathing to the roof line'} from inside, along the framing, after the sheet is nailed.`,
+      d.sidingType === 'vinyl'
+        ? 'Vinyl: starter strip along the bottom of every wall, corner posts at the corners, J-channel round each opening and under the eaves and rakes, then the panels from the bottom up, each locked into the one below. Nail in the centre of the slots and leave the heads a little proud so the panels can move with the heat; follow the maker\'s sheet for spacing and gaps at the ends.'
+        : 'Board and batten: boards vertical, a small gap between them, nailed to the sheathing and through it to the plates and any blocking; then a batten over each gap, nailed through the gap so the boards can move. Hot-dipped galvanized or stainless siding nails.',
+      openings ? 'Leave the siding loose in the 8" above each door and window head for now, so the head flashing can slip up behind it in the trim step.' : '',
+    ].filter(Boolean),
+  });
   else out.push({
     title: 'Siding',
     steps: [
-      d.siding ? `T1-11 panels, grooves vertical, ${shed.sidingFull.length} panel positions around the shed (see the shopping list for 8, 9 and 10 ft lengths). Start at a corner, keep the bottom edge level with the top of the skids so it laps the rim joist and floor, and plumb the first panel with a level.` : 'Siding is off in this design.',
-      'Every vertical panel edge lands on a stud. Nail 8d galvanized every 6" on edges and every 12" on intermediate studs.',
+      d.siding ? `${sidingPanelName(d.sidingType)}, grooves vertical, ${shed.sidingFull.length} panel positions around the shed (see the shopping list for 8, 9 and 10 ft lengths). Start at a corner, keep the bottom edge level with the top of the skids so it laps the rim joist and floor, and plumb the first panel with a level.` : 'Siding is off in this design.',
+      d.sidingType.startsWith('LP SmartSide')
+        ? `Every vertical panel edge lands on a stud. Nail 8d hot-dipped galvanized box or common nails (the siding nails on the list) every 6" on every edge, and every ${d.sidingType === 'LP SmartSide 7/16' && d.studSpacing > 16 ? '6" on intermediate studs (on studs at 24", LP\'s ESR-1301)' : '12" on intermediate studs'}, none in the grooves. Double-nail each shiplap joint: one nail through the underlap and a second through the full thickness about 1" from the edge, both at 6". That nailing is what LP's racking value (APA PR-N124) assumes, and these panels are what brace the walls.`
+        : 'Every vertical panel edge lands on a stud. Nail 8d galvanized every 6" on edges and every 12" on intermediate studs.',
       shed.sidingUpper.length ? 'Where a gable needs a second panel above the first, put Z-flashing over the lower panel\'s top edge before the upper one.' : 'Each panel reaches from the bottom to the top in one piece.',
       nested ? `The ${shed.sidingUpper.length} upper gable pieces come from ${nested} panel${nested > 1 ? 's' : ''}: two pieces that slope the same way are cut head to toe along one panel, the second turned end for end so the two sloped cuts run side by side. Its shiplap edges then face the other way, so where it meets its neighbour, plane or rip the lap off both edges and butt the joint over the stud with a bead of caulk.` : '',
       openings ? 'Leave out the nails in the 8" of siding above each door and window head for now, so the head flashing can slip up behind it in the trim step.' : '',
@@ -379,7 +397,7 @@ export function buildInstructions(shed, est) {
     out.push({
       title: 'Paint',
       steps: [
-        `Prime bare wood and T1-11 with an exterior primer, then two coats of exterior paint (${finishName(d.sidingColor, SIDING_FINISHES)}).`,
+        `Prime bare wood${d.sidingType === 'T1-11' ? ' and the T1-11' : ''} with an exterior primer, then two coats of exterior paint (${finishName(d.sidingColor, SIDING_FINISHES)}).`,
         d.polkaDots ? 'Polka dots: make a 3" circle stencil. Snap chalk lines 9" apart up the wall and dab a dot every 9" along each line, shifting every other row by 4-1/2" so they stagger. Use the purple accent paint and a foam pouncer.' : '',
         d.glitter ? 'Glitter: stir a packet of paint glitter into each gallon of the final coat, or dust it onto the wet final coat, and keep stirring as you paint so it does not settle.' : '',
       ].filter(Boolean),
@@ -417,4 +435,58 @@ export function instructionsMarkdown(sections, name) {
     lines.push('');
   });
   return lines.join('\n');
+}
+
+/**
+ * Site prep and base for a shed with no floor: the post piers (under a ridge
+ * beam), the gravel pad that is also the floor, and the perimeter timbers.
+ * @param {import('./model.mjs').Shed} shed @param {(pred: (m: any) => boolean) => string} marks
+ */
+function floorlessSections(shed, marks) {
+  const d = shed.design;
+  const k = shed.dims;
+  const L = d.length;
+  const W = d.width;
+  const pad = { l: L + 24, w: W + 24 };
+  const th = k.timber ? k.timber.thick : 3.5;
+  /** @type {Section[]} */
+  const out = [];
+  out.push({
+    title: 'Gravel pad (the floor)',
+    steps: [
+      `Mark out a ${fmtFtIn(pad.l)} x ${fmtFtIn(pad.w)} pad: the shed plus 12" on every side. Drive a stake at each corner and run string between them, square (diagonals ${fmtFtIn(Math.hypot(pad.l, pad.w))}).`,
+      'Strip the turf and soft topsoil inside the strings, down about 4" plus whatever it takes to reach firm soil. Slope the bottom slightly away from the shed so water drains out, not in.',
+      ...(k.postPiers ? ['Pour the two post piers now (next section), before the gravel goes in.'] : []),
+    ],
+  });
+  if (k.postPiers) out.push({
+    title: 'Piers under the ridge-beam posts',
+    why: 'With no floor, each gable post brings about half the ridge beam\'s load straight down; a pier spreads it over firm ground.',
+    steps: [
+      `Run the shed's outline inside the pad strings, square (diagonals ${fmtFtIn(Math.hypot(L, W))} each). Mark the two pier centres: in the middle of each end wall, ${fmtIn(W / 2)} from the front, ${fmtIn(th / 2)} in from the end.`,
+      `Call 811 before you dig. At each mark, dig a hole ${fmtIn(d.pierDepth + 6)} deep from the stripped ground (${fmtIn(d.pierDepth)}, your frost depth, plus a 6" footing), opened out at the bottom to ${fmtIn(k.pierFootIn)} square.`,
+      `Cut the form tube into two pieces ${fmtIn(k.pierLen)} long. Mix the ${k.pierBags} bags of concrete; in each hole pour a ${fmtIn(k.pierFootIn)} square footing 6" thick, stand a tube on it plumb, backfill round it, and fill it so its top stands 4" above the stripped ground: the top of the gravel to come.`,
+      'Let the concrete cure at least two days (the bag gives the times for your temperature) before the timbers go on.',
+    ],
+    check: ['Both pier tops level with each other, 4" above the stripped ground.'],
+  });
+  out.push({
+    title: 'Fill the pad',
+    steps: [
+      `Fill with crushed gravel (about ${k.gravelCuYd.toFixed(1)} cu yd, ${Math.ceil(k.gravelCuYd * 1.4 * 10) / 10} tons) in 2" lifts, compacting each lift hard${k.postPiers ? ', working round the pier tops' : ''}.`,
+      'Rake it level and compact it again: it is both the base for the walls and the floor you will walk on.',
+    ],
+    check: ['Pad diagonals equal within 1/4".', 'No more than 1/4" out of level under the timbers.'],
+  });
+  out.push({
+    title: 'Perimeter timbers',
+    steps: [
+      `Lay the ground-contact PT 4x6 timbers on edge (mark ${marks((m) => m.kind === 'perimeter timber')}): the two long ones the full ${fmtFtIn(L)} under the front and back walls, the two short ones ${fmtIn(W - 2 * th)} between them under the end walls. Outside faces on the shed's outline.`,
+      'Square them: both diagonals across the outside corners must match. Nail each corner with three 20d galvanized nails (or two structural screws) through the long timber into the end of the short one.',
+      'Level them all round: add or scrape gravel under a timber and tamp it, never shim with wood. A level timber is a level wall.',
+      k.postPiers ? 'The end timbers cross the pier tops at mid-width; check each one bears on its pier with no gap.' : 'The timbers bear on the gravel along their whole length.',
+    ],
+    check: ['Diagonals within 1/8".', 'Timber tops level all round within 1/4".'],
+  });
+  return out;
 }

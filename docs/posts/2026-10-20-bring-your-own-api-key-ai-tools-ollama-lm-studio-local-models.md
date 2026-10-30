@@ -1,5 +1,6 @@
 ---
 title: "Free tools with AI on your own key, or a local model: how BYOK works here"
+seo_title: "Free tools with AI on your own key, or a local model"
 date: 2026-10-20
 description: "Every AI feature here works with no key, your own Anthropic, OpenAI or Gemini key, or a local model in Ollama, LM Studio or llama.cpp. How, and where."
 tags: [byok, local-llm, ollama, open-source]

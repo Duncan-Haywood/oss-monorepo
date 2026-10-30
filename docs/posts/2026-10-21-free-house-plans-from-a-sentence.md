@@ -1,5 +1,6 @@
 ---
 title: "Free house plans from a sentence: an open generator, and what it says about cost"
+seo_title: "Free house plans from a sentence"
 date: 2026-10-21
 description: "Type '3 bed 2 bath farmhouse' and get a public-domain plan set: floor plan, elevations, IFC, DXF, materials and cost. How it works and what it found."
 tags: [housing, construction, open-source, tools, agents]

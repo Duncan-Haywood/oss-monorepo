@@ -1,5 +1,6 @@
 ---
 title: "Scoring a receipt reader on 626 real receipts: dates went from 11% to 97%"
+seo_title: "Scoring a receipt reader on 626 real receipts"
 date: 2026-10-25
 description: "The ai-bookkeeper receipt reader had only seen agent-written receipts. 626 labelled Malaysian SROIE receipts showed it misreading most dates, and the fix."
 tags: [ai-bookkeeper, receipts, evaluation]

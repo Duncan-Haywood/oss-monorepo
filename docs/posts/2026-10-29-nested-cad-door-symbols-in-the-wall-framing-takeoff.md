@@ -1,5 +1,6 @@
 ---
 title: "Reading doors made of doors: nested CAD blocks in the wall framing takeoff"
+seo_title: "Reading doors made of doors"
 date: 2026-10-29
 description: "The wall-framing takeoff's DXF reader now sizes door and window symbols built from other symbols, including mirrored leaves."
 tags: [wall-framing-takeoff, dxf, construction]

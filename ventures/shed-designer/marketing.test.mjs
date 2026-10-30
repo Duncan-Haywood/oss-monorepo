@@ -8,65 +8,15 @@ import { fmtIn } from './lumber.mjs';
 import { PRODUCTS } from './products.mjs';
 import { boardPrice } from './prices.mjs';
 import { budget, laborHours } from './simplify.mjs';
+import { WORKED_PAGE, refreshHtml, refreshLlms, workedFacts } from './workedfacts.mjs';
 
 // The worked example on the marketing page quotes the tool's own output. Every
 // number tagged data-fact="key" is recomputed here, so a change to the engine
 // or the starting prices fails this test until the page is updated.
 
+// The facts live in workedfacts.mjs; `node workedfacts.mjs --write` refreshes the page.
+const facts = workedFacts;
 const money = (n) => `$${n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-
-function facts() {
-  const classic = buildShed(PRESETS['8x12 classic']());
-  const est = estimate(classic);
-  const len = (shed, kind) => fmtIn(shed.members.find((m) => m.kind === kind).length);
-  const low = buildShed(defaultDesign());
-  const d = low.design;
-  const at3 = buildShed(normalize({ ...d, pitch: 3, maxPeak: 0, autoWall: false, autoPitch: false, autoOverhang: false }));
-  const checks = structuralChecks(low);
-  const size = (o) => `${fmtIn(o.width)} x ${fmtIn(o.height)}`;
-  return {
-    pieces: String(est.pieces),
-    boards: String(est.boards),
-    cutSheetCost: money(est.cutSheetCost),
-    lumberCost: money(est.lumberCost),
-    lowerBound: money(est.lowerBound),
-    total: money(est.total),
-    ...Object.fromEntries(est.lumber.flatMap((l) => [
-      [`qty:${l.material}`, String(l.result.boards.length)],
-      [`len:${l.material}`, [...new Set(l.result.boards.map((b) => b.stock / 12))].sort((x, y) => x - y).map((ft) => `${ft}'`).join(', ')],
-    ])),
-    joist: len(classic, 'floor joist'),
-    rafter: len(classic, 'rafter'),
-    jack: fmtIn(Math.max(...classic.members.filter((m) => m.kind === 'jack stud').map((m) => m.length))),
-    p2x4x8: money(boardPrice('2x4', 8).price),
-    p2x4x16: money(boardPrice('2x4', 16).price),
-    minWindow: money(Math.min(...PRODUCTS.filter((p) => p.kind === 'window').map((p) => p.price))),
-    minDoor: money(Math.min(...PRODUCTS.filter((p) => p.kind === 'door').map((p) => p.price))),
-    wall: fmtIn(d.wallHeight),
-    pitch: `${d.pitch}/12`,
-    overhang: fmtIn(d.overhang),
-    peak: fmtIn(low.dims.peak, { feet: true }),
-    lowPeak: fmtIn(at3.dims.peak, { feet: true }),
-    defaultRafter: len(low, 'rafter'),
-    overhangBudget: money(low.overhangChoice.budget),
-    overhangNext: fmtIn(low.overhangChoice.next.overhang),
-    overhangNextAdds: money(low.overhangChoice.next.adds),
-    beam: `${Math.round(checks.rows.find((r) => /Ridge beam$/.test(r.member)).ratio * 100)}%`,
-    snow: String(checks.loads.snow),
-    classicStud: fmtIn(classic.dims.studLen),
-    classicDoor: size(classic.design.openings.find((o) => o.kind === 'door')),
-    classicWindow: size(classic.design.openings.find((o) => o.kind === 'window')),
-    plumb: fmtIn(classic.dims.plumbH),
-    lowDoor: fmtIn(d.openings.find((o) => o.kind === 'door').height),
-    waste8: fmtIn(96 - classic.dims.studLen),
-    waste16: fmtIn(192 - 2 * (classic.dims.studLen + classic.design.kerf)),
-    _studCheaperAlone: 2 * boardPrice('2x4', 8).price < boardPrice('2x4', 16).price,
-    skid: `${Math.round(checks.rows.find((r) => r.member === 'Skids on blocks').ratio * 100)}%`,
-    soil: `${Math.round(checks.rows.find((r) => r.member === 'Blocks on the soil').ratio * 100)}%`,
-    _othersUnder30: checks.rows.filter((r) => !/Ridge beam$|^Skids on blocks$|^Blocks on the soil$/.test(r.member) && r.governs !== 'span rating').every((r) => r.ratio < 0.3),
-    _unpriced: est.unpriced.length,
-  };
-}
 
 test('the marketing page quotes the tool\'s current numbers', () => {
   const html = readFileSync(new URL('./shed-plans-with-cut-list.html', import.meta.url), 'utf8');
@@ -75,7 +25,7 @@ test('the marketing page quotes the tool\'s current numbers', () => {
   assert.ok(tagged.length >= 20);
   for (const [, key, text] of tagged) {
     assert.ok(key in f, `unknown fact ${key}`);
-    assert.equal(text, f[key], `page says ${key} = ${text}, the tool says ${f[key]}`);
+    assert.equal(text, f[key], `page says ${key} = ${text}, the tool says ${f[key]}; run: node ventures/shed-designer/workedfacts.mjs --write`);
   }
   for (const key of Object.keys(f).filter((k) => !k.startsWith('_'))) assert.ok(tagged.some(([, k]) => k === key), `${key} is not on the page`);
   assert.ok(f._studCheaperAlone, 'the page says a stud costs less from its own 8 ft board');
@@ -135,4 +85,19 @@ test('the README quotes the tool\'s current numbers', () => {
   assert.equal(said[1], money(saving));
   assert.equal(Number(said[2]), d.laborRate);
   has(`On the default 8x12 it comes to about ${Math.round(laborHours(low, est))} hours.`);
+});
+
+test('the worked-example refresh rewrites stale facts and nothing else', () => {
+  const html = readFileSync(new URL(`./${WORKED_PAGE}`, import.meta.url), 'utf8');
+  const f = workedFacts();
+  // The committed page is already current, so a refresh is a no-op.
+  assert.equal(refreshHtml(html, f), html);
+  const stale = html.replace(/data-fact="pieces">[^<]*</, 'data-fact="pieces">1<').replace(/data-fact="total">[^<]*</, 'data-fact="total">$1.00<')
+    .replace(`${f.pieces} pieces from ${f.boards} boards`, '7 pieces from 3 boards');
+  assert.notEqual(stale, html);
+  assert.equal(refreshHtml(stale, f), html);
+  // An unknown key is left for the drift test to report, not blanked.
+  assert.equal(refreshHtml('<span data-fact="nope">x</span>', f), '<span data-fact="nope">x</span>');
+  const llms = readFileSync(new URL('./llms.txt', import.meta.url), 'utf8');
+  assert.equal(refreshLlms(llms.replace(`${f.pieces} pieces from`, '1 pieces from'), f), llms);
 });

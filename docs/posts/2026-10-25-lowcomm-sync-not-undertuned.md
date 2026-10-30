@@ -1,5 +1,6 @@
 ---
 title: "Was synchronous AdamW just under-tuned? A finer learning-rate grid says no"
+seo_title: "Was synchronous AdamW just under-tuned?"
 date: 2026-10-25
 description: "On a 413k-parameter GPT, DiLoCo-style H=16 still beats synchronous AdamW by 0.014 nats after a finer learning-rate search for both."
 tags: [research, lowcomm-training, diloco, local-sgd]
