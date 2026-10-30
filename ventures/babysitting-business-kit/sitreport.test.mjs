@@ -95,7 +95,7 @@ test("logDose keeps the warnings on the record and fills in from the authorizati
   assert.equal(warnings.length, 1);
   const saved = SR.saveReport(d, SIT.bookingId, SIT.date, report);
   assert.equal(saved.doses[1].warnings.length, 1);
-  assert.match(SR.reportMessage(saved, { family: fam }), /Medicine \(from your written instructions\): Mia, Amoxicillin 5 ml at 6:05pm; Mia, Amoxicillin 5 ml at 9pm/);
+  assert.match(SR.reportMessage(saved, { family: fam }), /Medicine given: Mia, Amoxicillin 5 ml at 6:05pm; Mia, Amoxicillin 5 ml at 9pm \(please check: 9pm is outside the authorized times/);
   assert.deepEqual(SR.reportStats(d), { reports: 1, incidents: 0, doses: 2, flagged: 1 });
 });
 
@@ -191,4 +191,17 @@ test("the app wires the box into the Families tab and the server serves both mod
   const server = readFileSync(new URL("./server.mjs", import.meta.url), "utf8");
   assert.match(server, /"\/sitreport\.mjs": "sitreport\.mjs"/);
   assert.match(server, /"\/sitreport-ui\.mjs": "sitreport-ui\.mjs"/);
+});
+
+test("a dose the parents gave before the sit spaces the next one but is not the sitter's dose", () => {
+  const fam = { medAuths: [auth({ id: "med_2", drug: "Acetaminophen", dose: "5 ml", times: "", asNeeded: true, minHours: 4, maxDoses: 1 })] };
+  let { report, warnings } = SR.logDose({}, { authId: "med_2", at: "17:30", beforeSit: true }, fam, TODAY, "p1");
+  assert.deepEqual(warnings, []);
+  assert.equal(report.doses[0].beforeSit, true);
+  // 7pm is only 90 minutes after the parents' 5:30pm dose.
+  assert.match(SR.checkDose({ authId: "med_2", at: "19:00" }, fam, TODAY, report.doses).warnings.join(), /Only 90 minutes since the last dose/);
+  // The parents' dose does not use up the one dose allowed during the sit.
+  assert.doesNotMatch(SR.checkDose({ authId: "med_2", at: "22:00" }, fam, TODAY, report.doses).warnings.join(), /at most 1/);
+  // The parent's email lists only what the sitter gave.
+  assert.doesNotMatch(SR.reportMessage(report, { family: fam }), /Medicine given/);
 });

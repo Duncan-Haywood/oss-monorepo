@@ -228,3 +228,9 @@ test("the app wires the Safety tab, and the server serves and ships the modules"
   for (const m of code.matchAll(/env\.([A-Z][A-Z0-9_]+)/g)) assert.ok(guide.includes(`<code>${m[1]}</code>`), m[1]);
   assert.match(guide, /safe\//, "the guide explains the check-in link");
 });
+
+test("the door and alarm note never prints on the emergency card the sitter carries", () => {
+  const desk = exampleDesk("2026-10-30");
+  desk.families[0] = setChecklistItem(desk.families[0], "doors", { note: "alarm 4321" });
+  assert.doesNotMatch(emergencyCard(desk, "fam_a", "2026-10-30"), /4321/);
+});

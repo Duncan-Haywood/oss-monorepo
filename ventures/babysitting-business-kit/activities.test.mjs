@@ -221,3 +221,19 @@ test("leadReply keeps the sitter's capitalisation of their faith activities", ()
   const own = leadReply(d.leads[0], { ...d.profile, faithActivities: "Prayers before meals, songs about Jesus." });
   assert.match(own, /include Prayers before meals, songs about Jesus\./);
 });
+
+test("an allergy is still read when the note starts with EpiPen, inhaler or Notes", () => {
+  for (const t of ["EpiPen for peanut allergy", "epipen (peanuts)", "Notes: severe peanut allergy", "inhaler; peanut allergy"]) assert.deepEqual(A.allergyKeys(t).keys, ["peanut"], t);
+  assert.deepEqual(A.allergyKeys("EpiPen in the diaper bag").unknown, ["EpiPen in the diaper bag"], "an EpiPen with no named allergen asks the sitter to check");
+  const p = A.planSit(deskWith([{ name: "Ava", birth: "2019-05-01", allergies: "EpiPen for peanut allergy" }]), { familyId: "fam_x", date: SIT, start: "09:00", end: "17:00" });
+  const ids = JSON.stringify(p);
+  for (const id of ["bird-feeder", "pb-dough", "ants-log"]) assert.ok(p.avoided.some((a) => a.id === id) || !ids.includes(`"${id}"`), id);
+  assert.ok(p.avoided.some((a) => /peanut/.test(a.reason)));
+});
+
+test("small-part activities are left out when a child's age is unknown or no children are on file", () => {
+  const unaged = A.planSit(deskWith([{ name: "Ava" }]), { familyId: "fam_x", date: SIT, start: "09:00", end: "17:00" });
+  assert.ok(unaged.avoided.some((a) => a.reason === "small parts, age unknown"));
+  const none = A.planSit(deskWith([]), { familyId: "fam_x", date: SIT, start: "09:00", end: "17:00" });
+  assert.ok(none.avoided.some((a) => a.reason === "small parts, ages unknown"));
+});

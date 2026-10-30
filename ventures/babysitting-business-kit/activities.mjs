@@ -57,13 +57,13 @@ function A(id, title, kind, ages, place, energy, mess, minutes, supplies, how, x
   };
 }
 
-const WATER = "Stay within arm's reach of any child near water, even a shallow tub.";
+const WATER = "Stay within arm's reach of any child near water, even a shallow tub, and empty the tub as soon as you finish.";
 const OVEN = "Only if the parents said the oven or toaster is fine; you handle the hot part.";
 
 export const LIBRARY = [
   // active
   A("freeze-dance", "Freeze dance", "active", "TPSW", "in", 3, 0, 15, ["music player"], "Play music and dance; when it stops, everyone freezes. Wobblers do ten jumping jacks, then they're back in."),
-  A("balloon-volley", "Keep the balloon up", "active", "PSW", "in", 3, 0, 15, ["balloon"], "Bat a balloon around the room; it can't touch the floor. Count the hits and try to beat the record.", { allergens: ["latex"], safety: "Pick up every piece of a popped balloon right away." }),
+  A("balloon-volley", "Keep the balloon up", "active", "SW", "in", 3, 0, 15, ["balloon"], "Bat a balloon around the room; it can't touch the floor. Count the hits and try to beat the record.", { allergens: ["latex"], safety: "You blow up and tie the balloon. Children under 8 can choke on a balloon or a piece of one, so keep it away from younger siblings and pick up every piece of a popped balloon right away." }),
   A("cushion-course", "Cushion obstacle course", "active", "TPSW", "in", 3, 0, 20, ["couch cushions", "blanket", "painter's tape"], "Lay a course: crawl under the blanket, hop across cushions, walk the tape line. Kids redesign it for round two."),
   A("animal-walks", "Animal walks", "active", "TPS", "any", 3, 0, 10, [], "Call out animals and move like them: bear crawl, frog hop, crab walk, flamingo stand, snake slither."),
   A("simon-says", "Simon says", "active", "TPS", "any", 2, 0, 10, [], "Classic rules; let each child have a turn as Simon."),
@@ -72,7 +72,7 @@ export const LIBRARY = [
   A("bubble-chase", "Bubble chase", "active", "ITP", "out", 2, 1, 15, ["bubble solution", "bubble wand"], "Blow bubbles for little ones to chase, clap and pop. Babies love watching from a blanket.", { safety: "Keep bubble solution away from mouths and eyes." }),
   A("scavenger-hunt", "Nature scavenger hunt", "active", "PSW", "out", 2, 1, 30, ["paper bag", "paper", "pencil"], "Make a list together (something smooth, a Y-shaped stick, three kinds of leaves, something yellow) and hunt in the yard.", { wx: ["nice", "cold"] }),
   A("tag", "Tag games", "active", "SW", "out", 3, 0, 15, [], "Freeze tag, tunnel tag (crawl under to unfreeze) or shadow tag. Set clear boundaries first."),
-  A("hide-seek", "Hide and seek", "active", "PSW", "any", 2, 0, 20, [], "Agree on off-limits rooms first (no closets with locks, no appliances, no outside)."),
+  A("hide-seek", "Hide and seek", "active", "PSW", "any", 2, 0, 20, [], "Agree on off-limits places first: no closets with locks, no appliances, chests, coolers, dryers, car trunks or anything that latches, and no outside."),
   A("kick-target", "Kick at the target", "active", "TPS", "out", 3, 0, 15, ["soft ball", "cones or shoes"], "Set up two shoes as a goal; kick from closer or farther. Count goals."),
   A("sprinkler", "Sprinkler run", "active", "TPS", "out", 3, 1, 20, ["sprinkler or hose", "towels", "swimsuits"], "Run through the sprinkler, with sunscreen on if the parents left it.", { wx: ["hot"], safety: WATER }),
   A("water-play", "Water pouring station", "active", "TP", "out", 2, 2, 20, ["tub of water", "cups", "funnels", "towels"], "Pour, scoop and fill. Add a few toys that sink and float.", { wx: ["hot", "nice"], safety: WATER }),
@@ -99,7 +99,7 @@ export const LIBRARY = [
   A("puzzles", "Puzzles", "calm", "PSW", "in", 1, 0, 20, ["jigsaw puzzle"], "Edges first; sort pieces by color in cups.", { small: true }),
   A("card-games", "Card and board games", "calm", "PSW", "in", 1, 0, 25, ["deck of cards or a board game"], "Go Fish, Crazy Eights, War, or a board game from the family's shelf. Teach a new one."),
   A("block-build", "Block building challenge", "calm", "TPSW", "in", 1, 0, 25, ["building blocks"], "Challenges: the tallest tower, a bridge a toy car can cross, a house for a stuffed animal. Big blocks only for under-3s."),
-  A("rice-bin", "Sensory bin", "calm", "TP", "in", 1, 2, 20, ["dry rice or oats", "plastic tub", "cups and scoops", "towel underneath"], "Scoop, pour and hide small toys to find.", { safety: "Stay right beside a toddler; nothing goes in mouths." }),
+  A("rice-bin", "Sensory bin", "calm", "TP", "in", 1, 2, 20, ["dry rice or oats", "plastic tub", "cups and scoops", "towel underneath"], "Scoop, pour and hide a few toys to find, each too big to fit through a toilet-paper tube.", { safety: "Stay right beside a toddler; toddlers put things in their mouths, so no small toys, beads or beans." }),
   A("i-spy", "I spy", "calm", "PSW", "any", 1, 0, 10, [], "Colors for little ones, first letters for readers."),
   A("story-chain", "Make up a story together", "calm", "PSW", "in", 1, 0, 15, [], "Each person adds one sentence. Start with 'Once there was a dragon who was afraid of...'"),
   A("mirror-play", "Mirror and peekaboo", "calm", "I", "in", 1, 0, 10, ["baby-safe mirror", "small blanket"], "Peekaboo with the blanket, then point out eyes, nose and mouth in the mirror.", { quiet: true }),
@@ -118,11 +118,11 @@ export const LIBRARY = [
   A("sticker-scene", "Sticker scenes", "calm", "PS", "in", 1, 0, 15, ["sticker sheets", "paper"], "Draw a road, a sea or a farm, then fill it with stickers and tell its story.", { small: true }),
   // creative
   A("texture-basket", "Texture basket", "creative", "I", "in", 1, 0, 10, ["basket", "scarf", "crinkly fabric", "wooden spoon", "soft brush"], "Hand baby one thing at a time to grab, shake and feel; name each one: soft, bumpy, crinkly.", { safety: "Nothing small enough to fit in their mouth; watch the whole time." }),
-  A("paint-bag", "Mess-free paint bag", "creative", "IT", "in", 1, 0, 10, ["zip bag", "washable paint", "strong tape"], "Squeeze a few colors of paint into a zip bag, seal it, tape it flat to the floor or high chair tray, and let them squish the colors together.", { safety: "Tape the seal shut and stay right there; throw it away if it leaks." }),
+  A("paint-bag", "Mess-free paint bag", "creative", "IT", "in", 1, 0, 10, ["zip bag", "washable paint", "strong tape"], "Squeeze a few colors of paint into a zip bag, seal it, tape it flat to the floor or high chair tray, and let them squish the colors together.", { safety: "Tape the seal shut and stay right there; never leave the bag with a baby, take it away when you finish, and throw it away if it leaks." }),
   A("drawing", "Drawing prompts", "creative", "TPSW", "in", 1, 1, 20, ["paper", "crayons"], "Prompts: a monster who loves vegetables, your dream treehouse, our day as a comic. Toddlers just scribble big."),
   A("playdough", "Play dough", "creative", "TPS", "in", 1, 1, 25, ["play dough (flour-based)", "cookie cutters", "rolling pin"], "Make snakes, pancakes, a birthday cake with candles.", { allergens: ["wheat"], safety: "Most play dough is made with wheat flour." }),
   A("pb-dough", "Edible peanut butter dough", "creative", "PS", "in", 1, 2, 20, ["peanut butter", "powdered milk", "honey", "bowl"], "Mix equal parts peanut butter and powdered milk with a little honey; shape animals and eat a few.", { allergens: ["peanut", "dairy"], food: true }),
-  A("salt-dough", "Salt dough keepsakes", "creative", "PSW", "in", 1, 2, 40, ["flour", "salt", "water", "paint"], "Mix 2 cups flour, 1 cup salt and about 3/4 cup water; cut shapes or press handprints; parents bake them later.", { allergens: ["wheat"] }),
+  A("salt-dough", "Salt dough keepsakes", "creative", "PSW", "in", 1, 2, 40, ["flour", "salt", "water", "paint"], "Mix 2 cups flour, 1 cup salt and about 3/4 cup water; cut shapes or press handprints; parents bake them later.", { allergens: ["wheat"], safety: "Salt dough is not for eating (that much salt can make a child ill); keep the bowl away from younger siblings and pets." }),
   A("oobleck", "Oobleck", "creative", "TPS", "in", 1, 2, 20, ["cornstarch", "water", "bowl", "towel"], "About 2 parts cornstarch to 1 part water: it's solid when you squeeze it and runs when you let go.", { allergens: ["corn"] }),
   A("pasta-necklace", "Pasta necklaces", "creative", "PS", "in", 1, 1, 20, ["dry tube pasta", "yarn", "tape"], "Tape one end of the yarn into a needle shape and thread the pasta. Color the pasta first with markers if you like.", { allergens: ["wheat"], small: true }),
   A("plate-masks", "Paper plate masks", "creative", "PSW", "in", 1, 1, 25, ["paper plates", "crayons or markers", "yarn", "child-safe scissors"], "Cut eye holes (you do it for little ones), decorate as an animal, tie on with yarn, then put on a show."),
@@ -147,16 +147,16 @@ export const LIBRARY = [
   A("bean-jar", "Grow a bean in a jar", "creative", "PS", "in", 1, 1, 15, ["clear jar", "paper towel", "dry bean", "water"], "Wet a paper towel, line the jar, tuck a bean against the glass; the family watches it sprout over the week.", { small: true }),
   A("water-paint", "Painting with water", "creative", "TP", "out", 1, 0, 20, ["cup of water", "paintbrush"], "Paint the fence or sidewalk with plain water and watch it disappear.", { wx: ["hot", "nice"] }),
   // snack
-  A("ants-log", "Ants on a log", "snack", "PSW", "in", 1, 1, 15, ["celery", "peanut butter", "raisins"], "Spread peanut butter in celery sticks and line up raisin 'ants'.", { allergens: ["peanut"] }),
+  A("ants-log", "Ants on a log", "snack", "PSW", "in", 1, 1, 15, ["celery", "peanut butter", "raisins"], "Spread peanut butter in celery sticks and line up raisin 'ants'.", { allergens: ["peanut"], safety: "For under-4s: cut the celery into thin, short pieces, spread the peanut butter thin, and eat sitting down." }),
   A("fruit-kabobs", "Fruit kabobs", "snack", "PSW", "in", 1, 1, 15, ["soft fruit cut small", "straws or blunt skewers"], "Thread fruit in a color pattern; eat the pattern backwards."),
   A("parfait", "Yogurt parfait cups", "snack", "TPSW", "in", 1, 1, 15, ["yogurt", "berries", "granola"], "Layer yogurt, fruit and granola in clear cups. Skip granola for toddlers.", { allergens: ["dairy", "wheat", "treenut"] }),
   A("muffin-pizza", "English muffin pizzas", "snack", "PSW", "in", 1, 1, 25, ["English muffins", "pizza sauce", "shredded cheese"], "Kids spread and sprinkle; you toast them.", { allergens: ["wheat", "dairy"], safety: OVEN }),
   A("rice-cake-faces", "Rice cake faces", "snack", "PSW", "in", 1, 1, 15, ["rice cakes", "cream cheese", "sliced vegetables and fruit"], "Spread cream cheese and make faces with cucumber eyes and a pepper smile.", { allergens: ["dairy"] }),
   A("smoothie", "Make a smoothie", "snack", "TPSW", "in", 1, 1, 15, ["banana", "frozen berries", "milk or yogurt", "blender"], "Kids add the fruit and count to ten while it blends; you work the blender.", { allergens: ["dairy"] }),
   A("apple-nachos", "Apple nachos", "snack", "PSW", "in", 1, 1, 15, ["apple slices", "peanut butter", "raisins"], "Fan apple slices on a plate, drizzle warm peanut butter, sprinkle raisins.", { allergens: ["peanut"] }),
-  A("hummus-dip", "Veggie and hummus dippers", "snack", "PSW", "in", 1, 1, 15, ["cucumber", "carrot sticks cut thin", "hummus"], "Dip, then vote for the best vegetable.", { allergens: ["sesame"] }),
+  A("hummus-dip", "Veggie and hummus dippers", "snack", "PSW", "in", 1, 1, 15, ["cucumber", "carrot sticks cut thin", "hummus"], "Dip, then vote for the best vegetable.", { allergens: ["sesame"], safety: "For under-4s, raw carrot is a choking risk: use steamed or shredded carrot, and eat sitting down." }),
   A("popcorn", "Popcorn and a story", "snack", "SW", "in", 1, 1, 15, ["popcorn"], "Share a bowl while someone reads aloud.", { allergens: ["corn"] }),
-  A("cracker-stacks", "Cracker stacks", "snack", "PSW", "in", 1, 1, 15, ["crackers", "cheese slices", "turkey slices"], "Build the tallest stack that still fits in your mouth.", { allergens: ["wheat", "dairy"] }),
+  A("cracker-stacks", "Cracker stacks", "snack", "PSW", "in", 1, 1, 15, ["crackers", "cheese slices", "turkey slices"], "Build the tallest stack you can, then take it apart and eat it in small bites, sitting down.", { allergens: ["wheat", "dairy"] }),
   A("toast-shapes", "Cookie-cutter toast", "snack", "PSW", "in", 1, 1, 15, ["bread", "butter", "cookie cutters"], "Cut toast into stars and hearts; eat the scraps first.", { allergens: ["wheat", "dairy"], safety: OVEN }),
   A("parent-snack", "Snack from the parents' list", "snack", "IT", "in", 1, 1, 15, ["the snack the parents left"], "Serve exactly what the parents left, cut the way they showed you, with the child seated.", { safety: "Seated and watched while eating; follow the parents' cutting instructions." }),
   // wind-down
@@ -170,7 +170,7 @@ export const LIBRARY = [
   A("quiet-books", "Quiet time with books and soft toys", "winddown", "TP", "in", 1, 0, 20, ["books", "soft toys"], "Cozy corner, soft voices, no getting up until the timer goes.", { quiet: true }),
   A("sketchbook", "Sketchbook or journal time", "winddown", "SW", "in", 1, 0, 20, ["notebook", "pencils"], "Draw or write about the day; nobody has to share it.", { quiet: true }),
   A("calm-jar", "Calm-down jar", "winddown", "PS", "in", 1, 1, 10, ["plastic bottle with lid", "water", "glitter glue", "tape"], "Shake the jar and breathe slowly until the glitter settles.", { quiet: true, small: true }),
-  A("rock-settle", "Rocking and dim lights", "winddown", "I", "in", 1, 0, 15, ["the baby's sleep sack or blanket the parents use"], "Dim the lights, rock and hum, then lay the baby down the way the parents showed you.", { quiet: true, bedtime: true, safety: "Baby goes to sleep on their back, in their own crib, nothing loose in it, unless the parents' doctor said otherwise." , ref: "https://safetosleep.nichd.nih.gov/" }),
+  A("rock-settle", "Rocking and dim lights", "winddown", "I", "in", 1, 0, 15, ["the baby's sleep sack (no loose blanket in the crib)"], "Dim the lights, rock and hum, then lay the baby down on their back in their crib or bassinet, with nothing else in it.", { quiet: true, bedtime: true, safety: "Baby goes to sleep on their back, in their own crib, bassinet or play yard, with nothing loose in it, unless the parents' doctor said otherwise." , ref: "https://safetosleep.nichd.nih.gov/" }),
   A("back-drawing", "Back-drawing guessing game", "winddown", "PSW", "in", 1, 0, 10, [], "Trace a shape or letter on their back with a finger; they guess. Slow and gentle.", { quiet: true, bedtime: true }),
   // two screen activities, only when the family said screens are fine
   A("movie", "Family-approved movie", "calm", "PSW", "in", 1, 0, 90, ["a movie the parents approved"], "Only a movie the parents named, with the lights on at first.", { screens: true, when: ["afternoon", "evening"] }),
@@ -226,9 +226,9 @@ const ALLERGENS = [
   ["corn", /\bcorn\b|maize/i],
   ["latex", /latex|balloon/i],
 ];
-// Phrases in the kids field that are not allergies: "age 3" from a converted lead,
-// "none", medicine locations and the like.
-const NOT_ALLERGY = /^(age\s+\S+|none|no allergies|n\/?a|epi-?pen.*|inhaler.*|notes?:.*)$/i;
+// Phrases in the kids field that are not allergies: "age 3" from a converted lead, "none".
+// Anything else is checked for allergens, so "EpiPen for peanut allergy" still reads as peanut.
+const NOT_ALLERGY = /^(age\s+\S+|none|no allergies|n\/?a)$/i;
 
 export function allergyKeys(text) {
   const parts = String(text || "").split(/[;,]/).map((s) => s.trim()).filter((s) => s && !NOT_ALLERGY.test(s));
@@ -237,7 +237,7 @@ export function allergyKeys(text) {
   for (const part of parts) {
     let hit = false;
     for (const [k, re] of ALLERGENS) if (re.test(part)) { keys.add(k); hit = true; }
-    if (!hit && /allerg|intoleran|reaction|anaphyla|food/i.test(part)) unknown.push(part);
+    if (!hit && /allerg|intoleran|reaction|anaphyla|epi-?pen|auvi-?q|food/i.test(part)) unknown.push(part);
   }
   return { keys: [...keys], unknown };
 }
@@ -262,8 +262,10 @@ function unsafeFor(a, kids) {
   for (const k of kids) {
     const hit = a.allergens.find((x) => k.allergens.includes(x));
     if (hit) return { child: k.name, reason: `${hit === "treenut" ? "tree nut" : hit} allergy` };
-    if (a.smallParts && k.months !== null && k.months < 36) return { child: k.name, reason: "small parts, under 3" };
+    if (a.smallParts && k.months === null) return { child: k.name, reason: "small parts, age unknown" };
+    if (a.smallParts && k.months < 36) return { child: k.name, reason: "small parts, under 3" };
   }
+  if (a.smallParts && !kids.length) return { child: "the children", reason: "small parts, ages unknown" };
   return null;
 }
 
