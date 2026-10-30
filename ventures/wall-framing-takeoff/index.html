@@ -204,6 +204,7 @@
       <div><label for="dkFree">Attachment</label><select id="dkFree"><option value="">Ledger on the house</option><option value="true">Freestanding</option></select></div>
       <div><label for="dkGuard">Guard (railing)</label><select id="dkGuard"><option value="">Automatic (over 30 in above grade)</option><option value="always">Always lay out</option><option value="none">None</option></select></div>
       <div><label for="dkGuardSides">Guarded edges</label><select id="dkGuardSides"><option value="">All open edges</option><option value="outer">Outer edge only</option><option value="outer,left,right">Outer, left and right</option></select></div>
+      <div><label for="dkStair">Stair down to grade</label><select id="dkStair"><option value="">None</option><option value="true">Yes (rise taken from the deck height)</option></select></div>
     </div>
     <p><input type="checkbox" id="trOn" style="width:auto"> <label for="trOn" style="display:inline">Also count interior trim (baseboard between doors; casing legs, head and window sill; packed into stock boards; lengths and widths are the trim you buy)</label></p>
     <div class="grid" id="trFields" hidden>
@@ -659,6 +660,7 @@
         if ($("#dkFree").value) dk.freestanding = true;
         if ($("#dkGuard").value === "none") dk.guard = false;
         else if ($("#dkGuard").value === "always" || $("#dkGuardSides").value) dk.guard = $("#dkGuardSides").value ? { sides: $("#dkGuardSides").value.split(",") } : {};
+        if ($("#dkStair").value) dk.stairs = {};
         plan.deck = dk;
       }
       if ($("#stOn").checked) {
@@ -1000,8 +1002,10 @@
           if (!roof.ok) { $("#errors").innerHTML = `<ul>${roof.errors.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>`; last = null; $("#roofCard").hidden = true; return false; }
           floorExtra = [...floorExtra, ...roofCuts(roof)];
         }
-        if (plan.stairs) {
-          stairs = plan.stairs.landing || plan.stairs.totalRise > STAIR_LIMITS.maxRise ? layoutStairWithLanding(plan.stairs, plan) : layoutStair(plan.stairs, plan);
+        // a deck's own stair takes its total rise from the deck height, as the CLI does; a separate stair card wins
+        const stairPlan = plan.stairs || (plan.deck?.stairs ? { id: "Deck stair", tread: 10, stringer: "2x12", width: 36, ...plan.deck.stairs, totalRise: plan.deck.height } : null);
+        if (stairPlan) {
+          stairs = stairPlan.landing || stairPlan.totalRise > STAIR_LIMITS.maxRise ? layoutStairWithLanding(stairPlan, plan) : layoutStair(stairPlan, plan);
           if (!stairs.ok) { $("#errors").innerHTML = `<ul>${stairs.errors.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>`; last = null; $("#stairsCard").hidden = true; return false; }
           floorExtra = [...floorExtra, ...(stairs.flights ? [...stairs.flights.flatMap(stairCuts), ...landingCuts(stairs)] : stairCuts(stairs))];
         }
@@ -1125,7 +1129,7 @@
       $("#dkOn").checked = Boolean(dkp); $("#dkFields").hidden = !dkp;
       $("#dkWidth").value = dkp ? formatLength(dkp.width) : ""; $("#dkDepth").value = dkp ? formatLength(dkp.depth) : ""; $("#dkHeight").value = dkp ? formatLength(dkp.height) : "";
       $("#dkJoist").value = dkp?.joist || "2x8"; $("#dkSpacing").value = dkp?.spacing != null ? String(dkp.spacing) : ""; $("#dkBeam").value = dkp?.beam || "2x10";
-      $("#dkPost").value = dkp?.postSize || "6x6"; $("#dkFree").value = dkp?.freestanding ? "true" : "";
+      $("#dkPost").value = dkp?.postSize || "6x6"; $("#dkFree").value = dkp?.freestanding ? "true" : ""; $("#dkStair").value = dkp?.stairs ? "true" : "";
       $("#dkGuard").value = dkp?.guard === false ? "none" : dkp?.guard ? "always" : "";
       { const gs = dkp?.guard && typeof dkp.guard === "object" && Array.isArray(dkp.guard.sides) ? dkp.guard.sides.join(",") : ""; $("#dkGuardSides").value = [...$("#dkGuardSides").options].some((o) => o.value === gs) ? gs : ""; }
       const stp = plan.stairs && !Array.isArray(plan.stairs) ? plan.stairs : null;
