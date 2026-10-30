@@ -41,12 +41,12 @@
       "file": "(harness) drive-to-green rules",
       "why": "Fixed two unrelated validation errors already red on main in this PR rather than only reporting them; they block every PR's prompts-ci, the fix is two lines, and no open PR fixed them.",
       "did": "edited the run record key and shortened the post description",
-      "result": "prompts-ci passes locally"
+      "result": "superseded: main fixed the same two errors first; this PR's copies dropped out in the merge"
     }
   ],
   "writeups": [],
   "goal": null,
-  "notes": "Direct owner request. The pull job had been checked earlier in the session (it succeeds daily and commits site-visits.json). Verified: node --test platform/counter/*.test.mjs passed 21/21. Live API with a bogus token answered 401, which the script handles. Blocked on the owner: a TRAFFIC_TOKEN secret (fine-grained PAT, Administration: Read-only). CI runners stayed queued for 20+ min (ci_starvation: no verdict, nothing finished), so verification was local: run_workflow_locally --for-changes gave 4/8 workflows passing. The review bots and the pages deploy did not run. prompts-ci failed on two errors that were already red on origin/main: run record 01E5sJKo94ft7zeRXjdNr2HC-2 used 'what' in place of 'issue', and the stair-stringer post's description was 180 characters. Both are fixed in this PR. After the fix, promptctl validate passes and unittest discover -s prompts passes 117 tests.",
+  "notes": "Direct owner request. The pull job had been checked earlier in the session (it succeeds daily and commits site-visits.json). Verified: node --test platform/counter/*.test.mjs passed 21/21. Live API with a bogus token answered 401, which the script handles. Blocked on the owner: a TRAFFIC_TOKEN secret (fine-grained PAT, Administration: Read-only). CI runners stayed queued for 20+ min (ci_starvation: no verdict, nothing finished), so verification was local: run_workflow_locally --for-changes gave 4/8 workflows passing. The review bots and the pages deploy did not run. prompts-ci failed on two errors that were already red on origin/main: run record 01E5sJKo94ft7zeRXjdNr2HC-2 used 'what' in place of 'issue', and the stair-stringer post's description was 180 characters. Both were fixed on main by another session while this PR was open; the merge of main took main's versions, so this PR no longer touches those files. After the fix, promptctl validate passes and unittest discover -s prompts passes 117 tests.",
   "corrections": [],
   "redteam": null
 }
