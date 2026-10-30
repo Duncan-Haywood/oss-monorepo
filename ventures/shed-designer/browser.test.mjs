@@ -225,6 +225,20 @@ test('the page explains the siding price step and that undo is per design', { sk
   assert.match(await page.textContent('#notes'), /Siding: each 4 ft column takes the shortest panel .*4x10 \$\d+\.\d\d/);
 });
 
+
+test('a custom-size opening shows a catalogue range, and counts it only when ticked', { skip }, async (t) => {
+  const { page } = await open(t);
+  await page.selectOption('#new-design', '8x12 classic');
+  await page.waitForFunction(() => /typical range \$246\.00 to \$615\.00/.test(document.querySelector('#shopping').textContent));
+  const before = await page.textContent('#total');
+  await page.check('#customRange');
+  await page.waitForFunction((b) => document.querySelector('#total').textContent !== b, before);
+  const row = await page.$$eval('#shopping tbody tr', (rows) => rows.map((r) => r.textContent).find((x) => /Door 38" x 82".*counted at the median/.test(x)));
+  assert.ok(row, 'the door is a line of its own');
+  assert.match(row, /estimate/);
+  assert.doesNotMatch(await page.textContent('#shopping'), /Not in the total/);
+});
+
 test('on a phone: no sideways scroll, finger-size handles, touch drag and pinch', { skip }, async (t) => {
   const { ctx, page } = await open(t, pw.devices['Pixel 7']);
   const sw = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);

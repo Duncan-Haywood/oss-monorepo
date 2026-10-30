@@ -5,7 +5,7 @@
 
 import { EXAMPLE_ITEMS, fmtIn } from './lumber.mjs';
 import { boardPrice, itemPrice } from './prices.mjs';
-import { productById } from './products.mjs';
+import { catalogueRange, productById } from './products.mjs';
 import { optimizeCuts } from './optimize.mjs';
 import { heelJoint } from './checks.mjs';
 
@@ -317,9 +317,19 @@ export function estimate(shed, prices = examplePrices()) {
   // leave it silently out of the total.
   /** @type {string[]} */
   const unpriced = [];
+  // Each gets a typical range from the catalogue, which goes into the total (at
+  // the range's median, marked as an estimate) only if you ask for it.
   for (const op of d.openings) {
     if (op.product === 'site-built' || productById(op.product)) continue;
-    unpriced.push(`${op.kind === 'door' ? 'Door' : 'Window'} ${fmtIn(op.width)} x ${fmtIn(op.height)} on the ${WHERE[`wall:${op.wall}`] || op.wall} (custom size)`);
+    const what = `${op.kind === 'door' ? 'Door' : 'Window'} ${fmtIn(op.width)} x ${fmtIn(op.height)} on the ${WHERE[`wall:${op.wall}`] || op.wall}`;
+    const r = catalogueRange(op.kind, op.width);
+    const range = r ? `typical range $${r.lo.toFixed(2)} to $${r.hi.toFixed(2)} across the ${r.n} ${r.group} in our catalogue` : '';
+    if (r && d.customRange && shed.framedOpenings.some((f) => f.id === op.id)) {
+      line('Doors and windows', `${what}, custom size: ${range}, counted at the median`, 1, 'each', r.median,
+        { kind: 'estimate', price: r.median, note: `a range from our catalogue, not a listing for this size: median of the ${r.n} ${r.group}` });
+      continue;
+    }
+    unpriced.push(`${what} (custom size${range ? `; ${range}` : ''})`);
   }
   if (dims.padSqFt) line('Site prep', label('landscapeFabric'), Math.ceil((dims.padSqFt * 1.15) / 150), 'roll', item('landscapeFabric'), src('landscapeFabric'));
   if (dims.baseBags) line('Site prep', label('paverBase'), dims.baseBags, 'bag', item('paverBase'), src('paverBase'));

@@ -89,6 +89,8 @@ export function defaultDesign() {
     glitter: false,
     interior: 'none',
     insulation: false,
+    // Count custom-size doors and windows at the median of the catalogue's range (off: left out of the total).
+    customRange: false,
     sidingType: 'T1-11',
     wallTrim: '1x4',
     roofCover: 'shingles',
@@ -208,6 +210,7 @@ export function normalize(input) {
     glitter: o.glitter === true,
     interior: pick(o.interior, ['none', 'OSB', 'plywood', 'drywall', 'beadboard', 'pegboard', 'teen bedroom'], d.interior),
     insulation: o.insulation === true,
+    customRange: o.customRange === true,
     wallTrim: pick(o.wallTrim, ['1x4', 'none'], d.wallTrim),
     sidingType: pick(o.sidingType, ['T1-11', 'LP SmartSide', 'LP SmartSide 7/16', 'board and batten', 'vinyl', 'fiber cement'], d.sidingType),
     roofCover: pick(o.roofCover, ['shingles', 'metal'], d.roofCover),
