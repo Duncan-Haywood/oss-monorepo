@@ -26,6 +26,10 @@ class AriaRefs(unittest.TestCase):
     def test_for_on_non_label_is_ignored(self):
         self.assertEqual(dangling('<output for="a b"></output>'), [])
 
+    def test_clean_tree_exits_zero(self):
+        with tempfile.TemporaryDirectory() as d, contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual(main(["--root", d]), 0)
+
     def test_scan_and_exit_code(self):
         with tempfile.TemporaryDirectory() as d:
             root = Path(d)
