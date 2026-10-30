@@ -47,7 +47,7 @@ const MIN_SIDE = 72;
  * @param {any} d @param {import('./estimate.mjs').Prices} [prices]
  */
 function priced(d, prices) {
-  const shed = buildShed(normalize(d));
+  const shed = buildShed(normalize(d), prices);
   const total = estimate(shed, prices).total;
   const ok = structuralChecks(shed).ok && connectionChecks(shed).ok;
   return { design: shed.design, total, ok, warnings: shed.warnings.length };
