@@ -75,6 +75,7 @@ export function altFor(design, view) {
   const name = d.name || 'gable shed';
   if (view === 'framing') {
     const ridge = d.roofType === 'ridgeBeam' ? `a two-ply ${d.beamSize} ridge beam on posts` : `a ${k.ridgeSize} ridge board with rafter ties`;
+    if (d.roofType === 'truss') return `Framing of the ${name} (${size}) with the siding, sheathing and roofing removed: studs at ${d.studSpacing}" on centre and site-built trusses at ${d.rafterSpacing}" with OSB gussets.`;
     return `Framing of the ${name} (${size}) with the siding, sheathing and roofing removed: studs at ${d.studSpacing}" on centre, rafters at ${d.rafterSpacing}" and ${ridge}.`;
   }
   const colour = d.sidingColor === 'natural' ? 'stained' : d.sidingColor === 'unfinished' ? 'unfinished' : `${d.sidingColor}`;
