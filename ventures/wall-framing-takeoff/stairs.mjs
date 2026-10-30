@@ -251,7 +251,7 @@ export function layoutStairWithLanding(input, plan) {
     deck: { size: deckSize, count: deckBoards, length: width, area: (width * depth) / 144 },
     footprint: lower.run + depth + upper.run,
     posts: layoutLandingPosts(width, depth, rise1 - DEPTH[joistSize] - 1.5, lc.postSpacing ?? 96),
-    footings: lc.soilBearing != null ? sizeLandingFootings(width, depth, lc.postSpacing ?? 96, { soilBearing: lc.soilBearing, liveLoad: lc.liveLoad, deadLoad: lc.deadLoad }) : null,
+    footings: lc.soilBearing != null ? sizeLandingFootings(width, depth, lc.postSpacing ?? 96, { soilBearing: lc.soilBearing, liveLoad: lc.liveLoad, deadLoad: lc.deadLoad, postCapacity: lc.postCapacity }) : null,
     guard: lc.openEdges?.length ? layoutLandingGuard(lc.openEdges.map((e) => (e === "end" ? width : depth)), input.rail || {}, Math.min(4, lc.openEdges.filter((e) => e === "end").length * lc.openEdges.filter((e) => e !== "end").length)) : null,
     notes: ["Landing posts are counted, not sized, and footings are not sized: the platform carries a stair load plus the flights' ends, so check post size, footings and the typed `postSpacing` (96 in unless set) against your code and the actual spans."],
   };
@@ -275,9 +275,10 @@ export function layoutLandingPosts(width, depth, height, spacing = 96) {
  * site's, from the soil report or the local book; `liveLoad` 40 and `deadLoad` 10 psf are the usual figures, typed over
  * if yours differ). The platform load is shared by the posts around its edge: a mid-edge post takes half a bay, a corner
  * post a quarter bay, so the heaviest is the edge post when any side has two bays or more. The flights' ends and
- * the guard are not added. Returns the load, the area it needs, and a round and a square footing rounded up to the inch.
+ * the guard are not added. `postCapacity` (lb, typed from your post table; no default) is compared with the heaviest
+ * post's load and `postOk` says whether it holds. Returns the load, the area it needs, and a round and a square footing rounded up to the inch.
  */
-export function sizeLandingFootings(width, depth, spacing, { soilBearing, liveLoad = 40, deadLoad = 10 } = {}) {
+export function sizeLandingFootings(width, depth, spacing, { soilBearing, liveLoad = 40, deadLoad = 10, postCapacity } = {}) {
   if (!(soilBearing > 0)) return { ok: false, errors: ["soilBearing must be a positive figure in psf."] };
   const bays = (len) => Math.max(1, Math.ceil(len / spacing - 1e-9));
   const along = bays(width), across = bays(depth);
@@ -287,7 +288,7 @@ export function sizeLandingFootings(width, depth, spacing, { soilBearing, liveLo
   const area = (load / soilBearing) * 144; // sq in
   const round = Math.max(1, Math.ceil(2 * Math.sqrt(area / Math.PI) - 1e-9));
   const square = Math.max(1, Math.ceil(Math.sqrt(area) - 1e-9));
-  return { ok: true, soilBearing, liveLoad, deadLoad, tributary: bay * share, load, area, round, square, count: 2 * (along + across) };
+  return { ok: true, soilBearing, liveLoad, deadLoad, tributary: bay * share, load, postCapacity: postCapacity ?? null, postOk: postCapacity > 0 ? load <= postCapacity : null, area, round, square, count: 2 * (along + across) };
 }
 
 export function landingCuts(r) {
@@ -310,6 +311,7 @@ export function landingText(r) {
     `  Landing: ${g.joists.count} ${g.joists.size} joists ${formatLength(g.joists.length)} (${formatInches(g.joists.spacing)} apart), 2 rims ${formatLength(g.rims.length)}, ${g.deck.count} ${g.deck.size} deck boards ${formatLength(g.deck.length)}; run on plan ${formatLength(g.footprint)} for a straight stair`,
     `  Landing posts: ${g.posts.count} (${g.posts.alongBays} x ${g.posts.acrossBays} bays around the edge, at most ${formatInches(g.posts.spacing)} apart), each ${formatInches(g.posts.height)} above its footing`,
     ...(g.footings?.ok ? [`  Landing footings: heaviest post ${Math.round(g.footings.load)} lb (${g.footings.tributary.toFixed(1)} sq ft at ${g.footings.liveLoad + g.footings.deadLoad} psf) on ${g.footings.soilBearing} psf soil needs ${g.footings.area.toFixed(0)} sq in: ${g.footings.round} in round or ${g.footings.square} in square, ${g.footings.count} footings`] : []),
+    ...(g.footings?.ok && g.footings.postOk != null ? [`  Landing post check: heaviest post ${Math.round(g.footings.load)} lb against your ${g.footings.postCapacity} lb capacity: ${g.footings.postOk ? "holds" : "OVER, use a larger post or a closer spacing"}`] : []),
     ...(g.guard ? [`  Landing guard (${g.guard.edges.length} open edge${g.guard.edges.length === 1 ? "" : "s"}, ${formatInches(g.guard.guardHeight)} high): ${g.guard.posts.count} posts, ${g.guard.balusters.count} balusters ${formatInches(g.guard.balusters.length)} with at most ${formatInches(g.guard.balusters.maxGap)} clear (limit ${formatInches(RAIL_LIMITS.maxGap)}), ${g.guard.guardRails.count} ${g.guard.guardRails.size} rails`] : []),
     ...g.notes.map((n) => `  Note: ${n}`),
   ];
