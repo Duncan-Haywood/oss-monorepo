@@ -17,7 +17,7 @@ const RULES = [
   { keys: /^(siding\d*|lpPanel\w*)$/, panels: ['siding'] },
   { keys: /^(wallSheathing|houseWrap|wrapTape|capNails)$/, panels: ['wall sheathing'] },
   { keys: /^(lap\w*|hardiePlank|starterStrip|jointFlashing|sidingNails5?)$/, panels: ['lap siding'] },
-  { keys: /^(boardBox|battenBox|vinyl\w*)$/, panels: ['siding'] },
+  { keys: /^(bbBoard|bbBatten|vinyl\w*)$/, panels: ['siding'] },
   { keys: /^(paint|stain|glitter|accentPaint)$/, panels: ['siding', 'lap siding'], fixtures: ['casing'] },
   { keys: /^(shingleBundle|starterShingle|ridgeCapShingle|underlayment|metalPanel|metalRidge|roofingNails)$/, fixtures: ['shingles'] },
   { keys: /^(fasciaTrim|rakeTrim|dripEdge)$/, fixtures: ['fascia'] },

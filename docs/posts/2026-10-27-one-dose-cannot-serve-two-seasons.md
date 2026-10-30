@@ -1,5 +1,6 @@
 ---
 title: "One dose cannot serve two seasons: the arithmetic behind a village chlorine tank"
+seo_title: "One dose cannot serve two seasons"
 date: 2026-10-27
 description: "Three Pouches, a Hearth & Horizon story: why doubling a chlorine dose fixes the rainy season and ruins the dry one, and who should pick the taste target."
 tags: [fiction, water, hearth-and-horizon]

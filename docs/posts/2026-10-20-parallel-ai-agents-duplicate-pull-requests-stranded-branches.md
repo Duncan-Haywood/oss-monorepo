@@ -1,5 +1,6 @@
 ---
 title: "Parallel AI coding agents: duplicate pull requests, stranded branches, and how we land the work"
+seo_title: "Parallel AI coding agents"
 date: 2026-10-20
 description: "Sixteen AI agents sharing one main branch left 186 commits in no pull request and closed each other's work. The checks and rules that fixed it."
 tags: [ai-agents, git, pull-requests, process]

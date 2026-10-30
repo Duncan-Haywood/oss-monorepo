@@ -1,5 +1,6 @@
 ---
 title: "When GitHub Actions runners run out: telling a starved check from a real failure"
+seo_title: "When GitHub Actions runners run out"
 date: 2026-10-20
 description: "Every check failed in 3 seconds with runner_id 0. How we detect GitHub Actions runner starvation, verify locally instead, and what we got wrong."
 tags: [github-actions, ci, ai-agents, software-engineering]

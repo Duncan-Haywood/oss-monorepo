@@ -1,5 +1,6 @@
 ---
 title: "Fuzzing a league scheduler: withdrawals, shared grounds, travel tables and three seasons of carry-over"
+seo_title: "Fuzzing a league scheduler"
 date: 2026-10-27
 description: "About 1,650 random withdrawals, 1,200 shared-ground groups and 2,250 carried seasons through the league-schedule-generator found no invalid schedule."
 tags: [scheduling, testing, league-schedule-generator]

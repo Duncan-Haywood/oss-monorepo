@@ -1,5 +1,6 @@
 ---
 title: "A sit plan that knows about the peanut allergy: 108 activities for babysitters"
+seo_title: "108 babysitting activities that respect the peanut allergy"
 date: 2026-10-30
 description: "The Babysitting Business Kit now plans each sit from 108 activities by age, weather and bedtime, and leaves out anything that clashes with a child's allergy."
 tags: [babysitting-business-kit, small-business]

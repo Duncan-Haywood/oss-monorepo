@@ -1,5 +1,6 @@
 ---
 title: "Auditing a shed design search from outside: every pick was one change from better"
+seo_title: "Auditing a shed design search: every pick one change from better"
 date: 2026-10-30
 tags: [shed-designer, optimisation, testing]
 description: "An outside check found all 67 designs on the shed search's first front beaten by one change it offered. A new search order fixed most of it; a test now pins it."

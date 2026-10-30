@@ -10,6 +10,10 @@ import { WALLS, wallLabel, siteLayout } from './model.mjs';
 import { heelJoint } from './checks.mjs';
 import { trussChecks } from './truss.mjs';
 import { LAP_PRODUCTS } from './lap.mjs';
+import { bbox } from './integrity.mjs';
+
+/** @param {{ geom: any }} m */
+const bboxOf = (m) => bbox(m.geom);
 import { cuttingSheet } from './cutting-sheets.mjs';
 import { gambrelSectionItems, gambrelSectionNote, gambrelRoofPlan, gambrelTrussDetail, gambrelElevationRoof, gambrelRoofWords } from './gambrel-sheets.mjs';
 
@@ -75,7 +79,35 @@ export function buildSheets(shed, marks = new Map()) {
   const treatedNote = d.floorTreated ? 'pressure-treated' : 'untreated (you chose untreated floor framing)';
 
   // 1. Foundation plan (top view, front wall at the bottom).
-  {
+  if (k.floorless) {
+    // No floor: perimeter timbers on the pad, a pier under each ridge-beam post.
+    const items = /** @type {Item[]} */ ([]);
+    items.push(rect(-12, -12, L + 12, W + 12, 'gravel'));
+    items.push(rect(0, 0, L, W, 'outline'));
+    const timbers = shed.members.filter((x) => x.kind === 'perimeter timber');
+    for (const m of timbers) {
+      const b = bboxOf(m);
+      items.push(rect(b.lo[0], b.lo[1], b.hi[0], b.hi[1], 'pt'));
+      const along = b.hi[0] - b.lo[0] >= b.hi[1] - b.lo[1];
+      if (along) items.push(text([b.lo[0] + (b.hi[0] - b.lo[0]) * 0.3, b.lo[1] + (b.lo[1] < W / 2 ? 7 : -3)], markText(m), 8, 'middle', 'mark'));
+      else items.push(text([b.lo[0] + (b.lo[0] < L / 2 ? 9 : -9), (b.lo[1] + b.hi[1]) / 2], markText(m), 8, 'middle', 'mark'));
+    }
+    for (const f of shed.fixtures.filter((x) => x.kind === 'post pier')) {
+      const b = bboxOf(f);
+      items.push(rect(b.lo[0], b.lo[1], b.hi[0], b.hi[1], 'block'));
+    }
+    items.push(dim([0, 0], [L, 0], -38));
+    items.push(dim([0, 0], [0, W], 38));
+    items.push(dim([-12, W + 12], [L + 12, W + 12], 30, `pad ${fmtFtIn(L + 24)}`));
+    items.push(text([L / 2, W / 2 + 4], `No floor: ${timbers.length} PT ${k.timber?.thick === 3.5 ? '4x6' : ''} timbers on edge`, 12));
+    items.push(text([L / 2, W / 2 - 12], `the gravel is the floor${k.postPiers ? `; a pier under each ridge-beam post` : ''}`, 11));
+    items.push(text([L / 2, -12 - 4], 'FRONT', 10, 'middle', 'muted'));
+    sheets.push({
+      id: 'foundation', title: 'Foundation plan',
+      note: `Gravel pad 4" deep, 12" past the shed all round (about ${k.gravelCuYd.toFixed(1)} cu yd); it is the floor. Ground-contact PT 4x6 timbers on edge under every wall, flush outside, the end ones between the long ones.${k.postPiers ? ` A pier under each ridge-beam post: a 12" tube on a ${fmtIn(k.pierFootIn)} square footing ${fmtIn(d.pierDepth)} below grade, its top level with the gravel.` : ''} Check local rules on setbacks and permits.`,
+      items,
+    });
+  } else {
     const items = /** @type {Item[]} */ ([]);
     items.push(rect(-12, -12, L + 12, W + 12, 'gravel'));
     items.push(rect(0, 0, L, W, 'outline'));
@@ -103,8 +135,8 @@ export function buildSheets(shed, marks = new Map()) {
     });
   }
 
-  // 2. Floor framing plan.
-  {
+  // 2. Floor framing plan (none without a floor).
+  if (!k.floorless) {
     const items = /** @type {Item[]} */ ([]);
     for (const m of shed.members.filter((x) => x.group === 'floor')) {
       const l = /** @type {any} */ (m.local);
@@ -137,7 +169,7 @@ export function buildSheets(shed, marks = new Map()) {
     };
     const items = /** @type {Item[]} */ ([]);
     const off = eave ? 0 : k.stud;
-    const floorBand = k.floorTop - k.skidTop;
+    const floorBand = k.floorless ? k.floorTop : k.floorTop - k.skidTop;
     items.push(rect(0, -floorBand, face, 0, 'floorband'));
     for (const m of wall.members) {
       const l = /** @type {any} */ (m.local);
@@ -304,8 +336,12 @@ export function buildSheets(shed, marks = new Map()) {
       items.push(rect(y - th / 2, k.block ? k.block.h : 0, y + th / 2, k.skidTop, 'pt'));
       if (k.block) items.push(rect(y - k.block.across / 2, 0, y + k.block.across / 2, k.block.h, 'block'));
     }
-    items.push(rect(0, k.skidTop, W, k.floorTop - 0.75, 'pt'));
-    items.push(rect(0, k.floorTop - 0.75, W, k.floorTop, 'sheet'));
+    if (k.floorless && k.timber) {
+      for (const y0 of [0, W - k.timber.thick]) items.push(rect(y0, 0, y0 + k.timber.thick, k.floorTop, 'pt'));
+    } else {
+      items.push(rect(0, k.skidTop, W, k.floorTop - 0.75, 'pt'));
+      items.push(rect(0, k.floorTop - 0.75, W, k.floorTop, 'sheet'));
+    }
     // Plate tops by side: a lean-to's front wall is the tall one.
     const plateAt = (front) => (k.lean && front ? k.highPlateTop : k.plateTop);
     for (const y0 of [0, W - k.stud]) {
@@ -382,7 +418,7 @@ export function buildSheets(shed, marks = new Map()) {
         items.push(rect(Math.min(Yv(-o - 2.25), Yv(-o - 1.5)), tz - 6, Math.max(Yv(-o - 2.25), Yv(-o - 1.5)), tz, 'plate'));
         items.push(line([Yv(-o), rb(Yv(-o)) - 0.3], [Yv(0), rb(Yv(0)) - 0.3], 'thin'));
       }
-      if (d.siding) items.push(rect(Math.min(Yv(-0.6), Yv(0)), k.skidTop, Math.max(Yv(-0.6), Yv(0)), k.lean ? plateAt(!back) : k.plateTop + lift, 'sheet'));
+      if (d.siding) items.push(rect(Math.min(Yv(-0.6), Yv(0)), k.sidingBottom ?? k.skidTop, Math.max(Yv(-0.6), Yv(0)), k.lean ? plateAt(!back) : k.plateTop + lift, 'sheet'));
     }
     const block = shed.members.find((m) => m.kind === 'eave blocking');
     if (block) items.push({ t: 'poly', pts: block.geom.profile.map((p) => /** @type {P} */ ([p[0], p[1]])), closed: true, cls: 'member' });
@@ -394,7 +430,7 @@ export function buildSheets(shed, marks = new Map()) {
     if (block) lbl(k.stud + 2, plateAt(true) + 6, truss ? 'block between truss heels' : 'eave block between rafters', 'start');
     if (d.siding) lbl(W + 3, k.floorTop + 40, sidingLabel, 'start');
     lbl(k.stud + 4, k.floorTop + 10, `${d.studSize} studs at ${d.studSpacing}" o.c., double top plate`);
-    lbl(W / 2 + 4, k.skidTop + 2, `${d.joistSize} joists at ${d.joistSpacing}" o.c. on ${k.skidCount} ${d.skidSize} skids`);
+    lbl(W / 2 + 4, k.skidTop + 2, k.floorless ? 'no floor: gravel; walls on PT 4x6 timbers' : `${d.joistSize} joists at ${d.joistSpacing}" o.c. on ${k.skidCount} ${d.skidSize} skids`);
     items.push(text([W / 2, k.floorTop + 30], 'SECTION', 12, 'middle', 'muted'));
     sheets.push({
       id: 'section', title: 'Building section',
@@ -527,8 +563,20 @@ export function buildSheets(shed, marks = new Map()) {
     items.push(text([hx0 + D2 + 2, hd / 2], `2 plies ${shed.walls.front?.openings?.find((o) => !o.bay)?.hdr ?? '2x6'}${D2 > 3 ? ` + ${fmtIn(D2 - 3)} plywood spacer` : ''}`, 7, 'start'));
     items.push(text([hx0 + D2 + 2, hd + 2], 'cripple on layout', 7, 'start'));
     items.push(text([hx0 + D2 + 2, hd + 6], 'top plate + cap plate', 7, 'start'));
-    // Skid and floor section.
+    // Skid and floor section, or with no floor the timber under the wall.
     const sx = 40;
+    if (k.floorless && k.timber) {
+      const th = k.timber.thick;
+      items.push(rect(sx - 6, -4, sx + 30, 0, 'gravel'));
+      items.push(rect(sx, 0, sx + th, k.floorTop, 'pt'));
+      items.push(rect(sx, k.floorTop, sx + D2, k.floorTop + 1.5, 'plate'));
+      items.push(rect(sx, k.floorTop + 1.5, sx + D2, k.floorTop + 12, 'member'));
+      items.push(rect(sx - 0.6, k.sidingBottom, sx, k.floorTop + 12, 'sheet'));
+      items.push(text([sx + 12, -9], 'WALL ON A PERIMETER TIMBER', 9, 'middle', 'muted'));
+      items.push(text([sx + 8, k.floorTop / 2], 'PT 4x6 on edge, ground-contact, on compacted gravel', 7, 'start'));
+      items.push(text([sx + 8, k.floorTop + 1], `PT ${d.studSize} bottom plate, nailed down into the timber`, 7, 'start'));
+      items.push(text([sx + 8, k.floorTop + 8], `siding laps 1" over the timber, ${fmtIn(k.sidingBottom)} above the gravel`, 7, 'start'));
+    } else {
     const sk = shed.members.find((m) => m.kind === 'skid');
     const st = sk ? sk.geom.thickness : 3.5;
     items.push(rect(sx - 6, -4, sx + 30, 0, 'gravel'));
@@ -544,6 +592,7 @@ export function buildSheets(shed, marks = new Map()) {
     items.push(text([sx + 26, k.skidTop + k.joistDepth / 2], `PT ${d.joistSize} rim and joists, toenailed to the skid`, 7, 'start'));
     items.push(text([sx + 26, k.floorTop + 1], `${d.floorPanel === 'OSB' ? '23/32" T&G OSB' : '3/4" T&G plywood'}, glued and screwed`, 7, 'start'));
     items.push(text([sx + 26, k.floorTop + 8], 'bottom plate nailed through into the rim; siding laps the rim', 7, 'start'));
+    }
     // Nailing schedule (typical; check local code and maker instructions).
     const rows = [
       ['Stud to plate (end nail)', '2-16d'],
@@ -551,9 +600,11 @@ export function buildSheets(shed, marks = new Map()) {
       ['Header to king, each end', '4-16d'],
       ['Header plies together', '16d at 16" o.c., both faces'],
       ['Cap plate to top plate', '16d at 16" o.c.; 2-16d at each lap'],
-      ['Bottom plate to floor', '2-16d at 16" o.c. into rim or joist'],
-      ['Rim to joist end', '3-16d'],
-      ['Joist to skid', '2-16d toenail, or a framing tie'],
+      ...(k.floorless ? [['Bottom plate to timber', '2-16d galvanized at 16" o.c.'], ['Timber corners', '3-20d galvanized']] : [
+        ['Bottom plate to floor', '2-16d at 16" o.c. into rim or joist'],
+        ['Rim to joist end', '3-16d'],
+        ['Joist to skid', '2-16d toenail, or a framing tie'],
+      ]),
       ...(gam ? [
         ['Gambrel truss to plate', 'rafter-to-plate tie each lower chord, maker\'s nails'],
         ['Gambrel gussets', `8d common, 3" apart in rows 2" apart, staggered both faces: ${k.gambrel?.nailsPerKnee} a knee, ${k.gambrel?.nailsPerPeak} at the peak`],
@@ -567,7 +618,7 @@ export function buildSheets(shed, marks = new Map()) {
         [d.roofType === 'ridgeBeam' ? 'Rafter to ridge beam' : 'Rafter to ridge board', d.roofType === 'ridgeBeam' ? 'face-mount hanger, maker\'s nails' : '3-16d end or toenail'],
       ]),
       ...(heelJoint(shed) ? [[gam ? 'Tie to lower chord, each end' : 'Rafter tie to rafter, each end', `${heelJoint(shed)?.nails}-16d common, face nailed`]] : []),
-      ['Subfloor', '1-5/8" screws 6" edges, 12" field, with adhesive'],
+      ...(k.floorless ? [] : [['Subfloor', '1-5/8" screws 6" edges, 12" field, with adhesive']]),
       ['Wall and roof sheathing', '8d at 6" edges, 12" field'],
       LAP_PRODUCTS[d.sidingType] ? ['Lap siding', '8d HDG siding nail, blind, each stud each course'] : ['Siding panels', '8d galvanized 6" edges, 12" field'],
     ];
@@ -772,14 +823,27 @@ export function buildSheets(shed, marks = new Map()) {
   const site = siteLayout(d);
   if (site) {
     const items = /** @type {Item[]} */ ([]);
-    const { lot, shed: sh, house, clear, overhang: o } = site;
+    const { lot, shed: sh, house, clear, overhang: o, eaves, facing, easement: ease } = site;
     items.push(rect(0, 0, lot.w, lot.d, 'outline'));
     items.push(text([lot.w / 2, -lot.d * 0.04 - 6], 'STREET (front lot line)', 10, 'middle', 'muted'));
     items.push(text([lot.w / 2, lot.d + lot.d * 0.02], 'REAR LOT LINE', 9, 'middle', 'muted'));
-    if (o > 0) items.push(rect(sh.x0, sh.y0 - o, sh.x1, sh.y1 + o, 'hidden'));
+    // An easement you typed: a dashed strip along its lot line, with your note.
+    if (ease) {
+      const e = ease.width;
+      const band = { front: [0, 0, lot.w, e], rear: [0, lot.d - e, lot.w, lot.d], left: [0, 0, e, lot.d], right: [lot.w - e, 0, lot.w, lot.d] }[ease.side];
+      items.push(rect(band[0], band[1], band[2], band[3], 'gravel'));
+      const across = ease.side === 'left' || ease.side === 'right';
+      items.push({ ...text([(band[0] + band[2]) / 2 + (across ? 3 : 0), (band[1] + band[3]) / 2 - (across ? 0 : 3)], `${fmtFtIn(e)} EASEMENT${ease.note ? `: ${ease.note}` : ' (as typed)'}`, 8, 'middle', 'muted'), ...(across ? { rot: 90 } : {}) });
+    }
+    const ex = eaves.includes('left') ? o : 0;
+    const ey = eaves.includes('front') ? o : 0;
+    if (o > 0) items.push(rect(sh.x0 - ex, sh.y0 - ey, sh.x1 + ex, sh.y1 + ey, 'hidden'));
     items.push(rect(sh.x0, sh.y0, sh.x1, sh.y1, 'member'));
-    items.push(text([(sh.x0 + sh.x1) / 2, sh.y0 - o - lot.d * 0.02], `SHED ${fmtFtIn(L)} x ${fmtFtIn(W)}`, 8));
-    items.push(text([(sh.x0 + sh.x1) / 2, sh.y0 - o - lot.d * 0.035], 'door wall to the street', 7, 'middle', 'muted'));
+    // The front (door) wall, drawn heavy so the plan shows which way the shed faces.
+    const front = { street: [[sh.x0, sh.y0], [sh.x1, sh.y0]], rear: [[sh.x0, sh.y1], [sh.x1, sh.y1]], left: [[sh.x0, sh.y0], [sh.x0, sh.y1]], right: [[sh.x1, sh.y0], [sh.x1, sh.y1]] }[facing];
+    items.push(line(/** @type {P} */ (front[0]), /** @type {P} */ (front[1]), 'roofline'));
+    items.push(text([(sh.x0 + sh.x1) / 2, sh.y0 - ey - lot.d * 0.02], `SHED ${fmtFtIn(L)} x ${fmtFtIn(W)}`, 8));
+    items.push(text([(sh.x0 + sh.x1) / 2, sh.y0 - ey - lot.d * 0.035], facing === 'street' ? 'door wall to the street' : `door wall to the ${facing} lot line`, 7, 'middle', 'muted'));
     if (house) {
       items.push(rect(house.x0, house.y0, house.x1, house.y1, 'hidden'));
       items.push(text([(house.x0 + house.x1) / 2, (house.y0 + house.y1) / 2 - 4], 'HOUSE (as typed)', 9));
@@ -792,13 +856,24 @@ export function buildSheets(shed, marks = new Map()) {
     if (clear.right > 0) items.push(dim([sh.x1, midY], [lot.w, midY], 12, fmtFtIn(clear.right)));
     if (clear.rear > 0) items.push(dim([sideX, sh.y1], [sideX, lot.d], sideOff, fmtFtIn(clear.rear)));
     if (clear.front > 0) items.push(dim([sideX, 0], [sideX, sh.y0], sideOff, fmtFtIn(clear.front)));
-    const eave = (v) => (o > 0 ? ` (${fmtFtIn(v)} to the eave)` : '');
-    items.push(text([0, -lot.d * 0.12], `Shed to lot lines: left ${fmtFtIn(clear.left)}, right ${fmtFtIn(clear.right)}, street ${fmtFtIn(clear.front)}${eave(clear.frontEave)}, rear ${fmtFtIn(clear.rear)}${eave(clear.rearEave)}${house && site.houseGap !== null ? `; to the house ${fmtFtIn(site.houseGap)}` : ''}.`, 10, 'start'));
+    const eave = (k) => (o > 0 && eaves.includes(k) ? ` (${fmtFtIn(clear[`${k}Eave`])} to the eave)` : '');
+    items.push(text([0, -lot.d * 0.12], `Shed to lot lines: left ${fmtFtIn(clear.left)}${eave('left')}, right ${fmtFtIn(clear.right)}${eave('right')}, street ${fmtFtIn(clear.front)}${eave('front')}, rear ${fmtFtIn(clear.rear)}${eave('rear')}${house && site.houseGap !== null ? `; to the house ${fmtFtIn(site.houseGap)}` : ''}.`, 10, 'start'));
     items.push(dim([0, -lot.d * 0.04], [lot.w, -lot.d * 0.04], -10, `${fmtFtIn(lot.w)} lot width`));
     items.push(dim([lot.w, 0], [lot.w, lot.d], -24, `${fmtFtIn(lot.d)} lot depth`));
+    // North arrow, beyond the lot's rear right corner, turned as you set it.
+    if (site.north !== null) {
+      const r = Math.max(lot.w, lot.d) * 0.06;
+      const c = /** @type {P} */ ([lot.w + r * 2.2, lot.d - r]);
+      const t = (site.north * Math.PI) / 180;
+      const at = (along, side) => /** @type {P} */ ([c[0] + Math.sin(t) * along + Math.cos(t) * side, c[1] + Math.cos(t) * along - Math.sin(t) * side]);
+      items.push({ t: 'poly', pts: [at(r, 0), at(-r * 0.6, r * 0.45), at(-r * 0.25, 0), at(-r * 0.6, -r * 0.45)], closed: true, cls: 'outline' });
+      items.push({ t: 'poly', pts: [at(r, 0), at(-r * 0.25, 0), at(-r * 0.6, -r * 0.45)], closed: true, cls: 'door' });
+      items.push(text(at(r * 1.45, 0), 'N', 12, 'middle', 'label'));
+    }
+    const missing = [site.north === null && 'a north arrow (set it under Site plan)', 'the street name', !ease && 'any easements'].filter(Boolean);
     sheets.unshift({
       id: 'site', title: 'Site plan',
-      note: `Lot, shed and house as you typed them; not a survey. Clearances to the shed's walls, and to its eave front and back (${fmtIn(o)} overhang; the gable ends have none).${site.setback > 0 ? ` Setback you typed: ${fmtFtIn(site.setback)}.` : ''} Add a north arrow, the street name and any easements before you submit it.`,
+      note: `Lot, shed and house as you typed them; not a survey. Clearances to the shed's walls, and to its eaves (${fmtIn(o)} overhang on the ${eaves.join(' and ')} sides; the gable ends have none).${site.setback > 0 ? ` Setback you typed: ${fmtFtIn(site.setback)}.` : ''} Add ${missing.join(', ').replace(/, ([^,]*)$/, ' and $1')} before you submit it.`,
       items,
     });
   }
@@ -822,7 +897,8 @@ export function buildSheets(shed, marks = new Map()) {
     row(k.lean
       ? `Walls: ${d.studSize} at ${d.studSpacing}" o.c., back and ends ${fmtFtIn(d.wallHeight)} and front ${fmtFtIn(k.highWall)} floor to top of plates (studs ${fmtIn(k.studLen)} and ${fmtIn(k.highWall - 4.5)}), double top plate.`
       : `Walls: ${d.studSize} at ${d.studSpacing}" o.c., ${fmtFtIn(d.wallHeight)} floor to top of plates (studs ${fmtIn(k.studLen)}), double top plate interlocked at corners.`);
-    row(`Floor: ${d.joistSize} joists at ${d.joistSpacing}" o.c. on ${k.skidCount} PT ${d.skidSize} skids, ${k.block ? `on ${k.block.plural} on ${k.noPad ? 'tamped firm soil' : k.underBlocks ? 'a bed of paver base each' : 'a compacted gravel pad'}` : 'on a compacted gravel pad'}; ${d.floorPanel === 'OSB' ? '23/32" T&G OSB' : '3/4" T&G plywood'}.`);
+    if (k.floorless) row(`Floor: none; the 4" compacted gravel pad is the floor. Walls on ground-contact PT 4x6 perimeter timbers on edge${k.postPiers ? ', a concrete pier under each ridge-beam post' : ''}.`);
+    else row(`Floor: ${d.joistSize} joists at ${d.joistSpacing}" o.c. on ${k.skidCount} PT ${d.skidSize} skids, ${k.block ? `on ${k.block.plural} on ${k.noPad ? 'tamped firm soil' : k.underBlocks ? 'a bed of paver base each' : 'a compacted gravel pad'}` : 'on a compacted gravel pad'}; ${d.floorPanel === 'OSB' ? '23/32" T&G OSB' : '3/4" T&G plywood'}.`);
     if (gam) row(`Roof: ${gambrelRoofWords(shed)}; ${d.roofCover === 'metal' ? 'corrugated metal' : 'shingles'} on 7/16" OSB.`);
     else row(truss ? `Roof: site-built ${trussKind} at ${d.rafterSpacing}" o.c., ${d.rafterSize} top chords, ${d.tieSize} bottom chord${kingPost ? ' and king post' : ''}, 7/16" OSB gussets both faces; ${fmtIn(d.overhang)} overhang; ${d.roofCover === 'metal' ? 'corrugated metal' : 'shingles'} on 7/16" OSB.` : `Roof: ${d.rafterSize} rafters at ${d.rafterSpacing}" o.c., ${k.lean ? 'one slope bearing on the front and back walls, no ridge or ties' : d.roofType === 'ridgeBeam' ? `two-ply ${k.ridgeSize} ridge beam on posts, no ties` : `${k.ridgeSize} ridge board with ${d.tieSize} rafter ties`}, ${fmtIn(d.overhang)} overhang; ${d.roofCover === 'metal' ? 'corrugated metal' : 'shingles'} on 7/16" OSB.`);
     row(`Siding: ${d.siding ? (LAP_PRODUCTS[d.sidingType] ? `${LAP_PRODUCTS[d.sidingType].label}, over 7/16" OSB and house wrap` : d.sidingType) : 'none'}. Inside: ${d.interior === 'none' ? 'bare framing' : d.interior}${d.insulation ? ', R-13 insulation' : ''}.`);
@@ -983,13 +1059,15 @@ function wrap(s, n) {
 /**
  * Render one sheet as a standalone SVG, scaled to fit a landscape page with a title block.
  * @param {Sheet} sheet
- * @param {{ name?: string, number?: number, of?: number, width?: number, height?: number }} [meta]
+ * @param {{ name?: string, number?: number, of?: number, width?: number, height?: number, bare?: boolean }} [meta]
  */
 export function sheetSvg(sheet, meta = {}) {
   const PW = meta.width || 1100;
   const PH = meta.height || 780;
-  const margin = 70;
-  const tbH = 88;
+  // `bare`: the drawing alone, no title block (a page that carries its own, like the HOA packet).
+  const bare = Boolean(meta.bare);
+  const margin = bare ? 40 : 70;
+  const tbH = bare ? 0 : 88;
   const b = bounds(sheet.items);
   // Dimension offsets, ticks and lettering are drawn in screen pixels beside
   // the geometry, so the fit has to leave room for them: find the largest
@@ -1062,6 +1140,7 @@ export function sheetSvg(sheet, meta = {}) {
     }
   }
   const tbY = PH - tbH - 16;
+  if (bare) return `<svg xmlns="http://www.w3.org/2000/svg" class="sds" viewBox="0 0 ${PW} ${PH}" width="${PW}" height="${PH}" role="img" aria-label="${esc(sheet.title)}"><style>${SVG_STYLE}</style><rect width="${PW}" height="${PH}" fill="#fff"/>${parts.join('')}</svg>`;
   const noteLines = wrap(sheet.note || '', 112).slice(0, 4);
   const tb = [
     `<rect class="tb" x="16" y="${tbY}" width="${PW - 32}" height="${tbH}"/>`,

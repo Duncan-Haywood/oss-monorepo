@@ -1,5 +1,6 @@
 ---
 title: "How fast should a solar survey boat cruise? The hull you can't measure moves the answer more than the controller does"
+seo_title: "How fast should a solar survey boat cruise?"
 date: 2026-10-29
 description: "A deck-solar survey boat's best cruising speed shifts by 0.3 m/s across plausible hull constants, costing up to 9% of daily distance if you guess wrong."
 tags: [research, marine-hull, solar, simulation]

@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-30",
+  "session": "https://claude.ai/code/session_01E5sJKj7mugMeuCN8AB9hiR",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "scheduled: read ./prompt.md and follow the instructions there",
+  "input_sha256": "f2d8c6470f61b3e050d0c0a8893c3b8623a29690722755209371e13aee4f6558",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-30T21:20:21Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/11894",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "Says Hearth & Horizon has no BIBLE.md; one exists with a long next-up list."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-10-30-the-fifth-day-a-cemetery-vase-story.md"
+  ],
+  "goal": null,
+  "notes": "Project hearth-and-horizon, slug the-fifth-day, text only (audio over 400 MB cap). node --test 11/11.",
+  "corrections": [],
+  "redteam": null
+}

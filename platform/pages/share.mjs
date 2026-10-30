@@ -226,6 +226,17 @@ export function completeShareTags(html, { card = '', siteName = 'Open Tools and 
     if (title) setContent('property', 'og:image:alt', `${cardTitle(title)} — ${siteName}`);
   }
 
+  // A page that names its own picture by a relative path (a venture's
+  // `renders/hero.jpg`) keeps it, made absolute: scrapers do not resolve
+  // relative og:image URLs, so the picture would otherwise never show.
+  if (url) {
+    for (const [attr, key] of [['property', 'og:image'], ['name', 'twitter:image']]) {
+      const value = metaContent(next, attr, key);
+      if (!value || /^(?:[a-z][a-z0-9+.-]*:|\/\/)/i.test(value)) continue;
+      try { setContent(attr, key, new URL(value, url).href); } catch { /* leave it */ }
+    }
+  }
+
   for (const key of ['og:description', 'twitter:description']) {
     const attr = key.startsWith('og:') ? 'property' : 'name';
     const value = metaContent(next, attr, key);

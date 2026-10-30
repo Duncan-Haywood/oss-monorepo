@@ -1,5 +1,6 @@
 ---
 title: "Saints by Candlelight, episode 25: Anthony and the sermon to the fishes"
+seo_title: "Saints by Candlelight, episode 25"
 date: 2026-10-25
 description: "A bedtime retelling of Saint Anthony of Padua, with the Rimini fish sermon labelled as the legend it is."
 tags: [saints-by-candlelight, creative, podcast]

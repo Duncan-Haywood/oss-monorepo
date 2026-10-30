@@ -500,6 +500,9 @@ export const SERVED_EXTENSIONS = new Map([
   ['.ico', 'stock'],
   ['.pdf', 'stock'],
   ['.webp', 'stock'],
+  // shed-designer's share picture (renders/og-*-share.jpg): JPEG because not every link
+  // scraper reads WebP; mime.types lists image/jpeg jpeg jpg.
+  ['.jpg', 'stock'],
   ['.mp4', 'stock'],
   ['.webm', 'stock'],
   // Podcast audio (hearth-and-horizon, podcast.mjs); nginx's mime.types maps mp3 to audio/mpeg.

@@ -1,5 +1,6 @@
 ---
 title: "What a keyword list misses: 39 of 72 small-business bank lines, before and after"
+seo_title: "What a keyword list misses"
 date: 2026-10-28
 description: "AI Bookkeeper's built-in keywords filed 33 of 72 new descriptors from contractors, consultants, nonprofits and caterers, with none wrong and 39 left for review."
 tags: [ai-bookkeeper, bookkeeping, evaluation]

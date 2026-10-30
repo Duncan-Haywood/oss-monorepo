@@ -1,5 +1,6 @@
 ---
 title: "Does a conformal shortlist still work on bigger chip designs? Coverage drops below nominal"
+seo_title: "Does a conformal shortlist still work on bigger chip designs?"
 date: 2026-10-25
 description: "On five larger designs, a conformal shortlist covers 75% at a nominal 80% on the cached table, and its lead over random search shrinks."
 tags: [research, verified-dse, conformal-prediction, openroad, sky130]
