@@ -68,6 +68,8 @@ export const BUILT_IN = [
   // Deel and Remote.com pay contractors; small-business lender debits are loan payments; eBay and Paddle payouts are sales. Streaming, Costco, Venmo/Cash App/Zelle stay for a person (personal or mixed).
   ["6060", "out", /taxjar|expensify|\bhubspot|\btrello|\basana\b|intercom|bill\.com/],
   ["6050", "out", /rocket ?lawyer|\bclerky/],
+  ["6050", "out", /turbo ?tax|h&r block|\btaxact\b|freetaxusa/],
+  ["6060", "out", /nordvpn|expressvpn|proton ?(vpn|mail)|google \*(storage|one)/],
   ["6150", "out", /\b(trinet|justworks)\b/],
   ["6020", "out", /\bdeel\b|remote\.com/],
   ["2200", "out", /\bsba eidl|kabbage|bluevine|fundbox/],
