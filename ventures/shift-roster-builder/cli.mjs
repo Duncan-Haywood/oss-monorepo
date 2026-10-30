@@ -19,6 +19,7 @@
 
 import { readFile } from "node:fs/promises";
 import process from "node:process";
+import { importStaffCsv } from "./import-staff.mjs";
 import {
   parseStaff, parseShifts, buildRoster, planWeeks, planFairness, optimalityText, rosterCsv, scheduleChanges, hoursCsv, rosterIcs, rosterMessages, openShiftPost, carryOverStaff, sampleStaff, sampleShifts,
   DAYS, fmtClock, money, num,
@@ -52,6 +53,7 @@ Options:
   --changes <csv>     compare the roster you posted (CSV) with this build: every shift added, cancelled or moved, its notice and the premium
                       on your numbers. Needs --week-start and --changed-at "YYYY-MM-DD HH:MM" for notice; --notice-hours (default 336),
                       --premium-hours (default 1) and --exempt "Ben,Cleo" (employee-requested changes) are yours to set, not a statement of any law
+  --import-staff <csv>  convert a staff export from another scheduler (name, hourly rate, hours, position columns) to staff lines on stdout; notes on stderr
   --check             print the report; exit 1 if any shift is left open
   --example           use the built-in invented week
   -h, --help          this text
@@ -76,6 +78,7 @@ export function parseArgs(argv) {
     else if (a === "--messages") o.mode = "messages";
     else if (a === "--open-post") o.mode = "open-post";
     else if (a === "--person") { o.person = argv[++i]; if (!o.person) throw new Error("--person needs a name"); }
+    else if (a === "--import-staff") { o.importStaff = argv[++i]; if (!o.importStaff) throw new Error("--import-staff needs a CSV file"); }
     else if (a === "--check") o.check = true;
     else if (a === "--changes") { o.changes = argv[++i]; if (!o.changes) throw new Error("--changes needs the posted roster CSV"); }
     else if (a === "--changed-at") {
@@ -241,6 +244,12 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   try {
     const o = parseArgs(process.argv.slice(2));
     if (o.help) { process.stdout.write(USAGE); process.exit(0); }
+    if (o.importStaff) {
+      const r = importStaffCsv(await readFile(o.importStaff, "utf8"));
+      for (const n of [...r.notes, ...r.skipped.map((x) => "Skipped " + x)]) process.stderr.write(n + "\n");
+      if (!r.rows) process.exit(1);
+      process.stdout.write(r.staffText + "\n"); process.exit(0);
+    }
     if (!o.example && o.files.length !== 2) { process.stderr.write(USAGE); process.exit(2); }
     const [staffText, shiftsText] = o.example
       ? [sampleStaff(), sampleShifts()]
