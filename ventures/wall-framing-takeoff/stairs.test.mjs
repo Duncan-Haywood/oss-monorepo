@@ -271,3 +271,12 @@ test("the nosing note is for solid risers only: open risers skip it", () => {
   assert.ok(solid.notes.some((n) => /Nosing 2 in/.test(n)));
   assert.ok(!open.notes.some((n) => /Nosing/.test(n)));
 });
+
+test("landing posts: four corners on a 36 in landing, extras once a side passes the typed spacing", () => {
+  const a = layoutStairWithLanding({ totalRise: 160, landing: true }, plan());
+  assert.equal(a.landing.posts.count, 4);
+  assert.equal(a.landing.posts.height, 80 - 7.25 - 1.5); // 2x8 joist is 7-1/4 in
+  const b = layoutStairWithLanding({ totalRise: 160, width: 48, landing: { depth: 120, postSpacing: 60 } }, plan());
+  assert.deepEqual([b.landing.posts.alongBays, b.landing.posts.acrossBays, b.landing.posts.count], [1, 2, 6]);
+  assert.match(landingText(a).join("\n"), /Landing posts: 4/);
+});
