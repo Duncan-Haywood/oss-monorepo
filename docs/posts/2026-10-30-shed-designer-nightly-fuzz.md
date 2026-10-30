@@ -1,5 +1,6 @@
 ---
 title: "A nightly fuzz sweep for the shed designer, and the plate splice it found first"
+seo_title: "A nightly fuzz sweep for the shed designer, and what it found"
 date: 2026-10-30
 description: "The shed designer's PR fuzz checks 150 designs on one seed. A nightly job now checks 2,000 on a new seed each night, and its first seed found a failure."
 tags: [shed-designer, testing, ci]
