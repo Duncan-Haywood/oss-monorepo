@@ -1291,6 +1291,10 @@ function buildFramed(d) {
   const sidingFull = [];
   /** @type {number[]} */
   const sidingUpper = [];
+  // The same upper pieces as shapes: the height above the lower panel at each
+  // edge (left and right as seen from outside), and whether the peak is in it.
+  /** @type {{ h0: number, h1: number, peak: boolean }[]} */
+  const sidingUpperShapes = [];
   if (d.siding) {
     const bottomZ = skidTop; // siding laps down over the rim joist
     const sheetFor = (h) => [96, 108, 120].find((s) => s >= h - 1e-9);
@@ -1310,7 +1314,12 @@ function buildFramed(d) {
         const need = Math.max(...prof.map((p) => p[1])) - bottomZ;
         const sheet = sheetFor(need);
         if (sheet) sidingFull.push({ wall: name, length: sheet });
-        else { sidingFull.push({ wall: name, length: 96 }); sidingUpper.push(Math.ceil(need - 96)); }
+        else {
+          sidingFull.push({ wall: name, length: 96 });
+          sidingUpper.push(Math.ceil(need - 96));
+          const above = (x) => Math.max(0, clip(x) - bottomZ - 96);
+          sidingUpperShapes.push({ h0: above(s0), h1: above(s1), peak: prof.length > 4 });
+        }
         panels.push({
           id: nextId('SD'), kind: 'siding', item: 'siding', group: 'siding', wall: name,
           geom: { origin: /** @type {Vec} */ (origin), u, v: Z, w, profile: prof, thickness: sidingT },
@@ -1436,7 +1445,7 @@ function buildFramed(d) {
     warnings.push(`The peak is ${fmtFt(dims.peak)} above the gravel, ${fmtFt(dims.peak - d.maxPeak)} over your ${fmtFt(d.maxPeak)} limit. Your tallest opening needs walls of at least ${fmtFt(minWall)}; with those walls and a 3/12 roof (about the least that sheds water under shingles) the peak would still be ${fmtFt(low)}. To get lower: a shorter door, a door in the gable end, a lower floor or a narrower shed${d.gableVents ? ', or smaller or no gable vents (they need a steeper roof to fit)' : ''}.`);
   }
 
-  return { design: d, members, panels, fixtures, walls, framedOpenings, warnings, notes, dims, vents: ventInfo, trim, wallTrim, doorParts, doors, interior, sidingArea, floorPieces, roofPieces, sidingFull, sidingUpper };
+  return { design: d, members, panels, fixtures, walls, framedOpenings, warnings, notes, dims, vents: ventInfo, trim, wallTrim, doorParts, doors, interior, sidingArea, floorPieces, roofPieces, sidingFull, sidingUpper, sidingUpperShapes };
 }
 
 /** @typedef {ReturnType<typeof buildFramed>} Shed */

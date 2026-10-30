@@ -38,7 +38,7 @@ All three automatic choices are ticked:
 - **Pitch:** 4/12. No pitch keeps the peak under 8 ft with that door, so the tool takes the lowest pitch at which the vents still fit, and the warning says the peak is 10' 2-3/8" above the gravel. Even 3/12 would be 9' 10-3/8".
 - **Overhang:** 6". Any longer and the 57-3/16" rafters cost more lumber. (Before the cut optimizer solved the relaxation, 6" to 9" all priced the same and the tool chose 9"; the exact optimizer finds 6" cheaper by $2.87 of 2x6.)
 
-At the starting prices that design is 151 pieces from 84 boards. The cut sheet's boards cost $639.32 against a proven lower bound of $638.34; with spare boards the lumber is $736.72, and the whole shed is $3,026.46 before sales tax. Every structural check passes, and the ridge beam is the most loaded member at 80%. The "8x12 classic" preset (8 ft walls, 6/12, ridge board and ties, 38" x 82" door, unpainted) is 143 pieces from 92 boards and $3,250.97 before sales tax.
+At the starting prices that design is 151 pieces from 84 boards. The cut sheet's boards cost $639.32 against a proven lower bound of $638.34; with spare boards the lumber is $736.72, and the whole shed is $3,026.46 before sales tax. Every structural check passes, and the ridge beam is the most loaded member at 80%. The "8x12 classic" preset (8 ft walls, 6/12, ridge board and ties, 38" x 82" door, unpainted) is 143 pieces from 92 boards and $3,198.62 before sales tax.
 
 ## Structure, integrity and prices
 
@@ -122,7 +122,7 @@ At the starting prices that design is 151 pieces from 84 boards. The cut sheet's
 - The structure check is a screening check, not a code review or an engineer's design: it does not check connections, uplift, racking, the foundation or point loads. Header sizes follow a rule of thumb by opening width (2x6 up to 48", 2x8 up to 72", 2x10 up to 96") and the Structure tab then checks each one. Warnings flag a birdsmouth deeper than a third of the rafter, an opening that does not fit, and a vent too big for the gable.
 - Gable sheds on skids only. It does not do lofts, hip or single-slope roofs, porches, ramps or slabs.
 - Fastener counts follow a common nailing schedule and are rounded up to whole boxes; they are for buying, not a code schedule.
-- Sheet counts pack pieces along an 8 ft sheet, and rip a narrow row (a floor that is not a multiple of 4 ft wide, the course at the ridge) into strips side by side from whole sheets. Strips of different widths are not combined, and offcuts of full sheets are not ripped for strips, so the counts can still lean a little high.
+- Sheet counts are layouts a builder can cut in two stages, never turning a piece's strength axis: cut across into sections and rip each section, or rip into strips and cut each across. Strips of different widths share a sheet, and a full-width piece's offcut is ripped for strips (the 8x10 preset's roof went from 5 sheets to 4). Over 840 floor and roof lists in a sweep of sizes, pitches and overhangs, 114 are still above the area's lower bound, which is not always reachable. The gable siding pieces above the lower panels nest in pairs, head to toe, when they slope the same way (1,614 panels to 1,332 over 474 swept designs); the second piece is turned end for end, so its shiplap edges face the other way and the joint it meets is butted and caulked over the stud. A cut of one sheet good is not laid out on a drawing.
 - It has been checked with hand-counted unit tests and by driving the page in headless Chromium. It has not been checked by building a shed from it.
 
 ## Run it
