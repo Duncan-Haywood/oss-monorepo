@@ -1,0 +1,13 @@
+# How many should I make per batch so changeovers and stock cost me the least?
+
+> Free batch size calculator for candle, soap, sauce, print and baked-goods makers: enter setup cost, holding cost and shelf life, and get the run size with the lowest yearly cost, with pack-size and limited-hours handling. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/small-batch-run-size-optimizer/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/small-batch-run-size-optimizer): MIT licensed.

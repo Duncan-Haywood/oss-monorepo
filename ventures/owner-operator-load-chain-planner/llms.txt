@@ -1,0 +1,14 @@
+# Which of these loads should you chain, and what's the lowest rate each one is worth?
+
+> Paste a load-board shortlist with your own rates, pickup windows and costs and get the exact best chain of loads to run, which to leave, and the lowest rate each is worth, with deadhead, waiting and rest priced in. Free, runs in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/owner-operator-load-chain-planner/)
+- [How to string truckload loads together and cut deadhead](https://duncan-haywood.github.io/oss-monorepo/owner-operator-load-chain-planner/how-to-string-truckload-loads-together-and-cut-deadhead.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/owner-operator-load-chain-planner): MIT licensed.

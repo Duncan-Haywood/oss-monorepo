@@ -1,0 +1,14 @@
+# How much can you put in your HSA in 2026?
+
+> Free calculator for the 2026 HSA contribution limit — self-only $4,400 or family $8,750, the $1,000 age-55 catch-up, HDHP qualification bounds, monthly proration for partial-year eligibility, and the last-month rule's testing-period tradeoff. Entirely client-side, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/hsa-contribution-limit-calculator/)
+- [This calculator vs. doing the HSA proration math by hand](https://duncan-haywood.github.io/oss-monorepo/hsa-contribution-limit-calculator/vs-doing-the-proration-math-by-hand.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/hsa-contribution-limit-calculator): MIT licensed.

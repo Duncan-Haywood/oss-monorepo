@@ -1,0 +1,13 @@
+# I could run more virtual brands than my kitchen can handle. Which do I keep?
+
+> Free tool for ghost kitchens and delivery-only restaurants running several virtual brands with limited kitchen hours: get the exact most profitable set of brands after food cost, delivery-app fees, packaging and labour. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/ghost-kitchen-brand-picker/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/ghost-kitchen-brand-picker): MIT licensed.

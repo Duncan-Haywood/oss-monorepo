@@ -1,0 +1,13 @@
+# How much is your UCR fee, and what does one more truck cost?
+
+> Free UCR fee calculator for owner-operators, brokers, freight forwarders and small fleets: fee bracket by vehicle count, what one more truck costs, cost per vehicle and per mile. Editable fee table. Runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/ucr-fee-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/ucr-fee-calculator): MIT licensed.

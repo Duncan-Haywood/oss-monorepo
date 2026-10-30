@@ -1,0 +1,13 @@
+# How many washes a day does a self-serve dog wash need to pay for itself?
+
+> Free self-serve and full-service dog wash calculator: tubs, wash price, washes per tub by weekday, weekend and season, water, supplies, labor, build-out and a loan become break-even washes per day, monthly ramp, payback and equity return. Private, runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/self-serve-dog-wash-profit-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/self-serve-dog-wash-profit-calculator): MIT licensed.

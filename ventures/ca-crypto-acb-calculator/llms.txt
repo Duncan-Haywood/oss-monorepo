@@ -1,0 +1,14 @@
+# What does the CRA say you gained?
+
+> Free Canadian crypto capital gains calculator. Paste your buys, sales, swaps and staking income as a CSV and it works out the average adjusted cost base (ACB) of each coin, applies the CRA superficial loss rule to losses, and shows each year's taxable capital gain. Nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/ca-crypto-acb-calculator/)
+- [The superficial loss rule for crypto in Canada: a worked example](https://duncan-haywood.github.io/oss-monorepo/ca-crypto-acb-calculator/superficial-loss-rule-crypto-canada-worked-example.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/ca-crypto-acb-calculator): MIT licensed.

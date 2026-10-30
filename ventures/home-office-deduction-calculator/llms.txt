@@ -1,0 +1,13 @@
+# Simplified or regular: which home office deduction is worth more?
+
+> Free home office deduction calculator for the self-employed: compare the IRS simplified method ($5 per sq ft, max $1,500) with the regular Form 8829 method, including the gross income limit, depreciation and carryover. Runs in your browser, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/home-office-deduction-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/home-office-deduction-calculator): MIT licensed.

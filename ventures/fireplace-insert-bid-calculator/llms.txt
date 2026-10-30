@@ -1,0 +1,16 @@
+# Bid the liner, the hearth, and the stack.
+
+> Price a fireplace-insert install from fuel, liner footage, hearth, gas run, dedicated circuit, surround, and stack height — not a published $2,499-installed gas special. See the walk-away number before you match a cheaper quote.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/fireplace-insert-bid-calculator/)
+- [How much to charge to install a fireplace insert](https://duncan-haywood.github.io/oss-monorepo/fireplace-insert-bid-calculator/how-much-to-charge-to-install-a-fireplace-insert.html)
+- [This calculator vs. a flat $2,499 installed special](https://duncan-haywood.github.io/oss-monorepo/fireplace-insert-bid-calculator/vs-a-flat-2499-installed-special.html)
+- [This calculator vs. Jobber](https://duncan-haywood.github.io/oss-monorepo/fireplace-insert-bid-calculator/vs-jobber.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/fireplace-insert-bid-calculator): MIT licensed.

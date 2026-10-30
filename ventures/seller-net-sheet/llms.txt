@@ -1,0 +1,19 @@
+# See cash at closing — and whether the higher offer actually pays more.
+
+> Free seller net sheet: see cash at closing after listing commission, optional buyer-broker compensation, concessions, title, and payoff. Compare two offers — the higher price is not always more cash.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/seller-net-sheet/)
+- [Several offers on the house? Rank them on cash, time and risk.](https://duncan-haywood.github.io/oss-monorepo/seller-net-sheet/compare-multiple-offers.html)
+- [The higher offer is not always more cash.](https://duncan-haywood.github.io/oss-monorepo/seller-net-sheet/offer-comparison.html)
+- [Home seller transfer tax, state by state.](https://duncan-haywood.github.io/oss-monorepo/seller-net-sheet/transfer-tax-by-state.html)
+- [This calculator vs. HomeLight's Net Proceeds Calculator](https://duncan-haywood.github.io/oss-monorepo/seller-net-sheet/vs-homelights-net-proceeds-calculator.html)
+- [This calculator vs. your title company's net sheet](https://duncan-haywood.github.io/oss-monorepo/seller-net-sheet/vs-title-company-net-sheet.html)
+- [This calculator vs. Zillow's Home Sale Calculator](https://duncan-haywood.github.io/oss-monorepo/seller-net-sheet/vs-zillows-home-sale-calculator.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/seller-net-sheet): MIT licensed.

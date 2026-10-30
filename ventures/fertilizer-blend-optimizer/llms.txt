@@ -1,0 +1,14 @@
+# What is the cheapest fertilizer program that still hits your nutrient targets?
+
+> Free fertilizer blend optimizer. Enter field acres, the N, P2O5, K2O and S your crop needs and your dealer's price per ton for urea, UAN, anhydrous, DAP, MAP, potash and AMS, and get the least-cost pounds per acre, the field total and what the obvious one-product-per-nutrient plan costs.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/fertilizer-blend-optimizer/)
+- [How to calculate the cheapest fertilizer blend](https://duncan-haywood.github.io/oss-monorepo/fertilizer-blend-optimizer/how-to-calculate-the-cheapest-fertilizer-blend.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/fertilizer-blend-optimizer): MIT licensed.

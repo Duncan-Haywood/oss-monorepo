@@ -1,0 +1,15 @@
+# Depop's "0% selling fee" is not the same as free.
+
+> Free Depop seller fee calculator for the US and UK schedule (0% selling fee, 3.3%+$0.45 or 2.9%+£0.30 processing on item price + shipping) and the rest-of-world flat 10% schedule, plus Boosted Listings. Real profit, price for a target profit, and a region-by-region comparison. Nothing leaves your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/depop-fee-calculator/)
+- [How much does Depop actually take per sale?](https://duncan-haywood.github.io/oss-monorepo/depop-fee-calculator/how-much-does-depop-actually-take.html)
+- [Depop Fee Calculator vs. tracking Depop sales in a spreadsheet](https://duncan-haywood.github.io/oss-monorepo/depop-fee-calculator/vs-tracking-depop-sales-in-a-spreadsheet.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/depop-fee-calculator): MIT licensed.

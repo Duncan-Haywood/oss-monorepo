@@ -1,0 +1,13 @@
+# A booking page you host yourself, with no per-seat fee.
+
+> A booking page you host yourself: weekly hours, buffers, notice, your calendar's busy time respected, time zones, calendar invites, reminders and cancel or reschedule links. Open source, MIT, no per-seat fee. Try the slot finder in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/slot-keeper/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/slot-keeper): MIT licensed.

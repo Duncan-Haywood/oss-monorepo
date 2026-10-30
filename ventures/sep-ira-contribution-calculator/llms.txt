@@ -1,0 +1,13 @@
+# How much can you put in your SEP-IRA in 2026?
+
+> Free calculator for the 2026 SEP-IRA contribution limit for a sole proprietor or single-member LLC — 20% of net self-employment earnings (the self-employed equivalent of the 25% plan rate), capped at $72,000, with a Solo 401(k) comparison. Entirely client-side, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/sep-ira-contribution-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/sep-ira-contribution-calculator): MIT licensed.

@@ -1,0 +1,13 @@
+# What does your 401(k) plan really cost, and who is paying for it?
+
+> Free 401(k) plan fee calculator for small-business owners and plan committees: all-in cost as a percent of assets and per participant, recordkeeper, advisor and fund fees, an editable size benchmark, and what the excess costs a participant over 20 years. Runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/401k-plan-fee-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/401k-plan-fee-calculator): MIT licensed.

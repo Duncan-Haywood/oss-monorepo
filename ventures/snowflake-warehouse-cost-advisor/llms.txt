@@ -1,0 +1,14 @@
+# Why is your Snowflake bill so high?
+
+> Paste your Snowflake warehouses (size, credits used, AUTO_SUSPEND, resumes) and get what each costs, the AUTO_SUSPEND tail you are paying for, idle warehouses and a bounded right-sizing note, with the ALTER WAREHOUSE commands. Free, runs in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/snowflake-warehouse-cost-advisor/)
+- [Snowflake warehouse cost: AUTO_SUSPEND, idle warehouses and sizing](https://duncan-haywood.github.io/oss-monorepo/snowflake-warehouse-cost-advisor/snowflake-warehouse-auto-suspend-and-sizing.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/snowflake-warehouse-cost-advisor): MIT licensed.

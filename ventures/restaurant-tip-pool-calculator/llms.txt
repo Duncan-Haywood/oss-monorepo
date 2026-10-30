@@ -1,0 +1,13 @@
+# Split the tips fairly, to the cent, and show your staff the arithmetic.
+
+> Free restaurant tip pool calculator: paste a shift list and split tips by hours, by role points or by server tip-out. Card fee, owner and manager exclusion, payroll CSV. Private, runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/restaurant-tip-pool-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/restaurant-tip-pool-calculator): MIT licensed.

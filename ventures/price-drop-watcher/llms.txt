@@ -1,0 +1,13 @@
+# Price drop and back-in-stock alerts for any product page
+
+> Get price drop and back-in-stock alerts for any product page, free. Runs on your own GitHub Actions, alerts your phone, no account or tracking. Test a page in your browser first.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/price-drop-watcher/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/price-drop-watcher): MIT licensed.

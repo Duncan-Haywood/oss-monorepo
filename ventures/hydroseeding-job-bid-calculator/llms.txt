@@ -1,0 +1,13 @@
+# What does this hydroseeding job really cost, and what should you bid?
+
+> Free hydroseeding bid calculator: enter seed, mulch, water, tank size, crew, travel and equipment and see the cost and profit of a job, the price per 1,000 sq ft for your target margin, and the season result. Runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/hydroseeding-job-bid-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/hydroseeding-job-bid-calculator): MIT licensed.

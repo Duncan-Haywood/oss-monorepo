@@ -1,0 +1,15 @@
+# JWT Security Check
+
+> Paste a JWT to decode it and flag misconfigurations: alg:none, embedded keys, algorithm confusion, suspicious kid, bad exp. Free, runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/jwt-security-check/)
+- [How to decode a JWT without a tool](https://duncan-haywood.github.io/oss-monorepo/jwt-security-check/how-to-decode-a-jwt-without-a-tool.html)
+- [JWT Security Check vs. eyeballing the payload](https://duncan-haywood.github.io/oss-monorepo/jwt-security-check/vs-eyeballing-the-payload.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/jwt-security-check): MIT licensed.

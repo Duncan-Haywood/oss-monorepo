@@ -1,0 +1,13 @@
+# Will the platform report you to the tax authority?
+
+> Free DAC7 checker for online sellers and hosts: will the platform report your sales or rentals to the tax authority this year? Checks the 30-sales / EUR 2,000 goods exemption, headroom, what is sent and the TIN deadline. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/dac7-seller-reporting-checker/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/dac7-seller-reporting-checker): MIT licensed.

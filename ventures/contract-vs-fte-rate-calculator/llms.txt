@@ -1,0 +1,13 @@
+# What hourly rate does a contract need to pay to match your salary offer?
+
+> Free W-2 to 1099 rate calculator: find the hourly contract rate that matches a salaried offer after self-employment tax, health insurance, unpaid time off, bench time, lost 401(k) match and expenses. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/contract-vs-fte-rate-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/contract-vs-fte-rate-calculator): MIT licensed.

@@ -1,0 +1,13 @@
+# Will your bank accept this ACH file?
+
+> Free ACH file checker for payroll and vendor-payment files: finds bad record lengths, routing-number check digits, wrong entry hash and control totals, missing block padding and weekend effective dates, and rebuilds the control records. Runs in your browser; the file is never uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/nacha-file-validator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/nacha-file-validator): MIT licensed.

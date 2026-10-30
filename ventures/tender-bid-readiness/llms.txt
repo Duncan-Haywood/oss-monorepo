@@ -1,0 +1,15 @@
+# Is this tender ready for your attention?
+
+> Paste a public tender and get a fast bid-readiness checklist for deadlines, bonds, insurance, certifications, questions, and submission instructions. Runs privately in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/tender-bid-readiness/)
+- [Should I bid on this tender?](https://duncan-haywood.github.io/oss-monorepo/tender-bid-readiness/should-i-bid-on-this-tender.html)
+- [This checker vs. GovWin IQ](https://duncan-haywood.github.io/oss-monorepo/tender-bid-readiness/vs-govwin.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/tender-bid-readiness): MIT licensed.

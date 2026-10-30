@@ -1,0 +1,13 @@
+# Which of your eBay ads lose money?
+
+> Free eBay Promoted Listings ROI analyzer: drop in your Seller Hub ad report and see which listings lose money after ad fees and what share of sales the ad must cause to break even. Runs in your browser, the file is never uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/ebay-promoted-listings-roi-analyzer/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/ebay-promoted-listings-roi-analyzer): MIT licensed.

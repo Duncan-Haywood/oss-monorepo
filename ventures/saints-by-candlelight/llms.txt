@@ -1,0 +1,67 @@
+# Saints by Candlelight: bedtime stories of saints, angels and patriarchs
+
+> Free bedtime story podcast of Catholic and Orthodox saints, angels and patriarchs: lighthearted, faithful, 30 to 60 minute episodes with full scripts and an honest note on what is history and what is legend.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/saints-by-candlelight/)
+- [A Winter Night at the Hill Convent](https://duncan-haywood.github.io/oss-monorepo/saints-by-candlelight/a-winter-night-at-the-hill-convent.html)
+- [Abraham and the Three Visitors at Mamre](https://duncan-haywood.github.io/oss-monorepo/saints-by-candlelight/abraham-and-the-three-visitors-at-mamre.html)
+- [Ambrose and the Bees in the Cradle](https://duncan-haywood.github.io/oss-monorepo/saints-by-candlelight/ambrose-and-the-bees-in-the-cradle.html)
+- [Anthony and the Sermon to the Fishes](https://duncan-haywood.github.io/oss-monorepo/saints-by-candlelight/anthony-and-the-sermon-to-the-fishes.html)
+- [Benedict and the Sieve That Was Mended](https://duncan-haywood.github.io/oss-monorepo/saints-by-candlelight/benedict-and-the-sieve-that-was-mended.html)
+- [Brendan and the Island That Moved](https://duncan-haywood.github.io/oss-monorepo/saints-by-candlelight/brendan-and-the-island-that-moved.html)
+- [Brigid and the Cloak That Would Not Stop](https://duncan-haywood.github.io/oss-monorepo/saints-by-candlelight/brigid-and-the-cloak-that-would-not-stop.html)
+- [Cleopas and the Stranger on the Road to Emmaus](https://duncan-haywood.github.io/oss-monorepo/saints-by-candlelight/cleopas-and-the-stranger-on-the-road-to-emmaus.html)
+- [Columba and the Beast in the River Ness](https://duncan-haywood.github.io/oss-monorepo/saints-by-candlelight/columba-and-the-beast-in-the-river-ness.html)
+- [Cuthbert and the Otters](https://duncan-haywood.github.io/oss-monorepo/saints-by-candlelight/cuthbert-and-the-otters.html)
+- [Cyril and Methodius and the Letters for a People Without Any](https://duncan-haywood.github.io/oss-monorepo/saints-by-candlelight/cyril-and-methodius-and-the-letters-for-a-people-without-any.html)
+- [Daniel and the Night with the Lions](https://duncan-haywood.github.io/oss-monorepo/saints-by-candlelight/daniel-and-the-night-with-the-lions.html)
+- [David and the Giant in the Valley of Elah](https://duncan-haywood.github.io/oss-monorepo/saints-by-candlelight/david-and-the-giant-in-the-valley-of-elah.html)
+- [Elijah and the Still Small Voice](https://duncan-haywood.github.io/oss-monorepo/saints-by-candlelight/elijah-and-the-still-small-voice.html)
+- [Elisha and the Chariots of Fire at Dothan](https://duncan-haywood.github.io/oss-monorepo/saints-by-candlelight/elisha-and-the-chariots-of-fire-at-dothan.html)
+- [Elisha and the Widow's Jars of Oil](https://duncan-haywood.github.io/oss-monorepo/saints-by-candlelight/elisha-and-the-widows-jars-of-oil.html)
+- [Francis and the Christmas Night at Greccio](https://duncan-haywood.github.io/oss-monorepo/saints-by-candlelight/francis-and-the-christmas-night-at-greccio.html)
+- [Francis and the Wolf of Gubbio](https://duncan-haywood.github.io/oss-monorepo/saints-by-candlelight/francis-and-the-wolf-of-gubbio.html)
+- [Gall and the Bear Who Brought the Firewood](https://duncan-haywood.github.io/oss-monorepo/saints-by-candlelight/gall-and-the-bear-who-brought-the-firewood.html)
+- [George and the Dragon of Silene](https://duncan-haywood.github.io/oss-monorepo/saints-by-candlelight/george-and-the-dragon-of-silene.html)
+- [Gerasimus and the Lion Who Lost the Donkey](https://duncan-haywood.github.io/oss-monorepo/saints-by-candlelight/gerasimus-and-the-lion.html)
+- [Gideon and the Three Hundred with Jars](https://duncan-haywood.github.io/oss-monorepo/saints-by-candlelight/gideon-and-the-three-hundred-with-jars.html)
+- [Hannah and the Prayer at Shiloh](https://duncan-haywood.github.io/oss-monorepo/saints-by-candlelight/hannah-and-the-prayer-at-shiloh.html)
+- [Herman and the Garden on Spruce Island](https://duncan-haywood.github.io/oss-monorepo/saints-by-candlelight/herman-and-the-garden-on-spruce-island.html)
+- [Hilda of Whitby and the Cowherd Who Could Not Sing](https://duncan-haywood.github.io/oss-monorepo/saints-by-candlelight/hilda-of-whitby-and-the-cowherd-who-could-not-sing.html)
+- [Isaac and the Wells That Were Dug Again](https://duncan-haywood.github.io/oss-monorepo/saints-by-candlelight/isaac-and-the-wells-that-were-dug-again.html)
+- [Jacob and the Ladder at Bethel](https://duncan-haywood.github.io/oss-monorepo/saints-by-candlelight/jacob-and-the-ladder-at-bethel.html)
+- [Jacob and the Night at the Jabbok](https://duncan-haywood.github.io/oss-monorepo/saints-by-candlelight/jacob-and-the-night-at-the-jabbok.html)
+- [Jonah and the City That Listened](https://duncan-haywood.github.io/oss-monorepo/saints-by-candlelight/jonah-and-the-city-that-listened.html)
+- [Joseph and the Coat with Long Sleeves](https://duncan-haywood.github.io/oss-monorepo/saints-by-candlelight/joseph-and-the-coat-with-long-sleeves.html)
+- [Joshua and the Woman with the Scarlet Cord](https://duncan-haywood.github.io/oss-monorepo/saints-by-candlelight/joshua-and-the-woman-with-the-scarlet-cord.html)
+- [Kentigern and the Four Signs of Glasgow](https://duncan-haywood.github.io/oss-monorepo/saints-by-candlelight/kentigern-and-the-four-signs-of-glasgow.html)
+- [Kevin and the Blackbird](https://duncan-haywood.github.io/oss-monorepo/saints-by-candlelight/kevin-and-the-blackbird.html)
+- [Martin of Tours and the Half a Cloak](https://duncan-haywood.github.io/oss-monorepo/saints-by-candlelight/martin-of-tours-and-the-half-a-cloak.html)
+- [Mary and Elizabeth in the Hill Country of Judah](https://duncan-haywood.github.io/oss-monorepo/saints-by-candlelight/mary-and-elizabeth-in-the-hill-country-of-judah.html)
+- [Mary of Egypt and the Three Loaves](https://duncan-haywood.github.io/oss-monorepo/saints-by-candlelight/mary-of-egypt-and-the-three-loaves.html)
+- [Melangell and the Hare in the Fold of Her Robe](https://duncan-haywood.github.io/oss-monorepo/saints-by-candlelight/melangell-and-the-hare-in-the-fold-of-her-robe.html)
+- [Monica and the Window at Ostia](https://duncan-haywood.github.io/oss-monorepo/saints-by-candlelight/monica-and-the-window-at-ostia.html)
+- [Moses and the Bush That Was Not Consumed](https://duncan-haywood.github.io/oss-monorepo/saints-by-candlelight/moses-and-the-bush-that-was-not-consumed.html)
+- [Naaman and the Seven Dips in the Jordan](https://duncan-haywood.github.io/oss-monorepo/saints-by-candlelight/naaman-and-the-seven-dips-in-the-jordan.html)
+- [Nicholas and the Grain Ships](https://duncan-haywood.github.io/oss-monorepo/saints-by-candlelight/nicholas-and-the-grain-ships.html)
+- [Nicholas and the Three Bags of Gold](https://duncan-haywood.github.io/oss-monorepo/saints-by-candlelight/nicholas-and-the-three-bags-of-gold.html)
+- [Noah and the Boat with One Door](https://duncan-haywood.github.io/oss-monorepo/saints-by-candlelight/noah-and-the-boat-with-one-door.html)
+- [Patrick and the Ship That Was Ready](https://duncan-haywood.github.io/oss-monorepo/saints-by-candlelight/patrick-and-the-ship-that-was-ready.html)
+- [Paul and the Fourteen Nights Before Malta](https://duncan-haywood.github.io/oss-monorepo/saints-by-candlelight/paul-and-the-fourteen-nights-before-malta.html)
+- [Rebekah and the Camels at the Well](https://duncan-haywood.github.io/oss-monorepo/saints-by-candlelight/rebekah-and-the-camels-at-the-well.html)
+- [Ruth and the Barley Harvest at Bethlehem](https://duncan-haywood.github.io/oss-monorepo/saints-by-candlelight/ruth-and-the-barley-harvest-at-bethlehem.html)
+- [Samuel and the Voice in the Night](https://duncan-haywood.github.io/oss-monorepo/saints-by-candlelight/samuel-and-the-voice-in-the-night.html)
+- [Seraphim of Sarov and the Bear in the Clearing](https://duncan-haywood.github.io/oss-monorepo/saints-by-candlelight/seraphim-of-sarov-and-the-bear-in-the-clearing.html)
+- [Seraphim of Sarov and the Bear](https://duncan-haywood.github.io/oss-monorepo/saints-by-candlelight/seraphim-of-sarov-and-the-bear.html)
+- [Spyridon and the Snake That Became Gold](https://duncan-haywood.github.io/oss-monorepo/saints-by-candlelight/spyridon-and-the-snake-that-became-gold.html)
+- [The Angel Who Called Himself Azarias](https://duncan-haywood.github.io/oss-monorepo/saints-by-candlelight/the-angel-who-called-himself-azarias.html)
+- [Tobias and the Angel on the Road to Media](https://duncan-haywood.github.io/oss-monorepo/saints-by-candlelight/tobias-and-the-angel-on-the-road-to-media.html)
+- [Zacchaeus and the Sycamore Tree at Jericho](https://duncan-haywood.github.io/oss-monorepo/saints-by-candlelight/zacchaeus-and-the-sycamore-tree-at-jericho.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/saints-by-candlelight): MIT licensed.

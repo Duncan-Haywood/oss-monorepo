@@ -1,0 +1,13 @@
+# Does patient financing pay for its merchant fee, or should we carry the payment plan ourselves?
+
+> Free calculator for dental and orthodontic practices: third-party patient financing vs an in-house payment plan vs pay-in-full. What you keep per case after merchant fees, defaults and waiting, and the acceptance rate financing must reach to pay for itself. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/dental-patient-financing-fee-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/dental-patient-financing-fee-calculator): MIT licensed.

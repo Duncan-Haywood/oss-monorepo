@@ -1,0 +1,13 @@
+# Which EU packaging rules (PPWR) reach your packaging, and by when?
+
+> Free EU Packaging and Packaging Waste Regulation (PPWR, 2025/40) checker for brand owners, importers and online sellers: which duties reach your packaging, when each applies (producer registration, PFAS limits, label, recyclability, recycled content, 50 percent empty-space rule), and what is still open.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/eu-packaging-regulation-checker/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/eu-packaging-regulation-checker): MIT licensed.

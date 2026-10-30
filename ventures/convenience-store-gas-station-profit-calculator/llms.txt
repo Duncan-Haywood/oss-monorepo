@@ -1,0 +1,13 @@
+# How many cents a gallon do you actually keep after card fees, and is the store paying for itself?
+
+> Free convenience store and gas station profit calculator: fuel margin after card fees, inside sales mix, labor and rent become monthly profit, break-even gallons, debt coverage and fuel margin sensitivity. Private, runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/convenience-store-gas-station-profit-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/convenience-store-gas-station-profit-calculator): MIT licensed.

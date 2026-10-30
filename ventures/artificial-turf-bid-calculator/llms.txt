@@ -1,0 +1,16 @@
+# Bid the type, the waste, and the extra work.
+
+> Price an artificial turf install from landscape, pet, or putting-green turf: lawn square footage, 15-foot-roll waste, crushed-rock base, sod demo, infill, seams, and tree wells — not a published $8-a-square-foot special. See the turf you have to buy and the walk-away number.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/artificial-turf-bid-calculator/)
+- [How much to charge for artificial turf](https://duncan-haywood.github.io/oss-monorepo/artificial-turf-bid-calculator/how-much-to-charge-for-artificial-turf.html)
+- [This calculator vs. a flat rate per square foot](https://duncan-haywood.github.io/oss-monorepo/artificial-turf-bid-calculator/vs-a-flat-rate-per-square-foot.html)
+- [This calculator vs. Jobber](https://duncan-haywood.github.io/oss-monorepo/artificial-turf-bid-calculator/vs-jobber.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/artificial-turf-bid-calculator): MIT licensed.

@@ -1,0 +1,16 @@
+# Bid the walls, the chip-out, and the finish.
+
+> Price a pool replaster from floor-plus-wall surface, finish (white plaster, quartz, pebble, glass), chip-out, spa, steps, waterline tile, and coping — not the homeowner's length × width. See the walk-away number before you match a cheaper water-surface quote.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/pool-plaster-bid-calculator/)
+- [How much to charge to replaster a pool](https://duncan-haywood.github.io/oss-monorepo/pool-plaster-bid-calculator/how-much-to-charge-to-replaster-a-pool.html)
+- [This calculator vs. a flat rate per square foot of water](https://duncan-haywood.github.io/oss-monorepo/pool-plaster-bid-calculator/vs-a-flat-rate-per-square-foot-of-water.html)
+- [This calculator vs. Buildxact](https://duncan-haywood.github.io/oss-monorepo/pool-plaster-bid-calculator/vs-buildxact.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/pool-plaster-bid-calculator): MIT licensed.

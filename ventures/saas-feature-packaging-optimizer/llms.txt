@@ -1,0 +1,13 @@
+# Which features belong in Starter, Pro and Team?
+
+> Free SaaS packaging tool: paste what surveyed customers would pay for each feature and get which features belong in which plan, the plan prices that earn the most profit, who lands on each plan, and what each feature is worth in each plan. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/saas-feature-packaging-optimizer/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/saas-feature-packaging-optimizer): MIT licensed.

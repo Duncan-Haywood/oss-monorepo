@@ -1,0 +1,17 @@
+# Turn an axe scan into a record you can review.
+
+> Turn a Shopify storefront's axe-core JSON export into a dated, readable accessibility evidence record. Runs locally in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/shopify-a11y-evidence/)
+- [Turn an axe scan into hours you can quote.](https://duncan-haywood.github.io/oss-monorepo/shopify-a11y-evidence/quote.html)
+- [Open the Liquid file the scan is actually pointing at.](https://duncan-haywood.github.io/oss-monorepo/shopify-a11y-evidence/theme-areas.html)
+- [This tool vs. accessiBe](https://duncan-haywood.github.io/oss-monorepo/shopify-a11y-evidence/vs-accessibe.html)
+- [Show what changed after you fixed a scan.](https://duncan-haywood.github.io/oss-monorepo/shopify-a11y-evidence/what-changed-between-axe-scans.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/shopify-a11y-evidence): MIT licensed.

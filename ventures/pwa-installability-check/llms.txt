@@ -1,0 +1,16 @@
+# PWA Installability Checker
+
+> Free tool: run a CLI that fetches your page, its Web App Manifest, and every icon it lists, then paste the JSON here for a plain-English report against Chrome's installability criteria -- the same checks Lighthouse's installable-manifest audit runs, no Chrome required. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/pwa-installability-check/)
+- [“Add to Home Screen” not showing? Here’s the checklist Chrome actually runs](https://duncan-haywood.github.io/oss-monorepo/pwa-installability-check/add-to-home-screen-not-showing.html)
+- [This checker vs. Lighthouse](https://duncan-haywood.github.io/oss-monorepo/pwa-installability-check/vs-lighthouse.html)
+- [This checker vs. reading manifest.json by eye](https://duncan-haywood.github.io/oss-monorepo/pwa-installability-check/vs-reading-the-manifest-by-eye.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/pwa-installability-check): MIT licensed.

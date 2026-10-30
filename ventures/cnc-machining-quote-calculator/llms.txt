@@ -1,0 +1,15 @@
+# What does that part actually cost you to make?
+
+> Free CNC machining quote calculator for job shops: real cost per part from yield, cycle time, setup and tooling, plus break-even price at lots of 1 to 500.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/cnc-machining-quote-calculator/)
+- [Should a CNC shop charge setup separately or build it into the part price?](https://duncan-haywood.github.io/oss-monorepo/cnc-machining-quote-calculator/setup-fee-or-in-the-part-price.html)
+- [This calculator vs. quoting in a spreadsheet](https://duncan-haywood.github.io/oss-monorepo/cnc-machining-quote-calculator/vs-quoting-in-a-spreadsheet.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/cnc-machining-quote-calculator): MIT licensed.

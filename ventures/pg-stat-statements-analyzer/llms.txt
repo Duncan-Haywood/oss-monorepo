@@ -1,0 +1,13 @@
+# Which few queries are behind most of your Postgres load?
+
+> Free pg_stat_statements analyzer: run one read-only query, paste the result, and see which Postgres queries use the most database time, which look like N+1 loops, and which miss cache or spill to disk. Runs in your browser, never touches your database.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/pg-stat-statements-analyzer/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/pg-stat-statements-analyzer): MIT licensed.

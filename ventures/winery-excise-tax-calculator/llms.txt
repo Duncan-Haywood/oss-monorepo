@@ -1,0 +1,13 @@
+# What does federal excise tax really cost your winery or cidery per bottle?
+
+> Free federal wine and hard cider excise tax calculator for wineries and cideries: enter cases, bottles and bulk gallons, see wine gallons, the $1.07 rate, the CBMA credit tiers, the tax per bottle and what growth does. Runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/winery-excise-tax-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/winery-excise-tax-calculator): MIT licensed.

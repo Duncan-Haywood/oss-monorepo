@@ -1,0 +1,16 @@
+# Bid the panels, the knee wall, and the roof.
+
+> Price a residential screened porch or lanai from the wall-screen square feet a floor-square-foot special cannot see, the knee wall, the roof, and the mesh — plus walk-away price and proposed-price margin check.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/screened-porch-bid-calculator/)
+- [How much to charge to screen a porch](https://duncan-haywood.github.io/oss-monorepo/screened-porch-bid-calculator/how-much-to-charge-to-screen-a-porch.html)
+- [This calculator vs. a flat $55-a-square-foot special](https://duncan-haywood.github.io/oss-monorepo/screened-porch-bid-calculator/vs-a-flat-55-a-square-foot-special.html)
+- [This calculator vs. Buildxact](https://duncan-haywood.github.io/oss-monorepo/screened-porch-bid-calculator/vs-buildxact.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/screened-porch-bid-calculator): MIT licensed.

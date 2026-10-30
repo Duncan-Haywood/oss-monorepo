@@ -1,0 +1,13 @@
+# What could your online business sell for?
+
+> Free online business valuation calculator. Enter revenue and SDE to get a sale price range for a SaaS, ecommerce, content or agency business, adjusted for growth, churn, concentration and owner hours. Nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/online-business-valuation-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/online-business-valuation-calculator): MIT licensed.

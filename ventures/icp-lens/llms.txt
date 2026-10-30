@@ -1,0 +1,13 @@
+# Who do your best customers have in common, and who else looks like them?
+
+> A free, open-source alternative to lead-scoring add-ons: learn your ideal customer profile from your own won and lost list, rank your prospects by lookalike fit with a leave-one-out accuracy check, and draft compliant first outreach on your own AI key. Runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/icp-lens/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/icp-lens): MIT licensed.

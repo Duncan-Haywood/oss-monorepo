@@ -1,0 +1,18 @@
+# Bid the alcove, the unit, and the extras.
+
+> Bid a walk-in tub the way the trade does — alcove, unit, extras, who bought the tub, and whether Saturday still pays — not a published installed dump — and see the margin before you send the price.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/walk-in-tub-bid-calculator/)
+- [How much to charge to install a walk-in tub](https://duncan-haywood.github.io/oss-monorepo/walk-in-tub-bid-calculator/how-much-to-charge-to-install-a-walk-in-tub.html)
+- [Should I install a customer-supplied walk-in tub?](https://duncan-haywood.github.io/oss-monorepo/walk-in-tub-bid-calculator/should-i-install-a-customer-supplied-walk-in-tub.html)
+- [Should I take a Saturday walk-in tub call?](https://duncan-haywood.github.io/oss-monorepo/walk-in-tub-bid-calculator/should-i-take-a-saturday-walk-in-tub-call.html)
+- [This calculator vs. a flat "$3,499 installed" walk-in tub special](https://duncan-haywood.github.io/oss-monorepo/walk-in-tub-bid-calculator/vs-a-flat-installed-special.html)
+- [This calculator vs. Housecall Pro](https://duncan-haywood.github.io/oss-monorepo/walk-in-tub-bid-calculator/vs-housecall-pro.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/walk-in-tub-bid-calculator): MIT licensed.

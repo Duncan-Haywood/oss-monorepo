@@ -1,0 +1,14 @@
+# Know when your app breaks, and which bug it is.
+
+> A free, open-source alternative to Sentry and Rollbar for small teams: groups the same bug together, alerts on new errors, regressions and spikes, one Node process and one JSON file. Paste stack traces and see the grouping in your browser first.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/error-keeper/)
+- [error-keeper](https://duncan-haywood.github.io/oss-monorepo/error-keeper/dashboard.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/error-keeper): MIT licensed.

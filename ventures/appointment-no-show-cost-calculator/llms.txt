@@ -1,0 +1,13 @@
+# What do no-shows and late cancels cost your practice?
+
+> Free no-show cost calculator for dental, medical, therapy, chiropractic, vet and salon practices: annual revenue lost to no-shows and late cancels, cost after refills, best overbooking level from an exact binomial model, break-even no-show fee and reminder price. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/appointment-no-show-cost-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/appointment-no-show-cost-calculator): MIT licensed.

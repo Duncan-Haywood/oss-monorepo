@@ -1,0 +1,13 @@
+# Should you buy missing National Insurance years?
+
+> Free UK State Pension checker for 2026/27: your State Pension age, projected qualifying years, whether to buy voluntary Class 3 National Insurance years, the cost, the extra weekly pension and the payback. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/uk-state-pension-ni-years-checker/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/uk-state-pension-ni-years-checker): MIT licensed.

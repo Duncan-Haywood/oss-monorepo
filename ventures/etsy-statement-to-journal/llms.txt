@@ -1,0 +1,13 @@
+# Turn an Etsy statement into a Xero or QuickBooks journal
+
+> Free Etsy statement to journal converter: checks every row, books gross sales, listing and transaction fees, ads, shipping labels, refunds and bank deposits separately by month, and downloads a balanced journal for Xero, QuickBooks Online or QuickBooks Desktop. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/etsy-statement-to-journal/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/etsy-statement-to-journal): MIT licensed.

@@ -1,0 +1,18 @@
+# Bid the finished SF, the scope, and the extras.
+
+> Price a basement finish from finished square feet, rec-room versus framed-finish versus legal-living, drop ceiling versus drywall, carpet versus LVP, bath, egress, and extras — plus the walk-away price a $30 / SF special cannot see.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/basement-finishing-bid-calculator/)
+- [How much to charge to finish a basement](https://duncan-haywood.github.io/oss-monorepo/basement-finishing-bid-calculator/how-much-to-charge-to-finish-a-basement.html)
+- [Should I charge $30 a square foot to finish a basement?](https://duncan-haywood.github.io/oss-monorepo/basement-finishing-bid-calculator/should-i-charge-30-a-square-foot-to-finish-a-basement.html)
+- [This calculator vs. Buildxact](https://duncan-haywood.github.io/oss-monorepo/basement-finishing-bid-calculator/vs-buildxact.html)
+- [This calculator vs. JobTread](https://duncan-haywood.github.io/oss-monorepo/basement-finishing-bid-calculator/vs-jobtread.html)
+- [This calculator vs. tracking it in a spreadsheet](https://duncan-haywood.github.io/oss-monorepo/basement-finishing-bid-calculator/vs-tracking-it-in-a-spreadsheet.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/basement-finishing-bid-calculator): MIT licensed.

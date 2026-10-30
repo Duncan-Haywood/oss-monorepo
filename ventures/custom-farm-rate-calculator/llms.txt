@@ -1,0 +1,15 @@
+# A per-acre rate that starts from your machine, not a rumor.
+
+> Free calculator for custom farm operators: find the rate to charge per acre for combining, planting, spraying, baling, or tillage work, from your own machine speed, width, fuel, repairs, ownership cost, and labor — then check a season of jobs against an income goal.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/custom-farm-rate-calculator/)
+- [This calculator vs. a published custom rate survey](https://duncan-haywood.github.io/oss-monorepo/custom-farm-rate-calculator/vs-survey-rates.html)
+- [Why does a lightly used machine need a higher custom rate?](https://duncan-haywood.github.io/oss-monorepo/custom-farm-rate-calculator/why-a-lightly-used-machine-needs-a-higher-rate.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/custom-farm-rate-calculator): MIT licensed.

@@ -1,0 +1,14 @@
+# What does 280E actually cost your cannabis business?
+
+> Estimate what 280E costs a cannabis business: federal and state tax on gross profit versus real profit, the extra tax, whether you owe tax while losing money, and what moving costs into COGS is worth. Free, in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/cannabis-280e-tax-calculator/)
+- [280E vs an ordinary business: the same numbers](https://duncan-haywood.github.io/oss-monorepo/cannabis-280e-tax-calculator/280e-vs-ordinary-business-tax-comparison.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/cannabis-280e-tax-calculator): MIT licensed.

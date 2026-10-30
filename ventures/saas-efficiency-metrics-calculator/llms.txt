@@ -1,0 +1,13 @@
+# How efficiently is your SaaS turning cash into growth?
+
+> Free SaaS efficiency calculator: burn multiple, magic number, Rule of 40 and runway from your quarterly numbers, with benchmark bands and what it takes to reach a 1.5 burn multiple. Runs in your browser, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/saas-efficiency-metrics-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/saas-efficiency-metrics-calculator): MIT licensed.

@@ -1,0 +1,13 @@
+# How much tax will I pay on my EMI options?
+
+> Free UK EMI option tax calculator: income tax on any discount, Capital Gains Tax with Business Asset Disposal Relief, what you keep after a sale, and a comparison with an unapproved option. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/uk-emi-share-option-tax-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/uk-emi-share-option-tax-calculator): MIT licensed.

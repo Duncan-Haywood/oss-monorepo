@@ -1,0 +1,13 @@
+# Percent, per claim or flat: which price earns you the most on this client?
+
+> Free medical billing pricing calculator: compare percent of collections, per-claim and flat monthly fees against your cost to serve a practice. See margin, break-even claim volume, the price needed for your target margin and what happens if collections move. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/medical-billing-pricing-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/medical-billing-pricing-calculator): MIT licensed.

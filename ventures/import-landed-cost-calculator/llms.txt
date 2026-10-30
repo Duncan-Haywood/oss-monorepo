@@ -1,0 +1,17 @@
+# What does this shipment actually cost, landed?
+
+> Free landed cost calculator for small importers: item cost, freight, duty and Section 301 tariff give cost per unit, with CBP MPF and HMF fees included.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/import-landed-cost-calculator/)
+- [Does the $800 de minimis exemption still apply?](https://duncan-haywood.github.io/oss-monorepo/import-landed-cost-calculator/does-the-de-minimis-exemption-still-apply.html)
+- [Formal or informal entry — why the fee jumps $30 either way you guess](https://duncan-haywood.github.io/oss-monorepo/import-landed-cost-calculator/formal-vs-informal-entry.html)
+- [This calculator vs. Flexport](https://duncan-haywood.github.io/oss-monorepo/import-landed-cost-calculator/vs-flexport.html)
+- [This calculator vs. tracking landed cost in a spreadsheet](https://duncan-haywood.github.io/oss-monorepo/import-landed-cost-calculator/vs-tracking-landed-cost-in-a-spreadsheet.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/import-landed-cost-calculator): MIT licensed.

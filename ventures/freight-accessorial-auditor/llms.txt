@@ -1,0 +1,20 @@
+# Find freight accessorial overcharges before you pay.
+
+> Audit freight accessorial invoices for duplicate, over-expected, and missing-code charges before you pay. Free, private, and runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/freight-accessorial-auditor/)
+- [Does this fuel surcharge match the contract?](https://duncan-haywood.github.io/oss-monorepo/freight-accessorial-auditor/does-this-fuel-surcharge-match-the-contract.html)
+- [How do I check a whole carrier invoice at once?](https://duncan-haywood.github.io/oss-monorepo/freight-accessorial-auditor/how-to-audit-a-whole-freight-invoice.html)
+- [Should I bill this accessorial to the customer?](https://duncan-haywood.github.io/oss-monorepo/freight-accessorial-auditor/should-i-bill-this-accessorial-to-the-customer.html)
+- [Should I dispute this detention charge?](https://duncan-haywood.github.io/oss-monorepo/freight-accessorial-auditor/should-i-dispute-this-detention-charge.html)
+- [This calculator vs. Cass Information Systems](https://duncan-haywood.github.io/oss-monorepo/freight-accessorial-auditor/vs-cass.html)
+- [Freight Accessorial Invoice Auditor vs. reviewing an invoice by eye](https://duncan-haywood.github.io/oss-monorepo/freight-accessorial-auditor/vs-reviewing-an-invoice-by-eye.html)
+- [This calculator vs. Trax Technologies](https://duncan-haywood.github.io/oss-monorepo/freight-accessorial-auditor/vs-trax.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/freight-accessorial-auditor): MIT licensed.

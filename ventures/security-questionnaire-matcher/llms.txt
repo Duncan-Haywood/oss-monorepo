@@ -1,0 +1,14 @@
+# Answer the customer's security questionnaire from answers you already wrote
+
+> Paste a customer security questionnaire and your saved answers. Each question is matched to your closest past answer, risky matches (changed hours, negations) are flagged, and unanswered questions are listed. Private, in your browser, free.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/security-questionnaire-matcher/)
+- [How to answer a customer security questionnaire faster](https://duncan-haywood.github.io/oss-monorepo/security-questionnaire-matcher/how-to-answer-a-security-questionnaire.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/security-questionnaire-matcher): MIT licensed.

@@ -1,0 +1,13 @@
+# Expense Tracker: know what you can deduct, before tax time
+
+> Free expense tracker for freelancers and the self-employed: log expenses, import a bank CSV, see deductible totals by Schedule C line and by quarterly payment period, flag missing receipts. No account, works offline, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/expense-tracker/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/expense-tracker): MIT licensed.

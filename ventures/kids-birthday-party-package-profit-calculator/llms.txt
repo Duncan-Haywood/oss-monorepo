@@ -1,0 +1,14 @@
+# What does a birthday party package really make? True profit, margin and the lowest price
+
+> Free calculator for trampoline parks, bounce gyms, play cafes and family entertainment centers.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/kids-birthday-party-package-profit-calculator/)
+- [How much does a kids birthday party package really make?](https://duncan-haywood.github.io/oss-monorepo/kids-birthday-party-package-profit-calculator/how-much-does-a-kids-birthday-party-package-really-make.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/kids-birthday-party-package-profit-calculator): MIT licensed.

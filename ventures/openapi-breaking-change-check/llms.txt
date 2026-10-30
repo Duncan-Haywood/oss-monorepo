@@ -1,0 +1,16 @@
+# Did this API version break existing clients?
+
+> Paste two OpenAPI 3.0/3.1 JSON documents and see exactly which changes would break an existing client — a removed endpoint, a parameter that became required, a narrowed type, a removed enum value. Free, runs in your browser, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/openapi-breaking-change-check/)
+- [This tool vs. manually reading the spec diff](https://duncan-haywood.github.io/oss-monorepo/openapi-breaking-change-check/vs-manually-reading-the-spec-diff.html)
+- [OpenAPI Breaking Change Check vs. oasdiff](https://duncan-haywood.github.io/oss-monorepo/openapi-breaking-change-check/vs-oasdiff.html)
+- [Why does adding an enum count as a breaking change?](https://duncan-haywood.github.io/oss-monorepo/openapi-breaking-change-check/why-does-adding-an-enum-count-as-breaking.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/openapi-breaking-change-check): MIT licensed.

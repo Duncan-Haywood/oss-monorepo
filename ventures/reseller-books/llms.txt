@@ -1,0 +1,13 @@
+# One set of books for every marketplace you sell on.
+
+> Free private tool for resellers: drop your eBay, Etsy, Poshmark, Whatnot and Shopify reports and get one monthly profit and loss, what each channel really keeps, and a Schedule C style worksheet. Nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/reseller-books/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/reseller-books): MIT licensed.

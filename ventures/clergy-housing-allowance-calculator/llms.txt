@@ -1,0 +1,13 @@
+# How much of your pay can be a tax-free housing allowance?
+
+> Free minister housing allowance calculator: find your section 107 exclusion (the least of designated, actual cost and fair rental value), income tax saved, self-employment tax, and a board resolution template. Runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/clergy-housing-allowance-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/clergy-housing-allowance-calculator): MIT licensed.

@@ -1,0 +1,13 @@
+# Which sales offer pays more where you will actually land?
+
+> Free sales commission plan comparison calculator. Enter two offers with base, target variable, threshold, accelerator, cap, signing bonus and ramp, and see pay at every quota attainment, where the plans cross, and which pays more at the attainment you expect. Runs in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/sales-commission-plan-comparison-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/sales-commission-plan-comparison-calculator): MIT licensed.

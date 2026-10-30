@@ -1,0 +1,13 @@
+# Where should your wedding budget actually go?
+
+> Free wedding budget calculator: split your total budget across venue, food, photography and more using guest count, region and season, with your top priorities protected and a guest-count suggestion when the budget is tight. Runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/wedding-budget-allocator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/wedding-budget-allocator): MIT licensed.

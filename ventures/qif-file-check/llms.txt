@@ -1,0 +1,13 @@
+# Why does my QIF file import with the wrong dates?
+
+> Free QIF checker: finds why a QIF file imports with the wrong month, twice, or not at all (no !Type header, missing ^, mixed date order, bad amounts, unbalanced splits), with line numbers, and writes a repaired file. Runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/qif-file-check/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/qif-file-check): MIT licensed.

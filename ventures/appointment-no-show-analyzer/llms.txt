@@ -1,0 +1,13 @@
+# How many appointments do you lose to no-shows, and who and when?
+
+> Free tool for salons, barbers, clinics, tutors and trainers: drop in your booking export and see your no-show and late-cancel rate, the revenue lost, which weekdays, hours and services get missed, your repeat no-show clients, and what a deposit or no-show fee might recover.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/appointment-no-show-analyzer/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/appointment-no-show-analyzer): MIT licensed.

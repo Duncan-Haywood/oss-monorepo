@@ -1,0 +1,16 @@
+# Is your affiliate disclosure missing, or just too late?
+
+> Paste a blog post's HTML and check whether an FTC or Amazon Associates affiliate disclosure appears before the first affiliate link. Free, runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/affiliate-disclosure-checker/)
+- [Affiliate Disclosure Checker vs. checking a post by eye](https://duncan-haywood.github.io/oss-monorepo/affiliate-disclosure-checker/vs-checking-a-post-by-eye.html)
+- [Affiliate Disclosure Checker vs. Post Affiliate Pro's Disclosure Generator](https://duncan-haywood.github.io/oss-monorepo/affiliate-disclosure-checker/vs-post-affiliate-pro.html)
+- [What disclosure does Amazon Associates and the FTC actually require?](https://duncan-haywood.github.io/oss-monorepo/affiliate-disclosure-checker/what-disclosure-does-amazon-associates-and-the-ftc-require.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/affiliate-disclosure-checker): MIT licensed.

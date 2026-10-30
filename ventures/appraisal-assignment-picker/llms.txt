@@ -1,0 +1,14 @@
+# Ten requests, one appraiser: which should you accept?
+
+> Paste the appraisal assignments you have been offered and get the set that earns the most before the due dates, the order to work them, and the fee each declined file would need. Free, runs in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/appraisal-assignment-picker/)
+- [How to choose which appraisal assignments to accept: capacity and due-date math](https://duncan-haywood.github.io/oss-monorepo/appraisal-assignment-picker/how-to-choose-which-appraisal-assignments-to-accept.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/appraisal-assignment-picker): MIT licensed.

@@ -1,0 +1,13 @@
+# What should you charge for this PPF and ceramic coating job?
+
+> Free PPF and ceramic coating bid calculator: enter vehicle size, film coverage, roll cost and waste, paint correction, bay days and redo rate, and get a price and profit per bay day. Runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/ppf-ceramic-coating-price-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/ppf-ceramic-coating-price-calculator): MIT licensed.

@@ -1,0 +1,14 @@
+# Claude Skill Scaffold Generator
+
+> Describe what a Claude Agent Skill should do and get a starter SKILL.md with valid frontmatter, a folder layout and authoring checks. Runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/claude-skill-scaffold-generator/)
+- [Claude Skill Scaffold Generator vs. writing the frontmatter by hand](https://duncan-haywood.github.io/oss-monorepo/claude-skill-scaffold-generator/vs-writing-the-frontmatter-by-hand.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/claude-skill-scaffold-generator): MIT licensed.

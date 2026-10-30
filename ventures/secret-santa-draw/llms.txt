@@ -1,0 +1,16 @@
+# Secret Santa generator: no emails, couples kept apart, organizer plays too
+
+> Free Secret Santa generator with no sign-up and no emails. Keep couples apart, skip last year's pairs, forbid swaps or force one big loop, and let the organizer play without seeing the results. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/secret-santa-draw/)
+- [How many people do you need for Secret Santa? Valid draws by group size](https://duncan-haywood.github.io/oss-monorepo/secret-santa-draw/how-many-people-do-you-need-for-secret-santa.html)
+- [Secret Santa for remote teams, without email or a peeking organizer](https://duncan-haywood.github.io/oss-monorepo/secret-santa-draw/secret-santa-for-remote-teams-without-email.html)
+- [Secret Santa rules for couples and no repeats, with a worked example](https://duncan-haywood.github.io/oss-monorepo/secret-santa-draw/secret-santa-rules-for-couples-and-no-repeats.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/secret-santa-draw): MIT licensed.

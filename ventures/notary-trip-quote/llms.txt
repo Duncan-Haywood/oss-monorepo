@@ -1,0 +1,16 @@
+# Quote the trip, not just the stamp.
+
+> Price a mobile notary appointment from mileage, drive time, print pages, witnesses and waiting — then test a signing service's flat offer against what you actually earn per hour after paper, toner and fuel.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/notary-trip-quote/)
+- [How much should a mobile notary charge for a trip?](https://duncan-haywood.github.io/oss-monorepo/notary-trip-quote/how-much-to-charge-for-a-mobile-notary-appointment.html)
+- [This calculator vs. doing the trip math yourself](https://duncan-haywood.github.io/oss-monorepo/notary-trip-quote/vs-doing-the-trip-math-yourself.html)
+- [This calculator vs. NotaryGadget](https://duncan-haywood.github.io/oss-monorepo/notary-trip-quote/vs-notarygadget.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/notary-trip-quote): MIT licensed.

@@ -1,0 +1,13 @@
+# Rent a Room Relief or claim expenses: which costs less tax?
+
+> Free UK Rent a Room Relief calculator for 2025/26 and 2026/27: enter your rent, expenses and other income to see whether the £7,500 relief or the normal rules costs less tax. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/uk-rent-a-room-relief-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/uk-rent-a-room-relief-calculator): MIT licensed.

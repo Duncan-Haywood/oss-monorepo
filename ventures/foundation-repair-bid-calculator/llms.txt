@@ -1,0 +1,16 @@
+# Bid the access, the extra shaft, and the straps.
+
+> Price helical or push piers and wall stabilization from pier count, depth, interior versus exterior access, engineering and straps. See your walk-away number.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/foundation-repair-bid-calculator/)
+- [How much to charge for foundation repair](https://duncan-haywood.github.io/oss-monorepo/foundation-repair-bid-calculator/how-much-to-charge-for-foundation-repair.html)
+- [This calculator vs. a flat price per pier](https://duncan-haywood.github.io/oss-monorepo/foundation-repair-bid-calculator/vs-a-flat-price-per-pier.html)
+- [This calculator vs. Jobber](https://duncan-haywood.github.io/oss-monorepo/foundation-repair-bid-calculator/vs-jobber.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/foundation-repair-bid-calculator): MIT licensed.

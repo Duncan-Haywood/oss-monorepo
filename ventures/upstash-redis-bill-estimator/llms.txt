@@ -1,0 +1,14 @@
+# What will your Upstash Redis bill be, and should you go fixed?
+
+> Estimate a monthly Upstash Redis bill from your own usage (million commands, storage GB, bandwidth GB) at editable list prices, see where pay-as-you-go crosses over to a fixed plan, and see which changes cut it most, with a dollar saving for each. Free, runs in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/upstash-redis-bill-estimator/)
+- [How to reduce your Upstash Redis bill: levers ranked by dollar impact](https://duncan-haywood.github.io/oss-monorepo/upstash-redis-bill-estimator/how-to-reduce-your-upstash-redis-bill.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/upstash-redis-bill-estimator): MIT licensed.

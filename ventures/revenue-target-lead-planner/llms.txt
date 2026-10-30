@@ -1,0 +1,13 @@
+# How many leads do you need to hit your number?
+
+> Free revenue target lead planner for freelancers, agencies and small sales teams. Paste your past weeks or months of leads, deals won and revenue to see your real conversion rate, the chance of hitting a target, and how many leads give you an 80% chance. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/revenue-target-lead-planner/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/revenue-target-lead-planner): MIT licensed.

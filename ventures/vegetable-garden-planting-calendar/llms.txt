@@ -1,0 +1,14 @@
+# Your vegetable garden planting calendar, from two frost dates
+
+> Free vegetable garden planting calendar. Enter your last and first frost dates, pick your crops, and get a dated plan: when to start seeds indoors, transplant, sow, make succession plantings, plant a fall garden and expect the first harvest. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/vegetable-garden-planting-calendar/)
+- [When to start seeds indoors, with a worked example](https://duncan-haywood.github.io/oss-monorepo/vegetable-garden-planting-calendar/when-to-start-seeds-indoors.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/vegetable-garden-planting-calendar): MIT licensed.

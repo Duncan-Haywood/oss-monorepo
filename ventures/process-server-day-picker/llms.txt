@@ -1,0 +1,14 @@
+# Ten serves, one server: which should you take today?
+
+> Paste the day's requested process-serving assignments and get the most profitable set and order for one server, with time windows, drive cost and a price for every job it turns down. Free, runs in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/process-server-day-picker/)
+- [Which serves should a process server take today? Window and drive-time math](https://duncan-haywood.github.io/oss-monorepo/process-server-day-picker/which-serves-should-a-process-server-take-today.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/process-server-day-picker): MIT licensed.

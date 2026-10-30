@@ -1,0 +1,16 @@
+# Bid the panels, the tear-off, and the trim.
+
+> Price a residential standing-seam or exposed-fastener metal roof from the panel squares a per-square special cannot see, the tear-off, the stories, and the trim — plus walk-away price and proposed-price margin check.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/metal-roof-bid-calculator/)
+- [How much to charge for a metal roof](https://duncan-haywood.github.io/oss-monorepo/metal-roof-bid-calculator/how-much-to-charge-for-a-metal-roof.html)
+- [This calculator vs. a flat $950/square metal-roof special](https://duncan-haywood.github.io/oss-monorepo/metal-roof-bid-calculator/vs-a-flat-950-per-square-special.html)
+- [This calculator vs. AccuLynx](https://duncan-haywood.github.io/oss-monorepo/metal-roof-bid-calculator/vs-acculynx.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/metal-roof-bid-calculator): MIT licensed.

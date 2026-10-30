@@ -1,0 +1,15 @@
+# See how much churn a price change can absorb.
+
+> Test a SaaS price increase and see the maximum churn your recurring revenue can absorb before the change stops paying off.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/subscription-price-impact/)
+- [How much can I raise my SaaS price?](https://duncan-haywood.github.io/oss-monorepo/subscription-price-impact/how-much-can-i-raise-my-saas-price.html)
+- [This calculator vs. Baremetrics](https://duncan-haywood.github.io/oss-monorepo/subscription-price-impact/vs-baremetrics.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/subscription-price-impact): MIT licensed.

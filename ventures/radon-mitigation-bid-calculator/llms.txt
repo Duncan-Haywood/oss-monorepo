@@ -1,0 +1,16 @@
+# Bid the suction, the membrane, and the circuit.
+
+> Price a radon mitigation install from extra suction points, crawl membrane, roof discharge, high-suction fan, new circuit, firestops, permit, and post-mitigation test — not a published $1,195 radon special. See the walk-away number before you match a cheaper basement quote.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/radon-mitigation-bid-calculator/)
+- [How much to charge for radon mitigation](https://duncan-haywood.github.io/oss-monorepo/radon-mitigation-bid-calculator/how-much-to-charge-for-radon-mitigation.html)
+- [This calculator vs. a flat $1,195 radon special](https://duncan-haywood.github.io/oss-monorepo/radon-mitigation-bid-calculator/vs-a-flat-1195-radon-special.html)
+- [This calculator vs. OneRADON](https://duncan-haywood.github.io/oss-monorepo/radon-mitigation-bid-calculator/vs-oneradon.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/radon-mitigation-bid-calculator): MIT licensed.

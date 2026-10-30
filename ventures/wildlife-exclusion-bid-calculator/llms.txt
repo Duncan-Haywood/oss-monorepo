@@ -1,0 +1,16 @@
+# The ad prices one visit. You are making eight.
+
+> Price a bat, raccoon, squirrel or bird exclusion job from the visits it really takes — daily trap checks, the height the seal is at, attic decontamination, and a reserve against the warranty you sold — instead of the flat removal fee your customer is shopping. Free, private, nothing leaves your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/wildlife-exclusion-bid-calculator/)
+- [This calculator vs. a flat $395 removal fee](https://duncan-haywood.github.io/oss-monorepo/wildlife-exclusion-bid-calculator/vs-a-flat-395-removal-fee.html)
+- [This calculator vs. PestPac](https://duncan-haywood.github.io/oss-monorepo/wildlife-exclusion-bid-calculator/vs-pestpac.html)
+- [What should I charge for a wildlife exclusion job?](https://duncan-haywood.github.io/oss-monorepo/wildlife-exclusion-bid-calculator/what-to-charge-for-wildlife-exclusion.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/wildlife-exclusion-bid-calculator): MIT licensed.

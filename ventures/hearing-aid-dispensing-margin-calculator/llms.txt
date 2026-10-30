@@ -1,0 +1,13 @@
+# Which hearing aid sales actually make money?
+
+> Free calculator for hearing aid clinics and audiologists: what each hearing aid sale really earns after device cost, trial-period returns, follow-up visits, commission, card and plan fees and clinician time. Margin by sale type, price for a target margin, private pay vs plan, break-even sales. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/hearing-aid-dispensing-margin-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/hearing-aid-dispensing-margin-calculator): MIT licensed.

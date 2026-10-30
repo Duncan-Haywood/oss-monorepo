@@ -1,0 +1,16 @@
+# A per-head price isn't the whole quote.
+
+> Free calculator for independent food truck and trailer operators: find the real price for one private event, catering, or festival booking after commissary prep, travel, staff labor, propane, permit fees, and turnout risk, then check a price you're already considering against the breakeven.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/food-truck-event-margin-calculator/)
+- [How much to charge for a food truck catering or event booking](https://duncan-haywood.github.io/oss-monorepo/food-truck-event-margin-calculator/how-much-to-charge-for-a-food-truck-catering-event.html)
+- [This calculator vs. a flat per-guest price](https://duncan-haywood.github.io/oss-monorepo/food-truck-event-margin-calculator/vs-a-flat-per-guest-price.html)
+- [This calculator vs. Roaming Hunger](https://duncan-haywood.github.io/oss-monorepo/food-truck-event-margin-calculator/vs-roaminghunger.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/food-truck-event-margin-calculator): MIT licensed.

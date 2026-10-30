@@ -1,0 +1,13 @@
+# Time Tracker: free billable hours, then an invoice
+
+> Free time tracker for freelancers and contractors: start a timer or add hours by hand, set a rate per project, round up the way you bill, see unbilled money by client, and turn tracked hours into an Invoice Maker draft. No account, no limit, works offline.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/time-tracker/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/time-tracker): MIT licensed.

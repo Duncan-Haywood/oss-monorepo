@@ -1,0 +1,15 @@
+# What does this role actually cost — hired, or contracted?
+
+> Free calculator comparing the fully-loaded cost of a W-2 employee against a 1099 contractor for the same role — FICA, capped FUTA/SUTA, workers' comp, PTO, benefits, payroll admin, and one-time onboarding, plus the contractor rate at which the two cost the same. Nothing leaves your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/employee-cost-calculator/)
+- [This calculator vs. a flat burden-percentage rule of thumb](https://duncan-haywood.github.io/oss-monorepo/employee-cost-calculator/vs-a-flat-burden-percentage.html)
+- [How many weeks into the year does FUTA and SUTA stop accruing?](https://duncan-haywood.github.io/oss-monorepo/employee-cost-calculator/when-does-futa-suta-stop-accruing.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/employee-cost-calculator): MIT licensed.

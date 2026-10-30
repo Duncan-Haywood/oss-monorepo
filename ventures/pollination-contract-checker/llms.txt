@@ -1,0 +1,13 @@
+# A grower offered you a fee per hive. Does it clear your costs?
+
+> Free pollination contract checker for beekeepers: enter the fee per hive, miles, inspection failures, feed and losses, and see your net per hive and break-even fee. Growers can see cost per acre. Runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/pollination-contract-checker/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/pollination-contract-checker): MIT licensed.

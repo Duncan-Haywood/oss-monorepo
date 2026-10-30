@@ -1,0 +1,14 @@
+# Which of these finds should you buy to resell, and what's the most to pay for each?
+
+> Paste what you found at a thrift store, estate sale or liquidation with your own resale estimates and get which items to buy, the most to pay for each, the sell chance each needs to break even and the exact best set under a cash, item or hours cap. Free, runs in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/thrift-haul-buy-picker/)
+- [How much to pay for a thrift find you want to resell](https://duncan-haywood.github.io/oss-monorepo/thrift-haul-buy-picker/how-much-to-pay-at-a-thrift-store-to-resell.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/thrift-haul-buy-picker): MIT licensed.

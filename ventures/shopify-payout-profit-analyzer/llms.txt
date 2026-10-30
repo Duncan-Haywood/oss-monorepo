@@ -1,0 +1,13 @@
+# Where did your Shopify payout go, and which products actually make money?
+
+> Free Shopify payout analyzer: drop in your Shopify Payments Transactions CSV and Orders export and get a fee waterfall, net to bank per order, profit per product, discount code cost and chargeback findings. Runs in your browser, the files are never uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/shopify-payout-profit-analyzer/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/shopify-payout-profit-analyzer): MIT licensed.

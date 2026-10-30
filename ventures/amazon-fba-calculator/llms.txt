@@ -1,0 +1,36 @@
+# Know whether FBA or FBM leaves more — and the most you can pay for the unit.
+
+> Free Amazon FBA vs FBM calculator: compare fulfillment paths after expected returns. Get net profit, max buy cost, the return rate that wipes the listing, when inbound placement still beats split freight, and whether aged inventory still beats a removal.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/amazon-fba-calculator/)
+- [Amazon break-even ACOS: how much can this listing still spend on ads?](https://duncan-haywood.github.io/oss-monorepo/amazon-fba-calculator/break-even-acos.html)
+- [Do Amazon returns wipe FBA profit?](https://duncan-haywood.github.io/oss-monorepo/amazon-fba-calculator/do-amazon-returns-wipe-the-profit.html)
+- [Does a smaller box cut Amazon FBA fees?](https://duncan-haywood.github.io/oss-monorepo/amazon-fba-calculator/does-smaller-box-cut-amazon-fba-fees.html)
+- [Does Amazon Subscribe & Save still pay after FBA fees?](https://duncan-haywood.github.io/oss-monorepo/amazon-fba-calculator/does-subscribe-and-save-still-pay.html)
+- [Does this Amazon coupon still pay after FBA fees?](https://duncan-haywood.github.io/oss-monorepo/amazon-fba-calculator/does-this-amazon-coupon-still-pay.html)
+- [Does this Amazon supplier MOQ still pay after extra FBA storage?](https://duncan-haywood.github.io/oss-monorepo/amazon-fba-calculator/does-this-amazon-moq-still-pay.html)
+- [FBA vs FBM: which fulfillment path leaves more on the same listing?](https://duncan-haywood.github.io/oss-monorepo/amazon-fba-calculator/fba-vs-fbm.html)
+- [Is Amazon inbound placement cheaper than splitting the shipment?](https://duncan-haywood.github.io/oss-monorepo/amazon-fba-calculator/inbound-placement-fee.html)
+- [Individual vs Professional: when does Amazon’s monthly plan pay?](https://duncan-haywood.github.io/oss-monorepo/amazon-fba-calculator/individual-vs-professional.html)
+- [See whether Vine still pays after you gift the units.](https://duncan-haywood.github.io/oss-monorepo/amazon-fba-calculator/is-amazon-vine-worth-it.html)
+- [Low-inventory-level fee: is restocking to 28 days cheaper than staying thin?](https://duncan-haywood.github.io/oss-monorepo/amazon-fba-calculator/low-inventory-level-fee.html)
+- [Should you send FBA inventory before Q4 peak storage?](https://duncan-haywood.github.io/oss-monorepo/amazon-fba-calculator/peak-vs-off-peak-storage.html)
+- [Should I liquidate aged FBA inventory?](https://duncan-haywood.github.io/oss-monorepo/amazon-fba-calculator/should-i-liquidate-aged-fba-inventory.html)
+- [Should I pay Amazon to prep inbound, or do it myself?](https://duncan-haywood.github.io/oss-monorepo/amazon-fba-calculator/should-i-pay-amazon-to-prep-inbound.html)
+- [Should I stay under Amazon’s Low-Price FBA threshold — or raise the price?](https://duncan-haywood.github.io/oss-monorepo/amazon-fba-calculator/should-i-price-over-amazons-low-price-fba.html)
+- [See whether keeping aged inventory still beats a removal.](https://duncan-haywood.github.io/oss-monorepo/amazon-fba-calculator/should-i-remove-aged-amazon-inventory.html)
+- [Should I use Amazon AWD?](https://duncan-haywood.github.io/oss-monorepo/amazon-fba-calculator/should-i-use-amazon-awd.html)
+- [Should I use Amazon MCF for website orders?](https://duncan-haywood.github.io/oss-monorepo/amazon-fba-calculator/should-i-use-amazon-mcf-for-website-orders.html)
+- [Should I use Amazon Remote Fulfillment?](https://duncan-haywood.github.io/oss-monorepo/amazon-fba-calculator/should-i-use-amazon-remote-fulfillment.html)
+- [Should I use Seller Fulfilled Prime?](https://duncan-haywood.github.io/oss-monorepo/amazon-fba-calculator/should-i-use-seller-fulfilled-prime.html)
+- [This calculator vs. Amazon's own Revenue Calculator](https://duncan-haywood.github.io/oss-monorepo/amazon-fba-calculator/vs-amazon-revenue-calculator.html)
+- [This calculator vs. Jungle Scout's FBA Calculator](https://duncan-haywood.github.io/oss-monorepo/amazon-fba-calculator/vs-jungle-scout-fba-calculator.html)
+- [This calculator vs. tracking it in a spreadsheet](https://duncan-haywood.github.io/oss-monorepo/amazon-fba-calculator/vs-tracking-it-in-a-spreadsheet.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/amazon-fba-calculator): MIT licensed.

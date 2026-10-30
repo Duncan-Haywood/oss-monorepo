@@ -1,0 +1,17 @@
+# Transaction count lies. Profit per placement doesn't.
+
+> Free calculator for independent ATM route operators: find real monthly profit per location after the surcharge split, processor fees, and vault cash cost of capital, then see whether your whole route hits your income goal.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/atm-route-margin/)
+- [Is this ATM placement worth it?](https://duncan-haywood.github.io/oss-monorepo/atm-route-margin/is-this-atm-placement-worth-it.html)
+- [ATM route margin calculator vs a spreadsheet](https://duncan-haywood.github.io/oss-monorepo/atm-route-margin/vs-a-spreadsheet.html)
+- [This calculator vs. ATM Depot's Profit Calculator](https://duncan-haywood.github.io/oss-monorepo/atm-route-margin/vs-atm-depot.html)
+- [This calculator vs. ranking your route by transaction count](https://duncan-haywood.github.io/oss-monorepo/atm-route-margin/vs-ranking-by-transaction-count.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/atm-route-margin): MIT licensed.

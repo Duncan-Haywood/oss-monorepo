@@ -1,0 +1,13 @@
+# What should your venue charge for each kind of date?
+
+> Free wedding venue pricing optimizer: enter dates, current prices, bookings, turned-away enquiries and price sensitivity per date type to find the price that earns the most, and see what you leave on the table. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/wedding-venue-date-pricing-optimizer/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/wedding-venue-date-pricing-optimizer): MIT licensed.

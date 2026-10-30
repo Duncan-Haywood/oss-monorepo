@@ -1,0 +1,14 @@
+# What is the most you can bid at a tax deed auction?
+
+> Free tax deed auction max bid calculator. Enter resale price, repairs, surviving liens, quiet title, occupant, holding and cash costs and your target profit; it shows the maximum bid and stress-tests your bids. Private, in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/tax-deed-auction-max-bid-planner/)
+- [How to set a max bid at a tax deed auction: a worked example](https://duncan-haywood.github.io/oss-monorepo/tax-deed-auction-max-bid-planner/how-to-set-a-max-bid-at-a-tax-deed-auction.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/tax-deed-auction-max-bid-planner): MIT licensed.

@@ -1,0 +1,14 @@
+# Win more jobs with a clear estimate, then see which ones you actually won.
+
+> Free estimate and quote generator: good-better-best options, optional add-ons, tax, deposit, valid-until date, print to PDF, win-rate and follow-up tracking, one-click convert to invoice. No account, no watermark, works offline.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/estimate-maker/)
+- [Free bid calculators by trade](https://duncan-haywood.github.io/oss-monorepo/estimate-maker/trade-bid-calculators.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/estimate-maker): MIT licensed.

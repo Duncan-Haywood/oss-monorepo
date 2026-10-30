@@ -1,0 +1,13 @@
+# What is a member worth, and what does churn cost you?
+
+> Free calculator for boutique gym, yoga, pilates and CrossFit owners: member lifetime value, cost to win a member, payback months, where your member count settles, break-even members and what one point of churn is worth. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/fitness-studio-membership-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/fitness-studio-membership-calculator): MIT licensed.

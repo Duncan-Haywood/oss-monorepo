@@ -1,0 +1,14 @@
+# Booth rent, commission or employee: what do you really take home per hour worked?
+
+> Compare booth rent, commission and an hourly job for a nail tech: take-home per hour worked, break-even clients per week. Free, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/nail-tech-booth-rent-calculator/)
+- [How to compare booth rent and commission for a nail tech](https://duncan-haywood.github.io/oss-monorepo/nail-tech-booth-rent-calculator/how-to-compare-booth-rent-and-commission-for-a-nail-tech.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/nail-tech-booth-rent-calculator): MIT licensed.

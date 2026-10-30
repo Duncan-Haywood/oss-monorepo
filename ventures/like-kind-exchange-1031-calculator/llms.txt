@@ -1,0 +1,13 @@
+# How much tax does your 1031 exchange defer, and by when must you act?
+
+> Free 1031 like-kind exchange calculator for real estate investors: your 45-day identification and 180-day closing dates, cash and mortgage boot, recognized versus deferred gain, replacement property basis and the estimated tax you defer. Entirely client-side, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/like-kind-exchange-1031-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/like-kind-exchange-1031-calculator): MIT licensed.

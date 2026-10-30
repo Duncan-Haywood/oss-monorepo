@@ -1,0 +1,19 @@
+# The 6% is not what you keep. The affiliate return is.
+
+> Free TikTok Shop profit calculator. See referral fees, creator commission, returns that keep the affiliate payout, and the announced 1 Oct 2026 8% + 1.5% schedule on the same SKU.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/tiktok-shop-fee-calculator/)
+- [A 15% affiliate and a 12% return rate on the same $19.99 SKU](https://duncan-haywood.github.io/oss-monorepo/tiktok-shop-fee-calculator/affiliate-commission-on-returns.html)
+- [The discount has to beat one saved order, not two sales.](https://duncan-haywood.github.io/oss-monorepo/tiktok-shop-fee-calculator/should-i-bundle-tiktok-shop-orders.html)
+- [The badge is not a fee-base tie when creators are paid on the item.](https://duncan-haywood.github.io/oss-monorepo/tiktok-shop-fee-calculator/should-i-offer-free-shipping-on-tiktok-shop.html)
+- [This calculator vs. TikTok Shop's own Seller University fee pages](https://duncan-haywood.github.io/oss-monorepo/tiktok-shop-fee-calculator/vs-tiktok-shops-seller-university.html)
+- [TikTok Shop Fee Calculator vs. tracking it in a spreadsheet](https://duncan-haywood.github.io/oss-monorepo/tiktok-shop-fee-calculator/vs-tracking-it-in-a-spreadsheet.html)
+- [The headline is 6% to 8%. What it costs you depends on where the order came from.](https://duncan-haywood.github.io/oss-monorepo/tiktok-shop-fee-calculator/what-will-the-tiktok-shop-fee-change-cost-me.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/tiktok-shop-fee-calculator): MIT licensed.

@@ -1,0 +1,13 @@
+# How much of your company do your SAFEs actually cost you?
+
+> Free SAFE dilution calculator for startup founders. Model post-money and pre-money SAFEs with caps and discounts converting in a priced round with an option pool top-up: your cap table, what each SAFE cost you, valuation sensitivity and an exit waterfall. Illustrative; nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/safe-dilution-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/safe-dilution-calculator): MIT licensed.

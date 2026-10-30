@@ -1,0 +1,13 @@
+# Has your turnover passed NZD 60,000, and when must you register for GST?
+
+> Free New Zealand GST registration checker: enter your last 12 months of sales to see whether taxable turnover has passed NZD 60,000, test your expected turnover, and get your registration deadline. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/nz-gst-registration-checker/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/nz-gst-registration-checker): MIT licensed.

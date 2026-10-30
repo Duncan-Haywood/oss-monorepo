@@ -1,0 +1,16 @@
+# A rate that works on a long run can lose money on a short one.
+
+> Free calculator for independent ice dam removal contractors: price a job from linear feet of roof edge, crew size, an emergency/storm premium, and a minimum service charge, then check whether your per-foot rate card actually covers this job's largely fixed cost before a short call quietly loses money.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/ice-dam-removal-bid-calculator/)
+- [This calculator vs. a flat per-foot rate card](https://duncan-haywood.github.io/oss-monorepo/ice-dam-removal-bid-calculator/vs-a-flat-rate-per-linear-foot.html)
+- [This calculator vs. Jobber](https://duncan-haywood.github.io/oss-monorepo/ice-dam-removal-bid-calculator/vs-jobber.html)
+- [Why a flat rate card can lose money on a short job](https://duncan-haywood.github.io/oss-monorepo/ice-dam-removal-bid-calculator/why-a-flat-rate-card-can-lose-money-on-a-short-ice-dam-job.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/ice-dam-removal-bid-calculator): MIT licensed.

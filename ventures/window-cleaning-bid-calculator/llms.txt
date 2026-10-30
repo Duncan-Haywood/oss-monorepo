@@ -1,0 +1,16 @@
+# Price the stop, not the pane count.
+
+> Price a window cleaning job from panes, minutes per pane, stories, and travel time — then see the per-visit price, price per pane, effective hourly rate, and the walk-away number.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/window-cleaning-bid-calculator/)
+- [How much should a window cleaner charge per window?](https://duncan-haywood.github.io/oss-monorepo/window-cleaning-bid-calculator/how-much-to-charge-per-window.html)
+- [This calculator vs. a flat price per window](https://duncan-haywood.github.io/oss-monorepo/window-cleaning-bid-calculator/vs-a-flat-price-per-window.html)
+- [This calculator vs. ServiceMonster](https://duncan-haywood.github.io/oss-monorepo/window-cleaning-bid-calculator/vs-servicemonster.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/window-cleaning-bid-calculator): MIT licensed.

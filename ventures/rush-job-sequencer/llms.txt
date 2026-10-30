@@ -1,0 +1,13 @@
+# I have more rush jobs than hours. What order do I do them in?
+
+> Free job sequencing tool for small shops: list your jobs with hours, due times and late penalties, and get the order with the lowest total lateness cost, checked exactly, plus what overtime is worth and which job to turn down. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/rush-job-sequencer/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/rush-job-sequencer): MIT licensed.

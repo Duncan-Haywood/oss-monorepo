@@ -1,0 +1,13 @@
+# Is your pay gap over the 5% line the EU Pay Transparency Directive draws?
+
+> Free calculator for the EU Pay Transparency Directive: paste your payroll table and get the mean and median gender pay gap, variable pay gap, pay quartiles and the gap by job category with the 5% joint assessment flag. Runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/eu-pay-gap-report-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/eu-pay-gap-report-calculator): MIT licensed.

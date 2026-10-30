@@ -1,0 +1,13 @@
+# Is your crossed-out price allowed?
+
+> Free EU 30-day lowest price checker for webshops: paste a price history and see the prior price you may show next to a sale, the true percentage off, and whether your crossed-out price or advertised discount holds up. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/eu-price-reduction-claim-checker/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/eu-price-reduction-claim-checker): MIT licensed.

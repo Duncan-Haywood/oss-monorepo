@@ -1,0 +1,14 @@
+# Which fee model actually pays you the most per hour on this design project?
+
+> Compare hourly, flat, percent-of-cost, per-square-foot and hybrid interior design fees: effective hourly, break-even overrun and walk-away fee. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/interior-design-fee-calculator/)
+- [How to choose an interior design fee structure](https://duncan-haywood.github.io/oss-monorepo/interior-design-fee-calculator/how-to-choose-an-interior-design-fee-structure.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/interior-design-fee-calculator): MIT licensed.

@@ -629,7 +629,11 @@ function buildAuto(d0) {
     const next = tries.find((x) => x.oh > best.oh && x.cost > min + d0.overhangBudget + 0.005);
     s = best.t;
     overhangChoice = { overhang: best.oh, adds: best.cost - min, cheapest: cheapest.oh, budget: d0.overhangBudget, next: next ? { overhang: next.oh, adds: next.cost - min } : null };
-    const money = (n) => `$${n.toFixed(2)}`;
+    const money = (n) => {
+      const format = (n) => `$${n.toFixed(2)}`;
+      const text = format(Math.abs(n));
+      return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
     overhangWhy = best.cost - min < 0.005
       ? `overhang ${fmtIn(best.oh)}, the longest from 6" to 18" at the lowest materials cost`
       : `overhang ${fmtIn(best.oh)}, the longest from 6" to 18" within ${money(d0.overhangBudget)} of the cheapest (${fmtIn(cheapest.oh)}); it adds ${money(best.cost - min)}`;

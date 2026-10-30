@@ -1,0 +1,13 @@
+# Will your bank accept this SEPA XML file?
+
+> Free SEPA XML checker for pain.001 credit transfer and pain.008 direct debit files: recomputes NbOfTxs and CtrlSum, checks IBAN and BIC, EUR, TARGET2 execution dates, field lengths and the SEPA character set, and repairs the totals. Runs in your browser; the file is never uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/sepa-pain001-validator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/sepa-pain001-validator): MIT licensed.

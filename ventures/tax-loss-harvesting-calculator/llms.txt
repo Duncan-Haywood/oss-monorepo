@@ -1,0 +1,13 @@
+# What would selling your losers save in tax?
+
+> Free tax-loss harvesting calculator. Enter your realized gains, carried-forward losses and the positions you could sell at a loss to see the tax saved this year, the $3,000 ordinary deduction, the carryforward and wash-sale risk. Runs in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/tax-loss-harvesting-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/tax-loss-harvesting-calculator): MIT licensed.

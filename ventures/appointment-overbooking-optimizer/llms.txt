@@ -1,0 +1,13 @@
+# How many extra appointments should you book?
+
+> Free appointment overbooking calculator for clinics, dentists, salons and studios. Enter your slots, no-show rate or daily booked and showed counts, and what an over-full day costs. Get the profit-maximising number of extra bookings, the chance anyone is over capacity, and how sure the answer is.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/appointment-overbooking-optimizer/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/appointment-overbooking-optimizer): MIT licensed.

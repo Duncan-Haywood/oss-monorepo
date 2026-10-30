@@ -1,0 +1,13 @@
+# Does your unlimited wash plan actually make money?
+
+> Car wash membership calculator for owners and managers. Enter your unlimited plan price, cost per wash and how often members wash to see net per member, break-even washes, heavy users who lose money, lifetime value, tunnel capacity and a price sensitivity table. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/car-wash-membership-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/car-wash-membership-calculator): MIT licensed.

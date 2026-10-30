@@ -1,0 +1,13 @@
+# How much paid sick leave do your employees earn, and what does it cost?
+
+> Free paid sick leave calculator for small employers: pick your state and headcount to see how many hours an employee accrues per pay period, the annual and balance caps, whether leave must be paid at your size, and what it costs. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/paid-sick-leave-accrual-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/paid-sick-leave-accrual-calculator): MIT licensed.

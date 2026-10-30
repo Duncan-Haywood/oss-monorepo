@@ -1,0 +1,16 @@
+# Cookie Security Checker
+
+> Free tool: run a CLI that sends one real request to your site, then paste the JSON here for a plain-English report on SameSite=None cookies missing Secure (which current browsers reject outright), broken __Host-/__Secure- prefix cookies, and missing Secure/HttpOnly/SameSite. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/cookie-security-check/)
+- [Why a SameSite=None cookie disappears instead of just weakening](https://duncan-haywood.github.io/oss-monorepo/cookie-security-check/samesite-none-cookie-rejected.html)
+- [This checker vs. Cookiebot](https://duncan-haywood.github.io/oss-monorepo/cookie-security-check/vs-cookiebot.html)
+- [This checker vs. curl -I and reading the headers yourself](https://duncan-haywood.github.io/oss-monorepo/cookie-security-check/vs-curl-and-reading-headers-yourself.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/cookie-security-check): MIT licensed.

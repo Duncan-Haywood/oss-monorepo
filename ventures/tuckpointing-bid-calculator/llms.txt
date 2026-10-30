@@ -1,0 +1,16 @@
+# Bid the joints, the access, and the extras.
+
+> Price tuckpointing from wall area, grind versus smear, scaffold versus swing stage, and extras — plus the walk-away price an $8 / sq ft special cannot see.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/tuckpointing-bid-calculator/)
+- [How much to charge for tuckpointing](https://duncan-haywood.github.io/oss-monorepo/tuckpointing-bid-calculator/how-much-to-charge-for-tuckpointing.html)
+- [This calculator vs. a flat rate per square foot](https://duncan-haywood.github.io/oss-monorepo/tuckpointing-bid-calculator/vs-a-flat-rate-per-square-foot.html)
+- [This calculator vs. QuoteIQ](https://duncan-haywood.github.io/oss-monorepo/tuckpointing-bid-calculator/vs-quoteiq.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/tuckpointing-bid-calculator): MIT licensed.

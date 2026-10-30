@@ -1,0 +1,13 @@
+# What will your course launch actually earn after refunds, fees and ads?
+
+> Course launch revenue calculator. Enter your email list, conversion rates, price, refunds, platform and processor fees, affiliate commissions and ad spend. See net profit, the break-even list size and what a weaker launch costs. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/course-launch-revenue-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/course-launch-revenue-calculator): MIT licensed.

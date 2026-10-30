@@ -1,0 +1,13 @@
+# Which lease offer is really the cheapest?
+
+> Free commercial lease comparison calculator. Compare up to three offers on net effective rent and all-in cost per square foot after free rent, TI allowance, escalations, NNN costs and fit-out. See the cost of leaving early and the rent needed to match the best offer. Runs in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/commercial-lease-effective-rent-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/commercial-lease-effective-rent-calculator): MIT licensed.

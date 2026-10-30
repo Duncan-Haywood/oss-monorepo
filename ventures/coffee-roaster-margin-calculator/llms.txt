@@ -1,0 +1,14 @@
+# What does a bag of your coffee really earn you?
+
+> Free coffee roaster pricing calculator. Turn green coffee price and roast loss into cost per roasted pound, see margin by channel (retail, subscription, wholesale), find the cheapest blend that still hits your cup score, plan green coffee orders and find break-even volume. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/coffee-roaster-margin-calculator/)
+- [How to price roasted coffee, with a worked example](https://duncan-haywood.github.io/oss-monorepo/coffee-roaster-margin-calculator/how-to-price-roasted-coffee.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/coffee-roaster-margin-calculator): MIT licensed.

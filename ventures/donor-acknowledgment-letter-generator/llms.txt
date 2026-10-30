@@ -1,0 +1,13 @@
+# Year-end donor letters, from your gift list, in a minute.
+
+> Free year-end donation receipt generator for small nonprofits: paste a gift list, get one acknowledgment letter per donor with the IRS $250 and $75 quid pro quo wording, and a list of gifts that cannot be written up. Runs in your browser; donor data is never uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/donor-acknowledgment-letter-generator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/donor-acknowledgment-letter-generator): MIT licensed.
