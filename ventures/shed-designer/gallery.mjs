@@ -36,6 +36,16 @@ export const GALLERY_MAX_RATIO = 0.9;
 /** Designs each search builds: enough to reach every size and layout and follow the front out. */
 export const GALLERY_BUDGET = 1200;
 
+/**
+ * The gambrel (barn) gets a search of its own and one card. Let into the
+ * other searches (2026-10-30), barns took six of the other ten cards: the most
+ * room per dollar, the balanced pick, both house-look cards, the long shed and
+ * the mower shed. It has no overhang, fascia or soffit and its chords are short
+ * 2x4s, so it is cheap for the room; the strip would show little else.
+ */
+const OTHER_STYLES = ['gable', 'leanTo'];
+const BARN_BUDGET = 400;
+
 /** Painted lap siding and shingles: the HardieBoard-house look. */
 const HOUSE = { sidingType: 'fiber cement', sidingColor: 'white', roofCover: 'shingles', trimColor: 'white' };
 export const HOUSE_FIXED = ['sidingType', 'sidingColor', 'roofCover'];
@@ -64,8 +74,9 @@ export const sizeOf = (d) => [d.width, d.length].sort((a, b) => a - b).map((x) =
 export function gallerySearches(prices) {
   const clean = (/** @type {any} */ r) => ({ ...r, kept: r.all.filter((/** @type {any} */ s) => s.feasible && buildShed(s.design).warnings.length === 0) });
   return {
-    free: clean(searchDesigns({ base: base(), prices, budget: GALLERY_BUDGET, constraints: CONSTRAINTS })),
-    house: clean(searchDesigns({ base: base(HOUSE), prices, budget: GALLERY_BUDGET, constraints: CONSTRAINTS, fixed: HOUSE_FIXED })),
+    free: clean(searchDesigns({ base: base(), prices, budget: GALLERY_BUDGET, constraints: CONSTRAINTS, knobs: { style: OTHER_STYLES } })),
+    house: clean(searchDesigns({ base: base(HOUSE), prices, budget: GALLERY_BUDGET, constraints: CONSTRAINTS, fixed: HOUSE_FIXED, knobs: { style: OTHER_STYLES } })),
+    barn: clean(searchDesigns({ base: base(HOUSE), prices, budget: BARN_BUDGET, constraints: CONSTRAINTS, fixed: HOUSE_FIXED, knobs: { style: ['gambrel'] } })),
   };
 }
 
@@ -83,7 +94,7 @@ const balanced = (/** @type {any[]} */ front) => picks(front).find((x) => x.key 
  * names a rank, not a figure the card would contradict); `first` is false when an earlier card took
  * the overall best and this one is the best in a size not shown yet. `colour` repaints painted siding for variety
  * (paint costs the same in any colour; generateGallery checks it).
- * @type {{ id: string, from: 'free'|'house', title: (s: any) => string, rank: (kept: any[], front: any[]) => any[], why: (s: any, kept: any[], first: boolean) => string, colour?: string }[]}
+ * @type {{ id: string, from: 'free'|'house'|'barn', title: (s: any) => string, rank: (kept: any[], front: any[]) => any[], why: (s: any, kept: any[], first: boolean) => string, colour?: string }[]}
  */
 export const GALLERY = [
   {
@@ -120,6 +131,11 @@ export const GALLERY = [
     id: 'house-cheapest', from: 'house', title: (s) => `Cheapest lap-sided ${sizeOf(s.design)}`, colour: 'cream',
     rank: (kept) => bestBy(kept, (s) => -s.cost),
     why: (s, kept, first) => `The lowest price of the ${kept.length} designs kept with painted lap siding and shingles${first ? '' : NEW} (${money(s.cost)} when it ran).`,
+  },
+  {
+    id: 'barn', from: 'barn', title: (s) => `Barn for storage ${sizeOf(s.design)}`, colour: 'red',
+    rank: (kept) => bestBy(kept.filter((s) => s.design.style === 'gambrel'), perDollar),
+    why: (s, kept, first) => `A gambrel roof: steep lower slopes and a shallow top put the most room under the gallery's 13 ft height limit. The most room per dollar of the ${kept.length} barns its own search kept in painted lap siding and shingles${first ? '' : NEW}. Searched apart from the cards above, which show gables and lean-tos.`,
   },
   {
     id: 'square', from: 'house', title: () => '10x10 square', colour: 'khaki',

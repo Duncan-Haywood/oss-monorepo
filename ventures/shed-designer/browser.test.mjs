@@ -427,33 +427,34 @@ test('on a phone the end view fills its box and every label is inside it', { ski
   }
 });
 
-test('the ready-design gallery: ten cards with price, storage and reason; arrows and keys flick through; Start opens a new design', { skip }, async (t) => {
+test('the ready-design gallery: every card with price, storage and reason with price, storage and reason; arrows and keys flick through; Start opens a new design', { skip }, async (t) => {
   const { page } = await open(t);
+  const N = (await import('./gallery-data.mjs')).GALLERY_DESIGNS.length;
   const cards = page.locator('#starts .pick');
-  assert.equal(await cards.count(), 10);
+  assert.equal(await cards.count(), N);
   for (const text of await cards.allInnerTexts()) {
     assert.match(text, /\$\d[\d,]*/);
     assert.match(text, /\d+ cu ft inside/);
     assert.match(text, /ft of clear wall/);
   }
   assert.match(await cards.first().innerText(), /lowest price of the \d+ designs/i);
-  await page.waitForFunction(() => document.querySelectorAll('#starts .pick-img img').length === 10, null, { timeout: 60000 });
+  await page.waitForFunction((n) => document.querySelectorAll('#starts .pick-img img').length === n, N, { timeout: 60000 });
   const pos = () => page.textContent('#starts-pos');
-  assert.equal(await pos(), '1 of 10');
+  assert.equal(await pos(), `1 of ${N}`);
   assert.ok(await page.isDisabled('#starts-prev'));
   await page.click('#starts-next');
-  await page.waitForFunction(() => document.querySelector('#starts-pos')?.textContent === '2 of 10');
+  await page.waitForFunction((n) => document.querySelector('#starts-pos')?.textContent === `2 of ${n}`, N);
   await page.focus('#starts .pick-list');
   await page.keyboard.press('ArrowRight');
-  await page.waitForFunction(() => document.querySelector('#starts-pos')?.textContent === '3 of 10');
+  await page.waitForFunction((n) => document.querySelector('#starts-pos')?.textContent === `3 of ${n}`, N);
   await page.keyboard.press('ArrowLeft');
-  await page.waitForFunction(() => document.querySelector('#starts-pos')?.textContent === '2 of 10');
+  await page.waitForFunction((n) => document.querySelector('#starts-pos')?.textContent === `2 of ${n}`, N);
   // On a wide screen the last cards share the view: the arrow still steps to each one.
-  for (let i = 0; i < 8; i++) await page.click('#starts-next');
-  await page.waitForFunction(() => document.querySelector('#starts-pos')?.textContent === '10 of 10');
+  for (let i = 0; i < N - 2; i++) await page.click('#starts-next');
+  await page.waitForFunction((n) => document.querySelector('#starts-pos')?.textContent === `${n} of ${n}`, N);
   assert.ok(await page.isDisabled('#starts-next'));
-  for (let i = 0; i < 9; i++) await page.click('#starts-prev');
-  await page.waitForFunction(() => document.querySelector('#starts-pos')?.textContent === '1 of 10');
+  for (let i = 0; i < N - 1; i++) await page.click('#starts-prev');
+  await page.waitForFunction((n) => document.querySelector('#starts-pos')?.textContent === `1 of ${n}`, N);
   // Start from the first card: it opens as a new design tab, priced as its card said.
   const cardPrice = /\$[\d,]+/.exec(await cards.first().innerText())?.[0];
   const tabs = await page.locator('#design-tabs [role=tab]').count();
@@ -467,12 +468,13 @@ test('the ready-design gallery: ten cards with price, storage and reason; arrows
 
 test('each card says its siding and roof; "match a house" limits the strip to lap and shingles and is remembered', { skip }, async (t) => {
   const { page } = await open(t);
+  const N = (await import('./gallery-data.mjs')).GALLERY_DESIGNS.length;
   const finishes = await page.locator('#starts .pick-finish').allInnerTexts();
-  assert.equal(finishes.length, 10);
+  assert.equal(finishes.length, N);
   assert.ok(finishes.every((x) => /^Siding: .+ · (metal|asphalt shingle) roof$/.test(x)), JSON.stringify(finishes));
   assert.ok(finishes.some((x) => /metal roof/.test(x)), 'the free-finish cards include a metal roof');
   await page.check('#match-house');
-  await page.waitForFunction(() => document.querySelectorAll('#starts .pick').length < 10);
+  await page.waitForFunction((n) => document.querySelectorAll('#starts .pick').length < n, N);
   const house = await page.locator('#starts .pick-finish').allInnerTexts();
   assert.ok(house.length >= 4, `${house.length} cards`);
   assert.ok(house.every((x) => /lap .*asphalt shingle roof$/.test(x)), JSON.stringify(house));
@@ -483,11 +485,12 @@ test('each card says its siding and roof; "match a house" limits the strip to la
   assert.ok(await page.isChecked('#match-house'));
   await page.waitForFunction((n) => document.querySelectorAll('#starts .pick').length === n, house.length);
   await page.uncheck('#match-house');
-  await page.waitForFunction(() => document.querySelectorAll('#starts .pick').length === 10);
+  await page.waitForFunction((n) => document.querySelectorAll('#starts .pick').length === n, N);
 });
 
 test('on a phone the gallery shows about one card at a time and swipes sideways', { skip }, async (t) => {
   const { page } = await open(t, pw.devices['Pixel 7']);
+  const N = (await import('./gallery-data.mjs')).GALLERY_DESIGNS.length;
   const r = await page.evaluate(() => {
     const track = /** @type {HTMLElement} */ (document.querySelector('#starts .pick-list'));
     const card = /** @type {HTMLElement} */ (track.querySelector('.pick'));
@@ -497,7 +500,7 @@ test('on a phone the gallery shows about one card at a time and swipes sideways'
   assert.ok(r.scrolls, 'the strip scrolls sideways');
   assert.ok(r.page <= r.vw + 1, `the page itself does not scroll sideways (${r.page} > ${r.vw})`);
   await page.click('#starts-next');
-  await page.waitForFunction(() => document.querySelector('#starts-pos')?.textContent === '2 of 10');
+  await page.waitForFunction((n) => document.querySelector('#starts-pos')?.textContent === `2 of ${n}`, N);
 });
 
 test('where the money goes: bars by assembly open their lines, an edit says what it moved, the bridge runs', { skip }, async (t) => {
