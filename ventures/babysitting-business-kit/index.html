@@ -141,6 +141,7 @@
       </form>
       <div id="familiesList"></div>
       <div id="intakePanel"></div>
+      <div id="sitReports"></div>
     </section>
 
     <section data-panel="schedule" class="card" hidden>
@@ -420,6 +421,7 @@
     import { mountAutomations } from "./automations-ui.mjs";
     import { mountContent } from "./content-ui.mjs";
     import { enhanceTabs } from "./tabs.mjs";
+    import { mountSitReports } from "./sitreport-ui.mjs";
 
     const STORE = "babysitting-business-kit-desk";
     const SYNC = "babysitting-business-kit-sync";
@@ -434,6 +436,7 @@
     let desk = load();
     let knownLeadIds = [];
     let renderAutomations = () => {};
+    let renderSitReports = () => {};
 
     function load() {
       try { return E.normalizeDesk(JSON.parse(localStorage.getItem(STORE) || "null")); } catch { return E.emptyDesk(); }
@@ -656,6 +659,7 @@
       renderFamilyMsgs();
       renderPrint();
       renderAutomations();
+      renderSitReports();
       fillForm($("profileForm"), { ...desk.profile, certifications: desk.profile.certifications, holidays: desk.profile.holidays, followUpDays: desk.profile.followUpDays });
       $("profileForm").scrollIntoView = () => {};
     }
@@ -909,6 +913,7 @@
 
     $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
     if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+    renderSitReports = mountSitReports($("sitReports"), { getDesk: () => desk, save, esc, record, today, server: () => ({ url: $("syncUrl").value.trim().replace(/\/+$/, ""), key: $("syncKey").value }) });
     renderAutomations = mountAutomations({ getDesk: () => desk, save, esc, record });
     $("contentStart").value = today();
     mountContent($("contentKit"), { getDesk: () => desk, save, record, today, buildSite: (d) => E.buildSite(d) });
