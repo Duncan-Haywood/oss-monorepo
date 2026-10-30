@@ -41,6 +41,12 @@ a build is said to be missing, never shown as zero. The brief trims detail
 (per-group items, first-item summaries, notes) until it fits ~2,400 words; a
 light day is simply shorter.
 
-The judgment these templates leave out (is the work going where the
-flagships and goals say, what is stuck) is a daily blog post written by a
-session: [`.github/prompts/daily-progress-post.md`](../../.github/prompts/daily-progress-post.md).
+The judgment these templates leave out (the most interesting things done,
+whether the work is going where the flagships and goals say, what is stuck)
+is a blog post written by a scheduled session daily, every three days and
+weekly: [`.github/prompts/daily-progress-post.md`](../../.github/prompts/daily-progress-post.md).
+`progress.mjs` prints the facts it starts from for any of those windows:
+
+```
+node platform/daily/progress.mjs --cadence=daily|3day|weekly [--end=YYYY-MM-DD] [--json] [--ref=origin/main]
+```
