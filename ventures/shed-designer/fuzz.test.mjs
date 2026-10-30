@@ -59,6 +59,8 @@ function randomDesign(r) {
     const product = r() < 0.3 && prods.length ? pick(prods).id : (kind === 'door' && r() < 0.15 ? 'site-built' : undefined);
     d.openings.push({ id: `o${i + 1}`, kind, wall, offset: between(-12, face + 12), width: between(12, 96), height: between(12, 96), ...(kind === 'window' ? { sill: between(0, 72) } : {}), ...(product ? { product } : {}) });
   }
+  // A quarter are gambrels (barn roofs), with or without a loft.
+  if (r() < 0.25) Object.assign(d, { style: 'gambrel', gambrelLower: between(16, 30), gambrelKnee: r() < 0.5 ? 0 : between(0, 120), loft: pick(['none', 'half', 'full']), loftJoist: pick(['2x6', '2x8', '2x10']) });
   return d;
 }
 
@@ -104,7 +106,7 @@ export function invariants(input, prices = examplePrices()) {
   if (integ.clashes.length && !shed.warnings.some((w) => w.startsWith('The ridge sits too low'))) bad.push(`clashes: ${integ.clashes.slice(0, 3).join(', ')}`);
   const sc = structuralChecks(shed);
   for (const row of sc.rows) if (!finite(row.ratio) || row.ratio < 0) bad.push(`check ${row.member} ratio ${row.ratio}`);
-  for (const n of ['Floor joists', 'Rafters', 'Wall studs']) if (!sc.rows.some((x) => x.member === n)) bad.push(`check missing: ${n}`);
+  for (const n of ['Floor joists', shed.design.style === 'gambrel' ? 'Lower chords' : 'Rafters', 'Wall studs']) if (!sc.rows.some((x) => x.member === n)) bad.push(`check missing: ${n}`);
   const cc = connectionChecks(shed);
   for (const row of cc.rows) if (!row.ok) bad.push(`connection: ${row.check}: ${row.detail.slice(0, 120)}`);
   const sheets = buildSheets(shed);

@@ -137,8 +137,9 @@ export function solidsOf(shed) {
   const bare = d.sidingType?.startsWith('LP SmartSide') ? [0.84, 0.83, 0.79] : [0.78, 0.62, 0.43];
   const siding = d.sidingColor === 'unfinished' ? bare : /** @type {any} */ (SIDING_COLORS)[d.sidingColor] || COLORS.siding;
   for (const p of shed.panels) {
-    const layer = p.kind === 'floor sheet' ? 'floor' : p.kind === 'roof sheathing' ? 'sheathing' : 'siding';
-    const color = p.kind === 'floor sheet' ? COLORS.floor : p.kind === 'roof sheathing' ? COLORS.osb : siding;
+    // A gambrel's gussets are part of the roof frame, and its loft floor is plywood like the floor.
+    const layer = p.kind === 'floor sheet' ? 'floor' : p.kind === 'roof sheathing' ? 'sheathing' : p.kind === 'gambrel gusset' || p.kind === 'loft deck' ? 'roof' : 'siding';
+    const color = p.kind === 'floor sheet' || p.kind === 'loft deck' ? COLORS.floor : p.kind === 'roof sheathing' || p.kind === 'gambrel gusset' ? COLORS.osb : siding;
     const texture = d.sidingType === 'board and batten' ? 8 : (d.sidingType === 'vinyl' || d.sidingType === 'fiber cement') ? 4 : 0;
     const vinyl = d.sidingType === 'vinyl' && d.sidingColor === 'natural' ? [0.93, 0.92, 0.88] : null;
     out.push({ geom: p.geom, color: /** @type {any} */ (p.kind === 'siding' && vinyl ? vinyl : color), layer, flags: p.kind === 'siding' ? (d.polkaDots ? 1 : 0) + glitter + texture : 0 });
