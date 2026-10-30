@@ -1,0 +1,53 @@
+{
+  "date": "2026-10-30",
+  "session": "https://claude.ai/code/session_01XpHqyg7ixNGUH3USNit4uK",
+  "track": "ventures",
+  "prompt_version": 0,
+  "input": "round-3 lane 6 (shed-designer): where the money goes \u2014 cost by assembly and material type, what-if delta by assembly, bridge to cheapest passing design",
+  "input_sha256": "fa2c2420401a708ed73049e491cc70195555a47316b03f2343b714b9b26fcbe4",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-30T01:46:23Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "shed-designer"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/11557",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 9,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Names `node platform/ci/typecheck.mjs shed-designer` (via the round brief) but no such file exists on main; the venture has no separate typecheck step."
+    },
+    {
+      "file": "ventures/shed-designer/model.mjs",
+      "issue": "PRESETS are factories (call p()), not designs; passing one to buildShed silently builds the default design, which made a first test pass vacuously."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-10-30-where-a-sheds-money-goes.md",
+    "docs/reports/shed-designer-round3-lane6.md"
+  ],
+  "goal": null,
+  "notes": "Local verification (runners starved): node --test *.test.mjs in ventures/shed-designer with Playwright and axe-core 4.13.0: 178 pass before the leave-out browser fix, then browser.test.mjs 22/22 and costs.test.mjs 7/7 after it. Palette validated with the dataviz validator (CVD dE 21.6, normal 32.3, contrast >=3:1 on #fffdf8). Screenshots (desktop, Pixel 7) and print PDF checked by eye.",
+  "corrections": [],
+  "redteam": null
+}
