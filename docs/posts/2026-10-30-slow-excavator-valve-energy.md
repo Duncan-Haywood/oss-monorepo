@@ -1,9 +1,9 @@
 ---
 title: "Does a slow excavator valve change which hydraulic circuit saves energy?"
-seo_title: "Open-centre vs load-sensing excavator hydraulics: time penalty and energy"
+seo_title: "Open-centre vs load-sensing excavator hydraulics: time and energy"
 date: 2026-10-30
 tags: [heavy-hydraulics, research, hydraulics]
-description: "Charging open-centre valves for the extra seconds they take moves the load-sensing break-even margin from 28 bar to between 28 and 36 bar, and never reverses the ranking."
+description: "Charging open-centre valves for their extra seconds moves the load-sensing break-even margin from 28 bar to 28-36 bar, and never reverses the ranking."
 ---
 
 Earlier steps of the [heavy-hydraulics programme](https://duncan-haywood.github.io/oss-monorepo/research/heavy-hydraulics/) ranked open-centre and load-sensing excavator circuits on energy alone, with load-sensing winning whenever its pressure margin was under 28 bar. Separate runs found that an open-centre valve can slow the digging phase when two actuators share its flow. Does that change the ranking?
