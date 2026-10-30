@@ -3,9 +3,9 @@
 // saw: the parts list (every distinct piece with a mark), the cut sheet (which
 // board each piece comes out of), and the shopping list with a cost.
 
-import { EXAMPLE_ITEMS, fmtIn } from './lumber.mjs';
+import { EXAMPLE_ITEMS, fmtIn, fmtFtIn } from './lumber.mjs';
 import { boardPrice, itemPrice } from './prices.mjs';
-import { productById } from './products.mjs';
+import { catalogueRange, productById } from './products.mjs';
 import { optimizeCuts } from './optimize.mjs';
 import { heelJoint } from './checks.mjs';
 import { finishName, SIDING_FINISHES } from './looks.mjs';
@@ -149,6 +149,8 @@ export function estimate(shed, prices = examplePrices()) {
   });
   /** @type {string[]} */
   const problems = [];
+  /** @type {string[]} */
+  const notes = [];
   for (const l of lumber) {
     for (const p of l.result.tooLong) problems.push(`${l.material} ${p.kind} ${fmtIn(p.len)} (mark ${p.mark}) is longer than your longest board; allow a longer length.`);
   }
@@ -206,6 +208,18 @@ export function estimate(shed, prices = examplePrices()) {
       by[96] += sheetCount(shed.sidingUpper);
       const keys = type === 'T1-11' ? ['siding8', 'siding9', 'siding10'] : type === 'LP SmartSide' ? ['lpPanel', 'lpPanel9', 'lpPanel10'] : ['lpPanel76', 'lpPanel76x9', 'lpPanel76x10'];
       [96, 108, 120].forEach((len, i) => line('Siding', label(keys[i]), by[len], 'sheet', item(keys[i]), src(keys[i])));
+      // The panel rule makes the price jump about as the walls rise: a column that
+      // outgrows a 10 ft panel switches to a 4x8 with a strip above it, which is
+      // often cheaper. Say so, with the prices, so a dip is not taken for a bug.
+      const tall = shed.sidingFull.filter((x) => x.length > 96).length;
+      const strips = shed.sidingUpper.length;
+      if (tall || strips) {
+        const [p8, p9, p10] = keys.map((k) => `$${Number(item(k)).toFixed(2)}`);
+        notes.push(`Siding: each 4 ft column takes the shortest panel that reaches its top (4x8 ${p8}, 4x9 ${p9}, 4x10 ${p10}); `
+          + `a column taller than 10 ft takes a 4x8 with a strip cut from another 4x8 above it, Z-flashed at the joint. `
+          + `Here ${[tall && `${tall} use a 9 or 10 ft panel`, strips && `${strips} use a strip`].filter(Boolean).join(' and ')} (of ${shed.sidingFull.length} columns). `
+          + `Because the taller panels cost more, a few inches more wall can make the siding cheaper when it tips a column into the 4x8-and-strip layout.`);
+      }
     } else {
       // Lap and board-and-batten siding go over OSB sheathing.
       line('Siding', label('wallSheathing'), Math.ceil((area * 1.1) / 32), 'sheet', item('wallSheathing'), src('wallSheathing'));
@@ -304,9 +318,19 @@ export function estimate(shed, prices = examplePrices()) {
   // leave it silently out of the total.
   /** @type {string[]} */
   const unpriced = [];
+  // Each gets a typical range from the catalogue, which goes into the total (at
+  // the range's median, marked as an estimate) only if you ask for it.
   for (const op of d.openings) {
     if (op.product === 'site-built' || productById(op.product)) continue;
-    unpriced.push(`${op.kind === 'door' ? 'Door' : 'Window'} ${fmtIn(op.width)} x ${fmtIn(op.height)} on the ${WHERE[`wall:${op.wall}`] || op.wall} (custom size)`);
+    const what = `${op.kind === 'door' ? 'Door' : 'Window'} ${fmtIn(op.width)} x ${fmtIn(op.height)} on the ${WHERE[`wall:${op.wall}`] || op.wall}`;
+    const r = catalogueRange(op.kind, op.width);
+    const range = r ? `typical range $${r.lo.toFixed(2)} to $${r.hi.toFixed(2)} across the ${r.n} ${r.group} in our catalogue` : '';
+    if (r && d.customRange && shed.framedOpenings.some((f) => f.id === op.id)) {
+      line('Doors and windows', `${what}, custom size: ${range}, counted at the median`, 1, 'each', r.median,
+        { kind: 'estimate', price: r.median, note: `a range from our catalogue, not a listing for this size: median of the ${r.n} ${r.group}` });
+      continue;
+    }
+    unpriced.push(`${what} (custom size${range ? `; ${range}` : ''})`);
   }
   if (dims.padSqFt) line('Site prep', label('landscapeFabric'), Math.ceil((dims.padSqFt * 1.15) / 150), 'roll', item('landscapeFabric'), src('landscapeFabric'));
   if (dims.baseBags) line('Site prep', label('paverBase'), dims.baseBags, 'bag', item('paverBase'), src('paverBase'));
@@ -362,12 +386,12 @@ export function estimate(shed, prices = examplePrices()) {
     if (d.siding) line('Fasteners and sealants', label('zFlashing'), Math.ceil(zIn / 120), 'piece', item('zFlashing'), src('zFlashing'));
   }
   // Consumables the build steps call for: adhesive under the subfloor (a tube
-  // does about a sheet and a half on joists at 16") and in a site-built door
+  // does about a sheet and a half on joists at 16", proportionally more at 24") and in a site-built door
   // frame; screws for door skins (about 60 a leaf, about 100 to a 1 lb box; the
   // subfloor is nailed with the 8d sheathing nails); flashing tape round each opening; shims for doors and windows.
   {
     const doorsBuilt = (shed.doors || []).reduce((t, x) => t + x.leaves, 0);
-    line('Fasteners and sealants', label('adhesive'), Math.ceil(floorSheets / 1.5) + doorsBuilt, 'tube', item('adhesive'), src('adhesive'));
+    line('Fasteners and sealants', label('adhesive'), Math.ceil(floorSheets / (1.5 * (d.joistSpacing || 16) / 16)) + doorsBuilt, 'tube', item('adhesive'), src('adhesive'));
     if (doorsBuilt) line('Fasteners and sealants', label('screws'), Math.ceil((doorsBuilt * 60) / 100), 'box', item('screws'), src('screws'));
     const bought = d.openings.filter((o) => o.product !== 'site-built');
     const tapeFt = bought.reduce((t, o) => t + (2 * (o.width + o.height)) / 12, 0);
@@ -395,7 +419,7 @@ export function estimate(shed, prices = examplePrices()) {
   // a bound on. lumberCost adds spares and any bulk prices on top.
   const cutSheetCost = Math.round(lumber.reduce((t, l) => t + l.result.cost, 0) * 100) / 100;
   return {
-    parts, lumber, shopping, problems, total, unpriced, tax, deliveryFee, grandTotal, trimCuts, lumberCost, cutSheetCost, lowerBound, boards,
+    parts, lumber, shopping, problems, notes, total, unpriced, tax, deliveryFee, grandTotal, trimCuts, lumberCost, cutSheetCost, lowerBound, boards,
     pieces: all.length, floorSheets, roofSheets,
     footprintSqFt: (d.length * d.width) / 144,
   };
@@ -440,6 +464,38 @@ export function groupBoards(boards) {
     const key = `${b.stock}|${b.cuts.map((c) => (typeof c === 'number' ? String(c) : `${c.mark ?? ''}:${c.len}`)).join(',')}`;
     if (at.has(key)) out[at.get(key)].count += 1;
     else { at.set(key, out.length); out.push({ ...b, count: 1 }); }
+  }
+  return out;
+}
+
+/**
+ * What one board is cut into, in words: "2 x 7' 0" rafter (R1)" or
+ * "8' 9" top plate (P3) + 3' 0" cripple (C2)". Same marks are counted together.
+ * @param {{ cuts: { mark?: string, kind?: string, len: number }[] }} b
+ */
+export function boardUse(b) {
+  /** @type {Map<string, { n: number, c: any }>} */
+  const by = new Map();
+  for (const c of b.cuts) { const k = `${c.mark}|${c.len}`; const e = by.get(k); if (e) e.n += 1; else by.set(k, { n: 1, c }); }
+  return [...by.values()].map(({ n, c }) => `${n > 1 ? `${n} x ` : ''}${fmtFtIn(c.len)} ${c.kind}${c.mark ? ` (${c.mark})` : ''}`).join(' + ');
+}
+
+/**
+ * For each material and board length on the cut sheet, what its pieces are for,
+ * keyed like the shopping list's lumber lines ("2x6:14" -> "rafter, ridge board").
+ */
+export function lumberUses(est) {
+  /** @type {Map<string, string>} */
+  const out = new Map();
+  for (const l of est.lumber) {
+    /** @type {Map<number, Map<string, number>>} */
+    const byLen = new Map();
+    for (const b of l.result.boards) {
+      const kinds = byLen.get(b.stock) || new Map();
+      for (const c of b.cuts) kinds.set(c.kind, (kinds.get(c.kind) || 0) + 1);
+      byLen.set(b.stock, kinds);
+    }
+    for (const [stock, kinds] of byLen) out.set(`${l.material}:${stock / 12}`, [...kinds.entries()].sort((a, b) => b[1] - a[1]).map(([k, n]) => `${k}${n > 1 ? ` x ${n}` : ''}`).join(', '));
   }
   return out;
 }

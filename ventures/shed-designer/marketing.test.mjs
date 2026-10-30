@@ -48,7 +48,7 @@ function facts() {
     defaultRafter: len(low, 'rafter'),
     beam: `${Math.round(checks.rows.find((r) => /Ridge beam$/.test(r.member)).ratio * 100)}%`,
     snow: String(checks.loads.snow),
-    _othersUnder30: checks.rows.filter((r) => !/Ridge beam$/.test(r.member)).every((r) => r.ratio < 0.3),
+    _othersUnder30: checks.rows.filter((r) => !/Ridge beam$/.test(r.member) && r.governs !== 'span rating').every((r) => r.ratio < 0.3),
     _unpriced: est.unpriced.length,
   };
 }

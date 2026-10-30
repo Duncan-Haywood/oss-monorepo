@@ -41,7 +41,8 @@ export const SIDING_FINISHES = /** @type {Record<string, { label: string, rgb: R
 /** Trim paint: the house colours plus the original gold and purple accents. */
 export const TRIM_FINISHES = /** @type {Record<string, { label: string, rgb: RGB }>} */ ({
   white: { label: 'White', rgb: [0.97, 0.97, 0.97] },
-  ...Object.fromEntries(Object.entries(PAINTS).filter(([k]) => k !== 'white' && k !== 'pink')),
+  ...Object.fromEntries(Object.entries(PAINTS).filter(([k]) => k !== 'white' && k !== 'pink' && k !== 'black')),
+  black: { label: 'Black', rgb: [0.13, 0.13, 0.15] },
   pink: { label: 'Pink', rgb: [1.0, 0.55, 0.78] },
   purple: { label: 'Purple', rgb: [0.5, 0.28, 0.68] },
   gold: { label: 'Gold', rgb: [0.92, 0.76, 0.3] },

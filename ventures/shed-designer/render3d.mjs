@@ -400,6 +400,8 @@ export function createViewer(canvas) {
   let dimCount = 0;
   let showDims = true;
   const overlay = canvas.parentElement && canvas.isConnected ? document.createElement('div') : null;
+  /** Half the width and height of each dimension label, measured on its first frame. @type {number[][]} */
+  let labelHalf = [];
   if (overlay && canvas.parentElement) {
     overlay.className = 'dim-overlay';
     overlay.setAttribute('aria-hidden', 'true');
@@ -445,6 +447,7 @@ export function createViewer(canvas) {
       dimBuf = buf(new Float32Array(pts));
       dimCount = pts.length / 3;
       overlay.innerHTML = dims.map((dm) => `<span>${dm.label}</span>`).join('');
+      labelHalf = [];
     }
     const solids = solidsOf(shed);
     for (const name of LAYERS) {
@@ -538,7 +541,10 @@ export function createViewer(canvas) {
         if (w4 <= 0 || away) { el.style.display = 'none'; return; }
         el.style.display = '';
         const sx = ((x / w4 + 1) / 2) * cw; const sy = ((1 - y / w4) / 2) * ch;
-        const hw = el.offsetWidth / 2; const hh = el.offsetHeight / 2;
+        // A label's size is read once per show(), not every frame: each read forces a layout.
+        let half = labelHalf[i];
+        if (!half) { half = [el.offsetWidth / 2, el.offsetHeight / 2]; if (half[0]) labelHalf[i] = half; }
+        const [hw, hh] = half;
         const box = [sx - hw, sy - hh, sx + hw, sy + hh];
         const clash = placed.some((b) => box[0] < b[2] && b[0] < box[2] && box[1] < b[3] && b[1] < box[3]);
         if (showDims && (clash || box[0] < 0 || box[2] > cw || box[1] < 0 || box[3] > ch)) { el.style.display = 'none'; return; }
