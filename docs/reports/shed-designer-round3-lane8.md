@@ -20,14 +20,16 @@ The default 8x12 at a 70% target:
 |---|---|---|---|
 | Ridge beam 2-ply 2x10 | 79% | above target; 2x8 fails at 118%, 2x12 at 59% | a ridge board with ties, or a 2x12 if a 70% margin is wanted |
 | Ridge-beam posts 2-ply 2x4 | 25% | minimum practical size (bearing width of the 2-ply beam) | none |
-| Rafters 2x6 at 24" | 18% | simply oversized: 2x4 passes at 39% | allow 2x4 rafters in the cheaper-build search (check birdsmouth depth and hanger fit) |
+| Rafters 2x6 at 24" | 18% | simply oversized: 2x4 passes at 39% | the simplify search already tries 2x4 rafters; consider them for the presets (check hanger fit) |
 | Wall studs 2x4 at 16" | 15% | the T1-11 siding rating holds 16" (wind governs) | 24" o.c. needs LP 7/16" or lap over sheathing (23% at 24") |
-| Floor joists 2x6 at 16" | 15% | simply oversized: 2x4 at 16" is 32%, at 24" is 48% | offer 2x4 floor joists on 3 skids |
+| Floor joists 2x6 at 16" | 15% | simply oversized: 2x4 at 16" is 32%, at 24" is 48% | `levers.mjs` floorMoves (r2 lane 1, now on main) already tries 2x4 joists and 24"; the defaults and presets still use 2x6 at 16" |
 | Headers 2-ply 2x6 | 4-12% | the smallest header the tool frames | single or flat headers on short openings, and no header on gable walls under a ridge board (r2 lane 1's opening framing) |
 
 On ridge-board presets, the heel-joint nailing (70-97%) is the member doing the work.
 
 ## Open
+
+- The Subfloor row from `levers.mjs` (joist spacing over the panel's span rating, 67% at 16" on a 24 oc panel) is listed and written out but has no members to colour; it is a panel.
 
 - When PR #11531 merges (SYP species for treated joists), `beamWords` must pass the species and design values through, or the floor-joist breakdown will go unverified (the test catches this).
 - 3D picking only works when the switch is on. r2 lane 3's "where is this used" highlighting could share `viewer.pick`.

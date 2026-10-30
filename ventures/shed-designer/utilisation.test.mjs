@@ -67,7 +67,7 @@ test('every preset: each member breakdown reproduces the Structure tab, sorted h
     for (let i = 1; i < uses.length; i++) assert.ok(uses[i - 1].ratio >= uses[i].ratio, name);
     for (const u of uses) {
       assert.ok(u.verified, `${name}: ${u.key}`);
-      assert.ok(u.ids.length > 0, `${name}: ${u.key} has members to colour`);
+      if (u.member !== 'Subfloor') assert.ok(u.ids.length > 0, `${name}: ${u.key} has members to colour`);
       if (u.governs !== 'none') {
         assert.ok(u.parts.length > 0, `${name}: ${u.key}`);
         for (const p of u.parts) assert.match(p.words, /\d/);

@@ -8,7 +8,7 @@
 // takes away ('plans-printed', 'dxf-downloads', 'svg-downloads',
 // 'csv-downloads', 'links-copied'), and whether anyone looks at where the
 // structure's capacity goes ('utilisation-opened').
-export const EVENTS = ['builds', 'drags', 'designs', 'compares', 'plans-printed', 'dxf-downloads', 'svg-downloads', 'csv-downloads', 'links-copied', 'utilisation-opened'];
+export const EVENTS = ['builds', 'drags', 'designs', 'compares', 'plans-printed', 'dxf-downloads', 'svg-downloads', 'csv-downloads', 'links-copied', 'options-priced', 'hoa-packets', 'utilisation-opened'];
 
 const PREFIX = 'shed-designer-';
 

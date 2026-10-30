@@ -20,6 +20,7 @@ import { structuralChecks, heelJoint, nailZ } from './checks.mjs';
 import { connectionChecks } from './connections.mjs';
 import { check, roofCase, FLOOR, SPF2, T, DEPTH } from './structure.mjs';
 import { sidingSpan } from './simplify.mjs';
+import { subfloorCheck } from './levers.mjs';
 import { fmtIn } from './lumber.mjs';
 
 // NDS Supplement Table 4A size factors for No. 2 dimension lumber, as
@@ -222,6 +223,11 @@ export function utilisation(shed, sc = structuralChecks(shed)) {
       }
       u.kinds = ['header'];
       u.explain = 'A header is a short beam over the opening, carried by one jack stud a side.';
+    } else if (row.member === 'Subfloor') {
+      const sf = subfloorCheck(d);
+      u.parts = [{ name: 'span rating', ratio: d.joistSpacing / sf.spanOC, words: `Joists ${d.joistSpacing}" apart against the panel's APA span rating of ${sf.spanOC}" on centre (check the stamp): ${d.joistSpacing} / ${sf.spanOC} = ${pct(d.joistSpacing / sf.spanOC)}.` }];
+      u.inputs = [['Panel', sf.name], ['Joist spacing', `${d.joistSpacing}"`]];
+      u.explain = 'A panel, not a framing member: its maker rates it for a widest joist spacing, and that rating is the check.';
     } else if (row.member === 'Wall studs') {
       u.parts = studWords(d.studSize, d.studSpacing, k.studLen, [deadPlf, snowPlf], d.windLoad);
       u.inputs = [['Stud', `${d.studSize} at ${d.studSpacing}", ${fmtIn(k.studLen)} long`], ['Roof on the eave wall', `${n0(deadPlf)} lb/ft dead + ${n0(snowPlf)} lb/ft snow`], ['Wind', `${d.windLoad} psf on the wall face`]];
@@ -302,6 +308,7 @@ function lighter(u, d) {
     const probes = down(d.beamSize, ['2x8', '2x10', '2x12']).map((s) => ({ label: `2-ply ${s} ridge beam`, change: { beamSize: s } }));
     return probes.length ? { probes } : { probes, reason: 'minimum', why: 'A two-ply 2x8 is the shallowest ridge beam the tool frames.' };
   }
+  if (u.member === 'Subfloor') return { probes: [], reason: 'code', why: 'Its use is the joist spacing over the panel\'s rated span; it rises only if the joists spread out.' };
   if (u.member === 'Ridge beam posts') return { probes: [], reason: 'minimum', why: `Two plies of the ${d.studSize} studs is the smallest post that gives the two-ply beam (3" wide) full bearing; the load is small, so it sits well under capacity.` };
   if (u.member === 'Ridge board') return { probes: [], reason: 'code', why: 'Not a beam. IRC R802.3 asks for a ridge board at least 1" nominal and no less in depth than the cut end of the rafter, so its size follows the rafter.' };
   if (/^Header over/.test(u.member)) return { probes: [], reason: 'minimum', why: '2-ply 2x6 is the smallest header the tool frames. A short opening could take less (a single or flat header); the tool does not frame that yet.' };
