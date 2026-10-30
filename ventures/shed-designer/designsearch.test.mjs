@@ -31,7 +31,19 @@ test('storage is measured from the framing', () => {
   assert.equal(st.volumeCuFt, Math.round(designFacts(defaultDesign()).storage.volumeCuFt * 10) / 10);
   const board = storageOf(buildShed({ ...defaultDesign(), roofType: 'ridgeBoard' }));
   assert.equal(board.overheadOpen, false);
-  assert.match(board.notes.join(' '), /deck the ties/);
+  assert.match(board.notes.join(' '), /ties are not a floor/);
+  // Undecked ties hold nothing; a truss attic counts only the space over its deck.
+  assert.equal(board.overheadCuFt, 0);
+  const truss = (attic) => storageOf(buildShed({ ...defaultDesign(), roofType: 'truss', autoPitch: false, pitch: 8, atticStorage: attic }));
+  assert.equal(truss(false).overheadCuFt, 0);
+  assert.ok(truss(true).overheadCuFt > 0 && truss(true).overheadCuFt < truss(true).wallVolumeCuFt);
+});
+
+test('the search tries attic storage on trusses and lofts on barns, and only there', () => {
+  const r = searchDesigns({ budget: 300, sizes: [{ length: 144, width: 96 }], knobs: { style: ['gable', 'gambrel'] } });
+  const seen = [...r.all];
+  assert.ok(seen.every((s) => !s.design.atticStorage || (s.design.roofType === 'truss' && s.design.style === 'gable')));
+  assert.ok(seen.every((s) => s.design.loft === 'none' || s.design.style === 'gambrel'));
 });
 
 test('looks is a sum of explained terms out of 100', () => {

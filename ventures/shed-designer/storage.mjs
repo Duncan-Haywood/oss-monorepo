@@ -28,8 +28,14 @@
 // - overheadCuFt: the triangle under the roof, over the inside width (its
 //   rise is the inside half-width at the pitch), the whole inside length;
 //   for a lean-to, the wedge up to the tall front wall over the whole inside
-//   width; for a gambrel, roofSpaceCuFt from its cross-section. Under a ridge beam it is open; over rafter ties or truss chords it is loft
-//   space that needs decking first, which `notes` says.
+//   width; for a gambrel, roofSpaceCuFt from its cross-section. That is
+//   roofSpaceCuFt below, all of it. overheadCuFt counts it only where you
+//   can use it: all of it under a ridge beam or a lean-to's rafters (open to
+//   the roof), and over rafter ties, truss chords or gambrel ties only the
+//   space over a deck (a truss attic with attic storage ticked, a gambrel's
+//   loft). Undecked ties are not a floor (2026-10-30; until then the search
+//   counted the whole triangle, so "most storage" favoured roofs you could
+//   not load).
 // - volumeCuFt: wallVolumeCuFt + overheadCuFt.
 // - shelfFt: inside wall length with no door or window in it (each opening
 //   takes its rough width), the run you can hang shelves or tools on.
@@ -81,6 +87,15 @@ export function clearSpace(shed) {
       if (zAt(sec, b.lo[1] + (i + 0.5) * w) - b.hi[2] >= 36) loftUsable += len * w;
     }
   }
+  // The space over every deck you can load (a gambrel's loft, a truss attic's
+  // deck): from the deck's top to the roof's underside, over the deck's own
+  // footprint. Space over ties or chords with no deck is not counted.
+  let decked = 0;
+  for (const b of shed.panels.filter((p) => p.kind === 'loft deck' || p.kind === 'attic deck').map((p) => bbox(p.geom))) {
+    const len = b.hi[0] - b.lo[0];
+    const w = (b.hi[1] - b.lo[1]) / 100;
+    for (let i = 0; i < 100; i++) decked += Math.max(0, zAt(sec, b.lo[1] + (i + 0.5) * w) - b.hi[2]) * w * len;
+  }
   return {
     floorSqFt: (L * (d.width - 2 * D)) / 144,
     volume: (area * L) / 1728,
@@ -88,6 +103,7 @@ export function clearSpace(shed) {
     standingSqFt: (standing * L) / 144,
     loftSqFt: loftArea / 144,
     loftUsableSqFt: loftUsable / 144,
+    deckedVolume: decked / 1728,
   };
 }
 
@@ -113,8 +129,9 @@ export function storageOf(shed) {
   const lean = d.style === 'leanTo';
   const rise = (lean ? inW : inW / 2) * (d.pitch / 12);
   // A gambrel's roof is no triangle: measure its cross-section.
-  const overheadCuFt = d.style === 'gambrel' ? roofSpaceCuFt(shed) : (0.5 * inW * rise * inL) / 1728;
-  const open = lean || d.roofType === 'ridgeBeam';
+  const roofCuFt = d.style === 'gambrel' ? roofSpaceCuFt(shed) : (0.5 * inW * rise * inL) / 1728;
+  const open = lean || (d.style !== 'gambrel' && d.roofType === 'ridgeBeam');
+  const overheadCuFt = open ? roofCuFt : clearSpace(shed).deckedVolume;
   let shelfIn = 0;
   for (const w of WALLS) {
     const run = w === 'front' || w === 'back' ? inL : inW;
@@ -125,12 +142,12 @@ export function storageOf(shed) {
   const headroom = lean ? k.highWall : d.roofType === 'ridgeBeam' ? k.ridgeTop - k.ridgeD - k.floorTop : wallHeightIn;
   const widestDoor = d.openings.filter((o) => o.kind === 'door').reduce((m, o) => Math.max(m, o.width), 0);
   const notes = [];
-  if (d.style === 'gambrel') notes.push(d.loft !== 'none' ? 'The gambrel\'s loft is decked and sized for 20 psf of stored things; the rest of the roof space is over the truss ties.' : 'The space over the gambrel\'s truss ties counts as loft storage; add the loft to deck it.');
+  if (d.style === 'gambrel') notes.push(d.loft !== 'none' ? 'The space over the gambrel\'s loft deck counts, sized for 20 psf of stored things; the rest of the roof space, over bare truss ties, does not.' : 'The space over the gambrel\'s truss ties is not counted: add the loft to deck it.');
   else if (!open) notes.push(d.roofType === 'truss'
-    ? (d.atticStorage ? 'The space over the truss bottom chords counts as loft storage: the chords are sized for 20 psf; deck them before loading it.' : 'The space over the truss bottom chords counts as loft storage; the chords are sized for a 10 psf attic, so tick attic storage before loading it.')
-    : 'The space over the rafter ties counts as loft storage; deck the ties before loading it, and keep it to light things.');
+    ? (d.atticStorage ? 'The space over the attic deck on the truss bottom chords counts (sized for 20 psf); the end bays stay open as the way up.' : 'The space over the truss bottom chords is not counted: they are sized for a 10 psf attic with no deck. Tick attic storage to deck them.')
+    : 'The space over the rafter ties is not counted: ties are not a floor. A ridge beam opens the roof, or trusses with attic storage deck it.');
   return {
-    floorSqFt, wallHeightIn, clearHeightIn, wallVolumeCuFt, overheadCuFt, volumeCuFt: wallVolumeCuFt + overheadCuFt,
+    floorSqFt, wallHeightIn, clearHeightIn, wallVolumeCuFt, overheadCuFt, roofSpaceCuFt: roofCuFt, volumeCuFt: wallVolumeCuFt + overheadCuFt,
     shelfFt: shelfIn / 12, headroom, open, overheadOpen: open, widestDoor, notes,
   };
 }

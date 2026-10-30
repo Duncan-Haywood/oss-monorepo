@@ -119,7 +119,7 @@ export const GALLERY = [
   {
     id: 'storage', from: 'free', title: (s) => `Most storage ${sizeOf(s.design)}`, colour: 'slate blue',
     rank: (kept) => bestBy(kept, (s) => s.storage.volumeCuFt),
-    why: (s, kept, first) => `The most room inside of the ${kept.length} designs the search kept${first ? '' : NEW}, by the search's measure of volume${s.storage.overheadOpen ? ', open to the roof' : ', counting the space over the rafter ties (a loft once they are decked)'}.`,
+    why: (s, kept, first) => `The most room inside of the ${kept.length} designs the search kept${first ? '' : NEW}, by the search's measure of volume${s.storage.overheadOpen ? ', open to the roof' : s.storage.overheadCuFt > 0 ? ', counting the space over its attic deck' : ''}.`,
   },
   {
     id: 'looks', from: 'house', title: (s) => `Best looking ${sizeOf(s.design)}`, colour: 'greige',

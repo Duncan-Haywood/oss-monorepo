@@ -178,6 +178,12 @@ const KNOBS = {
   roofCover: ['shingles', 'metal'],
   door: Object.keys(DOORS),
   window: Object.keys(WINDOWS),
+  // A deck you can load over the roof framing: on a truss gable, attic storage
+  // (chords sized for 20 psf and decked); on a gambrel, its loft. Storage counts
+  // the space over a deck only (storage.mjs), so these are how the search buys
+  // roof storage on a tied roof. Each is pinned off where it means nothing.
+  atticStorage: [false, true],
+  loft: ['none', 'half', 'full'],
   // Gable, lean-to or gambrel (barn), tried last from each design (a lean-to has no ridge and a
   // gambrel its own trusses, so roofType does nothing to either).
   style: ['gable', 'leanTo', 'gambrel'],
@@ -384,6 +390,8 @@ function designAt(base, size, layout, knobs, minWall = DEFAULT_CONSTRAINTS.minWa
   // A lean-to has no ridge and a gambrel frames its own trusses: their roofType is pinned, so flipping it is not a new design to evaluate.
   const barn = knobs.style === 'gambrel';
   if (lean || barn) rest.roofType = 'ridgeBoard';
+  if ('atticStorage' in rest && (lean || barn || rest.roofType !== 'truss')) rest.atticStorage = false;
+  if ('loft' in rest && !barn) rest.loft = 'none';
   // On a lean-to the lowest wall that frames the openings is often a door's height under the
   // tall front wall's: 'auto' there is that, or the lowest back wall you allow if higher.
   const leanAuto = lean && wall === 'auto' ? Math.max(minWall, minWallFor(normalize({ ...base, ...rest, length: size.length, width: size.width, openings: ops }))) : 0;
