@@ -19,7 +19,7 @@
   "baseline": "3 (2026-10-26 to 2026-10-29)",
   "opened": "2026-10-29",
   "source": "process run, measure 'doc friction'",
-  "pr": null,
+  "pr": "this",
   "result": null,
   "history": [
     {
