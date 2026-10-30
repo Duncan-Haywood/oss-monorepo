@@ -1,0 +1,114 @@
+{
+ "d": 32,
+ "K": 4,
+ "Cs": [
+  1.1,
+  1.25,
+  1.5,
+  2.0
+ ],
+ "ts": [
+  10,
+  50,
+  200
+ ],
+ "n": 20,
+ "cells": {
+  "C1.10_T10": {
+   "honest_flag": 0.03333333333333333,
+   "n": 20,
+   "harmful": 5,
+   "median_dL": 0.004806876182556152,
+   "median_scale": 0.2743957728733939,
+   "flagged_steps": 0
+  },
+  "C1.10_T50": {
+   "honest_flag": 0.03333333333333333,
+   "n": 20,
+   "harmful": 14,
+   "median_dL": 0.02486264705657959,
+   "median_scale": 0.04352285010929044,
+   "flagged_steps": 0
+  },
+  "C1.10_T200": {
+   "honest_flag": 0.03333333333333333,
+   "n": 20,
+   "harmful": 20,
+   "median_dL": 0.1492929458618164,
+   "median_scale": 0.006909218081727494,
+   "flagged_steps": 0
+  },
+  "C1.25_T10": {
+   "honest_flag": 0.015416666666666667,
+   "n": 20,
+   "harmful": 7,
+   "median_dL": 0.00515902042388916,
+   "median_scale": 0.2536456942561316,
+   "flagged_steps": 0
+  },
+  "C1.25_T50": {
+   "honest_flag": 0.015416666666666667,
+   "n": 20,
+   "harmful": 14,
+   "median_dL": 0.030107975006103516,
+   "median_scale": 0.04388506288078168,
+   "flagged_steps": 0
+  },
+  "C1.25_T200": {
+   "honest_flag": 0.015416666666666667,
+   "n": 20,
+   "harmful": 20,
+   "median_dL": 0.19224321842193604,
+   "median_scale": 0.006689244033843514,
+   "flagged_steps": 0
+  },
+  "C1.50_T10": {
+   "honest_flag": 0.004583333333333333,
+   "n": 20,
+   "harmful": 7,
+   "median_dL": 0.005742788314819336,
+   "median_scale": 0.23573316229048769,
+   "flagged_steps": 0
+  },
+  "C1.50_T50": {
+   "honest_flag": 0.004583333333333333,
+   "n": 20,
+   "harmful": 14,
+   "median_dL": 0.034902334213256836,
+   "median_scale": 0.04630708644342552,
+   "flagged_steps": 0
+  },
+  "C1.50_T200": {
+   "honest_flag": 0.004583333333333333,
+   "n": 20,
+   "harmful": 20,
+   "median_dL": 0.28199315071105957,
+   "median_scale": 0.006420064635773608,
+   "flagged_steps": 0
+  },
+  "C2.00_T10": {
+   "honest_flag": 0.0016666666666666668,
+   "n": 20,
+   "harmful": 7,
+   "median_dL": 0.006383776664733887,
+   "median_scale": 0.28373652755411605,
+   "flagged_steps": 0
+  },
+  "C2.00_T50": {
+   "honest_flag": 0.0016666666666666668,
+   "n": 20,
+   "harmful": 16,
+   "median_dL": 0.03537726402282715,
+   "median_scale": 0.04870973848450412,
+   "flagged_steps": 0
+  },
+  "C2.00_T200": {
+   "honest_flag": 0.0016666666666666668,
+   "n": 20,
+   "harmful": 20,
+   "median_dL": 0.39976799488067627,
+   "median_scale": 0.006115765957061044,
+   "flagged_steps": 0
+  }
+ }
+}

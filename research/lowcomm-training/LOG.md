@@ -2,6 +2,20 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-30 · Milestone 6l (H6 scale-up): is the size-2 excess rise at H = 128 real with six seeds? (planned before running)
+
+- Why: 6k's "Next". The excess is a plateau near +0.044 over H = 16 to 64 (six seeds each); H = 128 is +0.063 on three seeds (sd 0.003), the only evidence for a rise.
+- Setup (`scale.py run h128`): seeds 3 to 5 at H = 128, both keep levels (6 runs, nothing else changes), so H = 128 has six seeds. H = 8 is left for a later step (12 runs).
+- **H6l-i:** the six-seed H = 128 excess stays above H = 64's (+0.044) by more than 0.01 (the rise is real). Prior 65%.
+- Limits to state: one width; one keep level; H = 4 still two seeds; the rule is not refitted here.
+
+### Outcome of 6l (`experiments/gpt_scale/scale.jsonl`, `scale_results_6l.txt`; 6 runs, about 21 min each)
+- Paired excess at keep 1/16, six seeds each: H = 16 +0.0452, H = 32 +0.0431, H = 64 +0.0440, **H = 128 +0.0505** (sd 0.0154, standard error 0.0063). The three-seed +0.063 from 6j fell to +0.051 with three more seeds.
+- **H6l-i refuted.** H = 128 sits 0.0065 above H = 64's, under the 0.01 bound and about one standard error. Six seeds do not support a real rise: from H = 16 to 128 the excess is flat within roughly one standard error of +0.045 to +0.05.
+- Reading: at size 2 the excess is flat in H from 16 to 128, so the rule's power law in H (b = 0.55 to 0.60) over-predicts growth; the 6h/6i/6j "structure" was largely seed noise at H = 128 plus the flat middle. The refit on the seven original cells still shows leave-one-out MAPE 2.13% (held-out (64, 1/16) misses by 0.143 nats). Not tested: H = 8, other keep levels, a saturating-in-H form refitted on all cells.
+- Limits: H = 4 keeps two seeds; one width; one keep level; the rule is not refitted here.
+- Next: refit with a form saturating in H (constant above a small H) on all six-seed cells and score it leave-one-cell-out against the power law.
+
 ## 2026-10-30 · Milestone 6k (H6 scale-up): is the flat stretch of the size-2 excess between H = 16 and 64 seed noise? (planned before running)
 
 - Why: 6j's "Next". The excess at keep 1/16 is +0.054 (H = 16, two seeds), +0.045 (H = 32, three), +0.044 (H = 64, six), +0.063 (H = 128, three). The 16 to 64 dip is at most 2 standard errors, with only 2 and 3 seeds at the first two levels.

@@ -56,6 +56,16 @@
       <itunes:explicit>false</itunes:explicit>
     </item>
     <item>
+      <title>The Clean Plate</title>
+      <link>https://example.invalid/hearth-and-horizon/the-clean-plate.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-clean-plate.html</guid>
+      <pubDate>Fri, 30 Oct 2026 12:00:00 GMT</pubDate>
+      <description>A convent bakery makes low-gluten hosts for an eight-year-old with coeliac disease whose first Communion is tomorrow. A pooled test of fifty hosts comes back below its limit, and the bakery's assistant will not let the sister read that as clean: fifty out of six hundred cannot rule out twenty bad hosts, and the real danger is a crumb of wheat, not a parts-per-million average. A swab of the griddle plate finds the crumbs, the plate is changed, a small batch is baked again, and the family is asked what they want, and gets the choice. Setting: Monastero di Santa Scolastica, Valmala, an invented valley convent in the Piedmont Alps, Saturday 11 May 2047. Read the full text at https://example.invalid/hearth-and-horizon/the-clean-plate.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A convent bakery makes low-gluten hosts for an eight-year-old with coeliac disease whose first Communion is tomorrow. A pooled test of fifty hosts comes back below its limit, and the bakery's assistant will not let the sister read that as clean: fifty out of six hundred cannot rule out twenty bad hosts, and the real danger is a crumb of wheat, not a parts-per-million average. A swab of the griddle plate finds the crumbs, the plate is changed, a small batch is baked again, and the family is asked what they want, and gets the choice.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>The Coin on the Ice</title>
       <link>https://example.invalid/hearth-and-horizon/the-coin-on-the-ice.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-coin-on-the-ice.html</guid>

@@ -1,0 +1,207 @@
+---
+number: 56
+slug: the-wedding-at-cana-and-the-six-stone-jars
+title: The Wedding at Cana and the Six Stone Jars
+published: 2026-10-30
+summary: A village wedding in Galilee runs out of wine, and a mother quietly tells the servants what to do. John, chapter two, told straight from the Gospel: the six stone jars, the full water, the steward's surprise and the servants who knew.
+figures: Mary the mother of Jesus, the Lord Jesus, his first disciples, the servants, the steward of the feast, the bridegroom
+tradition: Catholic and Orthodox; the story is Scripture for both, and Mary is honoured by both
+feast: there is no single feast of this story that we will claim for both traditions; in the Catholic Church the Gospel is read on the Second Sunday in Ordinary Time in the year of the cycle that uses John, and we give only that
+history: the story is told in the Gospel according to John, chapter two, verses one to eleven, which Catholic and Orthodox Christians read as Scripture; it is told only there
+legend: none in the story itself; later writers guessed whose wedding it was, how many guests came and where exactly Cana stood, and we call all of that guesswork
+fiction: the village, the weather, the talk among the servants, the jokes, the names of nobody (the bride, the groom, the steward and the servants are unnamed in John and stay unnamed here), and the narrator's guesses about what people felt are our own invention, told in the spirit of the original; what happens, and what is said by Mary, by Jesus, by the steward and by the servants follows the Gospel
+sources:
+  - The Gospel according to John, chapter two, verses one to eleven (Catholic and Orthodox New Testament), the only account of the wedding
+  - The Gospel according to John, chapter one, verses thirty-five to fifty-one, the calling of the first disciples on the days just before the wedding
+  - The Gospel according to John, chapter two, verse twelve, the journey down to Capernaum afterwards
+---
+
+Imagine the happiest moment of a wedding. The music is going. The bread is warm. Somebody's uncle has started to dance, badly, and somebody's grandmother is laughing so hard she has had to sit down. And then, at the back of the house, a servant picks up a wine jar, tips it, and hears nothing at all.
+
+It is the sound every host dreads. A small, dry, hollow sound. And in a village, where everybody knows everybody and will remember this for forty years, it is not a small problem at all.
+
+But we are getting ahead of ourselves. Let us start on the road, a few days earlier.
+
+[pause]
+
+Hello, and welcome to Saints by Candlelight, stories of saints, angels and patriarchs from the Catholic and Orthodox traditions, told for bedtime. These episodes are written by an AI and read by a synthetic voice, and they try very hard to be faithful. Tonight's story comes from the Gospel according to John, chapter two, which Christians of both traditions read as Scripture, and we will tell it as it is told there. A few small things, the village, the weather, the talk among the servants, and what a person at a wedding might have been thinking, are our own invention, told in the spirit of the original, and we will say at the end which parts those were. So get comfortable. Dim the lights. And let's begin.
+
+[pause]
+
+John begins the story with a date, and it is one of those dates that sounds like nothing and tells you a lot. On the third day, he says, there was a wedding at Cana in Galilee.
+
+The third day after what? After the days that he has just been describing. If you read the first chapter of John, you find a short string of days, one after another, each with somebody new meeting Jesus. A man called Andrew goes to see where he is staying, and stays the afternoon, and goes and gets his brother. The next day, Jesus finds a man called Philip, and says, follow me. Philip finds a man called Nathanael, who says, rather famously, can anything good come out of Nazareth? And Philip, who is a sensible man, does not argue. He says, come and see.
+
+So by the time we get to the wedding, there is a little company around Jesus. A handful of men who have known him for a few days. They do not yet know what they have joined. They are, I think it is fair to say, still at the stage of carrying their bags and watching.
+
+And now they are invited to a wedding.
+
+The Gospel says that the mother of Jesus was there. And it says that Jesus and his disciples had also been invited. I would like you to notice the order. Mary is already there. Perhaps she is a relative of the family, or a friend. We are not told. The Gospel does not say whose wedding it is, and so I will not pretend to know. But it tells us she is there before anyone else in our story, and, as we will see, she is not a guest who is sitting down with her hands folded.
+
+Cana is a small place in Galilee, in the hill country north of Nazareth, and, I am sorry to say, nobody is quite sure now exactly which hill it was. There are at least two or three places in the region that have been pointed out over the centuries. The Gospel only names it, and we will do the same. Think of a village of a few hundred people, stone houses with flat roofs, a well, a threshing floor, olive trees on the slope, a lane that runs down to the main road. A place where everyone knows whose goat is whose.
+
+A wedding in a place like that was not a Saturday afternoon and a buffet. It was, as far as we can tell from how such things were done then, a whole community event that could go on for days. There would be a procession. There would be a feast at the house of the bridegroom. The whole village would come, and the guests from the next village, and a cousin who has not been seen since the last wedding. And everybody would be fed, and everybody would be given wine, and everybody would stay a long time. To run out would be, to put it mildly, a social disaster.
+
+I will tell you what I mean by that, with a modern comparison. Imagine you have invited the whole street to a barbecue, and halfway through the afternoon you discover that you have bought food for a third of them. Now imagine that the street will be telling the story of your barbecue to their grandchildren. That is a little of how it felt.
+
+There is one more thing to say about the setting, and it is that a feast like this was not merely a party. For the people of that time, a wedding was one of the great joys of life, and the Scriptures often use it as a picture of joy. The prophets speak of the Lord rejoicing over his people as a bridegroom rejoices over a bride. So when the Gospel puts Jesus at a wedding, as the first place we see him at work in John's account, it is not an accident, and it is not a small thing. But we will leave that for the end. For now, there is a feast, and the lamps are lit, and the music is playing.
+
+* * *
+
+Let us go into the house.
+
+It is a long evening, and the courtyard is crowded. The long tables are full. Children are running between the legs of the grown-ups, which is what children are for at weddings. A boy of about seven has discovered that if he walks very slowly behind the servants carrying the dishes, he is more or less invisible, and has already eaten four honey cakes this way.
+
+The disciples are there, a little shy. Andrew and his brother are talking to a man about fish, because the man has recognised them as fishermen and they have recognised him as a man who does not know very much about fish. Nathanael is sitting under a tree, which, for him, seems to be a habit. Philip is making friends with everyone, because Philip, I think, makes friends with everyone.
+
+And Jesus is there, and he is eating and talking and listening, like anyone at a wedding.
+
+I want to say something about that, because it is the quiet marvel of this story. The Gospel does not say that he stood apart. It does not say he was solemn. It says he was invited, and he came, and he stayed. He is at a feast with ordinary people, and he is at home there. If you ever need a reminder that holiness and gladness are not enemies, you could do worse than to look at this evening.
+
+But now, at the back of the house, there is a problem.
+
+The servants are the first to notice, as servants always are. They are the ones who carry the jars, and they know, long before anyone at the head table does, what is in them and what is not. One of them lifts a jar and finds it light. He tries another. Light as well. He goes and has a quiet word with the one who is in charge of the serving, and the one in charge of the serving goes pale in the way a person goes pale when he knows he is about to have to say something to somebody important.
+
+Now, the Gospel does not tell us how Mary hears. It says only, in a plain sentence, that when the wine ran out, the mother of Jesus said to him, they have no wine.
+
+Think about how few words that is. Four in English. She does not say, do something. She does not say, you can fix this. She does not even ask. She simply tells him the fact, the way you might tell a friend, the way you tell the one person you trust, the kettle has boiled dry. And she leaves it there.
+
+I think that is one of the most beautiful sentences in the Gospel. It is the sentence of someone who has noticed a need, and who knows exactly where to take it. She is not at the head table. She is not the one in charge. Nobody has asked her to look after the wine. But she has noticed that a family is about to be shamed, and she goes straight to her son.
+
+And then comes the answer, and it is one that has puzzled readers for two thousand years.
+
+Jesus says to her, woman, what is that to me and to you? My hour has not yet come.
+
+Let us be careful here, because it sounds, in English, much colder than it was. In the Greek, calling a mother woman is not rude. It is the way he speaks to her again at the cross, in the same Gospel, where he gives her to his friend and his friend to her. It is respectful, even tender. The other part, what is that to me and to you, is an old turn of phrase that turns up in the Scriptures, and it can mean something like, what has this to do with us, or, how does this concern us now. It is not an angry sentence. It is a sentence that holds a question open. And the second half, my hour has not yet come, is a thread that runs through the whole of John's Gospel. Jesus has an hour. It is a very great hour, and the Gospel will tell us when it comes, and it is not at a village wedding. So he is saying, in his way, that a step is being asked of him that will start something, and that the time for it is not what it looks like.
+
+I would like to be honest and say that readers have understood this exchange in a number of ways, and that I am not going to claim to settle it. The Gospel does not. What it does is show us what happens next, and what happens next is the part I love.
+
+Mary does not argue. She does not explain. She does not say, but, or, please, or even, I understand. She turns, and she says to the servants, do whatever he tells you.
+
+That is the last thing she says in this Gospel, and I think it might be the whole of her teaching. Do whatever he tells you. Six words. Not, do what I tell you. Not, do what seems sensible. Do whatever he tells you. And then she steps back, and she does not say another word.
+
+There is a very old reading of this moment in both the Catholic and the Orthodox traditions, that here Mary is the one who brings the need of the people to her son, and who sends the people to him. I will name that and leave it where it is. What the Gospel gives us is only the plain scene: a mother who has seen, and a servant who has been told, and a son who has not yet answered.
+
+* * *
+
+The servants look at each other.
+
+I would like you to imagine what that is like for them. They are not important people. They have been told to carry jars and pour wine and not to be noticed. Now a guest's mother has turned to them, quite seriously, and has told them to do whatever one of the other guests tells them. It is not what they were hired for. But there is something in the way she said it that makes it hard to argue.
+
+And there, in the courtyard, standing by the wall, are six stone jars.
+
+John tells us this with care. He says they were for the Jewish rites of purification, the washing of hands and vessels that the people of that time kept, as part of their keeping of the Law. They are not wine jars. They are the water jars, the ones that stood by the door so that guests could wash before they ate. Each one held, John says, two or three measures. A measure was about nine gallons, or somewhere near forty litres, and so a jar of two or three of them was a big jar, as tall as a child and a good deal heavier, once it was full. Six of them together, filled to the top, would hold somewhere between a hundred and a hundred and sixty gallons, or four to six hundred litres, depending on how you reckon the measure.
+
+That is a lot of anything. I would like you to keep that number in your head. It is more than a bathtub. It is more than a few bathtubs. And what is about to happen to it is, in the plain words of the Gospel, a matter of the servants and the stone jars and nobody else.
+
+Jesus says to the servants, fill the jars with water.
+
+That is all. Not, bring me wine. Not, go to the next village. Not, let us have a prayer. Fill the jars with water.
+
+Now, I do not know about you, but when I think of a servant being told, at the moment the wine has run out, to fill six enormous jars with water, I feel that I would have asked a question. The servants have a perfectly good reason to ask one. There is no wine, and you want us to bring water? The well is a walk away. The jars are heavy. A good many trips are involved. And the whole thing, as far as they can see, will make no difference to the problem.
+
+But they do not ask. The Gospel says only, and they filled them up to the brim.
+
+Up to the brim. I love that. Not, they put some water in. Not, they filled them about halfway, to be sensible. Up to the brim. Which means the servants went to the well, and came back, and went to the well, and came back, perhaps for an hour, perhaps more. A hundred gallons or more, a bucket at a time. And there was no sign, the whole while, that it was going to be worth it. They simply did what they had been told. They did whatever he told them.
+
+And that, I think, is the part of the story that nobody at the head table will ever know. The Gospel will say so, at the end, in one quiet clause. The servants who had drawn the water knew. They are the only ones who see the whole thing. They are the ones who carried it. And they are, I think, the quiet heroes of the evening.
+
+[pause]
+
+When the last jar is full, Jesus says to them, now draw some out and take it to the steward of the feast.
+
+Now draw some out.
+
+Think of the moment when a servant dips a cup into a jar he has just filled with water, and lifts it, and looks. The Gospel does not describe what he sees. It does not tell us what he smelled, or whether his hands shook, or whether he looked at his friend. It does not say, and so I will not say either. I will only say that he is holding a cup. And that the steward of the feast, the man in charge of the whole banquet, is waiting at the head table. And that there is nothing for it but to carry the cup across the courtyard.
+
+I will tell you something I find very touching. The servants do not know that it will work. They do not know what is in the cup. They have simply done everything they were told up to this moment, and so they do this too. The whole of the miracle, from their side, is a long chain of small obediences, each one of which looks, at the time, a little bit foolish.
+
+And here is the thing I would like you to keep, for tonight. The Gospel does not say Jesus touched the jars. It does not say he spoke a word over them. It does not say he lifted a hand. It says only that he told the servants to fill them, and then to draw some out. The change is simply reported, in the quietest way, in the sentence that follows. Whatever happened, happened between the filling and the tasting. And John, who could have told us how, says nothing at all. I think that is a kind of reverence.
+
+* * *
+
+The steward of the feast is a man with a job to do.
+
+He is the one in charge of the table. It is his task to see that the food is served and the wine is poured, and that everything is done in good order. He is, I suppose, the nearest thing the wedding has to a head waiter, and he takes it seriously, in the way that head waiters do. He does not know about the empty jars. He does not know about the servants, or the water, or the long walk to the well. For all he knows, the cup that is being brought to him is simply the next round.
+
+So he takes it, and he tastes it.
+
+And the Gospel says that when the steward tasted the water that had become wine, and did not know where it came from, though the servants who had drawn the water knew, he called the bridegroom.
+
+Look at those words. The water that had become wine. John does not say, what looked like wine. He does not say, a kind of wine. He says it plainly: the water had become wine. And then he gives us, almost in passing, the little hinge on which the whole story swings: the steward did not know where it came from, but the servants knew.
+
+The steward, I think, is a little bewildered. He has been given a cup, and the cup contains the best wine he has tasted in a long time, and he does not know where it has come from. The servants, who know everything, say nothing. So he does the only thing a head waiter can do, which is to go and find the man whose wedding it is, and to say what is on his mind.
+
+And what is on his mind is this. Everyone, he says to the bridegroom, serves the good wine first, and then, when people have drunk freely, the inferior wine. But you have kept the good wine until now.
+
+It is a lovely line, and also a very human one. He is not praising God. He does not know that he should. He is, as far as he can tell, praising the bridegroom, for a bit of clever hosting. He is telling the host, in the manner of a professional, that he has broken the rules of the trade, and, surprisingly, got away with it. Everybody knows, he says, that by the time the guests are a few cups in, they can no longer tell the difference, and so you bring out the cheaper wine. And you, my friend, have done the opposite.
+
+I think the bridegroom's face at this moment is one of the best pictures in the whole Gospel, and the Gospel does not tell us what it looked like. I imagine, if I am allowed to imagine, that he looks confused, and then pleased, and then rather puzzled, and then decides, wisely, not to ask. After all, it is his wedding. He is not going to look at a good thing too closely. He is simply going to say thank you and be happy.
+
+And that is where the Gospel leaves the head table. There is no announcement. There is no gasp. Nobody stops the music. The great sign, the first of them, passes through the middle of the wedding like a man walking quietly through a room, and nearly everyone is looking the other way. The guests go on drinking, and the children go on running, and the grandmother, who has got her breath back, goes on laughing. Only a handful of people in the whole village know what has happened. A few servants with tired arms. A mother. A son. And, in a little while, a handful of men who have been following him for only a few days, and who are about to find out what they have joined.
+
+[pause]
+
+Now we should say what the Gospel says about it, because John does not leave us guessing.
+
+He says, this, the first of his signs, Jesus did at Cana in Galilee, and manifested his glory. And his disciples believed in him.
+
+A sign. That is the word John uses for the wonders that Jesus does. Not a trick, not a display. A sign: something that points. John will tell of several more, usually counted as seven in all, and this is the first. It points beyond itself. The water in the stone jars, set aside for the old rites of washing, is turned into wine, which in the Scriptures is a sign of gladness and of the feast that God has promised. The old and the new, the Law and the joy that was always coming, are set together in a courtyard at a village wedding. I will not say more than that, because John does not, and because it is the kind of thing that grows when you let it.
+
+And his glory. The word is a great one. In the first chapter of this same Gospel, John has told us that the Word became flesh and lived among us, and that we have seen his glory. Here is the first time we are shown it. And where? Not on a mountain. Not in a temple. At a table, in a courtyard, in the middle of a party, in a quiet act that rescues a family from embarrassment.
+
+And his disciples believed in him. The little band of men who had only known him for a few days, who were still, I think, at the stage of carrying their bags and watching, are the ones who are given to see it. Not the crowd. Not the head table. A few men who were close enough to understand what they were looking at. That is how it begins, in John's account: with a few friends, at a wedding, on the third day.
+
+* * *
+
+I want to go back, for a moment, to the servants.
+
+There is a thing about this story that I do not think we notice at first. It is, from start to finish, a story about people who were asked to do small things, and did them. A mother who noticed a need. Servants who filled the jars. A man who carried a cup. At no point in it does anybody do anything grand. At no point does anyone, except the Lord, do anything that could be called a miracle. The whole story is made of the ordinary work of an ordinary wedding, a mother's attention and a servant's hands, and into the middle of it, a single act that nobody at the head table sees.
+
+I think this is why the story is so loved. It tells the truth about how a good many things get done. They get done because someone noticed, and someone said so, and someone else carried the water. They get done in rooms where nobody is clapping. And they are done, as often as not, by people whose names are never written down. The Gospel does not tell us the names of the servants. It does not tell us the name of the steward, or the bride, or the groom. It tells us only that they were there, and that they did what they were asked, and that the servants knew.
+
+I find that a comfort. If you are someone who carries things, quietly, in a house where nobody notices, who fills the jars and goes back to the well, then this is a story for you. The Gospel remembers. The servants knew.
+
+[pause]
+
+Now let us let the evening wind down.
+
+The Gospel does not tell us how the wedding ended. It does not say when the last guest went home, or whether the music went on until dawn. It tells us only one more thing, in the next sentence, which is that after this, Jesus went down to Capernaum, with his mother and his brothers and his disciples, and they stayed there a few days.
+
+So I will tell you what a wedding in a village like that is like at the end, and I will say plainly that it is my guess. The lamps burn low. The children have fallen asleep in odd places, under tables, on cushions, one of them in a basket meant for bread. The music has become quiet. A man is still talking to his neighbour, in the way people do at the end of a very good evening, when nobody wants to be the first to leave. The servants are clearing the dishes, more slowly than they began. The six stone jars stand by the wall, as they always did, and nobody looks at them twice.
+
+Somewhere, a mother is sitting a little to one side, with her hands in her lap, and she is watching her son. She has not said anything more. She has not needed to. She told the servants what to do, and they did it, and the rest, she knew, was in other hands.
+
+I wonder what she is thinking. The Gospel does not tell us. But there is a sentence elsewhere, in Luke, that says she kept all these things and pondered them in her heart. I think she is pondering now. Quietly, in the lamplight, at the end of a wedding, with the smell of good wine still in the air.
+
+And the bride and the groom, who have no idea what has been done for them, are asleep, or nearly, and very happy. And I think that is exactly how it should be. Not every gift has to be understood on the night it is given.
+
+The wind is soft. The village is quiet. The stars are out over the hills of Galilee, over the olive trees and the threshing floor and the well, and the road that runs down to the lake. In a few days, the little company will go down to Capernaum. And in a few years, a great deal will have happened. But that is for other nights.
+
+For now, there is only a courtyard, and a few lamps, and six stone jars, empty again, standing against the wall. And in the house, a couple who will remember their wedding as the one where the wine was so good.
+
+[pause]
+
+Let us be quiet for a moment.
+
+Think of the last time you were short of something. Patience, perhaps, or money, or words. Think of the person who noticed, and did not make a fuss, and simply said what was needed to the one who could help. And think of the small things you were asked to do, in the meantime, that did not seem to make any difference, and the quiet way that things sometimes turn out.
+
+You do not have to do anything about it tonight. The jars are full. The one who knows what to do with them is in the house. And the one who told the servants to listen is still saying it, softly, to anyone who will hear: do whatever he tells you.
+
+[pause]
+
+Some notes for the curious. The story we have told is in the Gospel according to John, chapter two, verses one to eleven, which Catholic and Orthodox Christians read as Scripture. It is found only in John; the other three Gospels do not tell it. What happens, and what is said by Mary, by Jesus, by the steward and by the servants, follows the text. The village, the weather, the children and the honey cakes, the talk among the servants, and every guess about what anyone felt, are ours.
+
+Three things are worth being careful about. First, the size of the jars. John says two or three measures, and the Greek measure is roughly nine gallons, so each jar held something like eighteen to twenty-seven gallons, or seventy to a hundred litres. Six of them is a very great deal, and we have given the figures as our own sums, not as numbers the Gospel states. Second, the words to Mary. What is that to me and to you is a difficult phrase, and writers in both traditions have understood it in different ways; we have said only that it is not harsh, and that it keeps a question open. Third, the question of whose wedding it was, and where Cana was. Some old writers guessed at the bridegroom, and several villages in Galilee have been named as the place. The Gospel names neither, and we have named neither.
+
+I should also say that I have not described how the water became wine. John does not, and the Church, in both traditions, has been wise to leave it. And I have not made the story into a lesson of my own beyond what John says: that it was a sign, that it showed his glory, and that his disciples believed.
+
+Saint Mary is honoured in both the Catholic and the Orthodox traditions, and the wedding at Cana is Scripture for both. Where the two traditions differ in how they speak of her, we have said nothing, and we leave it alone.
+
+[pause]
+
+That's the story of the wedding at Cana and the six stone jars for tonight. In the Catholic Church the Gospel is read on the Second Sunday in Ordinary Time, in the year of the cycle that uses John, and that is the only date we will give. Thank you for listening to Saints by Candlelight. If you enjoyed it, share it with someone who could use a gentle story at the end of a long day.
+
+And here is a blessing. May you be given, tonight, a quiet eye for what is needed, and the courage to say so to the one who can help. May you fill the jars you are asked to fill, up to the brim, even when you cannot see why. May there be good wine at the end of every long evening, better than you were expecting. And if you should ever be one of the servants who knew, may you find that you were never forgotten. May the Lord who sat at the table at Cana, and the mother who said, do whatever he tells you, go with you, tonight and always.
+
+Goodnight, and God bless.
