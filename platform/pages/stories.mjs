@@ -104,6 +104,8 @@ const STYLE = `
   .jump a { display:inline-block; padding:5px 12px; border:1px solid var(--line); border-radius:999px; background:var(--panel);
     text-decoration:none; color:var(--ink); font-size:.9rem; }
   .shelf { background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:18px 20px; margin:0 0 18px; scroll-margin-top:16px; }
+  h2 a { color:var(--ink); text-decoration:none; }
+  h2 a:hover, h2 a:focus-visible { color:var(--accent); text-decoration:underline; text-underline-offset:.18em; }
   .tagline { margin:0; color:var(--muted); font-weight:600; }
   .shelf > p { max-width:68ch; }
   .meta { font-size:.84rem; color:var(--muted); }

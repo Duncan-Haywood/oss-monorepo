@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { vatReturn, addAsset, taxableBusinessIncome, s179Carryforward, writeOff, lockPeriod, newBooks, importStatement, confirm, parseSplit, suggestRules, addRules, acceptSuggestions, journal, reports, closeChecks, exportJournal, exportLines, status, analyze } from "./engine.mjs";
 import { parseCents, parseDate, readStatement, checkRunningBalance } from "./bank.mjs";
-import { validateEntry, DEFAULT_ACCOUNTS, parseAccounts } from "./ledger.mjs";
+import { validateEntry, DEFAULT_ACCOUNTS, parseAccounts, cashFlow, cashFlowByMonth, ratios, breakEven, daysOutstanding, profitAndLoss, balanceSheet } from "./ledger.mjs";
 import { payeeKey, suggest, parseRules } from "./categorize.mjs";
 import { generateYear, toCsv } from "./eval/synth.mjs";
 import { runSeed } from "./eval/benchmark.mjs";
@@ -367,6 +367,12 @@ test("analyze takes documents and returns the aging", () => {
   assert.equal(r.status.settled, 1);
 });
 
+test("analyze returns the cash-basis view only when documents are given", () => {
+  const r = analyze({ statements: [{ csv: PAID, account: "1000" }], documents: [{ csv: DOCS }] });
+  assert.equal(r.cashBasis.accrual.net, r.reports.profitAndLoss.net);
+  assert.equal(analyze({ statements: [{ csv: PAID, account: "1000" }] }).cashBasis, null);
+});
+
 test("ablation: switching a layer off removes its suggestions, and without memory nothing posts alone", () => {
   const full = runSeed(1).slice(3), noMem = runSeed(1, undefined, { skipLayers: ["memory"] }).slice(3);
   const sum = (rows, k) => rows.reduce((a, r) => a + r[k], 0);
@@ -713,6 +719,20 @@ test("the cash flow statement ties to the change in the bank accounts", () => {
   assert.ok(ex.ties, "ties for a sub-period, with an opening cash balance");
 });
 
+test("cash flow reports monthly burn and runway only when operations and investing use cash", () => {
+  const acc = DEFAULT_ACCOUNTS, bank = acc.find((a) => a.bank).code;
+  const e = (id, date, debit, credit, amt) => ({ id, date, memo: id, lines: [{ account: debit, debit: amt, credit: 0 }, { account: credit, debit: 0, credit: amt }] });
+  const burning = [e("a", "2026-01-01", bank, "3000", 1000000), e("b", "2026-01-31", "6060", bank, 300000), e("c", "2026-03-31", "6060", bank, 300000)];
+  const c = cashFlow(burning, acc, { from: "2026-01-01", to: "2026-03-31" });
+  assert.equal(c.monthlyBurn, Math.round(-(c.operating + c.investing) / (90 / 30.4375)));
+  assert.equal(c.financing, 1000000, "equity in is financing and is not netted against burn");
+  assert.equal(c.monthlyBurn, 202917, "600,000 over 90 days");
+  assert.equal(c.runwayMonths, 2, "400,000 left at that pace");
+  const earning = cashFlow([e("d", "2026-01-05", bank, "4000", 500000)], acc, {});
+  assert.equal(earning.monthlyBurn, 0);
+  assert.equal(earning.runwayMonths, null);
+});
+
 test("taxableBusinessIncome swaps book depreciation for MACRS and bonus, and the 179 limit follows", async () => {
   const { setTaxTreatment, taxDepreciation } = await import("./taxdepr.mjs");
   let b = newBooks();
@@ -821,4 +841,91 @@ test("ledger export declares its accounts and commodity so strict checkers accep
   assert.match(txt, /^account Expenses:Software-and-subscriptions$/m);
   assert.match(txt, /-12\.50 Fr$/m);
   assert.ok(!/^account /m.test(exportJournal(b, "beancount")));
+});
+
+test("cash flow adds depreciation back in operating and shows disposal proceeds in investing", async () => {
+  const { disposeAsset } = await import("./assets.mjs");
+  let b = addAsset(newBooks(), { name: "Press", date: "2026-03-01", cost: "6000", lifeMonths: 60 }).books;
+  let c = reports(b).cashFlow;
+  assert.ok(c.ties);
+  assert.ok(c.operatingItems.some((i) => i.code === "6950" && i.amount > 0), "depreciation added back");
+  assert.ok(c.investingItems.every((i) => i.code !== "1590"), "accumulated depreciation is not an investing line");
+  assert.equal(c.freeCashFlow, c.operating - c.capex);
+  assert.ok(c.capex >= 0);
+  b = disposeAsset(b, "FA-1", { date: "2026-09-30", proceeds: "5000" }).books;
+  c = reports(b).cashFlow;
+  assert.ok(c.ties);
+  assert.equal(c.investing, 500000, "investing shows the proceeds, not the net book value (the purchase is not in these books)");
+});
+
+test("cashFlowByMonth gives each month's statement and a recent-burn runway that moves with the trend", () => {
+  const acc = DEFAULT_ACCOUNTS, bank = acc.find((a) => a.bank).code;
+  const e = (id, date, debit, credit, amt) => ({ id, date, memo: id, lines: [{ account: debit, debit: amt, credit: 0 }, { account: credit, debit: 0, credit: amt }] });
+  const books = [e("a", "2026-01-01", bank, "3000", 1000000), e("b", "2026-01-31", "6060", bank, 100000), e("c", "2026-02-15", "6060", bank, 100000), e("d", "2026-03-10", "6060", bank, 200000), e("f", "2026-04-20", "6060", bank, 300000)];
+  const r = cashFlowByMonth(books, acc, {});
+  assert.deepEqual(r.months.map((m) => m.month), ["2026-01", "2026-02", "2026-03", "2026-04"]);
+  assert.deepEqual(r.months.map((m) => m.operating), [-100000, -100000, -200000, -300000]);
+  assert.equal(r.months[0].financing, 1000000);
+  assert.deepEqual(r.months.map((m) => m.closingCash), [900000, 800000, 600000, 300000]);
+  assert.equal(r.recentBurn, 200000, "mean of Feb-Apr");
+  assert.equal(r.recentRunwayMonths, 1.5);
+  assert.equal(cashFlowByMonth([], acc, {}).recentRunwayMonths, null);
+  const clipped = cashFlowByMonth(books, acc, { from: "2026-02-10", to: "2026-03-31" });
+  assert.deepEqual(clipped.months.map((m) => m.operating), [-100000, -200000]);
+});
+
+test("ratios: margins, current and quick ratio, working capital, debt to equity", () => {
+  const acc = DEFAULT_ACCOUNTS;
+  const e = (id, debit, credit, amt) => ({ id, date: "2026-03-01", memo: id, lines: [{ account: debit, debit: amt, credit: 0 }, { account: credit, debit: 0, credit: amt }] });
+  const entries = [e("a", "1000", "3010", 1000000), e("b", "1450", "2000", 200000), e("c", "1100", "4000", 500000), e("d", "5000", "1000", 100000), e("f", "1000", "2200", 300000)];
+  const r = ratios(profitAndLoss(entries, acc, {}), balanceSheet(entries, acc, {}));
+  assert.equal(r.grossMargin, 0.8);
+  assert.equal(r.netMargin, 0.8);
+  assert.equal(r.currentAssets, 1900000);
+  assert.equal(r.currentLiabilities, 200000, "the loan is long term");
+  assert.equal(r.currentRatio, 9.5);
+  assert.equal(r.quickRatio, 8.5, "inventory is left out");
+  assert.equal(r.workingCapital, 1700000);
+  assert.equal(r.debtToEquity, 0.36);
+  const none = ratios({ expense: [], totalIncome: 0, net: 0 }, { assets: [], liabilities: [], totalLiabilities: 0, totalEquity: 0 });
+  assert.equal(none.grossMargin, null);
+  assert.equal(none.currentRatio, null);
+  assert.equal(none.debtToEquity, null);
+});
+
+test("breakEven: fixed costs over the contribution margin, null when nothing is left per sale", () => {
+  const acc = DEFAULT_ACCOUNTS;
+  const e = (id, date, debit, credit, amt) => ({ id, date, memo: id, lines: [{ account: debit, debit: amt, credit: 0 }, { account: credit, debit: 0, credit: amt }] });
+  const entries = [e("a", "2026-01-10", "1000", "4000", 1000000), e("b", "2026-02-10", "1000", "4000", 1000000), e("c", "2026-01-12", "5000", "1000", 400000), e("d", "2026-01-15", "6080", "1000", 300000), e("f", "2026-02-15", "6080", "1000", 300000)];
+  const b = breakEven(profitAndLoss(entries, acc, {}));
+  assert.equal(b.months, 2);
+  assert.equal(b.contributionMargin, 0.8);
+  assert.equal(b.monthlyIncome, 1000000);
+  assert.equal(b.monthlyFixed, 300000);
+  assert.equal(b.breakEvenMonthly, 375000);
+  assert.equal(b.marginOfSafety, 0.625);
+  const rent = breakEven(profitAndLoss(entries, acc, {}), { variable: ["5000", "6080"] });
+  assert.equal(rent.monthlyFixed, 0);
+  const dead = [e("a", "2026-01-10", "1000", "4000", 100000), e("c", "2026-01-12", "5000", "1000", 120000)];
+  assert.equal(breakEven(profitAndLoss(dead, acc, {})).breakEvenMonthly, null);
+  assert.equal(breakEven(profitAndLoss([], acc, {})), null);
+});
+
+test("daysOutstanding: open receivable and payable over the period's flow, null when nothing is open", () => {
+  const acc = [...DEFAULT_ACCOUNTS, { code: "2050", name: "Accounts payable", type: "liability" }];
+  const e = (id, date, debit, credit, amt) => ({ id, date, memo: id, lines: [{ account: debit, debit: amt, credit: 0 }, { account: credit, debit: 0, credit: amt }] });
+  const entries = [e("a", "2026-01-10", "1100", "4000", 1000000), e("b", "2026-02-10", "1000", "4000", 1000000), e("c", "2026-02-12", "6080", "2050", 300000)];
+  const pnl = profitAndLoss(entries, acc, {});
+  const d = daysOutstanding(pnl, balanceSheet(entries, acc, {}));
+  assert.equal(d.receivableDays, 30.4); // 1,000,000 open of 2,000,000 over 60.875 days
+  assert.equal(d.payableDays, 60.9); // everything bought is still owed
+  const none = daysOutstanding(profitAndLoss([], acc, {}), balanceSheet([], acc, {}));
+  assert.deepEqual(none, { receivableDays: null, payableDays: null });
+});
+
+test("a part-payment named only by a one-word overlap with a two-word party is not matched", () => {
+  const docs = "type,number,date,due,party,amount,account\ninvoice,9,2026-01-01,,Nobody Paid,1200.00,4000\n";
+  const b = withDocs(docs, "Date,Description,Amount\n2026-01-05,Card paid at cafe,12.00\n2026-01-06,NOBODY PAID PART,300.00\n");
+  const s = settle(b);
+  assert.equal(s.transactions.filter((t) => t.partial).length, 1, "only the line with both words is a part-payment");
 });

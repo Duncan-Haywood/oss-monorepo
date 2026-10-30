@@ -1,0 +1,172 @@
+{
+  "date": "2026-10-26",
+  "session": "https://claude.ai/code/session_01BXvfi2y2AuZLCBiZuJxacS",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-26T11:23:57Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 10634,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "no real defects found in the time spent; no blog post written beyond the short one below"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-26-redteam-estimatedtax.md"
+  ],
+  "goal": null,
+  "notes": "Target ventures/ai-bookkeeper/estimatedtax.mjs; 3/8 caught, 5 gaps closed by one test; rerun 8/8.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/ai-bookkeeper/estimatedtax.mjs",
+        "test": "node --test ventures/ai-bookkeeper/**/*.test.mjs  (in .)",
+        "seed": 609897445,
+        "commit": "a91841af",
+        "sites": 193,
+        "baseline_seconds": 10.4,
+        "mutants": [
+          {
+            "file": "ventures/ai-bookkeeper/estimatedtax.mjs",
+            "line": 24,
+            "col": 21,
+            "operator": "const-plus-one",
+            "before": "single: { std: D(16100), b: [[D(12400), 0.10], [D(50400), 0.12], [D(105700), 0.22], [D(201775), 0.24], [D(256225), 0.32], [D(640600), 0.35], [Infinity, 0.37]] },",
+            "after": "single: { std: D(16101), b: [[D(12400), 0.10], [D(50400), 0.12], [D(105700), 0.22], [D(201775), 0.24], [D(256225), 0.32], [D(640600), 0.35], [Infinity, 0.37]] },",
+            "line_text": "    single: { std: D(16100), b: [[D(12400), 0.10], [D(50400), 0.12], [D(105700), 0.22], [D(201775), 0.24], [D(256225), 0.32], [D(640600), 0.35], [Infinity, 0.37]] },",
+            "caught": true,
+            "seconds": 10.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ai-bookkeeper/estimatedtax.mjs",
+            "line": 95,
+            "col": 113,
+            "operator": "div-to-times",
+            "before": "if (addlMedicare) warnings.push(\"Includes the 0.9% Additional Medicare Tax (Form 8959) on earnings above \" + T / 100 + \"; an employer withholds it on wages over $200,000 only, so check the wage part against your W-2.\");",
+            "after": "if (addlMedicare) warnings.push(\"Includes the 0.9% Additional Medicare Tax (Form 8959) on earnings above \" + T * 100 + \"; an employer withholds it on wages over $200,000 only, so check the wage part against your W-2.\");",
+            "line_text": "  if (addlMedicare) warnings.push(\"Includes the 0.9% Additional Medicare Tax (Form 8959) on earnings above \" + T / 100 + \"; an employer withholds it on wages over $200,000 only, so check the wage part against your W-2.\");",
+            "caught": false,
+            "seconds": 11.0,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "new test in estimatedtax.test.mjs (redteam 2026-10-26 guard)"
+          },
+          {
+            "file": "ventures/ai-bookkeeper/estimatedtax.mjs",
+            "line": 111,
+            "col": 46,
+            "operator": "ge-to-gt",
+            "before": "const future = asOf ? dates.filter((d) => d >= asOf) : dates;",
+            "after": "const future = asOf ? dates.filter((d) => d > asOf) : dates;",
+            "line_text": "  const future = asOf ? dates.filter((d) => d >= asOf) : dates;",
+            "caught": false,
+            "seconds": 11.0,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "new test in estimatedtax.test.mjs (redteam 2026-10-26 guard)"
+          },
+          {
+            "file": "ventures/ai-bookkeeper/estimatedtax.mjs",
+            "line": 121,
+            "col": 37,
+            "operator": "const-plus-one",
+            "before": "const balanceWithReturn = Math.max(0, total - withholding - Math.max(paid, 0) - payments.reduce((s, p) => s + p.cents, 0));",
+            "after": "const balanceWithReturn = Math.max(1, total - withholding - Math.max(paid, 0) - payments.reduce((s, p) => s + p.cents, 0));",
+            "line_text": "  const balanceWithReturn = Math.max(0, total - withholding - Math.max(paid, 0) - payments.reduce((s, p) => s + p.cents, 0));",
+            "caught": false,
+            "seconds": 10.7,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "new test in estimatedtax.test.mjs (redteam 2026-10-26 guard)"
+          },
+          {
+            "file": "ventures/ai-bookkeeper/estimatedtax.mjs",
+            "line": 121,
+            "col": 46,
+            "operator": "minus-to-plus",
+            "before": "const balanceWithReturn = Math.max(0, total - withholding - Math.max(paid, 0) - payments.reduce((s, p) => s + p.cents, 0));",
+            "after": "const balanceWithReturn = Math.max(0, total + withholding - Math.max(paid, 0) - payments.reduce((s, p) => s + p.cents, 0));",
+            "line_text": "  const balanceWithReturn = Math.max(0, total - withholding - Math.max(paid, 0) - payments.reduce((s, p) => s + p.cents, 0));",
+            "caught": true,
+            "seconds": 10.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ai-bookkeeper/estimatedtax.mjs",
+            "line": 121,
+            "col": 60,
+            "operator": "minus-to-plus",
+            "before": "const balanceWithReturn = Math.max(0, total - withholding - Math.max(paid, 0) - payments.reduce((s, p) => s + p.cents, 0));",
+            "after": "const balanceWithReturn = Math.max(0, total - withholding + Math.max(paid, 0) - payments.reduce((s, p) => s + p.cents, 0));",
+            "line_text": "  const balanceWithReturn = Math.max(0, total - withholding - Math.max(paid, 0) - payments.reduce((s, p) => s + p.cents, 0));",
+            "caught": false,
+            "seconds": 9.7,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "new test in estimatedtax.test.mjs (redteam 2026-10-26 guard)"
+          },
+          {
+            "file": "ventures/ai-bookkeeper/estimatedtax.mjs",
+            "line": 123,
+            "col": 200,
+            "operator": "plus-to-minus",
+            "before": "return { year, filing, monthsElapsed: months, profit, se, agi, standardDeduction: std, qbiDeduction, taxable, incomeTax, addlMedicare, marginalRate: marginal, totalTax: total, effectiveRate: profit + wages + other > 0 ? total / (profit + wages + other) : 0, safeHarbor: { current90, prior, required, exempt }, withholding, paid, payments, balanceWithReturn, warnings };",
+            "after": "return { year, filing, monthsElapsed: months, profit, se, agi, standardDeduction: std, qbiDeduction, taxable, incomeTax, addlMedicare, marginalRate: marginal, totalTax: total, effectiveRate: profit - wages + other > 0 ? total / (profit + wages + other) : 0, safeHarbor: { current90, prior, required, exempt }, withholding, paid, payments, balanceWithReturn, warnings };",
+            "line_text": "  return { year, filing, monthsElapsed: months, profit, se, agi, standardDeduction: std, qbiDeduction, taxable, incomeTax, addlMedicare, marginalRate: marginal, totalTax: total, effectiveRate: profit + wages + other > 0 ? total / (profit + wages + other) : 0, safeHarbor: { current90, prior, required, exempt }, withholding, paid, payments, balanceWithReturn, warnings };",
+            "caught": false,
+            "seconds": 11.0,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "new test in estimatedtax.test.mjs (redteam 2026-10-26 guard)"
+          },
+          {
+            "file": "ventures/ai-bookkeeper/estimatedtax.mjs",
+            "line": 123,
+            "col": 228,
+            "operator": "div-to-times",
+            "before": "return { year, filing, monthsElapsed: months, profit, se, agi, standardDeduction: std, qbiDeduction, taxable, incomeTax, addlMedicare, marginalRate: marginal, totalTax: total, effectiveRate: profit + wages + other > 0 ? total / (profit + wages + other) : 0, safeHarbor: { current90, prior, required, exempt }, withholding, paid, payments, balanceWithReturn, warnings };",
+            "after": "return { year, filing, monthsElapsed: months, profit, se, agi, standardDeduction: std, qbiDeduction, taxable, incomeTax, addlMedicare, marginalRate: marginal, totalTax: total, effectiveRate: profit + wages + other > 0 ? total * (profit + wages + other) : 0, safeHarbor: { current90, prior, required, exempt }, withholding, paid, payments, balanceWithReturn, warnings };",
+            "line_text": "  return { year, filing, monthsElapsed: months, profit, se, agi, standardDeduction: std, qbiDeduction, taxable, incomeTax, addlMedicare, marginalRate: marginal, totalTax: total, effectiveRate: profit + wages + other > 0 ? total / (profit + wages + other) : 0, safeHarbor: { current90, prior, required, exempt }, withholding, paid, payments, balanceWithReturn, warnings };",
+            "caught": true,
+            "seconds": 11.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": []
+  }
+}

@@ -458,6 +458,17 @@ class OneOriginPerGate(unittest.TestCase):
         self.assertEqual(wrote, [], "the snapshot must not be rewritten over a conflict")
         self.assertIn("GITHUB_PAGES_ENABLED", err.getvalue())
 
+    def test_report_mode_and_json_mode_exit_zero(self):
+        # Report mode is informational: a status other than 0 would turn the
+        # plain listing into a failing CI step.
+        for argv in (["publish_surface.py"], ["publish_surface.py", "--json"]):
+            with unittest.mock.patch.object(ps, "survey", return_value=([], [])), \
+                 unittest.mock.patch.object(ps, "pages_branch_survey", return_value={}), \
+                 unittest.mock.patch.object(ps, "render_pages_branch", return_value=""), \
+                 unittest.mock.patch.object(sys, "argv", argv):
+                with contextlib.redirect_stdout(io.StringIO()):
+                    self.assertEqual(ps.main(), 0, argv)
+
     def test_the_live_repository_has_at_most_one_pages_deploy_per_gate(self):
         # The check above proves the logic; this proves the repository.
         rows, errors = ps.survey()

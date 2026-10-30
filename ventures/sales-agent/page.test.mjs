@@ -97,3 +97,10 @@ test("the call section is wired to prep and follow-up and both run", async () =>
   assert.equal(stopped.draft, null);
   assert.doesNotMatch(page("prep.mjs") + page("followup.mjs"), /fetch\(|XMLHttpRequest|sendBeacon|WebSocket/);
 });
+
+test("index page's relative links point at servable files, so the front-door mirror can build", () => {
+  // Markdown is not mirrored: a relative link to a .md file is a dead link there
+  // and makes `front-door-tools.mjs` refuse to build the whole mirror.
+  const hrefs = [...page("index.html").matchAll(/href="([^"#?:]+)"/g)].map((m) => m[1]);
+  assert.deepEqual(hrefs.filter((h) => /\.md$/i.test(h)), []);
+});

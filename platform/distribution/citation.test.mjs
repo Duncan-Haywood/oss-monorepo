@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { titleOf, bibEntry, citationCff, run, REPO_URL } from './citation.mjs';
+import { titleOf, bibEntry, citationCff, run, REPO_URL, YEAR } from './citation.mjs';
 
 async function fixture() {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), 'citetest-'));
@@ -46,4 +46,25 @@ test('run: skips underscore dirs and dirs without README; write then check is cl
   assert.doesNotMatch(bib, /homepage|noreadme/);
   r = await run({ root, check: true, log: () => {} });
   assert.deepEqual(r.stale, []);
+});
+
+test('titleOf truncates only above 200 characters, to 200 with an ellipsis', () => {
+  assert.equal(titleOf('s', `# ${'a'.repeat(200)}`), 'a'.repeat(200));
+  assert.equal(titleOf('s', `# ${'a'.repeat(201)}`), `${'a'.repeat(197)}...`);
+});
+
+test('bibEntry stamps the fixed year', () => {
+  assert.equal(YEAR, 2026);
+  assert.match(bibEntry('a', 't'), /year = \{2026\}/);
+});
+
+test('citationCff keywords are a YAML block list', () => {
+  const block = /^keywords:\n((?:  - .+\n)+)$/m.exec(citationCff());
+  assert.ok(block, 'keywords must be "  - item" lines to the end of the file');
+  assert.equal(block[1].trim().split('\n').length, 8);
+});
+
+test('bibEntry escapes backslash, tilde and caret so titles cannot inject LaTeX', () => {
+  const e = bibEntry('a', 'x \\alpha ~ y ^ z');
+  assert.match(e, /title = \{x \\textbackslash\{\}alpha \\textasciitilde\{\} y \\textasciicircum\{\} z\}/);
 });

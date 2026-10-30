@@ -1,0 +1,2 @@
+tensors with nonzero init: 84 (tensor x seed); final/init max|w| ratio: median 1.35, 90th pct 2.84, max 3.89; share above 1.5: 0.38, above 2: 0.20, above 4: 0.00
+zero-init tensors: 36 (tensor x seed); their final max|w|: median 0.060, max 0.466 (global init max about 4)

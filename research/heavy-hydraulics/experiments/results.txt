@@ -1,0 +1,19 @@
+cases: 2916 of 2916
+load_sensing/open_centre: median 0.467 (min 0.219, max 0.814); load_sensing lower in 100.0% of cases
+metered/load_sensing: median 0.802 (min 0.684, max 0.965); metered lower in 100.0% of cases
+metered/open_centre: median 0.365 (min 0.172, max 0.690); metered lower in 100.0% of cases
+
+LS / open-centre by demand (flow scale):
+  demand 0.5: median 0.313
+  demand 0.75: median 0.470
+  demand 1.0: median 0.627
+metered / LS by pressure spread:
+  spread 0.0: median 0.876
+  spread 0.5: median 0.823
+  spread 1.0: median 0.779
+  spread 1.5: median 0.741
+
+reference cycle (defaults):
+  open_centre: shaft 156.1 kJ, hydraulic efficiency 39.8%
+  load_sensing: shaft 98.3 kJ, hydraulic efficiency 63.3%
+  metered: shaft 76.5 kJ, hydraulic efficiency 81.2%

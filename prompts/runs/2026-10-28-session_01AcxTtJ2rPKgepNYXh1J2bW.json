@@ -1,0 +1,54 @@
+{
+  "date": "2026-10-28",
+  "session": "https://claude.ai/code/session_01AcxTtJ2rPKgepNYXh1J2bW",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-28T10:20:32Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "verifiable-training-mechanisms"
+  ],
+  "pr": 11100,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "bare python3 lacked torch; pyenv.py printed the interpreter but needed torch listed explicitly (worked)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Did not run cite_check, programme-level checks or the full local workflow; step adds no citations."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-28-does-fp16-make-silent-bit-flips-in-weights-safer.md",
+    "research/verifiable-training-mechanisms/LOG.md"
+  ],
+  "goal": null,
+  "notes": "Milestone 43: bit flips by stored format. All four pre-registered predictions held. CI not waited on; ran research/_homepage/build.py (ok) only.",
+  "corrections": [],
+  "redteam": null
+}

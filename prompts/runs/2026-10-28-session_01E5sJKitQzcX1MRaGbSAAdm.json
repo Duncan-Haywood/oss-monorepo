@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-28",
+  "session": "https://claude.ai/code/session_01E5sJKitQzcX1MRaGbSAAdm",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-28T02:19:51Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 11019,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "no agent doc in docs/reports",
+      "did": "README note and post only",
+      "result": "slice too small to need one"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-28-auto-notified-mail-is-not-a-reply.md"
+  ],
+  "goal": null,
+  "notes": "Flagship 1 next-item 9 probed (eval/revproc-probe.mjs: 2027 procedure not out). Looked for real OOO mail in mail, MimeKit, mail-mime-parser, postal-mime: none. Landed a small sales-agent header fix, agent.test.mjs 11/11. Small slice; flagships.yaml next: not rewritten. No agent doc written.",
+  "corrections": [],
+  "redteam": null
+}

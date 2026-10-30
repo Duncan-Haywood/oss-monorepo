@@ -1,0 +1,8 @@
+H=4 excess by omega: {3.0: 0.0087, 7.0: 0.0188, 15.0: 0.0402, 31.0: 0.0772}
+  p=0.125: measured +0.0188 linear-fit +0.0188 err -0.0000
+  p=0.03125: measured +0.0772 linear-fit +0.0834 err +0.0063
+  power-law exponent b = 0.94 from 4 points
+H=64 excess by omega: {3.0: 0.0101, 7.0: 0.0366, 15.0: 0.0987, 31.0: 0.1834}
+  p=0.125: measured +0.0366 linear-fit +0.0452 err +0.0086
+  p=0.03125: measured +0.1834 linear-fit +0.2001 err +0.0167
+  power-law exponent b = 1.25 from 4 points

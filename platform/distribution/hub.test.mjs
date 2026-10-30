@@ -148,6 +148,7 @@ test('publish: email goes out on Mondays only, as a draft, listing only items no
   assert.equal(r2.posted, 1);
   assert.equal(sent.status, 'draft');
   assert.ok(sent.body.includes(post.url) && !sent.body.includes(tool.url));
+  assert.ok(sent.body.includes('(2026-10-19)'), 'the issue is dated by the send day');
 });
 
 test('instagram skips an item with no JPEG rather than posting without an image', async () => {
@@ -251,4 +252,21 @@ test('main: plan prints the post text and score --json is indented by two spaces
   const json = [];
   await main(['score', '--readings', file, '--json'], { log: (s) => json.push(s) });
   assert.match(json[0], /^\{\n {2}"status"/);
+});
+
+test('planAll: a tool launched exactly `days` before today still gets its own post, one day older goes to the digest only', () => {
+  const edge = toolItem('edge', '2026-10-17', { title: 'Edge', description: 'E.' });
+  const older = toolItem('older', '2026-10-16', { title: 'Older', description: 'O.' });
+  const plan = planAll([edge, older], { today: '2026-10-20', days: 3 });
+  const x = plan.find((e) => e.platform.id === 'x').variants.map((v) => v.item);
+  assert.deepEqual(x, ['tool:edge']);
+});
+
+test('main: publish with no switches set runs dry and reports it', async () => {
+  const out = [];
+  const results = await main(['publish', '--only', 'threads', '--today', '2026-10-20'], {
+    env: {}, fetchImpl: async () => { throw new Error('no network in a dry run'); }, log: (s) => out.push(s),
+  });
+  assert.equal(results.length, 1);
+  assert.match(out.join('\n'), /threads: DRY RUN \(DISTRIBUTE_THREADS is not "true"\)/);
 });

@@ -2,7 +2,7 @@
 title: "Does the bootstrap fix confidence intervals for simulator-assisted robot tests?"
 date: 2026-10-24
 description: "Studentised bootstrap lifts coverage from 92.0% to 93.6% on 21 MuJoCo sim-vs-real pairs at 30 real trials. Percentile bootstrap does worse. Neither reaches 95%."
-tags: [research, sim-to-real, statistics, digital-twins]
+tags: [research, sim-to-real, statistics, digital-twin]
 ---
 
 # Does the bootstrap fix confidence intervals for simulator-assisted robot tests?

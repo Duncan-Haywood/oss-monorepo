@@ -1,0 +1,31 @@
+reps per cell: 300; widths are full interval widths on the outcome scale
+[pendulum] min coverage over all cells and variants: 98.7
+  n=60: real betting c=0.99 / c=0.5 median 0.801, narrower on 17/21; c=0.99 / real EB median 0.284, narrower on 21/21
+      twin-assisted(exact mean)/real-only betting: c=0.99 median 1.217, min 0.831, narrower on 4/21; c=0.5 median 1.720, narrower on 0/21
+  n=240: real betting c=0.99 / c=0.5 median 1.006, narrower on 10/21; c=0.99 / real EB median 0.450, narrower on 21/21
+      twin-assisted(exact mean)/real-only betting: c=0.99 median 0.781, min 0.594, narrower on 20/21; c=0.5 median 1.277, narrower on 2/21
+  n=960: real betting c=0.99 / c=0.5 median 1.129, narrower on 0/21; c=0.99 / real EB median 0.714, narrower on 18/21
+      twin-assisted(exact mean)/real-only betting: c=0.99 median 0.567, min 0.490, narrower on 20/21; c=0.5 median 0.785, narrower on 20/21
+    friction-0 n=960 rho=0.88 ratio(c=.99)=0.540
+    friction-1 n=960 rho=0.88 ratio(c=.99)=0.555
+    none-0     n=960 rho=0.87 ratio(c=.99)=0.549
+    mass-0     n=960 rho=0.87 ratio(c=.99)=0.541
+    sensor-0   n=960 rho=0.86 ratio(c=.99)=0.567
+    mass-1     n=960 rho=0.86 ratio(c=.99)=0.504
+    delay-0    n=960 rho=0.85 ratio(c=.99)=0.530
+    mass-2     n=960 rho=0.85 ratio(c=.99)=0.497
+[cartpole] min coverage over all cells and variants: 99.7
+  n=60: real betting c=0.99 / c=0.5 median 0.629, narrower on 21/21; c=0.99 / real EB median 0.257, narrower on 21/21
+      twin-assisted(exact mean)/real-only betting: c=0.99 median 1.515, min 1.233, narrower on 0/21; c=0.5 median 1.778, narrower on 0/21
+  n=240: real betting c=0.99 / c=0.5 median 0.639, narrower on 21/21; c=0.99 / real EB median 0.280, narrower on 21/21
+      twin-assisted(exact mean)/real-only betting: c=0.99 median 1.374, min 0.976, narrower on 1/21; c=0.5 median 1.686, narrower on 0/21
+  n=960: real betting c=0.99 / c=0.5 median 0.699, narrower on 19/21; c=0.99 / real EB median 0.319, narrower on 21/21
+      twin-assisted(exact mean)/real-only betting: c=0.99 median 1.066, min 0.862, narrower on 4/21; c=0.5 median 1.447, narrower on 1/21
+    delay-3    n=960 rho=0.85 ratio(c=.99)=1.315
+    delay-2    n=960 rho=0.85 ratio(c=.99)=1.000
+    delay-1    n=960 rho=0.85 ratio(c=.99)=1.111
+    delay-0    n=960 rho=0.85 ratio(c=.99)=1.306
+    none-0     n=960 rho=0.85 ratio(c=.99)=1.000
+    mass-0     n=960 rho=0.85 ratio(c=.99)=1.028
+    sensor-0   n=960 rho=0.85 ratio(c=.99)=1.042
+    mass-1     n=960 rho=0.85 ratio(c=.99)=1.097

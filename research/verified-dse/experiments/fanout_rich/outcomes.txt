@@ -1,0 +1,6 @@
+cell | n ok | n failed | distinct R2 | distinct R4 | tau(R2,R4) | R2 pick regret % | R4 best / worst
+bcastadd64 relaxed | 50 | 10 | 36 | 38 | 0.80 | 0.0 | 36011 / 92956
+bcastadd64 tight | 50 | 10 | 36 | 38 | 0.73 | 0.4 | 27777 / 93183
+fanao96 relaxed | 50 | 10 | 37 | 38 | 0.14 | 13.7 | 9197 / 25105
+fanao96 tight | 50 | 10 | 37 | 39 | 0.20 | 14.6 | 9165 / 18291
+mean tau(R2,R4) over 4 cells: 0.47

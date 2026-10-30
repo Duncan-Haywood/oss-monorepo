@@ -162,10 +162,4 @@ is an owner step.
 
 ## Citation status
 
-On 2026-10-24 the session's egress proxy refused `arxiv.org`,
-`export.arxiv.org` and `api.crossref.org` (HTTP 403), so
-`research/_shared/cite_check.py` could not run. The ids above were written from
-memory of the papers and are **not machine-checked**; run
-`python3 research/_shared/cite_check.py research/lowcomm-training/PROPOSAL.md`
-from a session with access and compare each returned title with the line above
-before milestone 7. Any mismatch is fixed before the proposal is relied on.
+Checked 2026-10-29: `python3 research/_shared/cite_check.py research/lowcomm-training/PROPOSAL.md` resolved all 16 arXiv ids. Titles match the lines above, except 1909.04715, whose registry title is the first-version "First Analysis of Local GD on Heterogeneous Data"; the id is the paper cited as "Tighter theory for local SGD on identical and heterogeneous data" (the later title). The earlier note that the host was refused on 2026-10-24 no longer applies. What each paper settles is still stated from the abstract-level reading, not a full re-read.

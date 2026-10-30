@@ -1,0 +1,49 @@
+{
+  "date": "2026-10-25",
+  "session": "https://claude.ai/code/session_01KDUVUkm4itK9u2twp4xfMd",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-25T22:09:47Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "sim2real-inference"
+  ],
+  "pr": 10490,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/PROJECTS.md / LOG.md",
+      "issue": "LOG 'Next' pointed at real per-episode SIMPLER pairs, but only policy-level rates are published; cost time to establish."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-10-25-simpler-transcription-crosscheck.md",
+    "research/sim2real-inference/LOG.md"
+  ],
+  "goal": null,
+  "notes": "Milestone 4b: cross-checked SIMPLER transcription vs authors' dicts (70/72 match). The log entry was written after the first look at the data, disclosed as not pre-registered. Local checks: pytest, research build.py ok, check_md_links ok.",
+  "corrections": [],
+  "redteam": null
+}

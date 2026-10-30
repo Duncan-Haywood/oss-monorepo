@@ -820,6 +820,8 @@ test('--overdispersion nb --trend bend ranks knots with the negative-binomial li
   assert.ok(Math.abs(a.trend.growthChangesAt - 105) <= 15, `knot ${a.trend.growthChangesAt}`);
   const fit = poissonTrend(x, { bend: true, nbSize: 3.5 });
   assert.ok(Number.isFinite(fit.g) && fit.exposure.length === n);
+  assert.match(a.trend.growthChangeRangeNote, /optimistic/);
+  assert.equal(analyze({ values: x, model: 'poisson', trend: 'bend' }).trend.growthChangeRangeNote, undefined);
 });
 
 test('count trends refuse unknown modes, and a flat series gets a growth near zero', () => {
@@ -1280,4 +1282,17 @@ test('a change of growth rate in counts carries a 95% range that holds the plant
   assert.ok(c.toIndex - c.fromIndex < 60);
   const flat = Array.from({ length: 200 }, (_, t) => pois(Math.exp(2 + 0.004 * t)));
   assert.equal(analyze({ values: flat, model: 'poisson', trend: 'bend' }).trend.growthChangeRange95, undefined);
+});
+
+test('garchSigma: constant for white noise, rises after a volatility burst', async () => {
+  const { garchSigma } = await import('./engine.mjs');
+  let s = 7; const r = () => { s = (s * 16807) % 2147483647; return s / 2147483647; };
+  const g = () => Math.sqrt(-2 * Math.log(r())) * Math.cos(2 * Math.PI * r());
+  const white = Array.from({ length: 200 }, g);
+  const sg = garchSigma(white);
+  assert.equal(sg.length, 200);
+  assert.ok(sg.every((v) => v > 0 && isFinite(v)));
+  const burst = white.map((v, i) => (i >= 100 && i < 110 ? 6 * v : v));
+  const sb = garchSigma(burst);
+  assert.ok(sb[110] > sb[90]);
 });

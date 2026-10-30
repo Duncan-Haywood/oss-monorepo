@@ -1,0 +1,176 @@
+{
+  "date": "2026-10-29",
+  "session": "https://claude.ai/code/session_01AcxTtHcG2iLPxCwScjXpvi",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-29T02:06:44Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 11265,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "does not say that a (red) probe on a listed target is a real defect to trace; also promptctl validate fails on an unrelated post description over 160 chars (docs/posts/2026-10-29-salon-and-barber-bookkeeping-page.md)."
+    }
+  ],
+  "deviations": [],
+  "writeups": [],
+  "goal": null,
+  "notes": "share.mjs campaign: 8 mutants, 7 caught, 1 equivalent. Red baseline of sync_tree_counts.py traced to sales-agent dead link; fixed with a page test. Catch rate 7/8 before, 8/8 after triage.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "platform/pages/share.mjs",
+        "test": "node --test platform/pages/share.test.mjs  (in .)",
+        "seed": 1069674704,
+        "commit": "0d0ecdc2",
+        "sites": 106,
+        "baseline_seconds": 3.0,
+        "mutants": [
+          {
+            "file": "platform/pages/share.mjs",
+            "line": 139,
+            "col": 29,
+            "operator": "max-to-min",
+            "before": "const head = html.slice(0, Math.max(0, html.search(/<\\/head>/i)));",
+            "after": "const head = html.slice(0, Math.min(0, html.search(/<\\/head>/i)));",
+            "line_text": "  const head = html.slice(0, Math.max(0, html.search(/<\\/head>/i)));",
+            "caught": true,
+            "seconds": 2.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/share.mjs",
+            "line": 146,
+            "col": 14,
+            "operator": "const-plus-one",
+            "before": "if (start < 0) return [];",
+            "after": "if (start < 1) return [];",
+            "line_text": "  if (start < 0) return [];",
+            "caught": true,
+            "seconds": 3.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/share.mjs",
+            "line": 148,
+            "col": 87,
+            "operator": "const-plus-one",
+            "before": "const slice = html.slice(start, close > -1 ? Math.min(close, start + 4000) : start + 4000);",
+            "after": "const slice = html.slice(start, close > -1 ? Math.min(close, start + 4000) : start + 4001);",
+            "line_text": "  const slice = html.slice(start, close > -1 ? Math.min(close, start + 4000) : start + 4000);",
+            "caught": true,
+            "seconds": 3.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/share.mjs",
+            "line": 172,
+            "col": 37,
+            "operator": "neq-flip",
+            "before": "const topic = crumbs.find((c) => c !== sectionName && c.length < 70) ?? '';",
+            "after": "const topic = crumbs.find((c) => c === sectionName && c.length < 70) ?? '';",
+            "line_text": "  const topic = crumbs.find((c) => c !== sectionName && c.length < 70) ?? '';",
+            "caught": true,
+            "seconds": 2.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/share.mjs",
+            "line": 172,
+            "col": 65,
+            "operator": "lt-to-le",
+            "before": "const topic = crumbs.find((c) => c !== sectionName && c.length < 70) ?? '';",
+            "after": "const topic = crumbs.find((c) => c !== sectionName && c.length <= 70) ?? '';",
+            "line_text": "  const topic = crumbs.find((c) => c !== sectionName && c.length < 70) ?? '';",
+            "caught": true,
+            "seconds": 2.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/share.mjs",
+            "line": 188,
+            "col": 21,
+            "operator": "eq-flip",
+            "before": "kicker: kicker === headline ? '' : kicker,",
+            "after": "kicker: kicker !== headline ? '' : kicker,",
+            "line_text": "      kicker: kicker === headline ? '' : kicker,",
+            "caught": true,
+            "seconds": 2.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/share.mjs",
+            "line": 356,
+            "col": 34,
+            "operator": "eq-flip",
+            "before": "if (jobs.length < 16 || threads === 1) {",
+            "after": "if (jobs.length < 16 || threads !== 1) {",
+            "line_text": "  if (jobs.length < 16 || threads === 1) {",
+            "caught": false,
+            "seconds": 3.0,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "With >=16 jobs, threads===1 vs !==1 only swaps inline rendering for a worker pool; card bytes and files are identical, and renderCards output is not observable from the pool choice without mocking Worker."
+          },
+          {
+            "file": "platform/pages/share.mjs",
+            "line": 435,
+            "col": 20,
+            "operator": "and-to-or",
+            "before": "if (process.argv[1] && path.resolve(process.argv[1]) === new URL(import.meta.url).pathname) {",
+            "after": "if (process.argv[1] || path.resolve(process.argv[1]) === new URL(import.meta.url).pathname) {",
+            "line_text": "if (process.argv[1] && path.resolve(process.argv[1]) === new URL(import.meta.url).pathname) {",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/sales-agent/index.html",
+        "issue": "relative link to self-host/README.md is dead in the front-door mirror (.md not served); buildMirror threw, cascading 114 collateral drops and failing test_sync_tree_counts",
+        "patched": true
+      }
+    ]
+  }
+}

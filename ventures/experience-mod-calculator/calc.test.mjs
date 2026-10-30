@@ -71,3 +71,26 @@ test("csv has a header, one row per claim and the mod", () => {
   assert.equal(lines.length, 1 + 4 + 1);
   assert.match(lines.at(-1), /^mod,/);
 });
+
+test("defaults: NCCI split point and per-claim limit are the documented values", () => {
+  const r = plan({ ...base, claims: "2024, indemnity, 300000" });
+  assert.equal(r.opts.claimLimit, 250000);
+  assert.equal(r.opts.splitPoint, 20500);
+  assert.equal(plan({ ...base, claims: "2024, indemnity, 250000" }).mod, plan({ ...base, claims: "2024, indemnity, 300000" }).mod);
+  assert.ok(plan({ ...base, claims: "2024, indemnity, 250000" }).mod > plan({ ...base, claims: "2024, indemnity, 249000" }).mod);
+});
+
+test("era input 'off' turns the medical-only discount off, like false", () => {
+  const claims = "2024, medical-only, 10000";
+  const off = plan({ ...base, claims, era: "off" });
+  const no = plan({ ...base, claims, era: false });
+  const on = plan({ ...base, claims });
+  assert.equal(off.mod, no.mod);
+  assert.ok(off.mod > on.mod);
+});
+
+test("hypothetical claim sizes are 2,000, the split point and 100,000, and the advice says 3 policy years", () => {
+  const r = plan({ ...base, manualPremium: 100000, claims: "2024, indemnity, 30000" });
+  assert.deepEqual(r.hypo.map((h) => h.amount), [2000, 20500, 100000]);
+  assert.match(r.advice.join(" "), /for each of the 3 policy years/);
+});

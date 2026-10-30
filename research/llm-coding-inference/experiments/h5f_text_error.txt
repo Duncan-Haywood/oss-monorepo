@@ -1,0 +1,42 @@
+6000 items, human negative share 0.327; synthetic symmetric-flip coder, 600 draws, seed 20261104
+columns per row: coverage human-only, coverage ppi++, mean half-width ratio ppi++/human-only
+a=0.70 indep: realised agreement 0.703
+a=0.70 indep n=100 dropped 0 MEAN 0.947 0.950 0.914
+a=0.70 indep n=200 dropped 0 MEAN 0.954 0.947 0.929
+a=0.70 indep n=400 dropped 0 MEAN 0.949 0.951 0.936
+a=0.70 group: realised agreement 0.706
+a=0.70 group n=100 dropped 0 MEAN 0.947 0.940 0.858
+a=0.70 group n=200 dropped 0 MEAN 0.954 0.937 0.875
+a=0.70 group n=400 dropped 0 MEAN 0.949 0.948 0.884
+a=0.70 length: realised agreement 0.697
+a=0.70 length n=100 dropped 0 MEAN 0.947 0.950 0.944
+a=0.70 length n=200 dropped 0 MEAN 0.954 0.950 0.958
+a=0.70 length n=400 dropped 0 MEAN 0.949 0.941 0.965
+a=0.70 class: realised agreement 0.704
+a=0.70 class n=100 dropped 0 MEAN 0.947 0.946 0.929
+a=0.70 class n=200 dropped 0 MEAN 0.954 0.951 0.946
+a=0.70 class n=400 dropped 0 MEAN 0.949 0.951 0.954
+a=0.70 mention: realised agreement 0.706
+a=0.70 mention n=100 dropped 0 MEAN 0.947 0.944 0.877
+a=0.70 mention n=200 dropped 0 MEAN 0.954 0.954 0.892
+a=0.70 mention n=400 dropped 0 MEAN 0.949 0.952 0.902
+a=0.60 indep: realised agreement 0.608
+a=0.60 indep n=100 dropped 0 MEAN 0.947 0.946 0.959
+a=0.60 indep n=200 dropped 0 MEAN 0.954 0.949 0.972
+a=0.60 indep n=400 dropped 0 MEAN 0.949 0.946 0.979
+a=0.60 group: realised agreement 0.608
+a=0.60 group n=100 dropped 0 MEAN 0.947 0.943 0.923
+a=0.60 group n=200 dropped 0 MEAN 0.954 0.950 0.939
+a=0.60 group n=400 dropped 0 MEAN 0.949 0.947 0.946
+a=0.60 length: realised agreement 0.593
+a=0.60 length n=100 dropped 0 MEAN 0.947 0.947 0.978
+a=0.60 length n=200 dropped 0 MEAN 0.954 0.950 0.988
+a=0.60 length n=400 dropped 0 MEAN 0.949 0.945 0.992
+a=0.60 class: realised agreement 0.591
+a=0.60 class n=100 dropped 0 MEAN 0.947 0.947 0.977
+a=0.60 class n=200 dropped 0 MEAN 0.954 0.948 0.987
+a=0.60 class n=400 dropped 0 MEAN 0.949 0.947 0.992
+a=0.60 mention: realised agreement 0.604
+a=0.60 mention n=100 dropped 0 MEAN 0.947 0.943 0.942
+a=0.60 mention n=200 dropped 0 MEAN 0.954 0.948 0.958
+a=0.60 mention n=400 dropped 0 MEAN 0.949 0.948 0.965

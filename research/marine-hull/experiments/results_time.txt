@@ -1,0 +1,4 @@
+glider cases 810: days per 100 km median 5.5 (10th 3.1, 90th 8.7); share over 10 days 3.3%
+AUV cases 18: best-energy speed median 2.30 m/s, hours per 100 km 12.1
+pairs 14580: AUV has lower energy-delay product in 11361 (77.9%)
+delay exponent at which the platforms tie (E x t^a; glider preferred below it): median 0.72 (10th 0.32, 90th 1.19), pairs with a crossover 14580

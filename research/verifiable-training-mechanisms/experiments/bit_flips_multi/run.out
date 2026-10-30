@@ -1,0 +1,23 @@
+/home/user/oss-monorepo/research/verifiable-training-mechanisms/experiments/bit_flips_multi/run.py:55: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /__w/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:820.)
+  mt = [float(p.abs().max()) for p in params]
+/home/user/oss-monorepo/research/verifiable-training-mechanisms/experiments/bit_flips_multi/run.py:55: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /__w/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:820.)
+  mt = [float(p.abs().max()) for p in params]
+/home/user/oss-monorepo/research/verifiable-training-mechanisms/experiments/bit_flips_multi/run.py:55: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /__w/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:820.)
+  mt = [float(p.abs().max()) for p in params]
+/home/user/oss-monorepo/research/verifiable-training-mechanisms/experiments/bit_flips_multi/run.py:55: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /__w/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:820.)
+  mt = [float(p.abs().max()) for p in params]
+k=1   randk n=20 harmful  0 (0.00)  non-finite 0  median |dL| 0.0001  median m_t 0.177  mean |v| 2.20
+k=1   topk  n=20 harmful  9 (0.45)  non-finite 0  median |dL| 0.0096  median m_t 3.703  mean |v| 10.31
+k=4   randk n=20 harmful  2 (0.10)  non-finite 0  median |dL| 0.0007  median m_t 0.177  mean |v| 2.06
+k=4   topk  n=20 harmful 14 (0.70)  non-finite 0  median |dL| 0.0309  median m_t 3.794  mean |v| 10.97
+k=16  randk n=20 harmful  4 (0.20)  non-finite 0  median |dL| 0.0028  median m_t 0.177  mean |v| 2.26
+k=16  topk  n=20 harmful 19 (0.95)  non-finite 0  median |dL| 0.0780  median m_t 3.846  mean |v| 11.66
+k=64  randk n=20 harmful 17 (0.85)  non-finite 0  median |dL| 0.0320  median m_t 0.177  mean |v| 2.58
+k=64  topk  n=20 harmful 20 (1.00)  non-finite 0  median |dL| 0.1506  median m_t 3.846  mean |v| 12.79
+k=256 randk n=20 harmful 20 (1.00)  non-finite 0  median |dL| 0.1035  median m_t 0.177  mean |v| 2.44
+k=256 topk  n=20 harmful 20 (1.00)  non-finite 0  median |dL| 0.2652  median m_t 3.846  mean |v| 12.96
+DONE

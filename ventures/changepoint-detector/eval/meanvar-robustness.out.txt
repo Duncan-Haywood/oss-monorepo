@@ -1,0 +1,25 @@
+reps 200 per cell, seeded, default minimum segment
+
+n = 100
+noise | null: any change | sd1->2: one change, median error, range holds
+gauss | 4% | 92%, 2, 97%
+t3    | 39% | 57%, 5, 75%
+garch | 42% | 61%, 6, 75%
+ar1   | 51% | 44%, 4, 83%
+
+n = 200
+noise | null: any change | sd1->2: one change, median error, range holds
+gauss | 1% | 97%, 2, 98%
+t3    | 62% | 55%, 7, 70%
+garch | 51% | 57%, 5, 76%
+ar1   | 54% | 37%, 3, 96%
+
+noise warning rate (rangeWarning from meanvarNoiseCheck): null series | sd1->2 series
+n=100 gauss | 7% | 6%
+n=100 t3    | 66% | 55%
+n=100 garch | 34% | 19%
+n=100 ar1   | 90% | 88%
+n=200 gauss | 4% | 2%
+n=200 t3    | 81% | 77%
+n=200 garch | 49% | 39%
+n=200 ar1   | 100% | 98%

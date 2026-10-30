@@ -1,0 +1,14 @@
+500 joint uniform draws, seed 1; ranges {'hotel': (5.0, 20.0), 'eta': (0.17, 0.22), 'temp': (0.93, 1.0), 'soil': (0.9, 0.99), 'elec': (0.92, 0.97)}
+derate (product) range of the draws: 0.781 to 0.941
+4 m Equator-Pacific  km/day median  111.5 (5%-95%:  100.9 to  120.8; -9% / +8%); best speed median 1.3 (1.2 to 1.5)
+4 m Florida-Straits  km/day median  105.5 (5%-95%:   94.7 to  115.1; -10% / +9%); best speed median 1.3 (1.2 to 1.4)
+4 m Gulf-of-Maine    km/day median   81.9 (5%-95%:   72.5 to   90.8; -12% / +11%); best speed median 1.3 (1.2 to 1.3)
+4 m North-Sea        km/day median   64.9 (5%-95%:   56.8 to   72.2; -12% / +11%); best speed median 1.2 (1.1 to 1.3)
+4 m Gulf-of-Alaska   km/day median   58.2 (5%-95%:   49.4 to   65.7; -15% / +13%); best speed median 1.1 (1.0 to 1.2)
+5 m Equator-Pacific  km/day median  133.4 (5%-95%:  123.9 to  141.1; -7% / +6%); best speed median 1.6 (1.5 to 1.7)
+5 m Florida-Straits  km/day median  124.5 (5%-95%:  115.7 to  132.1; -7% / +6%); best speed median 1.6 (1.5 to 1.6)
+5 m Gulf-of-Maine    km/day median   97.2 (5%-95%:   89.4 to  104.6; -8% / +8%); best speed median 1.5 (1.4 to 1.5)
+5 m North-Sea        km/day median   76.9 (5%-95%:   70.6 to   82.9; -8% / +8%); best speed median 1.4 (1.4 to 1.5)
+5 m Gulf-of-Alaska   km/day median   69.4 (5%-95%:   62.8 to   75.8; -10% / +9%); best speed median 1.3 (1.3 to 1.4)
+4 m: draws with the site ordering Equator>Florida>Maine>North Sea>Alaska: 500 of 500 (100.0%)
+5 m: draws with the site ordering Equator>Florida>Maine>North Sea>Alaska: 500 of 500 (100.0%)

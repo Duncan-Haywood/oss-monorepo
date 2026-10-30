@@ -6,7 +6,9 @@ before you close one in favour of another.
 
 Scheduled sessions overlap. Before opening a PR, check open PRs (with
 `search_pull_requests`, `minimal_output` and a slug or keyword `in:title`;
-`list_pull_requests` returns ~60KB of unrelated PRs) and recent
+`list_pull_requests` returns ~60KB of unrelated PRs; a query with no keyword
+returned 199KB even with `minimal_output` on 2026-10-28, so always include the
+keyword and set `perPage` to 5-10) and recent
 commits on `main`, then extend or consolidate instead of duplicating. If the
 backlog is large, merge the strongest and close the rest with a pointer. An
 open-PR check cannot see a sibling that merged ten minutes ago, but the tree

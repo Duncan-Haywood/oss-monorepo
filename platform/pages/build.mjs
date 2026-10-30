@@ -22,6 +22,7 @@
 
 import { promises as fs, existsSync, readFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
+import { loadLastChanged } from './lastmod.mjs';
 import crypto from 'node:crypto';
 import os from 'node:os';
 import path from 'node:path';
@@ -31,6 +32,7 @@ import zlib from 'node:zlib';
 import { decodeEntities } from './entities.mjs';
 import { REFS as CHANNEL_REFS, SOURCE_HOSTS, SOURCE_LABELS, sourceOf } from '../counter/counter.mjs';
 import { buildEngineeringPage, ENGINEERING_PATH, REPO_URL } from './engineering.mjs';
+import { moveAudioToCdn } from './audio-cdn.mjs';
 import { AGENT_POSTS_DIR, AGENTS_PATH, buildWriting, loadPosts, WRITING_PATH } from './writing.mjs';
 import { buildStories, STORIES_PATH } from './stories.mjs';
 import { buildLab } from './lab.mjs';
@@ -44,7 +46,7 @@ import {
   orderForFeed,
 } from './launched.mjs';
 
-import { addShareCards, cardTitle, renderCards, siteAddress } from './share.mjs';
+import { addShareCards, cardTitle, mapLimit, renderCards, siteAddress } from './share.mjs';
 import {
   MARK_FROM,
   MARK_GEOMETRY,
@@ -83,6 +85,7 @@ import {
   SAVED_BIDS_STYLE_FILE,
   injectSavedBids,
   pageHeadlineAmountSelector,
+  slugTakesSavedBids,
   renderSavedBidsModule,
   renderSavedBidsStyle,
   stripForInjection,
@@ -136,6 +139,7 @@ import {
   BUY_ME_A_COFFEE_URL,
   siteStyleLink,
   writeResearchChrome,
+  siteTitle,
 } from './site-nav.mjs';
 import { ASK_PATH, ASSISTANT_LAUNCHER_JS, renderAskPage, renderAssistantFiles } from './assistant.mjs';
 import { loadResearchRegistry } from './research-registry.mjs';
@@ -445,6 +449,8 @@ const NON_WEB_EXTENSIONS = new Set([
   // Labelled data sets (sales-agent's eval/*.jsonl): read by scripts in the repo, of no use to a visitor, and
   // nginx has no type for them.
   '.jsonl',
+  // Rust sources (dupehound): the page loads the compiled .wasm, never the source.
+  '.rs',
 ]);
 
 // Files whose contents get the placeholder origin swapped for the real one.
@@ -728,7 +734,12 @@ const CATEGORY_RULES = [
     // `shoe-repair-shop-profit-calculator` joined 2026-10-11: a cobbler or shoe repair shop turning bench minutes, supplies and rent into profit per job and a season result.
     // `upholstery-shop-job-profit-calculator` joined 2026-10-11 on its first commit beside the other bench-and-fixed-cost shop calculators here: an upholstery shop turning bench minutes, materials and rent into profit per job.
     // `standby-generator-install-price-calculator` joined 2026-10-11 on its first commit: an electrician or generator dealer pricing an install from equipment, runs and crew hours is this section's reader; the slug does not end in `bid-calculator`, so it needs naming.
-    test: (slug) => (/bid-calculator$/.test(slug) && !/^water-well-drilling/.test(slug)) || /^(upholstery-shop-job-profit|standby-generator-install|mosquito-control-program|surety-bond-capacity|experience-mod-calculator|bid-leveling|timber-sale|hunting-lease|grazing-lease|hay-sale-price|grain-store-or-sell|vineyard-grape-vs-wine|solar-land-lease|pollination-contract|fixed-bid-overrun|roofing-insurance-supplement|janitorial|coi-expiry-gap-checker|retainage|quote-margin|no-show-fee|freelance-retainer|freelance-rate-increase|price-increase-breakeven|change-order|construction-delay-claim|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|quote-follow-up-timing|revenue-target-lead-planner|construction-evidence|shop-rate|tire-shop-ticket-margin|handyman-minimum-job|trade-bid-studio|auto-repair-effective-labor-rate|cleaning-dilution|hvac-maintenance|appliance-repair|plumber-flat-rate|hvac-repair-tier|cut-list|tile-layout|rfp-compliance-matrix|security-questionnaire-matcher|tender-bid-readiness|tender-radar|recompete-radar|sawmill-custom-sawing|commercial-solar-ppa|which-job-first|solar-panel-cleaning|custom-farm-rate|cow-calf-breakeven|stocker-cattle-margin|firewood-profit|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability|project-estimate-calibrator|crew-dispatch-optimizer|service-van-stock-optimizer|route-account-pruner|snow-plow-contract|stump-grinding|lead-response-time)/.test(slug),
+    // `wall-framing-takeoff` joined 2026-10-28 out of the catch-all: a
+    // framer's stud layout, cut list and lumber order is the materials half of
+    // a framing bid, so its readers browse this section.
+    // `shed-designer` joined 2026-10-29 on its first PR: framing plans, a cut
+    // sheet and a lumber order for a shed, the same reader as `wall-framing-takeoff`.
+    test: (slug) => (/bid-calculator$/.test(slug) && !/^water-well-drilling/.test(slug)) || slug === 'wall-framing-takeoff' || slug === 'shed-designer' || /^(upholstery-shop-job-profit|standby-generator-install|mosquito-control-program|surety-bond-capacity|experience-mod-calculator|bid-leveling|timber-sale|hunting-lease|grazing-lease|hay-sale-price|grain-store-or-sell|vineyard-grape-vs-wine|solar-land-lease|pollination-contract|fixed-bid-overrun|roofing-insurance-supplement|janitorial|coi-expiry-gap-checker|retainage|quote-margin|no-show-fee|freelance-retainer|freelance-rate-increase|price-increase-breakeven|change-order|construction-delay-claim|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|quote-follow-up-timing|revenue-target-lead-planner|construction-evidence|shop-rate|tire-shop-ticket-margin|handyman-minimum-job|trade-bid-studio|auto-repair-effective-labor-rate|cleaning-dilution|hvac-maintenance|appliance-repair|plumber-flat-rate|hvac-repair-tier|cut-list|tile-layout|rfp-compliance-matrix|security-questionnaire-matcher|tender-bid-readiness|tender-radar|recompete-radar|sawmill-custom-sawing|commercial-solar-ppa|which-job-first|solar-panel-cleaning|custom-farm-rate|cow-calf-breakeven|stocker-cattle-margin|firewood-profit|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability|project-estimate-calibrator|crew-dispatch-optimizer|service-van-stock-optimizer|route-account-pruner|snow-plow-contract|stump-grinding|lead-response-time)/.test(slug),
   },
   {
     id: 'food-service',
@@ -3373,7 +3384,7 @@ const CATEGORY_RULES = [
     // and `agent-instructions-drift-check`, which it links; landing it here
     // keeps the catch-all inside its bound.
     test: (slug) =>
-      /^(jwt-security-check|page-seo-audit|actions-|workflow-audit|pinned-actions|coverage-drop-check|flaky-test-finder|ci-test-shard-balancer|datadog-bill-estimator|vercel-bill-estimator|neon-bill-estimator|cloudflare-bill-estimator|upstash-redis-bill-estimator|error-tracking-pricing-calculator|product-analytics-pricing-calculator|auth-mau-pricing-calculator|git-timesheet|email-api-pricing-calculator|ci-minutes-pricing-calculator|cdn-bandwidth-pricing-calculator|object-storage-pricing-calculator|search-api-pricing-calculator|training-gpu-pricing-calculator|uptime-monitoring-pricing-calculator|speech-to-text-pricing-calculator|video-hosting-pricing-calculator|log-management-pricing-calculator|feature-flag-pricing-calculator|merchant-of-record-fee-calculator|ppp-pricing-table-generator|llm-output-regression-diff|app-store-commission-calculator|sms-segment-cost-calculator|supabase-bill-estimator|webhook-signature-debugger|webhook-relay|ai-crawler-access|license-drift-check|license-compat-check|npm-lifecycle-script-check|npm-provenance-check|vscode-extension-drift-check|dependency-confusion-check|dependabot-config-check|slopsquatting-check|ios-privacy-manifest-check|android-data-safety-check|structured-data-drift-check|json-ld-rich-result-validator|env-example-drift-check|llm-call-cost-scan|llm-spend-guard|liability-audit|lambda-memory-rightsizer|k8s-requests-rightsizer|rds-instance-rightsizer|lambda-vs-fargate-cost-breakeven|dynamodb-capacity-mode-advisor|ebs-volume-cost-advisor|nat-gateway-cost-advisor|cloudwatch-logs-cost-advisor|bigquery-query-cost-advisor|snowflake-warehouse-cost-advisor|rds-instance-cost-advisor|databricks-cluster-cost-advisor|s3-storage-class-savings|s3-storage-class-advisor|postgres-explain-analyzer|pg-stat-statements-analyzer|postgres-index-auditor|prometheus-cardinality-cost|slo-burn-rate-alerts|regex-redos-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|obsidian-plugin-review-check|caption-quality-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|dmarc-report-reader|pwa-installability-check|security-headers-check|docker-base-image-pin-check|docker-base-image-eol-check|docker-build-secrets-check|docker-cache-order-check|node-version-drift-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|security-txt-check|redirect-chain-check|k8s-rollout-safety-check|k8s-deprecated-api-check|helm-values-schema-check|k8s-resource-limits-check|app-store-screenshot-check|app-listing-metadata-check|llms-txt-generator|release-notes-generator|json-to-types-generator|csv-to-sql-generator|codeowners-shadow-check|ai-coding-plan-cost-calculator|llm-api-pricing-calculator|aws-commitment-breakeven-calculator|aws-bill-change-explainer|llm-usage-log-analyzer|sql-migration-lock-check|terraform-plan-|sbom-diff-check|cron-dst-drift-check|cron-heartbeat|status-keeper|visit-keeper|dunning-engine|waitlist-keeper|license-keeper|mrr-pulse|rev-rec|feedback-board|form-inbox|cancel-flow|agent-instructions-drift-check|openapi-breaking-change-check|required-checks-drift-check|subpath-robots-check|deploy-concurrency-check|branch-protection-drift-check|supabase-rls-check|firebase-rules-check|source-map-leak-check|graphql-introspection-exposure-check|git-exposure-check|dotenv-exposure-check|subdomain-takeover-check|cloud-bucket-exposure-check|backup-file-exposure-check|mcp-config-risk-check|hidden-unicode-check|skill-manifest-check|caa-record-check|claude-code-settings-check|claude-skill-scaffold-generator|claude-code-subagent-check|claude-code-hooks-security-check|pypi-provenance-check|pip-audit-triage|cargo-audit-triage|referrer-permissions-policy-check|jwt-verification-misuse-check|docker-compose-security-check|git-bus-factor-check|lockfile-license-check|npm-audit-triage|npm-lockfile-duplicates-check|requirements-pin-check|incident-postmortem-timeline|oncall-load-analyzer|soc2-readiness|k8s-pod-security-check|agent-permission-config-check|agent-workroom|s3-bucket-exposure-check|aws-iam-policy-risk-check|devsec-toolkit)/.test(
+      /^(jwt-security-check|page-seo-audit|actions-|workflow-audit|pinned-actions|coverage-drop-check|flaky-test-finder|ci-test-shard-balancer|datadog-bill-estimator|vercel-bill-estimator|neon-bill-estimator|cloudflare-bill-estimator|upstash-redis-bill-estimator|error-tracking-pricing-calculator|product-analytics-pricing-calculator|auth-mau-pricing-calculator|git-timesheet|email-api-pricing-calculator|ci-minutes-pricing-calculator|cdn-bandwidth-pricing-calculator|object-storage-pricing-calculator|search-api-pricing-calculator|training-gpu-pricing-calculator|uptime-monitoring-pricing-calculator|speech-to-text-pricing-calculator|video-hosting-pricing-calculator|log-management-pricing-calculator|feature-flag-pricing-calculator|merchant-of-record-fee-calculator|ppp-pricing-table-generator|llm-output-regression-diff|app-store-commission-calculator|sms-segment-cost-calculator|supabase-bill-estimator|webhook-signature-debugger|webhook-relay|ai-crawler-access|license-drift-check|license-compat-check|npm-lifecycle-script-check|npm-provenance-check|vscode-extension-drift-check|dependency-confusion-check|dependabot-config-check|slopsquatting-check|ios-privacy-manifest-check|android-data-safety-check|structured-data-drift-check|json-ld-rich-result-validator|env-example-drift-check|llm-call-cost-scan|llm-spend-guard|liability-audit|lambda-memory-rightsizer|k8s-requests-rightsizer|rds-instance-rightsizer|lambda-vs-fargate-cost-breakeven|dynamodb-capacity-mode-advisor|ebs-volume-cost-advisor|nat-gateway-cost-advisor|cloudwatch-logs-cost-advisor|bigquery-query-cost-advisor|snowflake-warehouse-cost-advisor|rds-instance-cost-advisor|databricks-cluster-cost-advisor|s3-storage-class-savings|s3-storage-class-advisor|postgres-explain-analyzer|pg-stat-statements-analyzer|postgres-index-auditor|prometheus-cardinality-cost|slo-burn-rate-alerts|regex-redos-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|obsidian-plugin-review-check|caption-quality-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|dmarc-report-reader|pwa-installability-check|security-headers-check|docker-base-image-pin-check|docker-base-image-eol-check|docker-build-secrets-check|docker-cache-order-check|node-version-drift-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|security-txt-check|redirect-chain-check|k8s-rollout-safety-check|k8s-deprecated-api-check|helm-values-schema-check|k8s-resource-limits-check|app-store-screenshot-check|app-listing-metadata-check|llms-txt-generator|release-notes-generator|json-to-types-generator|csv-to-sql-generator|codeowners-shadow-check|ai-coding-plan-cost-calculator|llm-api-pricing-calculator|aws-commitment-breakeven-calculator|aws-bill-change-explainer|llm-usage-log-analyzer|sql-migration-lock-check|terraform-plan-|sbom-diff-check|cron-dst-drift-check|cron-heartbeat|status-keeper|visit-keeper|dunning-engine|waitlist-keeper|license-keeper|mrr-pulse|rev-rec|feedback-board|form-inbox|cancel-flow|agent-instructions-drift-check|openapi-breaking-change-check|required-checks-drift-check|subpath-robots-check|deploy-concurrency-check|branch-protection-drift-check|supabase-rls-check|firebase-rules-check|source-map-leak-check|graphql-introspection-exposure-check|git-exposure-check|dotenv-exposure-check|subdomain-takeover-check|cloud-bucket-exposure-check|backup-file-exposure-check|mcp-config-risk-check|hidden-unicode-check|skill-manifest-check|caa-record-check|claude-code-settings-check|claude-skill-scaffold-generator|claude-code-subagent-check|claude-code-hooks-security-check|pypi-provenance-check|pip-audit-triage|cargo-audit-triage|referrer-permissions-policy-check|jwt-verification-misuse-check|docker-compose-security-check|git-bus-factor-check|lockfile-license-check|npm-audit-triage|npm-lockfile-duplicates-check|dupehound|requirements-pin-check|incident-postmortem-timeline|oncall-load-analyzer|soc2-readiness|k8s-pod-security-check|agent-permission-config-check|agent-workroom|s3-bucket-exposure-check|aws-iam-policy-risk-check|devsec-toolkit)/.test(
         slug,
       ),
   },
@@ -3775,7 +3786,10 @@ const CATEGORY_RULES = [
     blurb: 'Learn a language or a technical skill by doing it: hands-free speaking drills, graded audio stories, and project-first engineering lessons, free in your browser. Plus free stories to read or listen to.',
     // `hearth-and-horizon` joined 2026-10-20: free stories with audio and
     // podcast feeds, the same read-and-listen axis as the graded stories.
-    test: (slug) => ['ai-engineering-academy', 'hands-free-language-coach', 'listen-and-learn-audio', 'hearth-and-horizon'].includes(slug),
+    // `saints-by-candlelight` joined 2026-10-28, when it and
+    // `wall-framing-takeoff` took the catch-all to 6: a bedtime podcast of
+    // saints' stories, the same read-and-listen axis as `hearth-and-horizon`.
+    test: (slug) => ['ai-engineering-academy', 'hands-free-language-coach', 'listen-and-learn-audio', 'hearth-and-horizon', 'saints-by-candlelight'].includes(slug),
   },
   {
     // Added 2026-10-21 when `open-floor-robots` and `open-robot-mower` took
@@ -4618,12 +4632,15 @@ const SUBCATEGORY_RULES = {
       // even though its own job is furniture, not construction.
       // `tile-layout-planner` joined 2026-10-01 on its first commit: it lays out the
       // floor the flooring and tile-backsplash bids price, for the same remodeler.
-      test: (slug) => /^(painting|drywall|flooring|carpet-install|hardwood-refinishing|kitchen-tile|countertop|cabinet-refinishing|crown-molding|popcorn-ceiling|basement-finishing|walk-in-|sunroom|screened-porch|home-elevator|stair-lift|wheelchair-ramp|fireplace-insert|cut-list|tile-layout|home-staging)/.test(slug),
+      // `wall-framing-takeoff` joined 2026-10-28: studs and plates go up
+      // before the drywall here, and its lumber list is the same job as `cut-list`.
+      test: (slug) => /^(painting|drywall|flooring|carpet-install|hardwood-refinishing|kitchen-tile|countertop|cabinet-refinishing|crown-molding|popcorn-ceiling|basement-finishing|walk-in-|sunroom|screened-porch|home-elevator|stair-lift|wheelchair-ramp|fireplace-insert|cut-list|tile-layout|home-staging|wall-framing)/.test(slug),
     },
     {
       id: 'trades-site',
       title: 'Concrete, masonry & site work',
-      test: (slug) => /^(concrete|asphalt-|gravel-driveway|paver-patio|retaining-wall|parking-lot|french-drain|foundation-repair|epoxy-garage|pole-barn|shed-install)/.test(slug),
+      // `shed-designer` joined 2026-10-29 beside `shed-install` and `pole-barn`.
+      test: (slug) => /^(concrete|asphalt-|gravel-driveway|paver-patio|retaining-wall|parking-lot|french-drain|foundation-repair|epoxy-garage|pole-barn|shed-install|shed-designer)/.test(slug),
     },
     {
       id: 'trades-outdoor',
@@ -6059,7 +6076,7 @@ ${otherAudiences
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>${escapeHtml(`${copy.title} | ${SITE_NAME}`)}</title>
+  <title>${escapeHtml(siteTitle(copy.title))}</title>
   <meta name="description" content="${escapeHtml(snippetize(copy.description))}">
   <link rel="canonical" href="${escapeHtml(url)}">
   <link rel="icon" href="${escapeHtml(`${toRoot}favicon.svg`)}" type="image/svg+xml">
@@ -6326,7 +6343,7 @@ export function renderToolsIndexPage({ groups, kindPages = [], audiencePages = [
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>${escapeHtml(`${title} | ${SITE_NAME}`)}</title>
+  <title>${escapeHtml(siteTitle(title))}</title>
   <meta name="description" content="${escapeHtml(snippetize(description))}">
   <link rel="canonical" href="${escapeHtml(url)}">
   <link rel="icon" href="${escapeHtml(`${toRoot}favicon.svg`)}" type="image/svg+xml">
@@ -6552,7 +6569,7 @@ ${group.items.map(renderCard).join('\n')}
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>${escapeHtml(`${title} | ${SITE_NAME}`)}</title>
+  <title>${escapeHtml(siteTitle(title))}</title>
   <meta name="description" content="${escapeHtml(snippetize(description))}">
   <link rel="canonical" href="${escapeHtml(url)}">
   <link rel="icon" href="${escapeHtml(`${toRoot}favicon.svg`)}" type="image/svg+xml">
@@ -6688,7 +6705,7 @@ export function renderCompareProductPage({
   const exceptions = externalCallExceptions(surfaces);
   const { claim: privacyClaim, list: exceptionList } = privacyClaimParts(exceptions);
 
-  const title = `${subject} alternatives: ${n} free tools with a side-by-side page`;
+  const title = `${subject} alternatives: ${n} free tool${n === 1 ? '' : 's'}`;
   const description =
     `${n} free browser tools on this site each have a page comparing themselves with ${subject} — ` +
     `what ${subject} does, what the free tool does, and when ${subject} is the right answer. ` +
@@ -6761,7 +6778,7 @@ export function renderCompareProductPage({
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>${escapeHtml(`${title} | ${SITE_NAME}`)}</title>
+  <title>${escapeHtml(siteTitle(title))}</title>
   <meta name="description" content="${escapeHtml(snippetize(description))}">
   <link rel="canonical" href="${escapeHtml(url)}">
   <link rel="icon" href="${escapeHtml(`${toRoot}favicon.svg`)}" type="image/svg+xml">
@@ -6974,7 +6991,7 @@ ${tools.map(renderTool).join('\n')}
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>${escapeHtml(`${title} | ${SITE_NAME}`)}</title>
+  <title>${escapeHtml(siteTitle(title))}</title>
   <meta name="description" content="${escapeHtml(snippetize(description))}">
   <link rel="canonical" href="${escapeHtml(url)}">
   <link rel="icon" href="${escapeHtml(`${toRoot}favicon.svg`)}" type="image/svg+xml">
@@ -7157,7 +7174,7 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>${escapeHtml(`${title} | ${SITE_NAME}`)}</title>
+  <title>${escapeHtml(siteTitle(title))}</title>
   <meta name="description" content="${escapeHtml(snippetize(description))}">
   <link rel="canonical" href="${escapeHtml(url)}">
   <link rel="icon" href="${escapeHtml(`${toRoot}favicon.svg`)}" type="image/svg+xml">
@@ -7456,7 +7473,7 @@ export function renderFeedbackPage({ surfaces = [], baseUrl, feedbackUrl = SITE_
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>${escapeHtml(`${title} | ${SITE_NAME}`)}</title>
+  <title>${escapeHtml(siteTitle(title))}</title>
   <meta name="description" content="${escapeHtml(snippetize(description))}">
   <meta name="robots" content="noindex">
   <link rel="canonical" href="${escapeHtml(url)}">
@@ -9175,6 +9192,9 @@ body:has(> .pf-chrome-top[data-pfs-head]:first-child) > .pf-jobs .pf-jobs-status
  * than in each venture: a calculator that adopts the proposal next week is
  * covered without touching it. */
 @media print{.pf-chrome{display:none !important}}
+input[type=file]{max-width:100%;cursor:pointer}
+input[type=file]::file-selector-button{font:inherit;color:inherit;background:rgba(128,128,128,.14);border:1px solid rgba(128,128,128,.55);border-radius:7px;padding:6px 14px;margin-right:12px;cursor:pointer}
+input[type=file]::file-selector-button:hover{background:rgba(128,128,128,.26)}
 `;
 
 /**
@@ -10064,9 +10084,14 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
   const narrowed = [];
   const embedded = [];
 
-  for (const surface of surfaces) {
+  // Sixteen tools at a time: each tool's pages are independent of every other
+  // tool's, and one at a time the pass mostly waited on the disk. Results are
+  // gathered per tool and joined in catalogue order, so the output is the same.
+  const perSurface = await mapLimit(surfaces, 16, async (surface) => {
+    const found = { wrapped: [], rated: [], saved: [], shared: [], described: [], highlighted: [], narrowed: [], embedded: [] };
+    const { wrapped, rated, saved, shared, described, highlighted, narrowed, embedded } = found;
     const dir = path.join(outDir, surface.slug);
-    if (!(await exists(dir))) continue;
+    if (!(await exists(dir))) return found;
     const related = relatedTools(surfaces, surface.slug);
     // Read once per venture; several pages in a directory load the same script.
     const scriptCache = new Map();
@@ -10128,7 +10153,11 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
       // After the rates bar, which it anchors beneath, and after the attribute
       // pass, which must see the venture's own inputs and not the name box this
       // one adds.
-      const next = injectSavedBids(withRates, surface.slug, toRoot);
+      // Only for tools whose users keep bids: the band and the share row are
+      // written for contractors, and on a 401(k) page they read as a mistake.
+      const next = slugTakesSavedBids(surface.slug)
+        ? injectSavedBids(withRates, surface.slug, toRoot)
+        : withRates;
       if (next !== withRates) saved.push(relative);
       // Last of all, and after the saved-bids band it hangs its button on.
       //
@@ -10159,6 +10188,17 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
       await fs.writeFile(file, reflowed);
       wrapped.push(relative);
     }
+    return found;
+  });
+  for (const found of perSurface) {
+    wrapped.push(...found.wrapped);
+    rated.push(...found.rated);
+    saved.push(...found.saved);
+    shared.push(...found.shared);
+    described.push(...found.described);
+    highlighted.push(...found.highlighted);
+    narrowed.push(...found.narrowed);
+    embedded.push(...found.embedded);
   }
 
   return { wrapped, rated, saved, shared, described, highlighted, narrowed, embedded };
@@ -10363,11 +10403,13 @@ export function pageUrlPath(slug, relativePath) {
  * Generating from the output makes both impossible by construction: a page is
  * listed because it shipped, at the URL it actually shipped to.
  */
-export function renderVentureSitemap(slug, relativePages, baseUrl) {
+export function renderVentureSitemap(slug, relativePages, baseUrl, lastmods = {}) {
+  // `lastmods` maps a published page to the date its source last changed
+  // (`lastmod.mjs`). A page with no known date gets no `<lastmod>` at all.
   const urls = relativePages
-    .map((relative) => `${baseUrl}${pageUrlPath(slug, relative)}`)
-    .sort()
-    .map((url) => `  <url><loc>${url}</loc></url>`);
+    .map((relative) => [`${baseUrl}${pageUrlPath(slug, relative)}`, lastmods[relative]])
+    .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
+    .map(([url, date]) => `  <url><loc>${url}</loc>${date ? `<lastmod>${date}</lastmod>` : ''}</url>`);
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -10437,6 +10479,49 @@ export function renderCatalog(surfaces, baseUrl, launched = {}) {
 }
 
 /**
+ * The `llms.txt` for a product that ships none: title, its own description,
+ * the tool's page and its source, and the standing caveat. Nothing is added
+ * that the page does not already say.
+ */
+export function llmsAsOfLine(updated, before) {
+  if (/^\d{4}-\d{2}-\d{2}/.test(updated ?? '')) return `Source last changed: ${updated.slice(0, 10)} (from the repository's git history).`;
+  // A shallow build cannot see the change itself, only that it predates the
+  // oldest commit it has (`historyStart` in lastmod.mjs): say exactly that.
+  return /^\d{4}-\d{2}-\d{2}/.test(before ?? '') ? `Source last changed: on or before ${before.slice(0, 10)} (older than the git history this build read).` : '';
+}
+
+/**
+ * A hand-written `llms.txt` is copied as is, so it cannot go stale on its own
+ * date line; the build appends the git date instead, unless the author already
+ * wrote a "last changed", "last updated" or "as of" line.
+ */
+export function withLlmsAsOf(text, updated, before) {
+  const line = llmsAsOfLine(updated, before);
+  if (!line || /(last (changed|updated|verified)|as of)\s*:?\s*\d{4}-\d{2}-\d{2}/i.test(text)) return text;
+  return `${text.replace(/\s+$/, '')}\n\n${line}\n`;
+}
+
+export function renderProductLlmsTxt({ slug, title, description, fullDescription, updated, before }, baseUrl) {
+  const asOf = llmsAsOfLine(updated, before) ? `\n${llmsAsOfLine(updated, before)}\n` : '';
+  const one = (t) => String(t ?? '').replace(/\s+/g, ' ').trim();
+  const body = one(fullDescription || description);
+  return `# ${one(title)}
+
+> ${body}
+
+## Pages
+
+- [The tool](${baseUrl}${slug}/): the tool itself, with its own notes and disclaimer.
+- [Source and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/${slug}): MIT-licensed code, tests and notes.
+- [All tools](${baseUrl}llms.txt): the catalogue this tool belongs to.
+
+## Limits
+
+Results are estimates from the values typed in, not legal, tax, financial or professional advice. Check the figures with a qualified professional before relying on them.
+${asOf}`;
+}
+
+/**
  * `/llms.txt` — the same catalogue as `catalog.json`, at the path an assistant
  * actually looks for.
  *
@@ -10462,8 +10547,20 @@ export function renderCatalog(surfaces, baseUrl, launched = {}) {
  * silently ends the list item, so a tool whose meta description wrapped would
  * publish its second half as body prose.
  */
-export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guideGroups = [], { audiences = [], research = { themes: [] }, agentPostCount = 0 } = {}) {
+const LLMS_INDEX_DESC_MAX = 140;
+const LLMS_INDEX_TOOLS_PER_CATEGORY = 4;
+
+export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guideGroups = [], { audiences = [], research = { themes: [] }, agentPostCount = 0, full = false } = {}) {
   const oneLine = (value) => String(value ?? '').replace(/\s+/g, ' ').trim();
+  // The index (`llms.txt`) keeps each tool to its first sentence, capped, so
+  // the file fits one fetch (539 KB did not: backlog P052); `llms-full.txt`
+  // keeps `fullDescription`, which is what a model matches a query against.
+  const shortText = (value) => {
+    const text = oneLine(value);
+    const first = text.match(/^.*?[.!?](?=\s|$)/)?.[0] ?? text;
+    const cut = first.length > LLMS_INDEX_DESC_MAX ? `${first.slice(0, LLMS_INDEX_DESC_MAX - 1).replace(/\s+\S*$/, '')}…` : first;
+    return cut;
+  };
   // Same fact the About page states in full; see `disclaimerHtml` for why it
   // is derived rather than hand-typed.
   const exceptions = externalCallExceptions(surfaces);
@@ -10472,15 +10569,22 @@ export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guid
   // which data, its limits) gets it named on its line, so an assistant that
   // matched the product here can fetch the detail without crawling the page.
   const bullet = (surface) =>
-    `- [${oneLine(surface.title)}](${baseUrl}${surface.slug}/): ${oneLine(surface.fullDescription || surface.description)}${surface.llmsDoc ? ` LLM docs: ${baseUrl}${surface.slug}/llms.txt` : ''}`;
+    full
+      ? `- [${oneLine(surface.title)}](${baseUrl}${surface.slug}/): ${oneLine(surface.fullDescription || surface.description)}${surface.llmsDoc ? ` LLM docs: ${baseUrl}${surface.slug}/llms.txt` : ''}`
+      : `- [${oneLine(surface.title)}](${baseUrl}${surface.slug}/): ${shortText(surface.description || surface.fullDescription)}`;
 
   const sections = groupByCategory(surfaces).map(({ category, items }) => {
     const subgroups = groupBySubcategory(category.id, items);
     // Sub-headings for a sub-grouped category, so a model reading this file can
     // answer "which of these is a roofing tool" from the structure rather than
     // by matching prose across 110 sibling bullets.
-    const body =
-      subgroups.length === 1 && subgroups[0].subcategory === null
+    const body = !full
+      ? `${items.slice(0, LLMS_INDEX_TOOLS_PER_CATEGORY).map(bullet).join('\n')}${
+          items.length > LLMS_INDEX_TOOLS_PER_CATEGORY
+            ? `\n\n${items.length - LLMS_INDEX_TOOLS_PER_CATEGORY} more tools in this category: see the category page, or [llms-full.txt](${baseUrl}llms-full.txt).`
+            : ''
+        }`
+      : subgroups.length === 1 && subgroups[0].subcategory === null
         ? items.map(bullet).join('\n')
         : subgroups
             .map(
@@ -10502,6 +10606,9 @@ export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guid
   const optional = [
     '## Optional',
     '',
+    full
+      ? `- [Short index](${baseUrl}llms.txt): the same tools with one-sentence descriptions, small enough to read in one fetch.`
+      : `- [Full text](${baseUrl}llms-full.txt): every tool with its complete description and the LLM docs a product ships; large (several hundred KB), fetch only when the index does not answer the question.`,
     `- [About and press kit](${baseUrl}${ABOUT_PATH}): what this site is, how visitor data is handled (${counterOn() ? 'inputs never leave the browser; a cookieless per-page daily tally, with the kind of referring site, the country code and the device type, goes to a first-party counter' : 'it never leaves the browser'}${exceptions.length ? ', with a documented exception listed there' : ''}), the licence, and pre-written boilerplate for citing or linking to these tools.`,
     `- [Ask](${baseUrl}${ASK_PATH}): fill any calculator here by voice or a typed sentence, find a tool, or hear a result read back; in browsers with WebMCP every page also offers \`search_site_tools\`, \`read_page_results\` and (on calculators) \`fill_form\` to an agent. Runs in the browser; no model unless the visitor switches one on. The page states the measured accuracy and the limitations.`,
     `- [Updates and roadmap](${baseUrl}${UPDATES_PATH}): what shipped this week, what is in progress, the owner's direction for the project and how AI agents build it; and the [changelog](${baseUrl}${CHANGELOG_PATH}) of every change merged, by day.`,
@@ -10577,16 +10684,24 @@ ${research.themes
 `
     : '';
 
+  const network = exceptions.length
+    ? `## Tools that call the network
+
+On ${listProse(exceptions.map((x) => toolProseName(x.title)))} the one thing you paste is sent to the public API it checks; the [About page](${baseUrl}${ABOUT_PATH}) explains exactly what.
+
+`
+    : '';
+
   return `# Open Tools and Research
 
-> ${surfaces.length} free, open-source tools (browser calculators and checks, self-hostable business apps and command-line tools) for marketplace sellers, trade contractors, logistics buyers and small teams, plus ${researchProjects ? `${researchProjects} reproducible research projects` : 'open research'}. No account, no payment: every browser calculation runs in the visitor's own browser${exceptions.length ? `, and the numbers they type never leave their device — except on ${listProse(exceptions.map((x) => toolProseName(x.title)))}, where the one thing you paste is sent to the public API it checks; the About page explains exactly what` : ' and the numbers they type never leave their device'}.
+> ${surfaces.length} free, open-source tools (browser calculators and checks, self-hostable business apps and command-line tools) for marketplace sellers, trade contractors, logistics buyers and small teams, plus ${researchProjects ? `${researchProjects} reproducible research projects` : 'open research'}; no account or payment, and the numbers you type stay in your browser.
 
 Each tool is a static page that works offline once opened, and is free with no
 gated features. They are estimates and records to act on, not professional
 advice or a determination made on anyone's behalf; each page carries its own
 limitations.
 
-${audienceSection ? `${audienceSection}\n` : ''}${sections.join('\n')}
+${network}${audienceSection ? `${audienceSection}\n` : ''}${sections.join('\n')}
 ${researchSection ? `${researchSection}\n` : ''}${optional}`;
 }
 
@@ -10763,10 +10878,13 @@ export async function addOfflineSupport({
 
   const hash = crypto.createHash('sha256');
   hash.update(codeVersion ?? (await fs.readFile(path.join(HERE, 'offline.mjs'))));
-  for (const file of (await listFiles(outDir)).sort()) {
-    hash.update(path.relative(outDir, file));
-    hash.update(await fs.readFile(file));
-  }
+  // Each file hashed on its own, many at once, then the digests in path order:
+  // the same guarantee (any byte or name changes the cache) without reading
+  // the site one file at a time.
+  const files = (await listFiles(outDir)).sort();
+  const digests = await mapLimit(files, 32, async (file) =>
+    crypto.createHash('sha256').update(await fs.readFile(file)).digest());
+  files.forEach((file, i) => hash.update(path.relative(outDir, file)).update(digests[i]));
   const cacheName = `portfolio-${hash.digest('hex').slice(0, 12)}`;
 
   await fs.writeFile(path.join(outDir, 'offline.html'), renderOfflinePage(base));
@@ -10795,15 +10913,14 @@ export async function addOfflineSupport({
       }),
   );
 
-  let injected = 0;
-  for (const file of await listFiles(outDir)) {
-    if (!file.endsWith('.html')) continue;
+  const pages = (await listFiles(outDir)).filter((file) => file.endsWith('.html'));
+  const injected = (await mapLimit(pages, 32, async (file) => {
     const depth = path.relative(outDir, file).split(path.sep).length - 1;
     const result = injectOfflineSupport(await fs.readFile(file, 'utf8'), '../'.repeat(depth));
-    if (!result.injected) continue;
+    if (!result.injected) return 0;
     await fs.writeFile(file, result.html);
-    injected += 1;
-  }
+    return 1;
+  })).reduce((a, b) => a + b, 0);
 
   // The real weight of what "Save this category for offline" fetches, over
   // the wire rather than on disk -- GitHub Pages (Fastly) and the front
@@ -10865,19 +10982,22 @@ export async function buildSite({
   counterUrl = '',
   // platform/edge's origin; '' (the default) builds the feedback page without its form.
   feedbackUrl = '',
+  // Link committed MP3s from jsDelivr instead of shipping them (audio-cdn.mjs).
+  // The deploy turns it on with --audio-cdn; local and test builds keep the files.
+  audioCdn = false,
 } = {}) {
   const base = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
   SITE_COUNTER_URL = normaliseCounterUrl(counterUrl);
   SITE_FEEDBACK_URL = normaliseCounterUrl(feedbackUrl);
   try {
-    return await buildSiteInner({ venturesDir, outDir, base, log, disableWorker });
+    return await buildSiteInner({ venturesDir, outDir, base, log, disableWorker, audioCdn });
   } finally {
     SITE_COUNTER_URL = '';
     SITE_FEEDBACK_URL = '';
   }
 }
 
-async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker }) {
+async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, audioCdn }) {
 
   await fs.rm(outDir, { recursive: true, force: true });
   await fs.mkdir(outDir, { recursive: true });
@@ -10958,6 +11078,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
   // and that order is load-bearing: a repair can rewrite a `<script src>` or a
   // stylesheet `<link href>` to a github.com URL, which is a genuine external
   // request the privacy copy has to report.
+  const sourceDates = await loadLastChanged(REPO_ROOT);
   for (const surface of discovered) {
     const html = await fs.readFile(surface.entryFile, 'utf8');
     const { title, description, fullDescription } = readMeta(html, surface.slug);
@@ -10977,8 +11098,33 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
     const pages = await publishedPages(destination);
     await fs.writeFile(
       path.join(destination, 'sitemap.xml'),
-      renderVentureSitemap(surface.slug, pages, base),
+      renderVentureSitemap(
+        surface.slug,
+        pages,
+        base,
+        Object.fromEntries(
+          pages.flatMap((page) => {
+            const date = sourceDates.get(path.relative(REPO_ROOT, path.join(surface.sourceDir, page)).split(path.sep).join('/'));
+            return date ? [[page, date]] : [];
+          }),
+        ),
+      ),
     );
+
+    // A product with its own llms.txt keeps it (and is named so in the index);
+    // every other product gets a plain one derived from the same description
+    // the page uses, so an assistant can fetch a short, sourced summary at
+    // /<slug>/llms.txt instead of 1,300 products having none.
+    const ownLlmsDoc = existsSync(path.join(destination, 'llms.txt'));
+    const sourceDate = (file) => sourceDates.get(path.relative(REPO_ROOT, path.join(surface.sourceDir, file)).split(path.sep).join('/'));
+    if (!ownLlmsDoc) {
+      await fs.writeFile(path.join(destination, 'llms.txt'), renderProductLlmsTxt({ slug: surface.slug, title, description, fullDescription, updated: sourceDate('index.html'), before: sourceDates.historyStart }, base));
+    } else {
+      const own = path.join(destination, 'llms.txt');
+      const text = await fs.readFile(own, 'utf8');
+      const dated = withLlmsAsOf(text, sourceDate('llms.txt') ?? sourceDate('index.html'), sourceDates.historyStart);
+      if (dated !== text) await fs.writeFile(own, dated);
+    }
 
     surfaces.push({
       ...surface,
@@ -10995,7 +11141,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
       kind: surfaceKind(path.join(REPO_ROOT, 'ventures', surface.slug), surface.slug),
       pageCount: await countPages(surface.sourceDir),
       publishedPageCount: pages.length,
-      llmsDoc: existsSync(path.join(destination, 'llms.txt')),
+      llmsDoc: ownLlmsDoc,
       externalFetchHosts: await surfaceExternalFetchHosts(destination),
     });
     log(`  ${surface.slug}`);
@@ -11244,10 +11390,9 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
     ),
   );
   await fs.writeFile(path.join(outDir, 'catalog.json'), renderCatalog(surfaces, base, launched));
-  await fs.writeFile(
-    path.join(outDir, 'llms.txt'),
-    renderLlmsTxt(surfaces, base, compareProducts, guides, { audiences: audiencePages, research, agentPostCount: loadPosts(undefined, AGENT_POSTS_DIR).length }),
-  );
+  const llmsOptions = { audiences: audiencePages, research, agentPostCount: loadPosts(undefined, AGENT_POSTS_DIR).length };
+  await fs.writeFile(path.join(outDir, 'llms.txt'), renderLlmsTxt(surfaces, base, compareProducts, guides, llmsOptions));
+  await fs.writeFile(path.join(outDir, 'llms-full.txt'), renderLlmsTxt(surfaces, base, compareProducts, guides, { ...llmsOptions, full: true }));
   // Read from the committed file, not from `git log`: the in-cluster build
   // clones `--depth 1` and has no history. See `launched.mjs`.
   await fs.writeFile(path.join(outDir, FEED_FILE), renderFeed(surfaces, base, launched));
@@ -11326,6 +11471,12 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
   // them. Before the offline layer, which hashes the finished HTML.
   const shareCards = await addShareCards({ outDir, baseUrl: base, siteName: SITE_NAME, siteCard: SOCIAL_CARD_FILE });
 
+  // Before the offline layer, which hashes the finished site: this rewrites
+  // pages and feeds and removes the files it moved.
+  const audio = audioCdn
+    ? await moveAudioToCdn({ outDir, base, repoRoot: REPO_ROOT, log })
+    : { moved: 0, kept: 0, bytes: 0 };
+
   // After the chrome pass, not before: the offline layer hashes the finished
   // site to name its cache, and injects into pages the chrome has already
   // rewritten. Reversed, every deploy would cache a page missing its nav.
@@ -11333,7 +11484,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker })
 
   return {
     outDir, baseUrl: base, surfaces, repairs, wrapped, rated, saved, shared, described,
-    highlighted, narrowed, embedded, sponsored, offline, comparisons, shareCards,
+    highlighted, narrowed, embedded, sponsored, offline, comparisons, shareCards, audio,
   };
 }
 
@@ -11435,6 +11586,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     feedbackUrl: process.argv.find((a) => a.startsWith('--feedback-url='))?.slice('--feedback-url='.length)
       ?? process.env.PAGES_FEEDBACK_URL
       ?? JSON.parse(await fs.readFile(path.join(REPO_ROOT, 'platform', 'edge', 'site.json'), 'utf8')).url,
+    audioCdn: process.argv.includes('--audio-cdn'),
     log: console.log,
   });
 

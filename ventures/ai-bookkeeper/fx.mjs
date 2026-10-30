@@ -148,7 +148,7 @@ export function fxEntries(books) {
 // Returns [{ date, rate, cum }] for the document: cum is the carrying amount less the
 // booked total, in base cents.
 export function docRevals(books, d, through = null) {
-  if (!d.currency || d.credit || d.credited || d.writtenOff || (d.payments ?? []).length > 1 || d.foreignTotal == null) return [];
+  if (!d.currency || d.credit || d.credited || d.writtenOff || (d.payments ?? []).length > 1 || d.paidForeign || d.foreignTotal == null) return [];
   const paidOn = d.settledBy ? books.transactions.find((t) => t.id === d.settledBy)?.date : null;
   const last = through ?? [...books.transactions.map((t) => t.date), ...(books.documents ?? []).map((x) => x.date)].sort().at(-1);
   if (!last) return [];

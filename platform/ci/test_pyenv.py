@@ -101,6 +101,16 @@ class T(unittest.TestCase):
         finally:
             pyenv.shutil.which = orig
 
+    def test_heavy_packages_get_a_longer_pip_timeout(self):
+        os.environ.pop("PYENV_PIP_TIMEOUT", None)
+        self.assertEqual(pyenv.pip_timeout(["numpy"]), 300)
+        self.assertEqual(pyenv.pip_timeout(["torch", "numpy"]), 1800)
+        os.environ["PYENV_PIP_TIMEOUT"] = "42"
+        try:
+            self.assertEqual(pyenv.pip_timeout(["torch"]), 42)
+        finally:
+            del os.environ["PYENV_PIP_TIMEOUT"]
+
     def test_package_names(self):
         run = FakeRun(pip_ok={"/p/python3"})
         pyenv.find(["sklearn", "yaml"], ["/p/python3"], run, quiet)
@@ -123,6 +133,23 @@ class T(unittest.TestCase):
         seen = []
         pyenv.find(["nope"], ["/p/python3"], Run(), seen.append)
         self.assertTrue(any("no matching distribution" in m for m in seen), seen)
+
+    def test_torch_installs_from_the_cpu_index(self):
+        run = FakeRun()
+        pyenv.pip_install("/p/python3", ["torch", "numpy"], run, quiet, lambda: True)
+        pip = [c for c in run.calls if c[1:3] == ["-m", "pip"]][0]
+        self.assertIn(pyenv.TORCH_CPU_INDEX, pip)
+        run = FakeRun()
+        pyenv.pip_install("/p/python3", ["numpy"], run, quiet)
+        self.assertNotIn("--extra-index-url", [c for c in run.calls if c[1:3] == ["-m", "pip"]][0])
+
+    def test_unreachable_cpu_index_is_warned_about(self):
+        seen = []
+        pyenv.pip_install("/p/python3", ["torch"], FakeRun(), seen.append, lambda: False)
+        self.assertTrue(any("unreachable" in m for m in seen), seen)
+        seen = []
+        pyenv.pip_install("/p/python3", ["torch"], FakeRun(), seen.append, lambda: True)
+        self.assertFalse(any("unreachable" in m for m in seen), seen)
 
     def test_distro_owned_package_stops_retrying_pip_flags(self):
         class Run(FakeRun):
@@ -201,6 +228,14 @@ class T(unittest.TestCase):
         self.assertEqual(pyenv.PIP_NAMES["opendssdirect"], "OpenDSSDirect.py")
         self.assertEqual(pyenv.import_name("some-pkg:somemod"), "somemod")
         self.assertEqual(pyenv.PIP_NAMES["somemod"], "some-pkg")
+
+    def test_heartbeat_logs_until_stopped(self):
+        logs = []
+        stop = pyenv.heartbeat(logs.append, every=0.01)
+        import time
+        time.sleep(0.1)
+        stop.set()
+        self.assertTrue(any("still installing" in m for m in logs))
 
 
 if __name__ == "__main__":

@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%231b7e24'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EB%3C/text%3E%3C/svg%3E">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Branch Protection Drift Check — Does Your Repo Still Match Its Own Policy?</title>
   <meta name="description" content="Paste your repo's GitHub branch protection settings and declared policy to find every rule that has drifted weaker than intended. Free, nothing uploaded.">
@@ -128,6 +128,7 @@ node cli.mjs --actual actual.json --policy policy.txt --fail-on-drift   # exit 2
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>A weakened branch-protection rule is one specific way a repository's own safeguards silently stop working. <a href="../required-checks-drift-check/">Required Checks Drift Check</a> flags a required status check name nothing can ever satisfy again, and <a href="../codeowners-shadow-check/">CODEOWNERS Shadow Check</a> flags a review-requirement rule a later pattern silently overrides — two more slices of a setup that looks correct until you check.</p>
     <p class="support">Free and open source. If this caught a rule that had quietly drifted, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  <p class="more-pages">Also: <a href="vs-manually-checking-settings.html">This checker vs. eyeballing Settings → Branches</a></p>
   </footer>
 
   <script type="module">

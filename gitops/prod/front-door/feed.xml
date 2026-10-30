@@ -1,12 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Open Tools and Research — tools on marisstella.dev</title>
-  <subtitle>The 1317 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1320 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
-  <updated>2026-10-24T00:00:00Z</updated>
+  <updated>2026-10-29T00:00:00Z</updated>
   <rights>Tools are MIT-licensed. They are estimates and records to act on, not professional advice.</rights>
+  <entry>
+    <title>dupehound: Find Copy-Pasted Code in Your Repo, Fast (Rust, Runs in Your Browser)</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/dupehound/"/>
+    <id>tag:marisstella.dev,2026:tool/dupehound</id>
+    <updated>2026-10-29T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Drop a project folder and see every copy-pasted block: file, lines and the matching copy. A Rust copy-paste detector compiled to WebAssembly. Nothing is uploaded. Also a CLI that checked 9,458 files in 1.2 seconds.</summary>
+  </entry>
+  <entry>
+    <title>Agentic Trading Lab: backtest strategies, catch overfitting, paper trade first</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/agentic-trading-lab/"/>
+    <id>tag:marisstella.dev,2026:tool/agentic-trading-lab</id>
+    <updated>2026-10-28T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">Free, open-source research agent for trading your own account: backtests published momentum and trend rules on 100 years of US industry data and on BTC/ETH, charges for every strategy it tries (Deflated Sharpe, PBO), and only then lets you paper trade on Alpaca or trade crypto through Robinhood&#39;s official API.</summary>
+  </entry>
+  <entry>
+    <title>VSME Report Builder — Free Sustainability Report for Small Suppliers (Basic Module)</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/vsme-report-builder/"/>
+    <id>tag:marisstella.dev,2026:tool/vsme-report-builder</id>
+    <updated>2026-10-26T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">Free VSME Basic Module report builder for small EU suppliers asked for ESG data by customers or banks: fill in energy, emissions, workforce and safety figures, get a draft report, a completeness check and consistency flags. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
   <entry>
     <title>Agent Workroom — A 3D Room for Your AI Agents&#39; Tasks, by Voice or Text</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/agent-workroom/"/>
@@ -68,7 +92,7 @@
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/wall-framing-takeoff/"/>
     <id>tag:marisstella.dev,2026:tool/wall-framing-takeoff</id>
     <updated>2026-10-21T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="Trade &amp; contractor bids"/>
     <summary type="text">Free wall framing calculator for builders and framers. Enter walls, doors and windows; get the stud layout 16 or 24 on center, kings, jacks, headers and cripples, a cut list, plate splices over studs and the cheapest mix of board lengths to buy. Runs in your browser.</summary>
   </entry>
   <entry>
@@ -142,29 +166,5 @@
     <updated>2026-10-20T00:00:00Z</updated>
     <category term="Creator &amp; solo earner income"/>
     <summary type="text">Free podcast RSS feed generator, Markdown to EPUB converter, ACX audiobook checker and KDP spine calculator. Runs in your browser, or as a CLI for AI agents.</summary>
-  </entry>
-  <entry>
-    <title>Saints by Candlelight: a free bedtime podcast of saints, angels and Bible stories</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/saints-by-candlelight/"/>
-    <id>tag:marisstella.dev,2026:tool/saints-by-candlelight</id>
-    <updated>2026-10-20T00:00:00Z</updated>
-    <category term="More free tools"/>
-    <summary type="text">Free bedtime story podcast of Catholic and Orthodox saints, angels and patriarchs: lighthearted, faithful, 30 to 60 minute episodes with full scripts and an honest note on what is history and what is legend.</summary>
-  </entry>
-  <entry>
-    <title>Sales Cadence Builder — plan email, call, LinkedIn and letter outreach, free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/sales-cadence-builder/"/>
-    <id>tag:marisstella.dev,2026:tool/sales-cadence-builder</id>
-    <updated>2026-10-20T00:00:00Z</updated>
-    <category term="Creator &amp; solo earner income"/>
-    <summary type="text">Free sales cadence builder and outreach sequence planner. Paste your prospect list and get a multi-channel cadence (email, phone call with voicemail script, LinkedIn note, mailed letter) on business days, call times inside each prospect&#39;s local business hours, suppression and consent checks, and a CSV and calendar file. Runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Bid Price Engine — Job Bid Calculator for 120+ Trades, Margin Not Markup</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/bid-price-engine/"/>
-    <id>tag:marisstella.dev,2026:tool/bid-price-engine</id>
-    <updated>2026-10-19T00:00:00Z</updated>
-    <category term="Self-hosted business apps"/>
-    <summary type="text">Free job bid calculator for contractors and service trades: labor with payroll burden, materials with waste, subs, contingency and overhead turned into a price at the profit margin you choose. Shows your walk-away price and how far labor can overrun. Private, no signup.</summary>
   </entry>
 </feed>

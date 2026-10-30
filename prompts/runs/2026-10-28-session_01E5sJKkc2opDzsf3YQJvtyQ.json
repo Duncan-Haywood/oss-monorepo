@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-28",
+  "session": "https://claude.ai/code/session_01E5sJKkc2opDzsf3YQJvtyQ",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-28T12:39:45Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 11123,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/explore/prompt-0.md",
+      "issue": "Long list of clean sweeps still let me spend several steps rediscovering that the legacy monorepo-projects path and example.invalid placeholders are rewritten by build.mjs; that fact is not in the list."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-10-28-every-link-in-our-llms-txt-files-resolves.md"
+  ],
+  "goal": null,
+  "notes": "Idea: llms.txt link-target checker (platform/ci/check_llms_txt_links.py). Found 0 dead links in 16 files; small result. Agent doc skipped: nothing the next run needs beyond the prompt note.",
+  "corrections": [],
+  "redteam": null
+}

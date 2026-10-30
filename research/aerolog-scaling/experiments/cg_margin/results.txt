@@ -1,0 +1,22 @@
+reference n=1 (h = 0): phugoid 0.270, short period 1.656, zeta_sp 0.514
+model CG h chords ahead of the wing AC; h = 0 is 7d exactly
+
+wing           h tails pass5    of  best tail (worst deviation %)
+naca4412   -0.10          13   266  naca0009 area 0.20 AR_t 3.5 arm 3.0 (2.1%)
+naca4412   -0.05          21   270  naca0012 area 0.20 AR_t 5.0 arm 2.5 (0.8%)
+naca4412   -0.02          26   270  naca0015 area 0.15 AR_t 7.0 arm 3.0 (0.4%)
+naca4412   -0.01          24   270  naca0012 area 0.15 AR_t 3.5 arm 3.5 (0.5%)
+naca4412    0.00          23   270  naca0015 area 0.15 AR_t 5.0 arm 3.5 (0.8%)
+naca4412    0.01          25   270  naca0012 area 0.15 AR_t 5.0 arm 2.5 (1.8%)
+naca4412    0.02          28   270  naca0009 area 0.15 AR_t 7.0 arm 3.0 (1.9%)
+naca4412    0.05          23   270  naca0015 area 0.20 AR_t 7.0 arm 2.0 (2.5%)
+naca4412    0.10          13   270  naca0012 area 0.20 AR_t 3.5 arm 2.0 (3.6%)
+naca5406   -0.10           7   264  naca0009 area 0.20 AR_t 5.0 arm 3.0 (3.3%)
+naca5406   -0.05          18   270  naca0012 area 0.30 AR_t 3.5 arm 2.5 (1.6%)
+naca5406   -0.02          25   270  naca0015 area 0.20 AR_t 5.0 arm 3.0 (0.7%)
+naca5406   -0.01          23   270  naca0012 area 0.20 AR_t 3.5 arm 3.0 (0.6%)
+naca5406    0.00          23   270  naca0015 area 0.15 AR_t 5.0 arm 3.5 (0.5%)
+naca5406    0.01          25   270  naca0015 area 0.15 AR_t 5.0 arm 3.5 (1.0%)
+naca5406    0.02          28   270  naca0009 area 0.15 AR_t 5.0 arm 3.0 (0.8%)
+naca5406    0.05          24   270  naca0015 area 0.15 AR_t 5.0 arm 3.0 (1.8%)
+naca5406    0.10          15   270  naca0012 area 0.20 AR_t 3.5 arm 2.0 (3.0%)

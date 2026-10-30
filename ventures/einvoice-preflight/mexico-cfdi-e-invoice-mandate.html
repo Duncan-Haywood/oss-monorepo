@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e551b'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EE%3C/text%3E%3C/svg%3E"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mexico CFDI 4.0 e-invoicing: PAC stamping, RFC check and receptor data | E-invoice Preflight</title>
+<meta name="description" content="Every Mexican invoice is a CFDI: XML stamped by a SAT-authorised PAC. What CFDI 4.0 asks of the receptor, how cancellation works as reported, and a free local RFC check-digit test.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/mexico-cfdi-e-invoice-mandate.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Mexico CFDI 4.0 e-invoicing: PAC stamping, RFC check and receptor data | E-invoice Preflight">
+<meta property="og:description" content="Every Mexican invoice is a CFDI: XML stamped by a SAT-authorised PAC. What CFDI 4.0 asks of the receptor, how cancellation works as reported, and a free local RFC check-digit test.">
+<meta property="og:url" content="https://example.invalid/einvoice-preflight/mexico-cfdi-e-invoice-mandate.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is a CFDI?","acceptedAnswer":{"@type":"Answer","text":"A CFDI (Comprobante Fiscal Digital por Internet) is Mexico's electronic tax invoice: an XML file the issuer sends to a PAC (a provider authorised by the tax authority, SAT), which validates it, adds a digital stamp with a unique folio (UUID) and reports it to SAT. A PDF is only a printed representation of the XML. This is a summary from vendor guides, not advice; confirm with SAT or your accountant."}},{"@type":"Question","name":"What does CFDI 4.0 require about the customer?","acceptedAnswer":{"@type":"Answer","text":"Vendor guides report that version 4.0 makes the receptor block required: the customer's RFC, legal name as it appears on their tax-status certificate, postal code of their tax address and tax regime, plus the CFDI use code. A name or postal code that does not match SAT's record is reported as a reason the PAC rejects the stamp. Sources differ on the dates of the transition from 3.3, so confirm the dates with SAT."}},{"@type":"Question","name":"How does cancelling a CFDI work?","acceptedAnswer":{"@type":"Answer","text":"As vendor guides report it, a CFDI is cancelled with one of four reason codes, and for some cancellations the receptor must accept the request, with a window of a few business days after which it is treated as accepted. Substitution points to the folio of the replacing CFDI. The exact rules, amount thresholds and time limits are in SAT's rules and were not read here."}},{"@type":"Question","name":"Can this checker validate a Mexican CFDI?","acceptedAnswer":{"@type":"Answer","text":"No. It reads UBL, CII, Factur-X and JSON, not the CFDI XML schema, and has no SAT catalogue rules or stamp check. It does test an RFC's shape, date part and check digit on this page, and a clean result is not an acceptance by a PAC or SAT."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch}.lede{font-size:1.05rem;max-width:64ch;color:#3d4f5f}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #15202b10;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #d3dbe4;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#3d4f5f}.fine,.note{font-size:.88rem;color:#3d4f5f}footer{color:#3d4f5f;font-size:.86rem}footer p{margin:.6rem 0}.out{min-height:1.4em}.good{color:#0a6b3a;font-weight:600}.bad{color:#a12d1b}input{font:inherit;padding:.4rem .5rem;border:1px solid #9fb0c0;border-radius:8px}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; E-invoice Preflight</a></p>
+<header>
+<h1>Mexico's CFDI: every invoice is stamped XML, and 4.0 checks the customer too</h1>
+<p class="lede">In Mexico, per the guides read, a tax invoice is a CFDI: an XML file that a SAT-authorised provider (a PAC) validates, stamps with a unique folio and reports to the tax authority before it counts. Version 4.0 requires the customer's RFC, exact legal name, postal code and tax regime. Below: how it works as vendor guides report it, where sources disagree, and a local check of an RFC's check digit.</p>
+</header>
+<section>
+<h2>How it works (as vendor guides report it)</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Step</th><th scope="col">What happens</th></tr></thead>
+<tbody>
+<tr><td>Issue</td><td>The issuer builds the CFDI XML (version 4.0, with complements such as payment or transport where they apply) and signs it with its tax certificate.</td></tr>
+<tr><td>Stamp</td><td>A PAC validates it against SAT's rules and catalogues, adds the digital stamp and the UUID folio, and reports it to SAT. Without the stamp it is not a valid invoice.</td></tr>
+<tr><td>Deliver</td><td>The issuer sends the stamped XML (and usually a PDF) to the customer, who needs the XML to deduct the expense.</td></tr>
+<tr><td>Cancel</td><td>Cancelled with a reason code; for some cases the customer must accept. Replacing a CFDI points to the new one's folio.</td></tr>
+</tbody>
+</table>
+</div>
+<p class="fine">Where it is unsettled: the dates of the 3.3 to 4.0 transition (search results disagreed on the start and on the grace period), the cancellation thresholds and time limits, and which complements are required for which sale. These are vendor blogs, not SAT or the Resolución Miscelánea Fiscal. No penalty is stated because none was read. A summary, not tax advice.</p>
+</section>
+<section>
+<h2>Check an RFC</h2>
+<p>Tests the length (12 for a company, 13 for a person), the letters, the YYMMDD date part and the check digit. It does not look anything up, so it cannot say whether the RFC is registered or matches a name. The two generic RFCs for sales to the public and to foreigners are accepted by shape. The check digit misses about 16% of single-character mistakes (60 of 385 on a sample company RFC), so a pass is not a confirmation.</p>
+<label>RFC <input id="rfc" size="18" maxlength="20" autocomplete="off" spellcheck="false" placeholder="SAT970701NN3"></label>
+<p id="rfc-out" class="out" aria-live="polite"></p>
+<p class="fine">The sample is SAT's own RFC. The check-digit rule (mod 11, weights 13 down to 2) reproduces four RFCs I know; it was not read from SAT's specification.</p>
+</section>
+<section>
+<h2>What this checker does and does not cover</h2>
+<p>The main checker reads UBL, CII and Factur-X and applies EN 16931 and Peppol rules. It does <strong>not</strong> read the CFDI XML, has no SAT catalogue (product and unit keys, tax regimes, CFDI uses), cannot check a stamp and does not know the PAC's own rules. Treat the RFC test here as a typo catch only.</p>
+</section>
+<section>
+<h2>Test a file before you send it</h2>
+<p>For a European or Peppol invoice, open the <a href="./">checker</a>, drop your XML and read the findings, each with a rule ID and a fix (<a href="what-does-this-e-invoice-error-code-mean.html">the rule reference</a>). No account, nothing uploaded. No invoice yet? The <a href="create.html">e-invoice creator</a> turns a form into UBL or CII XML and checks it. Other countries: <a href="e-invoicing-mandates-by-country.html">all side by side</a> <a href="japan-invoice-system-e-invoice-mandate.html">Japan</a> <a href="uae-e-invoice-mandate.html">the UAE</a> <a href="saudi-arabia-zatca-e-invoice-mandate.html">Saudi Arabia</a> <a href="india-gst-e-invoice-mandate.html">India</a> <a href="malaysia-myinvois-e-invoice-mandate.html">Malaysia</a> <a href="turkey-e-invoice-mandate.html">Turkey</a> <a href="sweden-e-invoice-mandate.html">Sweden</a>.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>What is a CFDI?</h3>
+<p>A CFDI (Comprobante Fiscal Digital por Internet) is Mexico's electronic tax invoice: an XML file the issuer sends to a PAC (a provider authorised by the tax authority, SAT), which validates it, adds a digital stamp with a unique folio (UUID) and reports it to SAT. A PDF is only a printed representation of the XML. This is a summary from vendor guides, not advice; confirm with SAT or your accountant.</p>
+<h3>What does CFDI 4.0 require about the customer?</h3>
+<p>Vendor guides report that version 4.0 makes the receptor block required: the customer's RFC, legal name as it appears on their tax-status certificate, postal code of their tax address and tax regime, plus the CFDI use code. A name or postal code that does not match SAT's record is reported as a reason the PAC rejects the stamp. Sources differ on the dates of the transition from 3.3, so confirm the dates with SAT.</p>
+<h3>How does cancelling a CFDI work?</h3>
+<p>As vendor guides report it, a CFDI is cancelled with one of four reason codes, and for some cancellations the receptor must accept the request, with a window of a few business days after which it is treated as accepted. Substitution points to the folio of the replacing CFDI. The exact rules, amount thresholds and time limits are in SAT's rules and were not read here.</p>
+<h3>Can this checker validate a Mexican CFDI?</h3>
+<p>No. It reads UBL, CII, Factur-X and JSON, not the CFDI XML schema, and has no SAT catalogue rules or stamp check. It does test an RFC's shape, date part and check digit on this page, and a clean result is not an acceptance by a PAC or SAT.</p>
+<p class="note">Open the <a href="./">E-invoice Preflight</a> checker to validate your own invoice file.</p>
+</section>
+<section>
+<h2>More countries</h2>
+<p><a href="australia-e-invoice-mandate.html">Australia</a> <a href="austria-e-invoice-mandate.html">Austria</a> <a href="belgium-e-invoice-mandate.html">Belgium</a> <a href="brazil-nfe-e-invoice-mandate.html">Brazil</a> <a href="bulgaria-e-invoice-mandate.html">Bulgaria</a> <a href="croatia-e-invoice-mandate.html">Croatia</a> <a href="cyprus-e-invoice-mandate.html">Cyprus</a> <a href="czech-republic-e-invoice-mandate.html">Czech Republic</a> <a href="denmark-e-invoice-mandate.html">Denmark</a> <a href="estonia-e-invoice-mandate.html">Estonia</a> <a href="finland-e-invoice-mandate.html">Finland</a> <a href="france-e-invoice-mandate.html">France</a> <a href="germany-e-invoice-mandate.html">Germany</a> <a href="greece-mydata-e-invoice-mandate.html">Greece</a> <a href="hungary-e-invoice-mandate.html">Hungary</a> <a href="ireland-e-invoice-mandate.html">Ireland</a> <a href="italy-sdi-e-invoice-mandate.html">Italy</a> <a href="latvia-e-invoice-mandate.html">Latvia</a> <a href="lithuania-e-invoice-mandate.html">Lithuania</a> <a href="luxembourg-e-invoice-mandate.html">Luxembourg</a> <a href="malta-e-invoice-mandate.html">Malta</a> <a href="netherlands-e-invoice-mandate.html">Netherlands</a> <a href="norway-e-invoice-mandate.html">Norway</a> <a href="poland-ksef-e-invoice-mandate.html">Poland</a> <a href="portugal-e-invoice-mandate.html">Portugal</a> <a href="romania-e-factura-e-invoice-mandate.html">Romania</a> <a href="serbia-e-invoice-mandate.html">Serbia</a> <a href="singapore-invoicenow-e-invoice-mandate.html">Singapore Invoicenow</a> <a href="slovakia-e-invoice-mandate.html">Slovakia</a> <a href="slovenia-e-invoice-mandate.html">Slovenia</a> <a href="spain-verifactu-e-invoice-mandate.html">Spain</a> <a href="switzerland-e-invoice-mandate.html">Switzerland</a> <a href="uk-e-invoice-mandate.html">Uk</a> <a href="colombia-dian-e-invoice-mandate.html">Colombia</a> <a href="chile-sii-e-invoice-mandate.html">Chile</a> <a href="peru-sunat-e-invoice-mandate.html">Peru</a> <a href="argentina-arca-e-invoice-mandate.html">Argentina</a> <a href="uruguay-dgi-e-invoice-mandate.html">Uruguay</a> <a href="paraguay-dnit-e-invoice-mandate.html">Paraguay</a> <a href="ecuador-sri-e-invoice-mandate.html">Ecuador</a> <a href="vietnam-e-invoice-mandate.html">Vietnam</a></p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or accounting advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every check runs locally. This page is static and summarises the Mexican position as vendor guides report it, not from SAT's rules; things can change, so check SAT (sat.gob.mx) and the current Resolución Miscelánea Fiscal before relying on it.</p>
+<p class="support">Free and open source. If it caught a defect before a rejection, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+</footer>
+<script type="module">
+import{checkRfc}from"./mexico.mjs";
+const $=i=>document.getElementById(i);
+const esc=t=>String(t).replace(/[&<>"']/g,c=>"&#"+c.charCodeAt(0)+";");
+function r(){const v=$("rfc").value;if(!v.trim()){$("rfc-out").innerHTML="";return}const x=checkRfc(v);$("rfc-out").innerHTML=x.ok?'<span class="good">'+(x.kind==="generic"?"Generic RFC (public or foreigner).":"Shape, date and check digit are consistent ("+(x.kind==="company"?"company":"person")+").")+"</span>":x.problems.map(p=>`<span class="bad">${esc(p)}</span>`).join("<br>")}
+$("rfc").addEventListener("input",r);
+</script>
+</main>
+</body></html>

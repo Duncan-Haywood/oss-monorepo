@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%231b7e5f'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EV%3C/text%3E%3C/svg%3E">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Voice-Over Project Rate Calculator — Free, No Sign-Up</title>
   <meta name="description" content="Free voice-over rate calculator for freelance VO artists. Price a commercial, e-learning, IVR, or explainer script per word or per finished minute, scaled by usage/licensing term (internal, web, broadcast, buyout) — or price an audiobook per finished hour from manuscript word count. No sign-up, nothing uploaded.">
@@ -42,7 +42,8 @@
     .stats { font-size: .85rem; color: #4b4a58; margin-bottom: 10px; }
     .error { color: #9a3412; font-weight: 600; }
     footer { margin-top: 28px; border-top: 1px solid #d9d5e8; padding-top: 16px; }
-  </style>
+    th[scope="row"] { font-weight: normal; font-size: inherit; text-transform: none; letter-spacing: normal; color: inherit; }
+</style>
 </head>
 <body>
   <header>
@@ -257,11 +258,11 @@
       const result = computeProjectQuote(input);
       els.stats.textContent = `${result.finishedMinutes.toLocaleString()} estimated finished minute(s) of audio at the read pace entered above.`;
       els.resultBody.innerHTML = `
-        <tr><td>Base fee (before usage term)</td><td class="price">${money(result.baseFee)}</td></tr>
-        <tr><td>Usage term (${USAGE_TERM_LABELS[input.usageTerm] ?? "Web / unrestricted digital use"})</td><td class="price">×${result.usageMultiplier}</td></tr>
-        <tr><td>License fee (base × usage × rush × exclusivity)</td><td class="price">${money(result.licenseFee)}</td></tr>
-        <tr><td>Extra revision rounds (${result.revisionRounds})</td><td class="price">${money(result.revisionFee)}</td></tr>
-        <tr><td><strong>Suggested project rate</strong></td><td class="price">${money(result.total)}</td></tr>`;
+        <tr><th scope="row">Base fee (before usage term)</th><td class="price">${money(result.baseFee)}</td></tr>
+        <tr><th scope="row">Usage term (${USAGE_TERM_LABELS[input.usageTerm] ?? "Web / unrestricted digital use"})</th><td class="price">×${result.usageMultiplier}</td></tr>
+        <tr><th scope="row">License fee (base × usage × rush × exclusivity)</th><td class="price">${money(result.licenseFee)}</td></tr>
+        <tr><th scope="row">Extra revision rounds (${result.revisionRounds})</th><td class="price">${money(result.revisionFee)}</td></tr>
+        <tr><th scope="row"><strong>Suggested project rate</strong></th><td class="price">${money(result.total)}</td></tr>`;
       renderFindings(result.findings);
     }
 
@@ -275,10 +276,10 @@
       const result = computeAudiobookQuote(input);
       els.stats.textContent = `${result.finishedHours.toLocaleString()} estimated finished hour(s), at the words-per-finished-hour conversion entered above.`;
       els.resultBody.innerHTML = `
-        <tr><td>Narration fee (finished hours × your rate)</td><td class="price">${money(result.narrationFee)}</td></tr>
-        <tr><td>Editing / proofing / mastering fee</td><td class="price">${money(result.epmFee)}</td></tr>
-        <tr><td><strong>Suggested project rate</strong></td><td class="price">${money(result.total)}</td></tr>
-        <tr><td>Effective rate per manuscript word</td><td class="price">${money(result.effectivePerWord)}</td></tr>`;
+        <tr><th scope="row">Narration fee (finished hours × your rate)</th><td class="price">${money(result.narrationFee)}</td></tr>
+        <tr><th scope="row">Editing / proofing / mastering fee</th><td class="price">${money(result.epmFee)}</td></tr>
+        <tr><th scope="row"><strong>Suggested project rate</strong></th><td class="price">${money(result.total)}</td></tr>
+        <tr><th scope="row">Effective rate per manuscript word</th><td class="price">${money(result.effectivePerWord)}</td></tr>`;
       renderFindings(result.findings);
     }
 

@@ -1,0 +1,12 @@
+Type,Width (ft),Height (ft),Sill (ft),Quantity
+Bifold door,6,6.67,0,2
+Bifold door,5,6.67,0,1
+"Entry door, insulated",3,6.67,0,1
+Exterior door,3,6.67,0,1
+"Interior door, passage",2.67,6.67,0,2
+"Interior door, passage",2.5,6.67,0,1
+Window,4,3.5,3.166666666666667,1
+Window,3,5,1.666666666666667,2
+Window,3,4,2.666666666666667,2
+"Window, casement (egress)",3,4,2.666666666666667,4
+"Window, obscure glass",2.5,3,4.5,1

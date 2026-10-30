@@ -1,0 +1,250 @@
+{
+  "date": "2026-10-25",
+  "session": "https://claude.ai/code/session_013XgmnVhWaQTCMsRWS2LMZ2",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-25T22:18:08Z",
+  "ended": "2026-10-25T22:20:06Z",
+  "wall_minutes": 3.23,
+  "tokens_in": 1180752,
+  "tokens_out": 7359,
+  "cost_usd": 0.4806,
+  "tool_calls": 19,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/10497",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "no blog post: run was a small guard + 9 description fixes",
+      "did": "skipped post",
+      "result": "fine"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Baseline red in hub/writing suites from 9 over-long post descriptions; shortened. Campaign on venture-defaults.mjs 6/8 caught, 8/8 after CLI tests. Class guard: writing.test.mjs already checks descriptions but only in its own suite; posts were merged without running it. Another run landed the same description fixes first; merged main and kept theirs, so only the guard tests and record remain.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "platform/pages/venture-defaults.mjs",
+        "test": "node --test platform/pages/venture-defaults.test.mjs  (in .)",
+        "seed": 927692449,
+        "commit": "fc6d8ecc",
+        "sites": 39,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "platform/pages/venture-defaults.mjs",
+            "line": 51,
+            "col": 20,
+            "operator": "const-plus-one",
+            "before": "if (v) return v[1];",
+            "after": "if (v) return v[2];",
+            "line_text": "    if (v) return v[1];",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/venture-defaults.mjs",
+            "line": 63,
+            "col": 40,
+            "operator": "const-plus-one",
+            "before": "if (/type=[\"']checkbox[\"']/i.test(tag[0])) return /\\bchecked\\b/i.test(tag[0]);",
+            "after": "if (/type=[\"']checkbox[\"']/i.test(tag[1])) return /\\bchecked\\b/i.test(tag[0]);",
+            "line_text": "  if (/type=[\"']checkbox[\"']/i.test(tag[0])) return /\\bchecked\\b/i.test(tag[0]);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/venture-defaults.mjs",
+            "line": 63,
+            "col": 76,
+            "operator": "const-plus-one",
+            "before": "if (/type=[\"']checkbox[\"']/i.test(tag[0])) return /\\bchecked\\b/i.test(tag[0]);",
+            "after": "if (/type=[\"']checkbox[\"']/i.test(tag[0])) return /\\bchecked\\b/i.test(tag[1]);",
+            "line_text": "  if (/type=[\"']checkbox[\"']/i.test(tag[0])) return /\\bchecked\\b/i.test(tag[0]);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/venture-defaults.mjs",
+            "line": 77,
+            "col": 62,
+            "operator": "const-plus-one",
+            "before": "const body = html.match(/function readInput\\s*\\([\\s\\S]*?\\n {4}\\}/)?.[0] ?? '';",
+            "after": "const body = html.match(/function readInput\\s*\\([\\s\\S]*?\\n {5}\\}/)?.[0] ?? '';",
+            "line_text": "  const body = html.match(/function readInput\\s*\\([\\s\\S]*?\\n {4}\\}/)?.[0] ?? '';",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/venture-defaults.mjs",
+            "line": 102,
+            "col": 19,
+            "operator": "eq-flip",
+            "before": "if (input[k] === '' || input[k] === undefined) input[k] = v;",
+            "after": "if (input[k] !== '' || input[k] === undefined) input[k] = v;",
+            "line_text": "      if (input[k] === '' || input[k] === undefined) input[k] = v;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/venture-defaults.mjs",
+            "line": 106,
+            "col": 58,
+            "operator": "eq-flip",
+            "before": "const blank = Object.entries(input).filter(([, v]) => v === '').map(([k]) => k);",
+            "after": "const blank = Object.entries(input).filter(([, v]) => v !== '').map(([k]) => k);",
+            "line_text": "  const blank = Object.entries(input).filter(([, v]) => v === '').map(([k]) => k);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/venture-defaults.mjs",
+            "line": 123,
+            "col": 17,
+            "operator": "const-plus-one",
+            "before": "if (process.argv[1] === fileURLToPath(import.meta.url)) {",
+            "after": "if (process.argv[2] === fileURLToPath(import.meta.url)) {",
+            "line_text": "if (process.argv[1] === fileURLToPath(import.meta.url)) {",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "CLI entry guard/exit code untested; added spawn tests for usage exit 2 and unknown-slug exit 1"
+          },
+          {
+            "file": "platform/pages/venture-defaults.mjs",
+            "line": 173,
+            "col": 33,
+            "operator": "const-plus-one",
+            "before": "if (failed) process.exitCode = 1;",
+            "after": "if (failed) process.exitCode = 2;",
+            "line_text": "  if (failed) process.exitCode = 1;",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "CLI entry guard/exit code untested; added spawn tests for usage exit 2 and unknown-slug exit 1"
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "docs/posts/ (9 posts)",
+        "issue": "descriptions over 160 chars made hub.test.mjs and writing.test.mjs red on main (baseline red)",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "36e8b43a-a5f6-57e1-b2a0-6651bb74c527",
+    "transcripts": 1,
+    "first": "2026-10-25T22:18:08Z",
+    "last": "2026-10-25T22:21:22Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 18,
+        "input": 36,
+        "output": 7359,
+        "thinking": 312,
+        "cache_read": 1135777,
+        "cache_write_5m": 0,
+        "cache_write_1h": 44939,
+        "api_equivalent_usd": 0.4806,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 18,
+      "input": 36,
+      "output": 7359,
+      "thinking": 312,
+      "cache_read": 1135777,
+      "cache_write_5m": 0,
+      "cache_write_1h": 44939,
+      "api_equivalent_usd": 0.4806,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.962,
+    "tool_calls": 19,
+    "tools": {
+      "Bash": 15,
+      "Read": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 3.23,
+      "active_minutes": 3.23,
+      "model_minutes": 1.14,
+      "tool_minutes": 2.09,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

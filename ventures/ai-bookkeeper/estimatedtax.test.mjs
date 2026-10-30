@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { newBooks, importStatement, confirm } from "./engine.mjs";
-import { bracketTax, estimatedTax, toCents, BRACKETS } from "./estimatedtax.mjs";
+import { bracketTax, estimatedTax, taxTableOptions, toCents, BRACKETS } from "./estimatedtax.mjs";
 
 const B26 = BRACKETS[2026].single.b;
 function books(income, yr = 2026) {
@@ -115,6 +115,10 @@ test("the 2026 QBI threshold is Rev. Proc. 2025-32's $201,750 (single) and $403,
   assert.equal(warns({ otherIncome: 21800000 }), true); // ~$201,900
   assert.equal(warns({ filing: "mfj", otherIncome: 43000000 }), false); // ~$397,800, over 2025's $394,600
   assert.equal(warns({ filing: "mfj", otherIncome: 44000000 }), true);
+  // head of household, to the dollar (profit $1 adds about 93 cents of AGI after half the SE tax, so these land 50 cents either side of the line)
+  const hohStd = BRACKETS[2026].hoh.std, hohWarns = (taxableCents) => estimatedTax(books("1.00"), { year: 2026, filing: "hoh", otherIncome: taxableCents + hohStd }).warnings.some((w) => /above the QBI threshold/.test(w));
+  assert.equal(hohWarns(20174957 - 100), false); // ~$201,749.50, under the line
+  assert.equal(hohWarns(20174957), true); // ~$201,750.50, over the line but under $201,751
 });
 
 test("what the plan does not cover is left as the balance due with the return", () => {
@@ -177,4 +181,263 @@ test("minimum QBI deduction: exactly $1,000 qualifies (\"at least\", 199A(i)(2))
   assert.equal(i.qbiDeduction, 41000);
   assert.ok(i.warnings.every((w) => !/indexed for 2027/.test(w)));
   assert.ok(estimatedTax(b, { ...base, qbiMinimum: { floor: 41000, threshold: 120000 } }).qbiDeduction < 41000);
+});
+
+test("blank, non-numeric or negative inputs never poison the plan", () => {
+  const b = books("100000.00"), ok = estimatedTax(b, { year: 2026, asOf: "2026-01-01" });
+  const nan = estimatedTax(b, { year: 2026, asOf: "2026-01-01", priorYearTax: NaN });
+  assert.deepEqual(nan.payments, ok.payments);
+  assert.ok(nan.warnings.some((w) => /No prior-year tax/.test(w)));
+  assert.deepEqual(estimatedTax(b, { year: 2026, asOf: "2026-01-01", paid: -1000000 }).payments, ok.payments);
+  assert.deepEqual(estimatedTax(b, { year: 2026, asOf: "2026-01-01", withholding: -1000000 }).payments, ok.payments);
+  assert.equal(estimatedTax(b, { year: 2026, asOf: "2026-01-01", priorYearTax: 500000, priorAgi: NaN }).safeHarbor.prior, 500000);
+});
+
+test("redteam 2026-10-26: guards for escaped mutants (asOf boundary, balance, effective rate, 8959 warning)", () => {
+  const b = books("100000.00");
+  // a payment due on the asOf date itself is still due
+  const onDay = estimatedTax(b, { year: 2026, asOf: "2026-06-15" });
+  assert.equal(onDay.payments.filter((p) => p.status === "due").length, 3);
+  assert.equal(onDay.payments.find((p) => p.due === "2026-06-15").status, "due");
+  // over-withholding leaves a balance of exactly zero, never a refund shown as owed
+  assert.equal(estimatedTax(b, { year: 2026, asOf: "2026-01-01", withholding: 5000000000 }).balanceWithReturn, 0);
+  // money already paid lowers the balance and the plan; it never adds to it
+  const pd = estimatedTax(b, { year: 2026, asOf: "2026-01-01", paid: 100000, priorYearTax: 100000 });
+  const planned = pd.payments.reduce((s, p) => s + p.cents, 0);
+  assert.equal(pd.balanceWithReturn, pd.totalTax - 100000 - planned);
+  // wages alone (no business profit) still give an effective rate over wages
+  const w = estimatedTax(newBooks(), { year: 2026, wages: 30000000 });
+  assert.equal(w.effectiveRate, w.totalTax / 30000000);
+  assert.ok(w.effectiveRate > 0);
+  // the 8959 warning prints the threshold in dollars
+  const hi = estimatedTax(newBooks(), { year: 2026, wages: 30000000 });
+  assert.ok(hi.warnings.some((x) => /earnings above 200000;/.test(x)));
+});
+
+test("a tax table file in dollars gives a 2027 estimate that ties out by hand (figures made up, not the IRS's)", () => {
+  const t = taxTableOptions({ standardDeduction: 17000, brackets: [[13000, 0.10], [51000, 0.12], [null, 0.22]], qbiThreshold: 210000, wageBase: 192300, qbiMinimum: { floor: 400, threshold: 1000 } });
+  assert.deepEqual(t.brackets.at(-1), [Infinity, 0.22]);
+  assert.equal(t.standardDeduction, 1700000);
+  const r = estimatedTax(books("100000.00", 2027), { year: 2027, ...t });
+  assert.equal(r.standardDeduction, 1700000);
+  assert.ok(!r.warnings.some((w) => /from memory|are indexed/.test(w)));
+  const tax = bracketTax(r.taxable, t.brackets);
+  assert.equal(r.incomeTax, tax);
+  assert.ok(tax > 0 && r.taxable < 10000000);
+});
+
+test("qbiThreshold overrides the built-in limit", () => {
+  const o = { year: 2026, wageBase: 18450000 };
+  assert.ok(estimatedTax(books("300000.00"), o).warnings.some((w) => /QBI threshold/.test(w)));
+  assert.ok(!estimatedTax(books("300000.00"), { ...o, qbiThreshold: 99999999 }).warnings.some((w) => /QBI threshold/.test(w)));
+});
+
+test("a bad tax table is refused with a plain message", () => {
+  assert.throws(() => taxTableOptions(null), /JSON object/);
+  assert.throws(() => taxTableOptions({ brackets: [[10000, 0.1], [null, 0.2]] }), /standardDeduction/);
+  assert.throws(() => taxTableOptions({ standardDeduction: 1, brackets: [[10000, 0.1], [5000, 0.2], [null, 0.3]] }), /above the one before/);
+  assert.throws(() => taxTableOptions({ standardDeduction: 1, brackets: [[10000, 0.1]] }), /null upper bound/);
+  assert.throws(() => taxTableOptions({ standardDeduction: 1, brackets: [[null, 0.1], [null, 0.2]] }), /only the last/);
+  assert.throws(() => taxTableOptions({ standardDeduction: -5 }), /0 or more/);
+  assert.throws(() => taxTableOptions({ standardDeduction: 1, brackets: [[10000, 12], [null, 0.2]] }), /between 0 and 1/);
+});
+
+test("the CLI reads --tax-table for a year with no built-in table", async () => {
+  const { spawnSync } = await import("node:child_process");
+  const { mkdtempSync, writeFileSync } = await import("node:fs");
+  const { tmpdir } = await import("node:os");
+  const { join } = await import("node:path");
+  const d = mkdtempSync(join(tmpdir(), "tt-"));
+  writeFileSync(join(d, "books.json"), JSON.stringify(books("50000.00", 2027)));
+  writeFileSync(join(d, "t.json"), JSON.stringify({ standardDeduction: 17000, brackets: [[13000, 0.1], [null, 0.2]] }));
+  const run = (...a) => spawnSync("node", [new URL("./cli.mjs", import.meta.url).pathname, "--books", join(d, "books.json"), "estimate", "--year", "2027", ...a], { encoding: "utf8" });
+  assert.notEqual(run().status, 0);
+  const ok = run("--tax-table", join(d, "t.json"), "--json");
+  assert.equal(ok.status, 0, ok.stderr);
+  assert.equal(JSON.parse(ok.stdout).standardDeduction, 1700000);
+  writeFileSync(join(d, "bad.json"), "{\"brackets\": 3}");
+  assert.notEqual(run("--tax-table", join(d, "bad.json")).status, 0);
+});
+
+test("self-employed health insurance and a retirement contribution come off AGI and the QBI base, by hand", () => {
+  const base = estimatedTax(books("100000.00"), { year: 2026, wageBase: 18450000 });
+  const r = estimatedTax(books("100000.00"), { year: 2026, wageBase: 18450000, healthInsurance: 1200000, retirement: 500000 });
+  assert.equal(r.se.tax, base.se.tax); // neither touches self-employment tax
+  assert.equal(r.healthDeduction, 1200000);
+  assert.equal(r.retirementDeduction, 500000);
+  assert.equal(r.agi, base.agi - 1700000);
+  assert.equal(r.qbiDeduction, Math.round(0.2 * (r.agi - 1610000)));
+  assert.ok(r.totalTax < base.totalTax);
+  assert.ok(r.warnings.some((w) => /subsidised/.test(w)));
+});
+
+test("the health deduction cannot exceed the profit left after the retirement deduction", () => {
+  const r = estimatedTax(books("10000.00"), { year: 2026, wageBase: 18450000, healthInsurance: 2000000, retirement: 300000 });
+  const left = 1000000 - r.se.deduction;
+  assert.equal(r.retirementDeduction, 300000);
+  assert.equal(r.healthDeduction, left - 300000);
+  assert.ok(r.warnings.some((w) => /capped at the business profit/.test(w)));
+  assert.equal(r.taxable, 0);
+});
+
+test("negative or blank adjustments are ignored", () => {
+  const a = estimatedTax(books("50000.00"), { year: 2026 });
+  const b = estimatedTax(books("50000.00"), { year: 2026, healthInsurance: -5, retirement: NaN });
+  assert.equal(b.totalTax, a.totalTax);
+});
+
+test("child tax credit lowers income tax, never below zero, and the rest is refundable up to the cap", () => {
+  const base = estimatedTax(books("100000.00"), { year: 2026, wageBase: 18450000 });
+  const r = estimatedTax(books("100000.00"), { year: 2026, wageBase: 18450000, children: 2, otherDependents: 1 });
+  assert.equal(r.childCredit, 490000); // 2 x 2,200 + 500, all absorbed by income tax
+  assert.equal(r.refundableCredit, 0);
+  assert.equal(r.totalTax, base.totalTax - 490000);
+  assert.ok(r.warnings.some((w) => /Schedule 8812/.test(w)));
+  // Low profit: income tax is small, so the child part spills into the refundable credit.
+  const low = estimatedTax(books("20000.00"), { year: 2026, wageBase: 18450000, children: 2 });
+  assert.equal(low.childCredit, low.incomeTax);
+  const earned = 2000000 - low.se.deduction;
+  assert.equal(low.refundableCredit, Math.min(440000 - low.incomeTax, 340000, Math.round(0.15 * (earned - 250000))));
+});
+
+test("child tax credit phases out $50 per $1,000 over the threshold; no children changes nothing", () => {
+  const none = estimatedTax(books("250000.00"), { year: 2026, wageBase: 18450000 });
+  assert.equal(none.childCredit, 0);
+  const r = estimatedTax(books("250000.00"), { year: 2026, wageBase: 18450000, children: 1 });
+  const cut = Math.ceil((r.agi - 20000000) / 100000) * 5000;
+  assert.equal(r.childCredit, 220000 - cut);
+  const mfj = estimatedTax(books("250000.00"), { year: 2026, wageBase: 18450000, filing: "mfj", children: 1 });
+  assert.equal(mfj.childCredit, 220000); // under $400,000 joint
+});
+
+test("above the QBI range a sole proprietor with no staff loses the deduction; business wages restore up to 50% of them", () => {
+  const o = { year: 2026, wageBase: 18450000 };
+  const top = estimatedTax(books("400000.00"), o); // taxable before QBI is far above 201,750 + 75,000
+  assert.equal(top.qbiDeduction, 40000); // only the $400 minimum of IRC 199A(i) is left
+  assert.ok(top.warnings.some((w) => /limited to 50% of the business's W-2 wages/.test(w)));
+  const staffed = estimatedTax(books("400000.00"), { ...o, businessWages: 4000000 });
+  assert.equal(staffed.qbiDeduction, 2000000); // 50% of 40,000 is under 20% of the profit
+  assert.equal(staffed.taxable, top.taxable - (2000000 - 40000));
+});
+
+test("inside the phase-in the QBI deduction falls linearly; a service business loses it over the same range", () => {
+  const o = { year: 2026, wageBase: 18450000 };
+  const r = estimatedTax(books("250000.00"), o);
+  const pct = (r.agi - r.standardDeduction - 20175000) / 7500000;
+  assert.ok(pct > 0 && pct < 1);
+  const q = 0.2 * (r.profit - r.se.deduction);
+  assert.equal(r.qbiDeduction, Math.round(q - pct * q));
+  const s = estimatedTax(books("250000.00"), { ...o, service: true });
+  assert.equal(s.qbiDeduction, Math.round(q * (1 - pct) * (1 - pct))); // service: QBI shrinks by the share, then the wage limit phases in
+  assert.ok(s.qbiDeduction < r.qbiDeduction);
+  const sw = estimatedTax(books("250000.00"), { ...o, service: true, businessWages: 3000000 });
+  assert.ok(sw.qbiDeduction < estimatedTax(books("250000.00"), { ...o, businessWages: 3000000 }).qbiDeduction);
+  assert.equal(estimatedTax(books("250000.00"), { ...o, qbiRange: 100, qbiMinimum: { floor: 0, threshold: 1000 } }).qbiDeduction, 0);
+});
+
+test("itemised deductions replace the standard deduction only when larger", () => {
+  const base = estimatedTax(books("100000.00"), { year: 2026, wageBase: 18450000 });
+  const small = estimatedTax(books("100000.00"), { year: 2026, wageBase: 18450000, itemized: 1000000 });
+  assert.equal(small.taxable, base.taxable);
+  assert.equal(small.itemizing, false);
+  const big = estimatedTax(books("100000.00"), { year: 2026, wageBase: 18450000, itemized: 3000000 });
+  assert.equal(big.itemizing, true);
+  assert.equal(big.standardDeduction, 3000000);
+  assert.ok(big.incomeTax < base.incomeTax);
+});
+
+test("net investment income tax: 3.8% of the smaller of the income and AGI over 200,000", () => {
+  const o = { year: 2026, wageBase: 18450000, wages: 25000000, other: 0 };
+  const none = estimatedTax(books("1000.00"), { ...o, otherIncome: 5000000 });
+  assert.equal(none.niit, 0);
+  const r = estimatedTax(books("1000.00"), { ...o, otherIncome: 5000000, investmentIncome: 5000000 });
+  const over = r.agi - 20000000;
+  assert.equal(r.niit, Math.round(0.038 * Math.min(5000000, over)));
+  assert.equal(r.totalTax, none.totalTax + r.niit);
+  // joint threshold is 250,000: AGI near 230,000 owes none
+  const j = estimatedTax(books("1000.00"), { ...o, wages: 18000000, filing: "mfj", otherIncome: 5000000, investmentIncome: 5000000 });
+  assert.equal(j.niit, 0);
+});
+
+test("age 65 and blindness add to the standard deduction; the senior deduction phases out at 6%", () => {
+  const o = { year: 2026, wageBase: 18450000 };
+  const base = estimatedTax(books("100000.00"), o);
+  const one = estimatedTax(books("100000.00"), { ...o, over65: 1 });
+  assert.equal(one.extraStandard, 205000);
+  // 6,000 less 6% of (AGI - 75,000)
+  assert.equal(one.seniorDeduction, Math.max(0, 600000 - Math.round(0.06 * (one.agi - 7500000))));
+  assert.equal(base.taxable - one.taxable, one.extraStandard + one.seniorDeduction - (base.qbiDeduction - one.qbiDeduction));
+  assert.equal(estimatedTax(books("100000.00"), { ...o, over65: 1, blind: 1 }).extraStandard, 410000);
+  assert.equal(estimatedTax(books("100000.00"), { ...o, over65: 1, itemized: 5000000 }).extraStandard, 0);
+  assert.ok(one.warnings.some((w) => /senior deduction/.test(w)));
+  assert.equal(estimatedTax(books("100000.00"), { ...o, over65: NaN }).taxable, base.taxable);
+});
+
+test("earned income credit from a passed schedule: phase-in, plateau, phase-out, joint start, investment limit", () => {
+  // Made-up schedule, not an IRS table.
+  const { eitc } = taxTableOptions({ eitc: { rows: [{ rate: 0.1, earnedAmount: 10000, phaseOutRate: 0.1, phaseOutStart: 12000 }, { rate: 0.4, earnedAmount: 10000, phaseOutRate: 0.2, phaseOutStart: 20000 }], marriedAdd: 5000, investmentLimit: 10000 } });
+  const o = { year: 2026, wageBase: 18450000, wages: 1000000, withholding: 0, eitc, eitcChildren: 1, qbi: false };
+  const none = estimatedTax(books("1.00"), { ...o, eitc: undefined, eitcChildren: undefined });
+  const mid = estimatedTax(books("1.00"), o);
+  assert.equal(mid.eitcCredit, 400000);           // plateau: 0.4 x 10,000
+  assert.equal(mid.totalTax, none.totalTax - 400000);
+  const low = estimatedTax(books("1.00"), { ...o, wages: 500000 });
+  assert.ok(Math.abs(low.eitcCredit - 200000) < 100);          // phase-in: 0.4 x 5,000
+  const out = estimatedTax(books("1.00"), { ...o, wages: 2500000 });
+  assert.ok(Math.abs(out.eitcCredit - 300000) < 100); // phase-out
+  const joint = estimatedTax(books("1.00"), { ...o, wages: 2500000, filing: "mfj" });
+  assert.ok(Math.abs(joint.eitcCredit - 400000) < 100);        // start moved up 5,000 by marriedAdd -> 25,000
+  assert.equal(estimatedTax(books("1.00"), { ...o, otherIncome: 1500000, investmentIncome: 1500000 }).eitcCredit, 0);
+  assert.ok(Math.abs(estimatedTax(books("1.00"), { ...o, eitcChildren: 0 }).eitcCredit - 100000) < 100); // 0.1 x 10,000
+  assert.ok(mid.warnings.some((w) => /Earned income credit/.test(w)));
+  assert.throws(() => taxTableOptions({ eitc: { rows: [] } }), /eitc/);
+});
+
+test("built-in 2025 earned income credit reproduces the IRS table", () => {
+  // irs.gov EITC tables, tax year 2025: max credit 649/4,328/7,152/8,046; the credit ends at AGI
+  // 19,104/50,434/57,310/61,555 (single) and 26,214/57,554/64,430/68,675 (joint).
+  const max = [649, 4328, 7152, 8046], endS = [19104, 50434, 57310, 61555], endJ = [26214, 57554, 64430, 68675];
+  const eic = (kids, filing, wages) => estimatedTax(books("1.00"), { year: 2025, wages: wages * 100, withholding: 0, eitcChildren: kids, filing, qbi: false }).eitcCredit / 100;
+  [8490, 12730, 17880, 17880].forEach((e, k) => assert.ok(Math.abs(eic(k, "single", e) - max[k]) <= 1, `max credit, ${k} children`));
+  for (let k = 0; k < 4; k++) {
+    assert.equal(eic(k, "single", endS[k] + 100), 0);
+    assert.equal(eic(k, "mfj", endJ[k] + 100), 0);
+    assert.ok(eic(k, "single", endS[k] - 100) > 0 && eic(k, "single", endS[k] - 100) < 25);
+    assert.ok(eic(k, "mfj", endJ[k] - 100) > 0 && eic(k, "mfj", endJ[k] - 100) < 25);
+  }
+  assert.equal(estimatedTax(books("1.00"), { year: 2025, wages: 1500000, eitcChildren: 1, investmentIncome: 1200000, qbi: false }).eitcCredit, 0); // over the investment limit
+});
+
+test("built-in 2026 earned income credit reproduces Rev. Proc. 2025-32", () => {
+  const max = [664, 4427, 7316, 8231], endS = [19540, 51593, 58629, 62974], endJ = [26820, 58863, 65899, 70244];
+  const eic = (kids, filing, wages) => estimatedTax(books("1.00"), { year: 2026, wages: wages * 100, withholding: 0, eitcChildren: kids, filing, qbi: false }).eitcCredit / 100;
+  [8680, 13020, 18290, 18290].forEach((e, k) => assert.ok(Math.abs(eic(k, "single", e) - max[k]) <= 1, `max credit, ${k} children`));
+  for (let k = 0; k < 4; k++) {
+    assert.equal(eic(k, "single", endS[k] + 100), 0);
+    assert.equal(eic(k, "mfj", endJ[k] + 100), 0);
+    assert.ok(eic(k, "single", endS[k] - 100) > 0 && eic(k, "single", endS[k] - 100) < 25);
+    assert.ok(eic(k, "mfj", endJ[k] - 100) > 0 && eic(k, "mfj", endJ[k] - 100) < 25);
+  }
+  assert.equal(estimatedTax(books("1.00"), { year: 2026, wages: 1500000, eitcChildren: 1, investmentIncome: 1250000, qbi: false }).eitcCredit, 0);
+});
+
+test("eitcTable computes the credit at the midpoint of Schedule EIC's $50 bands", () => {
+  const eic = (wages, eitcTable) => estimatedTax(books("1.00"), { year: 2026, wages: wages * 100, withholding: 0, eitcChildren: 0, qbi: false, eitcTable }).eitcCredit;
+  assert.ok(Math.abs(eic(5010, false) - 38327) < 10); // exact: 0.0765 x 5,010 = 383.27 (plus the $1 book's profit)
+  assert.ok(Math.abs(eic(5010, true) - 38441) < 10); // band 5,000-5,050, midpoint 5,025 -> 384.41
+  assert.equal(eic(5040, true), eic(5010, true));
+  assert.equal(eic(9010, true), 66402);      // plateau unchanged
+});
+
+test("a flat state rate is applied to AGI less the state deduction and kept out of the federal total", () => {
+  const b = books("1.00");
+  const base = estimatedTax(b, { year: 2026, wages: 10000000, withholding: 0, qbi: false });
+  const r = estimatedTax(b, { year: 2026, wages: 10000000, withholding: 0, qbi: false, stateRate: 0.05, stateDeduction: 500000, stateWithheld: 100000 });
+  assert.equal(base.state, null);
+  assert.equal(r.totalTax, base.totalTax);
+  assert.equal(r.state.base, r.agi - 500000);
+  assert.equal(r.state.tax, Math.round((r.agi - 500000) * 0.05));
+  assert.equal(r.state.balance, r.state.tax - 100000);
+  assert.equal(r.state.quarterly, Math.ceil(r.state.balance / 4));
+  assert.throws(() => estimatedTax(b, { year: 2026, qbi: false, stateRate: 0.5 }), /stateRate/);
 });

@@ -76,7 +76,7 @@ export function compute(input) {
   const ra = num(input.ra) ?? 0;
   if (revenue === null || Number.isNaN(revenue) || revenue < 0) errors.push("Enter your business income for the year, excluding VAT (0 or more).");
   if (Number.isNaN(expenses) || expenses < 0) errors.push("Expenses must be 0 or more.");
-  if (Number.isNaN(medical) || medical < 0 || medical > 30) errors.push("Medical scheme members must be a whole number from 0 to 30.");
+  if (Number.isNaN(medical) || !Number.isInteger(medical) || medical < 0 || medical > 30) errors.push("Medical scheme members must be a whole number from 0 to 30.");
   if (Number.isNaN(ra) || ra < 0) errors.push("Retirement annuity contributions must be 0 or more.");
   if (errors.length) return { errors };
 

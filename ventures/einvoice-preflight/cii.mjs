@@ -152,6 +152,31 @@ function allowanceCharges(parent, name) {
   return rows;
 }
 
+// EXTENDED profile only: freight and similar services are written as
+// SpecifiedLogisticsServiceCharge (AppliedAmount, AppliedTradeTax) and count
+// as a document-level charge in the totals and the tax breakdown.
+function logisticsCharges(settlement) {
+  const rows = [];
+  if (!settlement) return rows;
+  for (const child of settlement.children) {
+    if (child.name !== "SpecifiedLogisticsServiceCharge") continue;
+    const amount = textOf(child, "AppliedAmount");
+    if (!amount) continue;
+    const row = { kind: "charge", amount: Number(amount) };
+    const vat = firstChild(child, "AppliedTradeTax");
+    if (vat) {
+      const percent = textOf(vat, "RateApplicablePercent");
+      if (percent) row.tax_percent = Number(percent);
+      const category = textOf(vat, "CategoryCode");
+      if (category) row.tax_category = category;
+    }
+    const reason = textOf(child, "Description");
+    if (reason) row.reason = reason;
+    rows.push(row);
+  }
+  return rows;
+}
+
 function parseLine(line) {
   const agreement = firstChild(line, "SpecifiedLineTradeAgreement");
   const delivery = firstChild(line, "SpecifiedLineTradeDelivery");
@@ -312,7 +337,10 @@ export function parseCiiInvoice(source) {
     if (Object.keys(mapped).length) taxBreakdown.push(mapped);
   }
   if (taxBreakdown.length) invoice.tax_breakdown = taxBreakdown;
-  const headerAdjustments = allowanceCharges(settlement, "SpecifiedTradeAllowanceCharge");
+  const headerAdjustments = [
+    ...allowanceCharges(settlement, "SpecifiedTradeAllowanceCharge"),
+    ...logisticsCharges(settlement),
+  ];
   if (headerAdjustments.length) invoice.adjustments = headerAdjustments;
 
   const payment = paymentFrom(settlement);

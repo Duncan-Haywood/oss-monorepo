@@ -1,0 +1,22 @@
+1-cos vertical gust, gradient H in full-size chords (scaled by n for the model); peaks as percent difference from n = 1
+
+H = 5 chords. reference n=1: peak dn 0.3262, q sqrt(L/g) 0.0105, theta 0.0040
+  similar n=0.2 (4412, k 1, AR 10): d(dn)   -0.3%  d(q)   32.6%  d(theta)   21.6%
+  best   naca5406 k 1.20 AR 10: d(dn)   16.8%  d(q)   29.2%  d(theta)   12.6%
+  best   naca4412 k 1.30 AR 10: d(dn)   22.3%  d(q)   29.9%  d(theta)   11.1%
+  best   naca5406 k 1.10 AR 10: d(dn)    8.8%  d(q)   30.5%  d(theta)   16.5%
+  17 power-matched cases: worst of three within 5%: 0; within 10%: 0
+
+H = 12.5 chords. reference n=1: peak dn 0.2911, q sqrt(L/g) 0.0213, theta 0.0099
+  similar n=0.2 (4412, k 1, AR 10): d(dn)   -0.8%  d(q)   30.5%  d(theta)   21.2%
+  best   naca4412 k 1.30 AR 10: d(dn)   19.3%  d(q)   24.7%  d(theta)   10.7%
+  best   naca5406 k 1.20 AR 10: d(dn)   14.5%  d(q)   24.9%  d(theta)   12.2%
+  best   naca4412 k 1.20 AR 10: d(dn)   12.7%  d(q)   26.6%  d(theta)   14.0%
+  17 power-matched cases: worst of three within 5%: 0; within 10%: 0
+
+H = 25 chords. reference n=1: peak dn 0.2409, q sqrt(L/g) 0.0311, theta 0.0191
+  similar n=0.2 (4412, k 1, AR 10): d(dn)   -2.0%  d(q)   26.8%  d(theta)   19.8%
+  best   naca4412 k 1.30 AR 10: d(dn)   15.0%  d(q)   18.3%  d(theta)    9.2%
+  best   naca5406 k 1.20 AR 10: d(dn)   11.1%  d(q)   19.2%  d(theta)   10.8%
+  best   naca4412 k 1.20 AR 10: d(dn)    9.6%  d(q)   21.0%  d(theta)   12.6%
+  17 power-matched cases: worst of three within 5%: 0; within 10%: 0

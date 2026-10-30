@@ -23,6 +23,14 @@
   args: ['--fail-on-risk', '.']
   pass_filenames: false
   always_run: true
+- id: actions-continue-on-error-check
+  name: 'Actions Continue On Error Check'
+  description: 'Free, read-only checker that scans GitHub Actions workflow YAML for jobs and steps with a literal continue-on-error: true -- places where a failure still leaves the run green -- zero-dependency CLI,…'
+  entry: ventures/actions-continue-on-error-check/check.py
+  language: script
+  args: ['--fail-on-risk', '.']
+  pass_filenames: false
+  always_run: true
 - id: actions-injection-check
   name: 'Actions Injection Check'
   description: 'Free, read-only checker that scans GitHub Actions workflow YAML for pull_request_target/workflow_run "pwn request" checkouts of an untrusted ref, and for run: steps that interpolate untrusted ${{…'

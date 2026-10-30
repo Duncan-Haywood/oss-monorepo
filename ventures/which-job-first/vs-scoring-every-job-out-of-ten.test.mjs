@@ -63,7 +63,7 @@ test('has no external script or stylesheet resources', () => {
   const externalHrefs = [...html.matchAll(/https?:\/\/[^"'\s)]+/g)].map((m) => m[0]);
   for (const href of externalHrefs) {
     assert.ok(
-      href.startsWith('https://schema.org') || href.startsWith('https://github.com/sponsors/Duncan-Haywood'),
+      href.startsWith('https://schema.org') || href === 'http://www.w3.org/2000/svg' || href.startsWith('https://github.com/sponsors/Duncan-Haywood'),
       `unexpected external reference: ${href}`,
     );
   }

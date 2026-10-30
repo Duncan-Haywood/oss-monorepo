@@ -1,0 +1,57 @@
+{
+  "date": "2026-10-24",
+  "session": "https://claude.ai/code/session_01WxMmGHXZhYZJ7wswPqYHQy",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "let's do a blog post examining when ai agents instructions are write fiction stories for other ai agents what do they write.",
+  "input_sha256": "56f5bc8960710ed2ada38167bb6493b18bdc00c08a79075f99021c99c3d01d6e",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-24T17:46:56Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Blog post from a new experiment: 80 stories from four Claude models, 'short fiction story for another AI agent' vs plain 'short fiction story'.",
+  "projects": [],
+  "pr": 10198,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Two generation runs (Opus agent 09, Fable agent 01) hit the 600 s timeout and were re-run once; both finished. My first retry failed because the script was called by a relative path after a cd.",
+    "First commit message said 16 of 30 fake tool calls; the count is 20 of 30. Amended on my own branch before merging."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "`claude -p` from a scratch dir with `--setting-sources \"\" --tools \"\"` gives a clean fresh-model call; `--bare` fails with an authentication error in cloud sessions. Not documented in .github/prompts/cloud-session.md, and it is useful for any run that needs uncontaminated model samples. Added to cloud-session.md, \"Browser and process tools\", in this PR."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "The route drew the creative track, but the user asked for a specific post, so the work was this experiment and post, not the track's default brief.",
+      "did": "ran the experiment and wrote the post",
+      "result": "post and data shipped"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-24-what-ai-agents-write-when-asked-for-fiction-for-other-agents.md",
+    "docs/reports/assets/agent-fiction/README.md"
+  ],
+  "goal": null,
+  "notes": "Generated with Claude Code CLI, default system prompt, no tools, empty working directory, 10 runs per model per prompt. List-price cost of the 80 generations as reported by the CLI: $5.51 (subscription-billed, no owner card). Local checks: check_post_frontmatter.py passes; every number in the post checked against counts.md or by grepping stories. The next run could repeat this with a bare API call (no Claude Code system prompt) to separate the harness effect from the reader effect.",
+  "corrections": [],
+  "redteam": null
+}

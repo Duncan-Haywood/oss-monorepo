@@ -1,0 +1,20 @@
+/usr/local/lib/python3.11/dist-packages/torch/_subclasses/functional_tensor.py:368: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /__w/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:84.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+/usr/local/lib/python3.11/dist-packages/torch/_subclasses/functional_tensor.py:368: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /__w/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:84.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+/usr/local/lib/python3.11/dist-packages/torch/_subclasses/functional_tensor.py:368: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /__w/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:84.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+/usr/local/lib/python3.11/dist-packages/torch/_subclasses/functional_tensor.py:368: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /__w/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:84.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+{'arm': 'topk', 'keep': 0.25, 'seed': 0, 'loss': 1.5670332536101341, 'secs': 559}
+{'arm': 'topk', 'keep': 0.0625, 'seed': 0, 'loss': 1.6380812376737595, 'secs': 563}
+{'arm': 'topk_ef', 'keep': 0.25, 'seed': 0, 'loss': 1.5661824122071266, 'secs': 580}
+{'arm': 'topk_ef', 'keep': 0.0625, 'seed': 0, 'loss': 1.5652557536959648, 'secs': 585}
+{'arm': 'topk', 'keep': 0.0625, 'seed': 1, 'loss': 1.6387953460216522, 'secs': 545}
+{'arm': 'topk', 'keep': 0.25, 'seed': 1, 'loss': 1.5739151760935783, 'secs': 568}
+{'arm': 'topk_ef', 'keep': 0.0625, 'seed': 1, 'loss': 1.5774372890591621, 'secs': 554}
+{'arm': 'topk_ef', 'keep': 0.25, 'seed': 1, 'loss': 1.5716333165764809, 'secs': 580}
+{'arm': 'topk', 'keep': 0.25, 'seed': 2, 'loss': 1.5800689160823822, 'secs': 534}
+{'arm': 'topk', 'keep': 0.0625, 'seed': 2, 'loss': 1.6422637775540352, 'secs': 522}
+{'arm': 'topk_ef', 'keep': 0.0625, 'seed': 2, 'loss': 1.57061967253685, 'secs': 529}
+{'arm': 'topk_ef', 'keep': 0.25, 'seed': 2, 'loss': 1.5758438855409622, 'secs': 547}

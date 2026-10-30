@@ -1,0 +1,53 @@
+NaijaSenti test corpus 44485 tweets; outcome = human negative label; OLS truth on the whole corpus:
+  intercept(yor) +0.2064, hau +0.1260, ibo +0.0599, pcm +0.3827, loglen_z +0.0262
+audit n=400 simple random, 1000 draws per cell, seed 20261025; coverage of the 95% interval (binomial sd about 0.007), mean se, mean bias
+
+coder estimator coefficient coverage se bias se_over_human mean_lam
+# lexicon-en: agreement with the human label 0.678
+lexicon-en human intercept(yor) 0.953 0.0432 -0.0002 1.000 -
+lexicon-en human hau 0.950 0.0607 +0.0011 1.000 -
+lexicon-en human ibo 0.952 0.0630 +0.0004 1.000 -
+lexicon-en human pcm 0.952 0.0731 +0.0002 1.000 -
+lexicon-en human loglen_z 0.958 0.0249 -0.0002 1.000 -
+lexicon-en PPI++ intercept(yor) 0.943 0.0428 -0.0034 0.992 0.154
+lexicon-en PPI++ hau 0.951 0.0606 +0.0012 0.999 0.051
+lexicon-en PPI++ ibo 0.953 0.0624 -0.0005 0.991 0.165
+lexicon-en PPI++ pcm 0.952 0.0730 -0.0029 0.997 0.054
+lexicon-en PPI++ loglen_z 0.958 0.0248 -0.0004 0.995 0.087
+lexicon-en crossfit intercept(yor) 0.948 0.0440 +0.0005 1.021 0.223
+lexicon-en crossfit hau 0.945 0.0612 +0.0007 1.009 0.091
+lexicon-en crossfit ibo 0.951 0.0631 +0.0001 1.003 0.199
+lexicon-en crossfit pcm 0.950 0.0735 -0.0009 1.005 0.075
+lexicon-en crossfit loglen_z 0.957 0.0251 -0.0002 1.008 0.124
+# nb-english: agreement with the human label 0.680
+nb-english human intercept(yor) 0.953 0.0432 -0.0002 1.000 -
+nb-english human hau 0.950 0.0607 +0.0011 1.000 -
+nb-english human ibo 0.952 0.0630 +0.0004 1.000 -
+nb-english human pcm 0.952 0.0731 +0.0002 1.000 -
+nb-english human loglen_z 0.958 0.0249 -0.0002 1.000 -
+nb-english PPI++ intercept(yor) 0.950 0.0428 -0.0012 0.991 0.125
+nb-english PPI++ hau 0.951 0.0606 +0.0011 0.998 0.062
+nb-english PPI++ ibo 0.951 0.0626 +0.0000 0.994 0.113
+nb-english PPI++ pcm 0.954 0.0724 -0.0020 0.990 0.108
+nb-english PPI++ loglen_z 0.957 0.0248 -0.0002 0.995 0.088
+nb-english crossfit intercept(yor) 0.952 0.0438 -0.0001 1.016 0.174
+nb-english crossfit hau 0.947 0.0611 +0.0007 1.008 0.097
+nb-english crossfit ibo 0.950 0.0634 -0.0002 1.007 0.148
+nb-english crossfit pcm 0.953 0.0734 -0.0003 1.004 0.131
+nb-english crossfit loglen_z 0.959 0.0251 -0.0002 1.009 0.126
+# nb-in-language: agreement with the human label 0.743
+nb-in-language human intercept(yor) 0.953 0.0432 -0.0002 1.000 -
+nb-in-language human hau 0.950 0.0607 +0.0011 1.000 -
+nb-in-language human ibo 0.952 0.0630 +0.0004 1.000 -
+nb-in-language human pcm 0.952 0.0731 +0.0002 1.000 -
+nb-in-language human loglen_z 0.958 0.0249 -0.0002 1.000 -
+nb-in-language PPI++ intercept(yor) 0.951 0.0418 -0.0024 0.969 0.316
+nb-in-language PPI++ hau 0.944 0.0567 +0.0026 0.935 0.398
+nb-in-language PPI++ ibo 0.955 0.0608 +0.0001 0.965 0.326
+nb-in-language PPI++ pcm 0.948 0.0723 +0.0065 0.988 0.173
+nb-in-language PPI++ loglen_z 0.955 0.0235 +0.0007 0.943 0.353
+nb-in-language crossfit intercept(yor) 0.955 0.0432 +0.0007 1.000 0.343
+nb-in-language crossfit hau 0.944 0.0572 +0.0018 0.943 0.402
+nb-in-language crossfit ibo 0.953 0.0615 +0.0003 0.977 0.337
+nb-in-language crossfit pcm 0.952 0.0734 +0.0023 1.003 0.209
+nb-in-language crossfit loglen_z 0.956 0.0238 +0.0004 0.956 0.364

@@ -1,0 +1,69 @@
+# milestone 33: harsh first cut (eta 3), R2 rung scored area x period or mapped area alone, 12 held-out designs (unseen 5, hostile 5, fanout_rich 2), regret averaged over the two clocks, 400 paired seeds
+adp15 / adp3 = successive halving eta 1.5 / 3 with the R2 rung scored area x period; area3 = eta 3 with the R2 rung scored by mapped area alone (R3 and R4 unchanged); rand = random R4
+diff = first arm minus second in regret percentage points (negative favours the first); exact two-sided Wilcoxon over designs; Holm over 16 tests; bootstrap CI is 5000 resamples of designs
+
+comparison | budget | mean diff | 95% CI | designs better/worse | p raw | p Holm
+area3 vs adp3 | 10 | +0.94 | [-11.87, +14.81] | 6/4 | 0.6772 | 1.0000
+area3 vs adp3 | 15 | +1.35 | [-12.52, +16.75] | 3/1 | 0.3223 | 1.0000
+area3 vs adp3 | 25 | +1.27 | [-12.55, +16.74] | 3/1 | 0.8125 | 1.0000
+area3 vs adp3 | 40 | +1.23 | [-12.46, +16.69] | 2/1 | 1.0000 | 1.0000
+adp3 vs rand | 10 | +1.71 | [-4.02, +10.83] | 9/3 | 0.2036 | 1.0000
+adp3 vs rand | 15 | +1.79 | [-4.04, +11.33] | 9/3 | 0.1763 | 1.0000
+adp3 vs rand | 25 | +2.81 | [-2.45, +11.93] | 8/4 | 0.2334 | 1.0000
+adp3 vs rand | 40 | +4.00 | [-0.76, +12.67] | 7/4 | 0.7334 | 1.0000
+area3 vs rand | 10 | +2.65 | [-3.99, +13.45] | 8/3 | 0.2402 | 1.0000
+area3 vs rand | 15 | +3.14 | [-3.99, +15.25] | 8/3 | 0.1748 | 1.0000
+area3 vs rand | 25 | +4.08 | [-2.50, +15.95] | 7/3 | 0.1748 | 1.0000
+area3 vs rand | 40 | +5.23 | [-0.85, +16.81] | 6/4 | 0.4648 | 1.0000
+adp3 vs adp15 | 10 | +3.28 | [-1.55, +11.63] | 8/4 | 0.5693 | 1.0000
+adp3 vs adp15 | 15 | +3.25 | [-1.83, +12.12] | 9/3 | 0.3804 | 1.0000
+adp3 vs adp15 | 25 | +4.02 | [-0.55, +12.57] | 8/3 | 0.4697 | 1.0000
+adp3 vs adp15 | 40 | +4.58 | [+0.03, +13.05] | 0/4 | 0.1250 | 1.0000
+
+## mean regret % over all 24 cells: rand / adp15 / adp3 / area3 at budgets 10, 15, 25, 40
+10: 5.12 / 3.55 / 6.83 / 7.77
+15: 3.59 / 2.13 / 5.38 / 6.72
+25: 1.86 / 0.65 / 4.67 / 5.94
+40: 0.63 / 0.05 / 4.63 / 5.86
+
+## full-pool R2 score against R4: tau and pick regret % (ADP / area alone), per cell
+bcastadd64 relaxed: tau 0.80 / -0.21; regret 0.0 / 50.6
+fanao96 relaxed: tau 0.14 / 0.32; regret 13.7 / 0.0
+bcastadd64 tight: tau 0.73 / -0.09; regret 0.4 / 95.3
+fanao96 tight: tau 0.20 / 0.34; regret 14.6 / 0.0
+bcastmix192 relaxed: tau -1.00 / 1.00; regret 49.9 / 0.0
+cmp128 relaxed: tau 0.23 / 0.21; regret 0.0 / 13.6
+gf2mat48 relaxed: tau 0.17 / 0.81; regret 1.1 / 0.0
+rotmix64 relaxed: tau 0.14 / 0.75; regret 0.0 / 0.0
+xbar16 relaxed: tau 0.12 / 0.85; regret 0.0 / 0.0
+bcastmix192 tight: tau -1.00 / 1.00; regret 49.9 / 0.0
+cmp128 tight: tau 0.56 / -0.11; regret 0.0 / 11.3
+gf2mat48 tight: tau 0.51 / 0.42; regret 0.0 / 8.5
+rotmix64 tight: tau 0.29 / 0.90; regret 0.0 / 0.0
+xbar16 tight: tau 0.20 / 0.64; regret 0.0 / 0.0
+crc32 relaxed: tau 0.79 / 0.69; regret 0.0 / 7.3
+decmux64 relaxed: tau 0.79 / 0.53; regret 0.0 / 23.5
+prio64 relaxed: tau 0.94 / 0.86; regret 0.0 / 4.7
+sbox relaxed: tau 0.26 / 0.40; regret 3.9 / 11.5
+sort8x8 relaxed: tau 0.74 / 0.75; regret 1.3 / 1.3
+crc32 tight: tau 0.62 / 0.93; regret 9.3 / 0.0
+decmux64 tight: tau 0.68 / 0.63; regret 0.0 / 5.5
+prio64 tight: tau 0.93 / 0.84; regret 0.0 / 8.7
+sbox tight: tau 0.45 / 0.56; regret 0.0 / 5.3
+sort8x8 tight: tau 0.72 / 0.97; regret 0.4 / 0.4
+
+mean over cells: tau 0.38 / 0.58; R2 pick regret 6.02 / 10.31
+
+## per-design regret % at budget 25 (clock-averaged): rand / adp15 / adp3 / area3
+bcastadd64 (fanout_rich): 1.07 / 0.24 / 0.18 / 67.99
+fanao96 (fanout_rich): 0.39 / 0.01 / 0.00 / 0.00
+bcastmix192 (hostile): 0.00 / 0.00 / 49.85 / 0.00
+cmp128 (hostile): 3.59 / 0.79 / 0.00 / 0.00
+gf2mat48 (hostile): 0.32 / 0.73 / 0.57 / 0.57
+rotmix64 (hostile): 5.62 / 0.92 / 0.00 / 0.00
+xbar16 (hostile): 4.52 / 1.27 / 0.00 / 0.00
+crc32 (unseen): 0.32 / 0.20 / 2.89 / 0.38
+decmux64 (unseen): 2.68 / 1.40 / 0.41 / 0.42
+prio64 (unseen): 1.36 / 0.92 / 0.46 / 0.46
+sbox (unseen): 1.28 / 0.85 / 1.50 / 1.30
+sort8x8 (unseen): 1.14 / 0.47 / 0.20 / 0.20

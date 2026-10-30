@@ -1,0 +1,6 @@
+{"arm": "topk_ef", "keep": 0.015625, "seed": 0, "loss": 1.6120831593871117, "secs": 618}
+{"arm": "topk_ef", "keep": 0.015625, "seed": 1, "loss": 1.6200433671474457, "secs": 627}
+{"arm": "topk_ef", "keep": 0.00390625, "seed": 0, "loss": 1.6935522332787514, "secs": 629}
+{"arm": "topk_ef", "keep": 0.00390625, "seed": 1, "loss": 1.7016546353697777, "secs": 644}
+{"arm": "topk_ef", "keep": 0.015625, "seed": 2, "loss": 1.6252399012446404, "secs": 590}
+{"arm": "topk_ef", "keep": 0.00390625, "seed": 2, "loss": 1.6954923570156097, "secs": 593}

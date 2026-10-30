@@ -1,0 +1,57 @@
+{
+  "date": "2026-10-29",
+  "session": "https://claude.ai/code/session_01XpHqyduBahfwCQ4XvVL8gK",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "what would it look like to use typescript as a default instead of html or mjs or js in this repo as the default web language? what would be the upsides and downsides. either migrating or just going forwards? blog post on it.",
+  "input_sha256": "054851f458cd2e09e1e400f6c7f6275491047ba31951959233aaaaa351c722d2",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-29T03:51:38Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 11283,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--for-changes diffs against a newer origin/main in a shallow clone, selecting 94 workflows for a one-file docs change; not usable to verify a small PR."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/promptctl.py",
+      "why": "Left --model unset: this session's instructions forbid model identifiers in pushed artifacts.",
+      "did": "omitted model",
+      "result": "record still validates"
+    },
+    {
+      "file": ".github/prompts/verify-and-merge.md",
+      "why": "Widened a docs PR with three small fixes to main's own red checks, because main was red for every post PR and the session may push only to its own branch.",
+      "did": "fixed in this PR",
+      "result": "superseded: main's own fixes landed first; final diff is docs-only"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Docs-only PR (one blog post). Facts verified locally on Node v22.22.0: node runs .ts and node --test .test.ts; enum fails ERR_UNSUPPORTED_TYPESCRIPT_SYNTAX; stripTypeScriptTypes 352k chars ~100ms; ./x.js specifier for x.ts fails ERR_MODULE_NOT_FOUND. Counts from git ls-files at branch base. run_workflow_locally --for-changes output summarised in PR. CI then showed main itself red in three places, none caused by this PR, each fixed here (fix forward; no fix PR existed): (1) the third-party-font post (#11242) quoted the placeholder origin, failing build.test.mjs 'no page still points at the placeholder origin'; (2) the photographer-bookkeeping post (#11287) had a 178-char description (limit 160); (3) #11274 changed visible FAQ answers on ai-bookkeeper tax-calendar.html and trainer-bookkeeping.html without the FAQPage JSON-LD, failing faq-visible.test.mjs. After merging main: platform/pages node --test '*.test.mjs' 1309 pass 0 fail; run_venture_tests.py ai-bookkeeper 0 failed; promptctl validate ok; check_post_frontmatter ok. Update: main fixed all three itself before this merged (#11295, #11297, #11298 era); merging main took main's versions, so the final diff is the post and this record only.",
+  "corrections": [],
+  "redteam": null
+}

@@ -1,0 +1,9 @@
+reps 200, drift: true, mean model, noise sd 1, swing 4
+P4 n120 no change                    warning   4/200  steps/series 0.57  window 2P/P+3/P: 4/2/0
+P4 n120 2 steps far apart            warning   4/200  steps/series 2.48  window 2P/P+3/P: 4/1/0
+P4 n120 3 steps in 2 cycles          warning 190/200  steps/series 3.33  window 2P/P+3/P: 190/182/0
+P4 n120 amplitude x3 over series     warning   4/200  steps/series 0.54  window 2P/P+3/P: 4/2/0
+P12 n144 no change                   warning   7/200  steps/series 0.63  window 2P/P+3/P: 7/4/3
+P12 n144 2 steps far apart           warning  23/200  steps/series 2.71  window 2P/P+3/P: 23/19/10
+P12 n144 3 steps in 2 cycles         warning 200/200  steps/series 3.87  window 2P/P+3/P: 200/58/38
+P12 n144 amplitude x3 over series    warning  10/200  steps/series 0.63  window 2P/P+3/P: 10/5/5

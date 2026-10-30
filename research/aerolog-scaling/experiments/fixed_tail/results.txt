@@ -1,0 +1,17 @@
+reference n=1 (h = 0): phugoid 0.270, short period 1.656, zeta_sp 0.514
+model CG h chords ahead of the wing AC; h = 0 is 7d exactly
+
+naca4412: 23 tails within 5% at h = 0; interval of h (chords) around 0 kept within 5%
+  best naca0009 area 0.15 AR_t 3.5 arm 3.5: h in [-0.055, +0.020] width 0.075
+  best naca0012 area 0.15 AR_t 3.5 arm 3.5: h in [-0.045, +0.025] width 0.070
+  best naca0012 area 0.20 AR_t 3.5 arm 3.0: h in [-0.050, +0.020] width 0.070
+  best naca0015 area 0.15 AR_t 5.0 arm 3.5: h in [-0.035, +0.035] width 0.070
+  best naca0015 area 0.15 AR_t 7.0 arm 3.0: h in [-0.055, +0.015] width 0.070
+  width over tails: median 0.065, max 0.075, min 0.030; tails kept within 5% at |h|=0.02: 8, at |h|=0.05: 0
+naca5406: 23 tails within 5% at h = 0; interval of h (chords) around 0 kept within 5%
+  best naca0012 area 0.15 AR_t 3.5 arm 3.5: h in [-0.040, +0.030] width 0.070
+  best naca0015 area 0.15 AR_t 5.0 arm 3.5: h in [-0.030, +0.040] width 0.070
+  best naca0015 area 0.15 AR_t 7.0 arm 3.0: h in [-0.050, +0.020] width 0.070
+  best naca0009 area 0.15 AR_t 3.5 arm 3.5: h in [-0.045, +0.020] width 0.065
+  best naca0009 area 0.15 AR_t 7.0 arm 3.5: h in [-0.055, +0.010] width 0.065
+  width over tails: median 0.060, max 0.070, min 0.025; tails kept within 5% at |h|=0.02: 9, at |h|=0.05: 0

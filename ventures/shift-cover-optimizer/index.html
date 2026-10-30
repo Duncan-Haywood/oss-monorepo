@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%231b7b7e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3ES%3C/text%3E%3C/svg%3E">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Shift-Cover Optimizer — the cheapest shifts that cover every hour</title>
   <meta name="description" content="Free staff scheduling calculator for restaurants, cafes, salons and shops. Paste the staff or demand each open hour needs to get the cheapest set of shifts that covers every hour, what it saves against fixed 8-hour shifts, and what a minimum shift length costs. Runs in your browser; nothing is uploaded.">
@@ -71,6 +71,12 @@
     <h2>Your hours</h2>
     <label for="file">Upload a CSV</label>
     <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv,text/plain">
+    <label for="history">…or upload an order history (one row per order or sale, with its date and time) from your POS or booking tool</label>
+    <input id="history" type="file" accept=".csv,.tsv,.txt,text/csv,text/plain">
+    <div class="row3">
+      <div><label for="hstat">Plan for</label><select id="hstat"><option value="mean">The average day</option><option value="p80">A busy day (80th percentile)</option></select></div>
+    </div>
+    <p class="note">The file is read here and turned into average demand for each weekday and hour; it is not uploaded. <a href="#" id="load-history-example">Try an invented 4-week café history</a>.</p>
     <label for="rows">…or paste rows: day, hour, staff needed (or demand)</label>
     <textarea id="rows" spellcheck="false" placeholder="day,hour,customers&#10;Mon,9,30&#10;Mon,10,18&#10;Mon,11,26"></textarea>
     <p class="note">Hours can be 9, 9:30 or 9am. Leave out the hours you are closed; a closed gap splits the day. If the third column is called staff, required or people it is headcount; any other name (customers, orders, sales) is demand and the field "one person handles" turns it into headcount.</p>
@@ -145,7 +151,7 @@
   </footer>
 
   <script type="module">
-    import { parseDemand, optimize, scheduleCsv, sampleText, fmtTime, money, num, pct } from "./calc.mjs";
+    import { demandFromHistory, sampleHistory, parseDemand, optimize, scheduleCsv, sampleText, fmtTime, money, num, pct } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -203,6 +209,23 @@
       rd.onload = () => { $("#rows").value = String(rd.result); record("file_loaded"); status.textContent = `Loaded ${f.name}. Click the button.`; };
       rd.readAsText(f);
     });
+    let historyText = "";
+    function fromHistory(name) {
+      const h = demandFromHistory(historyText, { stat: $("#hstat").value });
+      if (h.error) { status.textContent = h.error; return; }
+      $("#rows").value = h.csv;
+      $("#notices").innerHTML = "";
+      status.textContent = `${name}: ${h.orders.toLocaleString()} rows over ${h.dateCount} days (${h.from} to ${h.to}) became average ${h.unit} per hour. ${h.warnings.join(" ")} Set "one person handles" for ${h.unit === "sales" ? "sales per hour" : "orders per hour"}, then click the button.`;
+      record("history_loaded");
+    }
+    $("#history").addEventListener("change", (e) => {
+      const f = e.target.files[0]; if (!f) return;
+      const rd = new FileReader();
+      rd.onload = () => { historyText = String(rd.result); fromHistory(f.name); };
+      rd.readAsText(f);
+    });
+    $("#hstat").addEventListener("change", () => { if (historyText) fromHistory("History"); });
+    $("#load-history-example").addEventListener("click", (e) => { e.preventDefault(); historyText = sampleHistory(); fromHistory("Invented café history"); });
     $("#clear-all").addEventListener("click", () => { $("#rows").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Upload or paste your hours, then click the button."; });
     $("#download").addEventListener("click", () => {
       if (!last) return;

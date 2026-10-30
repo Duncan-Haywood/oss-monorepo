@@ -1,0 +1,62 @@
+{
+  "date": "2026-10-28",
+  "session": "https://claude.ai/code/session_01XpHqydXkEQqGNv6fWqWgdc",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "one project I want to work on it automated agentic trading. maybe through roinhood. like a fund or something. make sure to put the right disclaimers. do a lot of backtesting come up with advanced strategies etc.",
+  "input_sha256": "347f08f495df978759a991d17b8597fc9ab1f569fddeea2af65f6020644ab7e0",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-28T02:39:34Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "New venture from the owner's request: agentic trading research, backtesting and guarded execution",
+  "projects": [
+    "agentic-trading-lab"
+  ],
+  "pr": 11023,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 42,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Says to merge without review ceremony, but for a product that can place live trades the bar for 'verified' is unclear; treated adapters as unverified against live accounts and said so in README."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "user request",
+      "why": "Asked for 'like a fund'; built a single-account tool instead, because pooling or managing others' money is regulated and the owner's money and accounts are a hard limit (prompts/goals.md).",
+      "did": "LEGAL.md, not-a-fund lines in --help, page and README; live trading locked behind deployer-supplied keys",
+      "result": "shipped"
+    },
+    {
+      "file": "user request",
+      "why": "Robinhood has no official stock API; automating its private endpoints may breach its customer agreement.",
+      "did": "Robinhood supported for crypto via its official API; stocks/ETFs via Alpaca",
+      "result": "shipped"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-28-the-trading-agent-that-refused-its-own-backtests.md",
+    "ventures/agentic-trading-lab/results/REPORT.md"
+  ],
+  "goal": null,
+  "notes": "Local verification: 32 Python unittest pass (offline), 10 node tests pass (page numbers pinned to study.json), clauses.mjs OK, validate_workflows OK, publish_surface --write (new CI classified none). Study run on live data: Ken French (through 202609) and Coinbase (through 2026-10-27). Pre-existing validate.py problem (flagships.yaml changepoint-detector next: length) not touched.",
+  "corrections": [],
+  "redteam": null
+}

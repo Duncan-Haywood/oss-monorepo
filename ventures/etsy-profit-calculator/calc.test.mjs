@@ -1133,3 +1133,38 @@ test('compareEtsyLabels rejects impossible inputs', () => {
   assert.throws(() => compareEtsyLabels({ ...PAGE_ORDER, monthlyLabelShipments: 0 }), /greater than zero/);
   assert.throws(() => compareEtsyLabels({ ...PAGE_ORDER, labelUploadMinutes: -1 }), /Label upload minutes/);
 });
+
+test('offsite ad rate raises the price needed for a target margin and a target profit', () => {
+  const base = { shippingCost: 5, materialCost: 4 };
+  const withAds = { ...base, offsiteAdRate: 15 };
+  const m0 = priceForMargin(base, 30), m1 = priceForMargin(withAds, 30);
+  near(m1, (0.2 + 0.25 + 9) / (1 - 0.245 - 0.3), 'margin price with 15% offsite ads');
+  assert.ok(m1 > m0);
+  const p0 = priceForProfit(base, 10), p1 = priceForProfit(withAds, 10);
+  near(p1, (0.2 + 0.25 + 9 + 10) / (1 - 0.245), 'profit price with 15% offsite ads');
+  assert.ok(p1 > p0);
+});
+
+test('break-even listings is exactly reachable when it equals the credits', () => {
+  const args = { listingFee: 0.2, monthlyPlusFee: 10, listingCredits: 50, adsCredit: 0, monthlyAdSpend: 0 };
+  assert.equal(plusBreakEvenListings(args), 50);
+  assert.equal(plusBreakEvenListings({ ...args, listingCredits: 49 }), null);
+});
+
+test('personalization note needs both rows', () => {
+  const c = comparePersonalization({ price: 30 });
+  assert.throws(() => personalizationNote({ ...c, asListed: undefined }), /missing rows/);
+  assert.throws(() => personalizationNote({ ...c, personalized: undefined }), /missing rows/);
+  assert.throws(() => personalizationNote({}), /missing rows/);
+});
+
+test('a Star Seller path that packs a loss while unsigned profits has no reachable break-even rate', () => {
+  const result = compareStarSeller({
+    price: 10, shippingCharged: 0, listingFee: 0, transactionRate: 0, paymentRate: 0,
+    paymentFixed: 0, offsiteAdRate: 0, shippingCost: 0, materialCost: 0, otherCost: 0,
+    starSellerShippingCost: 12, starSellerMessageMinutes: 0, starSellerHourlyWage: 0,
+    unsignedSellThroughPct: 50, starSellerSellThroughPct: 50, starSellerListings: 40,
+  });
+  assert.equal(result.starSeller.profit, -2);
+  assert.equal(result.breakEvenSellThroughPct, Infinity);
+});

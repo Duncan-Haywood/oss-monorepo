@@ -29,6 +29,16 @@ test('markdown subset: scene breaks, quotes keep lines, inline marks, escaping',
   assert.equal(markdownToSpeech('Hi *there*.\n\n* * *\n\n> ## Quote'), 'Hi there.\n\n[pause]\n\nQuote');
 });
 
+test('markdown subset: pipe tables and links to sibling stories', () => {
+  const html = markdownToHtml('See [Ten Percent](ten-percent.md) and [x](https://example.org/a.md).\n\n| | Said | Loss |\n|---|---|---|\n| 1 | 0.85 | **0.0225** |');
+  assert.match(html, /<a href="ten-percent\.html">Ten Percent<\/a>/);
+  assert.match(html, /<a href="https:\/\/example\.org\/a\.md">x<\/a>/);
+  assert.match(html, /<th>Said<\/th>/);
+  assert.match(html, /<td><strong>0\.0225<\/strong><\/td>/);
+  assert.doesNotMatch(html, /---/);
+  assert.equal(markdownToSpeech('See [Ten Percent](ten-percent.md).\n\n| | Said |\n|---|---|\n| 1 | 0.85 |'), 'See Ten Percent.\n\n1, Said: 0.85.');
+});
+
 test('every podcast feed is valid enough for directories: absolute URLs, licence, AI disclosure, enclosures match audio', () => {
   const audio = loadAudio();
   const files = buildAll();

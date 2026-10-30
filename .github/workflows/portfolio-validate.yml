@@ -109,6 +109,9 @@ on:
       - "portfolio/ledger/test_supersede_check.py"
       - "portfolio/ledger/asks.yaml"
       - "portfolio/ledger/2026-08.yaml"
+      # Post-only PRs ran no front-matter check, so posts without a description
+      # or tags, and posts dated ahead, reached main (five on 2026-10-26).
+      - "docs/posts/**"
       - "platform/ci/**"
       - ".github/workflows/**"
   pull_request:
@@ -154,6 +157,9 @@ on:
       - "portfolio/ledger/test_supersede_check.py"
       - "portfolio/ledger/asks.yaml"
       - "portfolio/ledger/2026-08.yaml"
+      # Post-only PRs ran no front-matter check, so posts without a description
+      # or tags, and posts dated ahead, reached main (five on 2026-10-26).
+      - "docs/posts/**"
       - "platform/ci/**"
       - ".github/workflows/**"
   workflow_dispatch:
@@ -471,6 +477,30 @@ jobs:
         working-directory: platform/ci
         run: python3 -m unittest test_check_main_landmark
 
+      # A script, font, frame or image from another host leaks the visitor's IP.
+      - name: Check venture pages load nothing from third-party hosts
+        run: python3 platform/ci/check_third_party_requests.py
+
+      - name: Third-party-request checker unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_check_third_party_requests
+
+      # lang, viewport, charset, img alt, rel=noopener, tabindex, http:// links.
+      - name: Check venture pages for markup basics
+        run: python3 platform/ci/check_markup_basics.py
+
+      - name: Markup-basics checker unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_check_markup_basics
+
+      # A .html file that holds source code is served as text on Pages.
+      - name: Check every venture .html file starts with markup
+        run: python3 platform/ci/check_html_is_html.py
+
+      - name: HTML-is-HTML checker unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_check_html_is_html
+
       # Skipped heading levels (h1 straight to h3) break outline navigation.
       - name: Check venture pages do not skip heading levels
         run: python3 platform/ci/check_heading_order.py
@@ -496,6 +526,26 @@ jobs:
         working-directory: platform/ci
         run: python3 -m unittest test_check_jsonld
 
+      # The visible side of "Honest marketing": no "trusted by N", star
+      # ratings or award claims the repo cannot back (competitor claims that
+      # are attributed to the competitor are allowed).
+      - name: Check page copy for unbacked social-proof claims
+        run: python3 platform/ci/check_social_proof.py
+
+      - name: Social-proof checker unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_check_social_proof
+
+      # A page with no rel=icon makes the browser request /favicon.ico from the
+      # origin root (404 on GitHub Pages) and shows a blank tab.
+      # `python3 platform/ci/favicons.py --fix` inserts the missing icons.
+      - name: Check every venture page has a tab icon
+        run: python3 platform/ci/favicons.py
+
+      - name: Favicon checker unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_favicons
+
       # getElementById returns the first match, so two elements sharing an id
       # silently send a script's writes to the wrong one.
       - name: Check no served page repeats an id
@@ -504,6 +554,40 @@ jobs:
       - name: Duplicate-id checker unit tests
         working-directory: platform/ci
         run: python3 -m unittest test_check_duplicate_ids
+
+      # A relative fetch() of a file nobody committed 404s at runtime; unit
+      # tests import the engine and never run the page.
+      - name: Check no page fetches a missing local file
+        run: python3 platform/ci/check_local_fetch.py
+
+      - name: Local-fetch checker unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_check_local_fetch
+
+      # A label or ARIA reference to a missing id is dropped silently, leaving
+      # the control unnamed for a screen reader.
+      - name: Check label and ARIA id references resolve
+        run: python3 platform/ci/check_aria_refs.py
+
+      - name: ARIA-reference checker unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_check_aria_refs
+
+      # A table of bare <td> cells has no row or column names for a screen reader.
+      - name: Check every venture table has header cells
+        run: python3 platform/ci/check_table_headers.py
+
+      - name: Table-header checker unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_check_table_headers
+
+      # An anchor or aria reference to a renamed id fails without any error.
+      - name: Check in-page anchors and aria references resolve
+        run: python3 platform/ci/check_inpage_refs.py
+
+      - name: In-page reference checker unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_check_inpage_refs
 
       # Posts without `tags` shipped unnoticed; this reads their front matter.
       - name: Check blog post front matter

@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { takeoff, samplePlan } from "./engine.mjs";
+import { panelizeWall } from "./panels.mjs";
 import { markMembers, wallElevationSvg, partsTableHtml, drawingSetHtml } from "./drawings.mjs";
 
 const house = () => { const plan = samplePlan(); return { plan, r: takeoff(plan) }; };
@@ -98,4 +99,16 @@ test("sheathing weight adds Sheathing and Total columns to the panel table only 
   const heavy = drawingSetHtml(r, plan, { panelMax: 144, sheathPsf: 1.5 });
   assert.ok(!plain.includes("<th class=\"n\">Sheathing</th>"));
   assert.ok(heavy.includes("<th class=\"n\">Sheathing</th>") && heavy.includes("1.5 lb per sq ft"));
+});
+
+test("panelSheets adds one cropped sheet per panel with its own cut list", () => {
+  const { plan, r } = house();
+  const plain = drawingSetHtml(r, plan, { panelMax: 144 });
+  const html = drawingSetHtml(r, plan, { panelMax: 144, panelSheets: true });
+  const nPanels = r.walls.reduce((s, w) => s + panelizeWall(w, 144).panels.length, 0);
+  const sheets = (h) => (h.match(/<section class="sheet">/g) || []).length;
+  assert.equal(sheets(html), sheets(plain) + nPanels);
+  assert.match(html, /Shop drawing of panel A of wall /);
+  assert.match(html, /<h1>[^<]* panel A<\/h1>/);
+  assert.equal(sheets(drawingSetHtml(r, plan, { panelSheets: true })), r.walls.length, "ignored without panelMax");
 });

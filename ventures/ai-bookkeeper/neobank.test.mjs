@@ -298,7 +298,7 @@ test("PayPal activity CSV: Net moves the balance, pending rows skipped, balance 
   assert.equal(r.bank, "paypal");
   assert.deepEqual(r.rows.map((x) => x.cents), [9680, 4825, -14505]);
   assert.equal(r.rows[0].desc, "Ann Lee - Website Payment");
-  assert.equal(r.problems.length, 1, "the pending row is reported, not imported");
+  assert.equal(r.problems.filter((p) => !/payment processor/.test(p)).length, 1, "the pending row is reported, not imported");
   assert.deepEqual(checkRunningBalance(r.rows).breaks, []);
 });
 
@@ -384,4 +384,15 @@ test("Chime and Bluevine: read by amount or debit/credit columns", () => {
   assert.equal(b.bank, "bluevine");
   assert.deepEqual(b.rows.map((x) => x.cents), [250000, -8950]);
   assert.deepEqual(checkRunningBalance(b.rows).breaks, []);
+});
+
+test("N26: the German, French and older English exports are named n26 and read", () => {
+  for (const [f, desc] of [["n26-de.csv", "Hetzner Online GmbH - Rechnung 4471"], ["n26-fr.csv", "Hetzner Online GmbH Facture 4471"], ["n26-en-old.csv", "Hetzner Online GmbH"]]) {
+    const r = read(f);
+    assert.equal(r.bank, "n26", f);
+    assert.equal(r.rows[0].cents, -2490, f);
+    assert.equal(r.rows[0].date, "2026-03-05", f);
+    assert.equal(r.rows[0].desc, desc, f);
+    assert.deepEqual(r.problems, [], f);
+  }
 });

@@ -17,6 +17,9 @@ are pinned rather than imagined:
     sentence would reintroduce the defect at one remove.
 """
 
+import contextlib
+import io
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -195,6 +198,121 @@ class Derivation(unittest.TestCase):
                 sync.optout_switch_count()
         finally:
             sync.REPO = real
+
+
+class OptoutCountViaNode(unittest.TestCase):
+    """`optout_switch_count` shells out to Node; pin how it reads the result."""
+
+    def _run(self, proc):
+        calls = []
+
+        def fake(*args, **kwargs):
+            calls.append(kwargs)
+            return proc
+
+        real = sync.subprocess.run
+        sync.subprocess.run = fake
+        self.addCleanup(setattr, sync.subprocess, "run", real)
+        return calls
+
+    def test_a_clean_run_returns_the_reported_count(self):
+        import subprocess
+
+        calls = self._run(subprocess.CompletedProcess([], 0, stdout='noise\n{"count": 7}\n', stderr=""))
+        self.assertEqual(sync.optout_switch_count(), 7)
+        # Output must be captured as text, or stdout is None / bytes.
+        self.assertIs(calls[0]["capture_output"], True)
+        self.assertIs(calls[0]["text"], True)
+
+    def test_a_nonzero_exit_is_a_derivation_error_not_a_count(self):
+        import subprocess
+
+        self._run(subprocess.CompletedProcess([], 1, stdout='{"count": 7}', stderr="boom"))
+        with self.assertRaises(sync.DerivationError):
+            sync.optout_switch_count()
+
+    def test_unparseable_output_is_a_derivation_error(self):
+        import subprocess
+
+        self._run(subprocess.CompletedProcess([], 0, stdout="not json", stderr=""))
+        with self.assertRaises(sync.DerivationError):
+            sync.optout_switch_count()
+
+
+class MultiGroupAndMain(ApplyBase):
+    def test_every_group_in_one_match_is_rewritten(self):
+        path = self.write("doc.md", "mirrors 12 of the 12 tools directly\n")
+        site = sync.Site("doc.md", r"mirrors (\d+) of the (\d+) tools directly", "N of N")
+        sync.apply([site], 14, write=True)
+        self.assertEqual(path.read_text(), "mirrors 14 of the 14 tools directly\n")
+
+    def test_a_pattern_with_no_group_is_left_untouched(self):
+        path = self.write("doc.md", "mirrors 12 tools\n")
+        sync.apply([sync.Site("doc.md", r"mirrors 12 tools", "no group")], 14, write=True)
+        self.assertEqual(path.read_text(), "mirrors 12 tools\n")
+
+    def test_a_site_expects_exactly_one_match_by_default(self):
+        self.assertEqual(sync.Site("a", "b", "c").expected, 1)
+
+    def test_main_exits_2_when_a_derivation_fails(self):
+        def boom():
+            raise sync.DerivationError("x")
+
+        real = sync.mirrored_tool_count
+        sync.mirrored_tool_count = boom
+        self.addCleanup(setattr, sync, "mirrored_tool_count", real)
+        old = sys.argv
+        sys.argv = ["sync_tree_counts.py", "--check"]
+        self.addCleanup(setattr, sys, "argv", old)
+        with contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual(sync.main(), 2)
+
+    def test_main_refuses_a_derived_zero_with_exit_2(self):
+        real = (sync.mirrored_tool_count, sync.optout_switch_count)
+        sync.mirrored_tool_count = lambda: 0
+        sync.optout_switch_count = lambda: 5
+        self.addCleanup(lambda: (setattr(sync, "mirrored_tool_count", real[0]), setattr(sync, "optout_switch_count", real[1])))
+        old = sys.argv
+        sys.argv = ["sync_tree_counts.py", "--check"]
+        self.addCleanup(setattr, sys, "argv", old)
+        with contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual(sync.main(), 2)
+
+    def _run_main(self, *flags):
+        real = (sync.mirrored_tool_count, sync.optout_switch_count,
+                sync.MIRRORED_SITES, sync.OPTOUT_SITES)
+        sync.mirrored_tool_count = lambda: 3
+        sync.optout_switch_count = lambda: 4
+        sync.MIRRORED_SITES = [sync.Site("doc.md", r"mirrors (\d+) tools", "tools")]
+        sync.OPTOUT_SITES = []
+        self.addCleanup(lambda: (
+            setattr(sync, "mirrored_tool_count", real[0]),
+            setattr(sync, "optout_switch_count", real[1]),
+            setattr(sync, "MIRRORED_SITES", real[2]),
+            setattr(sync, "OPTOUT_SITES", real[3])))
+        old = sys.argv
+        sys.argv = ["sync_tree_counts.py", *flags]
+        self.addCleanup(setattr, sys, "argv", old)
+        with contextlib.redirect_stdout(io.StringIO()):
+            return sync.main()
+
+    def test_check_exits_1_on_drift_and_writes_nothing(self):
+        path = self.write("doc.md", "mirrors 12 tools\n")
+        self.assertEqual(self._run_main("--check"), 1)
+        self.assertEqual(path.read_text(), "mirrors 12 tools\n")
+
+    def test_rewrite_exits_0_and_fixes_the_number(self):
+        path = self.write("doc.md", "mirrors 12 tools\n")
+        self.assertEqual(self._run_main(), 0)
+        self.assertEqual(path.read_text(), "mirrors 3 tools\n")
+
+    def test_in_sync_exits_0(self):
+        self.write("doc.md", "mirrors 3 tools\n")
+        self.assertEqual(self._run_main("--check"), 0)
+
+    def test_a_reworded_sentence_fails_even_when_nothing_drifted(self):
+        self.write("doc.md", "reworded\n")
+        self.assertEqual(self._run_main("--check"), 1)
 
 
 if __name__ == "__main__":

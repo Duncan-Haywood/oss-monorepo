@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   applyRainouts, changeNotices, dayLabel, applyPinnedMatches, applyWithdrawals, applyLateTeams, toDay, dayIso, dayOfWeek, parseDate, parseDateList, parseWeekdays, parseTime, parseTeams, parseBlackouts, parseTimes,
-  readSpec, roundRobin, countBreaks, mulberry32, buildSchedule, validateSchedule, teamSchedule, scheduleCsv, seasonGrid, seasonGridCsv, standingsCsv, scheduleIcs,
+  readSpec, roundRobin, countBreaks, mulberry32, buildSchedule, validateSchedule, teamSchedule, scheduleCsv, scheduleCalendarCsv, seasonGrid, seasonGridCsv, standingsCsv, scheduleIcs,
   scheduleText, teamMessages, officialMessages, leaguePageHtml, scoreSheetsHtml, parseTimeLimits, parseCourtLimits, parseCourtClosures, parseResults, standings, seedOrder, playoffBracket, doubleEliminationBracket, bracketText, sampleFields, encodeFields, decodeFields,
   weeklyUpdate, splitPools, clubPairsInPools, buildPoolPlay, poolAdvancers, parseOfficials, assignOfficials, validateOfficials, playoffRace, playoffOdds, remainingFixtures, resultsCheck, overdueResults, gamesLeft, scheduleStrength, raceText, restReport, byeReport, homeAwayReport, rematchReport, seasonCost, deadlineCheck, slotFairness, oneDayTimetable, oneDayText, parseGrounds, groundClashes, applyGroundSharing, parseLinkedTeams, linkedClashes, separateLinkedTeams,
 } from "./calc.mjs";
@@ -2000,4 +2000,36 @@ test("season grid has one cell per team per round and agrees with the schedule",
   }
   const csv = seasonGridCsv(buildSchedule(baseSpec(4)));
   assert.equal(csv.split("\r\n")[0].split(",")[0], "Team");
+});
+
+test("a make-up date the organiser names on a skip date is honoured and the validator accepts it", async () => {
+  const { readSpec, buildSchedule, applyRainouts, validateSchedule, dayIso } = await import("./calc.mjs");
+  const { spec } = readSpec({ teams: "A\nB\nC\nD", start: "2026-09-01", weekdays: "Tue", skip: "2026-10-31", times: "18:00", courts: "C1, C2", seed: 1, minutes: 60 });
+  const s = buildSchedule(spec);
+  const first = s.rounds[0];
+  const r = applyRainouts(s, `${dayIso(first.day)} -> 2026-10-31`);
+  assert.equal(r.errors.length, 0);
+  assert.ok(r.moves.every((m) => dayIso(m.to) === "2026-10-31"));
+  assert.deepEqual(validateSchedule(r.schedule).errors, []);
+});
+
+test("calendar CSV: Google/Outlook columns, 12-hour times, one team's matches, midnight rollover", () => {
+  const s = buildSchedule(baseSpec(4, { times: ["18:30"] }));
+  const lines = scheduleCalendarCsv(s).trim().split("\r\n");
+  assert.equal(lines[0], "Subject,Start Date,Start Time,End Date,End Time,All Day Event,Description,Location,Private");
+  assert.equal(lines.length, 7);
+  const day = scheduleCalendarCsv(buildSchedule(baseSpec(4))).split("\r\n")[1];
+  assert.match(day, /,True,Round 1,/);
+  const m = s.rounds[0].matches[0];
+  const [y, mo, d] = dayIso(s.rounds[0].day).split("-");
+  assert.ok(lines[1].startsWith(`${m.homeName} vs ${m.awayName},${mo}/${d}/${y},`));
+  assert.match(lines[1], /,\d{1,2}:\d\d (AM|PM),\d\d\/\d\d\/\d{4},\d{1,2}:\d\d (AM|PM),False,/);
+  const one = scheduleCalendarCsv(s, 0).trim().split("\r\n");
+  assert.equal(one.length - 1, s.rounds.filter((r) => r.matches.some((x) => x.home === 0 || x.away === 0)).length);
+  assert.ok(one.slice(1).every((l) => l.includes(s.teams[0])));
+  const late = { ...s, config: { ...s.config, minutes: 90 }, rounds: [{ ...s.rounds[0], matches: [{ ...m, time: "23:30" }] }] };
+  const row = scheduleCalendarCsv(late).trim().split("\r\n")[1].split(",");
+  assert.equal(row[2], "11:30 PM");
+  assert.equal(row[4], "1:00 AM");
+  assert.notEqual(row[1], row[3]);
 });

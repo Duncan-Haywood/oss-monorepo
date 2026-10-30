@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { promises as fs, mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { buildWriting, loadPosts, parseFrontMatter, postPageTitle, renderFeed, TITLE_BUDGET, WRITING_PATH } from './writing.mjs';
+import { AGENT_BLOG, BLOG, buildWriting, loadPosts, parseFrontMatter, postPageTitle, renderFeed, TITLE_BUDGET, WRITING_PATH } from './writing.mjs';
 
 const BASE = 'https://example.test/site/';
 
@@ -40,6 +40,21 @@ test('a malformed post fails the build instead of shipping', () => {
   assert.throws(() => loadPosts(repoWith({ '2026-10-01-x.md': post('X', '2026-10-02') })), /does not match/);
   const long = post('X', '2026-10-01').replace('About X.', 'x'.repeat(161));
   assert.throws(() => loadPosts(repoWith({ '2026-10-01-x.md': long })), /keep it to 160/);
+});
+
+test('the deploy leaves a malformed post out rather than the whole site', () => {
+  const long = post('X', '2026-10-01').replace('About X.', 'x'.repeat(161));
+  const root = repoWith({ '2026-10-01-x.md': long, '2026-10-02-good.md': post('Good', '2026-10-02') });
+  const warn = console.warn;
+  const warned = [];
+  console.warn = (msg) => warned.push(msg);
+  try {
+    assert.deepEqual(loadPosts(root, undefined, { skipBad: true }).map((p) => p.slug), ['good']);
+  } finally {
+    console.warn = warn;
+  }
+  assert.match(warned.join('\n'), /::warning file=docs\/posts\/2026-10-01-x\.md::.*keep it to 160/);
+  assert.throws(() => loadPosts(root, undefined, { skipBad: false }), /keep it to 160/);
 });
 
 test('no posts directory means no posts, not an error', () => {
@@ -127,6 +142,7 @@ test('topics: front matter wins, else the first rule the tags match; a bad topic
   assert.equal(topicOf(['github-pages', 'ai-agents']), 'infrastructure');
   assert.equal(topicOf(['ai-agents', 'git']), 'agents');
   assert.equal(topicOf(['statistics']), 'tools');
+  assert.equal(topicOf(['start-here', 'mcp', 'ai-agents']), 'start');
   assert.equal(topicOf(['ai-agents'], 'infrastructure'), 'infrastructure');
   assert.equal(loadPosts(repoWith({ '2026-10-01-x.md': post('X', '2026-10-01', 'topic: research\n') }))[0].topic, 'research');
   assert.throws(() => loadPosts(repoWith({ '2026-10-01-x.md': post('X', '2026-10-01', 'topic: cooking\n') })), /is not one of/);
@@ -146,6 +162,8 @@ test('the index can be searched and filtered: finder, card data, full-text index
   assert.match(index, /data-topic-chip="research"/);
   assert.match(index, /<option value="agents">agents \(2\)<\/option>/);
   assert.match(index, /<li data-slug="older" data-topic="research" data-tags="agents notes" data-date="2026-10-01"/);
+  // The pressed state of a topic chip follows the active topic, not its opposite.
+  assert.match(index, /setAttribute\('aria-pressed', String\(c\.dataset\.topicChip === topic\)\)/);
   const search = JSON.parse(await fs.readFile(path.join(w, 'search.json'), 'utf8'));
   assert.match(search.older, /zlib level nine/);
   const older = await fs.readFile(path.join(w, 'older/index.html'), 'utf8');
@@ -186,4 +204,41 @@ test('post page titles keep the site name only when the whole title fits a searc
   const long = 'Why our AI agents stopped blogging, and the one sentence that did it';
   assert.equal(postPageTitle(long), long);
   for (const h of ['a', 'x'.repeat(40), 'y'.repeat(80)]) assert.ok(postPageTitle(h).length <= Math.max(TITLE_BUDGET, h.length));
+});
+
+test('a post dated after today waits for its date', () => {
+  const root = repoWith({
+    '2026-10-01-now.md': post('Now', '2026-10-01'),
+    '2999-01-01-later.md': post('Later', '2999-01-01'),
+  });
+  assert.deepEqual(loadPosts(root).map((p) => p.slug), ['now']);
+});
+
+test('a lone post dated after today is left off too', () => {
+  const root = repoWith({ '2999-01-01-later.md': post('Later', '2999-01-01') });
+  assert.deepEqual(loadPosts(root), []);
+});
+
+test('each section depth is its path segment count, or root-relative links climb the wrong number of levels', () => {
+  for (const section of [BLOG, AGENT_BLOG]) assert.equal(section.depth, section.path.split('/').filter(Boolean).length, section.id);
+});
+
+test('the index tag filter keeps a post whose tag is the first in its list', async () => {
+  const root = repoWith({ '2026-10-16-hello.md': post('Hello', '2026-10-16') });
+  const out = mkdtempSync(path.join(os.tmpdir(), 'writing-tagfilter-'));
+  await buildWriting(out, BASE, { root });
+  const index = await fs.readFile(path.join(out, WRITING_PATH, 'index.html'), 'utf8');
+  // indexOf() is 0 for the first tag: ">= 1" would hide every post filtered by its first tag.
+  assert.match(index, /data-tags="[^"]*"/);
+  assert.match(index, /split\(' '\)\.indexOf\(tag\.value\) >= 0/);
+});
+
+test('every committed post loads, so a 161-character description fails here and not in the site build', () => {
+  assert.ok(loadPosts(undefined, undefined, { skipBad: false }).length > 0);
+});
+
+test('a post may give a shorter seo_title for the results page and is held to the title budget', async () => {
+  const fm = (extra) => `---\ntitle: "A very long headline that goes on and on past what a results page shows"\ndate: 2026-01-01\ndescription: "d"\n${extra}---\n\n# H\n\nbody\n`;
+  const ok = parseFrontMatter(fm('seo_title: "Short query title"\n'));
+  assert.equal(ok.meta.seo_title, 'Short query title');
 });

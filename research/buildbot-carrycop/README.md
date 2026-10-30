@@ -35,6 +35,12 @@ python experiments/figure.py
 ## Results (`experiments/results.txt`)
 The table of fastest feasible step by payload and offset is in `results.txt`; the headline lists the cells that matter. Cases passing per offset (G1, of 180): 32, 34, 38, 36, 20, 0 for −6, −3, 0, 3, 6, 9 cm. H1 (of 144): 0, 6, 8, 6, 0, 0.
 
+## Follow-up: a CoP that travels heel to toe (`experiments/run_ramp.py`, `results_ramp.txt`)
+The "Next steps" asked for a time-varying CoP. This tests the simplest one: the planned CoP moves linearly from c0 to c1 over single support. For linear c(t), x = c(t) solves the pendulum equation exactly, so the orbit is closed-form (`lipm_x_ramp`, tested against the equation of motion). 8 ramps x 36 gaits x 5 payload cases (G1 0, 3, 4 kg; H1 0, 10 kg) = 1,440 cases, scored by `buildbot-carryphase` unchanged.
+- **Result: still one grid cell at most.** G1 at 4 kg gains 0.10 to 0.13 m/s with ramps -3>3, -6>6 and -6>3 cm (the same cell the constant -6 cm offset reached); G1 at 0 and 3 kg do not gain. H1 unloaded gains 0.15 to 0.20 m/s with -3>3 cm; H1 at 10 kg does not. Wider H1 ramps (-6>6 and others) pass nothing: its failures are inverse kinematics, as before.
+- Reverse ramps (3>-3, 6>-6) never beat the control; 6>-6 loses speed at 0 kg (0.25 to 0.19 m/s).
+- Torque remains the wall (waist pitch is the binding joint for the G1). A linear CoP plan is still only a plan: no trunk or arm motion, no controller, no falls scored, so this does not bound what a ZMP-preview or learned policy could do. Rerun: `python experiments/run_ramp.py` (about 30 minutes on 4 CPUs).
+
 ## Limitations
 - **A constant offset is a weak form of compensation.** A real controller shifts the CoP during the phase (heel to toe), swings the arms and leans the trunk; none of that is here, so this tests only one parameter. The negative result is about that parameter.
 - Everything in `buildbot-carryphase`'s limitations holds: prescribed gait, zero double support, no impact, point-mass load, torque limits are the model's peak values, grid resolution (0.10 to 0.13 m/s is one cell).

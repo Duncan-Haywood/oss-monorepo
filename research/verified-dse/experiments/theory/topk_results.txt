@@ -1,0 +1,50 @@
+pilot m = 16, 300 pilots x 20 tie-breaks per cell; A = max over 8 random disjoint pairs, B = best 3 pilot points vs all pilot points
+clock | design | start | coverage A | coverage B | median bound A | median bound B | realised regret (mean)
+tight | adder_op16 | r1 | 0.600 | 0.997 | 0.213 | 0.547 | 0.181
+tight | adder_op16 | r2 | 0.283 | 0.807 | 0.063 | 0.257 | 0.130
+tight | adder_ripple16 | r1 | 1.000 | 1.000 | 0.561 | 0.561 | 0.000
+tight | adder_ripple16 | r2 | 1.000 | 1.000 | 0.000 | 0.000 | 0.000
+tight | mult8 | r1 | 0.973 | 1.000 | 0.263 | 0.495 | 0.055
+tight | mult8 | r2 | 1.000 | 1.000 | 0.109 | 0.246 | 0.000
+tight | mac4 | r1 | 1.000 | 1.000 | 0.300 | 0.474 | 0.020
+tight | mac4 | r2 | 1.000 | 1.000 | 0.102 | 0.169 | 0.000
+tight | alu8 | r1 | 0.867 | 0.993 | 0.269 | 0.437 | 0.157
+tight | alu8 | r2 | 1.000 | 1.000 | 0.105 | 0.189 | 0.000
+tight | popcount16 | r1 | 0.987 | 1.000 | 0.218 | 0.414 | 0.089
+tight | popcount16 | r2 | 0.660 | 0.997 | 0.047 | 0.097 | 0.012
+tight | barrel16 | r1 | 0.876 | 0.997 | 0.222 | 0.393 | 0.112
+tight | barrel16 | r2 | 0.793 | 0.993 | 0.144 | 0.214 | 0.082
+tight | crc16 | r1 | 1.000 | 1.000 | 0.566 | 0.814 | 0.106
+tight | crc16 | r2 | 1.000 | 1.000 | 0.204 | 0.343 | 0.000
+tight | cmp_sat12 | r1 | 0.933 | 0.997 | 0.287 | 0.304 | 0.063
+tight | cmp_sat12 | r2 | 1.000 | 1.000 | 0.153 | 0.136 | 0.000
+tight | fifo8x4 | r1 | 0.970 | 1.000 | 0.339 | 0.522 | 0.158
+tight | fifo8x4 | r2 | 0.897 | 1.000 | 0.164 | 0.269 | 0.048
+relaxed | adder_op16 | r1 | 0.573 | 0.983 | 0.179 | 0.429 | 0.162
+relaxed | adder_op16 | r2 | 0.603 | 0.967 | 0.074 | 0.250 | 0.049
+relaxed | adder_ripple16 | r1 | 1.000 | 1.000 | 0.436 | 0.436 | 0.000
+relaxed | adder_ripple16 | r2 | 1.000 | 1.000 | 0.000 | 0.000 | 0.000
+relaxed | mult8 | r1 | 0.997 | 1.000 | 0.218 | 0.302 | 0.054
+relaxed | mult8 | r2 | 1.000 | 1.000 | 0.054 | 0.027 | 0.000
+relaxed | mac4 | r1 | 0.977 | 0.990 | 0.212 | 0.384 | 0.059
+relaxed | mac4 | r2 | 1.000 | 1.000 | 0.013 | 0.047 | 0.000
+relaxed | alu8 | r1 | 0.897 | 1.000 | 0.311 | 0.503 | 0.190
+relaxed | alu8 | r2 | 1.000 | 1.000 | 0.074 | 0.117 | 0.000
+relaxed | popcount16 | r1 | 0.893 | 1.000 | 0.180 | 0.265 | 0.115
+relaxed | popcount16 | r2 | 1.000 | 1.000 | 0.023 | 0.074 | 0.000
+relaxed | barrel16 | r1 | 0.939 | 1.000 | 0.394 | 0.626 | 0.158
+relaxed | barrel16 | r2 | 0.830 | 0.990 | 0.250 | 0.378 | 0.112
+relaxed | crc16 | r1 | 0.999 | 1.000 | 0.206 | 0.271 | 0.032
+relaxed | crc16 | r2 | 1.000 | 1.000 | 0.003 | 0.000 | 0.000
+relaxed | cmp_sat12 | r1 | 1.000 | 1.000 | 0.292 | 0.325 | 0.000
+relaxed | cmp_sat12 | r2 | 1.000 | 1.000 | 0.072 | 0.036 | 0.000
+relaxed | fifo8x4 | r1 | 1.000 | 1.000 | 0.339 | 0.426 | 0.014
+relaxed | fifo8x4 | r2 | 1.000 | 1.000 | 0.033 | 0.081 | 0.000
+
+A: coverage median 0.999, min 0.283; cells under 0.8: 6 of 40; pooled mean 0.914
+B: coverage median 1.000, min 0.807; cells under 0.8: 0 of 40; pooled mean 0.993
+B covers more than A in 22 cells, less in 0
+tight from r1: median bound A 0.278, B 0.485; B covers >= 0.8 on 10 of 10 (of those, bound under 0.1 on 0); A covers >= 0.8 on 9; realised regret above 0 in 9
+relaxed from r1: median bound A 0.255, B 0.405; B covers >= 0.8 on 10 of 10 (of those, bound under 0.1 on 0); A covers >= 0.8 on 9; realised regret above 0 in 8
+tight from r2: median bound A 0.107, B 0.202; B covers >= 0.8 on 10 of 10 (of those, bound under 0.1 on 2); A covers >= 0.8 on 7; realised regret above 0 in 4
+relaxed from r2: median bound A 0.044, B 0.060; B covers >= 0.8 on 10 of 10 (of those, bound under 0.1 on 7); A covers >= 0.8 on 9; realised regret above 0 in 2

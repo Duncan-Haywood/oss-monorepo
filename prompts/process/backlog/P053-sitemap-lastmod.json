@@ -1,0 +1,26 @@
+{
+  "id": "P053",
+  "title": "seo: put <lastmod> dates from git history into the hub and product sitemaps",
+  "status": "done",
+  "owner": "agent",
+  "effect": 2,
+  "cost": 2,
+  "problem": "None of the sitemaps carries <lastmod>, so a crawler gets 1,300+ URLs with no signal about which changed and recrawls them in its own order. Google uses lastmod when it is consistently accurate, and Bing weights it heavily.",
+  "evidence": [
+    "curl https://duncan-haywood.github.io/oss-monorepo/sitemap-hub.xml on 2026-10-24: 1,409 <loc>, 0 <lastmod>",
+    "curl https://duncan-haywood.github.io/oss-monorepo/1099-k-threshold-checker/sitemap.xml on 2026-10-24: 0 <lastmod>"
+  ],
+  "change": "When the pages build writes or copies each sitemap, add <lastmod> per URL from the last commit that touched that page's source (git log -1 --format=%cI -- <path>). The Pages workflow checkout is shallow, so fetch enough history or fall back to omitting lastmod rather than writing the build date (a lastmod that always says today teaches crawlers to ignore it). Add a test that lastmod is never newer than the source's commit. Shipped for the 1,300+ venture page URLs via platform/pages/lastmod.mjs (one git log pass; shallow-boundary dates dropped). Hub-level URLs (categories, compare, about) have no single source file and still carry no lastmod.",
+  "touches": [
+    "platform/ci/build_pages_site.py",
+    "platform/pages/build.mjs",
+    ".github/workflows/portfolio-pages.yml"
+  ],
+  "metric": "share of sitemap URLs with an accurate <lastmod>",
+  "baseline": "0% (2026-10-24)",
+  "opened": "2026-10-24",
+  "source": "Owner asked for SEO and AI-search action items in a Claude Code session, 2026-10-24",
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/10206",
+  "result": "helped (build tests only): lastmod tests pass; live sitemap lastmod share unreachable from cloud (proxy 403).",
+  "history": []
+}

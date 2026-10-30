@@ -1,0 +1,9 @@
+reps per cell 200; n=60, N=700, alpha=0.1; SureSim code (commit e9e6cb5); ratio = their uniform-PPI width / their real-only width
+[pendulum] k=1 all pairs (21 pairs): rho median 0.84; min coverage 95.5; uniform/real ratio median 2.023, min 1.828 (narrower on 0); their real-only / our real-only width median 1.179
+[pendulum] k=1 rho in [0.6,0.85] (10 pairs): rho median 0.78; min coverage 97.0; uniform/real ratio median 2.001, min 1.828 (narrower on 0); their real-only / our real-only width median 1.048
+[pendulum] k=5 all pairs (21 pairs): rho median 0.83; min coverage 99.0; uniform/real ratio median 2.178, min 2.150 (narrower on 0); their real-only / our real-only width median 1.560
+[pendulum] k=5 rho in [0.6,0.85] (10 pairs): rho median 0.77; min coverage 99.5; uniform/real ratio median 2.194, min 2.150 (narrower on 0); their real-only / our real-only width median 1.570
+[cartpole] k=1 all pairs (21 pairs): rho median 0.87; min coverage 98.0; uniform/real ratio median 2.021, min 1.862 (narrower on 0); their real-only / our real-only width median 1.548
+[cartpole] k=1 rho in [0.6,0.85] (6 pairs): rho median 0.81; min coverage 100.0; uniform/real ratio median 2.043, min 2.021 (narrower on 0); their real-only / our real-only width median 1.546
+[cartpole] k=5 all pairs (21 pairs): rho median 0.86; min coverage 99.5; uniform/real ratio median 2.045, min 2.039 (narrower on 0); their real-only / our real-only width median 1.562
+[cartpole] k=5 rho in [0.6,0.85] (7 pairs): rho median 0.79; min coverage 100.0; uniform/real ratio median 2.068, min 2.045 (narrower on 0); their real-only / our real-only width median 1.562

@@ -1,7 +1,7 @@
 ---
 title: "What a verification tolerance costs: the paper draft"
 date: 2026-10-24
-description: "A float-noise tolerance lets a training worker skip a third to two thirds of steps. On three tasks that costs saved work, not quality, up to 2-6x benign drift."
+description: "A float-noise tolerance lets a worker skip a third to two thirds of steps; on three tasks it costs saved work, not quality, until it reaches 2-6x benign drift."
 tags: [research, verifiable-training, mechanism-design]
 ---
 

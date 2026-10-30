@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import contextlib
+import io
 import json
 import random
 import tempfile
@@ -86,6 +88,15 @@ class RouteTest(PromptTestCase):
         tracks = {promptctl.route(self.fx.root, rng=random.Random(seed))["track"] for seed in range(50)}
         self.assertEqual(tracks, {"ventures", "research"})
 
+    def test_a_track_past_its_until_date_is_not_drawn(self):
+        self.fx.edit_routing("research", until="2026-11-30")
+        draw = lambda day: {promptctl.route(self.fx.root, rng=random.Random(seed),
+                                            today=promptctl.date.fromisoformat(day))["track"]
+                            for seed in range(50)}
+        self.assertEqual(draw("2026-11-30"), {"ventures", "research"})
+        self.assertEqual(draw("2026-12-01"), {"ventures"})
+        self.assertEqual(promptctl.route(self.fx.root, track="research")["track"], "research")
+
     def test_review_is_due_after_review_every_runs(self):
         for i in range(3):
             self.fx.run(f"2026-10-0{i + 1}-s{i}.json", _record(day=f"2026-10-0{i + 1}"))
@@ -131,6 +142,19 @@ class RouteTest(PromptTestCase):
         data["review_when_due"] = 0
         self.fx.routing(data)
         self.assertTrue(any("review_when_due" in e for e in promptctl.validate(self.fx.root)))
+
+    def test_task_text_picks_the_track_it_names(self):
+        for seed in range(20):
+            r = promptctl.route(self.fx.root, rng=random.Random(seed),
+                                task="develop, deploy and sell revenue generating software products")
+            self.assertEqual(r["track"], "ventures")
+        r = promptctl.route(self.fx.root, rng=random.Random(0), track="research", task="revenue")
+        self.assertEqual(r["track"], "research")  # an explicit --track wins over the text
+
+    def test_task_text_without_a_hint_leaves_the_draw(self):
+        a = promptctl.route(self.fx.root, rng=random.Random(3), task="tidy up")
+        b = promptctl.route(self.fx.root, rng=random.Random(3))
+        self.assertEqual(a["track"], b["track"])
 
     def test_skip_review_routes_to_work_when_a_review_is_claimed(self):
         for i in range(3):
@@ -216,6 +240,21 @@ class ValidateTest(PromptTestCase):
 
     def test_minimal_system_is_valid(self):
         self.assertEqual(promptctl.validate(self.fx.root), [])
+
+    def test_until_must_be_a_date(self):
+        self.fx.edit_routing("research", until="soon")
+        self.assertError("until must be a YYYY-MM-DD date")
+
+    def test_overlong_post_description_is_reported(self):
+        ci = self.fx.repo / "platform" / "ci"
+        ci.mkdir(parents=True)
+        real = Path(__file__).resolve().parents[1] / "platform" / "ci" / "check_post_frontmatter.py"
+        (ci / real.name).write_text(real.read_text())
+        posts = self.fx.repo / "docs" / "posts"
+        posts.mkdir(parents=True)
+        (posts / "2020-01-01-a.md").write_text(
+            f'---\ntitle: T\ndate: 2020-01-01\ndescription: "{"x" * 161}"\ntags: [a]\n---\n')
+        self.assertError("docs/posts/2020-01-01-a.md: description is 161")
 
     def test_master_prompt_must_route(self):
         (self.fx.repo / "prompt.md").write_text("do whatever\n")
@@ -320,6 +359,14 @@ class MeasureTest(PromptTestCase):
         self.assertNotIn("ancient", out.getvalue())
         self.assertIn("recent", out.getvalue())
 
+    def test_friction_listing_marks_files_that_no_longer_exist(self):
+        import contextlib, io
+        self.fx.run("2026-10-20-a.json", _record(day="2026-10-20", doc_friction=[{"file": "research/gone/deleted_file.py", "issue": "tests red"}]))
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            promptctl.print_measure(promptctl.measure(self.fx.root))
+        self.assertIn("deleted_file.py` (file no longer exists): 1 report(s), 0 live", out.getvalue())
+
     def test_friction_listing_truncates_long_reports(self):
         import contextlib, io
         long = "x" * 500
@@ -364,6 +411,14 @@ class RepositoryTest(unittest.TestCase):
         tracks = promptctl.load_routing(promptctl.ROOT)["tracks"]
         weights = {t: float(c["weight"]) for t, c in tracks.items() if t != promptctl.REVIEW}
         self.assertAlmostEqual(weights["creative"] / sum(weights.values()), 0.10, places=3)
+
+    def test_polish_gets_about_five_percent_for_a_period(self):
+        # The owner, 2026-10-28: "like 5% of work going to making the sites
+        # looking as impressive as possible. for some period of time", plus SEO and AEO.
+        tracks = promptctl.load_routing(promptctl.ROOT)["tracks"]
+        weights = {t: float(c["weight"]) for t, c in tracks.items() if t != promptctl.REVIEW}
+        self.assertAlmostEqual(weights["polish"] / sum(weights.values()), 0.05, places=3)
+        self.assertTrue(tracks["polish"].get("until"))
 
 
 
@@ -495,6 +550,16 @@ class BacklogTest(PromptTestCase):
         summary = promptctl.measure(self.fx.root)["backlog"]
         self.assertEqual(summary["counts"]["done"], 1)
         self.assertEqual(summary["done_unverified"], ["P004"])
+
+    def test_backlog_flags_blocked_items_and_points_to_critique(self):
+        self.put("P001-a.json", dict(_item("P001"), change="Blocked on P018 step 2. Then do x."))
+        self.assertTrue(promptctl.backlog_blocked(_item("P001", change="blocked on y")))
+        self.assertFalse(promptctl.backlog_blocked(_item("P002")))
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            promptctl.print_backlog(self.fx.root)
+        self.assertIn("(blocked)", buf.getvalue())
+        self.assertIn("Critique mode", buf.getvalue())
 
     def test_bad_items_are_refused(self):
         cases = [

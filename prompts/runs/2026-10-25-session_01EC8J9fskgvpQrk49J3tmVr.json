@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-25",
+  "session": "https://claude.ai/code/session_01EC8J9fskgvpQrk49J3tmVr",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-25T13:09:13Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 10402,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "ventures/ai-bookkeeper/README.md",
+      "why": "Did not run venture-preflight: change is keyword rules and tests only, no page or site input changed."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-25-bookkeeper-descriptor-probe.md"
+  ],
+  "goal": null,
+  "notes": "ai-bookkeeper flagship: HCB host blocked (proxy 403, DNS fail from node), so wrote a 114-descriptor agent-written probe: 84% to 97% suggested, tuned on itself. Full ai-bookkeeper suite 1187 pass. No separate agent doc: README Verification carries the numbers.",
+  "corrections": [],
+  "redteam": null
+}

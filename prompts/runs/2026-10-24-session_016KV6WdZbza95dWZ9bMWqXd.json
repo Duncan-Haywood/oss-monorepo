@@ -1,0 +1,63 @@
+{
+  "date": "2026-10-24",
+  "session": "https://claude.ai/code/session_016KV6WdZbza95dWZ9bMWqXd",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "let's get a better audio rendering system both in efficnency and quality",
+  "input_sha256": "3bec4725b4509f33582731b0d5a34d562acae492926fd4fd1d2a2b7f63e3f35a",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-24T18:14:11Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Owner request: a better audio rendering system, in efficiency and quality.",
+  "projects": [
+    "platform/audio",
+    "platform/pages",
+    "hearth-and-horizon",
+    "saints-by-candlelight"
+  ],
+  "pr": 10207,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 13,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "The audio-size section reads as a bytes problem the renderer could solve; measured, bitrate cannot save bytes without losing 0.2 to 0.4 PESQ, so the real options are Opus for the page player or moving enclosures off Pages."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Audio folders were at 405 MB (over the 400 MB line), yet one podcast MP3 was re-voiced: it replaced an existing file whose audio was stale (Piper voice, edited script), so --check failed on main; net +94 KB.",
+      "did": "re-voiced docs/podcast/audio/2026-10-24-does-nailer-recoil-slow-a-robot.mp3",
+      "result": "podcast_tts.py --check exits 0"
+    },
+    {
+      "file": "prompts/runs (record)",
+      "why": "model left null: session instructions forbid model identifiers in pushed artifacts."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-24-text-to-speech-pipeline-sentence-cache-loudness.md",
+    "docs/reports/2026-10-24-audio-engine.md"
+  ],
+  "goal": null,
+  "notes": "Shared engine platform/audio/narrate.py replaces three copies of the TTS loop. Measured on 4 cores, CPU only: cold RTF 0.291 -> 0.251; unchanged re-render 37 s -> 0.03 s; one edited sentence 3 s; loudness gain wobble about halved (0.72 -> 0.37 dB SD podcast); MP3 at 32 kHz: podcast PESQ 3.88 -> 4.19 at the same bytes. fp16/int8 models rejected. misaki G2P optional (install without [en]: torch, 6 GB). Checks run here: platform/audio unittest 13 pass; podcast.test.mjs 9/9 (after fixing an over-long description already failing on main); writing*.test.mjs 17/17; hearth node --test 10/10; run_venture_tests hearth+saints 2 suites 0 failed; checklist_coverage OK. No listening test yet: samples sent to the owner in the session.",
+  "corrections": [],
+  "redteam": null
+}

@@ -1,0 +1,9 @@
+{"arm": "q", "levels": 1, "seed": 0, "loss": 1.5830558314919472, "secs": 1036}
+{"arm": "q", "levels": 7, "seed": 1, "loss": 1.5731059312820435, "secs": 1045}
+{"arm": "q_ef", "levels": 1, "seed": 0, "loss": 2.419825926423073, "secs": 1056}
+{"arm": "q", "levels": 7, "seed": 0, "loss": 1.5630188509821892, "secs": 1064}
+{"arm": "q", "levels": 1, "seed": 1, "loss": 1.605941005051136, "secs": 980}
+{"arm": "q_ef", "levels": 1, "seed": 1, "loss": 2.49001781642437, "secs": 979}
+{"arm": "q", "levels": 7, "seed": 2, "loss": 1.5756529495120049, "secs": 972}
+{"arm": "q", "levels": 1, "seed": 2, "loss": 1.5957902744412422, "secs": 997}
+{"arm": "q_ef", "levels": 1, "seed": 2, "loss": 2.4618182629346848, "secs": 954}

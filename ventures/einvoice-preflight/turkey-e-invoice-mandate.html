@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e551b'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EE%3C/text%3E%3C/svg%3E"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Turkey e-Fatura and e-Arşiv: who must issue, and what this checker does not cover | E-invoice Preflight</title>
+<meta name="description" content="Turkey requires e-Fatura for taxpayers above turnover thresholds and e-Arşiv for everyone else's invoices, through GİB-approved integrators in UBL-TR. What vendor guides report, where sources disagree, and what a free EN 16931 checker can and cannot tell you.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/turkey-e-invoice-mandate.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Turkey e-Fatura and e-Arşiv: who must issue, and what this checker does not cover | E-invoice Preflight">
+<meta property="og:description" content="Turkey requires e-Fatura for taxpayers above turnover thresholds and e-Arşiv for everyone else's invoices, through GİB-approved integrators in UBL-TR. What vendor guides report, where sources disagree, and what a free EN 16931 checker can and cannot tell you.">
+<meta property="og:url" content="https://example.invalid/einvoice-preflight/turkey-e-invoice-mandate.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Who must issue e-Fatura in Turkey?","acceptedAnswer":{"@type":"Answer","text":"Per 2025 to 2026 vendor and advisory guides: businesses with gross sales of TRY 3 million or more, TRY 500,000 or more in listed sectors such as e-commerce, real estate, construction and motor vehicles, and certain categories regardless of turnover (online marketplaces, fuel licensees, licensed hotels). A business that meets the test in one year reportedly moves onto e-Fatura from the start of the seventh month of the next year. These are not the communiqués or the Revenue Administration (GİB), so confirm there. This is a summary, not advice."}},{"@type":"Question","name":"What do businesses outside e-Fatura issue?","acceptedAnswer":{"@type":"Answer","text":"Reportedly e-Arşiv invoices. Guides say the TRY 3,000 per-invoice threshold below which paper was allowed was removed on 1 January 2026, so e-Arşiv applies to every invoice a non-e-Fatura business issues. One source gives a later 2027 date for simplified-method taxpayers; it appears in a single vendor page and is unconfirmed."}},{"@type":"Question","name":"Is a Turkish e-Fatura an EN 16931 invoice?","acceptedAnswer":{"@type":"Answer","text":"No. Turkish e-Fatura uses the UBL-TR schema, sent through GİB or a GİB-licensed private integrator, and is not EN 16931 or Peppol. This checker has no UBL-TR rules, so it cannot validate an e-Fatura, and a clean result here says nothing about GİB acceptance."}},{"@type":"Question","name":"What is the checker useful for in a Turkish context?","acceptedAnswer":{"@type":"Answer","text":"Sending an invoice to a European buyer. An EU customer of a Turkish supplier typically wants a Peppol BIS or EN 16931 UBL or CII file, which the checker tests for totals, tax breakdown arithmetic, identifiers, and VAT, IBAN and BIC typos, each with a rule ID and a fix. It is an offline observation, not an access point's acceptance and not legal advice."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch}.lede{font-size:1.05rem;max-width:64ch;color:#3d4f5f}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #15202b10;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #d3dbe4;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#3d4f5f}.fine,.note{font-size:.88rem;color:#3d4f5f}footer{color:#3d4f5f;font-size:.86rem}footer p{margin:.6rem 0}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; E-invoice Preflight</a></p>
+<header>
+<h1>Turkey's e-Fatura and e-Arşiv: a national format, not EN 16931</h1>
+<p class="lede">Turkish taxpayers issue invoices electronically through GİB or a licensed integrator: e-Fatura above turnover thresholds, e-Arşiv for the rest. The format is UBL-TR, not EN 16931 or Peppol. Below: what vendor guides report, where they disagree, and what this checker can and cannot tell you.</p>
+</header>
+<section>
+<h2>The rules (as vendor guides report them)</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Who</th><th scope="col">What is required</th></tr></thead>
+<tbody>
+<tr><td>Gross sales of TRY 3 million or more</td><td><strong>e-Fatura</strong> for B2B and B2G invoices, from the start of the seventh month after the year that met the test (2025 sales, so 1 Jul 2026).</td></tr>
+<tr><td>TRY 500,000 or more, in listed sectors</td><td>e-Fatura. Guides list e-commerce, real estate, construction and motor vehicles.</td></tr>
+<tr><td>Marketplaces, fuel licensees, licensed hotels and similar</td><td>e-Fatura regardless of turnover, per guides.</td></tr>
+<tr><td>Everyone else</td><td><strong>e-Arşiv</strong> for every invoice. The TRY 3,000 per-invoice threshold was reportedly removed on 1 Jan 2026.</td></tr>
+</tbody>
+</table>
+</div>
+<p class="fine">Where sources disagree or are thin: a 2027 date for simplified-method taxpayers appears in one vendor page only; one Turkish article cites a newer communiqué (No. 535) whose content could not be checked. The legal basis cited is General Communiqué 509 under article 242 bis of the Tax Procedure Law. These are vendor and advisory pages, not the communiqués or GİB. No penalty is stated because none was verified. Confirm against the law. A summary, not tax advice.</p>
+</section>
+<section>
+<h2>Which file counts, and how it travels</h2>
+<p>An e-Fatura is a <strong>UBL-TR</strong> XML invoice, signed and delivered through GİB's portal or a GİB-approved private integrator, which also handles the receiver's mailbox. It is not EN 16931 and not sent over Peppol. A plain PDF is not an e-Fatura.</p>
+</section>
+<section>
+<h2>What this checker does and does not cover</h2>
+<p>It has <strong>no</strong> UBL-TR or GİB rules. It cannot validate an e-Fatura or e-Arşiv, and a clean result says nothing about GİB acceptance. It applies EN 16931 and the Peppol BIS 3.0 rules it knows, which matters when a Turkish supplier invoices a customer in the EU.</p>
+</section>
+<section>
+<h2>Test a file before you send it</h2>
+<p>For an EU customer, open the <a href="./">checker</a>, drop your UBL or CII XML, and tick <em>Also apply the Peppol BIS Billing 3.0 rules</em>. It flags arithmetic that does not add up, a missing tax reason on a 0% or exempt line, malformed electronic addresses, and VAT, IBAN and BIC typos, each with a rule ID and a fix (<a href="what-does-this-e-invoice-error-code-mean.html">the rule reference</a>). No account, nothing uploaded.</p>
+<p>No invoice yet? The <a href="create.html">e-invoice creator</a> turns a form into UBL or CII XML and checks it. Other countries: <a href="e-invoicing-mandates-by-country.html">all side by side</a>, <a href="germany-e-invoice-mandate.html">Germany</a>, <a href="france-e-invoice-mandate.html">France</a>, <a href="belgium-e-invoice-mandate.html">Belgium</a>, <a href="poland-ksef-e-invoice-mandate.html">Poland</a>, <a href="croatia-e-invoice-mandate.html">Croatia</a>, <a href="spain-verifactu-e-invoice-mandate.html">Spain</a>, <a href="italy-sdi-e-invoice-mandate.html">Italy</a>, <a href="netherlands-e-invoice-mandate.html">the Netherlands</a>, <a href="romania-e-factura-e-invoice-mandate.html">Romania</a>, <a href="greece-mydata-e-invoice-mandate.html">Greece</a>, <a href="bulgaria-e-invoice-mandate.html">Bulgaria</a>, <a href="portugal-e-invoice-mandate.html">Portugal</a>, <a href="uk-e-invoice-mandate.html">the UK</a>, <a href="uae-e-invoice-mandate.html">the UAE</a>, <a href="india-gst-e-invoice-mandate.html">India</a>, <a href="saudi-arabia-zatca-e-invoice-mandate.html">Saudi Arabia</a>, <a href="malaysia-myinvois-e-invoice-mandate.html">Malaysia</a>, <a href="hungary-e-invoice-mandate.html">Hungary</a>, <a href="denmark-e-invoice-mandate.html">Denmark</a>, <a href="estonia-e-invoice-mandate.html">Estonia</a>, <a href="slovakia-e-invoice-mandate.html">Slovakia</a>, <a href="lithuania-e-invoice-mandate.html">Lithuania</a>, <a href="luxembourg-e-invoice-mandate.html">Luxembourg</a>, <a href="slovenia-e-invoice-mandate.html">Slovenia</a>, <a href="norway-e-invoice-mandate.html">Norway</a>, <a href="latvia-e-invoice-mandate.html">Latvia</a>, <a href="serbia-e-invoice-mandate.html">Serbia</a>, <a href="czech-republic-e-invoice-mandate.html">Czech Republic</a>, <a href="slovakia-e-invoice-mandate.html">Slovakia</a>, <a href="latvia-e-invoice-mandate.html">Latvia</a>, or the <a href="../eu-einvoicing-mandate-checker/">EU e-invoicing mandate checker</a>.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Who must issue e-Fatura in Turkey?</h3>
+<p>Per 2025 to 2026 vendor and advisory guides: businesses with gross sales of TRY 3 million or more, TRY 500,000 or more in listed sectors such as e-commerce, real estate, construction and motor vehicles, and certain categories regardless of turnover (online marketplaces, fuel licensees, licensed hotels). A business that meets the test in one year reportedly moves onto e-Fatura from the start of the seventh month of the next year. These are not the communiqués or the Revenue Administration (GİB), so confirm there. This is a summary, not advice.</p>
+<h3>What do businesses outside e-Fatura issue?</h3>
+<p>Reportedly e-Arşiv invoices. Guides say the TRY 3,000 per-invoice threshold below which paper was allowed was removed on 1 January 2026, so e-Arşiv applies to every invoice a non-e-Fatura business issues. One source gives a later 2027 date for simplified-method taxpayers; it appears in a single vendor page and is unconfirmed.</p>
+<h3>Is a Turkish e-Fatura an EN 16931 invoice?</h3>
+<p>No. Turkish e-Fatura uses the UBL-TR schema, sent through GİB or a GİB-licensed private integrator, and is not EN 16931 or Peppol. This checker has no UBL-TR rules, so it cannot validate an e-Fatura, and a clean result here says nothing about GİB acceptance.</p>
+<h3>What is the checker useful for in a Turkish context?</h3>
+<p>Sending an invoice to a European buyer. An EU customer of a Turkish supplier typically wants a Peppol BIS or EN 16931 UBL or CII file, which the checker tests for totals, tax breakdown arithmetic, identifiers, and VAT, IBAN and BIC typos, each with a rule ID and a fix. It is an offline observation, not an access point's acceptance and not legal advice.</p>
+<p class="note">Open the <a href="./">E-invoice Preflight</a> checker to validate your own invoice file.</p>
+</section>
+<section>
+<h2>More countries</h2>
+<p><a href="australia-e-invoice-mandate.html">Australia</a> <a href="austria-e-invoice-mandate.html">Austria</a> <a href="brazil-nfe-e-invoice-mandate.html">Brazil</a> <a href="cyprus-e-invoice-mandate.html">Cyprus</a> <a href="finland-e-invoice-mandate.html">Finland</a> <a href="ireland-e-invoice-mandate.html">Ireland</a> <a href="japan-invoice-system-e-invoice-mandate.html">Japan</a> <a href="malta-e-invoice-mandate.html">Malta</a> <a href="mexico-cfdi-e-invoice-mandate.html">Mexico</a> <a href="colombia-dian-e-invoice-mandate.html">Colombia</a> <a href="chile-sii-e-invoice-mandate.html">Chile</a> <a href="peru-sunat-e-invoice-mandate.html">Peru</a> <a href="argentina-arca-e-invoice-mandate.html">Argentina</a> <a href="singapore-invoicenow-e-invoice-mandate.html">Singapore Invoicenow</a> <a href="sweden-e-invoice-mandate.html">Sweden</a> <a href="switzerland-e-invoice-mandate.html">Switzerland</a> <a href="uruguay-dgi-e-invoice-mandate.html">Uruguay</a> <a href="paraguay-dnit-e-invoice-mandate.html">Paraguay</a> <a href="ecuador-sri-e-invoice-mandate.html">Ecuador</a> <a href="vietnam-e-invoice-mandate.html">Vietnam</a></p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or accounting advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every check runs locally. This page is static and summarises the Turkish position as vendor and advisory guides report it, not from the Revenue Administration's communiqués; things can change, so check the Revenue Administration (GİB) and the law before relying on it.</p>
+<p class="support">Free and open source. If it caught a defect before a rejection, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+</footer>
+</main>
+</body></html>

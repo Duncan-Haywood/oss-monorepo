@@ -1,0 +1,8 @@
+mean, trend | raw | steps: none | no slope change
+mean, trend | log | steps: 1963Q4[1962Q4..1965Q4] 1982Q2[1980Q2..1983Q3] | no slope change
+mean, trend bend | raw | steps: none | slope 1.69 -> 7.79 at 1969Q4 [1966Q1..1971Q4]
+mean, trend bend | log | steps: 1963Q4[1962Q4..1965Q4] 1982Q2[1980Q2..1983Q3] | no slope change
+mean, drift, trend bend | raw | steps: 1970Q2[1970Q2..1970Q2] 1970Q4[1970Q4..1970Q4] 1971Q2[1971Q2..1972Q3] 1974Q3[1973Q3..1976Q4] 1979Q1[1979Q1..1979Q1] 1979Q3[1979Q3..1979Q3] 1985Q4[1985Q1..1985Q4] | slope 1.57 -> 6.43 at 1970Q1 [1967Q3..1971Q4]
+mean, drift, trend bend | log | steps: 1969Q4[1969Q3..1969Q4] 1970Q2[1970Q2..1970Q2] 1970Q4[1970Q4..1970Q4] 1971Q3[1971Q2..1971Q3] 1972Q4[1972Q3..1974Q1] 1982Q2[1981Q1..1982Q3] | slope 0.00688 -> 0.0182 at 1965Q3 [1964Q3..1966Q4]
+meanvar, trend bend | raw | steps: 1979Q1[1977Q2..1979Q1] | slope 1.69 -> 7.79 at 1969Q4 [1966Q1..1971Q4]
+meanvar, trend bend | log | steps: 1963Q4[1962Q3..1966Q4] 1971Q1[1971Q1..1972Q3] 1979Q3[1978Q2..1981Q3] | no slope change

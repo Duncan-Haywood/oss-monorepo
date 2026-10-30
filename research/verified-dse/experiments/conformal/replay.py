@@ -1,5 +1,5 @@
 """Conformal shortlists over the cheap rungs, replayed on the cached rung_bias table (milestone 4, H4).
-Runs no flow. Writes results.txt and summary.json. Usage: python3 replay.py"""
+Runs no flow. Writes results.txt and summary.json. Usage: python3 replay.py [table.jsonl prefix]   (default: rung_bias table, results here)"""
 import json
 import math
 import random
@@ -17,7 +17,10 @@ ALPHAS = (0.1, 0.2)
 EPS = (0.0, 0.02)
 RUNGS = ("r1", "r2")
 PILOTS = (10, 16)
-rows = [json.loads(l) for l in (HERE.parent / "rung_bias" / "results.jsonl").read_text().splitlines()]
+TABLE = Path(sys.argv[1]) if len(sys.argv) > 1 else HERE.parent / "rung_bias" / "results.jsonl"
+PREFIX = sys.argv[2] if len(sys.argv) > 2 else ""   # e.g. "../large/conformal_" -> large/conformal_results.txt
+OUT = HERE
+rows = [json.loads(l) for l in TABLE.read_text().splitlines()]
 groups = defaultdict(list)
 for r in rows:
     if r["status"] == "ok":
@@ -118,6 +121,6 @@ for g in RUNGS:
                 lo, hi = boot(c)
                 out.append(f"{g} | {m} | {al} | {e} | {1 - al:.2f} | {statistics.mean(c):.3f} [{lo:.3f}, {hi:.3f}] | {statistics.mean(k):.2f} | {statistics.mean(rc):.3f}")
                 summ["B"].append(dict(rung=g, m=m, alpha=al, eps=e, cov=statistics.mean(c), lo=lo, hi=hi, cost=statistics.mean(k), random=statistics.mean(rc)))
-(HERE / "results.txt").write_text("\n".join(out) + "\n")
-(HERE / "summary.json").write_text(json.dumps(summ, indent=1))
+(OUT / f"{PREFIX}results.txt").write_text("\n".join(out) + "\n")
+(OUT / f"{PREFIX}summary.json").write_text(json.dumps(summ, indent=1))
 print("\n".join(out))

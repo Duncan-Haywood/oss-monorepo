@@ -1,0 +1,53 @@
+{
+  "date": "2026-10-28",
+  "session": "https://claude.ai/code/session_01E5sJKihVBBBiCsfBNfMoMU",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-28T18:16:57Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 11182,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "failed",
+  "errors": [
+    "main failed to build: post description 177 chars > 160 limit"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "Build takes over 120s and has no note to run it in the background; the first run timed out."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "Run was cut short after finding the broken build; no visual pass, post or report",
+      "did": "fixed the build break only",
+      "result": "fix was redundant; main already had it"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Found main's build break (post description over 160) but another run fixed it on main first; my fix was dropped in the merge. No polish work shipped. Lesson: fetch origin/main before diagnosing a build break.",
+  "corrections": [],
+  "redteam": null
+}

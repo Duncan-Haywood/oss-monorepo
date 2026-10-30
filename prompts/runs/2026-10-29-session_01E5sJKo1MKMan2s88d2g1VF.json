@@ -1,0 +1,47 @@
+{
+  "date": "2026-10-29",
+  "session": "https://claude.ai/code/session_01E5sJKo1MKMan2s88d2g1VF",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "scheduled: read prompt.md and follow",
+  "input_sha256": "719c8d7b4c198edd9b8075363658ea70ede808ca0dc1d6ca4ebf5e22e8bddb1c",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-29T23:40:35Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/11505",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "cloud sessions block 'sleep'; waiting on a backgrounded pyenv install needed Monitor/until loops, not mentioned in the research flow"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-10-29-how-noisy-can-a-flight-test-be-for-an-adjustable-tail.md",
+    "research/aerolog-scaling/LOG.md 9h"
+  ],
+  "goal": null,
+  "notes": "cite_check DOI failure was a proxy 403, not a bad reference. Build ok, md links ok.",
+  "corrections": [],
+  "redteam": null
+}

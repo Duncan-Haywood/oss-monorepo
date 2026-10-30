@@ -1,0 +1,25 @@
+airline passengers (season grows with level)
+  raw raw steps  8  warning yes
+  raw ar1 steps  9  warning yes
+  log raw steps 10  warning yes
+  log ar1 steps  8  warning yes
+UK gas (season grows with level)
+  raw raw steps  7  warning yes
+  raw ar1 steps  1  warning no 
+  log raw steps  6  warning yes
+  log ar1 steps  1  warning no 
+Johnson & Johnson EPS (season grows with level)
+  raw raw steps  5  warning no 
+  raw ar1 steps  5  warning no 
+  log raw steps  3  warning no 
+  log ar1 steps  3  warning no 
+UK driver deaths (fixed season; 1973 shock)
+  raw raw steps  4  warning yes
+  raw ar1 steps  3  warning no 
+  log raw steps  4  warning yes
+  log ar1 steps  4  warning yes
+Nottingham temperatures (fixed season, no change)
+  raw raw steps  3  warning no 
+  raw ar1 steps  0  warning no 
+  log raw steps  2  warning no 
+  log ar1 steps  2  warning no 

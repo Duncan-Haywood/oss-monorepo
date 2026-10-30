@@ -14,14 +14,15 @@ const ALIASES = {
   marketing_status: ["marketing_contact_status", "person_-_marketing_status", "marketing_status", "email_status"],
   first_name: ["first_name", "firstname", "person_-_first_name", "given_name"],
   last_name: ["last_name", "lastname", "person_-_last_name", "surname", "family_name"],
-  company: ["company", "company_name", "organization", "organization_-_name", "account", "account_name", "person_-_organization"],
+  company: ["company", "company_name", "organization", "organization_-_name", "account", "account_name", "person_-_organization", "associated_company", "primary_associated_company"],
   title: ["title", "job_title", "jobtitle", "person_-_job_title", "position", "role"],
   industry: ["industry", "organization_-_industry", "sector", "vertical"],
   employees: ["employees", "number_of_employees", "numberofemployees", "company_size", "organization_-_employee_count", "headcount", "annual_employees"],
-  country: ["country", "country/region", "country_region", "organization_-_country", "person_-_country"],
-  lifecycle: ["lifecycle_stage", "lifecyclestage", "stage", "status", "lead_status", "person_-_label"],
+  country: ["country", "country/region", "country_region", "organization_-_country", "person_-_country", "mailing_country", "billing_country", "country_name"],
+  lifecycle: ["lifecycle_stage", "lifecyclestage", "stage", "status", "person_-_label"],
+  lead_status: ["lead_status", "hs_lead_status"],
   last_contacted: ["last_contacted", "last_activity_date", "last_activity", "last_contact_date", "last_engagement_date", "person_-_last_activity_date"],
-  do_not_contact: ["do_not_contact", "donotcall", "do_not_email", "unsubscribed", "unsubscribed_from_all_emails", "email_opt_out", "opted_out", "hs_email_optout", "person_-_unsubscribed"],
+  do_not_contact: ["do_not_contact", "donotcall", "do_not_email", "unsubscribed", "unsubscribed_from_all_emails", "unsubscribed_from_all_email", "unsubscribed_from_all_email_addresses", "email_opt_out", "opted_out", "hs_email_optout", "person_-_unsubscribed", "has_opted_out_of_email", "email_opt_out_"],
   fit_score: ["fit_score", "icp_score", "score", "icp_lens_score"],
   website: ["website", "website_url", "domain", "company_domain_name", "organization_-_website"],
 };
@@ -31,13 +32,15 @@ const FREE_MAIL = /@(gmail|yahoo|hotmail|outlook|icloud|aol|proton(mail)?|live)\
 const CONSENT_REGIONS = { CA: "Canada (CASL: most commercial email needs consent)", DE: "Germany (UWG: cold email needs prior consent)", AT: "Austria (TKG: cold email needs prior consent)" };
 const COUNTRY = { "united states": "US", usa: "US", "united kingdom": "GB", uk: "GB", canada: "CA", germany: "DE", deutschland: "DE", austria: "AT", australia: "AU", ireland: "IE", france: "FR", netherlands: "NL", spain: "ES", italy: "IT" };
 const SENIOR = /\b(owner|founder|co-?founder|ceo|cto|coo|cfo|president|principal|partner|managing director|general manager|head of|vp|vice president|director|chief)\b/i;
+// Mautic (and some Salesforce exports) put the salutation in "title" and the job in "position"; a salutation is not a job title.
+const SALUTATION = /^(mr|mrs|ms|miss|mx|dr|prof|sir|madam|mme|mlle|herr|frau|sr|sra)\.?$/i;
 const truthy = (v) => /^(1|y|yes|true|x|unsubscribed|opted[- ]?out)$/i.test(String(v || "").trim());
 const list = (v) => (Array.isArray(v) ? v : String(v || "").split(/[,;|]/)).map((s) => s.trim().toLowerCase()).filter(Boolean);
 
 export function normalizeRow(raw) {
   const out = {};
   for (const [field, names] of Object.entries(ALIASES)) {
-    for (const n of names) if (raw[n] !== undefined && String(raw[n]).trim() !== "") { out[field] = String(raw[n]).trim(); break; }
+    for (const n of names) if (raw[n] !== undefined && String(raw[n]).trim() !== "" && !(field === "title" && SALUTATION.test(String(raw[n]).trim()))) { out[field] = String(raw[n]).trim(); break; }
   }
   // Pipedrive and some HubSpot exports put several addresses in one cell; the first is the primary one.
   const e = (out.email || "").split(/[,;\s]+/)[0].toLowerCase();
@@ -46,6 +49,7 @@ export function normalizeRow(raw) {
     out.first_name = parts[0];
     out.last_name = parts.slice(1).join(" ");
   }
+  if (!out.lifecycle && out.lead_status) out.lifecycle = out.lead_status;
   out.email = e;
   const c = (out.country || "").trim();
   out.country = COUNTRY[c.toLowerCase()] || (c.length === 2 ? c.toUpperCase() : c);
@@ -112,6 +116,7 @@ export function runResearch(input) {
     if (truthy(r.do_not_contact)) return drop("opted out or marked do-not-contact in the export");
     const ex = existing.get(r.email);
     if (ex && ["unsubscribed", "closed_lost", "bounced", "left", "replied"].includes((ex.status || "").toLowerCase())) return drop(`the inbox agent has them as ${ex.status}`);
+    if (/^(unqualified|disqualified|do not contact)$/i.test(r.lead_status || "")) return drop(`lead status "${r.lead_status}": not a cold prospect`);
     if (/customer|client|won|evangelist|opportunity|disqualified|unqualified|churn/i.test(r.lifecycle || "")) return drop(`lifecycle "${r.lifecycle}": not a cold prospect`);
     if (seen.has(r.email)) return drop("duplicate of an earlier row");
     seen.add(r.email);

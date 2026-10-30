@@ -1,5 +1,5 @@
 // Two things a search engine reads first and a copy-paste build can get wrong:
-// every page needs its own <title>, and a page needs exactly one <h1> in its
+// every page needs its own, reasonably short <title>, and a page needs exactly one <h1> in its
 // markup. Scripts and templates are stripped before counting, because a tool
 // that builds an <h1> inside a template string is not a second heading.
 //   used by check.mjs; node platform/pages/page-identity.mjs <dist> to run alone
@@ -9,6 +9,11 @@ import { fileURLToPath } from 'node:url';
 
 // Pages that are not search landing pages (error and offline shells).
 const SKIP = new Set(['404.html', 'offline.html']);
+
+// A results page shows about 60 characters of a title and a search engine
+// weighs roughly the first dozen words. Research projects were titled with a
+// whole question, up to 246 characters; the ceiling stops that coming back.
+export const MAX_TITLE_LENGTH = 130;
 
 export function stripNonMarkup(html) {
   return html
@@ -34,7 +39,11 @@ export function checkPageIdentity(pages) {
     if (SKIP.has(rel)) continue;
     const title = titleOf(html);
     if (!title) problems.push(`${rel}: has no <title>`);
-    else byTitle.set(title, [...(byTitle.get(title) ?? []), rel]);
+    else {
+      byTitle.set(title, [...(byTitle.get(title) ?? []), rel]);
+      const shown = title.replace(/&(#\d+|#x[0-9a-f]+|[a-z]+);/gi, '.');
+      if (shown.length > MAX_TITLE_LENGTH) problems.push(`${rel}: <title> is ${shown.length} characters, over ${MAX_TITLE_LENGTH}; clip it for the results page`);
+    }
     const n = h1Count(html);
     if (n !== 1) problems.push(`${rel}: has ${n} <h1> elements, expected exactly 1`);
   }

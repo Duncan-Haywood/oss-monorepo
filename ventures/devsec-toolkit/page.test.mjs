@@ -52,7 +52,7 @@ test("the JSON-LD FAQ matches the visible questions and answers", () => {
 
 test("every relative link resolves to a file the venture ships or a sibling venture page", () => {
   for (const [, href] of index.matchAll(/href="([^"#]+)"/g)) {
-    if (/^https?:/.test(href)) continue;
+    if (/^(https?|data):/.test(href)) continue;
     const url = new URL(href.endsWith("/") ? `${href}index.html` : href, import.meta.url);
     assert.ok(existsSync(url), `broken link: ${href}`);
   }

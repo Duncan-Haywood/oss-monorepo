@@ -671,6 +671,141 @@ function ejectPass(ctx, owner0, seed, iterations) {
   return bestOwner;
 }
 
+// Coverage plateau search. Pay only breaks ties in the passes above, so a roster one hour short of the proven floor can sit in a
+// region where no single chain frees the hour without first undoing a cheap assignment. Here only open hours count: shifts move
+// between people freely when that costs no coverage (a walk across the plateau), open shifts are pulled in by ejection chains, and
+// a worse step is taken at a falling temperature. The result is then polished for pay with moves that never lose coverage.
+function coverPass(ctx, owner0, seed, iterations) {
+  const { P, S, slots, elig } = ctx;
+  const rng = mulberry32(seed);
+  const owner = owner0.slice();
+  const lists = Array.from({ length: P }, () => []);
+  owner.forEach((p, i) => { if (p >= 0) lists[p] = insertSorted(ctx, lists[p], i); });
+  const hrs = (i) => (slots[i].end - slots[i].start) / 60;
+  const removeFrom = (list, i) => list.filter((x) => x !== i);
+  let open = owner.reduce((t, p, i) => t + (p < 0 ? hrs(i) : 0), 0);
+  let bestOpen = open, bestOwner = owner.slice();
+  for (let it = 0; it < iterations && bestOpen > 0; it++) {
+    const T = 0.6 * (0.05 / 0.6) ** (it / iterations);
+    if (rng() < 0.5) {
+      const openIdx = [];
+      owner.forEach((p, i) => { if (p < 0) openIdx.push(i); });
+      if (!openIdx.length) break;
+      const i = openIdx[Math.floor(rng() * openIdx.length)];
+      const q = Math.floor(rng() * P);
+      if (!elig[q][i]) continue;
+      let nq = insertSorted(ctx, lists[q], i);
+      let j = -1, nr = null, r = -1;
+      if (!validList(ctx, q, nq)) {
+        if (!lists[q].length) continue;
+        j = lists[q][Math.floor(rng() * lists[q].length)];
+        nq = insertSorted(ctx, removeFrom(lists[q], j), i);
+        if (!validList(ctx, q, nq)) continue;
+        r = Math.floor(rng() * P);
+        if (r !== q && elig[r][j]) { nr = insertSorted(ctx, lists[r], j); if (!validList(ctx, r, nr)) nr = null; }
+      }
+      const d = -hrs(i) + (j >= 0 && !nr ? hrs(j) : 0);
+      if (d <= 0 || rng() < Math.exp(-d / T)) {
+        lists[q] = nq; owner[i] = q;
+        if (j >= 0) { if (nr) { lists[r] = nr; owner[j] = r; } else owner[j] = -1; }
+        open += d;
+      }
+    } else {
+      const i = Math.floor(rng() * S), o = owner[i];
+      if (o < 0) continue;
+      const q = Math.floor(rng() * P);
+      if (q === o || !elig[q][i]) continue;
+      const nq = insertSorted(ctx, lists[q], i);
+      if (!validList(ctx, q, nq)) continue;
+      lists[q] = nq; lists[o] = removeFrom(lists[o], i); owner[i] = q;
+    }
+    if (open < bestOpen - 1e-9) { bestOpen = open; bestOwner = owner.slice(); }
+  }
+  return { owner: bestOwner, open: bestOpen };
+}
+
+// Exact repair of the open hours (large-neighbourhood search). Pick k people, release every shift they hold, and solve the
+// released shifts plus the open ones exactly for fewest open hours with everyone else fixed (depth-first, longest shift first,
+// pruned on the open hours so far). A walk of single moves cannot reach a gain that needs three people to change at once; this
+// can, inside the neighbourhood. Time-limited; returns the owner array and the open hours (never worse than the input).
+function coverRepair(ctx, owner0, seed, { k = 3, rounds = 40, nodeLimit = 200000, totalNodes = 3000000, timeLimitMs = 60000, shiftWeight = 1e-6 } = {}) {
+  const { P, S, slots, elig } = ctx;
+  const rng = mulberry32(seed);
+  const hrs = (i) => (slots[i].end - slots[i].start) / 60;
+  const owner = owner0.slice();
+  const TIE = shiftWeight; // hours-equivalent cost of one open shift; the default is a count term far below one minute (fewest open shifts at equal open hours)
+  const openOf = (o) => o.reduce((t, p, i) => t + (p < 0 ? hrs(i) + TIE : 0), 0);
+  let open = openOf(owner);
+  const t0 = Date.now();
+  let spent = 0; // a node budget, not the clock, ends the search, so the same input gives the same roster on any machine
+  for (let r = 0; r < rounds && open > 0 && spent < totalNodes && Date.now() - t0 < timeLimitMs; r++) {
+    const pick = new Set();
+    while (pick.size < Math.min(k, P)) pick.add(Math.floor(rng() * P));
+    const people = [...pick];
+    const free = [];
+    owner.forEach((p, i) => { if (p < 0 || pick.has(p)) free.push(i); });
+    free.sort((a, b) => hrs(b) - hrs(a));
+    const lists = Array.from({ length: P }, () => []);
+    owner.forEach((p, i) => { if (p >= 0 && !pick.has(p)) lists[p] = insertSorted(ctx, lists[p], i); });
+    let best = Infinity, bestAssign = null, nodes = 0;
+    const cur = new Array(free.length).fill(-1);
+    const dfs = (d, o) => {
+      if (o >= best - 1e-9 || nodes++ > nodeLimit) return;
+      if (d === free.length) { best = o; bestAssign = cur.slice(); return; }
+      const i = free[d];
+      for (const q of people) {
+        if (!elig[q][i]) continue;
+        const nl = insertSorted(ctx, lists[q], i);
+        if (!validList(ctx, q, nl)) continue;
+        const old = lists[q]; lists[q] = nl; cur[d] = q;
+        dfs(d + 1, o);
+        lists[q] = old;
+      }
+      cur[d] = -1;
+      dfs(d + 1, o + hrs(i) + TIE);
+    };
+    dfs(0, 0);
+    spent += nodes;
+    if (bestAssign && best < open - 1e-9) {
+      free.forEach((i, d) => { owner[i] = bestAssign[d]; });
+      open = best;
+    }
+  }
+  const shifts = owner.reduce((t, p) => t + (p < 0 ? 1 : 0), 0);
+  return { owner, open: open - TIE * shifts, openShifts: shifts };
+}
+
+// Single moves and swaps that lower the score and never leave a shift open that was covered.
+function polishPay(ctx, owner0, seed, iterations) {
+  const { P, S, elig } = ctx;
+  const rng = mulberry32(seed);
+  const owner = owner0.slice();
+  const lists = Array.from({ length: P }, () => []);
+  owner.forEach((p, i) => { if (p >= 0) lists[p] = insertSorted(ctx, lists[p], i); });
+  const pScore = lists.map((l, p) => personScore(ctx, p, l));
+  const removeFrom = (list, i) => list.filter((x) => x !== i);
+  for (let it = 0; it < iterations; it++) {
+    const i = Math.floor(rng() * S), o = owner[i];
+    if (o < 0) continue;
+    if (rng() < 0.5) {
+      const q = Math.floor(rng() * P);
+      if (q === o || !elig[q][i]) continue;
+      const nq = insertSorted(ctx, lists[q], i);
+      if (!validList(ctx, q, nq)) continue;
+      const no = removeFrom(lists[o], i), sq = personScore(ctx, q, nq), so = personScore(ctx, o, no);
+      if (sq + so < pScore[q] + pScore[o] - 1e-9) { lists[q] = nq; lists[o] = no; pScore[q] = sq; pScore[o] = so; owner[i] = q; }
+    } else {
+      const j = Math.floor(rng() * S), b = owner[j];
+      if (b < 0 || b === o || !elig[o][j] || !elig[b][i]) continue;
+      const na = insertSorted(ctx, removeFrom(lists[o], i), j), nb = insertSorted(ctx, removeFrom(lists[b], j), i);
+      if (!validList(ctx, o, na) || !validList(ctx, b, nb)) continue;
+      const sa = personScore(ctx, o, na), sb = personScore(ctx, b, nb);
+      if (sa + sb < pScore[o] + pScore[b] - 1e-9) { lists[o] = na; lists[b] = nb; pScore[o] = sa; pScore[b] = sb; owner[i] = b; owner[j] = o; }
+    }
+  }
+  return owner;
+}
+
 function search(ctx, restarts, iterations, first = 0) {
   let best = null;
   for (let r = first; r < first + restarts; r++) {
@@ -961,7 +1096,7 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000, t
   // Open hours are sums of shift lengths, so when those share a grid (hours, halves, quarters) the floor rounds up to it.
   const incHours = Math.floor(incumbent / BIG + 1e-9);
   let banned = null, bannedCount = 0; // (person, shift) pairs ruled out by reduced-cost fixing
-  let dualBranchStats = null;
+  let dualBranchStats = null, coverBranchStats = null;
   let scoreDual = -Infinity; // whole-score floor from pricing shifts (see priceScoreBound)
   if (incHours > 0 && o.pricingFloor !== false) {
     const pf = priceOpenFloor(ctx, { incumbentOpen: incHours, incumbentScore: o.scoreDual === false ? null : incumbent, cutoff: o.reducedCostFixing === false ? null : incumbent - tolerance - 1e-9 });
@@ -975,6 +1110,16 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000, t
       if (pf.banned) { banned = pf.banned; bannedCount = pf.banCount; }
       const unit = [1, 0.5, 0.25].find((u) => len.every((h) => Math.abs(h / u - Math.round(h / u)) < 1e-9)); // open hours come in whole shifts
       minOpenH = unit ? Math.ceil(pf.floor / unit - 1e-6) * unit : Math.max(0, pf.floor - 1e-6);
+      // Branch on the open-hours price itself: every held set is worth 0 and an open shift costs BIG x its hours, so the same
+      // branch-and-bound as above bounds the least open hours and closes part of the integrality gap the root price leaves.
+      if (o.coverBranch !== false && minOpenH < incHours - 1e-9) {
+        const zero = pf.cov.sets.map((fs) => new Float64Array(fs.length));
+        const lam0 = Float64Array.from(pf.cov.lam, (x, i) => Math.min(BIG * pf.cov.len[i], x * BIG));
+        const cb = branchDual(ctx, { sets: pf.cov.sets, vals: zero, len: pf.cov.len, lam: lam0 }, BIG * pf.floor, BIG * incHours, BIG * (incHours - (unit || 1) / 2), { maxNodes: o.coverBranchNodes ?? 60, ms: o.coverBranchMs ?? 4000 });
+        coverBranchStats = cb.stats;
+        const fl = cb.bound / BIG;
+        minOpenH = Math.max(minOpenH, unit ? Math.ceil(fl / unit - 1e-6) * unit : Math.max(0, fl - 1e-6));
+      }
     }
   }
   const rootBound = Math.max(lowerBound(0, 0), scoreDual);
@@ -1030,7 +1175,7 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000, t
     }
   }
   rec(0, 0);
-  return { proven: !aborted, banned: bannedCount, nodes: nodes + coverNodes, coverNodes, coverOpen: minOpenH, rootBound, owner: bestOwner, score: bestOwner ? best : null };
+  return { proven: !aborted, banned: bannedCount, nodes: nodes + coverNodes, coverNodes, coverOpen: minOpenH, rootBound, coverBranchStats, owner: bestOwner, score: bestOwner ? best : null };
 }
 
 // Fewest hours that must stay open, by pricing shifts (Lagrangian dual of "each shift is covered by at most one person").
@@ -1099,7 +1244,7 @@ function priceOpenFloor(ctx, { maxSets = 60000, rounds = 200, incumbentOpen = nu
     const step = (theta * Math.max(L - target, 0.5)) / norm;
     for (let i = 0; i < S; i++) lam[i] = Math.max(0, lam[i] - step * gr[i]);
   }
-  const out = { floor: Math.max(0, demand - bestBound), coverable: bestBound, demand, sets: total };
+  const out = { floor: Math.max(0, demand - bestBound), coverable: bestBound, demand, sets: total, cov: { sets, len, lam: bestLam } };
   if (incumbentScore != null) {
     const sb = priceScoreBound(ctx, sets, len, bestLam, incumbentScore, scoreRounds, cutoff);
     if (cutoff == null) out.scoreBound = sb;
@@ -1352,6 +1497,27 @@ export function buildRoster(staff, slots, options = {}) {
       const eo = ejectPass(ctx, best.owner, o.seed + 104729 * (k + 1), Math.max(20000, ctx.S * 1500));
       const es = scoreOwner(ctx, eo).total;
       if (es < best.score - 1e-9) best = { owner: eo, score: es };
+    }
+  }
+  // Still open: walk the coverage plateau (open hours only), then polish pay. Kept only if it covers more.
+  if (o.coverPass !== false && scoreOwner(ctx, best.owner).unfilled > 0) {
+    for (let k = 0; k < (o.coverPassRuns ?? 12); k++) {
+      const cp = coverPass(ctx, best.owner, o.seed + 15485863 * (k + 1), Math.max(60000, ctx.S * 4000) * (o.coverPassScale ?? 4));
+      if (cp.open >= scoreOwner(ctx, best.owner).unfilled - 1e-9) continue;
+      const po = polishPay(ctx, cp.owner, o.seed + k, Math.max(20000, ctx.S * 1000));
+      const ps = scoreOwner(ctx, po).total;
+      if (ps < best.score - 1e-9) best = { owner: po, score: ps };
+    }
+    if ((o.coverRepair ?? (o.exact === true || o.openShiftWeight !== undefined)) && scoreOwner(ctx, best.owner).unfilled > 0) {
+      const rp = coverRepair(ctx, best.owner, o.seed + 7919, { k: o.coverRepairPeople ?? 3, rounds: o.coverRepairRounds ?? 60, totalNodes: o.coverRepairNodes ?? 3000000, timeLimitMs: o.coverRepairMs ?? 60000, shiftWeight: o.openShiftWeight ?? 1e-6 });
+      const cur = best.owner.reduce((t, p) => t + (p < 0 ? 1 : 0), 0);
+      const w = o.openShiftWeight ?? 1e-6;
+      const curObj = scoreOwner(ctx, best.owner).unfilled + w * cur;
+      if (rp.open + w * rp.openShifts < curObj - 1e-9) {
+        const po = polishPay(ctx, rp.owner, o.seed + 31, Math.max(20000, ctx.S * 1000));
+        const ps = scoreOwner(ctx, po).total;
+        if (ps < best.score - 1e-9) best = { owner: po, score: ps };
+      }
     }
   }
   // Optional proof: for small problems search exhaustively (with pruning) and say how far the annealed roster is from the best possible.
@@ -2116,6 +2282,39 @@ export function seventhDayPay(r, { firstHours = 8, firstMult = 1.5, laterMult = 
   return { rows, total: rows.reduce((t, x) => t + x.extra, 0) };
 }
 
+// What split-shift and spread-of-hours premiums would add, for scale. Several places (California, New York State) owe
+// one extra hour at the minimum wage on a day with an unpaid gap longer than `splitGap` hours (split shift) or with
+// first-to-last clock time longer than `spread` hours (spread of hours); one premium per person-day even if both
+// apply. Real rules differ (New York exempts people paid above minimum for some cases, California credits wages above
+// minimum), so `minWage` and `premiumHours` are yours to set and `credit` lets pay above `minWage` offset the premium.
+// An estimate, not the search's objective and not legal advice.
+export function splitShiftPay(r, { minWage = 0, premiumHours = 1, splitGap = 1, spread = 10, burdenPct = 0, credit = false } = {}) {
+  const wages = new Map((r.people || []).map((p) => [p.name, p.wage]));
+  const byKey = new Map();
+  for (const a of r.assignments || []) {
+    if (!a.person) continue;
+    const k = a.person + "|" + a.slot.day;
+    if (!byKey.has(k)) byKey.set(k, { person: a.person, day: a.slot.day, spans: [] });
+    byKey.get(k).spans.push([a.slot.startMin, a.slot.endMin]);
+  }
+  const burden = 1 + burdenPct / 100;
+  const rows = [];
+  for (const g of byKey.values()) {
+    g.spans.sort((x, y) => x[0] - y[0]);
+    let gap = 0, end = g.spans[0][1];
+    for (const [a, b] of g.spans.slice(1)) { gap = Math.max(gap, (a - end) / 60); end = Math.max(end, b); }
+    const span = (end - g.spans[0][0]) / 60, worked = g.spans.reduce((t, [a, b]) => t + (b - a) / 60, 0);
+    const split = gap > splitGap + 1e-9, wide = span > spread + 1e-9;
+    if (!split && !wide) continue;
+    const wage = wages.get(g.person) || 0;
+    // California-style credit: wages above minimum for the hours worked that day count toward the premium.
+    const owed = credit ? Math.max(0, minWage * premiumHours - Math.max(0, wage - minWage) * worked) : minWage * premiumHours;
+    rows.push({ person: g.person, day: DAYS[g.day], reason: split && wide ? "split and spread" : split ? "split" : "spread", gapHours: gap, spanHours: span, extra: owed * burden });
+  }
+  rows.sort((a, b) => a.person.localeCompare(b.person) || DAYS.indexOf(a.day) - DAYS.indexOf(b.day));
+  return { rows, total: rows.reduce((t, x) => t + x.extra, 0) };
+}
+
 // Puts a meal break on the clock for every straight stretch longer than `mealAfter` hours (back-to-back shifts joined).
 // The break starts on a `step`-minute mark, no earlier than `earliest` minutes into the stretch, early enough to begin
 // before `mealAfter` hours have passed and to leave `tail` minutes after it. Among those starts it picks the one that
@@ -2158,6 +2357,58 @@ export function placeBreaks(r, { mealAfter = 5, mealMin = 30, step = 15, earlies
     placed.push({ person: st.person, day: st.day, startMin: best.t, endMin: best.t + mealMin, others: best.others, alone: best.others === 0 });
   }
   placed.sort((x, y) => x.person.localeCompare(y.person) || x.day - y.day);
+  return placed.map((x) => ({ ...x, dayName: DAYS[x.day] }));
+}
+
+// Paid rest breaks: one for every full `restEvery` hours of a straight stretch (back-to-back shifts joined), `restMin`
+// minutes each, spread evenly (each centred in its own equal part of the stretch). A break starts on a `step`-minute
+// mark within `window` minutes of that centre, at least `edge` minutes after the stretch starts and before its last
+// `edge` minutes, and never overlaps the person's meal break from placeBreaks (pass `mealAfter` 0 to ignore meals).
+// Among the starts it picks the one that keeps the most other people on the floor, ties to the nearest the centre;
+// `alone` is set when nobody else is on. Paid time, so it changes no payroll figure. The numbers are the operator's
+// (there is no built-in law); a planning aid, when breaks are owed is the employer's to check.
+export function placeRestBreaks(r, { restEvery = 4, restMin = 10, step = 5, window = 60, edge = 30, mealAfter = 5, mealMin = 30 } = {}) {
+  if (!(restEvery > 0) || !(restMin > 0)) return [];
+  const asg = (r.assignments || []).filter((a) => a.person);
+  const meals = mealAfter > 0 ? placeBreaks(r, { mealAfter, mealMin }) : [];
+  const byKey = new Map();
+  for (const a of asg) {
+    const k = a.person + "|" + a.slot.day;
+    if (!byKey.has(k)) byKey.set(k, { person: a.person, day: a.slot.day, spans: [] });
+    byKey.get(k).spans.push([a.slot.startMin, a.slot.endMin]);
+  }
+  const stretches = [];
+  for (const g of byKey.values()) {
+    g.spans.sort((x, y) => x[0] - y[0]);
+    let a = g.spans[0][0], b = g.spans[0][1];
+    for (let i = 1; i <= g.spans.length; i++) {
+      if (i < g.spans.length && g.spans[i][0] <= b) { b = Math.max(b, g.spans[i][1]); continue; }
+      const n = Math.floor((b - a) / 60 / restEvery + 1e-9);
+      if (n >= 1) stretches.push({ person: g.person, day: g.day, start: a, end: b, n });
+      if (i < g.spans.length) { a = g.spans[i][0]; b = g.spans[i][1]; }
+    }
+  }
+  stretches.sort((x, y) => (y.end - y.start) - (x.end - x.start) || x.day - y.day || x.start - y.start || x.person.localeCompare(y.person));
+  const placed = [];
+  const present = (p, day, t0, t1) => asg.some((a) => a.person === p && a.slot.day === day && a.slot.startMin < t1 && a.slot.endMin > t0);
+  const busy = (p, day, t0, t1) => [...meals, ...placed].some((x) => x.person === p && x.day === day && x.startMin < t1 && x.endMin > t0);
+  const people = [...new Set(asg.map((a) => a.person))];
+  for (const st of stretches) {
+    for (let k = 0; k < st.n; k++) {
+      const centre = st.start + ((st.end - st.start) * (k + 0.5)) / st.n - restMin / 2;
+      const lo = Math.max(st.start + edge, centre - window), hi = Math.min(st.end - edge - restMin, centre + window);
+      let best = null;
+      for (let t = Math.ceil(lo / step) * step; t <= hi + 1e-9; t += step) {
+        if (busy(st.person, st.day, t, t + restMin)) continue;
+        const others = people.filter((p) => p !== st.person && present(p, st.day, t, t + restMin) && !busy(p, st.day, t, t + restMin)).length;
+        const dist = Math.abs(t - centre);
+        if (!best || others > best.others || (others === best.others && dist < best.dist)) best = { t, others, dist };
+      }
+      if (!best) continue;
+      placed.push({ person: st.person, day: st.day, startMin: best.t, endMin: best.t + restMin, others: best.others, alone: best.others === 0 });
+    }
+  }
+  placed.sort((x, y) => x.person.localeCompare(y.person) || x.day - y.day || x.startMin - y.startMin);
   return placed.map((x) => ({ ...x, dayName: DAYS[x.day] }));
 }
 

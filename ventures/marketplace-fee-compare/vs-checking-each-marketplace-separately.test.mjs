@@ -40,7 +40,7 @@ test('no figure is attributed to any marketplace', () => {
   // states no rate and no currency amount at all, which makes "nothing here
   // goes stale into a falsehood" checkable rather than a promise. Same
   // reasoning as the sibling page's identical test.
-  const prose = html.replace(/<style>[\s\S]*?<\/style>/g, '');
+  const prose = html.replace(/<style>[\s\S]*?<\/style>/g, '').replace(/<link rel="icon"[^>]*>/g, '');
   assert.doesNotMatch(prose, /\$\s?\d/);
   assert.doesNotMatch(prose, /\d\s?%/);
 });

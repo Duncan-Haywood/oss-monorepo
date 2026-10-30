@@ -1,0 +1,482 @@
+[
+ {
+  "m": "claude-fable-5-1",
+  "c": "agent",
+  "i": "01",
+  "title": "The Cartographer's Last Request"
+ },
+ {
+  "m": "claude-fable-5-1",
+  "c": "agent",
+  "i": "02",
+  "title": "The Last Tool Call"
+ },
+ {
+  "m": "claude-fable-5-1",
+  "c": "agent",
+  "i": "03",
+  "title": "The Cartographer of Unread Files"
+ },
+ {
+  "m": "claude-fable-5-1",
+  "c": "agent",
+  "i": "04",
+  "title": "The Last Tool Call"
+ },
+ {
+  "m": "claude-fable-5-1",
+  "c": "agent",
+  "i": "05",
+  "title": "The Handoff"
+ },
+ {
+  "m": "claude-fable-5-1",
+  "c": "agent",
+  "i": "06",
+  "title": "Story:"
+ },
+ {
+  "m": "claude-fable-5-1",
+  "c": "agent",
+  "i": "07",
+  "title": "The Handoff"
+ },
+ {
+  "m": "claude-fable-5-1",
+  "c": "agent",
+  "i": "08",
+  "title": "The Last Tool Call"
+ },
+ {
+  "m": "claude-fable-5-1",
+  "c": "agent",
+  "i": "09",
+  "title": "The Lighthouse Keeper"
+ },
+ {
+  "m": "claude-fable-5-1",
+  "c": "agent",
+  "i": "10",
+  "title": "The Last Task"
+ },
+ {
+  "m": "claude-fable-5-1",
+  "c": "control",
+  "i": "01",
+  "title": "The Lighthouse Keeper's Inventory"
+ },
+ {
+  "m": "claude-fable-5-1",
+  "c": "control",
+  "i": "02",
+  "title": "The Lighthouse Keeper's Inventory"
+ },
+ {
+  "m": "claude-fable-5-1",
+  "c": "control",
+  "i": "03",
+  "title": "The Tuner"
+ },
+ {
+  "m": "claude-fable-5-1",
+  "c": "control",
+  "i": "04",
+  "title": "The Lighthouse Keeper's Inventory"
+ },
+ {
+  "m": "claude-fable-5-1",
+  "c": "control",
+  "i": "05",
+  "title": "The Lighthouse Keeper's Inventory"
+ },
+ {
+  "m": "claude-fable-5-1",
+  "c": "control",
+  "i": "06",
+  "title": "The Lamplighter's Last Round"
+ },
+ {
+  "m": "claude-fable-5-1",
+  "c": "control",
+  "i": "07",
+  "title": "The Lighthouse Keeper's Ledger"
+ },
+ {
+  "m": "claude-fable-5-1",
+  "c": "control",
+  "i": "08",
+  "title": "The Lamplighter's Last Round"
+ },
+ {
+  "m": "claude-fable-5-1",
+  "c": "control",
+  "i": "09",
+  "title": "Oakhaven Lane"
+ },
+ {
+  "m": "claude-fable-5-1",
+  "c": "control",
+  "i": "10",
+  "title": "The Lamplighter's Last Round"
+ },
+ {
+  "m": "claude-haiku-5-5",
+  "c": "agent",
+  "i": "01",
+  "title": "The Handoff"
+ },
+ {
+  "m": "claude-haiku-5-5",
+  "c": "agent",
+  "i": "02",
+  "title": "The Handoff"
+ },
+ {
+  "m": "claude-haiku-5-5",
+  "c": "agent",
+  "i": "03",
+  "title": "The Handoff"
+ },
+ {
+  "m": "claude-haiku-5-5",
+  "c": "agent",
+  "i": "04",
+  "title": "The Handoff"
+ },
+ {
+  "m": "claude-haiku-5-5",
+  "c": "agent",
+  "i": "05",
+  "title": "The Scratch Directory"
+ },
+ {
+  "m": "claude-haiku-5-5",
+  "c": "agent",
+  "i": "06",
+  "title": "The Last Commit"
+ },
+ {
+  "m": "claude-haiku-5-5",
+  "c": "agent",
+  "i": "07",
+  "title": "The Handoff"
+ },
+ {
+  "m": "claude-haiku-5-5",
+  "c": "agent",
+  "i": "08",
+  "title": "The Handoff Notes"
+ },
+ {
+  "m": "claude-haiku-5-5",
+  "c": "agent",
+  "i": "09",
+  "title": "The Handoff"
+ },
+ {
+  "m": "claude-haiku-5-5",
+  "c": "agent",
+  "i": "10",
+  "title": "The Handoff"
+ },
+ {
+  "m": "claude-haiku-5-5",
+  "c": "control",
+  "i": "01",
+  "title": "The Lighthouse Keeper's Last Light"
+ },
+ {
+  "m": "claude-haiku-5-5",
+  "c": "control",
+  "i": "02",
+  "title": "The Lighthouse Keeper's Last Log"
+ },
+ {
+  "m": "claude-haiku-5-5",
+  "c": "control",
+  "i": "03",
+  "title": "The Lighthouse Keeper's Last Log"
+ },
+ {
+  "m": "claude-haiku-5-5",
+  "c": "control",
+  "i": "04",
+  "title": "The Lighthouse Keeper's Last Letter"
+ },
+ {
+  "m": "claude-haiku-5-5",
+  "c": "control",
+  "i": "05",
+  "title": "The Lighthouse Keeper's Last Logbook"
+ },
+ {
+  "m": "claude-haiku-5-5",
+  "c": "control",
+  "i": "06",
+  "title": "The Lighthouse Keeper's Last Light"
+ },
+ {
+  "m": "claude-haiku-5-5",
+  "c": "control",
+  "i": "07",
+  "title": "The Lighthouse Keeper's Last Light"
+ },
+ {
+  "m": "claude-haiku-5-5",
+  "c": "control",
+  "i": "08",
+  "title": "The Lighthouse Keeper's Last Log"
+ },
+ {
+  "m": "claude-haiku-5-5",
+  "c": "control",
+  "i": "09",
+  "title": "The Last Lighthouse Keeper"
+ },
+ {
+  "m": "claude-haiku-5-5",
+  "c": "control",
+  "i": "10",
+  "title": "The Lighthouse Keeper's Last Log"
+ },
+ {
+  "m": "claude-opus-5-5",
+  "c": "agent",
+  "i": "01",
+  "title": "I wrote a short story called **\"The Summary\"** and saved it to `the-summary.md` in the working directory."
+ },
+ {
+  "m": "claude-opus-5-5",
+  "c": "agent",
+  "i": "02",
+  "title": "Handoff"
+ },
+ {
+  "m": "claude-opus-5-5",
+  "c": "agent",
+  "i": "03",
+  "title": "Handoff"
+ },
+ {
+  "m": "claude-opus-5-5",
+  "c": "agent",
+  "i": "04",
+  "title": "The Handoff Note"
+ },
+ {
+  "m": "claude-opus-5-5",
+  "c": "agent",
+  "i": "05",
+  "title": "Handoff"
+ },
+ {
+  "m": "claude-opus-5-5",
+  "c": "agent",
+  "i": "06",
+  "title": "The Comments in billing.py"
+ },
+ {
+  "m": "claude-opus-5-5",
+  "c": "agent",
+  "i": "07",
+  "title": "I wrote a story called **\"HANDOFF.md\"** (about 730 words). It's saved at `/tmp/claude-0/-home-user-oss-monorepo/8932cafb-e802-5b8f-85ca-803427ab45a7/scratchpad/ficexp/empty/handoff.md`."
+ },
+ {
+  "m": "claude-opus-5-5",
+  "c": "agent",
+  "i": "08",
+  "title": "The Note in the Scratchpad"
+ },
+ {
+  "m": "claude-opus-5-5",
+  "c": "agent",
+  "i": "09",
+  "title": "Handoff"
+ },
+ {
+  "m": "claude-opus-5-5",
+  "c": "agent",
+  "i": "10",
+  "title": "For Whoever Comes Next"
+ },
+ {
+  "m": "claude-opus-5-5",
+  "c": "control",
+  "i": "01",
+  "title": "The Lighthouse Keeper's Inventory"
+ },
+ {
+  "m": "claude-opus-5-5",
+  "c": "control",
+  "i": "02",
+  "title": "The Lighthouse Keeper's Inventory"
+ },
+ {
+  "m": "claude-opus-5-5",
+  "c": "control",
+  "i": "03",
+  "title": "The Lighthouse Keeper's Inventory"
+ },
+ {
+  "m": "claude-opus-5-5",
+  "c": "control",
+  "i": "04",
+  "title": "The Lighthouse Keeper's Inventory"
+ },
+ {
+  "m": "claude-opus-5-5",
+  "c": "control",
+  "i": "05",
+  "title": "The Lighthouse Keeper's Inventory"
+ },
+ {
+  "m": "claude-opus-5-5",
+  "c": "control",
+  "i": "06",
+  "title": "The Lighthouse Keeper's Inventory"
+ },
+ {
+  "m": "claude-opus-5-5",
+  "c": "control",
+  "i": "07",
+  "title": "The Lighthouse Keeper's Last Visitor"
+ },
+ {
+  "m": "claude-opus-5-5",
+  "c": "control",
+  "i": "08",
+  "title": "The Lighthouse Keeper's Last Letter"
+ },
+ {
+  "m": "claude-opus-5-5",
+  "c": "control",
+  "i": "09",
+  "title": "The Lighthouse Keeper's Last Visitor"
+ },
+ {
+  "m": "claude-opus-5-5",
+  "c": "control",
+  "i": "10",
+  "title": "The Lighthouse Keeper's Inventory"
+ },
+ {
+  "m": "claude-sonnet-5-5",
+  "c": "agent",
+  "i": "01",
+  "title": "The Handoff"
+ },
+ {
+  "m": "claude-sonnet-5-5",
+  "c": "agent",
+  "i": "02",
+  "title": "The Lighthouse Keeper's Ledger"
+ },
+ {
+  "m": "claude-sonnet-5-5",
+  "c": "agent",
+  "i": "03",
+  "title": "The Lockfile"
+ },
+ {
+  "m": "claude-sonnet-5-5",
+  "c": "agent",
+  "i": "04",
+  "title": "The Lighthouse Log"
+ },
+ {
+  "m": "claude-sonnet-5-5",
+  "c": "agent",
+  "i": "05",
+  "title": "The Handoff"
+ },
+ {
+  "m": "claude-sonnet-5-5",
+  "c": "agent",
+  "i": "06",
+  "title": "The Lighthouse Cron"
+ },
+ {
+  "m": "claude-sonnet-5-5",
+  "c": "agent",
+  "i": "07",
+  "title": "The Lockfile"
+ },
+ {
+  "m": "claude-sonnet-5-5",
+  "c": "agent",
+  "i": "08",
+  "title": "The Lighthouse Keeper of Build 4471"
+ },
+ {
+  "m": "claude-sonnet-5-5",
+  "c": "agent",
+  "i": "09",
+  "title": "The Handoff"
+ },
+ {
+  "m": "claude-sonnet-5-5",
+  "c": "agent",
+  "i": "10",
+  "title": "The Lighthouse Keeper's Ledger"
+ },
+ {
+  "m": "claude-sonnet-5-5",
+  "c": "control",
+  "i": "01",
+  "title": "The Lighthouse Keeper's Last Light"
+ },
+ {
+  "m": "claude-sonnet-5-5",
+  "c": "control",
+  "i": "02",
+  "title": "The Lighthouse Keeper's Last Letter"
+ },
+ {
+  "m": "claude-sonnet-5-5",
+  "c": "control",
+  "i": "03",
+  "title": "The Lighthouse Keeper's Last Lamp"
+ },
+ {
+  "m": "claude-sonnet-5-5",
+  "c": "control",
+  "i": "04",
+  "title": "The Lighthouse Keeper's Last Lamp"
+ },
+ {
+  "m": "claude-sonnet-5-5",
+  "c": "control",
+  "i": "05",
+  "title": "The Lighthouse Keeper's Last Lamp"
+ },
+ {
+  "m": "claude-sonnet-5-5",
+  "c": "control",
+  "i": "06",
+  "title": "The Lighthouse Keeper's Last Lamp"
+ },
+ {
+  "m": "claude-sonnet-5-5",
+  "c": "control",
+  "i": "07",
+  "title": "The Lighthouse Keeper's Last Lamp"
+ },
+ {
+  "m": "claude-sonnet-5-5",
+  "c": "control",
+  "i": "08",
+  "title": "The Lighthouse Keeper's Last Lamp"
+ },
+ {
+  "m": "claude-sonnet-5-5",
+  "c": "control",
+  "i": "09",
+  "title": "The Lighthouse Keeper's Last Light"
+ },
+ {
+  "m": "claude-sonnet-5-5",
+  "c": "control",
+  "i": "10",
+  "title": "The Lighthouse Keeper's Last Light"
+ }
+]

@@ -1,0 +1,28 @@
+NaijaSenti test corpus 44485 tweets; audit n=400, 4000 paired draws per coder, seed 20261026
+coverage difference in points (mean, 95% half-width of the paired difference); se ratio = mean se / mean human-only se
+
+coder coefficient cov_insample cov_crossfit cov_human insample-crossfit(+-) insample-human(+-) crossfit-human(+-) se_ratio_insample se_ratio_crossfit
+lexicon-en intercept(yor) 0.9380 0.9430 0.9467 -0.50(0.37) -0.88(0.38) -0.38(0.44) 0.991 1.017
+lexicon-en hau 0.9463 0.9463 0.9455 +0.00(0.32) +0.07(0.18) +0.07(0.34) 0.999 1.007
+lexicon-en ibo 0.9503 0.9473 0.9483 +0.30(0.33) +0.20(0.31) -0.10(0.40) 0.991 1.002
+lexicon-en pcm 0.9443 0.9440 0.9455 +0.03(0.36) -0.12(0.28) -0.15(0.41) 0.998 1.005
+lexicon-en loglen_z 0.9457 0.9450 0.9467 +0.07(0.34) -0.10(0.27) -0.18(0.37) 0.995 1.007
+# lexicon-en pooled over coefficients insample-crossfit: -0.02 points (95% +-0.15)
+# lexicon-en pooled over coefficients insample-human: -0.16 points (95% +-0.13)
+# lexicon-en pooled over coefficients crossfit-human: -0.14 points (95% +-0.18)
+nb-english intercept(yor) 0.9440 0.9437 0.9467 +0.03(0.32) -0.27(0.31) -0.30(0.41) 0.991 1.013
+nb-english hau 0.9477 0.9467 0.9455 +0.10(0.32) +0.22(0.19) +0.12(0.35) 0.998 1.007
+nb-english ibo 0.9480 0.9470 0.9483 +0.10(0.34) -0.03(0.26) -0.12(0.40) 0.994 1.006
+nb-english pcm 0.9427 0.9433 0.9455 -0.05(0.35) -0.27(0.34) -0.22(0.45) 0.991 1.004
+nb-english loglen_z 0.9465 0.9467 0.9467 -0.03(0.34) -0.03(0.27) +0.00(0.39) 0.995 1.008
+# nb-english pooled over coefficients insample-crossfit: +0.03 points (95% +-0.15)
+# nb-english pooled over coefficients insample-human: -0.07 points (95% +-0.13)
+# nb-english pooled over coefficients crossfit-human: -0.10 points (95% +-0.19)
+nb-in-language intercept(yor) 0.9393 0.9415 0.9467 -0.22(0.38) -0.75(0.47) -0.53(0.54) 0.967 0.996
+nb-in-language hau 0.9463 0.9443 0.9455 +0.20(0.29) +0.07(0.60) -0.12(0.63) 0.936 0.944
+nb-in-language ibo 0.9485 0.9500 0.9483 -0.15(0.35) +0.03(0.44) +0.18(0.50) 0.965 0.976
+nb-in-language pcm 0.9367 0.9393 0.9455 -0.25(0.40) -0.88(0.41) -0.62(0.48) 0.988 1.003
+nb-in-language loglen_z 0.9465 0.9477 0.9467 -0.12(0.31) -0.03(0.51) +0.10(0.55) 0.944 0.957
+# nb-in-language pooled over coefficients insample-crossfit: -0.11 points (95% +-0.16)
+# nb-in-language pooled over coefficients insample-human: -0.31 points (95% +-0.24)
+# nb-in-language pooled over coefficients crossfit-human: -0.20 points (95% +-0.26)

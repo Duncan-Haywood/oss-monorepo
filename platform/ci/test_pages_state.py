@@ -171,6 +171,10 @@ class BuildInputs(unittest.TestCase):
     def test_subtree_glob_matches_nested_files(self):
         self.assertTrue(ps.is_build_input("ventures/a/site/index.html", PATTERNS))
 
+    def test_a_sibling_directory_sharing_the_prefix_is_not_in_the_subtree(self):
+        self.assertFalse(ps.is_build_input("ventures-notes/a.md", PATTERNS))
+        self.assertFalse(ps.is_build_input("platform/pages-old/a.mjs", PATTERNS))
+
     def test_docs_are_not_build_inputs(self):
         for path in ("AGENTS.md", "portfolio/DIRECTION.md", "portfolio/ledger/2026-09.yaml"):
             self.assertFalse(ps.is_build_input(path, PATTERNS), path)
@@ -702,6 +706,14 @@ class DeploymentVote(unittest.TestCase):
         )
         self.assertIn("has since moved", why)
 
+    def test_a_snapshot_that_is_the_built_commit_is_not_flagged(self):
+        """The prefix compared is the one `head_sha` carries, no longer."""
+        _, why = ps.verdict_deployment(
+            ps.read_pages_deployment(fake_api(runs=[pages_run(sha="e" * 40)])),
+            {"sha": "e" * 40},
+        )
+        self.assertNotIn("has since moved", why)
+
     def test_the_reading_reaches_the_rendered_report(self):
         api = fake_api(
             branches={"main": branch(sha="c" * 40), "gh-pages": branch()},
@@ -983,6 +995,22 @@ class RecordReading(unittest.TestCase):
         self.assertIn("# a leading comment the writer cares about", body)
         self.assertIn("prose that carries the lesson and must survive a record", body)
         self.assertIn("a second prose field, also load-bearing", body)
+
+    def test_a_row_directly_after_a_neighbour_leaves_the_neighbour_alone(self):
+        """No blank line between rows: the line above the key is not its block."""
+        with open(self.path, "w", encoding="utf-8") as fh:
+            fh.write(
+                "readings:\n"
+                "  other-row:\n"
+                "    verdict: down\n"
+                f"  {ps.ORIGIN_READING}:\n"
+                "    verdict: down\n"
+                '    measured: "2026-01-01"\n'
+                "    run: 1\n"
+            )
+        ps.record_reading(served_state(), self.path)
+        head, _, _ = self.body().partition(f"  {ps.ORIGIN_READING}:")
+        self.assertEqual(head, "readings:\n  other-row:\n    verdict: down\n")
 
     def test_it_touches_no_other_row(self):
         """The block ends at the next key at the row's own indent."""

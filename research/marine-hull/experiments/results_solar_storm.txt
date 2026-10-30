@@ -1,0 +1,25 @@
+Equator-Pacific: 3653 valid days of 3653
+  4 m (load 43.5 W, daily load 1045 Wh): monthly-neutral months [1, 2, 3, 4, 5, 10, 12]; 2133 operating days in 21 runs, empty days 0, worst drawdown 5359 Wh (54% of pack, 5.1 days of load)
+    year-round per-year drawdown: median 14811 Wh, worst 29764 Wh; years within the 10 kWh pack: 4 of 10
+  5 m (load 44.4 W, daily load 1066 Wh): monthly-neutral months [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]; 3653 operating days in 1 runs, empty days 0, worst drawdown 660 Wh (7% of pack, 0.6 days of load)
+    year-round per-year drawdown: median 454 Wh, worst 660 Wh; years within the 10 kWh pack: 10 of 10
+Florida-Straits: 3653 valid days of 3653
+  4 m (load 43.5 W, daily load 1045 Wh): monthly-neutral months [3, 4, 5, 6, 7, 8]; 1840 operating days in 10 runs, empty days 0, worst drawdown 5442 Wh (54% of pack, 5.2 days of load)
+    year-round per-year drawdown: median 26029 Wh, worst 30158 Wh; years within the 10 kWh pack: 0 of 10
+  5 m (load 44.4 W, daily load 1066 Wh): monthly-neutral months [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]; 3653 operating days in 1 runs, empty days 9, worst drawdown 11245 Wh (112% of pack, 10.6 days of load)
+    year-round per-year drawdown: median 3780 Wh, worst 7674 Wh; years within the 10 kWh pack: 10 of 10
+Gulf-of-Maine: 3653 valid days of 3653
+  4 m (load 43.5 W, daily load 1045 Wh): monthly-neutral months [5, 6, 7, 8]; 1230 operating days in 10 runs, empty days 0, worst drawdown 3690 Wh (37% of pack, 3.5 days of load)
+    year-round per-year drawdown: median 101680 Wh, worst 113810 Wh; years within the 10 kWh pack: 0 of 10
+  5 m (load 44.4 W, daily load 1066 Wh): monthly-neutral months [3, 4, 5, 6, 7, 8, 9]; 2140 operating days in 10 runs, empty days 0, worst drawdown 3795 Wh (38% of pack, 3.6 days of load)
+    year-round per-year drawdown: median 41056 Wh, worst 45227 Wh; years within the 10 kWh pack: 0 of 10
+North-Sea: 3653 valid days of 3653
+  4 m (load 43.5 W, daily load 1045 Wh): monthly-neutral months [5, 6, 7]; 920 operating days in 10 runs, empty days 0, worst drawdown 5193 Wh (52% of pack, 5.0 days of load)
+    year-round per-year drawdown: median 174319 Wh, worst 177229 Wh; years within the 10 kWh pack: 0 of 10
+  5 m (load 44.4 W, daily load 1066 Wh): monthly-neutral months [4, 5, 6, 7, 8]; 1530 operating days in 10 runs, empty days 0, worst drawdown 2851 Wh (29% of pack, 2.7 days of load)
+    year-round per-year drawdown: median 80587 Wh, worst 81973 Wh; years within the 10 kWh pack: 0 of 10
+Gulf-of-Alaska: 3653 valid days of 3653
+  4 m (load 43.5 W, daily load 1045 Wh): monthly-neutral months []; no neutral month
+    year-round per-year drawdown: median 205097 Wh, worst 212023 Wh; years within the 10 kWh pack: 0 of 10
+  5 m (load 44.4 W, daily load 1066 Wh): monthly-neutral months [4, 5, 6, 7, 8]; 1530 operating days in 10 runs, empty days 0, worst drawdown 6952 Wh (70% of pack, 6.5 days of load)
+    year-round per-year drawdown: median 113716 Wh, worst 124538 Wh; years within the 10 kWh pack: 0 of 10

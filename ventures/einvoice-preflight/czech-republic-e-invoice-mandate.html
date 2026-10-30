@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e551b'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EE%3C/text%3E%3C/svg%3E"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Czech Republic e-invoicing: B2G since 2016, no B2B mandate enacted yet, and a free pre-send check | E-invoice Preflight</title>
+<meta name="description" content="Czech public bodies have had to accept e-invoices since 2016; a domestic B2B mandate had not been enacted as of mid-2026, per one advisory booklet. What is known, what is not, and a free local UBL and EN 16931 checker.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/czech-republic-e-invoice-mandate.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Czech Republic e-invoicing: B2G since 2016, no B2B mandate enacted yet, and a free pre-send check">
+<meta property="og:description" content="Czech public bodies have had to accept e-invoices since 2016; a domestic B2B mandate had not been enacted as of mid-2026, per one advisory booklet. What is known, what is not, and a free local UBL and EN 16931 checker.">
+<meta property="og:url" content="https://example.invalid/einvoice-preflight/czech-republic-e-invoice-mandate.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is B2B e-invoicing mandatory in the Czech Republic?","acceptedAnswer":{"@type":"Answer","text":"Not as of the latest source found, a July 2026 advisory booklet that reports no enacted domestic B2B mandate. Public bodies have had to accept e-invoices since 1 October 2016. The Ministry of Finance is reported to plan a B2B rollout in 2026 to 2027, but no enacted date was found, so confirm with the Ministry of Finance. This is a summary, not advice."}},{"@type":"Question","name":"Is EET 2.0 an e-invoicing mandate?","acceptedAnswer":{"@type":"Answer","text":"No. It is a planned sales-reporting reform reported for 1 January 2027, a different obligation from exchanging structured invoices between businesses."}},{"@type":"Question","name":"Which invoice format do Czech businesses use?","acceptedAnswer":{"@type":"Answer","text":"ISDOC is the common national XML format, and EN 16931 UBL or CII is used over Peppol. This checker reads UBL and CII and applies EN 16931 and optional Peppol rules. It does not read ISDOC or apply Czech national rules."}},{"@type":"Question","name":"How do I check an invoice before sending it to a Czech or foreign buyer?","acceptedAnswer":{"@type":"Answer","text":"Drop the UBL or CII file into the checker. It tests totals and tax breakdown arithmetic, missing tax reasons on zero or exempt lines, and VAT, IBAN and BIC typos, each with a rule ID and a fix. Nothing is uploaded when you use the page. It is an offline observation, not an authority's acceptance and not legal advice."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch}.lede{font-size:1.05rem;max-width:64ch;color:#3d4f5f}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #15202b10;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #d3dbe4;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#3d4f5f}.fine,.note{font-size:.88rem;color:#3d4f5f}footer{color:#3d4f5f;font-size:.86rem}footer p{margin:.6rem 0}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; E-invoice Preflight</a></p>
+<header>
+<h1>Czech Republic e-invoicing: required for public bodies, not yet for B2B</h1>
+<p class="lede">Serbia clears invoices between VAT-registered businesses through a state platform, the Electronic Invoice System (SEF), and the buyer must accept each one there. Below: the dates as sources give them, where they disagree, and how to test a UBL file before it goes in.</p>
+</header>
+<section>
+<h2>The timeline (as advisory sources report it)</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Date</th><th scope="col">What changes</th></tr></thead>
+<tbody>
+<tr><td>1 Oct 2016</td><td>Public contracting bodies must <strong>accept</strong> structured e-invoices (B2G), under Act No. 134/2016 on public procurement, per advisory guides.</td></tr>
+<tr><td>Mid-2026</td><td>A VAT Update country booklet with a 2 July 2026 cut-off says <strong>no domestic mandatory B2B e-invoicing</strong> or digital-reporting mandate had been enacted.</td></tr>
+<tr><td>Planned</td><td>An undated third-party summary says the Ministry of Finance plans to receive e-invoices first and require issuing in B2B later, in 2026 to 2027. No enacted date found.</td></tr>
+<tr><td>1 Jan 2027</td><td>A sales-reporting reform (reported as "EET 2.0") is planned. It is <strong>not</strong> a B2B e-invoicing mandate.</td></tr>
+</tbody>
+</table>
+</div>
+<p class="fine">None of these sources is the Czech Ministry of Finance or the Chamber of Deputies bill tracker, and the primary EU eInvoicing page could not be reached from here. Treat every date as unconfirmed and check the Ministry of Finance before relying on it. A summary, not tax advice.</p>
+</section>
+<section>
+<h2>Which file, and what to do now</h2>
+<p>Czech businesses commonly use ISDOC, a national XML format, while buyers abroad and public bodies reached over Peppol use EN 16931 UBL or CII. Because B2B issuing is not yet mandatory, an exporter to Germany, France or Poland usually meets an e-invoice rule on the buyer's side first. Fixing arithmetic, tax reasons and identifiers now saves rework when a domestic rule lands.</p>
+</section>
+<section>
+<h2>What this checker does and does not cover</h2>
+<p>It reads UBL and CII and applies EN 16931 and the Peppol BIS 3.0 rules it knows. It does <strong>not</strong> read ISDOC or apply any Czech national rule. Treat a clean result as "passes the European rules", not "accepted by a Czech authority".</p>
+</section>
+<section>
+<h2>Test a file before you send it</h2>
+<p>Open the <a href="./">checker</a> and drop your UBL XML. It flags arithmetic that does not add up, a missing tax reason on a 0% or exempt line, a missing buyer reference, and VAT, IBAN and BIC typos, each with a rule ID and a fix (<a href="what-does-this-e-invoice-error-code-mean.html">the rule reference</a>). No account, nothing uploaded.</p>
+<p>No invoice yet? The <a href="create.html">e-invoice creator</a> turns a form into UBL or CII XML and checks it. Other countries: <a href="e-invoicing-mandates-by-country.html">all side by side</a>, <a href="germany-e-invoice-mandate.html">Germany</a>, <a href="france-e-invoice-mandate.html">France</a>, <a href="belgium-e-invoice-mandate.html">Belgium</a>, <a href="poland-ksef-e-invoice-mandate.html">Poland</a>, <a href="croatia-e-invoice-mandate.html">Croatia</a>, <a href="serbia-e-invoice-mandate.html">Serbia</a>, <a href="spain-verifactu-e-invoice-mandate.html">Spain</a>, <a href="italy-sdi-e-invoice-mandate.html">Italy</a>, <a href="netherlands-e-invoice-mandate.html">the Netherlands</a>, <a href="romania-e-factura-e-invoice-mandate.html">Romania</a>, <a href="greece-mydata-e-invoice-mandate.html">Greece</a>, <a href="bulgaria-e-invoice-mandate.html">Bulgaria</a>, <a href="portugal-e-invoice-mandate.html">Portugal</a>, <a href="uk-e-invoice-mandate.html">the UK</a>, <a href="uae-e-invoice-mandate.html">the UAE</a>, <a href="india-gst-e-invoice-mandate.html">India</a>, <a href="saudi-arabia-zatca-e-invoice-mandate.html">Saudi Arabia</a>, <a href="malaysia-myinvois-e-invoice-mandate.html">Malaysia</a>, <a href="hungary-e-invoice-mandate.html">Hungary</a>, <a href="denmark-e-invoice-mandate.html">Denmark</a>, <a href="estonia-e-invoice-mandate.html">Estonia</a>, <a href="slovakia-e-invoice-mandate.html">Slovakia</a>, <a href="lithuania-e-invoice-mandate.html">Lithuania</a>, <a href="luxembourg-e-invoice-mandate.html">Luxembourg</a>, <a href="malta-e-invoice-mandate.html">Malta</a>, <a href="norway-e-invoice-mandate.html">Norway</a>, <a href="slovenia-e-invoice-mandate.html">Slovenia</a>, <a href="latvia-e-invoice-mandate.html">Latvia</a>, <a href="ireland-e-invoice-mandate.html">Ireland</a>, <a href="australia-e-invoice-mandate.html">Australia</a>, <a href="singapore-invoicenow-e-invoice-mandate.html">Singapore</a>, or the <a href="../eu-einvoicing-mandate-checker/">EU e-invoicing mandate checker</a>.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Is B2B e-invoicing mandatory in the Czech Republic?</h3>
+<p>Not as of the latest source found, a July 2026 advisory booklet that reports no enacted domestic B2B mandate. Public bodies have had to accept e-invoices since 1 October 2016. The Ministry of Finance is reported to plan a B2B rollout in 2026 to 2027, but no enacted date was found, so confirm with the Ministry of Finance. This is a summary, not advice.</p>
+<h3>Is EET 2.0 an e-invoicing mandate?</h3>
+<p>No. It is a planned sales-reporting reform reported for 1 January 2027, a different obligation from exchanging structured invoices between businesses.</p>
+<h3>Which invoice format do Czech businesses use?</h3>
+<p>ISDOC is the common national XML format, and EN 16931 UBL or CII is used over Peppol. This checker reads UBL and CII and applies EN 16931 and optional Peppol rules. It does not read ISDOC or apply Czech national rules.</p>
+<h3>How do I check an invoice before sending it to a Czech or foreign buyer?</h3>
+<p>Drop the UBL or CII file into the checker. It tests totals and tax breakdown arithmetic, missing tax reasons on zero or exempt lines, and VAT, IBAN and BIC typos, each with a rule ID and a fix. Nothing is uploaded when you use the page. It is an offline observation, not an authority's acceptance and not legal advice.</p>
+<p class="note">Open the <a href="./">E-invoice Preflight</a> checker to validate your own invoice file.</p>
+</section>
+<section>
+<h2>More countries</h2>
+<p><a href="austria-e-invoice-mandate.html">Austria</a> <a href="brazil-nfe-e-invoice-mandate.html">Brazil</a> <a href="cyprus-e-invoice-mandate.html">Cyprus</a> <a href="finland-e-invoice-mandate.html">Finland</a> <a href="japan-invoice-system-e-invoice-mandate.html">Japan</a> <a href="mexico-cfdi-e-invoice-mandate.html">Mexico</a> <a href="colombia-dian-e-invoice-mandate.html">Colombia</a> <a href="chile-sii-e-invoice-mandate.html">Chile</a> <a href="peru-sunat-e-invoice-mandate.html">Peru</a> <a href="argentina-arca-e-invoice-mandate.html">Argentina</a> <a href="sweden-e-invoice-mandate.html">Sweden</a> <a href="switzerland-e-invoice-mandate.html">Switzerland</a> <a href="turkey-e-invoice-mandate.html">Turkey</a> <a href="uruguay-dgi-e-invoice-mandate.html">Uruguay</a> <a href="paraguay-dnit-e-invoice-mandate.html">Paraguay</a> <a href="ecuador-sri-e-invoice-mandate.html">Ecuador</a> <a href="vietnam-e-invoice-mandate.html">Vietnam</a></p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or accounting advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every check runs locally. This page is static and summarises Czech e-invoicing as advisory sources report it, not from the law; dates and fines can change, so check the Ministry of Finance (mfcr.cz) before relying on them.</p>
+<p class="support">Free and open source. If it caught a defect before a rejection, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+</footer>
+</main>
+</body></html>

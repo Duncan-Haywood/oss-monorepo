@@ -1,0 +1,7 @@
+These five raw messages are fixtures from the mail gem
+(https://github.com/mikel/mail, spec/fixtures/emails/multipart_report_emails),
+copyright 2009-2016 Mikel Lindsaar, MIT License (LICENSE in this directory).
+Real delivery-failure reports, copied unmodified. Scored 5/5 by the bounce
+reader before any change (report_422 is a 4.2.2 "delayed" warning, read as
+out_of_office like the flufl set's postponed notices). They exposed one bug:
+a DSN naming several failed recipients stopped only the first.

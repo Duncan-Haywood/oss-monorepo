@@ -123,6 +123,17 @@ export function seasonalAdjust(x, period, opts = {}) {
     if (m % 2) { for (let k = -half; k <= half; k++) sum += x[t + k]; trend[t] = sum / m; }
     else { sum = 0.5 * x[t - half] + 0.5 * x[t + half]; for (let k = -half + 1; k < half; k++) sum += x[t + k]; trend[t] = sum / m; }
   }
+  if (opts.multiplicative) {
+    // ratio to the moving average: the season is a factor (centred at 1), so a season that grows with the level is removed whole
+    if (opts.drift) throw new Error('A multiplicative season cannot also drift: leave out one of the two.');
+    if (x.some((v) => !(v > 0))) throw new Error('A multiplicative season needs a series of positive values.');
+    const ratios = Array.from({ length: m }, () => []);
+    for (let t = 0; t < n; t++) if (trend[t] !== null && trend[t] > 0) ratios[t % m].push(x[t] / trend[t]);
+    const rawF = ratios.map((a) => (a.length ? median(a) : 1));
+    const mean = rawF.reduce((s, v) => s + v, 0) / m;
+    const factors = rawF.map((v) => v / mean);
+    return { adjusted: x.map((v, t) => v / factors[t % m]), profile: factors, multiplicative: true };
+  }
   const phases = Array.from({ length: m }, () => []);
   for (let t = 0; t < n; t++) if (trend[t] !== null) phases[t % m].push(x[t] - trend[t]);
   const raw = phases.map((a) => (a.length ? median(a) : 0));
@@ -280,6 +291,8 @@ function solveSym(H, b) {
 const RANGE_TEMPER = 1.15;
 // Clumpy counts scored with the NB cost: 1.15 held the planted bend on 145 of 161 found bends (90%), 1.4 on 153 (95%), 1.7 on 157 (README, 2026-10-26).
 const RANGE_TEMPER_NB = 1.4;
+// Measured coverage (README, 2026-10-26 and 27): 94% over 277 found bends on tuning-free seeds, 82% (65 of 79) where the slope bump is steep (0.04).
+const GROWTH_RANGE_NB_NOTE = 'Clumpy-count ranges held the true bend on about 94% of simulated series, but only about 82% where the growth change is steep (and the range narrow): treat a narrow range as optimistic.';
 export function poissonTrend(x, { base = null, penalty = 'bic', minSegment = 2, passes = 12, bend = false, knotMargin = 0.1, scale = 1, nbSize = 0, diag = null } = {}) {
   const n = x.length;
   const nb = nbSize > 0 && Number.isFinite(nbSize);
@@ -766,6 +779,41 @@ export function ar1JointFit(x, { penalty = 'bic', minSegment = 2, passes = 3 } =
   return { ...p, rho, sigma };
 }
 
+/**
+ * Profile fit over rho: the exact AR(1) likelihood is scored on a grid of rho (each with its own PELT fit and
+ * innovation sd, as in lake-huron-profile.test.mjs) and the best score wins. Score per rho:
+ * n log(sd^2) - log(1 - rho^2) + penalty per change. Slower than ar1JointFit (one fit per grid point) but it
+ * cannot be pulled to a wrong rho by a start value. Returns { changepoints, rho, sigma, penalty, grid }.
+ */
+export function ar1ProfileFit(x, { penalty = 'bic', minSegment = 2, grid = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9] } = {}) {
+  const n = x.length;
+  let best = null;
+  const scores = [];
+  for (const rho of grid) {
+    let sigma = robustSd(x) * Math.sqrt(1 + rho), p;
+    for (let it = 0; it < 4; it++) {
+      p = pelt(x, { model: 'ar1mean', penalty, minSegment, sigma, rho });
+      const b = [0, ...p.changepoints, n];
+      const c = 1 - rho, w0 = 1 - rho * rho;
+      let ss = 0;
+      for (let k = 0; k + 1 < b.length; k++) {
+        const s = b[k], t = b[k + 1];
+        let su = 0;
+        for (let i = s + 1; i < t; i++) su += x[i] - rho * x[i - 1];
+        const mu = (w0 * x[s] + c * su) / (w0 + (t - s - 1) * c * c);
+        ss += w0 * (x[s] - mu) ** 2;
+        for (let i = s + 1; i < t; i++) ss += (x[i] - rho * x[i - 1] - c * mu) ** 2;
+      }
+      sigma = Math.sqrt(ss / n) || sigma;
+    }
+    const score = n * Math.log(sigma * sigma) - Math.log(1 - rho * rho) + 2 * p.changepoints.length * Math.log(n);
+    scores.push({ rho, score: round(score, 3), changes: p.changepoints.length });
+    if (!best || score < best.score) best = { ...p, rho, sigma, score };
+  }
+  const { score, ...rest } = best;
+  return { ...rest, grid: scores };
+}
+
 // ---------------------------------------------------------------- input
 
 /** Split one CSV line, honouring double quotes. */
@@ -930,6 +978,26 @@ export function makeCost(x, model = 'mean', sigma = robustSd(x), rho = 0, exposu
       return m * (Math.log(2 * Math.PI * v) + 1);
     };
   }
+  if (model === 'meanvarlaplace') {
+    // Level and volatility with double-exponential (Laplace) noise: the fit is the segment median and the mean absolute
+    // deviation b about it, -2 log-likelihood 2 m (log 2b + 1). Heavy tails pull b far less than they pull a variance.
+    // No prefix sums for a median, so each segment is sorted on demand (cached by its ends: PELT asks again).
+    const floor = Math.max(1e-9, sigma * 1e-3);
+    const memo = new Map();
+    return (s, t) => {
+      const key = s * (n + 1) + t;
+      const hit = memo.get(key);
+      if (hit !== undefined) return hit;
+      const m = t - s;
+      const seg = Array.from(x.subarray ? x.subarray(s, t) : x.slice(s, t)).sort((a, b) => a - b);
+      const med = m % 2 ? seg[(m - 1) / 2] : (seg[m / 2 - 1] + seg[m / 2]) / 2;
+      let ad = 0;
+      for (let i = 0; i < m; i++) ad += Math.abs(seg[i] - med);
+      const c = 2 * m * (Math.log(2 * Math.max(floor, ad / m)) + 1);
+      memo.set(key, c);
+      return c;
+    };
+  }
   if (model === 'trend') {
     // One straight line per segment, noise sd sigma: the cost is the segment's residual sum of squares
     // about its least-squares line over sigma^2, from prefix sums of x, t, t^2, t x. t is scaled to [0, 1]
@@ -1078,7 +1146,7 @@ export function negbinSize(x) {
 export function penaltyValue(penalty, n, model) {
   if (typeof penalty === 'number' && Number.isFinite(penalty) && penalty >= 0) return penalty;
   if (typeof penalty === 'string' && /^\d+(\.\d+)?$/.test(penalty.trim())) return Number(penalty);
-  const k = model === 'meanvar' || model === 'trend' ? 3 : 2;  // trend: location plus a level and a slope; poisson, like mean: location plus one rate
+  const k = model === 'meanvar' || model === 'meanvarlaplace' || model === 'trend' ? 3 : 2;  // trend: location plus a level and a slope; poisson, like mean: location plus one rate
   switch (String(penalty).toLowerCase()) {
     case 'bic': return k * Math.log(n);
     case 'aic': return 2 * k;
@@ -1424,6 +1492,122 @@ const fmt = (v) => (Math.abs(v) >= 100 ? v.toFixed(0) : Math.abs(v) >= 1 ? v.toF
  * Run both methods on a series. Input: DEFAULTS overlaid with the caller's
  * fields; `values` (array of numbers) may replace `csv`.
  */
+// Segment-standardise a series by the fitted changepoints, then look for what a Gaussian variance model cannot hold:
+// fourth moment above 4.5 (Gaussian runs top out near 3.9), lag-1 autocorrelation of the residuals from 0.25, and of their
+// squares from 0.2 (Gaussian 90th percentiles 0.08 and 0.11). Returns a warning string or null.
+/**
+ * Dispersion of the squared segment-standardised residuals relative to Gaussian noise (1 for Gaussian, larger for heavy
+ * tails or clustered volatility): their long-run variance (Bartlett window) over 2. `--dispersion` multiplies the meanvar
+ * penalty by it, as `overdispersion` does for counts (eval/meanvar-dispersion.mjs, README).
+ */
+export function squaredDispersion(x, cps) {
+  const b = [0, ...cps, x.length]; const z = [];
+  for (let s = 0; s < b.length - 1; s++) {
+    const seg = x.slice(b[s], b[s + 1]); if (!seg.length) continue;
+    const m = seg.reduce((a, c) => a + c, 0) / seg.length;
+    const sd = Math.sqrt(seg.reduce((a, c) => a + (c - m) ** 2, 0) / seg.length) || 1;
+    for (const c of seg) z.push((c - m) / sd);
+  }
+  const n = z.length, q = z.map((c) => c * c), m = q.reduce((a, c) => a + c, 0) / n;
+  const g = (k) => { let t = 0; for (let i = k; i < n; i++) t += (q[i] - m) * (q[i - k] - m); return t / n; };
+  const L = Math.floor(Math.sqrt(n) / 1.5) || 1; let lrv = g(0);
+  for (let k = 1; k <= L; k++) lrv += 2 * (1 - k / (L + 1)) * g(k);
+  return Math.max(1, lrv / 2);
+}
+
+/**
+ * Block-bootstrap penalty for the meanvar model: standardise the series by a 3x BIC fit, resample the residuals in blocks
+ * (which keeps volatility clustering and short memory), and take the 95th percentile of the best single-split cost drop
+ * over the resamples. Returns max(BIC, that), so it only ever raises the penalty. Seeded, so the same series gives the
+ * same answer. eval/meanvar-block-bootstrap.mjs, README "--bootstrap".
+ */
+export function bootstrapPenalty(x, { minSegment = 10, resamples = 100, seed = 12345, model = 'meanvar', sigma = robustSd(x), exposure = null } = {}) {
+  if (model === 'poisson') return poissonBootstrapPenalty(x, { minSegment, resamples, seed, exposure });
+  // model 'mean': residuals about the segment means are kept in units of the noise scale `sigma` the mean cost uses, so
+  // autocorrelated or clustered noise (residual sd above sigma) raises the penalty; meanvar standardises each segment.
+  const n = x.length, bic = penaltyValue('bic', n, model);
+  if (n < 4 * minSegment) return bic;
+  const cps = pelt(x, { model, penalty: (model === 'mean' ? 2 : 3) * bic, minSegment, sigma }).changepoints;
+  const b = [0, ...cps, n], z = [];
+  for (let s = 0; s < b.length - 1; s++) {
+    const seg = x.slice(b[s], b[s + 1]); const m = seg.reduce((a, c) => a + c, 0) / seg.length;
+    const sd = model === 'mean' ? (sigma || 1) : Math.sqrt(seg.reduce((a, c) => a + (c - m) ** 2, 0) / seg.length) || 1;
+    for (const c of seg) z.push((c - m) / sd);
+  }
+  let st = seed >>> 0;
+  const rnd = () => { st = (st + 0x6D2B79F5) >>> 0; let t = st; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  const L = Math.ceil(2 * Math.cbrt(n)), gains = [];
+  for (let r = 0; r < resamples; r++) {
+    const y = []; while (y.length < n) { const s = Math.floor(rnd() * (n - L + 1)); for (let i = 0; i < L; i++) y.push(z[s + i]); }
+    y.length = n;
+    const c = makeCost(y, model, 1), whole = c(0, n); let g = 0;
+    for (let s = minSegment; s <= n - minSegment; s++) g = Math.max(g, whole - c(0, s) - c(s, n));
+    gains.push(g);
+  }
+  gains.sort((a, c) => a - c);
+  return Math.max(bic, gains[Math.floor(0.95 * (resamples - 1))]);
+}
+
+/**
+ * Block-bootstrap penalty for the Poisson model. A 3x BIC fit gives Pearson residuals (count minus segment rate times
+ * exposure, over its root); resampled in blocks they keep clustering (overdispersion that comes in runs) and are turned
+ * back into counts about the overall rate, max(0, round(rate*e + r*sqrt(rate*e))). The 95th percentile of the best
+ * single-split drop over the resamples is the penalty, never below BIC. eval/poisson-block-bootstrap.mjs.
+ */
+export function poissonBootstrapPenalty(x, { minSegment = 2, resamples = 100, seed = 12345, exposure = null } = {}) {
+  const n = x.length, bic = penaltyValue('bic', n, 'poisson');
+  if (n < 4 * minSegment) return bic;
+  const e = (t) => (exposure ? exposure[t] : 1);
+  const cps = pelt(x, { model: 'poisson', penalty: 3 * bic, minSegment, exposure }).changepoints;
+  const b = [0, ...cps, n], z = [];
+  for (let s = 0; s < b.length - 1; s++) {
+    let a = 0, m = 0; for (let t = b[s]; t < b[s + 1]; t++) { a += x[t]; m += e(t); }
+    const lam = m > 0 ? a / m : 0;
+    for (let t = b[s]; t < b[s + 1]; t++) { const mu = lam * e(t); z.push(mu > 0 ? (x[t] - mu) / Math.sqrt(mu) : 0); }
+  }
+  const tot = x.reduce((a, c) => a + c, 0), den = Array.from({ length: n }, (_, t) => e(t)).reduce((a, c) => a + c, 0), lam0 = tot / den;
+  if (!(lam0 > 0)) return bic;
+  let st = seed >>> 0;
+  const rnd = () => { st = (st + 0x6D2B79F5) >>> 0; let t = st; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  const L = Math.ceil(2 * Math.cbrt(n)), gains = [];
+  for (let r = 0; r < resamples; r++) {
+    const zr = []; while (zr.length < n) { const s = Math.floor(rnd() * (n - L + 1)); for (let i = 0; i < L; i++) zr.push(z[s + i]); }
+    const y = Array.from({ length: n }, (_, t) => { const mu = lam0 * e(t); return Math.max(0, Math.round(mu + zr[t] * Math.sqrt(mu))); });
+    const c = makeCost(y, 'poisson', 1, 0, exposure), whole = c(0, n); let g = 0;
+    for (let q = minSegment; q <= n - minSegment; q++) g = Math.max(g, whole - c(0, q) - c(q, n));
+    gains.push(g);
+  }
+  gains.sort((a, c) => a - c);
+  return Math.max(bic, gains[Math.floor(0.95 * (resamples - 1))]);
+}
+
+export function meanvarNoiseCheck(x, cps, robust = false) {
+  const b = [0, ...cps, x.length]; const z = [];
+  for (let s = 0; s < b.length - 1; s++) {
+    const seg = x.slice(b[s], b[s + 1]); if (!seg.length) continue;
+    const m = seg.reduce((a, c) => a + c, 0) / seg.length;
+    const sd = Math.sqrt(seg.reduce((a, c) => a + (c - m) ** 2, 0) / seg.length) || 1;
+    for (const c of seg) z.push((c - m) / sd);
+  }
+  const n = z.length;
+  const acf = (a) => { const m = a.reduce((p, c) => p + c, 0) / n; let num = 0, den = 0; for (let i = 0; i < n; i++) { den += (a[i] - m) ** 2; if (i) num += (a[i] - m) * (a[i - 1] - m); } return den ? num / den : 0; };
+  const kurt = z.reduce((a, c) => a + c ** 4, 0) / n;
+  const sq = z.map((c) => c * c);
+  const r1 = acf(z), r2 = acf(sq);
+  // Ljung-Box over lags 1..5 of the squares: volatility clustering that decays slowly (GARCH) shows at lags 2 to 5 while lag 1 stays
+  // under 0.2. 11.07 is the 95th percentile of chi-square(5), and Gaussian runs exceed it 5% of the time (eval/meanvar-robustness.mjs).
+  let q = 0;
+  if (n >= 50) for (let k = 1; k <= 5; k++) { const m = sq.reduce((p, c) => p + c, 0) / n; let num = 0, den = 0; for (let i = 0; i < n; i++) { den += (sq[i] - m) ** 2; if (i >= k) num += (sq[i] - m) * (sq[i - k] - m); } const rk = den ? num / den : 0; q += rk * rk / (n - k); }
+  q *= n * (n + 2);
+  const why = [];
+  if (kurt > 4.5 && !robust) why.push(`heavy tails (kurtosis ${kurt.toFixed(1)}, 3 for Gaussian noise)`);
+  if (r1 >= 0.25) why.push(`autocorrelation (lag 1: ${r1.toFixed(2)})`);
+  if (r2 >= 0.2) why.push(`clustered volatility (lag 1 of the squares: ${r2.toFixed(2)})`);
+  else if (q >= 11.07) why.push(`clustered volatility (Ljung-Box over lags 1 to 5 of the squares: ${q.toFixed(1)}, 11.1 is the 5% line)`);
+  if (!why.length) return null;
+  return `The values left after removing the segments show ${why.join(' and ')}. The variance model assumes independent Gaussian noise, so on such noise it reports changes that are not there: treat the dates as candidates, not findings.`;
+}
+
 export function analyze(input = {}) {
   const o = { ...DEFAULTS, ...input };
   let labels, values, column, skipped = 0;
@@ -1438,6 +1622,14 @@ export function analyze(input = {}) {
   if (values.length < 4) throw new Error(`Need at least 4 numbers; got ${values.length}.`);
   if (values.length > 100000) throw new Error('More than 100,000 points: aggregate the series first.');
   const model = o.model === 'meanvar' || o.model === 'poisson' || o.model === 'trend' ? o.model : 'mean';
+  // log: a series that grows by a constant percentage is a straight line once logged; segments are reported back in original units
+  const original0 = values;
+  if (o.log) {
+    if (model === 'poisson') throw new Error('Taking logs is for the "mean", "meanvar" and "trend" models, not counts: counts already model the rate as a factor.');
+    const bad = values.findIndex((v) => !(v > 0));
+    if (bad >= 0) throw new Error(`Taking logs needs positive values; row ${bad + 1} is ${values[bad]}.`);
+    values = values.map(Math.log);
+  }
   if (model === 'poisson') {
     const bad = values.findIndex((v) => v < 0 || !Number.isInteger(v));
     if (bad >= 0) throw new Error(`The Poisson model needs counts (whole numbers, 0 or more); row ${bad + 1} is ${values[bad]}.`);
@@ -1445,6 +1637,7 @@ export function analyze(input = {}) {
   const period = Math.floor(Number(o.period) || 0);
   let burstInfo = null;
   const rawCounts = values;
+  if (o.episodes && model !== 'poisson') throw new Error('Episodes are for counts: use model "poisson".');
   if (o.bursts) {
     if (model !== 'poisson') throw new Error('The burst rule is for counts: use model "poisson".');
     const b = findBursts(values, { period, ratio: typeof o.bursts === "number" ? o.bursts : 2.5, runs: o.burstRuns || 0, ...(o.burstRunRatio ? { runRatio: o.burstRunRatio } : {}) });
@@ -1460,7 +1653,7 @@ export function analyze(input = {}) {
     phi = typeof o.overdispersion === 'number' ? Math.max(1, o.overdispersion) : countDispersion(values, period);
     penalty = phi * penaltyValue(o.penalty ?? 'bic', values.length, 'poisson');
   }
-  let profile = null, exposure = null;
+  let profile = null, exposure = null, seasonMultiplicative = false;
   const original = values;
   let holIdx = null, holKinds = null;
   if (o.holidays && o.holidays.length) {
@@ -1478,7 +1671,11 @@ export function analyze(input = {}) {
       const fit = poissonSeasonal(original, period, { penalty, minSegment: Math.max(1, Math.floor(Number(o.minSegment) || 2)), skip: holIdx ? new Set(holIdx) : null });
       exposure = fit.exposure;
       profile = fit.factors;
-    } else ({ adjusted: values, profile } = seasonalAdjust(original, period, { drift: !!o.drift }));
+    } else {
+      if (o.seasonMode === 'multiplicative' && model === 'trend') throw new Error('A multiplicative season is not available with the trend model.');
+      ({ adjusted: values, profile } = seasonalAdjust(original, period, { drift: !!o.drift, multiplicative: o.seasonMode === 'multiplicative' }));
+      if (o.seasonMode === 'multiplicative') seasonMultiplicative = true;
+    }
   }
   let holidayFit = null;
   if (holIdx) {
@@ -1505,7 +1702,7 @@ export function analyze(input = {}) {
     growth = fit.g;
     if (fit.knot !== undefined) { countKnot = fit.knot; growthAfter = fit.slopeAfter; countKnots = fit.knots; countRates = fit.rates; countRanges = fit.knotRanges; }
   } else if (o.trend) {
-    ({ adjusted: values, slope, slopeAfter, knot, knots, slopes, knotRanges } = trendAdjust(values, { penalty: o.penalty, minSegment: Math.max(1, Math.floor(Number(o.minSegment) || (model === 'meanvar' ? 5 : 2))), ar1: !!o.ar1 && model === 'mean', bend: o.trend === 'bend' ? 1 : o.trend === 'bends' ? 3 : false, joint: !!o.jointKnots, knotMargin: o.knotMargin }));
+    ({ adjusted: values, slope, slopeAfter, knot, knots, slopes, knotRanges } = trendAdjust(values, { penalty: o.penalty, minSegment: Math.max(1, Math.floor(Number(o.minSegment) || (model === 'meanvar' ? 10 : 2))), ar1: !!o.ar1 && model === 'mean', bend: o.trend === 'bend' ? 1 : o.trend === 'bends' ? 3 : false, joint: !!o.jointKnots, knotMargin: o.knotMargin }));
   }
   nbAfterExposure();
   let sigma = robustSd(values);
@@ -1516,12 +1713,30 @@ export function analyze(input = {}) {
     rho = ar1Rho(values);
     if (!joint) sigma = longRunSd(sigma, rho);
   }
-  const minSegment = Math.max(1, Math.floor(Number(o.minSegment) || (model === 'meanvar' ? 5 : model === 'trend' ? 4 : 2)));
+  const minSegment = Math.max(1, Math.floor(Number(o.minSegment) || (model === 'meanvar' ? 10 : model === 'trend' ? 4 : 2)));
+  // robust: the variance model with Laplace noise, for heavy tails (eval/meanvar-laplace.mjs, README)
+  const robust = !!o.robust && model === 'meanvar';
+  if (o.robust && model !== 'meanvar') throw new Error('The robust cost is for the "meanvar" model only.');
   let p;
   if (joint) {
     p = ar1JointFit(values, { penalty: o.penalty, minSegment });
     ({ rho, sigma } = p);
-  } else p = isFinite(nbSize) && nbSize > 0 ? pelt(values, { model: 'negbin', penalty, minSegment, size: nbSize, exposure }) : pelt(values, { model, penalty, minSegment, sigma, exposure });
+  } else p = isFinite(nbSize) && nbSize > 0 ? pelt(values, { model: 'negbin', penalty, minSegment, size: nbSize, exposure }) : pelt(values, { model: robust ? 'meanvarlaplace' : model, penalty, minSegment, sigma, exposure });
+  // dispersion: refit with the penalty scaled by the squared residuals' dispersion (heavy tails, clustered volatility)
+  let dispersion = null;
+  if (o.dispersion) {
+    if (model !== 'meanvar' || robust) throw new Error('The dispersion penalty is for the "meanvar" model without --robust.');
+    const f = squaredDispersion(values, p.changepoints);
+    if (f > 1.0001) { dispersion = round(f, 2); p = pelt(values, { model, penalty: f * penaltyValue(penalty ?? 'bic', values.length, model), minSegment, sigma, exposure }); }
+  }
+  // bootstrap: refit with a penalty read off block-resampled residuals (clustered volatility, heavy tails, short memory)
+  let bootstrap = null;
+  if (o.bootstrap) {
+    if ((model !== 'meanvar' && model !== 'mean' && model !== 'poisson') || robust || o.dispersion || o.ar1) throw new Error('The bootstrap penalty is for the "meanvar", "mean" or "poisson" model without --robust, --dispersion or --ar1.');
+    const bp = bootstrapPenalty(values, { minSegment, model, sigma, exposure });
+    const bic = penaltyValue(penalty ?? 'bic', values.length, model);
+    if (bp > bic * 1.0001) { bootstrap = round(bp, 2); p = pelt(values, { model, penalty: bp, minSegment, sigma, exposure }); }
+  }
   const bounds = [0, ...p.changepoints, values.length];
   const segments = [];
   const lines = [];
@@ -1530,6 +1745,7 @@ export function analyze(input = {}) {
     // seasonal counts: the segment's mean is its rate per average-season point, total over total exposure
     if (exposure) { let a = 0, E = 0; for (let t = bounds[i]; t < bounds[i + 1]; t++) { a += values[t]; E += exposure[t]; } s.mean = a / E; }
     const seg = { start: bounds[i], end: bounds[i + 1] - 1, from: labels[bounds[i]], to: labels[bounds[i + 1] - 1], n: s.n, mean: round(s.mean), sd: round(s.sd) };
+    if (o.log && !o.trend && model !== 'trend') seg.geometricMean = round(Math.exp(s.mean), 4);
     if (model === 'trend') {
       const f = lineFit(values, bounds[i], bounds[i + 1]);
       lines.push(f);
@@ -1546,13 +1762,16 @@ export function analyze(input = {}) {
     const slope = median(values.slice(1).map((v, i) => v - values[i]));
     bvals = values.map((v, i) => v - slope * i);
   }
+  // robust: the Bayesian pass reads the series clipped at the median +- 2 robust sds, so a heavy-tailed outlier is one
+  // bounded surprise, not evidence of a new segment (eval/meanvar-bayes-tails.mjs, README)
+  if (robust) { const m = median(bvals), c = 2 * robustSd(bvals); bvals = bvals.map((v) => Math.max(m - c, Math.min(m + c, v))); }
   const b = bocpd(bvals, { ...(rho ? { rho, prior: { ...defaultPrior(prewhiten(values, rho)), mu: median(values) } } : {}), hazardLambda: Number(o.hazardLambda) || 100, lag: Math.max(1, Math.floor(Number(o.lag) || 5)), model: model === 'trend' ? 'mean' : model, exposure, dispersion: phi ?? 1, nbSize: isFinite(nbSize) && nbSize > 0 ? nbSize : 0 });
   const det = peaks(b.changeProb, Number(o.threshold) || 0.5);
   // joint AR(1) fits use their own likelihood, so no range is offered for them
   let ranges = null;
   if (!joint && o.intervals !== false) {
     const nbOn = isFinite(nbSize) && nbSize > 0;
-    ranges = changeIntervals(p.changepoints, values.length, nbOn ? makeCost(values, 'negbin', sigma, 0, exposure, nbSize) : makeCost(values, model, sigma, 0, exposure), { minSegment, level: 0.95 });
+    ranges = changeIntervals(p.changepoints, values.length, nbOn ? makeCost(values, 'negbin', sigma, 0, exposure, nbSize) : makeCost(values, robust ? 'meanvarlaplace' : model, sigma, 0, exposure), { minSegment, level: 0.95 });
   }
   // the range assumes independent noise: on sticky series without --ar1 it is far too narrow (57% and 30% coverage, README)
   let rangeWarning = null;
@@ -1564,6 +1783,28 @@ export function analyze(input = {}) {
   if (ranges && !rangeWarning && model === 'poisson' && !phi && !(isFinite(nbSize) && nbSize > 0) && values.length >= 90) {
     const d0 = countDispersion(values, period);
     if (d0 >= 2.5) rangeWarning = `These counts vary about ${round(d0, 1)} times more than Poisson counts would, so these ranges are too narrow: use the negative-binomial cost (--overdispersion nb).`;
+  }
+  // a variance model reads a short run of similar values as its own calm regime: on 202 quarters of US GDP growth the
+  // default 5-point minimum made a 5-quarter patch a segment and its range missed the documented date (README, Great Moderation)
+  if (!rangeWarning && model === 'meanvar' && p.changepoints.length) {
+    const short = segments.filter((s) => s.n < 10);
+    if (short.length) rangeWarning = `${short.length === 1 ? 'One segment has' : `${short.length} segments have`} fewer than 10 points (${short.map((s) => `${s.from} to ${s.to}`).join(', ')}), and a variance model can read a short quiet run as its own regime: check the dates, or try --min-segment 12 or more.`;
+  }
+  // a variance model assumes Gaussian noise: on heavy-tailed, autocorrelated or volatility-clustered noise with no change at all it
+  // reported one 35% to 68% of the time (eval/meanvar-robustness.mjs, README). Warn from the segment-standardised residuals.
+  if (!rangeWarning && model === 'meanvar' && values.length >= 40) {
+    const nd = meanvarNoiseCheck(values, p.changepoints, robust);
+    if (nd) rangeWarning = nd;
+  }
+  // a drifting seasonal shape that the profile cannot follow shows up as a run of steps inside a cycle or two (UK gas, README):
+  // they mark a changing seasonal shape, not separate regime changes
+  let driftWarning = null;
+  if (o.drift && period && p.changepoints.length >= 3) {
+    const cp = p.changepoints;
+    const k = cp.findIndex((c, j) => j + 2 < cp.length && cp[j + 2] - c <= 2 * period);
+    // autocorrelated noise alone fires this warning (75% to 88% of null series at rho 0.5, eval/drift-warning-null195-ar1.mjs); --ar1 cut that to 0 to 3%
+    const hintAr1 = !o.ar1 && ar1Rho(values) >= 0.3 ? ` The residuals look autocorrelated (rho about ${round(ar1Rho(values), 2)}), which alone can cause such a run of steps: re-run with --ar1 (page: allow for autocorrelation) before reading them as a changing shape.` : '';
+    if (k >= 0) driftWarning = `With a drifting seasonal shape, ${cp.slice(k).filter((c) => c - cp[k] <= 2 * period).length} steps fall within two cycles of ${labels[cp[k]]}: that usually marks a seasonal shape that is still changing (for example an amplitude that grows), not separate regime changes. Check the dates against the series.${hintAr1}`;
   }
   const changes = p.changepoints.map((i, k) => {
     const before = segments[k];
@@ -1584,6 +1825,7 @@ export function analyze(input = {}) {
       meanAfter: after.mean,
       shift: trend ? trend.jump : round(after.mean - before.mean),
       ...(trend ? { jump: trend.jump, slopeBefore: trend.slopeBefore, slopeAfter: trend.slopeAfter } : {}),
+      ...(o.log ? { ratio: round(Math.exp(trend ? trend.jump : after.mean - before.mean), 4) } : {}),
       shiftInNoiseSd: round((trend ? trend.jump : after.mean - before.mean) / (joint ? longRunSd(sigma / Math.sqrt(1 + rho), rho) : sigma), 3),
       sdBefore: before.sd,
       sdAfter: after.sd,
@@ -1591,21 +1833,27 @@ export function analyze(input = {}) {
       ...(ranges ? { range95: { from: labels[ranges[k].from], to: labels[ranges[k].to], fromIndex: ranges[k].from, toIndex: ranges[k].to } } : {}),
     };
   });
-  const summary = summarize({ n: values.length, column, model, changes, det, labels, prob: b.changeProb, skipped });
+  const excursions = model === 'poisson' ? findExcursions(original, p.changepoints, { exposure }).map((x) => ({ from: labels[x.fromIndex], to: labels[x.toIndex], fromIndex: x.fromIndex, toIndex: x.toIndex, length: x.length, direction: x.direction, baselineRate: round(x.baselineRate), excursionRate: round(x.excursionRate), ratio: x.ratio === null ? null : round(x.ratio, 3), sameBaselineLR: round(x.sameBaselineLR, 3) })) : [];
+  const summary = summarize({ n: values.length, column, model, changes, det, labels, prob: b.changeProb, skipped }) + (o.log ? ' Values are natural logs: a move of x in the mean is a factor of e^x (the ratio is in each change).' : '') + excursions.map((x) => ` Changes at ${x.from} and just after ${x.to} may be one temporary ${x.direction === 'up' ? 'burst' : 'dip'}, not two steps: the rate before and after it is the same (${fmt(x.baselineRate)} a point, likelihood ratio ${fmt(x.sameBaselineLR)} against 3.84), and inside it is ${fmt(x.excursionRate)}.`).join('');
   return {
     n: values.length,
     column,
     skipped,
     model,
     noiseSd: round(sigma),
-    ...(period ? { seasonal: { period, profile: profile.map((v) => round(v, exposure ? 3 : undefined)), ...(exposure ? { multiplicative: true } : {}) } } : {}),
+    ...(period ? { seasonal: { period, profile: profile.map((v) => round(v, exposure || seasonMultiplicative ? 3 : undefined)), ...(exposure || seasonMultiplicative ? { multiplicative: true } : {}) } } : {}),
     ...(slope !== null ? { trend: { slopePerPoint: round(slope, 6), ...(knot !== undefined ? { slopeAfter: round(slopeAfter, 6), slopeChangesAt: knot, ...(knotRanges ? { slopeChangeRange95: knotRanges.map((r) => ({ at: labels[r.knot], from: labels[r.from], to: labels[r.to], fromIndex: r.from, toIndex: r.to })) } : {}), ...(knots.length > 1 ? { slopeChangesAtAll: knots, slopes: slopes.map((v) => round(v, 6)) } : {}) } : {}) } } : {}),
-    ...(growth !== null ? { trend: { logGrowthAcrossSeries: round(growth, 4), growthFactorAcrossSeries: round(Math.exp(growth), 4), multiplicative: true, ...(countKnot !== undefined ? { growthChangesAt: countKnot, logGrowthAcrossSeriesAfter: round(growthAfter, 4), ...(countRanges ? { growthChangeRange95: countRanges.map((r) => ({ at: labels[r.knot], from: labels[r.from], to: labels[r.to], fromIndex: r.from, toIndex: r.to })) } : {}), ...(countKnots.length > 1 ? { growthChangesAtAll: countKnots, logGrowthAcrossSeriesRates: countRates.map((v) => round(v, 4)) } : {}) } : {}) } } : {}),
+    ...(growth !== null ? { trend: { logGrowthAcrossSeries: round(growth, 4), growthFactorAcrossSeries: round(Math.exp(growth), 4), multiplicative: true, ...(countKnot !== undefined ? { growthChangesAt: countKnot, logGrowthAcrossSeriesAfter: round(growthAfter, 4), ...(countRanges ? { growthChangeRange95: countRanges.map((r) => ({ at: labels[r.knot], from: labels[r.from], to: labels[r.to], fromIndex: r.from, toIndex: r.to })), ...(o.overdispersion === 'nb' ? { growthChangeRangeNote: GROWTH_RANGE_NB_NOTE } : {}) } : {}), ...(countKnots.length > 1 ? { growthChangesAtAll: countKnots, logGrowthAcrossSeriesRates: countRates.map((v) => round(v, 4)) } : {}) } : {}) } } : {}),
     ...(holidayFit ? { holidays: { count: holidayFit.count, factor: round(holidayFit.factor, 3), ...(holidayFit.kinds ? { kinds: holidayFit.kinds.map((k) => ({ ...k, factor: round(k.factor, 3) })) } : {}) } } : {}),
+    ...(dispersion ? { dispersion } : {}),
+    ...(bootstrap ? { bootstrapPenalty: bootstrap } : {}),
     ...(rangeWarning ? { rangeWarning } : {}),
+    ...(driftWarning ? { driftWarning } : {}),
     ...(rho !== null ? { ar1: { rho: round(rho, 3) } } : {}),
     ...(phi !== null ? { dispersion: round(phi, 3) } : {}),
     ...(burstInfo ? { bursts: burstInfo } : {}),
+    ...(o.episodes ? { episodes: findEpisodes(changes, values.length, typeof o.episodes === 'number' ? { maxLen: o.episodes } : {}).map((e) => ({ ...e, from: labels[e.startIndex], to: labels[e.endIndex] })) } : {}),
+    ...(excursions.length ? { excursions } : {}),
     pelt: { penalty: round(p.penalty), minSegment, changepoints: changes, segments },
     bocpd: {
       hazardLambda: Number(o.hazardLambda) || 100,
@@ -1616,7 +1864,8 @@ export function analyze(input = {}) {
       mapRunLength: b.mapRun,
     },
     labels,
-    values: rawCounts,
+    ...(o.log ? { log: true } : {}),
+    values: o.log ? original0 : rawCounts,
     ...(period || o.trend || holidayFit ? { adjusted: values.map((v, t) => round(exposure ? v / exposure[t] : v)) } : {}),
     summary,
   };
@@ -1646,6 +1895,29 @@ export function changeIntervals(changepoints, n, cost, { minSegment = 2, level =
     for (const i of order) { acc += w[i] / tot; from = Math.min(from, ks[i]); to = Math.max(to, ks[i]); if (acc >= level) break; }
     return { index: c, from, to, level };
   });
+}
+
+/**
+ * Burst episodes in fitted count changes: an up-step followed within `maxLen` points by a down-step (or the
+ * reverse) where the level on the far sides differs by well under half the episode's own jump (log scale) is one
+ * episode, not two regime changes. Labels only: the changes themselves are not altered.
+ * `cps` are the changes from analyze() (index, meanBefore, meanAfter); n is the series length.
+ */
+export function findEpisodes(cps, n, { maxLen = Math.max(5, Math.round(n / 10)), maxNet = 0.5 } = {}) {
+  const out = [];
+  for (let k = 0; k + 1 < cps.length; k++) {
+    const a = cps[k], b = cps[k + 1];
+    const len = b.index - a.index;
+    const up = a.meanAfter > a.meanBefore && b.meanAfter < b.meanBefore;
+    const down = a.meanAfter < a.meanBefore && b.meanAfter > b.meanBefore;
+    if (len > maxLen || !(up || down)) continue;
+    const lo = Math.max(a.meanBefore, 1e-9), hi = Math.max(b.meanAfter, 1e-9), mid = Math.max(a.meanAfter, 1e-9);
+    const jump = Math.abs(Math.log(mid / lo)), net = Math.abs(Math.log(hi / lo));
+    if (net >= maxNet * jump) continue;
+    out.push({ kind: up ? 'burst' : 'dip', startIndex: a.index, endIndex: b.index - 1, length: len, level: a.meanAfter, baseBefore: a.meanBefore, baseAfter: b.meanAfter, jumpFactor: Math.round(Math.exp(jump) * 100) / 100, netFactor: Math.round(Math.exp(net) * 100) / 100 });
+    k++;
+  }
+  return out;
 }
 
 /**
@@ -1715,6 +1987,32 @@ export function findBursts(x, { period = 0, ratio = 2.5, side = period ? 3 : 5, 
 }
 
 /** Least-squares line through x[s..t): slope per index, residual sd, and the fitted value at any index. */
+/**
+ * Burst or two steps? With counts, a temporary excursion (a rate that jumps and then returns to where it was) is read by
+ * PELT as two level changes with narrow, over-confident ranges. For each pair of neighbouring changes a < b with a short
+ * segment between them, test whether the rate before a and the rate after b are one rate (Poisson likelihood ratio, 1 df,
+ * 3.84 = 95%): if they are, the pair is one excursion on a steady baseline. Returned as a note beside the changes; the
+ * changes themselves are not altered. `exposure` is the seasonal/holiday expected-share per point when there is one.
+ */
+export function findExcursions(x, cps, { exposure = null, maxFraction = 0.25, critical = 3.84 } = {}) {
+  const n = x.length, e = (t) => (exposure ? exposure[t] : 1);
+  const sum = (lo, hi) => { let c = 0, w = 0; for (let t = lo; t < hi; t++) { c += x[t]; w += e(t); } return { c, w }; };
+  const ll = (c, w, r) => (c > 0 ? c * Math.log(r * w) : 0) - r * w;
+  const out = [];
+  for (let k = 0; k + 1 < cps.length; k++) {
+    const a = cps[k], b = cps[k + 1];
+    if (b - a > maxFraction * n) continue;
+    const L = sum(k ? cps[k - 1] : 0, a), M = sum(a, b), R = sum(b, k + 2 < cps.length ? cps[k + 2] : n);
+    if (!L.w || !R.w || !M.w) continue;
+    const rL = L.c / L.w, rR = R.c / R.w, rM = M.c / M.w, rP = (L.c + R.c) / (L.w + R.w);
+    const lr = 2 * (ll(L.c, L.w, rL) + ll(R.c, R.w, rR) - ll(L.c, L.w, rP) - ll(R.c, R.w, rP));
+    // the middle must sit clearly on one side of both neighbours (a burst up or a dip down)
+    if (!((rM > rL && rM > rR) || (rM < rL && rM < rR))) continue;
+    if (lr < critical) out.push({ fromIndex: a, toIndex: b - 1, length: b - a, baselineRate: rP, excursionRate: rM, ratio: rP > 0 ? rM / rP : null, sameBaselineLR: lr, direction: rM > rP ? 'up' : 'down' });
+  }
+  return out;
+}
+
 function lineFit(x, s, t) {
   const m = t - s;
   let st = 0, sx = 0;
@@ -1748,4 +2046,25 @@ function summarize({ n, column, model, changes, det, labels, skipped }) {
   if (extra.length) lines.push(`The Bayesian method also flags ${extra.map((i) => labels[i]).join(', ')}, which PELT's penalty did not keep: worth a look, weaker evidence.`);
   if (skipped) lines.push(`${skipped} row${skipped > 1 ? 's were' : ' was'} skipped as blank or not numeric.`);
   return lines.join(' ');
+}
+
+/**
+ * Conditional sd of a GARCH(1,1) fitted by Gaussian quasi-maximum likelihood to the series less its median
+ * (h[t] = omega + alpha e[t-1]^2 + beta h[t-1], h[0] the sample variance). Grid search over (alpha, beta) with the
+ * unconditional variance matched to the sample variance (variance targeting), then a local refinement. For
+ * eval/meanvar-garch-filter.mjs; falls back to a constant sd when nothing beats it.
+ */
+export function garchSigma(x) {
+  const n = x.length, ord = [...x].sort((a, b) => a - b), med = ord[Math.floor(n / 2)];
+  const e2 = x.map((c) => (c - med) ** 2), v = e2.reduce((a, c) => a + c, 0) / n || 1;
+  const h = (a, b) => { const w = v * (1 - a - b), o = new Array(n); o[0] = v; for (let t = 1; t < n; t++) o[t] = w + a * e2[t - 1] + b * o[t - 1]; return o; };
+  const nll = (a, b) => { if (a < 0 || b < 0 || a + b >= 0.999) return Infinity; let s = 0; const o = h(a, b); for (let t = 0; t < n; t++) s += Math.log(o[t]) + e2[t] / o[t]; return s; };
+  let best = [0, 0], bl = nll(0, 0);
+  for (let a = 0.02; a <= 0.5; a += 0.04) for (let b = 0; b <= 0.97 - a; b += 0.05) { const l = nll(a, b); if (l < bl) { bl = l; best = [a, b]; } }
+  for (let step = 0.02; step > 0.002; step /= 2) for (let k = 0; k < 20; k++) {
+    let moved = false;
+    for (const [da, db] of [[step, 0], [-step, 0], [0, step], [0, -step]]) { const l = nll(best[0] + da, best[1] + db); if (l < bl - 1e-9) { bl = l; best = [best[0] + da, best[1] + db]; moved = true; } }
+    if (!moved) break;
+  }
+  return h(best[0], best[1]).map(Math.sqrt);
 }

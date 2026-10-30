@@ -129,6 +129,10 @@ jobs:
           # 14 days (~100-150 merges a day) read history. A pull request only
           # needs the build to pass, so it keeps the cheap depth-1 clone.
           fetch-depth: ${{ github.event_name == 'pull_request' && 1 || 3000 }}
+          # Full blobs, not `filter: blob:none`: the daily brief's `--numstat`
+          # makes git fetch every changed blob in its 14-day window commit by
+          # commit, which was slower than this clone (measured 2026-10-24,
+          # docs/history/pages-build-speed-2026-10-24.md).
 
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
@@ -139,8 +143,61 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Build the site
+      # The development dashboard needs nothing from the site build, so it
+      # starts first and finishes under it rather than after it (2026-10-24:
+      # its API calls were 103 s of a 7-minute merge-to-live). It is written
+      # beside the artifact and copied in after check.mjs, where it always went.
+      # The live `stats.json` lets it reuse the CI counts of days it already
+      # counted (a few dozen API requests rather than ~170); a missing one just
+      # costs the full count. Its GitHub API metrics need a token, so pull
+      # requests skip it.
+      - name: Start the development dashboard in the background
+        if: github.event_name != 'pull_request'
         env:
+          GITHUB_TOKEN: ${{ github.token }}
+          SITE_URL: ${{ vars.PAGES_BASE_URL || format('https://{0}.github.io/{1}/', github.repository_owner, github.event.repository.name) }}
+        run: |
+          bg="$RUNNER_TEMP/background"
+          mkdir -p "$bg"
+          (
+            prev="$bg/prev-stats.json"
+            curl -fsS --retry 3 "${SITE_URL%/}/dev/stats.json" -o "$prev" || rm -f "$prev"
+            node platform/devstats/build.mjs --out="$bg/dev" --previous="$prev"
+            echo $? > "$bg/dashboard.status"
+          ) > "$bg/dashboard.log" 2>&1 &
+
+      # Share cards are most of the build's own time (about 2,700 PNGs drawn
+      # in JS) and nearly all are the same from one deploy to the next, so
+      # they are kept between runs, keyed by what they are drawn from
+      # (share.mjs, renderCards). One saved entry per renderer version per day,
+      # not per run: the repository's 10 GB cache is shared with every other
+      # workflow, and a run a few minutes old is as good a source as this one.
+      - name: Name today's share-card cache
+        id: cards
+        run: echo "day=$(date -u +%Y%m%d)" >> "$GITHUB_OUTPUT"
+
+      - name: Restore the share cards
+        id: restore-cards
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: ${{ runner.temp }}/share-cards
+          key: share-cards-${{ hashFiles('platform/pages/sharecard.mjs', 'platform/pages/fontraster.mjs', 'platform/pages/fonts/**') }}-${{ steps.cards.outputs.day }}
+          restore-keys: |
+            share-cards-${{ hashFiles('platform/pages/sharecard.mjs', 'platform/pages/fontraster.mjs', 'platform/pages/fonts/**') }}-
+
+      # The build throws on a post whose description is over 160 characters
+      # (writing.mjs, loadPost) after minutes of work and deploys nothing;
+      # the checker says the same in a second. 2026-10-29: a merged post did it.
+      - name: Check blog post front matter before the long build
+        run: python3 platform/ci/check_post_frontmatter.py
+
+      - name: Build the site
+        id: build-site
+        env:
+          # A malformed post is left off a deploy with a warning rather than
+          # stopping it (writing.mjs, loadPosts); pull requests stay strict.
+          PAGES_SKIP_BAD_POSTS: ${{ github.event_name != 'pull_request' && '1' || '' }}
+          PAGES_CARD_CACHE: ${{ runner.temp }}/share-cards
           # Owner-overridable (a custom domain, say). The default is where
           # GitHub serves a project Pages site for this repository, derived
           # from the repository rather than build.mjs's DEFAULT_BASE_URL,
@@ -151,7 +208,9 @@ jobs:
         run: |
           export PAGES_BASE_URL="${PAGES_BASE_URL:-https://${GITHUB_REPOSITORY_OWNER,,}.github.io/${GITHUB_REPOSITORY#*/}/}"
           echo "base URL: $PAGES_BASE_URL"
-          node build.mjs --out=dist
+          # --audio-cdn: committed MP3s are linked from jsDelivr rather than
+          # shipped in the artifact (audio-cdn.mjs); 424 MB of 776 on 2026-10-24.
+          node build.mjs --out=dist --audio-cdn
         working-directory: platform/pages
 
       # Runs against the artifact, not the sources. A dead link, a leftover
@@ -171,19 +230,16 @@ jobs:
           node platform/devlog/build.mjs --out=platform/pages/dist/dev/analyses >/dev/null
           node platform/deploy/build.mjs --out=platform/pages/dist/deploy >/dev/null
 
-      # The dashboard's GitHub API metrics need a token, so pull requests skip
-      # it. The live `stats.json` lets it reuse the CI counts of days it
-      # already counted (a few dozen API requests rather than ~170); a missing
-      # one just costs the full count.
-      - name: Build the development dashboard
+      # Started in the background before the build; this waits for it.
+      - name: Add the development dashboard
         if: github.event_name != 'pull_request'
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-          SITE_URL: ${{ vars.PAGES_BASE_URL || format('https://{0}.github.io/{1}/', github.repository_owner, github.event.repository.name) }}
         run: |
-          prev="${RUNNER_TEMP}/prev-stats.json"
-          curl -fsS --retry 3 "${SITE_URL%/}/dev/stats.json" -o "$prev" || rm -f "$prev"
-          node platform/devstats/build.mjs --out=platform/pages/dist/dev --previous="$prev" >/dev/null
+          bg="$RUNNER_TEMP/background"
+          for _ in $(seq 300); do [ -f "$bg/dashboard.status" ] && break; sleep 2; done
+          status=$(cat "$bg/dashboard.status" 2>/dev/null || echo "timed out after 10 minutes")
+          if [ "$status" != 0 ]; then cat "$bg/dashboard.log"; exit "$status"; fi
+          mkdir -p platform/pages/dist/dev
+          cp -R "$bg/dev/." platform/pages/dist/dev/
 
       # The engineering brief and The Merge Report (platform/daily/): the last
       # seven days from git and the run records, the newest with the CI
@@ -207,9 +263,22 @@ jobs:
       - name: Give the pages built after the site their share cards and tags
         env:
           PAGES_BASE_URL: ${{ vars.PAGES_BASE_URL }}
+          PAGES_CARD_CACHE: ${{ runner.temp }}/share-cards
         run: |
           export PAGES_BASE_URL="${PAGES_BASE_URL:-https://${GITHUB_REPOSITORY_OWNER,,}.github.io/${GITHUB_REPOSITORY#*/}/}"
           node platform/pages/share.mjs platform/pages/dist --base="$PAGES_BASE_URL" --only=deploy,dev
+
+      # Cards no build has used for a day are dropped before saving, so the
+      # entry holds the current site's cards and not every card ever drawn.
+      - name: Save the share cards
+        if: github.event_name != 'pull_request' && steps.build-site.outcome == 'success' && steps.restore-cards.outputs.cache-hit != 'true'
+        run: find "$RUNNER_TEMP/share-cards" -name '*.png' -mmin +1440 -delete
+
+      - if: github.event_name != 'pull_request' && steps.build-site.outcome == 'success' && steps.restore-cards.outputs.cache-hit != 'true'
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: ${{ runner.temp }}/share-cards
+          key: share-cards-${{ hashFiles('platform/pages/sharecard.mjs', 'platform/pages/fontraster.mjs', 'platform/pages/fonts/**') }}-${{ steps.cards.outputs.day }}
 
       - name: Upload Pages artifact
         if: github.event_name != 'pull_request'
@@ -286,7 +355,7 @@ jobs:
           [ "$tools" -ge 20 ] || { echo "::error::catalog.json lists only ${tools} tools"; exit 1; }
           slug=$(jq -r '.tools[0].slug' catalog.json)
 
-          for path in "/" "/sitemap.xml" "/sitemap-hub.xml" "/robots.txt" "/catalog.json" "/llms.txt" "/feed.xml" "/${slug}/"; do
+          for path in "/" "/sitemap.xml" "/sitemap-hub.xml" "/robots.txt" "/catalog.json" "/llms.txt" "/llms-full.txt" "/feed.xml" "/${slug}/"; do
             code=$(curl -sS -o /dev/null -w '%{http_code}' --retry 5 --retry-delay 5 \
                      --retry-all-errors "${base}${path}")
             echo "${code}  ${base}${path}"

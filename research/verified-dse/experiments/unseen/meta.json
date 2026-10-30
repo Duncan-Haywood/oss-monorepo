@@ -1,0 +1,10 @@
+{
+ "base_period_ns": {
+  "crc32": 4.15,
+  "prio64": 2.81,
+  "sort8x8": 10.93,
+  "sbox": 2.36,
+  "decmux64": 1.21
+ },
+ "n_sequences": 60
+}

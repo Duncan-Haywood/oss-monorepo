@@ -1,0 +1,178 @@
+{
+  "date": "2026-10-28",
+  "session": "https://claude.ai/code/session_01E5sJKkNg8KnRyyMfuhMo5P",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-28T05:19:22Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 11052,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-10-28-red-team-post-rate-script.md"
+  ],
+  "goal": null,
+  "notes": "8/8 mutants caught on platform/ci/post_rate.py; 2 real defects found and patched with tests first.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "platform/ci/post_rate.py",
+        "test": "/usr/local/bin/python3 -m pytest -q -x -p no:cacheprovider test_post_rate.py  (in platform/ci)",
+        "seed": 776729526,
+        "commit": "0807bf5d",
+        "sites": 12,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "platform/ci/post_rate.py",
+            "line": 17,
+            "col": 40,
+            "operator": "const-plus-one",
+            "before": "ROOT = Path(__file__).resolve().parents[2]",
+            "after": "ROOT = Path(__file__).resolve().parents[3]",
+            "line_text": "ROOT = Path(__file__).resolve().parents[2]",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/post_rate.py",
+            "line": 24,
+            "col": 49,
+            "operator": "const-plus-one",
+            "before": "t = re.search(r\"^tags:\\s*\\[(.*?)\\]\", m.group(1), re.M)",
+            "after": "t = re.search(r\"^tags:\\s*\\[(.*?)\\]\", m.group(2), re.M)",
+            "line_text": "    t = re.search(r\"^tags:\\s*\\[(.*?)\\]\", m.group(1), re.M)",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/post_rate.py",
+            "line": 36,
+            "col": 25,
+            "operator": "const-plus-one",
+            "before": "days[d.group(0)] += 1",
+            "after": "days[d.group(1)] += 1",
+            "line_text": "            days[d.group(0)] += 1",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/post_rate.py",
+            "line": 36,
+            "col": 32,
+            "operator": "const-plus-one",
+            "before": "days[d.group(0)] += 1",
+            "after": "days[d.group(0)] += 2",
+            "line_text": "            days[d.group(0)] += 1",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/post_rate.py",
+            "line": 41,
+            "col": 28,
+            "operator": "const-plus-one",
+            "before": "def report(days, tags, last=14, top=8):",
+            "after": "def report(days, tags, last=15, top=8):",
+            "line_text": "def report(days, tags, last=14, top=8):",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/post_rate.py",
+            "line": 41,
+            "col": 36,
+            "operator": "const-plus-one",
+            "before": "def report(days, tags, last=14, top=8):",
+            "after": "def report(days, tags, last=14, top=9):",
+            "line_text": "def report(days, tags, last=14, top=8):",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/post_rate.py",
+            "line": 54,
+            "col": 48,
+            "operator": "const-plus-one",
+            "before": "ap.add_argument(\"--tags\", type=int, default=8)",
+            "after": "ap.add_argument(\"--tags\", type=int, default=9)",
+            "line_text": "    ap.add_argument(\"--tags\", type=int, default=8)",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/post_rate.py",
+            "line": 61,
+            "col": 11,
+            "operator": "const-plus-one",
+            "before": "return 0",
+            "after": "return 1",
+            "line_text": "    return 0",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "platform/ci/post_rate.py",
+        "issue": "--days 0 printed every day (sorted(days)[-0:] is the whole list)",
+        "patched": true
+      },
+      {
+        "file": "platform/ci/post_rate.py",
+        "issue": "tags_of ignored tags in CRLF front matter",
+        "patched": true
+      }
+    ]
+  }
+}

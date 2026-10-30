@@ -733,3 +733,62 @@ test("gable wall sheathing: sloped top courses nest on one sheet when the full o
   assert.equal(steep.summary.cost, steep.summary.unnestedCost);
   assert.equal(steep.summary.nestedPairs, 0);
 });
+
+test("windows a mullion apart share their kings; closer than that is refused in words", () => {
+  const plan = base();
+  const win = (offset, extra = {}) => ({ kind: "window", offset, width: 36, height: 48, header: "2x10", ...extra });
+  // 5 in between: jack + king + jack = 4.5 in fits, 0.5 in is left beside the second window's jack
+  const wall = { id: "A", length: 144, openings: [win(30, { label: "w1" }), win(71, { label: "w2" })] };
+  plan.walls = [wall];
+  assert.deepEqual(validatePlan(plan), []);
+  const w = layoutWall(plan, wall);
+  assert.deepEqual(w.members.filter((m) => m.kind === "king").map((m) => m.x).sort((a, b) => a - b), [27, 67.5, 108.5]);
+  assert.equal(w.members.filter((m) => /shared king/.test(m.label)).length, 1);
+  assert.ok(w.notes.some((n) => /share 1 king/.test(n)));
+  assert.deepEqual(verifyWall(w, wall), []);
+  // exactly 4.5 in: no sliver
+  const tight = { id: "B", length: 144, openings: [win(30, { label: "a" }), win(70.5, { label: "b" })] };
+  plan.walls = [tight];
+  assert.deepEqual(validatePlan(plan), []);
+  assert.deepEqual(verifyWall(layoutWall(plan, tight), tight), []);
+  // 3 in: no room for a king between the jacks
+  const mull = { id: "C", length: 144, openings: [win(30), win(69)] };
+  plan.walls = [mull];
+  assert.ok(validatePlan(plan).some((e) => /too narrow to share kings.*4-1\/2/.test(e)));
+});
+
+test("an opening near a wall end uses the end stud as its king", () => {
+  const plan = base();
+  // jack (1.5) + end stud (1.5) = 3 in minimum; a 5 in offset leaves a 3.5 in strip, one king short
+  plan.walls = [{ id: "N", length: 120, openings: [{ kind: "door", offset: 3, width: 30, height: 82.5, header: "2x10" }] }];
+  assert.deepEqual(validatePlan(plan), []);
+  const r = takeoff(plan);
+  const w = r.walls[0];
+  assert.equal(w.members.filter((m) => m.kind === "king").length, 1);
+  assert.ok(w.notes.some((n) => /end stud serves as its king/.test(n)));
+  assert.deepEqual(verifyWall(w, plan.walls[0]), []);
+  // right end too, and a 2-king opening keeping the king that fits
+  const e = layoutWall(plan, { id: "E", length: 120, openings: [{ kind: "window", label: "R", offset: 120 - 3 - 36, width: 36, height: 40, header: "2x10", kings: 2 }, { kind: "window", label: "M", offset: 20, width: 36, height: 40, header: "2x10", kings: 2 }] });
+  assert.equal(e.members.filter((m) => m.kind === "king").length, 6);
+  assert.deepEqual(verifyWall(e, { id: "E", length: 120, openings: [{ kind: "window", label: "R", offset: 81, width: 36, height: 40, header: "2x10", kings: 2 }, { kind: "window", label: "M", offset: 20, width: 36, height: 40, header: "2x10", kings: 2 }] }), []);
+  plan.walls[0].openings[0].offset = 2.9;
+  assert.ok(validatePlan(plan).some((e) => /jacks must clear the end stud/.test(e)));
+});
+
+test("blocking: stagger alternates bays above and below the row line, and fire blocking still holds 10 ft", () => {
+  const plan = { ...base(), studLength: 140.625, blocking: { fire: true, stagger: true } };
+  const wall = { id: "A", length: 240, stud: "2x4", openings: [] };
+  plan.walls = [wall];
+  const w = layoutWall(plan, wall);
+  const bl = w.members.filter((m) => m.kind === "blocking");
+  assert.ok(bl.length >= 2);
+  const mid = 1.5 + 140.625 / 2 - 0.75;
+  assert.deepEqual(verifyWall(w, wall), []);
+  const offs = new Set(bl.map((m) => Math.round((m.y - mid) * 1000) / 1000));
+  assert.ok(offs.has(1.5) && offs.has(-1.5) && offs.size === 2);
+  const flat = layoutWall({ ...plan, blocking: { fire: true } }, wall).members.filter((m) => m.kind === "blocking");
+  assert.equal(bl.length, flat.length);
+  // a 10 ft run limit: the worst staggered gap between plate, rows and plate stays within 120 in
+  const ys = [...new Set(bl.map((m) => m.y))].sort((a, b) => a - b);
+  assert.ok(ys[0] - 1.5 <= 120 && (plan.studLength + 3) - (ys[ys.length - 1] + 1.5) <= 120);
+});

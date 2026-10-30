@@ -81,26 +81,46 @@ def train(data, seed, steps=600, batch=32, ctx=32, lr0=0.5, strategy=None, tau=0
     params = list(model.parameters())
     order = np.random.default_rng(10_000 + seed)
     perm = np.random.default_rng(20_000 + seed)
-    cheated, norms, drifts = 0, [], []
+    cheated, norms, drifts, d_sub, d_stale = 0, [], [], [], []
+    prev, prev_honest, chain, chains = None, False, 0, []
     for t in range(steps):
         idx = order.integers(0, len(tr) - ctx - 1, batch)
         x, y = batch_at(tr, idx, ctx)
         lr = lr_at(t, steps, lr0)
         g = grad_vec(model, x, y)
         step_norm = lr * float(g.norm())
+        cheap = None
+        if strategy == "subsample":  # a quarter of the batch: 4x cheaper gradient
+            cheap = grad_vec(model, x[:batch // 4], y[:batch // 4])
+        elif strategy == "stale":  # reuse last step's submitted gradient: no backward pass
+            cheap = prev
+        elif strategy == "stale1":  # as stale, but only an honestly computed gradient may be reused (no chains)
+            cheap = prev if prev_honest else None
         if strategy is not None or record:
             p = torch.tensor(perm.permutation(batch))
             gr = grad_vec(model, x[p], y[p]) if referee == "reorder" else grad_vec(model, x, y, bf16=True)
             if record:
                 norms.append(step_norm)
                 drifts.append(lr * float((g - gr).norm()))
+                d_sub.append(lr * float((grad_vec(model, x[:batch // 4], y[:batch // 4]) - gr).norm()))
+                d_stale.append(lr * float((prev - gr).norm()) if prev is not None else float("inf"))
             if strategy == "skip" and lr * float(gr.norm()) <= tau:
                 cheated += 1
                 continue
+            if cheap is not None and lr * float((cheap - gr).norm()) <= tau:
+                cheated += 1
+                g = cheap
+                chain += 1
+            else:
+                if chain:
+                    chains.append(chain)
+                chain = 0
+        prev = g
+        prev_honest = strategy != "stale1" or chain == 0
         with torch.no_grad():
             off = 0
             for q in params:
                 n = q.numel()
                 q -= lr * g[off:off + n].view_as(q)
                 off += n
-    return model, {"cheated": cheated / steps, "norms": norms, "drifts": drifts}
+    return model, {"cheated": cheated / steps, "norms": norms, "drifts": drifts, "dist_subsample": d_sub, "dist_stale": d_stale, "chains": chains + ([chain] if chain else [])}

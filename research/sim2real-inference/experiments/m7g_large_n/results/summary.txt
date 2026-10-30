@@ -1,0 +1,42 @@
+reps per cell: 1000
+[pendulum] min coverage real 100.00, ppi 100.00  (H7g-ii: supported)
+  min coverage with the twin mean exact: 100.00
+  n=240: ppi (N=4,000 twin runs) narrower on 0 of 21 pairs, ratio median 1.862, min 1.665; twin mean exact: narrower on 0, ratio median 1.478, min 1.369
+  n=480: ppi (N=4,000 twin runs) narrower on 0 of 21 pairs, ratio median 1.809, min 1.596; twin mean exact: narrower on 0, ratio median 1.368, min 1.267
+  n=960: ppi (N=4,000 twin runs) narrower on 0 of 21 pairs, ratio median 1.800, min 1.569; twin mean exact: narrower on 0, ratio median 1.249, min 1.150
+  n=1920: ppi (N=4,000 twin runs) narrower on 0 of 21 pairs, ratio median 1.886, min 1.595; twin mean exact: narrower on 0, ratio median 1.124, min 1.042
+  crossing pairs 0 (too few for the Spearman test)
+    friction-0 n=1920 rho=0.88 ratio=1.960 exact=1.124
+    friction-1 n=1920 rho=0.88 ratio=1.945 exact=1.118
+    none-0     n=1920 rho=0.87 ratio=1.970 exact=1.133
+    mass-0     n=1920 rho=0.87 ratio=1.927 exact=1.114
+    sensor-0   n=1920 rho=0.86 ratio=1.963 exact=1.133
+    mass-1     n=1920 rho=0.86 ratio=1.852 exact=1.085
+    delay-0    n=1920 rho=0.85 ratio=1.886 exact=1.104
+    mass-2     n=1920 rho=0.85 ratio=1.762 exact=1.058
+    gain-0     n=1920 rho=0.84 ratio=1.922 exact=1.123
+    sensor-1   n=1920 rho=0.83 ratio=1.950 exact=1.141
+    friction-2 n=1920 rho=0.83 ratio=1.928 exact=1.133
+    mass-3     n=1920 rho=0.83 ratio=1.670 exact=1.042
+[cartpole] min coverage real 100.00, ppi 100.00  (H7g-ii: supported)
+  min coverage with the twin mean exact: 100.00
+  n=240: ppi (N=4,000 twin runs) narrower on 0 of 21 pairs, ratio median 2.276, min 1.874; twin mean exact: narrower on 0, ratio median 1.839, min 1.555
+  n=480: ppi (N=4,000 twin runs) narrower on 0 of 21 pairs, ratio median 2.296, min 1.803; twin mean exact: narrower on 0, ratio median 1.782, min 1.464
+  n=960: ppi (N=4,000 twin runs) narrower on 0 of 21 pairs, ratio median 2.374, min 1.760; twin mean exact: narrower on 0, ratio median 1.710, min 1.374
+  n=1920: ppi (N=4,000 twin runs) narrower on 0 of 21 pairs, ratio median 2.565, min 1.762; twin mean exact: narrower on 0, ratio median 1.623, min 1.288
+  crossing pairs 0 (too few for the Spearman test)
+    delay-3    n=1920 rho=0.85 ratio=2.550 exact=1.612
+    delay-2    n=1920 rho=0.85 ratio=2.554 exact=1.615
+    delay-1    n=1920 rho=0.85 ratio=2.559 exact=1.619
+    delay-0    n=1920 rho=0.85 ratio=2.566 exact=1.623
+    none-0     n=1920 rho=0.85 ratio=2.571 exact=1.626
+    mass-0     n=1920 rho=0.85 ratio=2.570 exact=1.626
+    sensor-0   n=1920 rho=0.85 ratio=2.573 exact=1.627
+    mass-1     n=1920 rho=0.85 ratio=2.571 exact=1.626
+    mass-2     n=1920 rho=0.85 ratio=2.569 exact=1.625
+    mass-3     n=1920 rho=0.85 ratio=2.565 exact=1.623
+    sensor-1   n=1920 rho=0.84 ratio=2.576 exact=1.630
+    gain-0     n=1920 rho=0.83 ratio=2.566 exact=1.626
+analytic crossover n* (population sd, twin mean exact, plug-in not simulated):
+  [pendulum] n* exists on 20 of 21 pairs; min 2567, median 4112, max 45445; n* <= 700 on 0; best pairs: mass-3 (2567), mass-2 (2765), mass-1 (3170), delay-0 (3535)
+  [cartpole] n* exists on 21 of 21 pairs; min 53096, median 95541, max 276681; n* <= 700 on 0; best pairs: friction-2 (53096), friction-3 (54304), delay-3 (79259), delay-2 (83215)

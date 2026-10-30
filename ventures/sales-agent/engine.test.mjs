@@ -65,10 +65,10 @@ test("the fresh set is reported, not tuned: numbers recorded in README stay as m
   // README "How well it reads replies" quotes these. If a rule change moves them, re-measure on a NEW fresh set and
   // update the README; do not tune on this file.
   assert.equal(s.n, 40);
-  // Scored 15/22/11 on 2026-10-21; the 2026-10-24 "cease ..." patterns moved it to 16/23/10 (see eval/README.md).
-  assert.equal(s.right, 16);
-  assert.equal(s.acted, 23);
-  assert.equal(s.guessRight, 10);
+  // Scored 15/22/11 on 2026-10-21; the 2026-10-24 "cease ..." patterns moved it to 16/23/10 (see eval/README.md); the 2026-10-25 opt-out patterns to 17/24/9.
+  assert.equal(s.right, 17);
+  assert.equal(s.acted, 24);
+  assert.equal(s.guessRight, 9);
 });
 
 test("third set (2026-10-24b): scored once at 34/41, then its two missed unsubscribes were patched; the rest stay measured", () => {
@@ -161,4 +161,24 @@ test("an explicit ask anywhere in the reply makes it clear, and dates keep the w
   assert.match(t.evidence, /send over a few times/);
   assert.equal(findDate("Try me again in Q1.", T).text, "Q1");
   assert.equal(findDate("back on March 3", T).text, "March 3");
+});
+
+test("fourth set (2026-10-25): scored once at 25/42 with 9 of 18 unsubscribes missed, then those were patched; the rest stay measured", () => {
+  const s = score(load("fresh-2026-10-25.jsonl"));
+  assert.equal(s.n, 42);
+  assert.equal(s.right, 34);
+  assert.equal(s.acted, 34);
+  assert.equal(s.actedRight, 34);
+  assert.equal(s.unsubMissed, 0);
+});
+
+test("non-English auto-replies and opt-outs are named, not left as unclear (agent-written phrasings)", () => {
+  const t = (subject, body) => triage({ from: "p@example.com", name: "", subject, body }, "2026-10-26").category;
+  const oof = [["Abwesenheitsnotiz: Frage", "Ich bin bis zum 3. November nicht im Büro."], ["Réponse automatique : Question", "Je suis absent du bureau jusqu'au 3 novembre."],
+    ["Respuesta automática: Pregunta", "Estaré fuera de la oficina hasta el 3 de noviembre."], ["Risposta automatica", "Sono fuori ufficio fino al 3 novembre."],
+    ["Resposta automática", "Estou ausente até 3 de novembro."], ["Automatisch antwoord", "Ik ben afwezig tot 3 november."]];
+  for (const [s, b] of oof) assert.equal(t(s, b), "out_of_office", s);
+  const out = ["Bitte entfernen Sie mich aus Ihrem Verteiler.", "Ne m'envoyez plus d'emails s'il vous plaît.", "Por favor, quiero darme de baja de su lista.",
+    "Cancellatemi dalla vostra lista.", "Não me envie mais emails.", "Graag uitschrijven, ik wil dit niet meer."];
+  for (const b of out) assert.equal(t("Re: hello", b), "unsubscribe", b);
 });

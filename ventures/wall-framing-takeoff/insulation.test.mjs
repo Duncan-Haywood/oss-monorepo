@@ -58,3 +58,30 @@ test("attic without a bag volume gives depth and cubic feet but no bag count; ar
   assert.equal(layoutInsulation({ attic: {} }, plan, r).ok, false);
   assert.equal(validateInsulation({ attic: { rValue: 5 } }).length, 1);
 });
+
+test("rim joist bays: width x joist depth less joist ends, both sides, by hand", () => {
+  const r = { walls: [] };
+  const floor = { width: 480, depth: 336, joist: "2x10", spacing: 16 };
+  const l = layoutInsulation({ rim: true, price: 10 }, { ...plan, floor }, r);
+  assert.equal(l.ok, true);
+  // 480 in wide at 16 o.c.: 31 joists (edge joists included); 9.25 in deep; 1.5 in thick
+  const per = 480 * 9.25 - 31 * 1.5 * 9.25;
+  assert.ok(Math.abs(l.rim.sqFt - (2 * per) / 144) < 1e-9);
+  assert.equal(l.rim.bags, Math.ceil((l.rim.sqFt * 1.05) / 88 - 1e-9));
+  assert.equal(l.rim.cost, l.rim.bags * 10);
+  assert.ok(insulationText(l).some((x) => x.includes("Rim joist bays")));
+  assert.equal(layoutInsulation({ rim: true }, plan, r).ok, false);
+  assert.equal(layoutInsulation({ rim: true }, { ...plan, floor: { ...floor, rim: false } }, r).ok, false);
+});
+
+test("attic eave baffles: one per bay on both eaves, by hand", () => {
+  const r = { walls: [wall([m(0, 0, 96, 96)])] };
+  const roof = { width: 336, length: 480, spacing: 24 };
+  const l = layoutInsulation({ attic: { baffles: true } }, { defaultHeaderHeight: 82.5, walls: [], roof }, r);
+  assert.equal(l.attic.baffles.bays, 20); // 480 / 24
+  assert.equal(l.attic.baffles.count, 40);
+  const t = layoutInsulation({ attic: { baffles: true } }, { defaultHeaderHeight: 82.5, walls: [], roof: { ...roof, spacing: 16, trusses: { spacing: 24 } } }, r);
+  assert.equal(t.attic.baffles.count, 40); // truss spacing wins
+  const n = layoutInsulation({ attic: { baffles: true } }, { defaultHeaderHeight: 82.5, walls: [] }, r);
+  assert.equal(n.ok, false);
+});

@@ -69,7 +69,8 @@ async function siteWith(files = {}) {
     // About is a hub-level page, so the hub sitemap is the only one that can
     // carry it — the real `renderHubSitemap` lists it here for the same reason.
     'sitemap-hub.xml': urlset('', 'about/', 'ask/', 'compare/', 'guides/'),
-    'llms.txt': `# Tools\n\n> One tool.\n\n## Section\n\n- [Tool](${url('tool/')}): does a thing.\n`,
+    'llms.txt': `# Tools\n\n> One tool.\n`,
+    'llms-full.txt': `# Tools\n\n> One tool.\n\n## Section\n\n- [Tool](${url('tool/')}): does a thing.\n`,
     // The feed and the catalogue are a pair: the feed is the "what's new"
     // door, and the catalogue is where the check reads every tool's launch
     // date back out of the artifact.
@@ -277,7 +278,7 @@ test('a link from a different product also clears the orphan check', async () =>
     'tool/compare.html': '<p>compare</p>',
     'tool/sitemap.xml': urlset('tool/', 'tool/compare.html'),
     'sitemap.xml': sitemapIndex('sitemap-hub.xml', 'tool/sitemap.xml', 'other/sitemap.xml'),
-    'llms.txt': `# Tools\n\n> Two tools.\n\n## Section\n\n- [Tool](${url('tool/')}): does a thing.\n- [Other](${url('other/')}): does another thing.\n`,
+    'llms-full.txt': `# Tools\n\n> Two tools.\n\n## Section\n\n- [Tool](${url('tool/')}): does a thing.\n- [Other](${url('other/')}): does another thing.\n`,
     'catalog.json': JSON.stringify({
       tools: [
         { slug: 'tool', launched: '2026-08-01' },
@@ -318,16 +319,16 @@ test('a product llms.txt does not list is caught', async () => {
   // The AI-discovery counterpart of the hub-link check below: the tool ships,
   // every page resolves, and an assistant recommending one never sees it.
   const problems = await problemsFor({
-    'llms.txt': '# Tools\n\n> None.\n',
+    'llms-full.txt': '# Tools\n\n> None.\n',
   });
-  assert.equal(mentioning(problems, 'tool/: shipped but llms.txt does not list it').length, 1);
+  assert.equal(mentioning(problems, 'tool/: shipped but llms-full.txt does not list it').length, 1);
 });
 
 test('an llms.txt entry with no product behind it is caught', async () => {
   const problems = await problemsFor({
-    'llms.txt': `# Tools\n\n> One tool.\n\n- [Tool](${url('tool/')}): ok.\n- [Ghost](${url('ghost/')}): gone.\n`,
+    'llms-full.txt': `# Tools\n\n> One tool.\n\n- [Tool](${url('tool/')}): ok.\n- [Ghost](${url('ghost/')}): gone.\n`,
   });
-  assert.equal(mentioning(problems, 'llms.txt: lists "ghost"').length, 1);
+  assert.equal(mentioning(problems, 'llms-full.txt: lists "ghost"').length, 1);
 });
 
 test('an llms.txt entry under a site-own directory is not read as a product claim', async () => {
@@ -337,7 +338,7 @@ test('an llms.txt entry under a site-own directory is not read as a product clai
   // `…/compare/<product>/`, and reading the last segment alone says a product
   // called `jobber` shipped — fourteen false problems on a healthy site.
   const problems = await problemsFor({
-    'llms.txt': `# Tools\n\n> One tool.\n\n- [Tool](${url('tool/')}): ok.\n  - [Jobber](${url('compare/jobber/')}): 32 tools compare with it.\n`,
+    'llms-full.txt': `# Tools\n\n> One tool.\n\n- [Tool](${url('tool/')}): ok.\n  - [Jobber](${url('compare/jobber/')}): 32 tools compare with it.\n`,
   });
   assert.equal(mentioning(problems, 'no such product shipped').length, 0);
 });
@@ -347,9 +348,9 @@ test('a real missing product is still caught beside a site-own link', async () =
   // broken silently: widening the parse to forgive `compare/<product>/` must
   // not forgive a bullet that genuinely names a product nothing shipped.
   const problems = await problemsFor({
-    'llms.txt': `# Tools\n\n> One tool.\n\n- [Tool](${url('tool/')}): ok.\n  - [Jobber](${url('compare/jobber/')}): fine.\n- [Ghost](${url('ghost/')}): gone.\n`,
+    'llms-full.txt': `# Tools\n\n> One tool.\n\n- [Tool](${url('tool/')}): ok.\n  - [Jobber](${url('compare/jobber/')}): fine.\n- [Ghost](${url('ghost/')}): gone.\n`,
   });
-  assert.equal(mentioning(problems, 'llms.txt: lists "ghost"').length, 1);
+  assert.equal(mentioning(problems, 'llms-full.txt: lists "ghost"').length, 1);
 });
 
 test('a product the hub does not link is caught', async () => {
@@ -873,9 +874,9 @@ const nginxWith = (...extensions) =>
     .join('');
 
 test('an extension nothing knows how to type fails the check', () => {
-  const problems = checkServedExtensions(['tool/model.wasm'], nginxWith('.mjs'));
+  const problems = checkServedExtensions(['tool/model.glb'], nginxWith('.mjs'));
   assert.equal(problems.length, 1);
-  assert.match(problems[0], /nothing says how nginx should type "\.wasm"/);
+  assert.match(problems[0], /nothing says how nginx should type "\.glb"/);
   // The message has to carry the fix, because the person who trips it is
   // adding an asset to a venture and has no reason to know nginx's mime.types.
   assert.match(problems[0], /SERVED_EXTENSIONS/);
@@ -920,12 +921,12 @@ test('the allowlist still applies when the manifest is not on disk', () => {
   // to cross-check against. The extension allowlist is still meaningful there;
   // only the manifest half is skipped.
   assert.deepEqual(checkServedExtensions(['tool/calc.mjs'], null), []);
-  assert.match(checkServedExtensions(['tool/model.wasm'], null)[0], /nothing says how/);
+  assert.match(checkServedExtensions(['tool/model.glb'], null)[0], /nothing says how/);
 });
 
 test('each extension is reported once, not once per file', () => {
   // 552 .mjs files must not produce 552 problems.
-  const files = Array.from({ length: 50 }, (_, i) => `tool/a${i}.wasm`);
+  const files = Array.from({ length: 50 }, (_, i) => `tool/a${i}.glb`);
   assert.equal(checkServedExtensions(files, '').length, 1);
 });
 
@@ -1121,4 +1122,26 @@ test('a guides index with no disclaimer must not ship', async () => {
     'guides/index.html': '<a href="../tool/how-much.html">How much?</a>',
   });
   assert.equal(mentioning(problems, 'guides/index.html: carries no disclaimer').length, 1);
+});
+
+// The command line is what CI runs; a mutation of its entry guard or its exit
+// code must not leave the suite green.
+test('the CLI exits 1 and names the problems on an empty artifact', async () => {
+  const { spawnSync } = await import('node:child_process');
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'check-cli-'));
+  const res = spawnSync(process.execPath, [new URL('./check.mjs', import.meta.url).pathname, dir], {
+    encoding: 'utf8',
+  });
+  assert.equal(res.status, 1);
+  assert.match(res.stderr, /problem\(s\) in/);
+});
+
+test('the CLI still runs with no arguments (it checks ./dist beside the script)', async () => {
+  const { spawnSync } = await import('node:child_process');
+  const res = spawnSync(process.execPath, [new URL('./check.mjs', import.meta.url).pathname], {
+    encoding: 'utf8',
+  });
+  // Either dist exists and is checked (0 or 1) or it is absent (1); what must
+  // never happen is a silent exit that printed nothing at all.
+  assert.ok(res.stdout.length + res.stderr.length > 0);
 });

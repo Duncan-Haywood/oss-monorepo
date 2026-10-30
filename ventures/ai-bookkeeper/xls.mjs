@@ -19,14 +19,17 @@ const ENDCHAIN = 0xfffffffe, FREE = 0xffffffff;
 export function oleStream(b, want = ["Workbook", "Book"]) {
   b = b instanceof Uint8Array ? b : new Uint8Array(b);
   if (!looksLikeXls(b)) throw new Error("not an Excel 97-2003 (.xls) file");
-  const ss = 1 << u16(b, 30), mss = 1 << u16(b, 32);
+  const shift = u16(b, 30), mshift = u16(b, 32);
+  if ((shift !== 9 && shift !== 12) || mshift !== 6) throw new Error("this compound file header is damaged"); // a wild sector size once made the FAT walk allocate gigabytes
+  const ss = 1 << shift, mss = 1 << mshift;
   const nFatSect = u32(b, 44), dirStart = u32(b, 48), cutoff = u32(b, 56), miniStart = u32(b, 60), nMini = u32(b, 64), difStart = u32(b, 68), nDif = u32(b, 72);
   const sector = (n) => b.subarray((n + 1) * ss, (n + 2) * ss);
   const per = ss / 4;
   const fatIds = [];
   for (let i = 0; i < 109 && fatIds.length < nFatSect; i++) { const v = u32(b, 76 + i * 4); if (v !== FREE) fatIds.push(v); }
   let d = difStart;
-  for (let i = 0; i < nDif && d < ENDCHAIN; i++) {
+  const nSect = Math.floor(b.length / ss);
+  for (let i = 0; i < nDif && i <= nSect && d < nSect; i++) { // a sector id past the file ends the walk; a bad count cannot spin
     const s = sector(d);
     for (let j = 0; j < per - 1 && fatIds.length < nFatSect; j++) { const v = u32(s, j * 4); if (v !== FREE) fatIds.push(v); }
     d = u32(s, ss - 4);
@@ -40,7 +43,7 @@ export function oleStream(b, want = ["Workbook", "Book"]) {
   const entries = [];
   for (let o = 0; o + 128 <= dir.length; o += 128) {
     const nlen = u16(dir, o + 64);
-    if (!nlen || dir[o + 66] === 0) continue;
+    if (!nlen || nlen > 64 || dir[o + 66] === 0) continue; // a name is at most 32 UTF-16 units; a wild length made this loop spin
     let name = ""; for (let i = 0; i < nlen / 2 - 1; i++) name += String.fromCharCode(u16(dir, o + i * 2));
     entries.push({ name, type: dir[o + 66], start: u32(dir, o + 116), size: u32(dir, o + 120) });
   }

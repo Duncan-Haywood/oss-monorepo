@@ -58,6 +58,7 @@ const REQUIRED_ROOT_FILES = [
   // so a build that drops it drops the site's machine-readable front door
   // without any page 404ing to show it.
   'llms.txt',
+  'llms-full.txt',
   // The "what's new" door. Unlike the pages, nothing 404s when this is
   // missing -- a subscriber's reader just quietly stops seeing new tools, and
   // nothing on the site says so. That silence is why it is a required file
@@ -531,6 +532,14 @@ export const SERVED_EXTENSIONS = new Map([
   ['.py', 'conf'],
   ['.gz', 'conf'],
   ['.whl', 'conf'],
+  // sales-agent's bounce-corpus fixtures (eval/bounce-corpus-mail/*.eml), plain RFC 822 text.
+  // The nginx origin is retired (GitHub Pages types by extension); no location block added.
+  ['.eml', 'stock'],
+  // wall-framing-takeoff's IFC fixtures (STEP text); same note: no location block on the retired origin.
+  ['.ifc', 'stock'],
+  // dupehound's browser build (WebAssembly); mime.types lists application/wasm wasm (nginx 1.21+),
+  // and GitHub Pages serves it as application/wasm.
+  ['.wasm', 'stock'],
 ]);
 
 // Where the served config lives, relative to the repo root. The build pod
@@ -599,6 +608,18 @@ export function checkServedExtensions(files, nginxConf) {
   }
 
   return problems;
+}
+
+const LLMS_DATE = /\b\d{4}-\d{2}-\d{2}\b/;
+
+/**
+ * Products whose `llms.txt` text carries no ISO date, given a Map of slug to
+ * text. Empty when no file is dated at all: that is a build without git
+ * history, not a defect in the files.
+ */
+export function llmsTxtMissingDate(texts) {
+  const undated = [...texts].filter(([, t]) => !LLMS_DATE.test(t)).map(([slug]) => slug);
+  return undated.length === texts.size ? [] : undated;
 }
 
 export async function checkSite(site, { minProducts = 1 } = {}) {
@@ -898,7 +919,8 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
   // Same reachability argument as the hub, for the machine-readable door. A
   // tool missing from llms.txt is invisible to an assistant recommending one,
   // and nothing else in the artifact would show it: every page still resolves.
-  const llms = await fs.readFile(path.join(site, 'llms.txt'), 'utf8').catch(() => null);
+  // `llms-full.txt` is the complete list; `llms.txt` is a short index.
+  const llms = await fs.readFile(path.join(site, 'llms-full.txt'), 'utf8').catch(() => null);
   if (llms !== null) {
     // The parent segment is captured as well as the leaf, because a leaf alone
     // cannot tell a product from a page filed *under* a site-own directory.
@@ -917,7 +939,7 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
     );
     for (const product of productDirs) {
       if (!listed.has(product)) {
-        problems.push(`${product}/: shipped but llms.txt does not list it, so AI discovery misses it`);
+        problems.push(`${product}/: shipped but llms-full.txt does not list it, so AI discovery misses it`);
       }
     }
     for (const slug of listed) {
@@ -927,8 +949,23 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
       // not products, so the "no such product shipped" reading is wrong for
       // them; that they shipped is checked in their own blocks above.
       if (!productDirs.includes(slug) && !SITE_OWN_DIRS.has(slug)) {
-        problems.push(`llms.txt: lists "${slug}" but no such product shipped`);
+        problems.push(`llms-full.txt: lists "${slug}" but no such product shipped`);
       }
+    }
+  }
+
+  // Every built `/<product>/llms.txt` should say when it was last true, so an
+  // assistant quoting it can say "as of". The build stamps the git date; a
+  // build with no git history stamps none, so the check only bites when at
+  // least one file is dated (the dates are available) and another is not.
+  {
+    const texts = new Map();
+    for (const product of productDirs) {
+      const text = await fs.readFile(path.join(site, product, 'llms.txt'), 'utf8').catch(() => null);
+      if (text !== null) texts.set(product, text);
+    }
+    for (const product of llmsTxtMissingDate(texts)) {
+      problems.push(`${product}/llms.txt: states no date, so an assistant cannot say how current it is`);
     }
   }
 

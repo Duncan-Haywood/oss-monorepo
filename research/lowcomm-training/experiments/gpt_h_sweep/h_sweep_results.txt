@@ -1,0 +1,16 @@
+Tuning half (seeds 100, 101), mean validation loss by inner lr (rows H; 0 = synchronous)
+H      0.0003    0.001    0.003     0.01
+0      2.0776   1.7869   1.8250   2.5075
+1      2.1715   1.8658   1.8488   2.0557
+4      2.1685   1.8693   1.8741   2.1756
+16     2.1981   1.9069   1.8999   2.3061
+64     2.2138   1.9331   1.9487   2.4231
+240    2.2188   1.9414   1.9710   2.4648
+
+Report seeds 0 to 2, validation loss at the tuned lr
+H=0    mean 1.7978 sd 0.0133  minus sync +0.0000 (2 sd bound 0.0266; paired sd 0.0000)
+H=1    mean 1.8447 sd 0.0409  minus sync +0.0469 (2 sd bound 0.0819; paired sd 0.0534)
+H=4    mean 1.8768 sd 0.0020  minus sync +0.0789 (2 sd bound 0.0266; paired sd 0.0141)
+H=16   mean 1.9364 sd 0.0541  minus sync +0.1385 (2 sd bound 0.1082; paired sd 0.0495)
+H=64   mean 1.9383 sd 0.0082  minus sync +0.1405 (2 sd bound 0.0266; paired sd 0.0086)
+H=240  mean 1.9528 sd 0.0080  minus sync +0.1549 (2 sd bound 0.0266; paired sd 0.0071)

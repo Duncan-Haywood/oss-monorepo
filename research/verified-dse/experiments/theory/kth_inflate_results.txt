@@ -1,0 +1,25 @@
+cells 55; 300 pilots of 16 points per cell
+
+multiplier | cells with coverage >= 0.8 | median coverage | min coverage
+1.00 | 0 | 0.33 | 0.09
+1.25 | 6 | 0.54 | 0.11
+1.50 | 18 | 0.70 | 0.18
+2.00 | 35 | 0.87 | 0.22
+3.00 | 44 | 0.96 | 0.31
+5.00 | 49 | 0.99 | 0.31
+
+cells where the pilot value is 0 in more than 20% of draws (no multiplier covers them): 2
+per-cell multiplier for 80% coverage: median 1.75, p90 5.79, max inf; infinite in 2 cells
+
+leave-one-design-out: multiplier chosen on the other designs (smallest grid value with >= 0.8 coverage in >= 80% of their cells), then its coverage on the held-out design
+adder_op16 | multiplier 3.0 | held-out cells with coverage >= 0.8: 3 of 6
+adder_ripple16 | multiplier 3.0 | held-out cells with coverage >= 0.8: 0 of 1
+alu8 | multiplier 5.0 | held-out cells with coverage >= 0.8: 6 of 6
+barrel16 | multiplier 5.0 | held-out cells with coverage >= 0.8: 6 of 6
+cmp_sat12 | multiplier 5.0 | held-out cells with coverage >= 0.8: 6 of 6
+crc16 | multiplier 3.0 | held-out cells with coverage >= 0.8: 3 of 6
+fifo8x4 | multiplier 3.0 | held-out cells with coverage >= 0.8: 4 of 6
+mac4 | multiplier 3.0 | held-out cells with coverage >= 0.8: 4 of 6
+mult8 | multiplier 5.0 | held-out cells with coverage >= 0.8: 6 of 6
+popcount16 | multiplier 5.0 | held-out cells with coverage >= 0.8: 6 of 6
+total held-out cells covered: 44 of 55

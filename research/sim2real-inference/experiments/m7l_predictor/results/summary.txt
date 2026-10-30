@@ -1,0 +1,21 @@
+N = 20,000, f = 0.1; ratio = combined width / real-only width (m7j, m7k CSVs); sres = sd(R - T) / sd(R) from the m7 pools
+n=240: pairs 42, wins 18; Spearman(ratio, sres) 0.112, Spearman(ratio, rho) 0.164
+  best single cut on sres: 0.575, accuracy 0.738
+  best single cut on -rho: -0.866, accuracy 0.619
+  (post hoc) Spearman(ratio, real-only width) -0.905; best single cut on real-only width: 0.905 accuracy
+  pendulum: sres range 0.483 to 1.092, rho range 0.170 to 0.878, ratio median 0.917, wins 18/21
+  pendulum (post hoc) real-only width median 0.0505
+  pendulum within-system Spearman(ratio, sres) -0.460
+  cartpole: sres range 0.591 to 0.942, rho range 0.372 to 0.855, ratio median 1.500, wins 0/21
+  cartpole (post hoc) real-only width median 0.0227
+  cartpole within-system Spearman(ratio, sres) -0.123
+n=960: pairs 42, wins 22; Spearman(ratio, sres) 0.091, Spearman(ratio, rho) 0.165
+  best single cut on sres: 0.575, accuracy 0.738
+  best single cut on -rho: -0.858, accuracy 0.619
+  (post hoc) Spearman(ratio, real-only width) -0.863; best single cut on real-only width: 0.976 accuracy
+  pendulum: sres range 0.483 to 1.092, rho range 0.170 to 0.878, ratio median 0.835, wins 20/21
+  pendulum (post hoc) real-only width median 0.0278
+  pendulum within-system Spearman(ratio, sres) -0.251
+  cartpole: sres range 0.591 to 0.942, rho range 0.372 to 0.855, ratio median 1.361, wins 2/21
+  cartpole (post hoc) real-only width median 0.0072
+  cartpole within-system Spearman(ratio, sres) -0.577

@@ -68,6 +68,15 @@ test("tape: a 16 ft wall, 8 ft high, 8 ft sheets: 2 butt joints x 4 ft, one 16 f
   assert.equal(l.finishing.compoundGal, 1.5); // 128 sq ft x 0.01 x 1.1 = 1.408 -> 1.5
 });
 
+test("compound is ordered in 4.5 gal pails; default rate equals the 450 sq ft per pail on a Sheetrock all-purpose listing", () => {
+  const l = layoutDrywall({}, plan([{ id: "A", length: 192, sheathed: true }]));
+  assert.equal(l.finishing.compoundPails, 1); // 1.5 gal
+  assert.equal(l.finishing.pailGal, 4.5);
+  assert.equal(4.5 / 450, l.finishing.compoundGalPerSqFt); // label: 450 sq ft per 4.5 gal
+  const u = layoutDrywall({ compoundGalPerSqFt: 0.009 }, plan([{ id: "A", length: 192 * 10, sheathed: true }])); // USG ultralightweight: 2 pails per 1000 sq ft
+  assert.equal(u.finishing.compoundPails, Math.ceil(u.finishing.compoundGal / 4.5 - 1e-9));
+});
+
 test("compound and tape rates are validated", () => {
   assert.ok(validateDrywall({ compoundGalPerSqFt: 1 }).length);
   assert.ok(validateDrywall({ tapeRollFt: 10 }).length);
@@ -95,4 +104,79 @@ test("corner bead on free wall ends: a 16 ft stub partition with one free end, 8
   assert.equal(layoutDrywall({}, plan([{ id: "P", length: 192, sheathed: false, freeEnds: 2 }])).finishing.beadFt, 32);
   assert.equal(layoutDrywall({}, plan([{ id: "A", length: 192, freeEnds: 1 }])).finishing.beadFt, 8);
   assert.equal(layoutDrywall({ openingBead: false }, plan([{ id: "A", length: 192, freeEnds: 1 }])).finishing.beadFt, 0);
+});
+
+test("jointsOnStuds: a 20 ft wall with 10 ft sheets lands its joint between studs unless snapped (hand count)", () => {
+  const p = { ...plan([{ id: "A", length: 240 }]), studSpacing: 16 };
+  // studs centred on 16 in multiples: 120 is not one (7.5 x 16), so a naive joint at 120 is off framing
+  const off = layoutDrywall({ sheetLength: 120, jointsOnStuds: false }, p);
+  assert.equal(off.sheets.count, 4);
+  assert.deepEqual(off.joints, { total: 2, offFraming: 2, naiveOffFraming: 2 });
+  // snapped: each course cuts at 112 and 224 (studs), pieces 112, 112, 16; a 16 in piece cannot join a 112 on one sheet (128 > 120) but the two courses' 16 in pieces share one: 4 + 1
+  const on = layoutDrywall({ sheetLength: 120, jointsOnStuds: true }, p);
+  assert.equal(on.sheets.count, 5);
+  assert.deepEqual(on.joints, { total: 4, offFraming: 0, naiveOffFraming: 2 });
+  // option unset: unchanged behaviour and no joint report
+  const base = layoutDrywall({ sheetLength: 120 }, p);
+  assert.equal(base.sheets.count, 4);
+  assert.equal(base.joints, null);
+});
+
+test("jointsOnStuds: 8 ft sheets on 16 in studs already land on framing from a wall start", () => {
+  const p = { ...plan([{ id: "A", length: 288 }]), studSpacing: 16 };
+  const r = layoutDrywall({ jointsOnStuds: true }, p);
+  assert.equal(r.joints.naiveOffFraming, 0);
+  assert.equal(r.sheets.count, layoutDrywall({}, p).sheets.count);
+});
+
+test("ceilingJoistSpacing: a 20 x 8 ft ceiling, 10 ft sheets, joists at 16 in: the naive joint at 120 in is off a joist, snapping cuts at 112 and 224 (hand count)", () => {
+  const p = plan([]);
+  const c = [{ width: 240, depth: 96 }];
+  const naive = layoutDrywall({ sheetLength: 120, ceiling: c, ceilingJoistSpacing: 16, jointsOnStuds: false }, p);
+  assert.deepEqual(naive.ceilingJoints, { total: 2, offFraming: 2, naiveOffFraming: 2 });
+  assert.equal(naive.sheets.count, 4);
+  // snapped: each of 2 courses cuts 112 + 112 + 16; the two 16 in pieces share a sheet, so 4 + 1
+  const on = layoutDrywall({ sheetLength: 120, ceiling: c, ceilingJoistSpacing: 16, jointsOnStuds: true }, p);
+  assert.deepEqual(on.ceilingJoints, { total: 4, offFraming: 0, naiveOffFraming: 2 });
+  assert.equal(on.sheets.count, 5);
+  // unset: no ceiling report, same sheets as before
+  const base = layoutDrywall({ sheetLength: 120, ceiling: c }, p);
+  assert.equal(base.ceilingJoints, null);
+  assert.equal(base.sheets.count, 4);
+  assert.ok(validateDrywall({ ceilingJoistSpacing: 20 }).length);
+});
+
+test("ceilingJoistsFromRoof: joists the roof placed at 24 in (not a typed 16) decide the cuts; joistOrigin shifts a smaller ceiling", async () => {
+  const { layoutRoof } = await import("./roof.mjs");
+  const p = { ...plan([]), stock: samplePlan().stock };
+  const roof = layoutRoof({ id: "R", width: 192, length: 240, pitch: 4, overhang: 12, gableOverhang: 12, rafter: "2x8", spacing: 24, ridge: "2x10", ceilingJoist: "2x6", collarTies: false }, samplePlan());
+  assert.ok(roof.ok, roof.errors?.join());
+  const xs = [...new Set(roof.ceilingJoists.map((j) => j.x + 0.75))];
+  assert.ok(xs.includes(24) && xs.includes(48) && !xs.includes(16));
+  const c = [{ width: 240, depth: 96 }];
+  const d = layoutDrywall({ sheetLength: 120, ceiling: c, ceilingJoistsFromRoof: true, jointsOnStuds: true }, p, roof);
+  assert.ok(d.ok, d.errors?.join());
+  assert.equal(d.ceilingJoints.offFraming, 0);
+  // 24 in joists: the 120 in joint is on a joist, so unlike 16 in no extra cut-back pieces are needed
+  const typed = layoutDrywall({ sheetLength: 120, ceiling: c, ceilingJoistSpacing: 24, jointsOnStuds: true }, p);
+  assert.equal(d.ceilingJoints.total, typed.ceilingJoints.total);
+  // a ceiling starting 48 in in from the roof's first wall sees the same joists shifted
+  const shifted = layoutDrywall({ sheetLength: 120, ceiling: [{ width: 192, depth: 96, joistOrigin: 48 }], ceilingJoistsFromRoof: true, jointsOnStuds: true }, p, roof);
+  assert.equal(shifted.ceilingJoints.offFraming, 0);
+  // needs a roof with ceiling joists, and not both sources
+  assert.ok(!layoutDrywall({ ceiling: c, ceilingJoistsFromRoof: true }, p, null).ok);
+  assert.ok(validateDrywall({ ceilingJoistsFromRoof: true, ceilingJoistSpacing: 16 }).length);
+});
+
+test("ceiling step: a 10 ft soffit face 12 in deep on an 8 ft-sheet job: 2 runs (96 + 24), 10 sq ft net, 10 ft bead, 10 ft inside angle, 1 butt joint of 12 in (hand count)", () => {
+  const c = [{ width: 192, depth: 96 }];
+  const base = layoutDrywall({ ceiling: c }, plan([]));
+  const l = layoutDrywall({ ceiling: [{ ...c[0], steps: [{ length: 120, drop: 12 }] }] }, plan([]));
+  assert.ok(l.ok);
+  assert.equal(l.ceilings[0].stepSqFt, 10);
+  assert.equal(l.netSqFt - base.netSqFt, 10);
+  assert.equal(l.finishing.beadFt, 10);
+  assert.equal(l.finishing.insideCornerFt, 10);
+  assert.equal(l.finishing.seamFt - base.finishing.seamFt, 1);
+  assert.ok(validateDrywall({ ceiling: [{ width: 192, depth: 96, steps: [{ length: 120, drop: 80 }] }] }).length);
 });

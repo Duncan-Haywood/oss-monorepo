@@ -45,7 +45,7 @@ export const PRECUT = { "8ft": 92.625, "9ft": 104.625, "10ft": 116.625 };
  * @typedef {{ size: string, length: number, price: number, label?: string }} Stock
  * @typedef {{ studSpacing: number, studLength: number, kerf: number, topPlateLap: number,
  *   cornerExtraStuds: number, teeExtraStuds: number, defaultHeaderHeight: number,
- *   blocking?: { rows?: number, fire?: boolean }, plateLaps?: boolean, advanced?: { twoStudCorners?: boolean, ladderTees?: boolean, singleTopPlate?: boolean }, stock: Stock[], walls: Wall[] }} Plan
+ *   blocking?: { rows?: number, fire?: boolean, stagger?: boolean }, plateLaps?: boolean, advanced?: { twoStudCorners?: boolean, ladderTees?: boolean, singleTopPlate?: boolean }, stock: Stock[], walls: Wall[] }} Plan
  * @typedef {{ kind: string, x: number, y: number, w: number, h: number, size: string,
  *   length: number, orient: "v"|"h", label: string, sloped?: boolean }} Member
  */
@@ -218,15 +218,16 @@ export function validatePlan(plan) {
     const ops = [...(wall.openings || [])].sort((a, b) => a.offset - b.offset);
     let prevEnd = -Infinity;
     let prevName = "";
-    for (const op of ops) {
+    const vzones = framingZones(ops, wall.length);
+    for (const [oi, op] of ops.entries()) {
       const on = `${name}, ${op.label || op.kind} at ${formatLength(op.offset)}`;
       if (!(op.width > 0)) { errors.push(`${on}: rough opening width must be more than zero.`); continue; }
       if (!(op.height > 0)) { errors.push(`${on}: rough opening height must be more than zero.`); continue; }
-      const z = framingZone(op);
+      const z = vzones[oi];
       if (z.start < THICK - EPS || z.end > wall.length - THICK + EPS) {
-        errors.push(`${on}: the king studs run past the end studs. Move the opening at least ${formatInches(z.reach + THICK)} from the wall end, or frame this end by hand.`);
+        errors.push(`${on}: the king studs run past the end studs. Move the opening at least ${formatInches(THICK * (z.jacks + 1))} from the wall end (its jacks must clear the end stud), or frame this end by hand.`);
       }
-      if (z.start < prevEnd - EPS) errors.push(`${on}: its king studs overlap the ${prevName}.`);
+      if (z.start < prevEnd - EPS) errors.push(`${on}: its king studs overlap the ${prevName}, and the ${formatInches(op.offset - (ops[oi - 1].offset + ops[oi - 1].width))} between them is too narrow to share kings. Make them one wider opening, or move them at least ${formatInches(THICK * ((ops[oi - 1].jacks ?? 1) + (op.jacks ?? 1) + Math.max(ops[oi - 1].kings ?? 1, op.kings ?? 1)))} apart.`);
       prevEnd = z.end;
       prevName = op.label || op.kind;
       const g = openingGeometry(plan, wall, op);
@@ -266,7 +267,50 @@ function framingZone(op) {
   const jacks = op.jacks ?? 1;
   const kings = op.kings ?? 1;
   const reach = THICK * (jacks + kings);
-  return { start: op.offset - reach, end: op.offset + op.width + reach, reach, jacks, kings };
+  return { start: op.offset - reach, end: op.offset + op.width + reach, reach, jacks, kings, leftKings: kings, rightKings: kings, sharedWith: null };
+}
+
+/**
+ * Zones for a wall's openings in offset order. Two openings whose kings would
+ * overlap share one set of kings between them when the gap fits both pairs of
+ * jacks plus those kings (the larger of the two king counts): the shared kings
+ * sit against the left opening's jacks, and the right opening has none on that
+ * side. Closer than that, the zones stay overlapped and validatePlan says so.
+ */
+function framingZones(ops, length) {
+  const zones = ops.map((op) => framingZone(op));
+  // Near a wall end the end stud (or the corner's) does a king's work: drop the kings that do not fit, down to none,
+  // as long as the jacks still clear the end stud.
+  for (const [i, z] of zones.entries()) {
+    const op = ops[i];
+    const fit = (room) => Math.max(0, Math.floor((room - THICK * z.jacks + EPS) / THICK));
+    if (z.start < THICK - EPS && op.offset - THICK >= THICK * z.jacks - EPS) {
+      z.leftKings = Math.min(z.kings, fit(op.offset - THICK));
+      z.start = op.offset - THICK * (z.jacks + z.leftKings);
+      z.endStudKing = "start";
+    }
+    if (length !== undefined && z.end > length - THICK + EPS && length - THICK - (op.offset + op.width) >= THICK * z.jacks - EPS) {
+      z.rightKings = Math.min(z.kings, fit(length - THICK - (op.offset + op.width)));
+      z.end = op.offset + op.width + THICK * (z.jacks + z.rightKings);
+      z.endStudKing = z.endStudKing ? "both" : "end";
+    }
+  }
+  for (let i = 0; i + 1 < zones.length; i++) {
+    const a = zones[i];
+    const b = zones[i + 1];
+    if (a.end <= b.start + EPS) continue;
+    const gap = ops[i + 1].offset - (ops[i].offset + ops[i].width);
+    const k = Math.max(a.kings, b.kings);
+    if (gap < THICK * (a.jacks + b.jacks + k) - EPS) continue;
+    a.rightKings = k;
+    a.end = ops[i].offset + ops[i].width + THICK * (a.jacks + k);
+    b.leftKings = 0;
+    b.start = ops[i + 1].offset - THICK * b.jacks;
+    a.sharedWith = ops[i + 1];
+    b.sharedWith = ops[i];
+    a.sharedGap = b.sharedGap = gap - THICK * (a.jacks + b.jacks + k);
+  }
+  return zones;
 }
 
 function openingGeometry(plan, wall, op) {
@@ -318,7 +362,9 @@ export function layoutWall(plan, wall) {
   if (L - THICK > layout[layout.length - 1] + EPS) layout.push(L - THICK);
 
   const ops = [...(wall.openings || [])].sort((a, b) => a.offset - b.offset);
-  const zones = ops.map((op) => ({ op, ...framingZone(op), g: openingGeometry(plan, wall, op) }));
+  const zones = framingZones(ops, wall.length).map((z, i) => ({ op: ops[i], ...z, g: openingGeometry(plan, wall, ops[i]) }));
+  for (const z of zones) if (z.sharedWith && z.sharedWith.offset > z.op.offset) notes.push(`${z.op.label || z.op.kind} and ${z.sharedWith.label || z.sharedWith.kind} are ${formatInches(z.sharedWith.offset - (z.op.offset + z.op.width))} apart: they share ${z.rightKings} king stud${z.rightKings > 1 ? "s" : ""}${z.sharedGap > EPS ? ` (${formatInches(z.sharedGap)} left open beside the second opening's jack: block it)` : ""}.`);
+  for (const z of zones) if (z.endStudKing) notes.push(`${z.op.label || z.op.kind} is close to the wall end: the end stud serves as its king${z.endStudKing === "both" ? " on both sides" : ""}${z.leftKings < z.kings && z.endStudKing !== "end" ? `, ${z.leftKings} of ${z.kings} extra king${z.kings > 1 ? "s" : ""} on the left` : ""}.`);
   const overlaps = (x, a, b) => x < b - EPS && x + THICK > a + EPS;
   const inside = (x, a, b) => x >= a - EPS && x + THICK <= b + EPS;
 
@@ -335,12 +381,16 @@ export function layoutWall(plan, wall) {
     const name = op.label || op.kind;
     const hStart = op.offset - THICK * z.jacks;
     const hEnd = op.offset + op.width + THICK * z.jacks;
-    for (let i = 0; i < z.kings; i++) {
+    const kingLabel = z.sharedWith && z.sharedWith.offset > op.offset ? `shared king, ${name} and ${z.sharedWith.label || z.sharedWith.kind}` : `king, ${name}`;
+    for (let i = 0; i < z.leftKings; i++) {
       const xl = z.start + i * THICK;
-      const xr = z.end - (i + 1) * THICK;
-      fullStudX.push(xl, xr);
+      fullStudX.push(xl);
       add("king", xl, THICK, THICK, plan.studLength, stud, "v", `king, ${name}`);
-      add("king", xr, THICK, THICK, plan.studLength, stud, "v", `king, ${name}`);
+    }
+    for (let i = 0; i < z.rightKings; i++) {
+      const xr = z.end - (i + 1) * THICK;
+      fullStudX.push(xr);
+      add("king", xr, THICK, THICK, plan.studLength, stud, "v", kingLabel);
     }
     for (let i = 0; i < z.jacks; i++) {
       add("jack", hStart + i * THICK, THICK, THICK, g.jack, stud, "v", `jack, ${name}`);
@@ -487,7 +537,9 @@ export function layoutWall(plan, wall) {
         const x1 = tall[i + 1].x;
         if (x1 - x0 < 1 - EPS) continue;
         if (ops.some((op) => x0 < op.offset + op.width - EPS && x1 > op.offset + EPS)) continue;
-        add("blocking", x0, y, x1 - x0, THICK, stud, "h", plan.blocking?.fire ? "fire blocking" : "blocking");
+        // Staggered: alternate bays sit THICK above and below the row line, so each block's end can be face-nailed through the stud.
+        const dy = plan.blocking?.stagger ? (i % 2 ? THICK : -THICK) : 0;
+        add("blocking", x0, y + dy, x1 - x0, THICK, stud, "h", plan.blocking?.fire ? "fire blocking" : "blocking");
       }
     }
   } else if (plan.studLength > 120 + EPS) {
@@ -544,7 +596,8 @@ function layoutGable(plan, wall) {
   const overlaps = (x, a, b) => x < b - EPS && x + THICK > a + EPS;
   const inside = (x, a, b) => x >= a - EPS && x + THICK <= b + EPS;
   const ops = [...(wall.openings || [])].sort((a, b) => a.offset - b.offset);
-  const zones = ops.map((op) => ({ op, ...framingZone(op), g: openingGeometry(plan, wall, op) }));
+  const zones = framingZones(ops, wall.length).map((z, i) => ({ op: ops[i], ...z, g: openingGeometry(plan, wall, ops[i]) }));
+  for (const z of zones) if (z.sharedWith && z.sharedWith.offset > z.op.offset) notes.push(`${z.op.label || z.op.kind} and ${z.sharedWith.label || z.sharedWith.kind} are ${formatInches(z.sharedWith.offset - (z.op.offset + z.op.width))} apart: they share ${z.rightKings} king stud${z.rightKings > 1 ? "s" : ""}${z.sharedGap > EPS ? ` (${formatInches(z.sharedGap)} left open beside the second opening's jack: block it)` : ""}.`);
   const fullStudX = [];
   for (const x of layout) {
     if (zones.some((zz) => overlaps(x, zz.start, zz.end))) continue;
@@ -558,12 +611,16 @@ function layoutGable(plan, wall) {
     const name = op.label || op.kind;
     const hStart = op.offset - THICK * z.jacks;
     const hEnd = op.offset + op.width + THICK * z.jacks;
-    for (let i = 0; i < z.kings; i++) {
+    const kingLabel = z.sharedWith && z.sharedWith.offset > op.offset ? `shared king, ${name} and ${z.sharedWith.label || z.sharedWith.kind}` : `king, ${name}`;
+    for (let i = 0; i < z.leftKings; i++) {
       const xl = z.start + i * THICK;
-      const xr = z.end - (i + 1) * THICK;
-      fullStudX.push(xl, xr);
+      fullStudX.push(xl);
       studAt(xl, "king", `king, ${name}`);
-      studAt(xr, "king", `king, ${name}`);
+    }
+    for (let i = 0; i < z.rightKings; i++) {
+      const xr = z.end - (i + 1) * THICK;
+      fullStudX.push(xr);
+      studAt(xr, "king", kingLabel);
     }
     for (let i = 0; i < z.jacks; i++) {
       add("jack", hStart + i * THICK, THICK, THICK, g.jack, stud, "v", `jack, ${name}`);
@@ -664,7 +721,7 @@ function layoutGable(plan, wall) {
   }
   if (shimGaps.length) notes.push(`a gap too small for cripples between header and top plate over ${shimGaps.join(", ")}: shim or fill it.`);
   if (spacers.length) notes.push(`header spacers not in the takeoff: ${spacers.join(", ")}.`);
-  return { id: wall.id, length: L, height: base + maxRise + 2 * Math.max(vtL, vtR), stud, members, notes, layout, lapped: false, gable: { pitch: wall.gable.pitch, peak: mid, peakRise: maxRise, ...(mid !== L / 2 ? { farPitch: slopeR * 12 } : {}) }, joints: { bottom: bottomJoints, top: topJoints, cap: capJoints } };
+  return { id: wall.id, length: L, height: base + maxRise + 2 * Math.max(vtL, vtR), stud, members, notes, layout, lapped: false, gable: { pitch: wall.gable.pitch, peak: mid, peakRise: maxRise, eave: base, ...(mid !== L / 2 ? { farPitch: slopeR * 12 } : {}) }, joints: { bottom: bottomJoints, top: topJoints, cap: capJoints } };
 }
 
 function wall_studMin(w) {
@@ -674,7 +731,8 @@ function wall_studMin(w) {
 /** Rows of blocking: the asked-for count, or what fire blocking needs so no stud run exceeds 10 ft. */
 export function blockingRows(plan) {
   const b = plan.blocking || {};
-  const fire = b.fire ? Math.max(0, Math.ceil((plan.studLength + 2 * THICK) / 120 - EPS) - 1) : 0;
+  // a staggered row can sit THICK off its line either way, so a run can grow by 2 * THICK
+  const fire = b.fire ? Math.max(0, Math.ceil((plan.studLength + 2 * THICK + (b.stagger ? 2 * THICK : 0)) / 120 - EPS) - 1) : 0;
   return Math.max(Math.floor(b.rows || 0), fire);
 }
 

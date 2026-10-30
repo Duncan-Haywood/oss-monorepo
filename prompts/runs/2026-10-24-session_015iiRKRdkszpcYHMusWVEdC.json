@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-24",
+  "session": "https://claude.ai/code/session_015iiRKRdkszpcYHMusWVEdC",
+  "track": "ventures",
+  "prompt_version": 0,
+  "input": "scheduled: continue revenue-product work",
+  "input_sha256": "933f619f23e002a1e6471c5855af5f62ef9bb1eb442678c0e03e16c83b5a8378",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-24T19:59:16Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 1): ai-bookkeeper bank category hint, money-in labels",
+  "projects": [
+    "ai-bookkeeper"
+  ],
+  "pr": 10225,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/routing.json",
+      "why": "router drew research; the scheduled prompt asked for revenue products",
+      "did": "took the ventures track",
+      "result": "built the base feature, which a parallel session landed first (PR 10224); reset to main and shipped only the money-in/extra-label extension"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Full ai-bookkeeper suite 836 pass, 0 fail. Duplicate work: overlapping sessions built the same feature; the search for open PRs was done after building, not before.",
+  "corrections": [],
+  "redteam": null
+}

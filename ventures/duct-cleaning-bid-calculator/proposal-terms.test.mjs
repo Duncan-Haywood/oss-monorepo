@@ -36,7 +36,7 @@ const SENT = {
 function fakePage(values = {}) {
   const nodes = {};
   for (const [id, value] of Object.entries(values)) {
-    nodes[id] = { value, events: [], dispatchEvent(event) { this.events.push(event.type); return true; } };
+    nodes[id] = { value, events: [], dispatchEvent(event) { this.events.push(event.type); this.bubbled.push(event.bubbles); return true; }, bubbled: [] };
   }
   return { lookup: (id) => nodes[id] ?? null, nodes };
 }
@@ -66,6 +66,12 @@ test('a term too long to travel is dropped whole, never half-sent', () => {
   assert.deepEqual(overlongTerms({ paymentTerms: essay }), ['paymentTerms']);
   assert.deepEqual(overlongTerms({ paymentTerms: 'Net 30.' }), []);
   assert.deepEqual(overlongTerms(null), []);
+});
+
+test('a term of exactly the limit still travels', () => {
+  const exact = 'x'.repeat(MAX_TERM_TEXT);
+  assert.deepEqual(overlongTerms({ paymentTerms: exact }), []);
+  assert.equal(decodeTerms(encodeTerms({ paymentTerms: exact })).paymentTerms, exact);
 });
 
 test('a term at the ceiling still travels', () => {
@@ -179,6 +185,7 @@ test('applyTerms writes the fields and lets the page recompute', () => {
   assert.equal(page.nodes.depositPercent.value, '50');
   assert.equal(page.nodes.paymentTerms.value, 'Net 15.');
   assert.deepEqual(page.nodes.validDays.events, ['input', 'change']);
+  assert.deepEqual(page.nodes.validDays.bubbled, [true, true], 'the proposal region listens on the document');
 });
 
 test('the note names the box on screen, not the id in the markup', () => {
@@ -193,4 +200,21 @@ test('the note names the box on screen, not the id in the markup', () => {
     overlongTermsNote({ proposalExclusions: long, paymentTerms: long, proposalNotes: long }),
     /^your not-included list, payment terms and notes are too long/,
   );
+});
+
+test('the ceiling matches the one in link.mjs and the shared bid spec', () => {
+  assert.equal(MAX_TERM_TEXT, 512);
+});
+
+test('a terms parameter right after a leading ampersand leaves no stray separator', () => {
+  const { payload, terms } = splitTerms('#&pfterms=a&k=v');
+  assert.equal(payload, 'k=v');
+  assert.equal(terms, 'a');
+});
+
+test('a key that merely ends in the terms name is left alone', () => {
+  const { payload, terms } = splitTerms('#a=1&xpfterms=b&c=2');
+  assert.equal(payload, 'a=1&xpfterms=b&c=2');
+  assert.equal(terms, '');
+  assert.equal(splitTerms('#xpfterms=b&pfterms=c').terms, 'c');
 });

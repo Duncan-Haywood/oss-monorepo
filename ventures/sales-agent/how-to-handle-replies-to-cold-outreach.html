@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23637e1b'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3ES%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How to handle replies to cold outreach (unsubscribes, bounces)</title>
+  <meta name="description" content="What to do with each kind of reply to cold email: unsubscribe, bounce, out of office, left the company, not now, objection, question. A table of the safe action for each, and which ones need a person.">
+  <meta property="og:title" content="How to handle replies to cold outreach (unsubscribes, bounces)">
+  <meta property="og:description" content="The safe action for every kind of reply to cold outreach, and the free open-source inbox agent that applies it without sending anything.">
+  <link rel="canonical" href="./how-to-handle-replies-to-cold-outreach.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What should I do with an unsubscribe reply to cold email?","acceptedAnswer":{"@type":"Answer","text":"Stop every further message to that address straight away and keep a record: the address, the date and their own words. In the US, the CAN-SPAM Act requires honouring an opt-out within 10 business days; other places (the EU and UK, Canada) have their own rules. Do not reply to argue, and do not re-add them from another list."}},{"@type":"Question","name":"How long should I wait after an out-of-office reply?","acceptedAnswer":{"@type":"Answer","text":"Until the business day after the return date the auto-reply gives. If it names no date, the sales agent waits one week. An auto-reply is not a refusal, so the prospect is paused, not removed."}},{"@type":"Question","name":"What do I do with a 'not now, try next quarter' reply?","acceptedAnswer":{"@type":"Answer","text":"Pause the prospect until the date they gave and send, at most, a short acknowledgement. With no date the sales agent pauses for 90 days. Write the follow-up date down so it happens."}},{"@type":"Question","name":"Does the sales agent send replies for me?","acceptedAnswer":{"@type":"Answer","text":"No. It stops or pauses contact on its own, because those only reduce what is sent, and queues everything else as a draft for you to approve. It sends nothing."}},{"@type":"Question","name":"Can it be wrong about what a reply means?","acceptedAnswer":{"@type":"Answer","text":"Yes. Its rules read only part of real replies; the measured numbers are in the project README. Anything it is unsure of goes to you as an 'unclear' reply and nothing is done on a guess."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2330; background: #f2f4f7; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.05; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #4b6215; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d9dfe6; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 14px; border-radius: 8px; background: #4b6215; color: #ffffff; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4c5a68; }
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; Sales Agent</a></p>
+  <h1>How to handle replies to cold outreach (unsubscribes, bounces)</h1>
+  <p>Every cold campaign ends the same way: a pile of replies, most of them not "yes". Each kind needs a different action, and the costly mistakes are one-sided: messaging someone who asked you to stop, or chasing a bounced address. The rule of thumb is that doing less is always safe and doing more needs a decision.</p>
+  <p><a class="cta" href="./">Open the free inbox agent</a></p>
+  <h2>The safe action for each reply</h2>
+  <table>
+    <thead><tr><th>Reply</th><th>Do straight away</th><th>Needs a person</th></tr></thead>
+    <tbody>
+      <tr><td>Unsubscribe / stop</td><td>Stop all contact; add to a suppression list with the date and their words</td><td>Nothing; no reply</td></tr>
+      <tr><td>Bounce</td><td>Stop email to that address</td><td>Finding a correct address from your own records</td></tr>
+      <tr><td>Out of office</td><td>Pause until the business day after they return (a week if no date)</td><td>A task if it names another contact</td></tr>
+      <tr><td>Left the company / wrong person</td><td>Stop the cadence for that contact</td><td>Whether to add the person they named</td></tr>
+      <tr><td>Not interested</td><td>Stop; do not suggest again for 180 days</td><td>Nothing</td></tr>
+      <tr><td>Not now</td><td>Pause until their date (90 days if none)</td><td>A short acknowledgement</td></tr>
+      <tr><td>Objection or question</td><td>Pause the cadence</td><td>The answer, which only you can give</td></tr>
+      <tr><td>Interested</td><td>Stop the automated cadence; log a deal</td><td>The reply with your booking link</td></tr>
+    </tbody>
+  </table>
+  <h2>Why keep the opt-out record</h2>
+  <p>A suppression list is only useful if it survives the next import. Store the address, the date and the sentence they wrote. If anyone later asks why you wrote to them, or whether you honoured their request, the record answers. In the US, CAN-SPAM requires an opt-out to be honoured within 10 business days; treating it as immediate is simpler and safer.</p>
+  <h2>Doing this by hand, or with the inbox agent</h2>
+  <p>You can run the table above in a spreadsheet. The <a href="./">sales agent's inbox milestone</a> does the same bookkeeping from pasted replies: it classifies each one, applies only the actions that reduce contact, writes the suppression, prospect and deal rows, and queues drafts for you to approve. It runs in your browser with nothing uploaded, and sends nothing. Its rules read only part of real replies; the measured accuracy and the labelled test sets are in the <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/sales-agent" rel="noopener">README</a>.</p>
+  <p><a class="cta" href="./">Try it on your own replies</a></p>
+  <h2>Questions</h2>
+  <h3>What should I do with an unsubscribe reply to cold email?</h3>
+  <p>Stop every further message to that address straight away and keep a record: the address, the date and their own words. In the US, the CAN-SPAM Act requires honouring an opt-out within 10 business days; other places (the EU and UK, Canada) have their own rules. Do not reply to argue, and do not re-add them from another list.</p>
+  <h3>How long should I wait after an out-of-office reply?</h3>
+  <p>Until the business day after the return date the auto-reply gives. If it names no date, the sales agent waits one week. An auto-reply is not a refusal, so the prospect is paused, not removed.</p>
+  <h3>What do I do with a 'not now, try next quarter' reply?</h3>
+  <p>Pause the prospect until the date they gave and send, at most, a short acknowledgement. With no date the sales agent pauses for 90 days. Write the follow-up date down so it happens.</p>
+  <h3>Does the sales agent send replies for me?</h3>
+  <p>No. It stops or pauses contact on its own, because those only reduce what is sent, and queues everything else as a draft for you to approve. It sends nothing.</p>
+  <h3>Can it be wrong about what a reply means?</h3>
+  <p>Yes. Its rules read only part of real replies; the measured numbers are in the project README. Anything it is unsure of goes to you as an 'unclear' reply and nothing is done on a guess.</p>
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not legal, tax or sales-compliance advice, and it does not tell you what email law requires of you. Rules vary by country and change; check current guidance or ask a qualified professional.</p>
+    <p>Everything the sales agent does runs in your browser; your replies are never uploaded. Free and open source: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional. Related: <a href="../sales-cadence-builder/">sales cadence builder</a>, <a href="../deal-keeper/">deal keeper</a>.</p>
+  </footer>
+</body>
+</html>

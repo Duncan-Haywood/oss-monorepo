@@ -63,3 +63,18 @@ test("validation", () => {
 test("summary tells the reader to verify", () => {
   assert.match(summaryText(run({})), /Verify figures on sars\.gov\.za/);
 });
+
+test("band edge: R1 over the R1,817,000 boundary is taxed at 41%, not 45%", () => {
+  assert.equal(grossTax(1817001, "2025/26"), 644489.45);
+  assert.equal(grossTax(1816999, "2025/26"), 644488.59);
+});
+test("perThousand is tax per R1,000 invoiced", () => {
+  const r = run({ revenue: "600000", expenses: "120000" });
+  assert.equal(r.perThousand, 149.51);
+  assert.equal(run({ revenue: "0", expenses: "0" }).perThousand, 0);
+  assert.equal(compute({ ...SAMPLE, revenue: "0.5", expenses: "0" }).perThousand, 0);
+});
+test("fractional medical scheme members are rejected", () => {
+  assert.ok(run({ medical: "1.5" }).errors.length > 0);
+  assert.equal(run({ medical: "2" }).errors.length, 0);
+});

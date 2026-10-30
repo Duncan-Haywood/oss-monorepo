@@ -1,0 +1,53 @@
+name: agentic-trading-lab
+description: >-
+  Open-source research agent for rules-based trading on the user's own
+  account: backtests published momentum, trend and risk rules on Fama-French
+  US industry portfolios (1926 on) and BTC/ETH, charges for every trial with
+  the Deflated Sharpe Ratio and Probability of Backtest Overfitting, judges
+  the winner once on a holdout, and only then allows dry-run, paper (local or
+  Alpaca) or locked live execution (Alpaca, Robinhood Crypto Trading API).
+stage: prototype
+owner: duncan
+
+# Started 2026-10-28 from the owner's request: "automated agentic trading.
+# maybe through robinhood. like a fund or something. make sure to put the
+# right disclaimers. do a lot of backtesting come up with advanced strategies".
+# Scoped to a single-account tool, not a fund: pooling or managing others'
+# money is regulated (LEGAL.md), and the owner's own money and accounts are a
+# hard limit for agents (prompts/goals.md). Live trading needs the deployer's
+# keys plus five locks; no agent runs it.
+# Robinhood: official Crypto Trading API only; no official stock API exists,
+# so stocks/ETFs go through Alpaca. Unofficial app-endpoint libraries are out.
+# Data: Ken French Data Library (fetched at run time, not redistributed),
+# Coinbase public candles.
+# First study (results/REPORT.md): no agent pick passed the gate; trend rules
+# halved drawdowns; crypto 20-day SMA overfit (Sharpe 2.07 -> -0.08).
+# Path to revenue (payment rails stay off): donations. A hosted signal service
+# is deliberately not built: it would be personalised advice for pay.
+
+hypotheses:
+  - claim: >-
+      Self-directed investors and developers who want to automate their own
+      account will use a research tool that refuses to promote overfit
+      backtests, and will come back to rerun it when new data lands.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or reports) engage within 90 days of the page being reachable.
+  - A user shows a DSR, PBO or backtest figure that disagrees with a reference implementation on the same inputs and the difference is a bug here.
+
+links:
+  production: https://duncan-haywood.github.io/oss-monorepo/agentic-trading-lab/
+  analytics: null

@@ -1,0 +1,6 @@
+honest held-out loss 2.7252 (seed std 0.0083); update norm quantiles 10/50/90%: 0.0038 0.0806 0.2191; bf16 referee drift p50 8.47e-04, p99 2.38e-03, max 4.01e-03; honest steps with drift above 1e-3: 0.409, above 1e-2: 0.000
+tau       skipped   degradation [95% CI]            seeds where skipping is better
+1e-03     0.051     +0.00009 [+0.00005, +0.00013]  0.00
+1e-02     0.163     +0.00167 [+0.00108, +0.00218]  0.10
+3e-02     0.288     +0.00847 [+0.00773, +0.00919]  0.00
+1e-01     0.592     +0.06284 [+0.05737, +0.06837]  0.00

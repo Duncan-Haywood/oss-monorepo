@@ -1,0 +1,130 @@
+{
+  "date": "2026-10-28",
+  "session": "https://claude.ai/code/session_01AcxTtGLJobZg2eDn5ktDRK",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-28T23:07:16Z",
+  "ended": "2026-10-28T23:09:50Z",
+  "wall_minutes": 2.67,
+  "tokens_in": 1239517,
+  "tokens_out": 15465,
+  "cost_usd": 0.6225,
+  "tool_calls": 20,
+  "task": null,
+  "projects": [],
+  "pr": 11232,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/check_post_frontmatter.py",
+      "issue": "Reports another post (state-income-tax-in-the-self-employed-estimate) missing description/tags on main; not mine, left alone."
+    },
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "issue": "Next up list mixes Done items inline with open ones, so finding open items needed a grep."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Audio over 400 MB cap (423 MB), so text only as the prompt directs.",
+      "did": "Landed text, pages, feeds, post.",
+      "result": "as designed"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-28-a-dead-mans-condition-and-a-licence-for-automated-cars.md"
+  ],
+  "goal": null,
+  "notes": "Project hearth-and-horizon; piece the-condition-in-the-trust. Caught and fixed a timeline error (settlor died before granddaughter born) in adversarial re-read. node --test 11/11.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "e8cf25c6-fb2c-5fe9-88f2-9b776b87a080",
+    "transcripts": 1,
+    "first": "2026-10-28T23:07:16Z",
+    "last": "2026-10-28T23:09:56Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 17,
+        "input": 34,
+        "output": 15465,
+        "thinking": 5012,
+        "cache_read": 1181612,
+        "cache_write_5m": 0,
+        "cache_write_1h": 57871,
+        "api_equivalent_usd": 0.6225,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 17,
+      "input": 34,
+      "output": 15465,
+      "thinking": 5012,
+      "cache_read": 1181612,
+      "cache_write_5m": 0,
+      "cache_write_1h": 57871,
+      "api_equivalent_usd": 0.6225,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.953,
+    "tool_calls": 20,
+    "tools": {
+      "Bash": 15,
+      "Read": 2,
+      "ToolSearch": 1,
+      "mcp__github__search_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 2.67,
+      "active_minutes": 2.67,
+      "model_minutes": 2.35,
+      "tool_minutes": 0.32,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

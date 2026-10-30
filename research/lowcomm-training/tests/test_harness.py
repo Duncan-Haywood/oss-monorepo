@@ -98,3 +98,117 @@ def test_quadratic_stationary_loss_matches_closed_form():
     want = sum(_floor(float(ai), eta, sigma, M, H, alpha, beta) for ai in a)
     # heavy ball in torch is v <- beta v + g, x <- x - lr v, the same as the closed form's outer step
     assert abs(acc / n - want) / want < 0.12, (acc / n, want)
+
+
+def test_rand_k_unbiased_and_keep1_matches_plain():
+    from lowcomm import rand_k
+    g = torch.Generator().manual_seed(0)
+    x = torch.randn(2000)
+    c = rand_k(0.25)
+    est = torch.stack([c(x, g) for _ in range(400)]).mean(0)
+    assert abs((est - x).mean().item()) < 0.05
+    err = ((c(x, g) - x) ** 2).sum() / (x ** 2).sum()
+    assert 2.0 < err.item() < 4.0  # omega = 1/0.25 - 1 = 3
+    data, m, f = make(4)
+    m2 = copy.deepcopy(m)
+    a = DiLoCo(m, f, workers=2, H=3, outer=lambda p: torch.optim.SGD(p, lr=1.0), seed=1)
+    b = DiLoCo(m2, f, workers=2, H=3, outer=lambda p: torch.optim.SGD(p, lr=1.0), seed=1, compress=rand_k(1.0))
+    for _ in range(3):
+        a.round(); b.round()
+    for p, q in zip(m.parameters(), m2.parameters()):
+        assert torch.allclose(p, q, atol=1e-5)
+
+
+def test_top_k_and_error_feedback():
+    import torch
+    from lowcomm import DiLoCo, top_k
+    c = top_k(0.25)
+    x = torch.tensor([1.0, -5.0, 2.0, 0.5, 3.0, -0.1, 0.2, 4.0])
+    y = c(x, None)
+    assert y.count_nonzero() == 2 and y[1] == -5.0 and y[7] == 4.0
+    # keep = 1 is the identity, with or without error feedback, so DiLoCo matches the uncompressed round
+    def mk():
+        torch.manual_seed(0)
+        return torch.nn.Linear(3, 1)
+    f = lambda m, rng: ((m(torch.randn(4, 3, generator=rng)) - 1) ** 2).mean()
+    outs = []
+    for kw in ({}, {"compress": top_k(1.0), "error_feedback": True}):
+        m = mk()
+        d = DiLoCo(m, f, workers=2, H=3, outer=lambda p: torch.optim.SGD(p, lr=1.0), seed=1, **kw)
+        for _ in range(3):
+            d.round()
+        outs.append([p.detach().clone() for p in m.parameters()])
+    assert all(torch.allclose(a, b, atol=1e-6) for a, b in zip(*outs))
+    # with a lossy compressor the residual is stored: delta + old residual = compressed + new residual
+    m = mk()
+    d = DiLoCo(m, f, workers=2, H=3, outer=lambda p: torch.optim.SGD(p, lr=1.0), seed=1, compress=top_k(0.5), error_feedback=True)
+    d.round()
+    assert any(float(e.abs().sum()) > 0 for e in d.ef[0])
+
+
+def test_quantise_is_unbiased_and_on_grid():
+    import torch
+    from lowcomm import quantise
+    x = torch.tensor([0.9, -0.3, 0.05, 0.0, -1.0])
+    for levels in (1, 7):
+        c, gen = quantise(levels), torch.Generator().manual_seed(0)
+        outs = torch.stack([c(x, gen) for _ in range(20000)])
+        assert torch.allclose(outs.mean(0), x, atol=0.02)
+        grid = outs.abs() / 1.0 * levels
+        assert torch.allclose(grid, grid.round(), atol=1e-5)
+    assert torch.equal(quantise(3)(torch.zeros(4), torch.Generator()), torch.zeros(4))
+
+def test_median_aggregate_and_attack():
+    import torch
+    from lowcomm import DiLoCo
+    def mk():
+        torch.manual_seed(0)
+        return torch.nn.Linear(3, 1)
+    f = lambda m, rng: ((m(torch.randn(4, 3, generator=rng)) - 1) ** 2).mean()
+    sgd = lambda p: torch.optim.SGD(p, lr=1.0)
+    # one worker: the median is the delta itself, so it matches the mean
+    outs = []
+    for agg in ("mean", "median"):
+        m = mk()
+        d = DiLoCo(m, f, workers=1, H=3, outer=sgd, seed=1, aggregate=agg)
+        d.round()
+        outs.append([p.detach().clone() for p in m.parameters()])
+    assert all(torch.allclose(a, b, atol=1e-6) for a, b in zip(*outs))
+    # three workers, one attacker adding a huge offset: the mean moves with it, the median stays near the honest value
+    res = {}
+    for agg in ("mean", "median"):
+        for atk in (None, lambda d, j: d + 1e3 if j == 0 else d):
+            m = mk()
+            d = DiLoCo(m, f, workers=3, H=3, outer=sgd, seed=1, aggregate=agg, attack=atk)
+            d.round()
+            res[(agg, atk is not None)] = torch.cat([p.detach().flatten() for p in m.parameters()])
+    assert (res[("mean", True)] - res[("mean", False)]).abs().max() > 100
+    assert (res[("median", True)] - res[("median", False)]).abs().max() < 5
+    # even M: median is the mean of the two middle values
+    ds = torch.tensor([[1.0], [2.0], [10.0], [100.0]])
+    assert float(ds.sort(0).values[1:3].mean(0)) == 6.0
+
+def test_trimmed_aggregate():
+    import torch
+    from lowcomm import DiLoCo
+    f = lambda m, rng: ((m(torch.randn(4, 3, generator=rng)) - 1) ** 2).mean()
+    sgd = lambda p: torch.optim.SGD(p, lr=1.0)
+    res = {}
+    for agg, atk in (("mean", None), ("trimmed", None), ("trimmed", lambda d, j: d + 1e3 if j == 0 else d)):
+        torch.manual_seed(0)
+        m = torch.nn.Linear(3, 1)
+        DiLoCo(m, f, workers=5, H=3, outer=sgd, seed=1, aggregate=agg, attack=atk).round()
+        res[(agg, atk is not None)] = torch.cat([p.detach().flatten() for p in m.parameters()])
+    assert not torch.allclose(res[("mean", False)], res[("trimmed", False)], atol=1e-7)  # it drops two values
+    assert (res[("trimmed", True)] - res[("trimmed", False)]).abs().max() < 5  # a huge offset is trimmed away
+
+def test_quantize_unbiased_and_sign():
+    import torch
+    from lowcomm import quantize
+    g = torch.Generator().manual_seed(0)
+    x = torch.randn(50)
+    m = torch.stack([quantize(4)(x, g) for _ in range(4000)]).mean(0)
+    assert (m - x).abs().max() < 0.03
+    assert len(set(quantize(2)(x, g).tolist())) <= 3  # levels -s, 0, s
+    s = quantize(1)(x, g)
+    assert torch.equal(torch.sign(s), torch.sign(x)) and torch.allclose(s.abs(), x.abs().mean().expand(50))

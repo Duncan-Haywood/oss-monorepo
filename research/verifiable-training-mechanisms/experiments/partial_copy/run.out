@@ -1,0 +1,12 @@
+== brute force vs closed form: 270 cells (m 1..6, 5 kappas, 3 g, 3 p); max |difference| = 8.35e-10
+== m = 1 independent of kappa: 45 of 45 cells
+== stake rises when kappa falls (m >= 2): 0 of 54 (g, p, m) cells violate monotonicity
+== stake zero at kappa = 0, m >= 2: 45 of 45 cells
+== S* by brute force (g = 0.5, p = 0.1)
+m    k=1.0    k=0.75   k=0.5    k=0.25   k=0.0  
+1    4.000    4.000    4.000    4.000    4.000  
+2    4.000    0.538    0.000    0.000    0.000  
+3    4.000    0.538    0.000    0.000    0.000  
+4    4.000    0.538    0.000    0.000    0.000  
+5    4.000    0.538    0.000    0.000    0.000  
+6    4.000    0.538    0.000    0.000    0.000  

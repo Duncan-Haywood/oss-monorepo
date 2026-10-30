@@ -1,0 +1,6 @@
+cases 2916; foilborne flight feasible in 1620; foil out-ranges monohull in 0 (0.00%)
+range ratio foil/mono (feasible): min 0.064 median 0.130 max 0.248
+foil best range km: min 39 median 105 max 255; monohull median 824
+foil best speed m/s: median 8.75
+best foil/mono case: {'area': 0.08, 'ar': 14.0, 'e': 0.95, 'cd0': 0.008, 'draft': 0.3, 'extra': 1.0, 'clmax': 0.8, 'e_batt': 200.0} foil 204 km at 7.75 m/s; mono 824 km
+foil best speed at the 10 m/s grid ceiling in 369 of 1620 feasible cases

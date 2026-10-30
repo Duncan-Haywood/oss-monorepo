@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Faktura xmlns="http://crd.gov.pl/wzor/2025/06/25/13775/">
+  <Naglowek>
+    <KodFormularza kodSystemowy="FA (3)" wersjaSchemy="1-0E">FA</KodFormularza>
+    <WariantFormularza>3</WariantFormularza>
+    <DataWytworzeniaFa>2026-03-02T09:30:00Z</DataWytworzeniaFa>
+    <SystemInfo>Example</SystemInfo>
+  </Naglowek>
+  <Podmiot1>
+    <DaneIdentyfikacyjne><NIP>5260250994</NIP><Nazwa>Przykład Sp. z o.o.</Nazwa></DaneIdentyfikacyjne>
+    <Adres><KodKraju>PL</KodKraju><AdresL1>ul. Testowa 1</AdresL1><AdresL2>00-001 Warszawa</AdresL2></Adres>
+  </Podmiot1>
+  <Podmiot2>
+    <DaneIdentyfikacyjne><NIP>5252344078</NIP><Nazwa>Nabywca S.A.</Nazwa></DaneIdentyfikacyjne>
+    <Adres><KodKraju>PL</KodKraju><AdresL1>ul. Próbna 2</AdresL1><AdresL2>30-001 Kraków</AdresL2></Adres>
+    <JST>2</JST>
+    <GV>2</GV>
+  </Podmiot2>
+  <Fa>
+    <KodWaluty>PLN</KodWaluty>
+    <P_1>2026-03-02</P_1>
+    <P_2>FV/2026/03/001</P_2>
+    <P_6>2026-03-01</P_6>
+    <P_13_1>1200.00</P_13_1>
+    <P_14_1>270.00</P_14_1>
+    <P_13_2>100.00</P_13_2>
+    <P_14_2>8.00</P_14_2>
+    <P_15>1600.00</P_15>
+    <Adnotacje>
+      <P_16>2</P_16><P_17>2</P_17><P_18>2</P_18><P_18A>2</P_18A>
+      <Zwolnienie><P_19N>1</P_19N></Zwolnienie>
+      <NoweSrodkiTransportu><P_22N>1</P_22N></NoweSrodkiTransportu>
+      <P_23>2</P_23>
+      <PMarzy><P_PMarzyN>1</P_PMarzyN></PMarzy>
+    </Adnotacje>
+    <RodzajFaktury>VAT</RodzajFaktury>
+    <FaWiersz>
+      <NrWierszaFa>1</NrWierszaFa>
+      <P_7>Usługi doradcze</P_7>
+      <P_8A>godz.</P_8A>
+      <P_8B>10</P_8B>
+      <P_9A>100.00</P_9A>
+      <P_11>1000.00</P_11>
+      <P_12>23</P_12>
+    </FaWiersz>
+    <FaWiersz>
+      <NrWierszaFa>2</NrWierszaFa>
+      <P_7>Szkolenie</P_7>
+      <P_8A>szt.</P_8A>
+      <P_8B>2</P_8B>
+      <P_9A>100.00</P_9A>
+      <P_11>250.00</P_11>
+      <P_12>23</P_12>
+    </FaWiersz>
+    <FaWiersz>
+      <NrWierszaFa>3</NrWierszaFa>
+      <P_7>Książka</P_7>
+      <P_8A>szt.</P_8A>
+      <P_8B>4</P_8B>
+      <P_9A>25.00</P_9A>
+      <P_11>100.00</P_11>
+      <P_12>9</P_12>
+    </FaWiersz>
+  </Fa>
+</Faktura>

@@ -1,0 +1,15 @@
+clean runs: init max|w| 4.101 3.946 3.703 3.846 ; final max|w| 4.093 3.945 3.718 3.845
+Part A: 120 flips, 15 harmful. catch rate of harmful flips / flagged share of all flips, by reference and K
+ref      K=1      2      4      10      100
+prev     1.00 1.00 1.00 1.00 1.00 | flag 0.13 0.13 0.13 0.13 0.13 | missed [0, 0, 0, 0, 0]
+init     1.00 1.00 1.00 1.00 1.00 | flag 0.13 0.13 0.13 0.13 0.13 | missed [0, 0, 0, 0, 0]
+fixed1   1.00 1.00 1.00 1.00 1.00 | flag 0.17 0.13 0.13 0.13 0.13 | missed [0, 0, 0, 0, 0]
+fixed10  1.00 1.00 1.00 1.00 1.00 | flag 0.13 0.13 0.13 0.13 0.13 | missed [0, 0, 0, 0, 0]
+a=1    n=20 harmful 2 (0.10), non-finite loss 0
+a=2    n=20 harmful 1 (0.05), non-finite loss 0
+a=4    n=20 harmful 6 (0.30), non-finite loss 1
+a=8    n=20 harmful 10 (0.50), non-finite loss 1
+a=16   n=20 harmful 12 (0.60), non-finite loss 0
+a=32   n=20 harmful 11 (0.55), non-finite loss 1
+a=64   n=20 harmful 12 (0.60), non-finite loss 0
+a=128  n=20 harmful 11 (0.55), non-finite loss 1

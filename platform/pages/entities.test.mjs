@@ -42,6 +42,8 @@ test('an unknown named reference is left visible rather than dropped', () => {
 test('malformed numeric references are left alone rather than throwing', () => {
   assert.equal(decodeEntities('&#1114112;'), '&#1114112;'); // past the last code point
   assert.equal(decodeEntities('&#xD800;'), '&#xD800;'); // lone surrogate
+  assert.equal(decodeEntities('&#x10FFFF;'), '\u{10ffff}'); // last code point decodes
+  assert.equal(decodeEntities('&#x110000;'), '&#x110000;');
 });
 
 // The guard that keeps `NAMED_ENTITIES` from going stale. A partial table

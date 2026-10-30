@@ -13,6 +13,16 @@ const lastDay = (m) => { const [y, mo] = m.split("-").map(Number); return `${m}-
 const prevMonth = (m) => { const [y, mo] = m.split("-").map(Number); const d = new Date(Date.UTC(y, mo - 2, 1)); return d.toISOString().slice(0, 7); };
 const monthRange = (m) => ({ from: `${m}-01`, to: lastDay(m) });
 
+// The period of equal length that ends the day before `period` starts (what a
+// page with only From and To dates compares against).
+export function precedingPeriod({ from, to }) {
+  const day = 86400000, a = Date.parse(from), b = Date.parse(to);
+  if (Number.isNaN(a) || Number.isNaN(b) || b < a) return null;
+  const days = Math.round((b - a) / day) + 1;
+  const iso = (t) => new Date(t).toISOString().slice(0, 10);
+  return { from: iso(a - days * day), to: iso(a - day) };
+}
+
 export function compareProfit(books, { period = null, against = null, minChange = 0 } = {}) {
   const entries = journal(books);
   const months = [...new Set(entries.map((e) => monthOf(e.date)))].sort();

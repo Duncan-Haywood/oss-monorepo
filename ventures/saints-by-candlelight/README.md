@@ -48,7 +48,9 @@ For ten-minute saints stories for small children, see Little Lamps in
 - **Audio.** [`render_audio.py`](render_audio.py) reads each script with
   [Kokoro](https://huggingface.co/hexgrad/Kokoro-82M), an open-weight
   (Apache 2.0) text-to-speech model, offline on a CPU, with a soft
-  synthesised bell between scenes. No API calls, $0 per episode.
+  synthesised bell between scenes, through the repository's shared narration
+  engine ([`platform/audio/narrate.py`](../../platform/audio/narrate.py)). No
+  API calls, $0 per episode.
 - **Site and feed.** [`generate.mjs`](generate.mjs) turns the scripts and
   `audio/manifest.json` into the pages, `feed.xml` (Apple Podcasts and
   Podcasting 2.0 tags, transcripts) and the sitemap. The tests fail if the

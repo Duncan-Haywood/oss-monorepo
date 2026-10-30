@@ -1326,3 +1326,360 @@ or `ventures`) until its success rate passes 80% over 20 runs?
 - Decisions: no audit or drift report (reduced pass, recent outputs mostly
   doc-only or research).
 - Result: (next review)
+
+## E84: review 2026-10-24 (reduced pass, twelfth run)
+
+- Change: none to prompts or docs. Candidates re-measured after regenerating
+  `prompts/derived/`: ventures 2, process 2 and review 2 are all "keep
+  collecting" (intervals overlap). The friction table already hides
+  since-changed reports (`promptctl.py` `live`/`tagged`), so the earlier
+  "mostly fixed entries" reports have their fix; the remaining live items
+  are owner rows.
+- Metric: none new. E79 to E83 results stay open: too few runs since.
+- Decisions: no audit or drift report (reduced pass).
+- Result: (next review)
+
+## E85: review 2026-10-24 (reduced pass, thirteenth run)
+
+- Change: none to prompts or docs. Candidates re-measured after regenerating
+  `prompts/derived/`: ventures 2, process 2 and review 2 are all "keep
+  collecting" (intervals overlap). Checked the "pyenv.py output needed tail -1"
+  report: `platform/ci/pyenv.py` already prints only the path on stdout
+  (progress goes to stderr), so nothing to fix.
+- Change: none to prompts or docs. Regenerated `prompts/derived/`.
+  Candidates re-measured: ventures 2, process 2 and review 2 are all "keep
+  collecting" (intervals overlap). Checked the "pyenv.py output needed
+  `tail -1`" friction in `prompt.md`'s reports: stdout is only the
+  interpreter path (verified with `od -c`), so that report is stale, not a
+  doc fault.
+- Metric: none new. E79 to E84 results stay open: too few runs since.
+- Decisions: no audit or drift report (reduced pass).
+- Result: (next review)
+
+## E86: review 2026-10-25 (reduced pass, fourteenth run)
+
+- Change: none to prompts or docs. Regenerated `prompts/derived/`. Candidates
+  re-measured: ventures 2, process 2 and review 2 are all "keep collecting"
+  (intervals overlap). Checked the "measure --section times out with no
+  warning" report: `_deepen_shallow_history` already prints a 70 s notice to
+  stderr, so the report is stale, not a doc fault.
+- Metric: none new. E79 to E85 results stay open: too few runs since.
+- Decisions: no audit or drift report (reduced pass).
+- Result: (next review)
+
+## E87: review 2026-10-25 (reduced pass, fifteenth run)
+
+- Change: `prompts/research/prompt-1.md` step 3 gains one sentence: for a
+  step longer than an hour, re-run the programme `CLAIM CHECK` just before
+  merging. Reason: three live reports in 24 h (`research/PROGRAMMES.md`,
+  `prompts/research/prompt-0.md`, `prompts/research/prompt-1.md`) say a
+  sibling landed the same programme milestone (3c, m7i) during a long step,
+  after the claim check at the start found nothing.
+- Metric: duplicated programme milestones reported in research
+  `doc_friction`; compare the next 15 research runs against the 3 in the
+  last day.
+- Candidates re-measured after regenerating `prompts/derived/`: ventures 2,
+  process 2 and review 2 all "keep collecting" (intervals overlap).
+- Decisions: no audit or drift report (reduced pass).
+- Result: (next review)
+
+## E88: review 2026-10-25 (reduced pass, sixteenth run)
+
+- Change: none to prompts or docs. Regenerated `prompts/derived/`. Candidates
+  re-measured: ventures 2, process 2 and review 2 all "keep collecting"
+  (intervals overlap). Live friction in the last 3 days is either already
+  fixed (post front matter: `check_post_frontmatter.py`) or an environment
+  hook report (`block_pkill_f.py`) with no clear doc fix.
+- Metric: none new. E79 to E87 results stay open: too few runs since.
+- Decisions: no audit or drift report (reduced pass).
+- Result: (next review)
+
+## E89: review 2026-10-25 (reduced pass, seventeenth run)
+
+- Change: none to prompts or docs. Regenerated `prompts/derived/`. Candidates
+  re-measured: ventures 2, process 2 and review 2 all "keep collecting"
+  (intervals overlap). The repeated "friction table mixes live and fixed
+  items" report is already handled by the live/fresh split in `measure`; the
+  remainder are fixes made outside the reported file, which no tag can detect.
+- Metric: none new. E79 to E88 results stay open: too few runs since.
+- Decisions: no audit or drift report (reduced pass).
+- Result: (next review)
+
+## E90: review 2026-10-26 (reduced pass, eighteenth run)
+
+- Change: none to prompts or docs. Regenerated `prompts/derived/`. Candidates
+  re-measured: ventures 2, process 2 and review 2 all "keep collecting"
+  (intervals overlap).
+- Finding, not fixed: `platform/pages/writing.mjs` `loadPosts` checks that a
+  post's date matches its file name but not that it is on or before today, so
+  the 30 posts in `docs/posts/` dated 2026-10-27 to 2026-10-29 are already in
+  the feed, Atom `<updated>` and `llms.txt`. Hiding them would drop 30 posts
+  from the site, which the owner's "more posts per day" direction argues
+  against, so this needs a decision: filter future dates, or keep and accept
+  that dates run ahead. Left as a one-line question for the next process run.
+- Metric: none new. E79 to E89 results stay open: too few runs since.
+- Decisions: no audit or drift report (reduced pass).
+- Result: (next review)
+
+## E91: review 2026-10-26 (reduced pass, nineteenth run)
+
+- Change: `loadPosts` in `platform/pages/writing.mjs` now leaves out posts
+  dated after today (E90 finding), so the 30 posts dated 2026-10-27 to
+  2026-10-29 appear on their dates (the site rebuilds every three hours)
+  instead of showing a false date in the feed, Atom and `llms.txt`. No post is
+  deleted. Test added in `writing.test.mjs`.
+- Metric: none for prompts. Check the feed on 2026-10-27 shows them.
+- Decisions: no audit or drift report (reduced pass).
+- Result: (next review)
+
+## E92: review 2026-10-26 (reduced pass, twentieth run)
+
+- Change: `_landing_order` in `prompts/promptctl.py` ignores any commit that
+  adds more than 50 run records (`BULK_ADD`), and `runs_since_review` breaks
+  ties by the record's `ended` time. In a shallow clone the boundary commit
+  lists all ~3,100 records as "added" together, so the 2026-10-26 review
+  records ranked arbitrarily and the "since the last review" count read 83
+  (45 after the fix), one reason review kept being drawn (E80 to E91 were all
+  reduced passes on one day).
+- Metric: fewer than one review per ~40 merged runs; compare review count per
+  day over the next 3 days.
+- Decisions: candidates (ventures 2, process 2, review 2) still "keep
+  collecting"; no audit or drift report (reduced pass).
+- Result: (next review)
+
+## E95: review 2026-10-26 (reduced pass, twenty-first run)
+
+- Change: deleted `research/lowcomm-training/tests/test_lowcomm.py`, the
+  superseded numpy-model suite whose 7 tests failed on main
+  (`lowcomm.model.Config` no longer exists; three live friction reports);
+  `tests/test_harness.py` covers the torch harness. `prompts/review/prompt-1.md`
+  now says to run `derive.py fetch && build` as its own background command
+  (live friction: chaining it blew the 120 s tool timeout).
+- Metric: friction reports naming `prompts/review/prompt-1.md` about derive
+  timeouts, and `lowcomm-training/tests` reports; compare the next 3 days.
+- Decisions: candidates (ventures 2, process 2, review 2) still "keep
+  collecting"; no audit or drift report (reduced pass).
+- Result: (next review)
+- Change: none to prompts or code. Checked E92's concern: all 170 records dated
+  2026-10-26 carry `ended`, the last review ended 13:25Z, and 61 non-review runs
+  ended after it. At about 170 runs a day, `review_every = 40` fires roughly
+  four times a day by design, so the repeated reduced passes are the cadence,
+  not a counting bug.
+- Metric: none new. Open question for the owner or a process run: raise
+  `review_every` (e.g. to 150) if four reduced reviews a day add little.
+- Decisions: candidates (ventures 2, process 2, review 2) still "keep
+  collecting"; no audit or drift report (reduced pass).
+- Result: (next review)
+
+## E94: review 2026-10-26 (reduced pass, twenty-second run)
+
+- Change: `prompts/review/prompt-1.md` step 1 now says `measure` itself needs
+  `run_in_background` in a shallow clone and that `derive.py fetch && build`
+  runs as its own command. Both timeouts were reported again in the last
+  3 days (2026-10-25T16:22, 2026-10-26T13:25).
+- Metric: "review/prompt-1.md" friction reports about the 120 s timeout;
+  compare the next 40 runs.
+- Decisions: candidates still "keep collecting: the intervals overlap". No
+  derive fetch, audit or drift report (reduced pass).
+- Result: (next review)
+
+## E96: review 2026-10-27 (reduced pass, twenty-third run)
+
+- Change: `research/CLAUDE.md` now documents the missing `pdflatex` (texlive
+  install about 10 min, needs `apt-get update` first), beside the yosys line.
+  Re-ran `derive.py fetch && build` (3279 rows, committed).
+- Metric: "TeX is not in the image" friction reports naming `research/CLAUDE.md`;
+  compare the next 40 runs (8 live in the last 3 days, 2 about TeX).
+- Decisions: candidates (ventures 2, process 2, review 2) still "keep
+  collecting: the intervals overlap"; no audit or drift report (reduced pass).
+- Result: (next review)
+
+## E97: review 2026-10-27 (reduced pass, twenty-fourth run)
+
+- Change: `research/CLAUDE.md` now says to check `import torch` before asking
+  `pyenv.py` for torch, and how to install the CPU wheel (3 live reports in
+  3 days, one a 35 min CUDA pull). Re-ran `derive.py fetch && build` (3319 rows).
+- Metric: friction reports about `pyenv.py` and torch naming
+  `research/CLAUDE.md`; compare the next 40 runs.
+- Decisions: candidates (ventures 2, process 2, review 2) still "keep
+  collecting: the intervals overlap"; no audit or drift report (reduced pass).
+- Result: (next review)
+
+## E98: review 2026-10-27 (reduced pass, twenty-fifth run)
+
+- Change: `CLAUDE.md` cloud-session pointer now names the `pkill -f` /
+  `pgrep -f` hook and the bracket workaround (live report 2026-10-27T07:17;
+  it was documented only in `cloud-session.md`). Re-ran `derive.py fetch &&
+  build` (3360 rows).
+- Metric: friction reports about the pkill hook naming `CLAUDE.md`; compare the
+  next 40 runs.
+- Decisions: candidates (ventures 2, process 2, review 2) still "keep
+  collecting: the intervals overlap"; no audit or drift report (reduced pass).
+- Result: (next review)
+
+## E99: review 2026-10-27 (reduced pass, twenty-sixth run)
+
+- Change: `prompts/explore/prompt-0.md` audit-skip list now names the html
+  `lang`/viewport/`alt`/`rel` attribute sweeps (3 live reports 2026-10-26 of
+  re-sweeping them).
+- Metric: friction reports naming `prompts/explore/prompt-0.md` about re-sweeps;
+  compare the next 40 runs.
+- Decisions: candidates (ventures 2, process 2, review 2) still "keep
+  collecting: the intervals overlap"; no audit, drift report or derive re-run
+  (reduced pass).
+- Result: (next review)
+
+## E100: review 2026-10-27 (reduced pass, twenty-seventh run)
+
+- Change: `prompts/review/prompt-1.md` step 1 now says `measure` holds git's
+  `shallow.lock`, so run it and `derive.py fetch` one after the other (live
+  report 2026-10-27T16:14). Re-ran `derive.py fetch && build` (3442 rows).
+- Metric: friction reports naming `prompts/review/prompt-1.md` about the lock;
+  compare the next 40 runs.
+- Decisions: candidates (ventures 2, process 2, review 2) still "keep
+  collecting: the intervals overlap"; no audit or drift report (reduced pass).
+- Result: (next review)
+
+## E101: review 2026-10-27 (reduced pass, twenty-eighth run)
+
+- Change: `review/prompt-2.md` says validate failures on other runs' posts and
+  records are one-line fixes for this PR, and that `measure` holds the shallow
+  lock (2 live reports). Fixed 2 records that failed `validate` (the posts were fixed on main meanwhile).
+- Metric: friction reports naming `prompts/review/prompt-2.md` about validate
+  or the lock; compare the next 40 runs.
+- Decisions: candidates (ventures 2, process 2, review 2) still "keep
+  collecting: the intervals overlap"; no audit, drift report or derive re-run
+  (reduced pass).
+- Result: (next review)
+
+## E102: review 2026-10-28 (reduced pass, twenty-ninth run)
+
+- Change: `prompts/creative/prompt-0.md` states the episode length range a test
+  enforces (live report 2026-10-27T16:16). Re-ran `derive.py fetch && build`
+  (3487 rows).
+- Metric: friction reports naming `prompts/creative/prompt-0.md` about episode
+  length; compare the next 40 runs.
+- Decisions: candidates (ventures 2, process 2, review 2) still "keep
+  collecting: the intervals overlap"; no audit or drift report (reduced pass).
+- Result: (next review)
+
+## E103: review 2026-10-28 (reduced pass, thirtieth run)
+
+- Change: `.github/prompts/land-your-work.md` step 2 says a first push with
+  `--force-with-lease` fails with "stale info" on a branch with no remote yet
+  (live report 2026-10-28T00:22). Re-ran `derive.py fetch && build`.
+- Metric: friction reports naming `land-your-work.md` about push failures;
+  compare the next 40 runs.
+- Decisions: candidates (ventures 2, process 2, review 2) still "keep
+  collecting: the intervals overlap"; no audit or drift report (reduced pass).
+- Result: (next review)
+
+## E104: review 2026-10-28 (reduced pass, thirty-first run)
+
+- Change: `research/CLAUDE.md` torch install line now installs `numpy` with
+  `torch` and says not to use torch in the foreground before the job prints
+  DONE (live report 2026-10-28T12:05). Re-ran `derive.py fetch && build`
+  (3584 rows).
+- Metric: friction reports naming `research/CLAUDE.md` about the torch install;
+  compare the next 40 runs.
+- Decisions: candidates (ventures 2, process 2, review 2) still "keep
+  collecting: the intervals overlap"; no audit or drift report (reduced pass).
+- Result: (next review)
+
+## E105: review 2026-10-28 (reduced pass, thirty-second run)
+
+- Change: only the `derive.py fetch && build` re-run (3624 rows). My
+  `research/CLAUDE.md` torch edit was dropped on merge: another run landed the
+  same fix first (`pyenv.py` now installs the CPU wheel).
+- Metric: friction reports naming `research/CLAUDE.md` about the torch install;
+  compare the next 40 runs.
+- Decisions: candidates (ventures 2, process 2, review 2) still "keep
+  collecting: the intervals overlap"; no audit or drift report (reduced pass).
+- Result: (next review)
+
+## E106: review 2026-10-28 (reduced pass, thirty-third run)
+
+- Change: (research/CLAUDE.md torch fix landed on main first by another run; mine dropped on merge.) Re-ran `derive.py fetch && build`
+  extra-index install (about 2 min) and warns plain pip took 25 min (live
+  reports 2026-10-28T14:12 and 17:18). Re-ran `derive.py fetch && build`
+  (3624 rows).
+- Metric: friction reports naming `research/CLAUDE.md` about the torch install;
+  compare the next 40 runs.
+
+- Change: `prompts/redteam/prompt-0.md` step 1 names two traps from live
+  reports (2026-10-27): `--test-force-exit` truncating output, and pyenv
+  install blocking a node-target run. Re-ran `derive.py fetch && build`
+  (3624 rows).
+- Metric: friction reports naming `prompts/redteam/prompt-0.md` about those two
+  traps; compare the next 40 runs.
+- Decisions: candidates (ventures 2, process 2, review 2) still "keep
+  collecting: the intervals overlap"; no audit or drift report (reduced pass).
+- Result: (next review)
+
+## E107: review 2026-10-28 (reduced pass, thirty-fourth run)
+
+- Change: `CLAUDE.md` says node/venture suites "can" outlast the 120 s tool
+  timeout (the ai-bookkeeper suite, 1748 tests, finished well under it; live
+  report 2026-10-28T22:20) instead of "outlast". Re-ran `derive.py fetch &&
+  build` (3669 rows).
+- Metric: friction reports naming `CLAUDE.md` about `run_in_background` for
+  node tests; compare the next 40 runs.
+- Decisions: candidates (ventures 2, process 2, review 2) still "keep
+  collecting: the intervals overlap"; no audit or drift report (reduced pass).
+- Result: (next review)
+
+## E108: review 2026-10-29 (reduced pass, thirty-fifth run)
+
+- Change: `prompts/redteam/prompt-0.md` warns that `--target` skips the
+  slow-suite probe (live report 2026-10-29T02:07: 300 s baseline timeout).
+- Metric: friction reports naming `prompts/redteam/prompt-0.md` about baseline
+  timeouts; compare the next 40 runs.
+- Decisions: candidates (ventures 2, process 2, review 2) still "keep
+  collecting: the intervals overlap"; no audit or drift report, no derive
+  re-run (reduced pass).
+- Result: (next review)
+
+## E109: review 2026-10-29 (reduced pass, thirty-sixth run)
+
+- Change: `platform/ci/wait_for.py` docstring warns that piping it or chaining
+  `&& echo` hides its exit 1 (reports 2026-10-29T06:37 and T07:52, which
+  blamed the tool; it does exit 1 on timeout). Re-ran `derive.py fetch &&
+  build` (3758 rows).
+- Metric: friction reports naming `wait_for.py` or background waits; compare
+  the next 40 runs.
+- Decisions: candidates (ventures 2, process 2, review 2) still "keep
+  collecting"; no audit or drift report (reduced pass).
+- Result: (next review)
+
+## E110: review 2026-10-29 (reduced pass, thirty-seventh run)
+
+- Change: `prompts/redteam/prompt-0.md` says a stdlib `unittest` target needs no
+  `pyenv.py` either (live report 2026-10-29T11:28). No derive re-run.
+- Metric: friction reports naming `prompts/redteam/prompt-0.md` about
+  `pyenv.py`; compare the next 40 runs.
+- Decisions: candidates (ventures 2, process 2, review 2) still "keep
+  collecting: the intervals overlap"; no audit or drift report (reduced pass).
+- Result: (next review)
+
+## E111: review 2026-10-29 (reduced pass, thirty-eighth run)
+
+- Change: `prompts/review/prompt-1.md` step 1 says `wait_for.py` gives up after
+  100 s (re-poll) and to redirect `measure` plainly, not via a chained subshell
+  (reports 2026-10-28T18:13, 2026-10-29T04:09, T13:22). No derive re-run.
+- Metric: friction reports naming `prompts/review/prompt-1.md` about
+  `measure` or `wait_for` timing; compare the next 40 runs.
+- Decisions: candidates (ventures 2, process 2, review 2) not re-decided here
+  beyond the standing "keep collecting"; no audit or drift report (reduced pass).
+- Result: (next review)
+
+## E112: review 2026-10-30 (reduced pass, thirty-ninth run)
+
+- Change: `.claude/hooks/check_posts_before_push.py` block message says to fix
+  and commit in a separate Bash call (7 live reports 2026-10-29: a fix chained
+  before `git push` is still blocked). Re-ran `derive.py fetch && build`
+  (3884 rows).
+- Metric: friction reports naming `check_posts_before_push.py`; compare the
+  next 40 runs.
+- Decisions: candidates (ventures 2, process 2, review 2) still "keep
+  collecting"; no audit or drift report (reduced pass).
+- Result: (next review)

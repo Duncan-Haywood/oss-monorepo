@@ -1,0 +1,30 @@
+coder nb-in-language: corpus 6000 items, human negative share 0.327; coder positive share 0.314; agreement 0.735, sensitivity 0.575, specificity 0.813; sizes (60, 100, 200, 400), 600 draws, seed 20261031
+columns: coverage hum-hc3t, ins-hc3t; mean half-width ratio ins-hc3t/hum-hc3t (same audit)
+# nb-in-language n=60: 0 of 600 draws dropped
+nb-in-language 60 intercept(yor) 0.910 0.903 0.911
+nb-in-language 60 hau 0.942 0.932 0.905
+nb-in-language 60 ibo 0.970 0.968 0.923
+nb-in-language 60 pcm 0.930 0.920 0.953
+nb-in-language 60 loglen_z 0.952 0.948 0.896
+nb-in-language 60 MEAN 0.941 0.934 0.918
+# nb-in-language n=100: 0 of 600 draws dropped
+nb-in-language 100 intercept(yor) 0.933 0.910 0.939
+nb-in-language 100 hau 0.917 0.927 0.919
+nb-in-language 100 ibo 0.940 0.943 0.949
+nb-in-language 100 pcm 0.943 0.940 0.974
+nb-in-language 100 loglen_z 0.945 0.943 0.925
+nb-in-language 100 MEAN 0.936 0.933 0.941
+# nb-in-language n=200: 0 of 600 draws dropped
+nb-in-language 200 intercept(yor) 0.933 0.933 0.960
+nb-in-language 200 hau 0.960 0.962 0.935
+nb-in-language 200 ibo 0.937 0.942 0.963
+nb-in-language 200 pcm 0.942 0.932 0.985
+nb-in-language 200 loglen_z 0.947 0.950 0.936
+nb-in-language 200 MEAN 0.944 0.944 0.956
+# nb-in-language n=400: 0 of 600 draws dropped
+nb-in-language 400 intercept(yor) 0.947 0.957 0.974
+nb-in-language 400 hau 0.942 0.948 0.943
+nb-in-language 400 ibo 0.950 0.952 0.972
+nb-in-language 400 pcm 0.937 0.928 0.990
+nb-in-language 400 loglen_z 0.955 0.948 0.949
+nb-in-language 400 MEAN 0.946 0.947 0.966

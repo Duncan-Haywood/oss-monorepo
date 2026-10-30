@@ -22,11 +22,14 @@ python3-<module>` is tried; the first interpreter that imports everything is
 printed. Progress goes to stderr; stdout is only the path. Exit 1 when nothing works, with what
 was tried.
 """
+import fcntl
 import glob
 import os
 import shutil
 import subprocess
 import sys
+import threading
+import time
 
 # import name -> package name, where they differ
 PIP_NAMES = {"sklearn": "scikit-learn", "yaml": "pyyaml", "PIL": "pillow",
@@ -36,6 +39,26 @@ PIP_NAMES = {"sklearn": "scikit-learn", "yaml": "pyyaml", "PIL": "pillow",
 APT_NAMES = {"sklearn": "python3-sklearn", "yaml": "python3-yaml", "PIL": "python3-pil",
              "skimage": "python3-skimage", "cv2": "python3-opencv", "bs4": "python3-bs4",
              "dateutil": "python3-dateutil"}
+
+
+# Wheels too big for the default pip timeout. 2026-10-25: a torch install hit
+# the 300 s cap, was killed and restarted by the next interpreter and the venv
+# (over 15 minutes in all), and a second concurrent call started a duplicate pip.
+HEAVY = {"torch", "tensorflow", "jax", "torchvision", "torchaudio"}
+
+
+# PyPI's torch wheel bundles CUDA libraries (~3 GB, 25-35 min in cloud runs,
+# 2026-10-26 and 2026-10-28); the CPU index serves the same version in about 2 min.
+TORCH_CPU_INDEX = "https://download.pytorch.org/whl/cpu"
+TORCH_FAMILY = {"torch", "torchvision", "torchaudio"}
+
+
+def pip_timeout(modules):
+    """Seconds one pip run may take: $PYENV_PIP_TIMEOUT, else 300, or 1800 for HEAVY."""
+    env = os.environ.get("PYENV_PIP_TIMEOUT")
+    if env and env.isdigit():
+        return int(env)
+    return 1800 if HEAVY & set(modules) else 300
 
 
 # pip distribution name -> import name, so `pyenv.py scikit-learn` works
@@ -82,12 +105,28 @@ def imports(py, modules, run=subprocess.run):
         return False
 
 
-def pip_install(py, modules, run=subprocess.run, log=lambda m: print(m, file=sys.stderr)):
+def index_reachable(url=TORCH_CPU_INDEX, timeout=8):
+    import urllib.request
+    try:
+        urllib.request.urlopen(url + "/torch/", timeout=timeout).close()
+        return True
+    except Exception:
+        return False
+
+
+def pip_install(py, modules, run=subprocess.run, log=lambda m: print(m, file=sys.stderr),
+                reachable=index_reachable):
     pkgs = [PIP_NAMES.get(m, m) for m in modules]
     base = [py, "-m", "pip", "install", "--quiet", "--disable-pip-version-check"]
+    if TORCH_FAMILY & set(modules) and not os.environ.get("PYENV_TORCH_CUDA"):
+        base += ["--extra-index-url", TORCH_CPU_INDEX]
+        if not reachable():
+            # 2026-10-28: the proxy refused this host and pip silently fell back
+            # to PyPI's CUDA build (about 25 min); say so up front.
+            log(f"pyenv: {TORCH_CPU_INDEX} is unreachable, so pip will pull PyPI's ~3 GB CUDA torch (25 to 35 min); prefer an interpreter that already has torch")
     for extra in ([], ["--break-system-packages"], ["--user", "--break-system-packages"]):
         try:
-            done = run(base + extra + pkgs, capture_output=True, timeout=300)
+            done = run(base + extra + pkgs, capture_output=True, timeout=pip_timeout(modules))
         except (OSError, subprocess.TimeoutExpired):
             return False
         if done.returncode == 0:
@@ -130,12 +169,37 @@ def venv_install(py, modules, venv_dir, run=subprocess.run, log=lambda m: print(
     return None
 
 
+HEARTBEAT_SECONDS = 30
+
+
+def heartbeat(log, every=HEARTBEAT_SECONDS):
+    """Log "still installing" every `every` s until the returned Event is set.
+    Installs capture pip's output, so a backgrounded call's output file stayed empty
+    for 15+ minutes and runs could not tell a live install from a hung one
+    (doc_friction, 2026-10-24 and 2026-10-25)."""
+    stop, start = threading.Event(), time.monotonic()
+
+    def beat():
+        while not stop.wait(every):
+            log(f"pyenv: still installing ({int(time.monotonic() - start)} s)")
+    threading.Thread(target=beat, daemon=True).start()
+    return stop
+
+
 def find(modules, cands, run=subprocess.run, log=lambda m: print(m, file=sys.stderr), venv_dir=None):
     for py in cands:
         if imports(py, modules, run):
             return py
+    stop = heartbeat(log)
+    try:
+        return install(modules, cands, run, log, venv_dir)
+    finally:
+        stop.set()
+
+
+def install(modules, cands, run, log, venv_dir):
     log(f"pyenv: none of {cands} imports {', '.join(modules)}; installing "
-        "(can take over 120 s: if your shell tool times out, rerun with run_in_background "
+        "(can take over 120 s, torch-class wheels 15 min or more: if your shell tool times out, rerun with run_in_background "
         "and read the path from its output)")
     for py in cands:
         if pip_install(py, modules, run, log) and imports(py, modules, run):
@@ -164,6 +228,17 @@ def main(argv=None):
     modules = [import_name(m) for m in modules]
     cands = candidates()
     venv_dir = os.environ.get("PYENV_VENV") or os.path.join(os.path.expanduser("~"), ".cache", "pyenv-venv")
+    # One install at a time: a second call waits here, then finds the first's
+    # result importable instead of starting a duplicate pip.
+    lock = open(os.path.join(os.path.dirname(venv_dir) or ".", ".pyenv.lock"), "w") if os.path.isdir(os.path.dirname(venv_dir)) else None
+    if lock:
+        try:
+            fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except OSError:
+            # Silent waiting looked like a hang (doc_friction, 2026-10-28:
+            # "printed nothing" while another install held the lock).
+            print("pyenv: another pyenv.py install is running; waiting for it", file=sys.stderr)
+            fcntl.flock(lock, fcntl.LOCK_EX)
     py = find(modules, cands, venv_dir=venv_dir)
     if not py:
         print(f"pyenv: no interpreter imports {', '.join(modules)} after pip and apt; "

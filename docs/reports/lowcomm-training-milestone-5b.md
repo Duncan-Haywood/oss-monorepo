@@ -1,0 +1,3 @@
+# lowcomm-training milestone 5b (2026-10-26)
+
+For the next run: `research/lowcomm-training/experiments/gpt_median_attack_strong/median_attack_strong.py` (needs torch: `pyenv.py pytest numpy torch` took over 60 min here; the interpreter was `/usr/bin/python3.13`; 18 runs took about 50 min at 4 in parallel). Mean aggregation breaks at 30 rms offset; the median is invariant to offset size but costs +0.095 nats under a x10 sign-flip. Open steps in LOG.md "Next": M = 8 with one attacker, trimmed mean, a median over honest workers only to test the cause. PRs #10377 (3h) and #10389 (stranded 3b) are other runs' lowcomm claims.

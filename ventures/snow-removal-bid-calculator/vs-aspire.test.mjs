@@ -67,5 +67,5 @@ test('the comparison page links back to the calculator and to the pricing walkth
 test('has no external scripts, stylesheets, or network calls', () => {
   assert.doesNotMatch(html, /<script[^>]+src=/i);
   assert.doesNotMatch(html, /<link[^>]+rel="stylesheet"/i);
-  assert.doesNotMatch(html, /https?:\/\/(?!schema\.org)/i);
+  assert.doesNotMatch(html, /https?:\/\/(?!schema\.org|www\.w3\.org\/2000\/svg)/i);
 });

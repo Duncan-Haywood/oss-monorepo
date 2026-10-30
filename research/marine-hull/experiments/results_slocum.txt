@@ -1,0 +1,9 @@
+gliderflight Slocum coefficients: S 0.1 m2, aw 3.73, ah 3.8, a = 7.53 /rad, K = 10.49 /rad2
+cases 2430; mass 52.0 kg; glider flown at best-glide incidence, one fixed buoyancy per case
+glide angle deg: median 22.4 (min 18.4, max 25.6)
+glider horizontal speed m/s: median 0.21 (10th 0.12, 90th 0.33)
+AUV/glider energy-per-metre ratio at equal hotel (>1: glider farther): median 0.36 (10th 0.21, 90th 0.57)
+AUV hotel x1: glider longer best range in 0/2430 (0.0%)
+AUV hotel x5: glider longer best range in 1253/2430 (51.6%)
+AUV hotel x20: glider longer best range in 2427/2430 (99.9%)
+break-even AUV hotel multiple (glider ties AUV): defined in 2430/2430 cases; median 4.87 (10th 2.38, 90th 10.67); cases where the AUV beats the glider even at zero hotel: 0

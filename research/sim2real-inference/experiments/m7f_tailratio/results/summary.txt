@@ -1,0 +1,4 @@
+q=0.99: c=1.577, twin tail mass E_T[(T-c)+]=0.00212; k* median 2.97, max 5311.4; k*<=1 on 0/21, k*<=3 on 11/21, k*<=10 on 16/21
+  k*>10: friction-1 (229.761), friction-2 (1762.355), friction-3 (5311.387), gain-2 (11.13), gain-3 (47.868)
+q=0.999: c=2.009, twin tail mass E_T[(T-c)+]=0.00015; k* median 7.79, max 72645.5; k*<=1 on 0/21, k*<=3 on 0/21, k*<=10 on 13/21
+  k*>10: friction-0 (35.412), friction-1 (1839.644), friction-2 (22174.908), friction-3 (72645.487), sensor-3 (12.99), gain-1 (14.023), gain-2 (46.964), gain-3 (306.588)

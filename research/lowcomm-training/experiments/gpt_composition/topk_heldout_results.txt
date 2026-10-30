@@ -1,0 +1,9 @@
+plain top-k at keep 1/16, loss measured / rule / baseline (rand-k fitted on all 17 cells)
+H=4: measured 1.6154  rule 1.6261 (err +0.0107)  baseline 1.6318 (err +0.0164)
+H=16: measured 1.6397  rule 1.6482 (err +0.0085)  baseline 1.6523 (err +0.0126)
+H=64: measured 1.6843  rule 1.6817 (err -0.0026)  baseline 1.6792 (err -0.0051)
+MAPE on the 3 top-k cells: rule 0.444%  baseline 0.695%
+kappa (top-k excess / rule excess) leave-one-H-out
+hold out H=4: kappa 0.970 predicted excess +0.0423 measured +0.0329 err +0.0094
+hold out H=16: kappa 0.975 predicted excess +0.0706 measured +0.0639 err +0.0067
+hold out H=64: kappa 0.849 predicted excess +0.0738 measured +0.0896 err -0.0158

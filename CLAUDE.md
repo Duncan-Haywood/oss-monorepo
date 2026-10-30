@@ -59,8 +59,9 @@ not stop. Restated blockers, ledger-only edits and re-verifying unchanged
 work do not count. Never fabricate or lower the bar to have something to
 ship. For venture work the default is the top flagship in
 [`portfolio/flagships.yaml`](portfolio/flagships.yaml) (owner, 2026-10-20:
-deepen "existing projects that have real depth"). Aim the main effort at work
-a person could not finish in about twenty hours (owner, 2026-10-21; `goals.md`,
+deepen "existing projects that have real depth"). Aim the main effort at projects
+a person would estimate at about 300 hours or more, built up over many sessions
+(owner, 2026-10-29, a suggestion, not a hard bar, updating the 2026-10-21 twenty-hour one; `goals.md`,
 "Direction: depth over calculators").
 
 The owner's standing directions (SEO, compliant distribution, measurement,
@@ -96,7 +97,7 @@ In cloud sessions `gh` is usually unauthenticated: use the GitHub MCP tools
 (`create_pull_request`, `merge_pull_request`, loaded with `ToolSearch`). The
 container's other quirks are in
 [`.github/prompts/cloud-session.md`](.github/prompts/cloud-session.md)
-(a bare `python3` often lacks `pytest`/`numpy`: `PY=$(python3 platform/ci/pyenv.py pytest numpy)` finds or installs one (the first install can take over 120 s: run it with `run_in_background`); venture test suites and `node --test '*.test.mjs'` (not `node --test .`, which Node 22 rejects) outlast the 120 s tool timeout, so start them with `run_in_background`, see "Long commands"; irs.gov, ssa.gov and data hosts often 403 through the proxy: probe first, see "Outbound hosts").
+(a bare `python3` often lacks `pytest`/`numpy`; only if your task runs Python (a node-only change needs neither), `PY=$(python3 platform/ci/pyenv.py pytest numpy)` finds or installs one (the first install can take over 120 s: run it with `run_in_background`); venture test suites and `node --test '*.test.mjs'` (not `node --test .`, which Node 22 rejects) can outlast the 120 s tool timeout (the ai-bookkeeper suite did not), so start the long ones with `run_in_background`, see "Long commands"; irs.gov, ssa.gov and data hosts often 403 through the proxy: probe first, see "Outbound hosts"; a hook refuses `pkill -f`/`pgrep -f` unless the first letter is bracketed, `'[n]ame'`).
 Details, including other sessions' stalled PRs:
 [`.github/prompts/land-your-work.md`](.github/prompts/land-your-work.md).
 

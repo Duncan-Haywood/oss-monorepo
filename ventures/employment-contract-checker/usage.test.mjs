@@ -61,3 +61,22 @@ test("corrupt stored JSON is treated as empty rather than thrown", () => {
   record("contract_checked");
   assert.equal(readUsage().contract_checked, 1);
 });
+
+test("a store that throws on read is not read as an opt-out", () => {
+  globalThis.localStorage = {
+    getItem: () => { throw new Error("blocked"); },
+    setItem: () => {},
+    removeItem: () => {},
+  };
+  assert.equal(usageOptedOut(), false);
+});
+
+test("stored values that are not a counter object are discarded, not extended", () => {
+  const key = "employment-contract-checker-usage";
+  for (const bad of ["5", "null", "[1,2]", '"text"', "true"]) {
+    globalThis.localStorage.setItem(key, bad);
+    assert.deepEqual(readUsage(), {}, `readUsage ${bad}`);
+    assert.doesNotThrow(() => record("contract_checked"), `record ${bad}`);
+    assert.deepEqual(readUsage(), { contract_checked: 1 }, `after record ${bad}`);
+  }
+});

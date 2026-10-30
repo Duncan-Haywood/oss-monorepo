@@ -63,7 +63,20 @@ test("sheathing weight: width x height less openings in the span, at the typed l
   assert.equal(a.totalLb, Math.round((a.lb + a.sheathLb) * 10) / 10);
   const [b] = panelParts(w, pan, { sheathPsf: 1.5, openings: [{ offset: 24, width: 36, height: 48 }, { offset: 90, width: 36, height: 48 }] });
   assert.equal(b.sheathLb, (64 - (36 * 48 + 6 * 48) / 144) * 1.5); // second opening only 6 in inside the wall
-  assert.equal(panelParts({ ...w, gable: { pitch: 6 } }, pan, { sheathPsf: 1.5 })[0].sheathLb, 0);
+  assert.equal(panelParts({ ...w, gable: { pitch: 6 } }, pan, { sheathPsf: 1.5 })[0].sheathLb, 0); // a gable record without its eave height is skipped
+});
+
+test("sheathing weight on a gable wall: eave rectangle plus the triangle under each panel", () => {
+  const plan = samplePlan();
+  plan.walls = [{ id: "G", length: 240, stud: "2x4", gable: { pitch: 6, peak: 90 }, openings: [] }];
+  const w = takeoff(plan).walls[0];
+  assert.ok(w.gable.eave > 0);
+  const exact = (240 * w.gable.eave + 240 * w.gable.peakRise / 2) / 144; // lb at 1 lb/sq ft
+  for (const max of [240, 100]) {
+    const parts = panelParts(w, panelizeWall(w, max), { sheathPsf: 1 });
+    assert.equal(parts.length > 1, max === 100);
+    assert.ok(Math.abs(parts.reduce((t, p) => t + p.sheathLb, 0) - exact) < 0.05 * parts.length, `panel areas add up (${max})`);
+  }
 });
 
 test("panel order: pooled panel pieces cover every panel piece and cost about what the whole-wall order does", async () => {
@@ -91,4 +104,15 @@ test("panel pull lists place every panel piece once, on boards that exist", asyn
   assert.ok(po.assignment.sharedBoards <= po.assignment.boards);
   for (const p of po.assignment.panels) for (const b of p.boards) assert.ok(b.cuts.reduce((t, c) => t + c, 0) <= b.boardLength + 1e-6);
   assert.ok(panelPullText(po).length > po.panels);
+});
+
+test("a gable wall's sloped plates are trimmed along the slope, not by their horizontal run", () => {
+  const plan = samplePlan();
+  plan.walls = [{ id: "G", length: 240, stud: "2x4", gable: { pitch: 6, peak: 90 }, openings: [] }];
+  const g = takeoff(plan).walls[0];
+  const pan = panelizeWall(g, 96);
+  const parts = panelParts(g, pan);
+  const sloped = g.members.filter((m) => m.sloped && m.label === "top plate");
+  const total = parts.flatMap((p) => p.pieces).filter((x) => x.label === "top plate").reduce((t, x) => t + x.length * x.qty, 0);
+  assert.ok(Math.abs(total - sloped.reduce((t, m) => t + m.length, 0)) < 0.2, `top plate pieces ${total} vs whole ${sloped.reduce((t, m) => t + m.length, 0)}`);
 });

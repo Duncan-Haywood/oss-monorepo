@@ -238,10 +238,10 @@
     "voice": "kokoro-82m-af_heart"
   },
   "2026-10-24-does-nailer-recoil-slow-a-robot": {
-    "bytes": 692987,
-    "seconds": 138.5,
-    "sha256": "84e1a5c06a8bb2bfeed71f9a4fb990888850b46b6e14b3b8cff621822a223cdf",
+    "bytes": 786544,
+    "seconds": 131.0,
+    "sha256": "479c0959c294bcdc8ac8c976579fa3bd4f8f888d9e510d9457da7240065545e9",
     "script_sha256": "290232cd2a0d76ed066dfcbcbf67790f16d689e4c1ea9556586b79c736aa6d06",
-    "voice": "en_US-ljspeech-high"
+    "voice": "kokoro-82m-af_heart"
   }
 }

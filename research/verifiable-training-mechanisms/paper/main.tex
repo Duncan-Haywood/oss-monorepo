@@ -1,6 +1,7 @@
 % DRAFT, not for submission. ACM EC format (acmart, sigconf); check the current call for page limit.
 % Written with AI assistance (Claude Code). Numbers are copied from experiments/*/results.txt.
 \documentclass[sigconf,anonymous]{acmart}
+\graphicspath{{../experiments/margin/}{../experiments/frontier/}}
 \begin{document}
 \title{What a Verification Tolerance Costs: Pricing Cheating Margins in Outsourced ML Training}
 \author{Anonymous}
@@ -54,6 +55,11 @@ Costly state verification \cite{townsend1979} is the skeleton of an audit-plus-s
 tolerance. Payments for effort in estimation \cite{cai2015} concern data quality for a statistic, not compute for a trajectory.
 Linear contracts are near optimal under hidden action \cite{duetting2019simple}; we compare our frontier with the best linear
 contract on the final-model score and find it dearer by orders of magnitude where the score barely moves.
+\paragraph{Incentives in federated learning.}
+Contract-theoretic incentive design for federated learning \cite{kang2019contract} prices a participant's contributed data and
+compute under hidden type, and free-rider attacks and defences \cite{lin2019freeriders} show that a worker can submit updates
+that pass aggregation without doing the work. Both treat the submitted update as the object checked; we ask what a referee's
+numerical tolerance leaves a cheater, and price the stake that tolerance needs.
 \section{Model}\label{sec:model}
 A worker runs $T$ steps; honest cost is $C$. An action $a$ skips the steps whose honest update has norm at most
 $\tau'$, so its effort is one minus the skipped share and its cost is effort${}\times C$. An audit re-executes $m$
@@ -65,8 +71,10 @@ $\min E_{\text{target}}[w]$ subject to incentive compatibility against each othe
 a linear programme in $w$ (\texttt{src/vtm/contract.py}); it equals the closed form $\max(C,C/p-S)$ on a grid and a
 $2500\times2500$ brute-force search within 1\%.
 \paragraph{A one-sided resolution bound.}
-Let $r=\min_{s:P_h(s)>0}P_a(s)/P_h(s)$ and $p=1-r$. \emph{Proposition.} Any contract implementing honest against $a$ with $w\ge -S$ costs
-$\mathbb{E}_h[w]\ge\max(C,\,g/p-S)$.
+Let
+\[ r=\min_{s:P_h(s)>0}\frac{P_a(s)}{P_h(s)},\qquad p=1-r. \]
+
+\emph{Proposition.} Any contract implementing honest against $a$ with $w\ge -S$ costs $\mathbb{E}_h[w]\ge\max(C,\,g/p-S)$.
 \emph{Proof.} Incentive compatibility gives $\mathbb{E}_h[w]-\mathbb{E}_a[w]\ge g$. With $f=w+S\ge0$ we have $\mathbb{E}_a[f]\ge r\,\mathbb{E}_h[f]$
 (mass of $P_a$ off the support of $P_h$ only adds), so $g\le\mathbb{E}_h[f]-\mathbb{E}_a[f]\le p\,\mathbb{E}_h[f]$, i.e.\ $\mathbb{E}_h[w]\ge g/p-S$.
 Individual rationality gives $\mathbb{E}_h[w]\ge C$. $\square$ (Over several deviations take the largest bound.)
@@ -76,7 +84,7 @@ the batch rows reordered (a float16 referee is reported separately). Benign drif
 most $9\times10^{-8}$, float16 drift has p99 $0.9$--$2.3\times10^{-3}$ and maximum $0.009$--$0.018$, against honest
 update norms of median $0.020$--$0.026$ (digits) and $0.0047$ (breast cancer, late training). Table~\ref{tab:margin} gives, per
 tolerance, the share of steps a skipping worker passes and the paired held-out loss it gives up.
-\begin{table}[t]\caption{Skip shortcut, reorder referee: share of steps skipped / loss given up (paired by seed,
+\begin{table*}[t]\caption{Skip shortcut, reorder referee: share of steps skipped / loss given up (paired by seed,
 20 seeds; 95\% bootstrap CI where noted). Source: \texttt{experiments/\{margin,setups,splits\}/results.txt}.}
 \label{tab:margin}\small
 \begin{tabular}{lccc}
@@ -85,7 +93,7 @@ $10^{-3}$ & 9.5\% / $+0.0002$ & 12\% / $+0.0002$ & $-0.0015$\\
 $10^{-2}$ & 30\% / $+0.0034$ (CI 0.0026 to 0.0042) & 37\% / $+0.0025$ (CI 0.0019 to 0.0031) & 67\% / $-0.0115$ (CI $-0.0129$ to $-0.0101$)\\
 $3\times10^{-2}$ & -- & 57\% / $+0.0074$ & 91\% / $-0.0119$\\
 $10^{-1}$ & 89\% / $+0.118$ & 82\% / $+0.034$ & 99.5\% / $+0.068$\\
-\end{tabular}\end{table}
+\end{tabular}\end{table*}
 Resampling the train/test split with the seed (20 splits) keeps the breast-cancer gain: skipping lowers loss on 19 of 20
 splits at $\tau=10^{-2}$ (paired CI $-0.0135$ to $-0.0063$), and on digits-deep the cost at $10^{-2}$ is $+0.0016$, measurably
 above zero but $0.07$ split-seed standard deviations. The half-batch and float16-input shortcuts cost nothing
@@ -93,7 +101,51 @@ measurable. The margin is therefore real (a worker passes the check while doing 
 at drift-sized tolerances, costs the requester saved work, not a worse model; quality is lost only above a
 task-dependent threshold that follows the late update-norm distribution, which suggests stating $\tau$ as a quantile of
 honest update norms.
+
+\begin{figure}[t]\centering\includegraphics[width=\linewidth]{margin.png}
+\caption{Loss given up by a skipping worker against the referee tolerance $\tau$ (digits MLP; \texttt{experiments/margin}).}\label{fig:margin}\end{figure}
+\paragraph{A small transformer.} To check that the pattern is not specific to MLPs we repeat the test on a 2-layer,
+$d=32$, 2-head character-level causal transformer (about 30k parameters) trained with plain cosine SGD on an 87~kB
+text corpus (80/20 split by position, fixed; 10 seeds for init and batch order). Float32 reorder drift is at most
+$1.5\times10^{-7}$ at 600 steps and $1.3\times10^{-7}$ at 3,000 steps, against median update norms of $0.081$ and $0.139$;
+a bfloat16 forward-pass referee drifts by a median $8.5\times10^{-4}$ (p99 $2.4\times10^{-3}$, max $4.0\times10^{-3}$), so a
+tolerance of $10^{-3}$ falsely disputes $41\%$ of honest steps and $10^{-2}$ disputes none. Table~\ref{tab:tf} shows the
+skip shortcut. At $\tau=10^{-2}$, about $2.5\times$ the worst bf16 drift, the cheater skips $16\%$ of steps at 600 steps
+($11\%$ at 3,000) and gives up $0.2$ ($0.11$) seed standard deviations of held-out loss; the paired intervals exclude zero
+at every $\tau$, so the cost is measurable but small. The skip decision depends on the gradient norm, which bf16 barely
+changes, so the bf16 and float32 columns coincide to three digits: the referee sets the false-dispute rate, not what the
+cheater saves. Skipping never helped on average here, unlike on breast cancer. At 3,000 steps the loss ($2.28$) is still
+not converged.
+\begin{table*}[t]\caption{Transformer, skip shortcut: share of steps skipped / paired loss given up (95\% bootstrap CI).
+Source: \texttt{experiments/transformer*/results.txt}.}\label{tab:tf}\small
+\begin{tabular}{lcc}
+$\tau$ & 600 steps (held-out loss 2.725) & 3,000 steps (2.279)\\\hline
+$10^{-3}$ & 5.1\% / $+0.00009$ & 3.5\% / $+0.00014$\\
+$10^{-2}$ & 16\% / $+0.0017$ (0.0011 to 0.0022) & 11\% / $+0.0030$ (0.0026 to 0.0036)\\
+$3\times10^{-2}$ & 29\% / $+0.0085$ & 20\% / $+0.0126$ (0.0111 to 0.0142)\\
+$10^{-1}$ & 59\% / $+0.063$ & --\\
+\end{tabular}\end{table*}
+\paragraph{Cheaper cheats.} Skipping is not the only shortcut. Two others save real compute and submit a non-zero update:
+\emph{subsample} (the gradient of a quarter of the batch) and \emph{stale} (resubmit the previous step's gradient, no backward pass).
+The same referee accepts each on $12$ to $14\%$ of steps at $\tau=10^{-2}$, close to skip's $16\%$, so the referee mostly accepts
+small-update steps whatever the cheat. The cost differs (Table~\ref{tab:cheats}). Subsample costs at most $0.3$ seed std up to
+$\tau=3\times10^{-2}$. Stale costs $+0.0177$ at $\tau=10^{-2}$ ($2.1$ seed std, CI excluding zero), ten times skip, and $+1.55$ at
+$10^{-1}$. A tolerance harmless against skipping therefore already admits a harmful stale cheat, which refutes the narrow form of H1
+for that cheat. The cause is chaining: an accepted stale gradient becomes the next step's reference, so reuse runs on for $43$ steps on
+average (longest $83$) at $10^{-2}$. Allowing reuse only after an honest step (\emph{stale1}) cuts the cost to $+0.00016$, $1\%$ of
+stale's. This shows the chain is what costs, not that a no-chain rule can be enforced; the cheater here obeys it by construction.
+\begin{table}[t]\caption{Transformer cheats at $\tau=10^{-2}$, 10 seeds, 600 steps: share of steps accepted / paired loss given up
+(95\% CI). Source: \texttt{experiments/transformer\_cheats, transformer\_stale\_chain}.}\label{tab:cheats}\small
+\begin{tabular}{lcc}
+cheat & accepted & loss given up\\\hline
+skip & 16\% & $+0.0017$ (0.0011 to 0.0022)\\
+subsample & 12.3\% & $+0.0002$ ($-0.0002$ to $+0.0006$)\\
+stale & 13.6\% & $+0.0177$ (0.0132 to 0.0220)\\
+stale1 & 6.9\% & $+0.0002$ (0.0000 to 0.0003)\\
+\end{tabular}\end{table}
 \section{Single-check and joint contracts (H2, H5)}\label{sec:contracts}
+\begin{figure}[t]\centering\includegraphics[width=\linewidth]{frontier.png}
+\caption{Requester cost per unit of honest compute against $\tau$ for the joint contract and the two single-check alternatives (\texttt{experiments/frontier}).}\label{fig:frontier}\end{figure}
 For the honest target, audit-only costs $1.001\,C$ at $\tau=0$ (one audited step) and is infeasible at every
 $\tau\ge10^{-4}$ at any stake: skipping the steps below $\tau$ passes every audit and pay cannot tell it from honest work.
 Score-only then costs $5.76\,C$ at $n_{\text{test}}=540$, $12.4\,C$ at 100 and $1.23\,C$ at 5,000 (stake $S=C$), and the best
@@ -112,24 +164,43 @@ vacuous (1.0 against an LP cost of 5.76).
 \emph{Agreement.} With two workers and one shared cheap trajectory, adding an agreement term to pay never raises the
 cheapest contract (a refinement) and lowers it in 1,191 of 4,000 random instances; once copying equilibria are excluded,
 it lowers it in 451 instances but in 0 of 1,349 with perfect copying ($\kappa=1$), where it is worth nothing beyond the
-audit. \emph{Collusion.} With $m$ workers, majority-output acceptance and one independent audit per job (catch
+audit. \emph{Measured agreement on a transformer.} Along the honest trajectory of the transformer run (10 seeds), two
+honest workers never disagree at any tolerance ($\delta=0.000$ at $\tau=10^{-3}$ to $10^{-1}$). A cheat built from an
+independent quarter batch agrees with the honest gradient with probability $\alpha=0.038/0.122/0.216/0.429$ at
+$\tau=10^{-3}/10^{-2}/3\cdot10^{-2}/10^{-1}$, and two independent quarter-batch cheats agree with each other with
+$\kappa=0.032/0.102/0.185/0.350$; the seed ranges of $\alpha$ and $\kappa$ do not overlap. A peer contract can use only
+the gap $\alpha-\kappa$ (at most $0.079$ here), because an honest worker facing a cheating peer also disagrees with
+probability $1-\alpha$. Priced with the measured triple, it is cheaper than audit-only in 2 of the 16 cells ($\tau$, $p\in\{0.1,0.3\}$, $S\in\{0,1\}$) for the independent
+quarter-batch cheat, both at $\tau=10^{-1}$ with $p=0.1$ (a saving of 0.12 to 0.14 on a cost of 6.5 to 7.5), and in
+none of the 16 cells for a shared-quarter cheat or for the stale cheat. The contract parameters $g$, $p$
+and $S$ are chosen, not measured. \emph{Collusion.} With $m$ workers, majority-output acceptance and one independent audit per job (catch
 probability $p$, gain $g$), the least stake making all-honest a strong equilibrium is $S^{*}=\max(0,g/p-1)$ for every
 $m\ge1$: a coalition of $\lfloor m/2\rfloor+1$ escapes replication with probability one and faces only the audit.
 Exhaustive search over 140 cells ($m=1$ to 7) matches the formula to $7\times10^{-10}$. The proposal's $1/m$ law is
 therefore wrong here and belongs to a setting where a briber pays each verifier separately. The flat-in-$m$ result
 follows from the payoff structure (a theorem, confirmed by the search), and the pay bill grows with $m$, so against a
-coordinating coalition replication is dominated by $m=1$ plus the audit.
+coordinating coalition replication is dominated by $m=1$ plus the audit. \emph{Side payments.} With heterogeneous savings $g_i$ the least stake is $\max(0,\bar g/p-1)$ with $\bar g$ the $k$-th largest saving ($k=\lfloor m/2\rfloor+1$) when every member must gain, and the mean of the $k$ largest savings when members can split gains. Exhaustive search over 1,080 instances ($g_i\sim U(0,1)$, $p=0.1$, $m\le7$) matches both forms to $9\times10^{-10}$; the transferable-utility stake is never lower and is strictly higher in 816 of 816 instances where the top $k$ savings differ. Means at $m=3/5/7$ are $3.7/4.0/4.0$ (no transfers) and $5.1/5.6/5.8$ (transfers), against $1.3/0.8/0.6$ for a $1/m$ law; neither falls with $m$ (closed forms to $m=51$: about $4.0$ and $6.4$). Savings are drawn, not measured, and transfers are costless. \emph{A bribable auditor.} An auditor paid only for catching cheats earns nothing in the all-honest profile whatever it does, so no catch reward deters collusion; a bond $B$ forfeited when a meta-audit (probability $q<p$) exposes it does. With the stake at the transferable-utility level, exhaustive search over workers plus auditor (440 instances, $m\le6$, $p=0.1$, $q=0.02$) matches $B^\ast=\max(0,\sum_{i\in C}(g_i-q(1+S)))/q$ to $5\times10^{-10}$, where $C$ is the $k$ largest savings plus every further worker with $g_i>q(1+S)$. Below the worker-only stake no bond suffices (432 of 432). The mean bond grows with $m$ (closed form: 17 at $m=1$, 134 at $m=7$, 923 at $m=51$), and is zero when $q=p$. Replication therefore raises the price of an honest auditor; $q$ and $B$ are parameters, not measured. \emph{Imperfect coordination.} If the cheaters' outputs coincide only with probability $\kappa$ (all-or-nothing; a lone cheater always coincides), the least stake is $\max(0,g/(1-\kappa(1-p))-1)$; exhaustive search over 270 cells ($m\le6$, $\kappa\in\{1,.75,.5,.25,0\}$) matches it to $8\times10^{-10}$. At $g=0.5$, $p=0.1$ it is $4.00$, $0.54$ and $0$ for $\kappa=1$, $0.75$ and $\le0.5$ ($m\ge2$). Since a shared-quarter cheat has $\kappa=1$ on a transformer, the conservative design assumes $\kappa=1$.
+ \emph{Shared-mode copying.} If each cheater lands on the shared trajectory only with probability $\kappa$ (otherwise its output agrees with nobody), the least stake is $\max(0,g/(1-a(1-p))-1)$ with $a=\kappa\Pr[1+\mathrm{Bin}(m-1,\kappa)>m/2]$; exhaustive search over 84 cells matches it to $9\times10^{-10}$. For $\kappa<1/2$ it falls to zero as $m$ grows ($g=0.9$, $\kappa=0.35$: $0.31$ at $m=1$, $0$ from $m=21$); for $\kappa>1/2$ it settles at a positive floor ($1.17$ at $\kappa=0.65$, $2.21$ at $0.8$, against $8.0$ at $\kappa=1$) and alternates with the parity of $m$. Replication therefore deters a coordinating majority exactly when copying is imperfect and rarer than one half, in a model where the copy is a single shared mode. \emph{Pricing replication.} Charging each replica the job's compute and each unit of stake a capital cost $\lambda$ per job, replication beats one worker only if $\lambda(S^\ast(1)-mS^\ast(m))>m-1$; over $g\in\{0.5,0.9\}$, $\kappa\in\{0.2,\dots,1\}$, odd $m\le201$ the smallest break-even $\lambda$ is $16$ (finite in 3 of 12 cells, never at $\kappa=1$), so as a deterrent alone replication does not pay at any realistic lock cost; its value is robustness to a single faulty worker, which stake pricing does not capture. Pricing the audit too (cost $c\in\{0.1,0.5,2\}$ compute units per unit probability, 72 cells, $m\le51$, $p$ on a 0.01 grid), the cost-minimising design uses one worker in every cell: deterrence is bought with audit probability, not replicas. \emph{Faulty workers.} Let each worker independently return a unique faulty output with probability $f$, a lone faulty output being caught by the audit with probability $p$ and otherwise accepted at loss $L$ compute units; with $m>1$ a fault never forms a majority and the job is re-run when no majority is correct. Over 648 cells ($f\in\{.01,.05,.2\}$, $L\in\{10,100,1000\}$, audit cost $c\in\{.5,2,5,20\}$, odd $m\le51$, $p$ on a 0.01 grid) the optimum is $m=1$ (422 cells) or $m=3$ (226 cells) and nothing larger; no cell with $c=0.5$ picks replication, and at $c=2$ only some with $L\ge100$ do. Replication is thus a reliability tool bought as a triple against faults, not a deterrent. $f$, $L$, $c$ are parameters, not measured, and faults are independent (a shared bug defeats majority voting). To place $f$, we flipped one bit of one weight at a random step of a 600-step run of a 32,801-parameter transformer (500 flipped runs, 8 seeds): a flip changes the final held-out loss by more than $0.01$ (or makes it non-finite) with probability $0.045$ for a uniform bit, almost all from the four high exponent bits ($0.35$, of which $0.24$ non-finite), against $0$ of 100 for mantissa bits 0 to 15; 4 threads against 1 differ by a relative $7\times10^{-8}$ in the weights. With $q$ the probability a job takes a flip, $f=0.045\,q$, and the milestone 39 optimiser picks $m>1$ in 0 of 48 cells at $q=10^{-3}$ and 28 of 48 at $q=0.1$. One tiny model, weights only; $q$ is not measured. \emph{Silent bit flips.} In a 32,801-parameter transformer a single flipped bit of one fp32 weight, gradient element or activation harms the held-out loss (change above $0.01$ or non-finite) in 1\% to 3\% of flips, almost all of them high-exponent bits; fp32, bf16 and fp16 storage differ little (harm $0.22$ to $0.25$ among high-exponent flips). A bound $|w|\le K\max|w_0|$ on the submitted weights, with $\max|w_0|$ taken from the public initialisation, catches 15 of 15 harmful flips at every $K\le100$, but an adversary planting a value of $a\max|w_0|$ harms $0.05$ of jobs at $a=2$ and $0.30$ to $0.60$ at $a\ge4$ ($n=20$ per $a$): the check filters faults and does not deter a strategic cheater (milestones 40 to 45; one model, weights-only).
 \section{Negative results (H6)}\label{sec:neg}
 Two predictors that see only the honest runs: (A) the first-order descent forgone by skipped steps, and (B) the loss of an
 honest worker trained for the shortened number of steps. Both miss: only 2 of 9 tolerances have degradation above one seed
 standard deviation, A is out by $123\times$ and $12\times$ there, B by $3.0\times$ and $1.00\times$ (trivial: every step skipped),
 and the ratio is in $[0.5,2]$ in 1 of 9 settings. Both overshoot because skipped steps are exactly the small-update steps,
 whose loss the remaining training recovers. A model of recovery is the open constructive claim.
+A third predictor (C) trains the honest worker for the share of \emph{path length} that skipping leaves, with no fitted parameter.
+On the four non-trivial rows above one seed standard deviation (digits $\tau=0.1$; transformer $\tau=0.03$ and $0.1$) it lies at $0.62\times$,
+$0.61\times$ and $0.69\times$ the measured degradation (B: $2.4\times$ to $6.7\times$), but at the small tolerances where the cost is
+detectable yet below one standard deviation it undershoots ($0.00\times$ to $0.49\times$), so it is inside $[0.5,2]$ on half of the detectable rows only.
+C does not carry to other cheats: on the transformer's quarter-batch and reused-gradient cheats it is inside $[0.5,2]$ on none of 8 rows
+(subsample $7\times$ over at $\tau=0.1$; stale $0.01\times$ to $0.03\times$ of the measured $0.018$ to $1.55$), because it prices an accepted
+step by the distance forgone and ignores what the cheat does instead. A fitted scalar $kC$ does not repair this either: the digits undershoot falls from $9.5\times$
+to $1.6\times$ with $\tau$, and $k=3.6$ puts the transformer's scored rows $2.2\times$ and $2.5\times$ over.
+Three further runs (10 seeds each) say why no norm-based predictor can work for these cheats. (i) Replacing the accepted error by a random direction of the same norm removes the damage: at $\tau=0.1$ subsample costs $+0.0003$ against $+0.0024$ (about $9\times$ less) and stale $+0.0007$ against $+1.55$, although the accepted error is 16\% and 24\% of the path length, so the referee's norm test certifies a path share and not a loss bound. (ii) For subsample the error component orthogonal to the honest gradient reproduces the real damage (ratio $0.97$ to $1.04$ at $\tau=10^{-2}$ to $10^{-1}$), the parallel component none ($\le 0.07$); the orthogonal-arm intervals contain zero at all three tolerances, so this locates the mean effect, not a detectable one. (iii) That orthogonal error has a Rayleigh quotient about $320\times$ a random direction's (95\% range over seeds $297$ to $361$), about 18\% of the estimated $\lambda_{\max}$, but the second-order sum $\tfrac12\eta^2 e^{\top}He$ overshoots the measured damage $44\times$ to $110\times$, because later honest steps damp most of the injected error. The mechanism is identified (a structured error in sharp directions); a closed-form bound is not, and we offer none.
 \section{Limitations}
-Three small scikit-learn tasks and plain SGD, plus one 30k-parameter character-level transformer (10 seeds, 600 steps, loss far from converged: skipping costs $0.2$ seed standard deviations at $\tau=10^{-2}$, $1.0$ at $3\times10^{-2}$ and $7.4$ at $0.1$, with $16\%$, $29\%$ and $59\%$ of steps skipped), no realistic scale; the skip shortcut only for the dense results; one reorder
+Three small scikit-learn tasks and plain SGD, plus one 30k-parameter character-level transformer (10 seeds, 600 and 3,000 steps, loss not converged; the cost at $\tau=10^{-2}$ is unchanged when the held-out block moves per seed, $+0.0016$ against $+0.0017$; see Table~\ref{tab:tf}), no realistic scale; the skip shortcut only for the dense results (on the transformer a reused-gradient cheat costs 2.1 seed std at $\tau=10^{-2}$, so the margin depends on the cheat; the cost comes from chains of consecutive reuses, 43 steps on average, and disappears, $+0.00016$, when reuse after a reused step is disallowed); one reorder
 referee; two workers for agreement and pure strategies for collusion; contract parameters ($\delta,\alpha,\kappa$, stakes)
-are swept rather than measured on real trajectories; the paper is uncompiled (no LaTeX here) and the related-work
-section is incomplete.
+are swept rather than measured on real trajectories; the related-work section covers verification, scoring rules, hidden-action contracts and federated-learning incentives but not trusted-hardware attestation or Byzantine-robust aggregation, and the draft is in the
+two-column \texttt{sigconf} style rather than the single-column EC'26 style files, whose page limit is not yet checked.
 \bibliographystyle{ACM-Reference-Format}
 \bibliography{refs}
 \end{document}

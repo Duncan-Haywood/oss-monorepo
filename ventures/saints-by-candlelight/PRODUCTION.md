@@ -157,7 +157,7 @@ list.
 cd ventures/saints-by-candlelight
 # 1. write episodes/<NNN>-<slug>.md following this file
 node generate.mjs --check-script <slug>     # length, banned characters, welcome/sign-off present
-python3 render_audio.py <slug>              # Kokoro TTS, offline, ~1/3 real time on a laptop CPU
+python3 render_audio.py <slug>              # Kokoro TTS, offline, ~1/4 real time on 4 CPU cores; re-renders reuse unchanged sentences
 node generate.mjs                           # pages, feed.xml, sitemap
 node --test
 ```
@@ -165,7 +165,10 @@ node --test
 `render_audio.py` needs `pip install kokoro-onnx soundfile` and the two
 Kokoro v1.0 model files (`kokoro-v1.0.onnx`, `voices-v1.0.bin`, Apache 2.0)
 in `~/.cache/kokoro` or `--models <dir>`; it downloads them from Hugging Face
-if missing. Narrator voice: `bm_george` at speed 0.9.
+if missing. Narrator voice: `bm_george` at speed 0.9. The rendering itself is the
+shared engine, [`platform/audio/narrate.py`](../../platform/audio/narrate.py)
+(sentence cache, one worker per core, fixed-gain loudness, optional `misaki`
+pronunciation); its docstring has the setup.
 
 ## The episode list
 
@@ -186,10 +189,43 @@ writing it; skip any already in `episodes/`):
 - *(Done: episode 16, Spyridon and the Snake That Became Gold.)* Saint Spyridon and the snake that became gold (legend; told with care)
 - *(Done: episode 21, Gall and the Bear Who Brought the Firewood; text only.)* Saint Gall of Lake Constance and the bear (Walafrid Strabo's Life; legend labelled)
 - *(Done: episode 19, A Winter Night at the Hill Convent.)* An invented episode: a novice and an old abbess on a winter night, with the saints she tells her about (clearly labelled fiction)
+- *(Done: episode 22, Melangell and the Hare in the Fold of Her Robe; text only.)* Saint Melangell of Pennant Melangell and the hare (Welsh; legend labelled)
+- *(Done: episode 23, Ruth and the Barley Harvest at Bethlehem; text only.)* The book of Ruth (Scripture told straight; Catholic and Orthodox)
+- *(Done: episode 24, Kentigern and the Four Signs of Glasgow; text only.)* Saint Kentigern (Mungo) and the robin, tree, bell and fish of Glasgow (Jocelyn of Furness; legend labelled)
+- *(Done: episode 25, Anthony and the Sermon to the Fishes; text only.)* Saint Anthony of Padua and the sermon at Rimini (Assidua; Fioretti legend labelled)
+- *(Done: episode 26, Noah and the Boat with One Door; text only.)* Noah and the ark (Genesis 6 to 9; Scripture told straight; Noah's vineyard left for another night)
+- *(Done: episode 27, Brigid and the Cloak That Would Not Stop; text only.)* Saint Brigid of Kildare and the cloak (Cogitosus, Vita Prima; legend labelled)
+- *(Done: episode 28, Jonah and the City That Listened; text only.)* The book of Jonah (Scripture told straight; Catholic and Orthodox)
+- *(Done: episode 29, Daniel and the Night with the Lions; text only.)* Daniel chapter six (Scripture told straight; Catholic and Orthodox)
+- *(Done: episode 30, Martin of Tours and the Half a Cloak; text only.)* Saint Martin of Tours and the cloak at Amiens (Sulpicius Severus, Life of Martin; geese and Saint Martin's summer labelled as later tradition and folk custom)
+- *(Done: episode 31, Seraphim of Sarov and the Bear in the Clearing; text only.)* Saint Seraphim of Sarov (Orthodox; Zander, Motovilov; bear and rock labelled as the tradition of his life; the Motovilov conversation and the Diveyevo ditch left for later nights)
+- *(Done: episode 32, Samuel and the Voice in the Night; text only.)* The boy Samuel at Shiloh (1 Samuel 1 to 3; Scripture told straight; Catholic and Orthodox; the fall of Eli's house left for another night)
+- *(Done: episode 33, Rebekah and the Camels at the Well; text only.)* Genesis 24 (Scripture told straight; Catholic and Orthodox; the servant left unnamed; Jacob and Esau left for another night)
+- *(Done: episode 34, Jacob and the Ladder at Bethel; text only.)* Genesis 28 (Scripture told straight; Catholic and Orthodox; Jacob's years with Laban, the wrestling at the Jabbok and the meeting with Esau left for other nights)
+- *(Done: episode 35, Tobias and the Angel on the Road to Media; text only.)* The book of Tobit (Scripture told straight; Catholic and Orthodox, not in Protestant Bibles; the archangel Raphael; the song of Tobit kept short)
+- *(Done: episode 36, Naaman and the Seven Dips in the Jordan; text only.)* 2 Kings 5 (Scripture told straight; Catholic and Orthodox; Gehazi's part of the chapter left for another night)
+- *(Done: episode 37, Moses and the Bush That Was Not Consumed; text only.)* Exodus 3 and 4 (Scripture told straight; Catholic and Orthodox; the inn at the end of chapter four, the plagues and the sea left for other nights)
+- *(Done: episode 38, Elisha and the Widow's Jars of Oil; text only.)* 2 Kings 4:1-17 (Scripture told straight; Catholic and Orthodox; the death and raising of the Shunammite's son, 4:18-37, left for another night)
+- *(Done: episode 39, Isaac and the Wells That Were Dug Again; text only.)* Genesis 26 (Scripture told straight; Catholic and Orthodox; Esau's marriages and the blessing of Jacob left for another night)
+- *(Done: episode 40, David and the Giant in the Valley of Elah; text only.)* 1 Samuel 17 (Scripture told straight; Catholic and Orthodox; the shorter Greek text and the two heights of Goliath are named in the notes; Jonathan's covenant is touched, David's years at court and Saul's jealousy left for other nights)
+- *(Done: episode 41, Francis and the Christmas Night at Greccio; text only.)* Saint Francis and the first living crib at Greccio, 1223 (Thomas of Celano, Vita Prima; the knight's vision and the cures from the hay labelled as the old writer's report)
+- *(Done: episode 42, Gideon and the Three Hundred with Jars; text only.)* Judges 6 and 7, with the offer of kingship from 8:22-23 (Scripture told straight; Catholic and Orthodox; the later chapters of the pursuit and the golden ephod left for another night)
+- *(Done: episode 43, Benedict and the Sieve That Was Mended; text only.)* Saint Benedict of Nursia, early life from Gregory the Great, Dialogues II (sieve, Subiaco, raven, Scholastica and the storm; legends labelled; Florentius's later schemes left out)
+- *(Done: episode 44, Hannah and the Prayer at Shiloh; text only.)* 1 Samuel 1 and 2:1-11, 18-21 (Scripture told straight; Catholic and Orthodox; Eli's household left for another night)
+- *(Done: episode 45, Jacob and the Night at the Jabbok; text only.)* Genesis 32 and 33:1-17 (Scripture told straight; Catholic and Orthodox; the identity of the wrestler left as the text leaves it; Shechem and Dinah left out)
+- *(Done: episode 46, Ambrose and the Bees in the Cradle; text only.)* Saint Ambrose of Milan (Paulinus, Life; Augustine, Confessions; bees, the child's voice and the night walk labelled as Paulinus's report; Theodoret's church-door scene left out; the relics of Gervasius and Protasius and the Easter-night star only touched)
+- *(Done: episode 47, Joshua and the Woman with the Scarlet Cord; text only.)* Joshua 2 to 6 (Scripture told straight; Catholic and Orthodox; Rahab's lie and the giving up of Jericho named honestly in the notes; Achan, Ai and the Gibeonites left for other nights)
+- *(Done: episode 48, Elisha and the Chariots of Fire at Dothan; text only.)* 2 Kings 6:1-23 (Scripture told straight; Catholic and Orthodox; the fiery horses as angels labelled a tradition of reading; the rare Hebrew word for the army's blindness noted; the servant left unnamed; the siege of Samaria in 6:24 onward left for another night)
+- *(Done: episode 49, Zacchaeus and the Sycamore Tree at Jericho; text only.)* Luke 19:1-10 (Scripture told straight; Catholic and Orthodox; what was said at the dinner is left as the Gospel leaves it; the fourfold repayment set beside Exodus and Leviticus as a labelled reading; Caesarea bishopric and the shown sycamore labelled tradition)
+- *(Done: episode 50, Mary and Elizabeth in the Hill Country of Judah; text only.)* Luke 1:39-56 (Scripture told straight; Catholic and Orthodox; the route, companions and distance labelled as estimate; Ein Karem labelled tradition; the Magnificat given in our own plain rendering and its echo of Hannah named as a reading; Zechariah's silence and the naming of John touched, the Benedictus left for another night)
+- *(Done: episode 51, Cleopas and the Stranger on the Road to Emmaus; text only.)* Luke 24:13-35 (Scripture told straight; Catholic and Orthodox; the second disciple left unnamed; the sixty and one hundred and sixty stadia readings and the several claimed villages named; the content of the lesson on the road not invented; the appearance to the Eleven left for another night)
+- *(Done: episode 52, Cyril and Methodius and the Letters for a People Without Any; text only.)* Saints Cyril and Methodius (the two Slavonic Lives and papal letters; the dream of Sophia labelled the old writer's report; Glagolitic versus Cyrillic named; the Khazar mission and the Cherson find touched and labelled disputed; the later Bulgarian schools only sketched)
+- *(Done: episode 53, Paul and the Fourteen Nights Before Malta; text only.)* Acts 27 and 28:1-16 (Scripture told straight; Catholic and Orthodox; the gear let down, the number 276 and the landing site named as uncertain; Publius as first bishop labelled tradition; Paul's later years in Rome left for another night)
+- *(Done: episode 54, Monica and the Window at Ostia; text only.)* Saint Monica (Augustine, Confessions III, V, VI, IX; the talk at the window kept as his outline with our wording; relics in Rome and patronage labelled tradition; Augustine's disputed later teaching left alone)
 
 ## Audio status
 
-Episodes 1 to 19 have audio (episodes 20 and 21 are text only: the audio folders stood at 395 MB, over the creative prompt's 400 MB line once an episode is added) (episode 19 rendered 2026-10-23, about 27 minutes) (episode 18 rendered 2026-10-23, about 32 minutes) (episode 17 rendered 2026-10-23, about 36 minutes) (episode 8 was rendered on 2026-10-22, about 33 minutes). If Hugging Face is blocked in a cloud session, the Kokoro model files are also on GitHub: `https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/` (`kokoro-v1.0.onnx`, `voices-v1.0.bin`) into `~/.cache/kokoro`. Use `/usr/bin/python3` if `python3` lacks numpy. A render takes about 15 minutes.
+Episodes 1 to 19 have audio (episodes 20 to 54 are text only: the audio folders sit near the creative prompt's 400 MB line; run its `du` for the current figure) (episode 19 rendered 2026-10-23, about 27 minutes) (episode 18 rendered 2026-10-23, about 32 minutes) (episode 17 rendered 2026-10-23, about 36 minutes) (episode 8 was rendered on 2026-10-22, about 33 minutes). If Hugging Face is blocked in a cloud session, the Kokoro model files are also on GitHub: `https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/` (`kokoro-v1.0.onnx`, `voices-v1.0.bin`) into `~/.cache/kokoro`. Use `/usr/bin/python3` if `python3` lacks numpy. A render takes about 15 minutes.
 
 ## Publishing
 

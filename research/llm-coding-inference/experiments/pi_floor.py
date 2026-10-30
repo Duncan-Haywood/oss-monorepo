@@ -2,7 +2,7 @@
 valid at rare categories? Same corpus, split, coder and calibration as rare_audit.py; only the floor on
 w_i = max(floor, sqrt(q(1-q))) changes. Writes pi_floor.txt.
 
-    python3 experiments/pi_floor.py [reps]   # needs ~/.cache/qual-real/goemotions_{1,2,3}.csv
+    python3 experiments/pi_floor.py [reps]   # downloads ~/.cache/qual-real/goemotions_{1,2,3}.csv on first use
 """
 import random
 import statistics

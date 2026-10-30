@@ -1,0 +1,76 @@
+NaijaSenti subsample 6000 tweets, negative share 0.3272, 500 draws: coder | design | n | rule | coverage % | mean half-width pts | mean humans used
+Qwen2.5-0.5B-Instruct: coder-positive 151, agreement 0.668
+Qwen2.5-0.5B-Instruct | 1 pooled | 400 | human normal | 92.0 | 4.443 | 400
+Qwen2.5-0.5B-Instruct | 1 pooled | 400 | human Wilson (WH) | 91.4 | 4.426 | 400
+Qwen2.5-0.5B-Instruct | 1 pooled | 400 | P Wilson n_eff (WE) | 91.8 | 4.421 | 400
+Qwen2.5-0.5B-Instruct | 1 pooled | 1000 | human normal | 95.2 | 2.654 | 1000
+Qwen2.5-0.5B-Instruct | 1 pooled | 1000 | human Wilson (WH) | 95.0 | 2.650 | 1000
+Qwen2.5-0.5B-Instruct | 1 pooled | 1000 | P Wilson n_eff (WE) | 95.0 | 2.649 | 1000
+Qwen2.5-0.5B-Instruct | 2 cells oracle | 400 | human normal | 94.4 | 4.438 | 400
+Qwen2.5-0.5B-Instruct | 2 cells oracle | 400 | human Wilson (WH) | 93.4 | 4.421 | 400
+Qwen2.5-0.5B-Instruct | 2 cells oracle | 400 | P Wilson n_eff (WE) | 93.4 | 4.421 | 400
+Qwen2.5-0.5B-Instruct | 2 cells oracle | 1000 | human normal | 95.2 | 2.653 | 1000
+Qwen2.5-0.5B-Instruct | 2 cells oracle | 1000 | human Wilson (WH) | 95.2 | 2.649 | 1000
+Qwen2.5-0.5B-Instruct | 2 cells oracle | 1000 | P Wilson n_eff (WE) | 95.2 | 2.649 | 1000
+Qwen2.5-0.5B-Instruct | pilot floor 0.2 | 400 | human normal | 96.6 | 4.858 | 400
+Qwen2.5-0.5B-Instruct | pilot floor 0.2 | 400 | human Wilson (WH) | 97.4 | 4.836 | 400
+Qwen2.5-0.5B-Instruct | pilot floor 0.2 | 400 | P Wilson n_eff (WE) | 97.4 | 4.836 | 400
+Qwen2.5-0.5B-Instruct | pilot floor 0.2 | 1000 | human normal | 95.8 | 2.841 | 1000
+Qwen2.5-0.5B-Instruct | pilot floor 0.2 | 1000 | human Wilson (WH) | 96.0 | 2.837 | 1000
+Qwen2.5-0.5B-Instruct | pilot floor 0.2 | 1000 | P Wilson n_eff (WE) | 96.0 | 2.837 | 1000
+Qwen2.5-0.5B-Instruct | pilot floor 0.35 | 400 | human normal | 94.4 | 5.427 | 400
+Qwen2.5-0.5B-Instruct | pilot floor 0.35 | 400 | human Wilson (WH) | 94.2 | 5.396 | 400
+Qwen2.5-0.5B-Instruct | pilot floor 0.35 | 400 | P Wilson n_eff (WE) | 94.2 | 5.396 | 400
+Qwen2.5-0.5B-Instruct | pilot floor 0.35 | 1000 | human normal | 95.8 | 2.841 | 1000
+Qwen2.5-0.5B-Instruct | pilot floor 0.35 | 1000 | human Wilson (WH) | 96.0 | 2.837 | 1000
+Qwen2.5-0.5B-Instruct | pilot floor 0.35 | 1000 | P Wilson n_eff (WE) | 96.0 | 2.837 | 1000
+Qwen2.5-1.5B-Instruct: coder-positive 1794, agreement 0.661
+Qwen2.5-1.5B-Instruct | 1 pooled | 400 | human normal | 92.0 | 4.443 | 400
+Qwen2.5-1.5B-Instruct | 1 pooled | 400 | human Wilson (WH) | 91.4 | 4.426 | 400
+Qwen2.5-1.5B-Instruct | 1 pooled | 400 | P Wilson n_eff (WE) | 91.6 | 4.317 | 400
+Qwen2.5-1.5B-Instruct | 1 pooled | 1000 | human normal | 95.2 | 2.654 | 1000
+Qwen2.5-1.5B-Instruct | 1 pooled | 1000 | human Wilson (WH) | 95.0 | 2.650 | 1000
+Qwen2.5-1.5B-Instruct | 1 pooled | 1000 | P Wilson n_eff (WE) | 94.0 | 2.588 | 1000
+Qwen2.5-1.5B-Instruct | 2 cells oracle | 400 | human normal | 96.0 | 4.341 | 400
+Qwen2.5-1.5B-Instruct | 2 cells oracle | 400 | human Wilson (WH) | 96.2 | 4.325 | 400
+Qwen2.5-1.5B-Instruct | 2 cells oracle | 400 | P Wilson n_eff (WE) | 96.2 | 4.325 | 400
+Qwen2.5-1.5B-Instruct | 2 cells oracle | 1000 | human normal | 97.0 | 2.589 | 1000
+Qwen2.5-1.5B-Instruct | 2 cells oracle | 1000 | human Wilson (WH) | 97.4 | 2.585 | 1000
+Qwen2.5-1.5B-Instruct | 2 cells oracle | 1000 | P Wilson n_eff (WE) | 97.4 | 2.585 | 1000
+Qwen2.5-1.5B-Instruct | pilot floor 0.2 | 400 | human normal | 93.6 | 4.326 | 400
+Qwen2.5-1.5B-Instruct | pilot floor 0.2 | 400 | human Wilson (WH) | 93.8 | 4.310 | 400
+Qwen2.5-1.5B-Instruct | pilot floor 0.2 | 400 | P Wilson n_eff (WE) | 93.8 | 4.310 | 400
+Qwen2.5-1.5B-Instruct | pilot floor 0.2 | 1000 | human normal | 94.6 | 2.589 | 1000
+Qwen2.5-1.5B-Instruct | pilot floor 0.2 | 1000 | human Wilson (WH) | 94.0 | 2.585 | 1000
+Qwen2.5-1.5B-Instruct | pilot floor 0.2 | 1000 | P Wilson n_eff (WE) | 94.0 | 2.585 | 1000
+Qwen2.5-1.5B-Instruct | pilot floor 0.35 | 400 | human normal | 95.6 | 4.344 | 400
+Qwen2.5-1.5B-Instruct | pilot floor 0.35 | 400 | human Wilson (WH) | 95.6 | 4.328 | 400
+Qwen2.5-1.5B-Instruct | pilot floor 0.35 | 400 | P Wilson n_eff (WE) | 95.6 | 4.328 | 400
+Qwen2.5-1.5B-Instruct | pilot floor 0.35 | 1000 | human normal | 94.4 | 2.594 | 1000
+Qwen2.5-1.5B-Instruct | pilot floor 0.35 | 1000 | human Wilson (WH) | 95.0 | 2.591 | 1000
+Qwen2.5-1.5B-Instruct | pilot floor 0.35 | 1000 | P Wilson n_eff (WE) | 95.0 | 2.591 | 1000
+Qwen2.5-3B-Instruct: coder-positive 185, agreement 0.689
+Qwen2.5-3B-Instruct | 1 pooled | 400 | human normal | 92.0 | 4.443 | 400
+Qwen2.5-3B-Instruct | 1 pooled | 400 | human Wilson (WH) | 91.4 | 4.426 | 400
+Qwen2.5-3B-Instruct | 1 pooled | 400 | P Wilson n_eff (WE) | 92.6 | 4.360 | 400
+Qwen2.5-3B-Instruct | 1 pooled | 1000 | human normal | 95.2 | 2.654 | 1000
+Qwen2.5-3B-Instruct | 1 pooled | 1000 | human Wilson (WH) | 95.0 | 2.650 | 1000
+Qwen2.5-3B-Instruct | 1 pooled | 1000 | P Wilson n_eff (WE) | 94.8 | 2.613 | 1000
+Qwen2.5-3B-Instruct | 2 cells oracle | 400 | human normal | 96.0 | 4.381 | 400
+Qwen2.5-3B-Instruct | 2 cells oracle | 400 | human Wilson (WH) | 95.4 | 4.365 | 400
+Qwen2.5-3B-Instruct | 2 cells oracle | 400 | P Wilson n_eff (WE) | 95.4 | 4.365 | 400
+Qwen2.5-3B-Instruct | 2 cells oracle | 1000 | human normal | 95.6 | 2.618 | 1000
+Qwen2.5-3B-Instruct | 2 cells oracle | 1000 | human Wilson (WH) | 96.2 | 2.614 | 1000
+Qwen2.5-3B-Instruct | 2 cells oracle | 1000 | P Wilson n_eff (WE) | 96.2 | 2.614 | 1000
+Qwen2.5-3B-Instruct | pilot floor 0.2 | 400 | human normal | 94.6 | 4.792 | 400
+Qwen2.5-3B-Instruct | pilot floor 0.2 | 400 | human Wilson (WH) | 94.6 | 4.771 | 400
+Qwen2.5-3B-Instruct | pilot floor 0.2 | 400 | P Wilson n_eff (WE) | 94.6 | 4.771 | 400
+Qwen2.5-3B-Instruct | pilot floor 0.2 | 1000 | human normal | 94.8 | 2.861 | 1000
+Qwen2.5-3B-Instruct | pilot floor 0.2 | 1000 | human Wilson (WH) | 94.6 | 2.857 | 1000
+Qwen2.5-3B-Instruct | pilot floor 0.2 | 1000 | P Wilson n_eff (WE) | 94.6 | 2.857 | 1000
+Qwen2.5-3B-Instruct | pilot floor 0.35 | 400 | human normal | 95.6 | 5.343 | 400
+Qwen2.5-3B-Instruct | pilot floor 0.35 | 400 | human Wilson (WH) | 94.8 | 5.314 | 400
+Qwen2.5-3B-Instruct | pilot floor 0.35 | 400 | P Wilson n_eff (WE) | 94.8 | 5.314 | 400
+Qwen2.5-3B-Instruct | pilot floor 0.35 | 1000 | human normal | 94.8 | 2.861 | 1000
+Qwen2.5-3B-Instruct | pilot floor 0.35 | 1000 | human Wilson (WH) | 94.6 | 2.857 | 1000
+Qwen2.5-3B-Instruct | pilot floor 0.35 | 1000 | P Wilson n_eff (WE) | 94.6 | 2.857 | 1000

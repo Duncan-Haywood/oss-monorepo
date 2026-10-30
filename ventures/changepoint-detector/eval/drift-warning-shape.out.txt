@@ -1,0 +1,14 @@
+airline (growing season)         raw no trend steps 3  net/abs 1.00
+airline (growing season)         raw bend     steps 3  net/abs 0.06
+airline (growing season)         log no trend steps 4  net/abs 1.00
+airline (growing season)         log bend     steps 6  net/abs 0.30
+UK gas (growing season)          raw no trend steps 4  net/abs 0.38
+UK gas (growing season)          raw bend     steps 3  net/abs 0.10
+UK gas (growing season)          log no trend steps 6  net/abs 0.50
+UK gas (growing season)          log bend     steps 4  net/abs 0.04
+J&J (growing season)             raw no trend steps 6  net/abs 1.00
+J&J (growing season)             log no trend steps 7  net/abs 1.00
+UK driver deaths (1973 shock)    raw no trend steps 5  net/abs -0.06
+UK driver deaths (1973 shock)    raw bend     steps 3  net/abs -0.56
+UK driver deaths (1973 shock)    log no trend steps 5  net/abs -0.04
+UK driver deaths (1973 shock)    log bend     steps 3  net/abs -0.44

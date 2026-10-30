@@ -1,0 +1,31 @@
+name: actions-continue-on-error-check
+description: 'Free, read-only checker that scans GitHub Actions workflow YAML for jobs and steps with a literal continue-on-error: true -- places where a failure still leaves the run green -- zero-dependency CLI, no upload, no network calls.'
+stage: prototype
+
+owner: duncan
+
+# Not a scored pipeline candidate: same shape as the other actions-* checkers.
+# No existing checker in ventures/ reads continue-on-error (grep, 2026-10-27).
+# Liability: mechanical read-only line scanner, no advice-of-record.
+hypotheses:
+  - claim: 'A maintainer who wonders why a required check never fails will run this and find the continue-on-error that masks it.'
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - No external repository is found using check.py within 90 days of it being reachable from the published site.
+
+links:
+  production: null
+  analytics: null

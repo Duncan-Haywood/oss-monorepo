@@ -157,7 +157,7 @@ test("clopening page's rest-gap table is what the engine returns for the sample 
   const { parseStaff, parseShifts, buildRoster, sampleStaff, sampleShifts } = await import("./calc.mjs");
   const staff = parseStaff(sampleStaff()).staff, slots = parseShifts(sampleShifts()).slots;
   const html = page("how-to-avoid-clopening.html");
-  for (const [h, open, covered, pay] of [[0, 2, 219, 3671], [8, 3, 216, 3620], [10, 3, 216, 3622], [12, 3, 216, 3630], [14, 5, 215, 3611]]) {
+  for (const [h, open, covered, pay] of [[0, 2, 219, 3671], [8, 3, 216, 3620], [10, 3, 216, 3622], [12, 3, 216, 3630], [14, 4, 218, 3662]]) {
     const r = buildRoster(staff, slots, { minRestHours: h });
     assert.equal(r.unfilled.length, open, `${h}h open`);
     assert.equal(r.hours, covered, `${h}h covered`);
@@ -260,11 +260,11 @@ test("call-out page's table is what the engine returns for the sample cafe, with
     return o;
   };
   const a = study(sampleStaff());
-  assert.deepEqual([a.cases, a.patched, a.covered, Math.min(...a.moves), Math.max(...a.moves)], [29, 0, 21, 2, 19]);
+  assert.deepEqual([a.cases, a.patched, a.covered, Math.min(...a.moves), Math.max(...a.moves)], [29, 0, 24, 2, 19]);
   const b = study(sampleStaff() + "\nHal, 15, 24, 0, any");
   assert.deepEqual([b.cases, b.patched, b.covered, Math.min(...b.moves), Math.max(...b.moves)], [32, 1, 18, 13, 24]);
   const html = page("how-to-cover-a-shift-when-someone-calls-out.html");
-  for (const t of ["29", "32", "2 to 19", "13 to 24", "No warranty", "not legal, tax or financial advice"]) assert.ok(html.includes(t), t);
+  for (const t of ["29", "32", "2 to 19", "13 to 24", "24 of 29", "18 of 32", "No warranty", "not legal, tax or financial advice"]) assert.ok(html.includes(t), t);
   assert.match(page("sitemap.xml"), /how-to-cover-a-shift-when-someone-calls-out\.html/);
   assert.match(page("index.html"), /how-to-cover-a-shift-when-someone-calls-out\.html/);
   const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
@@ -285,7 +285,7 @@ test("14-15 year old page's table is what the engine returns for the sample cafe
   const html = page("scheduling-14-and-15-year-olds.html");
   const cleo = "Cleo, 15, 30, 12, Mon-Fri 15-23; Sat-Sun 8-23", eli = "Eli, 14, 24, 8, Mon/Wed/Fri 16-23; Sat-Sun 8-23";
   const withAges = (c, e) => sampleStaff().replace(cleo, cleo + (c ? `, age: ${c}` : "")).replace(eli, eli + (e ? `, age: ${e}` : ""));
-  for (const [c, e, open, covered, pay, hrs] of [[0, 0, 3, 216, 3622, 36], ["15", 0, 5, 200, 3382, 18], ["15", "14", 8, 181, 3114, 0], ["15 summer", "14 summer", 4, 213, 3578, 32]]) {
+  for (const [c, e, open, covered, pay, hrs] of [[0, 0, 3, 216, 3622, 36], ["15", 0, 5, 200, 3382, 18], ["15", "14", 7, 184, 3168, 0], ["15 summer", "14 summer", 3, 216, 3632, 32]]) {
     const p = parseStaff(withAges(c, e));
     assert.deepEqual(p.errors, []);
     const r = buildRoster(p.staff, slots, {});
@@ -390,7 +390,7 @@ test("widening page's table is what the engine returns for the sample cafe with 
     const r = buildRoster(p.staff, slots, { minRestHours: 10 });
     return [r.unfilled.length, r.hours, r.cost];
   };
-  const any = { Ana: [3, 216, 3622], Ben: [3, 216, 3622], Cleo: [1, 227, 3777], Dev: [3, 216, 3620], Eli: [2, 219, 3647], Fay: [3, 216, 3622], Gus: [3, 216, 3622] };
+  const any = { Ana: [3, 216, 3622], Ben: [3, 216, 3622], Cleo: [1, 232, 3870], Dev: [3, 216, 3620], Eli: [2, 224, 3736], Fay: [3, 216, 3622], Gus: [3, 216, 3622] };
   const cap = { Ana: [3, 216, 3622], Ben: [2, 224, 3750], Cleo: [3, 216, 3622], Dev: [3, 216, 3622], Eli: [3, 216, 3622], Fay: [2, 224, 3746], Gus: [3, 216, 3622] };
   for (let i = 1; i < base.length; i++) {
     const parts = base[i].split(", ");
@@ -404,6 +404,28 @@ test("widening page's table is what the engine returns for the sample cafe with 
   }
   assert.match(page("sitemap.xml"), /whose-availability-is-worth-widening\.html/);
   assert.match(page("index.html"), /whose-availability-is-worth-widening\.html/);
+  assert.ok(html.includes("No warranty"));
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
+});
+
+test("the open-shift preference select is labelled and feeds buildRoster's openShiftWeight", () => {
+  const html = page("index.html");
+  assert.match(html, /<label for="openpref">/);
+  assert.match(html, /openShiftWeight: \$\("#openpref"\)\.value === "shifts" \? 100 : 0/);
+});
+
+test("posted-schedule page's table is what eval/callout-churn-bench.mjs returns for the sample cafe", async () => {
+  const { run } = await import("./eval/callout-churn-bench.mjs");
+  const html = page("schedule-change-after-posting.html");
+  const r = run();
+  assert.equal(r.postedCost, 3622);
+  assert.equal(r.postedOpen, 3);
+  assert.deepEqual(r.rows.map((x) => [x.person, x.rebuild.others, x.rebuild.people, x.rebuild.owed, x.rebuild.open]),
+    [["Ana", 4, 2, 73, 4], ["Ben", 5, 2, 93, 4], ["Dev", 10, 4, 174, 4], ["Fay", 7, 3, 118, 3], ["Gus", 4, 2, 68, 3]]);
+  for (const x of r.rows) { assert.equal(x.patch.others, 0); assert.ok(html.includes(`<td>${x.person}</td><td class="n">${x.rebuild.others}</td><td class="n">${x.rebuild.people}</td><td class="n">$${x.rebuild.owed}</td><td class="n">${x.rebuild.open}</td>`), x.person); }
+  assert.match(page("sitemap.xml"), /schedule-change-after-posting\.html/);
+  assert.match(page("index.html"), /schedule-change-after-posting\.html/);
   assert.ok(html.includes("No warranty"));
   const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
   for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);

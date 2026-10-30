@@ -1,0 +1,5 @@
+{'k': 9, 'seed': 1, 'loss': 33393101.125, 'secs': 2565}
+{'k': 9, 'seed': 0, 'loss': 37989930.0, 'secs': 2566}
+{'k': 8, 'seed': 1, 'loss': inf, 'secs': 2568}
+{'k': 8, 'seed': 0, 'loss': inf, 'secs': 2580}
+DONE

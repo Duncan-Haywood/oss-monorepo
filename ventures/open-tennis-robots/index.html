@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b78'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EO%3C/text%3E%3C/svg%3E">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Open Tennis Robots — open-source tennis ball machine with a catch net, and a ball pickup robot</title>
   <meta name="description" content="Build your own tennis ball machine that catches your returns with a moving net, and a robot that picks up tennis balls while you practise. Open-source hardware designs, firmware and software (MIT), plus a shot simulator you can try in your browser.">
@@ -43,12 +43,17 @@
     .check { display: flex; gap: 8px; align-items: center; font-weight: 400; }
     .check input { width: auto; }
     @media (max-width: 720px) { body { padding: 16px; } }
+      .cta-row { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 14px; }
+    a.cta { display: inline-block; padding: 11px 18px; border-radius: 8px; background: #2f6b2a; color: #fff; font-weight: 700; text-decoration: none; }
+    a.cta.alt { background: #e3ece1; color: #2f6b2a; }
+    a.cta:focus-visible { outline: 3px solid #2f6b2a; outline-offset: 2px; }
   </style>
 </head>
 <body>
   <header>
     <p class="note">OPEN TENNIS ROBOTS · OPEN-SOURCE HARDWARE + SOFTWARE · MIT LICENCE</p>
     <h1>A tennis ball machine that catches your returns, and a robot that picks up the rest</h1>
+    <p class="cta-row"><a class="cta" href="#feeder">Try the shot planner</a></p>
     <p>Two open-source robots for solo and coached practice. The <strong>feeder</strong> fires drills with topspin or backspin, watches your shot with two cameras, and <strong>slides a 3 m catch net to where your return will arrive</strong>. Caught balls roll back into its hopper. The <strong>collector</strong> roams the court and <strong>picks up tennis balls while you play</strong>, staying out of the player's and coach's zones.</p>
     <p>The <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/open-tennis-robots">designs, firmware and software</a> are free to build, change and sell. Try the shot planner below; it runs the same flight model the robot uses.</p>
     <p class="note">Status: the collector has a complete manufacturing package (v0.2); the feeder is a v0.1 design whose CAD is next. Everything has been simulated, but no robot has been built yet. Not engineering or safety advice.</p>

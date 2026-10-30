@@ -1,0 +1,25 @@
+airline passengers (season grows with level)
+  raw no trend steps 20  warning yes  1950-06+ 1951-01+ 1951-12+ 1952-10+ 1953-03+ 1953-06- 1954-03+ 1954-09+ 1955-01+ 1955-07+ 1955-12+ 1956-06+ 1957-01+ 1957-06+ 1958-06+ 1959-01+ 1959-03+ 1959-08+ 1960-01+ 1960-04+
+  raw bend     steps  8  warning yes  1953-03+ 1953-06- 1955-01+ 1955-12+ 1957-02+ 1958-02- 1959-03+ 1960-01+
+  log no trend steps 21  warning yes  1949-10+ 1950-06+ 1950-12+ 1951-03+ 1951-11+ 1952-06+ 1952-10+ 1953-03+ 1953-06- 1954-03+ 1954-07+ 1955-01+ 1955-06+ 1955-12+ 1956-06+ 1957-01+ 1957-06+ 1958-06+ 1959-02+ 1959-08+ 1960-01+
+  log bend     steps 10  warning yes  1950-06+ 1951-01+ 1952-10+ 1953-03+ 1953-06- 1953-11- 1954-11+ 1955-07+ 1958-02- 1960-08-
+UK gas (season grows with level)
+  raw no trend steps 15  warning yes  1966Q4+ 1970Q2+ 1970Q4- 1971Q2+ 1972Q3+ 1974Q3+ 1976Q3+ 1978Q2+ 1979Q1+ 1979Q3- 1980Q1+ 1981Q4+ 1983Q2+ 1984Q4+ 1985Q4+
+  raw bend     steps  7  warning yes  1970Q2+ 1970Q4- 1971Q2+ 1974Q3+ 1979Q1+ 1979Q3- 1985Q4+
+  log no trend steps 13  warning yes  1962Q2+ 1965Q3+ 1967Q3+ 1970Q2+ 1970Q4- 1971Q3+ 1972Q4+ 1974Q3+ 1976Q4+ 1978Q2+ 1981Q4+ 1984Q4+ 1986Q2+
+  log bend     steps  6  warning yes  1969Q4- 1970Q2+ 1970Q4- 1971Q3+ 1972Q4+ 1982Q2-
+Johnson & Johnson EPS (season grows with level)
+  raw no trend steps 17  warning yes  1964Q2+ 1966Q3+ 1968Q3+ 1970Q1+ 1970Q4+ 1971Q4+ 1972Q4+ 1973Q3+ 1974Q3+ 1975Q2+ 1976Q2+ 1977Q2+ 1977Q4+ 1978Q2+ 1979Q1+ 1979Q3+ 1980Q2+
+  raw bend     steps  5  warning no   1962Q3- 1970Q2+ 1977Q4+ 1979Q1+ 1980Q1+
+  log no trend steps 14  warning yes  1961Q3+ 1963Q4+ 1965Q1+ 1966Q3+ 1968Q2+ 1968Q4+ 1970Q1+ 1970Q4+ 1971Q4+ 1973Q1+ 1974Q3+ 1976Q2+ 1977Q4+ 1979Q3+
+  log bend     steps  3  warning no   1960Q3- 1962Q1- 1970Q2+
+UK driver deaths (fixed season; 1973 fuel-crisis dip and rebound, 1983 seat-belt law)
+  raw no trend steps  6  warning yes  1970-07+ 1972-11+ 1973-11- 1974-06+ 1974-11- 1983-02-
+  raw bend     steps  4  warning yes  1973-11- 1974-06+ 1974-11- 1983-02-
+  log no trend steps  6  warning yes  1970-02+ 1972-01+ 1973-11- 1974-06+ 1974-11- 1983-02-
+  log bend     steps  4  warning yes  1973-11- 1974-05+ 1974-12- 1983-02-
+Nottingham temperatures (fixed season, no change)
+  raw no trend steps  4  warning no   1922-01- 1924-05+ 1928-12- 1929-05+
+  raw bend     steps  3  warning no   1921-11- 1929-01- 1929-03+
+  log no trend steps  4  warning no   1922-01- 1924-04+ 1929-01- 1929-03+
+  log bend     steps  2  warning no   1929-01- 1929-03+

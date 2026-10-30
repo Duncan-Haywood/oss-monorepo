@@ -61,7 +61,7 @@ Ticked items are on `main`.
       plan `blocking: {rows, fire}` adds evenly spaced flat-2x rows between
       neighbouring full-height studs, skips openings, and `fire` adds enough
       rows that no stud run passes 10 ft; they join the cut list and order.
-      The page has the controls (rows, fire blocking; 2026-10-21, saved in plan files). Not yet: staggered blocks, nailers for horizontal sheets.
+      The page has the controls (rows, fire blocking; 2026-10-21, saved in plan files). Staggered blocks landed 2026-10-29 (`blocking.stagger`: alternate bays sit 1.5 in above and below the row line; fire-block rows allow for it; engine and plan files, not the page). Not yet: nailers for horizontal sheets.
 - [x] **Corner plate laps** (2026-10-21, `plateLaps` in `engine.mjs`): top plate
       through one way, cap the other, piece lengths change, totals do not. Tee
       laps (2026-10-21, wall `tee: {wall, at, end}`): the partition's cap runs
@@ -71,17 +71,17 @@ Ticked items are on `main`.
       landed 2026-10-22 (plan `advanced`, page menu; measured on the example house:
       -4.5% order cost, README). Single top plate where framing stacks
       landed 2026-10-22 (`advanced.singleTopPlate`; no cap plate, tie count, -8.8% on the example house). Not yet: right-sized headers from a user-supplied table.
+- [x] Deck framing (2026-10-30, `deck.mjs`, CLI `--deck`): joists, ledger or rims, dropped beam, posts, footings, decking rows, hardware count; hand-arithmetic tests, no real deck plan yet. Not yet: stairs tied to the deck, picture-frame borders, railing sections, a page card.
 - [x] **Gable walls** (2026-10-21, `layoutGable` in `engine.mjs`): wall `gable: {pitch}` (rise per 12 in), symmetric about the middle; studs cut to the long point of the angled cut, top and cap plates along the slope with joints over studs. Openings below the eave line landed 2026-10-21. Openings that rise into the triangle landed 2026-10-21 (header may top out above the eave line; cripples only where the roof clears it; a header that meets the slope at its lower end is rejected; engine and plan files, not the page). Sheathing the triangle landed 2026-10-22 (vertical sheets, own order). Not yet (the off-centre peak landed in PR 9202), walls that step in height.
 - [x] **Shop drawings** (2026-10-21, `drawings.mjs`): one printable sheet per
       wall (SVG elevation with member marks, dimension chain, parts table; CLI
-      `--drawings`, page button). Per-panel weights and cut lists (plates trimmed to the panel) landed 2026-10-22 in the shop drawings. Not yet: sheathing weight on panels, per-panel sheets that split a long wall
-      into transportable panels, sheathing marks, and a PDF without the browser.
+      `--drawings`, page button). Per-panel weights and cut lists (plates trimmed to the panel) landed 2026-10-22 in the shop drawings. Sheathing weight on panels (gable walls too, 2026-10-29) and per-panel sheets landed. Not yet: sheathing marks. A PDF without the browser landed 2026-10-27 (`pdf.mjs`, CLI `--pdf`, page button).
 
 ### 2. Getting the house in without typing
 
-- [ ] A browser plan editor: draw walls on a grid, drop doors and windows,
+- [x] (2026-10-29, `sketch.mjs`, page card; click-checked in Chromium; no move/resize or tracing yet) A browser plan editor: draw walls on a grid, drop doors and windows,
       emit the plan JSON (corners and tees detected from geometry).
-- [ ] Import from DXF floor plans (wall centre lines on a layer) and from IFC
+- [x] DXF floor plans landed 2026-10-27 (`dxf.mjs`, CLI and page; centre lines, tees, openings from lines; hand-built files only, no real plan yet). Still open: IFC
       `IfcWall` / `IfcOpeningElement`, both parsed in the browser.
 
 ### 3. The rest of the shell
@@ -95,8 +95,10 @@ Ticked items are on `main`.
       from a footprint and pitch (trusses as a purchased line), ridge, ceiling
       joists, collar ties, roof sheathing, underlayment and shingle squares.
       Hip roofs landed 2026-10-22 (`shape: "hip"`: commons, hips, jacks, trapezoid and triangle sheathing). Not yet: valleys, the page.
-- [x] Foundation quantities (2026-10-24, `foundation.mjs`, CLI `--foundation`): footing, stem wall and slab (or a monolithic slab with thickened edge) concrete from closed-form geometry, trucks and short-load warning, rebar with lap splices and weight, form area and plywood, gravel base, vapor barrier. Hand-arithmetic tests only. Not yet: the page, corner bars, anchor bolts, piers and columns, walkout/stepped footings, checking against a real foundation plan.
-- [ ] Interior: drywall sheet counts per wall and ceiling landed 2026-10-24 (`drywall.mjs`, CLI `--drywall`, hand-count tests; joints not on studs, no page). Wall-cavity insulation bags landed 2026-10-24 (`insulation.mjs`, CLI `--insulation`, cavity measured from placed members; hand-arithmetic tests, no page). Not yet: joints on studs, ceiling/attic insulation, trim.
+- [x] Foundation quantities (2026-10-24, `foundation.mjs`, CLI `--foundation`): footing, stem wall and slab (or a monolithic slab with thickened edge) concrete from closed-form geometry, trucks and short-load warning, rebar with lap splices and weight, form area and plywood, gravel base, vapor barrier. Hand-arithmetic tests only. Corner L-bars landed 2026-10-28 (`cornerBars`, page select; hand-arithmetic test). Anchor bolt spacing and end distance on the page 2026-10-27. Not yet: piers and columns, walkout/stepped footings, checking against a real foundation plan.
+- [ ] Interior: drywall sheet counts per wall and ceiling landed 2026-10-24 (`drywall.mjs`, CLI `--drywall`, hand-count tests; joints not on studs, no page). Wall-cavity insulation bags landed 2026-10-24 (`insulation.mjs`, CLI `--insulation`, cavity measured from placed members; hand-arithmetic tests, no page). Joints on studs landed 2026-10-26 (walls; page control `Wall end joints` 2026-10-27). Insulation bags (wall, rim, attic) are in the budget from 2026-10-27. Trim (baseboard, casing boards) landed 2026-10-28 (`trim.mjs`, CLI `--trim`, budget lines; hand tests, no page). Shoe moulding landed 2026-10-29 (`trim.shoe`, own stock, hand test). Trim page controls for shoe moulding and scarf overlap landed 2026-10-29 (source-asserted test only, not click-checked). Not yet: ceiling joints on joists.
+
+- [x] Exterior siding, house wrap and corner boards (2026-10-28, `siding.mjs`, CLI `--siding`, budget lines; hand tests; page card, browser-checked on the example house). Soffit, fascia and J-channel landed 2026-10-28 (`eaves.mjs`, CLI `--eaves`, hand tests, no page). Not yet: gables, window and door trim, vertical siding, a real siding order.
 
 ### 4. Time and money
 
@@ -104,17 +106,16 @@ Ticked items are on `main`.
       line to the model (2026-10-24, `budget.mjs`, CLI `--budget`, plan `prices`):
       lumber lines are the cutting-stock order's cost, sheets/bundles/concrete/rebar
       are the model's counts times typed prices, tax and contingency stack, and a
-      quantity with no price is listed as unpriced, never guessed. Materials only.
-      Not yet: the page, labor lines, a CSV.
+      quantity with no price is listed as unpriced, never guessed. Labor lines (typed `labor*` rates), the page and a CSV (page button; CLI `--budget --csv`, 2026-10-27) have landed.
 - [x] A new-home schedule (2026-10-24, `schedule.mjs`, CLI `--schedule`, plan key
       `schedule: {start, crews, activities: [{id, name, days, after, crew, lag}], slips: [{id, days}]}`):
       critical path over the builder's own activity list and durations (forward and
       backward pass, slack, cycle and unknown-predecessor errors), weekdays only, `lag`
       for cure time and inspection waits, serial greedy crew levelling, and what a
       slipped activity does to the finish date. No durations are shipped. Hand-checked
-      networks in `schedule.test.mjs`. Not yet: the page, holidays and weather, resource
+      networks in `schedule.test.mjs`. Holidays and typed weather days landed 2026-10-29 (calendar dates only). Not yet: weather forecasts, resource
       calendars, activity templates tied to the takeoff's quantities, a real builder's list.
-- [ ] Bid leveling against the model's quantities (siblings:
+- [x] Bid leveling against the model's quantities (2026-10-28, `bidlevel.mjs`, CLI `--level-bids`, plan key `bids`; hand-made bids only, no real sub's bid checked, no page) (siblings:
       `bid-leveling-worksheet`, `estimate-maker`).
 
 ### 5. Research threads
@@ -122,7 +123,6 @@ Ticked items are on `main`.
 - [ ] How much does an optimised order save over the allowance methods
       builders use? Needs real plans (public permit sets or open house plans
       with a permissive licence) rather than our invented house.
-- [ ] Advanced framing's material savings, measured on the same models with
-      the same engine.
-- [ ] Panelised vs stick framing: what the model can say about labour from the
-      piece counts (cuts, members, nails) without inventing labour rates.
+- [x] Advanced framing's material savings, measured on the same models with
+      the same engine (2026-10-29, `advanced-bench.mjs`: all details + 24 in spacing -24 to -26% lumber cost on two houses; README; lumber only, no code check).
+- [x] Panelised vs stick framing, from piece counts (2026-10-29, `panelised-bench.mjs`: members handled, saw cuts and site nails; no labour rate; two generated or invented houses, no real time study; README). Not yet: a real crew's time study to turn counts into hours.

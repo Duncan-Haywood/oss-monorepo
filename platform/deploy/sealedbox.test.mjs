@@ -50,3 +50,9 @@ test('the PRNG hook fills the first byte too', () => {
   for (let i = 0; i < 64; i++) if (nacl.randomBytes(32)[0] !== 0) nonzero++;
   assert.ok(nonzero > 0, 'byte 0 was zero in 64 draws');
 });
+
+test('open returns null, not a throw, for input too short to hold a sealed box', () => {
+  const kp = nacl.box.keyPair();
+  assert.equal(open(new Uint8Array(0), kp.publicKey, kp.secretKey), null);
+  assert.equal(open(new Uint8Array(5), kp.publicKey, kp.secretKey), null);
+});

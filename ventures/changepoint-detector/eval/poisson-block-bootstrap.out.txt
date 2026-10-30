@@ -1,0 +1,4 @@
+counts, mean 10, n=200 | false alarms plain / bootstrap | detection (rate x1.5 at 100) plain / bootstrap
+log-rate AR(1) sd 0 | 5% / 4% | 98% / 98%
+log-rate AR(1) sd 0.2 | 89% / 11% | 83% / 73%
+log-rate AR(1) sd 0.4 | 100% / 74% | 86% / 63%

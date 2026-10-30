@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-26",
+  "session": "https://claude.ai/code/session_01QwCPXVMjHqkA5rehHyrJe9",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-26T06:59:31Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 5): einvoice-preflight Malta mandate page",
+  "projects": [
+    "einvoice-preflight"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/10582",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Scheduled prompt asked for revenue-generating venture work, so I ran a venture slice instead of the routed creative track.",
+      "did": "deepened einvoice-preflight",
+      "result": "page shipped"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Router drew creative; the scheduled prompt asked for revenue ventures, so took flagship 5. Malta page from search excerpts (ec.europa.eu, vatupdate unreachable via WebFetch). node --test *mandate*.test.mjs page.test.mjs: 287 pass.",
+  "corrections": [],
+  "redteam": null
+}

@@ -1,0 +1,18 @@
+curves with a bracketed efficiency peak: 151; propellers: 34
+Re75 range 1.48e+04 to 1.24e+05; 5th/95th pct 3.21e+04 / 1.01e+05
+propellers with >=3 RPMs and >=0.2 decade of Re75: 34; median span 0.29 decades
+pooled within-propeller slope d(eta_max)/d(log10 Re75): 0.210
+mean of per-propeller slopes 0.207, 95% bootstrap CI [0.179, 0.233], share positive 0.97
+extrapolated eta_max drop for Re75 x 0.0316 (n = 0.1), in points: 31.0 [26.9, 34.9]
+saturating fit b=0.5: a=40.75 [34.75,47.46]; eta drop 1e5 -> 3.2e4 (inside data) 9.9 pts [8.4,11.5]; 1e6 -> 3.2e4 (n=0.1 vs an assumed full-size Re75 1e6, outside data) 18.7 pts [15.9,21.8]
+saturating fit b=0.2: a=4.03 [3.55,4.52]; eta drop 1e5 -> 3.2e4 (inside data) 10.3 pts [9.1,11.6]; 1e6 -> 3.2e4 (n=0.1 vs an assumed full-size Re75 1e6, outside data) 25.2 pts [22.2,28.3]
+  apc29ff: 5 curves, Re75 4e+04..6.9e+04, eta_max mean 0.625
+  apce: 52 curves, Re75 3.4e+04..9.4e+04, eta_max mean 0.689
+  apcff: 8 curves, Re75 1.5e+04..6.4e+04, eta_max mean 0.553
+  apcsf: 31 curves, Re75 5e+04..1.2e+05, eta_max mean 0.657
+  apcsp: 55 curves, Re75 1.5e+04..8.8e+04, eta_max mean 0.632
+binned eta_max (all APC curves):
+  Re75 1.0e+04..2.0e+04: n=   4  mean 0.555  sd 0.069
+  Re75 2.0e+04..4.0e+04: n=  13  mean 0.603  sd 0.090
+  Re75 4.0e+04..8.0e+04: n= 103  mean 0.657  sd 0.066
+  Re75 8.0e+04..1.6e+05: n=  31  mean 0.669  sd 0.074

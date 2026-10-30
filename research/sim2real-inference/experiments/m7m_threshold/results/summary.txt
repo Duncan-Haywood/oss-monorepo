@@ -1,0 +1,6 @@
+cells: pendulum 168, cart-pole 168; W_T = median of 40 twin-mean betting intervals
+  pendulum W_T by (N, f): (4000,0.1) 0.0132, (4000,0.5) 0.0113, (20000,0.1) 0.0067, (20000,0.5) 0.0059
+  cartpole W_T by (N, f): (20000,0.1) 0.0019, (20000,0.5) 0.0017, (100000,0.1) 0.0009, (100000,0.5) 0.0008
+wins: pendulum 99/168, cart-pole 7/168
+x = w_real / W_T: cut fitted on pendulum 3.1945 (train accuracy 0.750); cart-pole accuracy 0.042
+w_real only: cut fitted on pendulum 0.0472 (train accuracy 0.637); cart-pole accuracy 0.946

@@ -1,0 +1,6 @@
+case                                     cells   MSE_raw   MSE_cal    v_real       n*      r
+m4 transcription (eggplant n=30)            36    0.0212    0.0138    0.0042     10.1  0.900
+upstream, eggplant n=30                     36    0.0213    0.0137    0.0042     10.2  0.899
+upstream, eggplant n=24                     36    0.0212    0.0136    0.0043     10.2  0.899
+upstream + place_apple, eggplant n=30       42    0.0190    0.0119    0.0041     11.2  0.907
+upstream + place_apple, eggplant n=24       42    0.0189    0.0118    0.0042     11.3  0.907

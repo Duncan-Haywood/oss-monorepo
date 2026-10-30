@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b39'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EC%3C/text%3E%3C/svg%3E">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Changepoint Detector — find when a time series changed (PELT + Bayesian)</title>
   <meta name="description" content="Free changepoint detection for any time series. Paste a CSV and see when the level or volatility changed, with exact PELT segmentation and Bayesian online changepoint probabilities (Adams &amp; MacKay 2007; Killick et al. 2012). Runs in your browser; nothing is uploaded.">
@@ -38,12 +38,17 @@
     .summary { font-size: 1.05rem; background: #f2f7f9; border-radius: 10px; padding: 14px; }
     .error { color: #7d1f16; font-weight: 600; }
     pre { background: #f6f8fa; padding: 12px; border-radius: 8px; overflow-x: auto; font-size: .8rem; }
+      .cta-row { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 14px; }
+    a.cta { display: inline-block; padding: 11px 18px; border-radius: 8px; background: #1f5f86; color: #fff; font-weight: 700; text-decoration: none; }
+    a.cta.alt { background: #dfeaf2; color: #164a69; }
+    a.cta:focus-visible { outline: 3px solid #164a69; outline-offset: 2px; }
   </style>
 </head>
 <body>
   <header>
     <p class="note">CHANGEPOINT DETECTOR · RESEARCH ALGORITHMS IN YOUR BROWSER · NOTHING UPLOADED</p>
     <h1>When did your series change?</h1>
+    <p class="cta-row"><a class="cta" href="#data-h">Analyse a series</a> <a class="cta alt" href="#data-h" id="cta-example">Try the Nile river example</a></p>
     <p>Paste or upload a time series — sales, sign-ups, sensor readings, latency, prices — and find the points where its <strong>level</strong> or its <strong>volatility</strong> shifted. Two published methods run side by side: <strong>PELT</strong> returns the exact best segmentation, and <strong>Bayesian online changepoint detection</strong> gives the probability that a change happened at each point.</p>
     <p class="note">Nothing you enter leaves this browser tab. Statistical analysis of data you supply, not advice. Not legal, tax, or financial advice.</p>
   </header>
@@ -59,6 +64,7 @@
       <div><label for="column">Value column (name or number; blank = last numeric)</label><input id="column" type="text" placeholder="e.g. volume"></div>
       <div><label for="model">Look for a change in</label>
         <select id="model"><option value="mean">Level (mean)</option><option value="meanvar">Level and volatility</option><option value="trend">Level or slope (trending series)</option><option value="poisson">Rate of counts (Poisson)</option></select></div>
+      <div><label for="robust"><input id="robust" type="checkbox"> Heavy-tailed noise: Laplace cost, and outliers clipped in the Bayesian view (level and volatility only; fewer false alarms from outliers, less power on clean Gaussian data)</label></div>
       <div><label for="penalty">Penalty per change (PELT)</label>
         <select id="penalty"><option value="bic">BIC (default)</option><option value="aic">AIC (finds more)</option><option value="hannan-quinn">Hannan-Quinn</option><option value="custom">Custom number…</option></select></div>
       <div><label for="penaltyValue">Custom penalty</label><input id="penaltyValue" type="number" min="0" step="any" value="10" disabled></div>
@@ -67,6 +73,7 @@
       <div><label for="knotMargin">Where slope changes may sit</label><select id="knotMargin"><option value="0.1">Middle 80% (default; finds early or late bends)</option><option value="0.2">Middle 60% (the old default)</option></select></div>
       <div><label for="overdispersion">Clumpy or sticky counts (counts model)</label><select id="overdispersion"><option value="">Assume Poisson</option><option value="1">Scale the penalty by the dispersion</option><option value="nb">Negative-binomial cost</option></select></div>
       <div><label for="holidays">Known holidays (counts model; dates or row numbers, comma-separated)</label><input id="holidays" type="text" placeholder="e.g. 2024-12-25, 2025-01-01"></div>
+      <div><label for="log"><input id="log" type="checkbox"> Take logs first (level, volatility or slope models; positive values, e.g. sales or prices that grow by a percentage)</label></div>
       <div><label for="bursts"><input id="bursts" type="checkbox"> Cut back isolated spikes before fitting (counts model; e.g. a post going viral)</label></div>
       <div><label for="drift"><input id="drift" type="checkbox"> Seasonal shape drifts (needs a period)</label></div>
       <div><label for="period">Seasonal period in points (0 = none)</label><input id="period" type="number" min="0" step="1" value="0"></div>
@@ -139,6 +146,7 @@
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>More research algorithms on your own data: <a href="../conformal-prediction-intervals/">conformal prediction intervals</a> and the <a href="../matrix-profile-explorer/">matrix profile explorer</a> for repeated patterns and anomalies. Testing a change you made on purpose? The <a href="../ab-test-significance-calculator/">A/B test significance calculator</a>.</p>
     <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  <p class="more-pages">Also: <a href="how-do-you-know-if-a-time-series-really-changed.html">How Do You Know If a Time Series Really Changed? (Free Changepoint Detection)</a></p>
   </footer>
 
   <script type="module">
@@ -180,7 +188,7 @@
       $("#error").textContent = "";
       const penalty = $("#penalty").value === "custom" ? Number($("#penaltyValue").value) : $("#penalty").value;
       try {
-        last = analyze({ csv: $("#csv").value, column: $("#column").value.trim() || null, model: $("#model").value, period: Number($("#period").value) || 0, drift: $("#drift").checked, overdispersion: $("#overdispersion").value === "nb" ? "nb" : $("#overdispersion").value === "1", jointKnots: $("#jointKnots").checked, bursts: $("#bursts").checked, holidays: $("#holidays").value.split(",").map((h) => h.trim()).filter(Boolean), knotMargin: Number($("#knotMargin").value), trend: $("#trend").value === "1" ? true : $("#trend").value || false, ar1: $("#ar1").value === "joint" ? "joint" : $("#ar1").value === "1", penalty, hazardLambda: Number($("#hazard").value), threshold: Number($("#threshold").value) });
+        last = analyze({ csv: $("#csv").value, column: $("#column").value.trim() || null, model: $("#model").value, robust: $("#model").value === "meanvar" && $("#robust").checked, period: Number($("#period").value) || 0, drift: $("#drift").checked, overdispersion: $("#overdispersion").value === "nb" ? "nb" : $("#overdispersion").value === "1", jointKnots: $("#jointKnots").checked, bursts: $("#bursts").checked, log: $("#log").checked, holidays: $("#holidays").value.split(",").map((h) => h.trim()).filter(Boolean), knotMargin: Number($("#knotMargin").value), trend: $("#trend").value === "1" ? true : $("#trend").value || false, ar1: $("#ar1").value === "joint" ? "joint" : $("#ar1").value === "1", penalty, hazardLambda: Number($("#hazard").value), threshold: Number($("#threshold").value) });
       } catch (e) { $("#results").hidden = true; $("#error").textContent = e.message; return; }
       const r = last;
       $("#summary").textContent = r.summary + (r.bursts && r.bursts.length ? ` Spikes cut back before fitting: ${r.bursts.slice(0, 10).map((b) => `${b.label} (${b.value} kept as ${b.keptAs})`).join(", ")}${r.bursts.length > 10 ? `, and ${r.bursts.length - 10} more` : ""}.` : "");
@@ -215,5 +223,6 @@
     $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
     if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
   </script>
+<script>document.getElementById("cta-example").addEventListener("click",function(){var b=document.getElementById("example");if(b)b.click();});</script>
 </body>
 </html>

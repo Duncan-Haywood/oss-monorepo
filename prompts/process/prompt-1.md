@@ -52,6 +52,9 @@ on Verify or backlog edits alone usually falls short: 17 of the 61 process/1 run
 fix to a tool, check or file that the recent `doc_friction` entries
 (`promptctl.py measure`, "Doc friction by file") name. A result written to a
 backlog item is bookkeeping, not the deliverable.
+`python3 platform/ci/main_health.py` (40 s to 3 min: use `run_in_background`, then `wait_for.py out.log`; ends with a DONE line; includes `promptctl validate`) runs every argument-free CI check on main
+and lists the red ones: the quickest way to find a live fault (five recent runs
+reported not knowing it).
 
 A good run often mixes modes. You might verify one item, solve another, and
 file the two new problems you hit along the way.
@@ -81,6 +84,14 @@ file the two new problems you hit along the way.
 - For a random sample of merged PRs, list `git log origin/main --merges
   --since=<date> --format=%s` and pick with `shuf --random-source=<(yes)`, so
   the next run can repeat the pick.
+- **Verify from a cloud session.** The proxy answers 403 for
+  `duncan-haywood.github.io`, so a live metric (llms.txt bytes, sitemap
+  `<lastmod>`) cannot be read. Run the build tests that bound it
+  (`node --test --test-name-pattern=<word> platform/pages/*.test.mjs`, in
+  `run_in_background`; over 120 s; wait with `python3 platform/ci/wait_for.py out.log`, since foreground `sleep` is blocked) and write the result as "verified by
+  build tests; live site unreachable from cloud", leaving the live check
+  to a run that can reach it. `measure` takes ~70 s: background it too, or
+  pass `--no-fetch`.
 - Another process run may be working at the same time. That is fine: put the
   backlog id or the lens in your PR title, and check open PRs before you
   start.

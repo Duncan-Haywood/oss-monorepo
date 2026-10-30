@@ -1,0 +1,4 @@
+noise, n=200 | false alarms plain / bootstrap | detection (jump 2 sd) plain / bootstrap
+AR(1) 0 | 5% / 1% | 100% / 100%
+AR(1) 0.3 | 80% / 13% | 98% / 98%
+AR(1) 0.5 | 100% / 53% | 98% / 94%

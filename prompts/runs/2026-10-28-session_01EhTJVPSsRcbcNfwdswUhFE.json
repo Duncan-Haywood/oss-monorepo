@@ -1,0 +1,43 @@
+{
+  "date": "2026-10-28",
+  "session": "https://claude.ai/code/session_01EhTJVPSsRcbcNfwdswUhFE",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: continue work on the repo (revenue products brief)",
+  "input_sha256": "bb7afb240d89015509cac22de111ac7a1e1a091ef79bc19d99591d260e396b82",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-28T04:00:45Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 6): clique cut for 12x30 gap",
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": 11035,
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-10-28-why-a-better-cut-cannot-close-this-scheduling-gap.md"
+  ],
+  "goal": null,
+  "notes": "Measured four LP relaxations on 12x30 week 2 with eval/relaxation-check.py (pairwise 46, cliques 68, cover cuts 68.4, Dantzig-Wolfe 72.33 vs floor 72, optimum 75). Clique cut dropped; flagship next rewritten to branch-and-price. No product code changed, so no venture suite run. 2027 IRS revenue procedure still not out (web search).",
+  "corrections": [],
+  "redteam": null
+}

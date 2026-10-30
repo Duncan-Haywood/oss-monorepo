@@ -1,0 +1,8 @@
+airline (growing season)         no trend drift warns yes  drift steps 20  multiplicative steps 22  window: 3 steps -> 6 multiplicative steps near it
+airline (growing season)         bend     drift warns yes  drift steps 8  multiplicative steps 15  window: 3 steps -> 5 multiplicative steps near it
+UK gas (growing season)          no trend drift warns yes  drift steps 15  multiplicative steps 14  window: 3 steps -> 1 multiplicative steps near it
+UK gas (growing season)          bend     drift warns yes  drift steps 7  multiplicative steps 10  window: 3 steps -> 0 multiplicative steps near it
+J&J (growing season)             no trend drift warns yes  drift steps 17  multiplicative steps 16  window: 3 steps -> 4 multiplicative steps near it
+J&J (growing season)             bend     drift warns no   drift steps 5  multiplicative steps 8  window: none
+UK driver deaths (1973 shock)    no trend drift warns yes  drift steps 6  multiplicative steps 6  window: 4 steps -> 4 multiplicative steps near it
+UK driver deaths (1973 shock)    bend     drift warns yes  drift steps 4  multiplicative steps 9  window: 3 steps -> 4 multiplicative steps near it

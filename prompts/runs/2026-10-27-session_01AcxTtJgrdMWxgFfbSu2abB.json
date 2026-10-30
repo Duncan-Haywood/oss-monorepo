@@ -1,0 +1,55 @@
+{
+  "date": "2026-10-27",
+  "session": "https://claude.ai/code/session_01AcxTtJgrdMWxgFfbSu2abB",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-27T05:09:23Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship 1 ai-bookkeeper: verify tax figures against Pub. 1099 (2026)",
+  "projects": [
+    "ai-bookkeeper"
+  ],
+  "pr": 10814,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/ai-bookkeeper/README.md",
+      "issue": "README says irs.gov is refused by the proxy; probe showed PDFs under /pub/irs-pdf and irs-drop return 200 now."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "why": "Took a small verification slice rather than a milestone; the open flagship items need real-world data not available here.",
+      "did": "closed a from-memory caveat",
+      "result": "landed"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-27-ai-bookkeeper-irs-pdfs-readable.md"
+  ],
+  "goal": null,
+  "notes": "Small slice: irs.gov PDFs now readable; Pub 1099 (2026) confirms 1099-K thresholds, 24% backup rate, $2,000 line. form1099k.test.mjs 8/8. 2027 rev proc still unpublished. Did not run venture-preflight (comment/README-only change). No agent doc written.",
+  "corrections": [],
+  "redteam": null
+}

@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-28",
+  "session": "https://claude.ai/code/session_01AcxTtL1bHHL8xoM7acUP9e",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-28T04:08:30Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 11037,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "ai-bookkeeper next: items mostly need real exports no session has; only state-page reads were doable, and guessed state URLs mostly 404/403."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-10-28-missouri-sales-tax-due-dates.md"
+  ],
+  "goal": null,
+  "notes": "Small slice: Missouri due dates read from dor.mo.gov FAQ, pinned in test (32 pass). Preset needed no change. Other state pages unreachable. No venture-preflight run (no new venture; test-only change).",
+  "corrections": [],
+  "redteam": null
+}

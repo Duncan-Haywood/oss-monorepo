@@ -186,6 +186,24 @@ class MainCli(unittest.TestCase):
             )
         self.assertEqual(rc, 1)
 
+    def test_gap_message_is_singular_for_one_directory_and_plural_for_two(self):
+        import contextlib
+        import io
+        import tempfile
+
+        def report(dirs):
+            with tempfile.TemporaryDirectory() as td:
+                tmp_path = Path(td)
+                claude_md = self._write_repo(tmp_path, dirs)
+                buf = io.StringIO()
+                with contextlib.redirect_stdout(buf):
+                    cc.main(["--claude-md", str(claude_md), "--repo-root", str(tmp_path)])
+            return buf.getvalue()
+
+        self.assertIn("does not name 1 directory that carries", report(["platform/unlisted"]))
+        self.assertIn("does not name 2 directories that carry",
+                      report(["platform/unlisted", "platform/other"]))
+
     def test_exit_two_when_checklist_block_missing(self):
         import tempfile
 
@@ -517,6 +535,11 @@ class GlobTokenToRegex(unittest.TestCase):
         m = cc.glob_token_to_regex("ventures/<slug>/**/*.test.mjs")
         self.assertTrue(m.match("ventures/foo/test/calc.test.mjs"))
         self.assertTrue(m.match("ventures/foo/site/deep/calc.test.mjs"))
+
+    def test_an_unclosed_angle_bracket_is_a_literal_character(self):
+        m = cc.glob_token_to_regex("ventures/<slug/*.test.mjs")
+        self.assertTrue(m.match("ventures/<slug/calc.test.mjs"))
+        self.assertFalse(m.match("ventures/foo/calc.test.mjs"))
 
     def test_dot_is_literal_not_any_character(self):
         m = cc.glob_token_to_regex("ventures/<slug>/*.test.mjs")

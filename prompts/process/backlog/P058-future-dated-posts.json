@@ -1,0 +1,25 @@
+{
+  "id": "P058",
+  "title": "Blog posts dated in the future reach the feed",
+  "status": "done",
+  "owner": "agent",
+  "effect": 2,
+  "cost": 1,
+  "problem": "77 posts were dated 2026-10-26 to 2026-11-15 though committed on 2026-10-25; they topped the feed with a false datePublished. The date check only compared date with file name.",
+  "evidence": [
+    "ls docs/posts on 2026-10-25: 77 files with date prefix after today",
+    "docs/posts/2026-10-24-blog-posts-and-agent-docs-measured.md logged 20 such posts a day earlier"
+  ],
+  "change": "check_post_frontmatter.py fails a date more than one day after today; the 77 posts redated to their commit date.",
+  "touches": [
+    "platform/ci/check_post_frontmatter.py",
+    "docs/posts/"
+  ],
+  "metric": "posts dated after today in docs/posts",
+  "baseline": "77 (2026-10-25)",
+  "opened": "2026-10-25",
+  "source": "process run, measure friction (platform/pages/writing.mjs reports)",
+  "pr": 10384,
+  "result": "helped: 0 posts in docs/posts dated after 2026-10-25 (baseline 77), checked 2026-10-25 by listing file-name dates",
+  "history": []
+}

@@ -1,15 +1,15 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b55'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EU%3C/text%3E%3C/svg%3E">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>UK Capital Gains Tax Calculator 2025/26 — 18% and 24%</title>
-  <meta name="description" content="Free UK Capital Gains Tax calculator for 2025/26: enter the sale, costs, losses and your income to see the tax at 18% and 24%, the annual exempt amount and how to report it. Runs in your browser; nothing is uploaded.">
-  <meta property="og:title" content="UK Capital Gains Tax calculator 2025/26: how much CGT do I owe? Free, private">
+  <title>UK Capital Gains Tax Calculator 2025/26 and 2026/27 — 18% and 24%</title>
+  <meta name="description" content="Free UK Capital Gains Tax calculator for 2025/26 and 2026/27: enter the sale, costs, losses and your income to see the tax at 18% and 24%, the annual exempt amount and how to report it. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="UK Capital Gains Tax calculator 2025/26 and 2026/27: how much CGT do I owe? Free, private">
   <meta property="og:description" content="See your CGT at 18% and 24%, the exempt amount used, and what to report and when.">
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "UK Capital Gains Tax Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "GBP"}}</script>
-  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much is Capital Gains Tax in the UK?", "acceptedAnswer": {"@type": "Answer", "text": "For 2025/26 you pay 18% on gains that fall within your unused basic-rate income tax band and 24% above it, for property and other assets alike, after the \u00a33,000 annual exempt amount."}}, {"@type": "Question", "name": "What is the annual exempt amount?", "acceptedAnswer": {"@type": "Answer", "text": "The first \u00a33,000 of net gains in a tax year is tax-free. Unused allowance cannot be carried forward."}}, {"@type": "Question", "name": "How are losses treated?", "acceptedAnswer": {"@type": "Answer", "text": "Losses in the same tax year are set against gains first. Losses brought forward are used only to bring gains down to the \u00a33,000 exempt amount, and you must report a loss to HMRC to carry it forward."}}, {"@type": "Question", "name": "When do I report and pay?", "acceptedAnswer": {"@type": "Answer", "text": "On your Self Assessment return due 31 January after the tax year. For UK residential property with tax due, you must also report and pay within 60 days of completion."}}, {"@type": "Question", "name": "Can I reduce the bill legitimately?", "acceptedAnswer": {"@type": "Answer", "text": "Spreading disposals over two tax years uses two exempt amounts and two bands, and transfers to a spouse or civil partner are no-gain-no-loss so their allowance and band can be used. Pension contributions can also widen the 18% band."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser and nothing is sent."}}]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much is Capital Gains Tax in the UK?", "acceptedAnswer": {"@type": "Answer", "text": "For 2025/26 and 2026/27 you pay 18% on gains that fall within your unused basic-rate income tax band and 24% above it, for property and other assets alike, after the \u00a33,000 annual exempt amount."}}, {"@type": "Question", "name": "What is the annual exempt amount?", "acceptedAnswer": {"@type": "Answer", "text": "The first \u00a33,000 of net gains in a tax year is tax-free. Unused allowance cannot be carried forward."}}, {"@type": "Question", "name": "How are losses treated?", "acceptedAnswer": {"@type": "Answer", "text": "Losses in the same tax year are set against gains first. Losses brought forward are used only to bring gains down to the \u00a33,000 exempt amount, and you must report a loss to HMRC to carry it forward."}}, {"@type": "Question", "name": "When do I report and pay?", "acceptedAnswer": {"@type": "Answer", "text": "On your Self Assessment return due 31 January after the tax year. For UK residential property with tax due, you must also report and pay within 60 days of completion."}}, {"@type": "Question", "name": "Can I reduce the bill legitimately?", "acceptedAnswer": {"@type": "Answer", "text": "Spreading disposals over two tax years uses two exempt amounts and two bands, and transfers to a spouse or civil partner are no-gain-no-loss so their allowance and band can be used. Pension contributions can also widen the 18% band."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is calculated in your browser and nothing is sent."}}]}</script>
   <style>
     :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
     body { max-width: 1040px; margin: auto; padding: 28px; }
@@ -49,14 +49,14 @@
   <header>
     <p class="note">UK CAPITAL GAINS TAX CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
     <h1>How much Capital Gains Tax will I owe?</h1>
-    <p>Enter the sale, what it cost, any losses and your income. You get the tax at 18% and 24% for 2025/26, the annual exempt amount used, and what you must report and when.</p>
+    <p>Enter the sale, what it cost, any losses and your income. You get the tax at 18% and 24% for 2025/26 or 2026/27, the annual exempt amount used, and what you must report and when.</p>
     <p class="note">A first read written from HMRC's published rules without a live lookup. Rules change; confirm the current text. Not tax advice.</p>
   </header>
 <main>
 
   <section class="card" id="inputs">
     <div class="grid">
-      <div><label for="year">Tax year</label><select id="year"><option value="2025">2025/26</option></select></div>
+      <div><label for="year">Tax year</label><select id="year"><option value="2026">2026/27</option><option value="2025">2025/26</option></select></div>
       <div><label for="type">What you sold</label><select id="type"><option value="other">Shares, funds, crypto or other assets</option><option value="property">UK residential property</option></select></div>
       <div><label for="proceeds">Sale proceeds (&pound;)</label><input id="proceeds" type="number" min="0" step="1"></div>
       <div><label for="cost">What it cost you (&pound;)</label><input id="cost" type="number" min="0" step="1"></div>
@@ -89,7 +89,7 @@
   <section class="card" id="rules">
     <h2>What it does, and what it leaves to you</h2>
     <ul>
-      <li><strong>Covers:</strong> 2025/26 rates of 18% and 24%, the &pound;3,000 annual exempt amount, same-year and brought-forward losses, the personal allowance taper and the 60-day property report.</li>
+      <li><strong>Covers:</strong> 2025/26 and 2026/27 rates of 18% and 24%, the &pound;3,000 annual exempt amount, same-year and brought-forward losses, the personal allowance taper and the 60-day property report.</li>
       <li><strong>Gives:</strong> the tax split by rate, the effective rate, losses to carry forward and a reporting checklist.</li>
       <li><strong>Not decided:</strong> Business Asset Disposal Relief, Scottish bands, share pooling, main-home relief, foreign gains, pension or Gift Aid extending the band, and anything that changed after this was written.</li>
     </ul>
@@ -98,7 +98,7 @@
   <section class="card" id="faq">
     <h2>Common questions</h2>
     <h3>How much is Capital Gains Tax in the UK?</h3>
-    <p>For 2025/26 you pay 18% on gains that fall within your unused basic-rate income tax band and 24% above it, for property and other assets alike, after the &pound;3,000 annual exempt amount.</p>
+    <p>For 2025/26 and 2026/27 you pay 18% on gains that fall within your unused basic-rate income tax band and 24% above it, for property and other assets alike, after the &pound;3,000 annual exempt amount.</p>
     <h3>What is the annual exempt amount?</h3>
     <p>The first &pound;3,000 of net gains in a tax year is tax-free. Unused allowance cannot be carried forward.</p>
     <h3>How are losses treated?</h3>
@@ -133,7 +133,7 @@
     let last = null;
     const map = { year: "year", type: "type", proceeds: "proceeds", cost: "cost", costs: "costs", other: "other", lossNow: "lossNow", lossBf: "lossBf", income: "income" };
     const IDLE = "Fill in the figures, then click Work out my tax.";
-    const DEFAULTS = { year: "2025", type: "other" };
+    const DEFAULTS = { year: "2026", type: "other" };
 
     function download(name, body, type) {
       const a = document.createElement("a");

@@ -1,0 +1,9 @@
+{"agg": "mean", "offset": 1.0, "seed": 0, "loss": 1.5423639565706253, "secs": 1922}
+{"agg": "mean", "offset": 1.0, "seed": 1, "loss": 1.5300128534436226, "secs": 1922}
+{"agg": "median", "offset": -10.0, "seed": 0, "loss": 1.5407816991209984, "secs": 1966}
+{"agg": "median", "offset": 1.0, "seed": 0, "loss": 1.5441137254238129, "secs": 1970}
+{"agg": "mean", "offset": 1.0, "seed": 2, "loss": 1.5404413789510727, "secs": 1874}
+{"agg": "median", "offset": 1.0, "seed": 1, "loss": 1.5292827114462852, "secs": 1924}
+{"agg": "median", "offset": -10.0, "seed": 1, "loss": 1.5394069850444794, "secs": 1927}
+{"agg": "median", "offset": 1.0, "seed": 2, "loss": 1.5334536880254745, "secs": 1925}
+{"agg": "median", "offset": -10.0, "seed": 2, "loss": 1.5373793169856071, "secs": 1789}

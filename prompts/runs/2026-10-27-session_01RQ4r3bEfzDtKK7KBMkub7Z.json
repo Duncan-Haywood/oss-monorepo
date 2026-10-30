@@ -1,0 +1,28 @@
+{
+  "date": "2026-10-27",
+  "session": "https://claude.ai/code/session_01RQ4r3bEfzDtKK7KBMkub7Z",
+  "track": "ventures",
+  "prompt_version": 1,
+  "model": "claude-sonnet-5-5",
+  "pr": 10716,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/routing.json",
+      "issue": "Router sent a research draw while the scheduled prompt asked for revenue ventures; followed the prompt and the flagship list."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/promptctl.py",
+      "why": "Ran the venture track although promptctl route drew research."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-27-einvoice-preflight-mexico.md"
+  ],
+  "notes": "Mexico CFDI page + mexico.mjs RFC check. Initial assumption that mod 11 catches all single substitutions was wrong; measured 60/385 missed and pinned. Checks: node --test mexico*.test.mjs e-invoicing-mandates-by-country.test.mjs (20 pass); widget in headless Chromium over http.",
+  "corrections": []
+}

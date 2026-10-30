@@ -1,0 +1,8 @@
+no change: series with a change 7/100, changes/series 0.11, excursion flagged 3/100
+5-point burst 2x: series with a change 61/100, changes/series 1.29, excursion flagged 55/100
+5-point burst 3x: series with a change 100/100, changes/series 2.05, excursion flagged 97/100
+10-point burst 2x: series with a change 96/100, changes/series 2.00, excursion flagged 86/100
+10-point burst 3x: series with a change 100/100, changes/series 2.13, excursion flagged 91/100
+10-point dip 0.3x: series with a change 97/100, changes/series 2.03, excursion flagged 84/100
+lasting step 2x at 50: series with a change 100/100, changes/series 1.10, excursion flagged 1/100
+3x burst for 5 then 1.5x for good: series with a change 100/100, changes/series 2.06, excursion flagged 4/100

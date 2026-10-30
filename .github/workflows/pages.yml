@@ -40,12 +40,16 @@ on:
       - "ventures/**"
       - "platform/ci/build_pages_site.py"
       - "platform/ci/test_build_pages_site.py"
+      - "platform/ci/check_built_site.py"
+      - "platform/ci/test_check_built_site.py"
       - ".github/workflows/pages.yml"
   pull_request:
     paths:
       - "ventures/**"
       - "platform/ci/build_pages_site.py"
       - "platform/ci/test_build_pages_site.py"
+      - "platform/ci/check_built_site.py"
+      - "platform/ci/test_check_built_site.py"
       - ".github/workflows/pages.yml"
   workflow_dispatch:
 
@@ -72,7 +76,7 @@ jobs:
 
       - name: Site-builder unit tests
         working-directory: platform/ci
-        run: python3 -m unittest test_build_pages_site
+        run: python3 -m unittest test_build_pages_site test_check_built_site
 
       - name: Validate what would be published
         run: python3 platform/ci/build_pages_site.py --check
@@ -86,6 +90,9 @@ jobs:
       # crawl budget and the first visitor. Check the artifact before it ships.
       - name: Check every hub link resolves in the built artifact
         run: python3 platform/ci/check_pages_links.py _site
+
+      - name: Check no example.invalid placeholder survived the rewrite
+        run: python3 platform/ci/check_built_site.py _site
 
       # Kept, though nothing here deploys: the tarball is what a reviewer
       # downloads to see the site this builder actually produces.

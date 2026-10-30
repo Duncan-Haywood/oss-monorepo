@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { parseInputs, runEvaluation, mulberry32, analyse, expectancyR, breakEvenWinRate, riskSweep, encodeState, decodeState, toCsv, summaryText, DEFAULTS } from './calc.mjs';
+import { parseInputs, runEvaluation, runFunded, mulberry32, analyse, expectancyR, breakEvenWinRate, riskSweep, encodeState, decodeState, toCsv, summaryText, DEFAULTS } from './calc.mjs';
 
 const base = { ...DEFAULTS, sims: 2000, seed: 7 };
 const always = (v) => () => v; // rand() < win: 0 always wins, 0.999 always loses (when 0 < win < 1)
@@ -140,4 +140,31 @@ test('csv and summary text carry the sweep and the not-a-forecast line', () => {
   assert.match(toCsv(r), /^risk_per_trade_pct,pass_rate_pct/);
   assert.equal(toCsv(r).trim().split('\n').length, 1 + r.sweep.length);
   assert.match(summaryText(r), /not a forecast/);
+});
+
+test('input bounds: profit target tops out at 100% and trades per day at 50', () => {
+  assert.doesNotThrow(() => parseInputs({ ...base, profitTargetPct: 100 }));
+  assert.throws(() => parseInputs({ ...base, profitTargetPct: 100.5 }), /at most 100/);
+  assert.doesNotThrow(() => parseInputs({ ...base, tradesPerDay: 50 }));
+  assert.throws(() => parseInputs({ ...base, tradesPerDay: 51 }), /at most 50/);
+});
+
+test('a 50% win rate loses when the draw lands above it', () => {
+  const p = parseInputs({ ...base, winRatePct: 50 });
+  const e = runEvaluation(p, always(0.6));
+  assert.equal(e.passed, false);
+  assert.equal(e.reason, 'drawdown');
+});
+
+test('the max drawdown is breached on the first trade that reaches it, not one earlier', () => {
+  // 10.1% static floor, 0.5% lost per trade: 20 losses reach 10.0% (still inside), the 21st reaches 10.5%.
+  const p = parseInputs({ ...base, winRatePct: 0, maxLossPct: 10.1, dailyLossPct: 0, drawdownType: 'static', maxDays: 30 });
+  const e = runEvaluation(p, always(0.999));
+  assert.deepEqual([e.passed, e.reason, e.trades], [false, 'drawdown', 21]);
+});
+
+test('funded phase: a 50% win rate loses when the draw lands above it', () => {
+  const p = parseInputs({ ...base, winRatePct: 50, fundedDays: 30 });
+  assert.deepEqual(runFunded(p, always(0.6)), { payouts: 0, breached: true });
+  assert.equal(runFunded(p, always(0.4)).breached, false);
 });

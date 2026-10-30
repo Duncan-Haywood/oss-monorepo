@@ -29,6 +29,11 @@ export type PairingInput = {
   /** How many questions this person has already answered in this survey. */
   answeredCount?: number;
   /**
+   * Share of this person's decided answers (not "equal") that picked the
+   * first-listed option, 0 to 1. Only the staged hybrid reads it.
+   */
+  firstOptionShare?: number;
+  /**
    * The same person's ratings for these items under their OTHER perspectives,
    * used only to choose which pair to show. See `selectionRating`.
    */
@@ -404,11 +409,25 @@ export function selectNextPairByInformation(
  */
 export const HYBRID_SWITCH_ANSWERS = 120;
 
+/**
+ * A person whose first-option share is at or above this has too many answers
+ * that carry no signal for the information selector (it fell to 0.421 against
+ * 0.632 shipped at 300 answers and first-option bias 0.5, a share near 0.75;
+ * docs/INFORMATION-GAIN-SELECTOR.md). Slots are randomised, so an unbiased
+ * share sits near 0.5.
+ */
+export const FIRST_OPTION_FALLBACK_SHARE = 0.7;
+
+/** True when the first-option share is far from half in either direction (first or second option favoured). */
+function positionBiased(share: number | undefined): boolean {
+  return share !== undefined && (share >= FIRST_OPTION_FALLBACK_SHARE || share <= 1 - FIRST_OPTION_FALLBACK_SHARE);
+}
+
 export function selectNextPairHybrid(
   input: PairingInput,
   { switchAt = HYBRID_SWITCH_ANSWERS, ...options }: InformationOptions & { switchAt?: number } = {}
 ): [string, string] {
-  return (input.answeredCount ?? 0) < switchAt
+  return (input.answeredCount ?? 0) < switchAt || positionBiased(input.firstOptionShare)
     ? selectNextPair(input)
     : selectNextPairByInformation(input, options);
 }

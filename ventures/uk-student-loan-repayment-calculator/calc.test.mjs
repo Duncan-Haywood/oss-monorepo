@@ -55,3 +55,36 @@ test("summary names the source and the disclaimer", () => {
   assert.ok(t.includes(VERIFY));
   assert.match(t, /Not tax advice/);
 });
+
+// Red-team guards (2026-10-28): each pins a mutant the suite used to miss.
+test("overpay is optional: leaving it out is not an error", () => {
+  const { overpay, ...rest } = SAMPLE;
+  assert.deepEqual(parse(rest).errors, []);
+  assert.equal(parse(rest).overpay, 0);
+});
+
+test("Plan 4 threshold is applied to the first-year deduction", () => {
+  const r = run({ plan: 4, salary: 40000, threshold: undefined, overpay: 0 });
+  assert.equal(r.planYear, 652.95); // (40000-32745)*9%
+});
+
+test("money amounts are rounded to pence in the findings", () => {
+  const r = run({ salary: 38000.5, overpay: 0 });
+  assert.match(r.findings[0].title, /GBP 857\.75 is deducted/);
+});
+
+test("a sub-pound postgraduate balance is still projected", () => {
+  const s = simulate(parse({ ...SAMPLE, balance: 0, pgBalance: 0.8, pgFirstDue: 2020, salary: 50000, interest: 0 }));
+  assert.equal(s.years, 1);
+  assert.equal(s.pgRepaid, 0.8);
+});
+
+test("extra payment is capped at the extra amount each year, not the whole balance", () => {
+  const s = simulate(parse({ ...SAMPLE, salary: 28470, growth: 0, thresholdGrowth: 0, interest: 0, balance: 10000, firstDue: 2025 }), 100);
+  assert.equal(s.extraPaid, 3000); // 100 a year for the 30 years to write-off
+});
+
+test("no balances gives a zero first-year deduction", () => {
+  const s = simulate(parse({ ...SAMPLE, balance: 0, pgBalance: 0 }));
+  assert.deepEqual(s.first, { planPay: 0, pgPay: 0 });
+});

@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e551b'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EE%3C/text%3E%3C/svg%3E"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cyprus e-invoicing: B2G only today, no B2B mandate, and what this checker covers | E-invoice Preflight</title>
+<meta name="description" content="Cyprus requires public bodies to receive e-invoices (since 2019) but does not require suppliers to send them, and has no domestic B2B mandate. What advisory guides report, the EU 2030 cross-border step, and what a free EN 16931 and Peppol checker can tell you.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/cyprus-e-invoice-mandate.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Cyprus e-invoicing: B2G only today, no B2B mandate, and what this checker covers | E-invoice Preflight">
+<meta property="og:description" content="Cyprus requires public bodies to receive e-invoices (since 2019) but does not require suppliers to send them, and has no domestic B2B mandate. What advisory guides report, the EU 2030 cross-border step, and what a free EN 16931 and Peppol checker can tell you.">
+<meta property="og:url" content="https://example.invalid/einvoice-preflight/cyprus-e-invoice-mandate.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is e-invoicing mandatory in Cyprus?","acceptedAnswer":{"@type":"Answer","text":"Per vendor and advisory guides: not for businesses. Central government bodies have had to be able to receive structured e-invoices since 18 April 2019 and sub-central bodies since 18 April 2020, under the national law transposing Directive 2014/55/EU. Suppliers may send them but are reportedly not required to, and no domestic B2B or B2C mandate was found. These are not the Tax Department (TAD) or the law, so confirm there. This is a summary, not advice."}},{"@type":"Question","name":"What changes in 2030?","acceptedAnswer":{"@type":"Answer","text":"Under the EU's ViDA package, structured e-invoicing and near-real-time digital reporting for intra-EU B2B supplies are reported to become mandatory in every member state, Cyprus included, from 1 July 2030. Guides found no earlier Cyprus domestic date, and no announcement from the Tax Department. Dates in EU files can still move."}},{"@type":"Question","name":"Which formats does Cyprus accept?","acceptedAnswer":{"@type":"Answer","text":"Guides describe the EN 16931 standard through the national platform or Peppol access points. The exact syntax list differs between sources, so confirm the one your public buyer takes."}},{"@type":"Question","name":"What is the checker useful for in a Cyprus context?","acceptedAnswer":{"@type":"Answer","text":"Testing a UBL or CII file before you send it to a public body or an EU customer. It checks totals, tax breakdown arithmetic, identifiers, and VAT, IBAN and BIC typos with a rule ID and a fix. It has no Cypriot national rules and cannot confirm acceptance by the national platform. It is an offline observation, not legal advice."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch}.lede{font-size:1.05rem;max-width:64ch;color:#3d4f5f}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #15202b10;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #d3dbe4;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#3d4f5f}.fine,.note{font-size:.88rem;color:#3d4f5f}footer{color:#3d4f5f;font-size:.86rem}footer p{margin:.6rem 0}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; E-invoice Preflight</a></p>
+<header>
+<h1>Cyprus: public bodies must receive e-invoices, businesses are not yet required to send them</h1>
+<p class="lede">Cypriot public buyers have accepted structured e-invoices since 2019, but no domestic B2B mandate has been reported. The next firm date is the EU-wide cross-border step in 2030. Below: what guides report, what is not known, and what this checker can and cannot tell you.</p>
+</header>
+<section>
+<h2>The rules (as vendor guides report them)</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Who</th><th scope="col">What is required</th></tr></thead>
+<tbody>
+<tr><td>Central government bodies</td><td>Must be able to <strong>receive</strong> structured e-invoices since 18 April 2019 (national law of 26 June 2019 transposing Directive 2014/55/EU).</td></tr>
+<tr><td>Sub-central public bodies</td><td>Same duty to receive since 18 April 2020.</td></tr>
+<tr><td>Suppliers</td><td>May send e-invoices through the national platform or Peppol access points; reportedly not required to.</td></tr>
+<tr><td>Domestic B2B and B2C</td><td>No mandate or announced timeline found.</td></tr>
+<tr><td>Intra-EU B2B</td><td>Structured e-invoicing and digital reporting reported to become mandatory EU-wide from 1 July 2030 (ViDA).</td></tr>
+</tbody>
+</table>
+</div>
+<p class="fine">All sources found were vendor and advisory pages (some last updated in 2025); the Tax Department (TAD), the official gazette and the Commission's own page were not read in full. No penalty is stated because none was verified. Confirm against the law. A summary, not tax advice.</p>
+</section>
+<section>
+<h2>Which file counts</h2>
+<p>Guides point to the European standard EN 16931, delivered through the national platform or over Peppol. A plain PDF is not a structured e-invoice for a public buyer. Check the buyer's instructions for the syntax it takes.</p>
+</section>
+<section>
+<h2>What this checker does and does not cover</h2>
+<p>It has <strong>no</strong> Cypriot national rules, and a clean result says nothing about acceptance by the national platform. It applies the EN 16931 and Peppol BIS 3.0 rules it knows, which suits a Peppol-routed UBL or CII invoice and a Cypriot supplier invoicing an EU customer.</p>
+</section>
+<section>
+<h2>Test a file before you send it</h2>
+<p>Open the <a href="./">checker</a>, drop your UBL or CII XML, and tick <em>Also apply the Peppol BIS Billing 3.0 rules</em>. It flags arithmetic that does not add up, a missing tax reason on a 0% or exempt line, malformed electronic addresses, and VAT, IBAN and BIC typos, each with a rule ID and a fix (<a href="what-does-this-e-invoice-error-code-mean.html">the rule reference</a>). No account, nothing uploaded.</p>
+<p>No invoice yet? The <a href="create.html">e-invoice creator</a> turns a form into UBL or CII XML and checks it. Other countries: <a href="e-invoicing-mandates-by-country.html">all side by side</a>, <a href="germany-e-invoice-mandate.html">Germany</a>, <a href="france-e-invoice-mandate.html">France</a>, <a href="greece-mydata-e-invoice-mandate.html">Greece</a>, <a href="malta-e-invoice-mandate.html">Malta</a>, <a href="italy-sdi-e-invoice-mandate.html">Italy</a>, <a href="uk-e-invoice-mandate.html">the UK</a>, or the <a href="../eu-einvoicing-mandate-checker/">EU e-invoicing mandate checker</a>.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Is e-invoicing mandatory in Cyprus?</h3>
+<p>Per vendor and advisory guides: not for businesses. Central government bodies have had to be able to receive structured e-invoices since 18 April 2019 and sub-central bodies since 18 April 2020, under the national law transposing Directive 2014/55/EU. Suppliers may send them but are reportedly not required to, and no domestic B2B or B2C mandate was found. These are not the Tax Department (TAD) or the law, so confirm there. This is a summary, not advice.</p>
+<h3>What changes in 2030?</h3>
+<p>Under the EU's ViDA package, structured e-invoicing and near-real-time digital reporting for intra-EU B2B supplies are reported to become mandatory in every member state, Cyprus included, from 1 July 2030. Guides found no earlier Cyprus domestic date, and no announcement from the Tax Department. Dates in EU files can still move.</p>
+<h3>Which formats does Cyprus accept?</h3>
+<p>Guides describe the EN 16931 standard through the national platform or Peppol access points. The exact syntax list differs between sources, so confirm the one your public buyer takes.</p>
+<h3>What is the checker useful for in a Cyprus context?</h3>
+<p>Testing a UBL or CII file before you send it to a public body or an EU customer. It checks totals, tax breakdown arithmetic, identifiers, and VAT, IBAN and BIC typos with a rule ID and a fix. It has no Cypriot national rules and cannot confirm acceptance by the national platform. It is an offline observation, not legal advice.</p>
+<p class="note">Open the <a href="./">E-invoice Preflight</a> checker to validate your own invoice file.</p>
+</section>
+<section>
+<h2>More countries</h2>
+<p><a href="australia-e-invoice-mandate.html">Australia</a> <a href="austria-e-invoice-mandate.html">Austria</a> <a href="belgium-e-invoice-mandate.html">Belgium</a> <a href="brazil-nfe-e-invoice-mandate.html">Brazil</a> <a href="bulgaria-e-invoice-mandate.html">Bulgaria</a> <a href="croatia-e-invoice-mandate.html">Croatia</a> <a href="czech-republic-e-invoice-mandate.html">Czech Republic</a> <a href="denmark-e-invoice-mandate.html">Denmark</a> <a href="estonia-e-invoice-mandate.html">Estonia</a> <a href="finland-e-invoice-mandate.html">Finland</a> <a href="hungary-e-invoice-mandate.html">Hungary</a> <a href="india-gst-e-invoice-mandate.html">India Gst</a> <a href="ireland-e-invoice-mandate.html">Ireland</a> <a href="japan-invoice-system-e-invoice-mandate.html">Japan</a> <a href="latvia-e-invoice-mandate.html">Latvia</a> <a href="lithuania-e-invoice-mandate.html">Lithuania</a> <a href="luxembourg-e-invoice-mandate.html">Luxembourg</a> <a href="malaysia-myinvois-e-invoice-mandate.html">Malaysia</a> <a href="mexico-cfdi-e-invoice-mandate.html">Mexico</a> <a href="colombia-dian-e-invoice-mandate.html">Colombia</a> <a href="chile-sii-e-invoice-mandate.html">Chile</a> <a href="peru-sunat-e-invoice-mandate.html">Peru</a> <a href="argentina-arca-e-invoice-mandate.html">Argentina</a> <a href="netherlands-e-invoice-mandate.html">Netherlands</a> <a href="norway-e-invoice-mandate.html">Norway</a> <a href="poland-ksef-e-invoice-mandate.html">Poland</a> <a href="portugal-e-invoice-mandate.html">Portugal</a> <a href="romania-e-factura-e-invoice-mandate.html">Romania</a> <a href="saudi-arabia-zatca-e-invoice-mandate.html">Saudi Arabia</a> <a href="serbia-e-invoice-mandate.html">Serbia</a> <a href="singapore-invoicenow-e-invoice-mandate.html">Singapore Invoicenow</a> <a href="slovakia-e-invoice-mandate.html">Slovakia</a> <a href="slovenia-e-invoice-mandate.html">Slovenia</a> <a href="spain-verifactu-e-invoice-mandate.html">Spain</a> <a href="sweden-e-invoice-mandate.html">Sweden</a> <a href="switzerland-e-invoice-mandate.html">Switzerland</a> <a href="turkey-e-invoice-mandate.html">Turkey</a> <a href="uae-e-invoice-mandate.html">Uae</a> <a href="uruguay-dgi-e-invoice-mandate.html">Uruguay</a> <a href="paraguay-dnit-e-invoice-mandate.html">Paraguay</a> <a href="ecuador-sri-e-invoice-mandate.html">Ecuador</a> <a href="vietnam-e-invoice-mandate.html">Vietnam</a></p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or accounting advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every check runs locally. This page is static and summarises the Cypriot position as vendor and advisory guides report it, not from the Tax Department's own texts; things can change, so check the Cyprus Tax Department (TAD) and the law before relying on it.</p>
+<p class="support">Free and open source. If it caught a defect before a rejection, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+</footer>
+</main>
+</body></html>

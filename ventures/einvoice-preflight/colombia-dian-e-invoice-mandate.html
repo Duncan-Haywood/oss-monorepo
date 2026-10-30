@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e551b'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EE%3C/text%3E%3C/svg%3E"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Colombia electronic invoicing: DIAN pre-validation, CUFE and a NIT check digit | E-invoice Preflight</title>
+<meta name="description" content="Colombian electronic sales invoices are UBL 2.1 XML that the tax authority, DIAN, validates before they reach the buyer. How the CUFE works as reported, and a free local NIT check-digit test.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/colombia-dian-e-invoice-mandate.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Colombia electronic invoicing: DIAN pre-validation, CUFE and a NIT check digit | E-invoice Preflight">
+<meta property="og:description" content="Colombian electronic sales invoices are UBL 2.1 XML that the tax authority, DIAN, validates before they reach the buyer. How the CUFE works as reported, and a free local NIT check-digit test.">
+<meta property="og:url" content="https://example.invalid/einvoice-preflight/colombia-dian-e-invoice-mandate.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the validación previa?","acceptedAnswer":{"@type":"Answer","text":"As vendor guides report it, Colombian electronic sales invoices are sent to the tax authority, DIAN, for validation before they are delivered to the buyer, in the UBL 2.1 structure. The model was announced in 2019. Which taxpayers are obliged and on what dates is in DIAN’s resolutions, which were not read here; confirm with DIAN or your accountant."}},{"@type":"Question","name":"What is a CUFE?","acceptedAnswer":{"@type":"Answer","text":"The CUFE is the unique 96-character code of an electronic sales invoice. A vendor guide says it is calculated from data such as the issuer’s NIT, the invoice number, date and time, value, taxes and a technical key. The invoice’s graphic copy shows it in full with a QR code that opens DIAN’s status lookup. The hash algorithm was not confirmed in the sources read."}},{"@type":"Question","name":"What is the documento soporte?","acceptedAnswer":{"@type":"Answer","text":"An electronic supporting document that obliged invoicers generate and send for validation when they buy from sellers who are not required to invoice. A law-firm note describes it per transaction or accumulated weekly per supplier under Resolution 167 of 2021; a later resolution changed its start date, and the current rules were not read."}},{"@type":"Question","name":"Can this checker validate a Colombian invoice?","acceptedAnswer":{"@type":"Answer","text":"No. It does not apply DIAN’s validations, the CUFE or the signature. It does test a NIT’s shape and check digit on this page, and a clean result is not an acceptance by DIAN."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch}.lede{font-size:1.05rem;max-width:64ch;color:#3d4f5f}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #15202b10;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #d3dbe4;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#3d4f5f}.fine,.note{font-size:.88rem;color:#3d4f5f}footer{color:#3d4f5f;font-size:.86rem}footer p{margin:.6rem 0}.out{min-height:1.4em}.good{color:#0a6b3a;font-weight:600}.bad{color:#a12d1b}input{font:inherit;padding:.4rem .5rem;border:1px solid #9fb0c0;border-radius:8px}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; E-invoice Preflight</a></p>
+<header>
+<h1>Colombia: DIAN validates the invoice before your customer ever sees it</h1>
+<p class="lede">In Colombia, per the guides read, an obliged seller issues a factura electrónica de venta as UBL 2.1 XML, signs it, and sends it to the tax authority (DIAN) for validation before delivering it to the buyer. Each invoice gets a CUFE, a 96-character identifier. Below: how it works as vendor guides report it, where the sources are silent, and a local check of a NIT&rsquo;s check digit.</p>
+</header>
+<section>
+<h2>How it works (as vendor guides report it)</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Step</th><th scope="col">What happens</th></tr></thead>
+<tbody>
+<tr><td>Issue</td><td>The seller builds the invoice as XML in the UBL 2.1 structure DIAN publishes in its technical annex and signs it with a digital certificate.</td></tr>
+<tr><td>Validate first</td><td>The XML goes to DIAN before it goes to the buyer (&ldquo;validación previa&rdquo;). A 2019 Sovos note says this replaced a model where validation followed within 24 hours of generation.</td></tr>
+<tr><td>Identify</td><td>A valid invoice carries a CUFE, a 96-character code that vendor guides say is calculated from the issuer&rsquo;s NIT, the number, date and time, value, taxes and a technical key. The printed or PDF copy shows the full CUFE and a QR code that opens DIAN&rsquo;s lookup.</td></tr>
+<tr><td>Deliver</td><td>The seller sends the validated invoice to the buyer. The PDF is a representation of the XML.</td></tr>
+<tr><td>Buy from a non-invoicer</td><td>Obliged invoicers buying from people not required to invoice generate an electronic &ldquo;documento soporte&rdquo; (Resolution 167 of 2021, as a law-firm note describes it), per transaction or accumulated weekly per supplier.</td></tr>
+</tbody>
+</table>
+</div>
+<p class="fine">Where it is unsettled: which taxpayers are obliged and from what date, the current technical annex (a search note named Resolution 000165 of 2023 and its amendments; not read), the validation time limit, and how the CUFE hash is computed (the excerpts did not say). Copies of Resolution 0001 of 2019, which first adopted the pre-validation rules, say a later resolution repealed it. The documento soporte start date was moved by Resolution 488 of 2022 and the present date was not read. These are vendor and law-firm summaries, not DIAN&rsquo;s texts. No penalty is stated because none was read. A summary, not tax advice.</p>
+</section>
+<section>
+<h2>Check a NIT</h2>
+<p>Tests the shape (eight to ten digits, a hyphen and a check digit) and the check digit (&ldquo;dígito de verificación&rdquo;). It does not look anything up, so it cannot say whether the NIT is registered or belongs to the name on the invoice. A NIT typed without its check digit is not accepted; the page shows the digit it would need. The check digit cannot hide a single wrong digit unless the NIT&rsquo;s own check digit is 1, because remainders 1 and 10 both give 1: about 19% of NITs end in 1, and across 2,000 sample numbers 1.9% of single-digit mistakes went unseen (3,015 of 162,000).</p>
+<label>NIT <input id="id" size="18" maxlength="20" autocomplete="off" spellcheck="false" placeholder="800.197.268-4"></label>
+<p id="id-out" class="out" aria-live="polite"></p>
+<p class="fine">The sample is DIAN&rsquo;s own NIT. The rule (mod 11, weights 3, 7, 13, 17, 19, 23, 29, 37, 41, 43, 47, 53, 59, 67, 71 from the right) reproduces four NITs I know, including DIAN&rsquo;s and two large companies&rsquo;; it was not read from DIAN&rsquo;s specification.</p>
+</section>
+<section>
+<h2>What this checker does and does not cover</h2>
+<p>The main checker reads UBL, CII and Factur-X and applies EN 16931 and Peppol rules. Colombian invoices are UBL 2.1 but use DIAN&rsquo;s own structure and extensions, so it does <strong>not</strong> apply DIAN&rsquo;s validations, cannot compute or verify a CUFE or the signature, and has no DIAN catalogues. Treat the NIT test here as a typo catch only.</p>
+</section>
+<section>
+<h2>Test a file before you send it</h2>
+<p>For a European or Peppol invoice, open the <a href="./">checker</a>, drop your XML and read the findings, each with a rule ID and a fix (<a href="what-does-this-e-invoice-error-code-mean.html">the rule reference</a>). No account, nothing uploaded. No invoice yet? The <a href="create.html">e-invoice creator</a> turns a form into UBL or CII XML and checks it. Other countries: <a href="e-invoicing-mandates-by-country.html">all side by side</a> <a href="mexico-cfdi-e-invoice-mandate.html">Mexico</a> <a href="brazil-nfe-e-invoice-mandate.html">Brazil</a> <a href="chile-sii-e-invoice-mandate.html">Chile</a> <a href="japan-invoice-system-e-invoice-mandate.html">Japan</a> <a href="spain-verifactu-e-invoice-mandate.html">Spain</a>.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>What is the validación previa?</h3>
+<p>As vendor guides report it, Colombian electronic sales invoices are sent to the tax authority, DIAN, for validation before they are delivered to the buyer, in the UBL 2.1 structure. The model was announced in 2019. Which taxpayers are obliged and on what dates is in DIAN&rsquo;s resolutions, which were not read here; confirm with DIAN or your accountant.</p>
+<h3>What is a CUFE?</h3>
+<p>The CUFE is the unique 96-character code of an electronic sales invoice. A vendor guide says it is calculated from data such as the issuer&rsquo;s NIT, the invoice number, date and time, value, taxes and a technical key. The invoice&rsquo;s graphic copy shows it in full with a QR code that opens DIAN&rsquo;s status lookup. The hash algorithm was not confirmed in the sources read.</p>
+<h3>What is the documento soporte?</h3>
+<p>An electronic supporting document that obliged invoicers generate and send for validation when they buy from sellers who are not required to invoice. A law-firm note describes it per transaction or accumulated weekly per supplier under Resolution 167 of 2021; a later resolution changed its start date, and the current rules were not read.</p>
+<h3>Can this checker validate a Colombian invoice?</h3>
+<p>No. It does not apply DIAN&rsquo;s validations, the CUFE or the signature. It does test a NIT&rsquo;s shape and check digit on this page, and a clean result is not an acceptance by DIAN.</p>
+<p class="note">Open the <a href="./">E-invoice Preflight</a> checker to validate your own invoice file.</p>
+</section>
+<section>
+<h2>More countries</h2>
+<p><a href="australia-e-invoice-mandate.html">Australia</a> <a href="austria-e-invoice-mandate.html">Austria</a> <a href="belgium-e-invoice-mandate.html">Belgium</a> <a href="brazil-nfe-e-invoice-mandate.html">Brazil</a> <a href="bulgaria-e-invoice-mandate.html">Bulgaria</a> <a href="croatia-e-invoice-mandate.html">Croatia</a> <a href="cyprus-e-invoice-mandate.html">Cyprus</a> <a href="czech-republic-e-invoice-mandate.html">Czech Republic</a> <a href="denmark-e-invoice-mandate.html">Denmark</a> <a href="estonia-e-invoice-mandate.html">Estonia</a> <a href="finland-e-invoice-mandate.html">Finland</a> <a href="france-e-invoice-mandate.html">France</a> <a href="germany-e-invoice-mandate.html">Germany</a> <a href="greece-mydata-e-invoice-mandate.html">Greece</a> <a href="hungary-e-invoice-mandate.html">Hungary</a> <a href="ireland-e-invoice-mandate.html">Ireland</a> <a href="italy-sdi-e-invoice-mandate.html">Italy</a> <a href="latvia-e-invoice-mandate.html">Latvia</a> <a href="lithuania-e-invoice-mandate.html">Lithuania</a> <a href="luxembourg-e-invoice-mandate.html">Luxembourg</a> <a href="malta-e-invoice-mandate.html">Malta</a> <a href="netherlands-e-invoice-mandate.html">Netherlands</a> <a href="norway-e-invoice-mandate.html">Norway</a> <a href="poland-ksef-e-invoice-mandate.html">Poland</a> <a href="portugal-e-invoice-mandate.html">Portugal</a> <a href="romania-e-factura-e-invoice-mandate.html">Romania</a> <a href="serbia-e-invoice-mandate.html">Serbia</a> <a href="singapore-invoicenow-e-invoice-mandate.html">Singapore Invoicenow</a> <a href="slovakia-e-invoice-mandate.html">Slovakia</a> <a href="slovenia-e-invoice-mandate.html">Slovenia</a> <a href="spain-verifactu-e-invoice-mandate.html">Spain</a> <a href="switzerland-e-invoice-mandate.html">Switzerland</a> <a href="uk-e-invoice-mandate.html">Uk</a> <a href="india-gst-e-invoice-mandate.html">India</a> <a href="malaysia-myinvois-e-invoice-mandate.html">Malaysia</a> <a href="saudi-arabia-zatca-e-invoice-mandate.html">Saudi Arabia</a> <a href="sweden-e-invoice-mandate.html">Sweden</a> <a href="turkey-e-invoice-mandate.html">Turkey</a> <a href="uae-e-invoice-mandate.html">United Arab Emirates</a> <a href="peru-sunat-e-invoice-mandate.html">Peru</a> <a href="argentina-arca-e-invoice-mandate.html">Argentina</a> <a href="chile-sii-e-invoice-mandate.html">Chile</a> <a href="uruguay-dgi-e-invoice-mandate.html">Uruguay</a> <a href="paraguay-dnit-e-invoice-mandate.html">Paraguay</a> <a href="ecuador-sri-e-invoice-mandate.html">Ecuador</a> <a href="vietnam-e-invoice-mandate.html">Vietnam</a></p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or accounting advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every check runs locally. This page is static and summarises the Colombian position from search excerpts of vendor guides, law-firm notes and DIAN resolutions, not from DIAN&rsquo;s current technical annex; things can change, so check DIAN (dian.gov.co) and the current resolutions before relying on it.</p>
+<p class="support">Free and open source. If it caught a defect before a rejection, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+</footer>
+<script type="module">
+import{checkNit}from"./colombia.mjs";
+const $=i=>document.getElementById(i);
+const esc=t=>String(t).replace(/[&<>"']/g,c=>"&#"+c.charCodeAt(0)+";");
+function r(){const v=$("id").value;if(!v.trim()){$("id-out").innerHTML="";return}const x=checkNit(v);$("id-out").innerHTML=x.ok?'<span class="good">'+"Shape and check digit are consistent."+"</span>":x.problems.map(p=>`<span class="bad">${esc(p)}</span>`).join("<br>")}
+$("id").addEventListener("input",r);
+</script>
+</body>
+</html>

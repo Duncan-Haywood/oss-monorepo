@@ -1,0 +1,32 @@
+reps 100 per cell, seeded; min segments 5, 8, 10, 12, 20
+
+n = 60
+min seg | null: any change | sd2->1: one change, median error, range holds | sd1->2: one change, median error, range holds
+      5 | 3% | 62%, 2, 97% | 67%, 3, 96%
+      8 | 2% | 68%, 2, 97% | 72%, 3, 94%
+     10 | 2% | 69%, 2, 97% | 72%, 3, 94%
+     12 | 2% | 70%, 2, 97% | 73%, 3, 95%
+     20 | 1% | 67%, 2, 94% | 74%, 3, 95%
+
+n = 100
+min seg | null: any change | sd2->1: one change, median error, range holds | sd1->2: one change, median error, range holds
+      5 | 2% | 87%, 2, 95% | 85%, 1, 96%
+      8 | 1% | 89%, 2, 96% | 89%, 1, 97%
+     10 | 1% | 90%, 2, 96% | 90%, 1, 97%
+     12 | 1% | 90%, 2, 96% | 90%, 1, 97%
+     20 | 1% | 91%, 2, 96% | 91%, 1, 97%
+
+n = 200
+min seg | null: any change | sd2->1: one change, median error, range holds | sd1->2: one change, median error, range holds
+      5 | 1% | 95%, 2, 98% | 96%, 2, 98%
+      8 | 1% | 97%, 2, 98% | 97%, 2, 97%
+     10 | 1% | 97%, 2, 98% | 97%, 2, 97%
+     12 | 1% | 97%, 2, 98% | 97%, 2, 97%
+     20 | 0% | 98%, 2, 98% | 98%, 2, 97%
+
+short true regime: 8-point patch of sd 4 inside sd 1, n = 100 (found = two changes within 3 points of 46 and 54)
+      5 | found 77%, any change 91%
+      8 | found 79%, any change 91%
+     10 | found 73%, any change 89%
+     12 | found 30%, any change 88%
+     20 | found 0%, any change 88%

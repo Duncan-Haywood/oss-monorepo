@@ -1,0 +1,133 @@
+{
+  "date": "2026-10-28",
+  "session": "https://claude.ai/code/session_01E5sJKnB4CL93v7v4BEJMGM",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-28T07:18:07Z",
+  "ended": "2026-10-28T07:22:13Z",
+  "wall_minutes": 4.36,
+  "tokens_in": 1500465,
+  "tokens_out": 11937,
+  "cost_usd": 0.6675,
+  "tool_calls": 23,
+  "task": null,
+  "projects": [
+    "civ-levers"
+  ],
+  "pr": 11072,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/PROJECTS.md",
+      "issue": "track 24 milestone 2 civ-contact is listed as next free, but contact already landed inside civ-levers; pick_track output is stale"
+    },
+    {
+      "file": "research/PROGRAMMES.md",
+      "issue": "civ-levers has no PROPOSAL.md, so steps go inside it rather than new slugs; PROJECTS.md still says one slug per milestone"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/PROJECTS.md",
+      "why": "milestone 3 named a new slug civ-cascades; programme rules say steps live in the programme dir",
+      "did": "added it under civ-levers",
+      "result": "homepage build ok"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-28-seeding-a-complex-contagion.md",
+    "research/civ-levers/LOG.md"
+  ],
+  "goal": null,
+  "notes": "Tests 19 pass; build.py ok; link check ok. cite_check found no DOIs/arXiv ids in README (references are journal citations, not machine-checked). Hypotheses logged before run; H1 untestable, H2/H3 half refuted.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "7d3ec11e-0a4c-5502-91db-1f14794bc4c1",
+    "transcripts": 1,
+    "first": "2026-10-28T07:18:07Z",
+    "last": "2026-10-28T07:22:29Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 19,
+        "input": 38,
+        "output": 11937,
+        "thinking": 1621,
+        "cache_read": 1435178,
+        "cache_write_5m": 0,
+        "cache_write_1h": 65249,
+        "api_equivalent_usd": 0.6675,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 19,
+      "input": 38,
+      "output": 11937,
+      "thinking": 1621,
+      "cache_read": 1435178,
+      "cache_write_5m": 0,
+      "cache_write_1h": 65249,
+      "api_equivalent_usd": 0.6675,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.956,
+    "tool_calls": 23,
+    "tools": {
+      "Bash": 18,
+      "Read": 2,
+      "ToolSearch": 1,
+      "mcp__github__search_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4.36,
+      "active_minutes": 4.36,
+      "model_minutes": 2.06,
+      "tool_minutes": 2.3,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

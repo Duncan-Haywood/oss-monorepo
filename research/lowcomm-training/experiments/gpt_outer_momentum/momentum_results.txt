@@ -1,0 +1,8 @@
+H=16 plain (outer lr 1, mom 0): mean 1.5758 [1.5707, 1.583, 1.5738]
+H=16 outer (lr 1.0, mom 0.1): mean 1.5730  paired diff vs plain [-0.0003, -0.0115, 0.0035] mean -0.0028
+H=16 outer (lr 1.0, mom 0.3): mean 1.5954  paired diff vs plain [0.0184, 0.0161, 0.0243] mean +0.0196
+H=16 outer (lr 0.7, mom 0.9): mean 1.7028  paired diff vs plain [0.1102, 0.0942, 0.1766] mean +0.1270
+H=64 plain (outer lr 1, mom 0): mean 1.5947 [1.5861, 1.6048, 1.5931]
+H=64 outer (lr 1.0, mom 0.1): mean 1.5911  paired diff vs plain [-0.0008, -0.0101, 0.0001] mean -0.0036
+H=64 outer (lr 1.0, mom 0.3): mean 1.6017  paired diff vs plain [0.0105, -0.0081, 0.0186] mean +0.0070
+H=64 outer (lr 0.7, mom 0.9): mean 1.6567  paired diff vs plain [0.047, 0.034, 0.1051] mean +0.0621

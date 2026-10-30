@@ -32,7 +32,8 @@ runs on a PR or on `main`.
 ## The finish line, in this order
 
 1. **Commit** everything you mean to keep. Scratch files go outside the repo.
-2. **Push** your branch.
+2. **Push** your branch (`git push -u origin <branch>`; a first push with
+   `--force-with-lease` fails with "stale info" on a branch with no remote yet).
 3. **Open the pull request right after the first push**, not at the end. Open
    it as a draft while you are still working. If the session dies after this
    step (timeout, context limit, crash), it leaves a PR the next session can
@@ -50,7 +51,11 @@ runs on a PR or on `main`.
    If the merge won't go:
    - **Conflict:** merge `origin/main` into your branch, re-run what the
      checklist says (`node platform/marketing/regen.mjs`, `sync_tree_counts.py`), re-verify, and
-     merge. A conflict on its own is not a reason to stop.
+     merge. Before pushing the merge, run
+     `python3 platform/ci/check_conflict_markers.py`: #11273 merged with markers
+     left in `ventures/ai-bookkeeper/index.html` and `README.md` (its `validate`
+     and `check` runs were red at merge, which a squash-merge click does not
+     stop), and #11276 had to clean up main. A conflict on its own is not a reason to stop.
    - **A check your change turned red:** fix forward on the same PR.
    - **A check that is red on `main` too:** it isn't yours. If a fix exists,
      port it. If not, name the failure in the PR. Landing the fix on `main`
@@ -119,7 +124,8 @@ These are **not** reasons:
   the survivor ([`duplicate-work.md`](duplicate-work.md)).
   To check open PRs cheaply, use `search_pull_requests` with
   `is:open repo:duncan-haywood/oss-monorepo <slug or keyword> in:title` and
-  `minimal_output`; `list_pull_requests` returns tens of KB of unrelated PRs.
+  `minimal_output` and `perPage` 5-10 (without a keyword the result can still
+  run to 200KB); `list_pull_requests` returns tens of KB of unrelated PRs.
 - **The brief didn't say to open a PR.** This file says so.
 
 ## Other agents' unlanded work is yours too

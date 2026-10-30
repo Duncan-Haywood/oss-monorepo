@@ -1,0 +1,95 @@
+{
+ "d": 32,
+ "steps": 600,
+ "seeds": 4,
+ "eps": 0.01,
+ "clean": [
+  2.7221009731292725,
+  2.707426071166992,
+  2.7266180515289307,
+  2.722287654876709
+ ],
+ "rows": {
+  "weight": {
+   "exp_hi": {
+    "n": 60,
+    "nonfinite": 0.13333333333333333,
+    "finite_harm": 0.06666666666666667,
+    "harm": 0.2
+   },
+   "exp_lo": {
+    "n": 20,
+    "nonfinite": 0.0,
+    "finite_harm": 0.0,
+    "harm": 0.0
+   },
+   "sign": {
+    "n": 20,
+    "nonfinite": 0.0,
+    "finite_harm": 0.0,
+    "harm": 0.0
+   },
+   "man_hi": {
+    "n": 20,
+    "nonfinite": 0.0,
+    "finite_harm": 0.0,
+    "harm": 0.0
+   },
+   "overall_harm_lower_bound": 0.025
+  },
+  "gradient": {
+   "exp_hi": {
+    "n": 60,
+    "nonfinite": 0.15,
+    "finite_harm": 0.1,
+    "harm": 0.25
+   },
+   "exp_lo": {
+    "n": 20,
+    "nonfinite": 0.0,
+    "finite_harm": 0.0,
+    "harm": 0.0
+   },
+   "sign": {
+    "n": 20,
+    "nonfinite": 0.0,
+    "finite_harm": 0.0,
+    "harm": 0.0
+   },
+   "man_hi": {
+    "n": 20,
+    "nonfinite": 0.0,
+    "finite_harm": 0.0,
+    "harm": 0.0
+   },
+   "overall_harm_lower_bound": 0.03125
+  },
+  "activation": {
+   "exp_hi": {
+    "n": 60,
+    "nonfinite": 0.08333333333333333,
+    "finite_harm": 0.0,
+    "harm": 0.08333333333333333
+   },
+   "exp_lo": {
+    "n": 20,
+    "nonfinite": 0.0,
+    "finite_harm": 0.0,
+    "harm": 0.0
+   },
+   "sign": {
+    "n": 20,
+    "nonfinite": 0.0,
+    "finite_harm": 0.0,
+    "harm": 0.0
+   },
+   "man_hi": {
+    "n": 20,
+    "nonfinite": 0.0,
+    "finite_harm": 0.0,
+    "harm": 0.0
+   },
+   "overall_harm_lower_bound": 0.010416666666666666
+  }
+ }
+}

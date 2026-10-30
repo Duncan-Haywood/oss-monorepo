@@ -3,15 +3,18 @@
 import net from "node:net";
 import tls from "node:tls";
 
+// SNI must be a hostname: Node warns on an IP literal and some servers then refuse the handshake.
+export const servername = (h) => (/^[\d.]+$|:/.test(h) ? undefined : h);
+
 const q = (s) => `"${String(s).replace(/[\\"]/g, "\\$&").replace(/[\r\n]/g, "")}"`;
 
 /** One connection, one command at a time. Resolves { lines, literals } per tagged response. */
 export class Imap {
-  constructor({ host, port = 993, secure = true, timeoutMs = 20000 }) { Object.assign(this, { host, port, secure, timeoutMs }); this.buf = Buffer.alloc(0); this.n = 0; }
+  constructor({ host, port = 993, secure = true, timeoutMs = 20000, ca }) { Object.assign(this, { host, port, secure, timeoutMs, ca }); this.buf = Buffer.alloc(0); this.n = 0; }
   connect() {
     return new Promise((resolve, reject) => {
       const onErr = (e) => reject(e);
-      const s = (this.secure ? tls : net).connect({ host: this.host, port: this.port, servername: this.host }, () => { s.off("error", onErr); });
+      const s = (this.secure ? tls : net).connect({ host: this.host, port: this.port, ...(this.secure ? { servername: servername(this.host), ca: this.ca } : {}) }, () => { s.off("error", onErr); });
       s.once("error", onErr); s.setTimeout(this.timeoutMs, () => s.destroy(new Error("IMAP timeout")));
       s.on("data", (d) => { this.buf = Buffer.concat([this.buf, d]); this.pump?.(); });
       s.on("error", (e) => this.fail?.(e)); s.on("close", () => this.fail?.(new Error("connection closed")));
@@ -57,6 +60,15 @@ export class Imap {
     return r;
   }
   async login(user, pass) { await this.cmd(`LOGIN ${q(user)} ${q(pass)}`); }
+  // SASL XOAUTH2 (Gmail, Microsoft 365). On failure the server sends a "+ <base64 json>" challenge and waits for an empty line before the NO.
+  async loginXoauth2(user, token) {
+    const tag = `A${++this.n}`;
+    this.sock.write(`${tag} AUTHENTICATE XOAUTH2 ${Buffer.from(`user=${user}\x01auth=Bearer ${token}\x01\x01`).toString("base64")}\r\n`);
+    let r = await this.read((l) => l.startsWith("+") || l.startsWith(tag + " "));
+    if (r.lines.at(-1).startsWith("+")) { this.sock.write("\r\n"); r = await this.read((l) => l.startsWith(tag + " ")); }
+    const last = r.lines.at(-1);
+    if (!new RegExp(`^${tag} OK`, "i").test(last)) throw new Error("XOAUTH2 " + last.replace(/^A\d+ /, "").slice(0, 200));
+  }
   async examine(box = "INBOX") { await this.cmd(`EXAMINE ${q(box)}`); }
   async search(criteria) { const r = await this.cmd(`UID SEARCH ${criteria}`); const l = r.lines.find((x) => x.startsWith("* SEARCH")); return l ? l.slice(8).trim().split(/\s+/).filter(Boolean).map(Number) : []; }
   async fetchRaw(uid, maxBytes = 200000) {
@@ -96,6 +108,8 @@ export function parseMessage(raw) {
       const g = (k) => (body.match(new RegExp(`^${k}:\\s*(.+)$`, "im")) || [])[1]?.trim() || "";
       const status = (g("Status").match(/^([245])\.\d+\.\d+/) || [])[1];
       dsn = { recipient: (g("Final-Recipient").replace(/^rfc822;\s*/i, "").match(/[\w.+'-]+@[\w.-]+/) || [""])[0].toLowerCase(), action: g("Action").toLowerCase(), permanent: status === "5" && g("Action").toLowerCase() !== "delayed", temporary: status === "4" || g("Action").toLowerCase() === "delayed" };
+      // A DSN may report several recipients, one blank-line group each; every one that failed permanently must be stopped, not only the first.
+      dsn.failed = [...new Set(body.split(/\r?\n\r?\n/).filter((grp) => /^Action:\s*failed/im.test(grp) && /^Status:\s*5\./im.test(grp)).map((grp) => ((grp.match(/^Final-Recipient:\s*(?:rfc822;)?\s*(.+)$/im) || [])[1] || "").match(/[\w.+'-]+@[\w.-]+/)?.[0].toLowerCase()).filter(Boolean))];
       return { h, kind: "other", text: "" };
     }
     if (/^multipart\//i.test(ct)) {
@@ -114,6 +128,8 @@ export function parseMessage(raw) {
 
 /** Turn a parsed message into the `From:` block the engine's parseReplies reads (and keep the quoted history out). */
 export const toReplyBlock = (m) => {
-  const hd = m.headers, signal = m.dsn?.permanent ? "dsn-permanent" : m.dsn?.temporary ? "dsn-temporary" : /^(auto-replied|auto-generated)/i.test(hd.autoSubmitted) || /^auto[_-]?reply\b/i.test(hd.precedence) || hd.xAutoreply ? "auto-reply" : "";
-  return `From: ${hd.from}\nSubject: ${hd.subject}\nDate: ${hd.date}${signal ? `\nX-Signal: ${signal}` : ""}${m.dsn?.recipient ? `\nX-Failed-Recipient: ${m.dsn.recipient}` : ""}\n\n${m.text || (m.dsn ? "Delivery status notification" : "")}`;
+  const hd = m.headers, signal = m.dsn?.permanent ? "dsn-permanent" : m.dsn?.temporary ? "dsn-temporary" : /^(auto-replied|auto-generated|auto-notified)/i.test(hd.autoSubmitted) || /^auto[_-]?reply\b/i.test(hd.precedence) || hd.xAutoreply ? "auto-reply" : "";
+  const one = (rcpt) => `From: ${hd.from}\nSubject: ${hd.subject}\nDate: ${hd.date}${signal ? `\nX-Signal: ${signal}` : ""}${rcpt ? `\nX-Failed-Recipient: ${rcpt}` : ""}\n\n${m.text || (m.dsn ? "Delivery status notification" : "")}`;
+  // One block per permanently failed recipient, so each address is marked bounced.
+  return m.dsn?.failed?.length > 1 ? m.dsn.failed.map(one).join("\n") : one(m.dsn?.recipient);
 };

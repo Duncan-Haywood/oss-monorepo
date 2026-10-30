@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-24",
+  "session": "https://claude.ai/code/session_01NNjZWsNEhJAZXKjmfg5QYp",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "are there any methods by which I can improve the seo and aseo for this reop and the website? / let's add all of these as action items.",
+  "input_sha256": "1302e3558b034ac7e350f3c258772cd9c87413c8e89c50350481fe9bafe39c4e",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-24T17:43:51Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "SEO and AI-search audit of the repo and Pages site, filed as backlog items P051-P056 plus a P018 refresh",
+  "projects": [
+    "prompts/process/backlog"
+  ],
+  "pr": 10197,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "first numbering P048-P053 collided with open PR #10195; renumbered to P051-P056 before opening the PR"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "no blog post: the owner asked for action items, and the measurements are recorded in the items themselves"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Measured 2026-10-24 on the live site: duncan-haywood.github.io/robots.txt 404; /oss-monorepo/llms.txt 539,214 bytes, blockquote 1,776 chars; llms-full.txt 404; sitemap-hub.xml 1,409 loc / 0 lastmod; 25 random product pages: 25/25 SoftwareApplication|WebApplication + BreadcrumbList + FAQPage JSON-LD, 875-1,676 visible words; corpus_dupes --min 0.6: 19 pairs, 10 clusters; indexnow_state: live snapshot announced; repo description 'lots of projects', no topics. Structured data and IndexNow were dropped from the action list as already done. promptctl validate ok.",
+  "corrections": [],
+  "redteam": null
+}

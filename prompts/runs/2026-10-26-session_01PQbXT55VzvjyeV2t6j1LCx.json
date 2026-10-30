@@ -1,0 +1,53 @@
+{
+  "date": "2026-10-26",
+  "session": "https://claude.ai/code/session_01PQbXT55VzvjyeV2t6j1LCx",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-26T09:11:18Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/10607",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "Does not list the files to touch when adding a story (BIBLE.md, README.md list, post); had to infer from the previous commit."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "No audio: folders over 400 MB budget, as the prompt directs.",
+      "did": "Landed text and pages only",
+      "result": "ok"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-26-the-clear-reading-screening-base-rate-hearth-and-horizon-story.md"
+  ],
+  "goal": null,
+  "notes": "Project: hearth-and-horizon; piece: the-clear-reading (text only, audio 423 MB over 400 MB cap). Venture tests 11/11.",
+  "corrections": [],
+  "redteam": null
+}

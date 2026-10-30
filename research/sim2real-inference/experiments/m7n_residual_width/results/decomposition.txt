@@ -1,0 +1,5 @@
+H7n-iii: median |W_R + W_T - w_comb| / w_comb = 0.004 (90th percentile 0.016) over 336 cells
+win/loss from W_R + W_T < w_real agrees with the 7j/7k outcome in 330/336 cells
+post hoc f=0.1: Spearman(q/q_var, mean R) = 0.813; q/q_var median pendulum 1.07, cart-pole 1.90
+post hoc f=0.5: Spearman(q/q_var, mean R) = 0.817; q/q_var median pendulum 1.08, cart-pole 1.99
+mean R by system: pendulum 0.666, cartpole 0.841

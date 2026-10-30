@@ -4,7 +4,7 @@
     python3 research/_shared/cite_check.py research/<slug>/README.md [more files]
     python3 research/_shared/cite_check.py --offline README.md   # list ids only
 
-Each identifier is looked up (Crossref for DOIs, the arXiv API for arXiv ids)
+Each identifier is looked up (Crossref for DOIs, DataCite when Crossref has no such DOI, the arXiv API for arXiv ids)
 and printed with the title and year the registry holds, so you can compare it
 with what the README claims the source says. A lookup that fails exits 1:
 the id is mistyped or invented. A host that refuses the lookup (403, 429, 5xx,
@@ -19,8 +19,10 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
-DOI = re.compile(r"\b(10\.\d{4,9}/[^\s\"<>\])}|,;]+[^\s\"<>\])}|,;.:])")
-ARXIV = re.compile(r"(?i)\barxiv(?:\.org/abs)?[:/ ]\s*(\d{4}\.\d{4,5}|[a-z\-]+(?:\.[A-Z]{2})?/\d{7})(?:v\d+)?")
+# Balanced "(...)" groups belong to the DOI (10.1016/0021-9991(79)90145-1); a bare ")" ends it.
+DOI = re.compile(r"\b(10\.\d{4,9}/(?:\([^\s()]*\)|[^\s\"<>()\]}|,;])*(?:\([^\s()]*\)|[^\s\"<>()\]}|,;.:]))")
+# BibTeX "eprint = {2510.04354}" counts as well as "arXiv:2510.04354".
+ARXIV = re.compile(r"(?i)(?:\barxiv(?:\.org/abs)?[:/ ]\s*|\beprint\s*=\s*[{\"]\s*)(\d{4}\.\d{4,5}|[a-z\-]+(?:\.[A-Z]{2})?/\d{7})(?:v\d+)?")
 
 
 def extract(text):
@@ -36,8 +38,19 @@ def _get(url):
         return r.read().decode("utf-8", "replace")
 
 
+def lookup_datacite(doi):
+    """DataCite registers datasets and Figshare/Zenodo DOIs that Crossref answers 404 for."""
+    a = json.loads(_get("https://api.datacite.org/dois/" + urllib.parse.quote(doi)))["data"]["attributes"]
+    return f"{((a.get('titles') or [{}])[0]).get('title', '?')} ({a.get('publicationYear')})"
+
+
 def lookup_doi(doi):
-    data = json.loads(_get("https://api.crossref.org/works/" + urllib.parse.quote(doi)))["message"]
+    try:
+        data = json.loads(_get("https://api.crossref.org/works/" + urllib.parse.quote(doi)))["message"]
+    except urllib.error.HTTPError as e:
+        if e.code != 404:
+            raise
+        return lookup_datacite(doi)  # still 404 there means no such DOI
     year = ((data.get("issued") or {}).get("date-parts") or [[None]])[0][0]
     return f"{(data.get('title') or ['?'])[0]} ({year})"
 

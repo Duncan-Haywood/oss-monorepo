@@ -1,0 +1,3161 @@
+{
+"source": "research/house-spans and research/house-framing (Python)",
+"check": [
+{
+"size": "2x6",
+"spacing": 12.0,
+"case": "floor",
+"span": 8.0,
+"pitch": 0.0,
+"ratios": {
+"bending": 0.5004876546378523,
+"shear": 0.24270482603815938,
+"deflection live": 0.49740226199420423,
+"deflection total": 0.41450188499517016,
+"bearing": 0.2124183006535948
+}
+},
+{
+"size": "2x6",
+"spacing": 12.0,
+"case": "floor",
+"span": 12.5,
+"pitch": 0.0,
+"ratios": {
+"bending": 1.2083963467362677,
+"shear": 0.39421997755331095,
+"deflection live": 1.8660866561124827,
+"deflection total": 1.5550722134270691,
+"bearing": 0.3300653594771242
+}
+},
+{
+"size": "2x6",
+"spacing": 12.0,
+"case": "floor",
+"span": 16.0,
+"pitch": 0.0,
+"ratios": {
+"bending": 1.9712698368824857,
+"shear": 0.5120650953984287,
+"deflection live": 3.8880945449178923,
+"deflection total": 3.240078787431577,
+"bearing": 0.42156862745098045
+}
+},
+{
+"size": "2x6",
+"spacing": 12.0,
+"case": "roof-snow30",
+"span": 8.0,
+"pitch": 6.0,
+"ratios": {
+"bending": 0.40709674385492417,
+"shear": 0.1765743698162681,
+"deflection live": 0.23315731030978318,
+"deflection total": 0.36349620913570513,
+"bearing": 0.19869824438112074
+}
+},
+{
+"size": "2x6",
+"spacing": 12.0,
+"case": "roof-snow30",
+"span": 12.5,
+"pitch": 6.0,
+"ratios": {
+"bending": 0.9829097950447528,
+"shear": 0.2868057683142851,
+"deflection live": 0.874728120052726,
+"deflection total": 1.3637160046198493,
+"bearing": 0.30874650280758753
+}
+},
+{
+"size": "2x6",
+"spacing": 12.0,
+"case": "roof-snow30",
+"span": 16.0,
+"pitch": 6.0,
+"ratios": {
+"bending": 1.6034312223644478,
+"shear": 0.37254130047940953,
+"deflection live": 1.8225443179302618,
+"deflection total": 2.841377564654775,
+"bearing": 0.3943395926948396
+}
+},
+{
+"size": "2x6",
+"spacing": 12.0,
+"case": "roof-snow50",
+"span": 8.0,
+"pitch": 6.0,
+"ratios": {
+"bending": 0.5811794063376554,
+"shear": 0.25208108139728863,
+"deflection live": 0.3885955171829721,
+"deflection total": 0.518934416008894,
+"bearing": 0.28366556464255865
+}
+},
+{
+"size": "2x6",
+"spacing": 12.0,
+"case": "roof-snow50",
+"span": 12.5,
+"pitch": 6.0,
+"ratios": {
+"bending": 1.4032215678225854,
+"shear": 0.40944961776091393,
+"deflection live": 1.4578802000878768,
+"deflection total": 1.946868084655,
+"bearing": 0.4407726465984373
+}
+},
+{
+"size": "2x6",
+"spacing": 12.0,
+"case": "roof-snow50",
+"span": 16.0,
+"pitch": 6.0,
+"ratios": {
+"bending": 2.289090296062704,
+"shear": 0.5318473682659557,
+"deflection live": 3.037573863217103,
+"deflection total": 4.056407109941616,
+"bearing": 0.5629670436752318
+}
+},
+{
+"size": "2x6",
+"spacing": 16.0,
+"case": "floor",
+"span": 8.0,
+"pitch": 0.0,
+"ratios": {
+"bending": 0.6673168728504695,
+"shear": 0.3236064347175458,
+"deflection live": 0.663203015992272,
+"deflection total": 0.5526691799935601,
+"bearing": 0.2832244008714596
+}
+},
+{
+"size": "2x6",
+"spacing": 16.0,
+"case": "floor",
+"span": 12.5,
+"pitch": 0.0,
+"ratios": {
+"bending": 1.61119512898169,
+"shear": 0.5256266367377478,
+"deflection live": 2.48811554148331,
+"deflection total": 2.0734296179027583,
+"bearing": 0.4400871459694988
+}
+},
+{
+"size": "2x6",
+"spacing": 16.0,
+"case": "floor",
+"span": 16.0,
+"pitch": 0.0,
+"ratios": {
+"bending": 2.6283597825099796,
+"shear": 0.6827534605312381,
+"deflection live": 5.184126059890522,
+"deflection total": 4.320105049908768,
+"bearing": 0.5620915032679737
+}
+},
+{
+"size": "2x6",
+"spacing": 16.0,
+"case": "roof-snow30",
+"span": 8.0,
+"pitch": 6.0,
+"ratios": {
+"bending": 0.5427956584732322,
+"shear": 0.23543249308835745,
+"deflection live": 0.31087641374637764,
+"deflection total": 0.4846616121809403,
+"bearing": 0.264930992508161
+}
+},
+{
+"size": "2x6",
+"spacing": 16.0,
+"case": "roof-snow30",
+"span": 12.5,
+"pitch": 6.0,
+"ratios": {
+"bending": 1.310546393393004,
+"shear": 0.38240769108571354,
+"deflection live": 1.1663041600703017,
+"deflection total": 1.818288006159799,
+"bearing": 0.4116620037434502
+}
+},
+{
+"size": "2x6",
+"spacing": 16.0,
+"case": "roof-snow30",
+"span": 16.0,
+"pitch": 6.0,
+"ratios": {
+"bending": 2.137908296485931,
+"shear": 0.4967217339725461,
+"deflection live": 2.4300590905736827,
+"deflection total": 3.788503419539701,
+"bearing": 0.5257861235931195
+}
+},
+{
+"size": "2x6",
+"spacing": 16.0,
+"case": "roof-snow50",
+"span": 8.0,
+"pitch": 6.0,
+"ratios": {
+"bending": 0.7749058751168737,
+"shear": 0.3361081085297181,
+"deflection live": 0.5181273562439627,
+"deflection total": 0.6919125546785252,
+"bearing": 0.3782207528567448
+}
+},
+{
+"size": "2x6",
+"spacing": 16.0,
+"case": "roof-snow50",
+"span": 12.5,
+"pitch": 6.0,
+"ratios": {
+"bending": 1.8709620904301132,
+"shear": 0.5459328236812184,
+"deflection live": 1.9438402667838355,
+"deflection total": 2.595824112873333,
+"bearing": 0.5876968621312495
+}
+},
+{
+"size": "2x6",
+"spacing": 16.0,
+"case": "roof-snow50",
+"span": 16.0,
+"pitch": 6.0,
+"ratios": {
+"bending": 3.052120394750271,
+"shear": 0.7091298243546076,
+"deflection live": 4.05009848428947,
+"deflection total": 5.408542813255488,
+"bearing": 0.7506227249003089
+}
+},
+{
+"size": "2x6",
+"spacing": 24.0,
+"case": "floor",
+"span": 8.0,
+"pitch": 0.0,
+"ratios": {
+"bending": 1.0009753092757046,
+"shear": 0.48540965207631875,
+"deflection live": 0.9948045239884085,
+"deflection total": 0.8290037699903403,
+"bearing": 0.4248366013071896
+}
+},
+{
+"size": "2x6",
+"spacing": 24.0,
+"case": "floor",
+"span": 12.5,
+"pitch": 0.0,
+"ratios": {
+"bending": 2.4167926934725354,
+"shear": 0.7884399551066219,
+"deflection live": 3.7321733122249654,
+"deflection total": 3.1101444268541383,
+"bearing": 0.6601307189542484
+}
+},
+{
+"size": "2x6",
+"spacing": 24.0,
+"case": "floor",
+"span": 16.0,
+"pitch": 0.0,
+"ratios": {
+"bending": 3.9425396737649714,
+"shear": 1.0241301907968574,
+"deflection live": 7.776189089835785,
+"deflection total": 6.480157574863154,
+"bearing": 0.8431372549019609
+}
+},
+{
+"size": "2x6",
+"spacing": 24.0,
+"case": "roof-snow30",
+"span": 8.0,
+"pitch": 6.0,
+"ratios": {
+"bending": 0.8141934877098483,
+"shear": 0.3531487396325362,
+"deflection live": 0.46631462061956636,
+"deflection total": 0.7269924182714103,
+"bearing": 0.3973964887622415
+}
+},
+{
+"size": "2x6",
+"spacing": 24.0,
+"case": "roof-snow30",
+"span": 12.5,
+"pitch": 6.0,
+"ratios": {
+"bending": 1.9658195900895057,
+"shear": 0.5736115366285702,
+"deflection live": 1.749456240105452,
+"deflection total": 2.7274320092396986,
+"bearing": 0.6174930056151751
+}
+},
+{
+"size": "2x6",
+"spacing": 24.0,
+"case": "roof-snow30",
+"span": 16.0,
+"pitch": 6.0,
+"ratios": {
+"bending": 3.2068624447288956,
+"shear": 0.7450826009588191,
+"deflection live": 3.6450886358605237,
+"deflection total": 5.68275512930955,
+"bearing": 0.7886791853896792
+}
+},
+{
+"size": "2x6",
+"spacing": 24.0,
+"case": "roof-snow50",
+"span": 8.0,
+"pitch": 6.0,
+"ratios": {
+"bending": 1.1623588126753108,
+"shear": 0.5041621627945773,
+"deflection live": 0.7771910343659442,
+"deflection total": 1.037868832017788,
+"bearing": 0.5673311292851173
+}
+},
+{
+"size": "2x6",
+"spacing": 24.0,
+"case": "roof-snow50",
+"span": 12.5,
+"pitch": 6.0,
+"ratios": {
+"bending": 2.806443135645171,
+"shear": 0.8188992355218279,
+"deflection live": 2.9157604001757536,
+"deflection total": 3.89373616931,
+"bearing": 0.8815452931968746
+}
+},
+{
+"size": "2x6",
+"spacing": 24.0,
+"case": "roof-snow50",
+"span": 16.0,
+"pitch": 6.0,
+"ratios": {
+"bending": 4.578180592125408,
+"shear": 1.0636947365319114,
+"deflection live": 6.075147726434206,
+"deflection total": 8.112814219883232,
+"bearing": 1.1259340873504635
+}
+},
+{
+"size": "2x8",
+"spacing": 12.0,
+"case": "floor",
+"span": 8.0,
+"pitch": 0.0,
+"ratios": {
+"bending": 0.3120361001765128,
+"shear": 0.17667092379736057,
+"deflection live": 0.2171609859245679,
+"deflection total": 0.18096748827047326,
+"bearing": 0.2124183006535948
+}
+},
+{
+"size": "2x8",
+"spacing": 12.0,
+"case": "floor",
+"span": 12.5,
+"pitch": 0.0,
+"ratios": {
+"bending": 0.7533917770178951,
+"shear": 0.2916134525329928,
+"deflection live": 0.8147152697644724,
+"deflection total": 0.6789293914703937,
+"bearing": 0.3300653594771242
+}
+},
+{
+"size": "2x8",
+"spacing": 12.0,
+"case": "floor",
+"span": 16.0,
+"pitch": 0.0,
+"ratios": {
+"bending": 1.2290160338549938,
+"shear": 0.38101319710515114,
+"deflection live": 1.6975042320015465,
+"deflection total": 1.4145868600012887,
+"bearing": 0.42156862745098045
+}
+},
+{
+"size": "2x8",
+"spacing": 12.0,
+"case": "roof-snow30",
+"span": 8.0,
+"pitch": 6.0,
+"ratios": {
+"bending": 0.2538102172349567,
+"shear": 0.12853290782718974,
+"deflection live": 0.1017942121521412,
+"deflection total": 0.15869890667419692,
+"bearing": 0.19869824438112074
+}
+},
+{
+"size": "2x8",
+"spacing": 12.0,
+"case": "roof-snow30",
+"span": 12.5,
+"pitch": 6.0,
+"ratios": {
+"bending": 0.612809000239951,
+"shear": 0.2121567273774096,
+"deflection live": 0.3818977827020964,
+"deflection total": 0.595385133346679,
+"bearing": 0.30874650280758753
+}
+},
+{
+"size": "2x8",
+"spacing": 12.0,
+"case": "roof-snow30",
+"span": 16.0,
+"pitch": 6.0,
+"ratios": {
+"bending": 0.9996818520726424,
+"shear": 0.27719747591646937,
+"deflection live": 0.795705108750725,
+"deflection total": 1.2405177870533457,
+"bearing": 0.3943395926948396
+}
+},
+{
+"size": "2x8",
+"spacing": 12.0,
+"case": "roof-snow50",
+"span": 8.0,
+"pitch": 6.0,
+"ratios": {
+"bending": 0.3623445129485264,
+"shear": 0.18349613499360135,
+"deflection live": 0.16965702025356869,
+"deflection total": 0.22656171477562437,
+"bearing": 0.28366556464255865
+}
+},
+{
+"size": "2x8",
+"spacing": 12.0,
+"case": "roof-snow50",
+"span": 12.5,
+"pitch": 6.0,
+"ratios": {
+"bending": 0.874858313985306,
+"shear": 0.30287916257979985,
+"deflection live": 0.6364963045034939,
+"deflection total": 0.8499836551480766,
+"bearing": 0.4407726465984373
+}
+},
+{
+"size": "2x8",
+"spacing": 12.0,
+"case": "roof-snow50",
+"span": 16.0,
+"pitch": 6.0,
+"ratios": {
+"bending": 1.4271656899352494,
+"shear": 0.39573262848017643,
+"deflection live": 1.3261751812512084,
+"deflection total": 1.770987859553829,
+"bearing": 0.5629670436752318
+}
+},
+{
+"size": "2x8",
+"spacing": 16.0,
+"case": "floor",
+"span": 8.0,
+"pitch": 0.0,
+"ratios": {
+"bending": 0.41604813356868353,
+"shear": 0.23556123172981405,
+"deflection live": 0.28954798123275716,
+"deflection total": 0.24128998436063093,
+"bearing": 0.2832244008714596
+}
+},
+{
+"size": "2x8",
+"spacing": 16.0,
+"case": "floor",
+"span": 12.5,
+"pitch": 0.0,
+"ratios": {
+"bending": 1.0045223693571932,
+"shear": 0.38881793671065695,
+"deflection live": 1.0862870263526296,
+"deflection total": 0.9052391886271912,
+"bearing": 0.4400871459694988
+}
+},
+{
+"size": "2x8",
+"spacing": 16.0,
+"case": "floor",
+"span": 16.0,
+"pitch": 0.0,
+"ratios": {
+"bending": 1.6386880451399912,
+"shear": 0.5080175961402014,
+"deflection live": 2.2633389760020615,
+"deflection total": 1.8861158133350513,
+"bearing": 0.5620915032679737
+}
+},
+{
+"size": "2x8",
+"spacing": 16.0,
+"case": "roof-snow30",
+"span": 8.0,
+"pitch": 6.0,
+"ratios": {
+"bending": 0.3384136229799423,
+"shear": 0.17137721043625304,
+"deflection live": 0.13572561620285492,
+"deflection total": 0.21159854223226254,
+"bearing": 0.264930992508161
+}
+},
+{
+"size": "2x8",
+"spacing": 16.0,
+"case": "roof-snow30",
+"span": 12.5,
+"pitch": 6.0,
+"ratios": {
+"bending": 0.8170786669866016,
+"shear": 0.2828756365032128,
+"deflection live": 0.5091970436027952,
+"deflection total": 0.7938468444622387,
+"bearing": 0.4116620037434502
+}
+},
+{
+"size": "2x8",
+"spacing": 16.0,
+"case": "roof-snow30",
+"span": 16.0,
+"pitch": 6.0,
+"ratios": {
+"bending": 1.3329091360968568,
+"shear": 0.3695966345552927,
+"deflection live": 1.0609401450009666,
+"deflection total": 1.6540237160711277,
+"bearing": 0.5257861235931195
+}
+},
+{
+"size": "2x8",
+"spacing": 16.0,
+"case": "roof-snow50",
+"span": 8.0,
+"pitch": 6.0,
+"ratios": {
+"bending": 0.4831260172647018,
+"shear": 0.24466151332480177,
+"deflection live": 0.2262093603380915,
+"deflection total": 0.3020822863674991,
+"bearing": 0.3782207528567448
+}
+},
+{
+"size": "2x8",
+"spacing": 16.0,
+"case": "roof-snow50",
+"span": 12.5,
+"pitch": 6.0,
+"ratios": {
+"bending": 1.1664777519804077,
+"shear": 0.40383888343973307,
+"deflection live": 0.8486617393379917,
+"deflection total": 1.1333115401974352,
+"bearing": 0.5876968621312495
+}
+},
+{
+"size": "2x8",
+"spacing": 16.0,
+"case": "roof-snow50",
+"span": 16.0,
+"pitch": 6.0,
+"ratios": {
+"bending": 1.9028875865803316,
+"shear": 0.5276435046402351,
+"deflection live": 1.7682335750016105,
+"deflection total": 2.3613171460717712,
+"bearing": 0.7506227249003089
+}
+},
+{
+"size": "2x8",
+"spacing": 24.0,
+"case": "floor",
+"span": 8.0,
+"pitch": 0.0,
+"ratios": {
+"bending": 0.6240722003530256,
+"shear": 0.35334184759472115,
+"deflection live": 0.4343219718491358,
+"deflection total": 0.36193497654094653,
+"bearing": 0.4248366013071896
+}
+},
+{
+"size": "2x8",
+"spacing": 24.0,
+"case": "floor",
+"span": 12.5,
+"pitch": 0.0,
+"ratios": {
+"bending": 1.5067835540357901,
+"shear": 0.5832269050659856,
+"deflection live": 1.6294305395289448,
+"deflection total": 1.3578587829407873,
+"bearing": 0.6601307189542484
+}
+},
+{
+"size": "2x8",
+"spacing": 24.0,
+"case": "floor",
+"span": 16.0,
+"pitch": 0.0,
+"ratios": {
+"bending": 2.4580320677099876,
+"shear": 0.7620263942103023,
+"deflection live": 3.395008464003093,
+"deflection total": 2.8291737200025775,
+"bearing": 0.8431372549019609
+}
+},
+{
+"size": "2x8",
+"spacing": 24.0,
+"case": "roof-snow30",
+"span": 8.0,
+"pitch": 6.0,
+"ratios": {
+"bending": 0.5076204344699135,
+"shear": 0.25706581565437947,
+"deflection live": 0.2035884243042824,
+"deflection total": 0.31739781334839384,
+"bearing": 0.3973964887622415
+}
+},
+{
+"size": "2x8",
+"spacing": 24.0,
+"case": "roof-snow30",
+"span": 12.5,
+"pitch": 6.0,
+"ratios": {
+"bending": 1.225618000479902,
+"shear": 0.4243134547548192,
+"deflection live": 0.7637955654041928,
+"deflection total": 1.190770266693358,
+"bearing": 0.6174930056151751
+}
+},
+{
+"size": "2x8",
+"spacing": 24.0,
+"case": "roof-snow30",
+"span": 16.0,
+"pitch": 6.0,
+"ratios": {
+"bending": 1.9993637041452847,
+"shear": 0.5543949518329387,
+"deflection live": 1.59141021750145,
+"deflection total": 2.4810355741066914,
+"bearing": 0.7886791853896792
+}
+},
+{
+"size": "2x8",
+"spacing": 24.0,
+"case": "roof-snow50",
+"span": 8.0,
+"pitch": 6.0,
+"ratios": {
+"bending": 0.7246890258970528,
+"shear": 0.3669922699872027,
+"deflection live": 0.33931404050713737,
+"deflection total": 0.45312342955124874,
+"bearing": 0.5673311292851173
+}
+},
+{
+"size": "2x8",
+"spacing": 24.0,
+"case": "roof-snow50",
+"span": 12.5,
+"pitch": 6.0,
+"ratios": {
+"bending": 1.749716627970612,
+"shear": 0.6057583251595997,
+"deflection live": 1.2729926090069879,
+"deflection total": 1.6999673102961532,
+"bearing": 0.8815452931968746
+}
+},
+{
+"size": "2x8",
+"spacing": 24.0,
+"case": "roof-snow50",
+"span": 16.0,
+"pitch": 6.0,
+"ratios": {
+"bending": 2.854331379870499,
+"shear": 0.7914652569603529,
+"deflection live": 2.6523503625024167,
+"deflection total": 3.541975719107658,
+"bearing": 1.1259340873504635
+}
+},
+{
+"size": "2x10",
+"spacing": 12.0,
+"case": "floor",
+"span": 8.0,
+"pitch": 0.0,
+"ratios": {
+"bending": 0.20911536775226555,
+"shear": 0.13179846513179846,
+"deflection live": 0.10456121623031776,
+"deflection total": 0.08713434685859812,
+"bearing": 0.2124183006535948
+}
+},
+{
+"size": "2x10",
+"spacing": 12.0,
+"case": "floor",
+"span": 12.5,
+"pitch": 0.0,
+"ratios": {
+"bending": 0.5048960630629257,
+"shear": 0.2218885552218886,
+"deflection live": 0.39227865505075143,
+"deflection total": 0.3268988792089596,
+"bearing": 0.3300653594771242
+}
+},
+{
+"size": "2x10",
+"spacing": 12.0,
+"case": "floor",
+"span": 16.0,
+"pitch": 0.0,
+"ratios": {
+"bending": 0.8236423277551363,
+"shear": 0.29195862529195865,
+"deflection live": 0.8173342292516874,
+"deflection total": 0.6811118577097394,
+"bearing": 0.42156862745098045
+}
+},
+{
+"size": "2x10",
+"spacing": 12.0,
+"case": "roof-snow30",
+"span": 8.0,
+"pitch": 6.0,
+"ratios": {
+"bending": 0.17009447588386895,
+"shear": 0.09588697226704386,
+"deflection live": 0.04901307010796145,
+"deflection total": 0.07641220924480263,
+"bearing": 0.19869824438112074
+}
+},
+{
+"size": "2x10",
+"spacing": 12.0,
+"case": "roof-snow30",
+"span": 12.5,
+"pitch": 6.0,
+"ratios": {
+"bending": 0.4106825440216205,
+"shear": 0.1614299659685675,
+"deflection live": 0.18388061955503976,
+"deflection total": 0.28667301082250124,
+"bearing": 0.30874650280758753
+}
+},
+{
+"size": "2x10",
+"spacing": 12.0,
+"case": "roof-snow30",
+"span": 16.0,
+"pitch": 6.0,
+"ratios": {
+"bending": 0.6699508102209379,
+"shear": 0.21240784995864145,
+"deflection live": 0.38312541996172844,
+"deflection total": 0.5972990406973733,
+"bearing": 0.3943395926948396
+}
+},
+{
+"size": "2x10",
+"spacing": 12.0,
+"case": "roof-snow50",
+"span": 8.0,
+"pitch": 6.0,
+"ratios": {
+"bending": 0.24283025597161348,
+"shear": 0.1368901482482386,
+"deflection live": 0.08168845017993577,
+"deflection total": 0.10908758931677695,
+"bearing": 0.28366556464255865
+}
+},
+{
+"size": "2x10",
+"spacing": 12.0,
+"case": "roof-snow50",
+"span": 12.5,
+"pitch": 6.0,
+"ratios": {
+"bending": 0.5862985659565513,
+"shear": 0.23046062932931313,
+"deflection live": 0.3064676992583996,
+"deflection total": 0.40926009052586115,
+"bearing": 0.4407726465984373
+}
+},
+{
+"size": "2x10",
+"spacing": 12.0,
+"case": "roof-snow50",
+"span": 16.0,
+"pitch": 6.0,
+"ratios": {
+"bending": 0.9564350981357681,
+"shear": 0.3032376701701488,
+"deflection live": 0.6385423666028808,
+"deflection total": 0.8527159873385256,
+"bearing": 0.5629670436752318
+}
+},
+{
+"size": "2x10",
+"spacing": 16.0,
+"case": "floor",
+"span": 8.0,
+"pitch": 0.0,
+"ratios": {
+"bending": 0.2788204903363539,
+"shear": 0.17573128684239794,
+"deflection live": 0.13941495497375697,
+"deflection total": 0.11617912914479749,
+"bearing": 0.2832244008714596
+}
+},
+{
+"size": "2x10",
+"spacing": 16.0,
+"case": "floor",
+"span": 12.5,
+"pitch": 0.0,
+"ratios": {
+"bending": 0.6731947507505672,
+"shear": 0.29585140696251805,
+"deflection live": 0.5230382067343352,
+"deflection total": 0.43586517227861266,
+"bearing": 0.4400871459694988
+}
+},
+{
+"size": "2x10",
+"spacing": 16.0,
+"case": "floor",
+"span": 16.0,
+"pitch": 0.0,
+"ratios": {
+"bending": 1.0981897703401815,
+"shear": 0.38927816705594476,
+"deflection live": 1.0897789723355829,
+"deflection total": 0.9081491436129856,
+"bearing": 0.5620915032679737
+}
+},
+{
+"size": "2x10",
+"spacing": 16.0,
+"case": "roof-snow30",
+"span": 8.0,
+"pitch": 6.0,
+"ratios": {
+"bending": 0.22679263451182524,
+"shear": 0.1278492963560585,
+"deflection live": 0.06535076014394861,
+"deflection total": 0.10188294565973686,
+"bearing": 0.264930992508161
+}
+},
+{
+"size": "2x10",
+"spacing": 16.0,
+"case": "roof-snow30",
+"span": 12.5,
+"pitch": 6.0,
+"ratios": {
+"bending": 0.5475767253621608,
+"shear": 0.21523995462475667,
+"deflection live": 0.2451741594067197,
+"deflection total": 0.38223068109666836,
+"bearing": 0.4116620037434502
+}
+},
+{
+"size": "2x10",
+"spacing": 16.0,
+"case": "roof-snow30",
+"span": 16.0,
+"pitch": 6.0,
+"ratios": {
+"bending": 0.8932677469612508,
+"shear": 0.283210466611522,
+"deflection live": 0.5108338932823046,
+"deflection total": 0.7963987209298311,
+"bearing": 0.5257861235931195
+}
+},
+{
+"size": "2x10",
+"spacing": 16.0,
+"case": "roof-snow50",
+"span": 8.0,
+"pitch": 6.0,
+"ratios": {
+"bending": 0.3237736746288179,
+"shear": 0.1825201976643181,
+"deflection live": 0.10891793357324765,
+"deflection total": 0.1454501190890359,
+"bearing": 0.3782207528567448
+}
+},
+{
+"size": "2x10",
+"spacing": 16.0,
+"case": "roof-snow50",
+"span": 12.5,
+"pitch": 6.0,
+"ratios": {
+"bending": 0.7817314212754015,
+"shear": 0.3072808391057507,
+"deflection live": 0.4086235990111994,
+"deflection total": 0.545680120701148,
+"bearing": 0.5876968621312495
+}
+},
+{
+"size": "2x10",
+"spacing": 16.0,
+"case": "roof-snow50",
+"span": 16.0,
+"pitch": 6.0,
+"ratios": {
+"bending": 1.275246797514357,
+"shear": 0.40431689356019834,
+"deflection live": 0.8513898221371742,
+"deflection total": 1.1369546497847005,
+"bearing": 0.7506227249003089
+}
+},
+{
+"size": "2x10",
+"spacing": 24.0,
+"case": "floor",
+"span": 8.0,
+"pitch": 0.0,
+"ratios": {
+"bending": 0.4182307355045311,
+"shear": 0.26359693026359693,
+"deflection live": 0.20912243246063553,
+"deflection total": 0.17426869371719625,
+"bearing": 0.4248366013071896
+}
+},
+{
+"size": "2x10",
+"spacing": 24.0,
+"case": "floor",
+"span": 12.5,
+"pitch": 0.0,
+"ratios": {
+"bending": 1.0097921261258513,
+"shear": 0.4437771104437772,
+"deflection live": 0.7845573101015029,
+"deflection total": 0.6537977584179192,
+"bearing": 0.6601307189542484
+}
+},
+{
+"size": "2x10",
+"spacing": 24.0,
+"case": "floor",
+"span": 16.0,
+"pitch": 0.0,
+"ratios": {
+"bending": 1.6472846555102727,
+"shear": 0.5839172505839173,
+"deflection live": 1.6346684585033748,
+"deflection total": 1.3622237154194787,
+"bearing": 0.8431372549019609
+}
+},
+{
+"size": "2x10",
+"spacing": 24.0,
+"case": "roof-snow30",
+"span": 8.0,
+"pitch": 6.0,
+"ratios": {
+"bending": 0.3401889517677379,
+"shear": 0.19177394453408772,
+"deflection live": 0.0980261402159229,
+"deflection total": 0.15282441848960526,
+"bearing": 0.3973964887622415
+}
+},
+{
+"size": "2x10",
+"spacing": 24.0,
+"case": "roof-snow30",
+"span": 12.5,
+"pitch": 6.0,
+"ratios": {
+"bending": 0.821365088043241,
+"shear": 0.322859931937135,
+"deflection live": 0.3677612391100795,
+"deflection total": 0.5733460216450025,
+"bearing": 0.6174930056151751
+}
+},
+{
+"size": "2x10",
+"spacing": 24.0,
+"case": "roof-snow30",
+"span": 16.0,
+"pitch": 6.0,
+"ratios": {
+"bending": 1.3399016204418759,
+"shear": 0.4248156999172829,
+"deflection live": 0.7662508399234569,
+"deflection total": 1.1945980813947465,
+"bearing": 0.7886791853896792
+}
+},
+{
+"size": "2x10",
+"spacing": 24.0,
+"case": "roof-snow50",
+"span": 8.0,
+"pitch": 6.0,
+"ratios": {
+"bending": 0.48566051194322696,
+"shear": 0.2737802964964772,
+"deflection live": 0.16337690035987154,
+"deflection total": 0.2181751786335539,
+"bearing": 0.5673311292851173
+}
+},
+{
+"size": "2x10",
+"spacing": 24.0,
+"case": "roof-snow50",
+"span": 12.5,
+"pitch": 6.0,
+"ratios": {
+"bending": 1.1725971319131026,
+"shear": 0.46092125865862626,
+"deflection live": 0.6129353985167992,
+"deflection total": 0.8185201810517223,
+"bearing": 0.8815452931968746
+}
+},
+{
+"size": "2x10",
+"spacing": 24.0,
+"case": "roof-snow50",
+"span": 16.0,
+"pitch": 6.0,
+"ratios": {
+"bending": 1.9128701962715362,
+"shear": 0.6064753403402976,
+"deflection live": 1.2770847332057615,
+"deflection total": 1.7054319746770512,
+"bearing": 1.1259340873504635
+}
+},
+{
+"size": "2x12",
+"spacing": 12.0,
+"case": "floor",
+"span": 8.0,
+"pitch": 0.0,
+"ratios": {
+"bending": 0.1555095468138947,
+"shear": 0.102880658436214,
+"deflection live": 0.05812169312169313,
+"deflection total": 0.048434744268077604,
+"bearing": 0.2124183006535948
+}
+},
+{
+"size": "2x12",
+"spacing": 12.0,
+"case": "floor",
+"span": 12.5,
+"pitch": 0.0,
+"ratios": {
+"bending": 0.37546813894639985,
+"shear": 0.17695473251028807,
+"deflection live": 0.21805312169312172,
+"deflection total": 0.1817109347442681,
+"bearing": 0.3300653594771242
+}
+},
+{
+"size": "2x12",
+"spacing": 12.0,
+"case": "floor",
+"span": 16.0,
+"pitch": 0.0,
+"ratios": {
+"bending": 0.6125051759834371,
+"shear": 0.23456790123456792,
+"deflection live": 0.4543257142857143,
+"deflection total": 0.3786047619047619,
+"bearing": 0.42156862745098045
+}
+},
+{
+"size": "2x12",
+"spacing": 12.0,
+"case": "roof-snow30",
+"span": 8.0,
+"pitch": 6.0,
+"ratios": {
+"bending": 0.12649149196716952,
+"shear": 0.07484848046161652,
+"deflection live": 0.02724454365079365,
+"deflection total": 0.04247470655557738,
+"bearing": 0.19869824438112074
+}
+},
+{
+"size": "2x12",
+"spacing": 12.0,
+"case": "roof-snow30",
+"span": 12.5,
+"pitch": 6.0,
+"ratios": {
+"bending": 0.3054058484158807,
+"shear": 0.12873938639398042,
+"deflection live": 0.10221240079365079,
+"deflection total": 0.15935086987316494,
+"bearing": 0.30874650280758753
+}
+},
+{
+"size": "2x12",
+"spacing": 12.0,
+"case": "roof-snow30",
+"span": 16.0,
+"pitch": 6.0,
+"ratios": {
+"bending": 0.49821181486998056,
+"shear": 0.17065453545248563,
+"deflection live": 0.21296517857142858,
+"deflection total": 0.33201633260295255,
+"bearing": 0.3943395926948396
+}
+},
+{
+"size": "2x12",
+"spacing": 12.0,
+"case": "roof-snow50",
+"span": 8.0,
+"pitch": 6.0,
+"ratios": {
+"bending": 0.18058176911982854,
+"shear": 0.10685517901233813,
+"deflection live": 0.04540757275132276,
+"deflection total": 0.06063773565610648,
+"bearing": 0.28366556464255865
+}
+},
+{
+"size": "2x12",
+"spacing": 12.0,
+"case": "roof-snow50",
+"span": 12.5,
+"pitch": 6.0,
+"ratios": {
+"bending": 0.43600346196245465,
+"shear": 0.1837909079012216,
+"deflection live": 0.1703540013227513,
+"deflection total": 0.22749247040226545,
+"bearing": 0.4407726465984373
+}
+},
+{
+"size": "2x12",
+"spacing": 12.0,
+"case": "roof-snow50",
+"span": 16.0,
+"pitch": 6.0,
+"ratios": {
+"bending": 0.7112570934729152,
+"shear": 0.24362980814813093,
+"deflection live": 0.35494196428571434,
+"deflection total": 0.4739931183172382,
+"bearing": 0.5629670436752318
+}
+},
+{
+"size": "2x12",
+"spacing": 16.0,
+"case": "floor",
+"span": 8.0,
+"pitch": 0.0,
+"ratios": {
+"bending": 0.20734606241852616,
+"shear": 0.1371742112482853,
+"deflection live": 0.07749559082892417,
+"deflection total": 0.06457965902410347,
+"bearing": 0.2832244008714596
+}
+},
+{
+"size": "2x12",
+"spacing": 16.0,
+"case": "floor",
+"span": 12.5,
+"pitch": 0.0,
+"ratios": {
+"bending": 0.5006241852618664,
+"shear": 0.2359396433470507,
+"deflection live": 0.2907374955908289,
+"deflection total": 0.24228124632569076,
+"bearing": 0.4400871459694988
+}
+},
+{
+"size": "2x12",
+"spacing": 16.0,
+"case": "floor",
+"span": 16.0,
+"pitch": 0.0,
+"ratios": {
+"bending": 0.8166735679779157,
+"shear": 0.31275720164609044,
+"deflection live": 0.605767619047619,
+"deflection total": 0.504806349206349,
+"bearing": 0.5620915032679737
+}
+},
+{
+"size": "2x12",
+"spacing": 16.0,
+"case": "roof-snow30",
+"span": 8.0,
+"pitch": 6.0,
+"ratios": {
+"bending": 0.1686553226228927,
+"shear": 0.09979797394882202,
+"deflection live": 0.036326058201058206,
+"deflection total": 0.05663294207410317,
+"bearing": 0.264930992508161
+}
+},
+{
+"size": "2x12",
+"spacing": 16.0,
+"case": "roof-snow30",
+"span": 12.5,
+"pitch": 6.0,
+"ratios": {
+"bending": 0.40720779788784106,
+"shear": 0.17165251519197391,
+"deflection live": 0.13628320105820105,
+"deflection total": 0.21246782649755327,
+"bearing": 0.4116620037434502
+}
+},
+{
+"size": "2x12",
+"spacing": 16.0,
+"case": "roof-snow30",
+"span": 16.0,
+"pitch": 6.0,
+"ratios": {
+"bending": 0.6642824198266409,
+"shear": 0.22753938060331422,
+"deflection live": 0.2839535714285714,
+"deflection total": 0.44268844347060343,
+"bearing": 0.5257861235931195
+}
+},
+{
+"size": "2x12",
+"spacing": 16.0,
+"case": "roof-snow50",
+"span": 8.0,
+"pitch": 6.0,
+"ratios": {
+"bending": 0.24077569215977135,
+"shear": 0.14247357201645083,
+"deflection live": 0.060543430335097,
+"deflection total": 0.08085031420814195,
+"bearing": 0.3782207528567448
+}
+},
+{
+"size": "2x12",
+"spacing": 16.0,
+"case": "roof-snow50",
+"span": 12.5,
+"pitch": 6.0,
+"ratios": {
+"bending": 0.5813379492832728,
+"shear": 0.24505454386829545,
+"deflection live": 0.22713866843033506,
+"deflection total": 0.30332329386968726,
+"bearing": 0.5876968621312495
+}
+},
+{
+"size": "2x12",
+"spacing": 16.0,
+"case": "roof-snow50",
+"span": 16.0,
+"pitch": 6.0,
+"ratios": {
+"bending": 0.9483427912972201,
+"shear": 0.3248397441975079,
+"deflection live": 0.47325595238095236,
+"deflection total": 0.6319908244229843,
+"bearing": 0.7506227249003089
+}
+},
+{
+"size": "2x12",
+"spacing": 24.0,
+"case": "floor",
+"span": 8.0,
+"pitch": 0.0,
+"ratios": {
+"bending": 0.3110190936277894,
+"shear": 0.205761316872428,
+"deflection live": 0.11624338624338626,
+"deflection total": 0.09686948853615521,
+"bearing": 0.4248366013071896
+}
+},
+{
+"size": "2x12",
+"spacing": 24.0,
+"case": "floor",
+"span": 12.5,
+"pitch": 0.0,
+"ratios": {
+"bending": 0.7509362778927997,
+"shear": 0.35390946502057613,
+"deflection live": 0.43610624338624343,
+"deflection total": 0.3634218694885362,
+"bearing": 0.6601307189542484
+}
+},
+{
+"size": "2x12",
+"spacing": 24.0,
+"case": "floor",
+"span": 16.0,
+"pitch": 0.0,
+"ratios": {
+"bending": 1.2250103519668742,
+"shear": 0.46913580246913583,
+"deflection live": 0.9086514285714286,
+"deflection total": 0.7572095238095238,
+"bearing": 0.8431372549019609
+}
+},
+{
+"size": "2x12",
+"spacing": 24.0,
+"case": "roof-snow30",
+"span": 8.0,
+"pitch": 6.0,
+"ratios": {
+"bending": 0.25298298393433905,
+"shear": 0.14969696092323304,
+"deflection live": 0.0544890873015873,
+"deflection total": 0.08494941311115475,
+"bearing": 0.3973964887622415
+}
+},
+{
+"size": "2x12",
+"spacing": 24.0,
+"case": "roof-snow30",
+"span": 12.5,
+"pitch": 6.0,
+"ratios": {
+"bending": 0.6108116968317614,
+"shear": 0.25747877278796083,
+"deflection live": 0.20442480158730159,
+"deflection total": 0.31870173974632987,
+"bearing": 0.6174930056151751
+}
+},
+{
+"size": "2x12",
+"spacing": 24.0,
+"case": "roof-snow30",
+"span": 16.0,
+"pitch": 6.0,
+"ratios": {
+"bending": 0.9964236297399611,
+"shear": 0.34130907090497126,
+"deflection live": 0.42593035714285715,
+"deflection total": 0.6640326652059051,
+"bearing": 0.7886791853896792
+}
+},
+{
+"size": "2x12",
+"spacing": 24.0,
+"case": "roof-snow50",
+"span": 8.0,
+"pitch": 6.0,
+"ratios": {
+"bending": 0.3611635382396571,
+"shear": 0.21371035802467625,
+"deflection live": 0.09081514550264552,
+"deflection total": 0.12127547131221296,
+"bearing": 0.5673311292851173
+}
+},
+{
+"size": "2x12",
+"spacing": 24.0,
+"case": "roof-snow50",
+"span": 12.5,
+"pitch": 6.0,
+"ratios": {
+"bending": 0.8720069239249093,
+"shear": 0.3675818158024432,
+"deflection live": 0.3407080026455026,
+"deflection total": 0.4549849408045309,
+"bearing": 0.8815452931968746
+}
+},
+{
+"size": "2x12",
+"spacing": 24.0,
+"case": "roof-snow50",
+"span": 16.0,
+"pitch": 6.0,
+"ratios": {
+"bending": 1.4225141869458304,
+"shear": 0.48725961629626185,
+"deflection live": 0.7098839285714287,
+"deflection total": 0.9479862366344765,
+"bearing": 1.1259340873504635
+}
+}
+],
+"maxSpan": [
+{
+"size": "2x6",
+"spacing": 12.0,
+"case": "floor",
+"ft": 10.12
+},
+{
+"size": "2x6",
+"spacing": 12.0,
+"case": "roof-snow30",
+"ft": 12.29
+},
+{
+"size": "2x6",
+"spacing": 12.0,
+"case": "roof-snow50",
+"ft": 10.67
+},
+{
+"size": "2x6",
+"spacing": 16.0,
+"case": "floor",
+"ft": 9.19
+},
+{
+"size": "2x6",
+"spacing": 16.0,
+"case": "roof-snow30",
+"ft": 11.11
+},
+{
+"size": "2x6",
+"spacing": 16.0,
+"case": "roof-snow50",
+"ft": 9.22
+},
+{
+"size": "2x6",
+"spacing": 24.0,
+"case": "floor",
+"ft": 7.99
+},
+{
+"size": "2x6",
+"spacing": 24.0,
+"case": "roof-snow30",
+"ft": 9.05
+},
+{
+"size": "2x6",
+"spacing": 24.0,
+"case": "roof-snow50",
+"ft": 7.51
+},
+{
+"size": "2x8",
+"spacing": 12.0,
+"case": "floor",
+"ft": 13.39
+},
+{
+"size": "2x8",
+"spacing": 12.0,
+"case": "roof-snow30",
+"ft": 16.25
+},
+{
+"size": "2x8",
+"spacing": 12.0,
+"case": "roof-snow50",
+"ft": 13.55
+},
+{
+"size": "2x8",
+"spacing": 16.0,
+"case": "floor",
+"ft": 12.15
+},
+{
+"size": "2x8",
+"spacing": 16.0,
+"case": "roof-snow30",
+"ft": 14.11
+},
+{
+"size": "2x8",
+"spacing": 16.0,
+"case": "roof-snow50",
+"ft": 11.72
+},
+{
+"size": "2x8",
+"spacing": 24.0,
+"case": "floor",
+"ft": 10.16
+},
+{
+"size": "2x8",
+"spacing": 24.0,
+"case": "roof-snow30",
+"ft": 11.5
+},
+{
+"size": "2x8",
+"spacing": 24.0,
+"case": "roof-snow50",
+"ft": 9.54
+},
+{
+"size": "2x10",
+"spacing": 12.0,
+"case": "floor",
+"ft": 17.12
+},
+{
+"size": "2x10",
+"spacing": 12.0,
+"case": "roof-snow30",
+"ft": 19.95
+},
+{
+"size": "2x10",
+"spacing": 12.0,
+"case": "roof-snow50",
+"ft": 16.58
+},
+{
+"size": "2x10",
+"spacing": 16.0,
+"case": "floor",
+"ft": 15.26
+},
+{
+"size": "2x10",
+"spacing": 16.0,
+"case": "roof-snow30",
+"ft": 17.26
+},
+{
+"size": "2x10",
+"spacing": 16.0,
+"case": "roof-snow50",
+"ft": 14.34
+},
+{
+"size": "2x10",
+"spacing": 24.0,
+"case": "floor",
+"ft": 12.43
+},
+{
+"size": "2x10",
+"spacing": 24.0,
+"case": "roof-snow30",
+"ft": 14.07
+},
+{
+"size": "2x10",
+"spacing": 24.0,
+"case": "roof-snow50",
+"ft": 11.69
+},
+{
+"size": "2x12",
+"spacing": 12.0,
+"case": "floor",
+"ft": 20.47
+},
+{
+"size": "2x12",
+"spacing": 12.0,
+"case": "roof-snow30",
+"ft": 23.16
+},
+{
+"size": "2x12",
+"spacing": 12.0,
+"case": "roof-snow50",
+"ft": 19.25
+},
+{
+"size": "2x12",
+"spacing": 16.0,
+"case": "floor",
+"ft": 17.71
+},
+{
+"size": "2x12",
+"spacing": 16.0,
+"case": "roof-snow30",
+"ft": 20.04
+},
+{
+"size": "2x12",
+"spacing": 16.0,
+"case": "roof-snow50",
+"ft": 16.65
+},
+{
+"size": "2x12",
+"spacing": 24.0,
+"case": "floor",
+"ft": 14.44
+},
+{
+"size": "2x12",
+"spacing": 24.0,
+"case": "roof-snow30",
+"ft": 16.34
+},
+{
+"size": "2x12",
+"spacing": 24.0,
+"case": "roof-snow50",
+"ft": 13.57
+}
+],
+"size": [
+{
+"span": 6.0,
+"case": "floor",
+"spacing": 16.0,
+"result": {
+"size": "2x6",
+"governs": "bending",
+"ratio": 0.37922551756543843
+}
+},
+{
+"span": 10.0,
+"case": "floor",
+"spacing": 16.0,
+"result": {
+"size": "2x8",
+"governs": "bending",
+"ratio": 0.6460809004364811
+}
+},
+{
+"span": 13.0,
+"case": "floor",
+"spacing": 16.0,
+"result": {
+"size": "2x10",
+"governs": "bending",
+"ratio": 0.7275729954930893
+}
+},
+{
+"span": 15.0,
+"case": "floor",
+"spacing": 16.0,
+"result": {
+"size": "2x10",
+"governs": "bending",
+"ratio": 0.9662037394117298
+}
+},
+{
+"span": 18.0,
+"case": "floor",
+"spacing": 16.0,
+"result": null
+},
+{
+"span": 21.0,
+"case": "floor",
+"spacing": 16.0,
+"result": null
+}
+],
+"stud": [
+{
+"stud": "2x4",
+"spacing": 16.0,
+"lengthIn": 92.625,
+"roofPlf": [
+165.0,
+330.0
+],
+"wind": 0.0,
+"ratio": 0.2957983193277311
+},
+{
+"stud": "2x4",
+"spacing": 16.0,
+"lengthIn": 92.625,
+"roofPlf": [
+165.0,
+550.0
+],
+"wind": 20.0,
+"ratio": 0.42726423902894495
+},
+{
+"stud": "2x4",
+"spacing": 16.0,
+"lengthIn": 92.625,
+"roofPlf": [
+165.0,
+330.0
+],
+"wind": 35.0,
+"ratio": 0.3694356174119509
+},
+{
+"stud": "2x4",
+"spacing": 16.0,
+"lengthIn": 92.625,
+"roofPlf": [
+225.0,
+450.0
+],
+"wind": 0.0,
+"ratio": 0.4033613445378151
+},
+{
+"stud": "2x4",
+"spacing": 16.0,
+"lengthIn": 92.625,
+"roofPlf": [
+225.0,
+750.0
+],
+"wind": 20.0,
+"ratio": 0.5826330532212886
+},
+{
+"stud": "2x4",
+"spacing": 16.0,
+"lengthIn": 92.625,
+"roofPlf": [
+225.0,
+450.0
+],
+"wind": 35.0,
+"ratio": 0.4033613445378151
+},
+{
+"stud": "2x4",
+"spacing": 16.0,
+"lengthIn": 92.625,
+"roofPlf": [
+285.0,
+570.0
+],
+"wind": 0.0,
+"ratio": 0.5109243697478991
+},
+{
+"stud": "2x4",
+"spacing": 16.0,
+"lengthIn": 92.625,
+"roofPlf": [
+285.0,
+950.0
+],
+"wind": 20.0,
+"ratio": 0.7380018674136322
+},
+{
+"stud": "2x4",
+"spacing": 16.0,
+"lengthIn": 92.625,
+"roofPlf": [
+285.0,
+570.0
+],
+"wind": 35.0,
+"ratio": 0.5109243697478991
+},
+{
+"stud": "2x4",
+"spacing": 24.0,
+"lengthIn": 92.625,
+"roofPlf": [
+165.0,
+330.0
+],
+"wind": 0.0,
+"ratio": 0.44369747899159667
+},
+{
+"stud": "2x4",
+"spacing": 24.0,
+"lengthIn": 92.625,
+"roofPlf": [
+165.0,
+550.0
+],
+"wind": 20.0,
+"ratio": 0.6408963585434174
+},
+{
+"stud": "2x4",
+"spacing": 24.0,
+"lengthIn": 92.625,
+"roofPlf": [
+165.0,
+330.0
+],
+"wind": 35.0,
+"ratio": 0.5952870922285705
+},
+{
+"stud": "2x4",
+"spacing": 24.0,
+"lengthIn": 92.625,
+"roofPlf": [
+225.0,
+450.0
+],
+"wind": 0.0,
+"ratio": 0.6050420168067228
+},
+{
+"stud": "2x4",
+"spacing": 24.0,
+"lengthIn": 92.625,
+"roofPlf": [
+225.0,
+750.0
+],
+"wind": 20.0,
+"ratio": 0.8739495798319328
+},
+{
+"stud": "2x4",
+"spacing": 24.0,
+"lengthIn": 92.625,
+"roofPlf": [
+225.0,
+450.0
+],
+"wind": 35.0,
+"ratio": 0.7400719090260726
+},
+{
+"stud": "2x4",
+"spacing": 24.0,
+"lengthIn": 92.625,
+"roofPlf": [
+285.0,
+570.0
+],
+"wind": 0.0,
+"ratio": 0.7663865546218488
+},
+{
+"stud": "2x4",
+"spacing": 24.0,
+"lengthIn": 92.625,
+"roofPlf": [
+285.0,
+950.0
+],
+"wind": 20.0,
+"ratio": 1.1070028011204482
+},
+{
+"stud": "2x4",
+"spacing": 24.0,
+"lengthIn": 92.625,
+"roofPlf": [
+285.0,
+570.0
+],
+"wind": 35.0,
+"ratio": 0.9326019312353067
+},
+{
+"stud": "2x6",
+"spacing": 16.0,
+"lengthIn": 92.625,
+"roofPlf": [
+165.0,
+330.0
+],
+"wind": 0.0,
+"ratio": 0.18823529411764706
+},
+{
+"stud": "2x6",
+"spacing": 16.0,
+"lengthIn": 92.625,
+"roofPlf": [
+165.0,
+550.0
+],
+"wind": 20.0,
+"ratio": 0.2718954248366013
+},
+{
+"stud": "2x6",
+"spacing": 16.0,
+"lengthIn": 92.625,
+"roofPlf": [
+165.0,
+330.0
+],
+"wind": 35.0,
+"ratio": 0.18823529411764706
+},
+{
+"stud": "2x6",
+"spacing": 16.0,
+"lengthIn": 92.625,
+"roofPlf": [
+225.0,
+450.0
+],
+"wind": 0.0,
+"ratio": 0.25668449197860965
+},
+{
+"stud": "2x6",
+"spacing": 16.0,
+"lengthIn": 92.625,
+"roofPlf": [
+225.0,
+750.0
+],
+"wind": 20.0,
+"ratio": 0.3707664884135472
+},
+{
+"stud": "2x6",
+"spacing": 16.0,
+"lengthIn": 92.625,
+"roofPlf": [
+225.0,
+450.0
+],
+"wind": 35.0,
+"ratio": 0.25668449197860965
+},
+{
+"stud": "2x6",
+"spacing": 16.0,
+"lengthIn": 92.625,
+"roofPlf": [
+285.0,
+570.0
+],
+"wind": 0.0,
+"ratio": 0.3251336898395722
+},
+{
+"stud": "2x6",
+"spacing": 16.0,
+"lengthIn": 92.625,
+"roofPlf": [
+285.0,
+950.0
+],
+"wind": 20.0,
+"ratio": 0.46963755199049323
+},
+{
+"stud": "2x6",
+"spacing": 16.0,
+"lengthIn": 92.625,
+"roofPlf": [
+285.0,
+570.0
+],
+"wind": 35.0,
+"ratio": 0.3251336898395722
+},
+{
+"stud": "2x6",
+"spacing": 24.0,
+"lengthIn": 92.625,
+"roofPlf": [
+165.0,
+330.0
+],
+"wind": 0.0,
+"ratio": 0.2823529411764706
+},
+{
+"stud": "2x6",
+"spacing": 24.0,
+"lengthIn": 92.625,
+"roofPlf": [
+165.0,
+550.0
+],
+"wind": 20.0,
+"ratio": 0.407843137254902
+},
+{
+"stud": "2x6",
+"spacing": 24.0,
+"lengthIn": 92.625,
+"roofPlf": [
+165.0,
+330.0
+],
+"wind": 35.0,
+"ratio": 0.2823529411764706
+},
+{
+"stud": "2x6",
+"spacing": 24.0,
+"lengthIn": 92.625,
+"roofPlf": [
+225.0,
+450.0
+],
+"wind": 0.0,
+"ratio": 0.3850267379679144
+},
+{
+"stud": "2x6",
+"spacing": 24.0,
+"lengthIn": 92.625,
+"roofPlf": [
+225.0,
+750.0
+],
+"wind": 20.0,
+"ratio": 0.5561497326203209
+},
+{
+"stud": "2x6",
+"spacing": 24.0,
+"lengthIn": 92.625,
+"roofPlf": [
+225.0,
+450.0
+],
+"wind": 35.0,
+"ratio": 0.3850267379679144
+},
+{
+"stud": "2x6",
+"spacing": 24.0,
+"lengthIn": 92.625,
+"roofPlf": [
+285.0,
+570.0
+],
+"wind": 0.0,
+"ratio": 0.4877005347593583
+},
+{
+"stud": "2x6",
+"spacing": 24.0,
+"lengthIn": 92.625,
+"roofPlf": [
+285.0,
+950.0
+],
+"wind": 20.0,
+"ratio": 0.7044563279857398
+},
+{
+"stud": "2x6",
+"spacing": 24.0,
+"lengthIn": 92.625,
+"roofPlf": [
+285.0,
+570.0
+],
+"wind": 35.0,
+"ratio": 0.4877005347593583
+}
+],
+"header": [
+{
+"size": "2x6",
+"spanIn": 39.0,
+"wPlf": 300.0,
+"plies": 2,
+"jacks": 1,
+"stud": "2x6",
+"ratio": 0.2854633289415898
+},
+{
+"size": "2x6",
+"spanIn": 39.0,
+"wPlf": 300.0,
+"plies": 3,
+"jacks": 1,
+"stud": "2x6",
+"ratio": 0.19030888596105988
+},
+{
+"size": "2x6",
+"spanIn": 39.0,
+"wPlf": 300.0,
+"plies": 2,
+"jacks": 2,
+"stud": "2x6",
+"ratio": 0.2854633289415898
+},
+{
+"size": "2x6",
+"spanIn": 39.0,
+"wPlf": 600.0,
+"plies": 2,
+"jacks": 1,
+"stud": "2x6",
+"ratio": 0.5709266578831796
+},
+{
+"size": "2x6",
+"spanIn": 39.0,
+"wPlf": 600.0,
+"plies": 3,
+"jacks": 1,
+"stud": "2x6",
+"ratio": 0.38061777192211976
+},
+{
+"size": "2x6",
+"spanIn": 39.0,
+"wPlf": 600.0,
+"plies": 2,
+"jacks": 2,
+"stud": "2x6",
+"ratio": 0.5709266578831796
+},
+{
+"size": "2x6",
+"spanIn": 39.0,
+"wPlf": 900.0,
+"plies": 2,
+"jacks": 1,
+"stud": "2x6",
+"ratio": 0.8563899868247695
+},
+{
+"size": "2x6",
+"spanIn": 39.0,
+"wPlf": 900.0,
+"plies": 3,
+"jacks": 1,
+"stud": "2x6",
+"ratio": 0.5709266578831796
+},
+{
+"size": "2x6",
+"spanIn": 39.0,
+"wPlf": 900.0,
+"plies": 2,
+"jacks": 2,
+"stud": "2x6",
+"ratio": 0.8563899868247695
+},
+{
+"size": "2x6",
+"spanIn": 75.0,
+"wPlf": 300.0,
+"plies": 2,
+"jacks": 1,
+"stud": "2x6",
+"ratio": 0.8884396236174892
+},
+{
+"size": "2x6",
+"spanIn": 75.0,
+"wPlf": 300.0,
+"plies": 3,
+"jacks": 1,
+"stud": "2x6",
+"ratio": 0.5922930824116596
+},
+{
+"size": "2x6",
+"spanIn": 75.0,
+"wPlf": 300.0,
+"plies": 2,
+"jacks": 2,
+"stud": "2x6",
+"ratio": 0.8884396236174892
+},
+{
+"size": "2x6",
+"spanIn": 75.0,
+"wPlf": 600.0,
+"plies": 2,
+"jacks": 1,
+"stud": "2x6",
+"ratio": 1.7768792472349784
+},
+{
+"size": "2x6",
+"spanIn": 75.0,
+"wPlf": 600.0,
+"plies": 3,
+"jacks": 1,
+"stud": "2x6",
+"ratio": 1.1845861648233191
+},
+{
+"size": "2x6",
+"spanIn": 75.0,
+"wPlf": 600.0,
+"plies": 2,
+"jacks": 2,
+"stud": "2x6",
+"ratio": 1.7768792472349784
+},
+{
+"size": "2x6",
+"spanIn": 75.0,
+"wPlf": 900.0,
+"plies": 2,
+"jacks": 1,
+"stud": "2x6",
+"ratio": 2.6653188708524675
+},
+{
+"size": "2x6",
+"spanIn": 75.0,
+"wPlf": 900.0,
+"plies": 3,
+"jacks": 1,
+"stud": "2x6",
+"ratio": 1.7768792472349784
+},
+{
+"size": "2x6",
+"spanIn": 75.0,
+"wPlf": 900.0,
+"plies": 2,
+"jacks": 2,
+"stud": "2x6",
+"ratio": 2.6653188708524675
+},
+{
+"size": "2x6",
+"spanIn": 111.0,
+"wPlf": 300.0,
+"plies": 2,
+"jacks": 1,
+"stud": "2x6",
+"ratio": 1.9460381515717484
+},
+{
+"size": "2x6",
+"spanIn": 111.0,
+"wPlf": 300.0,
+"plies": 3,
+"jacks": 1,
+"stud": "2x6",
+"ratio": 1.2973587677144989
+},
+{
+"size": "2x6",
+"spanIn": 111.0,
+"wPlf": 300.0,
+"plies": 2,
+"jacks": 2,
+"stud": "2x6",
+"ratio": 1.9460381515717484
+},
+{
+"size": "2x6",
+"spanIn": 111.0,
+"wPlf": 600.0,
+"plies": 2,
+"jacks": 1,
+"stud": "2x6",
+"ratio": 3.892076303143497
+},
+{
+"size": "2x6",
+"spanIn": 111.0,
+"wPlf": 600.0,
+"plies": 3,
+"jacks": 1,
+"stud": "2x6",
+"ratio": 2.5947175354289977
+},
+{
+"size": "2x6",
+"spanIn": 111.0,
+"wPlf": 600.0,
+"plies": 2,
+"jacks": 2,
+"stud": "2x6",
+"ratio": 3.892076303143497
+},
+{
+"size": "2x6",
+"spanIn": 111.0,
+"wPlf": 900.0,
+"plies": 2,
+"jacks": 1,
+"stud": "2x6",
+"ratio": 5.838114454715245
+},
+{
+"size": "2x6",
+"spanIn": 111.0,
+"wPlf": 900.0,
+"plies": 3,
+"jacks": 1,
+"stud": "2x6",
+"ratio": 3.892076303143497
+},
+{
+"size": "2x6",
+"spanIn": 111.0,
+"wPlf": 900.0,
+"plies": 2,
+"jacks": 2,
+"stud": "2x6",
+"ratio": 5.838114454715245
+},
+{
+"size": "2x8",
+"spanIn": 39.0,
+"wPlf": 300.0,
+"plies": 2,
+"jacks": 1,
+"stud": "2x6",
+"ratio": 0.2549019607843137
+},
+{
+"size": "2x8",
+"spanIn": 39.0,
+"wPlf": 300.0,
+"plies": 3,
+"jacks": 1,
+"stud": "2x6",
+"ratio": 0.16993464052287582
+},
+{
+"size": "2x8",
+"spanIn": 39.0,
+"wPlf": 300.0,
+"plies": 2,
+"jacks": 2,
+"stud": "2x6",
+"ratio": 0.21655838747293019
+},
+{
+"size": "2x8",
+"spanIn": 39.0,
+"wPlf": 600.0,
+"plies": 2,
+"jacks": 1,
+"stud": "2x6",
+"ratio": 0.5098039215686274
+},
+{
+"size": "2x8",
+"spanIn": 39.0,
+"wPlf": 600.0,
+"plies": 3,
+"jacks": 1,
+"stud": "2x6",
+"ratio": 0.33986928104575165
+},
+{
+"size": "2x8",
+"spanIn": 39.0,
+"wPlf": 600.0,
+"plies": 2,
+"jacks": 2,
+"stud": "2x6",
+"ratio": 0.43311677494586037
+},
+{
+"size": "2x8",
+"spanIn": 39.0,
+"wPlf": 900.0,
+"plies": 2,
+"jacks": 1,
+"stud": "2x6",
+"ratio": 0.7647058823529411
+},
+{
+"size": "2x8",
+"spanIn": 39.0,
+"wPlf": 900.0,
+"plies": 3,
+"jacks": 1,
+"stud": "2x6",
+"ratio": 0.5098039215686274
+},
+{
+"size": "2x8",
+"spanIn": 39.0,
+"wPlf": 900.0,
+"plies": 2,
+"jacks": 2,
+"stud": "2x6",
+"ratio": 0.6496751624187905
+},
+{
+"size": "2x8",
+"spanIn": 75.0,
+"wPlf": 300.0,
+"plies": 2,
+"jacks": 1,
+"stud": "2x6",
+"ratio": 0.5539102369997269
+},
+{
+"size": "2x8",
+"spanIn": 75.0,
+"wPlf": 300.0,
+"plies": 3,
+"jacks": 1,
+"stud": "2x6",
+"ratio": 0.36927349133315124
+},
+{
+"size": "2x8",
+"spanIn": 75.0,
+"wPlf": 300.0,
+"plies": 2,
+"jacks": 2,
+"stud": "2x6",
+"ratio": 0.5539102369997269
+},
+{
+"size": "2x8",
+"spanIn": 75.0,
+"wPlf": 600.0,
+"plies": 2,
+"jacks": 1,
+"stud": "2x6",
+"ratio": 1.1078204739994537
+},
+{
+"size": "2x8",
+"spanIn": 75.0,
+"wPlf": 600.0,
+"plies": 3,
+"jacks": 1,
+"stud": "2x6",
+"ratio": 0.7385469826663025
+},
+{
+"size": "2x8",
+"spanIn": 75.0,
+"wPlf": 600.0,
+"plies": 2,
+"jacks": 2,
+"stud": "2x6",
+"ratio": 1.1078204739994537
+},
+{
+"size": "2x8",
+"spanIn": 75.0,
+"wPlf": 900.0,
+"plies": 2,
+"jacks": 1,
+"stud": "2x6",
+"ratio": 1.6617307109991806
+},
+{
+"size": "2x8",
+"spanIn": 75.0,
+"wPlf": 900.0,
+"plies": 3,
+"jacks": 1,
+"stud": "2x6",
+"ratio": 1.1078204739994537
+},
+{
+"size": "2x8",
+"spanIn": 75.0,
+"wPlf": 900.0,
+"plies": 2,
+"jacks": 2,
+"stud": "2x6",
+"ratio": 1.6617307109991806
+},
+{
+"size": "2x8",
+"spanIn": 111.0,
+"wPlf": 300.0,
+"plies": 2,
+"jacks": 1,
+"stud": "2x6",
+"ratio": 1.2132849831242016
+},
+{
+"size": "2x8",
+"spanIn": 111.0,
+"wPlf": 300.0,
+"plies": 3,
+"jacks": 1,
+"stud": "2x6",
+"ratio": 0.8088566554161344
+},
+{
+"size": "2x8",
+"spanIn": 111.0,
+"wPlf": 300.0,
+"plies": 2,
+"jacks": 2,
+"stud": "2x6",
+"ratio": 1.2132849831242016
+},
+{
+"size": "2x8",
+"spanIn": 111.0,
+"wPlf": 600.0,
+"plies": 2,
+"jacks": 1,
+"stud": "2x6",
+"ratio": 2.4265699662484033
+},
+{
+"size": "2x8",
+"spanIn": 111.0,
+"wPlf": 600.0,
+"plies": 3,
+"jacks": 1,
+"stud": "2x6",
+"ratio": 1.6177133108322688
+},
+{
+"size": "2x8",
+"spanIn": 111.0,
+"wPlf": 600.0,
+"plies": 2,
+"jacks": 2,
+"stud": "2x6",
+"ratio": 2.4265699662484033
+},
+{
+"size": "2x8",
+"spanIn": 111.0,
+"wPlf": 900.0,
+"plies": 2,
+"jacks": 1,
+"stud": "2x6",
+"ratio": 3.639854949372605
+},
+{
+"size": "2x8",
+"spanIn": 111.0,
+"wPlf": 900.0,
+"plies": 3,
+"jacks": 1,
+"stud": "2x6",
+"ratio": 2.4265699662484033
+},
+{
+"size": "2x8",
+"spanIn": 111.0,
+"wPlf": 900.0,
+"plies": 2,
+"jacks": 2,
+"stud": "2x6",
+"ratio": 3.639854949372605
+},
+{
+"size": "2x10",
+"spanIn": 39.0,
+"wPlf": 300.0,
+"plies": 2,
+"jacks": 1,
+"stud": "2x6",
+"ratio": 0.2549019607843137
+},
+{
+"size": "2x10",
+"spanIn": 39.0,
+"wPlf": 300.0,
+"plies": 3,
+"jacks": 1,
+"stud": "2x6",
+"ratio": 0.16993464052287582
+},
+{
+"size": "2x10",
+"spanIn": 39.0,
+"wPlf": 300.0,
+"plies": 2,
+"jacks": 2,
+"stud": "2x6",
+"ratio": 0.169734952343648
+},
+{
+"size": "2x10",
+"spanIn": 39.0,
+"wPlf": 600.0,
+"plies": 2,
+"jacks": 1,
+"stud": "2x6",
+"ratio": 0.5098039215686274
+},
+{
+"size": "2x10",
+"spanIn": 39.0,
+"wPlf": 600.0,
+"plies": 3,
+"jacks": 1,
+"stud": "2x6",
+"ratio": 0.33986928104575165
+},
+{
+"size": "2x10",
+"spanIn": 39.0,
+"wPlf": 600.0,
+"plies": 2,
+"jacks": 2,
+"stud": "2x6",
+"ratio": 0.339469904687296
+},
+{
+"size": "2x10",
+"spanIn": 39.0,
+"wPlf": 900.0,
+"plies": 2,
+"jacks": 1,
+"stud": "2x6",
+"ratio": 0.7647058823529411
+},
+{
+"size": "2x10",
+"spanIn": 39.0,
+"wPlf": 900.0,
+"plies": 3,
+"jacks": 1,
+"stud": "2x6",
+"ratio": 0.5098039215686274
+},
+{
+"size": "2x10",
+"spanIn": 39.0,
+"wPlf": 900.0,
+"plies": 2,
+"jacks": 2,
+"stud": "2x6",
+"ratio": 0.509204857030944
+},
+{
+"size": "2x10",
+"spanIn": 75.0,
+"wPlf": 300.0,
+"plies": 2,
+"jacks": 1,
+"stud": "2x6",
+"ratio": 0.49019607843137253
+},
+{
+"size": "2x10",
+"spanIn": 75.0,
+"wPlf": 300.0,
+"plies": 3,
+"jacks": 1,
+"stud": "2x6",
+"ratio": 0.32679738562091504
+},
+{
+"size": "2x10",
+"spanIn": 75.0,
+"wPlf": 300.0,
+"plies": 2,
+"jacks": 2,
+"stud": "2x6",
+"ratio": 0.37121071198627015
+},
+{
+"size": "2x10",
+"spanIn": 75.0,
+"wPlf": 600.0,
+"plies": 2,
+"jacks": 1,
+"stud": "2x6",
+"ratio": 0.9803921568627451
+},
+{
+"size": "2x10",
+"spanIn": 75.0,
+"wPlf": 600.0,
+"plies": 3,
+"jacks": 1,
+"stud": "2x6",
+"ratio": 0.6535947712418301
+},
+{
+"size": "2x10",
+"spanIn": 75.0,
+"wPlf": 600.0,
+"plies": 2,
+"jacks": 2,
+"stud": "2x6",
+"ratio": 0.7424214239725403
+},
+{
+"size": "2x10",
+"spanIn": 75.0,
+"wPlf": 900.0,
+"plies": 2,
+"jacks": 1,
+"stud": "2x6",
+"ratio": 1.4705882352941178
+},
+{
+"size": "2x10",
+"spanIn": 75.0,
+"wPlf": 900.0,
+"plies": 3,
+"jacks": 1,
+"stud": "2x6",
+"ratio": 0.9803921568627451
+},
+{
+"size": "2x10",
+"spanIn": 75.0,
+"wPlf": 900.0,
+"plies": 2,
+"jacks": 2,
+"stud": "2x6",
+"ratio": 1.1136321359588106
+},
+{
+"size": "2x10",
+"spanIn": 111.0,
+"wPlf": 300.0,
+"plies": 2,
+"jacks": 1,
+"stud": "2x6",
+"ratio": 0.8130999435347261
+},
+{
+"size": "2x10",
+"spanIn": 111.0,
+"wPlf": 300.0,
+"plies": 3,
+"jacks": 1,
+"stud": "2x6",
+"ratio": 0.5420666290231507
+},
+{
+"size": "2x10",
+"spanIn": 111.0,
+"wPlf": 300.0,
+"plies": 2,
+"jacks": 2,
+"stud": "2x6",
+"ratio": 0.8130999435347261
+},
+{
+"size": "2x10",
+"spanIn": 111.0,
+"wPlf": 600.0,
+"plies": 2,
+"jacks": 1,
+"stud": "2x6",
+"ratio": 1.6261998870694523
+},
+{
+"size": "2x10",
+"spanIn": 111.0,
+"wPlf": 600.0,
+"plies": 3,
+"jacks": 1,
+"stud": "2x6",
+"ratio": 1.0841332580463015
+},
+{
+"size": "2x10",
+"spanIn": 111.0,
+"wPlf": 600.0,
+"plies": 2,
+"jacks": 2,
+"stud": "2x6",
+"ratio": 1.6261998870694523
+},
+{
+"size": "2x10",
+"spanIn": 111.0,
+"wPlf": 900.0,
+"plies": 2,
+"jacks": 1,
+"stud": "2x6",
+"ratio": 2.4392998306041784
+},
+{
+"size": "2x10",
+"spanIn": 111.0,
+"wPlf": 900.0,
+"plies": 3,
+"jacks": 1,
+"stud": "2x6",
+"ratio": 1.6261998870694523
+},
+{
+"size": "2x10",
+"spanIn": 111.0,
+"wPlf": 900.0,
+"plies": 2,
+"jacks": 2,
+"stud": "2x6",
+"ratio": 2.4392998306041784
+},
+{
+"size": "2x12",
+"spanIn": 39.0,
+"wPlf": 300.0,
+"plies": 2,
+"jacks": 1,
+"stud": "2x6",
+"ratio": 0.2549019607843137
+},
+{
+"size": "2x12",
+"spanIn": 39.0,
+"wPlf": 300.0,
+"plies": 3,
+"jacks": 1,
+"stud": "2x6",
+"ratio": 0.16993464052287582
+},
+{
+"size": "2x12",
+"spanIn": 39.0,
+"wPlf": 300.0,
+"plies": 2,
+"jacks": 2,
+"stud": "2x6",
+"ratio": 0.13955984970477725
+},
+{
+"size": "2x12",
+"spanIn": 39.0,
+"wPlf": 600.0,
+"plies": 2,
+"jacks": 1,
+"stud": "2x6",
+"ratio": 0.5098039215686274
+},
+{
+"size": "2x12",
+"spanIn": 39.0,
+"wPlf": 600.0,
+"plies": 3,
+"jacks": 1,
+"stud": "2x6",
+"ratio": 0.33986928104575165
+},
+{
+"size": "2x12",
+"spanIn": 39.0,
+"wPlf": 600.0,
+"plies": 2,
+"jacks": 2,
+"stud": "2x6",
+"ratio": 0.2791196994095545
+},
+{
+"size": "2x12",
+"spanIn": 39.0,
+"wPlf": 900.0,
+"plies": 2,
+"jacks": 1,
+"stud": "2x6",
+"ratio": 0.7647058823529411
+},
+{
+"size": "2x12",
+"spanIn": 39.0,
+"wPlf": 900.0,
+"plies": 3,
+"jacks": 1,
+"stud": "2x6",
+"ratio": 0.5098039215686274
+},
+{
+"size": "2x12",
+"spanIn": 39.0,
+"wPlf": 900.0,
+"plies": 2,
+"jacks": 2,
+"stud": "2x6",
+"ratio": 0.41867954911433175
+},
+{
+"size": "2x12",
+"spanIn": 75.0,
+"wPlf": 300.0,
+"plies": 2,
+"jacks": 1,
+"stud": "2x6",
+"ratio": 0.49019607843137253
+},
+{
+"size": "2x12",
+"spanIn": 75.0,
+"wPlf": 300.0,
+"plies": 3,
+"jacks": 1,
+"stud": "2x6",
+"ratio": 0.32679738562091504
+},
+{
+"size": "2x12",
+"spanIn": 75.0,
+"wPlf": 300.0,
+"plies": 2,
+"jacks": 2,
+"stud": "2x6",
+"ratio": 0.2760524499654935
+},
+{
+"size": "2x12",
+"spanIn": 75.0,
+"wPlf": 600.0,
+"plies": 2,
+"jacks": 1,
+"stud": "2x6",
+"ratio": 0.9803921568627451
+},
+{
+"size": "2x12",
+"spanIn": 75.0,
+"wPlf": 600.0,
+"plies": 3,
+"jacks": 1,
+"stud": "2x6",
+"ratio": 0.6535947712418301
+},
+{
+"size": "2x12",
+"spanIn": 75.0,
+"wPlf": 600.0,
+"plies": 2,
+"jacks": 2,
+"stud": "2x6",
+"ratio": 0.552104899930987
+},
+{
+"size": "2x12",
+"spanIn": 75.0,
+"wPlf": 900.0,
+"plies": 2,
+"jacks": 1,
+"stud": "2x6",
+"ratio": 1.4705882352941178
+},
+{
+"size": "2x12",
+"spanIn": 75.0,
+"wPlf": 900.0,
+"plies": 3,
+"jacks": 1,
+"stud": "2x6",
+"ratio": 0.9803921568627451
+},
+{
+"size": "2x12",
+"spanIn": 75.0,
+"wPlf": 900.0,
+"plies": 2,
+"jacks": 2,
+"stud": "2x6",
+"ratio": 0.8281573498964805
+},
+{
+"size": "2x12",
+"spanIn": 111.0,
+"wPlf": 300.0,
+"plies": 2,
+"jacks": 1,
+"stud": "2x6",
+"ratio": 0.7254901960784313
+},
+{
+"size": "2x12",
+"spanIn": 111.0,
+"wPlf": 300.0,
+"plies": 3,
+"jacks": 1,
+"stud": "2x6",
+"ratio": 0.48366013071895425
+},
+{
+"size": "2x12",
+"spanIn": 111.0,
+"wPlf": 300.0,
+"plies": 2,
+"jacks": 2,
+"stud": "2x6",
+"ratio": 0.604665286404417
+},
+{
+"size": "2x12",
+"spanIn": 111.0,
+"wPlf": 600.0,
+"plies": 2,
+"jacks": 1,
+"stud": "2x6",
+"ratio": 1.4509803921568627
+},
+{
+"size": "2x12",
+"spanIn": 111.0,
+"wPlf": 600.0,
+"plies": 3,
+"jacks": 1,
+"stud": "2x6",
+"ratio": 0.9673202614379085
+},
+{
+"size": "2x12",
+"spanIn": 111.0,
+"wPlf": 600.0,
+"plies": 2,
+"jacks": 2,
+"stud": "2x6",
+"ratio": 1.209330572808834
+},
+{
+"size": "2x12",
+"spanIn": 111.0,
+"wPlf": 900.0,
+"plies": 2,
+"jacks": 1,
+"stud": "2x6",
+"ratio": 2.176470588235294
+},
+{
+"size": "2x12",
+"spanIn": 111.0,
+"wPlf": 900.0,
+"plies": 3,
+"jacks": 1,
+"stud": "2x6",
+"ratio": 1.4509803921568627
+},
+{
+"size": "2x12",
+"spanIn": 111.0,
+"wPlf": 900.0,
+"plies": 2,
+"jacks": 2,
+"stud": "2x6",
+"ratio": 1.8139958592132506
+}
+]
+}

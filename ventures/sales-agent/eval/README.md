@@ -12,7 +12,12 @@ error (rules too narrow) is what these sets show reliably.
 | `heldout.jsonl` | 48 | Written after the first tuning, scored once (24/48), then tuned on too |
 | `fresh-2026-10-21.jsonl` | 40 | Written after the second tuning, scored once, **not tuned on**. The honest numbers |
 | `fresh-2026-10-24b.jsonl` | 41 | Third set, written the same day by the session that then patched the rules. Scored once **before** any change (34/41); that author had read the earlier sets' miss list, so it is easier than the others. Its two missed unsubscribes were then patched, so it is now a tuned set |
+| `fresh-2026-10-25.jsonl` | 42 | Opt-out-heavy (18 unsubscribes). Scored once before the change (25/42, 9 of 18 opt-outs caught), then the missed opt-outs were patched: now 34/42, 18/18. A tuned set |
 | `fresh-2026-10-24.jsonl` | 41 | Written by a later session that had not read the rules' output on it, scored once, **not tuned on**. A second honest measurement; same caveat: still written by an agent |
+
+`bounce-corpus/` and `bounces.mjs` are the exception to "hand-written": 117 real
+delivery-failure messages (see the NOTICE there), scored through the IMAP
+parser. Not tuned on before 2026-10-24: 102/117; after: 116/117.
 
 Each line: `{"label", "subtype"?, "subject", "body", "from"?}`. Labels are the
 categories in `engine.mjs` (`CATEGORIES`); `subtype` is set for objections.
@@ -91,3 +96,31 @@ detection by keyword misses paraphrase ("two full days every month to chase
 receipts", "Booked a second call for the 22nd", "Funding is approved"); it rarely
 invents a field, which is the safe direction, since an unknown field only means one
 more question on the agenda. Run: `node eval/calls.mjs`.
+
+## How the sets compare with a real reply mix, added 2026-10-25
+
+None of the sets above is real mail, so one thing is checkable: how the *mix* of
+labels compares with real replies. BusySeed publishes row-level data on 1,857
+cold-email replies from 45 campaigns (Dec 2025 to Aug 2026; CC BY 4.0;
+[methodology](https://v7.busyseed.com/research/where-cold-email-replies-actually-come-from/methodology)).
+The file has a sentiment tag per reply but no reply text, so it cannot score the
+rules; it gives only proportions. Its tags do not match ours one for one (it has
+no out-of-office or bounce tag, and "neutral" is its biggest bucket), so only the
+two ends compare cleanly:
+
+| Share of replies | BusySeed (real, n=1,857) | Our six agent-written sets (n=284) |
+|---|---|---|
+| Unsubscribe or hostile | 1.7% (31) | 19% (55); 14% to 43% per set |
+| Interested | 6.6% (123) | 12% (33) |
+| Not interested | 21% (391) | 12% (33, plus 6 "objection") |
+
+Reading it: the sets over-sample opt-outs about eleven times and interested
+replies about twice, which is the right call for testing the legal-risk direction
+(a missed opt-out costs more than a missed objection) but means the percent-right
+figures above are not what a real inbox would show. In a real inbox the rules'
+job is mostly telling "not interested" and neutral replies apart from the rare
+opt-out, and with 1.7% opt-outs the cost of a false opt-out (a lead suppressed
+for good) grows relative to a missed one, since there are about thirteen
+non-opt-outs for each real opt-out. We have not measured the false-opt-out rate
+on real text. The data is from one vendor's campaigns, and the opt-out tag
+merges hostile replies, so treat the 1.7% as a rough figure.

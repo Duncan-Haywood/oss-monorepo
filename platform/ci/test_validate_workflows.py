@@ -20,6 +20,7 @@ from validate_workflows import (
     check,
     check_unique_names,
     check_venture_tests_run,
+    duplicates_ventures_tests,
     reserved_github_refs,
     unguarded_shallow_fetches,
 )
@@ -119,6 +120,14 @@ jobs:
         errs = errors_for("{}")
         self.assertTrue(any("name" in e for e in errs))
         self.assertTrue(any("on:" in e for e in errs))
+        self.assertTrue(any("jobs:" in e for e in errs))
+
+    def test_empty_jobs_mapping_is_flagged(self):
+        errs = errors_for("name: CI\non: [push]\njobs: {}\n")
+        self.assertTrue(any("jobs:" in e for e in errs))
+
+    def test_non_mapping_jobs_is_flagged_not_a_crash(self):
+        errs = errors_for("name: CI\non: [push]\njobs:\n  - build\n")
         self.assertTrue(any("jobs:" in e for e in errs))
 
     def test_unparseable_yaml_is_flagged(self):
@@ -382,20 +391,20 @@ class VentureTestsRunTest(unittest.TestCase):
             self.assertIn("ventures/widget-calculator", errors[0])
             self.assertIn("calc.test.mjs", errors[0])
             # The message has to name the fix, not just the fault.
-            self.assertIn("widget-calculator-ci.yml", errors[0])
+            self.assertIn("ventures-tests.yml", errors[0])
 
-    def test_the_remedy_also_names_the_publish_surface_step(self):
-        # Following this message adds a workflow, and a workflow absent from
-        # `publish-surface.yaml` fails `publish_surface.py --check`. #4573 did
-        # exactly that and left `main` red all day behind starved checks, so
-        # the instruction has to carry both halves of its own remedy.
+    def test_the_remedy_does_not_ask_for_a_per_venture_copy(self):
+        # Until 2026-10-29 this message said "copy a sibling", and 802
+        # copies of one `node --test` job accumulated; invariant 8 now
+        # rejects such a copy, so the remedy must not ask for one.
         with tempfile.TemporaryDirectory(dir=REPO_ROOT) as tmp:
             vdir, paths = self._tree(
                 tmp, {"widget-calculator": ["calc.test.mjs"]}, {}
             )
             errors = check_venture_tests_run(paths, vdir)
             self.assertEqual(len(errors), 1, errors)
-            self.assertIn("publish_surface.py --write", errors[0])
+            self.assertNotIn("copy a sibling", errors[0])
+            self.assertNotIn("widget-calculator-ci.yml", errors[0])
 
     def test_a_slug_filtered_workflow_that_runs_no_js_tests_is_not_coverage(self):
         # The other five: a Python venture that later gained a browser page,
@@ -523,6 +532,46 @@ class VentureTestsRunTest(unittest.TestCase):
             p for p in workflows_dir.iterdir() if p.suffix in {".yml", ".yaml"}
         )
         self.assertEqual(check_venture_tests_run(paths), [])
+
+
+class DuplicateVentureTestWorkflowTest(unittest.TestCase):
+    """Invariant 8: a per-venture workflow that only re-runs ventures-tests.yml."""
+
+    def workflow(self, steps, extra_paths=()):
+        paths = ["ventures/widget/**", ".github/workflows/widget-ci.yml", *extra_paths]
+        return yaml.safe_load(yaml.safe_dump({
+            "on": {"pull_request": {"paths": paths}, "push": {"paths": paths}},
+            "jobs": {"test": {"runs-on": "ubuntu-latest", "steps": [
+                {"uses": "actions/checkout@abc"},
+                {"uses": "actions/setup-node@def"},
+                *steps,
+            ]}},
+        }))
+
+    def test_a_bare_node_test_workflow_is_a_duplicate(self):
+        data = self.workflow([{"run": "node --test"}])
+        self.assertEqual(duplicates_ventures_tests("widget-ci.yml", data), "widget")
+
+    def test_naming_the_test_files_is_still_a_duplicate(self):
+        data = self.workflow([{"run": "node --test engine.test.mjs page.test.mjs"}])
+        self.assertEqual(duplicates_ventures_tests("widget-ci.yml", data), "widget")
+
+    def test_a_workflow_that_also_runs_pytest_is_not(self):
+        data = self.workflow([{"run": "node --test"}, {"run": "python3 -m pytest -q"}])
+        self.assertIsNone(duplicates_ventures_tests("widget-ci.yml", data))
+
+    def test_a_workflow_watching_a_shared_path_too_is_not(self):
+        data = self.workflow([{"run": "node --test"}], extra_paths=["platform/pages/**"])
+        self.assertIsNone(duplicates_ventures_tests("widget-ci.yml", data))
+
+    def test_a_workflow_with_another_action_is_not(self):
+        data = self.workflow([{"uses": "actions/setup-python@x"}, {"run": "node --test"}])
+        self.assertIsNone(duplicates_ventures_tests("widget-ci.yml", data))
+
+    def test_ventures_tests_itself_is_not(self):
+        path = REPO_ROOT / ".github" / "workflows" / "ventures-tests.yml"
+        data = yaml.safe_load(path.read_text())
+        self.assertIsNone(duplicates_ventures_tests(path.name, data))
 
 
 class ReservedGithubNamesTest(unittest.TestCase):

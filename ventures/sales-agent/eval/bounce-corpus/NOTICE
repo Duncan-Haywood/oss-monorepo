@@ -1,0 +1,6 @@
+These 117 raw messages are the test data of flufl.bounce
+(https://gitlab.com/warsaw/flufl.bounce, tests/data), copyright 2004-2026
+Barry Warsaw, Apache License 2.0 (LICENSE in this directory). They are real
+bounce and auto-reply messages that mailing-list servers received between
+2000 and 2016, with addresses already replaced by example names by that
+project. Copied unmodified.

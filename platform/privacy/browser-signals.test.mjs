@@ -7,6 +7,7 @@ import assert from "node:assert/strict";
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync, symlinkSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { spawnSync } from "node:child_process";
 
 import { checkModule, findUsageModules } from "./browser-signals.mjs";
 
@@ -192,4 +193,50 @@ test("the driver leaves no globals behind", async () => {
     await checkModule(path);
     assert.deepEqual(["navigator", "localStorage", "window"].map((k) => k in globalThis), before);
   } finally { cleanup(); }
+});
+
+// The command-line summary and exit status are what CI reads.
+function runCli(source) {
+  const { path, cleanup } = fixture(source);
+  try {
+    const dir = join(path, "..");
+    const r = spawnSync(process.execPath, [new URL("./browser-signals.mjs", import.meta.url).pathname, dir], { encoding: "utf8" });
+    return r;
+  } finally { cleanup(); }
+}
+
+test("cli: a clean tree exits 0 and counts the module as passed", () => {
+  const r = runCli(HONOURING);
+  assert.equal(r.status, 0);
+  assert.match(r.stdout, /^1 usage module\(s\) honour .*; 0 failed, 0 errored, 0 undrivable\./);
+});
+
+test("cli: a failing module exits 1 and is reported as FAIL", () => {
+  const r = runCli(IGNORING);
+  assert.equal(r.status, 1);
+  assert.match(r.stderr, /FAIL .*Global Privacy Control/);
+  assert.match(r.stdout, /0 usage module\(s\).*1 failed, 0 errored, 0 undrivable/);
+});
+
+test("cli: a module that cannot be imported exits 1 and is reported as ERROR", () => {
+  const r = runCli("export const = ;");
+  assert.equal(r.status, 1);
+  assert.match(r.stderr, /ERROR /);
+  assert.match(r.stdout, /0 failed, 1 errored, 0 undrivable/);
+});
+
+test("cli: an undrivable module exits 1 and is reported as UNDRIVABLE", () => {
+  const r = runCli("export function nothing() {}");
+  assert.equal(r.status, 1);
+  assert.match(r.stderr, /UNDRIVABLE /);
+  assert.match(r.stdout, /0 failed, 0 errored, 1 undrivable/);
+});
+
+test("cli: importing the module does not run the scan", () => {
+  // If the entry-point guard is inverted, an import scans the tree and calls
+  // process.exit, which silently truncates the test run that imported it.
+  const url = new URL("./browser-signals.mjs", import.meta.url).href;
+  const r = spawnSync(process.execPath, ["--input-type=module", "-e", `await import(${JSON.stringify(url)}); console.log("imported");`], { encoding: "utf8" });
+  assert.equal(r.stdout, "imported\n");
+  assert.equal(r.status, 0);
 });

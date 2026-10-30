@@ -1,7 +1,7 @@
 ---
 title: "The twin-real discrepancy is a quieter target than the outcome itself"
 date: 2026-10-24
-description: "In the sim2real-inference programme, |R - T| has lower variance than the real outcome R on 20 of 21 simulator pairs, so bounds built on it can be cheap."
+description: "In the sim2real-inference programme |R-T| has lower variance than the real outcome R on 20 of 21 simulator pairs, which is why bounds built on it can be cheap."
 tags: [research, digital-twin, sim-to-real, statistics]
 ---
 

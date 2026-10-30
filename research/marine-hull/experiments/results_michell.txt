@@ -1,0 +1,28 @@
+cases 6561; catamaran out-ranges monohull in 216 (3.3%)
+wscale 0.5: wins 72/2187 (3.3%); equal length 0/729
+wscale 1.0: wins 72/2187 (3.3%); equal length 0/729
+wscale 1.5: wins 72/2187 (3.3%); equal length 0/729
+range ratio cat/mono: min 0.70 median 0.87 max 1.06
+monohull best range km: min 547 median 805 max 1102
+monohull best speed m/s: median 1.00; max 1.10
+mono wave/viscous at best speed: median 0.069, 90th pct 0.106, max 0.121; share under 0.10: 0.815
+cat wave/viscous at best speed: median 0.023, 90th pct 0.043, max 0.067
+cat win share by k_mono: 0.1: 0.0%, 0.25: 2.5%, 0.4: 7.4%
+cat win share by k_cat: 0.1: 7.4%, 0.25: 2.5%, 0.4: 0.0%
+cat win share by interf: 0.0: 7.4%, 0.15: 2.5%, 0.3: 0.0%
+cat win share by l_mono: 3.0: 9.9%, 4.0: 0.0%, 5.0: 0.0%
+cat win share by l_cat: 3.0: 0.0%, 4.0: 4.9%, 5.0: 4.9%
+cat win share by sep: 0.15: 3.3%, 0.25: 3.3%, 0.4: 3.3%
+cat win share by wscale: 0.5: 3.3%, 1.0: 3.3%, 1.5: 3.3%
+cat win share by e_batt: 150.0: 3.3%, 200.0: 3.3%, 250.0: 3.3%
+4 m monohull: Fr, Michell wave/viscous (k=0.25), milestone-1 placeholder fraction
+  u=0.50 m/s Fr=0.080  0.0072  0.0011
+  u=1.00 m/s Fr=0.160  0.0710  0.0173
+  u=1.50 m/s Fr=0.239  0.3381  0.0877
+  u=2.00 m/s Fr=0.319  0.4513  0.2772
+  u=2.50 m/s Fr=0.399  0.7483  0.4393
+  u=3.00 m/s Fr=0.479  1.2924  0.5032
+
+real	0m1.542s
+user	0m1.514s
+sys	0m0.004s

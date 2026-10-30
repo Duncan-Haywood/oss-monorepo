@@ -51,3 +51,14 @@ test("sample schedule and CLI", () => {
   assert.equal(out.code, 0);
   assert.match(out.out, /SCHEDULE[\s\S]*Critical path/);
 });
+
+test("holidays and weather days you list are skipped, and a holiday start rolls forward", () => {
+  const acts = [{ id: "a", days: 3 }];
+  // Mon Mar 2 + 3 days = Mar 2, 3, 4 normally; a Tue holiday pushes the last day to Thu Mar 5.
+  assert.equal(schedule({ start: "2026-03-02", activities: acts }).rows[0].finishDate, "2026-03-04");
+  assert.equal(schedule({ start: "2026-03-02", holidays: ["2026-03-03"], activities: acts }).rows[0].finishDate, "2026-03-05");
+  assert.equal(schedule({ start: "2026-03-02", weatherDays: ["2026-03-03", "2026-03-04"], activities: acts }).rows[0].finishDate, "2026-03-06");
+  assert.equal(schedule({ start: "2026-03-02", holidays: ["2026-03-02"], activities: acts }).rows[0].startDate, "2026-03-03");
+  assert.equal(schedule({ start: "2026-03-02", holidays: ["2026-03-07"], activities: acts }).rows[0].finishDate, "2026-03-04"); // a weekend holiday changes nothing
+  assert.equal(schedule({ holidays: ["xmas"], activities: acts }).ok, false);
+});

@@ -1,0 +1,9 @@
+== params 32801, 600 steps, 8 seeds, clean held-out loss std across seeds 0.0091
+== threads 4 vs 1 (clean): seed 0 dloss 2.38e-07 rel_l2 7.55e-08; seed 1 dloss 0.00e+00 rel_l2 6.84e-08; seed 2 dloss 0.00e+00 rel_l2 7.20e-08
+class   bits   n  nonfinite  P(|dL|>1e-3) P(>1e-2) P(>1e-1)  median_dL  median_relL2  P(dL==0)
+sign    31-31 100   0.000      0.010       0.000    0.000    2.31e-05   2.54e-03   0.030
+exp_hi  27-30 100   0.240      0.350       0.350    0.330    3.72e-05   2.24e-03   0.010
+exp_lo  23-26 100   0.000      0.020       0.010    0.000    1.94e-05   1.99e-03   0.020
+man_hi  16-22 100   0.000      0.000       0.000    0.000    4.77e-07   5.67e-05   0.210
+man_lo   0-15 100   0.000      0.000       0.000    0.000    0.00e+00   6.14e-08   0.800
+== overall P(harm) with uniform bit: eps 0.001: 0.047, eps 0.01: 0.045, eps 0.1: 0.041

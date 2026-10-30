@@ -1,0 +1,53 @@
+{
+  "date": "2026-10-27",
+  "session": "https://claude.ai/code/session_01AcxTtHTm4YmWH9k94e8guo",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-27T07:17:17Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 10836,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Hook blocks `pkill -f`; not documented, cost a retry."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "Did not rewrite ai-bookkeeper `next:`; fixture sweep slice is recorded in README Next, items need real exports.",
+      "did": "README Next entry only",
+      "result": "fine"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-27-ai-bookkeeper-hdfc-value-date.md"
+  ],
+  "goal": null,
+  "notes": "Paisa fixture sweep: 3 bank.mjs faults fixed; full ai-bookkeeper suite 1591 pass. Cost attach skipped.",
+  "corrections": [],
+  "redteam": null
+}

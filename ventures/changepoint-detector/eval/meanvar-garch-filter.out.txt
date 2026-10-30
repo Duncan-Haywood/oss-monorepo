@@ -1,0 +1,14 @@
+reps 200 per cell, seeded, default minimum segment
+n | noise | plain: null any change, sd1->2 exactly one, mean+1.5 exactly one | garch filter: same three
+100 | gauss | 4% / 92% / 96% | 3% / 15% / 98%
+100 | t3    | 39% / 57% / 55% | 32% / 49% / 60%
+100 | garch | 42% / 61% / 65% | 3% / 13% / 83%
+100 | ar1   | 51% / 44% / 50% | 39% / 28% / 68%
+200 | gauss | 1% / 97% / 98% | 1% / 6% / 99%
+200 | t3    | 62% / 55% / 38% | 54% / 41% / 43%
+200 | garch | 51% / 57% / 50% | 1% / 9% / 78%
+200 | ar1   | 54% / 37% / 47% | 42% / 23% / 63%
+
+real	0m35.116s
+user	0m35.684s
+sys	0m0.764s

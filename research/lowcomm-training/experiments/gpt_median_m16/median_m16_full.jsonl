@@ -1,0 +1,12 @@
+{"agg": "mean", "offset": 1.0, "seed": 0, "loss": 1.5423639565706253, "secs": 2296}
+{"agg": "trimmed", "offset": -10.0, "seed": 0, "loss": 1.548117257654667, "secs": 2339}
+{"agg": "median", "offset": -10.0, "seed": 0, "loss": 1.5407816991209984, "secs": 2341}
+{"agg": "median", "offset": 1.0, "seed": 0, "loss": 1.5441137254238129, "secs": 2347}
+{"agg": "mean", "offset": 1.0, "seed": 1, "loss": 1.5300128534436226, "secs": 2325}
+{"agg": "median", "offset": -10.0, "seed": 1, "loss": 1.5394069850444794, "secs": 2372}
+{"agg": "median", "offset": 1.0, "seed": 1, "loss": 1.5292827114462852, "secs": 2375}
+{"agg": "trimmed", "offset": -10.0, "seed": 1, "loss": 1.5521739348769188, "secs": 2387}
+{"agg": "mean", "offset": 1.0, "seed": 2, "loss": 1.5404413789510727, "secs": 2293}
+{"agg": "median", "offset": 1.0, "seed": 2, "loss": 1.5334536880254745, "secs": 2313}
+{"agg": "median", "offset": -10.0, "seed": 2, "loss": 1.5373793169856071, "secs": 2322}
+{"agg": "trimmed", "offset": -10.0, "seed": 2, "loss": 1.5337737947702408, "secs": 2323}

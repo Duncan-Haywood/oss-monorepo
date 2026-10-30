@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
+<meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b6d'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3ET%3C/text%3E%3C/svg%3E">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>This checker vs. reading the plan JSON by eye | Terraform Plan Secret Exposure Check</title>
 <meta name="description" content="Grepping a terraform show -json plan for AKIA or BEGIN PRIVATE KEY catches the literal string. It misses a value that is only a secret because the provider schema forgot to mark it sensitive -- which means checking that first, per attribute, before deciding a match even matters.">

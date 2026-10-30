@@ -164,6 +164,27 @@ class FeederParamsTest(unittest.TestCase):
         self.assertTrue(any("falls only" in r for r in Feeder(hopper_out_x=-60.0, hopper_out_z=1300.0).check()))
         self.assertTrue(any("bows" in r for r in Feeder(hopper_out_z=1500.0, hose_min_bend=400.0).check()))
 
+    def test_launch_checks_tie_the_head_to_the_flight_model(self):
+        p = Feeder()
+        self.assertAlmostEqual(p.nip_len, 74.0, delta=0.5)
+        rt, rb = p.launch_rpm
+        self.assertTrue(0 < rb < rt < p.wheel_rpm_max)
+        # the same wheel speeds the flight model's launcher gives for this shot
+        sys.path.insert(0, str(HERE.parent.parent / "src"))
+        try:
+            from tennisbots.launcher import WheelLauncher
+        except ImportError:  # pragma: no cover
+            return
+        w = WheelLauncher()
+        self.assertEqual((w.speed_efficiency, w.spin_efficiency, w.max_rpm), (p.speed_eff, p.spin_eff, p.wheel_rpm_max))
+        wt, wb = w.wheel_rpm(p.launch_v_max, p.launch_topspin_rpm * 2 * math.pi / 60)
+        self.assertAlmostEqual(rt, wt, delta=1.0)
+        self.assertAlmostEqual(rb, wb, delta=1.0)
+        # catches bad changes
+        self.assertTrue(any("rpm" in r for r in Feeder(launch_v_max=30.0).check()))
+        self.assertTrue(any("nip pushes" in r for r in Feeder(launch_v_max=25.0, ball_stiff_n_mm=10.0).check()))
+        self.assertTrue(any("nip pushes" in r for r in Feeder(wheel_mu=0.4).check()))
+
     def test_hose_is_longer_than_every_chord_and_the_mouth_swings_back_when_nose_up(self):
         p = Feeder()
         self.assertGreaterEqual(p.hose_len, max(c for _, c, _ in p.hose_chords()))
