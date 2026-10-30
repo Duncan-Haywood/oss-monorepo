@@ -5,6 +5,13 @@ import os from 'node:os';
 import path from 'node:path';
 import { imageRef, dockerfile, writeContext, run, MAX_PER_RUN } from './ghcr.mjs';
 import { buildPackage } from './npm.mjs';
+import { parseAllowlist } from './versions.mjs';
+
+/** An allow-list and a versions manifest naming `slugs` for npm at 0.1.0. */
+const listed = (slugs) => ({
+  allow: parseAllowlist({ tools: slugs.map((slug) => ({ slug, channels: ['npm'], why: 'test' })) }),
+  versions: Object.fromEntries(slugs.map((slug) => [slug, { version: '0.1.0', hash: 'sha256-x' }])),
+});
 
 async function fixture(slugs) {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), 'ghcrtest-'));
@@ -46,7 +53,7 @@ test('dry run pushes nothing; live run pushes only missing images, capped per ru
   const slugs = Array.from({ length: MAX_PER_RUN + 3 }, (_, i) => `tool-${String.fromCharCode(97 + i)}`);
   const root = await fixture(slugs);
   const pushed = [];
-  const hooks = { root, log: () => {}, owner: 'Me', exists: async (r) => r.includes('tool-a:'), buildPush: async (r, dir) => { pushed.push([r, await fs.readdir(dir)]); } };
+  const hooks = { root, log: () => {}, owner: 'Me', ...listed(slugs), exists: async (r) => r.includes('tool-a:'), buildPush: async (r, dir) => { pushed.push([r, await fs.readdir(dir)]); } };
   const dry = await run({ ...hooks, env: {} });
   assert.deepEqual(dry, { pushed: 0, planned: MAX_PER_RUN });
   assert.equal(pushed.length, 0);

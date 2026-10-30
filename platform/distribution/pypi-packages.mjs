@@ -3,12 +3,14 @@
  * with a `src/` package) into a PyPI package so `pipx install <name>` works.
  * Off by default. See portfolio/distribution/README.md.
  *
- *   node platform/distributio./pypi-packages.mjs                      # dry run: prints the packages it would publish
- *   DISTRIBUTE_PYPI=true TWINE_PASSWORD=pypi-... node platform/distributio./pypi-packages.mjs
+ *   node platform/distribution/pypi-packages.mjs                      # dry run: prints the packages it would publish
+ *   DISTRIBUTE_PYPI=true TWINE_PASSWORD=pypi-... node platform/distribution/pypi-packages.mjs
  *
- * Stateless de-duplication: a project name that already exists on PyPI is
- * left alone (never republished or overwritten), and at most MAX_PER_RUN new
- * projects go out per run. Only ventures with no runtime dependencies, a
+ * Only ventures on the pypi-packages allow-list (portfolio/distribution/allowlist.json)
+ * are published, at the version versions.json gives them (versions.mjs), which
+ * replaces the pyproject's own version in the build copy. Stateless
+ * de-duplication: a version PyPI already has is never republished, and at most
+ * MAX_PER_RUN projects go out per run. Only ventures with no runtime dependencies, a
  * LICENSE, a README and a src/ tree qualify; anything else is skipped and the
  * reason printed, not guessed at. Each package is built from a clean copy
  * (pyproject, LICENSE, README, src) so stray site files never ship; if the
@@ -20,6 +22,8 @@ import os from 'node:os';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { fileURLToPath } from 'node:url';
+import { allowed, loadAllowlist, loadVersions } from './versions.mjs';
+import { isOurs } from './pypi.mjs';
 
 const run = promisify(execFile);
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -78,12 +82,18 @@ export async function discover(root = REPO_ROOT) {
   return { ok, skipped };
 }
 
-async function onPyPI(fetchImpl, name) {
+/** 'free', 'ours' (this version already published), 'taken' (another project's name) or 'update'. */
+async function onPyPI(fetchImpl, name, version) {
   const res = await fetchImpl(`https://pypi.org/pypi/${encodeURIComponent(name)}/json`);
-  if (res.status === 404) return false;
+  if (res.status === 404) return 'free';
   if (!res.ok) throw new Error(`pypi.org lookup for ${name}: HTTP ${res.status}`);
-  return true;
+  const doc = await res.json();
+  if (!isOurs(doc)) return 'taken';
+  return doc.releases?.[version] ? 'ours' : 'update';
 }
+
+/** Set the [project] version in a pyproject.toml. */
+export const withVersion = (toml, version) => toml.replace(/^(\[project\][\s\S]*?^version\s*=\s*)"[^"]*"/m, `$1"${version}"`);
 
 /** Write the clean build tree for one package into `out`. */
 export async function stage(pkg, out) {
@@ -96,15 +106,24 @@ export async function stage(pkg, out) {
   });
 }
 
-export async function main({ env = process.env, fetchImpl = fetch, log = console.log, exec = run, root = REPO_ROOT } = {}) {
+export async function main({ env = process.env, fetchImpl = fetch, log = console.log, exec = run, root = REPO_ROOT, allow, versions } = {}) {
   const live = env.DISTRIBUTE_PYPI === 'true' && !!env.TWINE_PASSWORD;
+  allow ??= await loadAllowlist(root);
+  versions ??= await loadVersions(root);
+  const listed = allowed(allow, 'pypi-packages');
   const { ok, skipped } = await discover(root);
-  for (const s of skipped) log(`skip ${s.slug}: ${s.why}`);
+  for (const s of skipped) if (listed.has(s.slug)) log(`skip ${s.slug}: ${s.why}`);
   const todo = [];
-  for (const pkg of ok) {
+  for (const found of ok) {
     if (todo.length >= MAX_PER_RUN) break;
+    if (!listed.has(found.slug)) continue;
+    const version = versions[found.slug]?.version;
+    if (!version) { log(`skip ${found.slug}: no version in versions.json (run versions.mjs --write)`); continue; }
+    const pkg = { ...found, version, toml: withVersion(found.toml, version) };
     if (live || env.PYPI_CHECK === 'true') {
-      if (await onPyPI(fetchImpl, pkg.name)) { log(`exists ${pkg.name}`); continue; }
+      const state = await onPyPI(fetchImpl, pkg.name, version);
+      if (state === 'ours') { log(`exists ${pkg.name} ${version}`); continue; }
+      if (state === 'taken') { log(`skip ${pkg.name}: the name belongs to another project`); continue; }
     }
     todo.push(pkg);
   }
