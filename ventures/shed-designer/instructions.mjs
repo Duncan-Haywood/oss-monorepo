@@ -8,6 +8,7 @@
 import { fmtIn, fmtFtIn } from './lumber.mjs';
 import { WALL_LABEL } from './model.mjs';
 import { heelJoint } from './checks.mjs';
+import { lapSteps } from './lap.mjs';
 import { sidingUpperSheets } from './estimate.mjs';
 import { finishName, SIDING_FINISHES } from './looks.mjs';
 
@@ -238,7 +239,8 @@ export function buildInstructions(shed, est) {
   // Name the nesting only where it is what saves a panel.
   const upperPanels = sidingUpperSheets(shed);
   const nested = d.siding && upperPanels < sidingUpperSheets(shed, false) ? upperPanels : 0;
-  out.push({
+  if (d.siding && shed.lap?.length && est.lapCuts) out.push({ title: 'Wall sheathing, wrap and lap siding', why: 'Trim before siding here: lap courses butt into the corner boards and casings, and each course laps the one below so water runs off.', steps: lapSteps(shed, est) });
+  else out.push({
     title: 'Siding',
     steps: [
       d.siding ? `T1-11 panels, grooves vertical, ${shed.sidingFull.length} panel positions around the shed (see the shopping list for 8, 9 and 10 ft lengths). Start at a corner, keep the bottom edge level with the top of the skids so it laps the rim joist and floor, and plumb the first panel with a level.` : 'Siding is off in this design.',
@@ -267,9 +269,9 @@ export function buildInstructions(shed, est) {
       d.overhang > 0 ? `Soffit: fit the vented soffit (${Math.ceil((shed.trim.soffitSqFt * 1.1) / 12.75)} panels) to the underside of the rafter tails, from the siding to the back of the fascia.` : '',
       vents.length ? 'Gable vents: set each one in its opening over a bead of exterior sealant and screw through its flange; screen side in.' : '',
       shed.framedOpenings.some((o) => o.product !== 'site-built') ? 'Door and windows: follow each maker\'s instructions. Flash the sill and sides with the flashing tape, shim plumb and square in the rough opening, and leave the gap they specify around the frame.' : '',
-      trimmed ? `Case each door and window: sides first, then the head across the top lapping the sides${shed.framedOpenings.some((o) => o.kind === 'window') ? ', and for windows a sill board under' : ''}.` : '',
-      openings && d.siding ? `Head flashing: slide a length of Z-flashing up behind the siding over each ${trimmed ? 'head casing, its lip over the casing\'s front edge' : 'door and window head, its lip over the frame'}, so water runs off and not behind it. Then nail off the siding above it.` : '',
-      trimmed ? `Corner boards: nail the 1x4 corner boards (${shed.wallTrim.filter((t) => t.where.endsWith('corner')).length}) with 8d galvanized finish nails, two every 16"; on each corner the board on the long wall laps the edge of the end-wall board. The cut list is on the Cut sheet tab.` : '',
+      trimmed && !shed.lap?.length ? `Case each door and window: sides first, then the head across the top lapping the sides${shed.framedOpenings.some((o) => o.kind === 'window') ? ', and for windows a sill board under' : ''}.` : '',
+      openings && d.siding && !shed.lap?.length ? `Head flashing: slide a length of Z-flashing up behind the siding over each ${trimmed ? 'head casing, its lip over the casing\'s front edge' : 'door and window head, its lip over the frame'}, so water runs off and not behind it. Then nail off the siding above it.` : '',
+      trimmed && !shed.lap?.length ? `Corner boards: nail the 1x4 corner boards (${shed.wallTrim.filter((t) => t.where.endsWith('corner')).length}) with 8d galvanized finish nails, two every 16"; on each corner the board on the long wall laps the edge of the end-wall board. The cut list is on the Cut sheet tab.` : '',
       d.siding ? 'Caulk: run exterior caulk where each casing meets the door or window frame and the siding, and along the inside edge of every corner board. Leave the bottom edge of the head casing and the weep gaps the window maker shows open so water can drain.' : '',
     ].filter(Boolean),
   });

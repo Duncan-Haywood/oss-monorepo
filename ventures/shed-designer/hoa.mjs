@@ -14,6 +14,7 @@ import { fmtFtIn, fmtIn } from './lumber.mjs';
 import { paletteOf, finishName, SIDING_FINISHES, TRIM_FINISHES, DOOR_FINISHES, SHINGLE_FAMILIES } from './looks.mjs';
 import { buildSheets, sheetSvg } from './drawings.mjs';
 import { productById } from './products.mjs';
+import { LAP_PRODUCTS } from './lap.mjs';
 
 /** @typedef {ReturnType<typeof import('./model.mjs').buildShed>} Shed */
 
@@ -33,6 +34,8 @@ const shade = (rgb, f) => rgb.map((c) => c * f);
 export function sidingLook(type) {
   const t = String(type || '').toLowerCase();
   if (t === 'vinyl') return { direction: 'horizontal', pattern: 'lap', spacing: 4, label: 'vinyl lap siding (horizontal, 4" reveal)' };
+  const lap = LAP_PRODUCTS[type];
+  if (lap) return { direction: 'horizontal', pattern: 'lap', spacing: lap.exposure, label: `${lap.short} siding (horizontal, ${fmtIn(lap.exposure)} exposure)` };
   if (t === 'fiber cement' || /lap|hardie|plank|clapboard/.test(t)) return { direction: 'horizontal', pattern: 'lap', spacing: 7, label: `${type} lap siding (horizontal, 7" exposure)` };
   if (t === 't1-11') return { direction: 'vertical', pattern: 'grooves', spacing: 8, label: 'T1-11 panel siding (vertical grooves 8" apart)' };
   if (t === 'board and batten') return { direction: 'vertical', pattern: 'battens', spacing: 12, label: 'board and batten (vertical battens about 12" apart)' };
