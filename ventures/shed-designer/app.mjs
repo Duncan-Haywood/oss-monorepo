@@ -18,6 +18,7 @@ import { quoteRequest, mailtoLink, STORES } from './quote.mjs';
 import { PRODUCTS } from './products.mjs';
 import { storeComparison, swapsFor, storeTotals, storeList, pricesFor } from './catalog.mjs';
 import { simplify, cutMetrics, budget, laborHours } from './simplify.mjs';
+import { leverOptions, leverTableHtml } from './costlevers.mjs';
 
 const $ = (sel) => /** @type {any} */ (document.querySelector(sel));
 const $$ = (sel) => /** @type {any[]} */ ([...document.querySelectorAll(sel)]);
@@ -773,6 +774,25 @@ function wire() {
         $('#workspace').scrollIntoView({ behavior: 'smooth' });
       };
       $('#budget').disabled = false;
+    }, 30);
+  });
+  $('#levers').addEventListener('click', () => {
+    $('#levers').disabled = true;
+    $('#levers-out').innerHTML = '<p class="muted">Framing, pricing and checking each option...</p>';
+    setTimeout(() => {
+      const r = leverOptions(design(), state.prices);
+      count('options-priced');
+      $('#levers-out').innerHTML = leverTableHtml(r);
+      $('#levers-out').onclick = (ev) => {
+        const b = ev.target.closest('button[data-lever]');
+        if (!b) return;
+        const [gi, i] = b.dataset.lever.split(':').map(Number);
+        const row = r.groups[gi]?.rows[i];
+        if (!row) return;
+        commit({ ...design(), ...row.change }, `option: ${row.label}`);
+        $('#levers-out').innerHTML = '<p class="muted">Applied. Price the options again to compare from your new design.</p>';
+      };
+      $('#levers').disabled = false;
     }, 30);
   });
   $('#simplify').addEventListener('click', () => {
