@@ -164,7 +164,6 @@ STEERING_GLOBS = (
     "portfolio/pipeline/distribution-first.md",
     "platform/marketing/README.md",
     "platform/ci/pages_state.py",
-    "gitops/agents/workers/mandate.md",
 )
 
 # "records zero observed users", "still records zero visitors across ...".

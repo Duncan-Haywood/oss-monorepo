@@ -31,7 +31,7 @@ bug ships.
 
 This file used to check `*.test.mjs` only, and said so on the reasoning that
 the two Python lines already auto-discovered: the `platform/ci` unittest loop
-is a glob, and `pytest gitops/tests` runs a whole tree, so "this is the one
+is a glob, and `pytest portfolio/ledger` runs a whole tree, so "this is the one
 place drift can quietly recur."
 
 That was wrong in the way this whole file is about. Both Python lines
@@ -124,9 +124,10 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
-# The checklist block opens with the regen.mjs line and is a fenced ``` block
-# in CLAUDE.md's "Ship without review ceremony" section.
-BLOCK_START_MARKER = "node platform/marketing/regen.mjs"
+# The checklist block opens with this script's own line and is a fenced ```
+# block in `.github/prompts/verify-and-merge.md`. (It opened with the
+# `regen.mjs` line until that generator was retired on 2026-10-30.)
+BLOCK_START_MARKER = "python3 platform/ci/checklist_coverage.py"
 
 TEST_MJS_GLOB_RE = re.compile(r"(\S+?)/\*\.test\.mjs")
 
@@ -153,7 +154,7 @@ def literal_prefix(token):
 
         ventures/<slug>/*.test.mjs   -> ventures
         platform/privacy/*.test.mjs  -> platform/privacy
-        gitops/tests                 -> gitops/tests
+        portfolio/scoring            -> portfolio/scoring
         portfolio/ledger/README.md   -> portfolio/ledger
     """
     segments = []

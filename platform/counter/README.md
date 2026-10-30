@@ -55,8 +55,7 @@ Never write them up as visitors or users without that qualifier.
 It needs one machine with a public HTTPS address. Any of these work, and none
 needs a new account:
 
-- a VPS you already rent (the `infra/` OpenTofu can recreate a small Hetzner
-  box on the account that hosted the old cluster);
+- a VPS you already rent;
 - a home server or always-on machine behind your router, with Caddy for
   TLS.
 

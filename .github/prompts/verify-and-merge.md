@@ -12,9 +12,6 @@ The checklist (moved here from `CLAUDE.md` by process backlog P030; `platform/ci
 ```
 python3 platform/ci/checklist_coverage.py  # fails if a line below is missing
 python3 platform/ci/sync_tree_counts.py  # AFTER merging main: fixes the counts a concurrent merge just invalidated
-# New workflow in a PR? gitops/ci/README counts go stale: python3 gitops/ci/sync_readme_counts.py
-node platform/marketing/regen.mjs --verify  # 9s, read-only: is the committed apex stale?
-node platform/marketing/regen.mjs           # if that exited 1: commit whatever this rewrites (>2 min: background)
 node --test platform/marketing/*.test.mjs platform/pages/*.test.mjs  # ~22 min in a cloud session (measured 2026-10-18): run_in_background
 python3 platform/ci/check_post_frontmatter.py  # 1s: new/edited post? description over 160 chars or missing tags turns main red (twice 2026-10-26)
 node --test platform/agents/*.test.mjs        # imports every venture engine; ~10 s
@@ -34,11 +31,10 @@ node --test 'ventures/<slug>/**/*.test.mjs'   # quote it: 21 ventures keep suite
 node --test research/marriage-divorce-evidence/app/tests/*.test.mjs
 node --test research/civ-levers/app/tests/*.test.mjs
 python3 platform/ci/run_venture_tests.py --changed   # every venture your branch touches, in parallel (no args: all ~1,300, minutes not hours)
-python3 -m pytest gitops/tests -q        # gitops/, platform/ci/, or ANY new venture
-# No pytest/numpy? PY=$(python3 platform/ci/pyenv.py pytest numpy), then "$PY" -m pytest: some images split python3 from what pip/apt install into. gitops/tests has a few failures on clean main that depend on the image (`gh` preinstalled, test_ci_runner.py): run the failing test on origin/main before blaming your change.
+# No pytest/numpy? PY=$(python3 platform/ci/pyenv.py pytest numpy), then "$PY" -m pytest: some images split python3 from what pip/apt install into.
 (cd platform/ci && rc=0; for m in test_*.py; do python3 -m unittest "${m%.py}" || { echo "FAILED $m"; rc=1; }; done; exit $rc)  # runs every module, lists each failure
 (cd platform/ci/agent_review && python3 -m unittest test_review)
-python3 -m pytest portfolio/ledger portfolio/scoring portfolio/router portfolio/usage portfolio/pipeline infra/tests -q  # >4 min in a shallow clone (router's real-portfolio tests; run reports 2026-10-19): run_in_background
+python3 -m pytest portfolio/ledger portfolio/scoring portfolio/router portfolio/usage portfolio/pipeline -q  # >4 min in a shallow clone (router's real-portfolio tests; run reports 2026-10-19): run_in_background
 python3 -m pytest portfolio/research/<probe> -q          # one at a time: 4 share a test_measure.py basename
 python3 -m pytest portfolio/pipeline/probes/<probe> -q   # one at a time: root pytest --ignore's this tree
 python3 -m pytest prompts -q && python3 prompts/promptctl.py validate   # prompt.md, prompts/, run records
@@ -56,15 +52,9 @@ What the lines are for, and the traps in running them:
   tests. If it fails, add the line it prints in the same commit. Quote the
   venture glob: unquoted, bash turns `**` into `*`, and `node --test` on a
   glob that matches nothing prints `# pass 0` and exits 0.
-- **`sync_tree_counts.py`** after merging `main`: two counts (mirrored tools,
-  `SWITCHES_IN_THE_CATALOGUE`) are only knowable at the merge, because
-  parallel branches each bump them. It rewrites the numbers; you write the
+- **`sync_tree_counts.py`** after merging `main`: `SWITCHES_IN_THE_CATALOGUE`
+  is only knowable at the merge, because parallel branches each bump it. It rewrites the numbers; you write the
   one-line reason.
-- **`regen.mjs --verify`** (about 9 s) says whether the committed front-door
-  mirror (a retired origin's copy) is stale; run it when you edited `platform/marketing/`, not for a venture edit. Exit 1 means run bare `regen.mjs` and commit what it
-  rewrites. Exit 2 means it could not answer. Avoid running it from a test or in
-  parallel with the marketing suites, because it rewrites `gitops/prod/` for
-  a few seconds.
 - **Validators no test imports** (`router/validate.py`,
   `validate_doc_consistency.py`, `score_ventures.py --check` and others)
   run through `run_workflow_locally.py`. `--for-changes` covers your diff.
@@ -105,11 +95,6 @@ What the lines are for, and the traps in running them:
 - **Shallow clones**: two `platform/webcheck` tests pin historic blobs and
   skip in a shallow clone. Run `git fetch --unshallow origin main` if you
   want them to run.
-- **The `gitops/tests` line applies whenever your commit touches
-  `gitops/`**, including the hundreds of files `regen.mjs` rewrites when a
-  venture gains a page. The condition is about what the commit contains, not
-  what you edited on purpose.
-
 **If your change touches markup a user types into, run the browser checks:**
 
 ```
