@@ -458,3 +458,16 @@ test('the part options table prices each choice, and "Use this" changes the desi
   await settle(page);
   assert.equal(await page.$eval('#total', (e) => e.textContent), before, 'undo restores it');
 });
+
+test('ticking a fixed choice keeps it out of the part options, and undo unticks it', { skip }, async (t) => {
+  const { page } = await open(t);
+  await page.check('input[name="lock"][value="windows"]');
+  await settle(page);
+  await page.click('#levers');
+  await page.waitForSelector('#levers-out table.levers');
+  assert.match(await page.locator('#levers-out h4', { hasText: 'Windows' }).textContent(), /kept as you chose/);
+  assert.equal(await page.locator('#levers-out tr', { hasText: 'No windows' }).count(), 0);
+  await page.click('#undo');
+  await settle(page);
+  assert.equal(await page.isChecked('input[name="lock"][value="windows"]'), false, 'undo unticks it');
+});

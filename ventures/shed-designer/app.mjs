@@ -11,6 +11,7 @@ import { fmtIn, fmtFtIn, actual, STANDARD_LENGTHS_FT, EXAMPLE_ITEMS } from './lu
 import { recordUsage, clearUsage } from './usage.mjs';
 import { encodeDesign } from './hoa.mjs';
 import { structuralChecks } from './checks.mjs';
+import { initUtilisation, renderUtilisation, heatOption } from './utilisation-ui.mjs';
 import { connectionChecks } from './connections.mjs';
 import { generateCandidates } from './candidates.mjs';
 import { buildInstructions, instructionsMarkdown } from './instructions.mjs';
@@ -171,6 +172,7 @@ function fillForm(d) {
   set('maxPeakFt', +(d.maxPeak / 12).toFixed(2));
   for (const f of FIELDS.slice(3)) set(f, d[f]);
   for (const cb of $$('input[name="stock"]')) cb.checked = d.lengths.includes(Number(cb.value));
+  for (const cb of $$('input[name="lock"]')) cb.checked = (d.locked || []).includes(cb.value);
 }
 
 function readForm() {
@@ -186,6 +188,7 @@ function readForm() {
   for (const f of ['studSize', 'joistSize', 'rafterSize', 'tieSize', 'skidSize', 'foundation', 'roofType', 'beamSize', 'sidingColor', 'roofColor', 'trimColor', 'doorColor', 'interior', 'sidingType', 'roofCover', 'wallTrim', 'rafterSeat', 'compaction', 'pad', 'floorPanel', 'delivery']) d[f] = v(f).value;
   for (const f of ['floorTreated', 'siding', 'roofing', 'gableVents', 'polkaDots', 'autoWall', 'autoPitch', 'autoOverhang', 'glitter', 'insulation', 'customRange']) d[f] = v(f).checked;
   d.lengths = $$('input[name="stock"]:checked').map((c) => Number(c.value));
+  d.locked = $$('input[name="lock"]:checked').map((c) => c.value);
   return d;
 }
 
@@ -522,9 +525,10 @@ function renderNow() {
   // The end view shows what is built: with the automatic boxes ticked, the
   // pitch, wall height and overhang come from buildShed, not from the form.
   drawEnd($('#endview'), shed.design, shed.dims, hooks);
-  viewer?.show(shed);
-  renderSummary(shed, est);
   const sc = renderStructure(shed);
+  viewer?.show(shed, heatOption(shed, sc));
+  renderUtilisation(shed, sc);
+  renderSummary(shed, est);
   const worst = sc.rows.reduce((m, x) => Math.max(m, x.ratio), 0);
   const cc = connectionChecks(shed);
   $('#summary-lines').insertAdjacentHTML('beforeend', `<div><dt>Structure</dt><dd>${sc.ok ? `all ${sc.rows.length} load checks pass` : `${sc.rows.filter((x) => !x.ok).length} over capacity`} (highest ${Math.round(worst * 100)}%); ${cc.ok ? `all ${cc.rows.length} connection checks pass` : `${cc.rows.filter((x) => !x.ok).length} connection checks fail`}</dd></div>`);
@@ -572,6 +576,7 @@ const slug = () => design().name.toLowerCase().replace(/[^a-z0-9]+/g, '-').repla
 // ---------- wiring ----------
 const viewer = createViewer($('#view3d'));
 if (!viewer) $('#view3d-fallback').hidden = false;
+initUtilisation({ viewer, count, storage });
 
 function wire() {
   const form = $('#settings');
