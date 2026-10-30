@@ -410,8 +410,10 @@ def test_every_published_tool_is_reachable_by_slug_for() -> None:
             # `feedback` is the report-a-problem page (build.mjs FEEDBACK_PATH);
             # its row says how many visitors reached the form at all.
             # `stories` is the fiction section (stories.mjs), one row.
+            # `custom-development` is the open custom development page
+            # (build.mjs CUSTOM_DEV_PATH): how to request a tool, and the queue.
             | {"_hub", "c", "c/apps", "c/cli", "about", "ask", "compare", "guides", "research", "engineering", "writing",
-               "updates", "changelog", "lab", "feedback", "stories", "404", "offline"}
+               "updates", "changelog", "lab", "feedback", "custom-development", "stories", "404", "offline"}
         )
         for page in sorted(out.rglob("*.html")):
             uri = "/" + page.relative_to(out).as_posix()
