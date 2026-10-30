@@ -52,16 +52,16 @@ test('the search run now gives a valid gallery whose reasons are true; drift fro
   const by = Object.fromEntries(fresh.map((g) => [g.id, g]));
   const cost = (/** @type {any} */ d) => evaluateDesign(d, undefined, RULES).cost;
   const kept = runs.free.kept;
-  if (!/do not show/.test(by.cheapest.reason)) assert.equal(cost(by.cheapest.design), Math.min(...kept.map((/** @type {any} */ s) => s.cost)));
+  if (!/before it in the strip/.test(by.cheapest.reason)) assert.equal(cost(by.cheapest.design), Math.min(...kept.map((/** @type {any} */ s) => s.cost)));
   assert.match(by.cheapest.reason, new RegExp(`of the ${kept.length} designs`));
-  if (!/do not show/.test(by.value.reason)) {
-    const v = (/** @type {any} */ s) => s.storage.volumeCuFt / s.cost;
+  if (!/before it in the strip/.test(by.value.reason)) {
+    const v = (/** @type {any} */ s) => s.storage.usableCuFt / s.cost;
     const e = evaluateDesign(by.value.design, undefined, RULES);
     assert.ok(kept.every((/** @type {any} */ s) => v(s) <= v(e) + 1e-9));
   }
-  // "In a size the cards above do not show" is true where it is said.
+  // "In a size no card before it in the strip shows" is true where it is said.
   fresh.forEach((g, i) => {
-    if (/do not show/.test(g.reason)) assert.ok(!fresh.slice(0, i).some((h) => sizeOf(h.design) === sizeOf(g.design)), g.id);
+    if (/before it in the strip/.test(g.reason)) assert.ok(!fresh.slice(0, i).some((h) => sizeOf(h.design) === sizeOf(g.design)), g.id);
   });
   for (const g of fresh.filter((x) => /** @type {any} */ (GALLERY.find((c) => c.id === x.id)).from === 'house')) {
     for (const k of HOUSE_FIXED) assert.ok(k in g.design, k);

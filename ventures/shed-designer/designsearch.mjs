@@ -198,6 +198,11 @@ const KNOBS = {
   roofCover: ['shingles', 'metal'],
   door: Object.keys(DOORS),
   window: Object.keys(WINDOWS),
+  // A deck you can load on a truss gable's bottom chords: attic storage (the
+  // chords sized for 20 psf and decked). Storage counts the space over a deck
+  // only (storage.mjs), so this and a gambrel's loft (below) are how the search
+  // buys roof storage on a tied roof. Pinned off on any other roof.
+  atticStorage: [false, true],
   // Gable, lean-to or gambrel (barn), tried last from each design (a lean-to has no ridge and a
   // gambrel its own trusses, so roofType does nothing to either).
   // and a saltbox (an off-centre ridge: its front at twice the back's pitch, the classic third-of-the-way ridge).
@@ -419,6 +424,7 @@ function designAt(base, size, layout, knobs, minWall = DEFAULT_CONSTRAINTS.minWa
   // A lean-to has no ridge and a gambrel frames its own trusses: their roofType is pinned, so flipping it is not a new design to evaluate.
   const barn = knobs.style === 'gambrel';
   if (lean || barn) rest.roofType = 'ridgeBoard';
+  if ('atticStorage' in rest && (lean || barn || rest.roofType !== 'truss')) rest.atticStorage = false;
   // The gambrel's own knobs: as the base has them on any other style (they would change nothing).
   if (!barn) for (const k of ['gambrelLower', 'gambrelKnee', 'loft']) delete rest[k];
   // A saltbox's front is twice its back's pitch, and it has no trusses (model.mjs builds a truss roof with a ridge board).
