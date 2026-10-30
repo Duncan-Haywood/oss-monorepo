@@ -31,9 +31,13 @@ permissions:
 
 jobs:
   auto-merge:
+    # Off until the owner sets AGENT_REVIEW_ENABLED (see agent-cross-review.yml):
+    # with no reviewer App there are no allowed approvers, so every run on
+    # 2026-10-30 ended "0 allowed approver(s)" and merged nothing.
     if: >-
-      github.event_name != 'pull_request_review' ||
-      github.event.review.state == 'APPROVED'
+      vars.AGENT_REVIEW_ENABLED == 'true' &&
+      (github.event_name != 'pull_request_review' ||
+      github.event.review.state == 'APPROVED')
     runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     permissions:
       contents: write
