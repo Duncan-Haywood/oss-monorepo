@@ -22,7 +22,12 @@ export function calculate(input) {
   const rights = input.creative * 0.35 * channelFactor * termFactor * input.territory * input.exclusivity * (1 + input.rush / 100);
   return { rights, total: input.creative + rights, perImage: rights / input.images, channelFactor, termFactor };
 }
-if (typeof document !== 'undefined') {
+// Only on the page that has the quote form. `extension.mjs` imports
+// `calculate` from here, so on license-extension-fee.html this block used to
+// run, throw on the missing #quote-form, and take the whole page script down:
+// the extension fee never priced and the usage opt-out was never saved
+// (found by the nightly `optout` browser check, 2026-10-30).
+if (typeof document !== 'undefined' && document.getElementById('quote-form')) {
 function honorsBrowserSignal() {
   try {
     return globalThis.navigator?.doNotTrack === '1' || globalThis.navigator?.globalPrivacyControl === true;

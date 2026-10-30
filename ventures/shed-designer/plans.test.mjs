@@ -4,7 +4,7 @@
 // mark inside the page and clear of the title block.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildShed, defaultDesign, PRESETS } from './model.mjs';
+import { buildShed, defaultDesign, PRESETS, STYLE_PRESETS } from './model.mjs';
 import { estimate } from './estimate.mjs';
 import { buildSheets, sheetSvg, sheetsDxf, spreadRow } from './drawings.mjs';
 
@@ -12,6 +12,8 @@ const designs = [['default', defaultDesign()], ...Object.entries(PRESETS).map(([
 // A birdsmouth and a connector seat, a ridge board and a beam, and a wide overhang.
 designs.push(['birdsmouth beam', { ...defaultDesign(), rafterSeat: 'birdsmouth', roofType: 'ridgeBeam' }]);
 designs.push(['connector board', { ...defaultDesign(), rafterSeat: 'connector', roofType: 'ridgeBoard', overhang: 12 }]);
+// The lean-to (a preset, on connectors) on birdsmouths too.
+for (const [name, make] of Object.entries(STYLE_PRESETS)) designs.push([`${name} birdsmouth`, { ...make(), rafterSeat: 'birdsmouth', overhang: 12, autoOverhang: false }]);
 // A wide site-built double door, which has its own sheet and parts.
 designs.push(['site-built door', { ...defaultDesign(), length: 168, openings: [{ id: 'o1', kind: 'door', wall: 'front', offset: 40, width: 60, height: 78, product: 'site-built' }] }]);
 
@@ -107,6 +109,7 @@ test('every labelled dimension says the length it spans, to 1/16"', () => {
 test('the rafter detail dimensions the board from long point to long point', () => {
   for (const { name, shed, sheets } of sets) {
     const sheet = sheets.find((s) => s.id === 'rafter');
+    if (shed.design.style === 'gambrel') { assert.ok(!sheet && sheets.some((s) => s.id === 'truss'), name); continue; }
     const d = sheet.items.find((it) => it.t === 'dim' && /cut length/.test(it.text || ''));
     assert.ok(Math.abs(Math.hypot(d.b[0] - d.a[0], d.b[1] - d.a[1]) - shed.dims.rafterCut) < 1 / 16, name);
   }
@@ -117,9 +120,13 @@ test('gable studs stop at the roof line drawn over them', () => {
     for (const side of ['left', 'right']) {
       const sheet = sheets.find((s) => s.id === `wall-${side}`);
       const roof = sheet.items.find((it) => it.t === 'poly' && it.cls === 'roofline');
-      const [[x0, z0], [x1, z1]] = roof.pts;
-      const mid = (x0 + roof.pts[roof.pts.length - 1][0]) / 2;
-      const underside = (x) => z0 + (Math.min(x, 2 * mid - x) - x0) * (z1 - z0) / (x1 - x0);
+      // The underside as drawn: straight lines between its points (eave, ridge faces, eave; or a lean-to's two tails).
+      const pts = [...roof.pts].sort((a, b) => a[0] - b[0]);
+      const underside = (x) => {
+        const i = Math.max(0, Math.min(pts.length - 2, pts.findIndex((p, j) => j + 1 < pts.length && x <= pts[j + 1][0] + 1e-9)));
+        const [[xa, za], [xb, zb]] = [pts[i], pts[i + 1]];
+        return xb === xa ? za : za + (x - xa) * (zb - za) / (xb - xa);
+      };
       const studs = sheet.items.filter((it) => it.t === 'poly' && it.closed && it.pts.length === 4 && it.pts[2][1] !== it.pts[3][1]);
       assert.ok(studs.length >= 2, `${name} ${side}: gable studs drawn`);
       for (const st of studs) for (const [x, z] of [st.pts[2], st.pts[3]]) assert.ok(Math.abs(z - underside(x)) < 0.02, `${name} ${side}: stud top ${z.toFixed(2)} vs roof ${underside(x).toFixed(2)} at ${x.toFixed(2)}`);
@@ -162,6 +169,51 @@ test('every mark in the parts list is lettered on at least one sheet', () => {
     const missing = est.parts.filter((p) => !drawn.has(p.mark)).map((p) => `${p.mark} ${p.kind}`);
     assert.deepEqual(missing, [], name);
   }
+});
+
+test('a site plan sheet is drawn from the lot you type, with every clearance and its warnings', async () => {
+  const { normalize, siteLayout } = await import('./model.mjs');
+  const bare = buildSheets(buildShed(defaultDesign()));
+  assert.ok(!bare.some((x) => x.id === 'site'), 'no lot typed, no site plan');
+  const d = normalize({ ...defaultDesign(), lotWidthFt: 50, lotDepthFt: 100, siteLeftFt: 6, siteRearFt: 6, setbackFt: 5, houseWidthFt: 30, houseDepthFt: 40, houseLeftFt: 10, houseFrontFt: 25 });
+  const s = buildShed(d);
+  const sheets = buildSheets(s);
+  assert.deepEqual(sheets.slice(0, 2).map((x) => x.id), ['cover', 'site']);
+  const site = siteLayout(s.design);
+  // 50 ft lot, a 12 ft shed 6 ft from the left: 32 ft to the right line. 100 ft deep, 8 ft wide, 6 ft from the rear: 86 ft to the street.
+  assert.equal(site.clear.right, 32 * 12);
+  assert.equal(site.clear.front, 86 * 12);
+  assert.equal(site.clear.rearEave, 6 * 12 - s.design.overhang);
+  // The house's back wall is at 65 ft from the street, the shed's front at 86 ft: 21 ft apart.
+  assert.equal(site.houseGap, 21 * 12);
+  const words = [sheets[1].note, ...sheets[1].items.map((i) => /** @type {any} */ (i).text || '')].join('\n');
+  assert.match(words, /left 6' 0", right 32' 0", street 86' 0"/);
+  assert.match(words, /to the house 21' 0"/);
+  assert.match(words, /not a survey/);
+  assert.match(sheets[0].items.map((i) => i.text || '').join(' '), /2\. Site plan/);
+  assert.ok(!s.warnings.some((w) => /site plan/.test(w)), 'clear of a 5 ft setback');
+  const tight = buildShed(normalize({ ...d, siteRearFt: 3 }));
+  assert.ok(tight.warnings.some((w) => /closer than your 5' 0" setback to the rear lot line/.test(w)), tight.warnings.join('\n'));
+  const off = buildShed(normalize({ ...d, siteLeftFt: 45 }));
+  assert.ok(off.warnings.some((w) => /runs past the right lot line/.test(w)));
+  const onHouse = buildShed(normalize({ ...d, siteRearFt: 40, siteLeftFt: 15 }));
+  assert.ok(onHouse.warnings.some((w) => /overlaps the house/.test(w)));
+  // Junk typed into the fields is clamped, never NaN.
+  const junk = normalize({ ...defaultDesign(), lotWidthFt: 'x', lotDepthFt: -5, setbackFt: null });
+  assert.deepEqual([junk.lotWidthFt, junk.lotDepthFt, junk.setbackFt], [0, 0, 0]);
+});
+
+test('the cover sheet carries what a permit or HOA reviewer asks for, and never claims approval', () => {
+  const s = buildShed(PRESETS['8x12 classic']());
+  const cover = buildSheets(s)[0];
+  const words = cover.items.map((i) => i.text || '').join('\n');
+  assert.match(words, /96 sq ft floor area/);
+  assert.match(words, /Owner: _+ {3}Site address: _+/);
+  assert.match(words, /Siding: T1-11, natural stain\. Roof: asphalt shingles, charcoal\. Trim: 1x4, white\./);
+  assert.match(words, /Overall height: peak /);
+  assert.match(words, /IRC \(R105\.2\) exempts a one-storey detached accessory building up to 200 sq ft/);
+  assert.match(words, /Not engineered and not checked against any building code/);
+  assert.ok(!/permit-ready|approved/i.test(words));
 });
 
 test('stud centre labels on the wall sheets never touch, and keep the order of their ticks', () => {

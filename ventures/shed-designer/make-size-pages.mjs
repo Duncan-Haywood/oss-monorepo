@@ -1,14 +1,15 @@
 // Writes one "how much lumber does an NxM shed take" page per common size,
 // plus an index, from the framing engine itself, so the counts on the pages are
 // the ones the tool prints. Run: node make-size-pages.mjs  (then commit the output).
-import { writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { PRESETS, buildShed } from './model.mjs';
 import { estimate } from './estimate.mjs';
 
 export const SIZES = [
   [8, 8, '8x10'], [8, 10, '8x10'], [8, 16, '8x10'],
   [10, 10, '10x12'], [10, 12, '10x12'], [10, 14, '10x12'], [10, 16, '10x12'], [10, 20, '10x12'],
-  [12, 12, '12x16'], [12, 16, '12x16'], [12, 20, '12x16'], [12, 24, '12x16'],
+  [12, 12, '12x16'], [12, 14, '12x16'], [12, 16, '12x16'], [12, 20, '12x16'], [12, 24, '12x16'], [12, 32, '12x16'],
+  [14, 14, '12x16'], [14, 20, '12x16'], [16, 20, '12x16'], [16, 24, '12x16'],
 ];
 // The 8x12 page predates this script and is hand-written, so 8x12 is linked, not rewritten.
 const HAND = '8x12 page: shed-plans-with-cut-list.html';
@@ -71,6 +72,9 @@ const CSS = `    :root { font-family: ui-sans-serif, system-ui, sans-serif; colo
     td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
     .cta { display: inline-block; background: #24392b; color: #f8f5eb; padding: 12px 20px; border-radius: 999px; font-weight: 700; text-decoration: none; }
     .note { background: #fffdf8; border: 1px solid #d8d1c2; border-radius: 12px; padding: 12px 16px; }
+    .renders { margin: 0 0 1em; }
+    .renders img { width: 100%; height: auto; border-radius: 10px; background: #edf1f5; }
+    .renders figcaption { font-size: .85rem; color: #5b6157; }
     footer { font-size: .85rem; color: #5b6157; margin-top: 40px; }`;
 const ICON = `<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23784421'/%3E%3Cpath%20d='M6%2015L16%207l10%208v10H6z'%20fill='%23fff'/%3E%3C/svg%3E">`;
 const FOOT = `  <footer>
@@ -79,6 +83,20 @@ const FOOT = `  <footer>
   </footer>`;
 
 const sizeRow = (f) => `<tr><td><a href="${slug(f.w, f.l)}">${f.w}x${f.l}</a></td><td class="n">${f.pieces}</td><td class="n">${f.boards}</td><td class="n">${money(f.lumber)}</td><td class="n">${money(f.total)}</td></tr>`;
+
+/** The pictures `make-renders.mjs` drew of this size's design, or '' before it has. */
+function pictures(w, l) {
+  let files;
+  try { files = JSON.parse(readFileSync(new URL('renders/manifest.json', import.meta.url), 'utf8')).designs[`size-${w}x${l}`]?.files; } catch { return ''; }
+  if (!files?.hero) return '';
+  const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const img = (f) => `<img src="renders/${f.file}" width="${f.w}" height="${f.h}" alt="${esc(f.alt)}" decoding="async">`;
+  return `
+  <figure class="renders">
+    ${img(files.hero)}
+    <figcaption>This design in the tool's own 3D view. Open it in the tool to turn it round or take the coverings off.</figcaption>
+  </figure>`;
+}
 
 export function page(f, all) {
   const t = `${f.w}x${f.l}`;
@@ -108,7 +126,7 @@ ${CSS}
   <p>A ${t} gable shed on skids, framed the common way, takes <strong>${f.pieces} framing pieces cut from ${f.boards} boards</strong>. The cut sheet's boards cost ${money(f.cutCost)} (no way of cutting those pieces from those lengths can cost less than ${money(f.bound)}); a few spare boards bring the lumber to about ${money(f.lumber)}. The whole shed, with siding, roofing, sheathing, fasteners and a gravel pad, comes to about ${money(f.total)} before sales tax, ${money(f.perSqFt)} per square foot.</p>
   <p><a class="cta" href="./">Open Shed Designer</a> and change the size, door and windows: the counts update to your design.</p>
 
-  <h2>The design behind these numbers</h2>
+  <h2>The design behind these numbers</h2>${pictures(f.w, f.l)}
   <p>${f.l} ft along the ridge, ${f.w} ft across the gable, 8 ft walls (91-1/2" studs under three 1-1/2" plates), a ${f.pitch}/12 roof with a 12" overhang, 2x4 walls 16" on centre, pressure-treated 4x6 skids on a gravel pad, a 3/4" plywood floor, T1-11 siding and shingles. Rafters are cut ${f.rafter}" long including the plumb cut. Doors and windows are those of the tool's ${f.base} preset, with kings, jacks, headers, sills and cripples framed around each.</p>
 
   <h2>Lumber by material</h2>
@@ -145,8 +163,8 @@ export function indexPage(all) {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   ${ICON}
-  <title>Shed Lumber List by Size: 8x8 to 12x24, Boards and Cost</title>
-  <meta name="description" content="How many boards and how much money a gable shed takes at ${all.length + 1} common sizes from 8x8 to 12x24, each framed stud by stud, with the cut list for your own size free in the browser.">
+  <title>Shed Lumber List by Size: 8x8 to 16x24, Boards and Cost</title>
+  <meta name="description" content="How many boards and how much money a gable shed takes at ${all.length + 1} common sizes from 8x8 to 16x24, each framed stud by stud, with the cut list for your own size free in the browser.">
   <script type="application/ld+json">${JSON.stringify({ '@context': 'https://schema.org', '@type': 'Article', headline: 'Shed lumber list by size' })}</script>
   <style>
 ${CSS}

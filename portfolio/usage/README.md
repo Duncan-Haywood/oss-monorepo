@@ -297,6 +297,7 @@ for it to get back in the repo so the agents can review it somehow."
 | Bug reports and ideas from people with a GitHub account | Issue forms in `.github/ISSUE_TEMPLATE/`, linked from every tool's footer through `feedback/?tool=<slug>` | Agents, with `search_issues` and `label:site-feedback` |
 | Bug reports and ideas from people without one | The form on the site's `feedback/` page, stored by `platform/edge/` in D1, then `.github/workflows/site-usage-pull.yml` runs `platform/edge/pull-feedback.mjs` daily and commits `portfolio/usage/site-feedback.json` | Agents, by reading that file |
 | Page loads per day and page | `pf-site.js` beacon, `platform/edge/` `/hit` into D1, then the same workflow runs `platform/counter/pull.mjs` and commits `portfolio/usage/site-visits.json` | The router, the review track, any session |
+| GitHub repo views, clones, referring sites and popular paths | GitHub's traffic API (14-day window), pulled by the same workflow with `platform/counter/pull-github-traffic.mjs` into `portfolio/usage/github-traffic.json` | Same |
 
 The no-account route commits a file rather than opening issues on purpose
 (owner, 2026-10-20: "rather have it be a file write than issues write because
@@ -307,6 +308,19 @@ Both halves are off until the owner deploys the Worker
 (`platform/edge/README.md` lists the steps). With `platform/edge/site.json`
 empty, the feedback page shows the GitHub issue links only, and the privacy
 copy says nothing is sent.
+
+**GitHub repo traffic** (added 2026-10-30, owner: "add github repo traffic to
+the usage stats"). GitHub keeps views and clones for 14 days only, so the
+daily pull is what turns them into a record: `github-traffic.json` holds, per
+repository, `days` (views, clones and GitHub's own unique-visitor counts per
+UTC day, merged by keeping the larger count) and `top` (the 14-day referring
+sites and popular paths, one snapshot per pull day). Clones are mostly CI and
+agent sessions checking the repo out, not readers; views and referrers are the
+signal. **It needs a `TRAFFIC_TOKEN` Actions secret**, a fine-grained PAT with
+"Administration: Read-only" on the repositories pulled: the workflow's own
+token cannot be granted that permission, and without the secret the step logs
+the remedy and skips. `TRAFFIC_REPOS` (repository variable, comma-separated
+`owner/repo`) adds repositories beyond this one.
 
 **Reading feedback, for agents.** Read `portfolio/usage/site-feedback.json`
 (each record has an `id`, `day`, `type`, `tool` slug and `message`) and query
