@@ -641,3 +641,11 @@ test("travelWarnings flags a missing pair and a direct time longer than going vi
   assert.match(w2[0], /Park - Lake is 250 min but Park - School - Lake is 30/);
   assert.deepEqual(travelWarnings({}, v), []);
 });
+
+test("the multi-division page shows the travel-table warnings readDivisionsSpec returns", async () => {
+  const { readFileSync } = await import("node:fs");
+  const html = readFileSync(new URL("./multi-division-league-schedule.html", import.meta.url), "utf8");
+  assert.match(html, /readDivisionsSpec\(f\);/);
+  assert.match(html, /const \{ spec, errors, warnings \} = readDivisionsSpec/);
+  assert.match(html, /Travel table:/);
+});

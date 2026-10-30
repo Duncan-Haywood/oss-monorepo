@@ -184,7 +184,7 @@
       const status = $("#form-status");
       const f = read();
       try { localStorage.setItem(STORE, JSON.stringify(f)); } catch { /* storage is optional */ }
-      const { spec, errors } = readDivisionsSpec(f);
+      const { spec, errors, warnings } = readDivisionsSpec(f);
       if (errors.length) { status.textContent = errors.join(" "); $("#report").hidden = true; return false; }
       let s, v;
       let moved = null;
@@ -206,7 +206,8 @@
       $("#big").innerHTML = [[st.matches, "matches"], [st.nights, "nights"], [st.trips, "venue changes"], ...(st.travelMinutes !== undefined ? [[st.travelMinutes, "minutes of travel"]] : []), [st.clashes, "linked-team clashes"], [Math.round(st.utilisation * 100) + "%", "court slots used"]]
         .map(([n, l]) => `<div><strong>${n}</strong>${l}</div>`).join("");
       const rain = moved ? (moved.moves.length ? `<div class="warn"><strong>Moved for rainouts:</strong><ul>${moved.moves.map((m) => `<li>${esc(m.division)} ${esc(m.home)} v ${esc(m.away)}: ${dayIso(m.from)} to ${dayIso(m.to)} ${esc(m.time)} ${esc(m.court)}</li>`).join("")}</ul></div>` : "") + (moved.errors.length ? `<div class="warn"><strong>Not moved:</strong><ul>${moved.errors.map((c) => `<li>${esc(c)}</li>`).join("")}</ul></div>` : "") : "";
-      $("#notices").innerHTML = rain + offNote + (s.conflicts.length ? `<div class="warn"><strong>Conflicts that could not be avoided:</strong><ul>${s.conflicts.map((c) => `<li>${esc(c)}</li>`).join("")}</ul></div>` : "");
+      const travelNote = warnings && warnings.length ? `<div class="warn"><strong>Travel table:</strong><ul>${warnings.map((w) => `<li>${esc(w)}</li>`).join("")}</ul></div>` : "";
+      $("#notices").innerHTML = travelNote + rain + offNote + (s.conflicts.length ? `<div class="warn"><strong>Conflicts that could not be avoided:</strong><ul>${s.conflicts.map((c) => `<li>${esc(c)}</li>`).join("")}</ul></div>` : "");
       $("#check-line").innerHTML = v.ok ? '<span class="pill good">checked</span> Every pair meets the right number of times, home and away is balanced, and no court is booked twice.' : `<span class="pill high">problem</span> ${v.errors.map(esc).join(" ")}`;
       const rows = [];
       for (const n of s.nights) for (const m of n.matches) rows.push(`<tr><td>${dayIso(n.day)}</td><td>${esc(m.time || "")}</td><td>${esc(m.court)}</td><td>${esc(m.venue || "")}</td><td>${esc(m.division)}</td><td class="n">${m.round + 1}</td><td>${esc(m.homeName)}</td><td>${esc(m.awayName)}</td>${offs ? `<td>${esc(m.official || "")}</td>` : ""}</tr>`);
