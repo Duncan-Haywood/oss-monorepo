@@ -253,14 +253,8 @@ export const PRESETS = {
       { id: 'o2', kind: 'window', wall: 'front', offset: 24, width: 14.25, height: 21.25, sill: 44, product: 'swm-1421' },
       { id: 'o3', kind: 'window', wall: 'front', offset: 81.75, width: 14.25, height: 21.25, sill: 44, product: 'swm-1421' },
     ] }),
-};
-
-/**
- * A saltbox: a 10/12 front over the door and a long 5/12 back, the ridge about a third of the way
- * back. Ridge board and ties, shingles, primed lap siding to paint, a window in a gable end.
- * Held out of PRESETS (the New design menu) until the plan sheets, 3D view and editor draw a saltbox.
- */
-export const SALTBOX_PRESETS = {
+  // A saltbox: a 10/12 front over the door and a long 5/12 back, the ridge about a third of the way
+  // back. Ridge board and ties, shingles, primed lap siding to paint, a window in a gable end.
   '8x12 saltbox': () => ({ ...defaultDesign(), name: '8x12 saltbox shed', style: 'saltbox', pitch: 5, frontPitch: 10, roofType: 'ridgeBoard', wallHeight: 84.5,
     autoWall: false, autoPitch: false, autoOverhang: true, maxPeak: 0, gableVents: false, sidingType: 'LP SmartSide lap', sidingColor: 'white', openings: [
       { id: 'o1', kind: 'door', wall: 'front', offset: 52.75, width: 38.5, height: 78, product: 'site-built' },
