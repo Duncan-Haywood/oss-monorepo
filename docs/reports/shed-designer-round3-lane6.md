@@ -27,3 +27,9 @@ Session: https://claude.ai/code/session_01XpHqyg7ixNGUH3USNit4uK (2026-10-30).
 - **Gallery deltas.** The "Against "<previous design>"" line already covers a gallery pick by design switch. A gallery card could show `deltaPhrase(costDelta(here, card))` the way the option cards do.
 - **Per-assembly fasteners.** The fasteners are one group. Splitting the 16d nails by member group would move about $100 into the framing assemblies.
 - **Section subtotals.** r2 lane 3's per-section subtotals were not on `main` when this landed. If they land, link each section's subtotal to this tab's row for the same money.
+
+## Second PR: the gallery's price breakdown by assembly
+
+- `designFacts` (the gallery's detail panel, `picker.mjs`) grouped a design's cost by store section ("Lumber", "Sheet goods", ...). It now uses `costBreakdown`'s assemblies, the same split as the editor's tab, so a design's price reads the same in both places. The top five are kept, with "Everything else" after them, as before. `designfacts.test.mjs` checks the names; `picker.browser.test.mjs` passes 7/7.
+- Site-built trusses (#11589) are placed: the truss members go to roof framing, as do the OSB gusset sheets. A truss design with LP lap siding is in the `costs.test.mjs` sweep.
+- One tsc diagnostic on `main` after #11589 (`where` on truss gusset panels, `model.mjs`) is fixed by adding `where?` to the panel type.

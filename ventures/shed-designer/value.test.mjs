@@ -31,3 +31,15 @@ test('storage per dollar for the default design, and kits nearest its size', () 
   assert.match(html, /check the link/);
   assert.ok(!/NaN|undefined/.test(html));
 });
+
+test('the picker detail line compares a design with the nearest kits per $100', async () => {
+  const { kitLineHtml, nearestKits } = await import('./value.mjs');
+  const near = nearestKits(96, 3);
+  for (const k of near) assert.ok(Math.abs(k.lengthFt * k.widthFt - 96) <= 4);
+  const html = kitLineHtml({ footprintSqFt: 96, wallHeight: 86.5, total: 3000 });
+  // 96 sq ft for $3,000 is 3.2 sq ft per $100; 96 x 86.5 / 12 = 692 cu ft, 23 per $100.
+  assert.match(html, /3\.2 sq ft and 23 cu ft/);
+  assert.match(html, /check the link/);
+  assert.equal((html.match(/<li>/g) || []).length, 3);
+  assert.ok(!/NaN|undefined/.test(html));
+});

@@ -15,7 +15,7 @@ import { structuralChecks } from './checks.mjs';
 import { connectionChecks } from './connections.mjs';
 import { BLOCKS, ROOF_TYPES } from './model.mjs';
 import { PRODUCTS } from './products.mjs';
-import { LAP_PRODUCTS, isLap } from './lap.mjs';
+import { LAP_PRODUCTS, isLap, lapStudLimit } from './lap.mjs';
 import { floorMoves, searchKeep } from './levers.mjs';
 
 /**
@@ -60,7 +60,8 @@ export function sidingSpan(d) {
   if (!d.siding) return 24;
   // Panel siding is its own sheathing: T1-11 and LP's 3/8" panel are rated for studs at 16" (see the panel's stamp);
   // LP's 7/16" panel and lap siding over OSB take 24".
-  return d.sidingType === 'T1-11' || d.sidingType === 'LP SmartSide' ? 16 : 24;
+  // Lap siding: the figure its maker's install guide gives over sheathing (lap.mjs, cited there).
+  return lapStudLimit(d) ?? (d.sidingType === 'T1-11' || d.sidingType === 'LP SmartSide' ? 16 : 24);
 }
 
 /**
@@ -119,7 +120,8 @@ function moves(d, base, resize, opts = {}) {
   if (d.studSpacing === 24 || sidingSpan(d) >= 24) set(`studs ${d.studSpacing === 24 ? 16 : 24}" o.c.`, { studSpacing: d.studSpacing === 24 ? 16 : 24 });
   floorMoves(d, set);
   set(d.rafterSeat === 'connector' ? 'birdsmouth seats' : 'variable-pitch connectors', { rafterSeat: d.rafterSeat === 'connector' ? 'birdsmouth' : 'connector' });
-  for (const r of ROOF_TYPES) if (r.type !== d.roofType) set(r.short, { roofType: r.type }, 'roofType');
+  // A lean-to has no ridge, so no roof structure to change.
+  if (d.style !== 'leanTo') for (const r of ROOF_TYPES) if (r.type !== d.roofType) set(r.short, { roofType: r.type }, 'roofType');
   // Off-the-shelf swaps, when asked: another stock door or window, siding,
   // roofing, foundation, gravel and subfloor.
   if (opts.products) {

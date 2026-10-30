@@ -77,6 +77,34 @@ permissions:
   contents: read
 
 jobs:
+  # Where the site is served (owner, 2026-10-29: moving from GitHub Pages to
+  # Cloudflare). With the Cloudflare secrets set, the site is built for the
+  # Cloudflare Worker's origin and deployed there, and GitHub Pages serves
+  # redirect pages to it (platform/pages/redirect-stubs.mjs). Without them,
+  # everything stays on GitHub Pages as before. A job-level `if:` cannot read
+  # secrets, hence a job. `vars.PAGES_BASE_URL` still overrides the origin (a
+  # custom domain, once its route is attached).
+  gate:
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
+    permissions: {}
+    timeout-minutes: 2
+    outputs:
+      cloudflare: ${{ steps.check.outputs.cloudflare }}
+      base: ${{ steps.check.outputs.base }}
+    steps:
+      - id: check
+        env:
+          CONFIGURED: ${{ (secrets.CLOUDFLARE_API_TOKEN || secrets.CLOUDFLAREAPITOKEN || secrets.CLOUDFLARERESTRICTEDAPIKEY) != '' && (secrets.CLOUDFLARE_ACCOUNT_ID || secrets.CLOUDFLAREACCOUNTID) != '' }}
+          OVERRIDE: ${{ vars.PAGES_BASE_URL }}
+          CLOUDFLARE_BASE: https://monorepo-projects-site.duncan-andrew-haywood.workers.dev/
+          GITHUB_PAGES_BASE: ${{ format('https://{0}.github.io/{1}/', github.repository_owner, github.event.repository.name) }}
+        run: |
+          if [ "$CONFIGURED" = true ]; then cf=true; base="$CLOUDFLARE_BASE"; else cf=false; base="$GITHUB_PAGES_BASE"; fi
+          base="${OVERRIDE:-$base}"
+          echo "cloudflare=$cf" >> "$GITHUB_OUTPUT"
+          echo "base=$base" >> "$GITHUB_OUTPUT"
+          echo "Cloudflare: $cf; base URL: $base"
+
   # The test suites run beside the build, not before it. In series they took
   # 13-15 of the build job's 20 minutes, so on a busy day a slow runner hit
   # the cap mid-build and the run ended `cancelled` with nothing deployed
@@ -102,7 +130,7 @@ jobs:
       # thing it tests and silently not be CI's problem, which is the one way a
       # test file is worse than no test file.
       - name: Test the site builder
-        run: node --test "*.test.mjs"
+        run: node --test "*.test.mjs" "cloudflare/*.test.mjs"
         working-directory: platform/pages
 
       # The dashboard and the daily brief are added to the artifact after
@@ -111,6 +139,7 @@ jobs:
         run: node --test platform/devstats/*.test.mjs platform/daily/*.test.mjs
 
   build:
+    needs: gate
     runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     permissions:
       contents: read
@@ -155,7 +184,7 @@ jobs:
         if: github.event_name != 'pull_request'
         env:
           GITHUB_TOKEN: ${{ github.token }}
-          SITE_URL: ${{ vars.PAGES_BASE_URL || format('https://{0}.github.io/{1}/', github.repository_owner, github.event.repository.name) }}
+          SITE_URL: ${{ needs.gate.outputs.base }}
         run: |
           bg="$RUNNER_TEMP/background"
           mkdir -p "$bg"
@@ -191,6 +220,39 @@ jobs:
       - name: Check blog post front matter before the long build
         run: python3 platform/ci/check_post_frontmatter.py
 
+      # Shed Designer's pictures (ventures/shed-designer/renders/) are drawn by
+      # its own WebGL viewer and committed, but about twenty lanes change its
+      # designs at once, so they can lag main (renders.test.mjs only reports
+      # that outside this job). Redraw the stale ones into this checkout before
+      # the build, so the published pictures, their alt text and the size pages
+      # that show them match the merged designs. Nothing is committed. If
+      # Playwright cannot install, the committed pictures ship as they are;
+      # a redraw that ran but left anything stale fails the next step.
+      - name: Redraw stale Shed Designer pictures
+        id: shed-renders
+        if: github.event_name != 'pull_request'
+        continue-on-error: true
+        env:
+          PLAYWRIGHT_VERSION: "1.63.0"
+        run: |
+          set -euo pipefail
+          if node ventures/shed-designer/make-renders.mjs --check; then exit 0; fi
+          mkdir -p "$RUNNER_TEMP/pw" && cd "$RUNNER_TEMP/pw"
+          npm init -y >/dev/null
+          npm install --no-audit --no-fund "playwright@$PLAYWRIGHT_VERSION"
+          ./node_modules/.bin/playwright install --with-deps chromium || ./node_modules/.bin/playwright install chromium
+          cd "$GITHUB_WORKSPACE"
+          PLAYWRIGHT="$RUNNER_TEMP/pw/node_modules/playwright/index.js" node ventures/shed-designer/make-renders.mjs
+          echo "redrawn=1" >> "$GITHUB_OUTPUT"
+
+      - name: Check the redrawn Shed Designer pictures
+        if: steps.shed-renders.outputs.redrawn == '1'
+        working-directory: ventures/shed-designer
+        env:
+          RENDERS_STRICT: "1"
+          PLAYWRIGHT: ${{ runner.temp }}/pw/node_modules/playwright/index.js
+        run: node --test renders.test.mjs
+
       - name: Build the site
         id: build-site
         env:
@@ -198,15 +260,11 @@ jobs:
           # stopping it (writing.mjs, loadPosts); pull requests stay strict.
           PAGES_SKIP_BAD_POSTS: ${{ github.event_name != 'pull_request' && '1' || '' }}
           PAGES_CARD_CACHE: ${{ runner.temp }}/share-cards
-          # Owner-overridable (a custom domain, say). The default is where
-          # GitHub serves a project Pages site for this repository, derived
-          # from the repository rather than build.mjs's DEFAULT_BASE_URL,
-          # which still names the old `monorepo-projects` path: the live site
-          # is at /oss-monorepo/ (the deploy step's page_url, 2026-10-20), and
-          # canonicals, sitemaps and feed enclosures must name that origin.
-          PAGES_BASE_URL: ${{ vars.PAGES_BASE_URL }}
+          # Chosen by the gate job: the Cloudflare origin once its secrets
+          # exist, else where GitHub serves this repository's Pages site.
+          # Canonicals, sitemaps and feed enclosures must name that origin.
+          PAGES_BASE_URL: ${{ needs.gate.outputs.base }}
         run: |
-          export PAGES_BASE_URL="${PAGES_BASE_URL:-https://${GITHUB_REPOSITORY_OWNER,,}.github.io/${GITHUB_REPOSITORY#*/}/}"
           echo "base URL: $PAGES_BASE_URL"
           # --audio-cdn: committed MP3s are linked from jsDelivr rather than
           # shipped in the artifact (audio-cdn.mjs); 424 MB of 776 on 2026-10-24.
@@ -248,9 +306,8 @@ jobs:
       # generator fails the PR rather than the publish.
       - name: Build the daily brief
         env:
-          PAGES_BASE_URL: ${{ vars.PAGES_BASE_URL }}
+          PAGES_BASE_URL: ${{ needs.gate.outputs.base }}
         run: |
-          export PAGES_BASE_URL="${PAGES_BASE_URL:-https://${GITHUB_REPOSITORY_OWNER,,}.github.io/${GITHUB_REPOSITORY#*/}/}"
           asks="${RUNNER_TEMP}/asks.json"
           python3 portfolio/ledger/decision_queue.py --json > "$asks" || rm -f "$asks"
           node platform/daily/build.mjs --out=platform/pages/dist/dev/daily \
@@ -262,10 +319,9 @@ jobs:
       # links. The same pass, run over just those directories.
       - name: Give the pages built after the site their share cards and tags
         env:
-          PAGES_BASE_URL: ${{ vars.PAGES_BASE_URL }}
+          PAGES_BASE_URL: ${{ needs.gate.outputs.base }}
           PAGES_CARD_CACHE: ${{ runner.temp }}/share-cards
         run: |
-          export PAGES_BASE_URL="${PAGES_BASE_URL:-https://${GITHUB_REPOSITORY_OWNER,,}.github.io/${GITHUB_REPOSITORY#*/}/}"
           node platform/pages/share.mjs platform/pages/dist --base="$PAGES_BASE_URL" --only=deploy,dev
 
       # Cards no build has used for a day are dropped before saving, so the
@@ -280,14 +336,106 @@ jobs:
           path: ${{ runner.temp }}/share-cards
           key: share-cards-${{ hashFiles('platform/pages/sharecard.mjs', 'platform/pages/fontraster.mjs', 'platform/pages/fonts/**') }}-${{ steps.cards.outputs.day }}
 
+      - name: Upload the site for Cloudflare
+        if: github.event_name != 'pull_request' && needs.gate.outputs.cloudflare == 'true'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: site
+          path: platform/pages/dist
+          retention-days: 3
+
+      # Once the site lives on Cloudflare, GitHub Pages serves a page per old
+      # URL that redirects to the same path there.
+      - name: Write the GitHub Pages redirect pages
+        if: github.event_name != 'pull_request' && needs.gate.outputs.cloudflare == 'true'
+        env:
+          FROM: ${{ format('https://{0}.github.io/{1}/', github.repository_owner, github.event.repository.name) }}
+          TO: ${{ needs.gate.outputs.base }}
+        run: node platform/pages/redirect-stubs.mjs platform/pages/dist "$RUNNER_TEMP/ghp-redirects" --from="$FROM" --to="$TO"
+
       - name: Upload Pages artifact
         if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3
         with:
+          path: ${{ needs.gate.outputs.cloudflare == 'true' && format('{0}/ghp-redirects', runner.temp) || 'platform/pages/dist' }}
+
+  # Publishes the site to the Cloudflare Worker in platform/pages/cloudflare/.
+  # Runs before the GitHub Pages deploy, which only swaps in its redirect pages
+  # once this one has published and answered.
+  deploy-cloudflare:
+    needs: [gate, build]
+    if: ${{ github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && vars.PAGES_ENABLED != 'false' && needs.gate.outputs.cloudflare == 'true' }}
+    concurrency:
+      group: cloudflare-site-deploy
+      cancel-in-progress: false
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    permissions:
+      contents: read
+    timeout-minutes: 15
+    environment:
+      name: cloudflare
+      url: ${{ needs.gate.outputs.base }}
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN || secrets.CLOUDFLAREAPITOKEN || secrets.CLOUDFLARERESTRICTEDAPIKEY }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID || secrets.CLOUDFLAREACCOUNTID }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "22"
+
+      - name: Fetch the built site
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: site
           path: platform/pages/dist
 
+      - name: Install wrangler (pinned)
+        run: npm install --global wrangler@4.145.0
+
+      # The free plan deploys at most 20,000 files per Worker and the site is
+      # past that, so split.mjs moves research/, writing/ and dev/ into a
+      # second Worker that the site Worker reaches by a service binding
+      # (platform/pages/cloudflare/router.mjs). It fails, before anything is
+      # uploaded, if either half is over the limit.
+      - name: Split the site across the two Workers
+        run: |
+          # A hard-linked copy of the whole site for IndexNow, which walks the
+          # sitemaps, some of which move to the shard.
+          cp -al platform/pages/dist "$RUNNER_TEMP/site-full"
+          node platform/pages/cloudflare/split.mjs platform/pages/dist platform/pages/dist-shard
+
+      # The shard first: the site Worker's binding needs it to exist.
+      - name: Deploy the shard Worker
+        run: wrangler deploy
+        working-directory: platform/pages/cloudflare/shard
+
+      - name: Deploy the site Worker
+        run: wrangler deploy
+        working-directory: platform/pages/cloudflare
+
+      - name: Verify the published site answers
+        env:
+          PAGE_URL: ${{ needs.gate.outputs.base }}
+        run: bash platform/pages/verify-live.sh "$PAGE_URL"
+
+      - name: Announce the deployed site to IndexNow
+        env:
+          EXIT_NO_EGRESS: "3"
+        run: |
+          status=0
+          node platform/marketing/indexnow.mjs --submit --dir "$RUNNER_TEMP/site-full" || status=$?
+          case "${status}" in
+            0) echo "IndexNow notified (accepted means asked, not indexed)." ;;
+            "${EXIT_NO_EGRESS}") echo "::notice::This runner has no egress to api.indexnow.org; nothing was submitted." ;;
+            *) echo "::error::IndexNow refused the submission -- see the log above."; exit "${status}" ;;
+          esac
+
   deploy:
-    needs: build
+    needs: [gate, build, deploy-cloudflare]
     # `github.ref` as well as the event: `workflow_dispatch` can be run against
     # any branch, and publishing the live site from a feature branch by accident
     # is not a mistake anyone would notice quickly.
@@ -296,7 +444,9 @@ jobs:
     # be `vars.PAGES_ENABLED == 'true'`, which was never set, so every deploy
     # was skipped and the live site stopped updating at the switch. Set
     # `PAGES_ENABLED` to `false` to pause publishing.
-    if: ${{ github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && vars.PAGES_ENABLED != 'false' }}
+    # With Cloudflare on, it waits for that deploy to succeed: redirect pages
+    # pointing at a site that failed to publish would take both hosts down.
+    if: ${{ !cancelled() && needs.build.result == 'success' && (needs.gate.outputs.cloudflare != 'true' || needs.deploy-cloudflare.result == 'success') && github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && vars.PAGES_ENABLED != 'false' }}
     # GitHub serves one Pages site per repository, so two deployments must never
     # race — this is where that constraint actually lives, and the group is
     # deliberately not keyed by ref so nothing can publish alongside `main`.
@@ -318,68 +468,7 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4
-
-      - name: Verify the published site answers
-        # A completed deploy step is not evidence that anything serves. Check
-        # the front page, both sitemaps, robots, and one product through the
-        # real public URL, so "deployed" is a fact rather than an inference.
-        #
-        # The product page is named by the live catalog rather than hardcoded:
-        # a hardcoded slug stops proving anything the moment that venture is
-        # renamed, and the loop below would then have reported a 404 as the
-        # site's fault instead of the check's. Reading the slug back off the
-        # origin also proves catalog.json is the same one this build wrote.
-        env:
-          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
-        run: |
-          set -euo pipefail
-          base="${PAGE_URL%/}"
-
-          # The product page to exercise comes from the live catalog rather than
-          # a literal slug: a renamed or retired venture would otherwise make
-          # this step fail for the wrong reason, or -- worse, once someone
-          # "fixes" it by deleting the line -- pass without touching a tool at
-          # all. Pages can also serve the previous revision for a few seconds
-          # after the deployment API reports success, hence the retries.
-          curl --fail --silent --show-error --retry 5 --retry-delay 10 \
-               --retry-all-errors "${base}/catalog.json" -o catalog.json
-          # jq, not python3: this job has no setup-python step, and the
-          # self-hosted runner image ships jq but no interpreter (see
-          # gitops/ci/README.md) -- ubuntu-latest happening to have python3
-          # available masked that until CI_RUNNER is flipped to self-hosted.
-          tools=$(jq '.tools | length' catalog.json)
-          echo "Catalog lists ${tools} tool(s)"
-          [ "$tools" -ge 20 ] || { echo "::error::catalog.json lists only ${tools} tools"; exit 1; }
-          slug=$(jq -r '.tools[0].slug' catalog.json)
-
-          for path in "/" "/sitemap.xml" "/sitemap-hub.xml" "/robots.txt" "/catalog.json" "/llms.txt" "/llms-full.txt" "/feed.xml" "/${slug}/"; do
-            code=$(curl -sS -o /dev/null -w '%{http_code}' --retry 5 --retry-delay 5 \
-                     --retry-all-errors "${base}${path}")
-            echo "${code}  ${base}${path}"
-            [ "$code" = "200" ] || { echo "::error::${base}${path} returned ${code}"; exit 1; }
-          done
-          curl -sS "${base}/sitemap.xml" -o "$RUNNER_TEMP/sitemap.xml" && grep -q "<sitemapindex" "$RUNNER_TEMP/sitemap.xml" \
-            || { echo "::error::sitemap.xml served without a sitemap index"; exit 1; }
-          # A 200 on llms.txt is not enough: Pages would serve an empty file
-          # just as happily, and an assistant reading it would find no tools.
-          curl -sS "${base}/llms.txt" -o "$RUNNER_TEMP/llms.txt" && grep -q "^- \[" "$RUNNER_TEMP/llms.txt" \
-            || { echo "::error::llms.txt served without any tool entries"; exit 1; }
-          # Same argument for the feed, and one more: a feed that serves 200
-          # with zero entries is indistinguishable from a healthy one to every
-          # subscriber, who simply never hears about a new tool again.
-          curl -sS "${base}/feed.xml" -o "$RUNNER_TEMP/feed.xml" && grep -q "<entry>" "$RUNNER_TEMP/feed.xml" \
-            || { echo "::error::feed.xml served without any entries"; exit 1; }
-          echo "Published and verified: ${base}/ (product page /${slug}/)"
-
-      # Tell IndexNow-participating engines (Bing, Yandex, ...) which URLs the
-      # deploy just published. It reads the artifact this run deployed, not the
-      # `gh-pages` branch, which stopped being the serving copy when the Pages
-      # source moved to GitHub Actions. IndexNow is free and this pushes
-      # nothing. A runner with no egress to it (`EXIT_NO_EGRESS`) has broken
-      # nothing; a genuine refusal (a bad key file) fails the step.
+      # The verify script and IndexNow submitter below come from the checkout.
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
@@ -388,13 +477,32 @@ jobs:
         with:
           node-version: "22"
 
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4
+
+      - name: Verify the published site answers
+        # platform/pages/verify-live.sh says what it checks and why.
+        env:
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+        run: bash platform/pages/verify-live.sh "$PAGE_URL"
+
+      # Tell IndexNow-participating engines (Bing, Yandex, ...) which URLs the
+      # deploy just published. It reads the artifact this run deployed, not the
+      # `gh-pages` branch, which stopped being the serving copy when the Pages
+      # source moved to GitHub Actions. IndexNow is free and this pushes
+      # nothing. A runner with no egress to it (`EXIT_NO_EGRESS`) has broken
+      # nothing; a genuine refusal (a bad key file) fails the step.
       - name: Fetch the deployed artifact
+        if: needs.gate.outputs.cloudflare != 'true'
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           name: github-pages
           path: ${{ runner.temp }}/pages-artifact
 
+      # With Cloudflare on, deploy-cloudflare announces the real site instead.
       - name: Announce the deployed site to IndexNow
+        if: needs.gate.outputs.cloudflare != 'true'
         env:
           EXIT_NO_EGRESS: "3"
           ARTIFACT: ${{ runner.temp }}/pages-artifact

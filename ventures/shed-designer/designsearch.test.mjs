@@ -3,6 +3,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { searchDesigns, searchSteps, evaluateDesign, storageOf, looksOf, paretoFront, picks, sizesUnder, layoutOpenings, LAYOUTS, DOORS, WINDOWS, OBJECTIVES } from './designsearch.mjs';
 import { buildShed, defaultDesign, normalize } from './model.mjs';
+import { designFacts } from './designfacts.mjs';
 import { structuralChecks } from './checks.mjs';
 import { connectionChecks } from './connections.mjs';
 
@@ -22,8 +23,11 @@ test('storage is measured from the framing', () => {
   assert.equal(st.clearHeightIn, 86.5 - 3);
   assert.ok(st.overheadOpen);
   assert.equal(st.volumeCuFt, Math.round((st.wallVolumeCuFt + st.overheadCuFt) * 10) / 10);
-  // Door 38.5 + 6 and two windows 14.25 + 6 come off the inside perimeter.
-  assert.equal(st.shelfFt, Math.round(((2 * 137 + 2 * 89) - 44.5 - 2 * 20.25) / 12 * 10) / 10);
+  // The door's and two windows' rough widths come off the inside perimeter.
+  assert.equal(st.shelfFt, Math.round(((2 * 137 + 2 * 89) - 38.5 - 2 * 14.25) / 12 * 10) / 10);
+  // The box runs to the top of the plates; the same numbers the detail panel shows.
+  assert.equal(st.wallHeightIn, 86.5);
+  assert.equal(st.volumeCuFt, Math.round(designFacts(defaultDesign()).storage.volumeCuFt * 10) / 10);
   const board = storageOf(buildShed({ ...defaultDesign(), roofType: 'ridgeBoard' }));
   assert.equal(board.overheadOpen, false);
   assert.match(board.notes.join(' '), /deck the ties/);
@@ -155,4 +159,24 @@ test('choices the design locks (levers.mjs) are never changed', () => {
     assert.equal(s.design.joistSize, defaultDesign().joistSize);
     assert.equal(s.design.openings.find((o) => o.kind === 'door')?.product, 'site-built');
   }
+});
+
+test('an 8" overhang and 88" walls are offered, and a small budget still leaves a tight front', () => {
+  const r = searchDesigns({ budget: 800, sizes: [{ length: 120, width: 96 }, { length: 144, width: 96 }] });
+  assert.ok(r.all.some((s) => s.design.overhang === 8));
+  assert.ok(r.all.some((s) => s.wallHeight === 88));
+  // The polish phase: few front designs are beaten outright by one lighter-framing or overhang change.
+  const V = (s) => [-s.cost, s.storage.volumeCuFt, s.looks.score];
+  const beats = (a, b) => V(a).every((x, i) => x >= V(b)[i] - 1e-9) && V(a).some((x, i) => x > V(b)[i] + 1e-6);
+  const MOVES = { joistSize: ['2x4'], joistSpacing: [24], rafterSpacing: [24], studSpacing: [24], rafterSize: ['2x4'], overhang: [6, 8, 9, 12] };
+  let beaten = 0;
+  for (const f of r.front) {
+    const hit = Object.entries(MOVES).some(([k, vals]) => vals.some((v) => {
+      if (f.design[k] === v) return false;
+      const s = evaluateDesign({ ...f.design, [k]: v }, undefined, r.constraints);
+      return s.feasible && beats(s, f);
+    }));
+    if (hit) beaten++;
+  }
+  assert.ok(beaten <= Math.ceil(r.front.length * 0.15), `${beaten} of ${r.front.length} front designs beaten by one change`);
 });

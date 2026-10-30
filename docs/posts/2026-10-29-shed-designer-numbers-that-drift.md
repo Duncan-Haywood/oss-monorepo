@@ -1,5 +1,6 @@
 ---
 title: "A shed cost that left out the door, and a page that drifted from its tool"
+seo_title: "A shed cost that left out the door, and a page that drifted"
 date: 2026-10-29
 description: "Auditing Shed Designer's prices: estimates shown as listings, a store compared with itself, a total missing the door, and a page now tested against its tool."
 tags: [shed-designer, honesty, testing, pricing]

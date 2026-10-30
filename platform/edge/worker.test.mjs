@@ -118,3 +118,20 @@ test('pulling feedback is append-only by id', () => {
   const merged = mergeFeedback([a], [{ ...a, message: 'rewritten' }, { id: 2, day: '2026-10-21', type: 'problem', message: 'two' }, { id: 'x', message: 'bad' }]);
   assert.deepEqual(merged.map((r) => [r.id, r.message]), [[1, 'one'], [2, 'two']]);
 });
+
+test('ALLOWED_ORIGIN can list several origins, and CORS echoes the one that posted', async () => {
+  const second = 'https://site.example.dev';
+  const e = env({ ALLOWED_ORIGIN: `${ORIGIN}, ${second}`, FEEDBACK_DAILY_CAP: '10' });
+  const send = (origin) => worker.fetch(req('/feedback', {
+    body: JSON.stringify({ type: 'idea', tool: 'roof-bid', message: 'Add a metric toggle please' }),
+    headers: { origin, 'content-type': 'application/json' },
+  }), e);
+  for (const origin of [ORIGIN, second]) {
+    const r = await send(origin);
+    assert.equal(r.status, 201);
+    assert.equal(r.headers.get('access-control-allow-origin'), origin);
+  }
+  const refused = await send('https://evil.example');
+  assert.equal(refused.status, 403);
+  assert.equal(refused.headers.get('access-control-allow-origin'), ORIGIN);
+});
