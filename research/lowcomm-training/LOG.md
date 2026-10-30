@@ -9,6 +9,13 @@ Newest first. Write the hypothesis and the planned analysis before running an ex
 - **H6j-i:** the excess at H = 128 is not larger than at H = 64 by more than 0.01 nats (saturation or decline; the rule predicts +0.06 or more). **H6j-ii:** the excess is non-monotone in H over 4, 16, 32, 64, 128 (a rise then a fall), not a plateau. Priors: i 60%, ii 35%.
 - Limits to state: three seeds on the new cells against six at H = 64; one width; the report's seed pairing uses seeds 0 to 2 only for the new H; same corpus.
 
+### Outcome of 6j (`experiments/gpt_scale/scale.jsonl`, `scale_results_6j.txt`; 12 runs, about 18 min each)
+- Paired excess at keep 1/16 (compressed minus uncompressed, same seed): H = 4 +0.008 (2 seeds), 16 +0.054 (2), 32 +0.045 (3, sd 0.012), 64 +0.044 (6, sd 0.010), 128 +0.063 (3, sd 0.003).
+- **H6j-i refuted.** The H = 128 excess is 0.019 above H = 64's, over the 0.01 bound: the excess does not saturate. **H6j-ii not supported.** The 16 to 64 dip is 0.010 with standard errors of about 0.004 to 0.007 per cell, so it is at most 1.5 to 2 standard errors; the sequence reads as a flat stretch between 16 and 64 followed by a rise at 128, not a clean rise then fall.
+- Reading: 6i's suspicion that the power law in H is the weak part is only half right. The excess is not falling; it is roughly flat across 16 to 64 and rises again by 128, so the rule's smooth power law over-predicts the middle and fits the ends. Not tested: whether the 16 to 64 flat stretch is seed noise (two seeds at H = 16 and three at 32 each), which would make the power law fine and the 6h/6i leave-one-out miss a pure identifiability problem.
+- Limits: two to three seeds on four of the five H levels; one width; one keep level; rule not refitted on these cells here.
+- Next: more seeds at H = 16 and 32, and refit the rule on all five H levels to see whether b is stable.
+
 ## 2026-10-30 · Milestone 6i (H6 scale-up): do four more seeds on the two H = 64 cells make the size-2 refit identifiable? (planned before running)
 
 - Why: 6h refuted H6h-i (leave-one-cell-out MAPE 2.54% against 0.71% at size 1) and traced most of the miss to one cell (0.174 of the 0.289 nats of summed absolute leave-one-out error): (H = 64, keep 1/16), the only cell that pins the H exponent. Its two seeds differ by 0.027 nats (1.6614, 1.6341), as large as the 0.044 excess being fitted. So the cell is noisy, and "weakly identified" is a statement about seed noise that more seeds can test.
