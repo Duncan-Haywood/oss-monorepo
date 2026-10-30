@@ -349,3 +349,10 @@ test("stringer stock: shortest listed board that holds one stringer (hand: 108 i
   assert.match(stairText(l).join("\n"), /Buy \d+ 2x12 boards/);
   assert.equal(layoutStair({ totalRise: 108, tread: 10 }, null).stringerStock, null);
 });
+
+test("rail: a bottom space over 6 in earns a sphere note, the default 4 in does not", () => {
+  const ok = layoutStair({ totalRise: 108, tread: 10, rail: { sides: 1 } }, plan());
+  assert.ok(!ok.notes.some((n) => /sphere/.test(n)));
+  const bad = layoutStair({ totalRise: 108, tread: 10, rail: { sides: 1, limits: { bottomGap: 7 } } }, plan());
+  assert.ok(bad.notes.some((n) => /7 in space.*6 in sphere/.test(n)));
+});

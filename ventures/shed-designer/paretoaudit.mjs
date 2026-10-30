@@ -111,6 +111,7 @@ function apply(base, pt) {
     autoWall: false,
     autoPitch: false,
     autoOverhang: false,
+    ...('studSpacing' in pt ? { autoStuds: false } : {}),
     overhang: base.overhang,
     maxPeak: 0,
     openings: refitOpenings(base.openings, length, width),

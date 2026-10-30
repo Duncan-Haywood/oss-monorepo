@@ -21,6 +21,7 @@ people owe each other, not on whether the gadget works. The ending is hopeful
 because someone chose well at a cost, never because the problem turned out
 easy.
 
+- *(Done: The North Slope, Podhora Svätého Jána, Orava, Slovakia, 22 to 25 Dec 2052; text only.)* Snow load is depth times density: a 55 cm core of 1.21 kg in 4.32 L is 280 kg/m3, so 154 kg/m2 at the stake against a 1.6 kN/m2 (163 kg/m2) design figure; a drone map shows the unseen lee (north) slope at 71 cm = 199 kg/m2 (209 with 10 mm rain) and the visible south slope at 38 cm = 106; the brigade cuts 35 cm off the north side only (16.5 t, about 59 m3) to balance both near 105; sexton Jozef Hudak, captain Peter Mikus, Fr Marian, assistant Vaha.
 - *(Done: Three Cents a Degree, Saint Tegfan's, Llanfachreth-y-Glyn, Gwynedd, 2048; text only.)* Flue pipes follow the speed of sound, reeds do not: 36 cents flat at 8 C, 24 at 12, 18 at 14 (3.0 cents a degree); the organist's late husband's notebook rule, tune at the Mass's heat; the cellist tunes to the organ, the reeds stay off, heating on at six.
 - *(Done: The Eclipse Turn, Juniper Wells, Utah, 12 August 2045; text only.)* Solar farm, import cap, five pivot pumps and a lent water turn; times from the Salt Lake City table (edge of the path, totality 1 min 26 s).
 - *(Done: The Mark on the Pillar, Saltmoor St Brannock, Somerset Levels, 2051; text only.)* A flood agent, a gauge record that cannot tell one in a hundred from one in a thousand, a 1607 mark in a church pillar, and a school raised on a plinth.
