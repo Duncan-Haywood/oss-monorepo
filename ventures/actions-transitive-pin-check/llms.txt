@@ -1,0 +1,15 @@
+# Your workflow is pinned to a SHA. Is what it loads?
+
+> Paste a GitHub Actions workflow and check whether a reusable workflow or composite action it pins to a commit SHA itself loads a third-party action by a mutable tag underneath — a gap a top-level SHA pin does not close.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/actions-transitive-pin-check/)
+- [This checker vs. manually checking nested references](https://duncan-haywood.github.io/oss-monorepo/actions-transitive-pin-check/vs-manually-checking-nested-references.html)
+- [What is a transitive GitHub Actions dependency?](https://duncan-haywood.github.io/oss-monorepo/actions-transitive-pin-check/what-is-a-transitive-github-actions-dependency.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/actions-transitive-pin-check): MIT licensed.

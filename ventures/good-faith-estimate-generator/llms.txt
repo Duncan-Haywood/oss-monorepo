@@ -1,0 +1,13 @@
+# Build a Good Faith Estimate for a self-pay patient, and know when it is due.
+
+> Free Good Faith Estimate generator for the No Surprises Act: list services with codes and charges, get a printable estimate, the delivery deadline, a completeness check, a $400 dispute check and a review of your past estimates. Runs in your browser; no patient data leaves it.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/good-faith-estimate-generator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/good-faith-estimate-generator): MIT licensed.

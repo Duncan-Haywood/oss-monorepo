@@ -1,0 +1,18 @@
+# Is my S corporation loss deductible, and is that distribution tax free?
+
+> Free S corporation shareholder basis calculator. Enter each year's K-1 figures and get stock basis, debt basis and suspended losses carried forward in Form 7203 order, with taxable excess distributions flagged. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/s-corp-basis-tracker/)
+- [The order S corporation basis is adjusted in, with a three-year example](https://duncan-haywood.github.io/oss-monorepo/s-corp-basis-tracker/form-7203-basis-order.html)
+- [When an S corporation distribution is more than your basis](https://duncan-haywood.github.io/oss-monorepo/s-corp-basis-tracker/s-corp-distributions-over-basis.html)
+- [Which K-1 box feeds which line of S corporation basis](https://duncan-haywood.github.io/oss-monorepo/s-corp-basis-tracker/s-corp-k1-boxes-for-basis.html)
+- [S corp loan or capital contribution: which one unlocks a suspended loss?](https://duncan-haywood.github.io/oss-monorepo/s-corp-basis-tracker/s-corp-loan-or-contribution-to-deduct-losses.html)
+- [Why an S corporation loss is suspended, and what frees it](https://duncan-haywood.github.io/oss-monorepo/s-corp-basis-tracker/s-corp-suspended-losses.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/s-corp-basis-tracker): MIT licensed.

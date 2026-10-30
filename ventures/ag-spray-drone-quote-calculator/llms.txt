@@ -1,0 +1,14 @@
+# What should you charge per acre to spray with a drone?
+
+> Free spray drone quote calculator for custom applicators. Enter your drone, batteries, costs and a list of fields; get the real time on each field, cost per acre, a recommended quote, minimum-charge check and season break-even. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/ag-spray-drone-quote-calculator/)
+- [How to price spray drone application per acre](https://duncan-haywood.github.io/oss-monorepo/ag-spray-drone-quote-calculator/how-to-price-spray-drone-application-per-acre.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/ag-spray-drone-quote-calculator): MIT licensed.

@@ -1,0 +1,15 @@
+# Does your NY LLC owe a filing — and when?
+
+> Free browser tool for New York LLCs: check whether your LLC likely owes a Beneficial Ownership Disclosure or an Attestation of Exemption under the NY LLC Transparency Act, see your filing deadline counted down, and organize the beneficial-owner details you'll need before you email NYDOS yourself.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/ny-llc-transparency-act-tracker/)
+- [This tracker vs. piecing it together from law-firm client alerts](https://duncan-haywood.github.io/oss-monorepo/ny-llc-transparency-act-tracker/vs-reading-client-alerts.html)
+- [When is the NY LLC Transparency Act deadline?](https://duncan-haywood.github.io/oss-monorepo/ny-llc-transparency-act-tracker/when-is-the-ny-llc-transparency-act-deadline.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/ny-llc-transparency-act-tracker): MIT licensed.

@@ -1,0 +1,16 @@
+# Build a free electronic press kit
+
+> Build a professional electronic press kit (EPK) for your band or artist project in minutes — bio, streaming links, tour dates, press quotes, and photo. Free, no signup, runs entirely in your browser. Download a shareable HTML one-sheet or copy a plain-text version for email.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/epk-generator/)
+- [EPK Generator vs. assembling one by hand in a document editor](https://duncan-haywood.github.io/oss-monorepo/epk-generator/vs-assembling-one-by-hand.html)
+- [EPK Generator vs. Presskit.to](https://duncan-haywood.github.io/oss-monorepo/epk-generator/vs-presskit.html)
+- [What is an electronic press kit, and what belongs in it?](https://duncan-haywood.github.io/oss-monorepo/epk-generator/what-is-an-epk.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/epk-generator): MIT licensed.

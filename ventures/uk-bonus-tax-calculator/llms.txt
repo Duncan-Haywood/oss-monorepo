@@ -1,0 +1,13 @@
+# How much of my bonus do I actually keep?
+
+> Free UK bonus tax calculator for 2026/27: how much of a bonus you keep after income tax, National Insurance, student loan, the 60% personal allowance trap and the Child Benefit charge, and what paying part into your pension would change. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/uk-bonus-tax-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/uk-bonus-tax-calculator): MIT licensed.

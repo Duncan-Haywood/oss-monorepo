@@ -1,0 +1,17 @@
+# Find a duplicate vendor payment before you write it off.
+
+> Free private CSV tool for small businesses and bookkeepers to find duplicate or double vendor payments in an accounts-payable export before requesting a refund.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/duplicate-payment-audit/)
+- [This tool vs. a spreadsheet](https://duncan-haywood.github.io/oss-monorepo/duplicate-payment-audit/vs-a-spreadsheet.html)
+- [This tool vs. BILL (Bill.com)](https://duncan-haywood.github.io/oss-monorepo/duplicate-payment-audit/vs-bill-com.html)
+- [This tool vs. PRGX](https://duncan-haywood.github.io/oss-monorepo/duplicate-payment-audit/vs-prgx.html)
+- [Why does the same invoice number at two different amounts get flagged?](https://duncan-haywood.github.io/oss-monorepo/duplicate-payment-audit/why-does-the-same-invoice-at-two-amounts-get-flagged.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/duplicate-payment-audit): MIT licensed.

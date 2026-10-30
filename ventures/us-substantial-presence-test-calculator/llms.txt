@@ -1,0 +1,14 @@
+# Are you a US tax resident yet?
+
+> Free calculator for the IRS substantial presence test: enter your days in the US and see the 183-day weighted count (this year + a third of last year + a sixth of the year before), how many more days you can spend before you become a US tax resident, and when you crossed the line.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/us-substantial-presence-test-calculator/)
+- [The substantial presence test: how the 183-day count works](https://duncan-haywood.github.io/oss-monorepo/us-substantial-presence-test-calculator/substantial-presence-test-183-days-how-to-count.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/us-substantial-presence-test-calculator): MIT licensed.

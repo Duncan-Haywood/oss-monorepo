@@ -1,0 +1,14 @@
+# What do you actually take home when you resell tickets?
+
+> Find the list price that breaks even or hits your profit target after StubHub, SeatGeek, Vivid Seats or Ticketmaster seller fees, see whether a listing pays once you allow for the chance it does not sell, and audit your past sales by marketplace. Free, runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/ticket-resale-profit-calculator/)
+- [How to price resale tickets so you do not lose money on the unsold ones](https://duncan-haywood.github.io/oss-monorepo/ticket-resale-profit-calculator/ticket-resale-guide.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/ticket-resale-profit-calculator): MIT licensed.

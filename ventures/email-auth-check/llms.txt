@@ -1,0 +1,16 @@
+# Email Authentication Checker
+
+> Free SPF, DKIM, DMARC and BIMI checker: paste any domain and get a plain-English report on why your email might be going to spam, with the exact DNS record read and what it means. Nothing uploaded -- your browser queries public DNS directly.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/email-auth-check/)
+- [SPF PermError: fixing “too many DNS lookups”](https://duncan-haywood.github.io/oss-monorepo/email-auth-check/how-to-fix-spf-too-many-dns-lookups.html)
+- [Email Authentication Checker vs. checking DNS records by hand with dig](https://duncan-haywood.github.io/oss-monorepo/email-auth-check/vs-checking-dns-records-by-hand.html)
+- [Email Authentication Checker vs. MXToolbox](https://duncan-haywood.github.io/oss-monorepo/email-auth-check/vs-mxtoolbox.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/email-auth-check): MIT licensed.

@@ -1,0 +1,16 @@
+# Did a dependency's license just change under you?
+
+> Paste two snapshots of your dependency tree's declared licenses (npm, pip, cargo, go) and find out in one click which packages changed license since the last one — the change Dependabot and Renovate do not flag. Free, runs entirely in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/license-drift-check/)
+- [How a dependency's license change reaches your lockfile](https://duncan-haywood.github.io/oss-monorepo/license-drift-check/how-a-dependency-license-change-reaches-your-lockfile.html)
+- [License Drift Check vs. FOSSA](https://duncan-haywood.github.io/oss-monorepo/license-drift-check/vs-fossa.html)
+- [License Drift Check vs. manually re-checking each dependency's license](https://duncan-haywood.github.io/oss-monorepo/license-drift-check/vs-manually-rechecking-licenses.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/license-drift-check): MIT licensed.

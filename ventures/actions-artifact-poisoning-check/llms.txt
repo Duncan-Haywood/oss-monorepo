@@ -1,0 +1,16 @@
+# Can a fork PR's artifact get executed by your privileged workflow?
+
+> Paste your GitHub Actions workflow YAML and find a workflow_run job that downloads an artifact and later executes something from it, plus a download-artifact step with no name: pin. Free, runs in your browser, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/actions-artifact-poisoning-check/)
+- [Actions Artifact Poisoning Check vs. reading the workflow YAML by hand](https://duncan-haywood.github.io/oss-monorepo/actions-artifact-poisoning-check/vs-reading-the-workflow-yaml-by-hand.html)
+- [Actions Artifact Poisoning Check vs. zizmor](https://duncan-haywood.github.io/oss-monorepo/actions-artifact-poisoning-check/vs-zizmor.html)
+- [What is GitHub Actions artifact poisoning?](https://duncan-haywood.github.io/oss-monorepo/actions-artifact-poisoning-check/what-is-github-actions-artifact-poisoning.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/actions-artifact-poisoning-check): MIT licensed.

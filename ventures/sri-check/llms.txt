@@ -1,0 +1,16 @@
+# Subresource Integrity (SRI) Checker & Hash Generator
+
+> Free tool: generate a sha384 integrity= hash for any script or stylesheet, or run a CLI that checks a page's cross-origin tags for a missing integrity attribute, a missing crossorigin attribute, or a hash that no longer matches what the CDN serves. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/sri-check/)
+- [SRI Checker & Hash Generator vs. checking tags by hand](https://duncan-haywood.github.io/oss-monorepo/sri-check/vs-checking-tags-by-hand.html)
+- [SRI Checker & Hash Generator vs. srihash.org](https://duncan-haywood.github.io/oss-monorepo/sri-check/vs-srihash.html)
+- [Why an integrity attribute needs a crossorigin attribute too](https://duncan-haywood.github.io/oss-monorepo/sri-check/why-does-sri-need-the-crossorigin-attribute.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/sri-check): MIT licensed.

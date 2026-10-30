@@ -1,0 +1,13 @@
+# Which supplier prices quietly went up, and what does it cost you?
+
+> Free supplier price creep checker for restaurants, cafes and shops: paste invoice lines, see which items crept up, which invoice was a one-off overcharge, what it costs a year, and a credit-request email. Private, runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/supplier-price-creep-checker/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/supplier-price-creep-checker): MIT licensed.

@@ -1,0 +1,16 @@
+# Bid the doors, the drawers, and the degrease — not the door count.
+
+> Price a kitchen cabinet refinish from doors, drawer fronts, face frames, hardware, degrease, and a dark-to-light extra coat — then see price per door, price per painted piece, and the walk-away number.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/cabinet-refinishing-bid-calculator/)
+- [How much to charge to paint kitchen cabinets](https://duncan-haywood.github.io/oss-monorepo/cabinet-refinishing-bid-calculator/how-much-to-charge-to-paint-kitchen-cabinets.html)
+- [This calculator vs. a flat price per door](https://duncan-haywood.github.io/oss-monorepo/cabinet-refinishing-bid-calculator/vs-a-flat-price-per-door.html)
+- [This calculator vs. Kickserv](https://duncan-haywood.github.io/oss-monorepo/cabinet-refinishing-bid-calculator/vs-kickserv.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/cabinet-refinishing-bid-calculator): MIT licensed.

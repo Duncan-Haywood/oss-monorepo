@@ -1,0 +1,14 @@
+# What does an aeration and overseeding job really make? True profit, margin and the lowest quote
+
+> Free bid calculator for lawn-care operators pricing aeration and overseeding: true profit, margin and the lowest quote that hits your target margin.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/lawn-aeration-overseeding-bid-calculator/)
+- [How to price core aeration and overseeding](https://duncan-haywood.github.io/oss-monorepo/lawn-aeration-overseeding-bid-calculator/how-to-price-core-aeration-and-overseeding.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/lawn-aeration-overseeding-bid-calculator): MIT licensed.

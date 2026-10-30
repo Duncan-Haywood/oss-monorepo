@@ -1,0 +1,16 @@
+# Bid the flue and the height, not the house.
+
+> Price a chimney sweep from flue type, stories, roof access, and creosote — not a flat house rate. See labor hours, walk-away price, and the margin a neighborhood special actually leaves.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/chimney-sweep-bid-calculator/)
+- [How much should I charge for a chimney sweep?](https://duncan-haywood.github.io/oss-monorepo/chimney-sweep-bid-calculator/how-much-to-charge.html)
+- [This calculator vs. a flat $199 house sweep special](https://duncan-haywood.github.io/oss-monorepo/chimney-sweep-bid-calculator/vs-a-flat-house-sweep-special.html)
+- [This calculator vs. Jobber](https://duncan-haywood.github.io/oss-monorepo/chimney-sweep-bid-calculator/vs-jobber.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/chimney-sweep-bid-calculator): MIT licensed.

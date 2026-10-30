@@ -1,0 +1,13 @@
+# Gift it now or leave it in the will? The tax on each path.
+
+> Free calculator: should you gift a house or stock to your child now or let them inherit it? Compares carryover basis against the stepped-up basis, the capital gains tax, Form 709 and estate tax. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/gift-vs-inherit-basis-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/gift-vs-inherit-basis-calculator): MIT licensed.

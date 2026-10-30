@@ -1,0 +1,13 @@
+# Is the lump sum for my mineral royalties worth taking?
+
+> Free mineral and oil and gas royalty buyout calculator: compare a lump-sum offer with the royalty checks you would keep receiving. Arps decline curve, present value at your discount rate, the buyer's implied return, planned-well upside and an after-tax comparison. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/oil-gas-mineral-rights-offer-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/oil-gas-mineral-rights-offer-calculator): MIT licensed.

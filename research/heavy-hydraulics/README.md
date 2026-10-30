@@ -9,6 +9,8 @@ holds in every case, but only because each rung removes a loss term; the cycle a
 not sourced, so this is a first-order calculation, not a measurement of any machine.
 See [`PROPOSAL.md`](PROPOSAL.md) and [`LOG.md`](LOG.md).
 
+**Latest (2n, 2026-10-30):** the open-centre neutral drop read from Danfoss's PVG 32 bypass curve is about 10.9 bar at 45 L/min, which puts the load-sensing break-even margin at 28.0 bar: load-sensing uses less shaft energy than open-centre for both sourced margins (14 and 25 bar) at the measured load factor (`experiments/pvg_neutral.py`; one figure reading, standby flow still assumed).
+
 **Live page:** https://duncan-haywood.github.io/oss-monorepo/research/heavy-hydraulics/
 
 **Programme.** Track 25 (`heavy`, open-source construction, mining and heavy equipment) in

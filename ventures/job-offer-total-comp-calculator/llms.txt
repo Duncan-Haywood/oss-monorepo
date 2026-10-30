@@ -1,0 +1,13 @@
+# Which job offer actually pays more?
+
+> Free job offer comparison calculator. Enter up to three offers with base, bonus, sign-on, equity and hours to see four-year average pay, true hourly rate, and the base salary you would need to counter with. Runs in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/job-offer-total-comp-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/job-offer-total-comp-calculator): MIT licensed.

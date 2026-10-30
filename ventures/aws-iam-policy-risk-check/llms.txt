@@ -1,0 +1,13 @@
+# How dangerous is this IAM policy, really?
+
+> Free AWS IAM policy checker: paste a policy, trust policy or bucket policy and see admin wildcards, privilege-escalation actions, NotAction grants and public principals with fixes to review. Runs in your browser, no AWS access needed.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/aws-iam-policy-risk-check/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/aws-iam-policy-risk-check): MIT licensed.

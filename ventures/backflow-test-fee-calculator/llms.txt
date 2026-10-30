@@ -1,0 +1,16 @@
+# Quote a multi-device backflow test job in seconds
+
+> Free backflow-preventer test fee calculator: per-device test fee with a multi-device discount, a per-device report-filing fee, a travel fee, and a retest fee for failed devices. Entirely client-side, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/backflow-test-fee-calculator/)
+- [How to price a multi-device backflow test visit](https://duncan-haywood.github.io/oss-monorepo/backflow-test-fee-calculator/how-to-price-a-multi-device-backflow-test-visit.html)
+- [This calculator vs. Jobber](https://duncan-haywood.github.io/oss-monorepo/backflow-test-fee-calculator/vs-jobber.html)
+- [This calculator vs. a spreadsheet](https://duncan-haywood.github.io/oss-monorepo/backflow-test-fee-calculator/vs-spreadsheet.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/backflow-test-fee-calculator): MIT licensed.

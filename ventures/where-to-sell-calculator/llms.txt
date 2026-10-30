@@ -1,0 +1,22 @@
+# One item. Every channel. See where the money actually lands.
+
+> Free marketplace fee comparison: enter one item and see net profit after fees and returns on eBay, Etsy, Amazon, Mercari, Reverb and a dozen more.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/where-to-sell-calculator/)
+- [The channel that pays best is not always the channel to list on](https://duncan-haywood.github.io/oss-monorepo/where-to-sell-calculator/does-it-actually-sell-there.html)
+- [eBay vs Etsy fees on the same item](https://duncan-haywood.github.io/oss-monorepo/where-to-sell-calculator/etsy-vs-ebay-fees.html)
+- [Poshmark vs Mercari vs eBay fees on the same jacket](https://duncan-haywood.github.io/oss-monorepo/where-to-sell-calculator/poshmark-vs-mercari-vs-ebay-fees.html)
+- [Returns can flip where the money actually lands](https://duncan-haywood.github.io/oss-monorepo/where-to-sell-calculator/returns-change-the-ranking.html)
+- [Reverb vs eBay for selling gear](https://duncan-haywood.github.io/oss-monorepo/where-to-sell-calculator/reverb-vs-ebay-for-gear.html)
+- [This tool vs. Crosslist](https://duncan-haywood.github.io/oss-monorepo/where-to-sell-calculator/vs-crosslist.html)
+- [This tool vs. each marketplace’s own fee calculator](https://duncan-haywood.github.io/oss-monorepo/where-to-sell-calculator/vs-each-marketplaces-own-calculator.html)
+- [This tool vs. List Perfectly](https://duncan-haywood.github.io/oss-monorepo/where-to-sell-calculator/vs-list-perfectly.html)
+- [This tool vs. Vendoo](https://duncan-haywood.github.io/oss-monorepo/where-to-sell-calculator/vs-vendoo.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/where-to-sell-calculator): MIT licensed.

@@ -1,0 +1,14 @@
+# Per-word rate or flat fee — which actually pays more per hour?
+
+> Free calculator for freelance writers, copywriters, and ghostwriters comparing a per-word rate against a flat project fee for the same job -- computing the real effective hourly rate each pricing method pays once research and revision time are counted, and the price needed to hit an hourly income goal.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/freelance-writer-rate-calculator/)
+- [This calculator vs. judging a quote by its headline number](https://duncan-haywood.github.io/oss-monorepo/freelance-writer-rate-calculator/vs-judging-a-quote-by-its-headline-number.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/freelance-writer-rate-calculator): MIT licensed.

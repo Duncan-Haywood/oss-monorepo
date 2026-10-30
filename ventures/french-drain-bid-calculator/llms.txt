@@ -1,0 +1,16 @@
+# Bid the trench, the outlet, and the soil.
+
+> Price an exterior French drain from trench depth, pipe size, soil, daylight versus drywell versus storm tie-in, catch basins, downspout ties, and driveway crossings — not a published $25-a-foot special. See the walk-away number before you match a cheaper quote.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/french-drain-bid-calculator/)
+- [How much to charge for a French drain](https://duncan-haywood.github.io/oss-monorepo/french-drain-bid-calculator/how-much-to-charge-for-a-french-drain.html)
+- [This calculator vs. a flat price per foot](https://duncan-haywood.github.io/oss-monorepo/french-drain-bid-calculator/vs-a-flat-price-per-foot.html)
+- [This calculator vs. Jobber](https://duncan-haywood.github.io/oss-monorepo/french-drain-bid-calculator/vs-jobber.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/french-drain-bid-calculator): MIT licensed.

@@ -1,0 +1,14 @@
+# When should a consignment shop mark things down, and what should it decline?
+
+> Paste the items in your consignment or resale shop and get the exact best markdown schedule for each, which items to decline at intake, and how much a fixed 30/60-day rule leaves on the table. Free, runs in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/consignment-markdown-planner/)
+- [How should a consignment shop mark down? 30/60/90-day schedule math](https://duncan-haywood.github.io/oss-monorepo/consignment-markdown-planner/how-should-a-consignment-shop-mark-down.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/consignment-markdown-planner): MIT licensed.

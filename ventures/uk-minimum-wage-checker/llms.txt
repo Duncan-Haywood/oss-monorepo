@@ -1,0 +1,13 @@
+# Is this worker really paid the minimum wage?
+
+> Free UK minimum wage checker for 2026/27: enter pay, hours worked, deductions and accommodation to see the effective hourly rate against the National Living Wage and NMW, the shortfall, and the arrears and HMRC penalty exposure. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/uk-minimum-wage-checker/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/uk-minimum-wage-checker): MIT licensed.

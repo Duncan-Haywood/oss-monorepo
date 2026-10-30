@@ -1,0 +1,14 @@
+# Is your S3 bucket in the wrong storage class?
+
+> Paste per-bucket S3 size, object count and read activity and see the monthly cost in Standard, Standard-IA, Intelligent-Tiering and Glacier Instant Retrieval, with the small-object and minimum-duration traps. Free, runs in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/s3-storage-class-advisor/)
+- [S3 storage classes compared: Standard vs IA vs Intelligent-Tiering vs Glacier](https://duncan-haywood.github.io/oss-monorepo/s3-storage-class-advisor/s3-storage-class-guide-standard-vs-ia-vs-intelligent-tiering-vs-glacier.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/s3-storage-class-advisor): MIT licensed.

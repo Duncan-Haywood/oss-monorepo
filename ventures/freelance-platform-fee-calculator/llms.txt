@@ -1,0 +1,17 @@
+# Same job, two very different cuts.
+
+> Free calculator comparing Upwork and Fiverr net payout for the same job price, after platform fees, withdrawal fees, and a tax reserve. Solve for the price to charge on either platform to hit a take-home goal.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/freelance-platform-fee-calculator/)
+- [How much does Fiverr actually take?](https://duncan-haywood.github.io/oss-monorepo/freelance-platform-fee-calculator/how-much-does-fiverr-take.html)
+- [How much does Upwork actually take?](https://duncan-haywood.github.io/oss-monorepo/freelance-platform-fee-calculator/how-much-does-upwork-take.html)
+- [This calculator vs. checking each platform's fee page separately](https://duncan-haywood.github.io/oss-monorepo/freelance-platform-fee-calculator/vs-checking-each-platforms-fee-page-separately.html)
+- [Upwork vs. Fiverr Fee Calculator vs. tracking it in a spreadsheet](https://duncan-haywood.github.io/oss-monorepo/freelance-platform-fee-calculator/vs-tracking-it-in-a-spreadsheet.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/freelance-platform-fee-calculator): MIT licensed.

@@ -1,0 +1,14 @@
+# Is your delivery route worth driving? True profit per route, per hour and per stop
+
+> Free calculator for independent delivery van contractors. Enter route pay, stops, packages, miles, fuel, van payment, insurance and tax set-aside; it shows true profit per route, per hour and per stop, break-even stops, the lowest route pay that hits your hourly target, and compares two route offers.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/courier-van-route-profit-calculator/)
+- [How much profit per route do delivery van contractors make?](https://duncan-haywood.github.io/oss-monorepo/courier-van-route-profit-calculator/how-much-profit-per-route-for-delivery-van-contractors.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/courier-van-route-profit-calculator): MIT licensed.

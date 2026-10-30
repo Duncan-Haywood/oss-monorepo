@@ -1,0 +1,13 @@
+# How much can you convert to a Roth this year before the tax jumps?
+
+> Free 2026 Roth conversion calculator: see exactly how much to convert to fill the 12%, 22% or 24% bracket, the tax it costs, the 65+ senior-deduction phase-out and the Medicare IRMAA cliff. Runs in your browser, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/roth-conversion-bracket-fill-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/roth-conversion-bracket-fill-calculator): MIT licensed.

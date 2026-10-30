@@ -1,0 +1,13 @@
+# Is your A/B test result real?
+
+> Free A/B test significance calculator. Enter visitors and conversions to get the p-value, confidence interval, sample ratio mismatch check, Bayesian chance to beat control and an always-valid result for tests you peeked at. Plans sample size too. Nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/ab-test-significance-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/ab-test-significance-calculator): MIT licensed.

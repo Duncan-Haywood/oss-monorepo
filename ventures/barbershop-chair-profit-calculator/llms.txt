@@ -1,0 +1,13 @@
+# What does one barber chair really earn, and should you cut, employ or rent it out?
+
+> Free barbershop calculator: enter haircut, beard and combo prices, chair minutes, supplies, no-show rate, rent and commission, and see profit per cut and per chair hour, the price for your target margin, break-even cuts per week and whether to rent the chair or employ a barber. Runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/barbershop-chair-profit-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/barbershop-chair-profit-calculator): MIT licensed.

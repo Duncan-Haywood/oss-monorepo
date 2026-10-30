@@ -1,0 +1,15 @@
+# Is your AI coding agent's permission config over-broad?
+
+> Lint Claude Code settings.json or MCP configs for blanket Bash allow rules, plain-http MCP URLs and hardcoded secrets. Free, runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/agent-permission-config-check/)
+- [This checker vs. reading the JSON by eye](https://duncan-haywood.github.io/oss-monorepo/agent-permission-config-check/vs-manual-config-review.html)
+- [Why AI coding agent permission configs need a linter](https://duncan-haywood.github.io/oss-monorepo/agent-permission-config-check/why-ai-agent-permission-configs-need-a-linter.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/agent-permission-config-check): MIT licensed.

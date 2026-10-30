@@ -1,0 +1,13 @@
+# What to charge a farrier visit: trip charge, price per horse and what small stops really cost
+
+> Free pricing calculator for farriers: drive time, minutes per horse, materials, fixed costs and the income you want become a trip charge plus a per-horse rate, with a table by stop size. Private, runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/farrier-visit-pricing-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/farrier-visit-pricing-calculator): MIT licensed.

@@ -1,0 +1,13 @@
+# What does Bandcamp actually leave you on each sale?
+
+> Free analyzer for Bandcamp artists and labels: drop in your sales report CSV and see fees paid, net per item, small-sale fee drag, vinyl and merch profit after your costs, best releases and repeat buyers. Runs in your browser, the file is never uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/bandcamp-sales-report-analyzer/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/bandcamp-sales-report-analyzer): MIT licensed.

@@ -1,0 +1,17 @@
+# You do not charge what you think you charge.
+
+> Work out your real labor burden, your overhead rate on direct cost, and the hourly rate a trade job has to be sold at — from your own payroll, vehicles, office and materials. Free, private, and it fills in the burden and overhead fields on every bid calculator here.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/shop-rate-calculator/)
+- [This calculator vs. guessing your burden and overhead](https://duncan-haywood.github.io/oss-monorepo/shop-rate-calculator/vs-guessing-your-burden-and-overhead.html)
+- [This calculator vs. Housecall Pro](https://duncan-haywood.github.io/oss-monorepo/shop-rate-calculator/vs-housecall-pro.html)
+- [This calculator vs. ServiceTitan](https://duncan-haywood.github.io/oss-monorepo/shop-rate-calculator/vs-servicetitan.html)
+- [What should I charge per hour as a contractor?](https://duncan-haywood.github.io/oss-monorepo/shop-rate-calculator/what-should-i-charge-per-hour.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/shop-rate-calculator): MIT licensed.

@@ -1,0 +1,16 @@
+# A platform collection agreement rarely covers every layer.
+
+> Split a short-term rental stay's occupancy tax into what Airbnb or Vrbo already collects and what is left for the host to remit directly, layer by layer -- state, county, city, and a flat per-night fee. Free, private, nothing leaves your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/str-occupancy-tax-calculator/)
+- [How much occupancy tax will you have to self-file this year?](https://duncan-haywood.github.io/oss-monorepo/str-occupancy-tax-calculator/how-much-occupancy-tax-will-i-have-to-self-file-this-year.html)
+- [How to find which occupancy tax layers your platform already collects](https://duncan-haywood.github.io/oss-monorepo/str-occupancy-tax-calculator/how-to-find-your-platforms-collection-agreements.html)
+- [This calculator vs. tracking occupancy tax in a spreadsheet](https://duncan-haywood.github.io/oss-monorepo/str-occupancy-tax-calculator/vs-tracking-it-in-a-spreadsheet.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/str-occupancy-tax-calculator): MIT licensed.

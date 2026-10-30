@@ -1,0 +1,14 @@
+# What should you charge for that groom, and which dogs should you book?
+
+> Quote a groom so it earns your target per table hour, then paste the requests on your list and get the exact set of dogs that earns the most in a day. Free, runs in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/dog-grooming-day-planner/)
+- [How much to charge for dog grooming: price by table hour, not breed list](https://duncan-haywood.github.io/oss-monorepo/dog-grooming-day-planner/how-much-to-charge-for-dog-grooming.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/dog-grooming-day-planner): MIT licensed.

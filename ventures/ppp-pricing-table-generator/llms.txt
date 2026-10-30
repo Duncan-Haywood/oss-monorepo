@@ -1,0 +1,14 @@
+# Price your app or SaaS for every country, not just the US
+
+> Turn one price into a purchasing-power (PPP) price table for about 50 countries: damped discounts, a floor, .99 rounding, price tiers, regional discount groups and a revenue what-if for your own traffic mix. Free, in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/ppp-pricing-table-generator/)
+- [How to set regional prices for software without losing money](https://duncan-haywood.github.io/oss-monorepo/ppp-pricing-table-generator/how-to-set-regional-prices-for-software.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/ppp-pricing-table-generator): MIT licensed.

@@ -1,0 +1,14 @@
+# How many tiles does this room really need?
+
+> Free tile layout optimizer for tilers, flooring installers and DIYers. Enter the room, any cut-outs and tile sizes; it searches the grid start, tile direction and brick bond, reuses offcuts, and shows the fewest tiles and boxes to buy, a to-scale layout and a cutting list. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/tile-layout-optimizer/)
+- [How to lay tile with less waste, with a worked example](https://duncan-haywood.github.io/oss-monorepo/tile-layout-optimizer/how-to-lay-tile-with-less-waste.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/tile-layout-optimizer): MIT licensed.

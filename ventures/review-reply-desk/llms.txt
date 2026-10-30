@@ -1,0 +1,15 @@
+# Reply to every customer review in minutes
+
+> Free review response generator. Paste your Google, Yelp or Facebook reviews and get a ready-to-post reply to each one: rating-aware, specific, safe around legal, health-privacy and refund traps, and checked before you post. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/review-reply-desk/)
+- [How to ask customers for Google reviews](https://duncan-haywood.github.io/oss-monorepo/review-reply-desk/how-to-ask-customers-for-google-reviews.html)
+- [How to respond to a negative Google review](https://duncan-haywood.github.io/oss-monorepo/review-reply-desk/how-to-respond-to-a-negative-google-review.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/review-reply-desk): MIT licensed.

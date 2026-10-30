@@ -1,0 +1,16 @@
+# A booked hour isn't a paid hour.
+
+> Free calculator for independent mobile photo booth operators: find the real price for one event booking after setup/teardown time, travel, attendant labor, unlimited-print risk, and equipment cost, then check a price you're already considering against the breakeven.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/photo-booth-event-quote/)
+- [How much to charge for a photo booth rental](https://duncan-haywood.github.io/oss-monorepo/photo-booth-event-quote/how-much-to-charge-for-a-photo-booth-rental.html)
+- [This calculator vs. a flat "3-hour, $500" photo booth package](https://duncan-haywood.github.io/oss-monorepo/photo-booth-event-quote/vs-a-flat-package-price.html)
+- [This calculator vs. Photobooth Supply Co's Profit Calculator](https://duncan-haywood.github.io/oss-monorepo/photo-booth-event-quote/vs-photobooth-supply-co.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/photo-booth-event-quote): MIT licensed.

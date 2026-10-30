@@ -1,0 +1,15 @@
+# Price the stay, then check the kennel.
+
+> Free calculator for independent dog boarding and daycare facility owners: price a reservation from staff time, supplies, overhead, a long-stay discount, and a multi-dog discount, then check whether your kennel/run occupancy clears a monthly break-even.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/dog-boarding-daycare-pricing/)
+- [How much to charge for dog boarding](https://duncan-haywood.github.io/oss-monorepo/dog-boarding-daycare-pricing/how-much-to-charge-for-dog-boarding.html)
+- [This calculator vs. a flat nightly rate](https://duncan-haywood.github.io/oss-monorepo/dog-boarding-daycare-pricing/vs-a-flat-nightly-rate.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/dog-boarding-daycare-pricing): MIT licensed.

@@ -1,0 +1,13 @@
+# Which games earn their floor space, and which should you move or cut?
+
+> Free arcade game payback calculator: plays, credits, ticket payout, floor space and upkeep become weekly profit, payback, break-even plays and a keep, watch or cut verdict for every game. Private, runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/arcade-game-payback-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/arcade-game-payback-calculator): MIT licensed.

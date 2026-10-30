@@ -1,0 +1,23 @@
+# See whether that offer still beats eBay.
+
+> See what a Reverb sale leaves after fees, shipping and gear cost, and whether to take an offer, consign, take a shop cash offer or accept a partial refund.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/reverb-fee-calculator/)
+- [Should I bump this Reverb listing?](https://duncan-haywood.github.io/oss-monorepo/reverb-fee-calculator/should-i-bump-this-reverb-listing.html)
+- [Should I buy Reverb Safe Shipping?](https://duncan-haywood.github.io/oss-monorepo/reverb-fee-calculator/should-i-buy-reverb-safe-shipping.html)
+- [Should I consign this Reverb listing?](https://duncan-haywood.github.io/oss-monorepo/reverb-fee-calculator/should-i-consign-this-reverb-listing.html)
+- [Should I eat the shipping on Reverb?](https://duncan-haywood.github.io/oss-monorepo/reverb-fee-calculator/should-i-eat-the-shipping-on-reverb.html)
+- [Should I include shipping on Reverb?](https://duncan-haywood.github.io/oss-monorepo/reverb-fee-calculator/should-i-include-shipping-on-reverb.html)
+- [Should I take the return or refund part of it on Reverb?](https://duncan-haywood.github.io/oss-monorepo/reverb-fee-calculator/should-i-take-the-return-or-refund-on-reverb.html)
+- [Should I take this Reverb offer?](https://duncan-haywood.github.io/oss-monorepo/reverb-fee-calculator/should-i-take-this-reverb-offer.html)
+- [Should I wait for a better Reverb offer?](https://duncan-haywood.github.io/oss-monorepo/reverb-fee-calculator/should-i-wait-for-a-better-reverb-offer.html)
+- [This calculator vs. Reverb's own Selling Fees page](https://duncan-haywood.github.io/oss-monorepo/reverb-fee-calculator/vs-reverbs-selling-fees-page.html)
+- [Reverb Fee Calculator vs. tracking offers in a spreadsheet](https://duncan-haywood.github.io/oss-monorepo/reverb-fee-calculator/vs-tracking-offers-in-a-spreadsheet.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/reverb-fee-calculator): MIT licensed.

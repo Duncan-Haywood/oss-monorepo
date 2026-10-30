@@ -1,0 +1,16 @@
+# Price the vent, the gas upsize, and the attic — not a flat $1,200 swap.
+
+> Price a residential water heater replacement from the tank or tankless type, the location, the vent, and the gas or electrical path — plus walk-away price, dollars per gallon, and how many times a typical 50-gallon electric garage swap this house really is.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/water-heater-bid-calculator/)
+- [How much should I charge to replace a water heater?](https://duncan-haywood.github.io/oss-monorepo/water-heater-bid-calculator/how-much-to-charge.html)
+- [This calculator vs. a flat-rate water heater special](https://duncan-haywood.github.io/oss-monorepo/water-heater-bid-calculator/vs-a-flat-rate-water-heater-special.html)
+- [This calculator vs. ServiceTitan](https://duncan-haywood.github.io/oss-monorepo/water-heater-bid-calculator/vs-servicetitan.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/water-heater-bid-calculator): MIT licensed.

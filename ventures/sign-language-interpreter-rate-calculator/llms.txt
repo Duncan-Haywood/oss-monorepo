@@ -1,0 +1,16 @@
+# What should you charge for an interpreting assignment?
+
+> Turn an assignment request's hours, travel, and setting into a defensible interpreting fee, plus a late-cancellation fee calculator. Entirely client-side.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/sign-language-interpreter-rate-calculator/)
+- [How much should a sign language interpreter charge for an assignment?](https://duncan-haywood.github.io/oss-monorepo/sign-language-interpreter-rate-calculator/how-much-should-i-charge-for-an-interpreting-assignment.html)
+- [This calculator vs. a flat fee per assignment](https://duncan-haywood.github.io/oss-monorepo/sign-language-interpreter-rate-calculator/vs-a-flat-fee-per-assignment.html)
+- [This calculator vs. a spreadsheet](https://duncan-haywood.github.io/oss-monorepo/sign-language-interpreter-rate-calculator/vs-a-spreadsheet.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/sign-language-interpreter-rate-calculator): MIT licensed.

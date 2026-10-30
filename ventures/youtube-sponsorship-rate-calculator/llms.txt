@@ -1,0 +1,13 @@
+# What should you charge for a YouTube sponsorship?
+
+> Free YouTube sponsorship rate calculator. Enter your median views, niche and format to get a price range for an integration, dedicated video or mention, plus what to add for whitelisting and exclusivity. No sign-up, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/youtube-sponsorship-rate-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/youtube-sponsorship-rate-calculator): MIT licensed.

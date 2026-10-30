@@ -1,0 +1,13 @@
+# Which of your Poshmark items and brands actually make money?
+
+> Free analyzer for Poshmark sellers: load your My Sales Report CSV and see profit per item, brand and month after Poshmark's $2.95 / 20% fee, with effective fee rate, cost basis by SKU, shipping losses, days to sell and brands to stop sourcing. Runs in your browser, the file is never uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/poshmark-sales-report-analyzer/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/poshmark-sales-report-analyzer): MIT licensed.

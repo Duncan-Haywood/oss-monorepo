@@ -1,0 +1,13 @@
+# Is your Social Security taxable, and what does your next dollar of income really cost?
+
+> Free calculator for how much of your Social Security is taxable: enter benefits and other income, see provisional income, the 0/50/85% taxable share, the tax, and the effective marginal rate of the tax torpedo on your next IRA withdrawal or Roth conversion. Private, runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/social-security-benefits-tax-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/social-security-benefits-tax-calculator): MIT licensed.

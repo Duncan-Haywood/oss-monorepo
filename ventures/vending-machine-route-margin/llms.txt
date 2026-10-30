@@ -1,0 +1,17 @@
+# Gross sales lie. Profit per stop doesn't.
+
+> Free calculator for independent vending machine route operators: find real profit per location after commission, card fees, shrink, drive time, and machine cost, then see whether your whole route hits your income goal.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/vending-machine-route-margin/)
+- [How much does a vending machine actually make?](https://duncan-haywood.github.io/oss-monorepo/vending-machine-route-margin/how-much-does-a-vending-machine-actually-make.html)
+- [This calculator vs. Cantaloupe Seed](https://duncan-haywood.github.io/oss-monorepo/vending-machine-route-margin/vs-cantaloupe.html)
+- [This calculator vs. judging a location by gross sales alone](https://duncan-haywood.github.io/oss-monorepo/vending-machine-route-margin/vs-judging-a-location-by-gross-sales-alone.html)
+- [This calculator vs. VendSoft's route accounting software](https://duncan-haywood.github.io/oss-monorepo/vending-machine-route-margin/vs-vendsoft.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/vending-machine-route-margin): MIT licensed.

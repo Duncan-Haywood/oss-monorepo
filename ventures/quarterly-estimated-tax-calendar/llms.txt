@@ -1,0 +1,16 @@
+# What do you actually owe the IRS this quarter — and when?
+
+> Free calculator for US freelancers, 1099 contractors, and gig workers: computes the IRS safe-harbor quarterly estimated tax payment from your own numbers, gives the four real (weekend/holiday-adjusted) due dates, and exports a downloadable calendar file. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/quarterly-estimated-tax-calendar/)
+- [This calendar vs. a spreadsheet](https://duncan-haywood.github.io/oss-monorepo/quarterly-estimated-tax-calendar/vs-a-spreadsheet.html)
+- [This calendar vs. Keeper's quarterly tax calculator](https://duncan-haywood.github.io/oss-monorepo/quarterly-estimated-tax-calendar/vs-keeper.html)
+- [What happens if you miss a quarterly estimated tax payment?](https://duncan-haywood.github.io/oss-monorepo/quarterly-estimated-tax-calendar/what-happens-if-i-miss-a-quarterly-estimated-tax-payment.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/quarterly-estimated-tax-calendar): MIT licensed.

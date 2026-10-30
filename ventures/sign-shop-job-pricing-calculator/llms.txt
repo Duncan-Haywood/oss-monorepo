@@ -1,0 +1,13 @@
+# What should this sign or banner job cost?
+
+> Free sign shop pricing calculator: enter size, quantity, material, print and install time and your shop rate to get the price that earns your margin, your break-even, and the price per square foot at any quantity. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/sign-shop-job-pricing-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/sign-shop-job-pricing-calculator): MIT licensed.

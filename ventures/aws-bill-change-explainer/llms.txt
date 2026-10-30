@@ -1,0 +1,14 @@
+# Why did my AWS bill go up?
+
+> Paste the CSV from AWS Cost Explorer for two months and see which services explain the rise in your AWS bill, ranked, with partial-month normalisation and a checklist of common causes. Free, no signup, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/aws-bill-change-explainer/)
+- [This tool vs. the Cost Explorer console](https://duncan-haywood.github.io/oss-monorepo/aws-bill-change-explainer/vs-cost-explorer.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/aws-bill-change-explainer): MIT licensed.

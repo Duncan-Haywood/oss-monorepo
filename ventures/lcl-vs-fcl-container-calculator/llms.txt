@@ -1,0 +1,13 @@
+# Should this shipment go LCL or in its own container?
+
+> Free LCL vs FCL calculator for importers: enter your CBM, weight and the quotes you have, and see whether a shared container or a 20ft, 40ft or 40ft high-cube is cheaper, the break-even volume and the cost per unit. Runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/lcl-vs-fcl-container-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/lcl-vs-fcl-container-calculator): MIT licensed.

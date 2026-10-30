@@ -1,0 +1,16 @@
+# Bid the footage, the access, and the camera.
+
+> Price a sewer camera inspection or hydro-jet from extra footage past the included run, cleanout versus toilet pull, roots and grease, hose distance from the truck, and a camera warranty pass — not a published $149 drain special. See the walk-away number before you match a cheaper cable quote.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/sewer-hydrojet-bid-calculator/)
+- [How much to charge for hydro-jetting](https://duncan-haywood.github.io/oss-monorepo/sewer-hydrojet-bid-calculator/how-much-to-charge-for-hydro-jetting.html)
+- [This calculator vs. building your own spreadsheet](https://duncan-haywood.github.io/oss-monorepo/sewer-hydrojet-bid-calculator/vs-building-your-own-spreadsheet.html)
+- [This calculator vs. Jobber](https://duncan-haywood.github.io/oss-monorepo/sewer-hydrojet-bid-calculator/vs-jobber.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/sewer-hydrojet-bid-calculator): MIT licensed.

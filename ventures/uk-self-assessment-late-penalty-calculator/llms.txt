@@ -1,0 +1,13 @@
+# I missed the Self Assessment deadline. What will it cost?
+
+> Free UK Self Assessment late penalty calculator: enter your tax year, tax owed and the dates you filed and paid to see late filing penalties, late payment penalties, interest and what waiting another month costs. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/uk-self-assessment-late-penalty-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/uk-self-assessment-late-penalty-calculator): MIT licensed.

@@ -1,0 +1,13 @@
+# Why did my Pipedrive import go wrong?
+
+> Free Pipedrive deals, people and organizations CSV checker: finds deals with a bad status, value or currency, missing names and titles, invalid and duplicate emails, Excel-damaged phone numbers, date format problems and probabilities written as fractions, with line numbers, and applies formatting-only safe fixes.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/pipedrive-import-csv-check/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/pipedrive-import-csv-check): MIT licensed.

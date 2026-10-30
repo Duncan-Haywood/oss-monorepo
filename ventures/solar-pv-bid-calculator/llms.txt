@@ -1,0 +1,16 @@
+# Bid the roof and the service, not the watts.
+
+> Price a rooftop solar install from module count, roof difficulty, panel upgrades, permits, and margin — then see dollars per watt, crew hours, and the walk-away number a cheaper per-watt quote hides.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/solar-pv-bid-calculator/)
+- [How much to charge to install solar panels](https://duncan-haywood.github.io/oss-monorepo/solar-pv-bid-calculator/how-much-to-charge-to-install-solar-panels.html)
+- [This calculator vs. a flat price-per-watt quote](https://duncan-haywood.github.io/oss-monorepo/solar-pv-bid-calculator/vs-a-flat-price-per-watt.html)
+- [This calculator vs. Aurora Solar](https://duncan-haywood.github.io/oss-monorepo/solar-pv-bid-calculator/vs-aurora-solar.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/solar-pv-bid-calculator): MIT licensed.

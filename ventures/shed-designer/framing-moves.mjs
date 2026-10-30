@@ -24,7 +24,7 @@ function offsetFor(d, op, a) {
  * @param {(label: string, change: object, group?: string) => void} set
  */
 export function openingMoves(d, set) {
-  const sp = d.studSpacing;
+  const sp = d.studSpacing; // normalize resolves autoStuds into it
   for (const op of d.openings) {
     const face = wallFaceLength(d, op.wall);
     const a = axisStart(d, op);

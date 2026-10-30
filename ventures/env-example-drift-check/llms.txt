@@ -1,0 +1,16 @@
+# Does your .env.example still match what the code actually reads?
+
+> Paste your .env.example and your source code and see every environment variable the code reads (process.env, os.getenv, os.environ, ENV[], System.getenv) that the example file never mentions -- the #1 cause of a fresh clone crashing right after install. Free, runs entirely in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/env-example-drift-check/)
+- [This tool vs. dotenv-linter](https://duncan-haywood.github.io/oss-monorepo/env-example-drift-check/vs-dotenv-linter.html)
+- [.env.example Drift Check vs. grepping the codebase by hand](https://duncan-haywood.github.io/oss-monorepo/env-example-drift-check/vs-grepping-the-codebase-by-hand.html)
+- [Why .env.example files drift from the code that reads them](https://duncan-haywood.github.io/oss-monorepo/env-example-drift-check/why-env-example-files-drift-from-the-code-that-reads-them.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/env-example-drift-check): MIT licensed.

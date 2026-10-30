@@ -1,0 +1,22 @@
+# Know whether WFS or shipping it yourself leaves more — and whether matching still pays.
+
+> Free Walmart Marketplace calculator: compare WFS vs seller-fulfilled profit, apply the referral-fee floor, and see whether matching a lower price still leaves money after Buy Box take.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/walmart-marketplace-calculator/)
+- [Does a smaller box cut my WFS fee?](https://duncan-haywood.github.io/oss-monorepo/walmart-marketplace-calculator/does-a-smaller-box-cut-wfs-fees.html)
+- [Should I match the lower Walmart offer?](https://duncan-haywood.github.io/oss-monorepo/walmart-marketplace-calculator/should-i-match-the-walmart-buy-box.html)
+- [Should I offer 2-day shipping on Walmart Marketplace?](https://duncan-haywood.github.io/oss-monorepo/walmart-marketplace-calculator/should-i-offer-two-day-shipping-on-walmart.html)
+- [Should I pull aged WFS inventory?](https://duncan-haywood.github.io/oss-monorepo/walmart-marketplace-calculator/should-i-pull-aged-wfs-inventory.html)
+- [Should I run Walmart Connect ads?](https://duncan-haywood.github.io/oss-monorepo/walmart-marketplace-calculator/should-i-run-walmart-connect-ads.html)
+- [Should I stay on WFS after Walmart returns?](https://duncan-haywood.github.io/oss-monorepo/walmart-marketplace-calculator/should-i-use-wfs-with-walmart-returns.html)
+- [This calculator vs. a spreadsheet](https://duncan-haywood.github.io/oss-monorepo/walmart-marketplace-calculator/vs-a-spreadsheet.html)
+- [This calculator vs. Walmart's own WFS Cost Estimator](https://duncan-haywood.github.io/oss-monorepo/walmart-marketplace-calculator/vs-wfs-cost-estimator.html)
+- [WFS vs seller fulfilled: which fulfillment path leaves more on the same listing?](https://duncan-haywood.github.io/oss-monorepo/walmart-marketplace-calculator/wfs-vs-seller-fulfilled.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/walmart-marketplace-calculator): MIT licensed.

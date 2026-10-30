@@ -1,0 +1,13 @@
+# How many should you order?
+
+> Free newsvendor calculator for sellers of seasonal, holiday and one-time products. Enter past seasons or a low, likely and high guess, your price, cost and supplier price breaks to get the order quantity that maximises expected profit, the chance of selling out or losing money, and a back-test on your own history.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/seasonal-buy-quantity-optimizer/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/seasonal-buy-quantity-optimizer): MIT licensed.

@@ -16,9 +16,9 @@
 // roof line. The same profile drives the 3D view and the drawings.
 
 import { actual, ceil16, TWO_BY, DEFAULT_LENGTHS_FT, fmtFtIn as fmtFt, fmtIn } from './lumber.mjs';
-import { lumberCostOf } from './estimate.mjs';
+import { estimate } from './estimate.mjs';
 import { productById } from './products.mjs';
-import { headerCheck } from './structure.mjs';
+import { headerCheck, studCheck } from './structure.mjs';
 import { gambrelShape, gambrelParts, gambrelAnalysis, loftSpan, bandAbove, zOnPoly, GUSSET_T as GAMBREL_GUSSET_T, LOFT_LIVE } from './gambrel.mjs';
 import { needsKingPost, trussForces } from './truss.mjs';
 import { LAP_PRODUCTS, layoutFace, lapStocks, lapStagger, evenExposure, lapStudLimit } from './lap.mjs';
@@ -67,6 +67,8 @@ export function defaultDesign() {
     overhang: 12,
     studSize: '2x4',
     studSpacing: 16,
+    // Studs as far apart as the siding and the stud check allow (autoStudSpacing).
+    autoStuds: true,
     joistSize: '2x6',
     joistSpacing: 16,
     rafterSize: '2x6',
@@ -111,6 +113,9 @@ export function defaultDesign() {
     autoWall: true,
     autoPitch: true,
     autoOverhang: true,
+    // The automatic overhang takes the longest from 6" to 18" whose materials
+    // cost at most this many dollars more than the cheapest overhang's.
+    overhangBudget: 25,
     roofColor: 'charcoal',
     trimColor: 'white',
     doorColor: 'stained',
@@ -296,8 +301,10 @@ export function normalize(input) {
     sidingColor: pickFinish(o.sidingColor, SIDING_FINISHES, d.sidingColor),
     polkaDots: o.polkaDots === true,
     autoWall: o.autoWall === true,
+    autoStuds: o.autoStuds === true,
     autoPitch: o.autoPitch === true,
     autoOverhang: o.autoOverhang === true,
+    overhangBudget: Math.min(500, Math.max(0, num(o.overhangBudget, d.overhangBudget))),
     roofColor: pickFinish(o.roofColor, SHINGLE_FAMILIES, d.roofColor, false),
     trimColor: pickFinish(o.trimColor, TRIM_FINISHES, d.trimColor),
     doorColor: pickFinish(o.doorColor, DOOR_FINISHES, d.doorColor),
@@ -347,6 +354,8 @@ export function normalize(input) {
   // overhang); a loft goes on a gambrel's ties only.
   if (out.style === 'gambrel') Object.assign(out, { roofType: 'ridgeBoard', rafterSeat: 'birdsmouth', overhang: 0, autoOverhang: false });
   else out.loft = 'none';
+  // Resolved here, not in buildShed, so every reader of the design (moves, checks, the page) sees the spacing framed.
+  if (out.autoStuds) out.studSpacing = autoStudSpacing(out);
   return out;
 }
 
@@ -379,25 +388,53 @@ export function defaultHeader(width) {
  * @param {Partial<Design>} d @param {string} wall
  */
 export function headerLoadPlf(d, wall) {
-  const cos = 1 / Math.sqrt(1 + ((d.pitch ?? 0) / 12) ** 2);
-  const roof = 15 / cos + (d.snowLoad ?? 0);
   if (wall === 'front' || wall === 'back') {
-    if (d.style === 'gambrel') {
-      // The gambrel trusses' reactions, a loft's storage load counted as dead.
-      const g = gambrelAnalysis(/** @type {any} */ (d)).wall;
-      return g.dead + g.loft + g.snow + 10;
-    }
-    const D = actual(d.studSize || '2x4').depth;
-    const lean = d.style === 'leanTo';
-    const beam = !lean && d.roofType === 'ridgeBeam';
-    const truss = !lean && d.roofType === 'truss';
-    const run = (d.width ?? 0) / 2 - (beam ? 1.5 : truss ? 0 : 0.75) - D;
-    const tribFt = (beam ? run / 2 + D + (d.overhang ?? 0) : (d.width ?? 0) / 2 + (d.overhang ?? 0)) / 12;
-    // Under trusses the eave wall also carries half the attic (bottom chord) load.
-    const attic = truss ? (trussForces(/** @type {any} */ (d)).wc * (d.width ?? 0)) / 2 / 12 / ((d.rafterSpacing ?? 24) / 12) : 0;
-    return roof * tribFt + attic + 10;
+    const e = eaveWallLoads(d);
+    return e.dead + e.snow + 10;
   }
-  return 40 + roof * ((d.rafterSpacing ?? 24) / 2) / 12;
+  const cos = 1 / Math.sqrt(1 + ((d.pitch ?? 0) / 12) ** 2);
+  return 40 + (15 / cos + (d.snowLoad ?? 0)) * ((d.rafterSpacing ?? 24) / 2) / 12;
+}
+
+/**
+ * The roof's load on an eave wall, lb/ft, as dead and snow: the same numbers
+ * checks.mjs's eaveRoofPlf gives (a test pins them together).
+ * @param {Partial<Design>} d
+ */
+export function eaveWallLoads(d) {
+  const cos = 1 / Math.sqrt(1 + ((d.pitch ?? 0) / 12) ** 2);
+  if (d.style === 'gambrel') {
+    // The gambrel trusses' reactions, a loft's storage load counted as dead.
+    const g = gambrelAnalysis(/** @type {any} */ (d)).wall;
+    return { dead: g.dead + g.loft, snow: g.snow };
+  }
+  const D = actual(d.studSize || '2x4').depth;
+  const lean = d.style === 'leanTo';
+  const beam = !lean && d.roofType === 'ridgeBeam';
+  const truss = !lean && d.roofType === 'truss';
+  const run = (d.width ?? 0) / 2 - (beam ? 1.5 : truss ? 0 : 0.75) - D;
+  const tribFt = (beam ? run / 2 + D + (d.overhang ?? 0) : (d.width ?? 0) / 2 + (d.overhang ?? 0)) / 12;
+  // Under trusses the eave wall also carries half the attic (bottom chord) load.
+  const attic = truss ? (trussForces(/** @type {any} */ (d)).wc * (d.width ?? 0)) / 2 / 12 / ((d.rafterSpacing ?? 24) / 12) : 0;
+  return { dead: (15 / cos) * tribFt + attic, snow: (d.snowLoad ?? 0) * tribFt };
+}
+
+/**
+ * The widest stud spacing the siding allows: lap siding over OSB as its
+ * maker's install guide says (lap.mjs), T1-11 and LP's 3/8" panel 16" (their
+ * span rating), LP's 7/16" panel and siding over OSB 24". With autoStuds on
+ * (the default) the walls are framed at that spacing, if the wall studs still
+ * pass their check there (studCheck: roof load and wind, NDS 3.9-3), else at
+ * 16". A shed is framed to what it needs, not to a house's habit of 16".
+ * @param {Partial<Design>} d
+ */
+export function autoStudSpacing(d) {
+  const allowed = !d.siding ? 16 : lapStudLimit(d) ?? (d.sidingType === 'T1-11' || d.sidingType === 'LP SmartSide' ? 16 : 24);
+  if (allowed < 24) return 16;
+  // The stud check at 24" on the tallest wall: the auto wall's height when it sets the walls.
+  const H = (d.autoWall ? minWallFor(/** @type {any} */ (d)) : d.wallHeight ?? 96) + (d.style === 'leanTo' ? ((d.width ?? 0) * (d.pitch ?? 0)) / 12 : 0);
+  const e = eaveWallLoads({ ...d, studSpacing: 24 });
+  return studCheck(d.studSize || '2x4', 24, H - 4.5, [e.dead, e.snow], d.windLoad ?? 0) <= 1 ? 24 : 16;
 }
 
 /**
@@ -603,25 +640,33 @@ function buildAuto(d0) {
   }
   let s = /** @type {Shed} */ (shed);
   let overhangWhy = '';
+  /** @type {any} */
+  let overhangChoice = null;
   if (d0.autoOverhang) {
-    // The longest overhang from 6" to 18" that needs no more lumber money than the shortest:
-    // past that point the rafters (or sub-fascia) need longer boards.
-    // Only some materials change from try to try, so only those are re-priced;
-    // the others cost the same in every try and cannot change which is cheapest.
-    const tries = [];
+    // The longest overhang from 6" to 18" whose whole order (rafters, sub-fascia,
+    // sheathing, roofing, drip edge, trim) costs at most overhangBudget dollars
+    // more than the cheapest overhang's, at the starting prices. A longer eave
+    // keeps rain off the siding, so a little money buys it; 0 takes the cheapest.
+    // An overhang that leaves a door or window unframed prices without it, so it
+    // looks cheap; those are skipped unless no overhang frames every opening.
+    const all = [];
     for (let oh = 6; oh <= 18; oh++) {
       const t = buildFramed(normalize({ ...s.design, autoWall: false, autoPitch: false, autoOverhang: false, overhang: oh }));
-      tries.push({ oh, t, cost: 0 });
+      const framed = new Set((t.framedOpenings || []).map((/** @type {any} */ p) => p.op?.id ?? p.id));
+      all.push({ oh, t, cost: estimate(t).total, frames: t.design.openings.every((o) => framed.has(o.id)) });
     }
-    // A material is re-priced if its cut list differs between any two tries.
-    const cutList = (t, mat) => t.members.filter((m) => m.material === mat).map((m) => m.length).sort((a, b) => a - b).join(',');
-    const mats = [...new Set(tries.flatMap((x) => x.t.members.map((m) => m.material)))];
-    const moved = mats.filter((mat) => new Set(tries.map((x) => cutList(x.t, mat))).size > 1);
-    for (const x of tries) x.cost = lumberCostOf(x.t, moved);
+    const tries = all.some((x) => x.frames) ? all.filter((x) => x.frames) : all;
     const min = Math.min(...tries.map((x) => x.cost));
-    const best = tries.filter((x) => x.cost <= min + 0.01).pop();
-    s = /** @type {any} */ (best).t;
-    overhangWhy = `overhang ${fmtIn(s.design.overhang)}, the longest that needs no longer rafter boards (the rafters are ${fmtIn(s.dims.rafterCut)})`;
+    const cheapest = /** @type {any} */ (tries.find((x) => x.cost <= min + 0.005));
+    const best = /** @type {any} */ (tries.filter((x) => x.cost <= min + d0.overhangBudget + 0.005).pop());
+    const next = tries.find((x) => x.oh > best.oh && x.cost > min + d0.overhangBudget + 0.005);
+    s = best.t;
+    overhangChoice = { overhang: best.oh, adds: best.cost - min, cheapest: cheapest.oh, budget: d0.overhangBudget, next: next ? { overhang: next.oh, adds: next.cost - min } : null };
+    const money = (n) => `$${n.toFixed(2)}`;
+    overhangWhy = best.cost - min < 0.005
+      ? `overhang ${fmtIn(best.oh)}, the longest from 6" to 18" at the lowest materials cost`
+      : `overhang ${fmtIn(best.oh)}, the longest from 6" to 18" within ${money(d0.overhangBudget)} of the cheapest (${fmtIn(cheapest.oh)}); it adds ${money(best.cost - min)}`;
+    if (next) overhangWhy += `, and ${fmtIn(next.oh)} would add ${money(next.cost - min)}`;
   }
   const auto = [];
   if (d0.autoWall) auto.push(`walls ${fmtFt(s.design.wallHeight)}, the lowest that frames the tallest door or window`);
@@ -629,6 +674,7 @@ function buildAuto(d0) {
   if (overhangWhy) auto.push(overhangWhy);
   s.notes.unshift(`Set for you: ${auto.join('; ')}.`);
   s.design = { ...s.design, autoWall: d0.autoWall, autoPitch: d0.autoPitch, autoOverhang: d0.autoOverhang };
+  if (overhangChoice) /** @type {any} */ (s).overhangChoice = overhangChoice;
   return s;
 }
 

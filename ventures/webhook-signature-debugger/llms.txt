@@ -1,0 +1,14 @@
+# Why is my webhook signature failing?
+
+> Webhook signature verification failed? Paste the headers, raw body and secret to verify the HMAC for Stripe, GitHub, Shopify, Slack and Svix, and see exactly why it does not match. Free, runs in your browser, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/webhook-signature-debugger/)
+- [How to verify webhook signatures correctly](https://duncan-haywood.github.io/oss-monorepo/webhook-signature-debugger/how-to-verify-webhook-signatures.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/webhook-signature-debugger): MIT licensed.

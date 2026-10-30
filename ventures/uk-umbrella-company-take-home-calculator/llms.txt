@@ -1,0 +1,13 @@
+# How much of my agency day rate do I actually keep?
+
+> Free UK umbrella company calculator for 2026/27: enter your agency day rate and see employer NI, umbrella margin, tax, NI and take-home pay per day, week and month, plus the day rate you need for a target. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/uk-umbrella-company-take-home-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/uk-umbrella-company-take-home-calculator): MIT licensed.

@@ -1,0 +1,16 @@
+# Bid the glass, the floor, and the roof.
+
+> Price a residential sunroom or three-season room from the glazed-wall square feet a floor-square-foot special cannot see, the thermal floor, the insulated roof, and HVAC — plus walk-away price and proposed-price margin check.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/sunroom-bid-calculator/)
+- [How much to charge to build a sunroom](https://duncan-haywood.github.io/oss-monorepo/sunroom-bid-calculator/how-much-to-charge-to-build-a-sunroom.html)
+- [This calculator vs. a flat $180/sf special](https://duncan-haywood.github.io/oss-monorepo/sunroom-bid-calculator/vs-a-flat-180-per-square-foot-special.html)
+- [This calculator vs. Jobber](https://duncan-haywood.github.io/oss-monorepo/sunroom-bid-calculator/vs-jobber.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/sunroom-bid-calculator): MIT licensed.

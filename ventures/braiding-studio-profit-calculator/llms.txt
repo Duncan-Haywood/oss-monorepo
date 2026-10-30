@@ -1,0 +1,13 @@
+# What does one braider's chair really earn, and should you braid, employ or rent it out?
+
+> Free braiding studio calculator: enter knotless, cornrow and twist prices, chair minutes, supplies, no-show rate, rent and commission, and see profit per style and per chair hour, the price for your target margin, break-even styles per week and whether to rent the chair or employ a braider. Runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/braiding-studio-profit-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/braiding-studio-profit-calculator): MIT licensed.

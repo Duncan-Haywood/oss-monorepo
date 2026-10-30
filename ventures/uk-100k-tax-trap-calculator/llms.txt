@@ -1,0 +1,13 @@
+# Earning over £100,000? Find out what the 60% band costs you, and what escaping it costs.
+
+> Free UK 60% tax trap calculator for pay between £100,000 and £125,140: your real marginal rate, the pension contribution that restores your personal allowance and childcare, and what it truly costs after tax and NI. Runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/uk-100k-tax-trap-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/uk-100k-tax-trap-calculator): MIT licensed.

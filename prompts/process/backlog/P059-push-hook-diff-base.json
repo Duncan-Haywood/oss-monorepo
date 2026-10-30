@@ -1,7 +1,7 @@
 {
   "id": "P059",
   "title": "Pre-push post hook judges the pre-edit tree of a compound command (edit && commit && push)",
-  "status": "open",
+  "status": "done",
   "owner": "agent",
   "effect": 2,
   "cost": 1,
@@ -19,7 +19,12 @@
   "baseline": "3 (2026-10-26 to 2026-10-29)",
   "opened": "2026-10-29",
   "source": "process run, measure 'doc friction'",
-  "pr": null,
+  "pr": "this",
   "result": null,
-  "history": []
+  "history": [
+    {
+      "date": "2026-10-30",
+      "note": "Hook skips the check when git add/commit/merge/checkout/restore/rebase/pull or sed -i precedes git push; test added."
+    }
+  ]
 }

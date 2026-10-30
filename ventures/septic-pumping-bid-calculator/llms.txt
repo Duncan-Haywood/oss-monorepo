@@ -1,0 +1,16 @@
+# Bid the lid, the hose, and the extra gallons.
+
+> Price a septic tank pump from buried lids, hose run, extra tanks, baffles, risers, inspection, dump tickets, and after-hours dispatch — not a published $325 pump special. See the walk-away number before you match a cheaper per-gallon quote.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/septic-pumping-bid-calculator/)
+- [How much to charge to pump a septic tank](https://duncan-haywood.github.io/oss-monorepo/septic-pumping-bid-calculator/how-much-to-charge-to-pump-a-septic-tank.html)
+- [This calculator vs. a flat pump special](https://duncan-haywood.github.io/oss-monorepo/septic-pumping-bid-calculator/vs-a-flat-pump-special.html)
+- [This calculator vs. ServiceCore](https://duncan-haywood.github.io/oss-monorepo/septic-pumping-bid-calculator/vs-servicecore.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/septic-pumping-bid-calculator): MIT licensed.

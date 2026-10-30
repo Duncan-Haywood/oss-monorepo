@@ -1,0 +1,14 @@
+# Which pip-audit findings does your code actually import?
+
+> Paste pip-audit -f json and your Python source: see which vulnerable packages your code actually imports and which are test-only or unreferenced noise. Free pip-audit triage, runs in your browser, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/pip-audit-triage/)
+- [How to triage pip-audit findings without ignoring real risk](https://duncan-haywood.github.io/oss-monorepo/pip-audit-triage/how-to-triage-pip-audit-findings.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/pip-audit-triage): MIT licensed.

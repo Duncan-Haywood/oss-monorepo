@@ -1,0 +1,61 @@
+{
+  "date": "2026-10-30",
+  "session": "https://claude.ai/code/session_01AcxTtGbcJvYYY73sZBJ6Xc",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: read ./prompt.md and follow it",
+  "input_sha256": "ee033cfea43da33876e002bbf7130f57412bc4edbc40ac439e360c2c2d7a1550",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-30T04:08:18Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 11673,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "writeups": [],
+  "goal": null,
+  "notes": "",
+  "corrections": [
+    {
+      "date": "2026-10-30",
+      "field": "outcome",
+      "from": null,
+      "to": "success",
+      "why": "record merged as an unfilled skeleton in PR 11673 (30acd645 on main), which made promptctl validate fail for every PR; the PR merged, so success; the run's own notes were never written"
+    },
+    {
+      "date": "2026-10-30",
+      "field": "pr",
+      "from": null,
+      "to": 11673,
+      "why": "this record was added by PR 11673"
+    },
+    {
+      "date": "2026-10-30",
+      "field": "merged",
+      "from": null,
+      "to": true,
+      "why": "PR 11673 is merged on main"
+    }
+  ],
+  "redteam": null
+}

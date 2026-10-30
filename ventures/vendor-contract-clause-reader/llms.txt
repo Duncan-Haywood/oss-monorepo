@@ -1,0 +1,13 @@
+# Find the cancel-by date and the bad clauses before a SaaS contract renews itself.
+
+> Free SaaS and vendor contract reader: paste an agreement and get the auto-renewal cancel-by date (downloadable .ics), the price steps and what a missed deadline commits you to, plus the clauses buyers push back on, such as list-price renewals, uncapped liability and one-way indemnity. Private, runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/vendor-contract-clause-reader/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/vendor-contract-clause-reader): MIT licensed.

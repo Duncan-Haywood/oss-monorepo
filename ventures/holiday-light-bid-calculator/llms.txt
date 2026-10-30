@@ -1,0 +1,16 @@
+# Bid the hang, the take-down, and the extras.
+
+> Price Christmas lights from eave lineal feet, hang-only versus hang-and-takedown versus full-service storage, 1-story versus 2-story versus 3-story access, and extras — plus the walk-away price a $3 / LF hang special cannot see.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/holiday-light-bid-calculator/)
+- [How much to charge to hang Christmas lights](https://duncan-haywood.github.io/oss-monorepo/holiday-light-bid-calculator/how-much-to-charge-to-hang-christmas-lights.html)
+- [This calculator vs. a flat $3/LF Christmas light special](https://duncan-haywood.github.io/oss-monorepo/holiday-light-bid-calculator/vs-a-flat-3-per-lf-special.html)
+- [This calculator vs. RealGreen](https://duncan-haywood.github.io/oss-monorepo/holiday-light-bid-calculator/vs-realgreen.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/holiday-light-bid-calculator): MIT licensed.

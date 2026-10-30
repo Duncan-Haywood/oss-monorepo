@@ -1,0 +1,13 @@
+# What is this wRVU contract actually worth, next to the other offer?
+
+> Free physician wRVU contract calculator. Enter two job offers, base salary, incentive threshold and dollars per wRVU, to see what each pays at your expected volume, where they cross, and your effective rate per wRVU. Runs in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/physician-wrvu-contract-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/physician-wrvu-contract-calculator): MIT licensed.

@@ -1,0 +1,15 @@
+# Is your Dockerfile busting its own build cache?
+
+> Paste a Dockerfile and see whether its instruction order defeats Docker's layer cache, from late dependency installs to a lone apt-get update. Runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/docker-cache-order-check/)
+- [This checker vs. reviewing a Dockerfile by eye](https://duncan-haywood.github.io/oss-monorepo/docker-cache-order-check/vs-manually-reviewing-a-dockerfile.html)
+- [Why Docker build cache gets busted](https://duncan-haywood.github.io/oss-monorepo/docker-cache-order-check/why-docker-build-cache-gets-busted.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/docker-cache-order-check): MIT licensed.

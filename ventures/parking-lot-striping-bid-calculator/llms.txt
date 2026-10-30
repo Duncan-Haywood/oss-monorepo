@@ -1,0 +1,16 @@
+# Bid the lines, the ADA hash, and the coats.
+
+> Price a parking lot striping job from stall lines, ADA hash aisles, arrows, coats, and new-layout hours — plus price per stall, the extra a per-stall special hides, and the walk-away number.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/parking-lot-striping-bid-calculator/)
+- [How much to charge to stripe a parking lot](https://duncan-haywood.github.io/oss-monorepo/parking-lot-striping-bid-calculator/how-much-to-charge-to-stripe-a-parking-lot.html)
+- [This calculator vs. a flat $8-a-stall special](https://duncan-haywood.github.io/oss-monorepo/parking-lot-striping-bid-calculator/vs-a-flat-8-per-stall-special.html)
+- [This calculator vs. SaaSphalt](https://duncan-haywood.github.io/oss-monorepo/parking-lot-striping-bid-calculator/vs-saasphalt.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/parking-lot-striping-bid-calculator): MIT licensed.

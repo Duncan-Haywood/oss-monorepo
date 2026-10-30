@@ -1,0 +1,16 @@
+# See what changed after a consent choice.
+
+> Compare before-and-after consent browser traces and create a local request and storage change record.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/consent-change-record/)
+- [Consent Change Record vs. comparing the two traces by eye](https://duncan-haywood.github.io/oss-monorepo/consent-change-record/vs-comparing-the-traces-by-eye.html)
+- [Consent Change Record vs. Cookiebot](https://duncan-haywood.github.io/oss-monorepo/consent-change-record/vs-cookiebot.html)
+- [What did my cookie banner actually change?](https://duncan-haywood.github.io/oss-monorepo/consent-change-record/what-did-my-cookie-banner-actually-change.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/consent-change-record): MIT licensed.

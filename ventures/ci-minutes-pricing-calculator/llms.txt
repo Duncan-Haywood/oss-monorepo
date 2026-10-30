@@ -1,0 +1,14 @@
+# What will CI cost at your build-minute volume, and who is cheapest?
+
+> Enter your monthly build-minute volume and see what GitHub Actions, CircleCI, GitLab, Bitbucket Pipelines and Buildkite charge, the 12-month spend under your growth rate, and the volume where the cheapest provider changes. Free, runs in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/ci-minutes-pricing-calculator/)
+- [How to choose a CI provider by build minutes](https://duncan-haywood.github.io/oss-monorepo/ci-minutes-pricing-calculator/how-to-choose-a-ci-provider-by-build-minutes.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/ci-minutes-pricing-calculator): MIT licensed.

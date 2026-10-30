@@ -1,0 +1,13 @@
+# Which covered call or cash-secured put pays best for the risk?
+
+> Free covered call and cash-secured put calculator: paste option quotes and rank strikes by annualized premium yield, chance of assignment, breakeven and payoff at expiry. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/covered-call-wheel-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/covered-call-wheel-calculator): MIT licensed.

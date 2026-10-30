@@ -1,0 +1,14 @@
+# What should your free shipping minimum be?
+
+> Paste your past orders and see what each free-shipping minimum would earn, how many buyers it must win back to pay for the shipping you give away, and the threshold that loses least if your assumptions are wrong. Free, runs in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/free-shipping-threshold-optimizer/)
+- [Where to set a free shipping threshold, and what it costs when you are wrong](https://duncan-haywood.github.io/oss-monorepo/free-shipping-threshold-optimizer/free-shipping-threshold-guide.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/free-shipping-threshold-optimizer): MIT licensed.

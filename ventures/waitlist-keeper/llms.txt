@@ -1,0 +1,13 @@
+# A waitlist that grows itself, and a list you actually own.
+
+> A free, open-source alternative to Viral Loops and Prefinery: a launch waitlist where confirmed referrals move people up the line, with fraud guards and batch invites. Clean a pasted email list and project your viral growth in your browser, then run the server in your own account.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/waitlist-keeper/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/waitlist-keeper): MIT licensed.

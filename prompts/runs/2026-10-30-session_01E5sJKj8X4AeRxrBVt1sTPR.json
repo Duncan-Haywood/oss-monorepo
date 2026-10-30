@@ -33,29 +33,7 @@
   "deviations": [],
   "writeups": [],
   "goal": null,
-  "notes": "",
-  "corrections": [
-    {
-      "date": "2026-10-30",
-      "field": "outcome",
-      "from": null,
-      "to": "success",
-      "why": "record merged as an unfilled skeleton in PR 11651 (c56dc177 on main), which made promptctl validate fail for every PR; the PR merged, so success; the run's own notes were never written"
-    },
-    {
-      "date": "2026-10-30",
-      "field": "pr",
-      "from": null,
-      "to": 11651,
-      "why": "this record was added by PR 11651"
-    },
-    {
-      "date": "2026-10-30",
-      "field": "merged",
-      "from": null,
-      "to": true,
-      "why": "PR 11651 is merged on main"
-    }
-  ],
+  "notes": "Outcome filled by session 01XpHqybgbjtZBC1yuM1sWw3 from the record of PR #11651 (merged); the authoring session left the record empty, which turned promptctl validate red on main.",
+  "corrections": [],
   "redteam": null
 }

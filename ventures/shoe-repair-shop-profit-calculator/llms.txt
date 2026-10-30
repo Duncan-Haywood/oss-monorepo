@@ -1,0 +1,13 @@
+# Which jobs make your shoe repair shop money, and how many does the season have to sell?
+
+> Free shoe repair shop calculator: enter heel, repair and rework prices, bench minutes, supplies, cobbler pay and rent, and see profit per job and per bench hour, break-even volume and the season result. Runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/shoe-repair-shop-profit-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/shoe-repair-shop-profit-calculator): MIT licensed.

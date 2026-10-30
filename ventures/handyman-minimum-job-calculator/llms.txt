@@ -1,0 +1,13 @@
+# What is the smallest job worth driving to?
+
+> Handyman minimum job calculator. Enter the hourly pay you want, overhead, drive and estimate time and mileage to see your minimum trip charge, the smallest job worth driving to, the lowest price for each job you quote and what you really keep per hour. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/handyman-minimum-job-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/handyman-minimum-job-calculator): MIT licensed.

@@ -1,0 +1,21 @@
+# Price the retainer around your life, not an arbitrary hourly rate.
+
+> Price a freelance retainer from capacity and costs, then see whether it still beats hourly when the client uses half the block, the full block, or more. Free and private in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/freelance-retainer-calculator/)
+- [How many hours should a freelance retainer include?](https://duncan-haywood.github.io/oss-monorepo/freelance-retainer-calculator/how-many-retainer-hours.html)
+- [A retainer price is not cash in the bank.](https://duncan-haywood.github.io/oss-monorepo/freelance-retainer-calculator/retainer-payment-terms.html)
+- [Retainer vs hourly: unused hours pay you; unpaid extras do not.](https://duncan-haywood.github.io/oss-monorepo/freelance-retainer-calculator/retainer-vs-hourly.html)
+- [Unused hours that roll over are unpaid work next month.](https://duncan-haywood.github.io/oss-monorepo/freelance-retainer-calculator/unused-hour-rollover.html)
+- [This calculator vs. Bonsai](https://duncan-haywood.github.io/oss-monorepo/freelance-retainer-calculator/vs-bonsai.html)
+- [This calculator vs. Harvest](https://duncan-haywood.github.io/oss-monorepo/freelance-retainer-calculator/vs-harvest.html)
+- [This calculator vs. pricing from your income goal alone](https://duncan-haywood.github.io/oss-monorepo/freelance-retainer-calculator/vs-pricing-from-income-goal-alone.html)
+- [Your floor rate assumes the whole month sells. It usually doesn’t.](https://duncan-haywood.github.io/oss-monorepo/freelance-retainer-calculator/will-this-retainer-hit-my-income-goal.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/freelance-retainer-calculator): MIT licensed.

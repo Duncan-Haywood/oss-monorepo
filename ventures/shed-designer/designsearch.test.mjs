@@ -106,7 +106,7 @@ test('constraints bind: a tighter footprint, a peak limit and a utilisation cap'
     assert.ok((s.worst?.ratio ?? 0) <= 0.8);
   }
   // Panel siding on studs wider apart than its rating is rejected.
-  const t111 = evaluateDesign({ ...defaultDesign(), sidingType: 'T1-11', studSpacing: 24 });
+  const t111 = evaluateDesign({ ...defaultDesign(), sidingType: 'T1-11', studSpacing: 24, autoStuds: false });
   assert.equal(t111.feasible, false);
   assert.match(t111.why.join(' '), /rated for studs at 16/);
   // A design over a limit says which.

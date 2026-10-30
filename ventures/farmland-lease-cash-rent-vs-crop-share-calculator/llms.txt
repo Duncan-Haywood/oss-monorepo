@@ -1,0 +1,13 @@
+# Cash rent or crop share: which lease pays more, and for whom?
+
+> Free farmland lease calculator: compare cash rent, crop share and flexible cash leases for the landlord and the operator at your own yield, price and costs, with the break-even yield and who carries the risk. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/farmland-lease-cash-rent-vs-crop-share-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/farmland-lease-cash-rent-vs-crop-share-calculator): MIT licensed.

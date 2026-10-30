@@ -1,0 +1,13 @@
+# Is your boarding barn making money? Monthly profit, break-even occupancy and the board price you need
+
+> Free profit calculator for horse boarding barns: stalls, occupancy, board price, feed, bedding, your own care time and fixed costs become monthly profit, break-even occupancy and the board price you need. Private, runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/horse-boarding-stall-profit-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/horse-boarding-stall-profit-calculator): MIT licensed.

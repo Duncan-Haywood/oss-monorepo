@@ -1,0 +1,13 @@
+# Your contact form, your server, no per-submission fee.
+
+> Point any HTML form at your own server: spam scoring with visible reasons, an inbox, CSV export and email or Slack notifications. Open source, MIT, no per-submission fee. Test the spam filter in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/form-inbox/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/form-inbox): MIT licensed.

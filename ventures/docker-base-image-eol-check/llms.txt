@@ -1,0 +1,16 @@
+# Is your Dockerfile's base image still supported?
+
+> Paste your Dockerfile and find every FROM line whose base image release has passed its own end-of-life date. Free, runs in your browser, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/docker-base-image-eol-check/)
+- [Docker Base Image EOL Check vs. a Vulnerability Scanner](https://duncan-haywood.github.io/oss-monorepo/docker-base-image-eol-check/vs-a-vulnerability-scanner.html)
+- [Docker Base Image EOL Check vs. Checking End-of-Life Dates by Hand](https://duncan-haywood.github.io/oss-monorepo/docker-base-image-eol-check/vs-checking-eol-dates-by-hand.html)
+- [What to do when a base image comes back end-of-life](https://duncan-haywood.github.io/oss-monorepo/docker-base-image-eol-check/what-to-do-when-a-base-image-is-eol.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/docker-base-image-eol-check): MIT licensed.

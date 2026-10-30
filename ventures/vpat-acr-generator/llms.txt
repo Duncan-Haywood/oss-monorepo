@@ -1,0 +1,16 @@
+# Turn your own WCAG 2.1 self-assessment into a VPAT-shaped ACR.
+
+> Fill in your own WCAG 2.1 A/AA conformance answers and get a correctly formatted VPAT 2.5 / Accessibility Conformance Report (ACR) for a federal or enterprise procurement RFP -- entirely in your browser, no account, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/vpat-acr-generator/)
+- [This generator vs. filling out the VPAT template by hand](https://duncan-haywood.github.io/oss-monorepo/vpat-acr-generator/vs-filling-out-the-vpat-template-by-hand.html)
+- [This generator vs. hiring a paid VPAT/ACR consultant](https://duncan-haywood.github.io/oss-monorepo/vpat-acr-generator/vs-hiring-a-vpat-consultant.html)
+- [Why did procurement reject our VPAT?](https://duncan-haywood.github.io/oss-monorepo/vpat-acr-generator/why-procurement-rejects-a-vpat.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/vpat-acr-generator): MIT licensed.

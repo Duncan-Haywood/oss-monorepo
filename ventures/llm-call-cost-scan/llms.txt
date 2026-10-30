@@ -1,0 +1,14 @@
+# Which LLM calls in your code are quietly costing you money?
+
+> Paste your code and see every OpenAI, Anthropic and Gemini call with no max-tokens cap, inside a loop, on a premium model, or using a retired model name, plus a monthly cost estimate from your own traffic guess. Free, runs in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/llm-call-cost-scan/)
+- [Why LLM API bills surprise teams, and what a code scan can catch](https://duncan-haywood.github.io/oss-monorepo/llm-call-cost-scan/why-llm-api-bills-surprise-teams-and-what-a-code-scan-can-catch.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/llm-call-cost-scan): MIT licensed.

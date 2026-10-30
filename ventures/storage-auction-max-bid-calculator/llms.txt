@@ -1,0 +1,16 @@
+# The 20%-of-value rule can bid you past your own break-even before you've paid for a dump run.
+
+> Free calculator for storage-unit auction bidders: prices the buyer's premium, realistic resale recovery, resale fees, dump and labor cost, and holding cost, then reports the bid a target margin supports, the break-even bid, and what a flat percent-of-value rule of thumb would have told you to bid instead.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/storage-auction-max-bid-calculator/)
+- [How Long Do You Have to Clean Out a Storage Unit You Won?](https://duncan-haywood.github.io/oss-monorepo/storage-auction-max-bid-calculator/how-long-do-you-have-to-clean-out-a-storage-unit.html)
+- [This calculator vs. bidding a flat percentage of value](https://duncan-haywood.github.io/oss-monorepo/storage-auction-max-bid-calculator/vs-bidding-a-flat-percentage.html)
+- [This calculator vs. StorageTreasures](https://duncan-haywood.github.io/oss-monorepo/storage-auction-max-bid-calculator/vs-storagetreasures.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/storage-auction-max-bid-calculator): MIT licensed.

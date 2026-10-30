@@ -1,0 +1,16 @@
+# Bid the extra days and the pump-outs, not the Saturday headcount.
+
+> Price a portable restroom (porta potty) event rental from days on site, pump-outs, and two round trips — not a Saturday headcount special. See walk-away price, price per unit-day, and a starting fleet estimate.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/portable-restroom-event-quote/)
+- [How many porta potties for 200 people?](https://duncan-haywood.github.io/oss-monorepo/portable-restroom-event-quote/how-many.html)
+- [This calculator vs. a flat Saturday-special price](https://duncan-haywood.github.io/oss-monorepo/portable-restroom-event-quote/vs-a-flat-saturday-special-price.html)
+- [This calculator vs. ServiceCore](https://duncan-haywood.github.io/oss-monorepo/portable-restroom-event-quote/vs-servicecore.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/portable-restroom-event-quote): MIT licensed.

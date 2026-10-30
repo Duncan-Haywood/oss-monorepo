@@ -1,0 +1,13 @@
+# What does your doula package really pay per hour?
+
+> Free calculator for birth doulas: your real pay per hour after long labors, driving, on-call days, backup cover and overhead, and the package price that reaches your target. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/birth-doula-package-pricing-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/birth-doula-package-pricing-calculator): MIT licensed.

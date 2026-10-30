@@ -1,0 +1,15 @@
+# Your package protects revenue. Does it protect your take-home pay?
+
+> Free calculator for independent personal trainers: compares a discounted prepaid session package against pay-per-session pricing on net take-home pay per hour, after your gym or studio's percentage cut or flat facility fee — not just revenue.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/personal-trainer-package-pricing-calculator/)
+- [How to price a personal training package without losing money on it](https://duncan-haywood.github.io/oss-monorepo/personal-trainer-package-pricing-calculator/how-to-price-a-personal-training-package.html)
+- [This calculator vs. a spreadsheet](https://duncan-haywood.github.io/oss-monorepo/personal-trainer-package-pricing-calculator/vs-a-spreadsheet.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/personal-trainer-package-pricing-calculator): MIT licensed.

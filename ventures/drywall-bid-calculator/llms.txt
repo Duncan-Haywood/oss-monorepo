@@ -1,0 +1,16 @@
+# Bid the finish level, not the sheets.
+
+> Price a hang-and-finish drywall job from rooms, waste, openings, ceiling height, and Gypsum Association finish levels 0–5 — not a flat price per square foot. See labor hours, walk-away price, and the margin a $1.50-a-foot special actually leaves.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/drywall-bid-calculator/)
+- [How much should I charge for drywall?](https://duncan-haywood.github.io/oss-monorepo/drywall-bid-calculator/how-much-to-charge.html)
+- [This calculator vs. a flat price per square foot](https://duncan-haywood.github.io/oss-monorepo/drywall-bid-calculator/vs-a-flat-price-per-square-foot.html)
+- [This calculator vs. Buildxact](https://duncan-haywood.github.io/oss-monorepo/drywall-bid-calculator/vs-buildxact.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/drywall-bid-calculator): MIT licensed.

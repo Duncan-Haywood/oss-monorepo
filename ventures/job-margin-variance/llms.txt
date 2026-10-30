@@ -1,0 +1,16 @@
+# Find where the job moved.
+
+> Compare estimated and actual job hours and costs to find the largest job cost variance before your next contractor quote.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/job-margin-variance/)
+- [This calculator vs. just checking if you still made money](https://duncan-haywood.github.io/oss-monorepo/job-margin-variance/vs-checking-if-you-still-made-money.html)
+- [This calculator vs. QuickBooks Job Costing](https://duncan-haywood.github.io/oss-monorepo/job-margin-variance/vs-quickbooks-job-costing.html)
+- [Why did my job cost more than I estimated?](https://duncan-haywood.github.io/oss-monorepo/job-margin-variance/why-did-my-job-cost-more-than-i-estimated.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/job-margin-variance): MIT licensed.
