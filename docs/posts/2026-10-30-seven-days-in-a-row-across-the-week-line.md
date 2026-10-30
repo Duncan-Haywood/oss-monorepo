@@ -1,6 +1,8 @@
 ---
 title: Seven days in a row can hide across the Sunday-Monday line
 date: 2026-10-30
+tags: [shift-roster-builder, scheduling]
+description: "A seven-day check inside one week misses Thursday to the next Wednesday; the roster builder's --weeks now reports runs across the boundary."
 ---
 
 The roster builder's seven-day flag looks inside one Monday-to-Sunday week. A
