@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { takeoff, samplePlan } from "./engine.mjs";
+import { budget } from "./budget.mjs";
 import { layoutFloor, floorCuts, joistCentres, sampleFloor, floorText } from "./floor.mjs";
 
 const plan = () => ({ ...samplePlan(), walls: [] });
@@ -161,3 +162,19 @@ test("two stairwells each get their own trimmers and headers, joists between the
   assert.equal(layoutFloor({ ...sampleFloor(), openings: [a, { x: 120, y: 190, width: 24, depth: 60 }] }, plan()).ok, true);
   assert.equal(layoutFloor({ ...sampleFloor(), openings: [a, { x: 150, y: 40, width: 24, depth: 100 }] }, plan()).ok, false); // trimmers collide
 });
+
+test("joist hangers: tail-joist ends at the headers and four double hangers per opening, hand-counted", () => {
+  assert.equal(layoutFloor(sampleFloor(), plan()).hangers.count, 0);
+  // joists at 112 and 128 are cut by the stairwell (y 40 to 140, beam at 168): each has a piece ending at the front
+  // header and a piece starting at the rear header; the span past the beam is whole. 2 lines x 2 ends = 4 singles.
+  const l = layoutFloor({ ...sampleFloor(), openings: [{ x: 100, y: 40, width: 36, depth: 100 }] }, plan());
+  assert.deepEqual([l.hangers.singles, l.hangers.doubles, l.hangers.count], [4, 4, 8]);
+  assert.ok(floorText(l).join("\n").includes("8 hangers"));
+  assert.ok(l.notes.some((n) => n.includes("8 joist hangers counted")));
+  const b = budget({ floor: l }, { joistHanger: 2, doubleJoistHanger: 5 });
+  const line = (n) => b.lines.find((x) => x.item === n);
+  assert.equal(line("Joist hangers").qty, 4);
+  assert.equal(line("Double joist hangers").qty, 4);
+  assert.equal(line("Double joist hangers").amount, 20);
+});
+

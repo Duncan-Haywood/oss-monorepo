@@ -208,9 +208,16 @@ export function layoutFloor(f, plan) {
   if (f.beam != null) notes.push(`Joists butt over the beam at ${formatLength(f.beam)}; whether they butt, lap or hang from it is the framer's and engineer's call.`);
   if (openings.length) notes.push(`${openings.length} opening${openings.length === 1 ? "" : "s"}: doubled headers at both ends and doubled trimmer joists; the subfloor is cut around the clear opening${notched ? ` (${notched} sheet${notched === 1 ? "" : "s"} notched, the rest shortened or left out)` : ""}. Header size, hangers and the trimmers' load are the engineer's call.`);
   if (doubled.length) notes.push(`${doubled.length} doubled joist line${doubled.length === 1 ? "" : "s"} under walls that run along the joists; a wall across the joists, or over a bay, needs blocking or a beam, which this does not size.`);
-  notes.push("Joist size and spacing are your inputs and are not checked against a span table or code; bearing, hangers and fasteners are not in the takeoff.");
+  // Joist hangers: each tail joist hangs from a header at the end that meets an opening's header zone (one hanger),
+  // and each doubled header hangs from its trimmers at both ends (a double hanger per end, so four per opening).
+  // Counted from the placed members; the model, its load rating and nailing are the engineer's call.
+  const tailEnds = joists.filter((j) => j.tail).reduce((n, j) => n + openings.filter((o) => cutAt(j.x + THICK / 2).includes(o)).reduce((m, o) => m + (Math.abs(j.y + j.length - o.cut[0]) < EPS) + (Math.abs(j.y - o.cut[1]) < EPS), 0), 0);
+  const headerEnds = openings.length * 4;
+  const hangers = { tail: tailEnds, singles: tailEnds, doubles: headerEnds, count: tailEnds + headerEnds, size: f.joist };
+  if (hangers.count) notes.push(`${hangers.count} joist hanger${hangers.count === 1 ? "" : "s"} counted (${tailEnds} single at tail-joist ends, ${headerEnds} double at header ends), sized for ${f.joist}; model and load rating are the engineer's call.`);
+  notes.push("Joist size and spacing are your inputs and are not checked against a span table or code; bearing, other hangers and fasteners are not in the takeoff.");
   return {
-    ok: true, openings, trimmers, id, width: f.width, depth: f.depth, joistSize: f.joist, spacing: f.spacing, centres, joists, doubled, rims, blocks, courses,
+    ok: true, hangers, openings, trimmers, id, width: f.width, depth: f.depth, joistSize: f.joist, spacing: f.spacing, centres, joists, doubled, rims, blocks, courses,
     sheets: { count: sheets, rows: sheetRows, area, waste: sheets ? 1 - area / (sheets * sheetArea) : 0 },
     notes,
   };
@@ -236,7 +243,7 @@ export function floorCuts(l) {
 export function floorText(l) {
   if (!l.ok) return l.errors.map((e) => `  - ${e}`);
   const out = [`${l.id}: ${formatLength(l.width)} x ${formatLength(l.depth)}, ${l.joistSize} joists at ${l.spacing} o.c.`];
-  out.push(`  ${l.centres.length} joist lines (${l.joists.length} pieces), ${l.rims.length} rim board${l.rims.length === 1 ? "" : "s"}, ${l.blocks.length} blocks${l.doubled.length ? `, ${l.doubled.length} doubled under walls` : ""}${l.openings.length ? `, ${l.openings.length} opening${l.openings.length === 1 ? "" : "s"} (${l.openings.map((o) => formatInches(o.clearWidth) + " clear").join(", ")})` : ""}`);
+  out.push(`  ${l.centres.length} joist lines (${l.joists.length} pieces), ${l.rims.length} rim board${l.rims.length === 1 ? "" : "s"}, ${l.blocks.length} blocks${l.doubled.length ? `, ${l.doubled.length} doubled under walls` : ""}${l.hangers.count ? `, ${l.hangers.count} hangers` : ""}${l.openings.length ? `, ${l.openings.length} opening${l.openings.length === 1 ? "" : "s"} (${l.openings.map((o) => formatInches(o.clearWidth) + " clear").join(", ")})` : ""}`);
   out.push(`  Joist centres: ${l.centres.map((c) => formatInches(c)).join(", ")}`);
   out.push(`  Subfloor: ${l.sheets.count} sheets of ${SHEET.width} x ${SHEET.length} in for ${l.sheets.area.toFixed(0)} sq ft (${(100 * l.sheets.waste).toFixed(1)}% offcut)`);
   for (const c of l.courses) out.push(`    course at ${formatLength(c.y)} (${formatInches(c.width)} wide): ${c.pieces.map((p) => formatInches(p.length) + (p.notches ? ` (notch ${p.notches.map((n) => `${formatInches(n.width)} x ${formatInches(n.depth)}`).join(", ")})` : "")).join(" + ")}`);
