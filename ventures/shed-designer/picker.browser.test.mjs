@@ -164,3 +164,19 @@ test('axe finds no violations on the strip, the detail and the compare', { skip:
   await page.locator('#pick-dialog').waitFor({ state: 'visible' });
   assert.deepEqual(await run(), [], 'compare open');
 });
+
+test('typing a new lumber price re-prices the starting designs', { skip }, async (t) => {
+  const { page } = await open(t);
+  const before = await page.locator('#starts .pick-line').first().innerText();
+  // A 2x6 at $99 a board (the grid redraws after the first change, so one box takes it): the strip follows once typing pauses.
+  await page.evaluate(() => {
+    for (const e of /** @type {NodeListOf<HTMLInputElement>} */ (document.querySelectorAll('#price-grid input[data-mat="2x6"]'))) {
+      e.value = '99';
+      e.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+  });
+  await page.waitForFunction((b) => document.querySelector('#starts .pick-line')?.textContent?.replace(/\s+/g, ' ').trim() !== b, before.replace(/\s+/g, ' ').trim(), { timeout: 5000 });
+  const after = await page.locator('#starts .pick-line').first().innerText();
+  const n = (x) => Number(x.match(/\$([\d,]+)/)[1].replace(/,/g, ''));
+  assert.ok(n(after) > n(before), `the strip's price follows the typed price (${before} -> ${after})`);
+});

@@ -61,6 +61,7 @@ export function mountPicker(opts) {
   const shots = new Map();
   let viewer = /** @type {any} */ (undefined);
   let opener = /** @type {HTMLElement | null} */ (null);
+  let priceTimer = /** @type {any} */ (0);
 
   const entry = (id) => entries.find((e) => e.id === id);
   const factsOf = (id) => {
@@ -73,9 +74,10 @@ export function mountPicker(opts) {
   const allFacts = () => entries.map((e) => factsOf(e.id));
   const titleOf = (id) => entry(id)?.title || factsOf(id).name;
 
+  const shotKey = (id, view = VIEWS[0]) => `${id}|${view.key}|${JSON.stringify(entry(id)?.design)}`;
   /** A render of a design from one angle, or '' when there is no WebGL. */
   function shot(id, view = VIEWS[0]) {
-    const key = `${id}|${view.key}|${JSON.stringify(entry(id)?.design)}`;
+    const key = shotKey(id, view);
     if (shots.has(key)) return shots.get(key);
     if (viewer === undefined) {
       const c = document.createElement('canvas'); c.width = 600; c.height = 400;
@@ -104,7 +106,7 @@ export function mountPicker(opts) {
       const on = chosen.includes(e.id);
       return `<li class="pick">
         <button type="button" class="pick-open" data-detail="${esc(e.id)}" aria-label="Details of the ${esc(titleOf(e.id))}">
-          <span class="pick-img" data-shot="${esc(e.id)}"><span class="thumb-wait">rendering...</span></span>
+          <span class="pick-img" data-shot="${esc(e.id)}">${shots.has(shotKey(e.id)) ? `<img src="${shots.get(shotKey(e.id))}" alt="" width="600" height="400">` : '<span class="thumb-wait">rendering...</span>'}</span>
           <strong>${esc(titleOf(e.id))}</strong>
           <span class="pick-line">${money(f.total)} &middot; ${Math.round(f.footprintSqFt)} sq ft &middot; peak ${fmtFtIn(f.peak)}</span>
           <span class="pick-why">${esc(tradeOff(f, all))}</span>
@@ -287,8 +289,8 @@ export function mountPicker(opts) {
     toggleCompare,
     /** Replace the list (say, with a search's optimised designs). @param {Entry[]} next */
     setEntries(next) { entries = next; facts.clear(); chosen.length = 0; renderStrip(); renderTray(); },
-    /** Prices changed: re-price on next look. */
-    reprice() { facts.clear(); renderStrip(); },
+    /** Prices changed: re-price once typing pauses (each design takes about 30 ms to price). */
+    reprice() { clearTimeout(priceTimer); priceTimer = setTimeout(() => { facts.clear(); renderStrip(); }, 500); },
     get chosen() { return [...chosen]; },
   };
 }
