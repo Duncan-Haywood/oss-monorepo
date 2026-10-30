@@ -6,7 +6,7 @@
    "key": "10x10 barn",
    "name": "10x10 gambrel barn with loft",
    "hash": "6b9ca4b829d6a12d",
-   "designKey": "4c7d1152",
+   "designKey": "8841e105",
    "files": {
     "hero": {
      "file": "10x10-barn-hero.webp",
@@ -56,7 +56,7 @@
    "key": "10x12",
    "name": "10x12 gable shed",
    "hash": "104674663bc35ba3",
-   "designKey": "00750ce5",
+   "designKey": "6eced2a2",
    "files": {
     "hero": {
      "file": "10x12-hero.webp",
@@ -106,7 +106,7 @@
    "key": "12x16",
    "name": "12x16 gable shed",
    "hash": "3418aedb84579ef6",
-   "designKey": "73acf1ad",
+   "designKey": "851063f8",
    "files": {
     "hero": {
      "file": "12x16-hero.webp",
@@ -156,7 +156,7 @@
    "key": "8x10",
    "name": "8x10 gable shed",
    "hash": "d6042435b375c75e",
-   "designKey": "9bda1ec1",
+   "designKey": "340de29a",
    "files": {
     "hero": {
      "file": "8x10-hero.webp",
@@ -206,7 +206,7 @@
    "key": "8x12",
    "name": "8x12 ridge-beam shed",
    "hash": "8baddc6fc2c0c27c",
-   "designKey": "5513f5d8",
+   "designKey": "d0c90193",
    "files": {
     "hero": {
      "file": "8x12-hero.webp",
@@ -256,7 +256,7 @@
    "key": "8x12 classic",
    "name": "8x12 gable shed",
    "hash": "4403019268441abc",
-   "designKey": "4705be75",
+   "designKey": "306ff10e",
    "files": {
     "hero": {
      "file": "8x12-classic-hero.webp",
@@ -306,7 +306,7 @@
    "key": "8x12 lean-to",
    "name": "8x12 lean-to shed",
    "hash": "98c2b872eddbec3f",
-   "designKey": "9a918abc",
+   "designKey": "b9f7c073",
    "files": {
     "hero": {
      "file": "8x12-lean-to-hero.webp",
@@ -356,7 +356,7 @@
    "key": "8x8 lean",
    "name": "8x8 garden shed",
    "hash": "953bc82ee514b3e3",
-   "designKey": "86fb90a9",
+   "designKey": "09b750c8",
    "files": {
     "hero": {
      "file": "8x8-lean-hero.webp",
@@ -571,7 +571,7 @@
    "key": "10x10 size page",
    "name": "10x10 gable shed",
    "hash": "c37a2aeaea58c10c",
-   "designKey": "37f246f4",
+   "designKey": "b9d57417",
    "files": {
     "hero": {
      "file": "size-10x10-hero.webp",
@@ -586,7 +586,7 @@
    "key": "10x12 size page",
    "name": "10x12 gable shed",
    "hash": "104674663bc35ba3",
-   "designKey": "00750ce5",
+   "designKey": "6eced2a2",
    "files": {
     "hero": {
      "file": "size-10x12-hero.webp",
@@ -601,7 +601,7 @@
    "key": "10x14 size page",
    "name": "10x14 gable shed",
    "hash": "e8ae717dee390692",
-   "designKey": "39afd77d",
+   "designKey": "65933d0a",
    "files": {
     "hero": {
      "file": "size-10x14-hero.webp",
@@ -616,7 +616,7 @@
    "key": "10x16 size page",
    "name": "10x16 gable shed",
    "hash": "11540806e8d92fcd",
-   "designKey": "7a5edd7e",
+   "designKey": "8e7b2df3",
    "files": {
     "hero": {
      "file": "size-10x16-hero.webp",
@@ -631,7 +631,7 @@
    "key": "10x20 size page",
    "name": "10x20 gable shed",
    "hash": "d177a9a98ba32235",
-   "designKey": "c7e43043",
+   "designKey": "4e1d8a44",
    "files": {
     "hero": {
      "file": "size-10x20-hero.webp",
@@ -646,7 +646,7 @@
    "key": "12x12 size page",
    "name": "12x12 gable shed",
    "hash": "21263cdb194e5b62",
-   "designKey": "6a68b460",
+   "designKey": "9227cad9",
    "files": {
     "hero": {
      "file": "size-12x12-hero.webp",
@@ -661,7 +661,7 @@
    "key": "12x14 size page",
    "name": "12x14 gable shed",
    "hash": "5b4a6d2290790b18",
-   "designKey": "fa88489c",
+   "designKey": "02e0cae5",
    "files": {
     "hero": {
      "file": "size-12x14-hero.webp",
@@ -676,7 +676,7 @@
    "key": "12x16 size page",
    "name": "12x16 gable shed",
    "hash": "3418aedb84579ef6",
-   "designKey": "73acf1ad",
+   "designKey": "851063f8",
    "files": {
     "hero": {
      "file": "size-12x16-hero.webp",
@@ -691,7 +691,7 @@
    "key": "12x20 size page",
    "name": "12x20 gable shed",
    "hash": "63b08966ecdfb03f",
-   "designKey": "c91e670a",
+   "designKey": "fe2494a5",
    "files": {
     "hero": {
      "file": "size-12x20-hero.webp",
@@ -706,7 +706,7 @@
    "key": "12x24 size page",
    "name": "12x24 gable shed",
    "hash": "aeb2c91c86706f6e",
-   "designKey": "7c665a4a",
+   "designKey": "8c48ebe5",
    "files": {
     "hero": {
      "file": "size-12x24-hero.webp",
@@ -721,7 +721,7 @@
    "key": "12x32 size page",
    "name": "12x32 gable shed",
    "hash": "d08a2aa486b56da4",
-   "designKey": "15be4064",
+   "designKey": "668aac6b",
    "files": {
     "hero": {
      "file": "size-12x32-hero.webp",
@@ -736,7 +736,7 @@
    "key": "14x14 size page",
    "name": "14x14 gable shed",
    "hash": "29298a704cd4bc54",
-   "designKey": "502af57c",
+   "designKey": "09007285",
    "files": {
     "hero": {
      "file": "size-14x14-hero.webp",
@@ -751,7 +751,7 @@
    "key": "14x20 size page",
    "name": "14x20 gable shed",
    "hash": "c8368ed4150f2397",
-   "designKey": "20180dba",
+   "designKey": "f42db275",
    "files": {
     "hero": {
      "file": "size-14x20-hero.webp",
@@ -766,7 +766,7 @@
    "key": "16x20 size page",
    "name": "16x20 gable shed",
    "hash": "20ebd780827d7533",
-   "designKey": "ae292d37",
+   "designKey": "9756f04e",
    "files": {
     "hero": {
      "file": "size-16x20-hero.webp",
@@ -781,7 +781,7 @@
    "key": "16x24 size page",
    "name": "16x24 gable shed",
    "hash": "8268e5460154fe05",
-   "designKey": "892d5187",
+   "designKey": "52904bbe",
    "files": {
     "hero": {
      "file": "size-16x24-hero.webp",
@@ -796,7 +796,7 @@
    "key": "8x10 size page",
    "name": "8x10 gable shed",
    "hash": "186820301bfd402a",
-   "designKey": "cfc06238",
+   "designKey": "1a54042b",
    "files": {
     "hero": {
      "file": "size-8x10-hero.webp",
@@ -811,7 +811,7 @@
    "key": "8x16 size page",
    "name": "8x16 gable shed",
    "hash": "3f6678dc04fa1a92",
-   "designKey": "9f4ec231",
+   "designKey": "ecfb1cb4",
    "files": {
     "hero": {
      "file": "size-8x16-hero.webp",
@@ -826,7 +826,7 @@
    "key": "8x8 size page",
    "name": "8x8 gable shed",
    "hash": "009a61361fdea948",
-   "designKey": "6a2f298e",
+   "designKey": "4211bf29",
    "files": {
     "hero": {
      "file": "size-8x8-hero.webp",

@@ -538,7 +538,11 @@ export function estimate(shed, prices = examplePrices()) {
   const vents = Object.values(shed.vents || {}).reduce((t, v) => t + v.length, 0);
   line('Foundation and hardware', `${label('gableVent')}, ${d.ventWidth}" x ${d.ventHeight}"`, vents, 'each', item('gableVent'), src('gableVent'));
   // Hangers are for rafters meeting a ridge beam; a lean-to's rafters meet none.
-  if (d.roofType === 'ridgeBeam' && !dims.lean) line('Foundation and hardware', label('rafterHanger'), shed.members.filter((m) => m.kind === 'rafter').length, 'each', item('rafterHanger'), src('rafterHanger'));
+  // The rafter arrives at the roof's slope, so the hanger is a slope-adjustable one sized to the rafter.
+  if (d.roofType === 'ridgeBeam' && !dims.lean) {
+    const hk = { '2x8': 'rafterHanger28', '2x10': 'rafterHanger210' }[d.rafterSize] || 'rafterHanger';
+    line('Foundation and hardware', label(hk), shed.members.filter((m) => m.kind === 'rafter').length, 'each', item(hk), src(hk));
+  }
   // A variable-pitch connector both seats and fastens the rafter at the wall; a notched rafter gets a tie.
   if (dims.connector) line('Foundation and hardware', label('pitchConnector'), dims.rafterCenters.length * 2, 'each', item('pitchConnector'), src('pitchConnector'));
   else line('Foundation and hardware', label('hurricaneTie'), dims.rafterCenters.length * 2, 'each', item('hurricaneTie'), src('hurricaneTie'));
@@ -624,6 +628,8 @@ export function estimate(shed, prices = examplePrices()) {
     line('Door hardware', `${label('tHinge')} (door ${dr.id})`, 3 * dr.leaves, 'each', item('tHinge'), src('tHinge'));
     line('Door hardware', `${label('doorPull')} (door ${dr.id})`, dr.leaves, 'each', item('doorPull'), src('doorPull'));
     line('Door hardware', `${label('hasp')} (door ${dr.id})`, 1, 'each', item('hasp'), src('hasp'));
+    // A pair of doors: a cane bolt drops into the floor to hold the fixed leaf, which the hasp's staple then locks to.
+    if (dr.leaves > 1) line('Door hardware', `${label('caneBolt')} (door ${dr.id})`, 1, 'each', item('caneBolt'), src('caneBolt'));
   }
 
   const sum = (rows) => Math.round(rows.reduce((t, r) => t + r.total, 0) * 100) / 100;
