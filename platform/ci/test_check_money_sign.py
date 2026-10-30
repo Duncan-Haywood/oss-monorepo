@@ -75,6 +75,11 @@ class FindingsIn(unittest.TestCase):
         self.assertEqual(list(guard.findings_in(self.write("calc.mjs", source))),
                          [(2, "const money = (n) => `$${n.toFixed(2)}`;")])
 
+    def test_counts_a_blank_first_line(self):
+        source = "\nconst money = (n) => `$${n.toFixed(2)}`;\n"
+        self.assertEqual(list(guard.findings_in(self.write("calc.mjs", source))),
+                         [(2, "const money = (n) => `$${n.toFixed(2)}`;")])
+
     def test_passes_a_magnitude_formatter_whose_caller_signs(self):
         self.assert_clean(
             "const dollars = (value) => `$${Math.round(Math.abs(value)).toLocaleString('en-US')}`;"
