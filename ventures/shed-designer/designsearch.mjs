@@ -200,7 +200,8 @@ const KNOBS = {
   window: Object.keys(WINDOWS),
   // Gable, lean-to or gambrel (barn), tried last from each design (a lean-to has no ridge and a
   // gambrel its own trusses, so roofType does nothing to either).
-  style: ['gable', 'leanTo', 'gambrel'],
+  // and a saltbox (an off-centre ridge: its front at twice the back's pitch, the classic third-of-the-way ridge).
+  style: ['gable', 'leanTo', 'gambrel', 'saltbox'],
   // A gambrel's own shape: its lower slope (18/12 to 24/12, the usual barn range), how far in the
   // bend sits (a fifth, a quarter or a third of the width), and a decked loft on its ties. They
   // change nothing on another style, so designAt pins them there and no design is built twice.
@@ -237,7 +238,8 @@ const band = (/** @type {number} */ x, /** @type {number} */ lo, /** @type {numb
  * - pitch (20): full from 6/12 to 9/12, the range most house roofs use, so the
  *   shed reads as part of the house; less at shallower pitches. A lean-to's
  *   single slope reads as deliberate when it is low: full from 3/12 to 5/12,
- *   less as it steepens and the front wall towers.
+ *   less as it steepens and the front wall towers. A saltbox: full for a back
+ *   slope from 4/12 to 6/12 under a front at least half again as steep.
  * - roofShare (15): the roof's rise as a share of the gable end's height above
  *   grade, full from 30% to 45%; a thin roof on tall walls looks like a box.
  * - plan (10): footprint long side over short side, full from 1.2 to 1.6;
@@ -262,6 +264,10 @@ export function looksOf(shed) {
   if (barn) {
     add('pitch', 'Roof pitch', 20, d.pitch >= 4 && d.pitch <= 8 ? 1 : d.pitch === 3 || d.pitch === 9 ? 0.6 : 0.3,
       `${d.gambrelLower}/12 below the bend and ${d.pitch}/12 above it; full marks for an upper slope from 4/12 to 8/12, the classic barn outline`);
+  } else if (d.style === 'saltbox') {
+    // A saltbox reads right when the long back is a house-like slope under a front about twice as steep.
+    add('pitch', 'Roof pitch', 20, (d.pitch >= 4 && d.pitch <= 6 ? 1 : d.pitch === 3 || d.pitch === 7 ? 0.6 : 0.3) * (d.frontPitch >= 1.5 * d.pitch ? 1 : 0.7),
+      `${d.frontPitch}/12 front and ${d.pitch}/12 back; full marks for a back from 4/12 to 6/12 under a front at least half again as steep, the classic saltbox`);
   } else if (lean) {
     add('pitch', 'Roof pitch', 20, d.pitch >= 3 && d.pitch <= 5 ? 1 : d.pitch === 6 || d.pitch === 2 ? 0.7 : d.pitch === 7 ? 0.4 : 0.15,
       `${d.pitch}/12 on one slope; full marks from 3/12 to 5/12, where a lean-to looks deliberate`);
@@ -415,6 +421,12 @@ function designAt(base, size, layout, knobs, minWall = DEFAULT_CONSTRAINTS.minWa
   if (lean || barn) rest.roofType = 'ridgeBoard';
   // The gambrel's own knobs: as the base has them on any other style (they would change nothing).
   if (!barn) for (const k of ['gambrelLower', 'gambrelKnee', 'loft']) delete rest[k];
+  // A saltbox's front is twice its back's pitch, and it has no trusses (model.mjs builds a truss roof with a ridge board).
+  const salt = knobs.style === 'saltbox';
+  if (salt) {
+    rest.frontPitch = Math.min(18, 2 * (rest.pitch ?? base.pitch));
+    if (rest.roofType === 'truss') rest.roofType = 'ridgeBoard';
+  }
   else if (typeof rest.gambrelKnee === 'string') {
     const f = KNEE_FRACTION[rest.gambrelKnee] ?? 0;
     rest.gambrelKnee = f ? Math.round(size.width * f * 2) / 2 : 0;
@@ -424,7 +436,7 @@ function designAt(base, size, layout, knobs, minWall = DEFAULT_CONSTRAINTS.minWa
   const leanAuto = lean && wall === 'auto' ? Math.max(minWall, minWallFor(normalize({ ...base, ...rest, length: size.length, width: size.width, openings: ops }))) : 0;
   return normalize({
     ...base, ...rest,
-    name: `${ft(Math.min(size.width, size.length))}x${ft(Math.max(size.width, size.length))}${size.width === size.length ? '' : `, ${lean ? 'tall wall along' : 'ridge along'} the ${ft(size.length)} ft side`}, ${lean ? 'lean-to' : barn ? 'gambrel barn' : knobs.roofType === 'ridgeBeam' ? 'ridge beam' : 'ridge board'}, ${layout}`,
+    name: `${ft(Math.min(size.width, size.length))}x${ft(Math.max(size.width, size.length))}${size.width === size.length ? '' : `, ${lean ? 'tall wall along' : 'ridge along'} the ${ft(size.length)} ft side`}, ${lean ? 'lean-to' : barn ? 'gambrel barn' : `${salt ? 'saltbox, ' : ''}${rest.roofType === 'ridgeBeam' ? 'ridge beam' : 'ridge board'}`}, ${layout}`,
     length: size.length, width: size.width,
     autoWall: wall === 'auto' && !lean, ...(leanAuto ? { wallHeight: leanAuto } : wall === 'auto' ? {} : { wallHeight: wall }),
     autoPitch: false, autoOverhang: false, maxPeak: 0, maxFootprint: 0,
