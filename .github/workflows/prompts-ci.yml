@@ -11,6 +11,7 @@ on:
     paths:
       - "prompt.md"
       - "prompts/**"
+      - "ideas/**"
       - "**/CLAUDE.md"
       - "**/AGENTS.md"
       - ".github/prompts/**"
@@ -19,6 +20,7 @@ on:
     paths:
       - "prompt.md"
       - "prompts/**"
+      - "ideas/**"
       - "**/CLAUDE.md"
       - "**/AGENTS.md"
       - ".github/prompts/**"

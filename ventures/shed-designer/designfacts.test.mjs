@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { designFacts, compareRows, tradeOff, BREAKDOWN_TOP } from './designfacts.mjs';
-import { PRESETS, defaultDesign, buildShed } from './model.mjs';
+import { PRESETS, defaultDesign, buildShed, normalize } from './model.mjs';
 import { estimate } from './estimate.mjs';
 
 test('the cost breakdown adds up to the materials total', () => {
@@ -53,4 +53,18 @@ test('the reason on the list comes from the numbers when none is given', () => {
   const given = designFacts(defaultDesign(), { reason: 'Fits under the 8 ft height limit.' });
   assert.equal(tradeOff(given, all), 'Fits under the 8 ft height limit.');
   for (const f of all) assert.match(tradeOff(f, all), /^[A-Z0-9].*\.$/);
+});
+
+test('the facts carry the looks score term by term and the full cost breakdown, for the gallery card and detail', async () => {
+  const { looksOf } = await import('./designsearch.mjs');
+  const { costDelta, deltaPhrase } = await import('./costs.mjs');
+  const a = designFacts(PRESETS['8x12']());
+  const b = designFacts(PRESETS['8x12 classic']());
+  assert.deepEqual(a.looks, looksOf(buildShed(normalize(PRESETS['8x12']()))));
+  assert.ok(a.looks.terms.length >= 6 && a.looks.terms.every((t) => t.points <= t.max && t.why));
+  assert.ok(Math.abs(a.costs.total - a.total) < 0.01, 'the breakdown sums to the price');
+  // The cost change against another design adds up to the difference in price.
+  const d = costDelta(a.costs, b.costs);
+  assert.ok(Math.abs(d.reduce((t, x) => t + x.delta, 0) - (b.total - a.total)) < 0.5 * (d.length + 1));
+  assert.ok(deltaPhrase(d).length > 0);
 });

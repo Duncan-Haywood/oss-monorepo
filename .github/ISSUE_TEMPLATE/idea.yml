@@ -1,0 +1,15 @@
+name: Drop an idea (one box, dictation is fine)
+description: Any idea for a tool, a product or a research question. One sentence is enough.
+title: "[idea] "
+labels: ["idea"]
+body:
+  - type: textarea
+    id: idea
+    attributes:
+      label: Your idea
+      description: Type or dictate it. Typos and rough notes are fine. If you can, say who it is for or what problem it solves.
+    validations:
+      required: true
+  - type: markdown
+    attributes:
+      value: Issues here are public. Please leave out names, addresses and anything else private.

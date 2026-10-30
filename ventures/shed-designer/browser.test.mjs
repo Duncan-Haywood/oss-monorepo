@@ -816,6 +816,28 @@ test('a first-time visitor opens on a gallery design (the balanced one, unless i
   assert.deepEqual(errors, []);
 });
 
+test('a typed budget shows how far the cheaper build gets, what else would close the gap, and a smaller shed that fits', { skip }, async (t) => {
+  const { page } = await open(t);
+  await page.fill('#budget-target', '2000');
+  await page.click('#budget');
+  const out = page.locator('#budget-out .budget-path');
+  await out.waitFor({ timeout: 60000 });
+  const text = await out.innerText();
+  assert.match(text, /Your budget: \$2,000/);
+  assert.match(text, /No spare boards: saves \$\d+/);
+  assert.match(text, /What fits \$2,000 in this design|Smaller does not get there either/);
+  if (await out.locator('[data-budget-use="smaller"]').count()) {
+    const before = await page.locator('#design-list option, #designs option').count();
+    await out.locator('[data-budget-use="smaller"]').click();
+    assert.match(await page.$eval('#name', (e) => e.value), /smaller, to fit the budget/);
+    assert.ok((await page.locator('#design-list option, #designs option').count()) >= before);
+  }
+  // Remembered for the next visit, in this browser only.
+  await page.reload();
+  await page.waitForFunction(() => document.querySelector('#total')?.textContent?.startsWith('$'));
+  assert.equal(await page.$eval('#budget-target', (e) => e.value), '2000');
+});
+
 test('the sticky section bar fades and lets a click through when a plan handle is under it', { skip }, async (t) => {
   const { page } = await open(t);
   const handle = page.locator('.handle-hit').first();

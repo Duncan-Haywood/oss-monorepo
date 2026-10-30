@@ -690,3 +690,18 @@ test("team unavailable dates: no match is left on a blackout night, moved matche
   const bad = parseDivisionBlackouts("Nope/Team: 2026-10-06\nnonsense", s.divisions);
   assert.equal(bad.errors.length, 2);
 });
+
+test("division score sheets: a page per night, every match once, names escaped", async () => {
+  const { divisionsScoreSheetsHtml } = await import("./divisions.mjs");
+  const s = build();
+  const first = s.nights[0].matches[0];
+  const orig = first.homeName;
+  first.homeName = "A<b>&Co";
+  const html = divisionsScoreSheetsHtml(s, { title: "Spring <League>" });
+  first.homeName = orig;
+  assert.equal((html.match(/<section class="sheet">/g) || []).length, s.nights.length);
+  const total = s.nights.reduce((a, n) => a + n.matches.length, 0);
+  assert.equal((html.match(/<td class="f">/g) || []).length, total);
+  assert.ok(html.includes("A&lt;b&gt;&amp;Co") && !html.includes("A<b>"));
+  assert.ok(html.includes("Spring &lt;League&gt;") && !/<script/i.test(html));
+});
