@@ -203,7 +203,8 @@ export function connectionChecks(shed) {
     const on = (b) => timbers.filter((t) => near(t.hi[2], b.lo[2]) && t.lo[0] < b.hi[0] - EPS && t.hi[0] > b.lo[0] + EPS && t.lo[1] < b.hi[1] - EPS && t.hi[1] > b.lo[1] + EPS);
     const plateFails = plates.filter((m) => {
       const b = bbox(m.geom);
-      const along = b.hi[0] - b.lo[0] > b.hi[1] - b.lo[1] ? 0 : 1;
+      // The wall says which way the plate runs; a short piece by a door can be deeper (a 2x6) than it is long.
+      const along = m.group === 'wall:front' || m.group === 'wall:back' ? 0 : 1;
       return !covered(b.lo[along] + 0.5, b.hi[along] - 0.5, on(b).map((t) => ({ s0: t.lo[along], s1: t.hi[along] })));
     }).map((m) => m.id);
     add('Bottom plates bear on the timbers', plateFails, plates.length, 'every bottom plate on a perimeter timber along its whole length');
