@@ -462,6 +462,8 @@ test('on a phone the gallery shows one card at a time and swipes sideways', { sk
   assert.ok(r.page <= r.vw + 1, `the page itself does not scroll sideways (${r.page} > ${r.vw})`);
   await page.click('#gallery-next');
   await page.waitForFunction(() => document.querySelector('#gallery-pos')?.textContent === '2 of 10');
+});
+
 test('the part options table prices each choice, and "Use this" changes the design with one undo', { skip }, async (t) => {
   const { page } = await open(t);
   const before = await page.$eval('#total', (e) => e.textContent);
