@@ -2,6 +2,16 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-30 · Milestone 7d: does the library path really cover below 94.6% on admiration at n = 1000? (planned before running)
+- Why: 7c's "Next". 7c's 500 draws gave 92.0% against 6al's 94.6%, a 2.6-point gap that is about two sd of a difference. `experiments/h7d_admiration_2000.py` runs 2,000 fresh draws (seed B.SEED + 7) of the same library audit on that one cell; the standard error at 2,000 draws is about 0.5 points.
+- **Prediction (before running):** coverage 93.0% or higher (noise, as 7c read it), half-width within 3% of 1.152. Refuted if coverage is under 93.0%, which would mean the library's plain-variance allocation really undercovers there and the screen's validity claim needs the lambda-tuned S2 back.
+
+### Outcome (`experiments/h7d_admiration_2000.py`, about 5 min; `experiments/h7d_admiration_2000.txt`)
+- Coverage 94.1% (se 0.5) over 2,000 draws; by block of 500: 94.6, 94.6, 93.8, 93.4%. Half-width 1.165 points against 7c's 1.152 (1.1% wider); cells used in 86% of draws. 6al's 94.6% is 1 se from this.
+- **Prediction held** (coverage at least 93.0%, width within 3%): 7c's 92.0% was Monte Carlo noise; the library path does not undercover on this cell. The last block reaching 93.4% shows 500 draws can wander by more than a point either way.
+- Limits: one cell, one coder; still no theorem for the data-dependent screen; no informative coder on a second corpus (weights unreachable).
+- Next: an informative coder on a second corpus once weights are reachable; fold `plan_audit` / `audit_interval` into the paper's recipe section.
+
 ## 2026-10-30 · Milestone 7c: `audit_interval`, and does the library path (`plan_audit` -> draw -> interval) reproduce 6al? (planned before running)
 - Why: 7a and 7b put the design rule in the library, but the interval that closes the audit (pooled lambda, stratified variance, Wilson on n_eff; 6ac, 6ad) still lived in experiment scripts, and nothing had checked the library path end to end. Added `audit_interval(plan, f_all, labels)` and a test that it equals the stratified estimator with the pooled weight fixed plus the Wilson n_eff formula (20 tests pass). `experiments/h7c_end_to_end.py` runs the whole audit through the library only on 6al's corpora, cached Qwen codes, seed rule, n = 400 and 1000, 500 draws.
 - **Prediction (before running):** coverage within 2 points and half-width within 3% of 6al's "screen + guard G=20" WE row in every cell. Known difference that could move it: `plan_audit` estimates a cell's variance as the plain sample variance of y - f, 6al used the lambda-tuned S2 with plus-one smoothing, so the allocation, and so the width in cells-draws, may differ a little. Refuted if any cell moves more than that.

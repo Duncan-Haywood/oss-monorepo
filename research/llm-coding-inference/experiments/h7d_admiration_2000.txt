@@ -1,0 +1,5 @@
+GoEmotions admiration n=1000, 2000 draws, seed 20261110: coverage 94.1% (se 0.5), half-width 1.165 pts, cells used 0.86
+draws 1-500: coverage 94.6%
+draws 501-1000: coverage 94.6%
+draws 1001-1500: coverage 93.8%
+draws 1501-2000: coverage 93.4%
