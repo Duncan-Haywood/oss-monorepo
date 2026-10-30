@@ -140,3 +140,11 @@ test('blocks, vents and eave blocking say what to do with them', () => {
   assert.match(ten, /4x6 skids \(mark A, \d+ pieces\) on edge/);
   assert.ok(!/4x4 skids[^.]*on edge/.test(md));
 });
+
+test('the siding step says how the nested gable pieces are cut and joined', () => {
+  const { md } = mdOf(PRESETS['8x10']());
+  assert.match(md, /The 4 upper gable pieces come from 1 panel: two pieces that slope the same way are cut head to toe/);
+  assert.match(md, /butt the joint over the stud with a bead of caulk/);
+  assert.match(md, /take them from what is left of a sheet after a short full-width piece/);
+  assert.ok(!/upper gable pieces come from/.test(mdOf(defaultDesign()).md)); // its panels reach the roof in one piece
+});
