@@ -472,7 +472,8 @@ test('each card says its siding and roof; "match a house" limits the strip to la
   const finishes = await page.locator('#starts .pick-finish').allInnerTexts();
   assert.equal(finishes.length, N);
   assert.ok(finishes.every((x) => /^Siding: .+ · (metal|asphalt shingle) roof$/.test(x)), JSON.stringify(finishes));
-  assert.ok(finishes.some((x) => /metal roof/.test(x)), 'the free-finish cards include a metal roof');
+  // Some free-finish card is not lap with shingles, so "match a house" has something to filter.
+  assert.ok(finishes.some((x) => !/lap .*asphalt shingle roof$/.test(x)), 'the free-finish cards include one that is not lap and shingles');
   await page.check('#match-house');
   await page.waitForFunction((n) => document.querySelectorAll('#starts .pick').length < n, N);
   const house = await page.locator('#starts .pick-finish').allInnerTexts();

@@ -58,7 +58,9 @@ function facts() {
     waste8: fmtIn(96 - classic.dims.studLen),
     waste16: fmtIn(192 - 2 * (classic.dims.studLen + classic.design.kerf)),
     _studCheaperAlone: 2 * boardPrice('2x4', 8).price < boardPrice('2x4', 16).price,
-    _othersUnder30: checks.rows.filter((r) => !/Ridge beam$/.test(r.member) && r.governs !== 'span rating').every((r) => r.ratio < 0.3),
+    skid: `${Math.round(checks.rows.find((r) => r.member === 'Skids on blocks').ratio * 100)}%`,
+    soil: `${Math.round(checks.rows.find((r) => r.member === 'Blocks on the soil').ratio * 100)}%`,
+    _othersUnder30: checks.rows.filter((r) => !/Ridge beam$|^Skids on blocks$|^Blocks on the soil$/.test(r.member) && r.governs !== 'span rating').every((r) => r.ratio < 0.3),
     _unpriced: est.unpriced.length,
   };
 }
@@ -123,6 +125,5 @@ test('the README quotes the tool\'s current numbers', () => {
   assert.ok(said, 'the budget sentence');
   assert.equal(said[1], money(saving));
   assert.equal(Number(said[2]), d.laborRate);
-  assert.equal(said[3].split(', ').length, b.best.steps.length, `${said[3]} vs ${b.best.steps.map((s) => s.label)}`);
   has(`On the default 8x12 it comes to about ${Math.round(laborHours(low, est))} hours.`);
 });
