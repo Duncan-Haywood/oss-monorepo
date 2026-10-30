@@ -1,6 +1,6 @@
 ---
 title: "Testing payment reminders on 150 random books"
-date: 2026-10-31
+date: 2026-10-30
 tags: [ai-bookkeeper, testing, accounts-receivable]
 description: "A seeded property test checks that every overdue-invoice reminder agrees with the ledger's aging report. It found no fault."
 ---
