@@ -1729,3 +1729,12 @@ or `ventures`) until its success rate passes 80% over 20 runs?
   report (reduced pass). Still over budget: steering.md (137/120),
   land-your-work.md (167/160).
 - Result: (next review)
+
+## E116: Review 2026-10-30 evening (reduced pass)
+
+- Change: `land-your-work.md` loses its duplicated open-PR search tip (kept in
+  `duplicate-work.md`), 167 to 163 lines (budget 160). Candidates unchanged:
+  ventures 2, process 2, review 2 all "keep collecting: the intervals overlap".
+  No audit or drift report (reduced pass). E115 result: too soon.
+- Metric: instruction-line count for `land-your-work.md`; compare next review.
+- Result: (next review)
