@@ -228,6 +228,15 @@
       <div><label for="sdBoardPrice">Price per siding board (blank: none)</label><input id="sdBoardPrice" type="number" min="0" step="0.01" placeholder="e.g. 14"></div>
       <div><label for="sdWrapPrice">Price per wrap roll (blank: none)</label><input id="sdWrapPrice" type="number" min="0" step="0.01" placeholder="e.g. 150"></div>
       <div><label for="sdCornerPrice">Price per corner board (blank: none)</label><input id="sdCornerPrice" type="number" min="0" step="0.01" placeholder="e.g. 20"></div>
+      <div><label for="sdStyle">Style</label><select id="sdStyle"><option value="">Lap (horizontal courses)</option><option value="vertical">Vertical boards</option></select></div>
+      <div><label for="sdBoardWidth">Vertical board coverage, in (blank: 11.25)</label><input id="sdBoardWidth" type="number" min="2" max="24" step=".25" placeholder="11.25"></div>
+      <div><label for="sdBattens">Battens (vertical only)</label><select id="sdBattens"><option value="">None</option><option value="true">One over each seam</option></select></div>
+      <div><label for="sdBattenStock">Batten length, in (blank: board length)</label><input id="sdBattenStock" type="number" min="48" max="240" step="1" placeholder="144"></div>
+      <div><label for="sdBattenPrice">Price per batten (blank: none)</label><input id="sdBattenPrice" type="number" min="0" step="0.01" placeholder="e.g. 5"></div>
+      <div><label for="sdOpeningTrim">Window and door trim boards</label><select id="sdOpeningTrim"><option value="">Not counted</option><option value="true">Head and two jambs per opening</option></select></div>
+      <div><label for="sdTrimWidth">Trim board width, in (blank: engine default)</label><input id="sdTrimWidth" type="number" min="1" max="12" step=".25"></div>
+      <div><label for="sdTrimStock">Trim board length, in (blank: engine default)</label><input id="sdTrimStock" type="number" min="48" max="240" step="1"></div>
+      <div><label for="sdTrimPrice">Price per trim board (blank: none)</label><input id="sdTrimPrice" type="number" min="0" step="0.01" placeholder="e.g. 9"></div>
     </div>
     <p><input type="checkbox" id="eaOn" style="width:auto"> <label for="eaOn" style="display:inline">Also count soffit panels, fascia boards and J-channel under the roof overhangs (needs the roof option; counted from the roof's eave and rake overhangs)</label></p>
     <div class="grid" id="eaFields" hidden>
@@ -665,6 +674,10 @@
       if ($("#sdOn").checked) {
         const sd = {};
         for (const [id, key] of [["sdExposure", "exposure"],["sdStock", "stock"],["sdWaste", "waste"],["sdWrapRoll", "wrapRollSqFt"],["sdCorners", "corners"],["sdBoardPrice", "boardPrice"],["sdWrapPrice", "wrapPrice"],["sdCornerPrice", "cornerPrice"]]) if ($("#" + id).value.trim()) sd[key] = Number($("#" + id).value);
+        if ($("#sdStyle").value) sd.style = $("#sdStyle").value;
+        for (const [id, key] of [["sdBoardWidth", "boardWidth"],["sdBattenStock", "battenStock"],["sdBattenPrice", "battenPrice"],["sdTrimWidth", "trimWidth"],["sdTrimStock", "trimStock"],["sdTrimPrice", "trimPrice"]]) if ($("#" + id).value.trim()) sd[key] = Number($("#" + id).value);
+        if ($("#sdBattens").value) sd.battens = true;
+        if ($("#sdOpeningTrim").value) sd.openingTrim = true;
         plan.siding = sd;
       }
       if ($("#eaOn").checked) {
@@ -872,7 +885,7 @@
     function renderSiding(sd) {
       $("#sidingCard").hidden = !sd;
       if (!sd) return;
-      $("#sidingOut").innerHTML = `<pre style="white-space:pre-wrap;overflow-x:auto">${esc(sidingText(sd).join("\n"))}</pre><p class="note">Courses are counted per wall with openings cut out and packed first fit decreasing into the board length you typed. Gable triangles, soffit, fascia, window and door trim, flashing, nails, caulk and paint are not counted. Not checked against a real siding order.</p>`;
+      $("#sidingOut").innerHTML = `<pre style="white-space:pre-wrap;overflow-x:auto">${esc(sidingText(sd).join("\n"))}</pre><p class="note">Courses are counted per wall with openings cut out and packed first fit decreasing into the board length you typed. Soffit, fascia, flashing, nails, caulk and paint are not counted. Not checked against a real siding order.</p>`;
     }
     function renderGutters(gu) {
       $("#guttersCard").hidden = !gu;
@@ -1120,6 +1133,8 @@
       const sdg = plan.siding;
       $("#sdOn").checked = Boolean(sdg); $("#sdFields").hidden = !sdg;
       for (const [id, key] of [["sdExposure", "exposure"],["sdStock", "stock"],["sdWaste", "waste"],["sdWrapRoll", "wrapRollSqFt"],["sdCorners", "corners"],["sdBoardPrice", "boardPrice"],["sdWrapPrice", "wrapPrice"],["sdCornerPrice", "cornerPrice"]]) $("#" + id).value = sdg && sdg[key] != null ? String(sdg[key]) : "";
+      for (const [id, key] of [["sdBoardWidth", "boardWidth"],["sdBattenStock", "battenStock"],["sdBattenPrice", "battenPrice"],["sdTrimWidth", "trimWidth"],["sdTrimStock", "trimStock"],["sdTrimPrice", "trimPrice"]]) $("#" + id).value = sdg && sdg[key] != null ? String(sdg[key]) : "";
+      $("#sdStyle").value = sdg?.style === "vertical" ? "vertical" : ""; $("#sdBattens").value = sdg?.battens ? "true" : ""; $("#sdOpeningTrim").value = sdg?.openingTrim ? "true" : "";
       const eav = plan.eaves;
       $("#eaOn").checked = Boolean(eav); $("#eaFields").hidden = !eav;
       for (const [id, key] of [["eaPanelWidth", "panelWidth"],["eaPanelStock", "panelStock"],["eaFasciaStock", "fasciaStock"],["eaChannelStock", "channelStock"],["eaWaste", "waste"],["eaPanelPrice", "panelPrice"],["eaFasciaPrice", "fasciaPrice"],["eaChannelPrice", "channelPrice"]]) $("#" + id).value = eav && eav[key] != null ? String(eav[key]) : "";
