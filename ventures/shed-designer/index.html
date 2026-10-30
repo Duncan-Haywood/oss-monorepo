@@ -44,7 +44,11 @@
     .link { background: none; border: none; color: #1f4e8c; text-decoration: underline; cursor: pointer; padding: 0; font-weight: 600; }
     #openings .link { padding: 12px 4px; }
     .workspace { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 14px; }
-    .editors { display: grid; gap: 14px; }
+    .editors { display: grid; gap: 14px; align-content: start; }
+    /* The cost while you edit, when the cost panel is off screen (on a phone it is three screens down). */
+    .total-pill { position: fixed; right: 12px; bottom: 12px; z-index: 20; display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 6px 16px; border-radius: 999px; background: var(--accent2); color: #f8f5eb; text-decoration: none; font-size: .9rem; box-shadow: 0 4px 14px #0003; }
+    .total-pill strong { color: var(--gold); font: 800 1.15rem Georgia, serif; font-variant-numeric: tabular-nums; }
+    .total-pill[hidden] { display: none; }
     svg.edit { width: 100%; height: auto; display: block; touch-action: none; background: #fbfaf6; border-radius: 10px; border: 1px solid var(--line); }
     #plan { aspect-ratio: 4 / 3; }
     /* The end view takes its picture's own shape (set by its viewBox), up to a height. */
@@ -150,6 +154,7 @@
     @page plan-sheet { size: letter landscape; margin: 0.35in; }
     @media print {
       body { max-width: none; padding: 0; background: #fff; }
+      .total-pill { display: none !important; }
       /* The results live inside <main>, so hide main's other children, not main itself. */
       body[data-print] > *:not(main), body[data-print] main > *:not(.results) { display: none !important; }
       body[data-print] .results > *:not(.print-target) { display: none !important; }
@@ -199,6 +204,7 @@
   </div>
   <p id="status" role="status" aria-live="polite"></p>
 
+  <a href="#summary" class="total-pill" id="total-pill" hidden>Estimated cost <strong id="total-pill-n"></strong></a>
   <div class="workspace" id="workspace">
     <div class="editors">
       <section aria-labelledby="plan-h">

@@ -183,6 +183,7 @@ function renderOpenings(d) {
 function renderSummary(shed, est) {
   const d = shed.design;
   $('#total').textContent = money(est.grandTotal);
+  $('#total-pill-n').textContent = money(est.grandTotal);
   $('#summary-lines').innerHTML = [
     ['Materials', `${money(est.total)}${est.tax ? ` + ${money(est.tax)} tax (${d.taxRate}%)` : ' (no sales tax set)'}${d.delivery !== 'pickup' ? (est.deliveryFee ? ` + ${money(est.deliveryFee)} delivery` : ' + delivery (type your store\'s charge under Prices)') : ''}`],
     ['Footprint', `${fmtFtIn(d.length)} x ${fmtFtIn(d.width)} (${est.footprintSqFt.toFixed(0)} sq ft)`],
@@ -530,6 +531,16 @@ const viewer = createViewer($('#view3d'));
 if (!viewer) $('#view3d-fallback').hidden = false;
 
 function wire() {
+  // While you edit with the cost panel out of sight, a small pill keeps the total in view.
+  if ('IntersectionObserver' in window) {
+    const seen = { summary: false, workspace: true };
+    const pill = $('#total-pill');
+    const io = new IntersectionObserver((entries) => {
+      for (const en of entries) seen[en.target.id] = en.isIntersecting;
+      pill.hidden = seen.summary || !seen.workspace;
+    });
+    io.observe($('#summary')); io.observe($('#workspace'));
+  }
   const form = $('#settings');
   const onForm = (e) => {
     const t = e.target;

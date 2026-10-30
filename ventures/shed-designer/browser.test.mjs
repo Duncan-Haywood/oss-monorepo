@@ -239,6 +239,26 @@ test('a custom-size opening shows a catalogue range, and counts it only when tic
   assert.doesNotMatch(await page.textContent('#shopping'), /Not in the total/);
 });
 
+test('on a phone the total follows you while you edit, and the plan boxes do not stretch on a laptop', { skip }, async (t) => {
+  const { page } = await open(t, { ...pw.devices['Pixel 7'] });
+  const pill = page.locator('#total-pill');
+  await page.locator('#plan').scrollIntoViewIfNeeded();
+  await pill.waitFor({ state: 'visible' });
+  assert.equal(await page.textContent('#total-pill-n'), await page.textContent('#total'));
+  // It must not sit on a handle: the plan's handles stay clickable.
+  for (const k of ['plan-len', 'plan-wid', 'plan-both']) {
+    const b = await page.locator(`#plan [data-key="${k}"]`).boundingBox();
+    const hit = await page.evaluate(([x, y]) => document.elementFromPoint(x, y)?.closest('#total-pill') !== null, [b.x + b.width / 2, b.y + b.height / 2]);
+    assert.equal(hit, false, `${k} is not under the pill`);
+  }
+  await pill.click();
+  await page.waitForFunction(() => document.querySelector('#total-pill').hidden);
+  // Laptop: the plan's box ends near its drawing instead of stretching to the 3D column's height.
+  const { page: desk } = await open(t);
+  const [planSec, svg] = await desk.evaluate(() => [document.querySelector('#plan').closest('section').getBoundingClientRect().height, document.querySelector('#plan').getBoundingClientRect().height]);
+  assert.ok(planSec < svg + 160, `plan section ${planSec} px for a ${svg} px drawing`);
+});
+
 test('on a phone: no sideways scroll, finger-size handles, touch drag and pinch', { skip }, async (t) => {
   const { ctx, page } = await open(t, pw.devices['Pixel 7']);
   const sw = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
