@@ -10,9 +10,11 @@
 
 import { PRESETS, buildShed, normalize } from './model.mjs';
 import { createViewer } from './render3d.mjs';
-import { renderFor, slugOf } from './renders.mjs';
+import { pictureFor } from './renders.mjs';
 import { designFacts, compareRows, tradeOff } from './designfacts.mjs';
 import { fmtFtIn, fmtIn } from './lumber.mjs';
+import { kitLineHtml } from './value.mjs';
+import { estimate, examplePrices } from './estimate.mjs';
 
 /** @typedef {{ id: string, title?: string, design: any, reason?: string }} Entry */
 
@@ -82,19 +84,24 @@ export function mountPicker(opts) {
     return /** @type {ReturnType<typeof designFacts>} */ (facts.get(id));
   };
   const allFacts = () => entries.map((e) => factsOf(e.id));
+  // The design's own roofing and paint, which store kits leave out (value.mjs).
+  const leftOutOf = (f) => {
+    const shed = buildShed(normalize(f.design));
+    const est = opts.priceOf ? opts.priceOf(shed) : estimate(shed, opts.prices?.() || examplePrices());
+    return est.shopping.filter((l) => l.section === 'Roofing' || l.section === 'Paint').reduce((t, l) => t + (l.total || 0), 0);
+  };
   const titleOf = (id) => entry(id)?.title || factsOf(id).name;
 
   /** @type {any} */
   let manifest = null;
-  /** The stored picture of a design from one view, when the design is a drawn preset unchanged. */
+  /** The stored picture of a design from one view, when that exact design was drawn (a preset or a gallery card, unchanged). */
   const stored = (id, view) => {
     const e = entry(id);
-    const make = /** @type {any} */ (PRESETS)[id];
-    if (!manifest || !e || !make || JSON.stringify(e.design) !== JSON.stringify(make())) return null;
-    return renderFor(manifest, slugOf(id), view);
+    return manifest && e ? pictureFor(manifest, e.design, view) : null;
   };
   const thumb = (id) => {
-    const r = stored(id, 'hero');
+    // The strip's cards are about 260 px wide: the 480 px card picture, not the hero.
+    const r = stored(id, 'card') || stored(id, 'hero');
     if (r) return `<img src="${esc(r.src)}" alt="" width="${r.width}" height="${r.height}">`;
     return shots.has(shotKey(id)) ? `<img src="${shots.get(shotKey(id))}" alt="" width="600" height="400">` : '';
   };
@@ -133,6 +140,7 @@ export function mountPicker(opts) {
           <span class="pick-img" data-shot="${esc(e.id)}">${thumb(e.id) || '<span class="thumb-wait">rendering...</span>'}</span>
           <strong>${esc(titleOf(e.id))}</strong>
           <span class="pick-line">${money(f.total)} &middot; ${Math.round(f.footprintSqFt)} sq ft &middot; peak ${fmtFtIn(f.peak)}</span>
+          <span class="pick-line">${Math.round(f.storage.volumeCuFt)} cu ft inside &middot; ${Math.round(f.storage.shelfFt)} ft of clear wall</span>
           <span class="pick-why">${esc(tradeOff(f, all))}</span>
         </button>
         <button type="button" class="btn pick-cmp" data-compare="${esc(e.id)}" aria-pressed="${on}">${on ? 'In compare' : 'Compare'}</button>
@@ -221,6 +229,7 @@ export function mountPicker(opts) {
             <div><dt>Shelf wall</dt><dd>${n1(f.storage.shelfFt)} ft with no door or window</dd></div>
             <div><dt>Headroom</dt><dd>${fmtFtIn(f.storage.headroom)} ${f.storage.open ? 'under the ridge beam, open to the roof' : 'under the rafter ties (more above them)'}</dd></div>
             <div><dt>Per $100</dt><dd>${n1(f.perDollar.sqFtPer100)} sq ft, ${Math.round(f.perDollar.cuFtPer100)} cu ft</dd></div>
+            ${kitLineHtml(f, 3, leftOutOf(f))}
           </dl>
         </section>
         <section aria-labelledby="dd-look"><h3 id="dd-look">Looks</h3>

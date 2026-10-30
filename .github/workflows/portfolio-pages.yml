@@ -191,6 +191,39 @@ jobs:
       - name: Check blog post front matter before the long build
         run: python3 platform/ci/check_post_frontmatter.py
 
+      # Shed Designer's pictures (ventures/shed-designer/renders/) are drawn by
+      # its own WebGL viewer and committed, but about twenty lanes change its
+      # designs at once, so they can lag main (renders.test.mjs only reports
+      # that outside this job). Redraw the stale ones into this checkout before
+      # the build, so the published pictures, their alt text and the size pages
+      # that show them match the merged designs. Nothing is committed. If
+      # Playwright cannot install, the committed pictures ship as they are;
+      # a redraw that ran but left anything stale fails the next step.
+      - name: Redraw stale Shed Designer pictures
+        id: shed-renders
+        if: github.event_name != 'pull_request'
+        continue-on-error: true
+        env:
+          PLAYWRIGHT_VERSION: "1.63.0"
+        run: |
+          set -euo pipefail
+          if node ventures/shed-designer/make-renders.mjs --check; then exit 0; fi
+          mkdir -p "$RUNNER_TEMP/pw" && cd "$RUNNER_TEMP/pw"
+          npm init -y >/dev/null
+          npm install --no-audit --no-fund "playwright@$PLAYWRIGHT_VERSION"
+          ./node_modules/.bin/playwright install --with-deps chromium || ./node_modules/.bin/playwright install chromium
+          cd "$GITHUB_WORKSPACE"
+          PLAYWRIGHT="$RUNNER_TEMP/pw/node_modules/playwright/index.js" node ventures/shed-designer/make-renders.mjs
+          echo "redrawn=1" >> "$GITHUB_OUTPUT"
+
+      - name: Check the redrawn Shed Designer pictures
+        if: steps.shed-renders.outputs.redrawn == '1'
+        working-directory: ventures/shed-designer
+        env:
+          RENDERS_STRICT: "1"
+          PLAYWRIGHT: ${{ runner.temp }}/pw/node_modules/playwright/index.js
+        run: node --test renders.test.mjs
+
       - name: Build the site
         id: build-site
         env:

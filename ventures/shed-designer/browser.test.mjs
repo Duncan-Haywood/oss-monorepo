@@ -533,6 +533,58 @@ test('on a phone the end view fills its box and every label is inside it', { ski
   }
 });
 
+test('the ready-design gallery: ten cards with price, storage and reason; arrows and keys flick through; Start opens a new design', { skip }, async (t) => {
+  const { page } = await open(t);
+  const cards = page.locator('#starts .pick');
+  assert.equal(await cards.count(), 10);
+  for (const text of await cards.allInnerTexts()) {
+    assert.match(text, /\$\d[\d,]*/);
+    assert.match(text, /\d+ cu ft inside/);
+    assert.match(text, /ft of clear wall/);
+  }
+  assert.match(await cards.first().innerText(), /lowest price of the \d+ designs/i);
+  await page.waitForFunction(() => document.querySelectorAll('#starts .pick-img img').length === 10, null, { timeout: 60000 });
+  const pos = () => page.textContent('#starts-pos');
+  assert.equal(await pos(), '1 of 10');
+  assert.ok(await page.isDisabled('#starts-prev'));
+  await page.click('#starts-next');
+  await page.waitForFunction(() => document.querySelector('#starts-pos')?.textContent === '2 of 10');
+  await page.focus('#starts .pick-list');
+  await page.keyboard.press('ArrowRight');
+  await page.waitForFunction(() => document.querySelector('#starts-pos')?.textContent === '3 of 10');
+  await page.keyboard.press('ArrowLeft');
+  await page.waitForFunction(() => document.querySelector('#starts-pos')?.textContent === '2 of 10');
+  // On a wide screen the last cards share the view: the arrow still steps to each one.
+  for (let i = 0; i < 8; i++) await page.click('#starts-next');
+  await page.waitForFunction(() => document.querySelector('#starts-pos')?.textContent === '10 of 10');
+  assert.ok(await page.isDisabled('#starts-next'));
+  for (let i = 0; i < 9; i++) await page.click('#starts-prev');
+  await page.waitForFunction(() => document.querySelector('#starts-pos')?.textContent === '1 of 10');
+  // Start from the first card: it opens as a new design tab, priced as its card said.
+  const cardPrice = /\$[\d,]+/.exec(await cards.first().innerText())?.[0];
+  const tabs = await page.locator('#design-tabs [role=tab]').count();
+  await cards.first().locator('.pick-open').click();
+  await page.locator('#pick-dialog [data-start]').click();
+  await page.waitForFunction((n) => document.querySelectorAll('#design-tabs [role=tab]').length === n + 1, tabs);
+  assert.equal(await page.getAttribute('#design-tabs [role=tab]:last-child', 'aria-selected'), 'true');
+  assert.match(await page.textContent('#design-tabs [role=tab]:last-child'), /^Cheapest /);
+  assert.ok(cardPrice, 'the card shows a price');
+});
+
+test('on a phone the gallery shows about one card at a time and swipes sideways', { skip }, async (t) => {
+  const { page } = await open(t, pw.devices['Pixel 7']);
+  const r = await page.evaluate(() => {
+    const track = /** @type {HTMLElement} */ (document.querySelector('#starts .pick-list'));
+    const card = /** @type {HTMLElement} */ (track.querySelector('.pick'));
+    return { track: track.clientWidth, card: card.getBoundingClientRect().width, scrolls: track.scrollWidth > track.clientWidth, page: document.documentElement.scrollWidth, vw: window.innerWidth };
+  });
+  assert.ok(r.card > r.track * 0.5 && r.card <= r.track, `card ${r.card}px in a ${r.track}px strip`);
+  assert.ok(r.scrolls, 'the strip scrolls sideways');
+  assert.ok(r.page <= r.vw + 1, `the page itself does not scroll sideways (${r.page} > ${r.vw})`);
+  await page.click('#starts-next');
+  await page.waitForFunction(() => document.querySelector('#starts-pos')?.textContent === '2 of 10');
+});
+
 test('where the money goes: bars by assembly open their lines, an edit says what it moved, the bridge runs', { skip }, async (t) => {
   const { page } = await open(t);
   await page.click('[data-panel="panel-costs"]');
