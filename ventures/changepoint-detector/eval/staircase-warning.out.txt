@@ -1,0 +1,13 @@
+shape        true steps  jump(sd)  warning fired  mean steps found
+staircase             5         2      19/20      5
+staircase             5         3      19/20      5.1
+staircase             8         2      20/20      8.1
+staircase             8         3      20/20      8.1
+staircase            12         2      20/20      12
+staircase            12         3      20/20      12
+alternating           5         2      19/20      5.2
+alternating           5         3      19/20      5.2
+alternating           8         2      20/20      8.1
+alternating           8         3      20/20      8.1
+alternating          12         2      20/20      12
+alternating          12         3      20/20      12.1

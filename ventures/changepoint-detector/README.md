@@ -1338,3 +1338,23 @@ p < 0.01 at a period of 3 points or more. It names the peak period and points at
 synthetic 1% to 3% above, so on a series with no cycle about 1 in 50 to 1 in 100 runs with 5+ steps would show it.
 Lynx (p 0.02) and treering (drift, not a cycle) stay quiet. Still open: a documented step inside a real cycle, to check the warning
 does not drown a true step; the warning is not shown on the page card.
+
+## A staircase of real steps: the block-variance warning cannot tell it from drift (2026-10-30, last)
+
+The block-variance section said the warning was "tested on these series only, not on a documented many-step series".
+The repository has no documented series with 5 or more real steps, so this uses seeded synthetic ones where every step
+is real: 5, 8 or 12 level changes of 2 or 3 noise sd between segments of 40 points, rising or alternating, 20 seeds each
+(`node eval/staircase-warning.mjs`, output `eval/staircase-warning.out.txt`, test `staircase-warning.test.mjs`).
+
+| true steps | warning fired (jump 2 and 3 sd, both shapes) | mean steps found |
+|---|---|---|
+| 5 | 19 of 20 | 5.0 to 5.2 |
+| 8 | 20 of 20 | 8.1 |
+| 12 | 20 of 20 | 12.0 to 12.1 |
+
+So on a series made only of real steps the warning fires 95% to 100% of the time, as it does on treering's false ones: the
+5-step floor does not separate them, and the text's "a real step raises this ratio too" is a limit, not a nuance. A
+residual check does not rescue it (`node eval/staircase-residual.mjs`): the ratio of the residuals about the fitted steps is
+0.6 to 0.7 (median) on the staircases, but 1.3 on treering, 0.8 on US inflation and 1.2 on DAX returns, because 38 steps
+fit treering's drift just as well as 12 fit a staircase. No code changed. What would separate them is data: a real series with a
+documented run of 5 or more steps and a quiet baseline.
