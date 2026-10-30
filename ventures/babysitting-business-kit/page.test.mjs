@@ -62,3 +62,10 @@ test("every tab button has a panel", () => {
   const panels = [...html.matchAll(/data-panel="(\w+)"/g)].map((m) => m[1]);
   assert.deepEqual(tabs, panels);
 });
+
+// Closest sibling: the family's side when the sitter is a household employee.
+test("index links one hop to the nanny-tax-calculator sibling", () => {
+  const html = page("index.html");
+  assert.match(html, /href="\.\.\/nanny-tax-calculator\/"/);
+  assert.match(html, /nanny tax calculator/i);
+});
