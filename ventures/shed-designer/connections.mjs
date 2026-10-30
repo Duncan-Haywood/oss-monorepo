@@ -174,7 +174,7 @@ export function connectionChecks(shed) {
       // wall and the tall front one, where a connector holds its inside edge.
       const seats = k.lean
         ? [{ back: true, z: k.plateTop, edge: d.width }, { back: false, z: k.highPlateTop, edge: k.stud }]
-        : [(() => { const back = Math.min(...r.geom.profile.map((p) => p[0])) > d.width / 2 - 2; return { back, z: k.plateTop, edge: back ? d.width : 0 }; })()];
+        : [(() => { const back = Math.min(...r.geom.profile.map((p) => p[0])) > (k.ridgeY ?? d.width / 2) - 2; return { back, z: k.plateTop, edge: back ? d.width : 0 }; })()];
       for (const { back, z, edge } of seats) {
         const seatY = r.geom.profile.filter((p) => near(p[1], z)).map((p) => p[0]).filter((y) => (back ? y >= d.width - k.stud - EPS : y <= k.stud + EPS));
         // A rafter on a variable-pitch connector has no notch: it touches the top edge of the caps.
@@ -186,7 +186,9 @@ export function connectionChecks(shed) {
         const seated = (k.connector ? onEdge : seatY.length >= 2) && covered(xs[0], xs[1], under.map((t) => ({ s0: t.lo[0], s1: t.hi[0] })));
         if (!seated) fails.push(`${r.id} ${k.lean ? (back ? 'back ' : 'front ') : ''}seat`);
       }
-      const meets = k.lean || ridge.some((g) => b.lo[1] <= g.hi[1] + EPS && b.hi[1] >= g.lo[1] - EPS && b.hi[2] <= g.hi[2] + EPS && b.hi[2] >= g.lo[2]);
+      // On a saltbox the ridge's top is flush with the steep side's rafters, so the shallow side's stand a little proud of it.
+      const proud = k.saltbox && k.slopes ? (d.roofType === 'ridgeBeam' ? 1.5 : 0.75) * Math.abs(Math.tan(Math.acos(k.slopes.front.cos)) - Math.tan(Math.acos(k.slopes.back.cos))) : 0;
+      const meets = k.lean || ridge.some((g) => b.lo[1] <= g.hi[1] + EPS && b.hi[1] >= g.lo[1] - EPS && b.hi[2] <= g.hi[2] + proud + EPS && b.hi[2] >= g.lo[2]);
       if (!meets) fails.push(`${r.id} ridge`);
     }
     if (k.lean) add('Rafters seat on both walls', fails, rafters.length, k.connector ? 'rafters on a variable-pitch connector at the back wall\'s outside edge and the front wall\'s inside edge' : 'rafters with a full birdsmouth seat on the back wall and on the front wall');
