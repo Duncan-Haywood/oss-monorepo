@@ -24,6 +24,8 @@
 //   AUTO_FOLLOW_UP=1: send due follow-ups to emailed leads with the daily digest
 //   TWILIO_ACCOUNT_SID + TWILIO_AUTH_TOKEN + TWILIO_FROM, PUBLIC_URL: texts and unsubscribe
 //     links for the automations the sitter turns on in Settings (automations-server.mjs)
+//   LLM_PROVIDER (+ LLM_API_KEY, LLM_MODEL, LLM_BASE_URL; or OLLAMA_HOST): POST /api/draft
+//     drafts a blog post on your own model key; /site/blog serves posts you approved
 
 import http from "node:http";
 import { readFileSync, writeFileSync, renameSync, existsSync } from "node:fs";
@@ -36,11 +38,12 @@ import { buildSiteFiles } from "./site.mjs";
 import { creditReferral } from "./print.mjs";
 import { mergeAutomationState } from "./automations.mjs";
 import { automationRoutes, runAutomations } from "./automations-server.mjs";
+import { blogRoute, serverDraft } from "./content.mjs";
 
 const MAX_BODY = 64 * 1024;
 const MAX_DESK = 8 * 1024 * 1024;
 const MAX_LEADS = 2000;
-const FILES = { "/": "index.html", "/index.html": "index.html", "/engine.mjs": "engine.mjs", "/usage.mjs": "usage.mjs", "/taxes.mjs": "taxes.mjs", "/slots.mjs": "slots.mjs", "/intake.mjs": "intake.mjs", "/meet-and-greet.html": "meet-and-greet.html", "/references.mjs": "references.mjs", "/site.mjs": "site.mjs", "/print.mjs": "print.mjs", "/qr.mjs": "qr.mjs", "/automations.mjs": "automations.mjs", "/automations-ui.mjs": "automations-ui.mjs" };
+const FILES = { "/": "index.html", "/index.html": "index.html", "/engine.mjs": "engine.mjs", "/usage.mjs": "usage.mjs", "/taxes.mjs": "taxes.mjs", "/slots.mjs": "slots.mjs", "/intake.mjs": "intake.mjs", "/meet-and-greet.html": "meet-and-greet.html", "/references.mjs": "references.mjs", "/site.mjs": "site.mjs", "/print.mjs": "print.mjs", "/qr.mjs": "qr.mjs", "/automations.mjs": "automations.mjs", "/automations-ui.mjs": "automations-ui.mjs", "/content.mjs": "content.mjs", "/content-ui.mjs": "content-ui.mjs", "/byok.mjs": "byok.mjs" };
 const TYPES = { html: "text/html; charset=utf-8", mjs: "text/javascript; charset=utf-8" };
 
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -100,6 +103,7 @@ export function handler(state, save, env = process.env, now = Date.now, fetchImp
       const f = FILES[url.pathname];
       return send(200, readFileSync(new URL(f, dir)), TYPES[f.split(".").pop()]);
     }
+    if (req.method === "GET" && url.pathname.startsWith("/site/blog")) { const html = blogRoute(state.desk, url.pathname); return html ? send(200, html) : send(404, page("Not found", `<p><a href="/site/blog">All posts</a></p>`)); }
     if (req.method === "GET" && url.pathname === "/site") return send(301, "", "text/plain", { location: "/site/" });
     if (req.method === "GET" && url.pathname.startsWith("/site/")) {
       const files = buildSiteFiles(state.desk, { formAction: "/inquiry", today });
@@ -213,6 +217,12 @@ export function handler(state, save, env = process.env, now = Date.now, fetchImp
         state.desk.leads.push(...fresh);
         save();
         return send(200, JSON.stringify({ ok: true, added: fresh.length, desk: state.desk }), "application/json");
+      }
+      if (url.pathname === "/api/draft" && req.method === "POST") { // an AI blog draft on the server's LLM_* keys (content.mjs)
+        let body; try { body = JSON.parse((await readBody(req)) || "{}"); } catch { return send(400, "not JSON\n", "text/plain"); }
+        const r = await serverDraft(state.desk, body, env, today, fetchImpl);
+        if (r.status === 200) save();
+        return send(r.status, JSON.stringify(r.json), "application/json");
       }
       if (url.pathname === "/api/today" && req.method === "GET") return send(200, JSON.stringify(todayQueue(state.desk, today)), "application/json");
       return send(404, "not found\n", "text/plain");

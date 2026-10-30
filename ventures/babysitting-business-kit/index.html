@@ -69,6 +69,7 @@
     <button type="button" role="tab" data-tab="website">Website</button>
     <button type="button" role="tab" data-tab="content">Content</button>
     <button type="button" role="tab" data-tab="print">Print</button>
+    <button type="button" role="tab" data-tab="blog">Posts &amp; blog</button>
     <button type="button" role="tab" data-tab="settings">Settings</button>
   </nav>
 
@@ -301,6 +302,11 @@
       <div id="pr_stats"></div>
     </section>
 
+    <section data-panel="blog" class="card" hidden>
+      <h2>Posts &amp; blog</h2>
+      <div id="contentKit"></div>
+    </section>
+
     <section data-panel="settings" class="card" hidden>
       <h2>Settings: you, your rates, your limits</h2>
       <form id="profileForm">
@@ -393,6 +399,7 @@
     import * as R from "./references.mjs";
     import * as P from "./print.mjs";
     import { mountAutomations } from "./automations-ui.mjs";
+    import { mountContent } from "./content-ui.mjs";
 
     const STORE = "babysitting-business-kit-desk";
     const SYNC = "babysitting-business-kit-sync";
@@ -879,6 +886,7 @@
     if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
     renderAutomations = mountAutomations({ getDesk: () => desk, save, esc, record });
     $("contentStart").value = today();
+    mountContent($("contentKit"), { getDesk: () => desk, save, record, today, buildSite: (d) => E.buildSite(d) });
     record("page_loaded");
     render();
     show("today");
