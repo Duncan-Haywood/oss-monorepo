@@ -22,6 +22,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { buildShed } from './model.mjs';
 import { meshOf, solidsOf } from './render3d.mjs';
 import { BUDGET, COVERINGS, RENDER_VERSION, VIEWS, altFor, designKey, renderTargets } from './renders.mjs';
+import { GALLERY_DESIGNS } from './gallery-data.mjs';
 import { SIZES, design as sizeDesign } from './make-size-pages.mjs';
 
 const ROOT = fileURLToPath(new URL('.', import.meta.url));
@@ -67,9 +68,14 @@ export function sizeTargets() {
   return SIZES.map(([w, l, base]) => ({ slug: `size-${w}x${l}`, key: `${w}x${l} size page`, design: sizeDesign(w, l, base), views: ['hero'] }));
 }
 
-/** Everything `make-renders.mjs` draws: the presets (every view) and the size pages' designs. */
+/** The ready-design gallery (gallery-data.mjs): the strip's card picture each; the detail draws the rest live. */
+export function galleryTargets() {
+  return GALLERY_DESIGNS.map((g) => ({ slug: `gallery-${g.id}`, key: g.title, design: g.design, views: ['card'] }));
+}
+
+/** Everything `make-renders.mjs` draws: the presets (every view), the size pages' designs and the gallery's cards. */
 export function allTargets() {
-  return [...renderTargets(), ...sizeTargets()];
+  return [...renderTargets(), ...sizeTargets(), ...galleryTargets()];
 }
 
 export function readManifest() {

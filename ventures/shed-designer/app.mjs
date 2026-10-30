@@ -20,6 +20,7 @@ import { quoteRequest, mailtoLink, STORES } from './quote.mjs';
 import { PRODUCTS } from './products.mjs';
 import { storeComparison, swapsFor, storeTotals, storeList, pricesFor } from './catalog.mjs';
 import { simplify, cutMetrics, budget, laborHours } from './simplify.mjs';
+import { galleryEntries, mountStripNav } from './gallery-ui.mjs';
 import { showCosts, wireCosts, bridgeHtml, breakdownOf, deltaSentence } from './costview.mjs';
 import { costDelta, deltaPhrase } from './costs.mjs';
 import { valueComparison, valueHtml } from './value.mjs';
@@ -1054,8 +1055,10 @@ load();
 wire();
 render();
 // Ready-made designs to look at, compare and start from (picker.mjs).
+// The strip shows the ready-design gallery (gallery.mjs); the presets stay in the New design menu.
 picker = mountPicker({
   root: $('#starts'), dialog: $('#pick-dialog'), tray: $('#compare-tray'),
+  entries: galleryEntries(),
   prices: () => state.prices, priceOf: (shed) => storeEstimate(shed), count,
   onStart(d) {
     state.designs.push(normalize(d));
@@ -1066,4 +1069,5 @@ picker = mountPicker({
     $('#workspace').scrollIntoView({ behavior: 'smooth' });
   },
 });
+mountStripNav({ track: $('#starts .pick-list'), prev: $('#starts-prev'), next: $('#starts-next'), pos: $('#starts-pos') });
 if (linkNote) $('#status').textContent = linkNote;
