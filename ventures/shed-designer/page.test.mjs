@@ -13,7 +13,7 @@ test('every element the app looks up by id is on the page', () => {
 
 test('form fields the app reads exist with labels', () => {
   const fields = app.match(/const FIELDS = \[([^\]]+)\]/)[1].match(/'(\w+)'/g).map((s) => s.slice(1, -1));
-  for (const f of fields) assert.match(html, new RegExp(`<label[^>]*>[^<]*<input id="${f}"|<label[^>]*>[^<]*<select id="${f}"|<label class="check"><input id="${f}"`), f);
+  for (const f of fields) assert.match(html, new RegExp(`<label[^>]*>[^<]*<input id="${f}"|<label[^>]*>[^<]*(<span class="swatchrow">)?<select id="${f}"|<label class="check"><input id="${f}"`), f);
 });
 
 test('the page carries the disclaimer, privacy line, opt-out and sponsor link', () => {
