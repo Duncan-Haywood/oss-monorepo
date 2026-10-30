@@ -2,6 +2,19 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-30 · Milestone 6am: is the guarded screen's J_hat cutoff (0.3) a knife edge? (planned before running; ran straight through)
+- Why: 6ak chose 0.3 before looking and never swept it (6al's "Limits"). `experiments/h6am_tau.py` reruns 6al's screen + guard G = 20 with TAU in {0.1, 0.2, 0.3, 0.4, 0.5}; same data, cached Qwen scores, seed, rules and 500 draws (+/- 2 points). A second corpus with a new informative coder was not possible this session (Hugging Face returns 403 through the proxy and torch is not installed), so this closes the cheaper limit instead.
+- **Prediction (before running):** WE coverage stays at least 92.5% and half-width within 3% of the TAU = 0.3 row in every cell, except that TAU = 0.1 picks cells more often on NaijaSenti 1.5B and 3B and is up to 3% wider there. Refuted if any cell moves more.
+
+### Outcome (`experiments/h6am_tau.txt`)
+- GoEmotions admiration, fear and sadness are identical across TAU 0.1 to 0.4 (the guard decides: cells 0% at n = 400, 86% for admiration at n = 1000; fear and sadness 0%). Admiration at TAU 0.5 loses 2 draws in 100 to pooling, half-width 1.167 vs 1.166.
+- Neutral (J about 0.17) is the only category where TAU matters: cells in 74% / 87% of draws at 0.1 (n = 400 / 1000), 13% / 2% at 0.3, 0% at 0.5, with half-width 3.928 to 3.955 (n = 400) and 2.370 to 2.381 (n = 1000), under 1% apart. Coverage 93.8 to 96.4%.
+- NaijaSenti: 0.5B (true J 0.008) never uses cells at TAU 0.2 and up (0.1: 2% of draws at n = 400, half-width 4.435 vs 4.421). 3B: TAU 0.1 uses cells in 18% of draws at n = 400 and is 3.9% wider (4.534 vs 4.364); from 0.2 it is level with 0.3. 1.5B (J 0.208) goes from cells in 87% / 97% of draws at 0.1 to 0% at 0.4, with half-width 4.315 to 4.325 (n = 400) and 2.585 to 2.590 (n = 1000); coverage 94.0 to 96.6%.
+- Lowest WE coverage in any cell is 92.6% (NaijaSenti 0.5B, n = 1000, identical at every TAU, so not a TAU effect). **Prediction held except one cell:** NaijaSenti 3B at TAU 0.1, n = 400 is 3.9% wider, over the 3% bound.
+- Reading: with the prevalence guard in place, any TAU from 0.2 to 0.5 gives the same answer to within 1% in width; 0.3 is not a knife edge, and the one place the cutoff has any effect (a coder with J near 0.2) it costs under 1% either way. 0.1 is a little too eager on an empty coder.
+- Limits: the same four coders and two corpora as 6al; no new informative coder on a second corpus (still open, needs model weights); 500 draws.
+- Next: an informative coder on a second corpus once weights are reachable.
+
 ## 2026-10-30 · Milestone 6al: does a prevalence guard (cells only if the pilot holds at least G human positives) make 6ak's screen valid on rare categories? (planned before running)
 - Why: 6ak's "Next". `experiments/h6al_guard.py` adds to 6ak's screen the condition "pilot human positives >= G", G in {10, 20}, else one pooled stratum. Same data, coders, rules, seed, n = 400 and 1000, 500 draws (+/- 2 points).
 - **Predictions (before running):** (1) With G = 20 the screen covers at least 93% (WE) in fear and sadness at both n, since it almost always pools there. (2) On admiration at n = 1000 (about 24 pilot positives of 300) G = 20 still uses cells in over half of draws and keeps at least 70% of the gain; at n = 400 (about 10 pilot positives) G = 20 pools in over 90% of draws, so the gain is lost there. (3) G = 10 is a middle: admiration n = 400 uses cells in over half of draws, fear/sadness at n = 1000 may still undercover. (4) NaijaSenti and neutral are unchanged from 6ak (within 0.5 point and 1% width).
