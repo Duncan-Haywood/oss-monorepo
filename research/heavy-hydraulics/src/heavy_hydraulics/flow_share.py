@@ -27,14 +27,17 @@ def bypass_area(q_pump, p_n):
     return q_pump / sqrt(p_n)
 
 
-def section_area(q_i, p_i, q_pump, a_b0, k=1.0):
+def section_area(q_i, p_i, q_pump, a_b0, k=1.0, p_max=250.0):
     """Area that passes q_i alone at load pressure p_i with the bypass closed down to a_b0 - k A_i (k = 1: the bypass area shrinks one-for-one with the section
     opening; k > 1 closes faster, k < 1 slower)."""
     def resid(ps):
         a = q_i / sqrt(ps - p_i)
         return (a_b0 - k * a) * sqrt(ps) - (q_pump - q_i)
     # resid falls from +inf-ish near p_i; root exists when q_i < q_pump
-    ps = _bisect(resid, p_i + 1e-6, p_i + 400.0)
+    hi = p_i + 400.0
+    while resid(hi) < 0:  # a fast-closing bypass (large k) puts the sizing root far above 400 bar
+        hi = p_i + 2.0 * (hi - p_i)
+    ps = min(_bisect(resid, p_i + 1e-6, hi), p_max)  # a sizing pressure above relief cannot occur: size at relief
     return q_i / sqrt(ps - p_i)
 
 

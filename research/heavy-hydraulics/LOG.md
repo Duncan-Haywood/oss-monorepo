@@ -2,6 +2,17 @@
 
 Newest first.
 
+## 2026-10-30 · Milestone 3e: does fixing the section-sizing bracket remove 3d's k = 20 artefact? (planned before running)
+- Why: 3d found `section_area` brackets the sizing pressure at p_i + 400 bar, so at large k the root lay outside it and the k = 20 row at 10.9 bar was non-monotone (median 8.66%). Fix: widen the bracket by doubling, then cap the sizing pressure at the 250 bar relief (a section cannot be sized at a pressure the circuit never reaches; it is sized at relief, so it passes at least its demand).
+- **Prediction (before running):** the penalty is non-increasing in k at both neutral drops, and the k = 20 row at 10.9 bar drops to a median of 0% (prior 80%). Refuted if any row rises with k, or k = 20 stays above 1%.
+
+### Outcome of 3e (`experiments/flow_share_shape_results.txt`, 3 s, seeded; 1 new test, 13 pass)
+- Only the p_n 10.9 bar rows k = 10 and k = 20 changed: k = 10 p95 6.69% -> 0.00% (its median was already 0), k = 20 median 8.66% -> 0.00%, p95 14.18% -> 0.00%. Every other row is identical to 3b/3d. Prediction held; the table is monotone in k. 3d's "k = 10 p95 6.69%" was also affected by the bracket, so it should be read as 0.
+- A first attempt (widening the bracket only, no cap) made k = 20 *worse* (median 17.1%): the sizing root then sat above relief and sections came out too small to pass their demand at any reachable pressure. That is the same out-of-domain sizing, seen from the other side; the cap is what removes it.
+- Reading: with the solver fixed, the open-centre cycle-time penalty for the PVG 32 neutral drop is 0% median and 0% p95 once the bypass closes about 10 times faster than the section opens, and under 2% p95 from k = 3. 3d's conclusion (energy ranking stands without a time penalty) is unchanged and no longer rests on a solver artefact.
+- Limits: unchanged from 3d (k is one number, the dead-band closure is read qualitatively from a manual page, factor-2 stall bound, no compensator, feathering or dynamics). Sizing at relief is a modelling choice for the out-of-domain corner.
+- Next: size sections by the manual's rated flows A to E instead of by demand, then a time-penalised energy ranking.
+
 ## 2026-10-30 · Milestone 3d: what does the PVG 32 manual say about how fast the bypass closes? (planned before running)
 - Why: 3b's "Next" was to fit k from a bypass-versus-stroke curve. Opened this session (assets.danfoss.com now resolves): Danfoss PVG 32 Technical Information BC152886483664en-001601, July 2024 (the 2n source was the May 2021 revision), p. 95: "In total neutral position the connection to tank is less than 10 % of the full flow function. But when moving the spool out of neutral position but still within dead band area the connection will close." The same page's flow-versus-stroke curves show zero work-port flow for roughly the first 1.5 to 2 mm of a 7 mm stroke. The manual has **no** bypass-area-versus-stroke curve, so k cannot be fitted; it gives a bound: the bypass is shut before any section opens, which in 3a's terms is a large k.
 - Plan: add k = 5, 10, 20 to `experiments/flow_share_shape.py` (same cycles as 3b).

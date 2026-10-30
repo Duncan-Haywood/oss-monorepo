@@ -86,3 +86,10 @@ def test_flow_share_ls_factor_is_one_inside_pump_flow_and_scales_beyond():
     from flow_share_ls import ls_factor
     assert ls_factor([(50.0, 20.0), (100.0, 20.0)], 45.0) == 1.0
     assert abs(ls_factor([(50.0, 40.0), (100.0, 40.0)], 45.0) - 80.0 / 45.0) < 1e-12
+
+
+def test_flow_share_penalty_never_rises_as_bypass_closes_faster():
+    from heavy_hydraulics.flow_share import phase_slowdown
+    d = [(40.0, 20.0), (160.0, 20.0)]
+    slow = [phase_slowdown(d, 45.0, 10.9, k) for k in (1.0, 3.0, 10.0, 20.0, 50.0)]
+    assert all(a >= b - 1e-9 for a, b in zip(slow, slow[1:]))
