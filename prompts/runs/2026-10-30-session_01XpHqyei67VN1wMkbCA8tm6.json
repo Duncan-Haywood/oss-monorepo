@@ -70,7 +70,7 @@
     "docs/reports/shed-designer-round4-lane2.md"
   ],
   "goal": null,
-  "notes": "Round 4 lane 2 (saltbox, gambrel and lean-to depth). Merged #11862 (saltbox engine), #11899 (saltbox drawings, 3D, editor, steps, HOA, preset), #11905 (gusset plywood check against APA PDS D510-2020; knee gussets were 334%, now sized to 85%; gambrel search knobs and a usable-storage objective), #11911 (loft ladder and IRC R807.1 hatch), #11910 (lean-to clerestory layout). Open at record time: #11917 (gambrel wind uplift and tie brace) and #11920 (saltbox in the search, this record). Verification per PR: full venture suite once (latest 466 tests, 0 fail, 3 skipped for axe-core), typecheck 56 files 0 diagnostics, make-renders up to date, byte-identical snapshots of gable/lean-to/barn output where the change should not touch them.",
+  "notes": "Round 4 lane 2 (saltbox, gambrel and lean-to depth). Merged #11862 (saltbox engine), #11899 (saltbox drawings, 3D, editor, steps, HOA, preset), #11905 (gusset plywood check against APA PDS D510-2020; knee gussets were 334%, now sized to 85%; gambrel search knobs and a usable-storage objective), #11911 (loft ladder and IRC R807.1 hatch), #11910 (lean-to clerestory layout). Also merged #11917 (gambrel wind uplift and tie brace); #11920 (saltbox in the search) carries this record. Verification per PR: full venture suite once (latest 466 tests, 0 fail, 3 skipped for axe-core), typecheck 56 files 0 diagnostics, make-renders up to date, byte-identical snapshots of gable/lean-to/barn output where the change should not touch them.",
   "corrections": [],
   "redteam": null
 }
