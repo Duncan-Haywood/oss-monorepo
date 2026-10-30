@@ -6,6 +6,19 @@ import check_llms_txt_links as c
 
 
 class DeadLinks(unittest.TestCase):
+    def test_build_time_generated_page_is_not_dead(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            (root / "platform" / "pages").mkdir(parents=True)
+            (root / "platform/pages/generated-pages.mjs").write_text("export const GENERATED_PAGES = {\n  'foo': 'make.mjs',\n};\n")
+            v = root / "ventures" / "foo"
+            v.mkdir(parents=True)
+            (v / "make.mjs").write_text("const files = { 'by-size.html': 1 };")
+            (v / "llms.txt").write_text(
+                "- [gen](https://example.invalid/foo/by-size.html)\n- [bad](https://example.invalid/foo/other.html)\n"
+            )
+            self.assertEqual([u for _, u, _ in c.dead_links(root)], ["https://example.invalid/foo/other.html"])
+
     def test_finds_only_dead_links(self):
         with tempfile.TemporaryDirectory() as d:
             root = Path(d)
