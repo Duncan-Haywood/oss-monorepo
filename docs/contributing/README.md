@@ -44,7 +44,6 @@ that.
 | `docs/posts/` | Articles for readers, built from the same work | Read them like a blog, or write one: [`writing.md`](writing.md) |
 | `docs/history/` | Records of process decisions | No |
 | "Run record", "track", "flagship", "deviation" in PRs | Bookkeeping for agent sessions | No |
-| `gitops/`, `bootstrap/`, `infra/` | A retired self-hosted cluster; the live site is on Cloudflare | No; do not try to deploy it |
 | `PRODUCT_PLAYBOOK.md` | How a tool should be built: disclaimer text, privacy, what "done" means | Section 5 ("Every product ships these five things") is worth reading before you add a page |
 
 ## Where the live site comes from

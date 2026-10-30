@@ -4,7 +4,7 @@ export const GALLERY_DESIGNS = [
  {
   "id": "cheapest",
   "title": "Cheapest 8x10",
-  "reason": "The lowest price of the 738 designs the search kept with every finish free to change ($2,702 when it ran).",
+  "reason": "The lowest price of the 647 designs the search kept with every finish free to change ($2,661 when it ran).",
   "design": {
    "name": "Cheapest 8x10",
    "length": 120,
@@ -20,7 +20,7 @@ export const GALLERY_DESIGNS = [
    "rafterSize": "2x4",
    "rafterSpacing": 24,
    "tieSize": "2x4",
-   "roofType": "ridgeBoard",
+   "roofType": "truss",
    "style": "gable",
    "frontPitch": 10,
    "gambrelLower": 20,
@@ -111,7 +111,7 @@ export const GALLERY_DESIGNS = [
  {
   "id": "value",
   "title": "Most room per dollar, 8x12",
-  "reason": "The most room inside for the money of the 738 designs the search kept, counting only space you can load.",
+  "reason": "The most room inside for the money of the 647 designs the search kept, counting only space you can load.",
   "design": {
    "name": "Most room per dollar, 8x12",
    "length": 144,
@@ -325,7 +325,7 @@ export const GALLERY_DESIGNS = [
  {
   "id": "storage",
   "title": "Most storage 10x10",
-  "reason": "The most room inside of the 738 designs the search kept in a size no card before it in the strip shows, counting only space you can load (the room, and roof space open to it or over a deck); this one is open to the roof.",
+  "reason": "The most room inside of the 647 designs the search kept in a size no card before it in the strip shows, counting only space you can load (the room, and roof space open to it or over a deck); this one is open to the roof.",
   "design": {
    "name": "Most storage 10x10",
    "length": 120,
@@ -666,7 +666,7 @@ export const GALLERY_DESIGNS = [
  {
   "id": "house-cheapest",
   "title": "Cheapest lap-sided 7x12",
-  "reason": "The lowest price of the 691 designs kept with painted lap siding and shingles in a size no card before it in the strip shows ($3,052 when it ran).",
+  "reason": "The lowest price of the 634 designs kept with painted lap siding and shingles in a size no card before it in the strip shows ($3,052 when it ran).",
   "design": {
    "name": "Cheapest lap-sided 7x12",
    "length": 84,
@@ -773,7 +773,7 @@ export const GALLERY_DESIGNS = [
  {
   "id": "barn",
   "title": "Barn for storage 7x14",
-  "reason": "A gambrel roof: steep lower slopes and a shallow top put the most room under the gallery's 13 ft height limit. The most room per dollar of the 146 barns its own search kept in painted lap siding and shingles in a size no card before it in the strip shows. Searched apart from the other cards, which show gables and lean-tos.",
+  "reason": "A gambrel roof: steep lower slopes and a shallow top put the most room under the gallery's 13 ft height limit. The most room per dollar of the 146 barns its own search kept in painted lap siding and shingles in a size no card before it in the strip shows. Searched apart from the other cards, which search gables, lean-tos and saltboxes.",
   "design": {
    "name": "Barn for storage 7x14",
    "length": 168,
@@ -1007,7 +1007,7 @@ export const GALLERY_DESIGNS = [
  {
   "id": "long",
   "title": "Long 6x16",
-  "reason": "Narrow and long, for a side yard or along a fence; the most room per dollar of the 14 ft and longer sheds kept in a size no card before it in the strip shows.",
+  "reason": "Narrow and long, for a side yard or along a fence; the most room per dollar of the 14 ft and longer sheds kept.",
   "design": {
    "name": "Long 6x16",
    "length": 192,

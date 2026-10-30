@@ -1,9 +1,8 @@
 # ubuntu-agent-server
 
-The Hetzner k3s + Argo path for the two Helsinki boxes lives at the repo
-root: [`infra/`](../../infra/), [`bootstrap/`](../../bootstrap/),
-[`gitops/`](../../gitops/). This Ansible playbook stays as the LAN /
-Tailscale single-box runner. Do not dual-drive the same host with both.
+The Hetzner k3s + Argo path for the two Helsinki boxes was retired on
+2026-10-01 and its trees (`infra/`, `bootstrap/`, `gitops/`) deleted on
+2026-10-30. This Ansible playbook is the LAN / Tailscale single-box runner.
 
 Ansible playbook to provision a fresh **Ubuntu Server** install into a 24/7
 host that has coding agents — Claude Code, OpenAI Codex CLI, Antigravity CLI

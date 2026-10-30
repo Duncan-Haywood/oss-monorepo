@@ -409,6 +409,7 @@ the sources, and mark legend as legend)
 - *(Done: Patrick and the Hundred Prayers, 17 March; the Confessio's own words; shamrock and snakes left out; text only.)* The captive shepherd boy, the hundred prayers, the ship that was ready.
 - *(Done: Philip Neri and the Happy Walk, 26 May; history in outline, "Be good, if you can" told as tradition, miracles left out; text only.)* Saint Philip Neri, games and the seven-churches walk.
 - *(Done: Zita and the Bread in the Oven, 27 April; not in the General Roman Calendar, in the Martyrology; bread baked by angels told as legend; text only.)* Saint Zita, a Lucca servant, work and prayer together.
+- *(Done: Brendan and the Island That Was a Whale, 16 May; not in the General Roman Calendar, in the Martyrology; the Navigatio's voyage (whale, singing birds) told as legend from a ninth/tenth-century text; text only.)* Saint Brendan of Clonfert and the monks' leather boat.
 
 ## What not to do
 

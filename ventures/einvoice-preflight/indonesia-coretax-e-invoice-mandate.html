@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e551b'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EE%3C/text%3E%3C/svg%3E"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Indonesia e-invoicing: Coretax faktur pajak, the 16-digit NPWP and a free format check | E-invoice Preflight</title>
+<meta name="description" content="Indonesia issues VAT invoices (faktur pajak) electronically through the tax authority's Coretax system since 1 January 2025 (PMK 81/2024). How it works as secondary summaries report it, where sources are thin, and a free NPWP format test.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/indonesia-coretax-e-invoice-mandate.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Indonesia e-invoicing: Coretax faktur pajak, the 16-digit NPWP and a free format check | E-invoice Preflight">
+<meta property="og:description" content="Indonesia issues VAT invoices (faktur pajak) electronically through the tax authority's Coretax system since 1 January 2025 (PMK 81/2024). How it works as secondary summaries report it, where sources are thin, and a free NPWP format test.">
+<meta property="og:url" content="https://example.invalid/einvoice-preflight/indonesia-coretax-e-invoice-mandate.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is an Indonesian e-invoice?","acceptedAnswer":{"@type":"Answer","text":"In Indonesia the VAT invoice is the faktur pajak. Taxable entrepreneurs (PKP) issue it electronically, and since 1 January 2025 through the tax authority's Coretax system, which replaced the older e-Faktur application (PMK 81/2024; secondary summaries say the move was to be complete by 31 December 2025, with large taxpayers allowed the desktop or host-to-host route). Reported rule: an invoice is uploaded and approved in Coretax, which assigns the serial number, and an unapproved one is not a tax invoice. Confirm with the tax authority (DJP) or your accountant."}},{"@type":"Question","name":"What is the NPWP format in Coretax?","acceptedAnswer":{"@type":"Answer","text":"Per the tax authority's own article on Coretax, the NPWP has 16 digits. A citizen who is an individual uses the population ID number (NIK) as the NPWP; a company or government body uses its old 15-digit NPWP with a 0 added in front. An NIK cannot be used for tax transactions such as creating an e-Faktur until it is matched and activated in Coretax. The test on this page checks length only: no check digit rule was found in a source."}},{"@type":"Question","name":"What are the transaction codes and the number format?","acceptedAnswer":{"@type":"Answer","text":"Vendor guides say Coretax has ten transaction codes (for example 01 for general supplies, 02 for supplies to government treasurers and 04 for other tax base values) and that the serial number changed from 16 to 17 digits, structured AA.BB.CC.XXXXXXXXX with the transaction code, a replacement code and the year. No official source for this was read, so treat it as unconfirmed."}},{"@type":"Question","name":"What happens if an invoice is wrong or not issued?","acceptedAnswer":{"@type":"Answer","text":"Vendor guides describe two ways to correct: a replacement invoice or a cancelled invoice, and say using the wrong one is a common cause of trouble. Reported consequences of not issuing a proper invoice are input VAT that cannot be credited and administrative penalties; PMK 81/2024 reportedly lets the director general deactivate access to create tax invoices for entrepreneurs who break the rules (DDTC News). No penalty amount for invoices was found, so none is stated."}},{"@type":"Question","name":"Can this checker validate an Indonesian invoice?","acceptedAnswer":{"@type":"Answer","text":"No. It does not read the Coretax XML or upload format, cannot obtain an approval or serial number from the tax authority, and has no Indonesian rules. It tests an NPWP's shape on this page, and a clean result is not an approval by the tax authority."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch}.lede{font-size:1.05rem;max-width:64ch;color:#3d4f5f}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #15202b10;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #d3dbe4;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#3d4f5f}.fine,.note{font-size:.88rem;color:#3d4f5f}footer{color:#3d4f5f;font-size:.86rem}footer p{margin:.6rem 0}.out{min-height:1.4em}.good{color:#0a6b3a;font-weight:600}.bad{color:#a12d1b}input{font:inherit;padding:.4rem .5rem;border:1px solid #9fb0c0;border-radius:8px}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; E-invoice Preflight</a></p>
+<header>
+<h1>Indonesia: faktur pajak through Coretax</h1>
+<p class="lede">In Indonesia, per the sources read, VAT invoices (faktur pajak) are issued electronically, and since 1 January 2025 through the tax authority&rsquo;s Coretax system under PMK 81/2024. Below: how it works as secondary summaries report it, where the sources are thin, and a local check of an NPWP&rsquo;s shape.</p>
+</header>
+<section>
+<h2>How it works (as secondary summaries report)</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Step</th><th scope="col">What happens</th></tr></thead>
+<tbody>
+<tr><td>Identify</td><td>The seller is a taxable entrepreneur (PKP) with an NPWP. In Coretax it has 16 digits: an individual citizen&rsquo;s population ID (NIK), or a company&rsquo;s old 15-digit number with a 0 in front (the tax authority&rsquo;s own article).</td></tr>
+<tr><td>Issue</td><td>The invoice is created and uploaded in Coretax and approved there; approval assigns the serial number, and an unapproved e-Faktur is not a tax invoice (vendor guides). Vendor guides give a deadline of the 20th of the following month for upload and approval.</td></tr>
+<tr><td>Codes</td><td>Ten transaction codes, such as 01 for general supplies, 02 for government treasurers and 04 for other tax base values, and a 17-digit serial number (vendor guides; unconfirmed against the tax authority).</td></tr>
+<tr><td>Correct</td><td>A replacement invoice or a cancelled invoice, depending on the error (vendor guides).</td></tr>
+<tr><td>Enforce</td><td>PMK 81/2024 reportedly allows the tax authority to deactivate a non-compliant entrepreneur&rsquo;s access to create tax invoices; input VAT on a defective invoice may not be creditable.</td></tr>
+</tbody>
+</table>
+</div>
+<p class="fine">Reported by pajak.go.id (search excerpts), DDTC News, fiscal-requirements.com and vendor guides, read through web search only: the hosts were unreachable for a full read, and PMK 81/2024 and the later director general regulations were not read. Where it is unsettled: the serial number length and structure (sources differ), the upload deadline, the transition end date for large taxpayers, and every penalty amount for invoices (none found, so none is stated). A summary, not tax advice.</p>
+</section>
+<section>
+<h2>Check an NPWP</h2>
+<p>Tests the shape only: 15 digits (the old form) or 16 digits; dots, dashes and spaces are ignored. No check digit rule was found in a source, so none is applied. It does not look anything up, so it cannot say whether the number is registered, matched to an NIK in Coretax, or belongs to the name on the invoice.</p>
+<label>NPWP <input id="id" size="24" maxlength="26" autocomplete="off" spellcheck="false" placeholder="01.234.567.8-012.345"></label>
+<p id="id-out" class="out" aria-live="polite"></p>
+</section>
+<section>
+<h2>What this checker does and does not cover</h2>
+<p>The main checker reads UBL, CII and Factur-X and applies EN 16931 and Peppol rules. It does <strong>not</strong> read Coretax&rsquo;s upload XML, cannot obtain or verify an approval or serial number, and has no Indonesian schema or codes. Treat the NPWP test here as a typo catch only.</p>
+</section>
+<section>
+<h2>Test a file before you send it</h2>
+<p>For a European or Peppol invoice, open the <a href="./">checker</a>, drop your XML and read the findings, each with a rule ID and a fix (<a href="what-does-this-e-invoice-error-code-mean.html">the rule reference</a>). No account, nothing uploaded. No invoice yet? The <a href="create.html">e-invoice creator</a> turns a form into UBL or CII XML and checks it. Other countries: <a href="e-invoicing-mandates-by-country.html">all side by side</a> <a href="vietnam-e-invoice-mandate.html">Vietnam</a> <a href="malaysia-myinvois-e-invoice-mandate.html">Malaysia</a> <a href="singapore-invoicenow-e-invoice-mandate.html">Singapore</a> <a href="india-gst-e-invoice-mandate.html">India</a> <a href="paraguay-dnit-e-invoice-mandate.html">Paraguay</a>.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>What is an Indonesian e-invoice?</h3>
+<p>In Indonesia the VAT invoice is the faktur pajak. Taxable entrepreneurs (PKP) issue it electronically, and since 1 January 2025 through the tax authority's Coretax system, which replaced the older e-Faktur application (PMK 81/2024; secondary summaries say the move was to be complete by 31 December 2025, with large taxpayers allowed the desktop or host-to-host route). Reported rule: an invoice is uploaded and approved in Coretax, which assigns the serial number, and an unapproved one is not a tax invoice. Confirm with the tax authority (DJP) or your accountant.</p>
+<h3>What is the NPWP format in Coretax?</h3>
+<p>Per the tax authority's own article on Coretax, the NPWP has 16 digits. A citizen who is an individual uses the population ID number (NIK) as the NPWP; a company or government body uses its old 15-digit NPWP with a 0 added in front. An NIK cannot be used for tax transactions such as creating an e-Faktur until it is matched and activated in Coretax. The test on this page checks length only: no check digit rule was found in a source.</p>
+<h3>What are the transaction codes and the number format?</h3>
+<p>Vendor guides say Coretax has ten transaction codes (for example 01 for general supplies, 02 for supplies to government treasurers and 04 for other tax base values) and that the serial number changed from 16 to 17 digits, structured AA.BB.CC.XXXXXXXXX with the transaction code, a replacement code and the year. No official source for this was read, so treat it as unconfirmed.</p>
+<h3>What happens if an invoice is wrong or not issued?</h3>
+<p>Vendor guides describe two ways to correct: a replacement invoice or a cancelled invoice, and say using the wrong one is a common cause of trouble. Reported consequences of not issuing a proper invoice are input VAT that cannot be credited and administrative penalties; PMK 81/2024 reportedly lets the director general deactivate access to create tax invoices for entrepreneurs who break the rules (DDTC News). No penalty amount for invoices was found, so none is stated.</p>
+<h3>Can this checker validate an Indonesian invoice?</h3>
+<p>No. It does not read the Coretax XML or upload format, cannot obtain an approval or serial number from the tax authority, and has no Indonesian rules. It tests an NPWP's shape on this page, and a clean result is not an approval by the tax authority.</p>
+<p class="note">Open the <a href="./">E-invoice Preflight</a> checker to validate your own invoice file.</p>
+</section>
+<section>
+<h2>More countries</h2>
+<p><a href="australia-e-invoice-mandate.html">Australia</a> <a href="austria-e-invoice-mandate.html">Austria</a> <a href="belgium-e-invoice-mandate.html">Belgium</a> <a href="brazil-nfe-e-invoice-mandate.html">Brazil</a> <a href="bulgaria-e-invoice-mandate.html">Bulgaria</a> <a href="croatia-e-invoice-mandate.html">Croatia</a> <a href="cyprus-e-invoice-mandate.html">Cyprus</a> <a href="czech-republic-e-invoice-mandate.html">Czech Republic</a> <a href="denmark-e-invoice-mandate.html">Denmark</a> <a href="estonia-e-invoice-mandate.html">Estonia</a> <a href="finland-e-invoice-mandate.html">Finland</a> <a href="france-e-invoice-mandate.html">France</a> <a href="germany-e-invoice-mandate.html">Germany</a> <a href="greece-mydata-e-invoice-mandate.html">Greece</a> <a href="hungary-e-invoice-mandate.html">Hungary</a> <a href="ireland-e-invoice-mandate.html">Ireland</a> <a href="italy-sdi-e-invoice-mandate.html">Italy</a> <a href="latvia-e-invoice-mandate.html">Latvia</a> <a href="lithuania-e-invoice-mandate.html">Lithuania</a> <a href="luxembourg-e-invoice-mandate.html">Luxembourg</a> <a href="malta-e-invoice-mandate.html">Malta</a> <a href="netherlands-e-invoice-mandate.html">Netherlands</a> <a href="norway-e-invoice-mandate.html">Norway</a> <a href="poland-ksef-e-invoice-mandate.html">Poland</a> <a href="portugal-e-invoice-mandate.html">Portugal</a> <a href="romania-e-factura-e-invoice-mandate.html">Romania</a> <a href="serbia-e-invoice-mandate.html">Serbia</a> <a href="singapore-invoicenow-e-invoice-mandate.html">Singapore Invoicenow</a> <a href="slovakia-e-invoice-mandate.html">Slovakia</a> <a href="slovenia-e-invoice-mandate.html">Slovenia</a> <a href="spain-verifactu-e-invoice-mandate.html">Spain</a> <a href="switzerland-e-invoice-mandate.html">Switzerland</a> <a href="uk-e-invoice-mandate.html">Uk</a> <a href="india-gst-e-invoice-mandate.html">India</a> <a href="malaysia-myinvois-e-invoice-mandate.html">Malaysia</a> <a href="saudi-arabia-zatca-e-invoice-mandate.html">Saudi Arabia</a> <a href="sweden-e-invoice-mandate.html">Sweden</a> <a href="turkey-e-invoice-mandate.html">Turkey</a> <a href="uae-e-invoice-mandate.html">United Arab Emirates</a> <a href="peru-sunat-e-invoice-mandate.html">Peru</a> <a href="chile-sii-e-invoice-mandate.html">Chile</a> <a href="colombia-dian-e-invoice-mandate.html">Colombia</a> <a href="uruguay-dgi-e-invoice-mandate.html">Uruguay</a> <a href="paraguay-dnit-e-invoice-mandate.html">Paraguay</a> <a href="ecuador-sri-e-invoice-mandate.html">Ecuador</a></p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or accounting advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every check runs locally. This page is static and summarises the Indonesian position from search excerpts of secondary summaries, not from PMK 81/2024 or the tax authority&rsquo;s pages; things can change, so check the Indonesian tax authority (DJP) and the current rules before relying on it.</p>
+<p class="support">Free and open source. If it caught a defect before a rejection, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+</footer>
+<script type="module">
+import{checkNpwp}from"./indonesia.mjs";
+const $=i=>document.getElementById(i);
+const esc=t=>String(t).replace(/[&<>"']/g,c=>"&#"+c.charCodeAt(0)+";");
+function r(){const v=$("id").value;if(!v.trim()){$("id-out").innerHTML="";return}const x=checkNpwp(v);$("id-out").innerHTML=x.ok?'<span class="good">Shape is consistent.</span>':x.problems.map(p=>`<span class="bad">${esc(p)}</span>`).join("<br>")}
+$("id").addEventListener("input",r);
+</script>
+</body>
+</html>
