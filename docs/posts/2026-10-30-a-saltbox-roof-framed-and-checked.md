@@ -2,7 +2,7 @@
 title: "A saltbox roof, framed and checked: the look costs about $27 to $82"
 date: 2026-10-30
 tags: [shed-designer, framing, structure, cost]
-description: "The shed designer's engine now frames a saltbox: an off-centre ridge, two pitches, two rafter cuts and unequal wall loads. At 8x12 it costs $27 to $82 more than a gable of the same finishes, for about the same storage."
+description: "The shed designer now frames a saltbox: off-centre ridge, two pitches, unequal wall loads. At 8x12 it costs $27 to $82 more than a matching gable."
 ---
 
 A saltbox is a gable with its ridge pushed toward one side. There is a short, steep slope over the front and a long, shallow one at the back. It is the old New England farmhouse shape, and on a shed it reads as more deliberate than a plain gable. The [shed designer](https://duncan-haywood.github.io/oss-monorepo/shed-designer/)'s framing engine now builds one board by board. The plan sheets, 3D view and editor come next, so the saltbox is not in the New design menu yet.
