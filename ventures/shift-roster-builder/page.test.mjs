@@ -444,6 +444,24 @@ test("salon page numbers come from the builder", async () => {
   assert.ok(html.includes("No warranty"));
 });
 
+test("daycare page numbers come from the builder", async () => {
+  const { parseStaff, parseShifts, buildRoster } = await import("./calc.mjs");
+  const staff = parseStaff("Dana, 19, 40, 30, Mon-Fri 7-18\nEli, 17, 35, 20, Mon-Fri 7-18\nFran, 18, 30, 0, Mon-Thu 7-18\nGabe, 16, 25, 0, Mon-Fri 12-18\nHana, 17, 20, 0, Tue-Fri 7-13").staff;
+  const slots = parseShifts("Mon-Fri, 7, 9, 1, Early open\nMon-Fri, 9, 15, 3, Core hours\nMon-Fri, 15, 18, 2, Close and pickup").slots;
+  const html = page("daycare-staff-schedule.html");
+  const r = buildRoster(staff, slots, {});
+  assert.equal(r.cost, 1888);
+  assert.ok(html.includes("23 of 30 adult-shifts are covered for $1,888"));
+  const r0 = buildRoster(staff, slots, { minRestHours: 0 });
+  assert.equal(r0.cost, 2195);
+  assert.ok(html.includes("covers 29 of 30 for $2,195"));
+  assert.match(page("sitemap.xml"), /daycare-staff-schedule\.html/);
+  assert.match(page("index.html"), /daycare-staff-schedule\.html/);
+  assert.ok(html.includes("No warranty"));
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
+});
+
 test("14-day notice page: 3-days-out column repeats the posted-schedule table, FAQ matches, linked", () => {
   const html = page("predictive-scheduling-14-day-notice.html");
   const posted = page("schedule-change-after-posting.html");
