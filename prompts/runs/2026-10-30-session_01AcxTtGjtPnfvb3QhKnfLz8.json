@@ -1,0 +1,183 @@
+{
+  "date": "2026-10-30",
+  "session": "https://claude.ai/code/session_01AcxTtGjtPnfvb3QhKnfLz8",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-30T05:08:55Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "No new blog post: the run is a two-line front-matter fix plus one pager test; the fix itself repairs two posts.",
+      "did": "Shipped fixes, guard test and record only.",
+      "result": "ok"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Red baseline on platform/pages/writing.mjs: 2 committed posts (from #11684, #11685) lacked description, failing the suite and the site build. Fixed both. Campaign 8 mutants, catch 5/8 -> 6/8 equivalent excluded; after fix 100%.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "platform/pages/writing.mjs",
+        "test": "node --test platform/pages/writing.test.mjs  (in .)",
+        "seed": 457445604,
+        "commit": "e598bed78",
+        "sites": 209,
+        "baseline_seconds": 0.4,
+        "mutants": [
+          {
+            "file": "platform/pages/writing.mjs",
+            "line": 182,
+            "col": 11,
+            "operator": "neq-flip",
+            "before": "if (date !== fm[1]) throw new Error(`${POSTS_DIR}/${name}: date ${date} does not match the file name`);",
+            "after": "if (date === fm[1]) throw new Error(`${POSTS_DIR}/${name}: date ${date} does not match the file name`);",
+            "line_text": "  if (date !== fm[1]) throw new Error(`${POSTS_DIR}/${name}: date ${date} does not match the file name`);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/writing.mjs",
+            "line": 190,
+            "col": 13,
+            "operator": "const-plus-one",
+            "before": "slug: fm[2],",
+            "after": "slug: fm[3],",
+            "line_text": "    slug: fm[2],",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/writing.mjs",
+            "line": 250,
+            "col": 49,
+            "operator": "const-plus-one",
+            "before": "audio { width:100%; display:block; margin:.4em 0; }",
+            "after": "audio { width:100%; display:block; margin:.4em 1; }",
+            "line_text": "  audio { width:100%; display:block; margin:.4em 0; }",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "CSS margin on the audio element; cosmetic spacing no test or user flow depends on."
+          },
+          {
+            "file": "platform/pages/writing.mjs",
+            "line": 339,
+            "col": 9,
+            "operator": "const-plus-one",
+            "before": "depth: 2,",
+            "after": "depth: 3,",
+            "line_text": "  depth: 2,",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/writing.mjs",
+            "line": 379,
+            "col": 75,
+            "operator": "const-plus-one",
+            "before": "&& (!tag.value || li.dataset.tags.split(' ').indexOf(tag.value) >= 0)",
+            "after": "&& (!tag.value || li.dataset.tags.split(' ').indexOf(tag.value) >= 1)",
+            "line_text": "        && (!tag.value || li.dataset.tags.split(' ').indexOf(tag.value) >= 0)",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/writing.mjs",
+            "line": 411,
+            "col": 71,
+            "operator": "const-plus-one",
+            "before": "for (const t of p.tags) tagCounts.set(t, (tagCounts.get(t) || 0) + 1);",
+            "after": "for (const t of p.tags) tagCounts.set(t, (tagCounts.get(t) || 0) + 2);",
+            "line_text": "    for (const t of p.tags) tagCounts.set(t, (tagCounts.get(t) || 0) + 1);",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/writing.mjs",
+            "line": 515,
+            "col": 22,
+            "operator": "const-plus-one",
+            "before": "const older = at >= 0 && at < posts.length - 1 ? posts[at + 1] : null;",
+            "after": "const older = at >= 1 && at < posts.length - 1 ? posts[at + 1] : null;",
+            "line_text": "  const older = at >= 0 && at < posts.length - 1 ? posts[at + 1] : null;",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Newest post lost its link to the older one; added pager assertions to the build test."
+          },
+          {
+            "file": "platform/pages/writing.mjs",
+            "line": 515,
+            "col": 30,
+            "operator": "lt-to-le",
+            "before": "const older = at >= 0 && at < posts.length - 1 ? posts[at + 1] : null;",
+            "after": "const older = at >= 0 && at <= posts.length - 1 ? posts[at + 1] : null;",
+            "line_text": "  const older = at >= 0 && at < posts.length - 1 ? posts[at + 1] : null;",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "At the last index posts[len] is undefined, which is falsy, same as null in the pager."
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "docs/posts/2026-10-30-four-more-tools-an-assistant-can-describe.md",
+        "issue": "front matter lacked description; writing.test.mjs 'every committed post parses' and the site build failed",
+        "patched": true
+      },
+      {
+        "file": "docs/posts/2026-10-30-how-tall-can-a-landing-post-be.md",
+        "issue": "same missing description",
+        "patched": true
+      }
+    ]
+  }
+}
