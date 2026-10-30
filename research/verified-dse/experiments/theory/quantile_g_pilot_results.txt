@@ -1,0 +1,47 @@
+log units; pilot bound_q = sum over cuts of the q-quantile of g^(k') over a random pilot of 16 (k' = max(1, round(k*16/n)), rivals inside the pilot); violation = realised full-pool regret above it
+clock | design | start | viol@0.5 | viol@0.9 | viol@0.95
+tight | adder_op16 | r1 | 1.00 | 0.49 | 0.12
+tight | adder_op16 | r2 | 1.00 | 0.96 | 0.59
+tight | adder_ripple16 | r1 | 0.00 | 0.00 | 0.00
+tight | adder_ripple16 | r2 | 0.00 | 0.00 | 0.00
+tight | mult8 | r1 | 0.94 | 0.00 | 0.00
+tight | mult8 | r2 | 0.00 | 0.00 | 0.00
+tight | mac4 | r1 | 0.32 | 0.00 | 0.00
+tight | mac4 | r2 | 0.00 | 0.00 | 0.00
+tight | alu8 | r1 | 1.00 | 0.07 | 0.01
+tight | alu8 | r2 | 0.00 | 0.00 | 0.00
+tight | popcount16 | r1 | 1.00 | 0.01 | 0.00
+tight | popcount16 | r2 | 1.00 | 0.12 | 0.05
+tight | barrel16 | r1 | 1.00 | 0.05 | 0.00
+tight | barrel16 | r2 | 1.00 | 0.15 | 0.04
+tight | crc16 | r1 | 0.40 | 0.00 | 0.00
+tight | crc16 | r2 | 0.00 | 0.00 | 0.00
+tight | cmp_sat12 | r1 | 0.99 | 0.01 | 0.00
+tight | cmp_sat12 | r2 | 0.00 | 0.00 | 0.00
+tight | fifo8x4 | r1 | 0.99 | 0.00 | 0.00
+tight | fifo8x4 | r2 | 1.00 | 0.01 | 0.00
+relaxed | adder_op16 | r1 | 1.00 | 0.22 | 0.02
+relaxed | adder_op16 | r2 | 1.00 | 0.34 | 0.09
+relaxed | adder_ripple16 | r1 | 0.00 | 0.00 | 0.00
+relaxed | adder_ripple16 | r2 | 0.00 | 0.00 | 0.00
+relaxed | mult8 | r1 | 1.00 | 0.00 | 0.00
+relaxed | mult8 | r2 | 0.00 | 0.00 | 0.00
+relaxed | mac4 | r1 | 1.00 | 0.33 | 0.04
+relaxed | mac4 | r2 | 0.00 | 0.00 | 0.00
+relaxed | alu8 | r1 | 1.00 | 0.13 | 0.00
+relaxed | alu8 | r2 | 0.00 | 0.00 | 0.00
+relaxed | popcount16 | r1 | 1.00 | 0.06 | 0.00
+relaxed | popcount16 | r2 | 0.00 | 0.00 | 0.00
+relaxed | barrel16 | r1 | 0.96 | 0.01 | 0.00
+relaxed | barrel16 | r2 | 1.00 | 0.06 | 0.01
+relaxed | crc16 | r1 | 0.38 | 0.03 | 0.00
+relaxed | crc16 | r2 | 0.00 | 0.00 | 0.00
+relaxed | cmp_sat12 | r1 | 0.00 | 0.00 | 0.00
+relaxed | cmp_sat12 | r2 | 0.00 | 0.00 | 0.00
+relaxed | fifo8x4 | r1 | 0.97 | 0.00 | 0.00
+relaxed | fifo8x4 | r2 | 0.00 | 0.00 | 0.00
+
+40 cells x 300 pilots x 200 tie-breaks = 2400000 draws
+q=0.5: share of draws with regret above the pilot bound 0.5234; cells where that share exceeds 0.2: 23 of 40; pilot bound under the spread in over half the pilots in 40 cells; median pilot/full-table bound 0.01
+q=0.9: share of draws with regret above the pilot bound 0.0762; cells where that share exceeds 0.2: 5 of 40; pilot bound under the spread in over half the pilots in 37 cells; median pilot/full-table bound 1.05
+q=0.95: share of draws with regret above the pilot bound 0.0242; cells where that share exceeds 0.2: 1 of 40; pilot bound under the spread in over half the pilots in 36 cells; median pilot/full-table bound 1.02
