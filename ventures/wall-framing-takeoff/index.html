@@ -181,6 +181,7 @@
       <div><label for="inAtticR">Attic loose fill target R-value (blank: no attic)</label><input id="inAtticR" type="number" min="10" max="80" step="1" placeholder="e.g. 38"></div>
       <div><label for="inAtticPer">Attic R per inch (read it from the bag chart; blank: 2.5, assumed)</label><input id="inAtticPer" type="number" min="1" max="8" step="0.1" placeholder="2.5"></div>
       <div><label for="inAtticBag">Attic bag volume (cu ft; blank: no bag count)</label><input id="inAtticBag" type="number" min="0" step="0.1" placeholder="e.g. 40"></div>
+      <div><label for="inAtticHeel">Attic heel height at the eave (in; blank: not checked for eave compression)</label><input id="inAtticHeel" type="number" min="1" max="30" step="0.5" placeholder="e.g. 5"></div>
     </div>
     <p><input type="checkbox" id="stOn" style="width:auto"> <label for="stOn" style="display:inline">Also lay out a stair (equal risers under the code limit, notch geometry, stringers and treads, the stairwell opening; a rise over 147 in splits at a landing; the lumber joins the order)</label></p>
     <div class="grid" id="stFields" hidden>
@@ -651,6 +652,7 @@
           ins.attic = { rValue: Number($("#inAtticR").value) };
           if ($("#inAtticPer").value.trim()) ins.attic.rPerInch = Number($("#inAtticPer").value);
           if ($("#inAtticBag").value.trim()) ins.attic.bagCuFt = Number($("#inAtticBag").value);
+          if ($("#inAtticHeel").value.trim()) ins.attic.heel = Number($("#inAtticHeel").value);
         }
         plan.insulation = ins;
       }
@@ -1124,6 +1126,7 @@
         $("#inRim").value = ins.rim ? "true" : "";
         $("#inAtticR").value = ins.attic?.rValue != null ? String(ins.attic.rValue) : ""; $("#inAtticPer").value = ins.attic?.rPerInch != null ? String(ins.attic.rPerInch) : "";
         $("#inAtticBag").value = ins.attic?.bagCuFt != null ? String(ins.attic.bagCuFt) : "";
+        $("#inAtticHeel").value = ins.attic?.heel != null ? String(ins.attic.heel) : "";
       }
       const dkp = plan.deck && typeof plan.deck === "object" ? plan.deck : null;
       $("#dkOn").checked = Boolean(dkp); $("#dkFields").hidden = !dkp;
