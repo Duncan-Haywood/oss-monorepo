@@ -1718,7 +1718,7 @@ const RELATIVE_SELF = relative(
 // +1: `ca-crypto-acb-calculator` graduated.
 // +1: `vsme-report-builder` graduated.
 // +1: `dupehound` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 1292;
+const SWITCHES_IN_THE_CATALOGUE = 1293;
 // +1: `open-tennis-robots` graduated.
 // +1: `uk-statutory-residence-test-checker` graduated.
 // +1: `llm-spend-guard` graduated.

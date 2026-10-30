@@ -9,6 +9,7 @@ import { fmtIn, fmtFtIn } from './lumber.mjs';
 import { wallLabel } from './model.mjs';
 import { heelJoint } from './checks.mjs';
 import { trussChecks } from './truss.mjs';
+import { gambrelBuildSteps } from './gambrel-sheets.mjs';
 import { lapSteps } from './lap.mjs';
 import { sidingUpperSheets } from './estimate.mjs';
 import { finishName, SIDING_FINISHES } from './looks.mjs';
@@ -180,7 +181,9 @@ export function buildInstructions(shed, est) {
   const rafter = shed.members.find((m) => m.kind === 'rafter');
   const wallRun = W / 2 - (beam ? 1.5 : 0.75);
   const run = wallRun - k.stud;
-  if (k.truss) {
+  const gam = d.style === 'gambrel';
+  if (gam) out.push(...gambrelBuildSteps(shed, est, marks, qty, list));
+  else if (k.truss) {
     const n = trussChecks(d).nails;
     const G = k.trusses?.[0];
     const inner = k.rafterCenters.length - 2;
@@ -285,7 +288,7 @@ export function buildInstructions(shed, est) {
   else out.push({
     title: 'Gable ends',
     steps: [
-      `Fill each gable with studs under the end rafter (mark ${marks((m) => m.kind === 'gable stud')}), each on a layout mark of the wall below, its top cut to ${d.pitch}/12 (${deg(angle)}). Measure each one in place and compare with the Plans sheet; the lengths on the cut sheet are to the long point.`,
+      `Fill each gable with studs under the end ${gam ? 'chords' : 'rafter'} (mark ${marks((m) => m.kind === 'gable stud')}), each on a layout mark of the wall below, its top cut to ${gam ? 'the roof line (the lower or upper slope, or both where a stud is under the knee)' : `${d.pitch}/12 (${deg(angle)})`}. Measure each one in place and compare with the Plans sheet; the lengths on the cut sheet are to the long point.`,
       vents.length ? `Frame ${vents.length / 2 > 1 ? 'the gable vents' : 'the gable vent'} in each gable: ${fmtIn(d.ventWidth)} x ${fmtIn(d.ventHeight)} rough openings with ${ventParts}.` : '',
     ].filter(Boolean),
   });
@@ -297,6 +300,7 @@ export function buildInstructions(shed, est) {
     why: 'The fascia goes on before the drip edge, and the eave drip edge before the underlayment, so each layer laps over the one below it.',
     steps: [
       `Sheathe with 7/16" OSB, long edges across the rafters (${est.roofSheets} sheets, ${k.roofRows} courses${lean ? '' : ' a side'}). Start at the ${lean ? 'low back eave' : 'eave'} with full sheets flush with the ${d.overhang > 0 ? 'face of the sub-fascia' : 'rafter tails'}, stagger the next course by half a sheet, and land every end joint on a rafter. Leave 1/8" between sheets. The course at the ${lean ? 'high front edge' : 'ridge'} is narrower than a sheet: rip its strips side by side, as many to a sheet as fit, and take them from what is left of a sheet after a short full-width piece before starting a new one (the sheet count assumes that).`,
+      gam ? 'On the gambrel each slope gets its own courses: start the lower slope at the eave and the upper slope at the knee, so the sheets meet along the knee line, nailed to both chords.' : '',
       'Nail with 8d every 6" on the edges and every 12" in the field.',
       d.overhang > 0 ? 'Fascia: nail the 1x6 fascia to the sub-fascia, its top edge tight under the sheathing, with two 8d galvanized finish nails at each rafter tail.' : '',
       `Drip edge along the ${lean ? 'low back eave and the high front edge' : 'eaves'}, over the ${d.overhang > 0 ? 'fascia' : 'sheathing edge'} and under the underlayment.`,
@@ -332,7 +336,8 @@ export function buildInstructions(shed, est) {
       lean
         ? 'Shingles: a starter strip along the low back eave, then courses at the exposure printed on the bundle (often 5-5/8"), staggered as the wrapper shows, four to six nails per shingle as the maker specifies. At the high edge, cut the last course to fit and finish with cap shingles folded over the edge onto the fascia, nailed on the fascia side.'
         : 'Shingles: a starter strip along the eave, then courses at the exposure printed on the bundle (often 5-5/8"), staggered as the wrapper shows, four to six nails per shingle as the maker specifies. Finish the ridge with cap shingles.',
-    ],
+      gam ? 'At the knee, run the lower slope\'s courses up to the bend and lap the upper slope\'s first course over them; follow the shingle maker\'s instructions for a change in slope.' : '',
+    ].filter(Boolean),
   });
 
   out.push({
