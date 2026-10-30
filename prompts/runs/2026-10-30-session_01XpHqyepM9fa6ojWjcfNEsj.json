@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": 11867,
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -26,14 +26,21 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": null,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [],
-  "deviations": [],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Adds unattended paid automation; the owner requested it directly in this session, recorded in the workflow header, with SECURITY_AUTOFIX=off as kill switch.",
+      "did": "capped at 3 runs/hour, only when unclaimed alerts exist",
+      "result": "pending first run"
+    }
+  ],
   "writeups": [],
   "goal": null,
-  "notes": "",
+  "notes": "Owner asked for agents to fix GitHub security scan results. Added security-alert-fix.yml + platform/ci/security_alerts.py (5 unit tests pass); validate_workflows and the repo's actions-* checkers clean on the new file. Could not read live alerts from the container (API 403 without auth), so the first real run is the end-to-end test.",
   "corrections": [],
   "redteam": null
 }
