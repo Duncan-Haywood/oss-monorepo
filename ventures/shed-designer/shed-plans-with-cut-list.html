@@ -20,6 +20,10 @@
     td.n { text-align: right; font-variant-numeric: tabular-nums; }
     .cta { display: inline-block; background: #24392b; color: #f8f5eb; padding: 12px 20px; border-radius: 999px; font-weight: 700; text-decoration: none; }
     .note { background: #fffdf8; border: 1px solid #d8d1c2; border-radius: 12px; padding: 12px 16px; }
+    .renders { display: grid; grid-template-columns: 3fr 2fr; gap: 10px; margin: 0 0 1em; }
+    .renders img { width: 100%; height: auto; border-radius: 10px; background: #edf1f5; }
+    .renders figcaption { grid-column: 1 / -1; font-size: .85rem; color: #5b6157; }
+    @media (max-width: 560px) { .renders { grid-template-columns: 1fr; } }
     footer { font-size: .85rem; color: #5b6157; margin-top: 40px; }
   </style>
 </head>
@@ -30,6 +34,11 @@
   <p><a class="cta" href="./">Open Shed Designer</a> and drag out your shed: it frames every board at its real size and hands you the plans, a cut sheet and the order.</p>
 
   <h2>The worked example: 8x12 gable shed</h2>
+  <figure class="renders">
+    <img src="renders/8x12-classic-hero.webp" width="960" height="640" alt="3D render of the 8x12 gable shed, 8 by 12 ft, seen from the front corner: stained T1-11 panel siding, charcoal shingles, 6/12 roof, 11' 4-5/8&quot; to the peak, showing a 38&quot; door on the front (eave side)." loading="lazy" decoding="async">
+    <img src="renders/8x12-classic-framing.webp" width="640" height="427" alt="Framing of the 8x12 gable shed (8 by 12 ft) with the siding, sheathing and roofing removed: studs at 16&quot; on centre, rafters at 24&quot; and a 2x8 ridge board with rafter ties." loading="lazy" decoding="async">
+    <figcaption>Drawn by the tool's own 3D view from the "8x12 classic" preset, finished and with its coverings taken off. The pictures are redrawn whenever the design or the renderer changes.</figcaption>
+  </figure>
   <p>The tool's "8x12 classic" preset (pick it under + New design), which you can change in a few drags: 12 ft along the ridge, 8 ft across the gable, 8 ft walls (91-1/2" studs under three 1-1/2" plates), a 6/12 roof with a 12" overhang, a single 38" x 82" door on one 12 ft side, two 24" x 36" windows on the other 12 ft side, and a 12" x 12" vent in each gable. 2x4 walls at 16" on centre, a pressure-treated 2x6 floor at 16" on three 4x6 skids over a gravel pad, and 2x6 rafters at 24" with 2x4 rafter ties.</p>
   <table>
     <thead><tr><th>Board</th><th class="n">Qty</th><th>What it becomes</th></tr></thead>

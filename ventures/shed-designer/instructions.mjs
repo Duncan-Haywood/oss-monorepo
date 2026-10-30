@@ -8,6 +8,7 @@
 import { fmtIn, fmtFtIn } from './lumber.mjs';
 import { WALL_LABEL } from './model.mjs';
 import { heelJoint } from './checks.mjs';
+import { lapSteps } from './lap.mjs';
 import { sidingUpperSheets } from './estimate.mjs';
 import { finishName, SIDING_FINISHES } from './looks.mjs';
 
@@ -49,7 +50,18 @@ export function buildInstructions(shed, est) {
   });
 
   const pad = { l: L + 24, w: W + 24 };
-  if (k.noPad) out.push({
+  if (k.block?.pier) out.push({
+    title: 'Concrete piers',
+    steps: [
+      `Mark the shed's outline with stakes and string, square it (diagonals ${fmtFtIn(Math.hypot(L, W))} each), and mark the centre of each of the ${k.blockCount} piers under the skid lines.`,
+      `Call 811 before you dig. At each mark, dig a hole about 14" across and ${fmtIn(d.pierDepth)} deep: below your frost line where the ground freezes (ask your building department for its frost depth and set "Pier depth" to it), and always down to firm, undisturbed soil. A post-hole digger or a rented auger does it; tamp the bottom.`,
+      `Cut the ${k.pierTubes} form tube${k.pierTubes > 1 ? 's' : ''} into ${k.blockCount} pieces ${fmtIn(k.pierLen)} long, set one in each hole standing ${k.block.h}" above grade, plumb it, and backfill round it, tamping as you go.`,
+      `Run a string line at the top of the tubes and cut or set every tube to the same height, so the skids sit level. Mix and pour the ${k.pierBags} bags of concrete (about ${(k.pierCuFt).toFixed(2)} cu ft a pier), rodding each pour to drive out air, and strike the tops flat and level.`,
+      'Let the concrete cure at least two days before the skids go on (the bag gives the times for your temperature). Peel the tube off above grade if you like.',
+    ],
+    check: ['Every pier top level with the others within 1/4" (string line or a long level on a straight board).', 'Each pier plumb and centred on its skid line.'],
+  });
+  else if (k.noPad) out.push({
     title: 'Ground under each block',
     steps: [
       `Mark the shed's outline with stakes and string, square it (diagonals ${fmtFtIn(Math.hypot(L, W))} each), and mark where each of the ${k.blockCount} blocks goes.`,
@@ -87,7 +99,9 @@ export function buildInstructions(shed, est) {
     steps: [
       `Lay ${k.skidCount} pressure-treated ${d.skidSize} skids (mark ${marks((m) => m.kind === 'skid')}, ${skids.length} pieces)${d.skidSize === '4x4' ? '' : ' on edge'}, running the ${fmtFtIn(L)} length of the shed.`,
       `Centre them at ${list(k.skidYs)} from the front edge of the shed (the first and last flush with the front and back edges).`,
-      k.block && k.noPad
+      k.block?.pier
+        ? `Lay the skids on the ${k.blockCount} piers, centred on each. Check each skid with a level along its length and across to the next; a pier top that came out low takes a pressure-treated or composite packer the full width of the skid, never loose shims.`
+        : k.block && k.noPad
         ? `Lay the skids on the ${k.blockCount} blocks you levelled, a block under each end and the rest no more than 4 ft apart. Check each skid with a level along its length and across to the next; correct a low block by packing soil or gravel under it, not with shims on top.`
         : k.block
         ? `Set ${k.blockCount} ${k.block.plural} on the ${k.noPad ? 'tamped ground' : k.underBlocks ? 'paver-base beds' : 'compacted gravel'} under the skids (${k.block.h}" tall), one at each end and the rest no more than 4 ft apart, then level the blocks by adding or scraping ${k.underBlocks ? 'paver base' : 'gravel'} under them (not with shims on top) until every skid is level and all skids are level with each other.`
@@ -226,7 +240,8 @@ export function buildInstructions(shed, est) {
   // Name the nesting only where it is what saves a panel.
   const upperPanels = sidingUpperSheets(shed);
   const nested = d.siding && upperPanels < sidingUpperSheets(shed, false) ? upperPanels : 0;
-  out.push({
+  if (d.siding && shed.lap?.length && est.lapCuts) out.push({ title: 'Wall sheathing, wrap and lap siding', why: 'Trim before siding here: lap courses butt into the corner boards and casings, and each course laps the one below so water runs off.', steps: lapSteps(shed, est) });
+  else out.push({
     title: 'Siding',
     steps: [
       d.siding ? `T1-11 panels, grooves vertical, ${shed.sidingFull.length} panel positions around the shed (see the shopping list for 8, 9 and 10 ft lengths). Start at a corner, keep the bottom edge level with the top of the skids so it laps the rim joist and floor, and plumb the first panel with a level.` : 'Siding is off in this design.',
@@ -255,9 +270,9 @@ export function buildInstructions(shed, est) {
       d.overhang > 0 ? `Soffit: fit the vented soffit (${Math.ceil((shed.trim.soffitSqFt * 1.1) / 12.75)} panels) to the underside of the rafter tails, from the siding to the back of the fascia.` : '',
       vents.length ? 'Gable vents: set each one in its opening over a bead of exterior sealant and screw through its flange; screen side in.' : '',
       shed.framedOpenings.some((o) => o.product !== 'site-built') ? 'Door and windows: follow each maker\'s instructions. Flash the sill and sides with the flashing tape, shim plumb and square in the rough opening, and leave the gap they specify around the frame.' : '',
-      trimmed ? `Case each door and window: sides first, then the head across the top lapping the sides${shed.framedOpenings.some((o) => o.kind === 'window') ? ', and for windows a sill board under' : ''}.` : '',
-      openings && d.siding ? `Head flashing: slide a length of Z-flashing up behind the siding over each ${trimmed ? 'head casing, its lip over the casing\'s front edge' : 'door and window head, its lip over the frame'}, so water runs off and not behind it. Then nail off the siding above it.` : '',
-      trimmed ? `Corner boards: nail the 1x4 corner boards (${shed.wallTrim.filter((t) => t.where.endsWith('corner')).length}) with 8d galvanized finish nails, two every 16"; on each corner the board on the long wall laps the edge of the end-wall board. The cut list is on the Cut sheet tab.` : '',
+      trimmed && !shed.lap?.length ? `Case each door and window: sides first, then the head across the top lapping the sides${shed.framedOpenings.some((o) => o.kind === 'window') ? ', and for windows a sill board under' : ''}.` : '',
+      openings && d.siding && !shed.lap?.length ? `Head flashing: slide a length of Z-flashing up behind the siding over each ${trimmed ? 'head casing, its lip over the casing\'s front edge' : 'door and window head, its lip over the frame'}, so water runs off and not behind it. Then nail off the siding above it.` : '',
+      trimmed && !shed.lap?.length ? `Corner boards: nail the 1x4 corner boards (${shed.wallTrim.filter((t) => t.where.endsWith('corner')).length}) with 8d galvanized finish nails, two every 16"; on each corner the board on the long wall laps the edge of the end-wall board. The cut list is on the Cut sheet tab.` : '',
       d.siding ? 'Caulk: run exterior caulk where each casing meets the door or window frame and the siding, and along the inside edge of every corner board. Leave the bottom edge of the head casing and the weep gaps the window maker shows open so water can drain.' : '',
     ].filter(Boolean),
   });

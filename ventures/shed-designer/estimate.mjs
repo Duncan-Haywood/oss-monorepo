@@ -8,6 +8,7 @@ import { boardPrice, itemPrice } from './prices.mjs';
 import { catalogueRange, productById } from './products.mjs';
 import { optimizeCuts } from './optimize.mjs';
 import { heelJoint } from './checks.mjs';
+import { LAP_PRODUCTS, lapStocks } from './lap.mjs';
 import { finishName, SIDING_FINISHES } from './looks.mjs';
 
 /** @typedef {import('./model.mjs').Shed} Shed */
@@ -214,6 +215,29 @@ export function cutWithinHaul(pieces, stocks, kerf, haulFt) {
 }
 
 /**
+ * Lap siding cut plan: every course piece packed into the plank lengths sold
+ * (the ones in your board lengths where there is a choice), plus whole planks
+ * ripped lengthwise into the starter strip.
+ * @param {import('./model.mjs').Shed} shed @param {any} d @param {(k: string) => number} item
+ */
+export function lapPlan(shed, d, item) {
+  const spec = LAP_PRODUCTS[d.sidingType];
+  const stocks = lapStocks(d).map((x) => ({ ...x, price: item(x.key) }));
+  const pieces = shed.lap.flatMap((f) => f.pieces.map((p) => ({ len: p.len, kind: `${f.wall} course ${p.course + 1}${p.rake ? ', rake cut' : ''}${p.notched ? ', notched' : ''}` })));
+  const r = optimizeCuts(pieces, stocks, d.kerf);
+  // Starter: strips ripped from whole planks, laid end to end.
+  const starterIn = shed.lap.reduce((t, f) => t + f.starter, 0);
+  const longest = stocks.reduce((a, b) => (b.price / b.length < a.price / a.length - 1e-9 ? b : a));
+  const perPlank = Math.floor((spec.width + d.kerf) / (spec.starterWidth + d.kerf));
+  const starterPlanks = Math.ceil(starterIn / (longest.length * perPlank));
+  return {
+    stocks, starterStock: longest.length, starterPlanks, starterIn, perPlank, tooLong: r.tooLong,
+    boards: r.boards.map((b) => ({ stock: b.stock, cuts: b.cuts.map((c) => c.len), offcut: b.offcut })),
+    pieces: pieces.length, joints: shed.lap.reduce((t, f) => t + f.joints.length, 0), nails: shed.lap.reduce((t, f) => t + f.nails, 0),
+  };
+}
+
+/**
  * @param {Shed} shed
  * @param {Prices} [prices]
  */
@@ -299,6 +323,8 @@ export function estimate(shed, prices = examplePrices()) {
   const floorKey = d.floorPanel === 'OSB' ? 'floorOSB' : 'floorSheet';
   line('Sheet goods', label(floorKey), floorSheets, 'sheet', item(floorKey), src(floorKey));
   line('Sheet goods', label('roofSheet'), roofSheets, 'sheet', item('roofSheet'), src('roofSheet'));
+  /** @type {ReturnType<typeof lapPlan> | null} */
+  let lapCuts = null;
   if (d.siding) {
     const area = shed.sidingArea ?? 0;
     const type = d.sidingType || 'T1-11';
@@ -338,8 +364,22 @@ export function estimate(shed, prices = examplePrices()) {
         line('Siding', label('vinylStarter'), Math.ceil((perimFt * 1.05) / 12), 'piece', item('vinylStarter'), src('vinylStarter'));
         line('Siding', label('vinylJ'), Math.ceil((jFt * 1.1) / 12.6), 'piece', item('vinylJ'), src('vinylJ'));
         line('Siding', label('vinylCorner'), 4 * Math.ceil((dims.plateTop - dims.skidTop) / 120), 'piece', item('vinylCorner'), src('vinylCorner'));
-      } else {
-        line('Siding', label('hardiePlank'), Math.ceil((area * 1.1) / 5), 'piece', item('hardiePlank'), src('hardiePlank'));
+      } else if (shed.lap?.length) {
+        lapCuts = lapPlan(shed, d, item);
+        // Sheathing: one 4x8 per 4 ft column, strips above packed from whole sheets.
+        const sheets = shed.sidingFull.length + sidingUpperSheets(shed);
+        // OSB laid out above was counted by area; lap siding counts its real columns.
+        shopping.pop();
+        line('Siding', label('wallSheathing'), sheets, 'sheet', item('wallSheathing'), src('wallSheathing'));
+        // House wrap: the wall area plus 6" laps on 3 ft rolls (about 20% more).
+        line('Siding', label('houseWrap'), Math.ceil((area * 1.2) / 300), 'roll', item('houseWrap'), src('houseWrap'));
+        line('Siding', label('wrapTape'), 1, 'roll', item('wrapTape'), src('wrapTape'));
+        line('Siding', label('capNails'), 1, 'box', item('capNails'), src('capNails'));
+        for (const st of lapCuts.stocks) {
+          const n = lapCuts.boards.filter((b) => b.stock === st.length).length + (st.length === lapCuts.starterStock ? lapCuts.starterPlanks : 0);
+          line('Siding', label(st.key), n, 'piece', item(st.key), src(st.key));
+        }
+        if (lapCuts.joints) line('Siding', label('jointFlashing'), Math.ceil((lapCuts.joints * 6) / 600), 'roll', item('jointFlashing'), src('jointFlashing'));
       }
     }
     if (type !== 'vinyl' && d.sidingColor !== 'unfinished') {
@@ -439,7 +479,10 @@ export function estimate(shed, prices = examplePrices()) {
   if (d.compaction === 'plate compactor') line('Site prep', label('plateCompactor'), 1, 'day', item('plateCompactor'), src('plateCompactor'));
   else line('Site prep', label('handTamper'), 1, 'each', item('handTamper'), src('handTamper'));
   if (dims.gravelCuYd) line('Site prep', label('gravelTon'), Math.ceil(dims.gravelCuYd * 1.4 * 10) / 10, 'ton', item('gravelTon'), src('gravelTon'));
-  if (dims.block) line('Foundation and hardware', label(dims.block.item), dims.blockCount, 'each', item(dims.block.item), src(dims.block.item));
+  if (dims.block?.pier) {
+    line('Foundation and hardware', label('formTube'), dims.pierTubes, 'each', item('formTube'), src('formTube'));
+    line('Foundation and hardware', label('concreteBag'), dims.pierBags, 'bag', item('concreteBag'), src('concreteBag'));
+  } else if (dims.block) line('Foundation and hardware', label(dims.block.item), dims.blockCount, 'each', item(dims.block.item), src(dims.block.item));
   const vents = Object.values(shed.vents || {}).reduce((t, v) => t + v.length, 0);
   line('Foundation and hardware', `${label('gableVent')}, ${d.ventWidth}" x ${d.ventHeight}"`, vents, 'each', item('gableVent'), src('gableVent'));
   if (d.roofType === 'ridgeBeam') line('Foundation and hardware', label('rafterHanger'), shed.members.filter((m) => m.kind === 'rafter').length, 'each', item('rafterHanger'), src('rafterHanger'));
@@ -468,6 +511,8 @@ export function estimate(shed, prices = examplePrices()) {
       const sheets = shed.sidingFull.length + sidingUpperSheets(shed);
       line('Fasteners and sealants', label('sidingNails'), Math.ceil((sheets * 60) / 140), 'box', item('sidingNails'), src('sidingNails'));
     }
+    // Lap siding: a nail at every stud in every course (140 to the 1 lb box), plus 10% for misses.
+    if (lapCuts) line('Fasteners and sealants', label('sidingNails'), Math.ceil((lapCuts.nails * 1.1) / 140), 'box', item('sidingNails'), src('sidingNails'));
     line('Fasteners and sealants', label('roofingNails'), roofNailBoxes, 'box', item('roofingNails'), src('roofingNails'));
     // Trim: two nails every 16" along each board, about 168 to the pound.
     const trimIn = (shed.wallTrim || []).reduce((t, x) => t + x.length, 0) + (shed.trim ? (shed.trim.fasciaFt + shed.trim.rakeFt) * 12 : 0);
@@ -483,7 +528,7 @@ export function estimate(shed, prices = examplePrices()) {
     if (d.siding) line('Fasteners and sealants', label('caulk'), Math.ceil(caulkIn / 12 / 25), 'tube', item('caulk'), src('caulk'));
     // Z-flashing over every door and window head and over any horizontal siding joint.
     let zIn = shed.framedOpenings.reduce((t, op) => t + op.width + 9, 0);
-    zIn += (shed.sidingUpper || []).length * 48;
+    if (!shed.lap?.length) zIn += (shed.sidingUpper || []).length * 48;
     if (d.siding) line('Fasteners and sealants', label('zFlashing'), Math.ceil(zIn / 120), 'piece', item('zFlashing'), src('zFlashing'));
   }
   // Consumables the build steps call for: adhesive under the subfloor (a tube
@@ -520,7 +565,7 @@ export function estimate(shed, prices = examplePrices()) {
   // a bound on. lumberCost adds spares and any bulk prices on top.
   const cutSheetCost = Math.round(lumber.reduce((t, l) => t + l.result.cost, 0) * 100) / 100;
   return {
-    parts, lumber, shopping, problems, notes, total, unpriced, tax, deliveryFee, grandTotal, trimCuts, lumberCost, cutSheetCost, lowerBound, boards,
+    parts, lumber, shopping, problems, notes, total, unpriced, tax, deliveryFee, grandTotal, trimCuts, lapCuts, lumberCost, cutSheetCost, lowerBound, boards,
     pieces: all.length, floorSheets, roofSheets,
     footprintSqFt: (d.length * d.width) / 144,
   };
@@ -611,6 +656,9 @@ export function cutSheetCsv(est) {
   }
   if (est.trimCuts) {
     for (const b of groupBoards(est.trimCuts.boards)) rows.push([String(b.count), '1x4 trim', `${b.stock / 12}'`, b.cuts.map((c) => fmtIn(c)).join('; '), fmtIn(b.offcut), '']);
+  }
+  if (est.lapCuts) {
+    for (const b of groupBoards(est.lapCuts.boards)) rows.push([String(b.count), 'lap siding', `${b.stock / 12}'`, b.cuts.map((c) => fmtIn(c)).join('; '), fmtIn(b.offcut)]);
   }
   return rows.map((r) => r.map((c) => (/[",\n]/.test(c) ? `"${c.replace(/"/g, '""')}"` : c)).join(',')).join('\n') + '\n';
 }
