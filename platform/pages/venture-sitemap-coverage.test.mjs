@@ -29,8 +29,13 @@ import assert from 'node:assert/strict';
 import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
+import { generateVenturePages } from './generated-pages.mjs';
 
 const VENTURES = join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'ventures');
+
+// Pages a venture writes at build time (GENERATED_PAGES, gitignored) are pages
+// it ships, so they exist before this reads the tree, as for every other reader.
+generateVenturePages(VENTURES);
 
 // Unlinked by design: both are served by the host on a condition rather than
 // reached by a crawler, so listing either in a sitemap would advertise a URL
