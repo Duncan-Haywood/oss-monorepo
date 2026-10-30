@@ -352,6 +352,56 @@
     }
    }
   },
+  "8x12-saltbox": {
+   "key": "8x12 saltbox",
+   "name": "8x12 saltbox shed",
+   "hash": "cb4216210f1cb112",
+   "designKey": "c4cea116",
+   "files": {
+    "hero": {
+     "file": "8x12-saltbox-hero.webp",
+     "w": 960,
+     "h": 640,
+     "bytes": 17916,
+     "alt": "3D render of the 8x12 saltbox shed, 8 by 12 ft, seen from the front corner: white siding, charcoal shingles, 10/12 and 5/12 saltbox roof, 10' 11-11/16\" to the peak, showing a 39\" door on the front (steep side) and a 14\" window on the right (gable end)."
+    },
+    "card": {
+     "file": "8x12-saltbox-card.webp",
+     "w": 480,
+     "h": 320,
+     "bytes": 6392,
+     "alt": "3D render of the 8x12 saltbox shed, 8 by 12 ft, seen from the front corner: white siding, charcoal shingles, 10/12 and 5/12 saltbox roof, 10' 11-11/16\" to the peak, showing a 39\" door on the front (steep side) and a 14\" window on the right (gable end)."
+    },
+    "front": {
+     "file": "8x12-saltbox-front.webp",
+     "w": 480,
+     "h": 320,
+     "bytes": 4618,
+     "alt": "3D render of the 8x12 saltbox shed, 8 by 12 ft, seen from the front: white siding, charcoal shingles, 10/12 and 5/12 saltbox roof, 10' 11-11/16\" to the peak, showing a 39\" door."
+    },
+    "side": {
+     "file": "8x12-saltbox-side.webp",
+     "w": 480,
+     "h": 320,
+     "bytes": 4140,
+     "alt": "3D render of the 8x12 saltbox shed, 8 by 12 ft, seen from the gable end: white siding, charcoal shingles, 10/12 and 5/12 saltbox roof, 10' 11-11/16\" to the peak, showing a 14\" window."
+    },
+    "back": {
+     "file": "8x12-saltbox-back.webp",
+     "w": 480,
+     "h": 320,
+     "bytes": 3854,
+     "alt": "3D render of the 8x12 saltbox shed, 8 by 12 ft, seen from the back: white siding, charcoal shingles, 10/12 and 5/12 saltbox roof, 10' 11-11/16\" to the peak, showing a 14\" window."
+    },
+    "framing": {
+     "file": "8x12-saltbox-framing.webp",
+     "w": 640,
+     "h": 427,
+     "bytes": 19280,
+     "alt": "Framing of the 8x12 saltbox shed (8 by 12 ft) with the siding, sheathing and roofing removed: studs at 24\" on centre, rafters at 24\" and a 2x8 ridge board with rafter ties."
+    }
+   }
+  },
   "8x8-lean": {
    "key": "8x8 lean",
    "name": "8x8 garden shed",
