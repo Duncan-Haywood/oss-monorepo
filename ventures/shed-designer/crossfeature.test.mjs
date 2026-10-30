@@ -5,12 +5,13 @@
 // design. A new option joins by adding its value to AXES below.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync } from 'node:fs';
 import { buildShed, PRESETS, BLOCKS } from './model.mjs';
 import { structuralChecks } from './checks.mjs';
 import { connectionChecks } from './connections.mjs';
 import { invariants } from './invariants.mjs';
 import { VIEWS, packetHtml, encodeDesign, decodeDesign } from './hoa.mjs';
+import { presetEntries } from './picker.mjs';
+import { searchDesigns, picks } from './designsearch.mjs';
 
 /** @type {Record<string, any[]>} */
 export const AXES = {
@@ -21,7 +22,10 @@ export const AXES = {
   floorPanel: ['plywood', 'OSB'],
   joistSize: ['2x6', '2x8'],
   joistSpacing: [16, 24],
-  roofType: ['ridgeBeam', 'ridgeBoard'],
+  roofType: ['ridgeBeam', 'ridgeBoard', 'truss'],
+  style: ['gable', 'gambrel'],
+  loft: ['none', 'half', 'full'],
+  atticStorage: [false, true],
   rafterSeat: ['birdsmouth', 'connector'],
   roofCover: ['shingles', 'metal'],
   studSpacing: [16, 24],
@@ -91,18 +95,27 @@ test(`every pairing of features keeps every invariant (${ROWS.length} designs)`,
 // The HOA packet (round 3, lane 5) is drawn from whatever the design is: every
 // pairing must give four elevations and a site page with no NaN or undefined,
 // and the packet's #d= link must carry the design back intact.
+function packetProblems(design) {
+  const shed = buildShed(design);
+  const html = packetHtml(shed);
+  const views = [...html.matchAll(/class="hoa-elev" data-view="(\w+)"/g)].map((m) => m[1]).sort();
+  const bad = [];
+  if (views.join() !== [...VIEWS].sort().join()) bad.push(`elevations ${views}`);
+  if (/NaN|undefined|Infinity/.test(html)) bad.push('NaN/undefined in the packet');
+  if (!/Not engineered or code-checked/.test(html)) bad.push('no disclaimer');
+  return bad;
+}
+
 test('every pairing of features renders its HOA packet', () => {
   const failures = [];
   for (const row of ROWS) {
-    const shed = buildShed(designOf(row));
-    let html;
-    try { html = packetHtml(shed); } catch (e) { failures.push(`${JSON.stringify(row)}: throws ${e.message}`); continue; }
-    const views = [...html.matchAll(/class="hoa-elev" data-view="(\w+)"/g)].map((m) => m[1]).sort();
-    if (views.join() !== [...VIEWS].sort().join()) failures.push(`${JSON.stringify(row)}: elevations ${views}`);
-    if (/NaN|undefined|Infinity/.test(html)) failures.push(`${JSON.stringify(row)}: NaN/undefined in the packet`);
-    if (!/Not engineered or code-checked/.test(html)) failures.push(`${JSON.stringify(row)}: no disclaimer`);
+    const design = designOf(row);
+    let bad;
+    try { bad = packetProblems(design); } catch (e) { bad = [`throws ${e.message}`]; }
+    const shed = buildShed(design);
     const back = decodeDesign(`#d=${encodeDesign(shed.design)}`);
-    if (JSON.stringify(buildShed(back).design) !== JSON.stringify(shed.design)) failures.push(`${JSON.stringify(row)}: #d= link does not round-trip`);
+    if (JSON.stringify(buildShed(back).design) !== JSON.stringify(shed.design)) bad.push('#d= link does not round-trip');
+    if (bad.length) failures.push(`${JSON.stringify(row)}: ${bad.join('; ')}`);
   }
   assert.deepEqual(failures, []);
 });
@@ -120,14 +133,26 @@ test('every preset passes every structural and connection check as shipped', () 
   for (const [name, make] of Object.entries(PRESETS)) shipsClean(make(), name);
 });
 
-// The design gallery (round 3) is the same promise at a larger scale: every
-// design in it must pass as shipped. Until a gallery module lands this skips.
-const GALLERY_FILE = new URL('./gallery.mjs', import.meta.url);
-test('every gallery design passes every check as shipped', { skip: !existsSync(GALLERY_FILE) && 'no gallery.mjs yet' }, async () => {
-  const mod = await import(GALLERY_FILE.href);
-  const raw = mod.GALLERY ?? mod.default ?? Object.values(mod).find((v) => Array.isArray(v));
-  const list = Array.isArray(raw) ? raw : Object.values(raw ?? {});
-  const designs = list.map((g) => (typeof g === 'function' ? g() : g?.design ? (typeof g.design === 'function' ? g.design() : g.design) : g));
-  assert.ok(designs.length > 0, 'gallery.mjs exports its designs');
-  for (const d of designs) shipsClean(d, d.name);
+// The gallery of starting designs is the picker's entries (picker.mjs), and
+// the design search's front and named picks are what it offers once a search
+// runs. Every one must pass as shipped, and its HOA packet must render: a
+// person flicks through these and customises from there.
+
+test('every gallery entry passes every check as shipped and renders its HOA packet', () => {
+  const entries = presetEntries();
+  assert.ok(entries.length >= 6);
+  for (const e of entries) {
+    shipsClean(e.design, e.title);
+    assert.deepEqual(packetProblems(e.design), [], e.title);
+  }
+});
+
+test('every design on a search front, and every named pick, passes as shipped and renders its HOA packet', () => {
+  const r = searchDesigns({ budget: 150 });
+  const named = picks(r.front);
+  assert.ok(r.front.length > 0 && named.length > 0);
+  for (const s of [...r.front, ...named]) {
+    shipsClean(s.design, `${s.label || ''} ${s.design.length}x${s.design.width}`);
+    assert.deepEqual(packetProblems(s.design), [], s.label);
+  }
 });
