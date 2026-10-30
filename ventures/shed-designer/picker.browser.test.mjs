@@ -168,9 +168,11 @@ test('axe finds no violations on the strip, the detail and the compare', { skip:
 test('typing a new lumber price re-prices the starting designs', { skip }, async (t) => {
   const { page } = await open(t);
   const before = await page.locator('#starts .pick-line').first().innerText();
-  // A 2x6 at $99 a board (the grid redraws after the first change, so one box takes it): the strip follows once typing pauses.
+  // A 2x4 at $99 a board, which every design buys (a 2x6 is not in every card: the
+  // gallery's cheapest has none). The grid redraws after the first change, so one
+  // box takes it; the strip follows once typing pauses.
   await page.evaluate(() => {
-    for (const e of /** @type {NodeListOf<HTMLInputElement>} */ (document.querySelectorAll('#price-grid input[data-mat="2x6"]'))) {
+    for (const e of /** @type {NodeListOf<HTMLInputElement>} */ (document.querySelectorAll('#price-grid input[data-mat="2x4"]'))) {
       e.value = '99';
       e.dispatchEvent(new Event('change', { bubbles: true }));
     }
