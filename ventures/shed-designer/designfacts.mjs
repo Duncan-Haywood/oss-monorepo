@@ -59,10 +59,12 @@ export function designFacts(input, opts = {}) {
   const inL = d.length - 2 * k.stud;
   const inW = d.width - 2 * k.stud;
   const floorSqFt = (inL * inW) / 144;
-  const rise = (d.width / 2) * (d.pitch / 12);
+  // A lean-to's one slope rises over the whole width; its headroom is under the rafters at the tall front wall.
+  const lean = d.style === 'leanTo';
+  const rise = (lean ? d.width : d.width / 2) * (d.pitch / 12);
   const volumeCuFt = (inL * inW * d.wallHeight + inL * (inW * rise) / 2) / 1728;
   // The beam's top is flush with the rafter tops at the ridge.
-  const headroom = d.roofType === 'ridgeBeam' ? k.ridgeTop - k.ridgeD - k.floorTop : d.wallHeight;
+  const headroom = lean ? k.highWall : d.roofType === 'ridgeBeam' ? k.ridgeTop - k.ridgeD - k.floorTop : d.wallHeight;
   let shelfIn = 0;
   for (const w of WALLS) {
     const eave = w === 'front' || w === 'back';
@@ -82,7 +84,7 @@ export function designFacts(input, opts = {}) {
   const worstRow = checks.rows.reduce((m, r) => (r.ratio > m.ratio ? r : m), checks.rows[0]);
   const siding = d.siding ? `${SIDING_NAME[d.sidingType] || d.sidingType}, ${COLOUR_NAME[d.sidingColor] || d.sidingColor}` : 'none (framing only)';
   const roof = d.roofing ? `${d.roofCover === 'metal' ? 'corrugated metal' : 'architectural shingles'}, ${d.roofColor}` : 'none (sheathing only)';
-  const roofFrame = d.roofType === 'ridgeBeam' ? `ridge beam on posts, open to the roof (2-ply ${d.beamSize})` : d.roofType === 'truss' ? `site-built trusses, ${d.tieSize} bottom chords, OSB gussets` : `ridge board with ${d.tieSize} rafter ties`;
+  const roofFrame = lean ? `lean-to: one slope from a ${fmtIn(k.highWall)} front wall to a ${fmtIn(d.wallHeight)} back wall, no ridge or ties` : d.roofType === 'ridgeBeam' ? `ridge beam on posts, open to the roof (2-ply ${d.beamSize})` : d.roofType === 'truss' ? `site-built trusses, ${d.tieSize} bottom chords, OSB gussets` : `ridge board with ${d.tieSize} rafter ties`;
   const foundation = d.foundation === 'gravel' ? 'skids on a gravel pad' : `skids on ${d.foundation === 'blocks' ? 'solid concrete blocks' : d.foundation}`;
 
   return {
@@ -103,7 +105,7 @@ export function designFacts(input, opts = {}) {
       volumeCuFt,
       shelfFt: shelfIn / 12,
       headroom,
-      open: d.roofType === 'ridgeBeam',
+      open: lean || d.roofType === 'ridgeBeam',
       widestDoor,
     },
     perDollar: {

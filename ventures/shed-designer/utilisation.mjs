@@ -162,10 +162,13 @@ export function utilisation(shed, sc = structuralChecks(shed)) {
   const k = shed.dims;
   const cos = 1 / Math.sqrt(1 + (d.pitch / 12) ** 2);
   const roof = roofCase(d.snowLoad);
-  const beam = d.roofType === 'ridgeBeam';
+  // A lean-to's rafter spans wall to wall, and its tall front wall has the studs checked (checks.mjs).
+  const lean = d.style === 'leanTo';
+  const beam = !lean && d.roofType === 'ridgeBeam';
   const idsOf = (pred) => shed.members.filter(pred).map((m) => m.id);
-  const truss = d.roofType === 'truss';
-  const rafterRunIn = d.width / 2 - (beam ? 1.5 : truss ? 0 : 0.75) - k.stud;
+  const truss = !lean && d.roofType === 'truss';
+  const rafterRunIn = lean ? d.width - 2 * k.stud : d.width / 2 - (beam ? 1.5 : truss ? 0 : 0.75) - k.stud;
+  const studLen = lean ? k.highWall - 4.5 : k.studLen;
   const tribFt = (beam ? rafterRunIn / 2 + k.stud + d.overhang : d.width / 2 + d.overhang) / 12;
   // As in checks.mjs: under trusses the eave walls also carry half the attic load.
   // On a gambrel, as in checks.mjs: the trusses' reactions, a loft's storage counted as dead.
@@ -187,7 +190,7 @@ export function utilisation(shed, sc = structuralChecks(shed)) {
       u.ids = idsOf((m) => m.kind === 'floor joist');
     } else if (row.member === 'Rafters') {
       const r = beamWords({ size: d.rafterSize, spacingIn: d.rafterSpacing, pitch: d.pitch, bearingIn: k.stud }, rafterRunIn, roof, 'on centre: each rafter carries that strip of roof');
-      Object.assign(u, r, { kinds: ['rafter'], explain: 'Each rafter is checked on its horizontal run from the wall plate to the ridge, with the load on plan.' });
+      Object.assign(u, r, { kinds: ['rafter'], explain: lean ? 'Each rafter is a simple beam between the two walls, checked on its horizontal clear span with the load on plan.' : 'Each rafter is checked on its horizontal run from the wall plate to the ridge, with the load on plan.' });
       u.ids = idsOf((m) => m.kind === 'rafter');
     } else if (row.member === 'Ridge beam') {
       const r = beamWords({ size: d.beamSize, plies: 2, spacingIn: d.width / 2, pitch: d.pitch, repetitive: false, bearingIn: 3 }, d.length - 2 * k.stud, roof, 'of roof: the upper half of each rafter, both slopes');
@@ -251,11 +254,11 @@ export function utilisation(shed, sc = structuralChecks(shed)) {
       u.inputs = [['Panel', sf.name], ['Joist spacing', `${d.joistSpacing}"`]];
       u.explain = 'A panel, not a framing member: its maker rates it for a widest joist spacing, and that rating is the check.';
     } else if (row.member === 'Wall studs') {
-      u.parts = studWords(d.studSize, d.studSpacing, k.studLen, [deadPlf, snowPlf], d.windLoad);
-      u.inputs = [['Stud', `${d.studSize} at ${d.studSpacing}", ${fmtIn(k.studLen)} long`], ['Roof on the eave wall', `${n0(deadPlf)} lb/ft dead + ${n0(snowPlf)} lb/ft snow`], ['Wind', `${d.windLoad} psf on the wall face`]];
+      u.parts = studWords(d.studSize, d.studSpacing, studLen, [deadPlf, snowPlf], d.windLoad);
+      u.inputs = [['Stud', `${d.studSize} at ${d.studSpacing}", ${fmtIn(studLen)} long${lean ? ' (the tall front wall)' : ''}`], ['Roof on the eave wall', `${n0(deadPlf)} lb/ft dead + ${n0(snowPlf)} lb/ft snow`], ['Wind', `${d.windLoad} psf on the wall face`]];
       u.kinds = ['stud'];
       u.explain = 'An eave-wall stud is a column under the roof that also bends under wind on the siding. Gable-wall studs carry less and share this result.';
-      u.ids = idsOf((m) => m.kind === 'stud' && (m.group === 'wall:front' || m.group === 'wall:back'));
+      u.ids = idsOf((m) => m.kind === 'stud' && (m.group === 'wall:front' || (!lean && m.group === 'wall:back')));
     }
     if (u.parts.length) {
       const top = worstPart(u.parts);

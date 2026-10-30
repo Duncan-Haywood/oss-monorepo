@@ -7,7 +7,7 @@
 // the screen can open its check.
 
 import { sheetSvg } from './drawings.mjs';
-import { WALLS, WALL_LABEL } from './model.mjs';
+import { WALLS, wallLabel } from './model.mjs';
 import { BANDS, UNCHECKED, bandOf } from './utilisation.mjs';
 
 /** @typedef {import('./drawings.mjs').Sheet} Sheet */
@@ -102,7 +102,7 @@ export function heatSheets(shed, heat) {
     }
     labels(items, wall.members, (m) => { const l = /** @type {any} */ (m.local); const s = (l.s0 + l.s1) / 2 + (m.group.startsWith('gable') ? 0 : off); return [hx(s), m.kind === 'header' ? l.z1 + 4 : d.wallHeight / 2]; });
     legend(items, face + 12, d.wallHeight - 6);
-    sheets.push({ id: `use-wall-${name}`, title: `${WALL_LABEL[name]} wall framing, coloured by structural use`, note, items });
+    sheets.push({ id: `use-wall-${name}`, title: `${wallLabel(shed.design, name)} wall framing, coloured by structural use`, note, items });
   }
   return sheets;
 }

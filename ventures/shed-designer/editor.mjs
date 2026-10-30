@@ -168,11 +168,12 @@ export function drawPlan(svg, design, hooks) {
   el('rect', { x: 0, y: 0, width: L, height: W, class: 'floor' }, g);
   const t = design.studSize === '2x6' ? 5.5 : 3.5;
   for (const [x, y, w, h] of [[0, W - t, L, t], [0, 0, L, t], [0, t, t, W - 2 * t], [L - t, t, t, W - 2 * t]]) el('rect', { x, y, width: w, height: h, class: 'wallband' }, g);
-  el('line', { x1: 0, y1: W / 2, x2: L, y2: W / 2, class: 'ridge' }, g);
+  const lean = design.style === 'leanTo';
+  if (!lean) el('line', { x1: 0, y1: W / 2, x2: L, y2: W / 2, class: 'ridge' }, g);
   const lab = (x, y, s, cls = 'plan-label') => { const e = el('text', { x, y, class: cls, 'text-anchor': 'middle' }, g); e.textContent = s; return e; };
-  lab(L / 2, W / 2 - 4, 'ridge', 'plan-muted');
-  lab(L / 2, W + 26, `FRONT  ${fmtFtIn(L)}`);
-  lab(L / 2, -22, 'BACK', 'plan-muted');
+  lab(L / 2, W / 2 - 4, lean ? 'one slope, falling to the back' : 'ridge', 'plan-muted');
+  lab(L / 2, W + 26, `FRONT${lean ? ' (TALL)' : ''}  ${fmtFtIn(L)}`);
+  lab(L / 2, -22, lean ? 'BACK (LOW)' : 'BACK', 'plan-muted');
   const side = lab(-26, W / 2, fmtFtIn(W));
   side.setAttribute('transform', `rotate(-90 -26 ${W / 2})`);
 
@@ -289,20 +290,31 @@ export function drawEnd(svg, design, dims, hooks) {
   const H = design.wallHeight;
   const o = design.overhang;
   const t = design.pitch / 12;
+  // A lean-to's end: one slope over the whole width, high at the front (drawn on the left).
+  const lean = design.style === 'leanTo';
   // A gambrel's end: the lower slope to the knee, then the upper slope (the pitch) to the peak.
   const gam = design.style === 'gambrel';
   const yk = gam ? kneeRun(design) : 0;
   const kneeRise = gam ? yk * (design.gambrelLower / 12) : 0;
-  const riseOf = (p) => kneeRise + (W / 2 - yk) * (p / 12);
-  /** The roof line from eave tip to eave tip, as SVG points, for walls H, pitch p and overhang oh. */
-  const roofPts = (h, p, oh) => (gam
-    ? `0,${Y(h)} ${yk},${Y(h + kneeRise)} ${W / 2},${Y(h + riseOf(p))} ${W - yk},${Y(h + kneeRise)} ${W},${Y(h)}`
-    : `${-oh},${Y(h - oh * (p / 12))} ${W / 2},${Y(h + riseOf(p))} ${W + oh},${Y(h - oh * (p / 12))}`);
-  const rise = riseOf(design.pitch);
+  const run = lean ? W : W / 2;
+  /** Rise of the peak above the wall top at pitch t2 (a slope, rise over run). */
+  const riseAt = (t2) => (gam ? kneeRise + (W / 2 - yk) * t2 : run * t2);
+  const rise = riseAt(t);
   // Room above the roof for four more pitch steps (to the 14/12 limit), not
   // always the full 14/12: reserving that letterboxed an 8 ft gable end to
   // about 76 px wide on a phone. A steeper drag grows the view upward as it goes.
-  const roomRise = Math.min(riseOf(14), rise + (W / 2) * (4 / 12));
+  const roomRise = Math.min(riseAt(14 / 12), rise + run * (4 / 12));
+  // The roof outline for a wall height, pitch and overhang, and where the peak handle sits.
+  // On a lean-to the pitch handle sits mid-slope, clear of the eave handle at the high corner;
+  // there it is rise/2 above the wall over half the width, so the gable's pitch-from-drag holds.
+  const peakX = W / 2;
+  const peakZ = (H2, t2) => H2 + (gam ? riseAt(t2) : (W / 2) * t2);
+  const outline = (H2, t2, o2) => (gam
+    ? `0,${Y(H2)} ${yk},${Y(H2 + kneeRise)} ${W / 2},${Y(H2 + riseAt(t2))} ${W - yk},${Y(H2 + kneeRise)} ${W},${Y(H2)}`
+    : lean
+      ? `${-o2},${Y(H2 + W * t2 + o2 * t2)} ${W + o2},${Y(H2 - o2 * t2)}`
+      : `${-o2},${Y(H2 - o2 * t2)} ${W / 2},${Y(H2 + (W / 2) * t2)} ${W + o2},${Y(H2 - o2 * t2)}`);
+  const eaveZ = (H2, t2, o2) => (lean ? H2 + W * t2 + o2 * t2 : H2 - o2 * t2);
   const pad = 40;
   const padRight = 80; // the wall-height label sits to the right of the eave
   const top = H + roomRise + 20;
@@ -314,17 +326,18 @@ export function drawEnd(svg, design, dims, hooks) {
   const Y = (z) => top - z;
   const g = el('g', {}, svg);
   el('line', { x1: -o - 20, y1: Y(0), x2: W + o + 20, y2: Y(0), class: 'ground' }, g);
-  el('polygon', { points: `0,${Y(0)} ${W},${Y(0)} ${roofPts(H, design.pitch, 0).split(' ').reverse().join(' ')}`, class: 'endwall' }, g);
-  el('polyline', { points: roofPts(H, design.pitch, o), class: 'roofline-edit' }, g);
+  el('polygon', { points: gam ? `0,${Y(0)} ${W},${Y(0)} ${outline(H, t, 0).split(' ').reverse().join(' ')}` : lean ? `0,${Y(0)} ${W},${Y(0)} ${W},${Y(H)} 0,${Y(H + rise)}` : `0,${Y(0)} ${W},${Y(0)} ${W},${Y(H)} ${W / 2},${Y(H + rise)} 0,${Y(H)}`, class: 'endwall' }, g);
+  el('polyline', { points: outline(H, t, o), class: 'roofline-edit' }, g);
   const lab = (x, y, s, anchor = 'middle') => { const e = el('text', { x, y, class: 'plan-label', 'text-anchor': anchor }, g); e.textContent = s; };
-  lab(W / 2, Y(H + rise) - 12, gam ? `${design.gambrelLower}/12 and ${design.pitch}/12` : `${design.pitch}/12`);
-  lab(W + o + 6, Y(H / 2), `${fmtFtIn(H)} wall`, 'start');
-  lab(W / 2, Y(0) + 22, `${fmtFtIn(W)} gable end`);
-  lab(-o, Y(H - o * t) + 18, `${fmtIn(o)}`);
+  if (lean) lab(W * 0.25, Y(H + rise * 0.75) - 14, `${design.pitch}/12`);
+  else lab(W / 2, Y(H + rise) - 12, gam ? `${design.gambrelLower}/12 and ${design.pitch}/12` : `${design.pitch}/12`);
+  lab(W + o + 6, Y(H / 2), `${fmtFtIn(H)} ${lean ? 'back wall' : 'wall'}`, 'start');
+  lab(W / 2, Y(0) + 22, `${fmtFtIn(W)} ${lean ? 'end wall' : 'gable end'}`);
+  lab(-o, Y(eaveZ(H, t, o)) + 18, `${fmtIn(o)}`);
   const handles = [
-    { id: 'peak', x: W / 2, z: H + rise, cursor: 'ns-resize', label: gam ? 'Drag the peak to change the upper roof slope' : 'Drag the peak to change the roof pitch' },
-    { id: 'wall', x: W, z: H, cursor: 'ns-resize', label: 'Drag to change the wall height' },
-    { id: 'eave', x: -o, z: H - o * t, cursor: 'ew-resize', label: 'Drag to change the eave overhang' },
+    { id: 'peak', x: peakX, z: peakZ(H, t), cursor: 'ns-resize', label: lean ? 'Drag the middle of the roof to change its pitch' : gam ? 'Drag the peak to change the upper roof slope' : 'Drag the peak to change the roof pitch' },
+    { id: 'wall', x: W, z: H, cursor: 'ns-resize', label: lean ? 'Drag to change the back wall height' : 'Drag to change the wall height' },
+    { id: 'eave', x: -o, z: eaveZ(H, t, o), cursor: 'ew-resize', label: 'Drag to change the eave overhang' },
   ].filter((hd) => !(gam && hd.id === 'eave')); // a gambrel has no eave overhang
   for (const hd of handles) {
     const now = hd.id === 'peak' ? `${design.pitch}/12` : hd.id === 'wall' ? fmtFtIn(H) : fmtIn(o);
@@ -349,14 +362,16 @@ export function drawEnd(svg, design, dims, hooks) {
         if (hd.id === 'wall') { next.wallHeight = clamp(snap(z, 1), 60, 144); next.autoWall = false; }
         if (hd.id === 'eave') { next.overhang = clamp(snap(-p.x, 1), 0, 36); next.autoOverhang = false; }
         last = next;
-        const t2 = next.pitch / 12; const H2 = next.wallHeight; const o2 = next.overhang; const r2 = riseOf(next.pitch);
-        ghost.setAttribute('points', roofPts(H2, next.pitch, o2));
-        const at = hd.id === 'peak' ? [W / 2, H2 + r2] : hd.id === 'wall' ? [W, H2] : [-o2, H2 - o2 * t2];
+        const t2 = next.pitch / 12; const H2 = next.wallHeight; const o2 = next.overhang;
+        // The roof's highest point: the peak, or a lean-to's high front tail.
+        const high = lean ? eaveZ(H2, t2, o2) : peakZ(H2, t2);
+        ghost.setAttribute('points', outline(H2, t2, o2));
+        const at = hd.id === 'peak' ? [peakX, peakZ(H2, t2)] : hd.id === 'wall' ? [W, H2] : [-o2, eaveZ(H2, t2, o2)];
         moveTo(at[0], Y(at[1]));
         // Keep the peak and its label in sight: extend the view upward (same
         // coordinates, so the drawing and the pointer mapping stay put) rather
         // than letting the peak leave the box until release.
-        const extra = Math.max(0, H2 + r2 + 30 - (top + pad / 2));
+        const extra = Math.max(0, high + 30 - (top + pad / 2));
         svg.setAttribute('viewBox', `${-o - pad} ${-pad / 2 - extra} ${viewW} ${viewH + extra}`);
         hooks.onPreview?.(next);
       };
