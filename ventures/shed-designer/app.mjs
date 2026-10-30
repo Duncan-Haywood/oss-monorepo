@@ -2,7 +2,7 @@
 // The page: several designs, a drag editor, the 3D view, the lists and the
 // plan sheets, all rebuilt from one design object on every change.
 
-import { buildShed, normalize, defaultDesign, PRESETS, WALLS, wallLabel, wallFaceLength, ROOF_TYPES } from './model.mjs';
+import { buildShed, normalize, PRESETS, WALLS, wallLabel, wallFaceLength, ROOF_TYPES } from './model.mjs';
 import { estimate, examplePrices, cutSheetCsv, shoppingCsv, groupBoards, sourceLabel, boardUse, lumberUses, sectionTotals } from './estimate.mjs';
 import { buildSheets, sheetSvg, sheetsDxf } from './drawings.mjs';
 import { createViewer, LAYERS } from './render3d.mjs';
@@ -21,7 +21,7 @@ import { PRODUCTS } from './products.mjs';
 import { storeComparison, swapsFor, storeTotals, storeList, pricesFor } from './catalog.mjs';
 import { simplify, cutMetrics, budget, laborHours } from './simplify.mjs';
 import { budgetPath, budgetPathHtml } from './budgetpath.mjs';
-import { galleryEntries, mountMatchHouse, mountStripNav, matchesHouse } from './gallery-ui.mjs';
+import { galleryEntries, mountMatchHouse, mountStripNav, matchesHouse, firstDesign } from './gallery-ui.mjs';
 import { showCosts, wireCosts, bridgeHtml, breakdownOf, deltaSentence } from './costview.mjs';
 import { costDelta, deltaPhrase } from './costs.mjs';
 import { valueComparison, valueHtml } from './value.mjs';
@@ -115,7 +115,7 @@ function load() {
     }
     history.replaceState(null, '', location.pathname + location.search);
   }
-  if (!state.designs.length) state.designs = [defaultDesign()];
+  if (!state.designs.length) state.designs = [normalize(firstDesign())];
 }
 const design = () => state.designs[state.active];
 

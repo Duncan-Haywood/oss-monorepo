@@ -88,3 +88,24 @@ test('"match a house" keeps exactly the cards in painted lap siding and asphalt 
   assert.equal(matchesHouse({ siding: true, sidingType: 'LP SmartSide', roofing: true, roofCover: 'shingles' }), false);
   assert.equal(matchesHouse({ siding: true, sidingType: 'fiber cement', roofing: true, roofCover: 'metal' }), false);
 });
+
+test('a first-time visitor opens on the balanced gallery design, which passes cleanly', async () => {
+  const { firstDesign } = await import('./gallery-ui.mjs');
+  const { structuralChecks } = await import('./checks.mjs');
+  const { connectionChecks } = await import('./connections.mjs');
+  const d = firstDesign();
+  const { estimate } = await import('./estimate.mjs');
+  const { defaultDesign } = await import('./model.mjs');
+  const cost = (x) => estimate(buildShed(normalize(x))).total;
+  const balanced = GALLERY_DESIGNS.find((g) => g.id === 'balanced');
+  // The balanced card when it is no dearer than the old 8x12 default; never dearer in any case.
+  if (cost(balanced.design) <= cost(defaultDesign()) + 0.005) assert.equal(d.name, balanced.title);
+  assert.ok(cost(d) <= cost(defaultDesign()) + 0.005);
+  const shed = buildShed(normalize(d));
+  assert.deepEqual(shed.warnings, [], 'no "Check these" list on the first view');
+  assert.ok(structuralChecks(shed).ok && connectionChecks(shed).ok);
+  assert.ok((d.length * d.width) / 144 <= GALLERY_LIMIT_SQFT);
+  // A copy: editing the open design never edits the gallery card.
+  d.length += 12;
+  assert.notEqual(firstDesign().length, d.length);
+});
