@@ -27,6 +27,7 @@ const SIDING_NAME = {
   'board and batten': 'board and batten',
   vinyl: 'vinyl lap',
   'fiber cement': 'fiber cement lap',
+  'LP SmartSide lap': 'LP SmartSide engineered wood lap',
 };
 const COLOUR_NAME = { natural: 'stained', unfinished: 'unfinished' };
 
