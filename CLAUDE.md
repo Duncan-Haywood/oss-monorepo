@@ -133,11 +133,12 @@ is already asked; don't duplicate it.
 
 ## Hosting
 
-The catalogue is served by GitHub Pages at
-**https://duncan-haywood.github.io/oss-monorepo/**, built and deployed by
-`.github/workflows/portfolio-pages.yml` on every merge that touches a site
-input (and every three hours). Merging is publishing; there is no branch to
-push by hand. The Hetzner/k3s route was retired on 2026-10-01: never connect
+The catalogue is served by Cloudflare (free plan) at
+**https://monorepo-projects-site.duncan-andrew-haywood.workers.dev/**, built and
+deployed by `.github/workflows/portfolio-pages.yml` on every merge (and every
+three hours); the old GitHub Pages address serves redirect pages to it
+(owner, 2026-10-29). Merging is publishing; there is no branch to push by hand.
+The Hetzner/k3s route was retired on 2026-10-01: never connect
 to its old IPs (they may now belong to someone else), and manifests under
 `gitops/prod` describe a dead origin. What
 is served, and which state readers are stale:

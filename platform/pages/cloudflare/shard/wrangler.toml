@@ -1,0 +1,14 @@
+# Serves the site directories in ../router.mjs's SHARD_DIRS, behind the site
+# Worker's service binding. No public address of its own, so nothing is
+# published twice.
+name = "monorepo-projects-site-shard"
+main = "worker.mjs"
+compatibility_date = "2025-09-01"
+workers_dev = false
+
+[assets]
+# split.mjs writes this directory: the shard directories plus 404.html.
+directory = "../../dist-shard"
+binding = "ASSETS"
+html_handling = "auto-trailing-slash"
+not_found_handling = "404-page"
