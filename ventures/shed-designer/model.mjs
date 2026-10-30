@@ -128,6 +128,8 @@ export function defaultDesign() {
     customRange: false,
     sidingType: 'T1-11',
     wallTrim: '1x4',
+    // For fiber cement: James Hardie sells HZ5 plank where winters freeze and HZ10 where they don't.
+    climate: 'mild',
     roofCover: 'shingles',
     rafterSeat: 'connector',
     maxFootprint: 100,
@@ -313,7 +315,8 @@ export function normalize(input) {
     insulation: o.insulation === true,
     atticStorage: o.atticStorage === true,
     customRange: o.customRange === true,
-    wallTrim: pick(o.wallTrim, ['1x4', 'none'], d.wallTrim),
+    wallTrim: pick(o.wallTrim, ['1x4', '5/4', 'none'], d.wallTrim),
+    climate: pick(o.climate, ['mild', 'freezing'], d.climate),
     sidingType: pick(o.sidingType, ['T1-11', 'LP SmartSide', 'LP SmartSide 7/16', 'board and batten', 'vinyl', 'fiber cement', 'LP SmartSide lap'], d.sidingType),
     roofCover: pick(o.roofCover, ['shingles', 'metal'], d.roofCover),
     rafterSeat: pick(o.rafterSeat, ['birdsmouth', 'connector'], d.rafterSeat),
