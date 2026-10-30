@@ -7,6 +7,7 @@ import { costBreakdown, costDelta, deltaPhrase, costBridge, signedDollars, assem
 import { breakdownHtml, bridgeHtml, deltaSentence, tipHtml } from './costview.mjs';
 
 const close = (a, b, msg) => assert.ok(Math.abs(a - b) < 0.02, `${msg}: ${a} vs ${b}`);
+/** @type {() => any[]} */
 const designs = () => [
   ...Object.values(PRESETS).map((p) => p()),
   // Every siding, the metal roof, an inside finish, insulation, paint and a gravel pad, so every kind of line is met.
