@@ -1,5 +1,6 @@
 ---
 title: "Is an open-centre excavator valve's slowdown just the pump running out?"
+seo_title: "Open-centre excavator valve slowdown: is it just the pump?"
 date: 2026-10-30
 description: "In a small-excavator flow-sharing model, the 5.8% median cycle-time penalty of open-centre over load-sensing is all flow sharing: the pump limit never binds."
 tags: [research, heavy-hydraulics, excavator, hydraulics]

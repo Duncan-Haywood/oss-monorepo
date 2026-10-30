@@ -750,3 +750,49 @@ class UnguardedShallowFetchTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class PullRequestConcurrencyTest(unittest.TestCase):
+    """Invariant 9: a pull_request workflow declares a concurrency group."""
+
+    BASE = """\
+name: CI
+on: {on}
+permissions:
+  contents: read
+{conc}jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+{jobconc}    steps:
+      - run: echo hi
+"""
+    GROUP = "concurrency:\n  group: ${{ github.workflow }}-${{ github.ref }}\n  cancel-in-progress: true\n"
+
+    def errs(self, on, conc="", jobconc=""):
+        text = self.BASE.format(on=on, conc=conc, jobconc=jobconc)
+        return [e for e in errors_for(text) if "concurrency" in e]
+
+    def test_a_pull_request_workflow_without_a_group_is_flagged(self):
+        self.assertEqual(len(self.errs("[pull_request, push]")), 1)
+
+    def test_the_mapping_form_of_on_is_read_too(self):
+        self.assertEqual(len(self.errs("{pull_request: {paths: [a/**]}}")), 1)
+
+    def test_a_top_level_group_passes(self):
+        self.assertEqual(self.errs("[pull_request]", conc=self.GROUP), [])
+
+    def test_a_group_on_every_job_passes(self):
+        jobconc = "    concurrency: x-${{ github.ref }}\n"
+        self.assertEqual(self.errs("[pull_request]", jobconc=jobconc), [])
+
+    def test_push_only_and_pull_request_target_are_not_required(self):
+        self.assertEqual(self.errs("[push]"), [])
+        self.assertEqual(self.errs("[pull_request_target]"), [])
+
+    def test_the_real_workflow_tree_groups_every_pull_request_workflow(self):
+        from validate_workflows import WORKFLOWS_DIR
+        errors = []
+        for path in sorted(WORKFLOWS_DIR.glob("*.yml")):
+            check(path, errors)
+        self.assertEqual([e for e in errors if "concurrency" in e], [])

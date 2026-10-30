@@ -1,5 +1,6 @@
 ---
 title: "A waitlist for a booked-up babysitter, and a fair rule for New Year's Eve"
+seo_title: "A babysitter's waitlist, and a fair New Year's Eve rule"
 date: 2026-10-30
 description: "The babysitting kit now keeps a waitlist, offers cancelled sits in order, gives regular families first pick of busy nights, and holds a time for 24 or 48 hours."
 tags: [babysitting-business-kit, scheduling]

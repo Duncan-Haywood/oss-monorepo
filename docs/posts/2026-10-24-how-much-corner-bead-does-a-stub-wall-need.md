@@ -1,5 +1,6 @@
 ---
 title: "How much corner bead does a stub wall need? Counting the ends drywall wraps"
+seo_title: "How much corner bead does a stub wall need?"
 date: 2026-10-24
 description: "Drywall takeoffs count bead around windows and doors but miss free wall ends. A worked count, and how the framing takeoff tool now does it."
 tags: [construction, drywall, takeoff, estimating]

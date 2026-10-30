@@ -1,5 +1,6 @@
 ---
 title: "Audit by the coder's own label: when stratifying a hand-coded sample pays"
+seo_title: "Audit by the coder's own label"
 date: 2026-10-29
 description: "Stratifying an LLM-coded audit by corpus group buys nothing; stratifying by the coder's own label cuts the interval 15 to 25% when the coder is informative."
 tags: [research, llm-coding-inference, statistics]

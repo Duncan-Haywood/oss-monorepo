@@ -40,7 +40,7 @@ import { LEVER_KNOBS, searchKeep } from './levers.mjs';
 
 /**
  * @typedef {{ floorSqFt: number, clearHeightIn: number, wallHeightIn: number, wallVolumeCuFt: number, overheadCuFt: number,
- *   volumeCuFt: number, shelfFt: number, headroom: number, overheadOpen: boolean, notes: string[] }} Storage
+ *   volumeCuFt: number, usableCuFt: number, shelfFt: number, headroom: number, overheadOpen: boolean, notes: string[] }} Storage
  * @typedef {{ key: string, label: string, points: number, max: number, why: string }} LooksTerm
  * @typedef {{ score: number, terms: LooksTerm[] }} Looks
  * @typedef {{ design: any, label: string, cost: number, storage: Storage, looks: Looks, ok: boolean,
@@ -59,6 +59,9 @@ export const OBJECTIVES = {
   looks: { pick: 'Best looks', label: 'Looks (heuristic score)', unit: '/100', sense: 1, of: (/** @type {Scored} */ s) => s.looks.score },
   floor: { pick: 'Most floor', label: 'Floor area inside', unit: 'sq ft', sense: 1, of: (/** @type {Scored} */ s) => s.storage.floorSqFt },
   shelf: { pick: 'Most clear wall', label: 'Wall free of openings', unit: 'ft', sense: 1, of: (/** @type {Scored} */ s) => s.storage.shelfFt },
+  // Storage you can load today: the room, the roof space when it is open to the room, and the space over a
+  // decked loft or attic; not the space over bare ties, which needs decking first (storage.mjs, usableCuFt).
+  usable: { pick: 'Most usable storage', label: 'Usable storage (open or decked)', unit: 'cu ft', sense: 1, of: (/** @type {Scored} */ s) => s.storage.usableCuFt },
 };
 
 /**
@@ -149,16 +152,33 @@ export const LAYOUTS = {
     const at = doorEnd + Math.max(18, (L - doorEnd - WIN.width) / 2);
     return at + WIN.width <= L - 18 ? [{ ...DOOR, wall: 'front', offset: L / 3 - DOOR.width / 2 }, { ...WIN, wall: 'front', offset: at }] : null;
   },
+  // Clerestory: the door 12" from the left corner and a row of fixed 23 x 12 transoms along the rest of the
+  // wall, high, their sills 6" over the door head: 6" apart (room for two king studs), 8" clear of the door
+  // and 12" of the corner. On a lean-to that is the tall front wall, so they light the back of a shed
+  // standing against a fence and leave the wall below them for shelves.
+  'eave door and clerestory windows': (/** @type {number} */ L, /** @type {number} */ W, /** @type {any} */ DOOR) => {
+    const T = CLERESTORY;
+    const door = { ...DOOR, wall: 'front', offset: 12 };
+    const a = 12 + DOOR.width + 8;
+    const b = L - 12;
+    const n = Math.floor((b - a + 6) / (T.width + 6) + 1e-9);
+    if (n < 1) return null;
+    const used = n * T.width + (n - 1) * 6;
+    return [door, ...Array.from({ length: n }, (_, i) => ({ ...T, wall: 'front', offset: a + (b - a - used) / 2 + i * (T.width + 6), sill: DOOR.height + 6 }))];
+  },
 };
+
+/** The clerestory window: a fixed 23 x 12 transom (products.mjs), set long side level. */
+const CLERESTORY = { kind: 'window', width: 23.25, height: 12.25, product: 'swm-t2312' };
 
 /** Share of the budget kept for the polish phase. */
 const POLISH_SHARE = 0.35;
 /** The lighter value of each framing knob, tried on every front design first. */
 const LIGHT = { joistSize: '2x4', joistSpacing: 24, rafterSpacing: 24, studSpacing: 'auto', rafterSize: '2x4' };
 /** Knobs the polish tries: they mostly move cost, and leave the plan and openings alone. */
-const POLISH_KNOBS = ['joistSize', 'joistSpacing', 'rafterSpacing', 'studSpacing', 'rafterSize', 'overhang', 'wall', 'floorPanel', 'foundation', 'pad', 'roofCover', 'sidingType'];
+const POLISH_KNOBS = ['joistSize', 'joistSpacing', 'rafterSpacing', 'studSpacing', 'rafterSize', 'overhang', 'wall', 'floorPanel', 'foundation', 'pad', 'blockSpacing', 'floor', 'roofCover', 'sidingType'];
 /** The layouts that put every opening in the front wall: seeded for a lean-to, not a gable. */
-const FRONT_WALL_LAYOUTS = ['eave door, no windows', 'eave door and a window beside it'];
+const FRONT_WALL_LAYOUTS = ['eave door, no windows', 'eave door and a window beside it', 'eave door and clerestory windows'];
 
 /** The knobs the search turns, each with its values. Keys in opts.fixed are left as the base has them. */
 const KNOBS = {
@@ -181,7 +201,16 @@ const KNOBS = {
   // Gable, lean-to or gambrel (barn), tried last from each design (a lean-to has no ridge and a
   // gambrel its own trusses, so roofType does nothing to either).
   style: ['gable', 'leanTo', 'gambrel'],
+  // A gambrel's own shape: its lower slope (18/12 to 24/12, the usual barn range), how far in the
+  // bend sits (a fifth, a quarter or a third of the width), and a decked loft on its ties. They
+  // change nothing on another style, so designAt pins them there and no design is built twice.
+  gambrelLower: [20, 18, 22, 24],
+  gambrelKnee: ['quarter', 'fifth', 'third'],
+  loft: ['none', 'half', 'full'],
 };
+
+/** The knee knob in inches of run from the eave wall (0: the model's own quarter of the width). */
+const KNEE_FRACTION = { fifth: 1 / 5, quarter: 0, third: 1 / 3 };
 
 /**
  * Storage, by the one definition in storage.mjs (shared with the detail panel,
@@ -193,7 +222,7 @@ export function storageOf(shed) {
   const s = sharedStorage(shed);
   return {
     floorSqFt: r1(s.floorSqFt), clearHeightIn: r1(s.clearHeightIn), wallHeightIn: r1(s.wallHeightIn), wallVolumeCuFt: r1(s.wallVolumeCuFt), overheadCuFt: r1(s.overheadCuFt),
-    volumeCuFt: r1(s.volumeCuFt), shelfFt: r1(s.shelfFt), headroom: r1(s.headroom), overheadOpen: s.overheadOpen, notes: s.notes,
+    volumeCuFt: r1(s.volumeCuFt), usableCuFt: r1(s.usableCuFt), shelfFt: r1(s.shelfFt), headroom: r1(s.headroom), overheadOpen: s.overheadOpen, notes: s.notes,
   };
 }
 
@@ -384,6 +413,12 @@ function designAt(base, size, layout, knobs, minWall = DEFAULT_CONSTRAINTS.minWa
   // A lean-to has no ridge and a gambrel frames its own trusses: their roofType is pinned, so flipping it is not a new design to evaluate.
   const barn = knobs.style === 'gambrel';
   if (lean || barn) rest.roofType = 'ridgeBoard';
+  // The gambrel's own knobs: as the base has them on any other style (they would change nothing).
+  if (!barn) for (const k of ['gambrelLower', 'gambrelKnee', 'loft']) delete rest[k];
+  else if (typeof rest.gambrelKnee === 'string') {
+    const f = KNEE_FRACTION[rest.gambrelKnee] ?? 0;
+    rest.gambrelKnee = f ? Math.round(size.width * f * 2) / 2 : 0;
+  }
   // On a lean-to the lowest wall that frames the openings is often a door's height under the
   // tall front wall's: 'auto' there is that, or the lowest back wall you allow if higher.
   const leanAuto = lean && wall === 'auto' ? Math.max(minWall, minWallFor(normalize({ ...base, ...rest, length: size.length, width: size.width, openings: ops }))) : 0;
@@ -436,6 +471,8 @@ export function* searchSteps(opts = {}) {
   const baseProduct = (kind, list) => { const p = base.openings.find((o) => o.kind === kind)?.product; return p && p in list ? p : Object.keys(list)[0]; };
   const fixedValue = (k) => (k === 'studSpacing' && base.autoStuds ? 'auto' : k === 'wall' ? base.wallHeight : k === 'door' ? baseProduct('door', DOORS) : k === 'window' ? baseProduct('window', WINDOWS) : base[k]);
   for (const [k, vals] of Object.entries({ ...KNOBS, ...(opts.knobs ?? {}) })) knobs[k] = fixed.has(k) ? [fixedValue(k)] : vals;
+  // Leaving the floor out is opt-in: the search keeps your floor unless opts.knobs.floor asks for both.
+  if (!opts.knobs?.floor) knobs.floor = [base.floor];
   // A lean-to and a gambrel pin their roofType, so a roof structure you fixed rules them out.
   if (fixed.has('roofType') && knobs.roofType[0] !== 'ridgeBoard') knobs.style = knobs.style.filter((st) => st === 'gable');
   const sizes = opts.sizes ?? sizesUnder(c.maxFootprint > 0 ? c.maxFootprint : 100, c);

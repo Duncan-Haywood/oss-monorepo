@@ -1,5 +1,6 @@
 ---
 title: "A bigger zero-shot LLM coder did not narrow the interval: the threshold did"
+seo_title: "A bigger zero-shot LLM coder did not narrow the interval"
 date: 2026-10-26
 description: "Qwen2.5 at 0.5B, 1.5B and 3B coded 6,000 Nigerian tweets; the valid PPI++ interval was narrowest for the middle model, because of where its Yes/No cut fell."
 tags: [llm-coding-inference, research, ppi, qwen]

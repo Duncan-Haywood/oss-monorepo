@@ -162,6 +162,12 @@ workflows:
 - workflow: distribute-shorts.yml
   classification: none
   publishes: []
+- workflow: distribute-tool-releases.yml
+  classification: none
+  publishes: []
+- workflow: distribution-versions-ci.yml
+  classification: none
+  publishes: []
 - workflow: dns-configuration-evidence-ci.yml
   classification: none
   publishes: []
@@ -378,6 +384,9 @@ workflows:
     gates:
     - ${{ vars.VERCEL_DEPLOY == 'true' }}
 - workflow: sbom-diff-check-ci.yml
+  classification: none
+  publishes: []
+- workflow: security-alert-queue.yml
   classification: none
   publishes: []
 - workflow: shed-designer-browser.yml

@@ -5,7 +5,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
-import { BUDGET, VIEWS, altFor, renderFor, renderTargets } from './renders.mjs';
+import { BUDGET, EXTRA_VIEWS, SHARE_TARGET, VIEWS, altFor, budgetFor, renderFor, renderTargets, viewOf } from './renders.mjs';
 import { generate as generateSizePages } from './make-size-pages.mjs';
 import { MANIFEST, OUT, allTargets, galleryTargets, openStage, readManifest, sceneHash, sizeTargets, staleTargets } from './make-renders.mjs';
 
@@ -21,6 +21,19 @@ function webpSize(buf) {
   if (kind === 'VP8X') return [buf.readUIntLE(24, 3) + 1, buf.readUIntLE(27, 3) + 1];
   throw new Error(`unknown WebP chunk ${kind}`);
 }
+
+/** Width and height from a JPEG's start-of-frame marker. */
+function jpegSize(buf) {
+  assert.equal(buf.readUInt16BE(0), 0xffd8, 'JPEG magic');
+  for (let i = 2; i < buf.length - 9;) {
+    const marker = buf.readUInt16BE(i);
+    if (marker >= 0xffc0 && marker <= 0xffcf && ![0xffc4, 0xffc8, 0xffcc].includes(marker)) return [buf.readUInt16BE(i + 7), buf.readUInt16BE(i + 5)];
+    i += 2 + buf.readUInt16BE(i + 2);
+  }
+  throw new Error('no JPEG frame header');
+}
+
+const imageSize = (buf) => (buf.readUInt16BE(0) === 0xffd8 ? jpegSize(buf) : webpSize(buf));
 
 // About twenty lanes change these designs at once, so a stale picture must not
 // turn their pull requests red. The Pages build redraws stale pictures before
@@ -49,7 +62,7 @@ test('the scene hash moves with what is drawn and nothing else', () => {
   assert.notEqual(sceneHash(t.design, 'some other shader'), h);
 });
 
-test('each picture is a WebP of the size the manifest says, within budget, with alt text', () => {
+test('each picture is a WebP (or the share JPEG) of the size the manifest says, within budget, with alt text', () => {
   const m = readManifest();
   let total = 0;
   for (const t of allTargets()) {
@@ -61,9 +74,9 @@ test('each picture is a WebP of the size the manifest says, within budget, with 
       if (!f && !STRICT) continue;
       const buf = readFileSync(join(OUT, f.file));
       total += buf.length;
-      assert.deepEqual(webpSize(buf), [VIEWS[view].w, VIEWS[view].h], f.file);
+      assert.deepEqual(imageSize(buf), [viewOf(view).w, viewOf(view).h], f.file);
       assert.equal(buf.length, f.bytes, `${f.file} size in the manifest`);
-      assert.ok(buf.length <= (view === 'hero' ? BUDGET.hero : BUDGET.other), `${f.file} is ${buf.length} bytes, over its budget`);
+      assert.ok(buf.length <= budgetFor(view), `${f.file} is ${buf.length} bytes, over its budget`);
       assert.ok(f.alt.length > 40 && f.alt.length < 400, `${f.file} alt text`);
       if (STRICT || !STALE.has(t.slug)) assert.equal(f.alt, altFor(t.design, view), `${f.file} alt text is out of date; ${FIX}`);
       assert.deepEqual(renderFor(m, t.slug, view), { src: `renders/${f.file}`, width: f.w, height: f.h, alt: f.alt });
@@ -155,4 +168,18 @@ test('the starting-design strip shows the pre-drawn pictures', { skip: hasPw ? f
     const m = readManifest();
     for (const t of fresh) assert.ok(srcs.some((s) => s.endsWith(`renders/${m.designs[t.slug].files.card.file}`)), `${t.slug} card uses its drawn card picture`);
   } finally { await browser.close(); server.close(); }
+});
+
+test('the share picture each page names is the drawn 1200x630 JPEG of the default design', () => {
+  const m = readManifest();
+  const f = m.designs[SHARE_TARGET.slug]?.files?.share;
+  assert.ok(f, `no share picture; ${FIX}`);
+  assert.deepEqual([f.w, f.h], [EXTRA_VIEWS.share.w, EXTRA_VIEWS.share.h]);
+  assert.ok(f.file.endsWith('.jpg'));
+  for (const page of ['index.html', 'shed-plans-with-cut-list.html', 'hoa-packet.html']) {
+    const html = readFileSync(new URL(page, import.meta.url), 'utf8');
+    assert.match(html, new RegExp(`<meta property="og:image" content="renders/${f.file}">`), page);
+  }
+  // Extra views stay out of VIEWS, so adding one never re-hashes every stored picture.
+  for (const v of Object.keys(EXTRA_VIEWS)) assert.ok(!(v in VIEWS), v);
 });

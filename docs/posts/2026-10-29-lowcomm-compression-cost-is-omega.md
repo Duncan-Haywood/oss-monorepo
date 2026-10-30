@@ -1,5 +1,6 @@
 ---
 title: "Low-communication training: compression costs loss in proportion to its noise, not its keep fraction"
+seo_title: "Low-communication training"
 date: 2026-10-29
 tags: [research, lowcomm-training, diloco]
 description: "On a small GPT trained DiLoCo-style, unbiased compression costs loss in proportion to its measured error-to-signal ratio omega, across two compressor families."

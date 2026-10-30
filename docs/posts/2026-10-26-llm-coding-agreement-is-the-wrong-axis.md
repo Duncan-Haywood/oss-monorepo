@@ -1,5 +1,6 @@
 ---
 title: "Why small LLM coders didn't shrink our intervals: agreement was the wrong number"
+seo_title: "Why small LLM coders didn't shrink our intervals"
 date: 2026-10-26
 description: "On 6,000 Nigerian tweets, three Qwen coders at 66 to 69% agreement gave almost no gain in prediction-powered inference. Youden's J, not agreement, explains it."
 tags: [llm-coding-inference, research, prediction-powered-inference, llm-annotation]

@@ -153,3 +153,18 @@ test('the siding step says how the nested gable pieces are cut and joined', () =
   assert.match(md, /take them from what is left of a sheet after a short full-width piece/);
   assert.ok(!/upper gable pieces come from/.test(mdOf(defaultDesign()).md)); // its panels reach the roof in one piece
 });
+
+// The Siding step said "T1-11 panels" whatever the siding was.
+test('the siding step names the siding the design uses', () => {
+  const step = (sidingType) => make({ ...defaultDesign(), sidingType }).sections.find((x) => /iding/.test(x.title));
+  assert.match(step('T1-11').steps[0], /^T1-11 panels/);
+  assert.match(step('LP SmartSide').steps[0], /^LP SmartSide 3\/8" panels/);
+  assert.match(step('LP SmartSide 7/16').steps[0], /^LP SmartSide 7\/16" panels/);
+  for (const t of ['board and batten', 'vinyl']) {
+    const st = step(t);
+    assert.equal(st.title, 'Wall sheathing and siding');
+    assert.ok(!st.steps.join(' ').includes('T1-11'), t);
+    assert.match(st.steps[0], /7\/16" OSB/);
+  }
+  assert.ok(!make({ ...defaultDesign(), sidingType: 'vinyl', sidingColor: 'grey' }).sections.flatMap((x) => x.steps).join(' ').includes('T1-11'));
+});

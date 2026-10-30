@@ -1,7 +1,7 @@
 // Gambrel (barn) roof: the framing, its joints, its checks and what it buys.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildShed, normalize, defaultDesign } from './model.mjs';
+import { buildShed, normalize, defaultDesign, PRESETS } from './model.mjs';
 import { gambrelShape, gambrelAnalysis, solveFrame, kneeRun } from './gambrel.mjs';
 import { integrity } from './integrity.mjs';
 import { connectionChecks } from './connections.mjs';
@@ -143,3 +143,53 @@ test('for the same footprint, walls and money, a gambrel holds more than a gable
   const inside = ((base.length - 7) * (base.width - 7)) / 144;
   assert.ok(Math.abs(a.floorSqFt - inside) < 1e-9);
 });
+
+test('gusset plywood: APA PDS capacities, the size factor, and a hand check of one section', async () => {
+  const { gussetPanel, panelSizeFactor, GUSSET_PANEL } = await import('./gambrel.mjs');
+  // PDS 4.5.5: Cs = 0.5 under 8", 0.25 + 0.0313 b to 24", 1 from 24".
+  assert.equal(panelSizeFactor(6), 0.5);
+  assert.ok(Math.abs(panelSizeFactor(16) - 0.7508) < 1e-9);
+  assert.equal(panelSizeFactor(30), 1);
+  // 1,000 lb-in on a 10" section of 15/32" (t = 5.625 / 12 = 0.46875"): S = 7.8125 in^3, fb = 128 psi;
+  // tension capacity 1,250 / 5.625 = 222.2 psi x Cs 0.563 x CD 1.15 = 143.9 psi, so 89%.
+  const r = gussetPanel(1000, 0, 0, 10, 1.15);
+  const Ft = (GUSSET_PANEL.FtA / GUSSET_PANEL.A) * 1.15 * (0.25 + 0.0313 * 10);
+  assert.ok(Math.abs(r.tension - 128 / Ft) < 1e-9 && r.governs === 'panel tension (bending)');
+  // Shear alone: 200 lb over 10" at 62 lb/in x 1.15.
+  assert.ok(Math.abs(gussetPanel(0, 0, 200, 10, 1.15).shear - 200 / (62 * 1.15 * 10)) < 1e-12);
+});
+
+test('the knee gussets reach into the corner far enough to pass, in barns of several sizes, slopes and loads', () => {
+  for (const o of [{}, { snowLoad: 60 }, { width: 144, length: 120 }, { rafterSize: '2x6' }, { gambrelLower: 24, pitch: 4 }, { loft: 'full' }]) {
+    const s = buildShed({ ...PRESETS['10x10 barn'](), ...o });
+    const rows = structuralChecks(s).rows.filter((x) => /gussets \(plywood\)/.test(x.member));
+    assert.equal(rows.length, 2, JSON.stringify(o));
+    for (const x of rows) assert.ok(x.ratio <= 1, `${JSON.stringify(o)}: ${x.member} ${x.ratio}`);
+    const g = s.dims.gambrel.gusset;
+    assert.ok(g.kneeExt >= 0 && g.kneeExt < 24);
+  }
+});
+
+test('loft access: a ladder to a half loft, a hatch and a ladder through a full one, nothing floating', () => {
+  for (const loft of ['half', 'full']) {
+    const s = buildShed({ ...PRESETS['10x10 barn'](), loft });
+    const rails = s.members.filter((m) => m.kind === 'ladder rail');
+    const rungs = s.members.filter((m) => m.kind === 'ladder rung');
+    assert.equal(rails.length, 2, loft);
+    assert.ok(rungs.length >= 5, loft);
+    const ii = integrity(s);
+    assert.deepEqual([ii.floating, ii.clashes], [[], []], loft);
+    // The preset's door is in the left gable end, so the ladder stands toward the back, clear of it.
+    assert.ok(rails.every((m) => m.geom.origin[1] > d(s).width / 2 + 10), loft);
+    if (loft === 'full') {
+      const note = s.notes.find((n) => n.startsWith('Loft hatch'));
+      assert.match(note, /22-1\/2" x 30"/);
+      const area = s.panels.filter((p) => p.kind === 'loft deck').reduce((t, p) => t + p.geom.profile[2][0] * p.geom.profile[2][1], 0);
+      const full = buildShed({ ...PRESETS['10x10 barn'](), loft, rafterSpacing: 24, openings: [] });
+      assert.ok(area < full.panels.filter((p) => p.kind === 'loft deck').reduce((t, p) => t + p.geom.profile[2][0] * p.geom.profile[2][1], 0) + 1);
+    }
+  }
+  const tight = buildShed({ ...PRESETS['10x10 barn'](), loft: 'full', rafterSpacing: 16 });
+  assert.ok(tight.warnings.some((w) => /IRC R807\.1/.test(w)));
+});
+const d = (s) => s.design;

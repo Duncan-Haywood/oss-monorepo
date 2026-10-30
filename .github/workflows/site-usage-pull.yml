@@ -56,6 +56,8 @@ jobs:
         run: |
           for f in portfolio/usage/site-visits.json portfolio/usage/site-feedback.json portfolio/usage/github-traffic.json; do if [ -f "$f" ]; then git add "$f"; fi; done
           if git diff --cached --quiet; then echo "no change"; exit 0; fi
-          git -c user.name="monorepo-projects bot" -c user.email="noreply@users.noreply.github.com" \
+          # The Actions bot address, so GitHub credits github-actions[bot]. The old
+          # noreply@users.noreply.github.com credited the stranger whose login is "noreply".
+          git -c user.name="site-usage-pull (GitHub Actions)" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
             commit -m "usage: daily site page-load counts, feedback and GitHub repo traffic"
           git push "https://x-access-token:${GH_TOKEN}@github.com/${REPO}.git" HEAD:main

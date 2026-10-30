@@ -1,5 +1,6 @@
 ---
 title: "Does scanning for autocorrelation help find real level shifts? We measured: no"
+seo_title: "Does scanning for autocorrelation help find real level shifts?"
 date: 2026-10-27
 description: "A negative result: fitting autocorrelation at every value from 0 to 0.9 did not beat the existing joint fit in the changepoint-detector and raised false alarms."
 tags: [statistics, changepoint-detector, negative-result]

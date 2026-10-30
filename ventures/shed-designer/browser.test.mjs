@@ -769,6 +769,29 @@ test('the lean-to preset draws one slope in the editor, and the shape box switch
   assert.notEqual(await page.$eval('#total', (e) => e.textContent), total, 'the gable is priced again');
 });
 
+test('the saltbox preset: an off-centre peak in the editor, the front-pitch field, both pitches on the handle', { skip }, async (t) => {
+  const { page } = await open(t);
+  const opt = await page.$$eval('#new-design option', (os) => os.find((o) => o.textContent.includes('saltbox'))?.value);
+  assert.ok(opt, 'a saltbox in the New design menu');
+  await page.selectOption('#new-design', opt);
+  await settle(page);
+  assert.equal(await val(page, 'style'), 'saltbox');
+  assert.ok(await page.isVisible('#frontPitch'), 'the front-pitch field shows on a saltbox');
+  assert.match(await page.$eval('#endview', (e) => e.textContent), /10\/12 and 5\/12/);
+  assert.match(await page.$eval('#plan', (e) => e.textContent), /ridge \(off centre\)/);
+  // The peak handle sits left of mid-width (the steep front is on the left); an arrow key steepens both slopes.
+  const box = await page.$eval('#endview', (svg) => { const g = svg.querySelector('[data-key="end-peak"]'); const r = g.getBoundingClientRect(); const s = svg.querySelector('.endwall').getBoundingClientRect(); return { x: r.x + r.width / 2 - s.x, w: s.width }; });
+  assert.ok(box.x < box.w * 0.45, `peak at ${box.x} of ${box.w}`);
+  await page.focus('[data-key="end-peak"]');
+  await page.keyboard.press('ArrowUp');
+  await settle(page);
+  assert.equal(Number(await val(page, 'pitch')), 6);
+  assert.equal(Number(await val(page, 'frontPitch')), 12);
+  await page.selectOption('#style', 'gable');
+  await settle(page);
+  assert.ok(!(await page.isVisible('#frontPitch')), 'and hides on a gable');
+});
+
 test('Save picture downloads the 3D view as a PNG', { skip }, async (t) => {
   const { page } = await open(t);
   const [dl] = await Promise.all([page.waitForEvent('download'), page.click('#save-picture')]);

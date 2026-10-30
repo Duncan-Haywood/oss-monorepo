@@ -1,5 +1,6 @@
 ---
 title: "Bookkeeping for auto repair shops: six of thirteen lines had no account"
+seo_title: "Bookkeeping for auto repair shops"
 date: 2026-10-29
 description: "ai-bookkeeper gets a worked October for an independent repair shop. Fleet-account payments, repair-data software, bay rent and the ASE fee had no rules."
 tags: [ai-bookkeeper, small-business, bookkeeping, auto-repair]

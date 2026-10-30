@@ -1,5 +1,6 @@
 ---
 title: "How many eave baffles does your attic need? The framing takeoff now counts them"
+seo_title: "How many eave baffles does your attic need?"
 date: 2026-10-29
 tags: [wall-framing-takeoff, insulation]
 description: "The free wall-framing takeoff now counts attic eave baffles, one per rafter or truss bay on both eaves, next to the loose-fill bag count."

@@ -1,5 +1,6 @@
 ---
 title: "E-invoice Preflight adds Cyprus: public buyers receive, businesses are not yet required"
+seo_title: "E-invoice Preflight adds Cyprus"
 date: 2026-10-26
 description: "Cyprus makes public bodies accept e-invoices, not suppliers send them; no domestic B2B mandate is reported before the EU's 2030 step."
 tags: [einvoice-preflight, e-invoicing, cyprus, compliance]

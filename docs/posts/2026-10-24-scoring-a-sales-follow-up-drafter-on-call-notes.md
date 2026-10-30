@@ -1,5 +1,6 @@
 ---
 title: "Scoring a sales follow-up drafter on call notes: 34 of 40 before the fix"
+seo_title: "Scoring a sales follow-up drafter on call notes"
 date: 2026-10-24
 description: "A sales agent turns call notes into a follow-up email. Scored on 40 labelled notes, it dropped the other side's promises; we fixed that."
 tags: [sales, evaluation, ai-agents, open-source]

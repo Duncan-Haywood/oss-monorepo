@@ -141,7 +141,8 @@ for (const [key, make] of Object.entries(PRESETS)) {
     assert.ok(t.includes(`${fmtFtIn(d.width)} walls`));
     assert.ok(t.includes(`${fmtFtIn(d.width + 2 * d.overhang)} roof`));
     assert.ok(t.some((s) => s.endsWith(' roof') && s.startsWith('about ')));
-    assert.ok(t.includes('FRONT') && t.includes('RIDGE'));
+    // A lean-to has no ridge: its plan says which way the one slope falls.
+    assert.ok(t.includes('FRONT') && (d.style === 'leanTo' ? !t.includes('RIDGE') : t.includes('RIDGE')));
     if (d.overhang > 0) assert.ok(t.includes(fmtIn(d.overhang)));
     for (const kind of ['door', 'window']) {
       const n = shed.framedOpenings.filter((o) => o.kind === kind).length;
@@ -170,4 +171,47 @@ test('elevations show the chosen door paint, blended shingle tabs, lap shadows a
   assert.match(html, /Siding: fiber cement lap siding|sage green paint/);
   // The same drawing every time: the tab pattern is seeded, not random.
   assert.equal(elevationSvg(shed, 'front'), front);
+});
+
+test('the packet\'s site sheet has no title block of its own, and the 3D corner shows the door', async () => {
+  const { CORNERS, cornerFor, siteSheetSvg } = await import('./hoa.mjs');
+  const lot = buildShed({ ...defaultDesign(), lotWidthFt: 60, lotDepthFt: 120, siteLeftFt: 6, siteRearFt: 8 });
+  const svg = siteSheetSvg(lot);
+  assert.match(svg, /<svg/);
+  assert.doesNotMatch(svg, /Sheet \d+ of \d+|class="tb"/);
+  assert.match(packetHtml(lot), /Add a north arrow/);
+  // The default 8x12's door is on the front, its windows on the back.
+  const d = defaultDesign();
+  assert.equal(cornerFor(d), 'front-right');
+  const doorLeft = { ...d, openings: d.openings.map((o) => (o.kind === 'door' ? { ...o, wall: 'left' } : o)) };
+  assert.ok(CORNERS[cornerFor(doorLeft)].walls.includes('left'));
+  const doorBack = { ...d, openings: d.openings.map((o) => (o.kind === 'door' ? { ...o, wall: 'back' } : o)) };
+  assert.ok(CORNERS[cornerFor(doorBack)].walls.includes('back'));
+  assert.equal(cornerFor(d, 'back-left'), 'back-left');
+  assert.equal(cornerFor(d, 'nonsense'), 'front-right');
+  assert.match(packetHtml(buildShed(d), { perspective: 'data:image/png;base64,AA', corner: 'front-left' }), /seen from the front and left side/);
+});
+
+test('no shingle tab in an elevation has a negative or zero width', () => {
+  for (const make of Object.values(PRESETS)) {
+    const shed = buildShed(make());
+    for (const v of ['front', 'back', 'left', 'right']) {
+      const widths = [...elevationSvg(shed, v).matchAll(/<rect [^>]*width="(-?[\d.]+)"/g)].map((m) => Number(m[1]));
+      assert.ok(widths.every((w) => w > 0), `${shed.design.name} ${v}: ${widths.filter((w) => w <= 0).join(', ')}`);
+    }
+  }
+});
+
+test('the door finish names what the door is: a site-built door takes the siding finish, a bought one its factory finish', async () => {
+  const { doorFinish } = await import('./hoa.mjs');
+  const { defaultDesign, normalize } = await import('./model.mjs');
+  const base = normalize({ ...defaultDesign(), sidingType: 'LP SmartSide lap', sidingColor: 'white' });
+  const site = { ...base, openings: base.openings.map((o) => (o.kind === 'door' ? { ...o, product: 'site-built' } : o)) };
+  assert.match(doorFinish(site), /site-built door skinned with the siding.*white paint/);
+  assert.doesNotMatch(doorFinish(site), /stained/i);
+  const bought = { ...base, openings: base.openings.map((o) => (o.kind === 'door' ? { ...o, product: 'masonite-3280-flush' } : o)) };
+  assert.match(doorFinish(bought), /factory finish/);
+  assert.match(doorFinish({ ...site, doorColor: 'match siding' }), /^same as the siding: white paint$/);
+  assert.doesNotMatch(doorFinish({ ...site, doorColor: 'match trim' }), /Same as the trim paint/);
+  assert.equal(doorFinish({ ...base, openings: base.openings.filter((o) => o.kind !== 'door') }), 'no doors');
 });

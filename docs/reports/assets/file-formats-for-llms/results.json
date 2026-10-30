@@ -1,0 +1,465 @@
+{
+ "structured": {
+  "portfolio/flagships.yaml": {
+   "yaml (as written, with comments)": {
+    "o200k_base": 5647,
+    "cl100k_base": 5656
+   },
+   "yaml (data only)": {
+    "o200k_base": 4711,
+    "cl100k_base": 4714
+   },
+   "json (indent 2)": {
+    "o200k_base": 4783,
+    "cl100k_base": 4788
+   },
+   "json (minified)": {
+    "o200k_base": 4658,
+    "cl100k_base": 4662
+   },
+   "toml": {
+    "o200k_base": 4713,
+    "cl100k_base": 4718
+   },
+   "xml": {
+    "o200k_base": 4867,
+    "cl100k_base": 4871
+   }
+  },
+  "portfolio/usage/usage.yaml": {
+   "yaml (as written, with comments)": {
+    "o200k_base": 79792,
+    "cl100k_base": 79804
+   },
+   "yaml (data only)": {
+    "o200k_base": 72832,
+    "cl100k_base": 72814
+   },
+   "json (indent 2)": {
+    "o200k_base": 82859,
+    "cl100k_base": 82786
+   },
+   "json (minified)": {
+    "o200k_base": 68355,
+    "cl100k_base": 67982
+   },
+   "toml": {
+    "o200k_base": 71413,
+    "cl100k_base": 70856
+   },
+   "xml": {
+    "o200k_base": 92783,
+    "cl100k_base": 92563
+   }
+  }
+ },
+ "tabular": {
+  "research/marriage-divorce-evidence/reproducibility/annual_acs/predictive_margins.csv": {
+   "csv": {
+    "o200k_base": 8598,
+    "cl100k_base": 8611
+   },
+   "markdown table": {
+    "o200k_base": 9752,
+    "cl100k_base": 9764
+   },
+   "json records (indent 2)": {
+    "o200k_base": 18643,
+    "cl100k_base": 18651
+   },
+   "json records (minified)": {
+    "o200k_base": 13204,
+    "cl100k_base": 13212
+   },
+   "xml rows": {
+    "o200k_base": 22174,
+    "cl100k_base": 22182
+   }
+  }
+ },
+ "density": {
+  "py": {
+   "files": 300,
+   "chars_per_token": 3.48
+  },
+  "mjs": {
+   "files": 300,
+   "chars_per_token": 3.57
+  },
+  "ts": {
+   "files": 300,
+   "chars_per_token": 4.24
+  },
+  "json": {
+   "files": 300,
+   "chars_per_token": 2.72
+  },
+  "md": {
+   "files": 300,
+   "chars_per_token": 3.8
+  },
+  "html": {
+   "files": 300,
+   "chars_per_token": 3.72
+  },
+  "xml": {
+   "files": 300,
+   "chars_per_token": 3.08
+  },
+  "svg": {
+   "files": 300,
+   "chars_per_token": 2.26
+  },
+  "yaml": {
+   "files": 300,
+   "chars_per_token": 4.24
+  },
+  "toml": {
+   "files": 300,
+   "chars_per_token": 3.68
+  },
+  "csv": {
+   "files": 300,
+   "chars_per_token": 1.82
+  },
+  "txt": {
+   "files": 300,
+   "chars_per_token": 2.46
+  }
+ },
+ "python_interface": {
+  "modules": 199,
+  "median_stub_share": 0.147,
+  "p25": 0.081,
+  "p75": 0.285
+ },
+ "posts": {
+  "n": 40,
+  "sum_md": 21992,
+  "sum_html": 196634,
+  "sum_html_text_only": 29498,
+  "html_over_md_median": 13.536023054755043,
+  "rows": [
+   {
+    "post": "docs/posts/2026-10-28-eight-to-a-well-a-story-about-pooled-testing.md",
+    "md": 341,
+    "html": 4687,
+    "html_text_only": 576,
+    "md_bytes": 1320,
+    "html_bytes": 15681
+   },
+   {
+    "post": "docs/posts/2026-10-28-does-a-solar-boat-survive-a-dull-week.md",
+    "md": 465,
+    "html": 4900,
+    "html_text_only": 694,
+    "md_bytes": 1637,
+    "html_bytes": 16160
+   },
+   {
+    "post": "docs/posts/2026-10-24-counting-drywall-sheets-without-a-rule-of-thumb.md",
+    "md": 421,
+    "html": 4735,
+    "html_text_only": 639,
+    "md_bytes": 1653,
+    "html_bytes": 16020
+   },
+   {
+    "post": "docs/posts/2026-10-27-size-the-audit-from-a-400-item-pilot.md",
+    "md": 460,
+    "html": 4871,
+    "html_text_only": 694,
+    "md_bytes": 1593,
+    "html_bytes": 15947
+   },
+   {
+    "post": "docs/posts/2026-10-22-a-waste-sorting-robot-is-limited-by-reach-over-pick-time.md",
+    "md": 682,
+    "html": 5289,
+    "html_text_only": 901,
+    "md_bytes": 2580,
+    "html_bytes": 17844
+   },
+   {
+    "post": "docs/posts/2026-10-24-payroll-deposit-split-across-quarters.md",
+    "md": 316,
+    "html": 4574,
+    "html_text_only": 524,
+    "md_bytes": 1300,
+    "html_bytes": 15375
+   },
+   {
+    "post": "docs/posts/2026-10-28-counting-siding-course-by-course.md",
+    "md": 372,
+    "html": 4620,
+    "html_text_only": 602,
+    "md_bytes": 1467,
+    "html_bytes": 15647
+   },
+   {
+    "post": "docs/posts/2026-10-24-38-abandoned-drafts-two-worth-keeping.md",
+    "md": 892,
+    "html": 5169,
+    "html_text_only": 1017,
+    "md_bytes": 3654,
+    "html_bytes": 17854
+   },
+   {
+    "post": "docs/posts/2026-10-24-is-religion-dying-secularization-theory-2020s-data.md",
+    "md": 4385,
+    "html": 9249,
+    "html_text_only": 3345,
+    "md_bytes": 16536,
+    "html_bytes": 32262
+   },
+   {
+    "post": "docs/posts/2026-10-28-the-airfoil-surrogate-reads-high-at-drone-reynolds-numbers.md",
+    "md": 474,
+    "html": 4922,
+    "html_text_only": 715,
+    "md_bytes": 1708,
+    "html_bytes": 16080
+   },
+   {
+    "post": "docs/posts/2026-10-29-the-window-that-ate-the-stud.md",
+    "md": 644,
+    "html": 4947,
+    "html_text_only": 868,
+    "md_bytes": 2517,
+    "html_bytes": 16652
+   },
+   {
+    "post": "docs/posts/2026-10-27-a-glider-beats-a-propeller-auv-only-through-hotel-load.md",
+    "md": 481,
+    "html": 4950,
+    "html_text_only": 720,
+    "md_bytes": 1789,
+    "html_bytes": 16306
+   },
+   {
+    "post": "docs/posts/2026-10-27-random-incomes-through-the-tax-estimate-found-nothing.md",
+    "md": 347,
+    "html": 4697,
+    "html_text_only": 584,
+    "md_bytes": 1553,
+    "html_bytes": 16193
+   },
+   {
+    "post": "docs/posts/2026-10-24-a-drywall-line-that-was-counted-twice.md",
+    "md": 336,
+    "html": 4616,
+    "html_text_only": 549,
+    "md_bytes": 1439,
+    "html_bytes": 15573
+   },
+   {
+    "post": "docs/posts/2026-10-26-shift-roster-builder-guide-figures.md",
+    "md": 258,
+    "html": 4503,
+    "html_text_only": 502,
+    "md_bytes": 1077,
+    "html_bytes": 15237
+   },
+   {
+    "post": "docs/posts/2026-10-28-stair-stringers-in-your-browser.md",
+    "md": 337,
+    "html": 4650,
+    "html_text_only": 595,
+    "md_bytes": 1358,
+    "html_bytes": 15639
+   },
+   {
+    "post": "docs/posts/2026-10-26-llm-coding-inference-paper-draft-1.md",
+    "md": 315,
+    "html": 4729,
+    "html_text_only": 572,
+    "md_bytes": 1180,
+    "html_bytes": 15567
+   },
+   {
+    "post": "docs/posts/2026-10-25-sales-agent-tls-mail.md",
+    "md": 316,
+    "html": 4608,
+    "html_text_only": 535,
+    "md_bytes": 1289,
+    "html_bytes": 15432
+   },
+   {
+    "post": "docs/posts/2026-10-26-llm-coder-error-shape-ppi.md",
+    "md": 346,
+    "html": 4657,
+    "html_text_only": 594,
+    "md_bytes": 1472,
+    "html_bytes": 15648
+   },
+   {
+    "post": "docs/posts/2026-10-24-why-a-footbridge-sings-under-a-procession.md",
+    "md": 575,
+    "html": 4893,
+    "html_text_only": 810,
+    "md_bytes": 2089,
+    "html_bytes": 16409
+   },
+   {
+    "post": "docs/posts/2026-10-26-wall-framing-takeoff-ceiling-joists-from-the-roof.md",
+    "md": 292,
+    "html": 4642,
+    "html_text_only": 525,
+    "md_bytes": 1205,
+    "html_bytes": 15511
+   },
+   {
+    "post": "docs/posts/2026-10-28-research-claim-check-reached-the-live-prompt.md",
+    "md": 352,
+    "html": 4646,
+    "html_text_only": 558,
+    "md_bytes": 1468,
+    "html_bytes": 15825
+   },
+   {
+    "post": "docs/posts/2026-10-25-the-barbara-level.md",
+    "md": 298,
+    "html": 4568,
+    "html_text_only": 518,
+    "md_bytes": 1128,
+    "html_bytes": 15114
+   },
+   {
+    "post": "docs/posts/2026-10-28-guarding-the-open-edge-of-a-stair-landing.md",
+    "md": 233,
+    "html": 4507,
+    "html_text_only": 481,
+    "md_bytes": 907,
+    "html_bytes": 14916
+   },
+   {
+    "post": "docs/posts/2026-10-20-build-what-an-agent-would-rather-call.md",
+    "md": 1399,
+    "html": 5841,
+    "html_text_only": 1508,
+    "md_bytes": 5921,
+    "html_bytes": 20585
+   },
+   {
+    "post": "docs/posts/2026-10-25-pizzeria-is-not-pizza.md",
+    "md": 325,
+    "html": 4669,
+    "html_text_only": 571,
+    "md_bytes": 1268,
+    "html_bytes": 15470
+   },
+   {
+    "post": "docs/posts/2026-10-29-sales-agent-writes-replies-back-to-your-crm.md",
+    "md": 384,
+    "html": 4686,
+    "html_text_only": 606,
+    "md_bytes": 1567,
+    "html_bytes": 15779
+   },
+   {
+    "post": "docs/posts/2026-10-27-a-median-defence-at-sixteen-workers-is-below-what-three-seeds-can-see.md",
+    "md": 493,
+    "html": 4908,
+    "html_text_only": 722,
+    "md_bytes": 2078,
+    "html_bytes": 16624
+   },
+   {
+    "post": "docs/posts/2026-10-28-every-link-in-our-llms-txt-files-resolves.md",
+    "md": 340,
+    "html": 4690,
+    "html_text_only": 558,
+    "md_bytes": 1298,
+    "html_bytes": 15463
+   },
+   {
+    "post": "docs/posts/2026-10-28-the-second-reader-a-for-other-minds-story-about-checkers-that-share-eyes.md",
+    "md": 405,
+    "html": 4858,
+    "html_text_only": 634,
+    "md_bytes": 1632,
+    "html_bytes": 16431
+   },
+   {
+    "post": "docs/posts/2026-10-26-redteam-estimatedtax.md",
+    "md": 206,
+    "html": 4472,
+    "html_text_only": 451,
+    "md_bytes": 867,
+    "html_bytes": 14806
+   },
+   {
+    "post": "docs/posts/2026-10-30-attic-insulation-thins-at-the-eave.md",
+    "md": 334,
+    "html": 4655,
+    "html_text_only": 566,
+    "md_bytes": 1138,
+    "html_bytes": 15210
+   },
+   {
+    "post": "docs/posts/2026-10-25-a-card-file-of-only-purchases-looked-like-income.md",
+    "md": 276,
+    "html": 4513,
+    "html_text_only": 506,
+    "md_bytes": 1152,
+    "html_bytes": 15184
+   },
+   {
+    "post": "docs/posts/2026-10-27-telling-the-team-without-a-text-message-bill.md",
+    "md": 369,
+    "html": 4706,
+    "html_text_only": 603,
+    "md_bytes": 1593,
+    "html_bytes": 15998
+   },
+   {
+    "post": "docs/posts/2026-10-28-paid-on-the-due-date-keeps-the-sales-tax-discount.md",
+    "md": 301,
+    "html": 4682,
+    "html_text_only": 516,
+    "md_bytes": 1137,
+    "html_bytes": 15606
+   },
+   {
+    "post": "docs/posts/2026-10-24-picking-a-league-fairness-weight-in-the-browser.md",
+    "md": 324,
+    "html": 4601,
+    "html_text_only": 543,
+    "md_bytes": 1443,
+    "html_bytes": 15689
+   },
+   {
+    "post": "docs/posts/2026-10-27-einvoice-preflight-spain-b2b.md",
+    "md": 425,
+    "html": 4838,
+    "html_text_only": 658,
+    "md_bytes": 1681,
+    "html_bytes": 15908
+   },
+   {
+    "post": "docs/posts/2026-10-20-ambient-ai-assistant-when-to-speak-research.md",
+    "md": 1936,
+    "html": 6816,
+    "html_text_only": 1937,
+    "md_bytes": 7899,
+    "html_bytes": 24058
+   },
+   {
+    "post": "docs/posts/2026-10-25-group-shift-second-corpus.md",
+    "md": 334,
+    "html": 4636,
+    "html_text_only": 572,
+    "md_bytes": 1296,
+    "html_bytes": 15631
+   },
+   {
+    "post": "docs/posts/2026-10-29-polish-build-takes-twenty-minutes.md",
+    "md": 203,
+    "html": 4434,
+    "html_text_only": 429,
+    "md_bytes": 786,
+    "html_bytes": 14687
+   }
+  ]
+ }
+}

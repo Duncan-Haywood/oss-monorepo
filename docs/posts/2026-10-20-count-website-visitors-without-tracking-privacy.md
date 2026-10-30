@@ -1,5 +1,6 @@
 ---
 title: "Counting visitors without tracking them: why our usage is unmeasured, not zero"
+seo_title: "Counting visitors without tracking them"
 date: 2026-10-20
 description: "458 visitor readings across 296 products, every one null. Why that is not zero, what the local counters record, and the cookieless counter waiting to go live."
 tags: [privacy, analytics, github-pages, measurement]
