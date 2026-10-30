@@ -6,7 +6,7 @@
    "key": "10x12",
    "name": "10x12 gable shed",
    "hash": "26c7d09d431530c0",
-   "designKey": "ac68e4e0",
+   "designKey": "a3a3dafd",
    "files": {
     "hero": {
      "file": "10x12-hero.webp",
@@ -56,7 +56,7 @@
    "key": "12x16",
    "name": "12x16 gable shed",
    "hash": "6f94d810aab91a60",
-   "designKey": "da498406",
+   "designKey": "5fce2c0d",
    "files": {
     "hero": {
      "file": "12x16-hero.webp",
@@ -106,7 +106,7 @@
    "key": "8x10",
    "name": "8x10 gable shed",
    "hash": "dee6055f0e9f8731",
-   "designKey": "97eab708",
+   "designKey": "a84960bd",
    "files": {
     "hero": {
      "file": "8x10-hero.webp",
@@ -156,7 +156,7 @@
    "key": "8x12",
    "name": "8x12 ridge-beam shed",
    "hash": "ba2afd6d72ff729c",
-   "designKey": "20f7428d",
+   "designKey": "fd9d016a",
    "files": {
     "hero": {
      "file": "8x12-hero.webp",
@@ -206,7 +206,7 @@
    "key": "8x12 classic",
    "name": "8x12 gable shed",
    "hash": "77b2aad9fdbd9e08",
-   "designKey": "a9689dec",
+   "designKey": "13444f71",
    "files": {
     "hero": {
      "file": "8x12-classic-hero.webp",
@@ -256,7 +256,7 @@
    "key": "8x8 lean",
    "name": "8x8 garden shed",
    "hash": "774257b11557b2de",
-   "designKey": "4fa2aa1e",
+   "designKey": "e33cebf5",
    "files": {
     "hero": {
      "file": "8x8-lean-hero.webp",
@@ -306,7 +306,7 @@
    "key": "10x10 size page",
    "name": "10x10 gable shed",
    "hash": "18be1de1e8e05204",
-   "designKey": "ded2f391",
+   "designKey": "1b51d4ec",
    "files": {
     "hero": {
      "file": "size-10x10-hero.webp",
@@ -321,7 +321,7 @@
    "key": "10x12 size page",
    "name": "10x12 gable shed",
    "hash": "26c7d09d431530c0",
-   "designKey": "ac68e4e0",
+   "designKey": "a3a3dafd",
    "files": {
     "hero": {
      "file": "size-10x12-hero.webp",
@@ -336,7 +336,7 @@
    "key": "10x14 size page",
    "name": "10x14 gable shed",
    "hash": "a6011d04944ca855",
-   "designKey": "b1aa4db8",
+   "designKey": "befe3c35",
    "files": {
     "hero": {
      "file": "size-10x14-hero.webp",
@@ -351,7 +351,7 @@
    "key": "10x16 size page",
    "name": "10x16 gable shed",
    "hash": "f415dcb284fcaaa8",
-   "designKey": "88441525",
+   "designKey": "fd674b22",
    "files": {
     "hero": {
      "file": "size-10x16-hero.webp",
@@ -366,7 +366,7 @@
    "key": "10x20 size page",
    "name": "10x20 gable shed",
    "hash": "3719cd626f11bf57",
-   "designKey": "0ad15d92",
+   "designKey": "464e6803",
    "files": {
     "hero": {
      "file": "size-10x20-hero.webp",
@@ -381,7 +381,7 @@
    "key": "12x12 size page",
    "name": "12x12 gable shed",
    "hash": "040effe95772570f",
-   "designKey": "2a9f9a97",
+   "designKey": "35f7dd0c",
    "files": {
     "hero": {
      "file": "size-12x12-hero.webp",
@@ -396,7 +396,7 @@
    "key": "12x14 size page",
    "name": "12x14 gable shed",
    "hash": "f5205b43b9163859",
-   "designKey": "267d1ce3",
+   "designKey": "a5939828",
    "files": {
     "hero": {
      "file": "size-12x14-hero.webp",
@@ -411,7 +411,7 @@
    "key": "12x16 size page",
    "name": "12x16 gable shed",
    "hash": "6f94d810aab91a60",
-   "designKey": "da498406",
+   "designKey": "5fce2c0d",
    "files": {
     "hero": {
      "file": "size-12x16-hero.webp",
@@ -426,7 +426,7 @@
    "key": "12x20 size page",
    "name": "12x20 gable shed",
    "hash": "708dfbb1c4e28cc8",
-   "designKey": "1b70fc37",
+   "designKey": "719b50b6",
    "files": {
     "hero": {
      "file": "size-12x20-hero.webp",
@@ -441,7 +441,7 @@
    "key": "12x24 size page",
    "name": "12x24 gable shed",
    "hash": "359e61d74e9b8a24",
-   "designKey": "1d64adf7",
+   "designKey": "df19cf76",
    "files": {
     "hero": {
      "file": "size-12x24-hero.webp",
@@ -456,7 +456,7 @@
    "key": "12x32 size page",
    "name": "12x32 gable shed",
    "hash": "479f8221b1b15853",
-   "designKey": "4a6c3dcd",
+   "designKey": "4d7c8d40",
    "files": {
     "hero": {
      "file": "size-12x32-hero.webp",
@@ -471,7 +471,7 @@
    "key": "14x14 size page",
    "name": "14x14 gable shed",
    "hash": "c0bf6f1f7ca18ade",
-   "designKey": "c9949903",
+   "designKey": "6adb6808",
    "files": {
     "hero": {
      "file": "size-14x14-hero.webp",
@@ -486,7 +486,7 @@
    "key": "14x20 size page",
    "name": "14x20 gable shed",
    "hash": "166b10207a78cabc",
-   "designKey": "98e555c7",
+   "designKey": "9679a086",
    "files": {
     "hero": {
      "file": "size-14x20-hero.webp",
@@ -501,7 +501,7 @@
    "key": "16x20 size page",
    "name": "16x20 gable shed",
    "hash": "81fdc427c4c06765",
-   "designKey": "3d19ea54",
+   "designKey": "f16ac7bf",
    "files": {
     "hero": {
      "file": "size-16x20-hero.webp",
@@ -516,7 +516,7 @@
    "key": "16x24 size page",
    "name": "16x24 gable shed",
    "hash": "b3a6e925744cfc99",
-   "designKey": "2a3b3784",
+   "designKey": "bafc622f",
    "files": {
     "hero": {
      "file": "size-16x24-hero.webp",
@@ -531,7 +531,7 @@
    "key": "8x10 size page",
    "name": "8x10 gable shed",
    "hash": "7b8a08927a0b3e0b",
-   "designKey": "97a63979",
+   "designKey": "0221aa5c",
    "files": {
     "hero": {
      "file": "size-8x10-hero.webp",
@@ -546,7 +546,7 @@
    "key": "8x16 size page",
    "name": "8x16 gable shed",
    "hash": "6cb3a197a28db164",
-   "designKey": "450b6eaa",
+   "designKey": "c3a0ac99",
    "files": {
     "hero": {
      "file": "size-8x16-hero.webp",
@@ -561,7 +561,7 @@
    "key": "8x8 size page",
    "name": "8x8 gable shed",
    "hash": "8faff86bd4e3daf0",
-   "designKey": "95cfefaf",
+   "designKey": "ccf42e56",
    "files": {
     "hero": {
      "file": "size-8x8-hero.webp",
