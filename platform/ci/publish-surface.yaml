@@ -1,8 +1,8 @@
 # Derived by platform/ci/publish_surface.py --write. Do not hand-edit.
 #
-# What a merge to `main` can publish, per workflow and per Argo
-# Application. `publish_surface.py --check` re-derives this from
-# .github/workflows/ and gitops/ and fails if it has moved, so the claim
+# What a merge to `main` can publish, per workflow.
+# `publish_surface.py --check` re-derives this from
+# .github/workflows/ and fails if it has moved, so the claim
 # that a venture "deploys nothing" cannot go stale without a check
 # turning red.
 #
@@ -217,9 +217,6 @@ workflows:
 - workflow: git-bus-factor-check-ci.yml
   classification: none
   publishes: []
-- workflow: hetzner-gitops-ci.yml
-  classification: none
-  publishes: []
 - workflow: ig-media-pipeline-ci.yml
   classification: none
   publishes: []
@@ -323,9 +320,6 @@ workflows:
 - workflow: public-record-watch-ci.yml
   classification: none
   publishes: []
-- workflow: public-surface-check.yml
-  classification: none
-  publishes: []
 - workflow: publish-kit-ci.yml
   classification: none
   publishes: []
@@ -422,51 +416,3 @@ workflows:
 - workflow: world-clock-widget-ci.yml
   classification: none
   publishes: []
-gitops:
-- application: agents
-  path: gitops/agents
-  classification: none
-  hosts: []
-  unmet_secrets: []
-  redirects: {}
-- application: ci
-  path: gitops/ci
-  classification: none
-  hosts: []
-  unmet_secrets: []
-  redirects: {}
-- application: platform
-  path: gitops/platform
-  classification: none
-  hosts: []
-  unmet_secrets: []
-  redirects: {}
-- application: prod
-  path: gitops/prod
-  classification: live
-  hosts:
-  - host: marisstella.dev
-    serves: workload
-    unmet_secrets: &id001 []
-  - host: tools.marisstella.dev
-    serves: workload
-    unmet_secrets:
-    - portfolio-site-repo
-  - host: www.marisstella.dev
-    serves: workload
-    unmet_secrets: *id001
-  unmet_secrets:
-  - portfolio-site-repo
-  redirects: {}
-- application: root
-  path: gitops/apps
-  classification: none
-  hosts: []
-  unmet_secrets: []
-  redirects: {}
-- application: staging
-  path: gitops/staging
-  classification: none
-  hosts: []
-  unmet_secrets: []
-  redirects: {}

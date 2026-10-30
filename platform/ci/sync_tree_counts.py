@@ -1,22 +1,17 @@
 #!/usr/bin/env python3
 """Recompute the hand-written counts that describe the size of the tree.
 
-Two numbers in this repository are *derived facts written down by hand*, in
-eight places between them:
+One number in this repository is a *derived fact written down by hand*: the
+**opt-out switch count**, `SWITCHES_IN_THE_CATALOGUE` in
+`platform/privacy/optout-persistence.test.mjs`. (Until 2026-10-30 a second
+one, the apex mirror's tool count, lived in seven places under `infra/` and
+`gitops/`; it left with those trees.)
 
-  - the **mirrored-tool count** -- "mirrors N of the N tools directly" and its
-    siblings in `infra/OWNER_CHECKLIST.md` (x3),
-    `gitops/prod/usage/aggregate.py`, `gitops/prod/front-door/default.conf`
-    (x2), and `total = N` in `gitops/tests/test_manifests.py`;
-  - the **opt-out switch count**, `SWITCHES_IN_THE_CATALOGUE` in
-    `platform/privacy/optout-persistence.test.mjs`.
-
-Both already have guards that fail when the number drifts, and both guards
-work. What neither did until now is *fix* anything: the failure named the
-right number and left the next session to hand-edit it -- which is precisely
-the tax `gitops/ci/sync_readme_counts.py` was written to remove for the
-`runs-on` count, and its docstring records two whole pull requests spent in
-one afternoon retyping three integers.
+It already has a guard that fails when the number drifts, and the guard
+works. What it did not do was *fix* anything: the failure named the right
+number and left the next session to hand-edit it. (The retired
+`gitops/ci/sync_readme_counts.py` recorded two whole pull requests spent in one
+afternoon retyping three integers.)
 
 **The same tax is now measurable here, and it is worse, because it is paid by
 a session that did nothing wrong.** Measured 2026-09-16/17:
@@ -25,8 +20,6 @@ a session that did nothing wrong.** Measured 2026-09-16/17:
     `SWITCHES_IN_THE_CATALOGUE` by one against a base where the other had not,
     so the pair of graduations moved it once and `main` went red the moment
     the second merged.
-  - The same collision hit the mirrored-tool total the same day: both branches
-    independently wrote `297` for what the merged tree made `298`.
   - `platform/privacy/optout-persistence.test.mjs` already records a third
     instance (the bridal-hair-makeup / #4766 pair) from the day before.
 
@@ -50,7 +43,7 @@ explains *why* a count moved, and it will not let you think it did: on a fix
 it prints the entry you still owe.
 
 That restraint is the point rather than laziness. Those running comments are
-the most valuable thing in both files -- they are how the third instance of
+the most valuable thing in the file -- they are how the third instance of
 this collision was recognised as the third rather than as a puzzle -- and a
 tool that appended "+1, reason unknown" on every bump would quietly turn a
 record of *why the tree changed shape* into a changelog of its own writes. The
@@ -59,15 +52,12 @@ author has.
 
 ## Deriving, not restating
 
-The mirrored-tool count is read by importing `_mirrored_venture_slugs()` from
-`gitops/tests/test_manifests.py`, and the opt-out count by calling `checkAll`
-from `platform/privacy/optout-persistence.mjs` through Node -- in both cases
-the *same* derivation the guard itself uses, never a second copy of it. That
+The opt-out count is read by calling `checkAll` from
+`platform/privacy/optout-persistence.mjs` through Node -- the *same*
+derivation the guard itself uses, never a second copy of it. That
 is deliberate and it is this repository's most-repeated lesson: `CLAUDE.md`
-records restating a rule that lives in `build.mjs` costing live product twice,
-and `sync_readme_counts.py`'s own docstring explains why it derives its number
-independently rather than sharing a constant. A sync tool that re-implemented
-either scan could drift from the guard it is meant to satisfy, and then the
+records restating a rule that lives in `build.mjs` costing live product twice.
+A sync tool that re-implemented the scan could drift from the guard it is meant to satisfy, and then the
 two would disagree with nothing to say which was right.
 
 Usage:
@@ -84,7 +74,6 @@ never reads as a pass.
 from __future__ import annotations
 
 import argparse
-import importlib.util
 import json
 import re
 import subprocess
@@ -100,51 +89,8 @@ class DerivationError(RuntimeError):
 
 
 # --------------------------------------------------------------------------
-# Deriving the two counts, each through the guard's own code
+# Deriving the count through the guard's own code
 # --------------------------------------------------------------------------
-
-
-def mirrored_tool_count() -> int:
-    """Distinct venture slugs the apex mirror serves.
-
-    Imported from `gitops/tests/test_manifests.py` rather than re-derived, so
-    this script and the assertion it satisfies can never disagree about what
-    "a mirrored tool" means.
-    """
-    module_path = REPO / "gitops" / "tests" / "test_manifests.py"
-    if not module_path.exists():
-        raise DerivationError(f"{module_path} is missing; cannot derive the mirrored-tool count")
-
-    name = "_test_manifests_for_sync"
-    spec = importlib.util.spec_from_file_location(name, module_path)
-    if spec is None or spec.loader is None:
-        raise DerivationError(f"could not load {module_path}")
-    module = importlib.util.module_from_spec(spec)
-    # Register before executing: a module body using `@dataclass` (or anything
-    # else that looks itself up in `sys.modules`) raises an opaque
-    # `'NoneType' object has no attribute '__dict__'` otherwise. Hit while
-    # writing this script's own tests, so it is not hypothetical --
-    # test_manifests.py does not use dataclasses today, and that is exactly
-    # the kind of thing that changes without anyone thinking about this call.
-    sys.modules[name] = module
-    # Sibling imports (`front_door_mirror`) resolve the way pytest's rootdir
-    # insertion makes them, so no PYTHONPATH is needed to run this script.
-    sys.path.insert(0, str(module_path.parent))
-    try:
-        spec.loader.exec_module(module)
-    except Exception as exc:  # pragma: no cover - defensive
-        raise DerivationError(f"importing {module_path} failed: {exc}") from exc
-    finally:
-        sys.path.remove(str(module_path.parent))
-
-    fn = getattr(module, "_mirrored_venture_slugs", None)
-    if fn is None:
-        raise DerivationError(
-            "gitops/tests/test_manifests.py no longer exports _mirrored_venture_slugs -- "
-            "this script imports it on purpose; find where the derivation moved rather "
-            "than writing a second copy of it here"
-        )
-    return len(fn())
 
 
 def optout_switch_count() -> int:
@@ -218,20 +164,6 @@ class Site:
     found: int = field(default=0, init=False)
 
 
-MIRRORED_SITES = [
-    Site("infra/OWNER_CHECKLIST.md", r"mirrors (\d+) of the (\d+) tools directly", "mirrors N of the N tools"),
-    Site("infra/OWNER_CHECKLIST.md", r"the apex serves all (\d+)\.", "the apex serves all N"),
-    Site("infra/OWNER_CHECKLIST.md", r"static mirror of (\d+) tools at", "static mirror of N tools"),
-    Site("gitops/prod/usage/aggregate.py", r"mirrors (\d+) complete ventures onto", "mirrors N complete ventures"),
-    Site("gitops/prod/front-door/default.conf", r"filter (\d+) tools by category", "filter N tools by category"),
-    Site("gitops/prod/front-door/default.conf", r"served all (\d+) tools\.", "served all N tools"),
-    Site(
-        "gitops/tests/test_manifests.py",
-        r"\n    total = (\d+)  # `infra/OWNER_CHECKLIST\.md`'s own \"N of the (\d+) tools\" wording",
-        "test_manifests.py total (and its wording note)",
-    ),
-]
-
 OPTOUT_SITES = [
     Site(
         "platform/privacy/optout-persistence.test.mjs",
@@ -302,18 +234,16 @@ def main() -> int:
     print("Tree counts — numbers written by hand that describe the tree's size\n")
 
     try:
-        mirrored = mirrored_tool_count()
         switches = optout_switch_count()
     except DerivationError as exc:
         print(f"  COULD NOT DERIVE: {exc}\n")
         print("  Not reporting anything as in sync on a reading that was never taken.")
         return 2
 
-    print(f"  mirrored tools ....... {mirrored}   (gitops/tests/test_manifests.py::_mirrored_venture_slugs)")
     print(f"  opt-out switches ..... {switches}   (platform/privacy/optout-persistence.mjs::checkAll)\n")
 
     # A derived zero is never a real reading here: this repository has
-    # hundreds of mirrored tools and hundreds of opt-out switches, so zero
+    # hundreds of opt-out switches, so zero
     # means the derivation broke, not that the tree emptied. Writing it would
     # turn a broken scan into a committed claim -- which is the same
     # absence-read-as-measurement error `CLAUDE.md` records against the
@@ -321,16 +251,12 @@ def main() -> int:
     # one would be committed rather than merely believed. The first draft of
     # this script hit exactly that, deriving 0 from a status string that does
     # not exist.
-    for name, value in (("mirrored tools", mirrored), ("opt-out switches", switches)):
-        if value == 0:
-            print(f"  REFUSING: derived {name} as 0, which is a broken derivation, not a tree state.")
-            print("  Nothing written. Fix the derivation before trusting any number here.")
-            return 2
+    if switches == 0:
+        print("  REFUSING: derived opt-out switches as 0, which is a broken derivation, not a tree state.")
+        print("  Nothing written. Fix the derivation before trusting any number here.")
+        return 2
 
-    drifted, problems = apply(MIRRORED_SITES, mirrored, write=not args.check)
-    d2, p2 = apply(OPTOUT_SITES, switches, write=not args.check)
-    drifted += d2
-    problems += p2
+    drifted, problems = apply(OPTOUT_SITES, switches, write=not args.check)
 
     for problem in problems:
         print(f"  PATTERN: {problem}")

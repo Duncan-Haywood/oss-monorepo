@@ -35,7 +35,7 @@ then `"$PY" -m pytest`, and install with `"$PY" -m pip`, one at a time (`pip`
 may belong to another Python, and two at once corrupted an install). CI runs
 `python3 -m unittest discover`, so write new tests as `unittest.TestCase` or
 the job finds none. Before blaming your change for a failing test (some
-`gitops/tests` depend on the image), run it on `origin/main`. If `pyenv.py`
+depend on the image), run it on `origin/main`. If `pyenv.py`
 fails (PEP 668, import name differing from pip name), use
 `python3 -m venv /tmp/v && /tmp/v/bin/pip install <pkgs>` in the background.
 Name every module you need in the one call (`pyenv.py pytest numpy torch`) and run
@@ -56,7 +56,7 @@ still running: call again; for a job with no output, e.g. a pip install, use
 `run_in_background` and `--timeout 3600`: you are woken once when it exits (read the log afterwards; do not pipe it or chain an echo); `sleep` loops and Monitor have been blocked). Don't grep
 the process list for the script's own name: it matches itself and never ends.
 
-- `platform/marketing/regen.mjs --verify` and the pages test suites (over 10 min)
+- the pages test suites (over 10 min)
 - `node --test` over a venture (280-400 s for changepoint-detector). Node 22
   rejects `node --test .`: run `cd ventures/<slug> && node --test '*.test.mjs'`
   with `--test-force-exit` (a failing test that leaks a fake server otherwise
