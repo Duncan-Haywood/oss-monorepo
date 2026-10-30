@@ -21,7 +21,7 @@
   "baseline": "2 (bootstrap/, gitops/prod cluster manifests); 1 CLAUDE.md paragraph",
   "opened": "2026-10-16",
   "source": "Repo-organization review in a Claude Code session, 2026-10-16 (unmeasured; see CAVEAT in problem)",
-  "pr": "this",
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/11885",
   "result": "Dropped 2026-10-16: the references are live, as the item's own caveat anticipated. git grep on this checkout: bootstrap/ or gitops/prod is named by 17 files under gitops/tests (shellcheck coverage, manifests, restore_cluster, host governor, installers), 20 non-test files under platform/, 3 workflows (hetzner-gitops-ci, outage-triage, public-surface-check), .sops.yaml, infra/*.tf, gitops/root.yaml. gitops/prod also holds the regenerated front-door mirror (see P014). A move would rewrite ~40 files and their tests for a cosmetic gain; the CLAUDE.md warning paragraph is cheaper. Revisit only after P014 removes the mirror from gitops/prod. Done 2026-10-30 at the owner's request, by deletion rather than a move: infra/, bootstrap/ and gitops/ removed together with the front-door generators in platform/marketing/, public_surface.py and its workflow, host_routes_state.py and hetzner-gitops-ci.yml; publish_surface.py, sync_tree_counts.py, check.mjs, pages_state.py, venture-preflight.mjs and checklist_coverage.py edited to stop reading the trees. 55,114 lines deleted. Write-up: docs/posts/2026-10-30-deleting-a-dead-cluster.md.",
   "history": [
     "2026-10-16 process run: checked dependents, dropped",
