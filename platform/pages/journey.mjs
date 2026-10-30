@@ -93,10 +93,26 @@ page.on('requestfailed', (r) => {
 // browser, and nothing you type is uploaded"), which makes an off-origin
 // request a broken promise rather than a performance note -- so it is collected
 // and asserted on rather than ignored.
+//
+// One exception, read from the file the build reads: the usage counter in
+// `platform/counter/site.json`. The published site sends it page-view and
+// feature counts (never what anyone typed), on purpose, and the build stamps
+// that origin in. Until 2026-10-30 this check called those beacons a broken
+// promise, so `journey` could not pass on any build that carried the counter.
+// Only `<counter>/hit` is let through; any other request to that host, or to
+// anywhere else, still fails here.
 const ORIGIN = new URL(BASE).origin;
+let COUNTER_HIT = null;
+try {
+  const { readFileSync } = await import('node:fs');
+  const url = JSON.parse(readFileSync(new URL('../counter/site.json', import.meta.url), 'utf8')).url;
+  if (url) COUNTER_HIT = `${new URL(url).origin}/hit`;
+} catch { /* no counter configured: every off-origin request counts */ }
 const offOrigin = [];
 page.on('request', (r) => {
-  if (!r.url().startsWith(ORIGIN) && !r.url().startsWith('data:')) offOrigin.push(r.url());
+  const url = r.url();
+  if (COUNTER_HIT && url.split(/[?#]/)[0] === COUNTER_HIT) return;
+  if (!url.startsWith(ORIGIN) && !url.startsWith('data:')) offOrigin.push(url);
 });
 
 let failures = 0;

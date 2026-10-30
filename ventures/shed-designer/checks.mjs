@@ -14,6 +14,7 @@
 
 import { check, worst, studCheck, headerCheck, roofCase, FLOOR, SPF2, T, DEPTH, designValues } from './structure.mjs';
 import { fmtIn, actual } from './lumber.mjs';
+import { subfloorCheck } from './levers.mjs';
 
 const CF_C = { '2x4': 1.15, '2x6': 1.1 };
 
@@ -320,7 +321,9 @@ export function structuralChecks(shed) {
     // below SPF's from 2x6 up; a dry floor stays dry service.
     const species = d.floorTreated ? 'SYP' : 'SPF';
     const [gov, r] = worst(check({ size: d.joistSize, spacingIn: d.joistSpacing, bearingIn: skidThick, species }, floorSpanIn / 12, FLOOR));
-    add('Floor joists', `${d.floorTreated ? 'PT ' : ''}${d.joistSize} at ${d.joistSpacing}"`, `${fmtIn(floorSpanIn)} clear between skids, 40 psf live + 10 dead, ${species === 'SYP' ? 'Southern pine' : 'SPF'} No. 2`, r, gov);
+    add('Floor joists', `${d.floorTreated ? 'PT ' : ''}${d.joistSize} at ${d.joistSpacing}"`, `${fmtIn(floorSpanIn)} clear between skids, 40 psf live + 10 dead (spread load; a mower's wheel is a point load, not checked), ${species === 'SYP' ? 'Southern pine' : 'SPF'} No. 2`, r, gov);
+    const sf = subfloorCheck(d);
+    add('Subfloor', sf.name, `joists ${d.joistSpacing}" apart; APA span rating ${sf.spanOC} oc (check the panel's stamp)`, sf.ratio, 'span rating');
   }
   {
     const sk = skidOnBlocks(shed);

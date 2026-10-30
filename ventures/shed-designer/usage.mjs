@@ -7,7 +7,7 @@
 // second design started to compare ('designs'), and the outputs a builder
 // takes away ('plans-printed', 'dxf-downloads', 'svg-downloads',
 // 'csv-downloads', 'links-copied').
-export const EVENTS = ['builds', 'drags', 'designs', 'compares', 'plans-printed', 'dxf-downloads', 'svg-downloads', 'csv-downloads', 'links-copied'];
+export const EVENTS = ['builds', 'drags', 'designs', 'compares', 'plans-printed', 'dxf-downloads', 'svg-downloads', 'csv-downloads', 'links-copied', 'options-priced', 'hoa-packets'];
 
 const PREFIX = 'shed-designer-';
 

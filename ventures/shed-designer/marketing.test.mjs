@@ -50,7 +50,7 @@ function facts() {
     snow: String(checks.loads.snow),
     skid: `${Math.round(checks.rows.find((r) => r.member === 'Skids on blocks').ratio * 100)}%`,
     soil: `${Math.round(checks.rows.find((r) => r.member === 'Blocks on the soil').ratio * 100)}%`,
-    _othersUnder30: checks.rows.filter((r) => !/Ridge beam$|^Skids on blocks$|^Blocks on the soil$/.test(r.member)).every((r) => r.ratio < 0.3),
+    _othersUnder30: checks.rows.filter((r) => !/Ridge beam$|^Skids on blocks$|^Blocks on the soil$/.test(r.member) && r.governs !== 'span rating').every((r) => r.ratio < 0.3),
     _unpriced: est.unpriced.length,
   };
 }
