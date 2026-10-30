@@ -26,7 +26,7 @@ const text = (at, s, size = 11, anchor = 'middle', cls = 'label') => /** @type {
 const dim = (a, b, off, txt) => /** @type {Item} */ ({ t: 'dim', a, b, off, ...(txt ? { text: txt } : {}) });
 
 const CLS_FOR = {
-  'skid': 'pt', 'rim joist': 'pt', 'floor joist': 'pt', header: 'header', 'rough sill': 'header',
+  'skid': 'pt', 'rim joist': 'pt', 'floor joist': 'pt', header: 'header', 'rough sill': 'header', 'sill block': 'header', 'head block': 'header',
   'top plate': 'plate', 'cap plate': 'plate', 'bottom plate': 'plate', rafter: 'member', 'ridge board': 'header', 'ridge beam': 'header', 'rafter tie': 'member',
 };
 
@@ -517,7 +517,7 @@ export function buildSheets(shed, marks = new Map()) {
     items.push(rect(hx0, hd + 4, hx0 + D2, hd + 5.5, 'plate'));
     items.push(rect(hx0, hd + 5.5, hx0 + D2, hd + 7, 'plate'));
     items.push(text([hx0 + D2 / 2, -6], 'HEADER SECTION', 9, 'middle', 'muted'));
-    items.push(text([hx0 + D2 + 2, hd / 2], `2 plies ${shed.walls.front?.openings?.[0]?.hdr ?? '2x6'}${D2 > 3 ? ` + ${fmtIn(D2 - 3)} plywood spacer` : ''}`, 7, 'start'));
+    items.push(text([hx0 + D2 + 2, hd / 2], `2 plies ${shed.walls.front?.openings?.find((o) => !o.bay)?.hdr ?? '2x6'}${D2 > 3 ? ` + ${fmtIn(D2 - 3)} plywood spacer` : ''}`, 7, 'start'));
     items.push(text([hx0 + D2 + 2, hd + 2], 'cripple on layout', 7, 'start'));
     items.push(text([hx0 + D2 + 2, hd + 6], 'top plate + cap plate', 7, 'start'));
     // Skid and floor section.
@@ -823,7 +823,7 @@ export function buildSheets(shed, marks = new Map()) {
     row('');
     row('DOORS, WINDOWS AND VENTS (rough openings)', 9, 'muted');
     for (const [name, wall] of Object.entries(shed.walls)) for (const p of wall.openings) {
-      row(`${p.op.kind === 'door' ? 'Door' : 'Window'} on the ${name} wall: ${fmtIn(p.w)} wide x ${fmtIn(p.op.height)} high${p.op.kind === 'window' ? `, sill ${fmtIn(p.bottom)} above the floor` : ''}; header 2-ply ${p.hdr}.`);
+      row(`${p.op.kind === 'door' ? 'Door' : 'Window'} on the ${name} wall: ${fmtIn(p.w)} wide x ${fmtIn(p.op.height)} high${p.op.kind === 'window' ? `, sill ${fmtIn(p.bottom)} above the floor` : ''}; ${p.bay ? 'between two layout studs, no header (a flat block above and below)' : `header 2-ply ${p.hdr}`}.`);
     }
     const nv = Object.values(shed.vents || {}).flat().length;
     if (nv) row(`Gable vents: ${nv}, each ${fmtIn(d.ventWidth)} x ${fmtIn(d.ventHeight)}.`);

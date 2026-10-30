@@ -545,7 +545,7 @@ export function estimate(shed, prices = examplePrices()) {
   // Fasteners, sealants and flashing. Counts follow the nailing schedule on
   // the details sheet (rounded up); boxes are rounded up from the counts.
   {
-    const per = { stud: 4, 'corner stud': 6, 'king stud': 6, 'jack stud': 6, 'post stud': 6, 'top cripple': 4, 'bottom cripple': 4, 'rough sill': 4, 'floor joist': 6, 'rim joist': 0, rafter: 4, 'rafter tie': 6, 'eave blocking': 4, 'gable stud': 4, 'vent trimmer': 4, 'vent header': 4, 'door stile': 0, 'door rail': 0, 'door brace': 0, 'bottom chord': 4, 'king post': 0 };
+    const per = { stud: 4, 'corner stud': 6, 'king stud': 6, 'jack stud': 6, 'post stud': 6, 'top cripple': 4, 'bottom cripple': 4, 'rough sill': 4, 'sill block': 4, 'head block': 4, 'floor joist': 6, 'rim joist': 0, rafter: 4, 'rafter tie': 6, 'eave blocking': 4, 'gable stud': 4, 'vent trimmer': 4, 'vent header': 4, 'door stile': 0, 'door rail': 0, 'door brace': 0, 'bottom chord': 4, 'king post': 0 };
     let n16 = 0;
     const tieNails = heelJoint(shed)?.nails ?? 3;
     for (const m of all) {
@@ -739,12 +739,28 @@ export function sourceLabel(s) {
 }
 
 /** CSV of the shopping list. */
+/**
+ * Where the money goes: each section of the shopping list (lumber, sheet goods,
+ * siding, roofing, hardware...) with its total and share, in list order.
+ * @param {{ section: string, total: number }[]} shopping
+ */
+export function sectionTotals(shopping) {
+  /** @type {Map<string, number>} */
+  const by = new Map();
+  for (const r of shopping) by.set(r.section, (by.get(r.section) || 0) + r.total);
+  const all = [...by.values()].reduce((t, x) => t + x, 0) || 1;
+  return [...by].map(([section, total]) => ({ section, total: Math.round(total * 100) / 100, share: total / all }));
+}
+
 export function shoppingCsv(est) {
   const rows = [['section', 'item', 'qty', 'unit', 'unit price', 'total', 'price source', 'listing']];
-  for (const r of est.shopping) {
+  const sub = new Map(sectionTotals(est.shopping).map((x) => [x.section, x.total]));
+  est.shopping.forEach((r, i) => {
     const s = r.source || {};
     rows.push([r.section, r.name, String(r.qty), r.unit, r.price.toFixed(2), r.total.toFixed(2), sourceLabel(s), s.url || '']);
-  }
+    // A subtotal row closes each section.
+    if (est.shopping[i + 1]?.section !== r.section) rows.push([r.section, `Subtotal, ${r.section.toLowerCase()}`, '', '', '', /** @type {number} */ (sub.get(r.section)).toFixed(2), '', '']);
+  });
   rows.push(['', 'Total', '', '', '', est.total.toFixed(2), '', '']);
   for (const u of est.unpriced) rows.push(['Not in the total', u, '1', 'each', '', '', 'no unit picked', '']);
   return rows.map((r) => r.map((c) => (/[",\n]/.test(c) ? `"${c.replace(/"/g, '""')}"` : c)).join(',')).join('\n') + '\n';

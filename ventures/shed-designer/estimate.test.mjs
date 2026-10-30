@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { buildShed, defaultDesign, normalize, PRESETS } from './model.mjs';
-import { estimate, examplePrices, markName, cutSheetCsv, shoppingCsv, boardUse, lumberUses, groupBoards } from './estimate.mjs';
+import { estimate, examplePrices, markName, cutSheetCsv, shoppingCsv, boardUse, lumberUses, groupBoards, sectionTotals } from './estimate.mjs';
 
 const classic = () => PRESETS['8x12 classic']();
 
@@ -182,5 +182,19 @@ test('each board and each lumber line says what it is for', () => {
   for (const r of est.shopping.filter((x) => x.section === 'Lumber' && !/spares/.test(x.name))) {
     const m = /^(.+) x (\d+)'/.exec(r.name);
     assert.ok(uses.get(`${m[1]}:${m[2]}`), r.name);
+  }
+});
+
+test('the shopping list has a subtotal per section, on the page and in the CSV', () => {
+  for (const d of [defaultDesign(), PRESETS['12x16'](), { ...PRESETS['8x8 lean'](), foundation: 'deck blocks' }]) {
+    const est = estimate(buildShed(normalize(d)));
+    // Sections come in one run each, so a subtotal closes each one once.
+    const order = est.shopping.map((r) => r.section).filter((s, i, a) => s !== a[i - 1]);
+    assert.equal(new Set(order).size, order.length, `sections are contiguous: ${order.join(', ')}`);
+    const subs = sectionTotals(est.shopping);
+    assert.equal(Math.round(subs.reduce((t, x) => t + x.total, 0) * 100) / 100, est.total);
+    assert.ok(Math.abs(subs.reduce((t, x) => t + x.share, 0) - 1) < 1e-9);
+    const csv = shoppingCsv(est);
+    for (const x of subs) assert.ok(csv.includes(`"Subtotal, ${x.section.toLowerCase()}",,,,${x.total.toFixed(2)}`), x.section);
   }
 });
