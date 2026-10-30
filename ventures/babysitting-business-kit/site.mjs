@@ -198,7 +198,8 @@ function form(d, formAction) {
 <label for="h">How did you hear about me?</label><input id="h" name="source">
 <label for="m">Anything else?</label><textarea id="m" name="notes" rows="3"></textarea>
 <label class="hp" for="hp">Leave this empty</label><input class="hp" id="hp" name="website" tabindex="-1" autocomplete="off">
-<button type="submit">Send</button></form></div></section>`;
+<button type="submit">Send</button></form></div></section>
+<script>(function(){var r=new URLSearchParams(location.search).get("ref"),h=document.getElementById("h");if(r&&h&&!h.value)h.value=r.slice(0,60)})()</script>`;
 }
 
 const certLine = (c) => `${esc(c.name)}${c.earned ? `, since ${esc(monthName(c.earned))}` : ""}${c.expires ? ` (valid through ${esc(monthName(c.expires))})` : ""}`;
