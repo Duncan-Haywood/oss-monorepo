@@ -148,3 +148,9 @@ test('the page has a "take logs first" checkbox wired into analyze (--log in the
   assert.match(html, /<input id="log" type="checkbox"/);
   assert.match(html, /log: \$\("#log"\)\.checked/);
 });
+
+test("index page shows the engine's cycle, drift and range warnings", () => {
+  const html = page("index.html");
+  assert.match(html, /id="warnings"/);
+  for (const k of ["cycleWarning", "driftWarning", "rangeWarning"]) assert.ok(html.includes(`r.${k}`), k);
+});
