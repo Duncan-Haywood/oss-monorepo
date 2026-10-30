@@ -212,7 +212,7 @@ test("the stair controls are read into plan.stairs, restored from a saved plan a
   const html = page("index.html");
   for (const id of ["stOn", "stRise", "stTread", "stWidth", "stStringer", "stTreadBoard", "stOpen", "stLanding", "stairsOut"]) assert.match(html, new RegExp(`id="${id}"`));
   assert.match(html, /plan\.stairs = st/);
-  assert.match(html, /layoutStairWithLanding\(plan\.stairs, plan\)/);
+  assert.match(html, /layoutStairWithLanding\(stairPlan, plan\)/);
   assert.match(html, /\$\("#stOn"\)\.checked = Boolean\(stp\)/);
   assert.match(html, /<code>stairs_on<\/code>/);
 });
@@ -305,10 +305,15 @@ test("the bid leveling card parses lines into plan.bids, restores them and level
 
 test("the deck controls are read into plan.deck, restored from a saved plan and drawn in the deck card", () => {
   const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
-  for (const id of ["dkOn", "dkWidth", "dkDepth", "dkHeight", "dkJoist", "dkSpacing", "dkBeam", "dkPost", "dkFree", "deckOut"]) assert.match(html, new RegExp(`id="${id}"`));
+  for (const id of ["dkOn", "dkWidth", "dkDepth", "dkHeight", "dkJoist", "dkSpacing", "dkBeam", "dkPost", "dkFree", "dkGuard", "dkGuardSides", "dkStair", "deckOut"]) assert.match(html, new RegExp(`id="${id}"`));
   assert.match(html, /plan\.deck = dk/);
   assert.match(html, /layoutDeck\(plan\.deck\)/);
   assert.match(html, /\$\("#dkOn"\)\.checked = Boolean\(dkp\)/);
+  assert.match(html, /dk\.guard = false/);
+  assert.match(html, /dk\.stairs = \{\}/);
+  assert.match(html, /totalRise: plan\.deck\.height/);
+  assert.match(html, /\$\("#dkStair"\)\.value = dkp\?\.stairs/);
+  assert.match(html, /\$\("#dkGuard"\)\.value = dkp\?\.guard === false/);
   assert.match(html, /<code>deck_on<\/code>/);
 });
 

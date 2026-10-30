@@ -2,6 +2,17 @@
 
 Newest first.
 
+## 2026-10-30 · Milestone 2o: how far does the unsourced LS standby flow move 2n's break-even? (planned before running)
+- Why: 2m and 2n both end with "a standby flow from a pump datasheet". Hosts for datasheets are still unreachable, so sweep it instead: `experiments/standby_sweep.py`, p_n 10.91 bar (2n), load factor 0.346, q_sb 0, 1, 2, 4, 6, 8, 10 L/min, dp_ls 10 to 40 bar.
+- **Prediction (before running):** break-even falls monotonically with q_sb, reproduces 28.0 bar at 2 L/min, is above 30 bar at 0 and below 25 bar by 8 L/min (prior 70%), so at q_sb of 6 L/min or more the thesis 25 bar margin loses again. Refuted if non-monotone, or if the 8 L/min break-even is 25 bar or more.
+
+### Outcome of 2o (`experiments/standby_sweep.py`, `standby_sweep_results.txt`, about 1 minute, seeded)
+- Break-even dp_ls (bar) by standby flow: **29.1** (0 L/min), 28.5 (1), 28.0 (2, reproduces 2n), 26.9 (4), 25.9 (6), **25.0** (8), 24.0 (10). Monotone; about 0.5 bar of margin lost per L/min.
+- **Prediction refuted on both numeric lines.** At 0 L/min the break-even is 29.1, not above 30; at 8 L/min it is 25.0 (not under 25). Direction and the 2 L/min reproduction held.
+- Reading: the standby flow, unsourced, is a weak lever: across 0 to 10 L/min the break-even stays within 24 to 29 bar, so the thesis 25 bar margin sits on the boundary only for 8 L/min or more, and the Rexroth 14 bar margin wins at every standby flow tested (LS/OC 0.75 to 0.80). 2n's ranking (load-sensing ahead at both sourced margins) holds unless the pump's standby flow is about 8 L/min or more, which is large for a 45 L/min pump.
+- Limits: same as 2n (one valve curve reading, one load factor); the standby flow is swept, not sourced.
+- Next: a sourced standby flow would only narrow a 5 bar band; larger remaining gaps are the dynamic model (milestone 3) and a measured trace (H4).
+
 ## 2026-10-30 · Milestone 6c: paper draft regenerated for 2n (no new experiment)
 - Added section 3.1d, revised the abstract, threat 2/limits text and 'what would settle it' (b) to carry the PVG 32 neutral drop (10.9 bar, break-even 28.0 bar). `paper/check_numbers.py` now checks 22 claims, 0 missing. Danfoss, Rexroth and Zenodo hosts all refuse connections this session, so no standby-flow source was reachable.
 
