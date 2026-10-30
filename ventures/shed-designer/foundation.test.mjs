@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { defaultDesign, buildShed, normalize, BLOCKS } from './model.mjs';
 import { estimate } from './estimate.mjs';
-import { structuralChecks } from './checks.mjs';
+import { structuralChecks, skidOnBlocks } from './checks.mjs';
 import { connectionChecks } from './connections.mjs';
 import { integrity } from './integrity.mjs';
 import { buildInstructions, instructionsMarkdown } from './instructions.mjs';
@@ -19,9 +19,12 @@ test('piers: concrete by the bag from the hole bottom to 4" above grade, tubes c
   const s = piers();
   const k = s.dims;
   assert.equal(k.pierLen, 28);
-  // 11-1/2" tube x 28" = 1.684 cu ft a pier; 12 piers = 20.2 cu ft = 34 bags at 0.6.
+  // 11-1/2" tube x 28" = 1.684 cu ft a pier.
   assert.ok(Math.abs(k.pierCuFt - (Math.PI * 5.75 ** 2 * 28) / 1728) < 1e-9);
-  assert.equal(k.pierBags, Math.ceil((k.blockCount * k.pierCuFt) / 0.6));
+  // Plus a 16" square, 6" footing pad under each (0.889 cu ft): 12 piers = 30.9 cu ft = 52 bags.
+  assert.ok(Math.abs(k.pierFootCuFt - (16 * 16 * 6) / 1728) < 1e-9);
+  assert.equal(k.pierBags, Math.ceil((k.blockCount * (k.pierCuFt + k.pierFootCuFt)) / 0.6));
+  assert.equal(k.pierBags, 52);
   assert.equal(k.pierTubes, k.blockCount, 'a 28" pier leaves no second piece in a 48" tube');
   assert.equal(piers({ pierDepth: 18 }).dims.pierTubes, Math.ceil(k.blockCount / 2), 'two 22" piers a tube');
   assert.equal(k.gravelCuYd + k.baseBags, 0);
@@ -39,21 +42,24 @@ test('a shed on piers passes integrity, structure and connections, and the steps
   const s = piers();
   const ig = integrity(s);
   assert.deepEqual([ig.floating.length, ig.clashes.length], [0, 0]);
-  // Every member passes. The soil under a bare 12" pier does not: the starter's
-  // 1,767 lb on 0.72 sq ft is about 2,450 psf, against the IRC's 1,500 for clay
-  // or silt (R401.4.1; the soil check came in 2026-10-30). A footing wider than
-  // the tube is the fix; the row says so.
+  // A bare 12" tube would press the starter's soil at about 2,450 psf, 1.63
+  // times the IRC's 1,500 for clay or silt (R401.4.1). The 16" square footing
+  // pad at the bottom of each pier spreads the same load over 1.78 sq ft.
   const rows = structuralChecks(s).rows;
-  assert.ok(rows.filter((r) => r.member !== 'Blocks on the soil').every((r) => r.ok));
+  assert.ok(rows.every((r) => r.ok), rows.filter((r) => !r.ok).map((r) => r.member).join(', '));
   const soil = rows.find((r) => r.member === 'Blocks on the soil');
-  assert.ok(!soil.ok && soil.ratio > 1.5 && soil.ratio < 1.8, String(soil.ratio));
-  assert.match(soil.detail, /wider footing at the bottom of each pier/);
+  const sk = skidOnBlocks(s);
+  assert.ok(Math.abs(soil.ratio - (sk.R + 50) / (256 / 144) / 1500) < 1e-9);
+  assert.ok((sk.R + 50) / (Math.PI * 5.75 ** 2 / 144) / 1500 > 1.5, 'a bare tube would fail');
+  assert.match(soil.size, /16" x 16" pier footing/);
+  assert.match(soil.detail, /square footing at the bottom of each pier/);
   assert.ok(connectionChecks(s).ok);
   const md = instructionsMarkdown(buildInstructions(s, estimate(s)), s.design.name);
   assert.match(md, /Concrete piers/);
   assert.match(md, /811/);
   assert.match(md, /frost/);
   assert.match(md, /Lay the skids on the 12 piers/);
+  assert.match(md, /16" square footing pad 6" thick/);
   assert.doesNotMatch(md, /paver base/i);
 });
 
