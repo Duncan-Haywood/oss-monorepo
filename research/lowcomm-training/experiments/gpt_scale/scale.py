@@ -14,6 +14,8 @@ CELLS = [(1.0, 4), (1.0, 16), (1.0, 64), (0.0625, 4), (0.0625, 16), (0.0625, 64)
 SEEDS = [0, 1]
 EXTRA = [(1.0, 64), (0.0625, 64)]  # 6i: the two H = 64 cells get seeds 2 to 5 (6h left them weakly identified)
 EXTRA_SEEDS = [2, 3, 4, 5]
+HSHAPE = [(k, H) for H in (32, 128) for k in (1.0, 0.0625)]  # 6j: does the excess keep growing in H at size 2? three seeds each
+HSHAPE_SEEDS = [0, 1, 2]
 load = lambda p: [json.loads(l) for l in open(p)] if os.path.exists(p) else []
 omega = lambda p: 1 / p - 1
 
@@ -80,7 +82,14 @@ def report():
     print("params:", sorted({r["params"] for r in rows}), " mean secs per run:", round(sum(r["secs"] for r in rows) / len(rows)))
     print("size-2 cell (H, keep): n, mean, per seed")
     for k in sorted(c, key=lambda t: (t[0], -t[1])): print(k, len(c[k]), round(mean(c[k]), 4), {s: round(v, 4) for s, v in sorted(c[k].items())})
-    m2 = {k: mean(v) for k, v in c.items() if len(v) >= len(SEEDS)}
+    print("\nexcess of keep 1/16 over uncompressed, by H (6j; sd of the paired seed differences where seeds match):")
+    for H in sorted({h for h, _ in c}):
+        if (H, 1.0) in c and (H, 0.0625) in c:
+            common = sorted(set(c[(H, 1.0)]) & set(c[(H, 0.0625)]))
+            d = [c[(H, 0.0625)][s] - c[(H, 1.0)][s] for s in common]
+            mu = sum(d) / len(d); sd = (sum((x - mu) ** 2 for x in d) / (len(d) - 1)) ** .5 if len(d) > 1 else float("nan")
+            print(f"  H={H}: {mu:+.4f} (n={len(d)} paired seeds, sd {sd:.4f})")
+    m2 = {k: mean(v) for k, v in c.items() if len(v) >= len(SEEDS) and (k[0] in (4, 16, 64))}
     s1 = size1(); m1 = {k: s1[k] for k in m2 if k in s1}
     for name, m in (("size 1 (413k, dim 128), same 7 cells", m1), ("size 2 (dim 192)", m2)):
         if len(m) < 7: continue
@@ -114,6 +123,8 @@ if __name__ == "__main__":
     jobs = [(k, H, s) for s in SEEDS for (k, H) in CELLS if (k, H, s) not in have]
     if len(sys.argv) > 2 and sys.argv[2] == "extra":
         jobs = [(k, H, s) for s in EXTRA_SEEDS for (k, H) in EXTRA if (k, H, s) not in have]
+    if len(sys.argv) > 2 and sys.argv[2] == "hshape":
+        jobs = [(k, H, s) for s in HSHAPE_SEEDS for (k, H) in HSHAPE if (k, H, s) not in have]
     with Pool(4) as p, open(PATH, "a") as f:
         for r in p.imap_unordered(run, jobs):
             f.write(json.dumps(r) + "\n"); f.flush(); print(r, flush=True)

@@ -2,6 +2,13 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-30 · Milestone 6j (H6 scale-up): does the size-2 compression excess saturate in H between 16 and 64? (planned before running)
+
+- Why: 6i's "Next". The size-2 excess at keep 1/16 is +0.054 at H = 16 and +0.044 at H = 64 (six seeds, so measured to about 0.004): it does not rise, while the rule's power law in H (b = 0.55) says it should. If it is flat or falling, the power-law form in H is what breaks at size 2.
+- Setup (`experiments/gpt_scale/scale.py run hshape`): size 2 (dim 192, 914,880 parameters), same budget, M = 4, lr 2e-3. Cells keep in {1, 1/16} x H in {32, 128}, seeds 0 to 2 (12 runs). The report prints the paired excess (compressed minus uncompressed, same seed) at every H with its seed-difference sd.
+- **H6j-i:** the excess at H = 128 is not larger than at H = 64 by more than 0.01 nats (saturation or decline; the rule predicts +0.06 or more). **H6j-ii:** the excess is non-monotone in H over 4, 16, 32, 64, 128 (a rise then a fall), not a plateau. Priors: i 60%, ii 35%.
+- Limits to state: three seeds on the new cells against six at H = 64; one width; the report's seed pairing uses seeds 0 to 2 only for the new H; same corpus.
+
 ## 2026-10-30 · Milestone 6i (H6 scale-up): do four more seeds on the two H = 64 cells make the size-2 refit identifiable? (planned before running)
 
 - Why: 6h refuted H6h-i (leave-one-cell-out MAPE 2.54% against 0.71% at size 1) and traced most of the miss to one cell (0.174 of the 0.289 nats of summed absolute leave-one-out error): (H = 64, keep 1/16), the only cell that pins the H exponent. Its two seeds differ by 0.027 nats (1.6614, 1.6341), as large as the 0.044 excess being fitted. So the cell is noisy, and "weakly identified" is a statement about seed noise that more seeds can test.
