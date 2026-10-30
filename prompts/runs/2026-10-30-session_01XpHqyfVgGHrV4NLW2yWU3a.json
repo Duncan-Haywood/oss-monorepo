@@ -28,7 +28,7 @@
   "merged": null,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": 14,
+  "tests_added": 15,
   "outcome": "success",
   "errors": [
     "A merge-resolution loop committed two files with a bad auto-resolution (app.mjs, checks.mjs import conflicts) because the commit was not gated on node --check; fixed in the next commit.",
@@ -59,9 +59,11 @@
       "result": "pending"
     }
   ],
-  "writeups": [],
+  "writeups": [
+    "docs/posts/2026-10-30-studs-at-24-inches-by-default.md"
+  ],
   "goal": null,
-  "notes": "Local verification on head before merge: shed-designer node --test *.test.mjs: 375 pass, 0 fail (includes browser.test.mjs 30/30); open-house-plans 33/33; node platform/pages/typecheck.mjs shed-designer: 0 diagnostics; platform/ci/check_post_frontmatter.py: pass; portfolio/router/validate.py: all valid. CI on this head: every job queued 10+ min with no runner.",
+  "notes": "Local verification on head before merge: shed-designer node --test *.test.mjs: 375 pass, 0 fail (includes browser.test.mjs 30/30); open-house-plans 33/33; node platform/pages/typecheck.mjs shed-designer: 0 diagnostics; platform/ci/check_post_frontmatter.py: pass; portfolio/router/validate.py: all valid. CI on this head: every job queued 10+ min with no runner. Follow-up PR #11656 (studs at 24\" by default where the siding allows): on head after merging main, shed-designer node --test *.test.mjs: 388 pass, 0 fail, 3 skipped (two axe checks without axe-core, one opt-in full audit); typecheck 0 diagnostics; validate.py and check_post_frontmatter.py pass. Gallery regenerated with make-gallery.mjs and renders redrawn with make-renders.mjs. Lap direct-to-studs with let-in bracing (IRC LIB) not added: no citable table values found (APA handouts 404, ICC 403); recorded in docs/reports/shed-designer-round2-structure.md.",
   "corrections": [],
   "redteam": null
 }
