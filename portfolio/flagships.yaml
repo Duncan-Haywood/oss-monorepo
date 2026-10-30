@@ -121,7 +121,7 @@ flagships:
       Factur-X export (repaired PDF opens in poppler 2026-10-30; veraPDF and Acrobat unrun); a page
       button for PDFs; PINT SG and A-NZ rules on the Saxon/server route and on a
       real PINT file; RO_CIUS on a real ANAF file and the Saxon route; NLCIUS
-      on a real Dutch file (UBL and CII both landed 2026-10-25, made-up examples); India's INV-01 payload check landed 2026-10-30 (README; open: a real IRP payload); mandate
+      on a real Dutch file (UBL and CII both landed 2026-10-25, made-up examples); India's INV-01 payload check and `india-cli.mjs` landed 2026-10-30 (README; open: a real IRP payload, the page card); mandate
       dates read from primary sources where pages cite guides (Israel page 2026-10-29 from vendor summaries, directive 01/2025 unread; Denmark, Czech, Estonia, Latvia, Slovenia vendor-only; Luxembourg bill 8815 text unread; iras.gov.sg,
       ato.gov.au, revenue.ie, CBIC); Latin American, Spain and Brazil pages from search excerpts (open: CFDI and NF-e XSD readers, NFS-e); refresh the Bulgaria page when its draft
       passes or changes (consultation closed 2026-10-23, no outcome found 2026-10-26; penalties from 1 Jul 2028 and scope added from adviser reports). A run that lands a slice replaces its item here; keep
