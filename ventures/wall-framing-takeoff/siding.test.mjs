@@ -98,3 +98,20 @@ test("vertical siding: columns, pieces round an opening, gable and refusal, by h
   assert.equal(validateSiding({ style: "slate" }).length, 1);
   assert.equal(validateSiding({ boardWidth: 1 }).length, 1);
 });
+
+test("vertical siding battens: one per seam, cut at an opening and by the gable line, by hand (2026-10-30)", () => {
+  // 120 in wall, 12 in columns: 9 seams at x = 12..108; window x 40..76 y 36..72 crosses seams 48, 60, 72
+  const p = plan([{ id: "A", length: 120, openings: [{ kind: "window", offset: 40, width: 36, height: 36, headerHeight: 72 }] }]);
+  const s = layoutSiding({ waste: 0, style: "vertical", boardWidth: 12, stock: 96, battens: true, battenPrice: 2 }, p);
+  assert.equal(s.battens.pieces, 6 + 3 * 2);
+  assert.ok(Math.abs(s.battens.feet * 12 - (6 * 96 + 3 * 60)) < 1e-9);
+  // six 96s, then six 36s and 24s: 36+36+24 | 36+24+24 | 24 ... 3 x 36 + 3 x 24 = 180 in -> 2 boards
+  assert.equal(s.battens.boards, 6 + 2);
+  assert.equal(s.cost, 2 * s.battens.boards);
+  assert.equal(layoutSiding({ waste: 0, style: "vertical", boardWidth: 12, stock: 96 }, p).battens, null);
+  // gable 120 wide, 6:12: seams at 12..108 stand 96 + 0.5 x, 96 + 0.5 x(120-x)
+  const g = layoutSiding({ waste: 0, style: "vertical", boardWidth: 12, stock: 144, battens: true }, plan([{ id: "G", length: 120, gable: { pitch: 6 } }]));
+  assert.ok(Math.abs(g.battens.feet * 12 - (2 * (102 + 108 + 114 + 120) + 126)) < 1e-9);
+  assert.ok(sidingText(s).some((x) => x.includes("Battens:")));
+  assert.equal(validateSiding({ battenStock: 10 }).length, 1);
+});
