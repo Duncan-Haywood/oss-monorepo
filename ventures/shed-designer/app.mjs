@@ -470,11 +470,19 @@ function showPieces(ids, title, { scroll = false } = {}) {
   for (const el of $$('.xref-on')) el.classList.remove('xref-on');
   for (const tr of $$('#parts tr[data-mark]')) if (marks.includes(tr.dataset.mark)) tr.classList.add('xref-on');
   for (const li of $$('#cuts li[data-marks]')) if (li.dataset.marks.split(' ').some((m) => marks.includes(m))) li.classList.add('xref-on');
+  // On the plan sheets, the part marks drawn on those members.
+  const onSheets = [];
+  for (const fig of $$('#plans figure.sheet')) {
+    let hit = false;
+    for (const t of fig.querySelectorAll('text.mark')) if (marks.includes(t.textContent.trim())) { t.classList.add('xref-on'); hit = true; }
+    if (hit) onSheets.push(fig.querySelector('figcaption')?.firstChild?.textContent?.replace(/^\d+\.\s*/, '').trim() || fig.id);
+  }
   const step = stepFor(marks);
   const box = $('#xref');
   box.hidden = false;
   box.innerHTML = `<h3>${esc(title)}</h3><p>${parts.map((p) => `${esc(p.kind)} (${p.mark}): ${p.qty} x ${fmtIn(p.length)} ${p.material}`).join('; ') || 'No framing pieces.'}</p>
     <div class="toolrow">${step >= 0 ? `<button type="button" class="btn" data-xstep="${step}">Build step: ${esc(buildSections[step].title)}</button>` : ''}
+    ${onSheets.length ? `<button type="button" class="btn" data-xgo="panel-plans">Plans: ${esc(onSheets.slice(0, 3).join(', '))}${onSheets.length > 3 ? ` and ${onSheets.length - 3} more` : ''}</button>` : ''}
     <button type="button" class="btn" data-xgo="panel-cuts">Cut sheet</button><button type="button" class="btn" data-xgo="panel-parts">Parts list</button><button type="button" class="btn" data-xclear>Clear</button></div>`;
   if (scroll) $('#view3d').scrollIntoView({ behavior: 'smooth', block: 'center' });
 }

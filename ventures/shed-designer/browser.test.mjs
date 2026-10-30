@@ -326,6 +326,10 @@ test('lists, 3D view and build steps point at each other', { skip }, async (t) =
   await page.click('#parts tr[data-mark="F"] button.xref-btn');
   await page.waitForFunction(() => /rafter \(F\)/.test(document.querySelector('#xref').textContent));
   assert.ok(await page.$('#cuts li.xref-on'), 'the cut sheet marks the rafter boards');
+  assert.ok(await page.$('#plans text.mark.xref-on'), 'the plans mark the rafters');
+  await page.click('#xref button[data-xgo="panel-plans"]');
+  await page.waitForFunction(() => !document.querySelector('#panel-plans').hidden);
+  assert.match(await page.textContent('#xref'), /Plans: .*Roof framing plan/);
   // Clicking a board in the 3D view names it.
   await page.click('#xref button[data-xclear]');
   await canvas.scrollIntoViewIfNeeded();
