@@ -1,14 +1,29 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { generate } from './make-size-pages.mjs';
+import { GENERATED_PAGES } from '../../platform/pages/generated-pages.mjs';
 
 const { all, files } = generate();
 
-test('every size page on disk is what the engine prints now', () => {
-  for (const [name, html] of Object.entries(files)) {
-    assert.ok(existsSync(new URL(name, import.meta.url)), `${name} missing: run node make-size-pages.mjs`);
-    assert.equal(readFileSync(new URL(name, import.meta.url), 'utf8'), html, `${name} is stale: run node make-size-pages.mjs`);
+// The pages are not committed: the site build runs make-size-pages.mjs
+// (platform/pages/generated-pages.mjs), so they always print the engine's
+// current numbers and a price change can't leave a stale copy for the next PR.
+test('the site build generates the size pages, and git does not track them', () => {
+  assert.equal(GENERATED_PAGES['shed-designer'], 'make-size-pages.mjs');
+  const ignore = readFileSync(new URL('../../.gitignore', import.meta.url), 'utf8');
+  assert.match(ignore, /^ventures\/shed-designer\/how-much-lumber-for-a-\*-shed\.html$/m);
+  assert.match(ignore, /^ventures\/shed-designer\/shed-lumber-list-by-size\.html$/m);
+});
+
+test('every page quotes its own figures and links every other size', () => {
+  for (const f of all) {
+    const html = files[`how-much-lumber-for-a-${f.w}x${f.l}-shed.html`];
+    assert.ok(html, `${f.w}x${f.l}`);
+    assert.match(html, new RegExp(`${f.pieces} framing pieces cut from ${f.boards} boards`));
+    for (const g of all) if (g !== f) assert.ok(html.includes(`href="how-much-lumber-for-a-${g.w}x${g.l}-shed.html"`), `${f.w}x${f.l} -> ${g.w}x${g.l}`);
+    const boards = f.rows.reduce((a, r) => a + r.boards, 0);
+    assert.equal(boards, f.boards, `${f.w}x${f.l}: the table's boards add up to the headline`);
   }
 });
 

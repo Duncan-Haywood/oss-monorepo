@@ -43,6 +43,6 @@ Date: 2026-10-29. Session: https://claude.ai/code/session_01XpHqyeS6gsz3tkQdJ13S
 ## Open, for the next run
 
 - **About 200 listings rest on search-result copies of pages,** many months old (Lowe's copies up to 632 days). A person with a browser and a store selected could refresh the biggest lines first: lumber, siding, shingles, the door. Record the date and the store in each note.
-- **Lumber-list pages by size** (PR #11322, `shed-lumber-list-by-size.html` and the per-size pages) are written by the engine and have their own drift check. They are not covered by `marketing.test.mjs`.
+- **Lumber-list pages by size** (PR #11322, `shed-lumber-list-by-size.html` and the per-size pages) are written by the engine and have their own drift check. They are not covered by `marketing.test.mjs`. **Resolved 2026-10-30 (round 2, lane 2):** the size pages are no longer committed; the site build writes them (`platform/pages/build.mjs`, `GENERATED_PAGES`), so there is nothing to regenerate or hand-merge.
 - **Usage tracking:** the marketing page has no page-view counter of its own. The tool's `usage.mjs` counts events in the browser only. Check whether the Pages build's site counter (platform/edge) covers SEO pages before adding anything.
 - **Custom-size openings** are now named. A next step could offer a typical price range from the catalogue (cheapest to dearest unit of that kind) instead of leaving them out. It must say "range" and never present it as a listing.

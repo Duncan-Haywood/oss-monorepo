@@ -28,10 +28,11 @@ test('front wall framing around a 38 x 82 door, counted by hand', () => {
   assert.deepEqual(jacks.map((m) => m.length), [80.5, 80.5]);
   const headers = of(s, 'wall:front', 'header');
   assert.equal(headers.length, 2);
-  assert.equal(headers[0].material, '2x6');
+  // Sized to the load (headerFor): two 2x4s carry the 38" door's strip of roof.
+  assert.equal(headers[0].material, '2x4');
   assert.equal(headers[0].length, 41); // 38 + two jacks
-  // Header top 82 + 5-1/2 = 87-1/2; underside of top plates 93: cripples 5-1/2 at 64 and 80.
-  assert.deepEqual(of(s, 'wall:front', 'top cripple').map((m) => m.length), [5.5, 5.5]);
+  // Header top 82 + 3-1/2 = 85-1/2; underside of top plates 93: cripples 7-1/2 at 64 and 80.
+  assert.deepEqual(of(s, 'wall:front', 'top cripple').map((m) => m.length), [7.5, 7.5]);
   // Bottom plate is cut out at the door: 53 and 144 - 91 = 53.
   assert.deepEqual(of(s, 'wall:front', 'bottom plate').map((m) => m.length), [53, 53]);
 });
@@ -126,11 +127,11 @@ test('the starter is the spec as asked: 8x12, 6\'6" door on a 12 ft side, two wi
   assert.equal(d.maxPeak, 96);
 });
 
-test('auto walls: 78" door + 5-1/2" 2x6 header + three plates = 86-1/2"', () => {
-  assert.equal(minWallFor(defaultDesign()), 86.5);
+test('auto walls: 78" door + 3-1/2" header of two 2x4s + three plates = 84-1/2"', () => {
+  assert.equal(minWallFor(defaultDesign()), 84.5);
   const s = buildShed(defaultDesign());
-  assert.equal(s.design.wallHeight, 86.5);
-  assert.equal(s.dims.studLen, 82);
+  assert.equal(s.design.wallHeight, 84.5);
+  assert.equal(s.dims.studLen, 80);
   assert.ok(s.design.autoWall && s.design.autoPitch);
 });
 
