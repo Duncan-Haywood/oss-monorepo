@@ -26,7 +26,7 @@ The skids come out comfortable. The starter's 4x4 is the worst at 46% of capacit
 
 The IRC's table of presumptive soil values (R401.4.1) starts at 1,500 psf, for clay and silt, and that is the value to use when nobody has looked at the soil. So the starter was at **1.32 times** the code's floor value.
 
-**The fix is cheap.** A 4" bed of compacted paver base under each block, 2" wider all round, spreads the load over 20" x 12" (1.67 sq ft). That brings the starter to 70%. The tool already offered that option, and the starting design now uses it: 14 bags of paver base, which takes the starter from $3,048.40 to $3,131.98 at the listed prices. A full gravel pad also passes.
+**The fix is cheap.** A 4" bed of compacted paver base under each block, 2" wider all round, spreads the load over 20" x 12" (1.67 sq ft). That brings the starter to 70%. The tool already offered that option, and the starting design now uses it: 14 bags of paver base, which adds $83.58 to the starter at the listed prices ($3,026.46 to $3,110.04). A full gravel pad also passes.
 
 | Starter, 3 skids on 4x8x16 blocks | Pressure on the soil | vs 1,500 psf |
 |---|---|---|
