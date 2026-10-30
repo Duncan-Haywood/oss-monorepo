@@ -41,10 +41,14 @@ The owner and a builder, 2026-10-29, for a real shed under 100 sq ft: the HOA wa
 - After merging `main` (2026-10-30), the whole suite (`node --test *.test.mjs`) ran 190 tests: 189 pass, 0 fail, 1 skipped. `node platform/pages/typecheck.mjs shed-designer` gives 0 diagnostics.
 - In headless Chromium, the 8x12, the 12x16 and a gray fiber-cement 8x12 on a typed lot were rendered and printed to PDF with `page.pdf`, and checked by eye. There were no console errors.
 
+## Second PR: roof and footprint plan
+
+`planSvg(shed)` is a top view: the roof outline with its overhangs, the ridge, the slope, the walls dashed, and a mark on its wall line for every door and window, with the walls and roof dimensioned both ways. It is its own packet page, so the packet now has five pages, and the HOA sees where the door faces even before a lot is typed. A test for every preset checks the sizes, that each door and window is marked, and that every mark sits on a wall line.
+
 ## Open, and the next step
 
 - **When #11542 merges,** the site page fills in by itself. The site sheet's own title block then prints inside the packet page; a cropped version without the title block would look cleaner.
 - **Gallery designs:** if a round 3 lane adds pre-optimised gallery designs as a new export rather than `PRESETS`, add them to the sample links in `hoa-page.mjs`. It is one line.
 - **Lap siding as a type:** the owner wants horizontal lap siding painted to match a HardieBoard house. The packet already draws fiber cement as lap. A new siding type with "lap" in its name draws correctly with no change here, and a `#rrggbb` colour field would let the swatch match the house's paint.
 - **Sitemap:** `hoa-packet.html` is not in `sitemap.xml`, which `make-size-pages.mjs` writes, and PR #11524 is moving that to the site build. Add it there once that settles.
-- **Possible addition:** a dimensioned roof plan (top view with the overhangs). Some HOAs ask for one.
+
