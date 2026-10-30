@@ -35,5 +35,5 @@ for rel in out:
 if bad:
     print("Blocked: this push carries a post the front-matter check rejects "
           "(it would turn main red):\n  " + "\n  ".join(bad) +
-          "\nFix it and commit, then push again (platform/ci/check_post_frontmatter.py).", file=sys.stderr)
+          "\nFix and commit in a SEPARATE Bash call, then push in another: this hook checks the tree before the whole command runs, so a fix chained before `git push` is still blocked (platform/ci/check_post_frontmatter.py).", file=sys.stderr)
     sys.exit(2)
