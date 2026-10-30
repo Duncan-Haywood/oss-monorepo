@@ -15,7 +15,7 @@ import { VIEWS, packetHtml, encodeDesign, decodeDesign } from './hoa.mjs';
 /** @type {Record<string, any[]>} */
 export const AXES = {
   preset: Object.keys(PRESETS),
-  sidingType: ['T1-11', 'LP SmartSide', 'LP SmartSide 7/16', 'board and batten', 'vinyl', 'fiber cement'],
+  sidingType: ['T1-11', 'LP SmartSide', 'LP SmartSide 7/16', 'board and batten', 'vinyl', 'fiber cement', 'LP SmartSide lap'],
   foundation: ['gravel', ...Object.keys(BLOCKS)],
   pad: ['full', 'under blocks', 'none'],
   floorPanel: ['plywood', 'OSB'],
