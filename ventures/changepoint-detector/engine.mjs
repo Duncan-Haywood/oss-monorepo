@@ -734,6 +734,28 @@ export function ar1Rho(x) {
   return Math.max(0, Math.min(0.95, 1 + 2 * rd));
 }
 
+/**
+ * Variance ratio of block means: the spread of means of blocks of ~n/20 points against what independent noise
+ * of the series' own difference-based sd would give (1 for white noise; 95th percentile of white noise 1.6 at
+ * n >= 200, 2.5 at n = 48). Long memory, cycles and level shifts all push it up, and it does not tell them apart;
+ * unlike ar1Rho it sees slow wandering that has a small lag-1 correlation (treering: rho 0.16, ratio 6).
+ */
+export function blockVarianceRatio(x) {
+  const n = x.length;
+  if (n < 40) return 1;
+  const d = [];
+  for (let i = 1; i < n; i++) d.push(x[i] - x[i - 1]);
+  const md = median(d);
+  const mad = median(d.map((v) => Math.abs(v - md))) / 0.6744897501960817;
+  if (!(mad > 0)) return 1;
+  const m = Math.max(4, Math.round(n / 20)), k = Math.floor(n / m);
+  const mu = [];
+  for (let b = 0; b < k; b++) { let t = 0; for (let i = 0; i < m; i++) t += x[b * m + i]; mu.push(t / m); }
+  const g = mu.reduce((a, c) => a + c, 0) / k;
+  const v = mu.reduce((a, c) => a + (c - g) ** 2, 0) / (k - 1);
+  return v / (mad * mad / 2 / m);
+}
+
 /** Long-run noise sd of AR(1) noise from the difference-based sd: sd * sqrt(1 + rho) / (1 - rho). */
 export function longRunSd(sd, rho) {
   return sd * Math.sqrt(1 + rho) / (1 - rho);
@@ -1777,6 +1799,8 @@ export function analyze(input = {}) {
   let rangeWarning = null;
   if (ranges && model === 'mean' && !o.ar1 && values.length >= 20) {
     const r0 = ar1Rho(values);
+    const vr0 = r0 < 0.3 ? blockVarianceRatio(values) : 0;
+    if (r0 < 0.3 && p.changepoints.length >= 5 && vr0 >= 3) rangeWarning = `The series' level wanders more than independent noise allows (block means vary ${round(vr0, 1)} times as much; white noise gives about 1) although the lag-1 correlation is small (rho about ${round(r0, 2)}), so these ${p.changepoints.length} steps and their ranges may be false alarms from slow drift or a cycle rather than separate regime changes: on 7,980 yearly tree rings with no documented step the default found 38, --ar1 still 11 (README, quiet series). A real step raises this ratio too, so read it as a prompt to check dates, not as a verdict.`;
     if (r0 >= 0.3) rangeWarning = `The series looks autocorrelated (rho about ${round(r0, 2)}), so these ranges are too narrow: use --ar1 (page: allow for autocorrelation).${p.changepoints.length >= 5 ? ` With ${p.changepoints.length} steps at this rho, many may be false alarms: on real cycles with no documented step the default found 23 (lynx) and 46 (sunspots), --ar1 found none and --ar1 joint kept a 2 sd step (README, cyclic series).` : ''}`;
   }
   // the same for counts that vary more than Poisson: the plain Poisson range held the date in 6% to 42% of overdispersed series (README)

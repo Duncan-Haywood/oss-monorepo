@@ -31,3 +31,11 @@ test('treering: 38 steps by default, still 11 with --ar1, 1 with the meanvar boo
   assert.equal(run(tree, { ar1: true }).length, 11);
   assert.deepEqual(run(tree, { model: 'meanvar', bootstrap: true }), ['-4353']);
 });
+
+test('treering: rho is only 0.16 but the block-variance check still warns about the 38 steps; lh, Nile-sized series do not trip it', () => {
+  const w = analyze(tree).rangeWarning;
+  assert.match(w, /wanders more than independent noise allows/);
+  assert.match(w, /38 steps/);
+  const dax = readFileSync(new URL('./data/dax-returns.csv', import.meta.url), 'utf8').trim().split('\n').slice(1).map((l) => +l.split(',')[1]);
+  assert.equal(analyze({ values: dax }).rangeWarning ?? null, null);
+});
