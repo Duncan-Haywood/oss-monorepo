@@ -80,6 +80,7 @@ class CullTests(unittest.TestCase):
         self.assertEqual(score.keeper_hits, 1)  # group of a2 yes; b1's group keeper is none (all rejects)
         self.assertEqual(score.picks_rejected, ("a3.jpg", "b1.jpg"))
         self.assertAlmostEqual(score.false_reject_rate or 0, 2 / 3)
+        self.assertEqual(dict(score.reject_reasons), {"blurry": 1, "closed eyes": 1})
 
     def test_picks_file_and_report(self) -> None:
         picks = self.root / "picks.txt"

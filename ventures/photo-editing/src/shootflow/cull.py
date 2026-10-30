@@ -293,6 +293,7 @@ class PickScore:
     keeper_hits: int  # groups with a pick whose keeper is one of the picks
     picks_rejected: tuple[str, ...]  # the costly miss: a frame you wanted, flagged reject
     picks_kept: int  # picks the cull left as keeper or alternate
+    reject_reasons: tuple[tuple[str, int], ...] = ()  # why picks were rejected: which threshold to loosen
 
     @property
     def keeper_hit_rate(self) -> float | None:
@@ -335,7 +336,13 @@ def score_against_picks(result: CullResult, picks: Sequence[str]) -> PickScore:
     keepers = {i.group: i.path for i in result.items if i.role == "keeper"}
     hits = sum(1 for g in picked_groups if keepers.get(g) in matched)
     rejected = tuple(sorted(p for p, i in matched.items() if i.role == "reject"))
+    reasons: dict[str, int] = {}
+    for item in matched.values():
+        if item.role == "reject":
+            for reason in item.reasons or ("lost to a better frame",):
+                reasons[reason] = reasons.get(reason, 0) + 1
     return PickScore(
+        reject_reasons=tuple(sorted(reasons.items(), key=lambda kv: (-kv[1], kv[0]))),
         picks=len(picks), matched=len(matched), unmatched=tuple(unmatched),
         groups_with_a_pick=len(picked_groups), keeper_hits=hits, picks_rejected=rejected,
         picks_kept=len(matched) - len(rejected),
@@ -348,6 +355,7 @@ def pick_score_to_dict(score: PickScore) -> dict[str, object]:
         "groups_with_a_pick": score.groups_with_a_pick, "keeper_hits": score.keeper_hits,
         "keeper_hit_rate": score.keeper_hit_rate, "picks_rejected": list(score.picks_rejected),
         "false_reject_rate": score.false_reject_rate, "picks_kept": score.picks_kept,
+        "reject_reasons": dict(score.reject_reasons),
     }
 
 
