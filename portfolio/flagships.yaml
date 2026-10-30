@@ -96,7 +96,7 @@ flagships:
     next: >-
       Landed history and every measurement live in the README and git (four-index
       cross-check, DAX/SMI/FTSE cut, CAC's 29% rise not: README 2026-10-29). Open:
-      (0) US accidental deaths is not a null (step at 1973-12, README 2026-10-30); quiet real series landed 2026-10-30 (lh: 5 false steps, 0 with --ar1; treering: 38, 11 with --ar1, README); cyclic real series landed 2026-10-30 (lynx 23 false steps, sunspots 46; 0 with --ar1 or the meanvar bootstrap; power on a step inside a cycle unmeasured, README); (1) range95 now holds on a real closure, Ansett's 1989 pilots' dispute
+      (0) US accidental deaths is not a null (step at 1973-12, README 2026-10-30); quiet real series landed 2026-10-30 (lh: 5 false steps, 0 with --ar1; treering: 38, 11 with --ar1, README); cyclic real series landed 2026-10-30 (lynx 23 false steps, sunspots 46; 0 with --ar1 or the meanvar bootstrap; power on a step inside a cycle landed 2026-10-30: --ar1 finds 0 of 18 inserted steps up to 2 sd, the meanvar bootstrap only at 2 sd, README; wanted: an ar1 variant that keeps a step); (1) range95 now holds on a real closure, Ansett's 1989 pilots' dispute
       (4 of 4 setups) and on a real shock, Hurricane Maria in Puerto Rico's
       daily deaths (5 of 5); a real trending series now gives one change, US airline miles 1946; WWWusage (wanders): 21 steps, 0 by --ar1; wanted: a closure series quiet
       outside it, as none of 30 Ansett route/class series is (8 to 36 other changes; count-model range95 holds the stop in 29, mean model 19; 2026-10-29); (2) the steep-bump (0.04) clumpy-count cell is under-

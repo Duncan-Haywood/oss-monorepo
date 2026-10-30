@@ -1220,3 +1220,31 @@ So on a cycle the default model is wrong by a wide margin, a longer minimum segm
 tool that finds nothing: this table says nothing about power on a series with a real step inside a cycle, which is
 not measured. The default output does not warn about a cycle; pointing the text at `--ar1` when it sees a periodic
 autocorrelation pattern is open.
+
+## Power on a step inside a cycle (2026-10-30)
+
+The table above only counts false alarms, so it cannot tell a quiet tool from a blind one. This one adds a level
+shift of 0.5, 1 or 2 series standard deviations to the real lynx and sunspot series from 30%, 50% or 70% of the way
+through, and asks whether a setup puts a change within 3 points of it (hits out of 3 positions;
+`eval/cyclic-power.mjs`, `cyclic-power.test.mjs`). "Other" is the count of further changes in the same run.
+
+| Series | Setup | 0.5 sd | 1 sd | 2 sd | Other changes (1 sd) |
+| --- | --- | --- | --- | --- | --- |
+| `lynx` | default `mean` | 2/3 | 2/3 | 3/3 | 22, 22, 20 |
+| `lynx` | `--min-segment 20` | 2/3 | 2/3 | 3/3 | 2, 4, 2 |
+| `lynx` | `--ar1` | 0/3 | 0/3 | 0/3 | 0 |
+| `lynx` | `meanvar --bootstrap` | 0/3 | 2/3 | 3/3 | 0, 1, 0 |
+| `sunspot-year` | default `mean` | 3/3 | 3/3 | 3/3 | 45, 46, 45 |
+| `sunspot-year` | `--min-segment 20` | 2/3 | 2/3 | 3/3 | 7 each |
+| `sunspot-year` | `--ar1` | 0/3 | 0/3 | 0/3 | 0 |
+| `sunspot-year` | `meanvar --bootstrap` | 0/3 | 0/3 | 3/3 | 1 each |
+
+The zeros above were not free. On a cyclic series `--ar1` reports nothing, and that includes a step of two standard
+deviations of the whole series: the AR(1) term absorbs the step into the noise, so 0 of 18 inserted steps were found.
+The bootstrapped `meanvar` penalty is quiet and does find a 2 sd step, but misses 0.5 sd and (on sunspots) 1 sd.
+The default model finds the step and buries it in 20 to 46 false ones. A longer minimum segment is the only setup
+that both finds most steps and leaves a readable list, and it is still noisy (2 to 7 extra changes).
+Practical reading: on a series with a visible cycle, use the bootstrapped `meanvar` for a large break and treat
+`--ar1` as a false-alarm filter that cannot confirm a step. Caveats: two series, one step shape, three positions,
+a tolerance of 3 points, so each cell is 3 trials; a step added to a real series is not a real step.
+
