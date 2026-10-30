@@ -108,3 +108,19 @@ Verified in a sparse worktree (53 MB, no media): both guards exit 0 with the
 new scripts and the 5,108-file link check passes; the old scripts reported
 2,596 dead links on the same tree. New unit test `SparseCheckout`. README live
 links and sibling links remain (items 2 and 3 above).
+
+## Part 2b: README live links; sibling links left whole (2026-10-30)
+
+`readme-live-links-ci.yml` now fetches `platform/ci/`, `ventures/*/README.md`,
+`ventures/*/index.html`, `research/README.md`, `research/*/README.md`,
+`research/*/project.json`, `research/_homepage/` and `pyproject.toml`
+(blob:none). In a worktree with exactly that pattern (4,343 files of 45,492
+tracked) all three scripts exit 0 as on the full tree, and the 19 guard unit
+tests pass.
+
+Sibling links stays on a full checkout. `siblings.mjs` imports `build.mjs`,
+which imports `platform/counter` and reads venture sub-pages and research
+READMEs. A sparse tree of `platform/`, venture HTML/JSON/MJS and READMEs
+(16,405 files, 202 MB) still gave a false orphan on `--check`, so the saving
+is small and the risk of a guard passing or failing on less than it reads is
+real. Not worth pursuing without first making `siblings.mjs` list its inputs.
