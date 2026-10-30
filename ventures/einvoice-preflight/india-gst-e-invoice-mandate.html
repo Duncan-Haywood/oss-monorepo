@@ -51,8 +51,14 @@
 <p id="irn-out" class="out" aria-live="polite"></p>
 </section>
 <section>
+<h2>Pre-check an INV-01 payload</h2>
+<p>Paste the JSON you plan to send to the IRP. It runs in your browser; nothing is sent. It names the field for each fault: required blocks, GSTINs, PIN codes, dates, HSN length, GST slab, IGST versus CGST+SGST by place of supply, line arithmetic and the totals. Rules are from memory of the public schema and secondary guides, not the IRP specification, so a clean result is not an IRN.</p>
+<label>INV-01 JSON <textarea id="p-json" rows="10" cols="60" spellcheck="false" placeholder='{"Version":"1.1","TranDtls":{...}}'></textarea></label>
+<p id="p-out" class="out" aria-live="polite"></p>
+</section>
+<section>
 <h2>What this tool does not cover</h2>
-<p>It does not validate the INV-01 JSON, talk to the IRP, or confirm a registration. The EN 16931 checker on the <a href="./">main page</a> applies to European and Peppol invoices and does not apply to Indian IRP submissions.</p>
+<p>It checks an INV-01 payload only against the rules above (not the IRP's own schema), does not talk to the IRP, and cannot confirm a registration. The EN 16931 checker on the <a href="./">main page</a> applies to European and Peppol invoices and does not apply to Indian IRP submissions.</p>
 <p>Other countries: <a href="e-invoicing-mandates-by-country.html">all side by side</a>, <a href="germany-e-invoice-mandate.html">Germany</a>, <a href="france-e-invoice-mandate.html">France</a>, <a href="belgium-e-invoice-mandate.html">Belgium</a>, <a href="poland-ksef-e-invoice-mandate.html">Poland</a>, <a href="croatia-e-invoice-mandate.html">Croatia</a>, <a href="spain-verifactu-e-invoice-mandate.html">Spain</a>, <a href="italy-sdi-e-invoice-mandate.html">Italy</a>, <a href="netherlands-e-invoice-mandate.html">the Netherlands</a>, <a href="romania-e-factura-e-invoice-mandate.html">Romania</a>, <a href="greece-mydata-e-invoice-mandate.html">Greece</a>, <a href="bulgaria-e-invoice-mandate.html">Bulgaria</a>, <a href="portugal-e-invoice-mandate.html">Portugal</a>, <a href="uk-e-invoice-mandate.html">the UK</a>, <a href="uae-e-invoice-mandate.html">the UAE</a>, <a href="saudi-arabia-zatca-e-invoice-mandate.html">Saudi Arabia</a>, <a href="malaysia-myinvois-e-invoice-mandate.html">Malaysia</a>, <a href="hungary-e-invoice-mandate.html">Hungary</a>, <a href="denmark-e-invoice-mandate.html">Denmark</a>, <a href="estonia-e-invoice-mandate.html">Estonia</a>, <a href="latvia-e-invoice-mandate.html">Latvia</a>, <a href="slovenia-e-invoice-mandate.html">Slovenia</a>, <a href="serbia-e-invoice-mandate.html">Serbia</a>, <a href="czech-republic-e-invoice-mandate.html">Czech Republic</a>, <a href="slovakia-e-invoice-mandate.html">Slovakia</a>, <a href="lithuania-e-invoice-mandate.html">Lithuania</a>, <a href="luxembourg-e-invoice-mandate.html">Luxembourg</a>, <a href="malta-e-invoice-mandate.html">Malta</a>, <a href="norway-e-invoice-mandate.html">Norway</a>, <a href="ireland-e-invoice-mandate.html">Ireland</a>, <a href="singapore-invoicenow-e-invoice-mandate.html">Singapore</a>, <a href="australia-e-invoice-mandate.html">Australia</a>, or the <a href="../eu-einvoicing-mandate-checker/">EU e-invoicing mandate checker</a>. <a href="create.html">Create an invoice</a>, or see <a href="what-does-this-e-invoice-error-code-mean.html">the rule reference</a>.</p>
 </section>
 <section>
@@ -77,12 +83,15 @@
 </footer>
 <script type="module">
 import{checkGstin,checkDocumentNumber,financialYear,irn}from"./india.mjs";
+import{checkInv01}from"./india-inv01.mjs";
 const $=i=>document.getElementById(i);
 const esc=t=>String(t).replace(/[&<>"']/g,c=>"&#"+c.charCodeAt(0)+";");
 function g(){const r=checkGstin($("gstin").value);$("gstin-out").innerHTML=!$("gstin").value?"":r.ok?'<span class="good">Shape and check character are consistent.</span>':r.problems.map(p=>`<span class="bad">${esc(p)}</span>`).join("<br>")}
 async function i(){const gs=checkGstin($("i-gstin").value),dn=checkDocumentNumber($("i-num").value),fy=financialYear($("i-date").value),p=[...gs.problems,...dn.problems];if(!fy)p.push("Enter a date.");if(p.length){$("irn-out").innerHTML=p.map(x=>`<span class="bad">${esc(x)}</span>`).join("<br>");return}
 $("irn-out").innerHTML=`Financial year ${esc(fy)}<br><code>${esc(await irn({gstin:gs.gstin,financialYear:fy,docType:$("i-type").value,docNumber:$("i-num").value}))}</code>`}
-for(const e of["gstin"])$(e).addEventListener("input",g);for(const e of["i-gstin","i-date","i-type","i-num"])$(e).addEventListener("input",i);i();
+for(const e of["gstin"])$(e).addEventListener("input",g);for(const e of["i-gstin","i-date","i-type","i-num"])$(e).addEventListener("input",i);function p(){const v=$("p-json").value;if(!v.trim()){$("p-out").innerHTML="";return}const r=checkInv01(v);$("p-out").innerHTML=r.ok?'<span class="good">No findings. The IRP has the final say.</span>':r.problems.map(x=>`<span class="bad">${esc(x.path||"(document)")}: ${esc(x.message)}</span>`).join("<br>")}
+$("p-json").addEventListener("input",p);
+i();
 </script>
 </main>
 </body></html>
