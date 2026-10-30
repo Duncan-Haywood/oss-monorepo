@@ -7,7 +7,7 @@
 
 import { fmtIn, fmtFtIn } from './lumber.mjs';
 import { wallLabel } from './model.mjs';
-import { heelJoint } from './checks.mjs';
+import { heelJoint, anchorage, anchorageText } from './checks.mjs';
 import { trussChecks } from './truss.mjs';
 import { gambrelBuildSteps } from './gambrel-sheets.mjs';
 import { lapSteps } from './lap.mjs';
@@ -57,9 +57,10 @@ export function buildInstructions(shed, est) {
     title: 'Concrete piers',
     steps: [
       `Mark the shed's outline with stakes and string, square it (diagonals ${fmtFtIn(Math.hypot(L, W))} each), and mark the centre of each of the ${k.blockCount} piers under the skid lines.`,
-      `Call 811 before you dig. At each mark, dig a hole about 14" across and ${fmtIn(d.pierDepth)} deep: below your frost line where the ground freezes (ask your building department for its frost depth and set "Pier depth" to it), and always down to firm, undisturbed soil. A post-hole digger or a rented auger does it; tamp the bottom.`,
-      `Cut the ${k.pierTubes} form tube${k.pierTubes > 1 ? 's' : ''} into ${k.blockCount} pieces ${fmtIn(k.pierLen)} long, set one in each hole standing ${k.block.h}" above grade, plumb it, and backfill round it, tamping as you go.`,
-      `Run a string line at the top of the tubes and cut or set every tube to the same height, so the skids sit level. Mix and pour the ${k.pierBags} bags of concrete (about ${(k.pierCuFt).toFixed(2)} cu ft a pier), rodding each pour to drive out air, and strike the tops flat and level.`,
+      `Call 811 before you dig. At each mark, dig a hole ${fmtIn(d.pierDepth + k.block.footThick)} deep, opened out at the bottom to ${fmtIn(k.pierFootIn)} square for the footing: below your frost line where the ground freezes (ask your building department for its frost depth and set "Pier depth" to it), and always down to firm, undisturbed soil. A post-hole digger or a rented auger does it; tamp the bottom.`,
+      `Cut the ${k.pierTubes} form tube${k.pierTubes > 1 ? 's' : ''} into ${k.blockCount} pieces ${fmtIn(k.pierLen)} long. Run a string line ${k.block.h}" above grade over each row of holes, at one height for all of them, so the skids will sit level.`,
+      `Mix the ${k.pierBags} bags of concrete a few at a time. In each hole, pour a ${fmtIn(k.pierFootIn)} square footing pad ${k.block.footThick}" thick (about ${k.pierFootCuFt.toFixed(2)} cu ft) and level it; stand a tube on it while it is still soft, plumb, with its top at the string, and brace it. Then fill the tube in the same pour (about ${k.pierCuFt.toFixed(2)} cu ft), rodding to drive out air, and strike the top flat and level. The pad spreads the shed's weight over ${(k.pierFootIn ** 2 / 144).toFixed(2)} sq ft of soil; a bare tube would press soft clay harder than it is assumed to carry.`,
+      'Backfill round each tube, tamping as you go.',
       'Let the concrete cure at least two days before the skids go on (the bag gives the times for your temperature). Peel the tube off above grade if you like.',
     ],
     check: ['Every pier top level with the others within 1/4" (string line or a long level on a straight board).', 'Each pier plumb and centred on its skid line.'],
@@ -153,6 +154,10 @@ export function buildInstructions(shed, est) {
     ];
     for (const p of w.openings) {
       const left = Math.min(fromLeft(p.a + off - off), fromLeft(p.a + p.w));
+      if (p.bay) {
+        steps.push(`Window ${fmtIn(p.w)} wide x ${fmtIn(p.op.height)} high, in the stud bay starting ${fmtIn(fromLeft(name === 'front' || name === 'right' ? p.bay[0] : p.bay[1]))} from the left end of the plate: it cuts no stud, so no king, jack or header. Nail a flat ${d.studSize} block (marks ${marks((m) => m.group === `wall:${name}` && (m.kind === 'sill block' || m.kind === 'head block'))}) between the two studs with its top ${fmtIn(p.bottom)} above the floor, and another with its underside ${fmtIn(p.bottom + p.op.height)} up; two 16d through each stud into each end.`);
+        continue;
+      }
       steps.push(`${p.op.kind === 'door' ? 'Door' : 'Window'} ${fmtIn(p.w)} wide x ${fmtIn(p.op.height)} high rough opening, starting ${fmtIn(fromLeft(name === 'front' || name === 'right' ? p.a : p.a + p.w) + (eave ? 0 : 0))} from the left end of the plate: a king stud each side, a jack each side at ${fmtIn(p.bottom + p.op.height - 1.5)}, a header of two ${p.hdr} at ${fmtIn(p.w + 3)} nailed together${k.stud > 3 ? ` around a ${fmtIn(k.stud - 3)} plywood spacer` : ''} and set on the jacks${p.op.kind === 'window' ? `, a rough sill at ${fmtIn(p.w)} with its top ${fmtIn(p.bottom)} above the floor and cripples under it` : ''}, then cripples above at the layout marks.`);
       void left;
     }
@@ -395,7 +400,8 @@ export function buildInstructions(shed, est) {
       'Walk the roof edges for nails that missed rafters, and the walls for siding nails that missed studs.',
       `Check that every rafter has its ${k.connector ? 'connector' : 'plate tie'}${beam ? ' and its hanger' : ''}, with every nail hole filled with the nail its maker names.`,
       'Keep the gravel clear of the siding, and slope the ground away from the pad.',
-    ],
+      anchorage(shed).ratio > 1 ? `Anchor it. ${anchorageText(shed)} Fix each anchor to a skid or the rim joist with the strap and nails its maker names, and check the anchor's rated load for your soil.` : '',
+    ].filter(Boolean),
   });
   return out;
 }

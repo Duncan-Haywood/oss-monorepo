@@ -2,6 +2,17 @@
 
 Newest first.
 
+## 2026-10-30 · Milestone 2m: how far does the break-even LS margin move with load factor? (planned before running)
+- Why: 2l's "Next": it is one load factor (0.346, the measured one). A reader's machine idles more or less than that. `experiments/ranking_map_lf.py`, 2l's model unchanged, load factor 0.15, 0.25, 0.346, 0.5, 0.7, p_n 1.44 and 6.44 bar, dp_ls 4 to 60 bar.
+- **Prediction (before running):** the break-even falls monotonically as load factor rises (less idle time means less for load-sensing's low idle power to win back), from above 30 bar at 0.15 to under 20 bar at 0.7 at p_n 1.44, and at 0.346 it reproduces 2l's 19.3 (prior 80%). Refuted if non-monotone in load factor, or if the 0.7 break-even is 20 bar or more.
+
+### Outcome of 2m (`experiments/ranking_map_lf.py`, 20 s, seeded; `ranking_map_lf_results.txt`)
+- Break-even dp_ls (bar) at p_n 1.44: **12.9** (load factor 0.15), 16.8 (0.25), 19.3 (0.346, reproduces 2l), 21.7 (0.5), 22.9 (0.7). At p_n 6.44: 25.5, 24.5, 23.9, 23.3, 23.1. Monotone in dp_ls in every row.
+- **Prediction refuted on direction.** I expected the break-even to fall as load factor rises. It rises at p_n 1.44 (12.9 to 22.9): with a near-free open-centre neutral (1.44 bar), idle time favours open-centre because load-sensing pays dp_ls on its standby flow, so the more a machine idles, the lower the LS margin load-sensing needs to win. Only when the open-centre neutral costs about 6 bar does idle favour load-sensing (break-even falls slightly, 25.5 to 23.1). The 0.346 row reproduces 2l (19.3, 23.9) and the 0.7 value is 22.9, over my 20 bar refutation line, so both stated refutation conditions fired.
+- Reading: the sign of the circuit gap depends on load factor only when p_n is small. For the Rexroth 14 bar margin, load-sensing wins at every load factor tested with p_n 1.44 except 0.15 (14 is above 12.9); for the thesis 25 bar it loses at every load factor at p_n 1.44, and at 6.44 wins only at 0.15 (25 against 25.5, inside interpolation error). The measured margin and neutral pressure still decide it; load factor does not rescue either side.
+- Limits: standby flow 2 L/min assumed (it scales the idle effect directly); one valve drop source; break-even by interpolation on a 4 bar grid.
+- Next: a standby flow from a pump datasheet, since it multiplies the idle term that this run shows drives the load-factor dependence.
+
 ## 2026-10-30 · Milestone 2l: where is the sign boundary in (dp_ls, neutral drop)? (planned before running)
 - Why: 2i to 2k each moved one input and flipped the ranking. Network hosts for new sources (assets.danfoss.com, zenodo.org, rwth/polito repositories, arxiv.org) all refuse connections from this session, so no new source this run; what the paper can use instead is the boundary itself, so a reader with their own machine's two numbers can read the answer off.
 - Plan (`experiments/ranking_map.py`, reuses 2g `ratio`, load factor 0.346, LS standby 2 L/min assumed, 600 cycles per seed x 5 seeds): dp_ls 8 to 32 bar in steps of 2 against open-centre neutral pressure p_n = 1.44 (valve only, 2i), 6.44 (+5), 11.44 (+10) bar. Break-even dp_ls by linear interpolation of the median crossing 1.0, and a figure.

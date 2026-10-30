@@ -1,0 +1,53 @@
+{
+  "date": "2026-10-30",
+  "session": "https://claude.ai/code/session_01AcxTtHwKkyLKH5XavQgxs3",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "scheduled: read ./prompt.md and follow it",
+  "input_sha256": "ee033cfea43da33876e002bbf7130f57412bc4edbc40ac439e360c2c2d7a1550",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-30T03:10:28Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/11645",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "Says Hearth & Horizon has no BIBLE.md; it exists with a long Next up list, almost all Done."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "docs/posts",
+      "why": "No blog post or podcast written; text-only story is the deliverable and audio is over the 400 MB cap.",
+      "did": "story only",
+      "result": "landed"
+    }
+  ],
+  "writeups": [
+    "ventures/hearth-and-horizon/stories/three-cents-a-degree.md"
+  ],
+  "goal": null,
+  "notes": "creative: hearth-and-horizon, slug three-cents-a-degree, text only (audio 423 MB > 400). Caught and fixed a weekday error (2 Nov 2048 is Monday) and euro vs pounds before commit.",
+  "corrections": [],
+  "redteam": null
+}
