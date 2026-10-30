@@ -1358,3 +1358,20 @@ residual check does not rescue it (`node eval/staircase-residual.mjs`): the rati
 0.6 to 0.7 (median) on the staircases, but 1.3 on treering, 0.8 on US inflation and 1.2 on DAX returns, because 38 steps
 fit treering's drift just as well as 12 fit a staircase. No code changed. What would separate them is data: a real series with a
 documented run of 5 or more steps and a quiet baseline.
+
+## AR(2) by iterated prewhitening does not work (2026-10-30, last)
+
+The open item "a joint fit with an AR(2) term" was tried the cheap way first (`node eval/ar2-prewhiten.mjs`, output
+`eval/ar2-prewhiten.out.txt`, no engine change): whiten the series with AR(1) or AR(2) coefficients (Yule-Walker on the residuals
+about the fitted steps, three passes, seeded with the robust rho as `ar1JointFit` is), then run mean PELT on the whitened series.
+
+| series | AR(1) prewhitened | AR(2) prewhitened | `--ar1` (exact likelihood) |
+|---|---|---|---|
+| lynx, false steps | 21 | 22 | 0 |
+| sunspots, false steps | 34 | 16 | 0 |
+
+Starting with no whitening is worse (19 and 51: the first pass cuts the cycle into steps, whose residuals look white, so the
+coefficients fall to about 0). Even seeded, the coefficients drift (sunspots AR(2): 1.07, -0.48) and many steps remain. A check that a
+1 or 2 sd step inserted at six positions is found with 3 or fewer steps reported found 0 of 6 in every cell, so there is no power to
+protect either. Plain prewhitening is not the route; an AR(2) fit would need the exact two-lag likelihood inside PELT
+(as `ar1mean` does for one lag) with coefficients profiled on a grid. Not built. Real data only; no inserted-step claim beyond the table.
