@@ -55,6 +55,14 @@ The planks alone are cheaper than the T1-11 panels ($499 against $515). The diff
 
 `evenExposure()` in `lap.mjs` sets the exposure the way an installer's story pole does. It is never over the maker's figure, and it is even, so the top course on the long walls is a full plank meeting the plate. The default 8x12 now lays 14 courses at 6-1/2" instead of 13 at 7" plus a 1/2" bare strip under the eave. Cost: three more fiber cement planks. The build step says to mark each course from the bottom, so rounding does not add up.
 
+## Follow-up PR: stud spacing the siding allows
+
+At r3 lane 8's request (relayed by the parent), each lap product now carries `maxStuds` in `lap.mjs`, cited to its guide:
+- **James Hardie (HS11119 p.1):** 24" o.c. both over OSB and direct to studs.
+- **LP (LPZB0515 p.3):** 24" over 7/16" sheathing, 16" direct to studs for the 38 Series.
+
+`lapStudLimit(d)` reads that figure, `sidingSpan()` in `simplify.mjs` uses it, and the built shed exposes it as `shed.sidingStudLimit`. Lane 1's right-sizing can take studs to 24" o.c. whenever lap is chosen. T1-11 and the 3/8" LP panel stay at 16".
+
 ## Next steps
 
 1. **Lap direct to studs, braced another way.** Hardie allows studs up to 24" o.c.; LP's 3/8" lap allows 16". That saves the OSB ($128 on the 8x12) but needs let-in bracing or OSB only at the corners. It needs a racking check: see the r2 structure PR #11543 on racking.

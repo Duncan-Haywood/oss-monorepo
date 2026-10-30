@@ -7,6 +7,7 @@ import { connectionChecks } from './connections.mjs';
 import { integrity } from './integrity.mjs';
 import { buildInstructions } from './instructions.mjs';
 import { LAP_PRODUCTS, lapStagger, backed } from './lap.mjs';
+import { sidingSpan } from './simplify.mjs';
 import { SWAPS } from './catalog.mjs';
 
 const lap = (o) => buildShed({ ...defaultDesign(), sidingType: 'fiber cement', ...o });
@@ -112,4 +113,15 @@ test('even courses: the top plank on the long walls meets the plate, at no more 
     const last = front.courses[front.courses.length - 1];
     assert.ok(Math.abs(last.zb + spec.width - shed.dims.plateTop) < 1e-6, `${type} ${JSON.stringify(o)} top course ends at ${last.zb + spec.width}, plate ${shed.dims.plateTop}`);
   }
+});
+
+test('stud spacing: lap over OSB allows 24" o.c. for both products (cited in lap.mjs), and the built shed says so', () => {
+  for (const type of Object.keys(LAP_PRODUCTS)) {
+    const shed = lap({ sidingType: type, studSpacing: 24 });
+    assert.equal(shed.sidingStudLimit, 24);
+    assert.equal(sidingSpan(shed.design), 24);
+    assert.ok(connectionChecks(shed).rows.every((r) => r.ok), type);
+  }
+  assert.equal(LAP_PRODUCTS['LP SmartSide lap'].maxStuds.directToStuds, 16);
+  assert.equal(buildShed({ ...defaultDesign(), sidingType: 'T1-11' }).sidingStudLimit, undefined);
 });

@@ -16,7 +16,7 @@ import { fmtIn } from './lumber.mjs';
 /**
  * @typedef {{ label: string, short: string, width: number, exposure: number, thickness: number, length: number,
  *   staggerBays: (spacing: number) => number, minPiece: number, jointGap: number, jointFlashing: boolean, nail: string,
- *   clearance: number, starterWidth: number, source: string }} LapProduct
+ *   clearance: number, starterWidth: number, maxStuds: { overSheathing: number, directToStuds: number }, source: string }} LapProduct
  */
 
 /**
@@ -61,6 +61,8 @@ export const LAP_PRODUCTS = {
     nail: '8d (2-1/2") hot-dipped galvanized siding nails, blind-nailed 3/4" to 1" down from the top edge and 3/8" from each end, into every stud',
     clearance: 6,
     starterWidth: 1.25,
+    // HS11119 p.1: braced studs "spaced a maximum of 24 in o.c. or directly to minimum 7/16 in thick OSB".
+    maxStuds: { overSheathing: 24, directToStuds: 24 },
     source: 'James Hardie HardiePlank install instructions (HS11119)',
   },
   'LP SmartSide lap': {
@@ -77,6 +79,8 @@ export const LAP_PRODUCTS = {
     nail: '8d (2-1/2") hot-dipped galvanized siding nails, blind-nailed at least 3/4" down from the top edge and 3/8" from each end, into every stud',
     clearance: 6,
     starterWidth: 1.5,
+    // LPZB0515 p.3, "Stud Spacing Options": 38 Series lap direct to studs max. 16" o.c.; over min. 7/16" structural sheathing max. 24".
+    maxStuds: { overSheathing: 24, directToStuds: 16 },
     source: 'LP SmartSide primed lap siding application instructions (LPZB0515)',
   },
 };
@@ -109,6 +113,13 @@ export function evenExposure(spec, height) {
   const n = Math.ceil((height - spec.width) / spec.exposure - 1e-9) + 1;
   return (height - spec.width) / (n - 1);
 }
+
+/**
+ * The widest stud spacing the lap product's install guide allows as this tool
+ * builds it (over 7/16" OSB), in inches; undefined for anything but lap.
+ * @param {any} d
+ */
+export const lapStudLimit = (d) => (d.siding && LAP_PRODUCTS[d.sidingType] ? LAP_PRODUCTS[d.sidingType].maxStuds.overSheathing : undefined);
 
 /** @param {string} type */
 export const isLap = (type) => Object.prototype.hasOwnProperty.call(LAP_PRODUCTS, type);
