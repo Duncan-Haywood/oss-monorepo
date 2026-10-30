@@ -597,6 +597,14 @@ jobs:
         working-directory: platform/ci
         run: python3 -m unittest test_check_post_frontmatter
 
+      # Guides are added in batches; one missing from the hub is found only by search.
+      - name: Check the Start here series links both ways
+        run: python3 platform/ci/check_start_here.py
+
+      - name: Start here checker unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_check_start_here
+
       # A calculator with both a saved draft and a shareable link restores the
       # draft first and lets the link win. That only works if the link REPLACES
       # the form: encode omits a blank, decode omits the missing key, and a
