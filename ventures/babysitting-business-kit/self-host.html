@@ -99,6 +99,7 @@ fly deploy</pre></li>
     <tr><td><code>TWILIO_WEBHOOK_URL</code></td><td>No</td><td>The exact incoming-text URL Twilio signs, if it differs from <code>PUBLIC_URL</code> + <code>/twilio/inbound</code>.</td></tr>
     <tr><td><code>LLM_PROVIDER</code>, <code>LLM_API_KEY</code>, <code>LLM_MODEL</code>, <code>LLM_BASE_URL</code></td><td>No</td><td>Blog drafts on your own model account (<code>anthropic</code>, <code>openai</code>, <code>openai-compatible</code>, <code>ollama</code>). Drafts wait for your approval.</td></tr>
     <tr><td><code>ANTHROPIC_API_KEY</code>, <code>OPENAI_API_KEY</code>, <code>GEMINI_API_KEY</code>, <code>OLLAMA_HOST</code></td><td>No</td><td>Alternatives to <code>LLM_PROVIDER</code>: setting one of these picks that provider.</td></tr>
+    <tr><td><code>NETWORK_ID</code>, <code>NETWORK_PEERS</code></td><td>No</td><td>The sitter network handoff between two kit servers, off until set. <code>NETWORK_ID</code> is your server's short name (letters, digits, <code>-</code>); <code>NETWORK_PEERS</code> lists <code>theirname=shared-secret</code> pairs, one secret per pair of sitters, at least 16 characters (<code>openssl rand -hex 16</code>). Each side sets the other's name and the same secret. A handoff carries only a family's first name, the kids' ages and the time, signed with HMAC-SHA256, and only after you recorded the family's OK.</td></tr>
     <tr><td><code>STATE</code>, <code>PORT</code></td><td>Set for you</td><td><code>/data/desk.json</code> and <code>8080</code> in the container.</td></tr>
   </table>
   </div>
