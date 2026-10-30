@@ -2,7 +2,7 @@
 title: "A spectral peak test did not detect cycles in changepoint output either"
 date: 2026-10-30
 tags: [changepoint-detector, evaluation, time-series]
-description: "We tried Fisher's periodogram test on the residuals of 34 real series as a way to warn about false changepoints from cycles. It found lynx and sunspots, missed lh, and flagged tree rings for the wrong reason."
+description: "Fisher's periodogram test on 34 real series found the lynx and sunspot cycles, missed lh, and flagged tree rings for the wrong reason."
 ---
 
 The [changepoint detector](https://duncan-haywood.github.io/oss-monorepo/changepoint-detector/) reports 38 false steps on 7,980 tree rings and has no warning for it, because the lag-1 autocorrelation is only 0.16. After residual autocorrelation failed as a rho-free check, we tried the next candidate: Fisher's g test on the periodogram of the residuals after the default fit.
