@@ -10,7 +10,7 @@ import { optimizeCuts } from './optimize.mjs';
 import { heelJoint } from './checks.mjs';
 import { trussChecks } from './truss.mjs';
 import { LAP_PRODUCTS, lapStocks } from './lap.mjs';
-import { finishName, SIDING_FINISHES } from './looks.mjs';
+import { finishName, SIDING_FINISHES, TRIM_FINISHES } from './looks.mjs';
 
 /** @typedef {import('./model.mjs').Shed} Shed */
 /** @typedef {{ lumber: Record<string, Record<string, number>>, items: Record<string, number>, delivery?: Record<string, number> }} Prices */
@@ -382,16 +382,33 @@ export function estimate(shed, prices = examplePrices()) {
       const keys = type === 'T1-11' ? ['siding8', 'siding9', 'siding10'] : type === 'LP SmartSide' ? ['lpPanel', 'lpPanel9', 'lpPanel10'] : ['lpPanel76', 'lpPanel76x9', 'lpPanel76x10'];
       [96, 108, 120].forEach((len, i) => line('Siding', label(keys[i]), by[len], 'sheet', item(keys[i]), src(keys[i])));
       // The panel rule makes the price jump about as the walls rise: a column that
-      // outgrows a 10 ft panel switches to a 4x8 with a strip above it, which is
-      // often cheaper. Say so, with the prices, so a dip is not taken for a bug.
+      // outgrows a 10 ft panel switches to a 4x8 with a strip above it, which can
+      // be cheaper. Price the next few wall steps the same way (every column rises
+      // with the walls; strips counted unnested, an upper bound) and say so
+      // only when one of them makes the siding cheaper, with the numbers.
       const tall = shed.sidingFull.filter((x) => x.length > 96).length;
       const strips = shed.sidingUpper.length;
-      if (tall || strips) {
-        const [p8, p9, p10] = keys.map((k) => `$${Number(item(k)).toFixed(2)}`);
-        notes.push(`Siding: each 4 ft column takes the shortest panel that reaches its top (4x8 ${p8}, 4x9 ${p9}, 4x10 ${p10}); `
+      const needs = shed.sidingFull.map((x) => x.need).filter((x) => Number.isFinite(x));
+      const [p8, p9, p10] = keys.map((k) => Number(item(k)));
+      const sidingAt = (dz) => {
+        let t = 0;
+        const up = [];
+        for (const h of needs) {
+          const n = h + dz;
+          if (n <= 96 + 1e-9) t += p8; else if (n <= 108 + 1e-9) t += p9; else if (n <= 120 + 1e-9) t += p10; else { t += p8; up.push(Math.ceil(n - 96)); }
+        }
+        return t + sheetCount(up) * p8;
+      };
+      const steps = [...new Set(needs.flatMap((h) => [96, 108, 120].map((s) => Math.ceil((s - h + 0.01) * 2) / 2)).filter((dz) => dz > 0 && dz <= 12))].sort((a, b) => a - b);
+      // Now: the panels as bought (strips nested where they nest), so a claimed saving is never flattered.
+      const now = [96, 108, 120].reduce((t, len, i) => t + by[len] * [p8, p9, p10][i], 0);
+      const best = steps.map((dz) => ({ dz, cost: sidingAt(dz) })).reduce((a, b) => (b.cost < a.cost - 0.005 ? b : a), { dz: 0, cost: now });
+      if ((tall || strips) && needs.length === shed.sidingFull.length && best.dz > 0 && now - best.cost >= 1) {
+        const fmt = (x) => `$${x.toFixed(2)}`;
+        notes.push(`Siding: each 4 ft column takes the shortest panel that reaches its top (4x8 ${fmt(p8)}, 4x9 ${fmt(p9)}, 4x10 ${fmt(p10)}); `
           + `a column taller than 10 ft takes a 4x8 with a strip cut from another 4x8 above it, Z-flashed at the joint. `
           + `Here ${[tall && `${tall} use a 9 or 10 ft panel`, strips && `${strips} use a strip`].filter(Boolean).join(' and ')} (of ${shed.sidingFull.length} columns). `
-          + `Because the taller panels cost more, a few inches more wall can make the siding cheaper when it tips a column into the 4x8-and-strip layout.`);
+          + `Walls ${fmtIn(best.dz)} taller would tip columns into the 4x8-and-strip layout and make the siding panels about ${fmt(now - best.cost)} cheaper (the framing, trim and paint cost a little more), so a dip in price as the walls rise is not a bug.`);
       }
     } else {
       // Lap and board-and-batten siding go over OSB sheathing.
@@ -448,7 +465,8 @@ export function estimate(shed, prices = examplePrices()) {
   /** @type {{ boards: { stock: number, cuts: number[], offcut: number }[], pieces: { where: string, length: number }[] } | null} */
   let trimCuts = null;
   if (shed.wallTrim && shed.wallTrim.length) {
-    const keys = { 96: 'trim1x4x8', 144: 'trim1x4x12', 192: 'trim1x4x16' };
+    // 5/4 trim comes in one length per maker: HardieTrim 12 ft with fiber cement, LP 540 16 ft otherwise.
+    const keys = d.wallTrim === '5/4' ? (d.sidingType === 'fiber cement' ? { 144: 'trim54Hardie' } : { 192: 'trim54LP' }) : { 96: 'trim1x4x8', 144: 'trim1x4x12', 192: 'trim1x4x16' };
     const stocks = Object.entries(keys).map(([len, k]) => ({ length: Number(len), price: item(k) }));
     const r = cutWithinHaul(shed.wallTrim.map((t) => ({ len: t.length, kind: t.where })), stocks, d.kerf, d.maxHaulFt);
     trimCuts = { boards: r.boards.map((b) => ({ stock: b.stock, cuts: b.cuts.map((c) => c.len), offcut: b.offcut })), pieces: shed.wallTrim };
@@ -456,6 +474,23 @@ export function estimate(shed, prices = examplePrices()) {
       const n = r.boards.filter((b) => b.stock === Number(len)).length;
       if (n) line('Wall trim', label(k), n, 'piece', item(k), src(k));
     }
+  }
+  // Trim paint: the face of every primed trim board (1x6 fascia, 1x4 or 5/4 rake,
+  // corner boards and casings), two coats at the same 350 sq ft a gallon as the
+  // siding paint. The boards are factory primed and the paint is a paint-and-primer,
+  // so no separate primer: cut ends take the paint. Quarts until a gallon is cheaper.
+  const trimFaceSqFt = ((shed.trim ? shed.trim.fasciaFt * 12 * 5.5 + shed.trim.rakeFt * 12 * 3.5 : 0)
+    + (shed.wallTrim || []).reduce((t, x) => t + x.length * 3.5, 0)) / 144;
+  if (trimFaceSqFt > 0 && d.siding && d.sidingColor !== 'unfinished') {
+    const quarts = Math.ceil((trimFaceSqFt * 2) / (350 / 4));
+    const gallons = Math.ceil(quarts / 4);
+    const qt = quarts * Number(item('trimPaintQt')) <= gallons * Number(item('trimPaintGal'));
+    const name = `${label(qt ? 'trimPaintQt' : 'trimPaintGal')} (${finishName(d.trimColor, TRIM_FINISHES)}, ${Math.round(trimFaceSqFt)} sq ft of trim face)`;
+    if (qt) line('Paint', name, quarts, 'quart', item('trimPaintQt'), src('trimPaintQt'));
+    else line('Paint', name, gallons, 'gallon', item('trimPaintGal'), src('trimPaintGal'));
+    // Keep it with the siding paint so each section stays in one run.
+    const last = shopping.map((r) => r.section).lastIndexOf('Paint', shopping.length - 2);
+    if (last >= 0) shopping.splice(last + 1, 0, /** @type {any} */ (shopping.pop()));
   }
   if (shed.interior) {
     const it = shed.interior;
@@ -515,7 +550,7 @@ export function estimate(shed, prices = examplePrices()) {
   for (const op of d.openings) {
     if (op.product === 'site-built' || productById(op.product)) continue;
     const what = `${op.kind === 'door' ? 'Door' : 'Window'} ${fmtIn(op.width)} x ${fmtIn(op.height)} on the ${WHERE[`wall:${op.wall}`] || op.wall}`;
-    const r = catalogueRange(op.kind, op.width);
+    const r = catalogueRange(op.kind, op.width, op.height);
     const range = r ? `typical range $${r.lo.toFixed(2)} to $${r.hi.toFixed(2)} across the ${r.n} ${r.group} in our catalogue` : '';
     if (r && d.customRange && shed.framedOpenings.some((f) => f.id === op.id)) {
       line('Doors and windows', `${what}, custom size: ${range}, counted at the median`, 1, 'each', r.median,
@@ -537,7 +572,11 @@ export function estimate(shed, prices = examplePrices()) {
   const vents = Object.values(shed.vents || {}).reduce((t, v) => t + v.length, 0);
   line('Foundation and hardware', `${label('gableVent')}, ${d.ventWidth}" x ${d.ventHeight}"`, vents, 'each', item('gableVent'), src('gableVent'));
   // Hangers are for rafters meeting a ridge beam; a lean-to's rafters meet none.
-  if (d.roofType === 'ridgeBeam' && !dims.lean) line('Foundation and hardware', label('rafterHanger'), shed.members.filter((m) => m.kind === 'rafter').length, 'each', item('rafterHanger'), src('rafterHanger'));
+  // The rafter arrives at the roof's slope, so the hanger is a slope-adjustable one sized to the rafter.
+  if (d.roofType === 'ridgeBeam' && !dims.lean) {
+    const hk = { '2x8': 'rafterHanger28', '2x10': 'rafterHanger210' }[d.rafterSize] || 'rafterHanger';
+    line('Foundation and hardware', label(hk), shed.members.filter((m) => m.kind === 'rafter').length, 'each', item(hk), src(hk));
+  }
   // A variable-pitch connector both seats and fastens the rafter at the wall; a notched rafter gets a tie.
   if (dims.connector) line('Foundation and hardware', label('pitchConnector'), dims.rafterCenters.length * 2, 'each', item('pitchConnector'), src('pitchConnector'));
   else line('Foundation and hardware', label('hurricaneTie'), dims.rafterCenters.length * 2, 'each', item('hurricaneTie'), src('hurricaneTie'));
@@ -623,6 +662,8 @@ export function estimate(shed, prices = examplePrices()) {
     line('Door hardware', `${label('tHinge')} (door ${dr.id})`, 3 * dr.leaves, 'each', item('tHinge'), src('tHinge'));
     line('Door hardware', `${label('doorPull')} (door ${dr.id})`, dr.leaves, 'each', item('doorPull'), src('doorPull'));
     line('Door hardware', `${label('hasp')} (door ${dr.id})`, 1, 'each', item('hasp'), src('hasp'));
+    // A pair of doors: a cane bolt drops into the floor to hold the fixed leaf, which the hasp's staple then locks to.
+    if (dr.leaves > 1) line('Door hardware', `${label('caneBolt')} (door ${dr.id})`, 1, 'each', item('caneBolt'), src('caneBolt'));
   }
 
   const sum = (rows) => Math.round(rows.reduce((t, r) => t + r.total, 0) * 100) / 100;

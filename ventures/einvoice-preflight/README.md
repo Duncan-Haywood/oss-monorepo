@@ -27,6 +27,16 @@ one page, and a test (skipped where poppler is absent) repairs the credit note
 with defects, checks `pdfinfo` reads one page with no syntax error and that
 `pdfdetach` returns exactly the corrected XML. veraPDF and Acrobat are still unrun.
 
+**PDF envelope checks (2026-10-30, `pdf-envelope.mjs`).** A Factur-X PDF now also
+gets four checks on the PDF around the XML: PDF-001 (no PDF/A-3 marker in the
+XMP; a note, not blocking), PDF-002 (attachment not named factur-x.xml,
+zugferd-invoice.xml or xrechnung.xml), PDF-003 (no valid AFRelationship; a note)
+and PDF-004 (XMP `fx:ConformanceLevel` names a different profile than the XML's
+guideline ID). Tested on hand-built PDFs only (`pdf-envelope.test.mjs`); the
+shipped example PDFs have no XMP, so they draw PDF-001. Not run on a real
+Mustang, Ghostscript or Acrobat export, and not a PDF/A validator (veraPDF unrun).
+The browser page and the Node CLI/server get these; the Python CLI does not yet.
+
 **XRechnung profile (Germany).** Tick "Also apply the German XRechnung rules"
 on the page, or call the API with `POST /v1/validate?profile=xrechnung`, to add
 nine `XR-001`..`XR-009` rules that mirror the BR-DE business rules a German
@@ -36,6 +46,8 @@ instructions, seller contact, seller and buyer city and postcode, invoice type
 code, the XRechnung 3.x specification identifier, and a seller tax identifier.
 Off by default. JS (page and API) only; the Python CLI does not apply it yet.
 It is an offline observation, not the KoSIT validator.
+
+**VAT check digits for 11 more countries (2026-10-30).** EE, HU, SI, SK, HR, LV (companies), LT (9 digits), BG (9 digits), RO, EL and CZ (8 digits) now fail INV-023 on a bad check digit, not only INV-022 on length (`vat.mjs` and `vat.py`). Algorithms from memory of the public descriptions (python-stdnum), each tested on a published example number and a one-digit mutation; no real invoice, no tax-authority text read. Variants not implemented stay length-only.
 
 **Peppol profile.** Tick "Also apply the Peppol BIS Billing 3.0 rules" on the
 page, or call `POST /v1/validate?profile=peppol`, to add five `PP-001`..`PP-005`

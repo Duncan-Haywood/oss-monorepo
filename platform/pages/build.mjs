@@ -9058,6 +9058,41 @@ let SITE_FEEDBACK_URL = '';
 export function feedbackOn() {
   return SITE_FEEDBACK_URL !== '';
 }
+/**
+ * The 20 stdlib-only `*-check` linters that `platform/distribution/` already
+ * publishes as a GitHub Action, a pre-commit hook and a Nix flake app. Those
+ * channels need no account or publish step, so they are live today, but until
+ * 2026-10-29 no tool page said so: a developer who found the checker had no
+ * way to learn it could run in their CI. Gated on the generated action file,
+ * so a linter is offered only once its action, hook and app exist.
+ */
+const CI_ACTIONS_DIR = path.join(REPO_ROOT, 'platform', 'distribution', 'actions');
+const CI_USES_PREFIX = 'duncan-haywood/oss-monorepo/platform/distribution/actions';
+export function hasCiChannels(slug, actionsDir = CI_ACTIONS_DIR) {
+  return existsSync(path.join(actionsDir, slug, 'action.yml'));
+}
+export function renderCiInstall(slug, baseUrl) {
+  const script = `${baseUrl}${slug}/check.py`;
+  const block = (text) => `<pre><code>${escapeHtml(text)}</code></pre>`;
+  return `    <details class="pf-ci">
+      <summary>Run this check from a terminal, in CI or as a pre-commit hook</summary>
+      <p>The same checker as this page, as one Python file with no dependencies. Nothing is sent anywhere; it reads the files you point it at.</p>
+      ${block(`curl -fsSLO ${script}
+python3 check.py --fail-on-risk .`)}
+      <p>GitHub Actions (after <code>actions/checkout</code>). It fetches this whole repository, so pin a commit rather than <code>main</code> in real use:</p>
+      ${block(`- uses: ${CI_USES_PREFIX}/${slug}@main
+  with:
+    path: .
+    fail-on-risk: 'true'`)}
+      <p>pre-commit (<code>.pre-commit-config.yaml</code>):</p>
+      ${block(`- repo: ${REPO_URL}
+  rev: main  # pin a commit in real use
+  hooks:
+    - id: ${slug}`)}
+      <p>Nix: <code>${escapeHtml(`nix run github:duncan-haywood/oss-monorepo#${slug} -- --fail-on-risk .`)}</code></p>
+    </details>
+`;
+}
 export function normaliseCounterUrl(raw) {
   if (!raw) return '';
   const u = new URL(raw);
@@ -9154,6 +9189,9 @@ const CHROME_CSS = `
 .pf-chrome-foot ul{list-style:none;margin:0 0 14px;padding:0;display:grid;gap:8px 18px;
   grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}
 .pf-chrome-foot li{margin:0}
+.pf-ci{margin:0 0 14px}
+.pf-ci summary{cursor:pointer;font-weight:600}
+.pf-ci pre{overflow-x:auto;margin:0 0 10px;padding:8px 10px;border:1px solid var(--pf-line);border-radius:6px;font-size:.82rem}
 .pf-chrome :focus-visible{outline:2px solid currentColor;outline-offset:2px}
 
 /* The site header as a full-width band, as it is on the site's own pages.
@@ -9978,7 +10016,7 @@ export function injectChrome(html, { slug, toRoot, total, related = [], canonica
       ? `Everything on this page runs in your browser too, except this one lookup: what you type here also goes to ${listProse(externalCallHosts)}, because that is what checking it means — see the note on this page for exactly what is sent.`
       : 'Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.'
     }</p>
-${noSla}${links ? `    <ul>\n${links}\n    </ul>\n` : ''}${forLinks}    <p>
+${noSla}${isEntry && baseUrl && hasCiChannels(slug) ? renderCiInstall(slug, baseUrl) : ''}${links ? `    <ul>\n${links}\n    </ul>\n` : ''}${forLinks}    <p>
       <a href="${escapeHtml(hub)}" data-pf-to="hub">Browse all ${total} free tools →</a>
       &nbsp;·&nbsp;
       <a href="${escapeHtml(`${toRoot}${ABOUT_PATH}`)}">About &amp; privacy</a>

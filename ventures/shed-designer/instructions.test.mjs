@@ -94,7 +94,7 @@ test('the rafter step gives the wall line and tail on the board, and names the r
   assert.match(md, /6-5\/16" along the bottom edge past the wall line/); // 6 / cos
   assert.ok(!/, \./.test(md), 'no dangling ", ."');
   const deep = mdOf({ ...defaultDesign(), rafterSize: '2x8', autoOverhang: false }).md;
-  assert.match(deep, /a 2x8 rafter hanger/);
+  assert.match(deep, /a 2x8 slope-adjustable rafter hanger/);
   const bird = mdOf(PRESETS['10x12']()).md;
   assert.match(bird, /rafter-to-plate tie \(on the list\)/);
   assert.match(bird, /plate tie, with every nail hole/);

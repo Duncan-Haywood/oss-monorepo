@@ -8,7 +8,7 @@ const classic = () => PRESETS['8x12 classic']();
 const sheets = buildSheets(buildShed(classic()));
 
 test('a full set: cover, foundation, floor, four walls, roof, section, rafter and corner details', () => {
-  assert.deepEqual(sheets.map((s) => s.id), ['cover', 'foundation', 'floor', 'wall-front', 'wall-right', 'wall-back', 'wall-left', 'roof', 'section', 'exterior-front-back', 'exterior-left-right', 'sheathing', 'details', 'rafter', 'corner']);
+  assert.deepEqual(sheets.map((s) => s.id), ['cover', 'foundation', 'floor', 'wall-front', 'wall-right', 'wall-back', 'wall-left', 'roof', 'section', 'exterior-front-back', 'exterior-left-right', 'sheathing', 'cutting', 'details', 'rafter', 'corner']);
   for (const s of sheets) assert.ok(s.items.length > 5, s.id);
 });
 
