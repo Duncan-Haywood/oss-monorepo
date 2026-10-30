@@ -1,6 +1,6 @@
 ---
 title: "A solver bracket was faking a hydraulic cycle-time penalty"
-seo_title: "Open-centre excavator valve cycle-time penalty: a solver artefact fixed"
+seo_title: "Open-centre excavator valve penalty: a solver artefact, fixed"
 date: 2026-10-30
 tags: [heavy-hydraulics, simulation, verification]
 description: "In our open-centre excavator valve model, the k = 20 row showed a 8.7% cycle-time penalty that was a root-finding bracket, not physics. Fixed, it is 0%."
