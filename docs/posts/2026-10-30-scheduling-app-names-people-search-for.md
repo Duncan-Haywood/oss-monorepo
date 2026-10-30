@@ -1,6 +1,8 @@
 ---
 title: "The names people search for when they want a free rota builder"
 date: 2026-10-30
+tags: [shift-roster-builder, seo]
+description: "The shift roster builder's free-alternative page now names Sling and Humanity too, the scheduling apps people also search for."
 ---
 
 The shift roster builder's comparison page named four paid scheduling apps. People

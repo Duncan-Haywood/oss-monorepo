@@ -214,6 +214,30 @@ export const ENTRY_OVERRIDES = {
   'ai-engineering-academy': 'tools',
 };
 
+// Ventures that write some of their pages from their own engine at build time
+// rather than committing them. shed-designer's per-size lumber pages print
+// prices and board counts, and a +/-5% move in lumber prices changes the board
+// count on 188 of 240 page builds (2026-10-30), so a committed copy went stale
+// whenever any PR moved a price, and the next PR inherited a red drift test.
+// The script runs with `node` in the venture's directory before discovery and
+// writes its pages beside itself (they are gitignored), so every later step,
+// including the self-deploy catalogue, sees them as ordinary source files.
+export const GENERATED_PAGES = {
+  'shed-designer': 'make-size-pages.mjs',
+};
+
+/** Run each venture's page generator (GENERATED_PAGES) that exists under `venturesDir`. */
+export function generateVenturePages(venturesDir, generators = GENERATED_PAGES) {
+  const ran = [];
+  for (const [slug, script] of Object.entries(generators)) {
+    const dir = path.join(venturesDir, slug);
+    if (!existsSync(path.join(dir, script))) continue;
+    execFileSync(process.execPath, [script], { cwd: dir, stdio: 'pipe' });
+    ran.push(slug);
+  }
+  return ran;
+}
+
 // Ventures whose own page offers a specific `.py` CLI as a download --
 // "get check.py from the repo, run it yourself, no network calls." `.py` is
 // in `NON_WEB_EXTENSIONS` (a browser visitor downloads none of a venture's
@@ -10994,6 +11018,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
   await fs.rm(outDir, { recursive: true, force: true });
   await fs.mkdir(outDir, { recursive: true });
 
+  generateVenturePages(venturesDir);
   const discovered = await discoverSurfaces(venturesDir);
   const launched = await loadLaunchDates();
   const surfaces = [];

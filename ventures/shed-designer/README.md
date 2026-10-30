@@ -118,7 +118,7 @@ Serve this folder as static files, for example `python3 -m http.server` here, th
 | `candidates.mjs` | the options made for you |
 | `instructions.mjs` | step-by-step build instructions from the design |
 | `app.mjs`, `index.html` | the page |
-| `make-size-pages.mjs`, `how-much-lumber-for-a-*-shed.html`, `shed-lumber-list-by-size.html` | one page per common size (8x8 to 12x24) written from the engine; `node make-size-pages.mjs` rewrites them and `size-pages.test.mjs` fails if they drift |
+| `make-size-pages.mjs` → `how-much-lumber-for-a-*-shed.html`, `shed-lumber-list-by-size.html` | one page per common size (8x8 to 12x24) written from the engine. Not committed: the site build runs the script (`platform/pages/build.mjs`, `GENERATED_PAGES`), so a price change never leaves a stale copy behind. Run `node make-size-pages.mjs` to see them locally |
 | `shed-plans-with-cut-list.html` | the 8x12 worked example, for people searching the question |
 
 ## No warranty
