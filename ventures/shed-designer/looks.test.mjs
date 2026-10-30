@@ -45,7 +45,10 @@ test('shingles carry the course texture and their family blend; metal does not',
 });
 
 test('lap siding, board and batten and T1-11 each get their own texture', () => {
-  const tex = (sidingType) => solidsOf(buildShed(normalize({ sidingType }))).find((s) => s.layer === 'siding' && s.flags)?.flags;
+  // Window glass has its own flag on the siding layer (a sky reflection); it is not the siding's texture.
+  const tex = (sidingType) => solidsOf(buildShed(normalize({ sidingType }))).find((s) => s.layer === 'siding' && s.flags && s.flags !== FINISH.glass)?.flags;
+  const glass = solidsOf(buildShed(normalize({}))).filter((s) => s.flags === FINISH.glass);
+  assert.equal(glass.length, buildShed(normalize({})).fixtures.filter((f) => f.kind === 'window').length, 'every window, and only windows, reflect the sky');
   // Fiber cement is built course by course (lap.mjs), so its shadow lines are real geometry, not a texture.
   assert.equal(tex('fiber cement'), undefined);
   assert.ok(buildShed(normalize({ sidingType: 'fiber cement' })).panels.some((p) => p.kind === 'lap siding'));

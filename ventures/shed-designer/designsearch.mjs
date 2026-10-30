@@ -274,7 +274,7 @@ export function looksOf(shed) {
  */
 export function evaluateDesign(design, prices, constraints = {}) {
   const c = { ...DEFAULT_CONSTRAINTS, ...constraints };
-  const shed = buildShed(design);
+  const shed = buildShed(design, prices);
   const d = shed.design;
   const est = estimate(shed, prices);
   const sc = structuralChecks(shed);
