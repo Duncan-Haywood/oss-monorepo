@@ -3,7 +3,7 @@ title: "Does an open-centre valve slow the dig? It depends on one line of a manu
 seo_title: "Open-centre excavator valve cycle-time penalty and the dead band"
 date: 2026-10-30
 tags: [heavy-hydraulics, excavator, open-centre, simulation]
-description: "A model put the open-centre valve penalty at a median 6.4% of cycle time. The Danfoss PVG 32 manual says the bypass closes in the dead band; then it is zero."
+description: "A steady-state model said an open-centre valve cost a median 6.4% cycle time. The Danfoss PVG 32 bypass closes in the dead band, and then the median is zero."
 ---
 
 Our [heavy-hydraulics programme](https://duncan-haywood.github.io/oss-monorepo/research/heavy-hydraulics/) compares open-centre, load-sensing and independent-metering circuits on a small excavator. Until now the comparison was energy only. Milestone 3a added the time side: with two actuators moving at once and no pressure compensator, the lighter one takes the flow. The model gave a median 6.4% longer cycle.
