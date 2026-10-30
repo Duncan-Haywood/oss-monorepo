@@ -1,5 +1,6 @@
 ---
 title: "The 3.8% investment tax and itemising: two things a freelancer's estimate usually misses"
+seo_title: "The 3.8% investment tax and itemising"
 date: 2026-10-28
 description: "ai-bookkeeper's federal estimate now takes an itemised total and net investment income, so a high earner's quarterly plan includes Form 8960's 3.8%."
 tags: [ai-bookkeeper, tax, self-employed]

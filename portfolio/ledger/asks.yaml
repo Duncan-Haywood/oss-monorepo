@@ -287,7 +287,10 @@ decisions:
     Per #219 as revised by #225, the three candidates on reachable registries
     do not on their own justify the compliance and tax overhead of a
     merchant-of-record account -- which is an argument about *which* direction
-    to answer in, not a reason to leave it unanswered.
+    to answer in, not a reason to leave it unanswered. 2026-10-30: the owner
+    asked how to turn billing on without risking a key leak; the plan
+    (merchant of record or Payment Links first, no live key anywhere this
+    repo or its agents can reach) is `docs/reports/2026-10-30-billing-plan.md`.
 
 - id: egress-policy
   asks: [3, 7]

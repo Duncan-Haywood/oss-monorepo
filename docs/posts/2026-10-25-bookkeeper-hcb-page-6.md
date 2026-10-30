@@ -1,5 +1,6 @@
 ---
 title: "Bookkeeping keywords on 674 unseen card charges: 46% suggested before, 53% after"
+seo_title: "Bookkeeping keywords on 674 unseen card charges"
 date: 2026-10-25
 description: "We measured the bookkeeper's built-in category keywords on 674 unseen Hack Club card charges: 46% suggested before looking, 53% after."
 tags: [bookkeeping, measurement, ai-bookkeeper]

@@ -1,5 +1,6 @@
 ---
 title: "Why the cheap rung mis-ranks a high-fanout chip design: the period, not the area"
+seo_title: "Why the cheap rung mis-ranks a high-fanout chip design"
 date: 2026-10-27
 description: "On a fanout-96 design the mapped-netlist area keeps its order through place and route (tau 0.98) but the period does not (tau 0.12 to 0.21)."
 tags: [chip-design, eda, negative-result, verified-dse]

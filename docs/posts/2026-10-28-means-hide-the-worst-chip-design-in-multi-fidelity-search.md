@@ -1,5 +1,6 @@
 ---
 title: "Means hide the worst design: median and tail regret for multi-fidelity chip-flow search"
+seo_title: "Means hide the worst design"
 date: 2026-10-28
 description: "Across 12 held-out chip designs, gentle halving stays under 5% regret from 15 budget units; a harsh cut has a better median but a worst design near 50%."
 tags: [verified-dse, research, eda, benchmarking]

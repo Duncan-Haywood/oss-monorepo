@@ -1,5 +1,6 @@
 ---
 title: "When goals move faster than folders: what nine goals in six months did to one monorepo"
+seo_title: "When goals move faster than folders"
 date: 2026-10-20
 description: "A monorepo built by AI agents got a new goal every few weeks and kept every old folder. What that cost, the fixes, and what each fix would cost."
 tags: [monorepo, software-engineering, ai-agents, process, opinion]

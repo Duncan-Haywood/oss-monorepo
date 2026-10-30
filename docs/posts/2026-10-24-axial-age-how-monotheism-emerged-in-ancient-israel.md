@@ -1,5 +1,6 @@
 ---
 title: "The Axial Age and the one God: how monotheism emerged in ancient Israel"
+seo_title: "The Axial Age and the one God"
 date: 2026-10-24
 description: "Was there an Axial Age? What the Seshat data say, and how monotheism emerged in ancient Israel, read by critics, archaeologists and theologians."
 tags: [religion, history, research, monotheism, ancient-israel, axial-age, theology]

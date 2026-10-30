@@ -75,10 +75,10 @@ export function sidingSpan(d) {
 export const MINUTES = {
   floorSheet: 12, floorOSB: 12, roofSheet: 12, wallSheathing: 12,
   siding8: 15, siding9: 16, siding10: 18, lpPanel: 15, lpPanel9: 16, lpPanel10: 18, lpPanel76: 15, lpPanel76x9: 16, lpPanel76x10: 18,
-  vinylBox: 240, vinylJ: 10, vinylStarter: 8, vinylCorner: 15, hardiePlank: 10, lapHardie: 12, lapHardie5: 12, lapLP12: 10, lapLP16: 12, houseWrap: 45, jointFlashing: 20, boardBox: 20, battenBox: 30,
+  vinylBox: 240, vinylJ: 10, vinylStarter: 8, vinylCorner: 15, hardiePlank: 10, lapHardie: 12, lapHardie5: 12, lapLP12: 10, lapLP16: 12, houseWrap: 45, jointFlashing: 20, bbBoard: 6, bbBatten: 6,
   shingleBundle: 25, starterShingle: 20, ridgeCapShingle: 30, underlayment: 45, dripEdge: 10, metalPanel: 10, metalRidge: 15,
   fasciaTrim: 15, soffitPanel: 20, rakeTrim: 15, gableVent: 30, zFlashing: 10,
-  paint: 45, stain: 45, accentPaint: 60, interiorPaint: 45, glitter: 0,
+  paint: 45, stain: 45, trimPaintQt: 60, trimPaintGal: 90, accentPaint: 60, interiorPaint: 45, glitter: 0,
   insulation: 30, drywall: 20, plywoodLining: 15, osbLining: 15, pegboard: 15, beadboard: 15, interiorPanel: 15, jointCompound: 120,
   deckBlock: 10, cmuBlock: 10, concreteBlock: 10, formTube: 0, concreteBag: 20, gravelTon: 90, paverBase: 4, landscapeFabric: 15,
 };
@@ -302,7 +302,7 @@ function mergeOpenings(current, changed, field = 'product') {
 function keyOf(d) { return JSON.stringify({ ...d, name: '' }); }
 
 function evaluate(d, prices) {
-  const shed = buildShed(d);
+  const shed = buildShed(d, prices);
   const est = estimate(shed, prices);
   const sc = structuralChecks(shed);
   const cc = connectionChecks(shed);

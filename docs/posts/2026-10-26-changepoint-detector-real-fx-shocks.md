@@ -1,5 +1,6 @@
 ---
 title: "Changepoint detector on real currency shocks: which volatility option helps?"
+seo_title: "Changepoint detector on real currency shocks"
 date: 2026-10-26
 description: "Daily franc, pound and yen returns, 2012-2018: all modes find the 2015 franc shock and Brexit, but false alarms differ and the bootstrap did not help."
 tags: [changepoint-detector, statistics, finance, evaluation]

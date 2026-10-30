@@ -280,6 +280,16 @@ test("ICS uses all-day events when there is no time and carries a match across m
   assert.match(scheduleIcs(late, null, "20261001T000000Z"), /DTEND:20261007T010000/);
 });
 
+test("ICS reminders: VALARM on timed matches only, off by default, bad values ignored", () => {
+  const timed = buildSchedule({ ...baseSpec(4), times: ["18:00"] });
+  assert.doesNotMatch(scheduleIcs(timed, null, "20261001T000000Z"), /VALARM/);
+  const on = scheduleIcs(timed, null, "20261001T000000Z", null, 90);
+  assert.equal((on.match(/BEGIN:VALARM/g) || []).length, 6);
+  assert.match(on, /TRIGGER:-PT90M/);
+  for (const bad of [0, -5, 1.5, 20000, NaN]) assert.doesNotMatch(scheduleIcs(timed, null, "20261001T000000Z", null, bad), /VALARM/);
+  assert.doesNotMatch(scheduleIcs(buildSchedule(baseSpec(2)), null, "20261001T000000Z", null, 60), /VALARM/);
+});
+
 test("ICS lines are folded to 75 bytes", () => {
   const long = "A very long team name that keeps going and going well past the line limit".repeat(2);
   const s = buildSchedule({ ...baseSpec(2), teams: [long, "B"] });

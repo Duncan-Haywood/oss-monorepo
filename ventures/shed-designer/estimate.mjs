@@ -10,7 +10,7 @@ import { optimizeCuts } from './optimize.mjs';
 import { heelJoint } from './checks.mjs';
 import { trussChecks } from './truss.mjs';
 import { LAP_PRODUCTS, lapStocks } from './lap.mjs';
-import { finishName, SIDING_FINISHES } from './looks.mjs';
+import { finishName, SIDING_FINISHES, TRIM_FINISHES } from './looks.mjs';
 
 /** @typedef {import('./model.mjs').Shed} Shed */
 /** @typedef {{ lumber: Record<string, Record<string, number>>, items: Record<string, number>, delivery?: Record<string, number> }} Prices */
@@ -382,34 +382,55 @@ export function estimate(shed, prices = examplePrices()) {
       const keys = type === 'T1-11' ? ['siding8', 'siding9', 'siding10'] : type === 'LP SmartSide' ? ['lpPanel', 'lpPanel9', 'lpPanel10'] : ['lpPanel76', 'lpPanel76x9', 'lpPanel76x10'];
       [96, 108, 120].forEach((len, i) => line('Siding', label(keys[i]), by[len], 'sheet', item(keys[i]), src(keys[i])));
       // The panel rule makes the price jump about as the walls rise: a column that
-      // outgrows a 10 ft panel switches to a 4x8 with a strip above it, which is
-      // often cheaper. Say so, with the prices, so a dip is not taken for a bug.
+      // outgrows a 10 ft panel switches to a 4x8 with a strip above it, which can
+      // be cheaper. Price the next few wall steps the same way (every column rises
+      // with the walls; strips counted unnested, an upper bound) and say so
+      // only when one of them makes the siding cheaper, with the numbers.
       const tall = shed.sidingFull.filter((x) => x.length > 96).length;
       const strips = shed.sidingUpper.length;
-      if (tall || strips) {
-        const [p8, p9, p10] = keys.map((k) => `$${Number(item(k)).toFixed(2)}`);
-        notes.push(`Siding: each 4 ft column takes the shortest panel that reaches its top (4x8 ${p8}, 4x9 ${p9}, 4x10 ${p10}); `
+      const needs = shed.sidingFull.map((x) => x.need).filter((x) => Number.isFinite(x));
+      const [p8, p9, p10] = keys.map((k) => Number(item(k)));
+      const sidingAt = (dz) => {
+        let t = 0;
+        const up = [];
+        for (const h of needs) {
+          const n = h + dz;
+          if (n <= 96 + 1e-9) t += p8; else if (n <= 108 + 1e-9) t += p9; else if (n <= 120 + 1e-9) t += p10; else { t += p8; up.push(Math.ceil(n - 96)); }
+        }
+        return t + sheetCount(up) * p8;
+      };
+      const steps = [...new Set(needs.flatMap((h) => [96, 108, 120].map((s) => Math.ceil((s - h + 0.01) * 2) / 2)).filter((dz) => dz > 0 && dz <= 12))].sort((a, b) => a - b);
+      // Now: the panels as bought (strips nested where they nest), so a claimed saving is never flattered.
+      const now = [96, 108, 120].reduce((t, len, i) => t + by[len] * [p8, p9, p10][i], 0);
+      const best = steps.map((dz) => ({ dz, cost: sidingAt(dz) })).reduce((a, b) => (b.cost < a.cost - 0.005 ? b : a), { dz: 0, cost: now });
+      if ((tall || strips) && needs.length === shed.sidingFull.length && best.dz > 0 && now - best.cost >= 1) {
+        const fmt = (x) => `$${x.toFixed(2)}`;
+        notes.push(`Siding: each 4 ft column takes the shortest panel that reaches its top (4x8 ${fmt(p8)}, 4x9 ${fmt(p9)}, 4x10 ${fmt(p10)}); `
           + `a column taller than 10 ft takes a 4x8 with a strip cut from another 4x8 above it, Z-flashed at the joint. `
           + `Here ${[tall && `${tall} use a 9 or 10 ft panel`, strips && `${strips} use a strip`].filter(Boolean).join(' and ')} (of ${shed.sidingFull.length} columns). `
-          + `Because the taller panels cost more, a few inches more wall can make the siding cheaper when it tips a column into the 4x8-and-strip layout.`);
+          + `Walls ${fmtIn(best.dz)} taller would tip columns into the 4x8-and-strip layout and make the siding panels about ${fmt(now - best.cost)} cheaper (the framing, trim and paint cost a little more), so a dip in price as the walls rise is not a bug.`);
       }
     } else {
       // Lap and board-and-batten siding go over OSB sheathing.
       line('Siding', label('wallSheathing'), Math.ceil((area * 1.1) / 32), 'sheet', item('wallSheathing'), src('wallSheathing'));
       if (type === 'board and batten') {
-        const boards = Math.ceil((area * 144 * 1.1) / (7.25 * 96));
-        line('Siding', label('boardBox'), Math.ceil(boards / 3), 'box', item('boardBox'), src('boardBox'));
-        line('Siding', label('battenBox'), Math.ceil(boards / 10), 'box', item('battenBox'), src('battenBox'));
+        // Exterior-rated LP SmartSide 440 boards (5-1/2" face) with a 3-1/2" batten over
+        // every joint, both 16 ft (the lengths sold); 10% for cutting round openings and gables.
+        const boards = Math.ceil((area * 144 * 1.1) / (5.5 * 192));
+        line('Siding', label('bbBoard'), boards, 'piece', item('bbBoard'), src('bbBoard'));
+        line('Siding', label('bbBatten'), boards, 'piece', item('bbBatten'), src('bbBatten'));
       } else if (type === 'vinyl') {
         line('Siding', label('vinylBox'), Math.ceil((area * 1.1) / 200), 'box', item('vinylBox'), src('vinylBox'));
         // Vinyl's own trim: starter along the bottom of every wall, J-channel round
         // each opening and under the eaves and rakes, a corner post at each corner.
         const perimFt = (2 * (d.length + d.width)) / 12;
         const openFt = d.openings.reduce((t, o) => t + (2 * (o.width + o.height)) / 12, 0);
-        const jFt = openFt + (2 * d.length + 4 * (d.width / 2 / Math.cos(Math.atan(d.pitch / 12)))) / 12;
+        // Up both rakes on each gable: on a saltbox the steep front's and the long back's.
+        const rakesIn = d.style === 'saltbox' ? 2 * (dims.ridgeY / dims.slopes.front.cos + (d.width - dims.ridgeY) / dims.slopes.back.cos) : 4 * (d.width / 2 / Math.cos(Math.atan(d.pitch / 12)));
+        const jFt = openFt + (2 * d.length + rakesIn) / 12;
         line('Siding', label('vinylStarter'), Math.ceil((perimFt * 1.05) / 12), 'piece', item('vinylStarter'), src('vinylStarter'));
         line('Siding', label('vinylJ'), Math.ceil((jFt * 1.1) / 12.6), 'piece', item('vinylJ'), src('vinylJ'));
-        line('Siding', label('vinylCorner'), 4 * Math.ceil(((dims.highPlateTop ?? dims.plateTop) - dims.skidTop) / 120), 'piece', item('vinylCorner'), src('vinylCorner'));
+        line('Siding', label('vinylCorner'), 4 * Math.ceil(((dims.highPlateTop ?? dims.plateTop) - (dims.sidingBottom ?? dims.skidTop)) / 120), 'piece', item('vinylCorner'), src('vinylCorner'));
       } else if (shed.lap?.length) {
         lapCuts = lapPlan(shed, d, item);
         // Sheathing: one 4x8 per 4 ft column, strips above packed from whole sheets.
@@ -457,6 +478,28 @@ export function estimate(shed, prices = examplePrices()) {
       const n = r.boards.filter((b) => b.stock === Number(len)).length;
       if (n) line('Wall trim', label(k), n, 'piece', item(k), src(k));
     }
+    // With one stock length there is nothing shorter to fall back on, so say when it is longer than the haul limit.
+    const longest = Math.max(...r.boards.map((b) => b.stock));
+    if (d.maxHaulFt > 0 && longest > d.maxHaulFt * 12) {
+      notes.push(`Wall trim: ${d.wallTrim} trim comes in ${longest / 12} ft lengths only, longer than your ${d.maxHaulFt} ft haul limit. Have it delivered or cut to length where you buy it, or choose 1x4 trim.`);
+    }
+  }
+  // Trim paint: the face of every primed trim board (1x6 fascia, 1x4 or 5/4 rake,
+  // corner boards and casings), two coats at the same 350 sq ft a gallon as the
+  // siding paint. The boards are factory primed and the paint is a paint-and-primer,
+  // so no separate primer: cut ends take the paint. Quarts until a gallon is cheaper.
+  const trimFaceSqFt = ((shed.trim ? shed.trim.fasciaFt * 12 * 5.5 + shed.trim.rakeFt * 12 * 3.5 : 0)
+    + (shed.wallTrim || []).reduce((t, x) => t + x.length * 3.5, 0)) / 144;
+  if (trimFaceSqFt > 0 && d.siding && d.sidingColor !== 'unfinished') {
+    const quarts = Math.ceil((trimFaceSqFt * 2) / (350 / 4));
+    const gallons = Math.ceil(quarts / 4);
+    const qt = quarts * Number(item('trimPaintQt')) <= gallons * Number(item('trimPaintGal'));
+    const name = `${label(qt ? 'trimPaintQt' : 'trimPaintGal')} (${finishName(d.trimColor, TRIM_FINISHES)}, ${Math.round(trimFaceSqFt)} sq ft of trim face)`;
+    if (qt) line('Paint', name, quarts, 'quart', item('trimPaintQt'), src('trimPaintQt'));
+    else line('Paint', name, gallons, 'gallon', item('trimPaintGal'), src('trimPaintGal'));
+    // Keep it with the siding paint so each section stays in one run.
+    const last = shopping.map((r) => r.section).lastIndexOf('Paint', shopping.length - 2);
+    if (last >= 0) shopping.splice(last + 1, 0, /** @type {any} */ (shopping.pop()));
   }
   if (shed.interior) {
     const it = shed.interior;
@@ -478,18 +521,20 @@ export function estimate(shed, prices = examplePrices()) {
   }
   if (d.roofing) {
     const area = dims.roofAreaSqFt * 1.1;
+    // Each slope's length, eave tail to ridge: a saltbox's two differ.
+    const slopeLens = dims.saltbox ? [dims.slopes.front.len, dims.slopes.back.len] : dims.lean ? [dims.slopeLen] : [dims.slopeLen, dims.slopeLen];
+    const rakesIn = 2 * slopeLens.reduce((t, x) => t + x, 0);
     if (d.roofCover === 'metal') {
       // 8 ft panels with 6" end laps, about 21-1/2" of cover each, two slopes (one on a lean-to); ridge cap with 6" laps
       // (on a lean-to it closes the high edge; a high-side flashing made for the panel is the better part where the store has one).
       const cols = Math.ceil(d.length / 21.5);
-      const rows = Math.ceil(dims.slopeLen / 90);
-      line('Roofing', label('metalPanel'), (dims.lean ? 1 : 2) * cols * rows, 'piece', item('metalPanel'), src('metalPanel'));
+      line('Roofing', label('metalPanel'), slopeLens.reduce((t, x) => t + cols * Math.ceil(x / 90), 0), 'piece', item('metalPanel'), src('metalPanel'));
       line('Roofing', label('metalRidge'), Math.ceil(d.length / 120), 'piece', item('metalRidge'), src('metalRidge'));
     } else {
       line('Roofing', label('shingleBundle'), Math.ceil(area / 32.8), 'bundle', item('shingleBundle'), src('shingleBundle'));
       // A starter course along both eaves and up the four rakes; cap shingles along the ridge.
       // A lean-to has one eave and two rakes; its cap shingles fold over the high edge.
-      const starterIn = dims.lean ? d.length + 2 * dims.slopeLen : 2 * d.length + 4 * dims.slopeLen;
+      const starterIn = (dims.lean ? d.length : 2 * d.length) + rakesIn;
       line('Roofing', label('starterShingle'), Math.ceil(starterIn / 12 / 120), 'bundle', item('starterShingle'), src('starterShingle'));
       line('Roofing', label('ridgeCapShingle'), Math.ceil(d.length / 12 / 25), 'bundle', item('ridgeCapShingle'), src('ridgeCapShingle'));
       // Four nails a shingle, about 2-1/2 lb of 1-1/4" nails a square (100 sq ft) with starter and cap.
@@ -497,7 +542,7 @@ export function estimate(shed, prices = examplePrices()) {
     }
     line('Roofing', label('underlayment'), Math.ceil(area / 1000), 'roll', item('underlayment'), src('underlayment'));
     // Both eaves and every rake (a lean-to's slope runs tail to tail, so two rakes).
-    const dripFt = (2 * d.length + (dims.lean ? 2 : 4) * dims.slopeLen) / 12;
+    const dripFt = (2 * d.length + rakesIn) / 12;
     line('Roofing', label('dripEdge'), Math.ceil(dripFt / 10), 'piece', item('dripEdge'), src('dripEdge'));
   }
   // Doors and windows the visitor picked from the catalogue.
@@ -516,7 +561,7 @@ export function estimate(shed, prices = examplePrices()) {
   for (const op of d.openings) {
     if (op.product === 'site-built' || productById(op.product)) continue;
     const what = `${op.kind === 'door' ? 'Door' : 'Window'} ${fmtIn(op.width)} x ${fmtIn(op.height)} on the ${WHERE[`wall:${op.wall}`] || op.wall}`;
-    const r = catalogueRange(op.kind, op.width);
+    const r = catalogueRange(op.kind, op.width, op.height);
     const range = r ? `typical range $${r.lo.toFixed(2)} to $${r.hi.toFixed(2)} across the ${r.n} ${r.group} in our catalogue` : '';
     if (r && d.customRange && shed.framedOpenings.some((f) => f.id === op.id)) {
       line('Doors and windows', `${what}, custom size: ${range}, counted at the median`, 1, 'each', r.median,
@@ -531,7 +576,8 @@ export function estimate(shed, prices = examplePrices()) {
   if (d.compaction === 'plate compactor') line('Site prep', label('plateCompactor'), 1, 'day', item('plateCompactor'), src('plateCompactor'));
   else line('Site prep', label('handTamper'), 1, 'each', item('handTamper'), src('handTamper'));
   if (dims.gravelCuYd) line('Site prep', label('gravelTon'), Math.ceil(dims.gravelCuYd * 1.4 * 10) / 10, 'ton', item('gravelTon'), src('gravelTon'));
-  if (dims.block?.pier) {
+  // Piers under the skids, or under the ridge-beam posts of a shed with no floor.
+  if (dims.block?.pier || dims.pierCount) {
     line('Foundation and hardware', label('formTube'), dims.pierTubes, 'each', item('formTube'), src('formTube'));
     line('Foundation and hardware', label('concreteBag'), dims.pierBags, 'bag', item('concreteBag'), src('concreteBag'));
   } else if (dims.block) line('Foundation and hardware', label(dims.block.item), dims.blockCount, 'each', item(dims.block.item), src(dims.block.item));

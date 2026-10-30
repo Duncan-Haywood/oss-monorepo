@@ -1,5 +1,6 @@
 ---
 title: "Counting the rim joist bays: the insulation line a framing takeoff usually forgets"
+seo_title: "Counting the rim joist bays"
 date: 2026-10-25
 description: "Our wall framing takeoff now counts rim joist insulation from the floor plan, hand-checked, and says what it still does not cover."
 tags: [framing, takeoff, construction, insulation]

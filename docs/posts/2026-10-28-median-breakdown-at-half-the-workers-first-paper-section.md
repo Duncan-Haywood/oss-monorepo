@@ -1,5 +1,6 @@
 ---
 title: "The median holds until half the workers attack, then diverges: a paper section from six experiments"
+seo_title: "The median holds until half the workers attack, then diverges"
 date: 2026-10-28
 description: "In a 16-worker small-GPT DiLoCo run, the median degrades smoothly up to 7 attackers and diverges at 8, for independent and coordinated attacks."
 tags: [lowcomm-training, research, distributed-training, robust-aggregation]
