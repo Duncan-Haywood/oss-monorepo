@@ -86,9 +86,9 @@ function sheetCount(lengths) {
  * of its width, and as many of those strips as fit across a sheet come from
  * one sheet. Rips are counted without a kerf: two 24" strips from a 48" sheet
  * leave the second a saw cut narrow, which the rim or the gap at the ridge
- * takes up (tongue-and-groove sheets cover about 47-1/2" anyway). Strips of
- * different widths are not mixed in strips; the count is the lower of that and
- * packing lengths alone, either of which a builder can cut.
+ * takes up (tongue-and-groove sheets cover about 47-1/2" anyway). The count is
+ * the lowest of that, packing lengths alone, and the two-stage layouts of
+ * levelPack below, any of which a builder can cut.
  * @param {{ len: number, w: number }[]} pieces
  */
 export function sheetCount2d(pieces) {
@@ -106,7 +106,71 @@ export function sheetCount2d(pieces) {
   }
   // Packing lengths alone, every piece as if full width, is always cuttable too, and
   // wins when a narrow piece can share a sheet's length with a full-width one.
-  return Math.min(sheets, sheetCount(pieces.map((p) => p.len)));
+  // Two-stage guillotine layouts mix widths and rip strips from a sheet's offcut.
+  return Math.min(sheets, sheetCount(pieces.map((p) => p.len)), levelPack(pieces, 'len'), levelPack(pieces, 'w'));
+}
+
+/**
+ * Whole 48 x 96 sheets for pieces cut in two stages, first-fit decreasing: a
+ * sheet is cut across into sections (by: 'len', each as long as its longest
+ * piece, the pieces side by side across the 48") or ripped into strips (by:
+ * 'w', each as wide as its widest piece, the pieces end to end along the 96").
+ * Pieces keep their direction (a sheet's strength axis stays across the
+ * framing), so pieces of different widths and lengths can share a sheet, and a
+ * full-width piece's offcut can be ripped into strips.
+ * @param {{ len: number, w: number }[]} pieces
+ * @param {'len'|'w'} by
+ */
+function levelPack(pieces, by) {
+  const [A, B] = by === 'len' ? [96, 48] : [48, 96];
+  const other = by === 'len' ? 'w' : 'len';
+  const items = pieces.map((p) => ({ a: Math.min(A, p[by]), b: Math.min(B, p[other]) }))
+    .sort((p, q) => q.a - p.a || q.b - p.b);
+  /** @type {{ left: number, levels: { a: number, left: number }[] }[]} */
+  const sheets = [];
+  const eps = 1e-6;
+  for (const it of items) {
+    const level = sheets.flatMap((sh) => sh.levels).find((lv) => lv.a >= it.a - eps && lv.left >= it.b - eps);
+    if (level) { level.left -= it.b; continue; }
+    let sh = sheets.find((x) => x.left >= it.a - eps);
+    if (!sh) { sh = { left: A, levels: [] }; sheets.push(sh); }
+    sh.left -= it.a;
+    sh.levels.push({ a: it.a, left: B - it.b });
+  }
+  return sheets.length;
+}
+
+/**
+ * 4x8 panels for the gable pieces that go above the lower siding panels. A
+ * piece under one roof slope has a sloped top; two pieces sloping the same way
+ * nest head to toe on one 4 ft wide strip of panel (the second turned end for
+ * end, grooves still vertical), taking the sum of a low and a high edge
+ * rather than two high edges. Pieces and nested pairs are then packed along
+ * 8 ft panels; the count is never more than packing each piece's height alone.
+ * @param {Shed} shed
+ * @param {boolean} [nest] false: each piece's height alone, no nesting
+ */
+export function sidingUpperSheets(shed, nest = true) {
+  const shapes = shed.sidingUpperShapes;
+  const plain = sheetCount(shed.sidingUpper || []);
+  if (!nest || !shapes || !shapes.length) return plain;
+  const up = (x) => Math.ceil(x - 1e-9);
+  /** @type {number[]} */
+  const units = [];
+  for (const rising of [true, false]) {
+    const group = shapes.filter((p) => !p.peak && p.h0 !== p.h1 && (p.h1 > p.h0) === rising)
+      .map((p) => (rising ? [p.h0, p.h1] : [p.h1, p.h0])).sort((p, q) => q[1] - p[1]);
+    // Pair the tallest with the next tallest: low end of each against the other's high end.
+    for (let i = 0; i < group.length; i += 2) {
+      const [a0, a1] = group[i];
+      const b = group[i + 1];
+      const nested = b ? up(Math.max(a0 + b[1], a1 + b[0])) : Infinity;
+      if (b && nested <= 96) units.push(nested);
+      else { units.push(up(a1)); if (b) units.push(up(b[1])); }
+    }
+  }
+  for (const p of shapes) if (p.peak || p.h0 === p.h1) units.push(up(Math.max(p.h0, p.h1, ...(p.peak ? [shed.sidingUpper[shapes.indexOf(p)]] : []))));
+  return Math.min(plain, sheetCount(units));
 }
 
 /** The { len, w } of each panel of one kind, from its rectangle. @param {any[]} panels @param {string} kind */
@@ -205,7 +269,7 @@ export function estimate(shed, prices = examplePrices()) {
       // Panel siding is its own sheathing: one panel per 4 ft column, the length that reaches.
       const by = { 96: 0, 108: 0, 120: 0 };
       for (const x of shed.sidingFull) by[x.length] += 1;
-      by[96] += sheetCount(shed.sidingUpper);
+      by[96] += sidingUpperSheets(shed);
       const keys = type === 'T1-11' ? ['siding8', 'siding9', 'siding10'] : type === 'LP SmartSide' ? ['lpPanel', 'lpPanel9', 'lpPanel10'] : ['lpPanel76', 'lpPanel76x9', 'lpPanel76x10'];
       [96, 108, 120].forEach((len, i) => line('Siding', label(keys[i]), by[len], 'sheet', item(keys[i]), src(keys[i])));
       // The panel rule makes the price jump about as the walls rise: a column that
@@ -364,7 +428,7 @@ export function estimate(shed, prices = examplePrices()) {
     const sheathingSheets = floorSheets + roofSheets + (d.siding && !panelSiding ? Math.ceil(((shed.sidingArea ?? 0) * 1.1) / 32) : 0);
     line('Fasteners and sealants', label('sheathingNails'), Math.ceil((sheathingSheets * 60) / 478), 'box', item('sheathingNails'), src('sheathingNails'));
     if (panelSiding) {
-      const sheets = shed.sidingFull.length + sheetCount(shed.sidingUpper);
+      const sheets = shed.sidingFull.length + sidingUpperSheets(shed);
       line('Fasteners and sealants', label('sidingNails'), Math.ceil((sheets * 60) / 140), 'box', item('sidingNails'), src('sidingNails'));
     }
     line('Fasteners and sealants', label('roofingNails'), roofNailBoxes, 'box', item('roofingNails'), src('roofingNails'));
