@@ -1,0 +1,50 @@
+{
+  "date": "2026-10-30",
+  "session": "https://claude.ai/code/session_01E5sJKkWo3QZwLPwEDkEh6D",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "scheduled: read ./prompt.md",
+  "input_sha256": "309d74eee7a943668cd28140b1420200644d428dcdd742af9d32a7d7ced9746f",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-30T01:19:08Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/11536",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [
+    "assets.danfoss.com and hydraulicsonline.com do not resolve from the session; PVG 32 manual unopened"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "research/CLAUDE.md",
+      "why": "No blog post or agent doc: step was a small log-only milestone blocked on network hosts",
+      "did": "log entry 2k only",
+      "result": "landed small"
+    }
+  ],
+  "writeups": [
+    "research/heavy-hydraulics/LOG.md 2k"
+  ],
+  "goal": null,
+  "notes": "Ran dp_ls=20 sweep; source is a search excerpt, flagged unopened.",
+  "corrections": [],
+  "redteam": null
+}
