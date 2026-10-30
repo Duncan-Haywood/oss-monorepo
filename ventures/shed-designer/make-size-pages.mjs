@@ -4,6 +4,7 @@
 import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { PRESETS, buildShed } from './model.mjs';
 import { estimate } from './estimate.mjs';
+import { writeFacts } from './workedfacts.mjs';
 
 export const SIZES = [
   [8, 8, '8x10'], [8, 10, '8x10'], [8, 16, '8x10'],
@@ -202,5 +203,8 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const urls = ['', ...hand, ...Object.keys(files)];
   const base = 'https://example.invalid/shed-designer/';
   writeFileSync(new URL('sitemap.xml', import.meta.url), `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls.map((u) => `<url><loc>${base}${u}</loc></url>`).join('')}</urlset>`);
-  console.log(`wrote ${Object.keys(files).length} pages`);
+  // The hand-written 8x12 page's tagged numbers come from the engine too (workedfacts.mjs),
+  // so the site build publishes current ones even if the committed copy is a step behind.
+  const refreshed = writeFacts();
+  console.log(`wrote ${Object.keys(files).length} pages${refreshed.length ? `; refreshed ${refreshed.join(', ')}` : ''}`);
 }
