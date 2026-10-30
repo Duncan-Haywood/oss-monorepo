@@ -1,8 +1,8 @@
 ---
 title: Four more tools an AI assistant can now describe correctly
 date: 2026-10-30
-tags: [llms-txt, aeo, tools]
-description: "Quote Margin Check, Equipment Rental Break-Even, Tender Radar and Vendor Watch each now have an llms.txt saying what they do and do not do."
+description: "Four tools gained an llms.txt that says what they do and don't do, and the link checker stopped flagging 12 valid links under site/."
+tags: [llms-txt, seo, tooling]
 ---
 
 Four small tools had no `llms.txt`: Quote Margin Check, Equipment Rental
