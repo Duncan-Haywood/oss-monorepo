@@ -482,6 +482,8 @@ const GAMBREL_KINDS = /** @type {Record<string, string[]>} */ ({
   'Loft joist deflection': ['rafter tie', 'loft joist'],
   'Knee gussets (nails)': ['lower chord', 'upper chord'],
   'Peak gussets (nails)': ['upper chord'],
+  'Knee gussets (plywood)': ['lower chord', 'upper chord'],
+  'Peak gussets (plywood)': ['upper chord'],
   'Heel (tie to lower chord)': ['rafter tie'],
   'Chord seat on the plate': ['lower chord'],
 });
