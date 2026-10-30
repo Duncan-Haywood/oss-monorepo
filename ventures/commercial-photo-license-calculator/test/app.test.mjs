@@ -63,3 +63,15 @@ test('all four channels on the $1,200/6-month/national/non-exclusive example mat
   assert.equal(result.rights, 1127.4375);
   assert.equal(result.total, 2327.4375);
 });
+
+test('importing calculate on a page without the quote form does not throw', async () => {
+  // license-extension-fee.html imports app.mjs through extension.mjs and has no #quote-form.
+  const saved = globalThis.document;
+  globalThis.document = { getElementById: () => null, querySelectorAll: () => [] };
+  try {
+    const mod = await import(`../app.mjs?no-form=${Date.now()}`);
+    assert.equal(typeof mod.calculate, 'function');
+  } finally {
+    if (saved === undefined) delete globalThis.document; else globalThis.document = saved;
+  }
+});

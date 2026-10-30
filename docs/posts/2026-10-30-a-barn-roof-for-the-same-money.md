@@ -2,7 +2,7 @@
 title: "A barn roof on a 10x10 shed: 19% more room for the same money"
 date: 2026-10-30
 tags: [shed-designer, framing, structure, storage]
-description: "We added a gambrel roof to the shed designer, framed as gusseted trusses and checked as three-hinged frames. On a 10x10 it encloses 900 cu ft for $3,228; a 6/12 gable encloses 756 for $3,216."
+description: "A gambrel roof, framed as gusseted trusses and checked as three-hinged frames, encloses 900 cu ft on a 10x10 for $3,228; a 6/12 gable, 756 for $3,216."
 ---
 
 A gambrel roof (the barn shape) has two slopes a side: a steep lower one and a shallow upper one, meeting at a knee. Barns use it because it puts the roof's volume where you can use it. The [shed designer](https://duncan-haywood.github.io/oss-monorepo/shed-designer/) now frames one: every board is at its real size, the joints are checked, and it gets a structure check and a price like the gable.

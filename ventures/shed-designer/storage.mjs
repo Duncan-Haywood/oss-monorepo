@@ -1,9 +1,9 @@
 // @ts-check
-// How much a shed holds, for any roof: the clear space inside the walls and
-// under the roof framing, from the model's cross-section (`dims.section`, the
-// underside of the rafters or chords across the width). Shared by the gambrel
-// comparison, the design search and the gallery, so they all count space the
-// same way.
+// How much a shed holds, for any roof shape: the clear space inside the walls
+// and under the roof framing, from the model's cross-section (`dims.section`,
+// the underside of the rafters or chords across the width). The design search
+// and the Pareto audit (designsearch.mjs, paretoaudit.mjs) take a gambrel's
+// roof space from roofSpaceCuFt, as their gable triangle does not fit it.
 //
 // - volume: inside the studs, from the floor to the underside of the roof
 //   framing, in cubic feet. Ties and loft joists are left in (they are thin and
@@ -27,7 +27,7 @@ function zAt(pts, y) {
 /**
  * @param {import('./model.mjs').Shed} shed
  */
-export function storageOf(shed) {
+export function clearSpace(shed) {
   const d = shed.design;
   const k = shed.dims;
   const D = k.stud;
@@ -63,4 +63,9 @@ export function storageOf(shed) {
     loftSqFt: loftArea / 144,
     loftUsableSqFt: loftUsable / 144,
   };
+}
+
+/** The space above the top of the walls and under the roof framing, inside the walls, in cubic feet. @param {import('./model.mjs').Shed} shed */
+export function roofSpaceCuFt(shed) {
+  return clearSpace(shed).roofVolume;
 }

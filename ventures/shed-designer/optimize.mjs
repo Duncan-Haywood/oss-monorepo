@@ -12,7 +12,9 @@
 // Gomory): a small simplex over cutting patterns, with each new pattern found
 // by an exact knapsack search over each stock length. Its whole patterns are
 // taken as they are, the leftover pieces go through the same packing, and that
-// plan replaces the first one when it is cheaper. The relaxation's optimum is
+// plan replaces the first one when it is cheaper. The fractional patterns are
+// also tried rounded up (the most-used first, one more of each, filled with the
+// pieces still uncut), which costs only more packing, not another relaxation. The relaxation's optimum is
 // a lower bound no order can beat, so the result carries it and the gap to it.
 
 /** @typedef {{ len: number, mark?: string, id?: string, kind?: string }} Piece */
@@ -260,6 +262,20 @@ export function optimizeCuts(pieces, stocks, kerf = 0.125) {
     const rest = desc.filter((p) => /** @type {Piece[]} */ (pool.get(p.len)).includes(p));
     const rounded = [...toBoards(groups), ...(rest.length ? pack(rest) : [])];
     if (better(rounded, boards, costOf(boards))) boards = rounded;
+    // Round up too: the fractional patterns, most-used first, each taken once more
+    // with what pieces are left of it; the first k of them for each k, the rest packed.
+    const frac = lp.patterns.filter(({ x }) => x - Math.floor(x + 1e-9) > 1e-6).sort((p, q) => (q.x % 1) - (p.x % 1));
+    for (let k = 1; k <= frac.length; k++) {
+      const left = new Map([...pool].map(([l, ps]) => [l, ps.slice()]));
+      const extra = [];
+      for (const { a } of frac.slice(0, k)) {
+        const g = a.flatMap((n, i) => /** @type {Piece[]} */ (left.get(lens[i])).splice(0, n));
+        if (g.length) extra.push(g);
+      }
+      const rest2 = desc.filter((p) => /** @type {Piece[]} */ (left.get(p.len)).includes(p));
+      const up = [...toBoards([...groups, ...extra]), ...(rest2.length ? pack(rest2) : [])];
+      if (better(up, boards, costOf(boards))) boards = up;
+    }
   }
   boards.sort((a, b) => b.stock - a.stock || b.used - a.used);
   const cost = costOf(boards);

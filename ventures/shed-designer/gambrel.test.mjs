@@ -124,18 +124,18 @@ test('the automatic pitch sets the upper slope under the height limit', () => {
 });
 
 test('for the same footprint, walls and money, a gambrel holds more than a gable', async () => {
-  const { storageOf } = await import('./storage.mjs');
+  const { clearSpace } = await import('./storage.mjs');
   const base = { ...defaultDesign(), autoPitch: false, maxPeak: 0 };
   const gable = buildShed({ ...base, roofType: 'ridgeBoard', pitch: 6 });
   const barn = buildShed({ ...base, style: 'gambrel', pitch: 6 });
-  const a = storageOf(gable);
-  const b = storageOf(barn);
+  const a = clearSpace(gable);
+  const b = clearSpace(barn);
   // Same box below the plates: the difference is all in the roof.
   assert.ok(Math.abs(a.volume - a.roofVolume - (b.volume - b.roofVolume)) < 0.5);
   assert.ok(b.roofVolume > 1.8 * a.roofVolume, `${b.roofVolume} vs ${a.roofVolume}`);
   assert.ok(Math.abs(estimate(barn).total - estimate(gable).total) < 0.02 * estimate(gable).total);
   // A loft adds a floor up there, some of it with room for boxes.
-  const loft = storageOf(buildShed({ ...base, style: 'gambrel', pitch: 6, width: 120, loft: 'full' }));
+  const loft = clearSpace(buildShed({ ...base, style: 'gambrel', pitch: 6, width: 120, loft: 'full' }));
   assert.ok(loft.loftSqFt > 50 && loft.loftUsableSqFt > 0 && loft.loftUsableSqFt < loft.loftSqFt);
   // The box a gable's clear space is built from: inside floor area times wall height, plus its roof space.
   const inside = ((base.length - 7) * (base.width - 7)) / 144;

@@ -13,6 +13,8 @@
 import { check, worst, studCheck, headerCheck, roofCase, FLOOR, SPF2, T, DEPTH } from './structure.mjs';
 import { fmtIn } from './lumber.mjs';
 import { gambrelAnalysis } from './gambrel.mjs';
+import { trussChecks, trussForces } from './truss.mjs';
+import { subfloorCheck } from './levers.mjs';
 
 const CF_C = { '2x4': 1.15, '2x6': 1.1 };
 
@@ -55,7 +57,7 @@ export function nailZ(D, ls, lm, G = 0.42, Fyb = 90000) {
  * pair's outward thrust, H = wL^2 / 8h for the pair's load w (lb/ft on plan)
  * over the span L with the ridge h above the tie. It is face-nailed to each
  * rafter with 16d commons (0.162" x 3-1/2", SPF, CD 1.15 for snow); at least
- * three. Null for a ridge beam, which has no ties.
+ * three. Null for a ridge beam, which has no ties, and for trusses (truss.mjs).
  * @param {import('./model.mjs').Shed} shed
  */
 export function heelJoint(shed) {
@@ -65,7 +67,7 @@ export function heelJoint(shed) {
     const g = gambrelAnalysis(d);
     return { thrust: g.thrust, perNail: nailZ(0.162, 1.5, 2.0) * 1.15, nails: g.heelNails };
   }
-  if (d.roofType === 'ridgeBeam') return null;
+  if (d.roofType !== 'ridgeBoard') return null;
   const cos = 1 / Math.sqrt(1 + (d.pitch / 12) ** 2);
   const w = (15 / cos + d.snowLoad) * (d.rafterSpacing / 12);
   const L = d.width / 12;
@@ -95,11 +97,14 @@ export function structuralChecks(shed) {
   const floorSpanIn = Math.max(...gaps) - skidThick;
   {
     const [gov, r] = worst(check({ size: d.joistSize, spacingIn: d.joistSpacing, bearingIn: skidThick }, floorSpanIn / 12, FLOOR));
-    add('Floor joists', `${d.joistSize} at ${d.joistSpacing}"`, `${fmtIn(floorSpanIn)} clear between skids, 40 psf live + 10 dead`, r, gov);
+    add('Floor joists', `${d.joistSize} at ${d.joistSpacing}"`, `${fmtIn(floorSpanIn)} clear between skids, 40 psf live + 10 dead (spread load; a mower's wheel is a point load, not checked)`, r, gov);
+    const sf = subfloorCheck(d);
+    add('Subfloor', sf.name, `joists ${d.joistSpacing}" apart; APA span rating ${sf.spanOC} oc (check the panel's stamp)`, sf.ratio, 'span rating');
   }
   // Rafters: from the inside of the wall plate to the ridge.
   const beam = d.roofType === 'ridgeBeam';
-  const rafterRunIn = d.width / 2 - (beam ? 1.5 : 0.75) - k.stud;
+  const truss = d.roofType === 'truss';
+  const rafterRunIn = d.width / 2 - (beam ? 1.5 : truss ? 0 : 0.75) - k.stud;
   // A gambrel's trusses are checked as frames (gambrel.mjs) in place of rafters and a ridge.
   const gam = d.style === 'gambrel' ? gambrelAnalysis(d) : null;
   if (gam) for (const r of gam.rows) add(r.member, r.size, r.detail, r.ratio, r.governs);
@@ -113,8 +118,9 @@ export function structuralChecks(shed) {
   // nothing (the rafter pair and its tie are a truss), so each eave wall
   // carries the whole half roof, ridge to eave tip.
   const tribFt = (beam ? rafterRunIn / 2 + k.stud + d.overhang : d.width / 2 + d.overhang) / 12;
+  // Under trusses each eave wall also carries half the attic (bottom chord) load.
   // On a gambrel: the trusses' reactions, with a loft's storage load counted as dead (it is always there).
-  const deadPlf = gam ? gam.wall.dead + gam.wall.loft : (15 / cos) * tribFt;
+  const deadPlf = gam ? gam.wall.dead + gam.wall.loft : (15 / cos) * tribFt + (truss ? (trussForces(d).wc * d.width) / 2 / 12 / (d.rafterSpacing / 12) : 0);
   const snowPlf = gam ? gam.wall.snow : snow * tribFt;
   if (gam) {
     // the trusses and their ties are checked above
@@ -127,6 +133,8 @@ export function structuralChecks(shed) {
     const postH = shed.members.find((m) => m.kind === 'beam post')?.length ?? 12;
     add('Ridge beam posts', `2-ply ${d.studSize}`, `${Math.round(P)} lb each, ${fmtIn(postH)} above the plate, then the two post studs to the floor`,
       Math.max(postCheck(2, d.studSize, postH, P), postCheck(2, d.studSize, k.studLen, P)), 'compression');
+  } else if (truss) {
+    rows.push(...trussChecks(d).rows);
   } else {
     add('Ridge board', d.ridgeSize || k.ridgeSize, 'not a beam: rafter ties at the plate carry the rafters\' outward thrust', 0, 'none');
     const heel = /** @type {NonNullable<ReturnType<typeof heelJoint>>} */ (heelJoint(shed));
@@ -147,8 +155,8 @@ export function structuralChecks(shed) {
   // Eave-wall studs: roof gravity plus wind on the face.
   {
     const r = studCheck(d.studSize, d.studSpacing, k.studLen, [deadPlf, snowPlf], wind);
-    // studCheck gives Infinity past the stud's Euler buckling load: report a plain fail instead.
-    add('Wall studs', `${d.studSize} at ${d.studSpacing}"`, `${fmtIn(k.studLen)} tall, roof load${gam && gam.wall.loft ? ' and the loft' : ''} plus ${wind} psf wind on the wall${Number.isFinite(r) ? '' : '; past the load at which the studs buckle'}`, Number.isFinite(r) ? r : 10, 'combined bending and compression');
+    // studCheck answers Infinity when the load reaches the stud's buckling load; show that as over capacity.
+    add('Wall studs', `${d.studSize} at ${d.studSpacing}"`, `${fmtIn(k.studLen)} tall, roof load${gam && gam.wall.loft ? ' and the loft' : ''} plus ${wind} psf wind on the wall${Number.isFinite(r) ? '' : '; the load reaches the stud\'s buckling load'}`, Number.isFinite(r) ? r : 9.99, 'combined bending and compression');
   }
   return {
     rows,

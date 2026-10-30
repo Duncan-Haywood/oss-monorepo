@@ -703,7 +703,7 @@ def report(st: dict) -> str:
 
     lines.append(f"  {len(stale)} check(s) need a run: {', '.join(stale)}")
     lines.append("")
-    lines.append("    npm install --no-save playwright@1.56.0 axe-core")
+    lines.append("    npm install --no-save playwright@1.63.0 axe-core")
 
     # A stale check whose `pending` names ventures can be repaired by a
     # per-venture run (about a minute each) instead of the whole catalogue.
