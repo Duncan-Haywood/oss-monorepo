@@ -1,0 +1,142 @@
+{
+  "date": "2026-10-30",
+  "session": "https://claude.ai/code/session_01XpHqyeWLBEBfeV3WLMN5wn",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "working on tools for a christian babysitting sole prop single operator business. taxes. scheduling. lead gen lead qualification. reference request/elicitation storage and management. marketing website, automated sales. automated marketing. content marketing. this is an ongoing project for a friend. / other potential features that would be helpful. / i don't think browser only is required / lets have 10 agents work on this project.",
+  "input_sha256": "533868dfae38b21d1bdd9ec778496e38e75b5bb5ab2717d9d30a69c2bc0424e6",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-10-30T01:52:24Z",
+  "ended": "2026-10-30T02:11:24Z",
+  "wall_minutes": 19.18,
+  "tokens_in": 13490539,
+  "tokens_out": 141358,
+  "cost_usd": 11.3004,
+  "tool_calls": 155,
+  "task": null,
+  "projects": [],
+  "pr": 11583,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First preflight failed: count files (sync_tree_counts, sync_readme_counts) were stale after adding a venture; regenerated and committed."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/pages/venture-preflight.mjs",
+      "issue": "regen --verify reported that a generator wrote outside gitops/prod/ and named my new post and ledger file, but git status was clean afterwards; the message reads like data loss when it was only the count checks that needed fixing."
+    }
+  ],
+  "deviations": [
+    {
+      "file": ".github/prompts/human-requests.md",
+      "why": "The user asked for 10 agents mid-run, so the foundation PR also seeds 10 parallel lanes, each on its own claude/babysit-<lane> branch and PR, instead of one branch per session.",
+      "did": "Landed the foundation first, then dispatched 10 worktree agents with separate module files and small additive edits to shared files.",
+      "result": null
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "The brief names its own work (a friend's babysitting business), so it takes precedence over the default of deepening the top flagship.",
+      "did": "New venture babysitting-business-kit.",
+      "result": null
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-30-babysitting-business-kit.md"
+  ],
+  "goal": null,
+  "notes": "43 tests pass (run_venture_tests.py babysitting-business-kit). clauses.mjs 2/2 pages pass, validate.py passes, launched.json updated. Playwright smoke at 390px: every tab, add lead, add sit with live quote, tax panel, settings persisted across reload, no page errors (the only console line is the sandboxed website-preview iframe refusing inline script, which is intended). Tax constants come from sibling ventures that checked them against IRS/SSA.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "12a74b3d-dd1c-5c89-abe7-0ae9864933fe",
+    "transcripts": 11,
+    "first": "2026-10-30T01:52:24Z",
+    "last": "2026-10-30T02:11:35Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 128,
+        "input": 257,
+        "output": 141358,
+        "thinking": 24790,
+        "cache_read": 12408019,
+        "cache_write_5m": 889150,
+        "cache_write_1h": 193113,
+        "api_equivalent_usd": 11.3004,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 128,
+      "input": 257,
+      "output": 141358,
+      "thinking": 24790,
+      "cache_read": 12408019,
+      "cache_write_5m": 889150,
+      "cache_write_1h": 193113,
+      "api_equivalent_usd": 11.3004,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.92,
+    "tool_calls": 155,
+    "tools": {
+      "Bash": 134,
+      "Agent": 10,
+      "Write": 4,
+      "ToolSearch": 2,
+      "Read": 2,
+      "mcp__github__search_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__claude-code-remote__subscribe_pr_activity": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 19.18,
+      "active_minutes": 19.18,
+      "model_minutes": 16.27,
+      "tool_minutes": 2.9,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 21.92
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 24.0,
+      "basis": "a developer building a 1,000-line app, 300-line server, tests and a guide page from scratch",
+      "rate_usd_per_hour": 100.0,
+      "usd": 2400.0
+    },
+    "leverage": 212.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
