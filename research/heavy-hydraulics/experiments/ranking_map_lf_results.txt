@@ -1,0 +1,15 @@
+LS standby 2 L/min; 3,000 cycles per cell; break-even dp_ls (bar) where median LS/OC = 1
+
+p_n 1.44 bar
+  load factor 0.150: monotone=True; break-even = 12.9  (median LS/OC at dp_ls 16: 1.082; at 24: 1.291)
+  load factor 0.250: monotone=True; break-even = 16.8  (median LS/OC at dp_ls 16: 0.982; at 24: 1.157)
+  load factor 0.346: monotone=True; break-even = 19.3  (median LS/OC at dp_ls 16: 0.933; at 24: 1.095)
+  load factor 0.500: monotone=True; break-even = 21.7  (median LS/OC at dp_ls 16: 0.894; at 24: 1.044)
+  load factor 0.700: monotone=True; break-even = 22.9  (median LS/OC at dp_ls 16: 0.876; at 24: 1.019)
+
+p_n 6.44 bar
+  load factor 0.150: monotone=True; break-even = 25.5  (median LS/OC at dp_ls 16: 0.811; at 24: 0.970)
+  load factor 0.250: monotone=True; break-even = 24.5  (median LS/OC at dp_ls 16: 0.838; at 24: 0.991)
+  load factor 0.346: monotone=True; break-even = 23.9  (median LS/OC at dp_ls 16: 0.854; at 24: 1.003)
+  load factor 0.500: monotone=True; break-even = 23.3  (median LS/OC at dp_ls 16: 0.867; at 24: 1.013)
+  load factor 0.700: monotone=True; break-even = 23.1  (median LS/OC at dp_ls 16: 0.874; at 24: 1.017)

@@ -23,6 +23,7 @@
 import { promises as fs, existsSync, readFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { loadLastChanged } from './lastmod.mjs';
+import { generateVenturePages } from './generated-pages.mjs';
 import crypto from 'node:crypto';
 import os from 'node:os';
 import path from 'node:path';
@@ -213,6 +214,9 @@ export const ENTRY_OVERRIDES = {
   // Six electronics calculators behind their own hub page.
   'ai-engineering-academy': 'tools',
 };
+
+// Pages a venture writes from its own engine at build time: generated-pages.mjs.
+export { GENERATED_PAGES, generateVenturePages } from './generated-pages.mjs';
 
 // Ventures whose own page offers a specific `.py` CLI as a download --
 // "get check.py from the repo, run it yourself, no network calls." `.py` is
@@ -10994,6 +10998,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
   await fs.rm(outDir, { recursive: true, force: true });
   await fs.mkdir(outDir, { recursive: true });
 
+  generateVenturePages(venturesDir);
   const discovered = await discoverSurfaces(venturesDir);
   const launched = await loadLaunchDates();
   const surfaces = [];

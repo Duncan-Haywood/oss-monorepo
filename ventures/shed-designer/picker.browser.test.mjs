@@ -207,9 +207,10 @@ test('the starting designs are priced the way the page prices: same store, same 
 
 test('a gallery card shows its drawn picture in the strip; its detail draws the other views live', { skip }, async (t) => {
   const { page } = await open(t);
+  const N = (await import('./gallery-data.mjs')).GALLERY_DESIGNS.length;
   await page.waitForFunction(() => document.querySelector('#starts [data-shot="cheapest"] img')?.getAttribute('src')?.startsWith('renders/gallery-cheapest-card'), null, { timeout: 10000 });
   // Every drawn card picture loads.
-  assert.ok(await page.locator('#starts .pick-img img[src^="renders/"]').evaluateAll((is) => Promise.all(is.map((i) => i.decode().then(() => i.naturalWidth > 0)))).then((a) => a.length === 10 && a.every(Boolean)));
+  assert.ok(await page.locator('#starts .pick-img img[src^="renders/"]').evaluateAll((is) => Promise.all(is.map((i) => i.decode().then(() => i.naturalWidth > 0)))).then((a) => a.length === N && a.every(Boolean)));
   await page.locator('#starts .pick-open[data-detail="cheapest"]').click();
   await page.waitForFunction(() => document.querySelectorAll('#pick-dialog .shots img').length >= 3, null, { timeout: 30000 });
   const alts = await page.locator('#pick-dialog .shots img').evaluateAll((is) => is.map((i) => i.getAttribute('alt')));
