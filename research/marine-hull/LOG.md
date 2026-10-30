@@ -2,6 +2,12 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-30 · Milestone 7b: draft the introduction, model and results table (no experiment run)
+- Why: the paper file was a 47-line skeleton after about thirty experiments; the programme's bottleneck is a submittable text, not a seventh persistence variant. Drafted sections 2.1 to 2.3 of `paper/DRAFT.md` from logged numbers only, with a rung-by-rung table.
+- Found while drafting: H1 was never tested as written (a 10% range spread across the hull box) and H5 was never counted as a rank swap under the battery sweep; both are now listed in the draft as open, and are cheap next steps from existing code. H4's logged outcome (crossover refuted, hotel-load edge) is stated as such.
+- Limits: prose only; citations still unopened beyond the PROPOSAL.md status; no new numbers.
+- Next: run H1 and H5 as explicit tests; milestone 3 curve when a data host is reachable.
+
 ## 2026-10-30 · Milestone 6g: with three sea states instead of two, how much of the oracle gain does persistence capture? (planned before running)
 - Why: 6f's "Next". A two-state chain forces a single rough/calm boundary; a third state (moderate) makes yesterday's call wrong more often at a boundary and gives the policy a middle speed to use. Still swept, not sourced.
 - Plan (`experiments/run_solar_seastate_persist3.py`, 6f's boat, five sites, packs 10 and 1 kWh, seed 1): states calm / moderate / rough with multipliers F = 1, 1.5, 3 and stationary shares 0.4, 0.3, 0.3. Each day the state is resampled from those shares with probability q and kept otherwise; q in {1.0 (iid), 0.5, 0.15} (mean spells about 1.7, 3.3 and 11 days). Policies: B best constant speed; C oracle with a speed per state; E persistence (speed per state chosen in-sample on yesterday's state). Report E/B, hit rate and the share of the C-B gap E recovers.
