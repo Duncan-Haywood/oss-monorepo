@@ -2,6 +2,13 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-30 · Milestone 6i (H6 scale-up): do four more seeds on the two H = 64 cells make the size-2 refit identifiable? (planned before running)
+
+- Why: 6h refuted H6h-i (leave-one-cell-out MAPE 2.54% against 0.71% at size 1) and traced most of the miss to one cell (0.174 of the 0.289 nats of summed absolute leave-one-out error): (H = 64, keep 1/16), the only cell that pins the H exponent. Its two seeds differ by 0.027 nats (1.6614, 1.6341), as large as the 0.044 excess being fitted. So the cell is noisy, and "weakly identified" is a statement about seed noise that more seeds can test.
+- Setup (`experiments/gpt_scale/scale.py run extra`): the same two cells that fix b, (H = 64, keep 1) and (H = 64, keep 1/16), at seeds 2 to 5 (8 runs, same model, budget and lr as 6h; no other cell changes). The report averages whatever seeds each cell has (6 for these two, 2 for the rest).
+- **H6i-i:** with six seeds on the H = 64 cells, size-2 leave-one-cell-out MAPE falls below 1.5% (6h: 2.54%). **H6i-ii:** the held-out (64, 1/16) error falls below 0.08 nats (6h: 0.174). **H6i-iii:** the fitted b stays within 0.5 of size 1's 0.35 and the scale factor stays within 0.1 of 0.497. Priors: i 55%, ii 60%, iii 70%.
+- Limits to state: unequal seeds per cell (6 vs 2) so the fit's weights are not uniform; a tuned-at-size-1 learning rate; same corpus.
+
 ## 2026-10-30 · Milestone 6h (H6 scale-up): does the 6f rule keep its form at a wider model, with its constants refitted? (planned before running)
 
 - Why: 6g's "Next" and Milestone 6. Every H6 result so far is one 413k-parameter GPT; the rule's form was designed on it.
