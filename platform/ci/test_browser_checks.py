@@ -135,7 +135,8 @@ class DistPropagation(unittest.TestCase):
                 return 0, ""
 
             with mock.patch.object(bc, "run_check", fake_run_check), \
-                 mock.patch.object(bc, "playwright_available", lambda env: True):
+                 mock.patch.object(bc, "playwright_available", lambda env: True), \
+                 mock.patch.object(bc, "chrome_launches", lambda env, path: True):
                 rc = bc.main(["--dist", dist, "--checks", "sideways"])
 
             self.assertEqual(rc, 0)
@@ -421,6 +422,7 @@ class RunOutcome(unittest.TestCase):
             err, out = io.StringIO(), io.StringIO()
             with mock.patch.object(bc, "run_check", fake_run_check), \
                  mock.patch.object(bc, "playwright_available", lambda env: True), \
+                 mock.patch.object(bc, "chrome_launches", lambda env, path: True), \
                  mock.patch.object(bc, "discover_axe", lambda env: None), \
                  contextlib.redirect_stderr(err), contextlib.redirect_stdout(out):
                 rc = bc.main(["--dist", dist, "--checks", ",".join(names)])
@@ -459,6 +461,30 @@ class RunOutcome(unittest.TestCase):
         self.assertIn("checks failed: sideways", text)
         # ...and the skip is still reported rather than swallowed.
         self.assertIn("did NOT run", text)
+
+    def test_a_browser_that_will_not_start_is_a_skip_and_runs_nothing(self):
+        """The nightly of 2026-10-21 to 10-29: Chromium was never installed,
+        every check died on "Executable doesn't exist", and the run said
+        "8 of 8 checks failed". That is a missing browser, not eight defects."""
+        dist = tempfile.mkdtemp(prefix="bc-nobrowser-")
+        try:
+            with open(os.path.join(dist, "index.html"), "w", encoding="utf-8") as fh:
+                fh.write("<html></html>")
+            ran = []
+            err, out = io.StringIO(), io.StringIO()
+            with mock.patch.object(bc, "run_check", lambda *a: ran.append(a) or (1, "")), \
+                 mock.patch.object(bc, "playwright_available", lambda env: True), \
+                 mock.patch.object(bc, "chrome_launches", lambda env, path: False), \
+                 mock.patch.object(bc, "discover_axe", lambda env: None), \
+                 contextlib.redirect_stderr(err), contextlib.redirect_stdout(out):
+                rc = bc.main(["--dist", dist, "--checks", "sideways,presets"])
+        finally:
+            shutil.rmtree(dist, ignore_errors=True)
+        text = err.getvalue() + out.getvalue()
+        self.assertEqual(rc, 2)
+        self.assertEqual(ran, [])
+        self.assertIn("would not start", text)
+        self.assertNotIn("checks failed", text)
 
     def test_the_summary_marks_each_class_distinctly(self):
         _, text = self._run({"sideways": 1, "contrast": 2, "presets": 0})
@@ -599,6 +625,7 @@ class OnlyFilter(unittest.TestCase):
             err, out = io.StringIO(), io.StringIO()
             with mock.patch.object(bc, "run_check", fake_run_check), \
                  mock.patch.object(bc, "playwright_available", lambda env: True), \
+                 mock.patch.object(bc, "chrome_launches", lambda env, path: True), \
                  mock.patch.object(bc, "discover_axe", lambda env: None), \
                  contextlib.redirect_stderr(err), contextlib.redirect_stdout(out):
                 rc = bc.main(["--dist", dist] + argv)
@@ -659,6 +686,7 @@ class OnlyFilter(unittest.TestCase):
             err, out = io.StringIO(), io.StringIO()
             with mock.patch.object(bc, "run_check", lambda n, b, e, t: (2, "")), \
                  mock.patch.object(bc, "playwright_available", lambda env: True), \
+                 mock.patch.object(bc, "chrome_launches", lambda env, path: True), \
                  mock.patch.object(bc, "discover_axe", lambda env: None), \
                  contextlib.redirect_stderr(err), contextlib.redirect_stdout(out):
                 rc = bc.main(["--dist", dist, "--checks", "sideways",
