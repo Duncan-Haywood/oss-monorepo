@@ -197,7 +197,8 @@ export function generate() {
 if (import.meta.url === `file://${process.argv[1]}`) {
   const { files } = generate();
   for (const [name, html] of Object.entries(files)) writeFileSync(new URL(name, import.meta.url), html);
-  const urls = ['', HAND_FILE, ...Object.keys(files)];
+  // Hand-written pages beside the generated ones, so the venture's sitemap lists them too.
+  const urls = ['', HAND_FILE, 'hoa-packet.html', ...Object.keys(files)];
   const base = 'https://example.invalid/shed-designer/';
   writeFileSync(new URL('sitemap.xml', import.meta.url), `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls.map((u) => `<url><loc>${base}${u}</loc></url>`).join('')}</urlset>`);
   console.log(`wrote ${Object.keys(files).length} pages`);
