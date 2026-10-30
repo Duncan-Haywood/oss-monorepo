@@ -643,6 +643,8 @@ let lastShed = null;
 function render() {
   try {
     renderNow();
+    // The gallery cards show their cost against the open design.
+    picker?.refresh();
     return true;
   } catch (err) {
     console.error(err);
@@ -1214,7 +1216,7 @@ render();
 picker = mountPicker({
   root: $('#starts'), dialog: $('#pick-dialog'), tray: $('#compare-tray'),
   entries: galleryEntries(),
-  prices: () => state.prices, priceOf: (shed) => storeEstimate(shed), count,
+  prices: () => state.prices, priceOf: (shed) => storeEstimate(shed), count, current: () => design(),
   onStart(d) {
     state.designs.push(normalize(d));
     state.active = state.designs.length - 1;
