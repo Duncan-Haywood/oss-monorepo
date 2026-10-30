@@ -192,6 +192,17 @@
       <div><label for="stOpen">Stairwell opening length you framed (blank: not checked)</label><input id="stOpen" type="text" placeholder="e.g. 10' 0&quot;"></div>
       <div><label for="stLanding">Landing</label><select id="stLanding"><option value="">Only if the rise needs one</option><option value="true">Split at a landing</option></select></div>
     </div>
+    <p><input type="checkbox" id="dkOn" style="width:auto"> <label for="dkOn" style="display:inline">Also frame a deck (ledger or rim, joists, dropped beam, posts, footing concrete, decking rows with joints on joists, hardware; its pressure-treated lumber is its own order)</label></p>
+    <div class="grid" id="dkFields" hidden>
+      <div><label for="dkWidth">Width along the house</label><input id="dkWidth" type="text" placeholder="e.g. 16' 0&quot;"></div>
+      <div><label for="dkDepth">Depth out from the house</label><input id="dkDepth" type="text" placeholder="e.g. 12' 0&quot;"></div>
+      <div><label for="dkHeight">Height above grade</label><input id="dkHeight" type="text" placeholder="e.g. 36 in"></div>
+      <div><label for="dkJoist">Joist</label><select id="dkJoist"><option>2x8</option><option>2x6</option><option>2x10</option><option>2x12</option></select></div>
+      <div><label for="dkSpacing">Joist spacing, in o.c. (blank: 16)</label><input id="dkSpacing" type="number" min="8" max="24" step="1" placeholder="16"></div>
+      <div><label for="dkBeam">Beam board (doubled by default)</label><select id="dkBeam"><option>2x10</option><option>2x8</option><option>2x12</option></select></div>
+      <div><label for="dkPost">Post</label><select id="dkPost"><option>6x6</option><option>4x4</option></select></div>
+      <div><label for="dkFree">Attachment</label><select id="dkFree"><option value="">Ledger on the house</option><option value="true">Freestanding</option></select></div>
+    </div>
     <p><input type="checkbox" id="trOn" style="width:auto"> <label for="trOn" style="display:inline">Also count interior trim (baseboard between doors; casing legs, head and window sill; packed into stock boards; lengths and widths are the trim you buy)</label></p>
     <div class="grid" id="trFields" hidden>
       <div><label for="trSides">Baseboard faces on sheathed walls (blank: 1; unsheathed walls get 2)</label><select id="trSides"><option value="">Default</option><option value="1">1</option><option value="2">2</option></select></div>
@@ -345,6 +356,11 @@
     <div id="drywallOut"></div>
   </section>
 
+  <section class="card" aria-labelledby="h-deck" id="deckCard" hidden>
+    <h2 id="h-deck">Deck</h2>
+    <div id="deckOut"></div>
+  </section>
+
   <section class="card" aria-labelledby="h-stairs" id="stairsCard" hidden>
     <h2 id="h-stairs">Stairs</h2>
     <div id="stairsOut"></div>
@@ -441,7 +457,7 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, construction, building-code, legal or financial advice, and it does not replace a qualified professional, your plans or your building department. Header sizes, jack counts and stud spacing are your inputs and are not checked against any span table or code. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including every length before you cut. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Independent.</strong> Not affiliated with any lumberyard, builder, code body or software company. No lumber price is stated or implied; prices are what you type.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record: save your plan file. Your last entries stay in this browser's local storage only.</p>
-    <p>Everything runs in your browser. Your plan is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>takeoff_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>budget_csv_downloaded</code>, <code>bids_leveled</code>, <code>drawings_downloaded</code>, <code>drawings_pdf_downloaded</code>, <code>panel_order_downloaded</code>, <code>floor_on</code>, <code>roof_on</code>, <code>foundation_on</code>, <code>drywall_on</code>, <code>insulation_on</code>, <code>trim_on</code>, <code>siding_on</code>, <code>eaves_on</code>, <code>gutters_on</code>, <code>stairs_on</code>, <code>fasteners_on</code>, <code>schedule_run</code>, <code>schedule_example_loaded</code>, <code>plan_saved</code>, <code>plan_opened</code>, <code>dxf_opened</code>, <code>sketch_wall</code>, <code>sketch_opening</code>, <code>sketch_move</code>, <code>sketch_used</code>, <code>sketch_trace_image</code>, <code>sketch_trace_scaled</code>, <code>sketch_trace_moved</code>, <code>sketch_trace_straightened</code>) are counted only in local storage on your device, never with anything you typed.</p>
+    <p>Everything runs in your browser. Your plan is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>takeoff_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>budget_csv_downloaded</code>, <code>bids_leveled</code>, <code>drawings_downloaded</code>, <code>drawings_pdf_downloaded</code>, <code>panel_order_downloaded</code>, <code>floor_on</code>, <code>roof_on</code>, <code>foundation_on</code>, <code>drywall_on</code>, <code>insulation_on</code>, <code>trim_on</code>, <code>siding_on</code>, <code>eaves_on</code>, <code>gutters_on</code>, <code>stairs_on</code>, <code>deck_on</code>, <code>fasteners_on</code>, <code>schedule_run</code>, <code>schedule_example_loaded</code>, <code>plan_saved</code>, <code>plan_opened</code>, <code>dxf_opened</code>, <code>sketch_wall</code>, <code>sketch_opening</code>, <code>sketch_move</code>, <code>sketch_used</code>, <code>sketch_trace_image</code>, <code>sketch_trace_scaled</code>, <code>sketch_trace_moved</code>, <code>sketch_trace_straightened</code>) are counted only in local storage on your device, never with anything you typed.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Related tools: the <a href="../cut-list-optimizer/">cut list optimizer</a> for sheet goods and shop stock, and the <a href="../tile-layout-planner/">tile layout planner</a>. Command line and source: <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/wall-framing-takeoff" rel="noopener">wall-framing-takeoff on GitHub</a>.</p>
     <p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
@@ -464,6 +480,7 @@
     import { layoutSiding, sidingText } from "./siding.mjs";
     import { layoutEaves, eavesText } from "./eaves.mjs";
     import { layoutGutters, guttersText } from "./gutters.mjs";
+    import { layoutDeck, deckText } from "./deck.mjs";
     import { layoutStair, layoutStairWithLanding, stairCuts, stairText, landingCuts, landingText, STAIR_LIMITS } from "./stairs.mjs";
     import { layoutFasteners, fastenerText } from "./fasteners.mjs";
     import { budget, budgetCsv } from "./budget.mjs";
@@ -624,6 +641,12 @@
           if ($("#inAtticBag").value.trim()) ins.attic.bagCuFt = Number($("#inAtticBag").value);
         }
         plan.insulation = ins;
+      }
+      if ($("#dkOn").checked) {
+        const dk = { id: "Deck", width: L($("#dkWidth").value, "deck width"), depth: L($("#dkDepth").value, "deck depth"), height: L($("#dkHeight").value, "deck height"), joist: $("#dkJoist").value, beam: $("#dkBeam").value, postSize: $("#dkPost").value };
+        if ($("#dkSpacing").value.trim()) dk.spacing = Number($("#dkSpacing").value);
+        if ($("#dkFree").value) dk.freestanding = true;
+        plan.deck = dk;
       }
       if ($("#stOn").checked) {
         const st = { id: "Stair", totalRise: L($("#stRise").value, "stair total rise"), stringer: $("#stStringer").value, treadBoard: $("#stTreadBoard").value };
@@ -836,6 +859,11 @@
       if (!ins) return;
       $("#insulationOut").innerHTML = `<pre style="white-space:pre-wrap;overflow-x:auto">${esc(insulationText(ins).join("\n"))}</pre><p class="note">Open cavity is the wall panel area less every framing member placed and each opening's rough area. Bag coverage and R-values are the figures you type from the label; they are not checked against a real insulation order.</p>`;
     }
+    function renderDeck(dk) {
+      $("#deckCard").hidden = !dk;
+      if (!dk) return;
+      $("#deckOut").innerHTML = `<pre style="white-space:pre-wrap;overflow-x:auto">${esc(deckText(dk).join("\n"))}</pre><p class="note">Joist spans come from a span table you can replace in the plan file; the built-in one is a rule of thumb, not your jurisdiction's table. Footing size, post sizing, guards and frost depth are yours to check against local code. Hand-checked arithmetic only, not a built deck.</p>`;
+    }
     function renderStairs(st) {
       $("#stairsCard").hidden = !st;
       if (!st) return;
@@ -931,7 +959,7 @@
       const { plan, bad, source } = toPlan();
       $("#errors").innerHTML = "";
       if (bad.length) { $("#errors").innerHTML = `<ul>${bad.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>`; return false; }
-      let result, nailers = [], floor = null, stairs = null, floorExtra = [], roof = null, foundation = null, drywall = null;
+      let result, nailers = [], floor = null, stairs = null, deck = null, floorExtra = [], roof = null, foundation = null, drywall = null;
       try {
         if (plan.foundation) {
           foundation = layoutFoundation(plan.foundation);
@@ -940,6 +968,10 @@
         if (plan.drywall) {
           drywall = layoutDrywall(plan.drywall, plan);
           if (!drywall.ok) { $("#errors").innerHTML = `<ul>${drywall.errors.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>`; last = null; $("#drywallCard").hidden = true; return false; }
+        }
+        if (plan.deck) {
+          deck = layoutDeck(plan.deck);
+          if (!deck.ok) { $("#errors").innerHTML = `<ul>${deck.errors.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>`; last = null; $("#deckCard").hidden = true; return false; }
         }
         if (plan.floor) {
           floor = layoutFloor(plan.floor, plan);
@@ -1000,7 +1032,7 @@
         try { fasteners = layoutFasteners(plan.fasteners, plan, { ...result, ...(sheathing?.ok ? { sheathing } : {}), ...(roof ? { roof } : {}) }); } catch (e) { fasteners = { ok: false, errors: [e instanceof Error ? e.message : String(e)] }; }
         if (!fasteners.ok) { $("#errors").innerHTML = `<ul>${fasteners.errors.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>`; last = null; $("#fastenersCard").hidden = true; return false; }
       }
-      last = { plan, result, nailers, floor, stairs, roof, foundation, drywall, insulation, trim, siding, eaves, gutters, fasteners };
+      last = { plan, result, nailers, floor, deck, stairs, roof, foundation, drywall, insulation, trim, siding, eaves, gutters, fasteners };
       const s = result.summary;
       const money = (v) => v.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 });
       $("#summary").innerHTML = `<div class="big">
@@ -1020,6 +1052,7 @@
       renderFoundation(foundation);
       renderDrywall(drywall);
       renderInsulation(insulation);
+      renderDeck(deck);
       renderStairs(stairs);
       renderTrim(trim);
       renderSiding(siding);
@@ -1071,6 +1104,11 @@
         $("#inAtticR").value = ins.attic?.rValue != null ? String(ins.attic.rValue) : ""; $("#inAtticPer").value = ins.attic?.rPerInch != null ? String(ins.attic.rPerInch) : "";
         $("#inAtticBag").value = ins.attic?.bagCuFt != null ? String(ins.attic.bagCuFt) : "";
       }
+      const dkp = plan.deck && typeof plan.deck === "object" ? plan.deck : null;
+      $("#dkOn").checked = Boolean(dkp); $("#dkFields").hidden = !dkp;
+      $("#dkWidth").value = dkp ? formatLength(dkp.width) : ""; $("#dkDepth").value = dkp ? formatLength(dkp.depth) : ""; $("#dkHeight").value = dkp ? formatLength(dkp.height) : "";
+      $("#dkJoist").value = dkp?.joist || "2x8"; $("#dkSpacing").value = dkp?.spacing != null ? String(dkp.spacing) : ""; $("#dkBeam").value = dkp?.beam || "2x10";
+      $("#dkPost").value = dkp?.postSize || "6x6"; $("#dkFree").value = dkp?.freestanding ? "true" : "";
       const stp = plan.stairs && !Array.isArray(plan.stairs) ? plan.stairs : null;
       $("#stOn").checked = Boolean(stp); $("#stFields").hidden = !stp;
       $("#stRise").value = stp ? formatLength(stp.totalRise) : ""; $("#stTread").value = stp?.tread != null ? String(stp.tread) : "";
@@ -1216,6 +1254,7 @@
     $("#rfWing").addEventListener("change", syncWing);
     $("#rfWing2").addEventListener("change", syncWing);
     $("#inOn").addEventListener("change", () => { $("#inFields").hidden = !$("#inOn").checked; if ($("#inOn").checked) record("insulation_on"); });
+    $("#dkOn").addEventListener("change", () => { $("#dkFields").hidden = !$("#dkOn").checked; if ($("#dkOn").checked) record("deck_on"); });
     $("#stOn").addEventListener("change", () => { $("#stFields").hidden = !$("#stOn").checked; if ($("#stOn").checked) record("stairs_on"); });
     $("#eaOn").addEventListener("change", () => { $("#eaFields").hidden = !$("#eaOn").checked; if ($("#eaOn").checked) record("eaves_on"); });
     $("#guOn").addEventListener("change", () => { $("#guFields").hidden = !$("#guOn").checked; if ($("#guOn").checked) record("gutters_on"); });
