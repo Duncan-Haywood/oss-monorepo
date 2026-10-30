@@ -2,6 +2,13 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-30 · Milestone 6l (H6 scale-up): is the size-2 excess rise at H = 128 real with six seeds? (planned before running)
+
+- Why: 6k's "Next". The excess is a plateau near +0.044 over H = 16 to 64 (six seeds each); H = 128 is +0.063 on three seeds (sd 0.003), the only evidence for a rise.
+- Setup (`scale.py run h128`): seeds 3 to 5 at H = 128, both keep levels (6 runs, nothing else changes), so H = 128 has six seeds. H = 8 is left for a later step (12 runs).
+- **H6l-i:** the six-seed H = 128 excess stays above H = 64's (+0.044) by more than 0.01 (the rise is real). Prior 65%.
+- Limits to state: one width; one keep level; H = 4 still two seeds; the rule is not refitted here.
+
 ## 2026-10-30 · Milestone 6k (H6 scale-up): is the flat stretch of the size-2 excess between H = 16 and 64 seed noise? (planned before running)
 
 - Why: 6j's "Next". The excess at keep 1/16 is +0.054 (H = 16, two seeds), +0.045 (H = 32, three), +0.044 (H = 64, six), +0.063 (H = 128, three). The 16 to 64 dip is at most 2 standard errors, with only 2 and 3 seeds at the first two levels.
