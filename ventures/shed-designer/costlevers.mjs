@@ -38,6 +38,7 @@ function siteNote(shed) {
   const k = shed.dims;
   const block = /** @type {any} */ (BLOCKS)[d.foundation];
   if (!block) return `Strip the turf over a pad 1 ft bigger than the shed all round, lay fabric, then about ${k.gravelCuYd.toFixed(1)} cu yd of crushed stone in 4" lifts, compacted, and level. Drains well and spreads the load; the most digging and hauling.`;
+  if (block.pier) return `${k.blockCount} holes dug ${d.pierDepth}" deep (set the depth to your frost line), a tube in each and ${k.pierBags} bags of concrete mixed and poured. The most digging and the most work, but nothing to settle or heave where the ground freezes; call 811 before digging.`;
   const n = `${k.blockCount} ${block.plural}`;
   if (k.noPad) return `${n} on stripped, tamped firm soil, each levelled by hand. The least work and material; on soft or wet ground the blocks can settle, so check the Structure tab's soil row where it is shown.`;
   if (k.underBlocks) return `${n}, each on a 4" bed of paver base (${k.baseBags} bags) in its own hole. Less stone to haul than a full pad; each block is levelled on its own bed.`;
@@ -60,9 +61,13 @@ function windowNote(d) {
 export function leverOptions(design, prices) {
   const start = normalize(design);
   const base = evaluate(start, prices);
-  /** @type {{ title: string, rows: any[] }[]} */
+  /** @type {{ title: string, rows: any[], locked?: boolean }[]} */
   const groups = [];
+  // A choice you fixed shows only as it is: no alternatives are priced for it.
+  let lockKey = '';
+  const isLocked = () => start.locked.includes(lockKey);
   const row = (label, change, note) => {
+    if (isLocked()) return null;
     const d = normalize({ ...start, ...change });
     const r = evaluate(d, prices);
     return {
@@ -73,26 +78,29 @@ export function leverOptions(design, prices) {
   };
   const current = (label, note) => ({ label, change: {}, note: note ? note(base.shed) : '', current: true, total: base.total, delta: 0, hours: base.hours, dHours: 0, peak: base.peak, dPeak: 0, ok: base.ok, failing: base.failing, unbuilt: base.unbuilt });
 
+  lockKey = 'foundation';
   // Foundation: skids on a gravel pad, or on each kind of block with each kind of gravel.
   {
-    const name = (f, pad) => (f === 'gravel' ? 'Skids on a full gravel pad' : `Skids on ${/** @type {any} */ (BLOCKS)[f].plural}, ${{ full: 'on a full gravel pad', 'under blocks': 'gravel only under each block', none: 'on tamped soil, no gravel' }[pad]}`);
+    const name = (f, pad) => (f === 'gravel' ? 'Skids on a full gravel pad' : /** @type {any} */ (BLOCKS)[f].pier ? 'Skids on concrete piers in 12" form tubes' : `Skids on ${/** @type {any} */ (BLOCKS)[f].plural}, ${{ full: 'on a full gravel pad', 'under blocks': 'gravel only under each block', none: 'on tamped soil, no gravel' }[pad]}`);
     const rows = [];
     for (const f of ['gravel', ...Object.keys(BLOCKS)]) {
-      for (const pad of f === 'gravel' ? ['full'] : ['full', 'under blocks', 'none']) {
-        const isCur = start.foundation === f && (f === 'gravel' || start.pad === pad);
+      for (const pad of f === 'gravel' ? ['full'] : /** @type {any} */ (BLOCKS)[f].pier ? ['none'] : ['full', 'under blocks', 'none']) {
+        const isCur = start.foundation === f && (f === 'gravel' || /** @type {any} */ (BLOCKS)[f].pier || start.pad === pad);
         rows.push(isCur ? current(name(f, pad), siteNote) : row(name(f, pad), { foundation: f, pad }, siteNote));
       }
     }
-    groups.push({ title: 'Foundation', rows });
+    groups.push({ title: 'Foundation', rows: rows.filter(Boolean), locked: isLocked() });
   }
+  lockKey = 'floor';
   // Floor frame and subfloor.
   {
     const rows = [current(`${start.joistSize} joists at ${start.joistSpacing}", ${start.floorPanel === 'OSB' ? 'OSB' : 'plywood'} subfloor`)];
     for (const s of [16, 24]) if (s !== start.joistSpacing) rows.push(row(`Joists at ${s}"`, { joistSpacing: s }));
     for (const sz of ['2x4', '2x6', '2x8']) if (sz !== start.joistSize) rows.push(row(`${sz} joists`, { joistSize: sz }));
     rows.push(row(start.floorPanel === 'OSB' ? '23/32" T&G plywood subfloor' : '23/32" T&G OSB subfloor', { floorPanel: start.floorPanel === 'OSB' ? 'plywood' : 'OSB' }));
-    groups.push({ title: 'Floor', rows });
+    groups.push({ title: 'Floor', rows: rows.filter(Boolean), locked: isLocked() });
   }
+  lockKey = 'doors';
   // Each door: built on site at a range of widths (a pair of leaves over 48"), or each stock door.
   for (const op of start.openings.filter((o) => o.kind === 'door')) {
     const with_ = (patch) => ({ openings: start.openings.map((o) => (o.id === op.id ? { ...o, ...patch } : o)) });
@@ -107,8 +115,9 @@ export function leverOptions(design, prices) {
     for (const pr of PRODUCTS.filter((x) => x.kind === 'door' && x.id !== op.product)) {
       rows.push(row(pr.name, with_({ product: pr.id, offset: Math.max(0, Math.round(centre - pr.roW / 2)) }), () => pr.note));
     }
-    groups.push({ title: `Door ${op.id} (${op.wall} wall)`, rows });
+    groups.push({ title: `Door ${op.id} (${op.wall} wall)`, rows: rows.filter(Boolean), locked: isLocked() });
   }
+  lockKey = 'windows';
   // Windows: none, or every window as one stock size.
   {
     const wins = start.openings.filter((o) => o.kind === 'window');
@@ -120,7 +129,7 @@ export function leverOptions(design, prices) {
         rows.push(row(`Every window: ${pr.name}`, { openings: start.openings.map((o) => (o.kind === 'window' ? { ...o, product: pr.id } : o)) }, () => pr.note));
       }
     }
-    groups.push({ title: 'Windows', rows });
+    groups.push({ title: 'Windows', rows: rows.filter(Boolean), locked: isLocked() });
   }
   for (const g of groups) g.rows.sort((a, b) => Number(b.current) - Number(a.current) || Number(b.ok) - Number(a.ok) || a.delta - b.delta);
   return { base: { total: base.total, hours: base.hours, peak: base.peak }, groups };
@@ -138,7 +147,7 @@ const usd = (n) => `${n < 0 ? '-' : ''}$${Math.abs(n).toFixed(2)}`;
 export function leverTableHtml(r) {
   let html = '';
   r.groups.forEach((g, gi) => {
-    html += `<h4>${escHtml(g.title)}</h4><div class="table-wrap"><table class="levers"><thead><tr><th scope="col">Option</th><th scope="col">Materials</th><th scope="col">Your time</th><th scope="col">Peak</th><th scope="col">Checks</th><th scope="col">What it means</th><th scope="col">Apply</th></tr></thead><tbody>`;
+    html += `<h4>${escHtml(g.title)}${g.locked ? ' <span class="muted">(kept as you chose; untick it under "Your limits and fixed choices" to price the others)</span>' : ''}</h4><div class="table-wrap"><table class="levers"><thead><tr><th scope="col">Option</th><th scope="col">Materials</th><th scope="col">Your time</th><th scope="col">Peak</th><th scope="col">Checks</th><th scope="col">What it means</th><th scope="col">Apply</th></tr></thead><tbody>`;
     g.rows.forEach((x, i) => {
       const money = x.current ? usd(x.total) : `${x.delta <= 0 ? 'saves' : 'adds'} ${usd(Math.abs(x.delta))}`;
       const time = x.current ? `${x.hours} h` : x.dHours ? `${x.dHours > 0 ? '+' : ''}${x.dHours} h` : 'same';

@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b26'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EW%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Stair stringer calculator: risers, treads, stringer length and stairwell opening</title>
+  <meta name="description" content="Free stair stringer calculator: type the total rise and get the number of risers, equal riser height, tread run, the shorter first riser, stringer length, stringer count, tread boards and the stairwell opening for 6 ft 8 in headroom. Runs in your browser.">
+  <meta property="og:title" content="Stair stringer calculator">
+  <meta property="og:description" content="Total rise in, risers, treads, stringer length, board left under the notch and stairwell opening out. Private, free, in your browser.">
+  <link rel="canonical" href="./stair-stringer-calculator.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is the formula for a stair stringer?", "acceptedAnswer": {"@type": "Answer", "text": "Divide the total rise (finished floor to finished floor) by the largest riser you may use, 7-3/4 in under the model residential code, and round up to get the number of risers. Divide the total rise by that number for the riser height. There is one fewer tread than risers, and each tread is at least 10 in. The pitch line along the nose points is the hypotenuse of the riser and tread."}}, {"@type": "Question", "name": "How many stringers does a stair need?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on the width and the tread board. It depends on the width and the stringer spacing you choose. The calculator defaults to 11-1/2 in between stringers (4 on a 36 in stair) and notes when the gap is more than a tread board of that thickness usually spans (12 in under 1-1/4 in thick, 16 in under 1-1/2 in, 24 in for 2x). Your local code and the tread board decide."}}, {"@type": "Question", "name": "Why is the first riser cut shorter?", "acceptedAnswer": {"@type": "Answer", "text": "The first step's riser is cut one tread thickness short at the bottom stringer so that once the tread board is on top, the first finished step is the same height as all the others."}}, {"@type": "Question", "name": "How much stairwell opening do I need for headroom?", "acceptedAnswer": {"@type": "Answer", "text": "About (80 in + floor thickness) x tread / riser, so for a 9 ft rise with 10 in treads and a 12-1/2 in floor, at least 9 ft 11-15/16 in. The calculator solves it for your numbers."}}]}</script>
+  <style>
+    :root { font: 17px system-ui, sans-serif; color: #1f2328; background: #f3f1ec; }
+    body { max-width: 760px; margin: auto; padding: 24px 16px; }
+    a { color: #1d5c7a; }
+    h1 { font-size: clamp(1.6rem, 4.4vw, 2.3rem); line-height: 1.15; color: #33302a; }
+    h2 { font-size: 1.15rem; margin-top: 28px; color: #33302a; }
+    p, li { line-height: 1.6; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { text-align: left; padding: 5px 6px; border-bottom: 1px solid #e3dfd3; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .cta { display: inline-block; background: #1d5c7a; color: #fff; padding: 10px 14px; border-radius: 8px; font-weight: 700; text-decoration: none; }
+    label { display:block; font-size:.9rem; margin:8px 0 2px; }
+    input, select { font: inherit; padding: 6px; width: 100%; box-sizing: border-box; }
+    .grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: 0 12px; }
+    pre { background:#fff; border:1px solid #dcd7cb; padding:10px; overflow-x:auto; font-size:.9rem; white-space:pre-wrap; }
+    footer { margin-top: 28px; border-top: 1px solid #dcd7cb; padding-top: 14px; font-size: .86rem; color: #555044; }
+  </style>
+</head>
+<body>
+  <h1>Stair stringer calculator</h1>
+  <p>Type the total rise from finished floor to finished floor. You get equal risers, the tread run, the cut for the shorter first riser, the board left under the notch, the stringer length and count, the tread boards, and the shortest stairwell opening for 6 ft 8 in of headroom. Nothing leaves your browser.</p>
+  <form id="f" onsubmit="return false">
+    <div class="grid">
+      <div><label for="rise">Total rise (in or 9' 0")</label><input id="rise" value="108"></div>
+      <div><label for="tread">Tread run (in, at least 10)</label><input id="tread" value="10"></div>
+      <div><label for="width">Stair width (in)</label><input id="width" value="36"></div>
+      <div><label for="stringer">Stringer board</label><select id="stringer"><option>2x12</option><option>2x10</option></select></div>
+      <div><label for="tboard">Tread board</label><select id="tboard"><option>2x12</option><option>2x10</option><option>2x6</option></select></div>
+      <div><label for="floor">Floor thickness at the opening (in)</label><input id="floor" value="12.5"></div>
+    </div>
+  </form>
+  <pre id="out" aria-live="polite"></pre>
+  <p><a class="cta" href="index.html">Add the stair to a whole-house framing takeoff</a></p>
+
+  <h2>The method</h2>
+  <ol>
+    <li><strong>Risers.</strong> Total rise divided by 7-3/4 in, rounded up. Divide the rise by that count: every riser is equal (the code allows 3/8 in between the tallest and shortest).</li>
+    <li><strong>Treads.</strong> One fewer than risers; the top step is the floor. Each at least 10 in deep.</li>
+    <li><strong>Notch.</strong> The pitch line joins the nose points. The board left under the inside corner of the notch is the board depth minus R&times;T/&radic;(R&sup2;+T&sup2;); the usual minimum is 3-1/2 in.</li>
+    <li><strong>First riser.</strong> Cut one tread thickness short at the bottom so the finished first step matches the rest.</li>
+    <li><strong>Headroom.</strong> The opening must run (80 in + floor thickness) &times; tread &divide; riser along the stair.</li>
+  </ol>
+
+  <h2>Questions</h2>
+  <h3>What is the formula for a stair stringer?</h3>
+  <p>Divide the total rise (finished floor to finished floor) by the largest riser you may use, 7-3/4 in under the model residential code, and round up to get the number of risers. Divide the total rise by that number for the riser height. There is one fewer tread than risers, and each tread is at least 10 in. The pitch line along the nose points is the hypotenuse of the riser and tread.</p>
+  <h3>How many stringers does a stair need?</h3>
+  <p>It depends on the width and the tread board. It depends on the width and the stringer spacing you choose. The calculator defaults to 11-1/2 in between stringers (4 on a 36 in stair) and notes when the gap is more than a tread board of that thickness usually spans (12 in under 1-1/4 in thick, 16 in under 1-1/2 in, 24 in for 2x). Your local code and the tread board decide.</p>
+  <h3>Why is the first riser cut shorter?</h3>
+  <p>The first step's riser is cut one tread thickness short at the bottom stringer so that once the tread board is on top, the first finished step is the same height as all the others.</p>
+  <h3>How much stairwell opening do I need for headroom?</h3>
+  <p>About (80 in + floor thickness) x tread / riser, so for a 9 ft rise with 10 in treads and a 12-1/2 in floor, at least 9 ft 11-15/16 in. The calculator solves it for your numbers.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it links to are provided free and as-is, without warranty of any kind, express or implied. They are not engineering, construction, building-code, legal or financial advice, and do not replace a qualified professional, your plans or your building department. Riser, tread and board sizes are your inputs and are not checked against any span table or code. <strong>You are responsible for reviewing and verifying the output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with any lumberyard, builder, code body or software company. The numbers use the model residential code's usual limits (7-3/4 in riser, 10 in tread, 6 ft 8 in headroom); your jurisdiction's edition may differ.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice.</p>
+    <p>Free and open source under an <a href="LICENSE" rel="noopener">MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>
+  </footer>
+</body>
+</html>
+
+  <script type="module">
+    import { layoutStair, stairText } from "./stairs.mjs";
+    import { parseLength } from "./engine.mjs";
+    const $ = (id) => document.getElementById(id);
+    const run = () => {
+      const num = (id) => parseLength($(id).value);
+      const l = layoutStair({ totalRise: num("rise"), tread: num("tread"), width: num("width"), stringer: $("stringer").value, treadBoard: $("tboard").value, treadThickness: $("tboard").value.startsWith("2x") ? 1.5 : 1, nosing: 0.75, floorThickness: num("floor") });
+      $("out").textContent = l.ok === false ? (l.errors || ["Check the numbers."]).join("\n") : stairText(l).concat(l.notes || []).join("\n");
+    };
+    $("f").addEventListener("input", run);
+    run();
+  </script>
+</body>
+</html>
