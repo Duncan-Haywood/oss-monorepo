@@ -5,7 +5,7 @@
 `description` (limit 160), then a 79-character `seo_title` (limit 70). The build aborts on the
 first bad post, so no deploy of the site could succeed until it was fixed.
 
-**Fix.** Shortened both fields (157 and 64 characters), meaning unchanged.
+**Fix.** Shortened both fields; another session landed an equivalent fix on main while this run was open, so the merged post text is main's. This PR keeps the note.
 
 **Measured.** Full build, then `check.mjs`: 1321 products, 44 category pages, 5816 pages, no dead links.
 A scan of every `docs/posts/*.md` found no other description over 160.
