@@ -89,3 +89,18 @@ class CiiCliTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+def test_shape_only_countries_get_checksums_matching_vat_mjs():
+    from einvoice_preflight.vat import inspect_party_vat
+
+    valid = ["EE100207415", "HU12892312", "SI50223054", "SK2022749619", "HR33392005961",
+             "LV40003521600", "LT119511515", "BG175074752", "RO18547290", "EL094259216", "CZ25123891"]
+    for number in valid:
+        assert inspect_party_vat({"id": "S1", "name": "A", "vat_id": number}, "supplier") == [], number
+        bad = number[:-2] + str((int(number[-2]) + 1) % 10) + number[-1]
+        found = inspect_party_vat({"id": "S1", "name": "A", "vat_id": bad}, "supplier")
+        assert [f["rule"] for f in found] == ["INV-023"], number
+    for number in ["BG1750747520", "CZ7103192745", "LV01011012345", "LT100001919017"]:
+        found = inspect_party_vat({"id": "S1", "name": "A", "vat_id": number}, "supplier")
+        assert "INV-023" not in [f["rule"] for f in found], number

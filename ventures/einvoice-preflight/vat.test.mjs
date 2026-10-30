@@ -119,3 +119,26 @@ test("complete VAT in id is checked without treating short ids as VAT", () => {
   assert.ok(errors.some((error) => error.rule === "INV-023" && error.path === "/supplier/id"));
   assert.deepEqual(checkInvoice(invoice({ supplierId: "DE123" })), []);
 });
+
+test("shape-only countries now get a checksum on the variants implemented", () => {
+  // Published example numbers (python-stdnum's documentation), not registrations.
+  const valid = {
+    EE: "EE100207415", HU: "HU12892312", SI: "SI50223054", SK: "SK2022749619",
+    HR: "HR33392005961", LV: "LV40003521600", LT: "LT119511515", BG: "BG175074752",
+    RO: "RO18547290", EL: "EL094259216", CZ: "CZ25123891",
+  };
+  for (const [country, number] of Object.entries(valid)) {
+    assert.deepEqual(inspectPartyVat({ id: "S1", name: "A", vat_id: number }, "supplier"), [], country);
+    const bad = `${number.slice(0, -2)}${(Number(number.at(-2)) + 1) % 10}${number.at(-1)}`;
+    const findings = inspectPartyVat({ id: "S1", name: "A", vat_id: bad }, "supplier");
+    assert.deepEqual(findings.map((item) => item.rule), ["INV-023"], country);
+    assert.equal(findings[0].message.includes(bad.slice(2)), false);
+  }
+});
+
+test("variants without a checksum here stay shape-only", () => {
+  for (const number of ["BG1750747520", "CZ7103192745", "LV01011012345", "LT100001919017"]) {
+    const kind = inspectPartyVat({ id: "S1", name: "A", vat_id: number }, "supplier").map((item) => item.rule);
+    assert.ok(!kind.includes("INV-023"), number);
+  }
+});
