@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/11750",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -26,14 +26,16 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": null,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [],
   "deviations": [],
-  "writeups": [],
+  "writeups": [
+    "docs/posts/2026-10-30-uk-einvoicing-roadmap-no-penalty-amount.md"
+  ],
   "goal": null,
-  "notes": "",
+  "notes": "Small slice: UK mandate page of einvoice-preflight now follows the gov.uk roadmap (read via WebFetch). uk test 8/8. No agent doc written; the change is self-contained.",
   "corrections": [],
   "redteam": null
 }
