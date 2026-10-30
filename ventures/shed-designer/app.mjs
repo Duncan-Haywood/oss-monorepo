@@ -17,6 +17,7 @@ import { quoteRequest, mailtoLink, STORES } from './quote.mjs';
 import { PRODUCTS } from './products.mjs';
 import { storeComparison, swapsFor, storeTotals, storeList, pricesFor } from './catalog.mjs';
 import { simplify, cutMetrics, budget, laborHours } from './simplify.mjs';
+import { mountPicker } from './picker.mjs';
 
 const $ = (sel) => /** @type {any} */ (document.querySelector(sel));
 const $$ = (sel) => /** @type {any[]} */ ([...document.querySelectorAll(sel)]);
@@ -862,4 +863,17 @@ buildStatic();
 load();
 wire();
 render();
+// Ready-made designs to look at, compare and start from (picker.mjs).
+mountPicker({
+  root: $('#starts'), dialog: $('#pick-dialog'), tray: $('#compare-tray'),
+  prices: () => state.prices, count,
+  onStart(d) {
+    state.designs.push(normalize(d));
+    state.active = state.designs.length - 1;
+    count('designs');
+    undo.length = 0; redo.length = 0;
+    render();
+    $('#workspace').scrollIntoView({ behavior: 'smooth' });
+  },
+});
 if (linkNote) $('#status').textContent = linkNote;
