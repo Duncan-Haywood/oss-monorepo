@@ -67,6 +67,16 @@ Lap planks also honour lane 5's "longest board I can haul" limit (`maxHaulFt`, d
 
 This PR also fixes three typecheck diagnostics left on `main` by PR #11550.
 
+## Follow-up PR: fuzz seed 11
+
+Fuzz seed 11 at 2,000 designs found 2 fiber cement designs with a butt joint within 32" of the one below. A window notching the course above left that course only a stud or two with wood under the whole plank. The course below had already taken its joint greedily without looking up.
+
+`layoutFace` now does two things:
+- it lays out every course's runs and notches first;
+- it then chooses joints by a depth-first search, longest plank first, and takes the first plan that still leaves the course above a legal one.
+
+Both designs are pinned in `lap.test.mjs`. Seeds 11 (2,000 designs) and 1, 5 and 23 (1,500 each) now pass.
+
 ## Next steps
 
 1. **Lap direct to studs, braced another way.** Hardie allows studs up to 24" o.c.; LP's 3/8" lap allows 16". That saves the OSB ($128 on the 8x12) but needs let-in bracing or OSB only at the corners. It needs a racking check: see the r2 structure PR #11543 on racking.
