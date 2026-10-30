@@ -59,7 +59,7 @@ export function nailZ(D, ls, lm, G = 0.42, Fyb = 90000) {
  */
 export function heelJoint(shed) {
   const d = shed.design;
-  if (d.roofType === 'ridgeBeam') return null;
+  if (d.roofType === 'ridgeBeam' || d.style === 'leanTo') return null;
   const cos = 1 / Math.sqrt(1 + (d.pitch / 12) ** 2);
   const w = (15 / cos + d.snowLoad) * (d.rafterSpacing / 12);
   const L = d.width / 12;
@@ -91,18 +91,20 @@ export function structuralChecks(shed) {
     const [gov, r] = worst(check({ size: d.joistSize, spacingIn: d.joistSpacing, bearingIn: skidThick }, floorSpanIn / 12, FLOOR));
     add('Floor joists', `${d.joistSize} at ${d.joistSpacing}"`, `${fmtIn(floorSpanIn)} clear between skids, 40 psf live + 10 dead`, r, gov);
   }
-  // Rafters: from the inside of the wall plate to the ridge.
-  const beam = d.roofType === 'ridgeBeam';
-  const rafterRunIn = d.width / 2 - (beam ? 1.5 : 0.75) - k.stud;
+  // Rafters: from the inside of the wall plate to the ridge (on a lean-to, from wall to wall).
+  const lean = d.style === 'leanTo';
+  const beam = !lean && d.roofType === 'ridgeBeam';
+  const rafterRunIn = lean ? d.width - 2 * k.stud : d.width / 2 - (beam ? 1.5 : 0.75) - k.stud;
   {
     const [gov, r] = worst(check({ size: d.rafterSize, spacingIn: d.rafterSpacing, pitch: d.pitch, bearingIn: k.stud }, rafterRunIn / 12, roof));
-    add('Rafters', `${d.rafterSize} at ${d.rafterSpacing}"`, `${fmtIn(rafterRunIn)} horizontal run at ${d.pitch}/12, ${snow} psf snow + 15 dead`, r, gov);
+    add('Rafters', `${d.rafterSize} at ${d.rafterSpacing}"`, `${fmtIn(rafterRunIn)} horizontal ${lean ? 'span between the walls' : 'run'} at ${d.pitch}/12, ${snow} psf snow + 15 dead`, r, gov);
   }
   // Roof load on each eave wall per foot. Under a ridge beam the beam takes
   // the upper half of each rafter, so the wall carries the lower half of the
   // run plus the wall and the overhang. Under a ridge board the board carries
   // nothing (the rafter pair and its tie are a truss), so each eave wall
   // carries the whole half roof, ridge to eave tip.
+  // A lean-to's rafter is a simple span, so each wall takes half of it plus its own overhang.
   const tribFt = (beam ? rafterRunIn / 2 + k.stud + d.overhang : d.width / 2 + d.overhang) / 12;
   const deadPlf = (15 / cos) * tribFt;
   const snowPlf = snow * tribFt;
@@ -115,6 +117,8 @@ export function structuralChecks(shed) {
     const postH = shed.members.find((m) => m.kind === 'beam post')?.length ?? 12;
     add('Ridge beam posts', `2-ply ${d.studSize}`, `${Math.round(P)} lb each, ${fmtIn(postH)} above the plate, then the two post studs to the floor`,
       Math.max(postCheck(2, d.studSize, postH, P), postCheck(2, d.studSize, k.studLen, P)), 'compression');
+  } else if (lean) {
+    // No ridge and no ties: the rafters bear on two walls and push neither outward.
   } else {
     add('Ridge board', d.ridgeSize || k.ridgeSize, 'not a beam: rafter ties at the plate carry the rafters\' outward thrust', 0, 'none');
     const heel = /** @type {NonNullable<ReturnType<typeof heelJoint>>} */ (heelJoint(shed));
@@ -132,10 +136,14 @@ export function structuralChecks(shed) {
       add(`Header over the ${name} ${p.op.kind}`, `2-ply ${p.hdr}`, `${fmtIn(p.w)} opening, ${Math.round(wPlf)} lb/ft`, r, 'bending, shear, deflection or bearing');
     }
   }
-  // Eave-wall studs: roof gravity plus wind on the face.
+  // Eave-wall studs: roof gravity plus wind on the face. A lean-to's tall front wall has the longest studs.
   {
-    const r = studCheck(d.studSize, d.studSpacing, k.studLen, [deadPlf, snowPlf], wind);
-    add('Wall studs', `${d.studSize} at ${d.studSpacing}"`, `${fmtIn(k.studLen)} tall, roof load plus ${wind} psf wind on the wall`, r, 'combined bending and compression');
+    const len = lean ? k.highWall - 4.5 : k.studLen;
+    // A lean-to's front wall can be tall enough for the studs to buckle under the roof alone
+    // (studCheck says Infinity); report that as a plain failure.
+    const r0 = studCheck(d.studSize, d.studSpacing, len, [deadPlf, snowPlf], wind);
+    const r = Number.isFinite(r0) ? r0 : 99;
+    add('Wall studs', `${d.studSize} at ${d.studSpacing}"`, `${fmtIn(len)} tall${lean ? ' (the tall front wall)' : ''}, roof load plus ${wind} psf wind on the wall`, r, Number.isFinite(r0) ? 'combined bending and compression' : 'column buckling: the studs are too long and slender for the load');
   }
   return {
     rows,

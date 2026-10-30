@@ -45,6 +45,8 @@ export const WALL_LABEL = {
 export function defaultDesign() {
   return {
     name: '8x12 ridge-beam shed',
+    // 'gable' (two slopes and a ridge) or 'leanTo' (one slope, from a tall front wall down to a low back wall).
+    style: 'gable',
     length: 144,
     width: 96,
     wallHeight: 86.5,
@@ -143,6 +145,22 @@ export const PRESETS = {
   ] }),
 };
 
+/**
+ * Designs in another roof style, kept out of the "New design" menu until the
+ * plan sheets, 3D labels and build steps draw them (r3b lane 1). The search and
+ * the gallery can start from them now.
+ */
+export const STYLE_PRESETS = {
+  // One slope from a tall front wall down to a low back wall: no ridge, no ties,
+  // and the back wall can stand against a fence or the house. 96 sq ft.
+  '8x12 lean-to': () => ({ ...defaultDesign(), name: '8x12 lean-to shed', style: 'leanTo', wallHeight: 72, pitch: 4, maxPeak: 0, gableVents: false,
+    autoWall: false, autoPitch: false, autoOverhang: true, openings: [
+      { id: 'o1', kind: 'door', wall: 'front', offset: 24, width: 38.5, height: 78, product: 'site-built' },
+      { id: 'o2', kind: 'window', wall: 'front', offset: 98, width: 14.25, height: 21.25, sill: 50, product: 'swm-1421' },
+      { id: 'o3', kind: 'window', wall: 'right', offset: 41, width: 14.25, height: 21.25, sill: 40, product: 'swm-1421' },
+    ] }),
+};
+
 const fmtSpan = (inches) => `${Math.round(inches / 12 * 10) / 10} ft`;
 
 const num = (v, d) => (Number.isFinite(Number(v)) && v !== '' && v !== null ? Number(v) : d);
@@ -167,6 +185,7 @@ export function normalize(input) {
   return {
     ...o,
     name: (typeof o.name === 'string' && o.name.trim() ? o.name : d.name).slice(0, 80),
+    style: pick(o.style, ['gable', 'leanTo'], d.style),
     length: Math.min(480, Math.max(48, num(o.length, d.length))),
     width: Math.min(240, Math.max(48, num(o.width, d.width))),
     wallHeight: Math.min(144, Math.max(60, num(o.wallHeight, d.wallHeight))),
@@ -351,9 +370,11 @@ const BUILT = new Map();
 /** Lowest wall (floor to top of plates) that frames every door and window with its header. */
 export function minWallFor(d) {
   let need = 60;
+  // On a lean-to the front wall is taller than the back (which is the wall height you set) by the roof's rise.
+  const rise = d.style === 'leanTo' ? (d.width - actual(d.studSize).depth) * (d.pitch / 12) : 0;
   for (const op of d.openings) {
     const bottom = op.kind === 'window' ? op.sill ?? 42 : 0;
-    need = Math.max(need, bottom + op.height + actual(op.header || defaultHeader(op.width)).depth + 3);
+    need = Math.max(need, bottom + op.height + actual(op.header || defaultHeader(op.width)).depth + 3 - (op.wall === 'front' ? rise : 0));
   }
   return Math.ceil(need * 8) / 8;
 }
@@ -374,7 +395,9 @@ function buildAuto(d0) {
     // The peak rises with the pitch and so does the room for a gable vent, so
     // both searches are binary searches over the whole pitches 3 to 12.
     const at = new Map();
-    const build = (p) => { if (!at.has(p)) at.set(p, buildFramed(normalize({ ...d, pitch: p }))); return at.get(p); };
+    // A lean-to's front wall grows with the pitch, so its walls are set again at each pitch.
+    const wallAt = (p) => (d0.autoWall && d0.style === 'leanTo' ? { wallHeight: minWallFor({ ...d0, pitch: p }) } : {});
+    const build = (p) => { if (!at.has(p)) at.set(p, buildFramed(normalize({ ...d, pitch: p, ...wallAt(p) }))); return at.get(p); };
     /** The first pitch in [lo, hi] where ok holds, if ok is false below some pitch and true above. */
     const firstTrue = (lo, hi, ok) => { while (lo < hi) { const mid = (lo + hi) >> 1; if (ok(build(mid))) hi = mid; else lo = mid + 1; } return lo; };
     const fits = (s) => !d0.maxPeak || s.dims.peak <= d0.maxPeak + 1e-9;
@@ -387,10 +410,10 @@ function buildAuto(d0) {
       why = `the steepest whole pitch that keeps the peak under ${fmtFt(d0.maxPeak)}`;
     }
     if (!shed) {
-      const ventsFit = (s) => !d0.gableVents || Object.keys(s.vents).length === 2;
+      const ventsFit = (s) => !d0.gableVents || d0.style === 'leanTo' || Object.keys(s.vents).length === 2;
       const p = ventsFit(build(12)) ? firstTrue(3, 12, ventsFit) : 12;
       shed = build(p);
-      why = d0.gableVents ? 'the lowest pitch at which the gable vents still fit, since no pitch meets the height limit' : 'the lowest pitch for a shingle roof, since no pitch meets the height limit';
+      why = d0.gableVents && d0.style !== 'leanTo' ? 'the lowest pitch at which the gable vents still fit, since no pitch meets the height limit' : 'the lowest pitch for a shingle roof, since no pitch meets the height limit';
     }
   } else {
     shed = buildFramed(normalize(d));
@@ -462,7 +485,7 @@ function buildFramed(d) {
   // at mid-width. An odd number of skids puts one right under the posts;
   // otherwise the post lands mid-span on the end joist (a 10x12 at 48" skid
   // spacing put 1,403 lb there, 1.38 times a single 2x6 joist's allowable bending).
-  if (d.roofType === 'ridgeBeam' && skidCount % 2 === 0) skidCount += 1;
+  if (d.roofType === 'ridgeBeam' && d.style !== 'leanTo' && skidCount % 2 === 0) skidCount += 1;
   const skidYs = [];
   for (let i = 0; i < skidCount; i++) skidYs.push(skid.thick / 2 + (i * (W - skid.thick)) / (skidCount - 1));
   const skidSplit = splitRun(0, L, maxStock, [], [], 0);
@@ -573,11 +596,19 @@ function buildFramed(d) {
   // ---------------- Walls ----------------
   const stud = actual(d.studSize);
   const D = stud.depth;
-  const beam = d.roofType === 'ridgeBeam';
+  // A lean-to has one slope: the front wall stands taller than the back by the
+  // rafter's rise between their seats, and the end walls are framed square at
+  // the back wall's height with raked studs above, as a gable end is.
+  const lean = d.style === 'leanTo';
+  const beam = !lean && d.roofType === 'ridgeBeam';
   const H = d.wallHeight;
   const studLen = H - 4.5;
   const plateTop = floorTop + H;
-  if (studLen > maxStock) warnings.push(`Studs are ${Math.ceil(studLen / 12)} ft long, longer than any board you allowed.`);
+  const rise = lean ? (W - D) * (d.pitch / 12) : 0;
+  const highPlateTop = plateTop + rise;
+  /** Floor to top of plates, by wall: the lean-to's front wall is the tall one. */
+  const wallH = (name) => (lean && name === 'front' ? H + rise : H);
+  if (wallH('front') - 4.5 > maxStock) warnings.push(`Studs are ${Math.ceil((wallH('front') - 4.5) / 12)} ft long, longer than any board you allowed.`);
 
 
   /** @type {Record<string, any>} */
@@ -591,6 +622,8 @@ function buildFramed(d) {
   const prefix = { front: 'F', back: 'B', left: 'L', right: 'R' };
 
   for (const name of WALLS) {
+    const Hw = wallH(name);
+    const studLenW = Hw - 4.5;
     const spec = wallSpecs[name];
     const { len, start } = spec;
     const P = prefix[name];
@@ -623,8 +656,8 @@ function buildFramed(d) {
           : `${label} is too close to a corner to frame with king and jack studs; it is left out of the framing.`);
         continue;
       }
-      if (headerTop > H - 3 + 1e-9) {
-        warnings.push(`${label} needs ${(headerTop + 3).toFixed(1)}" of wall with a ${hdr} header but the wall is ${H}"; it is left out. Lower it, use a shallower header or raise the wall.`);
+      if (headerTop > Hw - 3 + 1e-9) {
+        warnings.push(`${label} needs ${(headerTop + 3).toFixed(1)}" of wall with a ${hdr} header but the wall is ${Hw}"; it is left out. Lower it, use a shallower header or raise the wall.`);
         continue;
       }
       if (op.kind === 'window' && bottom < 4.5) {
@@ -664,7 +697,7 @@ function buildFramed(d) {
       if (occupied(s0) || inOpening(s0)) continue;
       verticals.push({ s: s0, kind: 'stud' });
     }
-    for (const v of verticals) addM(v.kind, d.studSize, v.s, v.s + 1.5, 1.5, 1.5 + studLen);
+    for (const v of verticals) addM(v.kind, d.studSize, v.s, v.s + 1.5, 1.5, 1.5 + studLenW);
     const breakCenters = verticals.map((v) => v.s + 0.75);
     // Where a plate may also break over a header: on a top cripple (or, with
     // the header tight to the plate, anywhere on it), with the header running
@@ -673,8 +706,8 @@ function buildFramed(d) {
     const headerBreaks = [];
     for (const p of ops) {
       const jack = p.bottom + p.op.height - 1.5;
-      addM('king stud', d.studSize, p.a - 3, p.a - 1.5, 1.5, 1.5 + studLen);
-      addM('king stud', d.studSize, p.a + p.w + 1.5, p.a + p.w + 3, 1.5, 1.5 + studLen);
+      addM('king stud', d.studSize, p.a - 3, p.a - 1.5, 1.5, 1.5 + studLenW);
+      addM('king stud', d.studSize, p.a + p.w + 1.5, p.a + p.w + 3, 1.5, 1.5 + studLenW);
       addM('jack stud', d.studSize, p.a - 1.5, p.a, 1.5, 1.5 + jack);
       addM('jack stud', d.studSize, p.a + p.w, p.a + p.w + 1.5, 1.5, 1.5 + jack);
       breakCenters.push(p.a - 2.25, p.a + p.w + 2.25);
@@ -696,11 +729,11 @@ function buildFramed(d) {
         const bumped = layout.some((c) => c - 0.75 < k0 + 1.5 - 1e-9 && c + 0.75 > k0 + 1e-9 && Math.abs(c - 0.75 - k0) > 1e-9);
         if (bumped && crippleSpots.every((x) => Math.abs(x - jack0) >= 1.5 - 1e-9)) crippleSpots.push(jack0);
       }
-      const topGap = H - 3 - p.headerTop;
+      const topGap = Hw - 3 - p.headerTop;
       const overHdr = topGap >= 1.5 ? crippleSpots.map((x) => x + 0.75) : [...inside.map((x) => x + 0.75), p.a + p.w / 2];
       headerBreaks.push(...overHdr.filter((x) => x - 1.5 >= p.a - 1.5 - 1e-9 && x + 1.5 <= p.a + p.w + 1.5 + 1e-9));
       if (topGap >= 1.5) {
-        for (const s of crippleSpots) addM('top cripple', d.studSize, s, s + 1.5, p.headerTop, H - 3);
+        for (const s of crippleSpots) addM('top cripple', d.studSize, s, s + 1.5, p.headerTop, Hw - 3);
       } else if (topGap > 0.01) {
         notes.push(`${P} wall: the header over the ${p.op.kind} leaves a ${topGap.toFixed(2)}" gap to the top plate; fill it with plywood rather than cripples.`);
       }
@@ -730,7 +763,12 @@ function buildFramed(d) {
     // The cap plate interlocks the corners: on the eave walls it stops one wall
     // depth short of each end, and the gable walls' cap runs that much long to
     // lap over the eave walls' top plate.
-    const [c0, c1] = spec.eave ? [D, len - D] : [-D, len + D];
+    // A lean-to's tall front wall laps nothing: its cap runs full length, and
+    // the end walls' plates stop against its inside face.
+    const [c0, c1] = lean && name === 'front' ? [0, len] : lean && !spec.eave ? [0, len + D] : spec.eave ? [D, len - D] : [-D, len + D];
+    const capNote = lean && name === 'front' ? 'full length; the end walls stop against this wall\'s inside face'
+      : lean && !spec.eave ? `stops at the tall front wall; runs ${D}" past the back end to lap over the back wall`
+        : spec.eave ? `stops ${D}" short of each end; the end walls' cap laps over it` : `runs ${D}" past each end to lap over the long walls`;
     // The greedy split takes the longest top-plate piece first, which can leave
     // the cap no joint 4 ft clear of it (a window can remove the stud the cap
     // joint needs). Then choose both plates' joints together: on stud centres,
@@ -753,8 +791,8 @@ function buildFramed(d) {
       return { top: top0, cap: cap0, overHeader: false };
     };
     const { top, cap, overHeader } = choosePlates(maxStock);
-    for (const [s0, s1] of top.runs) addM('top plate', d.studSize, s0, s1, H - 3, H - 1.5);
-    for (const [s0, s1] of cap.runs) addM('cap plate', d.studSize, s0, s1, H - 1.5, H, spec.eave ? `stops ${D}" short of each end; the end walls' cap laps over it` : `runs ${D}" past each end to lap over the long walls`);
+    for (const [s0, s1] of top.runs) addM('top plate', d.studSize, s0, s1, Hw - 3, Hw - 1.5);
+    for (const [s0, s1] of cap.runs) addM('cap plate', d.studSize, s0, s1, Hw - 1.5, Hw, capNote);
     if (top.runs.length > 1) notes.push(`${WALL_LABEL[name]}: plates are longer than your longest board, so they splice over studs; the cap plate's joints are kept 4 ft from the top plate's where the layout allows, and never under the code's 24".`);
     if (overHeader) notes.push(`${WALL_LABEL[name]}: with ${maxStock / 12} ft boards no plate split keeps its joints on full studs, so a plate joint sits over the header, which runs at least 1-1/2" past it each side. Nail both plate ends down into the header (or its cripple).`);
     // A short plate stub is legal but fussy; say when one longer board avoids it.
@@ -779,7 +817,7 @@ function buildFramed(d) {
         if (x < 0.75 || x > len - 0.75) continue;
         /** @type {{ s0: number, z0: number, z1: number }[]} */
         const runs = [];
-        for (let z = 1.5 + 0.25; z < H - 3; z += 0.5) {
+        for (let z = 1.5 + 0.25; z < Hw - 3; z += 0.5) {
           if (holes.some((h) => x > h.s0 - 0.5 && x < h.s1 + 0.5 && z > h.z0 && z < h.z1)) continue;
           const left = at(x - 0.5, z);
           const right = at(x + 0.5, z);
@@ -802,7 +840,7 @@ function buildFramed(d) {
           // Snap to the members above and below, and keep it only if it clashes with nothing.
           const over = (m) => m.local.s0 < s1 - 1e-9 && m.local.s1 > s0 + 1e-9;
           const below = wm.filter((m) => over(m) && m.local.z1 <= r.z0 + 0.5 + 1e-9).reduce((t, m) => Math.max(t, m.local.z1), 1.5);
-          const above = wm.filter((m) => over(m) && m.local.z0 >= r.z1 - 0.5 - 1e-9).reduce((t, m) => Math.min(t, m.local.z0), H - 3);
+          const above = wm.filter((m) => over(m) && m.local.z0 >= r.z1 - 0.5 - 1e-9).reduce((t, m) => Math.min(t, m.local.z0), Hw - 3);
           if (above - below < 3) continue;
           if (wm.some((m) => over(m) && m.local.z0 < above - 1e-9 && m.local.z1 > below + 1e-9) || s0 < 0 || s1 > len) continue;
           const m = addM('siding nailer', d.studSize, s0, s1, below, above, s1 - s0 < 1.5 - 1e-9 ? `behind a siding joint beside an opening; ripped to ${fmtIn(s1 - s0)} to fit` : 'behind a siding joint beside an opening');
@@ -810,7 +848,7 @@ function buildFramed(d) {
         }
       }
     }
-    walls[name] = { name, len, start, members: wm, openings: ops, eave: spec.eave };
+    walls[name] = { name, len, start, members: wm, openings: ops, eave: spec.eave, height: Hw };
   }
 
   // ---------------- Roof ----------------
@@ -829,26 +867,30 @@ function buildFramed(d) {
   const seatAt = connector ? 0 : D;
   const zb = (dist) => plateTop + (dist - seatAt) * t; // underside of rafter at a distance from the eave wall's outside face
   const zt = (dist) => zb(dist) + plumbH; // top of rafter
-  const ridgeTop = zt(r);
-  let ridgeSize = beam ? d.beamSize : TWO_BY.find((s) => TWO_BY.indexOf(s) > TWO_BY.indexOf(d.rafterSize) && actual(s).depth >= plumbH - 1e-9);
+  // A lean-to's rafter runs from the back wall (dist 0) over the front wall
+  // (dist W): its underside meets the back seat as a gable rafter's does, and
+  // the front wall stands `rise` taller so the front seat lands on its plates.
+  // Its high point is the top of the front tail.
+  const ridgeTop = lean ? zt(W + o) : zt(r);
+  let ridgeSize = lean ? '' : beam ? d.beamSize : TWO_BY.find((s) => TWO_BY.indexOf(s) > TWO_BY.indexOf(d.rafterSize) && actual(s).depth >= plumbH - 1e-9);
   if (beam && actual(d.beamSize).depth < plumbH - 1e-9) {
     warnings.push(`A ${d.beamSize} ridge beam is shallower than the rafters' ${plumbH.toFixed(2)}" plumb cut; choose a deeper beam.`);
   }
-  if (!ridgeSize) {
+  if (!ridgeSize && !lean) {
     ridgeSize = '2x12';
     warnings.push(`At ${d.pitch}/12 the rafter's plumb cut is ${plumbH.toFixed(2)}" deep, more than a 2x12 ridge; use a built-up or engineered ridge.`);
   }
-  const ridgeD = actual(ridgeSize).depth;
+  const ridgeD = lean ? 0 : actual(ridgeSize).depth;
   if (!connector && D * t > rd / 3 + 1e-9) {
     warnings.push(`The birdsmouth is ${(D * t).toFixed(2)}" deep, more than a third of the ${d.rafterSize} rafter; a deeper rafter or lower pitch keeps more wood over the wall.`);
   }
-  const rafterCut = ceil16((r + o) / cos + rd * Math.tan(Math.atan(t)));
+  const rafterCut = ceil16(((lean ? W + o : r) + o) / cos + rd * Math.tan(Math.atan(t)));
   // The end rafters sit over the gable walls. An inner rafter (and the tie
   // nailed to its far side) must clear the gable wall's studs, so one that
   // lands within a wall's depth of an end moves in to the nearest clear spot;
   // that shortens its bay rather than widening one past the spacing.
   const innerLo = D + 0.75;
-  const innerHi = L - D - 0.75 - (beam ? 0 : 1.5);
+  const innerHi = L - D - 0.75 - (beam || lean ? 0 : 1.5);
   const rafterCenters = [0.75, ...[...new Set(layoutCenters(d.rafterSpacing, 0.75 + 1.5, L - 0.75 - 1.5)
     .map((c) => Math.min(innerHi, Math.max(innerLo, c))))].filter((c) => innerLo <= innerHi), L - 0.75];
   /** @param {number} dist @param {boolean} back */
@@ -865,7 +907,31 @@ function buildFramed(d) {
   const birdNote = connector
     ? `${d.pitch}/12 plumb cuts at ridge and tail; no birdsmouth: sits on a variable-pitch connector`
     : `${d.pitch}/12 plumb cuts at ridge and tail; birdsmouth ${((D * t)).toFixed(2).replace(/\.?0+$/, '')}" heel, ${D}" seat`;
-  for (const c of rafterCenters) {
+  if (lean) {
+    // One rafter a bay, eave tail to eave tail. A birdsmouth notches each
+    // wall: at the back the underside passes the plate's inside top edge (the
+    // heel at the outside face), at the front its outside top edge (the heel
+    // at the inside face). On a connector the underside rests on the back
+    // plate's outside edge and the front plate's inside edge, and the
+    // connector's seat takes up the slope.
+    const fz = highPlateTop;
+    /** @type {[number, number][]} */
+    const pts = [[W + o, zb(-o)], [W, zb(0)]];
+    if (connector) pts.push([D, zb(W - D)], [-o, zb(W + o)]);
+    else pts.push([W, plateTop], [W - D, plateTop], [D, zb(W - D)], [D, fz], [0, fz], [-o, zb(W + o)]);
+    pts.push([-o, zt(W + o)], [W + o, zt(-o)]);
+    const prof = /** @type {[number, number][]} */ (pts.filter((q, i) => i === 0 || Math.abs(q[0] - pts[i - 1][0]) + Math.abs(q[1] - pts[i - 1][1]) > 1e-9));
+    const note = connector
+      ? `${d.pitch}/12 plumb cuts at both tails; no birdsmouth: sits on a variable-pitch connector on each wall`
+      : `${d.pitch}/12 plumb cuts at both tails; a birdsmouth on each wall, ${(D * t).toFixed(2).replace(/\.?0+$/, '')}" heel, ${D}" seat (the front one's heel faces in)`;
+    for (const c of rafterCenters) {
+      push({
+        id: nextId('RF'), group: 'roof', kind: 'rafter', material: d.rafterSize, length: rafterCut, note,
+        geom: { origin: [c - 0.75, 0, 0], u: Y, v: Z, w: X, profile: prof, thickness: 1.5 },
+      });
+    }
+  }
+  for (const c of lean ? [] : rafterCenters) {
     for (const back of [false, true]) {
       push({
         id: nextId('RF'), group: 'roof', kind: 'rafter', material: d.rafterSize, length: rafterCut, note: birdNote,
@@ -884,7 +950,7 @@ function buildFramed(d) {
         if (connector) {
           for (const x of sides(c)) {
             const y0 = back ? W - D : 0;
-            fixtures.push({ kind: 'connector', group: 'roof', geom: rectGeom([x, y0, plateTop], Y, Z, X, D, 3, steel) });
+            fixtures.push({ kind: 'connector', group: 'roof', geom: rectGeom([x, y0, back ? plateTop : highPlateTop], Y, Z, X, D, 3, steel) });
           }
         }
         if (beam) {
@@ -907,11 +973,14 @@ function buildFramed(d) {
     if (topAt(0) > 0.5) {
     /** @type {[number, number][]} */
     const front = [[0, plateTop], [1.5, plateTop], [1.5, plateTop + topAt(1.5)], [0, plateTop + topAt(0)]];
+    // A lean-to's front block sits on the tall wall, under the high end of the rafters.
+    /** @type {[number, number][]} */
+    const leanFront = [[0, highPlateTop], [1.5, highPlateTop], [1.5, zt(W - 1.5)], [0, zt(W)]];
     for (const back of [false, true]) {
-      const prof = /** @type {[number, number][]} */ (front.map(([y, z]) => [yOf(y, back), z]));
+      const prof = /** @type {[number, number][]} */ (lean && !back ? leanFront : front.map(([y, z]) => [yOf(y, back), z]));
       for (let i = 0; i + 1 < rafterCenters.length; i++) {
         // A rafter tie sits on the plate beside every rafter but the end ones; start past it.
-        const tied = !beam && i > 0 && i < rafterCenters.length - 1 && zt(0) - plateTop > 0.5;
+        const tied = !beam && !lean && i > 0 && i < rafterCenters.length - 1 && zt(0) - plateTop > 0.5;
         const x0 = rafterCenters[i] + 0.75 + (tied ? 1.5 : 0);
         const gap = rafterCenters[i + 1] - 0.75 - x0;
         if (gap < 1) continue;
@@ -935,6 +1004,8 @@ function buildFramed(d) {
     }
     if (L > maxStock) warnings.push(`The ridge beam should be one piece ${Math.ceil(L / 12)} ft long; add that length to your board list.`);
     notes.push(`Ridge-beam roof: the beam carries the rafters (fix them with hangers), so there are no rafter ties and the inside is open to the roof. The beam size is your choice, not a span-table result; check it for a ${fmtSpan(L)} span and your snow load.`);
+  } else if (lean) {
+    notes.push(`Lean-to roof: each rafter bears on the tall front wall and the low back wall, so there is no ridge and no rafter ties; it pushes no wall outward. The front wall is ${fmtIn(rise)} taller than the back. Cover the soffits with vented panels at both eaves: air comes in low and out high.`);
   } else {
     const ridgeSplit = splitRun(0, L, maxStock, rafterCenters);
     for (const [s0, s1] of ridgeSplit.runs) {
@@ -952,11 +1023,11 @@ function buildFramed(d) {
   // beam, the gable walls' plates) it has to clear.
   const ridgeBottom = ridgeTop - ridgeD;
   const clearAbove = beam ? plateTop : plateTop + tie.depth;
-  if (ridgeBottom < clearAbove - 1 / 16) {
+  if (!lean && ridgeBottom < clearAbove - 1 / 16) {
     warnings.push(`The ridge sits too low: its underside is ${fmtIn(clearAbove - ridgeBottom)} below the ${beam ? 'top of the gable walls' : 'tops of the rafter ties'}, so the two run into each other as drawn. Steepen the roof${beam ? ', use a shallower beam' : ''} or widen the shed.`);
   }
-  if (beam) {
-    // no ties: the ridge beam holds the rafters up, so they do not push the walls out
+  if (beam || lean) {
+    // no ties: the ridge beam (or, on a lean-to, the tall wall) holds the rafters up, so they do not push the walls out
   } else if (topAt0 <= 0.5) {
     warnings.push('The rafters are too shallow over the wall for a rafter tie at the plate; deepen the rafters.');
   } else {
@@ -996,10 +1067,10 @@ function buildFramed(d) {
       walls[name].members.push(m);
       return m;
     };
-    const rafterUnder = (y) => zb(Math.min(y, W - y)) - plateTop;
+    const rafterUnder = (y) => (lean ? zb(W - y) : zb(Math.min(y, W - y))) - plateTop;
     /** @type {{ v0: number, v1: number, ventTop: number, ventBottom: number, headerTop: number }[]} */
     const vents = [];
-    if (d.gableVents) {
+    if (d.gableVents && !lean) {
       const vw = d.ventWidth;
       const vh = d.ventHeight;
       const spans = beam ? [[W / 2 - 1.5 - vw, W / 2 - 1.5], [W / 2 + 1.5, W / 2 + 1.5 + vw]] : [[W / 2 - vw / 2, W / 2 + vw / 2]];
@@ -1016,7 +1087,7 @@ function buildFramed(d) {
         vents.push({ v0, v1, ventTop, ventBottom, headerTop });
       }
     }
-    const blocked = (e0, e1) => (e1 > postZone[0] - 1e-9 && e0 < postZone[1] + 1e-9) || vents.some((v) => e1 > v.v0 - 1.5 - 1e-9 && e0 < v.v1 + 1.5 + 1e-9);
+    const blocked = (e0, e1) => (!lean && e1 > postZone[0] - 1e-9 && e0 < postZone[1] + 1e-9) || vents.some((v) => e1 > v.v0 - 1.5 - 1e-9 && e0 < v.v1 + 1.5 + 1e-9);
     for (const c of layoutCenters(d.studSpacing, 0, W)) {
       const e0 = c - 0.75;
       const e1 = c + 0.75;
@@ -1030,7 +1101,7 @@ function buildFramed(d) {
     const centreVent = vents.find((v) => v.v0 < W / 2 && v.v1 > W / 2);
     const postBase = centreVent ? centreVent.headerTop : 0;
     const postH = ridgeBottom - plateTop;
-    if (postH - postBase >= 3) {
+    if (!lean && postH - postBase >= 3) {
       if (beam) {
         for (const e0 of [W / 2 - 1.5, W / 2]) gableMember('beam post', e0, e0 + 1.5, postH, postH, 'square top under the ridge beam, over the post studs');
       } else {
@@ -1086,7 +1157,7 @@ function buildFramed(d) {
         const x0 = xs[i]; const x1 = xs[i + 1];
         const cut = holes.filter((h) => h[0] < x1 - 1e-9 && h[1] > x0 + 1e-9).sort((a, b) => a[2] - b[2]);
         let z = 0;
-        for (const h of [...cut, [0, 0, H, H]]) {
+        for (const h of [...cut, [0, 0, wallH(name), wallH(name)]]) {
           if (h[2] > z + 0.5) {
             fixtures.push({ kind: 'lining', group: name === 'front' ? 'front lining' : 'interior', geom: rectGeom(add(add(f.origin, f.u, x0), Z, z), f.u, Z, f.w, x1 - x0, h[2] - z, pt) });
             sqft += ((x1 - x0) * (h[2] - z)) / 144;
@@ -1133,7 +1204,7 @@ function buildFramed(d) {
       for (const name of WALLS) {
         const f = faces[name];
         for (let x = f.from + 6; x < f.to - 6; x += 8) {
-          fixtures.push({ kind: `bulb-${bulb++ % 4}`, group: name === 'front' ? 'front lining' : 'decor', geom: rectGeom(add(add(add(f.origin, f.u, x), Z, H - 8 - (bulb % 2) * 1.5), f.w, pt), f.u, Z, f.w, 1.6, 1.6, 1.6) });
+          fixtures.push({ kind: `bulb-${bulb++ % 4}`, group: name === 'front' ? 'front lining' : 'decor', geom: rectGeom(add(add(add(f.origin, f.u, x), Z, wallH(name) - 8 - (bulb % 2) * 1.5), f.w, pt), f.u, Z, f.w, 1.6, 1.6, 1.6) });
         }
       }
       // A rug and a beanbag on the floor.
@@ -1150,11 +1221,12 @@ function buildFramed(d) {
   // 1x4 rake board up each gable edge (those three are bought, not cut from framing).
   const trim = { fasciaFt: 0, soffitSqFt: 0, rakeFt: 0 };
   if (o > 0) {
-    const fz = zt(-o);
     const sf = actual('2x6');
     const fsplit = splitRun(0, L, maxStock, rafterCenters);
     for (const back of [false, true]) {
       const y0 = back ? W + o : -o - 1.5;
+      // A lean-to's front tail is its high edge: the fascia there is up at the top of the front tails.
+      const fz = lean && !back ? zt(W + o) : zt(-o);
       for (const [s0, s1] of fsplit.runs) {
         push({
           id: nextId('SF'), group: 'roof', kind: 'sub-fascia', material: '2x6', length: ceil16(s1 - s0),
@@ -1164,34 +1236,38 @@ function buildFramed(d) {
       }
       fixtures.push({ kind: 'fascia', group: 'trim', geom: rectGeom([0, back ? W + o + 1.5 : -o - 1.5 - 0.75, fz - sf.depth - 0.5], X, Z, Y, L, sf.depth + 0.5, 0.75) });
       // Soffit on the underside of the tails, from the wall to the sub-fascia.
-      const sv = /** @type {Vec} */ ([0, back ? -cos : cos, sin]);
-      const sw = /** @type {Vec} */ ([0, back ? -sin : sin, -cos]);
-      const start = /** @type {Vec} */ ([0, back ? W + o : -o, zb(-o)]);
+      const up = lean && !back ? -1 : 1; // a lean-to's front soffit runs downhill to the wall
+      const sv = /** @type {Vec} */ ([0, back ? -cos : cos, up * sin]);
+      const sw = /** @type {Vec} */ ([0, back ? -sin : up * sin, -cos]);
+      const start = /** @type {Vec} */ ([0, back ? W + o : -o, lean && !back ? zb(W + o) : zb(-o)]);
       fixtures.push({ kind: 'soffit', group: 'trim', geom: rectGeom(start, X, sv, sw, L, o / cos, 0.3) });
     }
     trim.fasciaFt = (2 * L) / 12;
     trim.soffitSqFt = (2 * L * (o / cos)) / 144;
   }
-  trim.rakeFt = (4 * ((W / 2 + o) / cos)) / 12;
+  trim.rakeFt = lean ? (2 * ((W + 2 * o) / cos)) / 12 : (4 * ((W / 2 + o) / cos)) / 12;
   // Rake boards: a 3-1/2" band under the roof edge on each gable face, eave tail to peak.
   {
     const top = (dist) => zt(dist) + (7 / 16) / cos;
     const band = 3.5 / cos;
     /** @type {[number, number][]} */
-    const prof = [[-o, top(-o) - band], [W / 2, top(W / 2) - band], [W + o, top(-o) - band], [W + o, top(-o)], [W / 2, top(W / 2)], [-o, top(-o)]];
+    const prof = lean
+      ? [[-o, top(W + o) - band], [W + o, top(-o) - band], [W + o, top(-o)], [-o, top(W + o)]]
+      : [[-o, top(-o) - band], [W / 2, top(W / 2) - band], [W + o, top(-o) - band], [W + o, top(-o)], [W / 2, top(W / 2)], [-o, top(-o)]];
     for (const x0 of [-0.75, L]) fixtures.push({ kind: 'fascia', group: 'trim', geom: { origin: [x0, 0, 0], u: Y, v: Z, w: X, profile: prof, thickness: 0.75 } });
   }
 
   // ---------------- Sheathing, siding, roofing ----------------
-  const slopeLen = (W / 2 + o) / cos; // eave tail to the ridge line, along the roof
+  const slopeLen = (lean ? W + 2 * o : W / 2 + o) / cos; // eave tail to the ridge line (a lean-to's: tail to tail), along the roof
   /** @type {number[]} */
   const roofPieces = [];
   const roofRows = Math.ceil(slopeLen / 48 - 1e-9);
-  for (const back of [false, true]) {
+  for (const back of lean ? [false] : [false, true]) {
     const vy = back ? -cos : cos;
-    const eave = /** @type {Vec} */ ([0, yOf(-o, back), zt(-o)]);
-    const v = /** @type {Vec} */ ([0, vy, sin]);
-    const w = /** @type {Vec} */ ([0, back ? sin : -sin, cos]);
+    // A lean-to's one slope starts at the high front tail and runs down to the back.
+    const eave = /** @type {Vec} */ ([0, yOf(-o, back), lean ? zt(W + o) : zt(-o)]);
+    const v = /** @type {Vec} */ ([0, vy, lean ? -sin : sin]);
+    const w = /** @type {Vec} */ ([0, back || lean ? sin : -sin, cos]);
     for (let rr = 0; rr < roofRows; rr++) {
       const q0 = rr * 48;
       const h = Math.min(48, slopeLen - q0);
@@ -1216,7 +1292,7 @@ function buildFramed(d) {
       fixtures.push({ kind: 'shingles', group: 'roofing', geom: rectGeom(add(eave, w, 7 / 16), X, v, w, L, slopeLen, 0.35) });
     }
   }
-  const roofAreaSqFt = (2 * slopeLen * L) / 144;
+  const roofAreaSqFt = ((lean ? 1 : 2) * slopeLen * L) / 144;
 
   const sidingT = d.sidingType === 'LP SmartSide' ? 3 / 8 : d.sidingType === 'LP SmartSide 7/16' ? 7 / 16 : 19 / 32;
   /** @type {{ wall: string, length: number }[]} */
@@ -1229,7 +1305,7 @@ function buildFramed(d) {
     for (const name of WALLS) {
       const eave = name === 'front' || name === 'back';
       const faceLen = eave ? L : W;
-      const clip = (s) => (eave ? plateTop : zt(Math.min(s, W - s)));
+      const clip = (s) => (eave ? floorTop + wallH(name) : lean ? zt(W - s) : zt(Math.min(s, W - s)));
       const origin = name === 'front' ? [0, 0, 0] : name === 'back' ? [0, W, 0] : name === 'left' ? [0, 0, 0] : [L, 0, 0];
       const u = eave ? X : Y;
       const w = name === 'front' ? neg(Y) : name === 'back' ? Y : name === 'left' ? neg(X) : X;
@@ -1237,7 +1313,7 @@ function buildFramed(d) {
         const s1 = Math.min(faceLen, s0 + 48);
         /** @type {[number, number][]} */
         const prof = [[s0, bottomZ], [s1, bottomZ], [s1, clip(s1)]];
-        if (!eave && s0 < W / 2 && s1 > W / 2) prof.push([W / 2, clip(W / 2)]);
+        if (!eave && !lean && s0 < W / 2 && s1 > W / 2) prof.push([W / 2, clip(W / 2)]);
         prof.push([s0, clip(s0)]);
         const need = Math.max(...prof.map((p) => p[1])) - bottomZ;
         const sheet = sheetFor(need);
@@ -1269,7 +1345,7 @@ function buildFramed(d) {
       const u = eave ? X : Y;
       const w = name === 'front' ? neg(Y) : name === 'back' ? Y : name === 'left' ? neg(X) : X;
       const at = add(origin, w, sidingT);
-      const topAt = (s) => (eave ? plateTop : rakeUnder(Math.min(s, faceLen - s)));
+      const topAt = (s) => (eave ? floorTop + wallH(name) : rakeUnder(lean ? W - s : Math.min(s, faceLen - s)));
       const board = (kind, prof, where) => {
         fixtures.push({ kind: 'casing', group: 'trim', geom: { origin: at, u, v: Z, w, profile: prof, thickness: tt } });
         const zs = prof.map((p) => p[1]);
@@ -1341,6 +1417,8 @@ function buildFramed(d) {
     studLen, rafterCut, slopeLen, plumbH, ridgeSize, ridgeD, stud: D, joistDepth: joist.depth, rafterDepth: rd,
     skidCount, skidYs, joistCenters, rafterCenters, gravelCuYd, padSqFt: underBlocks || noPad ? 0 : ((L + 2 * pad) * (W + 2 * pad)) / 144, baseBags: Math.ceil(baseCuFt / 0.5), underBlocks, noPad, blockCount, block, roofAreaSqFt, floorRows, roofRows,
     heel: connector ? 0 : D * t, maxStock, connector,
+    // One slope or two; on a lean-to the front wall's height and plate top.
+    style: d.style, lean, rise, highWall: H + rise, highPlateTop,
   };
 
   if (d.siding && d.sidingColor === 'unfinished' && d.sidingType !== 'vinyl') {
@@ -1356,9 +1434,9 @@ function buildFramed(d) {
   }
   if (d.maxPeak > 0 && dims.peak > d.maxPeak + 1e-9) {
     const tallest = Math.max(0, ...Object.values(walls).flatMap((w) => w.openings.map((p) => p.headerTop)));
-    const minWall = Math.max(60, Math.ceil((tallest + 3) * 2) / 2);
+    const minWall = lean ? minWallFor({ ...d, pitch: 3 }) : Math.max(60, Math.ceil((tallest + 3) * 2) / 2);
     const low = buildFramed(normalize({ ...d, wallHeight: minWall, pitch: 3, maxPeak: 0, autoWall: false, autoPitch: false })).dims.peak;
-    warnings.push(`The peak is ${fmtFt(dims.peak)} above the gravel, ${fmtFt(dims.peak - d.maxPeak)} over your ${fmtFt(d.maxPeak)} limit. Your tallest opening needs walls of at least ${fmtFt(minWall)}; with those walls and a 3/12 roof (about the least that sheds water under shingles) the peak would still be ${fmtFt(low)}. To get lower: a shorter door, a door in the gable end, a lower floor or a narrower shed${d.gableVents ? ', or smaller or no gable vents (they need a steeper roof to fit)' : ''}.`);
+    warnings.push(`The peak is ${fmtFt(dims.peak)} above the gravel, ${fmtFt(dims.peak - d.maxPeak)} over your ${fmtFt(d.maxPeak)} limit. Your tallest opening needs walls of at least ${fmtFt(minWall)}; with those walls and a 3/12 roof (about the least that sheds water under shingles) the peak would still be ${fmtFt(low)}. To get lower: a shorter door, ${lean ? 'a door in an end wall or the low back wall' : 'a door in the gable end'}, a lower floor or a narrower shed${d.gableVents && !lean ? ', or smaller or no gable vents (they need a steeper roof to fit)' : ''}.`);
   }
 
   return { design: d, members, panels, fixtures, walls, framedOpenings, warnings, notes, dims, vents: ventInfo, trim, wallTrim, doorParts, doors, interior, sidingArea, floorPieces, roofPieces, sidingFull, sidingUpper };

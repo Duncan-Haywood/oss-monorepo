@@ -43,16 +43,22 @@ export function connectionChecks(shed) {
       const cap = shed.members.filter((m) => m.group === `wall:${g}` && m.kind === 'cap plate').map((m) => bbox(m.geom));
       for (const e of ['front', 'back']) {
         n += 1;
+        if (k.lean && e === 'front') {
+          // A lean-to's end walls stop against the tall front wall: their cap reaches its inside face.
+          if (!cap.some((c) => near(c.lo[1], k.stud))) fails.push(`${g}/${e} corner`);
+          continue;
+        }
         const tops = shed.members.filter((m) => m.group === `wall:${e}` && m.kind === 'top plate').map((m) => bbox(m.geom));
         const laps = cap.some((c) => tops.some((t) => near(c.lo[2], t.hi[2]) && c.lo[0] < t.hi[0] - EPS && c.hi[0] > t.lo[0] + EPS && c.lo[1] < t.hi[1] - EPS && c.hi[1] > t.lo[1] + EPS));
         if (!laps) fails.push(`${g}/${e} corner`);
       }
     }
-    add('Cap plates lap the corners', fails, n, 'corners interlocked (end-wall cap over long-wall top plate)');
+    add('Cap plates lap the corners', fails, n, k.lean ? 'corners interlocked (end-wall cap over the back wall\'s top plate, and up to the tall front wall)' : 'corners interlocked (end-wall cap over long-wall top plate)');
   }
 
   for (const [name, w] of Object.entries(shed.walls)) {
     const mem = w.members.filter((m) => m.group === `wall:${name}`);
+    const H = w.height ?? d.wallHeight;
     const of = (kind) => mem.filter((m) => m.kind === kind).map((m) => /** @type {any} */ (m.local));
     const bottoms = of('bottom plate');
     const tops = of('top plate');
@@ -106,21 +112,27 @@ export function connectionChecks(shed) {
     for (const r of rafters) {
       const b = bbox(r.geom);
       const xs = [b.lo[0], b.hi[0]];
-      const seatPts = r.geom.profile.filter((p) => near(p[1], k.plateTop));
-      const seatY = seatPts.map((p) => p[0]);
-      const back = Math.min(...r.geom.profile.map((p) => p[0])) > d.width / 2 - 2;
-      // A rafter on a variable-pitch connector has no notch: it touches the outside top edge of the caps.
-      const onEdge = k.connector && r.geom.profile.some((p) => near(p[0], back ? d.width : 0) && near(p[1], k.plateTop));
-      const y0 = k.connector ? (back ? d.width - k.stud : 0) : Math.min(...seatY);
-      const y1 = k.connector ? (back ? d.width : k.stud) : Math.max(...seatY);
-      // The whole seat (rafter thickness x seat length) must rest on cap plates.
-      const under = topPlates.filter((t) => near(t.hi[2], k.plateTop) && t.lo[1] <= y0 + EPS && t.hi[1] >= y1 - EPS);
-      const seated = (k.connector ? onEdge : seatY.length >= 2) && covered(xs[0], xs[1], under.map((t) => ({ s0: t.lo[0], s1: t.hi[0] })));
-      const meets = ridge.some((g) => b.lo[1] <= g.hi[1] + EPS && b.hi[1] >= g.lo[1] - EPS && b.hi[2] <= g.hi[2] + EPS && b.hi[2] >= g.lo[2]);
-      if (!seated) fails.push(`${r.id} seat`);
+      // A gable rafter seats on one long wall; a lean-to rafter on the low back
+      // wall and the tall front one, where a connector holds its inside edge.
+      const seats = k.lean
+        ? [{ back: true, z: k.plateTop, edge: d.width }, { back: false, z: k.highPlateTop, edge: k.stud }]
+        : [(() => { const back = Math.min(...r.geom.profile.map((p) => p[0])) > d.width / 2 - 2; return { back, z: k.plateTop, edge: back ? d.width : 0 }; })()];
+      for (const { back, z, edge } of seats) {
+        const seatY = r.geom.profile.filter((p) => near(p[1], z)).map((p) => p[0]).filter((y) => (back ? y >= d.width - k.stud - EPS : y <= k.stud + EPS));
+        // A rafter on a variable-pitch connector has no notch: it touches the top edge of the caps.
+        const onEdge = k.connector && r.geom.profile.some((p) => near(p[0], edge) && near(p[1], z));
+        const y0 = k.connector ? (back ? d.width - k.stud : 0) : Math.min(...seatY);
+        const y1 = k.connector ? (back ? d.width : k.stud) : Math.max(...seatY);
+        // The whole seat (rafter thickness x seat length) must rest on cap plates.
+        const under = topPlates.filter((t) => near(t.hi[2], z) && t.lo[1] <= y0 + EPS && t.hi[1] >= y1 - EPS);
+        const seated = (k.connector ? onEdge : seatY.length >= 2) && covered(xs[0], xs[1], under.map((t) => ({ s0: t.lo[0], s1: t.hi[0] })));
+        if (!seated) fails.push(`${r.id} ${k.lean ? (back ? 'back ' : 'front ') : ''}seat`);
+      }
+      const meets = k.lean || ridge.some((g) => b.lo[1] <= g.hi[1] + EPS && b.hi[1] >= g.lo[1] - EPS && b.hi[2] <= g.hi[2] + EPS && b.hi[2] >= g.lo[2]);
       if (!meets) fails.push(`${r.id} ridge`);
     }
-    add('Rafters seat on the plates and meet the ridge', fails, rafters.length, k.connector ? 'rafters resting on the outside edge of a long wall\'s cap plate for a variable-pitch connector, their top end at the ridge' : 'rafters with a full birdsmouth seat on a long wall and their top end at the ridge');
+    if (k.lean) add('Rafters seat on both walls', fails, rafters.length, k.connector ? 'rafters on a variable-pitch connector at the back wall\'s outside edge and the front wall\'s inside edge' : 'rafters with a full birdsmouth seat on the back wall and on the front wall');
+    else add('Rafters seat on the plates and meet the ridge', fails, rafters.length, k.connector ? 'rafters resting on the outside edge of a long wall\'s cap plate for a variable-pitch connector, their top end at the ridge' : 'rafters with a full birdsmouth seat on a long wall and their top end at the ridge');
   }
 
   // Floor on skids, skids on the ground.
