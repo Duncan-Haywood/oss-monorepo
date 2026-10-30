@@ -49,6 +49,14 @@ export const BUILT_IN = [
   ["6060", "out", /snapdocs.*(subscription|monthly)|notarycam|bluenotary|notarize\.com pro/],
   ["6100", "out", /notary (stamp|seal|journal)/],
   ["6110", "out", /secretary of state.*notary|notary commission/],
+  // Yoga and Pilates studios (2026-10-30, yogastudio.test.mjs; agent-written from the companies' public names, not from a real export):
+  // class-marketplace and booking-platform payouts are sales; studio lease is rent; props and mats are supplies; booking software is software;
+  // a Gusto payroll debit is wages, not software (the generic Gusto rule files its monthly fee as software).
+  ["4000", "in", /momence payout|walla payout|zen ?planner payout|zelle from .*(wellness|corporate)/],
+  ["6150", "out", /gusto (payroll|wages|net pay)(?!.*(fee|subscription|monthly))|gusto.*(tax|debit)/],
+  ["6100", "out", /manduka|gaiam|hugger mugger|yoga ?props|pilates (reformer|equipment)|balanced body|merrithew/],
+  ["6060", "out", /momence (subscription|monthly)|walla (subscription|monthly)|marianatek|pushpress/],
+  ["6080", "out", /studio lease/],
   // Pool service routes (2026-10-30, poolservice.test.mjs; agent-written from the companies' public names, not from a real export):
   // route-software payouts and customer Zelle are sales; chemical and equipment distributors are supplies; route software is software; CPO certification is a licence.
   ["4000", "in", /skimmer payout|poolbrain payout|pool ?dash payout|zelle from .*pool service/],
