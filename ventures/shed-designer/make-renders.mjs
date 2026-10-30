@@ -22,6 +22,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { buildShed } from './model.mjs';
 import { meshOf, solidsOf } from './render3d.mjs';
 import { BUDGET, COVERINGS, RENDER_VERSION, VIEWS, altFor, renderTargets } from './renders.mjs';
+import { SIZES, design as sizeDesign } from './make-size-pages.mjs';
 
 const ROOT = fileURLToPath(new URL('.', import.meta.url));
 export const OUT = join(ROOT, 'renders');
@@ -61,17 +62,28 @@ export function sceneHash(design, renderer = rendererSource()) {
   return h.digest('hex').slice(0, 16);
 }
 
+/** The designs behind the per-size lumber pages: a hero each (the framing view is the preset's). */
+export function sizeTargets() {
+  return SIZES.map(([w, l, base]) => ({ slug: `size-${w}x${l}`, key: `${w}x${l} size page`, design: sizeDesign(w, l, base), views: ['hero'] }));
+}
+
+/** Everything `make-renders.mjs` draws: the presets (every view) and the size pages' designs. */
+export function allTargets() {
+  return [...renderTargets(), ...sizeTargets()];
+}
+
 export function readManifest() {
   try { return JSON.parse(readFileSync(MANIFEST, 'utf8')); } catch { return { designs: {} }; }
 }
 
 /** Designs whose pictures are missing or out of date. */
-export function staleTargets(manifest = readManifest(), targets = renderTargets()) {
+export function staleTargets(manifest = readManifest(), targets = allTargets()) {
   const renderer = rendererSource();
   return targets.filter((t) => {
     const m = manifest.designs?.[t.slug];
     if (!m || m.hash !== sceneHash(t.design, renderer)) return true;
-    return Object.keys(VIEWS).some((v) => !m.files?.[v] || !existsSync(join(OUT, m.files[v].file)));
+    if (Object.keys(m.files || {}).some((v) => !t.views.includes(v))) return true;
+    return t.views.some((v) => !m.files?.[v] || !existsSync(join(OUT, m.files[v].file)));
   });
 }
 
@@ -186,7 +198,7 @@ async function main(argv) {
     console.log('renders: all up to date');
     return;
   }
-  const targets = renderTargets();
+  const targets = allTargets();
   const todo = argv.includes('--all') ? targets : staleTargets();
   const manifest = readManifest();
   manifest.designs ||= {};
@@ -197,7 +209,7 @@ async function main(argv) {
       const renderer = rendererSource();
       for (const t of todo) {
         const files = {};
-        for (const view of Object.keys(VIEWS)) {
+        for (const view of t.views) {
           const png = await stage.draw(t.design, view);
           const file = `${t.slug}-${view}.webp`;
           writeFileSync(join(OUT, file), png);

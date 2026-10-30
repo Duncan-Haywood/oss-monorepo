@@ -34,7 +34,7 @@ function randomDesign(r) {
     studSize: pick(['2x4', '2x6']), studSpacing: pick([12, 16, 24]),
     joistSize: pick(['2x4', '2x6', '2x8', '2x10']), joistSpacing: pick([12, 16, 24]),
     rafterSize: pick(['2x4', '2x6', '2x8', '2x10']), rafterSpacing: pick([12, 16, 24]),
-    roofType: pick(['ridgeBeam', 'ridgeBoard']), beamSize: pick(['2x8', '2x10', '2x12']),
+    roofType: pick(['ridgeBeam', 'ridgeBoard', 'truss']), beamSize: pick(['2x8', '2x10', '2x12']),
     skidSize: pick(['4x4', '4x6']), skidSpacing: between(24, 72, 6),
     foundation: pick(['gravel', ...Object.keys(BLOCKS)]), pad: pick(['full', 'under blocks']),
     floorPanel: pick(['plywood', 'OSB']), floorTreated: r() < 0.8,
