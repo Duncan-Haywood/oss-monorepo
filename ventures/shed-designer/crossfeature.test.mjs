@@ -26,6 +26,7 @@ export const AXES = {
   roofCover: ['shingles', 'metal'],
   studSpacing: [16, 24],
   wallTrim: ['1x4', 'none'],
+  interior: ['none', 'OSB', 'plywood', 'drywall', 'beadboard', 'pegboard', 'teen bedroom'],
   door: ['as drawn', 'site-built'],
 };
 
