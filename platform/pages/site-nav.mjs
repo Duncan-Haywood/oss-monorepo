@@ -287,6 +287,13 @@ export const SITE_HEADER_CSS = `
  *
  * Full width is `VENTURE_CHROME_JS`'s job, because only a measurement can say
  * where a venture's centred, padded or gridded body put the bar.
+ *
+ * `overflow-x:clip` on the top chrome (2026-10-30): on a phone the nav strip
+ * bleeds 16px right (`margin-right:-16px`) to reach the screen edge, which
+ * assumes a 16px gutter. A venture whose body gutter is 14px got a page 2px
+ * wider than the screen; the `sideways` browser check found 23 such pages.
+ * The chrome is measured to the viewport width, so clipping it there keeps
+ * the bleed and loses only the overhang.
  */
 export const VENTURE_CHROME_CSS = `
 nav.pf-chrome.pf-chrome-top[data-pfs-head],aside.pf-chrome.pf-chrome-foot{
@@ -298,7 +305,7 @@ nav.pf-chrome.pf-chrome-top[data-pfs-head][data-pfs-theme="dark"],aside.pf-chrom
   --pfs-ink:#e8eef5;--pfs-muted:#a2b0c0;--pfs-line:#2a343f;--pfs-accent:#7fd8c0;--pfs-panel:#171e27;
   --pfs-head-bg:#171e27;--pfs-foot-bg:#121821;--pfs-mark:linear-gradient(135deg,#7fd8c0,#8ea2ff)}
 nav.pf-chrome.pf-chrome-top[data-pfs-head]{display:block;position:relative;z-index:30;float:none;inset:auto;
-  box-sizing:border-box;height:auto;min-height:0;max-width:none;margin:0;padding:0;
+  box-sizing:border-box;height:auto;min-height:0;max-width:none;margin:0;padding:0;overflow-x:clip;
   color:var(--pfs-ink);background:var(--pfs-head-bg);border:0;border-bottom:1px solid var(--pfs-line);
   box-shadow:0 1px 0 rgba(15,23,42,.03);border-radius:0;font-size:15px;line-height:1.4;font-weight:400}
 nav.pf-chrome.pf-chrome-top[data-pfs-head] a{color:inherit;font:inherit;font-weight:inherit;text-decoration:none;background:none;box-shadow:none;border:0}
