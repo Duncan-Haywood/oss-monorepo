@@ -67,5 +67,5 @@ Related labs: none claimed; this is methods work for computational social scienc
 
 `llmci/estimators.py` (stdlib only) holds the estimators the programme compares: human-only, naive,
 PPI, PPI++, design-based IPW audit, stratified PPI, stratified human-only and binary label-shift correction.
-Tests: `python3 -m pytest research/llm-coding-inference/test_llmci.py`. Checked against closed
+`llmci/audit_design.py` holds the screened audit-design rule of milestones 6ak to 6am (`informedness`, `screen`, `cell_allocation`; a heuristic with no coverage theorem). Tests: `python3 -m pytest research/llm-coding-inference/test_llmci.py`. Checked against closed
 forms and a 600-study simulation; not yet against a published dataset.
