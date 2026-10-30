@@ -148,6 +148,8 @@ export function estimate(shed, prices = examplePrices()) {
   });
   /** @type {string[]} */
   const problems = [];
+  /** @type {string[]} */
+  const notes = [];
   for (const l of lumber) {
     for (const p of l.result.tooLong) problems.push(`${l.material} ${p.kind} ${fmtIn(p.len)} (mark ${p.mark}) is longer than your longest board; allow a longer length.`);
   }
@@ -205,6 +207,18 @@ export function estimate(shed, prices = examplePrices()) {
       by[96] += sheetCount(shed.sidingUpper);
       const keys = type === 'T1-11' ? ['siding8', 'siding9', 'siding10'] : type === 'LP SmartSide' ? ['lpPanel', 'lpPanel9', 'lpPanel10'] : ['lpPanel76', 'lpPanel76x9', 'lpPanel76x10'];
       [96, 108, 120].forEach((len, i) => line('Siding', label(keys[i]), by[len], 'sheet', item(keys[i]), src(keys[i])));
+      // The panel rule makes the price jump about as the walls rise: a column that
+      // outgrows a 10 ft panel switches to a 4x8 with a strip above it, which is
+      // often cheaper. Say so, with the prices, so a dip is not taken for a bug.
+      const tall = shed.sidingFull.filter((x) => x.length > 96).length;
+      const strips = shed.sidingUpper.length;
+      if (tall || strips) {
+        const [p8, p9, p10] = keys.map((k) => `$${Number(item(k)).toFixed(2)}`);
+        notes.push(`Siding: each 4 ft column takes the shortest panel that reaches its top (4x8 ${p8}, 4x9 ${p9}, 4x10 ${p10}); `
+          + `a column taller than 10 ft takes a 4x8 with a strip cut from another 4x8 above it, Z-flashed at the joint. `
+          + `Here ${[tall && `${tall} use a 9 or 10 ft panel`, strips && `${strips} use a strip`].filter(Boolean).join(' and ')} (of ${shed.sidingFull.length} columns). `
+          + `Because the taller panels cost more, a few inches more wall can make the siding cheaper when it tips a column into the 4x8-and-strip layout.`);
+      }
     } else {
       // Lap and board-and-batten siding go over OSB sheathing.
       line('Siding', label('wallSheathing'), Math.ceil((area * 1.1) / 32), 'sheet', item('wallSheathing'), src('wallSheathing'));
@@ -394,7 +408,7 @@ export function estimate(shed, prices = examplePrices()) {
   // a bound on. lumberCost adds spares and any bulk prices on top.
   const cutSheetCost = Math.round(lumber.reduce((t, l) => t + l.result.cost, 0) * 100) / 100;
   return {
-    parts, lumber, shopping, problems, total, unpriced, tax, deliveryFee, grandTotal, trimCuts, lumberCost, cutSheetCost, lowerBound, boards,
+    parts, lumber, shopping, problems, notes, total, unpriced, tax, deliveryFee, grandTotal, trimCuts, lumberCost, cutSheetCost, lowerBound, boards,
     pieces: all.length, floorSheets, roofSheets,
     footprintSqFt: (d.length * d.width) / 144,
   };

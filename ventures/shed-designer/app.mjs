@@ -196,7 +196,8 @@ function renderSummary(shed, est) {
   ].map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join('');
   const msgs = [...shed.warnings, ...est.problems];
   $('#warnings').innerHTML = msgs.length ? `<strong>Check these:</strong><ul>${msgs.map((m) => `<li>${esc(m)}</li>`).join('')}</ul>` : '';
-  $('#notes').innerHTML = shed.notes.length ? `<ul>${shed.notes.map((m) => `<li>${esc(m)}</li>`).join('')}</ul>` : '';
+  const notes = [...shed.notes, ...est.notes];
+  $('#notes').innerHTML = notes.length ? `<ul>${notes.map((m) => `<li>${esc(m)}</li>`).join('')}</ul>` : '';
   $('#live').textContent = `${fmtFtIn(d.length)} x ${fmtFtIn(d.width)}, ${fmtFtIn(d.wallHeight)} walls, ${d.pitch}/12 roof, ${d.overhang}" overhang`;
 }
 
@@ -608,8 +609,11 @@ function wire() {
     const b = e.target.closest('[data-design]');
     if (!b) return;
     state.active = Number(b.dataset.design);
+    const had = undo.length + redo.length;
     undo.length = 0; redo.length = 0;
     render();
+    // Undo is per design: say so when switching throws history away.
+    if (had) $('#status').textContent = `Switched to ${design().name}. Undo and redo start fresh for each design; the one you left keeps its last state.`;
   });
   $('#compare-cards').addEventListener('click', (e) => {
     const b = e.target.closest('button[data-design]');
@@ -627,8 +631,10 @@ function wire() {
     state.active = state.designs.length - 1;
     e.target.value = '';
     count('designs');
+    const had = undo.length + redo.length;
     undo.length = 0; redo.length = 0;
     render();
+    if (had) $('#status').textContent = `Added ${design().name}. Undo and redo start fresh for each design; the one you left keeps its last state.`;
   });
   $('#delete-design').addEventListener('click', () => {
     if (state.designs.length < 2) { $('#status').textContent = 'This is your only design; change it instead of deleting it.'; return; }

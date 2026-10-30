@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildShed, defaultDesign, PRESETS } from './model.mjs';
+import { buildShed, defaultDesign, normalize, PRESETS } from './model.mjs';
 import { estimate, examplePrices, markName, cutSheetCsv, shoppingCsv } from './estimate.mjs';
 
 const classic = () => PRESETS['8x12 classic']();
@@ -93,4 +93,14 @@ test('narrow sheet rows are ripped from shared sheets, and the count never beats
     assert.ok(est.floorSheets >= Math.ceil(area('floor sheet') - 1e-9), shed.design.name);
     assert.ok(est.roofSheets >= Math.ceil(area('roof sheathing') - 1e-9), shed.design.name);
   }
+});
+
+test('the siding note explains why a taller wall can cost less', () => {
+  const at = (h) => estimate(buildShed(normalize({ ...PRESETS['8x8 lean'](), wallHeight: h, autoWall: false })));
+  const [low, high] = [at(112), at(114)];
+  assert.ok(high.total < low.total, `114" walls cost less than 112" (${high.total} vs ${low.total})`);
+  assert.match(low.notes.join(' '), /4 use a 9 or 10 ft panel and 4 use a strip \(of 8 columns\)/);
+  assert.match(high.notes.join(' '), /8 use a strip \(of 8 columns\)/);
+  const bare = estimate(buildShed(normalize({ ...PRESETS['8x8 lean'](), siding: false })));
+  assert.deepEqual(bare.notes, [], 'no siding, no note');
 });

@@ -184,6 +184,20 @@ test('a site-built door too short for its Z brace says so', { skip }, async (t) 
   assert.equal(await page.$eval('select[data-i="0"][data-k="product"]', (e) => e.value), 'site-built', 'a new size keeps the site-built door');
 });
 
+test('the page explains the siding price step and that undo is per design', { skip }, async (t) => {
+  const { page } = await open(t);
+  await page.fill('#lengthFt', '10');
+  await page.press('#lengthFt', 'Tab');
+  await page.waitForFunction(() => !document.querySelector('#undo').disabled);
+  await page.selectOption('#new-design', '8x8 lean');
+  assert.match(await page.textContent('#status'), /Undo and redo start fresh for each design/);
+  assert.equal(await page.$eval('#undo', (b) => b.disabled), true);
+  await page.fill('#wallHeight', '112');
+  await page.press('#wallHeight', 'Tab');
+  await page.waitForFunction(() => document.querySelector('#wallHeight').value === '112' && /4x8-and-strip/.test(document.querySelector('#notes').textContent));
+  assert.match(await page.textContent('#notes'), /Siding: each 4 ft column takes the shortest panel .*4x10 \$\d+\.\d\d/);
+});
+
 test('on a phone: no sideways scroll, finger-size handles, touch drag and pinch', { skip }, async (t) => {
   const { ctx, page } = await open(t, pw.devices['Pixel 7']);
   const sw = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
