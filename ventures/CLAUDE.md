@@ -21,7 +21,7 @@ deploy it themselves".
 
 **Deploy-first.** Products already on `main` with no public URL outrank new
 candidates: give them a way to reach people (a GitHub Pages page, a package,
-a release or an app build; there is no static-only rule) rather than starting another product
+a release or an app build; there is no static-only or browser-only rule) rather than starting another product
 ([`portfolio/hosting/`](../portfolio/hosting/README.md)).
 
 Target super-niches where users have money and a real problem — especially

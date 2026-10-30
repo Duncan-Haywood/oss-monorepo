@@ -1,5 +1,6 @@
 ---
 title: "South Korea: tax invoices must be electronic and reported by the next day"
+seo_title: "South Korea: e-tax invoices must be reported by the next day"
 date: 2026-10-29
 tags: [einvoice-preflight, e-invoicing, south-korea]
 description: "E-invoice Preflight has a South Korea page: how the electronic tax invoice works, what is unverified, and a free business registration number check digit test."

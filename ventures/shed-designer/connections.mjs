@@ -10,6 +10,8 @@
 // - Every header bears on a jack at each end; every jack carries a header.
 // - Cripples bear on a header or sill, and rough sills sit on cripples.
 // - Every rafter's seat (a birdsmouth, or the plate edge under a connector) bears on a wall's top plates, and its top end meets the ridge.
+// - Under trusses: every bottom chord bears on both long walls, top chords sit on their bottom chord and meet at the peak,
+//   king posts stand on their chord, and every inside truss joint has a gusset on both faces.
 // - Every floor joist bears on at least two skids; every skid bears on the pad or blocks.
 
 import { bbox } from './integrity.mjs';
@@ -96,6 +98,54 @@ export function connectionChecks(shed) {
     if (tj.length || cj.length) add(`${name} wall: plate splices`, [...jointFails, ...clearFails], tj.length + cj.length, `plate joints on a stud or over a header, cap joints at least ${PLATE_OFFSET_MIN}" from top-plate joints (IRC R602.3.2)`);
   }
 
+  // Trusses: every bottom chord bears on both long walls' cap plates; every
+  // top chord's heel lands on its bottom chord's outer top corner (or, over a
+  // gable wall, on the gable studs) and meets its mate at the peak; every king
+  // post stands on its bottom chord; and each heel, peak and king-post foot of
+  // an inside truss has a gusset on both faces.
+  if (k.truss) {
+    const caps = shed.members.filter((m) => m.group.startsWith('wall:') && m.kind === 'cap plate').map((m) => bbox(m.geom));
+    const chords = shed.members.filter((m) => m.kind === 'bottom chord').map((m) => ({ id: m.id, b: bbox(m.geom) }));
+    const gussets = shed.panels.filter((p) => p.kind === 'truss gusset').map((p) => ({ where: /** @type {any} */ (p).where, b: bbox(p.geom) }));
+    const fails = [];
+    let n = 0;
+    for (const c of chords) {
+      n += 1;
+      // At each end, cap plates (two, where a splice falls under it) under the chord's whole thickness.
+      const ends = [0, d.width].map((y) => covered(c.b.lo[0], c.b.hi[0], caps.filter((t) => near(t.hi[2], c.b.lo[2]) && t.lo[1] <= y + EPS && t.hi[1] >= y - EPS).map((t) => ({ s0: t.lo[0], s1: t.hi[0] }))));
+      if (!ends.every(Boolean)) fails.push(`${c.id} bearing`);
+    }
+    const rafters = shed.members.filter((m) => m.kind === 'rafter');
+    const peakZ = k.ridgeTop - k.plumbH;
+    for (const r of rafters) {
+      n += 1;
+      const b = bbox(r.geom);
+      const back = b.lo[1] > d.width / 2 - 2;
+      const chord = chords.find((c) => near(c.b.lo[0], b.lo[0]));
+      const atPeak = r.geom.profile.some((p) => near(p[0], d.width / 2) && near(p[1], peakZ));
+      const mate = rafters.some((o) => o !== r && near(bbox(o.geom).lo[0], b.lo[0]) && (bbox(o.geom).lo[1] > d.width / 2 - 2) !== back);
+      if (!atPeak || !mate) fails.push(`${r.id} peak`);
+      if (chord) {
+        const heelY = back ? d.width : 0;
+        const onChord = r.geom.profile.some((p) => near(p[0], heelY) && near(p[1], chord.b.hi[2]));
+        if (!onChord) fails.push(`${r.id} heel`);
+        for (const where of ['heel', 'peak']) {
+          const y = where === 'peak' ? d.width / 2 : heelY;
+          const faces = gussets.filter((g) => g.where === where && g.b.lo[1] <= y + EPS && g.b.hi[1] >= y - EPS && (near(g.b.hi[0], b.lo[0]) || near(g.b.lo[0], b.hi[0])));
+          if (faces.length < 2) fails.push(`${r.id} ${where} gusset`);
+        }
+      }
+    }
+    for (const kp of shed.members.filter((m) => m.kind === 'king post')) {
+      n += 1;
+      const b = bbox(kp.geom);
+      const chord = chords.find((c) => near(c.b.lo[0], b.lo[0]));
+      if (!chord || !near(chord.b.hi[2], b.lo[2]) || !near(b.hi[2], peakZ)) fails.push(`${kp.id} bearing`);
+      const faces = gussets.filter((g) => g.where === 'foot' && g.b.lo[1] <= d.width / 2 && g.b.hi[1] >= d.width / 2 && (near(g.b.hi[0], b.lo[0]) || near(g.b.lo[0], b.hi[0])));
+      if (faces.length < 2) fails.push(`${kp.id} foot gusset`);
+    }
+    add('Trusses bear on the walls and close at heel and peak', [...new Set(fails)], n, 'truss members: bottom chords on both long walls, top chords on their bottom chord and meeting at the peak, king posts on their chord, gussets on both faces');
+  } else
   // Rafters seat on the plates and meet the ridge.
   {
     const rafters = shed.members.filter((m) => m.kind === 'rafter');
@@ -104,7 +154,8 @@ export function connectionChecks(shed) {
     // corners the end walls' caps that lap over them.
     const topPlates = shed.members.filter((m) => m.group.startsWith('wall:') && m.kind === 'cap plate').map((m) => bbox(m.geom));
     const fails = [];
-    for (const r of rafters) {
+    if (d.style === 'gambrel') gambrelJoints(shed, topPlates, add);
+    else for (const r of rafters) {
       const b = bbox(r.geom);
       const xs = [b.lo[0], b.hi[0]];
       const seatPts = r.geom.profile.filter((p) => near(p[1], k.plateTop));
@@ -121,7 +172,7 @@ export function connectionChecks(shed) {
       if (!seated) fails.push(`${r.id} seat`);
       if (!meets) fails.push(`${r.id} ridge`);
     }
-    add('Rafters seat on the plates and meet the ridge', fails, rafters.length, k.connector ? 'rafters resting on the outside edge of a long wall\'s cap plate for a variable-pitch connector, their top end at the ridge' : 'rafters with a full birdsmouth seat on a long wall and their top end at the ridge');
+    if (d.style !== 'gambrel') add('Rafters seat on the plates and meet the ridge', fails, rafters.length, k.connector ? 'rafters resting on the outside edge of a long wall\'s cap plate for a variable-pitch connector, their top end at the ridge' : 'rafters with a full birdsmouth seat on a long wall and their top end at the ridge');
   }
 
   // Floor on skids, skids on the ground.
@@ -163,7 +214,7 @@ export function connectionChecks(shed) {
     };
     const floor = edgeFails('floor sheet', spans(['floor joist']));
     if (floor.n) add('Subfloor edges on joists', floor.fails, floor.n, 'subfloor sheet end joints on a joist');
-    const roof = edgeFails('roof sheathing', spans(['rafter']));
+    const roof = edgeFails('roof sheathing', spans(['rafter', 'lower chord', 'upper chord']));
     if (roof.n) add('Roof sheathing edges on rafters', roof.fails, roof.n, 'roof sheathing end joints on a rafter');
 
     // Siding: each vertical joint between panels, sampled every inch up the
@@ -188,7 +239,10 @@ export function connectionChecks(shed) {
         if (x < EPS || x > len - EPS) continue;
         n += 1;
         let bad = 0;
-        for (let z = k.floorTop + 1; z < b.hi[2] - 1; z += 1) {
+        // Up to the panel's own top at this edge: a gable panel's box reaches the peak, but its edge may stop lower on the slope.
+        const edge = p.geom.profile.filter((q) => near(q[0], x)).map((q) => q[1]);
+        const top = edge.length ? Math.max(...edge) : b.hi[2];
+        for (let z = k.floorTop + 1; z < top - 1; z += 1) {
           if (holes.some((h) => h.lo[ax] < x + 1 && h.hi[ax] > x - 1 && z > h.lo[2] - 1 && z < h.hi[2] + 1)) continue;
           const wood = (xx) => frame.some((g) => g.lo[ax] <= xx && g.hi[ax] >= xx && g.lo[2] <= z && g.hi[2] >= z);
           if (!(wood(x - 0.5) && wood(x + 0.5))) bad += 1;
@@ -213,4 +267,53 @@ export function connectionChecks(shed) {
     }
   }
   return { rows, ok: rows.every((r) => r.ok) };
+}
+
+/**
+ * A gambrel's trusses: each lower chord's level foot bears on a long wall's cap
+ * plates, meets its upper chord along the knee mitre, the upper chords meet at
+ * the peak, and every inner truss has a gusset on each face at both knees and
+ * the peak, and a tie on the plates beside it.
+ * @param {import('./model.mjs').Shed} shed
+ * @param {{ lo: number[], hi: number[] }[]} topPlates
+ * @param {(check: string, fails: string[], total: number, what: string) => void} add
+ */
+function gambrelJoints(shed, topPlates, add) {
+  const d = shed.design;
+  const k = shed.dims;
+  const W = d.width;
+  const at = (m) => m.geom.origin[0] + 0.75;
+  const lowers = shed.members.filter((m) => m.kind === 'lower chord');
+  const uppers = shed.members.filter((m) => m.kind === 'upper chord');
+  const isBack = (m) => { const ys = m.geom.profile.map((p) => p[0]); return Math.min(...ys) + Math.max(...ys) > W; };
+  const has = (pts, p) => pts.some((q) => near(q[0], p[0]) && near(q[1], p[1]));
+  const fails = [];
+  for (const m of lowers) {
+    const prof = m.geom.profile;
+    const back = isBack(m);
+    const x = at(m);
+    // The foot: its outer corner at the wall's outside face, on the cap plates that cover the stud depth.
+    const outer = has(prof, [back ? W : 0, k.plateTop]);
+    const under = topPlates.filter((t) => near(t.hi[2], k.plateTop) && t.lo[1] <= (back ? W - k.stud : 0) + EPS && t.hi[1] >= (back ? W : k.stud) - EPS);
+    if (!outer || !covered(x - 0.75, x + 0.75, under.map((t) => ({ s0: t.lo[0], s1: t.hi[0] })))) fails.push(`${m.id} seat`);
+    const up = uppers.find((u) => near(at(u), x) && isBack(u) === back && u.geom.profile.filter((p) => has(prof, p)).length >= 2);
+    if (!up) fails.push(`${m.id} knee`);
+  }
+  for (const u of uppers) {
+    const mate = uppers.find((v) => v !== u && near(at(v), at(u)) && v.geom.profile.filter((p) => near(p[0], W / 2) && has(u.geom.profile, p)).length >= 2);
+    if (!mate) fails.push(`${u.id} peak`);
+  }
+  add('Gambrel chords seat on the plates and meet at the knees and the peak', fails, lowers.length + uppers.length, 'chords with a level foot on a long wall\'s cap plates, a shared mitre at the knee and a plumb cut meeting their mate at the peak');
+  // Gussets and ties on every truss but the gable-end ones.
+  const xs = [...new Set(lowers.map(at).map((x) => Math.round(x * 16) / 16))].sort((a, b) => a - b).slice(1, -1);
+  const gussets = shed.panels.filter((p) => p.kind === 'gambrel gusset').map((p) => bbox(p.geom));
+  const ties = shed.members.filter((m) => m.kind === 'rafter tie').map((m) => bbox(m.geom));
+  const tFails = [];
+  for (const x of xs) {
+    const faces = gussets.filter((g) => near(g.hi[0], x - 0.75) || near(g.lo[0], x + 0.75));
+    // Two knees and a peak, each with a gusset on each face.
+    if (faces.length < 6) tFails.push(`truss at ${fmtIn(x)}: ${faces.length} gussets`);
+    if (!ties.some((t) => near(t.lo[0], x + 0.75) && near(t.lo[2], k.plateTop) && t.lo[1] <= EPS && t.hi[1] >= W - EPS)) tFails.push(`truss at ${fmtIn(x)}: no tie`);
+  }
+  add('Gambrel trusses have their gussets and ties', tFails, xs.length, 'inner trusses with gussets on both faces at the knees and peak and a tie on the plates');
 }

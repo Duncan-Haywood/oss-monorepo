@@ -1,5 +1,6 @@
 ---
 title: "Start here: Shift Roster Builder, the week's schedule without the Sunday-night puzzle"
+seo_title: "Shift Roster Builder: the week's schedule, no Sunday-night puzzle"
 date: 2026-10-29
 tags: [start-here, shift-roster-builder, scheduling, small-business]
 description: "Who Shift Roster Builder is for, what it does for a small team's weekly rota, your first ten minutes, and the labour rules it does not model."
