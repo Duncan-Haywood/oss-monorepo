@@ -191,9 +191,8 @@ export function handler(state, save, env = process.env, now = Date.now, fetchImp
         const ids = new Set((incoming.leads || []).map((l) => l && l.id));
         const known = new Set(incoming.knownLeadIds || []);
         const fresh = state.desk.leads.filter((l) => !ids.has(l.id) && !known.has(l.id));
-        state.desk = normalizeDesk(keepIntakes(state.desk, incoming));
         if (Array.isArray(incoming.references)) incoming.references = mergeReferences(state.desk, incoming.references); // keep answers that arrived by link
-        state.desk = normalizeDesk(incoming);
+        state.desk = normalizeDesk(keepIntakes(state.desk, incoming)); // and info sheets families filled in
         state.desk.leads.push(...fresh);
         save();
         return send(200, JSON.stringify({ ok: true, added: fresh.length, desk: state.desk }), "application/json");
