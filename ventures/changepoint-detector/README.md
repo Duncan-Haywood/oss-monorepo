@@ -1269,6 +1269,17 @@ steps may be false alarms, with the measured counts (lynx 23, sunspots 46 by def
 a 2 sd step). Test: `cyclic-series.test.mjs`. Not covered: `treering` (38 false steps) has rho 0.16 by this estimate, so
 it gets no hint; a cycle detector that does not rely on rho is open.
 
+## A warning that does not depend on lag-1 rho (2026-10-30)
+
+The old autocorrelation warning needed rho >= 0.3, so the 7,980 tree rings (rho 0.16, 38 default steps, 11 with `--ar1`) got
+none. `blockVarianceRatio` compares the spread of block means (blocks of n/20) with what independent noise of the series'
+own difference-based sd gives. White noise: 95th percentile 1.6 at n >= 200, 2.5 at n = 48 (200 draws each, hand-run).
+Real series: treering 6.0, Nile 6.5, US inflation 28.9, DAX returns 1.6, great discoveries 2.3, nhtemp 2.6.
+When rho < 0.3, 5 or more steps and a ratio of 3 or more, `rangeWarning` says the steps may be slow drift or a cycle.
+It fires on treering (38 steps) and US inflation (12); not on DAX (6 steps), Nile (1) or the others. Limits: a real step
+raises the ratio too (Nile 6.5), so the text calls it a prompt to check dates, and the 5-step floor does the separating;
+tested on these series only, not on a documented many-step series. Test: `quiet-series.test.mjs`.
+
 ## Is residual autocorrelation a cycle test that does not rely on rho? No (2026-10-30, later still)
 
 The open item above asked for a cycle check that also catches `treering` (38 false steps, raw rho 0.16). The obvious
