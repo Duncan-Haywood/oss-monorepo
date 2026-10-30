@@ -348,6 +348,13 @@ export function estimate(shed, prices = examplePrices()) {
   const floorKey = d.floorPanel === 'OSB' ? 'floorOSB' : 'floorSheet';
   line('Sheet goods', label(floorKey), floorSheets, 'sheet', item(floorKey), src(floorKey));
   line('Sheet goods', label('roofSheet'), roofSheets, 'sheet', item('roofSheet'), src('roofSheet'));
+  // A gambrel's loft floor, and its truss gussets cut from 15/32" plywood sheathing
+  // (by area, with a quarter for the waste between the odd shapes).
+  const loftSheets = sheetCount2d(panelPieces(shed.panels, 'loft deck'));
+  if (loftSheets) line('Sheet goods', `${label(floorKey)} (loft floor)`, loftSheets, 'sheet', item(floorKey), src(floorKey));
+  const gussetSqIn = shed.panels.filter((p) => p.kind === 'gambrel gusset').reduce((t, p) => t + Math.abs(polyArea(p.geom.profile)), 0);
+  const gambrelGussetSheets = gussetSqIn ? Math.ceil((gussetSqIn * 1.25) / (48 * 96)) : 0;
+  if (gambrelGussetSheets) line('Sheet goods', '15/32" plywood sheathing, 4x8, cut into truss gussets', gambrelGussetSheets, 'sheet', item('plywoodLining'), src('plywoodLining'));
   // Truss gussets come out of their own sheets of the same OSB: each piece is
   // packed as the rectangle round it, long side along the sheet.
   const gussetPieces = shed.panels.filter((p) => p.kind === 'truss gusset').map((p) => {
@@ -359,6 +366,9 @@ export function estimate(shed, prices = examplePrices()) {
   });
   const gussetSheets = gussetPieces.length ? Math.min(shelfSheets(gussetPieces, d.kerf), sheetCount2d(gussetPieces)) : 0;
   if (gussetSheets) line('Sheet goods', `${label('roofSheet')}, for truss gussets`, gussetSheets, 'sheet', item('roofSheet'), src('roofSheet'));
+  // Attic storage deck on the truss bottom chords, of the floor's panel.
+  const deckSheets = sheetCount2d(panelPieces(shed.panels, 'attic deck'));
+  if (deckSheets) line('Sheet goods', `${label(floorKey)}, attic storage deck`, deckSheets, 'sheet', item(floorKey), src(floorKey));
   /** @type {ReturnType<typeof lapPlan> | null} */
   let lapCuts = null;
   if (d.siding) {
@@ -399,7 +409,7 @@ export function estimate(shed, prices = examplePrices()) {
         const jFt = openFt + (2 * d.length + 4 * (d.width / 2 / Math.cos(Math.atan(d.pitch / 12)))) / 12;
         line('Siding', label('vinylStarter'), Math.ceil((perimFt * 1.05) / 12), 'piece', item('vinylStarter'), src('vinylStarter'));
         line('Siding', label('vinylJ'), Math.ceil((jFt * 1.1) / 12.6), 'piece', item('vinylJ'), src('vinylJ'));
-        line('Siding', label('vinylCorner'), 4 * Math.ceil((dims.plateTop - dims.skidTop) / 120), 'piece', item('vinylCorner'), src('vinylCorner'));
+        line('Siding', label('vinylCorner'), 4 * Math.ceil(((dims.highPlateTop ?? dims.plateTop) - dims.skidTop) / 120), 'piece', item('vinylCorner'), src('vinylCorner'));
       } else if (shed.lap?.length) {
         lapCuts = lapPlan(shed, d, item);
         // Sheathing: one 4x8 per 4 ft column, strips above packed from whole sheets.
@@ -461,27 +471,32 @@ export function estimate(shed, prices = examplePrices()) {
   }
   if (d.insulation) {
     // Batts fill the bays between studs: about 90% of the wall area.
-    const wallSqFt = (2 * (d.length + d.width) * shed.design.wallHeight) / 144;
+    // A lean-to's front wall is taller than the rest by its rise.
+    const wallSqFt = (2 * (d.length + d.width) * shed.design.wallHeight + d.length * (dims.rise || 0)) / 144;
     line('Interior', label('insulation'), Math.ceil((wallSqFt * 0.9) / 125.94), 'bag', item('insulation'), src('insulation'));
   }
   if (d.roofing) {
     const area = dims.roofAreaSqFt * 1.1;
     if (d.roofCover === 'metal') {
-      // 8 ft panels with 6" end laps, about 21-1/2" of cover each, two slopes; ridge cap with 6" laps.
+      // 8 ft panels with 6" end laps, about 21-1/2" of cover each, two slopes (one on a lean-to); ridge cap with 6" laps
+      // (on a lean-to it closes the high edge; a high-side flashing made for the panel is the better part where the store has one).
       const cols = Math.ceil(d.length / 21.5);
       const rows = Math.ceil(dims.slopeLen / 90);
-      line('Roofing', label('metalPanel'), 2 * cols * rows, 'piece', item('metalPanel'), src('metalPanel'));
+      line('Roofing', label('metalPanel'), (dims.lean ? 1 : 2) * cols * rows, 'piece', item('metalPanel'), src('metalPanel'));
       line('Roofing', label('metalRidge'), Math.ceil(d.length / 120), 'piece', item('metalRidge'), src('metalRidge'));
     } else {
       line('Roofing', label('shingleBundle'), Math.ceil(area / 32.8), 'bundle', item('shingleBundle'), src('shingleBundle'));
       // A starter course along both eaves and up the four rakes; cap shingles along the ridge.
-      line('Roofing', label('starterShingle'), Math.ceil((2 * d.length + 4 * dims.slopeLen) / 12 / 120), 'bundle', item('starterShingle'), src('starterShingle'));
+      // A lean-to has one eave and two rakes; its cap shingles fold over the high edge.
+      const starterIn = dims.lean ? d.length + 2 * dims.slopeLen : 2 * d.length + 4 * dims.slopeLen;
+      line('Roofing', label('starterShingle'), Math.ceil(starterIn / 12 / 120), 'bundle', item('starterShingle'), src('starterShingle'));
       line('Roofing', label('ridgeCapShingle'), Math.ceil(d.length / 12 / 25), 'bundle', item('ridgeCapShingle'), src('ridgeCapShingle'));
       // Four nails a shingle, about 2-1/2 lb of 1-1/4" nails a square (100 sq ft) with starter and cap.
       roofNailBoxes = Math.ceil(((area / 100) * 2.5) / 5);
     }
     line('Roofing', label('underlayment'), Math.ceil(area / 1000), 'roll', item('underlayment'), src('underlayment'));
-    const dripFt = (2 * d.length + 4 * dims.slopeLen) / 12;
+    // Both eaves and every rake (a lean-to's slope runs tail to tail, so two rakes).
+    const dripFt = (2 * d.length + (dims.lean ? 2 : 4) * dims.slopeLen) / 12;
     line('Roofing', label('dripEdge'), Math.ceil(dripFt / 10), 'piece', item('dripEdge'), src('dripEdge'));
   }
   // Doors and windows the visitor picked from the catalogue.
@@ -521,7 +536,8 @@ export function estimate(shed, prices = examplePrices()) {
   } else if (dims.block) line('Foundation and hardware', label(dims.block.item), dims.blockCount, 'each', item(dims.block.item), src(dims.block.item));
   const vents = Object.values(shed.vents || {}).reduce((t, v) => t + v.length, 0);
   line('Foundation and hardware', `${label('gableVent')}, ${d.ventWidth}" x ${d.ventHeight}"`, vents, 'each', item('gableVent'), src('gableVent'));
-  if (d.roofType === 'ridgeBeam') line('Foundation and hardware', label('rafterHanger'), shed.members.filter((m) => m.kind === 'rafter').length, 'each', item('rafterHanger'), src('rafterHanger'));
+  // Hangers are for rafters meeting a ridge beam; a lean-to's rafters meet none.
+  if (d.roofType === 'ridgeBeam' && !dims.lean) line('Foundation and hardware', label('rafterHanger'), shed.members.filter((m) => m.kind === 'rafter').length, 'each', item('rafterHanger'), src('rafterHanger'));
   // A variable-pitch connector both seats and fastens the rafter at the wall; a notched rafter gets a tie.
   if (dims.connector) line('Foundation and hardware', label('pitchConnector'), dims.rafterCenters.length * 2, 'each', item('pitchConnector'), src('pitchConnector'));
   else line('Foundation and hardware', label('hurricaneTie'), dims.rafterCenters.length * 2, 'each', item('hurricaneTie'), src('hurricaneTie'));
@@ -541,7 +557,9 @@ export function estimate(shed, prices = examplePrices()) {
     line('Fasteners and sealants', label('framingNails'), Math.ceil(n16 / 225), 'box', item('framingNails'), src('framingNails'));
     // Sheathing: about 60 8d nails a 4x8 sheet (6" at edges, 12" in the field); 478 in a 5 lb box.
     const panelSiding = d.siding && ['T1-11', 'LP SmartSide', 'LP SmartSide 7/16'].includes(d.sidingType);
-    const sheathingSheets = floorSheets + roofSheets + (d.siding && !panelSiding ? Math.ceil(((shed.sidingArea ?? 0) * 1.1) / 32) : 0);
+    // A gambrel's gussets take their own count of 8d nails (gambrel.mjs).
+    const gambrelGussetNails = dims.gambrel ? (dims.rafterCenters.length - 2) * (2 * dims.gambrel.nailsPerKnee + dims.gambrel.nailsPerPeak) : 0;
+    const sheathingSheets = floorSheets + roofSheets + deckSheets + loftSheets + gambrelGussetNails / 60 + (d.siding && !panelSiding ? Math.ceil(((shed.sidingArea ?? 0) * 1.1) / 32) : 0);
     line('Fasteners and sealants', label('sheathingNails'), Math.ceil((sheathingSheets * 60) / 478), 'box', item('sheathingNails'), src('sheathingNails'));
     if (panelSiding) {
       const sheets = shed.sidingFull.length + sidingUpperSheets(shed);
@@ -554,7 +572,7 @@ export function estimate(shed, prices = examplePrices()) {
     const trimIn = (shed.wallTrim || []).reduce((t, x) => t + x.length, 0) + (shed.trim ? (shed.trim.fasciaFt + shed.trim.rakeFt) * 12 : 0);
     if (trimIn) line('Fasteners and sealants', label('trimNails'), Math.ceil((2 * Math.ceil(trimIn / 16)) / 168), 'box', item('trimNails'), src('trimNails'));
     // Connector nails: the rafter connectors, hangers or ties, about 8 each (check the maker's schedule).
-    const connectors = dims.rafterCenters.length * 2 + (d.roofType === 'ridgeBeam' ? shed.members.filter((m) => m.kind === 'rafter').length : 0);
+    const connectors = dims.rafterCenters.length * 2 + (d.roofType === 'ridgeBeam' && !dims.lean ? shed.members.filter((m) => m.kind === 'rafter').length : 0);
     // Truss gussets take the same 1-1/2" nails, counted per joint by the truss check (truss.mjs).
     let gussetNails = 0;
     if (dims.truss) {

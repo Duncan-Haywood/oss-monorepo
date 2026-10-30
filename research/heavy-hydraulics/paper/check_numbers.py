@@ -23,6 +23,10 @@ CHECKS = [
     ("3.3% (open-centre) and 3.2% (LS)", "regen_bound_results.txt", "OC 3.33%, LS 3.21%"),
     ("10.0% to 11.8%", "regen_uncapped_results.txt", "11.83%"),
     ("10.0% to 11.8%", "regen_bound_results.txt", "10.01%   10.26%"),
+    ("19.3 bar (neutral", "ranking_map_results.txt", "break-even dp_ls = 19.3 bar"),
+    ("23.9 bar (6.44", "ranking_map_results.txt", "break-even dp_ls = 23.9 bar"),
+    ("28.4 bar (11.44", "ranking_map_results.txt", "break-even dp_ls = 28.4 bar"),
+    ("0.92 bar of margin", "ranking_map_results.txt", "0.92 bar per bar"),
 ]
 
 

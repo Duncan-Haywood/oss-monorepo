@@ -22,6 +22,7 @@ import { connectionChecks } from './connections.mjs';
 import { check, roofCase, FLOOR, SPF2, T, DEPTH } from './structure.mjs';
 import { sidingSpan } from './simplify.mjs';
 import { subfloorCheck } from './levers.mjs';
+import { gambrelAnalysis } from './gambrel.mjs';
 import { fmtIn } from './lumber.mjs';
 
 // NDS Supplement Table 4A size factors for No. 2 dimension lumber, as
@@ -161,14 +162,19 @@ export function utilisation(shed, sc = structuralChecks(shed)) {
   const k = shed.dims;
   const cos = 1 / Math.sqrt(1 + (d.pitch / 12) ** 2);
   const roof = roofCase(d.snowLoad);
-  const beam = d.roofType === 'ridgeBeam';
+  // A lean-to's rafter spans wall to wall, and its tall front wall has the studs checked (checks.mjs).
+  const lean = d.style === 'leanTo';
+  const beam = !lean && d.roofType === 'ridgeBeam';
   const idsOf = (pred) => shed.members.filter(pred).map((m) => m.id);
-  const truss = d.roofType === 'truss';
-  const rafterRunIn = d.width / 2 - (beam ? 1.5 : truss ? 0 : 0.75) - k.stud;
+  const truss = !lean && d.roofType === 'truss';
+  const rafterRunIn = lean ? d.width - 2 * k.stud : d.width / 2 - (beam ? 1.5 : truss ? 0 : 0.75) - k.stud;
+  const studLen = lean ? k.highWall - 4.5 : k.studLen;
   const tribFt = (beam ? rafterRunIn / 2 + k.stud + d.overhang : d.width / 2 + d.overhang) / 12;
   // As in checks.mjs: under trusses the eave walls also carry half the attic load.
-  const deadPlf = (15 / cos) * tribFt + (truss ? (trussForces(d).wc * d.width) / 2 / 12 / (d.rafterSpacing / 12) : 0);
-  const snowPlf = d.snowLoad * tribFt;
+  // On a gambrel, as in checks.mjs: the trusses' reactions, a loft's storage counted as dead.
+  const gam = d.style === 'gambrel' ? gambrelAnalysis(d) : null;
+  const deadPlf = gam ? gam.wall.dead + gam.wall.loft : (15 / cos) * tribFt + (truss ? (trussForces(d).wc * d.width) / 2 / 12 / (d.rafterSpacing / 12) : 0);
+  const snowPlf = gam ? gam.wall.snow : d.snowLoad * tribFt;
   // Headers pair with rows in the order checks.mjs walks the walls.
   const headerQueue = Object.entries(shed.walls).flatMap(([name, wall]) => wall.openings.map((p) => ({ name, p })));
   /** @type {Use[]} */
@@ -184,7 +190,7 @@ export function utilisation(shed, sc = structuralChecks(shed)) {
       u.ids = idsOf((m) => m.kind === 'floor joist');
     } else if (row.member === 'Rafters') {
       const r = beamWords({ size: d.rafterSize, spacingIn: d.rafterSpacing, pitch: d.pitch, bearingIn: k.stud }, rafterRunIn, roof, 'on centre: each rafter carries that strip of roof');
-      Object.assign(u, r, { kinds: ['rafter'], explain: 'Each rafter is checked on its horizontal run from the wall plate to the ridge, with the load on plan.' });
+      Object.assign(u, r, { kinds: ['rafter'], explain: lean ? 'Each rafter is a simple beam between the two walls, checked on its horizontal clear span with the load on plan.' : 'Each rafter is checked on its horizontal run from the wall plate to the ridge, with the load on plan.' });
       u.ids = idsOf((m) => m.kind === 'rafter');
     } else if (row.member === 'Ridge beam') {
       const r = beamWords({ size: d.beamSize, plies: 2, spacingIn: d.width / 2, pitch: d.pitch, repetitive: false, bearingIn: 3 }, d.length - 2 * k.stud, roof, 'of roof: the upper half of each rafter, both slopes');
@@ -222,6 +228,14 @@ export function utilisation(shed, sc = structuralChecks(shed)) {
         : bottom ? 'The bottom chord holds the heels together against the roof\'s outward thrust, and carries the attic load between its supports.'
           : 'The gussets join the members; their nails take the force that passes through the joint.';
       u.ids = top ? idsOf((m) => m.kind === 'rafter') : bottom ? idsOf((m) => m.kind === 'bottom chord') : [];
+    } else if (gam && GAMBREL_KINDS[row.member]) {
+      // The gambrel's rows come from its frame analysis (gambrel.mjs); the detail is the working.
+      u.kinds = GAMBREL_KINDS[row.member];
+      u.ids = idsOf((m) => u.kinds.includes(m.kind));
+      u.parts = [{ name: row.governs, ratio: row.ratio, words: `${row.size}: ${row.detail}.` }];
+      u.explain = /gusset|Heel/.test(row.member) ? 'A joint of the gambrel truss: its nails take the force or the moment that passes through it, from the truss solved as a three-hinged frame.'
+        : /tie|Loft/.test(row.member) ? 'The tie holds the truss feet together against the outward thrust; under a loft it is also the loft joist and bends under the stored load.'
+          : 'A gambrel chord carries the roof in bending and the truss\'s thrust along its length, checked for both together (NDS 3.9.2).';
     } else if (/^Header over the /.test(row.member)) {
       const q = headerQueue.shift();
       if (q) {
@@ -240,11 +254,11 @@ export function utilisation(shed, sc = structuralChecks(shed)) {
       u.inputs = [['Panel', sf.name], ['Joist spacing', `${d.joistSpacing}"`]];
       u.explain = 'A panel, not a framing member: its maker rates it for a widest joist spacing, and that rating is the check.';
     } else if (row.member === 'Wall studs') {
-      u.parts = studWords(d.studSize, d.studSpacing, k.studLen, [deadPlf, snowPlf], d.windLoad);
-      u.inputs = [['Stud', `${d.studSize} at ${d.studSpacing}", ${fmtIn(k.studLen)} long`], ['Roof on the eave wall', `${n0(deadPlf)} lb/ft dead + ${n0(snowPlf)} lb/ft snow`], ['Wind', `${d.windLoad} psf on the wall face`]];
+      u.parts = studWords(d.studSize, d.studSpacing, studLen, [deadPlf, snowPlf], d.windLoad);
+      u.inputs = [['Stud', `${d.studSize} at ${d.studSpacing}", ${fmtIn(studLen)} long${lean ? ' (the tall front wall)' : ''}`], ['Roof on the eave wall', `${n0(deadPlf)} lb/ft dead + ${n0(snowPlf)} lb/ft snow`], ['Wind', `${d.windLoad} psf on the wall face`]];
       u.kinds = ['stud'];
       u.explain = 'An eave-wall stud is a column under the roof that also bends under wind on the siding. Gable-wall studs carry less and share this result.';
-      u.ids = idsOf((m) => m.kind === 'stud' && (m.group === 'wall:front' || m.group === 'wall:back'));
+      u.ids = idsOf((m) => m.kind === 'stud' && (m.group === 'wall:front' || (!lean && m.group === 'wall:back')));
     }
     if (u.parts.length) {
       const top = worstPart(u.parts);
@@ -380,3 +394,16 @@ export function marginReport(shed, target = 0.7, uses = utilisation(shed)) {
   }
   return { target, over, above, far };
 }
+
+/** Gambrel check rows and the member kinds each colours. */
+const GAMBREL_KINDS = /** @type {Record<string, string[]>} */ ({
+  'Lower chords': ['lower chord'],
+  'Upper chords': ['upper chord'],
+  'Truss ties': ['rafter tie'],
+  'Loft joists (also the truss ties)': ['rafter tie', 'loft joist'],
+  'Loft joist deflection': ['rafter tie', 'loft joist'],
+  'Knee gussets (nails)': ['lower chord', 'upper chord'],
+  'Peak gussets (nails)': ['upper chord'],
+  'Heel (tie to lower chord)': ['rafter tie'],
+  'Chord seat on the plate': ['lower chord'],
+});

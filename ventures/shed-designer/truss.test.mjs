@@ -60,6 +60,7 @@ test('gusset nails are counted from the force and carry it', () => {
 
 test('every preset frames as trusses: complete, connected, checked and nothing floats', () => {
   for (const [name, mk] of Object.entries(PRESETS)) {
+    if (mk().style === 'leanTo' || mk().style === 'gambrel') continue; // a lean-to is never trussed; a gambrel has its own trusses (gambrel.test.mjs)
     for (const extra of [{}, { overhang: 0 }]) {
       const s = buildShed(normalize({ ...mk(), ...extra, roofType: 'truss' }));
       const inner = s.dims.rafterCenters.length - 2;
@@ -134,4 +135,37 @@ test('the options made for you offer each other roof structure', () => {
   const c = generateCandidates(defaultDesign());
   const types = new Set(c.map((x) => x.design.roofType));
   assert.ok(types.has('truss') && types.has('ridgeBoard') && types.has('ridgeBeam'));
+});
+
+test('attic storage decks the inside trusses where a 12" tote fits, and checks the chords for 20 psf', () => {
+  const base = normalize({ ...PRESETS['8x12 classic'](), roofType: 'truss', pitch: 6 });
+  const plain = buildShed(base);
+  const st = buildShed(normalize({ ...base, atticStorage: true }));
+  assert.equal(plain.panels.filter((p) => p.kind === 'attic deck').length, 0);
+  const deck = st.panels.filter((p) => p.kind === 'attic deck');
+  assert.ok(deck.length >= 2, 'a strip each side of the king posts');
+  assert.ok(st.members.some((m) => m.kind === 'king post'), 'storage needs the king post');
+  // 6/12 on 8 ft: 12-3/4" of clear height is 25-1/2" in from each wall, so two strips of 22-3/4".
+  for (const p of deck) {
+    assert.ok(Math.abs(p.geom.profile[2][1] - (48 - 25.5 - 1.75)) < 1e-9, String(p.geom.profile[2][1]));
+    assert.ok(Math.abs(p.geom.origin[2] - st.dims.seatBase) < 1e-9, 'on the bottom chords');
+  }
+  // It spans the inside trusses only, with its ends on truss centres or the outer trusses' faces.
+  const xs = deck.flatMap((p) => [p.geom.origin[0], p.geom.origin[0] + p.geom.profile[2][0]]);
+  const c = st.dims.rafterCenters;
+  assert.ok(Math.min(...xs) >= c[1] - 0.75 - 1e-9 && Math.max(...xs) <= c[c.length - 2] + 0.75 + 1e-9);
+  assert.ok(xs.every((x) => c.some((cc) => Math.abs(cc - x) < 0.76)));
+  const ii = integrity(st);
+  assert.deepEqual([ii.floating, ii.clashes], [[], []]);
+  const row = structuralChecks(st).rows.find((r) => r.member === 'Truss bottom chords');
+  assert.match(row?.detail ?? '', /20 psf/);
+  assert.ok(row?.ok);
+  const est = estimate(st);
+  assert.ok(est.shopping.some((r) => /attic storage deck/.test(r.name)));
+  assert.ok(est.total > estimate(plain).total);
+  assert.match(JSON.stringify(buildInstructions(st, est)), /Attic storage: once the roof is sheathed/);
+  // Too flat for a tote: no deck, and it says so.
+  const flat = buildShed(normalize({ ...base, pitch: 2, atticStorage: true }));
+  assert.equal(flat.panels.filter((p) => p.kind === 'attic deck').length, 0);
+  assert.ok(flat.warnings.some((w) => /too low for 12/.test(w)));
 });

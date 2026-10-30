@@ -6,6 +6,7 @@ import assert from 'node:assert/strict';
 import { buildShed, normalize, defaultDesign, PRESETS, WALLS, BLOCKS } from './model.mjs';
 import { estimate, examplePrices, priceOr } from './estimate.mjs';
 import { connectionChecks } from './connections.mjs';
+import { structuralChecks } from './checks.mjs';
 import { integrity } from './integrity.mjs';
 import { buildSheets, sheetsDxf, dxfText } from './drawings.mjs';
 import { PRODUCTS } from './products.mjs';
@@ -59,6 +60,10 @@ function randomDesign(r) {
     const product = r() < 0.3 && prods.length ? pick(prods).id : (kind === 'door' && r() < 0.15 ? 'site-built' : undefined);
     d.openings.push({ id: `o${i + 1}`, kind, wall, offset: between(-12, face + 12), width: between(12, 96), height: between(12, 96), ...(kind === 'window' ? { sill: between(0, 72) } : {}), ...(product ? { product } : {}) });
   }
+  // Attic storage applies to truss roofs; elsewhere it is ignored.
+  d.atticStorage = r() < 0.3;
+  // A quarter are gambrels (barn roofs), with or without a loft.
+  if (r() < 0.25) Object.assign(d, { style: 'gambrel', gambrelLower: between(16, 30), gambrelKnee: r() < 0.5 ? 0 : between(0, 120), loft: pick(['none', 'half', 'full']), loftJoist: pick(['2x6', '2x8', '2x10']) });
   return d;
 }
 
@@ -106,6 +111,17 @@ test('an inner rafter near a gable end moves in clear of the gable wall and its 
   assert.ok(c.at(-2) + 0.75 + 1.5 <= 222 - 5.5 + 1e-9, `inner rafter and tie at ${c.at(-2)} clear the gable studs`);
   assert.ok(c.slice(1).every((x, i) => x - c[i] <= 12 + 1e-9), 'no bay wider than the spacing');
   assert.deepEqual(integrity(s).clashes, []);
+});
+
+test('a stud past its buckling load fails its check and says so, with no "Infinity%" anywhere', () => {
+  // Seed 18712 found three: 12 ft walls of 2x4 at 24" under heavy snow, where the
+  // stud's axial stress passes its Euler buckling stress (studCheck answers Infinity).
+  const s = buildShed({ ...PRESETS['8x12 classic'](), width: 186, wallHeight: 144, studSpacing: 24, snowLoad: 80, windLoad: 30 });
+  const row = structuralChecks(s).rows.find((r) => r.member === 'Wall studs');
+  assert.ok(Number.isFinite(row.ratio) && row.ratio > 1);
+  assert.equal(row.ok, false);
+  assert.match(row.detail, /buckling load/);
+  assert.deepEqual(invariants(s.design), []);
 });
 
 test('a birdsmouth that leaves no rafter over the wall gets no eave blocks pushed into the plate', () => {

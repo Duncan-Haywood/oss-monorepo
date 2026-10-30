@@ -7,6 +7,7 @@ import { connectionChecks } from './connections.mjs';
 import { integrity } from './integrity.mjs';
 import { buildInstructions } from './instructions.mjs';
 import { LAP_PRODUCTS, lapStagger, backed } from './lap.mjs';
+import { sidingSpan } from './simplify.mjs';
 import { SWAPS } from './catalog.mjs';
 
 const lap = (o) => buildShed({ ...defaultDesign(), sidingType: 'fiber cement', ...o });
@@ -30,7 +31,7 @@ test('the default 8x12 in fiber cement: no butt joints, 7" courses, OSB under it
 
 test('long walls: every butt joint on a stud, two stud bays from the course below for fiber cement at 16", one for LP', () => {
   for (const [type, sp, gap] of [['fiber cement', 16, 32], ['fiber cement', 24, 24], ['LP SmartSide lap', 16, 16]]) {
-    const shed = lap({ sidingType: type, length: 288, width: 144, studSpacing: sp });
+    const shed = lap({ sidingType: type, length: 288, width: 144, studSpacing: sp, maxHaulFt: 0 });
     assert.equal(lapStagger(shed.design), gap);
     const joints = shed.lap.flatMap((f) => f.joints.map((j) => ({ ...j, f })));
     assert.ok(joints.length > 0, `${type} has joints on a 24 ft wall`);
@@ -65,9 +66,11 @@ test('the order: planks from the cut plan, OSB, wrap, starter ripped from a plan
 });
 
 test('engineered wood lap uses only 12 ft planks when 16 ft boards are not ticked', () => {
-  const both = estimate(lap({ sidingType: 'LP SmartSide lap', length: 240 }));
+  // The default 12 ft haul limit keeps 16 ft planks off the order; with no limit the cut plan uses them.
+  assert.ok(estimate(lap({ sidingType: 'LP SmartSide lap', length: 240 })).lapCuts.boards.every((b) => b.stock === 144));
+  const both = estimate(lap({ sidingType: 'LP SmartSide lap', length: 240, maxHaulFt: 0 }));
   assert.ok(both.lapCuts.boards.some((b) => b.stock === 192));
-  const short = lap({ sidingType: 'LP SmartSide lap', length: 240, lengths: [8, 10, 12] });
+  const short = lap({ sidingType: 'LP SmartSide lap', length: 240, lengths: [8, 10, 12], maxHaulFt: 0 });
   const est = estimate(short);
   assert.ok(est.lapCuts.boards.every((b) => b.stock === 144));
   assert.ok(!est.shopping.some((l) => /8 in x 16 ft/.test(l.name)));
@@ -111,5 +114,31 @@ test('even courses: the top plank on the long walls meets the plate, at no more 
     const front = shed.lap.find((f) => f.wall === 'front');
     const last = front.courses[front.courses.length - 1];
     assert.ok(Math.abs(last.zb + spec.width - shed.dims.plateTop) < 1e-6, `${type} ${JSON.stringify(o)} top course ends at ${last.zb + spec.width}, plate ${shed.dims.plateTop}`);
+  }
+});
+
+test('stud spacing: lap over OSB allows 24" o.c. for both products (cited in lap.mjs), and the built shed says so', () => {
+  for (const type of Object.keys(LAP_PRODUCTS)) {
+    const shed = lap({ sidingType: type, studSpacing: 24 });
+    assert.equal(shed.sidingStudLimit, 24);
+    assert.equal(sidingSpan(shed.design), 24);
+    assert.ok(connectionChecks(shed).rows.every((r) => r.ok), type);
+  }
+  assert.equal(LAP_PRODUCTS['LP SmartSide lap'].maxStuds.directToStuds, 16);
+  assert.equal(buildShed({ ...defaultDesign(), sidingType: 'T1-11' }).sidingStudLimit, undefined);
+});
+
+// Fuzz seed 11 (FUZZ_N=2000): a window notching the course above left it no stud
+// 32" clear of the joint below, because the lower course picked its joint without
+// looking up. Each course now takes the first legal plan that leaves the next one a legal plan.
+const SEED11 = [
+  {"length": 120, "width": 192, "wallHeight": 65.5, "pitch": 8, "overhang": 18, "studSize": "2x4", "studSpacing": 16, "joistSize": "2x4", "joistSpacing": 16, "rafterSize": "2x4", "rafterSpacing": 12, "roofType": "truss", "beamSize": "2x8", "skidSize": "4x4", "skidSpacing": 66, "foundation": "piers", "pad": "under blocks", "gableVents": false, "ventWidth": 9, "ventHeight": 9, "maxPeak": 151, "autoWall": true, "autoPitch": false, "autoOverhang": false, "sidingType": "fiber cement", "wallTrim": "none", "roofCover": "metal", "rafterSeat": "connector", "maxHaulFt": 12, "kerf": 0.125, "lengths": [8, 10, 12, 14, 16, 18, 20], "openings": [{"id": "o1", "kind": "window", "wall": "front", "offset": 72, "width": 13, "height": 81, "sill": 10}, {"id": "o2", "kind": "window", "wall": "left", "offset": 80, "width": 81, "height": 30, "sill": 1}, {"id": "o3", "kind": "window", "wall": "left", "offset": 56, "width": 51, "height": 16, "sill": 69}]},
+  {"length": 282, "width": 120, "wallHeight": 65, "pitch": 6, "overhang": 14, "studSize": "2x6", "studSpacing": 16, "joistSize": "2x8", "joistSpacing": 24, "rafterSize": "2x8", "rafterSpacing": 24, "roofType": "ridgeBoard", "beamSize": "2x12", "skidSize": "4x6", "skidSpacing": 54, "foundation": "blocks", "pad": "full", "gableVents": true, "ventWidth": 13, "ventHeight": 17, "maxPeak": 145, "autoWall": false, "autoPitch": true, "autoOverhang": false, "sidingType": "fiber cement", "wallTrim": "1x4", "roofCover": "metal", "rafterSeat": "birdsmouth", "maxHaulFt": 12, "kerf": 0.125, "lengths": [8, 10, 12, 14, 16, 20], "openings": [{"id": "o1", "kind": "window", "wall": "front", "offset": 56, "width": 21, "height": 23, "sill": 43, "product": "swm-2427"}, {"id": "o2", "kind": "window", "wall": "back", "offset": -4, "width": 52, "height": 37, "sill": 0}, {"id": "o3", "kind": "door", "wall": "back", "offset": 156, "width": 92, "height": 22}, {"id": "o4", "kind": "door", "wall": "back", "offset": 242, "width": 39, "height": 23, "product": "jeldwen-3280-6p"}, {"id": "o5", "kind": "door", "wall": "right", "offset": -7, "width": 61, "height": 94, "product": "masonite-3680"}]},
+];
+test('fuzz seed 11: a course picks its joints so the notched course above can still break on a stud', () => {
+  for (const d of SEED11) {
+    const shed = buildShed(d);
+    const rows = connectionChecks(shed).rows.filter((r) => r.check.startsWith('Lap'));
+    assert.ok(rows.length && rows.every((r) => r.ok), rows.map((r) => r.detail).join('\n'));
   }
 });
