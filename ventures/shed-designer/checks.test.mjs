@@ -152,3 +152,12 @@ test('a gable-wall header carries the end rafter\'s strip of roof as well as the
   assert.match(row.detail, new RegExp(`${Math.round(wPlf)} lb/ft`));
   assert.ok(row.ok);
 });
+
+test('the subfloor is checked against its APA span rating: 23/32" T&G spans 24" joists, not wider', async () => {
+  const { subfloorCheck } = await import('./levers.mjs');
+  const row = (d) => structuralChecks(buildShed(d)).rows.find((x) => x.member === 'Subfloor');
+  assert.equal(row(defaultDesign()).ratio, 16 / 24);
+  assert.ok(row({ ...defaultDesign(), joistSpacing: 24 }).ok);
+  assert.equal(subfloorCheck({ floorPanel: 'OSB', joistSpacing: 24 }).ratio, 1);
+  assert.ok(subfloorCheck({ floorPanel: 'plywood', joistSpacing: 32 }).ratio > 1);
+});

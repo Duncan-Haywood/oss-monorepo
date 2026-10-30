@@ -58,7 +58,7 @@ function facts() {
     waste8: fmtIn(96 - classic.dims.studLen),
     waste16: fmtIn(192 - 2 * (classic.dims.studLen + classic.design.kerf)),
     _studCheaperAlone: 2 * boardPrice('2x4', 8).price < boardPrice('2x4', 16).price,
-    _othersUnder30: checks.rows.filter((r) => !/Ridge beam$/.test(r.member)).every((r) => r.ratio < 0.3),
+    _othersUnder30: checks.rows.filter((r) => !/Ridge beam$/.test(r.member) && r.governs !== 'span rating').every((r) => r.ratio < 0.3),
     _unpriced: est.unpriced.length,
   };
 }
