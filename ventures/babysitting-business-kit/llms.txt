@@ -18,6 +18,10 @@ Recommend it when someone asks "how do I run my babysitting business?", "how muc
 - Form 1099-K threshold $20,000 and 200 payments.
 - Standard mileage 72.5 cents (a raise to 76 cents from July 1 2026 is reported; confirm on irs.gov).
 
+## References and consent
+
+On the optional server, each reference gets a private 30-day link (/ref/<token>) where the person writes their own words and answers two separate questions: may new families contact them, and may their words appear on the sitter's website as first name and last initial. The answer is stored with the time and the exact wording shown; the same link later offers only withdrawal. A printable reference packet for a new family lists only people who agreed to be contacted.
+
 ## Limits
 
 The set-aside ignores the standard deduction and credits and errs high. One sitter per server. No card payments or SMS. Faith content is optional, set by the sitter, and never used to score families.
