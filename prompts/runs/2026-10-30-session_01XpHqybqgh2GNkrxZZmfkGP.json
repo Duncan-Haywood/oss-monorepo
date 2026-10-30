@@ -64,7 +64,7 @@
     "docs/contributing/start-here.md"
   ],
   "goal": null,
-  "notes": "Posts drafted by 7 parallel subagents with one brief (no fabrication, every figure from a repo file, quick commands re-run); each reported claims it left out. Three subagent runs rewrote tracked results files with float noise and restored them from HEAD; git status confirmed clean. Live URLs probed: workers.dev pages for open-tennis-robots, shed-designer, research/marine-hull, freelancer-tax-pack, feedback all 200. Checks: check_post_frontmatter, check_start_here (+6 unit tests), post_similarity.",
+  "notes": "Posts drafted by 7 parallel subagents with one brief (no fabrication, every figure from a repo file, quick commands re-run); each reported claims it left out. Three subagent runs rewrote tracked results files with float noise and restored them from HEAD; git status confirmed clean. Live URLs probed: workers.dev pages for open-tennis-robots, shed-designer, research/marine-hull, freelancer-tax-pack, feedback all 200. Checks: check_post_frontmatter, check_start_here (+6 unit tests), post_similarity. CI starved (ci_starvation.py --run 41131396912: job never got a runner); verified locally at head: build.test.mjs 305/305, writing.test.mjs 21/21, check_start_here ok (37 posts), check_md_links ok, check_post_frontmatter ok, unit tests ok. run_workflow_locally --for-changes hit its 300 s budget so its FAILs were timeouts. The new check caught a real gap on main: 2026-10-30-contribute-from-chatgpt.md (another session) was tagged start-here but unlinked; linked it both ways.",
   "corrections": [],
   "redteam": null
 }
