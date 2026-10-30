@@ -2,7 +2,7 @@
 title: "What an HOA wants to see before you build a shed, from your own design"
 date: 2026-10-30
 tags: [shed-designer, hoa, drawings]
-description: "The shed designer now prints an HOA packet: four coloured elevations with every height and the roof pitch, the finishes and their colours, a 3D view and the site plan."
+description: "The shed designer now prints an HOA packet: four coloured, dimensioned elevations, the finishes and colours, a 3D view and the site plan."
 ---
 
 A homeowner and a builder walked through the [shed designer](https://duncan-haywood.github.io/oss-monorepo/shed-designer/) for a real shed this week. They didn't need a building permit, because the shed is under 100 sq ft. They did need their HOA's approval. The HOA asked for what the shed looks like on all sides, with dimensions, and where it goes on the lot, as a PDF.
