@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
 
-for (const name of ["index.html", "how-many-studs-for-a-wall.html"]) {
+for (const name of ["index.html", "how-many-studs-for-a-wall.html", "stair-stringer-calculator.html"]) {
   test(`${name} carries the disclaimer, privacy line and sponsor link`, () => {
     const html = page(name);
     assert.match(html, /No warranty/);
@@ -79,6 +79,7 @@ test("sitemap lists every page and robots allows crawling", () => {
   const sm = page("sitemap.xml");
   assert.match(sm, /<loc>\.\/index\.html<\/loc>/);
   assert.match(sm, /<loc>\.\/how-many-studs-for-a-wall\.html<\/loc>/);
+  assert.match(sm, /<loc>\.\/stair-stringer-calculator\.html<\/loc>/);
   assert.match(page("robots.txt"), /Allow: \//);
 });
 
@@ -306,4 +307,20 @@ test("the deck controls are read into plan.deck, restored from a saved plan and 
   assert.match(html, /layoutDeck\(plan\.deck\)/);
   assert.match(html, /\$\("#dkOn"\)\.checked = Boolean\(dkp\)/);
   assert.match(html, /<code>deck_on<\/code>/);
+});
+
+test("the stair calculator page: FAQ matches its data, and its default inputs give the README's 9 ft stair", async () => {
+  const html = page("stair-stringer-calculator.html");
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) {
+    assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
+    assert.ok(html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
+  }
+  const ids = new Set([...html.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]));
+  for (const m of html.matchAll(/\$\("([\w-]+)"\)/g)) assert.ok(ids.has(m[1]), m[1]);
+  const { layoutStair, stairText } = await import("./stairs.mjs");
+  const l = layoutStair({ totalRise: 108, tread: 10, width: 36, stringer: "2x12", treadBoard: "2x12", treadThickness: 1.5, nosing: 0.75, floorThickness: 12.5 });
+  assert.equal(l.risers, 14);
+  assert.match(stairText(l)[0], /14 risers of 7-11\/16"/);
+  assert.match(html, /9 ft rise with 10 in treads and a 12-1\/2 in floor, at least 9 ft 11-15\/16 in/);
 });
