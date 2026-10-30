@@ -34,6 +34,13 @@ const amountBucket = (cents) => `amt:${Math.min(12, Math.floor(Math.log2(Math.ab
 // keyword that fits two accounts is left out, so the line goes to review rather
 // than being guessed. `dir` limits a rule to money in or money out.
 export const BUILT_IN = [
+  // Gap probe 9 (2026-10-30, eval/probe9.mjs): cottage bakers, drone pilots, locksmiths, streamers, locum clinicians.
+  // First in the list: Elgato and B&H were filed as postage, a farmers-market booth fee as platform fees.
+  ["6100", "out", /sugar art supply|costco business center|\bdji\b|battery barn|hillman group|southern lock|keyless entry/],
+  ["6110", "out", /farmers market booth|faa dronezone|laanc|locksmith license|medical license|nurse license|\bdea registration/],
+  ["6060", "out", /\bpix4d\b|dronedeploy|propeller aero|servicepro|streamlabs|memberful|uptodate/],
+  ["6170", "out", /part 107|\baloa\b|\bbls\b|\bacls\b|\baanp\b|\bama membership/],
+  ["4000", "in", /youtube adsense|chg healthcare|locum tenens/],
   // Gap probe 8 (2026-10-30, eval/probe8.mjs): truckers, small farms, tattoo artists, trainers, wedding DJs.
   ["6060", "out", /dat load board|\btraining ?peaks\b|dj intelligence|soundcloud|bpm supreme/],
   ["6010", "out", /freight factoring|rts financial/],
