@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import { buildShed, normalize, defaultDesign, PRESETS, WALLS, BLOCKS } from './model.mjs';
 import { estimate, examplePrices, priceOr } from './estimate.mjs';
 import { connectionChecks } from './connections.mjs';
-import { structuralChecks, fmtUse } from './checks.mjs';
+import { structuralChecks } from './checks.mjs';
 import { integrity } from './integrity.mjs';
 import { buildSheets, sheetsDxf, dxfText } from './drawings.mjs';
 import { PRODUCTS } from './products.mjs';
@@ -109,15 +109,14 @@ test('an inner rafter near a gable end moves in clear of the gable wall and its 
   assert.deepEqual(integrity(s).clashes, []);
 });
 
-test('a stud past its buckling load fails its check and says so, not "Infinity%"', () => {
+test('a stud past its buckling load fails its check and says so, with no "Infinity%" anywhere', () => {
   // Seed 18712 found three: 12 ft walls of 2x4 at 24" under heavy snow, where the
-  // stud's axial stress passes its Euler buckling stress and the ratio is Infinity.
+  // stud's axial stress passes its Euler buckling stress (studCheck answers Infinity).
   const s = buildShed({ ...PRESETS['8x12 classic'](), width: 186, wallHeight: 144, studSpacing: 24, snowLoad: 80, windLoad: 30 });
   const row = structuralChecks(s).rows.find((r) => r.member === 'Wall studs');
-  assert.equal(row.ratio, Infinity);
+  assert.ok(Number.isFinite(row.ratio) && row.ratio > 1);
   assert.equal(row.ok, false);
-  assert.equal(fmtUse(row.ratio), 'past its buckling load');
-  assert.equal(fmtUse(0.794), '79%');
+  assert.match(row.detail, /buckling load/);
   assert.deepEqual(invariants(s.design), []);
 });
 

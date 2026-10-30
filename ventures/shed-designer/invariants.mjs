@@ -53,8 +53,7 @@ export function invariants(input, prices = examplePrices()) {
   // A ridge too low to clear the ties or plates is a design the tool warns about, not a modelling bug.
   if (integ.clashes.length && !shed.warnings.some((w) => w.startsWith('The ridge sits too low'))) bad.push(`clashes: ${integ.clashes.slice(0, 3).join(', ')}`);
   const sc = structuralChecks(shed);
-  // Infinity is a real answer (a column past its Euler buckling load), but only on a failing row.
-  for (const row of sc.rows) if (Number.isNaN(row.ratio) || row.ratio < 0 || (row.ratio === Infinity && row.ok)) bad.push(`check ${row.member} ratio ${row.ratio}`);
+  for (const row of sc.rows) if (!finite(row.ratio) || row.ratio < 0) bad.push(`check ${row.member} ratio ${row.ratio}`);
   // The utilisation report and the heat-map plan sheets print every ratio as text.
   const uses = utilisation(shed, sc);
   const words = JSON.stringify(marginReport(shed, 0.7, uses)) + heatSheets(shed, heatById(uses)).map((s) => heatSheetSvg(s)).join('');
