@@ -147,6 +147,7 @@ Serve this folder as static files, for example `python3 -m http.server` here, th
 | `prices.mjs` | starting prices and their sources |
 | `recheck_prices.py` | re-reads, by hand, the prices of sellers whose robots.txt allows reading product pages (the window maker, the door seller, Hemlock Hardware) and prints any that moved; Home Depot, Lowe's and Menards are never fetched and are checked in a browser |
 | `candidates.mjs` | the options made for you |
+| `paretoaudit.mjs`, `value.mjs` | the brute-force check that each preset is near the cost/storage front; storage per dollar beside dated store kit listings |
 | `costlevers.mjs` | what each foundation, floor, door and window choice costs against your design |
 | `instructions.mjs` | step-by-step build instructions from the design |
 | `app.mjs`, `index.html` | the page |
