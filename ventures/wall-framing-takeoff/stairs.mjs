@@ -24,7 +24,7 @@ export function maxTreadSpan(thickness) { return thickness < 1.25 ? 12 : thickne
 /** Guard and handrail limits (model residential code's usual ones, typed so the local book can change them): 36 in guard, handrail 34 to 38 in above the nose line, balusters with no clear gap a 4 in sphere passes, posts no more than 72 in apart, 4 in under the bottom rail. */
 export const RAIL_LIMITS = { guardHeight: 36, handrailMin: 34, handrailMax: 38, maxGap: 4, maxPostSpacing: 72, bottomGap: 4 };
 
-/** @typedef {{ sides?: number, handrail?: boolean, handrailHeight?: number, balusterWidth?: number, railBoard?: string, postWidth?: number, limits?: Partial<typeof RAIL_LIMITS> }} Rail */
+/** @typedef {{ sides?: number, handrail?: boolean, handrailHeight?: number, bracketSpacing?: number, balusterWidth?: number, railBoard?: string, postWidth?: number, limits?: Partial<typeof RAIL_LIMITS> }} Rail */
 /** @typedef {{ id?: string, rail?: Rail, totalRise: number, tread?: number, stringer?: string, width?: number, stringerSpacing?: number, treadThickness?: number, treadBoard?: string, treadGap?: number, nosing?: number, floorThickness?: number, openingLength?: number, openRisers?: boolean, riserBoard?: string, treadSpanMax?: number, limits?: Partial<typeof STAIR_LIMITS> }} Stair */
 
 export function sampleStair() {
@@ -146,7 +146,7 @@ export function layoutRail(g, r, notes) {
     sides, segments, posts: { count: posts * sides, perSide: posts, width: post },
     balusters: { count: perSegment * segments * sides, perSegment, length: balusterLength, width: bw, gap },
     guardRails: { size: board, count: 2 * sides, length: railLength },
-    handrail: r.handrail === false ? null : { count: 1, height: hh, length: g.pitch + 12 + g.tread },
+    handrail: r.handrail === false ? null : handrailWithBrackets({ count: 1, height: hh, length: g.pitch + 12 + g.tread }, r.bracketSpacing ?? 48),
     guardHeight: L.guardHeight, maxGap: L.maxGap,
   };
 }
@@ -177,6 +177,11 @@ export function layoutLandingGuard(edges, r = {}, sharedCorners = 0) {
   return { edges, sharedCorners, posts: { count: posts, width: post }, balusters: { count: balusters, length: L.guardHeight - 2 * thick - L.bottomGap, width: bw, maxGap: gapMax }, guardRails: { size: board, count: rails.length, lengths: rails }, guardHeight: L.guardHeight };
 }
 
+/** Wall brackets for a handrail: one near each end plus enough between that none is farther apart than `spacing` (a typed 48 in, not a code figure). */
+function handrailWithBrackets(h, spacing) {
+  return { ...h, bracketSpacing: spacing, brackets: Math.max(2, Math.ceil(h.length / spacing - 1e-9) + 1) };
+}
+
 /** Cut rows in the engine's shape, so `takeoff(plan, stairCuts(layout))` buys stair lumber with the walls'. */
 export function stairCuts(l) {
   if (!l.ok) return [];
@@ -197,7 +202,7 @@ export function stairText(l) {
   out.push(`  Stairwell opening at least ${formatLength(l.minOpening)} long for ${formatInches(l.limits.headroom)} of headroom${l.opening ? `; yours ${formatLength(l.opening.length)} leaves ${formatInches(l.opening.headroom)}${l.opening.ok ? "" : " (too short)"}` : ""}`);
   if (l.rail) {
     const q = l.rail;
-    out.push(`  Guard (${q.sides} side${q.sides === 1 ? "" : "s"}, ${formatInches(q.guardHeight)} high): ${q.posts.count} posts, ${q.balusters.count} balusters ${formatInches(q.balusters.length)} at the long point with ${formatInches(q.balusters.gap)} clear (limit ${formatInches(q.maxGap)}), ${q.guardRails.count} ${q.guardRails.size} rails ${formatLength(q.guardRails.length)}${q.handrail ? `; handrail ${formatLength(q.handrail.length)} at ${formatInches(q.handrail.height)}` : ""}`);
+    out.push(`  Guard (${q.sides} side${q.sides === 1 ? "" : "s"}, ${formatInches(q.guardHeight)} high): ${q.posts.count} posts, ${q.balusters.count} balusters ${formatInches(q.balusters.length)} at the long point with ${formatInches(q.balusters.gap)} clear (limit ${formatInches(q.maxGap)}), ${q.guardRails.count} ${q.guardRails.size} rails ${formatLength(q.guardRails.length)}${q.handrail ? `; handrail ${formatLength(q.handrail.length)} at ${formatInches(q.handrail.height)} on ${q.handrail.brackets} brackets (at most ${formatInches(q.handrail.bracketSpacing)} apart)` : ""}`);
   }
   for (const n of l.notes) out.push(`  Note: ${n}`);
   return out;

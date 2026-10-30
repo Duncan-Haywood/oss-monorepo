@@ -18,9 +18,10 @@ test('the default 8x12 in fiber cement: no butt joints, 7" courses, OSB under it
   assert.ok(shed.panels.some((p) => p.kind === 'wall sheathing'));
   assert.equal(shed.lap.reduce((t, f) => t + f.joints.length, 0), 0, 'a 12 ft wall takes one 12 ft plank a course');
   const front = shed.lap.find((f) => f.wall === 'front');
-  // 92-3/4" from the skids to the plate top: 14 even courses of 6-1/2" (the maker allows up to 7").
-  assert.equal(shed.lapExposure, 6.5);
-  assert.deepEqual(front.courses.slice(0, 3).map((c) => c.zb - shed.dims.skidTop), [0, 6.5, 13]);
+  // 90-3/4" from the skids to the plate top (the 84-1/2" wall under a two-2x4
+  // door header): 13 even courses of 6-7/8" (the maker allows up to 7").
+  assert.equal(shed.lapExposure, 6.875);
+  assert.deepEqual(front.courses.slice(0, 3).map((c) => c.zb - shed.dims.skidTop), [0, 6.875, 13.75]);
   for (const f of shed.lap) for (const p of f.pieces) assert.ok(p.len <= 144 && p.len > 0, `${f.wall} piece ${p.len}`);
   const rows = connectionChecks(shed).rows;
   assert.ok(rows.every((r) => r.ok), rows.filter((r) => !r.ok).map((r) => r.detail).join('\n'));
@@ -94,7 +95,7 @@ test('build steps: sheathing, wrap, trim first, starter, story pole and the join
   const sec = steps.find((s) => s.title === 'Wall sheathing, wrap and lap siding');
   assert.ok(sec);
   const text = sec.steps.join(' ');
-  for (const re of [/7\/16" OSB/, /house wrap/, /Starter: rip/, /0", 6-1\/2", 13", 19-1\/2"/, /Butt joints \(\d+\)/, /front course 1 at 144"/, /6" above the ground/]) assert.match(text, re);
+  for (const re of [/7\/16" OSB/, /house wrap/, /Starter: rip/, /0", 6-7\/8", 13-3\/4", 20-5\/8"/, /Butt joints \(\d+\)/, /front course 1 at 144"/, /6" above the ground/]) assert.match(text, re);
   assert.ok(!steps.some((s) => s.title === 'Siding'));
   assert.ok(!steps.flatMap((s) => s.steps).some((x) => /T1-11 panels/.test(x)));
 });

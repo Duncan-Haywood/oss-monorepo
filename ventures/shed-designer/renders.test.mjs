@@ -6,6 +6,7 @@ import assert from 'node:assert/strict';
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { BUDGET, VIEWS, altFor, renderFor, renderTargets } from './renders.mjs';
+import { generate as generateSizePages } from './make-size-pages.mjs';
 import { MANIFEST, OUT, allTargets, galleryTargets, openStage, readManifest, sceneHash, sizeTargets, staleTargets } from './make-renders.mjs';
 
 const FIX = 'redraw them with: node ventures/shed-designer/make-renders.mjs (needs Playwright; see the README, "Pictures of the designs")';
@@ -109,8 +110,12 @@ test('pages that show a picture use its current file and alt text', () => {
   const byFile = new Map(Object.values(m.designs).flatMap((d) => Object.values(d.files).map((f) => [f.file, f])));
   const unesc = (s) => s.replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
   let seen = 0;
-  for (const page of readdirSync(new URL('.', import.meta.url)).filter((f) => f.endsWith('.html'))) {
-    const html = readFileSync(new URL(`./${page}`, import.meta.url), 'utf8');
+  // The size pages are written at build time (platform/pages/generated-pages.mjs),
+  // so they are checked as the generator writes them, not as files on disk.
+  const pages = new Map(readdirSync(new URL('.', import.meta.url)).filter((f) => f.endsWith('.html'))
+    .map((f) => [f, readFileSync(new URL(`./${f}`, import.meta.url), 'utf8')]));
+  for (const [name, html] of Object.entries(generateSizePages().files)) pages.set(name, html);
+  for (const [page, html] of pages) {
     for (const [tag] of html.matchAll(/<img\b[^>]*\bsrc="renders\/[^"]+"[^>]*>/g)) {
       const file = /src="renders\/([^"]+)"/.exec(tag)[1];
       const f = byFile.get(file);

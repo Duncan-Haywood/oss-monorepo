@@ -1,0 +1,67 @@
+{
+  "date": "2026-10-30",
+  "session": "https://claude.ai/code/session_01XpHqyfVgGHrV4NLW2yWU3a",
+  "track": "ventures",
+  "prompt_version": 0,
+  "input": "round-2 lane 1 (shed-designer): structure \u2014 plate joints over headers, SYP + wet service, skid-on-blocks, uplift and racking checks; plus owner cost feedback (framing sized to load)",
+  "input_sha256": "5429d7306562ae5bba412882c6750cd97e2f215d5d4a0e72d5b6b09cde7741e8",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-30T03:16:40Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "shed-designer",
+    "open-house-plans"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/11577",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 14,
+  "outcome": "success",
+  "errors": [
+    "A merge-resolution loop committed two files with a bad auto-resolution (app.mjs, checks.mjs import conflicts) because the commit was not gated on node --check; fixed in the next commit.",
+    "One push carried a failing test because the test step was not gating the commit in a && chain; fixed minutes later."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "'Ship several small PRs' plus per-PR CI does not converge when many lanes merge into the same generated files (size pages, renders, gallery, README) every few minutes: each stacked PR went dirty before its CI finished, six times. A merge-train or captain hold for a venture would help."
+    },
+    {
+      "file": "platform/ci/typecheck.mjs",
+      "issue": "The round brief names node platform/ci/typecheck.mjs; the script is platform/pages/typecheck.mjs."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Merged on local verification while every CI job sat queued 10+ minutes on this head, to stop chasing main (the parent session asked for this). Local: node --test *.test.mjs in shed-designer 375 pass (browser suite included), open-house-plans 33/33, typecheck 0 diagnostics, post front matter and validate.py pass.",
+      "did": "merged #11577 on local verification",
+      "result": "pending"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "Landed the stacked PRs #11531, #11543, #11549 (and #11623) through the top PR #11577 instead of one by one, because each went into conflict before its CI could finish.",
+      "did": "one consolidated PR",
+      "result": "pending"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Local verification on head before merge: shed-designer node --test *.test.mjs: 375 pass, 0 fail (includes browser.test.mjs 30/30); open-house-plans 33/33; node platform/pages/typecheck.mjs shed-designer: 0 diagnostics; platform/ci/check_post_frontmatter.py: pass; portfolio/router/validate.py: all valid. CI on this head: every job queued 10+ min with no runner.",
+  "corrections": [],
+  "redteam": null
+}
