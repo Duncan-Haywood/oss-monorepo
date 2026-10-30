@@ -34,6 +34,10 @@ const amountBucket = (cents) => `amt:${Math.min(12, Math.floor(Math.log2(Math.ab
 // keyword that fits two accounts is left out, so the line goes to review rather
 // than being guessed. `dir` limits a rule to money in or money out.
 export const BUILT_IN = [
+  // Pressure washing and window cleaning (2026-10-30, pressurewash.test.mjs; agent-written from the companies' public names, not from a real export):
+  // Jobber payouts and HOA or property-manager Zelles are sales; washer gear, cleaning chemicals and squeegees are supplies (a bare "sodium hypochlorite" line is chemicals, not a pool bill).
+  ["4000", "in", /jobber payout|zelle from .*(\bhoa\b|property (mgmt|management)|apartments)/],
+  ["6100", "out", /northern tool|karcher|hotsy|surface cleaner|pressure washer|sodium hypochlorite|simple green|\bunger\b|\bettore\b|squeegee/],
   // Food trucks (2026-10-29, foodtruck.test.mjs; agent-written from the companies' public names, not from a real export):
   // catering deposits are sales; commissary rent is rent, propane is utilities, event and festival fees are advertising, generator and truck-equipment service is repairs.
   ["4000", "in", /catering (deposit|payment)|food truck (event|festival) (payout|payment)/],
