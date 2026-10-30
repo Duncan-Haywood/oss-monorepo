@@ -11,6 +11,7 @@ import { connectionChecks } from './connections.mjs';
 import { invariants } from './invariants.mjs';
 import { VIEWS, packetHtml, encodeDesign, decodeDesign } from './hoa.mjs';
 import { presetEntries } from './picker.mjs';
+import { GALLERY_DESIGNS } from './gallery-data.mjs';
 import { searchDesigns, picks } from './designsearch.mjs';
 
 /** @type {Record<string, any[]>} */
@@ -138,12 +139,22 @@ test('every preset passes every structural and connection check as shipped', () 
 // runs. Every one must pass as shipped, and its HOA packet must render: a
 // person flicks through these and customises from there.
 
-test('every gallery entry passes every check as shipped and renders its HOA packet', () => {
+test('every picker preset entry passes every check as shipped and renders its HOA packet', () => {
   const entries = presetEntries();
   assert.ok(entries.length >= 6);
   for (const e of entries) {
     shipsClean(e.design, e.title);
     assert.deepEqual(packetProblems(e.design), [], e.title);
+  }
+});
+
+test('every design in the stored gallery passes every check as shipped and renders its HOA packet', () => {
+  // The ready designs a person flicks through (gallery-data.mjs, PR #11561). gallery.test.mjs holds
+  // them to 90% use and no warnings; here they also keep every fuzz invariant and render their packet.
+  assert.ok(GALLERY_DESIGNS.length >= 8);
+  for (const g of GALLERY_DESIGNS) {
+    shipsClean(g.design, g.title);
+    assert.deepEqual(packetProblems(g.design), [], g.title);
   }
 });
 
