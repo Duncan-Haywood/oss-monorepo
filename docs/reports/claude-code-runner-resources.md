@@ -111,9 +111,9 @@ Ordered by payoff per minute of agent time.
    reports wall-clock time; a 2x host difference otherwise reads as an
    algorithmic effect.
 6. **Fan out to child sessions for truly parallel compute.** Each child gets
-   its own 4-vCPU, 16 GB VM; six were started here in seconds. A trivial
-   child turn cost about US$0.18 to 0.48 in model tokens (from the sessions'
-   own usage reports), so this pays for parameter sweeps, simulation
+   its own 4-vCPU, 16 GB VM; six were started here in seconds. One short child turn cost
+   US$0.18 to 0.32 in model tokens (from the sessions' own usage reports),
+   so this pays for parameter sweeps, simulation
    batches or independent test shards that run for many minutes, not for
    routine checks.
 7. **Local models: small and CPU-only.** No GPU; 13 GiB usable RAM. A 4-bit
