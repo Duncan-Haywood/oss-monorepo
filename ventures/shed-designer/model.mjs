@@ -1321,7 +1321,9 @@ function buildFramed(d, lapNailers) {
           const beside = (m) => m.local.z0 < r.z1 - 1e-9 && m.local.z1 > r.z0 + 1e-9;
           const nextRight = wm.filter((m) => beside(m) && m.local.s0 >= r.s0 + 1e-9).reduce((t, m) => Math.min(t, m.local.s0), len);
           const s1 = Math.min(r.s0 + 1.5, nextRight);
-          const s0 = s1 - r.s0 < 1.5 - 1e-9 && r.s0 === x - 0.75 ? Math.max(0, s1 - 1.5) : r.s0;
+          const s0a = s1 - r.s0 < 1.5 - 1e-9 && r.s0 === x - 0.75 ? Math.max(0, s1 - 1.5) : r.s0;
+          // ... and between a king and a post or stud on its left, ripped to that gap too.
+          const s0 = wm.filter((m) => beside(m) && m.local.s1 > s0a + 1e-9 && m.local.s1 < s1 - 1e-9 && m.local.s0 < s0a + 1e-9).reduce((t, m) => Math.max(t, m.local.s1), s0a);
           // It has to put wood under whichever panel edge was bare.
           const zm = (r.z0 + r.z1) / 2;
           const wooded = (xx) => Boolean(at(xx, zm)) || (s0 <= xx + 1e-9 && s1 >= xx - 1e-9);
