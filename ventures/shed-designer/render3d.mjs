@@ -1,7 +1,7 @@
 // @ts-check
 // A small WebGL viewer for the framed shed: every board is its own extruded
 // profile with real dimensions, lit with two lights and outlined so you can
-// count studs. No library; drag to orbit, wheel, pinch or buttons to zoom,
+// count studs. No library; drag to orbit, right- or Shift-drag (two fingers on a phone) to pan, wheel, pinch or buttons to zoom,
 // arrow keys and +/- when the canvas has focus.
 
 /** @typedef {import('./model.mjs').Geom} Geom */
@@ -354,7 +354,7 @@ export function createViewer(canvas) {
   /** @type {Record<string, any>} */
   const layers = {};
   const visible = new Set(LAYERS);
-  const cam = { theta: -0.95, phi: 0.42, dist: 400, target: [0, 0, 0], fit: 400 };
+  const cam = { theta: -0.95, phi: 0.42, dist: 400, target: [0, 0, 0], fit: 400, pan: [0, 0, 0] };
   let fitted = false;
 
   const buf = (data) => { const b = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, b); gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW); return b; };
@@ -396,7 +396,7 @@ export function createViewer(canvas) {
     const d = shed.dims;
     cam.target = [d.length / 2, d.width / 2, d.peak / 2.4];
     cam.fit = Math.hypot(d.length + 2 * d.overhang, d.width + 2 * d.overhang, d.peak) * 1.35;
-    if (!fitted || refit) { cam.dist = cam.fit; fitted = true; }
+    if (!fitted || refit) { cam.dist = cam.fit; cam.pan = [0, 0, 0]; fitted = true; }
     draw();
   }
 
@@ -407,8 +407,9 @@ export function createViewer(canvas) {
     if (w && h && (canvas.width !== Math.round(w * dpr) || canvas.height !== Math.round(h * dpr))) { canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr); }
     gl.viewport(0, 0, canvas.width, canvas.height);
     gl.clearColor(0.93, 0.95, 0.97, 1); gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    const eye = [cam.target[0] + cam.dist * Math.cos(cam.phi) * Math.cos(cam.theta), cam.target[1] + cam.dist * Math.cos(cam.phi) * Math.sin(cam.theta), cam.target[2] + cam.dist * Math.sin(cam.phi)];
-    const m = mul(perspective(0.75, canvas.width / canvas.height, cam.dist * 0.08, cam.dist * 4), lookAt(eye, cam.target, [0, 0, 1]));
+    const tgt = [0, 1, 2].map((i) => cam.target[i] + cam.pan[i]);
+    const eye = [tgt[0] + cam.dist * Math.cos(cam.phi) * Math.cos(cam.theta), tgt[1] + cam.dist * Math.cos(cam.phi) * Math.sin(cam.theta), tgt[2] + cam.dist * Math.sin(cam.phi)];
+    const m = mul(perspective(0.75, canvas.width / canvas.height, cam.dist * 0.08, cam.dist * 4), lookAt(eye, tgt, [0, 0, 1]));
     gl.useProgram(prog);
     gl.uniformMatrix4fv(loc.m, false, new Float32Array(m));
     gl.uniform1f(loc.t, (globalThis.performance?.now?.() ?? 0) / 1000);
@@ -490,27 +491,46 @@ export function createViewer(canvas) {
     requestAnimationFrame(() => { drawQueued = false; draw(); });
   };
 
-  // Orbit with one pointer, pinch with two, zoom with the wheel or the keys.
+  // Pan: slide the point the camera looks at across the screen, by pixels.
+  // It stays within about half the shed's size of the centre, so the shed
+  // can't be lost off screen.
+  function panBy(dx, dy) {
+    const per = (2 * Math.tan(0.375) * cam.dist) / (canvas.clientHeight || 300);
+    const r = [-Math.sin(cam.theta), Math.cos(cam.theta), 0];
+    const u = [-Math.sin(cam.phi) * Math.cos(cam.theta), -Math.sin(cam.phi) * Math.sin(cam.theta), Math.cos(cam.phi)];
+    const p = [0, 1, 2].map((i) => cam.pan[i] - r[i] * dx * per + u[i] * dy * per);
+    const len = Math.hypot(...p); const max = cam.fit * 0.4;
+    cam.pan = len > max ? p.map((x) => (x * max) / len) : p;
+    requestDraw();
+  }
+
+  // Orbit with one pointer (pan with the right button or Shift held), pinch and
+  // pan with two fingers, zoom with the wheel or the keys.
   /** @type {Map<number, { x: number, y: number }>} */
   const pointers = new Map();
   let drag = null;
   let pinch = null;
   const spread = () => { const [a, b] = [...pointers.values()]; return Math.hypot(a.x - b.x, a.y - b.y) || 1; };
+  const mid = () => { const [a, b] = [...pointers.values()]; return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }; };
+  canvas.addEventListener('contextmenu', (e) => e.preventDefault());
   canvas.addEventListener('pointerdown', (e) => {
     pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
     canvas.setPointerCapture(e.pointerId);
-    if (pointers.size === 1) drag = { x: e.clientX, y: e.clientY, theta: cam.theta, phi: cam.phi };
-    else if (pointers.size === 2) { drag = null; pinch = { d: spread(), dist: cam.dist }; }
+    if (pointers.size === 1) drag = { x: e.clientX, y: e.clientY, theta: cam.theta, phi: cam.phi, pan: e.button === 2 || e.shiftKey };
+    else if (pointers.size === 2) { drag = null; pinch = { d: spread(), dist: cam.dist, mid: mid() }; }
   });
   canvas.addEventListener('pointermove', (e) => {
     if (!pointers.has(e.pointerId)) return;
     pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
     if (pinch && pointers.size === 2) {
       cam.dist = Math.max(cam.fit * 0.25, Math.min(cam.fit * 3, pinch.dist * (pinch.d / spread())));
-      requestDraw();
+      const m2 = mid();
+      panBy(m2.x - pinch.mid.x, m2.y - pinch.mid.y);
+      pinch.mid = m2;
       return;
     }
     if (!drag) return;
+    if (drag.pan) { panBy(e.clientX - drag.x, e.clientY - drag.y); drag.x = e.clientX; drag.y = e.clientY; return; }
     cam.theta = drag.theta - (e.clientX - drag.x) * 0.008;
     cam.phi = Math.max(-0.15, Math.min(1.45, drag.phi + (e.clientY - drag.y) * 0.008));
     requestDraw();
@@ -526,7 +546,9 @@ export function createViewer(canvas) {
   canvas.addEventListener('wheel', (e) => { e.preventDefault(); zoom(e.deltaY > 0 ? 1.1 : 1 / 1.1); }, { passive: false });
   canvas.addEventListener('keydown', (e) => {
     const turn = { ArrowLeft: [0.12, 0], ArrowRight: [-0.12, 0], ArrowUp: [0, 0.08], ArrowDown: [0, -0.08] }[e.key];
-    if (turn) {
+    const slide = { ArrowLeft: [40, 0], ArrowRight: [-40, 0], ArrowUp: [0, 40], ArrowDown: [0, -40] }[e.key];
+    if (slide && e.shiftKey) panBy(slide[0], slide[1]);
+    else if (turn) {
       cam.theta += turn[0];
       cam.phi = Math.max(-0.15, Math.min(1.45, cam.phi + turn[1]));
       requestDraw();
@@ -544,8 +566,11 @@ export function createViewer(canvas) {
     zoom,
     setLayer(name, on) { if (on) visible.add(name); else visible.delete(name); draw(); },
     setDimensions(on) { showDims = on; draw(); },
-    view(theta, phi) { cam.theta = theta; cam.phi = phi; cam.dist = cam.fit; draw(); },
-    reset() { cam.theta = -0.95; cam.phi = 0.42; cam.dist = cam.fit; draw(); },
+    view(theta, phi) { cam.theta = theta; cam.phi = phi; cam.dist = cam.fit; cam.pan = [0, 0, 0]; draw(); },
+    reset() { cam.theta = -0.95; cam.phi = 0.42; cam.dist = cam.fit; cam.pan = [0, 0, 0]; draw(); },
+    panBy,
+    /** How far the view is panned from the shed's centre, in inches (for tests). */
+    panned() { return Math.hypot(...cam.pan); },
     snapshot() { draw(); return canvas.toDataURL('image/png'); },
     /** Show a picture of the viewer's own on the big poster (it stays in the browser). */
     setPosterImage(img) { posterImage = img; if (textures.big) { gl.deleteTexture(textures.big); delete textures.big; } draw(); },

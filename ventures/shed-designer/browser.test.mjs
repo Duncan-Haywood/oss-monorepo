@@ -332,6 +332,44 @@ test('the 3D view takes the keyboard', { skip }, async (t) => {
   assert.notDeepEqual(await canvas.screenshot(), before);
 });
 
+test('the 3D view pans with Shift and the arrows, a right-drag and two fingers, and stays near the shed', { skip }, async (t) => {
+  const { ctx, page } = await open(t);
+  const canvas = page.locator('#view3d');
+  await canvas.scrollIntoViewIfNeeded();
+  await page.click('#view-reset');
+  await canvas.focus();
+  await settle(page);
+  const start = await canvas.screenshot();
+  await page.keyboard.press('Shift+ArrowLeft');
+  await settle(page);
+  const moved = await canvas.screenshot();
+  assert.ok(!(moved).equals(start), 'Shift+arrow slides the view');
+  // However far you push, the view stops near the shed.
+  for (let i = 0; i < 30; i++) await page.keyboard.press('Shift+ArrowLeft');
+  await settle(page);
+  const far = await canvas.screenshot();
+  for (let i = 0; i < 10; i++) await page.keyboard.press('Shift+ArrowLeft');
+  await settle(page);
+  assert.ok((await canvas.screenshot()).equals(far), 'the pan is clamped');
+  await page.click('#view-reset');
+  await canvas.focus();
+  await settle(page);
+  assert.ok((await canvas.screenshot()).equals(start), 'Reset clears the pan');
+  const [x, y] = await center(canvas);
+  await page.mouse.move(x, y); await page.mouse.down({ button: 'right' }); await page.mouse.move(x + 60, y + 20, { steps: 4 }); await page.mouse.up({ button: 'right' });
+  await settle(page);
+  const right = await canvas.screenshot();
+  assert.ok(!(right).equals(start), 'a right-drag slides the view');
+  await page.click('#view-reset'); await settle(page);
+  // Two fingers moving together (no spread change) pan.
+  const cdp = await ctx.newCDPSession(page);
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: x - 30, y, id: 1 }, { x: x + 30, y, id: 2 }] });
+  for (let i = 1; i <= 5; i++) await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: x - 30 + i * 10, y, id: 1 }, { x: x + 30 + i * 10, y, id: 2 }] });
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+  await settle(page);
+  assert.ok(!(await canvas.screenshot()).equals(start), 'two fingers slide the view');
+});
+
 test('orbiting the 3D view measures each dimension label once, not every frame', { skip }, async (t) => {
   const { page } = await open(t);
   await page.evaluate(() => {
