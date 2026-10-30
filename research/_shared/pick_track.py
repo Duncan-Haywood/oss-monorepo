@@ -7,6 +7,8 @@ Otherwise a track, whose run opens a new programme in that area or advances one 
 
 r < 0.05 is a free-choice run; otherwise track = 1 + floor((r - 0.05) / 0.95 * N), N = len(PREFIX).
 Pass a number to map a draw you already have: pick_track.py 0.11
+With no number the first draw is saved in .git (keyed by branch, 12 h) and
+reused, so a re-run in the same session gives the same programme; --new redraws.
 
 A track with SATURATED or more projects is redrawn automatically among the
 tracks below that size, so a run does not spend its start on a finished chain.
@@ -23,6 +25,7 @@ import random
 import json
 import subprocess
 import sys
+import time
 import urllib.request
 from pathlib import Path
 
@@ -166,15 +169,42 @@ def draw_programme(r, progs, claimed=open_prs_for):
     return order[0][0], order[0][1], skipped
 
 
+def session_draw(new=False, ttl=12 * 3600):
+    """A draw that stays the same for this branch until ttl passes (or new=True)."""
+    try:
+        git = subprocess.run(["git", "rev-parse", "--git-dir"], cwd=RESEARCH, capture_output=True,
+                             text=True, check=True).stdout.strip()
+        branch = subprocess.run(["git", "branch", "--show-current"], cwd=RESEARCH, capture_output=True,
+                                text=True).stdout.strip()
+        f = (RESEARCH / git).resolve() / "pick_track_draw.json"
+    except (OSError, subprocess.CalledProcessError):
+        return random.random()
+    try:
+        d = json.loads(f.read_text())
+        if not new and d["branch"] == branch and time.time() - d["t"] < ttl:
+            return float(d["r"])
+    except (OSError, ValueError, KeyError):
+        pass
+    r = random.random()
+    try:
+        f.write_text(json.dumps({"branch": branch, "t": time.time(), "r": r}))
+    except OSError:
+        pass
+    return r
+
+
 if __name__ == "__main__":
-    if len(sys.argv) > 1 and sys.argv[1] in ("-h", "--help"):
+    new = "--new" in sys.argv[1:]
+    args = [a for a in sys.argv[1:] if a != "--new"]
+    if args and args[0] in ("-h", "--help"):
         print(__doc__)
         sys.exit(0)
+    sys.argv = sys.argv[:1] + args if args else sys.argv[:1]
     try:
-        r = float(sys.argv[1]) if len(sys.argv) > 1 else random.random()
+        r = float(sys.argv[1]) if len(sys.argv) > 1 else session_draw(new)
     except ValueError:
         sys.exit(f"usage: pick_track.py [draw]  (draw is a number in [0,1), e.g. 0.42; got {sys.argv[1]!r}. "
-                 "It redraws at random each call: pass the first draw back to reproduce it.)")
+                 "A bare call reuses this session's first draw; --new redraws.)")
     progs = programmes()
     if progs and random.Random(r).random() < PROGRAMME_SHARE:
         slug, has, skipped = draw_programme(r, progs)

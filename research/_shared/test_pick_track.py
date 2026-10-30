@@ -98,3 +98,10 @@ class CliTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class SessionDrawTest(unittest.TestCase):
+    def test_same_draw_until_new(self):
+        first = pick_track.session_draw(new=True)
+        self.assertEqual(pick_track.session_draw(), first)
+        self.assertEqual(pick_track.session_draw(), first)
