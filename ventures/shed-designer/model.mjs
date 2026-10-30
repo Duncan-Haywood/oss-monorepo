@@ -18,7 +18,7 @@
 import { actual, ceil16, TWO_BY, DEFAULT_LENGTHS_FT, fmtFtIn as fmtFt, fmtIn } from './lumber.mjs';
 import { lumberCostOf } from './estimate.mjs';
 import { productById } from './products.mjs';
-import { headerCheck } from './structure.mjs';
+import { headerCheck, studCheck } from './structure.mjs';
 import { gambrelShape, gambrelParts, gambrelAnalysis, loftSpan, bandAbove, zOnPoly, GUSSET_T as GAMBREL_GUSSET_T, LOFT_LIVE } from './gambrel.mjs';
 import { needsKingPost, trussForces } from './truss.mjs';
 import { LAP_PRODUCTS, layoutFace, lapStocks, lapStagger, evenExposure, lapStudLimit } from './lap.mjs';
@@ -67,6 +67,8 @@ export function defaultDesign() {
     overhang: 12,
     studSize: '2x4',
     studSpacing: 16,
+    // Studs as far apart as the siding and the stud check allow (autoStudSpacing).
+    autoStuds: true,
     joistSize: '2x6',
     joistSpacing: 16,
     rafterSize: '2x6',
@@ -296,6 +298,7 @@ export function normalize(input) {
     sidingColor: pickFinish(o.sidingColor, SIDING_FINISHES, d.sidingColor),
     polkaDots: o.polkaDots === true,
     autoWall: o.autoWall === true,
+    autoStuds: o.autoStuds === true,
     autoPitch: o.autoPitch === true,
     autoOverhang: o.autoOverhang === true,
     roofColor: pickFinish(o.roofColor, SHINGLE_FAMILIES, d.roofColor, false),
@@ -347,6 +350,8 @@ export function normalize(input) {
   // overhang); a loft goes on a gambrel's ties only.
   if (out.style === 'gambrel') Object.assign(out, { roofType: 'ridgeBoard', rafterSeat: 'birdsmouth', overhang: 0, autoOverhang: false });
   else out.loft = 'none';
+  // Resolved here, not in buildShed, so every reader of the design (moves, checks, the page) sees the spacing framed.
+  if (out.autoStuds) out.studSpacing = autoStudSpacing(out);
   return out;
 }
 
@@ -379,25 +384,53 @@ export function defaultHeader(width) {
  * @param {Partial<Design>} d @param {string} wall
  */
 export function headerLoadPlf(d, wall) {
-  const cos = 1 / Math.sqrt(1 + ((d.pitch ?? 0) / 12) ** 2);
-  const roof = 15 / cos + (d.snowLoad ?? 0);
   if (wall === 'front' || wall === 'back') {
-    if (d.style === 'gambrel') {
-      // The gambrel trusses' reactions, a loft's storage load counted as dead.
-      const g = gambrelAnalysis(/** @type {any} */ (d)).wall;
-      return g.dead + g.loft + g.snow + 10;
-    }
-    const D = actual(d.studSize || '2x4').depth;
-    const lean = d.style === 'leanTo';
-    const beam = !lean && d.roofType === 'ridgeBeam';
-    const truss = !lean && d.roofType === 'truss';
-    const run = (d.width ?? 0) / 2 - (beam ? 1.5 : truss ? 0 : 0.75) - D;
-    const tribFt = (beam ? run / 2 + D + (d.overhang ?? 0) : (d.width ?? 0) / 2 + (d.overhang ?? 0)) / 12;
-    // Under trusses the eave wall also carries half the attic (bottom chord) load.
-    const attic = truss ? (trussForces(/** @type {any} */ (d)).wc * (d.width ?? 0)) / 2 / 12 / ((d.rafterSpacing ?? 24) / 12) : 0;
-    return roof * tribFt + attic + 10;
+    const e = eaveWallLoads(d);
+    return e.dead + e.snow + 10;
   }
-  return 40 + roof * ((d.rafterSpacing ?? 24) / 2) / 12;
+  const cos = 1 / Math.sqrt(1 + ((d.pitch ?? 0) / 12) ** 2);
+  return 40 + (15 / cos + (d.snowLoad ?? 0)) * ((d.rafterSpacing ?? 24) / 2) / 12;
+}
+
+/**
+ * The roof's load on an eave wall, lb/ft, as dead and snow: the same numbers
+ * checks.mjs's eaveRoofPlf gives (a test pins them together).
+ * @param {Partial<Design>} d
+ */
+export function eaveWallLoads(d) {
+  const cos = 1 / Math.sqrt(1 + ((d.pitch ?? 0) / 12) ** 2);
+  if (d.style === 'gambrel') {
+    // The gambrel trusses' reactions, a loft's storage load counted as dead.
+    const g = gambrelAnalysis(/** @type {any} */ (d)).wall;
+    return { dead: g.dead + g.loft, snow: g.snow };
+  }
+  const D = actual(d.studSize || '2x4').depth;
+  const lean = d.style === 'leanTo';
+  const beam = !lean && d.roofType === 'ridgeBeam';
+  const truss = !lean && d.roofType === 'truss';
+  const run = (d.width ?? 0) / 2 - (beam ? 1.5 : truss ? 0 : 0.75) - D;
+  const tribFt = (beam ? run / 2 + D + (d.overhang ?? 0) : (d.width ?? 0) / 2 + (d.overhang ?? 0)) / 12;
+  // Under trusses the eave wall also carries half the attic (bottom chord) load.
+  const attic = truss ? (trussForces(/** @type {any} */ (d)).wc * (d.width ?? 0)) / 2 / 12 / ((d.rafterSpacing ?? 24) / 12) : 0;
+  return { dead: (15 / cos) * tribFt + attic, snow: (d.snowLoad ?? 0) * tribFt };
+}
+
+/**
+ * The widest stud spacing the siding allows: lap siding over OSB as its
+ * maker's install guide says (lap.mjs), T1-11 and LP's 3/8" panel 16" (their
+ * span rating), LP's 7/16" panel and siding over OSB 24". With autoStuds on
+ * (the default) the walls are framed at that spacing, if the wall studs still
+ * pass their check there (studCheck: roof load and wind, NDS 3.9-3), else at
+ * 16". A shed is framed to what it needs, not to a house's habit of 16".
+ * @param {Partial<Design>} d
+ */
+export function autoStudSpacing(d) {
+  const allowed = !d.siding ? 16 : lapStudLimit(d) ?? (d.sidingType === 'T1-11' || d.sidingType === 'LP SmartSide' ? 16 : 24);
+  if (allowed < 24) return 16;
+  // The stud check at 24" on the tallest wall: the auto wall's height when it sets the walls.
+  const H = (d.autoWall ? minWallFor(/** @type {any} */ (d)) : d.wallHeight ?? 96) + (d.style === 'leanTo' ? ((d.width ?? 0) * (d.pitch ?? 0)) / 12 : 0);
+  const e = eaveWallLoads({ ...d, studSpacing: 24 });
+  return studCheck(d.studSize || '2x4', 24, H - 4.5, [e.dead, e.snow], d.windLoad ?? 0) <= 1 ? 24 : 16;
 }
 
 /**

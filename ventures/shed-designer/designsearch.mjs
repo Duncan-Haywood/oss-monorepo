@@ -390,6 +390,8 @@ function designAt(base, size, layout, knobs, minWall = DEFAULT_CONSTRAINTS.minWa
     length: size.length, width: size.width,
     autoWall: wall === 'auto' && !lean, ...(leanAuto ? { wallHeight: leanAuto } : wall === 'auto' ? {} : { wallHeight: wall }),
     autoPitch: false, autoOverhang: false, maxPeak: 0, maxFootprint: 0,
+    // A spacing the search picks is framed as picked.
+    ...('studSpacing' in rest ? { autoStuds: false } : {}),
     openings: ops,
   });
 }
@@ -433,7 +435,7 @@ export function* searchSteps(opts = {}) {
   let rejected = 0;
   /** @param {{ length: number, width: number }} size @param {string} layout @param {Record<string, any>} kn */
   const tryOne = (size, layout, kn) => {
-    const d = layout ? designAt(base, size, layout, kn, c.minWall) : normalize({ ...base, ...kn });
+    const d = layout ? designAt(base, size, layout, kn, c.minWall) : normalize({ ...base, ...kn, ...('studSpacing' in kn ? { autoStuds: false } : {}) });
     if (!d) return null;
     const key = JSON.stringify({ ...d, name: '' });
     if (seen.has(key)) return null;

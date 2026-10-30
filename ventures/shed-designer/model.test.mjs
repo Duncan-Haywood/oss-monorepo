@@ -185,3 +185,27 @@ test('picking a catalogue product sets the rough opening to the maker\'s and lis
   const bad = buildShed({ ...d, openings: [{ ...d.openings[1], product: 'sr-36x76' }] });
   assert.equal(bad.design.openings[0].product, undefined);
 });
+
+test('studs go to 24" by default where the siding allows it and the studs pass, and stay where you put them', async () => {
+  const { autoStudSpacing, eaveWallLoads } = await import('./model.mjs');
+  const { studCheck } = await import('./structure.mjs');
+  const d = defaultDesign();
+  assert.equal(d.autoStuds, true);
+  // Panels rated for 16" stay at 16"; LP's 7/16" panel and lap over OSB go to 24".
+  for (const [sidingType, sp] of [['T1-11', 16], ['LP SmartSide', 16], ['LP SmartSide 7/16', 24], ['LP SmartSide lap', 24], ['vinyl', 24]]) {
+    assert.equal(normalize({ ...d, sidingType }).studSpacing, sp, sidingType);
+    assert.equal(normalize({ ...d, sidingType, autoStuds: false, studSpacing: 16 }).studSpacing, 16, `${sidingType}, spacing set by hand`);
+  }
+  // The default ridge-beam roof on the eave wall, by hand: 5/12 pitch, 15 psf dead on the slope
+  // = 15 x 13/12 = 16.25 psf on plan; run 48 - 1.5 - 3.5 = 43", half of it plus the stud and the
+  // 12" overhang = 21.5 + 3.5 + 12 = 37" = 3.083 ft; 16.25 x 3.083 = 50.1 lb/ft.
+  assert.ok(Math.abs(eaveWallLoads(d).dead - 50.1) < 0.05);
+  // Heavy snow on a tall wall fails the 24" stud check, so the walls stay at 16".
+  const heavy = { ...d, sidingType: 'LP SmartSide lap', snowLoad: 100, windLoad: 40, wallHeight: 120, autoWall: false, autoPitch: false, autoOverhang: false };
+  const e = eaveWallLoads({ ...heavy, studSpacing: 24 });
+  assert.ok(studCheck('2x4', 24, 120 - 4.5, [e.dead, e.snow], 40) > 1);
+  assert.equal(autoStudSpacing(normalize(heavy)), 16);
+  assert.equal(buildShed(heavy).design.studSpacing, 16);
+  // No siding, no sheathing: 16".
+  assert.equal(normalize({ ...d, sidingType: 'vinyl', siding: false }).studSpacing, 16);
+});
