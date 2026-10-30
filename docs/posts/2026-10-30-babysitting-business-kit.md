@@ -2,7 +2,7 @@
 title: "A back office for a one-person babysitting business"
 date: 2026-10-30
 tags: [babysitting-business-kit, small-business, taxes]
-description: "A free app for self-employed babysitters: score inquiries, quote and schedule sits, chase unpaid ones, set aside self-employment tax, track references with consent, and publish a website."
+description: "A free app for self-employed babysitters: score inquiries, schedule sits, chase unpaid ones, set aside self-employment tax, and track references with consent."
 ---
 
 A babysitter who works for themselves runs a small business without calling it one. Inquiries come by text, church, school and Nextdoor. Rates have rules: extra children, late nights, holidays, a minimum. Families pay by cash and Venmo. Then, in April, there is a tax bill they did not save for.

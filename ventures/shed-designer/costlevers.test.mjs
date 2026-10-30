@@ -39,9 +39,9 @@ test('site-built doors come in every width, centred where the door was, and over
   assert.ok(Math.abs(door.offset + door.width / 2 - (was.offset + was.width / 2)) <= 1, 'kept centred');
 });
 
-test('foundation rows cover a gravel pad and each block on each kind of gravel, with the site prep', () => {
+test('foundation rows cover a gravel pad, each block on each kind of gravel and piers, with the site prep', () => {
   const rows = group('Foundation').rows;
-  assert.equal(rows.length, 1 + 3 * 3);
+  assert.equal(rows.length, 1 + 3 * 3 + 1); // a pad; three blocks on three kinds of gravel; piers, which need none
   for (const x of rows) assert.ok(x.note.length > 40, x.label);
   assert.ok(rows.some((x) => /full gravel pad/.test(x.label) && /cu yd/.test(x.note)));
 });
@@ -58,4 +58,15 @@ test('a 12x16 also prices, and the table shows fails without a button', () => {
   assert.match(html, /fails<\/strong>: Floor joists/);
   assert.match(html, /bad &lt;b&gt;/);
   assert.match(html, /saves \$10\.00/);
+});
+
+test('a fixed choice is shown as it is, with nothing else priced for it', () => {
+  const locked = leverOptions({ ...defaultDesign(), locked: ['foundation', 'windows'] });
+  const f = locked.groups.find((g) => g.title === 'Foundation');
+  assert.ok(f.locked);
+  assert.equal(f.rows.length, 1);
+  assert.ok(f.rows[0].current);
+  assert.equal(locked.groups.find((g) => g.title === 'Windows').rows.length, 1);
+  assert.ok(locked.groups.find((g) => g.title === 'Floor').rows.length > 1, 'the rest still priced');
+  assert.match(leverTableHtml(locked), /kept as you chose/);
 });

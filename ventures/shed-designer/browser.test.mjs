@@ -342,6 +342,20 @@ test('the store table, other tabs and design cards catch up just after an edit',
   assert.ok(await page.isVisible('#panel-cuts'));
 });
 
+test('choosing site-built trusses re-frames the roof: truss checks, truss sheet, truss build steps', { skip }, async (t) => {
+  const { page } = await open(t);
+  const before = await page.textContent('#total');
+  await page.selectOption('#roofType', 'truss');
+  await page.waitForFunction((b) => document.querySelector('#total')?.textContent !== b, before, { timeout: 5000 });
+  await page.click('[data-panel="panel-structure"]');
+  await page.waitForFunction(() => document.querySelector('#panel-structure')?.textContent.includes('Truss bottom chords'), null, { timeout: 5000 });
+  assert.doesNotMatch(await page.textContent('#panel-structure'), /Ridge beam/);
+  await page.click('[data-panel="panel-plans"]');
+  await page.waitForFunction(() => document.querySelector('#panel-plans')?.textContent.includes('Truss detail'), null, { timeout: 5000 });
+  await page.click('[data-panel="panel-build"]');
+  await page.waitForFunction(() => document.querySelector('#panel-build')?.textContent.includes('Build the trusses'), null, { timeout: 5000 });
+});
+
 test('a share link opens as a new design, and a broken one says so', { skip }, async (t) => {
   const { page } = await open(t);
   const d = await page.evaluate(() => ({ name: 'Link test', length: 120, width: 96 }));
@@ -413,6 +427,80 @@ test('on a phone the end view fills its box and every label is inside it', { ski
   }
 });
 
+test('where the money goes: bars by assembly open their lines, an edit says what it moved, the bridge runs', { skip }, async (t) => {
+  const { page } = await open(t);
+  await page.click('[data-panel="panel-costs"]');
+  await settle(page);
+  const rows = page.locator('#cost-chart button.cost-row');
+  assert.ok(await rows.count() >= 9, 'one bar per assembly');
+  const first = rows.first();
+  assert.equal(await first.getAttribute('aria-expanded'), 'false');
+  await first.click();
+  assert.equal(await first.getAttribute('aria-expanded'), 'true');
+  assert.ok(await page.locator('#cost-chart .cost-lines:not([hidden]) tbody tr').count() >= 1, 'its lines show');
+  await page.click('[data-cost-by="materials"]');
+  assert.match(await page.textContent('#cost-chart'), /Treated lumber/);
+  // An edit: OSB under the floor instead of plywood.
+  await page.selectOption('#floorPanel', 'OSB');
+  await settle(page);
+  assert.match(await page.textContent('#cost-delta'), /^Last change: materials −\$\d+ \(floor −\$\d+/);
+  // Leaving a line out takes it off the breakdown too, as it does the headline.
+  const before = await page.textContent('#cost-chart .cost-foot');
+  await page.click('[data-panel="panel-shopping"]');
+  await page.locator('#shopping input[data-skip]').first().check();
+  await page.click('[data-panel="panel-costs"]');
+  await settle(page);
+  assert.notEqual(await page.textContent('#cost-chart .cost-foot'), before);
+  assert.match(await page.textContent('#cost-chart .cost-foot'), /less the 1 line you have or left out/);
+  await page.click('#cost-bridge-run');
+  await page.waitForSelector('#cost-bridge ol.bridge, #cost-bridge p:not(.muted)', { timeout: 60000 });
+  const steps = await page.locator('#cost-bridge ol.bridge li').count();
+  if (steps) assert.match(await page.textContent('#cost-bridge'), /Cheapest passing design/);
+});
+
+test('on a phone the cost bars fit the width', { skip }, async (t) => {
+  const { page } = await open(t, { ...pw.devices['Pixel 7'] });
+  await page.click('[data-panel="panel-costs"]');
+  await settle(page);
+  const over = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  assert.ok(over <= 0, `no sideways scroll (${over}px)`);
+  const r = await page.evaluate(() => [...document.querySelectorAll('#cost-chart .cost-row')].map((b) => {
+    const row = b.getBoundingClientRect(); const amt = /** @type {HTMLElement} */ (b.querySelector('.cost-amt')).getBoundingClientRect();
+    return { right: amt.right - row.right, h: row.height };
+  }));
+  assert.ok(r.every((x) => x.right <= 1), 'every amount inside its row');
+  assert.ok(r.every((x) => x.h >= 44), 'finger-size rows');
+});
+
+test('presentation mode: sky, no outlines or dimensions, and a picked colour reaches the design', { skip }, async (t) => {
+  const { page } = await open(t);
+  /** The canvas colour at a fraction of its width and height, 0 to 255. */
+  const pixel = (fx, fy) => page.$eval('#view3d', (c, [x, y]) => {
+    const g = document.createElement('canvas'); g.width = c.width; g.height = c.height;
+    const k = /** @type {CanvasRenderingContext2D} */ (g.getContext('2d')); k.drawImage(c, 0, 0);
+    return [...k.getImageData(Math.floor(c.width * x), Math.floor(c.height * y), 1, 1).data.slice(0, 3)];
+  }, [fx, fy]);
+  await page.click('#presentation');
+  await settle(page);
+  assert.equal(await page.getAttribute('#presentation', 'aria-pressed'), 'true');
+  assert.equal(await page.isChecked('#show-outlines'), false);
+  assert.equal(await page.isChecked('#show-dims'), false);
+  const [r, g, b] = await pixel(0.02, 0.03);
+  assert.ok(b > r + 40 && b > 150, `the top corner is sky blue (${r},${g},${b})`);
+  const [gr, gg, gb] = await pixel(0.02, 0.97);
+  assert.ok(gg > gr && gg > gb, `the bottom corner is lawn (${gr},${gg},${gb})`);
+  // A hex from the picker becomes the siding colour, and one undo step takes it back.
+  await page.$eval('#sidingColor-custom', (e) => { e.value = '#5a6e8c'; e.dispatchEvent(new Event('input', { bubbles: true })); e.dispatchEvent(new Event('change', { bubbles: true })); });
+  assert.equal(await val(page, 'sidingColor'), '#5a6e8c');
+  await page.selectOption('#doorColor', 'match trim');
+  assert.equal(await val(page, 'doorColor'), 'match trim');
+  await page.click('#undo');
+  await page.click('#undo');
+  assert.equal(await val(page, 'sidingColor'), 'natural');
+  await page.click('#presentation');
+  assert.equal(await page.isChecked('#show-outlines'), true, 'leaving presentation brings the outlines back');
+});
+
 test('the part options table prices each choice, and "Use this" changes the design with one undo', { skip }, async (t) => {
   const { page } = await open(t);
   const before = await page.$eval('#total', (e) => e.textContent);
@@ -428,4 +516,26 @@ test('the part options table prices each choice, and "Use this" changes the desi
   await page.click('#undo');
   await settle(page);
   assert.equal(await page.$eval('#total', (e) => e.textContent), before, 'undo restores it');
+});
+
+test('ticking a fixed choice keeps it out of the part options, and undo unticks it', { skip }, async (t) => {
+  const { page } = await open(t);
+  await page.check('input[name="lock"][value="windows"]');
+  await settle(page);
+  await page.click('#levers');
+  await page.waitForSelector('#levers-out table.levers');
+  assert.match(await page.locator('#levers-out h4', { hasText: 'Windows' }).textContent(), /kept as you chose/);
+  assert.equal(await page.locator('#levers-out tr', { hasText: 'No windows' }).count(), 0);
+  await page.click('#undo');
+  await settle(page);
+  assert.equal(await page.isChecked('input[name="lock"][value="windows"]'), false, 'undo unticks it');
+});
+
+test('Save picture downloads the 3D view as a PNG', { skip }, async (t) => {
+  const { page } = await open(t);
+  const [dl] = await Promise.all([page.waitForEvent('download'), page.click('#save-picture')]);
+  assert.match(dl.suggestedFilename(), /-3d\.png$/);
+  const path = await dl.path();
+  const head = readFileSync(/** @type {string} */ (path)).subarray(0, 8);
+  assert.deepEqual([...head], [137, 80, 78, 71, 13, 10, 26, 10], 'a PNG file');
 });
