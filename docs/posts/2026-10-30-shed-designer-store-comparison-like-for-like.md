@@ -1,28 +1,30 @@
 ---
-title: "Lowe's looked $145 cheaper for a shed. Most of that was missing data"
+title: "Lowe's looked $145 cheaper for a shed. Some of that was missing data"
 date: 2026-10-30
 tags: [shed-designer, pricing]
-description: "Shed Designer now compares Home Depot and Lowe's only on the lines both list, names the gaps, and says how many compared prices come from year-old copies."
+description: "Shed Designer now compares Home Depot and Lowe's only on lines both list, names the gaps, and flags prices that come from copies over a year old."
 ---
 
-Shed Designer prices a whole shed order at Home Depot and at Lowe's. On the default 8x12, Home Depot has a listing for 48 of the 49 lines and Lowe's for 36. The old summary ranked stores by "these lines at one store", carrying a missing line at the other store's price, and its bottom line read as "Lowe's is the cheapest single store". The owner asked the obvious question: is it cheaper, or just missing things?
+Shed Designer prices a whole shed order at Home Depot and at Lowe's. On the default 8x12, Home Depot had a listing for 48 of the 49 lines and Lowe's for 36. The old summary ranked the stores by "these lines at one store" and carried each missing line at the other store's price. Its bottom line read as "Lowe's is the cheapest single store, by $145". The owner asked the obvious question: is Lowe's cheaper, or is it just missing things?
 
-Today's version compares the two only on the lines both list. On the default shed that is 35 lines:
+The comparison now uses only the lines both stores list. We also went looking for the missing prices the same way the existing ones were found: search-engine copies of the store's own pages, each with its link and its age. We found 7 more Lowe's lines (2x4 and 2x10 at 14 ft, treated 2x6 at 16 ft, 4x9 T1-11, the 14x21 shed window, flashing tape) and Home Depot's Z-flashing.
 
-| | Home Depot | Lowe's |
+| Default 8x12 | Before | After sourcing |
 |---|---|---|
-| Lines with a listing | 48 of 49 | 36 of 49 |
-| The 35 lines both list | $2,264.57 | $2,120.48 |
+| Home Depot lines | 48 of 49 | 49 of 49 |
+| Lowe's lines | 36 of 49 | 43 of 49 |
+| Lines both list | 35 | 43 |
+| Home Depot, those lines | $2,264.57 | $2,628.69 |
+| Lowe's, those lines | $2,120.48 | $2,497.16 |
 
-Lowe's is still $144.09 lower like for like. That margin is less solid than it looks, though, because the lines that make it up are not equally sound:
+Lowe's is still lower like for like, by $131.53. That margin is less solid than it looks, because the lines behind it are not equally sound:
 
 - Four louvered gable vents account for $54.40. The Lowe's price is a plastic vent from category-page copies 643 to 1,790 days old.
 - The roof underlayment accounts for $44.02. The Lowe's price was read from the product's reviews page.
 - Fifty-eight 8 ft 2x4s account for $31.32. That is Lowe's 35-or-more bulk price.
-- The drip edge accounts for $26.50, from a category page.
 
-Going the other way, Home Depot is cheaper on shingles ($26.04), the hand tamper ($12.73) and the starter strip ($10.72).
+Going the other way, Home Depot is cheaper on shingles ($26.04), the hand tamper ($12.73) and the starter strip ($10.72). The summary now says how many compared prices come from page copies over a year old: 10 of the Lowe's prices and none of Home Depot's.
 
-So the comparison now says three things it didn't. Each store's coverage ("36 of 49 lines") leads the table. The lines a store has no listing for are named. The summary says how many of the compared prices come from page copies over a year old: 6 of the Lowe's prices, none of Home Depot's. The tool also stopped offering Menards, at the owner's request. It had 11 listings, too few to price a whole order.
+Six Lowe's lines are still missing: 4x10 T1-11, a solid concrete block, the Simpson VPA2 connector, subfloor adhesive, deck screws and shims. Some of those have a Lowe's page, but either no price showed in any copy we found, or the only one was years old or for a different pack. Each is named on the page and on a list for a person to check in a browser. None is filled with a guess. The tool also no longer offers Menards, at the owner's request; it had 11 listings, too few to price a whole order.
 
-Lowe's hides its price until you pick a store, and it refuses automated reads, so every Lowe's price here came from a search engine's copy of the page. Filling the 13 gaps the same honest way is the next step. Anything that can't be sourced will go on a list for a person to check in a browser, not into the tool as a guess. [Compare stores in Shed Designer](https://duncan-haywood.github.io/oss-monorepo/shed-designer/).
+Lowe's hides its prices until you pick a store and refuses automated reads, so every Lowe's figure here is a copy, not a live price. Follow each link to check today's price at your own store. [Compare stores in Shed Designer](https://duncan-haywood.github.io/oss-monorepo/shed-designer/).

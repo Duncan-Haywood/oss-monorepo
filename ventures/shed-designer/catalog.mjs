@@ -86,6 +86,9 @@ export const OFFERS = {
   stain: [
     { store: "Lowe's", name: 'Valspar solid exterior stain and sealer, tintable, 1 gal', model: 'VL1028091-16, product 1000515853', price: 48.98, url: 'https://www.lowes.com/pd/Valspar-Tintable-Neutral-Base-Solid-Exterior-Stain-and-Sealer-Actual-Net-Contents-116-fl-oz/1000515853' },
   ],
+  zFlashing: [
+    { store: 'Home Depot', name: 'Amerimax 2.5 in. x 10 ft galvanized Z-bar flashing', model: '5651100120, Internet 100083261', price: 4.67, url: 'https://www.homedepot.com/p/Amerimax-Home-Products-2-5-in-x-10-ft-Galvanized-Steel-Z-Bar-Flashing-5651100120/100083261', note: 'read 2026-10-30 from a search result; the same model number the list prices from DK Hardware as 5/8 in. x 10 ft, so check the fit before buying' },
+  ],
 };
 
 // The independent Lowe's list replaces any older Lowe's entry for the same item.
