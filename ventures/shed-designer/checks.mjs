@@ -16,8 +16,9 @@ import { check, worst, studCheck, headerCheck, roofCase, FLOOR, SPF2, T, DEPTH, 
 import { fmtIn, actual } from './lumber.mjs';
 import { headerLoadPlf } from './model.mjs';
 import { gambrelAnalysis } from './gambrel.mjs';
-import { trussChecks, trussForces } from './truss.mjs';
+import { trussChecks, trussForces, gussetNailZ, GUSSET_NAIL, trussNetUplift } from './truss.mjs';
 import { subfloorCheck } from './levers.mjs';
+import { addFloorlessRows } from './floorless.mjs';
 
 const CF_C = { '2x4': 1.15, '2x6': 1.1 };
 
@@ -140,11 +141,50 @@ export function rafterUplift(shed) {
   const s = d.rafterSpacing / 12;
   const { tribFt } = eaveRoofPlf(shed);
   const ohFt = d.overhang / 12;
-  const tie = RAFTER_TIES[d.rafterSeat === 'connector' ? 'connector' : 'birdsmouth'];
+  // A truss heel sits on the plate with no connector seat, and takes the H2.5A (estimate.mjs buys it), whatever rafterSeat says.
+  const tie = RAFTER_TIES[shed.dims.connector ? 'connector' : 'birdsmouth'];
   const windArea = s * (tribFt + ohFt);
-  const dead = 0.6 * (15 / cos) * s * tribFt;
+  // Under trusses the heel also carries half the ceiling's dead load (truss.mjs ATTIC), which holds it down too.
+  const ceiling = shed.dims.truss ? trussForces(d).attic.dead * s * (d.width / 2 / 12) : 0;
+  const dead = 0.6 * ((15 / cos) * s * tribFt + ceiling);
   const up = 0.6 * d.windLoad * windArea;
   return { net: up - dead, up, dead, tie, holdsPsf: (tie.uplift + dead) / (0.6 * windArea) };
+}
+
+/**
+ * A truss heel under wind uplift. 0.6W on the truss's strip of roof plan less
+ * 0.6 of its roof dead load (15 psf on the slope) and ceiling dead load is a
+ * net upward line load; while it is positive it pulls the heels together, so
+ * the bottom chord goes into compression and the heel gusset nails carry
+ * H = wL^2 / 8h the other way. The overhang's uplift is left to the tie
+ * (rafterUplift). Nails at CD 1.6 for wind.
+ * @param {import('./model.mjs').Shed} shed
+ */
+export function trussHeelUplift(shed) {
+  const d = shed.design;
+  const f = trussForces(d, { snow: false });
+  const wNet = Math.max(0, trussNetUplift(d));
+  const H = ((wNet / 12) * f.L * f.L) / (8 * f.h);
+  const tc = trussChecks(d);
+  const nails = tc.nails.heelBottom;
+  const perNail = gussetNailZ(1.6);
+  // The bottom chord as a column about its weak (1-1/2") axis, braced by the
+  // heels and the king post or mid-span brace (needsChordBrace). NDS 3.7.1.4
+  // caps le/d at 50, so an unbraced chord past that fails once it is in
+  // compression at all.
+  const braced = tc.king || shed.members.some((m) => m.kind === 'chord brace') || shed.panels.some((p) => p.kind === 'attic deck');
+  const le = braced ? f.L / 2 : f.L;
+  const slender = le / T;
+  const CF = { '2x4': 1.15, '2x6': 1.1, '2x8': 1.05 }[d.tieSize] ?? 1;
+  const FcStar = SPF2.Fc * 1.6 * CF;
+  const FcE = (0.822 * SPF2.Emin) / slender ** 2;
+  const a = FcE / FcStar;
+  const b = (1 + a) / 1.6;
+  const Cp = b - Math.sqrt(b * b - a / 0.8);
+  const fc = H / (T * DEPTH[d.tieSize]);
+  const chord = H <= 0 ? 0 : slender > 50 ? Math.max(slender / 50, fc / (FcStar * Cp)) : fc / (FcStar * Cp);
+  const nailRatio = H / (nails * perNail);
+  return { wNet, H, nails, perNail, le, braced, slender, chord, nailRatio, ratio: Math.max(nailRatio, chord), governs: chord > nailRatio ? 'bottom chord compression' : 'nail shear' };
 }
 
 /** Wall dead load, psf of wall face: studs, plates, sheathing or siding. */
@@ -386,6 +426,8 @@ export function anchorage(shed) {
   const k = shed.dims;
   const p = d.windLoad;
   const z0 = k.block ? k.block.h : 0;
+  // The leeward line it tips about: the outer skids, or with no floor the eave walls' timbers.
+  const ys = k.floorless && k.timber ? [k.timber.thick / 2, d.width - k.timber.thick / 2] : k.skidYs;
   const Wt = selfWeight(shed).lb;
   const wall = (k.plateTop - z0) / 12; // ft, skid bottom to plate
   const rise = (k.ridgeTop - k.plateTop) / 12;
@@ -395,7 +437,7 @@ export function anchorage(shed) {
   const U = p * L * (W + (2 * d.overhang) / 12); // uplift on the roof plan
   const dirs = [
     // Wind on the long side: wall rectangle and the roof's rectangle, about the leeward skid.
-    { dir: 'on the long side', F: p * L * (wall + rise), M: p * L * (wall * (wall / 2) + rise * (wall + rise / 2)), arm: (k.skidYs[k.skidYs.length - 1] - k.skidYs[0]) / 2 / 12, base: (k.skidYs[k.skidYs.length - 1] - k.skidYs[0]) / 12 },
+    { dir: 'on the long side', F: p * L * (wall + rise), M: p * L * (wall * (wall / 2) + rise * (wall + rise / 2)), arm: (ys[ys.length - 1] - ys[0]) / 2 / 12, base: (ys[ys.length - 1] - ys[0]) / 12 },
     // Wind on a gable end: wall rectangle and the gable triangle, about the leeward end.
     { dir: 'on a gable end', F: p * W * (wall + rise / 2), M: p * W * (wall * (wall / 2) + (rise / 2) * (wall + rise / 3)), arm: L / 2, base: L },
   ];
@@ -438,7 +480,8 @@ export function structuralChecks(shed) {
   const gaps = k.skidYs.slice(1).map((y, i) => y - k.skidYs[i]);
   const skidThick = shed.members.find((m) => m.kind === 'skid')?.geom.thickness ?? 3.5;
   const floorSpanIn = Math.max(...gaps) - skidThick;
-  {
+  if (k.floorless) addFloorlessRows(shed, add);
+  else {
     // Treated joists are usually Southern pine, whose No. 2 bending value is
     // below SPF's from 2x6 up; a dry floor stays dry service.
     const species = d.floorTreated ? 'SYP' : 'SPF';
@@ -508,6 +551,15 @@ export function structuralChecks(shed) {
   {
     const u = rafterUplift(shed);
     add('Rafter-to-plate ties (uplift)', `${u.tie.model} at each rafter end`, `${Math.max(0, Math.round(u.net))} lb net uplift a tie at ${wind} psf (0.6W on the roof and under the ${fmtIn(d.overhang)} overhang, less 0.6 of the roof's weight); ${u.tie.uplift} lb allowed (SPF, Simpson C-C-2024); holds to ${Math.floor(u.holdsPsf)} psf of uplift`, Math.max(0, u.net) / u.tie.uplift, 'uplift');
+  }
+  // A truss heel under uplift: the net upward load reverses the chords, so the
+  // heel gusset nails that hold the gravity thrust now hold the reversed one,
+  // with the wind's load duration (CD 1.6, NDS Table 2.3.2).
+  if (truss) {
+    const h = trussHeelUplift(shed);
+    add('Truss heels (uplift)', `${h.nails} ${GUSSET_NAIL.name}s into the bottom chord`, h.H <= 0
+      ? `at ${wind} psf the roof's and ceiling's weight outweigh 0.6W on the truss, so its chords do not reverse`
+      : `${Math.round(h.H)} lb reversed thrust at ${wind} psf (0.6W less 0.6 of the roof and ceiling weight, ${h.wNet.toFixed(1)} lb/ft on plan): ${Math.round(h.perNail)} lb a gusset nail at CD 1.6, and the ${d.tieSize} bottom chord in compression over ${fmtIn(h.le)}${h.braced && !trussChecks(d).king ? (d.atticStorage ? ' (braced by the attic deck)' : ' (braced at mid-span by a 2x4)') : ''}${h.slender > 50 ? `, le/d ${Math.round(h.slender)} past the NDS limit of 50 (3.7.1.4): a 2x4 brace nailed across the bottom chords at mid-span, tied to both gable ends, would halve it` : ''}`, h.ratio, h.governs);
   }
   // The walls against racking.
   {
