@@ -1,0 +1,56 @@
+{
+  "date": "2026-10-30",
+  "session": "https://claude.ai/code/session_01XpHqyg18KFJ7wq52yKE93G",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "r3b lane 4: design detail and compare view for shed-designer",
+  "input_sha256": "90dbe550567bc28ed38927bec7cb1cb743d6e75e34082185e10aaea05d8b95ce",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-30T01:43:40Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "shed-designer r3b lane 4: design detail panel and side-by-side compare",
+  "projects": [
+    "shed-designer"
+  ],
+  "pr": 11559,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 10,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The lane brief says to run `node platform/ci/typecheck.mjs shed-designer` if present; it is not in the repo, and no shed typecheck workflow exists."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "system/session rules",
+      "why": "The run record's model field is left null: this session's instructions forbid model identifiers in pushed artifacts.",
+      "did": "model: null",
+      "result": "record validates"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-30-what-a-shed-holds-per-hundred-dollars.md",
+    "docs/reports/shed-designer-round3b-lane4.md"
+  ],
+  "goal": null,
+  "notes": "Verification, local (runners starved). After merging main (e335b0e1): venture `node --test *.test.mjs` 209 pass, 0 fail, 2 skipped (with Playwright in the container this includes both browser files; the two skips are the axe tests), then both axe tests with axe-core 4.13.0: 2/2. Earlier: browser.test.mjs 12/12 and picker.browser.test.mjs 6/6. Screenshots checked by eye on desktop and a Pixel 7.",
+  "corrections": [],
+  "redteam": null
+}

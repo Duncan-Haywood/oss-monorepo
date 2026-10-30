@@ -6,6 +6,7 @@ import { buildShed, normalize, defaultDesign, PRESETS, WALLS, WALL_LABEL, wallFa
 import { estimate, examplePrices, cutSheetCsv, shoppingCsv, groupBoards, sourceLabel, boardUse, lumberUses } from './estimate.mjs';
 import { buildSheets, sheetSvg, sheetsDxf } from './drawings.mjs';
 import { createViewer, LAYERS } from './render3d.mjs';
+import { mountPicker } from './picker.mjs';
 import { drawPlan, drawEnd } from './editor.mjs';
 import { fmtIn, fmtFtIn, actual, STANDARD_LENGTHS_FT, EXAMPLE_ITEMS } from './lumber.mjs';
 import { recordUsage, clearUsage } from './usage.mjs';
@@ -19,6 +20,7 @@ import { quoteRequest, mailtoLink, STORES } from './quote.mjs';
 import { PRODUCTS } from './products.mjs';
 import { storeComparison, swapsFor, storeTotals, storeList, pricesFor } from './catalog.mjs';
 import { simplify, cutMetrics, budget, laborHours } from './simplify.mjs';
+import { valueComparison, valueHtml } from './value.mjs';
 import { finishOptions, isHex, paletteOf, rgbToHex, SIDING_FINISHES, TRIM_FINISHES, DOOR_FINISHES, SHINGLE_FAMILIES } from './looks.mjs';
 import { leverOptions, leverTableHtml } from './costlevers.mjs';
 
@@ -67,6 +69,8 @@ function toBuy(est) {
 }
 const undo = []; const redo = [];
 const thumbs = new Map();
+/** @type {ReturnType<typeof mountPicker> | null} */
+let picker = null;
 
 // ---------- persistence ----------
 function save() {
@@ -230,6 +234,7 @@ function renderSummary(shed, est) {
     ['Your time', (() => { const h = laborHours(shed, est); return `about ${Math.round(h)} hours${d.laborRate ? `, ${money(h * d.laborRate)} at ${money(d.laborRate)} an hour (materials and time ${money(est.total + h * d.laborRate)})` : ''}`; })()],
     ['Saw cuts', (() => { const c = cutMetrics(shed, est); return `${c.straight} straight, ${c.angled} angled${c.notches ? `, ${c.notches} notches` : ''}; ${(c.waste * 100).toFixed(1)}% offcut`; })()],
   ].map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join('');
+  $('#summary-lines').insertAdjacentHTML('beforeend', valueHtml(valueComparison(shed, est, 3)));
   const msgs = [...shed.warnings, ...est.problems];
   $('#warnings').innerHTML = msgs.length ? `<strong>Check these:</strong><ul>${msgs.map((m) => `<li>${esc(m)}</li>`).join('')}</ul>` : '';
   const notes = [...shed.notes, ...est.notes];
@@ -603,9 +608,9 @@ function wire() {
       if (e.type === 'change' && t.tagName === 'SELECT') { $('#openings tbody').innerHTML = ''; renderOpenings(design()); }
       return;
     }
-    if (t.dataset.mat) { (state.prices.lumber[t.dataset.mat] ||= {})[t.dataset.ft] = t.value === '' ? '' : Number(t.value); render(); return; }
-    if (t.dataset.item) { state.prices.items[t.dataset.item] = t.value === '' ? '' : Number(t.value); render(); return; }
-    if (t.dataset.delivery) { state.prices.delivery = { ...(state.prices.delivery || {}), [t.dataset.delivery]: t.value === '' ? '' : Number(t.value) }; render(); return; }
+    if (t.dataset.mat) { (state.prices.lumber[t.dataset.mat] ||= {})[t.dataset.ft] = t.value === '' ? '' : Number(t.value); render(); picker?.reprice(); return; }
+    if (t.dataset.item) { state.prices.items[t.dataset.item] = t.value === '' ? '' : Number(t.value); render(); picker?.reprice(); return; }
+    if (t.dataset.delivery) { state.prices.delivery = { ...(state.prices.delivery || {}), [t.dataset.delivery]: t.value === '' ? '' : Number(t.value) }; render(); picker?.reprice(); return; }
     if (t.closest('#settings')) {
       // Leaving a cleared number box puts the last value back in it.
       if (t.type === 'number' && t.value.trim() === '') {
@@ -998,4 +1003,17 @@ buildStatic();
 load();
 wire();
 render();
+// Ready-made designs to look at, compare and start from (picker.mjs).
+picker = mountPicker({
+  root: $('#starts'), dialog: $('#pick-dialog'), tray: $('#compare-tray'),
+  prices: () => state.prices, count,
+  onStart(d) {
+    state.designs.push(normalize(d));
+    state.active = state.designs.length - 1;
+    count('designs');
+    undo.length = 0; redo.length = 0;
+    render();
+    $('#workspace').scrollIntoView({ behavior: 'smooth' });
+  },
+});
 if (linkNote) $('#status').textContent = linkNote;
