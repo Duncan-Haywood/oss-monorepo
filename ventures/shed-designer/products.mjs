@@ -33,17 +33,29 @@ export const productById = (id) => PRODUCTS.find((p) => p.id === id) || null;
 
 /**
  * What a unit like a custom-size opening typically costs: the cheapest and
- * dearest catalogue units of its kind, and their median. Doors over 44" wide
- * are compared with the double doors, narrower ones with the single doors.
- * A range from our catalogue, not a listing for that size.
+ * dearest catalogue units of its kind and about its size, and their median.
+ * Doors over 44" wide are compared with the double doors, narrower ones with
+ * the single doors. Given a height too, only the units whose rough opening is
+ * within a third of its area count (at least the three nearest), so a 32 x 24
+ * window is not priced against a 14 x 21 one. A range from our catalogue, not
+ * a listing for that size.
  * @param {'door'|'window'} kind @param {number} width rough opening width (in)
+ * @param {number} [height] rough opening height (in)
  */
-export function catalogueRange(kind, width) {
+export function catalogueRange(kind, width, height) {
   const pair = kind === 'door' && width > 44;
-  const units = PRODUCTS.filter((p) => p.kind === kind && (kind === 'window' || (p.roW > 44) === pair));
+  const all = PRODUCTS.filter((p) => p.kind === kind && (kind === 'window' || (p.roW > 44) === pair));
+  let units = all;
+  if (height > 0 && all.length > 3) {
+    const far = (p) => Math.abs(Math.log((p.roW * p.roH) / (width * height)));
+    const near = all.filter((p) => far(p) <= Math.log(4 / 3));
+    units = near.length >= 3 ? near : [...all].sort((a, b) => far(a) - far(b)).slice(0, 3);
+  }
+  const sized = units.length < all.length;
   const prices = units.map((p) => p.price).sort((a, b) => a - b);
   const n = prices.length;
   if (!n) return null;
   const median = n % 2 ? prices[(n - 1) / 2] : (prices[n / 2 - 1] + prices[n / 2]) / 2;
-  return { lo: prices[0], hi: prices[n - 1], median, n, group: kind === 'window' ? 'shed windows' : pair ? 'double shed doors' : 'single shed doors' };
+  const group = kind === 'window' ? 'shed windows' : pair ? 'double shed doors' : 'single shed doors';
+  return { lo: prices[0], hi: prices[n - 1], median, n, group: sized ? `${group} nearest that size` : group };
 }

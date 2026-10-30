@@ -52,7 +52,7 @@ export function designDiff(a, b) {
 }
 
 export function generateCandidates(design, prices) {
-  const base = buildShed(design);
+  const base = buildShed(design, prices);
   const b = base.design;
   /** @type {{ label: string, change: any }[]} */
   const variants = [
@@ -70,7 +70,7 @@ export function generateCandidates(design, prices) {
   const out = [];
   for (const v of variants) {
     const d = normalize({ ...design, ...v.change, name: `${b.name}: ${v.label.toLowerCase()}` });
-    const shed = buildShed(d);
+    const shed = buildShed(d, prices);
     const key = JSON.stringify({ ...shed.design, name: '' });
     if (seen.has(key)) continue;
     seen.add(key);
@@ -109,11 +109,11 @@ export function generateCandidates(design, prices) {
 export function openingCosts(design, prices) {
   // Hold the walls, pitch and overhang where they are built now, so taking a
   // door out doesn't also lower the walls and charge that to the door.
-  const built = buildShed(normalize(design)).design;
+  const built = buildShed(normalize(design), prices).design;
   const d = normalize({ ...built, autoWall: false, autoPitch: false, autoOverhang: false });
-  const with_ = estimate(buildShed(d), prices);
+  const with_ = estimate(buildShed(d, prices), prices);
   return d.openings.map((op) => {
-    const without = estimate(buildShed(normalize({ ...d, openings: d.openings.filter((o) => o.id !== op.id) })), prices);
+    const without = estimate(buildShed(normalize({ ...d, openings: d.openings.filter((o) => o.id !== op.id) }), prices), prices);
     const unpriced = op.product !== 'site-built' && !productById(op.product) && !d.customRange;
     return { id: op.id, total: with_.total - without.total, lumber: with_.lumberCost - without.lumberCost, unpriced };
   });

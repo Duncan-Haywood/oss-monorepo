@@ -586,6 +586,9 @@ test("calendar export: every match once, per division and per team, lines folded
   assert.ok(all.split("\r\n").every((l) => new TextEncoder().encode(l).length <= 75));
   const uids = all.match(/^UID:.*$/gm);
   assert.equal(new Set(uids).size, uids.length);
+  assert.doesNotMatch(all, /VALARM/);
+  const withAlarm = divisionsIcs(s, { stamp, alarmMinutes: 45 });
+  assert.ok(/TRIGGER:-PT45M/.test(withAlarm) === /DTSTART:/.test(withAlarm));
   const d = s.divisions[0];
   const per = divisionsIcs(s, { division: d.name, stamp });
   assert.equal(count(per), d.rounds.reduce((n, r) => n + r.matches.length, 0));
