@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { placeBreaks, laborPercent, budgetCheck, dailyLabor, salesPerLaborHour, fairnessReport, hoursThresholds, tipPool, trimOptions, scheduleFlags, unsupervisedStretches, loneStretches, shortShifts,
+import { placeBreaks, placeRestBreaks, laborPercent, budgetCheck, dailyLabor, salesPerLaborHour, fairnessReport, hoursThresholds, tipPool, trimOptions, scheduleFlags, unsupervisedStretches, loneStretches, shortShifts,
   parseTime, parseDaySpec, parseAvailability, parseStaff, parseShifts, buildRoster, coverOptions, absencePlan, swapOptions, checkTrade, rosterCsv, hoursCsv, rosterIcs, rosterMessages, openShiftPost,
   sampleStaff, openFloorByPricing, branchedScoreBound, optimalityText, sampleShifts, fmtClock, money, money2, _internals,
 } from "./calc.mjs";
@@ -1601,4 +1601,33 @@ test("coverRepair: openShiftWeight prices an open shift in hours, so the repair 
   assert.equal([hrs(heavy), heavy.unfilled.length].join(), "19,3"); // 4 more open hours buy 2 fewer open shifts
   // the weighted objective (hours + weight x open shifts) is never worse than the default roster's under the same weight
   assert.ok(hrs(heavy) + 100 * heavy.unfilled.length <= hrs(def) + 100 * def.unfilled.length + 1e-9);
+});
+
+test("placeRestBreaks: one paid break per full 4 hours, spread out, clear of the meal break, staggered", () => {
+  const A = (person, startMin, endMin) => ({ slot: { day: 0, startMin, endMin }, person });
+  const r = { assignments: [A("Ana", 480, 1020), A("Ben", 480, 1020), A("Cy", 480, 720)] };
+  const rest = placeRestBreaks(r);
+  assert.deepEqual(rest.map((x) => x.person), ["Ana", "Ana", "Ben", "Ben", "Cy"]);
+  const meals = placeBreaks(r);
+  for (const x of rest) {
+    assert.equal(x.endMin - x.startMin, 10);
+    assert.ok(x.startMin % 5 === 0 && x.dayName === "Mon");
+    for (const m of meals.filter((m) => m.person === x.person)) assert.ok(x.endMin <= m.startMin || m.endMin <= x.startMin, "clear of the meal break");
+  }
+  const ana = rest.filter((x) => x.person === "Ana");
+  assert.ok(ana[0].startMin < 480 + 270 && ana[1].startMin > 480 + 270, "one in each half of the 9 hour stretch");
+  const first = rest.filter((x) => x.person !== "Cy");
+  assert.ok(first.every((x) => x.others >= 1), "somebody else is on the floor");
+  assert.ok(ana[0].startMin !== rest.find((x) => x.person === "Ben").startMin, "Ana and Ben are not off together");
+});
+
+test("placeRestBreaks: short stretches get none, off at 0, joined shifts count once, a lone worker is flagged", () => {
+  const A = (person, startMin, endMin) => ({ slot: { day: 1, startMin, endMin }, person });
+  assert.deepEqual(placeRestBreaks({ assignments: [A("Ana", 480, 710)] }), []);
+  assert.deepEqual(placeRestBreaks({ assignments: [A("Ana", 480, 960)] }, { restMin: 0 }), []);
+  assert.deepEqual(placeRestBreaks({ assignments: [] }), []);
+  const joined = placeRestBreaks({ assignments: [A("Ana", 480, 720), A("Ana", 720, 960)] }, { mealAfter: 0 });
+  assert.equal(joined.length, 2);
+  assert.ok(joined.every((x) => x.alone && x.startMin >= 510 && x.endMin <= 930));
+  assert.equal(placeRestBreaks({ assignments: [A("Ana", 480, 960)] }, { restEvery: 2, mealAfter: 0 }).length, 4);
 });
