@@ -3,6 +3,19 @@
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
 
+## 2026-10-30 · Milestone 9i: does an output-error fit beat 9h's equation-error least squares on the same noisy free response? (planned before running)
+- Why: 9h's "Next". Its least-squares floor got worse with longer records because noise in the regressors biases the transition matrix.
+- Plan (`experiments/output_error_fit/run.py`): 9h's 78 designs, true tail-slope scale 0.75, 3% channel noise, records of 1, 2, 4 phugoid periods, 20 paired draws per design. Both estimators see the same noisy record: LS as in 9h, and an output-error fit (Levenberg-Marquardt on the 16 entries of the continuous A, simulated from the known initial state, started at the log of the LS transition matrix). f is picked and scored as in 9f and 9h.
+- **Predictions (before running):** (1) OE short-period frequency error at 3% noise is under half of LS at every record length (prior 85%). (2) OE does not get worse from 1 to 4 periods by more than a factor of 2 (prior 70%). (3) At 4 periods at least 50 of 78 designs reach 90% of draws within 10% gust under OE (prior 60%). Refuted: (1) a record length where OE is at least half of LS; (2) a worsening above 2; (3) fewer than 50.
+- Limits known in advance: known initial state (a real doublet's is estimated); white noise on all four states; 20 draws, so shares have about 2-point resolution per cell; one scale; one seed (20261030).
+
+### Outcome of 9i (`experiments/output_error_fit/`: `run.py`, `results.txt`; about 58 min of CPU)
+- Median short-period frequency error, LS then OE: 1.87% then 0.21% (1 period), 6.06% then 0.21% (2), 33.5% then 0.33% (4). Damping ratio: 1.99, 4.46, 23.1% (LS) against 0.44, 0.44, 0.64% (OE). Designs with 90% of draws within 10% gust: LS 52, 51, 13 of 78; OE 67, 67, 66 of 78. Share of draws within 10%: LS 83, 84, 64%; OE 86, 87, 87%. OE matches or slightly beats the noiseless 9f value on gust (86 to 87%). No fit failures in either.
+- **(1) held** (ratio 0.11, 0.03, 0.01). **(2) held** (0.21% to 0.33%, factor 1.6). **(3) held** (66 of 78).
+- Reading: 9h's "longer record is worse" was an artefact of the equation-error estimator, not of the information in the record. With an output-error fit 3% sensor noise costs almost nothing and a longer record helps slightly. The demonstrator test card constraint from 9h (one short-period record at high rate) relaxes to any record of at least one phugoid period, provided the identification is output-error.
+- Limits: as planned. The known initial state flatters OE, and the 10% noise case, where 9h's LS was unusable, was not rerun.
+- Next: estimated initial state and turbulence; 10% noise; windowed fit; real IMU noise density; NACA 0012/0015 data; thrust law; AIAA template.
+
 ## 2026-10-29 · Milestone 9h: what mode errors does a real time-domain fit of a noisy free response give, and what do they do to the adjustable tail? (planned before running)
 - Why: 9f and 9g assumed Gaussian mode errors; their "Next" asked for an estimator on a simulated record. Here the 4-state model (u, alpha, q, theta) at f = 1 is released from an initial disturbance, sampled with sensor noise, and its discrete transition matrix fitted by least squares (equation-error); the eigenvalues give the observed modes.
 - Plan (`experiments/doublet_fit/run.py`): the 78 mode-matched designs at true tail-slope scales 0.75 and 1.0; initial state u = 0.1 v, alpha = 0.05 rad; sampling 20 points per short-period period; record 1, 2 and 4 phugoid periods; white noise at 1%, 3% and 10% of each channel's rms; 100 draws. Relative error of the fitted phugoid frequency, short-period frequency and damping ratio at f = 1 is carried to every f on the grid (as 9f does with its assumed noise), f is picked as in 9f, and the true model is scored on modes and the three gust peaks. Failed fits (no two complex pairs) keep f = 1.
