@@ -51,7 +51,7 @@ test("every static control has a label, and generated rows label their inputs", 
 
 test("the module script imports only local files, its names exist, and it parses", async () => {
   const html = page("index.html");
-  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./bidlevel.mjs", "./budget.mjs", "./drawings.mjs", "./drywall.mjs", "./dxf.mjs", "./eaves.mjs", "./engine.mjs", "./fasteners.mjs", "./floor.mjs", "./foundation.mjs", "./gutters.mjs", "./headers.mjs", "./insulation.mjs", "./panels.mjs", "./pdf.mjs", "./roof.mjs", "./schedule.mjs", "./sheathing.mjs", "./siding.mjs", "./sketch.mjs", "./stairs.mjs", "./trim.mjs", "./usage.mjs"]);
+  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./bidlevel.mjs", "./budget.mjs", "./deck.mjs", "./drawings.mjs", "./drywall.mjs", "./dxf.mjs", "./eaves.mjs", "./engine.mjs", "./fasteners.mjs", "./floor.mjs", "./foundation.mjs", "./gutters.mjs", "./headers.mjs", "./insulation.mjs", "./panels.mjs", "./pdf.mjs", "./roof.mjs", "./schedule.mjs", "./sheathing.mjs", "./siding.mjs", "./sketch.mjs", "./stairs.mjs", "./trim.mjs", "./usage.mjs"]);
   const names = html.match(/import \{([^}]+)\} from "\.\/engine\.mjs"/)[1].split(",").map((s) => s.trim());
   const engine = await import("./engine.mjs");
   for (const name of names) assert.ok(name in engine, name);
@@ -297,4 +297,13 @@ test("the bid leveling card parses lines into plan.bids, restores them and level
   assert.match(html, /plan\.bids = pb\.bids/);
   assert.match(html, /Array\.isArray\(plan\.bids\)/);
   assert.match(html, /<code>bids_leveled<\/code>/);
+});
+
+test("the deck controls are read into plan.deck, restored from a saved plan and drawn in the deck card", () => {
+  const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
+  for (const id of ["dkOn", "dkWidth", "dkDepth", "dkHeight", "dkJoist", "dkSpacing", "dkBeam", "dkPost", "dkFree", "deckOut"]) assert.match(html, new RegExp(`id="${id}"`));
+  assert.match(html, /plan\.deck = dk/);
+  assert.match(html, /layoutDeck\(plan\.deck\)/);
+  assert.match(html, /\$\("#dkOn"\)\.checked = Boolean\(dkp\)/);
+  assert.match(html, /<code>deck_on<\/code>/);
 });

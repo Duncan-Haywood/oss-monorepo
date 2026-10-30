@@ -2,6 +2,19 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-30 · Milestone 6d: how much of the oracle back-off gain survives a forecast of finite skill? (planned before running)
+- Why: 6c's "Next". C knows each day's sea state exactly, so C/B (3 to 15%) is an upper bound. A real forecast is partly right. Skill is swept, not sourced: no forecast-verification data for small-craft sea state is reachable through the proxy.
+- Plan (`experiments/run_solar_seastate_forecast.py`, 6c's boat, sites, F = 3, p = 0.5, spell 1 and 7 days, packs 10 and 1 kWh): policy D picks its speed from a forecast that equals the true state with probability s and otherwise is a climatological draw (rough with probability p); energy use follows the true state. s in {0, 0.25, 0.5, 0.75, 1}; (v_calm, v_rough) chosen in-sample for each s (D at s = 1 is C). Report the share of the C minus B gap that D recovers.
+- **Predictions (before running):** (1) at s = 0 D is within 0.3% of B in every cell (prior 80%; the pair grid contains the constant speeds, so D(0) >= B, and a random forecast gives nothing to exploit). (2) At s = 0.5 D recovers at least half of the C-B gap in at least 15 of the 20 cells (prior 55%: the gain should be roughly linear in s, a concave curve would push it above). Refuted: (1) any cell off by 0.3% or more; (2) fewer than 15 cells.
+- Limits known in advance: errors are independent across days (real forecast errors cluster); one seed for the truth and one for the forecast; the pair is chosen in-sample; skill is a free parameter.
+
+### Outcome of milestone 6d (`experiments/run_solar_seastate_forecast.py`, about 8 minutes, seeded; `experiments/results_solar_seastate_forecast.txt`; 20 cells)
+- **(1) refuted, narrowly:** the largest |D(0) - B| / B is 0.325%, against the 0.3% line (median share of the gap recovered at s = 0 is 0.00, maximum 0.12 of a gap that is itself under 4 km/day). D(0) never falls below B.
+- **(2) refuted, clearly:** at s = 0.5 only 1 of 20 cells recovers half the C-B gap (median share 0.35, range 0.08 to 0.50). The curve is convex, not linear: median share 0.11 at s = 0.25, 0.35 at 0.5, 0.58 at 0.75, 1.00 at 1. With p = 0.5 the forecast's hit rate is s + (1 - s)/2, so s = 0.5 is already 75% of days called correctly, and it buys about a third of the oracle's gain.
+- Reading: the oracle gain of 3 to 15% (6c) is mostly unreachable by a mediocre forecast. A forecast right on 75% of days recovers about a third of it (roughly 1 to 4% of km/day); it takes about 87% correct (s = 0.75) to recover more than half. The best constant speed B stays the sensible default unless a forecast of sea state at that skill exists.
+- Limits: as planned. Independent forecast errors, one seed each for truth and forecast, in-sample pair, p = 0.5 and F = 3 only, and s is not tied to any real forecast product.
+- Next: tie s to a real forecast verification figure if one becomes reachable; milestone 3 tank data remains blocked.
+
 ## 2026-10-29 · Milestone 6c: do persistent rough spells and a small pack change what a back-off policy gains over the best constant speed? (planned before running)
 - Why: 6b's "Next" and its stated caveat: iid rough days understate spells, and a 10 kWh pack (25% of a 200 kg boat at 200 Wh/kg) buffers a bad week. No climatology is reachable, so spell length is swept, not sourced. Not a prediction of any real sea.
 - Plan (`experiments/run_solar_seastate_spells.py`, same boat, five sites, daily NASA POWER series): rough/calm two-state Markov chain with stationary rough share p in {0.3, 0.5} and mean rough-spell length in {1 (iid), 3, 7} days; F = 3; pack 10 kWh and 1 kWh (the 1 kWh pack cannot ride out a week). Policies A, B, C as in 6b (C in-sample oracle on each day's state). Report C/B and B/A per cell.
