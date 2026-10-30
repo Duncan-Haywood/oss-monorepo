@@ -1300,3 +1300,31 @@ which does not depend on the differenced rho estimate. `eval/residual-rho.mjs` c
 `treering` (0.22) sits below real-structure series (`us-inflation` 0.64, `puerto-rico-daily-deaths` 0.40) and above the
 index returns, so no threshold on residual rho flags it without also flagging series where steps are right. No code
 changed. A rho-free cycle detector stays open; a spectral peak test on the residuals is the next thing to try.
+
+## A spectral peak test on the residuals of the steps (2026-10-30, last)
+
+The previous section found that lag-1 rho of the residuals does not separate a cycle from steps. This tries the
+untried alternative: Fisher's g (the largest periodogram ordinate over the sum, exact p-value) on the residuals
+about the default model's segment means. `node eval/spectral-peak.mjs`, `node eval/spectral-null.mjs`, test
+`spectral-peak.test.mjs`.
+
+| series | default steps | g | p | peak period |
+|---|---|---|---|---|
+| sunspots (cycle) | 46 | 0.119 | 2e-6 | 11.1 years |
+| lynx (cycle) | 23 | 0.134 | 0.02 | 9.5 years |
+| treering | 38 | 0.003 | 0.04 | 7.0 (no known cycle) |
+| lh | 5 | 0.155 | 0.49 | |
+| US inflation | 12 | 0.063 | 0.15 | |
+| Nile, Lake Huron, nhtemp, discoveries | 1 to 10 | | 0.37 to 0.73 | |
+| US accidental deaths (monthly) | 3 | 0.506 | 1e-9 | 12 (months: the season) |
+
+Calibration on 100 synthetic series per cell, p < 0.01: no cycle 3% (n=100) and 1% (n=300); two true 2 sd steps and
+no cycle 2% and 1%; a sine of amplitude 1 (period 11, noise sd 1) found in 97% to 100% with or without steps; amplitude 0.5 in 28% (n=100) and 86% (n=300).
+
+Reading: unlike rho it finds sunspots clearly (p 2e-6) and names the period, and steps do not trigger it. On
+lynx it is weak (0.02: a 114-point series with 10 or so cycles has few frequencies near the peak) and on treering
+it does not fire usefully (p 0.04 at a period of 7 with 38 steps; treering's false steps come from slow drift, not a cycle). So it
+covers the cycle half of the "cycle check not tied to rho" item and not the drift half, which the block-variance
+warning already covers. It is not wired into the output yet: with a seasonal monthly series it fires for the
+season, which `--period` already handles, so a hint needs to be suppressed when a period is set. Wanted: a documented step inside
+a real series with a known cycle, to check the test still lets the step through.
