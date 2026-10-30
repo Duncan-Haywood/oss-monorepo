@@ -53,6 +53,8 @@ export const BUILT_IN = [
   // class-marketplace and booking-platform payouts are sales; studio lease is rent; props and mats are supplies; booking software is software;
   // a Gusto payroll debit is wages, not software (the generic Gusto rule files its monthly fee as software).
   ["4000", "in", /momence payout|walla payout|zen ?planner payout|zelle from .*(wellness|corporate)/],
+  // QuickBooks/Intuit payroll debits are wages too (2026-10-30, payroll-software.test.mjs): the generic quickbooks/intuit rule files them as software; a fee, subscription or tax line is left to the rules below.
+  ["6150", "out", /(quickbooks|intuit|qbooks)\W+payroll(?!.*(fee|subscription|monthly|tax))/],
   ["6150", "out", /gusto (payroll|wages|net pay)(?!.*(fee|subscription|monthly))|gusto.*(tax|debit)/],
   ["6100", "out", /manduka|gaiam|hugger mugger|yoga ?props|pilates (reformer|equipment)|balanced body|merrithew/],
   ["6060", "out", /momence (subscription|monthly)|walla (subscription|monthly)|marianatek|pushpress/],
