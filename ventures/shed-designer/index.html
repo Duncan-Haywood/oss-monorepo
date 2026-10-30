@@ -9,6 +9,11 @@
   <meta property="og:type" content="website">
   <meta property="og:title" content="Shed Designer: drag out a gable shed, get the plans and the cut list">
   <meta property="og:description" content="Framing plans, a 3D view, a producer cut sheet and a lumber order for an 8x12 (or any size) gable shed. Free, in your browser.">
+  <meta property="og:image" content="renders/og-8x12-share.jpg">
+  <meta property="og:image:type" content="image/jpeg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="3D render of an 8x12 gable shed drawn by Shed Designer, seen from the front corner">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -46,6 +51,8 @@
     .workspace { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 14px; }
     .jump { position: sticky; top: 0; z-index: 15; display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: center; padding: 8px 0; margin: 0 0 6px; background: var(--paper); border-bottom: 1px solid var(--line); font-size: .9rem; }
     html { scroll-padding-top: 64px; }
+    .jump { transition: opacity .15s; }
+    .jump.over-handle { opacity: .3; pointer-events: none; }
     .jump a, .jump .link { min-height: 32px; display: inline-flex; align-items: center; color: var(--accent2); font-weight: 600; }
     @media (max-width: 600px) { .jump { flex-wrap: nowrap; overflow-x: auto; white-space: nowrap; } }
     .editors { display: grid; gap: 14px; align-content: start; }
@@ -57,6 +64,8 @@
     /* The end view takes its picture's own shape (set by its viewBox), up to a height. */
     #endview { max-height: 26rem; }
     .hint { color: var(--muted); font-size: .85rem; margin: 6px 0 0; }
+    .hint-more { font-size: .85rem; margin: 2px 0 6px; }
+    .hint-more summary { cursor: pointer; color: var(--accent2); font-weight: 600; min-height: 32px; display: flex; align-items: center; }
     .pad { fill: #ece8df; stroke: #b8b1a3; stroke-dasharray: 4 3; }
     .floor { fill: #e9dcc0; stroke: #6b4f2a; }
     .wallband { fill: #c99d62; }
@@ -139,6 +148,25 @@
     .card ul.changes { margin: 2px 0 0; padding-left: 18px; font-weight: 400; }
     #shopping tr.subtot th, #shopping tr.subtot td { font-weight: 600; border-top: 1px solid var(--line); }
     #shopping .use { font-size: .8rem; color: var(--muted); }
+    /* On a phone the eight columns do not fit: each line becomes a small card, so
+       "Have it" and "Leave out" are on screen instead of past a sideways scroll. */
+    @media (max-width: 600px) {
+      #shopping thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+      #shopping, #shopping tbody { display: block; }
+      #shopping tr[data-line] { display: grid; grid-template-columns: auto auto 1fr auto; gap: 2px 8px; align-items: baseline; padding: 8px 2px; border-bottom: 1px solid var(--line); }
+      #shopping tr[data-line] td { border: 0; padding: 0; }
+      #shopping tr[data-line] td:nth-child(1) { grid-column: 1 / -1; font-weight: 600; }
+      #shopping tr[data-line] td:nth-child(4)::before { content: "at "; color: var(--muted); }
+      #shopping tr[data-line] td:nth-child(5) { font-weight: 700; }
+      #shopping tr[data-line] td:nth-child(6) { grid-column: 1 / -1; font-size: .8rem; }
+      #shopping tr[data-line] td:nth-child(7), #shopping tr[data-line] td:nth-child(8) { grid-column: span 2; display: flex; align-items: center; gap: 6px; min-height: 36px; }
+      #shopping tr[data-line] td:nth-child(7)::after { content: "Have it"; }
+      #shopping tr[data-line] td:nth-child(8)::after { content: "Leave out of the total"; }
+      #shopping tr[data-line] input[type=checkbox] { width: 22px; height: 22px; margin: 0; }
+      #shopping tr.sec, #shopping tr.subtot, #shopping tr.tot { display: flex; justify-content: space-between; }
+      #shopping tr.sec th, #shopping tr.subtot th, #shopping tr.subtot td, #shopping tr.tot th, #shopping tr.tot td { border: 0; }
+      #shopping tr.subtot td:empty, #shopping tr.tot td:empty { display: none; }
+    }
     h4, h3.h4 { margin: 14px 0 4px; font-size: .95rem; }
     .grid input { width: 74px; }
     .items { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; margin-top: 12px; }
@@ -192,9 +220,14 @@
     .pick-img img, .pick-img .thumb-wait { width: 100%; height: auto; aspect-ratio: 3 / 2; border-radius: 8px; background: #edf1f5; display: grid; place-items: center; color: var(--muted); font-size: .8rem; }
     .pick-line { font-size: .85rem; font-weight: 600; }
     .pick-why { font-size: .8rem; color: var(--muted); }
+    .pick-more { margin-top: auto; padding-top: 6px; font-size: .85rem; font-weight: 600; color: var(--accent2); }
+    .pick-open:hover .pick-more { text-decoration: underline; }
     .pick-cmp { margin: 0 10px 10px; min-height: 44px; }
     .pick-cmp[aria-pressed="true"], .dlg-actions [aria-pressed="true"] { background: var(--accent2); color: #fff; }
-    .compare-tray { position: sticky; bottom: 8px; z-index: 5; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; background: var(--card); border: 1px solid var(--accent2); border-radius: 12px; padding: 8px 12px; margin: 0 0 12px; box-shadow: 0 4px 14px rgba(0,0,0,.12); }
+    /* Fixed to the bottom of the screen, so a design can be added from anywhere on the page and compared. */
+    .compare-tray { position: fixed; left: 50%; transform: translateX(-50%); bottom: max(8px, env(safe-area-inset-bottom)); width: min(760px, calc(100% - 24px)); box-sizing: border-box; z-index: 25; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; background: var(--card); border: 1px solid var(--accent2); border-radius: 12px; padding: 8px 12px; margin: 0; box-shadow: 0 4px 14px rgba(0,0,0,.18); }
+    body:has(#compare-tray:not([hidden])) { padding-bottom: 96px; }
+    @media print { .compare-tray { display: none !important; } }
     .compare-tray[hidden] { display: none; }
     .compare-tray > span { flex: 1 1 200px; font-size: .9rem; }
     .pick-dialog { width: min(1100px, calc(100vw - 16px)); max-height: calc(100dvh - 16px); padding: 0 16px 16px; border: 1px solid var(--line); border-radius: 14px; background: var(--card); color: var(--ink); box-sizing: border-box; }
@@ -299,6 +332,9 @@
       figure.sheet figcaption { display: none; }
       body[data-print] #plans { display: block; }
       body[data-print] .toolrow { display: none; }
+      /* Screen-only controls: store comparison, the quote form, price editing, "Show in 3D" and the tick boxes. */
+      body[data-print] #panel-shopping details, body[data-print] button.xref-btn, body[data-print] #xref { display: none !important; }
+      body[data-print] #shopping th:nth-child(n+7), body[data-print] #shopping tr[data-line] td:nth-child(n+7) { display: none; }
       .boards li { break-inside: avoid; grid-template-columns: 110px minmax(0, 1fr) 110px; }
       .boards .off { grid-column: auto; }
       /* The cuts and the hatched offcut are backgrounds, which browsers drop when printing unless asked. */
@@ -324,14 +360,15 @@
         <button type="button" class="btn" id="starts-next" aria-label="Next design">&rarr;</button>
       </div>
     </div>
-    <p class="hint">Ten sheds under 100 sq ft (six in painted lap siding and asphalt shingles, to match a house), each picked from 2,400 designs this tool's search built and checked: every member at 90% of its capacity or less, a peak of 13 ft or less, nothing the model warns about, and the best on the measure its card names. Prices are worked out now at the prices below. Flick through with the arrows or a swipe; open one to see it from every side, what it costs and how much it holds; add two or three to Compare. "Start from this design" opens a copy in the editor below, to change as you like.</p>
+    <p class="hint"><span id="gallery-count">Sheds under 100 sq ft, many in painted lap siding and asphalt shingles to match a house</span>. Tap one to see it from every side, what it costs and how much it holds; add two or three to Compare; "Start from this design" opens a copy in the editor below.</p>
+    <details class="hint-more"><summary>How these were picked</summary><p class="hint">Each was picked from 2,400 designs this tool's search built and checked: every member at 90% of its capacity or less, a peak of 13 ft or less, nothing the model warns about, and the best on the measure its card names. Prices are worked out now at the prices below. Flick through with the arrows or a swipe.</p></details>
     <ul class="pick-list" tabindex="0" aria-label="Ready-made designs: arrow keys move through them"></ul>
   </section>
   <div id="compare-tray" class="compare-tray" role="region" aria-label="Designs to compare" hidden></div>
   <dialog id="pick-dialog" class="pick-dialog"></dialog>
 
   <nav class="jump" id="jump" aria-label="Jump to the cost and the results">
-    <a href="#summary" class="jump-total" id="total-pill">Total <strong id="total-pill-n"></strong></a>
+    <a href="#summary" class="jump-total" id="total-pill"><span id="total-pill-l">Total</span> <strong id="total-pill-n"></strong></a>
     <a href="#results-h" data-jump="panel-shopping">Shopping list</a>
     <a href="#results-h" data-jump="panel-costs">Where the money goes</a>
     <a href="#results-h" data-jump="panel-cuts">Cut sheet</a>
@@ -340,6 +377,7 @@
     <a href="#results-h" data-jump="panel-plans">Plans</a>
     <a href="#results-h" data-jump="panel-build">How to build</a>
     <button type="button" class="link" id="print-all">Print all</button>
+    <button type="button" class="link" id="jump-hoa">HOA packet</button>
   </nav>
   <div class="bar-top">
     <nav class="tabs" id="design-tabs" role="tablist" aria-label="Your designs"></nav>
@@ -399,7 +437,7 @@
       <div class="toolrow"><label class="check"><input type="checkbox" id="show-dims" checked> Dimensions</label><label class="check"><input type="checkbox" id="show-outlines" checked> Board outlines</label><label class="check"><input type="checkbox" id="show-scenery" checked> Lawn and sky</label><label class="check"><input type="checkbox" id="heat-3d"> Colour by structural use</label></div>
       <p class="hint" id="heat-legend" hidden></p>
       <p class="hint" id="pick-info" aria-live="polite"></p>
-      <p class="hint">Click a board in the 3D view to see what it is, or "Show in 3D" on a line of the shopping list, cut sheet or parts list to see where its pieces go.</p>
+      <p class="hint">Click a board, sheet, siding course or the roof in the 3D view to see what it is and what it is bought as, or "Show in 3D" on a line of the shopping list, cut sheet or parts list to see where its pieces go.</p>
       <div class="xref" id="xref" hidden aria-live="polite"></div>
 
       <div class="panel summary" id="summary" aria-live="polite">
@@ -477,8 +515,10 @@
     <fieldset>
       <legend>Foundation</legend>
       <div class="fields">
+        <label>Floor<select id="floor"><option value="framed">Framed: joists and a subfloor on skids</option><option value="none">None: walls on PT 4x6 timbers, the gravel pad is the floor</option></select></label>
         <label>Foundation<select id="foundation"><option value="gravel">Skids on a gravel pad</option><option value="blocks">Skids on solid 4x8x16 concrete blocks</option><option value="deck blocks">Skids on concrete deck blocks</option><option value="CMU">Skids on 8x8x16 CMU (cinder) blocks</option><option value="piers">Skids on concrete piers poured in 12" form tubes</option></select></label>
         <label>Pier depth below grade (in; your frost depth, piers only)<input id="pierDepth" type="number" min="12" max="72" step="1"></label>
+        <label>Most space between blocks or piers along a skid (in)<input id="blockSpacing" type="number" min="24" max="96" step="1"></label>
         <label>Gravel<select id="pad"><option value="full">A pad under the whole shed (bulk stone)</option><option value="under blocks">Only under each block (bagged paver base; needs a block foundation)</option><option value="none">None: blocks on tamped firm soil (needs a block foundation)</option></select></label>
         <label>Subfloor<select id="floorPanel"><option value="plywood">3/4" tongue-and-groove plywood</option><option value="OSB">23/32" tongue-and-groove OSB</option></select></label>
         <label>Compacting the gravel<select id="compaction"><option value="hand tamper">Buy a hand tamper</option><option value="plate compactor">Rent a plate compactor for a day</option></select></label>
@@ -519,6 +559,11 @@
         <label>House depth (ft)<input id="houseDepthFt" type="number" min="0" max="2000" step="0.5"></label>
         <label>House from the left lot line (ft)<input id="houseLeftFt" type="number" min="0" max="2000" step="0.5"></label>
         <label>House from the street lot line (ft)<input id="houseFrontFt" type="number" min="0" max="2000" step="0.5"></label>
+        <label>Door wall faces<select id="siteFacing"><option value="street">The street</option><option value="left">The left lot line</option><option value="right">The right lot line</option><option value="rear">The rear lot line</option></select></label>
+        <label>North on the site plan<select id="northDeg"><option value="">No north arrow</option><option value="0">Toward the rear lot line</option><option value="45">Rear and right</option><option value="90">Toward the right lot line</option><option value="135">Street and right</option><option value="180">Toward the street</option><option value="225">Street and left</option><option value="270">Toward the left lot line</option><option value="315">Rear and left</option></select></label>
+        <label>Easement along<select id="easementSide"><option value="none">No easement</option><option value="rear">The rear lot line</option><option value="left">The left lot line</option><option value="right">The right lot line</option><option value="street">The street</option></select></label>
+        <label>Easement width (ft)<input id="easementFt" type="number" min="0" max="200" step="0.5"></label>
+        <label>Easement note, as on your plat<input id="easementNote" type="text" maxlength="120" placeholder="e.g. 10 ft utility easement"></label>
       </div>
     </fieldset>
     <fieldset>
@@ -526,7 +571,8 @@
       <div class="fields">
         <label class="check"><input id="siding" type="checkbox"> Siding</label>
         <label>Siding type<select id="sidingType"><option value="T1-11">T1-11 plywood panels</option><option value="LP SmartSide">LP SmartSide 38 Series primed panels, 3/8"</option><option value="LP SmartSide 7/16">LP SmartSide 76 Series primed panels, 7/16"</option><option value="board and batten">Board and batten over OSB</option><option value="vinyl">Vinyl lap over OSB</option><option value="fiber cement">Fiber cement lap (HardiePlank-type), 7" exposure, over OSB and wrap</option><option value="LP SmartSide lap">Engineered wood lap (LP SmartSide-type), 6-13/16" exposure, over OSB and wrap</option></select></label>
-        <label>Wall trim<select id="wallTrim"><option value="1x4">1x4 corner boards and casings</option><option value="none">None</option></select></label>
+        <label>Wall trim<select id="wallTrim"><option value="1x4">1x4 corner boards and casings (3/4" primed pine)</option><option value="5/4">5/4 corner boards and casings (HardieTrim with fiber cement, LP 540 otherwise)</option><option value="none">None</option></select></label>
+        <label>Climate (picks the fiber cement plank)<select id="climate"><option value="mild">Mild winters (HardiePlank HZ10)</option><option value="freezing">Freezing winters (HardiePlank HZ5)</option></select></label>
         <label>Roof covering<select id="roofCover"><option value="shingles">Architectural shingles</option><option value="metal">Corrugated metal panels</option></select></label>
         <label>Siding colour<span class="swatchrow"><select id="sidingColor"></select><input type="color" id="sidingColor-custom" aria-label="Siding: pick any colour, or match a photo of your house"></span></label>
         <label class="check"><input id="polkaDots" type="checkbox"> Purple polka dots</label>

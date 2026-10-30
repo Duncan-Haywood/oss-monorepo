@@ -1,5 +1,6 @@
 ---
 title: "Checking a Polish KSeF invoice against the real schema: 4,860 mutations, no disagreement with xmllint"
+seo_title: "Checking a Polish KSeF invoice against the real schema"
 date: 2026-10-25
 description: "einvoice-preflight now runs FA(3) invoices through the Ministry of Finance XSD in plain JavaScript, with a differential test against xmllint."
 tags: [ventures, einvoice-preflight, poland, ksef, evaluation]

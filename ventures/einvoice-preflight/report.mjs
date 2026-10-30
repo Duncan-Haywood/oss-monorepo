@@ -2,6 +2,7 @@ import { checkInvoice, flagDuplicateInvoiceNumbers } from "./checks.mjs";
 import { inspectCreditLinks } from "./creditlink.mjs";
 import { inspectXrechnungProfile, inspectPeppolProfile, inspectFrenchProfile } from "./profile.mjs";
 import { looksLikeCii, parseCiiInvoice } from "./cii.mjs";
+import { checkPdfEnvelope } from "./pdf-envelope.mjs";
 import { envelopeNote, extractEmbeddedInvoice, looksLikePdf } from "./facturx.mjs";
 import { looksLikeXml, parseUblInvoice } from "./ubl.mjs";
 import { checkFatturaPa, looksLikeFatturaPa } from "./fatturapa.mjs";
@@ -17,11 +18,13 @@ function redactValues(text) {
 export async function inspectInvoiceSource(name, source) {
   let payload = source;
   let envelope = "";
+  let pdfFindings = [];
   if (looksLikePdf(name, source)) {
     const extracted = await extractEmbeddedInvoice(source);
     payload = extracted.payload;
     const peek = typeof payload === "string" ? payload : new TextDecoder().decode(payload);
     envelope = envelopeNote(extracted.label, looksLikeCii(peek) ? "cii" : "ubl");
+    pdfFindings = checkPdfEnvelope(source, peek);
   }
   const text = typeof payload === "string" ? payload : new TextDecoder().decode(payload);
   let invoice;
@@ -32,7 +35,7 @@ export async function inspectInvoiceSource(name, source) {
   } else {
     invoice = JSON.parse(text);
   }
-  return { invoice, envelope, xml };
+  return { invoice, envelope, xml, pdfFindings };
 }
 
 export async function parseInvoiceSource(name, source) {
@@ -79,8 +82,9 @@ export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES,
         reports.push({ file: name, errors: polish.findings, envelope: "Read as Polish KSeF FA(3), not EN 16931", ...(polish.skipped.length ? { skipped: polish.skipped } : {}) });
         continue;
       }
-      const { invoice, envelope, xml } = await inspectInvoiceSource(name, source);
+      const { invoice, envelope, xml, pdfFindings } = await inspectInvoiceSource(name, source);
       const errors = checkInvoice(invoice);
+      errors.push(...pdfFindings);
       if (profile === "xrechnung") errors.push(...inspectXrechnungProfile(invoice));
       if (profile === "peppol") errors.push(...inspectPeppolProfile(invoice));
       if (profile === "france") errors.push(...inspectFrenchProfile(invoice));

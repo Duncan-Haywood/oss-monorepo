@@ -127,7 +127,9 @@ class VatChecksumTest(unittest.TestCase):
         self.assertEqual(findings[0]["path"], "/supplier/vat_id")
 
     def test_format_only_country_accepts_published_length(self):
-        self.assertEqual(inspect_party_vat({"id": "S1", "name": "A", "vat_id": "HU12345678"}, "supplier"), [])
+        self.assertEqual(inspect_party_vat({"id": "S1", "name": "A", "vat_id": "HU12892312"}, "supplier"), [])
+        # MT stays shape-only: no checksum is implemented for it.
+        self.assertEqual(inspect_party_vat({"id": "S1", "name": "A", "vat_id": "MT12345678"}, "supplier"), [])
         findings = inspect_party_vat({"id": "S1", "name": "A", "vat_id": "HU123"}, "supplier")
         self.assertEqual([item["rule"] for item in findings], ["INV-022"])
 

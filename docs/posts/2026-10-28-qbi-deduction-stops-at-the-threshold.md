@@ -1,5 +1,6 @@
 ---
 title: "The 20% QBI deduction shrinks above about $202,000: a $250,000 sole proprietor example"
+seo_title: "The 20% QBI deduction shrinks above about $202,000"
 date: 2026-10-28
 description: "ai-bookkeeper treated the QBI deduction as a ceiling above the income threshold. A $250,000 single sole proprietor owes about $2,614 more than it showed."
 tags: [ai-bookkeeper, tax, self-employed]

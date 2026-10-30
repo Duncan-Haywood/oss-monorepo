@@ -1,5 +1,6 @@
 ---
 title: "Measuring an AI coding agent fleet: run cost, duplicate work, reproducibility and self-reports"
+seo_title: "Measuring an AI coding agent fleet"
 date: 2026-10-20
 description: "32 research projects measure the AI agent loop that builds this repository: what a run costs, how often work duplicates, and whether results reproduce."
 tags: [research, ai-agents, software-engineering, measurement, operations-research]

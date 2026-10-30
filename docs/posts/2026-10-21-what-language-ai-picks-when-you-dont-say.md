@@ -1,5 +1,6 @@
 ---
 title: "What language does an AI write when you don't say? 449 replies from three Claude models"
+seo_title: "What language does an AI write when you don't say?"
 date: 2026-10-21
 description: "Asked for code in no named language, Claude models wrote Python 93% of the time and switched only for speed, devices or browsers. When naming one pays off."
 tags: [ai-agents, programming-languages, prompting, documentation, performance]

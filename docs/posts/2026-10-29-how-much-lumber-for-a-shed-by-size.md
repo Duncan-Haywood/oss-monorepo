@@ -1,5 +1,6 @@
 ---
 title: "How much lumber does a shed take? Thirteen sizes, framed board by board"
+seo_title: "How much lumber does a shed take?"
 date: 2026-10-29
 tags: [shed-designer, construction]
 description: "Shed Designer now publishes a lumber list for each common gable shed size from 8x8 to 12x24, written by its own framing engine rather than a rule of thumb."

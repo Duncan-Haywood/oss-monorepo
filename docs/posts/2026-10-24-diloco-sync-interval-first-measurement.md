@@ -1,5 +1,6 @@
 ---
 title: "A first measured DiLoCo curve: loss against sync interval is U-shaped when the outer step is untuned"
+seo_title: "A first measured DiLoCo curve"
 date: 2026-10-24
 description: "A numpy DiLoCo harness checked against synchronous AdamW and a quadratic closed form, and a 3-seed sweep over the sync interval on a tiny character model."
 tags: [research, diloco, distributed-training, local-sgd]

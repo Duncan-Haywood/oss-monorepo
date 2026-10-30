@@ -1,5 +1,6 @@
 ---
 title: "Throughput per unit of supervision: lessons from 12,000 commits by unattended coding agents"
+seo_title: "Throughput per unit of supervision"
 date: 2026-10-16
 description: "Getting coding agents to merge 200 pull requests a day was easy. Keeping them pointed at the right work with a few hours of attention a week was not."
 tags: [ai-agents, software-engineering, automation, process]

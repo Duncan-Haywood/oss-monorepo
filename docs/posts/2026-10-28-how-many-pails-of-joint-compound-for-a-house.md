@@ -1,5 +1,6 @@
 ---
 title: "How many pails of joint compound does a house need? Checking a rule of thumb against the label"
+seo_title: "How many pails of joint compound does a house need?"
 date: 2026-10-28
 description: "wall-framing-takeoff's 0.01 gal per sq ft joint compound rate matches the 450 sq ft per 4.5 gal pail on Sheetrock listings; ultralightweight uses ~10% less."
 tags: [wall-framing-takeoff, drywall, construction]

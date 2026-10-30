@@ -1,5 +1,6 @@
 ---
 title: "US airline miles, 1937 to 1960: one change, and it is the end of the war"
+seo_title: "US airline miles, 1937 to 1960"
 date: 2026-10-29
 tags: [changepoint-detector, time-series]
 description: "On 24 real yearly airline passenger-mile totals, the changepoint detector's trend model reports exactly one change, in 1946. A level-only model reports seven."

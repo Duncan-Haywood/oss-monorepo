@@ -1,5 +1,6 @@
 ---
 title: "How many risers, and how long must the stairwell be? A 9 ft floor-to-floor example"
+seo_title: "How many risers, and how long must the stairwell be?"
 date: 2026-10-28
 description: "A 108 in rise needs 14 risers of 7-11/16 in, 13 treads, four 2x12 stringers 14 ft 11-15/16 in long and a stairwell at least 9 ft 11-5/8 in long."
 tags: [wall-framing-takeoff, stairs, construction]

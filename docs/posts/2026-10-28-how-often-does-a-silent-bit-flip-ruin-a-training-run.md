@@ -1,5 +1,6 @@
 ---
 title: "How often does one silent bit flip ruin a training run? About 3% to 4% of flips, at every model size we tried"
+seo_title: "How often does one silent bit flip ruin a training run?"
 date: 2026-10-28
 description: "Flipping one random bit of one weight in a small transformer changes the final loss by over 0.01 in about 3% to 4% of cases, from 10,000 to 425,000 parameters."
 tags: [research, verifiable-training, silent-data-corruption]

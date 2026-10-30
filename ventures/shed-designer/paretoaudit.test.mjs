@@ -5,14 +5,25 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { PRESETS, buildShed } from './model.mjs';
-import { storageOf, neighbourGap, audit, paretoFront, gridPoints, refitOpenings, looksLike, evaluate } from './paretoaudit.mjs';
+import { GALLERY_DESIGNS } from './gallery-data.mjs';
+import { GALLERY_MAX_RATIO } from './gallery.mjs';
+import { FINE, storageOf, neighbourGap, audit, paretoFront, gridPoints, refitOpenings, looksLike, evaluate } from './paretoaudit.mjs';
 
 // The largest share of its cost a starting design may leave on the table.
 // The 8x12 default sits at about 2.4% (2x4 rafters and floor joists would
 // pass every check); tighten this once the right-sizing lane lands.
 const MAX_GAP = 0.03;
 
-const under100 = Object.entries(PRESETS).filter(([, f]) => { const d = f(); return (d.length * d.width) / 144 <= 100; });
+// The presets under 100 sq ft and every gallery card (the committed copy of
+// make-gallery.mjs's search), so the guard covers the designs the picker offers.
+// A card is held to the gallery's own rules: rivals keep every member at 90% of
+// capacity or less, and keep the card's size, since a card may take the best
+// design in a size no earlier card shows (gallery.mjs) rather than the best of all.
+const SAME_SIZE = Object.fromEntries(Object.entries(FINE).filter(([k]) => k !== 'size'));
+const under100 = [
+  ...Object.entries(PRESETS).filter(([, f]) => { const d = f(); return (d.length * d.width) / 144 <= 100; }).map(([n, f]) => [n, f, {}]),
+  ...GALLERY_DESIGNS.map((g) => [`gallery ${g.id}`, () => g.design, { maxUtilisation: GALLERY_MAX_RATIO, fine: SAME_SIZE }]),
+];
 
 test('storage of the default 8x12 worked by hand', () => {
   const shed = buildShed(PRESETS['8x12']());
@@ -24,16 +35,16 @@ test('storage of the default 8x12 worked by hand', () => {
   assert.ok(s.cuFt > s.floorSqFt * s.clearFt);
 });
 
-test('every preset under 100 sq ft passes its checks with no warning but the height limit', () => {
+test('every preset under 100 sq ft and every gallery card passes its checks with no warning but the height limit', () => {
   for (const [name, f] of under100) assert.ok(evaluate(f()).ok, name);
 });
 
-for (const [name, f] of under100) {
+for (const [name, f, opts] of under100) {
   test(`${name}: no one-step change saves more than ${MAX_GAP * 100}% without losing storage or looks`, () => {
-    const r = neighbourGap(f());
+    const r = neighbourGap(f(), opts);
     const why = r.best && `${r.best.built.length}x${r.best.built.width} ${r.best.built.pitch}/12, ${r.best.built.rafterSize} rafters, ${r.best.built.joistSize} joists, $${r.best.cost.toFixed(0)} against $${r.start.cost.toFixed(0)}`;
     assert.ok(r.gap <= MAX_GAP, `${name} gap ${(r.gap * 100).toFixed(1)}%: ${why}`);
-    assert.ok(r.evaluated > 20);
+    assert.ok(r.evaluated > (opts.fine ? 10 : 20));
   });
 }
 

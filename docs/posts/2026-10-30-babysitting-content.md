@@ -1,5 +1,6 @@
 ---
 title: "Posts a babysitter can actually publish: 76 topics, five channels, and a blank where the real story goes"
+seo_title: "76 post topics a babysitter can publish across five channels"
 date: 2026-10-30
 tags: [babysitting-business-kit, content, local-seo, byok]
 description: "A topic bank, captions sized per channel, a blog the sitter approves, and optional AI drafts on their own key that can't publish until they add something true."

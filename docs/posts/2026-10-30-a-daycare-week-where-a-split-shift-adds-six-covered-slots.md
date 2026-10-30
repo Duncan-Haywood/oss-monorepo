@@ -1,5 +1,6 @@
 ---
 title: "A five-person daycare week: allowing a split shift covers 6 more slots for $307"
+seo_title: "Daycare week: a split shift covers 6 more slots for $307"
 date: 2026-10-30
 tags: [shift-roster-builder, scheduling, small-business]
 description: "A worked childcare week: 23 of 30 adult-shifts covered for $1,888, then 29 once same-day split shifts are allowed, for $2,195."
