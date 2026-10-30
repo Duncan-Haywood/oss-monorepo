@@ -89,6 +89,7 @@
     <button type="button" role="tab" data-tab="content">Content</button>
     <button type="button" role="tab" data-tab="print">Print</button>
     <button type="button" role="tab" data-tab="blog">Posts &amp; blog</button>
+    <button type="button" role="tab" data-tab="network">Network</button>
     <button type="button" role="tab" data-tab="settings">Settings</button>
   </nav>
 
@@ -331,6 +332,11 @@
       <div id="contentKit"></div>
     </section>
 
+    <section data-panel="network" class="card" hidden>
+      <h2>Sitter network</h2>
+      <div id="networkKit"></div>
+    </section>
+
     <section data-panel="settings" class="card" hidden>
       <h2>Settings: you, your rates, your limits</h2>
       <form id="profileForm">
@@ -426,6 +432,7 @@
     import { mountAutomations } from "./automations-ui.mjs";
     import { mountAgreements } from "./agreements-ui.mjs";
     import { mountContent } from "./content-ui.mjs";
+    import { mountNetwork } from "./network-ui.mjs";
     import { enhanceTabs } from "./tabs.mjs";
 
     const STORE = "babysitting-business-kit-desk";
@@ -442,6 +449,7 @@
     let knownLeadIds = [];
     let renderAutomations = () => {};
     let renderAgreements = () => {};
+    let renderNetwork = () => {};
 
     function load() {
       try { return E.normalizeDesk(JSON.parse(localStorage.getItem(STORE) || "null")); } catch { return E.emptyDesk(); }
@@ -665,6 +673,7 @@
       renderPrint();
       renderAutomations();
       renderAgreements();
+      renderNetwork();
       fillForm($("profileForm"), { ...desk.profile, certifications: desk.profile.certifications, holidays: desk.profile.holidays, followUpDays: desk.profile.followUpDays });
       $("profileForm").scrollIntoView = () => {};
     }
@@ -920,6 +929,7 @@
     if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
     renderAutomations = mountAutomations({ getDesk: () => desk, save, esc, record });
     renderAgreements = mountAgreements($("agreementsKit"), { getDesk: () => desk, save, esc, record, serverUrl: () => $("syncUrl").value.trim(), openPage });
+    renderNetwork = mountNetwork($("networkKit"), { getDesk: () => desk, save, esc, record, today, server: () => ({ url: $("syncUrl").value.trim().replace(/\/+$/, ""), key: $("syncKey").value }) });
     $("contentStart").value = today();
     mountContent($("contentKit"), { getDesk: () => desk, save, record, today, buildSite: (d) => E.buildSite(d) });
     record("page_loaded");

@@ -44,7 +44,7 @@ test("docker-compose requires both secrets, keeps a volume and passes every opti
 });
 
 test("every variable the server reads is documented in self-host.html", () => {
-  const code = ["./server.mjs", "./backup.mjs", "./automations-server.mjs", "./content.mjs", "./byok.mjs"].map(read).join("\n");
+  const code = ["./server.mjs", "./backup.mjs", "./automations-server.mjs", "./content.mjs", "./byok.mjs", "./network-server.mjs"].map(read).join("\n");
   const used = new Set([...code.matchAll(/env\.([A-Z][A-Z0-9_]+)/g)].map((m) => m[1]));
   const guide = read("./self-host.html");
   for (const k of used) if (!/^(RENDER_GIT_COMMIT|FLY_IMAGE_REF|APP_COMMIT)$/.test(k)) assert.ok(guide.includes(`<code>${k}</code>`), `${k} is read by the server but missing from the guide`);

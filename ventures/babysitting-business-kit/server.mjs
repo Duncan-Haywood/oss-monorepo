@@ -16,6 +16,7 @@
 //   GET  /api/today        today's to-do list (Authorization: Bearer ADMIN_KEY)
 //   GET|POST /intake/<t>   a family's one-time info sheet (token made in the app's Families tab)
 //   GET  /admin            status page; /api/status, /api/backup, /api/restore (backup.mjs)
+//   POST /network/handoff  a signed pass-on from another sitter's kit server (network-server.mjs)
 //   a daily digest at DIGEST_HOUR (server time) to your webhook or email
 //
 // Every outside service is off until you set its variables, on your own accounts:
@@ -28,6 +29,7 @@
 //     links for the automations the sitter turns on in Settings (automations-server.mjs)
 //   LLM_PROVIDER (+ LLM_API_KEY, LLM_MODEL, LLM_BASE_URL; or OLLAMA_HOST): POST /api/draft
 //     drafts a blog post on your own model key; /site/blog serves posts you approved
+//   NETWORK_ID + NETWORK_PEERS (name=secret pairs): the sitter-network handoff between two kit servers
 
 import http from "node:http";
 import { readFileSync, writeFileSync, renameSync, existsSync } from "node:fs";
@@ -43,6 +45,7 @@ import { mergeAutomationState } from "./automations.mjs";
 import { automationRoutes, runAutomations } from "./automations-server.mjs";
 import { blogRoute, serverDraft } from "./content.mjs";
 import { loadDesk, atomicWrite, backupApi, backupDir, dailyBackup } from "./backup.mjs";
+import { networkRoutes, mergeNetwork } from "./network-server.mjs";
 
 const MAX_BODY = 64 * 1024;
 const MAX_DESK = 8 * 1024 * 1024;
@@ -50,7 +53,7 @@ const MAX_LEADS = 2000;
 const FILES = { "/": "index.html", "/index.html": "index.html", "/engine.mjs": "engine.mjs", "/usage.mjs": "usage.mjs", "/taxes.mjs": "taxes.mjs", "/slots.mjs": "slots.mjs", "/intake.mjs": "intake.mjs", "/meet-and-greet.html": "meet-and-greet.html", "/references.mjs": "references.mjs", "/site.mjs": "site.mjs", "/print.mjs": "print.mjs", "/qr.mjs": "qr.mjs", "/automations.mjs": "automations.mjs", "/automations-ui.mjs": "automations-ui.mjs", "/content.mjs": "content.mjs", "/content-ui.mjs": "content-ui.mjs", "/byok.mjs": "byok.mjs", "/agreements.mjs": "agreements.mjs", "/agreements-ui.mjs": "agreements-ui.mjs", "/admin": "admin.html" };
 const TYPES = { html: "text/html; charset=utf-8", mjs: "text/javascript; charset=utf-8" };
 // The installable app (PWA) and the guide pages, so a self-hosted copy works offline and links resolve.
-for (const f of ["tabs.mjs", "sw.js", "manifest.webmanifest", "icon.svg", "icon-192.png", "icon-512.png", "icon-maskable-512.png", "apple-touch-icon.png", "babysitting-taxes.html", "how-to-start-a-babysitting-business.html", "how-much-to-charge-for-babysitting.html", "babysitting-references.html", "self-host.html"]) FILES[`/${f}`] = f;
+for (const f of ["tabs.mjs", "sw.js", "manifest.webmanifest", "icon.svg", "icon-192.png", "icon-512.png", "icon-maskable-512.png", "apple-touch-icon.png", "babysitting-taxes.html", "how-to-start-a-babysitting-business.html", "how-much-to-charge-for-babysitting.html", "babysitting-references.html", "self-host.html", "network.mjs", "network-ui.mjs"]) FILES[`/${f}`] = f;
 Object.assign(TYPES, { js: "text/javascript; charset=utf-8", webmanifest: "application/manifest+json", svg: "image/svg+xml", png: "image/png" });
 
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -100,12 +103,14 @@ export function handler(state, save, env = process.env, now = Date.now, fetchImp
   const msg = messenger(env, fetchImpl);
   const hits = new Map();
   const auto = automationRoutes(state, save, env, now, fetchImpl, msg.sitter);
+  const net = networkRoutes(state, save, env, now, fetchImpl, msg.sitter); // sitter network handoffs (network-server.mjs)
   return async (req, res) => {
     const send = (code, body, type = TYPES.html, extra = {}) => { res.writeHead(code, { "content-type": type, "x-content-type-options": "nosniff", "referrer-policy": "no-referrer", ...extra }); res.end(body); };
     const url = new URL(req.url, "http://x");
     const today = localDate(now(), env.TZ);
     if (url.pathname === "/healthz") return send(200, "ok\n", "text/plain");
     if (await auto(req, url, send)) return;
+    if (await net(req, url, send)) return;
     if (req.method === "GET" && FILES[url.pathname]) {
       const f = FILES[url.pathname];
       return send(200, readFileSync(new URL(f, dir)), TYPES[f.split(".").pop()]);
@@ -234,6 +239,7 @@ export function handler(state, save, env = process.env, now = Date.now, fetchImp
         const known = new Set(incoming.knownLeadIds || []);
         const fresh = state.desk.leads.filter((l) => !ids.has(l.id) && !known.has(l.id));
         incoming.automations = mergeAutomationState(state.desk.automations, incoming.automations);
+        if (incoming.network || state.desk.network) incoming.network = mergeNetwork(state.desk.network, incoming.network); // keep handoffs the server sent
         if (Array.isArray(incoming.references)) incoming.references = mergeReferences(state.desk, incoming.references); // keep answers that arrived by link
         mergeAgreements(state.desk, incoming); // and signatures, used links and photo choices (agreements.mjs)
         state.desk = normalizeDesk(keepIntakes(state.desk, incoming)); // and info sheets families filled in
