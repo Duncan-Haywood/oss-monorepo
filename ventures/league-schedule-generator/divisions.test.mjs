@@ -4,7 +4,7 @@ import { readFileSync, writeFileSync, mkdtempSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { parseDivisions, parseDivisionLinks, buildDivisions, applyDivisionRainouts, rainoutOptions, validateDivisions, linkConflicts, divisionsCsv, divisionsText, divisionsIcs, readDivisionsSpec, parseTravel, divisionStats, carryVenueHistory, venueImbalance, suggestFairnessWeight, travelWarnings, encodeDivisionFields, decodeDivisionFields } from "./divisions.mjs";
+import { parseDivisionBlackouts, applyDivisionBlackouts, parseDivisions, parseDivisionLinks, buildDivisions, applyDivisionRainouts, rainoutOptions, validateDivisions, linkConflicts, divisionsCsv, divisionsText, divisionsIcs, readDivisionsSpec, parseTravel, divisionStats, carryVenueHistory, venueImbalance, suggestFairnessWeight, travelWarnings, encodeDivisionFields, decodeDivisionFields } from "./divisions.mjs";
 import { parseDate, dayIso } from "./calc.mjs";
 
 const example = JSON.parse(readFileSync(new URL("./example-divisions.json", import.meta.url), "utf8"));
@@ -663,4 +663,27 @@ test("season grid: one row per team, one column per night, every match shows onc
   const csv = divisionsSeasonGridCsv(s);
   assert.ok(csv.endsWith("\r\n"));
   assert.equal(csv.trim().split("\r\n").length, rows.length + 1);
+});
+
+test("team unavailable dates: no match is left on a blackout night, moved matches avoid every blackout, and bad lines are named", () => {
+  const s = build();
+  const blackouts = {};
+  const lines = [];
+  // block the first three nights each team plays in the first two divisions' opening rounds
+  for (const n of s.nights.slice(0, 3)) {
+    const m = n.matches[0];
+    const k = `${m.div}/${m.home}`;
+    (blackouts[k] = blackouts[k] || []).push(n.day);
+    lines.push(`${m.division}/${m.homeName}: ${dayIso(n.day)}`);
+  }
+  const pb = parseDivisionBlackouts(lines.join("\n"), s.divisions);
+  assert.deepEqual(pb.errors, []);
+  const r = applyDivisionBlackouts(s, pb.blackouts);
+  assert.deepEqual(r.errors, []);
+  assert.ok(r.moves.length >= 3);
+  assert.deepEqual(validateDivisions(r.schedule).errors, []);
+  assert.equal(r.schedule.stats.matches, s.stats.matches);
+  for (const n of r.schedule.nights) for (const m of n.matches) for (const t of [m.home, m.away]) assert.ok(!(pb.blackouts[`${m.div}/${t}`] || []).includes(n.day));
+  const bad = parseDivisionBlackouts("Nope/Team: 2026-10-06\nnonsense", s.divisions);
+  assert.equal(bad.errors.length, 2);
 });
