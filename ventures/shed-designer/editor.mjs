@@ -291,7 +291,7 @@ export function drawEnd(svg, design, dims, hooks) {
   const rise = (W / 2) * t;
   // Room above the roof for four more pitch steps (to the 14/12 limit), not
   // always the full 14/12: reserving that letterboxed an 8 ft gable end to
-  // about 76 px wide on a phone. A steeper drag rescales on release.
+  // about 76 px wide on a phone. A steeper drag grows the view upward as it goes.
   const roomRise = Math.min((W / 2) * (14 / 12), rise + (W / 2) * (4 / 12));
   const pad = 40;
   const padRight = 80; // the wall-height label sits to the right of the eave
@@ -343,6 +343,11 @@ export function drawEnd(svg, design, dims, hooks) {
         ghost.setAttribute('points', `${-o2},${Y(H2 - o2 * t2)} ${W / 2},${Y(H2 + r2)} ${W + o2},${Y(H2 - o2 * t2)}`);
         const at = hd.id === 'peak' ? [W / 2, H2 + r2] : hd.id === 'wall' ? [W, H2] : [-o2, H2 - o2 * t2];
         moveTo(at[0], Y(at[1]));
+        // Keep the peak and its label in sight: extend the view upward (same
+        // coordinates, so the drawing and the pointer mapping stay put) rather
+        // than letting the peak leave the box until release.
+        const extra = Math.max(0, H2 + r2 + 30 - (top + pad / 2));
+        svg.setAttribute('viewBox', `${-o - pad} ${-pad / 2 - extra} ${viewW} ${viewH + extra}`);
         hooks.onPreview?.(next);
       };
       const up = () => {

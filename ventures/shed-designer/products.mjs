@@ -30,3 +30,20 @@ export const PRODUCTS = [
 
 /** @param {string | undefined} id */
 export const productById = (id) => PRODUCTS.find((p) => p.id === id) || null;
+
+/**
+ * What a unit like a custom-size opening typically costs: the cheapest and
+ * dearest catalogue units of its kind, and their median. Doors over 44" wide
+ * are compared with the double doors, narrower ones with the single doors.
+ * A range from our catalogue, not a listing for that size.
+ * @param {'door'|'window'} kind @param {number} width rough opening width (in)
+ */
+export function catalogueRange(kind, width) {
+  const pair = kind === 'door' && width > 44;
+  const units = PRODUCTS.filter((p) => p.kind === kind && (kind === 'window' || (p.roW > 44) === pair));
+  const prices = units.map((p) => p.price).sort((a, b) => a - b);
+  const n = prices.length;
+  if (!n) return null;
+  const median = n % 2 ? prices[(n - 1) / 2] : (prices[n / 2 - 1] + prices[n / 2]) / 2;
+  return { lo: prices[0], hi: prices[n - 1], median, n, group: kind === 'window' ? 'shed windows' : pair ? 'double shed doors' : 'single shed doors' };
+}

@@ -44,7 +44,14 @@
     .link { background: none; border: none; color: #1f4e8c; text-decoration: underline; cursor: pointer; padding: 0; font-weight: 600; }
     #openings .link { padding: 12px 4px; }
     .workspace { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 14px; }
-    .editors { display: grid; gap: 14px; }
+    .jump { position: sticky; top: 0; z-index: 15; display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: center; padding: 8px 0; margin: 0 0 6px; background: var(--paper); border-bottom: 1px solid var(--line); font-size: .9rem; }
+    html { scroll-padding-top: 64px; }
+    .jump a, .jump .link { min-height: 32px; display: inline-flex; align-items: center; color: var(--accent2); font-weight: 600; }
+    @media (max-width: 600px) { .jump { flex-wrap: nowrap; overflow-x: auto; white-space: nowrap; } }
+    .editors { display: grid; gap: 14px; align-content: start; }
+    /* The total rides in the sticky section bar, so it stays in view while you edit (on a phone the cost panel is a screen and a half below the plan). */
+    .jump .jump-total { gap: 6px; }
+    .jump .jump-total strong { color: var(--accent); font: 800 1.05rem Georgia, serif; font-variant-numeric: tabular-nums; }
     svg.edit { width: 100%; height: auto; display: block; touch-action: none; background: #fbfaf6; border-radius: 10px; border: 1px solid var(--line); }
     #plan { aspect-ratio: 4 / 3; }
     /* The end view takes its picture's own shape (set by its viewBox), up to a height. */
@@ -85,6 +92,7 @@
     .summary dt { font-size: .78rem; opacity: .8; }
     .summary dd { margin: 0; font-weight: 700; font-variant-numeric: tabular-nums; }
     .summary .muted { color: #d9e0d5; }
+    .summary .scope { margin: -4px 0 10px; font-size: .85rem; color: #d9e0d5; }
     #warnings:not(:empty) { background: var(--warn); color: var(--ink); border: 1px solid #d9a273; border-radius: 10px; padding: 10px 12px; margin-top: 12px; font-size: .9rem; }
     #warnings ul, #notes ul { margin: 6px 0 0; padding-left: 18px; }
     #notes { font-size: .85rem; opacity: .9; }
@@ -97,7 +105,7 @@
     .fields input, .fields select, #openings input, #openings select { border: 1px solid #aaa394; border-radius: 8px; padding: 7px 8px; background: #fff; color: inherit; min-width: 0; }
     #stock { display: flex; flex-wrap: wrap; gap: 12px; }
     .table-wrap { overflow-x: auto; position: relative; }
-    #shopping tr.have td:not(:last-child) { text-decoration: line-through; color: var(--muted, #6b6457); }
+    #shopping tr.have td:nth-child(-n+6), #shopping tr.skip td:nth-child(-n+6) { text-decoration: line-through; color: var(--muted, #6b6457); }
     table { border-collapse: collapse; width: 100%; font-size: .9rem; }
     th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #e7e1d4; vertical-align: top; }
     td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
@@ -113,6 +121,8 @@
     .boards .bar { position: relative; height: 24px; background: repeating-linear-gradient(45deg, #eee7d8, #eee7d8 4px, #e2d8c3 4px, #e2d8c3 8px); border-radius: 4px; border: 1px solid #c9bea7; overflow: hidden; }
     .boards .cut { position: absolute; top: 0; bottom: 0; background: #f1dfb9; border-right: 2px solid #6b4f2a; font-size: .72rem; line-height: 24px; padding-left: 4px; white-space: nowrap; overflow: hidden; }
     .boards .off { color: var(--muted); }
+    .boards .use { grid-column: 2 / -1; margin-top: -2px; color: var(--muted); }
+    #shopping .use { font-size: .8rem; color: var(--muted); }
     h4, h3.h4 { margin: 14px 0 4px; font-size: .95rem; }
     .grid input { width: 74px; }
     .items { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; margin-top: 12px; }
@@ -127,6 +137,19 @@
     .meter { display: inline-block; width: 70px; height: 8px; border-radius: 4px; background: #e7e1d4; vertical-align: middle; margin-right: 6px; overflow: hidden; }
     .meter span { display: block; height: 100%; background: #24392b; }
     .meter.hot span { background: #c0392b; }
+    .swatch { display: inline-block; width: 12px; height: 12px; border-radius: 2px; border: 1px solid #555; vertical-align: -1px; margin-right: 6px; }
+    .util-key { white-space: nowrap; margin-right: 8px; }
+    ol.util { list-style: none; padding: 0; }
+    ol.util > li { border-top: 1px solid var(--line); padding: 6px 0; }
+    ol.util summary { cursor: pointer; min-height: 32px; }
+    .util-pct { font-variant-numeric: tabular-nums; }
+    .util-in { display: grid; gap: 2px; margin: 8px 0; }
+    .util-in div { display: flex; gap: 8px; flex-wrap: wrap; }
+    .util-in dt { font-weight: 700; min-width: 9em; }
+    .util-in dd { margin: 0; }
+    .util-parts li { margin: 4px 0; }
+    .util-parts li.gov { font-weight: 400; }
+    #util-plans svg, #util-plans .sheet { max-width: 100%; height: auto; }
     ol.build > li { margin: 14px 0; }
     ol.build h3 { margin: 0 0 4px; }
     ol.build ol { margin: 6px 0; padding-left: 22px; line-height: 1.5; }
@@ -154,6 +177,9 @@
       body[data-print] > *:not(main), body[data-print] main > *:not(.results) { display: none !important; }
       body[data-print] .results > *:not(.print-target) { display: none !important; }
       body[data-print="plans"] #panel-plans, body[data-print="cuts"] #panel-cuts, body[data-print="build"] #panel-build { display: block !important; }
+      body[data-print="all"] #panel-shopping, body[data-print="all"] #panel-cuts, body[data-print="all"] #panel-plans, body[data-print="all"] #panel-build { display: block !important; }
+      body[data-print="all"] #panel-cuts, body[data-print="all"] #panel-plans, body[data-print="all"] #panel-build { break-before: page; }
+      .jump { display: none !important; }
       body[data-print] .result-panel { display: none; }
       body[data-print] section.results { border: none; box-shadow: none; padding: 0; }
       /* Plan sheets are drawn landscape: give each its own landscape page, full width. */
@@ -177,6 +203,16 @@
   </header>
   <main>
 
+  <nav class="jump" id="jump" aria-label="Jump to the cost and the results">
+    <a href="#summary" class="jump-total" id="total-pill">Total <strong id="total-pill-n"></strong></a>
+    <a href="#results-h" data-jump="panel-shopping">Shopping list</a>
+    <a href="#results-h" data-jump="panel-cuts">Cut sheet</a>
+    <a href="#results-h" data-jump="panel-parts">Parts list</a>
+    <a href="#results-h" data-jump="panel-structure">Structure</a>
+    <a href="#results-h" data-jump="panel-plans">Plans</a>
+    <a href="#results-h" data-jump="panel-build">How to build</a>
+    <button type="button" class="link" id="print-all">Print all</button>
+  </nav>
   <div class="bar-top">
     <nav class="tabs" id="design-tabs" role="tablist" aria-label="Your designs"></nav>
     <label class="sr-only" for="new-design">New design</label>
@@ -190,8 +226,8 @@
       <option value="12x16">12x16, double door on the gable</option>
       <option value="8x8 lean">8x8 garden shed</option>
     </select>
-    <button type="button" class="btn" id="undo" title="Undo (Ctrl+Z)">Undo</button>
-    <button type="button" class="btn" id="redo" title="Redo (Ctrl+Shift+Z)">Redo</button>
+    <button type="button" class="btn" id="undo" title="Undo (Ctrl+Z). Each design has its own undo; switching designs starts it fresh.">Undo</button>
+    <button type="button" class="btn" id="redo" title="Redo (Ctrl+Shift+Z or Ctrl+Y)">Redo</button>
     <button type="button" class="btn" id="share">Copy link</button>
     <button type="button" class="btn" id="json-export">Save file</button>
     <label class="btn">Open file<input type="file" id="json-import" accept=".json,application/json" hidden></label>
@@ -228,11 +264,14 @@
         <button type="button" class="btn" id="zoom-out" aria-label="Zoom out">−</button>
       </div>
       <div class="toolrow" id="layers" aria-label="Layers"></div>
-      <div class="toolrow"><label class="check"><input type="checkbox" id="show-dims" checked> Dimensions</label></div>
+      <div class="toolrow"><label class="check"><input type="checkbox" id="show-dims" checked> Dimensions</label><label class="check"><input type="checkbox" id="heat-3d"> Colour by structural use</label></div>
+      <p class="hint" id="heat-legend" hidden></p>
+      <p class="hint" id="pick-info" aria-live="polite"></p>
 
       <div class="panel summary" id="summary" aria-live="polite">
         <h2>Estimated cost</h2>
         <p class="big" id="total">$0</p>
+        <p class="scope" id="total-scope">Materials, sales tax and delivery only. Your own labour is not in it; see "Your time" below.</p>
         <dl id="summary-lines"></dl>
         <div id="warnings"></div>
         <div id="notes"></div>
@@ -249,8 +288,6 @@
         <label>Design name<input id="name" type="text" maxlength="80"></label>
         <label>Length along the ridge (ft)<input id="lengthFt" type="number" min="4" max="40" step="0.5"></label>
         <label>Width across the gable (ft)<input id="widthFt" type="number" min="4" max="20" step="0.5"></label>
-        <label>Most height at the peak, above the gravel (ft, 0 for no limit)<input id="maxPeakFt" type="number" min="0" max="20" step="0.25"></label>
-        <label>Most floor area (sq ft, 0 for no limit; many towns need no permit under 100 or 120)<input id="maxFootprint" type="number" min="0" max="400" step="1"></label>
         <label class="check"><input id="autoWall" type="checkbox"> Walls as low as the tallest door or window allows</label>
         <label>Wall height, floor to top plate (in)<input id="wallHeight" type="number" min="60" max="144" step="0.5"></label>
         <label class="check"><input id="autoPitch" type="checkbox"> Roof pitch from the height limit</label>
@@ -259,6 +296,23 @@
         <label>Eave overhang (in)<input id="overhang" type="number" min="0" max="36" step="1"></label>
         <label>Roof snow load (psf)<input id="snowLoad" type="number" min="0" max="150" step="5"></label>
         <label>Wind pressure on the walls (psf)<input id="windLoad" type="number" min="0" max="80" step="5"></label>
+      </div>
+    </fieldset>
+    <fieldset>
+      <legend>Your limits and fixed choices</legend>
+      <p class="muted">The searches below ("Find a cheaper build", "Find a simpler build", the part options) never break these limits or change a choice you tick here.</p>
+      <div class="fields">
+        <label>Most floor area (sq ft, 0 for no limit; many towns need no permit under 100 or 120)<input id="maxFootprint" type="number" min="0" max="400" step="1"></label>
+        <label>Most height at the peak, above the gravel (ft, 0 for no limit)<input id="maxPeakFt" type="number" min="0" max="20" step="0.25"></label>
+      </div>
+      <p class="muted" id="lock-h">Keep as I chose:</p>
+      <div class="fields" role="group" aria-labelledby="lock-h">
+        <label class="check"><input type="checkbox" name="lock" value="siding"> My siding (type and colour)</label>
+        <label class="check"><input type="checkbox" name="lock" value="roofing"> My roofing (shingles or metal, colour)</label>
+        <label class="check"><input type="checkbox" name="lock" value="foundation"> My foundation</label>
+        <label class="check"><input type="checkbox" name="lock" value="floor"> My floor frame and subfloor</label>
+        <label class="check"><input type="checkbox" name="lock" value="doors"> My doors</label>
+        <label class="check"><input type="checkbox" name="lock" value="windows"> My windows</label>
       </div>
     </fieldset>
     <fieldset>
@@ -301,6 +355,7 @@
         <button type="button" class="btn" id="add-door">Add door</button>
         <button type="button" class="btn" id="add-window">Add window</button>
       </div>
+      <label class="check"><input id="customRange" type="checkbox"> Count custom-size openings at the median of our catalogue's price range (an estimate, not a listing; off leaves them out of the total)</label>
       <div class="fields" style="margin-top:10px">
         <label class="check"><input id="gableVents" type="checkbox"> A vent in each gable</label>
         <label>Gable vent width (in)<input id="ventWidth" type="number" min="6" max="36" step="1"></label>
@@ -346,7 +401,7 @@
     </div>
     <div class="result-panel print-target" id="panel-shopping">
       <div class="toolrow"><label>Price the list at<select id="buy-at"><option value="mixed">Wherever each line was priced</option><option value="homedepot">Home Depot only (for a Pro desk quote)</option><option value="lowes">Lowe's only (for a Pro desk quote)</option></select></label><span class="muted" id="buy-at-note"></span></div>
-      <div class="table-wrap"><table id="shopping"><thead><tr><th scope="col">Item</th><th scope="col" class="n">Qty</th><th scope="col">Unit</th><th scope="col" class="n">Each</th><th scope="col" class="n">Total</th><th scope="col">Price source</th><th scope="col">Have it</th></tr></thead><tbody></tbody></table></div>
+      <div class="table-wrap"><table id="shopping"><thead><tr><th scope="col">Item</th><th scope="col" class="n">Qty</th><th scope="col">Unit</th><th scope="col" class="n">Each</th><th scope="col" class="n">Total</th><th scope="col">Price source</th><th scope="col">Have it</th><th scope="col">Leave out</th></tr></thead><tbody></tbody></table></div>
       <p class="muted">Prices are store listings seen on 2026-10-29 (mostly Home Depot), most read from the search result's copy of the product page, so they can be days or weeks old and vary by store. Lengths with no listing are scaled by the foot from the nearest listed length; anything with no listing at all says "estimate". Type your own store's prices below.</p>
       <details style="margin-top:12px" open>
         <summary><strong>Compare stores and swap parts</strong> (Home Depot, Lowe's and Menards, with item numbers and links)</summary>
@@ -386,6 +441,12 @@
       <div class="table-wrap"><table id="connections"><thead><tr><th scope="col">Check</th><th scope="col">What was checked</th><th scope="col">Result</th></tr></thead><tbody></tbody></table></div>
       <h3>Strength under load</h3>
       <div class="table-wrap"><table id="structure"><thead><tr><th scope="col">Member</th><th scope="col">Size</th><th scope="col">What it carries</th><th scope="col" class="n">Use of capacity</th><th scope="col">Result</th></tr></thead><tbody></tbody></table></div>
+      <h3>Where the capacity goes</h3>
+      <p class="muted">Every checked member, most used first. Open one to see its check written out: the inputs, each formula and the numbers. A small shed framed like a house uses little of its lumber's strength; the list below says which members could be lighter and which are held where they are by something other than strength.</p>
+      <div class="toolrow"><label>Aim each member at or below <input type="number" id="util-target" min="30" max="100" step="5" value="70" style="width:5em"> % of capacity</label></div>
+      <div id="util-margin"></div>
+      <ol id="util-list" class="util"></ol>
+      <details id="util-sheets"><summary>Framing plans coloured by use</summary><div id="util-plans"></div></details>
     </div>
     <div class="result-panel print-target" id="panel-build" hidden>
       <p class="muted">Written from this design: every length, mark and angle below is this shed's. Methods are common practice for a small wood-framed shed; fastener spacings are typical values, and your local code and each product's instructions win.</p>
@@ -393,7 +454,7 @@
       <ol id="build-steps" class="build"></ol>
     </div>
     <div class="result-panel print-target" id="panel-plans" hidden>
-      <div class="toolrow"><button type="button" class="btn primary" id="print-plans">Print all plans</button><button type="button" class="btn" id="dxf-all">Download all as DXF</button></div>
+      <div class="toolrow"><button type="button" class="btn primary" id="print-plans">Print all plans</button><button type="button" class="btn" id="dxf-all">Download all as DXF</button><button type="button" class="btn" id="hoa-packet">HOA packet (PDF)</button></div>
       <div id="plans"></div>
     </div>
   </section>
@@ -404,9 +465,13 @@
     <div class="toolrow"><button type="button" class="btn primary" id="make-options">Make options</button></div>
     <div id="option-cards"></div>
     <h3 style="margin-top:16px">Bring the price down, same size</h3>
-    <p class="muted">Counts your time at the hourly rate you set (in the buying settings) as well as materials. Tries cheaper off-the-shelf parts and settings one at a time (stock doors and windows, siding, roofing, the foundation and its gravel, the subfloor, overhang, pitch and spacing), keeps your footprint and the ridge and rafter-seat choices you made, and keeps a change only if the shed still passes every check and the peak rises by no more than 6". It lists each saving so you can take some and leave others.</p>
+    <p class="muted">Counts your time at the hourly rate you set (in the buying settings) as well as materials. Tries cheaper off-the-shelf parts and settings one at a time (stock doors and windows, siding, roofing, the foundation and its gravel, the subfloor, overhang, pitch and spacing), keeps your footprint, the ridge and rafter-seat choices you made and anything you fixed under "Your limits and fixed choices", and keeps a change only if the shed still passes every check and the peak rises by no more than 6". It lists each saving so you can take some and leave others.</p>
     <div class="toolrow"><button type="button" class="btn primary" id="budget">Find a cheaper build</button></div>
     <div id="budget-out"></div>
+    <h3 style="margin-top:16px">What each foundation, floor, door and window choice costs</h3>
+    <p class="muted">Every alternative for the parts under and around the shed (blocks or a gravel pad, the floor joists and subfloor, a door built on site at 36" to 72" or a stock door, the windows or none), each framed, priced and checked against the design you are editing. Shows what it saves or adds in materials and your time, whether the peak moves, and what it means on site. "Use this" changes your design; Undo takes it back.</p>
+    <div class="toolrow"><button type="button" class="btn primary" id="levers">Price the options</button></div>
+    <div id="levers-out"></div>
     <h3 style="margin-top:16px">Simplify the build</h3>
     <p class="muted">Searches small changes (roof pitch, overhang, rafter and stud spacing, connectors or notches, ridge type) for the cheapest build, the one with the fewest saw cuts, and a balance of the two. It counts every saw cut and every angled cut and notch, and keeps only designs that pass every check.</p>
     <div class="toolrow"><button type="button" class="btn primary" id="simplify">Find a simpler build</button><label class="check"><input type="checkbox" id="simplify-resize"> Let it change the length or width by a foot (within your floor-area limit)</label></div>
