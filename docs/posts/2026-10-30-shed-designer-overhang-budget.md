@@ -13,12 +13,12 @@ Here is what each overhang costs on the default shed (lumber, then the whole ord
 
 | Overhang | Lumber | Whole order |
 |---|---|---|
-| 6" to 8" | $738 | $3,112 |
-| 9" | $738 | $3,152 |
-| 10" | $742 | $3,155 |
-| 11" to 12" | $742 | $3,176 |
-| 13" to 14" | $742 | $3,215 |
-| 18" | $742 | $3,251 |
+| 6" to 8" | $738 | $3,103 |
+| 9" | $738 | $3,143 |
+| 10" | $742 | $3,146 |
+| 11" to 12" | $742 | $3,167 |
+| 13" to 14" | $742 | $3,206 |
+| 18" | $742 | $3,242 |
 
 Lumber barely moves across the whole range: $4 from end to end. The steps are in the roofing. At 9" the roof needs a fifth bundle of shingles ($40.47), and the old rule bought it without noticing, because shingles weren't part of its sum.
 
