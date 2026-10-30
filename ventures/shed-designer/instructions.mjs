@@ -7,7 +7,7 @@
 
 import { fmtIn, fmtFtIn } from './lumber.mjs';
 import { WALL_LABEL } from './model.mjs';
-import { heelJoint } from './checks.mjs';
+import { heelJoint, anchorage, anchorageText } from './checks.mjs';
 
 /** @typedef {{ title: string, why?: string, steps: string[], check?: string[] }} Section */
 
@@ -297,7 +297,8 @@ export function buildInstructions(shed, est) {
       'Walk the roof edges for nails that missed rafters, and the walls for siding nails that missed studs.',
       `Check that every rafter has its ${k.connector ? 'connector' : 'plate tie'}${beam ? ' and its hanger' : ''}, with every nail hole filled with the nail its maker names.`,
       'Keep the gravel clear of the siding, and slope the ground away from the pad.',
-    ],
+      anchorage(shed).ratio > 1 ? `Anchor it. ${anchorageText(shed)} Fix each anchor to a skid or the rim joist with the strap and nails its maker names, and check the anchor's rated load for your soil.` : '',
+    ].filter(Boolean),
   });
   return out;
 }

@@ -297,6 +297,81 @@ export function racking(shed) {
   return out;
 }
 
+/** Density of wood, lb/cu ft, at specific gravity G and moisture content mc (%): NDS Supplement 3.1.3. */
+export const woodDensity = (G, mc) => (62.4 * G * (1 + mc / 100)) / (1 + 0.009 * G * mc);
+const polyArea = (pts) => {
+  let a = 0;
+  for (let i = 0; i < pts.length; i++) { const [x0, y0] = pts[i]; const [x1, y1] = pts[(i + 1) % pts.length]; a += x0 * y1 - x1 * y0; }
+  return Math.abs(a) / 2;
+};
+
+/**
+ * What the shed weighs, lb, counted low on purpose: framing and sheet goods
+ * from their drawn volumes at 12% moisture, SPF at G 0.42 and treated
+ * (Southern pine) members at G 0.55 (NDS Table 12.3.3A), panels at 0.42.
+ * Shingles, doors, windows, trim, hardware and paint are left out; they add
+ * weight, so leaving them out errs on the safe side when weight holds the
+ * shed down.
+ * @param {import('./model.mjs').Shed} shed
+ */
+export function selfWeight(shed) {
+  const vol = (g) => (polyArea(g.profile) * g.thickness) / 1728;
+  const framing = shed.members.reduce((t, m) => t + vol(m.geom) * woodDensity(/^PT /.test(m.material) ? 0.55 : 0.42, 12), 0);
+  const panels = shed.panels.reduce((t, p) => t + vol(p.geom) * woodDensity(0.42, 12), 0);
+  return { framing, panels, lb: framing + panels };
+}
+
+/**
+ * Does the wind tip a shed that nothing ties to the ground? ASCE 7's ASD
+ * combination 0.6D + 0.6W: the wind pressure you set on the whole face from
+ * the bottom of the skids to the ridge, and as uplift on the roof's plan
+ * (overhangs included), about the leeward line of skids (wind on the long
+ * side) or the leeward end (wind on a gable end), against 0.6 of the weight
+ * (selfWeight) about the same line. A ratio over 1 means the shed needs
+ * anchors; holdDown is what the windward side must then hold, lb at each of
+ * its two corners. Sliding, and the blocks themselves (they sit loose), are
+ * not checked.
+ * @param {import('./model.mjs').Shed} shed
+ */
+export function anchorage(shed) {
+  const d = shed.design;
+  const k = shed.dims;
+  const p = d.windLoad;
+  const z0 = k.block ? k.block.h : 0;
+  const Wt = selfWeight(shed).lb;
+  const wall = (k.plateTop - z0) / 12; // ft, skid bottom to plate
+  const rise = (k.ridgeTop - k.plateTop) / 12;
+  const zb = z0 / 12;
+  const L = d.length / 12;
+  const W = d.width / 12;
+  const U = p * L * (W + (2 * d.overhang) / 12); // uplift on the roof plan
+  const dirs = [
+    // Wind on the long side: wall rectangle and the roof's rectangle, about the leeward skid.
+    { dir: 'on the long side', F: p * L * (wall + rise), M: p * L * (wall * (wall / 2) + rise * (wall + rise / 2)), arm: (k.skidYs[k.skidYs.length - 1] - k.skidYs[0]) / 2 / 12, base: (k.skidYs[k.skidYs.length - 1] - k.skidYs[0]) / 12 },
+    // Wind on a gable end: wall rectangle and the gable triangle, about the leeward end.
+    { dir: 'on a gable end', F: p * W * (wall + rise / 2), M: p * W * (wall * (wall / 2) + (rise / 2) * (wall + rise / 3)), arm: L / 2, base: L },
+  ];
+  let worst = null;
+  for (const x of dirs) {
+    const over = 0.6 * (x.M + U * x.arm); // ft-lb, the wind's moment (heights above the skid bottoms)
+    const resist = 0.6 * Wt * x.arm;
+    const ratio = over / resist;
+    const holdDown = Math.max(0, (over - resist) / x.base / 2);
+    if (!worst || ratio > worst.ratio) worst = { ...x, over, resist, ratio, holdDown, weight: Wt, uplift: U, z0: zb };
+  }
+  const a = /** @type {NonNullable<typeof worst>} */ (worst);
+  return { ...a, tipsAtPsf: a.ratio > 0 ? p / a.ratio : Infinity };
+}
+
+/** One sentence on anchoring, for the Structure tab and the build instructions. */
+export function anchorageText(shed) {
+  const a = anchorage(shed);
+  const w = shed.design.windLoad;
+  const lead = `The shed weighs about ${(Math.round(a.weight / 10) * 10).toLocaleString('en-US')} lb (framing and sheets only, counted low), and nothing in these plans ties it to the ground.`;
+  if (a.ratio <= 1) return `${lead} At ${w} psf its weight holds it down with ${Math.round((1 / a.ratio - 1) * 100)}% to spare (wind ${a.dir}, ASD 0.6D + 0.6W); it would tip at about ${Math.floor(a.tipsAtPsf)} psf.`;
+  return `${lead} Wind ${a.dir} tips it at about ${Math.floor(a.tipsAtPsf)} psf (ASD 0.6D + 0.6W), so at the ${w} psf you set it needs anchors: ground anchors or straps that hold about ${Math.ceil(a.holdDown / 10) * 10} lb at each windward corner, on all four corners as the wind can come from either side.`;
+}
+
 /**
  * @param {import('./model.mjs').Shed} shed
  */

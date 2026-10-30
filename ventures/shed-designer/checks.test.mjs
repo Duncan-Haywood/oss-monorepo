@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { buildShed, defaultDesign, PRESETS } from './model.mjs';
-import { structuralChecks, postCheck, nailZ, heelJoint, skidOnBlocks, rafterUplift, racking } from './checks.mjs';
+import { structuralChecks, postCheck, nailZ, heelJoint, skidOnBlocks, rafterUplift, racking, woodDensity, selfWeight, anchorage, anchorageText } from './checks.mjs';
 import { buildInstructions } from './instructions.mjs';
 import { estimate } from './estimate.mjs';
 import { check, worst, roofCase, designValues } from './structure.mjs';
@@ -285,4 +285,46 @@ test('an open-front wall hands its share to the opposite wall, within SDPWS 1:1'
   // No siding: nothing braces the walls. LP SmartSide: rated in LP's own report, not checked here.
   assert.ok(!structuralChecks(buildShed({ ...defaultDesign(), siding: false })).rows.find((x) => x.member === 'Wall bracing (racking)').ok);
   assert.equal(structuralChecks(buildShed({ ...defaultDesign(), sidingType: 'LP SmartSide' })).rows.find((x) => x.member === 'Wall bracing (racking)'), undefined);
+});
+
+// Weight of wood (NDS Supplement 3.1.3): 62.4 G (1 + m/100) / (1 + 0.009 G m).
+test('self-weight is the drawn volume at the NDS density', () => {
+  const spf = (62.4 * 0.42 * 1.12) / (1 + 0.009 * 0.42 * 12);
+  assert.ok(Math.abs(woodDensity(0.42, 12) - spf) < 1e-9 && spf > 28 && spf < 28.2);
+  const s = buildShed(PRESETS['8x12 classic']());
+  const one = { ...s, members: [s.members.find((m) => m.kind === 'stud')], panels: [] };
+  const stud = one.members[0];
+  // A stud is 1-1/2" x 3-1/2" by its drawn length.
+  assert.ok(Math.abs(selfWeight(one).lb - (1.5 * 3.5 * (stud.local.z1 - stud.local.z0) / 1728) * spf) < 1e-9);
+  const w = selfWeight(s).lb;
+  assert.ok(w > 1800 && w < 2200, String(w)); // an 8x12 without its shingles, door or windows
+});
+
+// An unanchored shed against the wind, ASD 0.6D + 0.6W. 8x12 classic on a
+// gravel pad (skid bottoms at 0), 20 psf: wind on the 12 ft side over the
+// walls and the roof's rise, uplift over the roof plan (8 ft + two 12"
+// overhangs), about the leeward skid; the weight acts half the skid spread in.
+test('the anchorage check is the hand calculation, and an unanchored shed tips', () => {
+  const s = buildShed(PRESETS['8x12 classic']());
+  const k = s.dims;
+  const wall = k.plateTop / 12, rise = (k.ridgeTop - k.plateTop) / 12;
+  const M = 20 * 12 * (wall * wall / 2 + rise * (wall + rise / 2));
+  const U = 20 * 12 * (8 + 2);
+  const arm = (94.25 - 1.75) / 2 / 12;
+  const Wt = selfWeight(s).lb;
+  const over = 0.6 * (M + U * arm), resist = 0.6 * Wt * arm;
+  const a = anchorage(s);
+  assert.equal(a.dir, 'on the long side');
+  assert.ok(Math.abs(a.ratio - over / resist) < 1e-9, `${a.ratio} vs ${over / resist}`);
+  assert.ok(Math.abs(a.holdDown - (over - resist) / (2 * arm) / 2) < 1e-9);
+  assert.ok(a.ratio > 3 && a.ratio < 3.5 && a.holdDown > 600 && a.holdDown < 700);
+  assert.ok(Math.abs(a.tipsAtPsf - 20 / a.ratio) < 1e-9);
+  assert.match(anchorageText(s), /needs anchors: ground anchors or straps that hold about \d+ lb at each windward corner/);
+  // At 5 psf the weight holds it; the build steps only ask for anchors when they are needed.
+  const calm = buildShed({ ...PRESETS['8x12 classic'](), windLoad: 5 });
+  assert.ok(anchorage(calm).ratio < 1);
+  assert.match(anchorageText(calm), /holds it down with \d+% to spare/);
+  const steps = (sh) => JSON.stringify(buildInstructions(sh, estimate(sh)));
+  assert.match(steps(s), /Anchor it\./);
+  assert.doesNotMatch(steps(calm), /Anchor it\./);
 });
