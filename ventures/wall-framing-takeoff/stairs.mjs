@@ -150,11 +150,13 @@ export function layoutRail(g, r, notes) {
 /**
  * Guard along open landing edges (level, so every baluster is guardHeight - 2 rails - bottom gap long).
  * `edges` are the open edge lengths in inches; each gets posts at both ends and wherever it would run past
- * `maxPostSpacing`, balusters with no clear gap over `maxGap`, and a top and bottom rail. Corner posts are not shared.
+ * `maxPostSpacing`, balusters with no clear gap over `maxGap`, and a top and bottom rail. `sharedCorners` is how many
+ * corners two listed edges meet at (one post serves both); layoutStairWithLanding passes ends x sides.
  * @param {number[]} edges
  * @param {Rail} [r]
+ * @param {number} [sharedCorners]
  */
-export function layoutLandingGuard(edges, r = {}) {
+export function layoutLandingGuard(edges, r = {}, sharedCorners = 0) {
   const L = { ...RAIL_LIMITS, ...(r.limits || {}) };
   const bw = r.balusterWidth ?? 1.5, post = r.postWidth ?? 3.5, board = r.railBoard ?? "2x4", thick = 1.5;
   let posts = 0, balusters = 0, gapMax = 0;
@@ -167,7 +169,8 @@ export function layoutLandingGuard(edges, r = {}) {
     gapMax = Math.max(gapMax, (clear - per * bw) / (per + 1));
     rails.push(len, len);
   }
-  return { edges, posts: { count: posts, width: post }, balusters: { count: balusters, length: L.guardHeight - 2 * thick - L.bottomGap, width: bw, maxGap: gapMax }, guardRails: { size: board, count: rails.length, lengths: rails }, guardHeight: L.guardHeight };
+  posts -= sharedCorners;
+  return { edges, sharedCorners, posts: { count: posts, width: post }, balusters: { count: balusters, length: L.guardHeight - 2 * thick - L.bottomGap, width: bw, maxGap: gapMax }, guardRails: { size: board, count: rails.length, lengths: rails }, guardHeight: L.guardHeight };
 }
 
 /** Cut rows in the engine's shape, so `takeoff(plan, stairCuts(layout))` buys stair lumber with the walls'. */
@@ -231,7 +234,7 @@ export function layoutStairWithLanding(input, plan) {
     rims: { size: joistSize, count: 2, length: width - 2 * THICK },
     deck: { size: deckSize, count: deckBoards, length: width, area: (width * depth) / 144 },
     footprint: lower.run + depth + upper.run,
-    guard: lc.openEdges?.length ? layoutLandingGuard(lc.openEdges.map((e) => (e === "end" ? width : depth)), input.rail || {}) : null,
+    guard: lc.openEdges?.length ? layoutLandingGuard(lc.openEdges.map((e) => (e === "end" ? width : depth)), input.rail || {}, Math.min(4, lc.openEdges.filter((e) => e === "end").length * lc.openEdges.filter((e) => e !== "end").length)) : null,
     notes: ["Landing posts and footings are not sized: the platform carries a stair load plus the flights' ends, so check posts and footings against your code and the actual spans."],
   };
   return { ok: true, id, totalRise: input.totalRise, flights: [lower, upper], landing };
