@@ -15,7 +15,7 @@ test('every size page on disk is what the engine prints now', () => {
 test('no size page hides a warning, and bigger sheds take more boards', () => {
   for (const f of all) assert.equal(f.problems, 0, `${f.w}x${f.l}`);
   const same = (w) => all.filter((f) => f.w === w).sort((a, b) => a.l - b.l);
-  for (const w of [8, 10, 12]) {
+  for (const w of [8, 10, 12, 14, 16]) {
     const row = same(w);
     for (let i = 1; i < row.length; i++) assert.ok(row[i].boards >= row[i - 1].boards, `${w}x${row[i].l}`);
   }

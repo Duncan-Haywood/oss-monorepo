@@ -6,11 +6,13 @@ import { buildShed, normalize, defaultDesign, PRESETS, WALLS, WALL_LABEL, wallFa
 import { estimate, examplePrices, cutSheetCsv, shoppingCsv, groupBoards, sourceLabel, boardUse, lumberUses } from './estimate.mjs';
 import { buildSheets, sheetSvg, sheetsDxf } from './drawings.mjs';
 import { createViewer, LAYERS } from './render3d.mjs';
+import { mountPicker } from './picker.mjs';
 import { drawPlan, drawEnd } from './editor.mjs';
 import { fmtIn, fmtFtIn, actual, STANDARD_LENGTHS_FT, EXAMPLE_ITEMS } from './lumber.mjs';
 import { recordUsage, clearUsage } from './usage.mjs';
 import { encodeDesign } from './hoa.mjs';
 import { structuralChecks } from './checks.mjs';
+import { initUtilisation, renderUtilisation, heatOption } from './utilisation-ui.mjs';
 import { connectionChecks } from './connections.mjs';
 import { generateCandidates } from './candidates.mjs';
 import { buildInstructions, instructionsMarkdown } from './instructions.mjs';
@@ -18,6 +20,8 @@ import { quoteRequest, mailtoLink, STORES } from './quote.mjs';
 import { PRODUCTS } from './products.mjs';
 import { storeComparison, swapsFor, storeTotals, storeList, pricesFor } from './catalog.mjs';
 import { simplify, cutMetrics, budget, laborHours } from './simplify.mjs';
+import { valueComparison, valueHtml } from './value.mjs';
+import { finishOptions, isHex, paletteOf, rgbToHex, SIDING_FINISHES, TRIM_FINISHES, DOOR_FINISHES, SHINGLE_FAMILIES } from './looks.mjs';
 import { leverOptions, leverTableHtml } from './costlevers.mjs';
 
 const $ = (sel) => /** @type {any} */ (document.querySelector(sel));
@@ -65,6 +69,8 @@ function toBuy(est) {
 }
 const undo = []; const redo = [];
 const thumbs = new Map();
+/** @type {ReturnType<typeof mountPicker> | null} */
+let picker = null;
 
 // ---------- persistence ----------
 function save() {
@@ -142,12 +148,28 @@ function preview(next) {
 }
 
 // ---------- form ----------
+const SITE_FIELDS = ['lotWidthFt', 'lotDepthFt', 'siteLeftFt', 'siteRearFt', 'setbackFt', 'houseWidthFt', 'houseDepthFt', 'houseLeftFt', 'houseFrontFt'];
 const FIELDS = ['name', 'lengthFt', 'widthFt', 'wallHeight', 'pitch', 'overhang', 'studSize', 'studSpacing', 'joistSize', 'joistSpacing',
   'rafterSize', 'rafterSpacing', 'tieSize', 'skidSize', 'skidSpacing', 'foundation', 'floorTreated', 'siding', 'roofing', 'gableVents', 'ventWidth', 'ventHeight', 'kerf',
   'roofType', 'beamSize', 'sidingColor', 'polkaDots', 'autoWall', 'autoPitch',
-  'autoOverhang', 'snowLoad', 'windLoad', 'roofColor', 'trimColor', 'glitter', 'interior', 'sidingType', 'roofCover', 'insulation', 'customRange', 'wallTrim', 'rafterSeat', 'maxFootprint', 'compaction', 'pad', 'floorPanel', 'spares', 'taxRate', 'delivery', 'laborRate'];
+  'autoOverhang', 'snowLoad', 'windLoad', 'roofColor', 'trimColor', 'doorColor', 'glitter', 'interior', 'sidingType', 'roofCover', 'insulation', 'customRange', 'wallTrim', 'rafterSeat', 'maxFootprint', 'compaction', 'pad', 'floorPanel', 'spares', 'taxRate', 'delivery', 'laborRate', ...SITE_FIELDS];
+
+
+/** A colour select keeps one "Your colour" option for a hex code typed or picked. @param {HTMLSelectElement} sel @param {string} v */
+function customOption(sel, v) {
+  let o = /** @type {HTMLOptionElement | null} */ (sel.querySelector('option[data-custom]'));
+  if (!isHex(v)) { o?.remove(); return; }
+  if (!o) { o = document.createElement('option'); o.dataset.custom = '1'; sel.prepend(o); }
+  o.value = v; o.textContent = `Your colour (${v})`;
+}
 
 function fillForm(d) {
+  for (const f of ['sidingColor', 'trimColor', 'doorColor']) customOption(/** @type {any} */ (document.getElementById(f)), d[f]);
+  const pal = paletteOf(d);
+  for (const [f, rgb] of [['sidingColor', pal.siding], ['trimColor', pal.trim], ['doorColor', pal.door]]) {
+    const e = /** @type {HTMLInputElement} */ (document.getElementById(`${f}-custom`));
+    if (e && e !== document.activeElement) e.value = rgbToHex(/** @type {any} */ (rgb));
+  }
   const set = (id, v) => { const e = /** @type {any} */ (document.getElementById(id)); if (!e || e === document.activeElement) return; if (e.type === 'checkbox') e.checked = Boolean(v); else e.value = String(v); };
   set('name', d.name);
   set('lengthFt', +(d.length / 12).toFixed(2));
@@ -155,6 +177,7 @@ function fillForm(d) {
   set('maxPeakFt', +(d.maxPeak / 12).toFixed(2));
   for (const f of FIELDS.slice(3)) set(f, d[f]);
   for (const cb of $$('input[name="stock"]')) cb.checked = d.lengths.includes(Number(cb.value));
+  for (const cb of $$('input[name="lock"]')) cb.checked = (d.locked || []).includes(cb.value);
 }
 
 function readForm() {
@@ -166,10 +189,11 @@ function readForm() {
   d.length = Math.round(num('lengthFt', d.length / 12) * 12);
   d.width = Math.round(num('widthFt', d.width / 12) * 12);
   d.maxPeak = Math.round(num('maxPeakFt', d.maxPeak / 12) * 12);
-  for (const f of ['wallHeight', 'pitch', 'overhang', 'studSpacing', 'joistSpacing', 'rafterSpacing', 'skidSpacing', 'ventWidth', 'ventHeight', 'kerf', 'snowLoad', 'windLoad', 'maxFootprint', 'spares', 'taxRate', 'laborRate']) d[f] = num(f, d[f]);
-  for (const f of ['studSize', 'joistSize', 'rafterSize', 'tieSize', 'skidSize', 'foundation', 'roofType', 'beamSize', 'sidingColor', 'roofColor', 'trimColor', 'interior', 'sidingType', 'roofCover', 'wallTrim', 'rafterSeat', 'compaction', 'pad', 'floorPanel', 'delivery']) d[f] = v(f).value;
+  for (const f of ['wallHeight', 'pitch', 'overhang', 'studSpacing', 'joistSpacing', 'rafterSpacing', 'skidSpacing', 'ventWidth', 'ventHeight', 'kerf', 'snowLoad', 'windLoad', 'maxFootprint', 'spares', 'taxRate', 'laborRate', ...SITE_FIELDS]) d[f] = num(f, d[f]);
+  for (const f of ['studSize', 'joistSize', 'rafterSize', 'tieSize', 'skidSize', 'foundation', 'roofType', 'beamSize', 'sidingColor', 'roofColor', 'trimColor', 'doorColor', 'interior', 'sidingType', 'roofCover', 'wallTrim', 'rafterSeat', 'compaction', 'pad', 'floorPanel', 'delivery']) d[f] = v(f).value;
   for (const f of ['floorTreated', 'siding', 'roofing', 'gableVents', 'polkaDots', 'autoWall', 'autoPitch', 'autoOverhang', 'glitter', 'insulation', 'customRange']) d[f] = v(f).checked;
   d.lengths = $$('input[name="stock"]:checked').map((c) => Number(c.value));
+  d.locked = $$('input[name="lock"]:checked').map((c) => c.value);
   return d;
 }
 
@@ -210,6 +234,7 @@ function renderSummary(shed, est) {
     ['Your time', (() => { const h = laborHours(shed, est); return `about ${Math.round(h)} hours${d.laborRate ? `, ${money(h * d.laborRate)} at ${money(d.laborRate)} an hour (materials and time ${money(est.total + h * d.laborRate)})` : ''}`; })()],
     ['Saw cuts', (() => { const c = cutMetrics(shed, est); return `${c.straight} straight, ${c.angled} angled${c.notches ? `, ${c.notches} notches` : ''}; ${(c.waste * 100).toFixed(1)}% offcut`; })()],
   ].map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join('');
+  $('#summary-lines').insertAdjacentHTML('beforeend', valueHtml(valueComparison(shed, est, 3)));
   const msgs = [...shed.warnings, ...est.problems];
   $('#warnings').innerHTML = msgs.length ? `<strong>Check these:</strong><ul>${msgs.map((m) => `<li>${esc(m)}</li>`).join('')}</ul>` : '';
   const notes = [...shed.notes, ...est.notes];
@@ -378,6 +403,16 @@ function renderCuts(est) {
     }
     html += `</ul><p class="muted">Trim pieces: ${est.trimCuts.pieces.map((p) => `${esc(p.where)} ${fmtIn(p.length)}`).join('; ')}. Cut each to fit on site; these are the longest each needs.</p>`;
   }
+  if (est.lapCuts) {
+    const lc = est.lapCuts;
+    html += `<h3 class="h4">Lap siding <span class="muted">(${lc.pieces} course pieces)</span>: ${lc.boards.length} planks, plus ${lc.starterPlanks} ripped into starter strip</h3><ul class="boards">`;
+    for (const b of groupBoards(lc.boards)) {
+      let x = 0;
+      const segs = b.cuts.map((len) => { const w = (len / b.stock) * 100; const seg = `<span class="cut" style="left:${x}%;width:${w}%" title="${fmtIn(len)}">${fmtIn(len)}</span>`; x += w; return seg; }).join('');
+      html += `<li><span class="board-name">${boardName(b)}</span><span class="bar">${segs}</span><span class="off">offcut ${fmtIn(b.offcut)}${b.count > 1 ? ' each' : ''}</span></li>`;
+    }
+    html += `</ul><p class="muted">Rake pieces are measured along their bottom (long) edge. Starter: ${fmtIn(lc.starterIn)} of strip, ${lc.perPlank} strips ripped from each plank. ${lc.joints ? `${lc.joints} butt joints, each on a stud.` : 'No butt joints: every course is one piece per run.'}</p>`;
+  }
   $('#cuts').innerHTML = html;
 }
 
@@ -506,9 +541,10 @@ function renderNow() {
   // The end view shows what is built: with the automatic boxes ticked, the
   // pitch, wall height and overhang come from buildShed, not from the form.
   drawEnd($('#endview'), shed.design, shed.dims, hooks);
-  viewer?.show(shed);
-  renderSummary(shed, est);
   const sc = renderStructure(shed);
+  viewer?.show(shed, heatOption(shed, sc));
+  renderUtilisation(shed, sc);
+  renderSummary(shed, est);
   const worst = sc.rows.reduce((m, x) => Math.max(m, x.ratio), 0);
   const cc = connectionChecks(shed);
   $('#summary-lines').insertAdjacentHTML('beforeend', `<div><dt>Structure</dt><dd>${sc.ok ? `all ${sc.rows.length} load checks pass` : `${sc.rows.filter((x) => !x.ok).length} over capacity`} (highest ${Math.round(worst * 100)}%); ${cc.ok ? `all ${cc.rows.length} connection checks pass` : `${cc.rows.filter((x) => !x.ok).length} connection checks fail`}</dd></div>`);
@@ -556,11 +592,13 @@ const slug = () => design().name.toLowerCase().replace(/[^a-z0-9]+/g, '-').repla
 // ---------- wiring ----------
 const viewer = createViewer($('#view3d'));
 if (!viewer) $('#view3d-fallback').hidden = false;
+initUtilisation({ viewer, count, storage });
 
 function wire() {
   const form = $('#settings');
   const onForm = (e) => {
     const t = e.target;
+    if (t.type === 'color') return; // handled below, through its select
     if (t.dataset.i !== undefined) {
       const i = Number(t.dataset.i);
       const d = { ...design(), openings: design().openings.map((o) => ({ ...o })) };
@@ -580,9 +618,9 @@ function wire() {
       if (e.type === 'change' && t.tagName === 'SELECT') { $('#openings tbody').innerHTML = ''; renderOpenings(design()); }
       return;
     }
-    if (t.dataset.mat) { (state.prices.lumber[t.dataset.mat] ||= {})[t.dataset.ft] = t.value === '' ? '' : Number(t.value); render(); return; }
-    if (t.dataset.item) { state.prices.items[t.dataset.item] = t.value === '' ? '' : Number(t.value); render(); return; }
-    if (t.dataset.delivery) { state.prices.delivery = { ...(state.prices.delivery || {}), [t.dataset.delivery]: t.value === '' ? '' : Number(t.value) }; render(); return; }
+    if (t.dataset.mat) { (state.prices.lumber[t.dataset.mat] ||= {})[t.dataset.ft] = t.value === '' ? '' : Number(t.value); render(); picker?.reprice(); return; }
+    if (t.dataset.item) { state.prices.items[t.dataset.item] = t.value === '' ? '' : Number(t.value); render(); picker?.reprice(); return; }
+    if (t.dataset.delivery) { state.prices.delivery = { ...(state.prices.delivery || {}), [t.dataset.delivery]: t.value === '' ? '' : Number(t.value) }; render(); picker?.reprice(); return; }
     if (t.closest('#settings')) {
       // Leaving a cleared number box puts the last value back in it.
       if (t.type === 'number' && t.value.trim() === '') {
@@ -612,6 +650,14 @@ function wire() {
     typeTimer = setTimeout(() => onForm(e), 250);
   });
   form.addEventListener('focusout', () => { typing = null; });
+  // A colour picker writes its hex into the select beside it; dragging round the
+  // picker is one undo step.
+  for (const f of ['sidingColor', 'trimColor', 'doorColor']) {
+    const pick = $(`#${f}-custom`);
+    const sel = $(`#${f}`);
+    pick.addEventListener('input', () => { customOption(sel, pick.value); sel.value = pick.value; onForm({ target: sel, type: 'input' }); });
+    pick.addEventListener('change', () => { typing = null; });
+  }
   $('#price-grid').addEventListener('change', onForm);
   $('#openings').addEventListener('click', (e) => {
     const i = e.target.dataset.remove;
@@ -703,6 +749,19 @@ function wire() {
   $('#view-top').addEventListener('click', () => viewer?.view(-Math.PI / 2 + 0.01, 1.45));
   $('#view-reset').addEventListener('click', () => viewer?.reset());
   $('#show-dims').addEventListener('change', (e) => viewer?.setDimensions(e.target.checked));
+  $('#show-outlines').addEventListener('change', (e) => viewer?.setOutlines(e.target.checked));
+  $('#show-scenery').addEventListener('change', (e) => viewer?.setScenery(e.target.checked));
+  // Presentation: every finished layer, no board outlines or dimension lines, a
+  // three-quarter view from the front: the picture for a neighbour or an HOA.
+  $('#presentation').addEventListener('click', () => {
+    const on = $('#presentation').getAttribute('aria-pressed') !== 'true';
+    $('#presentation').setAttribute('aria-pressed', String(on));
+    for (const cb of $$('#layers input')) { cb.checked = on ? !['interior', 'front lining', 'decor'].includes(cb.value) || cb.checked : true; viewer?.setLayer(cb.value, cb.checked); }
+    for (const [id, fn] of [['#show-dims', 'setDimensions'], ['#show-outlines', 'setOutlines'], ['#show-scenery', 'setScenery']]) {
+      const cb = $(id); cb.checked = id === '#show-scenery' ? true : !on; viewer?.[fn](cb.checked);
+    }
+    if (on) viewer?.view(-0.95, 0.2);
+  });
   $('#view-inside').addEventListener('click', () => {
     for (const cb of $$('#layers input')) {
       cb.checked = !['sheathing', 'siding', 'roofing', 'roof', 'trim', 'front wall', 'front lining'].includes(cb.value);
@@ -934,6 +993,10 @@ function wire() {
 // Stock length checkboxes and layer toggles are generated once.
 function buildStatic() {
   $('#stock').innerHTML = STANDARD_LENGTHS_FT.map((ft) => `<label class="check"><input type="checkbox" name="stock" value="${ft}"> ${ft} ft</label>`).join('');
+  $('#sidingColor').innerHTML = finishOptions(SIDING_FINISHES);
+  $('#trimColor').innerHTML = finishOptions(TRIM_FINISHES);
+  $('#doorColor').innerHTML = finishOptions(DOOR_FINISHES);
+  $('#roofColor').innerHTML = finishOptions(SHINGLE_FAMILIES);
   $('#layers').innerHTML = LAYERS.map((l) => `<label class="check"><input type="checkbox" value="${l}" checked> ${l[0].toUpperCase() + l.slice(1)}</label>`).join('');
 }
 
@@ -941,4 +1004,17 @@ buildStatic();
 load();
 wire();
 render();
+// Ready-made designs to look at, compare and start from (picker.mjs).
+picker = mountPicker({
+  root: $('#starts'), dialog: $('#pick-dialog'), tray: $('#compare-tray'),
+  prices: () => state.prices, count,
+  onStart(d) {
+    state.designs.push(normalize(d));
+    state.active = state.designs.length - 1;
+    count('designs');
+    undo.length = 0; redo.length = 0;
+    render();
+    $('#workspace').scrollIntoView({ behavior: 'smooth' });
+  },
+});
 if (linkNote) $('#status').textContent = linkNote;

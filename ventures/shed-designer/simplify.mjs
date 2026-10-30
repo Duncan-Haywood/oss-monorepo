@@ -15,7 +15,8 @@ import { structuralChecks } from './checks.mjs';
 import { connectionChecks } from './connections.mjs';
 import { BLOCKS } from './model.mjs';
 import { PRODUCTS } from './products.mjs';
-import { floorMoves } from './levers.mjs';
+import { LAP_PRODUCTS, isLap } from './lap.mjs';
+import { floorMoves, searchKeep } from './levers.mjs';
 
 /**
  * Saw cuts the build needs. A board cut into n pieces takes n cuts (one fewer
@@ -40,12 +41,18 @@ export function cutMetrics(shed, est) {
     else if (m.kind === 'door brace') angled += 2;
   }
   for (const p of shed.panels) if (p.kind === 'siding' && p.geom.profile.length > 4) angled += 2;
+  // Lap siding: a square cut per piece, an angled one at each rake end, a notch round part of an opening, and the starter rips.
+  if (est.lapCuts) {
+    for (const b of est.lapCuts.boards) straight += b.cuts.length - (b.offcut < 0.25 ? 1 : 0);
+    straight += est.lapCuts.starterPlanks * (est.lapCuts.perPlank - 1);
+    for (const f of shed.lap) for (const pc of f.pieces) { if (pc.rake) angled += f.wall === 'left' || f.wall === 'right' ? 1 : 0; if (pc.notched) notches += 1; }
+  }
   const offcut = est.lumber.reduce((t, l) => t + l.result.boards.reduce((u, x) => u + x.offcut, 0), 0);
   const bought = est.lumber.reduce((t, l) => t + l.result.boards.reduce((u, x) => u + x.stock, 0), 0);
   return { straight, angled, notches, total: straight + angled + 2 * notches, waste: bought ? offcut / bought : 0 };
 }
 
-const SIDING_NAMES = { 'T1-11': 'T1-11 plywood panels', 'LP SmartSide': 'LP SmartSide 38 Series primed panels, 3/8"', 'LP SmartSide 7/16': 'LP SmartSide 76 Series primed panels, 7/16"', 'board and batten': 'board and batten over OSB', vinyl: 'vinyl lap over OSB, with its starter, J-channel and corner posts' };
+const SIDING_NAMES = { 'T1-11': 'T1-11 plywood panels', 'LP SmartSide': 'LP SmartSide 38 Series primed panels, 3/8"', 'LP SmartSide 7/16': 'LP SmartSide 76 Series primed panels, 7/16"', 'board and batten': 'board and batten over OSB', vinyl: 'vinyl lap over OSB, with its starter, J-channel and corner posts' , 'fiber cement': 'fiber cement lap over OSB and house wrap', 'LP SmartSide lap': 'engineered wood lap over OSB and house wrap' };
 
 /** The widest stud spacing the siding is rated for, in inches. */
 export function sidingSpan(d) {
@@ -63,7 +70,7 @@ export function sidingSpan(d) {
 export const MINUTES = {
   floorSheet: 12, floorOSB: 12, roofSheet: 12, wallSheathing: 12,
   siding8: 15, siding9: 16, siding10: 18, lpPanel: 15, lpPanel9: 16, lpPanel10: 18, lpPanel76: 15, lpPanel76x9: 16, lpPanel76x10: 18,
-  vinylBox: 240, vinylJ: 10, vinylStarter: 8, vinylCorner: 15, hardiePlank: 10, boardBox: 20, battenBox: 30,
+  vinylBox: 240, vinylJ: 10, vinylStarter: 8, vinylCorner: 15, hardiePlank: 10, lapHardie: 12, lapLP12: 10, lapLP16: 12, houseWrap: 45, jointFlashing: 20, boardBox: 20, battenBox: 30,
   shingleBundle: 25, starterShingle: 20, ridgeCapShingle: 30, underlayment: 45, dripEdge: 10, metalPanel: 10, metalRidge: 15,
   fasciaTrim: 15, soffitPanel: 20, rakeTrim: 15, gableVent: 30, zFlashing: 10,
   paint: 45, stain: 45, accentPaint: 60, interiorPaint: 45, glitter: 0,
@@ -124,8 +131,10 @@ function moves(d, base, resize, opts = {}) {
         set(`windows: ${pr.name}`, { openings: d.openings.map((o) => (o.kind === 'window' ? { ...o, product: pr.id } : o)) }, 'windows');
       }
     }
-    // Fiber cement is left out: its trim boards are not priced yet, so it would look cheaper than it is.
-    for (const t of ['T1-11', 'LP SmartSide', 'LP SmartSide 7/16', 'board and batten', 'vinyl']) if (d.siding && t !== d.sidingType) set(`siding: ${SIDING_NAMES[t] || t}`, { sidingType: t });
+    // Lap siding is a look you chose (often to match a house), so from lap the
+    // search only weighs the other lap product, and from panels it never offers lap.
+    const sidings = isLap(d.sidingType) ? Object.keys(LAP_PRODUCTS) : ['T1-11', 'LP SmartSide', 'LP SmartSide 7/16', 'board and batten', 'vinyl'];
+    for (const t of sidings) if (d.siding && t !== d.sidingType) set(`siding: ${SIDING_NAMES[t] || t}`, { sidingType: t });
     set(d.roofCover === 'metal' ? 'shingle roof' : 'metal roof', { roofCover: d.roofCover === 'metal' ? 'shingles' : 'metal' });
     for (const f of ['gravel', ...Object.keys(BLOCKS)]) if (f !== d.foundation) set(f === 'gravel' ? 'skids on a gravel pad' : `skids on ${/** @type {any} */ (BLOCKS)[f].plural}`, { foundation: f }, 'foundation');
     if (d.foundation !== 'gravel') for (const pd of ['full', 'under blocks', 'none']) if (pd !== d.pad) set({ full: 'a full gravel pad', 'under blocks': 'gravel only under the blocks', none: 'no gravel: blocks on tamped soil' }[pd], { pad: pd }, 'pad');
@@ -134,7 +143,10 @@ function moves(d, base, resize, opts = {}) {
     set(d.floorPanel === 'OSB' ? 'plywood subfloor' : 'OSB subfloor', { floorPanel: d.floorPanel === 'OSB' ? 'plywood' : 'OSB' });
   }
   // Only when asked: a foot either way on the length or width, never below 85% of the floor asked for.
-  const kept = () => (opts.keep ? out.filter((m) => !Object.keys(m.change).some((k) => opts.keep.includes(k))) : out);
+  const keep = opts.keep || [];
+  const held = (m) => Object.keys(m.change).some((k) => keep.includes(k))
+    || (keep.includes('doors') && m.group.startsWith('door')) || (keep.includes('windows') && m.group === 'windows');
+  const kept = () => out.filter((m) => !held(m));
   if (!resize) return kept();
   for (const [k, dv] of /** @type {[string, number][]} */ ([['length', 12], ['length', -12], ['width', 12], ['width', -12]])) {
     const next = { ...d, [k]: d[k] + dv };
@@ -155,7 +167,7 @@ export const GOALS = {
 /**
  * @param {any} design
  * @param {import('./estimate.mjs').Prices} [prices]
- * @param {{ rounds?: number, resize?: boolean, products?: boolean, peakSlack?: number, goals?: string[] }} [opts]
+ * @param {{ rounds?: number, resize?: boolean, products?: boolean, peakSlack?: number, goals?: string[], keep?: string[] }} [opts]
  */
 export function simplify(design, prices, opts = {}) {
   const rounds = opts.rounds ?? 6;
@@ -180,7 +192,7 @@ export function simplify(design, prices, opts = {}) {
     const steps = [];
     for (let i = 0; i < rounds; i++) {
       let best = null;
-      for (const mv of moves(cur.design, start, Boolean(opts.resize), opts)) {
+      for (const mv of moves(cur.design, start, Boolean(opts.resize), { ...opts, keep: [...(opts.keep || []), ...searchKeep(start)] })) {
         const r = get(normalize({ ...cur.design, ...mv.change }));
         if (!feasible(r)) continue;
         if (score(r) < score(best ? best.r : cur) - 0.5) best = { r, mv };
@@ -216,7 +228,9 @@ export function budget(design, prices, opts = {}) {
   const cost = (r) => r.total + r.timeCost;
   /** A step's saving, in all and split into materials and hours. */
   const step = (label, from, to) => ({ label, saving: Math.round((cost(from) - cost(to)) * 100) / 100, materials: Math.round((from.total - to.total) * 100) / 100, hours: Math.round((from.hours - to.hours) * 10) / 10 });
-  const keep = opts.keep ?? ['roofType', 'rafterSeat'];
+  // The structure you chose (offered back in `also`) and the choices you fixed (never touched).
+  const structural = opts.keep ?? ['roofType', 'rafterSeat'];
+  const keep = [...structural, ...searchKeep(start)];
   const base = evaluate(start, prices);
   /** @type {Map<string, any>} */
   const cache = new Map([[keyOf(start), base]]);
@@ -252,7 +266,7 @@ export function budget(design, prices, opts = {}) {
     cur = best.r;
   }
   // What the kept structure choices would save on top, each on its own.
-  const alsoKept = moves(cur.design, start, false, { products: true }).filter((mv) => Object.keys(mv.change).some((k) => keep.includes(k)))
+  const alsoKept = moves(cur.design, start, false, { products: true, keep: searchKeep(start) }).filter((mv) => Object.keys(mv.change).some((k) => structural.includes(k)))
     .map((mv) => ({ label: mv.label, r: get(normalize({ ...cur.design, ...mv.change })) }))
     .filter((x) => feasible(x.r) && cost(x.r) < cost(cur) - 0.5)
     .map((x) => ({ ...step(x.label, cur, x.r), cuts: x.r.cuts }));
