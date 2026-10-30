@@ -247,3 +247,14 @@ test("--stairs prints the stair layout and pools its lumber", () => {
   assert.ok(j.cuts.some((c) => c.kind === "stair stringer" && c.qty === 4));
   assert.match(run(["p.json", "--stairs"], plan).out, /STAIRS/);
 });
+
+test("--deck adds the deck report with its own lumber order", async () => {
+  const { sampleDeck } = await import("./deck.mjs");
+  const plan = { ...samplePlan(), deck: sampleDeck() };
+  const { code, out } = main(["p.json", "--deck"], () => JSON.stringify(plan));
+  assert.equal(code, 0);
+  assert.match(out, /DECK/);
+  assert.match(out, /x 2x8 PT/);
+  const bad = main(["p.json", "--deck"], () => JSON.stringify({ ...samplePlan(), deck: { ...sampleDeck(), height: 12 } }));
+  assert.equal(bad.code, 1);
+});
