@@ -78,6 +78,7 @@ export function normalizeDesk(d) {
   if (d.agreements && typeof d.agreements === "object" && !Array.isArray(d.agreements)) out.agreements = d.agreements; // agreement versions (agreements.mjs)
   if (d.network && typeof d.network === "object" && !Array.isArray(d.network)) out.network = d.network; // backup sitters and pass-ons (network.mjs)
   if (d.packages && typeof d.packages === "object" && !Array.isArray(d.packages)) out.packages = d.packages; // packages, gift certificates, events (packages.mjs)
+  if (Array.isArray(d.activityPlans)) out.activityPlans = d.activityPlans.filter((x) => x && typeof x === "object"); // saved sit plans (activities.mjs)
   return out;
 }
 
@@ -543,7 +544,7 @@ export function leadReply(lead, profile = DEFAULT_PROFILE, scored = scoreLead(le
     `Hi ${first}, thank you for reaching out! I'd love to help.`,
     `My rate is $${r.hourly}/hour for one child, plus $${r.extraChild}/hour for each additional child, with a ${r.minimumHours}-hour minimum.`,
     profile.certifications && profile.certifications.length ? `I'm ${profile.certifications.join(", ")} certified.` : "",
-    lead.faithActivities && profile.faithActivities ? `You mentioned faith-based activities: I'm happy to include ${profile.faithActivities.replace(/[:.].*$/, "").toLowerCase()}.` : "",
+    lead.faithActivities && profile.faithActivities ? `You mentioned faith-based activities: I'm happy to include ${profile.faithActivities.replace(/[:.].*$/, "").trim()}.` : "",
     `Would you like to set up a quick meet-and-greet so you and the kids can get to know me? I can also send references.`,
   ].filter(Boolean).join(" ");
 }

@@ -92,6 +92,7 @@
     <button type="button" role="tab" data-tab="website">Website</button>
     <button type="button" role="tab" data-tab="content">Content</button>
     <button type="button" role="tab" data-tab="print">Print</button>
+    <button type="button" role="tab" data-tab="activities">Activities</button>
     <button type="button" role="tab" data-tab="blog">Posts &amp; blog</button>
     <button type="button" role="tab" data-tab="network">Network</button>
     <button type="button" role="tab" data-tab="safety">Safety</button>
@@ -347,6 +348,11 @@
       <div id="pr_stats"></div>
     </section>
 
+    <section data-panel="activities" class="card" hidden>
+      <h2>Activities: a plan for each sit</h2>
+      <div id="activitiesKit"></div>
+    </section>
+
     <section data-panel="blog" class="card" hidden>
       <h2>Posts &amp; blog</h2>
       <div id="contentKit"></div>
@@ -465,6 +471,7 @@
     import { mountInvoices } from "./invoices-ui.mjs";
     import { mountPackages } from "./packages-ui.mjs";
     import { mountWaitlist } from "./waitlist-ui.mjs";
+    import { mountActivities } from "./activities-ui.mjs";
     import { enhanceTabs } from "./tabs.mjs";
     import { mountInsights } from "./insights-ui.mjs";
     import { mountSitReports } from "./sitreport-ui.mjs";
@@ -981,6 +988,7 @@
     mountInvoices($("invoiceKit"), { getDesk: () => desk, save, record, today, serverUrl: () => $("syncUrl").value.trim().replace(/\/+$/, "") });
     renderPackages = mountPackages($("packagesKit"), { getDesk: () => desk, setDesk: (d) => { desk = E.normalizeDesk(d); save(); }, record, today, serverUrl: () => $("syncUrl").value.trim().replace(/\/+$/, "") });
     mountWaitlist($("waitlistKit"), { getDesk: () => desk, save, esc, record, today });
+    mountActivities($("activitiesKit"), { getDesk: () => desk, save, record, today });
     record("page_loaded");
     render();
     show("today");
