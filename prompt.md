@@ -11,10 +11,10 @@ measurements to improve the sub-prompts and the documentation.
 
 ## 0. Security alerts first
 
-Unless the starting message names a task, first take an open `label:security-alert`
-issue (`search_issues`; highest severity, then oldest) that no open PR names
-(`"code-scanning alert #<n>" in:title`); its body says how to claim and fix it.
-`security-alert-queue.yml` files them hourly (owner, 2026-10-30).
+Unless the starting message names a task, read the security queue first:
+`git fetch -q --depth=1 origin security-alerts && git show origin/security-alerts:QUEUE.md`.
+Take the top alert with no `security-fix/code-scanning-<n>` branch (`git ls-remote`); its
+`alerts/<n>.md` says how. `security-alert-queue.yml` regenerates it hourly (owner, 2026-10-30).
 
 ## 1. Route
 

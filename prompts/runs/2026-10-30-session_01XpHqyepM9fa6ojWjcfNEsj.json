@@ -29,7 +29,12 @@
   "outcome": "success",
   "errors": [],
   "integrity_issues": [],
-  "doc_friction": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "'files first' covered write-ups but not work queues; v2 used GitHub issues. Added the owner's 2026-10-30 extension."
+    }
+  ],
   "deviations": [
     {
       "file": "prompt.md",
@@ -46,7 +51,7 @@
     "docs/posts/2026-10-30-agents-fix-code-scanning-alerts.md"
   ],
   "goal": null,
-  "notes": "Owner asked for agents to fix GitHub security scan results. First version ran claude-code-action on ANTHROPIC_API_KEY; owner rejected API-key billing and asked for work distribution to the scheduled agents instead. Final: security-alert-queue.yml mirrors open code-scanning alerts into security-alert issues (GITHUB_TOKEN only), prompt.md step 0 sends scheduled sessions to them first. 6 unit tests pass; validate_workflows and the repo's actions-* checkers clean. Live alerts unreadable from the container (403), so the first scheduled run is the end-to-end test.",
+  "notes": "Owner asked for agents to fix GitHub security scan results. v1 ran claude-code-action on ANTHROPIC_API_KEY: rejected (no API-key billing; use the scheduled agents). v2 mirrored alerts into GitHub issues: rejected (file based, easier to process). Final: security-alert-queue.yml writes QUEUE.md + alerts/<n>.md to the security-alerts data branch with GITHUB_TOKEN; prompt.md step 0 sends scheduled sessions there; claim = pushing security-fix/code-scanning-<n>; branch_cleanup protects security-alerts. 5 unit tests + test_branch_cleanup pass; validate_workflows and the repo's actions-* checkers (incl. secret-leak) clean; commit/push shell logic simulated against a local bare repo. Live alerts unreadable from the container (403): first scheduled run is the end-to-end test.",
   "corrections": [],
   "redteam": null
 }

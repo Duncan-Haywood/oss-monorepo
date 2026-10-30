@@ -1,23 +1,24 @@
 name: Security alert queue
 
-# Turns each open code-scanning alert into a `security-alert` issue, and
-# closes the issue once the alert is fixed or dismissed. The fixing is done by
-# the normally scheduled agent sessions: prompt.md ("0. Security alerts
-# first") sends a session to an open one before its usual routing draw.
-# Scheduled sessions cannot read the alerts API themselves, which is why this
-# mirror exists. Requested by the owner on 2026-10-30 as "a work distribution
-# thing from the normally scheduled agents"; no model is called and no paid
-# key is used here. Logic and tests: platform/ci/security_alerts.py.
+# Writes each open code-scanning alert as a file on the data branch
+# `security-alerts` (QUEUE.md plus alerts/<n>.md), and drops the file once the
+# alert is fixed or dismissed. The fixing is done by the normally scheduled
+# agent sessions: prompt.md ("0. Security alerts first") sends a session to the
+# top of the queue before its usual routing draw. Sessions cannot read the
+# alerts API themselves, which is why this mirror exists. Requested by the
+# owner on 2026-10-30 as "a work distribution thing from the normally
+# scheduled agents", file based rather than GitHub issues. No model is called
+# and no paid key is used. Logic and tests: platform/ci/security_alerts.py.
+#
+# Why a separate branch: main's ruleset (.github/rulesets/main.json) takes
+# changes only through a PR, and an hourly PR would be noise. The branch holds
+# only generated files, is never merged, and is protected from
+# branch_cleanup.py. A push made with GITHUB_TOKEN starts no other workflow.
 
 on:
   schedule:
     - cron: "41 * * * *"
   workflow_dispatch:
-    inputs:
-      dry_run:
-        description: List what would be opened and closed without changing issues
-        type: boolean
-        default: false
 
 permissions:
   contents: read
@@ -31,15 +32,44 @@ jobs:
     runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
     timeout-minutes: 5
     permissions:
-      contents: read
+      contents: write # commit the queue to the security-alerts branch
       security-events: read # list code-scanning alerts
-      issues: write # open and close the queue issues
+    env:
+      QUEUE_BRANCH: security-alerts
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
-      - name: Sync alerts to issues
+      - name: Check out the queue branch
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          DRY_RUN: ${{ inputs.dry_run && '--dry-run' || '' }}
-        run: python3 platform/ci/security_alerts.py $DRY_RUN
+        run: |
+          # The helper reads the token from each step's env, so it is never
+          # written to disk or transformed.
+          git config --global credential.helper \
+            '!f() { echo username=x-access-token; echo "password=${GITHUB_TOKEN}"; }; f'
+          url="https://github.com/${GITHUB_REPOSITORY}.git"
+          if git ls-remote --exit-code --heads "$url" "$QUEUE_BRANCH" >/dev/null; then
+            git clone --quiet --depth 1 --branch "$QUEUE_BRANCH" "$url" queue
+          else
+            git init --quiet -b "$QUEUE_BRANCH" queue
+            git -C queue remote add origin "$url"
+          fi
+      - name: Write the queue
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python3 platform/ci/security_alerts.py --out queue
+      - name: Commit if it changed
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd queue
+          git add -A
+          if git diff --cached --quiet; then
+            echo "Queue unchanged."
+            exit 0
+          fi
+          git -c user.name="github-actions[bot]" \
+              -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+              commit --quiet -m "security queue: $(grep -c '^- \[' QUEUE.md || true) open alert(s)"
+          git push --quiet origin "HEAD:refs/heads/${QUEUE_BRANCH}"
