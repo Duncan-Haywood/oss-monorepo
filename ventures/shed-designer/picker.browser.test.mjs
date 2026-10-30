@@ -215,3 +215,40 @@ test('a gallery card shows its drawn picture in the strip; its detail draws the 
   const alts = await page.locator('#pick-dialog .shots img').evaluateAll((is) => is.map((i) => i.getAttribute('alt')));
   assert.ok(alts.every((a) => a && a.length > 10), JSON.stringify(alts));
 });
+
+test('every gallery design, end to end: card, detail with its own reason, compare with another, then start from it', { skip }, async (t) => {
+  const { GALLERY_DESIGNS } = await import('./gallery-data.mjs');
+  const { page } = await open(t);
+  const cards = await page.locator('#starts .pick-open[data-detail]').evaluateAll((bs) => bs.map((b) => b.getAttribute('data-detail')));
+  assert.deepEqual(cards, GALLERY_DESIGNS.map((g) => g.id), 'the strip shows the gallery, in order');
+  const dlg = page.locator('#pick-dialog');
+  for (const g of GALLERY_DESIGNS) {
+    await page.locator(`#starts .pick-open[data-detail="${g.id}"]`).click();
+    await dlg.waitFor({ state: 'visible' });
+    assert.equal(await dlg.locator('.dlg-title').innerText(), g.title, `${g.id}: the detail is titled as the card`);
+    const text = await dlg.innerText();
+    assert.ok(text.includes(g.reason.slice(0, 50)), `${g.id}: the detail gives the gallery's own reason`);
+    const sqft = Number(/Footprint\s+[^\n]*?(\d+) sq ft/.exec(text)?.[1]);
+    assert.ok(sqft > 0 && sqft <= 100, `${g.id}: ${sqft} sq ft, within the 100 sq ft limit`);
+    assert.ok(!/over the size limit/.test(text), `${g.id}: not flagged over the limit`);
+    assert.match(text, /Checks\s+pass/, `${g.id}: passes the structure checks`);
+    await dlg.locator('[data-close]').click();
+    await dlg.waitFor({ state: 'hidden' });
+  }
+  // From one card's detail into the compare with a second, then start from the second.
+  const [a, b] = [GALLERY_DESIGNS[0], GALLERY_DESIGNS[GALLERY_DESIGNS.length - 1]];
+  await page.locator(`#starts .pick-open[data-detail="${a.id}"]`).click();
+  await dlg.locator(`[data-compare="${a.id}"]`).click();
+  await dlg.locator('[data-close]').click();
+  await page.locator(`#starts [data-compare="${b.id}"]`).click();
+  await page.locator('#compare-tray [data-compare-open]').click();
+  await dlg.waitFor({ state: 'visible' });
+  const heads = await dlg.locator('.cmp-head strong').allInnerTexts();
+  assert.deepEqual(heads, [a.title, b.title], 'the compare shows the two gallery designs');
+  const tabs = await page.locator('#design-tabs [role="tab"]').count();
+  await dlg.locator(`.cmp-head [data-start="${b.id}"]`).click();
+  await dlg.waitFor({ state: 'hidden' });
+  assert.equal(await page.locator('#design-tabs [role="tab"]').count(), tabs + 1, 'started as a new design');
+  assert.equal(await page.$eval('#lengthFt', (e) => Number(e.value) * 12), b.design.length);
+  assert.equal(await page.$eval('#widthFt', (e) => Number(e.value) * 12), b.design.width);
+});

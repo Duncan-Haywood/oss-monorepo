@@ -1,6 +1,6 @@
 # Shed Designer round 3b, lane 4: design detail and compare view
 
-Session: https://claude.ai/code/session_01XpHqyg18KFJ7wq52yKE93G (2026-10-30). PRs #11559, #11580, #11610 and this one.
+Session: https://claude.ai/code/session_01XpHqyg18KFJ7wq52yKE93G (2026-10-30). PRs #11559, #11580, #11610, #11627 and the gallery end-to-end test.
 
 ## What landed
 
@@ -39,16 +39,22 @@ All inside the studs, from the top of the subfloor:
 
 Other lanes already build on it: #11602 (cost by assembly) and #11622 (store-kit benchmark in the detail).
 
-## Boundary with the gallery (r3 lane 2, PR #11561, still open as a draft at 02:37)
+## The gallery is wired in (#11561, then this lane's last PR)
 
-The gallery builds its own strip (`#gallery`, `gallery-ui.mjs`, `GALLERY_DESIGNS`: ten designs under 100 sq ft). I messaged its session with this plan; it has not replied. When it lands, the follow-up is small:
+The gallery lane merged its ten designs under 100 sq ft into this panel instead of adding a second strip:
+- `galleryEntries()` in `gallery-ui.mjs` feeds `mountPicker({ entries })`;
+- the strip's cards carry `data-detail` and `data-compare`;
+- `mountStripNav` adds the previous and next buttons;
+- each card's picture is stored in `renders/` (`pictureFor`);
+- the old presets stay in the "Quick new" menu.
 
-1. **Cards:** add a "Details" button (`data-detail="<card id>"`) and a "Compare" toggle (`data-compare="<card id>"`) to each gallery card. `picker.mjs` already handles any element with those attributes.
-2. **Data:** call `picker.setEntries(GALLERY_DESIGNS.map((g) => ({ id: g.id, title, design: g.design, reason: why })))`, with the title and reason from `describeGallery`.
-3. **One strip:** remove the `#starts .pick-list` strip from `index.html`, so the page has one strip; keep `#pick-dialog` and `#compare-tray`. Update the first browser test to open a gallery card.
-4. **Pictures:** gallery designs are not in `renders/`, so they are drawn live. Adding them to `renderTargets(extra)` in `renders.mjs` would give them stored pictures too.
+So steps 1 to 4 of the plan were done there. This lane's last PR adds one browser test that walks every gallery design end to end:
+- the strip lists the gallery in order;
+- each detail is titled as its card and gives the gallery's own reason;
+- each is at or under 100 sq ft, is not flagged over the limit, and passes the structure checks;
+- one card goes into the compare from its detail, a second from the strip, the compare shows both titles, and "Start from this" opens the second with its footprint.
 
-Without the gallery, the strip shows the six old presets. Most are not optimised, and the 10x12 and 12x16 are over the owner's 100 sq ft limit. That is the main gap the follow-up closes.
+Noticed, for the gallery lane: the "Cheapest 8x10" card takes a corrugated metal roof, where the owner asked for asphalt shingles to match the house. Only the "house" cards keep shingles fixed.
 
 ## Still open, smaller
 
