@@ -2,6 +2,19 @@
 
 Newest first.
 
+## 2026-10-30 · Milestone 3c: what does the PVG 32 manual say about how fast the bypass closes? (planned before running)
+- Why: 3b's "Next" was to fit k from a bypass-versus-stroke curve. Opened this session (assets.danfoss.com now resolves): Danfoss PVG 32 Technical Information BC152886483664en-001601, July 2024 (the 2n source was the May 2021 revision), p. 95: "In total neutral position the connection to tank is less than 10 % of the full flow function. But when moving the spool out of neutral position but still within dead band area the connection will close." The same page's flow-versus-stroke curves show zero work-port flow for roughly the first 1.5 to 2 mm of a 7 mm stroke. The manual has **no** bypass-area-versus-stroke curve, so k cannot be fitted; it gives a bound: the bypass is shut before any section opens, which in 3a's terms is a large k.
+- Plan: add k = 5, 10, 20 to `experiments/flow_share_shape.py` (same cycles as 3b).
+- **Prediction (before running):** at p_n 10.9 bar the median penalty is 0% and the dig-phase stall share is under 2% for k >= 3 (prior 75%). Refuted if the median is above 1% at k = 5 or 10.
+
+### Outcome of 3c (`experiments/flow_share_shape_results.txt`, 5 s, seeded)
+- p_n 10.9 bar: median penalty 0.00% for k = 1.5 to 10; p95 0.07% (k 5), 6.69% (k 10); stall share 0.0% for k >= 3. Prediction held for k = 5 and 10.
+- p_n 1.44 bar: median 0% from k = 5, p95 21.6% (k 5), 1.68% (k 10), 0.00% (k 20).
+- **k = 20 at p_n 10.9 is a solver artefact, not physics:** median 8.66%, non-monotone. `section_area` brackets the supply pressure at p_i + 400 bar, above the 250 bar relief; with a huge k the sizing root lies outside it. Do not read k > 10 rows at 10.9 bar.
+- Reading: if the bypass closes inside the dead band, as the manual states, 3a's open-centre cycle-time penalty is small for the PVG 32 neutral drop (median 0, p95 under 7%), and 3a's "6.4%" was a product of k = 1, a closing law the manual contradicts. At the 1.44 bar catalogue-valve drop the penalty survives to k of about 3 to 5. So the cost of open-centre in time is not established; the energy ranking of 2n stands without a time penalty for this valve.
+- Limits: "closes in the dead band" is a qualitative statement read from a manual page, not a curve; k is still a one-number family; the factor-2 stall bound and the sizing-alone assumption remain; the section-sizing solver needs a wider bracket before k > 10 is usable (not fixed here).
+- Next: fix the bracket (or size sections by the manual's rated flows A to E), add the compensator and feathering, then a time-penalised energy ranking.
+
 ## 2026-10-30 · Milestone 3b: is 3a's cycle-time penalty an artefact of the bypass closing law? (planned before running)
 - Why: 3a listed "one bypass shape (area closes linearly with section area)" as a limit. `flow_share.py` now takes k, the bypass area closed per unit of section area (k = 1 is 3a); `experiments/flow_share_shape.py` sweeps k = 0.5, 1, 1.5, 2, 3 at both sourced neutral drops, 5 seeds x 300 cycles (3a used 1,000 per seed, so the k = 1 row differs slightly from 3a).
 - **Prediction (before running):** the 3a median (6.4%) moves by more than a factor of 2 across k = 0.5 to 2: prior 70%. Refuted if it stays within 3.2% to 12.8%.

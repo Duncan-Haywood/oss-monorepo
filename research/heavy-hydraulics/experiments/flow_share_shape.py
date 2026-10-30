@@ -27,9 +27,11 @@ def run(p_n, k, n=300):
             pen.append(100 * (t1 / t0 - 1))
     return pen, dig
 
+KS = (0.5, 1.0, 1.5, 2.0, 3.0, 5.0, 10.0, 20.0)  # 5 to 20 added in 3c: bypass closed inside the dead band
+
 if __name__ == "__main__":
     for p_n in (10.9, 1.44):
-        for k in (0.5, 1.0, 1.5, 2.0, 3.0):
+        for k in KS:
             pen, dig = run(p_n, k)
             srt = sorted(pen)
             print(f"p_n {p_n} k {k}: penalty % median {statistics.median(pen):.2f}, p95 {srt[int(.95*len(srt))]:.2f}; "
