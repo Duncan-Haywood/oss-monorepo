@@ -34,6 +34,16 @@ const amountBucket = (cents) => `amt:${Math.min(12, Math.floor(Math.log2(Math.ab
 // keyword that fits two accounts is left out, so the line goes to review rather
 // than being guessed. `dir` limits a rule to money in or money out.
 export const BUILT_IN = [
+  // Gap probe 6 (2026-10-30, eval/probe6.mjs): cafes and bakeries, solo lawyers and agents, landscaping and cleaning crews, vets and chiropractors, SaaS founders.
+  // Before the older rules so a coffee roaster is supplies, not meals, and a veterinary distributor is supplies, not repairs.
+  ["6100", "out", /royal cup|king arthur (baking|wholesale)|patterson veterinary|idexx|covetrus/],
+  ["6060", "out", /\bclio\b|\bmycase\b|westlaw|skyslope|applied epic|agency bloc|lawn love|yardbook|service ?autopilot|booking koala|maid central|chirotouch|vetsource|plausible analytics|mailgun|linear orbit/],
+  ["6010", "out", /\blawpay\b/],
+  ["6170", "out", /state bar dues|\bmls fees?\b|\bavma\b dues|avma dues/],
+  ["6110", "out", /insurance dept(artment)? licen[cs]e|dea registration/],
+  ["4000", "in", /commission.*closing|closing.*title co/],
+  ["6160", "out", /shell fleet|wex fleet|fuelman/],
+  ["6050", "out", /\bcarta\b|stripe atlas|firstbase/],
   // Pressure washing and window cleaning (2026-10-30, pressurewash.test.mjs; agent-written from the companies' public names, not from a real export):
   // Jobber payouts and HOA or property-manager Zelles are sales; washer gear, cleaning chemicals and squeegees are supplies (a bare "sodium hypochlorite" line is chemicals, not a pool bill).
   ["4000", "in", /jobber payout|zelle from .*(\bhoa\b|property (mgmt|management)|apartments)/],
