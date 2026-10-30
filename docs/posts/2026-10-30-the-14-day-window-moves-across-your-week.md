@@ -2,7 +2,7 @@
 title: "The 14-day scheduling window moves across your week"
 date: 2026-10-30
 tags: [shift-roster-builder, scheduling, evaluation]
-description: "On an invented seven-person cafe, the same call-out costs $0 in premium pay 15 days out, $50 to $88 ten days out and $68 to $174 three days out, because notice is counted per shift."
+description: "On an invented cafe the same call-out owes $0 in premium 15 days out, $50 to $88 at 10 days and $68 to $174 at 3 days, because notice is counted per shift."
 ---
 
 Predictive-scheduling rules in cities such as Seattle, Chicago and New York usually ask for about 14 days of notice and attach a premium to changes inside that window. The window is counted shift by shift, so a change made ten days before Monday is late for the first four days of the week and early for the weekend.
