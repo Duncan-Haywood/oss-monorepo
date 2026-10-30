@@ -9,7 +9,6 @@
 import { sheetSvg } from './drawings.mjs';
 import { WALLS, WALL_LABEL } from './model.mjs';
 import { BANDS, UNCHECKED, bandOf } from './utilisation.mjs';
-import { fmtUse } from './checks.mjs';
 
 /** @typedef {import('./drawings.mjs').Sheet} Sheet */
 /** @typedef {import('./utilisation.mjs').Use} Use */
@@ -54,7 +53,7 @@ export function heatSheets(shed, heat) {
     }
     for (const [u, pts] of by) {
       const at = pts[Math.floor(pts.length / 2)];
-      items.push(label(/** @type {[number, number]} */ ([at[0], at[1]]), `${u.member.replace(/^Header over the /, 'Header ')} ${fmtUse(u.ratio)}`));
+      items.push(label(/** @type {[number, number]} */ ([at[0], at[1]]), `${u.member.replace(/^Header over the /, 'Header ')} ${Math.round(u.ratio * 100)}%`));
     }
   };
   const legend = (items, x, y) => {
