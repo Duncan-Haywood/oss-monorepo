@@ -141,6 +141,30 @@
       <h2>Money &amp; taxes</h2>
       <div class="grid"><div><label for="taxYear">Tax year</label><select id="taxYear"></select></div></div>
       <div id="taxOut"></div>
+      <h3>Federal estimate and safe-harbor payments</h3>
+      <form id="fedForm">
+        <div class="grid">
+          <div><label for="fx_filing">Filing status</label><select id="fx_filing" name="filing"><option value="single">Single</option><option value="hoh">Head of household</option><option value="mfj">Married filing jointly</option></select></div>
+          <div><label for="fx_wages">Your W-2 wages this year</label><input id="fx_wages" name="wages" type="number" step="0.01" min="0"></div>
+          <div><label for="fx_spouse">Spouse's W-2 wages (joint)</label><input id="fx_spouse" name="spouseWages" type="number" step="0.01" min="0"></div>
+          <div><label for="fx_other">Other income</label><input id="fx_other" name="otherIncome" type="number" step="0.01"></div>
+          <div><label for="fx_withheld">Federal tax withheld from paychecks</label><input id="fx_withheld" name="withholding" type="number" step="0.01" min="0"></div>
+          <div><label for="fx_prior">Last year's total tax (Form 1040)</label><input id="fx_prior" name="priorYearTax" type="number" step="0.01" min="0"></div>
+          <div><label for="fx_priorAgi">Last year's AGI</label><input id="fx_priorAgi" name="priorAgi" type="number" step="0.01" min="0"></div>
+        </div>
+        <label style="display:inline"><input type="checkbox" id="fx_project" checked> Project the year so far to a full year</label>
+        <button type="submit">Save and estimate</button>
+      </form>
+      <div id="fedOut"></div>
+      <form id="estPayForm">
+        <div class="grid">
+          <div><label for="ep_date">Estimated payment sent on</label><input id="ep_date" name="date" type="date" required></div>
+          <div><label for="ep_amount">Amount</label><input id="ep_amount" name="amount" type="number" step="0.01" min="0.01" required></div>
+        </div>
+        <button type="submit">Record estimated payment</button>
+      </form>
+      <p><button type="button" id="schedCBtn" class="secondary">Download Schedule C worksheet (.csv)</button><button type="button" id="yearPrintBtn" class="secondary">Print year summary</button></p>
+      <div id="schedCOut"></div>
       <h3>Record a payment</h3>
       <form id="payForm">
         <div class="grid">
@@ -288,6 +312,7 @@
 
   <script type="module">
     import * as E from "./engine.mjs";
+    import * as TX from "./taxes.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const STORE = "babysitting-business-kit-desk";
@@ -470,6 +495,7 @@
       ty.innerHTML = years.map((y) => `<option>${y}</option>`).join("");
       ty.value = years.includes(keep) ? keep : years[0];
       renderTax();
+      renderFederal();
       $("expensesList").innerHTML = table(["Date", "What", { t: "Amount", n: 1 }, ""], desk.expenses.slice().sort((a, b) => String(b.date).localeCompare(a.date)).map((x) => `<tr><td>${esc(x.date)}</td><td>${esc(E.EXPENSE_CATEGORIES[x.category] || x.category)}${x.note ? `: ${esc(x.note)}` : ""}${x.miles ? ` (${esc(x.miles)} mi)` : ""}</td><td class="n">${x.amount ? money(x.amount) : ""}</td><td>${actions("expenses", x.id, "expenseForm")}</td></tr>`));
       renderStatement();
 
@@ -495,7 +521,55 @@
         <h3>Unpaid</h3>${table(["Sit", { t: "Owed", n: 1 }, "Days"], t.unpaid.map((u) => `<tr><td>${esc(u.booking.date)} ${esc(famName(u.booking.familyId))}</td><td class="n">${money(u.owed)}</td><td>${u.days}</td></tr>`))}
         <h3>Things to know</h3><ul>${t.flags.map((f) => `<li>${esc(f)}</li>`).join("")}</ul>`;
     }
-    $("taxYear").addEventListener("change", () => { renderTax(); renderStatement(); });
+    $("taxYear").addEventListener("change", () => { renderTax(); renderFederal(); renderStatement(); });
+    // ---- federal estimate, safe harbor, Schedule C (taxes.mjs)
+    const taxYearNow = () => Number($("taxYear").value || today().slice(0, 4));
+    function taxStore() { const t = desk.profile.taxes = desk.profile.taxes || {}; t.years = t.years || {}; t.payments = t.payments || []; return t; }
+    function renderFederal() {
+      const y = taxYearNow(), inp = TX.taxInputs(desk, y), f = $("fedForm");
+      if (document.activeElement?.form !== f) for (const k of ["filing", "wages", "spouseWages", "otherIncome", "withholding", "priorYearTax", "priorAgi"]) f.elements[k].value = inp[k] ?? (k === "filing" ? "single" : "");
+      const e = TX.federalEstimate(desk, y, { today: today(), project: $("fx_project").checked });
+      const sh = TX.safeHarbor(desk, y, { today: today(), estimate: e });
+      $("fedOut").innerHTML = `
+        <p><span class="stat">Federal estimate<b>${money(e.total)}</b><span class="note">${e.effectiveRate}% of income</span></span><span class="stat">Self-employment tax<b>${money(e.se.tax)}</b></span><span class="stat">Income tax<b>${money(e.incomeTax)}</b><span class="note">${Math.round(e.marginal * 100)}% bracket</span></span><span class="stat">Conservative set-aside<b>${money(e.setAside)}</b><span class="note">incl. state</span></span><span class="stat">Still to pay<b>${money(Math.max(0, e.balance))}</b></span></p>
+        <p class="note">${esc(e.filingLabel)}: Schedule C profit ${money(e.profit)}${e.projected ? " (projected)" : ""} - half SE tax ${money(e.halfSe)}${e.wages + e.spouseWages ? ` + wages ${money(e.wages + e.spouseWages)}` : ""}${e.otherIncome ? ` + other ${money(e.otherIncome)}` : ""} = AGI ${money(e.agi)}; - standard deduction ${money(e.standardDeduction)} - QBI ${money(e.qbi)} = taxable ${money(e.taxable)}. Withheld ${money(e.withholding)}, estimates paid ${money(e.paidEstimates)}. IRS brackets for the year; federal only.</p>
+        <p>Required by the safe harbor: <b>${money(sh.required)}</b> (${esc(sh.basis)}).</p>
+        ${table(["Due", { t: "Needed by then", n: 1 }, { t: "Paid by then", n: 1 }, { t: "Pay", n: 1 }], sh.quarters.map((q) => `<tr><td>Q${q.quarter} ${q.due}${q.past ? ' <span class="note">(past)</span>' : ""}</td><td class="n">${money(q.requiredCum)}</td><td class="n">${money(q.paidCum)}</td><td class="n">${q.past ? (q.shortfall ? `<span class="pill bad">short ${money(q.shortfall)}</span>` : "") : money(q.toPay)}</td></tr>`))}
+        ${sh.payments.length ? table(["Estimated payment", { t: "Amount", n: 1 }, ""], sh.payments.map((p) => `<tr><td>${esc(p.date)}</td><td class="n">${money(p.amount)}</td><td><button type="button" class="secondary small" data-estdel="${esc(p.id)}">Delete</button></td></tr>`)) : ""}
+        <ul class="note">${[...sh.notes, ...e.warnings].map((w) => `<li>${esc(w)}</li>`).join("")}</ul>`;
+      const c = TX.scheduleC(desk, y, today());
+      $("schedCOut").innerHTML = table(["Schedule C line", "What", { t: "Amount", n: 1 }], [...c.lines.map((l) => `<tr><td>${esc(l.line)} ${esc(l.label)}</td><td>${esc(l.description)}</td><td class="n">${money(l.amount)}</td></tr>`), `<tr><td>31 Net profit</td><td></td><td class="n"><b>${money(c.netProfit)}</b></td></tr>`]);
+    }
+    $("fedForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const o = readForm(e.target), t = taxStore();
+      t.filing = o.filing; delete o.filing;
+      t.years[taxYearNow()] = o;
+      record("tax_estimate_saved");
+      save();
+    });
+    $("fx_project").addEventListener("change", renderFederal);
+    $("estPayForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const o = readForm(e.target);
+      taxStore().payments.push({ id: E.newId("est"), year: taxYearNow(), date: o.date, amount: Number(o.amount) });
+      e.target.reset();
+      record("estimated_payment_recorded");
+      save();
+    });
+    $("fedOut").addEventListener("click", (e) => {
+      const id = e.target.dataset && e.target.dataset.estdel;
+      if (id && confirm("Delete this payment?")) { taxStore().payments = taxStore().payments.filter((p) => p.id !== id); save(); }
+    });
+    $("schedCBtn").addEventListener("click", () => { download(`schedule-c-${taxYearNow()}.csv`, TX.scheduleCCSV(desk, taxYearNow(), today()), "text/csv"); record("schedule_c_csv"); });
+    $("yearPrintBtn").addEventListener("click", () => {
+      const fr = document.createElement("iframe");
+      fr.style.display = "none";
+      fr.srcdoc = TX.yearSummaryHTML(desk, taxYearNow(), today());
+      fr.onload = () => { fr.contentWindow.print(); setTimeout(() => fr.remove(), 60000); };
+      document.body.appendChild(fr);
+      record("year_summary_printed");
+    });
     function renderStatement() {
       const id = $("stmtFamily").value;
       $("stmtOut").textContent = id ? E.familyStatement(desk, id, Number($("taxYear").value || today().slice(0, 4))).text : "Add a family first.";
