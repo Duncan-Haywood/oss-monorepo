@@ -70,3 +70,39 @@ def plan_audit(f_all, pilot_y, n, tau=TAU, guard=GUARD, floor=FLOOR):
     alloc = cell_allocation(n, [len(c) for c in cells], s2, floor)
     return {"design": "cells", "cells": cells,
             "to_label": [max(0, a - sum(1 for i in c if i in pilot_y)) for a, c in zip(alloc, cells)]}
+
+
+def audit_interval(plan, f_all, labels, z=1.959964):
+    """The interval that closes `plan_audit`: (estimate, low, high) for the corpus prevalence. labels: {item index:
+    human 0/1} for the pilot plus the items drawn from `to_label`. Estimator of 6ac and 6ad: one control-variate weight
+    lambda = cov(y, f) / var(f) clipped to [0, 1], pooled over the audited items, applied in every cell; the stratified
+    variance (with finite-population correction); then a Wilson interval on n_eff = p(1-p) / se^2 labels. Needs at
+    least two labelled items in each cell."""
+    import math
+    cells = plan["cells"]
+    ys = [[labels[i] for i in c if i in labels] for c in cells]
+    fs = [[f_all[i] for i in c if i in labels] for c in cells]
+    if any(len(y) < 2 for y in ys):
+        raise ValueError("each cell needs at least two labelled items")
+    ay = [v for y in ys for v in y]
+    af = [v for f in fs for v in f]
+    mf = sum(af) / len(af)
+    vf = sum((v - mf) ** 2 for v in af) / (len(af) - 1)
+    my = sum(ay) / len(ay)
+    lam = 0.0 if vf == 0 else min(1.0, max(0.0, sum((a - my) * (b - mf) for a, b in zip(ay, af)) / (len(ay) - 1) / vf))
+    total = sum(len(c) for c in cells)
+    value = var = 0.0
+    for c, y, f in zip(cells, ys, fs):
+        r = [a - lam * b for a, b in zip(y, f)]
+        mr = sum(r) / len(r)
+        v = sum((x - mr) ** 2 for x in r) / (len(r) - 1)
+        w = len(c) / total
+        value += w * (lam * sum(f_all[i] for i in c) / len(c) + mr)
+        var += w * w * (1 - len(y) / len(c)) * v / len(y)
+    se = math.sqrt(var)
+    p = min(0.9995, max(0.0005, value))
+    n = p * (1 - p) / max(se, 1e-9) ** 2
+    d = 1 + z * z / n
+    mid = (p + z * z / (2 * n)) / d
+    half = z * math.sqrt(p * (1 - p) / n + z * z / (4 * n * n)) / d
+    return value, mid - half, mid + half

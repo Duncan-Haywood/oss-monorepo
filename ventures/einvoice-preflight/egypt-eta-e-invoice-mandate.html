@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e551b'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EE%3C/text%3E%3C/svg%3E"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Egypt e-invoicing: ETA e-invoices and e-receipts, tax registration number, free format check | E-invoice Preflight</title>
+<meta name="description" content="Egypt's Tax Authority runs an electronic invoice system for B2B and B2G sales and e-receipts for B2C, with signed documents validated by the ETA. How it works as secondary guides describe it, where this page's sources are thin, and a free tax registration number format check.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/egypt-eta-e-invoice-mandate.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Egypt e-invoicing: ETA e-invoices and e-receipts, tax registration number, free format check | E-invoice Preflight">
+<meta property="og:description" content="Egypt's Tax Authority runs an electronic invoice system for B2B and B2G sales and e-receipts for B2C, with signed documents validated by the ETA. How it works as secondary guides describe it, where this page's sources are thin, and a free tax registration number format check.">
+<meta property="og:url" content="https://example.invalid/einvoice-preflight/egypt-eta-e-invoice-mandate.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is Egypt's ETA e-invoicing system?","acceptedAnswer":{"@type":"Answer","text":"The Egyptian Tax Authority's electronic invoicing and e-receipt system. B2B and B2G invoices are issued as structured documents (JSON or XML, per guides), signed with the taxpayer's own electronic seal, and sent to the ETA, which validates them and returns a UUID before the invoice counts. B2C sales use a separate e-receipt flow. This is how secondary guides describe it; the ETA's SDK and the Ministry of Finance resolutions were not read for this page."}},{"@type":"Question","name":"When did it start and who is covered?","acceptedAnswer":{"@type":"Answer","text":"Guides report a phased B2B rollout that began with large taxpayers in late 2020 and 2021 and widened in waves, and an e-receipt rollout for B2C that began in 2022 and was extended to more taxpayers in 2025. Dates differ between sources, so check the ETA's current notices for your group before relying on any date."}},{"@type":"Question","name":"What does an Egyptian tax registration number look like?","acceptedAnswer":{"@type":"Answer","text":"Guides report nine digits, often written XXX-XXX-XXX. No public check-digit rule was found, so this page tests shape only; a match does not mean the number is registered or belongs to the name on the invoice. Guides also say an unregistered B2C buyer is entered with a placeholder value, which this page does not check."}},{"@type":"Question","name":"Can this checker validate an Egyptian e-invoice?","acceptedAnswer":{"@type":"Answer","text":"No. It does not read the ETA's JSON or XML document format, does not sign or submit anything, and has no Egyptian rules. It tests a registration number's shape on this page, and a clean result is not an approval by the Egyptian Tax Authority."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch}.lede{font-size:1.05rem;max-width:64ch;color:#3d4f5f}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #15202b10;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #d3dbe4;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#3d4f5f}.fine,.note{font-size:.88rem;color:#3d4f5f}footer{color:#3d4f5f;font-size:.86rem}footer p{margin:.6rem 0}.out{min-height:1.4em}.good{color:#0a6b3a;font-weight:600}.bad{color:#a12d1b}input{font:inherit;padding:.4rem .5rem;border:1px solid #9fb0c0;border-radius:8px}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; E-invoice Preflight</a></p>
+<header>
+<h1>Egypt: ETA e-invoices and e-receipts</h1>
+<p class="lede">In Egypt, per the guides read, B2B and B2G sales are invoiced through the Egyptian Tax Authority&rsquo;s electronic system, signed with the seller&rsquo;s own seal and validated by the ETA, while B2C sales use e-receipts. Below: how it works as secondary guides describe it, where this page&rsquo;s knowledge is thin, and a local check of a tax registration number&rsquo;s shape.</p>
+</header>
+<section>
+<h2>How it works (as secondary guides report)</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Step</th><th scope="col">What happens</th></tr></thead>
+<tbody>
+<tr><td>Issue</td><td>The seller&rsquo;s billing system builds the invoice as a JSON or XML document, signs it (B2B invoices) with the taxpayer&rsquo;s electronic seal and submits it to the ETA in real time.</td></tr>
+<tr><td>Validate</td><td>The ETA validates the document and returns a UUID; guides say the invoice is not valid until then, and credit and debit notes refer back to that UUID.</td></tr>
+<tr><td>Who</td><td>VAT-registered businesses, rolled out in waves by taxpayer group from large taxpayers outward. Guides disagree on dates and one reports a lower registration threshold from 2026; none of this was read from the ETA.</td></tr>
+<tr><td>Identify</td><td>Seller and buyer are identified by the nine-digit tax registration number. For B2C a placeholder is reported for buyers with no number.</td></tr>
+<tr><td>B2C</td><td>Retail sales to consumers go through a separate e-receipt flow, extended to more taxpayers in stages (2022, then 2025 per guides).</td></tr>
+</tbody>
+</table>
+</div>
+<p class="fine">Written from web search summaries and vendor guides (EDICOM, Fonoa, ClearTax, GS1 Egypt, lookuptax.com), not from the Ministry of Finance resolutions or the ETA&rsquo;s SDK, none of which were read for this page. Dates, scope, thresholds and penalties may have changed; treat every date and figure as a lead to check.</p>
+</section>
+<section>
+<h2>Check a tax registration number</h2>
+<p>Tests the shape (nine digits; spaces and hyphens are ignored). It does not look anything up, so it cannot say whether the number is registered, active, or belongs to the name on the invoice.</p>
+<label>Tax registration number <input id="id" size="14" maxlength="14" autocomplete="off" spellcheck="false" placeholder="123-456-789"></label>
+<p id="id-out" class="out" aria-live="polite"></p>
+<p class="fine">The shape is as secondary guides (lookuptax.com and GS1 Egypt among them) describe it. No check-digit rule was found, and nothing was read from the ETA&rsquo;s own pages.</p>
+</section>
+<section>
+<h2>What this checker does and does not cover</h2>
+<p>The main checker reads UBL, CII and Factur-X and applies EN 16931 and Peppol rules. It does <strong>not</strong> read the ETA&rsquo;s document format, sign or submit anything, or have Egyptian codes. Treat the number test here as a typo catch only.</p>
+</section>
+<section>
+<h2>Test a file before you send it</h2>
+<p>For a European or Peppol invoice, open the <a href="./">checker</a>, drop your XML and read the findings, each with a rule ID and a fix (<a href="what-does-this-e-invoice-error-code-mean.html">the rule reference</a>). No account, nothing uploaded. No invoice yet? The <a href="create.html">e-invoice creator</a> turns a form into UBL or CII XML and checks it. Other countries: <a href="e-invoicing-mandates-by-country.html">all mandates by country</a>.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>What is Egypt's ETA e-invoicing system?</h3>
+<p>The Egyptian Tax Authority's electronic invoicing and e-receipt system. B2B and B2G invoices are issued as structured documents (JSON or XML, per guides), signed with the taxpayer's own electronic seal, and sent to the ETA, which validates them and returns a UUID before the invoice counts. B2C sales use a separate e-receipt flow. This is how secondary guides describe it; the ETA's SDK and the Ministry of Finance resolutions were not read for this page.</p>
+<h3>When did it start and who is covered?</h3>
+<p>Guides report a phased B2B rollout that began with large taxpayers in late 2020 and 2021 and widened in waves, and an e-receipt rollout for B2C that began in 2022 and was extended to more taxpayers in 2025. Dates differ between sources, so check the ETA's current notices for your group before relying on any date.</p>
+<h3>What does an Egyptian tax registration number look like?</h3>
+<p>Guides report nine digits, often written XXX-XXX-XXX. No public check-digit rule was found, so this page tests shape only; a match does not mean the number is registered or belongs to the name on the invoice. Guides also say an unregistered B2C buyer is entered with a placeholder value, which this page does not check.</p>
+<h3>Can this checker validate an Egyptian e-invoice?</h3>
+<p>No. It does not read the ETA's JSON or XML document format, does not sign or submit anything, and has no Egyptian rules. It tests a registration number's shape on this page, and a clean result is not an approval by the Egyptian Tax Authority.</p>
+<p class="note">Open the <a href="./">E-invoice Preflight</a> checker to validate your own invoice file.</p>
+</section>
+<section>
+<h2>More countries</h2>
+<p><a href="australia-e-invoice-mandate.html">Australia</a> <a href="austria-e-invoice-mandate.html">Austria</a> <a href="belgium-e-invoice-mandate.html">Belgium</a> <a href="brazil-nfe-e-invoice-mandate.html">Brazil</a> <a href="bulgaria-e-invoice-mandate.html">Bulgaria</a> <a href="croatia-e-invoice-mandate.html">Croatia</a> <a href="cyprus-e-invoice-mandate.html">Cyprus</a> <a href="czech-republic-e-invoice-mandate.html">Czech Republic</a> <a href="denmark-e-invoice-mandate.html">Denmark</a> <a href="estonia-e-invoice-mandate.html">Estonia</a> <a href="finland-e-invoice-mandate.html">Finland</a> <a href="france-e-invoice-mandate.html">France</a> <a href="germany-e-invoice-mandate.html">Germany</a> <a href="greece-mydata-e-invoice-mandate.html">Greece</a> <a href="hungary-e-invoice-mandate.html">Hungary</a> <a href="ireland-e-invoice-mandate.html">Ireland</a> <a href="israel-allocation-number-e-invoice-mandate.html">Israel</a> <a href="italy-sdi-e-invoice-mandate.html">Italy</a> <a href="latvia-e-invoice-mandate.html">Latvia</a> <a href="lithuania-e-invoice-mandate.html">Lithuania</a> <a href="luxembourg-e-invoice-mandate.html">Luxembourg</a> <a href="malta-e-invoice-mandate.html">Malta</a> <a href="netherlands-e-invoice-mandate.html">Netherlands</a> <a href="norway-e-invoice-mandate.html">Norway</a> <a href="poland-ksef-e-invoice-mandate.html">Poland</a> <a href="portugal-e-invoice-mandate.html">Portugal</a> <a href="romania-e-factura-e-invoice-mandate.html">Romania</a> <a href="serbia-e-invoice-mandate.html">Serbia</a> <a href="singapore-invoicenow-e-invoice-mandate.html">Singapore Invoicenow</a> <a href="slovakia-e-invoice-mandate.html">Slovakia</a> <a href="south-korea-e-invoice-mandate.html">South Korea</a> <a href="egypt-eta-e-invoice-mandate.html">Egypt</a> <a href="kenya-etims-e-invoice-mandate.html">Kenya</a> <a href="slovenia-e-invoice-mandate.html">Slovenia</a> <a href="spain-verifactu-e-invoice-mandate.html">Spain</a> <a href="switzerland-e-invoice-mandate.html">Switzerland</a> <a href="uk-e-invoice-mandate.html">Uk</a> <a href="india-gst-e-invoice-mandate.html">India</a> <a href="malaysia-myinvois-e-invoice-mandate.html">Malaysia</a> <a href="saudi-arabia-zatca-e-invoice-mandate.html">Saudi Arabia</a> <a href="sweden-e-invoice-mandate.html">Sweden</a> <a href="turkey-e-invoice-mandate.html">Turkey</a> <a href="uae-e-invoice-mandate.html">United Arab Emirates</a> <a href="peru-sunat-e-invoice-mandate.html">Peru</a> <a href="chile-sii-e-invoice-mandate.html">Chile</a> <a href="colombia-dian-e-invoice-mandate.html">Colombia</a> <a href="uruguay-dgi-e-invoice-mandate.html">Uruguay</a> <a href="paraguay-dnit-e-invoice-mandate.html">Paraguay</a> <a href="ecuador-sri-e-invoice-mandate.html">Ecuador</a></p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or accounting advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for.</p>
+<p><strong>Nothing leaves your browser.</strong> Every check runs locally. This page is static and summarises the Egyptian position from web search summaries and guides, not from the resolutions or the Egyptian Tax Authority&rsquo;s pages; things can change, so check the Egyptian Tax Authority and the current rules before relying on it.</p>
+<p class="support">Free and open source. If it caught a defect before a rejection, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+</footer>
+<script type="module">
+import{checkEgyptTrn}from"./egypt.mjs";
+const $=i=>document.getElementById(i);
+const esc=t=>String(t).replace(/[&<>"']/g,c=>"&#"+c.charCodeAt(0)+";");
+function r(){const v=$("id").value;if(!v.trim()){$("id-out").innerHTML="";return}const x=checkEgyptTrn(v);$("id-out").innerHTML=x.ok?'<span class="good">Shape is consistent (no check digit is tested).</span>':x.problems.map(p=>`<span class="bad">${esc(p)}</span>`).join("<br>")}
+$("id").addEventListener("input",r);
+</script>
+</body>
+</html>

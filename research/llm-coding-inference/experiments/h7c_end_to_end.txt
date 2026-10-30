@@ -1,0 +1,21 @@
+GoEmotions admiration: corpus 6683, prevalence 0.0811: n | coverage % | mean half-width pts | share of draws using cells | mean humans used
+GoEmotions admiration | 400 | 96.0 | 2.362 | 0.00 | 400.0
+GoEmotions admiration | 1000 | 92.0 | 1.152 | 0.87 | 1000.0
+GoEmotions neutral: corpus 6683, prevalence 0.2327: n | coverage % | mean half-width pts | share of draws using cells | mean humans used
+GoEmotions neutral | 400 | 95.2 | 3.947 | 0.10 | 400.0
+GoEmotions neutral | 1000 | 94.8 | 2.385 | 0.03 | 1000.0
+GoEmotions fear: corpus 6683, prevalence 0.0115: n | coverage % | mean half-width pts | share of draws using cells | mean humans used
+GoEmotions fear | 400 | 94.4 | 1.014 | 0.00 | 400.0
+GoEmotions fear | 1000 | 95.6 | 0.603 | 0.00 | 1000.0
+GoEmotions sadness: corpus 6683, prevalence 0.0230: n | coverage % | mean half-width pts | share of draws using cells | mean humans used
+GoEmotions sadness | 400 | 94.0 | 1.327 | 0.00 | 400.0
+GoEmotions sadness | 1000 | 95.8 | 0.784 | 0.00 | 1000.0
+NaijaSenti Qwen2.5-0.5B-Instruct: corpus 6000, prevalence 0.3272: n | coverage % | mean half-width pts | share of draws using cells | mean humans used
+NaijaSenti Qwen2.5-0.5B-Instruct | 400 | 96.0 | 4.420 | 0.00 | 400.0
+NaijaSenti Qwen2.5-0.5B-Instruct | 1000 | 94.4 | 2.648 | 0.00 | 1000.0
+NaijaSenti Qwen2.5-1.5B-Instruct: corpus 6000, prevalence 0.3272: n | coverage % | mean half-width pts | share of draws using cells | mean humans used
+NaijaSenti Qwen2.5-1.5B-Instruct | 400 | 96.2 | 4.310 | 0.18 | 400.0
+NaijaSenti Qwen2.5-1.5B-Instruct | 1000 | 95.2 | 2.587 | 0.04 | 1000.0
+NaijaSenti Qwen2.5-3B-Instruct: corpus 6000, prevalence 0.3272: n | coverage % | mean half-width pts | share of draws using cells | mean humans used
+NaijaSenti Qwen2.5-3B-Instruct | 400 | 96.6 | 4.362 | 0.00 | 400.0
+NaijaSenti Qwen2.5-3B-Instruct | 1000 | 94.6 | 2.612 | 0.00 | 1000.0

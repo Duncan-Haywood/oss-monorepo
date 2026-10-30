@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%235f1b7e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3ES%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Daycare Staff Schedule: Cover Ratios With A Small Team</title>
+  <meta name="description" content="How to schedule childcare staff to cover opening, core hours and pickup, with a worked five-person week from real builder output: 23 of 30 blocks covered, then 29 once split shifts are allowed. Free, private.">
+  <meta property="og:title" content="Daycare Staff Schedule: Opening, Core Hours, Pickup">
+  <meta property="og:description" content="A worked five-person childcare week with real builder output.">
+  <link rel="canonical" href="./daycare-staff-schedule.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I schedule to a child-to-staff ratio?", "acceptedAnswer": {"@type": "Answer", "text": "Set the people needed for each block to the number of adults your ratio requires for the children expected then. The builder treats it as a head count to cover and reports blocks it cannot fill. It does not know your state's ratio rules; check your licensing agency."}}, {"@type": "Question", "name": "Why did a back-to-back block count as a rest violation?", "acceptedAnswer": {"@type": "Answer", "text": "The builder's rest rule is measured between one shift's end and the next shift's start. A 7 to 9 block followed directly by a 9 to 3 block leaves no rest, so the same person cannot take both under a 10-hour rest rule. Either set the rest hours to 0 for same-day splits, or enter the day as one continuous shift."}}, {"@type": "Question", "name": "Can it handle part-time staff and students?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Give each person their weekly hour limit and the days and hours they can work. It does not know minor-labor hour rules, so enter the limits that apply to your team."}}]}</script>
+
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2330; background: #f2f4f7; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.05; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #1f5f86; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d9dfe6; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 14px; border-radius: 8px; background: #1f5f86; color: #ffffff; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4c5a68; }
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; Shift roster builder</a></p>
+  <h1>Daycare staff schedule: covering opening, core hours and pickup</h1>
+  <p>A small childcare centre needs a minimum number of adults in the room all day, so the schedule is a coverage problem: one person to open, three for the core hours, two for close and pickup. The useful question is which blocks you cannot staff with the team you have, and why, before the week is posted.</p>
+  <p><a class="cta" href="./">Open the free roster builder</a></p>
+  <h2>A worked example</h2>
+  <p>An invented centre has five people (wages $19, $17, $18, $16 and $17 an hour) and three blocks a day, Monday to Friday: 7 to 9 with one adult, 9 to 3 with three, 3 to 6 with two, 30 adult-shifts in all. Dana and Eli can work Monday to Friday 7 to 6, Fran Monday to Thursday, Gabe Monday to Friday 12 to 6 and Hana Tuesday to Friday 7 to 1. This is the CLI's real output with the default 10-hour rest rule:</p>
+  <table>
+    <tr><th>Person</th><th>Shifts</th></tr>
+    <tr><td>Dana</td><td>Core hours Monday to Friday</td></tr>
+    <tr><td>Eli</td><td>Core hours Monday to Friday</td></tr>
+    <tr><td>Fran</td><td>Core hours Monday to Thursday</td></tr>
+    <tr><td>Gabe</td><td>Close and pickup, every day</td></tr>
+    <tr><td>Hana</td><td>Early open Tuesday to Friday</td></tr>
+  </table>
+  <p>23 of 30 adult-shifts are covered for $1,888 with no overtime. Seven stay open, among them Monday's early open and a second adult at every pickup. The reason it gives is the useful part: the people who are free are blocked because 9 am straight after a 7 to 9 block leaves no rest, so no one can open and also work the core hours.</p>
+  <p>Setting rest to 0 hours, which is what a same-day split shift really is, covers 29 of 30 for $2,195. The one gap is Friday core hours, where the two people left have used their weekly hours. That is a hiring or hours decision: about $307 more for six more covered adult-shifts, and a clear answer on where one more part-timer would help.</p>
+  <p>Hand-building this usually hides the pickup shortfall until the week starts. Listing the open blocks with reasons first turns it into a decision.</p>
+  <p><a class="cta" href="./">Try it with your own team</a></p>
+  <h2>Questions</h2>
+  <h3>How do I schedule to a child-to-staff ratio?</h3>
+  <p>Set the people needed for each block to the number of adults your ratio requires for the children expected then. The builder treats it as a head count to cover and reports blocks it cannot fill. It does not know your state's ratio rules; check your licensing agency.</p>
+  <h3>Why did a back-to-back block count as a rest violation?</h3>
+  <p>The builder's rest rule is measured between one shift's end and the next shift's start. A 7 to 9 block followed directly by a 9 to 3 block leaves no rest, so the same person cannot take both under a 10-hour rest rule. Either set the rest hours to 0 for same-day splits, or enter the day as one continuous shift.</p>
+  <h3>Can it handle part-time staff and students?</h3>
+  <p>Yes. Give each person their weekly hour limit and the days and hours they can work. It does not know minor-labor hour rules, so enter the limits that apply to your team.</p>
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not legal, tax or financial advice. It does not model child-to-staff ratios, licensing or minor-labor rules. The example is invented.</p>
+    <p>Everything the roster builder does runs in your browser; your staff list is never uploaded. Free and open source: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional. Related: <a href="how-to-make-an-employee-schedule.html">how to make an employee schedule</a>, <a href="whose-availability-is-worth-widening.html">whose availability to widen</a>.</p>
+  </footer>
+</body>
+</html>
