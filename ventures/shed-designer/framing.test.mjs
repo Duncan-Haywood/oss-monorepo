@@ -88,3 +88,14 @@ test('sliding moves are offered with their saving, and the budget search takes t
   assert.ok(labels.filter((l) => /into a stud bay/.test(l)).length === 2, labels.join('; '));
   assert.ok(r.best.ok);
 });
+
+// The header load and the eave-wall load the stud check uses are one number
+// (trusses add half the attic's bottom-chord load).
+test('a header carries the same eave-wall load as the studs, for every roof type', async () => {
+  const { eaveRoofPlf } = await import('./checks.mjs');
+  for (const roofType of ['ridgeBeam', 'ridgeBoard', 'truss']) {
+    const s = buildShed({ ...defaultDesign(), roofType });
+    const e = eaveRoofPlf(s);
+    assert.ok(Math.abs(headerLoadPlf(s.design, 'front') - (e.dead + e.snow + 10)) < 1e-9, roofType);
+  }
+});

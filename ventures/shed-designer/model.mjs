@@ -19,7 +19,7 @@ import { actual, ceil16, TWO_BY, DEFAULT_LENGTHS_FT, fmtFtIn as fmtFt, fmtIn } f
 import { lumberCostOf } from './estimate.mjs';
 import { productById } from './products.mjs';
 import { headerCheck } from './structure.mjs';
-import { needsKingPost } from './truss.mjs';
+import { needsKingPost, trussForces } from './truss.mjs';
 import { LAP_PRODUCTS, layoutFace, lapStocks, lapStagger, evenExposure } from './lap.mjs';
 import { bbox } from './integrity.mjs';
 import { pickFinish, SIDING_FINISHES, TRIM_FINISHES, DOOR_FINISHES, SHINGLE_FAMILIES } from './looks.mjs';
@@ -331,9 +331,12 @@ export function headerLoadPlf(d, wall) {
   if (wall === 'front' || wall === 'back') {
     const D = actual(d.studSize || '2x4').depth;
     const beam = d.roofType === 'ridgeBeam';
-    const run = (d.width ?? 0) / 2 - (beam ? 1.5 : 0.75) - D;
+    const truss = d.roofType === 'truss';
+    const run = (d.width ?? 0) / 2 - (beam ? 1.5 : truss ? 0 : 0.75) - D;
     const tribFt = (beam ? run / 2 + D + (d.overhang ?? 0) : (d.width ?? 0) / 2 + (d.overhang ?? 0)) / 12;
-    return roof * tribFt + 10;
+    // Under trusses the eave wall also carries half the attic (bottom chord) load.
+    const attic = truss ? (trussForces(/** @type {any} */ (d)).wc * (d.width ?? 0)) / 2 / 12 / ((d.rafterSpacing ?? 24) / 12) : 0;
+    return roof * tribFt + attic + 10;
   }
   return 40 + roof * ((d.rafterSpacing ?? 24) / 2) / 12;
 }
