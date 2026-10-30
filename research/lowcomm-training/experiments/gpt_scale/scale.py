@@ -17,6 +17,7 @@ EXTRA_SEEDS = [2, 3, 4, 5]
 HSHAPE = [(k, H) for H in (32, 128) for k in (1.0, 0.0625)]  # 6j: does the excess keep growing in H at size 2? three seeds each
 HSHAPE_SEEDS = [0, 1, 2]
 HFILL = [(k, H, s) for H, seeds in ((16, (2, 3, 4, 5)), (32, (3, 4, 5))) for k in (1.0, 0.0625) for s in seeds]  # 6k: seeds to 6 at H = 16 and 32
+HFILL128 = [(k, 128, s) for k in (1.0, 0.0625) for s in (3, 4, 5)]  # 6l: seeds to 6 at H = 128
 load = lambda p: [json.loads(l) for l in open(p)] if os.path.exists(p) else []
 omega = lambda p: 1 / p - 1
 
@@ -128,6 +129,8 @@ if __name__ == "__main__":
         jobs = [(k, H, s) for s in HSHAPE_SEEDS for (k, H) in HSHAPE if (k, H, s) not in have]
     if len(sys.argv) > 2 and sys.argv[2] == "hfill":
         jobs = [j for j in HFILL if j not in have]
+    if len(sys.argv) > 2 and sys.argv[2] == "h128":
+        jobs = [j for j in HFILL128 if j not in have]
     with Pool(4) as p, open(PATH, "a") as f:
         for r in p.imap_unordered(run, jobs):
             f.write(json.dumps(r) + "\n"); f.flush(); print(r, flush=True)
