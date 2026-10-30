@@ -2,6 +2,13 @@
 
 Newest first.
 
+## 2026-10-30 · Milestone 2k: a third LS margin (20 bar) puts the break-even between 14 and 25 bar (exploratory: no predictions written before running)
+- Why: 2j's "Next" was a working LS margin for an excavator main valve. Search found the Danfoss PVG 32 Technical Information (excerpt only): the pump LS control holds a set margin between P and LS, with a worked example of 20 bar. I could NOT open the document (assets.danfoss.com and hydraulicsonline.com do not resolve from this session; they would need allowing in the network settings), so 20 bar is a search-excerpt value, an example not a recommendation, and its page is unchecked. No standby flow found.
+- Run (`dpls_sourced.py` with 20 bar added; 2 s; same settings as 2j): dp_ls 20: LS/OC median 1.014 (extra 0) and 0.928 (extra 5); LS worse in 54.9% and 26.7% of cycles. Rows for 25, 14, 10 unchanged from 2j.
+- Reading: at the valve-only neutral drop the circuits tie near dp_ls 20 bar (median 1.01); below that LS wins, above it open-centre wins. The three candidate margins (14 Rexroth, 20 Danfoss example, 25 thesis) straddle the tie, so the ranking sign is still unresolved, as 2j said, and now bracketed more tightly: the break-even is about 20 bar with no extra neutral drop and about 25 to 26 bar with 5 bar extra.
+- Limits: the 20 bar is an example in an unopened document; standby flow assumed; one load factor.
+- Next: open the PVG 32 / pump documents once the hosts are reachable (or an excavator service manual) for a working margin and standby flow.
+
 ## 2026-10-29 · Milestone 2j: the load-sensing margin from Rexroth's A10VO manual flips 2i's ranking back (exploratory: no predictions written before running)
 - Why: 2i's standing "Next" was to source the LS side. The model's `dp_ls` 25 bar came from one thesis model of a midi excavator (Briganti 2022). Rexroth Canada's A10VO Technical Information Manual, Module 3A (rev. 2.0, 2006), s. 7.2 (opened; PDF text extracted), gives the factory standby setting as "usually 200 PSI" = 13.8 bar. Reseller listings (not manufacturer documents) give an LS differential of 14 bar for A10VO DFR/DFR1 units and standby pressures of 18 to 20 bar for two units; I did not find a standby flow in L/min anywhere, so q_sb stays an assumed 2 L/min.
 - Run (`experiments/dpls_sourced.py`, `dpls_sourced_results.txt`, `ratio` in `idle_models.py` now takes `dp_ls`, default unchanged; 3,000 cycles per cell, load factor 0.346, 4 sections, 2i's valve drop 1.44 bar plus an assumed extra 0 or 5 bar):

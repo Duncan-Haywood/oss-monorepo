@@ -175,7 +175,7 @@ export const EXAMPLE_ITEMS = Object.freeze({
   trimNails: { name: '8d 2-1/2 in. hot-dipped galvanized finish nails, 1 lb box', unit: 'box', price: 10 },
   connectorNails: { name: 'Simpson N10DHDG 10d x 1-1/2 in. connector nails, 120-pack', unit: 'pack', price: 5 },
   adhesive: { name: 'Construction adhesive, 28 oz tube (subfloor and door frame)', unit: 'tube', price: 9 },
-  screws: { name: 'Exterior screws, #8 x 1-5/8 in., 1 lb box (subfloor and door skin)', unit: 'box', price: 11 },
+  screws: { name: 'Exterior screws, #8 x 1-5/8 in., 1 lb box (door skin)', unit: 'box', price: 11 },
   vinylJ: { name: 'Vinyl J-channel, 12.6 ft (round openings, under eaves and rakes)', unit: 'piece', price: 8 },
   vinylStarter: { name: 'Vinyl starter strip, 12 ft', unit: 'piece', price: 9.5 },
   vinylCorner: { name: 'Vinyl outside corner post, 10 ft', unit: 'piece', price: 26 },
