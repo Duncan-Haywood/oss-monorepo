@@ -1,5 +1,6 @@
 ---
 title: "Yoga studio bookkeeping from a bank CSV, and a Gusto misfile we found on the way"
+seo_title: "Yoga studio bookkeeping from a bank CSV, and a Gusto misfile"
 date: 2026-10-30
 tags: [ai-bookkeeper, yoga, bookkeeping]
 description: "A worked November for yoga and Pilates studios: ClassPass, Momence and Walla payouts against lease, payroll and props, plus a fix for payroll filed as software."

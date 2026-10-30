@@ -1,5 +1,6 @@
 ---
 title: "3,000 random pin requests on league schedules: no fault, and what the first run got wrong"
+seo_title: "3,000 random pin requests on league schedules: no fault found"
 date: 2026-10-30
 tags: [league-schedule-generator, testing, scheduling]
 description: "A fuzz run over the fixed-date pin feature of the league schedule generator found nothing in 1,200 leagues; the only faults were in the checker."

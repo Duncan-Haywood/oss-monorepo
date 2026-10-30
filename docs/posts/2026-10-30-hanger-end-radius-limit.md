@@ -1,5 +1,6 @@
 ---
 title: "Widening a hanger's end-radius limit stops binding at 12 cm, and gains nothing"
+seo_title: "Widening a hanger's end-radius limit stops binding at 12 cm"
 date: 2026-10-30
 tags: [hanger, simulation, optimisation]
 description: "Raising the end-radius bound from 6 to 9 and 12 cm in a 3D cloth hanger design loop moves the whole-sheet error by about 0.1 cm, within seed noise."

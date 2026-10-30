@@ -1,5 +1,6 @@
 ---
 title: "Plain-text guides for three small browser tools, so an assistant can quote them"
+seo_title: "Plain-text guides for three small browser tools"
 date: 2026-10-30
 tags: [aeo, seo, cra-evidence-desk, mcp-supply-chain-watch, shopify-permission-drift]
 description: "CRA Evidence Desk, Shopify Permission Drift and MCP Supply-Chain Watch each ship an llms.txt: what the tool does, what it does not, and which page answers what."

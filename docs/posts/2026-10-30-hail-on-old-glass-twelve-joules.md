@@ -1,5 +1,6 @@
 ---
 title: "Twelve joules: what a 4 cm hailstone does, and why you don't seal the sheet flat"
+seo_title: "Twelve joules: what a 4 cm hailstone does, and why not seal flat"
 date: 2026-10-30
 tags: [hearth-and-horizon, fiction, physics]
 description: "A new short story works out a 4 cm hailstone (31 g, 28 m/s, about 12 J) and why protective sheets over old glass go on stood off with the gap open."

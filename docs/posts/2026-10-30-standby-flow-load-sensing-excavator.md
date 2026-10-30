@@ -1,5 +1,6 @@
 ---
 title: "How much does an unknown standby flow matter to load-sensing on an excavator?"
+seo_title: "How much does unknown standby flow matter to a load-sensing excavator?"
 date: 2026-10-30
 tags: [heavy-hydraulics, hydraulics, excavator, sensitivity]
 description: "Sweeping the assumed load-sensing standby flow from 0 to 10 L/min moves the break-even pump margin only from 29 to 24 bar."

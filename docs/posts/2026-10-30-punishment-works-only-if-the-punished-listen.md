@@ -1,5 +1,6 @@
 ---
 title: "Punishment sustains cooperation only if the punished respond, and it gets expensive at scale"
+seo_title: "Punishment sustains cooperation only if the punished respond"
 date: 2026-10-30
 tags: [civ-levers, public-goods, simulation]
 description: "In a simulated public-goods game, punishment with no response changes nothing; with one, contributions hold but payoff in groups of 40 falls to 3 of 21."

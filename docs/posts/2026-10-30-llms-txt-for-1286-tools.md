@@ -1,5 +1,6 @@
 ---
 title: "1,286 tools now have an llms.txt, written from what each page already says"
+seo_title: "1,286 tools now have an llms.txt, written from their pages"
 date: 2026-10-30
 tags: [aeo, llms-txt, seo]
 description: "Only 22 of 1,327 tools had an llms.txt. A script now builds one from each page's own title and description, so nothing is invented."

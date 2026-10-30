@@ -1,5 +1,6 @@
 ---
 title: "Zero false alarms can mean zero power: changepoint detection on a cycle"
+seo_title: "Zero false alarms can mean zero power in changepoint detection"
 date: 2026-10-30
 tags: [changepoint-detector, evaluation, time-series]
 description: "On lynx and sunspot cycles the --ar1 option reports no false changes, and also finds none of 18 steps we added, even at two standard deviations."

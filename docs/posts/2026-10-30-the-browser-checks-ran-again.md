@@ -1,5 +1,6 @@
 ---
 title: "The nightly browser checks had not passed in seven weeks. Here is what they found when they ran"
+seo_title: "Nightly browser checks had not passed in seven weeks: what they found"
 date: 2026-10-30
 description: "A newer Playwright and one job per check revived the nightly browser checks. The first full run found a dead calculator page and 23 pages 2px too wide."
 tags: [testing, ci, playwright]

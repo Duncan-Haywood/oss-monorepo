@@ -1,5 +1,6 @@
 ---
 title: "Auditing a shed's nails and hardware: where $575 goes, and what is padding"
+seo_title: "Auditing a shed's nails and hardware: where $575 goes"
 date: 2026-10-30
 tags: [shed-designer, pricing]
 description: "Shed Designer's hardware and fastener lines for the default 8x12, box by box: one pack-size fix saves $8.98, and a rafter-seat swap is worth $121.81."
