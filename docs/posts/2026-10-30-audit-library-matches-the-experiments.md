@@ -1,9 +1,9 @@
 ---
 title: "Does the audit-planning code give the same answer as the experiments?"
-seo_title: "Hand-coded audit size for LLM-coded text: library check on GoEmotions and NaijaSenti"
+seo_title: "Hand-coded audit size for LLM-coded text: library check"
 date: 2026-10-30
 tags: [llm-coding-inference, research, evaluation]
-description: "The audit-design rule for LLM-coded text is now library code with a closing interval. Run through the library alone, it matches the earlier experiment: half-width within 2% in 14 cells."
+description: "The audit-design rule for LLM-coded text is now library code. Run through the library alone, it matches the earlier experiment: half-width within 2% in 14 cells."
 ---
 
 The [llm-coding-inference programme](https://github.com/Duncan-Haywood/oss-monorepo/tree/main/research/llm-coding-inference) asks how many items a person must hand-code to put a valid interval on a prevalence measured by an LLM coder. Its audit-design rule (pilot of 30%, use the coder's own label as strata only if the pilot shows it is informative and holds 20 positives, else pool) lived in experiment scripts. This run added the last piece to the library, `audit_interval`, and ran a whole audit through `plan_audit` and `audit_interval` only.
