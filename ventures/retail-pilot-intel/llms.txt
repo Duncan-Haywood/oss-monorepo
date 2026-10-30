@@ -1,0 +1,13 @@
+# Retail analytics that respects shoppers.
+
+> Open-source, privacy-first retail analytics concept for small-format pilot stores: SKU gaps, experiments and ROI reporting, built as a TypeScript monorepo.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/retail-pilot-intel/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/retail-pilot-intel): MIT licensed.
