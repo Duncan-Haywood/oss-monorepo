@@ -193,7 +193,7 @@ export function peakPhase(night, today, settings = WAITLIST_DEFAULTS) {
   return { regularsFrom, openFrom: openFrom > night.date ? night.date : openFrom, phase };
 }
 
-/** The sitter's peak nights (her own list, or the defaults) from today, about a year out. */
+/** The sitter's peak nights (their own list, or the defaults) from today, about a year out. */
 export function peakNights(desk, today) {
   const w = waitlistOf(desk);
   const y = Number(today.slice(0, 4));

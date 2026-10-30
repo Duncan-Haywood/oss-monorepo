@@ -3,7 +3,7 @@
 //
 // desk.network = {
 //   sitters: [{ id, name, contact, ages ("6 months-12"), maxKids, area, availability
-//              ("Mon-Fri 15-22"), notes, cprSeen (true when she has seen their card),
+//              ("Mon-Fri 15-22"), notes, cprSeen (true when the sitter has seen their card),
 //              cprSeenOn, peerId + peerUrl (+ peerSecret) when they run this kit too }],
 //   sent:    [{ id, date, from: "lead"|"booking", leadId, bookingKey, familyId, firstName,
 //              kids (ages), when, sitterId, consent: { share, contact, at, how, note },
@@ -58,7 +58,7 @@ export function monthsOld(birth, onDate) {
   return Math.max(0, m);
 }
 
-// ---- a request she cannot take, from a lead or from one of her own booked sits
+// ---- a request the sitter cannot take, from a lead or from one of their own booked sits
 export function requestFromLead(lead) {
   const kids = (Array.isArray(lead.kids) ? lead.kids : String(lead.kids || "").split(/[,;]/)).map((k) => parseAgeMonths(k)).filter((x) => x !== null);
   return { from: "lead", leadId: lead.id, firstName: firstWord(lead.name), contact: str(lead.contact), kids, when: str(lead.schedule), weekly: str(lead.schedule) };
@@ -77,7 +77,7 @@ const agesText = (kids) => (kids.length ? kids.map((m) => fmtAge(m).replace(/ ye
 const kidsPhrase = (kids) => (kids.length ? `${kids.length === 1 ? "one child" : `${kids.length} kids`} (${agesText(kids)}${kids.every((m) => m >= 24) ? (kids.length === 1 ? " years old" : "") : ""})` : "the kids");
 
 // ---- which backup to suggest: ages, availability, how many kids, CPR card seen.
-// Area is only a note: she knows whether "Riverside" is near the family.
+// Area is only a note: the sitter knows whether "Riverside" is near the family.
 export function suggestBackups(desk, req, { exclude = [] } = {}) {
   const out = [];
   for (const s of networkOf(desk).sitters) {
@@ -153,13 +153,13 @@ export function passOn(desk, req, sitterId, today, id = newId("net")) {
   return { id, date: today, from: req.from, leadId: req.leadId || "", bookingKey: req.bookingKey || "", familyId: req.familyId || "", firstName: req.firstName, kids: req.kids.map((m) => fmtAge(m)), when: req.when, sitterId, status: "suggested" };
 }
 
-// ---- leads she cannot take: any blocker except budget, or a status she set
+// ---- leads the sitter cannot take: any blocker except budget, or a status the sitter set
 export function overflowLeads(desk) {
   return (desk.leads || []).filter((l) => !["booked", "lost"].includes(l.status)).map((l) => ({ lead: l, score: scoreLead(l, desk.profile) }))
     .filter(({ lead, score }) => lead.status === "declined" || score.blockers.length).map(({ lead, score }) => ({ lead, blockers: score.blockers }));
 }
 
-// ---- sub-for-me: her booked sits in the next N days, each with a backup or a no-fee cancel
+// ---- sub-for-me: the sitter's booked sits in the next N days, each with a backup or a no-fee cancel
 export function subForMe(desk, today, days = 3) {
   const end = addDays(today, Math.max(1, Math.min(30, Number(days) || 3)) - 1);
   const sits = expandBookings(desk.bookings || []).filter((b) => b.date >= today && b.date <= end && !["cancelled", "done"].includes(b.status));
@@ -222,7 +222,7 @@ export function networkStats(desk) {
   const fromSitters = [...inn.values()].sort((a, b) => b.leads - a.leads);
   return {
     sentOut, fromSitters,
-    fromFamilies: sourceStats(desk).referrers, // families who sent her families (print.mjs)
+    fromFamilies: sourceStats(desk).referrers, // families who sent the sitter families (print.mjs)
     totals: { sent: net.sent.length, sentBooked: net.sent.filter((e) => e.status === "booked").length, received: fromSitters.reduce((a, r) => a + r.leads, 0), receivedBooked: fromSitters.reduce((a, r) => a + r.booked, 0) },
   };
 }

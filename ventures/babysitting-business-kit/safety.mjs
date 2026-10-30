@@ -4,7 +4,7 @@
 //   Late-sit check-in    newCheckin(), checkinAction(), checkinDue(), alertMessage(),
 //                        mergeSafety(): a trusted contact and a "home by" time; if the
 //                        sitter has not tapped "I'm home safe" by then plus a grace
-//                        period, her own server alerts the contact. Off until she starts one.
+//                        period, the sitter's own server alerts the contact. Off until the sitter starts one.
 //   Emergency card       emergencyCard(): a printable page per family from the family
 //                        record and its info sheet (intake.mjs), with 911 and Poison Help.
 //   House checklist      HOUSE_CHECKLIST, checklistState(), setChecklistItem(): exits,
@@ -128,7 +128,7 @@ export function checkinAction(c, action, nowMs, minutes = 30) {
   return { ok: true, checkin: out };
 }
 
-// What the server's tick should do with one check-in now: "remind" the sitter at her
+// What the server's tick should do with one check-in now: "remind" the sitter at their
 // home-by time, "alert" the contact after the grace period, or nothing.
 export function checkinDue(c, nowMs) {
   if (c.status !== "active") return null;
@@ -141,7 +141,7 @@ const fmtTime = (iso, tz) => {
   try { return new Intl.DateTimeFormat("en-US", { timeZone: tz || undefined, weekday: "short", hour: "numeric", minute: "2-digit" }).format(new Date(iso)); } catch { return new Date(iso).toISOString().slice(11, 16) + " UTC"; }
 };
 
-// The text the trusted contact gets. Only the sitter's name and phone, the place she
+// The text the trusted contact gets. Only the sitter's name and phone, the place they
 // chose to share and the time; nothing about the family or children.
 export function alertMessage(c, profile = {}, tz = "") {
   const name = String(profile.name || "").trim() || "Your babysitter friend";

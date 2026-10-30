@@ -177,12 +177,12 @@ test("events: capacity from adults × ratio, family price cap, waitlist and warn
   assert.equal(st.waitlist.length, 1);
   assert.equal(st.allergies.length, 3);
   assert.deepEqual(st.warnings, []);
-  // she lets the waitlisted family in anyway: ratio warning
+  // the sitter lets the waitlisted family in anyway: ratio warning
   d.packages.events[0].signups[2].waitlist = false;
   st = K.eventStatus(d.packages.events[0]);
   assert.equal(st.kids, 9);
   assert.match(st.warnings[0], /Ratio exceeded: 9 children for 2 adults.*Add 1 helper/);
-  // a toddler under her youngest age
+  // a toddler under the sitter's youngest age
   d = K.addSignup(d, id, { parent: "Q", contact: "q", at: "2026-11-09", kids: [{ name: "Tot", ageMonths: 12 }], waitlist: false }, B(5)).desk;
   assert.ok(K.eventStatus(d.packages.events[0]).warnings.some((w) => /Younger than.*Tot/.test(w)));
   const bk = K.eventToBooking(d.packages.events[0], B(6));
@@ -191,7 +191,7 @@ test("events: capacity from adults × ratio, family price cap, waitlist and warn
   assert.match(bk.notes, /peanuts/);
 });
 
-test("the announcement uses only her own facts and says to ask the office first", () => {
+test("the announcement uses only the sitter's own facts and says to ask the office first", () => {
   const ev = { title: "Parents' night out", date: "2026-12-05", start: "17:30", end: "21:00", place: "Grace Church hall", group: "Grace Church", perChild: 15, familyCap: 35, ratio: 4, adults: 2, youngestMonths: 36, signups: [] };
   const t = K.eventAnnouncement(ev, { ...E.DEFAULT_PROFILE, name: "Ana B", phone: "555-0100" }, { audience: "church" });
   assert.match(t, /Saturday, December 5/);

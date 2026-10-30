@@ -2,8 +2,8 @@
 //
 //   safetyRoutes(...)  GET|POST /safe/<token>   the sitter's own "I'm home safe" page
 //                      PUT  /api/safety/checkin  the app starts, extends or ends one (admin key)
-//   runSafety(...)     called every minute: reminds the sitter at her home-by time, then
-//                      alerts her trusted contact after the grace period
+//   runSafety(...)     called every minute: reminds the sitter at their home-by time, then
+//                      alerts their trusted contact after the grace period
 //
 // Uses the sending set-up the automations already have, on the sitter's own accounts:
 //   TWILIO_ACCOUNT_SID + TWILIO_AUTH_TOKEN + TWILIO_FROM   a text to the contact
