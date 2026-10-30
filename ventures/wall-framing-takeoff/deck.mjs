@@ -9,12 +9,13 @@
 // sizes the wall stock does not list), bought from `deck.stock` or a default list.
 import { THICK, EPS, optimizeStock, formatLength, formatInches } from "./engine.mjs";
 import { joistCentres } from "./floor.mjs";
+import { layoutLandingGuard } from "./stairs.mjs";
 
 const NOMINAL = { "2x6": 5.5, "2x8": 7.25, "2x10": 9.25, "2x12": 11.25 };
 const POST = { "4x4": 3.5, "6x6": 5.5 };
 const CU_IN_PER_YD = 46656;
 
-/** @typedef {{ id?: string, width: number, depth: number, height: number, joist?: string, spacing?: number, beam?: string, beamPlies?: number, freestanding?: boolean, overhang?: number, postSize?: string, postInset?: number, maxPostSpacing?: number, deckBoard?: { width?: number, thickness?: number, gap?: number, size?: string }, footing?: { diameter?: number, depth?: number, bagYield?: number }, screwsPerBox?: number, railPostSpacing?: number, spanTable?: { joist: string, spacing: number, maxSpan: number }[], stock?: { size: string, length: number, price: number }[] }} Deck */
+/** @typedef {{ id?: string, width: number, depth: number, height: number, joist?: string, spacing?: number, beam?: string, beamPlies?: number, freestanding?: boolean, overhang?: number, postSize?: string, postInset?: number, maxPostSpacing?: number, deckBoard?: { width?: number, thickness?: number, gap?: number, size?: string }, footing?: { diameter?: number, depth?: number, bagYield?: number }, screwsPerBox?: number, railPostSpacing?: number, guard?: false | { sides?: ("outer"|"left"|"right"|"inner")[], threshold?: number, railBoard?: string, balusterWidth?: number, postWidth?: number, limits?: object }, spanTable?: { joist: string, spacing: number, maxSpan: number }[], stock?: { size: string, length: number, price: number }[] }} Deck */
 
 export function sampleDeck() {
   return { id: "Rear deck", width: 192, depth: 144, height: 36, joist: "2x8", spacing: 16, beam: "2x10", beamPlies: 2, overhang: 12, postSize: "6x6" };
@@ -25,6 +26,7 @@ export function defaultDeckStock() {
   const out = [];
   for (const size of ["2x6", "2x8", "2x10", "2x12"]) for (const f of [8, 10, 12, 14, 16, 20]) out.push({ size: `${size} PT`, length: f * 12, price: f });
   for (const size of ["4x4", "6x6"]) for (const f of [8, 10, 12]) out.push({ size: `${size} PT`, length: f * 12, price: f * (size === "6x6" ? 2 : 1) });
+  for (const f of [8, 10, 12, 16]) out.push({ size: "2x4 PT", length: f * 12, price: f * 0.6 });
   for (const f of [8, 12, 16, 20]) out.push({ size: "5/4x6 deck", length: f * 12, price: f });
   return out;
 }
@@ -152,6 +154,21 @@ export function layoutDeck(d) {
   ];
   const railPosts = Math.ceil((d.width + 2 * d.depth) / (d.railPostSpacing ?? 72)) + 1;
 
+  // Guard: code asks for one where the surface is over `threshold` (30 in) above grade. Open edges are the outer
+  // edge and both sides, plus the inner edge when freestanding; corners shared by two edges get one post.
+  const gOpt = d.guard === false ? null : (d.guard || {});
+  const threshold = gOpt?.threshold ?? 30;
+  let guard = null;
+  if (gOpt && (d.height > threshold || d.guard)) {
+    const sides = gOpt.sides ?? (freestanding ? ["outer", "left", "right", "inner"] : ["outer", "left", "right"]);
+    const len = { outer: d.width, inner: d.width, left: d.depth, right: d.depth };
+    const shared = sides.reduce((n, a, i) => n + sides.slice(i + 1).filter((b) => (a === "outer" || a === "inner") !== (b === "outer" || b === "inner")).length, 0);
+    guard = layoutLandingGuard(sides.map((x) => len[x]), { railBoard: "2x4", ...gOpt }, shared);
+    guard.sides = sides;
+    const railMax = longest("2x4 PT");
+    if (railMax && guard.guardRails.lengths.some((x) => x > railMax + EPS)) notes.push(`A guard rail longer than ${formatLength(railMax)} is bought in equal pieces; splice each over a post.`);
+  } else if (d.height > threshold) warnings.push(`The surface is ${formatInches(d.height)} above grade, over the ${threshold} in where codes usually require a guard; none is laid out.`);
+
   // Warnings against the user's own span table, if given.
   const joistSpan = d.depth - overhang - THICK;
   if (d.spanTable) {
@@ -168,6 +185,7 @@ export function layoutDeck(d) {
     ...beamBoards.map((b) => ({ size: `${beam} PT`, length: b.length, kind: "beam ply" })),
     ...posts.map(() => ({ size: `${postSize} PT`, length: postLen, kind: "post" })),
     ...deckBoards.map((b) => ({ size: "5/4x6 deck", length: b.length, kind: "decking" })),
+    ...(guard && longest("2x4 PT") ? guard.guardRails.lengths.flatMap((x) => { const n = Math.ceil(x / longest("2x4 PT") - 1e-9); return Array.from({ length: n }, () => ({ size: "2x4 PT", length: x / n, kind: "guard rail" })); }) : []),
   ];
   // the outer rim and ledger are as long as the deck; a splice sits over a joist
   const orders = [];
@@ -182,7 +200,7 @@ export function layoutDeck(d) {
   const area = (d.width * d.depth) / 144;
   return {
     ok: true, id, width: d.width, depth: d.depth, height: d.height, joistSize: joist, beamSize: beam, beamPlies: plies, postSize, spacing, freestanding, overhang,
-    centres, joists, rims, posts, postLength: postLen, beamPieces, beamBoards, concrete, rows, deckBoards, joints, screws, screwBoxes: Math.ceil(screws / screwsPerBox), hardware, railPosts,
+    centres, joists, rims, posts, postLength: postLen, beamPieces, beamBoards, concrete, rows, deckBoards, joints, screws, screwBoxes: Math.ceil(screws / screwsPerBox), hardware, railPosts, guard,
     lumber, orders, area, cost: orders.reduce((s, o) => s + o.cost, 0), joistSpan, warnings, notes,
   };
 }
@@ -198,7 +216,8 @@ export function deckText(l) {
   for (const o of l.orders) for (const ln of o.lines) out.push(`    ${ln.qty} x ${o.size} ${formatLength(ln.length)}`);
   out.push("  Hardware:");
   for (const h of l.hardware) out.push(`    ${h.qty} x ${h.item}${h.note ? ` (${h.note})` : ""}`);
-  out.push(`    ${l.railPosts} guard-rail posts at the open edges`);
+  if (l.guard) out.push(`  Guard (${l.guard.sides.join(", ")}): ${l.guard.posts.count} posts, ${l.guard.balusters.count} balusters of ${formatInches(l.guard.balusters.length)} (clear gap at most ${formatInches(l.guard.balusters.maxGap)}), ${l.guard.guardRails.count} rails of ${l.guard.guardRails.size} PT in the order; posts and balusters are not bought`);
+  else out.push(`    ${l.railPosts} guard-rail posts at the open edges (by spacing only)`);
   for (const w of l.warnings) out.push(`  ! ${w}`);
   for (const n of l.notes) out.push(`  - ${n}`);
   return out;
