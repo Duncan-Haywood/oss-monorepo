@@ -83,7 +83,7 @@ export function designFacts(input, opts = {}) {
   const worstRow = checks.rows.reduce((m, r) => (r.ratio > m.ratio ? r : m), checks.rows[0]);
   const siding = d.siding ? `${SIDING_NAME[d.sidingType] || d.sidingType}, ${COLOUR_NAME[d.sidingColor] || d.sidingColor}` : 'none (framing only)';
   const roof = d.roofing ? `${d.roofCover === 'metal' ? 'corrugated metal' : 'architectural shingles'}, ${d.roofColor}` : 'none (sheathing only)';
-  const roofFrame = d.roofType === 'ridgeBeam' ? `ridge beam on posts, open to the roof (2-ply ${d.beamSize})` : `ridge board with ${d.tieSize} rafter ties`;
+  const roofFrame = d.roofType === 'ridgeBeam' ? `ridge beam on posts, open to the roof (2-ply ${d.beamSize})` : d.roofType === 'truss' ? `site-built trusses, ${d.tieSize} bottom chords, OSB gussets` : `ridge board with ${d.tieSize} rafter ties`;
   const foundation = d.foundation === 'gravel' ? 'skids on a gravel pad' : `skids on ${d.foundation === 'blocks' ? 'solid concrete blocks' : d.foundation}`;
 
   return {
