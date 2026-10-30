@@ -59,7 +59,9 @@ Everything outside the box is **off until you set it, on your own accounts**:
 | `AUTO_FOLLOW_UP=1` | email due follow-ups with the morning digest |
 | `DIGEST_HOUR` (default 7), `TZ` | when the digest goes |
 
-**Deploy:** `render.yaml` (Render, starter plan with a 1 GB disk; it generates `ADMIN_KEY` and `CAL_TOKEN`) or the `Dockerfile` anywhere. Nothing runs on the author's accounts.
+**Deploy:** `render.yaml` (Render, starter plan with a 1 GB disk; it generates `ADMIN_KEY` and `CAL_TOKEN`), `fly.toml` (Fly.io, one always-on machine with a volume), `docker-compose.yml` (any box with Docker), or the [one-click deploy page](https://duncan-haywood.github.io/oss-monorepo/deploy/?app=babysitting-business-kit), which builds all three from `render.yaml`. Nothing runs on the author's accounts. Step by step, with costs: [self-host.html](self-host.html).
+
+**Data safety (`backup.mjs`):** atomic writes; a daily snapshot beside the state file (newest 14 kept); at startup a state file that does not parse is moved to `desk.json.corrupt-<time>` and logged, never overwritten, and the newest good snapshot loads instead; `GET /api/backup` downloads the desk, `GET /api/backups` lists snapshots, `POST /api/restore` takes a desk JSON or `{"snapshot": "desk-YYYY-MM-DD.json"}` and saves the current desk first; `/admin` (admin key, sent as a header) shows versions, lead counts, last digest, which integrations are on (names only), disk use and the snapshots. Optional off-site copy to your own S3-compatible bucket (`BACKUP_S3_BUCKET`, `BACKUP_S3_ACCESS_KEY_ID`, `BACKUP_S3_SECRET_ACCESS_KEY`, plus `BACKUP_S3_ENDPOINT`/`BACKUP_S3_REGION` for R2, B2 or MinIO), signed with AWS Signature V4 in plain `node:crypto` and tested against AWS's published SigV4 test suite.
 
 Honest limits: one sitter per server; no payments or card capture (families pay the way they already do); no SMS yet; the website is one page; follow-ups are email only.
 

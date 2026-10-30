@@ -1,0 +1,40 @@
+# Fly.io self-deploy, in your own account (needs flyctl and a card on file with Fly).
+# Run these from this folder (ventures/babysitting-business-kit):
+#   fly launch --copy-config --no-deploy --dockerfile Dockerfile --name <a-name-you-choose>
+#   fly volumes create state --size 1 --region iad
+#   fly secrets set ADMIN_KEY=$(openssl rand -hex 16) CAL_TOKEN=$(openssl rand -hex 12)
+#   fly deploy
+# Optional, your own accounts: fly secrets set NOTIFY_WEBHOOK_URL=... RESEND_API_KEY=... FROM_EMAIL=...
+# One machine that never auto-stops: the desk lives on its volume, and the morning
+# digest and daily backup need the process awake. Guide: self-host.html.
+app = "babysitting-desk-CHANGE-ME"
+primary_region = "iad"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  PORT = "8080"
+  STATE = "/data/desk.json"
+  TZ = "America/Chicago"
+  AUTO_REPLY = "0"
+  AUTO_FOLLOW_UP = "0"
+
+[mounts]
+  source = "state"
+  destination = "/data"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = "off"
+  auto_start_machines = false
+  min_machines_running = 1
+  [[http_service.checks]]
+    path = "/healthz"
+    interval = "30s"
+    timeout = "5s"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "256mb"

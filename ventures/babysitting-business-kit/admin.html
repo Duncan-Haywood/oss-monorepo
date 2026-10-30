@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Server status: Babysitting Business Kit</title>
+  <meta name="description" content="Status page for your own self-hosted Babysitting Business Kit server: versions, lead counts, last digest, which integrations are switched on, disk use, backups and restore.">
+  <link rel="canonical" href="./admin.html">
+  <style>
+    :root { font: 16px/1.5 system-ui, sans-serif; color: #2b2433; background: #fbf7f4; }
+    body { max-width: 760px; margin: auto; padding: 24px 16px; }
+    a { color: #9b3f68; } h1 { font-size: 1.6rem; } h2 { font-size: 1.15rem; margin-top: 1.6em; }
+    .box { background: #fff; border: 1px solid #e8ded8; border-radius: 12px; padding: 12px 16px; }
+    table { border-collapse: collapse; width: 100%; } th, td { border-bottom: 1px solid #e8ded8; padding: 5px 6px; text-align: left; vertical-align: top; }
+    button, input { font: inherit; max-width: 100%; box-sizing: border-box; } #key { width: 22rem; } button { background: #9b3f68; color: #fff; border: 0; border-radius: 8px; padding: 6px 12px; cursor: pointer; }
+    button.plain { background: #fff; color: #9b3f68; border: 1px solid #9b3f68; }
+    .on { color: #1d6b3a; } .off { color: #8a7f93; } .err { color: #a3261a; } #msg { min-height: 1.5em; }
+    footer { font-size: .86rem; color: #5f5669; margin-top: 40px; }
+  </style>
+</head>
+<body>
+  <p><a href="/">← The app</a> · <a href="https://duncan-haywood.github.io/oss-monorepo/babysitting-business-kit/self-host.html">Self-hosting guide</a></p>
+  <h1>Server status</h1>
+  <p>This page talks only to the server it was loaded from. The admin key stays in this tab (session storage) and is sent as a header, never in the address.</p>
+  <form id="login" class="box">
+    <label for="key">Admin key</label>
+    <input id="key" type="password" autocomplete="current-password" size="36">
+    <button type="submit">Show status</button>
+  </form>
+  <p id="msg" role="status"></p>
+  <div id="out" hidden>
+    <h2>Versions</h2><div class="box" id="versions"></div>
+    <h2>Desk</h2><div class="box" id="counts"></div>
+    <h2>Integrations</h2><div class="box"><p>Names only; values are never shown.</p><table id="integrations"></table></div>
+    <h2>Disk and backups</h2><div class="box" id="disk"></div>
+    <h2>Back up and restore</h2>
+    <div class="box">
+      <p><button type="button" id="download">Download the desk now (JSON)</button></p>
+      <p><label for="file">Restore from a backup file</label> <input id="file" type="file" accept="application/json,.json"></p>
+      <p>Restoring replaces everything on the server. The current desk is saved first as a <code>pre-restore</code> snapshot.</p>
+      <table id="snapshots"></table>
+    </div>
+  </div>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice. You run this server on your own account and are its operator: you are responsible for its data, its backups and checking its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p>Free and open source under the MIT licence. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional.</p>
+  </footer>
+
+  <script type="module">
+    const $ = (id) => document.getElementById(id);
+    const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    const mb = (n) => (n == null ? "unknown" : `${(n / 1048576).toFixed(n < 1048576 ? 2 : 1)} MB`);
+    let key = "";
+    try { key = sessionStorage.getItem("bbk-admin") || ""; } catch {}
+    const api = (path, init = {}) => fetch(path, { ...init, headers: { ...(init.headers || {}), authorization: `Bearer ${key}` } });
+    const say = (t, bad) => { $("msg").textContent = t; $("msg").className = bad ? "err" : ""; };
+
+    async function load() {
+      const r = await api("/api/status");
+      if (!r.ok) { $("out").hidden = true; return say(r.status === 401 ? "That key was not accepted." : `The server answered ${r.status}.`, true); }
+      const s = await r.json();
+      say(`Updated ${new Date(s.time).toLocaleString()}.`);
+      $("versions").innerHTML = `<p>App ${esc(s.app)} · Node ${esc(s.node)}${s.commit ? ` · build ${esc(String(s.commit).slice(0, 12))}` : ""} · up ${Math.round(s.uptimeSeconds / 3600)} h</p>`;
+      const by = Object.entries(s.counts.leadsByStatus).map(([k, v]) => `${esc(k)} ${v}`).join(", ") || "none";
+      $("counts").innerHTML = `<p>${s.counts.leads} leads (${by}) · ${s.counts.families} families · ${s.counts.bookings} sits · ${s.counts.references} references</p><p>Last morning digest: ${esc(s.lastDigest || "none since the server started")}</p>`;
+      $("integrations").innerHTML = s.integrations.map((i) => `<tr><td>${esc(i.name)}</td><td class="${i.configured ? "on" : "off"}">${i.configured ? "on" : "off"}</td></tr>`).join("");
+      const b = s.backup, d = s.disk;
+      $("disk").innerHTML = `<p>State file ${mb(d.stateBytes)} · ${d.snapshots} snapshots (${mb(d.snapshotBytes)}, newest ${esc(d.newestSnapshot || "none")}, keeping ${b.keep}) · free ${mb(d.freeBytes)} of ${mb(d.totalBytes)}</p>` +
+        `<p>Off-site copy: ${b.lastOffsite ? esc(new Date(b.lastOffsite).toLocaleString()) : "never"}${b.lastOffsiteError ? ` <span class="err">(${esc(b.lastOffsiteError)})</span>` : ""}</p>`;
+      const snaps = await (await api("/api/backups")).json();
+      $("snapshots").innerHTML = snaps.map((x) => `<tr><td>${esc(x.name)}</td><td>${mb(x.size)}</td><td><button type="button" class="plain" data-dl="${esc(x.name)}">Download</button> <button type="button" class="plain" data-restore="${esc(x.name)}">Restore</button></td></tr>`).join("");
+      $("out").hidden = false;
+    }
+    async function download(name) {
+      const r = await api(`/api/backup${name ? `?snapshot=${encodeURIComponent(name)}` : ""}`);
+      if (!r.ok) return say(`Download failed (${r.status}).`, true);
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(await r.blob());
+      a.download = name || `babysitting-desk-${new Date().toISOString().slice(0, 10)}.json`;
+      a.click();
+    }
+    async function restore(body, label) {
+      if (!confirm(`Replace everything on the server with ${label}? The current desk is saved first.`)) return;
+      const r = await api("/api/restore", { method: "POST", headers: { "content-type": "application/json" }, body });
+      if (!r.ok) return say(`Restore refused: ${(await r.text()).trim()}`, true);
+      const j = await r.json();
+      say(`Restored. ${j.counts.leads} leads, ${j.counts.families} families. The previous desk was saved as ${j.savedFirst}.`);
+      load();
+    }
+    $("login").addEventListener("submit", (e) => { e.preventDefault(); key = $("key").value.trim(); try { sessionStorage.setItem("bbk-admin", key); } catch {} load(); });
+    $("download").addEventListener("click", () => download(""));
+    $("file").addEventListener("change", async () => { const f = $("file").files[0]; if (f) await restore(await f.text(), f.name); $("file").value = ""; });
+    $("snapshots").addEventListener("click", (e) => {
+      const t = e.target;
+      if (t.dataset.dl) download(t.dataset.dl);
+      if (t.dataset.restore) restore(JSON.stringify({ snapshot: t.dataset.restore }), t.dataset.restore);
+    });
+    if (key) load();
+  </script>
+</body>
+</html>

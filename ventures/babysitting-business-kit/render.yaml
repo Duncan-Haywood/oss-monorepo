@@ -34,3 +34,14 @@ services:
         value: "0"
       - key: AUTO_FOLLOW_UP
         value: "0"
+      # Optional off-site backup to your own S3-compatible bucket (backup.mjs)
+      - key: BACKUP_S3_ENDPOINT
+        sync: false
+      - key: BACKUP_S3_REGION
+        sync: false
+      - key: BACKUP_S3_BUCKET
+        sync: false
+      - key: BACKUP_S3_ACCESS_KEY_ID
+        sync: false
+      - key: BACKUP_S3_SECRET_ACCESS_KEY
+        sync: false
