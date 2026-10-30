@@ -188,7 +188,7 @@ Case 0 went from two-thirds of an open hour to $2.53 of pay. Still 0 of 4 proven
 
 ## Limits
 
-Not modelled: predictive-scheduling and fair-workweek rules as built-in law (the changes report prices a rule you enter), paid rest breaks (unpaid meal breaks are deducted from paid time; a suggested meal-break time is shown but not enforced by the search), minor-labor limits other than the federal 14-15 rules in `age:` (state rules, work permits), union rules, seniority, time-off across weeks. A
+Not modelled: predictive-scheduling and fair-workweek rules as built-in law (the changes report prices a rule you enter), breaks as a hard rule (unpaid meal breaks are deducted from paid time; suggested meal-break times, and from 2026-10-30 paid rest breaks of the length and spacing you enter via `placeRestBreaks`, are shown but not enforced by the search), minor-labor limits other than the federal 14-15 rules in `age:` (state rules, work permits), union rules, seniority, time-off across weeks. A
 heuristic search by default; the exact check above proves optimality only on small weeks and reports when it could not. Verified against exhaustive search and invented data.
 Not legal, tax, or financial advice.
 

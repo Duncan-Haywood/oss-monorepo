@@ -108,6 +108,8 @@
       <div><label for="diffpct">Differential, extra % of wage</label><input id="diffpct" inputmode="decimal" value="0"></div>
       <div><label for="splitgap">A split shift has a gap over (hours)</label><input id="splitgap" inputmode="decimal" value="1"></div>
       <div><label for="mealmin">Unpaid break length (minutes)</label><input id="mealmin" inputmode="decimal" value="30"></div>
+      <div><label for="restevery">Paid rest break for every (hours worked straight, 0 = off)</label><input id="restevery" inputmode="decimal" value="0"></div>
+      <div><label for="restmin">Paid rest break length (minutes)</label><input id="restmin" inputmode="decimal" value="10"></div>
       <div><label for="ddtafter">Double time after (hours a day, 0 = off)</label><input id="ddtafter" inputmode="decimal" value="0"></div>
       <div><label for="burden">Payroll taxes and extras (%)</label><input id="burden" inputmode="decimal" value="0"></div>
       <div><label for="minshift">Warn about shifts shorter than (hours, optional)</label><input id="minshift" inputmode="decimal" placeholder="e.g. 4"></div>
@@ -219,7 +221,7 @@
   <section class="card">
     <h2>How it is calculated</h2>
     <p><strong>Hard rules</strong> (never broken): a person is only given a shift that falls inside one of their availability windows for the whole shift; shifts for one person never overlap and leave at least your rest gap between them; weekly hours stay at or under their maximum; days in a row stay at or under your limit. <strong>Objective:</strong> first cover as many shift-hours as possible, then minimise real payroll (wage × (1 + extras), overtime hours above your threshold at the multiplier), plus a small penalty for each hour a person is under their minimum and a quadratic penalty for hours drifting from a fair share (the balance slider). <strong>Search:</strong> a greedy build that fills the most constrained shifts first, then seeded simulated annealing with reassign and swap moves over several restarts; a fixed seed makes it repeatable. On small problems the tests compare it with an exhaustive search of every roster and it finds the same optimum; on large ones it is a strong heuristic, not a proof.</p>
-    <p><strong>Not modelled:</strong> predictive-scheduling and fair-workweek rules as built-in law (the page flags a short-notice week and a changes report prices a premium you enter), paid rest breaks (unpaid meal breaks are deducted and suggested break times are shown, but breaks are not a hard rule), minor-labor limits beyond a per-person <code>daily:</code> cap, union rules, seniority, time off requests across weeks (a running <code>tough: 3</code> cell, filled in by &ldquo;carry over last week&rdquo;, remembers who closed or worked weekends lately so the next week spreads them fairly when the spread setting is above 0; one week's time off works: add <code>off: Wed; Fri 5pm-close</code> to a person; a soft wish works too: <code>prefer: Sat</code> gives that person those hours when it costs nothing; <code>avoid: Sat; Fri 5pm-close</code> keeps those hours free unless the roster would otherwise leave a shift open or cost more). The rest rule does carry over from last week if you add <code>prev: Sun 10pm</code> to a person (when their last shift ended). Roles work: <code>role: keyholder x1</code> on a shift needing 3 people asks for one keyholder among them. <strong>Unverified:</strong> checked against exhaustive search and invented data in unit tests, not against a real operator's payroll or a scheduling law.</p>
+    <p><strong>Not modelled:</strong> predictive-scheduling and fair-workweek rules as built-in law (the page flags a short-notice week and a changes report prices a premium you enter), breaks as a hard rule (unpaid meal breaks are deducted, and suggested meal and paid rest break times are shown from the numbers you enter), minor-labor limits beyond a per-person <code>daily:</code> cap, union rules, seniority, time off requests across weeks (a running <code>tough: 3</code> cell, filled in by &ldquo;carry over last week&rdquo;, remembers who closed or worked weekends lately so the next week spreads them fairly when the spread setting is above 0; one week's time off works: add <code>off: Wed; Fri 5pm-close</code> to a person; a soft wish works too: <code>prefer: Sat</code> gives that person those hours when it costs nothing; <code>avoid: Sat; Fri 5pm-close</code> keeps those hours free unless the roster would otherwise leave a shift open or cost more). The rest rule does carry over from last week if you add <code>prev: Sun 10pm</code> to a person (when their last shift ended). Roles work: <code>role: keyholder x1</code> on a shift needing 3 people asks for one keyholder among them. <strong>Unverified:</strong> checked against exhaustive search and invented data in unit tests, not against a real operator's payroll or a scheduling law.</p>
   </section>
 
   <section class="card">
@@ -258,7 +260,7 @@
   </footer>
 
   <script type="module">
-    import { planWeeks, planFairness, parseAvailability, placeBreaks, scheduleChanges, carryOverStaff, scheduleFlags, unsupervisedStretches, loneStretches, shortShifts, seventhDayPay, parseStaff, parseShifts, buildRoster, optimalityText, laborPercent, budgetCheck, dailyLabor, salesPerLaborHour, coverageGrid, fairnessReport, hoursThresholds, tipPool, trimOptions, coverOptions, absencePlan, swapOptions, checkTrade, rosterCsv, hoursCsv, rosterIcs, splitShiftPay, rosterMessages, openShiftPost, mergeAvailabilityReplies, sampleStaff, sampleShifts, TEMPLATES, fmtClock, money, money2, num, DAYS } from "./calc.mjs";
+    import { planWeeks, planFairness, parseAvailability, placeBreaks, placeRestBreaks, scheduleChanges, carryOverStaff, scheduleFlags, unsupervisedStretches, loneStretches, shortShifts, seventhDayPay, parseStaff, parseShifts, buildRoster, optimalityText, laborPercent, budgetCheck, dailyLabor, salesPerLaborHour, coverageGrid, fairnessReport, hoursThresholds, tipPool, trimOptions, coverOptions, absencePlan, swapOptions, checkTrade, rosterCsv, hoursCsv, rosterIcs, splitShiftPay, rosterMessages, openShiftPost, mergeAvailabilityReplies, sampleStaff, sampleShifts, TEMPLATES, fmtClock, money, money2, num, DAYS } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -369,6 +371,8 @@
       ];
       const brk = placeBreaks(r);
       if (brk.length) flagMsgs.push("Suggested meal breaks (30 min, before the 5th hour, staggered so others stay on): " + brk.map((x) => `${x.person} ${x.dayName} ${fmtClock(x.startMin)}${x.alone ? " (nobody else on)" : ""}`).join("; ") + ".");
+      const rb = placeRestBreaks(r, { restEvery: val("restevery", 0), restMin: val("restmin", 10), mealAfter: val("mealafter", 0) > 0 ? val("mealafter", 0) : 5, mealMin: val("mealmin", 30) });
+      if (rb.length) flagMsgs.push(`Suggested paid rest breaks (${num(val("restmin", 10))} min, one per ${num(val("restevery", 0))} hours worked straight, staggered so others stay on): ` + rb.map((x) => `${x.person} ${x.dayName} ${fmtClock(x.startMin)}${x.alone ? " (nobody else on)" : ""}`).join("; ") + ".");
       if (r.optimality) flagMsgs.unshift(optimalityText(r.optimality));
       $("#notices").innerHTML = r.warnings.concat(st.notes, flagMsgs).map((w) => `<div class="warn">${esc(w)}</div>`).join("");
       const big = [
@@ -507,7 +511,7 @@
     });
 
     // Remember the team on this device only; nothing is sent anywhere.
-    const FIELDS = ["staff", "shifts", "rest", "consec", "otafter", "otmult", "dotafter", "ddtafter", "mealafter", "mealmin", "splitprem", "splitgap", "diffwhen", "diffhour", "diffpct", "burden", "balance", "tough", "sales", "dailysales", "splh", "labortarget", "budget", "loneafter", "minshift", "hoursline", "tippot"];
+    const FIELDS = ["staff", "shifts", "rest", "consec", "otafter", "otmult", "dotafter", "ddtafter", "mealafter", "mealmin", "restevery", "restmin", "splitprem", "splitgap", "diffwhen", "diffhour", "diffpct", "burden", "balance", "tough", "sales", "dailysales", "splh", "labortarget", "budget", "loneafter", "minshift", "hoursline", "tippot"];
     const KEY = "shift-roster-builder:setup:v1";
     const snapshot = () => Object.fromEntries(FIELDS.map((f) => [f, $("#" + f).value]));
     const apply = (o) => { for (const f of FIELDS) if (o && typeof o[f] === "string") $("#" + f).value = o[f]; };

@@ -2360,6 +2360,58 @@ export function placeBreaks(r, { mealAfter = 5, mealMin = 30, step = 15, earlies
   return placed.map((x) => ({ ...x, dayName: DAYS[x.day] }));
 }
 
+// Paid rest breaks: one for every full `restEvery` hours of a straight stretch (back-to-back shifts joined), `restMin`
+// minutes each, spread evenly (each centred in its own equal part of the stretch). A break starts on a `step`-minute
+// mark within `window` minutes of that centre, at least `edge` minutes after the stretch starts and before its last
+// `edge` minutes, and never overlaps the person's meal break from placeBreaks (pass `mealAfter` 0 to ignore meals).
+// Among the starts it picks the one that keeps the most other people on the floor, ties to the nearest the centre;
+// `alone` is set when nobody else is on. Paid time, so it changes no payroll figure. The numbers are the operator's
+// (there is no built-in law); a planning aid, when breaks are owed is the employer's to check.
+export function placeRestBreaks(r, { restEvery = 4, restMin = 10, step = 5, window = 60, edge = 30, mealAfter = 5, mealMin = 30 } = {}) {
+  if (!(restEvery > 0) || !(restMin > 0)) return [];
+  const asg = (r.assignments || []).filter((a) => a.person);
+  const meals = mealAfter > 0 ? placeBreaks(r, { mealAfter, mealMin }) : [];
+  const byKey = new Map();
+  for (const a of asg) {
+    const k = a.person + "|" + a.slot.day;
+    if (!byKey.has(k)) byKey.set(k, { person: a.person, day: a.slot.day, spans: [] });
+    byKey.get(k).spans.push([a.slot.startMin, a.slot.endMin]);
+  }
+  const stretches = [];
+  for (const g of byKey.values()) {
+    g.spans.sort((x, y) => x[0] - y[0]);
+    let a = g.spans[0][0], b = g.spans[0][1];
+    for (let i = 1; i <= g.spans.length; i++) {
+      if (i < g.spans.length && g.spans[i][0] <= b) { b = Math.max(b, g.spans[i][1]); continue; }
+      const n = Math.floor((b - a) / 60 / restEvery + 1e-9);
+      if (n >= 1) stretches.push({ person: g.person, day: g.day, start: a, end: b, n });
+      if (i < g.spans.length) { a = g.spans[i][0]; b = g.spans[i][1]; }
+    }
+  }
+  stretches.sort((x, y) => (y.end - y.start) - (x.end - x.start) || x.day - y.day || x.start - y.start || x.person.localeCompare(y.person));
+  const placed = [];
+  const present = (p, day, t0, t1) => asg.some((a) => a.person === p && a.slot.day === day && a.slot.startMin < t1 && a.slot.endMin > t0);
+  const busy = (p, day, t0, t1) => [...meals, ...placed].some((x) => x.person === p && x.day === day && x.startMin < t1 && x.endMin > t0);
+  const people = [...new Set(asg.map((a) => a.person))];
+  for (const st of stretches) {
+    for (let k = 0; k < st.n; k++) {
+      const centre = st.start + ((st.end - st.start) * (k + 0.5)) / st.n - restMin / 2;
+      const lo = Math.max(st.start + edge, centre - window), hi = Math.min(st.end - edge - restMin, centre + window);
+      let best = null;
+      for (let t = Math.ceil(lo / step) * step; t <= hi + 1e-9; t += step) {
+        if (busy(st.person, st.day, t, t + restMin)) continue;
+        const others = people.filter((p) => p !== st.person && present(p, st.day, t, t + restMin) && !busy(p, st.day, t, t + restMin)).length;
+        const dist = Math.abs(t - centre);
+        if (!best || others > best.others || (others === best.others && dist < best.dist)) best = { t, others, dist };
+      }
+      if (!best) continue;
+      placed.push({ person: st.person, day: st.day, startMin: best.t, endMin: best.t + restMin, others: best.others, alone: best.others === 0 });
+    }
+  }
+  placed.sort((x, y) => x.person.localeCompare(y.person) || x.day - y.day || x.startMin - y.startMin);
+  return placed.map((x) => ({ ...x, dayName: DAYS[x.day] }));
+}
+
 // Who gets the shifts people trade favours to avoid: per person, weekend shifts (start Sat or Sun), closing shifts (end
 // at or after `closeAt`, default 10pm, or run past midnight), opening shifts (start at or before `openAt`, default 6am)
 // and "tough" shifts, meaning any of the three, counted once. `spread` is the largest minus the smallest tough count
