@@ -132,7 +132,7 @@ test('primed LP siding in two thicknesses changes the panels bought and the sidi
   }
   assert.equal(sidingSpan({ siding: true, sidingType: 'T1-11' }), 16);
   assert.equal(sidingSpan({ siding: true, sidingType: 'LP SmartSide 7/16' }), 24);
-  const warn = buildShed(normalize({ ...defaultDesign(), studSpacing: 24 })).warnings.join(' ');
+  const warn = buildShed(normalize({ ...defaultDesign(), studSpacing: 24, autoStuds: false })).warnings.join(' ');
   assert.match(warn, /rated for studs at 16/);
 });
 

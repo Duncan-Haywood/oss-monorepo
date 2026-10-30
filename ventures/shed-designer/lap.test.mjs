@@ -32,7 +32,7 @@ test('the default 8x12 in fiber cement: no butt joints, 7" courses, OSB under it
 
 test('long walls: every butt joint on a stud, two stud bays from the course below for fiber cement at 16", one for LP', () => {
   for (const [type, sp, gap] of [['fiber cement', 16, 32], ['fiber cement', 24, 24], ['LP SmartSide lap', 16, 16]]) {
-    const shed = lap({ sidingType: type, length: 288, width: 144, studSpacing: sp, maxHaulFt: 0 });
+    const shed = lap({ sidingType: type, length: 288, width: 144, studSpacing: sp, autoStuds: false, maxHaulFt: 0 });
     assert.equal(lapStagger(shed.design), gap);
     const joints = shed.lap.flatMap((f) => f.joints.map((j) => ({ ...j, f })));
     assert.ok(joints.length > 0, `${type} has joints on a 24 ft wall`);
