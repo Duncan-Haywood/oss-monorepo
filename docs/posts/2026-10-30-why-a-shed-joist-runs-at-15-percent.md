@@ -2,7 +2,7 @@
 title: "Why a shed's floor joist runs at 15% of its strength"
 date: 2026-10-30
 tags: [shed-designer, framing, structure]
-description: "Two hand calculations behind the shed designer's 15% readings, what actually sets each member's size, and a new view that colours every member by how much of its capacity it uses."
+description: "Two hand calculations behind the shed designer's 15% readings, what really sets each member's size, and a view that colours members by use."
 ---
 
 A builder and a homeowner walked through the [shed designer](https://duncan-haywood.github.io/oss-monorepo/shed-designer/) for an 8x12 shed they plan to build. The Structure tab showed most members at about 15% of capacity and the ridge beam at 79%. Their reading was that the shed is overbuilt: it is framed like a house, to house habits, when a shed this small is exempt from most of that code.

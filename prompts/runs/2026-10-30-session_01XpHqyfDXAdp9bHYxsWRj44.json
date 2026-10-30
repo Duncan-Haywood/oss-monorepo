@@ -1,0 +1,51 @@
+{
+  "date": "2026-10-30",
+  "session": "https://claude.ai/code/session_01XpHqyfDXAdp9bHYxsWRj44",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "r3 lane 8 (shed-designer): structural utilisation, visible \u2014 utilisation list and heat map, target margin with reasons, hand-calc validation of the 15% figures",
+  "input_sha256": "c6d5985380a2d387eb28ec61a65f761dcbf26e11ddf168a5c0e5975d9ef377fb",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-30T01:45:36Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/duncan-haywood/oss-monorepo/pull/11560",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Names platform/ci/typecheck.mjs (via the brief); the typecheck lives at platform/pages/typecheck.mjs."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Brief suggested a heat map on the framing plans; drew separate coloured sheets instead of editing drawings.mjs, which several open PRs touch.",
+      "did": "utilisation-sheets.mjs renders through sheetSvg",
+      "result": "no conflict surface in drawings.mjs"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Local verification (CI runners starved): node --test *.test.mjs 165 pass/0 fail/1 skip; typecheck 0 diagnostics; utilisation.browser.test.mjs 3/3. Hand calcs reproduce default joist 15.0% and stud 15.4%.",
+  "corrections": [],
+  "redteam": null
+}
