@@ -43,7 +43,7 @@
       "result": "fine"
     }
   ],
-  "writeups": "docs/posts/2026-10-30-testing-payment-reminders-on-random-books.md",
+  "writeups": ["docs/posts/2026-10-30-testing-payment-reminders-on-random-books.md"],
   "goal": null,
   "notes": "Local: node --test collections-property.test.mjs passes. First push landed the branch at main's sha (no commits); a plain push of HEAD fixed it.",
   "corrections": [],
