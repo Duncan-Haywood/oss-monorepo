@@ -25,7 +25,7 @@ export function maxTreadSpan(thickness) { return thickness < 1.25 ? 12 : thickne
 export const RAIL_LIMITS = { guardHeight: 36, handrailMin: 34, handrailMax: 38, maxGap: 4, maxPostSpacing: 72, bottomGap: 4 };
 
 /** @typedef {{ sides?: number, handrail?: boolean, handrailHeight?: number, balusterWidth?: number, railBoard?: string, postWidth?: number, limits?: Partial<typeof RAIL_LIMITS> }} Rail */
-/** @typedef {{ id?: string, rail?: Rail, totalRise: number, tread?: number, stringer?: string, width?: number, stringerSpacing?: number, treadThickness?: number, treadBoard?: string, treadGap?: number, nosing?: number, floorThickness?: number, openingLength?: number, openRisers?: boolean, limits?: Partial<typeof STAIR_LIMITS> }} Stair */
+/** @typedef {{ id?: string, rail?: Rail, totalRise: number, tread?: number, stringer?: string, width?: number, stringerSpacing?: number, treadThickness?: number, treadBoard?: string, treadGap?: number, nosing?: number, floorThickness?: number, openingLength?: number, openRisers?: boolean, riserBoard?: string, treadSpanMax?: number, limits?: Partial<typeof STAIR_LIMITS> }} Stair */
 
 export function sampleStair() {
   return { id: "Main stair", totalRise: 108, tread: 10, stringer: "2x12", width: 36, treadThickness: 1.5, treadBoard: "2x12", floorThickness: 11.25 + 0.75 + 0.5, nosing: 0.75 };
@@ -209,7 +209,7 @@ export function stairText(l) {
  * stair is wide (36 in at least), the usual code rule for a straight run or a turn; the rise is split in half
  * unless `landingRise` (finished floor to the landing surface) is typed. The stairwell opening applies to the
  * upper flight only. A turn does not change a count, so quarter-turns and straight runs buy the same lumber.
- * @param {Stair & { landing?: true | { depth?: number, landingRise?: number, joist?: string, spacing?: number, deckBoard?: string } }} input
+ * @param {Stair & { landing?: true | { openEdges?: string[], depth?: number, landingRise?: number, joist?: string, spacing?: number, deckBoard?: string } }} input
  * @param {{stock: {size: string, length: number}[]}} [plan]
  */
 export function layoutStairWithLanding(input, plan) {
