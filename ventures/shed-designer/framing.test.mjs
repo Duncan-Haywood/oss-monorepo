@@ -90,12 +90,12 @@ test('sliding moves are offered with their saving, and the budget search takes t
 });
 
 // The header load and the eave-wall load the stud check uses are one number
-// (trusses add half the attic's bottom-chord load).
+// (trusses add half the attic's bottom-chord load; a gambrel's come from its frame analysis).
 test('a header carries the same eave-wall load as the studs, for every roof type', async () => {
   const { eaveRoofPlf } = await import('./checks.mjs');
-  for (const roofType of ['ridgeBeam', 'ridgeBoard', 'truss']) {
-    const s = buildShed({ ...defaultDesign(), roofType });
+  for (const o of [{ roofType: 'ridgeBeam' }, { roofType: 'ridgeBoard' }, { roofType: 'truss' }, { style: 'gambrel' }]) {
+    const s = buildShed({ ...defaultDesign(), ...o });
     const e = eaveRoofPlf(s);
-    assert.ok(Math.abs(headerLoadPlf(s.design, 'front') - (e.dead + e.snow + 10)) < 1e-9, roofType);
+    assert.ok(Math.abs(headerLoadPlf(s.design, 'front') - (e.dead + e.snow + 10)) < 1e-9, JSON.stringify(o));
   }
 });

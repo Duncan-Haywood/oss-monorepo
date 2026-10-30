@@ -7,6 +7,7 @@ import { connectionChecks } from './connections.mjs';
 import { integrity } from './integrity.mjs';
 import { buildInstructions } from './instructions.mjs';
 import { LAP_PRODUCTS, lapStagger, backed } from './lap.mjs';
+import { sidingSpan } from './simplify.mjs';
 import { SWAPS } from './catalog.mjs';
 
 const lap = (o) => buildShed({ ...defaultDesign(), sidingType: 'fiber cement', ...o });
@@ -31,7 +32,7 @@ test('the default 8x12 in fiber cement: no butt joints, 7" courses, OSB under it
 
 test('long walls: every butt joint on a stud, two stud bays from the course below for fiber cement at 16", one for LP', () => {
   for (const [type, sp, gap] of [['fiber cement', 16, 32], ['fiber cement', 24, 24], ['LP SmartSide lap', 16, 16]]) {
-    const shed = lap({ sidingType: type, length: 288, width: 144, studSpacing: sp });
+    const shed = lap({ sidingType: type, length: 288, width: 144, studSpacing: sp, maxHaulFt: 0 });
     assert.equal(lapStagger(shed.design), gap);
     const joints = shed.lap.flatMap((f) => f.joints.map((j) => ({ ...j, f })));
     assert.ok(joints.length > 0, `${type} has joints on a 24 ft wall`);
@@ -66,9 +67,11 @@ test('the order: planks from the cut plan, OSB, wrap, starter ripped from a plan
 });
 
 test('engineered wood lap uses only 12 ft planks when 16 ft boards are not ticked', () => {
-  const both = estimate(lap({ sidingType: 'LP SmartSide lap', length: 240 }));
+  // The default 12 ft haul limit keeps 16 ft planks off the order; with no limit the cut plan uses them.
+  assert.ok(estimate(lap({ sidingType: 'LP SmartSide lap', length: 240 })).lapCuts.boards.every((b) => b.stock === 144));
+  const both = estimate(lap({ sidingType: 'LP SmartSide lap', length: 240, maxHaulFt: 0 }));
   assert.ok(both.lapCuts.boards.some((b) => b.stock === 192));
-  const short = lap({ sidingType: 'LP SmartSide lap', length: 240, lengths: [8, 10, 12] });
+  const short = lap({ sidingType: 'LP SmartSide lap', length: 240, lengths: [8, 10, 12], maxHaulFt: 0 });
   const est = estimate(short);
   assert.ok(est.lapCuts.boards.every((b) => b.stock === 144));
   assert.ok(!est.shopping.some((l) => /8 in x 16 ft/.test(l.name)));
@@ -113,4 +116,15 @@ test('even courses: the top plank on the long walls meets the plate, at no more 
     const last = front.courses[front.courses.length - 1];
     assert.ok(Math.abs(last.zb + spec.width - shed.dims.plateTop) < 1e-6, `${type} ${JSON.stringify(o)} top course ends at ${last.zb + spec.width}, plate ${shed.dims.plateTop}`);
   }
+});
+
+test('stud spacing: lap over OSB allows 24" o.c. for both products (cited in lap.mjs), and the built shed says so', () => {
+  for (const type of Object.keys(LAP_PRODUCTS)) {
+    const shed = lap({ sidingType: type, studSpacing: 24 });
+    assert.equal(shed.sidingStudLimit, 24);
+    assert.equal(sidingSpan(shed.design), 24);
+    assert.ok(connectionChecks(shed).rows.every((r) => r.ok), type);
+  }
+  assert.equal(LAP_PRODUCTS['LP SmartSide lap'].maxStuds.directToStuds, 16);
+  assert.equal(buildShed({ ...defaultDesign(), sidingType: 'T1-11' }).sidingStudLimit, undefined);
 });

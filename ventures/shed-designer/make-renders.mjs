@@ -21,7 +21,7 @@ import { extname, join, normalize } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { buildShed } from './model.mjs';
 import { meshOf, solidsOf } from './render3d.mjs';
-import { BUDGET, COVERINGS, RENDER_VERSION, VIEWS, altFor, renderTargets } from './renders.mjs';
+import { BUDGET, COVERINGS, RENDER_VERSION, VIEWS, altFor, designKey, renderTargets } from './renders.mjs';
 import { SIZES, design as sizeDesign } from './make-size-pages.mjs';
 
 const ROOT = fileURLToPath(new URL('.', import.meta.url));
@@ -81,7 +81,7 @@ export function staleTargets(manifest = readManifest(), targets = allTargets()) 
   const renderer = rendererSource();
   return targets.filter((t) => {
     const m = manifest.designs?.[t.slug];
-    if (!m || m.hash !== sceneHash(t.design, renderer)) return true;
+    if (!m || m.hash !== sceneHash(t.design, renderer) || m.designKey !== designKey(t.design)) return true;
     if (Object.keys(m.files || {}).some((v) => !t.views.includes(v))) return true;
     return t.views.some((v) => !m.files?.[v] || !existsSync(join(OUT, m.files[v].file)));
   });
@@ -131,7 +131,7 @@ export async function openStage() {
       const c = document.createElement('canvas');
       c.style.width = `${v.w * ss}px`; c.style.height = `${v.h * ss}px`;
       document.body.append(c);
-      const viewer = createViewer(c);
+      const viewer = createViewer(c, { presentation: v.presentation });
       if (!viewer) throw new Error('no WebGL');
       viewer.setDimensions(false);
       viewer.show(buildShed(design), { refit: true });
@@ -215,7 +215,7 @@ async function main(argv) {
           writeFileSync(join(OUT, file), png);
           files[view] = { file, w: VIEWS[view].w, h: VIEWS[view].h, bytes: png.length, alt: altFor(t.design, view) };
         }
-        manifest.designs[t.slug] = { key: t.key, name: t.design.name, hash: sceneHash(t.design, renderer), files };
+        manifest.designs[t.slug] = { key: t.key, name: t.design.name, hash: sceneHash(t.design, renderer), designKey: designKey(t.design), files };
         console.log(`${t.slug}: ${Object.values(files).map((f) => `${f.file} ${(f.bytes / 1024).toFixed(1)} KB`).join(', ')}`);
       }
     } finally { await stage.close(); }

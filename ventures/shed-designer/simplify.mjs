@@ -16,7 +16,7 @@ import { connectionChecks } from './connections.mjs';
 import { BLOCKS, ROOF_TYPES } from './model.mjs';
 import { PRODUCTS } from './products.mjs';
 import { openingMoves } from './framing-moves.mjs';
-import { LAP_PRODUCTS, isLap } from './lap.mjs';
+import { LAP_PRODUCTS, isLap, lapStudLimit } from './lap.mjs';
 import { floorMoves, searchKeep } from './levers.mjs';
 
 /**
@@ -61,7 +61,8 @@ export function sidingSpan(d) {
   if (!d.siding) return 24;
   // Panel siding is its own sheathing: T1-11 and LP's 3/8" panel are rated for studs at 16" (see the panel's stamp);
   // LP's 7/16" panel and lap siding over OSB take 24".
-  return d.sidingType === 'T1-11' || d.sidingType === 'LP SmartSide' ? 16 : 24;
+  // Lap siding: the figure its maker's install guide gives over sheathing (lap.mjs, cited there).
+  return lapStudLimit(d) ?? (d.sidingType === 'T1-11' || d.sidingType === 'LP SmartSide' ? 16 : 24);
 }
 
 /**

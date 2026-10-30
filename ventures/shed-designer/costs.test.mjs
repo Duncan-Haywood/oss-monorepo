@@ -14,6 +14,7 @@ const designs = () => [
   ...['LP SmartSide', 'board and batten', 'vinyl', 'fiber cement'].map((sidingType) => ({ ...defaultDesign(), sidingType, sidingColor: 'white' })),
   { ...defaultDesign(), roofCover: 'metal', interior: 'drywall', insulation: true, polkaDots: true, glitter: true, pad: 'full', compaction: 'plate compactor', floorPanel: 'OSB' },
   { ...defaultDesign(), interior: 'teen bedroom', roofType: 'ridgeBoard', foundation: 'deck blocks' },
+  { ...defaultDesign(), roofType: 'truss', sidingType: 'LP SmartSide lap', sidingColor: 'white' },
 ];
 
 test('the assemblies and the material types each add up to the shopping list, on every preset', () => {

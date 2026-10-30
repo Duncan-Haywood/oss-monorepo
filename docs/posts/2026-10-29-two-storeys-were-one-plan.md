@@ -1,5 +1,6 @@
 ---
 title: "Two storeys were one plan: testing the framing tool on a real IFC house"
+seo_title: "Two storeys were one plan: testing framing on a real IFC house"
 date: 2026-10-29
 description: "A real two-storey ArchiCAD house exposed a bug in wall-framing-takeoff's IFC import: upper and lower walls merged. It now reads one storey at a time."
 tags: [wall-framing-takeoff, construction, ifc, testing]
