@@ -65,21 +65,18 @@ covers the GitHub MCP tools, shallow clones, `pytest` and long commands.
 python3 prompts/promptctl.py record --track <track> --version <n> --session <session url> --model <model id> --input "<starting message>"
 ```
 
-Fill in the record it writes under `prompts/runs/`: at least `outcome`, `pr`,
-`errors`, `integrity_issues`, `doc_friction`, `deviations` and `writeups` (the
+Fill in the record it writes under `prompts/runs/`: at least `outcome`, `pr`, `errors`, `integrity_issues`, `doc_friction`, `deviations` and `writeups` (the
 post and agent doc you wrote or extended; most PRs carry a new post, and a run
 without one says why in `deviations`: `goals.md`, "Write about the work"),
-plus anything else you can observe. Then measure what the run cost, from its own transcript:
+plus anything else you can observe. Then measure the run's cost from its own transcript:
 `python3 prompts/runcost.py attach <record> --human-hours <h> --human-basis "<how>"`
-(tokens, models, time and API-equivalent dollars; `prompts/README.md`;
-`--human-hours` is optional, drop both flags if you cannot estimate). With no
-`--session` it reads the newest transcript in `~/.claude/projects`, yours in a cloud session. Take the model from the session's metadata, not from memory. Write
-`null` for anything you cannot see, and redact secrets and personal data from
-`input`. Open the pull request first (step 2), so you know its number, then commit
-the record as a final commit on your work branch and push it, so it lands in
-the same pull request as the work (a second push after the PR exists is
-expected, not a mistake). A run with nothing to merge commits no
-record and says so in its final message.
+(`prompts/README.md`; both human-hours flags are optional; with no `--session` it
+reads the newest transcript in `~/.claude/projects`). Take the model from the
+session's metadata, not memory. Write `null` for anything you cannot see, and
+redact secrets and personal data from `input`. Open the pull request first
+(step 2) to know its number, then commit the record as a final commit on your
+work branch and push it, so it lands in the same PR (a second push is
+expected). A run with nothing to merge commits no record and says so.
 
 **`doc_friction` is how the documentation improves.** List every instruction
 that was wrong, stale, contradictory or that cost you time: in this file, a
@@ -88,8 +85,7 @@ and one line on what happened. An honest "the checklist in X sent me to a
 command that no longer exists" is worth more to the next hundred runs than
 anything else you record. **`deviations`** lists the instructions you
 chose not to follow, with what you did instead, why, and how it went
-(`prompts/steering.md`). If you hit a process problem you could not fix,
-add it to `prompts/process/backlog/` in the same PR.
+(`prompts/steering.md`). A process problem you could not fix goes in `prompts/process/backlog/`, same PR.
 
 ## 4. Improve
 
