@@ -168,6 +168,8 @@ export const EXAMPLE_ITEMS = Object.freeze({
   drywallTape: { name: 'Paper drywall tape, 500 ft', unit: 'roll', price: 7.5 },
   pitchConnector: { name: 'Variable-pitch rafter connector (Simpson VPA2 or equal)', unit: 'each', price: 6.39 },
   hurricaneTie: { name: 'Rafter-to-plate tie', unit: 'each', price: 1.2 },
+  anchorKit48: { name: 'Ground anchor kit, 4 x 3/4 in. x 48 in. double-head auger anchors with 8 ft straps and tensioning bolts (Tie Down 59802, soil class 4a)', unit: 'kit', price: 145.84 },
+  anchorKit30: { name: 'Ground anchor kit, 4 x 3/4 in. x 30 in. double-head auger anchors with 8 ft straps and tensioning bolts (Tie Down 59800, soil class 2)', unit: 'kit', price: 109.35 },
   concreteBlock: { name: 'Solid concrete block under skids', unit: 'each', price: 3.5 },
   gravelTon: { name: 'Crushed stone for the pad, 4 in. deep (bulk)', unit: 'ton', price: 45 },
   deckBlock: { name: 'Concrete deck block (pier block) under skids', unit: 'each', price: 10 },

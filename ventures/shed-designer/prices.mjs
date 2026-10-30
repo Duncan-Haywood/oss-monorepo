@@ -145,6 +145,8 @@ export const LISTED_ITEMS = {
   jointCompound: { price: 21.84, url: 'https://www.homedepot.com/p/USG-Sheetrock-Brand-4-5-Gal-Plus-3-Lightweight-All-Purpose-Pre-Mixed-Joint-Compound-381466/100321602', note: `${SNIP}; 4.5 gal` },
   drywallTape: { price: 9.49, url: 'https://hemlockhardware.com/products/266811-sheetrock-2-1-16-in-x-500-ft-paper-joint-drywall-tape', store: 'Hemlock Hardware', note: 'price read from the product page on 2026-10-29 (recheck_prices.py; a search-result copy had shown $7.49); 500 ft paper tape (no big-box listing found)' },
   interiorPaint: { price: 31.98, url: 'https://www.homedepot.com/p/BEHR-PREMIUM-PLUS-1-gal-Deep-Base-Eggshell-Enamel-Low-Odor-Interior-Paint-Primer-230001/202761523', note: `${SNIP}; Behr Premium Plus interior` },
+  anchorKit48: { price: 145.84, seen: '2026-10-30', url: 'https://www.homedepot.com/p/Tie-Down-48-in-x-3-4-in-Double-Head-Anchoring-Kit-with-Straps-and-Bolts-4-Pack-Specialty-Fastener-59802/328302172', note: `${SNIP} on 2026-10-30; Tie Down 59802, four anchors with straps and bolts` },
+  anchorKit30: { price: 109.35, seen: '2026-10-30', url: 'https://www.homedepot.com/p/Tie-Down-30-in-x-3-4-in-Double-Head-Anchoring-Kit-with-Straps-and-Bolts-4-pack-59800/328302034', note: `${SNIP} on 2026-10-30; Tie Down 59800, four anchors with straps and bolts` },
   pitchConnector: { price: 6.39, url: 'https://www.homedepot.com/p/Simpson-Strong-Tie-VPA-Galvanized-Variable-Pitch-Connector-for-1-1-2-in-Engineered-Wood-VPA2/204842454', note: `${SNIP}; Simpson VPA2 for 1-1/2" members` },
   paint: { price: 45.98, url: 'https://www.homedepot.com/p/BEHR-PREMIUM-PLUS-1-gal-Medium-Base-Satin-Enamel-Exterior-Paint-Primer-940001/202301640', note: `${SNIP}; Behr Premium Plus exterior` },
 };

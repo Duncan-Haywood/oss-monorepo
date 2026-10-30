@@ -130,6 +130,9 @@ export function defaultDesign() {
     wallTrim: '1x4',
     roofCover: 'shingles',
     rafterSeat: 'connector',
+    // Ground anchors at the four corners (checks.mjs, ANCHOR_KITS): a 48" kit for
+    // soil class 4a or firmer, a 30" kit for class 2, or none.
+    anchors: '48',
     maxFootprint: 100,
     // The longest board you can carry home (ft, 0 for no limit). Longer stock is
     // bought only for a piece that cannot be spliced; a pickup's 8 ft bed with
@@ -317,6 +320,7 @@ export function normalize(input) {
     sidingType: pick(o.sidingType, ['T1-11', 'LP SmartSide', 'LP SmartSide 7/16', 'board and batten', 'vinyl', 'fiber cement', 'LP SmartSide lap'], d.sidingType),
     roofCover: pick(o.roofCover, ['shingles', 'metal'], d.roofCover),
     rafterSeat: pick(o.rafterSeat, ['birdsmouth', 'connector'], d.rafterSeat),
+    anchors: pick(o.anchors, ['48', '30', 'none'], d.anchors),
     maxFootprint: Math.min(1000, Math.max(0, num(o.maxFootprint, d.maxFootprint))),
     maxHaulFt: /** @type {any} */ (o.maxHaulFt) !== '' && o.maxHaulFt !== null && [0, 8, 10, 12, 14, 16, 18, 20].includes(Number(o.maxHaulFt)) ? Number(o.maxHaulFt) : d.maxHaulFt,
     ...Object.fromEntries(['lotWidthFt', 'lotDepthFt', 'siteLeftFt', 'siteRearFt', 'houseWidthFt', 'houseDepthFt', 'houseLeftFt', 'houseFrontFt', 'setbackFt']

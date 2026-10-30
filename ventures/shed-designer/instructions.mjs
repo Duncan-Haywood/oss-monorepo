@@ -7,7 +7,7 @@
 
 import { fmtIn, fmtFtIn } from './lumber.mjs';
 import { wallLabel } from './model.mjs';
-import { heelJoint, anchorage, anchorageText } from './checks.mjs';
+import { heelJoint, anchorage, anchorageText, groundAnchors } from './checks.mjs';
 import { trussChecks } from './truss.mjs';
 import { gambrelBuildSteps } from './gambrel-sheets.mjs';
 import { lapSteps } from './lap.mjs';
@@ -411,13 +411,27 @@ export function buildInstructions(shed, est) {
       ],
     });
   }
+  const anchors = groundAnchors(shed);
+  if (anchors) out.push({
+    title: 'Ground anchors',
+    why: `${anchorageText(shed)} The anchors hold it down and stop it sliding; the blocks only carry its weight.`,
+    steps: [
+      'Call 811 (or your local utility locator) before you dig: an auger anchor goes 4 ft into the ground.',
+      `Check the soil with a soil test probe (Tie Down sells one). The ${anchors.kit.length}" anchors are rated for soil ${anchors.kit.soil}.${anchors.kit.length < 48 ? ' Anything softer needs the 48" kit.' : ' Softer soil than that is outside the maker\'s rating: ask a local engineer or use concrete piers.'}`,
+      `At each corner, set the anchor out from the outer skid along the corner's diagonal, about as far out as the top of the skid is above the ground, so the strap runs down at about 45 degrees. Screw it in at a slight back angle (about 10 degrees, away from the shed, per the maker's sheet) until the head is flush with the ground; dig a hole two-thirds of its length first if the ground is hard, then backfill and tamp every 6".`,
+      `Wrap the strap round the skid ${k.block ? `just inside the corner ${k.block.pier ? 'pier' : 'block'}` : 'about 12" in from the corner, scraping a channel in the gravel under it'}, a full turn starting over the top, as the maker's sheet wraps a beam. Run it to the anchor head, cut it 12" to 15" past the slotted bolt, and wind it on with a 15/16" wrench: four or five turns, tight, then the nut.`,
+      `Tie the floor frame to the outer skid at each corner with ${anchors.ties} H2.5A tie${anchors.ties > 1 ? 's' : ''} (${4 * anchors.ties} on the list), joist to skid, every nail hole filled. Without them the anchors hold down the skids and not the shed.`,
+    ],
+    check: ['Every strap tight, with no twist where it wraps the skid.', 'Each anchor head flush with the ground and the strap running straight to it.'],
+  });
   out.push({
     title: 'Final checks',
     steps: [
       'Walk the roof edges for nails that missed rafters, and the walls for siding nails that missed studs.',
       `Check that every rafter has its ${k.connector ? 'connector' : 'plate tie'}${beam ? ' and its hanger' : ''}, with every nail hole filled with the nail its maker names.`,
       'Keep the gravel clear of the siding, and slope the ground away from the pad.',
-      anchorage(shed).ratio > 1 ? `Anchor it. ${anchorageText(shed)} Fix each anchor to a skid or the rim joist with the strap and nails its maker names, and check the anchor's rated load for your soil.` : '',
+      !anchors && anchorage(shed).ratio > 1 ? `Anchor it. ${anchorageText(shed)} Fix each anchor to a skid or the rim joist with the strap and nails its maker names, and check the anchor's rated load for your soil.` : '',
+      anchors ? 'Re-tension the anchor straps after the first few weeks and each spring, as the ground settles.' : '',
     ].filter(Boolean),
   });
   return out;

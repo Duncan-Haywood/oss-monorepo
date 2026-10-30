@@ -7,7 +7,7 @@ import { EXAMPLE_ITEMS, fmtIn, fmtFtIn } from './lumber.mjs';
 import { boardPrice, itemPrice } from './prices.mjs';
 import { catalogueRange, productById } from './products.mjs';
 import { optimizeCuts } from './optimize.mjs';
-import { heelJoint } from './checks.mjs';
+import { heelJoint, groundAnchors } from './checks.mjs';
 import { trussChecks } from './truss.mjs';
 import { LAP_PRODUCTS, lapStocks } from './lap.mjs';
 import { finishName, SIDING_FINISHES } from './looks.mjs';
@@ -541,6 +541,12 @@ export function estimate(shed, prices = examplePrices()) {
   // A variable-pitch connector both seats and fastens the rafter at the wall; a notched rafter gets a tie.
   if (dims.connector) line('Foundation and hardware', label('pitchConnector'), dims.rafterCenters.length * 2, 'each', item('pitchConnector'), src('pitchConnector'));
   else line('Foundation and hardware', label('hurricaneTie'), dims.rafterCenters.length * 2, 'each', item('hurricaneTie'), src('hurricaneTie'));
+  // Ground anchors at the corners, and the ties that hold the floor frame to the skid there (checks.mjs, groundAnchors).
+  const anchors = groundAnchors(shed);
+  if (anchors) {
+    line('Foundation and hardware', label(anchors.kit.item), 1, 'kit', item(anchors.kit.item), src(anchors.kit.item));
+    line('Foundation and hardware', `${label('hurricaneTie')}, Simpson H2.5A, floor frame to the outer skid at the corners`, 4 * anchors.ties, 'each', item('hurricaneTie'), src('hurricaneTie'));
+  }
 
   // Fasteners, sealants and flashing. Counts follow the nailing schedule on
   // the details sheet (rounded up); boxes are rounded up from the counts.
