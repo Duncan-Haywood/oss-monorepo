@@ -115,7 +115,7 @@ flagships:
       XRechnung, Peppol profiles) with a self-hosted API, Docker and Render
       deploy, ~48 test files, and a regulatory tailwind (EU e-invoicing mandates).
     next: >-
-      Landed history lives in the README and git (UK page refreshed 2026-10-30 after the 28 Oct roadmap, from a search excerpt only: read the roadmap for phasing and penalties; South Korea page from memory, NTS unread). Open: ZATCA rules on a real sandbox invoice, a real ZATCA credit or debit note (both made up), the Saxon route; FatturaPA
+      Landed history lives in the README and git (UK page read against the gov.uk roadmap 2026-10-30; the standards consultation, spring 2027, is the next UK change to track; South Korea page from memory, NTS unread). Open: ZATCA rules on a real sandbox invoice, a real ZATCA credit or debit note (both made up), the Saxon route; FatturaPA
       code lists (TD29, RF20 added 2026-10-24 from vendor summaries) and tolerances against the primary spec 1.9 text and any later structure change; Portugal's CIUS-PT add-on (made-up invoice; AA/RED/INT/NOR fail EU BR-CL-17/18 though AMA's rules admit them: which validator does AT run?); Poland's FA(3) (PL-001..017, XSD gate matches xmllint on 4,860 mutations; the Ministry's 14 own templates agree with xmllint and 12 are clean, 2026-10-27) on an issued invoice or KSeF test-environment file, more seeds covering the correction, advance and attachment branches;
       the rules and a repair on a real ERP or
       Factur-X export (open the repaired PDF in veraPDF or a viewer); a page
