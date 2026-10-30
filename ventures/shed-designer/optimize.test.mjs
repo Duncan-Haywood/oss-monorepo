@@ -106,3 +106,15 @@ test('patternLP certifies a simple case exactly', () => {
   assert.equal(r.cost, 40);
   assert.equal(r.gap, 0);
 });
+
+test('the relaxation\'s fractional patterns are tried rounded up as well as down', () => {
+  // A 2x6 cut list from a preset's options (rafters, eave blocks, sub-fascia) at the starting prices.
+  const pieces = [[21, 8], [35, 4], [144, 2], [79.5, 14], [21.75, 2], [20.25, 2]].flatMap(([len, n]) => Array.from({ length: n }, () => ({ len })));
+  const stocks = [[96, 6.83], [120, 12.48], [144, 10.68], [168, 14.78], [192, 14.34]].map(([length, price]) => ({ length, price }));
+  const r = optimizeCuts(pieces, stocks, 0.125);
+  // Rounding only down cost $139.44; taking a fractional pattern once more gives $139.25.
+  assert.ok(r.cost <= 139.25 + 1e-9, String(r.cost));
+  assert.ok(r.cost >= r.lowerBound - 1e-9);
+  assert.equal(r.boards.flatMap((b) => b.cuts).length, pieces.length);
+  for (const b of r.boards) assert.ok(b.used <= b.stock + 1e-9);
+});

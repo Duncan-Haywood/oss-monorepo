@@ -215,41 +215,41 @@
   "8x8-lean": {
    "key": "8x8 lean",
    "name": "8x8 garden shed",
-   "hash": "ccd75c1c4d57deaf",
+   "hash": "cf61897653c6c7d7",
    "files": {
     "hero": {
      "file": "8x8-lean-hero.webp",
      "w": 960,
      "h": 640,
-     "bytes": 22186,
-     "alt": "3D render of the 8x8 garden shed, 8 by 8 ft, seen from the front corner: stained T1-11 panel siding, charcoal shingles, 8/12 roof, 11' 1/2\" to the peak."
+     "bytes": 22048,
+     "alt": "3D render of the 8x8 garden shed, 8 by 8 ft, seen from the front corner: stained T1-11 panel siding, charcoal shingles, 6/12 roof, 10' 4-5/8\" to the peak."
     },
     "front": {
      "file": "8x8-lean-front.webp",
      "w": 480,
      "h": 320,
-     "bytes": 4974,
-     "alt": "3D render of the 8x8 garden shed, 8 by 8 ft, seen front: stained T1-11 panel siding, charcoal shingles, 8/12 roof, 11' 1/2\" to the peak."
+     "bytes": 4790,
+     "alt": "3D render of the 8x8 garden shed, 8 by 8 ft, seen front: stained T1-11 panel siding, charcoal shingles, 6/12 roof, 10' 4-5/8\" to the peak."
     },
     "side": {
      "file": "8x8-lean-side.webp",
      "w": 480,
      "h": 320,
-     "bytes": 6140,
-     "alt": "3D render of the 8x8 garden shed, 8 by 8 ft, seen gable end: stained T1-11 panel siding, charcoal shingles, 8/12 roof, 11' 1/2\" to the peak."
+     "bytes": 5986,
+     "alt": "3D render of the 8x8 garden shed, 8 by 8 ft, seen gable end: stained T1-11 panel siding, charcoal shingles, 6/12 roof, 10' 4-5/8\" to the peak."
     },
     "back": {
      "file": "8x8-lean-back.webp",
      "w": 480,
      "h": 320,
-     "bytes": 4706,
-     "alt": "3D render of the 8x8 garden shed, 8 by 8 ft, seen back: stained T1-11 panel siding, charcoal shingles, 8/12 roof, 11' 1/2\" to the peak."
+     "bytes": 4568,
+     "alt": "3D render of the 8x8 garden shed, 8 by 8 ft, seen back: stained T1-11 panel siding, charcoal shingles, 6/12 roof, 10' 4-5/8\" to the peak."
     },
     "framing": {
      "file": "8x8-lean-framing.webp",
      "w": 640,
      "h": 427,
-     "bytes": 18662,
+     "bytes": 18436,
      "alt": "Framing of the 8x8 garden shed (8 by 8 ft) with the siding, sheathing and roofing removed: studs at 16\" on centre, rafters at 24\" and a 2x8 ridge board with rafter ties."
     }
    }
