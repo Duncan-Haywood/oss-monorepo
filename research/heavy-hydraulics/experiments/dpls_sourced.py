@@ -15,7 +15,7 @@ from neutral_sourced import p_n_text
 if __name__ == "__main__":
     print("load factor 0.346; 4 sections (text reading); LS standby 2 L/min; 3,000 cycles per cell")
     print("dp_ls | extra | p_n | LS/OC median (5-95%) | share LS>OC")
-    for dp in (25.0, 14.0, 10.0):
+    for dp in (25.0, 20.0, 14.0, 10.0):
         for extra in (0.0, 5.0):
             p = p_n_text(4) + extra
             m, lo, hi, w = ratio(0.346, p, 2.0, n_per_seed=600, dp_ls=dp)
