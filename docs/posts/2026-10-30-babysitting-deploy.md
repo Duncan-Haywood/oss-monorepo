@@ -1,7 +1,7 @@
 ---
 title: "Running a babysitter's server without losing her leads"
 date: 2026-10-30
-tags: [babysitting-business-kit, self-hosting, backups]
+tags: [babysitting-business-kit, self-hosting, backup]
 description: "Render, Fly.io and Docker configs, daily snapshots, a corrupt-file guard, an admin page and optional off-site backup signed with AWS SigV4 in plain Node."
 ---
 
