@@ -1,7 +1,7 @@
 ---
 title: "Ten sheds under 100 sq ft, picked from 2,400 a search built"
 date: 2026-10-30
-description: "Shed Designer now opens with ten ready designs under the 100 sq ft permit line. A search built 2,400 sheds to find them, and none of the 1,771 it kept costs under $2,000."
+description: "Shed Designer now opens with ten ready designs under 100 sq ft, picked from 2,400 a search built. None of the 1,750 it kept costs under $2,000."
 tags: [shed-designer, construction, optimization]
 ---
 
@@ -30,7 +30,7 @@ A design is kept only if it meets all four of these limits:
 - it is **under 100 sq ft**;
 - it peaks at **13 ft or less**.
 
-The first run kept 906 of its designs. The second kept 865.
+The first run kept 898 of its designs. The second kept 852.
 
 Each card then takes the best kept design on one measure:
 
@@ -55,14 +55,14 @@ An earlier version, built on the simpler cost search, needed two more limits. Wi
 
 ## None of them reaches $2,000
 
-The owner's budget is about $2,000 in materials. Of the 1,771 designs the two runs kept, **none** comes in under it.
+The owner's budget is about $2,000 in materials. Of the 1,750 designs the two runs kept, **none** comes in under it.
 
-The cheapest of all is an 8x10 at **$2,280.98** before tax. It has LP SmartSide panels, a metal roof, a door in the gable end and no windows. The cheapest with lap siding and shingles is also an 8x10, at **$2,593.51**. This is where the $2,280.98 goes:
+The cheapest of all is an 8x10 at **$2,288.04** before tax. It has LP SmartSide panels, a metal roof, a door in the gable end and no windows. The cheapest with lap siding and shingles is also an 8x10, at **$2,602.05**. This is where the $2,288.04 goes:
 
 | Section | Cost |
 | --- | --- |
+| Lumber | $497 |
 | Siding | $490 |
-| Lumber | $489 |
 | Roofing | $389 |
 | Fasteners and sealants | $229 |
 | Sheet goods | $142 |
@@ -73,6 +73,6 @@ The cheapest of all is an 8x10 at **$2,280.98** before tax. It has LP SmartSide 
 | Door hardware | $39 |
 | Site prep | $37 |
 
-Siding costs more than the lumber, and fasteners cost more than the sheet goods. In the lap-sided version, siding rises to $731, because fiber cement planks go over a layer of OSB sheathing. Getting near $2,000 will take what this search does not change: buying fasteners by the pound, not the box, and a cheaper wall skin.
+Siding costs nearly as much as the lumber, and fasteners cost more than the sheet goods. In the lap-sided version, siding rises to $731, because fiber cement planks go over a layer of OSB sheathing. Getting near $2,000 will take what this search does not change: buying fasteners by the pound, not the box, and a cheaper wall skin.
 
 The figures are screening numbers from the tool's own checks, not an engineer's review. Your town decides what needs a permit, and how tall a shed may be.

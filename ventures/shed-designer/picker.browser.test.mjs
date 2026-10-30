@@ -184,10 +184,15 @@ test('typing a new lumber price re-prices the starting designs', { skip }, async
 test('the starting designs are priced the way the page prices: same store, same total', { skip }, async (t) => {
   const { page } = await open(t);
   const n = (x) => Math.round(Number(String(x).replace(/[^0-9.]/g, '')));
-  // The page opens on the default 8x12, which is the "8x12" starting design; its
+  // Start from the "cheapest" starting design, so the page shows it; the page's
   // big total includes tax and delivery, as the detail's "with tax" figure does.
+  await page.locator('#starts .pick-open[data-detail="cheapest"]').click();
+  await page.locator('#pick-dialog [data-start]').click();
+  await page.locator('#pick-dialog').waitFor({ state: 'hidden' });
+  await page.waitForFunction(() => /^Cheapest /.test(document.querySelector('#design-tabs [aria-selected="true"]')?.textContent || ''));
+  await page.waitForTimeout(300);
   const detailWithTax = async () => {
-    await page.locator('#starts .pick-open[data-detail="8x12"]').click();
+    await page.locator('#starts .pick-open[data-detail="cheapest"]').click();
     const txt = await page.locator('#pick-dialog').innerText();
     await page.locator('#pick-dialog [data-close]').click();
     return n(/\((\$[\d,]+) with tax/.exec(txt)?.[1]);
