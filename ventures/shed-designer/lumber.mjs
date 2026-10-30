@@ -127,7 +127,9 @@ export const EXAMPLE_ITEMS = Object.freeze({
   interiorPaint: { name: 'Interior paint, two coats', unit: 'gallon', price: 40 },
   dripEdge: { name: 'Drip edge, 10 ft', unit: 'piece', price: 9 },
   gableVent: { name: 'Louvered gable vent', unit: 'each', price: 18 },
-  rafterHanger: { name: 'Rafter hanger at the ridge beam (2x6)', unit: 'each', price: 2.5 },
+  rafterHanger: { name: 'Sloped rafter hanger at the ridge beam, 2x6 (Simpson LSU26-type, field-adjustable for slope)', unit: 'each', price: 6.5 },
+  rafterHanger28: { name: 'Sloped rafter hanger at the ridge beam, 2x8 (Simpson LSSU28-type)', unit: 'each', price: 11.5 },
+  rafterHanger210: { name: 'Sloped rafter hanger at the ridge beam, 2x10 (Simpson LSSU210-type)', unit: 'each', price: 10.7 },
   paint: { name: 'Exterior paint for the siding, two coats', unit: 'gallon', price: 45 },
   accentPaint: { name: 'Exterior accent paint', unit: 'quart', price: 18 },
   fasciaTrim: { name: 'Primed 1x6 fascia board, 12 ft', unit: 'piece', price: 16 },
@@ -198,4 +200,5 @@ export const EXAMPLE_ITEMS = Object.freeze({
   tHinge: { name: '8 in. zinc-plated tee hinge (shed door)', unit: 'each', price: 8.5 },
   hasp: { name: '4-1/2 in. safety hasp (shed door)', unit: 'each', price: 6.6 },
   doorPull: { name: '6-1/2 in. door pull (shed door)', unit: 'each', price: 7.5 },
+  caneBolt: { name: '18 in. zinc cane bolt (holds the fixed leaf of a pair of doors)', unit: 'each', price: 17.5 },
 });

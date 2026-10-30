@@ -1,6 +1,6 @@
 ---
 title: "A second gap probe: 139 more bank lines, 13 rule gaps closed"
-seo_title: "Bank-line categorizer gap probe 2: trades, restaurants, e-commerce, clinics"
+seo_title: "Categorizer gap probe 2: trades, restaurants, e-commerce, clinics"
 date: 2026-10-30
 tags: [ai-bookkeeper, evaluation]
 description: "139 everyday descriptions from trades, restaurants, online shops and clinics: 23 got no suggestion; 13 were real gaps, now covered, 10 are blank on purpose."
