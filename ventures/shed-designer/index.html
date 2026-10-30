@@ -129,6 +129,15 @@
     .boards .cut { position: absolute; top: 0; bottom: 0; background: #f1dfb9; border-right: 2px solid #6b4f2a; font-size: .72rem; line-height: 24px; padding-left: 4px; white-space: nowrap; overflow: hidden; }
     .boards .off { color: var(--muted); }
     .boards .use { grid-column: 2 / -1; margin-top: -2px; color: var(--muted); }
+    .xref { margin: 8px 0; padding: 10px 12px; border: 2px solid #f07318; border-radius: 10px; background: #fff6ee; font-size: .9rem; }
+    .xref h3 { margin: 0 0 4px; font-size: 1rem; }
+    .xref .toolrow { margin-top: 6px; }
+    .xref-on, .xref-on td, .xref-on th { background: #ffe6cf !important; }
+    #plans text.mark.xref-on { fill: #c2410c; font-weight: 800; paint-order: stroke; stroke: #ffd7b0; stroke-width: 5px; }
+    button.xref-btn { font-size: .8rem; margin-left: 6px; }
+    .card .wide { grid-column: 1 / -1; }
+    .card ul.changes { margin: 2px 0 0; padding-left: 18px; font-weight: 400; }
+    #shopping tr.subtot th, #shopping tr.subtot td { font-weight: 600; border-top: 1px solid var(--line); }
     #shopping .use { font-size: .8rem; color: var(--muted); }
     h4, h3.h4 { margin: 14px 0 4px; font-size: .95rem; }
     .grid input { width: 74px; }
@@ -371,7 +380,7 @@
     </div>
     <section class="viewer" aria-labelledby="v3d-h">
       <h2 id="v3d-h">3D view</h2>
-      <canvas id="view3d" tabindex="0" role="img" aria-label="3D model of the framed shed. Drag to turn it, scroll or pinch to zoom; with the keyboard, the arrow keys turn it and + and - zoom."></canvas>
+      <canvas id="view3d" tabindex="0" role="img" aria-label="3D model of the framed shed. Drag to turn it, right-drag or Shift-drag (two fingers on a phone) to slide it, scroll or pinch to zoom; with the keyboard, the arrow keys turn it, Shift and the arrow keys slide it, and + and - zoom."></canvas>
       <p id="view3d-fallback" hidden>This browser has no WebGL, so the 3D view is off. The plans, cut sheet and estimate below still work.</p>
       <div class="toolrow">
         <button type="button" class="btn" id="presentation" aria-pressed="false">Presentation</button>
@@ -390,6 +399,8 @@
       <div class="toolrow"><label class="check"><input type="checkbox" id="show-dims" checked> Dimensions</label><label class="check"><input type="checkbox" id="show-outlines" checked> Board outlines</label><label class="check"><input type="checkbox" id="show-scenery" checked> Lawn and sky</label><label class="check"><input type="checkbox" id="heat-3d"> Colour by structural use</label></div>
       <p class="hint" id="heat-legend" hidden></p>
       <p class="hint" id="pick-info" aria-live="polite"></p>
+      <p class="hint">Click a board in the 3D view to see what it is, or "Show in 3D" on a line of the shopping list, cut sheet or parts list to see where its pieces go.</p>
+      <div class="xref" id="xref" hidden aria-live="polite"></div>
 
       <div class="panel summary" id="summary" aria-live="polite">
         <h2>Estimated cost</h2>
@@ -478,11 +489,11 @@
       <legend>Doors, windows and vents</legend>
       <div class="table-wrap">
         <table id="openings">
-          <thead><tr><th scope="col">Type</th><th scope="col">Wall</th><th scope="col">Product (sets the rough opening)</th><th scope="col">From left corner (in)</th><th scope="col">Width (in)</th><th scope="col">Height (in)</th><th scope="col">Sill (in)</th><th scope="col"><span class="sr-only">Remove</span></th></tr></thead>
+          <thead><tr><th scope="col">Type</th><th scope="col">Wall</th><th scope="col">Product (sets the rough opening)</th><th scope="col">From left corner (in)</th><th scope="col">Width (in)</th><th scope="col">Height (in)</th><th scope="col">Sill (in)</th><th scope="col" class="n">Costs in all</th><th scope="col"><span class="sr-only">Remove</span></th></tr></thead>
           <tbody></tbody>
         </table>
       </div>
-      <p class="hint">Sizes are rough openings. Pick an off-the-shelf shed window or door and its maker's rough opening fills in, and the unit joins the shopping list with its source; type a size to go custom. Offsets are measured from the left corner of that wall as you face it from outside.</p>
+      <p class="hint">Sizes are rough openings. Pick an off-the-shelf shed window or door and its maker's rough opening fills in, and the unit joins the shopping list with its source; type a size to go custom. Offsets are measured from the left corner of that wall as you face it from outside. "Costs in all" is the shed's price with the opening less its price without it, walls and roof held where they are: the unit, its framing, casing, caulk and flashing, less the studs it replaces. Panel siding is bought in whole sheets, so a small opening rarely saves a sheet.</p>
       <div class="toolrow">
         <button type="button" class="btn" id="add-door">Add door</button>
         <button type="button" class="btn" id="add-window">Add window</button>
@@ -557,14 +568,14 @@
       <div class="table-wrap"><table id="shopping"><thead><tr><th scope="col">Item</th><th scope="col" class="n">Qty</th><th scope="col">Unit</th><th scope="col" class="n">Each</th><th scope="col" class="n">Total</th><th scope="col">Price source</th><th scope="col">Have it</th><th scope="col">Leave out</th></tr></thead><tbody></tbody></table></div>
       <p class="muted">Prices are store listings seen on 2026-10-29 (mostly Home Depot), most read from the search result's copy of the product page, so they can be days or weeks old and vary by store. Lengths with no listing are scaled by the foot from the nearest listed length; anything with no listing at all says "estimate". Type your own store's prices below.</p>
       <details style="margin-top:12px" open>
-        <summary><strong>Compare stores and swap parts</strong> (Home Depot, Lowe's and Menards, with item numbers and links)</summary>
+        <summary><strong>Compare stores and swap parts</strong> (Home Depot and Lowe's, with item numbers and links)</summary>
         <div id="stores" style="margin-top:10px"></div>
       </details>
       <div class="toolrow"><button type="button" class="btn" id="csv-shopping">Download CSV</button></div>
       <details style="margin-top:12px" open>
         <summary><strong>Ask stores for a quote</strong> (a draft email from this list, asking for bulk pricing and delivery)</summary>
         <div class="fields" style="margin-top:10px">
-          <label>Store<select id="quote-store"><option value="both">Home Depot and Lowe's (two emails)</option><option value="homedepot">Home Depot Pro Desk</option><option value="lowes">Lowe's Pro Desk</option><option value="menards">Menards contractor desk</option><option value="yard">Local lumberyard</option></select></label>
+          <label>Store<select id="quote-store"><option value="both">Home Depot and Lowe's (two emails)</option><option value="homedepot">Home Depot Pro Desk</option><option value="lowes">Lowe's Pro Desk</option><option value="yard">Local lumberyard</option></select></label>
           <label>Your name<input id="quote-name" type="text" maxlength="80"></label>
           <label>Your phone<input id="quote-phone" type="text" maxlength="40"></label>
           <label>Delivery ZIP code<input id="quote-zip" type="text" maxlength="10"></label>
