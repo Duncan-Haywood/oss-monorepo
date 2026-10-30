@@ -1,7 +1,7 @@
 ---
 title: "Reading the shed instructions like a carpenter: fourteen fixes"
 date: 2026-10-30
-description: "Shed Designer's build steps passed every test, but read start to finish against the plans and the shopping list they had the drip edge before the fascia, flashing that could not go where it said, and screws that did not match the list."
+description: "Read start to finish, Shed Designer's build steps had drip edge before fascia, flashing that could not go where it said, and screws the list never bought."
 tags: [shed-designer, framing, instructions]
 ---
 
