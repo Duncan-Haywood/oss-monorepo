@@ -420,6 +420,13 @@ class RepositoryTest(unittest.TestCase):
         self.assertAlmostEqual(weights["polish"] / sum(weights.values()), 0.05, places=3)
         self.assertTrue(tracks["polish"].get("until"))
 
+    def test_performance_engineering_gets_about_five_percent(self):
+        # The owner, 2026-10-24: "add some work distribution to overall
+        # performance engineering across the repo" (prompts/perf/prompt-0.md).
+        tracks = promptctl.load_routing(promptctl.ROOT)["tracks"]
+        weights = {t: float(c["weight"]) for t, c in tracks.items() if t != promptctl.REVIEW}
+        self.assertAlmostEqual(weights["perf"] / sum(weights.values()), 0.05, places=3)
+
 
 
 

@@ -76,6 +76,17 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
+          # Only what checklist_coverage.py reads (P048): the names of every test file
+          # (it globs *.test.mjs and *.py), the checklist, CLAUDE.md and pyproject.toml.
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*.md
+            /pyproject.toml
+            /.github/
+            /platform/ci/
+            *.test.mjs
+            *.py
 
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:

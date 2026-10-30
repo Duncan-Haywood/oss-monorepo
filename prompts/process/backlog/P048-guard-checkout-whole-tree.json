@@ -1,0 +1,34 @@
+{
+  "id": "P048",
+  "title": "perf: CI guard jobs clone the whole 38,800-file tree to do seconds of work",
+  "status": "in_progress",
+  "owner": "agent",
+  "effect": 3,
+  "cost": 2,
+  "problem": "Most guard workflows (Conflict markers, Checklist coverage, Prompts, Doc references, README live links, Duplicate symbols, Research, Sibling links, Link contrast) run a full actions/checkout of the tree and then a check that takes a few seconds. Checkout is now the largest single cost in the runner pool, and the account's concurrent-job ceiling makes every wasted minute a minute another PR waits.",
+  "evidence": [
+    "ci_profile.py, 600 runs 2026-10-24 00:09-01:29 UTC: checkout 302 of 750 job-minutes (40%), up from 21% on 2026-10-21 (docs/history/ci-perf-2026-10-21.md)",
+    "same window: 359 jobs did <15s of non-setup work with >=15s of checkout; they took 261 job-minutes (35% of the pool), 210 of them in checkout",
+    "per workflow (jobs, job-min, of which checkout): Conflict markers 61/46.8/34.4, Checklist coverage 49/32.8/28.4, Prompts 38/25.5/20.8, Doc references 34/23.0/19.6, README live links 33/21.2/18.2"
+  ],
+  "change": "For each guard, list the paths its script actually reads, then use actions/checkout's sparse-checkout (with sparse-checkout-cone-mode) or a filter:blob:none clone limited to those paths. Guards that must scan the whole tree (conflict markers) keep a full tree but can use filter: blob:none plus a sparse pattern excluding binary assets, or read `git ls-files` + `git grep` on a blob-less clone. Verify each guard still fails on a seeded violation after the change. Track it with ci_profile.py's checkout share.",
+  "touches": [
+    ".github/workflows/conflict-markers-ci.yml",
+    ".github/workflows/checklist-coverage.yml",
+    ".github/workflows/prompts-ci.yml",
+    "platform/ci/"
+  ],
+  "metric": "checkout share of job-minutes in ci_profile.py --runs 600",
+  "baseline": "40% (302 of 750 job-minutes), 2026-10-24",
+  "opened": "2026-10-24",
+  "source": "prompts/runs/2026-10-24-session_01Gcz8nVnXVeNTiqb8JKabK1.json",
+  "pr": null,
+  "result": null,
+  "history": [
+    {
+      "date": "2026-10-30",
+      "note": "Part 1: sparse checkouts for conflict markers, checklist coverage, duplicate symbols and link contrast; conflict-marker script fails on a missing text file. Part 2 (doc refs, README live links, sibling links) listed in docs/history/ci-perf-2026-10-30-guard-checkouts.md.",
+      "pr": "this"
+    }
+  ]
+}

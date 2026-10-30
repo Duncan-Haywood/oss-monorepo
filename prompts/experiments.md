@@ -1695,3 +1695,23 @@ or `ventures`) until its success rate passes 80% over 20 runs?
 - Decisions: candidates (ventures 2, process 2, review 2) still "keep
   collecting: the intervals overlap"; no audit or drift report (reduced pass).
 - Result: (next review)
+
+## E114: A perf track, about 5% of runs (2026-10-24, owner request)
+
+- Change: new track `perf` (`prompts/perf/prompt-0.md`) at weight 0.05 in
+  `routing.json`; ventures and research go from 0.315 to 0.29 each (the `polish` track had
+  already taken them from 0.34 to 0.315). A perf
+  run measures (`ci_profile.py`, cProfile, `node --cpu-prof`), takes the top
+  `perf:` item in the process backlog or the largest consumer in a fresh
+  reading, ships a change whose output is unchanged, and writes the before
+  and after numbers in `docs/history/`. Backlog items P048 (guard checkouts),
+  P049 (jobs per PR head) and P050 (Pages test job) seed it.
+- Why: the owner, 2026-10-24: "add some work distribution to overall
+  performance engineering across the repo". Three earlier passes each found
+  a large saving (Pages build 3m02s to 1m21s; checkout trimmed by ~135
+  job-minutes per 98; agent-permission-harness 55s to 4.5s), so the work has
+  paid when done, and only happened when someone asked.
+- Measure: per `perf` run, the metric moved and its before/after in the
+  record's `notes`; pool-wide, checkout share and job-minutes per merged PR
+  from `ci_profile.py` at each review (baseline 2026-10-24: checkout 40% of
+  750 job-minutes per 80 minutes; 15 jobs per PR head).
