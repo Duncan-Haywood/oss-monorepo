@@ -103,6 +103,9 @@ fly deploy</pre></li>
   </table>
   </div>
 
+  <h2>Late-sit safety check-in</h2>
+  <p>The app's Safety tab can start a check-in before a late sit: a trusted contact and a "home by" time. It needs no new settings, only texts (<code>TWILIO_ACCOUNT_SID</code> and friends) or email (<code>RESEND_API_KEY</code>, <code>FROM_EMAIL</code>) already set up; with neither, the server refuses the check-in so you never rely on one that cannot fire. At the home-by time the server pings you (your <code>NOTIFY_WEBHOOK_URL</code> or <code>NOTIFY_EMAIL</code>) with your private link, <code>PUBLIC_URL</code>/safe/&lt;token&gt;, where you tap "I'm home safe", extend or cancel. After the grace period it texts or emails your contact your name, phone, the time and only the place you chose to share, never anything about the children, and an all-clear when you check in. Unlike the automations, it ignores quiet hours: a safety alert goes out at any hour. The server checks every minute, so an alert can be up to a minute late; it is a backup, not an emergency service.</p>
+
   <h2>Backups and the status page</h2>
   <ul>
     <li>Every save is written to a temporary file and then renamed, so a crash cannot leave half a file.</li>

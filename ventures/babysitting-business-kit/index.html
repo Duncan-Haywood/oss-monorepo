@@ -88,6 +88,7 @@
     <button type="button" role="tab" data-tab="content">Content</button>
     <button type="button" role="tab" data-tab="print">Print</button>
     <button type="button" role="tab" data-tab="blog">Posts &amp; blog</button>
+    <button type="button" role="tab" data-tab="safety">Safety</button>
     <button type="button" role="tab" data-tab="settings">Settings</button>
   </nav>
 
@@ -325,6 +326,11 @@
       <div id="contentKit"></div>
     </section>
 
+    <section data-panel="safety" class="card" hidden>
+      <h2>Your safety</h2>
+      <div id="safetyKit"></div>
+    </section>
+
     <section data-panel="settings" class="card" hidden>
       <h2>Settings: you, your rates, your limits</h2>
       <form id="profileForm">
@@ -419,6 +425,7 @@
     import * as P from "./print.mjs";
     import { mountAutomations } from "./automations-ui.mjs";
     import { mountContent } from "./content-ui.mjs";
+    import { mountSafety } from "./safety-ui.mjs";
     import { enhanceTabs } from "./tabs.mjs";
 
     const STORE = "babysitting-business-kit-desk";
@@ -434,6 +441,7 @@
     let desk = load();
     let knownLeadIds = [];
     let renderAutomations = () => {};
+    let renderSafety = () => {};
 
     function load() {
       try { return E.normalizeDesk(JSON.parse(localStorage.getItem(STORE) || "null")); } catch { return E.emptyDesk(); }
@@ -656,6 +664,7 @@
       renderFamilyMsgs();
       renderPrint();
       renderAutomations();
+      renderSafety();
       fillForm($("profileForm"), { ...desk.profile, certifications: desk.profile.certifications, holidays: desk.profile.holidays, followUpDays: desk.profile.followUpDays });
       $("profileForm").scrollIntoView = () => {};
     }
@@ -912,6 +921,7 @@
     renderAutomations = mountAutomations({ getDesk: () => desk, save, esc, record });
     $("contentStart").value = today();
     mountContent($("contentKit"), { getDesk: () => desk, save, record, today, buildSite: (d) => E.buildSite(d) });
+    renderSafety = mountSafety($("safetyKit"), { getDesk: () => desk, save, esc, record, today, openPage, server: () => ({ url: $("syncUrl").value.trim().replace(/\/+$/, ""), key: $("syncKey").value }) });
     record("page_loaded");
     render();
     show("today");
