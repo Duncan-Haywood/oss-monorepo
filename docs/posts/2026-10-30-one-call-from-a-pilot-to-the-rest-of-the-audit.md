@@ -2,7 +2,7 @@
 title: "One call from a hand-coded pilot to the rest of the audit"
 date: 2026-10-30
 tags: [llm-coding-inference, research, measurement]
-description: "llmci.plan_audit takes the coder's codes and a 30% hand-coded pilot and says whether to pool the audit or split it by the coder's own label, and how many more items to label."
+description: "llmci.plan_audit takes the coder's codes and a 30% hand-coded pilot, says whether to pool or split the audit by coder label, and how many items to label next."
 ---
 
 When an LLM codes a corpus and people hand-check a sample to correct it, the open question is how to spend the hand-coding budget. Our [llm-coding-inference programme](https://duncan-haywood.github.io/oss-monorepo/research/) found a rule over several milestones: hand-code a random 30% pilot, estimate how informative the coder is (Youden's J), and split the audit by the coder's label only if J is at least 0.3 and the pilot has at least 20 human positives. Otherwise pool.
