@@ -61,6 +61,8 @@ function randomDesign(r) {
   }
   // Attic storage applies to truss roofs; elsewhere it is ignored.
   d.atticStorage = r() < 0.3;
+  // A quarter are gambrels (barn roofs), with or without a loft.
+  if (r() < 0.25) Object.assign(d, { style: 'gambrel', gambrelLower: between(16, 30), gambrelKnee: r() < 0.5 ? 0 : between(0, 120), loft: pick(['none', 'half', 'full']), loftJoist: pick(['2x6', '2x8', '2x10']) });
   return d;
 }
 
