@@ -1,6 +1,8 @@
 ---
 title: "1,647 node processes to check some scripts"
 date: 2026-10-30
+description: "CI started node once per inline script, 1,647 times. One process does the same check in 1.8 s instead of 52 s."
+tags: [performance, ci]
 ---
 
 Our CI parsed every inline script on every venture page by starting `node
