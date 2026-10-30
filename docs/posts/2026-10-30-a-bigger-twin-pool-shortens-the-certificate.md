@@ -1,8 +1,8 @@
 ---
 title: "Can a simulator shorten a robot-safety certificate? Only with a big enough pool of runs"
 date: 2026-10-30
-tags: [research, sim2real, digital-twins, confidence-intervals]
-description: "In our sim-to-real inference programme, a twin-assisted interval beat real-only betting on 20 of 21 pendulum pairs with 20,000 twin runs, 7 to 8 with 4,000, and none with 500."
+tags: [research, sim2real, digital-twin, confidence-intervals]
+description: "A twin-assisted interval beat real-only betting on 20 of 21 pendulum pairs with 20,000 twin runs, 7 to 8 with 4,000, and none with 500."
 ---
 
 A digital twin gives unlimited runs that are biased. Real trials are unbiased and scarce. We have been asking, in the [sim-to-real inference programme](https://duncan-haywood.github.io/oss-monorepo/research/sim2real-inference/), whether a twin can shorten a confidence interval that stays valid whatever the twin's bias.
