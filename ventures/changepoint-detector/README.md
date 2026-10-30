@@ -1167,3 +1167,22 @@ So the 16 to 22 steps on the real euro series are what a white-noise null does w
 **`driftWarning` and autocorrelated noise: the text now points at `--ar1` (measured 2026-10-29).** `eval/drift-warning-null195-ar1.mjs` re-runs the 195-month null (fixed season, no shock, 40 seeds per cell, raw scale, `--trend bend`) with and without `--ar1`. At rho 0.5 the warning fired in 33, 33 and 35 of 40 series without `--ar1` (sd 0.01, 0.02, 0.04) and in 0, 0 and 1 of 40 with it; at rho 0 it fired 0 to 3 of 40 either way (3, 2, 0 without; 2, 2, 0 with). So when the series looks autocorrelated (rho of 0.3 or more) and `--ar1` is off, the warning now says so and asks for a re-run before reading the steps as a changing shape. Not measured: whether `--ar1` also keeps the warning on a real drifting shape under sticky noise (the `--period --drift --ar1` section above covers the fit, not this warning). Output: `eval/drift-warning-null195-ar1.out.txt`; test: `drift-warning-null195-ar1.test.mjs`.
 
 **`--ar1` on real drifting series (2026-10-29, `eval/drift-warning-real-ar1.mjs`).** With `--trend bend`, `--ar1` keeps the drift warning on the airline-passengers series (raw and log, 8 to 10 steps, warning yes) and stays silent on the fixed-season Nottingham temperatures, but it loses the warning on UK gas, a genuinely growing season (raw and log each fall from 6 or 7 steps to 1), and on UK driver deaths raw (the 1973 shock; log still warns). Johnson & Johnson never warned with bend. So `--ar1` is not a free fix for the autocorrelated false alarm: on a short quarterly series it widens the noise scale enough to swallow the drifting shape. Use it when the lag-1 autocorrelation is high and read the warning as "not shown" rather than "absent" on short series.
+
+## A "null" that was not: US accidental deaths, 1973-78 (2026-10-30)
+
+`eval/drift-warning-trendless.mjs` had used the 72 months of US accidental
+deaths (R's `USAccDeaths`) as a no-shock null. It is not quiet. With the
+12-month season, every setup tried (mean, NB counts, `--ar1`, `--trend bend`)
+puts a fall at 1973-12 of about 1,000 deaths a month (9,707 to 8,757 for the
+mean model), and all but the bend run add a second step at 1975-07. With no
+seasonal term the winter peaks read as steps instead (1973-05, 1973-11,
+1978-05). `eval/us-accidental-deaths.mjs` prints the table and
+`us-accidental-deaths.test.mjs` locks it.
+
+The timing sits with the oil embargo of late 1973 and the national 55 mph
+limit of January 1974, which is the usual reading of that drop in driving
+deaths. This is one dated coincidence on one series, not a test of the
+detector against a known date, and the first segment is only 12 months long.
+The note in the drift-warning eval now says so; its warning counts on this
+series are unchanged, so read them as warnings on a series with a real step,
+not as false alarms.
