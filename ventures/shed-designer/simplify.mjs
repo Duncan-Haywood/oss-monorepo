@@ -38,6 +38,8 @@ export function cutMetrics(shed, est) {
   for (const m of all) {
     if (m.kind === 'rafter') { angled += shed.dims.overhang > 0 ? 2 : 1; if (!shed.dims.connector && !shed.dims.truss) notches += 1; }
     else if (m.kind === 'king post') angled += 2;
+    // A gambrel chord: a level foot or a plumb cut at one end, a mitre at the knee; its tie has both ends cut to the slope.
+    else if (m.kind === 'lower chord' || m.kind === 'upper chord' || (m.kind === 'rafter tie' && shed.design.style === 'gambrel')) angled += 2;
     else if (m.kind === 'gable stud' || m.kind === 'vent trimmer' || m.kind === 'post stud' && m.group.startsWith('gable')) angled += 1;
     else if (m.kind === 'eave blocking') angled += 1;
     else if (m.kind === 'door brace') angled += 2;
@@ -96,8 +98,8 @@ export function laborHours(shed, est, cuts = cutMetrics(shed, est)) {
   let min = cuts.straight * 1 + cuts.angled * 2.5 + cuts.notches * 4;
   min += (shed.members.length + (shed.doorParts || []).length) * 2.5;
   min += shed.fixtures.filter((f) => f.kind === 'connector').length;
-  // Each truss gusset: marked and cut from OSB, glued and nailed (our planning figure, like MINUTES).
-  min += shed.panels.filter((p) => p.kind === 'truss gusset').length * 4;
+  // Each truss gusset, or a gambrel's plywood one: marked, cut, glued and nailed (our planning figure, like MINUTES).
+  min += shed.panels.filter((p) => p.kind === 'truss gusset' || p.kind === 'gambrel gusset').length * 4;
   min += (shed.wallTrim || []).length * 8;
   for (const r of est.shopping) {
     const m = /** @type {Record<string, number>} */ (MINUTES)[r.source?.key];
