@@ -1,0 +1,117 @@
+{
+  "date": "2026-10-30",
+  "session": "https://claude.ai/code/session_01E5sJKo2Mqsh6BYJsFF2QDq",
+  "track": "review",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-30T10:17:34Z",
+  "ended": "2026-10-30T10:21:31Z",
+  "wall_minutes": 4.05,
+  "tokens_in": 916112,
+  "tokens_out": 4356,
+  "cost_usd": 0.3809,
+  "tool_calls": 19,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/11744",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/review/prompt-1.md",
+      "issue": "measure takes >120s; needed a manual sleep/poll since wait_for.py only watches for a DONE line that measure never prints"
+    }
+  ],
+  "deviations": [],
+  "writeups": [],
+  "goal": null,
+  "notes": "Reduced pass (steps 1,3,7,8 + one fix). No candidate decisions changed. Fixed promptctl record collision on reused session ids. No post: process-only run.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c742d3e6-3152-54ee-9af1-3dbbe095ffdf",
+    "transcripts": 1,
+    "first": "2026-10-30T10:17:34Z",
+    "last": "2026-10-30T10:21:37Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 15,
+        "input": 28,
+        "output": 4356,
+        "thinking": 321,
+        "cache_read": 875529,
+        "cache_write_5m": 0,
+        "cache_write_1h": 40555,
+        "api_equivalent_usd": 0.3809,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 15,
+      "input": 28,
+      "output": 4356,
+      "thinking": 321,
+      "cache_read": 875529,
+      "cache_write_5m": 0,
+      "cache_write_1h": 40555,
+      "api_equivalent_usd": 0.3809,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.956,
+    "tool_calls": 19,
+    "tools": {
+      "Bash": 14,
+      "mcp__github__search_pull_requests": 2,
+      "Read": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4.05,
+      "active_minutes": 4.05,
+      "model_minutes": 1.03,
+      "tool_minutes": 3.02,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
