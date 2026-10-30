@@ -80,9 +80,6 @@ export const OFFERS = {
   ],
   pitchConnector: [
   ],
-  rafterHanger: [
-    { store: "Lowe's", name: 'Simpson Strong-Tie LUS26 2x6 hanger', model: 'LUS26, product 1187273', price: 1.58, url: 'https://www.lowes.com/pd/Simpson-Strong-Tie-LUS26-2-x-6-Double-Shear-Hanger/1187273' },
-  ],
   stain: [
     { store: "Lowe's", name: 'Valspar solid exterior stain and sealer, tintable, 1 gal', model: 'VL1028091-16, product 1000515853', price: 48.98, url: 'https://www.lowes.com/pd/Valspar-Tintable-Neutral-Base-Solid-Exterior-Stain-and-Sealer-Actual-Net-Contents-116-fl-oz/1000515853' },
   ],
@@ -113,6 +110,7 @@ export const SWAPS = [
   { id: 'lapfc2', when: (d) => d.siding && d.sidingType === 'LP SmartSide lap', change: { sidingType: 'fiber cement' }, title: 'Engineered wood lap to fiber cement lap', why: 'Fiber cement does not rot or feed termites, and holds paint longer.', cost: 'Heavier, dusty to cut (cut it outdoors with a fiber cement blade or shears), and sold only in 12 ft planks.' },
   { id: 'lapt111', when: (d) => d.siding && (d.sidingType === 'fiber cement' || d.sidingType === 'LP SmartSide lap'), change: { sidingType: 'T1-11' }, title: 'Lap siding back to T1-11 panels', why: 'Panels are their own sheathing and bracing, so no OSB or house wrap.', cost: 'Vertical grooves instead of horizontal courses, and bare plywood to prime or stain.' },
   { id: 'notrim', when: (d) => d.siding && d.wallTrim !== 'none' && d.sidingType !== 'fiber cement' && d.sidingType !== 'LP SmartSide lap', change: { wallTrim: 'none' }, title: 'Drop the 1x4 corner boards and casings', why: 'Saves the trim boards and an afternoon.', cost: 'Panel edges at the corners and round the openings are left bare; caulk and paint them well.' },
+  { id: 'trim54', when: (d) => d.siding && d.wallTrim === '1x4' && (d.sidingType === 'fiber cement' || d.sidingType === 'LP SmartSide lap'), change: { wallTrim: '5/4' }, title: '1x4 pine trim to 5/4 trim (HardieTrim or LP 540)', why: 'Thicker trim stands proud of the lap butts, the detail both makers draw, and it is the same rot-resistant material as the siding.', cost: 'Dearer per foot than primed pine, and LP 540 comes only in 16 ft lengths.' },
   { id: 'compactor', when: (d) => d.compaction === 'hand tamper' && d.length * d.width > 144 * 144, change: { compaction: 'plate compactor' }, title: 'Rent a plate compactor instead of hand tamping', why: 'A big pad goes much faster and packs harder.', cost: 'A day\'s rental costs more than a tamper.' },
   { id: 'birdsmouth', when: (d) => d.rafterSeat === 'connector', change: { rafterSeat: 'birdsmouth' }, title: 'Variable-pitch connectors to birdsmouth notches and hurricane ties', why: 'A notched rafter sits on the plate and a Simpson H2.5A tie (under a dollar) holds it down, in place of a VPA connector (about $6.39) at each rafter end.', cost: 'A birdsmouth to lay out and cut in every rafter, two cuts each.' },
   { id: 'connector', when: (d) => d.rafterSeat === 'birdsmouth', change: { rafterSeat: 'connector' }, title: 'Birdsmouth notches to variable-pitch connectors', why: 'No notch to lay out or cut in every rafter: a square-ended rafter sits on a Simpson VPA.', cost: 'A connector per rafter end.' },

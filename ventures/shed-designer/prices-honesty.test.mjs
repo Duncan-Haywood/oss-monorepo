@@ -83,3 +83,15 @@ test('a custom-size opening counts at the range median only when asked, marked a
   const wide = estimate(buildShed(normalize({ ...d, openings: [{ id: 'o1', kind: 'door', wall: 'left', offset: 18, width: 60, height: 74 }] })));
   assert.match(wide.unpriced[0], /\$465\.00 to \$585\.00 across the 2 double shed doors/);
 });
+
+test('a custom window is priced against catalogue windows of about its size', async () => {
+  const { catalogueRange } = await import('./products.mjs');
+  const small = catalogueRange('window', 14, 21);
+  const big = catalogueRange('window', 32, 24);
+  assert.ok(small && big);
+  assert.ok(small.hi < big.median, `a 14 x 21 (${small.lo}-${small.hi}) costs less than a 32 x 24 (median ${big.median})`);
+  assert.match(big.group, /nearest that size/);
+  assert.ok(small.n >= 3 && big.n >= 3, 'never fewer than three units');
+  // Without a height it is the whole kind, as before.
+  assert.equal(catalogueRange('window', 32).n, 8);
+});

@@ -328,3 +328,31 @@ test('the budget search may move floor joists to 24" and resize them, and every 
   assert.ok(sc.ok);
   assert.ok(sc.rows.find((x) => x.member === 'Subfloor').ratio <= 1);
 });
+
+test('fiber cement follows the climate (HZ5 where winters freeze) and 5/4 trim follows the siding maker', () => {
+  const lap = { ...defaultDesign(), sidingType: 'fiber cement' };
+  const keys = (d) => estimate(buildShed(normalize(d))).shopping.map((r) => r.source?.key);
+  assert.ok(keys(lap).includes('lapHardie') && !keys(lap).includes('lapHardie5'));
+  assert.ok(keys({ ...lap, climate: 'freezing' }).includes('lapHardie5'));
+  assert.ok(!keys({ ...lap, climate: 'freezing' }).includes('lapHardie'));
+  // The climate setting only touches fiber cement.
+  assert.deepEqual(keys({ ...defaultDesign(), climate: 'freezing' }), keys(defaultDesign()));
+  const fc54 = keys({ ...lap, wallTrim: '5/4' });
+  assert.ok(fc54.includes('trim54Hardie') && !fc54.some((k) => k?.startsWith('trim1x4')));
+  const lp54 = keys({ ...lap, sidingType: 'LP SmartSide lap', wallTrim: '5/4' });
+  assert.ok(lp54.includes('trim54LP') && !lp54.includes('trim54Hardie'));
+  assert.equal(normalize({ ...defaultDesign(), wallTrim: '2x6', climate: 'arctic' }).wallTrim, '1x4');
+});
+
+test('primed trim gets two coats of trim paint, in quarts until a gallon is cheaper, and none when the siding is left unfinished', () => {
+  const rows = (d) => estimate(buildShed(normalize(d))).shopping.filter((r) => /^trimPaint/.test(r.source?.key || ''));
+  const def = rows(defaultDesign());
+  assert.equal(def.length, 1);
+  assert.equal(def[0].section, 'Paint');
+  const sq = Number(/(\d+) sq ft of trim face/.exec(def[0].name)?.[1]);
+  assert.ok(sq > 20 && sq < 120, String(sq));
+  const quarts = Math.ceil((sq * 2) / 87.5);
+  // Whichever is bought covers two coats at 350 sq ft a gallon.
+  assert.ok(def[0].unit === 'quart' ? def[0].qty >= quarts - 1 : def[0].qty * 4 >= quarts - 1);
+  assert.equal(rows({ ...defaultDesign(), sidingColor: 'unfinished' }).length, 0);
+});

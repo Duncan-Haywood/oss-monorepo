@@ -18,6 +18,7 @@ import { headerLoadPlf } from './model.mjs';
 import { gambrelAnalysis } from './gambrel.mjs';
 import { trussChecks, trussForces, gussetNailZ, GUSSET_NAIL, trussNetUplift } from './truss.mjs';
 import { subfloorCheck } from './levers.mjs';
+import { addFloorlessRows } from './floorless.mjs';
 
 const CF_C = { '2x4': 1.15, '2x6': 1.1 };
 
@@ -439,6 +440,8 @@ export function anchorage(shed) {
   const k = shed.dims;
   const p = d.windLoad;
   const z0 = k.block ? k.block.h : 0;
+  // The leeward line it tips about: the outer skids, or with no floor the eave walls' timbers.
+  const ys = k.floorless && k.timber ? [k.timber.thick / 2, d.width - k.timber.thick / 2] : k.skidYs;
   const Wt = selfWeight(shed).lb;
   const wall = (k.plateTop - z0) / 12; // ft, skid bottom to plate
   const rise = (k.ridgeTop - k.plateTop) / 12;
@@ -448,7 +451,7 @@ export function anchorage(shed) {
   const U = p * L * (W + (2 * d.overhang) / 12); // uplift on the roof plan
   const dirs = [
     // Wind on the long side: wall rectangle and the roof's rectangle, about the leeward skid.
-    { dir: 'on the long side', F: p * L * (wall + rise), M: p * L * (wall * (wall / 2) + rise * (wall + rise / 2)), arm: (k.skidYs[k.skidYs.length - 1] - k.skidYs[0]) / 2 / 12, base: (k.skidYs[k.skidYs.length - 1] - k.skidYs[0]) / 12 },
+    { dir: 'on the long side', F: p * L * (wall + rise), M: p * L * (wall * (wall / 2) + rise * (wall + rise / 2)), arm: (ys[ys.length - 1] - ys[0]) / 2 / 12, base: (ys[ys.length - 1] - ys[0]) / 12 },
     // Wind on a gable end: wall rectangle and the gable triangle, about the leeward end.
     { dir: 'on a gable end', F: p * W * (wall + rise / 2), M: p * W * (wall * (wall / 2) + (rise / 2) * (wall + rise / 3)), arm: L / 2, base: L },
   ];
@@ -491,7 +494,8 @@ export function structuralChecks(shed) {
   const gaps = k.skidYs.slice(1).map((y, i) => y - k.skidYs[i]);
   const skidThick = shed.members.find((m) => m.kind === 'skid')?.geom.thickness ?? 3.5;
   const floorSpanIn = Math.max(...gaps) - skidThick;
-  {
+  if (k.floorless) addFloorlessRows(shed, add);
+  else {
     // Treated joists are usually Southern pine, whose No. 2 bending value is
     // below SPF's from 2x6 up; a dry floor stays dry service.
     const species = d.floorTreated ? 'SYP' : 'SPF';

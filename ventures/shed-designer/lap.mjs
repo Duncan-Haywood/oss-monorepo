@@ -93,7 +93,8 @@ export const LAP_STOCKS = {
 
 /** The plank lengths this design may buy: those within the haul limit and in its board lengths (or all within the limit when none is ticked). @param {any} d */
 export function lapStocks(d) {
-  const all = LAP_STOCKS[d.sidingType] || [];
+  // James Hardie makes HZ5 plank for climates with freezing winters and HZ10 for the rest (same size).
+  const all = (LAP_STOCKS[d.sidingType] || []).map((x) => (x.key === 'lapHardie' && d.climate === 'freezing' ? { ...x, key: 'lapHardie5' } : x));
   // The longest board you can haul applies to planks too; every product comes in 12 ft.
   const haul = d.maxHaulFt > 0 ? all.filter((x) => x.length <= d.maxHaulFt * 12) : all;
   const can = haul.length ? haul : all;
@@ -352,13 +353,13 @@ export function lapSteps(shed, est) {
   const trimmed = d.wallTrim !== 'none';
   const eave = shed.lap.find((f) => f.wall === 'front');
   const gable = shed.lap.find((f) => f.wall === 'right');
-  const marks = (f) => f.courses.slice(0, 4).map((c) => fmtIn(c.zb - k.skidTop)).join(', ');
+  const marks = (f) => f.courses.slice(0, 4).map((c) => fmtIn(c.zb - (k.sidingBottom ?? k.skidTop))).join(', ');
   const joints = shed.lap.flatMap((f) => f.joints.map((j) => jointLabel(f, j)));
   const fc = d.sidingType === 'fiber cement';
   return [
     `Sheathe the walls with 7/16" OSB (${shed.sidingFull.length} sheet columns), long edges vertical, every edge on a stud, nailer or plate; 8d every 6" on edges and 12" in the field. Lap siding braces nothing, so the OSB is what keeps the walls square.`,
     'Wrap the walls with house wrap from the bottom up, each course lapping the one below by 6" and each vertical seam by 6" to 12", fastened with the cap nails; tape the seams. Cut an I at each door and window, fold the sides and bottom in, and leave the head flap loose to go over the head flashing later.',
-    trimmed ? `Corner boards and casings go on first here, over the wrap: lap courses butt into them${fc ? '' : ' (LP asks for 5/4 trim, its 540 Series, so the siding does not stand proud of the trim; 3/4" boards leave the butt edges about level with the trim face)'}. Leave a 1/8" to 3/16" gap where each course meets trim and caulk it.` : 'With no trim, each course runs to the corner; caulk the end grain at every corner and paint it well.',
+    trimmed ? `Corner boards and casings go on first here, over the wrap: lap courses butt into them${d.wallTrim === '5/4' ? ' (5/4 trim stands about 1/4" proud of the lap butts, the look both makers draw)' : fc ? '' : ' (LP asks for 5/4 trim, its 540 Series, so the siding does not stand proud of the trim; 3/4" boards leave the butt edges about level with the trim face: choose 5/4 trim for the look LP draws)'}. Leave a 1/8" to 3/16" gap where each course meets trim and caulk it.` : 'With no trim, each course runs to the corner; caulk the end grain at every corner and paint it well.',
     `Starter: rip ${lc.starterPlanks} plank${lc.starterPlanks > 1 ? 's' : ''} into ${fmtIn(spec.starterWidth)} strips (${lc.perPlank} to a plank) and nail them along the bottom of every wall, flush with the top of the skids (${fmtIn(lc.starterIn)} in all). It tips the first course out to the same angle as the rest.`,
     `Courses: ${spec.short}, ${fmtIn(shed.lapExposure ?? spec.exposure)} to the weather${(shed.lapExposure ?? spec.exposure) < spec.exposure - 1e-9 ? ` (the maker allows up to ${fmtIn(spec.exposure)}; this evens the courses out so the top one on the long walls is a full plank)` : ''}. Mark a story pole: course bottoms at ${eave ? marks(eave) : ''} and so on up (measure each from the bottom, not course to course, so rounding does not add up) from the bottom of the siding (top of the skids), ${eave?.courses.length ?? 0} courses on the long walls and ${gable?.courses.length ?? 0} up each gable to the peak. Snap a level line for every few courses so they stay level round the corners. The top course is ripped to fit under the eave blocking or the rake.`,
     `Nail: ${spec.nail}. The next course hides the nails. ${fc ? 'Fiber cement: cut it outdoors with a fiber cement blade or shears and keep the dust down (it is silica).' : 'Seal every cut end with primer or paint before it goes up.'}`,

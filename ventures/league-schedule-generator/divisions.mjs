@@ -7,7 +7,7 @@
 //   3. a team plays at the same venue as on its previous night where it can (fewer trips).
 // Each division keeps the circle-method round robin of calc.mjs (home/away balance and byes), so only
 // the dates, courts and times are decided here.
-import { roundRobin, mulberry32, parseDate, parseDateList, parseWeekdays, parseTimes, parseNameList, parseCourtClosures, parseOfficials, dayIso, dayOfWeek, courtClosedOn, dayLabel, icsEscape, icsFold } from "./calc.mjs";
+import { roundRobin, mulberry32, parseDate, parseDateList, parseWeekdays, parseTimes, parseNameList, parseCourtClosures, parseOfficials, dayIso, dayOfWeek, courtClosedOn, dayLabel, icsEscape, icsFold, icsAlarm } from "./calc.mjs";
 
 const MAX_NIGHTS = 800;
 const W_CLASH = 1000;
@@ -825,7 +825,7 @@ export function divisionsSeasonGridCsv(schedule) {
  * (`team`, with `division` to tell apart teams that share a name). Times are floating local times;
  * `stamp` (YYYYMMDDTHHMMSSZ) is injectable for reproducible output; `minutes` is the game length.
  */
-export function divisionsIcs(schedule, { division = null, team = null, stamp = null, minutes = 60 } = {}) {
+export function divisionsIcs(schedule, { division = null, team = null, stamp = null, minutes = 60, alarmMinutes = null } = {}) {
   const dtstamp = stamp || new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d+/, "");
   const compact = (day) => dayIso(day).replace(/-/g, "");
   const hhmm = (min) => `${String(Math.floor(min / 60)).padStart(2, "0")}${String(min % 60).padStart(2, "0")}00`;
@@ -842,7 +842,9 @@ export function divisionsIcs(schedule, { division = null, team = null, stamp = n
         const end = hh * 60 + mm + minutes;
         out.push(`DTSTART:${compact(night.day)}T${hhmm(hh * 60 + mm)}`, `DTEND:${compact(night.day + Math.floor(end / 1440))}T${hhmm(end % 1440)}`);
       } else out.push(`DTSTART;VALUE=DATE:${compact(night.day)}`, `DTEND;VALUE=DATE:${compact(night.day + 1)}`);
-      out.push(`SUMMARY:${icsEscape(summary)}`, `LOCATION:${icsEscape(m.venue && m.venue !== m.court ? `${m.court}, ${m.venue}` : m.court)}`, `DESCRIPTION:${icsEscape(`${m.division}, round ${m.round + 1}${m.official ? `, official ${m.official}` : ""}`)}`, "END:VEVENT");
+      out.push(`SUMMARY:${icsEscape(summary)}`, `LOCATION:${icsEscape(m.venue && m.venue !== m.court ? `${m.court}, ${m.venue}` : m.court)}`, `DESCRIPTION:${icsEscape(`${m.division}, round ${m.round + 1}${m.official ? `, official ${m.official}` : ""}`)}`);
+      if (m.time) out.push(...icsAlarm(alarmMinutes, summary));
+      out.push("END:VEVENT");
     });
   }
   out.push("END:VCALENDAR");

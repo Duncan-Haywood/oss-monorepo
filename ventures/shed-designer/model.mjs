@@ -87,6 +87,12 @@ export function defaultDesign() {
     skidSize: '4x4',
     skidSpacing: 48,
     foundation: 'blocks',
+    // 'framed': skids, joists and a subfloor; 'none': no floor, the walls bear on
+    // PT 4x6 perimeter timbers on a full gravel pad (the foundation and pad
+    // choices then do not apply).
+    floor: 'framed',
+    // Most a block or pier may be from the next along a skid, inches.
+    blockSpacing: 48,
     compaction: 'hand tamper',
     // Gravel under each block: on bare clay or silt the starter's blocks would
     // carry about 1,970 psf, over the IRC's 1,500 (see checks.mjs, skidOnBlocks).
@@ -128,6 +134,8 @@ export function defaultDesign() {
     customRange: false,
     sidingType: 'T1-11',
     wallTrim: '1x4',
+    // For fiber cement: James Hardie sells HZ5 plank where winters freeze and HZ10 where they don't.
+    climate: 'mild',
     roofCover: 'shingles',
     rafterSeat: 'connector',
     maxFootprint: 100,
@@ -165,6 +173,12 @@ export function defaultDesign() {
  * own (inches): its height, its length along the skid and its width across.
  * Every block sits on the compacted gravel pad.
  */
+/**
+ * With no floor, each wall bears on one of these on edge on the gravel pad:
+ * ground-contact PT, as the IRC asks of wood in contact with the ground (R317.1.2).
+ */
+export const PERIMETER_TIMBER = '4x6';
+
 export const BLOCKS = {
   blocks: { name: 'solid concrete block, 4 x 8 x 16', plural: 'solid 4 x 8 x 16 concrete blocks', h: 4, along: 16, across: 8, item: 'concreteBlock' },
   'deck blocks': { name: 'concrete deck block (pier block)', plural: 'concrete deck blocks', h: 8, along: 11, across: 11, item: 'deckBlock' },
@@ -181,7 +195,12 @@ export const BLOCKS = {
 
 const classic = () => ({ ...defaultDesign(), foundation: 'gravel', pad: 'full', wallHeight: 96, pitch: 6, skidSize: '4x6', roofType: 'ridgeBoard', sidingColor: 'natural', polkaDots: false, maxPeak: 0, ventHeight: 12, autoWall: false, autoPitch: false, autoOverhang: false, rafterSeat: 'birdsmouth', maxFootprint: 0, roofColor: 'charcoal', trimColor: 'white', glitter: false, interior: 'none' });
 
-/** @typedef {ReturnType<typeof defaultDesign>} Design */
+/**
+ * Site plan extras that `normalize` fills in (not `defaultDesign`, so the
+ * presets' design keys stay put).
+ * @typedef {{ siteFacing: string, northDeg: number | null, easementSide: string, easementFt: number, easementNote: string }} SiteExtras
+ */
+/** @typedef {ReturnType<typeof defaultDesign> & Partial<SiteExtras>} Design */
 
 /** Starting points for the "New design" menu. */
 export const PRESETS = {
@@ -288,6 +307,8 @@ export function normalize(input) {
     floorPanel: pick(o.floorPanel, ['plywood', 'OSB'], d.floorPanel),
     compaction: pick(o.compaction, ['hand tamper', 'plate compactor'], d.compaction),
     foundation: pick(o.foundation, ['gravel', ...Object.keys(BLOCKS)], d.foundation),
+    floor: pick(o.floor, ['framed', 'none'], d.floor),
+    blockSpacing: Math.min(96, Math.max(24, num(o.blockSpacing, d.blockSpacing))),
     pierDepth: Math.min(72, Math.max(12, num(o.pierDepth, d.pierDepth))),
     floorTreated: o.floorTreated !== false,
     siding: o.siding !== false,
@@ -313,7 +334,8 @@ export function normalize(input) {
     insulation: o.insulation === true,
     atticStorage: o.atticStorage === true,
     customRange: o.customRange === true,
-    wallTrim: pick(o.wallTrim, ['1x4', 'none'], d.wallTrim),
+    wallTrim: pick(o.wallTrim, ['1x4', '5/4', 'none'], d.wallTrim),
+    climate: pick(o.climate, ['mild', 'freezing'], d.climate),
     sidingType: pick(o.sidingType, ['T1-11', 'LP SmartSide', 'LP SmartSide 7/16', 'board and batten', 'vinyl', 'fiber cement', 'LP SmartSide lap'], d.sidingType),
     roofCover: pick(o.roofCover, ['shingles', 'metal'], d.roofCover),
     rafterSeat: pick(o.rafterSeat, ['birdsmouth', 'connector'], d.rafterSeat),
@@ -321,6 +343,16 @@ export function normalize(input) {
     maxHaulFt: /** @type {any} */ (o.maxHaulFt) !== '' && o.maxHaulFt !== null && [0, 8, 10, 12, 14, 16, 18, 20].includes(Number(o.maxHaulFt)) ? Number(o.maxHaulFt) : d.maxHaulFt,
     ...Object.fromEntries(['lotWidthFt', 'lotDepthFt', 'siteLeftFt', 'siteRearFt', 'houseWidthFt', 'houseDepthFt', 'houseLeftFt', 'houseFrontFt', 'setbackFt']
       .map((f) => [f, Math.min(2000, Math.max(0, num(o[f], d[f])))])),
+    // Site plan extras, defaulted here rather than in defaultDesign() so the
+    // presets' design keys (and their stored pictures) do not move: which way
+    // the front (door) wall faces on the lot; north in degrees clockwise from
+    // straight up the plan (toward the rear lot line), null for no arrow; and
+    // an easement strip along one lot line, with a note as on the plat.
+    siteFacing: pick(o.siteFacing, ['street', 'left', 'right', 'rear'], 'street'),
+    northDeg: o.northDeg === null || o.northDeg === undefined || /** @type {any} */ (o.northDeg) === '' || typeof o.northDeg === 'boolean' || !Number.isFinite(Number(o.northDeg)) ? null : ((Math.round(Number(o.northDeg)) % 360) + 360) % 360,
+    easementSide: pick(o.easementSide, ['none', 'street', 'left', 'right', 'rear'], 'none'),
+    easementFt: Math.min(200, Math.max(0, num(o.easementFt, 0))),
+    easementNote: typeof o.easementNote === 'string' ? o.easementNote.replace(/[\u0000-\u001f]/g, ' ').trim().slice(0, 120) : '',
     locked: Array.isArray(o.locked) ? [...new Set(o.locked.filter((k) => typeof k === 'string' && k in LOCKABLE))] : [],
     ventWidth: Math.min(36, Math.max(6, num(o.ventWidth, d.ventWidth))),
     ventHeight: Math.min(36, Math.max(6, num(o.ventHeight, d.ventHeight))),
@@ -537,20 +569,27 @@ function layoutCenters(spacing, lo, hi) {
 export function siteLayout(d) {
   if (!(d.lotWidthFt > 0 && d.lotDepthFt > 0)) return null;
   const lot = { w: d.lotWidthFt * 12, d: d.lotDepthFt * 12 };
+  const facing = d.siteFacing || 'street';
+  // Facing a side lot line turns the shed a quarter turn: its length runs front to back.
+  const turned = facing === 'left' || facing === 'right';
+  const [fx, fy] = turned ? [d.width, d.length] : [d.length, d.width];
   const x0 = d.siteLeftFt * 12;
   const y1 = lot.d - d.siteRearFt * 12;
-  const shed = { x0, x1: x0 + d.length, y0: y1 - d.width, y1 };
+  const shed = { x0, x1: x0 + fx, y0: y1 - fy, y1 };
   const o = d.overhang;
-  const clear = {
-    left: shed.x0, right: lot.w - shed.x1, front: shed.y0, rear: lot.d - shed.y1,
-    frontEave: shed.y0 - o, rearEave: lot.d - shed.y1 - o,
-  };
+  // The eaves overhang the front and back walls; the gable ends have none.
+  const eaves = turned ? ['left', 'right'] : ['front', 'rear'];
+  const raw = { left: shed.x0, right: lot.w - shed.x1, front: shed.y0, rear: lot.d - shed.y1 };
+  const eave = Object.fromEntries(Object.entries(raw).map(([k, v]) => [k, eaves.includes(k) ? v - o : v]));
+  const clear = { ...raw, frontEave: eave.front, rearEave: eave.rear, leftEave: eave.left, rightEave: eave.right };
   const house = d.houseWidthFt > 0 && d.houseDepthFt > 0
     ? { x0: d.houseLeftFt * 12, x1: (d.houseLeftFt + d.houseWidthFt) * 12, y0: d.houseFrontFt * 12, y1: (d.houseFrontFt + d.houseDepthFt) * 12 }
     : null;
   // Nearest gap between the shed's walls and the house (0 when they overlap).
   const gap = house ? Math.hypot(Math.max(0, house.x0 - shed.x1, shed.x0 - house.x1), Math.max(0, house.y0 - shed.y1, shed.y0 - house.y1)) : null;
-  return { lot, shed, overhang: o, clear, house, houseGap: gap, setback: d.setbackFt * 12 };
+  const side = d.easementSide === 'street' ? 'front' : d.easementSide;
+  const easement = side && side !== 'none' && d.easementFt > 0 ? { side, width: d.easementFt * 12, note: d.easementNote || '' } : null;
+  return { lot, shed, overhang: o, clear, eaves, facing, house, houseGap: gap, setback: d.setbackFt * 12, north: d.northDeg ?? null, easement };
 }
 
 /** Site-plan problems worth a warning: off the lot, inside the setback you typed, or on top of the house. @param {Design} d */
@@ -562,21 +601,34 @@ function siteWarnings(d) {
   const off = lines.filter(([k]) => site.clear[k] < -1e-9).map(([, name]) => name);
   if (off.length) out.push(`On the site plan the shed runs past the ${off.join(' and ')} lot line${off.length > 1 ? 's' : ''}; check the lot size and where you placed it.`);
   else if (site.setback > 0) {
-    const near = lines.filter(([k]) => Math.min(site.clear[k], k === 'front' ? site.clear.frontEave : k === 'rear' ? site.clear.rearEave : Infinity) < site.setback - 1e-9);
+    const near = lines.filter(([k]) => Math.min(site.clear[k], site.clear[`${k}Eave`]) < site.setback - 1e-9);
     if (near.length) out.push(`On the site plan the shed (or its eave) is closer than your ${fmtFt(site.setback)} setback to the ${near.map(([, n]) => n).join(', ').replace(/, ([^,]*)$/, ' and $1')} lot line${near.length > 1 ? 's' : ''}.`);
   }
   if (site.house && site.houseGap !== null && site.houseGap < 1e-9) out.push('On the site plan the shed overlaps the house; check where you placed each.');
+  const e = site.easement;
+  if (e) {
+    const key = /** @type {'left'|'right'|'front'|'rear'} */ (e.side);
+    const reach = Math.min(site.clear[key], site.clear[`${key}Eave`]);
+    if (reach < e.width - 1e-9) out.push(`On the site plan the shed${reach < site.clear[key] ? ' (or its eave)' : ''} reaches into the ${fmtFt(e.width)} easement along the ${key === 'front' ? 'street' : key} lot line; most easements do not allow a building in them.`);
+  }
   return out;
 }
 
-export function buildShed(input) {
+/**
+ * Frame a design. `prices` are the prices the page is pricing at (the
+ * visitor's own, as typed); only the automatic overhang reads them, to weigh
+ * each eave length at those prices rather than the starting ones.
+ * @param {any} input
+ * @param {import('./estimate.mjs').Prices} [prices]
+ */
+export function buildShed(input, prices) {
   const d0 = normalize(input);
   // The page, the swaps, the options and the simplicity search rebuild the same
   // designs again and again; a built shed is never modified, so keep recent ones.
-  const key = JSON.stringify(d0);
+  const key = JSON.stringify(d0) + (prices && d0.autoOverhang ? `|${JSON.stringify(prices)}` : '');
   const hit = BUILT.get(key);
   if (hit) { BUILT.delete(key); BUILT.set(key, hit); return hit; }
-  const shed = d0.autoWall || d0.autoPitch || d0.autoOverhang ? buildAuto(d0) : buildFramed(d0);
+  const shed = d0.autoWall || d0.autoPitch || d0.autoOverhang ? buildAuto(d0, prices) : buildFramed(d0);
   BUILT.set(key, shed);
   if (BUILT.size > 200) BUILT.delete(BUILT.keys().next().value);
   return shed;
@@ -603,8 +655,9 @@ export function minWallFor(d) {
  * under the limit. When no pitch fits, the lowest pitch at which the gable vents
  * still fit is used and the warning says by how much the limit is missed.
  * @param {Design} d0
+ * @param {import('./estimate.mjs').Prices} [prices] the page's prices, for the overhang (else the starting ones)
  */
-function buildAuto(d0) {
+function buildAuto(d0, prices) {
   let d = { ...d0, autoWall: false, autoPitch: false, autoOverhang: false };
   if (d0.autoWall) d.wallHeight = minWallFor(d0);
   let shed;
@@ -645,7 +698,8 @@ function buildAuto(d0) {
   if (d0.autoOverhang) {
     // The longest overhang from 6" to 18" whose whole order (rafters, sub-fascia,
     // sheathing, roofing, drip edge, trim) costs at most overhangBudget dollars
-    // more than the cheapest overhang's, at the starting prices. A longer eave
+    // more than the cheapest overhang's, at the prices the page is using (the
+    // visitor's own when they have typed any; the starting prices otherwise). A longer eave
     // keeps rain off the siding, so a little money buys it; 0 takes the cheapest.
     // An overhang that leaves a door or window unframed prices without it, so it
     // looks cheap; those are skipped unless no overhang frames every opening.
@@ -653,7 +707,7 @@ function buildAuto(d0) {
     for (let oh = 6; oh <= 18; oh++) {
       const t = buildFramed(normalize({ ...s.design, autoWall: false, autoPitch: false, autoOverhang: false, overhang: oh }));
       const framed = new Set((t.framedOpenings || []).map((/** @type {any} */ p) => p.op?.id ?? p.id));
-      all.push({ oh, t, cost: estimate(t).total, frames: t.design.openings.every((o) => framed.has(o.id)) });
+      all.push({ oh, t, cost: estimate(t, prices).total, frames: t.design.openings.every((o) => framed.has(o.id)) });
     }
     const tries = all.some((x) => x.frames) ? all.filter((x) => x.frames) : all;
     const min = Math.min(...tries.map((x) => x.cost));
@@ -688,7 +742,7 @@ function buildFramed(d) {
   const members = [];
   /** @type {{ id: string, kind: string, item: string, geom: Geom, group: string, wall?: string, side?: string, pos?: number[], course?: number, face?: [number, number][], where?: string }[]} */
   const panels = [];
-  /** @type {{ kind: string, geom: Geom, group: string, tex?: string, from?: number, bottom?: number }[]} */
+  /** @type {{ id?: string, kind: string, geom: Geom, group: string, op?: string, tex?: string, from?: number, bottom?: number }[]} */
   const fixtures = [];
   /** @type {string[]} */
   const warnings = [];
@@ -714,39 +768,45 @@ function buildFramed(d) {
   const push = (m) => { members.push(m); return m; };
 
   // ---------------- Foundation ----------------
+  // With no floor (floor 'none') there are no skids, blocks, joists or
+  // subfloor: each wall's bottom plate bears on a PT 4x6 perimeter timber on
+  // edge on a full gravel pad, and the gravel is the floor.
+  const floorless = d.floor === 'none';
+  const timber = actual(PERIMETER_TIMBER); // on edge: thick across, depth up
   const skid = actual(d.skidSize); // laid on edge: thick across, depth up
-  const block = /** @type {any} */ (BLOCKS)[d.foundation] || null;
+  const block = floorless ? null : /** @type {any} */ (BLOCKS)[d.foundation] || null;
   const blockH = block ? block.h : 0;
-  const skidTop = blockH + skid.depth;
-  let skidCount = Math.max(2, Math.ceil((W - skid.thick) / d.skidSpacing) + 1);
+  const skidTop = floorless ? timber.depth : blockH + skid.depth;
+  let skidCount = floorless ? 0 : Math.max(2, Math.ceil((W - skid.thick) / d.skidSpacing) + 1);
   // A ridge beam brings about half its load down each gable post to the floor
   // at mid-width. An odd number of skids puts one right under the posts;
   // otherwise the post lands mid-span on the end joist (a 10x12 at 48" skid
   // spacing put 1,403 lb there, 1.38 times a single 2x6 joist's allowable bending).
-  if (d.roofType === 'ridgeBeam' && d.style !== 'leanTo' && skidCount % 2 === 0) skidCount += 1;
+  if (!floorless && d.roofType === 'ridgeBeam' && d.style !== 'leanTo' && skidCount % 2 === 0) skidCount += 1;
   const skidYs = [];
   for (let i = 0; i < skidCount; i++) skidYs.push(skid.thick / 2 + (i * (W - skid.thick)) / (skidCount - 1));
   const skidSplit = splitRun(0, L, spliceAt, [], [], 0);
-  if (skidSplit.runs.length > 1) {
+  if (skidCount && skidSplit.runs.length > 1) {
     notes.push(`Skids are longer than the longest board you allowed or can haul (${spliceAt / 12} ft), so each is spliced; stagger the joints between skids${block ? ' and land each joint on a block' : ''}.`);
   }
   // Even pieces read better than one long and one stub.
   const skidPieces = skidSplit.runs.length;
   // Block centres along each skid: one at each end, one under every skid joint
   // (a butt joint between blocks would hang in the air), and more between so no
-  // two are over 4 ft apart. Without a joint this is the even layout of
-  // ceil(L / 4 ft) + 1 blocks.
+  // two are over blockSpacing (4 ft unless you set it) apart. Without a joint
+  // this is the even layout of ceil(L / blockSpacing) + 1 blocks.
   const blockXs = [];
+  const bs = d.blockSpacing;
   if (block) {
     const fixed = [0];
     for (let k = 1; k < skidPieces; k++) fixed.push((L * k) / skidPieces - block.along / 2);
     fixed.push(L - block.along);
     if (skidPieces === 1) {
-      const n = Math.ceil(L / 48) + 1;
+      const n = Math.ceil(L / bs - 1e-9) + 1;
       for (let k = 0; k < n; k++) blockXs.push((k * (L - block.along)) / (n - 1));
     } else {
       for (let i = 0; i + 1 < fixed.length; i++) {
-        const n = Math.max(1, Math.ceil((fixed[i + 1] - fixed[i]) / 48 - 1e-9));
+        const n = Math.max(1, Math.ceil((fixed[i + 1] - fixed[i]) / bs - 1e-9));
         for (let k = 0; k < n; k++) blockXs.push(fixed[i] + (k * (fixed[i + 1] - fixed[i])) / n);
       }
       blockXs.push(fixed[fixed.length - 1]);
@@ -789,26 +849,69 @@ function buildFramed(d) {
     fixtures.push({ kind: 'gravel', group: 'foundation', geom: rectGeom([-pad, -pad, -4], X, Z, Y, L + 2 * pad, 4, W + 2 * pad) });
   }
   const gravelCuYd = underBlocks || noPad ? 0 : ((L + 2 * pad) * (W + 2 * pad) * 4) / 46656;
+  // Perimeter timbers (no floor): the eave walls' run the full length, the
+  // gable walls' butt between them; each splices at the longest board you haul.
+  if (floorless) {
+    const th = timber.thick;
+    const runs = [
+      { name: 'front', from: 0, to: L, at: (s) => [s, 0, 0], u: X, w: Y },
+      { name: 'back', from: 0, to: L, at: (s) => [s, W - th, 0], u: X, w: Y },
+      { name: 'left', from: th, to: W - th, at: (s) => [0, s, 0], u: Y, w: X },
+      { name: 'right', from: th, to: W - th, at: (s) => [L - th, s, 0], u: Y, w: X },
+    ];
+    let spliced = false;
+    for (const r of runs) {
+      const split = splitRun(r.from, r.to, spliceAt, [], [], 0);
+      if (split.runs.length > 1) spliced = true;
+      for (const [s0, s1] of split.runs) {
+        push({
+          id: nextId('PT'), group: 'foundation', kind: 'perimeter timber', material: `PT ${PERIMETER_TIMBER}`, length: ceil16(s1 - s0),
+          note: split.runs.length > 1 ? 'butt joint, not under a door' : undefined,
+          geom: rectGeom(/** @type {Vec} */ (r.at(s0)), r.u, Z, r.w, s1 - s0, timber.depth, th),
+          local: { s0, s1, z0: 0, z1: th },
+        });
+      }
+    }
+    notes.push(
+      `No floor: the walls stand on ${runs.length} PT ${PERIMETER_TIMBER} perimeter timbers on edge (ground-contact treated) on a full 4" gravel pad, and the gravel is the floor. It costs less than skids, joists and a subfloor, and sits ${fmtIn(timber.depth)} above the gravel instead of a framed floor's height, but:`,
+      'Damp: a gravel floor drains, but the ground under it stays damp and the shed air with it. Keep tools, bags and anything that rusts or mildews up on shelves or pallets, and grade the ground so water runs away from the pad. A sheet of polyethylene under the gravel cuts the moisture rising from the soil (not on the shopping list).',
+      'Rodents and insects can dig under a timber where a floor would shut them out. Galvanized 1/4" hardware cloth laid under the gravel and turned up the inside face of the timbers keeps burrowers out (not on the shopping list).',
+      `The door opening keeps its timber as a ${fmtIn(timber.depth)} step; a mower or a barrow needs a short ramp of compacted gravel or a board.`,
+    );
+    if (spliced) notes.push(`Perimeter timbers are longer than the longest board you allowed or can haul (${spliceAt / 12} ft), so they are spliced; keep each joint off the corners, and the bottom plate's joints at least 2 ft from it.`);
+  }
+  // Under a ridge beam each gable post brings about half the beam's load down
+  // to the ground; with no floor it needs a footing of its own, a pier
+  // under the timber (below).
+  const postPiers = floorless && d.roofType === 'ridgeBeam' && d.style !== 'leanTo';
   // Piers: concrete from the bottom of the hole to the top of the tube, in
   // Quikrete 80 lb bags (0.6 cu ft each, the bag's stated yield); each 4 ft
-  // tube is cut into as many piers as it holds.
-  const pierLen = block?.pier ? d.pierDepth + block.h : 0;
-  const pierCuFt = block?.pier ? (Math.PI * (block.tubeIn / 2) ** 2 * pierLen) / 1728 : 0;
-  const pierCount = block?.pier ? skidCount * blockXs.length : 0;
+  // tube is cut into as many piers as it holds. A post pier stops at the top
+  // of the 4" gravel pad, under the timber.
+  const pierDef = block?.pier ? block : postPiers ? /** @type {any} */ (BLOCKS).piers : null;
+  const pierLen = block?.pier ? d.pierDepth + block.h : postPiers ? d.pierDepth + 4 : 0;
+  const pierCuFt = pierDef ? (Math.PI * (pierDef.tubeIn / 2) ** 2 * pierLen) / 1728 : 0;
+  const pierCount = block?.pier ? skidCount * blockXs.length : postPiers ? 2 : 0;
   const pierTubes = pierCount ? Math.ceil(pierCount / Math.max(1, Math.floor(48 / pierLen))) : 0;
   // A bare 12" tube presses the starter's soil at about 2,450 psf, over the IRC's
   // 1,500 for clay or silt; the footing pad spreads it over 1.78 sq ft.
-  const pierFootIn = block?.pier ? block.footIn : 0;
-  const pierFootCuFt = block?.pier ? (block.footIn ** 2 * block.footThick) / 1728 : 0;
+  const pierFootIn = pierDef ? pierDef.footIn : 0;
+  const pierFootCuFt = pierDef ? (pierDef.footIn ** 2 * pierDef.footThick) / 1728 : 0;
   const pierBags = pierCount ? Math.ceil((pierCount * (pierCuFt + pierFootCuFt)) / 0.6 - 1e-9) : 0;
+  if (postPiers) {
+    for (const x of [timber.thick / 2, L - timber.thick / 2]) {
+      const a = pierDef.along;
+      fixtures.push({ kind: 'post pier', group: 'foundation', geom: rectGeom([x - a / 2, W / 2 - a / 2, -pierLen], X, Z, Y, a, pierLen, a) });
+    }
+  }
 
   // ---------------- Floor ----------------
   const joist = actual(d.joistSize);
   const jz = skidTop;
-  const floorTop = jz + joist.depth + 0.75;
-  const joistCenters = [0.75, ...layoutCenters(d.joistSpacing, 0.75 + 1.5, L - 0.75 - 1.5), L - 0.75];
+  const floorTop = floorless ? timber.depth : jz + joist.depth + 0.75;
+  const joistCenters = floorless ? [] : [0.75, ...layoutCenters(d.joistSpacing, 0.75 + 1.5, L - 0.75 - 1.5), L - 0.75];
   const rimSplit = splitRun(0, L, spliceAt, joistCenters);
-  for (const y0 of [0, W - 1.5]) {
+  for (const y0 of floorless ? [] : [0, W - 1.5]) {
     for (const [s0, s1] of rimSplit.runs) {
       push({
         id: nextId('RJ'), group: 'floor', kind: 'rim joist', material: treated(d.joistSize), length: ceil16(s1 - s0),
@@ -825,11 +928,11 @@ function buildFramed(d) {
       local: { s0: c - 0.75, s1: c + 0.75, z0: 1.5, z1: W - 1.5 },
     });
   }
-  if (W - 3 > maxStock) warnings.push(`Floor joists need ${Math.ceil((W - 3) / 12)} ft boards; add that length to your stock list or add a centre beam (not modelled).`);
+  if (!floorless && W - 3 > maxStock) warnings.push(`Floor joists need ${Math.ceil((W - 3) / 12)} ft boards; add that length to your stock list or add a centre beam (not modelled).`);
   // Floor sheets: 8 ft across the joists, rows of 4 ft, odd rows staggered half a sheet.
   /** @type {number[]} */
   const floorPieces = [];
-  const floorRows = Math.ceil(W / 48 - 1e-9);
+  const floorRows = floorless ? 0 : Math.ceil(W / 48 - 1e-9);
   for (let r = 0; r < floorRows; r++) {
     const y0 = r * 48;
     const h = Math.min(48, W - y0);
@@ -978,7 +1081,7 @@ function buildFramed(d) {
     const headerBreaks = [];
     for (const p of ops) {
       const fixture = () => fixtures.push({
-        kind: p.op.kind, group: `wall:${name}`, from: spec.start + p.a, bottom: p.bottom,
+        kind: p.op.kind, group: `wall:${name}`, op: p.op.id, from: spec.start + p.a, bottom: p.bottom,
         geom: rectGeom(add(add(spec.base, spec.axis, p.a), Z, p.bottom), spec.axis, Z, neg(spec.w), p.w, p.op.height, d.siding ? 1.0 : 0.4),
       });
       if (p.bay) {
@@ -1080,7 +1183,7 @@ function buildFramed(d) {
       plates = choosePlates(plateStock);
     }
     const { top, cap, overHeader } = plates;
-    for (const r of bottomWithin(plateStock)) for (const [s0, s1] of r.runs) addM('bottom plate', d.studSize, s0, s1, 0, 1.5);
+    for (const r of bottomWithin(plateStock)) for (const [s0, s1] of r.runs) addM('bottom plate', floorless ? `PT ${d.studSize}` : d.studSize, s0, s1, 0, 1.5);
     for (const [s0, s1] of top.runs) addM('top plate', d.studSize, s0, s1, Hw - 3, Hw - 1.5);
     for (const [s0, s1] of cap.runs) addM('cap plate', d.studSize, s0, s1, Hw - 1.5, Hw, capNote);
     if (top.runs.length > 1) notes.push(`${wallLabel(d, name)}: plates are longer than the longest board you allowed or can haul, so they splice over studs; the cap plate's joints are kept 4 ft from the top plate's where the layout allows, and never under the code's 24".`);
@@ -1841,11 +1944,13 @@ function buildFramed(d) {
   // its joints fall on the studs and nailers) and its courses stand out by up
   // to two plank thicknesses at each butt edge.
   const lapBase = d.siding ? LAP_PRODUCTS[d.sidingType] : undefined;
-  const lapExposure = lapBase ? evenExposure(lapBase, plateTop - skidTop) : undefined;
+  // Siding laps down over the rim joist, or 1" over a perimeter timber.
+  const sidingBottom = floorless ? skidTop - 1 : skidTop;
+  const lapExposure = lapBase ? evenExposure(lapBase, plateTop - sidingBottom) : undefined;
   const lapSpec = lapBase && { ...lapBase, exposure: /** @type {number} */ (lapExposure) };
   const sheathT = 7 / 16;
   const sidingT = lapSpec ? sheathT + 2 * lapSpec.thickness : d.sidingType === 'LP SmartSide' ? 3 / 8 : d.sidingType === 'LP SmartSide 7/16' ? 7 / 16 : 19 / 32;
-  /** @type {{ wall: string, length: number }[]} */
+  /** @type {{ wall: string, length: number, need?: number }[]} */
   const sidingFull = [];
   /** @type {number[]} */
   const sidingUpper = [];
@@ -1854,7 +1959,7 @@ function buildFramed(d) {
   /** @type {{ h0: number, h1: number, peak: boolean }[]} */
   const sidingUpperShapes = [];
   if (d.siding) {
-    const bottomZ = skidTop; // siding laps down over the rim joist
+    const bottomZ = sidingBottom;
     const sheetFor = (h) => (lapSpec ? [96] : [96, 108, 120]).find((s) => s >= h - 1e-9);
     for (const name of WALLS) {
       const eave = name === 'front' || name === 'back';
@@ -1872,9 +1977,9 @@ function buildFramed(d) {
         prof.push([s0, clip(s0)]);
         const need = Math.max(...prof.map((p) => p[1])) - bottomZ;
         const sheet = sheetFor(need);
-        if (sheet) sidingFull.push({ wall: name, length: sheet });
+        if (sheet) sidingFull.push({ wall: name, length: sheet, need });
         else {
-          sidingFull.push({ wall: name, length: 96 });
+          sidingFull.push({ wall: name, length: 96, need });
           sidingUpper.push(Math.ceil(need - 96));
           const above = (x) => Math.max(0, clip(x) - bottomZ - 96);
           sidingUpperShapes.push({ h0: above(s0), h1: above(s1), peak: prof.length > 4 });
@@ -1914,7 +2019,7 @@ function buildFramed(d) {
       const inset = trimW ? (eave ? trimW - (sidingT + 0.75) : trimW - sidingT) : 0;
       const face = layoutFace({
         // A lean-to's end wall tops out at its front edge, so that is where its courses peak.
-        wall: name, len: faceLen, bottom: skidTop, top: (s) => (eave ? (lean && name === 'front' ? highPlateTop : eaveTop) : gam ? gam.top(s) : lean ? zt(W - s) : zt(Math.min(s, W - s))), peakAt: eave ? undefined : lean ? inset : W / 2, bends: !eave && gam ? [gam.yk, W - gam.yk] : undefined,
+        wall: name, len: faceLen, bottom: sidingBottom, top: (s) => (eave ? (lean && name === 'front' ? highPlateTop : eaveTop) : gam ? gam.top(s) : lean ? zt(W - s) : zt(Math.min(s, W - s))), peakAt: eave ? undefined : lean ? inset : W / 2, bends: !eave && gam ? [gam.yk, W - gam.yk] : undefined,
         from: inset, to: faceLen - inset, holes, wood, maxPlank: Math.max(...lapStocks(d).map((x) => x.length)), stagger: lapStagger(d),
       }, lapSpec);
       lap.push(face);
@@ -1943,7 +2048,7 @@ function buildFramed(d) {
   if (d.siding && d.wallTrim !== 'none') {
     const tw = 3.5;
     const tt = 0.75;
-    const bottomZ = skidTop;
+    const bottomZ = sidingBottom;
     const rakeBottom = gam ? bandAbove(gam, 7 / 16 - 3.5) : null;
     const rakeUnder = (dist) => (rakeBottom ? zOnPoly(rakeBottom, dist) : zt(dist) + (7 / 16) / cos - 3.5 / cos);
     for (const name of WALLS) {
@@ -2007,14 +2112,30 @@ function buildFramed(d) {
       warnings.push(`The site-built ${fmtIn(op.width)} x ${fmtIn(op.height)} door on the ${wallLabel(d, op.wall).toLowerCase()} wall makes ${leaves > 1 ? 'leaves' : 'a leaf'} ${fmtIn(w)} wide and ${fmtIn(h)} tall, so its Z brace runs at ${braceAngle.toFixed(0)} deg and will not keep the door from sagging; it works best between about 30 and 60 deg. ${braceAngle < 25 ? 'Make the door taller or narrower' : 'Make the door wider'}, or choose a ready-made door.`);
     }
     // Pieces that are the same in both leaves and in every rail position share one note, so they share a part mark.
+    // Each piece is drawn too, laid flat on the back of the door in its opening,
+    // so the parts list can point at it in 3D.
+    const slab = fixtures.find((f) => f.op === op.id);
+    const frameAt = (profile) => (slab ? { origin: slab.geom.origin, u: slab.geom.u, v: slab.geom.v, w: neg(slab.geom.w), profile, thickness: 1.5 } : undefined);
+    const box = (u0, v0, lu, lv) => frameAt([[u0, v0], [u0 + lu, v0], [u0 + lu, v0 + lv], [u0, v0 + lv]]);
     for (let i = 0; i < leaves; i++) {
       const tag = `door ${op.id}`;
-      const part = (kind, length, note) => doorParts.push({ id: nextId('DR'), group: 'door', kind, material: '2x4', length: Math.ceil(length * 8) / 8, note: `${tag}: ${note}` });
-      part('door stile', h, 'laid flat, full height');
-      part('door stile', h, 'laid flat, full height');
-      for (let r = 0; r < 3; r++) part('door rail', railLen, 'top, middle and bottom rails between the stiles');
-      part('door brace', braceLen + 3.5, `Z brace, ends cut at ${braceAngle.toFixed(0)} deg to fit between rails, low end at the hinge side`);
-      part('door brace', braceLen + 3.5, `Z brace, ends cut at ${braceAngle.toFixed(0)} deg to fit between rails, low end at the hinge side`);
+      const part = (kind, length, note, geom) => doorParts.push({ id: nextId('DR'), group: 'door', kind, material: '2x4', length: Math.ceil(length * 8) / 8, note: `${tag}: ${note}`, ...(geom ? { geom } : {}) });
+      const u0 = 0.25 + i * (w + 0.25);
+      const v0 = 0.25;
+      part('door stile', h, 'laid flat, full height', box(u0, v0, 3.5, h));
+      part('door stile', h, 'laid flat, full height', box(u0 + w - 3.5, v0, 3.5, h));
+      for (let r = 0; r < 3; r++) part('door rail', railLen, 'top, middle and bottom rails between the stiles', box(u0 + 3.5, v0 + r * (3.5 + bay), railLen, 3.5));
+      // A brace fills its bay corner to corner; the low end is at the hinge side
+      // (the outer edge of each leaf: left on the first, right on a pair's second).
+      const dx = 3.5 / Math.sin(Math.atan2(bay, railLen));
+      const a = u0 + 3.5;
+      const b = a + railLen;
+      for (let k = 0; k < 2; k++) {
+        const y0 = v0 + 3.5 + k * (3.5 + bay);
+        const y1 = y0 + bay;
+        const pts = /** @type {[number, number][]} */ (i === 0 ? [[a, y0], [a + dx, y0], [b, y1], [b - dx, y1]] : [[b - dx, y0], [b, y0], [a + dx, y1], [a, y1]]);
+        part('door brace', braceLen + 3.5, `Z brace, ends cut at ${braceAngle.toFixed(0)} deg to fit between rails, low end at the hinge side`, frameAt(pts));
+      }
     }
   }
 
@@ -2027,9 +2148,9 @@ function buildFramed(d) {
 
   const dims = {
     length: L, width: W, wallHeight: H, pitch: d.pitch, overhang: o,
-    skidTop, floorTop, plateTop, ridgeTop, peak: ridgeTop + (d.roofing ? 7 / 16 / cos + 0.35 / cos : 7 / 16 / cos),
+    skidTop, sidingBottom, floorTop, plateTop, floorless, timber: floorless ? timber : null, postPiers, ridgeTop, peak: ridgeTop + (d.roofing ? 7 / 16 / cos + 0.35 / cos : 7 / 16 / cos),
     studLen, rafterCut: gamParts ? gamParts.lowerCut : rafterCut, slopeLen, plumbH, ridgeSize, ridgeD, stud: D, joistDepth: joist.depth, rafterDepth: rd,
-    skidCount, skidYs, joistCenters, rafterCenters, gravelCuYd, padSqFt: underBlocks || noPad ? 0 : ((L + 2 * pad) * (W + 2 * pad)) / 144, baseBags: Math.ceil(baseCuFt / 0.5), underBlocks, noPad, blockCount, block, pierLen, pierCuFt, pierFootIn, pierFootCuFt, pierTubes, pierBags, roofAreaSqFt, floorRows, roofRows,
+    skidCount, skidYs, joistCenters, rafterCenters, gravelCuYd, padSqFt: underBlocks || noPad ? 0 : ((L + 2 * pad) * (W + 2 * pad)) / 144, baseBags: Math.ceil(baseCuFt / 0.5), underBlocks, noPad, blockCount, block, pierLen, pierCount, pierCuFt, pierFootIn, pierFootCuFt, pierTubes, pierBags, roofAreaSqFt, floorRows, roofRows,
     heel: connector || truss || gam ? 0 : D * t, maxStock, connector, truss, trusses, seatBase, chordDepth: truss ? chord.depth : 0,
     // The underside of the roof across the width, as [y, z] points (for storage space and the section).
     section: gam
@@ -2051,8 +2172,8 @@ function buildFramed(d) {
   if (d.siding && d.studSpacing > 16 && (d.sidingType === 'T1-11' || d.sidingType === 'LP SmartSide')) {
     warnings.push(`${d.sidingType === 'T1-11' ? 'T1-11' : 'LP SmartSide 3/8"'} panels are rated for studs at 16" on centre; at ${d.studSpacing}" use the 7/16" LP panel, lap siding over OSB, or studs at 16".`);
   }
-  if (lapSpec && skidTop < lapSpec.clearance - 1e-9) {
-    warnings.push(`The lap siding starts ${fmtIn(skidTop)} above the ground; the ${lapSpec.source} ask for at least ${fmtIn(lapSpec.clearance)}. Set the skids on taller blocks or use deeper skids.`);
+  if (lapSpec && sidingBottom < lapSpec.clearance - 1e-9) {
+    warnings.push(`The lap siding starts ${fmtIn(sidingBottom)} above the ground; the ${lapSpec.source} ask for at least ${fmtIn(lapSpec.clearance)}. ${floorless ? 'With no floor the walls sit on the timbers, low to the gravel; a framed floor on blocks lifts the siding clear.' : 'Set the skids on taller blocks or use deeper skids.'}`);
   }
   warnings.push(...siteWarnings(d));
   if (d.maxFootprint > 0 && (L * W) / 144 > d.maxFootprint + 1e-9) {
@@ -2064,6 +2185,9 @@ function buildFramed(d) {
     const low = buildFramed(normalize({ ...d, wallHeight: minWall, pitch: 3, maxPeak: 0, autoWall: false, autoPitch: false })).dims.peak;
     warnings.push(`The peak is ${fmtFt(dims.peak)} above the gravel, ${fmtFt(dims.peak - d.maxPeak)} over your ${fmtFt(d.maxPeak)} limit. Your tallest opening needs walls of at least ${fmtFt(minWall)}; with those walls and a 3/12 roof (about the least that sheds water under shingles) the peak would still be ${fmtFt(low)}. To get lower: a shorter door, ${lean ? 'a door in an end wall or the low back wall' : 'a door in the gable end'}, a lower floor or a narrower shed${d.gableVents && !lean ? ', or smaller or no gable vents (they need a steeper roof to fit)' : ''}.`);
   }
+
+  // Every fixture gets an id too, so the 3D view can pick and highlight it.
+  for (const f of fixtures) f.id ??= nextId('FX');
 
   return { design: d, members, panels, fixtures, walls, framedOpenings, warnings, notes, dims, vents: ventInfo, trim, wallTrim, doorParts, doors, interior, sidingArea, floorPieces, roofPieces, sidingFull, sidingUpper, sidingUpperShapes, lap, lapExposure, sidingStudLimit: lapStudLimit(d) };
 }
