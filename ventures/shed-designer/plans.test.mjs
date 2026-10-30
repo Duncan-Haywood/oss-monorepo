@@ -6,7 +6,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { buildShed, defaultDesign, PRESETS } from './model.mjs';
 import { estimate } from './estimate.mjs';
-import { buildSheets, sheetSvg, sheetsDxf } from './drawings.mjs';
+import { buildSheets, sheetSvg, sheetsDxf, spreadRow } from './drawings.mjs';
 
 const designs = [['default', defaultDesign()], ...Object.entries(PRESETS).map(([name, make]) => [name, make()])];
 // A birdsmouth and a connector seat, a ridge board and a beam, and a wide overhang.
@@ -161,5 +161,29 @@ test('every mark in the parts list is lettered on at least one sheet', () => {
     const drawn = new Set(sheets.flatMap((s) => s.items.filter((it) => it.t === 'text' && it.cls === 'mark').map((it) => it.text)));
     const missing = est.parts.filter((p) => !drawn.has(p.mark)).map((p) => `${p.mark} ${p.kind}`);
     assert.deepEqual(missing, [], name);
+  }
+});
+
+test('stud centre labels on the wall sheets never touch, and keep the order of their ticks', () => {
+  // Round 1 left them 5 px apart where a king and a jack stand 1-1/2" apart (10x12 gable, 12x16 door wall).
+  assert.deepEqual(spreadRow([0, 1, 2, 50], 8.5).map((x) => +x.toFixed(2)), [-7.5, 1, 9.5, 50]);
+  assert.deepEqual(spreadRow([0, 20, 40], 8.5), [0, 20, 40]);
+  for (const key of Object.keys(PRESETS)) {
+    const s = buildShed(PRESETS[key]());
+    const est = estimate(s);
+    const marks = new Map(est.parts.flatMap((p) => p.ids.map((id) => [id, p.mark])));
+    for (const sheet of buildSheets(s, marks).filter((x) => x.id.startsWith('wall-'))) {
+      const svg = sheetSvg(sheet);
+      const labels = [...svg.matchAll(/<text class="dimt" x="([\d.]+)" y="[\d.]+" text-anchor="end" style="font-size:7px" transform="rotate\(-90[^>]*>([^<]+)</g)].sort((a, b) => +a[1] - +b[1]);
+      const xs = labels.map((m) => +m[1]);
+      for (let i = 1; i < xs.length; i++) assert.ok(xs[i] - xs[i - 1] >= 8.5 - 0.02, `${key} ${sheet.id}: ${labels[i - 1][2]} and ${labels[i][2]} are ${(xs[i] - xs[i - 1]).toFixed(2)} px apart`);
+      // Left to right on the sheet is the same order as along the wall (back and left walls read mirrored, so either way).
+      const inches = labels.map((m) => m[2].replace(/&quot;/g, ''));
+      const frac = (f) => { const [n, d] = f.split('/'); return d ? +n / +d : +n; };
+      const val = (t) => t.split('-').reduce((sum, part) => sum + frac(part), 0);
+      const v = inches.map(val);
+      assert.ok(v.every((x, i) => i === 0 || x >= v[i - 1]) || v.every((x, i) => i === 0 || x <= v[i - 1]), `${key} ${sheet.id}: ${inches.join(' ')}`);
+      assert.equal(inches.length, sheet.items.filter((it) => it.t === 'text' && it.spread === 'centres').length);
+    }
   }
 });
