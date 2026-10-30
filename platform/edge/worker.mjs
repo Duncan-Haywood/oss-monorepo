@@ -69,10 +69,16 @@ async function readFeedback(env, after) {
   return results;
 }
 
+// ALLOWED_ORIGIN is a comma-separated list, so the site can be served from
+// more than one host while it moves (GitHub Pages to Cloudflare, 2026-10-29).
+function allowedOrigins(env) {
+  return String(env.ALLOWED_ORIGIN || '').split(',').map((o) => o.trim()).filter(Boolean);
+}
+
 async function handleFeedback(request, env, headers, cors) {
   // Browsers always send Origin on a cross-site POST; anything else posting
   // here is a script, and the form only lives on the site.
-  if (headers.origin !== env.ALLOWED_ORIGIN) return json(403, { error: 'origin' }, cors);
+  if (!allowedOrigins(env).includes(headers.origin)) return json(403, { error: 'origin' }, cors);
   const raw = await request.text();
   if (raw.length > FEEDBACK_MAX_BODY) return json(413, { error: 'size' }, cors);
   let input;
@@ -101,7 +107,8 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     const headers = Object.fromEntries([...request.headers].map(([k, v]) => [k.toLowerCase(), v]));
-    const cors = { 'access-control-allow-origin': env.ALLOWED_ORIGIN, vary: 'origin' };
+    const origins = allowedOrigins(env);
+    const cors = { 'access-control-allow-origin': origins.includes(headers.origin) ? headers.origin : origins[0] || '', vary: 'origin' };
     if (request.method === 'OPTIONS') {
       return new Response(null, {
         status: 204,

@@ -39,3 +39,18 @@
 - **Board and batten:** it prices primed finger-joint 1x8s at $89.18 per box of three ($2,229.50 on an 8x12). That is an interior trim board, so a person should check the product and the line.
 - **The $2,000 budget:** this target is still not met with lap siding and shingles fixed. The cheapest fixed-siding design is about $2,677, so the next savings have to come from cost lines outside the structure: siding, sheathing and the door.
 - **Looks** is a heuristic, and it is documented term by term in `looksOf`. Its weights are a judgement call, and a gallery should show the terms, not just the score.
+
+## Addendum: tightening, after r3b lane 5's audit (2026-10-30)
+
+The parent relayed lane 5's findings (`docs/reports/shed-designer-round3b-lane5.md`, `paretoaudit.mjs`).
+
+- **One storage definition.** `storage.mjs` now holds it, and `designsearch.mjs` and `designfacts.mjs` both use it.
+  - The box is the inside floor times the height to the top of the plates. The roof triangle spans the inside width. Shelf wall takes off each opening's rough width.
+  - The default 8x12 is 662.7 cu ft in both modules. Before, the panel said 666.8 and the search said 641.5.
+  - `paretoaudit.mjs` keeps its own definition on purpose: it is an independent check.
+- **8" overhang and 88" walls** are now search values.
+- **Polish phase.** It uses 35% of the budget. Each front design, cheapest first, takes any one change that beats it outright, trying lighter framing, the overhangs and the wall heights first.
+  - At 800 designs, 4 of 42 front designs still have a cheaper twin one change away (median 0.03%). Before, it was 26 of 26 (median 1.45%).
+  - At 2,000 designs, it is 0 of 64.
+  - A new test pins at most 15% beaten at 800 designs on two sizes.
+- **Still open:** the gallery's picks should be added to `under100` in `paretoaudit.test.mjs` once a search supplies them (lane 5's point 3).

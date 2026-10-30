@@ -514,7 +514,7 @@ test('grabbing a door near its end does not jump it, and a phone-size target let
 
 test('on a phone the end view fills its box and every label is inside it', { skip }, async (t) => {
   const { page } = await open(t, pw.devices['Pixel 7']);
-  for (const preset of [null, '12x16']) {
+  for (const preset of [null, '12x16', 'lean-to']) {
     if (preset) {
       const opt = await page.$$eval('#new-design option', (os, p) => os.find((o) => o.textContent.includes(p))?.value, preset);
       if (!opt) continue;
@@ -569,6 +569,27 @@ test('the ready-design gallery: ten cards with price, storage and reason; arrows
   assert.equal(await page.getAttribute('#design-tabs [role=tab]:last-child', 'aria-selected'), 'true');
   assert.match(await page.textContent('#design-tabs [role=tab]:last-child'), /^Cheapest /);
   assert.ok(cardPrice, 'the card shows a price');
+});
+
+test('each card says its siding and roof; "match a house" limits the strip to lap and shingles and is remembered', { skip }, async (t) => {
+  const { page } = await open(t);
+  const finishes = await page.locator('#starts .pick-finish').allInnerTexts();
+  assert.equal(finishes.length, 10);
+  assert.ok(finishes.every((x) => /^Siding: .+ · (metal|asphalt shingle) roof$/.test(x)), JSON.stringify(finishes));
+  assert.ok(finishes.some((x) => /metal roof/.test(x)), 'the free-finish cards include a metal roof');
+  await page.check('#match-house');
+  await page.waitForFunction(() => document.querySelectorAll('#starts .pick').length < 10);
+  const house = await page.locator('#starts .pick-finish').allInnerTexts();
+  assert.ok(house.length >= 4, `${house.length} cards`);
+  assert.ok(house.every((x) => /lap .*asphalt shingle roof$/.test(x)), JSON.stringify(house));
+  assert.equal(await page.textContent('#starts-pos'), `1 of ${house.length}`);
+  // Remembered on the next visit, and switching it off brings all ten back.
+  await page.reload();
+  await page.waitForFunction(() => document.querySelector('#total')?.textContent?.startsWith('$'));
+  assert.ok(await page.isChecked('#match-house'));
+  await page.waitForFunction((n) => document.querySelectorAll('#starts .pick').length === n, house.length);
+  await page.uncheck('#match-house');
+  await page.waitForFunction(() => document.querySelectorAll('#starts .pick').length === 10);
 });
 
 test('on a phone the gallery shows about one card at a time and swipes sideways', { skip }, async (t) => {
@@ -687,6 +708,30 @@ test('ticking a fixed choice keeps it out of the part options, and undo unticks 
   await page.click('#undo');
   await settle(page);
   assert.equal(await page.isChecked('input[name="lock"][value="windows"]'), false, 'undo unticks it');
+});
+
+test('the lean-to preset draws one slope in the editor, and the shape box switches it back to a gable', { skip }, async (t) => {
+  const { page } = await open(t);
+  const opt = await page.$$eval('#new-design option', (os) => os.find((o) => o.textContent.includes('lean-to'))?.value);
+  assert.ok(opt, 'a lean-to in the New design menu');
+  await page.selectOption('#new-design', opt);
+  await settle(page);
+  assert.equal(await val(page, 'style'), 'leanTo');
+  const labels = await page.$$eval('#endview text', (xs) => xs.map((x) => x.textContent).join(' | '));
+  assert.match(labels, /back wall/);
+  assert.match(labels, /end wall/);
+  assert.doesNotMatch(await page.$eval('#plan', (e) => e.textContent), /ridge/);
+  // The pitch handle sits on the tall front wall; an arrow key steepens the roof.
+  const pitch0 = Number(await val(page, 'pitch'));
+  await page.focus('[data-key="end-peak"]');
+  await page.keyboard.press('ArrowUp');
+  await settle(page);
+  assert.equal(Number(await val(page, 'pitch')), pitch0 + 1);
+  const total = await page.$eval('#total', (e) => e.textContent);
+  await page.selectOption('#style', 'gable');
+  await settle(page);
+  assert.match(await page.$eval('#plan', (e) => e.textContent), /ridge/);
+  assert.notEqual(await page.$eval('#total', (e) => e.textContent), total, 'the gable is priced again');
 });
 
 test('Save picture downloads the 3D view as a PNG', { skip }, async (t) => {

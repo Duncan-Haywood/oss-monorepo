@@ -1,0 +1,50 @@
+{
+  "date": "2026-10-30",
+  "session": "https://claude.ai/code/session_01EhTJVKuXSAXUAHsqLSPGTB",
+  "track": "process",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-30T02:57:28Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 2): wall-framing-takeoff deck guard layout",
+  "projects": [
+    "wall-framing-takeoff"
+  ],
+  "pr": 11637,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "why": "The scheduled prompt asked for revenue product work, so I shipped a flagship product slice instead of a process fix.",
+      "did": "deck guard layout",
+      "result": "deck, cli, page and usage tests pass (79)"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-30-a-deck-over-30-inches-needs-a-guard.md"
+  ],
+  "goal": null,
+  "notes": "node --test deck.test.mjs page.test.mjs cli.test.mjs usage.test.mjs: 79 pass, 0 fail. Hand-computed tests only; no real deck permit set.",
+  "corrections": [],
+  "redteam": null
+}

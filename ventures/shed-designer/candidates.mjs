@@ -57,7 +57,8 @@ export function generateCandidates(design, prices) {
   const variants = [
     { label: 'Your design as set', change: {} },
     { label: `Rafters at ${b.rafterSpacing === 24 ? 16 : 24}" on centre`, change: { rafterSpacing: b.rafterSpacing === 24 ? 16 : 24 } },
-    ...ROOF_TYPES.filter((r) => r.type !== b.roofType).map((r) => ({ label: r.option, change: { roofType: r.type } })),
+    // A lean-to has no ridge; its other shape is the gable.
+    ...(b.style === 'leanTo' ? [{ label: 'A gable roof instead of the lean-to', change: { style: 'gable' } }] : ROOF_TYPES.filter((r) => r.type !== b.roofType).map((r) => ({ label: r.option, change: { roofType: r.type } }))),
     { label: `Steeper roof, ${Math.min(12, b.pitch + 1)}/12`, change: { pitch: Math.min(12, b.pitch + 1), autoPitch: false } },
     { label: `Lower roof, ${Math.max(3, b.pitch - 1)}/12`, change: { pitch: Math.max(3, b.pitch - 1), autoPitch: false } },
     { label: 'A foot of overhang', change: { overhang: 12, autoOverhang: false } },

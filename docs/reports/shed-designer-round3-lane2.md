@@ -36,6 +36,11 @@
 
   On a Pixel 7 they check that a card fills most of the strip, the strip scrolls sideways and the page does not.
 
+## Follow-up (PR "match a house")
+
+- Each card now names its siding and roof ("Siding: fiber cement lap · asphalt shingle roof"), so a metal-roofed card is plain at a glance (the parent's ask: the owner needs shingles and lap siding).
+- A "Match a house: lap siding and asphalt shingles only" switch limits the strip to the six such cards (`matchesHouse` in `gallery-ui.mjs`), remembered per viewer in localStorage. Tested in `gallery.test.mjs` and `browser.test.mjs`.
+
 ## Findings (post: `docs/posts/2026-10-30-ten-sheds-under-100-square-feet.md`)
 
 - **Peak limit:** with none, the roomiest designs are 16 ft gable spans with the ridge only 6 ft long, a 9/12 roof and a 15'8" peak (896 cu ft). With the 13 ft cap, the roomiest is a 7x14 holding 783 cu ft, peaking at 12'8".
