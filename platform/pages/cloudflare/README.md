@@ -62,16 +62,18 @@ directory: a page placed there was served instead. Run `wrangler dev` inside
 ## The custom domain: marisstella.app
 
 Since 2026-10-30 the site Worker is attached to **https://marisstella.app/**
-(the owner added the zone to this Cloudflare account that day).
-`wrangler.toml`'s `routes` entry with `custom_domain = true` makes Cloudflare
-create the DNS record and the certificate on deploy. The deploy token needs,
-scoped to that zone only: Zone → Zone → Read, Zone → DNS → Edit and
-Zone → Workers Routes → Edit (account-level DNS settings, DNS Firewall, DNS
-Views and Registrar permissions are not used). The workflow builds for that
-origin (`CLOUDFLARE_BASE` in `portfolio-pages.yml`), so every canonical link,
-sitemap and feed names it. The workers.dev address keeps serving the same
-files. `platform/edge/wrangler.toml`'s `ALLOWED_ORIGIN` lists both.
+(the owner added the zone to this Cloudflare account and attached it in the
+dashboard: Workers & Pages → `monorepo-projects-site` → Settings → Domains &
+Routes → Custom domain). Cloudflare created the DNS record and certificate.
+`wrangler.toml` has no `routes` key, so `wrangler deploy` leaves the
+attachment alone and the deploy token needs no zone permissions. The workflow
+builds for that origin (`CLOUDFLARE_BASE` in `portfolio-pages.yml`), so every
+canonical link, sitemap and feed names it. The workers.dev address keeps
+serving the same files. `platform/edge/wrangler.toml`'s `ALLOWED_ORIGIN`
+lists both.
 
-To move to another domain: add it to the account, change the `routes` entry
-and `CLOUDFLARE_BASE` (or set the repository variable `PAGES_BASE_URL`), and
-add the origin to `ALLOWED_ORIGIN`.
+To manage the domain from the repository instead, add
+`routes = [{ pattern = "marisstella.app", custom_domain = true }]` to
+`wrangler.toml`. The deploy token then needs Zone → Workers Routes → Edit on
+that zone (Cloudflare's "Edit Cloudflare Workers" template); the attach API
+itself lists Account → Workers Scripts → Edit.
