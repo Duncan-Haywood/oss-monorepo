@@ -1,5 +1,6 @@
 ---
 title: "Start here: Quick Pick, rank a list by asking people to choose one of two"
+seo_title: "Quick Pick: rank a list by asking people to choose one of two"
 date: 2026-10-29
 tags: [start-here, quick-pick-survey, surveys, decision-making, self-hosting]
 description: "Who the Quick Pick survey engine suits, how to deploy your own copy and build a first either-or survey, and why it is still an early prototype."
