@@ -11,6 +11,7 @@ test('the cost breakdown adds up to the materials total', () => {
     assert.ok(Math.abs(sum - f.total) < 0.05, `${f.name}: ${sum} vs ${f.total}`);
     assert.ok(f.breakdown.length <= BREAKDOWN_TOP + 1);
     assert.equal(f.total, estimate(buildShed(make())).total, 'the same total the editor shows');
+    assert.ok(f.breakdown.every((b) => b.name === 'Everything else' || ['Foundation and site', 'Floor', 'Wall framing', 'Roof framing and deck', 'Roofing', 'Siding', 'Trim', 'Doors, windows and vents', 'Fasteners and hardware', 'Paint and finish', 'Inside finish'].includes(b.name)), `${f.name}: grouped by assembly, as the editor's cost tab is`);
   }
 });
 

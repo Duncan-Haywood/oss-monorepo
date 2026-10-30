@@ -531,7 +531,7 @@ function buildAuto(d0) {
 function buildFramed(d) {
   /** @type {Member[]} */
   const members = [];
-  /** @type {{ id: string, kind: string, item: string, geom: Geom, group: string, wall?: string, side?: string, pos?: number[], course?: number, face?: [number, number][] }[]} */
+  /** @type {{ id: string, kind: string, item: string, geom: Geom, group: string, wall?: string, side?: string, pos?: number[], course?: number, face?: [number, number][], where?: string }[]} */
   const panels = [];
   /** @type {{ kind: string, geom: Geom, group: string, tex?: string, from?: number, bottom?: number }[]} */
   const fixtures = [];
