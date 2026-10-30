@@ -8,7 +8,8 @@ import { estimate } from './estimate.mjs';
 export const SIZES = [
   [8, 8, '8x10'], [8, 10, '8x10'], [8, 16, '8x10'],
   [10, 10, '10x12'], [10, 12, '10x12'], [10, 14, '10x12'], [10, 16, '10x12'], [10, 20, '10x12'],
-  [12, 12, '12x16'], [12, 16, '12x16'], [12, 20, '12x16'], [12, 24, '12x16'],
+  [12, 12, '12x16'], [12, 14, '12x16'], [12, 16, '12x16'], [12, 20, '12x16'], [12, 24, '12x16'], [12, 32, '12x16'],
+  [14, 14, '12x16'], [14, 20, '12x16'], [16, 20, '12x16'], [16, 24, '12x16'],
 ];
 // The 8x12 page predates this script and is hand-written, so 8x12 is linked, not rewritten.
 const HAND = '8x12 page: shed-plans-with-cut-list.html';
@@ -145,8 +146,8 @@ export function indexPage(all) {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   ${ICON}
-  <title>Shed Lumber List by Size: 8x8 to 12x24, Boards and Cost</title>
-  <meta name="description" content="How many boards and how much money a gable shed takes at ${all.length + 1} common sizes from 8x8 to 12x24, each framed stud by stud, with the cut list for your own size free in the browser.">
+  <title>Shed Lumber List by Size: 8x8 to 16x24, Boards and Cost</title>
+  <meta name="description" content="How many boards and how much money a gable shed takes at ${all.length + 1} common sizes from 8x8 to 16x24, each framed stud by stud, with the cut list for your own size free in the browser.">
   <script type="application/ld+json">${JSON.stringify({ '@context': 'https://schema.org', '@type': 'Article', headline: 'Shed lumber list by size' })}</script>
   <style>
 ${CSS}
