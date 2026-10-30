@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Open Tools and Research — tools on marisstella.dev</title>
-  <subtitle>The 1320 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1321 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -14,6 +14,14 @@
     <updated>2026-10-29T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Drop a project folder and see every copy-pasted block: file, lines and the matching copy. A Rust copy-paste detector compiled to WebAssembly. Nothing is uploaded. Also a CLI that checked 9,458 files in 1.2 seconds.</summary>
+  </entry>
+  <entry>
+    <title>Shed Designer: Free Gable Shed Plans, 3D View and Lumber Cut List</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/shed-designer/"/>
+    <id>tag:marisstella.dev,2026:tool/shed-designer</id>
+    <updated>2026-10-29T00:00:00Z</updated>
+    <category term="Trade &amp; contractor bids"/>
+    <summary type="text">Design a gable shed by dragging: get framing plans for the foundation, floor, four walls and roof, a 3D view, a lumber cut sheet using real 2x4 to 2x12 sizes and 8 to 16 ft boards, and a cost estimate. Free, nothing uploaded.</summary>
   </entry>
   <entry>
     <title>Agentic Trading Lab: backtest strategies, catch overfitting, paper trade first</title>
@@ -158,13 +166,5 @@
     <updated>2026-10-20T00:00:00Z</updated>
     <category term="More free tools"/>
     <summary type="text">Build fictional characters with Big Five personalities and simulate negotiations, team meetings and arguments between them. Free, private, runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Free Podcast RSS Feed Generator, Markdown to EPUB &amp; Audiobook Checker — Publish Kit</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/publish-kit/"/>
-    <id>tag:marisstella.dev,2026:tool/publish-kit</id>
-    <updated>2026-10-20T00:00:00Z</updated>
-    <category term="Creator &amp; solo earner income"/>
-    <summary type="text">Free podcast RSS feed generator, Markdown to EPUB converter, ACX audiobook checker and KDP spine calculator. Runs in your browser, or as a CLI for AI agents.</summary>
   </entry>
 </feed>
