@@ -34,6 +34,14 @@ const amountBucket = (cents) => `amt:${Math.min(12, Math.floor(Math.log2(Math.ab
 // keyword that fits two accounts is left out, so the line goes to review rather
 // than being guessed. `dir` limits a rule to money in or money out.
 export const BUILT_IN = [
+  // Gap probe 8 (2026-10-30, eval/probe8.mjs): truckers, small farms, tattoo artists, trainers, wedding DJs.
+  ["6060", "out", /dat load board|\btraining ?peaks\b|dj intelligence|soundcloud|bpm supreme/],
+  ["6010", "out", /freight factoring|rts financial/],
+  ["6110", "out", /fmcsa|usda organic/],
+  ["6170", "out", /\booida\b|farm bureau dues/],
+  ["6090", "out", /fleetpride|truckpro/],
+  ["6100", "out", /national ffa|inkbox|kuro sumi|sharps disposal|party city/],
+  ["4000", "in", /prime inc settlement|local harvest|csa share|(booking )?deposit.*zelle|balance due.*zelle/],
   // Gap probe 7 (2026-10-30, eval/probe7.mjs): salons, electricians and plumbers, podcasters, tutors, print-on-demand sellers.
   // Print-on-demand fulfilment is cost of goods; Printful was filed as marketing, so it sits first (Printify stays software, an older test pins it: its subscription and its orders look alike).
   ["5000", "out", /\bprintful\b|\bgelato\b|\bgooten\b/],
