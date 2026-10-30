@@ -2,6 +2,13 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-30 · Milestone 6k (H6 scale-up): is the flat stretch of the size-2 excess between H = 16 and 64 seed noise? (planned before running)
+
+- Why: 6j's "Next". The excess at keep 1/16 is +0.054 (H = 16, two seeds), +0.045 (H = 32, three), +0.044 (H = 64, six), +0.063 (H = 128, three). The 16 to 64 dip is at most 2 standard errors, with only 2 and 3 seeds at the first two levels.
+- Setup (`scale.py run hfill`): seeds 2 to 5 at H = 16 and seeds 3 to 5 at H = 32, both keep levels (14 runs, nothing else changes), so H = 16, 32, 64 have six seeds each.
+- **H6k-i:** with six seeds the H = 16 excess is within 0.01 of H = 64's (the dip was seed noise). **H6k-ii:** the six-seed excess is monotone non-decreasing over 16, 32, 64 within one standard error each. Priors: i 55%, ii 50%.
+- Limits to state: H = 4 and 128 keep two to three seeds; one width; one keep level; the rule is not refitted here.
+
 ## 2026-10-30 · Milestone 6j (H6 scale-up): does the size-2 compression excess saturate in H between 16 and 64? (planned before running)
 
 - Why: 6i's "Next". The size-2 excess at keep 1/16 is +0.054 at H = 16 and +0.044 at H = 64 (six seeds, so measured to about 0.004): it does not rise, while the rule's power law in H (b = 0.55) says it should. If it is flat or falling, the power-law form in H is what breaks at size 2.
