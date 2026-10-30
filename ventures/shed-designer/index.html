@@ -554,6 +554,11 @@
         <label>House depth (ft)<input id="houseDepthFt" type="number" min="0" max="2000" step="0.5"></label>
         <label>House from the left lot line (ft)<input id="houseLeftFt" type="number" min="0" max="2000" step="0.5"></label>
         <label>House from the street lot line (ft)<input id="houseFrontFt" type="number" min="0" max="2000" step="0.5"></label>
+        <label>Door wall faces<select id="siteFacing"><option value="street">The street</option><option value="left">The left lot line</option><option value="right">The right lot line</option><option value="rear">The rear lot line</option></select></label>
+        <label>North on the site plan<select id="northDeg"><option value="">No north arrow</option><option value="0">Toward the rear lot line</option><option value="45">Rear and right</option><option value="90">Toward the right lot line</option><option value="135">Street and right</option><option value="180">Toward the street</option><option value="225">Street and left</option><option value="270">Toward the left lot line</option><option value="315">Rear and left</option></select></label>
+        <label>Easement along<select id="easementSide"><option value="none">No easement</option><option value="rear">The rear lot line</option><option value="left">The left lot line</option><option value="right">The right lot line</option><option value="street">The street</option></select></label>
+        <label>Easement width (ft)<input id="easementFt" type="number" min="0" max="200" step="0.5"></label>
+        <label>Easement note, as on your plat<input id="easementNote" type="text" maxlength="120" placeholder="e.g. 10 ft utility easement"></label>
       </div>
     </fieldset>
     <fieldset>
