@@ -40,6 +40,9 @@ The Safety tab: a late-sit check-in (a trusted contact and a "home by" time; if 
 - At the end of a sit the Families tab takes a short report (arrival and departure, meals, nap or bedtime, diapers or potty, activities, mood, notes) and turns it into a message for the parents; an incident section (what happened, first aid, when the parents were told) adds an incident block and a printable incident report.
 - Medicine is logged only against the parents' written authorization (medicine, dose, times or as needed, parent's name, signed and valid-until dates). The app warns when the authorization is missing, unsigned, undated or expired, the dose differs, or the time is outside the authorized times. It is a record, not medical advice.
 - With the optional server and Resend set up, a report can be emailed to the family's email on file.
+## Invoices and getting paid
+
+The Invoices tab makes an invoice per sit or per period (for example a week of a recurring family): numbered, with each sit's rate-card lines, payments already received, the balance and a due date, printable or saved as PDF. Payment instructions (Venmo, Zelle, Cash App, PayPal, check) come from the sitter's settings. Payments get printable receipts; optional tips are recorded apart from what a sit cost. An aging view splits money owed into current, 1-30, 31-60 and over 60 days past due. On the optional server each invoice has a private pay link, and card payments (Stripe Checkout, with an optional tip) go to the sitter's own Stripe account; a signed webhook records them.
 
 ## References and consent
 
@@ -49,4 +52,4 @@ The Agreements tab builds a sitter-family agreement (a template, not legal advic
 
 ## Limits
 
-The set-aside ignores the standard deduction and credits and errs high; the federal estimate beside it leaves out credits. One sitter per server. No card payments. Texts need the sitter's own Twilio account and the families' consent (TCPA); the README summarises the consent rules with sources. Faith content is optional, set by the sitter, and never used to score families.
+The set-aside ignores the standard deduction and credits and errs high; the federal estimate beside it leaves out credits. One sitter per server. Card payments only through the sitter's own Stripe account, off until they set its keys. Texts need the sitter's own Twilio account and the families' consent (TCPA); the README summarises the consent rules with sources. Faith content is optional, set by the sitter, and never used to score families.

@@ -84,6 +84,7 @@
     <button type="button" role="tab" data-tab="schedule">Schedule</button>
     <button type="button" role="tab" data-tab="money">Money &amp; taxes</button>
     <button type="button" role="tab" data-tab="insights">Insights</button>
+    <button type="button" role="tab" data-tab="invoices">Invoices</button>
     <button type="button" role="tab" data-tab="references">References</button>
     <button type="button" role="tab" data-tab="agreements">Agreements</button>
     <button type="button" role="tab" data-tab="website">Website</button>
@@ -244,6 +245,10 @@
     </section>
 
     <section data-panel="insights" id="insightsPanel" class="card" hidden></section>
+    <section data-panel="invoices" class="card" hidden>
+      <h2>Invoices &amp; getting paid</h2>
+      <div id="invoiceKit"></div>
+    </section>
 
     <section data-panel="references" class="card" hidden>
       <h2>References &amp; testimonials</h2>
@@ -448,6 +453,7 @@
     import { mountNetwork } from "./network-ui.mjs";
     import { mountSafety } from "./safety-ui.mjs";
     import * as CRED from "./credentials-ui.mjs";
+    import { mountInvoices } from "./invoices-ui.mjs";
     import { enhanceTabs } from "./tabs.mjs";
     import { mountInsights } from "./insights-ui.mjs";
     import { mountSitReports } from "./sitreport-ui.mjs";
@@ -959,6 +965,7 @@
     mountContent($("contentKit"), { getDesk: () => desk, save, record, today, buildSite: (d) => E.buildSite(d) });
     renderSafety = mountSafety($("safetyKit"), { getDesk: () => desk, save, esc, record, today, openPage, server: () => ({ url: $("syncUrl").value.trim().replace(/\/+$/, ""), key: $("syncKey").value }) });
     mountInsights($("insightsPanel"), { getDesk: () => desk, save, esc, record, today });
+    mountInvoices($("invoiceKit"), { getDesk: () => desk, save, record, today, serverUrl: () => $("syncUrl").value.trim().replace(/\/+$/, "") });
     record("page_loaded");
     render();
     show("today");

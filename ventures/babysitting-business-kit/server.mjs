@@ -28,6 +28,8 @@
 //   AUTO_FOLLOW_UP=1: send due follow-ups to emailed leads with the daily digest
 //   TWILIO_ACCOUNT_SID + TWILIO_AUTH_TOKEN + TWILIO_FROM, PUBLIC_URL: texts and unsubscribe
 //     links for the automations the sitter turns on in Settings (automations-server.mjs)
+//   STRIPE_SECRET_KEY + STRIPE_WEBHOOK_SECRET: card payments on invoices, to your own
+//     Stripe account (invoices-server.mjs)
 //   LLM_PROVIDER (+ LLM_API_KEY, LLM_MODEL, LLM_BASE_URL; or OLLAMA_HOST): POST /api/draft
 //     drafts a blog post on your own model key; /site/blog serves posts you approved
 //   NETWORK_ID + NETWORK_PEERS (name=secret pairs): the sitter-network handoff between two kit servers
@@ -50,6 +52,8 @@ import { loadDesk, atomicWrite, backupApi, backupDir, dailyBackup } from "./back
 import { networkRoutes, mergeNetwork } from "./network-server.mjs";
 import { mergeSafety } from "./safety.mjs";
 import { safetyRoutes, runSafety } from "./safety-server.mjs";
+import { mergeInvoicePayments } from "./invoices.mjs";
+import { invoiceRoutes } from "./invoices-server.mjs";
 
 const MAX_BODY = 64 * 1024;
 const MAX_DESK = 8 * 1024 * 1024;
@@ -60,6 +64,7 @@ const TYPES = { html: "text/html; charset=utf-8", mjs: "text/javascript; charset
 for (const f of ["tabs.mjs", "sw.js", "manifest.webmanifest", "icon.svg", "icon-192.png", "icon-512.png", "icon-maskable-512.png", "apple-touch-icon.png", "babysitting-taxes.html", "how-to-start-a-babysitting-business.html", "how-much-to-charge-for-babysitting.html", "babysitting-references.html", "self-host.html", "network.mjs", "network-ui.mjs"]) FILES[`/${f}`] = f;
 for (const f of ["tabs.mjs", "credentials.mjs", "credentials-ui.mjs", "babysitting-business-setup.html", "sw.js", "manifest.webmanifest", "icon.svg", "icon-192.png", "icon-512.png", "icon-maskable-512.png", "apple-touch-icon.png", "babysitting-taxes.html", "how-to-start-a-babysitting-business.html", "how-much-to-charge-for-babysitting.html", "babysitting-references.html", "self-host.html"]) FILES[`/${f}`] = f;
 for (const f of ["tabs.mjs", "insights.mjs", "insights-ui.mjs", "sw.js", "manifest.webmanifest", "icon.svg", "icon-192.png", "icon-512.png", "icon-maskable-512.png", "apple-touch-icon.png", "babysitting-taxes.html", "how-to-start-a-babysitting-business.html", "how-much-to-charge-for-babysitting.html", "babysitting-references.html", "self-host.html"]) FILES[`/${f}`] = f;
+for (const f of ["tabs.mjs", "sw.js", "manifest.webmanifest", "icon.svg", "icon-192.png", "icon-512.png", "icon-maskable-512.png", "apple-touch-icon.png", "babysitting-taxes.html", "how-to-start-a-babysitting-business.html", "how-much-to-charge-for-babysitting.html", "babysitting-references.html", "self-host.html", "invoices.mjs", "invoices-ui.mjs"]) FILES[`/${f}`] = f;
 Object.assign(TYPES, { js: "text/javascript; charset=utf-8", webmanifest: "application/manifest+json", svg: "image/svg+xml", png: "image/png" });
 
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -111,6 +116,7 @@ export function handler(state, save, env = process.env, now = Date.now, fetchImp
   const auto = automationRoutes(state, save, env, now, fetchImpl, msg.sitter);
   const net = networkRoutes(state, save, env, now, fetchImpl, msg.sitter); // sitter network handoffs (network-server.mjs)
   const safe = safetyRoutes(state, save, env, now, fetchImpl, msg.sitter); // late-sit check-in (safety-server.mjs)
+  const pay = invoiceRoutes(state, save, env, now, fetchImpl, msg.sitter); // invoices-server.mjs: /pay/<token>, /stripe/webhook
   return async (req, res) => {
     const send = (code, body, type = TYPES.html, extra = {}) => { res.writeHead(code, { "content-type": type, "x-content-type-options": "nosniff", "referrer-policy": "no-referrer", ...extra }); res.end(body); };
     const url = new URL(req.url, "http://x");
@@ -119,6 +125,7 @@ export function handler(state, save, env = process.env, now = Date.now, fetchImp
     if (await auto(req, url, send)) return;
     if (await net(req, url, send)) return;
     if (await safe(req, url, send)) return;
+    if (await pay(req, url, send)) return;
     if (req.method === "GET" && FILES[url.pathname]) {
       const f = FILES[url.pathname];
       return send(200, readFileSync(new URL(f, dir)), TYPES[f.split(".").pop()]);
@@ -253,6 +260,7 @@ export function handler(state, save, env = process.env, now = Date.now, fetchImp
         mergeAgreements(state.desk, incoming); // and signatures, used links and photo choices (agreements.mjs)
         incoming.safety = mergeSafety(state.desk.safety, incoming.safety, now()); // keep check-in taps and alerts from the server
         mergeSitReports(state.desk, incoming); // reports the email route saved, and their "emailed" stamps
+        mergeInvoicePayments(state.desk, incoming); // card payments the server recorded
         state.desk = normalizeDesk(keepIntakes(state.desk, incoming)); // and info sheets families filled in
         state.desk.leads.push(...fresh);
         save();
