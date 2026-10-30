@@ -272,6 +272,8 @@ test('the section bar opens each results tab, and a left-out line comes off the 
   assert.equal(await page.$eval(`#shopping input[data-skip="${line.name}"]`, (cb) => cb.closest('tr').className), 'skip');
   assert.match(await page.textContent('#summary-lines'), /you have or left out/);
   assert.match(await page.textContent('#shopping'), /PT 4x4 x \d+'(Show in 3D)?for skid/, 'lumber lines say what they are for');
+  assert.match(await page.textContent('#shopping'), /Lumber subtotal \(\d+% of the materials\)\$[\d,]+\.\d\d/, 'each section has a subtotal');
+  assert.match(await page.textContent('#summary-lines'), /Where the money goes.*Lumber \$/);
   assert.match(await page.textContent('#cuts'), /\d+ ft → .*\(\w+\)/, 'cut sheet boards say what they are cut into');
 });
 

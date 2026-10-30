@@ -3,7 +3,7 @@
 // plan sheets, all rebuilt from one design object on every change.
 
 import { buildShed, normalize, defaultDesign, PRESETS, WALLS, WALL_LABEL, wallFaceLength } from './model.mjs';
-import { estimate, examplePrices, cutSheetCsv, shoppingCsv, groupBoards, sourceLabel, boardUse, lumberUses } from './estimate.mjs';
+import { estimate, examplePrices, cutSheetCsv, shoppingCsv, groupBoards, sourceLabel, boardUse, lumberUses, sectionTotals } from './estimate.mjs';
 import { buildSheets, sheetSvg, sheetsDxf } from './drawings.mjs';
 import { createViewer, LAYERS } from './render3d.mjs';
 import { drawPlan, drawEnd } from './editor.mjs';
@@ -224,6 +224,7 @@ function renderSummary(shed, est) {
   $('#total-pill-n').textContent = money(buy.total);
   $('#summary-lines').innerHTML = [
     ['Materials', `${money(buy.sub)}${buy.less ? ` (${money(est.total)} less ${money(buy.less)} you have or left out)` : ''}${buy.tax ? ` + ${money(buy.tax)} tax (${d.taxRate}%)` : ' (no sales tax set)'}${d.delivery !== 'pickup' ? (est.deliveryFee ? ` + ${money(est.deliveryFee)} delivery` : ' + delivery (type your store\'s charge under Prices)') : ''}`],
+    ['Where the money goes', sectionTotals(est.shopping).sort((a, b) => b.total - a.total).slice(0, 5).map((x) => `${esc(x.section)} ${money(x.total)} (${Math.round(x.share * 100)}%)`).join(', ')],
     ['Footprint', `${fmtFtIn(d.length)} x ${fmtFtIn(d.width)} (${est.footprintSqFt.toFixed(0)} sq ft)`],
     ['Peak above the gravel', fmtFtIn(shed.dims.peak)],
     ['Boards to buy', `${est.boards} for ${est.pieces} pieces`],
@@ -250,7 +251,8 @@ function renderShopping(est) {
   const skip = new Set(state.skip);
   // What each length of lumber is for, so a 14 ft board on an 8x12 explains itself.
   const uses = lumberUses(est);
-  for (const r of est.shopping) {
+  const subs = new Map(sectionTotals(est.shopping).map((x) => [x.section, x]));
+  est.shopping.forEach((r, i) => {
     if (r.section !== section) { section = r.section; html += `<tr class="sec"><th colspan="8" scope="colgroup">${esc(section)}</th></tr>`; }
     const got = have.has(r.name);
     const left = skip.has(r.name);
@@ -259,7 +261,11 @@ function renderShopping(est) {
     html += `<tr${got ? ' class="have"' : left ? ' class="skip"' : ''}><td>${esc(r.name)}${lm ? `<button type="button" class="link xref-btn" data-xref-lumber="${esc(`${lm[1]}:${lm[2]}`)}">Show in 3D</button>` : ''}${use ? `<div class="use">for ${esc(use)}</div>` : ''}</td><td class="n">${r.qty}</td><td>${r.unit}</td><td class="n">${money(r.price)}</td><td class="n">${money(r.total)}</td><td>${r.elsewhere ? `<span class="muted">not listed at ${esc(est.storeList.store)}: </span>` : ''}${sourceCell(r.source)}</td>`
       + `<td><input type="checkbox" data-have="${esc(r.name)}"${got ? ' checked' : ''} aria-label="I already have: ${esc(r.name)}"></td>`
       + `<td><input type="checkbox" data-skip="${esc(r.name)}"${left ? ' checked' : ''} aria-label="Leave out of the total: ${esc(r.name)}"></td></tr>`;
-  }
+    if (est.shopping[i + 1]?.section !== r.section) {
+      const x = subs.get(r.section);
+      html += `<tr class="subtot"><th colspan="4" scope="row">${esc(r.section)} subtotal <span class="muted">(${Math.round(x.share * 100)}% of the materials)</span></th><td class="n">${money(x.total)}</td><td></td><td></td><td></td></tr>`;
+    }
+  });
   const buy = toBuy(est);
   const row = (label, v, cls = '') => `<tr${cls ? ` class="${cls}"` : ''}><th colspan="4" scope="row">${label}</th><td class="n">${v}</td><td></td><td></td><td></td></tr>`;
   html += row('Materials', money(est.total), 'tot');
