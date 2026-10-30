@@ -189,11 +189,13 @@ export function solidsOf(shed, heat) {
   if (heat) return out;
   const pal = paletteOf(d);
   const siding = pal.siding;
-  const texture = d.sidingType === 'board and batten' ? FINISH.batten : (d.sidingType === 'vinyl' || d.sidingType === 'fiber cement') ? FINISH.lap : d.sidingType === 'T1-11' ? FINISH.grooves : 0;
+  // Lap siding is modelled course by course, so it needs no painted-on shadow lines.
+  const texture = d.sidingType === 'board and batten' ? FINISH.batten : d.sidingType === 'vinyl' ? FINISH.lap : d.sidingType === 'T1-11' ? FINISH.grooves : 0;
   for (const p of shed.panels) {
-    const layer = p.kind === 'floor sheet' ? 'floor' : p.kind === 'roof sheathing' ? 'sheathing' : 'siding';
-    const color = p.kind === 'floor sheet' ? COLORS.floor : p.kind === 'roof sheathing' ? COLORS.osb : siding;
-    out.push({ geom: p.geom, color: /** @type {any} */ (color), layer, flags: p.kind === 'siding' ? (d.polkaDots ? 1 : 0) + glitter + texture : 0 });
+    const sheathing = p.kind === 'roof sheathing' || p.kind === 'wall sheathing';
+    const layer = p.kind === 'floor sheet' ? 'floor' : sheathing ? 'sheathing' : 'siding';
+    const color = p.kind === 'floor sheet' ? COLORS.floor : sheathing ? COLORS.osb : siding;
+    out.push({ geom: p.geom, color: /** @type {any} */ (color), layer, flags: p.kind === 'siding' ? (d.polkaDots ? 1 : 0) + glitter + texture : p.kind === 'lap siding' ? (d.polkaDots ? 1 : 0) + glitter : 0 });
   }
   const roof = pal.roof;
   const trim = pal.trim;
