@@ -1,13 +1,13 @@
-use dupehound::*;
+use clonescan::*;
 use std::path::PathBuf;
 use std::process::ExitCode;
 use std::time::Instant;
 
 const HELP: &str = "\
-dupehound: find copy-pasted code, fast.
+clonescan: find copy-pasted code, fast.
 
 USAGE:
-    dupehound [OPTIONS] [PATH]...        (default PATH: .)
+    clonescan [OPTIONS] [PATH]...        (default PATH: .)
 
 OPTIONS:
     --min-tokens N     smallest clone in tokens            [default: 50]
@@ -73,7 +73,7 @@ fn parse_args() -> Result<Option<Args>, String> {
                 return Ok(None);
             }
             "-V" | "--version" => {
-                println!("dupehound {}", env!("CARGO_PKG_VERSION"));
+                println!("clonescan {}", env!("CARGO_PKG_VERSION"));
                 return Ok(None);
             }
             "--min-tokens" => a.opts.min_tokens = num(val(&arg)?, &arg)?.max(1) as usize,
@@ -119,7 +119,7 @@ fn main() -> ExitCode {
         Ok(Some(a)) => a,
         Ok(None) => return ExitCode::SUCCESS,
         Err(e) => {
-            eprintln!("dupehound: {e}");
+            eprintln!("clonescan: {e}");
             return ExitCode::from(2);
         }
     };
@@ -163,7 +163,7 @@ fn main() -> ExitCode {
     match args.threshold {
         Some(t) if st.duplicated_percent() > t => {
             eprintln!(
-                "dupehound: duplicated lines {:.2}% exceed threshold {t}%",
+                "clonescan: duplicated lines {:.2}% exceed threshold {t}%",
                 st.duplicated_percent()
             );
             ExitCode::from(1)

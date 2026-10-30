@@ -1,4 +1,4 @@
-//! dupehound: a token-based copy-paste detector.
+//! clonescan: a token-based copy-paste detector.
 //!
 //! The pipeline is the one jscpd and PMD CPD use, arranged so every stage
 //! but the last is embarrassingly parallel:

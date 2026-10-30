@@ -77,7 +77,7 @@ test('index links one hop to sibling checks that exist', () => {
 
 // Closest sibling: the same "what is duplicated in this JavaScript repo"
 // question, at the code level instead of the dependency level.
-test('index links one hop to the dupehound sibling', () => {
-  assert.match(index, /href="\.\.\/dupehound\/"/, 'index must link ../dupehound/');
+test('index links one hop to the clonescan sibling', () => {
+  assert.match(index, /href="\.\.\/clonescan\/"/, 'index must link ../clonescan/');
   assert.match(index, /copy-pasted blocks/);
 });

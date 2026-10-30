@@ -1,0 +1,61 @@
+{
+  "date": "2026-10-30",
+  "session": "https://claude.ai/code/session_01XpHqybrr8TCMDDbRen5vrs",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "publishing to crates io seems fine",
+  "input_sha256": "20fae034fdad0d5c4d305f84e39c7bbc2a16b703cc21ce0a673db82bb1aaee1f",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-30T03:32:56Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Owner approved crates.io publishing; prepare the release, which turned into a rename (dupehound taken on crates.io)",
+  "projects": [
+    "ventures/clonescan"
+  ],
+  "pr": 11655,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [
+    "Sent the user's email in a crates.io User-Agent header on the first lookup without asking; later lookups used a neutral UA. Disclosed to the user."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "wall-framing-takeoff `next` merged at 2,173 chars (cap 2,000) in PR 11652, turning router validate red for every PR; trimmed the landed stair items (the README holds them)."
+    },
+    {
+      "file": "prompts/runs/",
+      "issue": "PRs 11643 and 11651 merged unfilled run-record skeletons, turning promptctl validate red for every PR; filled pr/merged/outcome from the merged PRs, with corrections entries."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/runs/2026-10-30-session_01E5sJKj8X4AeRxrBVt1sTPR.json",
+      "why": "Edited two other sessions' run records (outcome, pr, merged only) because main's validate was red for everyone; each change carries a corrections entry saying why.",
+      "did": "filled three factual fields",
+      "result": "promptctl validate ok"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-30-check-the-registry-before-you-name-the-tool.md"
+  ],
+  "goal": null,
+  "notes": "Owner: 'publishing to crates io seems fine'. crates.io already has an unrelated `dupehound` (Rafaelpta/dupehound, same purpose, ~3,160 downloads), so asked the owner for a name; chose clonescan. Renamed venture, crate, CLI, page, wasm, CI workflow and every count/list naming it; old /dupehound/ URL will 404 (live one day, no recorded tool-page loads per docs/reports/distribution-state-2026-10-29.md). Added .github/workflows/distribute-crates.yml (dry run unless vars.DISTRIBUTE_CRATES=true and secrets.CARGO_REGISTRY_TOKEN; skips published versions). cargo publish --dry-run passes: 16 files, 21.5 KiB. Outcome partial: the release itself waits on the owner's token (asks.yaml crates-io-token). Local checks: cargo fmt/clippy/test (15 pass), node web+page+usage tests 15 pass, launched/siblings/faq/npm-lockfile page tests 56 pass, optout 20 pass, gitops count tests 6 pass, build.test catch-all+placeholder pass, validate_workflows, publish_surface, router validate, decision_queue --check, promptctl validate, md links, post frontmatter, clauses.",
+  "corrections": [],
+  "redteam": null
+}

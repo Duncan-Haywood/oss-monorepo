@@ -537,7 +537,7 @@ export const SERVED_EXTENSIONS = new Map([
   ['.eml', 'stock'],
   // wall-framing-takeoff's IFC fixtures (STEP text); same note: no location block on the retired origin.
   ['.ifc', 'stock'],
-  // dupehound's browser build (WebAssembly); mime.types lists application/wasm wasm (nginx 1.21+),
+  // clonescan's browser build (WebAssembly); mime.types lists application/wasm wasm (nginx 1.21+),
   // and GitHub Pages serves it as application/wasm.
   ['.wasm', 'stock'],
 ]);

@@ -1,5 +1,5 @@
-// Load dupehound.wasm and run it on in-memory files. Works in browsers and Node.
-// files: [{ path: string, text: string }] -> the same JSON report `dupehound --json` prints.
+// Load clonescan.wasm and run it on in-memory files. Works in browsers and Node.
+// files: [{ path: string, text: string }] -> the same JSON report `clonescan --json` prints.
 
 const enc = new TextEncoder();
 const dec = new TextDecoder();

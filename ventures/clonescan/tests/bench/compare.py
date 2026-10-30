@@ -1,5 +1,5 @@
-"""Compare a jscpd JSON report with a dupehound JSON report.
-A jscpd clone is 'found' by dupehound if some dupehound clone pairs the same two
+"""Compare a jscpd JSON report with a clonescan JSON report.
+A jscpd clone is 'found' by clonescan if some clonescan clone pairs the same two
 files with overlapping line ranges on both sides (either orientation)."""
 import json, sys, collections
 j = json.load(open(sys.argv[1])); d = json.load(open(sys.argv[2]))
@@ -29,11 +29,11 @@ def cover(cs):
         s[b[0]].update(range(b[1], b[2] + 1))
     return s
 h, n, hl, tl = recall(jc, dc)
-print(f"jscpd clones also found by dupehound: {h}/{n} ({100*h/n:.1f}%), by lines {100*hl/tl:.1f}%")
+print(f"jscpd clones also found by clonescan: {h}/{n} ({100*h/n:.1f}%), by lines {100*hl/tl:.1f}%")
 h, n, hl, tl = recall(dc, jc)
-print(f"dupehound clones also found by jscpd: {h}/{n} ({100*h/n:.1f}%), by lines {100*hl/tl:.1f}%")
+print(f"clonescan clones also found by jscpd: {h}/{n} ({100*h/n:.1f}%), by lines {100*hl/tl:.1f}%")
 print("jscpd stats:", j['statistics']['total'])
-print("dupehound stats:", d['statistics'])
+print("clonescan stats:", d['statistics'])
 
 # Line-level: every (file, line) inside either side of any clone.
 def lines(cs):
@@ -44,9 +44,9 @@ def lines(cs):
     return s
 L1, L2 = lines(jc), lines(dc)
 inter = len(L1 & L2)
-print(f"line-level: jscpd flags {len(L1)}, dupehound {len(L2)}, both {inter}; "
-      f"dupehound recall of jscpd lines {100*inter/len(L1):.1f}%, jscpd recall of dupehound lines {100*inter/len(L2):.1f}%")
+print(f"line-level: jscpd flags {len(L1)}, clonescan {len(L2)}, both {inter}; "
+      f"clonescan recall of jscpd lines {100*inter/len(L1):.1f}%, jscpd recall of clonescan lines {100*inter/len(L2):.1f}%")
 # Pair-level by file pair only (ignores which earlier copy was chosen as the partner)
 fp1 = {frozenset((a[0], b[0])) for a, b, _ in jc}; fp2 = {frozenset((a[0], b[0])) for a, b, _ in dc}
 files1 = {f for a, b, _ in jc for f in (a[0], b[0])}; files2 = {f for a, b, _ in dc for f in (a[0], b[0])}
-print(f"files with a clone: jscpd {len(files1)}, dupehound {len(files2)}, both {len(files1 & files2)}")
+print(f"files with a clone: jscpd {len(files1)}, clonescan {len(files2)}, both {len(files1 & files2)}")

@@ -1,11 +1,15 @@
 [package]
-name = "dupehound"
+name = "clonescan"
 version = "0.1.0"
 edition = "2021"
 description = "Fast copy-paste (code clone) detector: token-based, parallel, jscpd-compatible defaults"
 license = "MIT"
 readme = "README.md"
 repository = "https://github.com/duncan-haywood/oss-monorepo"
+homepage = "https://duncan-haywood.github.io/oss-monorepo/clonescan/"
+# What crates.io gets: the crate, its tests and the docs. The page, the
+# WebAssembly build and the benchmark scripts live in the repository only.
+include = ["src/**", "tests/detect.rs", "tests/fixtures/**", "README.md", "BENCHMARK.md", "LICENSE", "Cargo.toml"]
 keywords = ["copy-paste", "duplicate-code", "clone-detection", "jscpd", "lint"]
 categories = ["command-line-utilities", "development-tools"]
 
@@ -13,7 +17,7 @@ categories = ["command-line-utilities", "development-tools"]
 crate-type = ["rlib", "cdylib"]
 
 [[bin]]
-name = "dupehound"
+name = "clonescan"
 required-features = ["cli"]
 
 [features]

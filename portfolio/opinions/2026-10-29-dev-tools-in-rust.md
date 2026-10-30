@@ -38,11 +38,11 @@ a CLI, a CI gate and a browser page through WebAssembly.
    ([`docs/posts/2026-10-20-we-almost-rewrote-it-in-rust.md`](../../docs/posts/2026-10-20-we-almost-rewrote-it-in-rust.md)
    is the model.)
 
-**Done: `ventures/dupehound`** (copy-paste detection, jscpd's job). jscpd
+**Done: `ventures/clonescan`** (copy-paste detection, jscpd's job). jscpd
 4.3.0 ran out of memory on `ventures/`; with a 12 GB heap it took 337 s and
-6.2 GB. dupehound took 1.2 s and 500 MB, flagging the same lines to within
+6.2 GB. clonescan took 1.2 s and 500 MB, flagging the same lines to within
 about 5%. The same crate runs in the browser as a 195 KB `.wasm`.
-[`ventures/dupehound/BENCHMARK.md`](../../ventures/dupehound/BENCHMARK.md).
+[`ventures/clonescan/BENCHMARK.md`](../../ventures/clonescan/BENCHMARK.md).
 
 **Already done well elsewhere; don't redo without a measured gap.** ripgrep
 (grep), fd (find), bat (cat), delta (diff pager), tokei (cloc), hyperfine
@@ -81,7 +81,7 @@ reason than "the existing one is slow".
   real candidate.
 - *IFC and STEP readers* for `wall-framing-takeoff`: large text files, our own
   parser, and a browser surface.
-- *A duplicate-code consolidator.* dupehound found a copied block in every one of
+- *A duplicate-code consolidator.* clonescan found a copied block in every one of
   the 1,283 ventures that ship a `usage.mjs`, and in all 121 that ship a
   `proposal.test.mjs`. A tool that groups copies into families and proposes the shared
   module is the next step beyond detection, and nobody ships one.

@@ -1,8 +1,8 @@
-const KEY = "dupehound-usage";
+const KEY = "clonescan-usage";
 // Separate from the counters on purpose: opting out *removes* the
 // counters, so a flag stored inside them would be deleted by the very
 // act it records.
-const OPT_OUT = "dupehound-usage-opt-out";
+const OPT_OUT = "clonescan-usage-opt-out";
 
 // Reading the `localStorage` global itself throws SecurityError when the
 // visitor blocks site data, so even `typeof localStorage` needs a guard.

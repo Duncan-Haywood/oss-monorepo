@@ -72,7 +72,7 @@ WEB_SUFFIXES = frozenset(
         ".xml",
         ".webmanifest",
         ".map",
-        # dupehound's browser build; GitHub Pages serves it as application/wasm.
+        # clonescan's browser build; GitHub Pages serves it as application/wasm.
         ".wasm",
     }
 )

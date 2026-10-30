@@ -3138,7 +3138,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `ai-bookkeeper` graduated (browser + CLI double-entry books from bank CSVs that learn payees, pair transfers, reconcile and export QuickBooks/Xero journals; optional own-key or local-model AI).
     # +1: `wall-framing-takeoff` graduated (browser + CLI wall framing takeoff: stud layout, cut list and a cutting-stock lumber order with an LP bound).
     # +1: `support-agent` graduated (self-hosted AI support agent: answers from your help articles with citations, hands off by rule or calibrated confidence; measured on BANKING77).
-    # +1: `dupehound` graduated (Rust copy-paste detector: one engine as a CLI and a WebAssembly browser page; benchmarked against jscpd).
+    # +1: `clonescan` graduated (Rust copy-paste detector: one engine as a CLI and a WebAssembly browser page; benchmarked against jscpd).
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

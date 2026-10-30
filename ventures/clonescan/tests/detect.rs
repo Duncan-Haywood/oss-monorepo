@@ -1,4 +1,4 @@
-use dupehound::*;
+use clonescan::*;
 
 fn file(path: &str, src: &str) -> SourceFile {
     SourceFile::from_bytes(path, src.as_bytes())

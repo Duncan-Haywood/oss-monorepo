@@ -614,12 +614,9 @@ decisions:
   unlocks:
     - A demand measurement on a developer-buyer channel, and submission access to the git/PR-based channels.
     - >-
-      (Added 2026-10-29.) crates.io is a registry this covers too: `cargo
-      install dupehound` for the Rust copy-paste detector in
-      ventures/dupehound, and later tools of the "dev tools in Rust"
-      direction. crates.io logs in with a GitHub account; publishing under
-      the portfolio's name is the owner's call. index.crates.io answered 200
-      from a cloud session on 2026-10-29, so egress is not the blocker there.
+      (Added 2026-10-29; answered 2026-10-30.) crates.io: the owner approved
+      publishing ("publishing to crates io seems fine"). The remaining
+      one-time step is its own row, `crates-io-token`, below.
   blocked_by: [egress-policy]
   note: >-
     Listed as blocked, and this is the correction the #139 table does not
@@ -993,3 +990,34 @@ decisions:
     that this repository is private, which is why `deploy-settings` carries
     `requires: [github-pages-plan]`; the same plan question applies here and
     is unchanged by the domain.
+
+- id: crates-io-token
+  asks: []
+  prs: [11655]
+  gates: distribution
+  exposure: credential
+  opened: "2026-10-30"
+  action: >-
+    One-time, about 5 minutes, publishing already approved by the owner on
+    2026-10-30 ("publishing to crates io seems fine"). (1) Log in to
+    crates.io with GitHub and verify an email (crates.io requires one to
+    publish). (2) Create an API token at https://crates.io/settings/tokens
+    with the publish-new and publish-update scopes. (3) Add it as the
+    repository secret CARGO_REGISTRY_TOKEN. (4) Set the repository variable
+    DISTRIBUTE_CRATES to true. (5) Run the `distribute-crates` workflow from
+    the Actions tab. It tests the crate, skips any version already published,
+    and publishes clonescan 0.1.0.
+  unlocks:
+    - >-
+      `cargo install clonescan` for the Rust copy-paste detector
+      (ventures/clonescan), and later crates of the "dev tools in Rust"
+      direction through the same workflow (add the crate to its matrix).
+  blocked_by: []
+  note: >-
+    Without the secret and the variable the workflow only runs `cargo publish
+    --dry-run`, which passes (checked 2026-10-30: 16 files, 21.5 KiB
+    compressed). The name `dupehound` was taken on crates.io by an unrelated
+    tool, so the product was renamed clonescan on 2026-10-30 (the owner chose
+    the name). After the first release, crates.io Trusted Publishing (GitHub
+    OIDC) could replace the token; it can only be set up on a crate that
+    already exists.

@@ -1,0 +1,60 @@
+# Publishes this repository's Rust crates to crates.io (first: ventures/clonescan).
+# Off by default: with vars.DISTRIBUTE_CRATES unset, or no CARGO_REGISTRY_TOKEN
+# secret, it only runs `cargo publish --dry-run`. Approved by the owner on
+# 2026-10-30 ("publishing to crates io seems fine"). Free registry, no paid
+# spend, no commits pushed. A version already on crates.io is skipped, so a
+# re-run or a push that does not bump the version publishes nothing.
+name: distribute-crates
+on:
+  push:
+    branches: [main]
+    paths:
+      - "ventures/clonescan/Cargo.toml"
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: distribute-crates
+  cancel-in-progress: false
+jobs:
+  publish:
+    permissions:
+      contents: read
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        crate: [clonescan]
+    defaults:
+      run:
+        working-directory: ventures/${{ matrix.crate }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Test before publishing
+        run: cargo test --release
+      - name: Is this version already on crates.io?
+        id: version
+        run: |
+          version=$(cargo metadata --no-deps --format-version 1 | python3 -c "import json,sys; print(json.load(sys.stdin)['packages'][0]['version'])")
+          name='${{ matrix.crate }}'
+          case ${#name} in 1) p="1";; 2) p="2";; 3) p="3/${name:0:1}";; *) p="${name:0:2}/${name:2:2}";; esac
+          if curl -fsS "https://index.crates.io/$p/$name" 2>/dev/null | grep -q "\"vers\":\"$version\""; then
+            echo "published=true" >> "$GITHUB_OUTPUT"; echo "$name $version is already on crates.io"
+          else
+            echo "published=false" >> "$GITHUB_OUTPUT"; echo "$name $version is not on crates.io yet"
+          fi
+      - name: Publish (or dry run)
+        if: ${{ steps.version.outputs.published == 'false' }}
+        env:
+          DISTRIBUTE_CRATES: ${{ vars.DISTRIBUTE_CRATES }}
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+        run: |
+          if [ "$DISTRIBUTE_CRATES" = "true" ] && [ -n "$CARGO_REGISTRY_TOKEN" ]; then
+            cargo publish
+          else
+            echo "DISTRIBUTE_CRATES is not 'true' or CARGO_REGISTRY_TOKEN is unset: dry run only."
+            cargo publish --dry-run
+          fi

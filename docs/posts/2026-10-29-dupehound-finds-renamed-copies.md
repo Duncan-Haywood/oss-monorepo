@@ -1,11 +1,13 @@
 ---
-title: "dupehound now finds copies whose names changed"
+title: "clonescan now finds copies whose names changed"
 date: 2026-10-29
 description: "A --normalize mode for the Rust copy-paste detector hashes identifiers, strings and numbers by kind: 40.6% duplicated lines becomes 60.4% on this repo."
-tags: [rust, dupehound, dev-tools]
+tags: [rust, clonescan, dev-tools]
 ---
 
-The copy-paste detector dupehound matched code token for token, so a function
+*Renamed on 2026-10-30: this tool was published as `dupehound` for its first day. That name was already taken on crates.io by an unrelated duplicate-code tool, so it is now `clonescan`.*
+
+The copy-paste detector clonescan matched code token for token, so a function
 pasted and then renamed was invisible, the same as in jscpd's default mode.
 `--normalize` (and a checkbox on the browser page) now hashes every
 non-keyword identifier as one placeholder, strings as another and numbers as a
