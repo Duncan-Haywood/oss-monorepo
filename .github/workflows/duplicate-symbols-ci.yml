@@ -48,9 +48,9 @@ concurrency:
 
 jobs:
   # Named for what it checks, not `check`: the job name is what appears in the
-  # PR's check list, and `conflict-markers-ci.yml`'s job is already called
-  # `check`. Two rows both reading "check" defeats the reason this has its own
-  # workflow -- that a red result should name its own cause without opening it.
+  # PR's check list. Two rows both reading "check" defeat the reason this has
+  # its own workflow -- that a red result should name its own cause without
+  # opening it. (`conflict-markers-ci.yml` renamed its job for the same reason.)
   duplicate-symbols:
     runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     # Checkout, Python setup, and a grep-shaped scan over tracked .py files --
