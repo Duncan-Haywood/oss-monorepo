@@ -368,7 +368,7 @@ jobs:
     concurrency:
       group: cloudflare-site-deploy
       cancel-in-progress: false
-    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     permissions:
       contents: read
     timeout-minutes: 15
