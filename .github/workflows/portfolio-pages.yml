@@ -250,10 +250,11 @@ jobs:
         run: python3 platform/ci/check_post_frontmatter.py
 
       # The gallery's cards are searched with the prices in this checkout
-      # (make-gallery.mjs, one of the build's generators in
-      # platform/pages/generated-pages.mjs). Run it before the pictures are
-      # redrawn so each card's picture matches the design it now shows; the
-      # build's own call then finds it current (.gallery-stamp) and skips.
+      # (make-gallery.mjs rewrites the committed gallery-data.mjs here, so each
+      # deploy's cards use its own prices; nothing is committed). It is not a
+      # build generator (platform/pages/generated-pages.mjs says why). Run it
+      # before the pictures are redrawn so each card's picture matches the
+      # design it now shows.
       - name: Search the Shed Designer gallery with this checkout's prices
         run: node ventures/shed-designer/make-gallery.mjs
 
