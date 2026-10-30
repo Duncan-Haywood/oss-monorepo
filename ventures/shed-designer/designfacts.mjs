@@ -14,6 +14,7 @@ import { costBreakdown } from './costs.mjs';
 import { structuralChecks } from './checks.mjs';
 import { productById } from './products.mjs';
 import { storageOf } from './storage.mjs';
+import { looksOf } from './designsearch.mjs';
 import { fmtFtIn, fmtIn } from './lumber.mjs';
 
 const SIDING_NAME = {
@@ -45,7 +46,8 @@ export function designFacts(input, opts = {}) {
 
   // Cost: by assembly (the part of the shed it builds), largest first, the same
   // split as the editor's "Where the money goes" tab (costs.mjs).
-  const groups = costBreakdown(shed, est).assemblies.map((g) => ({ name: g.label, total: g.total })).filter((g) => g.total > 0);
+  const costs = costBreakdown(shed, est);
+  const groups = costs.assemblies.map((g) => ({ name: g.label, total: g.total })).filter((g) => g.total > 0);
   const breakdown = groups.slice(0, BREAKDOWN_TOP);
   const rest = groups.slice(BREAKDOWN_TOP).reduce((t, g) => t + g.total, 0);
   if (rest > 0) breakdown.push({ name: 'Everything else', total: Math.round(rest * 100) / 100 });
@@ -74,6 +76,10 @@ export function designFacts(input, opts = {}) {
     total: est.total,
     grandTotal: est.grandTotal,
     breakdown,
+    // The full breakdown, for a cost change against another design (costs.mjs costDelta).
+    costs,
+    // The design search's looks score, term by term (designsearch.mjs looksOf).
+    looks: looksOf(shed),
     footprint: `${fmtFtIn(d.length)} x ${fmtFtIn(d.width)}`,
     footprintSqFt: est.footprintSqFt,
     wallHeight: d.wallHeight,

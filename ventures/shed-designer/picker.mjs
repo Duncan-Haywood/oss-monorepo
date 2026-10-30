@@ -15,6 +15,8 @@ import { designFacts, compareRows, tradeOff } from './designfacts.mjs';
 import { fmtFtIn, fmtIn } from './lumber.mjs';
 import { kitLineHtml } from './value.mjs';
 import { estimate, examplePrices } from './estimate.mjs';
+import { costBreakdown, costDelta, deltaPhrase, signedDollars } from './costs.mjs';
+import { bridgeHtml } from './costview.mjs';
 
 /** @typedef {{ id: string, title?: string, design: any, reason?: string }} Entry */
 
@@ -33,6 +35,11 @@ export function presetEntries() {
 
 export const MAX_COMPARE = 3;
 
+/** Where a looks score loses most, in a few words: "short on windows 0/15, overhang 11.3/15". @param {{ terms: { label: string, points: number, max: number }[] }} looks */
+const topTerms = (looks) => {
+  const low = looks.terms.filter((t) => t.points < t.max - 1e-9).sort((a, b) => a.points / a.max - b.points / b.max).slice(0, 2).map((t) => `${t.label.toLowerCase()} ${t.points}/${t.max}`);
+  return low.length ? `short on ${low.join(', ')}` : 'full marks on every term';
+};
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const money = (n) => {
   const format = (n) => `$${Math.round(n).toLocaleString('en-US')}`;
@@ -63,7 +70,10 @@ const STORED_VIEWS = [
  *   root: HTMLElement, dialog: HTMLDialogElement, tray: HTMLElement,
  *   entries?: Entry[], prices?: () => any, priceOf?: (shed: any) => any,
  *   onStart: (design: any) => void, count?: (event: string) => void,
+ *   current?: () => any,
  * }} opts
+ * `current` is the design open in the editor: each card and detail then shows
+ * its cost against it, priced the same way (`priceOf`) on both sides.
  */
 export function mountPicker(opts) {
   const { root, dialog, tray } = opts;
@@ -95,6 +105,26 @@ export function mountPicker(opts) {
     return est.shopping.filter((l) => l.section === 'Roofing' || l.section === 'Paint').reduce((t, l) => t + (l.total || 0), 0);
   };
   const titleOf = (id) => entry(id)?.title || factsOf(id).name;
+  // The open design's cost breakdown, kept until the design or the prices change.
+  let here = /** @type {{ key: string, name: string, costs: any } | null} */ (null);
+  const hereCosts = () => {
+    const d = opts.current?.();
+    if (!d) return null;
+    const key = JSON.stringify(d);
+    if (here?.key !== key) {
+      const shed = buildShed(normalize(d));
+      const est = opts.priceOf ? opts.priceOf(shed) : estimate(shed, opts.prices?.() || examplePrices());
+      here = { key, name: shed.design.name, costs: costBreakdown(shed, est) };
+    }
+    return here;
+  };
+  /** The card's materials against the open design: the total change and its largest parts. */
+  const againstHere = (f, max = 2) => {
+    const h = hereCosts();
+    if (!h) return null;
+    const total = f.total - h.costs.total;
+    return { name: h.name, total, phrase: deltaPhrase(costDelta(h.costs, f.costs), max), from: h.costs };
+  };
 
   /** @type {any} */
   let manifest = null;
@@ -146,6 +176,8 @@ export function mountPicker(opts) {
           <span class="pick-line">${money(f.total)} &middot; ${Math.round(f.footprintSqFt)} sq ft &middot; peak ${fmtFtIn(f.peak)}</span>
           <span class="pick-line">${Math.round(f.storage.volumeCuFt)} cu ft inside &middot; ${Math.round(f.storage.shelfFt)} ft of clear wall</span>
           <span class="pick-line pick-finish">Siding: ${esc(f.siding.split(',')[0])} &middot; ${esc(f.design.roofing ? (f.design.roofCover === 'metal' ? 'metal roof' : 'asphalt shingle roof') : 'no roofing')}</span>
+          ${(() => { const a = againstHere(f); return a ? `<span class="pick-line pick-delta">${Math.abs(a.total) < 0.5 ? 'Same materials cost as' : `${esc(signedDollars(a.total))} against`} your &ldquo;${esc(a.name)}&rdquo;</span>` : ''; })()}
+          <span class="pick-line pick-looks">Looks ${f.looks.score}/100, ${esc(topTerms(f.looks))}</span>
           <span class="pick-why">${esc(tradeOff(f, all))}</span>
         </button>
         <button type="button" class="btn pick-cmp" data-compare="${esc(e.id)}" aria-pressed="${on}">${on ? 'In compare' : 'Compare'}</button>
@@ -222,6 +254,12 @@ export function mountPicker(opts) {
       <div class="detail-grid">
         <section aria-labelledby="dd-cost"><h3 id="dd-cost">Price: ${money(f.total)}</h3>
           <p class="muted">Materials at the listed store prices, before tax (${money(f.grandTotal)} with tax and delivery as set).</p>
+          ${(() => {
+            const a = againstHere(f, 5);
+            if (!a) return '';
+            return `<p class="pick-delta">Against your &ldquo;${esc(a.name)}&rdquo;: materials ${esc(signedDollars(a.total))}${a.phrase ? ` (${esc(a.phrase)})` : ''}.</p>
+          <details><summary>From your design's total to this one, by assembly</summary>${bridgeHtml(a.from, f.costs, { toLabel: titleOf(id) })}</details>`;
+          })()}
           <ul class="bars">${f.breakdown.map((b) => `<li><span>${esc(b.name)}</span><span class="bar" aria-hidden="true"><span style="width:${Math.max(2, (b.total / max) * 100).toFixed(0)}%"></span></span><span class="n">${money(b.total)}</span></li>`).join('')}</ul>
         </section>
         <section aria-labelledby="dd-size"><h3 id="dd-size">Size and storage</h3>
@@ -238,6 +276,8 @@ export function mountPicker(opts) {
           </dl>
         </section>
         <section aria-labelledby="dd-look"><h3 id="dd-look">Looks</h3>
+          <p><strong>${f.looks.score}/100</strong> on the tool's looks score: rules of thumb for small outbuildings, not a measure of beauty.</p>
+          <ul class="looks-terms">${f.looks.terms.map((t) => `<li><span>${esc(t.label)}</span> <span class="n">${t.points}/${t.max}</span> <span class="muted">${esc(t.why)}</span></li>`).join('')}</ul>
           <dl class="facts">
             <div><dt>Style</dt><dd>${esc(f.style)}</dd></div>
             <div><dt>Siding</dt><dd>${esc(f.siding)}</dd></div>
@@ -336,7 +376,9 @@ export function mountPicker(opts) {
     /** Replace the list (say, with a search's optimised designs). @param {Entry[]} next */
     setEntries(next) { entries = next; facts.clear(); chosen.length = 0; renderStrip(); renderTray(); },
     /** Prices changed: re-price once typing pauses (each design takes about 30 ms to price). */
-    reprice() { clearTimeout(priceTimer); priceTimer = setTimeout(() => { facts.clear(); renderStrip(); }, 500); },
+    reprice() { clearTimeout(priceTimer); priceTimer = setTimeout(() => { facts.clear(); here = null; renderStrip(); }, 500); },
+    /** The open design changed: redraw the cards' cost against it once editing pauses. */
+    refresh() { clearTimeout(priceTimer); priceTimer = setTimeout(() => { if (opts.current && JSON.stringify(opts.current()) !== here?.key) renderStrip(); }, 500); },
     get chosen() { return [...chosen]; },
   };
 }
