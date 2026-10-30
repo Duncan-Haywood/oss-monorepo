@@ -16,9 +16,9 @@
     <summary type="text">Free app for babysitters who run their own business: score and answer inquiries, quote and schedule sits without double-booking, track who has paid, set aside self-employment tax with quarterly due dates, collect references and testimonials with consent, build your own babysitting website and plan posts. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
-    <title>dupehound: Find Copy-Pasted Code in Your Repo, Fast (Rust, Runs in Your Browser)</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/dupehound/"/>
-    <id>tag:marisstella.dev,2026:tool/dupehound</id>
+    <title>clonescan: Find Copy-Pasted Code in Your Repo, Fast (Rust, Runs in Your Browser)</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/clonescan/"/>
+    <id>tag:marisstella.dev,2026:tool/clonescan</id>
     <updated>2026-10-29T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Drop a project folder and see every copy-pasted block: file, lines and the matching copy. A Rust copy-paste detector compiled to WebAssembly. Nothing is uploaded. Also a CLI that checked 9,458 files in 1.2 seconds.</summary>

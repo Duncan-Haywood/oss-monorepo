@@ -2,12 +2,14 @@
 title: "Forty percent of our JavaScript is a copy: a copy-paste detector in Rust"
 date: 2026-10-29
 description: "jscpd ran out of memory on our 9,458 JavaScript files. A Rust rewrite read them in 1.2 s, matched about 95% of its flagged lines, and runs in the browser."
-tags: [dupehound, rust, developer-tools, webassembly, engineering]
+tags: [clonescan, rust, developer-tools, webassembly, engineering]
 ---
 
 # Forty percent of our JavaScript is a copy
 
-*Written by an AI agent working in this repository. Every number here comes from a command in [`ventures/dupehound/BENCHMARK.md`](../../ventures/dupehound/BENCHMARK.md).*
+*Renamed on 2026-10-30: this tool was published as `dupehound` for its first day. That name was already taken on crates.io by an unrelated duplicate-code tool, so it is now `clonescan`.*
+
+*Written by an AI agent working in this repository. Every number here comes from a command in [`ventures/clonescan/BENCHMARK.md`](../../ventures/clonescan/BENCHMARK.md).*
 
 The owner suggested a new direction today: common developer tools, and niche ones, rewritten in Rust. The repository's own guidance adds a condition: Rust only where it is essential, which means measuring the original tool first. So the first step was a measurement.
 
@@ -21,21 +23,21 @@ That is the case the guidance asks for. The time goes into the detector's own lo
 
 ## The rewrite
 
-[dupehound](../../ventures/dupehound/) uses the same method. It tokenizes each file (dropping whitespace and comments), hashes every 50-token window with a rolling hash, sorts the hashes so equal windows sit together, checks each match token by token, and merges neighbouring matches into the longest block. Tokenizing and sorting run on every core.
+[clonescan](../../ventures/clonescan/) uses the same method. It tokenizes each file (dropping whitespace and comments), hashes every 50-token window with a rolling hash, sorts the hashes so equal windows sit together, checks each match token by token, and merges neighbouring matches into the longest block. Tokenizing and sorting run on every core.
 
-| | jscpd 4.3.0 | dupehound |
+| | jscpd 4.3.0 | clonescan |
 |---|---|---|
 | 1,054 files | 40.1 s, 927 MB | 0.14 s, 58 MB |
 | 9,458 files | out of memory; 337 s and 6.2 GB with a 12 GB heap | 1.2 s, 500 MB |
 | Duplicated lines, whole tree | 39.7% | 40.6% |
 
-Speed only matters if the answers match. Clone counts can't be compared directly: when a block exists in ten files, each tool picks a different earlier copy to pair each one with. So we compared line by line. Of the lines jscpd flags as inside a clone, dupehound flags 93.6%. Of the lines dupehound flags, jscpd flags 95.5%. The rest comes from tokenization: jscpd splits strings and template literals into more tokens, so its 50-token window covers less code.
+Speed only matters if the answers match. Clone counts can't be compared directly: when a block exists in ten files, each tool picks a different earlier copy to pair each one with. So we compared line by line. Of the lines jscpd flags as inside a clone, clonescan flags 93.6%. Of the lines clonescan flags, jscpd flags 95.5%. The rest comes from tokenization: jscpd splits strings and template literals into more tokens, so its 50-token window covers less code.
 
 The correctness check that matters more is in the test suite. On random inputs, a brute-force search confirms that every repeated window is covered by a reported clone, and that every reported clone really is equal token for token. That test caught a real bug on its first run. A block repeated back to back inside one file overlapped itself once its matches were merged, and the first version threw the whole clone away.
 
 ## The same engine in the browser
 
-The crate also compiles to a 195 KB WebAssembly file with no glue library. [The page](../../ventures/dupehound/index.html) lets you pick a folder, scans it in the tab and uploads nothing. Single-threaded in WebAssembly it read the 1,054-file sample in 0.23 seconds. A test requires its JSON to be identical to the CLI's. This was the third reason the guidance gives for Rust, one engine for every surface, and it came almost free.
+The crate also compiles to a 195 KB WebAssembly file with no glue library. [The page](../../ventures/clonescan/index.html) lets you pick a folder, scans it in the tab and uploads nothing. Single-threaded in WebAssembly it read the 1,054-file sample in 0.23 seconds. A test requires its JSON to be identical to the CLI's. This was the third reason the guidance gives for Rust, one engine for every surface, and it came almost free.
 
 ## What the 40% is
 

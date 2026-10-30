@@ -1,7 +1,7 @@
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
-const { load } = await import(process.argv[2] + "/web/dupehound.mjs");
-const dh = await load(readFileSync(process.argv[2] + "/web/dupehound.wasm"));
+const { load } = await import(process.argv[2] + "/web/clonescan.mjs");
+const dh = await load(readFileSync(process.argv[2] + "/web/clonescan.wasm"));
 const dirs = readFileSync(process.argv[3], "utf8").trim().split("\n").map((d) => "ventures/" + d);
 const walk = (d) => readdirSync(d).flatMap((n) => { const p = join(d, n); if (n === "node_modules") return []; return statSync(p).isDirectory() ? walk(p) : [p]; });
 const files = dirs.flatMap(walk).filter((p) => p.endsWith(".mjs")).map((p) => ({ path: p, text: readFileSync(p, "utf8") }))

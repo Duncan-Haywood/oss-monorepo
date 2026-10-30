@@ -5,7 +5,7 @@ import { readFileSync, readdirSync, statSync, existsSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { load } from "./dupehound.mjs";
+import { load } from "./clonescan.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = join(here, "..");
@@ -19,7 +19,7 @@ function walk(dir) {
 }
 
 test("wasm finds the fixture clone", async () => {
-  const dh = await load(readFileSync(join(here, "dupehound.wasm")));
+  const dh = await load(readFileSync(join(here, "clonescan.wasm")));
   const files = walk(fixtures).map((p) => ({ path: p, text: readFileSync(p, "utf8") }));
   const r = dh.analyze(files);
   assert.ok(r.statistics.clones >= 1);
@@ -27,9 +27,9 @@ test("wasm finds the fixture clone", async () => {
 });
 
 test("wasm output equals the native CLI's", async (t) => {
-  const bin = join(root, "target", "release", "dupehound");
+  const bin = join(root, "target", "release", "clonescan");
   if (!existsSync(bin)) return t.skip("native binary not built (cargo build --release)");
-  const dh = await load(readFileSync(join(here, "dupehound.wasm")));
+  const dh = await load(readFileSync(join(here, "clonescan.wasm")));
   // Use the crate's own sources plus the fixtures: real code, several languages.
   const paths = [...walk(fixtures), ...walk(join(root, "src")), ...walk(join(root, "tests")).filter((p) => p.endsWith(".rs"))];
   const files = paths.map((p) => ({ path: p, text: readFileSync(p, "utf8") }));

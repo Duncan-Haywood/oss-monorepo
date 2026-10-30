@@ -1,4 +1,4 @@
-name: dupehound
+name: clonescan
 description: Free, open-source (MIT) copy-paste (code clone) detector written in Rust. One engine runs as a native CLI (a CI gate with --threshold) and, compiled to WebAssembly, in a browser page that uploads nothing. Measured against jscpd 4.3.0 on 9,458 files of this repository - 1.2 s and 500 MB against 337 s and 6.2 GB, flagging the same lines to within about 5% (BENCHMARK.md).
 stage: prototype
 
@@ -18,12 +18,12 @@ hypotheses:
   - claim: >-
       A developer whose JavaScript or TypeScript monorepo is large enough that
       jscpd is slow or runs out of memory will search for a faster copy-paste
-      detector and use dupehound's CLI or page instead.
+      detector and use clonescan's CLI or page instead.
     status: untested
     checked: null
     evidence: customer-contact
   - claim: >-
-      A team will wire `dupehound --threshold` into CI as a duplication gate,
+      A team will wire `clonescan --threshold` into CI as a duplication gate,
       the way jscpd's `--threshold` is used today.
     status: untested
     checked: null
@@ -41,8 +41,8 @@ budget:
 
 kill_criteria:
   - Fewer than three distinct GitHub users engage with the tool within 90 days of it being reachable from the published site.
-  - No external repository is found running dupehound within 120 days of a crates.io release.
+  - No external repository is found running clonescan within 120 days of a crates.io release.
 
 links:
-  production: https://duncan-haywood.github.io/oss-monorepo/dupehound/
+  production: https://duncan-haywood.github.io/oss-monorepo/clonescan/
   analytics: null

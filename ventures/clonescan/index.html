@@ -3,13 +3,13 @@
 <head>
   <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23b7410e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3ED%3C/text%3E%3C/svg%3E">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>dupehound: Find Copy-Pasted Code in Your Repo, Fast (Rust, Runs in Your Browser)</title>
+  <title>clonescan: Find Copy-Pasted Code in Your Repo, Fast (Rust, Runs in Your Browser)</title>
   <meta name="description" content="Drop a project folder and see every copy-pasted block: file, lines and the matching copy. A Rust copy-paste detector compiled to WebAssembly. Nothing is uploaded. Also a CLI that checked 9,458 files in 1.2 seconds.">
   <meta property="og:title" content="Find copy-pasted code, fast">
   <meta property="og:description" content="A token-based copy-paste detector written in Rust: the same engine runs as a CLI and in your browser. On 1,054 JavaScript files it matched jscpd's duplicated lines to within a point, in 0.2 s instead of 40 s.">
   <link rel="canonical" href="./index.html">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"dupehound","applicationCategory":"DeveloperApplication","operatingSystem":"Linux, macOS, Windows, any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"license":"https://opensource.org/licenses/MIT","description":"Token-based copy-paste (code clone) detector written in Rust. Runs as a command-line tool and, compiled to WebAssembly, in the browser with nothing uploaded."}</script>
-  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is my code uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The folder you pick is read by this browser tab and handed to a WebAssembly module loaded from this site. Nothing is sent anywhere; the page makes no network requests after it loads."}}, {"@type": "Question", "name": "How is this different from jscpd?", "acceptedAnswer": {"@type": "Answer", "text": "Same method and defaults, written in Rust. On 1,054 JavaScript files jscpd took 40 seconds and dupehound 0.2 seconds, and they flagged the same lines to within about 6%. jscpd knows far more languages and has richer reports; dupehound has one generic lexer and JSON or text output."}}, {"@type": "Question", "name": "Does it find code that was copied and then renamed?", "acceptedAnswer": {"@type": "Answer", "text": "No. Matching is exact on token text after dropping whitespace and comments. jscpd's default mode behaves the same way."}}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"clonescan","applicationCategory":"DeveloperApplication","operatingSystem":"Linux, macOS, Windows, any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"license":"https://opensource.org/licenses/MIT","description":"Token-based copy-paste (code clone) detector written in Rust. Runs as a command-line tool and, compiled to WebAssembly, in the browser with nothing uploaded."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is my code uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The folder you pick is read by this browser tab and handed to a WebAssembly module loaded from this site. Nothing is sent anywhere; the page makes no network requests after it loads."}}, {"@type": "Question", "name": "How is this different from jscpd?", "acceptedAnswer": {"@type": "Answer", "text": "Same method and defaults, written in Rust. On 1,054 JavaScript files jscpd took 40 seconds and clonescan 0.2 seconds, and they flagged the same lines to within about 6%. jscpd knows far more languages and has richer reports; clonescan has one generic lexer and JSON or text output."}}, {"@type": "Question", "name": "Does it find code that was copied and then renamed?", "acceptedAnswer": {"@type": "Answer", "text": "No. Matching is exact on token text after dropping whitespace and comments. jscpd's default mode behaves the same way."}}]}</script>
   <style>
     :root { font: 16px system-ui, sans-serif; color: #1f1a17; background: #f6f3f0; }
     body { max-width: 1040px; margin: auto; padding: 28px; }
@@ -43,9 +43,9 @@
 </head>
 <body>
   <header>
-    <p class="note">DUPEHOUND · COPY-PASTE DETECTOR · RUST + WEBASSEMBLY · RUNS IN YOUR BROWSER</p>
+    <p class="note">CLONESCAN · COPY-PASTE DETECTOR · RUST + WEBASSEMBLY · RUNS IN YOUR BROWSER</p>
     <h1>Where has this code been copied?</h1>
-    <p>Pick a project folder and dupehound lists every block that appears more than once: which file, which lines, and where the other copy is. It is for the moment a codebase has grown by copy and paste and you want to know what to pull into one shared module before a bug gets fixed in one copy and not the others.</p>
+    <p>Pick a project folder and clonescan lists every block that appears more than once: which file, which lines, and where the other copy is. It is for the moment a codebase has grown by copy and paste and you want to know what to pull into one shared module before a bug gets fixed in one copy and not the others.</p>
     <p class="note">Nothing is uploaded. Your files are read by this tab and given to a WebAssembly module from this site; the page makes no network requests of its own after it loads.</p>
   </header>
 <main>
@@ -102,23 +102,23 @@
       <thead><tr><th>Tool</th><th>Time</th><th>Peak memory</th><th>Duplicated lines</th></tr></thead>
       <tbody>
         <tr><td>jscpd 4.3.0 (Node 22)</td><td>40.1 s</td><td>927 MB</td><td>31.9%</td></tr>
-        <tr><td>dupehound CLI (native, 4 threads)</td><td>0.14 s</td><td>58 MB</td><td>32.7%</td></tr>
-        <tr><td>dupehound in WebAssembly (one thread, Node 22)</td><td>0.23 s</td><td>n/a</td><td>32.7%</td></tr>
+        <tr><td>clonescan CLI (native, 4 threads)</td><td>0.14 s</td><td>58 MB</td><td>32.7%</td></tr>
+        <tr><td>clonescan in WebAssembly (one thread, Node 22)</td><td>0.23 s</td><td>n/a</td><td>32.7%</td></tr>
       </tbody>
     </table></div>
-    <p>The two tools flagged the same lines to within about 6%: dupehound marked 93.5% of the lines jscpd marked, and jscpd 94.6% of dupehound's. The difference is mostly how each splits strings into tokens. On the whole tree (9,458 files, 1.27 million lines) dupehound took 1.2 seconds and 500 MB. jscpd ran out of memory at Node's default heap after 277 seconds; given a 12 GB heap it finished in 337 seconds at a 6.2 GB peak, and the two again flagged the same lines to within about 5%. The method, the scripts and the raw numbers are in the <a href="https://github.com/duncan-haywood/oss-monorepo/blob/main/ventures/dupehound/BENCHMARK.md" rel="noopener">benchmark write-up</a>.</p>
+    <p>The two tools flagged the same lines to within about 6%: clonescan marked 93.5% of the lines jscpd marked, and jscpd 94.6% of clonescan's. The difference is mostly how each splits strings into tokens. On the whole tree (9,458 files, 1.27 million lines) clonescan took 1.2 seconds and 500 MB. jscpd ran out of memory at Node's default heap after 277 seconds; given a 12 GB heap it finished in 337 seconds at a 6.2 GB peak, and the two again flagged the same lines to within about 5%. The method, the scripts and the raw numbers are in the <a href="https://github.com/duncan-haywood/oss-monorepo/blob/main/ventures/clonescan/BENCHMARK.md" rel="noopener">benchmark write-up</a>.</p>
   </section>
 
   <section class="card">
     <h2>On the command line</h2>
     <pre class="cmd">git clone --depth 1 --filter=blob:none --sparse https://github.com/duncan-haywood/oss-monorepo
-cd oss-monorepo &amp;&amp; git sparse-checkout set ventures/dupehound
-cargo install --path ventures/dupehound
+cd oss-monorepo &amp;&amp; git sparse-checkout set ventures/clonescan
+cargo install --path ventures/clonescan
 
-dupehound src/                       # top 20 clones and a summary
-dupehound --json src/ &gt; clones.json  # every clone, machine-readable
-dupehound --threshold 5 src/         # exit 1 if over 5% duplicated (for CI)</pre>
-    <p class="note">Needs a Rust toolchain (<code>rustup</code>). Respects <code>.gitignore</code>. <code>dupehound --help</code> lists every option.</p>
+clonescan src/                       # top 20 clones and a summary
+clonescan --json src/ &gt; clones.json  # every clone, machine-readable
+clonescan --threshold 5 src/         # exit 1 if over 5% duplicated (for CI)</pre>
+    <p class="note">Needs a Rust toolchain (<code>rustup</code>). Respects <code>.gitignore</code>. <code>clonescan --help</code> lists every option.</p>
   </section>
 
   <section class="card">
@@ -126,7 +126,7 @@ dupehound --threshold 5 src/         # exit 1 if over 5% duplicated (for CI)</pr
     <ul>
       <li><strong><a href="https://github.com/kucherenko/jscpd" rel="noopener">jscpd</a></strong> when you need its 150-plus language grammars, HTML or badge reports, git blame on each clone, or its "weak" mode. On a project of a few hundred files its speed is fine.</li>
       <li><strong>PMD CPD</strong> when you already run PMD for Java and want one report.</li>
-      <li><strong>A clone detector that normalises names</strong> (several IDEs and SonarQube do some of this) when the copies you care about had their variables renamed. dupehound will not find those.</li>
+      <li><strong>A clone detector that normalises names</strong> (several IDEs and SonarQube do some of this) when the copies you care about had their variables renamed. clonescan will not find those.</li>
     </ul>
   </section>
 
@@ -135,7 +135,7 @@ dupehound --threshold 5 src/         # exit 1 if over 5% duplicated (for CI)</pr
     <h3>Is my code uploaded?</h3>
     <p>No. The folder you pick is read by this browser tab and handed to a WebAssembly module loaded from this site. Nothing is sent anywhere; the page makes no network requests after it loads.</p>
     <h3>How is this different from jscpd?</h3>
-    <p>Same method and defaults, written in Rust. On 1,054 JavaScript files jscpd took 40 seconds and dupehound 0.2 seconds, and they flagged the same lines to within about 6%. jscpd knows far more languages and has richer reports; dupehound has one generic lexer and JSON or text output.</p>
+    <p>Same method and defaults, written in Rust. On 1,054 JavaScript files jscpd took 40 seconds and clonescan 0.2 seconds, and they flagged the same lines to within about 6%. jscpd knows far more languages and has richer reports; clonescan has one generic lexer and JSON or text output.</p>
     <h3>Does it find code that was copied and then renamed?</h3>
     <p>No. Matching is exact on token text after dropping whitespace and comments. jscpd's default mode behaves the same way.</p>
   </section>
@@ -147,12 +147,12 @@ dupehound --threshold 5 src/         # exit 1 if over 5% duplicated (for CI)</pr
     <p>Everything runs in your browser. Your files are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>scan_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Duplicated packages rather than duplicated code: <a href="../npm-lockfile-duplicates-check/">npm Lockfile Duplicates Check</a> lists every npm package installed at more than one version in a lockfile.</p>
-    <p>jscpd and PMD are their authors' projects; dupehound is not affiliated with or endorsed by either.</p>
+    <p>jscpd and PMD are their authors' projects; clonescan is not affiliated with or endorsed by either.</p>
     <p class="support">Free and open source under an <a href="LICENSE" rel="noopener">MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
   <script type="module">
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
-    import { load } from "./web/dupehound.mjs";
+    import { load } from "./web/clonescan.mjs";
 
     const EXT = new Set(["js","mjs","cjs","jsx","ts","tsx","mts","cts","py","rs","go","java","kt","c","h","cc","cpp","hpp","cs","rb","php","swift","scala","sh","css","scss"]);
     const SKIP_DIR = /(^|\/)(node_modules|\.git|target)\//;
@@ -160,7 +160,7 @@ dupehound --threshold 5 src/         # exit 1 if over 5% duplicated (for CI)</pr
     let engine = null, lastReport = null, lastFiles = new Map();
 
     async function getEngine() {
-      if (!engine) engine = await load(new URL("./web/dupehound.wasm", import.meta.url));
+      if (!engine) engine = await load(new URL("./web/clonescan.wasm", import.meta.url));
       return engine;
     }
 
@@ -247,7 +247,7 @@ dupehound --threshold 5 src/         # exit 1 if over 5% duplicated (for CI)</pr
       if (!lastReport) return;
       const a = document.createElement("a");
       a.href = URL.createObjectURL(new Blob([JSON.stringify(lastReport, null, 2)], { type: "application/json" }));
-      a.download = "dupehound-report.json";
+      a.download = "clonescan-report.json";
       a.click();
       URL.revokeObjectURL(a.href);
       record("report_downloaded");

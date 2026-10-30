@@ -119,6 +119,9 @@ workflows:
 - workflow: claude-routine-trigger.yml
   classification: none
   publishes: []
+- workflow: clonescan-ci.yml
+  classification: none
+  publishes: []
 - workflow: conflict-markers-ci.yml
   classification: none
   publishes: []
@@ -144,6 +147,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: distribute-bluesky.yml
+  classification: none
+  publishes: []
+- workflow: distribute-crates.yml
   classification: none
   publishes: []
 - workflow: distribute-desktop.yml
@@ -205,9 +211,6 @@ workflows:
   classification: none
   publishes: []
 - workflow: docker-compose-security-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: dupehound-ci.yml
   classification: none
   publishes: []
 - workflow: duplicate-symbols-ci.yml

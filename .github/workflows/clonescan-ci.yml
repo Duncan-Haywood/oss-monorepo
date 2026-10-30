@@ -1,32 +1,32 @@
-name: dupehound CI
+name: clonescan CI
 
 # The repository's first Rust crate. One engine, two surfaces: the native CLI
-# and the WebAssembly build the page loads (web/dupehound.wasm, committed so
+# and the WebAssembly build the page loads (web/clonescan.wasm, committed so
 # the Pages build needs no Rust toolchain). The parity test runs the
 # committed .wasm against the freshly built CLI, so a source change that
 # alters results without a rebuilt .wasm fails here.
 on:
   pull_request:
     paths:
-      - "ventures/dupehound/**"
-      - ".github/workflows/dupehound-ci.yml"
+      - "ventures/clonescan/**"
+      - ".github/workflows/clonescan-ci.yml"
   push:
     branches: [main]
     paths:
-      - "ventures/dupehound/**"
-      - ".github/workflows/dupehound-ci.yml"
+      - "ventures/clonescan/**"
+      - ".github/workflows/clonescan-ci.yml"
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: dupehound-ci-${{ github.ref }}
+  group: clonescan-ci-${{ github.ref }}
   cancel-in-progress: true
 
 defaults:
   run:
-    working-directory: ventures/dupehound
+    working-directory: ventures/clonescan
 
 jobs:
   test:
@@ -50,4 +50,4 @@ jobs:
       - name: WebAssembly build compiles
         run: cargo build --release --lib --target wasm32-unknown-unknown --no-default-features
       - name: Committed .wasm matches the CLI, page and usage tests
-        run: node --test web/dupehound.test.mjs page.test.mjs usage.test.mjs
+        run: node --test web/clonescan.test.mjs page.test.mjs usage.test.mjs

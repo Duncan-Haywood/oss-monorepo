@@ -4241,7 +4241,7 @@ entries:
         connectors, $3,665 with 14 birdsmouth notches). 69 node tests; driven in Chromium.
         Usage unmeasured.
     mrr_end: 0
-  - venture: dupehound
+  - venture: clonescan  # named dupehound until 2026-10-30 (crates.io name taken)
     agent_spend_usd: null
     human_hours: 0
     outcomes:

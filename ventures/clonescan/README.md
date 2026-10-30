@@ -1,10 +1,13 @@
-# dupehound: a fast copy-paste detector in Rust
+# clonescan: a fast copy-paste detector in Rust
+
+*Named `dupehound` until 2026-10-30; renamed because an unrelated crate
+already holds that name on crates.io.*
 
 Find copy-pasted code, fast. A token-based copy-paste (code clone) detector
 written in Rust, with the same engine compiled to WebAssembly for a browser
 page that uploads nothing.
 
-**Live page:** https://duncan-haywood.github.io/oss-monorepo/dupehound/
+**Live page:** https://duncan-haywood.github.io/oss-monorepo/clonescan/
 
 It is the first tool in the repository's "dev tools in Rust" direction
 ([`prompts/goals.md`](../../prompts/goals.md), "Direction: dev tools in Rust,
@@ -17,23 +20,23 @@ bottleneck or when one engine has to ship to several surfaces. Both hold:
 
 - **Inner loop.** jscpd, the usual tool, took 40 seconds and 927 MB on 1,054
   files from this repository, and ran out of memory on the full 9,458 files
-  (337 seconds and 6.2 GB with a 12 GB heap). dupehound does the full tree
+  (337 seconds and 6.2 GB with a 12 GB heap). clonescan does the full tree
   in 1.2 seconds and 500 MB and flags the same lines to within about 5%.
   Details and caveats: [`BENCHMARK.md`](BENCHMARK.md).
 - **One core, every surface.** The CLI and the browser page run the same
-  code; `web/dupehound.test.mjs` requires the WebAssembly build's JSON to
+  code; `web/clonescan.test.mjs` requires the WebAssembly build's JSON to
   equal the CLI's byte for byte.
 
 ## Quickstart (CLI)
 
 ```sh
 git clone --depth 1 --filter=blob:none --sparse https://github.com/duncan-haywood/oss-monorepo
-cd oss-monorepo && git sparse-checkout set ventures/dupehound
-cargo install --path ventures/dupehound
+cd oss-monorepo && git sparse-checkout set ventures/clonescan
+cargo install --path ventures/clonescan
 
-dupehound src/                        # 20 largest clones and a summary
-dupehound --json src/ > clones.json   # every clone
-dupehound --threshold 5 src/          # exit 1 when over 5% of lines are duplicated
+clonescan src/                        # 20 largest clones and a summary
+clonescan --json src/ > clones.json   # every clone
+clonescan --threshold 5 src/          # exit 1 when over 5% of lines are duplicated
 ```
 
 Options: `--min-tokens N` (default 50), `--min-lines N` (5), `--max-size`
@@ -82,14 +85,14 @@ end of the line).
 
 ## Browser page
 
-[`index.html`](index.html) loads [`web/dupehound.mjs`](web/dupehound.mjs) and
-[`web/dupehound.wasm`](web/dupehound.wasm) (195 KB, plain C ABI, no
+[`index.html`](index.html) loads [`web/clonescan.mjs`](web/clonescan.mjs) and
+[`web/clonescan.wasm`](web/clonescan.wasm) (195 KB, plain C ABI, no
 wasm-bindgen). Rebuild the `.wasm` after changing `src/`:
 
 ```sh
 rustup target add wasm32-unknown-unknown
 cargo build --release --lib --target wasm32-unknown-unknown --no-default-features
-cp target/wasm32-unknown-unknown/release/dupehound.wasm web/
+cp target/wasm32-unknown-unknown/release/clonescan.wasm web/
 ```
 
 ## Tests
@@ -97,10 +100,10 @@ cp target/wasm32-unknown-unknown/release/dupehound.wasm web/
 ```sh
 cargo fmt --check && cargo clippy --release --all-targets -- -D warnings
 cargo test --release           # includes a brute-force cross-check on random inputs
-cargo build --release && node --test web/dupehound.test.mjs page.test.mjs usage.test.mjs
+cargo build --release && node --test web/clonescan.test.mjs page.test.mjs usage.test.mjs
 ```
 
-`.github/workflows/dupehound-ci.yml` runs all of it.
+`.github/workflows/clonescan-ci.yml` runs all of it.
 
 ## Licence, disclaimer, privacy
 
@@ -118,14 +121,16 @@ browser tab and sends nothing anywhere; it counts three anonymous events
 (`scan_run`, `example_loaded`, `report_downloaded`) in local storage only,
 with an off switch.
 
-jscpd and PMD are their authors' projects; dupehound is not affiliated with
+jscpd and PMD are their authors' projects; clonescan is not affiliated with
 or endorsed by either.
 
 ## Next
 
-- Publish to crates.io so `cargo install dupehound` works. Publishing under
-  the portfolio's name is the owner's call; it is listed under the
-  `publication-identity` ask in `portfolio/ledger/asks.yaml`.
+- First crates.io release, so `cargo install clonescan` works. Approved by
+  the owner on 2026-10-30; `.github/workflows/distribute-crates.yml` is
+  ready and `cargo publish --dry-run` passes. It waits on a one-time token
+  (`crates-io-token` in `portfolio/ledger/asks.yaml`). Until then, install
+  from source as above.
 - Prebuilt binaries from a release workflow, so no Rust toolchain is needed.
 - Pair a window with every earlier occurrence on a diagonal, not only the
   first, so repetitive code in normalised mode reports whole clones.
