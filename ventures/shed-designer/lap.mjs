@@ -231,6 +231,8 @@ export function layoutFace(face, spec) {
   let starter = 0;
   let below = /** @type {number[]} */ ([]);
   let nails = 0;
+  /** @type {number[]} */
+  const nailers = [];
   const courses = [];
   for (const [n, row] of rows.entries()) {
     const next = rows[n + 1];
@@ -249,6 +251,16 @@ export function layoutFace(face, spec) {
         while (q - pos > face.maxPlank + EPS) {
           const opts = reachable(row, q, pos);
           const c = opts.find((x) => below.every((j) => Math.abs(j - x) >= face.stagger - EPS)) ?? opts[0];
+          // No stud in reach: say where an added stud would take the joint (the
+          // longest plank that clears every opening and its casing), so the
+          // framing can put one there and lay the face out again.
+          if (c === undefined) {
+            const clear = (x) => !face.holes.some((h) => h.s0 < x + 0.75 && h.s1 > x - 0.75)
+              && !face.wood.some((w) => w.z1 - w.z0 >= 12 && w.s0 < x + 0.75 && w.s1 > x - 0.75);
+            for (let x = Math.min(pos + face.maxPlank, q - spec.minPiece); x >= pos + spec.minPiece; x -= 0.25) {
+              if (clear(x)) { nailers.push(Math.round(x * 16) / 16); break; }
+            }
+          }
           const at = c ?? pos + face.maxPlank;
           joints.push({ x: at, course: row.i, zb: row.zb, backed: c !== undefined });
           here.push(at);
@@ -273,7 +285,7 @@ export function layoutFace(face, spec) {
     courses.push(course);
     below = here;
   }
-  return { wall: face.wall, len: face.len, courses, pieces, joints, starter, nails };
+  return { wall: face.wall, len: face.len, courses, pieces, joints, starter, nails, nailers: [...new Set(nailers)] };
 }
 
 /**
@@ -353,7 +365,7 @@ export function lapSteps(shed, est) {
   const trimmed = d.wallTrim !== 'none';
   const eave = shed.lap.find((f) => f.wall === 'front');
   const gable = shed.lap.find((f) => f.wall === 'right');
-  const marks = (f) => f.courses.slice(0, 4).map((c) => fmtIn(c.zb - k.skidTop)).join(', ');
+  const marks = (f) => f.courses.slice(0, 4).map((c) => fmtIn(c.zb - (k.sidingBottom ?? k.skidTop))).join(', ');
   const joints = shed.lap.flatMap((f) => f.joints.map((j) => jointLabel(f, j)));
   const fc = d.sidingType === 'fiber cement';
   return [

@@ -1,5 +1,6 @@
 ---
 title: "How much can a freelancer put in a SEP-IRA or solo 401(k)? The 20% trick"
+seo_title: "How much can a freelancer put in a SEP-IRA or solo 401(k)?"
 date: 2026-10-27
 description: "A freelancer with $80,000 profit can put about $14,870 in a SEP-IRA, not 25%: the plan rate is 20% of profit less half of self-employment tax."
 tags: [ai-bookkeeper, retirement, freelancers, tax]

@@ -1,5 +1,6 @@
 ---
 title: "A wish you asked about every year: fiction on what an AI keeps for the dying"
+seo_title: "A wish you asked about every year"
 date: 2026-10-27
 description: "The Fifth Asking, a story set in a 2046 hospice: an assistant that remembers everything a patient told it, and the one thing it declines to do with the notes."
 tags: [fiction, ai-memory, hearth-and-horizon, twenty-year-strand]

@@ -4,7 +4,7 @@ export const GALLERY_DESIGNS = [
  {
   "id": "cheapest",
   "title": "Cheapest 8x10",
-  "reason": "The lowest price of the 739 designs the search kept with every finish free to change ($2,527 when it ran).",
+  "reason": "The lowest price of the 733 designs the search kept with every finish free to change ($2,553 when it ran).",
   "design": {
    "name": "Cheapest 8x10",
    "length": 96,
@@ -22,6 +22,7 @@ export const GALLERY_DESIGNS = [
    "tieSize": "2x4",
    "roofType": "ridgeBoard",
    "style": "gable",
+   "frontPitch": 10,
    "gambrelLower": 20,
    "gambrelKnee": 0,
    "loft": "none",
@@ -30,6 +31,8 @@ export const GALLERY_DESIGNS = [
    "skidSize": "4x4",
    "skidSpacing": 48,
    "foundation": "blocks",
+   "floor": "framed",
+   "blockSpacing": 48,
    "compaction": "hand tamper",
    "pad": "under blocks",
    "pierDepth": 24,
@@ -63,6 +66,7 @@ export const GALLERY_DESIGNS = [
    "customRange": false,
    "sidingType": "T1-11",
    "wallTrim": "1x4",
+   "climate": "mild",
    "roofCover": "shingles",
    "rafterSeat": "connector",
    "maxFootprint": 0,
@@ -95,13 +99,18 @@ export const GALLERY_DESIGNS = [
      "height": 78,
      "product": "site-built"
     }
-   ]
+   ],
+   "siteFacing": "street",
+   "northDeg": null,
+   "easementSide": "none",
+   "easementFt": 0,
+   "easementNote": ""
   }
  },
  {
   "id": "value",
   "title": "Most room per dollar, 8x12",
-  "reason": "The most room inside for the money of the 739 designs the search kept, by the search's measure of volume.",
+  "reason": "The most room inside for the money of the 733 designs the search kept, by the search's measure of volume.",
   "design": {
    "name": "Most room per dollar, 8x12",
    "length": 96,
@@ -119,6 +128,7 @@ export const GALLERY_DESIGNS = [
    "tieSize": "2x4",
    "roofType": "ridgeBoard",
    "style": "gable",
+   "frontPitch": 10,
    "gambrelLower": 20,
    "gambrelKnee": 0,
    "loft": "none",
@@ -127,6 +137,8 @@ export const GALLERY_DESIGNS = [
    "skidSize": "4x4",
    "skidSpacing": 48,
    "foundation": "blocks",
+   "floor": "framed",
+   "blockSpacing": 48,
    "compaction": "hand tamper",
    "pad": "under blocks",
    "pierDepth": 24,
@@ -160,6 +172,7 @@ export const GALLERY_DESIGNS = [
    "customRange": false,
    "sidingType": "T1-11",
    "wallTrim": "1x4",
+   "climate": "mild",
    "roofCover": "shingles",
    "rafterSeat": "connector",
    "maxFootprint": 0,
@@ -192,7 +205,12 @@ export const GALLERY_DESIGNS = [
      "height": 78,
      "product": "site-built"
     }
-   ]
+   ],
+   "siteFacing": "street",
+   "northDeg": null,
+   "easementSide": "none",
+   "easementFt": 0,
+   "easementNote": ""
   }
  },
  {
@@ -216,6 +234,7 @@ export const GALLERY_DESIGNS = [
    "tieSize": "2x4",
    "roofType": "ridgeBoard",
    "style": "gable",
+   "frontPitch": 10,
    "gambrelLower": 20,
    "gambrelKnee": 0,
    "loft": "none",
@@ -224,6 +243,8 @@ export const GALLERY_DESIGNS = [
    "skidSize": "4x4",
    "skidSpacing": 48,
    "foundation": "blocks",
+   "floor": "framed",
+   "blockSpacing": 48,
    "compaction": "hand tamper",
    "pad": "under blocks",
    "pierDepth": 24,
@@ -257,6 +278,7 @@ export const GALLERY_DESIGNS = [
    "customRange": false,
    "sidingType": "T1-11",
    "wallTrim": "1x4",
+   "climate": "mild",
    "roofCover": "shingles",
    "rafterSeat": "connector",
    "maxFootprint": 0,
@@ -289,13 +311,18 @@ export const GALLERY_DESIGNS = [
      "height": 78,
      "product": "site-built"
     }
-   ]
+   ],
+   "siteFacing": "street",
+   "northDeg": null,
+   "easementSide": "none",
+   "easementFt": 0,
+   "easementNote": ""
   }
  },
  {
   "id": "storage",
   "title": "Most storage 9x11",
-  "reason": "The most room inside of the 739 designs the search kept, by the search's measure of volume, open to the roof.",
+  "reason": "The most room inside of the 733 designs the search kept, by the search's measure of volume, open to the roof.",
   "design": {
    "name": "Most storage 9x11",
    "length": 132,
@@ -313,6 +340,7 @@ export const GALLERY_DESIGNS = [
    "tieSize": "2x4",
    "roofType": "ridgeBoard",
    "style": "leanTo",
+   "frontPitch": 10,
    "gambrelLower": 20,
    "gambrelKnee": 0,
    "loft": "none",
@@ -321,6 +349,8 @@ export const GALLERY_DESIGNS = [
    "skidSize": "4x4",
    "skidSpacing": 48,
    "foundation": "blocks",
+   "floor": "framed",
+   "blockSpacing": 48,
    "compaction": "hand tamper",
    "pad": "under blocks",
    "pierDepth": 24,
@@ -354,6 +384,7 @@ export const GALLERY_DESIGNS = [
    "customRange": false,
    "sidingType": "T1-11",
    "wallTrim": "1x4",
+   "climate": "mild",
    "roofCover": "shingles",
    "rafterSeat": "connector",
    "maxFootprint": 0,
@@ -386,7 +417,12 @@ export const GALLERY_DESIGNS = [
      "height": 78,
      "product": "site-built"
     }
-   ]
+   ],
+   "siteFacing": "street",
+   "northDeg": null,
+   "easementSide": "none",
+   "easementFt": 0,
+   "easementNote": ""
   }
  },
  {
@@ -410,6 +446,7 @@ export const GALLERY_DESIGNS = [
    "tieSize": "2x4",
    "roofType": "ridgeBoard",
    "style": "leanTo",
+   "frontPitch": 10,
    "gambrelLower": 20,
    "gambrelKnee": 0,
    "loft": "none",
@@ -418,6 +455,8 @@ export const GALLERY_DESIGNS = [
    "skidSize": "4x4",
    "skidSpacing": 48,
    "foundation": "blocks",
+   "floor": "framed",
+   "blockSpacing": 48,
    "compaction": "hand tamper",
    "pad": "under blocks",
    "pierDepth": 24,
@@ -451,6 +490,7 @@ export const GALLERY_DESIGNS = [
    "customRange": false,
    "sidingType": "fiber cement",
    "wallTrim": "1x4",
+   "climate": "mild",
    "roofCover": "shingles",
    "rafterSeat": "connector",
    "maxFootprint": 0,
@@ -503,7 +543,12 @@ export const GALLERY_DESIGNS = [
      "sill": 54.75,
      "product": "swm-1823"
     }
-   ]
+   ],
+   "siteFacing": "street",
+   "northDeg": null,
+   "easementSide": "none",
+   "easementFt": 0,
+   "easementNote": ""
   }
  },
  {
@@ -527,6 +572,7 @@ export const GALLERY_DESIGNS = [
    "tieSize": "2x4",
    "roofType": "ridgeBoard",
    "style": "gable",
+   "frontPitch": 10,
    "gambrelLower": 20,
    "gambrelKnee": 0,
    "loft": "none",
@@ -535,6 +581,8 @@ export const GALLERY_DESIGNS = [
    "skidSize": "4x4",
    "skidSpacing": 48,
    "foundation": "blocks",
+   "floor": "framed",
+   "blockSpacing": 48,
    "compaction": "hand tamper",
    "pad": "under blocks",
    "pierDepth": 24,
@@ -568,6 +616,7 @@ export const GALLERY_DESIGNS = [
    "customRange": false,
    "sidingType": "fiber cement",
    "wallTrim": "1x4",
+   "climate": "mild",
    "roofCover": "shingles",
    "rafterSeat": "connector",
    "maxFootprint": 0,
@@ -600,13 +649,18 @@ export const GALLERY_DESIGNS = [
      "height": 78,
      "product": "site-built"
     }
-   ]
+   ],
+   "siteFacing": "street",
+   "northDeg": null,
+   "easementSide": "none",
+   "easementFt": 0,
+   "easementNote": ""
   }
  },
  {
   "id": "house-cheapest",
   "title": "Cheapest lap-sided 7x12",
-  "reason": "The lowest price of the 698 designs kept with painted lap siding and shingles in a size the cards above do not show ($2,878 when it ran).",
+  "reason": "The lowest price of the 693 designs kept with painted lap siding and shingles in a size the cards above do not show ($2,904 when it ran).",
   "design": {
    "name": "Cheapest lap-sided 7x12",
    "length": 84,
@@ -624,6 +678,7 @@ export const GALLERY_DESIGNS = [
    "tieSize": "2x4",
    "roofType": "ridgeBoard",
    "style": "gable",
+   "frontPitch": 10,
    "gambrelLower": 20,
    "gambrelKnee": 0,
    "loft": "none",
@@ -632,6 +687,8 @@ export const GALLERY_DESIGNS = [
    "skidSize": "4x4",
    "skidSpacing": 48,
    "foundation": "blocks",
+   "floor": "framed",
+   "blockSpacing": 48,
    "compaction": "hand tamper",
    "pad": "under blocks",
    "pierDepth": 24,
@@ -665,6 +722,7 @@ export const GALLERY_DESIGNS = [
    "customRange": false,
    "sidingType": "fiber cement",
    "wallTrim": "1x4",
+   "climate": "mild",
    "roofCover": "shingles",
    "rafterSeat": "connector",
    "maxFootprint": 0,
@@ -697,13 +755,18 @@ export const GALLERY_DESIGNS = [
      "height": 78,
      "product": "site-built"
     }
-   ]
+   ],
+   "siteFacing": "street",
+   "northDeg": null,
+   "easementSide": "none",
+   "easementFt": 0,
+   "easementNote": ""
   }
  },
  {
   "id": "barn",
   "title": "Barn for storage 7x14",
-  "reason": "A gambrel roof: steep lower slopes and a shallow top put the most room under the gallery's 13 ft height limit. The most room per dollar of the 174 barns its own search kept in painted lap siding and shingles in a size the cards above do not show. Searched apart from the cards above, which show gables and lean-tos.",
+  "reason": "A gambrel roof: steep lower slopes and a shallow top put the most room under the gallery's 13 ft height limit. The most room per dollar of the 175 barns its own search kept in painted lap siding and shingles in a size the cards above do not show. Searched apart from the cards above, which show gables and lean-tos.",
   "design": {
    "name": "Barn for storage 7x14",
    "length": 168,
@@ -721,6 +784,7 @@ export const GALLERY_DESIGNS = [
    "tieSize": "2x4",
    "roofType": "ridgeBoard",
    "style": "gambrel",
+   "frontPitch": 10,
    "gambrelLower": 20,
    "gambrelKnee": 0,
    "loft": "none",
@@ -729,6 +793,8 @@ export const GALLERY_DESIGNS = [
    "skidSize": "4x4",
    "skidSpacing": 48,
    "foundation": "blocks",
+   "floor": "framed",
+   "blockSpacing": 48,
    "compaction": "hand tamper",
    "pad": "under blocks",
    "pierDepth": 24,
@@ -762,6 +828,7 @@ export const GALLERY_DESIGNS = [
    "customRange": false,
    "sidingType": "fiber cement",
    "wallTrim": "1x4",
+   "climate": "mild",
    "roofCover": "shingles",
    "rafterSeat": "birdsmouth",
    "maxFootprint": 0,
@@ -794,7 +861,12 @@ export const GALLERY_DESIGNS = [
      "height": 78,
      "product": "site-built"
     }
-   ]
+   ],
+   "siteFacing": "street",
+   "northDeg": null,
+   "easementSide": "none",
+   "easementFt": 0,
+   "easementNote": ""
   }
  },
  {
@@ -818,6 +890,7 @@ export const GALLERY_DESIGNS = [
    "tieSize": "2x4",
    "roofType": "ridgeBoard",
    "style": "gable",
+   "frontPitch": 10,
    "gambrelLower": 20,
    "gambrelKnee": 0,
    "loft": "none",
@@ -826,6 +899,8 @@ export const GALLERY_DESIGNS = [
    "skidSize": "4x4",
    "skidSpacing": 48,
    "foundation": "blocks",
+   "floor": "framed",
+   "blockSpacing": 48,
    "compaction": "hand tamper",
    "pad": "under blocks",
    "pierDepth": 24,
@@ -859,6 +934,7 @@ export const GALLERY_DESIGNS = [
    "customRange": false,
    "sidingType": "fiber cement",
    "wallTrim": "1x4",
+   "climate": "mild",
    "roofCover": "shingles",
    "rafterSeat": "connector",
    "maxFootprint": 0,
@@ -891,7 +967,12 @@ export const GALLERY_DESIGNS = [
      "height": 78,
      "product": "site-built"
     }
-   ]
+   ],
+   "siteFacing": "street",
+   "northDeg": null,
+   "easementSide": "none",
+   "easementFt": 0,
+   "easementNote": ""
   }
  },
  {
@@ -915,6 +996,7 @@ export const GALLERY_DESIGNS = [
    "tieSize": "2x4",
    "roofType": "ridgeBoard",
    "style": "gable",
+   "frontPitch": 10,
    "gambrelLower": 20,
    "gambrelKnee": 0,
    "loft": "none",
@@ -923,6 +1005,8 @@ export const GALLERY_DESIGNS = [
    "skidSize": "4x4",
    "skidSpacing": 48,
    "foundation": "blocks",
+   "floor": "framed",
+   "blockSpacing": 48,
    "compaction": "hand tamper",
    "pad": "under blocks",
    "pierDepth": 24,
@@ -956,6 +1040,7 @@ export const GALLERY_DESIGNS = [
    "customRange": false,
    "sidingType": "fiber cement",
    "wallTrim": "1x4",
+   "climate": "mild",
    "roofCover": "shingles",
    "rafterSeat": "connector",
    "maxFootprint": 0,
@@ -1008,7 +1093,12 @@ export const GALLERY_DESIGNS = [
      "sill": 54.75,
      "product": "swm-1823"
     }
-   ]
+   ],
+   "siteFacing": "street",
+   "northDeg": null,
+   "easementSide": "none",
+   "easementFt": 0,
+   "easementNote": ""
   }
  },
  {
@@ -1032,6 +1122,7 @@ export const GALLERY_DESIGNS = [
    "tieSize": "2x4",
    "roofType": "ridgeBoard",
    "style": "leanTo",
+   "frontPitch": 10,
    "gambrelLower": 20,
    "gambrelKnee": 0,
    "loft": "none",
@@ -1040,6 +1131,8 @@ export const GALLERY_DESIGNS = [
    "skidSize": "4x4",
    "skidSpacing": 48,
    "foundation": "blocks",
+   "floor": "framed",
+   "blockSpacing": 48,
    "compaction": "hand tamper",
    "pad": "under blocks",
    "pierDepth": 24,
@@ -1073,6 +1166,7 @@ export const GALLERY_DESIGNS = [
    "customRange": false,
    "sidingType": "fiber cement",
    "wallTrim": "1x4",
+   "climate": "mild",
    "roofCover": "shingles",
    "rafterSeat": "connector",
    "maxFootprint": 0,
@@ -1105,7 +1199,12 @@ export const GALLERY_DESIGNS = [
      "height": 71.25,
      "product": "sr-48x72"
     }
-   ]
+   ],
+   "siteFacing": "street",
+   "northDeg": null,
+   "easementSide": "none",
+   "easementFt": 0,
+   "easementNote": ""
   }
  }
 ];

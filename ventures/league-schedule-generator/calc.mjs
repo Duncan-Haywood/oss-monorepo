@@ -1621,6 +1621,12 @@ export function icsEscape(s) {
   return String(s).replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n");
 }
 
+/** VALARM lines for a reminder `minutes` before an event, or none when `minutes` is not a whole number from 1 to 10080 (a week). */
+export function icsAlarm(minutes, text) {
+  if (!Number.isInteger(minutes) || minutes < 1 || minutes > 10080) return [];
+  return ["BEGIN:VALARM", "ACTION:DISPLAY", `DESCRIPTION:${icsEscape(text)}`, `TRIGGER:-PT${minutes}M`, "END:VALARM"];
+}
+
 export function icsFold(line) {
   const enc = new TextEncoder();
   if (enc.encode(line).length <= 75) return line;
@@ -1643,8 +1649,9 @@ const compactDate = (day) => dayIso(day).replace(/-/g, "");
  * Times are floating local times, so a phone shows them as written at the venue.
  * `stamp` (YYYYMMDDTHHMMSSZ) is injectable so the output is reproducible in tests.
  * `official` (a name set by assignOfficials) keeps only the matches that person works, for a referee's own calendar.
+ * `alarmMinutes` (1 to 10080) adds a reminder that many minutes before each timed match; all-day matches get none.
  */
-export function scheduleIcs(schedule, teamIdx = null, stamp = null, official = null) {
+export function scheduleIcs(schedule, teamIdx = null, stamp = null, official = null, alarmMinutes = null) {
   const dtstamp = stamp || new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d+/, "");
   const minutes = schedule.config.minutes || 60;
   const out = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//league-schedule-generator//EN", "CALSCALE:GREGORIAN",
@@ -1668,7 +1675,9 @@ export function scheduleIcs(schedule, teamIdx = null, stamp = null, official = n
       } else {
         out.push(`DTSTART;VALUE=DATE:${compactDate(r.day)}`, `DTEND;VALUE=DATE:${compactDate(r.day + 1)}`);
       }
-      out.push(`SUMMARY:${icsEscape(summary)}`, `LOCATION:${icsEscape(m.court)}`, `DESCRIPTION:${icsEscape(r.label)}`, "END:VEVENT");
+      out.push(`SUMMARY:${icsEscape(summary)}`, `LOCATION:${icsEscape(m.court)}`, `DESCRIPTION:${icsEscape(r.label)}`);
+      if (m.time) out.push(...icsAlarm(alarmMinutes, summary));
+      out.push("END:VEVENT");
     });
   }
   out.push("END:VCALENDAR");

@@ -184,3 +184,69 @@ test('an 8" overhang and 88" walls are offered, and a small budget still leaves 
   }
   assert.ok(beaten <= Math.ceil(r.front.length * 0.15), `${beaten} of ${r.front.length} front designs beaten by one change`);
 });
+
+test('no floor is searched only when asked; block spacing is a move the skid check rules on', () => {
+  const sizes = [{ length: 144, width: 96 }];
+  const plain = searchDesigns({ budget: 80, sizes });
+  assert.ok(plain.all.every((s) => s.design.floor === 'framed'), 'the default search keeps the framed floor');
+  const asked = searchDesigns({ budget: 200, sizes, knobs: { floor: ['framed', 'none'] } });
+  const none = asked.all.filter((s) => s.design.floor === 'none');
+  assert.ok(none.length > 0, 'asked, it tries designs with no floor');
+  assert.ok(none.every((s) => s.design.floor === 'none' && Number.isFinite(s.cost)));
+  const floorless = searchDesigns({ base: { ...defaultDesign(), floor: 'none' }, budget: 40, sizes });
+  assert.ok(floorless.all.every((s) => s.design.floor === 'none'), 'a floorless design stays floorless');
+  const wide = searchDesigns({ budget: 200, sizes, knobs: { foundation: ['blocks'], blockSpacing: [72] } });
+  assert.ok(wide.all.every((s) => s.design.blockSpacing === 72));
+});
+
+test('the gambrel knobs: the search varies the lower slope, the knee and the loft, under the peak limit', () => {
+  const r = searchDesigns({ budget: 70, sizes: [{ length: 120, width: 96 }], layouts: ['eave door, no windows'], knobs: { style: ['gambrel'] } });
+  const barns = r.all.filter((s) => s.design.style === 'gambrel');
+  assert.ok(barns.length > 10);
+  const seen = (k) => new Set(barns.map((s) => s.design[k])).size;
+  assert.ok(seen('gambrelLower') > 1 && seen('gambrelKnee') > 1 && seen('loft') > 1, `lower ${seen('gambrelLower')}, knee ${seen('gambrelKnee')}, loft ${seen('loft')}`);
+  for (const s of r.all) assert.ok(s.peak <= 156 + 0.01, `${s.label}: peak ${s.peak}`);
+  // The knee as a fraction of the width: a third of 96" is 32".
+  assert.ok(barns.some((s) => s.design.gambrelKnee === 32) || barns.every((s) => s.design.gambrelKnee !== 32));
+  // Usable storage: the whole roof space over a full loft, none over bare ties, part over half a loft.
+  for (const s of barns) {
+    const u = s.storage.usableCuFt;
+    if (s.design.loft === 'full') assert.ok(Math.abs(u - s.storage.volumeCuFt) < 0.2, s.label);
+    if (s.design.loft === 'none') assert.ok(Math.abs(u - s.storage.wallVolumeCuFt) < 0.2, s.label);
+    if (s.design.loft === 'half') assert.ok(u > s.storage.wallVolumeCuFt && u < s.storage.volumeCuFt, s.label);
+  }
+});
+
+test('the gambrel knobs change nothing on a gable: no gable is built twice for them', () => {
+  const base = { budget: 40, sizes: [{ length: 144, width: 96 }], layouts: ['eave door, two windows opposite'] };
+  const without = searchDesigns({ ...base, knobs: { style: ['gable'], gambrelLower: [20], gambrelKnee: ['quarter'], loft: ['none'] } });
+  const withKnobs = searchDesigns({ ...base, knobs: { style: ['gable'] } });
+  assert.deepEqual(withKnobs.all.map((s) => s.label + s.cost), without.all.map((s) => s.label + s.cost));
+});
+
+test('usable storage: open roof space counts, space over bare ties does not', () => {
+  const beam = evaluateDesign(defaultDesign());
+  assert.equal(beam.storage.usableCuFt, beam.storage.volumeCuFt);
+  const board = evaluateDesign({ ...defaultDesign(), roofType: 'ridgeBoard' });
+  assert.equal(board.storage.usableCuFt, board.storage.wallVolumeCuFt);
+  assert.ok(OBJECTIVES.usable.of(board) < OBJECTIVES.storage.of(board));
+});
+
+test('clerestory windows: a row of transoms high in a lean-to\'s tall wall, all framed', async () => {
+  const { PRESETS } = await import('./model.mjs');
+  const ops = layoutOpenings('eave door and clerestory windows', { length: 144, width: 96 }, undefined);
+  const door = ops.find((o) => o.kind === 'door');
+  const wins = ops.filter((o) => o.kind === 'window');
+  assert.equal(wins.length, 2);
+  for (const w of wins) {
+    assert.equal(w.product, 'swm-t2312');
+    assert.equal(w.wall, 'front');
+    assert.ok(w.sill >= door.height + 6 - 1e-9, 'sill over the door head');
+  }
+  const shed = buildShed({ ...PRESETS['8x12 lean-to'](), openings: ops });
+  assert.equal(shed.framedOpenings.length, ops.length);
+  assert.deepEqual(shed.warnings, []);
+  // On a gable the front wall is too low for them: the search does not seed gables with this layout.
+  const g = evaluateDesign({ ...defaultDesign(), openings: ops, autoWall: true });
+  assert.ok(!g.feasible);
+});

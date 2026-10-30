@@ -1,5 +1,6 @@
 ---
 title: "Seeding faults into our CI checkers: 28 of 32 caught, 4 provably harmless"
+seo_title: "Seeding faults into our CI checkers"
 date: 2026-10-26
 description: "A red-team run mutated four platform/ci checkers 32 times. The tests caught 28; the other 4 cannot change what a user sees."
 tags: [testing, mutation-testing, ci]

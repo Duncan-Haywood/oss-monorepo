@@ -17,6 +17,9 @@
       "result": "2110 of 2111 ai-bookkeeper tests passed first run; the one failure (LinkedIn Sales Nav) fixed, targeted tests pass"
     }
   ],
-  "writeups": ["docs/posts/2026-10-30-second-gap-probe-trades-retail-health.md"],
-  "notes": "Descriptions are synthetic from public names; finds gaps, not accuracy. flagships.yaml next: not rewritten (no real input reached)."
+  "writeups": [
+    "docs/posts/2026-10-30-second-gap-probe-trades-retail-health.md"
+  ],
+  "notes": "Descriptions are synthetic from public names; finds gaps, not accuracy. flagships.yaml next: not rewritten (no real input reached).",
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/11839"
 }

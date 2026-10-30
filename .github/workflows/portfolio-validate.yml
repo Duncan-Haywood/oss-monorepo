@@ -167,6 +167,12 @@ on:
 permissions:
   contents: read
 
+# A newer push to the same pull request cancels the superseded run; `main`
+# keeps every run (platform/ci/validate_workflows.py, invariant 9).
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   validate:
     runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
@@ -596,6 +602,14 @@ jobs:
       - name: Post front matter checker unit tests
         working-directory: platform/ci
         run: python3 -m unittest test_check_post_frontmatter
+
+      # Guides are added in batches; one missing from the hub is found only by search.
+      - name: Check the Start here series links both ways
+        run: python3 platform/ci/check_start_here.py
+
+      - name: Start here checker unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_check_start_here
 
       # A calculator with both a saved draft and a shareable link restores the
       # draft first and lets the link win. That only works if the link REPLACES

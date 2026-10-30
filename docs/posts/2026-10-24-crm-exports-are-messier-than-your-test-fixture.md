@@ -1,5 +1,6 @@
 ---
 title: "CRM exports are messier than your test fixture: four fixes in a prospecting agent"
+seo_title: "CRM exports are messier than your test fixture"
 date: 2026-10-24
 description: "A sales research agent that passed its tests on hand-built HubSpot data still misread Excel-style and Pipedrive-style files. What broke and what we changed."
 tags: [sales, crm, csv, testing]

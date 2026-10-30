@@ -145,6 +145,23 @@ test('completeShareTags points at the page card and fills the twitter: and size 
   assert.equal(completeShareTags(out, { card: `${BASE}research/energy-tou/share-card.png`, toRoot: '../../' }), out);
 });
 
+test("a page's own relative og:image is kept, made absolute, and copied to twitter:image", () => {
+  const html = page({ image: 'renders/og-8x12-share.jpg' });
+  const url = `${BASE}ventures/shed-designer/`;
+  assert.equal(pageCardPlan(html, 'ventures/shed-designer/index.html', { baseUrl: BASE }), null);
+  const out = completeShareTags(html, { url, toRoot: '../../' });
+  assert.match(out, /property="og:image" content="https:\/\/example\.github\.io\/site\/ventures\/shed-designer\/renders\/og-8x12-share\.jpg"/);
+  assert.match(out, /name="twitter:image" content="https:\/\/example\.github\.io\/site\/ventures\/shed-designer\/renders\/og-8x12-share\.jpg"/);
+  // Not ours, so no PNG type or card size is claimed for it.
+  assert.ok(!out.includes('og:image:type'));
+  assert.equal(completeShareTags(out, { url, toRoot: '../../' }), out);
+  // An absolute or protocol-relative image is left alone; with no page URL nothing is guessed.
+  for (const image of ['https://cdn.example/x.jpg', '//cdn.example/x.jpg']) {
+    assert.ok(completeShareTags(page({ image }), { url }).includes(`content="${image}"`));
+  }
+  assert.ok(completeShareTags(html, {}).includes('content="renders/og-8x12-share.jpg"'));
+});
+
 test('completeShareTags leaves a tag a page already set', () => {
   const html = page().replace('</head>', '<meta name="twitter:title" content="Own title">\n</head>');
   const out = completeShareTags(html, {});

@@ -97,7 +97,10 @@ export function designFacts(input, opts = {}) {
       sqFtPer100: est.total > 0 ? (st.floorSqFt / est.total) * 100 : 0,
       cuFtPer100: est.total > 0 ? (st.volumeCuFt / est.total) * 100 : 0,
     },
-    style: `Gable, ${d.pitch}/12 roof, ${fmtIn(d.overhang)} overhang`,
+    style: d.style === 'saltbox' ? `Saltbox, ${d.frontPitch}/12 front and ${d.pitch}/12 back, ${fmtIn(d.overhang)} overhang`
+      : d.style === 'leanTo' ? `Lean-to, ${d.pitch}/12 roof, ${fmtIn(d.overhang)} overhang`
+        : d.style === 'gambrel' ? `Gambrel (barn), ${d.gambrelLower}/12 and ${d.pitch}/12`
+          : `Gable, ${d.pitch}/12 roof, ${fmtIn(d.overhang)} overhang`,
     siding,
     roof,
     openings,

@@ -34,5 +34,5 @@ jobs:
         run: |
           git add Formula
           if git diff --cached --quiet; then echo "no new formulas"; exit 0; fi
-          git -c user.name="monorepo-projects bot" -c user.email="noreply@users.noreply.github.com" commit -m "Add formulas for newly published CLIs"
+          git -c user.name="distribute-homebrew (GitHub Actions)" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -m "Add formulas for newly published CLIs"
           git push

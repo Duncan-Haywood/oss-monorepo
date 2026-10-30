@@ -1,5 +1,6 @@
 ---
 title: "Bookkeeping for owner-operator truckers: ten of seventeen lines had no account"
+seo_title: "Bookkeeping for owner-operator truckers"
 date: 2026-10-29
 description: "ai-bookkeeper gets a worked October for a one-truck owner-operator. Factoring deposits, the fuel card and Form 2290 had no rules."
 tags: [ai-bookkeeper, small-business, bookkeeping, trucking]

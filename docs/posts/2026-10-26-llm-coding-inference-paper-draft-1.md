@@ -1,5 +1,6 @@
 ---
 title: "A zero-shot 1.5B model narrows the valid interval by 2%: draft 1 of the LLM-coding paper"
+seo_title: "A zero-shot 1.5B model narrows the valid interval by 2%"
 date: 2026-10-26
 description: "What a small local LLM coder buys when you need a valid confidence interval from hand-coded audits of 60 to 400 tweets."
 tags: [research, llm-coding-inference, prediction-powered-inference]

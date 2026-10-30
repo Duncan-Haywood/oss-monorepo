@@ -179,6 +179,7 @@ export function mountPicker(opts) {
           ${(() => { const a = againstHere(f); return a ? `<span class="pick-line pick-delta">${Math.abs(a.total) < 0.5 ? 'Same materials cost as' : `${esc(signedDollars(a.total))} against`} your &ldquo;${esc(a.name)}&rdquo;</span>` : ''; })()}
           <span class="pick-line pick-looks">Looks ${f.looks.score}/100, ${esc(topTerms(f.looks))}</span>
           <span class="pick-why">${esc(tradeOff(f, all))}</span>
+          <span class="pick-more" aria-hidden="true">See all sides, cost and storage &rarr;</span>
         </button>
         <button type="button" class="btn pick-cmp" data-compare="${esc(e.id)}" aria-pressed="${on}">${on ? 'In compare' : 'Compare'}</button>
       </li>`;
@@ -305,7 +306,7 @@ export function mountPicker(opts) {
         ${chosen.length >= 2 || (chosen.length === 1 && !on) ? '<button type="button" class="btn" data-compare-open>Compare side by side</button>' : ''}
       </div>`;
     show(html, titleOf(id));
-    opts.count?.('compares');
+    opts.count?.('details');
   }
 
   function openCompare() {

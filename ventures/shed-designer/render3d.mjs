@@ -4,7 +4,7 @@
 // count studs. No library; drag to orbit, right- or Shift-drag (two fingers on a phone) to pan, wheel, pinch or buttons to zoom,
 // arrow keys and +/- when the canvas has focus.
 
-import { paletteOf, PAINTS, SHINGLE_FAMILIES, TRIM_FINISHES } from './looks.mjs';
+import { paletteOf, doorRgb, PAINTS, SHINGLE_FAMILIES, TRIM_FINISHES } from './looks.mjs';
 
 /** @typedef {import('./model.mjs').Geom} Geom */
 /** @typedef {{ geom: Geom, color: [number, number, number], layer: string, flags?: number, id?: string }} Solid */
@@ -65,10 +65,10 @@ export const TRIM_COLORS = Object.fromEntries(Object.entries(TRIM_FINISHES).map(
 /**
  * Finish flags carried in the colour's fourth component, added together:
  * 1 polka dots, 2 glitter, 4 lap siding, 8 board and batten, 16 metal ribs,
- * 32 asphalt shingle courses, 64 T1-11 grooves. A shingle face's colour blend
+ * 32 asphalt shingle courses, 64 T1-11 grooves, 256 window glass. A shingle face's colour blend
  * (0 to 0.5) rides in the fraction.
  */
-export const FINISH = { dots: 1, glitter: 2, lap: 4, batten: 8, metal: 16, shingle: 32, grooves: 64 };
+export const FINISH = { dots: 1, glitter: 2, lap: 4, batten: 8, metal: 16, shingle: 32, grooves: 64, glass: 256 };
 
 /** Signed area of a 2D polygon. @param {[number, number][]} pts */
 function area2(pts) {
@@ -198,7 +198,7 @@ export function solidsOf(shed, heat) {
     const deck = p.kind === 'attic deck' || p.kind === 'loft deck';
     const layer = p.kind === 'floor sheet' ? 'floor' : sheathing ? 'sheathing' : gusset || deck ? 'roof' : 'siding';
     const color = p.kind === 'floor sheet' || deck ? COLORS.floor : sheathing || gusset ? COLORS.osb : siding;
-    out.push({ geom: p.geom, color: /** @type {any} */ (color), layer, flags: p.kind === 'siding' ? (d.polkaDots ? 1 : 0) + glitter + texture : p.kind === 'lap siding' ? (d.polkaDots ? 1 : 0) + glitter : 0 });
+    out.push({ id: p.id, geom: p.geom, color: /** @type {any} */ (color), layer, flags: p.kind === 'siding' ? (d.polkaDots ? 1 : 0) + glitter + texture : p.kind === 'lap siding' ? (d.polkaDots ? 1 : 0) + glitter : 0 });
   }
   const roof = pal.roof;
   const trim = pal.trim;
@@ -209,10 +209,12 @@ export function solidsOf(shed, heat) {
       : (f.kind === 'door' || f.kind === 'window' || f.kind === 'vent') ? 'siding'
         : (['trim', 'interior', 'decor', 'front lining'].includes(f.group) ? f.group : 'foundation');
     const lining = { OSB: [0.8, 0.66, 0.44], plywood: [0.93, 0.92, 0.88], drywall: [0.95, 0.95, 0.94], beadboard: [0.96, 0.95, 0.9], pegboard: [0.72, 0.58, 0.42] }[d.interior] || COLORS.lining;
-    const color = f.kind === 'shingles' ? roof : (f.kind === 'fascia' || f.kind === 'soffit' || f.kind === 'casing') ? trim : f.kind === 'door' ? pal.door : f.kind === 'connector' ? [0.62, 0.64, 0.66] : f.kind === 'lining' ? lining : /** @type {any} */ (COLORS)[f.kind] || COLORS.block;
+    const color = f.kind === 'shingles' ? roof : (f.kind === 'fascia' || f.kind === 'soffit' || f.kind === 'casing') ? trim : f.kind === 'door' ? doorRgb(d, d.openings.find((o) => o.id === f.op)) : f.kind === 'connector' ? [0.62, 0.64, 0.66] : f.kind === 'lining' ? lining : /** @type {any} */ (COLORS)[f.kind] || COLORS.block;
     const cover = d.roofCover === 'metal' ? FINISH.metal : FINISH.shingle + pal.roofBlend;
-    out.push({ geom: f.geom, color: /** @type {any} */ (color), layer, flags: f.kind === 'shingles' ? glitter + cover : 0 });
+    out.push({ id: f.id, geom: f.geom, color: /** @type {any} */ (color), layer, flags: f.kind === 'shingles' ? glitter + cover : f.kind === 'window' ? FINISH.glass : 0 });
   }
+  // A site-built door's frame of flat 2x4s, on the back of the door.
+  for (const m of shed.doorParts || []) if (m.geom) out.push({ id: m.id, geom: m.geom, color: /** @type {any} */ (COLORS.framing), layer: 'siding' });
   return out;
 }
 
@@ -235,13 +237,14 @@ export function dimensionsOf(shed, fmt = (x) => `${x}`) {
   seg([0, -o, 0], [L, -o, 0], [[0, 0, 0], [0, -o - 4, 0], [L, 0, 0], [L, -o - 4, 0]], `${fmt(L)} long`);
   seg([L + o, 0, 0], [L + o, W, 0], [[L, 0, 0], [L + o + 4, 0, 0], [L, W, 0], [L + o + 4, W, 0]], `${fmt(W)} wide`);
   // A lean-to's high point is its front edge, over the tall front wall.
-  const py = k.lean ? -k.overhang : W / 2;
+  const py = k.lean ? -k.overhang : k.ridgeY ?? W / 2;
   seg([L + o, py, 0], [L + o, py, k.peak], [[L, py, k.peak], [L + o + 4, py, k.peak]], `${fmt(k.peak)} ground to ${k.lean ? 'high edge' : 'peak'}`);
   seg([-o, 0, 0], [-o, 0, k.lean ? k.highPlateTop : k.plateTop], [[0, 0, k.lean ? k.highPlateTop : k.plateTop], [-o - 4, 0, k.lean ? k.highPlateTop : k.plateTop]], `${fmt(k.lean ? k.highPlateTop : k.plateTop)} ground to ${k.lean ? 'front ' : ''}wall top`);
   if (k.lean) seg([-o, W, k.floorTop], [-o, W, k.plateTop], [[0, W, k.plateTop], [-o - 4, W, k.plateTop]], `${fmt(k.plateTop)} ground to back wall top`);
   seg([-o, W, 0], [-o, W, k.floorTop], [[0, W, k.floorTop], [-o - 4, W, k.floorTop]], `${fmt(k.floorTop)} ground to floor`);
   // Overhang and roof slope on the left gable.
-  const eaveZ = k.plateTop + (k.connector ? 0 : -k.stud * (d.pitch / 12)) + k.plumbH;
+  // At the front eave: a saltbox's is the steep slope's.
+  const eaveZ = k.saltbox && k.slopes ? k.plateTop + (k.connector ? 0 : -k.stud * (k.slopes.front.pitch / 12)) + k.rafterDepth / k.slopes.front.cos : k.plateTop + (k.connector ? 0 : -k.stud * (d.pitch / 12)) + k.plumbH;
   // On a lean-to the overhang is shown at the low back eave.
   if (k.overhang > 0 && k.lean) seg([-6, W, eaveZ + 6], [-6, W + k.overhang, eaveZ + 6], [[-6, W, k.plateTop], [-6, W, eaveZ + 8]], `${fmt(k.overhang)} overhang`);
   else if (k.overhang > 0) seg([-6, -k.overhang, eaveZ + 6], [-6, 0, eaveZ + 6], [[-6, 0, k.plateTop], [-6, 0, eaveZ + 8]], `${fmt(k.overhang)} overhang`);
@@ -249,6 +252,9 @@ export function dimensionsOf(shed, fmt = (x) => `${x}`) {
     // One slope, from the low back tail up to the high front one.
     const lowZ = eaveZ - k.overhang * (d.pitch / 12);
     seg([-12, W + k.overhang, lowZ + 14], [-12, -k.overhang, k.peak + 8], [], `${d.pitch}/12 roof, ${fmt(k.slopeLen)} tail to tail`);
+  } else if (k.saltbox && k.slopes) {
+    // A saltbox's steep front: from its eave up to the off-centre ridge.
+    seg([-12, -k.overhang, eaveZ + 14], [-12, k.ridgeY, k.peak + 8], [], `${k.slopes.front.pitch}/12 front, ${fmt(k.slopes.front.len)} eave to ridge; ${d.pitch}/12 back, ${fmt(k.slopes.back.len)}`);
   } else seg([-12, -k.overhang, eaveZ + 14], [-12, W / 2, k.peak + 8], [], `${d.pitch}/12 roof, ${fmt(k.slopeLen)} eave to ridge`);
   // Every door and window: its rough size, its distance from the corner, and a window's sill height.
   for (const f of shed.fixtures.filter((x) => x.kind === 'door' || x.kind === 'window')) {
@@ -347,7 +353,7 @@ void main(){ gl_Position = m * vec4(p,1.0); gl_Position.z -= bias * gl_Position.
 // Finish flags in vc.a (see FINISH): 1 = purple polka dots (3" on a 9" staggered
 // grid, in the face's own plane), 2 = glitter (sparse flecks that twinkle with
 // time t), 4 = lap siding, 8 = board and batten, 16 = metal ribs, 32 = shingle
-// courses (blend in the fraction), 64 = T1-11 grooves, 128 = the lawn, with a
+// courses (blend in the fraction), 64 = T1-11 grooves, 256 = window glass, 128 = the lawn, with a
 // soft shadow under and beside the shed (foot = length, width, peak).
 // Each material class gets its own compiled variant (SIDING, ROOF, LAWN or none):
 // software GL, which many phones fall back to, runs every branch of a shader
@@ -379,6 +385,9 @@ void main(){ vec3 n = normalize(vn); vec3 base = vc.rgb; vec3 an = abs(n);
  if (has(f, 8.0)) { float bx = an.x > an.y ? vp.y : vp.x; if (fract(bx / 8.0) < 0.3) base *= 0.85; }
  // T1-11: a groove every 8".
  if (has(f, 64.0)) { float bx = an.x > an.y ? vp.y : vp.x; if (fract(bx / 8.0) < 0.05) base *= 0.72; }
+ // Window glass reflects the sky: haze low, blue high, with a faint diagonal glint.
+ if (has(f, 256.0)) { float k = clamp((vp.z - 30.0) / 70.0, 0.0, 1.0); float bx = an.x > an.y ? vp.y : vp.x;
+  base = mix(vec3(0.8, 0.86, 0.88), vec3(0.36, 0.56, 0.8), k) + (fract((bx + vp.z) / 36.0) < 0.12 ? 0.07 : 0.0); }
 #endif
 #ifdef ROOF
  if (has(f, 16.0) && fract(vp.x / 2.67) < 0.25) base *= 0.78;
@@ -398,6 +407,10 @@ void main(){ vec3 n = normalize(vn); vec3 base = vc.rgb; vec3 an = abs(n);
 #if defined(SIDING) || defined(ROOF)
  if (has(f, 2.0)) { float h = hash(floor(uv * 1.3)); float s = h > 0.95 ? pow(0.5 + 0.5 * sin(t * 3.0 + h * 90.0), 8.0) : 0.0;
   col = col * (0.96 + 0.08 * hash(floor(uv * 4.0))) + vec3(1.0, 0.92, 1.0) * s; }
+#endif
+#ifdef SIDING
+ // A reflection is not shaded by the sun the way paint is.
+ if (has(f, 256.0)) col = mix(col, base, 0.6);
 #endif
  gl_FragColor = vec4(mix(base, col, lit), 1.0); }`;
 
@@ -478,6 +491,8 @@ export function createViewer(canvas, { presentation = false } = {}) {
   // through the siding).
   /** @type {{ id: string, layer: string, pos: Float32Array }[]} */
   let pickables = [];
+  /** @type {Solid[]} */
+  let pickSolids = [];
   let hl = null;
   let hlIds = /** @type {string[]} */ ([]);
   /** @type {((id: string|null) => void) | null} */
@@ -527,7 +542,8 @@ export function createViewer(canvas, { presentation = false } = {}) {
       labelHalf = [];
     }
     const solids = solidsOf(shed, heat);
-    pickables = solids.filter((x) => x.id).map((x) => ({ id: /** @type {string} */ (x.id), layer: x.layer, pos: meshOf([x]).pos }));
+    pickSolids = solids.filter((x) => x.id);
+    pickables = pickSolids.map((x) => ({ id: /** @type {string} */ (x.id), layer: x.layer, pos: meshOf([x]).pos }));
     setHighlight(hlIds.filter((id) => pickables.some((q) => q.id === id)));
     for (const name of LAYERS) {
       const mesh = meshOf(solids.filter((s) => s.layer === name));
@@ -690,7 +706,7 @@ export function createViewer(canvas, { presentation = false } = {}) {
     hl = { p: buf(tris), n: buf(nor), c: buf(col), count: n, l: buf(new Float32Array(lines)), ln: buf(ln), lc: buf(lc), lcount: lines.length / 3 };
   }
 
-  /** The framing member under a point on the canvas (client pixels), among the layers shown, or null: a ray through the panned view. */
+  /** The piece (member, panel or fixture) under a point on the canvas (client pixels), among the layers shown, or null: a ray through the panned view. */
   function pick(clientX, clientY) {
     if (!shown) return null;
     const r = canvas.getBoundingClientRect();
@@ -704,7 +720,8 @@ export function createViewer(canvas, { presentation = false } = {}) {
     const up = [rt[1] * f[2] - rt[2] * f[1], rt[2] * f[0] - rt[0] * f[2], rt[0] * f[1] - rt[1] * f[0]];
     const th = Math.tan(0.375); const asp = (r.width || 1) / (r.height || 1);
     const dir = [0, 1, 2].map((i) => f[i] + nx * th * asp * rt[i] + ny * th * up[i]);
-    return pickMember(shown.members.filter((m) => visible.has(layerOf(m))), eye, dir)?.id ?? null;
+    // Framing, panels and fixtures alike: a click on the siding picks the siding, not the stud behind it.
+    return pickMember(/** @type {any[]} */ (pickSolids.filter((x) => visible.has(x.layer))), eye, dir)?.id ?? null;
   }
 
   // One draw per frame however many pointer events arrive: on a big design a

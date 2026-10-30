@@ -1,0 +1,70 @@
+{
+  "date": "2026-10-30",
+  "session": "https://claude.ai/code/session_01XpHqybqgh2GNkrxZZmfkGP",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "15 more start here blogs helping people get involved. / and docs as well for agents and human readers in the repo",
+  "input_sha256": "46023e8bc6de8f7c2ef0caabc303bc02a85efddcd5cd155f6d2f297eceb9f8eb",
+  "follow_up_inputs": [
+    "and docs as well for agents and human readers in the repo",
+    "let's add 5 contributing blogs. one master one."
+  ],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-30T21:20:15Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "20 Start here onboarding posts (15 by reader, 5 contributing under a master post), a series map for people, an agent doc, and a link checker",
+  "projects": [
+    "docs/posts",
+    "docs/contributing",
+    "platform/ci"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/11895",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/ISSUE_TEMPLATE/config.yml",
+      "issue": "The no-account feedback link pointed at duncan-haywood.github.io/monorepo-projects/feedback/, which returns 404; fixed to the Cloudflare host."
+    },
+    {
+      "file": "docs/contributing/README.md",
+      "issue": "Said the live site is GitHub Pages; it moved to Cloudflare on 2026-10-29. Fixed here and in fix-a-tool.md and research.md."
+    },
+    {
+      "file": "ventures/shed-designer/README.md",
+      "issue": "'What it does not do' denies lean-to roofs and uplift checks that newer sections and llms.txt describe (reported by a writer subagent; not fixed here)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "The owner gave a direct task, so the run did not follow the routed sub-prompt; creative/0 is recorded as the nearest track.",
+      "did": "Wrote onboarding posts and docs as asked",
+      "result": "20 posts and docs landed in one PR"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-30-start-here-every-way-to-help.md",
+    "docs/reports/start-here-series.md",
+    "docs/contributing/start-here.md"
+  ],
+  "goal": null,
+  "notes": "Posts drafted by 7 parallel subagents with one brief (no fabrication, every figure from a repo file, quick commands re-run); each reported claims it left out. Three subagent runs rewrote tracked results files with float noise and restored them from HEAD; git status confirmed clean. Live URLs probed: workers.dev pages for open-tennis-robots, shed-designer, research/marine-hull, freelancer-tax-pack, feedback all 200. Checks: check_post_frontmatter, check_start_here (+6 unit tests), post_similarity. CI starved (ci_starvation.py --run 41131396912: job never got a runner); verified locally at head: build.test.mjs 305/305, writing.test.mjs 21/21, check_start_here ok (37 posts), check_md_links ok, check_post_frontmatter ok, unit tests ok. run_workflow_locally --for-changes hit its 300 s budget so its FAILs were timeouts. The new check caught a real gap on main: 2026-10-30-contribute-from-chatgpt.md (another session) was tagged start-here but unlinked; linked it both ways.",
+  "corrections": [],
+  "redteam": null
+}

@@ -45,7 +45,10 @@ test('shingles carry the course texture and their family blend; metal does not',
 });
 
 test('lap siding, board and batten and T1-11 each get their own texture', () => {
-  const tex = (sidingType) => solidsOf(buildShed(normalize({ sidingType }))).find((s) => s.layer === 'siding' && s.flags)?.flags;
+  // Window glass has its own flag on the siding layer (a sky reflection); it is not the siding's texture.
+  const tex = (sidingType) => solidsOf(buildShed(normalize({ sidingType }))).find((s) => s.layer === 'siding' && s.flags && s.flags !== FINISH.glass)?.flags;
+  const glass = solidsOf(buildShed(normalize({}))).filter((s) => s.flags === FINISH.glass);
+  assert.equal(glass.length, buildShed(normalize({})).fixtures.filter((f) => f.kind === 'window').length, 'every window, and only windows, reflect the sky');
   // Fiber cement is built course by course (lap.mjs), so its shadow lines are real geometry, not a texture.
   assert.equal(tex('fiber cement'), undefined);
   assert.ok(buildShed(normalize({ sidingType: 'fiber cement' })).panels.some((p) => p.kind === 'lap siding'));
@@ -69,4 +72,13 @@ test('colour names are generic, not a maker\'s colour names', () => {
   for (const t of [SIDING_FINISHES, TRIM_FINISHES, DOOR_FINISHES, SHINGLE_FAMILIES]) for (const [k, v] of Object.entries(t)) assert.doesNotMatch(`${k} ${v.label}`, brand);
   const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
   assert.doesNotMatch(html, brand);
+});
+
+test('a door left at "stained" is drawn as what it is: a site-built door in the siding finish, a bought one in its factory white', async () => {
+  const { doorRgb, paletteOf, FACTORY_DOOR } = await import('./looks.mjs');
+  const { defaultDesign, normalize } = await import('./model.mjs');
+  const d = normalize({ ...defaultDesign(), sidingType: 'LP SmartSide lap', sidingColor: 'white', doorColor: 'stained' });
+  assert.deepEqual(doorRgb(d, { product: 'site-built' }), paletteOf(d).siding);
+  assert.deepEqual(doorRgb(d, { product: 'masonite-3280-flush' }), FACTORY_DOOR);
+  assert.deepEqual(doorRgb({ ...d, doorColor: 'match trim' }, { product: 'site-built' }), paletteOf(d).trim);
 });

@@ -1,5 +1,6 @@
 ---
 title: "Babysitting references where the referee ticks the consent box, not the sitter"
+seo_title: "Babysitting references where the referee ticks the consent box"
 date: 2026-10-30
 tags: [babysitting-business-kit, consent, references]
 description: "A private link per reference, two consents stored with exact wording and time, withdrawal by the same link, and a packet listing only people who said yes."

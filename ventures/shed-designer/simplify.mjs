@@ -18,6 +18,7 @@ import { PRODUCTS } from './products.mjs';
 import { openingMoves } from './framing-moves.mjs';
 import { LAP_PRODUCTS, isLap, lapStudLimit } from './lap.mjs';
 import { floorMoves, searchKeep } from './levers.mjs';
+import { marginMoves } from './utilisation.mjs';
 
 /**
  * Saw cuts the build needs. A board cut into n pieces takes n cuts (one fewer
@@ -75,10 +76,10 @@ export function sidingSpan(d) {
 export const MINUTES = {
   floorSheet: 12, floorOSB: 12, roofSheet: 12, wallSheathing: 12,
   siding8: 15, siding9: 16, siding10: 18, lpPanel: 15, lpPanel9: 16, lpPanel10: 18, lpPanel76: 15, lpPanel76x9: 16, lpPanel76x10: 18,
-  vinylBox: 240, vinylJ: 10, vinylStarter: 8, vinylCorner: 15, hardiePlank: 10, lapHardie: 12, lapHardie5: 12, lapLP12: 10, lapLP16: 12, houseWrap: 45, jointFlashing: 20, boardBox: 20, battenBox: 30,
+  vinylBox: 240, vinylJ: 10, vinylStarter: 8, vinylCorner: 15, hardiePlank: 10, lapHardie: 12, lapHardie5: 12, lapLP12: 10, lapLP16: 12, houseWrap: 45, jointFlashing: 20, bbBoard: 6, bbBatten: 6,
   shingleBundle: 25, starterShingle: 20, ridgeCapShingle: 30, underlayment: 45, dripEdge: 10, metalPanel: 10, metalRidge: 15,
   fasciaTrim: 15, soffitPanel: 20, rakeTrim: 15, gableVent: 30, zFlashing: 10,
-  paint: 45, stain: 45, accentPaint: 60, interiorPaint: 45, glitter: 0,
+  paint: 45, stain: 45, trimPaintQt: 60, trimPaintGal: 90, accentPaint: 60, interiorPaint: 45, glitter: 0,
   insulation: 30, drywall: 20, plywoodLining: 15, osbLining: 15, pegboard: 15, beadboard: 15, interiorPanel: 15, jointCompound: 120,
   deckBlock: 10, cmuBlock: 10, concreteBlock: 10, formTube: 0, concreteBag: 20, gravelTon: 90, paverBase: 4, landscapeFabric: 15,
 };
@@ -250,8 +251,13 @@ export function budget(design, prices, opts = {}) {
   const peakCap = start.maxPeak > 0 && base.peak <= start.maxPeak ? start.maxPeak : base.peak + 6;
   const feasible = (r) => r.ok && (!(start.maxFootprint > 0) || r.footprint <= start.maxFootprint + 1e-9) && r.peak <= peakCap + 0.01;
   const mopts = { products: true, keep };
+  // The margin report's oversized members (utilisation.mjs): a lighter size
+  // that still passes inside its 70% target, priced like any other move.
+  const pc = (/** @type {number} */ r) => `${Math.round(r * 100)}%`;
+  const margin = marginMoves(buildShed(start, prices)).filter((m) => !Object.keys(m.change).some((k) => keep.includes(k)))
+    .map((m) => ({ label: `${m.label} (${m.member.toLowerCase()} at ${pc(m.ratio)}, ${pc(m.lighter)} lighter; the Structure tab's margin report)`, change: m.change, group: Object.keys(m.change).join('+') }));
   // 1. Price every single move from your design.
-  const singles = moves(start, start, false, mopts).map((mv) => ({ mv, r: get(normalize({ ...start, ...mv.change })) }))
+  const singles = [...moves(start, start, false, mopts), ...margin].map((mv) => ({ mv, r: get(normalize({ ...start, ...mv.change })) }))
     .filter((x) => feasible(x.r) && cost(x.r) < cost(base) - 0.5).sort((a, b) => cost(a.r) - cost(b.r));
   // 2. Apply them biggest saving first, one per group, keeping each only if it still saves.
   let cur = base;
