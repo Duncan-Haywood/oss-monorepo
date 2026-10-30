@@ -1,0 +1,12 @@
+# Shed Designer, round 4, lane 4: finishes and price data (2026-10-30)
+
+This lane works from the `price-gaps`, `round3-lap-siding`, `round2-lane2`, `round2-lane5` and `round3-lane1` reports. Every price below was read on 2026-10-30 from a search engine's copy of a store page, because Home Depot and Lowe's refuse automated reads. Each line in the tool links its page and says how old the copy was where the result showed it.
+
+## Merged
+
+| PR | What | Effect on the default 8x12 |
+|---|---|---|
+| #11852 | **Sloped rafter hangers.** A rafter hung from a ridge beam arrives at the roof slope. Simpson rates face-mount hangers (LUS) at table load only to 1/4:12 (face-mount hanger guide; T-C-SLOPEJST beyond). The list now names LSU26Z ($6.56) for 2x4/2x6 rafters, LSSU28 ($11.47) for 2x8 and LSSU210 ($10.71) for 2x10. The Lowe's LUS26 offer is removed, since no Lowe's sloped-hanger price showed. **Cane bolt** for each pair of doors: Everbilt 30027 at Home Depot ($17.27), National Hardware N166-007 at Lowe's ($17.98). | +$67.06 ($3,102.61 to $3,169.67): a correction, stated in the README and the post |
+| #11866 | **Climate setting** (`climate: mild / freezing`): freezing switches fiber cement to HardiePlank HZ5 (Home Depot $17.98, model 6000265; Lowe's $14.98, a copy about 707 days old). **5/4 wall trim** (`wallTrim: '5/4'`): HardieTrim 5/4 x 3-1/2 x 12 with fiber cement (Home Depot $23.48, model 216764; Lowe's HZ5 $21.25), LP 540 5/4 x 4 x 16 otherwise ($24.99 at Stine Home + Yard, since neither big box showed a usable price). A design swap offers 5/4 trim on lap-sided sheds. | none (defaults are mild and 1x4) |
+| #11877 | **Trim paint.** The siding already had two coats; the primed trim had none. Two coats on the trim's face area (fascia 5-1/2", rake, corners and casings 3-1/2") at 350 sq ft a gallon, in quarts until a gallon is cheaper: Behr Premium Plus exterior semi-gloss, $25.98 a quart, $48.98 a gallon. There is no primer line, because every listed product comes primed and the paint is a paint-and-primer. | +$48.98 ($3,169.67 to $3,218.65): a missing cost |
+| #11886 | **Board and batten** priced interior finger-joint pine and furring strips. It now uses LP SmartSide 440 4/4 x 6 x 16 boards ($27.00) and 4/4 x 4 x 16 battens ($19.98), $128.12 cheaper on the 8x12 board-and-batten design. **Lowe's gable vent:** the Master Flow DA1212 aluminum louver ($15.11) replaces a plastic vent priced from copies up to 1,790 days old. | none |
