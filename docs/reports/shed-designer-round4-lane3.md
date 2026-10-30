@@ -13,7 +13,7 @@ The brief came from the "Open" and "Next step" sections of the round 3 lane 1, 2
 | #11876 | **The $2,000 gap.** `budgetpath.mjs` puts a budget box beside "Find a cheaper build". It shows the running total after each step and opt-in savings that give something up (no gable vents, no spare boards). It also shows the largest size of the same design that fits. |
 | #11879 | **Margin report moves.** `marginMoves` turns oversized members into cheaper-build moves, which adds the ridge beam's depth. The Structure tab's margin table gains a Saves column. Gallery pictures redrawn (stale on `main`). |
 | #11915 | **Fix for `main`.** `make-gallery.mjs` left `GENERATED_PAGES`. It rewrote the committed `gallery-data.mjs` while parallel test files built the site, so `build.test.mjs`'s "identical build, identical cache name" went red. A generator must now write only gitignored files. |
-| #11897 | **Attic storage** is a search knob on truss gables. The gallery searches and ranks on usable storage (lane 2's `usableCuFt`): no card wins on space over bare rafter ties, and 8 of 11 cards became lean-tos. The gallery wording "before it in the strip", not "above", was asked for by lane 7. This report is in the same PR. |
+| #11897 | **Attic storage** is a search knob on truss gables. The gallery searches and ranks on usable storage (lane 2's `usableCuFt`): no card wins on space over bare rafter ties, and 8 of 11 cards became lean-tos. The barn card has no loft: no lofted barn the search tried beat it on usable storage per dollar. The gallery wording "before it in the strip", not "above", was asked for by lane 7. This report is in the same PR. |
 
 `LEVER_KNOBS` (24" joists, piers, gravel options) were already wired into `designsearch.mjs` when this lane started.
 

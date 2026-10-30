@@ -23,7 +23,7 @@ Then we regenerated the gallery. **8 of its 11 picks are now lean-tos.**
 
 - "Most room per dollar" is an 8x12 lean-to at $2,886 for 790 cu ft.
 - "Most storage" is a 10x10 lean-to holding 819 cu ft, 139 cu ft of it under the open slope.
-- The barn card took a full loft, and 144 cu ft of its roof space is over the deck.
+- The barn card came out without a loft: of the barns the search tried, none with a loft beat it on usable storage per dollar, so its roof space over bare ties is not counted.
 - The cheapest cards stayed ridge-board gables. They are the cheapest builds, and they never claimed the roof space.
 
 **Why it matters.** The owner's brief for this tool asks for maximum storage at minimum cost. A search that counts space you can't load will recommend roofs whose storage is mostly a promise. A lean-to puts everything under one open slope, so the space is really there. Its tall front wall also takes doors and windows, and the back can stand against a fence.
