@@ -294,6 +294,14 @@ test("landing footings: sized only when soilBearing is typed, from hand-computed
   assert.match(landingText(b).join("\n"), /Landing footings: heaviest post 500 lb .* 8 in round or 7 in square, 6 footings/);
 });
 
+test("landing post check: heaviest post load against a typed capacity (hand: 500 lb edge post)", () => {
+  const f = (cap) => layoutStairWithLanding({ totalRise: 160, width: 48, landing: { depth: 120, postSpacing: 60, soilBearing: 1500, postCapacity: cap } }, plan());
+  assert.equal(f(600).landing.footings.postOk, true);
+  assert.equal(f(400).landing.footings.postOk, false);
+  assert.match(landingText(f(400)).join("\n"), /500 lb against your 400 lb capacity: OVER/);
+  assert.equal(f(undefined).landing.footings.postOk, null);
+});
+
 test("handrail brackets: ends plus enough between that none is past the typed spacing (hand: 108 in rise, 10 in tread)", () => {
   const l = layoutStair({ totalRise: 108, tread: 10, rail: { sides: 1 } }, plan());
   const len = l.rail.handrail.length;
