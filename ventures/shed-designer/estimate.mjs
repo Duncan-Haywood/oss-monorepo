@@ -8,6 +8,8 @@ import { boardPrice, itemPrice } from './prices.mjs';
 import { catalogueRange, productById } from './products.mjs';
 import { optimizeCuts } from './optimize.mjs';
 import { heelJoint } from './checks.mjs';
+import { LAP_PRODUCTS, lapStocks } from './lap.mjs';
+import { finishName, SIDING_FINISHES } from './looks.mjs';
 
 /** @typedef {import('./model.mjs').Shed} Shed */
 /** @typedef {{ lumber: Record<string, Record<string, number>>, items: Record<string, number>, delivery?: Record<string, number> }} Prices */
@@ -85,9 +87,9 @@ function sheetCount(lengths) {
  * of its width, and as many of those strips as fit across a sheet come from
  * one sheet. Rips are counted without a kerf: two 24" strips from a 48" sheet
  * leave the second a saw cut narrow, which the rim or the gap at the ridge
- * takes up (tongue-and-groove sheets cover about 47-1/2" anyway). Strips of
- * different widths are not mixed in strips; the count is the lower of that and
- * packing lengths alone, either of which a builder can cut.
+ * takes up (tongue-and-groove sheets cover about 47-1/2" anyway). The count is
+ * the lowest of that, packing lengths alone, and the two-stage layouts of
+ * levelPack below, any of which a builder can cut.
  * @param {{ len: number, w: number }[]} pieces
  */
 export function sheetCount2d(pieces) {
@@ -105,11 +107,98 @@ export function sheetCount2d(pieces) {
   }
   // Packing lengths alone, every piece as if full width, is always cuttable too, and
   // wins when a narrow piece can share a sheet's length with a full-width one.
-  return Math.min(sheets, sheetCount(pieces.map((p) => p.len)));
+  // Two-stage guillotine layouts mix widths and rip strips from a sheet's offcut.
+  return Math.min(sheets, sheetCount(pieces.map((p) => p.len)), levelPack(pieces, 'len'), levelPack(pieces, 'w'));
+}
+
+/**
+ * Whole 48 x 96 sheets for pieces cut in two stages, first-fit decreasing: a
+ * sheet is cut across into sections (by: 'len', each as long as its longest
+ * piece, the pieces side by side across the 48") or ripped into strips (by:
+ * 'w', each as wide as its widest piece, the pieces end to end along the 96").
+ * Pieces keep their direction (a sheet's strength axis stays across the
+ * framing), so pieces of different widths and lengths can share a sheet, and a
+ * full-width piece's offcut can be ripped into strips.
+ * @param {{ len: number, w: number }[]} pieces
+ * @param {'len'|'w'} by
+ */
+function levelPack(pieces, by) {
+  const [A, B] = by === 'len' ? [96, 48] : [48, 96];
+  const other = by === 'len' ? 'w' : 'len';
+  const items = pieces.map((p) => ({ a: Math.min(A, p[by]), b: Math.min(B, p[other]) }))
+    .sort((p, q) => q.a - p.a || q.b - p.b);
+  /** @type {{ left: number, levels: { a: number, left: number }[] }[]} */
+  const sheets = [];
+  const eps = 1e-6;
+  for (const it of items) {
+    const level = sheets.flatMap((sh) => sh.levels).find((lv) => lv.a >= it.a - eps && lv.left >= it.b - eps);
+    if (level) { level.left -= it.b; continue; }
+    let sh = sheets.find((x) => x.left >= it.a - eps);
+    if (!sh) { sh = { left: A, levels: [] }; sheets.push(sh); }
+    sh.left -= it.a;
+    sh.levels.push({ a: it.a, left: B - it.b });
+  }
+  return sheets.length;
+}
+
+/**
+ * 4x8 panels for the gable pieces that go above the lower siding panels. A
+ * piece under one roof slope has a sloped top; two pieces sloping the same way
+ * nest head to toe on one 4 ft wide strip of panel (the second turned end for
+ * end, grooves still vertical), taking the sum of a low and a high edge
+ * rather than two high edges. Pieces and nested pairs are then packed along
+ * 8 ft panels; the count is never more than packing each piece's height alone.
+ * @param {Shed} shed
+ * @param {boolean} [nest] false: each piece's height alone, no nesting
+ */
+export function sidingUpperSheets(shed, nest = true) {
+  const shapes = shed.sidingUpperShapes;
+  const plain = sheetCount(shed.sidingUpper || []);
+  if (!nest || !shapes || !shapes.length) return plain;
+  const up = (x) => Math.ceil(x - 1e-9);
+  /** @type {number[]} */
+  const units = [];
+  for (const rising of [true, false]) {
+    const group = shapes.filter((p) => !p.peak && p.h0 !== p.h1 && (p.h1 > p.h0) === rising)
+      .map((p) => (rising ? [p.h0, p.h1] : [p.h1, p.h0])).sort((p, q) => q[1] - p[1]);
+    // Pair the tallest with the next tallest: low end of each against the other's high end.
+    for (let i = 0; i < group.length; i += 2) {
+      const [a0, a1] = group[i];
+      const b = group[i + 1];
+      const nested = b ? up(Math.max(a0 + b[1], a1 + b[0])) : Infinity;
+      if (b && nested <= 96) units.push(nested);
+      else { units.push(up(a1)); if (b) units.push(up(b[1])); }
+    }
+  }
+  for (const p of shapes) if (p.peak || p.h0 === p.h1) units.push(up(Math.max(p.h0, p.h1, ...(p.peak ? [shed.sidingUpper[shapes.indexOf(p)]] : []))));
+  return Math.min(plain, sheetCount(units));
 }
 
 /** The { len, w } of each panel of one kind, from its rectangle. @param {any[]} panels @param {string} kind */
 const panelPieces = (panels, kind) => panels.filter((p) => p.kind === kind).map((p) => ({ len: p.geom.profile[2][0], w: p.geom.profile[2][1] }));
+
+/**
+ * Lap siding cut plan: every course piece packed into the plank lengths sold
+ * (the ones in your board lengths where there is a choice), plus whole planks
+ * ripped lengthwise into the starter strip.
+ * @param {import('./model.mjs').Shed} shed @param {any} d @param {(k: string) => number} item
+ */
+export function lapPlan(shed, d, item) {
+  const spec = LAP_PRODUCTS[d.sidingType];
+  const stocks = lapStocks(d).map((x) => ({ ...x, price: item(x.key) }));
+  const pieces = shed.lap.flatMap((f) => f.pieces.map((p) => ({ len: p.len, kind: `${f.wall} course ${p.course + 1}${p.rake ? ', rake cut' : ''}${p.notched ? ', notched' : ''}` })));
+  const r = optimizeCuts(pieces, stocks, d.kerf);
+  // Starter: strips ripped from whole planks, laid end to end.
+  const starterIn = shed.lap.reduce((t, f) => t + f.starter, 0);
+  const longest = stocks.reduce((a, b) => (b.price / b.length < a.price / a.length - 1e-9 ? b : a));
+  const perPlank = Math.floor((spec.width + d.kerf) / (spec.starterWidth + d.kerf));
+  const starterPlanks = Math.ceil(starterIn / (longest.length * perPlank));
+  return {
+    stocks, starterStock: longest.length, starterPlanks, starterIn, perPlank, tooLong: r.tooLong,
+    boards: r.boards.map((b) => ({ stock: b.stock, cuts: b.cuts.map((c) => c.len), offcut: b.offcut })),
+    pieces: pieces.length, joints: shed.lap.reduce((t, f) => t + f.joints.length, 0), nails: shed.lap.reduce((t, f) => t + f.nails, 0),
+  };
+}
 
 /**
  * @param {Shed} shed
@@ -197,6 +286,8 @@ export function estimate(shed, prices = examplePrices()) {
   const floorKey = d.floorPanel === 'OSB' ? 'floorOSB' : 'floorSheet';
   line('Sheet goods', label(floorKey), floorSheets, 'sheet', item(floorKey), src(floorKey));
   line('Sheet goods', label('roofSheet'), roofSheets, 'sheet', item('roofSheet'), src('roofSheet'));
+  /** @type {ReturnType<typeof lapPlan> | null} */
+  let lapCuts = null;
   if (d.siding) {
     const area = shed.sidingArea ?? 0;
     const type = d.sidingType || 'T1-11';
@@ -204,7 +295,7 @@ export function estimate(shed, prices = examplePrices()) {
       // Panel siding is its own sheathing: one panel per 4 ft column, the length that reaches.
       const by = { 96: 0, 108: 0, 120: 0 };
       for (const x of shed.sidingFull) by[x.length] += 1;
-      by[96] += sheetCount(shed.sidingUpper);
+      by[96] += sidingUpperSheets(shed);
       const keys = type === 'T1-11' ? ['siding8', 'siding9', 'siding10'] : type === 'LP SmartSide' ? ['lpPanel', 'lpPanel9', 'lpPanel10'] : ['lpPanel76', 'lpPanel76x9', 'lpPanel76x10'];
       [96, 108, 120].forEach((len, i) => line('Siding', label(keys[i]), by[len], 'sheet', item(keys[i]), src(keys[i])));
       // The panel rule makes the price jump about as the walls rise: a column that
@@ -236,14 +327,28 @@ export function estimate(shed, prices = examplePrices()) {
         line('Siding', label('vinylStarter'), Math.ceil((perimFt * 1.05) / 12), 'piece', item('vinylStarter'), src('vinylStarter'));
         line('Siding', label('vinylJ'), Math.ceil((jFt * 1.1) / 12.6), 'piece', item('vinylJ'), src('vinylJ'));
         line('Siding', label('vinylCorner'), 4 * Math.ceil((dims.plateTop - dims.skidTop) / 120), 'piece', item('vinylCorner'), src('vinylCorner'));
-      } else {
-        line('Siding', label('hardiePlank'), Math.ceil((area * 1.1) / 5), 'piece', item('hardiePlank'), src('hardiePlank'));
+      } else if (shed.lap?.length) {
+        lapCuts = lapPlan(shed, d, item);
+        // Sheathing: one 4x8 per 4 ft column, strips above packed from whole sheets.
+        const sheets = shed.sidingFull.length + sidingUpperSheets(shed);
+        // OSB laid out above was counted by area; lap siding counts its real columns.
+        shopping.pop();
+        line('Siding', label('wallSheathing'), sheets, 'sheet', item('wallSheathing'), src('wallSheathing'));
+        // House wrap: the wall area plus 6" laps on 3 ft rolls (about 20% more).
+        line('Siding', label('houseWrap'), Math.ceil((area * 1.2) / 300), 'roll', item('houseWrap'), src('houseWrap'));
+        line('Siding', label('wrapTape'), 1, 'roll', item('wrapTape'), src('wrapTape'));
+        line('Siding', label('capNails'), 1, 'box', item('capNails'), src('capNails'));
+        for (const st of lapCuts.stocks) {
+          const n = lapCuts.boards.filter((b) => b.stock === st.length).length + (st.length === lapCuts.starterStock ? lapCuts.starterPlanks : 0);
+          line('Siding', label(st.key), n, 'piece', item(st.key), src(st.key));
+        }
+        if (lapCuts.joints) line('Siding', label('jointFlashing'), Math.ceil((lapCuts.joints * 6) / 600), 'roll', item('jointFlashing'), src('jointFlashing'));
       }
     }
     if (type !== 'vinyl' && d.sidingColor !== 'unfinished') {
       // Two coats: 350 sq ft per gallon for paint, 300 for solid stain (typical label coverage).
       const stain = d.sidingColor === 'natural';
-      line('Paint', stain ? label('stain') : `${label('paint')} (${d.sidingColor})`, Math.ceil((area * 2) / (stain ? 300 : 350)), 'gallon', item(stain ? 'stain' : 'paint'), src(stain ? 'stain' : 'paint'));
+      line('Paint', stain ? label('stain') : `${label('paint')} (${finishName(d.sidingColor, SIDING_FINISHES)})`, Math.ceil((area * 2) / (stain ? 300 : 350)), 'gallon', item(stain ? 'stain' : 'paint'), src(stain ? 'stain' : 'paint'));
       if (d.glitter) line('Paint', label('glitter'), Math.ceil((area * 2) / 350), 'packet', item('glitter'), src('glitter'));
       if (d.polkaDots) line('Paint', `${label('accentPaint')} (purple, for the polka dots)`, 1, 'quart', item('accentPaint'), src('accentPaint'));
     }
@@ -337,7 +442,10 @@ export function estimate(shed, prices = examplePrices()) {
   if (d.compaction === 'plate compactor') line('Site prep', label('plateCompactor'), 1, 'day', item('plateCompactor'), src('plateCompactor'));
   else line('Site prep', label('handTamper'), 1, 'each', item('handTamper'), src('handTamper'));
   if (dims.gravelCuYd) line('Site prep', label('gravelTon'), Math.ceil(dims.gravelCuYd * 1.4 * 10) / 10, 'ton', item('gravelTon'), src('gravelTon'));
-  if (dims.block) line('Foundation and hardware', label(dims.block.item), dims.blockCount, 'each', item(dims.block.item), src(dims.block.item));
+  if (dims.block?.pier) {
+    line('Foundation and hardware', label('formTube'), dims.pierTubes, 'each', item('formTube'), src('formTube'));
+    line('Foundation and hardware', label('concreteBag'), dims.pierBags, 'bag', item('concreteBag'), src('concreteBag'));
+  } else if (dims.block) line('Foundation and hardware', label(dims.block.item), dims.blockCount, 'each', item(dims.block.item), src(dims.block.item));
   const vents = Object.values(shed.vents || {}).reduce((t, v) => t + v.length, 0);
   line('Foundation and hardware', `${label('gableVent')}, ${d.ventWidth}" x ${d.ventHeight}"`, vents, 'each', item('gableVent'), src('gableVent'));
   if (d.roofType === 'ridgeBeam') line('Foundation and hardware', label('rafterHanger'), shed.members.filter((m) => m.kind === 'rafter').length, 'each', item('rafterHanger'), src('rafterHanger'));
@@ -363,9 +471,11 @@ export function estimate(shed, prices = examplePrices()) {
     const sheathingSheets = floorSheets + roofSheets + (d.siding && !panelSiding ? Math.ceil(((shed.sidingArea ?? 0) * 1.1) / 32) : 0);
     line('Fasteners and sealants', label('sheathingNails'), Math.ceil((sheathingSheets * 60) / 478), 'box', item('sheathingNails'), src('sheathingNails'));
     if (panelSiding) {
-      const sheets = shed.sidingFull.length + sheetCount(shed.sidingUpper);
+      const sheets = shed.sidingFull.length + sidingUpperSheets(shed);
       line('Fasteners and sealants', label('sidingNails'), Math.ceil((sheets * 60) / 140), 'box', item('sidingNails'), src('sidingNails'));
     }
+    // Lap siding: a nail at every stud in every course (140 to the 1 lb box), plus 10% for misses.
+    if (lapCuts) line('Fasteners and sealants', label('sidingNails'), Math.ceil((lapCuts.nails * 1.1) / 140), 'box', item('sidingNails'), src('sidingNails'));
     line('Fasteners and sealants', label('roofingNails'), roofNailBoxes, 'box', item('roofingNails'), src('roofingNails'));
     // Trim: two nails every 16" along each board, about 168 to the pound.
     const trimIn = (shed.wallTrim || []).reduce((t, x) => t + x.length, 0) + (shed.trim ? (shed.trim.fasciaFt + shed.trim.rakeFt) * 12 : 0);
@@ -381,7 +491,7 @@ export function estimate(shed, prices = examplePrices()) {
     if (d.siding) line('Fasteners and sealants', label('caulk'), Math.ceil(caulkIn / 12 / 25), 'tube', item('caulk'), src('caulk'));
     // Z-flashing over every door and window head and over any horizontal siding joint.
     let zIn = shed.framedOpenings.reduce((t, op) => t + op.width + 9, 0);
-    zIn += (shed.sidingUpper || []).length * 48;
+    if (!shed.lap?.length) zIn += (shed.sidingUpper || []).length * 48;
     if (d.siding) line('Fasteners and sealants', label('zFlashing'), Math.ceil(zIn / 120), 'piece', item('zFlashing'), src('zFlashing'));
   }
   // Consumables the build steps call for: adhesive under the subfloor (a tube
@@ -418,7 +528,7 @@ export function estimate(shed, prices = examplePrices()) {
   // a bound on. lumberCost adds spares and any bulk prices on top.
   const cutSheetCost = Math.round(lumber.reduce((t, l) => t + l.result.cost, 0) * 100) / 100;
   return {
-    parts, lumber, shopping, problems, notes, total, unpriced, tax, deliveryFee, grandTotal, trimCuts, lumberCost, cutSheetCost, lowerBound, boards,
+    parts, lumber, shopping, problems, notes, total, unpriced, tax, deliveryFee, grandTotal, trimCuts, lapCuts, lumberCost, cutSheetCost, lowerBound, boards,
     pieces: all.length, floorSheets, roofSheets,
     footprintSqFt: (d.length * d.width) / 144,
   };
@@ -509,6 +619,9 @@ export function cutSheetCsv(est) {
   }
   if (est.trimCuts) {
     for (const b of groupBoards(est.trimCuts.boards)) rows.push([String(b.count), '1x4 trim', `${b.stock / 12}'`, b.cuts.map((c) => fmtIn(c)).join('; '), fmtIn(b.offcut)]);
+  }
+  if (est.lapCuts) {
+    for (const b of groupBoards(est.lapCuts.boards)) rows.push([String(b.count), 'lap siding', `${b.stock / 12}'`, b.cuts.map((c) => fmtIn(c)).join('; '), fmtIn(b.offcut)]);
   }
   return rows.map((r) => r.map((c) => (/[",\n]/.test(c) ? `"${c.replace(/"/g, '""')}"` : c)).join(',')).join('\n') + '\n';
 }

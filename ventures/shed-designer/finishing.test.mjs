@@ -75,7 +75,7 @@ test('deck blocks, CMU and solid blocks: skids sit on them, nothing floats, bloc
     assert.ok(connectionChecks(shed).ok, key);
     assert.deepEqual(integrity(shed).floating, [], key);
     const est = estimate(shed);
-    assert.equal(est.shopping.find((r) => r.name === EXAMPLE_ITEMS[b.item].name).qty, shed.dims.blockCount);
+    assert.equal(est.shopping.find((r) => r.name === EXAMPLE_ITEMS[b.item].name).qty, /** @type {any} */ (b).pier ? shed.dims.pierBags : shed.dims.blockCount);
   }
 });
 
