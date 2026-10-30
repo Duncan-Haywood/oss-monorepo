@@ -260,11 +260,11 @@ test("call-out page's table is what the engine returns for the sample cafe, with
     return o;
   };
   const a = study(sampleStaff());
-  assert.deepEqual([a.cases, a.patched, a.covered, Math.min(...a.moves), Math.max(...a.moves)], [29, 0, 22, 2, 19]);
+  assert.deepEqual([a.cases, a.patched, a.covered, Math.min(...a.moves), Math.max(...a.moves)], [29, 0, 24, 2, 19]);
   const b = study(sampleStaff() + "\nHal, 15, 24, 0, any");
   assert.deepEqual([b.cases, b.patched, b.covered, Math.min(...b.moves), Math.max(...b.moves)], [32, 1, 18, 13, 24]);
   const html = page("how-to-cover-a-shift-when-someone-calls-out.html");
-  for (const t of ["29", "32", "2 to 19", "13 to 24", "No warranty", "not legal, tax or financial advice"]) assert.ok(html.includes(t), t);
+  for (const t of ["29", "32", "2 to 19", "13 to 24", "24 of 29", "18 of 32", "No warranty", "not legal, tax or financial advice"]) assert.ok(html.includes(t), t);
   assert.match(page("sitemap.xml"), /how-to-cover-a-shift-when-someone-calls-out\.html/);
   assert.match(page("index.html"), /how-to-cover-a-shift-when-someone-calls-out\.html/);
   const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);

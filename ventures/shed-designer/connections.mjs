@@ -17,6 +17,7 @@
 import { bbox } from './integrity.mjs';
 import { fmtIn } from './lumber.mjs';
 import { PLATE_OFFSET_MIN } from './model.mjs';
+import { LAP_PRODUCTS, jointLabel, lapStagger } from './lap.mjs';
 
 const EPS = 0.01;
 const near = (a, b) => Math.abs(a - b) < EPS;
@@ -220,7 +221,9 @@ export function connectionChecks(shed) {
     // window or vent opening. A few inches of slack cover the edges of openings.
     const fails = [];
     let n = 0;
-    for (const p of shed.panels.filter((x) => x.kind === 'siding')) {
+    // Under lap siding the 4 ft joints are the OSB sheathing's, and they need the same backing.
+    const lapped = (shed.lap || []).length > 0;
+    for (const p of shed.panels.filter((x) => x.kind === (lapped ? 'wall sheathing' : 'siding'))) {
       const b = bbox(p.geom);
       const eave = p.wall === 'front' || p.wall === 'back';
       const ax = eave ? 0 : 1;
@@ -243,7 +246,21 @@ export function connectionChecks(shed) {
         if (bad > 12) fails.push(`${p.wall} joint at ${fmtIn(x)} (${bad}" unbacked)`);
       }
     }
-    if (n) add('Siding joints on framing', fails, n, 'vertical siding joints with a stud, cripple or post behind them');
+    if (n) add(lapped ? 'Wall sheathing joints on framing' : 'Siding joints on framing', fails, n, lapped ? 'vertical sheathing joints with a stud, cripple or post behind them' : 'vertical siding joints with a stud, cripple or post behind them');
+
+    // Lap siding: every butt joint centred on a stud (or other framing) with
+    // wood under both plank ends the full height of the plank, and no joint
+    // within one stud bay of a joint in the course below.
+    const spec = LAP_PRODUCTS[d.sidingType];
+    if (lapped && spec) {
+      const joints = shed.lap.flatMap((f) => f.joints.map((j) => ({ ...j, wall: f.wall, f })));
+      if (joints.length) {
+        add('Lap butt joints on studs', joints.filter((j) => !j.backed).map((j) => jointLabel(j.f, j)), joints.length, 'lap siding butt joints with framing behind both plank ends');
+        const gap = lapStagger(d);
+        const close = joints.filter((j) => joints.some((o) => o.wall === j.wall && o.course === j.course - 1 && Math.abs(o.x - j.x) < gap - EPS));
+        add('Lap joints staggered', close.map((j) => jointLabel(j.f, j)), joints.length, `butt joints at least ${fmtIn(gap)} from those in the course below`);
+      }
+    }
   }
   return { rows, ok: rows.every((r) => r.ok) };
 }

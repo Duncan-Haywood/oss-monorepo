@@ -2,7 +2,7 @@
 title: "Ridge beam, ridge board or trusses for a small shed: what the numbers say"
 date: 2026-10-30
 tags: [shed-designer, framing, structure, cost]
-description: "We added site-built trusses with OSB gussets to the shed designer and priced them against a ridge beam and a ridge board. A ridge board with ties is still the cheapest on every preset; trusses win on short boards and building on the ground."
+description: "Site-built trusses with OSB gussets, priced against a ridge beam and a ridge board. The ridge board still wins on cost; trusses win on short boards."
 ---
 
 A builder walking through the [shed designer](https://duncan-haywood.github.io/oss-monorepo/shed-designer/) with an owner pointed at the ridge beam. It was the most loaded member in the default 8x12, at 79% of its capacity. It also needs two 14 ft boards, which are awkward to haul. The question was whether a different roof structure does the job for less.

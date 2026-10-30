@@ -42,7 +42,7 @@ function randomDesign(r) {
     ventWidth: between(6, 24), ventHeight: between(6, 18),
     maxPeak: r() < 0.5 ? 0 : between(84, 180), snowLoad: between(0, 80, 5), windLoad: between(0, 40, 5),
     autoWall: r() < 0.3, autoPitch: r() < 0.3, autoOverhang: r() < 0.2,
-    sidingType: pick(['T1-11', 'LP SmartSide', 'LP SmartSide 7/16', 'board and batten', 'vinyl', 'fiber cement']),
+    sidingType: pick(['T1-11', 'LP SmartSide', 'LP SmartSide 7/16', 'board and batten', 'vinyl', 'fiber cement', 'LP SmartSide lap']),
     sidingColor: pick(['natural', 'unfinished', 'pink']), polkaDots: r() < 0.2, glitter: r() < 0.1,
     roofCover: pick(['shingles', 'metal']), rafterSeat: pick(['birdsmouth', 'connector']),
     interior: pick(['none', 'OSB', 'plywood', 'drywall', 'teen bedroom']), insulation: r() < 0.2,
