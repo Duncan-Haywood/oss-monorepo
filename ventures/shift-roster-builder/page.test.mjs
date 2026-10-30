@@ -443,3 +443,17 @@ test("salon page numbers come from the builder", async () => {
   assert.match(page("index.html"), /salon-staff-schedule\.html/);
   assert.ok(html.includes("No warranty"));
 });
+
+test("14-day notice page: 3-days-out column repeats the posted-schedule table, FAQ matches, linked", () => {
+  const html = page("predictive-scheduling-14-day-notice.html");
+  const posted = page("schedule-change-after-posting.html");
+  for (const [p, others, owed] of [["Ana", 4, 73], ["Ben", 5, 93], ["Dev", 10, 174], ["Fay", 7, 118], ["Gus", 4, 68]]) {
+    assert.ok(posted.includes(`<td>${p}</td><td class="n">${others}</td>`));
+    assert.match(html, new RegExp(`<td>${p}</td><td class="n">${others}</td><td class="n">\\$0</td><td class="n">\\$\\d+</td><td class="n">\\$${owed}</td>`));
+  }
+  assert.match(page("sitemap.xml"), /predictive-scheduling-14-day-notice\.html/);
+  assert.match(page("index.html"), /predictive-scheduling-14-day-notice\.html/);
+  assert.ok(html.includes("No warranty"));
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
+});
