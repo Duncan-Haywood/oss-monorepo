@@ -52,7 +52,8 @@ test('the search run now gives a valid gallery whose reasons are true; drift fro
   const by = Object.fromEntries(fresh.map((g) => [g.id, g]));
   const cost = (/** @type {any} */ d) => evaluateDesign(d, undefined, RULES).cost;
   const kept = runs.free.kept;
-  if (!/before it in the strip/.test(by.cheapest.reason)) assert.equal(cost(by.cheapest.design), Math.min(...kept.map((/** @type {any} */ s) => s.cost)));
+  // No dearer than any kept design: polishCard can make the pick cheaper still.
+  if (!/before it in the strip/.test(by.cheapest.reason)) assert.ok(cost(by.cheapest.design) <= Math.min(...kept.map((/** @type {any} */ s) => s.cost)) + 0.005);
   assert.match(by.cheapest.reason, new RegExp(`of the ${kept.length} designs`));
   if (!/before it in the strip/.test(by.value.reason)) {
     const v = (/** @type {any} */ s) => s.storage.usableCuFt / s.cost;

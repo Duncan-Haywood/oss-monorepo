@@ -43,7 +43,9 @@ export const GALLERY_BUDGET = 1200;
  * the mower shed. It has no overhang, fascia or soffit and its chords are short
  * 2x4s, so it is cheap for the room; the strip would show little else.
  */
-const OTHER_STYLES = ['gable', 'leanTo'];
+// Saltboxes (r4 lane 2) are searched too; on usable storage their tied roof counts nothing, so
+// none won a card on 2026-10-30 (about 100 kept in each search, none on the front).
+const OTHER_STYLES = ['gable', 'leanTo', 'saltbox'];
 /**
  * The gallery searches and ranks on usable storage (storage.mjs usableCuFt):
  * the room, plus roof space only where it is open to the room or over a deck.
@@ -145,7 +147,7 @@ export const GALLERY = [
   {
     id: 'barn', from: 'barn', title: (s) => `Barn for storage ${sizeOf(s.design)}`, colour: 'red',
     rank: (kept) => bestBy(kept.filter((s) => s.design.style === 'gambrel'), perDollar),
-    why: (s, kept, first) => `A gambrel roof: steep lower slopes and a shallow top put the most room under the gallery's 13 ft height limit. The most room per dollar of the ${kept.length} barns its own search kept in painted lap siding and shingles${first ? '' : NEW}. Searched apart from the other cards, which show gables and lean-tos.`,
+    why: (s, kept, first) => `A gambrel roof: steep lower slopes and a shallow top put the most room under the gallery's 13 ft height limit. The most room per dollar of the ${kept.length} barns its own search kept in painted lap siding and shingles${first ? '' : NEW}. Searched apart from the other cards, which search gables, lean-tos and saltboxes.`,
   },
   {
     id: 'square', from: 'house', title: () => '10x10 square', colour: 'khaki',
