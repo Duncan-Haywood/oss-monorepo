@@ -45,7 +45,7 @@ const VIEWS = [
 /**
  * @param {{
  *   root: HTMLElement, dialog: HTMLDialogElement, tray: HTMLElement,
- *   entries?: Entry[], prices?: () => any,
+ *   entries?: Entry[], prices?: () => any, priceOf?: (shed: any) => any,
  *   onStart: (design: any) => void, count?: (event: string) => void,
  * }} opts
  */
@@ -67,7 +67,7 @@ export function mountPicker(opts) {
   const factsOf = (id) => {
     if (!facts.has(id)) {
       const e = /** @type {Entry} */ (entry(id));
-      facts.set(id, designFacts(e.design, { id, reason: e.reason, prices: opts.prices?.() }));
+      facts.set(id, designFacts(e.design, { id, reason: e.reason, prices: opts.prices?.(), price: opts.priceOf }));
     }
     return /** @type {ReturnType<typeof designFacts>} */ (facts.get(id));
   };

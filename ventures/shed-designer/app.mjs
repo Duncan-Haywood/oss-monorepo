@@ -946,7 +946,7 @@ function wire() {
   for (const id of ['#quote-store', '#quote-name', '#quote-phone', '#quote-zip', '#quote-date']) $(id).addEventListener('input', () => quoteCtx && renderQuote(quoteCtx.shed, quoteCtx.est));
   $('#quote-store').addEventListener('change', () => quoteCtx && renderQuote(quoteCtx.shed, quoteCtx.est));
   $('#buy-at').value = state.buyAt;
-  $('#buy-at').addEventListener('change', () => { state.buyAt = $('#buy-at').value; render(); });
+  $('#buy-at').addEventListener('change', () => { state.buyAt = $('#buy-at').value; render(); picker?.reprice(); });
   $('#quote-copy').addEventListener('click', async () => {
     try { await navigator.clipboard.writeText($('#quote-body').value); $('#status').textContent = 'Email copied.'; } catch { $('#quote-body').select(); }
   });
@@ -997,7 +997,7 @@ render();
 // Ready-made designs to look at, compare and start from (picker.mjs).
 picker = mountPicker({
   root: $('#starts'), dialog: $('#pick-dialog'), tray: $('#compare-tray'),
-  prices: () => state.prices, count,
+  prices: () => state.prices, priceOf: (shed) => storeEstimate(shed), count,
   onStart(d) {
     state.designs.push(normalize(d));
     state.active = state.designs.length - 1;
