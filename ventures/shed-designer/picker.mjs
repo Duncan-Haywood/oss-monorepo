@@ -10,7 +10,7 @@
 
 import { PRESETS, buildShed, normalize } from './model.mjs';
 import { createViewer } from './render3d.mjs';
-import { renderFor, slugOf } from './renders.mjs';
+import { pictureFor } from './renders.mjs';
 import { designFacts, compareRows, tradeOff } from './designfacts.mjs';
 import { fmtFtIn, fmtIn } from './lumber.mjs';
 
@@ -86,12 +86,10 @@ export function mountPicker(opts) {
 
   /** @type {any} */
   let manifest = null;
-  /** The stored picture of a design from one view, when the design is a drawn preset unchanged. */
+  /** The stored picture of a design from one view, when that exact design was drawn (a preset or a gallery card, unchanged). */
   const stored = (id, view) => {
     const e = entry(id);
-    const make = /** @type {any} */ (PRESETS)[id];
-    if (!manifest || !e || !make || JSON.stringify(e.design) !== JSON.stringify(make())) return null;
-    return renderFor(manifest, slugOf(id), view);
+    return manifest && e ? pictureFor(manifest, e.design, view) : null;
   };
   const thumb = (id) => {
     // The strip's cards are about 260 px wide: the 480 px card picture, not the hero.

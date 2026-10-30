@@ -205,15 +205,13 @@ test('the starting designs are priced the way the page prices: same store, same 
   }
 });
 
-test('a preset shows its pictures from renders/, with their alt text; the strip uses them too', { skip }, async (t) => {
+test('a gallery card shows its drawn picture in the strip; its detail draws the other views live', { skip }, async (t) => {
   const { page } = await open(t);
-  await page.waitForFunction(() => document.querySelector('#starts [data-shot="8x12"] img')?.getAttribute('src')?.startsWith('renders/'), null, { timeout: 10000 });
-  await page.locator('#starts .pick-open[data-detail="8x12"]').click();
-  const imgs = await page.locator('#pick-dialog .shots img').evaluateAll((is) => is.map((i) => ({ src: i.getAttribute('src'), alt: i.getAttribute('alt') })));
-  assert.equal(imgs.length, 4, 'front corner, gable end, back and framing');
-  assert.ok(imgs.every((i) => i.src.startsWith('renders/') && i.src.endsWith('.webp')), JSON.stringify(imgs));
-  assert.ok(imgs.every((i) => i.alt.length > 40), 'alt text from the manifest');
-  assert.match(imgs[3].alt, /^Framing of/);
-  // Every picture loads.
-  assert.ok(await page.locator('#pick-dialog .shots img').evaluateAll((is) => Promise.all(is.map((i) => i.decode().then(() => i.naturalWidth > 0)))).then((a) => a.every(Boolean)));
+  await page.waitForFunction(() => document.querySelector('#starts [data-shot="cheapest"] img')?.getAttribute('src')?.startsWith('renders/gallery-cheapest-card'), null, { timeout: 10000 });
+  // Every drawn card picture loads.
+  assert.ok(await page.locator('#starts .pick-img img[src^="renders/"]').evaluateAll((is) => Promise.all(is.map((i) => i.decode().then(() => i.naturalWidth > 0)))).then((a) => a.length === 10 && a.every(Boolean)));
+  await page.locator('#starts .pick-open[data-detail="cheapest"]').click();
+  await page.waitForFunction(() => document.querySelectorAll('#pick-dialog .shots img').length >= 3, null, { timeout: 30000 });
+  const alts = await page.locator('#pick-dialog .shots img').evaluateAll((is) => is.map((i) => i.getAttribute('alt')));
+  assert.ok(alts.every((a) => a && a.length > 10), JSON.stringify(alts));
 });

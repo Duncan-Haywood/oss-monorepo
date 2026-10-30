@@ -6,7 +6,9 @@
 //   node ventures/shed-designer/make-gallery.mjs           write the file
 //   node ventures/shed-designer/make-gallery.mjs --check   exit 1 if it is stale
 //
-// It takes under a minute: two design searches (designsearch.mjs).
+// It takes under a minute: two design searches (designsearch.mjs). Each card's
+// strip picture is drawn by make-renders.mjs (galleryTargets), which redraws
+// only the cards whose design changed.
 
 import { writeFileSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -32,6 +34,6 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
     console.log('gallery-data.mjs is current');
   } else {
     writeFileSync(OUT, text);
-    console.log(`wrote ${OUT}`);
+    console.log(`wrote ${OUT}; now run node ventures/shed-designer/make-renders.mjs to draw any card picture that changed`);
   }
 }
