@@ -80,9 +80,6 @@ export const OFFERS = {
   ],
   pitchConnector: [
   ],
-  rafterHanger: [
-    { store: "Lowe's", name: 'Simpson Strong-Tie LUS26 2x6 hanger', model: 'LUS26, product 1187273', price: 1.58, url: 'https://www.lowes.com/pd/Simpson-Strong-Tie-LUS26-2-x-6-Double-Shear-Hanger/1187273' },
-  ],
   stain: [
     { store: "Lowe's", name: 'Valspar solid exterior stain and sealer, tintable, 1 gal', model: 'VL1028091-16, product 1000515853', price: 48.98, url: 'https://www.lowes.com/pd/Valspar-Tintable-Neutral-Base-Solid-Exterior-Stain-and-Sealer-Actual-Net-Contents-116-fl-oz/1000515853' },
   ],
