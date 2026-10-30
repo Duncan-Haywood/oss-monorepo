@@ -38,7 +38,7 @@ The owner and a builder, 2026-10-29, for a real shed under 100 sq ft: the HOA wa
   - there is no "permit-ready" or "approved" claim, and the disclaimer is on every page;
   - the link survives the round trip;
   - the page's ids, script and disclaimer are present.
-- The whole suite (`node --test *.test.mjs`) and `node platform/pages/typecheck.mjs shed-designer` (0 diagnostics) are in the PR's run notes.
+- After merging `main` (2026-10-30), the whole suite (`node --test *.test.mjs`) ran 190 tests: 189 pass, 0 fail, 1 skipped. `node platform/pages/typecheck.mjs shed-designer` gives 0 diagnostics.
 - In headless Chromium, the 8x12, the 12x16 and a gray fiber-cement 8x12 on a typed lot were rendered and printed to PDF with `page.pdf`, and checked by eye. There were no console errors.
 
 ## Open, and the next step
