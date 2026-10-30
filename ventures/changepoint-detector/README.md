@@ -1262,4 +1262,9 @@ on sunspots. Same caveats: two series, one step shape, 3 trials per cell, a step
 step. Open: a joint fit with a second AR term (a cycle is closer to AR(2) than AR(1)), and a real series with a
 documented step inside a cycle.
 
-
+**The default output now says so (2026-10-30, later).** The earlier line "the default output does not warn about a cycle"
+was half stale: on both series the existing range warning already fired (lag-1 rho 0.95) but only said the ranges were
+too narrow. When the mean model has found 5 or more steps and rho is 0.3 or more, the warning now adds that many of the
+steps may be false alarms, with the measured counts (lynx 23, sunspots 46 by default; `--ar1` none; `--ar1 joint` keeps
+a 2 sd step). Test: `cyclic-series.test.mjs`. Not covered: `treering` (38 false steps) has rho 0.16 by this estimate, so
+it gets no hint; a cycle detector that does not rely on rho is open.
