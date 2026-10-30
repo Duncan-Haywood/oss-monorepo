@@ -157,7 +157,8 @@ export const PRESETS = {
     { id: 'o2', kind: 'window', wall: 'front', offset: 36, width: 36, height: 36, sill: 42 },
     { id: 'o3', kind: 'window', wall: 'front', offset: 120, width: 36, height: 36, sill: 42 },
   ] }),
-  '8x8 lean': () => ({ ...classic(), name: '8x8 garden shed', length: 96, width: 96, wallHeight: 84, pitch: 8, rafterSpacing: 24, openings: [
+  // 6/12, not 8/12: at 8/12 a 2x6 rafter's birdsmouth is more than a third of its depth (paretoaudit found it).
+  '8x8 lean': () => ({ ...classic(), name: '8x8 garden shed', length: 96, width: 96, wallHeight: 84, pitch: 6, rafterSpacing: 24, openings: [
     { id: 'o1', kind: 'door', wall: 'left', offset: 22, width: 52, height: 72 },
   ] }),
 };
