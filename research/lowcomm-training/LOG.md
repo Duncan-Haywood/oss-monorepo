@@ -9,6 +9,13 @@ Newest first. Write the hypothesis and the planned analysis before running an ex
 - **H6i-i:** with six seeds on the H = 64 cells, size-2 leave-one-cell-out MAPE falls below 1.5% (6h: 2.54%). **H6i-ii:** the held-out (64, 1/16) error falls below 0.08 nats (6h: 0.174). **H6i-iii:** the fitted b stays within 0.5 of size 1's 0.35 and the scale factor stays within 0.1 of 0.497. Priors: i 55%, ii 60%, iii 70%.
 - Limits to state: unequal seeds per cell (6 vs 2) so the fit's weights are not uniform; a tuned-at-size-1 learning rate; same corpus.
 
+### Outcome of 6i (`experiments/gpt_scale/scale.jsonl`, `scale_results_6i.txt`; 8 new runs, about 17 min each, seeds 2 to 5)
+- The two H = 64 cells now have six seeds each: (64, keep 1) 1.6017 (sd 0.0085), (64, keep 1/16) 1.6456 (sd 0.0107, standard error 0.0044). The compression excess at H = 64 is +0.0439 (6h: +0.0440), so the cell mean did not move.
+- **H6i-i refuted.** Size-2 leave-one-cell-out MAPE is 2.43% (6h: 2.54%). **H6i-ii refuted.** Held out, (64, keep 1/16) is still over-predicted by 0.163 nats (6h: 0.174), against a cell standard error of 0.004. **H6i-iii supported.** b = 0.55 (size 1: 0.35, difference 0.20) and the scale factor is 0.497, unchanged to three digits because the excess at the compressed cells is the same.
+- Reading: my 6h explanation ("weakly identified because the cell is noisy") is wrong. The cell is now measured to about 0.004 nats and the held-out miss is 40 times that. The miss is structural: with (64, keep 1/16) removed, the remaining compressed cells are at H = 4 and 16, where the excess does not constrain growth with H, so the fit extrapolates a steeper H dependence than the measured one (excess +0.054 at H = 16, +0.044 at H = 64: it does not grow, whereas the rule with b = 0.55 and the three-cell fit predicts it should). Not tested here: whether the excess at size 2 is flat or even falls between H = 16 and 64, which would mean the rule's power-law form in H, not its constants, is the weak part at this size. At size 1 the same two cells give +0.083 and +0.099, still rising.
+- Limits: six seeds on two cells only; the other five cells still have two; one wider size; same corpus and budget.
+- Next: the excess at H = 32 and H = 128 (size 2, keep 1/16, three seeds) to see whether the excess saturates in H at the wider size, and a third width.
+
 ## 2026-10-30 · Milestone 6h (H6 scale-up): does the 6f rule keep its form at a wider model, with its constants refitted? (planned before running)
 
 - Why: 6g's "Next" and Milestone 6. Every H6 result so far is one 413k-parameter GPT; the rule's form was designed on it.
