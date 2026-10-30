@@ -306,3 +306,11 @@ yearly tree-ring widths, 6000 BC to 1979, R's `treering`.
 - **Cite:** Diggle, P. J. (1990). *Time Series: A Biostatistical Introduction*. Oxford University Press (`lh`);
   Donald A. Graybill, via the National Geophysical Data Center (`treering`).
 - **Used by:** `quiet-series.test.mjs`.
+
+# Example data: Canadian lynx and yearly sunspot numbers
+
+`lynx.csv` (lynx trappings, Mackenzie River, 1821-1934) and `sunspot-year.csv` (yearly sunspot numbers, 1700-1988)
+are R's `datasets::lynx` and `datasets::sunspot.year`, retrieved 2026-10-30 from the Rdatasets mirror,
+`https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/datasets/`. Their own licences are not
+stated there (sunspots: SIDC, Royal Observatory of Belgium); they are small public scientific series used for a
+measurement, not redistributed as a product. Used by `eval/cyclic-series.mjs`.
