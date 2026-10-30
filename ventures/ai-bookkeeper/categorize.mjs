@@ -34,6 +34,15 @@ const amountBucket = (cents) => `amt:${Math.min(12, Math.floor(Math.log2(Math.ab
 // keyword that fits two accounts is left out, so the line goes to review rather
 // than being guessed. `dir` limits a rule to money in or money out.
 export const BUILT_IN = [
+  // Gap probe 9 (2026-10-30, eval/probe9.mjs): rideshare and delivery drivers, photographers, pet groomers, home daycares, mobile detailers.
+  // Wahl's "clipper" would otherwise hit the transit-card rule, so the pet-grooming supplies sit first.
+  ["6100", "out", /discount school supply|wahl clipper|\bandis\b|grooming table|detail king/],
+  ["6060", "out", /\bstride\b.*(mileage|tax)|mileage tracker|splice sounds|\bzenfolio\b|procare (software|solutions)|\bhimama\b|detailer app/],
+  ["6160", "out", /\bgetaround\b|hyredrive/],
+  ["6090", "out", /discount tire/],
+  ["6010", "out", /dasher red card/],
+  ["6170", "out", /\bnapps\b|\bnaeyc\b/],
+  ["4000", "in", /wedding photography.*zelle|child care subsidy|car detail.*cash app/],
   // Gap probe 8 (2026-10-30, eval/probe8.mjs): truckers, small farms, tattoo artists, trainers, wedding DJs.
   ["6060", "out", /dat load board|\btraining ?peaks\b|dj intelligence|soundcloud|bpm supreme/],
   ["6010", "out", /freight factoring|rts financial/],
