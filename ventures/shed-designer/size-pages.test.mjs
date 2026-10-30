@@ -10,7 +10,7 @@ const { all, files } = generate();
 // (platform/pages/generated-pages.mjs), so they always print the engine's
 // current numbers and a price change can't leave a stale copy for the next PR.
 test('the site build generates the size pages, and git does not track them', () => {
-  assert.equal(GENERATED_PAGES['shed-designer'], 'make-size-pages.mjs');
+  assert.ok([GENERATED_PAGES['shed-designer']].flat().includes('make-size-pages.mjs'));
   const ignore = readFileSync(new URL('../../.gitignore', import.meta.url), 'utf8');
   assert.match(ignore, /^ventures\/shed-designer\/how-much-lumber-for-a-\*-shed\.html$/m);
   assert.match(ignore, /^ventures\/shed-designer\/shed-lumber-list-by-size\.html$/m);
