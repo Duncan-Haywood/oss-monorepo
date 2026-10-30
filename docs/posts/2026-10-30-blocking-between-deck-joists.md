@@ -1,6 +1,8 @@
 ---
 title: Blocking between deck joists, counted
 date: 2026-10-30
+tags: [wall-framing-takeoff, deck, joists]
+description: "Optional deck joist blocking in the wall-framing takeoff: equal bays no longer than a limit, one block per bay per row, checked only by hand arithmetic."
 ---
 
 The deck takeoff in `wall-framing-takeoff` now takes an optional `deck.blocking: {every: 96}`. It splits the joist length into equal parts no longer than that, and cuts one block per bay for each row. The blocks are the joist size less one joist thickness from the centres, so a 16 in layout gives 14-1/2 in pieces. They join the pressure-treated cutting-stock order.
