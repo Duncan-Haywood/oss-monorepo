@@ -2,7 +2,7 @@
 title: "Two quiet real series, and how many changes a detector invents in them"
 date: 2026-10-30
 tags: [changepoint-detector, evaluation, false-alarms]
-description: "On 48 hormone readings with no change, the default mean model finds five; adding an autocorrelation correction finds none. On 7,980 tree rings it still finds 11."
+description: "On 48 hormone readings with no change, the default mean model finds five; adding an autocorrelation correction finds none. On 7,980 tree rings it finds 11."
 ---
 
 A changepoint detector is only useful if it stays quiet when nothing happened. The [changepoint detector](https://duncan-haywood.github.io/oss-monorepo/changepoint-detector/) had been tested on real series with real breaks, but the open item was a real series that is simply quiet.
