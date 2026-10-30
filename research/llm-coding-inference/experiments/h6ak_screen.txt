@@ -1,0 +1,133 @@
+GoEmotions admiration: corpus 6683, prevalence 0.0811, true J 0.652: design | n | rule | coverage % | mean half-width pts | share of draws using cells
+GoEmotions admiration | 1 pooled | 400 | human normal | 100.0 | 2.526 | 0.00
+GoEmotions admiration | 1 pooled | 400 | human Wilson (WH) | 100.0 | 2.543 | 0.00
+GoEmotions admiration | 1 pooled | 400 | P Wilson n_eff (WE) | 100.0 | 2.285 | 0.00
+GoEmotions admiration | 1 pooled | 1000 | human normal | 80.0 | 1.522 | 0.00
+GoEmotions admiration | 1 pooled | 1000 | human Wilson (WH) | 80.0 | 1.526 | 0.00
+GoEmotions admiration | 1 pooled | 1000 | P Wilson n_eff (WE) | 100.0 | 1.380 | 0.00
+GoEmotions admiration | cells floor 0.35 | 400 | human normal | 60.0 | 1.872 | 1.00
+GoEmotions admiration | cells floor 0.35 | 400 | human Wilson (WH) | 60.0 | 1.878 | 1.00
+GoEmotions admiration | cells floor 0.35 | 400 | P Wilson n_eff (WE) | 60.0 | 1.878 | 1.00
+GoEmotions admiration | cells floor 0.35 | 1000 | human normal | 100.0 | 1.105 | 1.00
+GoEmotions admiration | cells floor 0.35 | 1000 | human Wilson (WH) | 100.0 | 1.106 | 1.00
+GoEmotions admiration | cells floor 0.35 | 1000 | P Wilson n_eff (WE) | 100.0 | 1.106 | 1.00
+GoEmotions admiration | screen (J_hat >= 0.3) | 400 | human normal | 60.0 | 1.872 | 1.00
+GoEmotions admiration | screen (J_hat >= 0.3) | 400 | human Wilson (WH) | 60.0 | 1.878 | 1.00
+GoEmotions admiration | screen (J_hat >= 0.3) | 400 | P Wilson n_eff (WE) | 60.0 | 1.878 | 1.00
+GoEmotions admiration | screen (J_hat >= 0.3) | 1000 | human normal | 100.0 | 1.105 | 1.00
+GoEmotions admiration | screen (J_hat >= 0.3) | 1000 | human Wilson (WH) | 100.0 | 1.106 | 1.00
+GoEmotions admiration | screen (J_hat >= 0.3) | 1000 | P Wilson n_eff (WE) | 100.0 | 1.106 | 1.00
+GoEmotions neutral: corpus 6683, prevalence 0.2327, true J 0.173: design | n | rule | coverage % | mean half-width pts | share of draws using cells
+GoEmotions neutral | 1 pooled | 400 | human normal | 100.0 | 4.070 | 0.00
+GoEmotions neutral | 1 pooled | 400 | human Wilson (WH) | 100.0 | 4.058 | 0.00
+GoEmotions neutral | 1 pooled | 400 | P Wilson n_eff (WE) | 100.0 | 3.998 | 0.00
+GoEmotions neutral | 1 pooled | 1000 | human normal | 100.0 | 2.409 | 0.00
+GoEmotions neutral | 1 pooled | 1000 | human Wilson (WH) | 100.0 | 2.407 | 0.00
+GoEmotions neutral | 1 pooled | 1000 | P Wilson n_eff (WE) | 100.0 | 2.373 | 0.00
+GoEmotions neutral | cells floor 0.35 | 400 | human normal | 100.0 | 3.884 | 1.00
+GoEmotions neutral | cells floor 0.35 | 400 | human Wilson (WH) | 100.0 | 3.875 | 1.00
+GoEmotions neutral | cells floor 0.35 | 400 | P Wilson n_eff (WE) | 100.0 | 3.875 | 1.00
+GoEmotions neutral | cells floor 0.35 | 1000 | human normal | 100.0 | 2.366 | 1.00
+GoEmotions neutral | cells floor 0.35 | 1000 | human Wilson (WH) | 100.0 | 2.364 | 1.00
+GoEmotions neutral | cells floor 0.35 | 1000 | P Wilson n_eff (WE) | 100.0 | 2.364 | 1.00
+GoEmotions neutral | screen (J_hat >= 0.3) | 400 | human normal | 100.0 | 3.950 | 0.40
+GoEmotions neutral | screen (J_hat >= 0.3) | 400 | human Wilson (WH) | 100.0 | 3.939 | 0.40
+GoEmotions neutral | screen (J_hat >= 0.3) | 400 | P Wilson n_eff (WE) | 100.0 | 3.919 | 0.40
+GoEmotions neutral | screen (J_hat >= 0.3) | 1000 | human normal | 80.0 | 2.431 | 0.00
+GoEmotions neutral | screen (J_hat >= 0.3) | 1000 | human Wilson (WH) | 80.0 | 2.429 | 0.00
+GoEmotions neutral | screen (J_hat >= 0.3) | 1000 | P Wilson n_eff (WE) | 80.0 | 2.398 | 0.00
+GoEmotions fear: corpus 6683, prevalence 0.0115, true J 0.506: design | n | rule | coverage % | mean half-width pts | share of draws using cells
+GoEmotions fear | 1 pooled | 400 | human normal | 100.0 | 0.988 | 0.00
+GoEmotions fear | 1 pooled | 400 | human Wilson (WH) | 100.0 | 1.077 | 0.00
+GoEmotions fear | 1 pooled | 400 | P Wilson n_eff (WE) | 100.0 | 1.062 | 0.00
+GoEmotions fear | 1 pooled | 1000 | human normal | 100.0 | 0.599 | 0.00
+GoEmotions fear | 1 pooled | 1000 | human Wilson (WH) | 100.0 | 0.619 | 0.00
+GoEmotions fear | 1 pooled | 1000 | P Wilson n_eff (WE) | 100.0 | 0.597 | 0.00
+GoEmotions fear | cells floor 0.35 | 400 | human normal | 40.0 | 0.450 | 1.00
+GoEmotions fear | cells floor 0.35 | 400 | human Wilson (WH) | 40.0 | 0.476 | 1.00
+GoEmotions fear | cells floor 0.35 | 400 | P Wilson n_eff (WE) | 40.0 | 0.476 | 1.00
+GoEmotions fear | cells floor 0.35 | 1000 | human normal | 80.0 | 0.420 | 1.00
+GoEmotions fear | cells floor 0.35 | 1000 | human Wilson (WH) | 80.0 | 0.428 | 1.00
+GoEmotions fear | cells floor 0.35 | 1000 | P Wilson n_eff (WE) | 80.0 | 0.428 | 1.00
+GoEmotions fear | screen (J_hat >= 0.3) | 400 | human normal | 60.0 | 0.639 | 0.40
+GoEmotions fear | screen (J_hat >= 0.3) | 400 | human Wilson (WH) | 80.0 | 0.732 | 0.40
+GoEmotions fear | screen (J_hat >= 0.3) | 400 | P Wilson n_eff (WE) | 80.0 | 0.721 | 0.40
+GoEmotions fear | screen (J_hat >= 0.3) | 1000 | human normal | 100.0 | 0.587 | 0.20
+GoEmotions fear | screen (J_hat >= 0.3) | 1000 | human Wilson (WH) | 80.0 | 0.605 | 0.20
+GoEmotions fear | screen (J_hat >= 0.3) | 1000 | P Wilson n_eff (WE) | 100.0 | 0.594 | 0.20
+GoEmotions sadness: corpus 6683, prevalence 0.0230, true J 0.472: design | n | rule | coverage % | mean half-width pts | share of draws using cells
+GoEmotions sadness | 1 pooled | 400 | human normal | 100.0 | 1.294 | 0.00
+GoEmotions sadness | 1 pooled | 400 | human Wilson (WH) | 100.0 | 1.359 | 0.00
+GoEmotions sadness | 1 pooled | 400 | P Wilson n_eff (WE) | 100.0 | 1.192 | 0.00
+GoEmotions sadness | 1 pooled | 1000 | human normal | 80.0 | 0.808 | 0.00
+GoEmotions sadness | 1 pooled | 1000 | human Wilson (WH) | 100.0 | 0.822 | 0.00
+GoEmotions sadness | 1 pooled | 1000 | P Wilson n_eff (WE) | 100.0 | 0.739 | 0.00
+GoEmotions sadness | cells floor 0.35 | 400 | human normal | 40.0 | 0.947 | 1.00
+GoEmotions sadness | cells floor 0.35 | 400 | human Wilson (WH) | 60.0 | 0.972 | 1.00
+GoEmotions sadness | cells floor 0.35 | 400 | P Wilson n_eff (WE) | 60.0 | 0.972 | 1.00
+GoEmotions sadness | cells floor 0.35 | 1000 | human normal | 80.0 | 0.650 | 1.00
+GoEmotions sadness | cells floor 0.35 | 1000 | human Wilson (WH) | 80.0 | 0.656 | 1.00
+GoEmotions sadness | cells floor 0.35 | 1000 | P Wilson n_eff (WE) | 80.0 | 0.656 | 1.00
+GoEmotions sadness | screen (J_hat >= 0.3) | 400 | human normal | 100.0 | 1.326 | 0.60
+GoEmotions sadness | screen (J_hat >= 0.3) | 400 | human Wilson (WH) | 80.0 | 1.379 | 0.60
+GoEmotions sadness | screen (J_hat >= 0.3) | 400 | P Wilson n_eff (WE) | 80.0 | 1.321 | 0.60
+GoEmotions sadness | screen (J_hat >= 0.3) | 1000 | human normal | 80.0 | 0.734 | 0.60
+GoEmotions sadness | screen (J_hat >= 0.3) | 1000 | human Wilson (WH) | 80.0 | 0.743 | 0.60
+GoEmotions sadness | screen (J_hat >= 0.3) | 1000 | P Wilson n_eff (WE) | 80.0 | 0.694 | 0.60
+NaijaSenti Qwen2.5-0.5B-Instruct: corpus 6000, prevalence 0.3272, true J 0.008: design | n | rule | coverage % | mean half-width pts | share of draws using cells
+NaijaSenti Qwen2.5-0.5B-Instruct | 1 pooled | 400 | human normal | 80.0 | 4.384 | 0.00
+NaijaSenti Qwen2.5-0.5B-Instruct | 1 pooled | 400 | human Wilson (WH) | 80.0 | 4.368 | 0.00
+NaijaSenti Qwen2.5-0.5B-Instruct | 1 pooled | 400 | P Wilson n_eff (WE) | 80.0 | 4.362 | 0.00
+NaijaSenti Qwen2.5-0.5B-Instruct | 1 pooled | 1000 | human normal | 80.0 | 2.641 | 0.00
+NaijaSenti Qwen2.5-0.5B-Instruct | 1 pooled | 1000 | human Wilson (WH) | 80.0 | 2.638 | 0.00
+NaijaSenti Qwen2.5-0.5B-Instruct | 1 pooled | 1000 | P Wilson n_eff (WE) | 80.0 | 2.637 | 0.00
+NaijaSenti Qwen2.5-0.5B-Instruct | cells floor 0.35 | 400 | human normal | 100.0 | 5.397 | 1.00
+NaijaSenti Qwen2.5-0.5B-Instruct | cells floor 0.35 | 400 | human Wilson (WH) | 100.0 | 5.367 | 1.00
+NaijaSenti Qwen2.5-0.5B-Instruct | cells floor 0.35 | 400 | P Wilson n_eff (WE) | 100.0 | 5.367 | 1.00
+NaijaSenti Qwen2.5-0.5B-Instruct | cells floor 0.35 | 1000 | human normal | 100.0 | 2.821 | 1.00
+NaijaSenti Qwen2.5-0.5B-Instruct | cells floor 0.35 | 1000 | human Wilson (WH) | 100.0 | 2.817 | 1.00
+NaijaSenti Qwen2.5-0.5B-Instruct | cells floor 0.35 | 1000 | P Wilson n_eff (WE) | 100.0 | 2.817 | 1.00
+NaijaSenti Qwen2.5-0.5B-Instruct | screen (J_hat >= 0.3) | 400 | human normal | 100.0 | 4.424 | 0.00
+NaijaSenti Qwen2.5-0.5B-Instruct | screen (J_hat >= 0.3) | 400 | human Wilson (WH) | 100.0 | 4.407 | 0.00
+NaijaSenti Qwen2.5-0.5B-Instruct | screen (J_hat >= 0.3) | 400 | P Wilson n_eff (WE) | 100.0 | 4.399 | 0.00
+NaijaSenti Qwen2.5-0.5B-Instruct | screen (J_hat >= 0.3) | 1000 | human normal | 80.0 | 2.633 | 0.00
+NaijaSenti Qwen2.5-0.5B-Instruct | screen (J_hat >= 0.3) | 1000 | human Wilson (WH) | 80.0 | 2.629 | 0.00
+NaijaSenti Qwen2.5-0.5B-Instruct | screen (J_hat >= 0.3) | 1000 | P Wilson n_eff (WE) | 80.0 | 2.626 | 0.00
+NaijaSenti Qwen2.5-1.5B-Instruct: corpus 6000, prevalence 0.3272, true J 0.208: design | n | rule | coverage % | mean half-width pts | share of draws using cells
+NaijaSenti Qwen2.5-1.5B-Instruct | 1 pooled | 400 | human normal | 80.0 | 4.384 | 0.00
+NaijaSenti Qwen2.5-1.5B-Instruct | 1 pooled | 400 | human Wilson (WH) | 80.0 | 4.368 | 0.00
+NaijaSenti Qwen2.5-1.5B-Instruct | 1 pooled | 400 | P Wilson n_eff (WE) | 80.0 | 4.249 | 0.00
+NaijaSenti Qwen2.5-1.5B-Instruct | 1 pooled | 1000 | human normal | 80.0 | 2.641 | 0.00
+NaijaSenti Qwen2.5-1.5B-Instruct | 1 pooled | 1000 | human Wilson (WH) | 80.0 | 2.638 | 0.00
+NaijaSenti Qwen2.5-1.5B-Instruct | 1 pooled | 1000 | P Wilson n_eff (WE) | 80.0 | 2.574 | 0.00
+NaijaSenti Qwen2.5-1.5B-Instruct | cells floor 0.35 | 400 | human normal | 80.0 | 4.372 | 1.00
+NaijaSenti Qwen2.5-1.5B-Instruct | cells floor 0.35 | 400 | human Wilson (WH) | 80.0 | 4.355 | 1.00
+NaijaSenti Qwen2.5-1.5B-Instruct | cells floor 0.35 | 400 | P Wilson n_eff (WE) | 80.0 | 4.355 | 1.00
+NaijaSenti Qwen2.5-1.5B-Instruct | cells floor 0.35 | 1000 | human normal | 100.0 | 2.616 | 1.00
+NaijaSenti Qwen2.5-1.5B-Instruct | cells floor 0.35 | 1000 | human Wilson (WH) | 100.0 | 2.613 | 1.00
+NaijaSenti Qwen2.5-1.5B-Instruct | cells floor 0.35 | 1000 | P Wilson n_eff (WE) | 100.0 | 2.613 | 1.00
+NaijaSenti Qwen2.5-1.5B-Instruct | screen (J_hat >= 0.3) | 400 | human normal | 100.0 | 4.452 | 0.00
+NaijaSenti Qwen2.5-1.5B-Instruct | screen (J_hat >= 0.3) | 400 | human Wilson (WH) | 100.0 | 4.434 | 0.00
+NaijaSenti Qwen2.5-1.5B-Instruct | screen (J_hat >= 0.3) | 400 | P Wilson n_eff (WE) | 100.0 | 4.329 | 0.00
+NaijaSenti Qwen2.5-1.5B-Instruct | screen (J_hat >= 0.3) | 1000 | human normal | 100.0 | 2.649 | 0.20
+NaijaSenti Qwen2.5-1.5B-Instruct | screen (J_hat >= 0.3) | 1000 | human Wilson (WH) | 100.0 | 2.645 | 0.20
+NaijaSenti Qwen2.5-1.5B-Instruct | screen (J_hat >= 0.3) | 1000 | P Wilson n_eff (WE) | 100.0 | 2.600 | 0.20
+NaijaSenti Qwen2.5-3B-Instruct: corpus 6000, prevalence 0.3272, true J 0.061: design | n | rule | coverage % | mean half-width pts | share of draws using cells
+NaijaSenti Qwen2.5-3B-Instruct | 1 pooled | 400 | human normal | 80.0 | 4.384 | 0.00
+NaijaSenti Qwen2.5-3B-Instruct | 1 pooled | 400 | human Wilson (WH) | 80.0 | 4.368 | 0.00
+NaijaSenti Qwen2.5-3B-Instruct | 1 pooled | 400 | P Wilson n_eff (WE) | 80.0 | 4.306 | 0.00
+NaijaSenti Qwen2.5-3B-Instruct | 1 pooled | 1000 | human normal | 80.0 | 2.641 | 0.00
+NaijaSenti Qwen2.5-3B-Instruct | 1 pooled | 1000 | human Wilson (WH) | 80.0 | 2.638 | 0.00
+NaijaSenti Qwen2.5-3B-Instruct | 1 pooled | 1000 | P Wilson n_eff (WE) | 60.0 | 2.602 | 0.00
+NaijaSenti Qwen2.5-3B-Instruct | cells floor 0.35 | 400 | human normal | 100.0 | 5.301 | 1.00
+NaijaSenti Qwen2.5-3B-Instruct | cells floor 0.35 | 400 | human Wilson (WH) | 100.0 | 5.272 | 1.00
+NaijaSenti Qwen2.5-3B-Instruct | cells floor 0.35 | 400 | P Wilson n_eff (WE) | 100.0 | 5.272 | 1.00
+NaijaSenti Qwen2.5-3B-Instruct | cells floor 0.35 | 1000 | human normal | 100.0 | 2.855 | 1.00
+NaijaSenti Qwen2.5-3B-Instruct | cells floor 0.35 | 1000 | human Wilson (WH) | 100.0 | 2.850 | 1.00
+NaijaSenti Qwen2.5-3B-Instruct | cells floor 0.35 | 1000 | P Wilson n_eff (WE) | 100.0 | 2.850 | 1.00
+NaijaSenti Qwen2.5-3B-Instruct | screen (J_hat >= 0.3) | 400 | human normal | 100.0 | 4.473 | 0.00
+NaijaSenti Qwen2.5-3B-Instruct | screen (J_hat >= 0.3) | 400 | human Wilson (WH) | 100.0 | 4.456 | 0.00
+NaijaSenti Qwen2.5-3B-Instruct | screen (J_hat >= 0.3) | 400 | P Wilson n_eff (WE) | 100.0 | 4.395 | 0.00
+NaijaSenti Qwen2.5-3B-Instruct | screen (J_hat >= 0.3) | 1000 | human normal | 100.0 | 2.652 | 0.00
+NaijaSenti Qwen2.5-3B-Instruct | screen (J_hat >= 0.3) | 1000 | human Wilson (WH) | 100.0 | 2.648 | 0.00
+NaijaSenti Qwen2.5-3B-Instruct | screen (J_hat >= 0.3) | 1000 | P Wilson n_eff (WE) | 100.0 | 2.603 | 0.00
