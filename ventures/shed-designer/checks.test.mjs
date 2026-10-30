@@ -342,3 +342,37 @@ test('the subfloor is checked against its APA span rating: 23/32" T&G spans 24" 
   assert.equal(subfloorCheck({ floorPanel: 'OSB', joistSpacing: 24 }).ratio, 1);
   assert.ok(subfloorCheck({ floorPanel: 'plywood', joistSpacing: 32 }).ratio > 1);
 });
+
+// A truss heel sits on the plate with an H2.5A (the estimate buys one), whatever
+// rafterSeat says; and under net uplift the heel nails and the bottom chord take
+// the reversed thrust, H = wL^2 / 8h, worked by hand here.
+test('truss heels: the tie is the H2.5A, and the reversed thrust is the hand calculation', async () => {
+  const { trussHeelUplift } = await import('./checks.mjs');
+  const { gussetNailZ, trussChecks } = await import('./truss.mjs');
+  const d = { ...defaultDesign(), roofType: 'truss', windLoad: 40 };
+  const s = buildShed(d);
+  assert.equal(s.design.rafterSeat, 'connector');
+  assert.equal(rafterUplift(s).tie.model, 'Simpson H2.5A');
+  const p = s.design.pitch / 12;
+  const cos = 1 / Math.sqrt(1 + p * p);
+  const sp = s.design.rafterSpacing / 12;
+  const wNet = 0.6 * 40 * sp - 0.6 * ((15 / cos) * sp + 5 * sp); // 5 psf ceiling dead, no storage
+  const L = s.design.width;
+  const H = ((wNet / 12) * L * L) / (8 * (L / 2) * p);
+  const h = trussHeelUplift(s);
+  assert.ok(Math.abs(h.wNet - wNet) < 1e-9 && Math.abs(h.H - H) < 1e-9, `${h.H} vs ${H}`);
+  assert.ok(Math.abs(h.nailRatio - H / (trussChecks(s.design).nails.heelBottom * gussetNailZ(1.6))) < 1e-9);
+  // An 8 ft 2x4 chord with no king post would be 96 / 1.5 = 64 slender, past
+  // NDS 3.7.1.4's 50; so the model lays a 2x4 brace across the chords at
+  // mid-span, and the chord is 48 / 1.5 = 32.
+  assert.equal(s.members.filter((m) => m.kind === 'chord brace').length, 1);
+  assert.equal(h.slender, 32);
+  const row = structuralChecks(s).rows.find((x) => x.member === 'Truss heels (uplift)');
+  assert.ok(row.ok && /braced at mid-span/.test(row.detail), row.detail);
+  // At the default 20 psf there is no brace to buy.
+  assert.equal(buildShed({ ...d, windLoad: 20 }).members.filter((m) => m.kind === 'chord brace').length, 0);
+  // At the default 20 psf the weight wins and nothing reverses.
+  const calm = structuralChecks(buildShed({ ...d, windLoad: 20 })).rows.find((x) => x.member === 'Truss heels (uplift)');
+  assert.equal(calm.ratio, 0);
+  assert.ok(calm.ok);
+});
