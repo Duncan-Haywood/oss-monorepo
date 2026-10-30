@@ -138,7 +138,11 @@ export function designFacts(input, opts = {}) {
  * @param {Facts[]} list
  */
 export function compareRows(list) {
-  const money = (n) => `$${Math.round(n).toLocaleString('en-US')}`;
+  const money = (n) => {
+    const format = (n) => `$${Math.round(n).toLocaleString('en-US')}`;
+    const text = format(Math.abs(n));
+    return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+  };
   const n1 = (x) => (Math.round(x * 10) / 10).toString();
   /** @type {{ key: string, label: string, values: string[], nums?: number[], better?: 'low'|'high', group: string }[]} */
   const spec = [
