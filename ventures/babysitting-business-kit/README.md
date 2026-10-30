@@ -27,6 +27,7 @@ Not affiliated with any of the products named above; they are named only to say 
 - **Leads:** each inquiry is scored 0-100 against the sitter's own limits (travel radius, most children at once, youngest age, weekly availability, rate), with the reasons, and gets a reply draft: a warm yes with rates, or a kind no that names the reason. Recurring work and referrals score higher. One click turns a lead into a family.
 - **Families:** kids with birth dates and allergies (allergies show as a red pill everywhere), emergency contact, house notes.
 - **Schedule:** a live quote from the rate card (hourly, extra child, minimum hours, late-night extra, holiday multiplier, last-minute fee, late-cancellation fee), weekly repeats, double-booking and travel-gap warnings, and an `.ics` calendar file.
+- **Openings and the week view** (`slots.mjs`): free windows for the next weeks (weekly availability minus booked sits, a travel buffer each side and pending requests, at least the minimum-hours long), a copy-ready "Openings this week: Tue 3-10pm, Thu 3-6pm, Sat all day" post, a 7-day grid with sits as blocks and allergies on them, and a Skip/Restore button for one date of a weekly repeat.
 - **Money & taxes:** payments by family and method, expenses by Schedule C category, mileage at the IRS rate, net profit, self-employment tax (15.3% on 92.35%, Social Security capped at the wage base), a set-aside at the sitter's own brackets, the four quarterly due dates with a suggested payment each, unpaid sits, and flags: the $400 filing line, the household-employee threshold ($3,000 from one family in 2026, Publication 926), payment-app income and the 1099-K, missing mileage, and the EIN tip. A **year-end statement per family** gives parents what they need for Form 2441 or a dependent-care FSA.
 - **References & testimonials:** request drafts, a five-day follow-up, separate yes/no consent for "may new families call you" and "may your words go on my website". Only quotes marked yes reach the website, as first name and last initial.
 - **Website:** a one-file site built from the profile: story, certifications, rates, policies, the optional faith section, consented testimonials, `ChildCare` JSON-LD and an inquiry form (email by default, or the sitter's server). Download it and host it free anywhere.
@@ -46,6 +47,7 @@ ADMIN_KEY=$(openssl rand -hex 16) CAL_TOKEN=$(openssl rand -hex 12) STATE=desk.j
 | `/` | the app; Settings, "Sync" stores the desk on the server |
 | `/site` | the sitter's website, with the form posting to `/inquiry` |
 | `POST /inquiry` | form or JSON; honeypot field, 10 per IP per hour, 64 KB cap |
+| `GET/POST /book` | open times only (no family names or details); a request becomes a lead with status `requested` that holds its time until you approve or decline it in the Schedule tab. Never auto-confirmed. Honeypot, 10 per IP per hour. `BOOK_WEEKS` (default 2, max 8) sets how far ahead |
 | `/calendar.ics?t=CAL_TOKEN` | a feed a phone calendar can subscribe to |
 | `GET/PUT /api/desk`, `GET /api/today` | `Authorization: Bearer ADMIN_KEY` |
 

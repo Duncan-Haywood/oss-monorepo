@@ -7,6 +7,8 @@
 //   GET  /                 the app; "Sync" in the app stores the desk here (admin key)
 //   GET  /site             your marketing website, built from your profile and consented quotes
 //   POST /inquiry          the website's form: becomes a scored lead; optional auto-reply and alert
+//   GET|POST /book         open times only (no family data); a request becomes a lead with
+//                          status "requested" that the sitter approves in the app
 //   GET  /calendar.ics?t=  your sits as a feed your phone's calendar can subscribe to
 //   GET|PUT /api/desk      the desk as JSON (Authorization: Bearer ADMIN_KEY)
 //   GET  /api/today        today's to-do list (Authorization: Bearer ADMIN_KEY)
@@ -23,11 +25,12 @@ import http from "node:http";
 import { readFileSync, writeFileSync, renameSync, existsSync } from "node:fs";
 import { timingSafeEqual } from "node:crypto";
 import { normalizeDesk, emptyDesk, buildSite, leadFromForm, scoreLead, leadReply, followUpMessage, todayQueue, toICS, newId } from "./engine.mjs";
+import { openSlots, bookingRequest, bookPage, localMinutes } from "./slots.mjs";
 
 const MAX_BODY = 64 * 1024;
 const MAX_DESK = 8 * 1024 * 1024;
 const MAX_LEADS = 2000;
-const FILES = { "/": "index.html", "/index.html": "index.html", "/engine.mjs": "engine.mjs", "/usage.mjs": "usage.mjs" };
+const FILES = { "/": "index.html", "/index.html": "index.html", "/engine.mjs": "engine.mjs", "/usage.mjs": "usage.mjs", "/slots.mjs": "slots.mjs" };
 const TYPES = { html: "text/html; charset=utf-8", mjs: "text/javascript; charset=utf-8" };
 
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -109,6 +112,31 @@ export function handler(state, save, env = process.env, now = Date.now, fetchImp
       }
       save();
       await msg.sitter(`New babysitting lead: ${lead.name} (${sc.tier}, ${sc.score})`, [`Contact: ${lead.contact}`, lead.kids.length && `Kids: ${lead.kids.join(", ")}`, lead.schedule && `When: ${lead.schedule}`, lead.notes && `Notes: ${lead.notes}`, ...sc.reasons, lead.followUps ? "Auto-reply sent." : "Reply from the app's Today tab."].filter(Boolean).join("\n"));
+      return send(200, thanks);
+    }
+    if (url.pathname === "/book" && (req.method === "GET" || req.method === "POST")) {
+      // Public booking page: open times only. A request is a lead, never a booking.
+      const weeks = Math.min(8, Math.max(1, Number(env.BOOK_WEEKS) || 2));
+      const nowMin = localMinutes(now(), env.TZ);
+      const slots = () => openSlots(state.desk, { from: today, weeks, nowMin });
+      if (req.method === "GET") return send(200, bookPage(state.desk, slots()));
+      const ip = String(req.headers["x-forwarded-for"] || req.socket?.remoteAddress || "").split(",")[0].trim();
+      const key = `book|${ip}|${Math.floor(now() / 36e5)}`;
+      hits.set(key, (hits.get(key) || 0) + 1);
+      if (hits.size > 5000) hits.clear();
+      if (hits.get(key) > 10) return send(429, page("Slow down", "<p>Too many requests from here. Please try again later.</p>"));
+      const raw = await readBody(req);
+      if (raw === null) return send(413, page("Too long", "<p>That request was too long.</p>"));
+      let fields;
+      try { fields = /json/.test(req.headers["content-type"] || "") ? JSON.parse(raw) : Object.fromEntries(new URLSearchParams(raw)); } catch { fields = {}; }
+      const thanks = page("Request sent", `<p>Thank you! ${esc(state.desk.profile.name)} will confirm with you soon. Your time is not booked until then.</p><p><a href="/book">Back</a></p>`);
+      if (fields && fields.website) return send(200, thanks);
+      const r = bookingRequest(fields || {}, state.desk, today, { id: newId("lead"), nowMin, weeks });
+      if (!r.ok) return send(400, bookPage(state.desk, slots(), { message: r.why }));
+      state.desk.leads.push(r.lead);
+      if (state.desk.leads.length > MAX_LEADS) state.desk.leads.shift();
+      save();
+      await msg.sitter(`Booking request: ${r.lead.name}, ${r.lead.schedule}`, [`Contact: ${r.lead.contact}`, r.lead.kids.length && `Kids: ${r.lead.kids.join(", ")}`, r.lead.notes && `Notes: ${r.lead.notes}`, "Approve or decline it in the app's Schedule tab."].filter(Boolean).join("\n"));
       return send(200, thanks);
     }
     if (req.method === "GET" && url.pathname === "/calendar.ics") {

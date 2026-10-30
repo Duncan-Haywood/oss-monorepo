@@ -42,6 +42,13 @@
     .stat { display: inline-block; min-width: 140px; margin: 6px 16px 6px 0; } .stat b { display: block; font-size: 1.35rem; }
     [hidden] { display: none !important; }
     iframe { width: 100%; height: 520px; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
+    .wk { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; margin-top: 8px; }
+    .wk .col { position: relative; height: 420px; background: #faf6f3; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+    .wk .hd { font-size: .78rem; font-weight: 700; text-align: center; padding: 3px 0; }
+    .wk .open { position: absolute; left: 0; right: 0; background: #e3f1e3; }
+    .wk .sit { position: absolute; left: 3px; right: 3px; background: var(--accent2); border-left: 3px solid var(--accent); border-radius: 5px; padding: 2px 4px; font-size: .72rem; overflow: hidden; }
+    .wk .sit.skipped { opacity: .55; text-decoration: line-through; border-left-color: var(--soft); }
+    .wk .sit .pill { font-size: .6rem; padding: 1px 5px; }
     @media (max-width: 720px) { body { padding: 14px; } table { font-size: .85rem; } }
   </style>
 </head>
@@ -84,7 +91,7 @@
           <div><label for="l_source">How they found you</label><input id="l_source" name="source" placeholder="referral, church, Nextdoor"></div>
           <div><label for="l_distance">Miles away</label><input id="l_distance" name="distanceMiles" type="number" step="0.1" min="0"></div>
           <div><label for="l_budget">Their budget ($/hour)</label><input id="l_budget" name="budget" type="number" step="0.5" min="0"></div>
-          <div><label for="l_status">Status</label><select id="l_status" name="status"><option>new</option><option>contacted</option><option>meet-and-greet</option><option>booked</option><option>lost</option><option>declined</option></select></div>
+          <div><label for="l_status">Status</label><select id="l_status" name="status"><option>new</option><option>contacted</option><option>requested</option><option>meet-and-greet</option><option>booked</option><option>lost</option><option>declined</option></select></div>
           <div><label for="l_created">Received</label><input id="l_created" name="created" type="date"></div>
         </div>
         <label><input type="checkbox" name="faithActivities"> They asked for faith-based activities</label>
@@ -131,6 +138,20 @@
         <p id="quoteOut" class="msg" aria-live="polite"></p>
         <button type="submit">Save sit</button><button type="reset" class="secondary">Clear</button>
       </form>
+      <h3>Booking requests</h3>
+      <p class="note">Families who picked a time on your server's <code>/book</code> page. Nothing is booked until you approve it here.</p>
+      <div id="requestsList"></div>
+      <h3>Week view</h3>
+      <div class="grid"><div><label for="gridWeek">Week of</label><input id="gridWeek" type="date"></div></div>
+      <p><button type="button" class="secondary small" id="gridPrev">Previous week</button><button type="button" class="secondary small" id="gridNext">Next week</button> <span class="note">Green is open time. "Skip" takes one week off a weekly repeat.</span></p>
+      <div id="weekGrid"></div>
+      <h3>My openings</h3>
+      <div class="grid">
+        <div><label for="openWeeks">Weeks to list</label><input id="openWeeks" type="number" min="1" max="8" value="1"></div>
+        <div><label for="openBuffer">Travel buffer between sits (minutes)</label><input id="openBuffer" type="number" min="0" step="5"></div>
+      </div>
+      <pre id="openingsOut" class="msg"></pre>
+      <div id="openingsCopy"></div>
       <h3>Upcoming and recent sits</h3>
       <div id="conflictsOut"></div>
       <div id="bookingsList"></div>
@@ -289,6 +310,7 @@
   <script type="module">
     import * as E from "./engine.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    import * as S from "./slots.mjs";
 
     const STORE = "babysitting-business-kit-desk";
     const SYNC = "babysitting-business-kit-sync";
@@ -461,6 +483,7 @@
       const all = E.expandBookings(desk.bookings);
       const from = E.addDays(today(), -14);
       $("bookingsList").innerHTML = table(["When", "Family", { t: "Quote", n: 1 }, "Status", ""], all.filter((b) => b.date >= from).slice(0, 80).map((b) => { const qq = E.quote(b, desk.profile.rates, desk.profile.holidays); return `<tr><td>${esc(b.date)} ${E.DAYS[E.dayOf(b.date)]}<br>${esc(b.start)}-${esc(b.end)}${b.repeatWeeks > 1 ? ` <span class="note">(week ${b.occurrence + 1} of ${b.repeatWeeks})</span>` : ""}</td><td>${esc(famName(b.familyId))}</td><td class="n">${money(b.price || qq.total)}</td><td>${esc(b.status)}</td><td>${b.occurrence === 0 ? actions("bookings", b.id, "bookingForm") : ""}</td></tr>`; }));
+      renderSlots();
       const cf = E.conflicts(desk.bookings).filter((c) => c.a.date >= today());
       $("conflictsOut").innerHTML = cf.map((c) => `<p class="msg">${c.kind === "overlap" ? "Double-booked" : "Tight"}: ${esc(c.a.date)} ${esc(c.a.start)}-${esc(c.a.end)} ${esc(famName(c.a.familyId))} and ${esc(c.b.start)}-${esc(c.b.end)} ${esc(famName(c.b.familyId))} (${c.kind === "overlap" ? `${c.minutes} min overlap` : `${c.minutes} min to travel`})</p>`).join("");
 
@@ -514,6 +537,50 @@
       $("familyMsgs").innerHTML = m.map(([t, x]) => `<h3>${t}</h3><div class="msg">${esc(x)}</div>${copyBtn(x)}`).join("");
     }
     $("msgFamily").addEventListener("change", renderFamilyMsgs);
+
+    // ---- open slots, openings text, week grid, booking requests (slots.mjs)
+    function renderSlots() {
+      if (!$("gridWeek").value) $("gridWeek").value = S.weekStart(today());
+      if ($("openBuffer").value === "") $("openBuffer").value = S.bufferOf(desk.profile);
+      const buf = Number($("openBuffer").value) || 0;
+      const reqs = S.pendingRequests(desk);
+      $("requestsList").innerHTML = table(["Request", "When", "Fits?", ""], reqs.map((l) => { const r = l.requested; const chk = E.canTake({ ...desk, leads: desk.leads.filter((x) => x.id !== l.id) }, { ...r, id: "__req" }, buf); return `<tr><td><strong>${esc(l.name)}</strong><br><span class="note">${esc(l.contact)}${l.kids && l.kids.length ? ` · ages ${esc(l.kids.join(", "))}` : ""}${l.notes ? ` · ${esc(l.notes)}` : ""}</span></td><td>${esc(r.date)} ${E.DAYS[E.dayOf(r.date)]}<br>${esc(r.start)}-${esc(r.end)}</td><td>${chk.ok ? `<span class="pill good">free</span>` : `<span class="pill bad">${esc(chk.why.join("; "))}</span>`}</td><td><button type="button" class="small" data-approve="${esc(l.id)}">Approve</button><button type="button" class="secondary small" data-decline="${esc(l.id)}">Decline</button><details><summary>Replies</summary><div class="msg">${esc(S.requestReply(l, desk.profile, true))}</div>${copyBtn(S.requestReply(l, desk.profile, true))}<div class="msg">${esc(S.requestReply(l, desk.profile, false))}</div>${copyBtn(S.requestReply(l, desk.profile, false))}</details></td></tr>`; }));
+      const g = S.weekGrid(desk, $("gridWeek").value, { bufferMin: buf, today: today() });
+      const pct = (x) => `${(x * 100).toFixed(2)}%`;
+      $("weekGrid").innerHTML = `<p class="note">${esc(g.from)} to ${esc(g.to)}</p><div class="wk">${g.days.map((d) => `<div><div class="hd">${esc(d.day)} ${esc(d.date.slice(5))}</div><div class="col">${d.open.map((w) => `<div class="open" style="top:${pct(w.top)};height:${pct(w.height)}" title="open ${esc(w.start)}-${esc(w.end)}"></div>`).join("")}${d.blocks.map((b) => `<div class="sit${b.skipped || b.status === "cancelled" ? " skipped" : ""}" style="top:${pct(b.top)};min-height:${pct(b.height)}"><strong>${esc(b.start)}-${esc(b.end)}</strong> ${esc(b.family)}${b.allergies.map((a) => ` <span class="pill bad">${esc(a)}</span>`).join("")}${b.repeats ? `<br><button type="button" class="secondary small" data-skip="${esc(b.id)}|${esc(b.date)}">${b.skipped ? "Restore" : "Skip"}</button>` : ""}</div>`).join("")}</div></div>`).join("")}</div>`;
+      const days = S.openSlots(desk, { from: today(), weeks: Math.min(8, Math.max(1, Number($("openWeeks").value) || 1)), bufferMin: buf, nowMin: new Date().getHours() * 60 + new Date().getMinutes() });
+      let bookUrl = "";
+      try { const u = JSON.parse(localStorage.getItem(SYNC) || "{}").url; if (u) bookUrl = `${u}/book`; } catch { /* no server */ }
+      const text = S.openingsText(days, { from: today(), bookUrl });
+      $("openingsOut").textContent = text || "Set your weekly availability in Settings.";
+      $("openingsCopy").innerHTML = text ? copyBtn(text) : "";
+    }
+    for (const id of ["gridWeek", "openWeeks", "openBuffer"]) $(id).addEventListener("change", renderSlots);
+    $("gridPrev").addEventListener("click", () => { $("gridWeek").value = E.addDays(S.weekStart($("gridWeek").value || today()), -7); renderSlots(); });
+    $("gridNext").addEventListener("click", () => { $("gridWeek").value = E.addDays(S.weekStart($("gridWeek").value || today()), 7); renderSlots(); });
+    document.addEventListener("click", (e) => {
+      const t = e.target.closest("button");
+      if (!t) return;
+      if (t.dataset.skip) {
+        const [id, date] = t.dataset.skip.split("|");
+        const i = desk.bookings.findIndex((b) => b.id === id);
+        if (i < 0) return;
+        try { desk.bookings[i] = S.toggleSkip(desk.bookings[i], date); } catch (err) { alert(err.message); return; }
+        record("occurrence_skipped");
+        save();
+      }
+      if (t.dataset.approve) {
+        const r = S.approveRequest(desk, t.dataset.approve, { today: today() });
+        if (!r.check.ok && !confirm(`Heads up: this sit is ${r.check.why.join("; ")}. Approve anyway?`)) return;
+        desk = r.desk;
+        record("request_approved");
+        save();
+      }
+      if (t.dataset.decline) {
+        const l = desk.leads.find((x) => x.id === t.dataset.decline);
+        if (l && confirm(`Decline ${l.name}'s request? Copy the reply first if you want to send it.`)) { l.status = "declined"; record("request_declined"); save(); }
+      }
+    });
 
     function renderSite() { $("sitePreview").srcdoc = E.buildSite(desk); }
     $("siteRefresh").addEventListener("click", renderSite);
