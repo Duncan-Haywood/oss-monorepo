@@ -57,6 +57,7 @@ const FILES = { "/": "index.html", "/index.html": "index.html", "/engine.mjs": "
 const TYPES = { html: "text/html; charset=utf-8", mjs: "text/javascript; charset=utf-8" };
 // The installable app (PWA) and the guide pages, so a self-hosted copy works offline and links resolve.
 for (const f of ["tabs.mjs", "sw.js", "manifest.webmanifest", "icon.svg", "icon-192.png", "icon-512.png", "icon-maskable-512.png", "apple-touch-icon.png", "babysitting-taxes.html", "how-to-start-a-babysitting-business.html", "how-much-to-charge-for-babysitting.html", "babysitting-references.html", "self-host.html", "network.mjs", "network-ui.mjs"]) FILES[`/${f}`] = f;
+for (const f of ["tabs.mjs", "credentials.mjs", "credentials-ui.mjs", "babysitting-business-setup.html", "sw.js", "manifest.webmanifest", "icon.svg", "icon-192.png", "icon-512.png", "icon-maskable-512.png", "apple-touch-icon.png", "babysitting-taxes.html", "how-to-start-a-babysitting-business.html", "how-much-to-charge-for-babysitting.html", "babysitting-references.html", "self-host.html"]) FILES[`/${f}`] = f;
 Object.assign(TYPES, { js: "text/javascript; charset=utf-8", webmanifest: "application/manifest+json", svg: "image/svg+xml", png: "image/png" });
 
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);

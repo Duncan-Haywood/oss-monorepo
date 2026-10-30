@@ -70,6 +70,8 @@ export function normalizeDesk(d) {
   for (const k of ["leads", "families", "bookings", "expenses", "references"]) out[k] = Array.isArray(d[k]) ? d[k].filter((x) => x && typeof x === "object") : [];
   if (d.automations && typeof d.automations === "object" && !Array.isArray(d.automations)) out.automations = d.automations; // sent log and opt-outs (automations.mjs)
   if (d.safety && typeof d.safety === "object" && !Array.isArray(d.safety)) out.safety = d.safety; // late-sit check-ins (safety.mjs)
+  if (Array.isArray(d.credentials)) out.credentials = d.credentials.filter((x) => x && typeof x === "object"); // the sitter's own credentials (credentials.mjs)
+  if (d.business && typeof d.business === "object" && !Array.isArray(d.business)) out.business = d.business; // business-readiness ticks (credentials.mjs)
   if (Array.isArray(d.posts)) out.posts = d.posts.filter((x) => x && typeof x === "object"); // blog posts (content.mjs)
   if (d.agreements && typeof d.agreements === "object" && !Array.isArray(d.agreements)) out.agreements = d.agreements; // agreement versions (agreements.mjs)
   if (d.network && typeof d.network === "object" && !Array.isArray(d.network)) out.network = d.network; // backup sitters and pass-ons (network.mjs)

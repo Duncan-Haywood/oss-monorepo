@@ -73,7 +73,7 @@
   <header>
     <h1>Babysitting Business Kit</h1>
     <p>The back office for a one-person babysitting business: answer the right inquiries first, quote and schedule sits without double-booking, know who still owes you, set aside the right amount for taxes, collect references, and publish your own website. Free, and it runs in your browser. <a href="#about">How it works</a> · <a href="babysitting-taxes.html">Babysitting taxes, explained</a></p>
-    <p class="note" id="guides">Guides: <a href="how-to-start-a-babysitting-business.html">How to start a babysitting business</a> · <a href="how-much-to-charge-for-babysitting.html">How much to charge for babysitting</a> · <a href="babysitting-references.html">Babysitting references</a></p>
+    <p class="note" id="guides">Guides: <a href="how-to-start-a-babysitting-business.html">How to start a babysitting business</a> · <a href="how-much-to-charge-for-babysitting.html">How much to charge for babysitting</a> · <a href="babysitting-references.html">Babysitting references</a> · <a href="babysitting-business-setup.html">Setting up your babysitting business</a></p>
     <p class="note" id="firstrun">Your data is saved in this browser. Download a backup in <strong>Settings</strong> now and then. <button type="button" class="secondary small" id="loadExample">Load an invented example</button></p>
   </header>
 
@@ -100,6 +100,7 @@
       <p class="note">New inquiries and follow-ups, unpaid sits, references to chase, families to invite back, tax deadlines and tomorrow's sits, most urgent first. Copy the drafted message, send it the way you normally do, then mark it done.</p>
       <div id="todayList"></div>
       <div id="autoToday"></div>
+      <div id="credToday"></div>
     </section>
 
     <section data-panel="leads" class="card" hidden>
@@ -389,6 +390,8 @@
         </div>
         <button type="submit">Save settings</button>
       </form>
+      <h3>Credentials and business setup</h3>
+      <div id="credSettings"></div>
       <h3>Automations (sent by your own server)</h3>
       <div id="autoSettings"></div>
       <h3>Backup</h3>
@@ -440,6 +443,7 @@
     import { mountContent } from "./content-ui.mjs";
     import { mountNetwork } from "./network-ui.mjs";
     import { mountSafety } from "./safety-ui.mjs";
+    import * as CRED from "./credentials-ui.mjs";
     import { enhanceTabs } from "./tabs.mjs";
 
     const STORE = "babysitting-business-kit-desk";
@@ -458,6 +462,7 @@
     let renderAgreements = () => {};
     let renderNetwork = () => {};
     let renderSafety = () => {};
+    let renderCredentials = () => {};
 
     function load() {
       try { return E.normalizeDesk(JSON.parse(localStorage.getItem(STORE) || "null")); } catch { return E.emptyDesk(); }
@@ -683,6 +688,7 @@
       renderAgreements();
       renderNetwork();
       renderSafety();
+      renderCredentials();
       fillForm($("profileForm"), { ...desk.profile, certifications: desk.profile.certifications, holidays: desk.profile.holidays, followUpDays: desk.profile.followUpDays });
       $("profileForm").scrollIntoView = () => {};
     }
@@ -939,6 +945,7 @@
     renderAutomations = mountAutomations({ getDesk: () => desk, save, esc, record });
     renderAgreements = mountAgreements($("agreementsKit"), { getDesk: () => desk, save, esc, record, serverUrl: () => $("syncUrl").value.trim(), openPage });
     renderNetwork = mountNetwork($("networkKit"), { getDesk: () => desk, save, esc, record, today, server: () => ({ url: $("syncUrl").value.trim().replace(/\/+$/, ""), key: $("syncKey").value }) });
+    renderCredentials = CRED.mountCredentials({ getDesk: () => desk, save, esc, record, today });
     $("contentStart").value = today();
     mountContent($("contentKit"), { getDesk: () => desk, save, record, today, buildSite: (d) => E.buildSite(d) });
     renderSafety = mountSafety($("safetyKit"), { getDesk: () => desk, save, esc, record, today, openPage, server: () => ({ url: $("syncUrl").value.trim().replace(/\/+$/, ""), key: $("syncKey").value }) });
