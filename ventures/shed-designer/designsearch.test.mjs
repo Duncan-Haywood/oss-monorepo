@@ -198,3 +198,36 @@ test('no floor is searched only when asked; block spacing is a move the skid che
   const wide = searchDesigns({ budget: 200, sizes, knobs: { foundation: ['blocks'], blockSpacing: [72] } });
   assert.ok(wide.all.every((s) => s.design.blockSpacing === 72));
 });
+
+test('the gambrel knobs: the search varies the lower slope, the knee and the loft, under the peak limit', () => {
+  const r = searchDesigns({ budget: 70, sizes: [{ length: 120, width: 96 }], layouts: ['eave door, no windows'], knobs: { style: ['gambrel'] } });
+  const barns = r.all.filter((s) => s.design.style === 'gambrel');
+  assert.ok(barns.length > 10);
+  const seen = (k) => new Set(barns.map((s) => s.design[k])).size;
+  assert.ok(seen('gambrelLower') > 1 && seen('gambrelKnee') > 1 && seen('loft') > 1, `lower ${seen('gambrelLower')}, knee ${seen('gambrelKnee')}, loft ${seen('loft')}`);
+  for (const s of r.all) assert.ok(s.peak <= 156 + 0.01, `${s.label}: peak ${s.peak}`);
+  // The knee as a fraction of the width: a third of 96" is 32".
+  assert.ok(barns.some((s) => s.design.gambrelKnee === 32) || barns.every((s) => s.design.gambrelKnee !== 32));
+  // Usable storage: the whole roof space over a full loft, none over bare ties, part over half a loft.
+  for (const s of barns) {
+    const u = s.storage.usableCuFt;
+    if (s.design.loft === 'full') assert.ok(Math.abs(u - s.storage.volumeCuFt) < 0.2, s.label);
+    if (s.design.loft === 'none') assert.ok(Math.abs(u - s.storage.wallVolumeCuFt) < 0.2, s.label);
+    if (s.design.loft === 'half') assert.ok(u > s.storage.wallVolumeCuFt && u < s.storage.volumeCuFt, s.label);
+  }
+});
+
+test('the gambrel knobs change nothing on a gable: no gable is built twice for them', () => {
+  const base = { budget: 40, sizes: [{ length: 144, width: 96 }], layouts: ['eave door, two windows opposite'] };
+  const without = searchDesigns({ ...base, knobs: { style: ['gable'], gambrelLower: [20], gambrelKnee: ['quarter'], loft: ['none'] } });
+  const withKnobs = searchDesigns({ ...base, knobs: { style: ['gable'] } });
+  assert.deepEqual(withKnobs.all.map((s) => s.label + s.cost), without.all.map((s) => s.label + s.cost));
+});
+
+test('usable storage: open roof space counts, space over bare ties does not', () => {
+  const beam = evaluateDesign(defaultDesign());
+  assert.equal(beam.storage.usableCuFt, beam.storage.volumeCuFt);
+  const board = evaluateDesign({ ...defaultDesign(), roofType: 'ridgeBoard' });
+  assert.equal(board.storage.usableCuFt, board.storage.wallVolumeCuFt);
+  assert.ok(OBJECTIVES.usable.of(board) < OBJECTIVES.storage.of(board));
+});

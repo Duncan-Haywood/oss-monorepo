@@ -81,6 +81,20 @@ test(`random designs keep every invariant (seed ${SEED}, ${N} designs)`, async (
   assert.equal(failures.length, 0, `${failures.length} of ${N} designs broke an invariant`);
 });
 
+// The same sweep with no floor (walls on perimeter timbers): every plate on a timber, every post on a pier.
+test(`random floorless designs keep every invariant (seed ${SEED + 200}, ${Math.ceil(N / 2)} designs)`, () => {
+  const r = rng(SEED + 200);
+  const failures = [];
+  for (let i = 0; i < Math.ceil(N / 2); i++) {
+    const d = { ...randomDesign(r), floor: 'none' };
+    let bad;
+    try { bad = invariants(d); } catch (e) { bad = [`throws: ${e.stack.split('\n').slice(0, 3).join(' | ')}`]; }
+    if (bad.length) failures.push({ i, bad, d });
+  }
+  if (failures.length) console.log(JSON.stringify(failures.slice(0, 4)));
+  assert.equal(failures.length, 0, `${failures.length} floorless designs broke an invariant`);
+});
+
 // Saved files, localStorage and #d= links can carry anything: every field of
 // the design and of each opening is replaced at random by junk.
 test('junk in a saved or linked design never throws and never prices to NaN', () => {

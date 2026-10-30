@@ -6,6 +6,8 @@ tags: [start-here, onboarding, open-source]
 description: "New here? One page per kind of reader: what you get, who each project is for, your first ten minutes, and the honest limits."
 ---
 
+**Want to help?** Start with [every way to help](2026-10-30-start-here-every-way-to-help.md), the master guide to contributing.
+
 This repository is large: more than 1,300 free tools, about 1,000 open research projects, and a fleet of AI coding agents that adds to both every day. That size makes it hard to answer the first question a newcomer has: what is in it for me?
 
 These posts answer it, one kind of reader at a time. Each one says who it is for, what you get, how to spend your first ten minutes, what it costs (nothing), where your data goes, and what the project does not do yet. Everything here is MIT licensed, so you may use it for anything, including commercially.
@@ -24,10 +26,14 @@ These posts answer it, one kind of reader at a time. Each one says who it is for
 - **[League Schedule Generator](2026-10-29-start-here-league-schedule-generator.md):** a fair season from a list of team names, and rainouts that move only what has to move.
 - **[ShootFlow](2026-10-29-start-here-photo-editing.md):** a verified memory-card copy and an overnight first pass for photographers.
 - **[Quick Pick](2026-10-29-start-here-quick-pick-survey.md):** rank a list by asking people to choose one of two. It is a self-hosted prototype.
+- **[Tax set-aside for freelancers](2026-10-30-start-here-freelancer-tax-set-aside.md):** how much of each payment to put aside, in eleven countries, plus a US year-end tax pack. Estimates, not tax advice.
+- **[Open Tennis Robots](2026-10-30-start-here-open-tennis-robots.md):** an open ball machine with a moving catch net and a ball-collecting rover, for coaches, clubs and makers. Designed and simulated, not yet built.
 
-## If you build houses
+## If you build houses, or a shed
 
-**[Wall Framing Takeoff](2026-10-29-start-here-wall-framing-takeoff.md):** a lumber order, cut list and drawings from your wall list, with a self-check on every wall. It is the first tool in a long-running programme to automate parts of new-home construction.
+- **[Wall Framing Takeoff](2026-10-29-start-here-wall-framing-takeoff.md):** a lumber order, cut list and drawings from your wall list, with a self-check on every wall. It is the first tool in a long-running programme to automate parts of new-home construction.
+- **[Shed Designer](2026-10-30-start-here-shed-designer.md):** plan a backyard shed board by board, with a shopping list, cut sheet and a screening check of the structure.
+- **[House construction research](2026-10-30-start-here-house-construction-research.md):** the open studies behind those tools: spans, framing, panels built off site, costs and schedules.
 
 ## If you work with data
 
@@ -35,16 +41,35 @@ These posts answer it, one kind of reader at a time. Each one says who it is for
 
 ## If you do research or want to check it
 
-**[The open research](2026-10-29-start-here-research.md):** reproducible papers with their code, how to re-run one, how to cite it, and how to tell us a result is wrong.
+**[The open research](2026-10-29-start-here-research.md):** reproducible papers with their code, how to re-run one, how to cite it, and how to tell us a result is wrong. Then one guide per research programme:
+
+- **[Certifying robots with a simulator](2026-10-30-start-here-sim2real-robot-testing.md):** how few real trials you need when a biased simulator supplies the rest.
+- **[Verifiable training](2026-10-30-start-here-verifiable-training.md):** scoring rules, audits and incentives for checking outsourced ML training.
+- **[Low-communication training](2026-10-30-start-here-low-communication-training.md):** what sets the final loss when workers sync rarely, DiLoCo-style.
+- **[Open-source chip design](2026-10-30-start-here-open-source-chip-design.md):** cheap estimates that rank designs like real SKY130 place-and-route.
+- **[LLM coding of qualitative data](2026-10-30-start-here-llm-coding-qualitative-data.md):** valid statistics after an LLM codes your open-ended answers.
+- **[Marine hulls](2026-10-30-start-here-marine-hull-research.md):** which hull carries a survey payload furthest per kWh.
+- **[Scale-model drones](2026-10-30-start-here-drone-scale-models.md):** what a scale model of a cargo UAV tells you about the full-size aircraft, and where it lies.
+- **[Excavator hydraulics](2026-10-30-start-here-excavator-hydraulics.md):** which buildable hydraulic circuit gets a small excavator closest to stock energy use.
+- **[How the agent fleet is measured](2026-10-30-start-here-how-the-agent-fleet-is-measured.md):** cost per merged PR, PR flow and errors, measured on this repository's own AI agents.
 
 ## If you write software or use AI agents
 
 **[Tools for your AI agent](2026-10-29-start-here-ai-agents-and-mcp.md):** call any of the tools' calculation engines from the command line or as a local MCP server in Claude Code, Cursor and other clients. The post also covers a bring-your-own-key LLM client and `uitest`.
 
+- **[LLM cost and safety tools](2026-10-30-start-here-llm-cost-and-safety-tools.md):** catch runaway spend, output regressions and risky MCP servers before your users do.
+- **[Run agents on your own repo](2026-10-30-start-here-run-agents-on-your-own-repo.md):** copy this repository's way of letting scheduled AI sessions open and merge pull requests, with its safety rules.
+
 ## If you want to run it yourself, or help
 
 - **[Run your own copy](2026-10-29-start-here-self-hosting.md):** deploy a tool or a self-hosted app, embed one in your site, or build a business on one. It covers what the MIT licence allows and what you take on.
-- **[Contributing](2026-10-29-start-here-contributing.md):** ideas first, then wrong numbers, fixes and pull requests, and how outside contributions are handled.
+- **[Every way to help](2026-10-30-start-here-every-way-to-help.md):** the master guide to contributing, six routes from a one-line idea to a pull request.
+- **[Contributing](2026-10-29-start-here-contributing.md):** how ideas and fixes reach the repository, and how outside contributions are handled.
+- **[Report a wrong number](2026-10-30-start-here-report-a-wrong-number.md):** a correction with a source that any later session can act on.
+- **[Share real data](2026-10-30-start-here-share-real-data.md):** the real inputs and measurements projects are asking for, and how to share them safely.
+- **[Reproduce a result](2026-10-30-start-here-reproduce-a-result.md):** re-run a research project and report what you find, match or mismatch.
+- **[Your first pull request](2026-10-30-start-here-your-first-pull-request.md):** from fork to opened PR, step by step.
+- **[Contribute from ChatGPT](2026-10-30-contribute-from-chatgpt.md):** draft an idea, check a number or send a fix through Codex, from ChatGPT.
 
 ## Ground rules that apply everywhere
 
