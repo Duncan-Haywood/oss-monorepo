@@ -11,6 +11,7 @@ export const SETUPS = {
   'mean': {},
   '--min-segment 20': { minSegment: 20 },
   '--ar1': { ar1: true },
+  '--ar1 joint': { ar1: 'joint' },
   'meanvar --bootstrap': { model: 'meanvar', bootstrap: true },
 };
 export const count = (d, o) => analyze({ ...d, ...o }).pelt.changepoints.length;

@@ -9,11 +9,11 @@ const load = (f) => {
   return { labels: rows.map((r) => r[0]), values: rows.map((r) => +r[1]) };
 };
 const want = {
-  lynx: { n: 114, counts: [23, 3, 0, 0] },
-  'sunspot-year': { n: 289, counts: [46, 7, 0, 0] },
+  lynx: { n: 114, counts: [23, 3, 0, 0, 0] },
+  'sunspot-year': { n: 289, counts: [46, 7, 0, 1, 0] },
 };
 for (const [f, w] of Object.entries(want)) {
-  test(`${f}: cycles read as steps by default; --ar1 and the meanvar bootstrap leave none`, () => {
+  test(`${f}: cycles read as steps by default; --ar1 and the meanvar bootstrap leave none (--ar1 joint one on sunspots)`, () => {
     const d = load(f);
     assert.equal(d.values.length, w.n);
     assert.deepEqual(Object.values(SETUPS).map((o) => count(d, o)), w.counts);

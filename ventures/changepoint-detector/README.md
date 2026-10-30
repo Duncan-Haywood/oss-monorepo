@@ -1215,6 +1215,8 @@ swings up and down every ten or eleven years, and a model of "flat segments" rea
 | `lynx` | 23 steps | 3 | 0 | 0 |
 | `sunspot-year` | 46 steps | 7 | 0 | 0 |
 
+(2026-10-30, later: `--ar1 joint` added as a fifth setup, `lynx` 0 steps, `sunspot-year` 1.)
+
 So on a cycle the default model is wrong by a wide margin, a longer minimum segment only thins the steps, and
 `--ar1` or the bootstrapped penalty removes them. Zero is the right answer here, but it is also the answer for a
 tool that finds nothing: this table says nothing about power on a series with a real step inside a cycle, which is
@@ -1247,4 +1249,17 @@ that both finds most steps and leaves a readable list, and it is still noisy (2 
 Practical reading: on a series with a visible cycle, use the bootstrapped `meanvar` for a large break and treat
 `--ar1` as a false-alarm filter that cannot confirm a step. Caveats: two series, one step shape, three positions,
 a tolerance of 3 points, so each cell is 3 trials; a step added to a real series is not a real step.
+
+**`--ar1 joint` keeps a step that plain `--ar1` buries (2026-10-30, same script and test, one more setup).** The joint
+fit prices persistence with the exact AR(1) likelihood instead of widening the noise scale, so a level shift is not
+absorbed whole. On the same inserted steps, hits out of 3 positions (0.5 / 1 / 2 sd): `lynx` 1 / 1 / 3 with 0 to 1
+other changes; `sunspot-year` 0 / 2 / 3 with 1 other each (the same single false step it reports with no inserted
+step, so it is not caused by the insertion). Plain `--ar1` found 0 / 0 / 0 on both. So the earlier advice to treat
+`--ar1` as a filter that cannot confirm a step holds for plain `--ar1` only: on a visible cycle, `--ar1 joint` finds
+a 2 sd step as often as the bootstrapped `meanvar` (3/3 on both), finds a 1 sd step on 3 of 6 cells where the
+bootstrap finds 2 of 6, and leaves at most one extra change. It still misses most 0.5 sd steps and has one false step
+on sunspots. Same caveats: two series, one step shape, 3 trials per cell, a step added to a real series is not a real
+step. Open: a joint fit with a second AR term (a cycle is closer to AR(2) than AR(1)), and a real series with a
+documented step inside a cycle.
+
 
