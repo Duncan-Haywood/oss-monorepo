@@ -191,4 +191,5 @@ jobs:
             gitops/ci/runner-entrypoint.sh \
             gitops/ci/host/register-and-run.sh \
             gitops/prod/host/refresh-site.sh \
-            platform/pages/publish-branch.sh
+            platform/pages/publish-branch.sh \
+            platform/pages/verify-live.sh
