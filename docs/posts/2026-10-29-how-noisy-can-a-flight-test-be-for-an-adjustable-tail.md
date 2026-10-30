@@ -1,6 +1,6 @@
 ---
 title: "How noisy can a flight test be before the adjustable tail stops working?"
-seo_title: "Pitch-mode identification noise and an adjustable tail on a sub-scale cargo UAV"
+seo_title: "Pitch-mode identification noise and an adjustable tail on a cargo UAV"
 date: 2026-10-29
 tags: [research, aerolog-scaling]
 description: "A least-squares fit of a simulated noisy free response shows what sensor noise and record length the adjustable-tail fix for a sub-scale cargo drone tolerates."

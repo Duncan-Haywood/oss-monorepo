@@ -1,6 +1,6 @@
 ---
 title: "A pilot screen that decides whether to stratify an LLM-label audit"
-seo_title: "Auditing LLM-coded text: using a pilot to choose pooled or coder-cell human audits"
+seo_title: "Auditing LLM-coded text: a pilot picks pooled or coder-cell audits"
 date: 2026-10-30
 description: "A 30% pilot estimates the LLM coder's informedness; pool when it is empty, use coder cells when informative. Tested on GoEmotions and NaijaSenti."
 tags: [research, llm-coding-inference, statistics]

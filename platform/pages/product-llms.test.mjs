@@ -24,6 +24,13 @@ test('a hand-written llms.txt gets the git date appended unless it already state
   assert.equal(withLlmsAsOf('# T\n', undefined), '# T\n');
 });
 
+test('a shallow build that cannot see the change states an upper bound, and a real date wins over it', () => {
+  const start = '2026-10-15T08:00:00+00:00';
+  assert.match(withLlmsAsOf('# T\n', undefined, start), /Source last changed: on or before 2026-10-15 \(older than/);
+  assert.match(withLlmsAsOf('# T\n', '2026-10-20T09:00:00+00:00', start), /Source last changed: 2026-10-20 \(from/);
+  assert.equal(withLlmsAsOf('# T\n', undefined, null), '# T\n');
+});
+
 test('check flags an undated llms.txt only where dates are available', async () => {
   const { llmsTxtMissingDate } = await import('./check.mjs');
   const dated = '# T\n\nSource last changed: 2026-10-20 (from git).\n';

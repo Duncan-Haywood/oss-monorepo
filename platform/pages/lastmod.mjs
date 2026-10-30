@@ -45,7 +45,16 @@ export async function loadLastChanged(repoRoot, pathspec = 'ventures') {
       const listed = await fs.readFile(new URL(file.trim(), `file://${repoRoot}/`).pathname, 'utf8').catch(() => '');
       boundary = new Set(listed.split('\n').filter(Boolean));
     }
-    return parseLastChanged(stdout, boundary);
+    const dates = parseLastChanged(stdout, boundary);
+    // A file with no date here last changed at or before the shallow boundary,
+    // so the boundary's date is a true upper bound (`historyStart`); null when
+    // history is complete or git cannot answer.
+    dates.historyStart = null;
+    if (boundary.size) {
+      const { stdout: when } = await git('show', '-s', '--format=%cI', ...boundary);
+      dates.historyStart = when.split('\n').filter(Boolean).sort().pop() ?? null;
+    }
+    return dates;
   } catch {
     return new Map();
   }

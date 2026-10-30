@@ -10475,8 +10475,11 @@ export function renderCatalog(surfaces, baseUrl, launched = {}) {
  * the tool's page and its source, and the standing caveat. Nothing is added
  * that the page does not already say.
  */
-export function llmsAsOfLine(updated) {
-  return /^\d{4}-\d{2}-\d{2}/.test(updated ?? '') ? `Source last changed: ${updated.slice(0, 10)} (from the repository's git history).` : '';
+export function llmsAsOfLine(updated, before) {
+  if (/^\d{4}-\d{2}-\d{2}/.test(updated ?? '')) return `Source last changed: ${updated.slice(0, 10)} (from the repository's git history).`;
+  // A shallow build cannot see the change itself, only that it predates the
+  // oldest commit it has (`historyStart` in lastmod.mjs): say exactly that.
+  return /^\d{4}-\d{2}-\d{2}/.test(before ?? '') ? `Source last changed: on or before ${before.slice(0, 10)} (older than the git history this build read).` : '';
 }
 
 /**
@@ -10484,14 +10487,14 @@ export function llmsAsOfLine(updated) {
  * date line; the build appends the git date instead, unless the author already
  * wrote a "last changed", "last updated" or "as of" line.
  */
-export function withLlmsAsOf(text, updated) {
-  const line = llmsAsOfLine(updated);
+export function withLlmsAsOf(text, updated, before) {
+  const line = llmsAsOfLine(updated, before);
   if (!line || /(last (changed|updated|verified)|as of)\s*:?\s*\d{4}-\d{2}-\d{2}/i.test(text)) return text;
   return `${text.replace(/\s+$/, '')}\n\n${line}\n`;
 }
 
-export function renderProductLlmsTxt({ slug, title, description, fullDescription, updated }, baseUrl) {
-  const asOf = llmsAsOfLine(updated) ? `\n${llmsAsOfLine(updated)}\n` : '';
+export function renderProductLlmsTxt({ slug, title, description, fullDescription, updated, before }, baseUrl) {
+  const asOf = llmsAsOfLine(updated, before) ? `\n${llmsAsOfLine(updated, before)}\n` : '';
   const one = (t) => String(t ?? '').replace(/\s+/g, ' ').trim();
   const body = one(fullDescription || description);
   return `# ${one(title)}
@@ -11107,11 +11110,11 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
     const ownLlmsDoc = existsSync(path.join(destination, 'llms.txt'));
     const sourceDate = (file) => sourceDates.get(path.relative(REPO_ROOT, path.join(surface.sourceDir, file)).split(path.sep).join('/'));
     if (!ownLlmsDoc) {
-      await fs.writeFile(path.join(destination, 'llms.txt'), renderProductLlmsTxt({ slug: surface.slug, title, description, fullDescription, updated: sourceDate('index.html') }, base));
+      await fs.writeFile(path.join(destination, 'llms.txt'), renderProductLlmsTxt({ slug: surface.slug, title, description, fullDescription, updated: sourceDate('index.html'), before: sourceDates.historyStart }, base));
     } else {
       const own = path.join(destination, 'llms.txt');
       const text = await fs.readFile(own, 'utf8');
-      const dated = withLlmsAsOf(text, sourceDate('llms.txt') ?? sourceDate('index.html'));
+      const dated = withLlmsAsOf(text, sourceDate('llms.txt') ?? sourceDate('index.html'), sourceDates.historyStart);
       if (dated !== text) await fs.writeFile(own, dated);
     }
 

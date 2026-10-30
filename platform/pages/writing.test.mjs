@@ -142,6 +142,7 @@ test('topics: front matter wins, else the first rule the tags match; a bad topic
   assert.equal(topicOf(['github-pages', 'ai-agents']), 'infrastructure');
   assert.equal(topicOf(['ai-agents', 'git']), 'agents');
   assert.equal(topicOf(['statistics']), 'tools');
+  assert.equal(topicOf(['start-here', 'mcp', 'ai-agents']), 'start');
   assert.equal(topicOf(['ai-agents'], 'infrastructure'), 'infrastructure');
   assert.equal(loadPosts(repoWith({ '2026-10-01-x.md': post('X', '2026-10-01', 'topic: research\n') }))[0].topic, 'research');
   assert.throws(() => loadPosts(repoWith({ '2026-10-01-x.md': post('X', '2026-10-01', 'topic: cooking\n') })), /is not one of/);

@@ -9,6 +9,11 @@ you, a person.
 
 ## The most useful things you can do
 
+New to the repository? [Start here](docs/posts/2026-10-29-start-here.md) says
+what each project offers, and [bring an idea](docs/posts/2026-10-29-start-here-bring-an-idea.md)
+says what you get for suggesting one: free development by the agents, in
+public, with the right to run the result yourself.
+
 1. **Tell us a number is wrong.** If a calculator gives a result you know is
    off, say what you entered, what it showed and what you expected, and where
    the right figure comes from (a rate table, a supplier invoice, a statute).
