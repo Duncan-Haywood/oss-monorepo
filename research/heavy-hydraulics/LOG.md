@@ -2,6 +2,16 @@
 
 Newest first.
 
+## 2026-10-30 · Milestone 3e: was 3d's k = 20 row only a bracket bug? (planned before running)
+- Why: 3d put the bad k = 20 row at 10.9 bar down to `section_area` bracketing the supply pressure at p_i + 400 bar. Fixed the bracket (it now grows until the sign changes; 1 new test) and reran `experiments/flow_share_shape.py` with k up to 50.
+- **Prediction (before running):** after the fix the median penalty is 0% for k = 20 at p_n 10.9 bar (prior 60%). Refuted if it is above 1%.
+
+### Outcome of 3e (`experiments/flow_share_shape_results.txt`, 5 s, seeded)
+- k <= 10 rows are unchanged to two decimals (the old bracket only failed above that). **Prediction refuted:** at p_n 10.9 bar k = 20 gives a median penalty of 17.1% (stall share 35.9%) and k = 50 gives 21.6% (100%); at p_n 1.44 bar k = 50 gives 11.8%.
+- Reading: the remaining rise is not a solver bug. With k this large each section is sized for a supply pressure above the 250 bar relief setting (its area is about 0.6 to 1.3, against 2 to 12 at k = 1), so with all sections open the pump flow cannot pass below relief and the lighter actuators are starved. That is a model-validity limit: the sizing rule "passes its demand alone at the supply pressure the closing law implies" stops describing a real valve when that pressure exceeds relief. So 3d's usable range is k up to about 10 at 10.9 bar and up to about 20 at 1.44 bar; the conclusion that a bypass closing inside the dead band (k >= 3 to 5) makes the open-centre time penalty small stands for k in range, and rows beyond are outside the model.
+- Limits: validity range read off the results, not enforced in code; sizing by rated flows A to E from the manual (3d "Next") would remove the issue and is still not done.
+- Next: size sections from the PVG 32 rated flows, add the compensator and feathering, then the time-penalised energy ranking.
+
 ## 2026-10-30 · Milestone 3d: what does the PVG 32 manual say about how fast the bypass closes? (planned before running)
 - Why: 3b's "Next" was to fit k from a bypass-versus-stroke curve. Opened this session (assets.danfoss.com now resolves): Danfoss PVG 32 Technical Information BC152886483664en-001601, July 2024 (the 2n source was the May 2021 revision), p. 95: "In total neutral position the connection to tank is less than 10 % of the full flow function. But when moving the spool out of neutral position but still within dead band area the connection will close." The same page's flow-versus-stroke curves show zero work-port flow for roughly the first 1.5 to 2 mm of a 7 mm stroke. The manual has **no** bypass-area-versus-stroke curve, so k cannot be fitted; it gives a bound: the bypass is shut before any section opens, which in 3a's terms is a large k.
 - Plan: add k = 5, 10, 20 to `experiments/flow_share_shape.py` (same cycles as 3b).

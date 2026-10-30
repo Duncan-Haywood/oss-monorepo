@@ -27,7 +27,7 @@ def run(p_n, k, n=300):
             pen.append(100 * (t1 / t0 - 1))
     return pen, dig
 
-KS = (0.5, 1.0, 1.5, 2.0, 3.0, 5.0, 10.0, 20.0)  # 5 to 20 added in 3c: bypass closed inside the dead band
+KS = (0.5, 1.0, 1.5, 2.0, 3.0, 5.0, 10.0, 20.0, 50.0)  # 5 to 20 added in 3d; 3e fixed the sizing bracket and added 50
 
 if __name__ == "__main__":
     for p_n in (10.9, 1.44):

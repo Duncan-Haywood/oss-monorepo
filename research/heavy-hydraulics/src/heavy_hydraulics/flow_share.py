@@ -33,8 +33,14 @@ def section_area(q_i, p_i, q_pump, a_b0, k=1.0):
     def resid(ps):
         a = q_i / sqrt(ps - p_i)
         return (a_b0 - k * a) * sqrt(ps) - (q_pump - q_i)
-    # resid falls from +inf-ish near p_i; root exists when q_i < q_pump
-    ps = _bisect(resid, p_i + 1e-6, p_i + 400.0)
+    # resid is negative at p_i (the section is huge) and positive at high ps, so the sign change is
+    # bracketed by growing the upper end. With a fast closing law (large k) the root can lie above the
+    # relief setting: the section is then tiny, the bracket p_i + 400 bar of 3a to 3d missed it and
+    # returned the endpoint, which made k = 20 at 10.9 bar a solver artefact (3d).
+    hi = p_i + 400.0
+    while resid(hi) <= 0 and hi < p_i + 1e7:
+        hi = p_i + 2.0 * (hi - p_i)
+    ps = _bisect(resid, p_i + 1e-6, hi)
     return q_i / sqrt(ps - p_i)
 
 
