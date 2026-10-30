@@ -273,3 +273,20 @@ test('on a phone the end view fills its box and every label is inside it', { ski
     assert.equal(r.out, 0, `labels outside the end view (${preset || 'default'})`);
   }
 });
+
+test('the part options table prices each choice, and "Use this" changes the design with one undo', { skip }, async (t) => {
+  const { page } = await open(t);
+  const before = await page.$eval('#total', (e) => e.textContent);
+  await page.click('#levers');
+  await page.waitForSelector('#levers-out table.levers');
+  const titles = await page.$$eval('#levers-out h4', (hs) => hs.map((h) => h.textContent));
+  for (const g of ['Foundation', 'Floor', 'Windows']) assert.ok(titles.includes(g), g);
+  assert.ok(titles.some((x) => /^Door /.test(x)));
+  const noWin = page.locator('#levers-out tr', { hasText: 'No windows' }).locator('button[data-lever]');
+  await noWin.click();
+  await settle(page);
+  assert.notEqual(await page.$eval('#total', (e) => e.textContent), before, 'the total moved');
+  await page.click('#undo');
+  await settle(page);
+  assert.equal(await page.$eval('#total', (e) => e.textContent), before, 'undo restores it');
+});
