@@ -13,6 +13,8 @@ import { createViewer } from './render3d.mjs';
 import { renderFor, slugOf } from './renders.mjs';
 import { designFacts, compareRows, tradeOff } from './designfacts.mjs';
 import { fmtFtIn, fmtIn } from './lumber.mjs';
+import { kitLineHtml } from './value.mjs';
+import { estimate, examplePrices } from './estimate.mjs';
 
 /** @typedef {{ id: string, title?: string, design: any, reason?: string }} Entry */
 
@@ -82,6 +84,12 @@ export function mountPicker(opts) {
     return /** @type {ReturnType<typeof designFacts>} */ (facts.get(id));
   };
   const allFacts = () => entries.map((e) => factsOf(e.id));
+  // The design's own roofing and paint, which store kits leave out (value.mjs).
+  const leftOutOf = (f) => {
+    const shed = buildShed(normalize(f.design));
+    const est = opts.priceOf ? opts.priceOf(shed) : estimate(shed, opts.prices?.() || examplePrices());
+    return est.shopping.filter((l) => l.section === 'Roofing' || l.section === 'Paint').reduce((t, l) => t + (l.total || 0), 0);
+  };
   const titleOf = (id) => entry(id)?.title || factsOf(id).name;
 
   /** @type {any} */
@@ -222,6 +230,7 @@ export function mountPicker(opts) {
             <div><dt>Shelf wall</dt><dd>${n1(f.storage.shelfFt)} ft with no door or window</dd></div>
             <div><dt>Headroom</dt><dd>${fmtFtIn(f.storage.headroom)} ${f.storage.open ? 'under the ridge beam, open to the roof' : 'under the rafter ties (more above them)'}</dd></div>
             <div><dt>Per $100</dt><dd>${n1(f.perDollar.sqFtPer100)} sq ft, ${Math.round(f.perDollar.cuFtPer100)} cu ft</dd></div>
+            ${kitLineHtml(f, 3, leftOutOf(f))}
           </dl>
         </section>
         <section aria-labelledby="dd-look"><h3 id="dd-look">Looks</h3>
