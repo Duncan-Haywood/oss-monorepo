@@ -38,7 +38,7 @@ def dead_links(root: Path) -> list[tuple[Path, str, str]]:
             base = root / "ventures" / slug
             if not base.is_dir():
                 bad.append((f, url, "no such venture"))
-            elif rest and not any(c.exists() for c in (base / rest, base / (rest + ".html"), base / rest / "index.html")):
+            elif rest and not any(c.exists() for b in (base, base / "site") for c in (b / rest, b / (rest + ".html"), b / rest / "index.html")):
                 bad.append((f, url, "page missing"))
     return bad
 

@@ -28,6 +28,16 @@ class DeadLinks(unittest.TestCase):
                 ["foo/gone.html", "foo/missing", "nope/"],
             )
 
+    def test_page_under_site_folder_counts(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            v = root / "ventures" / "foo"
+            (v / "site").mkdir(parents=True)
+            (v / "site" / "guide.html").write_text("x")
+            (v / "llms.txt").write_text(
+                "- [ok](https://duncan-haywood.github.io/oss-monorepo/foo/guide.html)\n")
+            self.assertEqual(c.dead_links(root), [])
+
 
 if __name__ == "__main__":
     unittest.main()
