@@ -43,14 +43,17 @@ The difference is large:
 | sha256, 1 core | 268 to 320 MB/s | 1396 to 1459 MB/s | ~5x (SHA-NI; not a general speed figure) |
 | CPU scaling at 4 processes | 3.4 to 3.9x | 3.8 to 4.1x | both get 4 real cores |
 | 8 processes on 4 cores | 3.8x | 3.9 to 4.0x | no hidden extra cores |
-| shed-designer node suite (409 tests), serial | 514 s | 368 s (C) | **1.4x** |
-| same, `--test-concurrency=4` | 217 s | 142 s (C) | **1.5x** |
+| shed-designer node suite (409 tests), serial | 514 s | 368 s (C), 399 s (B) | **1.3 to 1.4x** |
+| same, `--test-concurrency=4` | 217 s | 142 s (C), 150 s (B) | **1.4 to 1.5x** |
 
-The real-workload gap (1.4 to 1.5x) is smaller than the Python-loop gap
+The real-workload gap (1.3 to 1.5x) is smaller than the Python-loop gap
 (2.1x): the suite also spends time in process start-up, the file system and
-first-touch page faults, which differ less between hosts. Session C's
-container restarted between its two rounds (uptime 38 s at round 2) and the
-new VM was again Emerald Rapids.
+first-touch page faults, which differ less between hosts. **Idle sessions move VMs.** B and C sat idle about 13 minutes between
+rounds; when a message woke them, both were on fresh VMs (uptime 35 and 38 s),
+again Emerald Rapids. Both still had the repo checkout and could
+`git pull`; running processes and RAM contents cannot survive a VM change (we
+did not test which other files carried over). So a long job should be
+finished, or its output committed, before a session goes idle.
 
 **Consequence for research integrity:** a timing measured in one session is
 not comparable with one from another session unless both record the CPU.
