@@ -25,6 +25,8 @@
 //   AUTO_FOLLOW_UP=1: send due follow-ups to emailed leads with the daily digest
 //   TWILIO_ACCOUNT_SID + TWILIO_AUTH_TOKEN + TWILIO_FROM, PUBLIC_URL: texts and unsubscribe
 //     links for the automations the sitter turns on in Settings (automations-server.mjs)
+//   STRIPE_SECRET_KEY + STRIPE_WEBHOOK_SECRET: card payments on invoices, to your own
+//     Stripe account (invoices-server.mjs)
 //   LLM_PROVIDER (+ LLM_API_KEY, LLM_MODEL, LLM_BASE_URL; or OLLAMA_HOST): POST /api/draft
 //     drafts a blog post on your own model key; /site/blog serves posts you approved
 
@@ -41,6 +43,8 @@ import { mergeAutomationState } from "./automations.mjs";
 import { automationRoutes, runAutomations } from "./automations-server.mjs";
 import { blogRoute, serverDraft } from "./content.mjs";
 import { loadDesk, atomicWrite, backupApi, backupDir, dailyBackup } from "./backup.mjs";
+import { mergeInvoicePayments } from "./invoices.mjs";
+import { invoiceRoutes } from "./invoices-server.mjs";
 
 const MAX_BODY = 64 * 1024;
 const MAX_DESK = 8 * 1024 * 1024;
@@ -48,7 +52,7 @@ const MAX_LEADS = 2000;
 const FILES = { "/": "index.html", "/index.html": "index.html", "/engine.mjs": "engine.mjs", "/usage.mjs": "usage.mjs", "/taxes.mjs": "taxes.mjs", "/slots.mjs": "slots.mjs", "/intake.mjs": "intake.mjs", "/meet-and-greet.html": "meet-and-greet.html", "/references.mjs": "references.mjs", "/site.mjs": "site.mjs", "/print.mjs": "print.mjs", "/qr.mjs": "qr.mjs", "/automations.mjs": "automations.mjs", "/automations-ui.mjs": "automations-ui.mjs", "/content.mjs": "content.mjs", "/content-ui.mjs": "content-ui.mjs", "/byok.mjs": "byok.mjs", "/admin": "admin.html" };
 const TYPES = { html: "text/html; charset=utf-8", mjs: "text/javascript; charset=utf-8" };
 // The installable app (PWA) and the guide pages, so a self-hosted copy works offline and links resolve.
-for (const f of ["tabs.mjs", "sw.js", "manifest.webmanifest", "icon.svg", "icon-192.png", "icon-512.png", "icon-maskable-512.png", "apple-touch-icon.png", "babysitting-taxes.html", "how-to-start-a-babysitting-business.html", "how-much-to-charge-for-babysitting.html", "babysitting-references.html", "self-host.html"]) FILES[`/${f}`] = f;
+for (const f of ["tabs.mjs", "sw.js", "manifest.webmanifest", "icon.svg", "icon-192.png", "icon-512.png", "icon-maskable-512.png", "apple-touch-icon.png", "babysitting-taxes.html", "how-to-start-a-babysitting-business.html", "how-much-to-charge-for-babysitting.html", "babysitting-references.html", "self-host.html", "invoices.mjs", "invoices-ui.mjs"]) FILES[`/${f}`] = f;
 Object.assign(TYPES, { js: "text/javascript; charset=utf-8", webmanifest: "application/manifest+json", svg: "image/svg+xml", png: "image/png" });
 
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -98,12 +102,14 @@ export function handler(state, save, env = process.env, now = Date.now, fetchImp
   const msg = messenger(env, fetchImpl);
   const hits = new Map();
   const auto = automationRoutes(state, save, env, now, fetchImpl, msg.sitter);
+  const pay = invoiceRoutes(state, save, env, now, fetchImpl, msg.sitter); // invoices-server.mjs: /pay/<token>, /stripe/webhook
   return async (req, res) => {
     const send = (code, body, type = TYPES.html, extra = {}) => { res.writeHead(code, { "content-type": type, "x-content-type-options": "nosniff", "referrer-policy": "no-referrer", ...extra }); res.end(body); };
     const url = new URL(req.url, "http://x");
     const today = localDate(now(), env.TZ);
     if (url.pathname === "/healthz") return send(200, "ok\n", "text/plain");
     if (await auto(req, url, send)) return;
+    if (await pay(req, url, send)) return;
     if (req.method === "GET" && FILES[url.pathname]) {
       const f = FILES[url.pathname];
       return send(200, readFileSync(new URL(f, dir)), TYPES[f.split(".").pop()]);
@@ -219,6 +225,7 @@ export function handler(state, save, env = process.env, now = Date.now, fetchImp
         const fresh = state.desk.leads.filter((l) => !ids.has(l.id) && !known.has(l.id));
         incoming.automations = mergeAutomationState(state.desk.automations, incoming.automations);
         if (Array.isArray(incoming.references)) incoming.references = mergeReferences(state.desk, incoming.references); // keep answers that arrived by link
+        mergeInvoicePayments(state.desk, incoming); // card payments the server recorded
         state.desk = normalizeDesk(keepIntakes(state.desk, incoming)); // and info sheets families filled in
         state.desk.leads.push(...fresh);
         save();

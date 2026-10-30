@@ -83,6 +83,7 @@
     <button type="button" role="tab" data-tab="families">Families</button>
     <button type="button" role="tab" data-tab="schedule">Schedule</button>
     <button type="button" role="tab" data-tab="money">Money &amp; taxes</button>
+    <button type="button" role="tab" data-tab="invoices">Invoices</button>
     <button type="button" role="tab" data-tab="references">References</button>
     <button type="button" role="tab" data-tab="website">Website</button>
     <button type="button" role="tab" data-tab="content">Content</button>
@@ -235,6 +236,11 @@
       <h3>Year-end statement for a family (Form 2441 / dependent-care FSA)</h3>
       <div class="grid"><div><label for="stmtFamily">Family</label><select id="stmtFamily"></select></div></div>
       <pre id="stmtOut" class="msg"></pre>
+    </section>
+
+    <section data-panel="invoices" class="card" hidden>
+      <h2>Invoices &amp; getting paid</h2>
+      <div id="invoiceKit"></div>
     </section>
 
     <section data-panel="references" class="card" hidden>
@@ -419,6 +425,7 @@
     import * as P from "./print.mjs";
     import { mountAutomations } from "./automations-ui.mjs";
     import { mountContent } from "./content-ui.mjs";
+    import { mountInvoices } from "./invoices-ui.mjs";
     import { enhanceTabs } from "./tabs.mjs";
 
     const STORE = "babysitting-business-kit-desk";
@@ -912,6 +919,7 @@
     renderAutomations = mountAutomations({ getDesk: () => desk, save, esc, record });
     $("contentStart").value = today();
     mountContent($("contentKit"), { getDesk: () => desk, save, record, today, buildSite: (d) => E.buildSite(d) });
+    mountInvoices($("invoiceKit"), { getDesk: () => desk, save, record, today, serverUrl: () => $("syncUrl").value.trim().replace(/\/+$/, "") });
     record("page_loaded");
     render();
     show("today");

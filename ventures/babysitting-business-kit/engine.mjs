@@ -69,6 +69,7 @@ export function normalizeDesk(d) {
   out.profile = { ...out.profile, ...(d.profile || {}), rates: { ...out.profile.rates, ...((d.profile || {}).rates || {}) } };
   for (const k of ["leads", "families", "bookings", "expenses", "references"]) out[k] = Array.isArray(d[k]) ? d[k].filter((x) => x && typeof x === "object") : [];
   if (d.automations && typeof d.automations === "object" && !Array.isArray(d.automations)) out.automations = d.automations; // sent log and opt-outs (automations.mjs)
+  if (Array.isArray(d.invoices)) out.invoices = d.invoices.filter((x) => x && typeof x === "object"); // invoices (invoices.mjs)
   if (Array.isArray(d.posts)) out.posts = d.posts.filter((x) => x && typeof x === "object"); // blog posts (content.mjs)
   return out;
 }
@@ -449,7 +450,7 @@ export function unpaid(desk, today) {
     if (b.status === "cancelled") continue;
     const past = expandBookings([b]).filter((o) => o.status !== "cancelled" && o.date <= today);
     if (!past.length) continue;
-    let got = payments(b).reduce((a, p) => a + num(p.amount), 0);
+    let got = payments(b).filter((p) => !p.tip).reduce((a, p) => a + num(p.amount), 0); // a tip is income, not payment for a sit
     let owed = 0, oldest = null;
     for (const o of past) {
       const price = num(b.price, quote(o, desk.profile.rates, desk.profile.holidays).total);
