@@ -49,6 +49,12 @@ export const BUILT_IN = [
   ["6060", "out", /snapdocs.*(subscription|monthly)|notarycam|bluenotary|notarize\.com pro/],
   ["6100", "out", /notary (stamp|seal|journal)/],
   ["6110", "out", /secretary of state.*notary|notary commission/],
+  // Pool service routes (2026-10-30, poolservice.test.mjs; agent-written from the companies' public names, not from a real export):
+  // route-software payouts and customer Zelle are sales; chemical and equipment distributors are supplies; route software is software; CPO certification is a licence.
+  ["4000", "in", /skimmer payout|poolbrain payout|pool ?dash payout|zelle from .*pool service/],
+  ["6100", "out", /leslie'?s pool|scp pool|pool corp|pinch a penny|sctpool|chlorine|muriatic/],
+  ["6060", "out", /skimmer (subscription|monthly)|poolbrain (subscription|monthly)|pool ?dash (subscription|monthly)|pool ?office/],
+  ["6110", "out", /cpo certification|phta|nspf|pool operator (cert|licen)/],
   // Movers and junk removal (2026-10-30, movers.test.mjs; agent-written from the companies' public names, not from a real export):
   // lead-platform payouts and moving-software transfers are sales; truck rentals are vehicle costs; moving supplies and dump fees are supplies; scheduling software is software; USDOT/UCR filings are licences.
   ["4000", "in", /hireahelper payout|moving help payout|movebuddy payout|zelle from .*move deposit/],
