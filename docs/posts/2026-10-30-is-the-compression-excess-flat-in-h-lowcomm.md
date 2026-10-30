@@ -2,7 +2,7 @@
 title: "Does compression cost in low-communication training keep growing with local steps? Six seeds say it plateaus"
 seo_title: "Rand-k compression excess loss vs local steps H in DiLoCo, six seeds"
 date: 2026-10-30
-description: "At 915k parameters the loss added by rand-k keep 1/16 is flat near +0.045 to +0.05 nats from H = 16 to 128 with six seeds per cell; the earlier rise at H = 128 was three-seed noise."
+description: "At 915k parameters the loss added by rand-k keep 1/16 is flat near +0.045 to +0.05 nats from H = 16 to 128 with six seeds; the earlier rise was noise."
 tags: [research, lowcomm-training, local-sgd]
 ---
 
