@@ -6,6 +6,10 @@ repository for me, and how do I help? This page is the map for people and for
 agents: which guide to send each kind of reader to, what every guide contains,
 and how to add one.
 
+The contributing guides form a set of their own under one master post,
+[every way to help](../posts/2026-10-30-start-here-every-way-to-help.md):
+each of the others ends by linking back to it as well as to the hub.
+
 The reader-facing index is the hub post,
 [`docs/posts/2026-10-29-start-here.md`](../posts/2026-10-29-start-here.md),
 which the site shows under the "Start here" topic.
@@ -14,8 +18,12 @@ which the site shows under the "Start here" topic.
 
 | If the reader is... | Send them to |
 |---|---|
+| Anyone who wants to help but does not know how | [Every way to help](../posts/2026-10-30-start-here-every-way-to-help.md) (the master contributing guide) |
 | Someone with an idea for a tool | [Bring an idea](../posts/2026-10-29-start-here-bring-an-idea.md) |
-| Someone who wants to send a fix or a correction | [Contributing](../posts/2026-10-29-start-here-contributing.md) |
+| Someone who spotted a wrong figure | [Report a wrong number](../posts/2026-10-30-start-here-report-a-wrong-number.md) |
+| Someone who holds real data or can take a measurement | [Share real data](../posts/2026-10-30-start-here-share-real-data.md) |
+| A student or reviewer checking a research result | [Reproduce a result](../posts/2026-10-30-start-here-reproduce-a-result.md) |
+| A developer sending a first fix | [Your first pull request](../posts/2026-10-30-start-here-your-first-pull-request.md), then [Contributing](../posts/2026-10-29-start-here-contributing.md) |
 | A small business or tradesperson | [Free tools for your trade](../posts/2026-10-29-start-here-free-tools-for-your-trade.md), [AI Bookkeeper](../posts/2026-10-29-start-here-ai-bookkeeper.md), [Shift Roster Builder](../posts/2026-10-29-start-here-shift-roster-builder.md), [E-invoice preflight](../posts/2026-10-29-start-here-einvoice-preflight.md), [Sales Agent](../posts/2026-10-29-start-here-sales-agent.md), [League Schedule Generator](../posts/2026-10-29-start-here-league-schedule-generator.md), [Photo editing](../posts/2026-10-29-start-here-photo-editing.md), [Quick Pick](../posts/2026-10-29-start-here-quick-pick-survey.md) |
 | A freelancer or sole trader | [Tax set-aside calculators](../posts/2026-10-30-start-here-freelancer-tax-set-aside.md) |
 | A homeowner or builder | [Shed Designer](../posts/2026-10-30-start-here-shed-designer.md), [Wall Framing Takeoff](../posts/2026-10-29-start-here-wall-framing-takeoff.md), [House construction research](../posts/2026-10-30-start-here-house-construction-research.md) |
