@@ -1,5 +1,6 @@
 ---
 title: "A late-sit check-in for babysitters, and an emergency card that works offline"
+seo_title: "Babysitter late-sit check-in and an offline emergency card"
 date: 2026-10-30
 tags: [babysitting-business-kit, safety, self-hosted, privacy]
 description: "A check-in that alerts a trusted contact if a sitter isn't home on time, ignoring quiet hours, plus a per-family emergency card and a 10-item house checklist."

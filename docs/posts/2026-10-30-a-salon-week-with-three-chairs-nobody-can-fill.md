@@ -1,5 +1,6 @@
 ---
 title: "A four-stylist salon week leaves three chairs empty, and the schedule says which"
+seo_title: "A four-stylist salon week with three empty chairs, and why"
 date: 2026-10-30
 tags: [shift-roster-builder, scheduling, small-business]
 description: "A worked salon week: 13 of 16 chair-shifts covered for $1,466, and the three open ones point to a Saturday hiring decision."
