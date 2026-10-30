@@ -143,3 +143,26 @@ test('fuzz seed 11: a course picks its joints so the notched course above can st
     assert.ok(rows.length && rows.every((r) => r.ok), rows.map((r) => r.detail).join('\n'));
   }
 });
+
+test('two doors too close for a layout stud between their casings get an extra stud, so the lap joint lands on wood (fuzz seed 27311, #591)', async () => {
+  const { buildShed, defaultDesign } = await import('./model.mjs');
+  const d = {
+    ...defaultDesign(), length: 288, width: 108, wallHeight: 96.5, pitch: 9, overhang: 9, studSize: '2x6', studSpacing: 24, autoStuds: true,
+    roofType: 'ridgeBoard', rafterSize: '2x8', sidingType: 'fiber cement', sidingColor: 'pink', maxHaulFt: 12, maxFootprint: 0, maxPeak: 163,
+    openings: [
+      { id: 'o1', kind: 'door', wall: 'right', offset: 9, width: 54, height: 39, product: 'sr-48x72' },
+      { id: 'o3', kind: 'door', wall: 'front', offset: 145, width: 45, height: 59 },
+      { id: 'o4', kind: 'door', wall: 'front', offset: 216, width: 49, height: 40 },
+    ],
+  };
+  const shed = buildShed(d);
+  const front = shed.lap.find((f) => f.wall === 'front');
+  assert.ok(front.joints.length > 0);
+  assert.ok(front.joints.every((j) => j.backed), JSON.stringify(front.joints.filter((j) => !j.backed)));
+  const extra = shed.members.filter((m) => m.note === 'extra stud to back a lap siding butt joint');
+  assert.equal(extra.length, 1);
+  assert.ok(extra[0].local.s0 > 193 && extra[0].local.s1 < 213, JSON.stringify(extra[0].local));
+  assert.ok(shed.notes.some((n) => /added off the layout/.test(n)));
+  // A wall with room for its joints gets no extra stud.
+  assert.ok(!buildShed(defaultDesign()).members.some((m) => m.note === 'extra stud to back a lap siding butt joint'));
+});
