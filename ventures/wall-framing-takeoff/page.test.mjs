@@ -200,11 +200,13 @@ test("the drywall ceiling field reads and restores ceiling steps (length x drop)
 
 test("the insulation controls are read into plan.insulation and restored from a saved plan", () => {
   const html = page("index.html");
-  for (const id of ["inOn", "inBag", "inWaste", "inR", "inPrice", "inRim", "inAtticR", "inAtticPer", "inAtticBag", "insulationOut"]) assert.match(html, new RegExp(`id="${id}"`));
+  for (const id of ["inOn", "inBag", "inWaste", "inR", "inPrice", "inRim", "inAtticR", "inAtticPer", "inAtticBag", "inAtticHeel", "insulationOut"]) assert.match(html, new RegExp(`id="${id}"`));
   assert.match(html, /ins\.bagSqFt = Number\(\$\("#inBag"\)\.value\)/);
   assert.match(html, /plan\.insulation = ins/);
   assert.match(html, /layoutInsulation\(plan\.insulation, plan, result\)/);
   assert.match(html, /\$\("#inAtticBag"\)\.value = ins\.attic\?\.bagCuFt/);
+  assert.match(html, /ins\.attic\.heel = Number\(\$\("#inAtticHeel"\)\.value\)/);
+  assert.match(html, /\$\("#inAtticHeel"\)\.value = ins\.attic\?\.heel/);
   assert.match(html, /<code>insulation_on<\/code>/);
 });
 
