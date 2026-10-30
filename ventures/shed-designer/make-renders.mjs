@@ -6,6 +6,7 @@
 //   node make-renders.mjs            redraw the designs whose scene changed
 //   node make-renders.mjs --all      redraw everything
 //   node make-renders.mjs --check    exit 1 if any picture is stale (no browser)
+//   node make-renders.mjs --only=gallery-   redraw only the stale targets with that slug prefix
 //
 // Needs Playwright with Chromium: set PLAYWRIGHT to its index.js, or the cloud
 // session's /opt/node-tools copy is found on its own. The scene hash covers
@@ -217,7 +218,10 @@ async function main(argv) {
     return;
   }
   const targets = allTargets();
-  const todo = argv.includes('--all') ? targets : staleTargets();
+  // --only=<prefix> redraws just the targets whose slug starts with it (say
+  // gallery- after make-gallery.mjs), leaving other lanes' stale pictures alone.
+  const only = argv.find((a) => a.startsWith('--only='))?.slice(7);
+  const todo = (argv.includes('--all') ? targets : staleTargets()).filter((t) => !only || t.slug.startsWith(only));
   const manifest = readManifest();
   manifest.designs ||= {};
   mkdirSync(OUT, { recursive: true });

@@ -9,12 +9,31 @@
 // It takes under a minute: two design searches (designsearch.mjs). Each card's
 // strip picture is drawn by make-renders.mjs (galleryTargets), which redraws
 // only the cards whose design changed.
+//
+// The site build runs it too (platform/pages/generated-pages.mjs), so each
+// deploy's cards are searched with that deploy's prices. Several build steps
+// call the generators; a stamp (.gallery-stamp, not committed) of the engine's
+// sources and data lets the later calls skip the search when nothing changed.
 
-import { writeFileSync, readFileSync } from 'node:fs';
+import { writeFileSync, readFileSync, readdirSync, existsSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { generateGallery } from './gallery.mjs';
 
 const OUT = fileURLToPath(new URL('./gallery-data.mjs', import.meta.url));
+const STAMP = fileURLToPath(new URL('./.gallery-stamp', import.meta.url));
+
+/** A hash of every source the search reads: the venture's modules (not tests or the output) and data files. */
+export function inputsHash() {
+  const dir = fileURLToPath(new URL('.', import.meta.url));
+  const files = [
+    ...readdirSync(dir).filter((f) => f.endsWith('.mjs') && !f.endsWith('.test.mjs') && f !== 'gallery-data.mjs').map((f) => dir + f),
+    ...(existsSync(dir + 'data') ? readdirSync(dir + 'data').sort().map((f) => `${dir}data/${f}`) : []),
+  ].sort();
+  const h = createHash('sha256');
+  for (const f of files) h.update(f.slice(dir.length)).update('\0').update(readFileSync(f)).update('\0');
+  return h.digest('hex');
+}
 
 /** The module text for a generated gallery. @param {any[]} entries */
 export function galleryModule(entries) {
@@ -26,6 +45,12 @@ export const GALLERY_DESIGNS = ${JSON.stringify(rows, null, 1)};
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
+  const stamp = inputsHash();
+  const fresh = (() => { try { return readFileSync(STAMP, 'utf8') === stamp && existsSync(OUT); } catch { return false; } })();
+  if (fresh && !process.argv.includes('--check')) {
+    console.log('gallery-data.mjs was written from these sources already (.gallery-stamp); skipping the search');
+    process.exit(0);
+  }
   const text = galleryModule(generateGallery());
   if (process.argv.includes('--check')) {
     let now = '';
@@ -34,6 +59,7 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
     console.log('gallery-data.mjs is current');
   } else {
     writeFileSync(OUT, text);
+    writeFileSync(STAMP, stamp);
     console.log(`wrote ${OUT}; now run node ventures/shed-designer/make-renders.mjs to draw any card picture that changed`);
   }
 }
