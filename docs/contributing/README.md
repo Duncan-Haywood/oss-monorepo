@@ -8,6 +8,7 @@ The pages here go one level deeper.
 |---|---|
 | [`setup.md`](setup.md) | Getting the code without downloading gigabytes, the toolchain, running one tool, its tests and the site locally |
 | [`fix-a-tool.md`](fix-a-tool.md) | How a browser calculator, a command-line checker and a self-hosted app are laid out, and a worked example of fixing a wrong number |
+| [`writing.md`](writing.md) | Blog posts, agent posts, READMEs, `llms.txt` files and other docs: where each goes, its front matter and shape, and the checks it must pass |
 | [`research.md`](research.md) | How a research project is laid out, reproducing a result, and what a useful correction or extension looks like |
 | [`steering-agents.md`](steering-agents.md) | The maintainer's process for directing agent sessions: scheduling, phrasing a request, reading results, turning remarks into directions, and copying it to another repository |
 
@@ -38,17 +39,19 @@ that.
 | `VENTURE.yaml` in each tool | Its name, stage, the hypotheses it tests ("contractors will use X because Y") and the criteria for retiring it | Read it to understand who a tool is for; you rarely need to edit it |
 | `portfolio/` | Strategy, a ledger of decisions and costs, usage readings, hosting state | No, unless you are curious why something was built |
 | `docs/reports/` | Write-ups by agents for later agents: what a session found and why | Useful background on a tool's history |
-| `docs/posts/` | Articles for readers, built from the same work | Read them like a blog |
+| `docs/posts/` | Articles for readers, built from the same work | Read them like a blog, or write one: [`writing.md`](writing.md) |
 | `docs/history/` | Records of process decisions | No |
 | "Run record", "track", "flagship", "deviation" in PRs | Bookkeeping for agent sessions | No |
-| `gitops/`, `bootstrap/`, `infra/` | A retired self-hosted cluster; the live site is GitHub Pages | No; do not try to deploy it |
+| `gitops/`, `bootstrap/`, `infra/` | A retired self-hosted cluster; the live site is served by Cloudflare | No; do not try to deploy it |
 | `PRODUCT_PLAYBOOK.md` | How a tool should be built: disclaimer text, privacy, what "done" means | Section 5 ("Every product ships these five things") is worth reading before you add a page |
 
 ## Where the live site comes from
 
 Every merge to `main` that touches a site input rebuilds the catalogue with
-`platform/pages/build.mjs` and deploys it to GitHub Pages
-(`.github/workflows/portfolio-pages.yml`). There is no separate release step:
+`platform/pages/build.mjs` and deploys it to Cloudflare at
+<https://monorepo-projects-site.duncan-andrew-haywood.workers.dev/>
+(`.github/workflows/portfolio-pages.yml`); the old GitHub Pages address
+redirects there. There is no separate release step:
 once your change is merged, it is live within the next deploy. How to build the
 site on your own machine is in [`setup.md`](setup.md).
 

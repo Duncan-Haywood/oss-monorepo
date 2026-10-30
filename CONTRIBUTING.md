@@ -18,7 +18,7 @@ public, with the right to run the result yourself.
    off, say what you entered, what it showed and what you expected, and where
    the right figure comes from (a rate table, a supplier invoice, a statute).
    Open a [bug report](https://github.com/duncan-haywood/oss-monorepo/issues/new?template=bug.yml),
-   or use the [feedback form](https://duncan-haywood.github.io/oss-monorepo/feedback/)
+   or use the [feedback form](https://monorepo-projects-site.duncan-andrew-haywood.workers.dev/feedback/)
    if you have no GitHub account. This is the contribution we can least
    produce ourselves: you know your trade's numbers.
 2. **Ask for a tool.** Describe the job you are doing and where existing tools
@@ -29,7 +29,12 @@ public, with the right to run the result yourself.
 4. **Check a research result.** Re-run a project, try a different input, or
    point out a source we missed. See
    [`docs/contributing/research.md`](docs/contributing/research.md).
-5. **Steer the agents.** The maintainer's main contribution is not code but a
+5. **Write.** A blog post that explains a tool or a result with real numbers,
+   a clearer README, a better `llms.txt`, or a fixed doc. Posts go in
+   `docs/posts/` and publish on the site's blog when merged. See
+   [`docs/contributing/writing.md`](docs/contributing/writing.md) for where
+   each kind of writing goes, its format and the checks it must pass.
+6. **Steer the agents.** The maintainer's main contribution is not code but a
    stream of short requests and corrections to agent sessions, plus scheduled
    sessions that keep working in between. If you have write access, or want
    to run the same process on your own copy or a new repository,
@@ -86,6 +91,7 @@ alike.
 |---|---|
 | Get the code and run something in five minutes | [`docs/contributing/setup.md`](docs/contributing/setup.md) |
 | Fix or improve a calculator, checker or app | [`docs/contributing/fix-a-tool.md`](docs/contributing/fix-a-tool.md) |
+| Write a blog post, a README, an `llms.txt` or other docs | [`docs/contributing/writing.md`](docs/contributing/writing.md) |
 | Reproduce or extend a research project | [`docs/contributing/research.md`](docs/contributing/research.md) |
 | Direct agent sessions the way the maintainer does, here or in your own repository | [`docs/contributing/steering-agents.md`](docs/contributing/steering-agents.md) |
 | Make sense of the agent files you keep running into | [`docs/contributing/README.md`](docs/contributing/README.md), "What you can ignore" |
