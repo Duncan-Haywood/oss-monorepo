@@ -28,7 +28,8 @@ test('hand calculation: the default floor joist is at 15% in bending', () => {
 });
 
 test('hand calculation: the default wall stud is at 15%, and wind on the siding governs, not the roof', () => {
-  const s = buildShed(defaultDesign());
+  // The overhang is pinned at 6": within the 12 ft haul limit the automatic overhang picks 9".
+  const s = buildShed({ ...defaultDesign(), autoOverhang: false, overhang: 6 });
   const u = utilisation(s).find((x) => x.member === 'Wall studs');
   // Ridge beam roof at 4/12, 6" overhang: the eave wall takes the lower half
   // of the 43" rafter run, the 3-1/2" wall and the overhang = 31" = 2.583 ft.
