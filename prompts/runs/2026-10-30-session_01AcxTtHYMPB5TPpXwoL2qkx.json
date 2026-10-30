@@ -36,7 +36,10 @@
     }
   ],
   "deviations": [],
-  "writeups": "docs/posts/2026-10-30-does-an-open-centre-valve-slow-the-dig.md; research/heavy-hydraulics/LOG.md milestone 3d",
+  "writeups": [
+    "docs/posts/2026-10-30-does-an-open-centre-valve-slow-the-dig.md",
+    "research/heavy-hydraulics/LOG.md"
+  ],
   "goal": null,
   "notes": "Local checks: research homepage build ok, check_md_links ok. heavy-hydraulics tests not run (no pytest). k=20 row flagged as solver artefact.",
   "corrections": [],
