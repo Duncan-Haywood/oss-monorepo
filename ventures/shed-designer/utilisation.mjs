@@ -17,6 +17,7 @@
 
 import { buildShed } from './model.mjs';
 import { structuralChecks, heelJoint, nailZ, skidOnBlocks, SOIL_PSF } from './checks.mjs';
+import { trussForces } from './truss.mjs';
 import { connectionChecks } from './connections.mjs';
 import { check, roofCase, FLOOR, SPF2, T, DEPTH, designValues } from './structure.mjs';
 import { sidingSpan } from './simplify.mjs';
@@ -165,9 +166,11 @@ export function utilisation(shed, sc = structuralChecks(shed)) {
   const roof = roofCase(d.snowLoad);
   const beam = d.roofType === 'ridgeBeam';
   const idsOf = (pred) => shed.members.filter(pred).map((m) => m.id);
-  const rafterRunIn = d.width / 2 - (beam ? 1.5 : 0.75) - k.stud;
+  const truss = d.roofType === 'truss';
+  const rafterRunIn = d.width / 2 - (beam ? 1.5 : truss ? 0 : 0.75) - k.stud;
   const tribFt = (beam ? rafterRunIn / 2 + k.stud + d.overhang : d.width / 2 + d.overhang) / 12;
-  const deadPlf = (15 / cos) * tribFt;
+  // As in checks.mjs: under trusses the eave walls also carry half the attic load.
+  const deadPlf = (15 / cos) * tribFt + (truss ? (trussForces(d).wc * d.width) / 2 / 12 / (d.rafterSpacing / 12) : 0);
   const snowPlf = d.snowLoad * tribFt;
   // Headers pair with rows in the order checks.mjs walks the walls.
   const headerQueue = Object.entries(shed.walls).flatMap(([name, wall]) => wall.openings.map((p) => ({ name, p })));
@@ -214,6 +217,14 @@ export function utilisation(shed, sc = structuralChecks(shed)) {
       u.kinds = ['rafter tie'];
       u.explain = 'Under a ridge board the rafters push the walls out; the tie at the plate holds them, and its nails take the whole thrust.';
       u.ids = idsOf((m) => m.kind === 'rafter tie');
+    } else if (/^Truss /.test(row.member)) {
+      const top = /top chords/.test(row.member);
+      const bottom = /bottom chords/.test(row.member);
+      u.kinds = top ? ['rafter'] : bottom ? ['bottom chord'] : [];
+      u.explain = top ? 'A top chord is a rafter that also carries the truss\'s thrust along its length, checked for bending and compression together.'
+        : bottom ? 'The bottom chord holds the heels together against the roof\'s outward thrust, and carries the attic load between its supports.'
+          : 'The gussets join the members; their nails take the force that passes through the joint.';
+      u.ids = top ? idsOf((m) => m.kind === 'rafter') : bottom ? idsOf((m) => m.kind === 'bottom chord') : [];
     } else if (/^Header over the /.test(row.member)) {
       const q = headerQueue.shift();
       if (q) {

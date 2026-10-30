@@ -10,6 +10,8 @@
 // - Every header bears on a jack at each end; every jack carries a header.
 // - Cripples bear on a header or sill, and rough sills sit on cripples.
 // - Every rafter's seat (a birdsmouth, or the plate edge under a connector) bears on a wall's top plates, and its top end meets the ridge.
+// - Under trusses: every bottom chord bears on both long walls, top chords sit on their bottom chord and meet at the peak,
+//   king posts stand on their chord, and every inside truss joint has a gusset on both faces.
 // - Every floor joist bears on at least two skids; every skid bears on the pad or blocks.
 
 import { bbox } from './integrity.mjs';
@@ -96,6 +98,54 @@ export function connectionChecks(shed) {
     if (tj.length || cj.length) add(`${name} wall: plate splices`, [...jointFails, ...clearFails], tj.length + cj.length, `plate joints on a stud or over a header, cap joints at least ${PLATE_OFFSET_MIN}" from top-plate joints (IRC R602.3.2)`);
   }
 
+  // Trusses: every bottom chord bears on both long walls' cap plates; every
+  // top chord's heel lands on its bottom chord's outer top corner (or, over a
+  // gable wall, on the gable studs) and meets its mate at the peak; every king
+  // post stands on its bottom chord; and each heel, peak and king-post foot of
+  // an inside truss has a gusset on both faces.
+  if (k.truss) {
+    const caps = shed.members.filter((m) => m.group.startsWith('wall:') && m.kind === 'cap plate').map((m) => bbox(m.geom));
+    const chords = shed.members.filter((m) => m.kind === 'bottom chord').map((m) => ({ id: m.id, b: bbox(m.geom) }));
+    const gussets = shed.panels.filter((p) => p.kind === 'truss gusset').map((p) => ({ where: /** @type {any} */ (p).where, b: bbox(p.geom) }));
+    const fails = [];
+    let n = 0;
+    for (const c of chords) {
+      n += 1;
+      // At each end, cap plates (two, where a splice falls under it) under the chord's whole thickness.
+      const ends = [0, d.width].map((y) => covered(c.b.lo[0], c.b.hi[0], caps.filter((t) => near(t.hi[2], c.b.lo[2]) && t.lo[1] <= y + EPS && t.hi[1] >= y - EPS).map((t) => ({ s0: t.lo[0], s1: t.hi[0] }))));
+      if (!ends.every(Boolean)) fails.push(`${c.id} bearing`);
+    }
+    const rafters = shed.members.filter((m) => m.kind === 'rafter');
+    const peakZ = k.ridgeTop - k.plumbH;
+    for (const r of rafters) {
+      n += 1;
+      const b = bbox(r.geom);
+      const back = b.lo[1] > d.width / 2 - 2;
+      const chord = chords.find((c) => near(c.b.lo[0], b.lo[0]));
+      const atPeak = r.geom.profile.some((p) => near(p[0], d.width / 2) && near(p[1], peakZ));
+      const mate = rafters.some((o) => o !== r && near(bbox(o.geom).lo[0], b.lo[0]) && (bbox(o.geom).lo[1] > d.width / 2 - 2) !== back);
+      if (!atPeak || !mate) fails.push(`${r.id} peak`);
+      if (chord) {
+        const heelY = back ? d.width : 0;
+        const onChord = r.geom.profile.some((p) => near(p[0], heelY) && near(p[1], chord.b.hi[2]));
+        if (!onChord) fails.push(`${r.id} heel`);
+        for (const where of ['heel', 'peak']) {
+          const y = where === 'peak' ? d.width / 2 : heelY;
+          const faces = gussets.filter((g) => g.where === where && g.b.lo[1] <= y + EPS && g.b.hi[1] >= y - EPS && (near(g.b.hi[0], b.lo[0]) || near(g.b.lo[0], b.hi[0])));
+          if (faces.length < 2) fails.push(`${r.id} ${where} gusset`);
+        }
+      }
+    }
+    for (const kp of shed.members.filter((m) => m.kind === 'king post')) {
+      n += 1;
+      const b = bbox(kp.geom);
+      const chord = chords.find((c) => near(c.b.lo[0], b.lo[0]));
+      if (!chord || !near(chord.b.hi[2], b.lo[2]) || !near(b.hi[2], peakZ)) fails.push(`${kp.id} bearing`);
+      const faces = gussets.filter((g) => g.where === 'foot' && g.b.lo[1] <= d.width / 2 && g.b.hi[1] >= d.width / 2 && (near(g.b.hi[0], b.lo[0]) || near(g.b.lo[0], b.hi[0])));
+      if (faces.length < 2) fails.push(`${kp.id} foot gusset`);
+    }
+    add('Trusses bear on the walls and close at heel and peak', [...new Set(fails)], n, 'truss members: bottom chords on both long walls, top chords on their bottom chord and meeting at the peak, king posts on their chord, gussets on both faces');
+  } else
   // Rafters seat on the plates and meet the ridge.
   {
     const rafters = shed.members.filter((m) => m.kind === 'rafter');
