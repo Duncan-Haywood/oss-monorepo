@@ -1,0 +1,51 @@
+{
+  "date": "2026-10-30",
+  "session": "https://claude.ai/code/session_01XpHqybdbfUS98SKSQvtQEW",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-30T01:49:41Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "shed-designer r3 lane 4: horizontal lap siding (fiber cement and engineered wood) over OSB and wrap, course layout, checks, cut sheet, prices, build steps",
+  "projects": [
+    "shed-designer"
+  ],
+  "pr": 11567,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "ventures/shed-designer/costlevers.mjs",
+      "why": "main's typecheck was red from PR #11562 (6 diagnostics); fixed two JSDoc types here so this PR's typecheck could pass",
+      "did": "added locked?/keep? to two JSDoc types",
+      "result": "0 diagnostics"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-30-lap-siding-on-a-small-shed.md",
+    "docs/reports/shed-designer-round3-lap-siding.md"
+  ],
+  "goal": null,
+  "notes": "Local verification (runners starved): node --test *.test.mjs in the venture 234 pass / 0 fail / 1 skipped (browser, needs PLAYWRIGHT); browser.test.mjs with Playwright 11 pass / 1 skipped; node platform/pages/typecheck.mjs shed-designer 0 diagnostics; a sweep of 224 sizes/spacings/pitches had 0 lap or sheathing check failures. Prices come from search-result copies seen 2026-10-30 because store pages 403; the lines with no Lowe's listing are in the report. Default 8x12 painted: fiber cement lap +$207 and LP lap +$248 over T1-11, driven by OSB ($128) and wrap ($115); the planks alone are cheaper than the panels.",
+  "corrections": [],
+  "redteam": null
+}
