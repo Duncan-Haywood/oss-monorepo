@@ -131,6 +131,8 @@ export const EXAMPLE_ITEMS = Object.freeze({
   rafterHanger28: { name: 'Sloped rafter hanger at the ridge beam, 2x8 (Simpson LSSU28-type)', unit: 'each', price: 11.5 },
   rafterHanger210: { name: 'Sloped rafter hanger at the ridge beam, 2x10 (Simpson LSSU210-type)', unit: 'each', price: 10.7 },
   paint: { name: 'Exterior paint for the siding, two coats', unit: 'gallon', price: 45 },
+  trimPaintQt: { name: 'Exterior semi-gloss paint for the trim, two coats', unit: 'quart', price: 26 },
+  trimPaintGal: { name: 'Exterior semi-gloss paint for the trim, two coats', unit: 'gallon', price: 49 },
   accentPaint: { name: 'Exterior accent paint', unit: 'quart', price: 18 },
   fasciaTrim: { name: 'Primed 1x6 fascia board, 12 ft', unit: 'piece', price: 16 },
   soffitPanel: { name: 'Vented soffit panel, 12-3/4 in x 12 ft', unit: 'panel', price: 14 },

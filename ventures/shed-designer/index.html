@@ -64,6 +64,8 @@
     /* The end view takes its picture's own shape (set by its viewBox), up to a height. */
     #endview { max-height: 26rem; }
     .hint { color: var(--muted); font-size: .85rem; margin: 6px 0 0; }
+    .hint-more { font-size: .85rem; margin: 2px 0 6px; }
+    .hint-more summary { cursor: pointer; color: var(--accent2); font-weight: 600; min-height: 32px; display: flex; align-items: center; }
     .pad { fill: #ece8df; stroke: #b8b1a3; stroke-dasharray: 4 3; }
     .floor { fill: #e9dcc0; stroke: #6b4f2a; }
     .wallband { fill: #c99d62; }
@@ -146,6 +148,25 @@
     .card ul.changes { margin: 2px 0 0; padding-left: 18px; font-weight: 400; }
     #shopping tr.subtot th, #shopping tr.subtot td { font-weight: 600; border-top: 1px solid var(--line); }
     #shopping .use { font-size: .8rem; color: var(--muted); }
+    /* On a phone the eight columns do not fit: each line becomes a small card, so
+       "Have it" and "Leave out" are on screen instead of past a sideways scroll. */
+    @media (max-width: 600px) {
+      #shopping thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+      #shopping, #shopping tbody { display: block; }
+      #shopping tr[data-line] { display: grid; grid-template-columns: auto auto 1fr auto; gap: 2px 8px; align-items: baseline; padding: 8px 2px; border-bottom: 1px solid var(--line); }
+      #shopping tr[data-line] td { border: 0; padding: 0; }
+      #shopping tr[data-line] td:nth-child(1) { grid-column: 1 / -1; font-weight: 600; }
+      #shopping tr[data-line] td:nth-child(4)::before { content: "at "; color: var(--muted); }
+      #shopping tr[data-line] td:nth-child(5) { font-weight: 700; }
+      #shopping tr[data-line] td:nth-child(6) { grid-column: 1 / -1; font-size: .8rem; }
+      #shopping tr[data-line] td:nth-child(7), #shopping tr[data-line] td:nth-child(8) { grid-column: span 2; display: flex; align-items: center; gap: 6px; min-height: 36px; }
+      #shopping tr[data-line] td:nth-child(7)::after { content: "Have it"; }
+      #shopping tr[data-line] td:nth-child(8)::after { content: "Leave out of the total"; }
+      #shopping tr[data-line] input[type=checkbox] { width: 22px; height: 22px; margin: 0; }
+      #shopping tr.sec, #shopping tr.subtot, #shopping tr.tot { display: flex; justify-content: space-between; }
+      #shopping tr.sec th, #shopping tr.subtot th, #shopping tr.subtot td, #shopping tr.tot th, #shopping tr.tot td { border: 0; }
+      #shopping tr.subtot td:empty, #shopping tr.tot td:empty { display: none; }
+    }
     h4, h3.h4 { margin: 14px 0 4px; font-size: .95rem; }
     .grid input { width: 74px; }
     .items { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; margin-top: 12px; }
@@ -311,6 +332,9 @@
       figure.sheet figcaption { display: none; }
       body[data-print] #plans { display: block; }
       body[data-print] .toolrow { display: none; }
+      /* Screen-only controls: store comparison, the quote form, price editing, "Show in 3D" and the tick boxes. */
+      body[data-print] #panel-shopping details, body[data-print] button.xref-btn, body[data-print] #xref { display: none !important; }
+      body[data-print] #shopping th:nth-child(n+7), body[data-print] #shopping tr[data-line] td:nth-child(n+7) { display: none; }
       .boards li { break-inside: avoid; grid-template-columns: 110px minmax(0, 1fr) 110px; }
       .boards .off { grid-column: auto; }
       /* The cuts and the hatched offcut are backgrounds, which browsers drop when printing unless asked. */
@@ -336,14 +360,15 @@
         <button type="button" class="btn" id="starts-next" aria-label="Next design">&rarr;</button>
       </div>
     </div>
-    <p class="hint"><span id="gallery-count">Sheds under 100 sq ft, many in painted lap siding and asphalt shingles to match a house</span>, each picked from 2,400 designs this tool's search built and checked: every member at 90% of its capacity or less, a peak of 13 ft or less, nothing the model warns about, and the best on the measure its card names. Prices are worked out now at the prices below. Flick through with the arrows or a swipe; open one to see it from every side, what it costs and how much it holds; add two or three to Compare. "Start from this design" opens a copy in the editor below, to change as you like.</p>
+    <p class="hint"><span id="gallery-count">Sheds under 100 sq ft, many in painted lap siding and asphalt shingles to match a house</span>. Tap one to see it from every side, what it costs and how much it holds; add two or three to Compare; "Start from this design" opens a copy in the editor below.</p>
+    <details class="hint-more"><summary>How these were picked</summary><p class="hint">Each was picked from 2,400 designs this tool's search built and checked: every member at 90% of its capacity or less, a peak of 13 ft or less, nothing the model warns about, and the best on the measure its card names. Prices are worked out now at the prices below. Flick through with the arrows or a swipe.</p></details>
     <ul class="pick-list" tabindex="0" aria-label="Ready-made designs: arrow keys move through them"></ul>
   </section>
   <div id="compare-tray" class="compare-tray" role="region" aria-label="Designs to compare" hidden></div>
   <dialog id="pick-dialog" class="pick-dialog"></dialog>
 
   <nav class="jump" id="jump" aria-label="Jump to the cost and the results">
-    <a href="#summary" class="jump-total" id="total-pill">Total <strong id="total-pill-n"></strong></a>
+    <a href="#summary" class="jump-total" id="total-pill"><span id="total-pill-l">Total</span> <strong id="total-pill-n"></strong></a>
     <a href="#results-h" data-jump="panel-shopping">Shopping list</a>
     <a href="#results-h" data-jump="panel-costs">Where the money goes</a>
     <a href="#results-h" data-jump="panel-cuts">Cut sheet</a>
@@ -352,6 +377,7 @@
     <a href="#results-h" data-jump="panel-plans">Plans</a>
     <a href="#results-h" data-jump="panel-build">How to build</a>
     <button type="button" class="link" id="print-all">Print all</button>
+    <button type="button" class="link" id="jump-hoa">HOA packet</button>
   </nav>
   <div class="bar-top">
     <nav class="tabs" id="design-tabs" role="tablist" aria-label="Your designs"></nav>
@@ -489,8 +515,10 @@
     <fieldset>
       <legend>Foundation</legend>
       <div class="fields">
+        <label>Floor<select id="floor"><option value="framed">Framed: joists and a subfloor on skids</option><option value="none">None: walls on PT 4x6 timbers, the gravel pad is the floor</option></select></label>
         <label>Foundation<select id="foundation"><option value="gravel">Skids on a gravel pad</option><option value="blocks">Skids on solid 4x8x16 concrete blocks</option><option value="deck blocks">Skids on concrete deck blocks</option><option value="CMU">Skids on 8x8x16 CMU (cinder) blocks</option><option value="piers">Skids on concrete piers poured in 12" form tubes</option></select></label>
         <label>Pier depth below grade (in; your frost depth, piers only)<input id="pierDepth" type="number" min="12" max="72" step="1"></label>
+        <label>Most space between blocks or piers along a skid (in)<input id="blockSpacing" type="number" min="24" max="96" step="1"></label>
         <label>Gravel<select id="pad"><option value="full">A pad under the whole shed (bulk stone)</option><option value="under blocks">Only under each block (bagged paver base; needs a block foundation)</option><option value="none">None: blocks on tamped firm soil (needs a block foundation)</option></select></label>
         <label>Subfloor<select id="floorPanel"><option value="plywood">3/4" tongue-and-groove plywood</option><option value="OSB">23/32" tongue-and-groove OSB</option></select></label>
         <label>Compacting the gravel<select id="compaction"><option value="hand tamper">Buy a hand tamper</option><option value="plate compactor">Rent a plate compactor for a day</option></select></label>

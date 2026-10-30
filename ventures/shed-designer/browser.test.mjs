@@ -787,3 +787,26 @@ test('the sticky section bar fades and lets a click through when a plan handle i
   await page.evaluate(() => scrollBy(0, -300));
   await page.waitForFunction(() => !document.querySelector('#jump').classList.contains('over-handle'));
 });
+
+test('first-time pass: the HOA packet is one click from the section bar, and on a phone every shopping line can be left out without a sideways scroll', { skip }, async (t) => {
+  const { page } = await open(t);
+  // The bar says what its total adds over the before-tax prices on the gallery cards.
+  const taxed = /\+ \$[\d,.]+ tax/.test(await page.textContent('#summary-lines'));
+  assert.match(await page.textContent('#total-pill-l'), taxed ? /^Total incl\. tax/ : /^Total/);
+  const [pop] = await Promise.all([page.context().waitForEvent('page'), page.click('#jump #jump-hoa')]);
+  await pop.waitForLoadState();
+  assert.match(pop.url(), /hoa-packet\.html#d=/);
+  await pop.close();
+  const { page: phone } = await open(t, { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+  // The gallery's long explanation is folded away, so the first card is near the top.
+  assert.equal(await phone.locator('.hint-more').getAttribute('open'), null, 'how the designs were picked starts folded');
+  await phone.click('#jump [data-jump="panel-shopping"]');
+  const box = phone.locator('#shopping tr[data-line] input[data-skip]').first();
+  await box.scrollIntoViewIfNeeded();
+  const b = await box.boundingBox();
+  assert.ok(b && b.x >= 0 && b.x + b.width <= 390, `the Leave out box is on screen: ${JSON.stringify(b)}`);
+  const before = await phone.textContent('#total-pill-n');
+  await box.tap();
+  await phone.waitForFunction((x) => document.querySelector('#total-pill-n').textContent !== x, before);
+  assert.equal(await phone.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, 'no sideways scroll');
+});

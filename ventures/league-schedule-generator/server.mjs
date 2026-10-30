@@ -116,7 +116,7 @@ export function handler(state, save, env = process.env) {
         const out = state.published ? buildLeague(state.fields) : { error: "unpublished" };
         const i = Number(url.searchParams.get("team"));
         if (out.error || !Number.isInteger(i) || i < 0 || i >= out.schedule.teams.length) return send(404, "no such team\n", "text/plain");
-        return send(200, scheduleIcs(out.schedule, i), "text/calendar; charset=utf-8", { "content-disposition": 'attachment; filename="schedule.ics"' });
+        return send(200, scheduleIcs(out.schedule, i, null, null, Number(url.searchParams.get("alarm")) || null), "text/calendar; charset=utf-8", { "content-disposition": 'attachment; filename="schedule.ics"' });
       }
       if (req.method === "POST" && url.pathname === "/league/result") {
         const out = state.published ? buildLeague(state.fields) : { error: "unpublished" };
