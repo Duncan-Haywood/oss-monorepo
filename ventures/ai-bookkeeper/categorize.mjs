@@ -64,6 +64,14 @@ export const BUILT_IN = [
   ["6150", "out", /\badp\s+(totalsource|payroll|run)/],
   ["4000", "in", /(square|toast)\s*(inc\s*)?deposit|amazon\s+mktplace\s+pmts/],
   ["6060", "out", /sendgrid/],
+  // Second probe, ~125 descriptions (2026-10-30, saas-peo-lender-gaps.test.mjs, made-up): 32 unsuggested. Work-management and CRM software; formation and legal-template services; PEOs (as ADP TotalSource above) are wages;
+  // Deel and Remote.com pay contractors; small-business lender debits are loan payments; eBay and Paddle payouts are sales. Streaming, Costco, Venmo/Cash App/Zelle stay for a person (personal or mixed).
+  ["6060", "out", /\bhubspot|\btrello|\basana\b|intercom|bill\.com/],
+  ["6050", "out", /rocket ?lawyer|\bclerky/],
+  ["6150", "out", /\b(trinet|justworks)\b/],
+  ["6020", "out", /\bdeel\b|remote\.com/],
+  ["2200", "out", /\bsba eidl|kabbage|bluevine|fundbox/],
+  ["4000", "in", /ebay.*payout|paddle\.com/],
   ["6150", "out", /gusto (payroll|wages|net pay)(?!.*(fee|subscription|monthly))|gusto.*(tax|debit)/],
   ["6100", "out", /manduka|gaiam|hugger mugger|yoga ?props|pilates (reformer|equipment)|balanced body|merrithew/],
   ["6060", "out", /momence (subscription|monthly)|walla (subscription|monthly)|marianatek|pushpress/],
