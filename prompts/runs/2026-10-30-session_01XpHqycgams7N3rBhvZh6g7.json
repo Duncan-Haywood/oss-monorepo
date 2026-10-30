@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-30",
+  "session": "https://claude.ai/code/session_01XpHqycgams7N3rBhvZh6g7",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "I don't think it's required to do browser only tools here. i want to abolish that policy have where things run be up to the agent and the project. it's fine to do browser. but having a strict requirement on all project is a bad an unnessary restriction. lets go and get rid of the hard and fast rules for that.",
+  "input_sha256": "abbc793e39ed57fc2129c7eb10746482f39a5da7922e367c42826395a2499993",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-30T02:00:15Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/11578",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/research-tools/README.md",
+      "issue": "Still required 'Pure JavaScript (or WebAssembly) in the tab; no server' after the 2026-10-21 static-only rule was dropped; the browser-only requirement outlived the static-only one."
+    },
+    {
+      "file": "PRODUCT_PLAYBOOK.md",
+      "issue": "\u00a77 'no key, no account' contradicted \u00a73's API-key switch and \u00a72's 'account only if needed'."
+    }
+  ],
+  "deviations": [],
+  "writeups": [],
+  "goal": null,
+  "notes": "Docs-only change. promptctl.py validate: ok. Site copy calling Pages tools 'browser-only' left as is: it describes what is served today.",
+  "corrections": [],
+  "redteam": null
+}

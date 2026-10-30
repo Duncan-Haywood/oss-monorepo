@@ -6,7 +6,7 @@ import { bbox } from './integrity.mjs';
 
 const bboxMid = (m) => { const b = bbox(m.geom); return (b.lo[1] + b.hi[1]) / 2; };
 
-const variants = [{}, { foundation: 'blocks' }, { roofType: 'ridgeBoard' }, { roofType: 'ridgeBeam' }, { length: 240 }, { studSize: '2x6' }, { overhang: 0 },
+const variants = [{}, { foundation: 'blocks' }, { roofType: 'ridgeBoard' }, { roofType: 'truss' }, { roofType: 'truss', overhang: 0 }, { roofType: 'ridgeBeam' }, { length: 240 }, { studSize: '2x6' }, { overhang: 0 },
   { foundation: 'blocks', lengths: [8, 10, 12] }, { foundation: 'deck blocks', lengths: [8, 10, 12] }, { lengths: [8, 10] }, { studSpacing: 24, rafterSpacing: 24 }, { length: 150, width: 102 }];
 
 test('every preset and variation ties together', () => {
@@ -154,8 +154,11 @@ test('a forced short plate stub says which longer board avoids it', () => {
   const s = buildShed(d);
   const caps = s.walls.front.members.filter((m) => m.kind === 'cap plate').map((m) => m.local.s1 - m.local.s0);
   assert.ok(caps.some((x) => Math.abs(x - 6.5) < 1e-9), String(caps));
-  assert.ok(s.notes.includes('Front (eave side): the plates need a 6-1/2" piece with 12 ft boards; adding 14 ft boards to your list avoids it.'), s.notes.join('\n'));
-  const fixed = buildShed({ ...d, lengths: [8, 10, 12, 14] });
+  // Within the default 12 ft haul limit the stub stays (it is legal), and the note says what a longer board would need.
+  assert.ok(s.notes.includes('Front (eave side): the plates need a 6-1/2" piece with 12 ft boards; 14 ft boards would avoid it, if you can haul them (your limit is 12 ft).'), s.notes.join('\n'));
+  const free = buildShed({ ...d, maxHaulFt: 0 });
+  assert.ok(free.notes.includes('Front (eave side): the plates need a 6-1/2" piece with 12 ft boards; adding 14 ft boards to your list avoids it.'), free.notes.join('\n'));
+  const fixed = buildShed({ ...d, lengths: [8, 10, 12, 14], maxHaulFt: 14 });
   assert.ok(fixed.walls.front.members.filter((m) => /plate/.test(m.kind) && m.kind !== 'bottom plate').every((m) => m.local.s1 - m.local.s0 >= 24));
   assert.ok(!fixed.notes.some((n) => /avoids it/.test(n)));
 });
