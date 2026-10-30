@@ -9,6 +9,13 @@ Newest first. Write the hypothesis and the planned analysis before running an ex
 - **H6k-i:** with six seeds the H = 16 excess is within 0.01 of H = 64's (the dip was seed noise). **H6k-ii:** the six-seed excess is monotone non-decreasing over 16, 32, 64 within one standard error each. Priors: i 55%, ii 50%.
 - Limits to state: H = 4 and 128 keep two to three seeds; one width; one keep level; the rule is not refitted here.
 
+### Outcome of 6k (`experiments/gpt_scale/scale.jsonl`, `scale_results_6k.txt`; 14 runs, about 18 min each)
+- Paired excess at keep 1/16 with six seeds each: H = 16 **+0.0452** (se 0.0047), H = 32 +0.0431 (se 0.0038), H = 64 +0.0440 (se 0.0041). H = 4 (+0.008, 2 seeds) and H = 128 (+0.063, 3 seeds) unchanged.
+- **H6k-i supported.** The H = 16 excess is 0.0012 from H = 64's, far under the 0.01 bound: the 6j "dip" came from two-seed noise (H = 16 was +0.054 on two seeds). **H6k-ii supported**: 16, 32, 64 differ by under 0.002, inside one standard error each (a plateau, not a rise).
+- Reading: the size-2 excess is a plateau near +0.044 over H = 16 to 64, small at H = 4 and larger at 128. That shape is not the rule's smooth power law in H (b = 0.55), which is why the 6h/6i leave-one-out miss at (64, 1/16) was structural. Not tested: whether the 128 rise is real (3 seeds), and whether size 1 has the same plateau (its H = 16 and 64 cells are +0.083 and +0.099, three seeds, no H = 32).
+- Limits: H = 4 and 128 keep two and three seeds; one width; one keep level; the rule is not refitted here.
+- Next: six seeds at H = 128 and H = 8, then refit the rule with a saturating form in H.
+
 ## 2026-10-30 · Milestone 6j (H6 scale-up): does the size-2 compression excess saturate in H between 16 and 64? (planned before running)
 
 - Why: 6i's "Next". The size-2 excess at keep 1/16 is +0.054 at H = 16 and +0.044 at H = 64 (six seeds, so measured to about 0.004): it does not rise, while the rule's power law in H (b = 0.55) says it should. If it is flat or falling, the power-law form in H is what breaks at size 2.
