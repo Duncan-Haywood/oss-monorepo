@@ -5,7 +5,11 @@ import * as V from "./invoices.mjs";
 import { addDays, dayOf } from "./engine.mjs";
 
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
-const usd = (x) => `$${(Number(x) || 0).toFixed(2)}`;
+const usd = (x) => {
+  const format = (x) => `$${(Number(x) || 0).toFixed(2)}`;
+  const text = format(Math.abs(x));
+  return x < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+};
 const PILL = { paid: "good", "part paid": "warm", open: "cool", overdue: "bad", void: "cool" };
 
 function openPage(html) {

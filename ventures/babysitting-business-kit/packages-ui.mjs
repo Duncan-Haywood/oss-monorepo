@@ -4,7 +4,11 @@ import * as K from "./packages.mjs";
 import { expandBookings, addDays } from "./engine.mjs";
 
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
-const money = (x) => `$${(Number(x) || 0).toFixed(2)}`;
+const money = (x) => {
+  const format = (x) => `$${(Number(x) || 0).toFixed(2)}`;
+  const text = format(Math.abs(x));
+  return x < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+};
 const field = (id, label, attrs = "") => `<div><label for="${id}">${label}</label><input id="${id}" ${attrs}></div>`;
 
 /**

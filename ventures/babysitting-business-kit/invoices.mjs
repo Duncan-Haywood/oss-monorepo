@@ -20,7 +20,11 @@ import { quote, expandBookings, payments, daysBetween, addDays } from "./engine.
 const r2 = (x) => Math.round((Number(x) || 0) * 100) / 100;
 const num = (x, d = 0) => (Number.isFinite(Number(x)) && x !== "" && x !== null ? Number(x) : d);
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
-const usd = (x) => `$${r2(x).toFixed(2)}`;
+const usd = (x) => {
+  const format = (x) => `$${r2(x).toFixed(2)}`;
+  const text = format(Math.abs(x));
+  return x < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+};
 
 export const AGING_BUCKETS = [
   ["current", "Current (not yet due)"],

@@ -10,6 +10,7 @@
   <style>
     :root { font: 16px/1.5 system-ui, sans-serif; color: #2b2433; background: #fbf7f4; }
     body { max-width: 760px; margin: auto; padding: 24px 16px; }
+    #integrations th { font-weight: 400; text-align: left; }
     a { color: #9b3f68; } h1 { font-size: 1.6rem; } h2 { font-size: 1.15rem; margin-top: 1.6em; }
     .box { background: #fff; border: 1px solid #e8ded8; border-radius: 12px; padding: 12px 16px; }
     table { border-collapse: collapse; width: 100%; } th, td { border-bottom: 1px solid #e8ded8; padding: 5px 6px; text-align: left; vertical-align: top; }
@@ -65,12 +66,12 @@
       $("versions").innerHTML = `<p>App ${esc(s.app)} · Node ${esc(s.node)}${s.commit ? ` · build ${esc(String(s.commit).slice(0, 12))}` : ""} · up ${Math.round(s.uptimeSeconds / 3600)} h</p>`;
       const by = Object.entries(s.counts.leadsByStatus).map(([k, v]) => `${esc(k)} ${v}`).join(", ") || "none";
       $("counts").innerHTML = `<p>${s.counts.leads} leads (${by}) · ${s.counts.families} families · ${s.counts.bookings} sits · ${s.counts.references} references</p><p>Last morning digest: ${esc(s.lastDigest || "none since the server started")}</p>`;
-      $("integrations").innerHTML = s.integrations.map((i) => `<tr><td>${esc(i.name)}</td><td class="${i.configured ? "on" : "off"}">${i.configured ? "on" : "off"}</td></tr>`).join("");
+      $("integrations").innerHTML = s.integrations.map((i) => `<tr><th scope="row">${esc(i.name)}</th><td class="${i.configured ? "on" : "off"}">${i.configured ? "on" : "off"}</td></tr>`).join("");
       const b = s.backup, d = s.disk;
       $("disk").innerHTML = `<p>State file ${mb(d.stateBytes)} · ${d.snapshots} snapshots (${mb(d.snapshotBytes)}, newest ${esc(d.newestSnapshot || "none")}, keeping ${b.keep}) · free ${mb(d.freeBytes)} of ${mb(d.totalBytes)}</p>` +
         `<p>Off-site copy: ${b.lastOffsite ? esc(new Date(b.lastOffsite).toLocaleString()) : "never"}${b.lastOffsiteError ? ` <span class="err">(${esc(b.lastOffsiteError)})</span>` : ""}</p>`;
       const snaps = await (await api("/api/backups")).json();
-      $("snapshots").innerHTML = snaps.map((x) => `<tr><td>${esc(x.name)}</td><td>${mb(x.size)}</td><td><button type="button" class="plain" data-dl="${esc(x.name)}">Download</button> <button type="button" class="plain" data-restore="${esc(x.name)}">Restore</button></td></tr>`).join("");
+      $("snapshots").innerHTML = (snaps.length ? `<thead><tr><th scope="col">Snapshot</th><th scope="col">Size</th><th scope="col">Actions</th></tr></thead>` : "") + snaps.map((x) => `<tr><td>${esc(x.name)}</td><td>${mb(x.size)}</td><td><button type="button" class="plain" data-dl="${esc(x.name)}">Download</button> <button type="button" class="plain" data-restore="${esc(x.name)}">Restore</button></td></tr>`).join("");
       $("out").hidden = false;
     }
     async function download(name) {

@@ -36,7 +36,7 @@ export const NOT_LEGAL_ADVICE = "This agreement is a template, not legal advice.
 
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 const str = (s) => String(s ?? "").replace(/\r\n?/g, "\n").trim();
-const money = (x) => { const n = Number(x) || 0; return Number.isInteger(n) ? `$${n}` : `$${n.toFixed(2)}`; };
+const money = (x) => { const n = Number(x) || 0; const a = Math.abs(n); const text = Number.isInteger(a) ? `$${a}` : `$${a.toFixed(2)}`; return n < 0 && /[1-9]/.test(text) ? `-${text}` : text; };
 
 // ---------- SHA-256 (FIPS 180-4), synchronous so the browser and server agree ----------
 

@@ -274,7 +274,11 @@ export function paidByMonth(desk, year, through = `${year}-12-31`) {
 }
 
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
-const usd = (x) => `$${num(x).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+const usd = (x) => {
+  const format = (x) => `$${num(x).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const text = format(Math.abs(x));
+  return x < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+};
 
 // A year-to-date income summary she signs. Gross receipts by month from recorded payments;
 // optionally her recorded expenses and mileage too, so a reader sees net as well as gross.
