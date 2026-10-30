@@ -49,6 +49,13 @@ export const BUILT_IN = [
   ["6060", "out", /snapdocs.*(subscription|monthly)|notarycam|bluenotary|notarize\.com pro/],
   ["6100", "out", /notary (stamp|seal|journal)/],
   ["6110", "out", /secretary of state.*notary|notary commission/],
+  // Movers and junk removal (2026-10-30, movers.test.mjs; agent-written from the companies' public names, not from a real export):
+  // lead-platform payouts and moving-software transfers are sales; truck rentals are vehicle costs; moving supplies and dump fees are supplies; scheduling software is software; USDOT/UCR filings are licences.
+  ["4000", "in", /hireahelper payout|moving help payout|movebuddy payout|zelle from .*move deposit/],
+  ["6160", "out", /penske truck|u-?haul truck|budget truck|uhaul (truck|rental)/],
+  ["6100", "out", /uhaul moving supplies|u-?haul.*supplies|dump fee|transfer station|landfill/],
+  ["6060", "out", /smartmoving|moveitpro|supermove|mover ?base/],
+  ["6110", "out", /usdot|ucr registration|motor carrier/],
   // Vending route operators (2026-10-29, vending.test.mjs; agent-written from the companies' public names, not from a real export):
   // cashless-reader settlements and route cash deposits are sales; location commissions are rent; machine parts are repairs and maintenance (before the older "vending" meals rule).
   ["4000", "in", /cantaloupe deposit|nayax.*(settlement|deposit)|cash deposit vending|vending (route )?(cash|deposit)/],
