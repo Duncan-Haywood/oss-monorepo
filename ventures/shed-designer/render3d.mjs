@@ -4,7 +4,7 @@
 // count studs. No library; drag to orbit, right- or Shift-drag (two fingers on a phone) to pan, wheel, pinch or buttons to zoom,
 // arrow keys and +/- when the canvas has focus.
 
-import { paletteOf, PAINTS, SHINGLE_FAMILIES, TRIM_FINISHES } from './looks.mjs';
+import { paletteOf, doorRgb, PAINTS, SHINGLE_FAMILIES, TRIM_FINISHES } from './looks.mjs';
 
 /** @typedef {import('./model.mjs').Geom} Geom */
 /** @typedef {{ geom: Geom, color: [number, number, number], layer: string, flags?: number, id?: string }} Solid */
@@ -209,7 +209,7 @@ export function solidsOf(shed, heat) {
       : (f.kind === 'door' || f.kind === 'window' || f.kind === 'vent') ? 'siding'
         : (['trim', 'interior', 'decor', 'front lining'].includes(f.group) ? f.group : 'foundation');
     const lining = { OSB: [0.8, 0.66, 0.44], plywood: [0.93, 0.92, 0.88], drywall: [0.95, 0.95, 0.94], beadboard: [0.96, 0.95, 0.9], pegboard: [0.72, 0.58, 0.42] }[d.interior] || COLORS.lining;
-    const color = f.kind === 'shingles' ? roof : (f.kind === 'fascia' || f.kind === 'soffit' || f.kind === 'casing') ? trim : f.kind === 'door' ? pal.door : f.kind === 'connector' ? [0.62, 0.64, 0.66] : f.kind === 'lining' ? lining : /** @type {any} */ (COLORS)[f.kind] || COLORS.block;
+    const color = f.kind === 'shingles' ? roof : (f.kind === 'fascia' || f.kind === 'soffit' || f.kind === 'casing') ? trim : f.kind === 'door' ? doorRgb(d, d.openings.find((o) => o.id === f.op)) : f.kind === 'connector' ? [0.62, 0.64, 0.66] : f.kind === 'lining' ? lining : /** @type {any} */ (COLORS)[f.kind] || COLORS.block;
     const cover = d.roofCover === 'metal' ? FINISH.metal : FINISH.shingle + pal.roofBlend;
     out.push({ id: f.id, geom: f.geom, color: /** @type {any} */ (color), layer, flags: f.kind === 'shingles' ? glitter + cover : f.kind === 'window' ? FINISH.glass : 0 });
   }
