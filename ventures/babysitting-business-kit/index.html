@@ -235,6 +235,11 @@
         <button type="submit">Save</button><button type="reset" class="secondary">Clear</button>
       </form>
       <div id="refsList"></div>
+      <h3>Private links, follow-ups and the reference packet</h3>
+      <p class="note">With your own server set up (Settings, Sync), "Make a private link" gives each person a page where they write their own words and tick two separate boxes: whether new families may contact them, and whether their words may go on your website as first name and last initial. The time and the exact wording they agreed to are saved. Links expire after 30 days; sync to bring answers in. Follow up after 5 and 12 days, then let it go.</p>
+      <div id="refSteps"></div>
+      <div class="grid"><div><label for="packetFor">Reference packet for (family, optional)</label><input id="packetFor" placeholder="the Park family"></div></div>
+      <p><button type="button" id="packetBtn">Download the reference packet</button> <span class="note">Only people who agreed to be contacted, with your certifications. Open it and print.</span></p>
     </section>
 
     <section data-panel="website" class="card" hidden>
@@ -340,6 +345,7 @@
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
     import * as S from "./slots.mjs";
     import * as I from "./intake.mjs";
+    import * as R from "./references.mjs";
 
     const STORE = "babysitting-business-kit-desk";
     const SYNC = "babysitting-business-kit-sync";
@@ -420,7 +426,26 @@
       upsert("bookings", e.target, (x) => x);
     });
     $("expenseForm").addEventListener("submit", (e) => { e.preventDefault(); upsert("expenses", e.target, (x) => x); });
-    $("refForm").addEventListener("submit", (e) => { e.preventDefault(); upsert("references", e.target, (o) => ({ ...o, consentPublic: yn(o.consentPublic), consentContact: yn(o.consentContact) })); });
+    $("refForm").addEventListener("submit", (e) => { e.preventDefault(); const prev = desk.references.find((x) => x.id === e.target.dataset.editing); upsert("references", e.target, (o) => R.recordSitterConsent(prev, { ...o, consentPublic: yn(o.consentPublic), consentContact: yn(o.consentContact) }, new Date().toISOString())); });
+    // reference links, follow-ups, withdrawals and the packet (references.mjs)
+    function renderRefSteps() {
+      const url = $("syncUrl").value.trim(), now = Date.now();
+      $("refSteps").innerHTML = desk.references.map((r) => {
+        const s = R.nextStep(r, today(), desk.profile, { serverUrl: url, nowMs: now }), link = R.inviteLink(r, url), st = R.inviteState(r, now);
+        const yesno = (sc) => ({ true: "yes", false: "no" })[R.consentNow(r, sc)] || "not asked";
+        return `<div class="card" style="margin:8px 0"><strong>${esc(r.name)}</strong> <span class="note">${esc(R.RELATIONSHIPS[R.relationshipKind(r)].label)} · next: ${esc(s.note)} · link: ${st} · families may contact: ${yesno("contact")} · website: ${yesno("public")}</span>${s.message ? `<div class="msg">${esc(s.message)}</div>${copyBtn(s.message)}<button type="button" class="small" data-refsent="${esc(r.id)}">Sent, mark it</button>` : ""}${url && st !== "used" ? `<button type="button" class="secondary small" data-refinvite="${esc(r.id)}">${st === "none" ? "Make a private link" : "New link"}</button>` : ""}${link && st === "open" ? ` <span class="note">${esc(link)} (sync so it works)</span>` : ""}${R.consentNow(r, "contact") || R.consentNow(r, "public") ? `<button type="button" class="secondary small" data-refwithdraw="${esc(r.id)}">Record a withdrawal</button>` : ""}</div>`;
+      }).join("");
+    }
+    $("refSteps").addEventListener("click", (e) => {
+      const t = e.target.closest("button"), i = t ? desk.references.findIndex((x) => x.id === (t.dataset.refsent || t.dataset.refinvite || t.dataset.refwithdraw)) : -1;
+      if (i < 0) return;
+      const r = desk.references[i];
+      if (t.dataset.refsent) { if (!r.requested) r.requested = today(); else r.followUps = (Number(r.followUps) || 0) + 1; record("ref_asked"); }
+      if (t.dataset.refinvite) { desk.references[i] = R.createInvite(r, new Date().toISOString()); record("ref_link_made"); }
+      if (t.dataset.refwithdraw && confirm(`Record that ${r.name} withdrew consent? Their quote leaves your website and they leave the packet.`)) desk.references[i] = R.withdrawConsent(r, ["contact", "public"], new Date().toISOString(), "sitter");
+      save();
+    });
+    $("packetBtn").addEventListener("click", () => { download(`references-${today()}.html`, R.referencePacket(desk, today(), { forFamily: $("packetFor").value.trim() }), "text/html"); record("ref_packet"); });
     $("payForm").addEventListener("submit", (e) => {
       e.preventDefault();
       const o = readForm(e.target);
@@ -544,6 +569,7 @@
       renderStatement();
 
       // references
+      renderRefSteps();
       $("refsList").innerHTML = table(["Who", "Status", "Quote", ""], desk.references.map((r) => `<tr><td><strong>${esc(r.name)}</strong><br><span class="note">${esc(r.relationship)}</span></td><td>${r.received ? `<span class="pill good">received</span>` : r.requested ? `<span class="pill warm">asked ${esc(r.requested)}</span>` : `<span class="pill cool">not asked</span>`}<br><span class="note">website: ${r.consentPublic === true ? "yes" : r.consentPublic === false ? "no" : "not asked"}</span></td><td class="note">${esc(r.quote)}${!r.received ? `<details><summary>Request draft</summary><div class="msg">${esc(E.referenceRequest(r, desk.profile, r.kind))}</div>${copyBtn(E.referenceRequest(r, desk.profile, r.kind))}</details>` : ""}</td><td>${actions("references", r.id, "refForm")}</td></tr>`));
 
       renderContent();
