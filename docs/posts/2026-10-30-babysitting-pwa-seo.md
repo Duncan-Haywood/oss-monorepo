@@ -1,5 +1,6 @@
 ---
 title: "The babysitting kit on a phone: an installable app, a bottom tab bar, and three guides that do their own arithmetic"
+seo_title: "Babysitting kit app: installable, tab bar, self-calculating guides"
 date: 2026-10-30
 tags: [babysitting-business-kit, pwa, accessibility, seo]
 description: "The kit now installs to a phone and opens offline, its tabs work from a keyboard, and three guides answer what sitters search for, prices checked by tests."

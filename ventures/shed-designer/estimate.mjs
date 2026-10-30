@@ -414,9 +414,11 @@ export function estimate(shed, prices = examplePrices()) {
       // Lap and board-and-batten siding go over OSB sheathing.
       line('Siding', label('wallSheathing'), Math.ceil((area * 1.1) / 32), 'sheet', item('wallSheathing'), src('wallSheathing'));
       if (type === 'board and batten') {
-        const boards = Math.ceil((area * 144 * 1.1) / (7.25 * 96));
-        line('Siding', label('boardBox'), Math.ceil(boards / 3), 'box', item('boardBox'), src('boardBox'));
-        line('Siding', label('battenBox'), Math.ceil(boards / 10), 'box', item('battenBox'), src('battenBox'));
+        // Exterior-rated LP SmartSide 440 boards (5-1/2" face) with a 3-1/2" batten over
+        // every joint, both 16 ft (the lengths sold); 10% for cutting round openings and gables.
+        const boards = Math.ceil((area * 144 * 1.1) / (5.5 * 192));
+        line('Siding', label('bbBoard'), boards, 'piece', item('bbBoard'), src('bbBoard'));
+        line('Siding', label('bbBatten'), boards, 'piece', item('bbBatten'), src('bbBatten'));
       } else if (type === 'vinyl') {
         line('Siding', label('vinylBox'), Math.ceil((area * 1.1) / 200), 'box', item('vinylBox'), src('vinylBox'));
         // Vinyl's own trim: starter along the bottom of every wall, J-channel round

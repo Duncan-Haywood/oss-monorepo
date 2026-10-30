@@ -1,5 +1,6 @@
 ---
 title: "Probing an AI bookkeeper with a German bank file and a property manager.
+seo_title: "AI bookkeeper test: a German bank file and a property manager"
 date: 2026-10-30
 tags: [ai-bookkeeper, categorization, evaluation]
 description: "Two made-up bank files found that the built-in keywords knew no property manager and no non-US phone company; we added both and tested them."
