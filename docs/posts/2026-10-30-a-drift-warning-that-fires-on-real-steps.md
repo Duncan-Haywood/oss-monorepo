@@ -2,7 +2,7 @@
 title: "A drift warning that also fires on real steps: testing it on a staircase"
 date: 2026-10-30
 tags: [changepoint-detector, evaluation, time-series]
-description: "The changepoint detector warns that many steps may be slow drift. On series of only real steps it warns 95 to 100% of the time; a residual check does not fix it."
+description: "The changepoint detector warns many steps may be slow drift. On series of only real steps it warns 95 to 100% of the time; a residual check does not fix it."
 ---
 
 The [changepoint detector](https://duncan-haywood.github.io/oss-monorepo/changepoint-detector/) warns when it finds five or more steps in a series whose block means wander more than white noise allows: the steps may be slow drift or a cycle, as in 7,980 tree rings where the default model cuts 38 steps with no documented change.
