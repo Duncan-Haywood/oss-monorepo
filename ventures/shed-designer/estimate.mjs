@@ -410,7 +410,8 @@ export function estimate(shed, prices = examplePrices()) {
   if (dims.block) line('Foundation and hardware', label(dims.block.item), dims.blockCount, 'each', item(dims.block.item), src(dims.block.item));
   const vents = Object.values(shed.vents || {}).reduce((t, v) => t + v.length, 0);
   line('Foundation and hardware', `${label('gableVent')}, ${d.ventWidth}" x ${d.ventHeight}"`, vents, 'each', item('gableVent'), src('gableVent'));
-  if (d.roofType === 'ridgeBeam') line('Foundation and hardware', label('rafterHanger'), shed.members.filter((m) => m.kind === 'rafter').length, 'each', item('rafterHanger'), src('rafterHanger'));
+  // Hangers are for rafters meeting a ridge beam; a lean-to's rafters meet none.
+  if (d.roofType === 'ridgeBeam' && !dims.lean) line('Foundation and hardware', label('rafterHanger'), shed.members.filter((m) => m.kind === 'rafter').length, 'each', item('rafterHanger'), src('rafterHanger'));
   // A variable-pitch connector both seats and fastens the rafter at the wall; a notched rafter gets a tie.
   if (dims.connector) line('Foundation and hardware', label('pitchConnector'), dims.rafterCenters.length * 2, 'each', item('pitchConnector'), src('pitchConnector'));
   else line('Foundation and hardware', label('hurricaneTie'), dims.rafterCenters.length * 2, 'each', item('hurricaneTie'), src('hurricaneTie'));
@@ -441,7 +442,7 @@ export function estimate(shed, prices = examplePrices()) {
     const trimIn = (shed.wallTrim || []).reduce((t, x) => t + x.length, 0) + (shed.trim ? (shed.trim.fasciaFt + shed.trim.rakeFt) * 12 : 0);
     if (trimIn) line('Fasteners and sealants', label('trimNails'), Math.ceil((2 * Math.ceil(trimIn / 16)) / 168), 'box', item('trimNails'), src('trimNails'));
     // Connector nails: the rafter connectors, hangers or ties, about 8 each (check the maker's schedule).
-    const connectors = dims.rafterCenters.length * 2 + (d.roofType === 'ridgeBeam' ? shed.members.filter((m) => m.kind === 'rafter').length : 0);
+    const connectors = dims.rafterCenters.length * 2 + (d.roofType === 'ridgeBeam' && !dims.lean ? shed.members.filter((m) => m.kind === 'rafter').length : 0);
     line('Fasteners and sealants', label('connectorNails'), Math.ceil((connectors * 8) / 120), 'pack', item('connectorNails'), src('connectorNails'));
     // Exterior caulk: round each door and window (unit to casing, casing to siding), along
     // the inside edge of each corner board, plus 10 ft for vents and odd joints; a tube runs about 25 ft.

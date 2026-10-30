@@ -130,3 +130,23 @@ test('a lean-to with every wall carrying openings frames them on the right wall 
   const tall = buildShed({ ...d, openings: [{ id: 'o1', kind: 'window', wall: 'back', offset: 30, width: 24, height: 40, sill: 36 }] });
   assert.ok(tall.warnings.some((w) => /the wall is 72"/.test(w)));
 });
+
+test('the design search seeds lean-tos, keeps them on the Pareto front when they earn it, and scores them as one slope', async () => {
+  const { searchDesigns, storageOf, looksOf, evaluateDesign } = await import('./designsearch.mjs');
+  const r = searchDesigns({ budget: 300, sizes: [{ length: 120, width: 96 }, { length: 144, width: 96 }] });
+  const leans = r.all.filter((s) => s.design.style === 'leanTo');
+  assert.ok(leans.length > 0, 'lean-tos evaluated and feasible');
+  assert.ok(r.front.some((s) => s.design.style === 'leanTo'), 'a lean-to on the front');
+  for (const s of leans) {
+    assert.match(s.label, /lean-to/);
+    assert.equal(s.design.roofType, 'ridgeBoard', 'a lean-to\'s roofType is pinned, so flipping it is not a second design');
+    assert.ok(s.wallHeight >= 78 - 0.01, 'the low back wall is held to the lowest wall allowed');
+  }
+  // Storage: the wedge under the one slope is open overhead; looks: a low single slope scores full on pitch.
+  const shed = buildShed(lean());
+  const st = storageOf(shed);
+  assert.equal(st.overheadOpen, true);
+  assert.ok(Math.abs(st.overheadCuFt - (0.5 * 89 * 89 * (4 / 12) * 137) / 1728) < 0.1, String(st.overheadCuFt));
+  assert.equal(looksOf(shed).terms.find((x) => x.key === 'pitch').points, 20);
+  assert.equal(evaluateDesign(lean()).storage.overheadOpen, true);
+});
