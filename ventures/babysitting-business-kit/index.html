@@ -146,6 +146,7 @@
       </form>
       <div id="familiesList"></div>
       <div id="intakePanel"></div>
+      <div id="sitReports"></div>
     </section>
 
     <section data-panel="schedule" class="card" hidden>
@@ -449,6 +450,7 @@
     import * as CRED from "./credentials-ui.mjs";
     import { enhanceTabs } from "./tabs.mjs";
     import { mountInsights } from "./insights-ui.mjs";
+    import { mountSitReports } from "./sitreport-ui.mjs";
 
     const STORE = "babysitting-business-kit-desk";
     const SYNC = "babysitting-business-kit-sync";
@@ -467,6 +469,7 @@
     let renderNetwork = () => {};
     let renderSafety = () => {};
     let renderCredentials = () => {};
+    let renderSitReports = () => {};
 
     function load() {
       try { return E.normalizeDesk(JSON.parse(localStorage.getItem(STORE) || "null")); } catch { return E.emptyDesk(); }
@@ -693,6 +696,7 @@
       renderNetwork();
       renderSafety();
       renderCredentials();
+      renderSitReports();
       fillForm($("profileForm"), { ...desk.profile, certifications: desk.profile.certifications, holidays: desk.profile.holidays, followUpDays: desk.profile.followUpDays });
       $("profileForm").scrollIntoView = () => {};
     }
@@ -946,6 +950,7 @@
 
     $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
     if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+    renderSitReports = mountSitReports($("sitReports"), { getDesk: () => desk, save, esc, record, today, server: () => ({ url: $("syncUrl").value.trim().replace(/\/+$/, ""), key: $("syncKey").value }) });
     renderAutomations = mountAutomations({ getDesk: () => desk, save, esc, record });
     renderAgreements = mountAgreements($("agreementsKit"), { getDesk: () => desk, save, esc, record, serverUrl: () => $("syncUrl").value.trim(), openPage });
     renderNetwork = mountNetwork($("networkKit"), { getDesk: () => desk, save, esc, record, today, server: () => ({ url: $("syncUrl").value.trim().replace(/\/+$/, ""), key: $("syncKey").value }) });

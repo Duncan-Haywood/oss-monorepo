@@ -45,6 +45,7 @@ import { creditReferral } from "./print.mjs";
 import { mergeAutomationState } from "./automations.mjs";
 import { automationRoutes, runAutomations } from "./automations-server.mjs";
 import { blogRoute, serverDraft } from "./content.mjs";
+import { sitReportApi, mergeSitReports } from "./sitreport.mjs";
 import { loadDesk, atomicWrite, backupApi, backupDir, dailyBackup } from "./backup.mjs";
 import { networkRoutes, mergeNetwork } from "./network-server.mjs";
 import { mergeSafety } from "./safety.mjs";
@@ -53,7 +54,7 @@ import { safetyRoutes, runSafety } from "./safety-server.mjs";
 const MAX_BODY = 64 * 1024;
 const MAX_DESK = 8 * 1024 * 1024;
 const MAX_LEADS = 2000;
-const FILES = { "/": "index.html", "/index.html": "index.html", "/engine.mjs": "engine.mjs", "/usage.mjs": "usage.mjs", "/taxes.mjs": "taxes.mjs", "/slots.mjs": "slots.mjs", "/intake.mjs": "intake.mjs", "/meet-and-greet.html": "meet-and-greet.html", "/references.mjs": "references.mjs", "/site.mjs": "site.mjs", "/print.mjs": "print.mjs", "/qr.mjs": "qr.mjs", "/automations.mjs": "automations.mjs", "/automations-ui.mjs": "automations-ui.mjs", "/content.mjs": "content.mjs", "/content-ui.mjs": "content-ui.mjs", "/byok.mjs": "byok.mjs", "/agreements.mjs": "agreements.mjs", "/agreements-ui.mjs": "agreements-ui.mjs", "/admin": "admin.html", "/safety.mjs": "safety.mjs", "/safety-ui.mjs": "safety-ui.mjs" };
+const FILES = { "/": "index.html", "/index.html": "index.html", "/engine.mjs": "engine.mjs", "/usage.mjs": "usage.mjs", "/taxes.mjs": "taxes.mjs", "/slots.mjs": "slots.mjs", "/intake.mjs": "intake.mjs", "/meet-and-greet.html": "meet-and-greet.html", "/references.mjs": "references.mjs", "/site.mjs": "site.mjs", "/print.mjs": "print.mjs", "/qr.mjs": "qr.mjs", "/automations.mjs": "automations.mjs", "/automations-ui.mjs": "automations-ui.mjs", "/content.mjs": "content.mjs", "/content-ui.mjs": "content-ui.mjs", "/byok.mjs": "byok.mjs", "/agreements.mjs": "agreements.mjs", "/agreements-ui.mjs": "agreements-ui.mjs", "/admin": "admin.html", "/safety.mjs": "safety.mjs", "/safety-ui.mjs": "safety-ui.mjs", "/sitreport.mjs": "sitreport.mjs", "/sitreport-ui.mjs": "sitreport-ui.mjs" };
 const TYPES = { html: "text/html; charset=utf-8", mjs: "text/javascript; charset=utf-8" };
 // The installable app (PWA) and the guide pages, so a self-hosted copy works offline and links resolve.
 for (const f of ["tabs.mjs", "sw.js", "manifest.webmanifest", "icon.svg", "icon-192.png", "icon-512.png", "icon-maskable-512.png", "apple-touch-icon.png", "babysitting-taxes.html", "how-to-start-a-babysitting-business.html", "how-much-to-charge-for-babysitting.html", "babysitting-references.html", "self-host.html", "network.mjs", "network-ui.mjs"]) FILES[`/${f}`] = f;
@@ -235,6 +236,7 @@ export function handler(state, save, env = process.env, now = Date.now, fetchImp
       const auth = String(req.headers.authorization || "").replace(/^Bearer\s+/i, "");
       if (!same(auth, env.ADMIN_KEY)) return send(401, "admin key required\n", "text/plain");
       if (await backupApi(req, url, send, state, save, env, now, readBody)) return; // backup.mjs: status, backup, restore
+      if (await sitReportApi(req, url, send, state, save, { email: msg.email, configured: !!(env.RESEND_API_KEY && env.FROM_EMAIL), readBody, now })) return; // email a sit report to the parent (sitreport.mjs)
       if (url.pathname === "/api/desk" && req.method === "GET") return send(200, JSON.stringify(state.desk), "application/json");
       if (url.pathname === "/api/desk" && req.method === "PUT") {
         const raw = await readBody(req, MAX_DESK);
@@ -250,6 +252,7 @@ export function handler(state, save, env = process.env, now = Date.now, fetchImp
         if (Array.isArray(incoming.references)) incoming.references = mergeReferences(state.desk, incoming.references); // keep answers that arrived by link
         mergeAgreements(state.desk, incoming); // and signatures, used links and photo choices (agreements.mjs)
         incoming.safety = mergeSafety(state.desk.safety, incoming.safety, now()); // keep check-in taps and alerts from the server
+        mergeSitReports(state.desk, incoming); // reports the email route saved, and their "emailed" stamps
         state.desk = normalizeDesk(keepIntakes(state.desk, incoming)); // and info sheets families filled in
         state.desk.leads.push(...fresh);
         save();
