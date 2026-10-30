@@ -2,7 +2,7 @@
 title: "A sloped rafter needs a sloped hanger, and it adds $67 to a shed"
 date: 2026-10-30
 tags: [shed-designer, framing, prices]
-description: "The shed designer listed a $1.77 face-mount joist hanger for each rafter on a ridge beam. Simpson rates those for slopes up to 1/4:12, so the list now names a slope-adjustable hanger."
+description: "The shed designer priced a face-mount hanger for each ridge-beam rafter. Simpson rates those to 1/4:12, so the list now names a sloped hanger."
 ---
 
 The [shed designer](https://monorepo-projects-site.duncan-andrew-haywood.workers.dev/shed-designer/)'s default 8x12 hangs its rafters from a ridge beam on posts, which leaves the inside open to the roof. Until today the shopping list priced each rafter's hanger as a Simpson LUS26, the ordinary $1.77 face-mount joist hanger.
