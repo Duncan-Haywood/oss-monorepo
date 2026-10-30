@@ -573,7 +573,8 @@ export function groundAnchors(shed) {
     if (!worst || pull > worst.pull) worst = { dir: x.dir, V, H, pull, governs: V / c >= H / (sn * plan) ? 'overturning' : 'sliding' };
   }
   const w = /** @type {NonNullable<typeof worst>} */ (worst);
-  const ties = Math.max(1, Math.ceil(Math.max(...a.dirs.map((x) => x.holdDown)) / SKID_TIE_LB - 1e-9));
+  // With no floor the strap wraps the perimeter timber the wall stands on: no floor frame to tie down.
+  const ties = shed.dims.floorless ? 0 : Math.max(1, Math.ceil(Math.max(...a.dirs.map((x) => x.holdDown)) / SKID_TIE_LB - 1e-9));
   return { kit, ...w, ratio: w.pull / kit.working, ties, tieLb: SKID_TIE_LB, anchorage: a };
 }
 
@@ -702,7 +703,7 @@ export function structuralChecks(shed) {
   {
     const g = groundAnchors(shed);
     const a = g ? g.anchorage : anchorage(shed);
-    if (g) add('Ground anchors (overturning and sliding)', `four ${g.kit.length}" auger anchors with straps (${g.kit.model})`, `wind ${g.dir}: ${Math.round(g.V)} lb up and ${Math.round(g.H)} lb sideways at each windward corner (ASD 0.6D + 0.6W, friction not counted), so each strap at 45 degrees pulls ${Math.round(g.pull)} lb; ${g.kit.working.toLocaleString('en-US')} lb working load (maker's rating, HUD tested at 1.5 safety factor) in soil ${g.kit.soil}, read with a soil probe; the floor frame tied to the outer skid at each corner with ${g.ties} Simpson H2.5A (${g.tieLb} lb each)`, g.ratio, g.governs);
+    if (g) add('Ground anchors (overturning and sliding)', `four ${g.kit.length}" auger anchors with straps (${g.kit.model})`, `wind ${g.dir}: ${Math.round(g.V)} lb up and ${Math.round(g.H)} lb sideways at each windward corner (ASD 0.6D + 0.6W, friction not counted), so each strap at 45 degrees pulls ${Math.round(g.pull)} lb; ${g.kit.working.toLocaleString('en-US')} lb working load (maker's rating, HUD tested at 1.5 safety factor) in soil ${g.kit.soil}, read with a soil probe${g.ties ? `; the floor frame tied to the outer skid at each corner with ${g.ties} Simpson H2.5A (${g.tieLb} lb each)` : '; the straps wrap the perimeter timbers (the bottom plates\' hold to the timbers is not checked)'}`, g.ratio, g.governs);
     else add('Anchorage (none)', 'no ground anchors', `wind ${a.dir} tips the shed at about ${Math.floor(a.tipsAtPsf)} psf (ASD 0.6D + 0.6W, its weight counted low)${a.ratio > 1 ? '; nothing holds it down or stops it sliding' : ''}`, a.ratio, 'overturning');
   }
   // The walls against racking.

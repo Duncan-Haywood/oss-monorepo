@@ -596,7 +596,7 @@ export function estimate(shed, prices = examplePrices()) {
   const anchors = groundAnchors(shed);
   if (anchors) {
     line('Foundation and hardware', label(anchors.kit.item), 1, 'kit', item(anchors.kit.item), src(anchors.kit.item));
-    line('Foundation and hardware', `${label('hurricaneTie')}, Simpson H2.5A, floor frame to the outer skid at the corners`, 4 * anchors.ties, 'each', item('hurricaneTie'), src('hurricaneTie'));
+    if (anchors.ties) line('Foundation and hardware', `${label('hurricaneTie')}, Simpson H2.5A, floor frame to the outer skid at the corners`, 4 * anchors.ties, 'each', item('hurricaneTie'), src('hurricaneTie'));
   }
 
   // Fasteners, sealants and flashing. Counts follow the nailing schedule on

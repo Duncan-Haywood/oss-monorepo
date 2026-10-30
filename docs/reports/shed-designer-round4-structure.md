@@ -37,7 +37,7 @@ Verification for each PR: the full non-browser suite, the browser suites (`brows
 
 ## Open, for the next run
 
-1. **Wall-to-floor hold at the anchored corners.** Uplift goes from the corner studs into the rim through the siding or sheathing nails over the rim. That link is not checked; the README says so. A rated strap from the corner studs to the rim or skid (Simpson MSTA or CS16) would close it. That needs a sourced price and its catalog tension value.
+1. **Wall-to-floor hold at the anchored corners** (and, on lane 5's floorless foundation, the bottom plates' hold to the perimeter timbers the straps wrap: no ties are added there). Uplift goes from the corner studs into the rim through the siding or sheathing nails over the rim. That link is not checked; the README says so. A rated strap from the corner studs to the rim or skid (Simpson MSTA or CS16) would close it. That needs a sourced price and its catalog tension value.
 2. **Hold-downs at braced-panel ends** (round-2 open item 2, second half) are still not checked.
 3. **One wind pressure.** The user's wall pressure is also roof uplift, as round 2 noted. Truss-heel reversal and the anchors both lean on it. An ASCE 7 velocity-pressure input would help them both.
 4. **Lowe's has no anchor-kit line.** Its listing title ("4725-lb ... 4-Pack", item 5015007057) couldn't be matched to 59800/59802 with a readable price. The store comparison shows Home Depot only for the kit.
