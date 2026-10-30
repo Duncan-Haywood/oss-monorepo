@@ -425,12 +425,12 @@ export function estimate(shed, prices = examplePrices()) {
   }
   // Consumables the build steps call for: adhesive under the subfloor (a tube
   // does about a sheet and a half on joists at 16") and in a site-built door
-  // frame; screws for the subfloor and door skins (about 60 a sheet, about 100
-  // to a 1 lb box); flashing tape round each opening; shims for doors and windows.
+  // frame; screws for door skins (about 60 a leaf, about 100 to a 1 lb box; the
+  // subfloor is nailed with the 8d sheathing nails); flashing tape round each opening; shims for doors and windows.
   {
     const doorsBuilt = (shed.doors || []).reduce((t, x) => t + x.leaves, 0);
     line('Fasteners and sealants', label('adhesive'), Math.ceil(floorSheets / 1.5) + doorsBuilt, 'tube', item('adhesive'), src('adhesive'));
-    line('Fasteners and sealants', label('screws'), Math.max(1, Math.ceil((floorSheets * 60 + doorsBuilt * 60) / 100)), 'box', item('screws'), src('screws'));
+    if (doorsBuilt) line('Fasteners and sealants', label('screws'), Math.ceil((doorsBuilt * 60) / 100), 'box', item('screws'), src('screws'));
     const bought = d.openings.filter((o) => o.product !== 'site-built');
     const tapeFt = bought.reduce((t, o) => t + (2 * (o.width + o.height)) / 12, 0);
     if (tapeFt) line('Fasteners and sealants', label('flashingTape'), Math.ceil(tapeFt / 75), 'roll', item('flashingTape'), src('flashingTape'));
