@@ -1,5 +1,6 @@
 ---
 title: "Invoices for a babysitter: a week on one page, and card payments on the sitter's own Stripe"
+seo_title: "Babysitter invoices: a week on one page, cards on your Stripe"
 date: 2026-10-30
 description: "The babysitting kit now makes numbered invoices, receipts and an aging view, with optional card payments that go only to the sitter's own Stripe account."
 tags: [babysitting-business-kit, small-business, stripe]

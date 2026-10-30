@@ -1,5 +1,6 @@
 ---
 title: "A cycle test that steps cannot fool: Fisher's g on changepoint residuals"
+seo_title: "A cycle test steps cannot fool: Fisher's g on changepoint residuals"
 date: 2026-10-30
 tags: [changepoint-detector, time-series, evaluation]
 description: "After the fitted steps are removed, a periodogram peak test finds the sunspot cycle (p 2e-6) and false-alarms on 1 to 3% of series with real steps and no cycle."

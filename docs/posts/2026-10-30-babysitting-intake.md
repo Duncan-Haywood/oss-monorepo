@@ -1,5 +1,6 @@
 ---
 title: "Before the first sit: a meet-and-greet kit, a family info sheet, and which channel actually books"
+seo_title: "Meet-and-greet kit and family info sheet for babysitters"
 date: 2026-10-30
 tags: [babysitting-business-kit, intake, small-business]
 description: "31 questions to ask parents, 13 red flags about safety and payment only, a one-time info sheet that fills the family record, and conversion by lead source."
