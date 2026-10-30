@@ -2,7 +2,7 @@
 title: "Does the cost of compressing updates in low-communication training shrink with model size?"
 seo_title: "Rand-k compression excess loss at two GPT sizes in DiLoCo-style local SGD"
 date: 2026-10-30
-description: "On a character-level GPT, doubling the parameter count (413k to 915k) roughly halved rand-k compression's excess loss; a refitted three-constant rule was not stable on two seeds."
+description: "Doubling a character-level GPT from 413k to 915k parameters roughly halved rand-k compression excess loss; a refitted rule was unstable on two seeds."
 tags: [research, lowcomm-training, local-sgd]
 ---
 
