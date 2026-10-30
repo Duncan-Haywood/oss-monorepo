@@ -1186,3 +1186,19 @@ detector against a known date, and the first segment is only 12 months long.
 The note in the drift-warning eval now says so; its warning counts on this
 series are unchanged, so read them as warnings on a series with a real step,
 not as false alarms.
+
+## Two quiet real series: lh and treering (2026-10-30)
+
+The open item "a quiet real series is wanted" is met by two series with no documented step, so every cut is a false
+alarm (`data/lh.csv`, `data/treering.csv`, both R's `datasets`; `quiet-series.test.mjs`).
+
+| Series | Default `mean` | `--min-segment 6` | `--min-segment 20` | `--ar1` | `--model meanvar --bootstrap` |
+| --- | --- | --- | --- | --- | --- |
+| `lh`, 48 luteinizing hormone readings, lag-1 autocorrelation 0.58 | 5 steps (15, 18, 23, 35, 40) | 3 | 1 | 0 | 0 |
+| `treering`, 7,980 yearly tree-ring widths, 6000 BC to 1979, lag-1 autocorrelation 0.22 | 38 | 33 | 31 | 11 | 1 (-4353) |
+
+`lh` repeats the synthetic result on a real series: autocorrelation alone makes the default model see steps, and
+`--ar1` removes all five. A longer minimum segment only thins them. `treering` is harder: its correlation at lag 1 is
+modest but it drifts slowly over centuries, so `--ar1` still leaves 11 and only the bootstrapped `meanvar` penalty is
+near quiet (1). Do not read a tree-ring "step" as a climate event from this tool; the counts are the claim, nothing
+here is checked against a dendrochronology record. `--ar1` is for the `mean` model only.
