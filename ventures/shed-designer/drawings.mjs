@@ -6,7 +6,7 @@
 // to DXF for a CAD program, at true scale.
 
 import { fmtFtIn, fmtIn } from './lumber.mjs';
-import { WALLS, WALL_LABEL } from './model.mjs';
+import { WALLS, WALL_LABEL, siteLayout } from './model.mjs';
 import { heelJoint } from './checks.mjs';
 
 /** @typedef {[number, number]} P */
@@ -581,13 +581,56 @@ export function buildSheets(shed, marks = new Map()) {
     });
   }
 
+  // Site plan, from the lot, placement, house and setback you typed: the lot
+  // lines, the shed's walls and eave line, the house, and every clearance.
+  const site = siteLayout(d);
+  if (site) {
+    const items = /** @type {Item[]} */ ([]);
+    const { lot, shed: sh, house, clear, overhang: o } = site;
+    items.push(rect(0, 0, lot.w, lot.d, 'outline'));
+    items.push(text([lot.w / 2, -lot.d * 0.04 - 6], 'STREET (front lot line)', 10, 'middle', 'muted'));
+    items.push(text([lot.w / 2, lot.d + lot.d * 0.02], 'REAR LOT LINE', 9, 'middle', 'muted'));
+    if (o > 0) items.push(rect(sh.x0, sh.y0 - o, sh.x1, sh.y1 + o, 'hidden'));
+    items.push(rect(sh.x0, sh.y0, sh.x1, sh.y1, 'member'));
+    items.push(text([(sh.x0 + sh.x1) / 2, sh.y0 - o - lot.d * 0.02], `SHED ${fmtFtIn(L)} x ${fmtFtIn(W)}`, 8));
+    items.push(text([(sh.x0 + sh.x1) / 2, sh.y0 - o - lot.d * 0.035], 'door wall to the street', 7, 'middle', 'muted'));
+    if (house) {
+      items.push(rect(house.x0, house.y0, house.x1, house.y1, 'hidden'));
+      items.push(text([(house.x0 + house.x1) / 2, (house.y0 + house.y1) / 2 - 4], 'HOUSE (as typed)', 9));
+    }
+    const midY = (sh.y0 + sh.y1) / 2;
+    // Front and rear clearances run up the side of the shed away from the house.
+    const sideX = house && (house.x0 + house.x1) / 2 > (sh.x0 + sh.x1) / 2 ? sh.x0 : sh.x1;
+    const sideOff = sideX === sh.x0 ? 12 : -12;
+    if (clear.left > 0) items.push(dim([0, midY], [sh.x0, midY], 12, fmtFtIn(clear.left)));
+    if (clear.right > 0) items.push(dim([sh.x1, midY], [lot.w, midY], 12, fmtFtIn(clear.right)));
+    if (clear.rear > 0) items.push(dim([sideX, sh.y1], [sideX, lot.d], sideOff, fmtFtIn(clear.rear)));
+    if (clear.front > 0) items.push(dim([sideX, 0], [sideX, sh.y0], sideOff, fmtFtIn(clear.front)));
+    const eave = (v) => (o > 0 ? ` (${fmtFtIn(v)} to the eave)` : '');
+    items.push(text([0, -lot.d * 0.12], `Shed to lot lines: left ${fmtFtIn(clear.left)}, right ${fmtFtIn(clear.right)}, street ${fmtFtIn(clear.front)}${eave(clear.frontEave)}, rear ${fmtFtIn(clear.rear)}${eave(clear.rearEave)}${house && site.houseGap !== null ? `; to the house ${fmtFtIn(site.houseGap)}` : ''}.`, 10, 'start'));
+    items.push(dim([0, -lot.d * 0.04], [lot.w, -lot.d * 0.04], -10, `${fmtFtIn(lot.w)} lot width`));
+    items.push(dim([lot.w, 0], [lot.w, lot.d], -24, `${fmtFtIn(lot.d)} lot depth`));
+    sheets.unshift({
+      id: 'site', title: 'Site plan',
+      note: `Lot, shed and house as you typed them; not a survey. Clearances to the shed's walls, and to its eave front and back (${fmtIn(o)} overhang; the gable ends have none).${site.setback > 0 ? ` Setback you typed: ${fmtFtIn(site.setback)}.` : ''} Add a north arrow, the street name and any easements before you submit it.`,
+      items,
+    });
+  }
+
   // 0. Cover sheet: what this is, the data, the schedule and the index. Built last so the index is complete.
   {
     const items = /** @type {Item[]} */ ([]);
     const lines = [];
     const row = (s2, size = 10, cls = 'label') => lines.push({ s2, size, cls });
     row(d.name, 18);
-    row(`${fmtFtIn(L)} x ${fmtFtIn(W)} gable shed, ${d.pitch}/12 roof, peak about ${fmtFtIn(k.peak)} above the gravel`, 11);
+    row(`${fmtFtIn(L)} x ${fmtFtIn(W)} gable shed, ${((L * W) / 144).toFixed(0)} sq ft floor area, ${d.pitch}/12 roof, peak about ${fmtFtIn(k.peak)} above the gravel`, 11);
+    row('');
+    row('PROJECT (fill in by hand)', 9, 'muted');
+    row('Owner: ______________________________   Site address: ________________________________________   Parcel no.: ______________');
+    row('');
+    row('MATERIALS AND COLOURS', 9, 'muted');
+    row(`Siding: ${d.siding ? `${d.sidingType}, ${d.sidingColor === 'natural' ? 'natural stain' : d.sidingColor === 'unfinished' ? 'unfinished' : `${d.sidingColor} paint`}${d.polkaDots ? ' with purple polka dots' : ''}` : 'none'}. Roof: ${d.roofCover === 'metal' ? 'corrugated metal' : 'asphalt shingles'}, ${d.roofColor}. Trim: ${d.wallTrim === 'none' ? 'none' : `1x4, ${d.trimColor}`}.`);
+    row(`Overall height: peak ${fmtFtIn(k.peak)} above the gravel; walls ${fmtFtIn(d.wallHeight)} floor to top of plates; floor ${fmtFtIn(k.floorTop)} above the gravel.`);
     row('');
     row('DESIGN DATA', 9, 'muted');
     row(`Walls: ${d.studSize} at ${d.studSpacing}" o.c., ${fmtFtIn(d.wallHeight)} floor to top of plates (studs ${fmtIn(k.studLen)}), double top plate interlocked at corners.`);
@@ -610,8 +653,9 @@ export function buildSheets(shed, marks = new Map()) {
     row('Written dimensions govern; do not scale the drawings. Letters on members are marks in the cut sheet and parts list.');
     row('All lumber in ground contact or on the skids is pressure-treated. Fasteners as the build instructions and each maker specify.');
     row('Not engineered and not checked against any building code. Confirm permits, setbacks, snow and wind loads with your building department.');
+    row('Many places need no building permit for a small shed: the IRC (R105.2) exempts a one-storey detached accessory building up to 200 sq ft,');
+    row('the IBC sets 120 sq ft, and many towns use a smaller figure. Zoning setbacks and HOA rules can apply either way. Check locally.');
     lines.forEach((ln, i) => { if (ln.s2) items.push(text([0, -i * 22], ln.s2, ln.size, 'start', ln.cls)); });
-    items.push(rect(-10, -lines.length * 22, 1000, 30, 'outline'));
     sheets.unshift({ id: 'cover', title: 'Cover sheet', note: 'Design summary, opening schedule and sheet index.', items });
   }
   return sheets;

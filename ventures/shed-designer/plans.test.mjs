@@ -163,3 +163,48 @@ test('every mark in the parts list is lettered on at least one sheet', () => {
     assert.deepEqual(missing, [], name);
   }
 });
+
+test('a site plan sheet is drawn from the lot you type, with every clearance and its warnings', async () => {
+  const { normalize, siteLayout } = await import('./model.mjs');
+  const bare = buildSheets(buildShed(defaultDesign()));
+  assert.ok(!bare.some((x) => x.id === 'site'), 'no lot typed, no site plan');
+  const d = normalize({ ...defaultDesign(), lotWidthFt: 50, lotDepthFt: 100, siteLeftFt: 6, siteRearFt: 6, setbackFt: 5, houseWidthFt: 30, houseDepthFt: 40, houseLeftFt: 10, houseFrontFt: 25 });
+  const s = buildShed(d);
+  const sheets = buildSheets(s);
+  assert.deepEqual(sheets.slice(0, 2).map((x) => x.id), ['cover', 'site']);
+  const site = siteLayout(s.design);
+  // 50 ft lot, a 12 ft shed 6 ft from the left: 32 ft to the right line. 100 ft deep, 8 ft wide, 6 ft from the rear: 86 ft to the street.
+  assert.equal(site.clear.right, 32 * 12);
+  assert.equal(site.clear.front, 86 * 12);
+  assert.equal(site.clear.rearEave, 6 * 12 - s.design.overhang);
+  // The house's back wall is at 65 ft from the street, the shed's front at 86 ft: 21 ft apart.
+  assert.equal(site.houseGap, 21 * 12);
+  const words = [sheets[1].note, ...sheets[1].items.map((i) => /** @type {any} */ (i).text || '')].join('\n');
+  assert.match(words, /left 6' 0", right 32' 0", street 86' 0"/);
+  assert.match(words, /to the house 21' 0"/);
+  assert.match(words, /not a survey/);
+  assert.match(sheets[0].items.map((i) => i.text || '').join(' '), /2\. Site plan/);
+  assert.ok(!s.warnings.some((w) => /site plan/.test(w)), 'clear of a 5 ft setback');
+  const tight = buildShed(normalize({ ...d, siteRearFt: 3 }));
+  assert.ok(tight.warnings.some((w) => /closer than your 5' 0" setback to the rear lot line/.test(w)), tight.warnings.join('\n'));
+  const off = buildShed(normalize({ ...d, siteLeftFt: 45 }));
+  assert.ok(off.warnings.some((w) => /runs past the right lot line/.test(w)));
+  const onHouse = buildShed(normalize({ ...d, siteRearFt: 40, siteLeftFt: 15 }));
+  assert.ok(onHouse.warnings.some((w) => /overlaps the house/.test(w)));
+  // Junk typed into the fields is clamped, never NaN.
+  const junk = normalize({ ...defaultDesign(), lotWidthFt: 'x', lotDepthFt: -5, setbackFt: null });
+  assert.deepEqual([junk.lotWidthFt, junk.lotDepthFt, junk.setbackFt], [0, 0, 0]);
+});
+
+test('the cover sheet carries what a permit or HOA reviewer asks for, and never claims approval', () => {
+  const s = buildShed(PRESETS['8x12 classic']());
+  const cover = buildSheets(s)[0];
+  const words = cover.items.map((i) => i.text || '').join('\n');
+  assert.match(words, /96 sq ft floor area/);
+  assert.match(words, /Owner: _+ {3}Site address: _+/);
+  assert.match(words, /Siding: T1-11, natural stain\. Roof: asphalt shingles, charcoal\. Trim: 1x4, white\./);
+  assert.match(words, /Overall height: peak /);
+  assert.match(words, /IRC \(R105\.2\) exempts a one-storey detached accessory building up to 200 sq ft/);
+  assert.match(words, /Not engineered and not checked against any building code/);
+  assert.ok(!/permit-ready|approved/i.test(words));
+});
