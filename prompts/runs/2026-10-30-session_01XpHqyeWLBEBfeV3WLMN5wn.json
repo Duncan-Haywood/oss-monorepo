@@ -30,7 +30,8 @@
   "tests_added": null,
   "outcome": "success",
   "errors": [
-    "First preflight failed: count files (sync_tree_counts, sync_readme_counts) were stale after adding a venture; regenerated and committed."
+    "First preflight failed: count files (sync_tree_counts, sync_readme_counts) were stale after adding a venture; regenerated and committed.",
+    "Nine lane posts had descriptions over 160 characters; shortened before merging."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -57,7 +58,7 @@
     "docs/posts/2026-10-30-babysitting-business-kit.md"
   ],
   "goal": null,
-  "notes": "43 tests pass (run_venture_tests.py babysitting-business-kit). clauses.mjs 2/2 pages pass, validate.py passes, launched.json updated. Playwright smoke at 390px: every tab, add lead, add sit with live quote, tax panel, settings persisted across reload, no page errors (the only console line is the sandboxed website-preview iframe refusing inline script, which is intended). Tax constants come from sibling ventures that checked them against IRS/SSA.",
+  "notes": "43 tests pass (run_venture_tests.py babysitting-business-kit). clauses.mjs 2/2 pages pass, validate.py passes, launched.json updated. Playwright smoke at 390px: every tab, add lead, add sit with live quote, tax panel, settings persisted across reload, no page errors (the only console line is the sandboxed website-preview iframe refusing inline script, which is intended). Tax constants come from sibling ventures that checked them against IRS/SSA. Ten lane agents (worktrees) each opened a PR (#11598, #11599, #11601, #11603, #11604, #11612, #11613, #11614, #11615, #11617). I merged all ten branches into this PR's branch with merge commits so their PRs close as merged when this one lands, resolving shared-file conflicts: a union for the Dockerfile COPY and server FILES lines, both-sides for additive blocks, and by hand where lanes collided: slots.mjs and site.mjs were both imported as S (site renamed SITE); the desk PUT ran keepIntakes before mergeReferences (a stale app copy undid a referee's answer, caught by references.test.mjs); the ?ref= prefill moved from the old buildSite into site.mjs; /site/blog had to precede /site/; self-host.html lacked 15 variables other lanes added (deploy.test caught one; the test now scans all server modules). 197 tests pass, including the Playwright e2e; my own Playwright pass at 390 and 1280 px over all 11 tabs had no page errors.",
   "corrections": [],
   "redteam": null,
   "usage": {

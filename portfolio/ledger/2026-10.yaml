@@ -4263,5 +4263,11 @@ entries:
         dates and household-employee / 1099-K flags, family year-end statements, references with
         separate consent, generated website, content calendar. Optional zero-dependency server:
         website inquiries to scored leads, Resend auto-reply, webhook alerts, daily digest,
-        calendar feed. 43 tests. Usage unmeasured.
+        calendar feed. Then ten parallel lanes merged into the same PR: federal estimate,
+        safe harbor and Schedule C CSV; open slots and a /book request page; meet-and-greet kit,
+        red flags and family info sheets; self-serve reference links with recorded consent;
+        multi-page site in three themes; flyers, cards and a QR encoder with referral credit;
+        six opt-in email/SMS automations with quiet hours and STOP; a topic bank, blog and BYOK
+        drafts; Render/Fly/Docker, snapshots and S3 backup; installable PWA, keyboard tabs and
+        three guides. 197 tests. Usage unmeasured.
     mrr_end: 0
