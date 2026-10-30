@@ -145,6 +145,9 @@ const PREFER_CELL = /^(prefer|would[ -]?like|extra[ -]?hours)\s*:/i;
 const AGE_CELL = /^age\s*:/i;
 const SUPERVISED_CELL = /^(minor|supervised|needs[ -]?supervision)$/i;
 const TOUGH_CELL = /^(tough|recent[ -]?tough)\s*:/i;
+// "streak: 4" = days worked in a row up to and including last Sunday, so the days-in-a-row limit also holds across
+// Monday (written by carryOverStaff). Without it the search starts every week from zero.
+const STREAK_CELL = /^(streak|days[ -]?in[ -]?a[ -]?row)\s*:/i;
 function parseAvoid(text, label = "avoid") {
   const errors = [], avoid = Array.from({ length: 7 }, () => []);
   for (const tok of String(text).split(/;|\|/)) {
@@ -260,7 +263,13 @@ export function parseStaff(text, { weekStart = null } = {}) {
       toughBefore = Number(toughCell.replace(TOUGH_CELL, "").trim());
       if (!Number.isFinite(toughBefore) || toughBefore < 0) { errors.push(`${where} (${c[0]}): could not read "${toughCell}"; write it like "tough: 3" (weekend, closing and opening shifts worked recently)`); toughBefore = 0; }
     }
-    const isExtra = (x) => ROLE_CELL.test(x) || PREV_CELL.test(x) || OFF_CELL.test(x) || DAILY_CELL.test(x) || AVOID_CELL.test(x) || PREFER_CELL.test(x) || TOUGH_CELL.test(x) || SUPERVISED_CELL.test(x) || AGE_CELL.test(x);
+    let streakBefore = 0;
+    const streakCell = tail.find((x) => STREAK_CELL.test(x));
+    if (streakCell) {
+      streakBefore = Number(streakCell.replace(STREAK_CELL, "").trim());
+      if (!Number.isInteger(streakBefore) || streakBefore < 0) { errors.push(`${where} (${c[0]}): could not read "${streakCell}"; write it like "streak: 4" (days worked in a row up to last Sunday)`); streakBefore = 0; }
+    }
+    const isExtra = (x) => STREAK_CELL.test(x) || ROLE_CELL.test(x) || PREV_CELL.test(x) || OFF_CELL.test(x) || DAILY_CELL.test(x) || AVOID_CELL.test(x) || PREFER_CELL.test(x) || TOUGH_CELL.test(x) || SUPERVISED_CELL.test(x) || AGE_CELL.test(x);
     const avoidCells = tail.filter((x) => AVOID_CELL.test(x));
     const av2 = parseAvoid(avoidCells.map((x) => x.replace(AVOID_CELL, "")).join(";"));
     av2.errors.forEach((e) => errors.push(`${where} (${c[0]}): ${e}`));
@@ -292,7 +301,7 @@ export function parseStaff(text, { weekStart = null } = {}) {
         }
       }
     }
-    staff.push({ age, youth, name: c[0], wage, maxHours: maxHoursEff, minHours: Math.min(minH, maxHoursEff), roles, days: av.days, anyTime: av.any && !youth && !tail.some((x) => OFF_CELL.test(x)), prevEnd, maxDaily: maxDailyEff, avoid: avoidCells.length ? av2.avoid : null, prefer: preferCells.length ? pf2.avoid : null, toughBefore, supervised: tail.some((x) => SUPERVISED_CELL.test(x)) || (age !== null && age < 18) });
+    staff.push({ age, youth, name: c[0], wage, maxHours: maxHoursEff, minHours: Math.min(minH, maxHoursEff), roles, days: av.days, anyTime: av.any && !youth && !tail.some((x) => OFF_CELL.test(x)), prevEnd, streakBefore, maxDaily: maxDailyEff, avoid: avoidCells.length ? av2.avoid : null, prefer: preferCells.length ? pf2.avoid : null, toughBefore, supervised: tail.some((x) => SUPERVISED_CELL.test(x)) || (age !== null && age < 18) });
   });
   if (!staff.length && !errors.length) errors.push("Add at least one person.");
   if (staff.length > MAX_STAFF) errors.push(`That is ${staff.length} people; this tool handles up to ${MAX_STAFF}.`);
@@ -431,7 +440,8 @@ function validList(ctx, p, list) {
   if (minutes > staff[p].maxHours * 60 + 1e-9) return false;
   if (overDaily(ctx, p, list)) return false;
   const sorted = [...days].sort((a, b) => a - b);
-  let run = 0, prev = -9;
+  const before = staff[p].streakBefore || 0;
+  let run = before, prev = before > 0 ? -1 : -9;
   for (const d of sorted) {
     run = d === prev + 1 ? run + 1 : 1;
     if (run > o.maxConsecDays) return false;
@@ -1894,7 +1904,10 @@ export function lastShiftEnds(csv) {
     if (end <= start) end += 1440;
     const abs = d * 1440 + end;
     const key = who.toLowerCase();
-    if (!ends.has(key) || abs > ends.get(key).abs) ends.set(key, { name: who, abs });
+    if (!ends.has(key)) ends.set(key, { name: who, abs, days: new Set() });
+    const e = ends.get(key);
+    e.days.add(d);
+    if (abs > e.abs) e.abs = abs;
   }
   return ends;
 }
@@ -1982,8 +1995,28 @@ export function toughCounts(csv) {
   return counts;
 }
 
+// Days worked in a row ending on last Sunday, per person (lowercase name). A run that reaches back to Monday adds the
+// `streak:` they already carried in, so a person on a 9-day run reads 9, then 16, not 7 each time.
+function trailingStreaks(ends, staffText) {
+  const old = new Map();
+  for (const raw of String(staffText || "").split(/\r?\n/)) {
+    const cells = splitLine(raw.trim());
+    const cell = cells.find((x) => STREAK_CELL.test(x));
+    if (cell && cells[0] && !raw.trim().startsWith("#")) old.set(cells[0].toLowerCase(), Number(cell.replace(STREAK_CELL, "").trim()) || 0);
+  }
+  const out = new Map();
+  for (const [who, { days: set }] of ends) {
+    let run = 0;
+    for (let d = 6; d >= 0 && set.has(d); d--) run++;
+    if (run === 7) run += old.get(who) || 0;
+    if (run > 0) out.set(who, run);
+  }
+  return out;
+}
+
 export function carryOverStaff(staffText, lastWeekCsv) {
   const ends = lastShiftEnds(lastWeekCsv);
+  const streaks = trailingStreaks(ends, staffText);
   const tough = toughCounts(lastWeekCsv);
   let changed = 0;
   const out = String(staffText || "").split(/\r?\n/).map((raw) => {
@@ -1991,9 +2024,12 @@ export function carryOverStaff(staffText, lastWeekCsv) {
     if (!line || line.startsWith("#")) return raw;
     const cells = splitLine(line);
     const e = ends.get((cells[0] || "").toLowerCase());
-    if (!e) return raw;
+    if (!e) {
+      const bare = cells.filter((x) => !STREAK_CELL.test(x));
+      return bare.length === cells.length ? raw : bare.join(line.includes("\t") ? "\t" : ", ");
+    }
     const day = Math.min(6, Math.floor(e.abs / 1440)), min = e.abs - day * 1440;
-    const kept = cells.filter((x) => !PREV_CELL.test(x));
+    const kept = cells.filter((x) => !PREV_CELL.test(x) && !STREAK_CELL.test(x));
     while (kept.length < 4) kept.push(""); // prev: sits after wage, max, min; blank cells take the defaults
     kept.push(`prev: ${DAYS[day]} ${Math.floor(min / 60)}:${String(min % 60).padStart(2, "0")}`);
     // Rolling tally: last week's tough shifts plus half of what was already recorded, so old weeks fade.
@@ -2001,6 +2037,8 @@ export function carryOverStaff(staffText, lastWeekCsv) {
     const rolled = Math.round(((oldTough ? Number(oldTough.replace(TOUGH_CELL, "")) || 0 : 0) * 0.5 + (tough.get(e.name.toLowerCase()) || 0)) * 10) / 10;
     const rest = kept.filter((x) => !TOUGH_CELL.test(x));
     if (rolled > 0) rest.push(`tough: ${rolled}`);
+    const streak = streaks.get((cells[0] || "").toLowerCase());
+    if (streak) rest.push(`streak: ${streak}`);
     kept.length = 0; kept.push(...rest);
     changed++;
     return kept.join(line.includes("\t") ? "\t" : ", ");
@@ -2040,7 +2078,7 @@ export function planWeeks(staffText, shiftsText, { weeks = 4, weekStart = null, 
         if (!line || line.startsWith("#")) return raw;
         const cells = splitLine(line);
         if (worked.has((cells[0] || "").toLowerCase())) return raw;
-        const kept = cells.filter((x) => !PREV_CELL.test(x));
+        const kept = cells.filter((x) => !PREV_CELL.test(x) && !STREAK_CELL.test(x));
         return kept.length === cells.length ? raw : kept.join(line.includes("\t") ? "\t" : ", ");
       }).join("\n");
       text = carryOverStaff(cleaned, csv).text;
@@ -2545,7 +2583,7 @@ export function parseAvailabilityReply(line) {
 export function mergeAvailabilityReplies(staffText, repliesText) {
   const lines = String(staffText || "").split(/\r?\n/);
   const errors = [], updated = [], added = [];
-  const isExtra = (x) => ROLE_CELL.test(x) || PREV_CELL.test(x) || OFF_CELL.test(x) || DAILY_CELL.test(x) || AVOID_CELL.test(x) || PREFER_CELL.test(x) || TOUGH_CELL.test(x);
+  const isExtra = (x) => ROLE_CELL.test(x) || PREV_CELL.test(x) || OFF_CELL.test(x) || DAILY_CELL.test(x) || AVOID_CELL.test(x) || PREFER_CELL.test(x) || TOUGH_CELL.test(x) || STREAK_CELL.test(x);
   const rowOf = (name) => lines.findIndex((l) => { const t = l.trim(); return t && !t.startsWith("#") && splitLine(t)[0].toLowerCase() === name.toLowerCase(); });
   for (const raw of String(repliesText || "").split(/\r?\n/)) {
     if (!raw.trim() || raw.trim().startsWith("#")) continue;
