@@ -59,7 +59,7 @@ test('the search run now gives a valid gallery whose reasons are true; drift fro
     const e = evaluateDesign(by.value.design, undefined, RULES);
     assert.ok(kept.every((/** @type {any} */ s) => v(s) <= v(e) + 1e-9));
   }
-  // "In a size the cards above do not show" is true where it is said.
+  // "In a size no card before it in the strip shows" is true where it is said.
   fresh.forEach((g, i) => {
     if (/do not show/.test(g.reason)) assert.ok(!fresh.slice(0, i).some((h) => sizeOf(h.design) === sizeOf(g.design)), g.id);
   });

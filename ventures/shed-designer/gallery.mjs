@@ -87,7 +87,7 @@ const money = (/** @type {number} */ n) => {
 };
 const perDollar = (/** @type {any} */ s) => s.storage.volumeCuFt / s.cost;
 const bestBy = (/** @type {any[]} */ list, /** @type {(s: any) => number} */ f) => [...list].sort((a, b) => f(b) - f(a) || a.cost - b.cost);
-const NEW = ' in a size the cards above do not show';
+const NEW = ' in a size no card before it in the strip shows';
 const balanced = (/** @type {any[]} */ front) => picks(front).find((x) => x.key === 'balanced')?.design;
 
 /**
@@ -139,7 +139,7 @@ export const GALLERY = [
   {
     id: 'barn', from: 'barn', title: (s) => `Barn for storage ${sizeOf(s.design)}`, colour: 'red',
     rank: (kept) => bestBy(kept.filter((s) => s.design.style === 'gambrel'), perDollar),
-    why: (s, kept, first) => `A gambrel roof: steep lower slopes and a shallow top put the most room under the gallery's 13 ft height limit. The most room per dollar of the ${kept.length} barns its own search kept in painted lap siding and shingles${first ? '' : NEW}. Searched apart from the cards above, which show gables and lean-tos.`,
+    why: (s, kept, first) => `A gambrel roof: steep lower slopes and a shallow top put the most room under the gallery's 13 ft height limit. The most room per dollar of the ${kept.length} barns its own search kept in painted lap siding and shingles${first ? '' : NEW}. Searched apart from the other cards, which show gables and lean-tos.`,
   },
   {
     id: 'square', from: 'house', title: () => '10x10 square', colour: 'khaki',

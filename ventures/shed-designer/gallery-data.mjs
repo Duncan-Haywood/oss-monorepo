@@ -204,7 +204,7 @@ export const GALLERY_DESIGNS = [
  {
   "id": "balanced",
   "title": "Balanced 9x11",
-  "reason": "Of the designs nothing beats on cost, room and looks together, the most room per dollar in a size the cards above do not show.",
+  "reason": "Of the designs nothing beats on cost, room and looks together, the most room per dollar in a size no card before it in the strip shows.",
   "design": {
    "name": "Balanced 9x11",
    "length": 132,
@@ -304,7 +304,7 @@ export const GALLERY_DESIGNS = [
  {
   "id": "storage",
   "title": "Most storage 10x10",
-  "reason": "The most room inside of the 733 designs the search kept in a size the cards above do not show, by the search's measure of volume, open to the roof.",
+  "reason": "The most room inside of the 733 designs the search kept in a size no card before it in the strip shows, by the search's measure of volume, open to the roof.",
   "design": {
    "name": "Most storage 10x10",
    "length": 120,
@@ -404,7 +404,7 @@ export const GALLERY_DESIGNS = [
  {
   "id": "looks",
   "title": "Best looking 8x11",
-  "reason": "Scores 100/100 on the tool's looks measure (roof share, proportions, overhang, wall height, symmetry, windows), the top score in a size the cards above do not show in painted lap siding and shingles.",
+  "reason": "Scores 100/100 on the tool's looks measure (roof share, proportions, overhang, wall height, symmetry, windows), the top score in a size no card before it in the strip shows in painted lap siding and shingles.",
   "design": {
    "name": "Best looking 8x11",
    "length": 132,
@@ -524,7 +524,7 @@ export const GALLERY_DESIGNS = [
  {
   "id": "house",
   "title": "9x10 to match the house",
-  "reason": "Fiber cement lap siding painted to match a HardieBoard house, and shingles, kept as they are; the search chose the rest for the most room per dollar in a size the cards above do not show.",
+  "reason": "Fiber cement lap siding painted to match a HardieBoard house, and shingles, kept as they are; the search chose the rest for the most room per dollar in a size no card before it in the strip shows.",
   "design": {
    "name": "9x10 to match the house",
    "length": 108,
@@ -624,7 +624,7 @@ export const GALLERY_DESIGNS = [
  {
   "id": "house-cheapest",
   "title": "Cheapest lap-sided 7x12",
-  "reason": "The lowest price of the 687 designs kept with painted lap siding and shingles in a size the cards above do not show ($2,904 when it ran).",
+  "reason": "The lowest price of the 687 designs kept with painted lap siding and shingles in a size no card before it in the strip shows ($2,904 when it ran).",
   "design": {
    "name": "Cheapest lap-sided 7x12",
    "length": 84,
@@ -724,7 +724,7 @@ export const GALLERY_DESIGNS = [
  {
   "id": "barn",
   "title": "Barn for storage 7x14",
-  "reason": "A gambrel roof: steep lower slopes and a shallow top put the most room under the gallery's 13 ft height limit. The most room per dollar of the 178 barns its own search kept in painted lap siding and shingles. Searched apart from the cards above, which show gables and lean-tos.",
+  "reason": "A gambrel roof: steep lower slopes and a shallow top put the most room under the gallery's 13 ft height limit. The most room per dollar of the 178 barns its own search kept in painted lap siding and shingles. Searched apart from the other cards, which show gables and lean-tos.",
   "design": {
    "name": "Barn for storage 7x14",
    "length": 168,
@@ -924,7 +924,7 @@ export const GALLERY_DESIGNS = [
  {
   "id": "long",
   "title": "Long 6x16",
-  "reason": "Narrow and long, for a side yard or along a fence; the most room per dollar of the 14 ft and longer sheds kept in a size the cards above do not show.",
+  "reason": "Narrow and long, for a side yard or along a fence; the most room per dollar of the 14 ft and longer sheds kept in a size no card before it in the strip shows.",
   "design": {
    "name": "Long 6x16",
    "length": 192,
