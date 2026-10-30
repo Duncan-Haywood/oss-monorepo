@@ -430,3 +430,16 @@ test("posted-schedule page's table is what eval/callout-churn-bench.mjs returns 
   const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
   for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
 });
+
+test("salon page numbers come from the builder", async () => {
+  const { parseStaff, parseShifts, buildRoster } = await import("./calc.mjs");
+  const staff = parseStaff("Mia, 22, 32, 16, Tue-Sat 9-19\nJo, 20, 40, 24, Mon-Fri 9-18; Sat off\nPriya, 24, 30, 0, Wed-Sun 10-20\nLeo, 18, 20, 0, Thu-Sat 12-20; Sun 10-16").staff;
+  const slots = parseShifts("Tue-Fri, 9, 14, 1, Morning chair\nTue-Fri, 14, 19, 2, Afternoon chairs\nSat, 9, 18, 3, Saturday full\nSun, 10, 16, 1, Sunday").slots;
+  const r = buildRoster(staff, slots, {});
+  const html = page("salon-staff-schedule.html");
+  assert.equal(r.cost, 1466);
+  assert.ok(html.includes("13 of 16 chair-shifts are covered for $1,466"));
+  assert.match(page("sitemap.xml"), /salon-staff-schedule\.html/);
+  assert.match(page("index.html"), /salon-staff-schedule\.html/);
+  assert.ok(html.includes("No warranty"));
+});
