@@ -11,7 +11,7 @@ import { fmtIn, fmtFtIn, actual, STANDARD_LENGTHS_FT, EXAMPLE_ITEMS } from './lu
 import { recordUsage, clearUsage } from './usage.mjs';
 import { structuralChecks } from './checks.mjs';
 import { connectionChecks } from './connections.mjs';
-import { generateCandidates, designDiff } from './candidates.mjs';
+import { generateCandidates, designDiff, openingCosts } from './candidates.mjs';
 import { buildInstructions, instructionsMarkdown } from './instructions.mjs';
 import { quoteRequest, mailtoLink, STORES } from './quote.mjs';
 import { PRODUCTS } from './products.mjs';
@@ -186,9 +186,11 @@ function renderOpenings(d) {
       <td><input type="number" min="12" max="144" step="1" data-i="${i}" data-k="width" value="${op.width}" aria-label="Opening ${i + 1} rough opening width (in)"></td>
       <td><input type="number" min="12" max="120" step="1" data-i="${i}" data-k="height" value="${op.height}" aria-label="Opening ${i + 1} rough opening height (in)"></td>
       <td>${op.kind === 'window' ? `<input type="number" min="6" max="96" step="1" data-i="${i}" data-k="sill" value="${op.sill ?? 42}" aria-label="Opening ${i + 1} sill height above the floor (in)">` : '<span class="muted">floor</span>'}</td>
+      <td class="n" data-cost="${esc(op.id)}"><span class="muted">...</span></td>
       <td><button type="button" class="link" data-remove="${i}" aria-label="Remove opening ${i + 1}">Remove</button></td>`;
     tbody.appendChild(tr);
   });
+  queueOpeningCosts();
 }
 
 // ---------- results ----------
@@ -452,6 +454,28 @@ function renderCompare() {
       </dl>
       <button type="button" data-design="${i}">${i === state.active ? 'Editing' : 'Open this design'}</button>
     </article>`).join('');
+}
+
+// What each door and window costs in all needs the shed priced once more per
+// opening, so it fills in just after the edit, like the other out-of-sight work.
+let costTimer = /** @type {any} */ (0);
+let costKey = '';
+let costs = /** @type {any[]} */ ([]);
+function fillOpeningCosts() {
+  for (const c of costs) {
+    const td = document.querySelector(`#openings td[data-cost="${CSS.escape(c.id)}"]`);
+    if (td) td.innerHTML = `${money(c.total)}${c.unpriced ? '<br><span class="muted">plus the unit (custom size, not priced)</span>' : ''}<br><span class="muted">lumber ${money(c.lumber)}</span>`;
+  }
+}
+function queueOpeningCosts() {
+  const key = JSON.stringify([design(), state.prices]);
+  if (key === costKey) { fillOpeningCosts(); return; }
+  clearTimeout(costTimer);
+  costTimer = setTimeout(() => {
+    costs = openingCosts(design(), state.prices);
+    costKey = key;
+    fillOpeningCosts();
+  }, 400);
 }
 
 // Thumbnails come from a second, off-page viewer so the main view never flickers.

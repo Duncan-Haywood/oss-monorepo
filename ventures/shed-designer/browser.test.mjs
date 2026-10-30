@@ -290,6 +290,20 @@ test('each option and each design card says what it changes and what it costs ag
   assert.match(await page.textContent('#compare-cards'), /walls 7' 2-1\/2" → 8' 0"/);
 });
 
+test('each door and window says what it costs in all', { skip }, async (t) => {
+  const { page } = await open(t);
+  await page.waitForFunction(() => [...document.querySelectorAll('#openings td[data-cost]')].every((td) => /^\$/.test(td.textContent)));
+  const cells = await page.$$eval('#openings td[data-cost]', (tds) => tds.map((td) => td.textContent));
+  assert.equal(cells.length, 3);
+  // Removing the first window takes about that much off the total.
+  const num = (x) => Number(/\$([\d,.]+)/.exec(x)[1].replace(/,/g, ''));
+  const before = num(await page.textContent('#summary-lines'));
+  await page.click('#openings button[data-remove="1"]');
+  await page.waitForFunction((b) => !document.querySelector('#summary-lines').textContent.includes(b), String(before));
+  const after = num(await page.textContent('#summary-lines'));
+  assert.ok(Math.abs(before - after - num(cells[1])) < 0.02, `removing it saved ${before - after}, the column said ${cells[1]}`);
+});
+
 test('on a phone: no sideways scroll, finger-size handles, touch drag and pinch', { skip }, async (t) => {
   const { ctx, page } = await open(t, pw.devices['Pixel 7']);
   const sw = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);

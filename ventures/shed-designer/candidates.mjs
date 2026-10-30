@@ -9,6 +9,7 @@
 import { buildShed, normalize } from './model.mjs';
 import { estimate } from './estimate.mjs';
 import { structuralChecks } from './checks.mjs';
+import { productById } from './products.mjs';
 import { fmtFtIn, fmtIn } from './lumber.mjs';
 
 /**
@@ -94,4 +95,24 @@ export function generateCandidates(design, prices) {
   }
   out.sort((a, b2) => (a.ok === b2.ok ? a.total - b2.total : a.ok ? -1 : 1));
   return out;
+}
+
+/**
+ * What each door and window really costs: the shed priced with it, less the
+ * shed priced without it. That is the unit, plus its kings, jacks, header,
+ * sill and cripples, its casing, caulk and flashing, less the studs it
+ * replaces (and any change in how the boards pack). The lumber part is split out.
+ * @param {any} design @param {import('./estimate.mjs').Prices} [prices]
+ */
+export function openingCosts(design, prices) {
+  // Hold the walls, pitch and overhang where they are built now, so taking a
+  // door out doesn't also lower the walls and charge that to the door.
+  const built = buildShed(normalize(design)).design;
+  const d = normalize({ ...built, autoWall: false, autoPitch: false, autoOverhang: false });
+  const with_ = estimate(buildShed(d), prices);
+  return d.openings.map((op) => {
+    const without = estimate(buildShed(normalize({ ...d, openings: d.openings.filter((o) => o.id !== op.id) })), prices);
+    const unpriced = op.product !== 'site-built' && !productById(op.product) && !d.customRange;
+    return { id: op.id, total: with_.total - without.total, lumber: with_.lumberCost - without.lumberCost, unpriced };
+  });
 }
