@@ -1,5 +1,6 @@
 ---
 title: "Lap siding on a small shed: the planks are cheaper than T1-11, the wall under them is not"
+seo_title: "Lap siding on a small shed: cheaper than T1-11, but the wall isn't"
 date: 2026-10-30
 tags: [shed-designer, siding, cost]
 description: "On an 8x12 shed, fiber cement lap planks cost less than T1-11 panels. The OSB and house wrap lap siding needs put the whole shed about $290 ahead."

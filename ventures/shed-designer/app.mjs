@@ -2,7 +2,7 @@
 // The page: several designs, a drag editor, the 3D view, the lists and the
 // plan sheets, all rebuilt from one design object on every change.
 
-import { buildShed, normalize, defaultDesign, PRESETS, WALLS, WALL_LABEL, wallFaceLength } from './model.mjs';
+import { buildShed, normalize, defaultDesign, PRESETS, WALLS, WALL_LABEL, wallFaceLength, ROOF_TYPES } from './model.mjs';
 import { estimate, examplePrices, cutSheetCsv, shoppingCsv, groupBoards, sourceLabel, boardUse, lumberUses } from './estimate.mjs';
 import { buildSheets, sheetSvg, sheetsDxf } from './drawings.mjs';
 import { createViewer, LAYERS } from './render3d.mjs';
@@ -20,6 +20,8 @@ import { quoteRequest, mailtoLink, STORES } from './quote.mjs';
 import { PRODUCTS } from './products.mjs';
 import { storeComparison, swapsFor, storeTotals, storeList, pricesFor } from './catalog.mjs';
 import { simplify, cutMetrics, budget, laborHours } from './simplify.mjs';
+import { showCosts, wireCosts, bridgeHtml, breakdownOf, deltaSentence } from './costview.mjs';
+import { costDelta, deltaPhrase } from './costs.mjs';
 import { valueComparison, valueHtml } from './value.mjs';
 import { finishOptions, isHex, paletteOf, rgbToHex, SIDING_FINISHES, TRIM_FINISHES, DOOR_FINISHES, SHINGLE_FAMILIES } from './looks.mjs';
 import { leverOptions, leverTableHtml } from './costlevers.mjs';
@@ -152,7 +154,7 @@ const SITE_FIELDS = ['lotWidthFt', 'lotDepthFt', 'siteLeftFt', 'siteRearFt', 'se
 const FIELDS = ['name', 'lengthFt', 'widthFt', 'wallHeight', 'pitch', 'overhang', 'studSize', 'studSpacing', 'joistSize', 'joistSpacing',
   'rafterSize', 'rafterSpacing', 'tieSize', 'skidSize', 'skidSpacing', 'foundation', 'floorTreated', 'siding', 'roofing', 'gableVents', 'ventWidth', 'ventHeight', 'kerf',
   'roofType', 'beamSize', 'sidingColor', 'polkaDots', 'autoWall', 'autoPitch',
-  'autoOverhang', 'snowLoad', 'windLoad', 'roofColor', 'trimColor', 'doorColor', 'glitter', 'interior', 'sidingType', 'roofCover', 'insulation', 'customRange', 'wallTrim', 'rafterSeat', 'maxFootprint', 'pierDepth', 'compaction', 'pad', 'floorPanel', 'spares', 'taxRate', 'delivery', 'laborRate', 'maxHaulFt', ...SITE_FIELDS];
+  'autoOverhang', 'snowLoad', 'windLoad', 'roofColor', 'trimColor', 'doorColor', 'glitter', 'interior', 'sidingType', 'roofCover', 'insulation', 'customRange', 'atticStorage', 'wallTrim', 'rafterSeat', 'maxFootprint', 'pierDepth', 'compaction', 'pad', 'floorPanel', 'spares', 'taxRate', 'delivery', 'laborRate', 'maxHaulFt', ...SITE_FIELDS];
 
 
 /** A colour select keeps one "Your colour" option for a hex code typed or picked. @param {HTMLSelectElement} sel @param {string} v */
@@ -191,7 +193,7 @@ function readForm() {
   d.maxPeak = Math.round(num('maxPeakFt', d.maxPeak / 12) * 12);
   for (const f of ['wallHeight', 'pitch', 'overhang', 'studSpacing', 'joistSpacing', 'rafterSpacing', 'skidSpacing', 'ventWidth', 'ventHeight', 'kerf', 'snowLoad', 'windLoad', 'maxFootprint', 'pierDepth', 'spares', 'taxRate', 'laborRate', 'maxHaulFt', ...SITE_FIELDS]) d[f] = num(f, d[f]);
   for (const f of ['studSize', 'joistSize', 'rafterSize', 'tieSize', 'skidSize', 'foundation', 'roofType', 'beamSize', 'sidingColor', 'roofColor', 'trimColor', 'doorColor', 'interior', 'sidingType', 'roofCover', 'wallTrim', 'rafterSeat', 'compaction', 'pad', 'floorPanel', 'delivery']) d[f] = v(f).value;
-  for (const f of ['floorTreated', 'siding', 'roofing', 'gableVents', 'polkaDots', 'autoWall', 'autoPitch', 'autoOverhang', 'glitter', 'insulation', 'customRange']) d[f] = v(f).checked;
+  for (const f of ['floorTreated', 'siding', 'roofing', 'gableVents', 'polkaDots', 'autoWall', 'autoPitch', 'autoOverhang', 'glitter', 'insulation', 'customRange', 'atticStorage']) d[f] = v(f).checked;
   d.lengths = $$('input[name="stock"]:checked').map((c) => Number(c.value));
   d.locked = $$('input[name="lock"]:checked').map((c) => c.value);
   return d;
@@ -255,6 +257,13 @@ function renderSummary(shed, est) {
   $('#live').textContent = `${fmtFtIn(d.length)} x ${fmtFtIn(d.width)}, ${fmtFtIn(d.wallHeight)} walls, ${d.pitch}/12 roof, ${d.overhang}" overhang`;
 }
 
+/** Where the money goes, of what is left to buy like the headline: lines you have or left out come off. */
+function renderCosts(shed, est) {
+  const off = new Set([...state.have, ...state.skip]);
+  const kept = est.shopping.filter((r) => !off.has(r.name));
+  showCosts(shed, { ...est, shopping: kept, total: Math.round(kept.reduce((t, r) => t + r.total, 0) * 100) / 100 }, { index: state.active, name: shed.design.name, off: est.shopping.length - kept.length });
+}
+
 function renderShopping(est) {
   let html = '';
   let section = '';
@@ -294,6 +303,7 @@ function renderShopping(est) {
       save();
       renderShopping(est);
       renderSummary(lastShed, est);
+      renderCosts(lastShed, est);
     });
   }
 }
@@ -388,7 +398,7 @@ function renderStores(est, d) {
 }
 
 /** "3 x 8' boards" or "8' board". @param {{ count: number, stock: number }} b */
-const boardName = (b) => `${b.count > 1 ? `${b.count} x ` : ''}${b.stock / 12}' board${b.count > 1 ? 's' : ''}${b.why ? ` <span class="muted">(${esc(b.why)})</span>` : ''}`;
+const boardName = (b) => `${b.count > 1 ? `${b.count} x ` : ''}${b.stock / 12}' board${b.count > 1 ? 's' : ''}${/** @type {any} */ (b).why ? ` <span class="muted">(${esc(/** @type {any} */ (b).why)})</span>` : ''}`;
 
 function renderCuts(est) {
   let html = '';
@@ -558,6 +568,7 @@ function renderNow() {
   viewer?.show(shed, heatOption(shed, sc));
   renderUtilisation(shed, sc);
   renderSummary(shed, est);
+  renderCosts(shed, est);
   const worst = sc.rows.reduce((m, x) => Math.max(m, x.ratio), 0);
   const cc = connectionChecks(shed);
   $('#summary-lines').insertAdjacentHTML('beforeend', `<div><dt>Structure</dt><dd>${sc.ok ? `all ${sc.rows.length} load checks pass` : `${sc.rows.filter((x) => !x.ok).length} over capacity`} (highest ${Math.round(worst * 100)}%); ${cc.ok ? `all ${cc.rows.length} connection checks pass` : `${cc.rows.filter((x) => !x.ok).length} connection checks fail`}</dd></div>`);
@@ -804,12 +815,15 @@ function wire() {
     const opts = generateCandidates(design(), state.prices);
     const thumbCanvas = document.createElement('canvas'); thumbCanvas.width = 480; thumbCanvas.height = 320;
     const tv = createViewer(thumbCanvas, { presentation: true });
+    const here = breakdownOf(design(), state.prices);
     $('#option-cards').innerHTML = opts.map((o, i) => {
+      const change = deltaPhrase(costDelta(here, breakdownOf(o.design, state.prices)));
       let img = '';
       if (tv) { tv.show(buildShed(o.design), { refit: true }); img = `<img src="${tv.snapshot()}" alt="3D view of option ${i + 1}" width="480" height="320">`; }
       return `<article class="card"><div>${img}</div><h3 class="h4">${i === 0 ? '<span class="pill">best value</span> ' : ''}${esc(o.label)}</h3>
         <dl><div><dt>Total</dt><dd>${money(o.total)}</dd></div><div><dt>Lumber</dt><dd>${money(o.lumber)}, ${o.boards} boards</dd></div>
         <div><dt>Roof</dt><dd>${esc(o.summary)}</dd></div><div><dt>Structure</dt><dd class="${o.ok ? 'ok' : 'fail'}">${o.ok ? 'passes' : 'over capacity'} (${Math.round(o.worst * 100)}%)</dd></div>
+        ${change ? `<div><dt>Against yours</dt><dd>${esc(change)}</dd></div>` : ''}
         ${o.warnings ? `<div><dt>Warnings</dt><dd>${o.warnings}</dd></div>` : ''}</dl>
         <button type="button" data-option="${i}">Use this one</button></article>`;
     }).join('');
@@ -837,9 +851,13 @@ function wire() {
         const thumbCanvas = document.createElement('canvas'); thumbCanvas.width = 480; thumbCanvas.height = 320;
         const tv = createViewer(thumbCanvas, { presentation: true });
         let img = '';
+        const fromB = breakdownOf(design(), state.prices);
+        const toB = breakdownOf(b.design, state.prices);
         if (tv) { tv.show(buildShed(b.design), { refit: true }); img = `<img src="${tv.snapshot()}" alt="3D view of the cheaper build" width="480" height="320" style="max-width:100%;height:auto">`; }
         html += `<article class="card">${img}<h4>${money(b.total)} of materials, ${money(r.base.total - b.total)} less than your ${money(r.base.total)}; about ${Math.round(b.hours)} hours of work (yours: ${Math.round(r.base.hours)})</h4>
+          <p>${esc(deltaSentence(fromB, toB, 'By assembly'))}</p>
           <ol>${b.steps.map((st) => `<li>${esc(st.label)}: saves ${money(st.saving)}${st.hours ? ` (${st.materials >= 0 ? `${money(st.materials)} of materials` : `${money(-st.materials)} more materials`}, ${Math.abs(st.hours)} h ${st.hours > 0 ? 'less' : 'more'} work)` : ''}</li>`).join('')}</ol>
+          <details><summary>From your total to this one, by assembly</summary>${bridgeHtml(fromB, toB, { toLabel: 'This cheaper build' })}</details>
           <p class="muted">Same ${fmtFtIn(b.design.length)} x ${fmtFtIn(b.design.width)} footprint. Peak ${ft(b.peak)}${Math.abs(b.peak - r.base.peak) > 0.06 ? ` (yours is ${ft(r.base.peak)})` : ''}. ${r.evaluated} designs priced and checked.</p>
           <button type="button" data-budget-use>Use this one</button></article>`;
       }
@@ -901,7 +919,7 @@ function wire() {
           <button type="button" data-pick="${i}">Use this one</button></article>`;
       }).join('');
       html += '</div><h4>Every design found that nothing else beats on cost, cuts and angled cuts at once</h4><div class="table-wrap"><table><thead><tr><th scope="col" class="n">Total</th><th scope="col" class="n">Straight cuts</th><th scope="col" class="n">Angled</th><th scope="col" class="n">Notches</th><th scope="col">Roof</th><th scope="col">Size</th></tr></thead><tbody>';
-      html += r.front.map((f) => `<tr><td class="n">${money(f.total)}</td><td class="n">${f.cuts.straight}</td><td class="n">${f.cuts.angled}</td><td class="n">${f.cuts.notches}</td><td>${f.design.pitch}/12, ${fmtIn(f.design.overhang)} overhang, ${f.design.roofType === 'ridgeBeam' ? 'ridge beam' : 'ridge board and ties'}, ${f.design.rafterSeat === 'connector' ? 'connectors' : 'birdsmouth'}</td><td>${fmtFtIn(f.design.length)} x ${fmtFtIn(f.design.width)}</td></tr>`).join('');
+      html += r.front.map((f) => `<tr><td class="n">${money(f.total)}</td><td class="n">${f.cuts.straight}</td><td class="n">${f.cuts.angled}</td><td class="n">${f.cuts.notches}</td><td>${f.design.pitch}/12, ${fmtIn(f.design.overhang)} overhang, ${ROOF_TYPES.find((r) => r.type === f.design.roofType)?.short ?? f.design.roofType}, ${f.design.rafterSeat === 'connector' ? 'connectors' : 'birdsmouth'}</td><td>${fmtFtIn(f.design.length)} x ${fmtFtIn(f.design.width)}</td></tr>`).join('');
       html += '</tbody></table></div>';
       $('#simplify-out').innerHTML = html;
       $('#simplify-out').onclick = (ev) => {
@@ -972,6 +990,15 @@ function wire() {
     window.print();
   };
   $('#print-plans').addEventListener('click', () => printWhat('plans'));
+  wireCosts({
+    print: printWhat,
+    runBudget: () => {
+      const r = budget(design(), state.prices);
+      if (!r.best.steps.length) return null;
+      count('budget-bridges');
+      return { from: breakdownOf(design(), state.prices), to: breakdownOf(r.best.design, state.prices) };
+    },
+  });
   $('#print-all').addEventListener('click', () => printWhat('all'));
   // The HOA packet is its own page, carrying the design in its link as "Copy link" does.
   $('#hoa-packet').addEventListener('click', () => { window.open(`hoa-packet.html#d=${encodeDesign(design())}`, '_blank', 'noopener'); });

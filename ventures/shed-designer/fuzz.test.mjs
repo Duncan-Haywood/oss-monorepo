@@ -34,7 +34,7 @@ function randomDesign(r) {
     studSize: pick(['2x4', '2x6']), studSpacing: pick([12, 16, 24]),
     joistSize: pick(['2x4', '2x6', '2x8', '2x10']), joistSpacing: pick([12, 16, 24]),
     rafterSize: pick(['2x4', '2x6', '2x8', '2x10']), rafterSpacing: pick([12, 16, 24]),
-    roofType: pick(['ridgeBeam', 'ridgeBoard']), beamSize: pick(['2x8', '2x10', '2x12']),
+    roofType: pick(['ridgeBeam', 'ridgeBoard', 'truss']), beamSize: pick(['2x8', '2x10', '2x12']),
     skidSize: pick(['4x4', '4x6']), skidSpacing: between(24, 72, 6),
     foundation: pick(['gravel', ...Object.keys(BLOCKS)]), pad: pick(['full', 'under blocks']),
     floorPanel: pick(['plywood', 'OSB']), floorTreated: r() < 0.8,
@@ -59,6 +59,10 @@ function randomDesign(r) {
     const product = r() < 0.3 && prods.length ? pick(prods).id : (kind === 'door' && r() < 0.15 ? 'site-built' : undefined);
     d.openings.push({ id: `o${i + 1}`, kind, wall, offset: between(-12, face + 12), width: between(12, 96), height: between(12, 96), ...(kind === 'window' ? { sill: between(0, 72) } : {}), ...(product ? { product } : {}) });
   }
+  // Attic storage applies to truss roofs; elsewhere it is ignored.
+  d.atticStorage = r() < 0.3;
+  // A quarter are gambrels (barn roofs), with or without a loft.
+  if (r() < 0.25) Object.assign(d, { style: 'gambrel', gambrelLower: between(16, 30), gambrelKnee: r() < 0.5 ? 0 : between(0, 120), loft: pick(['none', 'half', 'full']), loftJoist: pick(['2x6', '2x8', '2x10']) });
   return d;
 }
 

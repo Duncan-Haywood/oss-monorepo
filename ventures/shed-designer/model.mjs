@@ -18,7 +18,9 @@
 import { actual, ceil16, TWO_BY, DEFAULT_LENGTHS_FT, fmtFtIn as fmtFt, fmtIn } from './lumber.mjs';
 import { lumberCostOf } from './estimate.mjs';
 import { productById } from './products.mjs';
-import { LAP_PRODUCTS, layoutFace, lapStocks, lapStagger, evenExposure } from './lap.mjs';
+import { gambrelShape, gambrelParts, gambrelAnalysis, loftSpan, bandAbove, zOnPoly, GUSSET_T as GAMBREL_GUSSET_T, LOFT_LIVE } from './gambrel.mjs';
+import { needsKingPost } from './truss.mjs';
+import { LAP_PRODUCTS, layoutFace, lapStocks, lapStagger, evenExposure, lapStudLimit } from './lap.mjs';
 import { bbox } from './integrity.mjs';
 import { pickFinish, SIDING_FINISHES, TRIM_FINISHES, DOOR_FINISHES, SHINGLE_FAMILIES } from './looks.mjs';
 import { LOCKABLE } from './levers.mjs';
@@ -62,6 +64,13 @@ export function defaultDesign() {
     rafterSpacing: 24,
     tieSize: '2x4',
     roofType: 'ridgeBeam',
+    // 'gable', or 'gambrel' (barn): then `pitch` is the upper slope, `gambrelLower` the lower one
+    // and `gambrelKnee` the lower slope's horizontal run (0: a quarter of the width); see gambrel.mjs.
+    style: 'gable',
+    gambrelLower: 20,
+    gambrelKnee: 0,
+    loft: 'none',
+    loftJoist: '2x6',
     beamSize: '2x10',
     skidSize: '4x4',
     skidSpacing: 48,
@@ -96,6 +105,8 @@ export function defaultDesign() {
     glitter: false,
     interior: 'none',
     insulation: false,
+    // Storage on the truss bottom chords: sizes them for 20 psf (IRC Table R301.5) instead of 10.
+    atticStorage: false,
     // Count custom-size doors and windows at the median of the catalogue's range (off: left out of the total).
     customRange: false,
     sidingType: 'T1-11',
@@ -177,6 +188,20 @@ export const PRESETS = {
   ] }),
 };
 
+/** The roof structures, with the words the options and search results use for each. */
+export const ROOF_TYPES = [
+  { type: 'ridgeBeam', short: 'ridge beam on posts', option: 'Ridge beam on posts (open to the roof)' },
+  { type: 'ridgeBoard', short: 'ridge board and ties', option: 'Ridge board with rafter ties (ties across the room)' },
+  { type: 'truss', short: 'site-built trusses', option: 'Site-built trusses with OSB gussets (no ridge member)' },
+];
+
+/** Truss gusset thickness (7/16" OSB) and sizes in inches: along the bottom chord at a heel, each way from the peak, and each way from the king post's foot. */
+export const GUSSET_T = 7 / 16;
+/** Attic storage: the deck's thickness (23/32" or 3/4" panel) and the least clear height over it counted as storage (a 12" tote). */
+export const ATTIC_DECK_T = 0.75;
+export const ATTIC_CLEAR = 12;
+export const GUSSET = { heel: 16, peak: 12, foot: 8 };
+
 const fmtSpan = (inches) => `${Math.round(inches / 12 * 10) / 10} ft`;
 
 const num = (v, d) => (Number.isFinite(Number(v)) && v !== '' && v !== null ? Number(v) : d);
@@ -198,7 +223,7 @@ export function normalize(input) {
     return out;
   };
   const lengths = Array.isArray(o.lengths) ? o.lengths.map(Number).filter((n) => n >= 4 && n <= 24).sort((a, b) => a - b) : d.lengths;
-  return {
+  const out = {
     ...o,
     name: (typeof o.name === 'string' && o.name.trim() ? o.name : d.name).slice(0, 80),
     length: Math.min(480, Math.max(48, num(o.length, d.length))),
@@ -228,7 +253,7 @@ export function normalize(input) {
     siding: o.siding !== false,
     roofing: o.roofing !== false,
     gableVents: o.gableVents !== false,
-    roofType: pick(o.roofType, ['ridgeBeam', 'ridgeBoard'], d.roofType),
+    roofType: pick(o.roofType, ['ridgeBeam', 'ridgeBoard', 'truss'], d.roofType),
     beamSize: pick(o.beamSize, ['2x8', '2x10', '2x12'], d.beamSize),
     maxPeak: Math.min(240, Math.max(0, num(o.maxPeak, d.maxPeak))),
     snowLoad: Math.min(150, Math.max(0, num(o.snowLoad, d.snowLoad))),
@@ -244,13 +269,14 @@ export function normalize(input) {
     glitter: o.glitter === true,
     interior: pick(o.interior, ['none', 'OSB', 'plywood', 'drywall', 'beadboard', 'pegboard', 'teen bedroom'], d.interior),
     insulation: o.insulation === true,
+    atticStorage: o.atticStorage === true,
     customRange: o.customRange === true,
     wallTrim: pick(o.wallTrim, ['1x4', 'none'], d.wallTrim),
     sidingType: pick(o.sidingType, ['T1-11', 'LP SmartSide', 'LP SmartSide 7/16', 'board and batten', 'vinyl', 'fiber cement', 'LP SmartSide lap'], d.sidingType),
     roofCover: pick(o.roofCover, ['shingles', 'metal'], d.roofCover),
     rafterSeat: pick(o.rafterSeat, ['birdsmouth', 'connector'], d.rafterSeat),
     maxFootprint: Math.min(1000, Math.max(0, num(o.maxFootprint, d.maxFootprint))),
-    maxHaulFt: o.maxHaulFt !== '' && o.maxHaulFt !== null && [0, 8, 10, 12, 14, 16, 18, 20].includes(Number(o.maxHaulFt)) ? Number(o.maxHaulFt) : d.maxHaulFt,
+    maxHaulFt: /** @type {any} */ (o.maxHaulFt) !== '' && o.maxHaulFt !== null && [0, 8, 10, 12, 14, 16, 18, 20].includes(Number(o.maxHaulFt)) ? Number(o.maxHaulFt) : d.maxHaulFt,
     ...Object.fromEntries(['lotWidthFt', 'lotDepthFt', 'siteLeftFt', 'siteRearFt', 'houseWidthFt', 'houseDepthFt', 'houseLeftFt', 'houseFrontFt', 'setbackFt']
       .map((f) => [f, Math.min(2000, Math.max(0, num(o[f], d[f])))])),
     locked: Array.isArray(o.locked) ? [...new Set(o.locked.filter((k) => typeof k === 'string' && k in LOCKABLE))] : [],
@@ -276,7 +302,17 @@ export function normalize(input) {
       ...(TWO_BY.includes(op.header) ? { header: op.header } : {}),
       ...(op.product ? { product: String(op.product) } : {}),
     })),
+    style: pick(o.style, ['gable', 'gambrel'], 'gable'),
+    gambrelLower: Math.min(30, Math.max(16, num(o.gambrelLower, d.gambrelLower))),
+    gambrelKnee: Math.min(120, Math.max(0, num(o.gambrelKnee, d.gambrelKnee))),
+    loft: pick(o.loft, ['none', 'half', 'full'], 'none'),
+    loftJoist: pick(o.loftJoist, ['2x6', '2x8', '2x10'], d.loftJoist),
   };
+  // A gambrel is framed as gusseted trusses with ties (no ridge beam, no birdsmouth, no eave
+  // overhang); a loft goes on a gambrel's ties only.
+  if (out.style === 'gambrel') Object.assign(out, { roofType: 'ridgeBoard', rafterSeat: 'birdsmouth', overhang: 0, autoOverhang: false });
+  else out.loft = 'none';
+  return out;
 }
 
 /** Outside length of a wall as you face it: eave walls run the shed's length, gable ends its width. */
@@ -472,7 +508,9 @@ function buildAuto(d0) {
     }
     if (!shed) {
       const ventsFit = (s) => !d0.gableVents || Object.keys(s.vents).length === 2;
-      const p = ventsFit(build(12)) ? firstTrue(3, 12, ventsFit) : 12;
+      // Shingles want 4/12 or steeper (makers allow less only over a double underlayment); metal goes to 3/12.
+      const lo = d0.roofCover === 'metal' ? 3 : 4;
+      const p = ventsFit(build(12)) ? firstTrue(lo, 12, ventsFit) : 12;
       shed = build(p);
       why = d0.gableVents ? 'the lowest pitch at which the gable vents still fit, since no pitch meets the height limit' : 'the lowest pitch for a shingle roof, since no pitch meets the height limit';
     }
@@ -503,7 +541,7 @@ function buildAuto(d0) {
   }
   const auto = [];
   if (d0.autoWall) auto.push(`walls ${fmtFt(s.design.wallHeight)}, the lowest that frames the tallest door or window`);
-  if (d0.autoPitch) auto.push(`roof ${s.design.pitch}/12, ${why}`);
+  if (d0.autoPitch) auto.push(`${d0.style === 'gambrel' ? 'upper roof' : 'roof'} ${s.design.pitch}/12, ${why}`);
   if (overhangWhy) auto.push(overhangWhy);
   s.notes.unshift(`Set for you: ${auto.join('; ')}.`);
   s.design = { ...s.design, autoWall: d0.autoWall, autoPitch: d0.autoPitch, autoOverhang: d0.autoOverhang };
@@ -514,7 +552,7 @@ function buildAuto(d0) {
 function buildFramed(d) {
   /** @type {Member[]} */
   const members = [];
-  /** @type {{ id: string, kind: string, item: string, geom: Geom, group: string, wall?: string, side?: string, pos?: number[], course?: number, face?: [number, number][] }[]} */
+  /** @type {{ id: string, kind: string, item: string, geom: Geom, group: string, wall?: string, side?: string, pos?: number[], course?: number, face?: [number, number][], where?: string }[]} */
   const panels = [];
   /** @type {{ kind: string, geom: Geom, group: string, tex?: string, from?: number, bottom?: number }[]} */
   const fixtures = [];
@@ -671,6 +709,9 @@ function buildFramed(d) {
   const stud = actual(d.studSize);
   const D = stud.depth;
   const beam = d.roofType === 'ridgeBeam';
+  // Site-built king-post trusses: each top-chord pair, its bottom chord and a
+  // king post in one plane, joined by 7/16" OSB gussets nailed to both faces.
+  const truss = d.roofType === 'truss';
   const H = d.wallHeight;
   const studLen = H - 4.5;
   const plateTop = floorTop + H;
@@ -929,16 +970,25 @@ function buildFramed(d) {
   const rd = raf.depth;
   const plumbH = rd / cos;
   const o = d.overhang;
-  const rh = beam ? 1.5 : 0.75; // half the ridge's thickness: one board, or a two-ply beam
+  const rh = beam ? 1.5 : truss ? 0 : 0.75; // half the ridge's thickness: one board, a two-ply beam, or none (truss chords meet)
   const r = W / 2 - rh;
   // With a birdsmouth the rafter's underside passes through the inside top edge of the plate;
   // on a variable-pitch connector (no notch) it rests on the outside top edge instead.
-  const connector = d.rafterSeat === 'connector';
-  const seatAt = connector ? 0 : D;
-  const zb = (dist) => plateTop + (dist - seatAt) * t; // underside of rafter at a distance from the eave wall's outside face
+  // A truss's top chord sits on its bottom chord, so its underside passes through
+  // the top outside corner of the bottom chord, a chord's depth above the plate.
+  const connector = !truss && d.rafterSeat === 'connector';
+  const chord = actual(d.tieSize);
+  const seatBase = plateTop + (truss ? chord.depth : 0);
+  const seatAt = connector || truss ? 0 : D;
+  const zb = (dist) => seatBase + (dist - seatAt) * t; // underside of rafter at a distance from the eave wall's outside face
   const zt = (dist) => zb(dist) + plumbH; // top of rafter
-  const ridgeTop = zt(r);
-  let ridgeSize = beam ? d.beamSize : TWO_BY.find((s) => TWO_BY.indexOf(s) > TWO_BY.indexOf(d.rafterSize) && actual(s).depth >= plumbH - 1e-9);
+  // A gambrel's cross-section, gussets and checks (gambrel.mjs); null for a gable.
+  const gam = d.style === 'gambrel' ? gambrelShape(d, plateTop) : null;
+  const gamFrame = gam ? gambrelAnalysis(d) : null;
+  const loftX = gam ? loftSpan(d, D) : null;
+  const gamParts = gam && gamFrame ? gambrelParts(gam, gamFrame.gusset) : null;
+  const ridgeTop = gam ? gam.ridgeTop : zt(r);
+  let ridgeSize = beam ? d.beamSize : truss ? d.rafterSize : TWO_BY.find((s) => TWO_BY.indexOf(s) > TWO_BY.indexOf(d.rafterSize) && actual(s).depth >= plumbH - 1e-9);
   if (beam && actual(d.beamSize).depth < plumbH - 1e-9) {
     warnings.push(`A ${d.beamSize} ridge beam is shallower than the rafters' ${plumbH.toFixed(2)}" plumb cut; choose a deeper beam.`);
   }
@@ -946,8 +996,8 @@ function buildFramed(d) {
     ridgeSize = '2x12';
     warnings.push(`At ${d.pitch}/12 the rafter's plumb cut is ${plumbH.toFixed(2)}" deep, more than a 2x12 ridge; use a built-up or engineered ridge.`);
   }
-  const ridgeD = actual(ridgeSize).depth;
-  if (!connector && D * t > rd / 3 + 1e-9) {
+  const ridgeD = truss ? 0 : actual(ridgeSize).depth;
+  if (!connector && !truss && D * t > rd / 3 + 1e-9) {
     warnings.push(`The birdsmouth is ${(D * t).toFixed(2)}" deep, more than a third of the ${d.rafterSize} rafter; a deeper rafter or lower pitch keeps more wood over the wall.`);
   }
   const rafterCut = ceil16((r + o) / cos + rd * Math.tan(Math.atan(t)));
@@ -955,8 +1005,9 @@ function buildFramed(d) {
   // nailed to its far side) must clear the gable wall's studs, so one that
   // lands within a wall's depth of an end moves in to the nearest clear spot;
   // that shortens its bay rather than widening one past the spacing.
-  const innerLo = D + 0.75;
-  const innerHi = L - D - 0.75 - (beam ? 0 : 1.5);
+  // Under a gambrel's loft a joist lies against the inside of each gable wall; trusses keep clear of it.
+  const innerLo = D + 0.75 + (truss ? GUSSET_T : 0) + (loftX ? 1.5 : 0);
+  const innerHi = L - D - 0.75 - (beam ? 0 : truss ? GUSSET_T : 1.5) - (loftX ? 1.5 : 0);
   const rafterCenters = [0.75, ...[...new Set(layoutCenters(d.rafterSpacing, 0.75 + 1.5, L - 0.75 - 1.5)
     .map((c) => Math.min(innerHi, Math.max(innerLo, c))))].filter((c) => innerLo <= innerHi), L - 0.75];
   /** @param {number} dist @param {boolean} back */
@@ -965,15 +1016,17 @@ function buildFramed(d) {
     /** @type {[number, number][]} */
     const pts = [];
     if (o > 0) pts.push([yOf(-o, back), zb(-o)]);
-    if (connector) pts.push([yOf(0, back), zb(0)], [yOf(r, back), zb(r)], [yOf(r, back), zt(r)], [yOf(-o, back), zt(-o)]);
+    if (connector || truss) pts.push([yOf(0, back), zb(0)], [yOf(r, back), zb(r)], [yOf(r, back), zt(r)], [yOf(-o, back), zt(-o)]);
     else pts.push([yOf(0, back), zb(0)], [yOf(0, back), plateTop], [yOf(D, back), plateTop], [yOf(r, back), zb(r)], [yOf(r, back), zt(r)], [yOf(-o, back), zt(-o)]);
-    if (o === 0 && !connector) pts.splice(0, 1); // tail is the heel cut: start at the plate seat
+    if (o === 0 && !connector && !truss) pts.splice(0, 1); // tail is the heel cut: start at the plate seat
     return pts;
   };
-  const birdNote = connector
+  const birdNote = truss
+    ? `truss top chord: ${d.pitch}/12 plumb cuts at the peak and tail; no notch: sits on the bottom chord, joined by gussets`
+    : connector
     ? `${d.pitch}/12 plumb cuts at ridge and tail; no birdsmouth: sits on a variable-pitch connector`
     : `${d.pitch}/12 plumb cuts at ridge and tail; birdsmouth ${((D * t)).toFixed(2).replace(/\.?0+$/, '')}" heel, ${D}" seat`;
-  for (const c of rafterCenters) {
+  if (!gam) for (const c of rafterCenters) {
     for (const back of [false, true]) {
       push({
         id: nextId('RF'), group: 'roof', kind: 'rafter', material: d.rafterSize, length: rafterCut, note: birdNote,
@@ -984,7 +1037,7 @@ function buildFramed(d) {
   // The metal you buy, shown where it goes: a variable-pitch connector's two side
   // plates at each rafter seat, and a hanger's two flanges where a rafter meets
   // the ridge beam (thin steel, so drawn 1/16" thick).
-  {
+  if (!gam) {
     const steel = 1 / 16;
     const sides = (c) => [c - 0.75 - steel, c + 0.75];
     for (const c of rafterCenters) {
@@ -1012,17 +1065,29 @@ function buildFramed(d) {
     const topAt = (y) => zt(y) - plateTop;
     // A birdsmouth deep enough to leave no rafter above the plate's outside
     // edge leaves no room for a block either (the birdsmouth warning says so).
-    if (topAt(0) > 0.5) {
+    if (!gam && topAt(0) > 0.5) {
     /** @type {[number, number][]} */
     const front = [[0, plateTop], [1.5, plateTop], [1.5, plateTop + topAt(1.5)], [0, plateTop + topAt(0)]];
     for (const back of [false, true]) {
       const prof = /** @type {[number, number][]} */ (front.map(([y, z]) => [yOf(y, back), z]));
       for (let i = 0; i + 1 < rafterCenters.length; i++) {
         // A rafter tie sits on the plate beside every rafter but the end ones; start past it.
-        const tied = !beam && i > 0 && i < rafterCenters.length - 1 && zt(0) - plateTop > 0.5;
-        const x0 = rafterCenters[i] + 0.75 + (tied ? 1.5 : 0);
-        const gap = rafterCenters[i + 1] - 0.75 - x0;
+        const tied = !beam && !truss && i > 0 && i < rafterCenters.length - 1 && zt(0) - plateTop > 0.5;
+        // Trusses carry a gusset on each face at the heel: start and stop past them.
+        const inner = (j) => truss && j > 0 && j < rafterCenters.length - 1;
+        const x0 = rafterCenters[i] + 0.75 + (tied ? 1.5 : 0) + (inner(i) ? GUSSET_T : 0);
+        const gap = rafterCenters[i + 1] - 0.75 - x0 - (inner(i + 1) ? GUSSET_T : 0);
         if (gap < 1) continue;
+        // Between trusses the block is a square-cut piece of the bottom chord's size
+        // on the plate; the space above it, under the roof, is the soffit's vent path.
+        if (truss) {
+          push({
+            id: nextId('EB'), group: 'roof', kind: 'eave blocking', material: d.tieSize, length: ceil16(gap),
+            note: 'between the truss heels on the plate, flush outside; screen the gap above for venting',
+            geom: rectGeom([x0, back ? W - 1.5 : 0, plateTop], X, Y, Z, gap, 1.5, chord.depth),
+          });
+          continue;
+        }
         push({
           id: nextId('EB'), group: 'roof', kind: 'eave blocking', material: d.rafterSize, length: ceil16(gap),
           note: `between rafters on the plate, top bevelled to ${d.pitch}/12`,
@@ -1032,7 +1097,11 @@ function buildFramed(d) {
     }
     }
   }
-  if (beam) {
+  if (gam) {
+    // no ridge: the gussets and the sheathing join the upper chords at the peak
+  } else if (truss) {
+    // No ridge member: the top chords meet at the peak, held by the peak gussets.
+  } else if (beam) {
     // Structural ridge beam: two plies, one piece each, rafters hung from it.
     for (const y0 of [W / 2 - 1.5, W / 2]) {
       push({
@@ -1060,11 +1129,97 @@ function buildFramed(d) {
   // beam, the gable walls' plates) it has to clear.
   const ridgeBottom = ridgeTop - ridgeD;
   const clearAbove = beam ? plateTop : plateTop + tie.depth;
-  if (ridgeBottom < clearAbove - 1 / 16) {
+  if (!truss && !gam && ridgeBottom < clearAbove - 1 / 16) {
     warnings.push(`The ridge sits too low: its underside is ${fmtIn(clearAbove - ridgeBottom)} below the ${beam ? 'top of the gable walls' : 'tops of the rafter ties'}, so the two run into each other as drawn. Steepen the roof${beam ? ', use a shallower beam' : ''} or widen the shed.`);
   }
-  if (beam) {
+  /** @type {{ x: number, heel: number, peak: number, foot: number }[]} */
+  const trusses = [];
+  if (gam) {
+    frameGambrelTrusses();
+  } else if (beam) {
     // no ties: the ridge beam holds the rafters up, so they do not push the walls out
+  } else if (truss) {
+    // Each truss inside the gable ends: the bottom chord, wall face to wall face
+    // on the plates, in the plane of its top chords; a king post from the bottom
+    // chord to the peak; and a gusset on each face at both heels, the peak and
+    // the king post's foot. Over each gable wall the top chords bear on gable
+    // studs (as under a ridge board), with the gable siding as their gusset.
+    // Under each end pair's heels, a block of the chord size on the long wall's
+    // plate fills the chord's depth, so the end top chords bear like the rest.
+    for (const c of [rafterCenters[0], rafterCenters[rafterCenters.length - 1]]) {
+      for (const back of [false, true]) {
+        const y0 = back ? W - D : 0;
+        push({
+          id: nextId('BC'), group: 'roof', kind: 'heel block', material: d.tieSize, length: ceil16(D),
+          note: 'on the long wall\'s plate under a gable-end top chord\'s heel',
+          geom: { origin: [c - 0.75, 0, 0], u: Y, v: Z, w: X, profile: [[y0, plateTop], [y0 + D, plateTop], [y0 + D, seatBase], [y0, seatBase]], thickness: 1.5 },
+        });
+      }
+    }
+    const kpHalf = chord.depth / 2;
+    // A king post only where the bottom chord needs holding up at mid-span (truss.mjs).
+    const kpTop = needsKingPost(d) ? zb(W / 2 - kpHalf) - seatBase : 0;
+    for (const c of rafterCenters.slice(1, -1)) {
+      push({
+        id: nextId('BC'), group: 'roof', kind: 'bottom chord', material: d.tieSize, length: ceil16(W),
+        note: 'square ends, flush with the outside of the walls; gussets join it to the top chords',
+        geom: { origin: [c - 0.75, 0, 0], u: Y, v: Z, w: X, profile: [[0, plateTop], [W, plateTop], [W, seatBase], [0, seatBase]], thickness: 1.5 },
+      });
+      if (kpTop >= 3) {
+        push({
+          id: nextId('KP'), group: 'roof', kind: 'king post', material: d.tieSize, length: ceil16(zb(W / 2) - seatBase),
+          note: `top cut to a point at ${d.pitch}/12 each way, under the peak`,
+          geom: { origin: [c - 0.75, 0, 0], u: Y, v: Z, w: X, thickness: 1.5,
+            profile: [[W / 2 - kpHalf, seatBase], [W / 2 + kpHalf, seatBase], [W / 2 + kpHalf, zb(W / 2 - kpHalf)], [W / 2, zb(W / 2)], [W / 2 - kpHalf, zb(W / 2 - kpHalf)]] },
+        });
+      }
+      const gl = GUSSET.heel;
+      const pl = GUSSET.peak;
+      const fl = GUSSET.foot;
+      /** @type {[string, [number, number][]][]} */
+      const shapes = [
+        ['heel', [[0, plateTop], [gl, plateTop], [gl, zt(gl)], [0, zt(0)]]],
+        ['heel', [[W - gl, plateTop], [W, plateTop], [W, zt(0)], [W - gl, zt(gl)]]],
+        ['peak', [[W / 2 - pl, zb(W / 2 - pl)], [W / 2 + pl, zb(W / 2 - pl)], [W / 2 + pl, zt(W / 2 - pl)], [W / 2, zt(W / 2)], [W / 2 - pl, zt(W / 2 - pl)]]],
+      ];
+      if (kpTop >= 3) shapes.push(['foot', [[W / 2 - fl, plateTop], [W / 2 + fl, plateTop], [W / 2 + fl, seatBase + Math.min(6, kpTop)], [W / 2 - fl, seatBase + Math.min(6, kpTop)]]]);
+      for (const [where, prof] of shapes) {
+        for (const fx of [c - 0.75 - GUSSET_T, c + 0.75]) {
+          panels.push({ id: nextId('GU'), kind: 'truss gusset', item: 'roofSheet', group: 'roof', where, geom: { origin: [fx, 0, 0], u: Y, v: Z, w: X, profile: prof, thickness: GUSSET_T } });
+        }
+      }
+      trusses.push({ x: c, heel: gl, peak: pl, foot: fl });
+    }
+    notes.push(`Trusses: ${rafterCenters.length - 2} site-built ${kpTop >= 3 ? 'king-post trusses' : 'trusses (no web: the bottom chord spans the walls on its own)'} at ${d.rafterSpacing}" on centre, ${d.rafterSize} top chords and a ${d.tieSize} bottom chord${kpTop >= 3 ? ` and king post` : ''}, joined by 7/16" OSB gussets glued and nailed on both faces. Over each gable wall the top chords bear on the gable studs instead, with the gable siding nailed to both as their gusset. Build the trusses flat on a jig, then stand them on the walls; nothing is longer than ${fmtSpan(Math.max(W, rafterCut))}.`);
+    if (W > maxStock) warnings.push(`Truss bottom chords need ${Math.ceil(W / 12)} ft boards; add that length to your stock list.`);
+    // Attic storage: a deck of the floor panel on the inside trusses' bottom
+    // chords, where a 12" tote fits under the top chords, in two strips either
+    // side of the king posts. The end bays stay open as the way up.
+    if (d.atticStorage && rafterCenters.length > 3) {
+      const clear = ATTIC_CLEAR + ATTIC_DECK_T;
+      const yIn = clear / t; // the top chord's underside is `clear` above the chord here
+      const kp = kpTop >= 3;
+      const strips = kp ? [[yIn, W / 2 - kpHalf], [W / 2 + kpHalf, W - yIn]] : [[yIn, W - yIn]];
+      const x0 = rafterCenters[1] - 0.75;
+      const x1 = rafterCenters[rafterCenters.length - 2] + 0.75;
+      // Panel ends land on a truss centre, no piece longer than a sheet.
+      const cuts = [x0];
+      while (x1 - cuts[cuts.length - 1] > 96 + 1e-9) {
+        const at = rafterCenters.filter((c) => c > cuts[cuts.length - 1] + 1 && c <= cuts[cuts.length - 1] + 96 + 1e-9).pop();
+        if (at === undefined) break;
+        cuts.push(at);
+      }
+      cuts.push(x1);
+      for (const [y0, y1] of strips) {
+        if (y1 - y0 < 6) continue;
+        for (let i = 0; i + 1 < cuts.length; i++) {
+          panels.push({ id: nextId('AD'), kind: 'attic deck', item: d.floorPanel === 'OSB' ? 'floorOSB' : 'floorSheet', group: 'roof', geom: rectGeom([cuts[i], y0, seatBase], X, Y, Z, cuts[i + 1] - cuts[i], y1 - y0, ATTIC_DECK_T) });
+        }
+      }
+      const area = panels.filter((p) => p.kind === 'attic deck').reduce((tot, p) => tot + (p.geom.profile[2][0] * p.geom.profile[2][1]) / 144, 0);
+      if (area) notes.push(`Attic storage: ${area.toFixed(0)} sq ft of deck on the truss bottom chords, where a 12" tote fits under the roof; the chords and walls are checked for 20 psf of storage (IRC Table R301.5). Reach it through the open end bays.`);
+      else warnings.push('Attic storage: the roof is too low for 12" of clear height over the bottom chords, so no deck is laid; steepen the roof.');
+    }
   } else if (topAt0 <= 0.5) {
     warnings.push('The rafters are too shallow over the wall for a rafter tie at the plate; deepen the rafters.');
   } else {
@@ -1083,6 +1238,85 @@ function buildFramed(d) {
     });
     if (W > maxStock) warnings.push(`Rafter ties need ${Math.ceil(W / 12)} ft boards; add that length to your stock list.`);
   }
+  /**
+   * The gambrel trusses (gambrel.mjs has the shape and the checks): four chords
+   * a truss, plywood gussets on both faces at the knees and the peak, and a tie
+   * at plate height beside the lower chords. The end trusses stand on the gable
+   * walls, whose studs carry them, so they get neither. Under a loft the ties
+   * are loft joists, a joist lies against the inside of each gable wall the loft
+   * reaches, and a subfloor covers them.
+   */
+  function frameGambrelTrusses() {
+    if (!gam || !gamFrame || !gamParts) return;
+    const P = gamParts;
+    const td = gamFrame.tieDepth;
+    const mirror = (pts, back) => /** @type {[number, number][]} */ (pts.map(([y, z]) => [yOf(y, back), z]));
+    const last = rafterCenters.length - 1;
+    rafterCenters.forEach((c, i) => {
+      const end = i === 0 || i === last;
+      for (const back of [false, true]) {
+        push({
+          id: nextId('GL'), group: 'roof', kind: 'lower chord', material: d.rafterSize, length: P.lowerCut,
+          note: `${d.gambrelLower}/12; foot cut level (${P.footDeg} deg off square) to sit on the plate, top mitred ${P.kneeLowDeg} deg off square at the knee`,
+          geom: { origin: [c - 0.75, 0, 0], u: Y, v: Z, w: X, profile: mirror(P.lower, back), thickness: 1.5 },
+        });
+        push({
+          id: nextId('GU'), group: 'roof', kind: 'upper chord', material: d.rafterSize, length: P.upperCut,
+          note: `${d.pitch}/12; bottom mitred ${P.kneeUpDeg} deg off square at the knee, plumb cut (${P.ridgeDeg} deg off square) at the peak`,
+          geom: { origin: [c - 0.75, 0, 0], u: Y, v: Z, w: X, profile: mirror(P.upper, back), thickness: 1.5 },
+        });
+        if (!end) {
+          for (const x of [c - 0.75 - GAMBREL_GUSSET_T, c + 0.75]) panels.push({ id: nextId('GK'), kind: 'gambrel gusset', item: 'gusset', group: 'roof', geom: { origin: [x, 0, 0], u: Y, v: Z, w: X, profile: mirror(P.knee, back), thickness: GAMBREL_GUSSET_T } });
+        }
+      }
+      if (!end) {
+        for (const x of [c - 0.75 - GAMBREL_GUSSET_T, c + 0.75]) panels.push({ id: nextId('GP'), kind: 'gambrel gusset', item: 'gusset', group: 'roof', geom: { origin: [x, 0, 0], u: Y, v: Z, w: X, profile: P.peak, thickness: GAMBREL_GUSSET_T } });
+      }
+    });
+    // Ties (or loft joists) on the plates, ends cut to the lower slope.
+    const dc = td / gam.tl;
+    /** @type {[number, number][]} */
+    const prof = [[0, plateTop], [W, plateTop], [W - dc, plateTop + td], [dc, plateTop + td]];
+    const tieNote = loftX ? `loft joist and truss tie; ends cut to ${d.gambrelLower}/12, ${gamFrame.heelNails} 16d into each lower chord` : `truss tie on the plates; ends cut to ${d.gambrelLower}/12, ${gamFrame.heelNails} 16d into each lower chord`;
+    /** Loft joist centres, for the subfloor's end joints. */
+    const joists = [];
+    rafterCenters.slice(1, -1).forEach((c) => {
+      push({ id: nextId('RT'), group: 'roof', kind: 'rafter tie', material: gamFrame.tieSize, length: ceil16(W), note: tieNote, geom: { origin: [c + 0.75, 0, 0], u: Y, v: Z, w: X, profile: prof, thickness: 1.5 } });
+      joists.push(c + 1.5);
+    });
+    if (W > maxStock) warnings.push(`The truss ties need ${Math.ceil(W / 12)} ft boards; add that length to your stock list.`);
+    const kneeLow = gam.zk - gamFrame.gusset.knee * gam.sl - gam.rd * gam.cl;
+    if (kneeLow < plateTop + td + 1) warnings.push('The knee gussets come down to the ties; raise the knee (a longer lower slope) or use a shallower tie.');
+    if (!loftX) return;
+    for (const x0 of [loftX[0] <= D + 1e-9 ? D : null, L - D - 1.5]) {
+      if (x0 === null) continue;
+      push({ id: nextId('LJ'), group: 'roof', kind: 'loft joist', material: gamFrame.tieSize, length: ceil16(W), note: 'against the inside of the gable wall, on the eave-wall plates; ends cut to the lower slope', geom: { origin: [x0, 0, 0], u: Y, v: Z, w: X, profile: prof, thickness: 1.5 } });
+      joists.push(x0 + 0.75);
+    }
+    joists.sort((a, b) => a - b);
+    // The subfloor: 4 ft rows across the width between the lower chords, end joints on joists.
+    const deckZ = plateTop + td;
+    const yd = Math.ceil(((td + 0.75 + gam.rd / gam.cl) / gam.tl) * 4) / 4;
+    const xa = loftX[0] <= D + 1e-9 ? D : joists.reduce((b, j) => (Math.abs(j - loftX[0]) < Math.abs(b - loftX[0]) ? j : b), joists[0]);
+    const xb = L - D;
+    const rows = Math.ceil((W - 2 * yd) / 48 - 1e-9);
+    for (let rr = 0; rr < rows; rr++) {
+      const y0 = yd + rr * 48;
+      const h = Math.min(48, W - yd - y0);
+      const cuts = [xa];
+      for (let x = xa + (rr % 2 ? 48 : 96); x < xb - 1e-9;) {
+        const on = joists.filter((j) => j <= x + 1e-9 && j > cuts[cuts.length - 1] + 12).pop() ?? x;
+        cuts.push(on);
+        x = on + 96;
+      }
+      cuts.push(xb);
+      for (let i = 0; i + 1 < cuts.length; i++) {
+        panels.push({ id: nextId('LD'), kind: 'loft deck', item: d.floorPanel === 'OSB' ? 'floorOSB' : 'floorSheet', group: 'roof', geom: rectGeom([cuts[i], y0, deckZ], X, Y, Z, cuts[i + 1] - cuts[i], h, 0.75) });
+      }
+    }
+    notes.push(`Loft: ${fmtIn(xb - xa)} of the length, ${fmtIn(W - 2 * yd)} wide between the lower chords, its floor ${fmtFt(deckZ - floorTop)} above the shed floor. It is sized for ${LOFT_LIVE} psf of stored things (IRC Table R301.5, attics with limited storage), not for people to stand in. Add a guard or a stop board along its open edge.`);
+  }
+
   // Gable studs between the gable wall's top plate and the end rafter. With a
   // ridge board, one post sits under the ridge; with a ridge beam, a two-ply
   // post carries the beam down onto the post studs in the wall below. A gable
@@ -1090,7 +1324,8 @@ function buildFramed(d) {
   // the roof allows and a sill block. Under a ridge board the vent is centred;
   // under a beam the post is in the middle, so a pair of vents flanks it.
   const ventInfo = /** @type {Record<string, any[]>} */ ({});
-  const postZone = beam ? [W / 2 - 1.5, W / 2 + 1.5] : [W / 2 - 0.75, W / 2 + 0.75];
+  const postZone = gam ? [-10, -10] : beam ? [W / 2 - 1.5, W / 2 + 1.5] : [W / 2 - 0.75, W / 2 + 0.75];
+  const topCut = gam ? 'top cut to the roof line' : `top cut to ${d.pitch}/12`;
   for (const name of ['left', 'right']) {
     const x0 = name === 'left' ? 0 : L - D;
     const gableMember = (kind, e0, e1, h0, h1, note, z0rel = 0) => {
@@ -1104,7 +1339,7 @@ function buildFramed(d) {
       walls[name].members.push(m);
       return m;
     };
-    const rafterUnder = (y) => zb(Math.min(y, W - y)) - plateTop;
+    const rafterUnder = (y) => (gam ? gam.under(y) : zb(Math.min(y, W - y))) - plateTop;
     /** @type {{ v0: number, v1: number, ventTop: number, ventBottom: number, headerTop: number }[]} */
     const vents = [];
     if (d.gableVents) {
@@ -1112,7 +1347,7 @@ function buildFramed(d) {
       const vh = d.ventHeight;
       const spans = beam ? [[W / 2 - 1.5 - vw, W / 2 - 1.5], [W / 2 + 1.5, W / 2 + 1.5 + vw]] : [[W / 2 - vw / 2, W / 2 + vw / 2]];
       for (const [v0, v1] of spans) {
-        const headerTop = Math.floor(Math.min(beam ? Infinity : ridgeBottom - plateTop, rafterUnder(v0), rafterUnder(v1)) * 8) / 8;
+        const headerTop = Math.floor(Math.min(beam || gam ? Infinity : ridgeBottom - plateTop, rafterUnder(v0), rafterUnder(v1)) * 8) / 8;
         const ventTop = headerTop - 1.5;
         const ventBottom = ventTop - vh;
         const outer = v0 < W / 2 ? v0 - 1.5 : v1 + 1.5;
@@ -1124,21 +1359,27 @@ function buildFramed(d) {
         vents.push({ v0, v1, ventTop, ventBottom, headerTop });
       }
     }
-    const blocked = (e0, e1) => (e1 > postZone[0] - 1e-9 && e0 < postZone[1] + 1e-9) || vents.some((v) => e1 > v.v0 - 1.5 - 1e-9 && e0 < v.v1 + 1.5 + 1e-9);
+    // A stud keeps a stud's width clear of a ridge post; beside a vent it only has to miss the trimmer.
+    const blocked = (e0, e1, m) => (e1 > postZone[0] - m - 1e-9 && e0 < postZone[1] + m + 1e-9) || vents.some((v) => e1 > v.v0 - 1.5 + 1e-9 && e0 < v.v1 + 1.5 - 1e-9);
     for (const c of layoutCenters(d.studSpacing, 0, W)) {
-      const e0 = c - 0.75;
-      const e1 = c + 0.75;
-      if (blocked(e0 - (beam ? 0 : 1.5), e1 + (beam ? 0 : 1.5))) continue;
+      let e0 = c - 0.75;
+      let e1 = c + 0.75;
+      // A layout stud that would run into a vent trimmer moves out against it, so the siding joint there keeps its wood.
+      const hit = vents.find((v) => c > v.v0 - 2.25 && c <= v.v0 && e1 > v.v0 - 1.5 + 1e-9) || vents.find((v) => c < v.v1 + 2.25 && c >= v.v1 && e0 < v.v1 + 1.5 - 1e-9);
+      if (hit) [e0, e1] = c <= hit.v0 ? [hit.v0 - 3, hit.v0 - 1.5] : [hit.v1 + 1.5, hit.v1 + 3];
+      if (blocked(e0, e1, beam ? 0 : 1.5)) continue;
       const h0 = rafterUnder(e0);
       const h1 = rafterUnder(e1);
       if (Math.min(h0, h1) < 3) continue;
-      gableMember('gable stud', e0, e1, h0, h1, `top cut to ${d.pitch}/12`);
+      gableMember('gable stud', e0, e1, h0, h1, topCut);
     }
     // The post (under a centred vent, it stands on the vent header instead).
     const centreVent = vents.find((v) => v.v0 < W / 2 && v.v1 > W / 2);
     const postBase = centreVent ? centreVent.headerTop : 0;
     const postH = ridgeBottom - plateTop;
-    if (postH - postBase >= 3) {
+    if (truss || gam) {
+      // No post: the gable-end top chords meet at the peak, tied by the gable siding (a gambrel's by its gable studs).
+    } else if (postH - postBase >= 3) {
       if (beam) {
         for (const e0 of [W / 2 - 1.5, W / 2]) gableMember('beam post', e0, e0 + 1.5, postH, postH, 'square top under the ridge beam, over the post studs');
       } else {
@@ -1149,7 +1390,7 @@ function buildFramed(d) {
       const { v0, v1, ventTop, ventBottom } = v;
       for (const [e0, e1] of [[v0 - 1.5, v0], [v1, v1 + 1.5]]) {
         if (e1 > postZone[0] + 1e-9 && e0 < postZone[1] - 1e-9) continue; // the post is this side's trimmer
-        gableMember('vent trimmer', e0, e1, rafterUnder(e0), rafterUnder(e1), `top cut to ${d.pitch}/12`);
+        gableMember('vent trimmer', e0, e1, rafterUnder(e0), rafterUnder(e1), topCut);
       }
       for (const [kind, z0] of /** @type {[string, number][]} */ ([['vent header', ventTop], ['vent sill', ventBottom - 1.5]])) {
         const m = push({
@@ -1160,8 +1401,20 @@ function buildFramed(d) {
         });
         walls[name].members.push(m);
       }
-      const mid = (v0 + v1) / 2;
-      if (ventBottom - 1.5 >= 1.5) gableMember('vent cripple', mid - 0.75, mid + 0.75, ventBottom - 1.5, ventBottom - 1.5, 'under the vent sill');
+      // Cripples under the sill on the stud layout (so a siding joint there has wood behind it), or one in the middle.
+      // and under each 4 ft siding joint that crosses the vent, against the trimmer if the joint is that close.
+      const onLayout = layoutCenters(d.studSpacing, v0 + 0.75, v1 - 0.75).filter((c) => c <= v1 - 0.75);
+      const joints = layoutCenters(48, v0 - 1, v1 + 1).map((j) => Math.min(v1 - 0.75, Math.max(v0 + 0.75, j)));
+      const cripples = [...new Set([...onLayout, ...joints])].sort((a, b) => a - b).filter((c, i, a) => i === 0 || c - a[i - 1] >= 1.5);
+      for (const mid of cripples.length ? cripples : [(v0 + v1) / 2]) {
+        if (ventBottom - 1.5 >= 1.5) gableMember('vent cripple', mid - 0.75, mid + 0.75, ventBottom - 1.5, ventBottom - 1.5, 'under the vent sill');
+      }
+      // Over the header too, where a siding joint crosses a gap of 3" or more up to the roof (a gambrel's knee can hold the header low).
+      for (const j of joints) {
+        const [e0, e1] = [j - 0.75, j + 0.75];
+        if (e1 > postZone[0] - 1e-9 && e0 < postZone[1] + 1e-9) continue;
+        if (Math.min(rafterUnder(e0), rafterUnder(e1)) - v.headerTop >= 3) gableMember('vent cripple', e0, e1, rafterUnder(e0), rafterUnder(e1), `over the vent header, ${topCut}`, v.headerTop);
+      }
       fixtures.push({ kind: 'vent', group: `gable:${name}`, geom: rectGeom([name === 'left' ? 0 : L, v0, plateTop + ventBottom], Y, Z, name === 'left' ? neg(X) : X, v1 - v0, d.ventHeight, d.siding ? 1.0 : 0.4) });
     }
     if (vents.length) ventInfo[name] = vents.map((v) => ({ s0: v.v0, s1: v.v1, z0: H + v.ventBottom, z1: H + v.ventTop }));
@@ -1280,29 +1533,39 @@ function buildFramed(d) {
     trim.fasciaFt = (2 * L) / 12;
     trim.soffitSqFt = (2 * L * (o / cos)) / 144;
   }
-  trim.rakeFt = (4 * ((W / 2 + o) / cos)) / 12;
+  trim.rakeFt = gam ? (4 * (gam.lowerLen + gam.upperLen)) / 12 : (4 * ((W / 2 + o) / cos)) / 12;
   // Rake boards: a 3-1/2" band under the roof edge on each gable face, eave tail to peak.
   {
     const top = (dist) => zt(dist) + (7 / 16) / cos;
     const band = 3.5 / cos;
     /** @type {[number, number][]} */
-    const prof = [[-o, top(-o) - band], [W / 2, top(W / 2) - band], [W + o, top(-o) - band], [W + o, top(-o)], [W / 2, top(W / 2)], [-o, top(-o)]];
+    const prof = gam
+      ? [...bandAbove(gam, 7 / 16 - 3.5), ...bandAbove(gam, 7 / 16).reverse()]
+      : [[-o, top(-o) - band], [W / 2, top(W / 2) - band], [W + o, top(-o) - band], [W + o, top(-o)], [W / 2, top(W / 2)], [-o, top(-o)]];
     for (const x0 of [-0.75, L]) fixtures.push({ kind: 'fascia', group: 'trim', geom: { origin: [x0, 0, 0], u: Y, v: Z, w: X, profile: prof, thickness: 0.75 } });
   }
 
   // ---------------- Sheathing, siding, roofing ----------------
-  const slopeLen = (W / 2 + o) / cos; // eave tail to the ridge line, along the roof
+  const slopeLen = gam ? gam.lowerLen + gam.upperLen : (W / 2 + o) / cos; // eave tail to the ridge line, along the roof
   /** @type {number[]} */
   const roofPieces = [];
-  const roofRows = Math.ceil(slopeLen / 48 - 1e-9);
-  for (const back of [false, true]) {
-    const vy = back ? -cos : cos;
-    const eave = /** @type {Vec} */ ([0, yOf(-o, back), zt(-o)]);
-    const v = /** @type {Vec} */ ([0, vy, sin]);
-    const w = /** @type {Vec} */ ([0, back ? sin : -sin, cos]);
-    for (let rr = 0; rr < roofRows; rr++) {
+  // Each roof plane, from its low edge up: one a side on a gable, two on a gambrel
+  // (the upper plane's courses are numbered on from the lower's in `pos`).
+  const roofPlanes = [false, true].flatMap((back) => {
+    const side = back ? 'back' : 'front';
+    if (!gam) return [{ back, side, eave: /** @type {Vec} */ ([0, yOf(-o, back), zt(-o)]), c: cos, s: sin, len: slopeLen, q: 0 }];
+    return [
+      { back, side, eave: /** @type {Vec} */ ([0, yOf(0, back), plateTop]), c: gam.cl, s: gam.sl, len: gam.lowerLen, q: 0 },
+      { back, side, eave: /** @type {Vec} */ ([0, yOf(gam.yk, back), gam.zk]), c: gam.cu, s: gam.su, len: gam.upperLen, q: gam.lowerLen },
+    ];
+  });
+  const roofRows = roofPlanes.reduce((t, pl) => t + Math.ceil(pl.len / 48 - 1e-9), 0) / 2;
+  for (const { back, side, eave, c: pc, s: ps, len: planeLen, q: qBase } of roofPlanes) {
+    const v = /** @type {Vec} */ ([0, back ? -pc : pc, ps]);
+    const w = /** @type {Vec} */ ([0, back ? ps : -ps, pc]);
+    for (let rr = 0; rr < Math.ceil(planeLen / 48 - 1e-9); rr++) {
       const q0 = rr * 48;
-      const h = Math.min(48, slopeLen - q0);
+      const h = Math.min(48, planeLen - q0);
       // Sheets stagger 4 ft course to course, and every end joint lands on a
       // rafter: where none is under the 4 ft mark (an inner rafter moved in
       // clear of the gable wall), the sheet is cut back to the rafter before it.
@@ -1316,16 +1579,18 @@ function buildFramed(d) {
       for (let i = 0; i + 1 < cuts.length; i++) {
         roofPieces.push(cuts[i + 1] - cuts[i]);
         {
-          panels.push({ id: nextId('RS'), kind: 'roof sheathing', item: 'roofSheet', group: 'sheathing', side: back ? 'back' : 'front', pos: [cuts[i], q0], geom: rectGeom(add(add(eave, X, cuts[i]), v, q0), X, v, w, cuts[i + 1] - cuts[i], h, 7 / 16) });
+          panels.push({ id: nextId('RS'), kind: 'roof sheathing', item: 'roofSheet', group: 'sheathing', side, pos: [cuts[i], qBase + q0], geom: rectGeom(add(add(eave, X, cuts[i]), v, q0), X, v, w, cuts[i + 1] - cuts[i], h, 7 / 16) });
         }
       }
     }
     if (d.roofing) {
-      fixtures.push({ kind: 'shingles', group: 'roofing', geom: rectGeom(add(eave, w, 7 / 16), X, v, w, L, slopeLen, 0.35) });
+      fixtures.push({ kind: 'shingles', group: 'roofing', geom: rectGeom(add(eave, w, 7 / 16), X, v, w, L, planeLen, 0.35) });
     }
   }
   const roofAreaSqFt = (2 * slopeLen * L) / 144;
 
+  // The eave-wall siding runs up to the soffit: the plate, or a truss's bottom chord on it.
+  const eaveTop = seatBase;
   // Lap siding goes over 7/16" OSB sheathing (laid out like panel siding, so
   // its joints fall on the studs and nailers) and its courses stand out by up
   // to two plank thicknesses at each butt edge.
@@ -1348,7 +1613,7 @@ function buildFramed(d) {
     for (const name of WALLS) {
       const eave = name === 'front' || name === 'back';
       const faceLen = eave ? L : W;
-      const clip = (s) => (eave ? plateTop : zt(Math.min(s, W - s)));
+      const clip = (s) => (eave ? eaveTop : gam ? gam.top(s) : zt(Math.min(s, W - s)));
       const origin = name === 'front' ? [0, 0, 0] : name === 'back' ? [0, W, 0] : name === 'left' ? [0, 0, 0] : [L, 0, 0];
       const u = eave ? X : Y;
       const w = name === 'front' ? neg(Y) : name === 'back' ? Y : name === 'left' ? neg(X) : X;
@@ -1356,7 +1621,8 @@ function buildFramed(d) {
         const s1 = Math.min(faceLen, s0 + 48);
         /** @type {[number, number][]} */
         const prof = [[s0, bottomZ], [s1, bottomZ], [s1, clip(s1)]];
-        if (!eave && s0 < W / 2 && s1 > W / 2) prof.push([W / 2, clip(W / 2)]);
+        // The roof line's corners inside this panel, right to left: the peak, and a gambrel's knees.
+        if (!eave) for (const y of gam ? [W - gam.yk, W / 2, gam.yk] : [W / 2]) if (s0 < y && s1 > y) prof.push([y, clip(y)]);
         prof.push([s0, clip(s0)]);
         const need = Math.max(...prof.map((p) => p[1])) - bottomZ;
         const sheet = sheetFor(need);
@@ -1401,7 +1667,7 @@ function buildFramed(d) {
       for (const v of ventInfo[name] || []) holes.push({ s0: v.s0 - 1, s1: v.s1 + 1, z0: floorTop + v.z0 - 1, z1: floorTop + v.z1 + 1 });
       const inset = trimW ? (eave ? trimW - (sidingT + 0.75) : trimW - sidingT) : 0;
       const face = layoutFace({
-        wall: name, len: faceLen, bottom: skidTop, top: (s) => (eave ? plateTop : zt(Math.min(s, W - s))), peakAt: eave ? undefined : W / 2,
+        wall: name, len: faceLen, bottom: skidTop, top: (s) => (eave ? eaveTop : gam ? gam.top(s) : zt(Math.min(s, W - s))), peakAt: eave ? undefined : W / 2,
         from: inset, to: faceLen - inset, holes, wood, maxPlank: Math.max(...lapStocks(d).map((x) => x.length)), stagger: lapStagger(d),
       }, lapSpec);
       lap.push(face);
@@ -1431,7 +1697,8 @@ function buildFramed(d) {
     const tw = 3.5;
     const tt = 0.75;
     const bottomZ = skidTop;
-    const rakeUnder = (dist) => zt(dist) + (7 / 16) / cos - 3.5 / cos;
+    const rakeBottom = gam ? bandAbove(gam, 7 / 16 - 3.5) : null;
+    const rakeUnder = (dist) => (rakeBottom ? zOnPoly(rakeBottom, dist) : zt(dist) + (7 / 16) / cos - 3.5 / cos);
     for (const name of WALLS) {
       const eave = name === 'front' || name === 'back';
       const faceLen = eave ? L : W;
@@ -1439,7 +1706,7 @@ function buildFramed(d) {
       const u = eave ? X : Y;
       const w = name === 'front' ? neg(Y) : name === 'back' ? Y : name === 'left' ? neg(X) : X;
       const at = add(origin, w, sidingT);
-      const topAt = (s) => (eave ? plateTop : rakeUnder(Math.min(s, faceLen - s)));
+      const topAt = (s) => (eave ? eaveTop : rakeUnder(Math.min(s, faceLen - s)));
       const board = (kind, prof, where) => {
         fixtures.push({ kind: 'casing', group: 'trim', geom: { origin: at, u, v: Z, w, profile: prof, thickness: tt } });
         const zs = prof.map((p) => p[1]);
@@ -1514,9 +1781,14 @@ function buildFramed(d) {
   const dims = {
     length: L, width: W, wallHeight: H, pitch: d.pitch, overhang: o,
     skidTop, floorTop, plateTop, ridgeTop, peak: ridgeTop + (d.roofing ? 7 / 16 / cos + 0.35 / cos : 7 / 16 / cos),
-    studLen, rafterCut, slopeLen, plumbH, ridgeSize, ridgeD, stud: D, joistDepth: joist.depth, rafterDepth: rd,
+    studLen, rafterCut: gamParts ? gamParts.lowerCut : rafterCut, slopeLen, plumbH, ridgeSize, ridgeD, stud: D, joistDepth: joist.depth, rafterDepth: rd,
     skidCount, skidYs, joistCenters, rafterCenters, gravelCuYd, padSqFt: underBlocks || noPad ? 0 : ((L + 2 * pad) * (W + 2 * pad)) / 144, baseBags: Math.ceil(baseCuFt / 0.5), underBlocks, noPad, blockCount, block, pierLen, pierCuFt, pierTubes, pierBags, roofAreaSqFt, floorRows, roofRows,
-    heel: connector ? 0 : D * t, maxStock, connector,
+    heel: connector || truss || gam ? 0 : D * t, maxStock, connector, truss, trusses, seatBase, chordDepth: truss ? chord.depth : 0,
+    // The underside of the roof across the width, as [y, z] points (for storage space and the section).
+    section: gam
+      ? [[0, plateTop], [gam.seat, plateTop], [gam.ykIn, gam.zkIn], [W / 2, gam.ridgeIn], [W - gam.ykIn, gam.zkIn], [W - gam.seat, plateTop], [W, plateTop]]
+      : [[0, plateTop], [seatAt, seatBase], [r, zb(r)], [W - r, zb(r)], [W - seatAt, seatBase], [W, plateTop]],
+    gambrel: gam && gamFrame && gamParts ? { ...gamParts, yk: gam.yk, zk: gam.zk, lowerLen: gam.lowerLen, upperLen: gam.upperLen, lowerPitch: d.gambrelLower, gusset: gamFrame.gusset, heelNails: gamFrame.heelNails, tieSize: gamFrame.tieSize, thrust: gamFrame.thrust, nailsPerKnee: gamFrame.nailsPerKnee, nailsPerPeak: gamFrame.nailsPerPeak, loft: loftX } : null,
   };
 
   if (d.siding && d.sidingColor === 'unfinished' && d.sidingType !== 'vinyl') {
@@ -1543,7 +1815,7 @@ function buildFramed(d) {
     warnings.push(`The peak is ${fmtFt(dims.peak)} above the gravel, ${fmtFt(dims.peak - d.maxPeak)} over your ${fmtFt(d.maxPeak)} limit. Your tallest opening needs walls of at least ${fmtFt(minWall)}; with those walls and a 3/12 roof (about the least that sheds water under shingles) the peak would still be ${fmtFt(low)}. To get lower: a shorter door, a door in the gable end, a lower floor or a narrower shed${d.gableVents ? ', or smaller or no gable vents (they need a steeper roof to fit)' : ''}.`);
   }
 
-  return { design: d, members, panels, fixtures, walls, framedOpenings, warnings, notes, dims, vents: ventInfo, trim, wallTrim, doorParts, doors, interior, sidingArea, floorPieces, roofPieces, sidingFull, sidingUpper, sidingUpperShapes, lap, lapExposure };
+  return { design: d, members, panels, fixtures, walls, framedOpenings, warnings, notes, dims, vents: ventInfo, trim, wallTrim, doorParts, doors, interior, sidingArea, floorPieces, roofPieces, sidingFull, sidingUpper, sidingUpperShapes, lap, lapExposure, sidingStudLimit: lapStudLimit(d) };
 }
 
 /** @typedef {ReturnType<typeof buildFramed>} Shed */
