@@ -2,6 +2,9 @@
 
 Newest first.
 
+## 2026-10-30 · Milestone 6c: paper draft regenerated for 2n (no new experiment)
+- Added section 3.1d, revised the abstract, threat 2/limits text and 'what would settle it' (b) to carry the PVG 32 neutral drop (10.9 bar, break-even 28.0 bar). `paper/check_numbers.py` now checks 22 claims, 0 missing. Danfoss, Rexroth and Zenodo hosts all refuse connections this session, so no standby-flow source was reachable.
+
 ## 2026-10-30 · Milestone 2n: with the open-centre neutral drop read from Danfoss's PVG 32 curve, who wins at idle? (planned before running)
 - Why: every ranking since 2i hinged on p_n = 1.44 bar from one Salami valve catalogue (a 75 L/min valve, no input module). This session the Danfoss host is reachable. The PVG 32 Technical Information (BC152886483664, rev. May 2021; PDF opened, p. 16) has a curve "pressure drop, bypass in neutral" for its open-centre PVP input module: about 8.5 bar at near-zero flow rising linearly to about 16 bar at 140 L/min (read off the figure, +-0.5 bar). PVG 32 is a mobile/excavator-class proportional valve, rated 140 L/min. At the model's 45 L/min pump, p_n = 8.5 + 7.5 x 45/140 = 10.9 bar. The same manual has no LS margin or standby flow I could find (searched for margin, standby, bypass in the German text); the pump's are still 2j's.
 - Plan (`experiments/pvg_neutral.py`, `ratio` from 2g, load factor 0.346, LS standby 2 L/min assumed, 600 cycles x 5 seeds): p_n = 10.9 bar (and the +-0.5 bar reading band at both ends: 10.4 and 11.4), dp_ls 10, 14, 20, 25, 28 bar, and the break-even dp_ls by interpolation on a 2 bar grid.

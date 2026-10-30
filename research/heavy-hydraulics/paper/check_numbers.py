@@ -26,6 +26,11 @@ CHECKS = [
     ("19.3 bar (neutral", "ranking_map_results.txt", "break-even dp_ls = 19.3 bar"),
     ("23.9 bar (6.44", "ranking_map_results.txt", "break-even dp_ls = 23.9 bar"),
     ("28.4 bar (11.44", "ranking_map_results.txt", "break-even dp_ls = 28.4 bar"),
+    ("28.0 bar (27.5 to 28.4", "pvg_neutral_results.txt", "break-even dp_ls = 28.0 bar"),
+    ("27.5 to 28.4", "pvg_neutral_results.txt", "break-even dp_ls = 27.5 bar"),
+    ("0.759 at 14 bar and 0.949 at 25 bar", "pvg_neutral_results.txt", "dp_ls 14: LS/OC median 0.759"),
+    ("0.759 at 14 bar and 0.949 at 25 bar", "pvg_neutral_results.txt", "dp_ls 25: LS/OC median 0.949"),
+    ("0.8% and 33.6%", "pvg_neutral_results.txt", "LS worse in 33.6%"),
     ("0.92 bar of margin", "ranking_map_results.txt", "0.92 bar per bar"),
 ]
 
