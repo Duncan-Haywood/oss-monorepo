@@ -1,0 +1,158 @@
+name: Security alert fix
+
+# Hands each open code-scanning alert to a Claude Code agent that fixes it on
+# its own branch and opens a pull request, which then lands through the usual
+# CI and cross-review path (agent-cross-review.yml, agent-pr-auto-merge.yml).
+#
+# AUTHORITY: requested directly by the owner on 2026-10-30 ("can we get agents
+# to fix the security scan results from github as they come up?"). CLAUDE.md
+# makes unattended paid automation an owner call; that request is the call,
+# and this header records it.
+#
+# HOW IT AVOIDS DOING THE SAME ALERT TWICE
+# ----------------------------------------
+# platform/ci/security_alerts.py picks open alerts, most severe first, and
+# skips any whose branch `security-fix/code-scanning-<n>` already exists. The
+# `fix` job creates that branch at main's tip *before* the agent starts, so the
+# branch is the claim:
+#
+#   * fix merged         -> the next CodeQL run closes the alert; branch-cleanup
+#                           deletes the branch.
+#   * agent pushed no fix (false positive, gave up) -> the claim branch holds
+#                           nothing beyond main, branch-cleanup deletes it after
+#                           48h, and the alert is tried again. Dismiss the alert
+#                           in GitHub (Security > Code scanning) to end that.
+#   * PR closed unmerged -> branch deleted after the 24h grace, then retried.
+#
+# COST AND THE OFF SWITCH
+# -----------------------
+# The `scan` job is a few seconds of API calls. Each `fix` job is one Claude
+# Code run billed to the ANTHROPIC_API_KEY secret, at most MAX_PER_RUN per
+# hour and only while there are unclaimed alerts, so a quiet repository costs
+# nothing beyond the scan. Set the repository variable SECURITY_AUTOFIX to
+# `off` to stop scheduled fixes; `workflow_dispatch` still runs, for testing.
+# Without the secret the fix job is skipped, never failed.
+#
+# SCOPE: code-scanning alerts only. A workflow token has no permission that
+# reads Dependabot or secret-scanning alerts. Dependency CVEs are covered by
+# turning on Dependabot security updates (Settings > Code security), which
+# opens its own fix PRs; a leaked secret needs rotating by the owner.
+
+on:
+  schedule:
+    - cron: "41 * * * *"
+  workflow_dispatch:
+    inputs:
+      max:
+        description: Alerts to hand to agents in this run
+        required: false
+        default: "3"
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: security-alert-fix
+  cancel-in-progress: false
+
+env:
+  MAX_PER_RUN: "3"
+
+jobs:
+  scan:
+    if: ${{ github.event_name == 'workflow_dispatch' || vars.SECURITY_AUTOFIX != 'off' }}
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      security-events: read # list code-scanning alerts
+    outputs:
+      alerts: ${{ steps.pick.outputs.alerts }}
+      count: ${{ steps.pick.outputs.count }}
+      has_key: ${{ steps.key.outputs.has_key }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - id: key
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          if [ -n "${ANTHROPIC_API_KEY}" ]; then
+            echo "has_key=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::warning::ANTHROPIC_API_KEY is not set; alerts are listed but no agent is started."
+            echo "has_key=false" >> "$GITHUB_OUTPUT"
+          fi
+      - id: pick
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MAX: ${{ inputs.max || env.MAX_PER_RUN }}
+        run: python3 platform/ci/security_alerts.py --max "$MAX" --github-output "$GITHUB_OUTPUT"
+
+  fix:
+    needs: scan
+    if: ${{ needs.scan.outputs.count != '0' && needs.scan.outputs.has_key == 'true' }}
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        alert: ${{ fromJSON(needs.scan.outputs.alerts) }}
+    permissions:
+      contents: write # create the claim branch
+      pull-requests: read
+      id-token: write # the action exchanges this for the Claude GitHub App token
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Claim the alert
+        id: claim
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: ${{ matrix.alert.branch }}
+        run: |
+          # 422 means another run claimed it between scan and now: stand down.
+          code="$(curl -sS -o /dev/null -w '%{http_code}' -X POST \
+            -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/git/refs" \
+            -d "{\"ref\":\"refs/heads/${BRANCH}\",\"sha\":\"${GITHUB_SHA}\"}")"
+          echo "claim HTTP ${code}"
+          if [ "${code}" = "201" ]; then echo "claimed=true" >> "$GITHUB_OUTPUT"; fi
+      - uses: anthropics/claude-code-action@6d5ae526d25ce88daa2200be073e1a373167f064 # v1.0.265
+        if: steps.claim.outputs.claimed == 'true'
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          claude_args: >-
+            --max-turns 80
+            --allowedTools "Read,Edit,Write,Glob,Grep,Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git add:*),Bash(git commit:*),Bash(git checkout:*),Bash(git push:*),Bash(gh pr create:*),Bash(python3:*),Bash(node:*),Bash(npm test:*),Bash(npm ci:*)"
+          prompt: |
+            You are fixing one GitHub code-scanning alert in ${{ github.repository }}.
+            Read CLAUDE.md first; it governs this repository.
+
+            Alert #${{ matrix.alert.number }} (${{ matrix.alert.severity }}), ${{ matrix.alert.tool }} rule `${{ matrix.alert.rule }}`: ${{ matrix.alert.description }}
+            Location: ${{ matrix.alert.path }}:${{ matrix.alert.line }}
+            Finding: ${{ matrix.alert.message }}
+            Alert page (for the PR body): ${{ matrix.alert.url }}
+
+            1. Read the flagged code and decide whether the finding is real.
+            2. If it is real, fix the root cause with the smallest change that
+               removes the vulnerability without changing intended behaviour.
+               Add or update a test when the code has tests nearby, and run the
+               tests that cover the file. Do not silence the rule with a
+               suppression comment, and do not weaken or skip any test.
+            3. If it is a false positive, change no code and push nothing:
+               say why in your final message. The owner dismisses it.
+            4. To land a fix: `git checkout -b ${{ matrix.alert.branch }}`, commit
+               with a message naming the alert number and rule, then
+               `git push origin ${{ matrix.alert.branch }}` and open a ready (not
+               draft) PR against main with `gh pr create`. Title:
+               "security: fix code-scanning alert #${{ matrix.alert.number }} (${{ matrix.alert.rule }})".
+               The body says what was vulnerable, how the change fixes it and
+               what you ran to verify it. Do not write `fixes #N`.
+            Never print or commit secrets or tokens.
