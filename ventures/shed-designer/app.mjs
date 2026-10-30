@@ -349,6 +349,16 @@ function renderCuts(est) {
     }
     html += `</ul><p class="muted">Trim pieces: ${est.trimCuts.pieces.map((p) => `${esc(p.where)} ${fmtIn(p.length)}`).join('; ')}. Cut each to fit on site; these are the longest each needs.</p>`;
   }
+  if (est.lapCuts) {
+    const lc = est.lapCuts;
+    html += `<h3 class="h4">Lap siding <span class="muted">(${lc.pieces} course pieces)</span>: ${lc.boards.length} planks, plus ${lc.starterPlanks} ripped into starter strip</h3><ul class="boards">`;
+    for (const b of groupBoards(lc.boards)) {
+      let x = 0;
+      const segs = b.cuts.map((len) => { const w = (len / b.stock) * 100; const seg = `<span class="cut" style="left:${x}%;width:${w}%" title="${fmtIn(len)}">${fmtIn(len)}</span>`; x += w; return seg; }).join('');
+      html += `<li><span class="board-name">${boardName(b)}</span><span class="bar">${segs}</span><span class="off">offcut ${fmtIn(b.offcut)}${b.count > 1 ? ' each' : ''}</span></li>`;
+    }
+    html += `</ul><p class="muted">Rake pieces are measured along their bottom (long) edge. Starter: ${fmtIn(lc.starterIn)} of strip, ${lc.perPlank} strips ripped from each plank. ${lc.joints ? `${lc.joints} butt joints, each on a stud.` : 'No butt joints: every course is one piece per run.'}</p>`;
+  }
   $('#cuts').innerHTML = html;
 }
 

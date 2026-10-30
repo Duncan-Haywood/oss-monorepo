@@ -134,14 +134,15 @@ export function solidsOf(shed) {
     out.push({ geom: m.geom, color: /** @type {any} */ (color), layer });
   }
   // Unfinished: bare plywood, or LP's factory primer (a pale grey).
-  const bare = d.sidingType?.startsWith('LP SmartSide') ? [0.84, 0.83, 0.79] : [0.78, 0.62, 0.43];
+  const bare = d.sidingType?.startsWith('LP SmartSide') || d.sidingType === 'fiber cement' ? [0.84, 0.83, 0.79] : [0.78, 0.62, 0.43];
   const siding = d.sidingColor === 'unfinished' ? bare : /** @type {any} */ (SIDING_COLORS)[d.sidingColor] || COLORS.siding;
   for (const p of shed.panels) {
-    const layer = p.kind === 'floor sheet' ? 'floor' : p.kind === 'roof sheathing' ? 'sheathing' : 'siding';
-    const color = p.kind === 'floor sheet' ? COLORS.floor : p.kind === 'roof sheathing' ? COLORS.osb : siding;
-    const texture = d.sidingType === 'board and batten' ? 8 : (d.sidingType === 'vinyl' || d.sidingType === 'fiber cement') ? 4 : 0;
+    const layer = p.kind === 'floor sheet' ? 'floor' : p.kind === 'roof sheathing' || p.kind === 'wall sheathing' ? 'sheathing' : 'siding';
+    const color = p.kind === 'floor sheet' ? COLORS.floor : p.kind === 'roof sheathing' || p.kind === 'wall sheathing' ? COLORS.osb : siding;
+    // Lap siding is modelled course by course, so it needs no painted-on shadow lines.
+    const texture = d.sidingType === 'board and batten' ? 8 : d.sidingType === 'vinyl' ? 4 : 0;
     const vinyl = d.sidingType === 'vinyl' && d.sidingColor === 'natural' ? [0.93, 0.92, 0.88] : null;
-    out.push({ geom: p.geom, color: /** @type {any} */ (p.kind === 'siding' && vinyl ? vinyl : color), layer, flags: p.kind === 'siding' ? (d.polkaDots ? 1 : 0) + glitter + texture : 0 });
+    out.push({ geom: p.geom, color: /** @type {any} */ (p.kind === 'siding' && vinyl ? vinyl : color), layer, flags: p.kind === 'siding' ? (d.polkaDots ? 1 : 0) + glitter + texture : p.kind === 'lap siding' ? (d.polkaDots ? 1 : 0) + glitter : 0 });
   }
   const roof = /** @type {any} */ (ROOF_COLORS)[d.roofColor] || COLORS.shingles;
   const trim = /** @type {any} */ (TRIM_COLORS)[d.trimColor] || TRIM_COLORS.white;

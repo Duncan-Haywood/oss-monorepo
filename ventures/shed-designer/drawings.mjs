@@ -8,6 +8,7 @@
 import { fmtFtIn, fmtIn } from './lumber.mjs';
 import { WALLS, WALL_LABEL } from './model.mjs';
 import { heelJoint } from './checks.mjs';
+import { LAP_PRODUCTS } from './lap.mjs';
 
 /** @typedef {[number, number]} P */
 /**
@@ -285,7 +286,7 @@ export function buildSheets(shed, marks = new Map()) {
     items.push(text([ax + run / 2, az + 1.5], '12', 9));
     items.push(text([ax + run + 3, az + d.pitch / 2 - 3], String(d.pitch), 9, 'start'));
     items.push(dim([0, k.floorTop], [0, k.plateTop], 34, `${fmtFtIn(d.wallHeight)} wall`));
-    const sidingLabel = d.siding ? (d.sidingType === 'T1-11' || d.sidingType.startsWith('LP SmartSide') ? `${d.sidingType} panels` : `${d.sidingType} over OSB`) : '';
+    const sidingLabel = d.siding ? (d.sidingType === 'T1-11' || d.sidingType === 'LP SmartSide' || d.sidingType === 'LP SmartSide 7/16' ? `${d.sidingType} panels` : `${LAP_PRODUCTS[d.sidingType]?.short || d.sidingType} over OSB${LAP_PRODUCTS[d.sidingType] ? ` and wrap, ${fmtIn(LAP_PRODUCTS[d.sidingType].exposure)} exposure` : ''}`) : '';
     // Clear of the siding label, which sits between the wall and this dimension.
     items.push(dim([W, 0], [W, k.peak], -(40 + textWidth(sidingLabel, 8)), `${fmtFtIn(k.peak)} to peak`));
     items.push(dim([0, 0], [W, 0], -30));
@@ -348,6 +349,11 @@ export function buildSheets(shed, marks = new Map()) {
         const pts = g.profile.map(([a, z]) => /** @type {P} */ ([X(hxOf(name, a)), z]));
         items.push({ t: 'poly', pts, closed: true, cls: 'sheet' });
       }
+      // Lap siding: each course piece as it shows, so the course lines and butt joints read.
+      for (const p of shed.panels.filter((x) => x.kind === 'lap siding' && x.wall === name)) {
+        const pts = p.face.map(([a, z]) => /** @type {P} */ ([X(hxOf(name, a)), z]));
+        items.push({ t: 'poly', pts, closed: true, cls: 'sheet' });
+      }
       // Roof seen from this side.
       if (eave) {
         items.push(rect(X(0), zt(-o) - 6, X(F), zt(-o), 'plate'));
@@ -381,7 +387,7 @@ export function buildSheets(shed, marks = new Map()) {
       elevation(pair[1], face(pair[0]) + 2 * o + 96, items);
       sheets.push({
         id: `exterior-${pair[0]}-${pair[1]}`, title: `Exterior elevations: ${pair[0]} and ${pair[1]}`,
-        note: `Finished outside as seen from each side: ${d.siding ? `${d.sidingType} siding (panel and sheet joints shown)` : 'no siding'}, ${d.roofCover === 'metal' ? 'metal roof' : 'shingle roof'}, rough openings for doors, windows and vents. Heights from the top of the gravel.`,
+        note: `Finished outside as seen from each side: ${d.siding ? (LAP_PRODUCTS[d.sidingType] ? `${LAP_PRODUCTS[d.sidingType].short} siding, ${fmtIn(LAP_PRODUCTS[d.sidingType].exposure)} exposure (course lines and butt joints shown)` : `${d.sidingType} siding (panel and sheet joints shown)`) : 'no siding'}, ${d.roofCover === 'metal' ? 'metal roof' : 'shingle roof'}, rough openings for doors, windows and vents. Heights from the top of the gravel.`,
         items,
       });
     }
@@ -593,7 +599,7 @@ export function buildSheets(shed, marks = new Map()) {
     row(`Walls: ${d.studSize} at ${d.studSpacing}" o.c., ${fmtFtIn(d.wallHeight)} floor to top of plates (studs ${fmtIn(k.studLen)}), double top plate interlocked at corners.`);
     row(`Floor: ${d.joistSize} joists at ${d.joistSpacing}" o.c. on ${k.skidCount} PT ${d.skidSize} skids, ${k.block ? `on ${k.block.plural} on ${k.noPad ? 'tamped firm soil' : k.underBlocks ? 'a bed of paver base each' : 'a compacted gravel pad'}` : 'on a compacted gravel pad'}; ${d.floorPanel === 'OSB' ? '23/32" T&G OSB' : '3/4" T&G plywood'}.`);
     row(`Roof: ${d.rafterSize} rafters at ${d.rafterSpacing}" o.c., ${d.roofType === 'ridgeBeam' ? `two-ply ${k.ridgeSize} ridge beam on posts, no ties` : `${k.ridgeSize} ridge board with ${d.tieSize} rafter ties`}, ${fmtIn(d.overhang)} overhang; ${d.roofCover === 'metal' ? 'corrugated metal' : 'shingles'} on 7/16" OSB.`);
-    row(`Siding: ${d.siding ? d.sidingType : 'none'}. Inside: ${d.interior === 'none' ? 'bare framing' : d.interior}${d.insulation ? ', R-13 insulation' : ''}.`);
+    row(`Siding: ${d.siding ? (LAP_PRODUCTS[d.sidingType] ? `${LAP_PRODUCTS[d.sidingType].label}, over 7/16" OSB and house wrap` : d.sidingType) : 'none'}. Inside: ${d.interior === 'none' ? 'bare framing' : d.interior}${d.insulation ? ', R-13 insulation' : ''}.`);
     row(`Loads used for the strength checks: ${d.snowLoad} psf roof snow, ${d.windLoad} psf wind on the walls, 15 psf roof dead, 40 psf floor live.`);
     row('');
     row('DOORS, WINDOWS AND VENTS (rough openings)', 9, 'muted');
