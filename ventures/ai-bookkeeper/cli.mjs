@@ -148,7 +148,12 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
 No warranty. Not accounting, tax or financial advice; check its output before you rely on it.`;
 
 const argv = process.argv.slice(2);
-const flag = (k) => { const i = argv.indexOf(k); if (i === -1) return null; const v = argv[i + 1]; argv.splice(i, 2); return v; };
+const NUMERIC_FLAGS = new Set(["--year", "--months", "--wages", "--other", "--withholding", "--paid", "--prior-tax", "--prior-agi", "--threshold", "--min", "--days", "--reserve", "--age", "--gross", "--business-wages", "--itemized", "--investment", "--eitc-children"]);
+const flag = (k) => {
+  const i = argv.indexOf(k); if (i === -1) return null; const v = argv[i + 1]; argv.splice(i, 2);
+  if (NUMERIC_FLAGS.has(k) && !Number.isFinite(Number(v ?? NaN))) { console.error(`${k} needs a number, got "${v ?? ""}".`); process.exit(2); }
+  return v;
+};
 const has = (k) => { const i = argv.indexOf(k); if (i === -1) return false; argv.splice(i, 1); return true; };
 if (has("--help") || has("-h") || !argv.length) { console.log(HELP); process.exit(0); }
 
@@ -360,7 +365,7 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
 } else if (cmd === "fx") {
   try {
     if (rest[0] === "account") { books = addFxAccount(books, { code: rest[1], currency: rest[2] }); save(); console.log(`${rest[1]} is held in ${rest[2].toUpperCase()}. Add rates, then import its statements.`); }
-    else if (rest[0] === "rate") { books = setRates(books, [{ date: rest[2], currency: String(rest[1]).toUpperCase(), rate: Number(rest[3]) }]); save(); console.log("Rate saved."); }
+    else if (rest[0] === "rate") { if (!Number.isFinite(Number(rest[3] ?? NaN))) throw new Error(`fx rate needs a number, got "${rest[3] ?? ""}".`); books = setRates(books, [{ date: rest[2], currency: String(rest[1]).toUpperCase(), rate: Number(rest[3]) }]); save(); console.log("Rate saved."); }
     else if (rest[0] === "rates") {
       const r = parseRates(readFileSync(rest[1], "utf8"));
       for (const p of r.problems) console.error(p);
@@ -527,6 +532,7 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   try {
     if (rest[0] === "941") {
       const di = argv.indexOf("--deposited");
+      if (di >= 0 && !Number.isFinite(Number(argv[di + 1] ?? NaN))) throw new Error(`--deposited needs a number, got "${argv[di + 1] ?? ""}".`);
       const f = form941(books, rest[1], rest[2], di >= 0 ? { depositedCents: Math.round(Number(argv[di + 1]) * 100) } : {});
       if (json) { console.log(JSON.stringify(f, null, 2)); process.exit(0); }
       console.log(`FORM 941 WORKSHEET ${f.year} Q${f.quarter} (${f.from} to ${f.to}), ${f.runs} run${f.runs === 1 ? "" : "s"}`);
