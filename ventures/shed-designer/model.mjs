@@ -18,7 +18,7 @@
 import { actual, ceil16, TWO_BY, DEFAULT_LENGTHS_FT, fmtFtIn as fmtFt, fmtIn } from './lumber.mjs';
 import { lumberCostOf } from './estimate.mjs';
 import { productById } from './products.mjs';
-import { LAP_PRODUCTS, layoutFace, lapStocks, lapStagger } from './lap.mjs';
+import { LAP_PRODUCTS, layoutFace, lapStocks, lapStagger, evenExposure } from './lap.mjs';
 import { bbox } from './integrity.mjs';
 import { pickFinish, SIDING_FINISHES, TRIM_FINISHES, DOOR_FINISHES, SHINGLE_FAMILIES } from './looks.mjs';
 import { LOCKABLE } from './levers.mjs';
@@ -67,6 +67,8 @@ export function defaultDesign() {
     skidSpacing: 48,
     foundation: 'blocks',
     compaction: 'hand tamper',
+    // How deep a pier goes below grade, inches: your frost depth, or 12" to firm soil where the ground does not freeze.
+    pierDepth: 24,
     pad: 'none',
     spares: 5,
     laborRate: 50,
@@ -135,6 +137,12 @@ export const BLOCKS = {
   blocks: { name: 'solid concrete block, 4 x 8 x 16', plural: 'solid 4 x 8 x 16 concrete blocks', h: 4, along: 16, across: 8, item: 'concreteBlock' },
   'deck blocks': { name: 'concrete deck block (pier block)', plural: 'concrete deck blocks', h: 8, along: 11, across: 11, item: 'deckBlock' },
   CMU: { name: 'concrete masonry unit (CMU), 8 x 8 x 16, cores vertical', plural: '8 x 8 x 16 CMU blocks, cores vertical', h: 8, along: 16, across: 8, item: 'cmuBlock' },
+  // A pier poured in a 12" form tube (11-1/2" inside) from the bottom of its
+  // hole (pierDepth below grade, set it to your frost depth) to 4" above
+  // grade. Drawn and checked as the 10.2" square of the same area, so the
+  // bearing and soil checks use the tube's true round area. It needs no
+  // gravel: the hole goes down to firm soil.
+  piers: { name: 'concrete pier in a 12" form tube', plural: 'concrete piers in 12" form tubes', h: 4, along: 10.2, across: 10.2, item: 'concreteBag', pier: true, tubeIn: 11.5 },
 };
 
 const classic = () => ({ ...defaultDesign(), foundation: 'gravel', pad: 'full', wallHeight: 96, pitch: 6, skidSize: '4x6', roofType: 'ridgeBoard', sidingColor: 'natural', polkaDots: false, maxPeak: 0, ventHeight: 12, autoWall: false, autoPitch: false, autoOverhang: false, rafterSeat: 'birdsmouth', maxFootprint: 0, roofColor: 'charcoal', trimColor: 'white', glitter: false, interior: 'none' });
@@ -211,6 +219,7 @@ export function normalize(input) {
     floorPanel: pick(o.floorPanel, ['plywood', 'OSB'], d.floorPanel),
     compaction: pick(o.compaction, ['hand tamper', 'plate compactor'], d.compaction),
     foundation: pick(o.foundation, ['gravel', ...Object.keys(BLOCKS)], d.foundation),
+    pierDepth: Math.min(72, Math.max(12, num(o.pierDepth, d.pierDepth))),
     floorTreated: o.floorTreated !== false,
     siding: o.siding !== false,
     roofing: o.roofing !== false,
@@ -582,9 +591,9 @@ function buildFramed(d) {
   const pad = 12;
   // With blocks, the gravel can go under each block alone (a 4"-deep bed 2" wider
   // than the block all round, from bags) instead of under the whole shed.
-  const underBlocks = Boolean(block) && d.pad === 'under blocks';
-  // Or no gravel at all: the blocks sit on stripped, tamped firm soil.
-  const noPad = Boolean(block) && d.pad === 'none';
+  const underBlocks = Boolean(block) && !block.pier && d.pad === 'under blocks';
+  // Or no gravel at all: the blocks sit on stripped, tamped firm soil. A pier goes down to firm soil and needs none.
+  const noPad = Boolean(block) && (d.pad === 'none' || Boolean(block.pier));
   let baseCuFt = 0;
   if (noPad) {
     // nothing under the blocks but the ground
@@ -598,6 +607,14 @@ function buildFramed(d) {
     fixtures.push({ kind: 'gravel', group: 'foundation', geom: rectGeom([-pad, -pad, -4], X, Z, Y, L + 2 * pad, 4, W + 2 * pad) });
   }
   const gravelCuYd = underBlocks || noPad ? 0 : ((L + 2 * pad) * (W + 2 * pad) * 4) / 46656;
+  // Piers: concrete from the bottom of the hole to the top of the tube, in
+  // Quikrete 80 lb bags (0.6 cu ft each, the bag's stated yield); each 4 ft
+  // tube is cut into as many piers as it holds.
+  const pierLen = block?.pier ? d.pierDepth + block.h : 0;
+  const pierCuFt = block?.pier ? (Math.PI * (block.tubeIn / 2) ** 2 * pierLen) / 1728 : 0;
+  const pierCount = block?.pier ? skidCount * blockXs.length : 0;
+  const pierTubes = pierCount ? Math.ceil(pierCount / Math.max(1, Math.floor(48 / pierLen))) : 0;
+  const pierBags = pierCount ? Math.ceil((pierCount * pierCuFt) / 0.6 - 1e-9) : 0;
 
   // ---------------- Floor ----------------
   const joist = actual(d.joistSize);
@@ -1291,7 +1308,9 @@ function buildFramed(d) {
   // Lap siding goes over 7/16" OSB sheathing (laid out like panel siding, so
   // its joints fall on the studs and nailers) and its courses stand out by up
   // to two plank thicknesses at each butt edge.
-  const lapSpec = d.siding ? LAP_PRODUCTS[d.sidingType] : undefined;
+  const lapBase = d.siding ? LAP_PRODUCTS[d.sidingType] : undefined;
+  const lapExposure = lapBase ? evenExposure(lapBase, plateTop - skidTop) : undefined;
+  const lapSpec = lapBase && { ...lapBase, exposure: /** @type {number} */ (lapExposure) };
   const sheathT = 7 / 16;
   const sidingT = lapSpec ? sheathT + 2 * lapSpec.thickness : d.sidingType === 'LP SmartSide' ? 3 / 8 : d.sidingType === 'LP SmartSide 7/16' ? 7 / 16 : 19 / 32;
   /** @type {{ wall: string, length: number }[]} */
@@ -1475,7 +1494,7 @@ function buildFramed(d) {
     length: L, width: W, wallHeight: H, pitch: d.pitch, overhang: o,
     skidTop, floorTop, plateTop, ridgeTop, peak: ridgeTop + (d.roofing ? 7 / 16 / cos + 0.35 / cos : 7 / 16 / cos),
     studLen, rafterCut, slopeLen, plumbH, ridgeSize, ridgeD, stud: D, joistDepth: joist.depth, rafterDepth: rd,
-    skidCount, skidYs, joistCenters, rafterCenters, gravelCuYd, padSqFt: underBlocks || noPad ? 0 : ((L + 2 * pad) * (W + 2 * pad)) / 144, baseBags: Math.ceil(baseCuFt / 0.5), underBlocks, noPad, blockCount, block, roofAreaSqFt, floorRows, roofRows,
+    skidCount, skidYs, joistCenters, rafterCenters, gravelCuYd, padSqFt: underBlocks || noPad ? 0 : ((L + 2 * pad) * (W + 2 * pad)) / 144, baseBags: Math.ceil(baseCuFt / 0.5), underBlocks, noPad, blockCount, block, pierLen, pierCuFt, pierTubes, pierBags, roofAreaSqFt, floorRows, roofRows,
     heel: connector ? 0 : D * t, maxStock, connector,
   };
 
@@ -1503,7 +1522,7 @@ function buildFramed(d) {
     warnings.push(`The peak is ${fmtFt(dims.peak)} above the gravel, ${fmtFt(dims.peak - d.maxPeak)} over your ${fmtFt(d.maxPeak)} limit. Your tallest opening needs walls of at least ${fmtFt(minWall)}; with those walls and a 3/12 roof (about the least that sheds water under shingles) the peak would still be ${fmtFt(low)}. To get lower: a shorter door, a door in the gable end, a lower floor or a narrower shed${d.gableVents ? ', or smaller or no gable vents (they need a steeper roof to fit)' : ''}.`);
   }
 
-  return { design: d, members, panels, fixtures, walls, framedOpenings, warnings, notes, dims, vents: ventInfo, trim, wallTrim, doorParts, doors, interior, sidingArea, floorPieces, roofPieces, sidingFull, sidingUpper, sidingUpperShapes, lap };
+  return { design: d, members, panels, fixtures, walls, framedOpenings, warnings, notes, dims, vents: ventInfo, trim, wallTrim, doorParts, doors, interior, sidingArea, floorPieces, roofPieces, sidingFull, sidingUpper, sidingUpperShapes, lap, lapExposure };
 }
 
 /** @typedef {ReturnType<typeof buildFramed>} Shed */
