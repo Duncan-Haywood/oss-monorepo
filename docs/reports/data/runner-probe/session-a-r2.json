@@ -65,5 +65,13 @@
     "npm_registry_fetch_s_median": 0.125,
     "npm_registry_body_kb": 6936,
     "npm_registry_mb_s": 71.4
+  },
+  "shed_designer_node_suite": {
+    "tests": 409,
+    "concurrency_1_wall_s": 514.1,
+    "concurrency_2_wall_s": 270.2,
+    "concurrency_4_wall_s": 217.0,
+    "concurrency_8_wall_s": 186.4,
+    "note": "run before this probe, same VM"
   }
 }

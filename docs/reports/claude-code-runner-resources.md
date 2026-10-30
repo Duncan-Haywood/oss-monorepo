@@ -43,10 +43,14 @@ The difference is large:
 | sha256, 1 core | 268 to 320 MB/s | 1396 to 1459 MB/s | ~5x (SHA-NI; not a general speed figure) |
 | CPU scaling at 4 processes | 3.4 to 3.9x | 3.8 to 4.1x | both get 4 real cores |
 | 8 processes on 4 cores | 3.8x | 3.9 to 4.0x | no hidden extra cores |
-| shed-designer node suite (409 tests), serial | 514 s | see table below | |
-| same, `--test-concurrency=4` | 217 s | see table below | |
+| shed-designer node suite (409 tests), serial | 514 s | 368 s (C) | **1.4x** |
+| same, `--test-concurrency=4` | 217 s | 142 s (C) | **1.5x** |
 
-<!-- B/C suite timings are filled in below when the child sessions report. -->
+The real-workload gap (1.4 to 1.5x) is smaller than the Python-loop gap
+(2.1x): the suite also spends time in process start-up, the file system and
+first-touch page faults, which differ less between hosts. Session C's
+container restarted between its two rounds (uptime 38 s at round 2) and the
+new VM was again Emerald Rapids.
 
 **Consequence for research integrity:** a timing measured in one session is
 not comparable with one from another session unless both record the CPU.
@@ -59,7 +63,7 @@ not comparable with one from another session unless both record the CPU.
 |---|---|
 | warm copy, pages already resident | 9.1 GiB/s |
 | re-touching pages the guest freed earlier | 1.2 to 2.0 GiB/s |
-| touching **never-used** guest pages (first growth of a big process) | 0.14 to 0.22 GiB/s, all six sessions |
+| touching **never-used** guest pages (first growth of a big process) | 0.14 to 0.22 GiB/s in every session; C r2: 0.19 first touch, 8.7 warm |
 
 The last row is the host backing the VM's memory lazily: the first write to
 each page faults on the host. Growing a process to 10 GiB in a fresh session
