@@ -6,6 +6,8 @@
 // Also the "match a house" switch that limits it to lap siding and shingles.
 
 import { GALLERY_DESIGNS } from './gallery-data.mjs';
+import { buildShed, normalize, defaultDesign } from './model.mjs';
+import { estimate } from './estimate.mjs';
 
 /** Lap siding that is painted, as on a HardieBoard house. */
 export const HOUSE_LAP = ['fiber cement', 'LP SmartSide lap'];
@@ -25,14 +27,21 @@ export function galleryEntries(opts = {}) {
 
 /**
  * The design a first-time visitor opens on: the gallery's balanced card (the
- * design nearest to being cheapest, roomiest and best looking at once). Every
+ * design nearest to being cheapest, roomiest and best looking at once), as
+ * long as it costs no more than the 8x12 default. Every
  * gallery design passes every check at 90% of capacity and draws with no
  * warning, so the first view has no "Check these" list. The 8x12 the tool
  * opened on before (an 8 ft height limit it cannot meet: its peak is 10 ft)
  * is still in the "New design" menu.
  */
 export function firstDesign() {
-  const g = GALLERY_DESIGNS.find((x) => x.id === 'balanced') || GALLERY_DESIGNS[0];
+  // Never dearer than the 8x12 a visitor used to open on: when the balanced
+  // card costs more (prices move, and the gallery is searched each deploy),
+  // the most room per dollar, then the cheapest card, is the first view.
+  const cost = (/** @type {any} */ d) => estimate(buildShed(normalize(d))).total;
+  const cap = cost(defaultDesign());
+  const g = ['balanced', 'value', 'cheapest'].map((id) => GALLERY_DESIGNS.find((x) => x.id === id)).find((x) => x && cost(x.design) <= cap + 0.005)
+    || GALLERY_DESIGNS[0];
   return /** @type {any} */ (structuredClone(g.design));
 }
 

@@ -94,7 +94,13 @@ test('a first-time visitor opens on the balanced gallery design, which passes cl
   const { structuralChecks } = await import('./checks.mjs');
   const { connectionChecks } = await import('./connections.mjs');
   const d = firstDesign();
-  assert.equal(d.name, GALLERY_DESIGNS.find((g) => g.id === 'balanced')?.title);
+  const { estimate } = await import('./estimate.mjs');
+  const { defaultDesign } = await import('./model.mjs');
+  const cost = (x) => estimate(buildShed(normalize(x))).total;
+  const balanced = GALLERY_DESIGNS.find((g) => g.id === 'balanced');
+  // The balanced card when it is no dearer than the old 8x12 default; never dearer in any case.
+  if (cost(balanced.design) <= cost(defaultDesign()) + 0.005) assert.equal(d.name, balanced.title);
+  assert.ok(cost(d) <= cost(defaultDesign()) + 0.005);
   const shed = buildShed(normalize(d));
   assert.deepEqual(shed.warnings, [], 'no "Check these" list on the first view');
   assert.ok(structuralChecks(shed).ok && connectionChecks(shed).ok);

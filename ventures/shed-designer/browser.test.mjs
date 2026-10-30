@@ -778,7 +778,7 @@ test('Save picture downloads the 3D view as a PNG', { skip }, async (t) => {
   assert.deepEqual([...head], [137, 80, 78, 71, 13, 10, 26, 10], 'a PNG file');
 });
 
-test('a first-time visitor opens on the balanced gallery design with nothing to check', { skip }, async (t) => {
+test('a first-time visitor opens on a gallery design (the balanced one, unless it costs more than the 8x12) with nothing to check', { skip }, async (t) => {
   const ctx = await browser.newContext({ viewport: { width: 1366, height: 900 } });
   t.after(() => ctx.close());
   const page = await ctx.newPage();
@@ -786,10 +786,9 @@ test('a first-time visitor opens on the balanced gallery design with nothing to 
   page.on('pageerror', (e) => errors.push(e.message));
   await page.goto(base);
   await page.waitForFunction(() => document.querySelector('#total')?.textContent?.startsWith('$'));
-  const { GALLERY_DESIGNS } = await import('./gallery-data.mjs');
-  const balanced = GALLERY_DESIGNS.find((g) => g.id === 'balanced');
-  assert.equal(await page.$eval('#name', (e) => e.value), balanced.title);
-  assert.equal(await page.$eval('#lengthFt', (e) => Number(e.value)), balanced.design.length / 12);
+  const first = (await import('./gallery-ui.mjs')).firstDesign();
+  assert.equal(await page.$eval('#name', (e) => e.value), first.name);
+  assert.equal(await page.$eval('#lengthFt', (e) => Number(e.value)), first.length / 12);
   assert.equal((await page.locator('#warnings').innerText()).trim(), '', 'no "Check these" list');
   assert.deepEqual(errors, []);
 });
