@@ -1,5 +1,12 @@
 # civ-levers research log
 
+## 2026-10-30 · Public goods with peer punishment (milestone 5, first run)
+
+- Plan (written before the run): groups of n with return 1.6/n per token (0.4 at n = 4, endowment 20, punishment cost 1 for 3 removed, as in Fehr and Gächter 2000); 30% free riders, the rest conditional cooperators giving 0.85 of the others' last mean; 240 people, 10 rounds, 30 seeds. H1: without punishment contributions fall below half of round 1. H2: peer punishment with a behavioural response sustains or raises them. H3: in large mobile groups punishment keeps contributions up but net payoff falls, because enforcement cost grows with group size. Refuted if payoff at n = 40 stays within 10% of the no-punishment payoff.
+- Outcome (`experiments/commons/results.txt`): **H1 held** (7.5 falls to 1.9 by round 10). **First finding was a null**: with no behavioural response (react 0) punishment changes no contribution and only lowers payoff (21.1 to 19.8). Contributions are driven entirely by the assumed response rule, so `react` is the unmeasured parameter and is swept: round-10 contribution 5.4, 10.2, 12.2 at react 0.5, 1, 2 (4-person partner groups). **H2 held** under that assumption. **H3 held**: at react 1, stranger groups of 8, 16, 40 reach 14.4, 15.3, 16.1 but payoff falls to 18.1, 11.4, 2.9 against 21.0 without punishment, because every punisher fines every lower contributor, so total cost scales with group size.
+- Caveats: the response rule, type shares and punisher share are assumed, not fitted; the published rounds were not compared numerically (the paper's figures were not fetched in this run), only the qualitative decay and punishment-sustains shape. The all-to-all punishment rule inflates the large-group cost; a rule where one punisher fines at most one target, or a pooled institution, is the next test.
+- Next: fit react and lam to Fehr and Gächter's published round means (get the table from the paper), then compare a pooled sanctioning institution (Sigmund et al. 2010 style) with peer punishment at n = 40.
+
 ## 2026-10-28 · Plan: Axelrod's culture model with a broadcast (milestone 4, written before the run)
 
 - Model: `src/civ_levers/culture.py`. Axelrod (1997) on an L x L lattice (von Neumann, no wrap), F features, q traits; broadcast = with probability B per step a site meets a fixed media culture by the same rule (global field, Shibanai, Yasuno and Ishiguro 2001). Not measured: F, q, B, all swept.
