@@ -72,3 +72,25 @@ test('live: creates the release once, skips an existing tag', async () => {
   assert.deepEqual({ posted: seen.posted, planned: seen.planned }, { posted: 0, planned: 1 });
   assert.deepEqual(calls.map((c) => c.split(' ')[0]), ['GET']);
 });
+
+test('the release lists at most 25 tools', () => {
+  assert.equal(MAX_TOOLS, 25);
+});
+
+test('live: the release is pinned to GITHUB_SHA when set and unpinned otherwise', async () => {
+  const { launched } = JSON.parse(await fs.readFile(new URL('../pages/launched.json', import.meta.url)));
+  const now = new Date(Object.values(launched).sort().pop());
+  const base = { DISTRIBUTE_RELEASES: 'true', GITHUB_TOKEN: 't', GITHUB_REPOSITORY: 'o/r' };
+  const bodyFor = async (env) => {
+    let body;
+    const fetchImpl = async (url, init) => {
+      if (init.method === 'GET') return { ok: false, status: 404 };
+      body = JSON.parse(init.body);
+      return { ok: true, status: 201 };
+    };
+    await run({ env, fetchImpl, log() {}, now });
+    return body;
+  };
+  assert.equal((await bodyFor({ ...base, GITHUB_SHA: 'abc123' })).target_commitish, 'abc123');
+  assert.equal('target_commitish' in (await bodyFor(base)), false);
+});
