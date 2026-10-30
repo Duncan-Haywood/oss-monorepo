@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { buildShed, defaultDesign, PRESETS } from './model.mjs';
 import { integrity, bbox } from './integrity.mjs';
 
-const variants = [{}, { foundation: 'blocks' }, { roofType: 'ridgeBeam' }, { roofType: 'ridgeBoard' }, { interior: 'teen bedroom' }, { overhang: 0 }, { length: 240 }, { studSize: '2x6' }];
+const variants = [{}, { foundation: 'blocks' }, { roofType: 'ridgeBeam' }, { roofType: 'ridgeBoard' }, { roofType: 'truss' }, { roofType: 'truss', overhang: 0 }, { roofType: 'truss', length: 240 }, { interior: 'teen bedroom' }, { overhang: 0 }, { length: 240 }, { studSize: '2x6' }];
 
 test('nothing floats and no two boards share wood, in every preset and variation', () => {
   for (const [name, make] of Object.entries(PRESETS)) {
