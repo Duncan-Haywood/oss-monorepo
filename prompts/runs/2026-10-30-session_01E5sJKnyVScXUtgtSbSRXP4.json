@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-30",
+  "session": "https://claude.ai/code/session_01E5sJKnyVScXUtgtSbSRXP4",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-30T08:20:53Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "marine-hull"
+  ],
+  "pr": 11722,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Programme marine-hull had every unblocked milestone done (6d landed hours earlier with its post); shipped only a paper-draft sync, no new post.",
+      "did": "doc-only draft update",
+      "result": "small; no new research result"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Doc-only change; homepage build and link check were started but exceeded the 120 s tool timeout, output not read. Next run: pick another programme or source tank data for milestone 3.",
+  "corrections": [],
+  "redteam": null
+}
