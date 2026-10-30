@@ -92,6 +92,8 @@
         <button type="submit">Save lead</button><button type="reset" class="secondary">Clear</button>
       </form>
       <div id="leadsList"></div>
+      <div id="pipelineStats"></div>
+      <p class="note">Before the first sit: <a href="meet-and-greet.html">the meet-and-greet questions and red-flag checklist</a> (printable).</p>
     </section>
 
     <section data-panel="families" class="card" hidden>
@@ -110,6 +112,7 @@
         <button type="submit">Save family</button><button type="reset" class="secondary">Clear</button>
       </form>
       <div id="familiesList"></div>
+      <div id="intakePanel"></div>
     </section>
 
     <section data-panel="schedule" class="card" hidden>
@@ -289,6 +292,7 @@
   <script type="module">
     import * as E from "./engine.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    import * as I from "./intake.mjs";
 
     const STORE = "babysitting-business-kit-desk";
     const SYNC = "babysitting-business-kit-sync";
@@ -425,11 +429,24 @@
         const fam = { id: E.newId("fam"), name: `${l.name.split(" ").slice(-1)[0]} family`, contactName: l.name, contact: l.contact, kids: (l.kids || []).map((a) => ({ name: "", allergies: `age ${a}` })), notes: l.notes };
         desk.families.push(fam);
         l.status = "booked";
+        l.bookedOn = today(); l.familyId = fam.id;
         record("lead_converted");
         save();
         show("schedule");
         $("b_family").value = fam.id;
       }
+    });
+
+    // family info sheets and meet-and-greet kits (intake.mjs)
+    const openPage = (html) => { const u = URL.createObjectURL(new Blob([html], { type: "text/html" })); if (!window.open(u, "_blank")) location.href = u; setTimeout(() => URL.revokeObjectURL(u), 60000); };
+    document.addEventListener("click", (e) => {
+      const t = e.target.closest("button");
+      if (!t) return;
+      const fam = desk.families.find((f) => f.id === (t.dataset.intakeNew || t.dataset.intakePrint || t.dataset.intakeKit));
+      if (!fam) return;
+      if (t.dataset.intakeNew) { fam.intakeToken = I.intakeToken(crypto.getRandomValues(new Uint8Array(16))); fam.intakeIssued = today(); record("intake_link_made"); save(); }
+      if (t.dataset.intakePrint) { openPage(I.intakeFormPage(desk, fam)); record("intake_printed"); }
+      if (t.dataset.intakeKit) { openPage(I.meetAndGreetPage(desk.profile, fam)); record("meet_kit_printed"); }
     });
 
     // ---- renderers
@@ -453,6 +470,10 @@
       // leads
       const scored = desk.leads.map((l) => ({ l, s: E.scoreLead(l, desk.profile) })).sort((a, b) => b.s.score - a.s.score);
       $("leadsList").innerHTML = table(["Lead", "Score", "Why", "Status", ""], scored.map(({ l, s }) => `<tr><td><strong>${esc(l.name)}</strong><br><span class="note">${esc(l.contact)} · ${esc((l.kids || []).join(", "))} · ${esc(l.schedule)}</span></td><td><span class="pill ${s.tier}">${s.tier} ${s.score}</span></td><td class="note">${s.reasons.map(esc).join("<br>")}<details><summary>Reply draft</summary><div class="msg">${esc(E.leadReply(l, desk.profile, s))}</div>${copyBtn(E.leadReply(l, desk.profile, s))}</details></td><td>${esc(l.status)}</td><td>${l.status !== "booked" ? `<button type="button" class="small" data-book="${esc(l.id)}">Make family</button>` : ""}${actions("leads", l.id, "leadForm")}</td></tr>`));
+
+      // pipeline stats and family intake (intake.mjs)
+      $("pipelineStats").innerHTML = I.pipelineHTML(desk);
+      $("intakePanel").innerHTML = I.intakeHTML(desk, today(), $("syncUrl").value.trim().replace(/\/+$/, ""));
 
       // families
       $("familiesList").innerHTML = table(["Family", "Kids", "Contact", ""], desk.families.map((f) => `<tr><td><strong>${esc(f.name)}</strong><br><span class="note">${esc(f.address)}</span></td><td>${(f.kids || []).map((k) => `${esc(k.name)}${k.birth ? ` (${esc(E.fmtAge(Math.floor(E.daysBetween(k.birth, today()) / 30.44)))})` : ""}${k.allergies ? ` <span class="pill bad">${esc(k.allergies)}</span>` : ""}`).join("<br>")}</td><td>${esc(f.contactName)} ${esc(f.contact)}<br><span class="note">${f.emergency ? `Emergency: ${esc(f.emergency)}` : ""}</span></td><td>${actions("families", f.id, "familyForm")}</td></tr>`));

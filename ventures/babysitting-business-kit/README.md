@@ -31,6 +31,7 @@ Not affiliated with any of the products named above; they are named only to say 
 - **References & testimonials:** request drafts, a five-day follow-up, separate yes/no consent for "may new families call you" and "may your words go on my website". Only quotes marked yes reach the website, as first name and last initial.
 - **Website:** a one-file site built from the profile: story, certifications, rates, policies, the optional faith section, consented testimonials, `ChildCare` JSON-LD and an inquiry form (email by default, or the sitter's server). Download it and host it free anywhere.
 - **Content:** twelve weeks of seasonal post ideas rotated across Facebook, Nextdoor, Instagram, a church or school bulletin and the website, plus rebooking, referral and testimonial messages per family. Drafts leave room for a real moment in the sitter's words, never an invented one.
+- **Intake and pipeline** (`intake.mjs`): a printable [meet-and-greet kit](meet-and-greet.html) (questions on routines, discipline, screens, allergies and medications, emergencies, pick-up, pets, house rules, driving and pay) with a red-flag checklist about **safety and payment only**, never beliefs or demographics; flags the records suggest (no emergency contact, money still owed, "pay later" or "no car seat" in the notes); a family info sheet (kids, allergies, meds, bedtimes, emergency contacts, doctor, a medical-consent note marked "a template, not legal advice") on paper or as a one-time link; and pipeline stats in the Leads tab: leads by channel (church, school, Nextdoor, referrals, website, social, marketplaces) and stage, inquiry-to-booked conversion and median days to book.
 - **Backup and sync:** a JSON backup file; or sync with the sitter's own server.
 
 ## The optional server (automated sales)
@@ -47,6 +48,7 @@ ADMIN_KEY=$(openssl rand -hex 16) CAL_TOKEN=$(openssl rand -hex 12) STATE=desk.j
 | `/site` | the sitter's website, with the form posting to `/inquiry` |
 | `POST /inquiry` | form or JSON; honeypot field, 10 per IP per hour, 64 KB cap |
 | `/calendar.ics?t=CAL_TOKEN` | a feed a phone calendar can subscribe to |
+| `/intake/<token>` | a family's one-time info sheet: the app's Families tab makes the 128-bit token, Sync puts it on the server, the family's answers merge into their record once (32 KB cap, escaped output, `no-store`), and the next Sync keeps them |
 | `GET/PUT /api/desk`, `GET /api/today` | `Authorization: Bearer ADMIN_KEY` |
 
 Everything outside the box is **off until you set it, on your own accounts**:
