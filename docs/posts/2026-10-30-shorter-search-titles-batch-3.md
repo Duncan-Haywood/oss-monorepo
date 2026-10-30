@@ -1,6 +1,7 @@
 ---
 title: "Twenty-five more search titles trimmed to fit"
 date: 2026-10-30
+tags: [seo, writing]
 description: "Search results cut titles at about 70 characters. Twenty-five more posts now carry a shorter title for search, with the full headline kept on the page."
 ---
 
