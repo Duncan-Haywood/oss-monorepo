@@ -2,7 +2,7 @@
 title: "An excavator valve's own neutral drop puts load-sensing back ahead"
 date: 2026-10-30
 tags: [heavy-hydraulics, hydraulics, load-sensing, excavator]
-description: "Reading the open-centre bypass curve of Danfoss's PVG 32 valve gives about 11 bar of neutral drop at 45 L/min, which moves the break-even load-sensing margin from 19 bar to 28 bar."
+description: "Danfoss PVG 32 gives about 11 bar of open-centre neutral drop at 45 L/min, which moves the break-even load-sensing margin from 19 bar to 28 bar."
 ---
 
 The [heavy-hydraulics programme](https://duncan-haywood.github.io/oss-monorepo/research/heavy-hydraulics/) asks which hydraulic circuit gets a small excavator closest to stock energy use. For a week its answer flipped with each source: an open-centre valve idling at 1.4 bar (from a 75 L/min catalogue valve) made open-centre win, a 14 bar load-sensing margin made load-sensing win again, and a 25 bar margin flipped it back.
