@@ -87,6 +87,7 @@
     <button type="button" role="tab" data-tab="website">Website</button>
     <button type="button" role="tab" data-tab="content">Content</button>
     <button type="button" role="tab" data-tab="print">Print</button>
+    <button type="button" role="tab" data-tab="activities">Activities</button>
     <button type="button" role="tab" data-tab="blog">Posts &amp; blog</button>
     <button type="button" role="tab" data-tab="settings">Settings</button>
   </nav>
@@ -320,6 +321,11 @@
       <div id="pr_stats"></div>
     </section>
 
+    <section data-panel="activities" class="card" hidden>
+      <h2>Activities: a plan for each sit</h2>
+      <div id="activitiesKit"></div>
+    </section>
+
     <section data-panel="blog" class="card" hidden>
       <h2>Posts &amp; blog</h2>
       <div id="contentKit"></div>
@@ -419,6 +425,7 @@
     import * as P from "./print.mjs";
     import { mountAutomations } from "./automations-ui.mjs";
     import { mountContent } from "./content-ui.mjs";
+    import { mountActivities } from "./activities-ui.mjs";
     import { enhanceTabs } from "./tabs.mjs";
 
     const STORE = "babysitting-business-kit-desk";
@@ -912,6 +919,7 @@
     renderAutomations = mountAutomations({ getDesk: () => desk, save, esc, record });
     $("contentStart").value = today();
     mountContent($("contentKit"), { getDesk: () => desk, save, record, today, buildSite: (d) => E.buildSite(d) });
+    mountActivities($("activitiesKit"), { getDesk: () => desk, save, record, today });
     record("page_loaded");
     render();
     show("today");
