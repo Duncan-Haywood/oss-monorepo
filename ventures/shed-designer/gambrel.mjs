@@ -26,10 +26,12 @@
 // (and, under a loft, tension plus bending), the gusset nails for the knee
 // moment by the elastic method with the NDS yield-limit value of an 8d common
 // through 15/32" plywood, the heel nails for the thrust, and the seat for
-// bearing. Snow on one side only is checked as well as snow on both. This is a
-// screening check like the rest of the tool's, not an engineer's design: the
-// plywood gussets' own strength, wind, uplift and the frame's spread are not
-// checked.
+// bearing. Snow on one side only is checked as well as snow on both. The
+// gusset plywood itself is checked too (gussetPanel): at the knee for the
+// moment, axial force and shear across the mitre, and at the peak for the
+// thrust and shear across the plumb cut, with APA's published capacities for
+// the panel. This is a screening check like the rest of the tool's, not an
+// engineer's design: wind, uplift and the frame's spread are not checked.
 //
 // Coordinates are the model's: y across the width from the front eave wall's
 // outside face, z up from the gravel. The roof is symmetric about y = W/2.
@@ -50,6 +52,49 @@ export const LOFT_DEAD = 10;
 export const GUSSET_T = 15 / 32;
 /** Gusset nails: 8d common, 0.131" x 2-1/2", 3" apart in rows 2" apart, 3/4" from the edges. */
 const NAIL = { D: 0.131, pitch: 3, row: 2, edge: 0.75 };
+
+/**
+ * APA Rated Sheathing 32/16 (the span rating of 15/32" sheathing), dry service,
+ * normal load duration: APA Panel Design Specification, ANSI/APA D510-2020
+ * (Form D510F), Table 9. The 3-ply column, the lowest, because Section 4.8
+ * says to assume the lowest capacity of the constructions available for the
+ * span rating (3-, 4- and 5-ply are, Table 14), and the values across the
+ * strength axis, the weaker, because a gusset is loaded at an angle to it.
+ * FtA and FcA in lb per ft of width; Fvtv (shear through the thickness) in
+ * lb per inch of shear-resisting length. A is 5.625 sq in per ft (Table 13).
+ */
+export const GUSSET_PANEL = { FtA: 1250, FcA: 3100, Fvtv: 62, A: 5.625, source: 'APA Panel Design Specification D510-2020, Table 9 (Rated Sheathing 32/16, 3-ply, across the strength axis)' };
+
+/**
+ * PDS Section 4.5.5: bending and tension capacities of a strip under 24" wide
+ * are reduced, Cs = 0.25 + 0.0313 b for b from 8" to 24", 0.5 under 8".
+ * @param {number} b the strip's width across the stress, inches
+ */
+export const panelSizeFactor = (b) => (b >= 24 ? 1 : b >= 8 ? 0.25 + 0.0313 * b : 0.5);
+
+/**
+ * One gusset's plywood at a section across the joint, depth b inches: the
+ * moment M (lb-in), axial force N (lb, + compression) and shear V (lb) it
+ * carries. PDS gives no edgewise-bending capacity, so the moment is checked
+ * the way a beam's is, as extreme-fibre stress M/S on S = t b^2 / 6, against
+ * the published tension and compression capacities as stresses (capacity / A,
+ * PDS 4.4.2); that use of them is this tool's, not APA's. Tension and bending
+ * take the size factor; shear (Fvtv over the section) and compression do not.
+ * @param {number} M @param {number} N @param {number} V @param {number} b @param {number} CD
+ */
+export function gussetPanel(M, N, V, b, CD) {
+  const p = GUSSET_PANEL;
+  const t = p.A / 12; // in^2 per inch of width
+  const Ft = (p.FtA / p.A) * CD * panelSizeFactor(b);
+  const Fc = (p.FcA / p.A) * CD;
+  const fb = M / ((t * b * b) / 6);
+  const fa = N / (t * b);
+  // The tension edge: bending less any compression; the compression edge: bending plus it.
+  const tension = Math.max(0, fb - fa) / Ft;
+  const compression = Math.max(0, fb + fa) / Fc;
+  const shear = V / (p.Fvtv * CD * b);
+  return { ratio: Math.max(tension, compression, shear), tension, compression, shear, governs: shear >= Math.max(tension, compression) ? 'panel shear' : tension >= compression ? 'panel tension (bending)' : 'panel compression (bending)' };
+}
 
 /** Horizontal run of the lower slope, from the eave wall's outside face to the knee. */
 export function kneeRun(d) {
@@ -104,7 +149,8 @@ const offSquare = (dy, dz, c, s) => {
 /**
  * Profiles (front side, y from the front wall) of the four chords and the gussets.
  * @param {ReturnType<typeof gambrelShape>} g
- * @param {{ knee: number, peak: number }} gusset lengths of the gussets along each chord, from the joint
+ * @param {{ knee: number, peak: number, kneeExt?: number }} gusset lengths of the gussets along each chord, from the joint,
+ *   and how far the knee gusset reaches past the chords' inside edges into the corner (so its plywood is deep enough across the mitre)
  */
 export function gambrelParts(g, gusset) {
   const { plateTop: pt, yk, zk, ykIn, zkIn, W, ridgeTop, ridgeIn, seat, cl, sl, cu, su, rd } = g;
@@ -117,8 +163,12 @@ export function gambrelParts(g, gusset) {
   const Lk = gusset.knee;
   const lo = [yk - Lk * cl, zk - Lk * sl];
   const up = [yk + Lk * cu, zk + Lk * su];
+  // Past the chords' inside edges by e: the inner corner moves out along the mitre in proportion.
+  const e = gusset.kneeExt ?? 0;
+  const k = (rd + e) / rd;
+  const kneeIn = [yk + (ykIn - yk) * k, zk + (zkIn - zk) * k];
   /** @type {[number, number][]} */
-  const knee = [[lo[0], lo[1]], [yk, zk], [up[0], up[1]], [up[0] + rd * nu[0], up[1] + rd * nu[1]], [ykIn, zkIn], [lo[0] + rd * nl[0], lo[1] + rd * nl[1]]];
+  const knee = [[lo[0], lo[1]], [yk, zk], [up[0], up[1]], [up[0] + (rd + e) * nu[0], up[1] + (rd + e) * nu[1]], [kneeIn[0], kneeIn[1]], [lo[0] + (rd + e) * nl[0], lo[1] + (rd + e) * nl[1]]];
   const Lp = gusset.peak;
   const pl = [W / 2 - Lp * cu, ridgeTop - Lp * su];
   /** @type {[number, number][]} */
@@ -291,6 +341,17 @@ export function gambrelAnalysis(d) {
   let peak = 8;
   while (peak < 18 && peakRatio(peak).ratio > 1) peak += 2;
   const peakR = peakRatio(peak);
+  // The gusset plywood: across the knee's mitre (outer to inner corner) and the peak's plumb cut, half to each face.
+  const kneeDepth = Math.hypot(g.yk - g.ykIn, g.zk - g.zkIn);
+  const peakDepth = g.rd / g.cu;
+  // A gusset no deeper than the chords is a strip a chord deep across the mitre carrying the whole knee
+  // moment; it reaches into the inside corner until its section passes, up to the 24" PDS 4.4.5 allows.
+  const kneePanelAt = (b) => worstOf((c) => c.f.knee.map((k) => gussetPanel(k.M / 2, k.N / 2, k.V / 2, b, c.CD)).reduce((best, r) => (r.ratio > best.ratio ? r : best)));
+  let kneeSection = kneeDepth;
+  while (kneeSection < 24 && kneePanelAt(kneeSection).ratio > 1) kneeSection = Math.min(24, Math.ceil((kneeSection + 0.5) * 2) / 2);
+  const kneePanel = kneePanelAt(kneeSection);
+  const kneeExt = Math.max(0, Math.ceil((g.rd * (kneeSection / kneeDepth - 1)) * 4 - 1e-9) / 4);
+  const peakPanel = worstOf((c) => gussetPanel(0, c.f.peak.H / 2, c.f.peak.V / 2, peakDepth, c.CD));
   const heelNails = Math.max(3, Math.ceil(H / (Z16 * 1.15) - 1e-9));
   const seatR = worstOf((c) => ({ ratio: Math.max(c.f.VA, c.f.VB) / (T * Math.min(g.seat, actual(d.studSize).depth)) / SPF2.Fc_perp }));
 
@@ -321,8 +382,10 @@ export function gambrelAnalysis(d) {
     { member: 'Upper chords', size: `${d.rafterSize} at ${s}"`, detail: `${d.pitch}/12, ${fmtIn(g.upperLen)} along the slope; worst case ${upperR.case}`, ratio: upperR.ratio, governs: 'combined bending and compression' },
     { member: loft ? 'Loft joists (also the truss ties)' : 'Truss ties', size: `${tieSize} at ${s}"`, detail: `${Math.round(H)} lb of thrust${loft ? `, plus ${LOFT_LIVE} psf storage and ${LOFT_DEAD} dead over ${fmtIn(span)}` : ''}; worst case ${tieR.case}`, ratio: tieR.ratio, governs: loft ? 'tension with bending (NDS 3.9.1)' : 'tension' },
     ...(loft ? [{ member: 'Loft joist deflection', size: tieSize, detail: `${LOFT_LIVE} psf storage, limit span/240`, ratio: loftDefl, governs: 'deflection' }] : []),
-    { member: 'Knee gussets (nails)', size: `15/32" plywood both faces, ${knee}" along each chord`, detail: `8d commons ${NAIL.pitch}" apart in rows ${NAIL.row}" apart, ${Math.round(Z8)} lb a nail (NDS yield limit); worst case ${kneeR.case}. The plywood's own strength is not checked`, ratio: kneeR.ratio, governs: 'nail shear' },
+    { member: 'Knee gussets (nails)', size: `15/32" plywood both faces, ${knee}" along each chord`, detail: `8d commons ${NAIL.pitch}" apart in rows ${NAIL.row}" apart, ${Math.round(Z8)} lb a nail (NDS yield limit); worst case ${kneeR.case}`, ratio: kneeR.ratio, governs: 'nail shear' },
+    { member: 'Knee gussets (plywood)', size: `15/32" rated sheathing 32/16, both faces`, detail: `each face takes half the knee's moment, thrust and shear across a ${fmtIn(kneeSection)} section at the mitre${kneeExt > 0 ? ` (the gusset reaches ${fmtIn(kneeExt)} past the chords' inside edges to get it)` : ''}; APA PDS capacities (3-ply, across the strength axis, size factor ${panelSizeFactor(kneeDepth).toFixed(2)}), the moment as edge stress (the tool's method; PDS has no edgewise bending value); worst case ${kneePanel.case}`, ratio: kneePanel.ratio, governs: /** @type {any} */ (kneePanel).governs },
     { member: 'Peak gussets (nails)', size: `15/32" plywood both faces, ${peak}" along each chord`, detail: `the thrust and the unbalanced shear; worst case ${peakR.case}`, ratio: peakR.ratio, governs: 'nail shear' },
+    { member: 'Peak gussets (plywood)', size: `15/32" rated sheathing 32/16, both faces`, detail: `half the thrust and the unbalanced shear each, across the ${fmtIn(peakDepth)} plumb cut; APA PDS capacities; worst case ${peakPanel.case}`, ratio: peakPanel.ratio, governs: /** @type {any} */ (peakPanel).governs },
     { member: 'Heel (tie to lower chord)', size: `${heelNails} 16d commons`, detail: `${Math.round(H)} lb thrust; ${Math.round(Z16 * 1.15)} lb a nail (NDS yield limit, SPF)`, ratio: H / (heelNails * Z16 * 1.15), governs: 'nail shear' },
     { member: 'Chord seat on the plate', size: `${fmtIn(Math.min(g.seat, actual(d.studSize).depth))} of bearing`, detail: `${Math.round(Math.max(...solved.map((c) => Math.max(c.f.VA, c.f.VB))))} lb a truss`, ratio: seatR.ratio, governs: 'bearing' },
   ];
@@ -333,7 +396,7 @@ export function gambrelAnalysis(d) {
     snow: (solved[0].f.VA - solved[2].f.VA) * perFt,
     loft: loft ? (LOFT_LIVE * d.width) / 2 / 12 : 0,
   };
-  return { rows, gusset: { knee, peak }, heelNails, thrust: H, tieSize, tieDepth: td, wall, nailZ: Z8, nailsPerKnee: 4 * nailGroup(g.rd, knee).n, nailsPerPeak: 4 * nailGroup(g.rd, peak).n };
+  return { rows, gusset: { knee, peak, kneeExt }, heelNails, thrust: H, tieSize, tieDepth: td, wall, nailZ: Z8, nailsPerKnee: 4 * nailGroup(g.rd, knee).n, nailsPerPeak: 4 * nailGroup(g.rd, peak).n };
 }
 
 /** The outer roof line across the width: eave, knee, peak, knee, eave. @param {ReturnType<typeof gambrelShape>} g */
