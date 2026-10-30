@@ -3,7 +3,7 @@ title: "Yesterday's sea state with three states: what a sensor-only solar boat r
 seo_title: "Persistence forecast for a solar boat's speed with three sea states"
 date: 2026-10-30
 tags: [marine-hull, solar-boat, forecasting, simulation]
-description: "A boat that assumes today's sea matches yesterday's recovers a tenth of a perfect forecast's range gain on an iid sea and about 90% when its calls are right 90% of the time."
+description: "A boat that assumes today's sea equals yesterday's recovers a tenth of a perfect forecast's gain on an iid sea, and about 90% at a 90% hit rate."
 ---
 
 A 5 m, 200 kg deck-solar boat can slow down on rough days and speed up on calm ones. With perfect foresight of each day's sea state that beats the best constant speed by 3 to 6% in km/day in the [marine-hull programme](https://github.com/duncan-haywood/oss-monorepo/tree/main/research/marine-hull). A boat with only its own wave sensor can use yesterday's state as the call. Milestone 6g checks that with three states (calm, moderate, rough) instead of two, over 10 years of daily sunshine at five sites and two pack sizes.
