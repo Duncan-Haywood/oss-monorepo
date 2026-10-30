@@ -2,6 +2,13 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-30 · Milestone 6h (H6 scale-up): does the 6f rule keep its form at a wider model, with its constants refitted? (planned before running)
+
+- Why: 6g's "Next" and Milestone 6. Every H6 result so far is one 413k-parameter GPT; the rule's form was designed on it.
+- Setup (`experiments/gpt_scale/scale.py`): same corpus, 3,840-step budget, M = 4, inner lr 2e-3, plain outer step; only width changes (dim 128 -> 192, 6 heads, 2 layers; parameter count printed by the run). Seven cells, rand-k keep p in {1, 1/16} x H in {4, 16, 64} plus p = 1/4 at H = 16, seeds 0 and 1 (14 runs, no tuning for the new size).
+- **H6h-i:** refitting the three constants on the size-2 cells, leave-one-cell-out MAPE is under 1% (as at size 1, 0.91% in 6f). **H6h-ii:** the fitted H exponent b at size 2 is within 0.5 of size 1's. **H6h-iii:** the size-2 compression excess is a single scalar multiple of size 1's (through-origin fit) with every residual under 0.02 nats; borrowing size 1's excess unchanged is worse. Priors: i 60%, ii 50%, iii 55%.
+- Limits to state: two seeds, seven cells, one extra size (not the four of Milestone 6), same corpus, no inner-lr retuning at the new width.
+
 ## 2026-10-30 · Milestone 6g (H6): does the 6f rule, fitted on rand-k only, predict plain top-k cells it never saw? (analysis of existing cells; script written after the top-k cells of 6e were already known, so the predictions below are not blind)
 
 - Why: 6f's "Next". Top-k is biased, so omega = 1/p - 1 has no theory behind it for it; the test is whether the nominal-keep omega still works with no new constant.
