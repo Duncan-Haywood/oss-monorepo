@@ -285,7 +285,7 @@
   "size-10x14": {
    "key": "10x14 size page",
    "name": "10x14 gable shed",
-   "hash": "ba308a93d75b9cfb",
+   "hash": "6c822ed079685d77",
    "files": {
     "hero": {
      "file": "size-10x14-hero.webp",
@@ -299,13 +299,13 @@
   "size-10x16": {
    "key": "10x16 size page",
    "name": "10x16 gable shed",
-   "hash": "9cec5350954cee8a",
+   "hash": "0a351fa3015b0213",
    "files": {
     "hero": {
      "file": "size-10x16-hero.webp",
      "w": 960,
      "h": 640,
-     "bytes": 25218,
+     "bytes": 25262,
      "alt": "3D render of the 10x16 gable shed, 10 by 16 ft, seen from the front corner: stained T1-11 panel siding, charcoal shingles, 6/12 roof, 11' 10-5/8\" to the peak, showing a 52\" door on the front (eave side) and a 32\" window on the right (gable end)."
     }
    }
@@ -313,13 +313,13 @@
   "size-10x20": {
    "key": "10x20 size page",
    "name": "10x20 gable shed",
-   "hash": "20c6237bd0119069",
+   "hash": "1d7af13d5d0ec885",
    "files": {
     "hero": {
      "file": "size-10x20-hero.webp",
      "w": 960,
      "h": 640,
-     "bytes": 24926,
+     "bytes": 24950,
      "alt": "3D render of the 10x20 gable shed, 10 by 20 ft, seen from the front corner: stained T1-11 panel siding, charcoal shingles, 6/12 roof, 11' 10-5/8\" to the peak, showing a 52\" door on the front (eave side) and a 32\" window on the right (gable end)."
     }
    }
@@ -341,13 +341,13 @@
   "size-12x14": {
    "key": "12x14 size page",
    "name": "12x14 gable shed",
-   "hash": "4707e86b51b3dfa8",
+   "hash": "c3ac3d98f6b4e337",
    "files": {
     "hero": {
      "file": "size-12x14-hero.webp",
      "w": 960,
      "h": 640,
-     "bytes": 25222,
+     "bytes": 25202,
      "alt": "3D render of the 12x14 gable shed, 12 by 14 ft, seen from the front corner: stained T1-11 panel siding, charcoal shingles, 5/12 roof, 11' 10-13/16\" to the peak, showing a 36\" window on the front (eave side) and a 36\" window on the front (eave side)."
     }
    }
@@ -355,13 +355,13 @@
   "size-12x16": {
    "key": "12x16 size page",
    "name": "12x16 gable shed",
-   "hash": "d729b663dced56dc",
+   "hash": "0b784faa3a8e612b",
    "files": {
     "hero": {
      "file": "size-12x16-hero.webp",
      "w": 960,
      "h": 640,
-     "bytes": 25350,
+     "bytes": 25390,
      "alt": "3D render of the 12x16 gable shed, 12 by 16 ft, seen from the front corner: stained T1-11 panel siding, charcoal shingles, 5/12 roof, 11' 10-13/16\" to the peak, showing a 36\" window on the front (eave side) and a 36\" window on the front (eave side)."
     }
    }
@@ -369,13 +369,13 @@
   "size-12x20": {
    "key": "12x20 size page",
    "name": "12x20 gable shed",
-   "hash": "9a8a94052c71d300",
+   "hash": "a14a567a449e6fd9",
    "files": {
     "hero": {
      "file": "size-12x20-hero.webp",
      "w": 960,
      "h": 640,
-     "bytes": 25328,
+     "bytes": 25324,
      "alt": "3D render of the 12x20 gable shed, 12 by 20 ft, seen from the front corner: stained T1-11 panel siding, charcoal shingles, 5/12 roof, 11' 10-13/16\" to the peak, showing a 36\" window on the front (eave side) and a 36\" window on the front (eave side)."
     }
    }
@@ -383,13 +383,13 @@
   "size-12x24": {
    "key": "12x24 size page",
    "name": "12x24 gable shed",
-   "hash": "7b928e879bdcf990",
+   "hash": "014016ec78eb6c43",
    "files": {
     "hero": {
      "file": "size-12x24-hero.webp",
      "w": 960,
      "h": 640,
-     "bytes": 24754,
+     "bytes": 24718,
      "alt": "3D render of the 12x24 gable shed, 12 by 24 ft, seen from the front corner: stained T1-11 panel siding, charcoal shingles, 5/12 roof, 11' 10-13/16\" to the peak, showing a 36\" window on the front (eave side) and a 36\" window on the front (eave side)."
     }
    }
@@ -397,13 +397,13 @@
   "size-12x32": {
    "key": "12x32 size page",
    "name": "12x32 gable shed",
-   "hash": "bcb35d1777c6ee57",
+   "hash": "56d633d797f104e2",
    "files": {
     "hero": {
      "file": "size-12x32-hero.webp",
      "w": 960,
      "h": 640,
-     "bytes": 23246,
+     "bytes": 23248,
      "alt": "3D render of the 12x32 gable shed, 12 by 32 ft, seen from the front corner: stained T1-11 panel siding, charcoal shingles, 5/12 roof, 11' 10-13/16\" to the peak, showing a 36\" window on the front (eave side) and a 36\" window on the front (eave side)."
     }
    }
@@ -411,13 +411,13 @@
   "size-14x14": {
    "key": "14x14 size page",
    "name": "14x14 gable shed",
-   "hash": "bd76dfc26f042575",
+   "hash": "56c68a2421ceebdb",
    "files": {
     "hero": {
      "file": "size-14x14-hero.webp",
      "w": 960,
      "h": 640,
-     "bytes": 25440,
+     "bytes": 25390,
      "alt": "3D render of the 14x14 gable shed, 14 by 14 ft, seen from the front corner: stained T1-11 panel siding, charcoal shingles, 5/12 roof, 12' 3-13/16\" to the peak, showing a 36\" window on the front (eave side) and a 36\" window on the front (eave side)."
     }
    }
@@ -425,13 +425,13 @@
   "size-14x20": {
    "key": "14x20 size page",
    "name": "14x20 gable shed",
-   "hash": "e3d485c6183279b0",
+   "hash": "795347f1f5607033",
    "files": {
     "hero": {
      "file": "size-14x20-hero.webp",
      "w": 960,
      "h": 640,
-     "bytes": 25444,
+     "bytes": 25428,
      "alt": "3D render of the 14x20 gable shed, 14 by 20 ft, seen from the front corner: stained T1-11 panel siding, charcoal shingles, 5/12 roof, 12' 3-13/16\" to the peak, showing a 36\" window on the front (eave side) and a 36\" window on the front (eave side)."
     }
    }
@@ -439,13 +439,13 @@
   "size-16x20": {
    "key": "16x20 size page",
    "name": "16x20 gable shed",
-   "hash": "4802d7d7703f371e",
+   "hash": "747f38767b7f4d8f",
    "files": {
     "hero": {
      "file": "size-16x20-hero.webp",
      "w": 960,
      "h": 640,
-     "bytes": 25698,
+     "bytes": 25722,
      "alt": "3D render of the 16x20 gable shed, 16 by 20 ft, seen from the front corner: stained T1-11 panel siding, charcoal shingles, 5/12 roof, 12' 8-13/16\" to the peak, showing a 36\" window on the front (eave side) and a 36\" window on the front (eave side)."
     }
    }
@@ -453,13 +453,13 @@
   "size-16x24": {
    "key": "16x24 size page",
    "name": "16x24 gable shed",
-   "hash": "b02adc2e7c8d4f6e",
+   "hash": "4d0f8caeca1a6c95",
    "files": {
     "hero": {
      "file": "size-16x24-hero.webp",
      "w": 960,
      "h": 640,
-     "bytes": 25530,
+     "bytes": 25572,
      "alt": "3D render of the 16x24 gable shed, 16 by 24 ft, seen from the front corner: stained T1-11 panel siding, charcoal shingles, 5/12 roof, 12' 8-13/16\" to the peak, showing a 36\" window on the front (eave side) and a 36\" window on the front (eave side)."
     }
    }
@@ -481,13 +481,13 @@
   "size-8x16": {
    "key": "8x16 size page",
    "name": "8x16 gable shed",
-   "hash": "1c86f540bc9710ad",
+   "hash": "e23b0f543fe698e0",
    "files": {
     "hero": {
      "file": "size-8x16-hero.webp",
      "w": 960,
      "h": 640,
-     "bytes": 24754,
+     "bytes": 24794,
      "alt": "3D render of the 8x16 gable shed, 8 by 16 ft, seen from the front corner: stained T1-11 panel siding, charcoal shingles, 6/12 roof, 11' 4-5/8\" to the peak, showing a 52\" door on the front (eave side) and a 32\" window on the right (gable end)."
     }
    }
