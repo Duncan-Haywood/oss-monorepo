@@ -134,7 +134,7 @@ flagships:
       two-lag (AR(2)) likelihood inside PELT (the iterated-prewhitening fit
       failed on sunspots); a real documented step inside a cycle; a cycle
       check not tied to rho (treering, rho 0.16, gets no hint);
-      `cycleWarning` (Fisher's g) onto the page card; a documented real run
+      a documented real run
       of 5+ steps to test the block-variance warning, which does not yet
       separate drift from steps. (1) range95: a closure series quiet outside
       the closure (none of 30 Ansett route/class series is). (2) The steep-
