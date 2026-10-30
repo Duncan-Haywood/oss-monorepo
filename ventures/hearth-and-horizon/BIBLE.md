@@ -412,3 +412,4 @@ the sources, and mark legend as legend)
   story touches a real risk, it says it is fiction.
 - No real people, living or dead, as characters in the science fiction
   shelves; saints in Little Lamps are told from the sources.
+- *(Done: The Lid That Held, Sogn Murezi, Surselva, Graubünden, October 2048; text only.)* 140 pints of green beans (pH 5.5 to 6) in a three-hour boiling-water bath at 1,820 m: water boils at 93.8 C (82 kPa), lethality 0.0019 of 121 C, so 0.34 of the 2.4 minutes a 12D process needs (about 21 h at the jar's middle); a pressure canner needs 123 kPa gauge here (103 at the sea); the jars are boiled 10 minutes into soup and not given away.
