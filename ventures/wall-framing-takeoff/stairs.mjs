@@ -374,6 +374,7 @@ export function winderText(c) {
   out.push(c.ok ? "  Winders pass the 6 in and 10 in rules as typed." : `  Winders fail: ${c.problems.join("; ")}. The smallest inner radius that passes is ${c.minInnerRadius.toFixed(1)} in.`);
   if (c.treads) {
     out.push(`  Straight-edge depths: ${c.chordNarrow.toFixed(2)} in narrow, ${c.chordWalk.toFixed(2)} in at ${c.limits.winderWalkline} in out, ${c.chordWide.toFixed(2)} in wide${c.chordPasses ? "" : " (a straight edge fails where the arc passes: add radius)"}`);
+    if (c.framing) out.push(`  Framing under the winders: ${c.framing.supports} radial supports of ${formatInches(c.framing.supportLength)} (${formatInches(c.framing.totalLength)} all told; ${c.framing.shared} shared by two treads), each tread spanning ${formatInches(c.framing.treadSpan)} between two of them. Check that span against your own tread table.`);
     for (const t of c.treads) out.push(`  Winder tread ${t.index}: ${t.area.toFixed(1)} sq in, cut from a ${formatInches(t.blank.x)} x ${formatInches(t.blank.y)} blank`);
   }
   return out;
@@ -405,5 +406,11 @@ export function layoutWinders(w) {
   });
   const chordNarrow = chord(r), chordWalk = chord(r + L.winderWalkline), chordWide = chord(R);
   const chordPasses = chordNarrow >= L.winderMinDepth - 1e-9 && chordWalk >= L.winderWalkDepth - 1e-9;
-  return { ...c, treads, chordNarrow, chordWalk, chordWide, chordPasses };
+  // Framing under the treads (2026-10-30): a radial support (a 2x ledger or
+  // riser plate) under every tread edge, count + 1 in all, each as long as the
+  // run from the pivot to the wall; a tread board spans that run between its
+  // two edge supports, so `treadSpan` is the stair width. No span table: the
+  // span is for the user's own table, and nothing structural is checked.
+  const framing = { supports: count + 1, supportLength: width, totalLength: (count + 1) * width, treadSpan: width, shared: count - 1 };
+  return { ...c, treads, chordNarrow, chordWalk, chordWide, chordPasses, framing };
 }
