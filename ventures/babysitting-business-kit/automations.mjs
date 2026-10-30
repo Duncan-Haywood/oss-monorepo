@@ -133,7 +133,11 @@ const firstName = (f) => String(f.contactName || f.name || "").replace(/\s+famil
 const kidNames = (f) => (f.kids || []).map((k) => String(k.name || "").trim()).filter(Boolean);
 const joinNames = (a) => (a.length <= 1 ? a.join("") : `${a.slice(0, -1).join(", ")} and ${a[a.length - 1]}`);
 const ordinal = (n) => `${n}${n % 100 >= 11 && n % 100 <= 13 ? "th" : ["th", "st", "nd", "rd"][n % 10] || "th"}`;
-const money = (x) => `$${(Math.round(x * 100) / 100).toFixed(2).replace(/\.00$/, "")}`;
+const money = (x) => {
+  const format = (x) => `$${(Math.round(x * 100) / 100).toFixed(2).replace(/\.00$/, "")}`;
+  const text = format(Math.abs(x));
+  return x < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+};
 const sitDay = (date) => `${DAYS[new Date(`${date}T12:00:00Z`).getUTCDay()]} ${date}`;
 const signOff = (p) => p.businessName ? `${p.name}, ${p.businessName}` : p.name;
 

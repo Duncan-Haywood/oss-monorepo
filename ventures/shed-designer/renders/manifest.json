@@ -417,6 +417,21 @@
     }
    }
   },
+  "gallery-barn": {
+   "key": "Barn for storage 7x14",
+   "name": "Barn for storage 7x14",
+   "hash": "aaf0f2f4a0c66103",
+   "designKey": "5e0bae26",
+   "files": {
+    "card": {
+     "file": "gallery-barn-card.webp",
+     "w": 480,
+     "h": 320,
+     "bytes": 7876,
+     "alt": "3D render of the Barn for storage 7x14, 7 by 14 ft, seen from the front corner: red fiber cement siding, charcoal shingles, 6/12 roof, 12' 5/8\" to the peak, showing a 39\" door on the right (gable end)."
+    }
+   }
+  },
   "gallery-cheapest": {
    "key": "Cheapest 8x10",
    "name": "Cheapest 8x10",
@@ -463,17 +478,17 @@
    }
   },
   "gallery-long": {
-   "key": "Long 7x14",
-   "name": "Long 7x14",
-   "hash": "eada2b5d38f257c8",
-   "designKey": "c44bbfa4",
+   "key": "Long 6x16",
+   "name": "Long 6x16",
+   "hash": "2d2ec14edac21d3d",
+   "designKey": "28f2c99f",
    "files": {
     "card": {
      "file": "gallery-long-card.webp",
      "w": 480,
      "h": 320,
-     "bytes": 6238,
-     "alt": "3D render of the Long 7x14, 14 by 7 ft, seen from the front corner: sage fiber cement siding, charcoal shingles, 6/12 roof, 12' 8-3/8\" to the peak, showing a 39\" door on the right (gable end) and a 18\" window on the front (eave side)."
+     "bytes": 6456,
+     "alt": "3D render of the Long 6x16, 6 by 16 ft, seen from the front corner: sage fiber cement siding, charcoal shingles, 6/12 roof, 10' 11/16\" to the peak, showing a 39\" door on the right (gable end)."
     }
    }
   },
