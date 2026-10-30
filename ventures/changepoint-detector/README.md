@@ -1202,3 +1202,21 @@ alarm (`data/lh.csv`, `data/treering.csv`, both R's `datasets`; `quiet-series.te
 modest but it drifts slowly over centuries, so `--ar1` still leaves 11 and only the bootstrapped `meanvar` penalty is
 near quiet (1). Do not read a tree-ring "step" as a climate event from this tool; the counts are the claim, nothing
 here is checked against a dendrochronology record. `--ar1` is for the `mean` model only.
+
+## Two cyclic real series: lynx and sunspots (2026-10-30)
+
+Quasi-periodic series with no documented step are a different false-alarm test from `lh` and `treering`: the level
+swings up and down every ten or eleven years, and a model of "flat segments" reads each swing as two changes.
+`data/lynx.csv` (Canadian lynx trappings, 1821-1934, 114 years) and `data/sunspot-year.csv` (yearly sunspot numbers,
+1700-1988, 289 years), both R's `datasets` (`eval/cyclic-series.mjs`, `cyclic-series.test.mjs`).
+
+| Series | Default `mean` | `--min-segment 20` | `--ar1` | `--model meanvar --bootstrap` |
+| --- | --- | --- | --- | --- |
+| `lynx` | 23 steps | 3 | 0 | 0 |
+| `sunspot-year` | 46 steps | 7 | 0 | 0 |
+
+So on a cycle the default model is wrong by a wide margin, a longer minimum segment only thins the steps, and
+`--ar1` or the bootstrapped penalty removes them. Zero is the right answer here, but it is also the answer for a
+tool that finds nothing: this table says nothing about power on a series with a real step inside a cycle, which is
+not measured. The default output does not warn about a cycle; pointing the text at `--ar1` when it sees a periodic
+autocorrelation pattern is open.

@@ -1,0 +1,10 @@
+lynx (n=114)
+  mean                   23
+  --min-segment 20       3
+  --ar1                  0
+  meanvar --bootstrap    0
+sunspot-year (n=289)
+  mean                   46
+  --min-segment 20       7
+  --ar1                  0
+  meanvar --bootstrap    0
