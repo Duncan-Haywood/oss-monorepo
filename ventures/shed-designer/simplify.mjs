@@ -2,7 +2,7 @@
 // Parametric search for a simpler, cheaper build of the same shed. It counts
 // the saw cuts a design needs (and which of them are angled or notched),
 // then nudges one setting at a time (pitch, overhang, rafter and stud
-// spacing, rafter seat, ridge type, a foot on the length or width within the
+// spacing, floor joist spacing and size, rafter seat, ridge type, a foot on the length or width within the
 // footprint limit) and keeps a change only if the shed still passes every
 // load and connection check, stays inside the footprint limit and gets no
 // taller than 1" (or over the peak limit). It runs a greedy search for each of three goals and returns the
@@ -15,6 +15,7 @@ import { structuralChecks } from './checks.mjs';
 import { connectionChecks } from './connections.mjs';
 import { BLOCKS } from './model.mjs';
 import { PRODUCTS } from './products.mjs';
+import { floorMoves } from './levers.mjs';
 
 /**
  * Saw cuts the build needs. A board cut into n pieces takes n cuts (one fewer
@@ -106,6 +107,7 @@ function moves(d, base, resize, opts = {}) {
   // Smaller or larger rafters: kept only if the strength checks still pass.
   for (const sz of ['2x4', '2x6', '2x8']) if (sz !== d.rafterSize) set(`${sz} rafters`, { rafterSize: sz });
   if (d.studSpacing === 24 || sidingSpan(d) >= 24) set(`studs ${d.studSpacing === 24 ? 16 : 24}" o.c.`, { studSpacing: d.studSpacing === 24 ? 16 : 24 });
+  floorMoves(d, set);
   set(d.rafterSeat === 'connector' ? 'birdsmouth seats' : 'variable-pitch connectors', { rafterSeat: d.rafterSeat === 'connector' ? 'birdsmouth' : 'connector' });
   set(d.roofType === 'ridgeBeam' ? 'ridge board and ties' : 'ridge beam on posts', { roofType: d.roofType === 'ridgeBeam' ? 'ridgeBoard' : 'ridgeBeam' });
   // Off-the-shelf swaps, when asked: another stock door or window, siding,
