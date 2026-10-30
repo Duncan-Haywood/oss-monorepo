@@ -1268,3 +1268,24 @@ too narrow. When the mean model has found 5 or more steps and rho is 0.3 or more
 steps may be false alarms, with the measured counts (lynx 23, sunspots 46 by default; `--ar1` none; `--ar1 joint` keeps
 a 2 sd step). Test: `cyclic-series.test.mjs`. Not covered: `treering` (38 false steps) has rho 0.16 by this estimate, so
 it gets no hint; a cycle detector that does not rely on rho is open.
+
+## Is residual autocorrelation a cycle test that does not rely on rho? No (2026-10-30, later still)
+
+The open item above asked for a cycle check that also catches `treering` (38 false steps, raw rho 0.16). The obvious
+candidate is the lag-1 autocorrelation of the residuals after the default fit (each point minus its segment mean),
+which does not depend on the differenced rho estimate. `eval/residual-rho.mjs` computes it for all 34 numeric series in
+`data/` (output in `eval/residual-rho.out.txt`). It does not separate cycles from series with real, sticky structure:
+
+| series | steps | residual rho | is it a false-alarm case? |
+|---|---|---|---|
+| `treering` | 38 | 0.22 | yes, no documented step |
+| `lh` | 5 | 0.58 | yes |
+| `lynx`, `sunspot-year` | 23, 46 | 0.71, 0.81 | yes |
+| `us-inflation` | 12 | 0.64 | no, inflation is persistent and has real regimes |
+| `us-gdp-growth` | 12 | 0.30 | partly (Great Moderation is a real break) |
+| `johnson-johnson` | 12 | 0.93 | no, a growing quarterly series |
+| `cac/dax/ftse/smi-returns` | 6 to 11 | -0.00 to 0.09 | mixed |
+
+`treering` (0.22) sits below real-structure series (`us-inflation` 0.64, `puerto-rico-daily-deaths` 0.40) and above the
+index returns, so no threshold on residual rho flags it without also flagging series where steps are right. No code
+changed. A rho-free cycle detector stays open; a spectral peak test on the residuals is the next thing to try.

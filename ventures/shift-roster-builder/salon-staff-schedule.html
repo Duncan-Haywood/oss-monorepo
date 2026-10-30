@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%235f1b7e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3ES%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Salon Staff Schedule: Build A Weekly Rota For Chairs And Hours</title>
+  <meta name="description" content="How to schedule stylists and chair coverage in a small salon, with a worked example of four people, 16 chair-shifts and the three the roster could not fill, and why. Free, private schedule builder.">
+  <meta property="og:title" content="Salon Staff Schedule: Chairs, Hours, Open Shifts">
+  <meta property="og:description" content="A worked four-person salon week with real builder output.">
+  <link rel="canonical" href="./salon-staff-schedule.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How many chairs should I staff at once?", "acceptedAnswer": {"@type": "Answer", "text": "Staff to booked appointments where you can, not to a fixed number. Enter the number of stylists you need per block as the people needed, and the builder says which blocks it could not fill."}}, {"@type": "Question", "name": "Does the builder know who is booked with clients?", "acceptedAnswer": {"@type": "Answer", "text": "No. It schedules people into shifts from their availability and hour limits. Your booking system holds appointments; use the booked chair count as the people needed per shift."}}, {"@type": "Question", "name": "What about commission or booth-rent stylists?", "acceptedAnswer": {"@type": "Answer", "text": "The builder prices hours at a wage you enter. For commission or booth rent, enter a nominal wage or zero and use it only for coverage and fairness."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2330; background: #f2f4f7; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.05; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #1f5f86; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d9dfe6; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 14px; border-radius: 8px; background: #1f5f86; color: #ffffff; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4c5a68; }
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; Shift roster builder</a></p>
+  <h1>Salon staff schedule: covering chairs with a small team</h1>
+  <p>A small salon schedules chairs, not just people: the morning needs one stylist, the afternoon and Saturday need two or three, and each stylist works only some days. The useful question is which chair-blocks cannot be covered with the team you have, before the week is posted.</p>
+  <p><a class="cta" href="./">Open the free roster builder</a></p>
+  <h2>A worked example</h2>
+  <p>An invented salon has four people (wages $22, $20, $24 and $18 an hour) and 16 chair-shifts: one stylist 9 to 2 and two stylists 2 to 7 Tuesday to Friday, three on Saturday 9 to 6, one on Sunday 10 to 4. Availability: Mia Tue-Sat 9-7, Jo Mon-Fri 9-6, Priya Wed-Sun 10-8, Leo Thu-Sat 12-8 and Sunday 10-4. This is the CLI's real output:</p>
+  <table>
+    <tr><th>Person</th><th>Shifts</th></tr>
+    <tr><td>Mia</td><td>Tue and Wed afternoons, Saturday</td></tr>
+    <tr><td>Jo</td><td>Tue to Fri mornings</td></tr>
+    <tr><td>Priya</td><td>Wed, Thu, Fri afternoons</td></tr>
+    <tr><td>Leo</td><td>Thu and Fri afternoons, Sunday</td></tr>
+  </table>
+  <p>13 of 16 chair-shifts are covered for $1,466 with no overtime. Three stay open: a second chair on Tuesday afternoon and two Saturday chairs. For Saturday it says one person is free but already on another shift, which is the answer to give a candidate: the salon needs a third stylist on Saturdays, or a client cap. The roster also notes that Jo gets 20 hours, 4 under their 24-hour minimum, and that without Mia 19 more hours go uncovered.</p>
+  <p>Hand-building this usually hides the Saturday gap until Friday. Listing the open shifts with reasons first turns it into a hiring or booking decision.</p>
+  <p><a class="cta" href="./">Try it with your own team</a></p>
+  <h2>Questions</h2>
+  <h3>How many chairs should I staff at once?</h3>
+  <p>Staff to booked appointments where you can, not to a fixed number. Enter the number of stylists you need per block as the people needed, and the builder says which blocks it could not fill.</p>
+  <h3>Does the builder know who is booked with clients?</h3>
+  <p>No. It schedules people into shifts from their availability and hour limits. Your booking system holds appointments; use the booked chair count as the people needed per shift.</p>
+  <h3>What about commission or booth-rent stylists?</h3>
+  <p>The builder prices hours at a wage you enter. For commission or booth rent, enter a nominal wage or zero and use it only for coverage and fairness.</p>
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not legal, tax or financial advice. The example is invented.</p>
+    <p>Everything the roster builder does runs in your browser; your staff list is never uploaded. Free and open source: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional. Related: <a href="how-to-make-an-employee-schedule.html">how to make an employee schedule</a>, <a href="whose-availability-is-worth-widening.html">whose availability to widen</a>.</p>
+  </footer>
+</body>
+</html>
