@@ -83,6 +83,7 @@
     <button type="button" role="tab" data-tab="families">Families</button>
     <button type="button" role="tab" data-tab="schedule">Schedule</button>
     <button type="button" role="tab" data-tab="money">Money &amp; taxes</button>
+    <button type="button" role="tab" data-tab="packages">Packages</button>
     <button type="button" role="tab" data-tab="references">References</button>
     <button type="button" role="tab" data-tab="website">Website</button>
     <button type="button" role="tab" data-tab="content">Content</button>
@@ -235,6 +236,11 @@
       <h3>Year-end statement for a family (Form 2441 / dependent-care FSA)</h3>
       <div class="grid"><div><label for="stmtFamily">Family</label><select id="stmtFamily"></select></div></div>
       <pre id="stmtOut" class="msg"></pre>
+    </section>
+
+    <section data-panel="packages" class="card" hidden>
+      <h2>Packages, gift certificates and group nights</h2>
+      <div id="packagesKit"></div>
     </section>
 
     <section data-panel="references" class="card" hidden>
@@ -419,6 +425,7 @@
     import * as P from "./print.mjs";
     import { mountAutomations } from "./automations-ui.mjs";
     import { mountContent } from "./content-ui.mjs";
+    import { mountPackages } from "./packages-ui.mjs";
     import { enhanceTabs } from "./tabs.mjs";
 
     const STORE = "babysitting-business-kit-desk";
@@ -434,6 +441,7 @@
     let desk = load();
     let knownLeadIds = [];
     let renderAutomations = () => {};
+    let renderPackages = () => {};
 
     function load() {
       try { return E.normalizeDesk(JSON.parse(localStorage.getItem(STORE) || "null")); } catch { return E.emptyDesk(); }
@@ -656,6 +664,7 @@
       renderFamilyMsgs();
       renderPrint();
       renderAutomations();
+      renderPackages();
       fillForm($("profileForm"), { ...desk.profile, certifications: desk.profile.certifications, holidays: desk.profile.holidays, followUpDays: desk.profile.followUpDays });
       $("profileForm").scrollIntoView = () => {};
     }
@@ -912,6 +921,7 @@
     renderAutomations = mountAutomations({ getDesk: () => desk, save, esc, record });
     $("contentStart").value = today();
     mountContent($("contentKit"), { getDesk: () => desk, save, record, today, buildSite: (d) => E.buildSite(d) });
+    renderPackages = mountPackages($("packagesKit"), { getDesk: () => desk, setDesk: (d) => { desk = E.normalizeDesk(d); save(); }, record, today, serverUrl: () => $("syncUrl").value.trim().replace(/\/+$/, "") });
     record("page_loaded");
     render();
     show("today");

@@ -14,6 +14,7 @@
 //   GET|PUT /api/desk      the desk as JSON (Authorization: Bearer ADMIN_KEY)
 //   GET  /api/today        today's to-do list (Authorization: Bearer ADMIN_KEY)
 //   GET|POST /intake/<t>   a family's one-time info sheet (token made in the app's Families tab)
+//   GET|POST /event/<t>    a parents' night out sign-up form (link made in the app's Packages tab)
 //   GET  /admin            status page; /api/status, /api/backup, /api/restore (backup.mjs)
 //   a daily digest at DIGEST_HOUR (server time) to your webhook or email
 //
@@ -40,12 +41,13 @@ import { creditReferral } from "./print.mjs";
 import { mergeAutomationState } from "./automations.mjs";
 import { automationRoutes, runAutomations } from "./automations-server.mjs";
 import { blogRoute, serverDraft } from "./content.mjs";
+import { handleEventRoute, mergeEventSignups, MAX_SIGNUP_BYTES } from "./packages.mjs";
 import { loadDesk, atomicWrite, backupApi, backupDir, dailyBackup } from "./backup.mjs";
 
 const MAX_BODY = 64 * 1024;
 const MAX_DESK = 8 * 1024 * 1024;
 const MAX_LEADS = 2000;
-const FILES = { "/": "index.html", "/index.html": "index.html", "/engine.mjs": "engine.mjs", "/usage.mjs": "usage.mjs", "/taxes.mjs": "taxes.mjs", "/slots.mjs": "slots.mjs", "/intake.mjs": "intake.mjs", "/meet-and-greet.html": "meet-and-greet.html", "/references.mjs": "references.mjs", "/site.mjs": "site.mjs", "/print.mjs": "print.mjs", "/qr.mjs": "qr.mjs", "/automations.mjs": "automations.mjs", "/automations-ui.mjs": "automations-ui.mjs", "/content.mjs": "content.mjs", "/content-ui.mjs": "content-ui.mjs", "/byok.mjs": "byok.mjs", "/admin": "admin.html" };
+const FILES = { "/": "index.html", "/index.html": "index.html", "/engine.mjs": "engine.mjs", "/usage.mjs": "usage.mjs", "/taxes.mjs": "taxes.mjs", "/slots.mjs": "slots.mjs", "/intake.mjs": "intake.mjs", "/meet-and-greet.html": "meet-and-greet.html", "/references.mjs": "references.mjs", "/site.mjs": "site.mjs", "/print.mjs": "print.mjs", "/qr.mjs": "qr.mjs", "/automations.mjs": "automations.mjs", "/automations-ui.mjs": "automations-ui.mjs", "/content.mjs": "content.mjs", "/content-ui.mjs": "content-ui.mjs", "/byok.mjs": "byok.mjs", "/packages.mjs": "packages.mjs", "/packages-ui.mjs": "packages-ui.mjs", "/admin": "admin.html" };
 const TYPES = { html: "text/html; charset=utf-8", mjs: "text/javascript; charset=utf-8" };
 // The installable app (PWA) and the guide pages, so a self-hosted copy works offline and links resolve.
 for (const f of ["tabs.mjs", "sw.js", "manifest.webmanifest", "icon.svg", "icon-192.png", "icon-512.png", "icon-maskable-512.png", "apple-touch-icon.png", "babysitting-taxes.html", "how-to-start-a-babysitting-business.html", "how-much-to-charge-for-babysitting.html", "babysitting-references.html", "self-host.html"]) FILES[`/${f}`] = f;
@@ -185,6 +187,18 @@ export function handler(state, save, env = process.env, now = Date.now, fetchImp
       await msg.sitter(`Family info sheet received: ${fam.name || fam.contactName || "a family"}`, "Sync the app to see it in the Families tab.");
       return send(200, done, TYPES.html, nostore);
     }
+    if (url.pathname.startsWith("/event/") && (req.method === "GET" || req.method === "POST")) {
+      // A parents' night out sign-up link (packages.mjs): made in the Packages tab, put here by Sync.
+      let fields = null;
+      if (req.method === "POST") {
+        const raw = await readBody(req, MAX_SIGNUP_BYTES);
+        if (raw === null) return send(413, page("Too long", "<p>That was too long to send.</p>"));
+        fields = Object.fromEntries(new URLSearchParams(raw));
+      }
+      const out = handleEventRoute(state.desk, req.method, url.pathname.slice(7), fields, today, new Date(now()).toISOString());
+      if (out.desk) { state.desk = out.desk; save(); await msg.sitter(`Event sign-up: ${out.signup.parent}${out.waitlisted ? " (waitlist)" : ""}`, `${out.event.title} ${out.event.date}: ${out.signup.kids.length} child(ren). Sync the app to see it in the Packages tab.`); }
+      return send(out.code, out.html, TYPES.html, { "cache-control": "no-store" });
+    }
     if (url.pathname.startsWith("/ref/") && (req.method === "GET" || req.method === "POST")) {
       // A referee's private link: their words and two separate consents (references.mjs).
       let fields = null;
@@ -219,6 +233,7 @@ export function handler(state, save, env = process.env, now = Date.now, fetchImp
         const fresh = state.desk.leads.filter((l) => !ids.has(l.id) && !known.has(l.id));
         incoming.automations = mergeAutomationState(state.desk.automations, incoming.automations);
         if (Array.isArray(incoming.references)) incoming.references = mergeReferences(state.desk, incoming.references); // keep answers that arrived by link
+        mergeEventSignups(state.desk, incoming); // and event sign-ups that arrived by link (packages.mjs)
         state.desk = normalizeDesk(keepIntakes(state.desk, incoming)); // and info sheets families filled in
         state.desk.leads.push(...fresh);
         save();

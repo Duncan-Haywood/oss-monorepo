@@ -70,6 +70,7 @@ export function normalizeDesk(d) {
   for (const k of ["leads", "families", "bookings", "expenses", "references"]) out[k] = Array.isArray(d[k]) ? d[k].filter((x) => x && typeof x === "object") : [];
   if (d.automations && typeof d.automations === "object" && !Array.isArray(d.automations)) out.automations = d.automations; // sent log and opt-outs (automations.mjs)
   if (Array.isArray(d.posts)) out.posts = d.posts.filter((x) => x && typeof x === "object"); // blog posts (content.mjs)
+  if (d.packages && typeof d.packages === "object" && !Array.isArray(d.packages)) out.packages = d.packages; // packages, gift certificates, events (packages.mjs)
   return out;
 }
 
@@ -387,7 +388,10 @@ export function taxSummary(desk, year, today = `${year}-12-31`) {
   const Y = String(year);
   const sits = expandBookings(desk.bookings).filter((b) => b.date.startsWith(Y) && b.status !== "cancelled");
   const paid = [];
-  for (const b of desk.bookings) for (const pay of payments(b)) if (String(pay.date).startsWith(Y)) paid.push({ ...pay, familyId: b.familyId });
+  for (const b of desk.bookings) for (const pay of payments(b)) if (!pay.credit && String(pay.date).startsWith(Y)) paid.push({ ...pay, familyId: b.familyId });
+  // Packages and gift certificates are income when sold; using one later is a credit, not income again (packages.mjs).
+  const pk = desk.packages || {};
+  for (const x of [...(Array.isArray(pk.sold) ? pk.sold : []), ...(Array.isArray(pk.gifts) ? pk.gifts : [])]) if (x && num(x.price) && String(x.soldOn).startsWith(Y)) paid.push({ amount: num(x.price), date: x.soldOn, method: x.method || "", familyId: x.familyId || (x.code ? "gift certificates" : "") });
   const income = r2(paid.reduce((a, x) => a + num(x.amount), 0));
   const byMonth = Array(12).fill(0), byFamily = {}, byMethod = {};
   for (const x of paid) {
@@ -422,6 +426,7 @@ export function taxSummary(desk, year, today = `${year}-12-31`) {
   else flags.push(`Net profit is under $400 so far: no self-employment tax yet. If you have no other income you may not need to file; check the Form 1040 instructions.`);
   const threshold = HOUSEHOLD_THRESHOLD[year];
   for (const [fid, amt] of Object.entries(byFamily)) {
+    if (fid === "gift certificates") continue; // bought by anyone, not one family's pay
     if (threshold && amt >= threshold) {
       const f = desk.families.find((x) => x.id === fid);
       flags.push(`${f ? f.name : "One family"} paid you $${amt} this year (at or over $${threshold}). If that family controls how and when you work in their home, the IRS can treat you as their household employee (Publication 926), and they would owe the nanny tax and give you a W-2. Babysitters who run their own business for many families are usually self-employed. Talk it through with the family.`);
