@@ -2,7 +2,7 @@
 title: "How hard does a shed block press on the ground?"
 date: 2026-10-30
 tags: [shed-designer, foundation, structure]
-description: "The shed designer's starter set 4x8x16 blocks straight on the soil. Loaded with a floor, walls and snow, each one presses about 1,970 psf, against the 1,500 psf the IRC presumes for clay or silt."
+description: "The shed designer's starter put its blocks straight on the ground at about 1,970 psf, over the 1,500 psf the IRC presumes for clay or silt."
 ---
 
 The [shed designer](https://duncan-haywood.github.io/oss-monorepo/shed-designer/) can stand a shed on pressure-treated skids laid on concrete blocks. Until today it checked the joists above the skids, but not the skids themselves, and not what the blocks do to the ground. Those two checks are new, and the second one changed the starting design.
