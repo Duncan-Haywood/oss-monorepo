@@ -1,5 +1,6 @@
 ---
 title: "How big a staff schedule can we prove optimal? Measured from 6 to 12 people"
+seo_title: "How big a staff schedule can we prove optimal?"
 date: 2026-10-24
 description: "A shift-roster solver that proves its answer: 8 of 8 small weeks proven, 0 of 8 at 10 people and up. The table, and what is still open."
 tags: [scheduling, optimization, shift-roster-builder, benchmarks]

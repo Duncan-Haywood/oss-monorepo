@@ -1,5 +1,6 @@
 ---
 title: "Syncing two cameras by sound: the window has to be much longer than the offset"
+seo_title: "Syncing two cameras by sound"
 date: 2026-10-23
 description: "A simulation on 10 real clips: on the four hardest, wrong delay estimates fell from 97% to 38% to 16% as the window grew from 1 s to 3 s (0.8 s offset)."
 tags: [research, audio, simulation, signal-processing]

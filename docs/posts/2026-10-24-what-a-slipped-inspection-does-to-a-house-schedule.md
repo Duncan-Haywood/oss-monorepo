@@ -1,5 +1,6 @@
 ---
 title: "What does a slipped inspection do to a new-home schedule? A critical-path calculator for builders"
+seo_title: "What does a slipped inspection do to a new-home schedule?"
 date: 2026-10-24
 description: "The wall-framing takeoff now takes your own activity list and shows the critical path, crew limits and what a slip does to the finish date."
 tags: [construction, scheduling, open-source, tools]

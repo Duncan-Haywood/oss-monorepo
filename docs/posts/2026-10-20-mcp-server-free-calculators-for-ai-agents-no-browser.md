@@ -1,5 +1,6 @@
 ---
 title: "An MCP server for 1,262 free calculators: calling browser tools from an AI agent"
+seo_title: "An MCP server for 1,262 free calculators"
 date: 2026-10-20
 description: "One zero-dependency Node file lets an AI agent search, describe and call 1,262 of this repo's free web tools as JSON, with no browser and no network."
 tags: [mcp, ai-agents, command-line, open-source]

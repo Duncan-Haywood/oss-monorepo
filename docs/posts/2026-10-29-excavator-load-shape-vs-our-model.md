@@ -1,5 +1,6 @@
 ---
 title: "Our excavator cycle had too little idle time: checking a model against a measured power trace"
+seo_title: "Our excavator cycle had too little idle time"
 date: 2026-10-29
 description: "A public electric-excavator power trace has a load factor of 0.35; the force-model cycle we used for hydraulic circuit rankings has 0.61."
 tags: [heavy-hydraulics, research, hydraulics]

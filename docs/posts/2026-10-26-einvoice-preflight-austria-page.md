@@ -1,5 +1,6 @@
 ---
 title: "Austria's e-invoice rules in one page: government only, business voluntary"
+seo_title: "Austria's e-invoice rules in one page"
 date: 2026-10-26
 description: "A new E-invoice Preflight page separates Austria's law (federal suppliers, EN 16931, ebInterface or Peppol) from B2B mandate forecasts no law has adopted."
 tags: [einvoice-preflight, e-invoicing, austria, peppol]

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { buildShed, defaultDesign, PRESETS } from './model.mjs';
-import { structuralChecks, postCheck, nailZ, heelJoint, skidOnBlocks, rafterUplift, racking, woodDensity, selfWeight, anchorage, anchorageText } from './checks.mjs';
+import { structuralChecks, postCheck, nailZ, heelJoint, skidOnBlocks, rafterUplift, racking, woodDensity, selfWeight, anchorage, anchorageText, BRACING } from './checks.mjs';
 import { buildInstructions } from './instructions.mjs';
 import { estimate } from './estimate.mjs';
 import { check, worst, roofCase, designValues } from './structure.mjs';
@@ -287,9 +287,32 @@ test('an open-front wall hands its share to the opposite wall, within SDPWS 1:1'
   const long = racking(buildShed({ ...PRESETS['8x8 lean'](), length: 144 }));
   assert.ok(long.ratio > 1);
   assert.match(long.why, /past the 1:1 SDPWS allows/);
-  // No siding: nothing braces the walls. LP SmartSide: rated in LP's own report, not checked here.
+  // No siding: nothing braces the walls.
   assert.ok(!structuralChecks(buildShed({ ...defaultDesign(), siding: false })).rows.find((x) => x.member === 'Wall bracing (racking)').ok);
-  assert.equal(structuralChecks(buildShed({ ...defaultDesign(), sidingType: 'LP SmartSide' })).rows.find((x) => x.member === 'Wall bracing (racking)'), undefined);
+});
+
+// LP SmartSide panels, APA PR-N124 Table 1 (directly to framing, 6" edges):
+// shiplap edges take the next thinner category (footnote 5), so 3/8" is 180
+// plf (5/16", 6d) and 7/16" is 220 (3/8", 8d). Allowable already; x1.4 for
+// wind (footnote 3) and x0.82 for SPF (footnote 1).
+test('LP SmartSide panels brace the walls at PR-N124 values', () => {
+  assert.ok(Math.abs(BRACING['LP SmartSide'].allow - 180 * 1.4 * 0.82) < 1e-9);
+  assert.ok(Math.abs(BRACING['LP SmartSide 7/16'].allow - 252.56) < 1e-9);
+  for (const sidingType of ['LP SmartSide', 'LP SmartSide 7/16']) {
+    const s = buildShed({ ...defaultDesign(), sidingType });
+    const row = structuralChecks(s).rows.find((x) => x.member === 'Wall bracing (racking)');
+    const r = racking(s);
+    assert.ok(row && Math.abs(row.ratio - r.ratio) < 1e-9 && r.cap === BRACING[sidingType].allow);
+    assert.match(row.detail, /APA PR-N124 Table 1/);
+    // Same shed, T1-11: the force is the same, so the ratios go as the capacities.
+    const t = racking(buildShed({ ...defaultDesign(), sidingType: 'T1-11' }));
+    assert.ok(Math.abs(r.ratio * r.cap - t.ratio * t.cap) < 1e-6);
+  }
+  // The build step carries the nailing the rating assumes.
+  const lp = buildShed({ ...defaultDesign(), sidingType: 'LP SmartSide 7/16', studSpacing: 24 });
+  const st = buildInstructions(lp, estimate(lp)).find((x) => x.title === 'Siding');
+  assert.match(st.steps.join(' '), /Double-nail each shiplap joint/);
+  assert.match(st.steps.join(' '), /every 6" on intermediate studs/);
 });
 
 // Weight of wood (NDS Supplement 3.1.3): 62.4 G (1 + m/100) / (1 + 0.009 G m).

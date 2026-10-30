@@ -1,5 +1,6 @@
 ---
 title: "Did 'Big Gods' build civilisation? The moralizing gods debate and the retracted Nature paper"
+seo_title: "Did 'Big Gods' build civilisation?"
 date: 2026-10-24
 description: "Did belief in moralizing gods help large societies form? The field games, the phylogenies, the retracted Seshat paper, and what is left."
 tags: [religion, history, research, big-gods, cultural-evolution, replication, theology]

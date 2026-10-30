@@ -1,5 +1,6 @@
 ---
 title: "Landscaping bookkeeping from a bank statement: ten lines, $1,357.30 profit"
+seo_title: "Landscaping bookkeeping from a bank statement"
 date: 2026-10-29
 description: "A synthetic September in AI Bookkeeper: $2,080.00 of HOA, Stripe and Square deposits, $722.70 of costs, and why a Home Depot receipt needs a second look."
 tags: [ai-bookkeeper, small-business, bookkeeping, open-source]

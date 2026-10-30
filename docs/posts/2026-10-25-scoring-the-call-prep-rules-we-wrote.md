@@ -1,5 +1,6 @@
 ---
 title: "We scored our call-prep rules on fresh notes: 61% of fields found, 85% precision"
+seo_title: "We scored our call-prep rules on fresh notes"
 date: 2026-10-25
 description: "Scoring the Sales Agent's call-prep rules on fresh notes: 61% of fields found at 85% precision, and what the misses show."
 tags: [sales-agent, evaluation, rules]

@@ -1,5 +1,6 @@
 ---
 title: "Forty percent of our JavaScript is a copy: a copy-paste detector in Rust"
+seo_title: "Forty percent of our JavaScript is a copy"
 date: 2026-10-29
 description: "jscpd ran out of memory on our 9,458 JavaScript files. A Rust rewrite read them in 1.2 s, matched about 95% of its flagged lines, and runs in the browser."
 tags: [dupehound, rust, developer-tools, webassembly, engineering]

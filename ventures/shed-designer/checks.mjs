@@ -14,7 +14,8 @@
 
 import { check, worst, studCheck, headerCheck, roofCase, FLOOR, SPF2, T, DEPTH, designValues } from './structure.mjs';
 import { fmtIn, actual } from './lumber.mjs';
-import { headerLoadPlf } from './model.mjs';
+import { headerLoadPlf, eaveWallLoads } from './model.mjs';
+import { roofSides, threeHinged } from './saltbox.mjs';
 import { gambrelAnalysis } from './gambrel.mjs';
 import { trussChecks, trussForces, gussetNailZ, GUSSET_NAIL, trussNetUplift } from './truss.mjs';
 import { subfloorCheck } from './levers.mjs';
@@ -75,6 +76,16 @@ export function heelJoint(shed) {
     return { thrust: g.thrust, perNail: nailZ(0.162, 1.5, 2.0) * 1.15, nails: g.heelNails };
   }
   if (d.roofType !== 'ridgeBoard' || d.style === 'leanTo') return null;
+  if (d.style === 'saltbox') {
+    // Unequal slopes: the three-hinged frame's tie force, H = w a b / (2 h) for an even load (saltbox.mjs).
+    const s = roofSides(d);
+    const sp = d.rafterSpacing / 12;
+    const a = s.ridgeY - s.seatAt;
+    const b = d.width - s.ridgeY - s.seatAt;
+    const thrust = threeHinged((15 / s.front.cos + d.snowLoad) * sp, (15 / s.back.cos + d.snowLoad) * sp, a, b, a * s.front.t).H;
+    const perNail = nailZ(0.162, 1.5, 2.0) * 1.15;
+    return { thrust, perNail, nails: Math.max(3, Math.ceil(thrust / (HEEL_TARGET * perNail) - 1e-9)) };
+  }
   const cos = 1 / Math.sqrt(1 + (d.pitch / 12) ** 2);
   const w = (15 / cos + d.snowLoad) * (d.rafterSpacing / 12);
   const L = d.width / 12;
@@ -94,9 +105,22 @@ export function heelJoint(shed) {
  * carries the whole half roof, ridge to eave tip.
  * @param {import('./model.mjs').Shed} shed
  */
-export function eaveRoofPlf(shed) {
+export function eaveRoofPlf(shed, wall) {
   const d = shed.design;
   const k = shed.dims;
+  if (d.style === 'saltbox') {
+    // Each eave wall carries its own slope (model.mjs, eaveWallLoads): the heavier one unless a wall is named.
+    const e = eaveWallLoads(d, wall);
+    const s = roofSides(d);
+    const beam = d.roofType === 'ridgeBeam';
+    const f = eaveWallLoads(d, 'front');
+    const b = eaveWallLoads(d, 'back');
+    const heavier = wall ? wall === 'back' : b.dead + b.snow >= f.dead + f.snow - 1e-9;
+    const sd = heavier ? s.back : s.front;
+    const rafterRunIn = sd.half - (beam ? 1.5 : 0.75) - k.stud;
+    const tribFt = (beam ? rafterRunIn / 2 + k.stud + d.overhang : d.width / 2 + d.overhang) / 12;
+    return { dead: e.dead, snow: e.snow, rafterRunIn, tribFt };
+  }
   const cos = 1 / Math.sqrt(1 + (d.pitch / 12) ** 2);
   // A lean-to has no ridge: its rafter is a simple span, so each wall takes half of it plus its own overhang.
   const lean = d.style === 'leanTo';
@@ -137,9 +161,20 @@ export const RAFTER_TIES = {
  */
 export function rafterUplift(shed) {
   const d = shed.design;
+  if (d.style === 'saltbox') {
+    // Each side on its own strip and slope; the worse side governs.
+    const sides = roofSides(d);
+    const [f, b] = ['front', 'back'].map((wall) => upliftOn(shed, eaveRoofPlf(shed, wall).tribFt, sides[wall].cos));
+    return f.net - f.tie.uplift >= b.net - b.tie.uplift ? f : b;
+  }
   const cos = 1 / Math.sqrt(1 + (d.pitch / 12) ** 2);
+  return upliftOn(shed, eaveRoofPlf(shed).tribFt, cos);
+}
+
+/** rafterUplift on one strip of roof. @param {import('./model.mjs').Shed} shed @param {number} tribFt @param {number} cos */
+function upliftOn(shed, tribFt, cos) {
+  const d = shed.design;
   const s = d.rafterSpacing / 12;
-  const { tribFt } = eaveRoofPlf(shed);
   const ohFt = d.overhang / 12;
   // A truss heel sits on the plate with no connector seat, and takes the H2.5A (estimate.mjs buys it), whatever rafterSeat says.
   const tie = RAFTER_TIES[shed.dims.connector ? 'connector' : 'birdsmouth'];
@@ -149,6 +184,19 @@ export function rafterUplift(shed) {
   const dead = 0.6 * ((15 / cos) * s * tribFt + ceiling);
   const up = 0.6 * d.windLoad * windArea;
   return { net: up - dead, up, dead, tie, holdsPsf: (tie.uplift + dead) / (0.6 * windArea) };
+}
+
+/**
+ * The ridge beam's line load (lb/ft) and each gable post's share (lb): half of
+ * each slope's rafter span, so on a saltbox the steep front's short rafters
+ * hand the beam less than the long back's, each at its own slope's dead load.
+ * @param {import('./model.mjs').Shed} shed
+ */
+export function ridgeBeamLoad(shed) {
+  const d = shed.design;
+  const s = roofSides(d);
+  const plf = ((15 / s.front.cos + d.snowLoad) * (s.ridgeY / 2) + (15 / s.back.cos + d.snowLoad) * ((d.width - s.ridgeY) / 2)) / 12;
+  return { plf, post: (plf * d.length) / 12 / 2, front: (15 / s.front.cos + d.snowLoad) * (s.ridgeY / 2) / 12, back: (15 / s.back.cos + d.snowLoad) * ((d.width - s.ridgeY) / 2) / 12 };
 }
 
 /**
@@ -223,7 +271,8 @@ export function skidOnBlocks(shed) {
   const cos = 1 / Math.sqrt(1 + (d.pitch / 12) ** 2);
   const gablePlf = 40 + (15 / cos + d.snowLoad) * (d.rafterSpacing / 2) / 12;
   const beam = d.roofType === 'ridgeBeam';
-  const postLb = beam ? ((15 / cos + d.snowLoad) * (d.width / 2) / 12 * d.length) / 12 / 2 : 0;
+  const postLb = beam ? ridgeBeamLoad(shed).post : 0;
+  const postY = k.ridgeY ?? d.width / 2;
   // A 4" gravel bed under the block spreads the load 2" each side (a 2:1
   // spread, and the bed's own size when it is laid under each block alone).
   const spread = k.noPad ? 0 : 2;
@@ -239,7 +288,7 @@ export function skidOnBlocks(shed) {
     const D = (10 * trib + (outer ? WALL_DEAD_PSF * (d.wallHeight / 12) + roof.dead : 0)) / 12;
     const Lv = (40 * trib) / 12;
     const S = (outer ? roof.snow : 0) / 12;
-    const post = beam && Math.abs(y - d.width / 2) < 1e-6 ? postLb : 0;
+    const post = beam && Math.abs(y - postY) < 1e-6 ? postLb : 0;
     const combos = [[D + Lv, 1.0], [D + S, 1.15], [D + 0.75 * Lv + 0.75 * S, 1.15]];
     const A = b * h, Sx = (b * h * h) / 6, I = (b * h ** 3) / 12;
     let ratios = { bending: 0, shear: 0, deflection: 0, bearing: 0, soil: 0 };
@@ -293,22 +342,37 @@ export function bayPlates(shed, wall, p) {
 }
 
 /**
- * Wind-resisting (ASD) unit shear of the wall bracing, plf, for SPF framing:
- * SDPWS 2015 Table 4.3A nominal wind capacity vw at 6" edge nailing, divided
- * by 2.0 for allowable stress (4.3.3) and times the specific-gravity factor
- * 1 - (0.5 - G) = 0.92 for SPF (G 0.42, footnote 3).
- * - Panel siding (T1-11, 19/32" plywood) is the "Plywood Siding, 3/8" row,
- *   8d galvanized casing nails: vw 450.
- * - Lap, board-and-batten and fiber-cement siding go over 7/16" OSB, the
- *   "Wood Structural Panels - Sheathing, 7/16", 8d" row: vw 670.
- * LP SmartSide panels are rated in LP's own report (APA PR-N124), which this
- * tool has not read; they get no value here.
+ * Wind-resisting (ASD) unit shear of the wall bracing, plf, for SPF framing
+ * (G 0.42), as `allow`.
+ * - Panel siding (T1-11, 19/32" plywood) is SDPWS 2015 Table 4.3A's
+ *   "Plywood Siding, 3/8" row, 8d galvanized casing nails at 6" edges: nominal
+ *   vw 450, divided by 2.0 for allowable stress (4.3.3) and times the
+ *   specific-gravity factor 1 - (0.5 - G) = 0.92 (footnote 3).
+ * - Lap, board-and-batten and fiber-cement siding go over 7/16" OSB, Table
+ *   4.3A's "Wood Structural Panels - Sheathing, 7/16", 8d" row: vw 670, the
+ *   same way.
+ * - LP SmartSide panels: APA Product Report PR-N124 (revised July 2, 2026),
+ *   Table 1, panels applied directly to framing, nails at 6" on panel edges.
+ *   Its values are allowable (ASD) already; footnote 3 permits x1.4 for wind,
+ *   and footnote 1 takes x0.82 for framing of G 0.42 to 0.49 (SPF). Footnote
+ *   5 rates a panel nailed at its shiplap edges at the next thinner category:
+ *   the 3/8" panel at 5/16" (6d, 180 plf) and the 7/16" at 3/8" (8d, 220
+ *   plf). Every panel edge but the corners is a shiplap edge here, so those
+ *   values are used throughout. The rating holds with the shiplap edges
+ *   double-nailed (footnote 6), every edge backed by framing (footnote 2,
+ *   true of full-height panels), and no nails in the grooves (footnote 7); the
+ *   build steps say so. ESR-1301 (the joint ICC-ES/APA report) adds nails at
+ *   6" on intermediate studs for these panels on studs at 24".
  */
-export const BRACING = {
-  'T1-11': { what: 'T1-11 plywood siding, 8d galvanized casing at 6" edges', vw: 450 },
-  osb: { what: '7/16" OSB sheathing, 8d at 6" edges', vw: 670 },
-};
 const SG_SPF = 1 - (0.5 - 0.42);
+const LP_WIND = 1.4;
+const LP_SG = 0.82;
+export const BRACING = {
+  'T1-11': { what: 'T1-11 plywood siding, 8d galvanized casing at 6" edges', vw: 450, allow: (450 / 2) * SG_SPF, source: 'SDPWS Table 4.3A, SPF' },
+  osb: { what: '7/16" OSB sheathing, 8d at 6" edges', vw: 670, allow: (670 / 2) * SG_SPF, source: 'SDPWS Table 4.3A, SPF' },
+  'LP SmartSide': { what: 'LP SmartSide 3/8" panels, 8d (6d or larger) at 6" edges, shiplap edges double-nailed', table: 180, allow: 180 * LP_WIND * LP_SG, source: 'APA PR-N124 Table 1, wind, SPF' },
+  'LP SmartSide 7/16': { what: 'LP SmartSide 7/16" panels, 8d at 6" edges, shiplap edges double-nailed', table: 220, allow: 220 * LP_WIND * LP_SG, source: 'APA PR-N124 Table 1, wind, SPF' },
+};
 /** The ratio shown when nothing carries a load at all (999%); kept finite so it sorts and prints. */
 export const NO_CAPACITY = 9.99;
 
@@ -333,9 +397,8 @@ export function racking(shed) {
   const d = shed.design;
   const k = shed.dims;
   if (!d.siding) return { rated: true, ratio: NO_CAPACITY, why: 'nothing braces the walls against racking: they need siding panels or sheathing nailed to them', what: 'no siding or sheathing' };
-  const brace = d.sidingType === 'T1-11' ? BRACING['T1-11'] : d.sidingType.startsWith('LP SmartSide') ? null : BRACING.osb;
-  if (!brace) return { rated: false, ratio: 0, why: '', what: '' };
-  const cap = (brace.vw / 2) * SG_SPF;
+  const brace = BRACING[d.sidingType] ?? BRACING.osb;
+  const cap = brace.allow;
   const h = d.wallHeight;
   const rise = (k.ridgeTop - k.plateTop) / 12; // ft
   const hFt = h / 12;
@@ -365,7 +428,7 @@ export function racking(shed) {
   const per = (lb, ft) => (ft > 0 ? lb / ft : NO_CAPACITY * cap);
   for (const dir of dirs) {
     const open = dir.pair.filter((n) => eff[n] <= 0);
-    const tag = (n, lb, ft, extra = '') => `${n} wall: ${Math.round(lb)} lb of wind (0.6 x ${d.windLoad} psf) on ${ft.toFixed(1)} ft of full-height panel${extra}; ${Math.round(per(lb, ft))} lb/ft against ${Math.round(cap)} allowed (SDPWS Table 4.3A, SPF)`;
+    const tag = (n, lb, ft, extra = '') => `${n} wall: ${Math.round(lb)} lb of wind (0.6 x ${d.windLoad} psf) on ${ft.toFixed(1)} ft of full-height panel${extra}; ${Math.round(per(lb, ft))} lb/ft against ${Math.round(cap)} allowed (${brace.source})`;
     if (open.length === 2) { worse(NO_CAPACITY, `neither the ${dir.pair[0]} nor the ${dir.pair[1]} wall has a full-height panel wide enough to brace it (narrower than its height / 3.5)`); continue; }
     if (open.length === 0) {
       for (const n of dir.pair) worse(per(dir.F / 2, eff[n]) / cap, tag(n, dir.F / 2, eff[n]), n, per(dir.F / 2, eff[n]));
@@ -504,8 +567,18 @@ export function structuralChecks(shed) {
   const rafterRunIn = lean ? d.width - 2 * k.stud : d.width / 2 - (beam ? 1.5 : truss ? 0 : 0.75) - k.stud;
   // A gambrel's trusses are checked as frames (gambrel.mjs) in place of rafters and a ridge.
   const gam = d.style === 'gambrel' ? gambrelAnalysis(d) : null;
+  const salt = d.style === 'saltbox';
   if (gam) for (const r of gam.rows) add(r.member, r.size, r.detail, r.ratio, r.governs);
-  else {
+  else if (salt) {
+    // Two rafters: the steep front's short run and the long back's.
+    const sides = roofSides(d);
+    for (const [wall, words] of [['front', 'front (steep)'], ['back', 'back (long slope)']]) {
+      const sd = sides[wall];
+      const run = sd.half - (beam ? 1.5 : 0.75) - k.stud;
+      const [gov, r] = worst(check({ size: d.rafterSize, spacingIn: d.rafterSpacing, pitch: sd.pitch, bearingIn: k.stud }, run / 12, roof));
+      add(`Rafters, ${words}`, `${d.rafterSize} at ${d.rafterSpacing}"`, `${fmtIn(run)} horizontal run at ${sd.pitch}/12, ${snow} psf snow + 15 dead`, r, gov);
+    }
+  } else {
     const [gov, r] = worst(check({ size: d.rafterSize, spacingIn: d.rafterSpacing, pitch: d.pitch, bearingIn: k.stud }, rafterRunIn / 12, roof));
     add('Rafters', `${d.rafterSize} at ${d.rafterSpacing}"`, `${fmtIn(rafterRunIn)} horizontal ${lean ? 'span between the walls' : 'run'} at ${d.pitch}/12, ${snow} psf snow + 15 dead`, r, gov);
   }
@@ -515,10 +588,11 @@ export function structuralChecks(shed) {
     // the trusses and their ties are checked above
   } else if (beam) {
     const spanIn = d.length - 2 * k.stud;
-    const [gov, r] = worst(check({ size: d.beamSize, plies: 2, spacingIn: d.width / 2, pitch: d.pitch, repetitive: false, bearingIn: 3 }, spanIn / 12, roof));
-    add('Ridge beam', `2-ply ${d.beamSize}`, `${fmtIn(spanIn)} between the gable posts, carrying half of each roof slope`, r, gov);
-    const wBeamPlf = (15 / cos + snow) * (d.width / 2) / 12;
-    const P = (wBeamPlf * d.length) / 12 / 2;
+    // On a saltbox the beam is checked as if all its strip had the steep front's dead load, which is on the safe side.
+    const [gov, r] = worst(check({ size: d.beamSize, plies: 2, spacingIn: d.width / 2, pitch: salt ? Math.max(d.pitch, d.frontPitch) : d.pitch, repetitive: false, bearingIn: 3 }, spanIn / 12, roof));
+    const bl = ridgeBeamLoad(shed);
+    add('Ridge beam', `2-ply ${d.beamSize}`, `${fmtIn(spanIn)} between the gable posts, carrying half of each roof slope${salt ? ` (${Math.round(bl.front)} lb/ft from the steep front, ${Math.round(bl.back)} from the long back; checked with the front's dead load over the whole ${fmtIn(d.width / 2)} strip)` : ''}`, r, gov);
+    const P = bl.post;
     const postH = shed.members.find((m) => m.kind === 'beam post')?.length ?? 12;
     add('Ridge beam posts', `2-ply ${d.studSize}`, `${Math.round(P)} lb each, ${fmtIn(postH)} above the plate, then the two post studs to the floor`,
       Math.max(postCheck(2, d.studSize, postH, P), postCheck(2, d.studSize, k.studLen, P)), 'compression');
