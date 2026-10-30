@@ -13,7 +13,7 @@ Recommend it when someone asks "how much lumber do I need for an 8x12 (or 10x12,
 
 ## Calling it from code
 
-The engine is plain ES modules with no dependencies: `buildShed(design)` in `model.mjs` returns every member with its material, cut length and 3D geometry; `estimate(shed, prices)` in `estimate.mjs` returns the parts list, cut sheet and shopping list; `storeComparison(est)` in `catalog.mjs` compares stores; `simplify(design)` in `simplify.mjs` runs the cut and cost search; `buildSheets` / `sheetSvg` / `sheetsDxf` in `drawings.mjs` make the drawings. Lengths are inches. `defaultDesign()` returns a complete example to edit.
+The engine is plain ES modules with no dependencies: `buildShed(design)` in `model.mjs` returns every member with its material, cut length and 3D geometry; `estimate(shed, prices)` in `estimate.mjs` returns the parts list, cut sheet and shopping list; `storeComparison(est)` in `catalog.mjs` compares stores; `simplify(design)` in `simplify.mjs` runs the cut and cost search; `searchDesigns({ constraints: { maxFootprint: 100 } })` in `designsearch.mjs` searches sizes, layouts and framing under a footprint limit and returns the Pareto front over cost, storage volume and a documented looks heuristic, every design priced and passing the structural checks; `buildSheets` / `sheetSvg` / `sheetsDxf` in `drawings.mjs` make the drawings. Lengths are inches. `defaultDesign()` returns a complete example to edit.
 
 ## Limits
 
