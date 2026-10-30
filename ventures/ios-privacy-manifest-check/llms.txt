@@ -1,0 +1,15 @@
+# iOS Privacy Manifest Checker
+
+> Free, browser-local checker: scans your Swift/Objective-C source for Apple's Required Reason API usage and compares it against your PrivacyInfo.xcprivacy manifest, so a missing declaration doesn't cost you an App Store rejection (ITMS-91061 / ITMS-91055). Nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/ios-privacy-manifest-check/)
+- [Fixing ITMS-91061 and ITMS-91055](https://duncan-haywood.github.io/oss-monorepo/ios-privacy-manifest-check/missing-privacy-manifest-itms-91061.html)
+- [This checker vs. guessing from Apple's docs or waiting for App Review to reject the build](https://duncan-haywood.github.io/oss-monorepo/ios-privacy-manifest-check/vs-waiting-for-app-review.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/ios-privacy-manifest-check): MIT licensed.

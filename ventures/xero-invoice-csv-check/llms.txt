@@ -1,0 +1,13 @@
+# Why did my Xero invoice import fail?
+
+> Free Xero sales invoice CSV checker: finds date-order conflicts, invoices whose lines disagree, missing columns, bad amounts, account names in the code column, tax rates typed as percentages and Excel damage, with line numbers, applies safe fixes and splits files over 500 lines.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/xero-invoice-csv-check/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/xero-invoice-csv-check): MIT licensed.

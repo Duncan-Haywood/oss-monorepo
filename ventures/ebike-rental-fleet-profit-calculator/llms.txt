@@ -1,0 +1,14 @@
+# Will an e-bike rental fleet pay for itself?
+
+> Free e-bike rental business calculator: enter your bikes, busy and quiet days, utilization, half-day and full-day prices, staff, rent, batteries and any loan, and see season profit, payback, break-even utilization and the lowest rental prices. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/ebike-rental-fleet-profit-calculator/)
+- [How much does an e-bike rental business make?](https://duncan-haywood.github.io/oss-monorepo/ebike-rental-fleet-profit-calculator/how-much-does-an-ebike-rental-business-make.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/ebike-rental-fleet-profit-calculator): MIT licensed.

@@ -1,0 +1,14 @@
+# Simulate conversations between fictional personalities
+
+> Build fictional characters with Big Five personalities and simulate negotiations, team meetings and arguments between them. Free, private, runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/persona-conversation-simulator/)
+- [Big Five personality traits and conflict: who clashes, and why](https://duncan-haywood.github.io/oss-monorepo/persona-conversation-simulator/big-five-personality-conflict-styles.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/persona-conversation-simulator): MIT licensed.

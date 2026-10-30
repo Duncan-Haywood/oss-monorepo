@@ -1,0 +1,14 @@
+# How many units should you own?
+
+> Free rental fleet size optimizer for tent, equipment, kayak, tool and party rental businesses. Enter your seasons, rental lengths, price and what a unit costs to own; it finds the number of units that maximises yearly profit using the Erlang loss formula and a day-by-day simulation.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/rental-fleet-size-optimizer/)
+- [How many rental units to own, and why the last one rarely pays](https://duncan-haywood.github.io/oss-monorepo/rental-fleet-size-optimizer/how-many-rental-units-to-own.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/rental-fleet-size-optimizer): MIT licensed.

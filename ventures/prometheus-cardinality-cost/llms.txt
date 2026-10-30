@@ -1,0 +1,14 @@
+# Which labels are inflating your metrics bill?
+
+> Paste a Prometheus or OpenMetrics /metrics scrape and see active series per metric, the high-cardinality labels, the exact series saved by dropping each one, and a monthly cost estimate on Grafana Cloud or Datadog-style pricing. Free, runs in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/prometheus-cardinality-cost/)
+- [Why Prometheus metrics bills explode, and which labels to drop](https://duncan-haywood.github.io/oss-monorepo/prometheus-cardinality-cost/why-prometheus-metrics-bills-explode-and-which-labels-to-drop.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/prometheus-cardinality-cost): MIT licensed.

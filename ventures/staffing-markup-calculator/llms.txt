@@ -1,0 +1,16 @@
+# A 45% markup is not a 45% margin. It is not a 31% one either.
+
+> Price a staffing placement properly: employer burden per hour, the real gross margin behind your markup, the break-even markup, and the markup a target margin needs. Free, private, nothing leaves your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/staffing-markup-calculator/)
+- [Markup vs. margin in staffing](https://duncan-haywood.github.io/oss-monorepo/staffing-markup-calculator/markup-vs-margin.html)
+- [Staffing markup calculator vs. a spreadsheet](https://duncan-haywood.github.io/oss-monorepo/staffing-markup-calculator/vs-a-spreadsheet.html)
+- [Staffing markup calculator vs. TempWorks](https://duncan-haywood.github.io/oss-monorepo/staffing-markup-calculator/vs-tempworks.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/staffing-markup-calculator): MIT licensed.

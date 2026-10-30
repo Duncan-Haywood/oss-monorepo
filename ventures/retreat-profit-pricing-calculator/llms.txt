@@ -1,0 +1,13 @@
+# Will your retreat make money, and how many guests do you need?
+
+> Free calculator for retreat, workshop and group-trip organizers: break-even guests, profit by turnout, the cost of a venue guaranteed minimum and of early-bird seats, and the price that hits your profit target. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/retreat-profit-pricing-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/retreat-profit-pricing-calculator): MIT licensed.

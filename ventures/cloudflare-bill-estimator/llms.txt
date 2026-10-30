@@ -1,0 +1,14 @@
+# What will your Cloudflare bill be, and what cuts it most?
+
+> Estimate a monthly Cloudflare developer-platform bill from your own usage (Workers requests and CPU time, KV reads and writes, R2 storage and operations) at editable list prices, and see which changes cut it most, with a dollar saving for each. Free, runs in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/cloudflare-bill-estimator/)
+- [How to reduce your Cloudflare Workers, KV and R2 bill: levers ranked by dollar impact](https://duncan-haywood.github.io/oss-monorepo/cloudflare-bill-estimator/how-to-reduce-your-cloudflare-bill.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/cloudflare-bill-estimator): MIT licensed.

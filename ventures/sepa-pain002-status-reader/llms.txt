@@ -1,0 +1,13 @@
+# Why did your bank reject these SEPA payments?
+
+> Free SEPA pain.002 reader: which payments your bank rejected, what each code (AC04, AM04, MD01) means, what to fix. In your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/sepa-pain002-status-reader/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/sepa-pain002-status-reader): MIT licensed.

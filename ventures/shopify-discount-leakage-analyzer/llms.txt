@@ -1,0 +1,13 @@
+# Which of your Shopify discount codes actually pay for themselves?
+
+> Free Shopify discount code analyzer: drop in your orders export and see how much each code gave away, the share of its orders that must be new sales to pay for itself, refund rates by code and discounts that went to repeat customers. Runs in your browser, the file is never uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/shopify-discount-leakage-analyzer/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/shopify-discount-leakage-analyzer): MIT licensed.

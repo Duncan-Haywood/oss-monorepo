@@ -1,0 +1,13 @@
+# Build your own robot vacuum, robot mop, or vacuum-mop combo
+
+> DIY robot vacuum, robot mop and robot vacuum-mop combo: open-source hardware (MIT) with laser-cut and 3D-printed parts, ESP32 firmware, a coverage path planner, and a cleaning simulator you can try in your browser on your own room.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/open-floor-robots/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/open-floor-robots): MIT licensed.

@@ -1,0 +1,13 @@
+# Does a heat pump beat a new gas furnace on your prices?
+
+> Free heat pump vs gas furnace calculator for homeowners. Enter your gas therms, prices, COP and quotes to see running cost per million BTU, the break-even COP, payback against a new furnace and AC, and lifetime saving. Runs in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/heat-pump-vs-furnace-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/heat-pump-vs-furnace-calculator): MIT licensed.

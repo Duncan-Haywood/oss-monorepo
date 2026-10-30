@@ -1,0 +1,14 @@
+# Which college offer will really cost less?
+
+> Free financial aid award letter comparator. Type in each college's cost, grants, loans and work-study and see the true four-year cost, loans repaid with interest, the year-2 price jump and the grant that would match the cheapest offer. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/aid-award-letter-comparator/)
+- [How to compare financial aid offers](https://duncan-haywood.github.io/oss-monorepo/aid-award-letter-comparator/how-to-compare-financial-aid-offers.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/aid-award-letter-comparator): MIT licensed.

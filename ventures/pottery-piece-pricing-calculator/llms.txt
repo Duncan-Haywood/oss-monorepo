@@ -1,0 +1,13 @@
+# What does one mug really cost you, and what should it sell for?
+
+> Free pottery pricing calculator. Clay, glaze, kiln firing cost, breakage, your hours and studio rent in; true cost per sellable piece, the retail and wholesale price for your target margin and your hourly return out. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/pottery-piece-pricing-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/pottery-piece-pricing-calculator): MIT licensed.

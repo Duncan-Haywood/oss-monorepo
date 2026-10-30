@@ -1,0 +1,15 @@
+# Split your tests into evenly timed CI shards
+
+> Paste JUnit XML from pytest, Jest, Go, Maven/Gradle or RSpec and get an even split into N CI shards, the slowest-shard time, billed-minute savings, the best shard count, and ready-to-paste shard commands. Free, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/ci-test-shard-balancer/)
+- [How to split tests across CI shards evenly](https://duncan-haywood.github.io/oss-monorepo/ci-test-shard-balancer/how-to-split-tests-across-ci-shards.html)
+- [This tool vs. Knapsack Pro](https://duncan-haywood.github.io/oss-monorepo/ci-test-shard-balancer/vs-knapsack-pro.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/ci-test-shard-balancer): MIT licensed.

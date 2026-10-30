@@ -1,0 +1,13 @@
+# How much of what you earn should you set aside for tax?
+
+> Free Singapore freelancer tax calculator: enter income and expenses to see income tax after earned income relief, a MediSave flag and how much of every invoice to set aside. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/sg-freelancer-tax-set-aside-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/sg-freelancer-tax-set-aside-calculator): MIT licensed.

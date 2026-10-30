@@ -1,0 +1,13 @@
+# Who should do which job, and in what order?
+
+> Free job dispatch and route planner for plumbers, HVAC, electricians, cleaners and other service crews. Paste your jobs and crews to get the cheapest assignment and stop order, what it saves against sending the nearest crew, and what losing a crew costs. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/crew-dispatch-optimizer/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/crew-dispatch-optimizer): MIT licensed.

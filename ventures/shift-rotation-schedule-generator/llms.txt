@@ -1,0 +1,14 @@
+# Your rotating shift schedule, as a calendar
+
+> Generate a rotating shift schedule for Pitman 2-2-3, 4-on-4-off, 3-on-3-off, DuPont and 24/48 patterns: see hours per week, weekends off and days off per year, find your crew, and export an .ics calendar. Free, in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/shift-rotation-schedule-generator/)
+- [Which rotating shift pattern is best?](https://duncan-haywood.github.io/oss-monorepo/shift-rotation-schedule-generator/rotating-shift-schedules-compared.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/shift-rotation-schedule-generator): MIT licensed.

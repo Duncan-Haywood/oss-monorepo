@@ -1,0 +1,13 @@
+# What is the most you can bid on this pallet?
+
+> Free liquidation pallet bid calculator. Paste a manifest to get the maximum bid for a chance of loss you accept, with a Monte Carlo simulation of recovery rate, sell-through and damage, break-even recovery and concentration risk. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/liquidation-pallet-bid-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/liquidation-pallet-bid-calculator): MIT licensed.

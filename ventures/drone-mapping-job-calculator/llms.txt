@@ -1,0 +1,16 @@
+# Overlap is not a ten percent decision.
+
+> Plan and price an aerial mapping sortie: ground sample distance from your sensor and altitude, flight line spacing, image count, airtime, battery swaps, processing hours and the price that clears your margin. Free, private, nothing leaves your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/drone-mapping-job-calculator/)
+- [How much should you charge for drone mapping?](https://duncan-haywood.github.io/oss-monorepo/drone-mapping-job-calculator/how-much-to-charge-for-drone-mapping.html)
+- [This calculator vs. a flat per-acre quote](https://duncan-haywood.github.io/oss-monorepo/drone-mapping-job-calculator/vs-a-flat-per-acre-quote.html)
+- [This calculator vs. DroneDeploy](https://duncan-haywood.github.io/oss-monorepo/drone-mapping-job-calculator/vs-dronedeploy.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/drone-mapping-job-calculator): MIT licensed.

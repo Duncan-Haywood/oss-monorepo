@@ -1,0 +1,16 @@
+# Bid the method, the laterals, and the restore.
+
+> Price a sewer line replacement from open-cut, pipe bursting, or CIPP lining: footage, bury depth, laterals, and the surface you have to put back — not a published $125-a-foot special. See when trenchless wins and the walk-away number.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/sewer-line-replace-bid-calculator/)
+- [How much to charge to replace a sewer line](https://duncan-haywood.github.io/oss-monorepo/sewer-line-replace-bid-calculator/how-much-to-charge-to-replace-a-sewer-line.html)
+- [This calculator vs. a flat "$125-a-foot" price](https://duncan-haywood.github.io/oss-monorepo/sewer-line-replace-bid-calculator/vs-a-flat-per-foot-price.html)
+- [This calculator vs. ServiceTitan](https://duncan-haywood.github.io/oss-monorepo/sewer-line-replace-bid-calculator/vs-servicetitan.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/sewer-line-replace-bid-calculator): MIT licensed.

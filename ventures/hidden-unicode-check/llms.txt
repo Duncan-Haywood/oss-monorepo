@@ -1,0 +1,16 @@
+# Hidden Unicode Check
+
+> Find invisible zero-width, tag and bidi override characters hidden in CLAUDE.md, AGENTS.md, rules files or any text. Free, private, runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/hidden-unicode-check/)
+- [How to remove hidden Unicode characters once you've found them](https://duncan-haywood.github.io/oss-monorepo/hidden-unicode-check/how-to-remove-hidden-unicode-characters.html)
+- [Hidden Unicode Check vs. MCP-Scan](https://duncan-haywood.github.io/oss-monorepo/hidden-unicode-check/vs-mcp-scan.html)
+- [Hidden Unicode Check vs. reading the file by hand](https://duncan-haywood.github.io/oss-monorepo/hidden-unicode-check/vs-reading-the-file-by-hand.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/hidden-unicode-check): MIT licensed.

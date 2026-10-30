@@ -1,0 +1,14 @@
+# What will this terraform apply add to the monthly AWS bill?
+
+> Paste a Terraform plan (terraform show -json) and get an approximate monthly AWS cost delta before you apply: top cost drivers, an honest list of what it could not price, and a budget threshold for CI. Free, no signup, runs entirely in your browser. An offline alternative to Infracost for the common AWS resources.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/terraform-plan-cost-estimate/)
+- [This tool vs. Infracost](https://duncan-haywood.github.io/oss-monorepo/terraform-plan-cost-estimate/vs-infracost.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/terraform-plan-cost-estimate): MIT licensed.

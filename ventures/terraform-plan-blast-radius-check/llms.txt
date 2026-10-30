@@ -1,0 +1,15 @@
+# Which of these resources is your terraform apply about to destroy?
+
+> Paste a Terraform plan JSON to see what an apply destroys or replaces, with a loud flag when a database, bucket or DNS record is hit. Runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/terraform-plan-blast-radius-check/)
+- [This checker vs. writing your own Sentinel or OPA policy](https://duncan-haywood.github.io/oss-monorepo/terraform-plan-blast-radius-check/vs-writing-your-own-sentinel-opa-policy.html)
+- [Why a Terraform replace destroys data, and why the plan won't always say which attribute forced it](https://duncan-haywood.github.io/oss-monorepo/terraform-plan-blast-radius-check/why-terraform-replace-destroys-data.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/terraform-plan-blast-radius-check): MIT licensed.

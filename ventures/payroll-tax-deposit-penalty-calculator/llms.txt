@@ -1,0 +1,13 @@
+# Did you deposit payroll taxes on time, and what is a late one costing you?
+
+> Free payroll tax deposit calculator for small employers: monthly or semiweekly due dates, the $100,000 next-day rule, and the failure-to-deposit penalty with the cheapest way to apply your deposits. Runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/payroll-tax-deposit-penalty-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/payroll-tax-deposit-penalty-calculator): MIT licensed.

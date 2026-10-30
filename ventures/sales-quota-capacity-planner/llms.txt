@@ -1,0 +1,13 @@
+# How many reps must you hire to hit next year's number, and by when?
+
+> How many quota-carrying reps must you hire, and by when, to hit next year's bookings target? Month-by-month ramped capacity, attrition, hiring lead time, a latest-start date per hire cohort, sensitivity, and hire-early vs hire-late cost. Free, runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/sales-quota-capacity-planner/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/sales-quota-capacity-planner): MIT licensed.

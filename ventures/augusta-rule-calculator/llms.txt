@@ -1,0 +1,13 @@
+# What does renting your home to your business for 14 days save you?
+
+> Free Augusta rule calculator. Enter days rented to your own business, a fair daily rent and your tax rates to see the federal, self-employment and state tax saved, net of costs, and how the saving changes if the rate is cut back. Runs in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/augusta-rule-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/augusta-rule-calculator): MIT licensed.

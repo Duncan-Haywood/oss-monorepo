@@ -1,0 +1,13 @@
+# What should a freelance grant writer charge per proposal?
+
+> Free grant writer pricing calculator: turn your target hourly pay, unbillable time and tax into a flat fee per proposal, check fees you already quoted and test your month. Runs in your browser, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/grant-writer-proposal-price-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/grant-writer-proposal-price-calculator): MIT licensed.

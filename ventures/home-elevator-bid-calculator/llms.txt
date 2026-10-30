@@ -1,0 +1,19 @@
+# Bid the stops, the shaft, and the extras.
+
+> Price a residential home elevator from stops, travel, pneumatic versus hydraulic versus traction MRL, through-floor versus a new shaft, acrylic versus glass cab, and extras — plus the walk-away price an $18,995 pneumatic special cannot see.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/home-elevator-bid-calculator/)
+- [Acrylic vs glass home elevator cab](https://duncan-haywood.github.io/oss-monorepo/home-elevator-bid-calculator/acrylic-vs-glass-home-elevator-cab.html)
+- [How much to charge to install a home elevator](https://duncan-haywood.github.io/oss-monorepo/home-elevator-bid-calculator/how-much-to-charge-to-install-a-home-elevator.html)
+- [Should I expedite a home elevator for hospital discharge?](https://duncan-haywood.github.io/oss-monorepo/home-elevator-bid-calculator/should-i-expedite-a-home-elevator-for-hospital-discharge.html)
+- [Should I install a customer-supplied home elevator?](https://duncan-haywood.github.io/oss-monorepo/home-elevator-bid-calculator/should-i-install-a-customer-supplied-home-elevator.html)
+- [This calculator vs. a flat pneumatic special](https://duncan-haywood.github.io/oss-monorepo/home-elevator-bid-calculator/vs-a-flat-pneumatic-special.html)
+- [This calculator vs. Jobber](https://duncan-haywood.github.io/oss-monorepo/home-elevator-bid-calculator/vs-jobber.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/home-elevator-bid-calculator): MIT licensed.

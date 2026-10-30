@@ -1,0 +1,14 @@
+# Why does this text bill as 3 segments?
+
+> Paste a text message to see whether it is GSM-7 or UCS-2, how many segments it bills as, what it costs per month at your volume, and which curly quote or emoji to swap to cut the bill. Free, runs in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/sms-segment-cost-calculator/)
+- [Why does my text bill as multiple SMS segments?](https://duncan-haywood.github.io/oss-monorepo/sms-segment-cost-calculator/why-does-my-text-bill-as-multiple-segments.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/sms-segment-cost-calculator): MIT licensed.

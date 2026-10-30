@@ -1,0 +1,13 @@
+# What is your stop order costing you?
+
+> Free route optimizer for service businesses, couriers and sales reps. Paste your stops with service times and customer time windows to get the order that cuts drive time, split across drivers, with miles, hours and dollars saved. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/route-stop-optimizer/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/route-stop-optimizer): MIT licensed.

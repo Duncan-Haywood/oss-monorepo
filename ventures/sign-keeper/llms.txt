@@ -1,0 +1,13 @@
+# Send a contract link. Get a signature you can prove wasn't changed.
+
+> Send a signing link, collect a typed signature with consent, and keep a certificate anyone can re-verify. A free, open-source, self-hosted alternative to per-envelope e-signature pricing.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/sign-keeper/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/sign-keeper): MIT licensed.

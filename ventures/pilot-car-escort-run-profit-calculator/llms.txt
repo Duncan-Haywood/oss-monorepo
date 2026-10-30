@@ -1,0 +1,14 @@
+# What does an escort run really make? True profit, margin and the lowest quote
+
+> Free calculator for pilot car and oversize-load escort operators. Enter your quote (flat, day rate or per loaded mile), minimum charge, loaded and deadhead miles, driver hours, fuel, per diem and yearly overhead; it shows true profit per run, profit per driver hour and the lowest quote for your margin.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/pilot-car-escort-run-profit-calculator/)
+- [How much does a pilot car escort run really make?](https://duncan-haywood.github.io/oss-monorepo/pilot-car-escort-run-profit-calculator/how-much-does-a-pilot-car-escort-run-really-make.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/pilot-car-escort-run-profit-calculator): MIT licensed.

@@ -1,0 +1,13 @@
+# Hands-Free Language Coach
+
+> Learn a language by voice alone: the coach says a phrase, you say it back, it listens and scores you, and moves on. No tapping, no screen. Streaks, XP and spaced review like a language game, free in your browser, plus a skill for Claude and ChatGPT voice mode.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/hands-free-language-coach/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/hands-free-language-coach): MIT licensed.

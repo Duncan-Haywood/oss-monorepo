@@ -1,0 +1,13 @@
+# Which of my stock losses are wash sales, across every account?
+
+> Free wash sale checker: paste your trades and see which losses are disallowed, the loss you can still claim, the adjusted basis of replacement shares, and wash sales across accounts and IRAs that your broker's 1099-B misses. Private, runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/wash-sale-checker/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/wash-sale-checker): MIT licensed.

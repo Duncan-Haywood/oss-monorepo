@@ -1,0 +1,16 @@
+# Bid the stop, not the room special.
+
+> Price a carpet cleaning job from soil-specific extraction rates: rooms, stairs, pet-urine extra passes, upholstery, furniture moving, and drive time — plus the walk-away number a $129 three-bedroom special hides.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/carpet-cleaning-bid-calculator/)
+- [How to price carpet cleaning without giving the drive away.](https://duncan-haywood.github.io/oss-monorepo/carpet-cleaning-bid-calculator/how-to-price-carpet-cleaning.html)
+- [This calculator vs. a flat per-room special](https://duncan-haywood.github.io/oss-monorepo/carpet-cleaning-bid-calculator/vs-a-flat-per-room-special.html)
+- [This calculator vs. ServiceMonster](https://duncan-haywood.github.io/oss-monorepo/carpet-cleaning-bid-calculator/vs-servicemonster.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/carpet-cleaning-bid-calculator): MIT licensed.

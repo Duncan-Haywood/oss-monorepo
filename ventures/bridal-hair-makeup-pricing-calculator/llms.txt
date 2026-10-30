@@ -1,0 +1,16 @@
+# Can one artist finish this bridal party on time — and what does the booking actually total?
+
+> Free calculator for bridal hair and makeup artists: price the bride and party, add early-start and travel fees, and check one artist can cover the schedule.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/bridal-hair-makeup-pricing-calculator/)
+- [This calculator vs. a flat day rate](https://duncan-haywood.github.io/oss-monorepo/bridal-hair-makeup-pricing-calculator/vs-flat-day-rate.html)
+- [This calculator vs. HoneyBook](https://duncan-haywood.github.io/oss-monorepo/bridal-hair-makeup-pricing-calculator/vs-honeybook.html)
+- [Why a booking that prices fine can still be impossible to finish](https://duncan-haywood.github.io/oss-monorepo/bridal-hair-makeup-pricing-calculator/why-a-priced-booking-can-still-be-impossible.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/bridal-hair-makeup-pricing-calculator): MIT licensed.

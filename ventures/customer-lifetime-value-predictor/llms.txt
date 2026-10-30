@@ -1,0 +1,14 @@
+# What is each customer really worth?
+
+> Free customer lifetime value predictor for online shops. Upload an order list to get each customer's predicted value, the chance they are still active, at-risk big spenders, what a new customer is worth, and a back-test of the forecast. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/customer-lifetime-value-predictor/)
+- [How to predict customer lifetime value: why "orders per year" overshoots by 68%](https://duncan-haywood.github.io/oss-monorepo/customer-lifetime-value-predictor/predict-customer-lifetime-value-from-orders.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/customer-lifetime-value-predictor): MIT licensed.

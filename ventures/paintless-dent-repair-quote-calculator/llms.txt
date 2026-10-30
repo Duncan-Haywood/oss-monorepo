@@ -1,0 +1,13 @@
+# What should you charge for this dent repair or hail job?
+
+> Free paintless dent repair and hail quote calculator: enter dents by size, aluminum and body-line share, tech time and comeback rate, and check your per-dent matrix against cost. Runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/paintless-dent-repair-quote-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/paintless-dent-repair-quote-calculator): MIT licensed.

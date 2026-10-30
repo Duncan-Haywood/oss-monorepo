@@ -1,0 +1,14 @@
+# What should you make this week?
+
+> Free production mix optimizer for bakeries, workshops and small makers. Enter your products, margins and the hours or machines each one uses; it finds the most profitable weekly mix with whole batches and overtime, and shows what one more hour of your bottleneck is worth. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/production-mix-optimizer/)
+- [Why your best margin product may not be your best product](https://duncan-haywood.github.io/oss-monorepo/production-mix-optimizer/why-your-best-margin-product-may-not-be-your-best-product.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/production-mix-optimizer): MIT licensed.

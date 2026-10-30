@@ -1,0 +1,13 @@
+# What should you charge for this laser job?
+
+> Free laser cutting and engraving price calculator: enter the piece size, cut path, engraved area, sheet material, nesting, laser time, labour and setup, and get a price per piece with quantity breaks. Runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/laser-cutting-engraving-job-price-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/laser-cutting-engraving-job-price-calculator): MIT licensed.

@@ -1,0 +1,14 @@
+# A 15% gross margin load can lose money. Find out which ones, and what to quote instead.
+
+> Free freight broker margin calculator. Type in your loads and see true net margin after financing the carrier, factoring, claims reserve and overhead, plus the shipper rate to quote and the carrier rate to pay to hit your target. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/freight-broker-load-margin-calculator/)
+- [How to price a freight load for a target net margin](https://duncan-haywood.github.io/oss-monorepo/freight-broker-load-margin-calculator/how-to-price-a-freight-load-for-target-margin.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/freight-broker-load-margin-calculator): MIT licensed.

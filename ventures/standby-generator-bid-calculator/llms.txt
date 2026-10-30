@@ -1,0 +1,16 @@
+# Price the run, the switch, and the fuel — not a flat $8,000 hang.
+
+> Price a residential standby generator install from the nameplate feeder, transfer switch, pad, gas or propane line, and setback — plus walk-away price, dollars per kW, and how many times a typical 22 kW natural-gas hang this house really is.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/standby-generator-bid-calculator/)
+- [How much should I charge to install a standby generator?](https://duncan-haywood.github.io/oss-monorepo/standby-generator-bid-calculator/how-much-to-charge.html)
+- [This calculator vs. a flat $8,000 generator special](https://duncan-haywood.github.io/oss-monorepo/standby-generator-bid-calculator/vs-a-flat-8000-generator-special.html)
+- [This calculator vs. ServiceTitan](https://duncan-haywood.github.io/oss-monorepo/standby-generator-bid-calculator/vs-servicetitan.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/standby-generator-bid-calculator): MIT licensed.

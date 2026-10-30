@@ -1,0 +1,16 @@
+# Git Exposure Checker
+
+> Free tool: run a CLI that sends two real requests to your site (.git/HEAD and .git/config), then paste the JSON here for a plain-English report on whether your .git directory is publicly exposed -- letting anyone reconstruct your full source history, including secrets removed in a later commit.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/git-exposure-check/)
+- [How to fix a publicly exposed .git directory](https://duncan-haywood.github.io/oss-monorepo/git-exposure-check/how-to-fix-an-exposed-git-directory.html)
+- [How to tell a real exposed .git directory from a soft-404 false positive](https://duncan-haywood.github.io/oss-monorepo/git-exposure-check/how-to-tell-a-real-exposed-git-directory-from-a-soft-404.html)
+- [Git Exposure Checker vs. checking the URL by hand](https://duncan-haywood.github.io/oss-monorepo/git-exposure-check/vs-checking-the-url-by-hand.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/git-exposure-check): MIT licensed.

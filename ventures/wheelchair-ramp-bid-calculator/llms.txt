@@ -1,0 +1,16 @@
+# Bid the landings, the rails, and the rise.
+
+> Price a residential ADA-slope wheelchair ramp from the rise, the landings a lineal-foot special cannot see, both-side handrails, surface, demo, and permit — plus walk-away price and proposed-price margin check.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/wheelchair-ramp-bid-calculator/)
+- [How much to charge to build a wheelchair ramp](https://duncan-haywood.github.io/oss-monorepo/wheelchair-ramp-bid-calculator/how-much-to-charge-to-build-a-wheelchair-ramp.html)
+- [This calculator vs. a flat rate per lineal foot](https://duncan-haywood.github.io/oss-monorepo/wheelchair-ramp-bid-calculator/vs-a-flat-rate-per-lineal-foot.html)
+- [This calculator vs. Jobber](https://duncan-haywood.github.io/oss-monorepo/wheelchair-ramp-bid-calculator/vs-jobber.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/wheelchair-ramp-bid-calculator): MIT licensed.

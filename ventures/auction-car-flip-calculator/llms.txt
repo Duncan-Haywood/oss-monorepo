@@ -1,0 +1,13 @@
+# What can you bid and still make money?
+
+> Auction car flip calculator for dealers and flippers. Enter resale price, repairs, the auction's buyer fee tiers, transport, tax and holding costs to get the max bid, the break-even bid, and a stress table for repair overruns and a lower resale. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/auction-car-flip-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/auction-car-flip-calculator): MIT licensed.

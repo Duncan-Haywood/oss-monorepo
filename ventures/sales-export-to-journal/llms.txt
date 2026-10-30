@@ -1,0 +1,13 @@
+# Turn any marketplace or payment export into a Xero or QuickBooks journal
+
+> Free sales export to journal converter for Airbnb, Amazon, eBay, Etsy, Gumroad, DistroKid, YouTube AdSense, Amazon KDP, PayPal, Shopify, Square and Stripe: drop the CSV, the page detects the platform, proves the rows add up to the payout, and downloads month-split journals for Xero or QuickBooks.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/sales-export-to-journal/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/sales-export-to-journal): MIT licensed.

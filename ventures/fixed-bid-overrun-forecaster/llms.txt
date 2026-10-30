@@ -1,0 +1,13 @@
+# Is this fixed-price job going to finish inside the price?
+
+> Free fixed-price project forecaster: enter price, cost budget, percent complete and cost to date to see projected final cost, margin, CPI and SPI, and when the job stops paying. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/fixed-bid-overrun-forecaster/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/fixed-bid-overrun-forecaster): MIT licensed.

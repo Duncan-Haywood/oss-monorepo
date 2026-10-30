@@ -1,0 +1,13 @@
+# Which lost and damaged FBA units did Amazon never pay you for?
+
+> Free tool for Amazon FBA sellers: load your Inventory Ledger and Reimbursements report and see the lost and damaged units that look unreimbursed, what they are worth, and which claims expire first. Runs in your browser, the files are never uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/fba-reimbursement-claim-finder/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/fba-reimbursement-claim-finder): MIT licensed.

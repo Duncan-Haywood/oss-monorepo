@@ -1,0 +1,13 @@
+# Where should each SKU go in my warehouse to cut pickers' walking?
+
+> Free warehouse slotting tool for small warehouses, 3PLs and online sellers: enter your shelf grid, each SKU's picks and size, and optionally real orders. Get where every SKU should live to cut picker walking, the few swaps that save most, and the payback. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/warehouse-slotting-optimizer/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/warehouse-slotting-optimizer): MIT licensed.

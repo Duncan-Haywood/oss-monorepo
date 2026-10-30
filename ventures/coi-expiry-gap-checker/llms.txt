@@ -1,0 +1,13 @@
+# Which of your subcontractors is actually insured today?
+
+> Free COI tracker for contractors and property managers: check subcontractor insurance against your contract's limits, endorsements and lead time, find expired and expiring policies and renewal gaps, and export a chase list and calendar. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/coi-expiry-gap-checker/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/coi-expiry-gap-checker): MIT licensed.

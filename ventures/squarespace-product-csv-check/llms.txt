@@ -1,0 +1,13 @@
+# Why did my Squarespace product import fail?
+
+> Free Squarespace product CSV checker: finds variant rows that start new products, duplicate SKUs and Product URLs, bad prices, On Sale without a Sale Price, wrong Yes/No flags, broken Hosted Image URLs, Excel-damaged SKUs and semicolon files, with line numbers, and applies safe fixes.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/squarespace-product-csv-check/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/squarespace-product-csv-check): MIT licensed.

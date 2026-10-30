@@ -1,0 +1,18 @@
+# Bid the opening, the leaf, and the extras.
+
+> Price an interior door replacement from door count, hollow slab versus solid-core versus French-or-barn, hang-only versus pocket-conversion, owner-supplied versus carpenter-supplied, weekday versus Saturday overtime, and extras — plus the walk-away price a $150-a-door special cannot see.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/interior-door-bid-calculator/)
+- [How much to charge to replace interior doors](https://duncan-haywood.github.io/oss-monorepo/interior-door-bid-calculator/how-much-to-charge-to-replace-interior-doors.html)
+- [Should I hang a customer-supplied door?](https://duncan-haywood.github.io/oss-monorepo/interior-door-bid-calculator/should-i-hang-a-customer-supplied-door.html)
+- [Should I hang doors on Saturday?](https://duncan-haywood.github.io/oss-monorepo/interior-door-bid-calculator/should-i-hang-doors-on-saturday.html)
+- [This calculator vs. a flat per-door price](https://duncan-haywood.github.io/oss-monorepo/interior-door-bid-calculator/vs-a-flat-per-door-price.html)
+- [This calculator vs. Jobber](https://duncan-haywood.github.io/oss-monorepo/interior-door-bid-calculator/vs-jobber.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/interior-door-bid-calculator): MIT licensed.

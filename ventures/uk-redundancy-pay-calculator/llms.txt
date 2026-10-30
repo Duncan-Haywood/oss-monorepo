@@ -1,0 +1,13 @@
+# Redundancy: what am I owed, and how much is tax-free?
+
+> Free UK statutory redundancy pay calculator: enter your dates and weekly pay to see your redundancy pay, the weekly cap, your minimum notice and how much of it is tax-free. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/uk-redundancy-pay-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/uk-redundancy-pay-calculator): MIT licensed.

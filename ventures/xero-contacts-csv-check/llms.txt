@@ -1,0 +1,13 @@
+# Why did my Xero contacts import fail?
+
+> Free Xero contacts CSV checker: finds duplicate contact names, missing columns, emails holding two addresses, bad payment terms, discounts out of range and Excel damage to phone numbers and postcodes, with line numbers, applies safe fixes and splits big files. Runs in your browser; the file is never uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/xero-contacts-csv-check/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/xero-contacts-csv-check): MIT licensed.

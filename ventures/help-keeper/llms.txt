@@ -1,0 +1,13 @@
+# A help center that tells you what to write next.
+
+> A help center you host yourself: Markdown articles, typo-tolerant ranked search, helpful votes and a report of what visitors searched for and could not find. Open source, MIT, no per-seat fee. Try the search in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/help-keeper/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/help-keeper): MIT licensed.

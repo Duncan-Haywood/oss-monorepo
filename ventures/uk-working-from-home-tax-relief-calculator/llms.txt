@@ -1,0 +1,13 @@
+# The £6 a week homeworking relief has ended. What can you still claim back?
+
+> Free UK calculator: the £6 a week working from home tax relief ended in April 2026, but 2022/23 to 2025/26 can still be claimed. See your refund per year and each deadline. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/uk-working-from-home-tax-relief-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/uk-working-from-home-tax-relief-calculator): MIT licensed.

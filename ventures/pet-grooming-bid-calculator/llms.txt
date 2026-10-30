@@ -1,0 +1,16 @@
+# Price the coat, not just the breed.
+
+> Free pet grooming price calculator: size, coat, matting, add-ons, and mobile travel go into one transparent quote with break-even and target-margin price.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/pet-grooming-bid-calculator/)
+- [How much should I charge for dog grooming?](https://duncan-haywood.github.io/oss-monorepo/pet-grooming-bid-calculator/how-much-to-charge.html)
+- [This calculator vs. a flat per-breed price card](https://duncan-haywood.github.io/oss-monorepo/pet-grooming-bid-calculator/vs-a-flat-per-breed-price.html)
+- [This calculator vs. MoeGo](https://duncan-haywood.github.io/oss-monorepo/pet-grooming-bid-calculator/vs-moego.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/pet-grooming-bid-calculator): MIT licensed.

@@ -1,0 +1,14 @@
+# Which booking requests should you accept?
+
+> Paste your confirmed bookings and pending requests and get the exact set of requests to accept for the highest income, counting turnover cost and the dead gap nights a short stay leaves behind. Free, runs in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/booking-request-chooser/)
+- [Which booking request should you accept? The gap-night math](https://duncan-haywood.github.io/oss-monorepo/booking-request-chooser/which-booking-request-to-accept.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/booking-request-chooser): MIT licensed.

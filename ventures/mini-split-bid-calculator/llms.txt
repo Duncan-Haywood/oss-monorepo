@@ -1,0 +1,16 @@
+# Bid the run and the circuit, not the head.
+
+> Price a ductless mini-split install from indoor heads, line-set extras, story height, electrical extras, and margin — then see price per head, crew hours, and the walk-away number a cheaper per-head quote hides.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/mini-split-bid-calculator/)
+- [How much to charge to install a mini split](https://duncan-haywood.github.io/oss-monorepo/mini-split-bid-calculator/how-much-to-charge-to-install-a-mini-split.html)
+- [This calculator vs. a flat $2,800-a-head quote](https://duncan-haywood.github.io/oss-monorepo/mini-split-bid-calculator/vs-a-flat-2800-per-head-quote.html)
+- [This calculator vs. ServiceTitan](https://duncan-haywood.github.io/oss-monorepo/mini-split-bid-calculator/vs-servicetitan.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/mini-split-bid-calculator): MIT licensed.

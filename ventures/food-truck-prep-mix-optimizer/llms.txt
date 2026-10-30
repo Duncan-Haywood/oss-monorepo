@@ -1,0 +1,13 @@
+# How many of each menu item should I prep?
+
+> Free food truck prep mix optimizer: enter prices, food costs, prep minutes, grill time and ingredient cash per menu item to find how many portions earn the most, and what an extra prep minute is worth. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/food-truck-prep-mix-optimizer/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/food-truck-prep-mix-optimizer): MIT licensed.

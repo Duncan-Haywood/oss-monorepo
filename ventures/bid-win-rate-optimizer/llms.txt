@@ -1,0 +1,13 @@
+# Are you quoting too low, or too high?
+
+> Free bid win-rate calculator for contractors, agencies and freelancers. Paste your past quotes (price, won or lost, cost) to see how your win chance falls as your markup rises, the markup with the highest expected profit, and a back-test that says whether to trust it. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/bid-win-rate-optimizer/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/bid-win-rate-optimizer): MIT licensed.

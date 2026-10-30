@@ -1,0 +1,16 @@
+# Mercari's 10% fee reaches your shipping too.
+
+> Free Mercari seller fee calculator for the current schedule (10% on item price + buyer-paid shipping, effective Jan 6 2025) and the legacy pre-2025 schedule (10% on item price plus 2.9%+$0.50 processing). Real profit, price for a target profit, and which schedule pays more. Nothing leaves your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/mercari-fee-calculator/)
+- [How much does Mercari take per sale?](https://duncan-haywood.github.io/oss-monorepo/mercari-fee-calculator/how-much-does-mercari-take.html)
+- [This calculator vs. doing Mercari fee math yourself](https://duncan-haywood.github.io/oss-monorepo/mercari-fee-calculator/vs-doing-the-fee-math-yourself.html)
+- [Mercari vs. Poshmark: the same sale, both fee schedules](https://duncan-haywood.github.io/oss-monorepo/mercari-fee-calculator/vs-poshmark.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/mercari-fee-calculator): MIT licensed.

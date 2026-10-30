@@ -1,0 +1,17 @@
+# The sale price isn't your payout. Net profit is.
+
+> Free calculator for StockX sneaker, streetwear, and card sellers: find real net payout and net profit after the seller fee (which drops by seller level), the Fast Shipping discount, the payment processing fee, and outbound shipping cost, then check a month of sales against a profit goal.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/stockx-seller-payout-calculator/)
+- [How much does StockX take from sellers?](https://duncan-haywood.github.io/oss-monorepo/stockx-seller-payout-calculator/how-much-does-stockx-take-from-sellers.html)
+- [StockX vs. eBay: the same sale, both fee structures](https://duncan-haywood.github.io/oss-monorepo/stockx-seller-payout-calculator/vs-ebay-resale-fees.html)
+- [StockX vs. GOAT: the same sale, both fee structures](https://duncan-haywood.github.io/oss-monorepo/stockx-seller-payout-calculator/vs-goat-seller-fees.html)
+- [This calculator vs. tracking StockX payouts in a spreadsheet](https://duncan-haywood.github.io/oss-monorepo/stockx-seller-payout-calculator/vs-tracking-stockx-payouts-in-a-spreadsheet.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/stockx-seller-payout-calculator): MIT licensed.

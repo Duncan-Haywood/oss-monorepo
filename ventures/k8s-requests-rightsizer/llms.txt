@@ -1,0 +1,14 @@
+# Are your Kubernetes requests wasting money?
+
+> Paste kubectl top output, kubectl get pods JSON or a simple CSV and see which containers request far more CPU and memory than they use, a recommended request with headroom, the monthly saving, out-of-memory risk and YAML patches. Free, runs in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/k8s-requests-rightsizer/)
+- [How to right-size Kubernetes resource requests](https://duncan-haywood.github.io/oss-monorepo/k8s-requests-rightsizer/how-to-right-size-kubernetes-resource-requests.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/k8s-requests-rightsizer): MIT licensed.

@@ -1,0 +1,13 @@
+# Which Amazon search terms are burning your ad budget, and which deserve more?
+
+> Free Amazon PPC search term analyzer: drop in your Sponsored Products search term report CSV and see wasted ad spend graded by evidence, negative keyword candidates, terms to harvest into exact match with break-even bids, and spend above your target ACOS. Runs in your browser, the file is never uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/amazon-ppc-search-term-analyzer/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/amazon-ppc-search-term-analyzer): MIT licensed.

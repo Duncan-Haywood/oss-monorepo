@@ -1,0 +1,14 @@
+# Have you been abroad 330 days yet?
+
+> Free calculator for the Form 2555 physical presence test: enter your stays abroad and see your best 12-month window, how many of the 330 days you have, how many days you can still spend elsewhere, and the prorated foreign earned income exclusion. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/feie-physical-presence-calculator/)
+- [The 330-day physical presence test: how to count it](https://duncan-haywood.github.io/oss-monorepo/feie-physical-presence-calculator/physical-presence-test-330-days-how-to-count.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/feie-physical-presence-calculator): MIT licensed.

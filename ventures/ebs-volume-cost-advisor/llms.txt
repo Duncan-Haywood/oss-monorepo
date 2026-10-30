@@ -1,0 +1,14 @@
+# Are your EBS volumes the wrong type?
+
+> Paste your EBS volumes (type, size, provisioned and peak IOPS) and get the cheapest volume type that still covers the peak, the aws ec2 modify-volume command, gp2 burst risk and unattached volumes. Free, runs in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/ebs-volume-cost-advisor/)
+- [gp2 vs gp3: EBS volume cost and how to migrate](https://duncan-haywood.github.io/oss-monorepo/ebs-volume-cost-advisor/gp2-vs-gp3-ebs-cost-and-how-to-migrate.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/ebs-volume-cost-advisor): MIT licensed.

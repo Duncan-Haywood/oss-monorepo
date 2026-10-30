@@ -1,0 +1,13 @@
+# Why did my Etsy bulk upload fail?
+
+> Free Etsy bulk listing CSV checker: finds titles over 140 characters, more than 13 tags, tags over 20 characters, bad prices and currency codes, quantities over 999, broken image links, duplicate variation choices and Excel-damaged SKUs, with line numbers, and applies safe fixes.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/etsy-listing-csv-check/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/etsy-listing-csv-check): MIT licensed.

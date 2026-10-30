@@ -1,0 +1,13 @@
+# What does federal excise tax really cost your distillery per bottle?
+
+> Free federal spirits excise tax calculator for craft distillers: enter bottles and their proof, see proof gallons, the CBMA $2.70 and $13.34 tax, the cost per bottle and pour, and what growing past 100,000 proof gallons does. Runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/distillery-excise-tax-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/distillery-excise-tax-calculator): MIT licensed.

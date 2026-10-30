@@ -1,0 +1,13 @@
+# What does your hard money loan really cost?
+
+> Free hard money loan calculator for house flippers: compare two lenders on interest, points, draw fees, minimum interest and extension fees, see the effective annual rate, your profit, and the hold length where the cheaper lender changes. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/hard-money-loan-cost-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/hard-money-loan-cost-calculator): MIT licensed.

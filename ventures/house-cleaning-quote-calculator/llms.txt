@@ -1,0 +1,13 @@
+# What should this clean cost, and what can you discount?
+
+> House cleaning quote calculator for cleaning business owners. Enter home size, your cleaners' pace and wages, supplies and drive time to see cost per visit, the lowest price that earns your margin, how far you can discount weekly and biweekly clients, and annual profit. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/house-cleaning-quote-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/house-cleaning-quote-calculator): MIT licensed.

@@ -1,0 +1,19 @@
+# Bid the floor, the stairs, and the extras.
+
+> Price a carpet install from floor yards, stairs, stretch-in versus glue-down versus carpet tile, patterned waste, and extras — plus the walk-away price a $2-a-yard special cannot see.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/carpet-install-bid-calculator/)
+- [How much to charge to install carpet](https://duncan-haywood.github.io/oss-monorepo/carpet-install-bid-calculator/how-much-to-charge-to-install-carpet.html)
+- [Should I charge $2 a yard to install carpet?](https://duncan-haywood.github.io/oss-monorepo/carpet-install-bid-calculator/should-i-charge-2-a-yard-to-install-carpet.html)
+- [Should I charge extra for moving furniture on a carpet install?](https://duncan-haywood.github.io/oss-monorepo/carpet-install-bid-calculator/should-i-charge-extra-for-moving-furniture-on-a-carpet-install.html)
+- [This calculator vs. a flat rate per yard](https://duncan-haywood.github.io/oss-monorepo/carpet-install-bid-calculator/vs-a-flat-rate-per-yard.html)
+- [This calculator vs. Jobber](https://duncan-haywood.github.io/oss-monorepo/carpet-install-bid-calculator/vs-jobber.html)
+- [This calculator vs. MeasureSquare](https://duncan-haywood.github.io/oss-monorepo/carpet-install-bid-calculator/vs-measuresquare.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/carpet-install-bid-calculator): MIT licensed.

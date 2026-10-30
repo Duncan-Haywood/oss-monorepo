@@ -1,0 +1,13 @@
+# Is the low bid really the low bid once everyone is bidding the same scope?
+
+> Free bid leveling worksheet: paste subcontractor bids, price the excluded and unaddressed scope at your estimate, and see whether the low bid is still lowest. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/bid-leveling-worksheet/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/bid-leveling-worksheet): MIT licensed.

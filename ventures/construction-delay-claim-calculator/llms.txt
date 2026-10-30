@@ -1,0 +1,13 @@
+# What is this delayed job really worth, claim against liquidated damages?
+
+> Free construction delay claim calculator: sort delay days by cause, see the time extension you earn, the compensable cost with an Eichleay home-office share, and the liquidated damages left. Runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/construction-delay-claim-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/construction-delay-claim-calculator): MIT licensed.

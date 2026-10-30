@@ -1,0 +1,16 @@
+# Bid the squares and the waste, not the house.
+
+> Price a vinyl, fiber-cement, or engineered-wood siding job from wall area, waste, openings, stories, and tear-off — not a flat price per square foot. See labor hours, walk-away price, and the margin a neighborhood special actually leaves.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/siding-bid-calculator/)
+- [How much should I charge for vinyl siding?](https://duncan-haywood.github.io/oss-monorepo/siding-bid-calculator/how-much-to-charge.html)
+- [This calculator vs. a flat rate per square](https://duncan-haywood.github.io/oss-monorepo/siding-bid-calculator/vs-a-flat-rate-per-square.html)
+- [This calculator vs. JobNimbus](https://duncan-haywood.github.io/oss-monorepo/siding-bid-calculator/vs-jobnimbus.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/siding-bid-calculator): MIT licensed.

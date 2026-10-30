@@ -1,0 +1,16 @@
+# What's the refund, and what's the prorated rent?
+
+> Free security deposit refund calculator: itemize deductions against a tenant's deposit and see the refund or balance due. Plus a prorated rent calculator for a partial first or last month. Entirely client-side, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/security-deposit-return-calculator/)
+- [Normal wear and tear vs. damage: how to itemize a deposit deduction](https://duncan-haywood.github.io/oss-monorepo/security-deposit-return-calculator/normal-wear-and-tear-vs-damage.html)
+- [This calculator vs. a spreadsheet](https://duncan-haywood.github.io/oss-monorepo/security-deposit-return-calculator/vs-a-spreadsheet.html)
+- [This calculator vs. TurboTenant](https://duncan-haywood.github.io/oss-monorepo/security-deposit-return-calculator/vs-turbotenant.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/security-deposit-return-calculator): MIT licensed.

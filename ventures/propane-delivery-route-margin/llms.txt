@@ -1,0 +1,15 @@
+# Gallons delivered isn't profit. Margin per customer is.
+
+> Free calculator for independent propane (LP gas) delivery route operators: find real annual profit per customer after the retail/wholesale price spread, the minimum-delivery fee on small fills, drive time and mileage, and tank rental and hazmat compliance cost, then see whether your whole route hits your income goal.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/propane-delivery-route-margin/)
+- [Is a small propane customer worth keeping?](https://duncan-haywood.github.io/oss-monorepo/propane-delivery-route-margin/is-a-small-propane-customer-worth-keeping.html)
+- [This calculator vs. tracking propane delivery margin in a spreadsheet](https://duncan-haywood.github.io/oss-monorepo/propane-delivery-route-margin/vs-tracking-propane-delivery-margin-in-a-spreadsheet.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/propane-delivery-route-margin): MIT licensed.

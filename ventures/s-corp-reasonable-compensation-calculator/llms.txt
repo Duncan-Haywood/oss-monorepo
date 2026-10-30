@@ -1,0 +1,16 @@
+# Is your S-corp salary defensible — and what does closing the gap cost?
+
+> Free browser calculator for single-shareholder S-corp owners: compare your planned W-2 salary against a comparable-wage figure you supply, see the FICA-tax cost of closing the gap, and get a printable nine-factor documentation checklist for your own records. Runs in your browser, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/s-corp-reasonable-compensation-calculator/)
+- [This calculator vs. picking a round salary number](https://duncan-haywood.github.io/oss-monorepo/s-corp-reasonable-compensation-calculator/vs-picking-a-round-number.html)
+- [This calculator vs. RCReports and a paid reasonable-compensation report](https://duncan-haywood.github.io/oss-monorepo/s-corp-reasonable-compensation-calculator/vs-rcreports-and-a-paid-valuation-report.html)
+- [Why does the IRS test your S-corp salary?](https://duncan-haywood.github.io/oss-monorepo/s-corp-reasonable-compensation-calculator/why-the-irs-tests-your-s-corp-salary.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/s-corp-reasonable-compensation-calculator): MIT licensed.

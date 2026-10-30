@@ -1,0 +1,16 @@
+# Bid the membrane, the tear-off, and the insulation.
+
+> Price a low-slope TPO, EPDM, PVC, or modified-bitumen roof from the membrane squares a per-square special cannot see, the tear-off, the insulation, and the parapet — plus walk-away price and proposed-price margin check.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/flat-roof-bid-calculator/)
+- [How much to charge for a flat roof](https://duncan-haywood.github.io/oss-monorepo/flat-roof-bid-calculator/how-much-to-charge-for-a-flat-roof.html)
+- [This calculator vs. a flat $650 per square special](https://duncan-haywood.github.io/oss-monorepo/flat-roof-bid-calculator/vs-a-flat-650-per-square-special.html)
+- [This calculator vs. AccuLynx](https://duncan-haywood.github.io/oss-monorepo/flat-roof-bid-calculator/vs-acculynx.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/flat-roof-bid-calculator): MIT licensed.

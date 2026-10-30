@@ -1,0 +1,13 @@
+# Write a clear home inspection report in minutes
+
+> Free home inspection report builder: pick findings from a library of plain-language comments, edit them, add notes and your own repair cost ranges, and print a clean report sorted by severity. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/home-inspection-report-builder/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/home-inspection-report-builder): MIT licensed.

@@ -1,0 +1,13 @@
+# Will your u-pick farm make money this season?
+
+> Free planner for u-pick farms, pumpkin patches and agritourism. Enter days, visitors, admission, picking and extras; get break-even visitors, break-even admission, rainout risk and a profit grid. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/u-pick-farm-profit-planner/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/u-pick-farm-profit-planner): MIT licensed.

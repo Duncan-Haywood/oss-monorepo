@@ -1,0 +1,15 @@
+# Price the job by what actually drives the hours.
+
+> Free bid calculator for independent licensed land surveyors: price a boundary, topographic, or ALTA/NSPS survey by corners located vs. set, terrain, record research, crew and drafting time — and see the gap against a flat per-acre quote.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/land-survey-bid-calculator/)
+- [How much does a land survey cost?](https://duncan-haywood.github.io/oss-monorepo/land-survey-bid-calculator/how-much-does-a-land-survey-cost.html)
+- [This calculator vs. a flat per-acre quote](https://duncan-haywood.github.io/oss-monorepo/land-survey-bid-calculator/vs-a-flat-per-acre-quote.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/land-survey-bid-calculator): MIT licensed.

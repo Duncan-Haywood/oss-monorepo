@@ -1,0 +1,14 @@
+# What's your Child Tax Credit worth?
+
+> Estimate the federal Child Tax Credit, Credit for Other Dependents, and refundable Additional Child Tax Credit, including the income phase-out and filer SSN requirement. Entirely client-side.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/child-tax-credit-calculator/)
+- [This calculator vs. working out the Child Tax Credit by hand](https://duncan-haywood.github.io/oss-monorepo/child-tax-credit-calculator/vs-doing-the-math-by-hand.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/child-tax-credit-calculator): MIT licensed.

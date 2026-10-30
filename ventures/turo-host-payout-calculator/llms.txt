@@ -1,0 +1,15 @@
+# What will Turo actually pay you for this trip?
+
+> Free Turo host payout calculator. Turo's host share now depends on your earnings plan (Peace of Mind, Balanced, More Earnings) AND how far ahead the guest books — this tool models the whole matrix, compares all three plans and all four booking windows for the same trip, and projects a monthly estimate.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/turo-host-payout-calculator/)
+- [How much does Turo actually take from hosts?](https://duncan-haywood.github.io/oss-monorepo/turo-host-payout-calculator/how-much-does-turo-take-from-hosts.html)
+- [This calculator vs. a spreadsheet](https://duncan-haywood.github.io/oss-monorepo/turo-host-payout-calculator/vs-a-spreadsheet.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/turo-host-payout-calculator): MIT licensed.

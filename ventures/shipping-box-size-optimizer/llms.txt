@@ -1,0 +1,14 @@
+# Which box sizes should you stock?
+
+> Free shipping box size optimizer for online sellers. Enter your products and the cartons you could buy; it solves which 1 to 10 box sizes to stock so every order ships in its cheapest fitting box, counting dimensional weight, box cost and void fill. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/shipping-box-size-optimizer/)
+- [How many box sizes to stock, and why the answer is a curve](https://duncan-haywood.github.io/oss-monorepo/shipping-box-size-optimizer/how-many-box-sizes-to-stock.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/shipping-box-size-optimizer): MIT licensed.

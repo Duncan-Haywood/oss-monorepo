@@ -1,0 +1,16 @@
+# A flat serve fee can still be a losing job.
+
+> Free calculator for independent process servers: find real net profit for one service-of-process job after extra attempts, rush and skip-trace fees, mileage, and your own drive time and vehicle cost, then compare what two or three client law firms actually pay per hour.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/process-server-fee-calculator/)
+- [Is this process server fee schedule worth it?](https://duncan-haywood.github.io/oss-monorepo/process-server-fee-calculator/is-this-process-server-fee-schedule-worth-it.html)
+- [This calculator vs. doing it by hand or a spreadsheet](https://duncan-haywood.github.io/oss-monorepo/process-server-fee-calculator/vs-doing-it-by-hand.html)
+- [This calculator vs. ServeManager](https://duncan-haywood.github.io/oss-monorepo/process-server-fee-calculator/vs-servemanager.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/process-server-fee-calculator): MIT licensed.

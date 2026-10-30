@@ -1,0 +1,14 @@
+# Price a bar service event without guessing
+
+> Price a mobile bar or bartending event: bartenders needed, drinks, staffing with call minimums, supplies and travel, your walk-away floor, price per guest, and whether a client's per-head ask makes money. Free, private, runs in your browser; CLI included.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/mobile-bartender-event-quote/)
+- [How to price a mobile bar event](https://duncan-haywood.github.io/oss-monorepo/mobile-bartender-event-quote/how-to-price-a-mobile-bar-event.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/mobile-bartender-event-quote): MIT licensed.

@@ -1,0 +1,13 @@
+# Turn an Upwork transaction history into a Xero or QuickBooks journal
+
+> Free Upwork to QuickBooks and Xero journal converter: books hourly, fixed-price and bonus earnings gross, Upwork service fees and Connects as expenses, checks the running balance for missing rows, splits by month, and downloads a balanced journal for Xero, QuickBooks Online or QuickBooks Desktop.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/upwork-earnings-to-journal/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/upwork-earnings-to-journal): MIT licensed.

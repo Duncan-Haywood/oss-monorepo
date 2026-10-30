@@ -1,0 +1,20 @@
+# Bid the plant, the system, and the extras.
+
+> Bid a boiler changeout the way the trade does — plant, system, extras, and whether Saturday still pays — not a published special — and see the margin before you send the price.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/boiler-replacement-bid-calculator/)
+- [How much to charge to replace a boiler](https://duncan-haywood.github.io/oss-monorepo/boiler-replacement-bid-calculator/how-much-to-charge-to-replace-a-boiler.html)
+- [Should I install a customer-supplied boiler?](https://duncan-haywood.github.io/oss-monorepo/boiler-replacement-bid-calculator/should-i-install-a-customer-supplied-boiler.html)
+- [Should I patch this boiler for one more winter?](https://duncan-haywood.github.io/oss-monorepo/boiler-replacement-bid-calculator/should-i-patch-this-boiler-for-one-more-winter.html)
+- [Should I take a Saturday boiler call?](https://duncan-haywood.github.io/oss-monorepo/boiler-replacement-bid-calculator/should-i-take-a-saturday-boiler-call.html)
+- [This calculator vs. a flat-rate boiler special](https://duncan-haywood.github.io/oss-monorepo/boiler-replacement-bid-calculator/vs-a-flat-rate-boiler-special.html)
+- [This calculator vs. Housecall Pro](https://duncan-haywood.github.io/oss-monorepo/boiler-replacement-bid-calculator/vs-housecall-pro.html)
+- [This calculator vs. ServiceTitan](https://duncan-haywood.github.io/oss-monorepo/boiler-replacement-bid-calculator/vs-servicetitan.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/boiler-replacement-bid-calculator): MIT licensed.

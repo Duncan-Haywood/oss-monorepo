@@ -1,0 +1,16 @@
+# Bid the liner, the access, and the extras.
+
+> Price crawl space encapsulation from floor area, liner-only versus sealed encapsulate, hatch versus belly-crawl versus wet access, and extras — plus the walk-away price a $4 / sq ft special cannot see.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/crawl-space-encapsulation-bid-calculator/)
+- [How much to charge for crawl space encapsulation](https://duncan-haywood.github.io/oss-monorepo/crawl-space-encapsulation-bid-calculator/how-much-to-charge-for-crawl-space-encapsulation.html)
+- [This calculator vs. a flat $4/sq ft encapsulation special](https://duncan-haywood.github.io/oss-monorepo/crawl-space-encapsulation-bid-calculator/vs-a-flat-4-dollar-sq-ft-special.html)
+- [This calculator vs. QuoteIQ](https://duncan-haywood.github.io/oss-monorepo/crawl-space-encapsulation-bid-calculator/vs-quoteiq.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/crawl-space-encapsulation-bid-calculator): MIT licensed.

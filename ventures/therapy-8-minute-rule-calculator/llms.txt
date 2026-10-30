@@ -1,0 +1,13 @@
+# How many units is this visit worth?
+
+> Free 8-minute rule calculator for physical and occupational therapy clinics: paste each visit's timed CPT minutes, get billable units under the CMS rule, which code gets each unit, the per-code count for comparison, and the revenue at stake. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/therapy-8-minute-rule-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/therapy-8-minute-rule-calculator): MIT licensed.

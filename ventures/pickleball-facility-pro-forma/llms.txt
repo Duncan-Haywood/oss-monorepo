@@ -1,0 +1,13 @@
+# Does your indoor pickleball facility pencil out?
+
+> Pickleball facility pro forma: enter courts, rates, utilization, memberships and costs and see monthly P&L, revenue per court-hour, break-even utilization, 24-month cash curve and payback. Free, runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/pickleball-facility-pro-forma/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/pickleball-facility-pro-forma): MIT licensed.

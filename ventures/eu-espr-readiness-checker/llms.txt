@@ -1,0 +1,13 @@
+# Can you still destroy unsold stock in the EU, what must you publish, and is your product passport-ready?
+
+> Free EU ESPR checker for brands, importers and retailers: whether the ban on destroying unsold apparel and footwear reaches you, a draft of the annual unsold-goods disclosure table from your own numbers, and which Digital Product Passport data to start collecting. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/eu-espr-readiness-checker/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/eu-espr-readiness-checker): MIT licensed.

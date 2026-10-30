@@ -1,0 +1,16 @@
+# Bid the style, the operators, and the extra work.
+
+> Price an automatic driveway gate from single swing, dual swing, or slide: opening width, leaf material, columns, power, loops, and access — not a published $4,500 kit special. See the operators and the walk-away number.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/automatic-driveway-gate-bid-calculator/)
+- [How much to charge to install an automatic gate](https://duncan-haywood.github.io/oss-monorepo/automatic-driveway-gate-bid-calculator/how-much-to-charge-to-install-an-automatic-gate.html)
+- [This calculator vs. a flat $4,500 special](https://duncan-haywood.github.io/oss-monorepo/automatic-driveway-gate-bid-calculator/vs-a-flat-4500-special.html)
+- [This calculator vs. Jobber](https://duncan-haywood.github.io/oss-monorepo/automatic-driveway-gate-bid-calculator/vs-jobber.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/automatic-driveway-gate-bid-calculator): MIT licensed.

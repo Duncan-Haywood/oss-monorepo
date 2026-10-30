@@ -1,0 +1,13 @@
+# What should you bid on a sauna or cold plunge install?
+
+> Free sauna and cold plunge install bid calculator: build and prep hours, crew pay, equipment and materials, electrician subcontract, drive and target margin in; a bid price, distance table, overrun check and break-even installs per month out. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/sauna-cold-plunge-install-bid-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/sauna-cold-plunge-install-bid-calculator): MIT licensed.

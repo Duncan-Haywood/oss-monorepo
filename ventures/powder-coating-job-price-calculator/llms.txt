@@ -1,0 +1,13 @@
+# What should you charge to coat this job?
+
+> Free powder coating price calculator for job shops: enter the parts, powder, transfer efficiency, labour, oven batches and setup, and get a price per piece and per square foot with quantity breaks. Runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/powder-coating-job-price-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/powder-coating-job-price-calculator): MIT licensed.

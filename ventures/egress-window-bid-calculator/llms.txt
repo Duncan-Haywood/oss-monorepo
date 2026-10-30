@@ -1,0 +1,19 @@
+# Bid the opening, the cut, and the extras.
+
+> Price an egress window from window count, hopper versus slider versus casement versus fiberglass, retrofit versus wood-cut versus masonry-cut versus poured-cut, plastic versus steel versus stone well, extras, and weekday versus Saturday — plus the walk-away price a $1,800 installed special cannot see.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/egress-window-bid-calculator/)
+- [How much to charge to install an egress window](https://duncan-haywood.github.io/oss-monorepo/egress-window-bid-calculator/how-much-to-charge-to-install-an-egress-window.html)
+- [Should I cut an egress window on Saturday?](https://duncan-haywood.github.io/oss-monorepo/egress-window-bid-calculator/should-i-cut-an-egress-window-on-saturday.html)
+- [Should I install a customer-supplied egress window?](https://duncan-haywood.github.io/oss-monorepo/egress-window-bid-calculator/should-i-install-a-customer-supplied-egress-window.html)
+- [This calculator vs. a flat "$1,800 installed" egress window special](https://duncan-haywood.github.io/oss-monorepo/egress-window-bid-calculator/vs-a-flat-rate-egress-window-special.html)
+- [This calculator vs. Jobber](https://duncan-haywood.github.io/oss-monorepo/egress-window-bid-calculator/vs-jobber.html)
+- [This calculator vs. JobNimbus](https://duncan-haywood.github.io/oss-monorepo/egress-window-bid-calculator/vs-jobnimbus.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/egress-window-bid-calculator): MIT licensed.

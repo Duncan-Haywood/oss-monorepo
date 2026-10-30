@@ -1,0 +1,14 @@
+# Will your strategy pass the challenge, and is the fee worth paying?
+
+> Simulate a funded-trader evaluation with your own win rate, reward:risk and risk per trade. Pass probability under a profit target, daily loss limit and static or trailing drawdown, expected fees to pass, funded payouts and the break-even win rate. Free, private, in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/prop-firm-challenge-calculator/)
+- [Prop Firm Challenge Calculator vs. a trading spreadsheet](https://duncan-haywood.github.io/oss-monorepo/prop-firm-challenge-calculator/vs-a-trading-spreadsheet.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/prop-firm-challenge-calculator): MIT licensed.

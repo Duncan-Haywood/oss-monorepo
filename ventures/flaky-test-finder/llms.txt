@@ -1,0 +1,16 @@
+# Which of your tests are actually flaky?
+
+> Paste two or more JUnit XML test reports and find out in one click which tests are flaky (pass one run, fail the next) versus genuinely broken versus stable. Free, runs entirely in your browser, works with pytest, Jest, Go, PHPUnit, RSpec, and Maven/Gradle Surefire — nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/flaky-test-finder/)
+- [Flaky Test Finder vs. BuildPulse](https://duncan-haywood.github.io/oss-monorepo/flaky-test-finder/vs-buildpulse.html)
+- [Flaky Test Finder vs. eyeballing two CI logs by hand](https://duncan-haywood.github.io/oss-monorepo/flaky-test-finder/vs-eyeballing-two-ci-logs-by-hand.html)
+- [Why are my tests flaky in CI?](https://duncan-haywood.github.io/oss-monorepo/flaky-test-finder/why-are-my-tests-flaky-in-ci.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/flaky-test-finder): MIT licensed.

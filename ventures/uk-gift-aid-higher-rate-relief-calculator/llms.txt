@@ -1,0 +1,13 @@
+# What does my Gift Aid donation really cost me?
+
+> Free UK Gift Aid calculator for higher and additional rate taxpayers: what the charity receives, the relief you reclaim, the carry-back to last tax year, and the gift that wins back your personal allowance. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/uk-gift-aid-higher-rate-relief-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/uk-gift-aid-higher-rate-relief-calculator): MIT licensed.

@@ -1,0 +1,13 @@
+# Which open quotes are still worth chasing?
+
+> Free quote follow-up timing tool for contractors, agencies and freelancers. Paste your past quotes (days to decision, won, lost or open) to see when your wins actually arrive, your real win rate with open quotes counted correctly, and which open quotes still have a chance. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/quote-follow-up-timing/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/quote-follow-up-timing): MIT licensed.

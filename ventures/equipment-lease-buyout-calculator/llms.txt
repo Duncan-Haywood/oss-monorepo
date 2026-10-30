@@ -1,0 +1,17 @@
+# Buy out the lease, or return it and replace it?
+
+> Compare the true monthly cost of buying out an equipment lease against returning it and replacing it, using fair market value and remaining useful life. Free, private, runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/equipment-lease-buyout-calculator/)
+- [Should I buy out my equipment lease?](https://duncan-haywood.github.io/oss-monorepo/equipment-lease-buyout-calculator/should-i-buy-out-my-equipment-lease.html)
+- [This calculator vs. comparing the buyout price to fair market value](https://duncan-haywood.github.io/oss-monorepo/equipment-lease-buyout-calculator/vs-comparing-the-buyout-price-to-fair-market-value.html)
+- [This calculator vs. Crest Capital's lease calculator](https://duncan-haywood.github.io/oss-monorepo/equipment-lease-buyout-calculator/vs-crest-capital.html)
+- [This calculator vs. Lendzero](https://duncan-haywood.github.io/oss-monorepo/equipment-lease-buyout-calculator/vs-lendzero.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/equipment-lease-buyout-calculator): MIT licensed.

@@ -1,0 +1,13 @@
+# What did each of your books actually earn?
+
+> Free KDP royalty report analyzer for self-published authors: drop in your royalty CSV and see net royalty per book, marketplace and royalty option, refund rates, Kindle Unlimited page reads, delivery costs, a 70% price-band check and what ad spend left. Runs in your browser, the file is never uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/kdp-royalty-report-analyzer/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/kdp-royalty-report-analyzer): MIT licensed.

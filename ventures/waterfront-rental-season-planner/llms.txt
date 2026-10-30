@@ -1,0 +1,13 @@
+# How much weather can your kayak or boat rental lose, and is another boat worth buying?
+
+> Free kayak, paddleboard and boat rental business calculator: fleet, rental length, price, weekday and weekend demand, staff and weather days in; season profit, rainy-day break-even, turned-away rentals, what one more boat earns and best price out. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/waterfront-rental-season-planner/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/waterfront-rental-season-planner): MIT licensed.

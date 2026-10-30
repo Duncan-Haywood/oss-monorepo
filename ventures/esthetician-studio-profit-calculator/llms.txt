@@ -1,0 +1,13 @@
+# What does one esthetician's chair really earn, and should you work it, employ or rent it out?
+
+> Free esthetician studio calculator: enter facial, waxing and peel prices, chair minutes, supplies, no-show rate, rent and commission, and see profit per treatment and per chair hour, the price for your target margin, break-even treatments per week and whether to rent the chair or employ an esthetician.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/esthetician-studio-profit-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/esthetician-studio-profit-calculator): MIT licensed.

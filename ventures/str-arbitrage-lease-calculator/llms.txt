@@ -1,0 +1,13 @@
+# Will a rental-arbitrage unit earn back its furniture before the lease ends?
+
+> Free rental arbitrage calculator: rent, utilities, furnishing, nightly rate, occupancy, commission and turnovers become monthly profit, break-even occupancy, the month furnishing is earned back and what the lease nets. Private, runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/str-arbitrage-lease-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/str-arbitrage-lease-calculator): MIT licensed.

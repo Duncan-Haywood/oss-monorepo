@@ -1,0 +1,14 @@
+# What is your docker-compose.yml handing to the host?
+
+> Paste your docker-compose.yml and find risky settings: privileged: true, docker.sock mounts, network_mode host, cap_add SYS_ADMIN, databases on 0.0.0.0, literal secrets, :latest images. Free, runs in your browser, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/docker-compose-security-check/)
+- [docker-compose security: privileged, docker.sock, exposed ports and how to fix each](https://duncan-haywood.github.io/oss-monorepo/docker-compose-security-check/what-is-docker-compose-security.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/docker-compose-security-check): MIT licensed.

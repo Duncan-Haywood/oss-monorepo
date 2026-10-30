@@ -1,0 +1,17 @@
+# One ticket. Every path. See what DoorDash actually leaves you.
+
+> Free restaurant delivery fee calculator: put one ticket through dine-in, pickup, DoorDash, Uber Eats, and Grubhub. See net after commission, packaging, and extra labor — plus the menu price each app needs to match dine-in.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/delivery-app-margin-calculator/)
+- [How much does DoorDash take from restaurants?](https://duncan-haywood.github.io/oss-monorepo/delivery-app-margin-calculator/doordash-fees-for-restaurants.html)
+- [DoorDash vs Uber Eats fees on the same ticket](https://duncan-haywood.github.io/oss-monorepo/delivery-app-margin-calculator/doordash-vs-ubereats-fees.html)
+- [Delivery App Margin Calculator vs. a spreadsheet](https://duncan-haywood.github.io/oss-monorepo/delivery-app-margin-calculator/vs-a-spreadsheet.html)
+- [Delivery App Margin Calculator vs. Toast](https://duncan-haywood.github.io/oss-monorepo/delivery-app-margin-calculator/vs-toast.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/delivery-app-margin-calculator): MIT licensed.

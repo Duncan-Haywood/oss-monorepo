@@ -1,0 +1,19 @@
+# Bid the building, not the square footage.
+
+> Price a commercial cleaning contract from production rates, day-porter shifts, and periodic floor care, see what a 5× to 3× cut actually costs, whether letting the building buy the paper still holds your margin, and whether throwing in the initial clean loses month 1.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/janitorial-bid-calculator/)
+- [5× vs 3× commercial cleaning: why 60% of today’s price is not the 3-day bid](https://duncan-haywood.github.io/oss-monorepo/janitorial-bid-calculator/5x-vs-3x-cleaning-price.html)
+- [Does the second building still pay after the drive?](https://duncan-haywood.github.io/oss-monorepo/janitorial-bid-calculator/second-site.html)
+- [Should I let the building buy the paper, soap, and liners?](https://duncan-haywood.github.io/oss-monorepo/janitorial-bid-calculator/should-i-let-them-buy-the-paper.html)
+- [Should I throw in the initial clean to win the monthly?](https://duncan-haywood.github.io/oss-monorepo/janitorial-bid-calculator/should-i-throw-in-the-initial-clean.html)
+- [This calculator vs. a flat rate per square foot](https://duncan-haywood.github.io/oss-monorepo/janitorial-bid-calculator/vs-a-flat-rate-per-square-foot.html)
+- [This calculator vs. CleanGuru](https://duncan-haywood.github.io/oss-monorepo/janitorial-bid-calculator/vs-cleanguru.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/janitorial-bid-calculator): MIT licensed.

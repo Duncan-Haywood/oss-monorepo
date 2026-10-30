@@ -1,0 +1,13 @@
+# How much cash stays in your BRRRR deal?
+
+> Free BRRRR calculator for real estate investors. Enter price, rehab, hard-money terms, ARV and refinance terms to see the cash left in the deal, refinance cash-out, cash flow, the highest price that pulls all your cash out, and how a low appraisal or rehab overrun changes it. Runs in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/brrrr-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/brrrr-calculator): MIT licensed.

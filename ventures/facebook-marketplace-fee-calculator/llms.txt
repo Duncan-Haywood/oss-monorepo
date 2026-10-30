@@ -1,0 +1,16 @@
+# Shipped orders pay 10%. Local pickup pays $0.
+
+> Free Facebook Marketplace seller fee calculator: 10% of the buyer-paid total (item price + shipping + tax collected) on a shipped checkout order, $0.80 minimum fee, $0 for local pickup, plus the flat $20 dispute penalty if one applies. Real profit, price for a target profit. Nothing leaves your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/facebook-marketplace-fee-calculator/)
+- [How much does Facebook Marketplace take per sale?](https://duncan-haywood.github.io/oss-monorepo/facebook-marketplace-fee-calculator/how-much-does-facebook-marketplace-take.html)
+- [Facebook Marketplace Fee Calculator vs. doing the fee math by hand](https://duncan-haywood.github.io/oss-monorepo/facebook-marketplace-fee-calculator/vs-doing-the-fee-math-by-hand.html)
+- [Facebook Marketplace Fee Calculator vs. tracking sales in a spreadsheet](https://duncan-haywood.github.io/oss-monorepo/facebook-marketplace-fee-calculator/vs-tracking-facebook-marketplace-sales-in-a-spreadsheet.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/facebook-marketplace-fee-calculator): MIT licensed.

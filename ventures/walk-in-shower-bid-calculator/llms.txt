@@ -1,0 +1,19 @@
+# Bid the drain, the slope, and the glass.
+
+> Price a tiled walk-in shower from tile, waterproofing, linear drain, curbless slope, glass — and whether Saturday still pays after overtime. See the walk-away number before you match a cheaper tile quote.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/walk-in-shower-bid-calculator/)
+- [How much to charge to install a walk-in shower](https://duncan-haywood.github.io/oss-monorepo/walk-in-shower-bid-calculator/how-much-to-charge-to-install-a-walk-in-shower.html)
+- [Should I install customer-supplied tile?](https://duncan-haywood.github.io/oss-monorepo/walk-in-shower-bid-calculator/should-i-install-customer-supplied-tile.html)
+- [Should I match an alcove price on a curbless walk-in?](https://duncan-haywood.github.io/oss-monorepo/walk-in-shower-bid-calculator/should-i-match-an-alcove-price-on-a-curbless-walk-in.html)
+- [Should I tile a walk-in shower after hours?](https://duncan-haywood.github.io/oss-monorepo/walk-in-shower-bid-calculator/should-i-tile-a-walk-in-shower-after-hours.html)
+- [This calculator vs. Jobber](https://duncan-haywood.github.io/oss-monorepo/walk-in-shower-bid-calculator/vs-jobber.html)
+- [This calculator vs. tracking it in a spreadsheet](https://duncan-haywood.github.io/oss-monorepo/walk-in-shower-bid-calculator/vs-tracking-it-in-a-spreadsheet.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/walk-in-shower-bid-calculator): MIT licensed.

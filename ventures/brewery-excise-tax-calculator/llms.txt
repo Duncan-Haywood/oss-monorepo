@@ -1,0 +1,13 @@
+# What does federal excise tax really cost your brewery per keg and per case?
+
+> Free federal beer excise tax calculator for craft brewers: enter kegs, cases and barrels and see the CBMA $3.50 and $16 per barrel tax, the cost per keg and case, and what growing past 60,000 barrels does. Runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/brewery-excise-tax-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/brewery-excise-tax-calculator): MIT licensed.

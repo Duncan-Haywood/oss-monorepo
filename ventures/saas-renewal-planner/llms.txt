@@ -1,0 +1,14 @@
+# Eight SaaS renewals coming: which do you negotiate first, and when does the window close?
+
+> Paste your SaaS subscriptions and get the last day to give notice before each auto-renewal, which renewals to negotiate first, a floor and stretch target price, a calendar file and an email draft per vendor. Free, runs in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/saas-renewal-planner/)
+- [When do I need to cancel a SaaS auto-renewal? Notice windows and seat right-sizing](https://duncan-haywood.github.io/oss-monorepo/saas-renewal-planner/when-do-i-need-to-cancel-a-saas-auto-renewal.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/saas-renewal-planner): MIT licensed.

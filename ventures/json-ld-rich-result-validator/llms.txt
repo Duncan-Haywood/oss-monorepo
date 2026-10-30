@@ -1,0 +1,13 @@
+# Why isn't your structured data eligible for rich results?
+
+> Free JSON-LD and schema markup validator. Paste a page's HTML or JSON-LD and see every missing required and recommended property for Product, Article, LocalBusiness, Recipe, Event, JobPosting and more. Builds starter markup too. Nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/json-ld-rich-result-validator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/json-ld-rich-result-validator): MIT licensed.

@@ -1,0 +1,13 @@
+# A help desk for one to three people, with no per-agent fee.
+
+> A shared support inbox you host yourself: email and contact-form tickets, saved replies with suggestions, first-reply targets and a customer portal. Open source, MIT, no per-agent fee. Try the triage in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/support-desk/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/support-desk): MIT licensed.

@@ -1,0 +1,16 @@
+# Price the lesson, not just the hour.
+
+> Free music lesson pricing calculator for independent teachers. Include cancellations, preparation, travel, studio costs, and target pay to find a sustainable lesson price.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/music-lesson-break-even/)
+- [How to price music lessons without guessing](https://duncan-haywood.github.io/oss-monorepo/music-lesson-break-even/how-to-price-music-lessons.html)
+- [This calculator vs. My Music Staff](https://duncan-haywood.github.io/oss-monorepo/music-lesson-break-even/vs-mymusicstaff.html)
+- [This calculator vs. picking a rate off the going local price](https://duncan-haywood.github.io/oss-monorepo/music-lesson-break-even/vs-picking-a-rate-off-the-going-local-price.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/music-lesson-break-even): MIT licensed.

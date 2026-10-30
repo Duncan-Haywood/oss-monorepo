@@ -1,0 +1,16 @@
+# Bid the depth, the pitless, and the tank.
+
+> Price a well-pump replacement from extra drop-pipe footage past the included run, seized versus free pitless, stuck-pump pull, extra well cable, a new pressure tank, and a constant-pressure drive — not a published $1,495 pump special. See the walk-away number before you match a cheaper quote.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/well-pump-bid-calculator/)
+- [How much to charge to replace a well pump](https://duncan-haywood.github.io/oss-monorepo/well-pump-bid-calculator/how-much-to-charge-to-replace-a-well-pump.html)
+- [This calculator vs. a flat $1,495 well-pump special](https://duncan-haywood.github.io/oss-monorepo/well-pump-bid-calculator/vs-a-flat-well-pump-special.html)
+- [This calculator vs. ServiceTitan](https://duncan-haywood.github.io/oss-monorepo/well-pump-bid-calculator/vs-servicetitan.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/well-pump-bid-calculator): MIT licensed.

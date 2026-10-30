@@ -1,0 +1,13 @@
+# What does a nanny really cost once the payroll taxes are in?
+
+> Free nanny tax calculator: the real yearly and hourly cost of a household employee with Social Security, Medicare, FUTA and state unemployment, plus a take-home-to-gross converter. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/nanny-tax-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/nanny-tax-calculator): MIT licensed.

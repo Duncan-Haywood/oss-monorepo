@@ -1,0 +1,14 @@
+# Where do I start tiling, and how many tiles do I buy?
+
+> Free tile layout planner for installers and DIY. Enter a room, cut-outs and a tile; see the real layout, how many tiles to buy with offcut reuse, the cut list, and the starting position with the fewest thin cuts. Straight, running bond or diagonal. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/tile-layout-planner/)
+- [How many tiles do I need? A worked example](https://duncan-haywood.github.io/oss-monorepo/tile-layout-planner/how-many-tiles-do-i-need.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/tile-layout-planner): MIT licensed.

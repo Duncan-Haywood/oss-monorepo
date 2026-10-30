@@ -1,0 +1,23 @@
+# How many days have I spent in each state, and am I near the 183-day line?
+
+> Free multi-state residency day counter. Enter where you spent the year, see days per state against the 183-day and other statutory residency tests, the room you have left, the date you would cross a limit, and remote-work wages split by state. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/state-residency-day-counter/)
+- [The 183-day rule by state, with a worked example](https://duncan-haywood.github.io/oss-monorepo/state-residency-day-counter/183-day-rule-by-state.html)
+- [California: the nine-month presumption, not a 183-day rule](https://duncan-haywood.github.io/oss-monorepo/state-residency-day-counter/california-nine-month-residency-presumption.html)
+- [Georgia, New Mexico and Louisiana: residency by days alone](https://duncan-haywood.github.io/oss-monorepo/state-residency-day-counter/georgia-new-mexico-louisiana-days-only-residency.html)
+- [Maryland and Utah: why 183 days is already too many](https://duncan-haywood.github.io/oss-monorepo/state-residency-day-counter/maryland-utah-182-day-limit.html)
+- [New York City resident tax: the 183-day test and your Manhattan apartment](https://duncan-haywood.github.io/oss-monorepo/state-residency-day-counter/nyc-resident-tax-183-day-test.html)
+- [Ohio: the 212 contact-period safe harbor](https://duncan-haywood.github.io/oss-monorepo/state-residency-day-counter/ohio-212-contact-period-safe-harbor.html)
+- [Oregon, Hawaii and Idaho: the 200- and 270-day tests](https://duncan-haywood.github.io/oss-monorepo/state-residency-day-counter/over-200-day-residency-oregon-hawaii-idaho.html)
+- [Working remotely from another state: the convenience-of-the-employer rule, with numbers](https://duncan-haywood.github.io/oss-monorepo/state-residency-day-counter/remote-work-convenience-of-the-employer-rule.html)
+- [Nebraska, Colorado, Arkansas and Kansas: the six-month tests](https://duncan-haywood.github.io/oss-monorepo/state-residency-day-counter/six-month-residency-nebraska-colorado-arkansas-kansas.html)
+- [Florida snowbird: how many days can you spend in New York?](https://duncan-haywood.github.io/oss-monorepo/state-residency-day-counter/snowbird-days-in-new-york.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/state-residency-day-counter): MIT licensed.

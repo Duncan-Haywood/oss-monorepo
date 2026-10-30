@@ -1,0 +1,15 @@
+# What will winning this lot actually cost you, out the door?
+
+> Free calculator for farm and heavy-equipment auction bidders: turns a hammer price into the true out-the-door total, including a capped buyer's premium, online-bidding premium, card surcharge, and sales tax — then works backward to a max bid for your budget. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/equipment-auction-buyer-premium-calculator/)
+- [This calculator vs. mentally adding a flat percentage](https://duncan-haywood.github.io/oss-monorepo/equipment-auction-buyer-premium-calculator/vs-a-flat-percent-rule.html)
+- [Why is sales tax charged on the buyer's premium, not just the hammer price?](https://duncan-haywood.github.io/oss-monorepo/equipment-auction-buyer-premium-calculator/why-is-sales-tax-charged-on-the-buyers-premium.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/equipment-auction-buyer-premium-calculator): MIT licensed.

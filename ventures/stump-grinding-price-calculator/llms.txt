@@ -1,0 +1,13 @@
+# What does this stump job really cost you, and what should you bid?
+
+> Free stump grinding price calculator. Stump diameters, wood hardness, grinder speed, crew, machine and drive time in; price per stump, minimum charge, per-inch quote check and bundling out. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/stump-grinding-price-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/stump-grinding-price-calculator): MIT licensed.

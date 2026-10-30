@@ -1,0 +1,14 @@
+# Turn one interview into a month of content for every platform
+
+> Answer one guided interview about your brand or topic and get a 4-week content calendar with drafts for LinkedIn, Instagram, TikTok, YouTube, X, newsletters, blogs and more. Free, runs in your browser, optional AI on your own key.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/interview-content-studio/)
+- [How often to post on each platform, and how to fill the calendar from one interview](https://duncan-haywood.github.io/oss-monorepo/interview-content-studio/how-often-to-post-on-each-platform.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/interview-content-studio): MIT licensed.

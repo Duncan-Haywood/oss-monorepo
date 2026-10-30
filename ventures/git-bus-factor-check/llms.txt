@@ -1,0 +1,14 @@
+# If one person left tomorrow, which folders would nobody understand?
+
+> Paste your git log and see the bus factor (truck factor) of every folder: who really owns it, whether they are still active, and who to pair with. Free, runs in your browser, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/git-bus-factor-check/)
+- [What is a bus factor (truck factor), and how do you raise it?](https://duncan-haywood.github.io/oss-monorepo/git-bus-factor-check/what-is-bus-factor.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/git-bus-factor-check): MIT licensed.

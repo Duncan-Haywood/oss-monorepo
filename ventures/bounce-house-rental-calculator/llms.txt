@@ -1,0 +1,17 @@
+# The truck drives it twice. Price it twice.
+
+> Price a bounce house or inflatable rental booking from the truck's two round trips, setup and teardown labor, a generator when there is no outlet, a wet-unit attendant, and insurance sized to your fleet's replacement value — not just a flat per-unit-per-day rate. Free, private, nothing leaves your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/bounce-house-rental-calculator/)
+- [How much should I charge for a bounce house rental?](https://duncan-haywood.github.io/oss-monorepo/bounce-house-rental-calculator/how-much-to-charge-for-a-bounce-house-rental.html)
+- [Bounce house rental calculator vs. a spreadsheet](https://duncan-haywood.github.io/oss-monorepo/bounce-house-rental-calculator/vs-a-spreadsheet.html)
+- [Bounce house rental calculator vs. Booqable](https://duncan-haywood.github.io/oss-monorepo/bounce-house-rental-calculator/vs-booqable.html)
+- [This calculator vs. InflatableOffice](https://duncan-haywood.github.io/oss-monorepo/bounce-house-rental-calculator/vs-inflatableoffice.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/bounce-house-rental-calculator): MIT licensed.

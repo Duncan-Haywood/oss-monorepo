@@ -1,0 +1,16 @@
+# Bid the stories and the downspouts, not the linear feet.
+
+> Price a gutter cleaning visit from linear feet, stories, roof pitch, gutter guards, debris, and downspouts — then loaded wage, travel, disposal, a minimum stop charge, and an optional spring-and-fall contract.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/gutter-cleaning-bid-calculator/)
+- [Why two-story gutter cleaning costs more than twice the footage](https://duncan-haywood.github.io/oss-monorepo/gutter-cleaning-bid-calculator/two-story-gutter-cleaning-cost.html)
+- [This calculator vs. a flat price per linear foot](https://duncan-haywood.github.io/oss-monorepo/gutter-cleaning-bid-calculator/vs-a-flat-price-per-linear-foot.html)
+- [This calculator vs. Jobber](https://duncan-haywood.github.io/oss-monorepo/gutter-cleaning-bid-calculator/vs-jobber.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/gutter-cleaning-bid-calculator): MIT licensed.

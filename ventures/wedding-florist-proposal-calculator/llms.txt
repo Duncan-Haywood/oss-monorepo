@@ -1,0 +1,15 @@
+# Your recipe says 85 stems. Your invoice says ten bunches. Which one are you marking up?
+
+> Free calculator for wedding and event florists: price a proposal from the recipe up, buying whole bunches instead of loose stems, add a shrink allowance before the rounding, price labour by the hour, and see the gross margin — plus what a per-stem markup sheet would have under-quoted.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/wedding-florist-proposal-calculator/)
+- [How many wholesale bunches do you need for a wedding?](https://duncan-haywood.github.io/oss-monorepo/wedding-florist-proposal-calculator/how-many-wholesale-bunches-do-you-need-for-a-wedding.html)
+- [This calculator vs. a recipe markup spreadsheet](https://duncan-haywood.github.io/oss-monorepo/wedding-florist-proposal-calculator/vs-a-recipe-markup-spreadsheet.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/wedding-florist-proposal-calculator): MIT licensed.

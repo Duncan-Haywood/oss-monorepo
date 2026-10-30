@@ -1,0 +1,14 @@
+# Why is your RDS bill so high?
+
+> Paste your Amazon RDS instances (class, engine, Multi-AZ, storage, IOPS, CPU) and get what each costs, Multi-AZ you pay for outside production, io1 IOPS that gp3 covers, Graviton twins and idle instances, with the aws rds command to change each. Free, runs in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/rds-instance-cost-advisor/)
+- [RDS instance cost: Multi-AZ, io1 IOPS, Graviton and idle instances](https://duncan-haywood.github.io/oss-monorepo/rds-instance-cost-advisor/rds-multi-az-iops-and-graviton-cost.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/rds-instance-cost-advisor): MIT licensed.

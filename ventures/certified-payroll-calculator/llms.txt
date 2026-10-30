@@ -1,0 +1,17 @@
+# Overtime isn’t just 1.5× the base rate.
+
+> Free calculator for Davis-Bacon / prevailing-wage certified payroll: checks whether a worker's cash wages plus fringe meet the wage determination, and computes overtime correctly when part of the fringe is paid in cash instead of a bona fide plan.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/certified-payroll-calculator/)
+- [Does overtime include fringe benefits on certified payroll?](https://duncan-haywood.github.io/oss-monorepo/certified-payroll-calculator/does-overtime-include-fringe-benefits-on-certified-payroll.html)
+- [This calculator vs. doing it by hand](https://duncan-haywood.github.io/oss-monorepo/certified-payroll-calculator/vs-doing-it-by-hand.html)
+- [This calculator vs. LCPtracker](https://duncan-haywood.github.io/oss-monorepo/certified-payroll-calculator/vs-lcptracker.html)
+- [WH-347 certified payroll report builder](https://duncan-haywood.github.io/oss-monorepo/certified-payroll-calculator/wh347-report.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/certified-payroll-calculator): MIT licensed.

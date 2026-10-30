@@ -1,0 +1,15 @@
+# "Day rate plus a hazmat fee" isn't a quote. It's a guess.
+
+> Free calculator for biohazard and trauma-scene remediation technicians: price a job from crew labor, PPE decon cycles, and regulated-waste disposal billed per container (not per pound), then check whether a quote you're already giving clears cost.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/biohazard-cleanup-bid-calculator/)
+- [How much does biohazard cleanup cost?](https://duncan-haywood.github.io/oss-monorepo/biohazard-cleanup-bid-calculator/how-much-does-biohazard-cleanup-cost.html)
+- [This calculator vs. a flat day rate and a per-pound hazmat estimate](https://duncan-haywood.github.io/oss-monorepo/biohazard-cleanup-bid-calculator/vs-a-flat-rate-per-pound-quote.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/biohazard-cleanup-bid-calculator): MIT licensed.

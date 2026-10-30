@@ -1,0 +1,13 @@
+# Will wholesale actually make you money?
+
+> Free calculator for makers and small brands: what you keep per unit and per order selling direct, wholesale or on consignment, after fees, shipping, your time and payment terms. Runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/wholesale-vs-retail-pricing-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/wholesale-vs-retail-pricing-calculator): MIT licensed.

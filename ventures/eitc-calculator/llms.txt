@@ -1,0 +1,14 @@
+# What's your Earned Income Tax Credit worth?
+
+> Free calculator for the federal Earned Income Tax Credit (EITC): the phase-in, plateau, and phase-out by number of qualifying children and filing status, the investment income limit, the married-filing-separately living-apart exception, and the AGI-vs-earned-income rule most hand calculations skip.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/eitc-calculator/)
+- [This calculator vs. working out the EITC by hand](https://duncan-haywood.github.io/oss-monorepo/eitc-calculator/vs-doing-the-math-by-hand.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/eitc-calculator): MIT licensed.

@@ -1,0 +1,13 @@
+# You are about to plant a crop that pays in 18 months. Will it pay?
+
+> Free oyster farm planner: enter seed, survival, growout months, gear, lease and prices by grade, and see net per crop, break-even price and survival, and the cash needed before the first sale. Runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/oyster-farm-growout-planner/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/oyster-farm-growout-planner): MIT licensed.

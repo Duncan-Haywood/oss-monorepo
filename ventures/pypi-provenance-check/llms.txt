@@ -1,0 +1,16 @@
+# Which of your Python dependencies lack a provenance attestation?
+
+> Paste a requirements.txt or pyproject.toml to see which Python dependencies have PyPI provenance attestations and which rely on classic API tokens.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/pypi-provenance-check/)
+- [PyPI Provenance Check vs. checking each package on PyPI by hand](https://duncan-haywood.github.io/oss-monorepo/pypi-provenance-check/vs-checking-each-package-on-pypi-by-hand.html)
+- [This checker vs. Socket](https://duncan-haywood.github.io/oss-monorepo/pypi-provenance-check/vs-socket.html)
+- [Why not just pypi-attestations verify?](https://duncan-haywood.github.io/oss-monorepo/pypi-provenance-check/why-not-just-pypi-attestations-verify.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/pypi-provenance-check): MIT licensed.

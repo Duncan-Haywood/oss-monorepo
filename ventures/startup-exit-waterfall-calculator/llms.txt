@@ -1,0 +1,13 @@
+# When the company sells, who actually gets paid what?
+
+> Free startup exit waterfall calculator. Enter the sale price and your cap table (common, options, preferred series with liquidation preference, participation caps, seniority and dividends) and see what each class is paid, the exit price where each series converts, and a sweep across exit prices.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/startup-exit-waterfall-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/startup-exit-waterfall-calculator): MIT licensed.

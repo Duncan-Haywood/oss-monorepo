@@ -1,0 +1,13 @@
+# Roll out a feature to 10% of users, and know exactly who gets it.
+
+> A free, open-source alternative to LaunchDarkly, Flagsmith and Unleash: percentage rollouts that stay sticky, targeting rules, segments, prerequisites and a kill switch in one small server. Simulate a rollout and see exactly who would flip before you ship it, in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/flag-keeper/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/flag-keeper): MIT licensed.

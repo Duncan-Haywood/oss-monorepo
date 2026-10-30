@@ -1,0 +1,13 @@
+# What does a new hire really cost you on top of their pay?
+
+> Free employer payroll tax calculator: enter a salary and state to see Social Security, Medicare, FUTA, state unemployment, workers' comp, match and health cost, and the true cost of a hire. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/employer-payroll-tax-cost-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/employer-payroll-tax-cost-calculator): MIT licensed.

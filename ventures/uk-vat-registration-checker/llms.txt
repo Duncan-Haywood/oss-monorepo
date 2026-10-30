@@ -1,0 +1,13 @@
+# Have you passed the VAT threshold?
+
+> Free UK tool: paste your monthly sales to see if your rolling 12-month turnover has passed the £90,000 VAT threshold, the date you must tell HMRC, when registration starts, and whether the Flat Rate Scheme saves you money. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/uk-vat-registration-checker/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/uk-vat-registration-checker): MIT licensed.

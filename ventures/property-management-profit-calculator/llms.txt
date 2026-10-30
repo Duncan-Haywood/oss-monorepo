@@ -1,0 +1,13 @@
+# How many doors does your property management company need to turn a profit?
+
+> Free property management profit calculator: doors, fee percentage, leasing and renewal income, managers and admin in; monthly profit, break-even doors, the cost of your next hire, best fee and new-owner payback out. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/property-management-profit-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/property-management-profit-calculator): MIT licensed.

@@ -1,0 +1,13 @@
+# What does a private lesson really pay per hour, and should you teach privately, for a school or in a rented room?
+
+> Free music teacher calculator: real hourly rate after prep, travel and cancellations, and private vs school vs rented room.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/music-teacher-studio-profit-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/music-teacher-studio-profit-calculator): MIT licensed.

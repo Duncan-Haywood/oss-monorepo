@@ -1,0 +1,14 @@
+# How many customers can you lose after a price increase?
+
+> Paste your prices, unit costs and volumes, set a price increase, and see how many units you can lose before the raise stops paying, item by item. Free, runs in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/price-increase-breakeven-calculator/)
+- [How much volume can you lose after a price increase?](https://duncan-haywood.github.io/oss-monorepo/price-increase-breakeven-calculator/price-increase-guide.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/price-increase-breakeven-calculator): MIT licensed.

@@ -1,0 +1,16 @@
+# Bid the scrape, the skim, and the extras.
+
+> Price popcorn ceiling removal from ceiling area, scrape-and-prime versus Level 4 skim versus Level 5 plus paint, 8-foot versus vaulted versus two-story access, and extras — plus the walk-away price a $1.50 / sq ft special cannot see.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/popcorn-ceiling-bid-calculator/)
+- [How much to charge to remove popcorn ceiling](https://duncan-haywood.github.io/oss-monorepo/popcorn-ceiling-bid-calculator/how-much-to-charge-to-remove-popcorn-ceiling.html)
+- [This calculator vs. a flat price per square foot](https://duncan-haywood.github.io/oss-monorepo/popcorn-ceiling-bid-calculator/vs-a-flat-price-per-square-foot.html)
+- [This calculator vs. Jobber](https://duncan-haywood.github.io/oss-monorepo/popcorn-ceiling-bid-calculator/vs-jobber.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/popcorn-ceiling-bid-calculator): MIT licensed.

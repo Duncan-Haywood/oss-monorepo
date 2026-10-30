@@ -1,0 +1,13 @@
+# What does a dental really cost your clinic at grade 4?
+
+> Free calculator for veterinary clinics: itemised dental estimate and clinic profit for each grade of dental disease, profit per anesthesia hour, the price that hits your margin and what a flat dental quote loses. Runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/veterinary-dental-estimate-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/veterinary-dental-estimate-calculator): MIT licensed.

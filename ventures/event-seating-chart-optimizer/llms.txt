@@ -1,0 +1,20 @@
+# Who sits where? Let the search sort your seating chart.
+
+> Free seating chart optimizer for weddings, banquets and events. Paste your guest list, say who sits together and who must be kept apart, and it assigns every guest to a table with the most wishes met. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/event-seating-chart-optimizer/)
+- [How to handle late wedding RSVPs and drop-outs](https://duncan-haywood.github.io/oss-monorepo/event-seating-chart-optimizer/how-to-handle-late-wedding-rsvps-and-drop-outs.html)
+- [How to make a wedding seating chart](https://duncan-haywood.github.io/oss-monorepo/event-seating-chart-optimizer/how-to-make-a-wedding-seating-chart.html)
+- [How to mix the bride's and groom's sides at wedding tables](https://duncan-haywood.github.io/oss-monorepo/event-seating-chart-optimizer/how-to-mix-bride-and-groom-sides-at-wedding-tables.html)
+- [How to seat a company dinner or gala so departments mix](https://duncan-haywood.github.io/oss-monorepo/event-seating-chart-optimizer/how-to-seat-a-company-dinner-or-gala-so-departments-mix.html)
+- [How to seat a kids table and a head table at a wedding](https://duncan-haywood.github.io/oss-monorepo/event-seating-chart-optimizer/how-to-seat-a-kids-table-and-a-head-table-at-a-wedding.html)
+- [How to seat divorced parents at a wedding](https://duncan-haywood.github.io/oss-monorepo/event-seating-chart-optimizer/how-to-seat-divorced-parents-at-a-wedding.html)
+- [How to seat wheelchair users and guests who need step-free access at a wedding](https://duncan-haywood.github.io/oss-monorepo/event-seating-chart-optimizer/how-to-seat-wheelchair-users-and-guests-who-need-step-free-access-at-a-wedding.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/event-seating-chart-optimizer): MIT licensed.

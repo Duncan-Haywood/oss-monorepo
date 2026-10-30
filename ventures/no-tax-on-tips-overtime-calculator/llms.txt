@@ -1,0 +1,15 @@
+# What's the "no tax on tips" and "no tax on overtime" deduction worth?
+
+> Free calculator for the federal 'no tax on tips' and 'no tax on overtime' deductions (2025-2028): applies the $25,000 tip cap, the $12,500/$25,000 overtime cap, and the shared MAGI phase-out, and computes the overtime deduction's easy-to-miss half-time-premium-only rule. Entirely client-side, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/no-tax-on-tips-overtime-calculator/)
+- [Does my job qualify for "no tax on tips"?](https://duncan-haywood.github.io/oss-monorepo/no-tax-on-tips-overtime-calculator/does-my-job-qualify-for-no-tax-on-tips.html)
+- [This calculator vs. doing it by hand](https://duncan-haywood.github.io/oss-monorepo/no-tax-on-tips-overtime-calculator/vs-estimating-the-deduction-by-hand.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/no-tax-on-tips-overtime-calculator): MIT licensed.

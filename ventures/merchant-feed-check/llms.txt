@@ -1,0 +1,16 @@
+# Will this product feed get items disapproved?
+
+> Paste a Google Merchant Center or Meta Catalog feed to find missing fields, bad GTINs and malformed prices before products are disapproved. Runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/merchant-feed-check/)
+- [Merchant Feed Check vs. DataFeedWatch](https://duncan-haywood.github.io/oss-monorepo/merchant-feed-check/vs-datafeedwatch.html)
+- [Merchant Feed Check vs. eyeballing the feed in a spreadsheet](https://duncan-haywood.github.io/oss-monorepo/merchant-feed-check/vs-eyeballing-the-feed-in-a-spreadsheet.html)
+- [Why products get disapproved in Google Merchant Center — and what a feed checker can't see](https://duncan-haywood.github.io/oss-monorepo/merchant-feed-check/why-products-get-disapproved-in-google-merchant-center.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/merchant-feed-check): MIT licensed.

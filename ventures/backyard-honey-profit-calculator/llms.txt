@@ -1,0 +1,14 @@
+# What do you really make on a pound of honey?
+
+> Free calculator for backyard beekeepers who sell honey: what a pound costs you, how many hours it takes, your profit per pound and per hour, the price per pound you need to earn a wage, and what a poor honey year and winter hive losses do to it. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/backyard-honey-profit-calculator/)
+- [How much to charge for a pound of honey: hives, winter losses and your hours](https://duncan-haywood.github.io/oss-monorepo/backyard-honey-profit-calculator/how-much-to-charge-for-a-pound-of-honey.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/backyard-honey-profit-calculator): MIT licensed.

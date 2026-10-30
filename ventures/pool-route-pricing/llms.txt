@@ -1,0 +1,16 @@
+# Price the route, not just the pool.
+
+> Price recurring pool service accounts after labor, drive time, chemicals, and overhead. Free private pool route pricing calculator for independent operators.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/pool-route-pricing/)
+- [How much to charge for monthly pool service](https://duncan-haywood.github.io/oss-monorepo/pool-route-pricing/how-much-to-charge-for-pool-service.html)
+- [This calculator vs. a flat per-pool monthly rate](https://duncan-haywood.github.io/oss-monorepo/pool-route-pricing/vs-a-flat-per-pool-monthly-rate.html)
+- [This calculator vs. Skimmer](https://duncan-haywood.github.io/oss-monorepo/pool-route-pricing/vs-skimmer.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/pool-route-pricing): MIT licensed.

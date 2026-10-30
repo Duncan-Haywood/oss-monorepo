@@ -1,0 +1,16 @@
+# GitHub Actions OIDC Trust Policy Checker
+
+> Free tool: paste an AWS IAM role trust policy and see whether its GitHub Actions OIDC conditions actually restrict which repository, branch or environment can assume the role.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/oidc-trust-policy-check/)
+- [Why repo:my-org/my-repo:* lets a stranger's pull request into your AWS account](https://duncan-haywood.github.io/oss-monorepo/oidc-trust-policy-check/sub-claim-and-wildcard-traps.html)
+- [This checker vs. reading the trust policy by eye](https://duncan-haywood.github.io/oss-monorepo/oidc-trust-policy-check/vs-reading-the-trust-policy-by-eye.html)
+- [This checker vs. Wiz](https://duncan-haywood.github.io/oss-monorepo/oidc-trust-policy-check/vs-wiz.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/oidc-trust-policy-check): MIT licensed.

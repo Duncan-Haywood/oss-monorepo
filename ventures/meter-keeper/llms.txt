@@ -1,0 +1,13 @@
+# Charge for usage without building a billing system.
+
+> A free, open-source alternative to Lago, Orb and Metronome for small SaaS: send usage events to your own server, get exact per-customer usage, tiered invoice previews, hard-limit checks, and a reliable feed into Stripe Billing Meters. Try your pricing on real usage numbers in your browser first.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/meter-keeper/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/meter-keeper): MIT licensed.

@@ -1,0 +1,13 @@
+# Know what customers want. Show them you listened.
+
+> Collect feature requests, let customers vote, catch duplicates as they type, publish a roadmap and a changelog with RSS. One small open-source server you run yourself. Free, MIT, no per-user fee. Try the duplicate finder in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/feedback-board/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/feedback-board): MIT licensed.
