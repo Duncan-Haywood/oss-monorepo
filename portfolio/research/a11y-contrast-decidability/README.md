@@ -174,7 +174,7 @@ What #524 carried across unchanged was **#523's results file**, and that file is
 a measurement of #523's tree, where the two ventures are already fixed and read
 `0`. On `main` they are not fixed. So the prose here said 965 open failures
 while the artifact beside it totalled 611, and
-[this directory's CI workflow](../../../.github/workflows/a11y-contrast-decidability-ci.yml)
+[this directory's CI workflow](../../../.github/workflows/a11y-research-ci.yml)
 cannot catch that — its own header comment says so: *"a colour change in venture
 source makes the committed results stale — CI cannot detect that, only a re-run
 with builds can."* Nothing was wrong with the engine; the artifact simply
