@@ -384,7 +384,7 @@ export function meetAndGreetPage(profile = null, family = null) {
     : `<title>${esc(title)}</title><meta name="description" content="${esc(desc)}"><link rel="canonical" href="./meet-and-greet.html"><meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(desc)}">`;
   return `<!doctype html>
 <html lang="en">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">${head}<style>${STYLE}</style></head>
+<head><meta charset="utf-8"><link rel="icon" href="icon.svg" type="image/svg+xml"><meta name="viewport" content="width=device-width,initial-scale=1">${head}<style>${STYLE}</style></head>
 <body>
 <h1>${esc(title)}</h1>
 <p>${personal ? `For ${esc(profile.name)}'s meet-and-greet${family && family.name ? ` with the ${esc(family.name.replace(/ family$/i, ""))} family` : ""}. Tick each question as you cover it and write the answers on the family's info sheet.` : `A meet-and-greet is the short visit before the first sit where the babysitter and the parents check each other out. These are the questions worth asking, grouped so you can tick them off, and a list of red flags that are about <strong>safety and payment only</strong>. A family's religion, background or income is never a red flag.`} <button type="button" onclick="print()">Print</button></p>
