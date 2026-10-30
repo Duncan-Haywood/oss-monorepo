@@ -17,7 +17,7 @@ The cost breakdown for Shed Designer's default 8x12 put fasteners and hardware n
 | Caulk, adhesive, flashing tape, Z-flashing, shims, screws | | $105.45 | Counted from the openings and sheets. They look right. |
 | Door hardware (site-built door) | 3 hinges, pull, hasp | $39.48 | Right. |
 
-The pack-size rule applies to every design. Six of the seven presets are $8.98 cheaper; the 8x8 lean, with fewer siding sheets, is $3.41 cheaper. That is small, but it was money spent on small boxes: the 5 lb box holds more nails for less.
+The pack-size rule applies to every design. Seven of the nine presets are $8.98 cheaper; the 8x8 lean, with fewer siding sheets, is $3.41 cheaper, and the 10x10 barn, with more, is $14.55 cheaper. That is small, but it was money spent on small boxes: the 5 lb box holds more nails for less.
 
 The bigger lever is the rafter seat. The default shed seats its rafters on variable-pitch connectors (Simpson VPA2, $6.39 each, 14 of them), which spares you cutting a notch in every rafter. The alternative is the traditional birdsmouth notch, with a Simpson H2.5A hurricane tie at $0.58 holding each rafter down. On the default design that saves **$121.81**: the connectors, their nails, and a different board plan. Every structural check still passes. It costs about 28 more angled cuts. The tool already weighed this in its "simplify the build" search; it is now also offered as a priced swap in the store panel, with a button that applies it.
 
