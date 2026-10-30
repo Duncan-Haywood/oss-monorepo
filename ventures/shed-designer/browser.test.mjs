@@ -342,6 +342,20 @@ test('the store table, other tabs and design cards catch up just after an edit',
   assert.ok(await page.isVisible('#panel-cuts'));
 });
 
+test('choosing site-built trusses re-frames the roof: truss checks, truss sheet, truss build steps', { skip }, async (t) => {
+  const { page } = await open(t);
+  const before = await page.textContent('#total');
+  await page.selectOption('#roofType', 'truss');
+  await page.waitForFunction((b) => document.querySelector('#total')?.textContent !== b, before, { timeout: 5000 });
+  await page.click('[data-panel="panel-structure"]');
+  await page.waitForFunction(() => document.querySelector('#panel-structure')?.textContent.includes('Truss bottom chords'), null, { timeout: 5000 });
+  assert.doesNotMatch(await page.textContent('#panel-structure'), /Ridge beam/);
+  await page.click('[data-panel="panel-plans"]');
+  await page.waitForFunction(() => document.querySelector('#panel-plans')?.textContent.includes('Truss detail'), null, { timeout: 5000 });
+  await page.click('[data-panel="panel-build"]');
+  await page.waitForFunction(() => document.querySelector('#panel-build')?.textContent.includes('Build the trusses'), null, { timeout: 5000 });
+});
+
 test('a share link opens as a new design, and a broken one says so', { skip }, async (t) => {
   const { page } = await open(t);
   const d = await page.evaluate(() => ({ name: 'Link test', length: 120, width: 96 }));
@@ -411,6 +425,51 @@ test('on a phone the end view fills its box and every label is inside it', { ski
     assert.ok(r.share > 0.35, `the gable end is ${(r.share * 100).toFixed(0)}% of the box width (${preset || 'default'})`);
     assert.equal(r.out, 0, `labels outside the end view (${preset || 'default'})`);
   }
+});
+
+test('where the money goes: bars by assembly open their lines, an edit says what it moved, the bridge runs', { skip }, async (t) => {
+  const { page } = await open(t);
+  await page.click('[data-panel="panel-costs"]');
+  await settle(page);
+  const rows = page.locator('#cost-chart button.cost-row');
+  assert.ok(await rows.count() >= 9, 'one bar per assembly');
+  const first = rows.first();
+  assert.equal(await first.getAttribute('aria-expanded'), 'false');
+  await first.click();
+  assert.equal(await first.getAttribute('aria-expanded'), 'true');
+  assert.ok(await page.locator('#cost-chart .cost-lines:not([hidden]) tbody tr').count() >= 1, 'its lines show');
+  await page.click('[data-cost-by="materials"]');
+  assert.match(await page.textContent('#cost-chart'), /Treated lumber/);
+  // An edit: OSB under the floor instead of plywood.
+  await page.selectOption('#floorPanel', 'OSB');
+  await settle(page);
+  assert.match(await page.textContent('#cost-delta'), /^Last change: materials −\$\d+ \(floor −\$\d+/);
+  // Leaving a line out takes it off the breakdown too, as it does the headline.
+  const before = await page.textContent('#cost-chart .cost-foot');
+  await page.click('[data-panel="panel-shopping"]');
+  await page.locator('#shopping input[data-skip]').first().check();
+  await page.click('[data-panel="panel-costs"]');
+  await settle(page);
+  assert.notEqual(await page.textContent('#cost-chart .cost-foot'), before);
+  assert.match(await page.textContent('#cost-chart .cost-foot'), /less the 1 line you have or left out/);
+  await page.click('#cost-bridge-run');
+  await page.waitForSelector('#cost-bridge ol.bridge, #cost-bridge p:not(.muted)', { timeout: 60000 });
+  const steps = await page.locator('#cost-bridge ol.bridge li').count();
+  if (steps) assert.match(await page.textContent('#cost-bridge'), /Cheapest passing design/);
+});
+
+test('on a phone the cost bars fit the width', { skip }, async (t) => {
+  const { page } = await open(t, { ...pw.devices['Pixel 7'] });
+  await page.click('[data-panel="panel-costs"]');
+  await settle(page);
+  const over = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  assert.ok(over <= 0, `no sideways scroll (${over}px)`);
+  const r = await page.evaluate(() => [...document.querySelectorAll('#cost-chart .cost-row')].map((b) => {
+    const row = b.getBoundingClientRect(); const amt = /** @type {HTMLElement} */ (b.querySelector('.cost-amt')).getBoundingClientRect();
+    return { right: amt.right - row.right, h: row.height };
+  }));
+  assert.ok(r.every((x) => x.right <= 1), 'every amount inside its row');
+  assert.ok(r.every((x) => x.h >= 44), 'finger-size rows');
 });
 
 test('presentation mode: sky, no outlines or dimensions, and a picked colour reaches the design', { skip }, async (t) => {

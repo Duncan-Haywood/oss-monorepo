@@ -1,5 +1,6 @@
 ---
 title: "Start here: did your metric really change? A guide to the Changepoint Detector"
+seo_title: "Did your metric really change? The Changepoint Detector guide"
 date: 2026-10-29
 tags: [start-here, changepoint-detection, time-series, analytics]
 description: "For analysts and ops people with a time series: what the free Changepoint Detector tells you, your first ten minutes, and what it cannot do."

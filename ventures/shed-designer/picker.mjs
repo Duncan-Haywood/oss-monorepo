@@ -10,6 +10,7 @@
 
 import { PRESETS, buildShed, normalize } from './model.mjs';
 import { createViewer } from './render3d.mjs';
+import { renderFor, slugOf } from './renders.mjs';
 import { designFacts, compareRows, tradeOff } from './designfacts.mjs';
 import { fmtFtIn, fmtIn } from './lumber.mjs';
 
@@ -40,6 +41,15 @@ const VIEWS = [
   { key: 'front', label: 'Front corner', theta: -0.95, phi: 0.36 },
   { key: 'back', label: 'Back corner', theta: Math.PI - 0.95, phi: 0.36 },
   { key: 'end', label: 'Gable end', theta: 0, phi: 0.12 },
+];
+
+// Pictures drawn ahead of time by make-renders.mjs (renders/), used when a
+// design is one of them unchanged: sharper than a live snapshot and no wait.
+const STORED_VIEWS = [
+  { key: 'hero', label: 'Front corner' },
+  { key: 'side', label: 'Gable end' },
+  { key: 'back', label: 'Back' },
+  { key: 'framing', label: 'Framing' },
 ];
 
 /**
@@ -74,6 +84,20 @@ export function mountPicker(opts) {
   const allFacts = () => entries.map((e) => factsOf(e.id));
   const titleOf = (id) => entry(id)?.title || factsOf(id).name;
 
+  /** @type {any} */
+  let manifest = null;
+  /** The stored picture of a design from one view, when the design is a drawn preset unchanged. */
+  const stored = (id, view) => {
+    const e = entry(id);
+    const make = /** @type {any} */ (PRESETS)[id];
+    if (!manifest || !e || !make || JSON.stringify(e.design) !== JSON.stringify(make())) return null;
+    return renderFor(manifest, slugOf(id), view);
+  };
+  const thumb = (id) => {
+    const r = stored(id, 'hero');
+    if (r) return `<img src="${esc(r.src)}" alt="" width="${r.width}" height="${r.height}">`;
+    return shots.has(shotKey(id)) ? `<img src="${shots.get(shotKey(id))}" alt="" width="600" height="400">` : '';
+  };
   const shotKey = (id, view = VIEWS[0]) => `${id}|${view.key}|${JSON.stringify(entry(id)?.design)}`;
   /** A render of a design from one angle, or '' when there is no WebGL. */
   function shot(id, view = VIEWS[0]) {
@@ -106,7 +130,7 @@ export function mountPicker(opts) {
       const on = chosen.includes(e.id);
       return `<li class="pick">
         <button type="button" class="pick-open" data-detail="${esc(e.id)}" aria-label="Details of the ${esc(titleOf(e.id))}">
-          <span class="pick-img" data-shot="${esc(e.id)}">${shots.has(shotKey(e.id)) ? `<img src="${shots.get(shotKey(e.id))}" alt="" width="600" height="400">` : '<span class="thumb-wait">rendering...</span>'}</span>
+          <span class="pick-img" data-shot="${esc(e.id)}">${thumb(e.id) || '<span class="thumb-wait">rendering...</span>'}</span>
           <strong>${esc(titleOf(e.id))}</strong>
           <span class="pick-line">${money(f.total)} &middot; ${Math.round(f.footprintSqFt)} sq ft &middot; peak ${fmtFtIn(f.peak)}</span>
           <span class="pick-why">${esc(tradeOff(f, all))}</span>
@@ -179,7 +203,9 @@ export function mountPicker(opts) {
     const opening = (o) => `<li>${o.kind === 'door' ? 'Door' : 'Window'} on the ${WALL[o.wall] || o.wall} wall, ${esc(o.size)}: ${esc(o.what)}</li>`;
     const html = `
       <p class="why"><strong>Why it's here:</strong> ${esc(tradeOff(f, all))}</p>
-      <div class="shots">${VIEWS.map((v) => `<figure>${img(id, v)}<figcaption>${v.label}</figcaption></figure>`).join('')}</div>
+      <div class="shots">${stored(id, 'hero')
+        ? STORED_VIEWS.map((v) => { const r = /** @type {any} */ (stored(id, v.key)); return r ? `<figure><img src="${esc(r.src)}" alt="${esc(r.alt)}" width="${r.width}" height="${r.height}"><figcaption>${v.label}</figcaption></figure>` : ''; }).join('')
+        : VIEWS.map((v) => `<figure>${img(id, v)}<figcaption>${v.label}</figcaption></figure>`).join('')}</div>
       <div class="detail-grid">
         <section aria-labelledby="dd-cost"><h3 id="dd-cost">Price: ${money(f.total)}</h3>
           <p class="muted">Materials at the listed store prices, before tax (${money(f.grandTotal)} with tax and delivery as set).</p>
@@ -239,7 +265,7 @@ export function mountPicker(opts) {
       if (r.group !== group) { group = r.group; body += `<h3 class="cmp-group">${esc(group)}</h3>`; }
       body += `<div class="cmp-row${r.differs ? ' differs' : ' same'}" role="group" aria-label="${esc(r.label)}"><div class="cmp-label">${esc(r.label)}${r.differs ? '' : ' <span class="muted">(same)</span>'}</div>${r.values.map((v, i) => `<div class="cmp-cell${r.best.includes(i) ? ' best' : ''}"><span class="sr-only">${esc(titleOf(chosen[i]))}: </span>${esc(v)}${r.best.includes(i) ? ' <span class="best-tag">best</span>' : ''}</div>`).join('')}</div>`;
     }
-    const head = chosen.map((id) => `<div class="cmp-head">${img(id)}<strong>${esc(titleOf(id))}</strong><span>${money(factsOf(id).total)}</span>
+    const head = chosen.map((id) => `<div class="cmp-head">${stored(id, 'hero') ? (() => { const r = /** @type {any} */ (stored(id, 'hero')); return `<img src="${esc(r.src)}" alt="${esc(r.alt)}" width="${r.width}" height="${r.height}">`; })() : img(id)}<strong>${esc(titleOf(id))}</strong><span>${money(factsOf(id).total)}</span>
       <button type="button" class="btn primary" data-start="${esc(id)}">Start from this</button>
       <button type="button" class="btn" data-detail="${esc(id)}">Details</button></div>`).join('');
     const html = `<label class="check"><input type="checkbox" data-only-diff> Only show differences</label>
@@ -281,6 +307,12 @@ export function mountPicker(opts) {
   dialog.addEventListener('click', (ev) => { if (ev.target === dialog) close(); });
 
   renderStrip();
+  // The stored pictures' list; without it (offline, an old copy) every picture is drawn live.
+  fetch(new URL('renders/manifest.json', import.meta.url)).then((r) => (r.ok ? r.json() : null)).then((m) => {
+    if (!m?.designs) return;
+    manifest = m;
+    renderStrip();
+  }).catch(() => {});
   renderTray();
 
   return {

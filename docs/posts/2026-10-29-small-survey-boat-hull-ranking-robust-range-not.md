@@ -1,5 +1,6 @@
 ---
 title: "Small survey boats: the hull ranking holds, the absolute range does not"
+seo_title: "Survey boats: the hull ranking holds, the absolute range doesn't"
 date: 2026-10-29
 description: "Marine-hull programme: no rival hull beats a displacement monohull at equal length, but deck-solar km/day is known only to about +-10 to 20%."
 tags: [research, marine-hull]
