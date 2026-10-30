@@ -2,7 +2,7 @@
 title: "Can a quantile bound the regret of cheap-to-expensive chip search?"
 date: 2026-10-30
 tags: [verified-dse, research, successive-halving, chip-design]
-description: "Replacing the worst case with the 90th percentile gives a halving-regret bound that holds in 38 of 40 cached chip-flow cells, and the two failures say why a pilot can't certify it."
+description: "A 90th-percentile bound on halving regret holds in 38 of 40 cached chip-flow cells; the two failures show why a pilot cannot certify it."
 ---
 
 The [verified-dse](https://github.com/Duncan-Haywood/oss-monorepo/tree/main/research/verified-dse) programme asks when a cheap synthesis score can safely prune candidates before the expensive routed run. Earlier steps proved a regret bound for successive halving, but it is a worst case over every candidate and needs the full table, so no 16-point pilot can check it. A fixed multiplier on the pilot's estimate did not fix that (milestone 40).
