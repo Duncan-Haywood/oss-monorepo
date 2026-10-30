@@ -30,8 +30,12 @@
 // gusset plywood itself is checked too (gussetPanel): at the knee for the
 // moment, axial force and shear across the mitre, and at the peak for the
 // thrust and shear across the plumb cut, with APA's published capacities for
-// the panel. This is a screening check like the rest of the tool's, not an
-// engineer's design: wind, uplift and the frame's spread are not checked.
+// the panel. Wind is checked as uplift: ASCE 7's 0.6D + 0.6W with the single
+// wind pressure you set, over the whole roof on plan; where it reverses the
+// frame, the ties go into compression and get a mid-span brace. This is a
+// screening check like the rest of the tool's, not an engineer's design: ASCE
+// 7's zoned gambrel pressures, sideways racking of the trusses and the frame's
+// spread are not checked.
 //
 // Coordinates are the model's: y across the width from the front eave wall's
 // outside face, z up from the gravel. The roof is symmetric about y = W/2.

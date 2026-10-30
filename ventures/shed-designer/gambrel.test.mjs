@@ -193,3 +193,22 @@ test('loft access: a ladder to a half loft, a hatch and a ladder through a full 
   assert.ok(tight.warnings.some((w) => /IRC R807\.1/.test(w)));
 });
 const d = (s) => s.design;
+
+test('wind uplift: the 0.6D + 0.6W case reverses the frame, and ties pushed into compression get a mid-span brace', () => {
+  const at = (o) => buildShed({ ...PRESETS['10x10 barn'](), ...o });
+  // At 10 psf the roof outweighs the wind's lift: no reversal, no brace.
+  assert.equal(at({ loft: 'none', windLoad: 10 }).members.filter((m) => m.kind === 'chord brace').length, 0);
+  for (const loft of ['none', 'half']) {
+    const s = at({ loft, windLoad: 20 });
+    assert.ok(s.members.some((m) => m.kind === 'chord brace'), loft);
+    assert.ok(structuralChecks(s).ok, loft);
+    const ii = integrity(s);
+    assert.deepEqual([ii.floating, ii.clashes], [[], []], loft);
+  }
+  // A full loft's floor braces the joists: no brace.
+  assert.equal(at({ loft: 'full', windLoad: 20 }).members.filter((m) => m.kind === 'chord brace').length, 0);
+  // Without the brace the tie would be a 2x4 column 112" long about its 1-1/2" face: le/d 75, over NDS 3.7.1.4's 50.
+  const g = gambrelAnalysis(normalize({ ...PRESETS['10x10 barn'](), loft: 'none', windLoad: 20 }));
+  assert.equal(g.tieBrace, true);
+  assert.ok(g.rows.find((r) => r.member === 'Truss ties').ratio <= 1);
+});
