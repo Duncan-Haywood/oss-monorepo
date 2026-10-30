@@ -46,7 +46,9 @@ test('shingles carry the course texture and their family blend; metal does not',
 
 test('lap siding, board and batten and T1-11 each get their own texture', () => {
   const tex = (sidingType) => solidsOf(buildShed(normalize({ sidingType }))).find((s) => s.layer === 'siding' && s.flags)?.flags;
-  assert.equal(tex('fiber cement'), FINISH.lap);
+  // Fiber cement is built course by course (lap.mjs), so its shadow lines are real geometry, not a texture.
+  assert.equal(tex('fiber cement'), undefined);
+  assert.ok(buildShed(normalize({ sidingType: 'fiber cement' })).panels.some((p) => p.kind === 'lap siding'));
   assert.equal(tex('vinyl'), FINISH.lap);
   assert.equal(tex('board and batten'), FINISH.batten);
   assert.equal(tex('T1-11'), FINISH.grooves);
