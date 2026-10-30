@@ -17,6 +17,7 @@ import { fmtFtIn, fmtIn } from './lumber.mjs';
  * @param {import('./estimate.mjs').Prices} [prices]
  */
 // Settings a person can see, in plain words, for saying what one design changes from another.
+/** @type {[string, string, (v: any) => string][]} */
 const SAID = [
   ['length', 'length', (v) => fmtFtIn(v)], ['width', 'width', (v) => fmtFtIn(v)],
   ['wallHeight', 'walls', (v) => fmtFtIn(v)], ['pitch', 'roof pitch', (v) => `${v}/12`], ['overhang', 'overhang', (v) => fmtIn(v)],
