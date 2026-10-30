@@ -87,11 +87,11 @@ test('a door wall is framed with the bottom plate already in pieces, as the cut 
 });
 
 test('the rafter step gives the wall line and tail on the board, and names the right hanger', () => {
-  const { s, md } = mdOf(defaultDesign()); // 8 ft wide, 4/12, ridge beam, connector seats, 7" overhang
+  const { s, md } = mdOf({ ...defaultDesign(), autoOverhang: false, overhang: 6 }); // 8 ft wide, 4/12, ridge beam, connector seats, 6" overhang
   assert.equal(s.dims.connector, true);
   // run to the outside of the wall: 48 - 1-1/2 (half the beam) = 46-1/2; along the slope 46.5 / cos(18.43 deg) = 49.01
   assert.match(md, /measure 49" along the bottom edge \(a level run of 46-1\/2"\)/);
-  assert.match(md, /7-3\/8" along the bottom edge past the wall line/); // 7 / cos
+  assert.match(md, /6-5\/16" along the bottom edge past the wall line/); // 6 / cos
   assert.ok(!/, \./.test(md), 'no dangling ", ."');
   const deep = mdOf({ ...defaultDesign(), rafterSize: '2x8', autoOverhang: false }).md;
   assert.match(deep, /a 2x8 rafter hanger/);
@@ -139,6 +139,11 @@ test('blocks, vents and eave blocking say what to do with them', () => {
   assert.match(ten, /a cripple under the sill \(mark [A-Z]+\)/);
   assert.match(ten, /4x6 skids \(mark A, \d+ pieces\) on edge/);
   assert.ok(!/4x4 skids[^.]*on edge/.test(md));
+});
+
+test('a ridge board\'s temporary props come out only after the rafters and ties are on', () => {
+  const md = instructionsMarkdown(buildInstructions(buildShed(PRESETS['10x12']()), estimate(buildShed(PRESETS['10x12']()))), 'x');
+  assert.match(md, /Leave the props in until every rafter pair and its tie is nailed, then take them out/);
 });
 
 test('the siding step says how the nested gable pieces are cut and joined', () => {

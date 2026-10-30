@@ -13,7 +13,7 @@ import { buildShed, normalize } from './model.mjs';
 import { estimate } from './estimate.mjs';
 import { structuralChecks } from './checks.mjs';
 import { connectionChecks } from './connections.mjs';
-import { BLOCKS } from './model.mjs';
+import { BLOCKS, ROOF_TYPES } from './model.mjs';
 import { PRODUCTS } from './products.mjs';
 import { openingMoves } from './framing-moves.mjs';
 import { LAP_PRODUCTS, isLap } from './lap.mjs';
@@ -36,7 +36,8 @@ export function cutMetrics(shed, est) {
   let notches = 0;
   const all = [...shed.members, ...(shed.doorParts || [])];
   for (const m of all) {
-    if (m.kind === 'rafter') { angled += shed.dims.overhang > 0 ? 2 : 1; if (!shed.dims.connector) notches += 1; }
+    if (m.kind === 'rafter') { angled += shed.dims.overhang > 0 ? 2 : 1; if (!shed.dims.connector && !shed.dims.truss) notches += 1; }
+    else if (m.kind === 'king post') angled += 2;
     else if (m.kind === 'gable stud' || m.kind === 'vent trimmer' || m.kind === 'post stud' && m.group.startsWith('gable')) angled += 1;
     else if (m.kind === 'eave blocking') angled += 1;
     else if (m.kind === 'door brace') angled += 2;
@@ -76,7 +77,7 @@ export const MINUTES = {
   fasciaTrim: 15, soffitPanel: 20, rakeTrim: 15, gableVent: 30, zFlashing: 10,
   paint: 45, stain: 45, accentPaint: 60, interiorPaint: 45, glitter: 0,
   insulation: 30, drywall: 20, plywoodLining: 15, osbLining: 15, pegboard: 15, beadboard: 15, interiorPanel: 15, jointCompound: 120,
-  deckBlock: 10, cmuBlock: 10, concreteBlock: 10, gravelTon: 90, paverBase: 4, landscapeFabric: 15,
+  deckBlock: 10, cmuBlock: 10, concreteBlock: 10, formTube: 0, concreteBag: 20, gravelTon: 90, paverBase: 4, landscapeFabric: 15,
 };
 
 /**
@@ -94,6 +95,8 @@ export function laborHours(shed, est, cuts = cutMetrics(shed, est)) {
   let min = cuts.straight * 1 + cuts.angled * 2.5 + cuts.notches * 4;
   min += (shed.members.length + (shed.doorParts || []).length) * 2.5;
   min += shed.fixtures.filter((f) => f.kind === 'connector').length;
+  // Each truss gusset: marked and cut from OSB, glued and nailed (our planning figure, like MINUTES).
+  min += shed.panels.filter((p) => p.kind === 'truss gusset').length * 4;
   min += (shed.wallTrim || []).length * 8;
   for (const r of est.shopping) {
     const m = /** @type {Record<string, number>} */ (MINUTES)[r.source?.key];
@@ -117,7 +120,7 @@ function moves(d, base, resize, opts = {}) {
   if (d.studSpacing === 24 || sidingSpan(d) >= 24) set(`studs ${d.studSpacing === 24 ? 16 : 24}" o.c.`, { studSpacing: d.studSpacing === 24 ? 16 : 24 });
   floorMoves(d, set);
   set(d.rafterSeat === 'connector' ? 'birdsmouth seats' : 'variable-pitch connectors', { rafterSeat: d.rafterSeat === 'connector' ? 'birdsmouth' : 'connector' });
-  set(d.roofType === 'ridgeBeam' ? 'ridge board and ties' : 'ridge beam on posts', { roofType: d.roofType === 'ridgeBeam' ? 'ridgeBoard' : 'ridgeBeam' });
+  for (const r of ROOF_TYPES) if (r.type !== d.roofType) set(r.short, { roofType: r.type }, 'roofType');
   // Sliding a door or window so the framing around it shrinks (framing-moves.mjs).
   openingMoves(d, set);
   // Off-the-shelf swaps, when asked: another stock door or window, siding,
@@ -140,9 +143,9 @@ function moves(d, base, resize, opts = {}) {
     for (const t of sidings) if (d.siding && t !== d.sidingType) set(`siding: ${SIDING_NAMES[t] || t}`, { sidingType: t });
     set(d.roofCover === 'metal' ? 'shingle roof' : 'metal roof', { roofCover: d.roofCover === 'metal' ? 'shingles' : 'metal' });
     for (const f of ['gravel', ...Object.keys(BLOCKS)]) if (f !== d.foundation) set(f === 'gravel' ? 'skids on a gravel pad' : `skids on ${/** @type {any} */ (BLOCKS)[f].plural}`, { foundation: f }, 'foundation');
-    if (d.foundation !== 'gravel') for (const pd of ['full', 'under blocks', 'none']) if (pd !== d.pad) set({ full: 'a full gravel pad', 'under blocks': 'gravel only under the blocks', none: 'no gravel: blocks on tamped soil' }[pd], { pad: pd }, 'pad');
+    if (d.foundation !== 'gravel' && !/** @type {any} */ (BLOCKS)[d.foundation]?.pier) for (const pd of ['full', 'under blocks', 'none']) if (pd !== d.pad) set({ full: 'a full gravel pad', 'under blocks': 'gravel only under the blocks', none: 'no gravel: blocks on tamped soil' }[pd], { pad: pd }, 'pad');
     // Blocks pay off only with the gravel cut back to under them, so offer the pair as one move.
-    for (const f of Object.keys(BLOCKS)) if (f !== d.foundation || d.pad !== 'under blocks') set(`skids on ${/** @type {any} */ (BLOCKS)[f].plural}, gravel only under the blocks`, { foundation: f, pad: 'under blocks' }, 'foundation');
+    for (const f of Object.keys(BLOCKS).filter((x) => !/** @type {any} */ (BLOCKS)[x].pier)) if (f !== d.foundation || d.pad !== 'under blocks') set(`skids on ${/** @type {any} */ (BLOCKS)[f].plural}, gravel only under the blocks`, { foundation: f, pad: 'under blocks' }, 'foundation');
     set(d.floorPanel === 'OSB' ? 'plywood subfloor' : 'OSB subfloor', { floorPanel: d.floorPanel === 'OSB' ? 'plywood' : 'OSB' });
   }
   // Only when asked: a foot either way on the length or width, never below 85% of the floor asked for.

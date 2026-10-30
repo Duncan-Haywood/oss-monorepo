@@ -226,16 +226,55 @@
     footer p { line-height: 1.5; }
     .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
     @media (max-width: 900px) { .workspace { grid-template-columns: 1fr; } .boards li { grid-template-columns: 96px minmax(0, 1fr); } .boards .off { grid-column: 2; } }
+    /* Where the money goes: ranked bars in one hue, a waterfall in blue (saves) and red (costs more) from grey totals. */
+    .cost-host { position: relative; }
+    .cost-bars, .bridge { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+    .cost-row, .bridge li { box-sizing: border-box; display: grid; grid-template-columns: minmax(9rem, 14rem) minmax(0, 1fr) 8.5rem; gap: 10px; align-items: center; width: 100%; padding: 6px 4px; }
+    .cost-row { font: inherit; color: inherit; background: none; border: 0; border-radius: 6px; text-align: left; cursor: pointer; min-height: 44px; }
+    .cost-row:hover, .cost-row[aria-expanded="true"] { background: #f1ece1; }
+    .cost-row:focus-visible { outline: 2px solid #1f4e8c; outline-offset: 1px; }
+    .cost-name { font-weight: 600; }
+    .cost-name::before { content: "▸ "; color: var(--muted); }
+    .cost-row[aria-expanded="true"] .cost-name::before { content: "▾ "; }
+    .bridge .cost-name::before { content: none; }
+    .cost-track { position: relative; height: 14px; }
+    .cost-bar { position: absolute; left: 0; top: 0; bottom: 0; background: #2a78d6; border-radius: 0 4px 4px 0; min-width: 2px; }
+    .bridge-bar { position: absolute; top: 0; bottom: 0; border-radius: 4px; min-width: 2px; }
+    .bridge-total .bridge-bar, .sw-total { background: #5b6157; }
+    .bridge-down .bridge-bar, .bridge-rest .bridge-bar, .sw-down { background: #2a78d6; }
+    .bridge-up .bridge-bar, .sw-up { background: #e34948; }
+    .bridge-total .cost-name, .bridge-total .cost-amt { font-weight: 800; }
+    .cost-amt { text-align: right; font-variant-numeric: tabular-nums; }
+    .bridge-legend { font-size: .85rem; color: var(--muted); }
+    .sw { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; margin-left: 8px; }
+    .cost-lines { padding: 4px 4px 10px 1.4rem; }
+    .cost-lines table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    .cost-lines th, .cost-lines td { text-align: left; padding: 3px 6px; border-bottom: 1px solid var(--line); }
+    .cost-lines .n { text-align: right; white-space: nowrap; }
+    .cost-foot { font-size: .85rem; }
+    .cost-tip { position: absolute; z-index: 5; width: 300px; max-width: 90vw; background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; box-shadow: 0 6px 18px #33281722; font-size: .85rem; pointer-events: none; }
+    .cost-tip ul { margin: 4px 0; padding: 0; list-style: none; }
+    .cost-tip li { display: flex; justify-content: space-between; gap: 8px; }
+    .cost-delta { margin: 0 0 6px; font-weight: 600; }
+    .cost-delta:empty { display: none; }
+    @media (max-width: 640px) {
+      .cost-row, .bridge li { grid-template-columns: minmax(0, 1fr) auto; gap: 2px 10px; }
+      .cost-row .cost-track, .bridge .cost-track { grid-column: 1 / -1; grid-row: 2; }
+    }
     @page plan-sheet { size: letter landscape; margin: 0.35in; }
     @media print {
       body { max-width: none; padding: 0; background: #fff; }
       /* The results live inside <main>, so hide main's other children, not main itself. */
       body[data-print] > *:not(main), body[data-print] main > *:not(.results) { display: none !important; }
       body[data-print] .results > *:not(.print-target) { display: none !important; }
-      body[data-print="plans"] #panel-plans, body[data-print="cuts"] #panel-cuts, body[data-print="build"] #panel-build { display: block !important; }
-      body[data-print="all"] #panel-shopping, body[data-print="all"] #panel-cuts, body[data-print="all"] #panel-plans, body[data-print="all"] #panel-build { display: block !important; }
-      body[data-print="all"] #panel-cuts, body[data-print="all"] #panel-plans, body[data-print="all"] #panel-build { break-before: page; }
+      body[data-print="plans"] #panel-plans, body[data-print="cuts"] #panel-cuts, body[data-print="build"] #panel-build, body[data-print="costs"] #panel-costs { display: block !important; }
+      body[data-print="all"] #panel-shopping, body[data-print="all"] #panel-costs, body[data-print="all"] #panel-cuts, body[data-print="all"] #panel-plans, body[data-print="all"] #panel-build { display: block !important; }
+      body[data-print="all"] #panel-costs, body[data-print="all"] #panel-cuts, body[data-print="all"] #panel-plans, body[data-print="all"] #panel-build { break-before: page; }
       .jump { display: none !important; }
+      body[data-print="costs"] .cost-lines, body[data-print="all"] .cost-lines { display: block !important; }
+      #cost-tip, #cost-bridge-run { display: none !important; }
+      .cost-bar, .bridge-bar, .sw { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .cost-row, .bridge li { break-inside: avoid; }
       body[data-print] .result-panel { display: none; }
       body[data-print] section.results { border: none; box-shadow: none; padding: 0; }
       /* Plan sheets are drawn landscape: give each its own landscape page, full width. */
@@ -270,6 +309,7 @@
   <nav class="jump" id="jump" aria-label="Jump to the cost and the results">
     <a href="#summary" class="jump-total" id="total-pill">Total <strong id="total-pill-n"></strong></a>
     <a href="#results-h" data-jump="panel-shopping">Shopping list</a>
+    <a href="#results-h" data-jump="panel-costs">Where the money goes</a>
     <a href="#results-h" data-jump="panel-cuts">Cut sheet</a>
     <a href="#results-h" data-jump="panel-parts">Parts list</a>
     <a href="#results-h" data-jump="panel-structure">Structure</a>
@@ -318,6 +358,7 @@
       <p id="view3d-fallback" hidden>This browser has no WebGL, so the 3D view is off. The plans, cut sheet and estimate below still work.</p>
       <div class="toolrow">
         <button type="button" class="btn" id="presentation" aria-pressed="false">Presentation</button>
+        <button type="button" class="btn" id="save-picture">Save picture</button>
         <button type="button" class="btn" id="framing-only">Framing only</button>
         <button type="button" class="btn" id="finished">Finished</button>
         <button type="button" class="btn" id="view-front">Front</button>
@@ -337,6 +378,7 @@
         <h2>Estimated cost</h2>
         <p class="big" id="total">$0</p>
         <p class="scope" id="total-scope">Materials, sales tax and delivery only. Your own labour is not in it; see "Your time" below.</p>
+        <p id="cost-delta" class="cost-delta"></p>
         <dl id="summary-lines"></dl>
         <div id="warnings"></div>
         <div id="notes"></div>
@@ -389,17 +431,18 @@
         <label>Joist spacing (in on centre)<select id="joistSpacing"><option value="12">12</option><option value="16">16</option><option value="24">24</option></select></label>
         <label>Rafters<select id="rafterSize"><option>2x4</option><option>2x6</option><option>2x8</option><option>2x10</option></select></label>
         <label>Rafter spacing (in on centre)<select id="rafterSpacing"><option value="12">12</option><option value="16">16</option><option value="24">24</option></select></label>
-        <label>Roof structure<select id="roofType"><option value="ridgeBeam">Ridge beam on posts (open inside, no ties)</option><option value="ridgeBoard">Ridge board with rafter ties</option></select></label>
+        <label>Roof structure<select id="roofType"><option value="ridgeBeam">Ridge beam on posts (open inside, no ties)</option><option value="ridgeBoard">Ridge board with rafter ties</option><option value="truss">Site-built trusses (king post, OSB gussets)</option></select></label>
         <label>Rafter seat<select id="rafterSeat"><option value="connector">Variable-pitch connector (no notch)</option><option value="birdsmouth">Birdsmouth notch and hurricane tie</option></select></label>
         <label>Ridge beam (two plies)<select id="beamSize"><option>2x8</option><option>2x10</option><option>2x12</option></select></label>
-        <label>Rafter ties (ridge board roof)<select id="tieSize"><option>2x4</option><option>2x6</option></select></label>
+        <label>Rafter ties or truss bottom chords<select id="tieSize"><option>2x4</option><option>2x6</option></select></label>
         <label class="check"><input id="floorTreated" type="checkbox"> Pressure-treated floor framing</label>
       </div>
     </fieldset>
     <fieldset>
       <legend>Foundation</legend>
       <div class="fields">
-        <label>Foundation<select id="foundation"><option value="gravel">Skids on a gravel pad</option><option value="blocks">Skids on solid 4x8x16 concrete blocks</option><option value="deck blocks">Skids on concrete deck blocks</option><option value="CMU">Skids on 8x8x16 CMU (cinder) blocks</option></select></label>
+        <label>Foundation<select id="foundation"><option value="gravel">Skids on a gravel pad</option><option value="blocks">Skids on solid 4x8x16 concrete blocks</option><option value="deck blocks">Skids on concrete deck blocks</option><option value="CMU">Skids on 8x8x16 CMU (cinder) blocks</option><option value="piers">Skids on concrete piers poured in 12" form tubes</option></select></label>
+        <label>Pier depth below grade (in; your frost depth, piers only)<input id="pierDepth" type="number" min="12" max="72" step="1"></label>
         <label>Gravel<select id="pad"><option value="full">A pad under the whole shed (bulk stone)</option><option value="under blocks">Only under each block (bagged paver base; needs a block foundation)</option><option value="none">None: blocks on tamped firm soil (needs a block foundation)</option></select></label>
         <label>Subfloor<select id="floorPanel"><option value="plywood">3/4" tongue-and-groove plywood</option><option value="OSB">23/32" tongue-and-groove OSB</option></select></label>
         <label>Compacting the gravel<select id="compaction"><option value="hand tamper">Buy a hand tamper</option><option value="plate compactor">Rent a plate compactor for a day</option></select></label>
@@ -465,6 +508,10 @@
         <label>Sales tax (% where you buy)<input id="taxRate" type="number" min="0" max="15" step="0.05"></label>
         <label>Delivery<select id="delivery"><option value="pickup">I'll pick it up</option><option value="homedepot">Home Depot delivery</option><option value="lowes">Lowe's delivery</option></select></label>
       </div>
+      <div class="fields">
+        <label>Longest board I can haul<select id="maxHaulFt"><option value="8">8 ft</option><option value="10">10 ft</option><option value="12">12 ft (a pickup bed, tailgate down)</option><option value="14">14 ft</option><option value="16">16 ft</option><option value="0">No limit (delivery)</option></select></label>
+      </div>
+      <p class="hint">Longer boards are bought only for a piece that cannot be spliced, and the cut sheet says which piece needs one.</p>
       <p class="hint">Board lengths your yard has:</p>
       <div id="stock"></div>
     </fieldset>
@@ -474,6 +521,7 @@
     <h2 id="results-h">What to buy, how to cut it, how to build it</h2>
     <div class="result-tabs" role="tablist">
       <button type="button" role="tab" aria-selected="true" data-panel="panel-shopping">Shopping list</button>
+      <button type="button" role="tab" aria-selected="false" data-panel="panel-costs">Where the money goes</button>
       <button type="button" role="tab" aria-selected="false" data-panel="panel-cuts">Cut sheet</button>
       <button type="button" role="tab" aria-selected="false" data-panel="panel-parts">Parts list</button>
       <button type="button" role="tab" aria-selected="false" data-panel="panel-structure">Structure</button>
@@ -507,6 +555,16 @@
         <summary><strong>Your prices</strong> (examples until you change them; saved in this browser)</summary>
         <div id="price-grid" class="table-wrap"></div>
       </details>
+    </div>
+    <div class="result-panel print-target" id="panel-costs" hidden>
+      <div class="toolrow" role="group" aria-label="Split the cost"><button type="button" class="btn" data-cost-by="assemblies" aria-pressed="true">By assembly</button><button type="button" class="btn" data-cost-by="materials" aria-pressed="false">By material type</button><button type="button" class="btn" id="cost-print">Print the breakdown</button></div>
+      <div class="cost-host"><div id="cost-chart"></div><div id="cost-tip" class="cost-tip" hidden></div></div>
+      <h3>What the last change did</h3>
+      <p id="cost-change" class="muted">Change anything (a size, a door, the siding, an option or a design from the list) and the cost change shows here by assembly.</p>
+      <h3>From your design to the cheapest passing one</h3>
+      <p class="muted">The same search as "Find a cheaper build": same footprint, every load and connection check passing, peak no more than 6" higher. It weighs your time at your labour rate, so a saving that costs more work than it is worth is not taken.</p>
+      <div class="toolrow"><button type="button" class="btn primary" id="cost-bridge-run">Show the bridge</button></div>
+      <div id="cost-bridge"></div>
     </div>
     <div class="result-panel print-target" id="panel-cuts" hidden>
       <p class="muted">One line per board to buy, with identical boards counted together. Letters are part marks (see Parts list and the plans); the hatched end is offcut. Kerf is allowed between cuts.</p>
