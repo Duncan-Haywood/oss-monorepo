@@ -70,3 +70,11 @@ def test_flow_share_low_pressure_actuator_steals():
     from heavy_hydraulics.flow_share import shared_flows
     hi, lo = shared_flows([(150.0, 10.0), (40.0, 10.0)], 45.0, 10.9)
     assert hi < 10.0 < lo
+
+
+def test_flow_share_faster_bypass_closing_helps_the_stalled_actuator():
+    from heavy_hydraulics.flow_share import phase_slowdown
+    d = [(40.0, 20.0), (160.0, 20.0)]
+    slow = [phase_slowdown(d, 45.0, 10.9, k) for k in (0.5, 1.0, 2.0, 3.0)]
+    assert all(a >= b for a, b in zip(slow, slow[1:]))
+    assert phase_slowdown(d, 45.0, 10.9, 1.0) == phase_slowdown(d, 45.0, 10.9)

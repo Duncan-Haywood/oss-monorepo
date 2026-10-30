@@ -2,6 +2,17 @@
 
 Newest first.
 
+## 2026-10-30 · Milestone 3b: is 3a's cycle-time penalty an artefact of the bypass closing law? (planned before running)
+- Why: 3a listed "one bypass shape (area closes linearly with section area)" as a limit. `flow_share.py` now takes k, the bypass area closed per unit of section area (k = 1 is 3a); `experiments/flow_share_shape.py` sweeps k = 0.5, 1, 1.5, 2, 3 at both sourced neutral drops, 5 seeds x 300 cycles (3a used 1,000 per seed, so the k = 1 row differs slightly from 3a).
+- **Prediction (before running):** the 3a median (6.4%) moves by more than a factor of 2 across k = 0.5 to 2: prior 70%. Refuted if it stays within 3.2% to 12.8%.
+
+### Outcome of 3b (`experiments/flow_share_shape_results.txt`, 3 s, seeded; 1 new test, all pass)
+- p_n 10.9 bar: median penalty 21.6% (k 0.5), 5.8% (k 1), **0.0%** (k 1.5, 2, 3); p95 21.6, 21.6, 21.6, 9.6, 1.9. Dig phases at the stall bound: 82.9, 34.7, 10.3, 1.1, 0.0%. Prediction held.
+- p_n 1.44 bar: median 21.6% for every k up to 2 and 20.0% at k = 3: the stall bound is hit in 49 to 100% of dig phases whatever the closing law.
+- Reading: 3a's "median 6.4%" is a statement about one assumed closing law, not about open-centre valves. What is robust is the sign (never faster than load-sensing) and that a low neutral drop (1.44 bar) leaves little pressure rise to unstall the heavy actuator. How fast a real spool closes its bypass is a datasheet quantity (the PVG 32 curve behind 2n has it) and is the next thing to source.
+- Limits: k is a single-number family, not a measured area curve; the factor-2 stall bound is still an assumption; no dynamics.
+- Next: fit k from the PVG 32 bypass-versus-spool-stroke data behind 2n, then rerun 3a with it.
+
 ## 2026-10-30 · Milestone 3a: how much longer does an open-centre parallel valve make the dig phase? (planned before running)
 - Why: milestone 3 (dynamics) was never started and every ranking so far is energy only; cycle time is the other half of the question. Full dynamics (compensator, line volumes) need component data I do not have, so this step is the steady-state part: `src/heavy_hydraulics/flow_share.py`, orifice sections sized to pass their demand alone, a bypass that closes as sections open, p_n 10.9 bar (2n) and 1.44 bar (2i), 5 x 1,000 random cycles of 2d. Only the dig phase has two actuators. No operator feathering (so an upper-ish bound before a person corrects it); a stalled actuator (supply pressure below its load) is charged the bound factor 2 (sequential motion).
 - **Prediction (before running):** median cycle-time penalty under 2% but 95th percentile 10% or more (prior 55%): most cycles lose little because the closing bypass lifts supply pressure, a tail where the high-pressure actuator stalls. Refuted if the median is 2% or more, or the 95th percentile is under 10%.
