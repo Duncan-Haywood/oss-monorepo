@@ -27,7 +27,8 @@
 // - wallVolumeCuFt: floor area x wall height.
 // - overheadCuFt: the triangle under the roof, over the inside width (its
 //   rise is the inside half-width at the pitch), the whole inside length;
-//   for a gambrel, roofSpaceCuFt from its cross-section. Under a ridge beam it is open; over rafter ties or truss chords it is loft
+//   for a lean-to, the wedge up to the tall front wall over the whole inside
+//   width; for a gambrel, roofSpaceCuFt from its cross-section. Under a ridge beam it is open; over rafter ties or truss chords it is loft
 //   space that needs decking first, which `notes` says.
 // - volumeCuFt: wallVolumeCuFt + overheadCuFt.
 // - shelfFt: inside wall length with no door or window in it (each opening
@@ -108,17 +109,20 @@ export function storageOf(shed) {
   const wallHeightIn = k.plateTop - k.floorTop;
   const clearHeightIn = wallHeightIn - 3;
   const wallVolumeCuFt = (inL * inW * wallHeightIn) / 1728;
-  const rise = (inW / 2) * (d.pitch / 12);
+  // A lean-to's one slope rises over the whole width, open (no ties).
+  const lean = d.style === 'leanTo';
+  const rise = (lean ? inW : inW / 2) * (d.pitch / 12);
   // A gambrel's roof is no triangle: measure its cross-section.
   const overheadCuFt = d.style === 'gambrel' ? roofSpaceCuFt(shed) : (0.5 * inW * rise * inL) / 1728;
-  const open = d.roofType === 'ridgeBeam';
+  const open = lean || d.roofType === 'ridgeBeam';
   let shelfIn = 0;
   for (const w of WALLS) {
     const run = w === 'front' || w === 'back' ? inL : inW;
     const cut = d.openings.filter((o) => o.wall === w).reduce((t, o) => t + o.width, 0);
     shelfIn += Math.max(0, run - cut);
   }
-  const headroom = open ? k.ridgeTop - k.ridgeD - k.floorTop : wallHeightIn;
+  // Under a lean-to's rafters at the tall front wall; under a ridge beam; else to the plates.
+  const headroom = lean ? k.highWall : d.roofType === 'ridgeBeam' ? k.ridgeTop - k.ridgeD - k.floorTop : wallHeightIn;
   const widestDoor = d.openings.filter((o) => o.kind === 'door').reduce((m, o) => Math.max(m, o.width), 0);
   const notes = [];
   if (d.style === 'gambrel') notes.push(d.loft !== 'none' ? 'The gambrel\'s loft is decked and sized for 20 psf of stored things; the rest of the roof space is over the truss ties.' : 'The space over the gambrel\'s truss ties counts as loft storage; add the loft to deck it.');

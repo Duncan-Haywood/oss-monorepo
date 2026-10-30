@@ -60,6 +60,7 @@ test('gusset nails are counted from the force and carry it', () => {
 
 test('every preset frames as trusses: complete, connected, checked and nothing floats', () => {
   for (const [name, mk] of Object.entries(PRESETS)) {
+    if (mk().style === 'leanTo') continue; // one slope and no ridge: a lean-to is never trussed
     for (const extra of [{}, { overhang: 0 }]) {
       const s = buildShed(normalize({ ...mk(), ...extra, roofType: 'truss' }));
       const inner = s.dims.rafterCenters.length - 2;

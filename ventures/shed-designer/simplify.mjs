@@ -120,7 +120,8 @@ function moves(d, base, resize, opts = {}) {
   if (d.studSpacing === 24 || sidingSpan(d) >= 24) set(`studs ${d.studSpacing === 24 ? 16 : 24}" o.c.`, { studSpacing: d.studSpacing === 24 ? 16 : 24 });
   floorMoves(d, set);
   set(d.rafterSeat === 'connector' ? 'birdsmouth seats' : 'variable-pitch connectors', { rafterSeat: d.rafterSeat === 'connector' ? 'birdsmouth' : 'connector' });
-  for (const r of ROOF_TYPES) if (r.type !== d.roofType) set(r.short, { roofType: r.type }, 'roofType');
+  // A lean-to has no ridge, so no roof structure to change.
+  if (d.style !== 'leanTo') for (const r of ROOF_TYPES) if (r.type !== d.roofType) set(r.short, { roofType: r.type }, 'roofType');
   // Off-the-shelf swaps, when asked: another stock door or window, siding,
   // roofing, foundation, gravel and subfloor.
   if (opts.products) {
