@@ -1,7 +1,7 @@
 ---
 title: "36 sheds that pair every option with every other option"
 date: 2026-10-30
-description: "Fifteen agents are adding to Shed Designer tonight. A cross-feature test builds 36 designs that between them pair every siding, foundation, roof, seat, cover, spacing, trim and door option with every other, and every preset must pass its checks as shipped."
+description: "36 shed designs pair every siding, foundation, roof, seat, cover, spacing, trim and door option with every other; every preset must pass its checks as shipped."
 tags: [shed-designer, testing]
 ---
 
