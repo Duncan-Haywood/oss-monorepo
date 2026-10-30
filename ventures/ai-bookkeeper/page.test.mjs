@@ -142,12 +142,16 @@ test("the payroll card is labelled and wired to the payroll engine", () => {
 
 test("the tax estimate card exists, its ids are labelled, and estimatedTax is imported", () => {
   const html = page("index.html");
-  for (const id of ["est-filing", "est-months", "est-wages", "est-other", "est-withheld", "est-paid", "est-prior", "est-prior-agi", "est-health", "est-retire", "est-children", "est-other-deps", "est-over65", "est-blind", "est-eitc", "est-bizwages"]) assert.match(html, new RegExp(`<label[^>]*>[^<]*<(input|select) id="${id}"`), id);
+  for (const id of ["est-filing", "est-months", "est-wages", "est-other", "est-withheld", "est-paid", "est-prior", "est-prior-agi", "est-health", "est-retire", "est-children", "est-other-deps", "est-over65", "est-blind", "est-eitc", "est-bizwages", "est-state-rate", "est-state-ded", "est-state-wh"]) assert.match(html, new RegExp(`<label[^>]*>[^<]*<(input|select) id="${id}"`), id);
   assert.match(script(), /import \{ estimatedTax \} from "\.\/estimatedtax\.mjs"/);
   assert.match(html, /A worksheet, not tax advice/);
   assert.match(script(), /import \{ annualizedInstallments \} from "\.\/annualized\.mjs"/);
   assert.match(html, /id="est-annual"/);
   assert.match(html, /id="annual"/);
+  for (const id of ["scorp-salary", "scorp-cost"]) assert.match(html, new RegExp(`<label[^>]*>[^<]*<input id="${id}"`), id);
+  assert.match(script(), /import \{ scorpFromBooks \} from "\.\/scorp\.mjs"/);
+  assert.match(html, /id="est-scorp"/);
+  assert.match(html, /id="scorp"/);
 });
 
 test("installable app: manifest, icons and an offline shell covering every module the page imports", () => {
@@ -185,4 +189,13 @@ test("the sales tax return worksheet is on the page and shares its spec parsers 
   for (const id of ["str-freq", "str-state", "str-rate", "str-disc"]) assert.match(html, new RegExp(`<label for="${id}"`), id);
   assert.match(script(), /import \{ salesTaxReturn, parseRateSpecs, parseDiscountSpecs,/);
   assert.match(html, /id="str-box" hidden/);
+});
+
+test("tax-calendar page has the disclaimer, a labelled form and no network calls", () => {
+  const html = page("tax-calendar.html");
+  assert.match(html, /No warranty/);
+  assert.match(html, /not legal, tax, or financial advice/);
+  for (const id of ["year", "state", "freq"]) assert.match(html, new RegExp(`<label for="${id}">`), id);
+  assert.doesNotMatch(html, /fetch\(|XMLHttpRequest|sendBeacon/);
+  for (const m of html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/gs)) JSON.parse(m[1]);
 });

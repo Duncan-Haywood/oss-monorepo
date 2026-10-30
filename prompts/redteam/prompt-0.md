@@ -27,7 +27,7 @@ python3 prompts/redteam.py campaign --mutants 8 --record prompts/runs/<your reco
 With no `--target`, the tool picks a random file that some test suite guards,
 redrawing past suites slower than 20 s (`--probe N` changes that, 0 turns it off)
 (`redteam.py targets` lists them; about 95% are under `ventures/`, so
-`--under platform` aims the draw at the CI and tooling code; add `--probe 20` to print each listed file's suite time, or ">20s (too slow)", before you commit to one). Pass `--target` to aim at a file that just
+`--under platform` aims the draw at the CI and tooling code; add `--probe 20` to print each listed file's suite time, or ">20s (too slow)", before you commit to one). Pass `--target` (it skips the probe: check the file with `targets --probe 20` first, since a 300 s baseline timeout wasted 5 min on 2026-10-29) to aim at a file that just
 changed on `main` (`git log --since=3.days --name-only origin/main`) or that
 users rely on most. The campaign prints the baseline time and an estimate; run two or
 three campaigns if each takes under a minute, and for a slow suite (anything over ~20 s per mutant, since a campaign runs
@@ -38,8 +38,10 @@ mid-run is the tool, not a bug), and check `git status` afterwards.
 
 Two traps (live reports 2026-10-27): `node --test --test-force-exit` can truncate
 output (23 of 51 tests shown), so drop it for a suite that finishes quickly; and
-only run `platform/ci/pyenv.py` for a Python target, since its first install
-blocks about 120 s and a node target needs neither.
+only run `platform/ci/pyenv.py` for a Python target that imports
+`pytest`, `numpy` or similar, since its first install blocks about 120 s; a node
+target or a stdlib `unittest` suite needs no environment (live report
+2026-10-29T11:28: two minutes lost).
 
 The tool applies one mutant at a time, runs the suite, and restores the file
 byte for byte. It refuses a dirty file and a red baseline. **A red baseline

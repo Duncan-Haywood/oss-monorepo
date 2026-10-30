@@ -1,0 +1,124 @@
+{
+  "date": "2026-10-29",
+  "session": "https://claude.ai/code/session_01AcxTtKPMTGVQoPxPsYQKeN",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "scheduled: read ./prompt.md and follow the instructions there",
+  "input_sha256": "f2d8c6470f61b3e050d0c0a8893c3b8623a29690722755209371e13aee4f6558",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-29T06:07:56Z",
+  "ended": "2026-10-29T06:37:08Z",
+  "wall_minutes": 29.33,
+  "tokens_in": 3013885,
+  "tokens_out": 11224,
+  "cost_usd": 1.0103,
+  "tool_calls": 33,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/11325",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "pyenv.py and the python3 on PATH disagree: plain python3 was /usr/bin/python3 without torch while /usr/local/bin/python3 has it; first import check failed and cost a probe."
+    },
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "wait_for.py --until returns after ~100s 'still failing'; for a 30 minute job a plain until-loop in run_in_background was simpler."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-10-29-does-compression-cost-depend-on-sync-interval.md",
+    "research/lowcomm-training/LOG.md (milestone 6b)"
+  ],
+  "goal": null,
+  "notes": "Milestone 6b of lowcomm-training: 12 GPT runs, H6b-i and H6b-ii supported, caveat that additive rule is also within 0.02. Homepage build ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "deee8766-6a47-51f1-829c-42409f3ae7c2",
+    "transcripts": 1,
+    "first": "2026-10-29T06:07:56Z",
+    "last": "2026-10-29T06:37:16Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 34,
+        "input": 71,
+        "output": 11224,
+        "thinking": 1476,
+        "cache_read": 2936144,
+        "cache_write_5m": 0,
+        "cache_write_1h": 77670,
+        "api_equivalent_usd": 1.0103,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 34,
+      "input": 71,
+      "output": 11224,
+      "thinking": 1476,
+      "cache_read": 2936144,
+      "cache_write_5m": 0,
+      "cache_write_1h": 77670,
+      "api_equivalent_usd": 1.0103,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.974,
+    "tool_calls": 33,
+    "tools": {
+      "Bash": 28,
+      "Read": 2,
+      "mcp__github__search_pull_requests": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 29.33,
+      "active_minutes": 5.68,
+      "model_minutes": 2.08,
+      "tool_minutes": 3.6,
+      "waiting_on_human_minutes": 23.65,
+      "human_prompts": 5,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

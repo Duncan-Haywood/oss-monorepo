@@ -3088,7 +3088,8 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `uk-crypto-cgt-calculator` graduated (browser + CLI UK crypto capital gains: HMRC same-day, 30-day and Section 104 pool matching, per-tax-year estimate, working CSV).
     # +1: `open-house-plans` graduated (browser, CLI and agent house plan generator: a brief or a sentence to a CC0 plan set of SVG drawings, DXF, IFC4, OBJ, schedules and an NAHB-anchored cost).
     # +1: `ca-crypto-acb-calculator` graduated (browser + CLI Canadian crypto ACB: CRA average cost per coin, superficial loss rule, taxable gain per year, working CSV).
-    total = 1319  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1319 tools" wording.
+    total = 1321  # `infra/OWNER_CHECKLIST.md`'s own "N of the 1321 tools" wording.
+    # +1: `shed-designer` graduated (browser gable shed designer: click-and-drag plan, true-size framing with structural screening checks, plan sheets as SVG/DXF, WebGL 3D view, a cutting-stock cut sheet and a shopping list with cited prices).
     # +1: `sales-agent` graduated (browser, CLI and MCP AI sales inbox agent: reply triage, automatic stop/pause/suppress with a consent record, drafts queued for approval, never sends; flagship for the owner's 2026-10-21 AI sales agents direction).
     # +1: `agent-workroom` graduated (browser 3D room for AI agents' tasks: a desk per agent, a task wall, typed or spoken commands, progress from GitHub pull requests).
     # +1: `interview-content-studio` graduated (browser and CLI: interviews about a brand or topic become a per-platform plan, a 4-week calendar and drafts for 14 platforms, optional own-key AI with a no-invented-numbers check).
@@ -3137,6 +3138,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `ai-bookkeeper` graduated (browser + CLI double-entry books from bank CSVs that learn payees, pair transfers, reconcile and export QuickBooks/Xero journals; optional own-key or local-model AI).
     # +1: `wall-framing-takeoff` graduated (browser + CLI wall framing takeoff: stud layout, cut list and a cutting-stock lumber order with an LP bound).
     # +1: `support-agent` graduated (self-hosted AI support agent: answers from your help articles with citations, hands off by rule or calibrated confidence; measured on BANKING77).
+    # +1: `dupehound` graduated (Rust copy-paste detector: one engine as a CLI and a WebAssembly browser page; benchmarked against jscpd).
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

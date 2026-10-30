@@ -51,7 +51,11 @@ runs on a PR or on `main`.
    If the merge won't go:
    - **Conflict:** merge `origin/main` into your branch, re-run what the
      checklist says (`node platform/marketing/regen.mjs`, `sync_tree_counts.py`), re-verify, and
-     merge. A conflict on its own is not a reason to stop.
+     merge. Before pushing the merge, run
+     `python3 platform/ci/check_conflict_markers.py`: #11273 merged with markers
+     left in `ventures/ai-bookkeeper/index.html` and `README.md` (its `validate`
+     and `check` runs were red at merge, which a squash-merge click does not
+     stop), and #11276 had to clean up main. A conflict on its own is not a reason to stop.
    - **A check your change turned red:** fix forward on the same PR.
    - **A check that is red on `main` too:** it isn't yours. If a fix exists,
      port it. If not, name the failure in the PR. Landing the fix on `main`

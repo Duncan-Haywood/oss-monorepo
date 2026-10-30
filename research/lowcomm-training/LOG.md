@@ -2,6 +2,141 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-30 · Milestone 6h (H6 scale-up): does the 6f rule keep its form at a wider model, with its constants refitted? (planned before running)
+
+- Why: 6g's "Next" and Milestone 6. Every H6 result so far is one 413k-parameter GPT; the rule's form was designed on it.
+- Setup (`experiments/gpt_scale/scale.py`): same corpus, 3,840-step budget, M = 4, inner lr 2e-3, plain outer step; only width changes (dim 128 -> 192, 6 heads, 2 layers; parameter count printed by the run). Seven cells, rand-k keep p in {1, 1/16} x H in {4, 16, 64} plus p = 1/4 at H = 16, seeds 0 and 1 (14 runs, no tuning for the new size).
+- **H6h-i:** refitting the three constants on the size-2 cells, leave-one-cell-out MAPE is under 1% (as at size 1, 0.91% in 6f). **H6h-ii:** the fitted H exponent b at size 2 is within 0.5 of size 1's. **H6h-iii:** the size-2 compression excess is a single scalar multiple of size 1's (through-origin fit) with every residual under 0.02 nats; borrowing size 1's excess unchanged is worse. Priors: i 60%, ii 50%, iii 55%.
+- Limits to state: two seeds, seven cells, one extra size (not the four of Milestone 6), same corpus, no inner-lr retuning at the new width.
+
+### Outcome of 6h (`experiments/gpt_scale/scale.jsonl`, `scale_results.txt`; 914,880 parameters, 14 runs, about 17 min each)
+- **H6h-i refuted.** Leave-one-cell-out MAPE of the refitted rule is 2.54% at size 2 against 0.71% on the same seven size-1 cells. The misses are concentrated in the extreme cell: held out, (H = 64, keep 1/16) is over-predicted by 0.174 nats (the other six cells miss by under 0.04), because it is the only cell that fixes the H exponent when left out. Two seeds and seven cells leave the fit weakly identified; this says the three-constant rule needs more than seven cells at a new size, not that its form is wrong.
+- **H6h-ii supported.** b = 0.55 at size 2 against 0.35 at size 1 (difference 0.20, under the 0.5 bound; both from a 0.05 grid on seven cells).
+- **H6h-iii supported, with four compressed cells.** Size-2 compression excess = 0.497 x size-1 excess; residuals -0.012, +0.013, -0.003, -0.005 nats, all under 0.02. Borrowing size 1's excess unchanged misses by 0.012 to 0.055 nats, so the excess about halves at 2.2x the parameters (keep 1/16, H = 16: +0.083 to +0.054).
+- Reading, not tested: the shape in (H, omega) carried over and only a scale changed. One constant fitted on four cells and two seeds each, so the 0.497 has no interval; the uncompressed curve also differs between sizes (H = 64 is worse than H = 16 by 0.034 at size 2, 0.019 at size 1).
+- Limits: two seeds; one extra size, not four; 4 compressed cells for the scale factor; same corpus and budget (the wider model is further from converged); inner lr not retuned.
+- Next: a third size (dim 256) to test whether the scale factor continues to fall smoothly, and more seeds on the H = 64 cell.
+
+## 2026-10-30 · Milestone 6g (H6): does the 6f rule, fitted on rand-k only, predict plain top-k cells it never saw? (analysis of existing cells; script written after the top-k cells of 6e were already known, so the predictions below are not blind)
+
+- Why: 6f's "Next". Top-k is biased, so omega = 1/p - 1 has no theory behind it for it; the test is whether the nominal-keep omega still works with no new constant.
+- Setup (`experiments/gpt_composition/topk_heldout.py`, `topk_heldout_results.txt`): rule (3 constants) and additive power-law baseline (5 constants) from 6f, fitted on all 17 rand-k and uncompressed cell means, scored on the three plain top-k cells at keep 1/16, H = 4, 16, 64 (6e, with H = 16 from 4b). Then a one-constant extension, top-k excess = kappa x the rule's excess, fitted on two H levels and scored on the third.
+- **H6g-i:** the rule's MAPE on the three top-k cells is at most the baseline's, and under 1%. **H6g-ii:** the leave-one-H-out kappa predicts the held-out top-k excess within 0.02 nats at all three H. Prior (stated with the cells' values already seen in 6e, so weak): i 70%, ii 50%.
+
+### Outcome of 6g
+- Loss measured / rule / baseline: H = 4 1.6154 / 1.6261 / 1.6318; H = 16 1.6397 / 1.6482 / 1.6523; H = 64 1.6843 / 1.6817 / 1.6792. MAPE **0.444%** rule, **0.695%** baseline. **H6g-i supported** (3 cells, no interval).
+- The rule over-predicts top-k at small H (+0.011, +0.009 nats) and under-predicts at H = 64 (-0.003), the same pattern 6e found: top-k's excess rises more steeply with H than rand-k's. 
+- kappa left-one-H-out: 0.970, 0.975, 0.849; held-out excess errors +0.0094, +0.0067, -0.0158 nats, all under 0.02. **H6g-ii supported**, but the miss at H = 64 (-0.016) is the largest and one constant does not fix the H-shape; the compressor-specific part is in g(H), not only a scale.
+- Limits: three top-k cells, one keep level, three seeds each, no intervals; the rule's form was chosen after seeing these cells' rand-k siblings; nominal omega for a biased compressor is a convention, not a measured error ratio; the baseline is the same five-constant reading as 6f; one model and corpus.
+- Next: the scale-up check (Milestone 6) with a second model size, where the rule's constants are refitted, not borrowed.
+
+## 2026-10-29 · Milestone 6f (H6): does the three-constant rule beat a same-size fitted additive power law on held-out cells? (analysis of existing cells; script written before reading the result)
+
+- Why: 6e's "Next" and Milestone 5. H6 asks for a composition rule with at most three constants, fitted on a third of the grid, against a refitted scaling law.
+- Rule (3 constants): loss = L0 + a omega (H/16)^b, omega = 1/p - 1, from 6b to 6d. Baseline (5 constants), Charles et al. 2025 style additive power laws: loss = A + B H^beta + C omega^gamma, no cross term. Both fitted by least squares with a grid over the exponents. Data: the 17 rand-k and uncompressed cell means of 6a to 6c (`composition_results.txt`).
+- **H6f-i:** over 300 random splits (6 cells fitted, 11 held out), the rule's mean held-out MAPE is no more than 1.10 times the baseline's, and the 95% paired bootstrap interval of the ratio excludes values above 1.10. Refuted otherwise.
+- Prior: 60%. The rule has fewer constants but ignores the small uncompressed H dependence.
+
+### Outcome of 6f (`experiments/gpt_composition/scaling_compare.py`, `scaling_compare_results.txt`)
+- Mean held-out MAPE: rule **0.91%**, baseline **1.72%** (medians 0.57% and 1.44%); the rule is better in 288 of 300 splits. Ratio 0.535, bootstrap 95% interval [0.390, 0.720]. **H6f-i supported.**
+- Counter-result: fitting on the H = 16 slice only (3 cells, the one-axis-at-a-time design) the rule does worse than the baseline on the other 14 cells (6.75% against 2.40%): b is not identifiable when every fitted cell has H/16 = 1, so the rule needs at least two H levels in its fitting set. The random splits above guarantee two H and two omega values.
+- Limits: the bootstrap resamples splits, which share cells, so the interval is narrower than a true cell-level interval and is not independent evidence; 17 cell means from three seeds each, no seed-level resampling; one model and corpus; the rule was designed after seeing 6a to 6e on these same cells, so this is in-sample for the rule's form (only its constants are fitted on a third); the baseline is my five-constant reading of an additive law, not Charles et al.'s fitted law, which is for another range of sizes and M; the third-of-grid test spans only rand-k; M and model size are not varied, so the H6 claim at four sizes is untested.
+- Next: score on top-k cells (6e) as held-out, then the scale-up check (Milestone 6).
+
+## 2026-10-29 · Milestone 6e (H6): does 6b's H-shape g(H) carry over to a biased compressor, plain top-k? (planned before running)
+
+- Why: 6c's "Next" (a second compressor; a parallel run did the omega-composition version as 6d). 6a to 6c found excess(H, p) close to f(p) g(H) for rand-k. If g(H) is a property of the outer loop and not of rand-k, the same g should scale a different compressor's excess. Plain top-k at keep 1/16 is already measured at H = 16 (4b, +0.0639 over uncompressed, 3 seeds).
+- New runs: plain top-k (no error feedback, per tensor), keep 1/16, H in {4, 64}, seeds 0 to 2 (6 runs, `composition.py run_topk`, same model, budget and lr as 6a to 6c). Uncompressed comparators are the existing 3d cells.
+- Prediction made before seeing the cells: top-k excess(H) = top-k excess(16) x rand-k excess(H)/rand-k excess(16) at p = 1/16, i.e. +0.031 at H = 4 (g = 0.49) and +0.076 at H = 64 (g = 1.19). Rival: top-k excess does not depend on H (+0.064).
+- **H6e-i:** the g-scaled prediction is within 0.02 nats of the measured excess at both H = 4 and 64. Refuted if either misses by more than 0.02.
+- **H6e-ii:** its absolute error is smaller than the H-independent rival's at H = 4 (where they differ by 0.033). Refuted otherwise.
+- Prior: i 40%, ii 55%. Top-k is biased and keeps the largest coordinates, so how much its error averages out over more rounds need not follow rand-k's variance story.
+- Limits known in advance: three seeds; one model, corpus and keep level; 0.02 is my choice; the H = 16 top-k cell comes from 4b (same code and seeds), not rerun here.
+
+### Outcome of 6e (`experiments/gpt_composition/`: `topk_composition.jsonl` (6 rows), `run_topk.out`, `topk_composition_results.txt`; seeds 0 to 2, about 14 minutes per run)
+- Plain top-k excess at keep 1/16 over the uncompressed cell (nats), H = 4 / 16 / 64: **+0.0330 / +0.0639 / +0.0896** (H = 16 from 4b). Rand-k at the same cells: +0.0402 / +0.0826 / +0.0987.
+- Prediction errors: g-scaled (rand-k's shape times top-k's H = 16 excess) predicted +0.0311 at H = 4 (error -0.0018) and +0.0763 at H = 64 (error -0.0133); the H-independent rival misses by +0.0309 and -0.0257.
+- **H6e-i supported** (both g-scaled errors are under 0.02). **H6e-ii supported** (0.0018 against 0.0309 at H = 4).
+- Reading: the rise of the compression cost with H is not specific to rand-k. Top-k's excess also halves from H = 16 to H = 4 and keeps growing to H = 64, but more steeply than rand-k's g at the top end (the g-scaled rule under-predicts by 0.013, about a seed spread plus; top-k at H = 64 is +0.090 against a predicted +0.076). So g(H) is roughly shared, with the compressor-specific part not captured by one constant.
+- Limits: three seeds, no interval on the errors; one keep level; one model and corpus; no error feedback (EF top-k at 1/16 is about free at H = 16, so the shape may differ with it); the 0.0133 miss at H = 64 is the only sign of a compressor-specific term and is about 1.3 seed spreads.
+- Next: the same-size fitted scaling-law comparison H6 asks for, using the 6a to 6e cells (rand-k and top-k, H in 4 to 64) as the grid, fit on a third and scored on the rest.
+
+## 2026-10-29 · Milestone 6d (H6): is omega, not the keep fraction p, the variable? A different compressor on rand-k's line (planned before running)
+
+- Why: 6c's "Next". Rand-k alone cannot separate "excess is proportional to omega" from "excess depends on p": they are the same variable there. A compressor with a different structure but the same realised omega separates them.
+- Pilot (`experiments/gpt_omega/omega_probe.py`, 20 rounds at H = 16, seed 0, realised omega = sum ||C(x)-x||^2 / sum ||x||^2 over the actual per-tensor deltas): rand-k at p = 1/16 gives 15.01 (theory 15, so the probe is sound); `quantise(1)` (ternary, QSGD-style) gives only 2.53, too small to read against a seed spread of 0.01 (predicted excess ~0.006). The probe was cut at the 120 s tool limit before levels 2, 3, 7, which would be smaller still.
+- Design: compose two unbiased compressors, whose omegas multiply, (1+w) = (1+w1)(1+w2). Cells: A = rand-k(1/4) then ternary (nominal keep 1/4, expected omega about 4 x 3.5 - 1 = 13); B = rand-k(1/8) then ternary (nominal keep 1/8, expected omega about 8 x 3.5 - 1 = 27). H in {4, 64}, seeds 0 to 2 (12 runs, `gpt_omega/omega.py run`, same model, budget and lr as 6a to 6c). Realised omega is logged per run.
+- Prediction made before any loss is read: excess = piecewise-linear interpolation in omega of the rand-k excesses at the same H (6a/6c cells at omega 3, 7, 15, 31), evaluated at the cell's realised omega. Rival: excess depends on p only, so the cell takes the rand-k excess at its nominal keep (1/4 or 1/8).
+- **H6d-i:** the omega-interpolation predicts all four cell excesses (A, B x H = 4, 64) within 0.02 nats. Refuted if any misses by more than 0.02.
+- **H6d-ii:** the omega prediction has a smaller absolute error than the p-only rival in at least three of the four cells (the rival predicts +0.009 to +0.040, far from the omega prediction for A and B).
+- Prior: i 45% (a quantiser's error is dense and correlated with magnitude where rand-k's is sparse, and the unbiased-variance argument may not carry over to a non-iid error); ii 70%.
+- Limits known in advance: three seeds; the composition is one non-rand-k family; the realised omega is read off the run's own deltas and so differs slightly per seed; 0.02 is my choice; the biased top-k compressor is not tested here.
+
+### Outcome of 6d (`experiments/gpt_omega/`: `omega.py`, `omega.jsonl`, `omega_results.txt`, `run.out`; 12 runs, seeds 0 to 2)
+- Realised omega (from each run's own deltas) was lower than the product estimate: A 10.7 (H = 4) and 12.7 (H = 64), B 21.6 and 25.0, so the compressors' errors are not exactly multiplicative, and omega moves with H.
+- Excess over uncompressed (nats), measured / omega-interpolation prediction: A at H = 4 +0.026 / +0.029, B at H = 4 +0.060 / +0.056, A at H = 64 +0.076 / +0.081, B at H = 64 +0.148 / +0.152. Errors: +0.003, -0.004, +0.005, +0.004. The p-only rival is off by 0.017 to 0.112.
+- **H6d-i supported** (worst error 0.005 against 0.02). **H6d-ii supported** (omega beats p-only in 4 of 4; the prior was 70% and 45%).
+- Reading: for two compressor families (sparsifier, sparsifier then ternary quantiser) the excess is a function of the realised error-to-signal ratio omega at fixed H, within about 0.005 nats, which is the seed spread of a cell mean. The nominal keep fraction is not the variable. Together with 6c this makes "excess = omega g(H)" the working form for unbiased compressors.
+- Limits: three seeds, no interval on errors; the prediction interpolates between four rand-k points per H, and the two new cells lie between them (no extrapolation); omega is measured after the fact, so it is a covariate, not a design-time prediction; one model and corpus; biased compressors (top-k) untested.
+- Next: predict omega at design time for a quantiser and check; top-k with error feedback; then the same-size fitted scaling-law comparison H6 asks for.
+
+## 2026-10-29 · Milestone 6c (H6): is f(p) proportional to the compressor variance factor omega = 1/p - 1? (planned before running)
+
+- Why: 6b's "Next". The product rule excess(H, p) = f(p) g(H) leaves f(p) free. Theory for unbiased compressors puts the variance penalty proportional to omega = 1/p - 1 (Stich 2018; Beznosikov et al. 2020), so f(p)/omega should be flat. Measured so far at H = 16: omega 3 -> +0.017, omega 15 -> +0.083 (ratio 4.9 for an omega ratio of 5).
+- New runs: keep p in {1/8, 1/32} x H in {4, 64}, seeds 0 to 2 (12 runs, `composition.py run_p`, same model, budget and lr as 6a/6b). With 6a's p in {1/4, 1/16} that gives four omega levels (3, 7, 15, 31) at H = 4 and 64.
+- Prediction made before seeing the cells: excess is linear in omega at each H, fitted on omega = 3 and 15 only, and predicted for omega = 7 and 31.
+- **H6c-i:** the linear-in-omega fit (through the origin, per H, on p = 1/4 and 1/16) predicts the p = 1/8 and p = 1/32 excesses at H = 4 and 64 within 0.02 nats each. Refuted if any of the four misses by more than 0.02.
+- **H6c-ii:** a power law excess = a omega^b fitted on the same two points has |b - 1| < 0.3 once all four omega levels are refitted at each H. Refuted otherwise.
+- Prior: i 40% (p = 1/32 is far outside the fitted range and the loss response may be convex in omega, since 6a's excess at p = 1/4 is within seed spread); ii 50%.
+- Limits known in advance: three seeds; one compressor, model and corpus; the 1/4 cell is near the noise floor so the fit through the origin leans on one informative point; 0.02 and 0.3 are my choices.
+
+### Outcome of 6c (`experiments/gpt_composition/`: `composition.jsonl` gained 12 rows, `run_p.out`, `composition_p_results.txt`; seeds 0 to 2, about 11 minutes per run)
+- Rand-k excess over the uncompressed cell (nats), omega = 3 / 7 / 15 / 31: H = 4 +0.009 / +0.019 / +0.040 / +0.077; H = 64 +0.010 / +0.037 / +0.099 / +0.183.
+- **H6c-i supported.** The linear fit through the origin on omega 3 and 15 predicts omega 7 and 31 with errors 0.000 and +0.006 (H = 4) and +0.009 and +0.017 (H = 64); the worst, 0.017, is under 0.02, and every miss is an over-prediction at H = 64, so the response is slightly concave there.
+- **H6c-ii supported.** Fitted power-law exponents in omega: b = 0.94 (H = 4) and 1.25 (H = 64); both within 0.3 of 1.
+- Reading: the excess is close to proportional to omega at both H, with slope about 0.0025 per unit omega at H = 4 and 0.006 at H = 64 (so g(64)/g(4) is about 2.4 at these levels). That is consistent with the product rule f(p) g(H) with f proportional to omega, but H = 64 sits at b = 1.25, so the linear form is not exact there; the omega = 3 cells are at the seed-spread floor (about 0.01) and set the exponent fit.
+- Limits: three seeds, no interval on exponents; the exponent uses all four points including the noisy omega = 3 one; one compressor (rand-k), model and corpus, so "proportional to omega" is not separated from "proportional to 1/p" for other compressors; top-k (biased) not tested.
+- Next: the same-size fitted scaling-law comparison H6 asks for, and a second compressor (top-k or quantisation) to see whether omega, not p, is the variable.
+
+## 2026-10-29 · Milestone 6b (H6): does a product rule excess = f(p) g(H), fitted on H in {4, 16, 64}, predict held-out H in {8, 32}? (planned before running)
+
+- Why: 6a's "Next". The cross term is real at p = 1/16, so the additive rule is out; the smallest replacement is separable, excess(H, p) = f(p) g(H). It is tested the only way a fitted rule can be: on H it was not fitted on.
+- Fit (before seeing H = 8, 32): normalise g(16) = 1. From 6a at p = 1/16, g(4) = 0.0402/0.0826 = 0.49, g(64) = 0.0987/0.0826 = 1.19. g is interpolated linearly in log2 H, so the predicted excess at p = 1/16 is H = 8: **+0.062**, H = 32: **+0.091** (rival, the additive rule: +0.083 at both).
+- New runs: uncompressed and keep 1/16 at H in {8, 32}, seeds 0 to 2 (12 runs, `composition.py run8_32`, same model, budget and lr as 6a; the uncompressed cells use `compress=None`).
+- **H6b-i:** the product rule's predicted excess is within 0.02 nats of the measured one at both H = 8 and H = 32. Refuted if either misses by more than 0.02.
+- **H6b-ii:** the product rule's absolute error is smaller than the additive rule's at H = 8 (where they differ most, 0.062 vs 0.083). Refuted otherwise.
+- Prior: i 60%, ii 55%. A cell mean has a seed spread of about 0.01 and an excess is a difference of two cells (about 0.014), so H6b-ii at H = 8, where the two rules are 0.021 apart, is close to a coin flip.
+- Limits known in advance: one compression level carries the test (p = 1/4 excess is within seed spread); three seeds; g is read off three points; one model, corpus and compressor; 0.02 is my choice.
+
+### Outcome of 6b (`experiments/gpt_composition/`: `composition.jsonl` gained 12 rows, `run8_32.out`, `composition_results.txt`; seeds 0 to 2, about 9 minutes per run)
+- Measured rand-k excess at p = 1/16 over the uncompressed cell at the same H: H = 8 **+0.0669**, H = 32 **+0.0978**. Product rule predicted +0.0614 and +0.0906 (errors -0.0055 and -0.0071); the additive rule's constant +0.0826 errs by +0.0157 and -0.0152.
+- **H6b-i supported** (both product errors are under 0.02). **H6b-ii supported** (0.0055 against 0.0157 at H = 8).
+- Reading, with the limit that matters: the additive rule also lands inside 0.02 at both held-out H, so H6b-i alone does not separate the rules. The evidence for the product rule is that its errors are about a third of the additive rule's at both H and have the right sign pattern, and that the whole curve (H = 4 to 64: +0.040, +0.067, +0.083, +0.098, +0.099) is monotone in log H with a flattening above H = 32. Each difference is of order the seed spread of a cell mean (about 0.01), so this is consistent with the separable form, not a strong test of it.
+- Limits: one compression level carries the test; g is interpolated from the three fitted points; three seeds with no interval on the errors; one model, corpus and compressor. Not tested: whether f(p) is the compressor variance factor (1+omega), which needs more levels of p.
+- Next: more p levels (1/8, 1/32) at H = 4 and 64 to fit f(p) against 1+omega, then the comparison with a same-size fitted scaling law that H6 asks for.
+
+## 2026-10-29 · Milestone 6a (H6 pilot): does rand-k compression's excess loss compose additively with the outer delay H? (planned before running)
+
+- Why: H6, the main claim, has no data yet: every run so far varies one axis. The cheapest crossed cells reuse existing runs: uncompressed H in {4, 16, 64} (3d, lr 2e-3, M = 4) and rand-k at H = 16 (4a). New cells: keep p in {1/4, 1/16} x H in {4, 64}, seeds 0 to 2 (12 runs, `experiments/gpt_composition/composition.py`, about 10 minutes each, 4 in parallel).
+- Rule tested: additive, excess(H, p) = excess(16, p), where excess is over the uncompressed cell at the same H (the no-cross-term case of a composition rule).
+- **H6a-i:** the additive rule predicts all four corner excesses within 0.03 nats. Refuted if any corner misses by more than 0.03 (a cross term exists and H6's rule needs an H x omega term).
+- Prior: 45% supported. 4a's excess is +0.017 at p = 1/4 and +0.083 at p = 1/16, the same order as the seed spread (about 0.01), so the cells at p = 1/4 can hardly miss by 0.03; the p = 1/16 cells decide it. I do not predict the direction.
+- Limits known in advance: three seeds (no interval beyond the spread); one model, one corpus, one compressor; this tests the no-cross-term rule only, not the fitted H6 comparison against a scaling law, which needs a larger grid.
+
+### Outcome of 6a (`experiments/gpt_composition/`: `composition.jsonl`, `composition_results.txt`, `run.out`; 12 new runs, seeds 0 to 2, about 9.5 minutes each)
+- Rand-k excess over the uncompressed cell at the same H (nats), p = 1/4: H = 4 **+0.009**, H = 16 +0.017, H = 64 **+0.010**; p = 1/16: H = 4 **+0.040**, H = 16 +0.083, H = 64 **+0.099**. Cells are 3-seed means; seed spread inside a cell is about 0.01.
+- **H6a-i refuted.** The additive rule misses by 0.042 at (H = 4, p = 1/16) and 0.016 at (H = 64, p = 1/16), the first above the 0.03 line; the p = 1/4 corners miss by under 0.01 (within seed spread, as the prior said).
+- Reading: at p = 1/16 the compression cost is not independent of H. It halves going from H = 16 to H = 4 (+0.083 to +0.040, outside the seed spread) and rises a little at H = 64 (+0.099, a 0.016 change that is about 1.5 seed spreads, not established). So a composition rule needs an H x omega cross term, at least for the downward direction. Why is untested; a guess, not a finding: with more rounds, each carrying a smaller delta, the compression noise is averaged over more outer steps.
+- Limits: three seeds, no interval on the differences; one compressor and model; only two compression levels, so a functional form (for example excess proportional to omega times a function of H) is not fitted; the 0.03 threshold was my choice.
+- Next: fit excess = f(omega) g(H) on these nine excesses plus 4a's other keeps, check it on held-out H (H = 32 or 8), then the fitted-versus-scaling-law comparison H6 asks for.
+
+## 2026-10-29 · Milestone 7b: machine-check the proposal's citations and add related work to the breakdown section (no training)
+
+- Why: 7a's draft cited nothing, and the proposal's 16 arXiv ids had been unchecked since 2026-10-24 (host refused then).
+- Done: `cite_check.py` resolved all 16 ids (the proposal's "Citation status" now records this, and the one title difference: 1909.04715 resolves to the first-version title). Six robust-aggregation ids were checked too and four are cited in `paper/section_breakdown.md` under a new "Related work" paragraph, whose claims are limited to title and abstract-level content.
+- Not done: no paper was fully re-read; the Krum paper (Blanchard et al.) was not checked and is not cited; still no scale-up check (milestone 6).
+- Next: milestone 6 (fit at three sizes, predict the fourth) and the remaining paper sections.
+
 ## 2026-10-28 · Milestone 7a: draft the breakdown-point section of the paper from 5i to 5n (no new training)
 
 - Why: 5n's "Next" said the median's breakdown is established, or to stop. The programme had no `paper/` yet; this writes the first section from recorded results so the claim is stated once, with its limits, and the table regenerates from the jsonl files.

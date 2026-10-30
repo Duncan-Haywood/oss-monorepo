@@ -41,8 +41,10 @@ now issue, a client they can now keep.
 
 ## 2. Choose the shape that fits the user; keep our cost per user at zero
 
-**A menu, not a ranking.** There is no static-only or static-first rule
-(owner, 2026-10-21: "applications can and should be distributable in a
+**A menu, not a ranking.** There is no static-only, static-first or
+browser-only rule; where a product runs is the agent's and the project's
+call (owner, 2026-10-30: "have where things run be up to the agent and the
+project. it's fine to do browser"; and 2026-10-21: "applications can and should be distributable in a
 variety of ways to a variety of platforms"; `prompts/goals.md`, "Direction:
 every platform"). Pick the form the user would actually reach for, and ship
 the same engine through several of them where that helps (web page, CLI,
@@ -72,10 +74,10 @@ reproduce in one reply and a maths graduate can't follow at a glance.
    user runs locally, with the no-SLA clause in §5b. Details:
    [`portfolio/hosting/README.md`](portfolio/hosting/README.md).
 
-Rules that keep the cost floor at zero: no per-user paid API on our account, no
-per-user database we pay for, no per-user human step, no account system unless
-the product is useless without one (and if you need one, prefer "bring your own
-GitHub login" over storing credentials). GitHub Pages hosts our web surfaces
+The hard line is the owner's money: no per-user paid API on our account and no
+per-user database or server we pay for (`goals.md`, Guardrails). Defaults that
+keep it easy: no per-user human step, and no account system unless the product
+needs one (then prefer "bring your own GitHub login" over storing credentials). GitHub Pages hosts our web surfaces
 at $0; another host (Cloudflare, Vercel) means an account only the owner can
 open, so it needs a stated reason Pages cannot meet.
 
@@ -527,7 +529,8 @@ Ship when every line is true:
       (`prompts/goals.md`, "LLM docs and a marketing page"). Every
       claim on them is one a file backs: no invented reviews, testimonials,
       ratings or user counts (Guardrails, "Honest marketing").
-- [ ] It runs with no key, no account, and no paid dependency of ours.
+- [ ] It runs with no paid dependency of ours, and without a key unless the
+      key is the deployer's or user's own (§3).
 - [ ] LICENSE, disclaimer, and privacy line are in the README **and** the
       product.
 - [ ] Usage counting is in, and off-switchable.
@@ -545,14 +548,15 @@ Ship when every line is true:
       Pages build injects the no-SLA clause; see §5b).
 - [ ] `VENTURE.yaml` exists (or the slug is under `product_lines` in its host
       venture's) so the router can see it — `python3 portfolio/router/validate.py`.
-- [ ] If you added `.github/workflows/<slug>-ci.yml` (and
-      `platform/ci/validate_workflows.py` requires one the moment the venture
-      ships `*.test.mjs` files), record it in the **same commit** with `python3
-      platform/ci/publish_surface.py --write`, and say in the PR what the new
-      workflow can publish — it should be `none` for an ordinary test-only
-      venture CI. `publish_surface.py --check` fails until the snapshot names
-      it, by design: a new workflow is a new thing a merge to `main` could
-      publish, and that classification is confirmed rather than inferred.
+- [ ] Venture `*.test.mjs` suites need no workflow of their own:
+      `ventures-tests.yml` runs `python3 platform/ci/run_venture_tests.py`
+      for every venture a PR touches, and that same command (`--changed`, or
+      the slug) is the local check. `validate_workflows.py` rejects a
+      `<slug>-ci.yml` that only runs `node --test`. Add one only for work
+      beyond that (pytest, a build, a service), record it in the **same
+      commit** with `python3 platform/ci/publish_surface.py --write`, and say
+      in the PR what it can publish (`none` for a test-only workflow);
+      `--check` fails until the snapshot names it, by design.
 - [ ] CI green, merged, one ledger line in `portfolio/ledger/YYYY-MM.yaml`.
 - [ ] A stranger can reach it without cloning this repo — a public URL or an
       install command. Merged-to-`main` is not deployed. Static products go

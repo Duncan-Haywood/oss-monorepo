@@ -29,4 +29,4 @@ reference. A test builds a PDF with that MIME type and unwraps it.
 
 Anyone with a PDF from a generator that sets this MIME type would have been told
 their file was broken when it was fine. Try it at
-https://duncan-haywood.github.io/oss-monorepo/ventures/einvoice-preflight/ .
+https://duncan-haywood.github.io/oss-monorepo/einvoice-preflight/ .

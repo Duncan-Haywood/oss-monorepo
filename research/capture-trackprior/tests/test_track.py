@@ -42,3 +42,30 @@ def test_tracking_rejects_a_stronger_alias_outside_the_prior():
     assert np.isnan(cen[0]) and not np.isnan(cen[1])
     free, _, _ = track_camera(wins, times, 0.0, boot=5)
     assert abs(free[1] - 0.112) < 1e-3
+
+
+def test_gated_matches_gcc_search_when_ratio_is_infinite_free_prior():
+    """gcc_curve + _peak agree with capture_aliaswin.gcc_search; a huge ratio never overrides the prior."""
+    import numpy as np
+    from capture_aliaswin import pair_at, gcc_search
+    from capture_trackprior import track_gated
+    clip = np.random.default_rng(0).standard_normal(16000 * 6) * 0.3
+    times = np.linspace(0, 3600.0, 4)
+    wins = [pair_at(clip, np.random.default_rng(k), 0.8, 2.0, 20)[:2] for k in range(4)]
+    est, re = track_gated(wins, times, 0.25, 1, 1e9)
+    assert not re.any()
+    assert abs(est[0] - gcc_search(*wins[0], 0.25)) < 1e-9
+    assert np.all(np.abs(est - 0.8) < 1e-3)
+
+
+def test_gated_overrides_a_prior_on_a_weak_alias():
+    """History says 0.9 s but the true peak at 0.8 s is far stronger: ratio 1.5 re-acquires it."""
+    import numpy as np
+    from capture_aliaswin import pair_at
+    from capture_trackprior import track_gated
+    clip = np.random.default_rng(1).standard_normal(16000 * 6) * 0.3
+    times = np.array([0.0, 327.0])
+    w0 = pair_at(clip, np.random.default_rng(0), 0.9, 2.0, 20)[:2]
+    w1 = pair_at(clip, np.random.default_rng(1), 0.8, 2.0, 20)[:2]
+    est, re = track_gated([w0, w1], times, 0.25, 1, 1.5)
+    assert re[1] and abs(est[1] - 0.8) < 1e-3

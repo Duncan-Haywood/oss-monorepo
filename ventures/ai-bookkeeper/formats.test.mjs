@@ -125,3 +125,17 @@ test("readStatement: two-digit-year dates still reveal a day-first file", () => 
 test("readStatement: a missing file body reads as an empty statement, not a crash", () => {
   for (const v of [null, undefined, ""]) assert.deepEqual(readStatement(v).rows, []);
 });
+
+// Red-team defect from 2026-10-21 (left unpatched until 2026-10-29): one
+// unclosed quote swallowed every later line into a single field.
+test("readStatement: an unclosed quote loses only its own row's quoting, not the rest of the file", () => {
+  const r = readStatement("Date,Description,Amount\n2026-01-02,\"Coffee shop,-4.50\n2026-01-03,Rent,-1200.00\n2026-01-04,Salary,3000.00\n");
+  assert.deepEqual(r.rows.map((x) => x.cents), [-450, -120000, 300000]);
+  assert.ok(r.problems.some((p) => /^Line 2: a quote mark opens a field and never closes/.test(p)), r.problems.join("\n"));
+});
+
+test("parseCsv: a closed multi-line quoted field is not reported as unclosed", () => {
+  const rows = parseCsv("a,b\n\"x\ny\",2\n");
+  assert.deepEqual(rows, [["a", "b"], ["x\ny", "2"]]);
+  assert.deepEqual(rows.unclosedQuotes, []);
+});

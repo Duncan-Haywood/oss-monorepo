@@ -50,7 +50,7 @@ at the full-size trim angle trims 6.5% faster in Froude units (H1 refuted: bar 5
 frequency rises 5.1%; flown at the full-size CL, speed is matched and the frequencies stay within 1.3%, but
 short-period damping falls 6.3%. With free transition at 1:10 (Re 1e5) the short period turns overdamped, a
 laminar-bubble regime the surrogate is not trusted in. Phugoid damping is not reported: it is unstable even
-at full size in this model and depends on the unmodelled thrust law. Gust response (milestones 9a, 9b): the similar model keeps the peak load-factor increment within 2% but is 27 to 33% high in peak pitch rate; with the tail redesigned, 24 of the 78 mode-matched designs match all three gust peaks within 5% at all three gust lengths (best 1.2%).
+at full size in this model and depends on the unmodelled thrust law. Gust response (milestones 9a, 9b): the similar model keeps the peak load-factor increment within 2% but is 27 to 33% high in peak pitch rate; with the tail redesigned, 24 of the 78 mode-matched designs match all three gust peaks within 5% at all three gust lengths (best 1.2%). Milestone 9c: that match does not survive a tail slope 0.75 to 1.0 of the surrogate's; none of the 78 keeps the gust peaks within 10% at every scale (median worst error 21.5% at 0.75), and the gust metrics are more sensitive than the modes.
 
 **Propeller efficiency (milestone 5a, `experiments/propeller_efficiency/`).** From 151 measured efficiency
 curves of 34 APC propellers in the UIUC Propeller Database (Re at 0.75 R from 1.5e4 to 1.2e5), peak efficiency
@@ -108,5 +108,13 @@ Related to the autonomy and field-robotics groups the track names (RECUV, Autono
 only as a topic; no affiliation is implied. Written with AI assistance (Claude Code).
 
 ## Next
+
+**Milestone 9d** (`experiments/adjustable_tail`): a tail whose area is adjustable by about 0.85 to 1.3 times nominal recovers the three longitudinal modes within 5% for 76 of the 78 mode-matched designs at every tail-slope scale 0.75 to 1.0 (fixed tails recover none, 8e). Gust metrics with the adjustable tail are open.
+
+**Milestone 9e** (`experiments/adjustable_gust`): with the tail area set from the modes alone, 67 of the 78 designs keep every gust peak (H = 5, 12.5, 25 chords) within 10% at every slope scale 0.75 to 1.0, and 43 within 5% (median worst gust error 4.7% at scale 0.75, against 21.5% for a fixed tail and none within 10% in 9c). Assumes the short-period is identified exactly; identification noise is open.
+
+**Milestone 9g** (`experiments/identification_noise`, frequency-only variant of 9f): with the tail area set from a noisy short-period frequency, a gust match within 10% needs the frequency known to about 2% (51 to 53 of 78 designs at sd 2%, none at 5%); modes within 10% tolerate about 5%. The 9e result assumed exact identification.
+
+**Milestone 9h** (`experiments/doublet_fit`): a least-squares fit of a noisy simulated free response (4 states, 78 designs) gives mode errors small enough for the adjustable tail at 1% sensor noise and about one phugoid period (87% of draws within 10% on gust, 0.3% short-period frequency error), but not with longer records (short-period error 4.5% at 4 periods) or 10% noise (61 to 63%). A naive fit is a floor, not the best estimator.
 
 Open the NASA table and each reference; gust response and a thrust model for H1; XFOIL polars against Selig data (H2, H3; milestone 8c did NACA 0009 against UIUC Vol. 1, see `experiments/uiuc_tail_slope`, and found NeuralFoil's section slope 15 to 28% off at Re 4e4 to 1e5, and milestone 8d did the cambered NACA 2414/2415 at Re 1e5 to 2e5, `experiments/uiuc_naca241x`, finding NeuralFoil's slope 1.22 to 1.67 times measured; symmetric 0012 and 0015 remain, and a tail re-search with the slope cut by 20 to 25%); full-size propeller Reynolds number from a sourced propeller (to close H4); a motor-efficiency model.

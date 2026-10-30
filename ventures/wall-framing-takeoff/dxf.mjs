@@ -39,6 +39,7 @@ export function parseDxf(text) {
   let inserts = 0, arcs = 0, inEntities = false, inBlocks = false;
   /** block name -> bounding box of its LINE, LWPOLYLINE, ARC and CIRCLE entities, relative to the block's base point */
   const blocks = {};
+  const rawBlocks = {};
   /** @type {{ name: string, layer: string, x: number, y: number, sx: number, sy: number, rot: number }[]} */
   const insertList = [];
   /** @type {{ layer: string, x: number, y: number, r: number }[]} */
@@ -55,8 +56,12 @@ export function parseDxf(text) {
       while (j < pairs.length && pairs[j][0] !== 0) j++;
       const body = pairs.slice(i + 1, j);
       const get = (code) => body.find((p) => p[0] === code)?.[1];
-      if (v === "BLOCK") curBlock = { name: get(2) ?? "", bx: parseFloat(get(10) ?? "0") || 0, by: parseFloat(get(20) ?? "0") || 0, box: null };
-      else if (v === "ENDBLK") { if (curBlock?.box) blocks[curBlock.name] = curBlock.box; curBlock = null; }
+      if (v === "BLOCK") curBlock = { name: get(2) ?? "", bx: parseFloat(get(10) ?? "0") || 0, by: parseFloat(get(20) ?? "0") || 0, box: null, kids: [] };
+      else if (v === "ENDBLK") { if (curBlock && (curBlock.box || curBlock.kids.length)) { blocks[curBlock.name] = curBlock.box; rawBlocks[curBlock.name] = curBlock; } curBlock = null; }
+      else if (curBlock && v === "INSERT") {
+        const f = (code, d) => { const q = parseFloat(get(code) ?? ""); return Number.isFinite(q) ? q : d; };
+        curBlock.kids.push({ name: get(2) ?? "", x: f(10, NaN) - curBlock.bx, y: f(20, NaN) - curBlock.by, sx: f(41, 1), sy: f(42, f(41, 1)), rot: f(50, 0) });
+      }
       else if (curBlock) {
         const pts = [];
         const n = (code) => parseFloat(get(code) ?? "NaN");
@@ -124,7 +129,39 @@ export function parseDxf(text) {
     }
     i = j;
   }
+  resolveNested(blocks, rawBlocks);
   return { segs, polys, insunits, inserts, arcs, binary: false, blocks, insertList, arcList };
+}
+
+/**
+ * Fold the boxes of blocks inserted inside other blocks (nested symbols, a
+ * door made of a leaf block and a frame block) into the parent's box, turned,
+ * scaled (a negative scale mirrors) and moved by the INSERT inside the parent.
+ * Cycles and unknown names are ignored.
+ */
+function resolveNested(blocks, raw) {
+  const done = new Map(), busy = new Set();
+  const boxOf = (name) => {
+    if (done.has(name)) return done.get(name);
+    const b = raw[name];
+    if (!b || busy.has(name)) return null;
+    busy.add(name);
+    let box = b.box ? { ...b.box } : null;
+    for (const k of b.kids) {
+      const kb = boxOf(k.name);
+      if (!kb || !Number.isFinite(k.x) || !Number.isFinite(k.y)) continue;
+      const rad = k.rot * Math.PI / 180, co = Math.cos(rad), si = Math.sin(rad);
+      for (const [x, y] of [[kb.minx, kb.miny], [kb.maxx, kb.miny], [kb.maxx, kb.maxy], [kb.minx, kb.maxy]]) {
+        const u = x * k.sx, w = y * k.sy, px = k.x + u * co - w * si, py = k.y + u * si + w * co;
+        box ??= { minx: px, miny: py, maxx: px, maxy: py };
+        box.minx = Math.min(box.minx, px); box.maxx = Math.max(box.maxx, px); box.miny = Math.min(box.miny, py); box.maxy = Math.max(box.maxy, py);
+      }
+    }
+    busy.delete(name);
+    done.set(name, box);
+    return box;
+  };
+  for (const name of Object.keys(raw)) { const b = boxOf(name); if (b) blocks[name] = b; else delete blocks[name]; }
 }
 
 /**
@@ -631,6 +668,7 @@ export function planFromDxf(text, opt = {}) {
     return best && windowLayer.test(best.layer) && !doorLayer.test(best.layer) ? "window" : "door";
   };
   const counts = { door: 0, window: 0 };
+  let defaulted = 0;
   for (const o of op) {
     const mid = { x: (o.a.x + o.b.x) / 2, y: (o.a.y + o.b.y) / 2 };
     let host = -1, hd = snap * 2;
@@ -649,13 +687,16 @@ export function planFromDxf(text, opt = {}) {
     const off = r16(order[n].flip ? L - hi : lo);
     const kind = o.kind ?? kindOf(mid);
     counts[kind]++;
-    const height = kind === "door" ? (opt.doorHeight ?? 82.5) : (opt.windowHeight ?? 48);
-    (out[n].openings ||= []).push({ kind, label: `${kind === "door" ? "Door" : "Window"} ${counts[kind]}`, offset: Math.max(0, off), width, height, header: opt.header ?? "2x10" });
+    const own = opt.openingSize?.(mid);
+    if (!own) defaulted++;
+    const height = own?.height ?? (kind === "door" ? (opt.doorHeight ?? 82.5) : (opt.windowHeight ?? 48));
+    (out[n].openings ||= []).push({ kind, label: `${kind === "door" ? "Door" : "Window"} ${counts[kind]}`, offset: Math.max(0, off), width, height, ...(own ? { headerHeight: own.headerHeight } : {}), header: opt.header ?? "2x10" });
     placed++;
   }
   for (const w of out) if (w.openings) w.openings.sort((p, q) => p.offset - q.offset);
   if (unplaced.length) notes.push(`${unplaced.length} opening line${unplaced.length === 1 ? "" : "s"} not along any wall (${unplaced.slice(0, 3).join(", ")}${unplaced.length > 3 ? ", ..." : ""}) were dropped.`);
-  if (placed) notes.push(`Opening heights are defaults, not read from the file: doors ${opt.doorHeight ?? 82.5} in, windows ${opt.windowHeight ?? 48} in tall. Every header is ${opt.header ?? "2x10"} as a placeholder; set them for your span table.`);
+  if (defaulted) notes.push(`Opening heights are defaults, not read from the file: doors ${opt.doorHeight ?? 82.5} in, windows ${opt.windowHeight ?? 48} in tall. Every header is ${opt.header ?? "2x10"} as a placeholder; set them for your span table.`);
+  else if (placed) notes.push(`Every header is ${opt.header ?? "2x10"} as a placeholder; set them for your span table.`);
   else notes.push("No opening lines found on a layer matching " + `${doorLayer} or ${windowLayer}` + ": the plan has solid walls.");
   notes.push("Lengths are the drawn centre-line lengths. If your drawing is to the outside of the framing, take the wall depth off at corners before ordering.");
 

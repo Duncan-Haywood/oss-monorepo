@@ -1,0 +1,83 @@
+name: shed-designer nightly fuzz
+
+# A wide property sweep of the shed designer. `fuzz.test.mjs` checks 150
+# random designs on every pull request, with seed 1, so the PR suite stays
+# fast. Each night this job checks 2000 designs with a new seed, so over the
+# weeks the sweep covers ground the fixed PR seed never reaches. Round 1 found
+# its bugs this way, one manual wide run at a time
+# (docs/reports/shed-designer-overnight-lane5.md, "Fuzz cost").
+#
+# Read-only: it checks out the tree, runs node and uploads the failing
+# designs as an artifact. It pushes nothing, publishes nothing and calls no
+# API. A red night names its seed, so anyone can run the same designs again:
+#
+#   cd ventures/shed-designer && FUZZ_N=2000 FUZZ_SEED=<seed> node --test fuzz.test.mjs
+#
+# Pin a design that breaks as its own test at the bottom of fuzz.test.mjs,
+# as the existing pinned cases are, and fix it there.
+
+on:
+  schedule:
+    # 05:47 UTC: off the hour, and clear of the 04:20 browser checks.
+    - cron: "47 5 * * *"
+  workflow_dispatch:
+    inputs:
+      seed:
+        description: "Seed (default: days since 1970, so each night differs)"
+        required: false
+        default: ""
+      n:
+        description: "Designs to check"
+        required: false
+        default: "2000"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: shed-designer-fuzz-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  fuzz:
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "22"
+      - name: Wide fuzz sweep
+        working-directory: ventures/shed-designer
+        env:
+          IN_SEED: ${{ inputs.seed }}
+          FUZZ_N: ${{ inputs.n || '2000' }}
+        run: |
+          set -uo pipefail
+          seed="${IN_SEED:-$(( $(date -u +%s) / 86400 ))}"
+          export FUZZ_SEED="$seed" FUZZ_OUT="$RUNNER_TEMP/fuzz-failures.json"
+          echo "Seed $FUZZ_SEED, $FUZZ_N designs"
+          node --test fuzz.test.mjs && rc=0 || rc=$?
+          repro="cd ventures/shed-designer && FUZZ_N=$FUZZ_N FUZZ_SEED=$FUZZ_SEED node --test fuzz.test.mjs"
+          {
+            echo "### shed-designer fuzz: seed $FUZZ_SEED, $FUZZ_N designs"
+            if [ "$rc" = 0 ]; then echo "Every design kept every invariant."
+            else
+              echo "**Failed.** Reproduce with:"
+              echo '```'; echo "$repro"; echo '```'
+              echo "The failing designs (first sweep) are in the \`fuzz-failures\` artifact."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+          if [ "$rc" != 0 ]; then
+            echo "::error title=shed-designer fuzz failed (seed $FUZZ_SEED)::Reproduce: $repro"
+          fi
+          exit "$rc"
+      - name: Upload failing designs
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: fuzz-failures
+          path: ${{ runner.temp }}/fuzz-failures.json
+          if-no-files-found: ignore

@@ -24,7 +24,7 @@ Real: the audio, ten LibreOffice gallery clips. Not real: the 0.8 s delay, the +
 ```bash
 pip install pytest numpy
 cd research/capture-trackprior
-python -m pytest -q tests            # 4 tests
+python -m pytest -q tests            # 6 tests
 python experiments/run.py            # a few minutes on 4 cores; writes experiments/results.txt
 ```
 Needs the LibreOffice gallery sounds (`/usr/lib/libreoffice/share/gallery/sounds`).
@@ -46,11 +46,25 @@ Needs the LibreOffice gallery sounds (`/usr/lib/libreoffice/share/gallery/sounds
 - **A cap under the period needs a drift-tolerant centre.** With 1 bootstrap window the cap (e.g. 0.45 x 2 ms) is smaller than the up-to-13 ms drift between windows, so clips that were fine fail (`applause` 0.889, `drama` 0.472). It is harmless only once the line has a slope (3 or 5 bootstrap windows), where it still does not help.
 - **`space2` does not improve (0.55 to 0.89 wrong versus 0.659 with no prior).** Its 12 ms period is below any drift-safe half-width at the first steps, which is the point `capture-aliaswin` made about oracles; a tracker cannot get that precision without a good start.
 
+## Gated tracking with re-acquisition (2026-10-29, `src/capture_trackprior/gated.py`, `experiments/gated.py`)
+The first next step. Each window is searched inside the tracked prior and over +-1.5 s; if the unrestricted peak is more than `ratio` times the height of the best in-prior peak, the prior is judged wrong, the unrestricted peak is taken and the line restarts. Same windows as above. Share of scored windows wrong, 4 failing clips (`gated.txt`):
+
+| cell | wrong, 4 failing | wrong, 6 others | cameras lost (4) | windows re-acquired (4) |
+|---|---|---|---|---|
+| no prior | 0.375 | 0.000 | 0.007 | 0 |
+| track, 1 bootstrap, ungated | 0.374 | 0.000 | 0.368 | 0 |
+| gated, 1 bootstrap, ratio 1.2 | 0.274 | 0.000 | **0.076** | 0.153 |
+| gated, 1 bootstrap, ratio 1.5 | **0.221** | 0.000 | 0.097 | 0.058 |
+| gated, 1 bootstrap, ratio 2 | 0.238 | 0.000 | 0.139 | 0.035 |
+| gated, 1 bootstrap, ratio 3 | 0.312 | 0.000 | 0.271 | 0.013 |
+
+Gating removes most of the lock-in (0.368 to 0.076 to 0.097 of cameras) and reaches the 5-bootstrap ungated wrong share (0.225) with 1 bootstrap window, with no cost on the clips that worked. It does not approach the oracle's 0: `space2` stays at 0.60 to 0.81 wrong, because a tone's aliases have near-equal peak heights, so height cannot choose between them; `untie` and `soft` keep 0.09 to 0.2. Ratio is a trade (low ratios re-acquire often and give up the prior's protection, high ratios let a wrong lock stay); 1.5 is the best on wrong share and was the best of four values I tried, not tuned further. Three bootstrap windows change little (0.223 at ratio 1.5). Reproduce: `python experiments/gated.py` (about 45 s on 4 cores).
+
 ## Limitations
 Ten clips; white noise at one SNR; constant drift (a real clock wanders with temperature); one fit and half-width rule, not tuned (the failure mode looks structural, not a tuning gap, but I did not sweep k_mad, `keep` or the floor); 12 seeds and 3 cameras are not independent per clip; the wrong-window count is the metric, not cut damage.
 
 ## Next steps
-- Accept a tracked estimate only when it agrees with the line within the scatter and otherwise re-search unrestricted over a longer window (gating plus recovery), and measure lock-loss.
+- Recover with a longer (4 s) window rather than the same 2 s window when the gate fires, and gate on something that separates equal-height aliases (the tone case).
 - Bootstrap with a long (4 s) window or a clap/chirp, then track with 2 s windows.
 - Sweep k_mad, `keep` and the floor.
 

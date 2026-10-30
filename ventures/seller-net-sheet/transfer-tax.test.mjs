@@ -24,6 +24,22 @@ test("known anchors", () => {
   assert.equal(transferTaxOn(425000, "CA"), 467.5);
 });
 
+test("no-tax states are exactly zero and Pennsylvania's seller half is 1%", () => {
+  for (const code of ["AK", "AZ", "ID", "IN", "KS", "MO", "OR", "TX", "UT"]) {
+    assert.equal(transferTaxRateForState(code), 0, `${code} should start at 0%`);
+    assert.equal(transferTaxOn(300000, code), 0);
+  }
+  assert.equal(transferTaxRateForState("PA"), 1);
+  assert.equal(transferTaxOn(300000, "PA"), 3000);
+});
+
+test("a zero or sub-dollar sale price is allowed, negative and non-numeric are not", () => {
+  assert.equal(transferTaxOn(0, "FL"), 0);
+  assert.equal(transferTaxOn(0.5, "PA"), 0.005);
+  assert.throws(() => transferTaxOn("abc", "FL"));
+  assert.throws(() => transferTaxOn(Infinity, "FL"));
+});
+
 test("unknown state and bad price throw", () => {
   assert.throws(() => transferTaxRateForState("ZZ"));
   assert.throws(() => transferTaxOn(-1, "FL"));

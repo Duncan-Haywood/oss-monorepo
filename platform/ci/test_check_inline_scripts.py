@@ -39,5 +39,13 @@ class InlineScripts(unittest.TestCase):
         self.assertIn("index.html:2:", out)
 
 
+    def test_syntax_error_fallback_keeps_last_120_chars_of_stderr(self):
+        from unittest import mock
+        import check_inline_scripts as c
+        fake = mock.Mock(returncode=1, stderr="x" * 50 + "y" * 120)
+        with mock.patch.object(c.subprocess, "run", return_value=fake):
+            self.assertEqual(c.syntax_error("1", False, tempfile.gettempdir()), "y" * 120)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%231b587e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EA%3C/text%3E%3C/svg%3E"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Small Business Tax Calendar (.ics) for US Freelancers and Sellers</title>
+<meta name="description" content="Free tax calendar for a US sole proprietor: federal estimated payments, the filing date, 941, 940 and 1099-NEC dates and your state's sales tax returns, as a list or an .ics file with a 7-day reminder. Runs in your browser.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="./tax-calendar.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Small business tax calendar (.ics) for US freelancers and sellers">
+<meta property="og:description" content="Estimated tax, payroll, 1099-NEC and state sales tax dates in one file for Google, Apple or Outlook calendar. Free, in your browser.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Small business tax calendar","applicationCategory":"BusinessApplication","operatingSystem":"Any (web browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"isAccessibleForFree":true,"license":"https://opensource.org/licenses/MIT"}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"When are federal estimated tax payments due?","acceptedAnswer":{"@type":"Answer","text":"The calendar lists the four Form 1040-ES dates the tool uses (April, June and September of the tax year and January of the next), moved to the next business day when one falls on a weekend or a federal holiday. Confirm them against the IRS instructions for your year."}},{"@type":"Question","name":"Are the state sales tax dates reliable?","acceptedAnswer":{"@type":"Answer","text":"They are presets, several read from the state's own page and the rest from search excerpts and third-party guides. Your filing frequency and your state's notice decide your real date, so check it."}},{"@type":"Question","name":"Is my information uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. The dates and the file are made in your browser. Anonymous feature events (calendar_shown, calendar_downloaded) are counted only in local storage on your device; Do Not Track and Global Privacy Control are honoured."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#1c2430;background:#f3f5f2}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#23613f}.eyebrow{font-weight:700;letter-spacing:.04em;color:#23613f;font-size:.85rem}h1{font-size:clamp(1.7rem,5vw,2.5rem);line-height:1.08;margin:.3rem 0;color:#183d2a}.lede{font-size:1.05rem;max-width:66ch;color:#4a5560}section{background:#fff;border:1px solid #d5ddd6;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #183d2a10;margin:1rem 0}h2{margin-top:0;color:#183d2a}p,li{line-height:1.55}label{display:block;font-weight:600;font-size:.9rem;margin:.2rem 0}.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:.8rem}input,select,button{font:inherit;padding:.45rem .55rem;border:1px solid #b9c4bb;border-radius:8px;background:#fff;max-width:100%}button{background:#23613f;color:#fff;border-color:#23613f;cursor:pointer}button.secondary{background:#fff;color:#23613f}.checks{display:flex;gap:1.2rem;flex-wrap:wrap;margin:.8rem 0}.checks label{font-weight:400;display:flex;gap:.4rem;align-items:center}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:.95rem}th,td{border-bottom:1px solid #e1e7e2;padding:.45rem;text-align:left}.note{background:#fff7e0;border:1px solid #e8d48a;border-radius:8px;padding:.5rem .7rem}.fine,footer{font-size:.86rem;color:#4a5560}[hidden]{display:none}@media (max-width:600px){body{padding:1rem}}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; AI Bookkeeper</a></p>
+<header>
+<h1>Small business tax calendar</h1>
+<p class="lede">Federal estimated payments, the filing date, payroll and 1099-NEC dates and your state's sales tax returns for a US sole proprietor, as a list or one <code>.ics</code> file for Google, Apple or Outlook calendar, with a reminder a week ahead.</p>
+</header>
+
+<section>
+<h2>Your year</h2>
+<form id="f">
+<div class="row">
+<div><label for="year">Tax year</label><input id="year" type="number" min="2024" max="2030" step="1"></div>
+<div><label for="state">State for sales tax</label><select id="state"><option value="">None</option></select></div>
+<div><label for="freq">Sales tax filing frequency</label><select id="freq"><option value="monthly">Monthly</option><option value="quarterly" selected>Quarterly</option><option value="annual">Annual</option></select></div>
+</div>
+<div class="checks">
+<label><input type="checkbox" id="payroll"> I run payroll (941, 940, W-2)</label>
+<label><input type="checkbox" id="contractors"> I pay contractors (1099-NEC)</label>
+</div>
+<button type="submit">Show my dates</button>
+<button type="button" class="secondary" id="dl" hidden>Download .ics</button>
+</form>
+<p id="stnote" class="note" hidden></p>
+</section>
+
+<section id="out" hidden>
+<h2 id="outh">Dates</h2>
+<div class="table-wrap"><table><thead><tr><th scope="col">Date</th><th scope="col">What</th></tr></thead><tbody id="rows"></tbody></table></div>
+<p class="fine">Dates to plan from, not advice: confirm your state's and your own deadlines. A date on a weekend or federal holiday moves to the next business day.</p>
+</section>
+
+<section>
+<h2>Questions</h2>
+<h3>When are federal estimated tax payments due?</h3>
+<p>The calendar lists the four Form 1040-ES dates the tool uses (April, June and September of the tax year and January of the next), moved to the next business day when one falls on a weekend or a federal holiday. Confirm them against the IRS instructions for your year.</p>
+<h3>Are the state sales tax dates reliable?</h3>
+<p>They are presets, several read from the state's own page and the rest from search excerpts and third-party guides. Your filing frequency and your state's notice decide your real date, so check it. States with no general sales tax get a note instead of dates.</p>
+<h3>Is my information uploaded?</h3>
+<p>No. The dates and the file are made in your browser. Anonymous feature events (<code>calendar_shown</code>, <code>calendar_downloaded</code>) are counted only in local storage on your device; Do Not Track and Global Privacy Control are honoured. <button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+<p>Want the amounts as well? <a href="./">AI Bookkeeper</a> turns a bank statement into books and its <code>estimate</code> command plans each payment.</p>
+<p class="fine">Open source (MIT), free. <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor on GitHub</a> if it saved you an hour.</p>
+</section>
+</main>
+<footer>
+<p><strong>No warranty.</strong> This page and the tool are provided free and as-is, without warranty of any kind. They are not legal, tax, or financial advice and do not replace a qualified professional. You are responsible for reviewing and verifying any date before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. Google, Apple and Outlook are trademarks of their owners, named only to describe calendar apps; this tool is independent of all of them.</p>
+</footer>
+<script type="module">
+import { taxCalendar, toIcs } from "./calendar.mjs";
+import { STATE_DUE_DAYS, stateFilingNote } from "./salestaxreturn.mjs";
+import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+const $ = (id) => document.getElementById(id);
+$("year").value = new Date().getFullYear();
+const NONE = ["OR", "MT", "NH", "DE", "AK"];
+for (const s of [...Object.keys(STATE_DUE_DAYS), ...NONE].sort()) $("state").add(new Option(s, s));
+let events = [], year = 0;
+const show = () => {
+  year = +$("year").value; const state = $("state").value, frequency = $("freq").value;
+  const note = state ? stateFilingNote(state, frequency) : null;
+  $("stnote").hidden = !note; $("stnote").textContent = note ?? "";
+  events = taxCalendar(year, { state: NONE.includes(state) ? null : state || null, frequency, payroll: $("payroll").checked, contractors: $("contractors").checked });
+  $("rows").replaceChildren(...events.map((e) => { const tr = document.createElement("tr"); const d = document.createElement("td"); d.textContent = e.date; const t = document.createElement("td"); t.textContent = e.title; tr.append(d, t); return tr; }));
+  $("outh").textContent = `${events.length} dates for ${year}`; $("out").hidden = false; $("dl").hidden = false;
+  record("calendar_shown");
+};
+$("f").addEventListener("submit", (e) => { e.preventDefault(); show(); });
+$("dl").addEventListener("click", () => {
+  const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([toIcs(events, { name: `${year} tax calendar` })], { type: "text/calendar" }));
+  a.download = `tax-calendar-${year}.ics`; document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000); record("calendar_downloaded");
+});
+const syncOpt = () => { $("optout").textContent = usageOptedOut() ? "Turn usage counting back on" : "Turn usage counting off"; };
+$("optout").addEventListener("click", () => { setUsageOptOut(!usageOptedOut()); syncOpt(); }); syncOpt();
+</script>
+</body>
+</html>

@@ -1,0 +1,53 @@
+{
+  "date": "2026-10-29",
+  "session": "https://claude.ai/code/session_01XpHqyd3twBvmmRdYbigYAJ",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "Overnight lane 5 (adversarial QA and robustness) for ventures/shed-designer: property/fuzz test over the whole input space, fix root causes with pinned regressions.",
+  "input_sha256": "5089b46be6e9a6497bee861a88752bd9567c159f5ead5069ecb8dc298387d2e0",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-29T05:21:02Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "shed-designer lane 5: adversarial QA and robustness (fuzz test, root-cause fixes, pinned regressions)",
+  "projects": [
+    "shed-designer"
+  ],
+  "pr": 11312,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 10,
+  "outcome": "success",
+  "errors": [
+    "Committed a merge-conflicted stash into a local scratch worktree while rebasing the patch onto the moving PR head; caught by grep for conflict markers and redone before anything was pushed.",
+    "Went idle about 6.5 h with #11317 green and mergeable: the wake that should have triggered the merge was for an older head, and no check-in was armed for the current one. The parent session's check-in caught it."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "(overnight lane prompt)",
+      "issue": "Lane coordination asked for read-only audit until PR #11268 merged; its branch got several commits while waiting, so the prepared patch needed two manual re-bases. Keeping the work as a patch in the scratchpad (not a pushed branch) worked."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-10-29-breaking-the-shed-designer-on-purpose.md",
+    "docs/posts/2026-10-29-the-window-that-ate-the-stud.md",
+    "docs/reports/shed-designer-overnight-lane5.md"
+  ],
+  "goal": null,
+  "notes": "Fuzz baseline on PR #11268 head: 135/1000 random designs failed (all geometry clashes); junk state threw ~400/3000 and NaN-priced 145. After fixes: 2000 designs (seed 5) and 1500 (seed 11) clean; junk sweep 3000 clean. node --test *.test.mjs in ventures/shed-designer: 89 pass, 0 fail. typecheck.mjs shed-designer: 0 diagnostics. run_workflow_locally.py --for-changes: pages.yml 'check hub links' and 'no example.invalid' fail locally only because the build step (a ${{ }} expression) is skipped, so _site does not exist; see PR CI for the real run. Not a bug: 8x8 preset walls 108->114 in is ~$30 cheaper (siding switches to two rows of 4x8). Later PRs in this session: #11317 (sheathing joints on rafters, a regression from #11312 found by requiring every connection check; connector wording; ported the money-sign and size-index JSON-LD fixes for main's red validate and Pages test), #11334 (the same main fixes, closed as superseded per supersede_check.py), #11326 (siding nailers: 70/1500 designs had a bare siding joint beside an opening, now 0/1500; no preset or size page moves). Full venture suite on each merged head: 135+ pass, 0 fail.",
+  "corrections": [],
+  "redteam": null
+}

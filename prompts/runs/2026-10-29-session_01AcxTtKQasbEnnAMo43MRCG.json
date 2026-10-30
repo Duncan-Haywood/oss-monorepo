@@ -1,0 +1,58 @@
+{
+  "date": "2026-10-29",
+  "session": "https://claude.ai/code/session_01AcxTtKQasbEnnAMo43MRCG",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "scheduled: read ./prompt.md and follow the instructions there",
+  "input_sha256": "f2d8c6470f61b3e050d0c0a8893c3b8623a29690722755209371e13aee4f6558",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-29T05:09:32Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/11304",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".claude/hooks/check_posts_before_push.py",
+      "issue": "Blocks the whole bash command pre-run, so a fix chained before git push in one command never ran; had to split fix/commit and push."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "git push --force-with-lease failed with stale info on a branch that does not exist on the remote; plain push worked."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/CLAUDE.md",
+      "why": "Experiment 2g was written and run in one step, not pre-registered; logged as such.",
+      "did": "stated in LOG.md",
+      "result": "ok"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-29-does-an-excavators-idle-time-decide-its-hydraulic-circuit.md",
+    "research/heavy-hydraulics/LOG.md"
+  ],
+  "goal": null,
+  "notes": "",
+  "corrections": [],
+  "redteam": null
+}

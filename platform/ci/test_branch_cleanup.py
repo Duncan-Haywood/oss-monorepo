@@ -741,6 +741,13 @@ class GitHubClientTest(unittest.TestCase):
         self.assertEqual(len(got), 150)
         self.assertEqual(len(self.urls), 2)
 
+    def test_main_history_defaults_to_five_thousand_commits(self):
+        """50 full pages: the window that makes reset-to-main tips need no compare."""
+        pages = [[{"sha": "%040d" % (p * 100 + i)} for i in range(100)] for p in range(60)]
+        with self.fake_open(pages):
+            got = self.gh.main_commits("main")
+        self.assertEqual(len(got), 5000)
+
     def test_pagination_cap_counts_from_zero(self):
         full = [{"n": i} for i in range(100)]
         with self.fake_open([full]):

@@ -34,6 +34,114 @@ const amountBucket = (cents) => `amt:${Math.min(12, Math.floor(Math.log2(Math.ab
 // keyword that fits two accounts is left out, so the line goes to review rather
 // than being guessed. `dir` limits a rule to money in or money out.
 export const BUILT_IN = [
+  // Food trucks (2026-10-29, foodtruck.test.mjs; agent-written from the companies' public names, not from a real export):
+  // catering deposits are sales; commissary rent is rent, propane is utilities, event and festival fees are advertising, generator and truck-equipment service is repairs.
+  ["4000", "in", /catering (deposit|payment)|food truck (event|festival) (payout|payment)/],
+  ["6080", "out", /commissary( kitchen)? (rent|fee|lease)/],
+  ["6140", "out", /propane|united site services|amerigas|suburban propane/],
+  ["6000", "out", /roaming hunger|(food truck|truck) (festival|event) fee|event fee|street food finder/],
+  ["6090", "out", /generator (repair|service)|(food )?truck (equipment|hood|fryer) (repair|service)|hood cleaning/],
+  // Mobile notaries and loan signing agents (2026-10-29, notary.test.mjs; agent-written from the companies' public names, not from a real export):
+  // title-company platform payouts are sales; notary dues, E&O cover, stamps and the state commission land in their own accounts, ahead of the older bare "notary" rule (legal and professional fees).
+  ["4000", "in", /snapdocs.*(payout|payment)|notary ?go (payment|payout)|signing ?order (deposit|payment)|123notary|notary rotary/],
+  ["6170", "out", /national notary (assoc|association)|nna dues|notary dues/],
+  ["6030", "out", /notary e&o|notary (errors|bond)|notary.*insurance/],
+  ["6060", "out", /snapdocs.*(subscription|monthly)|notarycam|bluenotary|notarize\.com pro/],
+  ["6100", "out", /notary (stamp|seal|journal)/],
+  ["6110", "out", /secretary of state.*notary|notary commission/],
+  // Vending route operators (2026-10-29, vending.test.mjs; agent-written from the companies' public names, not from a real export):
+  // cashless-reader settlements and route cash deposits are sales; location commissions are rent; machine parts are repairs and maintenance (before the older "vending" meals rule).
+  ["4000", "in", /cantaloupe deposit|nayax.*(settlement|deposit)|cash deposit vending|vending (route )?(cash|deposit)/],
+  ["6080", "out", /location commission|site commission|host commission/],
+  ["6090", "out", /vending machine parts|vending parts|machine parts direct/],
+  // Small farms and CSAs (2026-10-29, smallfarm.test.mjs; agent-written from the companies' public names, not from a real export):
+  // CSA-platform payouts, market and co-op deposits are sales; seed houses are supplies; land and pasture leases are rent; CSA software is software; farm diesel is vehicle fuel.
+  ["4000", "in", /local line.*(payout|payment)|farmers.? market deposit|wholesale co-?op deposit|harvest (share|box) payout/],
+  ["6100", "out", /johnny'?s selected seeds|fedco seeds|seedway|baker creek|high mowing|\bseeds?\b.*(order|co)\b/],
+  ["6080", "out", /pasture lease|(land|field|farm) lease/],
+  ["6060", "out", /local line subscription|farmigo|barn2door|harvie/],
+  ["6160", "out", /farm diesel|dyed diesel|off-?road diesel/],
+  ["6110", "out", /(state )?dept\.? of agriculture|dept of ag\b|department of agriculture/],
+  // Auto repair shops (2026-10-29, autorepair.test.mjs; agent-written from the companies' public names, not from a real export):
+  // fleet-account payments are sales; repair-data subscriptions are software; shop rent is rent; ASE fees are education and dues.
+  ["4000", "in", /fleet account (payment|pmt)/],
+  ["6060", "out", /\balldata\b|mitchell ?1|\bidentifix\b|\bshop-?ware\b|tekmetric|shopmonkey/],
+  ["6080", "out", /\bshop rent\b|bay \d+ properties/],
+  ["6170", "out", /\base\b.*(certification|test)/],
+  // Home inspectors (2026-10-29, inspector.test.mjs; agent-written from the companies' public names, not from a real export):
+  // inspection-software payouts are sales; report software is software; a state inspector licence is a licence; a thermal camera is equipment (6070, a depreciation decision left to the owner).
+  ["4000", "in", /spectora.*(payout|payment)|\bhomegauge\b.*payout|\bisn\b.*payout|horizon.*payout/],
+  ["6060", "out", /spectora.*(subscription|software)|\bhomegauge\b|\bhorizon (software|inspection)|\binspectit\b/],
+  ["6110", "out", /home inspector licen[cs]e/],
+  ["6070", "out", /thermal camera|\bflir\b|moisture meter|infrared camera/],
+  // Owner-operator truckers (2026-10-29, trucking.test.mjs; agent-written from the companies' public names, not from a real export):
+  // factoring and broker payments are sales; fuel-card payments, scales and truck washes are vehicle costs; ELD subscriptions are software; Form 2290 is a tax; a lumper fee is a direct job cost.
+  ["4000", "in", /triumph pay|rts financial|\botr solutions|\bapex capital|\btql\b|\bc\.?h\.? robinson|\bcoyote logistics|freight (payment|broker)/],
+  ["6160", "out", /comdata|\befs\b.*fuel|fleetone|\bfuel card\b|cat scale|blue beacon|truck wash/],
+  ["6060", "out", /\beld\b.*(subscription|fee)|motive eld/],
+  ["6110", "out", /form 2290|heavy highway use/],
+  ["5000", "out", /lumper/],
+  // Wedding DJs, planners and florists (2026-10-29, eventpro.test.mjs; agent-written from the companies' public names, not from a real export):
+  // wholesale flowers are supplies; planner software; Sweetwater gear is filed by the creator-gear rule under 6070, event rentals and WeddingWire are already filed.
+  ["6100", "out", /wholesale flowers?|\bgrowers? direct\b|\bfloral supply\b|\bflorist supply\b/],
+  ["6060", "out", /aisle planner|planning pod|dj event planner/],
+  // Mobile detailers and car-wash operators (2026-10-29, detailing.test.mjs; agent-written from the companies' public names, not from a real export):
+  // detailing chemicals and polish are supplies; a transfer to the owner is a draw.
+  ["6100", "out", /chemical guys|meguiars?|\bgriots? garage\b|detailing supplies|\bcar wash (soap|supplies)\b/],
+  ["3100", "out", /(zelle|transfer|payment|xfer) to owner\b/],
+  // Tattoo artists and piercers (2026-10-29, tattoo.test.mjs; agent-written from the companies' public names, not from a real export):
+  // needles, ink, stencils, gloves and sharps pickup are supplies; booking software; bloodborne-pathogen training; the health-department artist licence.
+  ["6100", "out", /tattoo supply|stencil stuff|\bnitrile gloves?\b|sharps pickup|medical waste/],
+  ["6060", "out", /\bbooksy\b|\bprocreate\b/],
+  ["6170", "out", /bloodborne|pathogens? (cert|training)/],
+  ["6110", "out", /health dept.*(license|licence)|(tattoo|piercing) artist licen[cs]e/],
+  // Massage therapists and estheticians (2026-10-29, massage.test.mjs; agent-written from the companies' public names, not from a real export):
+  // booking-platform payouts, booking software, lotions, waxes and linens, association dues, continuing education, state board licences and suite rent.
+  ["4000", "in", /vagaro.*(payout|deposit)|\bmindbody\b.*payout|\bboulevard\b.*payout|\bglossgenius\b.*payout|massagebook.*payout/],
+  ["6060", "out", /massage ?book|\bbookedby\b|\bschedulicity\b|\bglossgenius\b|\bmassage ?works\b|\bnoterro\b/],
+  ["6100", "out", /biotone|\bbiofreeze\b|massage (lotion|oil|table)|wax and sugaring|sugaring supplies|linen supply|sheets and towels|\bsally beauty\b|\bsalon ?centric\b/],
+  ["6170", "out", /\babmp\b(?!.*insur)|\bamta\b|\bncbtmb\b|continuing education|\bceu\b|esthetician association/],
+  ["6110", "out", /board of (massage|esthetic|cosmetology)[^,]*(licen[cs]e|renew)/],
+  ["6080", "out", /(salon|massage|treatment|esthetics?) (suite|room|studio) rent|booth rent/],
+  // Therapists and counselors in private practice (2026-10-29, therapist.test.mjs; agent-written from the companies' public names, not from a real export):
+  // insurance-panel and matching-platform payouts are sales; CE courses, supervision, association dues and directory listings are education and dues or advertising.
+  ["4000", "in", /headway|\balma\b.*reimburs|grow therapy|rula health|\bspring health\b.*payment|claims deposit/],
+  ["6170", "out", /\bce course|continuing education|psychotherapy\.net|clinical supervision|american (psychological|counseling) assoc|\bnasw\b|\baamft\b|\bapa dues/],
+  ["6000", "out", /psychology today|therapyden|good ?therapy listing|zencare/],
+  ["6110", "out", /state board (license|licence)|board of (behavioral|psychology|counsel)/],
+  // Home daycare and family child care providers (2026-10-29, daycare.test.mjs; agent-written from the companies' public names, not from a real export):
+  // tuition by Zelle or app, food-program reimbursements and sponsor fees, accreditation dues, and craft and toy supplies.
+  ["4000", "in", /tuition|\bprocare\b|brightwheel.*payout|\bkangarootime\b|\bhi ?mama\b/],
+  ["6100", "out", /hobby lobby|craft supplies|toys and books|\bdiapers?\b/],
+  ["6170", "out", /\bnafcc\b|cacfp.*(sponsor|fee)|infant cpr|child ?care (association|licen[cs]e)/],
+  // Farmers-market, craft-fair and cottage-food vendors (2026-10-29, marketvendor.test.mjs; agent-written from the companies' public names, not from a real export):
+  // wholesale food-service stores and ingredient buys are supplies. Market fees and cottage permits were already filed under taxes and licenses.
+  ["6100", "out", /\bgfs\b|gordon food|smart ?& ?final|cash ?(and|&|n) ?carry|baking ingredients|packaging|jars? and lids?/],
+  // Pet sitters, dog walkers and groomers (2026-10-29, petcare.test.mjs; agent-written from the companies' public names, not from a real export):
+  // marketplace payouts, scheduling software, pet-store supplies and sitter association dues.
+  ["4000", "in", /\brover\b.*payout|\bwag\b.*(labs|payment|payout)|rover\.com/],
+  ["6060", "out", /time ?to ?pet|pet ?sitter ?plus|\bgingr\b|pawfinity/],
+  ["6100", "out", /petco|petsmart|chewy|poop bags?|dog treats|grooming supplies/],
+  ["6170", "out", /professional pet sitters|\bnappspet\b|pet sitters international|\bpsi\b dues|pet first aid/],
+  // Tutors and online teachers (2026-10-29, tutor.test.mjs; agent-written from the companies' public names, not from a real export):
+  // marketplace payouts, classroom software, lesson materials, exam fees and library or coffee-shop meeting rooms.
+  ["4000", "in", /outschool|varsity tutors|preply|superprof|tutor\.com payout|cambly|italki/],
+  ["6060", "out", /prodigy (education|game)|kahoot|nearpod|gimkit|blooket|mathigon|desmos/],
+  ["6100", "out", /teachers pay teachers|teacherspayteachers|lakeshore learning|wacom/],
+  ["6170", "out", /\bets\b.*(praxis|toefl|gre)|praxis (registration|exam)|\bnea\b.*(member|dues)|aft membership/],
+  ["6080", "out", /(library|meeting|study|conference) room (rental|rent)\b/],
+  // Photographers (2026-10-29, photographer.test.mjs; agent-written from the companies' public names, not from a real export):
+  // gallery and CRM software, trade-body dues, second shooters and print labs.
+  ["6060", "out", /shootproof|sprout studio|dubsado|\btave\b|17hats|pixieset|smugmug|lightroom/],
+  ["6170", "out", /\bppa\b.*(member|photograph)|professional photographers|\bwppi\b|creativelive|\bspa\b.*photograph/],
+  ["6020", "out", /second shooter|associate photographer|photo editing service|\bretouch/],
+  ["6100", "out", /\bwhcc\b|miller.?s (professional )?lab|bay photo lab|printique|nations photo lab/],
+  // Personal trainers and coaches (2026-10-29, trainer.test.mjs; agent-written from the companies' public names, not from a real export):
+  // coaching apps, certification renewals and gym-floor rent. First so "gym rental" is rent, not left blank.
+  ["6060", "out", /trainerize|truecoach|trainheroic|everfit|my ?pt ?hub|myfitnesspal|\bwodify\b|\bhevy\b/],
+  ["6170", "out", /\bnasm\b|\bace fitness\b|\bissa\b|\bnsca\b|\bacsm\b|precision nutrition|\bcpt\b.*recert/],
+  ["6080", "out", /(gym|studio|floor|facility) (space )?(rental|rent)\b|gym rent/],
+  ["6100", "out", /rep fitness|\bperform better\b|fitness equipment|resistance bands?/],
   // Small-business spend probe 4 (2026-10-28, eval/probe-trades4.mjs, 72 descriptors; agent-written from the companies' public names, not from a real export; tuned on itself):
   // contractors, consultants who travel, nonprofits and churches, event venues and caterers.
   ["6100", "out", /\b84 lumber|builders firstsource|\bhilti\b|floral wholesale/],

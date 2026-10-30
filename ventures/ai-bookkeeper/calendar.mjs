@@ -21,11 +21,11 @@ export function taxCalendar(year, { state = null, frequency = "quarterly", payro
   return ev.sort((a, b) => a.date.localeCompare(b.date) || a.title.localeCompare(b.title));
 }
 
-const esc = (t) => String(t).replace(/\\/g, "\\\\").replace(/;/g, "\;").replace(/,/g, "\\,").replace(/\n/g, "\\n");
+const esc = (t) => String(t).replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\n/g, "\\n");
 const nextDay = (d) => { const dt = new Date(`${d}T00:00:00Z`); dt.setUTCDate(dt.getUTCDate() + 1); return dt.toISOString().slice(0, 10).replace(/-/g, ""); };
 // RFC 5545: CRLF line ends, lines folded at 75 octets, all-day events, a stable UID per date and title
 export function toIcs(events, { name = "Tax calendar" } = {}) {
-  const fold = (l) => { const out = []; let cur = ""; for (const ch of l) { if (Buffer.byteLength(cur + ch) > (out.length ? 74 : 75)) { out.push(cur); cur = ch; } else cur += ch; } out.push(cur); return out.map((x, i) => (i ? " " + x : x)).join("\r\n"); };
+  const fold = (l) => { const out = []; let cur = ""; for (const ch of l) { if (new TextEncoder().encode(cur + ch).length > (out.length ? 74 : 75)) { out.push(cur); cur = ch; } else cur += ch; } out.push(cur); return out.map((x, i) => (i ? " " + x : x)).join("\r\n"); };
   const lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//ai-bookkeeper//tax calendar//EN", "CALSCALE:GREGORIAN", `X-WR-CALNAME:${esc(name)}`];
   for (const e of events) {
     const slug = e.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");

@@ -68,6 +68,12 @@ test('a term too long to travel is dropped whole, never half-sent', () => {
   assert.deepEqual(overlongTerms(null), []);
 });
 
+test('a term of exactly the limit still travels', () => {
+  const exact = 'x'.repeat(MAX_TERM_TEXT);
+  assert.deepEqual(overlongTerms({ paymentTerms: exact }), []);
+  assert.equal(decodeTerms(encodeTerms({ paymentTerms: exact })).paymentTerms, exact);
+});
+
 test('a term at the ceiling still travels', () => {
   const exact = 'x'.repeat(MAX_TERM_TEXT);
   assert.equal(decodeTerms(encodeTerms({ paymentTerms: exact })).paymentTerms, exact);

@@ -54,6 +54,10 @@
     .reason { font-size: .8rem; color: #4a5560; }
     footer { margin-top: 28px; border-top: 1px solid #d5ddd6; padding-top: 16px; }
     details summary { cursor: pointer; font-weight: 700; color: #183d2a; }
+    .cta-row { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 14px; }
+    a.cta { display: inline-block; padding: 11px 18px; border-radius: 8px; background: #23613f; color: #fff; font-weight: 700; text-decoration: none; }
+    a.cta.alt { background: #e3ece5; color: #183d2a; }
+    a.cta:focus-visible { outline: 3px solid #183d2a; outline-offset: 2px; }
     @media (max-width: 720px) { body { padding: 16px; } .card { padding: 16px; } }
   </style>
 </head>
@@ -61,8 +65,9 @@
   <header>
     <p class="note">AI BOOKKEEPER · DOUBLE-ENTRY · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
     <h1>Books from your bank file that learn your business.</h1>
+    <p class="cta-row"><a class="cta" href="#h-import">Import a bank file</a> <a class="cta alt" href="#h-import" id="cta-example">Try the example</a></p>
     <p>Import the <strong>CSV from your bank and your card</strong>. Every line gets a <strong>suggested account, a confidence and the reason</strong>. You file the ones it is unsure of, and it <strong>remembers</strong>: next month the payees you have filed post themselves. A card payment from checking is <strong>paired into one transfer</strong>, not counted as an expense. Out come a <strong>trial balance, profit and loss and balance sheet</strong>, the <strong>close checks</strong> a bookkeeper runs, and journals for <strong>QuickBooks Online, Xero</strong> or your accountant.</p>
-    <p class="note">AI is optional: on your own API key or a model running on your own computer, it suggests accounts for the lines still in review, and never posts by itself. Independent of every bank, card issuer and accounting software company. Not accounting or tax advice. New to this? Read <a href="./how-to-do-bookkeeping-from-bank-statements.html">how to do bookkeeping from bank statements</a>, with a worked example of the two mistakes that turn a profit into a loss. Moving to QuickBooks or Xero? See <a href="./bank-statement-to-quickbooks-xero.html">bank statement to QuickBooks or Xero</a> or a <a href="./mint-export-to-business-books.html">Mint-style export</a>. Selling online? See bookkeeping for <a href="./stripe-bookkeeping.html">Stripe</a>, <a href="./shopify-bookkeeping.html">Shopify</a>, <a href="./square-bookkeeping.html">Square</a>, <a href="./paypal-bookkeeping.html">PayPal</a>, <a href="./amazon-seller-bookkeeping.html">Amazon sellers</a> <a href="./etsy-bookkeeping.html">Etsy</a>, <a href="./ebay-bookkeeping.html">eBay</a>, <a href="./reseller-bookkeeping.html">Poshmark, Mercari and Depop</a>, <a href="./freelancer-bookkeeping.html">freelancers</a> and <a href="./airbnb-bookkeeping.html">Airbnb hosts</a>, <a href="./driver-bookkeeping.html">rideshare and delivery drivers</a>, <a href="./creator-bookkeeping.html">creators</a>, <a href="./club-bookkeeping.html">club and PTO treasurers</a>, <a href="./trades-bookkeeping.html">plumbers, HVAC and electricians</a>; got a 1099-K that does not match? <a href="./form-1099-k-reconciliation.html">Bridge it to your books</a>.</p>
+    <p class="note">AI is optional: on your own API key or a model running on your own computer, it suggests accounts for the lines still in review, and never posts by itself. Independent of every bank, card issuer and accounting software company. Not accounting or tax advice. New to this? Read <a href="./how-to-do-bookkeeping-from-bank-statements.html">how to do bookkeeping from bank statements</a>, with a worked example of the two mistakes that turn a profit into a loss. Moving to QuickBooks or Xero? See <a href="./bank-statement-to-quickbooks-xero.html">bank statement to QuickBooks or Xero</a> or a <a href="./mint-export-to-business-books.html">Mint-style export</a>. Selling online? See bookkeeping for <a href="./stripe-bookkeeping.html">Stripe</a>, <a href="./shopify-bookkeeping.html">Shopify</a>, <a href="./square-bookkeeping.html">Square</a>, <a href="./paypal-bookkeeping.html">PayPal</a>, <a href="./amazon-seller-bookkeeping.html">Amazon sellers</a> <a href="./etsy-bookkeeping.html">Etsy</a>, <a href="./ebay-bookkeeping.html">eBay</a>, <a href="./reseller-bookkeeping.html">Poshmark, Mercari and Depop</a>, <a href="./freelancer-bookkeeping.html">freelancers</a> and <a href="./airbnb-bookkeeping.html">Airbnb hosts</a>, <a href="./driver-bookkeeping.html">rideshare and delivery drivers</a>, <a href="./creator-bookkeeping.html">creators</a>, <a href="./restaurant-bookkeeping.html">restaurants</a>, <a href="./realtor-bookkeeping.html">real estate agents</a>, <a href="./cleaning-bookkeeping.html">house cleaners</a>, <a href="./landscaping-bookkeeping.html">landscaping</a>, <a href="./salon-bookkeeping.html">hair salons and barbers</a>, <a href="./trainer-bookkeeping.html">personal trainers</a>, <a href="./petcare-bookkeeping.html">pet sitters and dog walkers</a>, <a href="./massage-bookkeeping.html">massage therapists and estheticians</a>, <a href="./daycare-bookkeeping.html">home daycares</a>, <a href="./therapist-bookkeeping.html">therapists and counselors</a>, <a href="./marketvendor-bookkeeping.html">farmers market and cottage food vendors</a>, <a href="./photographer-bookkeeping.html">photographers</a>, <a href="./tutor-bookkeeping.html">tutors and online teachers</a>, <a href="./club-bookkeeping.html">club and PTO treasurers</a>, <a href="./trades-bookkeeping.html">plumbers, HVAC and electricians</a>; want your tax deadlines in your calendar? <a href="./tax-calendar.html">Free tax calendar (.ics)</a>; got a 1099-K that does not match? <a href="./form-1099-k-reconciliation.html">Bridge it to your books</a>.</p>
   </header>
 
   <main>
@@ -246,7 +251,7 @@
       <p class="note">Shown at the top of an invoice or credit note. Kept in your books file only; nothing is sent anywhere.</p>
       <label for="pf-name">Business name</label><input id="pf-name" autocomplete="organization">
       <label for="pf-address">Address</label><textarea id="pf-address" rows="2"></textarea>
-      <label for="pf-email">Email</label><input id="pf-email" type="email">
+      <label for="pf-email">Email</label><input id="pf-email" type="email" autocomplete="email">
       <label for="pf-taxId">Tax or VAT number</label><input id="pf-taxId">
       <label for="pf-payTo">How to pay you (bank details, payment link)</label><textarea id="pf-payTo" rows="2"></textarea>
       <label for="pf-terms">Terms</label><input id="pf-terms" placeholder="Payment due within 30 days">
@@ -330,9 +335,10 @@
     <p class="note">Takes the year's Schedule C profit (annualised from the months elapsed), self-employment tax, the standard deduction and a simplified 20% QBI deduction, then the bracket tax, and spreads the IRS safe harbour (the smaller of 90% of this year's total and 100% of last year's tax, 110% above $150,000 AGI) over the Form 1040-ES dates still ahead. Leaves out state tax, credits and itemising. A worksheet, not tax advice; the year is that of the From date (or your latest year). Blank boxes mean zero.</p>
     <p><label>Filing status <select id="est-filing"><option value="single">Single</option><option value="mfj">Married filing jointly</option><option value="hoh">Head of household</option></select></label> <label>Months of the year in the books <input id="est-months" inputmode="numeric" size="3" value="12"></label></p>
     <p><label>Wages elsewhere $ <input id="est-wages" inputmode="decimal" size="9"></label> <label>Other income $ <input id="est-other" inputmode="decimal" size="9"></label> <label>Withholding $ <input id="est-withheld" inputmode="decimal" size="9"></label> <label>Already paid in estimates $ <input id="est-paid" inputmode="decimal" size="9"></label></p>
-    <p><label>Last year's total tax $ <input id="est-prior" inputmode="decimal" size="9"></label> <label>Last year's AGI $ <input id="est-prior-agi" inputmode="decimal" size="9"></label> <label>Self-employed health premiums $ <input id="est-health" inputmode="decimal" size="8"></label> <label>SEP / solo 401(k) paid $ <input id="est-retire" inputmode="decimal" size="8"></label> <label>Children under 17 <input id="est-children" inputmode="numeric" size="3"></label> <label>Other dependents <input id="est-other-deps" inputmode="numeric" size="3"></label> <label>People 65 or older (0-2) <input id="est-over65" inputmode="numeric" size="2"></label> <label>Blind (0-2) <input id="est-blind" inputmode="numeric" size="2"></label> <label>Earned income credit, qualifying children (blank = none claimed) <input id="est-eitc" inputmode="numeric" size="2"></label> <label><input type="checkbox" id="est-service"> Service business (QBI phase-out)</label> <label>W-2 wages the business paid $ <input id="est-bizwages" inputmode="decimal" size="8"></label> <button type="button" id="est-run">Estimate</button> <button type="button" id="est-annual" class="secondary">Annualized installments (lumpy income)</button> <span id="est-status" class="note" role="status"></span></p>
+    <p><label>Last year's total tax $ <input id="est-prior" inputmode="decimal" size="9"></label> <label>Last year's AGI $ <input id="est-prior-agi" inputmode="decimal" size="9"></label> <label>Self-employed health premiums $ <input id="est-health" inputmode="decimal" size="8"></label> <label>SEP / solo 401(k) paid $ <input id="est-retire" inputmode="decimal" size="8"></label> <label>Children under 17 <input id="est-children" inputmode="numeric" size="3"></label> <label>Other dependents <input id="est-other-deps" inputmode="numeric" size="3"></label> <label>People 65 or older (0-2) <input id="est-over65" inputmode="numeric" size="2"></label> <label>Blind (0-2) <input id="est-blind" inputmode="numeric" size="2"></label> <label>Earned income credit, qualifying children (blank = none claimed) <input id="est-eitc" inputmode="numeric" size="2"></label> <label>State flat income-tax rate % (blank = federal only) <input id="est-state-rate" inputmode="decimal" size="5"></label> <label>State deduction $ <input id="est-state-ded" inputmode="decimal" size="8"></label> <label>State tax withheld $ <input id="est-state-wh" inputmode="decimal" size="8"></label> <label><input type="checkbox" id="est-service"> Service business (QBI phase-out)</label> <label>W-2 wages the business paid $ <input id="est-bizwages" inputmode="decimal" size="8"></label> <button type="button" id="est-run">Estimate</button> <button type="button" id="est-annual" class="secondary">Annualized installments (lumpy income)</button> <label>S-corp owner salary $ (blank = half the profit) <input id="scorp-salary" inputmode="decimal" size="8"></label> <label>S-corp yearly running cost $ (blank = 1,500) <input id="scorp-cost" inputmode="decimal" size="8"></label> <button type="button" id="est-scorp" class="secondary">Would an S corporation save tax?</button> <span id="est-status" class="note" role="status"></span></p>
     <div class="scroll" id="est"></div>
     <div class="scroll" id="annual"></div>
+    <div class="scroll" id="scorp"></div>
   </section>
 
   <section class="card" aria-labelledby="h-budget">
@@ -452,6 +458,7 @@
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Related: <a href="../payment-reconciliation-workbench/">payment reconciliation workbench</a>, <a href="../sales-export-to-journal/">sales export to journal</a>, <a href="../freelancer-schedule-c-categorizer/">Schedule C categorizer</a>, <a href="../quickbooks-import-csv-check/">QuickBooks import CSV check</a>.</p>
     <p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> or <a href="https://buymeacoffee.com/duncanhaywood" rel="noopener">buy me a coffee</a> is entirely optional and never changes what the tool does.</p>
+  <p class="more-pages">Also: <a href="tattoo-bookkeeping.html">Tattoo Artist Bookkeeping From a Bank Statement</a> · <a href="eventpro-bookkeeping.html">Wedding DJ, Planner and Florist Bookkeeping From a Bank Statement</a> · <a href="inspector-bookkeeping.html">Home Inspector Bookkeeping From a Bank Statement</a> · <a href="vending-bookkeeping.html">Vending Route Bookkeeping From a Bank Statement</a> · <a href="rental-property-bookkeeping.html">Rental Property Bookkeeping for Landlords: Schedule E by Property (Free, Open Source)</a> · <a href="smallfarm-bookkeeping.html">Small Farm and CSA Bookkeeping From a Bank Statement</a> · <a href="detailing-bookkeeping.html">Mobile Detailer Bookkeeping From a Bank Statement</a> · <a href="autorepair-bookkeeping.html">Auto Repair Shop Bookkeeping From a Bank Statement</a> · <a href="trucking-bookkeeping.html">Owner-Operator Trucker Bookkeeping From a Bank Statement</a></p>
   </footer>
   <script>if ("serviceWorker" in navigator) addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));</script>
   <script type="module">
@@ -478,6 +485,7 @@
     import { addTrip, removeTrip, setHomeOffice, mileageDeduction, homeOfficeDeduction } from "./deductions.mjs";
     import { estimatedTax } from "./estimatedtax.mjs";
     import { annualizedInstallments } from "./annualized.mjs";
+    import { scorpFromBooks } from "./scorp.mjs";
     import { salesTaxReturn, parseRateSpecs, parseDiscountSpecs, stateDiscounts, stateDueDay, stateEndMonth, stateFilingNote, STATE_DUE_DAYS } from "./salestaxreturn.mjs";
     import { closeYear, reopenYear, yearEndReport } from "./yearend.mjs";
     import { addReceipts, receiptReport, taxOnReceipts, planReceiptSplit, splitFromReceipt } from "./receipts.mjs";
@@ -975,13 +983,28 @@
     }
 
     function dollars(sel) { const v = $(sel).value.replace(/[$,\s]/g, ""); if (!v) return undefined; const n = Number(v); if (!Number.isFinite(n)) throw new Error("Use plain numbers in the dollar boxes."); return Math.round(n * 100); }
-    function estOpts() { return { year: deductYear(), monthsElapsed: parseInt($("#est-months").value, 10) || 12, filing: $("#est-filing").value, wages: dollars("#est-wages"), otherIncome: dollars("#est-other"), withholding: dollars("#est-withheld"), paid: dollars("#est-paid"), priorYearTax: dollars("#est-prior"), priorAgi: dollars("#est-prior-agi"), healthInsurance: dollars("#est-health"), retirement: dollars("#est-retire"), children: parseInt($("#est-children").value, 10) || 0, otherDependents: parseInt($("#est-other-deps").value, 10) || 0, over65: parseInt($("#est-over65").value, 10) || 0, blind: parseInt($("#est-blind").value, 10) || 0, eitcChildren: $("#est-eitc").value.trim() === "" ? undefined : parseInt($("#est-eitc").value, 10) || 0, service: $("#est-service").checked, businessWages: dollars("#est-bizwages"), asOf: new Date().toISOString().slice(0, 10) }; }
+    function estOpts() { return { year: deductYear(), monthsElapsed: parseInt($("#est-months").value, 10) || 12, filing: $("#est-filing").value, wages: dollars("#est-wages"), otherIncome: dollars("#est-other"), withholding: dollars("#est-withheld"), paid: dollars("#est-paid"), priorYearTax: dollars("#est-prior"), priorAgi: dollars("#est-prior-agi"), healthInsurance: dollars("#est-health"), retirement: dollars("#est-retire"), children: parseInt($("#est-children").value, 10) || 0, otherDependents: parseInt($("#est-other-deps").value, 10) || 0, over65: parseInt($("#est-over65").value, 10) || 0, blind: parseInt($("#est-blind").value, 10) || 0, eitcChildren: $("#est-eitc").value.trim() === "" ? undefined : parseInt($("#est-eitc").value, 10) || 0, stateRate: $("#est-state-rate").value.trim() === "" ? undefined : (parseFloat($("#est-state-rate").value) || 0) / 100, stateDeduction: dollars("#est-state-ded"), stateWithheld: dollars("#est-state-wh"), service: $("#est-service").checked, businessWages: dollars("#est-bizwages"), asOf: new Date().toISOString().slice(0, 10) }; }
     $("#est-annual").addEventListener("click", () => {
       try {
         const o = estOpts(); delete o.paid; delete o.monthsElapsed;
         const r = annualizedInstallments(books, o);
         record("tax_annualized");
         $("#annual").replaceChildren(table(["Period", "Due", "Profit to date", "Required this date", "Regular method", "Saved"], r.rows.map((x, i) => [x.period, x.due, fmt(x.profitToDate), fmt(x.cumulativeRequired), fmt(x.regularCumulative), fmt(r.saved[i])])), ...r.warnings.map((w) => el("p", { class: "note", text: w })));
+        $("#est-status").textContent = "";
+      } catch (e) { $("#est-status").textContent = e.message; }
+    });
+    $("#est-scorp").addEventListener("click", () => {
+      try {
+        const o = estOpts();
+        const r = scorpFromBooks(books, { year: o.year, monthsElapsed: o.monthsElapsed, filing: o.filing, otherIncome: o.otherIncome, service: o.service, salary: dollars("#scorp-salary"), extraCost: dollars("#scorp-cost") });
+        record("tax_scorp");
+        const row = (l, a, b) => [l, fmt(a), fmt(b)];
+        $("#scorp").replaceChildren(
+          el("p", { class: "note", text: `S-corporation election ${r.year} (${r.filing}): profit annualised ${fmt(r.profit)}, owner salary ${fmt(r.salary)}.` }),
+          table(["", "Sole proprietor", "S corporation"], [row("Income tax", r.sole.incomeTax, r.scorp.incomeTax), row("Payroll / self-employment tax", r.sole.payrollTax, r.scorp.payrollTax), row("Yearly cost of the entity", 0, r.scorp.extraCost)], [row("All in", r.sole.allIn, r.scorp.allIn)]),
+          el("p", { class: "note", text: `${r.savings >= 0 ? "An S corporation would save" : "An S corporation would cost"} ${fmt(Math.abs(r.savings))} at this salary; break-even profit ${r.breakEven === null ? "not found up to $500,000" : fmt(r.breakEven)}.` }),
+          table(["Salary as a share of profit", "Salary", "Saving"], r.sweep.map((x) => [x.salaryPct + "%", fmt(x.salary), fmt(x.savings)])),
+          ...r.warnings.map((w) => el("p", { class: "note", text: w })));
         $("#est-status").textContent = "";
       } catch (e) { $("#est-status").textContent = e.message; }
     });
@@ -995,7 +1018,8 @@
         if (r.eitcCredit) rows.push(["Earned income credit (refundable)", "-" + fmt(r.eitcCredit)]);
         if (r.childCredit) rows.push(["Child and dependent credit (against income tax)", "-" + fmt(r.childCredit)]);
         if (r.refundableCredit) rows.push(["Refundable child credit", "-" + fmt(r.refundableCredit)]);
-        $("#est").replaceChildren(table(["Item", "Amount"], rows, [["Total federal tax", `${fmt(r.totalTax)} (${(r.effectiveRate * 100).toFixed(1)}% of income)`]]), el("p", { class: "note", text: `Safe harbour: 90% of this year is ${fmt(r.safeHarbor.current90)}${r.safeHarbor.prior != null ? `, last year's route ${fmt(r.safeHarbor.prior)}` : ""}; pay ${fmt(r.safeHarbor.required)} in estimates.` }), table(["Due", "Pay"], r.payments.map((p) => [p.due, p.status === "past" ? "(past)" : fmt(p.cents)])), ...r.warnings.map((w) => el("p", { class: "note", text: w })));
+        const stateRows = r.state ? [["State income tax (" + (r.state.rate * 100).toFixed(2).replace(/\.?0+$/, "") + "% flat, supplied by you)", fmt(r.state.tax)], ["Less state withholding", "-" + fmt(r.state.withheld)], ["State balance (a quarter's share " + fmt(r.state.quarterly) + ")", fmt(r.state.balance)]] : null;
+        $("#est").replaceChildren(table(["Item", "Amount"], rows, [["Total federal tax", `${fmt(r.totalTax)} (${(r.effectiveRate * 100).toFixed(1)}% of income)`]]), ...(stateRows ? [table(["State (apart from the federal total)", "Amount"], stateRows)] : []), el("p", { class: "note", text: `Safe harbour: 90% of this year is ${fmt(r.safeHarbor.current90)}${r.safeHarbor.prior != null ? `, last year's route ${fmt(r.safeHarbor.prior)}` : ""}; pay ${fmt(r.safeHarbor.required)} in estimates.` }), table(["Due", "Pay"], r.payments.map((p) => [p.due, p.status === "past" ? "(past)" : fmt(p.cents)])), ...r.warnings.map((w) => el("p", { class: "note", text: w })));
         $("#est-status").textContent = "";
       } catch (e) { $("#est-status").textContent = e.message; }
     });
@@ -1153,6 +1177,7 @@
       render();
     });
 
+    $("#cta-example").addEventListener("click", () => $("#example").click());
     $("#example").addEventListener("click", () => {
       books = analyze({ example: true }).books;
       $("#import-status").textContent = "Loaded three synthetic months for a made-up studio: a checking statement with a running balance, and a card statement. File the queue, then import nothing more and look at the reports.";

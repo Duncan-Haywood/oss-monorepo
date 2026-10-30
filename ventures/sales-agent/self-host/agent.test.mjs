@@ -225,3 +225,89 @@ test("a bounce naming several failed recipients stops every one of them (real DS
   assert.deepEqual(r.prospects.filter((p) => p.status === "bounced").map((p) => p.email).sort(), [...m.dsn.failed].sort());
   assert.equal(r.prospects.find((p) => p.email === "keep@acme.test").status || "", "");
 });
+
+test("M8a CRM write-back: note on an existing contact, opt-out on unsubscribe, nothing created, token never logged, CRM down does not stop triage", async () => {
+  const { createServer } = await import("node:http");
+  const calls = [];
+  const known = { "dana@bright.example": 7, "lee@corp.example": 9 };
+  const srv = createServer(async (req, res) => {
+    let b = ""; for await (const c of req) b += c;
+    calls.push({ m: req.method, u: req.url, h: req.headers, b: b ? JSON.parse(b) : null });
+    res.setHeader("content-type", "application/json");
+    if (req.url.startsWith("/v1/persons/search")) { const e = new URL(req.url, "http://x").searchParams.get("term"); return res.end(JSON.stringify({ data: { items: known[e] ? [{ item: { id: known[e] } }] : [] } })); }
+    if (req.url.startsWith("/crm/v3/objects/contacts/search")) { const e = JSON.parse(b).filterGroups[0].filters[0].value; return res.end(JSON.stringify({ results: known[e] ? [{ id: String(known[e]) }] : [] })); }
+    res.end("{}");
+  });
+  await new Promise((r) => srv.listen(0, "127.0.0.1", r));
+  const base = `http://127.0.0.1:${srv.address().port}`;
+  const env = { ADMIN_TOKEN: "x".repeat(16), DATA_DIR: mkdtempSync(join(tmpdir(), "sa-")), PIPEDRIVE_API_TOKEN: "pd-secret-token", PIPEDRIVE_BASE: base, HUBSPOT_TOKEN: "hs-secret-token", HUBSPOT_BASE: base };
+  const a = createAgent(env, { now: () => Date.parse("2026-10-26T10:00:00Z") });
+  await a.ingest([
+    { id: "<1@x>", block: "From: Dana <dana@bright.example>\nSubject: Re: routes\n\nUnsubscribe me please, stop emailing." },
+    { id: "<2@x>", block: "From: Zed <zed@nobody.example>\nSubject: Re: routes\n\nUnsubscribe me please, stop emailing." },
+  ]);
+  const writes = calls.filter((c) => c.m !== "GET" && !/search/.test(c.u));
+  assert.ok(writes.every((c) => /\/(notes|persons\/7|contacts\/7)$/.test(c.u) || c.u.endsWith("/notes")), "only notes and opt-outs, only on the known contact");
+  assert.equal(calls.filter((c) => c.u === "/v1/notes").length, 1);
+  assert.match(calls.find((c) => c.u === "/v1/notes").b.content, /Added to the suppression list/);
+  assert.equal(calls.find((c) => c.u === "/v1/persons/7").b.marketing_status, "unsubscribed");
+  assert.equal(calls.find((c) => c.u === "/crm/v3/objects/contacts/7").b.properties.hs_email_optout, "true");
+  assert.equal(calls.find((c) => c.u === "/crm/v3/objects/notes").b.associations[0].to.id, "7");
+  assert.equal(calls.find((c) => c.u === "/v1/notes").h["x-api-token"], "pd-secret-token");
+  const audit = readFileSync(join(env.DATA_DIR, "audit.jsonl"), "utf8");
+  assert.match(audit, /"found":false/);
+  assert.ok(!/secret-token/.test(audit));
+  await new Promise((r) => srv.close(r));
+  // CRM unreachable: triage still lands, error is audited without the token
+  const dirB = mkdtempSync(join(tmpdir(), "sa-"));
+  const b = createAgent({ ...env, DATA_DIR: dirB, PIPEDRIVE_BASE: base, HUBSPOT_TOKEN: "" }, { now: () => Date.parse("2026-10-26T10:00:00Z") });
+  assert.equal(await b.ingest([{ id: "<3@x>", block: "From: Dana <dana@bright.example>\nSubject: Re: routes\n\nUnsubscribe me please." }]), 1);
+  assert.equal(b.state.suppression.length, 1);
+  const a2 = readFileSync(join(dirB, "audit.jsonl"), "utf8");
+  assert.match(a2, /"crm_writeback".*"ok":false/);
+  assert.ok(!/secret-token/.test(a2));
+});
+
+test("M8b stage move: only on a person's call, only an interested reply, only a single open deal, once", async () => {
+  const { createServer } = await import("node:http");
+  const calls = [];
+  const deals = { 7: [{ id: 70 }], 9: [{ id: 90 }, { id: 91 }] };
+  const known = { "dana@bright.example": 7, "lee@corp.example": 9 };
+  const srv = createServer(async (req, res) => {
+    let b = ""; for await (const c of req) b += c;
+    calls.push({ m: req.method, u: req.url, b: b ? JSON.parse(b) : null });
+    res.setHeader("content-type", "application/json");
+    if (req.url.startsWith("/v1/persons/search")) { const e = new URL(req.url, "http://x").searchParams.get("term"); return res.end(JSON.stringify({ data: { items: known[e] ? [{ item: { id: known[e] } }] : [] } })); }
+    const m = req.url.match(/^\/v1\/persons\/(\d+)\/deals/); if (m) return res.end(JSON.stringify({ data: deals[m[1]] }));
+    if (req.url.startsWith("/crm/v3/objects/contacts/search")) { const e = JSON.parse(b).filterGroups[0].filters[0].value; return res.end(JSON.stringify({ results: known[e] ? [{ id: String(known[e]) }] : [] })); }
+    const h = req.url.match(/^\/crm\/v4\/objects\/contacts\/(\d+)\/associations\/deals/); if (h) return res.end(JSON.stringify({ results: (deals[h[1]] || []).map((d) => ({ toObjectId: d.id })) }));
+    res.end("{}");
+  });
+  await new Promise((r) => srv.listen(0, "127.0.0.1", r));
+  const base = `http://127.0.0.1:${srv.address().port}`;
+  const env = { ADMIN_TOKEN: "x".repeat(16), DATA_DIR: mkdtempSync(join(tmpdir(), "sa-")), PIPEDRIVE_API_TOKEN: "pd-secret-token", PIPEDRIVE_BASE: base, PIPEDRIVE_MEETING_STAGE_ID: "5", HUBSPOT_TOKEN: "hs-secret-token", HUBSPOT_BASE: base, HUBSPOT_MEETING_STAGE: "meetingscheduled" };
+  const a = createAgent(env, { now: () => Date.parse("2026-10-26T10:00:00Z") });
+  await a.ingest([
+    { id: "<1@x>", block: "From: Dana <dana@bright.example>\nSubject: Re: routes\n\nSounds interesting, can we book a call next week?" },
+    { id: "<2@x>", block: "From: Lee <lee@corp.example>\nSubject: Re: routes\n\nYes, let's set up a call." },
+    { id: "<3@x>", block: "From: Zed <zed@nobody.example>\nSubject: Re: routes\n\nUnsubscribe me please, stop emailing." },
+  ]);
+  const moves = () => calls.filter((c) => c.m !== "GET" && /\/deals\/\d+$/.test(c.u));
+  assert.equal(moves().length, 0, "ingest alone never moves a stage");
+  assert.equal(a.state.items[0].triage.category, "interested");
+  const r = await a.moveDeal("<1@x>");
+  assert.deepEqual(moves().map((c) => [c.m, c.u, JSON.stringify(c.b)]).sort(), [["PATCH", "/crm/v3/objects/deals/70", '{"properties":{"dealstage":"meetingscheduled"}}'], ["PUT", "/v1/deals/70", '{"stage_id":5}']]);
+  assert.ok(r.results.every((x) => x.moved));
+  assert.equal((await a.moveDeal("<1@x>")).error, "already moved");
+  const two = await a.moveDeal("<2@x>");
+  assert.match(two.results[0].reason, /several open deals/);
+  assert.equal(moves().length, 2, "two open deals: nothing moved");
+  assert.match((await a.moveDeal("<3@x>")).error, /only an interested/);
+  assert.equal(await a.moveDeal("<nope>"), null);
+  const audit = readFileSync(join(env.DATA_DIR, "audit.jsonl"), "utf8");
+  assert.match(audit, /"crm_stage"/); assert.ok(!/secret-token/.test(audit));
+  const off = createAgent({ ...env, DATA_DIR: mkdtempSync(join(tmpdir(), "sa-")), PIPEDRIVE_MEETING_STAGE_ID: "", HUBSPOT_MEETING_STAGE: "" }, { now: () => 0 });
+  await off.ingest([{ id: "<4@x>", block: "From: Dana <dana@bright.example>\nSubject: Re: routes\n\nSounds good, let's book a call." }]);
+  assert.match((await off.moveDeal("<4@x>")).error, /stage moves are off/);
+  await new Promise((r) => srv.close(r));
+});

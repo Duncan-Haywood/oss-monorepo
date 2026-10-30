@@ -39,3 +39,28 @@ test("ics is RFC 5545 shaped: CRLF, folded lines, all-day dates, planned amounts
   const uids = ics.match(/^UID:.*$/gm);
   assert.equal(new Set(uids).size, uids.length);
 });
+
+test("semicolons in ics text are escaped as \\; (RFC 5545 TEXT)", () => {
+  const ics = toIcs([{ date: "2026-04-15", title: "Pay\; then file", notes: "a;b" }]);
+  assert.ok(ics.includes("SUMMARY:Pay\\; then file"));
+  assert.ok(ics.includes("DESCRIPTION:a\\;b"));
+});
+
+test("cli --planned puts the four amounts in the events and rejects a bad list", async () => {
+  const { execFileSync, spawnSync } = await import("node:child_process");
+  const cli = new URL("./cli.mjs", import.meta.url).pathname;
+  const out = JSON.parse(execFileSync("node", [cli, "calendar", "--year", "2026", "--planned", "1200,1200,1200,1500.50", "--json"], { encoding: "utf8" }));
+  assert.deepEqual(out.filter((e) => /estimated/.test(e.title)).map((e) => e.notes), ["Planned payment 1200.00", "Planned payment 1200.00", "Planned payment 1200.00", "Planned payment 1500.50"]);
+  const bad = spawnSync("node", [cli, "calendar", "--planned", "1,2,3"], { encoding: "utf8" });
+  assert.equal(bad.status, 2);
+});
+
+test("toIcs does not need Node's Buffer, so the browser page can call it", () => {
+  const B = globalThis.Buffer;
+  try {
+    delete globalThis.Buffer;
+    const ics = toIcs([{ date: "2026-04-15", title: "Zahlung für die Steuer ".repeat(6), notes: "ü" }]);
+    assert.match(ics, /BEGIN:VCALENDAR/);
+    assert.ok(ics.split("\r\n").every((l) => new TextEncoder().encode(l).length <= 75));
+  } finally { globalThis.Buffer = B; }
+});

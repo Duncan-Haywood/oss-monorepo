@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%231b587e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EA%3C/text%3E%3C/svg%3E"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pet Sitter, Dog Walker and Groomer Bookkeeping From a Bank Statement</title>
+<meta name="description" content="Rover, Wag and Square payouts are sales; scheduling software, pet-store supplies, association dues and insurance are the costs. A worked October: $1,660.50 in, $493.40 out, $1,167.10 profit.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="./petcare-bookkeeping.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Pet sitter, dog walker and groomer bookkeeping from a bank statement">
+<meta property="og:description" content="A worked month of Rover, Wag and Square payouts against supplies, software and dues, booked from a bank CSV.">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Where do Rover and Wag payouts go?", "acceptedAnswer": {"@type": "Answer", "text": "The importer files a Rover or Wag payout under sales. Both marketplaces keep a service fee before paying you, so the deposit is net of the fee and understates what clients paid; only what lands in your bank account shows."}}, {"@type": "Question", "name": "How are supplies, software and dues filed?", "acceptedAnswer": {"@type": "Answer", "text": "Time To Pet and Pet Sitter Plus are filed under software and subscriptions, Petco, PetSmart and Chewy buys under supplies, professional pet sitter association dues and pet first-aid classes under education and dues, and pet-sitter insurance under insurance. A Zelle from a client and a shelter donation stay in the review queue; you file them."}}, {"@type": "Question", "name": "Is it free?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. It is open source (MIT), runs in your browser and nothing is uploaded. Not tax advice: a self-employed pet sitter owes self-employment tax on profit, the Schedule C worksheet in this tool shows the figure, and your accountant decides what applies to you."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#1c2430;background:#f3f5f2}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#23613f}.eyebrow{font-weight:700;letter-spacing:.04em;color:#23613f;font-size:.85rem}h1{font-size:clamp(1.7rem,5vw,2.5rem);line-height:1.08;margin:.3rem 0;color:#183d2a}.lede{font-size:1.05rem;max-width:66ch;color:#4a5560}section{background:#fff;border:1px solid #d5ddd6;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #183d2a10;margin:1rem 0}h2{margin-top:0;color:#183d2a}p,li{line-height:1.55}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:.95rem}caption{caption-side:bottom;color:#4a5560;font-size:.85rem;text-align:left;padding-top:.6rem}th,td{border-bottom:1px solid #e1e7e2;padding:.5rem .45rem;text-align:right}th:first-child,td:first-child{text-align:left}tr.total td,tr.total th{font-weight:700}.fine,footer{font-size:.86rem;color:#4a5560}@media (max-width:600px){body{padding:1rem}}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; AI Bookkeeper</a></p>
+<header>
+<h1>Pet sitter and dog walker bookkeeping: marketplace payouts against the supplies and dues behind them</h1>
+<p class="lede">A pet sitter's income arrives as Rover and Wag payouts, Square card payments and the odd Zelle from a regular client; the costs are scheduling software, treats and poop bags, association dues and gas. The bank statement holds both, so the month's profit starts there.</p>
+</header>
+<section>
+<h2>Worked example: one October</h2>
+<p>The tool ships a <strong>synthetic</strong> statement for a solo pet sitter (<code>fixtures/petcare-checking.csv</code>): a Rover payout, a Wag payment, a Square deposit, a Zelle from a client and nine costs. Eight of the nine costs and the three platform deposits get a suggested account with no rules taught; the Zelle and a shelter donation stay in review, because a Zelle could be a client or a friend, and a donation is not a business cost until you say it is.</p>
+<div class="table-wrap">
+<table>
+<caption>Read by the tool's importer. Synthetic data, not a real pet sitter.</caption>
+<thead><tr><th scope="col">October 2026</th><th scope="col">Amount</th></tr></thead>
+<tbody>
+<tr><th scope="row">Rover, Wag and Square deposits</th><td>$1,540.50</td></tr>
+<tr><th scope="row">Zelle from a client (left in review; you file it)</th><td>$120.00</td></tr>
+<tr class="total"><th scope="row">Money in</th><td>$1,660.50</td></tr>
+<tr><th scope="row">Time To Pet (software)</th><td>&minus;$29.00</td></tr>
+<tr><th scope="row">Petco and PetSmart (supplies)</th><td>&minus;$130.20</td></tr>
+<tr><th scope="row">Association dues and pet first-aid class (education and dues)</th><td>&minus;$160.00</td></tr>
+<tr><th scope="row">Pet sitter insurance (insurance)</th><td>&minus;$41.00</td></tr>
+<tr><th scope="row">Gas (vehicle and fuel)</th><td>&minus;$48.20</td></tr>
+<tr><th scope="row">Google Ads (advertising)</th><td>&minus;$60.00</td></tr>
+<tr><th scope="row">Shelter donation (left in review; you file it)</th><td>&minus;$25.00</td></tr>
+<tr class="total"><th scope="row">Profit</th><td>$1,167.10</td></tr>
+</tbody>
+</table>
+</div>
+<p>The profit counts the Zelle as income and the donation as a cost; a charitable gift is not a Schedule C expense, so take it out of the costs, as the owner's own money, and profit rises by $25.00. Rover and Wag pay net of their fees.</p>
+</section>
+<section>
+<h2>What the tool does for a pet sitter</h2>
+<ol>
+<li><strong>Imports the bank CSV</strong> and suggests <em>Sales</em> for Rover, Wag and Square deposits.</li>
+<li><strong>Files the recurring costs</strong>: scheduling software, supplies, dues, insurance, gas and ads.</li>
+<li><strong>Reports</strong> a P&amp;L and a Schedule C worksheet, with a mileage log for drives to clients' homes and quarterly estimated-tax dates in the tax calendar.</li>
+</ol>
+<p>Rules are written from company names; no real pet sitter's statement has been tried.</p>
+</section>
+<section>
+<h2>Questions</h2>
+<h3>Where do Rover and Wag payouts go?</h3><p>The importer files a Rover or Wag payout under sales. Both marketplaces keep a service fee before paying you, so the deposit is net of the fee and understates what clients paid; only what lands in your bank account shows.</p><h3>How are supplies, software and dues filed?</h3><p>Time To Pet and Pet Sitter Plus are filed under software and subscriptions, Petco, PetSmart and Chewy buys under supplies, professional pet sitter association dues and pet first-aid classes under education and dues, and pet-sitter insurance under insurance. A Zelle from a client and a shelter donation stay in the review queue; you file them.</p><h3>Is it free?</h3><p>Yes. It is open source (MIT), runs in your browser and nothing is uploaded. Not tax advice: a self-employed pet sitter owes self-employment tax on profit, the Schedule C worksheet in this tool shows the figure, and your accountant decides what applies to you.</p>
+</section>
+<p><a href="./">Open AI Bookkeeper</a> and import your bank statement.</p>
+</main>
+<footer>
+<p><strong>No warranty.</strong> This page and the tool are provided free and as-is, without warranty of any kind. They are not legal, tax, or financial advice and do not replace a qualified professional. You are responsible for reviewing and verifying any output before relying on it. The example is synthetic data, not a real business. Platform names are trademarks of their owners, named only to describe a payee.</p>
+</footer>
+</body>
+</html>

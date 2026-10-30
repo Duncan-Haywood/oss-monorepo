@@ -1,0 +1,60 @@
+{
+  "date": "2026-10-29",
+  "session": "https://claude.ai/code/session_01E5sJKmqWT7QZnXFQgPsPn5",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Adding onboarding blogs and pitches for humans to onboard what their benefit is. Should be extensive. Very lacking currently. / What a human does in the repo and what benefits they get: develop ideas, personally monetize them freely and legally, little demand, just ideas input; what's developed stays MIT or similar and public but they can deploy or clone and run for profit; they get free development, about $8000 per month of AI coding agent compute for the repo.",
+  "input_sha256": "72d2bfcc837a43b57ea1c30eab14c6739d95c161818d40be060dbd214cd4e729",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-29T23:38:10Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 11504,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/*/llms.txt",
+      "issue": "Several llms.txt files and ventures/README.md still name the retired monorepo-projects host; build.mjs rewrites it on publish, so the served files are fine, but writers copying links from source get the wrong host."
+    },
+    {
+      "file": "ventures/wall-framing-takeoff/llms.txt",
+      "issue": "Says 'no valleys' while the README describes valleys for cross wings."
+    },
+    {
+      "file": "ventures/sales-agent/llms.txt",
+      "issue": "40-reply set figures (24 named, 17 right) differ from the README table (23 named, 16 right)."
+    },
+    {
+      "file": "platform/ci/check_post_frontmatter.py",
+      "issue": "Did not check seo_title length, so three posts over the 70-char budget reached main and broke writing.mjs (every site build). Added the check."
+    },
+    {
+      "file": "platform/pages/check.mjs",
+      "issue": "The llms.txt date rule (6c847325) assumed 'no file dated' means 'no git history'; a partial (3,000-commit) history dates only some products, so every main deploy failed from the day it landed (109 problems on main). Fixed in build.mjs/lastmod.mjs: shallow builds stamp 'on or before <history start>'."
+    }
+  ],
+  "deviations": [],
+  "writeups": [],
+  "goal": null,
+  "notes": "Owner-directed run: a 16-post 'Start here' onboarding series (hub, a 'bring an idea' pitch: free AI development, MIT, run it for profit, honest limits; one post per flagship and per audience). New blog topic 'start' (tag start-here). $8,000/month compute is the owner's figure from the session message, not in any repo file. Checks run here: check_post_frontmatter.py exit 0; post_similarity.py --min 0.25 no start-here pair; check_md_links.py no dead links in 4948 files; node --test platform/pages/writing.test.mjs 21/21; test_check_post_frontmatter 17/17; writing.mjs build wrote 1173 pages with a 'Start here' chip of 16. Also fixed main's broken deploy: 4 overlong seo_titles (one merged mid-run) and the llms.txt date rule on shallow history. Local proof: depth-60 clone, node build.mjs + node check.mjs went from 1,311 problems to 'looks publishable: 1320 products, 5567 pages, no dead links'; full platform/pages suite 1334/1334.",
+  "corrections": [],
+  "redteam": null
+}

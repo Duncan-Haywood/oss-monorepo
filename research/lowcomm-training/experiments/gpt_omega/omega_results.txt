@@ -1,0 +1,7 @@
+H=4 rand-k excess by omega: {3.0: 0.0087, 7.0: 0.0188, 15.0: 0.0402, 31.0: 0.0772}
+  cell A (n=3): realised omega 10.7  measured +0.0261  omega-pred +0.0287 (err +0.0027)  p-only pred +0.0087 (err -0.0174)
+  cell B (n=3): realised omega 21.6  measured +0.0596  omega-pred +0.0555 (err -0.0042)  p-only pred +0.0188 (err -0.0408)
+H=64 rand-k excess by omega: {3.0: 0.0101, 7.0: 0.0366, 15.0: 0.0987, 31.0: 0.1834}
+  cell A (n=3): realised omega 12.7  measured +0.0762  omega-pred +0.0810 (err +0.0048)  p-only pred +0.0101 (err -0.0661)
+  cell B (n=3): realised omega 25.0  measured +0.1481  omega-pred +0.1518 (err +0.0037)  p-only pred +0.0366 (err -0.1115)
+H6d-i all four within 0.02: True | H6d-ii omega beats p-only in 4 of 4

@@ -16,6 +16,16 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>Zita and the Bread in the Oven</title>
+      <link>https://example.invalid/hearth-and-horizon/zita-and-the-bread-in-the-oven.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/zita-and-the-bread-in-the-oven.html</guid>
+      <pubDate>Thu, 29 Oct 2026 12:00:00 GMT</pubDate>
+      <description>A bedtime story about Saint Zita, a servant girl in a big house in Lucca who did every ordinary job well and always stopped to pray, and about the old tale of the morning the bread was found baked while she was at church. Told from what is recorded of her life, with the bread marked as a legend and a note for grown-ups on what is history and what is our own addition. For ages 3 to 8, about eight minutes read aloud. Her feast day is the 27th of April. Setting: Lucca, Italy, about seven hundred and fifty years ago. Read the full text at https://example.invalid/hearth-and-horizon/zita-and-the-bread-in-the-oven.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A bedtime story about Saint Zita, a servant girl in a big house in Lucca who did every ordinary job well and always stopped to pray, and about the old tale of the morning the bread was found baked while she was at church. Told from what is recorded of her life, with the bread marked as a legend and a note for grown-ups on what is history and what is our own addition. For ages 3 to 8, about eight minutes read aloud. Her feast day is the 27th of April.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>Patrick and the Hundred Prayers</title>
       <link>https://example.invalid/hearth-and-horizon/patrick-and-the-hundred-prayers.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/patrick-and-the-hundred-prayers.html</guid>

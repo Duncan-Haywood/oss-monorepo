@@ -1,0 +1,17 @@
+honest steps flagged (glob thresholds, leave-one-seed-out, C=1.5): 0.0000 of 2400
+honest steps flagged (step thresholds, leave-one-seed-out, C=1.5): 0.0046 of 2400
+k=1   topk     n=20 harmful  9 (0.45) median |dL| 0.0088  unconstrained plant flagged glob 1.00 step 1.00  median scale 1.000  median ||step||/||honest|| 130.00
+k=1   fit_glob n=20 harmful  0 (0.00) median |dL| 0.0001  unconstrained plant flagged glob 1.00 step 1.00  median scale 0.019  median ||step||/||honest|| 2.37
+k=1   fit_step n=20 harmful  0 (0.00) median |dL| 0.0000  unconstrained plant flagged glob 1.00 step 1.00  median scale 0.006  median ||step||/||honest|| 1.16
+k=4   topk     n=20 harmful 16 (0.80) median |dL| 0.0251  unconstrained plant flagged glob 1.00 step 1.00  median scale 1.000  median ||step||/||honest|| 311.86
+k=4   fit_glob n=20 harmful  0 (0.00) median |dL| 0.0002  unconstrained plant flagged glob 1.00 step 1.00  median scale 0.012  median ||step||/||honest|| 3.52
+k=4   fit_step n=20 harmful  0 (0.00) median |dL| 0.0000  unconstrained plant flagged glob 1.00 step 1.00  median scale 0.003  median ||step||/||honest|| 1.31
+k=16  topk     n=20 harmful 18 (0.90) median |dL| 0.0898  unconstrained plant flagged glob 1.00 step 1.00  median scale 1.000  median ||step||/||honest|| 709.36
+k=16  fit_glob n=20 harmful  0 (0.00) median |dL| 0.0003  unconstrained plant flagged glob 1.00 step 1.00  median scale 0.007  median ||step||/||honest|| 4.98
+k=16  fit_step n=20 harmful  0 (0.00) median |dL| 0.0001  unconstrained plant flagged glob 1.00 step 1.00  median scale 0.003  median ||step||/||honest|| 1.90
+k=64  topk     n=20 harmful 19 (0.95) median |dL| 0.1747  unconstrained plant flagged glob 1.00 step 1.00  median scale 1.000  median ||step||/||honest|| 1321.76
+k=64  fit_glob n=20 harmful  0 (0.00) median |dL| 0.0004  unconstrained plant flagged glob 1.00 step 1.00  median scale 0.004  median ||step||/||honest|| 4.98
+k=64  fit_step n=20 harmful  0 (0.00) median |dL| 0.0002  unconstrained plant flagged glob 1.00 step 1.00  median scale 0.001  median ||step||/||honest|| 2.11
+k=256 topk     n=20 harmful 20 (1.00) median |dL| 0.2701  unconstrained plant flagged glob 1.00 step 1.00  median scale 1.000  median ||step||/||honest|| 2663.99
+k=256 fit_glob n=20 harmful  0 (0.00) median |dL| 0.0006  unconstrained plant flagged glob 1.00 step 1.00  median scale 0.002  median ||step||/||honest|| 4.98
+k=256 fit_step n=20 harmful  0 (0.00) median |dL| 0.0002  unconstrained plant flagged glob 1.00 step 1.00  median scale 0.001  median ||step||/||honest|| 2.11

@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%235f1b7e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3ES%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Rebuild The Schedule Or Change One Shift? What A Call-Out Costs</title>
+  <meta name="description" content="A posted schedule, one person out on Wednesday: rebuilding the whole week moved 4 to 10 other people's shifts and still left the shift open in three of five cases. Measured, with short-notice premiums priced.">
+  <meta property="og:title" content="Rebuild the week or change one shift?">
+  <meta property="og:description" content="Same cafe, five call-outs. Whole-week rebuild versus a single-shift fix, measured with the free roster builder.">
+  <link rel="canonical" href="./schedule-change-after-posting.html">
+    <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Should I rebuild the whole schedule when someone calls out?", "acceptedAnswer": {"@type": "Answer", "text": "Usually not. On the invented example here, rebuilding the whole week moved 4 to 10 other people's shifts and still left the caller's shift open in three of five cases. Change the one shift first, and rebuild only if nobody fits."}}, {"@type": "Question", "name": "Do I owe extra pay when I change a posted schedule?", "acceptedAnswer": {"@type": "Answer", "text": "Some cities and states require a premium when an employer changes a posted schedule inside a notice window, and usually exempt changes the employee asked for. This page does not say whether a rule applies to you. The roster builder's changes report prices a window and premium that you enter, so you can see the size of the exposure before you decide."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2330; background: #f2f4f7; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.05; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #1f5f86; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d9dfe6; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 14px; border-radius: 8px; background: #1f5f86; color: #ffffff; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4c5a68; }
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; Shift roster builder</a></p>
+  <h1>A call-out after you posted the schedule: rebuild the week or change one shift?</h1>
+  <p>The easy move is to press "build" again with the caller marked off. The cost is that the solver does not know your staff already planned around the posted week, so it can move people who did nothing wrong. Where predictive-scheduling rules apply, each of those moves can also owe a premium. We measured how much churn a rebuild causes on one invented cafe.</p>
+  <p><a class="cta" href="./">Open the free roster builder</a></p>
+  <h2>The experiment</h2>
+  <p>The built-in seven-person cafe, rosters built with a 10-hour rest gap. Posted week: $3,622 payroll, 3 shifts open. Then each person who works Wednesday cannot make it, one case at a time. We reissued the week by rebuilding it from scratch with that person off Wednesday, and counted what changed against the posted roster, other than the caller's own shift. Premium columns assume the change is made Tuesday at 5pm, a 14-day notice window and one hour of the person's wage per changed shift for anyone but the caller (who asked for it). Those are our assumptions to show the arithmetic, not any city's rule.</p>
+  <table>
+    <tr><th>Who is out Wednesday</th><th class="n">Others' shifts changed</th><th class="n">People affected</th><th class="n">Premium at 1 h each</th><th class="n">Shifts open after rebuild</th></tr>
+    <tr><td>Ana</td><td class="n">4</td><td class="n">2</td><td class="n">$73</td><td class="n">4</td></tr>
+    <tr><td>Ben</td><td class="n">5</td><td class="n">2</td><td class="n">$93</td><td class="n">4</td></tr>
+    <tr><td>Dev</td><td class="n">10</td><td class="n">4</td><td class="n">$174</td><td class="n">4</td></tr>
+    <tr><td>Fay</td><td class="n">7</td><td class="n">3</td><td class="n">$118</td><td class="n">3</td></tr>
+    <tr><td>Gus</td><td class="n">4</td><td class="n">2</td><td class="n">$68</td><td class="n">3</td></tr>
+  </table>
+  <h2>What it shows</h2>
+  <p>Before the call-out the week had 3 shifts open. After a rebuild it had 4 open in three of the five cases, so the rebuild moved between 4 and 10 other shifts and the caller's shift stayed empty anyway. In the other two cases (Fay and Gus) the rebuild found a cover, but by moving 7 and 4 other shifts, which is the case where a premium is most likely to apply. Changing only the caller's shift, to the cheapest person who fits, touched one shift in every case; on this week nobody fit, so the shift was left open and flagged for you to call around, which is an honest answer a rebuild hides. One invented week and one synthetic set of staff, not a benchmark; your numbers depend on how tight your week is.</p>
+  <p><a class="cta" href="./">Try it on your own week</a></p>
+  <h2>How to do it by hand</h2>
+  <h3>1. Fix the one shift first</h3>
+  <p>List who is free and rested for exactly that shift, cheapest first, and ask them. The roster builder's call-out finder does this without moving anyone else.</p>
+  <h3>2. Rebuild only if nobody fits</h3>
+  <p>Then compare the rebuilt week with the posted one and look at who it moved before you publish.</p>
+  <h3>3. Price the changes before sending them</h3>
+  <p>If a notice rule might apply to you, enter its window and premium in the changes report and see the total. Check the actual rules where you operate; this page cannot tell you whether one applies.</p>
+  <h2>Questions</h2>
+  <h3>Should I rebuild the whole schedule when someone calls out?</h3>
+  <p>Usually not. On the invented example here, rebuilding the whole week moved 4 to 10 other people's shifts and still left the caller's shift open in three of five cases. Change the one shift first, and rebuild only if nobody fits.</p>
+  <h3>Do I owe extra pay when I change a posted schedule?</h3>
+  <p>Some cities and states require a premium when an employer changes a posted schedule inside a notice window, and usually exempt changes the employee asked for. This page does not say whether a rule applies to you. The roster builder's changes report prices a window and premium that you enter, so you can see the size of the exposure before you decide.</p>
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not legal, tax or financial advice, and it does not tell you what scheduling law requires of you. The example is invented and the numbers come from running this tool's own engine on it (<code>eval/callout-churn-bench.mjs</code>).</p>
+    <p>Everything the roster builder does runs in your browser; your staff list is never uploaded. Free and open source: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional. See also <a href="how-to-cover-a-shift-when-someone-calls-out.html">covering a call-out</a> and <a href="how-to-handle-time-off-requests.html">time-off requests</a>.</p>
+  </footer>
+</body>
+</html>
