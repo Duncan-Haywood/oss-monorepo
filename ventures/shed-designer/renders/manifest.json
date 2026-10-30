@@ -2,6 +2,56 @@
  "note": "Written by make-renders.mjs; do not edit by hand.",
  "renderVersion": 1,
  "designs": {
+  "10x10-barn": {
+   "key": "10x10 barn",
+   "name": "10x10 gambrel barn with loft",
+   "hash": "cfcc598c4229c309",
+   "designKey": "8be7e63f",
+   "files": {
+    "hero": {
+     "file": "10x10-barn-hero.webp",
+     "w": 960,
+     "h": 640,
+     "bytes": 17812,
+     "alt": "3D render of the 10x10 gambrel barn with loft, 10 by 10 ft, seen from the front corner: white siding, charcoal shingles, 6/12 roof, 13' 10-1/8\" to the peak, showing two 14\" windows on the front (eave side)."
+    },
+    "card": {
+     "file": "10x10-barn-card.webp",
+     "w": 480,
+     "h": 320,
+     "bytes": 6438,
+     "alt": "3D render of the 10x10 gambrel barn with loft, 10 by 10 ft, seen from the front corner: white siding, charcoal shingles, 6/12 roof, 13' 10-1/8\" to the peak, showing two 14\" windows on the front (eave side)."
+    },
+    "front": {
+     "file": "10x10-barn-front.webp",
+     "w": 480,
+     "h": 320,
+     "bytes": 4714,
+     "alt": "3D render of the 10x10 gambrel barn with loft, 10 by 10 ft, seen from the front: white siding, charcoal shingles, 6/12 roof, 13' 10-1/8\" to the peak, showing two 14\" windows."
+    },
+    "side": {
+     "file": "10x10-barn-side.webp",
+     "w": 480,
+     "h": 320,
+     "bytes": 3230,
+     "alt": "3D render of the 10x10 gambrel barn with loft, 10 by 10 ft, seen from the gable end: white siding, charcoal shingles, 6/12 roof, 13' 10-1/8\" to the peak."
+    },
+    "back": {
+     "file": "10x10-barn-back.webp",
+     "w": 480,
+     "h": 320,
+     "bytes": 3966,
+     "alt": "3D render of the 10x10 gambrel barn with loft, 10 by 10 ft, seen from the back: white siding, charcoal shingles, 6/12 roof, 13' 10-1/8\" to the peak."
+    },
+    "framing": {
+     "file": "10x10-barn-framing.webp",
+     "w": 640,
+     "h": 427,
+     "bytes": 22752,
+     "alt": "Framing of the 10x10 gambrel barn with loft (10 by 10 ft) with the siding, sheathing and roofing removed: studs at 16\" on centre, rafters at 24\" and a 2x6 ridge board with rafter ties."
+    }
+   }
+  },
   "10x12": {
    "key": "10x12",
    "name": "10x12 gable shed",

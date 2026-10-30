@@ -6,6 +6,7 @@
 // take the same path.
 
 import { fmtFtIn, fmtIn } from './lumber.mjs';
+import { kneeRun } from './gambrel.mjs';
 import { axisStart, wallFaceLength } from './model.mjs';
 
 const NS = 'http://www.w3.org/2000/svg';
@@ -288,11 +289,20 @@ export function drawEnd(svg, design, dims, hooks) {
   const H = design.wallHeight;
   const o = design.overhang;
   const t = design.pitch / 12;
-  const rise = (W / 2) * t;
+  // A gambrel's end: the lower slope to the knee, then the upper slope (the pitch) to the peak.
+  const gam = design.style === 'gambrel';
+  const yk = gam ? kneeRun(design) : 0;
+  const kneeRise = gam ? yk * (design.gambrelLower / 12) : 0;
+  const riseOf = (p) => kneeRise + (W / 2 - yk) * (p / 12);
+  /** The roof line from eave tip to eave tip, as SVG points, for walls H, pitch p and overhang oh. */
+  const roofPts = (h, p, oh) => (gam
+    ? `0,${Y(h)} ${yk},${Y(h + kneeRise)} ${W / 2},${Y(h + riseOf(p))} ${W - yk},${Y(h + kneeRise)} ${W},${Y(h)}`
+    : `${-oh},${Y(h - oh * (p / 12))} ${W / 2},${Y(h + riseOf(p))} ${W + oh},${Y(h - oh * (p / 12))}`);
+  const rise = riseOf(design.pitch);
   // Room above the roof for four more pitch steps (to the 14/12 limit), not
   // always the full 14/12: reserving that letterboxed an 8 ft gable end to
   // about 76 px wide on a phone. A steeper drag grows the view upward as it goes.
-  const roomRise = Math.min((W / 2) * (14 / 12), rise + (W / 2) * (4 / 12));
+  const roomRise = Math.min(riseOf(14), rise + (W / 2) * (4 / 12));
   const pad = 40;
   const padRight = 80; // the wall-height label sits to the right of the eave
   const top = H + roomRise + 20;
@@ -304,18 +314,18 @@ export function drawEnd(svg, design, dims, hooks) {
   const Y = (z) => top - z;
   const g = el('g', {}, svg);
   el('line', { x1: -o - 20, y1: Y(0), x2: W + o + 20, y2: Y(0), class: 'ground' }, g);
-  el('polygon', { points: `0,${Y(0)} ${W},${Y(0)} ${W},${Y(H)} ${W / 2},${Y(H + rise)} 0,${Y(H)}`, class: 'endwall' }, g);
-  el('polyline', { points: `${-o},${Y(H - o * t)} ${W / 2},${Y(H + rise)} ${W + o},${Y(H - o * t)}`, class: 'roofline-edit' }, g);
+  el('polygon', { points: `0,${Y(0)} ${W},${Y(0)} ${roofPts(H, design.pitch, 0).split(' ').reverse().join(' ')}`, class: 'endwall' }, g);
+  el('polyline', { points: roofPts(H, design.pitch, o), class: 'roofline-edit' }, g);
   const lab = (x, y, s, anchor = 'middle') => { const e = el('text', { x, y, class: 'plan-label', 'text-anchor': anchor }, g); e.textContent = s; };
-  lab(W / 2, Y(H + rise) - 12, `${design.pitch}/12`);
+  lab(W / 2, Y(H + rise) - 12, gam ? `${design.gambrelLower}/12 and ${design.pitch}/12` : `${design.pitch}/12`);
   lab(W + o + 6, Y(H / 2), `${fmtFtIn(H)} wall`, 'start');
   lab(W / 2, Y(0) + 22, `${fmtFtIn(W)} gable end`);
   lab(-o, Y(H - o * t) + 18, `${fmtIn(o)}`);
   const handles = [
-    { id: 'peak', x: W / 2, z: H + rise, cursor: 'ns-resize', label: 'Drag the peak to change the roof pitch' },
+    { id: 'peak', x: W / 2, z: H + rise, cursor: 'ns-resize', label: gam ? 'Drag the peak to change the upper roof slope' : 'Drag the peak to change the roof pitch' },
     { id: 'wall', x: W, z: H, cursor: 'ns-resize', label: 'Drag to change the wall height' },
     { id: 'eave', x: -o, z: H - o * t, cursor: 'ew-resize', label: 'Drag to change the eave overhang' },
-  ];
+  ].filter((hd) => !(gam && hd.id === 'eave')); // a gambrel has no eave overhang
   for (const hd of handles) {
     const now = hd.id === 'peak' ? `${design.pitch}/12` : hd.id === 'wall' ? fmtFtIn(H) : fmtIn(o);
     const { hit: c, moveTo } = handleAt({ hit: g, dot: g }, hd.x, Y(hd.z), upp, { style: `cursor:${hd.cursor}`, tabindex: 0, role: 'button', 'aria-label': `${hd.label} (now ${now}); arrow keys work too`, 'data-key': `end-${hd.id}` });
@@ -335,12 +345,12 @@ export function drawEnd(svg, design, dims, hooks) {
         const p = svgPoint(svg, ev);
         const z = top - p.y;
         const next = { ...design };
-        if (hd.id === 'peak') { next.pitch = pitchFromRise(z - H, W); next.autoPitch = false; }
+        if (hd.id === 'peak') { next.pitch = gam ? clamp(Math.round(((z - H - kneeRise) / (W / 2 - yk)) * 12), 2, 14) : pitchFromRise(z - H, W); next.autoPitch = false; }
         if (hd.id === 'wall') { next.wallHeight = clamp(snap(z, 1), 60, 144); next.autoWall = false; }
         if (hd.id === 'eave') { next.overhang = clamp(snap(-p.x, 1), 0, 36); next.autoOverhang = false; }
         last = next;
-        const t2 = next.pitch / 12; const H2 = next.wallHeight; const o2 = next.overhang; const r2 = (W / 2) * t2;
-        ghost.setAttribute('points', `${-o2},${Y(H2 - o2 * t2)} ${W / 2},${Y(H2 + r2)} ${W + o2},${Y(H2 - o2 * t2)}`);
+        const t2 = next.pitch / 12; const H2 = next.wallHeight; const o2 = next.overhang; const r2 = riseOf(next.pitch);
+        ghost.setAttribute('points', roofPts(H2, next.pitch, o2));
         const at = hd.id === 'peak' ? [W / 2, H2 + r2] : hd.id === 'wall' ? [W, H2] : [-o2, H2 - o2 * t2];
         moveTo(at[0], Y(at[1]));
         // Keep the peak and its label in sight: extend the view upward (same

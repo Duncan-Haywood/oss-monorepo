@@ -107,6 +107,7 @@ test('every labelled dimension says the length it spans, to 1/16"', () => {
 test('the rafter detail dimensions the board from long point to long point', () => {
   for (const { name, shed, sheets } of sets) {
     const sheet = sheets.find((s) => s.id === 'rafter');
+    if (shed.design.style === 'gambrel') { assert.ok(!sheet && sheets.some((s) => s.id === 'truss'), name); continue; }
     const d = sheet.items.find((it) => it.t === 'dim' && /cut length/.test(it.text || ''));
     assert.ok(Math.abs(Math.hypot(d.b[0] - d.a[0], d.b[1] - d.a[1]) - shed.dims.rafterCut) < 1 / 16, name);
   }
@@ -117,9 +118,12 @@ test('gable studs stop at the roof line drawn over them', () => {
     for (const side of ['left', 'right']) {
       const sheet = sheets.find((s) => s.id === `wall-${side}`);
       const roof = sheet.items.find((it) => it.t === 'poly' && it.cls === 'roofline');
-      const [[x0, z0], [x1, z1]] = roof.pts;
-      const mid = (x0 + roof.pts[roof.pts.length - 1][0]) / 2;
-      const underside = (x) => z0 + (Math.min(x, 2 * mid - x) - x0) * (z1 - z0) / (x1 - x0);
+      // The roof line is a polyline (one bend at a gable's ridge, three on a gambrel).
+      const underside = (x) => {
+        const i = Math.max(0, roof.pts.findIndex((p, j) => j + 1 < roof.pts.length && x <= roof.pts[j + 1][0] + 1e-9));
+        const [[x0, z0], [x1, z1]] = [roof.pts[i], roof.pts[i + 1]];
+        return z0 + ((x - x0) * (z1 - z0)) / (x1 - x0 || 1);
+      };
       const studs = sheet.items.filter((it) => it.t === 'poly' && it.closed && it.pts.length === 4 && it.pts[2][1] !== it.pts[3][1]);
       assert.ok(studs.length >= 2, `${name} ${side}: gable studs drawn`);
       for (const st of studs) for (const [x, z] of [st.pts[2], st.pts[3]]) assert.ok(Math.abs(z - underside(x)) < 0.02, `${name} ${side}: stud top ${z.toFixed(2)} vs roof ${underside(x).toFixed(2)} at ${x.toFixed(2)}`);

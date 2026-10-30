@@ -59,7 +59,8 @@ test('gusset nails are counted from the force and carry it', () => {
 });
 
 test('every preset frames as trusses: complete, connected, checked and nothing floats', () => {
-  for (const [name, mk] of Object.entries(PRESETS)) {
+  // A gambrel preset is framed as its own trusses (gambrel.test.mjs), not these.
+  for (const [name, mk] of Object.entries(PRESETS).filter(([, mk]) => mk().style !== 'gambrel')) {
     for (const extra of [{}, { overhang: 0 }]) {
       const s = buildShed(normalize({ ...mk(), ...extra, roofType: 'truss' }));
       const inner = s.dims.rafterCenters.length - 2;

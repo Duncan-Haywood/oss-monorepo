@@ -129,7 +129,7 @@ export const isLap = (type) => Object.prototype.hasOwnProperty.call(LAP_PRODUCTS
 
 /**
  * @typedef {{ s0: number, s1: number, z0: number, z1: number }} Box
- * @typedef {{ wall: string, len: number, bottom: number, top: (s: number) => number, peakAt?: number,
+ * @typedef {{ wall: string, len: number, bottom: number, top: (s: number) => number, peakAt?: number, bends?: number[],
  *   from: number, to: number, holes: Box[], wood: Box[], maxPlank: number, stagger: number }} Face
  * @typedef {{ wall: string, course: number, zb: number, a: number, b: number, len: number, rake: boolean, notched: boolean, pts: [number, number][] }} LapPiece
  */
@@ -239,7 +239,18 @@ export function layoutFace(face, spec) {
 function outline(face, s0, s1, zb, zt, notches) {
   const brk = new Set([s0, s1]);
   if (face.peakAt !== undefined && face.peakAt > s0 && face.peakAt < s1) brk.add(face.peakAt);
+  // A gambrel's knees bend the roof line too.
+  for (const s of face.bends || []) if (s > s0 && s < s1) brk.add(s);
   for (const h of notches) for (const s of [h.s0, h.s1]) if (s > s0 && s < s1) brk.add(s);
+  // Where the course's top meets the roof line, so the piece follows the rake instead of cutting a corner off it.
+  const roofAt = [...brk].sort((p, q) => p - q);
+  for (let k = 0; k + 1 < roofAt.length; k++) {
+    let [lo, hi] = [roofAt[k], roofAt[k + 1]];
+    const f = (s) => face.top(s) - zt;
+    if (f(lo) * f(hi) >= 0) continue;
+    for (let n = 0; n < 40; n++) { const m = (lo + hi) / 2; if (f(m) * f(lo) > 0) lo = m; else hi = m; }
+    brk.add((lo + hi) / 2);
+  }
   const xs = [...brk].sort((p, q) => p - q);
   const topAt = (s, mid) => {
     let z = Math.min(zt, face.top(s));
