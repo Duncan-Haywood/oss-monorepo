@@ -163,7 +163,7 @@ export function gambrelTrussDetail(shed) {
   items.push(text([W / 2, zr + 10], `peak: plumb cut, ${g.ridgeDeg} deg off square`, 8));
   return {
     id: 'truss', title: 'Gambrel truss detail',
-    note: `${d.rafterSize} chords, ${d.gambrelLower}/12 lower and ${d.pitch}/12 upper. Gussets (dashed): 15/32" plywood both faces, ${g.gusset.knee}" along each chord at the knees, ${g.gusset.peak}" at the peak; 8d commons 3" apart in rows 2" apart, staggered (${g.nailsPerKnee} a knee, ${g.nailsPerPeak} a peak, both faces). Snap the outline full size on the deck, screw stop blocks round it and build every truss in that jig.`,
+    note: `${d.rafterSize} chords, ${d.gambrelLower}/12 lower and ${d.pitch}/12 upper. Gussets (dashed): 15/32" plywood both faces, ${g.gusset.knee}" along each chord at the knees${g.gusset.kneeExt ? ` and reaching ${fmtIn(g.gusset.kneeExt)} past the chords' inside edges into the corner (deep enough across the mitre for the knee's bending)` : ''}, ${g.gusset.peak}" at the peak; 8d commons 3" apart in rows 2" apart, staggered (${g.nailsPerKnee} a knee, ${g.nailsPerPeak} a peak, both faces). Snap the outline full size on the deck, screw stop blocks round it and build every truss in that jig.`,
     items,
   };
 }
