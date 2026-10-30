@@ -17,6 +17,8 @@ import { quoteRequest, mailtoLink, STORES } from './quote.mjs';
 import { PRODUCTS } from './products.mjs';
 import { storeComparison, swapsFor, storeTotals, storeList, pricesFor } from './catalog.mjs';
 import { simplify, cutMetrics, budget, laborHours } from './simplify.mjs';
+import { showCosts, wireCosts, bridgeHtml, breakdownOf, deltaSentence } from './costview.mjs';
+import { costDelta, deltaPhrase } from './costs.mjs';
 
 const $ = (sel) => /** @type {any} */ (document.querySelector(sel));
 const $$ = (sel) => /** @type {any[]} */ ([...document.querySelectorAll(sel)]);
@@ -477,6 +479,7 @@ function renderNow() {
   drawEnd($('#endview'), shed.design, shed.dims, hooks);
   viewer?.show(shed);
   renderSummary(shed, est);
+  showCosts(shed, est, { index: state.active, name: d.name });
   const sc = renderStructure(shed);
   const worst = sc.rows.reduce((m, x) => Math.max(m, x.ratio), 0);
   const cc = connectionChecks(shed);
@@ -674,12 +677,15 @@ function wire() {
     const opts = generateCandidates(design(), state.prices);
     const thumbCanvas = document.createElement('canvas'); thumbCanvas.width = 480; thumbCanvas.height = 320;
     const tv = createViewer(thumbCanvas);
+    const here = breakdownOf(design(), state.prices);
     $('#option-cards').innerHTML = opts.map((o, i) => {
+      const change = deltaPhrase(costDelta(here, breakdownOf(o.design, state.prices)));
       let img = '';
       if (tv) { tv.show(buildShed(o.design), { refit: true }); img = `<img src="${tv.snapshot()}" alt="3D view of option ${i + 1}" width="480" height="320">`; }
       return `<article class="card"><div>${img}</div><h3 class="h4">${i === 0 ? '<span class="pill">best value</span> ' : ''}${esc(o.label)}</h3>
         <dl><div><dt>Total</dt><dd>${money(o.total)}</dd></div><div><dt>Lumber</dt><dd>${money(o.lumber)}, ${o.boards} boards</dd></div>
         <div><dt>Roof</dt><dd>${esc(o.summary)}</dd></div><div><dt>Structure</dt><dd class="${o.ok ? 'ok' : 'fail'}">${o.ok ? 'passes' : 'over capacity'} (${Math.round(o.worst * 100)}%)</dd></div>
+        ${change ? `<div><dt>Against yours</dt><dd>${esc(change)}</dd></div>` : ''}
         ${o.warnings ? `<div><dt>Warnings</dt><dd>${o.warnings}</dd></div>` : ''}</dl>
         <button type="button" data-option="${i}">Use this one</button></article>`;
     }).join('');
@@ -707,9 +713,13 @@ function wire() {
         const thumbCanvas = document.createElement('canvas'); thumbCanvas.width = 480; thumbCanvas.height = 320;
         const tv = createViewer(thumbCanvas);
         let img = '';
+        const fromB = breakdownOf(design(), state.prices);
+        const toB = breakdownOf(b.design, state.prices);
         if (tv) { tv.show(buildShed(b.design), { refit: true }); img = `<img src="${tv.snapshot()}" alt="3D view of the cheaper build" width="480" height="320" style="max-width:100%;height:auto">`; }
         html += `<article class="card">${img}<h4>${money(b.total)} of materials, ${money(r.base.total - b.total)} less than your ${money(r.base.total)}; about ${Math.round(b.hours)} hours of work (yours: ${Math.round(r.base.hours)})</h4>
+          <p>${esc(deltaSentence(fromB, toB, 'By assembly'))}</p>
           <ol>${b.steps.map((st) => `<li>${esc(st.label)}: saves ${money(st.saving)}${st.hours ? ` (${st.materials >= 0 ? `${money(st.materials)} of materials` : `${money(-st.materials)} more materials`}, ${Math.abs(st.hours)} h ${st.hours > 0 ? 'less' : 'more'} work)` : ''}</li>`).join('')}</ol>
+          <details><summary>From your total to this one, by assembly</summary>${bridgeHtml(fromB, toB, { toLabel: 'This cheaper build' })}</details>
           <p class="muted">Same ${fmtFtIn(b.design.length)} x ${fmtFtIn(b.design.width)} footprint. Peak ${ft(b.peak)}${Math.abs(b.peak - r.base.peak) > 0.06 ? ` (yours is ${ft(r.base.peak)})` : ''}. ${r.evaluated} designs priced and checked.</p>
           <button type="button" data-budget-use>Use this one</button></article>`;
       }
@@ -815,6 +825,15 @@ function wire() {
     window.print();
   };
   $('#print-plans').addEventListener('click', () => printWhat('plans'));
+  wireCosts({
+    print: printWhat,
+    runBudget: () => {
+      const r = budget(design(), state.prices);
+      if (!r.best.steps.length) return null;
+      count('budget-bridges');
+      return { from: breakdownOf(design(), state.prices), to: breakdownOf(r.best.design, state.prices) };
+    },
+  });
   for (const id of ['#quote-store', '#quote-name', '#quote-phone', '#quote-zip', '#quote-date']) $(id).addEventListener('input', () => quoteCtx && renderQuote(quoteCtx.shed, quoteCtx.est));
   $('#quote-store').addEventListener('change', () => quoteCtx && renderQuote(quoteCtx.shed, quoteCtx.est));
   $('#buy-at').value = state.buyAt;
