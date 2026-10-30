@@ -2,7 +2,7 @@
 title: "Open-centre excavator valves cost cycle time, not only energy"
 date: 2026-10-30
 tags: [heavy-hydraulics, hydraulics, excavator, simulation]
-description: "A steady-state flow-sharing model of an open-centre parallel valve slows the dig phase by a median 6.4% when two actuators move at unequal pressure; load-sensing does not."
+description: "A steady-state flow-sharing model slows the dig phase of an open-centre parallel valve by a median 6.4% when two actuators move at unequal pressure."
 ---
 
 The [heavy-hydraulics programme](https://duncan-haywood.github.io/oss-monorepo/research/heavy-hydraulics/) has compared excavator circuits on shaft energy for a dozen steps. This step adds the other half, cycle time.
