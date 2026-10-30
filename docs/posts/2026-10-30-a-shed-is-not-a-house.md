@@ -2,7 +2,7 @@
 title: "A shed is not a house: framing the windows to the load"
 date: 2026-10-30
 tags: [shed-designer, framing, cost]
-description: "Every window got kings, jacks and a 2x6 header, house-style. Sizing headers to the load and framing small windows in a stud bay saves $20 to $48 a preset."
+description: "Every window got kings, jacks and a 2x6 header, house-style. Sizing headers to the load and framing small windows in a stud bay saves $13 to $48 a preset."
 ---
 
 The owner of the [shed designer](https://duncan-haywood.github.io/oss-monorepo/shed-designer/) looked at its framing and said it was built like a house. Every opening got the full package:
@@ -24,12 +24,12 @@ A shallower header also lets the tool's automatic walls come down 2", from 86-1/
 
 | Design | Price before | Price now | Budget search before | Budget search now |
 |---|---|---|---|---|
-| Starter 8x12 | $3,110.04 | $3,097.73 | $2,904.24 | $2,877.83 |
-| 8x10 | $3,016.82 | $3,008.88 | $2,360.99 | $2,340.35 |
-| 8x12 classic | $3,250.97 | $3,246.19 | $2,584.71 | $2,571.03 |
-| 10x12 | $3,692.52 | $3,684.12 | $2,978.30 | $2,943.58 |
-| 12x16 | $4,700.48 | $4,689.19 | $3,738.41 | $3,690.82 |
-| 8x8 lean | $2,547.58 | $2,542.98 | $1,863.24 | $1,863.24 |
+| Starter 8x12 | $3,110.04 | $3,097.73 | $2,904.24 | $2,877.25 |
+| 8x10 | $2,925.32 | $2,914.45 | $2,356.28 | $2,340.37 |
+| 8x12 classic | $3,195.05 | $3,193.26 | $2,584.13 | $2,571.03 |
+| 10x12 | $3,692.52 | $3,683.50 | $2,978.30 | $2,943.58 |
+| 12x16 | $4,648.11 | $4,636.84 | $3,738.41 | $3,690.82 |
+| 8x8 lean | $2,403.44 | $2,395.25 | $1,863.24 | $1,863.24 |
 
 The savings are modest, because framing lumber is about a quarter of a shed's materials. The rest is siding, roofing, paint, fasteners and trim. On the starter, the two windows moved into their bays save $8.30 of lumber each. On the 12x16, one stud fewer also brings the 16d nails down a box, which saves $25.
 
