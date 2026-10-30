@@ -153,7 +153,7 @@ Serve this folder as static files, for example `python3 -m http.server` here, th
 | `costlevers.mjs` | what each foundation, floor, door and window choice costs against your design |
 | `instructions.mjs` | step-by-step build instructions from the design |
 | `app.mjs`, `index.html` | the page |
-| `make-size-pages.mjs`, `how-much-lumber-for-a-*-shed.html`, `shed-lumber-list-by-size.html` | one page per common size (8x8 to 12x24) written from the engine; `node make-size-pages.mjs` rewrites them and `size-pages.test.mjs` fails if they drift |
+| `make-size-pages.mjs`, `how-much-lumber-for-a-*-shed.html`, `shed-lumber-list-by-size.html` | one page per common size (8x8 to 16x24) written from the engine; `node make-size-pages.mjs` rewrites them and `size-pages.test.mjs` fails if they drift |
 | `shed-plans-with-cut-list.html` | the 8x12 worked example, for people searching the question |
 
 ## No warranty
