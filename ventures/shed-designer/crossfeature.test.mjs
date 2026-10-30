@@ -6,6 +6,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { buildShed, PRESETS, BLOCKS } from './model.mjs';
+import { estimate } from './estimate.mjs';
 import { structuralChecks } from './checks.mjs';
 import { connectionChecks } from './connections.mjs';
 import { invariants } from './invariants.mjs';
@@ -30,7 +31,8 @@ export const AXES = {
   rafterSeat: ['birdsmouth', 'connector'],
   roofCover: ['shingles', 'metal'],
   studSpacing: [16, 24],
-  wallTrim: ['1x4', 'none'],
+  wallTrim: ['1x4', '5/4', 'none'],
+  climate: ['mild', 'freezing'],
   interior: ['none', 'OSB', 'plywood', 'drywall', 'beadboard', 'pegboard', 'teen bedroom'],
   door: ['as drawn', 'site-built'],
 };
@@ -165,5 +167,31 @@ test('every design on a search front, and every named pick, passes as shipped an
   for (const s of [...r.front, ...named]) {
     shipsClean(s.design, `${s.label || ''} ${s.design.length}x${s.design.width}`);
     assert.deepEqual(packetProblems(s.design), [], s.label);
+  }
+});
+
+// Round 4 options that act through another setting: the climate picks the fiber
+// cement plank (HZ5 or HZ10), and 5/4 trim comes in one length per maker, which
+// the haul limit (12 ft by default) must hear about.
+
+test('climate picks HZ5 plank where winters freeze and HZ10 elsewhere, on every preset', () => {
+  for (const [name, make] of Object.entries(PRESETS)) {
+    for (const climate of ['mild', 'freezing']) {
+      const d = { ...make(), sidingType: 'fiber cement', climate };
+      const keys = estimate(buildShed(d)).shopping.map((l) => l.source?.key || '');
+      const hz5 = keys.some((k) => /lapHardie5$/.test(k)), hz10 = keys.some((k) => /lapHardie$/.test(k));
+      assert.deepEqual([hz5, hz10], climate === 'freezing' ? [true, false] : [false, true], `${name} ${climate}`);
+    }
+  }
+});
+
+test('5/4 trim longer than the haul limit is said, and never when it fits', () => {
+  const said = (d) => estimate(buildShed(d)).notes.some((n) => /^Wall trim: .*haul limit/.test(n));
+  for (const [name, make] of Object.entries(PRESETS)) {
+    const base = { ...make(), wallTrim: '5/4' };
+    assert.equal(said({ ...base, sidingType: 'LP SmartSide lap', maxHaulFt: 12 }), true, `${name}: LP 540 is 16 ft`);
+    assert.equal(said({ ...base, sidingType: 'LP SmartSide lap', maxHaulFt: 16 }), false, `${name}: 16 ft fits`);
+    assert.equal(said({ ...base, sidingType: 'fiber cement', maxHaulFt: 12 }), false, `${name}: HardieTrim is 12 ft`);
+    assert.equal(said({ ...make(), wallTrim: '1x4', maxHaulFt: 12 }), false, `${name}: 1x4 comes in 8 and 12 ft`);
   }
 });

@@ -474,6 +474,11 @@ export function estimate(shed, prices = examplePrices()) {
       const n = r.boards.filter((b) => b.stock === Number(len)).length;
       if (n) line('Wall trim', label(k), n, 'piece', item(k), src(k));
     }
+    // With one stock length there is nothing shorter to fall back on, so say when it is longer than the haul limit.
+    const longest = Math.max(...r.boards.map((b) => b.stock));
+    if (d.maxHaulFt > 0 && longest > d.maxHaulFt * 12) {
+      notes.push(`Wall trim: ${d.wallTrim} trim comes in ${longest / 12} ft lengths only, longer than your ${d.maxHaulFt} ft haul limit. Have it delivered or cut to length where you buy it, or choose 1x4 trim.`);
+    }
   }
   if (shed.interior) {
     const it = shed.interior;
