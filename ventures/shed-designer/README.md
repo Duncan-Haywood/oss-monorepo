@@ -127,6 +127,15 @@ At the starting prices that design is 151 pieces from 84 boards. The cut sheet's
 - Sheet counts are layouts a builder can cut in two stages, never turning a piece's strength axis: cut across into sections and rip each section, or rip into strips and cut each across. Strips of different widths share a sheet, and a full-width piece's offcut is ripped for strips (the 8x10 preset's roof went from 5 sheets to 4). Over 840 floor and roof lists in a sweep of sizes, pitches and overhangs, 114 are still above the area's lower bound, which is not always reachable. The gable siding pieces above the lower panels nest in pairs, head to toe, when they slope the same way (1,614 panels to 1,332 over 474 swept designs); the second piece is turned end for end, so its shiplap edges face the other way and the joint it meets is butted and caulked over the stud. A cut of one sheet good is not laid out on a drawing.
 - It has been checked with hand-counted unit tests and by driving the page in headless Chromium. It has not been checked by building a shed from it.
 
+## Pictures of the designs
+
+`renders/` holds pictures of every "New design" preset, drawn by the tool's own WebGL viewer (`render3d.mjs`) in headless Chromium: a hero view from the front corner (960 x 640), front, gable end and back (480 x 320 each) and a framing cutaway with the coverings off (640 x 427), as WebP. `renders/manifest.json` gives each picture's file, size and alt text, written from the built design (`altFor` in `renders.mjs`); pages read it through `renderFor`. The marketing page shows the 8x12 classic.
+
+- **They can't drift.** Each design's scene hash covers the triangles and colours the viewer uploads, the shaders and draw loop, the view list and `RENDER_VERSION`. `renders.test.mjs` fails when a hash no longer matches, when a file is missing, stray or over budget, or when a page's alt text differs from the manifest. A price, a name or a change elsewhere in the tool does not mark them stale.
+- **Redraw:** `node make-renders.mjs` (only the stale designs; `--all` for every one; `--check` to test without a browser). It finds Playwright through `PLAYWRIGHT` or the cloud session's `/opt/node-tools` copy, takes about 6 s a design, and rewrites the alt text of every `<img src="renders/...">` in the venture's pages.
+- **Size budget:** 70 KB for a hero, 40 KB for any other view, 900 KB for the folder (`BUDGET` in `renders.mjs`). Each view is drawn at twice its size and scaled down, then encoded at the highest WebP quality from 0.8 down that fits. Six designs take about 350 KB. Only stale designs are redrawn, so the repository grows only when a picture really changes.
+- **Adding designs:** `renderTargets(extra)` takes a map of `{ key: () => design }`, so a gallery of optimised designs adds its own.
+
 ## Run it
 
 Serve this folder as static files, for example `python3 -m http.server` here, then open `http://localhost:8000/`. The page loads ES modules, which browsers will not load from `file://`. Tests: `node --test` (Node 22).
@@ -143,6 +152,7 @@ Serve this folder as static files, for example `python3 -m http.server` here, th
 | `drawings.mjs` | plan sheets as primitives, rendered to SVG and DXF |
 | `hoa.mjs`, `hoa-page.mjs`, `hoa-packet.html` | the HOA packet: coloured, dimensioned elevations, a summary of size and finishes, the site plan; printed to PDF by the browser |
 | `render3d.mjs` | WebGL viewer and ear-clipping triangulation |
+| `renders.mjs`, `make-renders.mjs` | pictures of the designs: views, alt text, size budget; the script that draws them in headless Chromium |
 | `looks.mjs` | Paint, trim, door and shingle colour families, custom hex colours |
 | `editor.mjs` | drag editing of the plan and end view |
 | `checks.mjs`, `structure.mjs` | structural checks (NDS, SPF No. 2) |
