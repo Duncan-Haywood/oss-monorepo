@@ -20,6 +20,8 @@ import { quoteRequest, mailtoLink, STORES } from './quote.mjs';
 import { PRODUCTS } from './products.mjs';
 import { storeComparison, swapsFor, storeTotals, storeList, pricesFor } from './catalog.mjs';
 import { simplify, cutMetrics, budget, laborHours } from './simplify.mjs';
+import { showCosts, wireCosts, bridgeHtml, breakdownOf, deltaSentence } from './costview.mjs';
+import { costDelta, deltaPhrase } from './costs.mjs';
 import { valueComparison, valueHtml } from './value.mjs';
 import { finishOptions, isHex, paletteOf, rgbToHex, SIDING_FINISHES, TRIM_FINISHES, DOOR_FINISHES, SHINGLE_FAMILIES } from './looks.mjs';
 import { leverOptions, leverTableHtml } from './costlevers.mjs';
@@ -255,6 +257,13 @@ function renderSummary(shed, est) {
   $('#live').textContent = `${fmtFtIn(d.length)} x ${fmtFtIn(d.width)}, ${fmtFtIn(d.wallHeight)} walls, ${d.pitch}/12 roof, ${d.overhang}" overhang`;
 }
 
+/** Where the money goes, of what is left to buy like the headline: lines you have or left out come off. */
+function renderCosts(shed, est) {
+  const off = new Set([...state.have, ...state.skip]);
+  const kept = est.shopping.filter((r) => !off.has(r.name));
+  showCosts(shed, { ...est, shopping: kept, total: Math.round(kept.reduce((t, r) => t + r.total, 0) * 100) / 100 }, { index: state.active, name: shed.design.name, off: est.shopping.length - kept.length });
+}
+
 function renderShopping(est) {
   let html = '';
   let section = '';
@@ -294,6 +303,7 @@ function renderShopping(est) {
       save();
       renderShopping(est);
       renderSummary(lastShed, est);
+      renderCosts(lastShed, est);
     });
   }
 }
@@ -387,8 +397,8 @@ function renderStores(est, d) {
   }
 }
 
-/** "3 x 8' boards" or "8' board". @param {{ count: number, stock: number, why?: string }} b */
-const boardName = (b) => `${b.count > 1 ? `${b.count} x ` : ''}${b.stock / 12}' board${b.count > 1 ? 's' : ''}${b.why ? ` <span class="muted">(${esc(b.why)})</span>` : ''}`;
+/** "3 x 8' boards" or "8' board". @param {{ count: number, stock: number }} b */
+const boardName = (b) => `${b.count > 1 ? `${b.count} x ` : ''}${b.stock / 12}' board${b.count > 1 ? 's' : ''}${/** @type {any} */ (b).why ? ` <span class="muted">(${esc(/** @type {any} */ (b).why)})</span>` : ''}`;
 
 function renderCuts(est) {
   let html = '';
@@ -558,6 +568,7 @@ function renderNow() {
   viewer?.show(shed, heatOption(shed, sc));
   renderUtilisation(shed, sc);
   renderSummary(shed, est);
+  renderCosts(shed, est);
   const worst = sc.rows.reduce((m, x) => Math.max(m, x.ratio), 0);
   const cc = connectionChecks(shed);
   $('#summary-lines').insertAdjacentHTML('beforeend', `<div><dt>Structure</dt><dd>${sc.ok ? `all ${sc.rows.length} load checks pass` : `${sc.rows.filter((x) => !x.ok).length} over capacity`} (highest ${Math.round(worst * 100)}%); ${cc.ok ? `all ${cc.rows.length} connection checks pass` : `${cc.rows.filter((x) => !x.ok).length} connection checks fail`}</dd></div>`);
@@ -804,12 +815,15 @@ function wire() {
     const opts = generateCandidates(design(), state.prices);
     const thumbCanvas = document.createElement('canvas'); thumbCanvas.width = 480; thumbCanvas.height = 320;
     const tv = createViewer(thumbCanvas, { presentation: true });
+    const here = breakdownOf(design(), state.prices);
     $('#option-cards').innerHTML = opts.map((o, i) => {
+      const change = deltaPhrase(costDelta(here, breakdownOf(o.design, state.prices)));
       let img = '';
       if (tv) { tv.show(buildShed(o.design), { refit: true }); img = `<img src="${tv.snapshot()}" alt="3D view of option ${i + 1}" width="480" height="320">`; }
       return `<article class="card"><div>${img}</div><h3 class="h4">${i === 0 ? '<span class="pill">best value</span> ' : ''}${esc(o.label)}</h3>
         <dl><div><dt>Total</dt><dd>${money(o.total)}</dd></div><div><dt>Lumber</dt><dd>${money(o.lumber)}, ${o.boards} boards</dd></div>
         <div><dt>Roof</dt><dd>${esc(o.summary)}</dd></div><div><dt>Structure</dt><dd class="${o.ok ? 'ok' : 'fail'}">${o.ok ? 'passes' : 'over capacity'} (${Math.round(o.worst * 100)}%)</dd></div>
+        ${change ? `<div><dt>Against yours</dt><dd>${esc(change)}</dd></div>` : ''}
         ${o.warnings ? `<div><dt>Warnings</dt><dd>${o.warnings}</dd></div>` : ''}</dl>
         <button type="button" data-option="${i}">Use this one</button></article>`;
     }).join('');
@@ -837,9 +851,13 @@ function wire() {
         const thumbCanvas = document.createElement('canvas'); thumbCanvas.width = 480; thumbCanvas.height = 320;
         const tv = createViewer(thumbCanvas, { presentation: true });
         let img = '';
+        const fromB = breakdownOf(design(), state.prices);
+        const toB = breakdownOf(b.design, state.prices);
         if (tv) { tv.show(buildShed(b.design), { refit: true }); img = `<img src="${tv.snapshot()}" alt="3D view of the cheaper build" width="480" height="320" style="max-width:100%;height:auto">`; }
         html += `<article class="card">${img}<h4>${money(b.total)} of materials, ${money(r.base.total - b.total)} less than your ${money(r.base.total)}; about ${Math.round(b.hours)} hours of work (yours: ${Math.round(r.base.hours)})</h4>
+          <p>${esc(deltaSentence(fromB, toB, 'By assembly'))}</p>
           <ol>${b.steps.map((st) => `<li>${esc(st.label)}: saves ${money(st.saving)}${st.hours ? ` (${st.materials >= 0 ? `${money(st.materials)} of materials` : `${money(-st.materials)} more materials`}, ${Math.abs(st.hours)} h ${st.hours > 0 ? 'less' : 'more'} work)` : ''}</li>`).join('')}</ol>
+          <details><summary>From your total to this one, by assembly</summary>${bridgeHtml(fromB, toB, { toLabel: 'This cheaper build' })}</details>
           <p class="muted">Same ${fmtFtIn(b.design.length)} x ${fmtFtIn(b.design.width)} footprint. Peak ${ft(b.peak)}${Math.abs(b.peak - r.base.peak) > 0.06 ? ` (yours is ${ft(r.base.peak)})` : ''}. ${r.evaluated} designs priced and checked.</p>
           <button type="button" data-budget-use>Use this one</button></article>`;
       }
@@ -972,6 +990,15 @@ function wire() {
     window.print();
   };
   $('#print-plans').addEventListener('click', () => printWhat('plans'));
+  wireCosts({
+    print: printWhat,
+    runBudget: () => {
+      const r = budget(design(), state.prices);
+      if (!r.best.steps.length) return null;
+      count('budget-bridges');
+      return { from: breakdownOf(design(), state.prices), to: breakdownOf(r.best.design, state.prices) };
+    },
+  });
   $('#print-all').addEventListener('click', () => printWhat('all'));
   // The HOA packet is its own page, carrying the design in its link as "Copy link" does.
   $('#hoa-packet').addEventListener('click', () => { window.open(`hoa-packet.html#d=${encodeDesign(design())}`, '_blank', 'noopener'); });
