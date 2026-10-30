@@ -18,6 +18,7 @@
 import { actual, ceil16, TWO_BY, DEFAULT_LENGTHS_FT, fmtFtIn as fmtFt, fmtIn } from './lumber.mjs';
 import { lumberCostOf } from './estimate.mjs';
 import { productById } from './products.mjs';
+import { LOCKABLE } from './levers.mjs';
 
 /** @typedef {[number, number, number]} Vec */
 /** @typedef {{ origin: Vec, u: Vec, v: Vec, w: Vec, profile: [number, number][], thickness: number }} Geom */
@@ -108,6 +109,8 @@ export function defaultDesign() {
     houseLeftFt: 0,
     houseFrontFt: 0,
     setbackFt: 0,
+    // Choices no search may change (keys of LOCKABLE in levers.mjs).
+    locked: /** @type {string[]} */ ([]),
     kerf: 0.125,
     lengths: [...DEFAULT_LENGTHS_FT],
     openings: /** @type {Opening[]} */ ([
@@ -230,6 +233,7 @@ export function normalize(input) {
     maxFootprint: Math.min(1000, Math.max(0, num(o.maxFootprint, d.maxFootprint))),
     ...Object.fromEntries(['lotWidthFt', 'lotDepthFt', 'siteLeftFt', 'siteRearFt', 'houseWidthFt', 'houseDepthFt', 'houseLeftFt', 'houseFrontFt', 'setbackFt']
       .map((f) => [f, Math.min(2000, Math.max(0, num(o[f], d[f])))])),
+    locked: Array.isArray(o.locked) ? [...new Set(o.locked.filter((k) => typeof k === 'string' && k in LOCKABLE))] : [],
     ventWidth: Math.min(36, Math.max(6, num(o.ventWidth, d.ventWidth))),
     ventHeight: Math.min(36, Math.max(6, num(o.ventHeight, d.ventHeight))),
     kerf: Math.min(0.25, Math.max(0, num(o.kerf, d.kerf))),

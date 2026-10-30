@@ -273,8 +273,6 @@
         <label>Design name<input id="name" type="text" maxlength="80"></label>
         <label>Length along the ridge (ft)<input id="lengthFt" type="number" min="4" max="40" step="0.5"></label>
         <label>Width across the gable (ft)<input id="widthFt" type="number" min="4" max="20" step="0.5"></label>
-        <label>Most height at the peak, above the gravel (ft, 0 for no limit)<input id="maxPeakFt" type="number" min="0" max="20" step="0.25"></label>
-        <label>Most floor area (sq ft, 0 for no limit; many towns need no permit under 100 or 120)<input id="maxFootprint" type="number" min="0" max="400" step="1"></label>
         <label class="check"><input id="autoWall" type="checkbox"> Walls as low as the tallest door or window allows</label>
         <label>Wall height, floor to top plate (in)<input id="wallHeight" type="number" min="60" max="144" step="0.5"></label>
         <label class="check"><input id="autoPitch" type="checkbox"> Roof pitch from the height limit</label>
@@ -283,6 +281,23 @@
         <label>Eave overhang (in)<input id="overhang" type="number" min="0" max="36" step="1"></label>
         <label>Roof snow load (psf)<input id="snowLoad" type="number" min="0" max="150" step="5"></label>
         <label>Wind pressure on the walls (psf)<input id="windLoad" type="number" min="0" max="80" step="5"></label>
+      </div>
+    </fieldset>
+    <fieldset>
+      <legend>Your limits and fixed choices</legend>
+      <p class="muted">The searches below ("Find a cheaper build", "Find a simpler build", the part options) never break these limits or change a choice you tick here.</p>
+      <div class="fields">
+        <label>Most floor area (sq ft, 0 for no limit; many towns need no permit under 100 or 120)<input id="maxFootprint" type="number" min="0" max="400" step="1"></label>
+        <label>Most height at the peak, above the gravel (ft, 0 for no limit)<input id="maxPeakFt" type="number" min="0" max="20" step="0.25"></label>
+      </div>
+      <p class="muted" id="lock-h">Keep as I chose:</p>
+      <div class="fields" role="group" aria-labelledby="lock-h">
+        <label class="check"><input type="checkbox" name="lock" value="siding"> My siding (type and colour)</label>
+        <label class="check"><input type="checkbox" name="lock" value="roofing"> My roofing (shingles or metal, colour)</label>
+        <label class="check"><input type="checkbox" name="lock" value="foundation"> My foundation</label>
+        <label class="check"><input type="checkbox" name="lock" value="floor"> My floor frame and subfloor</label>
+        <label class="check"><input type="checkbox" name="lock" value="doors"> My doors</label>
+        <label class="check"><input type="checkbox" name="lock" value="windows"> My windows</label>
       </div>
     </fieldset>
     <fieldset>
@@ -433,8 +448,8 @@
       <ol id="build-steps" class="build"></ol>
     </div>
     <div class="result-panel print-target" id="panel-plans" hidden>
-      <div class="toolrow"><button type="button" class="btn primary" id="print-plans">Print all plans</button><button type="button" class="btn" id="dxf-all">Download all as DXF</button></div>
-      <p class="muted">Taking these to a building department or an HOA? The set has a cover sheet with materials and colours, a site plan (type your lot under "Site plan" above), plans, elevations with overall height, a section and details. It is not engineered or code-checked, and it is not "permit-ready": what a submission needs is set locally. Many places need no building permit for a small shed (the IRC, R105.2, exempts a one-storey detached accessory building up to 200 sq ft; the IBC sets 120 sq ft; many towns use less), but zoning setbacks and HOA rules can still apply. Check with yours.</p>
+      <div class="toolrow"><button type="button" class="btn primary" id="print-plans">Print all plans</button><button type="button" class="btn" id="dxf-all">Download all as DXF</button><button type="button" class="btn" id="hoa-packet">HOA packet (PDF)</button></div>
+      <p class="muted">Taking these to a building department or an HOA? "HOA packet (PDF)" gives coloured, dimensioned elevations, the finishes and the site plan on four pages; the plan set has a cover sheet with materials and colours, a site plan (type your lot under "Site plan" above), plans, elevations with overall height, a section and details. It is not engineered or code-checked, and it is not "permit-ready": what a submission needs is set locally. Many places need no building permit for a small shed (the IRC, R105.2, exempts a one-storey detached accessory building up to 200 sq ft; the IBC sets 120 sq ft; many towns use less), but zoning setbacks and HOA rules can still apply. Check with yours.</p>
       <div id="plans"></div>
     </div>
   </section>
@@ -445,7 +460,7 @@
     <div class="toolrow"><button type="button" class="btn primary" id="make-options">Make options</button></div>
     <div id="option-cards"></div>
     <h3 style="margin-top:16px">Bring the price down, same size</h3>
-    <p class="muted">Counts your time at the hourly rate you set (in the buying settings) as well as materials. Tries cheaper off-the-shelf parts and settings one at a time (stock doors and windows, siding, roofing, the foundation and its gravel, the subfloor, overhang, pitch and spacing), keeps your footprint and the ridge and rafter-seat choices you made, and keeps a change only if the shed still passes every check and the peak rises by no more than 6". It lists each saving so you can take some and leave others.</p>
+    <p class="muted">Counts your time at the hourly rate you set (in the buying settings) as well as materials. Tries cheaper off-the-shelf parts and settings one at a time (stock doors and windows, siding, roofing, the foundation and its gravel, the subfloor, overhang, pitch and spacing), keeps your footprint, the ridge and rafter-seat choices you made and anything you fixed under "Your limits and fixed choices", and keeps a change only if the shed still passes every check and the peak rises by no more than 6". It lists each saving so you can take some and leave others.</p>
     <div class="toolrow"><button type="button" class="btn primary" id="budget">Find a cheaper build</button></div>
     <div id="budget-out"></div>
     <h3 style="margin-top:16px">What each foundation, floor, door and window choice costs</h3>
