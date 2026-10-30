@@ -2,7 +2,7 @@
 title: "Pointing at every part of a shed, not just the lumber"
 date: 2026-10-30
 tags: [shed-designer, ux, 3d]
-description: "The shed designer's 'Show in 3D' now works for sheets, siding, roofing, trim and hinges; a click on the siding names the siding; and two notes that cried wolf now speak only when they have something to say."
+description: "The shed designer's Show in 3D now covers sheets, siding, roofing, trim and hinges, and two notes that cried wolf now speak only with something to say."
 ---
 
 The [shed designer](https://monorepo-projects-site.duncan-andrew-haywood.workers.dev/shed-designer/) has had a "Show in 3D" button on every lumber line since round 2. Press it on "2x4 x 8'" and every stud, plate and block cut from that length lights up orange in the 3D view. The rest of the shopping list had no such button. On the default 8x12 the list has 49 lines, and only the 12 lumber lines could show where they go. The OSB, the siding, the shingles, the trim and the hinges could not. Clicking the siding in the 3D view was worse: the picker only knew framing, so it named the stud behind the siding.
