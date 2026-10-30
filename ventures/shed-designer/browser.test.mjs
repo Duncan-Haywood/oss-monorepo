@@ -151,6 +151,28 @@ test('typing a number is one undo step and never builds the half-typed value', {
   assert.equal(await page.$eval('#undo', (b) => b.disabled), true);
 });
 
+test('a cleared number box keeps the last value instead of meaning 0', { skip }, async (t) => {
+  const { page } = await open(t);
+  const total = await page.textContent('#total');
+  const wall = await val(page, 'wallHeight');
+  await page.click('#wallHeight', { clickCount: 3 });
+  await page.keyboard.press('Backspace');
+  await page.keyboard.press('Tab');
+  assert.equal(await val(page, 'wallHeight'), wall, 'the wall height comes back');
+  await page.click('#lengthFt', { clickCount: 3 });
+  await page.keyboard.press('Backspace');
+  await page.keyboard.press('Tab');
+  assert.equal(await val(page, 'lengthFt'), '12', 'the length comes back');
+  const width = 'input[data-i="0"][data-k="width"]';
+  const w = await page.$eval(width, (e) => e.value);
+  await page.click(width, { clickCount: 3 });
+  await page.keyboard.press('Backspace');
+  await page.keyboard.press('Tab');
+  assert.equal(await page.$eval(width, (e) => e.value), w, 'the opening width comes back');
+  assert.equal(await page.textContent('#total'), total, 'nothing was rebuilt');
+  assert.equal(await page.$eval('#undo', (b) => b.disabled), true, 'no undo step');
+});
+
 test('on a phone: no sideways scroll, finger-size handles, touch drag and pinch', { skip }, async (t) => {
   const { ctx, page } = await open(t, pw.devices['Pixel 7']);
   const sw = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);

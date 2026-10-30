@@ -146,11 +146,13 @@ function fillForm(d) {
 function readForm() {
   const v = (id) => /** @type {any} */ (document.getElementById(id));
   const d = { ...design() };
+  // A cleared or junk number field keeps the design's last value rather than meaning 0.
+  const num = (id, last) => { const x = v(id).value.trim() === '' ? NaN : Number(v(id).value); return Number.isFinite(x) ? x : last; };
   d.name = v('name').value;
-  d.length = Math.round(Number(v('lengthFt').value) * 12);
-  d.width = Math.round(Number(v('widthFt').value) * 12);
-  d.maxPeak = Math.round(Number(v('maxPeakFt').value) * 12);
-  for (const f of ['wallHeight', 'pitch', 'overhang', 'studSpacing', 'joistSpacing', 'rafterSpacing', 'skidSpacing', 'ventWidth', 'ventHeight', 'kerf', 'snowLoad', 'windLoad', 'maxFootprint', 'spares', 'taxRate', 'laborRate']) d[f] = Number(v(f).value);
+  d.length = Math.round(num('lengthFt', d.length / 12) * 12);
+  d.width = Math.round(num('widthFt', d.width / 12) * 12);
+  d.maxPeak = Math.round(num('maxPeakFt', d.maxPeak / 12) * 12);
+  for (const f of ['wallHeight', 'pitch', 'overhang', 'studSpacing', 'joistSpacing', 'rafterSpacing', 'skidSpacing', 'ventWidth', 'ventHeight', 'kerf', 'snowLoad', 'windLoad', 'maxFootprint', 'spares', 'taxRate', 'laborRate']) d[f] = num(f, d[f]);
   for (const f of ['studSize', 'joistSize', 'rafterSize', 'tieSize', 'skidSize', 'foundation', 'roofType', 'beamSize', 'sidingColor', 'roofColor', 'trimColor', 'interior', 'sidingType', 'roofCover', 'wallTrim', 'rafterSeat', 'compaction', 'pad', 'floorPanel', 'delivery']) d[f] = v(f).value;
   for (const f of ['floorTreated', 'siding', 'roofing', 'gableVents', 'polkaDots', 'autoWall', 'autoPitch', 'autoOverhang', 'glitter', 'insulation']) d[f] = v(f).checked;
   d.lengths = $$('input[name="stock"]:checked').map((c) => Number(c.value));
@@ -534,6 +536,11 @@ function wire() {
       const i = Number(t.dataset.i);
       const d = { ...design(), openings: design().openings.map((o) => ({ ...o })) };
       const op = d.openings[i];
+      if (t.type === 'number' && (t.value.trim() === '' || !Number.isFinite(Number(t.value)))) {
+        // A cleared box puts the last value back instead of building a 0" opening.
+        if (e.type === 'change') t.value = String(op[t.dataset.k] ?? '');
+        return;
+      }
       op[t.dataset.k] = t.type === 'number' ? Number(t.value) : t.value;
       if (t.dataset.k === 'wall') op.offset = Math.max(0, Math.min(op.offset, wallFaceLength(d, op.wall) - op.width));
       if (t.dataset.k === 'kind' && t.value === 'window' && op.sill === undefined) op.sill = 42;
@@ -547,6 +554,13 @@ function wire() {
     if (t.dataset.item) { state.prices.items[t.dataset.item] = t.value === '' ? '' : Number(t.value); render(); return; }
     if (t.dataset.delivery) { state.prices.delivery = { ...(state.prices.delivery || {}), [t.dataset.delivery]: t.value === '' ? '' : Number(t.value) }; render(); return; }
     if (t.closest('#settings')) {
+      // Leaving a cleared number box puts the last value back in it.
+      if (t.type === 'number' && t.value.trim() === '') {
+        const d = design();
+        const last = { lengthFt: d.length / 12, widthFt: d.width / 12, maxPeakFt: d.maxPeak / 12 }[t.id] ?? d[t.id];
+        if (last !== undefined) t.value = String(+Number(last).toFixed(2));
+        return;
+      }
       const next = readForm();
       // Typing a pitch or wall height means you want that number, not the automatic one.
       if (t.id === 'pitch') next.autoPitch = false;
