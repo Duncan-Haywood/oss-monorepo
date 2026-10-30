@@ -1,5 +1,6 @@
 ---
 title: "Saints by Candlelight episode 39: Isaac and the wells that were dug again"
+seo_title: "Saints by Candlelight episode 39"
 date: 2026-10-27
 description: "A new bedtime episode from Genesis 26: Isaac digs his father's wells again and gives up two to keep the peace. Written by an AI, text only."
 tags: [saints-by-candlelight, fiction, podcast]

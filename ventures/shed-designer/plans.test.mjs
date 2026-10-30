@@ -239,3 +239,39 @@ test('stud centre labels on the wall sheets never touch, and keep the order of t
     }
   }
 });
+
+test('the site plan turns the shed to face a side lot line, draws a north arrow and an easement, and warns when the shed is in it', async () => {
+  const { normalize, siteLayout } = await import('./model.mjs');
+  const base = { ...defaultDesign(), lotWidthFt: 50, lotDepthFt: 100, siteLeftFt: 6, siteRearFt: 6 };
+  // Facing the street: 12 ft along the street, eaves front and back.
+  const st = siteLayout(normalize(base));
+  assert.deepEqual([st.shed.x1 - st.shed.x0, st.shed.y1 - st.shed.y0], [144, 96]);
+  assert.deepEqual(st.eaves, ['front', 'rear']);
+  // Facing the left lot line: a quarter turn, 12 ft front to back, the eaves to the sides.
+  const d = normalize({ ...base, siteFacing: 'left', northDeg: 90, easementSide: 'rear', easementFt: 10, easementNote: '10 ft utility easement' });
+  const site = siteLayout(d);
+  assert.deepEqual([site.shed.x1 - site.shed.x0, site.shed.y1 - site.shed.y0], [96, 144]);
+  assert.deepEqual(site.eaves, ['left', 'right']);
+  assert.equal(site.clear.leftEave, 6 * 12 - d.overhang);
+  assert.equal(site.clear.rearEave, 6 * 12);
+  const s = buildShed(d);
+  const sheet = buildSheets(s).find((x) => x.id === 'site');
+  const words = sheet.items.map((i) => /** @type {any} */ (i).text || '').join('\n');
+  assert.match(words, /door wall to the left lot line/);
+  assert.match(words, /^N$/m);
+  assert.match(words, /10' 0" EASEMENT: 10 ft utility easement/);
+  assert.doesNotMatch(sheet.note, /north arrow|easements/);
+  // 6 ft from the rear line, inside a 10 ft rear easement.
+  assert.ok(s.warnings.some((w) => /reaches into the 10' 0" easement along the rear lot line/.test(w)), s.warnings.join('\n'));
+  assert.ok(!buildShed(normalize({ ...d, siteRearFt: 12 })).warnings.some((w) => /easement/.test(w)));
+  // A side setback now counts the eave on a turned shed.
+  const tight = buildShed(normalize({ ...d, easementSide: 'none', setbackFt: 6 }));
+  assert.ok(tight.warnings.some((w) => /closer than your 6' 0" setback to the left lot line/.test(w)), tight.warnings.join('\n'));
+  // With nothing set, the note still asks for the arrow and easements.
+  assert.match(buildSheets(buildShed(normalize(base))).find((x) => x.id === 'site').note, /Add a north arrow .*, the street name and any easements before you submit it/);
+  // Junk is clamped or dropped.
+  const junk = normalize({ ...base, siteFacing: 'up', northDeg: 'x', easementSide: 'moon', easementFt: -3, easementNote: 5 });
+  assert.deepEqual([junk.siteFacing, junk.northDeg, junk.easementSide, junk.easementFt, junk.easementNote], ['street', null, 'none', 0, '']);
+  assert.equal(normalize({ ...base, northDeg: -90 }).northDeg, 270);
+  assert.equal(normalize({ ...base, northDeg: '' }).northDeg, null);
+});

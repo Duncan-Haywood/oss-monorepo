@@ -1,5 +1,6 @@
 ---
 title: "Does contact between two camps depolarize a society? In simulation, only if nobody backfires"
+seo_title: "Does contact between two camps depolarize a society?"
 date: 2026-10-24
 description: "Six depolarization levers in a simulated two-camp society: cross-camp contact can backfire, while a ladder of voices within reach merges the camps."
 tags: [polarization, opinion-dynamics, simulation, research, social-psychology]

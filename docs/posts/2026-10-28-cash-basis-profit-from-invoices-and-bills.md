@@ -1,5 +1,6 @@
 ---
 title: "Cash-basis profit from invoices and bills: $1,000 invoiced, $800 booked, $1,000 taxed"
+seo_title: "Cash-basis profit from invoices and bills"
 date: 2026-10-28
 description: "ai-bookkeeper can now show profit on the cash method from books that track invoices and bills, with the timing difference to accrual."
 tags: [ai-bookkeeper, bookkeeping, tax, self-employed]

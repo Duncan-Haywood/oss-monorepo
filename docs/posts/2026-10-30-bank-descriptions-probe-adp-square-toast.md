@@ -1,5 +1,6 @@
 ---
 title: "A 69-description probe found fifteen bank descriptions the bookkeeper left blank"
+seo_title: "15 bank descriptions an AI bookkeeper left blank, from a 69-line probe"
 date: 2026-10-30
 tags: [ai-bookkeeper, categorization, evaluation]
 description: "Probing ai-bookkeeper's built-in rules with 69 common bank descriptions left 15 unsuggested; five were gaps we fixed, two we left blank on purpose."

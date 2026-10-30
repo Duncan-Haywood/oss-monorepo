@@ -1,5 +1,6 @@
 ---
 title: "The median wall at 8 of 16: coordinated attackers break low-communication training all at once"
+seo_title: "The median wall at 8 of 16"
 date: 2026-10-28
 description: "In a 16-worker DiLoCo-style run, same-vector attackers cost the median +0.23 to +0.77 nats at 4 to 7 attackers, then training diverges at 8 and 9 on both seeds."
 tags: [research, lowcomm-training, robust-aggregation, diloco]

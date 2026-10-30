@@ -1,5 +1,6 @@
 ---
 title: "Covering more hours can leave more shifts open: a roster builder measurement"
+seo_title: "Covering more hours can leave more shifts open"
 date: 2026-10-27
 description: "A repair step cut a sample café's uncovered hours from 19 to 15 but raised open shifts from 3 to 5, so shift-roster-builder keeps it off."
 tags: [shift-roster-builder, scheduling, optimization, measurement]

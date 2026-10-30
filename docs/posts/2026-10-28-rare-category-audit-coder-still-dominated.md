@@ -1,5 +1,6 @@
 ---
 title: "Estimating a 1% label from LLM codes: a valid sequential audit exists, and still costs more than labelling by hand"
+seo_title: "Estimating a 1% label from LLM codes"
 date: 2026-10-28
 description: "On GoEmotions fear and sadness a stratified coder-assisted sequential audit covers 100% but needs 4,500 to 5,800 labels; pooled human-only needs 1,100 to 5,000."
 tags: [research, llm-coding-inference, statistics, confidence-sequences]

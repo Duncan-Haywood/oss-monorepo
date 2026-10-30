@@ -1,5 +1,6 @@
 ---
 title: "When should an always-on AI assistant speak? Findings from 46 small studies"
+seo_title: "When should an always-on AI assistant speak?"
 date: 2026-10-20
 description: "Reply latency on a CPU voice pipeline, when to interrupt, false wakes a day and pendant battery life: what 46 simulated ambient-assistant studies found."
 tags: [research, voice-assistant, speech, wearables, simulation]

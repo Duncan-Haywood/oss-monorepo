@@ -1,5 +1,6 @@
 ---
 title: "Choosing real robot trials by where the simulator is wrong: a gain at 120 trials, a loss below"
+seo_title: "Choosing real robot trials by where the simulator is wrong"
 date: 2026-10-25
 description: "Spending real robot trials where the simulator is wrong: a gain at 120 trials and a loss below that, measured against uniform sampling."
 tags: [research, robotics, sim2real, statistics]
