@@ -649,3 +649,18 @@ test("the multi-division page shows the travel-table warnings readDivisionsSpec 
   assert.match(html, /const \{ spec, errors, warnings \} = readDivisionsSpec/);
   assert.match(html, /Travel table:/);
 });
+
+test("season grid: one row per team, one column per night, every match shows once per side", async () => {
+  const { divisionsSeasonGrid, divisionsSeasonGridCsv } = await import("./divisions.mjs");
+  const s = build();
+  const { header, rows } = divisionsSeasonGrid(s);
+  assert.equal(header.length, 2 + s.nights.length);
+  assert.equal(rows.length, s.divisions.reduce((a, d) => a + d.teams.length, 0));
+  const cells = rows.flatMap((r) => r.slice(2)).filter(Boolean).flatMap((c) => c.split(" / "));
+  const matches = s.nights.reduce((a, n) => a + n.matches.length, 0);
+  assert.equal(cells.length, matches * 2);
+  assert.equal(cells.filter((c) => c.startsWith("v ")).length, matches);
+  const csv = divisionsSeasonGridCsv(s);
+  assert.ok(csv.endsWith("\r\n"));
+  assert.equal(csv.trim().split("\r\n").length, rows.length + 1);
+});

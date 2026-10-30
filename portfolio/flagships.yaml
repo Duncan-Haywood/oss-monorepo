@@ -210,7 +210,7 @@ flagships:
       suggestFairnessWeight (CLI --suggest-weight and a page button), play-
       off race and odds; thousands of random leagues through the validator
       with 0 invalid, and the page checkboxes clicked in Chromium
-      (eval/browser-click.mjs). Travel-table warnings (missing pair, triangle typo) landed 2026-10-30, on the CLI and the multi-division page (a notice above the schedule). Next: a real league's travel times.
+      (eval/browser-click.mjs). Travel-table warnings (missing pair, triangle typo) landed 2026-10-30, on the CLI and the multi-division page (a notice above the schedule). Season grid CSV for multi-division leagues landed 2026-10-30 (CLI --grid and a page button, button not browser-clicked). Next: a real league's travel times.
   - venture: open-tennis-robots
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
