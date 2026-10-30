@@ -993,7 +993,7 @@ decisions:
 
 - id: crates-io-token
   asks: []
-  prs: []
+  prs: [11655]
   gates: distribution
   exposure: credential
   opened: "2026-10-30"
