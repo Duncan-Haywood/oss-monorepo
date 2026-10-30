@@ -109,3 +109,53 @@ test('short stock: cap and top plate joints are chosen together, 24" apart or mo
   const d = buildShed(defaultDesign());
   assert.equal(d.walls.front.members.filter((m) => m.kind === 'top plate').length, 1);
 });
+
+// The last plate-splice case (round 1, lane 1): a 72" door in the 12x16's left
+// wall with only 8 ft boards leaves no split with every joint on a full stud
+// and the cap 24" clear of the top. Framers break the plate over the header.
+test('a plate joint may sit over a header that runs a stud width past it each side', () => {
+  const s = buildShed({ ...PRESETS['12x16'](), lengths: [8] });
+  const row = connectionChecks(s).rows.find((r) => r.check === 'left wall: plate splices');
+  assert.ok(row?.ok, row?.detail);
+  const w = s.walls.left;
+  const of = (kind) => w.members.filter((m) => m.kind === kind).map((m) => m.local);
+  const studs = [...of('stud'), ...of('king stud'), ...of('jack stud'), ...of('corner stud')].map((l) => (l.s0 + l.s1) / 2);
+  const joints = [...of('top plate'), ...of('cap plate')].sort((a, b) => a.s0 - b.s0).map((l) => l.s0).filter((x) => x > 0);
+  const over = joints.filter((x) => !studs.some((c) => Math.abs(c - x) < 0.01));
+  assert.ok(over.length >= 1, String(joints));
+  for (const x of over) {
+    // Header 31" to 106" (the 72" door at 32-1/2" plus a jack each side).
+    assert.ok(of('header').some((h) => h.s0 <= x - 1.5 && h.s1 >= x + 1.5), `joint at ${x}`);
+    assert.ok(of('top cripple').some((c) => Math.abs((c.s0 + c.s1) / 2 - x) < 0.01), `cripple under ${x}`);
+  }
+  assert.ok(s.notes.some((n) => /Left \(gable end\).*over the header/.test(n)));
+  // Without the cripple under it, the joint has nothing to land on.
+  const x = over[0];
+  const stripped = { ...s, members: s.members.filter((m) => !(m.group === 'wall:left' && m.kind === 'top cripple' && Math.abs((m.local.s0 + m.local.s1) / 2 - x) < 0.01)) };
+  stripped.walls = { ...s.walls, left: { ...w, members: w.members.filter((m) => stripped.members.includes(m)) } };
+  assert.ok(!connectionChecks(stripped).rows.find((r) => r.check === 'left wall: plate splices').ok);
+});
+
+test('short stock and a door anywhere: the plate splices always pass', () => {
+  for (const name of ['8x10', '10x12', '12x16']) for (const lengths of [[8], [8, 10]]) for (const offset of [12, 24, 36, 48, 60]) for (const width of [36, 60, 72]) {
+    const d = PRESETS[name]();
+    d.lengths = lengths;
+    d.openings = [...d.openings.filter((o) => o.wall !== 'front'), { id: 'x', kind: 'door', wall: 'front', offset, width, height: 72 }];
+    const s = buildShed(d);
+    for (const r of connectionChecks(s).rows.filter((r) => /plate splices/.test(r.check))) assert.ok(r.ok, `${name} ${lengths} ${offset} ${width}: ${r.detail}`);
+  }
+});
+
+// Round 1, lane 5: a 91" door on a 15'6" eave wall with 12 ft boards forces a
+// 6-1/2" cap-plate stub. It meets the code, but one 14 ft board avoids it.
+test('a forced short plate stub says which longer board avoids it', () => {
+  const d = { ...PRESETS['12x16'](), length: 186, lengths: [8, 10, 12] };
+  d.openings = [{ id: 'x', kind: 'door', wall: 'front', offset: 36, width: 91, height: 72 }];
+  const s = buildShed(d);
+  const caps = s.walls.front.members.filter((m) => m.kind === 'cap plate').map((m) => m.local.s1 - m.local.s0);
+  assert.ok(caps.some((x) => Math.abs(x - 6.5) < 1e-9), String(caps));
+  assert.ok(s.notes.includes('Front (eave side): the plates need a 6-1/2" piece with 12 ft boards; adding 14 ft boards to your list avoids it.'), s.notes.join('\n'));
+  const fixed = buildShed({ ...d, lengths: [8, 10, 12, 14] });
+  assert.ok(fixed.walls.front.members.filter((m) => /plate/.test(m.kind) && m.kind !== 'bottom plate').every((m) => m.local.s1 - m.local.s0 >= 24));
+  assert.ok(!fixed.notes.some((n) => /avoids it/.test(n)));
+});
