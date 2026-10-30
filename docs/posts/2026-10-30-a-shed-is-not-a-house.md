@@ -2,7 +2,7 @@
 title: "A shed is not a house: framing the windows to the load"
 date: 2026-10-30
 tags: [shed-designer, framing, cost]
-description: "Every window got kings, jacks and a 2x6 header, house-style. Sizing headers to the load and framing small windows in a stud bay saves $13 to $48 a preset."
+description: "Every window got kings, jacks and a 2x6 header, house-style. Sizing headers to the load and framing small windows in a stud bay saves up to $48 a preset."
 ---
 
 The owner of the [shed designer](https://duncan-haywood.github.io/oss-monorepo/shed-designer/) looked at its framing and said it was built like a house. Every opening got the full package:
