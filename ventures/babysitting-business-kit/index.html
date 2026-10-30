@@ -69,6 +69,7 @@
       <h2>Today</h2>
       <p class="note">New inquiries and follow-ups, unpaid sits, references to chase, families to invite back, tax deadlines and tomorrow's sits, most urgent first. Copy the drafted message, send it the way you normally do, then mark it done.</p>
       <div id="todayList"></div>
+      <div id="autoToday"></div>
     </section>
 
     <section data-panel="leads" class="card" hidden>
@@ -252,6 +253,8 @@
         </div>
         <button type="submit">Save settings</button>
       </form>
+      <h3>Automations (sent by your own server)</h3>
+      <div id="autoSettings"></div>
       <h3>Backup</h3>
       <p><button type="button" id="exportBtn">Download backup (.json)</button><label class="secondary" style="display:inline"><span class="note">Restore from a backup:</span> <input type="file" id="importFile" accept="application/json,.json" aria-label="Restore from a backup file"></label></p>
       <h3>Sync with your own server (optional)</h3>
@@ -289,6 +292,7 @@
   <script type="module">
     import * as E from "./engine.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    import { mountAutomations } from "./automations-ui.mjs";
 
     const STORE = "babysitting-business-kit-desk";
     const SYNC = "babysitting-business-kit-sync";
@@ -298,6 +302,7 @@
     const today = () => new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10);
     let desk = load();
     let knownLeadIds = [];
+    let renderAutomations = () => {};
 
     function load() {
       try { return E.normalizeDesk(JSON.parse(localStorage.getItem(STORE) || "null")); } catch { return E.emptyDesk(); }
@@ -478,6 +483,7 @@
 
       renderContent();
       renderFamilyMsgs();
+      renderAutomations();
       fillForm($("profileForm"), { ...desk.profile, certifications: desk.profile.certifications, holidays: desk.profile.holidays, followUpDays: desk.profile.followUpDays });
       $("profileForm").scrollIntoView = () => {};
     }
@@ -571,6 +577,7 @@
 
     $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
     if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+    renderAutomations = mountAutomations({ getDesk: () => desk, save, esc, record });
     $("contentStart").value = today();
     record("page_loaded");
     render();

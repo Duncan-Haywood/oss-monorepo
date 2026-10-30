@@ -32,6 +32,7 @@ Not affiliated with any of the products named above; they are named only to say 
 - **Website:** a one-file site built from the profile: story, certifications, rates, policies, the optional faith section, consented testimonials, `ChildCare` JSON-LD and an inquiry form (email by default, or the sitter's server). Download it and host it free anywhere.
 - **Content:** twelve weeks of seasonal post ideas rotated across Facebook, Nextdoor, Instagram, a church or school bulletin and the website, plus rebooking, referral and testimonial messages per family. Drafts leave room for a real moment in the sitter's words, never an invented one.
 - **Backup and sync:** a JSON backup file; or sync with the sitter's own server.
+- **Automations (with the server):** six follow-through rules you turn on one by one (confirmation, day-before reminder, thank-you with a testimonial ask, rebook nudge, unpaid reminders, opt-in birthday notes), by email or text, with quiet hours, opt-outs and a preview of what would go out now. Details below.
 
 ## The optional server (automated sales)
 
@@ -48,6 +49,9 @@ ADMIN_KEY=$(openssl rand -hex 16) CAL_TOKEN=$(openssl rand -hex 12) STATE=desk.j
 | `POST /inquiry` | form or JSON; honeypot field, 10 per IP per hour, 64 KB cap |
 | `/calendar.ics?t=CAL_TOKEN` | a feed a phone calendar can subscribe to |
 | `GET/PUT /api/desk`, `GET /api/today` | `Authorization: Bearer ADMIN_KEY` |
+| `GET /api/automations/preview` | what the automations would send now, and what they hold back and why (admin key; `?at=` an ISO time) |
+| `/unsubscribe?e=&t=` | the link in automated emails: a page with one button, plus one-click `List-Unsubscribe-Post` |
+| `POST /twilio/inbound` | Twilio's incoming-text webhook: STOP and START opt a number out and back in; other texts are forwarded to you |
 
 Everything outside the box is **off until you set it, on your own accounts**:
 
@@ -57,11 +61,36 @@ Everything outside the box is **off until you set it, on your own accounts**:
 | `RESEND_API_KEY`, `FROM_EMAIL`, `NOTIFY_EMAIL` | email through Resend (free tier) |
 | `AUTO_REPLY=1` | email the reply draft to a family as soon as they inquire (email contacts only, never to a decline) |
 | `AUTO_FOLLOW_UP=1` | email due follow-ups with the morning digest |
-| `DIGEST_HOUR` (default 7), `TZ` | when the digest goes |
+| `DIGEST_HOUR` (default 7), `TZ` | when the digest goes; `TZ` is also the clock for quiet hours |
+| `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_FROM` | texts through Twilio, for the automations below |
+| `PUBLIC_URL` (`https://...`) | your server's address: puts an unsubscribe link in automated emails and is the URL Twilio signs (set the number's incoming-message webhook to `PUBLIC_URL/twilio/inbound`) |
 
 **Deploy:** `render.yaml` (Render, starter plan with a 1 GB disk; it generates `ADMIN_KEY` and `CAL_TOKEN`) or the `Dockerfile` anywhere. Nothing runs on the author's accounts.
 
-Honest limits: one sitter per server; no payments or card capture (families pay the way they already do); no SMS yet; the website is one page; follow-ups are email only.
+### Automations (sales follow-through)
+
+`automations.mjs` plans the messages, `automations-server.mjs` sends them, every five minutes on the server's tick. Each rule is off until you tick it in **Settings, Automations**:
+
+| Rule | When | Sent once per |
+|---|---|---|
+| Booking confirmation | a sit (or weekly series) is saved and synced; again if its date or time changes | booking and time |
+| Reminder, "anything new I should know?" | inside the 24 hours before each sit | sit |
+| Thank-you with a testimonial ask | 1 to 14 days after the first sit with a family; links your testimonial page if you set one, else asks in the message | family |
+| Rebook nudge | a family has no sit booked and their last was N to N+90 days ago (N = your "invite back" days) | quiet spell |
+| Unpaid reminder | 3 days, then 10 days, after an unpaid sit (stops after 30 days: that is your call) | sit and step |
+| Birthday note | a child's birthday, only for families you tick "birthday notes" for | child and year |
+
+How it behaves: nothing goes out in quiet hours (8pm to 8am by default, in `TZ`); every send, and every failure, is written to the desk, so a restart or a sync from the app never sends twice (the server merges its sent log and opt-outs into each `PUT /api/desk`); a failing message is retried and dropped after three tries; at most 40 sends per tick. Email goes by default and texts when there is no email ("send by" can be texts first, or both). A family's beliefs play no part in any of it.
+
+Opt-outs: every automated email ends with an unsubscribe link (or "reply unsubscribe" without `PUBLIC_URL`) and your mailing address if you enter one; every text ends "Reply STOP to opt out". A STOP (or quit, end, revoke, opt out, cancel, unsubscribe) to your Twilio number marks that number opted out at once; START or UNSTOP undoes it. A family that opts out of one channel is not moved to the other. You can also tick "no automated messages" per family. Replies that are not keywords are forwarded to you, and you decide whether they mean "stop".
+
+**Consent, in plain words. This is not legal advice; read the sources.**
+
+- **Texts (TCPA).** The FCC's rules require the recipient's prior express written consent for texts that advertise or market, sent with automated equipment (47 CFR 64.1200(a)(2)), and ban telephone solicitations before 8 a.m. or after 9 p.m. at the recipient's location (64.1200(c)(1)). A reply of "stop," "quit," "end," "revoke," "opt out," "cancel" or "unsubscribe" revokes consent (64.1200(a)(10)). Source: [eCFR, 47 CFR 64.1200](https://www.ecfr.gov/current/title-47/chapter-I/subchapter-B/part-64/subpart-L/section-64.1200). Practical reading: only text families who gave you their mobile number for babysitting and agreed to texts; keep a note of when they said yes; the rebook and birthday rules are the most "marketing" of the six.
+- **Email (CAN-SPAM).** The FTC's [compliance guide](https://www.ftc.gov/business-guidance/resources/can-spam-act-compliance-guide-business) says commercial email needs honest headers and subject lines, a valid postal address (a P.O. box is allowed), and a working opt-out honoured within 10 business days; messages that confirm or update an existing transaction, like a booking confirmation, are "transactional or relationship" messages with fewer requirements. This kit honours an unsubscribe at once.
+- State laws can add rules (some states have their own telemarketing and texting laws). If you are unsure, keep the rebook and birthday rules off.
+
+Honest limits: one sitter per server; no payments or card capture (families pay the way they already do); the website is one page; quiet hours use your time zone, not the family's; inquiry follow-ups are email only.
 
 ## Taxes: what the numbers are
 
@@ -70,7 +99,7 @@ US federal rules for 2026, with constants from sibling ventures that checked the
 ## Run and test
 
 - **Page:** open `index.html` from a local server (`npx serve .`, or the server above). Data lives in this browser's localStorage under `babysitting-business-kit-desk`.
-- **Tests:** `node --test ventures/babysitting-business-kit/*.test.mjs` (engine, server, page, deploy, usage).
+- **Tests:** `node --test ventures/babysitting-business-kit/*.test.mjs` (engine, server, page, deploy, usage, automations).
 
 ## Privacy
 
