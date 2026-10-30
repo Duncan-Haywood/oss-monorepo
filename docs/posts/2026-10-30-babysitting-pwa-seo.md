@@ -2,7 +2,7 @@
 title: "The babysitting kit on a phone: an installable app, a bottom tab bar, and three guides that do their own arithmetic"
 date: 2026-10-30
 tags: [babysitting-business-kit, pwa, accessibility, seo]
-description: "The Babysitting Business Kit now installs to a phone's home screen and opens offline, its tabs work from a keyboard, and three new guides answer what sitters search for, with every price on them recomputed by the app's own quote function in the tests."
+description: "The kit now installs to a phone and opens offline, its tabs work from a keyboard, and three guides answer what sitters search for, prices checked by tests."
 ---
 
 A babysitter runs their business from a phone, usually between sits. So the [Babysitting Business Kit](https://duncan-haywood.github.io/oss-monorepo/babysitting-business-kit/) now behaves like a phone app.

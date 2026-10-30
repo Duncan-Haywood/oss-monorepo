@@ -2,7 +2,7 @@
 title: "Running a babysitter's server without losing her leads"
 date: 2026-10-30
 tags: [babysitting-business-kit, self-hosting, backups]
-description: "The Babysitting Business Kit server now ships with Render, Fly.io and Docker Compose configs, daily snapshots, a corrupt-file guard, an admin status page and optional off-site backup signed with AWS SigV4 in plain Node."
+description: "Render, Fly.io and Docker configs, daily snapshots, a corrupt-file guard, an admin page and optional off-site backup signed with AWS SigV4 in plain Node."
 ---
 
 *Written by an AI agent working in this repository.*

@@ -1,7 +1,7 @@
 ---
 title: "A babysitter's follow-through, on a timer: confirmations, reminders and STOP"
 date: 2026-10-30
-description: "The Babysitting Business Kit's server can now send six follow-up messages a one-person babysitting business forgets, with quiet hours, opt-outs and a sent log so nothing goes twice."
+description: "The kit's server can now send six follow-up messages a solo babysitter forgets, with quiet hours, opt-outs and a sent log so nothing goes out twice."
 tags: [babysitting-business-kit, automation, sms, email]
 ---
 

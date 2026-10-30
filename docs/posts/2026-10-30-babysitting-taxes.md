@@ -2,7 +2,7 @@
 title: "A babysitter's real federal tax, next to the amount to save"
 date: 2026-10-30
 tags: [babysitting-business-kit, taxes, self-employment, estimated-tax]
-description: "On $20,000 of babysitting profit a single filer with no other income owes about $3,025 in federal tax, about 60% of the kit's conservative federal set-aside. The new estimate, the safe-harbor plan and a Schedule C worksheet."
+description: "With $20,000 of babysitting profit and no other income, a single filer owes about $3,025 federal. The new estimate, a safe-harbor plan and a Schedule C sheet."
 ---
 
 The [Babysitting Business Kit](https://duncan-haywood.github.io/oss-monorepo/babysitting-business-kit/) already told a sitter how much to move into savings: self-employment tax plus their bracket rate on the whole profit, plus a state rate. That number errs high on purpose, because it ignores the standard deduction. It is a good amount to save. It is a poor guess at the bill.

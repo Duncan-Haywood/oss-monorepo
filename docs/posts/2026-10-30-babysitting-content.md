@@ -2,7 +2,7 @@
 title: "Posts a babysitter can actually publish: 76 topics, five channels, and a blank where the real story goes"
 date: 2026-10-30
 tags: [babysitting-business-kit, content, local-seo, byok]
-description: "The Babysitting Business Kit now has a topic bank, captions sized per channel, a blog the sitter approves, and optional AI drafts on the sitter's own key that can't be published until she fills in something true."
+description: "A topic bank, captions sized per channel, a blog the sitter approves, and optional AI drafts on her own key that can't publish until she adds something true."
 ---
 
 A babysitter who runs her own business gets most of her families through word of mouth: church, school, Nextdoor, a friend's Facebook share. Posting helps, but "what do I post this week?" is the part that stalls. The [Babysitting Business Kit](https://duncan-haywood.github.io/oss-monorepo/babysitting-business-kit/) now has a **Posts & blog** tab for that.

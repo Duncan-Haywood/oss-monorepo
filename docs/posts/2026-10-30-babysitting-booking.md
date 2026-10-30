@@ -2,7 +2,7 @@
 title: "Openings this week: a babysitter's free time, worked out from her own calendar"
 date: 2026-10-30
 tags: [babysitting-business-kit, scheduling, booking]
-description: "The Babysitting Business Kit now lists a sitter's open windows, drafts the 'openings this week' post, shows the week as a grid, and lets families request a time that she approves."
+description: "The kit now lists a sitter's open times, drafts the 'openings this week' post, shows the week as a grid, and lets families request a time she approves."
 ---
 
 Most babysitters who work for themselves fill their week the same way: a post in a church group or a text to a few parents saying when they are free. Writing that post means reading the calendar, remembering which sits repeat, leaving time to drive between families and dropping the gaps too short to be worth a sit. The [Babysitting Business Kit](https://duncan-haywood.github.io/oss-monorepo/babysitting-business-kit/) now does that arithmetic.

@@ -2,7 +2,7 @@
 title: "Babysitting flyers with tear-off tabs, and referral cards that credit the family"
 date: 2026-10-30
 tags: [babysitting-business-kit, qr-code, marketing, referrals]
-description: "The Babysitting Business Kit now prints flyers, Avery 8371 cards, bulletin ads, door hangers and referral cards, with a dependency-free QR encoder that matches a reference library on 11 of 11 test symbols."
+description: "Flyers, Avery 8371 cards, bulletin ads, door hangers and referral cards, with a dependency-free QR encoder that matches a reference library on 11 of 11 codes."
 ---
 
 Many babysitters still find families on paper: a flyer on the church bulletin board, an ad in the school newsletter, a card pinned up at the library or a coffee shop. The [Babysitting Business Kit](https://duncan-haywood.github.io/oss-monorepo/babysitting-business-kit/) now has a **Print** tab that makes those pieces from the profile the sitter has already filled in:

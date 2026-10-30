@@ -2,7 +2,7 @@
 title: "A babysitter's website that only says what the sitter wrote"
 date: 2026-10-30
 tags: [babysitting-business-kit, website, local-seo, accessibility]
-description: "The Babysitting Business Kit now builds a four-page site in three themes from the sitter's own fields, hides any empty section, and downloads as a zip for free static hosting."
+description: "The kit now builds a four-page site in three themes from the sitter's own fields, hides empty sections, and downloads as a zip for free static hosting."
 ---
 
 The [Babysitting Business Kit](https://duncan-haywood.github.io/oss-monorepo/babysitting-business-kit/) used to make a one-page website. Now its Website tab builds a small site. A babysitter can drop it on Netlify, Cloudflare Pages or GitHub Pages, or serve it from the kit's optional self-hosted server at `/site/`.

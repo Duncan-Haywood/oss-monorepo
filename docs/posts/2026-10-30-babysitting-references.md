@@ -2,7 +2,7 @@
 title: "Babysitting references where the referee ticks the consent box, not the sitter"
 date: 2026-10-30
 tags: [babysitting-business-kit, consent, references]
-description: "A private link per reference, two separate consents stored with the exact wording and time, withdrawal through the same link, and a reference packet that lists only people who said yes. Nine tests check that nothing leaks."
+description: "A private link per reference, two consents stored with exact wording and time, withdrawal by the same link, and a packet listing only people who said yes."
 ---
 
 The [Babysitting Business Kit](https://duncan-haywood.github.io/oss-monorepo/babysitting-business-kit/) already kept a yes/no per reference for "may this quote go on your website". The sitter set it. That is fine when a parent said yes in a text, but it leaves no record of what the parent actually agreed to, and nothing stops a stale copy of the data from turning a "no" back into a "yes".
