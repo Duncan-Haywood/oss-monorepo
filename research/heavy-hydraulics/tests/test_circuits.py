@@ -78,3 +78,11 @@ def test_flow_share_faster_bypass_closing_helps_the_stalled_actuator():
     slow = [phase_slowdown(d, 45.0, 10.9, k) for k in (0.5, 1.0, 2.0, 3.0)]
     assert all(a >= b for a, b in zip(slow, slow[1:]))
     assert phase_slowdown(d, 45.0, 10.9, 1.0) == phase_slowdown(d, 45.0, 10.9)
+
+
+def test_flow_share_ls_factor_is_one_inside_pump_flow_and_scales_beyond():
+    import os, sys
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "experiments"))
+    from flow_share_ls import ls_factor
+    assert ls_factor([(50.0, 20.0), (100.0, 20.0)], 45.0) == 1.0
+    assert abs(ls_factor([(50.0, 40.0), (100.0, 40.0)], 45.0) - 80.0 / 45.0) < 1e-12
