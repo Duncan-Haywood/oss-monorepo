@@ -76,6 +76,11 @@ jobs:
         with:
           python-version: "3.12"
 
+      # The page generators below are Node scripts.
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "22"
+
       - name: Site-builder unit tests
         working-directory: platform/ci
         run: python3 -m unittest test_build_pages_site test_check_built_site
