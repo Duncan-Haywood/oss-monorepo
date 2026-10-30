@@ -45,7 +45,7 @@
   ],
   "writeups": [],
   "goal": null,
-  "notes": "Local verification (CI runners starved): node --test *.test.mjs 165 pass/0 fail/1 skip; typecheck 0 diagnostics; utilisation.browser.test.mjs 3/3. Hand calcs reproduce default joist 15.0% and stud 15.4%.",
+  "notes": "Local verification (CI runners starved; all jobs queued). Before merging main: node --test *.test.mjs 165 pass/0 fail/1 skip. After merging main (0b7703ed, which added a Subfloor row now handled): node --test *.test.mjs 206 pass/0 fail/1 skip; typecheck 28 files 0 diagnostics; utilisation.browser.test.mjs 3/3. Hand calcs reproduce default joist 15.0% and stud 15.4%.",
   "corrections": [],
   "redteam": null
 }
