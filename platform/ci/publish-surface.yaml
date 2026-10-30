@@ -319,11 +319,22 @@ workflows:
 - workflow: portfolio-pages.yml
   classification: gated
   publishes:
+  - job: deploy-cloudflare
+    step: runs 'wrangler deploy'
+    gates:
+    - ${{ github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && vars.PAGES_ENABLED
+      != 'false' && needs.gate.outputs.cloudflare == 'true' }}
+  - job: deploy-cloudflare
+    step: runs 'wrangler deploy'
+    gates:
+    - ${{ github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && vars.PAGES_ENABLED
+      != 'false' && needs.gate.outputs.cloudflare == 'true' }}
   - job: deploy
     step: uses actions/deploy-pages
     gates:
-    - ${{ github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && vars.PAGES_ENABLED
-      != 'false' }}
+    - ${{ !cancelled() && needs.build.result == 'success' && (needs.gate.outputs.cloudflare != 'true'
+      || needs.deploy-cloudflare.result == 'success') && github.ref == 'refs/heads/main' && github.event_name
+      != 'pull_request' && vars.PAGES_ENABLED != 'false' }}
 - workflow: portfolio-validate.yml
   classification: none
   publishes: []

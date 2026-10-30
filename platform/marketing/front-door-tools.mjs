@@ -88,6 +88,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import zlib from 'node:zlib';
 import { fileURLToPath } from 'node:url';
+import { generateVenturePages } from '../pages/generated-pages.mjs';
 // The canonical site build's own entry-point rules, imported rather than
 // restated. `venturePageRoot` is the only consumer; see its comment for why a
 // copy here has twice gone stale against the original.
@@ -619,6 +620,9 @@ export const SYNC_OPTIONS = 'ServerSideApply=true';
  */
 export const SERVABLE_EXTENSIONS = new Set(['.html', '.mjs', '.css', '.js']);
 export const SERVABLE_NAMES = new Set(['LICENSE']);
+
+/** Relative image links `validateLinks` does not hold a venture to: the mirror stores no images. */
+export const MIRROR_UNSERVED_IMAGE = /\.(?:webp|png|jpe?g|gif|avif|svg)$/i;
 
 /**
  * `<link rel="...">` values `injectMirrorTags` removes from every mirrored
@@ -2153,6 +2157,12 @@ export function validateLinks(files) {
         }
         continue;
       }
+      // An image the mirror never serves (SERVABLE_EXTENSIONS has none) is a
+      // missing picture on the mirrored page, not a dead link: the page still
+      // works. Counting it dropped shed-designer, and every venture that links
+      // to it, off the mirror when the venture added rendered pictures
+      // (2026-10-30).
+      if (MIRROR_UNSERVED_IMAGE.test(target)) continue;
       // Resolved against the linking file's own directory, not the venture
       // root. The two are the same thing for every flat page — which is why
       // this read `join(slug, target)` until page subdirectories existed — but
@@ -2179,6 +2189,9 @@ export function validateLinks(files) {
  * the per-venture titles the front door needs to name its cards.
  */
 export async function buildMirror({ set, venturesDir = VENTURES_DIR } = {}) {
+  // Pages a venture builds rather than commits must be on disk before packing,
+  // or the mirror packs a different set than the site serves.
+  generateVenturePages(venturesDir);
   // Resolved here rather than in the parameter list because it reads the
   // filesystem; a caller passing an explicit `set` (every test that exercises
   // packing or a deliberate failure) must not pay for a scan of `ventures/`.

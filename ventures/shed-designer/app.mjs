@@ -2,7 +2,7 @@
 // The page: several designs, a drag editor, the 3D view, the lists and the
 // plan sheets, all rebuilt from one design object on every change.
 
-import { buildShed, normalize, defaultDesign, PRESETS, WALLS, WALL_LABEL, wallFaceLength, ROOF_TYPES } from './model.mjs';
+import { buildShed, normalize, defaultDesign, PRESETS, WALLS, wallLabel, wallFaceLength, ROOF_TYPES } from './model.mjs';
 import { estimate, examplePrices, cutSheetCsv, shoppingCsv, groupBoards, sourceLabel, boardUse, lumberUses } from './estimate.mjs';
 import { buildSheets, sheetSvg, sheetsDxf } from './drawings.mjs';
 import { createViewer, LAYERS } from './render3d.mjs';
@@ -10,8 +10,8 @@ import { mountPicker } from './picker.mjs';
 import { drawPlan, drawEnd } from './editor.mjs';
 import { fmtIn, fmtFtIn, actual, STANDARD_LENGTHS_FT, EXAMPLE_ITEMS } from './lumber.mjs';
 import { recordUsage, clearUsage } from './usage.mjs';
+import { structuralChecks, anchorageText } from './checks.mjs';
 import { encodeDesign } from './hoa.mjs';
-import { structuralChecks } from './checks.mjs';
 import { initUtilisation, renderUtilisation, heatOption } from './utilisation-ui.mjs';
 import { connectionChecks } from './connections.mjs';
 import { generateCandidates } from './candidates.mjs';
@@ -20,6 +20,7 @@ import { quoteRequest, mailtoLink, STORES } from './quote.mjs';
 import { PRODUCTS } from './products.mjs';
 import { storeComparison, swapsFor, storeTotals, storeList, pricesFor } from './catalog.mjs';
 import { simplify, cutMetrics, budget, laborHours } from './simplify.mjs';
+import { galleryEntries, mountMatchHouse, mountStripNav } from './gallery-ui.mjs';
 import { showCosts, wireCosts, bridgeHtml, breakdownOf, deltaSentence } from './costview.mjs';
 import { costDelta, deltaPhrase } from './costs.mjs';
 import { valueComparison, valueHtml } from './value.mjs';
@@ -151,10 +152,10 @@ function preview(next) {
 
 // ---------- form ----------
 const SITE_FIELDS = ['lotWidthFt', 'lotDepthFt', 'siteLeftFt', 'siteRearFt', 'setbackFt', 'houseWidthFt', 'houseDepthFt', 'houseLeftFt', 'houseFrontFt'];
-const FIELDS = ['name', 'lengthFt', 'widthFt', 'wallHeight', 'pitch', 'overhang', 'studSize', 'studSpacing', 'joistSize', 'joistSpacing',
+const FIELDS = ['name', 'lengthFt', 'widthFt', 'style', 'wallHeight', 'pitch', 'overhang', 'studSize', 'studSpacing', 'joistSize', 'joistSpacing',
   'rafterSize', 'rafterSpacing', 'tieSize', 'skidSize', 'skidSpacing', 'foundation', 'floorTreated', 'siding', 'roofing', 'gableVents', 'ventWidth', 'ventHeight', 'kerf',
   'roofType', 'beamSize', 'sidingColor', 'polkaDots', 'autoWall', 'autoPitch',
-  'autoOverhang', 'snowLoad', 'windLoad', 'roofColor', 'trimColor', 'doorColor', 'glitter', 'interior', 'sidingType', 'roofCover', 'insulation', 'customRange', 'wallTrim', 'rafterSeat', 'maxFootprint', 'pierDepth', 'compaction', 'pad', 'floorPanel', 'spares', 'taxRate', 'delivery', 'laborRate', 'maxHaulFt', ...SITE_FIELDS];
+  'autoOverhang', 'snowLoad', 'windLoad', 'roofColor', 'trimColor', 'doorColor', 'glitter', 'interior', 'sidingType', 'roofCover', 'insulation', 'customRange', 'atticStorage', 'wallTrim', 'rafterSeat', 'maxFootprint', 'pierDepth', 'compaction', 'pad', 'floorPanel', 'spares', 'taxRate', 'delivery', 'laborRate', 'maxHaulFt', 'gambrelLower', 'gambrelKnee', 'loft', 'loftJoist', ...SITE_FIELDS];
 
 
 /** A colour select keeps one "Your colour" option for a hex code typed or picked. @param {HTMLSelectElement} sel @param {string} v */
@@ -180,6 +181,8 @@ function fillForm(d) {
   for (const f of FIELDS.slice(3)) set(f, d[f]);
   for (const cb of $$('input[name="stock"]')) cb.checked = d.lengths.includes(Number(cb.value));
   for (const cb of $$('input[name="lock"]')) cb.checked = (d.locked || []).includes(cb.value);
+  // The gambrel's own fields show only on a gambrel.
+  for (const e of $$('[data-gambrel]')) /** @type {HTMLElement} */ (e).style.display = d.style === 'gambrel' ? '' : 'none';
 }
 
 function readForm() {
@@ -191,9 +194,9 @@ function readForm() {
   d.length = Math.round(num('lengthFt', d.length / 12) * 12);
   d.width = Math.round(num('widthFt', d.width / 12) * 12);
   d.maxPeak = Math.round(num('maxPeakFt', d.maxPeak / 12) * 12);
-  for (const f of ['wallHeight', 'pitch', 'overhang', 'studSpacing', 'joistSpacing', 'rafterSpacing', 'skidSpacing', 'ventWidth', 'ventHeight', 'kerf', 'snowLoad', 'windLoad', 'maxFootprint', 'pierDepth', 'spares', 'taxRate', 'laborRate', 'maxHaulFt', ...SITE_FIELDS]) d[f] = num(f, d[f]);
-  for (const f of ['studSize', 'joistSize', 'rafterSize', 'tieSize', 'skidSize', 'foundation', 'roofType', 'beamSize', 'sidingColor', 'roofColor', 'trimColor', 'doorColor', 'interior', 'sidingType', 'roofCover', 'wallTrim', 'rafterSeat', 'compaction', 'pad', 'floorPanel', 'delivery']) d[f] = v(f).value;
-  for (const f of ['floorTreated', 'siding', 'roofing', 'gableVents', 'polkaDots', 'autoWall', 'autoPitch', 'autoOverhang', 'glitter', 'insulation', 'customRange']) d[f] = v(f).checked;
+  for (const f of ['wallHeight', 'pitch', 'overhang', 'studSpacing', 'joistSpacing', 'rafterSpacing', 'skidSpacing', 'ventWidth', 'ventHeight', 'kerf', 'snowLoad', 'windLoad', 'maxFootprint', 'pierDepth', 'spares', 'taxRate', 'laborRate', 'maxHaulFt', 'gambrelLower', 'gambrelKnee', ...SITE_FIELDS]) d[f] = num(f, d[f]);
+  for (const f of ['style', 'studSize', 'joistSize', 'rafterSize', 'tieSize', 'skidSize', 'foundation', 'roofType', 'beamSize', 'sidingColor', 'roofColor', 'trimColor', 'doorColor', 'interior', 'sidingType', 'roofCover', 'wallTrim', 'rafterSeat', 'compaction', 'pad', 'floorPanel', 'delivery', 'loft', 'loftJoist']) d[f] = v(f).value;
+  for (const f of ['floorTreated', 'siding', 'roofing', 'gableVents', 'polkaDots', 'autoWall', 'autoPitch', 'autoOverhang', 'glitter', 'insulation', 'customRange', 'atticStorage']) d[f] = v(f).checked;
   d.lengths = $$('input[name="stock"]:checked').map((c) => Number(c.value));
   d.locked = $$('input[name="lock"]:checked').map((c) => c.value);
   return d;
@@ -205,7 +208,7 @@ function renderOpenings(d) {
   tbody.innerHTML = '';
   d.openings.forEach((op, i) => {
     const tr = document.createElement('tr');
-    const wallOpts = WALLS.map((w) => `<option value="${w}"${w === op.wall ? ' selected' : ''}>${WALL_LABEL[w]}</option>`).join('');
+    const wallOpts = WALLS.map((w) => `<option value="${w}"${w === op.wall ? ' selected' : ''}>${wallLabel(d, w)}</option>`).join('');
     tr.innerHTML = `
       <td><select data-i="${i}" data-k="kind" aria-label="Opening ${i + 1} type"><option value="door"${op.kind === 'door' ? ' selected' : ''}>Door</option><option value="window"${op.kind === 'window' ? ' selected' : ''}>Window</option></select></td>
       <td><select data-i="${i}" data-k="wall" aria-label="Opening ${i + 1} wall">${wallOpts}</select></td>
@@ -320,7 +323,8 @@ function renderStructure(shed) {
   const c = connectionChecks(shed);
   $('#connections tbody').innerHTML = c.rows.map((x) => `<tr><th scope="row">${esc(x.check)}</th><td>${esc(x.detail)}</td><td class="${x.ok ? 'ok' : 'fail'}">${x.ok ? 'passes' : 'needs fixing'}</td></tr>`).join('');
   const r = structuralChecks(shed);
-  $('#structure-note').textContent = `Loads you set: ${r.loads.snow} psf snow on the roof, ${r.loads.wind} psf wind on the walls, plus ${r.loads.roofDead} psf roof dead load and ${r.loads.floorLive} psf on the floor. SPF No. 2 lumber, allowable-stress (NDS) checks of the kind a span table encodes: a screening check, not an engineer's review. Connections, uplift, racking and the foundation are not checked; ask your building department for your area's snow and wind loads.`;
+  $('#structure-note').textContent = `Loads you set: ${r.loads.snow} psf snow on the roof, ${r.loads.wind} psf wind on the walls, plus ${r.loads.roofDead} psf roof dead load and ${r.loads.floorLive} psf on the floor. SPF No. 2 lumber (treated joists and skids as Southern pine No. 2), allowable-stress (NDS) checks of the kind a span table encodes, rafter ties against Simpson's published uplift loads, and walls against racking with SDPWS shear-wall values: a screening check, not an engineer's review. The wind is one pressure on the walls and roof (ASCE 7 is higher at roof edges and corners); hold-downs are not checked (anchoring the shed is worked out below the table), and the soil check assumes clay or silt. Ask your building department for your area's snow and wind loads.`;
+  $('#anchorage-note').textContent = anchorageText(shed);
   $('#structure tbody').innerHTML = r.rows.map((x) => {
     const pct = Math.round(x.ratio * 100);
     const meter = `<span class="meter${x.ratio > 0.9 ? ' hot' : ''}"><span style="width:${Math.min(100, pct)}%"></span></span>${pct}%`;
@@ -356,8 +360,9 @@ function renderStores(est, d) {
   const cmp = storeComparison(est);
   const whole = storeTotals(est);
   const two = whole.stores.filter((x) => x.lines > 0);
-  let html = `<h3 class="h4">The whole list at each store</h3><div class="table-wrap"><table><thead><tr><th scope="col">Store</th><th scope="col" class="n">Lines priced there</th><th scope="col" class="n">Those lines</th><th scope="col" class="n">Other lines, at the list's price</th><th scope="col" class="n">Total</th></tr></thead><tbody>${two.map((x) => `<tr><th scope="row">${esc(x.store)}</th><td class="n">${x.lines} of ${x.of}</td><td class="n">${money(x.priced)}</td><td class="n">${money(x.carried)}</td><td class="n">${money(x.total)}</td></tr>`).join('')}</tbody></table></div>`;
-  if (whole.shared) html += `<p class="muted">Like for like, on the ${whole.shared} lines every store here lists: ${Object.entries(whole.sharedTotals).map(([st, t]) => `${esc(st)} ${money(t)}`).join(', ')}.</p>`;
+  // Coverage first: a store that lists fewer lines is not cheaper for leaving them out.
+  let html = `<h3 class="h4">The whole list at each store</h3><div class="table-wrap"><table><thead><tr><th scope="col">Store</th><th scope="col" class="n">Lines it lists</th><th scope="col" class="n">The ${whole.shared} lines both list</th></tr></thead><tbody>${two.map((x) => `<tr><th scope="row">${esc(x.store)}</th><td class="n"><strong>${x.lines} of ${x.of}</strong></td><td class="n">${money(whole.sharedTotals[x.store])}</td></tr>`).join('')}</tbody></table></div>`;
+  for (const x of two) if (x.missing.length) html += `<p class="muted"><strong>No ${esc(x.store)} listing found yet for ${x.missing.length} line${x.missing.length === 1 ? '' : 's'}:</strong> ${x.missing.map(esc).join('; ')}. Store totals compare only the lines both stores list.</p>`;
   html += `<h3 class="h4">Line by line</h3><div class="table-wrap"><table><thead><tr><th scope="col">Item</th><th scope="col" class="n">Qty</th>${cmp.stores.map((s) => `<th scope="col">${esc(s)}</th>`).join('')}<th scope="col" class="n">Saving at the cheapest</th></tr></thead><tbody>`;
   for (const row of cmp.rows) {
     html += `<tr><td>${esc(row.line.name)}</td><td class="n">${row.line.qty}</td>${cmp.stores.map((st) => {
@@ -367,13 +372,15 @@ function renderStores(est, d) {
       return `<td><a href="${esc(o.url)}" target="_blank" rel="noopener" title="${esc(o.note || '')}">${money(o.price)}</a>${best}<br><span class="muted">${esc(o.name)}; ${esc(o.model)}</span></td>`;
     }).join('')}<td class="n">${money(row.saving)}</td></tr>`;
   }
-  html += `<tr class="tot"><th colspan="2" scope="row">These lines at one store</th>${cmp.stores.map((st) => `<td>${cmp.totals[st].missing === cmp.rows.length ? '<span class="muted">none of these</span>' : `${money(cmp.totals[st].total)}${cmp.totals[st].missing ? ` <span class="muted">(${cmp.totals[st].missing} not listed)</span>` : ''}`}</td>`).join('')}<td class="n">${money(cmp.cheapestMix)} mixed</td></tr></tbody></table></div>`;
+  html += `<tr class="tot"><th colspan="2" scope="row">The ${cmp.both} lines both stores list</th>${cmp.stores.map((st) => `<td>${cmp.totals[st].total === null ? '' : money(cmp.totals[st].total)}</td>`).join('')}<td class="n">${money(cmp.cheapestMix)} mixed</td></tr></tbody></table></div>`;
   // A second trip or delivery is only worth it for a real saving.
   const worth = cmp.addOns.filter((a) => a.saving >= 25);
+  const stale = cmp.oneStop ? Object.entries(cmp.stale).filter(([, n]) => n > 0).map(([st, n]) => `${n} of the ${esc(st)} prices`).join(' and ') : '';
+  const caveat = stale ? ` ${stale} compared come from copies of the page over a year old, so check them before choosing a store.` : '';
   if (cmp.oneStop && worth.length) {
-    html += `<p><strong>Where to buy:</strong> ${esc(cmp.oneStop.store)} is the cheapest single store for these lines (${money(cmp.oneStop.total)}). ${worth.map((a) => `Adding ${esc(a.store)} for ${a.lines.map(esc).join(', ')} saves ${money(a.saving)}`).join('; ')}. Buying every line at its cheapest store saves ${money(cmp.splitSaving)} in all. Savings are before any delivery charge for a second order.</p>`;
+    html += `<p><strong>Where to buy:</strong> on the ${cmp.both} lines both stores list, ${esc(cmp.oneStop.store)} comes to ${money(cmp.oneStop.total)}, ${money(cmp.oneStop.by)} less than ${esc(cmp.oneStop.other)}. ${worth.map((a) => `Buying ${a.lines.map(esc).join(', ')} at ${esc(a.store)} instead saves ${money(a.saving)}`).join('; ')}. Savings are before any delivery charge for a second order.${caveat}</p>`;
   } else if (cmp.oneStop) {
-    html += `<p><strong>One stop:</strong> ${esc(cmp.oneStop.store)}${cmp.splitSaving > 0 ? `, within ${money(cmp.splitSaving)} of splitting the order between stores, which is not worth a second trip` : ' is cheapest or tied on every compared line'}.</p>`;
+    html += `<p><strong>One stop:</strong> on the ${cmp.both} lines both stores list, ${esc(cmp.oneStop.store)}${cmp.splitSaving > 0 ? ` is ${money(cmp.oneStop.by)} less, and within ${money(cmp.splitSaving)} of splitting the order between stores, which is not worth a second trip` : ' is cheapest or tied on every line'}.${caveat}</p>`;
   }
   html += `<p class="muted">Prices read from search-result copies of each product page on ${cmp.seen}; follow the link to check today's price and see the product. Lines with no listing at a second store are not shown.</p>`;
   const swaps = swapsFor(d);
@@ -919,7 +926,7 @@ function wire() {
           <button type="button" data-pick="${i}">Use this one</button></article>`;
       }).join('');
       html += '</div><h4>Every design found that nothing else beats on cost, cuts and angled cuts at once</h4><div class="table-wrap"><table><thead><tr><th scope="col" class="n">Total</th><th scope="col" class="n">Straight cuts</th><th scope="col" class="n">Angled</th><th scope="col" class="n">Notches</th><th scope="col">Roof</th><th scope="col">Size</th></tr></thead><tbody>';
-      html += r.front.map((f) => `<tr><td class="n">${money(f.total)}</td><td class="n">${f.cuts.straight}</td><td class="n">${f.cuts.angled}</td><td class="n">${f.cuts.notches}</td><td>${f.design.pitch}/12, ${fmtIn(f.design.overhang)} overhang, ${ROOF_TYPES.find((r) => r.type === f.design.roofType)?.short ?? f.design.roofType}, ${f.design.rafterSeat === 'connector' ? 'connectors' : 'birdsmouth'}</td><td>${fmtFtIn(f.design.length)} x ${fmtFtIn(f.design.width)}</td></tr>`).join('');
+      html += r.front.map((f) => `<tr><td class="n">${money(f.total)}</td><td class="n">${f.cuts.straight}</td><td class="n">${f.cuts.angled}</td><td class="n">${f.cuts.notches}</td><td>${f.design.pitch}/12, ${fmtIn(f.design.overhang)} overhang, ${f.design.style === 'leanTo' ? 'lean-to' : ROOF_TYPES.find((r) => r.type === f.design.roofType)?.short ?? f.design.roofType}, ${f.design.rafterSeat === 'connector' ? 'connectors' : 'birdsmouth'}</td><td>${fmtFtIn(f.design.length)} x ${fmtFtIn(f.design.width)}</td></tr>`).join('');
       html += '</tbody></table></div>';
       $('#simplify-out').innerHTML = html;
       $('#simplify-out').onclick = (ev) => {
@@ -1054,8 +1061,10 @@ load();
 wire();
 render();
 // Ready-made designs to look at, compare and start from (picker.mjs).
+// The strip shows the ready-design gallery (gallery.mjs); the presets stay in the New design menu.
 picker = mountPicker({
   root: $('#starts'), dialog: $('#pick-dialog'), tray: $('#compare-tray'),
+  entries: galleryEntries(),
   prices: () => state.prices, priceOf: (shed) => storeEstimate(shed), count,
   onStart(d) {
     state.designs.push(normalize(d));
@@ -1066,4 +1075,6 @@ picker = mountPicker({
     $('#workspace').scrollIntoView({ behavior: 'smooth' });
   },
 });
+const stripNav = mountStripNav({ track: $('#starts .pick-list'), prev: $('#starts-prev'), next: $('#starts-next'), pos: $('#starts-pos') });
+if (picker) mountMatchHouse({ box: $('#match-house'), picker, nav: stripNav, storage });
 if (linkNote) $('#status').textContent = linkNote;

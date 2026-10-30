@@ -11,7 +11,6 @@ import { OFFERS } from './catalog.mjs';
 export const STORES = {
   homedepot: { name: 'Home Depot', offerStore: 'Home Depot', desk: 'Pro Desk', note: 'The Pro Desk at your local store can quote a whole order; ask about volume pricing on large orders.' },
   lowes: { name: "Lowe's", offerStore: "Lowe's", desk: 'Pro Desk', note: "The Pro Desk at your local store can quote a whole order; ask about volume pricing on large orders." },
-  menards: { name: 'Menards', offerStore: 'Menards', desk: 'contractor desk', note: 'Ask the contractor or pro desk at your local Menards for a whole-order quote.' },
   yard: { name: 'your local lumberyard', desk: 'sales desk', note: 'Independent yards often quote contractors and bulk orders directly and deliver.' },
 };
 

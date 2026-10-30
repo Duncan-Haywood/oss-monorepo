@@ -10,10 +10,16 @@ import { LOWES } from './lowes.mjs';
 
 /** @typedef {{ store: string, name: string, model: string, price: number, url: string, note?: string, bulk?: { min: number, price: number } }} Offer */
 
+/** The oldest copy an offer's note names, in days ("a copy about 1,443 days old"), or 0 when it names none. @param {{ note?: string }} o */
+export const copyAgeDays = (o) => Math.max(0, ...[...(o.note || '').matchAll(/([\d,]+)(?:-([\d,]+))? days old/g)].map((m) => Number((m[2] || m[1]).replace(/,/g, ''))));
+
 /** An offer's price for a quantity: the bulk price once the quantity reaches it. @param {Offer} o @param {number} qty */
 export const offerPrice = (o, qty) => (o.bulk && qty >= o.bulk.min ? o.bulk.price : o.price);
 
 const SEEN = '2026-10-29';
+
+/** The two chains the tool prices a whole order at (owner, 2026-10-30: Home Depot and Lowe's only). */
+export const MAIN_STORES = ['Home Depot', "Lowe's"];
 
 /** Offers for each shopping-list item key (keys as in lumber.mjs EXAMPLE_ITEMS). @type {Record<string, Offer[]>} */
 export const OFFERS = {
@@ -24,7 +30,6 @@ export const OFFERS = {
   lpPanel: [
     { store: 'Home Depot', name: 'LP SmartSide 38 Series Cedar Texture 8 in. OC panel, 3/8 x 4 x 8', model: 'model 27874, internet 100055901', price: 39.96, url: 'https://www.homedepot.com/p/LP-SmartSide-LP-SmartSide-Cedar-Texture-8-in-OC-Panel-Engineered-Treated-Wood-Siding-8-in-Application-as-3-8-in-x-4-ft-x-8-ft-27874/100055901', note: 'the price the shopping list uses (prices.mjs); other copies of this page showed $42.78-$53.58' },
     { store: "Lowe's", name: 'LP SmartSide 38 Series primed panel, 3/8 x 48 x 96', model: 'item 55897, model 27874', price: 45.98, url: 'https://www.lowes.com/pd/SmartSide-38-Series-Primed-Engineered-Treated-Wood-Siding-Panel-Common-0-375-in-x-48-in-x-96-in-Actual-0-315-in-x-48-563-in-x-95-875-in/3058153', note: 'copies showed $42.78-$53.98' },
-    { store: 'Menards', name: 'LP SmartSide 3/8 x 4 x 8 grooved 8 in. OC, factory primed', model: 'model 27874 (page slug)', price: 54.98, url: 'https://www.menards.com/main/building-materials/siding/engineered-wood-siding/lp-reg-smartside-reg-3-8-grooved-8-oc-strand-panel-siding/27874/p-1444438201579.htm', note: 'model and SKU pairing not confirmed' },
   ],
   lpPanel76: [
     { store: 'Home Depot', name: 'LP SmartSide 76 Series Cedar Texture panel, 4 in. OC, 7/16 x 4 x 8', model: 'model 25831, internet 100089302', price: 64.88, url: 'https://www.homedepot.com/p/LP-SmartSide-LP-SmartSide-Cedar-Texture-Panel-OC-Engineered-Treated-Wood-Siding-4-in-Application-as-7-16-in-x-4-ft-x-8-ft-25831/100089302', note: 'an older copy of the page showed $41.98' },
@@ -44,32 +49,23 @@ export const OFFERS = {
   // Lumber, keyed by material and length in feet. Lowe's lumber pages mostly show
   // "Find My Store" instead of a price, so few Lowe's boards appear here.
   'lumber:2x4:8': [
-    { store: 'Menards', name: '2 x 4 x 8 construction/framing lumber, stud or better', model: 'SKU 1021101', price: 4.25, url: 'https://www.menards.com/main/building-materials/lumber-boards/dimensional-lumber/2-x-4-construction-framing-lumber/1021101/p-1444451086852-c-13125.htm', note: 'before the 11% rebate' },
   ],
   'lumber:2x4:12': [
-    { store: 'Menards', name: '2 x 4 x 12 construction/framing lumber, #2 and better SPF', model: 'SKU 1021127', price: 9.12, url: 'https://www.menards.com/main/building-materials/lumber-boards/dimensional-lumber/2-x-4-construction-framing-lumber/1021127/p-1444422744154-c-13125.htm', note: 'copies also showed $5.97 and $6.79' },
   ],
   'lumber:2x6:8': [
     { store: "Lowe's", name: '2 x 6 x 8 #2 and better SPF, kiln-dried', model: 'product 1000057075', price: 7.15, url: 'https://www.lowes.com/pd/2-in-x-6-in-x-8-ft-Whitewood-S4S-Kiln-dried-Lumber/1000057075' },
-    { store: 'Menards', name: '2 x 6 x 8 construction/framing lumber', model: 'SKU 1021758', price: 9.52, url: 'https://www.menards.com/main/building-materials/lumber-boards/dimensional-lumber/2-x-6-construction-framing-lumber/1021758/p-1444422369989.htm' },
   ],
   'lumber:2x6:14': [
-    { store: 'Menards', name: '2 x 6 x 14 construction/framing lumber', model: 'SKU 1021787', price: 16.89, url: 'https://www.menards.com/main/building-materials/lumber-boards/dimensional-lumber/2-x-6-construction-framing-lumber/1021787/p-1444422485941-c-13125.htm' },
   ],
   'lumber:2x10:12': [
-    { store: 'Menards', name: '2 x 10 x 12 #2 and better construction/framing lumber', model: 'SKU 1022032', price: 25.99, url: 'https://www.menards.com/main/building-materials/lumber-boards/dimensional-lumber/2-x-10-2-better-construction-framing-lumber/1022032/p-1444422415848-c-13125.htm' },
   ],
   'lumber:PT 4x4:12': [
-    { store: 'Menards', name: 'AC2 4 x 4 x 12 #2 pressure-treated timber (UC4B)', model: 'SKU 1112265', price: 25.72, url: 'https://www.menards.com/main/building-materials/lumber-boards/timbers-logs/ac2-reg-4-x-4-2-critical-structural-green-pressure-treated-timber/1112265/p-1444422764205-c-13131.htm', note: 'another Menards page showed $21.28' },
   ],
   'lumber:PT 2x6:8': [
-    { store: 'Menards', name: 'AC2 2 x 6 x 8 #2 prime ground-contact treated', model: 'SKU 1111024', price: 12.52, url: 'https://www.menards.com/main/building-materials/lumber-boards/dimensional-lumber/ac2-reg-2-x-6-ground-contact-green-pressure-treated-lumber/1111024/p-1444422259079-c-13125.htm', note: 'an old copy of the page' },
   ],
   'lumber:PT 2x6:12': [
-    { store: 'Menards', name: 'AC2 2 x 6 x 12 #2 prime ground-contact treated', model: 'SKU 1111040', price: 19.48, url: 'https://www.menards.com/main/building-materials/lumber-boards/treated-wood-products/treated-boards-decking-lumber-timbers/ac2-reg-2-x-6-ground-contact-green-pressure-treated-lumber/1111040/p-1444422441223.htm' },
   ],
   roofSheet: [
-    { store: 'Menards', name: '7/16 x 4 x 8 OSB', model: 'SKU 1242728', price: 13.48, url: 'https://www.menards.com/main/building-materials/panel-products/osb-sheathing/7-16-x-4-x-8-osb/1242728-2/p-1444422471192-c-13330.htm' },
   ],
   floorSheet: [
     { store: "Lowe's", name: '23/32 x 4 x 8 tongue-and-groove Douglas fir plywood', model: 'product 50204087', price: 43.48, url: 'https://www.lowes.com/pd/23-32-CAT-PS1-09-Tongue-and-Groove-Douglas-Fir-Application-as-4-x-8/50204087', note: 'possibly an old copy of the page' },
@@ -78,22 +74,20 @@ export const OFFERS = {
     { store: "Lowe's", name: 'Owens Corning TruDefinition Duration, Onyx Black, 32.8 sq ft', model: 'product 3428124', price: 44.48, url: 'https://www.lowes.com/pd/Owens-Corning-TruDefinition-Duration-32-8-Sq-Ft-Onyx-Black-Laminated-Architectural-Roof-Shingles/3428124', note: 'an old copy of the page' },
   ],
   underlayment: [
-    { store: 'Menards', name: 'Masterguard 48 in. x 250 ft synthetic underlayment (1,000 sq ft)', model: 'SKU 1511823', price: 74.99, url: 'https://www.menards.com/main/building-materials/roofing/roofing-underlayment/masterguard-48-x-250-synthetic-roofing-underlayment/1511823/p-4348828407018044-c-13250.htm' },
   ],
   dripEdge: [
     { store: "Lowe's", name: 'Amerimax 2 in. x 10 ft galvanized drip edge', model: 'product 5014645301', price: 6.98, url: 'https://www.lowes.com/pd/Amerimax-Drip-Edge-2-in-x-10-ft-Galvanized-Mill-Finish-Galvanized-Steel-Drip-Edge/5014645301', note: 'an old copy of the page' },
-    { store: 'Menards', name: '10 ft galvanized roof edge, style D', model: 'SKU 1564095', price: 18.89, url: 'https://www.menards.com/main/building-materials/roofing/metal-roofing/10-roof-edge/galvanized1564095-05/p-1559197980721-c-5815.htm' },
   ],
   pitchConnector: [
-    { store: 'Menards', name: 'MiTek TMPH2 rafter-to-plate connector (equivalent to Simpson VPA2)', model: 'TMPH2, SKU 2272302', price: 14.99, url: 'https://www.menards.com/main/hardware/fasteners-connectors/construction-hardware/structural-ewp-hangers/mitek-reg-1-1-2-rafter-width-adjustable-rafter-to-plate-connector/tmph2/p-1444445535536-c-8832.htm', note: 'a MiTek part; Menards does not stock the Simpson VPA2' },
   ],
   rafterHanger: [
     { store: "Lowe's", name: 'Simpson Strong-Tie LUS26 2x6 hanger', model: 'LUS26, product 1187273', price: 1.58, url: 'https://www.lowes.com/pd/Simpson-Strong-Tie-LUS26-2-x-6-Double-Shear-Hanger/1187273' },
-    { store: 'Menards', name: 'MiTek JUS26-TZ 2x6 hanger (equivalent to LUS26)', model: 'JUS26-TZ, SKU 2271741', price: 1.98, url: 'https://www.menards.com/main/hardware/fasteners-connectors/construction-hardware/structural-hangers/mitek-reg-2-x-6-8-18-gauge-triple-zinc-slant-nail-joist-hanger/jus26-tz/p-1444445489695-c-8843.htm' },
   ],
   stain: [
     { store: "Lowe's", name: 'Valspar solid exterior stain and sealer, tintable, 1 gal', model: 'VL1028091-16, product 1000515853', price: 48.98, url: 'https://www.lowes.com/pd/Valspar-Tintable-Neutral-Base-Solid-Exterior-Stain-and-Sealer-Actual-Net-Contents-116-fl-oz/1000515853' },
-    { store: 'Menards', name: 'Dutch Boy solid exterior stain and sealer, 1 gal', model: '5531629935-1DBSLD1G', price: 41.98, url: 'https://www.menards.com/main/paint/exterior-paint-stain/exterior-wood-stains/solid-color-stain/dutch-boy-reg-solid-exterior-stain-sealer/5531629935-1dbsld1g/p-1642874260939791-c-7957.htm' },
+  ],
+  zFlashing: [
+    { store: 'Home Depot', name: 'Amerimax 2.5 in. x 10 ft galvanized Z-bar flashing', model: '5651100120, Internet 100083261', price: 4.67, url: 'https://www.homedepot.com/p/Amerimax-Home-Products-2-5-in-x-10-ft-Galvanized-Steel-Z-Bar-Flashing-5651100120/100083261', note: 'read 2026-10-30 from a search result; the same model number the list prices from DK Hardware as 5/8 in. x 10 ft, so check the fit before buying' },
   ],
 };
 
@@ -150,48 +144,40 @@ export function storeComparison(est) {
     rows.push({ line: r, offers: at, best, saving: Math.max(0, Math.round((r.price - best.price) * r.qty * 100) / 100) });
   }
   const stores = [...new Set(rows.flatMap((row) => row.offers.map((o) => o.store)))].sort((a, b) => (a === 'Home Depot' ? -1 : b === 'Home Depot' ? 1 : a.localeCompare(b)));
-  /** What the compared lines cost if bought all at one store (null where that store has no offer). */
-  const totals = Object.fromEntries(stores.map((s) => {
-    let t = 0;
-    let missing = 0;
-    let carried = 0;
-    for (const row of rows) {
-      const o = row.offers.find((x) => x.store === s);
-      if (o) t += o.price * row.line.qty; else { missing += 1; carried += row.line.price * row.line.qty; }
-    }
-    return [s, { total: Math.round(t * 100) / 100, missing, withCarry: Math.round((t + carried) * 100) / 100 }];
-  }));
-  const cheapestMix = Math.round(rows.reduce((t, row) => t + row.best.price * row.line.qty, 0) * 100) / 100;
-  // Where to buy what: each compared line at its cheapest store, and the saving
-  // against the cheapest single store that lists every compared line.
+  // Stores are ranked like for like: only on the lines both chains list. A store
+  // with fewer listings would otherwise look cheaper for what it leaves out.
+  const both = rows.filter((row) => MAIN_STORES.every((st) => row.offers.some((o) => o.store === st)));
+  const at = (row, st) => /** @type {any} */ (row.offers.find((o) => o.store === st)).price * row.line.qty;
+  /** What the compared lines cost at each store: the lines both list, and how many it has no listing for. */
+  const totals = Object.fromEntries(stores.map((s) => [s, {
+    total: MAIN_STORES.includes(s) ? Math.round(both.reduce((t, row) => t + at(row, s), 0) * 100) / 100 : null,
+    missing: rows.filter((row) => !row.offers.some((o) => o.store === s)).length,
+  }]));
+  const bestOf = (row) => row.offers.filter((o) => MAIN_STORES.includes(o.store)).reduce((a, b) => (b.price < a.price ? b : a));
+  const cheapestMix = Math.round(both.reduce((t, row) => t + bestOf(row).price * row.line.qty, 0) * 100) / 100;
   /** @type {Record<string, { lines: string[], total: number }>} */
   const split = {};
-  for (const row of rows) {
-    const st = row.best.store;
+  for (const row of both) {
+    const st = bestOf(row).store;
     split[st] = split[st] || { lines: [], total: 0 };
     split[st].lines.push(`${row.line.qty} x ${row.line.name}`);
-    split[st].total = Math.round((split[st].total + row.best.price * row.line.qty) * 100) / 100;
+    split[st].total = Math.round((split[st].total + bestOf(row).price * row.line.qty) * 100) / 100;
   }
-  // One stop: the store whose prices make these lines cheapest, a line it has no
-  // listing for carried at the list's own price.
-  const ranked = [...stores].sort((a, b) => totals[a].withCarry - totals[b].withCarry);
-  const oneStop = ranked.length ? { store: ranked[0], total: totals[ranked[0]].withCarry } : null;
-  // One extra stop: for each other store, what buying only its cheaper lines there saves.
-  const addOns = oneStop ? stores.filter((st) => st !== oneStop.store).map((st) => {
+  const ranked = both.length ? [...MAIN_STORES].sort((a, b) => totals[a].total - totals[b].total) : [];
+  const oneStop = ranked.length ? { store: ranked[0], total: totals[ranked[0]].total, by: Math.round((totals[ranked[1]].total - totals[ranked[0]].total) * 100) / 100, other: ranked[1] } : null;
+  // One extra stop: what buying only the other store's cheaper lines there saves.
+  const addOns = oneStop ? ranked.slice(1).map((st) => {
     let saving = 0;
     const lines = [];
-    for (const row of rows) {
-      const hereOffer = row.offers.find((o) => o.store === oneStop.store);
-      const here = hereOffer ? hereOffer.price : row.line.price;
-      const there = row.offers.find((o) => o.store === st);
-      if (there && there.price < here) {
-        saving += (here - there.price) * row.line.qty;
-        lines.push(row.line.name);
-      }
+    for (const row of both) {
+      const d = at(row, oneStop.store) - at(row, st);
+      if (d > 0) { saving += d; lines.push(row.line.name); }
     }
     return { store: st, saving: Math.round(saving * 100) / 100, lines };
-  }).filter((a) => a.saving > 0).sort((a, b) => b.saving - a.saving) : [];
-  return { rows, stores, totals, cheapestMix, split, oneStop, addOns, splitSaving: oneStop ? Math.round((oneStop.total - cheapestMix) * 100) / 100 : null, seen: SEEN };
+  }).filter((a) => a.saving > 0) : [];
+  // How many of the compared prices come from copies over a year old, per store.
+  const stale = Object.fromEntries(MAIN_STORES.map((st) => [st, both.filter((row) => copyAgeDays(/** @type {any} */ (row.offers.find((o) => o.store === st))) > 365).length]));
+  return { rows, stores, both: both.length, stale, totals, cheapestMix, split, oneStop, addOns, splitSaving: oneStop ? Math.round((oneStop.total - cheapestMix) * 100) / 100 : null, seen: SEEN };
 }
 
 /**
@@ -201,7 +187,7 @@ export function storeComparison(est) {
  * counted, so two stores are compared on the lines both price.
  * @param {import('./estimate.mjs').Estimate} est
  */
-export function storeTotals(est, stores = ['Home Depot', "Lowe's", 'Menards']) {
+export function storeTotals(est, stores = MAIN_STORES) {
   const priceAt = (r, st) => {
     const key = r.source?.key;
     const offer = key && OFFERS[key]?.find((o) => o.store === st);
@@ -215,7 +201,8 @@ export function storeTotals(est, stores = ['Home Depot', "Lowe's", 'Menards']) {
       const p = priceAt(r, st);
       if (p === null) carried += r.total; else { priced += p * r.qty; n += 1; }
     }
-    return { store: st, lines: n, of: est.shopping.length, priced: Math.round(priced * 100) / 100, carried: Math.round(carried * 100) / 100, total: Math.round((priced + carried) * 100) / 100 };
+    const missing = est.shopping.filter((r) => priceAt(r, st) === null).map((r) => r.name);
+    return { store: st, lines: n, of: est.shopping.length, missing, priced: Math.round(priced * 100) / 100, carried: Math.round(carried * 100) / 100, total: Math.round((priced + carried) * 100) / 100 };
   });
   // Like for like: only the lines every store prices.
   const shared = est.shopping.filter((r) => stores.every((st) => priceAt(r, st) !== null));
@@ -223,7 +210,7 @@ export function storeTotals(est, stores = ['Home Depot', "Lowe's", 'Menards']) {
   return { stores: out, shared: shared.length, sharedTotals, priceAt };
 }
 
-const STORE_NAMES = { homedepot: 'Home Depot', lowes: "Lowe's", menards: 'Menards' };
+const STORE_NAMES = { homedepot: 'Home Depot', lowes: "Lowe's" };
 
 /**
  * Prices as one store charges them: its board and item prices where it lists

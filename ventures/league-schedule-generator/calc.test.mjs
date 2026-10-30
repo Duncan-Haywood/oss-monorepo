@@ -2033,3 +2033,39 @@ test("calendar CSV: Google/Outlook columns, 12-hour times, one team's matches, m
   assert.equal(row[4], "1:00 AM");
   assert.notEqual(row[1], row[3]);
 });
+
+test("playoffRace clinchedUnlessTied matches a brute force over every outcome", () => {
+  const rand = mulberry32(7);
+  for (let t = 0; t < 120; t++) {
+    const n = 3 + Math.floor(rand() * 4);
+    const spots = 1 + Math.floor(rand() * (n - 1));
+    const pairs = [];
+    for (let a = 0; a < n; a++) for (let b = a + 1; b < n; b++) pairs.push([a, b]);
+    const results = [];
+    const remaining = [];
+    for (const [a, b] of pairs) {
+      const u = rand();
+      if (u < 0.5) results.push({ a, b, ga: Math.floor(rand() * 3), gb: Math.floor(rand() * 3) });
+      else if (remaining.length < 7) remaining.push([a, b]);
+    }
+    const rows = playoffRace(names(n), results, remaining, spots);
+    const base = Array(n).fill(0);
+    for (const r of results) {
+      if (r.ga > r.gb) base[r.a] += 3; else if (r.ga < r.gb) base[r.b] += 3; else { base[r.a]++; base[r.b]++; }
+    }
+    const worstWon = Array(n).fill(1);
+    const walk = (f, cur) => {
+      if (f === remaining.length) {
+        for (let i = 0; i < n; i++) worstWon[i] = Math.max(worstWon[i], 1 + cur.filter((p, j) => j !== i && p > cur[i]).length);
+        return;
+      }
+      const [a, b] = remaining[f];
+      for (const [x, y] of [[3, 0], [1, 1], [0, 3]]) { const c = cur.slice(); c[a] += x; c[b] += y; walk(f + 1, c); }
+    };
+    walk(0, base);
+    for (const r of rows) {
+      assert.equal(r.clinchedUnlessTied, r.status === "alive" && worstWon[r.index] <= spots, `league ${t} team ${r.index}`);
+      if (r.clinchedUnlessTied) assert.ok(r.worstRank > spots);
+    }
+  }
+});

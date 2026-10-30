@@ -2,7 +2,7 @@
 
 Same data, budget (3,840 steps), M = 4, inner lr 2e-3, plain outer step as gpt_composition; only the width changes, dim 128 -> 192
 (2 layers, 6 heads). Cells: uncompressed and rand-k keep 1/16 at H in {4, 16, 64}, plus keep 1/4 at H = 16; seeds 0 and 1.
-Usage: python3 scale.py run | report. Results append to scale.jsonl. Reads the size-1 cell means from ../gpt_composition/composition_results.txt."""
+Usage: python3 scale.py run [extra] | report (extra = 6i seeds 2 to 5 on the two H = 64 cells; report averages the seeds each cell has). Results append to scale.jsonl. Reads the size-1 cell means from ../gpt_composition/composition_results.txt."""
 import json, os, re, sys, time, math, itertools
 from multiprocessing import Pool
 
@@ -12,6 +12,8 @@ M, B, STEPS, LR, DIM, HEADS = 4, 16, 3840, 2e-3, 192, 6
 PATH = os.path.join(HERE, "scale.jsonl")
 CELLS = [(1.0, 4), (1.0, 16), (1.0, 64), (0.0625, 4), (0.0625, 16), (0.0625, 64), (0.25, 16)]
 SEEDS = [0, 1]
+EXTRA = [(1.0, 64), (0.0625, 64)]  # 6i: the two H = 64 cells get seeds 2 to 5 (6h left them weakly identified)
+EXTRA_SEEDS = [2, 3, 4, 5]
 load = lambda p: [json.loads(l) for l in open(p)] if os.path.exists(p) else []
 omega = lambda p: 1 / p - 1
 
@@ -78,7 +80,7 @@ def report():
     print("params:", sorted({r["params"] for r in rows}), " mean secs per run:", round(sum(r["secs"] for r in rows) / len(rows)))
     print("size-2 cell (H, keep): n, mean, per seed")
     for k in sorted(c, key=lambda t: (t[0], -t[1])): print(k, len(c[k]), round(mean(c[k]), 4), {s: round(v, 4) for s, v in sorted(c[k].items())})
-    m2 = {k: mean(v) for k, v in c.items() if len(v) == len(SEEDS)}
+    m2 = {k: mean(v) for k, v in c.items() if len(v) >= len(SEEDS)}
     s1 = size1(); m1 = {k: s1[k] for k in m2 if k in s1}
     for name, m in (("size 1 (413k, dim 128), same 7 cells", m1), ("size 2 (dim 192)", m2)):
         if len(m) < 7: continue
@@ -110,6 +112,8 @@ if __name__ == "__main__":
     if sys.argv[1] == "report": report(); sys.exit()
     have = {(r["keep"], r["H"], r["seed"]) for r in load(PATH)}
     jobs = [(k, H, s) for s in SEEDS for (k, H) in CELLS if (k, H, s) not in have]
+    if len(sys.argv) > 2 and sys.argv[2] == "extra":
+        jobs = [(k, H, s) for s in EXTRA_SEEDS for (k, H) in EXTRA if (k, H, s) not in have]
     with Pool(4) as p, open(PATH, "a") as f:
         for r in p.imap_unordered(run, jobs):
             f.write(json.dumps(r) + "\n"); f.flush(); print(r, flush=True)

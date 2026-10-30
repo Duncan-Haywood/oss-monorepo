@@ -1,0 +1,921 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <meta name="theme-color" content="#9b3f68">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23b0507a'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EB%3C/text%3E%3C/svg%3E">
+  <title>Babysitting Business Kit: free app to run a babysitting business (leads, schedule, taxes, references, website)</title>
+  <meta name="description" content="Free app for babysitters who run their own business: score and answer inquiries, quote and schedule sits without double-booking, track who has paid, set aside self-employment tax with quarterly due dates, collect references and testimonials with consent, build your own babysitting website and plan posts. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Babysitting Business Kit: free, private, in your browser">
+  <meta property="og:description" content="Leads, scheduling, payments, taxes, references and a website for a one-person babysitting business.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Babysitting Business Kit","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser; optional Node 22 server","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"A free, open-source back office for a one-person babysitting business: lead scoring and reply drafts, rate quotes, a schedule with double-booking and travel-gap checks, a calendar feed, unpaid-sit reminders, self-employment tax set-aside with quarterly due dates, year-end child care statements for families, reference and testimonial tracking with consent, a generated marketing website and a content calendar.","featureList":"babysitter lead tracker, babysitting rate quote, babysitter schedule, babysitting taxes, quarterly estimated tax, child care receipt for Form 2441, babysitter references, babysitting website builder, babysitting marketing ideas"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Do babysitters have to pay taxes?","acceptedAnswer":{"@type":"Answer","text":"Yes, in the US babysitting income is taxable, cash included. A babysitter who runs their own business reports it on Schedule C, and once net profit reaches $400 for the year also owes self-employment tax (15.3% on 92.35% of profit, for Social Security and Medicare) on Schedule SE. This app adds up what you were paid, subtracts expenses and mileage, and suggests how much to set aside and when the quarterly estimated payments are due."}},{"@type":"Question","name":"Am I self-employed or a household employee?","acceptedAnswer":{"@type":"Answer","text":"It depends on who controls the work. A sitter who sets their own rates and schedule and works for many families is usually self-employed. If one family controls how and when you work in their home, the IRS can treat you as that family's household employee (Publication 926), and once they pay you $3,000 or more in 2026 they owe household employment taxes and give you a W-2. The app flags any family that crosses that line so you can talk it through."}},{"@type":"Question","name":"What do families need from me for the child care tax credit?","acceptedAnswer":{"@type":"Answer","text":"To claim the child and dependent care credit on Form 2441, or to be reimbursed from a dependent-care FSA, parents need your name, address and taxpayer ID, and the amount they paid. The app prints a year-end statement per family with every payment. A free EIN from the IRS lets you give a taxpayer ID without sharing your Social Security number."}},{"@type":"Question","name":"How do I decide which babysitting inquiries to take?","acceptedAnswer":{"@type":"Answer","text":"Set your own limits once (how far you travel, how many children, the youngest age you take, your availability and rate) and the app scores each inquiry against them, says why, and drafts a reply: a warm yes with your rates for a good fit, or a kind no for one that does not fit. Recurring work and referrals score higher because they book more often."}},{"@type":"Question","name":"How do I ask families for references and testimonials?","acceptedAnswer":{"@type":"Answer","text":"The References tab drafts the request, reminds you to follow up after five days, and keeps a separate yes or no for whether a quote may appear on your website. Only quotes marked yes are ever put on the site the app builds, shown with first name and last initial."}},{"@type":"Question","name":"Is my families' information uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"Not by this page. Families, kids, allergies and payments stay in this browser's storage and in the backup file you download. If you choose to run the optional server on your own hosting account, the app syncs to it with your own admin key, and your website's inquiry form posts to it."}}]}</script>
+  <style>
+    :root { --ink:#2b2433; --soft:#5f5669; --accent:#9b3f68; --accent2:#f6e7ee; --bg:#fbf7f4; --card:#fff; --line:#e8ded8; --ok:#1d5a24; --warn:#7c5e10; --bad:#7d1f16; font: 16px system-ui, sans-serif; color: var(--ink); background: var(--bg); }
+    body { max-width: 1060px; margin: auto; padding: 22px; }
+    a { color: var(--accent); }
+    h1 { font-size: clamp(1.7rem, 4.5vw, 2.5rem); line-height: 1.1; margin: 0 0 10px; }
+    h2 { font-size: 1.2rem; margin: 0 0 10px; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .87rem; color: var(--soft); }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px; margin: 16px 0; }
+    nav { display: flex; flex-wrap: wrap; gap: 6px; margin: 14px 0; position: sticky; top: 0; background: var(--bg); padding: 8px 0; z-index: 2; }
+    nav button { margin: 0; background: var(--accent2); color: var(--accent); }
+    nav button[aria-selected="true"] { background: var(--accent); color: #fff; }
+    label { display: block; font-weight: 600; margin: 10px 0 3px; font-size: .92rem; }
+    input, select, textarea { width: 100%; box-sizing: border-box; padding: 8px 9px; border: 1px solid #8a7a88; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input[type=checkbox] { width: auto; }
+    textarea { min-height: 70px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 0 14px; }
+    button { border: 0; border-radius: 8px; padding: 9px 14px; background: var(--accent); color: #fff; font-weight: 700; cursor: pointer; margin: 12px 8px 0 0; font-size: .92rem; }
+    button.secondary { background: var(--accent2); color: var(--accent); }
+    button.small { padding: 4px 9px; margin: 2px; font-size: .8rem; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: .93rem; }
+    th, td { text-align: left; padding: 7px 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th { font-size: .76rem; text-transform: uppercase; letter-spacing: .03em; color: var(--soft); }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .pill { display: inline-block; font-size: .7rem; font-weight: 700; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; }
+    .hot, .good { background: #dcefdc; color: var(--ok); } .warm { background: #fdf0d5; color: var(--warn); } .cool { background: #e3e9ef; color: #1f4a5d; } .decline, .bad { background: #f8d9d6; color: var(--bad); }
+    .msg { white-space: pre-wrap; background: #faf5f8; border-left: 3px solid var(--accent); padding: 8px 10px; margin: 6px 0; font-size: .92rem; }
+    .stat { display: inline-block; min-width: 140px; margin: 6px 16px 6px 0; } .stat b { display: block; font-size: 1.35rem; }
+    [hidden] { display: none !important; }
+    iframe { width: 100%; height: 520px; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
+    .wk { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; margin-top: 8px; }
+    .wk .col { position: relative; height: 420px; background: #faf6f3; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+    .wk .hd { font-size: .78rem; font-weight: 700; text-align: center; padding: 3px 0; }
+    .wk .open { position: absolute; left: 0; right: 0; background: #e3f1e3; }
+    .wk .sit { position: absolute; left: 3px; right: 3px; background: var(--accent2); border-left: 3px solid var(--accent); border-radius: 5px; padding: 2px 4px; font-size: .72rem; overflow: hidden; }
+    .wk .sit.skipped { opacity: .55; text-decoration: line-through; border-left-color: var(--soft); }
+    .wk .sit .pill { font-size: .6rem; padding: 1px 5px; }
+    @media (max-width: 720px) { body { padding: 14px; } table { font-size: .85rem; } }
+    /* keyboard focus, and the phone layout: tab bar at the bottom within thumb reach, 44 px touch targets */
+    :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+    nav button:focus-visible { outline-color: var(--ink); }
+    [role="tabpanel"]:focus-visible { outline-offset: -3px; }
+    @media (pointer: coarse) { button, nav button { min-height: 44px; } }
+    @media (max-width: 720px) {
+      html { scroll-padding-bottom: 90px; }
+      body { padding-bottom: calc(84px + env(safe-area-inset-bottom)); }
+      nav { position: fixed; top: auto; bottom: 0; left: 0; right: 0; margin: 0; padding: 6px 8px calc(6px + env(safe-area-inset-bottom)); flex-wrap: nowrap; overflow-x: auto; scroll-snap-type: x proximity; border-top: 1px solid var(--line); box-shadow: 0 -2px 10px rgba(43,36,51,.08); }
+      nav button { flex: 0 0 auto; scroll-snap-align: start; }
+      button, input, select { min-height: 44px; }
+      button.small { min-height: 44px; min-width: 44px; padding: 8px 12px; }
+      input[type=checkbox] { width: 24px; height: 24px; min-height: 0; vertical-align: middle; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Babysitting Business Kit</h1>
+    <p>The back office for a one-person babysitting business: answer the right inquiries first, quote and schedule sits without double-booking, know who still owes you, set aside the right amount for taxes, collect references, and publish your own website. Free, and it runs in your browser. <a href="#about">How it works</a> · <a href="babysitting-taxes.html">Babysitting taxes, explained</a></p>
+    <p class="note" id="guides">Guides: <a href="how-to-start-a-babysitting-business.html">How to start a babysitting business</a> · <a href="how-much-to-charge-for-babysitting.html">How much to charge for babysitting</a> · <a href="babysitting-references.html">Babysitting references</a></p>
+    <p class="note" id="firstrun">Your data is saved in this browser. Download a backup in <strong>Settings</strong> now and then. <button type="button" class="secondary small" id="loadExample">Load an invented example</button></p>
+  </header>
+
+  <nav role="tablist" aria-label="Sections">
+    <button type="button" role="tab" data-tab="today">Today</button>
+    <button type="button" role="tab" data-tab="leads">Leads</button>
+    <button type="button" role="tab" data-tab="families">Families</button>
+    <button type="button" role="tab" data-tab="schedule">Schedule</button>
+    <button type="button" role="tab" data-tab="money">Money &amp; taxes</button>
+    <button type="button" role="tab" data-tab="references">References</button>
+    <button type="button" role="tab" data-tab="website">Website</button>
+    <button type="button" role="tab" data-tab="content">Content</button>
+    <button type="button" role="tab" data-tab="print">Print</button>
+    <button type="button" role="tab" data-tab="blog">Posts &amp; blog</button>
+    <button type="button" role="tab" data-tab="settings">Settings</button>
+  </nav>
+
+  <main>
+    <section data-panel="today" class="card">
+      <h2>Today</h2>
+      <p class="note">New inquiries and follow-ups, unpaid sits, references to chase, families to invite back, tax deadlines and tomorrow's sits, most urgent first. Copy the drafted message, send it the way you normally do, then mark it done.</p>
+      <div id="todayList"></div>
+      <div id="autoToday"></div>
+    </section>
+
+    <section data-panel="leads" class="card" hidden>
+      <h2>Leads</h2>
+      <p class="note">Each inquiry is scored against your own limits in Settings (distance, number and age of children, availability, rate). A family's beliefs are never scored; asking for faith-based activities only counts as a match when you offer them.</p>
+      <form id="leadForm" data-kind="leads">
+        <div class="grid">
+          <div><label for="l_name">Parent's name</label><input id="l_name" name="name" required></div>
+          <div><label for="l_contact">Phone or email</label><input id="l_contact" name="contact"></div>
+          <div><label for="l_kids">Children's ages (4, 18 months)</label><input id="l_kids" name="kids"></div>
+          <div><label for="l_schedule">When (Fri 18-23; Mon-Thu 15-18)</label><input id="l_schedule" name="schedule"></div>
+          <div><label for="l_wants">One-time or regular?</label><input id="l_wants" name="wants" placeholder="date nights, weekly after school"></div>
+          <div><label for="l_source">How they found you</label><input id="l_source" name="source" placeholder="referral, church, Nextdoor"></div>
+          <div><label for="l_distance">Miles away</label><input id="l_distance" name="distanceMiles" type="number" step="0.1" min="0"></div>
+          <div><label for="l_budget">Their budget ($/hour)</label><input id="l_budget" name="budget" type="number" step="0.5" min="0"></div>
+          <div><label for="l_status">Status</label><select id="l_status" name="status"><option>new</option><option>contacted</option><option>requested</option><option>meet-and-greet</option><option>booked</option><option>lost</option><option>declined</option></select></div>
+          <div><label for="l_created">Received</label><input id="l_created" name="created" type="date"></div>
+        </div>
+        <label><input type="checkbox" name="faithActivities"> They asked for faith-based activities</label>
+        <label for="l_notes">Notes</label><textarea id="l_notes" name="notes"></textarea>
+        <button type="submit">Save lead</button><button type="reset" class="secondary">Clear</button>
+      </form>
+      <div id="leadsList"></div>
+      <div id="pipelineStats"></div>
+      <p class="note">Before the first sit: <a href="meet-and-greet.html">the meet-and-greet questions and red-flag checklist</a> (printable).</p>
+    </section>
+
+    <section data-panel="families" class="card" hidden>
+      <h2>Families</h2>
+      <form id="familyForm" data-kind="families">
+        <div class="grid">
+          <div><label for="f_name">Family name</label><input id="f_name" name="name" required placeholder="Rivera family"></div>
+          <div><label for="f_contactName">Parent</label><input id="f_contactName" name="contactName"></div>
+          <div><label for="f_contact">Phone or email</label><input id="f_contact" name="contact"></div>
+          <div><label for="f_address">Address</label><input id="f_address" name="address"></div>
+          <div><label for="f_emergency">Emergency contact</label><input id="f_emergency" name="emergency"></div>
+        </div>
+        <label for="f_kids">Kids, one per line: name, birth date, allergies or notes</label>
+        <textarea id="f_kids" name="kidsText" placeholder="Leo, 2021-04-02&#10;Mia, 2023-09-10, peanut allergy (EpiPen in diaper bag)"></textarea>
+        <label for="f_notes">House notes (bedtimes, screen rules, pets, door code hint)</label><textarea id="f_notes" name="notes"></textarea>
+        <button type="submit">Save family</button><button type="reset" class="secondary">Clear</button>
+      </form>
+      <div id="familiesList"></div>
+      <div id="intakePanel"></div>
+    </section>
+
+    <section data-panel="schedule" class="card" hidden>
+      <h2>Schedule</h2>
+      <form id="bookingForm" data-kind="bookings">
+        <div class="grid">
+          <div><label for="b_family">Family</label><select id="b_family" name="familyId"></select></div>
+          <div><label for="b_date">Date</label><input id="b_date" name="date" type="date" required></div>
+          <div><label for="b_start">Start</label><input id="b_start" name="start" type="time" required></div>
+          <div><label for="b_end">End</label><input id="b_end" name="end" type="time" required></div>
+          <div><label for="b_kids">Children</label><input id="b_kids" name="kids" type="number" min="1" value="1"></div>
+          <div><label for="b_repeat">Repeat weekly (number of weeks)</label><input id="b_repeat" name="repeatWeeks" type="number" min="1" value="1"></div>
+          <div><label for="b_miles">Business miles (round trip)</label><input id="b_miles" name="miles" type="number" step="0.1" min="0"></div>
+          <div><label for="b_price">Agreed price (blank = your rates)</label><input id="b_price" name="price" type="number" step="0.01" min="0"></div>
+          <div><label for="b_booked">Booked on</label><input id="b_booked" name="bookedOn" type="date"></div>
+          <div><label for="b_status">Status</label><select id="b_status" name="status"><option>scheduled</option><option>done</option><option>cancelled</option></select></div>
+        </div>
+        <label for="b_notes">Notes</label><textarea id="b_notes" name="notes"></textarea>
+        <p id="quoteOut" class="msg" aria-live="polite"></p>
+        <button type="submit">Save sit</button><button type="reset" class="secondary">Clear</button>
+      </form>
+      <h3>Booking requests</h3>
+      <p class="note">Families who picked a time on your server's <code>/book</code> page. Nothing is booked until you approve it here.</p>
+      <div id="requestsList"></div>
+      <h3>Week view</h3>
+      <div class="grid"><div><label for="gridWeek">Week of</label><input id="gridWeek" type="date"></div></div>
+      <p><button type="button" class="secondary small" id="gridPrev">Previous week</button><button type="button" class="secondary small" id="gridNext">Next week</button> <span class="note">Green is open time. "Skip" takes one week off a weekly repeat.</span></p>
+      <div id="weekGrid"></div>
+      <h3>My openings</h3>
+      <div class="grid">
+        <div><label for="openWeeks">Weeks to list</label><input id="openWeeks" type="number" min="1" max="8" value="1"></div>
+        <div><label for="openBuffer">Travel buffer between sits (minutes)</label><input id="openBuffer" type="number" min="0" step="5"></div>
+      </div>
+      <pre id="openingsOut" class="msg"></pre>
+      <div id="openingsCopy"></div>
+      <h3>Upcoming and recent sits</h3>
+      <div id="conflictsOut"></div>
+      <div id="bookingsList"></div>
+      <p><button type="button" class="secondary" id="icsBtn">Download calendar (.ics)</button></p>
+    </section>
+
+    <section data-panel="money" class="card" hidden>
+      <h2>Money &amp; taxes</h2>
+      <div class="grid"><div><label for="taxYear">Tax year</label><select id="taxYear"></select></div></div>
+      <div id="taxOut"></div>
+      <h3>Federal estimate and safe-harbor payments</h3>
+      <form id="fedForm">
+        <div class="grid">
+          <div><label for="fx_filing">Filing status</label><select id="fx_filing" name="filing"><option value="single">Single</option><option value="hoh">Head of household</option><option value="mfj">Married filing jointly</option></select></div>
+          <div><label for="fx_wages">Your W-2 wages this year</label><input id="fx_wages" name="wages" type="number" step="0.01" min="0"></div>
+          <div><label for="fx_spouse">Spouse's W-2 wages (joint)</label><input id="fx_spouse" name="spouseWages" type="number" step="0.01" min="0"></div>
+          <div><label for="fx_other">Other income</label><input id="fx_other" name="otherIncome" type="number" step="0.01"></div>
+          <div><label for="fx_withheld">Federal tax withheld from paychecks</label><input id="fx_withheld" name="withholding" type="number" step="0.01" min="0"></div>
+          <div><label for="fx_prior">Last year's total tax (Form 1040)</label><input id="fx_prior" name="priorYearTax" type="number" step="0.01" min="0"></div>
+          <div><label for="fx_priorAgi">Last year's AGI</label><input id="fx_priorAgi" name="priorAgi" type="number" step="0.01" min="0"></div>
+        </div>
+        <label style="display:inline"><input type="checkbox" id="fx_project" checked> Project the year so far to a full year</label>
+        <button type="submit">Save and estimate</button>
+      </form>
+      <div id="fedOut"></div>
+      <form id="estPayForm">
+        <div class="grid">
+          <div><label for="ep_date">Estimated payment sent on</label><input id="ep_date" name="date" type="date" required></div>
+          <div><label for="ep_amount">Amount</label><input id="ep_amount" name="amount" type="number" step="0.01" min="0.01" required></div>
+        </div>
+        <button type="submit">Record estimated payment</button>
+      </form>
+      <p><button type="button" id="schedCBtn" class="secondary">Download Schedule C worksheet (.csv)</button><button type="button" id="yearPrintBtn" class="secondary">Print year summary</button></p>
+      <div id="schedCOut"></div>
+      <h3>Record a payment</h3>
+      <form id="payForm">
+        <div class="grid">
+          <div><label for="p_booking">Sit</label><select id="p_booking" name="bookingId"></select></div>
+          <div><label for="p_amount">Amount</label><input id="p_amount" name="amount" type="number" step="0.01" min="0" required></div>
+          <div><label for="p_date">Date paid</label><input id="p_date" name="date" type="date" required></div>
+          <div><label for="p_method">How</label><select id="p_method" name="method"><option>cash</option><option>Venmo</option><option>Zelle</option><option>PayPal</option><option>Cash App</option><option>check</option><option>other</option></select></div>
+        </div>
+        <button type="submit">Add payment</button>
+      </form>
+      <h3>Expenses</h3>
+      <form id="expenseForm" data-kind="expenses">
+        <div class="grid">
+          <div><label for="e_date">Date</label><input id="e_date" name="date" type="date" required></div>
+          <div><label for="e_amount">Amount</label><input id="e_amount" name="amount" type="number" step="0.01" min="0"></div>
+          <div><label for="e_cat">Category</label><select id="e_cat" name="category"></select></div>
+          <div><label for="e_miles">Or miles driven</label><input id="e_miles" name="miles" type="number" step="0.1" min="0"></div>
+          <div><label for="e_note">What for</label><input id="e_note" name="note"></div>
+        </div>
+        <button type="submit">Save expense</button><button type="reset" class="secondary">Clear</button>
+      </form>
+      <div id="expensesList"></div>
+      <h3>Year-end statement for a family (Form 2441 / dependent-care FSA)</h3>
+      <div class="grid"><div><label for="stmtFamily">Family</label><select id="stmtFamily"></select></div></div>
+      <pre id="stmtOut" class="msg"></pre>
+    </section>
+
+    <section data-panel="references" class="card" hidden>
+      <h2>References &amp; testimonials</h2>
+      <p class="note">Keep who you asked, what they said and whether they agreed to be named. Only quotes marked "yes, publish" ever reach your website.</p>
+      <form id="refForm" data-kind="references">
+        <div class="grid">
+          <div><label for="r_name">Name</label><input id="r_name" name="name" required></div>
+          <div><label for="r_family">Family (optional)</label><select id="r_family" name="familyId"></select></div>
+          <div><label for="r_rel">Relationship</label><input id="r_rel" name="relationship" placeholder="mom of two, church nursery lead"></div>
+          <div><label for="r_contact">Their phone or email</label><input id="r_contact" name="contact"></div>
+          <div><label for="r_kind">Asking for</label><select id="r_kind" name="kind"><option value="reference">a reference families can call</option><option value="testimonial">a testimonial quote</option></select></div>
+          <div><label for="r_requested">Asked on</label><input id="r_requested" name="requested" type="date"></div>
+          <div><label for="r_received">Received on</label><input id="r_received" name="received" type="date"></div>
+          <div><label for="r_consent">May the quote go on your website?</label><select id="r_consent" name="consentPublic"><option value="">not asked yet</option><option value="yes">yes, publish</option><option value="no">no, private</option></select></div>
+          <div><label for="r_share">May you give their contact to new families?</label><select id="r_share" name="consentContact"><option value="">not asked yet</option><option value="yes">yes</option><option value="no">no</option></select></div>
+        </div>
+        <label for="r_quote">What they said (their words)</label><textarea id="r_quote" name="quote"></textarea>
+        <button type="submit">Save</button><button type="reset" class="secondary">Clear</button>
+      </form>
+      <div id="refsList"></div>
+      <h3>Private links, follow-ups and the reference packet</h3>
+      <p class="note">With your own server set up (Settings, Sync), "Make a private link" gives each person a page where they write their own words and tick two separate boxes: whether new families may contact them, and whether their words may go on your website as first name and last initial. The time and the exact wording they agreed to are saved. Links expire after 30 days; sync to bring answers in. Follow up after 5 and 12 days, then let it go.</p>
+      <div id="refSteps"></div>
+      <div class="grid"><div><label for="packetFor">Reference packet for (family, optional)</label><input id="packetFor" placeholder="the Park family"></div></div>
+      <p><button type="button" id="packetBtn">Download the reference packet</button> <span class="note">Only people who agreed to be contacted, with your certifications. Open it and print.</span></p>
+    </section>
+
+    <section data-panel="website" class="card" hidden>
+      <h2>Your website</h2>
+      <p>A small site built only from what you write: home (your story, rates, the towns you serve, an optional faith section, the testimonials families agreed to share, an inquiry form), about (what a sit looks like, safety, certifications with dates), rates and policies, and questions families ask. A section with nothing filled in is left out. Your name, rates and story come from <strong>Settings</strong>; the rest is here. Download the files and drop them on Netlify, Cloudflare Pages or GitHub Pages (all have free plans), or run the optional server, which serves the site at <code>/site/</code> and turns each inquiry into a scored lead.</p>
+      <form id="siteForm">
+        <div class="grid">
+          <div><label for="w_theme">Look</label><select id="w_theme" name="theme"><option value="warm">Warm and classic</option><option value="bright">Bright and playful</option><option value="simple">Simple and minimal</option></select></div>
+          <div><label for="w_url">Your site's address (for search engines)</label><input id="w_url" name="url" placeholder="https://yourname.netlify.app"></div>
+        </div>
+        <label for="w_towns">Towns or neighborhoods you serve (comma separated)</label><input id="w_towns" name="towns" placeholder="Springfield, Riverside, Oak Hill">
+        <label for="w_steps">What a sit looks like (one step per line)</label><textarea id="w_steps" name="sitSteps" placeholder="Handover: allergies, bedtime, emergency numbers&#10;Play outside or a craft&#10;Dinner and bath&#10;Bedtime routine&#10;A short note for you when you get home"></textarea>
+        <label for="w_first">What to expect at the first sit</label><textarea id="w_first" name="firstSit"></textarea>
+        <label for="w_safety">How you keep kids safe</label><textarea id="w_safety" name="safety"></textarea>
+        <div class="grid">
+          <div><label for="w_cancel">Cancellation policy (blank = from your rates)</label><textarea id="w_cancel" name="cancellation"></textarea></div>
+          <div><label for="w_pay">How families can pay</label><textarea id="w_pay" name="payment" placeholder="Cash, Venmo or Zelle at the end of each sit."></textarea></div>
+          <div><label for="w_sick">Sick-child policy</label><textarea id="w_sick" name="sick"></textarea></div>
+        </div>
+        <label for="w_certs">Certifications with dates, one per line: name | earned | valid through (YYYY-MM). Blank = the list in Settings. Expired ones are hidden.</label><textarea id="w_certs" name="certs" placeholder="CPR and First Aid | 2026-03 | 2028-03"></textarea>
+        <label for="w_faq">More questions for the FAQ, one per line: question | answer</label><textarea id="w_faq" name="faq" placeholder="Do you drive kids? | Only with your car seats installed."></textarea>
+        <button type="submit">Save website</button>
+      </form>
+      <div id="siteGaps"></div>
+      <p><button type="button" id="siteZip">Download all files (.zip)</button><button type="button" class="secondary" id="siteDownload">Download index.html only</button></p>
+      <div class="grid"><div><label for="sitePage">Preview page</label><select id="sitePage"></select></div></div>
+      <iframe id="sitePreview" title="Website preview" sandbox=""></iframe>
+      <h3>Get found locally</h3>
+      <p class="note">Plain steps people commonly take; none of them is promised to bring families. Tick them off as you go.</p>
+      <div id="localList"></div>
+    </section>
+
+    <section data-panel="content" class="card" hidden>
+      <h2>Content calendar</h2>
+      <p class="note">Twelve weeks of post ideas, rotated across Facebook, Nextdoor, Instagram, a church or school bulletin and your website, tied to the season. Each draft leaves a space for a real moment in your own words. Never post a child's name or photo without the parents' yes.</p>
+      <div class="grid"><div><label for="contentStart">Start week</label><input id="contentStart" type="date"></div></div>
+      <div id="contentOut"></div>
+      <h3>Messages for your families</h3>
+      <div class="grid"><div><label for="msgFamily">Family</label><select id="msgFamily"></select></div></div>
+      <div id="familyMsgs"></div>
+    </section>
+
+    <section data-panel="print" class="card" hidden>
+      <h2>Print: flyers, cards and referral cards</h2>
+      <p class="note">For church and library bulletin boards, school newsletters, coffee shops and neighbors' doors. Each piece is built from your profile in Settings, with a QR code to your website. Faith wording appears only if you turned on your faith section, and then in your own words. Ask before you post: many boards and bulletins have rules.</p>
+      <div class="grid">
+        <div><label for="pr_url">Link for the QR code (your website or booking page)</label><input id="pr_url" type="url" placeholder="https://your-site.example"></div>
+        <div><label for="pr_kind">Piece</label><select id="pr_kind"></select></div>
+        <div><label for="pr_family">Family (for referral cards)</label><select id="pr_family"></select></div>
+      </div>
+      <label><input type="checkbox" id="pr_rate" checked> Show my hourly rate</label>
+      <p><button type="button" id="pr_open">Open to print</button><button type="button" class="secondary" id="pr_download">Download .html</button></p>
+      <p class="note" id="pr_note"></p>
+      <iframe id="pr_preview" title="Print preview" sandbox=""></iframe>
+      <h3>Where your leads come from</h3>
+      <p class="note">A referral card carries a code. When an inquiry's "How did you hear about me?" includes it (the card's QR code fills it in on your website), the lead is credited to that family and gets the referral bonus in its score.</p>
+      <div id="pr_stats"></div>
+    </section>
+
+    <section data-panel="blog" class="card" hidden>
+      <h2>Posts &amp; blog</h2>
+      <div id="contentKit"></div>
+    </section>
+
+    <section data-panel="settings" class="card" hidden>
+      <h2>Settings: you, your rates, your limits</h2>
+      <form id="profileForm">
+        <div class="grid">
+          <div><label for="s_name">Your name</label><input id="s_name" name="name"></div>
+          <div><label for="s_business">Business name</label><input id="s_business" name="businessName"></div>
+          <div><label for="s_city">Town or city</label><input id="s_city" name="city"></div>
+          <div><label for="s_area">Area you serve</label><input id="s_area" name="area"></div>
+          <div><label for="s_radius">Travel radius (miles)</label><input id="s_radius" name="serviceRadiusMiles" type="number" min="0"></div>
+          <div><label for="s_phone">Phone</label><input id="s_phone" name="phone"></div>
+          <div><label for="s_email">Email</label><input id="s_email" name="email"></div>
+          <div><label for="s_youngest">Youngest age you take (months)</label><input id="s_youngest" name="youngestMonths" type="number" min="0"></div>
+          <div><label for="s_maxkids">Most children at once</label><input id="s_maxkids" name="maxKids" type="number" min="1"></div>
+        </div>
+        <label for="s_avail">Weekly availability (Mon-Fri 15:00-22:00; Sat 08:00-23:30; Sun off)</label><input id="s_avail" name="availability">
+        <label for="s_certs">Certifications (comma separated)</label><input id="s_certs" name="certifications">
+        <label for="s_bio">About you (website)</label><textarea id="s_bio" name="bio"></textarea>
+        <label><input type="checkbox" name="showFaith"> Show a faith section on my website and in post ideas</label>
+        <label for="s_faith">Faith statement (in your own words)</label><textarea id="s_faith" name="faithStatement" placeholder="I'm a Christian, and caring for kids is one way I try to love my neighbors well."></textarea>
+        <label for="s_faithAct">Faith-based activities you offer when parents ask</label><input id="s_faithAct" name="faithActivities">
+        <h3>Rates</h3>
+        <div class="grid">
+          <div><label for="s_hourly">Hourly, one child ($)</label><input id="s_hourly" name="rates.hourly" type="number" step="0.5"></div>
+          <div><label for="s_extra">Each extra child ($/h)</label><input id="s_extra" name="rates.extraChild" type="number" step="0.5"></div>
+          <div><label for="s_min">Minimum hours</label><input id="s_min" name="rates.minimumHours" type="number" step="0.5"></div>
+          <div><label for="s_lateAfter">Late rate after</label><input id="s_lateAfter" name="rates.lateAfter" type="time"></div>
+          <div><label for="s_lateExtra">Late extra ($/h)</label><input id="s_lateExtra" name="rates.lateExtra" type="number" step="0.5"></div>
+          <div><label for="s_holiday">Holiday multiplier</label><input id="s_holiday" name="rates.holidayMultiplier" type="number" step="0.05"></div>
+          <div><label for="s_lmh">Last-minute if booked under (hours)</label><input id="s_lmh" name="rates.lastMinuteHours" type="number"></div>
+          <div><label for="s_lmf">Last-minute fee ($)</label><input id="s_lmf" name="rates.lastMinuteFee" type="number"></div>
+          <div><label for="s_ch">Cancellation window (hours)</label><input id="s_ch" name="rates.cancelHours" type="number"></div>
+          <div><label for="s_cp">Late cancellation fee (% of sit)</label><input id="s_cp" name="rates.cancelFeePct" type="number"></div>
+        </div>
+        <label for="s_holidays">Holiday dates (MM-DD, comma separated)</label><input id="s_holidays" name="holidays">
+        <h3>Taxes and follow-up</h3>
+        <div class="grid">
+          <div><label for="s_tax">Federal income tax bracket (%)</label><input id="s_tax" name="taxRate" type="number" step="0.1"></div>
+          <div><label for="s_state">State income tax (%)</label><input id="s_state" name="stateTaxRate" type="number" step="0.1"></div>
+          <div><label for="s_mile">Mileage rate override ($/mile, blank = IRS)</label><input id="s_mile" name="mileageRate" type="number" step="0.005"></div>
+          <div><label for="s_addr">Your address (for family statements)</label><input id="s_addr" name="address"></div>
+          <div><label for="s_fu">Follow-up days for leads</label><input id="s_fu" name="followUpDays" placeholder="0, 2, 7"></div>
+          <div><label for="s_rebook">Invite families back after (days)</label><input id="s_rebook" name="rebookAfterDays" type="number"></div>
+          <div><label for="s_form">Website form address (blank = opens email)</label><input id="s_form" name="formAction" placeholder="https://your-server/inquiry"></div>
+        </div>
+        <button type="submit">Save settings</button>
+      </form>
+      <h3>Automations (sent by your own server)</h3>
+      <div id="autoSettings"></div>
+      <h3>Backup</h3>
+      <p><button type="button" id="exportBtn">Download backup (.json)</button><label class="secondary" style="display:inline"><span class="note">Restore from a backup:</span> <input type="file" id="importFile" accept="application/json,.json" aria-label="Restore from a backup file"></label></p>
+      <h3>Sync with your own server (optional)</h3>
+      <p class="note">If you run the server from the README on your own account, enter its address and admin key to keep this desk and the leads your website collects in one place. The key is kept in this browser only.</p>
+      <div class="grid"><div><label for="syncUrl">Server address</label><input id="syncUrl" placeholder="https://my-sitter-desk.onrender.com"></div><div><label for="syncKey">Admin key</label><input id="syncKey" type="password" autocomplete="off"></div></div>
+      <p><button type="button" id="syncBtn">Sync now</button> <span id="syncOut" class="note" aria-live="polite"></span></p>
+      <p><button type="button" class="secondary" id="wipeBtn">Erase everything in this browser</button></p>
+    </section>
+  </main>
+
+  <section class="card" id="about">
+    <h2>How it works, and what it is not</h2>
+    <h3>Do babysitters have to pay taxes?</h3>
+    <p>Yes, in the US babysitting income is taxable, cash included. A babysitter who runs their own business reports it on Schedule C, and once net profit reaches $400 for the year also owes self-employment tax (15.3% on 92.35% of profit, for Social Security and Medicare) on Schedule SE. This app adds up what you were paid, subtracts expenses and mileage, and suggests how much to set aside and when the quarterly estimated payments are due.</p>
+    <h3>Am I self-employed or a household employee?</h3>
+    <p>It depends on who controls the work. A sitter who sets their own rates and schedule and works for many families is usually self-employed. If one family controls how and when you work in their home, the IRS can treat you as that family's household employee (Publication 926), and once they pay you $3,000 or more in 2026 they owe household employment taxes and give you a W-2. The app flags any family that crosses that line so you can talk it through.</p>
+    <h3>What do families need from me for the child care tax credit?</h3>
+    <p>To claim the child and dependent care credit on Form 2441, or to be reimbursed from a dependent-care FSA, parents need your name, address and taxpayer ID, and the amount they paid. The app prints a year-end statement per family with every payment. A free EIN from the IRS lets you give a taxpayer ID without sharing your Social Security number.</p>
+    <h3>How do I decide which babysitting inquiries to take?</h3>
+    <p>Set your own limits once (how far you travel, how many children, the youngest age you take, your availability and rate) and the app scores each inquiry against them, says why, and drafts a reply: a warm yes with your rates for a good fit, or a kind no for one that does not fit. Recurring work and referrals score higher because they book more often.</p>
+    <h3>How do I ask families for references and testimonials?</h3>
+    <p>The References tab drafts the request, reminds you to follow up after five days, and keeps a separate yes or no for whether a quote may appear on your website. Only quotes marked yes are ever put on the site the app builds, shown with first name and last initial.</p>
+    <h3>Is my families' information uploaded anywhere?</h3>
+    <p>Not by this page. Families, kids, allergies and payments stay in this browser's storage and in the backup file you download. If you choose to run the optional server on your own hosting account, the app syncs to it with your own admin key, and your website's inquiry form posts to it.</p>
+    <h3>When to use something else</h3>
+    <p>Marketplaces such as Care.com and Sittercity bring you families you have not met; this app is for running the business once they find you, and for the families who come by word of mouth. If you take on a family as their regular nanny, use a payroll service for household employees. The tax figures are a set-aside, not a return: your bracket, deductions and credits are for you or a tax preparer to finish.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are estimates from the numbers you enter. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for, including taxes, licensing and child-safety rules where you live. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Privacy.</strong> Everything runs in your browser. Your data is never uploaded by this page, and there are no accounts, tracking cookies or analytics vendor. Your desk is kept in this browser's localStorage so it is there next time. We count anonymous events (which features get used, nothing about who used them) in this browser. <button type="button" class="secondary small" id="optout">Turn usage counting off</button></p>
+    <p>Not affiliated with Care.com, Sittercity, UrbanSitter, the IRS or any church or denomination. Free and open source under the <a href="LICENSE">MIT licence</a>: <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/babysitting-business-kit">source and self-hosting guide</a>. If this helped, <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is optional and never changes what the tool does.</p>
+    <p>Parents paying a nanny who works only for them may be a household employer: the <a href="../nanny-tax-calculator/">nanny tax calculator</a> estimates the family's side.</p>
+  </footer>
+
+  <script type="module">
+    import * as E from "./engine.mjs";
+    import * as TX from "./taxes.mjs";
+    import * as SITE from "./site.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    import * as S from "./slots.mjs";
+    import * as I from "./intake.mjs";
+    import * as R from "./references.mjs";
+    import * as P from "./print.mjs";
+    import { mountAutomations } from "./automations-ui.mjs";
+    import { mountContent } from "./content-ui.mjs";
+    import { enhanceTabs } from "./tabs.mjs";
+
+    const STORE = "babysitting-business-kit-desk";
+    const SYNC = "babysitting-business-kit-sync";
+    const $ = (id) => document.getElementById(id);
+    const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    const money = (x) => {
+      const format = (x) => `$${(Number(x) || 0).toFixed(2)}`;
+      const text = format(Math.abs(x));
+      return x < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
+    const today = () => new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10);
+    let desk = load();
+    let knownLeadIds = [];
+    let renderAutomations = () => {};
+
+    function load() {
+      try { return E.normalizeDesk(JSON.parse(localStorage.getItem(STORE) || "null")); } catch { return E.emptyDesk(); }
+    }
+    function save() {
+      try { localStorage.setItem(STORE, JSON.stringify(desk)); } catch { /* storage full or blocked: the backup button still works */ }
+      render();
+    }
+    function download(name, text, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([text], { type }));
+      a.download = name;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    }
+    const famName = (id) => (desk.families.find((f) => f.id === id) || {}).name || "";
+    const copyBtn = (text) => `<button type="button" class="secondary small" data-copy="${esc(text)}">Copy message</button>`;
+
+    // ---- tabs
+    function show(tab) {
+      for (const b of document.querySelectorAll("nav button")) b.setAttribute("aria-selected", String(b.dataset.tab === tab));
+      for (const p of document.querySelectorAll("[data-panel]")) p.hidden = p.dataset.panel !== tab;
+      if (tab === "website") renderSite();
+      record(`tab_${tab}`);
+    }
+    for (const b of document.querySelectorAll("nav button")) b.addEventListener("click", () => show(b.dataset.tab));
+    enhanceTabs(document, show);
+
+    // ---- generic forms: fill for edit, read on submit
+    function readForm(form) {
+      const o = {};
+      for (const el of form.elements) {
+        if (!el.name) continue;
+        o[el.name] = el.type === "checkbox" ? el.checked : el.type === "number" ? (el.value === "" ? "" : Number(el.value)) : el.value.trim();
+      }
+      return o;
+    }
+    function fillForm(form, obj) {
+      form.reset();
+      for (const el of form.elements) {
+        if (!el.name) continue;
+        const v = el.name.split(".").reduce((a, k) => (a == null ? a : a[k]), obj);
+        if (el.type === "checkbox") el.checked = !!v;
+        else el.value = v === true ? "yes" : v === false ? "no" : Array.isArray(v) ? v.join(", ") : v ?? "";
+      }
+      form.dataset.editing = obj.id || "";
+      form.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+    function upsert(kind, form, shape) {
+      const o = shape(readForm(form));
+      const id = form.dataset.editing;
+      const list = desk[kind];
+      const i = list.findIndex((x) => x.id === id);
+      if (i >= 0) list[i] = { ...list[i], ...o };
+      else list.push({ id: E.newId(kind.slice(0, 3)), ...o });
+      form.dataset.editing = "";
+      form.reset();
+      record(`saved_${kind}`);
+      save();
+    }
+    const yn = (v) => (v === "yes" ? true : v === "no" ? false : undefined);
+
+    $("leadForm").addEventListener("submit", (e) => { e.preventDefault(); upsert("leads", e.target, (o) => P.creditReferral({ ...o, kids: o.kids.split(/[,;]/).map((s) => s.trim()).filter(Boolean), created: o.created || today(), status: o.status || "new" }, desk)); });
+    $("familyForm").addEventListener("submit", (e) => { e.preventDefault(); upsert("families", e.target, (o) => ({ ...o, kids: parseKids(o.kidsText) })); });
+    $("bookingForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const o = readForm(e.target);
+      const chk = E.canTake({ ...desk, bookings: desk.bookings.filter((b) => b.id !== e.target.dataset.editing) }, o);
+      if (!chk.ok && !confirm(`Heads up: this sit is ${chk.why.join("; ")}. Save anyway?`)) return;
+      upsert("bookings", e.target, (x) => x);
+    });
+    $("expenseForm").addEventListener("submit", (e) => { e.preventDefault(); upsert("expenses", e.target, (x) => x); });
+    $("refForm").addEventListener("submit", (e) => { e.preventDefault(); const prev = desk.references.find((x) => x.id === e.target.dataset.editing); upsert("references", e.target, (o) => R.recordSitterConsent(prev, { ...o, consentPublic: yn(o.consentPublic), consentContact: yn(o.consentContact) }, new Date().toISOString())); });
+    // reference links, follow-ups, withdrawals and the packet (references.mjs)
+    function renderRefSteps() {
+      const url = $("syncUrl").value.trim(), now = Date.now();
+      $("refSteps").innerHTML = desk.references.map((r) => {
+        const s = R.nextStep(r, today(), desk.profile, { serverUrl: url, nowMs: now }), link = R.inviteLink(r, url), st = R.inviteState(r, now);
+        const yesno = (sc) => ({ true: "yes", false: "no" })[R.consentNow(r, sc)] || "not asked";
+        return `<div class="card" style="margin:8px 0"><strong>${esc(r.name)}</strong> <span class="note">${esc(R.RELATIONSHIPS[R.relationshipKind(r)].label)} · next: ${esc(s.note)} · link: ${st} · families may contact: ${yesno("contact")} · website: ${yesno("public")}</span>${s.message ? `<div class="msg">${esc(s.message)}</div>${copyBtn(s.message)}<button type="button" class="small" data-refsent="${esc(r.id)}">Sent, mark it</button>` : ""}${url && st !== "used" ? `<button type="button" class="secondary small" data-refinvite="${esc(r.id)}">${st === "none" ? "Make a private link" : "New link"}</button>` : ""}${link && st === "open" ? ` <span class="note">${esc(link)} (sync so it works)</span>` : ""}${R.consentNow(r, "contact") || R.consentNow(r, "public") ? `<button type="button" class="secondary small" data-refwithdraw="${esc(r.id)}">Record a withdrawal</button>` : ""}</div>`;
+      }).join("");
+    }
+    $("refSteps").addEventListener("click", (e) => {
+      const t = e.target.closest("button"), i = t ? desk.references.findIndex((x) => x.id === (t.dataset.refsent || t.dataset.refinvite || t.dataset.refwithdraw)) : -1;
+      if (i < 0) return;
+      const r = desk.references[i];
+      if (t.dataset.refsent) { if (!r.requested) r.requested = today(); else r.followUps = (Number(r.followUps) || 0) + 1; record("ref_asked"); }
+      if (t.dataset.refinvite) { desk.references[i] = R.createInvite(r, new Date().toISOString()); record("ref_link_made"); }
+      if (t.dataset.refwithdraw && confirm(`Record that ${r.name} withdrew consent? Their quote leaves your website and they leave the packet.`)) desk.references[i] = R.withdrawConsent(r, ["contact", "public"], new Date().toISOString(), "sitter");
+      save();
+    });
+    $("packetBtn").addEventListener("click", () => { download(`references-${today()}.html`, R.referencePacket(desk, today(), { forFamily: $("packetFor").value.trim() }), "text/html"); record("ref_packet"); });
+    $("payForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const o = readForm(e.target);
+      const b = desk.bookings.find((x) => x.id === o.bookingId);
+      if (!b) return;
+      b.payments = [...E.payments(b), { amount: Number(o.amount), date: o.date, method: o.method }];
+      delete b.paid;
+      e.target.reset();
+      record("payment_added");
+      save();
+    });
+    function parseKids(text) {
+      return String(text || "").split("\n").map((l) => l.split(",").map((s) => s.trim())).filter((p) => p[0]).map(([name, birth, ...rest]) => ({ name, birth: /^\d{4}-\d{2}-\d{2}$/.test(birth || "") ? birth : "", allergies: [/^\d{4}-/.test(birth || "") ? "" : birth, ...rest].filter(Boolean).join(", ") }));
+    }
+
+    // live quote on the schedule form
+    $("bookingForm").addEventListener("input", () => {
+      const o = readForm($("bookingForm"));
+      if (!o.start || !o.end) { $("quoteOut").textContent = ""; return; }
+      const q = E.quote(o, desk.profile.rates, desk.profile.holidays);
+      const chk = o.date ? E.canTake({ ...desk, bookings: desk.bookings.filter((b) => b.id !== $("bookingForm").dataset.editing) }, o) : { ok: true, why: [] };
+      $("quoteOut").textContent = `Quote: ${money(q.total)}\n${q.lines.map((l) => `  ${l.label}: ${money(l.amount)}`).join("\n")}${chk.ok ? "" : `\nCheck: ${chk.why.join("; ")}`}`;
+    });
+
+    // delete / edit / copy / done buttons
+    document.addEventListener("click", async (e) => {
+      const t = e.target.closest("button");
+      if (!t) return;
+      if (t.dataset.copy !== undefined) {
+        try { await navigator.clipboard.writeText(t.dataset.copy); t.textContent = "Copied"; } catch { prompt("Copy this message:", t.dataset.copy); }
+        record("message_copied");
+      }
+      if (t.dataset.del) {
+        const [kind, id] = t.dataset.del.split(":");
+        if (confirm("Delete this?")) { desk[kind] = desk[kind].filter((x) => x.id !== id); save(); }
+      }
+      if (t.dataset.edit) {
+        const [kind, id, formId] = t.dataset.edit.split(":");
+        const item = desk[kind].find((x) => x.id === id);
+        if (item) fillForm($(formId), { ...item, kids: Array.isArray(item.kids) && kind === "leads" ? item.kids.join(", ") : item.kids, kidsText: kind === "families" ? (item.kids || []).map((k) => [k.name, k.birth, k.allergies].filter(Boolean).join(", ")).join("\n") : undefined });
+      }
+      if (t.dataset.done) {
+        const [kind, id, step] = t.dataset.done.split(":");
+        if (kind === "lead") { const l = desk.leads.find((x) => x.id === id); if (l) { l.followUps = Number(step) + 1; l.status = l.status === "new" ? "contacted" : l.status; l.lastContact = today(); } }
+        if (kind === "rebook") { const f = desk.families.find((x) => x.id === id); if (f) f.nudged = today(); }
+        if (kind === "reference") { const r = desk.references.find((x) => x.id === id); if (r) { if (!r.requested) r.requested = today(); else if (!r.received) r.requested = today(); } }
+        record(`done_${kind}`);
+        save();
+      }
+      if (t.dataset.book) {
+        const l = desk.leads.find((x) => x.id === t.dataset.book);
+        if (!l) return;
+        const fam = { id: E.newId("fam"), name: `${l.name.split(" ").slice(-1)[0]} family`, contactName: l.name, contact: l.contact, kids: (l.kids || []).map((a) => ({ name: "", allergies: `age ${a}` })), notes: l.notes };
+        desk.families.push(fam);
+        l.status = "booked";
+        l.bookedOn = today(); l.familyId = fam.id;
+        record("lead_converted");
+        save();
+        show("schedule");
+        $("b_family").value = fam.id;
+      }
+    });
+
+    // family info sheets and meet-and-greet kits (intake.mjs)
+    const openPage = (html) => { const u = URL.createObjectURL(new Blob([html], { type: "text/html" })); if (!window.open(u, "_blank")) location.href = u; setTimeout(() => URL.revokeObjectURL(u), 60000); };
+    document.addEventListener("click", (e) => {
+      const t = e.target.closest("button");
+      if (!t) return;
+      const fam = desk.families.find((f) => f.id === (t.dataset.intakeNew || t.dataset.intakePrint || t.dataset.intakeKit));
+      if (!fam) return;
+      if (t.dataset.intakeNew) { fam.intakeToken = I.intakeToken(crypto.getRandomValues(new Uint8Array(16))); fam.intakeIssued = today(); record("intake_link_made"); save(); }
+      if (t.dataset.intakePrint) { openPage(I.intakeFormPage(desk, fam)); record("intake_printed"); }
+      if (t.dataset.intakeKit) { openPage(I.meetAndGreetPage(desk.profile, fam)); record("meet_kit_printed"); }
+    });
+
+    // ---- renderers
+    function table(head, rows) {
+      if (!rows.length) return `<p class="note">Nothing here yet.</p>`;
+      return `<table><thead><tr>${head.map((h) => `<th${h.n ? ' class="n"' : ""}>${h.t || h}</th>`).join("")}</tr></thead><tbody>${rows.join("")}</tbody></table>`;
+    }
+    const actions = (kind, id, form) => `<button type="button" class="secondary small" data-edit="${kind}:${id}:${form}">Edit</button><button type="button" class="secondary small" data-del="${kind}:${id}">Delete</button>`;
+
+    function render() {
+      const opts = (sel, list, label, blank) => { const v = sel.value; sel.innerHTML = (blank ? `<option value="">${blank}</option>` : "") + list.map((x) => `<option value="${esc(x.id)}">${esc(label(x))}</option>`).join(""); sel.value = v; };
+      for (const s of ["b_family", "stmtFamily", "msgFamily"]) opts($(s), desk.families, (f) => f.name, s === "b_family" ? "(choose)" : "");
+      opts($("r_family"), desk.families, (f) => f.name, "(none)");
+      opts($("p_booking"), E.expandBookings(desk.bookings).filter((b) => b.occurrence === 0).slice().reverse(), (b) => `${b.date} ${b.start} ${famName(b.familyId)}`);
+      $("e_cat").innerHTML = Object.entries(E.EXPENSE_CATEGORIES).map(([k, v]) => `<option value="${k}">${esc(v)}</option>`).join("");
+
+      // today
+      const q = E.todayQueue(desk, today());
+      $("todayList").innerHTML = q.length ? q.map((i) => `<div class="card" style="margin:10px 0"><strong>${esc(i.title)}</strong>${i.message ? `<div class="msg">${esc(i.message)}</div>${copyBtn(i.message)}` : ""}${["lead", "rebook", "reference"].includes(i.kind) ? `<button type="button" class="small" data-done="${i.kind}:${esc(i.id)}:${i.step ?? 0}">Sent, mark done</button>` : ""}</div>`).join("") : `<p>Nothing due today. Add a lead, a family or a sit to get started, or load the invented example above.</p>`;
+
+      // leads
+      const scored = desk.leads.map((l) => ({ l, s: E.scoreLead(l, desk.profile) })).sort((a, b) => b.s.score - a.s.score);
+      $("leadsList").innerHTML = table(["Lead", "Score", "Why", "Status", ""], scored.map(({ l, s }) => `<tr><td><strong>${esc(l.name)}</strong><br><span class="note">${esc(l.contact)} · ${esc((l.kids || []).join(", "))} · ${esc(l.schedule)}</span></td><td><span class="pill ${s.tier}">${s.tier} ${s.score}</span></td><td class="note">${s.reasons.map(esc).join("<br>")}<details><summary>Reply draft</summary><div class="msg">${esc(E.leadReply(l, desk.profile, s))}</div>${copyBtn(E.leadReply(l, desk.profile, s))}</details></td><td>${esc(l.status)}</td><td>${l.status !== "booked" ? `<button type="button" class="small" data-book="${esc(l.id)}">Make family</button>` : ""}${actions("leads", l.id, "leadForm")}</td></tr>`));
+
+      // pipeline stats and family intake (intake.mjs)
+      $("pipelineStats").innerHTML = I.pipelineHTML(desk);
+      $("intakePanel").innerHTML = I.intakeHTML(desk, today(), $("syncUrl").value.trim().replace(/\/+$/, ""));
+
+      // families
+      $("familiesList").innerHTML = table(["Family", "Kids", "Contact", ""], desk.families.map((f) => `<tr><td><strong>${esc(f.name)}</strong><br><span class="note">${esc(f.address)}</span></td><td>${(f.kids || []).map((k) => `${esc(k.name)}${k.birth ? ` (${esc(E.fmtAge(Math.floor(E.daysBetween(k.birth, today()) / 30.44)))})` : ""}${k.allergies ? ` <span class="pill bad">${esc(k.allergies)}</span>` : ""}`).join("<br>")}</td><td>${esc(f.contactName)} ${esc(f.contact)}<br><span class="note">${f.emergency ? `Emergency: ${esc(f.emergency)}` : ""}</span></td><td>${actions("families", f.id, "familyForm")}</td></tr>`));
+
+      // schedule
+      const all = E.expandBookings(desk.bookings);
+      const from = E.addDays(today(), -14);
+      $("bookingsList").innerHTML = table(["When", "Family", { t: "Quote", n: 1 }, "Status", ""], all.filter((b) => b.date >= from).slice(0, 80).map((b) => { const qq = E.quote(b, desk.profile.rates, desk.profile.holidays); return `<tr><td>${esc(b.date)} ${E.DAYS[E.dayOf(b.date)]}<br>${esc(b.start)}-${esc(b.end)}${b.repeatWeeks > 1 ? ` <span class="note">(week ${b.occurrence + 1} of ${b.repeatWeeks})</span>` : ""}</td><td>${esc(famName(b.familyId))}</td><td class="n">${money(b.price || qq.total)}</td><td>${esc(b.status)}</td><td>${b.occurrence === 0 ? actions("bookings", b.id, "bookingForm") : ""}</td></tr>`; }));
+      renderSlots();
+      const cf = E.conflicts(desk.bookings).filter((c) => c.a.date >= today());
+      $("conflictsOut").innerHTML = cf.map((c) => `<p class="msg">${c.kind === "overlap" ? "Double-booked" : "Tight"}: ${esc(c.a.date)} ${esc(c.a.start)}-${esc(c.a.end)} ${esc(famName(c.a.familyId))} and ${esc(c.b.start)}-${esc(c.b.end)} ${esc(famName(c.b.familyId))} (${c.kind === "overlap" ? `${c.minutes} min overlap` : `${c.minutes} min to travel`})</p>`).join("");
+
+      // money
+      const years = [...new Set([today().slice(0, 4), ...desk.bookings.map((b) => String(b.date).slice(0, 4))])].sort().reverse();
+      const ty = $("taxYear"), keep = ty.value;
+      ty.innerHTML = years.map((y) => `<option>${y}</option>`).join("");
+      ty.value = years.includes(keep) ? keep : years[0];
+      renderTax();
+      renderFederal();
+      $("expensesList").innerHTML = table(["Date", "What", { t: "Amount", n: 1 }, ""], desk.expenses.slice().sort((a, b) => String(b.date).localeCompare(a.date)).map((x) => `<tr><td>${esc(x.date)}</td><td>${esc(E.EXPENSE_CATEGORIES[x.category] || x.category)}${x.note ? `: ${esc(x.note)}` : ""}${x.miles ? ` (${esc(x.miles)} mi)` : ""}</td><td class="n">${x.amount ? money(x.amount) : ""}</td><td>${actions("expenses", x.id, "expenseForm")}</td></tr>`));
+      renderStatement();
+
+      // references
+      renderRefSteps();
+      $("refsList").innerHTML = table(["Who", "Status", "Quote", ""], desk.references.map((r) => `<tr><td><strong>${esc(r.name)}</strong><br><span class="note">${esc(r.relationship)}</span></td><td>${r.received ? `<span class="pill good">received</span>` : r.requested ? `<span class="pill warm">asked ${esc(r.requested)}</span>` : `<span class="pill cool">not asked</span>`}<br><span class="note">website: ${r.consentPublic === true ? "yes" : r.consentPublic === false ? "no" : "not asked"}</span></td><td class="note">${esc(r.quote)}${!r.received ? `<details><summary>Request draft</summary><div class="msg">${esc(E.referenceRequest(r, desk.profile, r.kind))}</div>${copyBtn(E.referenceRequest(r, desk.profile, r.kind))}</details>` : ""}</td><td>${actions("references", r.id, "refForm")}</td></tr>`));
+
+      renderContent();
+      renderFamilyMsgs();
+      renderPrint();
+      renderAutomations();
+      fillForm($("profileForm"), { ...desk.profile, certifications: desk.profile.certifications, holidays: desk.profile.holidays, followUpDays: desk.profile.followUpDays });
+      $("profileForm").scrollIntoView = () => {};
+    }
+
+    function renderTax() {
+      const y = Number($("taxYear").value || today().slice(0, 4));
+      const t = E.taxSummary(desk, y, today());
+      const qrows = t.quarters.map((q) => `<tr><td>Q${q.quarter} (through ${q.through})</td><td>${q.due}${q.past ? ' <span class="note">(past)</span>' : ""}</td><td class="n">${money(q.income)}</td><td class="n">${money(q.suggested)}</td></tr>`);
+      const fams = Object.entries(t.byFamily).sort((a, b) => b[1] - a[1]).map(([id, v]) => `<tr><td>${esc(famName(id) || id)}</td><td class="n">${money(v)}</td></tr>`);
+      $("taxOut").innerHTML = `
+        <p><span class="stat">Paid to you<b>${money(t.income)}</b></span><span class="stat">Expenses<b>${money(t.expenses)}</b></span><span class="stat">Mileage (${t.totalMiles} mi)<b>${money(t.mileage)}</b></span><span class="stat">Net profit<b>${money(t.net)}</b></span><span class="stat">Set aside<b>${money(t.setAside)}</b><span class="note">${t.setAsidePct}% of income</span></span></p>
+        <p class="note">Set-aside = self-employment tax ${money(t.seTax)} + federal income tax at your ${desk.profile.taxRate}% bracket ${money(t.incomeTax)} + state at ${desk.profile.stateTaxRate}% ${money(t.stateTax)}. It ignores the standard deduction and credits, so it errs high: a safe amount to move into savings, not your tax bill.</p>
+        ${table(["Quarter", "Estimated payment due", { t: "Income", n: 1 }, { t: "Suggested payment", n: 1 }], qrows)}
+        <h3>By family</h3>${table(["Family", { t: "Paid", n: 1 }], fams)}
+        <h3>Unpaid</h3>${table(["Sit", { t: "Owed", n: 1 }, "Days"], t.unpaid.map((u) => `<tr><td>${esc(u.booking.date)} ${esc(famName(u.booking.familyId))}</td><td class="n">${money(u.owed)}</td><td>${u.days}</td></tr>`))}
+        <h3>Things to know</h3><ul>${t.flags.map((f) => `<li>${esc(f)}</li>`).join("")}</ul>`;
+    }
+    $("taxYear").addEventListener("change", () => { renderTax(); renderFederal(); renderStatement(); });
+    // ---- federal estimate, safe harbor, Schedule C (taxes.mjs)
+    const taxYearNow = () => Number($("taxYear").value || today().slice(0, 4));
+    function taxStore() { const t = desk.profile.taxes = desk.profile.taxes || {}; t.years = t.years || {}; t.payments = t.payments || []; return t; }
+    function renderFederal() {
+      const y = taxYearNow(), inp = TX.taxInputs(desk, y), f = $("fedForm");
+      if (document.activeElement?.form !== f) for (const k of ["filing", "wages", "spouseWages", "otherIncome", "withholding", "priorYearTax", "priorAgi"]) f.elements[k].value = inp[k] ?? (k === "filing" ? "single" : "");
+      const e = TX.federalEstimate(desk, y, { today: today(), project: $("fx_project").checked });
+      const sh = TX.safeHarbor(desk, y, { today: today(), estimate: e });
+      $("fedOut").innerHTML = `
+        <p><span class="stat">Federal estimate<b>${money(e.total)}</b><span class="note">${e.effectiveRate}% of income</span></span><span class="stat">Self-employment tax<b>${money(e.se.tax)}</b></span><span class="stat">Income tax<b>${money(e.incomeTax)}</b><span class="note">${Math.round(e.marginal * 100)}% bracket</span></span><span class="stat">Conservative set-aside<b>${money(e.setAside)}</b><span class="note">incl. state</span></span><span class="stat">Still to pay<b>${money(Math.max(0, e.balance))}</b></span></p>
+        <p class="note">${esc(e.filingLabel)}: Schedule C profit ${money(e.profit)}${e.projected ? " (projected)" : ""} - half SE tax ${money(e.halfSe)}${e.wages + e.spouseWages ? ` + wages ${money(e.wages + e.spouseWages)}` : ""}${e.otherIncome ? ` + other ${money(e.otherIncome)}` : ""} = AGI ${money(e.agi)}; - standard deduction ${money(e.standardDeduction)} - QBI ${money(e.qbi)} = taxable ${money(e.taxable)}. Withheld ${money(e.withholding)}, estimates paid ${money(e.paidEstimates)}. IRS brackets for the year; federal only.</p>
+        <p>Required by the safe harbor: <b>${money(sh.required)}</b> (${esc(sh.basis)}).</p>
+        ${table(["Due", { t: "Needed by then", n: 1 }, { t: "Paid by then", n: 1 }, { t: "Pay", n: 1 }], sh.quarters.map((q) => `<tr><td>Q${q.quarter} ${q.due}${q.past ? ' <span class="note">(past)</span>' : ""}</td><td class="n">${money(q.requiredCum)}</td><td class="n">${money(q.paidCum)}</td><td class="n">${q.past ? (q.shortfall ? `<span class="pill bad">short ${money(q.shortfall)}</span>` : "") : money(q.toPay)}</td></tr>`))}
+        ${sh.payments.length ? table(["Estimated payment", { t: "Amount", n: 1 }, ""], sh.payments.map((p) => `<tr><td>${esc(p.date)}</td><td class="n">${money(p.amount)}</td><td><button type="button" class="secondary small" data-estdel="${esc(p.id)}">Delete</button></td></tr>`)) : ""}
+        <ul class="note">${[...sh.notes, ...e.warnings].map((w) => `<li>${esc(w)}</li>`).join("")}</ul>`;
+      const c = TX.scheduleC(desk, y, today());
+      $("schedCOut").innerHTML = table(["Schedule C line", "What", { t: "Amount", n: 1 }], [...c.lines.map((l) => `<tr><td>${esc(l.line)} ${esc(l.label)}</td><td>${esc(l.description)}</td><td class="n">${money(l.amount)}</td></tr>`), `<tr><td>31 Net profit</td><td></td><td class="n"><b>${money(c.netProfit)}</b></td></tr>`]);
+    }
+    $("fedForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const o = readForm(e.target), t = taxStore();
+      t.filing = o.filing; delete o.filing;
+      t.years[taxYearNow()] = o;
+      record("tax_estimate_saved");
+      save();
+    });
+    $("fx_project").addEventListener("change", renderFederal);
+    $("estPayForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const o = readForm(e.target);
+      taxStore().payments.push({ id: E.newId("est"), year: taxYearNow(), date: o.date, amount: Number(o.amount) });
+      e.target.reset();
+      record("estimated_payment_recorded");
+      save();
+    });
+    $("fedOut").addEventListener("click", (e) => {
+      const id = e.target.dataset && e.target.dataset.estdel;
+      if (id && confirm("Delete this payment?")) { taxStore().payments = taxStore().payments.filter((p) => p.id !== id); save(); }
+    });
+    $("schedCBtn").addEventListener("click", () => { download(`schedule-c-${taxYearNow()}.csv`, TX.scheduleCCSV(desk, taxYearNow(), today()), "text/csv"); record("schedule_c_csv"); });
+    $("yearPrintBtn").addEventListener("click", () => {
+      const fr = document.createElement("iframe");
+      fr.style.display = "none";
+      fr.srcdoc = TX.yearSummaryHTML(desk, taxYearNow(), today());
+      fr.onload = () => { fr.contentWindow.print(); setTimeout(() => fr.remove(), 60000); };
+      document.body.appendChild(fr);
+      record("year_summary_printed");
+    });
+    function renderStatement() {
+      const id = $("stmtFamily").value;
+      $("stmtOut").textContent = id ? E.familyStatement(desk, id, Number($("taxYear").value || today().slice(0, 4))).text : "Add a family first.";
+    }
+    $("stmtFamily").addEventListener("change", renderStatement);
+
+    function renderContent() {
+      const start = $("contentStart").value || today();
+      $("contentOut").innerHTML = E.contentCalendar(start, 12, desk.profile).map((c) => `<div class="card" style="margin:10px 0"><strong>Week ${c.week} (${c.date}), ${esc(c.channel)}:</strong> ${esc(c.topic)}<div class="msg">${esc(c.draft)}</div>${copyBtn(c.draft)}</div>`).join("");
+    }
+    $("contentStart").addEventListener("change", renderContent);
+    function renderFamilyMsgs() {
+      const f = desk.families.find((x) => x.id === $("msgFamily").value);
+      if (!f) { $("familyMsgs").innerHTML = `<p class="note">Add a family to get rebooking and referral messages.</p>`; return; }
+      const m = [["Invite back", E.rebookMessage(f, desk.profile, today())], ["Ask for referrals", E.referralAsk(f, desk.profile)], ["Ask for a testimonial", E.referenceRequest({ name: f.contactName || f.name }, desk.profile, "testimonial")]];
+      $("familyMsgs").innerHTML = m.map(([t, x]) => `<h3>${t}</h3><div class="msg">${esc(x)}</div>${copyBtn(x)}`).join("");
+    }
+    $("msgFamily").addEventListener("change", renderFamilyMsgs);
+
+    // ---- open slots, openings text, week grid, booking requests (slots.mjs)
+    function renderSlots() {
+      if (!$("gridWeek").value) $("gridWeek").value = S.weekStart(today());
+      if ($("openBuffer").value === "") $("openBuffer").value = S.bufferOf(desk.profile);
+      const buf = Number($("openBuffer").value) || 0;
+      const reqs = S.pendingRequests(desk);
+      $("requestsList").innerHTML = table(["Request", "When", "Fits?", ""], reqs.map((l) => { const r = l.requested; const chk = E.canTake({ ...desk, leads: desk.leads.filter((x) => x.id !== l.id) }, { ...r, id: "__req" }, buf); return `<tr><td><strong>${esc(l.name)}</strong><br><span class="note">${esc(l.contact)}${l.kids && l.kids.length ? ` · ages ${esc(l.kids.join(", "))}` : ""}${l.notes ? ` · ${esc(l.notes)}` : ""}</span></td><td>${esc(r.date)} ${E.DAYS[E.dayOf(r.date)]}<br>${esc(r.start)}-${esc(r.end)}</td><td>${chk.ok ? `<span class="pill good">free</span>` : `<span class="pill bad">${esc(chk.why.join("; "))}</span>`}</td><td><button type="button" class="small" data-approve="${esc(l.id)}">Approve</button><button type="button" class="secondary small" data-decline="${esc(l.id)}">Decline</button><details><summary>Replies</summary><div class="msg">${esc(S.requestReply(l, desk.profile, true))}</div>${copyBtn(S.requestReply(l, desk.profile, true))}<div class="msg">${esc(S.requestReply(l, desk.profile, false))}</div>${copyBtn(S.requestReply(l, desk.profile, false))}</details></td></tr>`; }));
+      const g = S.weekGrid(desk, $("gridWeek").value, { bufferMin: buf, today: today() });
+      const pct = (x) => `${(x * 100).toFixed(2)}%`;
+      $("weekGrid").innerHTML = `<p class="note">${esc(g.from)} to ${esc(g.to)}</p><div class="wk">${g.days.map((d) => `<div><div class="hd">${esc(d.day)} ${esc(d.date.slice(5))}</div><div class="col">${d.open.map((w) => `<div class="open" style="top:${pct(w.top)};height:${pct(w.height)}" title="open ${esc(w.start)}-${esc(w.end)}"></div>`).join("")}${d.blocks.map((b) => `<div class="sit${b.skipped || b.status === "cancelled" ? " skipped" : ""}" style="top:${pct(b.top)};min-height:${pct(b.height)}"><strong>${esc(b.start)}-${esc(b.end)}</strong> ${esc(b.family)}${b.allergies.map((a) => ` <span class="pill bad">${esc(a)}</span>`).join("")}${b.repeats ? `<br><button type="button" class="secondary small" data-skip="${esc(b.id)}|${esc(b.date)}">${b.skipped ? "Restore" : "Skip"}</button>` : ""}</div>`).join("")}</div></div>`).join("")}</div>`;
+      const days = S.openSlots(desk, { from: today(), weeks: Math.min(8, Math.max(1, Number($("openWeeks").value) || 1)), bufferMin: buf, nowMin: new Date().getHours() * 60 + new Date().getMinutes() });
+      let bookUrl = "";
+      try { const u = JSON.parse(localStorage.getItem(SYNC) || "{}").url; if (u) bookUrl = `${u}/book`; } catch { /* no server */ }
+      const text = S.openingsText(days, { from: today(), bookUrl });
+      $("openingsOut").textContent = text || "Set your weekly availability in Settings.";
+      $("openingsCopy").innerHTML = text ? copyBtn(text) : "";
+    }
+    for (const id of ["gridWeek", "openWeeks", "openBuffer"]) $(id).addEventListener("change", renderSlots);
+    $("gridPrev").addEventListener("click", () => { $("gridWeek").value = E.addDays(S.weekStart($("gridWeek").value || today()), -7); renderSlots(); });
+    $("gridNext").addEventListener("click", () => { $("gridWeek").value = E.addDays(S.weekStart($("gridWeek").value || today()), 7); renderSlots(); });
+    document.addEventListener("click", (e) => {
+      const t = e.target.closest("button");
+      if (!t) return;
+      if (t.dataset.skip) {
+        const [id, date] = t.dataset.skip.split("|");
+        const i = desk.bookings.findIndex((b) => b.id === id);
+        if (i < 0) return;
+        try { desk.bookings[i] = S.toggleSkip(desk.bookings[i], date); } catch (err) { alert(err.message); return; }
+        record("occurrence_skipped");
+        save();
+      }
+      if (t.dataset.approve) {
+        const r = S.approveRequest(desk, t.dataset.approve, { today: today() });
+        if (!r.check.ok && !confirm(`Heads up: this sit is ${r.check.why.join("; ")}. Approve anyway?`)) return;
+        desk = r.desk;
+        record("request_approved");
+        save();
+      }
+      if (t.dataset.decline) {
+        const l = desk.leads.find((x) => x.id === t.dataset.decline);
+        if (l && confirm(`Decline ${l.name}'s request? Copy the reply first if you want to send it.`)) { l.status = "declined"; record("request_declined"); save(); }
+      }
+    });
+
+    // ---- print pieces and lead sources (print.mjs)
+    $("pr_kind").innerHTML = Object.entries(P.PIECES).map(([k, v]) => `<option value="${k}">${esc(v.label)}</option>`).join("");
+    function printHtml() {
+      return P.printPiece($("pr_kind").value, desk, { familyId: $("pr_family").value, showRate: $("pr_rate").checked });
+    }
+    function renderPrint() {
+      const fams = $("pr_family"), v = fams.value;
+      fams.innerHTML = desk.families.map((f) => `<option value="${esc(f.id)}">${esc(f.name)} (${esc(P.referralCode(f))})</option>`).join("");
+      fams.value = desk.families.some((f) => f.id === v) ? v : (desk.families[0] || {}).id || "";
+      if (document.activeElement !== $("pr_url")) $("pr_url").value = P.siteLink(desk.profile);
+      try { $("pr_preview").srcdoc = printHtml(); $("pr_note").textContent = P.siteLink(desk.profile) ? "" : "Add the link to your website to put a QR code on the pieces."; }
+      catch (err) { $("pr_preview").srcdoc = ""; $("pr_note").textContent = err.message; }
+      const st = P.sourceStats(desk);
+      $("pr_stats").innerHTML = table(["Source", { t: "Leads", n: 1 }, { t: "Booked", n: 1 }], st.sources.map((r) => `<tr><td>${esc(r.source)}</td><td class="n">${r.leads}</td><td class="n">${r.booked}</td></tr>`))
+        + (st.referrers.length ? `<h3>Referrals by family</h3>` + table(["Family", "Code", { t: "Leads", n: 1 }, { t: "Booked", n: 1 }], st.referrers.map((r) => `<tr><td>${esc(r.family)}</td><td><code>${esc(r.code)}</code></td><td class="n">${r.leads}</td><td class="n">${r.booked}</td></tr>`)) : "");
+    }
+    for (const id of ["pr_kind", "pr_family", "pr_rate"]) $(id).addEventListener("change", renderPrint);
+    $("pr_url").addEventListener("change", () => { desk.profile.siteUrl = $("pr_url").value.trim(); save(); });
+    $("pr_open").addEventListener("click", () => {
+      try {
+        const w = window.open(URL.createObjectURL(new Blob([printHtml()], { type: "text/html" })));
+        if (w) w.addEventListener("load", () => w.print());
+        record(`print_${$("pr_kind").value}`);
+      } catch (err) { $("pr_note").textContent = err.message; }
+    });
+    $("pr_download").addEventListener("click", () => {
+      try { download(`${$("pr_kind").value}.html`, printHtml(), "text/html"); record(`print_download_${$("pr_kind").value}`); } catch (err) { $("pr_note").textContent = err.message; }
+    });
+
+    // ---- website (site.mjs)
+    const siteFiles = () => SITE.buildSiteFiles(desk, { today: today() });
+    function renderSite() {
+      const site = desk.profile.site || {};
+      for (const el of $("siteForm").elements) if (el.name) el.value = site[el.name] ?? (el.name === "theme" ? "warm" : "");
+      const files = siteFiles();
+      const pages = Object.keys(files).filter((f) => f.endsWith(".html"));
+      const pick = pages.includes($("sitePage").value) ? $("sitePage").value : "index.html";
+      $("sitePage").innerHTML = pages.map((f) => `<option>${f}</option>`).join("");
+      $("sitePage").value = pick;
+      $("sitePreview").srcdoc = files[pick];
+      const gaps = SITE.siteGaps(desk, { today: today() });
+      $("siteGaps").innerHTML = gaps.length ? `<ul class="note">${gaps.map((g) => `<li>${esc(g)}</li>`).join("")}</ul>` : "";
+      const done = new Set(site.done || []);
+      $("localList").innerHTML = SITE.LOCAL_CHECKLIST.map((c) => `<div class="card" style="margin:8px 0"><label><input type="checkbox" data-local="${c.id}"${done.has(c.id) ? " checked" : ""}> ${esc(c.title)}</label><p class="note">${esc(c.steps)}</p></div>`).join("");
+    }
+    $("siteForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      desk.profile.site = { ...(desk.profile.site || {}), ...readForm(e.target) };
+      record("site_saved");
+      save();
+      renderSite();
+    });
+    $("sitePage").addEventListener("change", () => { $("sitePreview").srcdoc = siteFiles()[$("sitePage").value] || ""; });
+    $("localList").addEventListener("change", (e) => {
+      const id = e.target.dataset.local;
+      if (!id) return;
+      const site = { ...(desk.profile.site || {}) };
+      const done = new Set(site.done || []);
+      if (e.target.checked) done.add(id); else done.delete(id);
+      desk.profile.site = { ...site, done: [...done] };
+      save();
+    });
+    $("siteZip").addEventListener("click", () => {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([SITE.zipFiles(siteFiles(), new Date())], { type: "application/zip" }));
+      a.download = "my-babysitting-site.zip";
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      record("site_zip_downloaded");
+    });
+    $("siteDownload").addEventListener("click", () => { download("index.html", siteFiles()["index.html"], "text/html"); record("site_downloaded"); });
+    $("icsBtn").addEventListener("click", () => { download("babysitting.ics", E.toICS(desk), "text/calendar"); record("ics_downloaded"); });
+
+    // settings
+    $("profileForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const o = readForm(e.target);
+      const p = { ...desk.profile, rates: { ...desk.profile.rates } };
+      for (const [k, v] of Object.entries(o)) { if (k.startsWith("rates.")) p.rates[k.slice(6)] = v; else p[k] = v; }
+      p.certifications = String(o.certifications).split(",").map((s) => s.trim()).filter(Boolean);
+      p.holidays = String(o.holidays).split(",").map((s) => s.trim()).filter((s) => /^\d{2}-\d{2}$/.test(s));
+      p.followUpDays = String(o.followUpDays).split(",").map((s) => Number(s.trim())).filter((n) => Number.isFinite(n));
+      const bad = E.parseWeekly(p.availability).errors;
+      if (bad.length) { alert(bad.join("\n")); return; }
+      desk.profile = p;
+      record("settings_saved");
+      save();
+      alert("Saved.");
+    });
+    $("exportBtn").addEventListener("click", () => { download(`babysitting-desk-${today()}.json`, JSON.stringify(desk, null, 2), "application/json"); record("backup_downloaded"); });
+    $("importFile").addEventListener("change", async (e) => {
+      const f = e.target.files[0];
+      if (!f) return;
+      try { desk = E.normalizeDesk(JSON.parse(await f.text())); save(); alert("Restored."); } catch { alert("That file is not a backup from this app."); }
+    });
+    $("wipeBtn").addEventListener("click", () => { if (confirm("Erase every lead, family, sit and setting in this browser? Download a backup first if you need one.")) { desk = E.emptyDesk(); save(); } });
+    $("loadExample").addEventListener("click", () => {
+      if ((desk.families.length || desk.leads.length) && !confirm("Replace what is here with the invented example?")) return;
+      desk = E.exampleDesk(today());
+      record("example_loaded");
+      save();
+      show("today");
+    });
+
+    // optional sync with the sitter's own server
+    try { const s = JSON.parse(localStorage.getItem(SYNC) || "{}"); $("syncUrl").value = s.url || ""; $("syncKey").value = s.key || ""; knownLeadIds = s.known || []; } catch { /* nothing saved */ }
+    $("syncBtn").addEventListener("click", async () => {
+      const url = $("syncUrl").value.trim().replace(/\/+$/, ""), key = $("syncKey").value;
+      if (!/^https?:\/\//.test(url) || !key) { $("syncOut").textContent = "Enter your server address and admin key."; return; }
+      try {
+        const r = await fetch(`${url}/api/desk`, { method: "PUT", headers: { authorization: `Bearer ${key}`, "content-type": "application/json" }, body: JSON.stringify({ ...desk, knownLeadIds }) });
+        if (!r.ok) throw new Error(`server said ${r.status}`);
+        const out = await r.json();
+        desk = E.normalizeDesk(out.desk);
+        knownLeadIds = desk.leads.map((l) => l.id);
+        try { localStorage.setItem(SYNC, JSON.stringify({ url, key, known: knownLeadIds })); } catch { /* fine */ }
+        $("syncOut").textContent = `Synced. ${out.added} new lead(s) from your website.`;
+        record("synced");
+        save();
+      } catch (err) { $("syncOut").textContent = `Could not sync: ${err.message}`; }
+    });
+
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+    renderAutomations = mountAutomations({ getDesk: () => desk, save, esc, record });
+    $("contentStart").value = today();
+    mountContent($("contentKit"), { getDesk: () => desk, save, record, today, buildSite: (d) => E.buildSite(d) });
+    record("page_loaded");
+    render();
+    show("today");
+  </script>
+  <script>/* offline + install; reading navigator.serviceWorker throws in sandboxed frames, so guard it */ try { if ("serviceWorker" in navigator && location.protocol !== "file:") addEventListener("load", () => { try { navigator.serviceWorker.register("sw.js").catch(() => {}); } catch { /* no service worker here */ } }); } catch { /* no service worker here */ }</script>
+</body>
+</html>
