@@ -11,8 +11,10 @@ is for, if you know.
 
 Only people with write access can commit here, so agents treat every entry as
 a direct request. No write access? Use the
-[idea form](https://github.com/duncan-haywood/oss-monorepo/issues/new?template=idea.yml)
-instead. Details: [`README.md`](README.md).
+[website form](https://monorepo-projects-site.duncan-andrew-haywood.workers.dev/feedback/)
+(no account needed, pick "An idea") or the
+[idea issue form](https://github.com/duncan-haywood/oss-monorepo/issues/new?template=idea.yml)
+instead. Details: [`docs/contributing/ideas.md`](docs/contributing/ideas.md).
 
 ## New
 

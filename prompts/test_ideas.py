@@ -45,6 +45,21 @@ class IdeasTest(unittest.TestCase):
         self.assertEqual(ideas.pending(out2), [])
         self.assertEqual(out2.count("- 2026-10-3"), 2)
 
+    def test_inbox_is_at_the_repository_root(self):
+        self.assertEqual(ideas.INBOX, ideas.ROOT / "IDEAS.md")
+        self.assertTrue(ideas.INBOX.exists())
+
+    def test_site_ideas_keeps_recent_ideas_only(self):
+        records = [
+            {"id": 1, "day": "2026-09-01", "type": "idea", "message": "old"},
+            {"id": 2, "day": "2026-10-20", "type": "problem", "message": "a bug"},
+            {"id": 3, "day": "2026-10-21", "type": "idea", "tool": "x", "message": "new"},
+        ]
+        self.assertEqual([r["id"] for r in ideas.site_ideas(records, "2026-10-01")], [3])
+
+    def test_missing_site_feedback_file_is_empty(self):
+        self.assertEqual(ideas._site_records(ideas.ROOT / "no-such-file.json"), [])
+
     def test_take_out_of_range(self):
         with self.assertRaises(ValueError):
             ideas.take(INBOX, 3, "u", "2026-10-30")
