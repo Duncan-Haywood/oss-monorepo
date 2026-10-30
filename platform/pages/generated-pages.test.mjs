@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync, rmSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { GENERATED_PAGES, generateVenturePages } from './build.mjs';
+import { GENERATED_PAGES, generateVenturePages } from './generated-pages.mjs';
 
 test('a venture page generator runs in its own directory before the build copies it', () => {
   const root = mkdtempSync(path.join(os.tmpdir(), 'gen-pages-'));

@@ -2,12 +2,12 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { generate } from './make-size-pages.mjs';
-import { GENERATED_PAGES } from '../../platform/pages/build.mjs';
+import { GENERATED_PAGES } from '../../platform/pages/generated-pages.mjs';
 
 const { all, files } = generate();
 
 // The pages are not committed: the site build runs make-size-pages.mjs
-// (platform/pages/build.mjs, GENERATED_PAGES), so they always print the engine's
+// (platform/pages/generated-pages.mjs), so they always print the engine's
 // current numbers and a price change can't leave a stale copy for the next PR.
 test('the site build generates the size pages, and git does not track them', () => {
   assert.equal(GENERATED_PAGES['shed-designer'], 'make-size-pages.mjs');

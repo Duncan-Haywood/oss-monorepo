@@ -42,7 +42,7 @@ on:
       - "platform/ci/test_build_pages_site.py"
       - "platform/ci/check_built_site.py"
       - "platform/ci/test_check_built_site.py"
-      - "platform/pages/build.mjs"
+      - "platform/pages/generated-pages.mjs"
       - ".github/workflows/pages.yml"
   pull_request:
     paths:
@@ -51,7 +51,7 @@ on:
       - "platform/ci/test_build_pages_site.py"
       - "platform/ci/check_built_site.py"
       - "platform/ci/test_check_built_site.py"
-      - "platform/pages/build.mjs"
+      - "platform/pages/generated-pages.mjs"
       - ".github/workflows/pages.yml"
   workflow_dispatch:
 
@@ -81,10 +81,10 @@ jobs:
         run: python3 -m unittest test_build_pages_site test_check_built_site
 
       # Some venture pages are written by the venture's own engine at build time
-      # rather than committed (platform/pages/build.mjs, GENERATED_PAGES); this
+      # rather than committed (platform/pages/generated-pages.mjs); this
       # builder must see them too, or its link check reports them missing.
       - name: Generate the venture pages that are built, not committed
-        run: node -e "import('./platform/pages/build.mjs').then((m) => console.log('generated:', m.generateVenturePages('ventures').join(', ')))"
+        run: node -e "import('./platform/pages/generated-pages.mjs').then((m) => console.log('generated:', m.generateVenturePages('ventures').join(', ')))"
 
       - name: Validate what would be published
         run: python3 platform/ci/build_pages_site.py --check
