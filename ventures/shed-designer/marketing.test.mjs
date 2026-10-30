@@ -49,7 +49,6 @@ function facts() {
     lowPeak: fmtIn(at3.dims.peak, { feet: true }),
     defaultRafter: len(low, 'rafter'),
     overhangBudget: money(low.overhangChoice.budget),
-    overhangAdds: money(low.overhangChoice.adds),
     overhangNext: fmtIn(low.overhangChoice.next.overhang),
     overhangNextAdds: money(low.overhangChoice.next.adds),
     beam: `${Math.round(checks.rows.find((r) => /Ridge beam$/.test(r.member)).ratio * 100)}%`,
@@ -113,7 +112,7 @@ test('the README quotes the tool\'s current numbers', () => {
   const at3 = buildShed(normalize({ ...d, pitch: 3, maxPeak: 0, autoWall: false, autoPitch: false, autoOverhang: false }));
   has(`Even 3/12 would be ${fmtIn(at3.dims.peak, { feet: true })}.`);
   const oc = low.overhangChoice;
-  has(`**Overhang:** ${fmtIn(d.overhang)}. The longest from 6" to 18" whose whole order (rafters, sheathing, roofing, trim) costs at most ${money(oc.budget)} more than the cheapest overhang's, ${fmtIn(oc.cheapest)}. It adds ${money(oc.adds)}; ${fmtIn(oc.next.overhang)} would add ${money(oc.next.adds)}`);
+  has(`**Overhang:** ${fmtIn(d.overhang)}. The longest from 6" to 18" whose whole order (rafters, sheathing, roofing, trim) costs at most ${money(oc.budget)} more than the cheapest overhang's, ${fmtIn(oc.cheapest)}. ${oc.adds < 0.005 ? `It costs no more than ${fmtIn(oc.cheapest)}` : `It adds ${money(oc.adds)}`}; ${fmtIn(oc.next.overhang)} would add ${money(oc.next.adds)}`);
   // "because it needs a fifth bundle of shingles"
   const at = (oh) => estimate(buildShed(normalize({ ...d, autoWall: false, autoPitch: false, autoOverhang: false, overhang: oh })));
   const bundles = (e) => e.shopping.find((r) => /shingles \(/.test(r.name)).qty;
