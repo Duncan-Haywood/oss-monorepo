@@ -60,7 +60,7 @@ function windowNote(d) {
 export function leverOptions(design, prices) {
   const start = normalize(design);
   const base = evaluate(start, prices);
-  /** @type {{ title: string, rows: any[] }[]} */
+  /** @type {{ title: string, rows: any[], locked?: boolean }[]} */
   const groups = [];
   // A choice you fixed shows only as it is: no alternatives are priced for it.
   let lockKey = '';

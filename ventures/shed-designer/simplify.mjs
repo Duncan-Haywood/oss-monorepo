@@ -158,7 +158,7 @@ export const GOALS = {
 /**
  * @param {any} design
  * @param {import('./estimate.mjs').Prices} [prices]
- * @param {{ rounds?: number, resize?: boolean, products?: boolean, peakSlack?: number, goals?: string[] }} [opts]
+ * @param {{ rounds?: number, resize?: boolean, products?: boolean, peakSlack?: number, goals?: string[], keep?: string[] }} [opts]
  */
 export function simplify(design, prices, opts = {}) {
   const rounds = opts.rounds ?? 6;
