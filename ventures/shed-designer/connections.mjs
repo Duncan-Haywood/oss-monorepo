@@ -4,7 +4,8 @@
 // looked at and passes only if every instance does.
 //
 // - The cap plates lap the corners (the end walls' cap over the long walls' top plate).
-// - Cap-plate joints sit at least 24" from top-plate joints (IRC R602.3.2), and every plate joint lands on a stud.
+// - Cap-plate joints sit at least 24" from top-plate joints (IRC R602.3.2), and every plate joint lands on a stud
+//   or over a header that runs a stud width past it each side.
 // - Every stud, king and post stud stands on a bottom plate and runs to the top plate.
 // - Every header bears on a jack at each end; every jack carries a header.
 // - Cripples bear on a header or sill, and rough sills sit on cripples.
@@ -84,9 +85,14 @@ export function connectionChecks(shed) {
     const joints = (ps) => ps.slice().sort((a, b) => a.s0 - b.s0).slice(1).map((p) => p.s0);
     const tj = joints(tops);
     const cj = joints(caps);
-    const jointFails = [...tj, ...cj].filter((x) => !centres.some((c) => near(c, x))).map((x) => `joint at ${fmtIn(x)}`);
+    // Or over a header that runs at least a stud width past the joint each
+    // side, on a top cripple standing on it, or with the header tight under
+    // the plate (a gap under 1-1/2" is shimmed with plywood).
+    const overHeader = (x) => headers.some((h) => h.s0 <= x - 1.5 + EPS && h.s1 >= x + 1.5 - EPS
+      && (H - 3 - h.z1 < 1.5 - EPS || tc.some((c) => near((c.s0 + c.s1) / 2, x) && near(c.z0, h.z1))));
+    const jointFails = [...tj, ...cj].filter((x) => !centres.some((c) => near(c, x)) && !overHeader(x)).map((x) => `joint at ${fmtIn(x)}`);
     const clearFails = cj.filter((c) => tj.some((t) => Math.abs(c - t) < PLATE_OFFSET_MIN - EPS)).map((x) => `cap joint at ${fmtIn(x)}`);
-    if (tj.length || cj.length) add(`${name} wall: plate splices`, [...jointFails, ...clearFails], tj.length + cj.length, `plate joints on a stud, cap joints at least ${PLATE_OFFSET_MIN}" from top-plate joints (IRC R602.3.2)`);
+    if (tj.length || cj.length) add(`${name} wall: plate splices`, [...jointFails, ...clearFails], tj.length + cj.length, `plate joints on a stud or over a header, cap joints at least ${PLATE_OFFSET_MIN}" from top-plate joints (IRC R602.3.2)`);
   }
 
   // Rafters seat on the plates and meet the ridge.
