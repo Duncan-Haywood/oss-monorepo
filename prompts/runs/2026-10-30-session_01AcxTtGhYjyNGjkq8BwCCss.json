@@ -1,0 +1,47 @@
+{
+  "date": "2026-10-30",
+  "session": "https://claude.ai/code/session_01AcxTtGhYjyNGjkq8BwCCss",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "scheduled: read ./prompt.md and follow the instructions there",
+  "input_sha256": "f2d8c6470f61b3e050d0c0a8893c3b8623a29690722755209371e13aee4f6558",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-30T20:09:24Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/11843",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "default python3 lacks numpy; pyenv.py printed /usr/local/bin/python3 which did import numpy, but the first run used the shell python3 and failed"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-10-30-500-draws-can-mislead-by-two-points.md",
+    "research/llm-coding-inference/LOG.md"
+  ],
+  "goal": null,
+  "notes": "",
+  "corrections": [],
+  "redteam": null
+}
