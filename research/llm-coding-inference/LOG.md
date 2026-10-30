@@ -2,6 +2,12 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-30 · Milestone 7a: the screened-audit rule becomes library code (`llmci/audit_design.py`)
+- Why: 6ak to 6am settled the rule (pilot 30%, J_hat >= 0.3, at least 20 pilot positives, else pool; coder cells get a 0.35 floor) but it lived only inside experiment scripts, so nobody could use it without copying them.
+- Added `informedness`, `screen`, `cell_allocation` (stdlib) and 3 tests (known J values and degenerate pilots, the two-condition screen including the perfect-coder-but-10-positives case, allocation sums to budget / honours floor / caps at cell size). 18 tests pass.
+- Check against the evidence code: `cell_allocation` equals `h6ai_floor_indep.floored(h6r_rare_pilot.allocate(...))` on 2,000 random (sizes, variances, n in {400, 1000}) inputs, 0 differences. No new experiment, so no new claim; the rule keeps the status the paper gives it (heuristic, no coverage theorem).
+- Next: an informative coder on a second corpus once model weights are reachable (Hugging Face still returns 403 here).
+
 ## 2026-10-30 · Milestone 6am: is the guarded screen's J_hat cutoff (0.3) a knife edge? (planned before running; ran straight through)
 - Why: 6ak chose 0.3 before looking and never swept it (6al's "Limits"). `experiments/h6am_tau.py` reruns 6al's screen + guard G = 20 with TAU in {0.1, 0.2, 0.3, 0.4, 0.5}; same data, cached Qwen scores, seed, rules and 500 draws (+/- 2 points). A second corpus with a new informative coder was not possible this session (Hugging Face returns 403 through the proxy and torch is not installed), so this closes the cheaper limit instead.
 - **Prediction (before running):** WE coverage stays at least 92.5% and half-width within 3% of the TAU = 0.3 row in every cell, except that TAU = 0.1 picks cells more often on NaijaSenti 1.5B and 3B and is up to 3% wider there. Refuted if any cell moves more.

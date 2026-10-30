@@ -226,3 +226,31 @@ def test_stratified_ppi_tuned_unbiased_and_covers():
         cov += E.covers(e, truth)
     assert abs(sum(vals) / len(vals) - truth) < 0.004
     assert 0.92 < cov / 1500 < 0.975
+
+
+def test_informedness_known_values_and_degenerate_pilots():
+    from llmci import audit_design as S
+    y = [1, 1, 1, 1, 0, 0, 0, 0]
+    assert S.informedness(y, y) == 1.0
+    assert S.informedness(y, [1] * 8) == 0.0  # sens 1, spec 0
+    assert math.isclose(S.informedness(y, [1, 1, 1, 0, 0, 0, 0, 1]), 0.75 + 0.75 - 1)
+    assert S.informedness([1, 1], [1, 1]) == 0.0 and S.informedness([0, 0], [0, 0]) == 0.0
+
+
+def test_screen_needs_both_informedness_and_enough_positives():
+    from llmci import audit_design as S
+    rng = random.Random(3)
+    y, f = corpus(400, 0.3, 0.9, 0.95, rng)  # about 120 positives, J about 0.85
+    assert S.screen(y, f) == "cells"
+    assert S.screen(y, [rng.randint(0, 1) for _ in y]) == "pooled"  # empty coder
+    rare = [1] * 10 + [0] * 110
+    assert S.screen(rare, rare) == "pooled"  # perfect coder but 10 < 20 positives
+    assert S.screen(rare, rare, guard=10) == "cells"
+
+
+def test_cell_allocation_sums_to_budget_respects_floor_and_caps():
+    from llmci import audit_design as S
+    a = S.cell_allocation(400, [900, 300], [0.01, 0.20])
+    assert sum(a) == 400 and min(a) >= 140  # floor 0.35 * 400
+    assert S.cell_allocation(400, [900, 300], [0.01, 0.20], floor=0.0)[1] > a[1] - 1  # Neyman alone favours the noisy cell
+    assert S.cell_allocation(400, [30, 970], [0.2, 0.2])[0] == 30  # capped at the cell size
