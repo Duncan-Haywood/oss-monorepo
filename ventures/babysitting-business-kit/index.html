@@ -83,6 +83,7 @@
     <button type="button" role="tab" data-tab="families">Families</button>
     <button type="button" role="tab" data-tab="schedule">Schedule</button>
     <button type="button" role="tab" data-tab="money">Money &amp; taxes</button>
+    <button type="button" role="tab" data-tab="insights">Insights</button>
     <button type="button" role="tab" data-tab="references">References</button>
     <button type="button" role="tab" data-tab="agreements">Agreements</button>
     <button type="button" role="tab" data-tab="website">Website</button>
@@ -240,6 +241,8 @@
       <div class="grid"><div><label for="stmtFamily">Family</label><select id="stmtFamily"></select></div></div>
       <pre id="stmtOut" class="msg"></pre>
     </section>
+
+    <section data-panel="insights" id="insightsPanel" class="card" hidden></section>
 
     <section data-panel="references" class="card" hidden>
       <h2>References &amp; testimonials</h2>
@@ -445,6 +448,7 @@
     import { mountSafety } from "./safety-ui.mjs";
     import * as CRED from "./credentials-ui.mjs";
     import { enhanceTabs } from "./tabs.mjs";
+    import { mountInsights } from "./insights-ui.mjs";
 
     const STORE = "babysitting-business-kit-desk";
     const SYNC = "babysitting-business-kit-sync";
@@ -949,6 +953,7 @@
     $("contentStart").value = today();
     mountContent($("contentKit"), { getDesk: () => desk, save, record, today, buildSite: (d) => E.buildSite(d) });
     renderSafety = mountSafety($("safetyKit"), { getDesk: () => desk, save, esc, record, today, openPage, server: () => ({ url: $("syncUrl").value.trim().replace(/\/+$/, ""), key: $("syncKey").value }) });
+    mountInsights($("insightsPanel"), { getDesk: () => desk, save, esc, record, today });
     record("page_loaded");
     render();
     show("today");
