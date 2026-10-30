@@ -7,7 +7,8 @@
 // Periods end March 31, May 31, August 31 and December 31; their profit is multiplied by 4, 2.4,
 // 1.5 and 1, and the tax on that annualized profit is multiplied by 22.5%, 45%, 67.5% and 90%
 // (the factors are 12 over the months elapsed and the percentages 22.5% a quarter, which
-// annualized.test.mjs checks by derivation; the form text itself is unread because irs.gov is
+// annualized.test.mjs checks by derivation; the percentages were confirmed 2026-10-30 against a search excerpt of the 2024 Form 2210 and the factors against
+// state Schedule AI forms, but the federal text is unread because irs.gov is
 // blocked from the build container, and every result says so). The required installment of a period is the smaller of the
 // annualized amount still unmet and the regular quarter plus any regular quarter not used earlier
 // (Part III lines 20 to 26 of the form). Wages, other income and withholding are taken as even
@@ -58,7 +59,7 @@ export function annualizedInstallments(books, opts = {}) {
   });
   const lump = rows[0].profitToDate <= 0 && rows[2].profitToDate > 0;
   if (!required) warnings.push("No payment is required for the year (tax after safe harbour is zero), so nothing is due on any date.");
-  warnings.push("Worksheet from the Schedule AI percentages and factors as remembered, not checked against the form text; Form 2210 and the IRS instructions decide.");
+  warnings.push("Worksheet. The 22.5/45/67.5/90% percentages match the 2024 Form 2210 as quoted by a search excerpt and the 4/2.4/1.5/1 factors match state Schedule AI forms and a tax guide; the federal form text itself was not read (irs.gov is blocked here). Form 2210 and the IRS instructions decide.");
   if (!payments.length && !(Number.isFinite(paid) && paid > 0)) warnings.push("No payments given, so every shortfall counts only withholding; pass the estimates you have already sent as payments [{ date, cents }].");
   if (Number.isFinite(paid) && paid > 0 && !payments.length) warnings.push("`paid` has no dates, so it is ignored here; pass payments with dates.");
   if (lump) warnings.push("Profit arrives after the first period; the annualized method is likely to lower the early installments.");
