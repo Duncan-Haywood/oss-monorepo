@@ -171,6 +171,10 @@
     .card dd { margin: 0; font-weight: 700; }
     .pill { background: var(--gold); color: var(--ink); border-radius: 999px; padding: 1px 8px; font-size: .72rem; }
     .starts { margin: 6px 0 18px; }
+    .starts-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; justify-content: space-between; }
+    .starts-nav { display: flex; align-items: center; gap: 8px; }
+    .starts-nav .btn { min-width: 44px; min-height: 44px; }
+    .pick-list:focus-visible { outline: 2px solid var(--accent2); outline-offset: 2px; }
     .pick-list { list-style: none; padding: 0; margin: 10px 0 0; display: grid; grid-auto-flow: column; grid-auto-columns: minmax(220px, 260px); gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 6px; }
     .pick { scroll-snap-align: start; border: 1px solid var(--line); border-radius: 12px; background: #fff; display: flex; flex-direction: column; overflow: hidden; }
     .pick-open { all: unset; cursor: pointer; display: flex; flex-direction: column; gap: 4px; padding: 10px 10px 6px; flex: 1; }
@@ -199,6 +203,8 @@
     .facts div { display: grid; grid-template-columns: 7.5em minmax(0, 1fr); gap: 8px; }
     .facts dt { color: var(--muted); }
     .facts dd { margin: 0; }
+    .facts ul.kits { margin: 4px 0; padding-left: 18px; }
+    .facts dd .muted { display: block; }
     .bars { list-style: none; padding: 0; margin: 0; display: grid; gap: 4px; font-size: .86rem; }
     .bars li { display: grid; grid-template-columns: minmax(0, 9em) minmax(0, 1fr) 4.5em; gap: 8px; align-items: center; }
     .bars .bar { height: 10px; border-radius: 5px; background: #e7e1d4; overflow: hidden; }
@@ -299,9 +305,16 @@
   <main>
 
   <section id="starts" class="starts" aria-labelledby="starts-h">
-    <h2 id="starts-h">Start from a ready-made design</h2>
-    <p class="hint">Open one to see it from every side, what it costs and where the money goes, and how much it holds. Add two or three to Compare to see them side by side. "Start from this design" opens a copy in the editor below, to change as you like.</p>
-    <ul class="pick-list"></ul>
+    <div class="starts-head">
+      <h2 id="starts-h">Start from a ready-made design</h2>
+      <div class="starts-nav">
+        <button type="button" class="btn" id="starts-prev" aria-label="Previous design">&larr;</button>
+        <span id="starts-pos" aria-live="polite"></span>
+        <button type="button" class="btn" id="starts-next" aria-label="Next design">&rarr;</button>
+      </div>
+    </div>
+    <p class="hint">Ten sheds under 100 sq ft, each picked from 2,400 designs this tool's search built and checked: every member at 90% of its capacity or less, a peak of 13 ft or less, nothing the model warns about, and the best on the measure its card names. Prices are worked out now at the prices below. Flick through with the arrows or a swipe; open one to see it from every side, what it costs and how much it holds; add two or three to Compare. "Start from this design" opens a copy in the editor below, to change as you like.</p>
+    <ul class="pick-list" tabindex="0" aria-label="Ready-made designs: arrow keys move through them"></ul>
   </section>
   <div id="compare-tray" class="compare-tray" role="region" aria-label="Designs to compare" hidden></div>
   <dialog id="pick-dialog" class="pick-dialog"></dialog>
@@ -434,6 +447,7 @@
         <label>Roof structure<select id="roofType"><option value="ridgeBeam">Ridge beam on posts (open inside, no ties)</option><option value="ridgeBoard">Ridge board with rafter ties</option><option value="truss">Site-built trusses (king post, OSB gussets)</option></select></label>
         <label>Rafter seat<select id="rafterSeat"><option value="connector">Variable-pitch connector (no notch)</option><option value="birdsmouth">Birdsmouth notch and hurricane tie</option></select></label>
         <label>Ridge beam (two plies)<select id="beamSize"><option>2x8</option><option>2x10</option><option>2x12</option></select></label>
+        <label class="check"><input id="atticStorage" type="checkbox"> Attic storage deck on the truss bottom chords (trusses only)</label>
         <label>Rafter ties or truss bottom chords<select id="tieSize"><option>2x4</option><option>2x6</option></select></label>
         <label class="check"><input id="floorTreated" type="checkbox"> Pressure-treated floor framing</label>
       </div>

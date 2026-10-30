@@ -50,7 +50,7 @@
     "docs/reports/shed-designer-round3b-lane4.md"
   ],
   "goal": null,
-  "notes": "Verification, local (runners starved). After merging main (e335b0e1): venture `node --test *.test.mjs` 209 pass, 0 fail, 2 skipped (with Playwright in the container this includes both browser files; the two skips are the axe tests), then both axe tests with axe-core 4.13.0: 2/2. Earlier: browser.test.mjs 12/12 and picker.browser.test.mjs 6/6. Screenshots checked by eye on desktop and a Pixel 7.",
+  "notes": "Verification, local (runners starved). After merging main (e335b0e1): venture `node --test *.test.mjs` 209 pass, 0 fail, 2 skipped (with Playwright in the container this includes both browser files; the two skips are the axe tests), then both axe tests with axe-core 4.13.0: 2/2. Earlier: browser.test.mjs 12/12 and picker.browser.test.mjs 6/6. Screenshots checked by eye on desktop and a Pixel 7. Follow-ups in the same session: #11580 (panel priced through the page's storeEstimate; renders manifest re-hashed, red on main), #11610 (stored pictures from renders/; 13 stale size-page renders redrawn, red on main), and a final report PR. The gallery integration (PR #11561, still a draft) is left as the next step in docs/reports/shed-designer-round3b-lane4.md.",
   "corrections": [],
   "redteam": null
 }

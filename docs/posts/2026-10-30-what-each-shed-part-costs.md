@@ -1,5 +1,6 @@
 ---
 title: "What each shed part costs: blocks, gravel, doors and windows priced side by side"
+seo_title: "What each shed part costs: blocks, gravel, doors, windows"
 date: 2026-10-30
 tags: [shed-designer, cost, foundation, doors, windows]
 description: "On an 8x12 shed the foundation choice moves the price by up to $420, the door by $560 and the windows by $140. Each choice priced against your design."
