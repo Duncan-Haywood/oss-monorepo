@@ -1,0 +1,12 @@
+20000 force-model cycles; ordering OC>=LS>=metered 83.28%
+LS/OC  median 0.842  5-95%: 0.629 to 1.122
+Met/LS median 0.697  5-95%: 0.578 to 0.825; share < 0.85: 98.1%
+LS>OC in 3345 cycles; all have dp_ls > dp_spool: True; mean demand/pump in those 0.76 vs 0.70 overall
+load factor 0.346; p_n 10.91 bar (PVG 32 reading); 600 cycles x seeds per cell; pump 45 L/min
+q_sb 0 L/min: break-even dp_ls = 29.1 bar; LS/OC at 14 bar 0.749, at 25 bar 0.931
+q_sb 1 L/min: break-even dp_ls = 28.5 bar; LS/OC at 14 bar 0.754, at 25 bar 0.940
+q_sb 2 L/min: break-even dp_ls = 28.0 bar; LS/OC at 14 bar 0.759, at 25 bar 0.949
+q_sb 4 L/min: break-even dp_ls = 26.9 bar; LS/OC at 14 bar 0.769, at 25 bar 0.966
+q_sb 6 L/min: break-even dp_ls = 25.9 bar; LS/OC at 14 bar 0.779, at 25 bar 0.983
+q_sb 8 L/min: break-even dp_ls = 25.0 bar; LS/OC at 14 bar 0.788, at 25 bar 1.001
+q_sb 10 L/min: break-even dp_ls = 24.0 bar; LS/OC at 14 bar 0.798, at 25 bar 1.019
