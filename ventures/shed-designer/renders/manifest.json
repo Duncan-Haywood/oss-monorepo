@@ -355,53 +355,53 @@
   "gallery-balanced": {
    "key": "Balanced 8x12",
    "name": "Balanced 8x12",
-   "hash": "f4ad842c58b622c5",
-   "designKey": "4b36226c",
+   "hash": "30066b5db6acca63",
+   "designKey": "4e2fb284",
    "files": {
     "card": {
      "file": "gallery-balanced-card.webp",
      "w": 480,
      "h": 320,
-     "bytes": 6628,
-     "alt": "3D render of the Balanced 8x12, 12 by 8 ft, seen from the front corner: stained LP SmartSide panel siding, charcoal shingles, 8/12 roof, 12' 8-7/8\" to the peak, showing a 39\" door on the front (eave side)."
+     "bytes": 6494,
+     "alt": "3D render of the Balanced 8x12, 8 by 12 ft, seen from the front corner: stained T1-11 panel siding, charcoal shingles, 4/12 lean-to roof, 11' 7-9/16\" to the high edge, showing a 39\" door on the right (end wall)."
     }
    }
   },
   "gallery-cheapest": {
    "key": "Cheapest 8x10",
    "name": "Cheapest 8x10",
-   "hash": "2f29fda5ea5e7173",
-   "designKey": "2b0faa15",
+   "hash": "bda6657afb31ad06",
+   "designKey": "1f007334",
    "files": {
     "card": {
      "file": "gallery-cheapest-card.webp",
      "w": 480,
      "h": 320,
-     "bytes": 6888,
-     "alt": "3D render of the Cheapest 8x10, 10 by 8 ft, seen from the front corner: stained LP SmartSide panel siding, charcoal metal roof, 5/12 roof, 10' 7-9/16\" to the peak, showing a 39\" door on the right (gable end)."
+     "bytes": 7086,
+     "alt": "3D render of the Cheapest 8x10, 10 by 8 ft, seen from the front corner: stained LP SmartSide panel siding, charcoal metal roof, 6/12 roof, 11' 2-3/16\" to the peak, showing a 39\" door on the right (gable end)."
     }
    }
   },
   "gallery-house": {
-   "key": "9x11 to match the house",
-   "name": "9x11 to match the house",
-   "hash": "4addbeb97678b114",
-   "designKey": "468b3611",
+   "key": "9x10 to match the house",
+   "name": "9x10 to match the house",
+   "hash": "fd84046ffe131bac",
+   "designKey": "9aed3072",
    "files": {
     "card": {
      "file": "gallery-house-card.webp",
      "w": 480,
      "h": 320,
-     "bytes": 5964,
-     "alt": "3D render of the 9x11 to match the house, 11 by 9 ft, seen from the front corner: white fiber cement siding, charcoal shingles, 5/12 roof, 10' 10-1/16\" to the peak, showing a 39\" door on the right (gable end)."
+     "bytes": 6062,
+     "alt": "3D render of the 9x10 to match the house, 10 by 9 ft, seen from the front corner: white fiber cement siding, charcoal shingles, 6/12 roof, 11' 11-5/16\" to the peak, showing a 39\" door on the right (gable end)."
     }
    }
   },
   "gallery-house-cheapest": {
    "key": "Cheapest lap-sided 7x12",
    "name": "Cheapest lap-sided 7x12",
-   "hash": "1e30b81f48a67365",
-   "designKey": "9a429980",
+   "hash": "4f049efedbdfc287",
+   "designKey": "69fcd7d9",
    "files": {
     "card": {
      "file": "gallery-house-cheapest-card.webp",
@@ -413,92 +413,92 @@
    }
   },
   "gallery-long": {
-   "key": "Long 6x15",
-   "name": "Long 6x15",
-   "hash": "3ed358859900a31f",
-   "designKey": "14a01f02",
+   "key": "Long 7x14",
+   "name": "Long 7x14",
+   "hash": "0ab7eb2a6b5a57ac",
+   "designKey": "c44bbfa4",
    "files": {
     "card": {
      "file": "gallery-long-card.webp",
      "w": 480,
      "h": 320,
-     "bytes": 6316,
-     "alt": "3D render of the Long 6x15, 15 by 6 ft, seen from the front corner: sage fiber cement siding, charcoal shingles, 6/12 roof, 12' 11-3/8\" to the peak, showing a 39\" door on the right (gable end)."
+     "bytes": 6542,
+     "alt": "3D render of the Long 7x14, 14 by 7 ft, seen from the front corner: sage fiber cement siding, charcoal shingles, 6/12 roof, 12' 8-3/8\" to the peak, showing a 39\" door on the right (gable end) and a 18\" window on the front (eave side)."
     }
    }
   },
   "gallery-looks": {
    "key": "Best looking 8x11",
    "name": "Best looking 8x11",
-   "hash": "455f063a1fe4dc07",
-   "designKey": "860adaa7",
+   "hash": "58cee22c9a04917d",
+   "designKey": "90da5527",
    "files": {
     "card": {
      "file": "gallery-looks-card.webp",
      "w": 480,
      "h": 320,
-     "bytes": 6610,
-     "alt": "3D render of the Best looking 8x11, 11 by 8 ft, seen from the front corner: greige fiber cement siding, charcoal shingles, 7/12 roof, 11' 9-1/4\" to the peak, showing a 39\" door on the right (gable end) and a 24\" window on the front (eave side)."
+     "bytes": 5632,
+     "alt": "3D render of the Best looking 8x11, 8 by 11 ft, seen from the front corner: greige fiber cement siding, charcoal shingles, 4/12 lean-to roof, 10' 11-1/16\" to the high edge, showing a 39\" door on the front (tall side) and two 18\" windows on the front (tall side)."
     }
    }
   },
   "gallery-mower": {
-   "key": "Mower shed 7x14",
-   "name": "Mower shed 7x14",
-   "hash": "853e5f2eff87947c",
-   "designKey": "884a7ab8",
+   "key": "Mower shed 10x10",
+   "name": "Mower shed 10x10",
+   "hash": "a80930ff0bef4109",
+   "designKey": "fd64fef7",
    "files": {
     "card": {
      "file": "gallery-mower-card.webp",
      "w": 480,
      "h": 320,
-     "bytes": 6934,
-     "alt": "3D render of the Mower shed 7x14, 14 by 7 ft, seen from the front corner: forest green fiber cement siding, charcoal shingles, 6/12 roof, 12' 8-3/8\" to the peak, showing a 48\" door on the right (gable end)."
+     "bytes": 5856,
+     "alt": "3D render of the Mower shed 10x10, 10 by 10 ft, seen from the front corner: forest green fiber cement siding, charcoal shingles, 4/12 lean-to roof, 12' 6-3/8\" to the high edge, showing a 48\" door on the right (end wall)."
     }
    }
   },
   "gallery-square": {
    "key": "10x10 square",
    "name": "10x10 square",
-   "hash": "60d12805e8cd69d3",
-   "designKey": "1536b16a",
+   "hash": "57030309d62d8bcc",
+   "designKey": "da290c12",
    "files": {
     "card": {
      "file": "gallery-square-card.webp",
      "w": 480,
      "h": 320,
-     "bytes": 6470,
-     "alt": "3D render of the 10x10 square, 10 by 10 ft, seen from the front corner: khaki fiber cement siding, charcoal shingles, 5/12 roof, 10' 7-9/16\" to the peak, showing a 39\" door on the right (gable end)."
+     "bytes": 6186,
+     "alt": "3D render of the 10x10 square, 10 by 10 ft, seen from the front corner: khaki fiber cement siding, charcoal shingles, 6/12 roof, 11' 11-5/16\" to the peak, showing a 39\" door on the right (gable end)."
     }
    }
   },
   "gallery-storage": {
-   "key": "Most storage 7x14",
-   "name": "Most storage 7x14",
-   "hash": "bc2ad2b85b8b1d78",
-   "designKey": "e7e33fc9",
+   "key": "Most storage 9x11",
+   "name": "Most storage 9x11",
+   "hash": "4bfb4de7cae1268e",
+   "designKey": "77b61194",
    "files": {
     "card": {
      "file": "gallery-storage-card.webp",
      "w": 480,
      "h": 320,
-     "bytes": 6712,
-     "alt": "3D render of the Most storage 7x14, 14 by 7 ft, seen from the front corner: stained LP SmartSide panel siding, charcoal shingles, 6/12 roof, 12' 8-3/8\" to the peak, showing a 39\" door on the right (gable end)."
+     "bytes": 6582,
+     "alt": "3D render of the Most storage 9x11, 9 by 11 ft, seen from the front corner: stained T1-11 panel siding, charcoal shingles, 4/12 lean-to roof, 12' 10-3/16\" to the high edge, showing a 39\" door on the right (end wall)."
     }
    }
   },
   "gallery-value": {
    "key": "Most room per dollar, 10x10",
    "name": "Most room per dollar, 10x10",
-   "hash": "d3863483cabf6294",
-   "designKey": "e5ba233e",
+   "hash": "9cab23c418062217",
+   "designKey": "3d4488e2",
    "files": {
     "card": {
      "file": "gallery-value-card.webp",
      "w": 480,
      "h": 320,
-     "bytes": 6994,
-     "alt": "3D render of the Most room per dollar, 10x10, 10 by 10 ft, seen from the front corner: stained LP SmartSide panel siding, charcoal metal roof, 6/12 roof, 11' 11/16\" to the peak, showing a 39\" door on the right (gable end)."
+     "bytes": 7796,
+     "alt": "3D render of the Most room per dollar, 10x10, 10 by 10 ft, seen from the front corner: stained T1-11 panel siding, charcoal metal roof, 6/12 roof, 11' 11-5/16\" to the peak, showing a 39\" door on the right (gable end)."
     }
    }
   },

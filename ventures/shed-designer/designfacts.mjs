@@ -52,6 +52,7 @@ export function designFacts(input, opts = {}) {
 
   // Storage: the one definition in storage.mjs, shared with the design search.
   const st = storageOf(shed);
+  const lean = d.style === 'leanTo';
 
   const openings = d.openings.map((o) => {
     const p = productById(o.product);
