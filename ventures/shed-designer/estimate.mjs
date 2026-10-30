@@ -348,6 +348,13 @@ export function estimate(shed, prices = examplePrices()) {
   const floorKey = d.floorPanel === 'OSB' ? 'floorOSB' : 'floorSheet';
   line('Sheet goods', label(floorKey), floorSheets, 'sheet', item(floorKey), src(floorKey));
   line('Sheet goods', label('roofSheet'), roofSheets, 'sheet', item('roofSheet'), src('roofSheet'));
+  // A gambrel's loft floor, and its truss gussets cut from 15/32" plywood sheathing
+  // (by area, with a quarter for the waste between the odd shapes).
+  const loftSheets = sheetCount2d(panelPieces(shed.panels, 'loft deck'));
+  if (loftSheets) line('Sheet goods', `${label(floorKey)} (loft floor)`, loftSheets, 'sheet', item(floorKey), src(floorKey));
+  const gussetSqIn = shed.panels.filter((p) => p.kind === 'gambrel gusset').reduce((t, p) => t + Math.abs(polyArea(p.geom.profile)), 0);
+  const gambrelGussetSheets = gussetSqIn ? Math.ceil((gussetSqIn * 1.25) / (48 * 96)) : 0;
+  if (gambrelGussetSheets) line('Sheet goods', '15/32" plywood sheathing, 4x8, cut into truss gussets', gambrelGussetSheets, 'sheet', item('plywoodLining'), src('plywoodLining'));
   // Truss gussets come out of their own sheets of the same OSB: each piece is
   // packed as the rectangle round it, long side along the sheet.
   const gussetPieces = shed.panels.filter((p) => p.kind === 'truss gusset').map((p) => {
@@ -544,7 +551,9 @@ export function estimate(shed, prices = examplePrices()) {
     line('Fasteners and sealants', label('framingNails'), Math.ceil(n16 / 225), 'box', item('framingNails'), src('framingNails'));
     // Sheathing: about 60 8d nails a 4x8 sheet (6" at edges, 12" in the field); 478 in a 5 lb box.
     const panelSiding = d.siding && ['T1-11', 'LP SmartSide', 'LP SmartSide 7/16'].includes(d.sidingType);
-    const sheathingSheets = floorSheets + roofSheets + deckSheets + (d.siding && !panelSiding ? Math.ceil(((shed.sidingArea ?? 0) * 1.1) / 32) : 0);
+    // A gambrel's gussets take their own count of 8d nails (gambrel.mjs).
+    const gambrelGussetNails = dims.gambrel ? (dims.rafterCenters.length - 2) * (2 * dims.gambrel.nailsPerKnee + dims.gambrel.nailsPerPeak) : 0;
+    const sheathingSheets = floorSheets + roofSheets + deckSheets + loftSheets + gambrelGussetNails / 60 + (d.siding && !panelSiding ? Math.ceil(((shed.sidingArea ?? 0) * 1.1) / 32) : 0);
     line('Fasteners and sealants', label('sheathingNails'), Math.ceil((sheathingSheets * 60) / 478), 'box', item('sheathingNails'), src('sheathingNails'));
     if (panelSiding) {
       const sheets = shed.sidingFull.length + sidingUpperSheets(shed);

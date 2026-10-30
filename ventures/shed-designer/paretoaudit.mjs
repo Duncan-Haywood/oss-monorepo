@@ -19,6 +19,7 @@
 import { buildShed, normalize } from './model.mjs';
 import { estimate } from './estimate.mjs';
 import { structuralChecks } from './checks.mjs';
+import { roofSpaceCuFt } from './storage.mjs';
 
 /** Inside measurements and storage of a built shed (feet, square feet, cubic feet). */
 export function storageOf(shed) {
@@ -29,7 +30,7 @@ export function storageOf(shed) {
   const floorSqFt = inL * inW;
   const clearFt = (k.plateTop - k.floorTop - 3) / 12;
   const riseFt = Math.max(0, (d.width / 2 - k.stud) * (d.pitch / 12)) / 12;
-  const atticCuFt = 0.5 * inW * riseFt * inL;
+  const atticCuFt = d.style === 'gambrel' ? roofSpaceCuFt(shed) : 0.5 * inW * riseFt * inL;
   return { floorSqFt, clearFt, atticCuFt, cuFt: floorSqFt * clearFt + 0.5 * atticCuFt };
 }
 
