@@ -13,13 +13,16 @@ import path from 'node:path';
 // Every reader of ventures/ that publishes or packs pages calls it first:
 // platform/pages/build.mjs, the front-door mirror and the Python mirror build.
 //
-// A venture may list several scripts; they run in order. shed-designer's
-// gallery (make-gallery.mjs) is one: it searches with the prices in the tree
-// at build time, so the cards a deploy shows are picked with that deploy's
-// prices, and the committed gallery-data.mjs is the copy tests and a plain
-// checkout use.
+// A venture may list several scripts; they run in order. A generator here
+// must write only gitignored files: test files that build run in parallel
+// with others that call these generators, so one that rewrites a committed
+// file changes the source under a build in progress. shed-designer's gallery
+// (make-gallery.mjs) rewrites the committed gallery-data.mjs, so it is not
+// listed: the deploy workflow (portfolio-pages.yml) runs it before the build
+// instead (it was listed from #11853 until build.test.mjs's "an identical
+// build produces an identical cache name" caught the race, 2026-10-30).
 export const GENERATED_PAGES = {
-  'shed-designer': ['make-size-pages.mjs', 'make-gallery.mjs'],
+  'shed-designer': ['make-size-pages.mjs'],
 };
 
 /** A registry entry as a list of scripts. @param {string | string[]} entry */

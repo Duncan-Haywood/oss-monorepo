@@ -10,10 +10,12 @@
 // strip picture is drawn by make-renders.mjs (galleryTargets), which redraws
 // only the cards whose design changed.
 //
-// The site build runs it too (platform/pages/generated-pages.mjs), so each
-// deploy's cards are searched with that deploy's prices. Several build steps
-// call the generators; a stamp (.gallery-stamp, not committed) of the engine's
-// sources and data lets the later calls skip the search when nothing changed.
+// The deploy workflow (portfolio-pages.yml) runs it before the site build, so
+// each deploy's cards are searched with that deploy's prices. It is not one of
+// the build's generators: it rewrites a committed file, and tests build the
+// site in parallel (platform/pages/generated-pages.mjs). A stamp
+// (.gallery-stamp, not committed) of the engine's sources and data lets a
+// repeat run skip the search when nothing changed.
 
 import { writeFileSync, readFileSync, readdirSync, existsSync } from 'node:fs';
 import { createHash } from 'node:crypto';
