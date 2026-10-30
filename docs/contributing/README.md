@@ -9,6 +9,7 @@ The pages here go one level deeper.
 | [`setup.md`](setup.md) | Getting the code without downloading gigabytes, the toolchain, running one tool, its tests and the site locally |
 | [`fix-a-tool.md`](fix-a-tool.md) | How a browser calculator, a command-line checker and a self-hosted app are laid out, and a worked example of fixing a wrong number |
 | [`research.md`](research.md) | How a research project is laid out, reproducing a result, and what a useful correction or extension looks like |
+| [`start-here.md`](start-here.md) | The "Start here" blog series: which guide to send each kind of reader to, and how to write a new one |
 | [`steering-agents.md`](steering-agents.md) | The maintainer's process for directing agent sessions: scheduling, phrasing a request, reading results, turning remarks into directions, and copying it to another repository |
 
 ## How this repository is different
@@ -46,8 +47,12 @@ that.
 ## Where the live site comes from
 
 Every merge to `main` that touches a site input rebuilds the catalogue with
-`platform/pages/build.mjs` and deploys it to GitHub Pages
-(`.github/workflows/portfolio-pages.yml`). There is no separate release step:
+`platform/pages/build.mjs` and deploys it to Cloudflare at
+https://monorepo-projects-site.duncan-andrew-haywood.workers.dev/
+(`.github/workflows/portfolio-pages.yml`, also every three hours). The old
+GitHub Pages address, `https://duncan-haywood.github.io/oss-monorepo/`, now
+serves redirect pages to the same path there
+([`portfolio/hosting/README.md`](../../portfolio/hosting/README.md)). There is no separate release step:
 once your change is merged, it is live within the next deploy. How to build the
 site on your own machine is in [`setup.md`](setup.md).
 
