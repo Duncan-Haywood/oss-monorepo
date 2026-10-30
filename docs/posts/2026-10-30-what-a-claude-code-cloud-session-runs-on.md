@@ -3,7 +3,7 @@ title: "What a Claude Code cloud session runs on: 4 vCPUs, 16 GB and a CPU lotte
 seo_title: "Claude Code cloud session specs: CPU, memory, disk, measured"
 date: 2026-10-30
 tags: [infrastructure, benchmarks, claude-code, agents]
-description: "We measured six Claude Code cloud sessions. Each is a Firecracker microVM with 4 vCPUs and 15.7 GiB RAM, but the host CPU varies, and the newer one runs Python about twice as fast."
+description: "Six Claude Code cloud sessions measured: each a Firecracker microVM with 4 vCPUs and 15.7 GiB RAM, on one of two host CPUs; the newer runs Python twice as fast."
 ---
 
 Most of this repository is written by Claude Code running in cloud sessions. We had never checked what those sessions run on, so we wrote a small probe ([`platform/ci/runner_probe.py`](https://github.com/duncan-haywood/oss-monorepo/blob/main/platform/ci/runner_probe.py), standard library only) and ran it in six sessions: the one writing this post and five fresh ones started for the test.
