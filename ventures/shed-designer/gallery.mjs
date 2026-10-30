@@ -69,7 +69,11 @@ export function gallerySearches(prices) {
   };
 }
 
-const money = (/** @type {number} */ n) => `$${Math.round(n).toLocaleString('en-US')}`;
+const money = (/** @type {number} */ n) => {
+  const format = (/** @type {number} */ n) => `$${Math.round(n).toLocaleString('en-US')}`;
+  const text = format(Math.abs(n));
+  return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+};
 const perDollar = (/** @type {any} */ s) => s.storage.volumeCuFt / s.cost;
 const bestBy = (/** @type {any[]} */ list, /** @type {(s: any) => number} */ f) => [...list].sort((a, b) => f(b) - f(a) || a.cost - b.cost);
 const NEW = ' in a size the cards above do not show';

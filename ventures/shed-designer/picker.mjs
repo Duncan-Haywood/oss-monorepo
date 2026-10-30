@@ -34,7 +34,11 @@ export function presetEntries() {
 export const MAX_COMPARE = 3;
 
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-const money = (n) => `$${Math.round(n).toLocaleString('en-US')}`;
+const money = (n) => {
+  const format = (n) => `$${Math.round(n).toLocaleString('en-US')}`;
+  const text = format(Math.abs(n));
+  return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+};
 const n1 = (x) => (Math.round(x * 10) / 10).toString();
 const WALL = { front: 'front', back: 'back', left: 'left gable', right: 'right gable' };
 
