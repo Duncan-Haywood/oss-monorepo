@@ -39,6 +39,8 @@ Not affiliated with any of the products named above; they are named only to say 
 - **Posts & blog** (`content.mjs`): a bank of 76 topics for parents (safety, activities, routines, date nights, back-to-school, holidays; 10 faith topics that appear only when the sitter turns faith on), each with an outline, a local search phrase ("date night babysitter in {town}") and captions fitted to Facebook, Instagram, Nextdoor, a bulletin and a blog description. The sitter's own blog: posts are stored in the desk, and only ones the sitter approves are published, at `/site/blog` on the server and as `blog/*.html` in the website download (.zip). Approval is refused while a draft still holds `[add your real moment here]` or names a child from the desk without the parents' written yes. Optional AI drafting on the sitter's own key (Anthropic, OpenAI, any OpenAI-compatible endpoint, or Ollama / LM Studio on their own computer), through the repo's shared `byok.mjs`; only the sitter's public profile and the topic are sent, never family data.
 - **Backup and sync:** a JSON backup file; or sync with the sitter's own server.
 - **Automations (with the server):** six follow-through rules you turn on one by one (confirmation, day-before reminder, thank-you with a testimonial ask, rebook nudge, unpaid reminders, opt-in birthday notes), by email or text, with quiet hours, opt-outs and a preview of what would go out now. Details below.
+- **On a phone:** installable from the browser (Add to Home Screen): `manifest.webmanifest`, icons rendered from `icon.svg` by `make-icons.mjs`, and `sw.js`, which caches the app and every module `index.html` imports (it follows the imports itself, so new modules need no edit) and never caches `/api/*`, `/inquiry` or the calendar feed. On narrow screens the tab bar sits at the bottom and controls are at least 44 px tall. Tabs follow the WAI-ARIA pattern (`tabs.mjs`: arrow keys, Home, End, `aria-controls`), focus is always visible, and text colours meet WCAG AA contrast (checked in `a11y.test.mjs`).
+- **Guides for searchers:** [How to start a babysitting business](how-to-start-a-babysitting-business.html), [How much to charge for babysitting](how-much-to-charge-for-babysitting.html) (the rate-card logic, with worked examples the tests recompute with `quote()`; no invented national averages) and [Babysitting references](babysitting-references.html).
 
 ## The optional server (automated sales)
 
@@ -114,6 +116,7 @@ US federal rules for 2026, with constants from sibling ventures that checked the
 
 - **Page:** open `index.html` from a local server (`npx serve .`, or the server above). Data lives in this browser's localStorage under `babysitting-business-kit-desk`.
 - **Tests:** `node --test ventures/babysitting-business-kit/*.test.mjs` (engine, taxes, slots, intake, references, site, print, qr, automations, server, page, deploy, usage).
+- **Browser end-to-end:** `e2e.test.mjs` drives the app in Chromium at 390 px and 1280 px (load the example, add a lead, make it a family, book a sit, record a payment, check the tax panel, reload), checks keyboard tabs, 44 px targets, the guide pages and offline start-up. It skips itself when Playwright or its Chromium is missing, as on the CI venture runner, so run it locally after UI changes.
 
 ## Privacy
 
