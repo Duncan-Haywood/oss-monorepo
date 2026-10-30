@@ -119,6 +119,16 @@ class T(unittest.TestCase):
             idx = rng.sample(range(n), rng.randint(2, n))
             self.assertLessEqual(pilot_top_inversion(s, y, idx, 3), inversion(s, y) + 1e-12)
 
+    def test_no_quantile_of_g_bounds_halving_regret(self):
+        # milestone 43: for any q < 1 - 1/n a pool exists whose q-quantile of g is 0 while halving loses log c
+        sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "experiments" / "theory"))
+        from quantile_counterexample import row
+        for n in (30, 90, 300):
+            reg, qb, g0, gmax = row(n, 3.0, qs=(0.5, 0.9, 1 - 1.5 / n))
+            self.assertAlmostEqual(reg, math.log(3.0))
+            self.assertTrue(all(v == 0.0 for v in qb.values()))
+            self.assertAlmostEqual(g0, math.log(3.0))
+
 
 if __name__ == "__main__":
     unittest.main()
