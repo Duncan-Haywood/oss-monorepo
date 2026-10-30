@@ -12,7 +12,7 @@
     "renderCard: 62.7 ms per card on one thread (10-run mean)",
     "slowest tests in the full suite: shared build 115.6s, kill-switch build 80.1s, identical-cache build 75.4s, custom-domain build 65.6s, /compare/ and /guides/ fixture builds 31s each"
   ],
-  "change": "Cache card PNGs by content: key = hash of the card options plus the source of sharecard.mjs and fontraster.mjs and the font files, stored under the OS temp directory. An empty cache (a fresh CI build runner) behaves as before; repeat builds in one test run reuse the cards. Pin card determinism with its own cheap test so the identical-build test still means what it says. Shipped as an in-process cache in renderCards (no disk, no code-version key needed); see docs/history/pages-test-perf-2026-10-24.md.",
+  "change": "Cache card PNGs by content so repeat builds do not redraw them. Shipped in PR #10208 (platform/pages/share.mjs renderCards): an in-process map keyed by the card options, which is what makes the test suite's repeat builds cheap, plus an optional disk cache (PAGES_CARD_CACHE) keyed by the options and the files a card's pixels depend on, which the deploy workflow can carry between builds. Measurements and the in-memory design: docs/history/pages-test-perf-2026-10-24.md.",
   "touches": [
     "platform/pages/share.mjs",
     "platform/pages/build.test.mjs"
@@ -21,7 +21,7 @@
   "baseline": "node --test build.test.mjs 460s wall locally (4 cores, 2026-10-24); CI 'Test the site builder' 122.2 job-minutes over 75 jobs in 80 minutes",
   "opened": "2026-10-24",
   "source": "prompts/runs/2026-10-24-session_01Gcz8nVnXVeNTiqb8JKabK1.json",
-  "pr": "this",
+  "pr": "10208",
   "result": null,
   "history": []
 }

@@ -13,14 +13,15 @@
 // platform/agents/tools.mjs.
 
 import { readStatement, splitOfx, splitQif, sniffFormat, rowIds, checkRunningBalance, parseCents } from "./bank.mjs";
-import { DEFAULT_ACCOUNTS, accountMap, validateEntry, trialBalance, profitAndLoss, balanceSheet, cashFlow, balances, natural, fmt, dollars } from "./ledger.mjs";
+import { DEFAULT_ACCOUNTS, accountMap, validateEntry, trialBalance, profitAndLoss, balanceSheet, cashFlow, cashFlowByMonth, ratios, breakEven, daysOutstanding, balances, natural, fmt, dollars } from "./ledger.mjs";
 import { suggest, trainClassifier, buildMemory, parseRules, historyRecord, payeeKey } from "./categorize.mjs";
 import { addDocuments, writeOff, settle, aging, documentEntries, AR, AP } from "./accruals.mjs";
 import { taxDepreciation, s179IncomeLimit } from "./taxdepr.mjs";
 import { FX_ACCOUNT, fxEntries, docRevalEntries, fxRegister as fxReg, convertRow, fxCurrency, foreignBalance, addFxAccount, setRates, parseRates, rateOn } from "./fx.mjs";
-import { inventoryEntries, inventoryRegister, addInventoryMove, setInventoryMethod, INVENTORY_ACCOUNT } from "./inventory.mjs";
+import { inventoryEntries, inventoryRegister, addInventoryMove, addLandedCost, addInventoryWritedown, setInventoryMethod, INVENTORY_ACCOUNT } from "./inventory.mjs";
 import { prepaidEntries, prepaidRegister, addPrepaid, PREPAID_ACCOUNT } from "./prepaid.mjs";
 import { assetEntries, register, addAsset, disposeAsset, addAssetsCsv, ASSET_ACCOUNT } from "./assets.mjs";
+import { cashBasis } from "./cashbasis.mjs";
 import { payrollEntries } from "./payroll.mjs";
 import { closingEntries } from "./yearend.mjs";
 import { openingEntry, setOpeningBalances, clearOpeningBalances } from "./opening.mjs";
@@ -30,7 +31,7 @@ export { setOpeningBalances, clearOpeningBalances };
 export { closeYear, reopenYear, yearEndReport } from "./yearend.mjs";
 export { addFxAccount, setRates, parseRates, rateOn };
 export const fxRegister = (books, asOf = null) => fxReg(books, journal(books), asOf);
-export { DEFAULT_ACCOUNTS, fmt, dollars, payeeKey, addDocuments, writeOff, aging, addAsset, disposeAsset, addAssetsCsv, register, addPrepaid, prepaidRegister, addInventoryMove, setInventoryMethod, inventoryRegister };
+export { DEFAULT_ACCOUNTS, fmt, dollars, payeeKey, addDocuments, writeOff, aging, addAsset, disposeAsset, addAssetsCsv, register, addPrepaid, prepaidRegister, addInventoryMove, addLandedCost, addInventoryWritedown, setInventoryMethod, inventoryRegister };
 
 export const VERSION = 1;
 const CAPEX_LIKELY = /suppl|office|repair|equipment|tool|computer|furniture|material|uncategori/i;
@@ -122,7 +123,7 @@ export function importStatement(booksIn, csv, account, opts = {}) {
     if (books.lockedThrough && r.date <= books.lockedThrough) { locked++; return; }
     const conv = convertRow(books, account, r);
     if (!conv) { noRate++; return; }
-    books.transactions.push({ id: ids[i], account, date: r.date, desc: r.desc, cents: conv.cents, ...(conv.foreign ? { foreign: conv.foreign } : {}), balance: r.balance, status: "new" });
+    books.transactions.push({ id: ids[i], account, date: r.date, desc: r.desc, cents: conv.cents, ...(conv.foreign ? { foreign: conv.foreign } : {}), balance: r.balance, ...(r.bankCat ? { bankCat: r.bankCat } : {}), status: "new" });
     added++;
   });
   // Balances are kept debit-positive (what you own is positive, what you owe
@@ -255,7 +256,10 @@ export function pairTransfers(books, days = DEFAULTS.transferDays) {
     // realized exchange gain or loss, see journal()).
     const diff = Math.abs(a.cents + b.cents);
     if (diff !== 0) {
-      if (!!a.foreign === !!b.foreign) continue;
+      if (!a.foreign && !b.foreign) continue;
+      // Two foreign accounts: the same currency must move the same foreign amount
+      // (only the typed rates differ); different currencies are judged in base units.
+      if (a.foreign && b.foreign && a.foreign.currency === b.foreign.currency && a.foreign.cents + b.foreign.cents !== 0) continue;
       if (diff > Math.max(a.cents, -b.cents) * FX_TRANSFER_TOLERANCE) continue;
     }
     const gap = Math.abs(dayNum(a.date) - dayNum(b.date));
@@ -508,6 +512,9 @@ export function closeChecks(books, opts = {}) {
 // Exports. Positive = debit in Xero's and IIF's single amount column.
 const csvCell = (v) => { const s = String(v ?? ""); return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
 const csvRow = (cells) => cells.map(csvCell).join(",");
+// Text copied from a bank file opens in Excel or Sheets as a formula if it starts with = + - @ (or a tab/CR),
+// so exported text columns get a leading apostrophe (OWASP's CSV-injection advice). Amounts and dates stay bare.
+export const safeText = (v) => { const s = String(v ?? ""); return /^[=+\-@\t\r]/.test(s) ? "'" + s : s; };
 const usDate = (iso) => `${iso.slice(5, 7)}/${iso.slice(8, 10)}/${iso.slice(0, 4)}`;
 const ukDate = (iso) => `${iso.slice(8, 10)}/${iso.slice(5, 7)}/${iso.slice(0, 4)}`;
 
@@ -517,12 +524,12 @@ export function exportJournal(books, format = "csv") {
   const name = (c) => map.get(c)?.name ?? c;
   if (format === "qbo") {
     const rows = [csvRow(["*JournalNo", "*JournalDate", "*AccountName", "Debits", "Credits", "Description"])];
-    entries.forEach((e, i) => { for (const l of e.lines) rows.push(csvRow([`AB-${String(i + 1).padStart(5, "0")}`, usDate(e.date), name(l.account), l.debit ? dollars(l.debit) : "", l.credit ? dollars(l.credit) : "", e.memo])); });
+    entries.forEach((e, i) => { for (const l of e.lines) rows.push(csvRow([`AB-${String(i + 1).padStart(5, "0")}`, usDate(e.date), safeText(name(l.account)), l.debit ? dollars(l.debit) : "", l.credit ? dollars(l.credit) : "", safeText(e.memo)])); });
     return rows.join("\n") + "\n";
   }
   if (format === "xero") {
     const rows = [csvRow(["*Narration", "*Date", "Description", "*AccountCode", "*TaxRate", "*Amount"])];
-    for (const e of entries) for (const l of e.lines) rows.push(csvRow([e.memo || e.id, ukDate(e.date), e.memo, l.account, "Tax Exempt", dollars(l.debit - l.credit)]));
+    for (const e of entries) for (const l of e.lines) rows.push(csvRow([safeText(e.memo || e.id), ukDate(e.date), safeText(e.memo), l.account, "Tax Exempt", dollars(l.debit - l.credit)]));
     return rows.join("\n") + "\n";
   }
   if (format === "iif") {
@@ -550,7 +557,7 @@ export function exportJournal(books, format = "csv") {
   }
   if (format === "ledger" || format === "beancount") return plainText(books, entries, map, format === "beancount");
   const rows = [csvRow(["entry", "date", "account_code", "account_name", "debit", "credit", "memo", "posted_by"])];
-  for (const e of entries) for (const l of e.lines) rows.push(csvRow([e.id, e.date, l.account, name(l.account), l.debit ? dollars(l.debit) : "", l.credit ? dollars(l.credit) : "", e.memo, e.source]));
+  for (const e of entries) for (const l of e.lines) rows.push(csvRow([e.id, e.date, l.account, safeText(name(l.account)), l.debit ? dollars(l.debit) : "", l.credit ? dollars(l.credit) : "", safeText(e.memo), e.source]));
   return rows.join("\n") + "\n";
 }
 
@@ -603,14 +610,15 @@ export function exportLines(books) {
   const rows = [csvRow(["date", "bank_account", "description", "amount", "status", "account_code", "account_name", "suggested", "confidence", "source", "reason"])];
   for (const t of [...books.transactions].sort((a, b) => a.date.localeCompare(b.date))) {
     const s = t.suggestion ?? {};
-    rows.push(csvRow([t.date, map.get(t.account)?.name ?? t.account, t.desc, dollars(t.cents), t.status, t.split ? "split" : t.posted ?? "", t.split ? t.split.map((p) => `${map.get(p.account)?.name ?? p.account} ${dollars(p.cents)}`).join("; ") : map.get(t.posted)?.name ?? "", s.account ?? "", s.confidence !== undefined ? s.confidence.toFixed(2) : "", s.source ?? "", s.reason ?? (t.status === "transfer" ? "paired with an equal and opposite line in another account" : "")]));
+    rows.push(csvRow([t.date, safeText(map.get(t.account)?.name ?? t.account), safeText(t.desc), dollars(t.cents), t.status, t.split ? "split" : t.posted ?? "", t.split ? t.split.map((p) => `${map.get(p.account)?.name ?? p.account} ${dollars(p.cents)}`).join("; ") : map.get(t.posted)?.name ?? "", s.account ?? "", s.confidence !== undefined ? s.confidence.toFixed(2) : "", s.source ?? "", safeText(s.reason ?? (t.status === "transfer" ? "paired with an equal and opposite line in another account" : ""))]));
   }
   return rows.join("\n") + "\n";
 }
 
 export function reports(books, { from = null, to = null } = {}) {
   const entries = journal(books);
-  return { trialBalance: trialBalance(entries, books.accounts, { to }), profitAndLoss: profitAndLoss(entries, books.accounts, { from, to }), balanceSheet: balanceSheet(journal(books, { withClosing: true }), books.accounts, { to }), cashFlow: cashFlow(entries, books.accounts, { from, to }) };
+  const pnl = profitAndLoss(entries, books.accounts, { from, to }), bs = balanceSheet(journal(books, { withClosing: true }), books.accounts, { to });
+  return { trialBalance: trialBalance(entries, books.accounts, { to }), profitAndLoss: pnl, balanceSheet: bs, ratios: { ...ratios(pnl, bs), ...daysOutstanding(pnl, bs) }, breakEven: breakEven(pnl), cashFlow: cashFlow(entries, books.accounts, { from, to }), cashByMonth: cashFlowByMonth(entries, books.accounts, { from, to }) };
 }
 
 // The year's business income before the Section 179 deduction, for the
@@ -771,7 +779,7 @@ export function status(books) {
 //   { statements: [{ csv, account }], books?, confirm?: {id: code}, rules?,
 //     accounts? (CSV text), documents? ([{ csv }] invoice and bill lists), asOf?,
 //     from?, to?, autoPost?, example? }
-// -> { status, review: [...], reports, checks, books }
+// -> { status, review: [...], reports, aging, cashBasis (with documents), checks, books }
 export function analyze(input = {}) {
   let books = input.books ? clone(input.books) : newBooks({ name: input.name });
   if (input.rules !== undefined) books.rules = input.rules;
@@ -804,6 +812,7 @@ export function analyze(input = {}) {
     reports: reports(books, { from: input.from, to: input.to }),
     ruleSuggestions: suggestRules(books),
     aging: books.documents?.length ? aging(books, input.asOf) : null,
+    cashBasis: books.documents?.length ? cashBasis(books, { from: input.from, to: input.to }) : null,
     salesTax: salesTax(books, { from: input.from, to: input.to }),
     checks: closeChecks(books, opts),
     books,

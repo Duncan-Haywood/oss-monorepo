@@ -1,0 +1,5 @@
+H1 coverage at n=30, min over pairs (paired twin): real_only=93.50, ppi=93.18, ppi_pp=91.98, cv=92.88
+H1 refuted by cv or ppi_pp (<93.0) on: [('friction-1', 'ppi_pp', np.float64(92.45)), ('friction-1', 'cv', np.float64(92.98)), ('friction-3', 'ppi_pp', np.float64(92.88)), ('gain-3', 'ppi_pp', np.float64(91.98)), ('gain-3', 'cv', np.float64(92.88))]
+H1 coverage at n=60, min over pairs: real_only=94.12, ppi=93.60, ppi_pp=92.30, cv=92.72
+H2: ratio lower bound >= 2 on 16/21 pairs; interval includes 1 on 0/21 pairs: []
+H6: Spearman(E, rho) = 0.909; Spearman(E, KS) = -0.708; Spearman(E, std mean shift) = -0.416; |rho|-|KS| difference 95% CI over pairs [0.021, 0.494]

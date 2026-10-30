@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e551b'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EE%3C/text%3E%3C/svg%3E">
+<title>Austria e-invoice mandate: B2G only, B2B voluntary, and a free pre-send check | E-invoice Preflight</title>
+<meta name="description" content="Austria requires EN 16931 e-invoices for suppliers to federal government (ebInterface or Peppol BIS 3.0); domestic B2B is still voluntary with no adopted date. What is law, what is not, and a free pre-send check.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/austria-e-invoice-mandate.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Austria e-invoice mandate: B2G only, B2B voluntary, and a free pre-send check">
+<meta property="og:description" content="Austria requires EN 16931 e-invoices for suppliers to federal government (ebInterface or Peppol BIS 3.0); domestic B2B is still voluntary with no adopted date. What is law, what is not, and a free pre-send check.">
+<meta property="og:url" content="https://example.invalid/einvoice-preflight/austria-e-invoice-mandate.html">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is B2B e-invoicing mandatory in Austria?","acceptedAnswer":{"@type":"Answer","text":"Not yet. Sources read in October 2026 agree that business-to-business e-invoicing in Austria is voluntary and that no domestic B2B mandate date has been adopted in law; commentary that guesses at 2027 to 2028 or later is speculation. Confirm with the Federal Ministry of Finance (BMF) or your accountant; this page is a summary, not advice."}},{"@type":"Question","name":"Who must send an e-invoice in Austria today?","acceptedAnswer":{"@type":"Answer","text":"Suppliers to federal government. Electronic invoicing to federal bodies has been required since 1 January 2014, and since 18 April 2020 that includes foreign suppliers, with invoices that comply with EN 16931. The reported channels are the federal e-Rechnung.gv.at portal and Peppol; the formats are ebInterface XML (the Austrian standard) and Peppol BIS Billing 3.0. This comes from vendor and guide summaries, not the legal text."}},{"@type":"Question","name":"Which format should an Austrian business use?","acceptedAnswer":{"@type":"Answer","text":"For federal customers, ebInterface or Peppol BIS Billing 3.0 (UBL). For private customers there is no required format; an EN 16931 UBL or CII file is the safest bet if you want to be ready for the EU's cross-border digital reporting, which is reported to start on 1 July 2030 and does not itself create a domestic Austrian obligation."}},{"@type":"Question","name":"Can this checker validate an ebInterface invoice?","acceptedAnswer":{"@type":"Answer","text":"No. It reads UBL, CII, Factur-X and JSON and applies the EN 16931 arithmetic, tax breakdown, mandatory-field and identifier checks, plus the Peppol BIS Billing 3.0 rules when you tick that option, and VAT, IBAN and BIC typo catches, each with a rule ID and a fix. It does not read ebInterface XML or run the e-Rechnung.gv.at validation, so a clean result is an offline observation, not an acceptance by the portal."}},{"@type":"Question","name":"What are the penalties for not e-invoicing in Austria?","acceptedAnswer":{"@type":"Answer","text":"None were found in the sources read, so this page states no amount. For federal suppliers the practical consequence reported is that a non-compliant invoice is not processed; check the BMF guidance."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch}.lede{font-size:1.05rem;max-width:64ch;color:#3d4f5f}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #15202b10;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #d3dbe4;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#3d4f5f}.fine,.note{font-size:.88rem;color:#3d4f5f}footer{color:#3d4f5f;font-size:.86rem}footer p{margin:.6rem 0}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; E-invoice Preflight</a></p>
+<header>
+<h1>Austria's e-invoice mandate: government only, business voluntary</h1>
+<p class="lede">Austria requires EN 16931 e-invoices from anyone who bills the federal government, but business-to-business e-invoicing is still voluntary and no domestic date is adopted. Below: what is law, what is only forecast, and how to test a file before it goes to a customer.</p>
+</header>
+<section>
+<h2>What applies (as guides and vendor summaries describe it)</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Date</th><th scope="col">What changes</th></tr></thead>
+<tbody>
+<tr><td>1 Jan 2014</td><td>Suppliers to federal bodies must invoice electronically (reported as section 5 of the IKT-Konsolidierungsgesetz).</td></tr>
+<tr><td>18 Apr 2020</td><td>Federal bodies must receive EN 16931 invoices; suppliers, including foreign ones, must send them in a compliant format.</td></tr>
+<tr><td>Now</td><td>B2B e-invoicing is voluntary. No domestic B2B mandate date is adopted in law.</td></tr>
+<tr><td>1 Jul 2030</td><td>Reported start of the EU-wide digital reporting for cross-border B2B supplies. It does not create a domestic Austrian invoicing duty.</td></tr>
+</tbody>
+</table>
+</div>
+<p class="fine">Unconfirmed: these dates come from vendor and guide pages (Sovos, Marosa VAT, invoicenavigator, e-invoicing.org, VATupdate, dddinvoices) read as search excerpts on 2026-10-26; the legal text and the BMF pages were not read. Forecasts of a B2B mandate between 2027 and 2035 are advisers' guesses, not adopted Austrian legislation. No penalty amount was found and none is stated here. This is a summary, not tax advice.</p>
+</section>
+<section>
+<h2>Which file counts, and how it travels</h2>
+<p>For federal customers the reported channels are the <strong>e-Rechnung.gv.at</strong> portal and <strong>Peppol</strong>, with <strong>ebInterface</strong> XML (the Austrian standard) or <strong>Peppol BIS Billing 3.0</strong> as the format; a PDF alone does not qualify. Private customers set their own terms. If you invoice both, an EN 16931 UBL file that also passes Peppol BIS Billing 3.0 is the safest single format to test.</p>
+</section>
+<section>
+<h2>Test a file before you send it</h2>
+<p>Open the <a href="./">checker</a>, drop your XML, and tick <em>Also apply the Peppol BIS Billing 3.0 rules</em>. It flags a wrong business process or specification identifier, a missing or malformed electronic address, arithmetic that does not add up, a missing tax reason on a 0% or exempt line, and VAT, IBAN and BIC typos, each with a rule ID and a fix (<a href="what-does-this-e-invoice-error-code-mean.html">what each error code means</a>). It does not read ebInterface files.</p>
+<p>No invoice yet? The <a href="create.html">e-invoice creator</a> turns a form into UBL or CII XML and checks it. Selling into other countries? See <a href="germany-e-invoice-mandate.html">Germany</a>, <a href="france-e-invoice-mandate.html">France</a>, <a href="belgium-e-invoice-mandate.html">Belgium</a>, <a href="india-gst-e-invoice-mandate.html">India</a>, <a href="slovakia-e-invoice-mandate.html">Slovakia</a>, <a href="latvia-e-invoice-mandate.html">Latvia</a>, <a href="slovenia-e-invoice-mandate.html">Slovenia</a>, <a href="czech-republic-e-invoice-mandate.html">Czech Republic</a>, <a href="serbia-e-invoice-mandate.html">Serbia</a>, <a href="denmark-e-invoice-mandate.html">Denmark</a>, <a href="estonia-e-invoice-mandate.html">Estonia</a>, <a href="hungary-e-invoice-mandate.html">Hungary</a>, <a href="poland-ksef-e-invoice-mandate.html">Poland</a>, <a href="croatia-e-invoice-mandate.html">Croatia</a>, <a href="romania-e-factura-e-invoice-mandate.html">Romania</a>, <a href="italy-sdi-e-invoice-mandate.html">Italy</a>, <a href="greece-mydata-e-invoice-mandate.html">Greece</a>, <a href="spain-verifactu-e-invoice-mandate.html">Spain</a>, <a href="netherlands-e-invoice-mandate.html">Netherlands</a>, <a href="portugal-e-invoice-mandate.html">Portugal</a>, <a href="bulgaria-e-invoice-mandate.html">Bulgaria</a>, <a href="uae-e-invoice-mandate.html">United Arab Emirates</a>, <a href="malaysia-myinvois-e-invoice-mandate.html">Malaysia</a>, <a href="saudi-arabia-zatca-e-invoice-mandate.html">Saudi Arabia</a>, <a href="australia-e-invoice-mandate.html">Australia</a>, <a href="singapore-invoicenow-e-invoice-mandate.html">Singapore</a>, <a href="ireland-e-invoice-mandate.html">Ireland</a>, <a href="norway-e-invoice-mandate.html">Norway</a>, <a href="lithuania-e-invoice-mandate.html">Lithuania</a>, <a href="uk-e-invoice-mandate.html">United Kingdom</a> and <a href="e-invoicing-mandates-by-country.html">all countries side by side</a>.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Is B2B e-invoicing mandatory in Austria?</h3>
+<p>Not yet. Sources read in October 2026 agree that business-to-business e-invoicing in Austria is voluntary and that no domestic B2B mandate date has been adopted in law; commentary that guesses at 2027 to 2028 or later is speculation. Confirm with the Federal Ministry of Finance (BMF) or your accountant; this page is a summary, not advice.</p>
+<h3>Who must send an e-invoice in Austria today?</h3>
+<p>Suppliers to federal government. Electronic invoicing to federal bodies has been required since 1 January 2014, and since 18 April 2020 that includes foreign suppliers, with invoices that comply with EN 16931. The reported channels are the federal e-Rechnung.gv.at portal and Peppol; the formats are ebInterface XML (the Austrian standard) and Peppol BIS Billing 3.0. This comes from vendor and guide summaries, not the legal text.</p>
+<h3>Which format should an Austrian business use?</h3>
+<p>For federal customers, ebInterface or Peppol BIS Billing 3.0 (UBL). For private customers there is no required format; an EN 16931 UBL or CII file is the safest bet if you want to be ready for the EU's cross-border digital reporting, which is reported to start on 1 July 2030 and does not itself create a domestic Austrian obligation.</p>
+<h3>Can this checker validate an ebInterface invoice?</h3>
+<p>No. It reads UBL, CII, Factur-X and JSON and applies the EN 16931 arithmetic, tax breakdown, mandatory-field and identifier checks, plus the Peppol BIS Billing 3.0 rules when you tick that option, and VAT, IBAN and BIC typo catches, each with a rule ID and a fix. It does not read ebInterface XML or run the e-Rechnung.gv.at validation, so a clean result is an offline observation, not an acceptance by the portal.</p>
+<h3>What are the penalties for not e-invoicing in Austria?</h3>
+<p>None were found in the sources read, so this page states no amount. For federal suppliers the practical consequence reported is that a non-compliant invoice is not processed; check the BMF guidance.</p>
+<p class="note">Open the <a href="./">E-invoice Preflight</a> checker to validate your own invoice file.</p>
+</section>
+<section>
+<h2>More countries</h2>
+<p><a href="brazil-nfe-e-invoice-mandate.html">Brazil</a> <a href="cyprus-e-invoice-mandate.html">Cyprus</a> <a href="finland-e-invoice-mandate.html">Finland</a> <a href="japan-invoice-system-e-invoice-mandate.html">Japan</a> <a href="luxembourg-e-invoice-mandate.html">Luxembourg</a> <a href="malta-e-invoice-mandate.html">Malta</a> <a href="mexico-cfdi-e-invoice-mandate.html">Mexico</a> <a href="colombia-dian-e-invoice-mandate.html">Colombia</a> <a href="chile-sii-e-invoice-mandate.html">Chile</a> <a href="peru-sunat-e-invoice-mandate.html">Peru</a> <a href="argentina-arca-e-invoice-mandate.html">Argentina</a> <a href="sweden-e-invoice-mandate.html">Sweden</a> <a href="switzerland-e-invoice-mandate.html">Switzerland</a> <a href="turkey-e-invoice-mandate.html">Turkey</a> <a href="uruguay-dgi-e-invoice-mandate.html">Uruguay</a> <a href="paraguay-dnit-e-invoice-mandate.html">Paraguay</a> <a href="ecuador-sri-e-invoice-mandate.html">Ecuador</a> <a href="vietnam-e-invoice-mandate.html">Vietnam</a></p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or accounting advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every check runs locally. This page is static and summarises Austrian rules as described by vendor and guide pages (Sovos, Marosa VAT, invoicenavigator, e-invoicing.org); this page did not read the legal text or the BMF, so check the official sources before relying on any date.</p>
+<p class="support">Free and open source. If it caught a defect before a rejection, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+</footer>
+</main>
+</body></html>

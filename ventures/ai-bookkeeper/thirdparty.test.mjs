@@ -94,6 +94,20 @@ test("Swedbank LT layout: Lithuanian headers, D/K flag, balance rows skipped; co
   assert.ok(s.problems.some((p) => /fewer than the header/.test(p)));
 });
 
+// Found sweeping the ofxstatement-lithuanian sample: Swedbank's record type 82 "Apyvarta" (turnover)
+// rows are the day's debit and credit totals, and were booked as two extra transactions.
+test("Swedbank LT turnover (Apyvarta) summary rows are not booked as transactions", () => {
+  const sw = [
+    '"Sąskaitos Nr.","","Data","Gavėjas","Paaiškinimai","Suma","Valiuta","D/K"',
+    '"LT00","20","2012-01-02","Cafe","PIRKINYS Cafe Vilnius","14.34","EUR","D"',
+    '"LT00","20","2012-01-03","Acme","Pavedimas Acme","50.00","EUR","K"',
+    '"LT00","82","2012-01-31","","Apyvarta","14.34","EUR","D"',
+    '"LT00","82","2012-01-31","","Apyvarta","50.00","EUR","K"',
+  ].join("\n");
+  const r = readStatement(sw);
+  assert.deepEqual(r.rows.map((x) => x.cents), [-1434, 5000]);
+});
+
 test("a currency column with more than one currency is named, in any bank's file", () => {
   const f = [
     "Data,Suma,Valiuta,Paaiškinimai",
@@ -274,4 +288,126 @@ test("Stripe balance-transactions export: Created (UTC) is the date and Net the 
 test("Pipe-delimited export reads like the comma one", () => {
   const r = readStatement("Date|Description|Amount\n2026-03-02|CAFE, LUNA|-12.50\n2026-03-03|PAYROLL|1800.00\n");
   assert.deepEqual(r.rows.map((x) => [x.date, x.cents, x.desc]), [["2026-03-02", -1250, "CAFE, LUNA"], ["2026-03-03", 180000, "PAYROLL"]]);
+});
+
+// Layout seen in ledger-autosync's Venmo fixture (GPL-3.0, read only; every
+// value below is made up): the header's first column is "Username", row 2
+// holds only the account's own name, and the file ends with undated balance
+// rows and a long legal notice. Not seen as Venmo, the notice was glued onto
+// the last transaction's description.
+test("Venmo export with a Username column: footer rows are not part of the last description", () => {
+  const r = readStatement([
+    "Username,ID,Datetime,Type,Status,Note,From,To,Amount (total),Amount (fee),Funding Source,Destination,Beginning Balance,Ending Balance,Statement Period Venmo Fees,Year to Date Venmo Fees,Disclaimer",
+    'someone,,,,,,,,,,,,"$0",,,,',
+    ",1,2020-01-01T13:00:00,Payment,Complete,lunch,Pat,Sam,+ $50.03,,,Venmo balance,,,,,",
+    ",2,2020-01-03T20:00:00,Payment,Complete,rent,Sam,Lee,- $12.01,,Venmo balance,,,,,,",
+    ',,,,,,,,,,,,,"$38.02",,,',
+    ',,,,,,,,,,,,,,,,"In case of errors or questions,\n  call us."',
+  ].join("\n"));
+  assert.equal(r.bank, "venmo");
+  assert.deepEqual(r.rows.map((x) => [x.date, x.cents, x.desc]), [["2020-01-01", 5003, "Pat - lunch"], ["2020-01-03", -1201, "Lee - rent"]]);
+  assert.deepEqual(r.problems, []);
+});
+
+test("an OFX date that is no calendar day is skipped, not booked (ofxparse's date_missing.ofx has 20120231)", () => {
+  const r = readOfx(wrap(`<STMTTRN><TRNTYPE>OTHER<DTPOSTED>20120231<TRNAMT>200.00<FITID>1<NAME>TestFail2</STMTTRN>
+    <STMTTRN><TRNTYPE>OTHER<DTPOSTED>20120229<TRNAMT>5.00<FITID>2<NAME>Leap day</STMTTRN>`));
+  assert.deepEqual(r.rows.map((x) => x.date), ["2012-02-29"]);
+  assert.equal(r.problems.length, 1);
+});
+
+test("a trade list (ticker, qty, price, amount) books a buy as cash out", () => {
+  // Shape of Maybe's trades import (AGPL, read only); rows made up here.
+  const csv = "date,ticker,qty,price,amount,account,name\n2023-01-15,AAPL,10,150.25,1502.50,Brokerage,Buy Apple Inc\n2023-06-15,AAPL,-5,170.50,-852.50,Brokerage,Sell Apple Inc\n";
+  const r = readStatement(csv);
+  assert.deepEqual(r.rows.map((x) => x.cents), [-150250, 85250]);
+  assert.match(r.inferred, /trade list/);
+  assert.equal(readStatement(csv, { invert: false }).rows[0].cents, 150250);
+});
+
+test("a MEMO written as TYPE;NAME does not repeat the name", () => {
+  const r = readOfx(wrap(`<STMTTRN><TRNTYPE>POS<DTPOSTED>20090401122017.000[-5:EST]<TRNAMT>-6.60<FITID>1<NAME>MCDONALD'S #112<MEMO>POS MERCHANDISE;MCDONALD'S #112</STMTTRN>`));
+  assert.equal(r.rows[0].desc, "MCDONALD'S #112 POS MERCHANDISE");
+});
+
+test("a brokerage cash-activity file with the trade-list headers is not flipped (beangulp's example.csv)", () => {
+  // Headers of a Schwab-style activity export (beangulp, GPL, read only); rows made up here.
+  const csv = "DATE,TRANSACTION ID,DESCRIPTION,QUANTITY,SYMBOL,PRICE,COMMISSION,AMOUNT,NET CASH BALANCE\n07/02/2013,1,ORDINARY DIVIDEND (HDV),,HDV,,,31.04,31.04\n07/02/2013,2,MONEY MARKET PURCHASE,,,,,-31.04,0.00\n07/02/2013,3,MONEY MARKET PURCHASE (MMDA10),31.04,MMDA10,,,0.00,0.00\n";
+  const r = readStatement(csv);
+  assert.deepEqual(r.rows.map((x) => x.cents), [3104, -3104]);
+  assert.equal(r.inferred ?? null, null);
+});
+
+// Schwab's brokerage "Transactions" export, in the shape of beancount-import's
+// (GPL, read only, nothing copied) test file: a title line above the header, a
+// trailing comma on every row, a "Transactions Total" row. Its sample has no rows
+// (an empty period) and was read as zero rows with no explanation. Rows are made up.
+test("Schwab brokerage transactions: totals row skipped, trades not booked as spending, empty period explained", () => {
+  const head = '"Transactions  for account Brokerage XXXX-1234 as of 11/30/2020 18:00:00 ET From 11/16/2020 to 11/29/2020"\n"Date","Action","Symbol","Description","Quantity","Price","Fees & Comm","Amount",\n';
+  const empty = readStatement(head + '""\n');
+  assert.equal(empty.bank, "schwab-brokerage");
+  assert.equal(empty.rows.length, 0);
+  assert.ok(empty.problems.some((p) => /no transaction rows/.test(p)));
+  const full = readStatement(head +
+    '"11/25/2020","Bank Interest","","BANK INT","","","","$1.23",\n"11/20/2020","MoneyLink Deposit","","TFR FROM CHECKING","","","","$500.00",\n' +
+    '"11/18/2020","Buy","SCHA","SCHWAB SMALL CAP ETF","10","$80.00","","-$800.00",\n"11/19/2020","Service Fee","","ADVISORY FEE","","","","-$2.00",\n"Transactions Total","","","","","","","-$298.77",\n');
+  assert.deepEqual(full.rows.map((r) => r.cents), [123, 50000, -200]);
+  assert.ok(full.problems.some((p) => /1 brokerage buy\/sell line was not booked/.test(p)));
+  assert.ok(!full.problems.some((p) => /unreadable date|Every amount is positive/.test(p)));
+});
+
+// Ally-style QFX pretty-printed with each value on the line after its tag
+// (found sweeping beancount_reds_importers' test files, GPL, read only; the file below is made up).
+test("OFX with every value on the line after its tag still reads", () => {
+  const qfx = `OFXHEADER:100
+DATA:OFXSGML
+VERSION:102
+
+<OFX>
+<BANKMSGSRSV1>
+<STMTTRNRS>
+<STMTRS>
+<CURDEF>
+USD</CURDEF>
+<BANKTRANLIST>
+<STMTTRN>
+<TRNTYPE>
+DEBIT</TRNTYPE>
+<DTPOSTED>
+20240109121112</DTPOSTED>
+<TRNAMT>
+-55.00</TRNAMT>
+<FITID>
+1</FITID>
+<NAME>
+Corner Cafe</NAME>
+</STMTTRN>
+</BANKTRANLIST>
+</STMTRS>
+</STMTTRNRS>
+</BANKMSGSRSV1>
+</OFX>
+`;
+  const r = readStatement(qfx);
+  assert.deepEqual(r.problems, []);
+  assert.equal(r.rows.length, 1);
+  assert.equal(r.rows[0].date, "2024-01-09");
+  assert.equal(r.rows[0].cents, -5500);
+  assert.equal(r.rows[0].desc, "Corner Cafe");
+});
+
+test("Schwab checking export without a Status column, with note lines under the header", () => {
+  // Layout seen in beancount-import's Schwab test data (GPL, read only); rows here are made up.
+  const csv = [
+    'Transactions  for Checking account EAC as of 12/23/2020 16:00:10 ET',
+    '"Date","Type","Check #","Description","Withdrawal (-)","Deposit (+)","RunningBalance"',
+    '"Pending Transactions are not reflected within this sort criterion."',
+    '"Posted Transactions"',
+    '"11/13/2020","ACH","","Example Ext Trnsfr","","$10,500.00","$10,550.01"',
+    '"10/27/2020","ACH","","Example Auth Debit","$1.10","","$50.01"',
+  ].join("\n");
+  const r = readStatement(csv);
+  assert.equal(r.bank, "schwab");
+  assert.deepEqual(r.problems, []);
+  assert.deepEqual(r.rows.map((x) => x.cents), [1050000, -110]);
 });

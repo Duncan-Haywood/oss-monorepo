@@ -927,7 +927,7 @@ export function validateSchedule(schedule) {
     if (round.day < prevDay) errors.push(`${round.label}: dated before the round above it.`);
     prevDay = round.day;
     if (!round.chosenDay && !cfg.weekdays.includes(new Date(round.day * 86400000).getUTCDay())) errors.push(`${round.label}: ${dayIso(round.day)} is not a chosen weekday.`);
-    if (cfg.skipDays.includes(round.day)) errors.push(`${round.label}: ${dayIso(round.day)} is a skip date.`);
+    if (!round.chosenDay && cfg.skipDays.includes(round.day)) errors.push(`${round.label}: ${dayIso(round.day)} is a skip date.`);
     const inRound = new Set();
     const cells = new Set();
     for (const m of round.matches) {
@@ -1581,6 +1581,35 @@ export function scheduleCsv(schedule) {
   return lines.join("\r\n") + "\r\n";
 }
 
+/**
+ * The schedule as a Google Calendar / Outlook import CSV (Subject, Start Date, Start Time, End Date,
+ * End Time, All Day Event, Description, Location, Private), for a calendar that will not take .ics.
+ * Dates are MM/DD/YYYY and times 12-hour, the layout both calendars document. `teamIdx` keeps one team's matches.
+ */
+export function scheduleCalendarCsv(schedule, teamIdx = null) {
+  const minutes = schedule.config.minutes || 60;
+  const us = (day) => { const [y, m, d] = dayIso(day).split("-"); return `${m}/${d}/${y}`; };
+  const clock = (min) => { const h = Math.floor(min / 60) % 24; return `${h % 12 || 12}:${String(min % 60).padStart(2, "0")} ${h < 12 ? "AM" : "PM"}`; };
+  const lines = ["Subject,Start Date,Start Time,End Date,End Time,All Day Event,Description,Location,Private"];
+  for (const r of schedule.rounds) {
+    for (const m of r.matches) {
+      if (teamIdx !== null && m.home !== teamIdx && m.away !== teamIdx) continue;
+      const subject = teamIdx === null ? `${m.homeName} vs ${m.awayName}`
+        : `${schedule.teams[teamIdx]} vs ${schedule.teams[m.home === teamIdx ? m.away : m.home]} (${m.home === teamIdx ? "home" : "away"})`;
+      let row;
+      if (m.time) {
+        const [hh, mm] = m.time.split(":").map(Number);
+        const end = hh * 60 + mm + minutes;
+        row = [subject, us(r.day), clock(hh * 60 + mm), us(r.day + Math.floor(end / 1440)), clock(end % 1440), "False", r.label, m.court, "False"];
+      } else {
+        row = [subject, us(r.day), "", us(r.day), "", "True", r.label, m.court, "False"];
+      }
+      lines.push(row.map(csvCell).join(","));
+    }
+  }
+  return lines.join("\r\n") + "\r\n";
+}
+
 /** The standings table as a CSV (rank, team, played, won, drawn, lost, goals for/against, goal difference, points). */
 export function standingsCsv(table) {
   const lines = [["Rank", "Team", "Played", "Won", "Drawn", "Lost", "For", "Against", "GD", "Points"].join(",")];
@@ -1588,11 +1617,11 @@ export function standingsCsv(table) {
   return lines.join("\r\n") + "\r\n";
 }
 
-function icsEscape(s) {
+export function icsEscape(s) {
   return String(s).replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n");
 }
 
-function icsFold(line) {
+export function icsFold(line) {
   const enc = new TextEncoder();
   if (enc.encode(line).length <= 75) return line;
   const out = [];

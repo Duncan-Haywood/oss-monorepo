@@ -7,6 +7,10 @@ from pathlib import Path
 
 from shootflow.ffmpeg_media import FfmpegMediaError, find_ffmpeg_tools
 from shootflow.frame_analysis import analyze_media
+from shootflow.catalog import MediaAsset
+from shootflow.production import build_production_plan
+from shootflow.production_adapter import ProductionAdapterError, _materialize_ffmpeg_proxy_production_outputs
+from shootflow.production_worker import ProductionWorkerAction
 from shootflow.raw_preview import extract_preview, is_raw_path
 
 FFMPEG = shutil.which("ffmpeg")
@@ -87,6 +91,65 @@ class RawAnalysisTests(unittest.TestCase):
             path.write_bytes(b"raw-bytes")
             with self.assertRaises(FfmpegMediaError):
                 analyze_media(find_ffmpeg_tools(), path, media_type="photo")
+
+
+def _proxy_action(source: str, output: str) -> ProductionWorkerAction:
+    return ProductionWorkerAction(
+        job_id="proxy_asset_00000",
+        worker_adapter="ffmpeg-proxy-production-local",
+        attempt_number=1,
+        output_kind="proxy_media",
+        inputs=(source,),
+        outputs=(output,),
+        depends_on=(),
+        can_run_in_parallel=True,
+    )
+
+
+class RawProxyTests(unittest.TestCase):
+    def test_plan_names_a_raw_proxy_for_the_jpeg_it_holds(self) -> None:
+        plan = build_production_plan(
+            [MediaAsset(path="originals/IMG_1.CR3", media_type="photo"),
+             MediaAsset(path="originals/IMG_2.JPG", media_type="photo")],
+            shoot_slug="raw-names",
+        )
+        proxies = [job.outputs[0] for job in plan.jobs if job.output_kind == "proxy_media"]
+        self.assertEqual(proxies, ["proxies/proxy_asset_00000/IMG_1.CR3.jpg", "proxies/proxy_asset_00001/IMG_2.JPG"])
+
+    @unittest.skipUnless(FFMPEG, "ffmpeg is required")
+    def test_raw_proxy_is_a_downscaled_jpeg_of_the_embedded_preview(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "originals").mkdir()
+            jpg = root / "p.jpg"
+            subprocess.run(
+                [FFMPEG, "-hide_banner", "-loglevel", "error", "-nostdin", "-f", "lavfi", "-i",
+                 "testsrc2=size=2000x1000", "-frames:v", "1", str(jpg)],
+                check=True,
+            )
+            (root / "originals" / "IMG_1.CR3").write_bytes(b"II*\x00" + b"\x00" * 32 + jpg.read_bytes())
+            out = "proxies/proxy_asset_00000/IMG_1.CR3.jpg"
+            done = _materialize_ffmpeg_proxy_production_outputs(
+                _proxy_action("originals/IMG_1.CR3", out), root
+            )
+            self.assertEqual(done, (out,))
+            data = (root / out).read_bytes()
+            self.assertEqual(data[:2], b"\xff\xd8")
+            probe = subprocess.run(
+                [FFMPEG, "-hide_banner", "-i", str(root / out)], capture_output=True, text=True
+            ).stderr
+            self.assertIn("1024x512", probe)
+
+    @unittest.skipUnless(FFMPEG, "ffmpeg is required")
+    def test_raw_without_preview_fails_the_proxy_with_a_clear_message(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "originals").mkdir()
+            (root / "originals" / "IMG_1.NEF").write_bytes(b"no jpeg in here")
+            with self.assertRaisesRegex(ProductionAdapterError, "no embedded JPEG preview"):
+                _materialize_ffmpeg_proxy_production_outputs(
+                    _proxy_action("originals/IMG_1.NEF", "proxies/proxy_asset_00000/IMG_1.NEF.jpg"), root
+                )
 
 
 if __name__ == "__main__":

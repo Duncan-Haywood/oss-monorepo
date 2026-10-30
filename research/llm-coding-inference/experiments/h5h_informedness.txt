@@ -1,0 +1,54 @@
+6000 items, human negative share 0.327; 600 draws, seed 20261105
+per coder: sens, spec, J = sens + spec - 1, agreement; then per n: coverage human-only, coverage ppi++, mean half-width ratio ppi++/human-only
+# 0.5B fixed [real]: sens 0.031 spec 0.977 J 0.008 agreement 0.668
+0.5B fixed [real] n=100 dropped 0 MEAN 0.942 0.938 0.980
+0.5B fixed [real] n=200 dropped 0 MEAN 0.949 0.946 0.989
+0.5B fixed [real] n=400 dropped 0 MEAN 0.956 0.952 0.996
+# 0.5B fixed [matched-synthetic]: sens 0.030 spec 0.977 J 0.007 agreement 0.667
+0.5B fixed [matched-synthetic] n=100 dropped 0 MEAN 0.942 0.938 0.980
+0.5B fixed [matched-synthetic] n=200 dropped 0 MEAN 0.949 0.947 0.990
+0.5B fixed [matched-synthetic] n=400 dropped 0 MEAN 0.956 0.955 0.996
+# 0.5B bestJ(cut=-0.625) [real]: sens 0.124 spec 0.908 J 0.033 agreement 0.652
+0.5B bestJ(cut=-0.625) [real] n=100 dropped 0 MEAN 0.942 0.937 0.977
+0.5B bestJ(cut=-0.625) [real] n=200 dropped 0 MEAN 0.949 0.949 0.986
+0.5B bestJ(cut=-0.625) [real] n=400 dropped 0 MEAN 0.956 0.953 0.993
+# 0.5B bestJ(cut=-0.625) [matched-synthetic]: sens 0.110 spec 0.904 J 0.014 agreement 0.644
+0.5B bestJ(cut=-0.625) [matched-synthetic] n=100 dropped 0 MEAN 0.942 0.942 0.980
+0.5B bestJ(cut=-0.625) [matched-synthetic] n=200 dropped 0 MEAN 0.949 0.947 0.990
+0.5B bestJ(cut=-0.625) [matched-synthetic] n=400 dropped 0 MEAN 0.956 0.954 0.996
+# 1.5B fixed [real]: sens 0.439 spec 0.769 J 0.208 agreement 0.661
+1.5B fixed [real] n=100 dropped 0 MEAN 0.942 0.933 0.959
+1.5B fixed [real] n=200 dropped 0 MEAN 0.949 0.944 0.971
+1.5B fixed [real] n=400 dropped 0 MEAN 0.956 0.948 0.978
+# 1.5B fixed [matched-synthetic]: sens 0.441 spec 0.757 J 0.198 agreement 0.653
+1.5B fixed [matched-synthetic] n=100 dropped 0 MEAN 0.942 0.936 0.958
+1.5B fixed [matched-synthetic] n=200 dropped 0 MEAN 0.949 0.945 0.972
+1.5B fixed [matched-synthetic] n=400 dropped 0 MEAN 0.956 0.955 0.980
+# 1.5B bestJ(cut=-0.125) [real]: sens 0.471 spec 0.740 J 0.212 agreement 0.652
+1.5B bestJ(cut=-0.125) [real] n=100 dropped 0 MEAN 0.942 0.933 0.961
+1.5B bestJ(cut=-0.125) [real] n=200 dropped 0 MEAN 0.949 0.946 0.972
+1.5B bestJ(cut=-0.125) [real] n=400 dropped 0 MEAN 0.956 0.949 0.979
+# 1.5B bestJ(cut=-0.125) [matched-synthetic]: sens 0.470 spec 0.736 J 0.206 agreement 0.649
+1.5B bestJ(cut=-0.125) [matched-synthetic] n=100 dropped 0 MEAN 0.942 0.942 0.955
+1.5B bestJ(cut=-0.125) [matched-synthetic] n=200 dropped 0 MEAN 0.949 0.943 0.968
+1.5B bestJ(cut=-0.125) [matched-synthetic] n=400 dropped 0 MEAN 0.956 0.954 0.977
+# 3B fixed [real]: sens 0.072 spec 0.989 J 0.061 agreement 0.689
+3B fixed [real] n=100 dropped 0 MEAN 0.942 0.942 0.974
+3B fixed [real] n=200 dropped 0 MEAN 0.949 0.943 0.983
+3B fixed [real] n=400 dropped 0 MEAN 0.956 0.952 0.993
+# 3B fixed [matched-synthetic]: sens 0.090 spec 0.987 J 0.077 agreement 0.694
+3B fixed [matched-synthetic] n=100 dropped 0 MEAN 0.942 0.938 0.965
+3B fixed [matched-synthetic] n=200 dropped 0 MEAN 0.949 0.946 0.977
+3B fixed [matched-synthetic] n=400 dropped 0 MEAN 0.956 0.955 0.987
+# 3B bestJ(cut=-11.125) [real]: sens 0.306 spec 0.888 J 0.194 agreement 0.698
+3B bestJ(cut=-11.125) [real] n=100 dropped 0 MEAN 0.942 0.941 0.953
+3B bestJ(cut=-11.125) [real] n=200 dropped 0 MEAN 0.949 0.948 0.966
+3B bestJ(cut=-11.125) [real] n=400 dropped 0 MEAN 0.956 0.949 0.976
+# 3B bestJ(cut=-11.125) [matched-synthetic]: sens 0.286 spec 0.887 J 0.173 agreement 0.690
+3B bestJ(cut=-11.125) [matched-synthetic] n=100 dropped 0 MEAN 0.942 0.938 0.947
+3B bestJ(cut=-11.125) [matched-synthetic] n=200 dropped 0 MEAN 0.949 0.944 0.962
+3B bestJ(cut=-11.125) [matched-synthetic] n=400 dropped 0 MEAN 0.956 0.951 0.972
+# symmetric a=0.69 [synthetic]: sens 0.715 spec 0.688 J 0.403 agreement 0.697
+symmetric a=0.69 [synthetic] n=100 dropped 0 MEAN 0.942 0.940 0.911
+symmetric a=0.69 [synthetic] n=200 dropped 0 MEAN 0.949 0.949 0.928
+symmetric a=0.69 [synthetic] n=400 dropped 0 MEAN 0.956 0.951 0.937

@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-29",
+  "session": "https://claude.ai/code/session_01XpHqybrfUaeJKdryKKUeRK",
+  "track": "process",
+  "prompt_version": 2,
+  "input": "are there any development lessons that could be taken from the progress of this repo since its inception? write up a blog on it.",
+  "input_sha256": "3a7b2714b3e70ea0da964e745c00715ccf1dd413d509d80f0e5257dbbc36e5c0",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-29T03:47:49Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Retrospective blog post on development lessons since the repo's inception",
+  "projects": [],
+  "pr": 11282,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/promptctl.py",
+      "issue": "route without --track drew 'ventures' for a user-directed writing task; a retrospective has no obvious track, chose process."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-10-29-three-months-ten-thousand-prs-what-the-repo-taught.md"
+  ],
+  "goal": null,
+  "notes": "Counts from GitHub search on 2026-10-29: 9,783 merged PRs (Aug 2,125, Sep 2,763, Oct 4,895), 1,057 closed unmerged; repo created 2026-07-28. Usage from portfolio/usage/site-visits.json (two days). Other figures cite docs/history, docs/reports, docs/parallel-agents.md. check_post_frontmatter.py and post_similarity.py clean for the new post. No code changed, so no CI-reachable tests beyond post checks.",
+  "corrections": [],
+  "redteam": null
+}

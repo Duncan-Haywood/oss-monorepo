@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { placeBreaks, laborPercent, budgetCheck, dailyLabor, salesPerLaborHour, fairnessReport, hoursThresholds, tipPool, trimOptions, scheduleFlags, unsupervisedStretches, loneStretches, shortShifts,
+import { placeBreaks, placeRestBreaks, laborPercent, budgetCheck, dailyLabor, salesPerLaborHour, fairnessReport, hoursThresholds, tipPool, trimOptions, scheduleFlags, unsupervisedStretches, loneStretches, shortShifts,
   parseTime, parseDaySpec, parseAvailability, parseStaff, parseShifts, buildRoster, coverOptions, absencePlan, swapOptions, checkTrade, rosterCsv, hoursCsv, rosterIcs, rosterMessages, openShiftPost,
   sampleStaff, openFloorByPricing, branchedScoreBound, optimalityText, sampleShifts, fmtClock, money, money2, _internals,
 } from "./calc.mjs";
@@ -232,7 +232,7 @@ test("exact mode on a deliberately weak anneal finds the improvement and reports
 
 test("exact mode gives up honestly: a tiny node limit reports a bound, not a proof", () => {
   const staff = staffOf(sampleStaff()), slots = slotsOf(sampleShifts());
-  const r = buildRoster(staff, slots, { exact: true, exactNodes: 50 });
+  const r = buildRoster(staff, slots, { exact: true, exactNodes: 50, coverRepair: false });
   assert.equal(r.optimality.status, "bounded");
   assert.ok(r.optimality.lowerBound <= r.score + 1e-6);
   assert.ok(r.optimality.gap >= 0);
@@ -1560,4 +1560,95 @@ test("reduced-cost fixing keeps the proven optimum and never costs nodes", () =>
     if (a.optimality.status !== "bounded" && b.optimality.status !== "bounded") assert.ok(Math.abs(a.score - b.score) < 1e-6, `case ${c}: ${a.score} vs ${b.score}`);
     else assert.ok(a.score <= b.score + 1e-6 || b.optimality.status === "bounded", `case ${c}`);
   }
+});
+
+test("coverRepair: exact repair of the open hours covers the sample week's 15-hour optimum that the walk leaves at 16", () => {
+  const staff = staffOf(sampleStaff()), slots = slotsOf(sampleShifts());
+  const open = (r) => r.unfilled.reduce((a, u) => a + (u.slot.end - u.slot.start) / 60, 0);
+  const off = buildRoster(staff, slots, { minRestHours: 0 });
+  const on = buildRoster(staff, slots, { minRestHours: 0, coverRepair: true });
+  assert.equal(open(off), 16);
+  assert.equal(open(on), 15);
+  assert.equal(buildRoster(staff, slots, { minRestHours: 0, exact: true }).unfilled.reduce((a, u) => a + (u.slot.end - u.slot.start) / 60, 0), 15);
+});
+
+test("coverRepair: at equal open hours it keeps the fewest open shifts, and never more than the repair-off roster's hours", () => {
+  const staff = staffOf(sampleStaff()), slots = slotsOf(sampleShifts());
+  const r = buildRoster(staff, slots, { coverRepair: true });
+  const off = buildRoster(staff, slots, { coverRepair: false });
+  const hrs = (x) => x.unfilled.reduce((a, u) => a + (u.slot.end - u.slot.start) / 60, 0);
+  assert.ok(hrs(r) <= hrs(off));
+  assert.equal(hrs(r), 15);
+  assert.equal(r.unfilled.length, 5); // measured 2026-10-28: the tiebreak finds no 15 h roster with fewer than 5 open shifts here
+});
+
+test("coverRepair: a node budget ends the search, so the roster does not depend on the clock", () => {
+  const staff = staffOf(sampleStaff()), slots = slotsOf(sampleShifts());
+  const open = (r) => r.unfilled.reduce((a, u) => a + (u.slot.end - u.slot.start) / 60, 0);
+  const a = buildRoster(staff, slots, { minRestHours: 0, coverRepair: true, coverRepairMs: 60000 });
+  const b = buildRoster(staff, slots, { minRestHours: 0, coverRepair: true, coverRepairMs: 600000 });
+  assert.equal(JSON.stringify(a.assignments ?? a.unfilled), JSON.stringify(b.assignments ?? b.unfilled));
+  assert.equal(open(a), 15);
+  assert.equal(open(buildRoster(staff, slots, { minRestHours: 0, coverRepair: true, coverRepairNodes: 0 })), 16);
+});
+
+test("coverRepair: openShiftWeight prices an open shift in hours, so the repair can trade hours for fewer open shifts", () => {
+  const staff = staffOf(sampleStaff()), slots = slotsOf(sampleShifts());
+  const hrs = (x) => x.unfilled.reduce((a, u) => a + (u.slot.end - u.slot.start) / 60, 0);
+  const def = buildRoster(staff, slots, { coverRepair: true });
+  const heavy = buildRoster(staff, slots, { coverRepair: true, openShiftWeight: 100 });
+  assert.equal([hrs(def), def.unfilled.length].join(), "15,5"); // measured 2026-10-28
+  assert.equal([hrs(heavy), heavy.unfilled.length].join(), "19,3"); // 4 more open hours buy 2 fewer open shifts
+  // the weighted objective (hours + weight x open shifts) is never worse than the default roster's under the same weight
+  assert.ok(hrs(heavy) + 100 * heavy.unfilled.length <= hrs(def) + 100 * def.unfilled.length + 1e-9);
+});
+
+test("placeRestBreaks: one paid break per full 4 hours, spread out, clear of the meal break, staggered", () => {
+  const A = (person, startMin, endMin) => ({ slot: { day: 0, startMin, endMin }, person });
+  const r = { assignments: [A("Ana", 480, 1020), A("Ben", 480, 1020), A("Cy", 480, 720)] };
+  const rest = placeRestBreaks(r);
+  assert.deepEqual(rest.map((x) => x.person), ["Ana", "Ana", "Ben", "Ben", "Cy"]);
+  const meals = placeBreaks(r);
+  for (const x of rest) {
+    assert.equal(x.endMin - x.startMin, 10);
+    assert.ok(x.startMin % 5 === 0 && x.dayName === "Mon");
+    for (const m of meals.filter((m) => m.person === x.person)) assert.ok(x.endMin <= m.startMin || m.endMin <= x.startMin, "clear of the meal break");
+  }
+  const ana = rest.filter((x) => x.person === "Ana");
+  assert.ok(ana[0].startMin < 480 + 270 && ana[1].startMin > 480 + 270, "one in each half of the 9 hour stretch");
+  const first = rest.filter((x) => x.person !== "Cy");
+  assert.ok(first.every((x) => x.others >= 1), "somebody else is on the floor");
+  assert.ok(ana[0].startMin !== rest.find((x) => x.person === "Ben").startMin, "Ana and Ben are not off together");
+});
+
+test("placeRestBreaks: short stretches get none, off at 0, joined shifts count once, a lone worker is flagged", () => {
+  const A = (person, startMin, endMin) => ({ slot: { day: 1, startMin, endMin }, person });
+  assert.deepEqual(placeRestBreaks({ assignments: [A("Ana", 480, 710)] }), []);
+  assert.deepEqual(placeRestBreaks({ assignments: [A("Ana", 480, 960)] }, { restMin: 0 }), []);
+  assert.deepEqual(placeRestBreaks({ assignments: [] }), []);
+  const joined = placeRestBreaks({ assignments: [A("Ana", 480, 720), A("Ana", 720, 960)] }, { mealAfter: 0 });
+  assert.equal(joined.length, 2);
+  assert.ok(joined.every((x) => x.alone && x.startMin >= 510 && x.endMin <= 930));
+  assert.equal(placeRestBreaks({ assignments: [A("Ana", 480, 960)] }, { restEvery: 2, mealAfter: 0 }).length, 4);
+});
+
+test("splitShiftPay: one premium hour per split or over-spread person-day, optional wage credit", async () => {
+  const { splitShiftPay } = await import("./calc.mjs");
+  const sh = (day, a, b, person) => ({ slot: { day, startMin: a * 60, endMin: b * 60 }, person });
+  const r = {
+    people: [{ name: "Sam", wage: 20 }, { name: "Ana", wage: 15 }],
+    assignments: [sh(0, 9, 12, "Sam"), sh(0, 16, 20, "Sam"), // split, 4h gap
+      sh(1, 8, 12, "Ana"), sh(1, 12, 19, "Ana"), // continuous 11h: spread only
+      sh(2, 8, 12, "Ana"), sh(2, 16, 20, "Ana"), // split, 12h spread: one premium
+      sh(3, 9, 17, "Sam")], // plain day
+  };
+  const p = splitShiftPay(r, { minWage: 15 });
+  assert.deepEqual(p.rows.map((x) => [x.person, x.day, x.reason]), [["Ana", "Tue", "spread"], ["Ana", "Wed", "split and spread"], ["Sam", "Mon", "split and spread"]]);
+  assert.equal(p.total, 45);
+  assert.equal(splitShiftPay(r, { minWage: 15, burdenPct: 10 }).total, 49.5);
+  // credit: Sam earns $5 over minimum for 7 hours = $35, more than the $15 premium, so nothing owed
+  const c = splitShiftPay(r, { minWage: 15, credit: true });
+  assert.equal(c.rows.find((x) => x.person === "Sam").extra, 0);
+  assert.equal(c.total, 30);
+  assert.equal(splitShiftPay({}).total, 0);
 });

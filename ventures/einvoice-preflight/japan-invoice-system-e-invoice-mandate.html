@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e551b'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EE%3C/text%3E%3C/svg%3E"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Japan qualified invoice system: T-number check, 50% credit from Oct 2026 | E-invoice Preflight</title>
+<meta name="description" content="Japan's qualified invoice system (since 1 Oct 2023) needs a T-number on invoices; buyers' credit for non-registered sellers falls from 80% to 50% on 1 Oct 2026. What is reported, where sources disagree, and a free local T-number check.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/japan-invoice-system-e-invoice-mandate.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Japan qualified invoice system: T-number check, 50% credit from Oct 2026 | E-invoice Preflight">
+<meta property="og:description" content="Japan's qualified invoice system (since 1 Oct 2023) needs a T-number on invoices; buyers' credit for non-registered sellers falls from 80% to 50% on 1 Oct 2026. What is reported, where sources disagree, and a free local T-number check.">
+<meta property="og:url" content="https://example.invalid/einvoice-preflight/japan-invoice-system-e-invoice-mandate.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is a Japanese qualified invoice?","acceptedAnswer":{"@type":"Answer","text":"Since 1 October 2023 a buyer can claim the consumption-tax input credit only with a qualified invoice (適格請求書), issued by a seller registered with the National Tax Agency. It carries the seller's registration number, the letter T followed by 13 digits, plus the tax rate and tax amount per rate. It may be paper or electronic. Japan has no clearance model: you issue and keep it. This is a summary from vendor and advisory guides, not advice."}},{"@type":"Question","name":"What happens to the credit on 1 October 2026?","acceptedAnswer":{"@type":"Answer","text":"Vendor guides report a transitional measure: a buyer may still claim 80% of the input tax on purchases from sellers with no registration number until 30 September 2026, then 50% until 30 September 2029, then nothing. A 2026 tax reform is reported to revise these percentages and add a cap for large purchases from one unregistered seller. That revision was not read from the tax agency, so confirm the current rule there."}},{"@type":"Question","name":"How is a registration number built?","acceptedAnswer":{"@type":"Answer","text":"For a corporation it is T plus its 13-digit corporate number, whose first digit is a check digit. An individual gets T plus 13 digits that are not a corporate number. The checker on this page tests the shape and the corporate check digit. A mismatch can be a typo or an individual's number, so it asks you to look the number up on the tax agency's registrant site. It cannot tell if a number is registered."}},{"@type":"Question","name":"Can this checker validate a Japanese e-invoice?","acceptedAnswer":{"@type":"Answer","text":"Not fully. It tests the T-number shape and check digit on this page, and EN 16931 and Peppol rules in the main checker. It has no Peppol JP PINT profile or Japanese national rules. A clean result is not an acceptance by a buyer or by the tax agency, and not tax advice."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch}.lede{font-size:1.05rem;max-width:64ch;color:#3d4f5f}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #15202b10;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #d3dbe4;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#3d4f5f}.fine,.note{font-size:.88rem;color:#3d4f5f}footer{color:#3d4f5f;font-size:.86rem}footer p{margin:.6rem 0}.out{min-height:1.4em}.good{color:#0a6b3a;font-weight:600}.bad{color:#a12d1b}input{font:inherit;padding:.4rem .5rem;border:1px solid #9fb0c0;border-radius:8px}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; E-invoice Preflight</a></p>
+<header>
+<h1>Japan's qualified invoice system: a T-number on every invoice, and a credit that halves in October 2026</h1>
+<p class="lede">Japan, per the guides read, has no clearance mandate. Since 1 October 2023 a buyer claims the consumption-tax input credit only on a qualified invoice from a registered seller, marked with a registration number: the letter T and 13 digits. Buyers' transitional credit for unregistered sellers falls from 80% to 50% on 1 October 2026. Below: the dates as vendor guides report them, where it is unsettled, and a local check for a T-number.</p>
+</header>
+<section>
+<h2>The timeline (as vendor and advisory guides report it)</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Date</th><th scope="col">What changes</th></tr></thead>
+<tbody>
+<tr><td>1 Oct 2023</td><td>Qualified invoice system starts. Input credit needs a qualified invoice from a registered seller; the seller's T-number must appear.</td></tr>
+<tr><td>1 Oct 2023 to 30 Sep 2026</td><td>Transitional: a buyer may claim 80% of input tax on purchases from unregistered sellers.</td></tr>
+<tr><td>1 Oct 2026 to 30 Sep 2029</td><td>Transitional credit falls to 50%. A 2026 tax reform is reported to revise the percentages and to cap relief for large purchases from one unregistered seller, for periods starting on or after 1 Oct 2026.</td></tr>
+<tr><td>From 1 Oct 2029</td><td>No credit without a qualified invoice.</td></tr>
+</tbody>
+</table>
+</div>
+<p class="fine">Where it is unsettled: the 2026 revision (one adviser article; its thresholds were ambiguous in the excerpt read) and how the small-business 20% special rule for newly taxable sellers is treated after it. These are secondary sources, not the National Tax Agency (国税庁) or the law. No penalty is stated because none was found; the reported cost is the buyer's lost credit. Confirm against the agency. A summary, not tax advice.</p>
+</section>
+<section>
+<h2>Check a registration number</h2>
+<p>Tests the T, the 13 digits and the corporate-number check digit. It does not look anything up, so it cannot say whether a number is registered. A mismatch can be a typo or an individual's number. Mod-9 checks cannot see a 0 swapped for a 9 (or back).</p>
+<label>Registration number <input id="reg" size="20" maxlength="24" autocomplete="off" spellcheck="false" placeholder="T7000012050002"></label>
+<p id="reg-out" class="out" aria-live="polite"></p>
+<label>Purchase date <input id="pd" type="date" value="2026-10-01"></label>
+<p id="pd-out" class="out" aria-live="polite"></p>
+<p class="fine">The date line applies the 80% / 50% schedule in the table above, without the 2026 revisions. The sample number is the tax agency's own.</p>
+</section>
+<section>
+<h2>What this checker does and does not cover</h2>
+<p>The main checker applies EN 16931 and the Peppol rules it knows. It has <strong>no</strong> Peppol JP PINT profile and no Japanese national rules, no lookup of the registrant list and no tax-rate check for Japan's 10% and 8% rates. Treat a clean result as "passes the European and Peppol rules", not "a Japanese buyer can claim credit".</p>
+</section>
+<section>
+<h2>Test a file before you send it</h2>
+<p>Open the <a href="./">checker</a>, drop your XML and read the findings, each with a rule ID and a fix (<a href="what-does-this-e-invoice-error-code-mean.html">the rule reference</a>). No account, nothing uploaded. No invoice yet? The <a href="create.html">e-invoice creator</a> turns a form into UBL or CII XML and checks it. Other countries: <a href="e-invoicing-mandates-by-country.html">all side by side</a>, <a href="sweden-e-invoice-mandate.html">Sweden</a>, <a href="e-invoicing-mandates-by-country.html">all side by side</a>, <a href="finland-e-invoice-mandate.html">Finland</a>, <a href="germany-e-invoice-mandate.html">Germany</a>, <a href="france-e-invoice-mandate.html">France</a>, <a href="hungary-e-invoice-mandate.html">Hungary</a>, <a href="belgium-e-invoice-mandate.html">Belgium</a>, <a href="malta-e-invoice-mandate.html">Malta</a>, <a href="austria-e-invoice-mandate.html">Austria</a>, <a href="poland-ksef-e-invoice-mandate.html">Poland</a>, <a href="croatia-e-invoice-mandate.html">Croatia</a>, <a href="spain-verifactu-e-invoice-mandate.html">Spain</a>, <a href="italy-sdi-e-invoice-mandate.html">Italy</a>, <a href="netherlands-e-invoice-mandate.html">the Netherlands</a>, <a href="romania-e-factura-e-invoice-mandate.html">Romania</a>, <a href="greece-mydata-e-invoice-mandate.html">Greece</a>, <a href="bulgaria-e-invoice-mandate.html">Bulgaria</a>, <a href="portugal-e-invoice-mandate.html">Portugal</a>, <a href="uk-e-invoice-mandate.html">the UK</a>, <a href="uae-e-invoice-mandate.html">the UAE</a>, <a href="india-gst-e-invoice-mandate.html">India</a>, <a href="saudi-arabia-zatca-e-invoice-mandate.html">Saudi Arabia</a>, <a href="malaysia-myinvois-e-invoice-mandate.html">Malaysia</a>, <a href="hungary-e-invoice-mandate.html">Hungary</a>, <a href="denmark-e-invoice-mandate.html">Denmark</a>, <a href="estonia-e-invoice-mandate.html">Estonia</a>, <a href="slovakia-e-invoice-mandate.html">Slovakia</a>, <a href="lithuania-e-invoice-mandate.html">Lithuania</a>, <a href="luxembourg-e-invoice-mandate.html">Luxembourg</a>, <a href="slovenia-e-invoice-mandate.html">Slovenia</a>, <a href="norway-e-invoice-mandate.html">Norway</a>, <a href="latvia-e-invoice-mandate.html">Latvia</a>, <a href="serbia-e-invoice-mandate.html">Serbia</a>, <a href="czech-republic-e-invoice-mandate.html">Czech Republic</a>, <a href="slovakia-e-invoice-mandate.html">Slovakia</a>, <a href="latvia-e-invoice-mandate.html">Latvia</a>, or the <a href="../eu-einvoicing-mandate-checker/">EU e-invoicing mandate checker</a>., or the <a href="../eu-einvoicing-mandate-checker/">EU e-invoicing mandate checker</a>.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>What is a Japanese qualified invoice?</h3>
+<p>Since 1 October 2023 a buyer can claim the consumption-tax input credit only with a qualified invoice (適格請求書), issued by a seller registered with the National Tax Agency. It carries the seller's registration number, the letter T followed by 13 digits, plus the tax rate and tax amount per rate. It may be paper or electronic. Japan has no clearance model: you issue and keep it. This is a summary from vendor and advisory guides, not advice.</p>
+<h3>What happens to the credit on 1 October 2026?</h3>
+<p>Vendor guides report a transitional measure: a buyer may still claim 80% of the input tax on purchases from sellers with no registration number until 30 September 2026, then 50% until 30 September 2029, then nothing. A 2026 tax reform is reported to revise these percentages and add a cap for large purchases from one unregistered seller. That revision was not read from the tax agency, so confirm the current rule there.</p>
+<h3>How is a registration number built?</h3>
+<p>For a corporation it is T plus its 13-digit corporate number, whose first digit is a check digit. An individual gets T plus 13 digits that are not a corporate number. The checker on this page tests the shape and the corporate check digit. A mismatch can be a typo or an individual's number, so it asks you to look the number up on the tax agency's registrant site. It cannot tell if a number is registered.</p>
+<h3>Can this checker validate a Japanese e-invoice?</h3>
+<p>Not fully. It tests the T-number shape and check digit on this page, and EN 16931 and Peppol rules in the main checker. It has no Peppol JP PINT profile or Japanese national rules. A clean result is not an acceptance by a buyer or by the tax agency, and not tax advice.</p>
+<p class="note">Open the <a href="./">E-invoice Preflight</a> checker to validate your own invoice file.</p>
+</section>
+<section>
+<h2>More countries</h2>
+<p><a href="australia-e-invoice-mandate.html">Australia</a> <a href="brazil-nfe-e-invoice-mandate.html">Brazil</a> <a href="cyprus-e-invoice-mandate.html">Cyprus</a> <a href="ireland-e-invoice-mandate.html">Ireland</a> <a href="mexico-cfdi-e-invoice-mandate.html">Mexico</a> <a href="colombia-dian-e-invoice-mandate.html">Colombia</a> <a href="chile-sii-e-invoice-mandate.html">Chile</a> <a href="peru-sunat-e-invoice-mandate.html">Peru</a> <a href="argentina-arca-e-invoice-mandate.html">Argentina</a> <a href="singapore-invoicenow-e-invoice-mandate.html">Singapore Invoicenow</a> <a href="switzerland-e-invoice-mandate.html">Switzerland</a> <a href="turkey-e-invoice-mandate.html">Turkey</a> <a href="uruguay-dgi-e-invoice-mandate.html">Uruguay</a> <a href="paraguay-dnit-e-invoice-mandate.html">Paraguay</a> <a href="ecuador-sri-e-invoice-mandate.html">Ecuador</a> <a href="vietnam-e-invoice-mandate.html">Vietnam</a></p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or accounting advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every check runs locally. This page is static and summarises the Japanese position as vendor and advisory guides report it, not from the law; things can change, so check the National Tax Agency (国税庁) and the law before relying on it.</p>
+<p class="support">Free and open source. If it caught a defect before a rejection, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+</footer>
+<script type="module">
+import{checkRegistrationNumber,transitionalShare}from"./japan.mjs";
+const $=i=>document.getElementById(i);
+const esc=t=>String(t).replace(/[&<>"']/g,c=>"&#"+c.charCodeAt(0)+";");
+function r(){const v=$("reg").value;if(!v.trim()){$("reg-out").innerHTML="";return}const x=checkRegistrationNumber(v);$("reg-out").innerHTML=x.kind==="corporate"?'<span class="good">Shape and corporate check digit are consistent.</span>':x.kind==="other"?'<span class="bad">Shape is fine. '+esc(x.problems[0])+"</span>":x.problems.map(p=>`<span class="bad">${esc(p)}</span>`).join("<br>")}
+function d(){const s=transitionalShare($("pd").value);$("pd-out").textContent=s===null?"Enter a date on or after 1 Oct 2023.":s===0?"From 1 Oct 2029: no credit without a qualified invoice.":`Credit on a purchase from an unregistered seller on this date: ${s*100}% of the input tax.`}
+$("reg").addEventListener("input",r);$("pd").addEventListener("input",d);d();
+</script>
+</main>
+</body></html>

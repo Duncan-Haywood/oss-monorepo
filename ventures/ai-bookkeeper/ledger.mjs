@@ -166,16 +166,103 @@ export function cashFlow(entries, accounts, { from = null, to = null } = {}) {
   const net = -sum(period, (a) => a.type === "income" || a.type === "expense");
   const sectionOf = (a) => (a.type === "equity" || /^22/.test(a.code) ? "financing" : a.type === "asset" && a.code >= "1500" ? "investing" : "operating");
   const items = { operating: [], investing: [], financing: [] };
+  // Indirect method: book depreciation is added back and a disposal's gain (loss)
+  // taken out of operating; the proceeds, not the net book value, are investing.
+  const dep = period.get("6950") ?? 0, gl = period.get("4150") ?? 0;
   for (const [code, v] of period) {
     const a = map.get(code);
-    if (!a || !v || cash(a) || a.type === "income" || a.type === "expense") continue;
-    items[sectionOf(a)].push({ code, name: a.name, amount: -v }); // an asset growing uses cash; a liability growing supplies it
+    if (!a || (!v && !(code === "1590" && (dep || gl))) || cash(a) || a.type === "income" || a.type === "expense") continue;
+    // an asset growing uses cash; a liability growing supplies it
+    items[sectionOf(a)].push({ code, name: a.name, amount: code === "1590" ? -v - dep - gl : -v });
   }
+  if (dep) items.operating.push({ code: "6950", name: "Depreciation (added back)", amount: dep });
+  if (gl) items.operating.push({ code: "4150", name: "Loss (gain) on asset disposals", amount: gl });
+  items.investing = items.investing.filter((i) => i.amount);
   for (const k in items) items[k].sort((x, y) => x.code.localeCompare(y.code));
   const total = (l) => l.reduce((a, r) => a + r.amount, 0);
   const operating = net + total(items.operating), investing = total(items.investing), financing = total(items.financing);
   const openingCash = sum(opening, cash), change = sum(period, cash);
-  return { from, to, netProfit: net, operatingItems: items.operating, investingItems: items.investing, financingItems: items.financing, operating, investing, financing, change: operating + investing + financing, openingCash, closingCash: openingCash + change, ties: operating + investing + financing === change };
+  // Free cash flow: operating cash less purchases of fixed assets (investing outflows). Disposal proceeds are not netted.
+  const capex = -items.investing.filter((i) => i.amount < 0).reduce((a, r) => a + r.amount, 0);
+  // Burn and runway: the monthly cash used by operations and investing (financing is the lifeline, not the business), over the months the period spans (at least one); runway is closing cash over that burn, null when the business is not burning cash or has none left.
+  const dates = entries.map((e) => e.date).filter((d) => (!from || d >= from) && (!to || d <= to)).sort();
+  const start = from ?? dates[0], end = to ?? dates.at(-1);
+  const months = start && end ? Math.max(1, (Date.parse(end) - Date.parse(start) + 864e5) / (864e5 * 30.4375)) : 1;
+  const burn = operating + investing < 0 ? Math.round(-(operating + investing) / months) : 0;
+  const runwayMonths = burn > 0 && openingCash + change > 0 ? Math.round(((openingCash + change) / burn) * 10) / 10 : null;
+  return { from, to, netProfit: net, capex, freeCashFlow: operating - capex, monthlyBurn: burn, runwayMonths, operatingItems: items.operating, investingItems: items.investing, financingItems: items.financing, operating, investing, financing, change: operating + investing + financing, openingCash, closingCash: openingCash + change, ties: operating + investing + financing === change };
+}
+
+// Cash flow one month at a time, so a business that is burning faster (or slower) than its whole-period average shows it. Each row is that month's statement; `recentBurn` and `recentRunwayMonths` use the last three months, which is what a lender or investor asks about.
+export function cashFlowByMonth(entries, accounts, { from = null, to = null } = {}) {
+  const dates = entries.map((e) => e.date).filter((d) => (!from || d >= from) && (!to || d <= to)).sort();
+  if (!dates.length) return { months: [], recentBurn: 0, recentRunwayMonths: null };
+  let [y, m] = (from ?? dates[0]).slice(0, 7).split("-").map(Number);
+  const last = (to ?? dates.at(-1)).slice(0, 7);
+  const months = [];
+  for (;;) {
+    const key = `${y}-${String(m).padStart(2, "0")}`;
+    if (key > last) break;
+    const start = `${key}-01`, end = new Date(Date.UTC(y, m, 0)).toISOString().slice(0, 10);
+    const c = cashFlow(entries, accounts, { from: from && from > start ? from : start, to: to && to < end ? to : end });
+    months.push({ month: key, operating: c.operating, investing: c.investing, financing: c.financing, change: c.change, freeCashFlow: c.freeCashFlow, closingCash: c.closingCash });
+    if (++m > 12) { m = 1; y++; }
+  }
+  const tail = months.slice(-3);
+  const used = -tail.reduce((a, r) => a + r.operating + r.investing, 0);
+  const recentBurn = used > 0 ? Math.round(used / tail.length) : 0;
+  const cash = months.at(-1).closingCash;
+  return { months, recentBurn, recentRunwayMonths: recentBurn > 0 && cash > 0 ? Math.round((cash / recentBurn) * 10) / 10 : null };
+}
+
+// The ratios a lender or investor reads off the statements. Current assets are
+// the asset accounts below 1500 (cash, receivables, clearing, prepaid,
+// inventory); the quick ratio leaves out prepaid and inventory. Current
+// liabilities are every liability except the loan (2200), which is treated as
+// long term: a loan with a payment due this year is understated here. Each ratio
+// is null when its denominator is zero or negative, never a made-up number.
+export function ratios(pnl, bs) {
+  const sum = (list, pred) => list.filter(pred).reduce((a, r) => a + r.amount, 0);
+  const cur = sum(bs.assets, (r) => r.code < "1500"), quick = cur - sum(bs.assets, (r) => r.code === "1400" || r.code === "1450");
+  const curLiab = sum(bs.liabilities, (r) => r.code !== "2200");
+  const cogs = pnl.expense.filter((l) => l.code === "5000").reduce((a, l) => a + l.total, 0);
+  const rate = (n, d, k) => (d > 0 ? Math.round((n / d) * k) / k : null);
+  return {
+    grossMargin: rate(pnl.totalIncome - cogs, pnl.totalIncome, 1000), netMargin: rate(pnl.net, pnl.totalIncome, 1000),
+    currentAssets: cur, currentLiabilities: curLiab, workingCapital: cur - curLiab,
+    currentRatio: rate(cur, curLiab, 100), quickRatio: rate(quick, curLiab, 100),
+    debtToEquity: rate(bs.totalLiabilities, bs.totalEquity, 100),
+  };
+}
+
+// Days sales outstanding and days payable: the receivable (1100) over the
+// period's income, the payable (2050) over its expenses, times the days the
+// period spans (months with activity at 30.4375 days). Null when there is no
+// income or expense to divide by or nothing is open; a period of less than a
+// month is a rough read.
+export function daysOutstanding(pnl, bs) {
+  const days = pnl.months.length * 30.4375;
+  const open = (code) => bs.assets.concat(bs.liabilities).filter((r) => r.code === code).reduce((a, r) => a + r.amount, 0);
+  const per = (bal, flow) => (days > 0 && flow > 0 && bal > 0 ? Math.round((bal / flow) * days * 10) / 10 : null);
+  return { receivableDays: per(open("1100"), pnl.totalIncome), payableDays: per(open("2050"), pnl.totalExpense) };
+}
+
+// Break-even from the profit and loss: costs that move with sales (cost of
+// goods, card and merchant fees, shipping by default; pass `variable` codes to
+// change) against everything else, taken as fixed. Monthly figures are the
+// period's totals over its months. Null rather than invented when there is no
+// income or each sale leaves nothing after its own costs.
+export function breakEven(pnl, { variable = ["5000", "6010", "6180"] } = {}) {
+  const months = pnl.months.length;
+  if (!months || pnl.totalIncome <= 0) return null;
+  const set = new Set(variable);
+  const varCost = pnl.expense.filter((l) => set.has(l.code)).reduce((a, l) => a + l.total, 0);
+  const fixed = pnl.totalExpense - varCost;
+  const cm = (pnl.totalIncome - varCost) / pnl.totalIncome;
+  const monthlyIncome = Math.round(pnl.totalIncome / months), monthlyFixed = Math.round(fixed / months);
+  if (cm <= 0) return { months, variableCosts: varCost, fixedCosts: fixed, monthlyIncome, monthlyFixed, contributionMargin: Math.round(cm * 1000) / 1000, breakEvenMonthly: null, marginOfSafety: null };
+  const be = Math.round(monthlyFixed / cm);
+  return { months, variableCosts: varCost, fixedCosts: fixed, monthlyIncome, monthlyFixed, contributionMargin: Math.round(cm * 1000) / 1000, breakEvenMonthly: be, marginOfSafety: Math.round(((monthlyIncome - be) / monthlyIncome) * 1000) / 1000 };
 }
 
 // The ledger for one account: every line, with a running natural balance.

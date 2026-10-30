@@ -1,0 +1,13 @@
+glider cases 810, AUV cases 18; median glide speed 0.211 m/s
+v_c m/s | glider stalled % | AUV median J/ground-m | glider wins % of all pairs | glider wins % of pairs with glider holding track
+0.00 | 0.0 | 82 | 100.0 | 100.0
+0.05 | 0.0 | 82 | 100.0 | 100.0
+0.10 | 0.0 | 82 | 97.2 | 97.2
+0.15 | 20.0 | 82 | 74.6 | 93.3
+0.20 | 50.0 | 82 | 49.8 | 99.7
+0.25 | 60.0 | 82 | 36.2 | 90.4
+0.30 | 80.0 | 83 | 19.9 | 99.7
+0.35 | 90.0 | 83 | 9.9 | 98.6
+0.40 | 96.7 | 83 | 3.3 | 100.0
+0.45 | 100.0 | 84 | 0.0 | n/a
+0.50 | 100.0 | 84 | 0.0 | n/a

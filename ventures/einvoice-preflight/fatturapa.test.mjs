@@ -57,7 +57,7 @@ test("preflightDocuments routes FatturaPA to its own rules", async () => {
 test("examples/fatturapa-invoice-with-defects.xml is the planted-defect file, pinned rule by rule", () => {
   const bad = readFileSync(new URL("./examples/fatturapa-invoice-with-defects.xml", import.meta.url), "utf8");
   assert.ok(looksLikeFatturaPa(bad));
-  assert.deepEqual([...new Set(rules(bad))], ["IT-002", "IT-003", "IT-006", "IT-011", "IT-012", "IT-014", "IT-015", "IT-016"]);
+  assert.deepEqual([...new Set(rules(bad))], ["IT-002", "IT-003", "IT-006", "IT-011", "IT-012", "IT-014", "IT-015", "IT-016", "IT-021"]);
 });
 
 test("IT-018 flags elements out of schema order, once per block", () => {
@@ -69,8 +69,60 @@ test("IT-018 flags elements out of schema order, once per block", () => {
   assert.deepEqual(rules(clean).filter((r) => r === "IT-018"), []);
 });
 
-test("IT-018 does not rank PECDestinatario against ContattiTrasmittente (the Agenzia's own sample has them the other way)", () => {
+test("IT-018 ranks ContattiTrasmittente before PECDestinatario, as the XSD does (the Agenzia's sample FPR02 has them the other way and fails xmllint)", () => {
   const a = clean.replace(/(<CodiceDestinatario>[^<]*<\/CodiceDestinatario>)/, "$1<PECDestinatario>x@pec.it</PECDestinatario><ContattiTrasmittente/>");
   assert.notEqual(a, clean);
-  assert.deepEqual(rules(a).filter((r) => r === "IT-018"), []);
+  assert.deepEqual(rules(a).filter((r) => r === "IT-018"), ["IT-018"]);
+  const ok = clean.replace(/(<CodiceDestinatario>[^<]*<\/CodiceDestinatario>)/, "$1<ContattiTrasmittente/><PECDestinatario>x@pec.it</PECDestinatario>");
+  assert.deepEqual(rules(ok).filter((r) => /^IT-0(18|19|2)/.test(r)), []);
+});
+
+test("IT-019 names an element the schema does not allow in that block", () => {
+  const f = checkFatturaPa(clean.replace("<Divisa>", "<Valuta>EUR</Valuta><Divisa>")).findings.filter((x) => x.rule === "IT-019");
+  assert.equal(f.length, 1);
+  assert.match(f[0].path, /DatiGeneraliDocumento\/Valuta$/);
+});
+
+test("IT-019 flags a second element where the schema allows one", () => {
+  const f = checkFatturaPa(clean.replace(/(<Divisa>[^<]*<\/Divisa>)/, "$1$1")).findings.filter((x) => x.rule === "IT-019");
+  assert.equal(f.length, 1);
+  assert.match(f[0].message, /more than once/);
+});
+
+test("IT-020 flags a required element that is missing", () => {
+  const f = checkFatturaPa(clean.replace(/<Comune>[^<]*<\/Comune>/, "")).findings.filter((x) => x.rule === "IT-020");
+  assert.ok(f.length >= 1);
+  assert.match(f[0].message, /Comune is required/);
+});
+
+test("IT-021 catches a euro sign, an over-long text and an empty required value, without echoing them", () => {
+  const euro = checkFatturaPa(clean.replace(/<Descrizione>[^<]*<\/Descrizione>/, "<Descrizione>Beratung \u20ac 100</Descrizione>")).findings.filter((x) => x.rule === "IT-021");
+  assert.equal(euro.length, 1);
+  assert.match(euro[0].message, /U\+20AC/);
+  assert.ok(!JSON.stringify(euro).includes("Beratung"));
+  const long = checkFatturaPa(clean.replace(/<Descrizione>[^<]*<\/Descrizione>/, `<Descrizione>${"x".repeat(1001)}</Descrizione>`)).findings.filter((x) => x.rule === "IT-021");
+  assert.equal(long.length, 1);
+  const empty = checkFatturaPa(clean.replace(/<Comune>[^<]*<\/Comune>/, "<Comune></Comune>")).findings.filter((x) => x.rule === "IT-021");
+  assert.equal(empty.length, 1);
+});
+
+test("an empty Nazione takes the schema's default (IT) and is not a finding", () => {
+  const r = checkFatturaPa(clean.replace(/<Nazione>IT<\/Nazione>/, "<Nazione></Nazione>"));
+  assert.deepEqual(r.findings.filter((x) => x.rule === "IT-021"), []);
+});
+
+test("IT-022 flags a cut-off file", () => {
+  const cut = clean.slice(0, clean.lastIndexOf("</p:FatturaElettronica>"));
+  assert.deepEqual(rules(cut).filter((r) => r === "IT-022"), ["IT-022"]);
+  assert.deepEqual(rules(clean).filter((r) => r === "IT-022"), []);
+});
+
+test("spec 1.9 codes TD29 and RF20 are known; TD29 needs an Italian seller (IT-023)", () => {
+  const td29 = clean.replace(/<TipoDocumento>TD\d+/, "<TipoDocumento>TD29");
+  assert.ok(!rules(td29).includes("IT-008"));
+  assert.ok(!rules(td29).includes("IT-023"));
+  assert.ok(!rules(clean.replace("<RegimeFiscale>RF01", "<RegimeFiscale>RF20")).includes("IT-006"));
+  const foreign = td29.replace(/(<CedentePrestatore>[\s\S]*?<IdPaese>)IT/, "$1DE");
+  assert.ok(rules(foreign).includes("IT-023"));
+  assert.ok(!rules(clean.replace(/<TipoDocumento>TD\d+/, "<TipoDocumento>TD30")).includes("IT-023"));
 });

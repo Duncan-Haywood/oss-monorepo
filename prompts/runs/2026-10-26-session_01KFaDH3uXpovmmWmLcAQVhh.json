@@ -1,0 +1,51 @@
+{
+  "date": "2026-10-26",
+  "session": "https://claude.ai/code/session_01KFaDH3uXpovmmWmLcAQVhh",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-26T20:13:06Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/10723",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/verified-dse/LOG.md",
+      "issue": "Earlier 'paper sync' entry said BO/BOHB absent while PAPER.md already had them; README was the stale one."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "All five programmes were advanced earlier today and two lowcomm PRs are open; I shipped only a stale-README fix, no experiment and no blog post.",
+      "did": "docs correction",
+      "result": "merged, low value"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Programmes saturated today; did not start BOHB bracket arm (complex harness, 20-min runs).",
+  "corrections": [],
+  "redteam": null
+}

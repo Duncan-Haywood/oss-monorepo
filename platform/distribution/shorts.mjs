@@ -29,7 +29,8 @@
  * money, posts anywhere or writes to the repository.
  *
  * Narration is optional and offline: with --piper and --model each card is
- * voiced by Piper (the podcast's voice, platform/pages/podcast_tts.py) and its
+ * voiced by Piper (lighter to install in a workflow than the Kokoro engine the
+ * podcast uses, platform/audio/narrate.py) and its
  * scene stretched to fit; without them the video has a silent track and the
  * captions carry everything, which is how most short video is watched anyway.
  *

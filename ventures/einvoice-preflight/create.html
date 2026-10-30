@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e551b'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EE%3C/text%3E%3C/svg%3E">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Free XRechnung &amp; Peppol invoice creator — UBL and CII XML</title>
   <meta name="description" content="Fill in a form, download a valid XRechnung 3.0, Peppol BIS 3.0 or EN 16931 e-invoice as UBL or CII XML. Totals and the VAT breakdown are computed for you, then the file is checked before you download it. Free, open source, and nothing leaves your browser.">
@@ -140,11 +140,11 @@
     }
     function lineRow(l = {}) {
       const tr = document.createElement("tr");
-      tr.innerHTML = `<td><input data-f="description" value=""></td><td><input data-f="quantity" type="number" step="any" value="1" style="width:5em"></td>
-        <td><select data-f="unit"><option value="C62">piece</option><option value="HUR">hour</option><option value="DAY">day</option><option value="MON">month</option><option value="KGM">kg</option><option value="SET">set</option></select></td>
-        <td><input data-f="unit_price" type="number" step="any" style="width:7em"></td><td><input data-f="tax_percent" type="number" step="any" value="19" style="width:4.5em"></td>
-        <td><select data-f="tax_category"><option value="">auto</option><option>S</option><option>Z</option><option>E</option><option>AE</option><option>K</option><option>G</option><option>O</option></select></td>
-        <td><input data-f="tax_reason" placeholder="if 0% exempt"></td><td><button type="button" class="secondary" aria-label="Remove line">×</button></td>`;
+      tr.innerHTML = `<td><input data-f="description" aria-label="Description" value=""></td><td><input data-f="quantity" aria-label="Quantity" type="number" step="any" value="1" style="width:5em"></td>
+        <td><select data-f="unit" aria-label="Unit"><option value="C62">piece</option><option value="HUR">hour</option><option value="DAY">day</option><option value="MON">month</option><option value="KGM">kg</option><option value="SET">set</option></select></td>
+        <td><input data-f="unit_price" aria-label="Unit price (net)" type="number" step="any" style="width:7em"></td><td><input data-f="tax_percent" aria-label="VAT percent" type="number" step="any" value="19" style="width:4.5em"></td>
+        <td><select data-f="tax_category" aria-label="VAT category"><option value="">auto</option><option>S</option><option>Z</option><option>E</option><option>AE</option><option>K</option><option>G</option><option>O</option></select></td>
+        <td><input data-f="tax_reason" aria-label="Exemption reason" placeholder="if 0% exempt"></td><td><button type="button" class="secondary" aria-label="Remove line">×</button></td>`;
       for (const [k, v] of Object.entries(l)) { const el = tr.querySelector(`[data-f="${k}"]`); if (el) el.value = v; }
       tr.querySelector("button").onclick = () => { tr.remove(); showTotals(); };
       tr.addEventListener("input", showTotals);

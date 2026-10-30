@@ -91,3 +91,10 @@ test("missing robots.txt is treated as allow-everything, not an error", async ()
   assert.match(output, /No robots\.txt found/);
   assert.match(output, /GPTBot.*allowed/s);
 });
+
+test("table columns widen to fit the longest operator and token names", async () => {
+  const { output } = await run(["--robots-file", new URL("./robots.txt", import.meta.url).pathname]);
+  const rows = output.split("\n").filter((l) => /Common Crawl Foundation|Google-CloudVertexBot/.test(l));
+  assert.equal(rows.length, 2);
+  for (const r of rows) assert.match(r, /\S {2,}\S/);
+});

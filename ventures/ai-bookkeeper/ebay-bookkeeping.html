@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%231b587e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EA%3C/text%3E%3C/svg%3E"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>eBay Bookkeeping: Why Your Payouts Understate Your Sales (Worked Example)</title>
+<meta name="description" content="eBay pays out what is left after final value fees, shipping labels and refunds, and collects sales tax for you. A worked month shows $145.00 of item sales arriving as a $111.70 payout, and how to book the gap.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="./ebay-bookkeeping.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="eBay bookkeeping: why your payouts understate your sales">
+<meta property="og:description" content="A worked month: $145.00 of eBay sales, a $111.70 payout. Where the $33.30 went and how to book it.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why don't my eBay payouts match my sales?","acceptedAnswer":{"@type":"Answer","text":"eBay pays out sales net of final value fees, shipping labels bought through eBay and refunds, and the payout includes sales tax eBay collected for the buyer's state. In the worked example, $145.00 of item and shipping sales plus $5.00 of tax became a $111.70 payout."}},{"@type":"Question","name":"Is the sales tax eBay collects my income?","acceptedAnswer":{"@type":"Answer","text":"No. In most US states eBay collects and remits sales tax as a marketplace facilitator. The tax appears in your transaction report and in the payout, but it is not your sales; the tool books it apart from income."}},{"@type":"Question","name":"Is it free?","acceptedAnswer":{"@type":"Answer","text":"Yes. It is open source (MIT), runs in your browser and nothing is uploaded."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#1c2430;background:#f3f5f2}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#23613f}.eyebrow{font-weight:700;letter-spacing:.04em;color:#23613f;font-size:.85rem}h1{font-size:clamp(1.7rem,5vw,2.5rem);line-height:1.08;margin:.3rem 0;color:#183d2a}.lede{font-size:1.05rem;max-width:66ch;color:#4a5560}section{background:#fff;border:1px solid #d5ddd6;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #183d2a10;margin:1rem 0}h2{margin-top:0;color:#183d2a}p,li{line-height:1.55}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:.95rem}caption{caption-side:bottom;color:#4a5560;font-size:.85rem;text-align:left;padding-top:.6rem}th,td{border-bottom:1px solid #e1e7e2;padding:.5rem .45rem;text-align:right}th:first-child,td:first-child{text-align:left}tr.total td,tr.total th{font-weight:700}.fine,footer{font-size:.86rem;color:#4a5560}@media (max-width:600px){body{padding:1rem}}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; AI Bookkeeper</a></p>
+<header>
+<h1>eBay bookkeeping: why your payouts understate your sales</h1>
+<p class="lede">eBay pays out what is left after its final value fees, shipping labels and refunds, and the payout also carries sales tax it collected for your buyers. Book the payouts as income and your books show less than you sold, and mix in money that was never yours.</p>
+</header>
+
+<section>
+<h2>Worked example: one payout, two orders</h2>
+<p>The tool ships a <strong>synthetic</strong> Seller Hub transaction report for April 2026: two orders, a shipping label, a refund and one payout, plus a third order not paid out yet. Read by the payout importer, the payout splits like this.</p>
+<div class="table-wrap">
+<table>
+<caption>Figures from fixtures/ebay-transactions.csv, read by payouts.mjs. Synthetic data, not a real seller.</caption>
+<thead><tr><th scope="col">Payout PO-1001, 8 April 2026</th><th scope="col">Amount</th></tr></thead>
+<tbody>
+<tr><th scope="row">Item and shipping charged, two orders</th><td>$145.00</td></tr>
+<tr><th scope="row">Refund to a buyer (order 12-00002-22222)</th><td>&minus;$10.00</td></tr>
+<tr class="total"><th scope="row">Net sales (gross receipts)</th><td>$135.00</td></tr>
+<tr><th scope="row">Final value fees (fixed and variable)</th><td>&minus;$20.10</td></tr>
+<tr><th scope="row">Shipping label bought through eBay</th><td>&minus;$8.20</td></tr>
+<tr><th scope="row">Sales tax eBay collected, passed through</th><td>$5.00</td></tr>
+<tr class="total"><th scope="row">Payout to the bank</th><td>$111.70</td></tr>
+</tbody>
+</table>
+</div>
+<p>Booked from the bank line alone, the seller shows $111.70 of income and no expenses. Booked from the report, it shows $135.00 of sales and $28.30 of eBay costs, with the $5.00 of tax kept out of income: the same $106.70 profit, but income and expenses that match what was sold and spent. That matters when the numbers are set against a 1099-K, which reports gross payments, and when you claim fees and shipping on Schedule C. The third order ($30.00, $26.10 after fees) has no payout yet; the tool lists it as pending rather than guessing a date.</p>
+</section>
+
+<section>
+<h2>How to book it</h2>
+<ol>
+<li><strong>Download the transaction report</strong> from Seller Hub (Payments, Reports) as a CSV, and the payout lines from your bank.</li>
+<li><strong>Import the bank statement</strong> in <a href="./">AI Bookkeeper</a>, then run the payout import on the eBay CSV (<code>payouts ebay-transactions.csv</code>). Each payout is matched to its bank line and split into sales, refunds, fees and shipping, with tax kept apart.</li>
+<li><strong>Check that the payout equals the activity.</strong> If the rows for a payout do not net to the Payout row, the tool says so and does not split it. Download the whole period again.</li>
+<li><strong>Keep sales tax out of income.</strong> Marketplace facilitators collect and remit it; do not book it as your sales.</li>
+</ol>
+<p>The eBay layout is read from memory of eBay's help pages and one hand-written fixture. No real export has been tried, so check the totals against your own statement.</p>
+</section>
+
+<section>
+<h2>Questions</h2>
+<h3>Why don't my eBay payouts match my sales?</h3>
+<p>eBay pays out sales net of final value fees, shipping labels bought through eBay and refunds, and the payout includes sales tax eBay collected for the buyer's state. In the worked example, $145.00 of item and shipping sales plus $5.00 of tax became a $111.70 payout.</p>
+<h3>Is the sales tax eBay collects my income?</h3>
+<p>No. In most US states eBay collects and remits sales tax as a marketplace facilitator. The tax appears in your transaction report and in the payout, but it is not your sales; the tool books it apart from income.</p>
+<h3>Is it free?</h3>
+<p>Yes. It is open source (MIT), runs in your browser and nothing is uploaded.</p>
+</section>
+
+<p><a href="./">Open AI Bookkeeper</a> and import your eBay report and bank statement.</p>
+</main>
+<footer>
+<p><strong>No warranty.</strong> This page and the tool are provided free and as-is, without warranty of any kind. They are not legal, tax, or financial advice and do not replace a qualified professional. You are responsible for reviewing and verifying any output before relying on it. The example is synthetic data, not a real business. eBay is a trademark of its owner, named only to describe a source of data.</p>
+</footer>
+</body>
+</html>

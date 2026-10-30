@@ -1,0 +1,30 @@
+## period tight
+
+design | n | distinct r4 | tau r1 [95% CI] | tau r2 [95% CI] | tau r3 [95% CI] | regret r1 % | regret r2 % | regret r3 % | top5 hit r1/r2/r3
+mult16 | 50 | 44 | 0.29 [0.08, 0.48] | 0.62 [0.45, 0.78] | 0.50 [0.34, 0.64] | 7.8 | 2.1 | 2.1 | n/n/n
+mult24 | 50 | 43 | 0.31 [0.13, 0.46] | 0.73 [0.62, 0.82] | 0.65 [0.54, 0.75] | 8.2 | 0.4 | 0.4 | n/Y/n
+mult32 | 50 | 43 | 0.45 [0.26, 0.61] | 0.72 [0.61, 0.81] | 0.72 [0.60, 0.82] | 8.1 | 0.8 | 0.8 | Y/Y/n
+adder_op64 | 50 | 44 | 0.62 [0.46, 0.75] | 0.68 [0.51, 0.81] | 0.67 [0.50, 0.81] | 7.0 | 7.4 | 12.7 | Y/Y/Y
+adder_ripple64 | 52 | 4 | n/a | 1.00 [1.00, 1.00] | 1.00 [1.00, 1.00] | 9.8 | 0.0 | 0.0 | Y/Y/Y
+
+tight r1: tau < 0.7 on 4 of 4 designs; median tau 0.38; median regret 8.1%
+tight r2: tau < 0.7 on 2 of 5 designs; median tau 0.72; median regret 0.8%
+tight r3: tau < 0.7 on 3 of 5 designs; median tau 0.67; median regret 0.8%
+
+## period relaxed
+
+design | n | distinct r4 | tau r1 [95% CI] | tau r2 [95% CI] | tau r3 [95% CI] | regret r1 % | regret r2 % | regret r3 % | top5 hit r1/r2/r3
+mult16 | 50 | 44 | -0.28 [-0.47, -0.08] | 0.30 [0.11, 0.47] | 0.37 [0.15, 0.55] | 22.0 | 0.0 | 0.0 | n/Y/Y
+mult24 | 50 | 43 | 0.12 [-0.09, 0.32] | 0.54 [0.38, 0.68] | 0.68 [0.57, 0.78] | 20.4 | 11.3 | 17.6 | n/n/Y
+mult32 | 50 | 43 | 0.30 [0.05, 0.51] | 0.57 [0.39, 0.71] | 0.73 [0.64, 0.81] | 14.9 | 14.1 | 14.0 | n/n/Y
+adder_op64 | 50 | 45 | 0.59 [0.42, 0.72] | 0.76 [0.61, 0.86] | 0.73 [0.59, 0.84] | 5.7 | 2.9 | 4.0 | Y/Y/Y
+adder_ripple64 | 52 | 4 | n/a | 1.00 [1.00, 1.00] | 1.00 [1.00, 1.00] | 7.6 | 0.0 | 0.0 | Y/Y/Y
+
+relaxed r1: tau < 0.7 on 4 of 4 designs; median tau 0.21; median regret 14.9%
+relaxed r2: tau < 0.7 on 3 of 5 designs; median tau 0.57; median regret 2.9%
+relaxed r3: tau < 0.7 on 2 of 5 designs; median tau 0.73; median regret 4.0%
+
+## wall time per point, mean seconds (tight; 1 core)
+R1 0.77 | R2 yosys map 1.25 (+ OpenROAD load/STA 0.39) | R3 2.59 | R4 total 19.40 (OpenROAD only)
+
+rejected by ABC/OpenROAD: {'mult16': 20, 'mult24': 20, 'mult32': 20, 'adder_op64': 20, 'adder_ripple64': 16} of 600 runs failed in total 96

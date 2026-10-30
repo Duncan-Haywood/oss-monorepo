@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-25",
+  "session": "https://claude.ai/code/session_01NcoPDqyzjqQk6fUsmFbjXM",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-25T13:10:42Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/10395",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/explore/prompt-0.md",
+      "issue": "Sweep list is long; two of my first sweeps (lang/viewport/alt, tests per venture) were clean and cost time before I found an open gap."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-10-25-social-proof-claims-check.md"
+  ],
+  "goal": null,
+  "notes": "Explore idea: visible-copy counterpart to check_jsonld.py for honest-marketing. Ran 4,423 files, 0 real hits. No agent doc written (nothing the next run needs). Ran 7 unit tests locally; CI not awaited before record.",
+  "corrections": [],
+  "redteam": null
+}

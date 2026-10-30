@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-25",
+  "session": "https://claude.ai/code/session_011MuejcmLXc8dBGuYERqVMD",
+  "track": "process",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-25T12:09:49Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/10382",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "why": "Scheduled brief asked for revenue product work, so shipped a flagship venture slice instead of process work.",
+      "did": "Deepened changepoint-detector",
+      "result": "landed with measured benchmark"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Routed to process track but task brief asked for product work; shipped a flagship slice (changepoint-detector --robust). Network blocked (eur-lex, gov.pl etc.), so einvoice primary-source items skipped. Venture suite 129/129 pass.",
+  "corrections": [],
+  "redteam": null
+}

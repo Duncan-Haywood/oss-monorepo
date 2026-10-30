@@ -37,5 +37,43 @@ class Missing(unittest.TestCase):
             self.assertEqual(got, [(1, "platform/gone.py"), (5, "platform/gone2.py")])
 
 
+class Main(unittest.TestCase):
+    def _repo(self, d, doc):
+        root = Path(d)
+        (root / "platform").mkdir()
+        (root / "platform/real.py").write_text("")
+        (root / "doc.md").write_text(doc)
+        subprocess.run(["git", "-C", d, "init", "-q"], check=True)
+        subprocess.run(["git", "-C", d, "add", "-A"], check=True)
+        return root
+
+    def test_exit_codes_and_count(self):
+        import contextlib
+        import io
+        with tempfile.TemporaryDirectory() as d:
+            root = self._repo(d, "`platform/real.py`\n")
+            self.assertEqual(c.main(["--root", d, str(root / "doc.md")]), 0)
+        with tempfile.TemporaryDirectory() as d:
+            root = self._repo(d, "`platform/gone.py` `platform/gone2.py`\n")
+            err, out = io.StringIO(), io.StringIO()
+            with contextlib.redirect_stderr(err), contextlib.redirect_stdout(out):
+                rc = c.main(["--root", d, str(root / "doc.md")])
+            self.assertEqual(rc, 1)
+            self.assertIn("2 backticked path(s)", err.getvalue())
+            self.assertIn("doc.md:1: platform/gone.py", out.getvalue())
+
+    def test_tracked_fails_outside_a_repo(self):
+        with tempfile.TemporaryDirectory() as d:
+            with self.assertRaises(subprocess.CalledProcessError):
+                c.tracked(Path(d))
+
+    def test_top_level_names_only(self):
+        # a path under a nested dir name must not count as a top-level root
+        with tempfile.TemporaryDirectory() as d:
+            root = self._repo(d, "`real.py/x` `platform/gone.py`\n")
+            got = list(c.missing_refs(root / "doc.md", root, {p.split("/", 1)[0] for p in c.tracked(root) if "/" in p}))
+            self.assertEqual(got, [(1, "platform/gone.py")])
+
+
 if __name__ == "__main__":
     unittest.main()

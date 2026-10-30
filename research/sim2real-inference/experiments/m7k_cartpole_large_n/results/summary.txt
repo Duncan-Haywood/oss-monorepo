@@ -1,0 +1,10 @@
+reps per cell: 200; twin-interval bank 20 per (N, f); cart-pole, 21 pairs; f = share of alpha for the twin mean
+min coverage over all cells: 98.0
+  n=240 N=20000 f=0.1: combined/real-only median 1.500, min 1.013, narrower on 0/21
+  n=240 N=20000 f=0.5: combined/real-only median 1.696, min 1.092, narrower on 0/21
+  n=240 N=100000 f=0.1: combined/real-only median 1.458, min 0.997, narrower on 1/21
+  n=240 N=100000 f=0.5: combined/real-only median 1.656, min 1.077, narrower on 0/21
+  n=960 N=20000 f=0.1: combined/real-only median 1.361, min 0.948, narrower on 2/21
+  n=960 N=20000 f=0.5: combined/real-only median 1.514, min 1.009, narrower on 0/21
+  n=960 N=100000 f=0.1: combined/real-only median 1.222, min 0.917, narrower on 2/21
+  n=960 N=100000 f=0.5: combined/real-only median 1.403, min 0.982, narrower on 2/21

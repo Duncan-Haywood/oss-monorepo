@@ -8,6 +8,9 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import {
+  SITE_NAME,
+  TITLE_BUDGET,
+  siteTitle,
   SITE_NAV,
   SITE_HEADER_CSS,
   HEADER_MARKER,
@@ -176,4 +179,22 @@ test('the chrome goes dark only on a page whose own background is dark', () => {
   assert.equal(run('rgb(250, 246, 238)'), undefined);
   assert.equal(run('rgb(18, 16, 14)'), 'dark');
   assert.equal(run('rgba(0, 0, 0, 0)'), undefined, 'a transparent page reads as the browser default white');
+});
+
+test('a widened venture header keeps its content offset as padding (phone: no sideways scroll, so no undo)', () => {
+  assert.match(VENTURE_CHROME_JS, /paddingLeft=Math\.max\(0,r\.left\)/);
+  assert.match(VENTURE_CHROME_JS, /paddingRight=''/, 'reset() clears the padding it set');
+});
+
+test('siteTitle adds the site name only when the whole title still fits a results page', () => {
+  assert.equal(siteTitle('Short tool'), `Short tool | ${SITE_NAME}`);
+  const long = 'Excel alternatives: 12 free tools with a side-by-side page';
+  assert.equal(siteTitle(long), long, 'the suffix would push it past the budget');
+  for (const n of [1, 20, 40, 60, 90]) assert.ok(siteTitle('x'.repeat(n)).length <= Math.max(TITLE_BUDGET, n));
+});
+
+test('on a phone the breadcrumb stays on one line and cuts the current title', async () => {
+  const { SITE_HEADER_CSS } = await import('./site-nav.mjs');
+  const m = /@media \(max-width:600px\)\{[^}]*\.pfs-crumbs\{[^}]*white-space:nowrap[\s\S]*?text-overflow:ellipsis/.exec(SITE_HEADER_CSS);
+  assert.ok(m, 'phone rule keeps .pfs-crumbs nowrap and ellipsises [aria-current]');
 });

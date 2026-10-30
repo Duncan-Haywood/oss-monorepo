@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%231b587e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EA%3C/text%3E%3C/svg%3E"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rideshare and Delivery Driver Bookkeeping: Mileage or Gas, Not Both</title>
+<meta name="description" content="Uber, Lyft and DoorDash pay you gross and you pay the car's costs. A worked June shows $1,930.40 of payouts, two ways to deduct the car, and the double count the tool now flags.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="./driver-bookkeeping.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Rideshare and delivery driver bookkeeping: mileage or gas, not both">
+<meta property="og:description" content="A worked month of Uber, Lyft and DoorDash deposits and car costs, booked from a bank statement.">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is my Uber, Lyft or DoorDash payout my income?", "acceptedAnswer": {"@type": "Answer", "text": "Book the platform's payments to you as sales (Schedule C line 1) and your costs as expenses. A weekly deposit is the figure after the platform's own deductions, so compare it with the earnings statement and the 1099 you receive."}}, {"@type": "Question", "name": "Can I deduct both gas and the standard mileage rate?", "acceptedAnswer": {"@type": "Answer", "text": "No. The standard mileage rate is used instead of actual vehicle costs such as fuel, oil, repairs, insurance and depreciation; only parking and tolls can be added. AI Bookkeeper warns when the same year has both booked fuel and logged miles on Schedule C line 9."}}, {"@type": "Question", "name": "Is it free?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. It is open source (MIT), runs in your browser and nothing is uploaded."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#1c2430;background:#f3f5f2}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#23613f}.eyebrow{font-weight:700;letter-spacing:.04em;color:#23613f;font-size:.85rem}h1{font-size:clamp(1.7rem,5vw,2.5rem);line-height:1.08;margin:.3rem 0;color:#183d2a}.lede{font-size:1.05rem;max-width:66ch;color:#4a5560}section{background:#fff;border:1px solid #d5ddd6;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #183d2a10;margin:1rem 0}h2{margin-top:0;color:#183d2a}p,li{line-height:1.55}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:.95rem}caption{caption-side:bottom;color:#4a5560;font-size:.85rem;text-align:left;padding-top:.6rem}th,td{border-bottom:1px solid #e1e7e2;padding:.5rem .45rem;text-align:right}th:first-child,td:first-child{text-align:left}tr.total td,tr.total th{font-weight:700}.fine,footer{font-size:.86rem;color:#4a5560}@media (max-width:600px){body{padding:1rem}}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; AI Bookkeeper</a></p>
+<header>
+<h1>Rideshare and delivery driver bookkeeping: mileage or gas, not both</h1>
+<p class="lede">If you drive for Uber, Lyft or DoorDash you are self-employed: the platforms pay you, you pay for the car, the phone and the insurance, and the tax return wants one clean profit figure. The bank statement has all of it. The trap is deducting the car twice.</p>
+</header>
+
+<section>
+<h2>Worked example: one June, three apps</h2>
+<p>The tool ships a <strong>synthetic</strong> checking statement for a driver (<code>fixtures/driver-checking.csv</code>): three Uber/Lyft/DoorDash deposits, fuel, a car wash, an oil change, a phone bill, auto insurance and one grocery run. All twelve lines get a suggested account; the grocery run is filed to owner draws (3100) by hand because it is not a business cost.</p>
+<div class="table-wrap">
+<table>
+<caption>Read by the tool's CLI (import, accept 0.7, report, schedulec). Synthetic data, not a real driver.</caption>
+<thead><tr><th scope="col">June 2026</th><th scope="col">Amount</th></tr></thead>
+<tbody>
+<tr><th scope="row">Uber (two deposits), Lyft, DoorDash</th><td>$1,930.40</td></tr>
+<tr><th scope="row">Fuel, car wash, oil change</th><td>&minus;$258.04</td></tr>
+<tr><th scope="row">Auto insurance</th><td>&minus;$182.00</td></tr>
+<tr><th scope="row">Phone</th><td>&minus;$85.00</td></tr>
+<tr class="total"><th scope="row">Profit, actual costs</th><td>$1,405.36</td></tr>
+</tbody>
+</table>
+</div>
+<p>That is the <em>actual expense</em> method. The other is the <em>standard mileage rate</em>: the tool's mileage log holds 410 business miles at the 2026 rate of 72.5 cents it has on file, a $297.25 deduction. Standard mileage replaces fuel, repairs, insurance and depreciation, so on that method the same month is $1,930.40 &minus; $297.25 &minus; $85.00 phone = <strong>$1,548.15</strong>. Here actual costs ($440.04 of fuel, service and insurance) beat the mileage figure; with more miles and less insurance the order flips. Work out both before you file; the rules also limit switching between them in later years.</p>
+</section>
+
+<section>
+<h2>What the tool does for a driver</h2>
+<ol>
+<li><strong>Imports the bank CSV</strong> and suggests <em>Sales</em> for Uber, Lyft, DoorDash, Instacart, Spark, Amazon Flex and Upwork-style payouts, and vehicle costs for fuel, car washes and service.</li>
+<li><strong>Keeps a mileage log</strong> (<code>trip add 410 --date 2026-06-30 --purpose "rideshare"</code>) with the IRS rate for each trip's date.</li>
+<li><strong>Warns on double counting.</strong> Run <code>schedulec --year 2026</code> and, if line 9 holds both booked car costs and a mileage deduction, it says so. It does not look at auto insurance on its own line, which the standard rate also covers, so check that yourself.</li>
+<li><strong>Keeps groceries out of expenses</strong> when you file them as owner draws (3100).</li>
+</ol>
+<p>Payout rules are written from the platforms' names, and the rate is from the tool's table; no real driver's statement has been tried. The IRS publishes the current rate, so confirm it.</p>
+</section>
+
+<section>
+<h2>Questions</h2>
+<h3>Is my Uber, Lyft or DoorDash payout my income?</h3><p>Book the platform's payments to you as sales (Schedule C line 1) and your costs as expenses. A weekly deposit is the figure after the platform's own deductions, so compare it with the earnings statement and the 1099 you receive.</p><h3>Can I deduct both gas and the standard mileage rate?</h3><p>No. The standard mileage rate is used instead of actual vehicle costs such as fuel, oil, repairs, insurance and depreciation; only parking and tolls can be added. AI Bookkeeper warns when the same year has both booked fuel and logged miles on Schedule C line 9.</p><h3>Is it free?</h3><p>Yes. It is open source (MIT), runs in your browser and nothing is uploaded.</p>
+</section>
+
+<p><a href="./">Open AI Bookkeeper</a> and import your bank statement.</p>
+</main>
+<footer>
+<p><strong>No warranty.</strong> This page and the tool are provided free and as-is, without warranty of any kind. They are not legal, tax, or financial advice and do not replace a qualified professional. You are responsible for reviewing and verifying any output before relying on it. The example is synthetic data, not a real business. Uber, Lyft and DoorDash are trademarks of their owners, named only to describe a payee.</p>
+</footer>
+</body>
+</html>

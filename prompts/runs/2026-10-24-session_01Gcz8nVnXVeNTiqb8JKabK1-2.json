@@ -32,7 +32,8 @@
   "outcome": "success",
   "errors": [
     "build.test.mjs baseline run had 1 failure (identical cache name) caused by this session committing mid-run: the build reads git history. Not a code defect; the after run (no commits) passed 304/304.",
-    "main's Pages build was red again on arrival: PR #10185 merged a 238-char post description; shortened it here (writing.test.mjs 14/14)."
+    "main's Pages build was red again on arrival: PR #10185 merged a 238-char post description; shortened it here (writing.test.mjs 14/14).",
+    "PR sat unmerged 6 days (session idle). On return (2026-10-30): main's PR #10208 had shipped the same in-process card cache plus a disk cache, so share.mjs/share.test.mjs took main's version; main's new polish track (0.05) meant perf's 0.05 now comes from ventures/research 0.315 -> 0.29; experiments entry renumbered E84 -> E113; ported a fix for main's red validate (PR #11575 post description 180 chars)."
   ],
   "integrity_issues": [],
   "doc_friction": [],
@@ -48,7 +49,7 @@
   ],
   "writeups": [],
   "goal": null,
-  "notes": "Routing: perf 0.05, ventures/research 0.34 -> 0.315 each (E84). Backlog: P048 guard checkouts (baseline checkout 302/750 job-min = 40%; 359 jobs <15s work took 261 job-min, 210 checkout), P049 jobs per PR head (median 15 jobs / 10 workflows over 45 heads), P050 done. P050: phase timestamps on a 2-tool fixture build (36.9s): addShareCards 27.4s (~1,228 research/writing cards every build); renderCard 62.7 ms/card; full build 2,563 cards / 133 MB. Fix: in-process PNG cache in share.mjs renderCards keyed by card options. node build.mjs before/after: diff -rq identical over 15,367 files (87s vs 93s). node --test build.test.mjs: 460s -> 325s, 304/304 pass. share.test.mjs 18/18 (2 new). prompts test_promptctl 61 OK (1 new); promptctl validate ok.",
+  "notes": "Routing: perf 0.05, ventures/research 0.315 -> 0.29 each after main's polish track (E113). Backlog: P048 guard checkouts (baseline checkout 302/750 job-min = 40%; 359 jobs <15s work took 261 job-min, 210 checkout), P049 jobs per PR head (median 15 jobs / 10 workflows over 45 heads), P050 done. P050: phase timestamps on a 2-tool fixture build (36.9s): addShareCards 27.4s (~1,228 research/writing cards every build); renderCard 62.7 ms/card; full build 2,563 cards / 133 MB. Fix: in-process PNG cache in share.mjs renderCards keyed by card options. node build.mjs before/after: diff -rq identical over 15,367 files (87s vs 93s). node --test build.test.mjs: 460s -> 325s, 304/304 pass. share.test.mjs 18/18 (2 new). prompts test_promptctl 61 OK (1 new); promptctl validate ok.",
   "corrections": [],
   "redteam": null
 }

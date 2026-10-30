@@ -124,6 +124,76 @@ A one-off nudge needs 40% of people, since the moderates it creates are pulled b
 
 Under-estimating tolerance costs nothing here; over-estimating it breaks the chain.
 
+## Follow-up: contact that widens tolerance (`experiments/contact/`, `src/civ_levers/contact.py`)
+
+Each agent gets its own tolerance that cross-camp contact edits (a stand-in for Pettigrew and
+Tropp 2006; the gain and loss rates are not measured and are swept, 0.005 to 0.05 per meeting).
+Plan and hypotheses were logged first (`LOG.md`); 10 societies per cell, full table in
+`experiments/contact/results.txt`.
+
+- **Widening only after an accepted meeting does nothing.** Camps start 0.6 apart, so no
+  cross-camp meeting is ever within reach and tolerance never grows: 0 of 10 merged in all 135
+  cells, mean tolerance unchanged. The rule is circular.
+- **Widening on any meeting that is not repelled does merge the camps, with no backfire.** At
+  gain 0.05 per meeting, bridging 25% of ties merges 10 of 10 societies at starting tolerance
+  0.2, 0.25 and 0.3; at 10% of ties it merges 3, 5 and 7 of 10. At gain 0.01 only 50% bridging
+  at tolerance 0.3 merges (10 of 10); at 0.2 and 0.25 it merges 3 and 7.
+- **Backfire still wins.** With rejection threshold 0.7 and a loss of 0.02 per repelled
+  meeting, no cell merges at any gain (0 of 36 exposure cells with tau 0.7); at tau 0.8 mostly gain 0.05
+  merges, with a few cells at gain 0.02.
+- **Identity.** 20% committed moderates dismissed with probability q (read as the other camp's):
+  at tolerance 0.3, 10 of 10 merge at every q up to 0.75; at 0.2 the 0.5 voice is out of reach
+  at any q (0 of 10). The identity filter matters less than reach.
+
+So the bridging verdict flips only if contact itself widens tolerance fast (about 0.05 per
+meeting here) and nobody rejects; with backfire at 0.7 it does not flip. The gain rates and the
+mere-exposure rule are assumptions, not measured.
+
+## Follow-up: where to seed a complex contagion (`experiments/cascades/`, `src/civ_levers/cascades.py`)
+
+Question: when a behaviour needs reinforcement (adopt after at least T neighbours have; Centola
+and Macy 2007), which seeds start a cascade on a clustered, a rewired and a random network?
+Watts–Strogatz graphs (n 1000, k 8, rewiring p from 0 to 1), 20 graphs per cell, four rules
+(random people, highest-degree people, a clustered patch, spread-out seeds). Hypotheses were
+logged before the run (`LOG.md`); `python3 experiments/cascades/run.py` reproduces
+`results.txt`.
+
+- A simple contagion (T = 1) from one seed reaches everyone at every p; rewiring changes speed only.
+- At T = 2 a clustered patch of 5 reaches everyone for p <= 0.1 and 0.85 (+-0.16) at p = 0.3;
+  at p = 1 no 5-seed rule passes 1%. The smallest budget reaching 90% is 2 to 3 for a patch at
+  p <= 0.1, 8 at p = 0.3, 40 at p = 1; random seeds need 12 to 20, hubs 8 to 20.
+- Spread-out seeds never start a T = 2 cascade: each seed alone has no one to reinforce it.
+- T = 3 is harder: a patch needs 3 to 5 seeds at p <= 0.03 and nothing up to 40 once p >= 0.1.
+- Against our own guess, hubs beat random seeds at T = 2 once rewiring makes degrees uneven.
+
+This agrees in direction with Centola and Macy (2007); it is not a reproduction of their
+figures, and Centola et al. (2018)'s 25% tipping point (a naming game) is not checked.
+T, k and the graph family are chosen, not measured; the finding is about simulated people.
+
+## Follow-up: Axelrod's culture model with a broadcast (`experiments/culture/`, `src/civ_levers/culture.py`)
+
+Question: does one voice that everyone hears (a common broadcast) homogenise a society of
+interacting cultures, or fragment it? Axelrod (1997) on a lattice (F features, q traits), plus a
+global media culture met with probability B per step (Shibanai, Yasuno and Ishiguro 2001).
+20 runs per cell; hypotheses were logged before the run (`LOG.md`);
+`python3 experiments/culture/run.py` reproduces `results.txt` (about 6 minutes on 4 cores).
+
+- A broadcast **fragments** rather than homogenises. F = 5, q = 10, 20 x 20: the largest culture
+  covers 99% of the lattice without media and 26% at B = 0.3 (2 regions against 76). At q = 5 it
+  stays one culture until B = 0.03 and splits into 29 regions at B = 0.3. At q = 40 (already
+  fragmented, S = 0.03) it changes nothing.
+- Why: a site sharing no feature with the media never interacts with it, so such sites freeze.
+  Only 50% hold the media culture at q = 10, B = 0.3, and 27% at q = 20.
+- The order–disorder transition shows up (largest region falls with q; gradual for F = 2, sharp for
+  F >= 3), but the F = 10 drop is at q of about 30 to 50 on 12 and 24 sized lattices, not
+  Castellano, Marsili and Vespignani's (2000) q_c of about 300, which used lattices to L = 150. I
+  did not run those sizes, so this is **not a reproduction** of their number.
+- Axelrod's base case (F 5, q 10, 10 x 10): 4.55 +- 0.36 regions (300 runs) against his 3.2.
+  Higher; his sample and counting rule may differ. Not matched.
+
+F, q, B and the single global media culture are chosen, not measured; the finding is about
+simulated agents. Next: noise, and the L = 50 to 150 runs (a compiled core would be needed).
+
 ## What this does and does not say
 
 - It is a model of opinion *positions*, not of prejudice or affect. Contact in Pettigrew and
@@ -150,10 +220,17 @@ Needs Python 3.9+ with numpy (and pytest); the app has no dependencies.
 ## References
 
 - Allport, G. W. (1954). *The Nature of Prejudice*. Addison-Wesley.
+- Axelrod, R. (1997). The dissemination of culture: a model with local convergence and global polarization. *Journal of Conflict Resolution* 41(2):203–226.
+- Castellano, C., Marsili, M. and Vespignani, A. (2000). Nonequilibrium phase transition in a model for social influence. *Physical Review Letters* 85(16):3536–3539.
+- Shibanai, Y., Yasuno, S. and Ishiguro, I. (2001). Effects of global information feedback on diversity: extensions to Axelrod's adaptive culture model. *Journal of Conflict Resolution* 45(1):80–96.
 - Bail, C. A. et al. (2018). Exposure to opposing views on social media can increase political
   polarization. *PNAS* 115(37):9216–9221.
+- Centola, D. and Macy, M. (2007). Complex contagions and the weakness of long ties.
+  *American Journal of Sociology* 113(3):702–734.
 - Deffuant, G., Neau, D., Amblard, F. and Weisbuch, G. (2000). Mixing beliefs among interacting
   agents. *Advances in Complex Systems* 3:87–98.
+- Granovetter, M. (1978). Threshold models of collective behavior. *American Journal of
+  Sociology* 83(6):1420–1443.
 - Guess, A. and Coppock, A. (2020). Does counter-attitudinal information cause backlash? Results
   from three large survey experiments. *British Journal of Political Science* 50(4):1497–1515.
 - Hegselmann, R. and Krause, U. (2002). Opinion dynamics and bounded confidence: models,
@@ -165,4 +242,6 @@ Needs Python 3.9+ with numpy (and pytest); the app has no dependencies.
   *International Journal of Modern Physics C* 18(12):1819–1838.
 - Pettigrew, T. F. and Tropp, L. R. (2006). A meta-analytic test of intergroup contact theory.
   *Journal of Personality and Social Psychology* 90(5):751–783.
+- Watts, D. J. and Strogatz, S. H. (1998). Collective dynamics of 'small-world' networks.
+  *Nature* 393:440–442.
 - Sherif, M. and Hovland, C. I. (1961). *Social Judgment*. Yale University Press.

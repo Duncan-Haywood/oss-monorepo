@@ -166,6 +166,9 @@ def load_runs(root: Path = ROOT) -> list[tuple[Path, dict[str, Any]]]:
     return runs
 
 
+BULK_ADD = 50  # records added by one commit before its order is ignored
+
+
 def _landing_order(runs: list[tuple[Path, dict[str, Any]]]) -> dict[str, int]:
     """File name -> rank by when git first added it (0 = oldest). Records carry
     only a date, so within a day `load_runs` orders them by session id, which
@@ -174,13 +177,20 @@ def _landing_order(runs: list[tuple[Path, dict[str, Any]]]) -> dict[str, int]:
         return {}
     try:
         out = subprocess.run(
-            ["git", "log", "--diff-filter=A", "--name-only", "--format=", "--",
+            ["git", "log", "--diff-filter=A", "--name-only", "--format=tformat:@@", "--",
              str(runs[0][0].parent)],
             cwd=runs[0][0].parent, capture_output=True, text=True, timeout=60,
         ).stdout
     except (OSError, subprocess.SubprocessError):
         return {}
-    names = [Path(line).name for line in out.splitlines() if line.strip()]
+    # A commit adding many records at once (a shallow clone's root, a bulk
+    # mirror) says nothing about their order: rank those as unknown (oldest)
+    # and let `runs_since_review` fall back to the record's `ended` time.
+    names = []
+    for chunk in out.split("@@"):
+        files = [Path(line).name for line in chunk.splitlines() if line.strip()]
+        if len(files) <= BULK_ADD:
+            names.extend(files)
     # git lists newest first; a record git does not list (bulk mirror) ranks oldest.
     return {name: len(names) - i for i, name in enumerate(names)}
 
@@ -193,7 +203,8 @@ def runs_since_review(runs: list[tuple[Path, dict[str, Any]]]) -> int:
     rank = _landing_order(runs)
     ordered = sorted(
         enumerate(runs),
-        key=lambda ir: (str(ir[1][1].get("date", "")), rank.get(ir[1][0].name, 0), ir[0]),
+        key=lambda ir: (str(ir[1][1].get("date", "")), rank.get(ir[1][0].name, 0),
+                        str(ir[1][1].get("ended") or ""), ir[0]),
     )
     count = 0
     for _, (_, rec) in ordered:
@@ -208,15 +219,49 @@ def runs_since_review(runs: list[tuple[Path, dict[str, Any]]]) -> int:
 # route
 
 
+def expired(cfg: dict[str, Any], today: date | None = None) -> bool:
+    """A track with an `until` date (a share the owner set for a period) stops
+    being drawn after that day; `--track` still reaches it."""
+    until = cfg.get("until")
+    return bool(until) and (today or date.today()) > date.fromisoformat(until)
+
+
+# Phrases in the message that started a run which name a track's work. The
+# first track with a hit wins; no hit leaves the weighted draw alone. Doc
+# friction, 2026-10-27 to 29: eight runs asked for revenue products, were drawn
+# research or process, and followed the prompt by hand.
+TASK_HINTS: list[tuple[str, tuple[str, ...]]] = [
+    ("ventures", ("revenue", "products in production", "venture", "sell and support",
+                  "ios android", "marketing sites", "portfolio site")),
+    ("research", ("research programme", "research program", "phd", "paper")),
+    ("process", ("the prompts", "the process", "routing", "backlog")),
+]
+
+
+def infer_track(task: str, tracks: dict[str, Any]) -> str | None:
+    """The track a run's starting message asks for, or None when it names none."""
+    low = task.lower()
+    for track, words in TASK_HINTS:
+        if track in tracks and any(w in low for w in words):
+            return track
+    return None
+
+
 def route(root: Path = ROOT, track: str | None = None, skip_review: bool = False,
-          rng: random.Random | None = None) -> dict[str, Any]:
+          rng: random.Random | None = None, today: date | None = None,
+          task: str | None = None) -> dict[str, Any]:
     rng = rng or random.Random()
     routing = load_routing(root)
     tracks = routing["tracks"]
     every = int(routing["review_every"])
     since = runs_since_review(load_runs(root))
+    inferred = infer_track(task, tracks) if task and track is None else None
+    if inferred:
+        track = inferred
 
-    if track is not None:
+    if inferred:
+        reason = f"the starting message asks for {inferred} work (--task)"
+    elif track is not None:
         if track not in tracks:
             raise SystemExit(f"unknown track {track!r}; tracks: {', '.join(tracks)}")
         reason = "chosen by the session (--track)"
@@ -228,7 +273,7 @@ def route(root: Path = ROOT, track: str | None = None, skip_review: bool = False
         reason = f"{since} merged runs since the last review (review_every = {every})"
     else:
         weights = {t: float(c.get("weight", 0)) for t, c in tracks.items()
-                   if t != REVIEW and float(c.get("weight", 0)) > 0}
+                   if t != REVIEW and float(c.get("weight", 0)) > 0 and not expired(c, today)}
         if not weights:
             raise SystemExit("routing.json gives no track a positive weight")
         total = sum(weights.values())
@@ -460,6 +505,11 @@ def backlog_rank(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
                                              -i["effect"] / i["cost"], i["opened"], i["id"]))
 
 
+def backlog_blocked(item: dict[str, Any]) -> bool:
+    """An item whose `change` opens with "Blocked on" waits on something an agent cannot supply."""
+    return str(item.get("change") or "").lstrip().lower().startswith("blocked on")
+
+
 def backlog_summary(items: list[dict[str, Any]]) -> dict[str, Any]:
     counts = {s: sum(1 for i in items if i.get("status") == s) for s in BACKLOG_STATUSES}
     done = [i for i in items if i.get("status") == "done"]
@@ -479,7 +529,11 @@ def print_backlog(root: Path = ROOT) -> None:
     print("| id | owner | effect/cost | status | title |")
     print("|---|---|---|---|---|")
     for i in ranked:
-        print(f"| {i['id']} | {i['owner']} | {i['effect']}/{i['cost']} | {i['status']} | {i['title']} |")
+        tag = " (blocked)" if backlog_blocked(i) else ""
+        print(f"| {i['id']} | {i['owner']} | {i['effect']}/{i['cost']} | {i['status']} | {i['title']}{tag} |")
+    if ranked and not [i for i in ranked if i["owner"] == "agent" and not backlog_blocked(i)]:
+        print("\nNo agent-owned item can be worked now (owner rows or blocked ones only): "
+              "use Critique mode (process prompt, \"What to do\"); a Verify-only run usually ends partial.")
     started = [i for i in ranked if i["status"] == "in_progress" and i.get("history")]
     if started:
         print("\nIn progress, latest history line (what is left):")
@@ -514,6 +568,21 @@ def redteam_band_warning(root: Path = ROOT) -> str | None:
             f"prompts/goals.md aims for {low:.0%}-{high:.0%}")
 
 
+def validate_posts(root: Path) -> list[str]:
+    """Blog posts that CI's front-matter check would reject (over-long description,
+    missing tags). Posts reached main red four times in three days because the
+    only gate was a CI job runs merged past; this puts it where every run looks."""
+    checker = root.parent / "platform" / "ci" / "check_post_frontmatter.py"
+    posts = root.parent / "docs" / "posts"
+    if not (checker.is_file() and posts.is_dir()):
+        return []
+    done = subprocess.run([sys.executable, str(checker), "--root", str(root.parent)],
+                          capture_output=True, text=True)
+    if done.returncode == 0:
+        return []
+    return [f"docs/posts/{line}" for line in done.stdout.splitlines() if line.strip()]
+
+
 def validate(root: Path = ROOT) -> list[str]:
     errors: list[str] = []
     for name in ("routing.json", "goals.md", "experiments.md", "README.md"):
@@ -543,6 +612,12 @@ def validate(root: Path = ROOT) -> list[str]:
         weight = cfg.get("weight", 0)
         if not isinstance(weight, (int, float)) or weight < 0:
             errors.append(f"{label}: weight must be a number >= 0")
+        until = cfg.get("until")
+        if until is not None:
+            try:
+                date.fromisoformat(until)
+            except (TypeError, ValueError):
+                errors.append(f"{label}: until must be a YYYY-MM-DD date")
         champion, candidate = cfg.get("champion"), cfg.get("candidate")
         share = cfg.get("candidate_share", 0)
         if not isinstance(champion, int) or not prompt_path(root, track, champion).is_file():
@@ -592,6 +667,7 @@ def validate(root: Path = ROOT) -> list[str]:
                               f"used by {seen[item['id']]}; take the next free number")
             seen[item["id"]] = path.name
     errors.extend(validate_system(root))
+    errors.extend(validate_posts(root))
     return errors
 
 
@@ -933,19 +1009,29 @@ def print_measure(m: dict[str, Any]) -> None:
               "[file changed since] tags may be wrong. `measure` deepens it for you unless --no-fetch.)\n")
     stamps = [t for f in m["doc_friction"].values() for r in f["recent"] if (t := _when(r))]
     cutoff = max(stamps) - timedelta(days=FRICTION_FRESH_DAYS) if stamps else None
-    for path, f in list(m["doc_friction"].items())[:FRICTION_MAX_FILES]:
+    rows = []
+    for path, f in m["doc_friction"].items():
         note, changed = _changed_note(path)
         # Older reports are mostly fixed by now and each costs a run several calls to check.
         fresh = [r for r in f["recent"] if not (t := _when(r)) or t >= cutoff] or f["recent"][-1:]
         tagged = [_flag_stale(r, _latest(changed, _named_files_changed(r))) for r in fresh]
         live = [r for r in tagged if not r.startswith("[file changed since]")]
+        if _FILE_LIKE_RE.fullmatch(path) and not (ROOT.parent / path).exists():
+            # A complaint about a deleted or renamed file cannot be live (2026-10-27: test_lowcomm.py).
+            note, live = " (file no longer exists)", []
+        rows.append((path, f, note, tagged, live))
+    # Files with live recent reports come first, most live reports first; the all-time
+    # count only breaks ties, so a file with 300 old reports no longer crowds out a new fault.
+    rows.sort(key=lambda x: -len(x[4]))
+    for path, f, note, tagged, live in rows[:FRICTION_MAX_FILES]:
         shown = [r if len(r) <= FRICTION_MAX_CHARS else r[:FRICTION_MAX_CHARS - 1] + "…"
                  for r in (live or tagged)[-3:]]
         hidden = f["reports"] - len(shown)
         tail = f" (+{hidden} older or since-changed, not shown)" if hidden > 0 else ""
-        print(f"- `{path}`{note}: {f['reports']} report(s); latest: " + " | ".join(shown) + tail)
-    if len(m["doc_friction"]) > FRICTION_MAX_FILES:
-        print(f"\n(+{len(m['doc_friction']) - FRICTION_MAX_FILES} more files with fewer reports, not shown)")
+        print(f"- `{path}`{note}: {f['reports']} report(s), {len(live)} live in the last "
+              f"{FRICTION_FRESH_DAYS} days; latest: " + " | ".join(shown) + tail)
+    if len(rows) > FRICTION_MAX_FILES:
+        print(f"\n(+{len(rows) - FRICTION_MAX_FILES} more files with fewer reports, not shown)")
     if m["doc_friction"]:
         print("\nA report can predate its fix without the file changing (a new tool, a doc elsewhere). "
               "Before building on one, grep `git log origin/main --since=<report time> -i --grep=<keyword>` "
@@ -1014,8 +1100,9 @@ def _deepen_shallow_history() -> None:
     leaves the clone as it was and the table's own shallow note applies."""
     if not _is_shallow():
         return
-    print("(shallow clone: fetching 14 days of main to date the friction reports, about 70 s; "
-          "--no-fetch skips)", file=sys.stderr)
+    print("(shallow clone: fetching 14 days of main to date the friction reports, about 70 s, "
+          "holds git's shallow.lock so a parallel `git fetch` fails meanwhile; --no-fetch skips)",
+          file=sys.stderr)
     try:
         subprocess.run(["git", "fetch", "-q", "--shallow-since=14 days ago", "origin", "main"],
                        cwd=ROOT.parent, capture_output=True, timeout=180)
@@ -1050,6 +1137,7 @@ def _changed_note(path: str) -> tuple[str, str]:
     return f" (file last changed {when[:10]})", when
 
 
+_FILE_LIKE_RE = re.compile(r"[\w.-]+(?:/[\w.-]+)*\.\w+")
 _PATH_RE = re.compile(r"[\w./-]+\.(?:py|sh|mjs|md|json|yaml)\b")
 
 
@@ -1138,6 +1226,8 @@ def main(argv: list[str] | None = None) -> int:
     sub = parser.add_subparsers(dest="cmd", required=True)
     p = sub.add_parser("route", help="pick this run's sub-prompt and version")
     p.add_argument("--track", help="force a track (the session's task decides it)")
+    p.add_argument("--task", help="the message that started the run; names like 'revenue "
+                   "products' pick the track, otherwise the draw stands")
     p.add_argument("--skip-review", action="store_true",
                    help="a review is due but another run has already claimed it")
     p.add_argument("--seed", type=int, help="deterministic draw, for tests")
@@ -1167,7 +1257,7 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.cmd == "route":
         rng = random.Random(args.seed) if args.seed is not None else None
-        r = route(ROOT, args.track, args.skip_review, rng)
+        r = route(ROOT, args.track, args.skip_review, rng, task=args.task)
         print(json.dumps(r, indent=2)) if args.json else print_route(r)
         return 0
     if args.cmd == "record":

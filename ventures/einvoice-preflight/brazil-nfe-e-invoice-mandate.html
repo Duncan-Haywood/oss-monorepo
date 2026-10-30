@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e551b'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EE%3C/text%3E%3C/svg%3E"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Brazil NF-e e-invoicing: SEFAZ authorisation, alphanumeric CNPJ and a check-digit test | E-invoice Preflight</title>
+<meta name="description" content="Brazilian goods invoices are NF-e XML authorised by the state tax authority. What the 2026 alphanumeric CNPJ changes, where sources differ, and a free local CNPJ and CPF check-digit test.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/brazil-nfe-e-invoice-mandate.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Brazil NF-e e-invoicing: SEFAZ authorisation, alphanumeric CNPJ and a check-digit test | E-invoice Preflight">
+<meta property="og:description" content="Brazilian goods invoices are NF-e XML authorised by the state tax authority. What the 2026 alphanumeric CNPJ changes, where sources differ, and a free local CNPJ and CPF check-digit test.">
+<meta property="og:url" content="https://example.invalid/einvoice-preflight/brazil-nfe-e-invoice-mandate.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is an NF-e?","acceptedAnswer":{"@type":"Answer","text":"An NF-e (Nota Fiscal Eletrônica) is Brazil's electronic invoice for goods: an XML file the seller sends to the state tax authority (SEFAZ), which validates it and returns an authorisation protocol before the goods move. The printed DANFE is only a representation of the XML. This is a summary from vendor and professional-body notices, not advice; confirm with your accountant and the Portal da NF-e."}},{"@type":"Question","name":"What is the alphanumeric CNPJ?","acceptedAnswer":{"@type":"Answer","text":"Per the notices read, the CNPJ stays 14 characters, but for new registrations the first 12 may be digits or capital letters; the last two remain numeric check digits. Existing CNPJs do not change. Technical note NT 2025.001 set the general rules and NT 2026.004 changed the NF-e and NFC-e schemas, including the access key, to accept letters, with production reported for 1 July 2026. Sources differ on the start of the test environment."}},{"@type":"Question","name":"How is the CNPJ check digit calculated?","acceptedAnswer":{"@type":"Answer","text":"Each character is worth its ASCII code minus 48, so digits are 0 to 9 and A to Z are 17 to 42. Weights 2 to 9 are applied from the right and repeat; the digit is 0 if the sum modulo 11 is below 2, otherwise 11 minus the remainder. The second digit repeats the sum over the first 13 characters. This page implements that rule and was pinned on examples I know, not read from the Receita Federal specification."}},{"@type":"Question","name":"Can this checker validate a Brazilian NF-e?","acceptedAnswer":{"@type":"Answer","text":"No. It reads UBL, CII, Factur-X and JSON, not the NF-e XML schema, and has no SEFAZ rules, digital signature or authorisation check. It does test a CNPJ's or CPF's shape and check digits on this page, and a clean result is not an acceptance by SEFAZ."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch}.lede{font-size:1.05rem;max-width:64ch;color:#3d4f5f}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #15202b10;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #d3dbe4;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#3d4f5f}.fine,.note{font-size:.88rem;color:#3d4f5f}footer{color:#3d4f5f;font-size:.86rem}footer p{margin:.6rem 0}.out{min-height:1.4em}.good{color:#0a6b3a;font-weight:600}.bad{color:#a12d1b}input{font:inherit;padding:.4rem .5rem;border:1px solid #9fb0c0;border-radius:8px}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; E-invoice Preflight</a></p>
+<header>
+<h1>Brazil's NF-e: the state authorises the invoice, and CNPJs now may contain letters</h1>
+<p class="lede">In Brazil, per the notices read, a goods invoice is an NF-e: XML that the state tax authority (SEFAZ) validates and authorises before it counts. From July 2026 the 14-character CNPJ that identifies a company can contain letters in its first 12 characters for new registrations, and the NF-e schemas were changed to accept that. Below: how it works as these notices report it, where sources differ, and a local check of a CNPJ or CPF check digit.</p>
+</header>
+<section>
+<h2>How it works (as notices and vendor guides report it)</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Step</th><th scope="col">What happens</th></tr></thead>
+<tbody>
+<tr><td>Issue</td><td>The seller builds the NF-e XML, with a 44-character access key, and signs it with a digital certificate.</td></tr>
+<tr><td>Authorise</td><td>SEFAZ validates the XML against the schema and its rules and returns an authorisation protocol. Without it the goods should not move.</td></tr>
+<tr><td>Deliver</td><td>The seller sends the authorised XML to the buyer; the printed DANFE accompanies the goods.</td></tr>
+<tr><td>Change</td><td>Mistakes are handled by cancellation within a time limit or a correction letter for limited fields, not by editing the XML.</td></tr>
+</tbody>
+</table>
+</div>
+<p class="fine">Where it is unsettled: the start of the test environment for the alphanumeric CNPJ (notices gave 1 June and 15 June 2026; production 1 July 2026), the dates of the separate IBS and CBS tax-reform layout (NT 2025.002-RTC; one source gave testing from 1 July and production from 3 August 2026), and cancellation and correction limits, which were not read. Whether production went live as planned was not confirmed from the sources. These are search excerpts, not the Portal da NF-e. A summary, not tax advice.</p>
+</section>
+<section>
+<h2>Check a CNPJ or CPF</h2>
+<p>Accepts a 14-character CNPJ (digits or letters, with or without punctuation) or an 11-digit CPF, and tests the shape and both check digits. It does not look anything up, so it cannot say whether the number is registered or matches a name. Measured: on a sample numeric CNPJ, swapping any one of the first 12 characters for another digit is always caught, but allowing letters, 24 of 420 single-character substitutions (5.7%) leave both digits unchanged, so a pass is not a confirmation.</p>
+<label>CNPJ or CPF <input id="id" size="22" maxlength="24" autocomplete="off" spellcheck="false" placeholder="12.ABC.345/01DE-35"></label>
+<p id="id-out" class="out" aria-live="polite"></p>
+<p class="fine">The sample is the alphanumeric example I remember from the announcement. The rule (value = ASCII code minus 48, weights 2 to 9 from the right, mod 11) also reproduces the classic numeric examples 11.222.333/0001-81 and 00.000.000/0001-91; it was not read from the Receita Federal specification.</p>
+</section>
+<section>
+<h2>What this checker does and does not cover</h2>
+<p>The main checker reads UBL, CII and Factur-X and applies EN 16931 and Peppol rules. It does <strong>not</strong> read the NF-e XML, has no SEFAZ rules or product-tax catalogues (NCM, CFOP, CST), cannot check a signature or an authorisation, and knows nothing of NFS-e for services, which is a municipal system. Treat the check here as a typo catch only.</p>
+</section>
+<section>
+<h2>Test a file before you send it</h2>
+<p>For a European or Peppol invoice, open the <a href="./">checker</a>, drop your XML and read the findings, each with a rule ID and a fix (<a href="what-does-this-e-invoice-error-code-mean.html">the rule reference</a>). No account, nothing uploaded. No invoice yet? The <a href="create.html">e-invoice creator</a> turns a form into UBL or CII XML and checks it. Other countries: <a href="e-invoicing-mandates-by-country.html">all side by side</a> <a href="mexico-cfdi-e-invoice-mandate.html">Mexico</a> <a href="colombia-dian-e-invoice-mandate.html">Colombia</a> <a href="chile-sii-e-invoice-mandate.html">Chile</a> <a href="japan-invoice-system-e-invoice-mandate.html">Japan</a> <a href="saudi-arabia-zatca-e-invoice-mandate.html">Saudi Arabia</a> <a href="india-gst-e-invoice-mandate.html">India</a> <a href="italy-sdi-e-invoice-mandate.html">Italy</a> <a href="bulgaria-e-invoice-mandate.html">Bulgaria</a> <a href="czech-republic-e-invoice-mandate.html">Czech Republic</a> <a href="denmark-e-invoice-mandate.html">Denmark</a> <a href="estonia-e-invoice-mandate.html">Estonia</a> <a href="greece-mydata-e-invoice-mandate.html">Greece</a> <a href="hungary-e-invoice-mandate.html">Hungary</a> <a href="latvia-e-invoice-mandate.html">Latvia</a> <a href="lithuania-e-invoice-mandate.html">Lithuania</a> <a href="portugal-e-invoice-mandate.html">Portugal</a> <a href="romania-e-factura-e-invoice-mandate.html">Romania</a> <a href="serbia-e-invoice-mandate.html">Serbia</a> <a href="slovakia-e-invoice-mandate.html">Slovakia</a> <a href="slovenia-e-invoice-mandate.html">Slovenia</a>.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>What is an NF-e?</h3>
+<p>An NF-e (Nota Fiscal Eletrônica) is Brazil's electronic invoice for goods: an XML file the seller sends to the state tax authority (SEFAZ), which validates it and returns an authorisation protocol before the goods move. The printed DANFE is only a representation of the XML. This is a summary from vendor and professional-body notices, not advice; confirm with your accountant and the Portal da NF-e.</p>
+<h3>What is the alphanumeric CNPJ?</h3>
+<p>Per the notices read, the CNPJ stays 14 characters, but for new registrations the first 12 may be digits or capital letters; the last two remain numeric check digits. Existing CNPJs do not change. Technical note NT 2025.001 set the general rules and NT 2026.004 changed the NF-e and NFC-e schemas, including the access key, to accept letters, with production reported for 1 July 2026. Sources differ on the start of the test environment.</p>
+<h3>How is the CNPJ check digit calculated?</h3>
+<p>Each character is worth its ASCII code minus 48, so digits are 0 to 9 and A to Z are 17 to 42. Weights 2 to 9 are applied from the right and repeat; the digit is 0 if the sum modulo 11 is below 2, otherwise 11 minus the remainder. The second digit repeats the sum over the first 13 characters. This page implements that rule and was pinned on examples I know, not read from the Receita Federal specification.</p>
+<h3>Can this checker validate a Brazilian NF-e?</h3>
+<p>No. It reads UBL, CII, Factur-X and JSON, not the NF-e XML schema, and has no SEFAZ rules, digital signature or authorisation check. It does test a CNPJ's or CPF's shape and check digits on this page, and a clean result is not an acceptance by SEFAZ.</p>
+<p class="note">Open the <a href="./">E-invoice Preflight</a> checker to validate your own invoice file.</p>
+</section>
+<section>
+<h2>More countries</h2>
+<p><a href="australia-e-invoice-mandate.html">Australia</a> <a href="austria-e-invoice-mandate.html">Austria</a> <a href="belgium-e-invoice-mandate.html">Belgium</a> <a href="croatia-e-invoice-mandate.html">Croatia</a> <a href="cyprus-e-invoice-mandate.html">Cyprus</a> <a href="finland-e-invoice-mandate.html">Finland</a> <a href="france-e-invoice-mandate.html">France</a> <a href="germany-e-invoice-mandate.html">Germany</a> <a href="ireland-e-invoice-mandate.html">Ireland</a> <a href="luxembourg-e-invoice-mandate.html">Luxembourg</a> <a href="malaysia-myinvois-e-invoice-mandate.html">Malaysia</a> <a href="malta-e-invoice-mandate.html">Malta</a> <a href="netherlands-e-invoice-mandate.html">Netherlands</a> <a href="norway-e-invoice-mandate.html">Norway</a> <a href="poland-ksef-e-invoice-mandate.html">Poland</a> <a href="singapore-invoicenow-e-invoice-mandate.html">Singapore Invoicenow</a> <a href="spain-verifactu-e-invoice-mandate.html">Spain</a> <a href="sweden-e-invoice-mandate.html">Sweden</a> <a href="switzerland-e-invoice-mandate.html">Switzerland</a> <a href="turkey-e-invoice-mandate.html">Turkey</a> <a href="uae-e-invoice-mandate.html">Uae</a> <a href="uk-e-invoice-mandate.html">Uk</a> <a href="peru-sunat-e-invoice-mandate.html">Peru</a> <a href="argentina-arca-e-invoice-mandate.html">Argentina</a> <a href="chile-sii-e-invoice-mandate.html">Chile</a> <a href="colombia-dian-e-invoice-mandate.html">Colombia</a> <a href="uruguay-dgi-e-invoice-mandate.html">Uruguay</a> <a href="paraguay-dnit-e-invoice-mandate.html">Paraguay</a> <a href="ecuador-sri-e-invoice-mandate.html">Ecuador</a> <a href="vietnam-e-invoice-mandate.html">Vietnam</a></p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or accounting advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every check runs locally. This page is static and summarises the Brazilian position from search excerpts of vendor and professional-body notices, not from the Receita Federal or the Portal da NF-e; things can change, so check the current technical notes at nfe.fazenda.gov.br before relying on it.</p>
+<p class="support">Free and open source. If it caught a defect before a rejection, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+</footer>
+<script type="module">
+import{checkBrazilId}from"./brazil.mjs";
+const $=i=>document.getElementById(i);
+const esc=t=>String(t).replace(/[&<>"']/g,c=>"&#"+c.charCodeAt(0)+";");
+const KIND={cnpj:"CNPJ","cnpj-alphanumeric":"alphanumeric CNPJ",cpf:"CPF"};
+function r(){const v=$("id").value;if(!v.trim()){$("id-out").innerHTML="";return}const x=checkBrazilId(v);$("id-out").innerHTML=x.ok?'<span class="good">Shape and check digits are consistent ('+KIND[x.kind]+').</span>':x.problems.map(p=>`<span class="bad">${esc(p)}</span>`).join("<br>")}
+$("id").addEventListener("input",r);
+</script>
+</main>
+</body></html>

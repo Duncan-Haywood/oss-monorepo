@@ -56,7 +56,11 @@ no venture has a single measured visitor. That is not the brief. So:
   land a working slice of its milestone: a hard business or engineering
   problem, not polish. When you land it, rewrite that venture's `next:` in
   [`portfolio/flagships.yaml`](../../portfolio/flagships.yaml) to the next
-  milestone. The small tools stay; fix them when they break, but they are
+  milestone. Probe hosts before planning around them: from a cloud session
+  raw.githubusercontent.com and pypi.org usually answer, while directory
+  listings on api.github.com, huggingface.co and hcb.hackclub.com often do not.
+  If every item needs a blocked host, land an item that needs no outside data,
+  or take the next flagship, rather than ending empty.  The small tools stay; fix them when they break, but they are
   not where runs go.
 - **Payments.** A product may include payment code, off by default and
   running only on the deployer's own keys from environment variables. Never

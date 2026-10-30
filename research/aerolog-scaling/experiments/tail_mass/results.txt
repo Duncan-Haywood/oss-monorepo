@@ -1,0 +1,18 @@
+reference n=1: phugoid 0.270, short period 1.656, zeta_sp 0.514
+tail mass fraction mu swept (unsourced); mu = 0 is 7d exactly
+
+   mu wings pass5 tails pass5     of
+ 0.00        6/17          78   4474
+ 0.02        6/17          81   4478
+ 0.04        6/17          79   4484
+ 0.06        6/17          80   4487
+
+the 7d k=1.0 wings (best tail, worst deviation %):
+  naca4412 AR12 mu=0.00:  23 tails pass; best naca0015 area 0.15 AR_t 5.0 arm 3.5, worst 0.8%
+  naca4412 AR12 mu=0.02:  24 tails pass; best naca0015 area 0.15 AR_t 5.0 arm 3.5, worst 0.8%
+  naca4412 AR12 mu=0.04:  25 tails pass; best naca0015 area 0.15 AR_t 5.0 arm 3.5, worst 0.8%
+  naca4412 AR12 mu=0.06:  25 tails pass; best naca0015 area 0.15 AR_t 5.0 arm 3.5, worst 0.8%
+  naca5406 AR12 mu=0.00:  23 tails pass; best naca0015 area 0.15 AR_t 5.0 arm 3.5, worst 0.5%
+  naca5406 AR12 mu=0.02:  24 tails pass; best naca0015 area 0.15 AR_t 5.0 arm 3.5, worst 0.5%
+  naca5406 AR12 mu=0.04:  25 tails pass; best naca0015 area 0.15 AR_t 5.0 arm 3.5, worst 0.5%
+  naca5406 AR12 mu=0.06:  26 tails pass; best naca0015 area 0.15 AR_t 5.0 arm 3.5, worst 0.5%

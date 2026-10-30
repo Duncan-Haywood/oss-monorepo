@@ -5,6 +5,7 @@ import { looksLikeCii, parseCiiInvoice } from "./cii.mjs";
 import { envelopeNote, extractEmbeddedInvoice, looksLikePdf } from "./facturx.mjs";
 import { looksLikeXml, parseUblInvoice } from "./ubl.mjs";
 import { checkFatturaPa, looksLikeFatturaPa } from "./fatturapa.mjs";
+import { checkFa3, looksLikeFa3 } from "./fa3.mjs";
 
 export const DEFAULT_MAX_BYTES = 1_048_576;
 export const DEFAULT_MAX_FILES = 50;
@@ -70,6 +71,12 @@ export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES,
         // Italy's FatturaPA is its own schema, not EN 16931: own rules, no UBL/CII reading.
         const italian = checkFatturaPa(peek);
         reports.push({ file: name, errors: italian.findings, envelope: "Read as Italian FatturaPA (SdI), not EN 16931", ...(italian.skipped.length ? { skipped: italian.skipped } : {}) });
+        continue;
+      }
+      if (!looksLikePdf(name, source) && looksLikeFa3(peek)) {
+        // Poland's KSeF FA(3) is its own schema, not EN 16931: own rules, no UBL/CII reading.
+        const polish = checkFa3(peek);
+        reports.push({ file: name, errors: polish.findings, envelope: "Read as Polish KSeF FA(3), not EN 16931", ...(polish.skipped.length ? { skipped: polish.skipped } : {}) });
         continue;
       }
       const { invoice, envelope, xml } = await inspectInvoiceSource(name, source);

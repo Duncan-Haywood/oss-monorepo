@@ -53,6 +53,12 @@ such as the deploy, never repeats a card, so it does exactly what it did.
 drawn (what the identical-build test used to prove for cards), and a reused
 card is byte for byte a fresh draw.
 
+**What landed.** PR #10208 (merged 2026-10-24) shipped this in-process cache in
+`share.mjs`, together with an optional disk cache (`PAGES_CARD_CACHE`)
+keyed by the options plus every file a card's pixels depend on, so the
+deploy can also reuse cards from the previous build. The numbers below
+are for the in-process part alone, measured on 2026-10-24.
+
 ## Verification
 
 | Check | Result |

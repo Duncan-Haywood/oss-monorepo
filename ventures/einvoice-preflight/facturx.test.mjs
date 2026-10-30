@@ -142,3 +142,10 @@ test("an embedded invoice whose root follows a long licence comment still unwrap
   const out = await extractEmbeddedInvoiceXml(pdf);
   assert.match(Buffer.from(out).toString("utf8"), /CrossIndustryInvoice/);
 });
+
+test("an attachment whose /Subtype names application/octet-stream still unwraps", async () => {
+  const pdf = buildPdfWithAttachment(example("cii-invoice.xml"));
+  const text = Buffer.from(pdf).toString("latin1").replace("/Subtype /text#2Fxml", "/Subtype /application#2Foctet-stream");
+  const xml = await extractEmbeddedInvoiceXml(Buffer.from(text, "latin1"));
+  assert.match(Buffer.from(xml).toString("utf8"), /CrossIndustryInvoice/);
+});

@@ -1,0 +1,18 @@
+fear: corpus 6683, prevalence 0.0115, positives 77
+category | target pts | rule | mean n (oracle) | sd n | mean half pts | share stopped with <20 pos | share at cap | coverage
+fear | 1.0 | A z=1.96 | 457 (398) | 75 | 0.818 | 1.000 | 0.000 | 0.898
+fear | 1.0 | E z=2.58 | 576 (398) | 145 | 0.862 | 0.998 | 0.000 | 0.916
+fear | 1.0 | F Bonf-57 z=3.33 | 756 (398) | 251 | 0.898 | 0.958 | 0.000 | 0.892
+fear | 0.5 | A z=1.96 | 911 (1347) | 335 | 0.461 | 0.890 | 0.000 | 0.638
+fear | 0.5 | E z=2.58 | 1272 (1347) | 503 | 0.467 | 0.716 | 0.000 | 0.616
+fear | 0.5 | F Bonf-57 z=3.33 | 1732 (1347) | 705 | 0.474 | 0.524 | 0.000 | 0.636
+
+sadness: corpus 6683, prevalence 0.0230, positives 154
+category | target pts | rule | mean n (oracle) | sd n | mean half pts | share stopped with <20 pos | share at cap | coverage
+sadness | 1.0 | A z=1.96 | 669 (733) | 148 | 0.935 | 0.714 | 0.000 | 0.862
+sadness | 1.0 | E z=2.58 | 1012 (733) | 238 | 0.960 | 0.292 | 0.000 | 0.882
+sadness | 1.0 | F Bonf-57 z=3.33 | 1498 (733) | 339 | 0.969 | 0.102 | 0.000 | 0.926
+sadness | 0.5 | A z=1.96 | 1874 (2197) | 411 | 0.488 | 0.042 | 0.000 | 0.720
+sadness | 0.5 | E z=2.58 | 2620 (2197) | 538 | 0.489 | 0.010 | 0.000 | 0.774
+sadness | 0.5 | F Bonf-57 z=3.33 | 3355 (2197) | 661 | 0.490 | 0.002 | 0.000 | 0.792
+

@@ -24,6 +24,20 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 
 export const SITE_NAME = 'Open Tools and Research';
+
+/** Longest `<title>` a search result shows before cutting it off. */
+export const TITLE_BUDGET = 70;
+
+/**
+ * A page's `<title>`: "title | site name" when both fit a results page, else the
+ * title alone, so the words that tell a searcher what the page is are never the
+ * ones cut. Comparison pages ("X alternatives: 2 free tools ...") and audience
+ * hubs ran to 120 characters with the suffix.
+ */
+export function siteTitle(title) {
+  const full = `${title} | ${SITE_NAME}`;
+  return full.length <= TITLE_BUDGET ? full : title;
+}
 export const REPO_URL = 'https://github.com/Duncan-Haywood/oss-monorepo';
 export const SITE_STYLE_FILE = 'pf-site.css';
 
@@ -213,10 +227,18 @@ export const SITE_HEADER_CSS = `
   overflow-wrap:anywhere}
 [data-pfs-head] .pfs-crumbs a{text-decoration:underline;text-underline-offset:2px}
 .pfs-sep{margin:0 7px}
+@media (max-width:600px){
+  /* One line on a phone: the current page's title (often a sentence) is cut with an ellipsis instead of wrapping to three lines. */
+  .pfs-crumbs{display:flex;flex-wrap:nowrap;align-items:baseline;overflow:hidden;white-space:nowrap}
+  .pfs-crumbs>a,.pfs-crumbs>.pfs-sep{flex:0 0 auto}
+  .pfs-crumbs>[aria-current]{flex:1 1 0;min-width:0;overflow:hidden;text-overflow:ellipsis}
+}
 @media (max-width:1080px){
   .pfs-search{display:none}
   [data-pfs-head] .pfs-searchlink{display:inline-block}
 }
+@property --pfs-fade{syntax:'<length>';inherits:false;initial-value:28px}
+@keyframes pfs-fade-out{to{--pfs-fade:0px}}
 @media (max-width:720px){
   .pfs-bar{gap:6px 14px;padding:9px 16px}
   [data-pfs-head] .pfs-brand{flex:1 1 auto}
@@ -224,8 +246,12 @@ export const SITE_HEADER_CSS = `
   [data-pfs-head] .pfs-searchlink{display:inline-block}
   .pfs-nav{order:3;flex-basis:100%;gap:2px 18px;flex-wrap:nowrap;overflow-x:auto;overscroll-behavior-x:contain;
     scrollbar-width:none;margin-right:-16px;padding-right:28px;
-    -webkit-mask-image:linear-gradient(90deg,black calc(100% - 28px),transparent);
-            mask-image:linear-gradient(90deg,black calc(100% - 28px),transparent)}
+    --pfs-fade:28px;
+    -webkit-mask-image:linear-gradient(90deg,black calc(100% - var(--pfs-fade)),transparent);
+            mask-image:linear-gradient(90deg,black calc(100% - var(--pfs-fade)),transparent)}
+  @supports (animation-timeline:scroll()){
+    .pfs-nav{animation:pfs-fade-out linear both;animation-timeline:scroll(self inline);animation-range:calc(100% - 40px) 100%}
+  }
   .pfs-nav::-webkit-scrollbar{display:none}
   [data-pfs-head] .pfs-nav a{flex:none;white-space:nowrap}
 }
@@ -328,7 +354,7 @@ export const VENTURE_CHROME_JS = `
     els.forEach(function(el){if(dark)el.setAttribute('data-pfs-theme','dark');else el.removeAttribute('data-pfs-theme');});
   }
   try{theme();var mq=window.matchMedia&&matchMedia('(prefers-color-scheme: dark)');if(mq&&mq.addEventListener)mq.addEventListener('change',function(){setTimeout(theme,50);});}catch(e){}
-  function reset(el){el.style.marginLeft='';el.style.marginRight='';el.style.width='';el.style.maxWidth='';el.style.marginTop='';}
+  function reset(el){el.style.marginLeft='';el.style.marginRight='';el.style.width='';el.style.maxWidth='';el.style.marginTop='';el.style.paddingLeft='';el.style.paddingRight='';}
   function fit(){
     var before=root.scrollWidth>root.clientWidth;
     els.forEach(function(el){
@@ -336,6 +362,8 @@ export const VENTURE_CHROME_JS = `
       var vw=root.clientWidth,r=el.getBoundingClientRect();
       if(Math.abs(r.left)<1&&Math.abs(r.width-vw)<1)return;
       el.style.maxWidth='none';el.style.width=vw+'px';el.style.marginLeft=(-r.left)+'px';el.style.marginRight='0';
+      // Keep the content where the host put it: a bar that fills the width has no centring margin, so the offset becomes padding.
+      el.style.paddingLeft=Math.max(0,r.left)+'px';el.style.paddingRight=Math.max(0,vw-r.right)+'px';
       var r2=el.getBoundingClientRect();
       if(Math.abs(r2.left)>=1)el.style.marginLeft=(parseFloat(el.style.marginLeft)-r2.left)+'px';
       if(el.tagName==='NAV'){

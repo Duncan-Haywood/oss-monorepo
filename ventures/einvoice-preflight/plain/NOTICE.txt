@@ -12,3 +12,5 @@ by `../build-plain-rules.mjs`. They are derived works of:
 dependencies xspattern and prsc (both MIT).
 
 The pint-*.json sets are OpenPeppol PINT Schematron (Singapore, Australia/New Zealand; MPL-2.0), read from the compiled XSLT in com.helger.phive.rules:phive-rules-peppol (Apache-2.0) on Maven Central by build-pint-rules.mjs.
+
+The zatca-*.json sets are ZATCA's e-invoice validation rules (rules version 3.4.6; the ZATCA e-invoicing toolkit SDK, LGPL-3.0), read from the compiled XSLT in com.helger.phive.rules:phive-rules-zatca (Apache-2.0) on Maven Central by build-zatca-rules.mjs. They are converted data files; the LGPL text is at https://www.gnu.org/licenses/lgpl-3.0.txt.

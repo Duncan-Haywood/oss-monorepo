@@ -1,0 +1,55 @@
+{
+  "date": "2026-10-26",
+  "session": "https://claude.ai/code/session_01QXoWjVKFGCadGs2VB4DnBj",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-26T16:22:01Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "lowcomm-training"
+  ],
+  "pr": 10680,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "pyenv.py torch pulled the CUDA wheel and stalled 30+ min; the CPU wheel from download.pytorch.org installed in minutes."
+    },
+    {
+      "file": "research/lowcomm-training/LOG.md",
+      "issue": "Its 'Next: quantisation' was open to parallel runs; I did not re-check main for a 4e claim before 50 minutes of compute, and PR 10664 had landed the same milestone."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "No blog post or docs/reports doc: result is a small replication plus two cells; the log carries it."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Milestone 4f of lowcomm-training (3-bit and un-fed-back sign cells). My first 4e run (15 runs) duplicated PR 10664, which landed while it ran; I reset the branch to main and kept only the two cells 4e lacked. Local checks: research/_homepage/build.py ok. CI not awaited. No post: run time went to the torch install and the duplicate.",
+  "corrections": [],
+  "redteam": null
+}

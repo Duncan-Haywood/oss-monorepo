@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23b7410e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3ED%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>dupehound: Find Copy-Pasted Code in Your Repo, Fast (Rust, Runs in Your Browser)</title>
+  <meta name="description" content="Drop a project folder and see every copy-pasted block: file, lines and the matching copy. A Rust copy-paste detector compiled to WebAssembly. Nothing is uploaded. Also a CLI that checked 9,458 files in 1.2 seconds.">
+  <meta property="og:title" content="Find copy-pasted code, fast">
+  <meta property="og:description" content="A token-based copy-paste detector written in Rust: the same engine runs as a CLI and in your browser. On 1,054 JavaScript files it matched jscpd's duplicated lines to within a point, in 0.2 s instead of 40 s.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"dupehound","applicationCategory":"DeveloperApplication","operatingSystem":"Linux, macOS, Windows, any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"license":"https://opensource.org/licenses/MIT","description":"Token-based copy-paste (code clone) detector written in Rust. Runs as a command-line tool and, compiled to WebAssembly, in the browser with nothing uploaded."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is my code uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The folder you pick is read by this browser tab and handed to a WebAssembly module loaded from this site. Nothing is sent anywhere; the page makes no network requests after it loads."}}, {"@type": "Question", "name": "How is this different from jscpd?", "acceptedAnswer": {"@type": "Answer", "text": "Same method and defaults, written in Rust. On 1,054 JavaScript files jscpd took 40 seconds and dupehound 0.2 seconds, and they flagged the same lines to within about 6%. jscpd knows far more languages and has richer reports; dupehound has one generic lexer and JSON or text output."}}, {"@type": "Question", "name": "Does it find code that was copied and then renamed?", "acceptedAnswer": {"@type": "Answer", "text": "No. Matching is exact on token text after dropping whitespace and comments. jscpd's default mode behaves the same way."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1f1a17; background: #f6f3f0; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #5a2410; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #5a2410; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #5e5650; }
+    .card { background: #fff; border: 1px solid #e0d8d0; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #5a241010; margin: 18px 0; }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 680px) { .two-col { grid-template-columns: 1fr; } body { padding: 16px; } }
+    label { display: block; font-size: .82rem; font-weight: 700; color: #5a2410; margin-bottom: 4px; }
+    textarea { width: 100%; min-height: 200px; box-sizing: border-box; padding: 10px; border: 1px solid #c4b8ad; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    input[type=number] { width: 6em; padding: 6px; border: 1px solid #c4b8ad; border-radius: 6px; }
+    .opts { display: flex; gap: 18px; flex-wrap: wrap; margin: 10px 0; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #b7410e; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #efe7e0; color: #5a2410; }
+    .verdict { font-size: 1.35rem; font-weight: 800; margin: 0 0 6px; color: #5a2410; }
+    table { width: 100%; border-collapse: collapse; font-size: .86rem; margin: 10px 0 20px; }
+    th, td { text-align: left; padding: 7px 6px; border-bottom: 1px solid #eee6df; vertical-align: top; }
+    th { color: #5e5650; font-size: .76rem; text-transform: uppercase; letter-spacing: .04em; }
+    tr.clone { cursor: pointer; }
+    tr.clone:hover, tr.clone:focus { background: #fbf4ee; outline: none; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    pre.frag { background: #faf8f6; border: 1px solid #eee6df; border-radius: 8px; padding: 10px; font-size: 12px; max-height: 320px; overflow: auto; margin: 4px 0; }
+    .error { color: #9a3412; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #e0d8d0; padding-top: 16px; }
+    .tableWrap { overflow-x: auto; }
+    pre.cmd { background: #faf8f6; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">DUPEHOUND · COPY-PASTE DETECTOR · RUST + WEBASSEMBLY · RUNS IN YOUR BROWSER</p>
+    <h1>Where has this code been copied?</h1>
+    <p>Pick a project folder and dupehound lists every block that appears more than once: which file, which lines, and where the other copy is. It is for the moment a codebase has grown by copy and paste and you want to know what to pull into one shared module before a bug gets fixed in one copy and not the others.</p>
+    <p class="note">Nothing is uploaded. Your files are read by this tab and given to a WebAssembly module from this site; the page makes no network requests of its own after it loads.</p>
+  </header>
+<main>
+
+  <section class="card">
+    <h2>1. Pick a folder, or paste two snippets</h2>
+    <label for="folder">Project folder</label>
+    <input type="file" id="folder" webkitdirectory multiple>
+    <p class="note">Reads source files (JavaScript, TypeScript, Python, Rust, Go, Java, C, C++, C#, Ruby, PHP, Swift, Scala, shell, CSS). Skips <code>node_modules</code>, <code>.git</code>, <code>target</code>, files over 100 KB and files over 1,000 lines, the same limits jscpd uses.</p>
+    <details>
+      <summary>Or paste two snippets</summary>
+      <div class="two-col">
+        <div><label for="snipA">Snippet A</label><textarea id="snipA" spellcheck="false"></textarea></div>
+        <div><label for="snipB">Snippet B</label><textarea id="snipB" spellcheck="false"></textarea></div>
+      </div>
+      <button type="button" class="secondary" id="example">Load an example</button>
+    </details>
+    <div class="opts">
+      <div><label for="minTokens">Smallest clone (tokens)</label><input type="number" id="minTokens" value="50" min="5" max="5000"></div>
+      <div><label for="minLines">Smallest clone (lines)</label><input type="number" id="minLines" value="5" min="1" max="1000"></div>
+    </div>
+    <p class="note"><label><input type="checkbox" id="normalize"> Also find renamed copies (names, strings and numbers ignored; more matches, more false positives)</label></p>
+    <button type="button" id="run">Find copies</button>
+    <p id="status" class="note" aria-live="polite"></p>
+  </section>
+
+  <section class="card" id="results" hidden>
+    <h2>2. What was copied</h2>
+    <p class="verdict" id="verdict"></p>
+    <p class="note" id="summary"></p>
+    <p class="note">Select a row to see both copies. "Copy" is the later file in path order; that is not a claim about which one was written first.</p>
+    <div class="tableWrap"><table>
+      <thead><tr><th>Tokens</th><th>Lines</th><th>Copy</th><th>Also at</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table></div>
+    <div id="detail"></div>
+    <button type="button" class="secondary" id="download">Download the JSON report</button>
+  </section>
+
+  <section class="card">
+    <h2>How it works</h2>
+    <ol>
+      <li><strong>Tokenize</strong> each file: identifiers, numbers, strings and punctuation, with whitespace and comments dropped, so a re-indented or re-commented copy still matches.</li>
+      <li><strong>Hash every run of 50 tokens</strong> with a rolling hash, and sort the hashes so equal runs sit side by side. Each run is checked token by token, so a hash collision cannot report a false clone.</li>
+      <li><strong>Merge</strong> neighbouring matches into the longest block, and keep blocks of at least 5 lines on both sides.</li>
+    </ol>
+    <p>This is the method jscpd and PMD's CPD use, with jscpd's defaults. Matching is exact: a copy whose variables were renamed is not found.</p>
+  </section>
+
+  <section class="card">
+    <h2>Measured, not promised</h2>
+    <p>On 1,054 <code>.mjs</code> files (142,572 lines) from this project's own repository, on a 4-core cloud container:</p>
+    <div class="tableWrap"><table>
+      <thead><tr><th>Tool</th><th>Time</th><th>Peak memory</th><th>Duplicated lines</th></tr></thead>
+      <tbody>
+        <tr><td>jscpd 4.3.0 (Node 22)</td><td>40.1 s</td><td>927 MB</td><td>31.9%</td></tr>
+        <tr><td>dupehound CLI (native, 4 threads)</td><td>0.14 s</td><td>58 MB</td><td>32.7%</td></tr>
+        <tr><td>dupehound in WebAssembly (one thread, Node 22)</td><td>0.23 s</td><td>n/a</td><td>32.7%</td></tr>
+      </tbody>
+    </table></div>
+    <p>The two tools flagged the same lines to within about 6%: dupehound marked 93.5% of the lines jscpd marked, and jscpd 94.6% of dupehound's. The difference is mostly how each splits strings into tokens. On the whole tree (9,458 files, 1.27 million lines) dupehound took 1.2 seconds and 500 MB. jscpd ran out of memory at Node's default heap after 277 seconds; given a 12 GB heap it finished in 337 seconds at a 6.2 GB peak, and the two again flagged the same lines to within about 5%. The method, the scripts and the raw numbers are in the <a href="https://github.com/duncan-haywood/oss-monorepo/blob/main/ventures/dupehound/BENCHMARK.md" rel="noopener">benchmark write-up</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>On the command line</h2>
+    <pre class="cmd">git clone --depth 1 --filter=blob:none --sparse https://github.com/duncan-haywood/oss-monorepo
+cd oss-monorepo &amp;&amp; git sparse-checkout set ventures/dupehound
+cargo install --path ventures/dupehound
+
+dupehound src/                       # top 20 clones and a summary
+dupehound --json src/ &gt; clones.json  # every clone, machine-readable
+dupehound --threshold 5 src/         # exit 1 if over 5% duplicated (for CI)</pre>
+    <p class="note">Needs a Rust toolchain (<code>rustup</code>). Respects <code>.gitignore</code>. <code>dupehound --help</code> lists every option.</p>
+  </section>
+
+  <section class="card">
+    <h2>When to use something else</h2>
+    <ul>
+      <li><strong><a href="https://github.com/kucherenko/jscpd" rel="noopener">jscpd</a></strong> when you need its 150-plus language grammars, HTML or badge reports, git blame on each clone, or its "weak" mode. On a project of a few hundred files its speed is fine.</li>
+      <li><strong>PMD CPD</strong> when you already run PMD for Java and want one report.</li>
+      <li><strong>A clone detector that normalises names</strong> (several IDEs and SonarQube do some of this) when the copies you care about had their variables renamed. dupehound will not find those.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>Is my code uploaded?</h3>
+    <p>No. The folder you pick is read by this browser tab and handed to a WebAssembly module loaded from this site. Nothing is sent anywhere; the page makes no network requests after it loads.</p>
+    <h3>How is this different from jscpd?</h3>
+    <p>Same method and defaults, written in Rust. On 1,054 JavaScript files jscpd took 40 seconds and dupehound 0.2 seconds, and they flagged the same lines to within about 6%. jscpd knows far more languages and has richer reports; dupehound has one generic lexer and JSON or text output.</p>
+    <h3>Does it find code that was copied and then renamed?</h3>
+    <p>No. Matching is exact on token text after dropping whitespace and comments. jscpd's default mode behaves the same way.</p>
+  </section>
+
+  </main>
+<footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a code review, a security audit or a licence check, and it does not replace a qualified engineer's judgement. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, install the CLI from the repo and run it yourself.</p>
+    <p>Everything runs in your browser. Your files are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>scan_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Duplicated packages rather than duplicated code: <a href="../npm-lockfile-duplicates-check/">npm Lockfile Duplicates Check</a> lists every npm package installed at more than one version in a lockfile.</p>
+    <p>jscpd and PMD are their authors' projects; dupehound is not affiliated with or endorsed by either.</p>
+    <p class="support">Free and open source under an <a href="LICENSE" rel="noopener">MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    import { load } from "./web/dupehound.mjs";
+
+    const EXT = new Set(["js","mjs","cjs","jsx","ts","tsx","mts","cts","py","rs","go","java","kt","c","h","cc","cpp","hpp","cs","rb","php","swift","scala","sh","css","scss"]);
+    const SKIP_DIR = /(^|\/)(node_modules|\.git|target)\//;
+    const $ = (id) => document.getElementById(id);
+    let engine = null, lastReport = null, lastFiles = new Map();
+
+    async function getEngine() {
+      if (!engine) engine = await load(new URL("./web/dupehound.wasm", import.meta.url));
+      return engine;
+    }
+
+    async function readFolder(list) {
+      const out = [];
+      for (const f of list) {
+        const p = f.webkitRelativePath || f.name;
+        const ext = p.split(".").pop().toLowerCase();
+        if (!EXT.has(ext) || SKIP_DIR.test(p) || f.size > 100 * 1024) continue;
+        const text = await f.text();
+        const lines = text.split("\n").length - (text.endsWith("\n") ? 1 : 0);
+        if (lines <= 1000) out.push({ path: p, text });
+      }
+      return out;
+    }
+
+    function esc(s) {
+      return s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+    }
+
+    function fragment(side) {
+      const text = lastFiles.get(side.file) || "";
+      const lines = text.split("\n").slice(side.start_line - 1, side.end_line);
+      return `<p class="note"><code>${esc(side.file)}</code> lines ${side.start_line}-${side.end_line}</p><pre class="frag">${esc(lines.join("\n"))}</pre>`;
+    }
+
+    function show(report) {
+      const s = report.statistics;
+      $("results").hidden = false;
+      $("verdict").textContent = s.clones === 0
+        ? "No copies found at these settings."
+        : `${s.clones.toLocaleString()} copied block${s.clones === 1 ? "" : "s"}, ${s.duplicated_percent.toFixed(1)}% of lines`;
+      $("summary").textContent = `${s.files.toLocaleString()} files, ${s.lines.toLocaleString()} lines, ${s.tokens.toLocaleString()} tokens read. ${s.duplicated_lines.toLocaleString()} lines sit inside a later copy of something earlier.`;
+      const top = [...report.clones].sort((a, b) => b.tokens - a.tokens).slice(0, 200);
+      $("rows").innerHTML = top.map((c, i) =>
+        `<tr class="clone" tabindex="0" data-i="${i}"><td>${c.tokens}</td><td>${c.lines}</td><td><code>${esc(c.second.file)}</code>:${c.second.start_line}-${c.second.end_line}</td><td><code>${esc(c.first.file)}</code>:${c.first.start_line}-${c.first.end_line}</td></tr>`).join("")
+        + (report.clones.length > 200 ? `<tr><td colspan="4" class="note">Largest 200 of ${report.clones.length} shown; the JSON report has all of them.</td></tr>` : "");
+      $("detail").innerHTML = "";
+      for (const tr of document.querySelectorAll("tr.clone")) {
+        const open = () => {
+          const c = top[Number(tr.dataset.i)];
+          $("detail").innerHTML = `<div class="two-col"><div>${fragment(c.second)}</div><div>${fragment(c.first)}</div></div>`;
+        };
+        tr.addEventListener("click", open);
+        tr.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } });
+      }
+    }
+
+    $("run").addEventListener("click", async () => {
+      $("status").textContent = "Reading files...";
+      try {
+        const picked = $("folder").files;
+        const files = picked && picked.length
+          ? await readFolder(picked)
+          : [{ path: "snippet-a.js", text: $("snipA").value }, { path: "snippet-b.js", text: $("snipB").value }];
+        if (!files.some((f) => f.text.trim())) { $("status").textContent = "Pick a folder or paste two snippets first."; return; }
+        lastFiles = new Map(files.map((f) => [f.path, f.text]));
+        const dh = await getEngine();
+        $("status").textContent = `Scanning ${files.length.toLocaleString()} files...`;
+        await new Promise((r) => setTimeout(r));
+        const t = performance.now();
+        const minTokens = Math.max(5, Math.min(5000, Number($("minTokens").value) || 50));
+        const minLines = Math.max(1, Math.min(1000, Number($("minLines").value) || 5));
+        lastReport = dh.analyze(files, { minTokens, minLines, normalize: $("normalize").checked });
+        $("status").textContent = `Done in ${((performance.now() - t) / 1000).toFixed(2)} s.`;
+        show(lastReport);
+        record("scan_run");
+      } catch (e) {
+        $("status").innerHTML = `<span class="error">${esc(String(e && e.message || e))}</span>`;
+      }
+    });
+
+    $("example").addEventListener("click", () => {
+      const body = (indent) => ["function shippingCost(order, rates) {",
+        ...Array.from({ length: 8 }, (_, i) => `${indent}const leg${i} = order.weight * rates[${i}] + surcharge(order, ${i}, "zone");`),
+        `${indent}return leg0 + leg7;`, "}"].join("\n");
+      $("snipA").value = "// checkout.js\n" + body("  ");
+      $("snipB").value = "// invoice.js: pasted, re-indented and re-commented\nimport { surcharge } from 'shipping-fees';\n\n" + body("\t");
+      $("folder").value = "";
+      record("example_loaded");
+    });
+
+    $("download").addEventListener("click", () => {
+      if (!lastReport) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([JSON.stringify(lastReport, null, 2)], { type: "application/json" }));
+      a.download = "dupehound-report.json";
+      a.click();
+      URL.revokeObjectURL(a.href);
+      record("report_downloaded");
+    });
+
+    $("optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const usageControl = $("optout");
+      usageControl.textContent = "Usage counting is off";
+      usageControl.disabled = true;
+    }
+  </script>
+</body>
+</html>

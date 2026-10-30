@@ -620,3 +620,110 @@ test('every embedded line leaves its backticks balanced', () => {
     assert.equal((line.match(/`/g) ?? []).length % 2, 0, line);
   }
 });
+
+// ---------------------------------------------------------------------------
+// Red-team guards (2026-10-27): boundaries of parseBackup, and the page's own
+// copy of the same parser and its copy strings, driven through the script the
+// hub actually embeds.
+// ---------------------------------------------------------------------------
+
+test('parseBackup refuses JSON null, a number and an array without throwing', () => {
+  for (const text of ['null', '0', '"x"', 'true', '[]', '[{"kind":"' + BACKUP_KIND + '"}]']) {
+    const parsed = parseBackup(text);
+    assert.equal(parsed.ok, false, text);
+    assert.equal(parsed.error, 'That file is not a backup from this site.', text);
+  }
+});
+
+test('parseBackup accepts exactly 500 tools and refuses 501', () => {
+  const withSlugs = (n) => {
+    const bids = {};
+    for (let i = 0; i < n; i++) bids[`tool-${i}`] = [bid(`job ${i}`, '2026-08-20T10:00:00.000Z')];
+    return JSON.stringify({ kind: BACKUP_KIND, v: BACKUP_VERSION, bids });
+  };
+  assert.equal(parseBackup(withSlugs(500)).ok, true);
+  assert.equal(parseBackup(withSlugs(501)).ok, false);
+});
+
+test('parseBackup keeps the timestamp a file carries, and nulls a missing or non-string one', () => {
+  const read = (at) => parseBackup(JSON.stringify({ kind: BACKUP_KIND, v: BACKUP_VERSION, at, bids: store() }));
+  assert.equal(read('2026-08-20T10:00:00.000Z').at, '2026-08-20T10:00:00.000Z');
+  assert.equal(read(undefined).at, null);
+  assert.equal(read(12345).at, null);
+  assert.equal(read('').at, null);
+});
+
+// A DOM just big enough for the embedded script to run its download and
+// restore handlers. The script is the string the hub ships, evaluated as is.
+function runHub({ stored = {}, file } = {}) {
+  const listeners = {};
+  const els = {};
+  const el = (id) => (els[id] ??= {
+    id, hidden: true, textContent: '', value: 'x', files: null,
+    addEventListener: (type, fn) => { listeners[`${id}:${type}`] = fn; },
+  });
+  const ls = { ...stored };
+  const downloads = [];
+  const sandbox = {
+    document: {
+      getElementById: el,
+      createElement: () => ({
+        click() { downloads.push(this.download); }, remove() {},
+      }),
+      body: { append() {} },
+    },
+    localStorage: {
+      getItem: (k) => (k in ls ? ls[k] : null),
+      setItem: (k, v) => { ls[k] = String(v); },
+    },
+    URL: { createObjectURL: () => 'blob:x', revokeObjectURL() {} },
+    Blob: class {},
+    setTimeout: (fn) => fn(),
+    BIDS_KEY: 'bids',
+    record() {}, showSavedBids() {}, bidsExpanded: false,
+  };
+  new Function(...Object.keys(sandbox), BACKUP_WIDGET_SCRIPT)(...Object.values(sandbox));
+  return { els, listeners, ls, downloads, el };
+}
+
+test('the page names the bid count in singular and plural, and the download after the day', () => {
+  const day = '2026-08-20T10:00:00.000Z';
+  const one = runHub({ stored: { bids: JSON.stringify({ v: 1, bids: { g: [bid('a', day)] } }) } });
+  assert.match(one.els['backup-copy'].textContent, /Download your saved bid as a file/);
+  const two = runHub({ stored: { bids: JSON.stringify({ v: 1, bids: { g: [bid('a', day), bid('b', day)] } }) } });
+  assert.match(two.els['backup-copy'].textContent, /Download all 2 saved bids as a file/);
+
+  const realDate = Date;
+  globalThis.Date = class extends realDate {
+    toISOString() { return '2026-09-03T08:15:00.000Z'; }
+  };
+  try {
+    two.listeners['backup-download:click']();
+  } finally {
+    globalThis.Date = realDate;
+  }
+  assert.deepEqual(two.downloads, ['saved-bids-2026-09-03.json']);
+});
+
+test('the page parses a restored file as the module does, rates included', async () => {
+  const rates = { hourlyWage: 38, targetMargin: 9999, burdenRate: -1 };
+  const run = (text) => {
+    const hub = runHub();
+    hub.els['backup-file'] = Object.assign(hub.el('backup-file'), {
+      files: [{ text: async () => text }],
+    });
+    return hub;
+  };
+  const text = JSON.stringify({ kind: BACKUP_KIND, v: BACKUP_VERSION, bids: store(), rates });
+  const hub = run(text);
+  await hub.listeners['backup-file:change']();
+  assert.deepEqual(JSON.parse(hub.ls['portfolio-shop-rates']).rates, { hourlyWage: 38 });
+  assert.match(hub.els['backup-status'].textContent, /^Restored: 1 bid added/);
+
+  const textNumeric = JSON.stringify({
+    kind: BACKUP_KIND, v: BACKUP_VERSION, bids: store(), rates: { hourlyWage: '41.5' },
+  });
+  const hub2 = run(textNumeric);
+  await hub2.listeners['backup-file:change']();
+  assert.deepEqual(JSON.parse(hub2.ls['portfolio-shop-rates']).rates, { hourlyWage: 41.5 });
+});

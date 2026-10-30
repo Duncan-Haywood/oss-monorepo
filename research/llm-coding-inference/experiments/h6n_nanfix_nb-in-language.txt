@@ -1,0 +1,32 @@
+coder nb-in-language; NaijaSenti test corpus 44485; audit sizes (60, 100, 200, 400), 600 draws, seed 20261029
+ratio = half-width of method / half-width of human-only HC3 + t(n-5) on the same audit (mean of per-draw ratios; <1 means narrower); % narrower = share of draws with ratio < 1
+methods: ins-hc3t tuned PPI++ HC3 + t(n-5); cf-hc3t cross-fit HC3 + t(n-5); cf-hc3t2 cross-fit HC3 + t(n/2-5)
+coder n coefficient | ins-hc3t ratio %narrower | cf-hc3t ratio %narrower | cf-hc3t2 ratio %narrower
+# nb-in-language n=60: 10 of 600 draws dropped
+nb-in-language 60 intercept(yor) | 0.898 68% | 1.104 33% | 1.135 29%
+nb-in-language 60 hau | 0.888 90% | 1.032 43% | 1.060 37%
+nb-in-language 60 ibo | 0.914 80% | 1.066 34% | 1.096 29%
+nb-in-language 60 pcm | 0.942 59% | 1.162 24% | 1.194 22%
+nb-in-language 60 loglen_z | 0.896 82% | 1.079 35% | 1.109 30%
+nb-in-language 60 MEAN | 0.908 76% | 1.089 34% | 1.119 30%
+# nb-in-language n=100: 0 of 600 draws dropped
+nb-in-language 100 intercept(yor) | 0.934 66% | 1.066 29% | 1.082 25%
+nb-in-language 100 hau | 0.913 95% | 0.989 53% | 1.003 46%
+nb-in-language 100 ibo | 0.940 84% | 1.040 34% | 1.055 28%
+nb-in-language 100 pcm | 0.963 62% | 1.087 19% | 1.103 17%
+nb-in-language 100 loglen_z | 0.913 90% | 1.023 42% | 1.038 37%
+nb-in-language 100 MEAN | 0.932 80% | 1.041 35% | 1.056 31%
+# nb-in-language n=200: 0 of 600 draws dropped
+nb-in-language 200 intercept(yor) | 0.957 71% | 1.031 29% | 1.038 26%
+nb-in-language 200 hau | 0.933 100% | 0.972 71% | 0.979 65%
+nb-in-language 200 ibo | 0.957 90% | 1.006 44% | 1.012 40%
+nb-in-language 200 pcm | 0.982 63% | 1.050 16% | 1.057 12%
+nb-in-language 200 loglen_z | 0.937 96% | 0.993 50% | 0.999 47%
+nb-in-language 200 MEAN | 0.953 84% | 1.010 42% | 1.017 38%
+# nb-in-language n=400: 0 of 600 draws dropped
+nb-in-language 400 intercept(yor) | 0.968 84% | 1.010 39% | 1.013 37%
+nb-in-language 400 hau | 0.937 100% | 0.956 92% | 0.959 90%
+nb-in-language 400 ibo | 0.965 99% | 0.992 58% | 0.995 55%
+nb-in-language 400 pcm | 0.989 72% | 1.023 17% | 1.026 14%
+nb-in-language 400 loglen_z | 0.945 100% | 0.976 72% | 0.979 68%
+nb-in-language 400 MEAN | 0.961 91% | 0.991 56% | 0.994 53%

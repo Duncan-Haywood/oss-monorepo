@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%231b587e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EA%3C/text%3E%3C/svg%3E"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Therapist and Counselor Bookkeeping From a Bank Statement</title>
+<meta name="description" content="Insurance-panel payouts and client payments are sales; the EHR, office rent, malpractice cover, CE, supervision and dues are the costs. A worked October: $4,075.00 in, $1,361.44 of costs, $2,713.56 profit.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="./therapist-bookkeeping.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Therapist and counselor bookkeeping from a bank statement">
+<meta property="og:description" content="A worked month of insurance-panel payouts and client payments against rent, software, CE and dues, booked from a bank CSV.">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Where do insurance payouts and client payments go?", "acceptedAnswer": {"@type": "Answer", "text": "Payouts from panels such as Headway and Alma, and client card payments that arrive as processor transfers, are filed under sales. Reimbursements are income when received, so your accountant decides how to treat any clawback or a pending claim."}}, {"@type": "Question", "name": "How are CE, supervision, dues and the licence filed?", "acceptedAnswer": {"@type": "Answer", "text": "CE courses, clinical supervision and association dues go under education and dues, a directory listing such as Psychology Today under advertising, the board licence under taxes and licences, and malpractice cover under insurance. A Venmo cash-out is filed as an owner draw, not a cost."}}, {"@type": "Question", "name": "Is it free?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. It is open source (MIT), runs in your browser and nothing is uploaded. Not tax advice: a self-employed therapist owes self-employment tax on profit, and client records on a bank statement can be sensitive, which is why this runs locally."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#1c2430;background:#f3f5f2}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#23613f}.eyebrow{font-weight:700;letter-spacing:.04em;color:#23613f;font-size:.85rem}h1{font-size:clamp(1.7rem,5vw,2.5rem);line-height:1.08;margin:.3rem 0;color:#183d2a}.lede{font-size:1.05rem;max-width:66ch;color:#4a5560}section{background:#fff;border:1px solid #d5ddd6;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #183d2a10;margin:1rem 0}h2{margin-top:0;color:#183d2a}p,li{line-height:1.55}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:.95rem}caption{caption-side:bottom;color:#4a5560;font-size:.85rem;text-align:left;padding-top:.6rem}th,td{border-bottom:1px solid #e1e7e2;padding:.5rem .45rem;text-align:right}th:first-child,td:first-child{text-align:left}tr.total td,tr.total th{font-weight:700}.fine,footer{font-size:.86rem;color:#4a5560}@media (max-width:600px){body{padding:1rem}}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; AI Bookkeeper</a></p>
+<header>
+<h1>Therapist bookkeeping: panel payouts and client payments against the rent, software and CE behind them</h1>
+<p class="lede">A private practice's income arrives as insurance-panel payouts (Headway, Alma and the like) and client payments through an EHR's card processor; the costs are the EHR, office sublease, malpractice cover, CE, supervision, association dues, a directory listing and the licence. The bank statement holds both, so the month's profit starts there.</p>
+</header>
+<section>
+<h2>Worked example: one October</h2>
+<p>The tool ships a <strong>synthetic</strong> statement for a solo therapist (<code>fixtures/therapist-checking.csv</code>): three deposits and eleven outflows. Thirteen of the fourteen lines get a suggested account with no rules taught. The Amazon buy is left blank on purpose: an office chair is equipment you may need to depreciate, and test kits are supplies, so you decide.</p>
+<div class="table-wrap">
+<table>
+<caption>Read by the tool's importer. Synthetic data, not a real practice.</caption>
+<thead><tr><th scope="col">October 2026</th><th scope="col">Amount</th></tr></thead>
+<tbody>
+<tr><th scope="row">Headway and Alma insurance payouts</th><td>$2,800.00</td></tr>
+<tr><th scope="row">Client payments through SimplePractice</th><td>$1,275.00</td></tr>
+<tr class="total"><th scope="row">Money in</th><td>$4,075.00</td></tr>
+<tr><th scope="row">SimplePractice and Zoom (software)</th><td>&minus;$114.99</td></tr>
+<tr><th scope="row">Office sublease (rent)</th><td>&minus;$650.00</td></tr>
+<tr><th scope="row">Malpractice insurance (insurance)</th><td>&minus;$48.00</td></tr>
+<tr><th scope="row">CE course, supervision, APA dues (education and dues)</th><td>&minus;$314.00</td></tr>
+<tr><th scope="row">Psychology Today listing (advertising)</th><td>&minus;$29.95</td></tr>
+<tr><th scope="row">State board licence renewal (taxes and licences)</th><td>&minus;$120.00</td></tr>
+<tr><th scope="row">Amazon office chair and test kits (you file it)</th><td>&minus;$84.50</td></tr>
+<tr class="total"><th scope="row">Costs</th><td>&minus;$1,361.44</td></tr>
+<tr class="total"><th scope="row">Profit</th><td>$2,713.56</td></tr>
+</tbody>
+</table>
+</div>
+<p>The $500.00 Venmo cash-out is suggested as an owner draw (equity), not a cost, so it does not reduce profit; if it was really a payment for something, refile it. Whether a home office counts for a therapist who sees clients from home, and how supervision or telehealth costs are treated in your state, are questions for an accountant.</p>
+</section>
+<section>
+<h2>What the tool does for a private practice</h2>
+<ol>
+<li><strong>Imports the bank CSV</strong> and suggests <em>Sales</em> for insurance-panel payouts and client payments.</li>
+<li><strong>Files the recurring costs</strong>: the EHR, rent, malpractice cover, CE, supervision, dues, listings and the licence.</li>
+<li><strong>Reports</strong> a P&amp;L and a Schedule C worksheet, with a home-office worksheet and quarterly estimated-tax dates in the tax calendar.</li>
+</ol>
+<p>Rules are written from company names; no real practice's statement has been tried.</p>
+</section>
+<section>
+<h2>Questions</h2>
+<h3>Where do insurance payouts and client payments go?</h3><p>Payouts from panels such as Headway and Alma, and client card payments that arrive as processor transfers, are filed under sales. Reimbursements are income when received, so your accountant decides how to treat any clawback or a pending claim.</p><h3>How are CE, supervision, dues and the licence filed?</h3><p>CE courses, clinical supervision and association dues go under education and dues, a directory listing such as Psychology Today under advertising, the board licence under taxes and licences, and malpractice cover under insurance. A Venmo cash-out is filed as an owner draw, not a cost.</p><h3>Is it free?</h3><p>Yes. It is open source (MIT), runs in your browser and nothing is uploaded. Not tax advice: a self-employed therapist owes self-employment tax on profit, and client records on a bank statement can be sensitive, which is why this runs locally.</p>
+</section>
+<p><a href="./">Open AI Bookkeeper</a> and import your bank statement.</p>
+</main>
+<footer>
+<p><strong>No warranty.</strong> This page and the tool are provided free and as-is, without warranty of any kind. They are not legal, tax, or financial advice and do not replace a qualified professional. You are responsible for reviewing and verifying any output before relying on it. The example is synthetic data, not a real business. Platform names are trademarks of their owners, named only to describe a payee.</p>
+</footer>
+</body>
+</html>

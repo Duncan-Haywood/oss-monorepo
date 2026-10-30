@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%231b587e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EA%3C/text%3E%3C/svg%3E"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Square Bookkeeping: Split Deposits into Sales, Sales Tax and Fees (Worked Example)</title>
+<meta name="description" content="A Square deposit is sales plus tips and tax, less fees and refunds. A worked example turns a $9.36 deposit into $10.00 of sales, $0.63 of sales tax owed and $1.27 of fees, read by the tool from a Transactions CSV.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="./square-bookkeeping.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Square bookkeeping: split deposits into sales, sales tax and fees">
+<meta property="og:description" content="A worked example: a $9.36 Square deposit is $10.00 of sales, $0.63 of sales tax payable and $1.27 of fees.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I book Square deposits or Square sales as income?","acceptedAnswer":{"@type":"Answer","text":"Book the sales (net of refunds) as income, the sales tax you collected as a liability, and Square's fees as an expense. A deposit is only the cash that arrived: it is smaller than your sales by the fees and refunds, and it contains tax that is not yours."}},{"@type":"Question","name":"Which Square report do I need?","acceptedAnswer":{"@type":"Answer","text":"The Transactions CSV from the Square Dashboard (Reports, Sales, Transactions), which carries a Deposit ID and Deposit Date on each paid-out row, or the Payouts API entries as JSON."}},{"@type":"Question","name":"What about tips?","acceptedAnswer":{"@type":"Answer","text":"Tips are inside Total Collected. By default the tool books them with sales; pass --tips with an account code, such as a payroll liability, if you pass them on to staff."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#1c2430;background:#f3f5f2}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#23613f}.eyebrow{font-weight:700;letter-spacing:.04em;color:#23613f;font-size:.85rem}h1{font-size:clamp(1.7rem,5vw,2.5rem);line-height:1.08;margin:.3rem 0;color:#183d2a}.lede{font-size:1.05rem;max-width:66ch;color:#4a5560}section{background:#fff;border:1px solid #d5ddd6;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #183d2a10;margin:1rem 0}h2{margin-top:0;color:#183d2a}p,li{line-height:1.55}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:.95rem}caption{caption-side:bottom;color:#4a5560;font-size:.85rem;text-align:left;padding-top:.6rem}th,td{border-bottom:1px solid #e1e7e2;padding:.5rem .45rem;text-align:right}th:first-child,td:first-child{text-align:left}tr.total td,tr.total th{font-weight:700}.fine,footer{font-size:.86rem;color:#4a5560}@media (max-width:600px){body{padding:1rem}}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; AI Bookkeeper</a></p>
+<header>
+<h1>Square bookkeeping: split each deposit into sales, sales tax and fees</h1>
+<p class="lede">Square pays you what customers paid, less its fees and any refunds, and what customers paid includes the sales tax you owe the state and any tips. Book the deposit alone and your sales, your tax liability and your processing costs are all wrong at once.</p>
+</header>
+<section>
+<h2>Worked example: one deposit, a refund, tax and a tip</h2>
+<p>The tool ships a <strong>synthetic</strong> Square Transactions CSV for March 2026 (<code>fixtures/square-transactions.csv</code>): a $9.00 coffee order with a $1.00 tip and $0.63 tax, a $12.00 sandwich, that sandwich refunded, and sales not yet deposited. Deposit <code>dep_1</code> reaches the bank as $9.36. The payout command matched it to the bank line and split it: $10.00 of sales (the coffee, the tip and the sandwich, less the refund), $0.63 of sales tax payable, and $1.27 of fees.</p>
+<div class="table-wrap">
+<table>
+<caption>Figures from running <code>payouts square-transactions.csv --apply</code> on a one-line bank statement. Synthetic data, not a real business.</caption>
+<thead><tr><th scope="col">March 2026</th><th scope="col">Booked from deposits</th><th scope="col">Booked from the report</th></tr></thead>
+<tbody>
+<tr><th scope="row">Sales (tip included, refund taken off)</th><td>$9.36</td><td>$10.00</td></tr>
+<tr><th scope="row">Sales tax payable (owed to the state, not income)</th><td>$0.00</td><td>$0.63</td></tr>
+<tr><th scope="row">Square processing fees</th><td>$0.00</td><td>&minus;$1.27</td></tr>
+<tr class="total"><th scope="row">Cash received</th><td>$9.36</td><td>$9.36</td></tr>
+</tbody>
+</table>
+</div>
+<p>The cash is the same; what changes is that the $0.63 shows as money you owe the state rather than revenue, and the $1.27 of fees is a line you can see, deduct and compare with the rate you expected. Sales is the figure to compare with a 1099-K, and the tax line feeds your sales tax return.</p>
+</section>
+
+<section>
+<h2>How to book it</h2>
+<ol>
+<li><strong>Download the Transactions CSV</strong> from Square and your bank statement.</li>
+<li><strong>Import the bank statement</strong> in <a href="./">AI Bookkeeper</a>, then run <code>payouts square-transactions.csv</code>. Each deposit is matched to the bank line of equal amount within a few days and shown as a plan; add <code>--apply</code> to post the splits.</li>
+<li><strong>Read the leftovers.</strong> Rows with no deposit yet are listed as pending; a deposit whose rows do not add up is reported, not guessed.</li>
+<li><strong>Run it again next month.</strong> A deposit already split is reported as done and nothing posts twice.</li>
+</ol>
+<p>The column layout was written from memory of Square's export and checked against one hand-written file; no real Square export has been tried, so check the totals against your own statement. Stripe, PayPal, Shopify and Etsy reports read through the same command.</p>
+</section>
+
+<section>
+<h2>Questions</h2>
+<h3>Should I book Square deposits or Square sales as income?</h3>
+<p>Book the sales (net of refunds) as income, the sales tax you collected as a liability, and Square's fees as an expense. A deposit is only the cash that arrived: it is smaller than your sales by the fees and refunds, and it contains tax that is not yours.</p>
+<h3>Which Square report do I need?</h3>
+<p>The Transactions CSV from the Square Dashboard (Reports, Sales, Transactions), which carries a Deposit ID and Deposit Date on each paid-out row, or the Payouts API entries as JSON.</p>
+<h3>What about tips?</h3>
+<p>Tips are inside Total Collected. By default the tool books them with sales; pass --tips with an account code, such as a payroll liability, if you pass them on to staff.</p>
+<h3>What if a Square deposit does not match any bank line?</h3>
+<p>The tool leaves it unmatched and says so. Deposits can be batched or delayed; nothing is posted until a bank line of the right amount is found.</p>
+<h3>Is it free?</h3>
+<p>Yes. It is open source (MIT), runs in your browser or as a command line tool, and nothing is uploaded.</p>
+</section>
+
+<p><a href="./">Open AI Bookkeeper</a> and import your bank statement and report.</p>
+</main>
+<footer>
+<p><strong>No warranty.</strong> This page and the tool are provided free and as-is, without warranty of any kind. They are not legal, tax, or financial advice and do not replace a qualified professional. You are responsible for reviewing and verifying any output before relying on it. The example is synthetic data, not a real business. Square, Stripe, Shopify and Etsy are trademarks of their owners, named only to describe a payee or a report; this project is not affiliated with them.</p>
+</footer>
+</body>
+</html>

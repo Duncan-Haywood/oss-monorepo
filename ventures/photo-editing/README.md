@@ -71,9 +71,11 @@ How it stays fast and safe:
 
 Current limits, stated plainly: RAW stills (`.CR3`, `.CR2`, `.ARW`, `.NEF`,
 `.DNG`, …) are *scored* from the full-size JPEG preview the camera embedded
-(`raw_preview.py`, no RAW developer needed), but they are not developed: proxies
-and graded masters still need a JPEG/TIFF, and a RAW with no embedded preview
-keeps the sha256 stand-in scores. Camera-raw video is not decoded. The preview
+(`raw_preview.py`, no RAW developer needed), and since 2026-10-29 their review proxies are
+that preview downscaled to 1024 px (`proxies/<job>/IMG_0001.CR3.jpg`; synthetic containers
+only, no real camera file yet). They are not developed: graded masters still need a
+JPEG/TIFF, so a RAW still stops the pipeline before the grade stage, and a RAW with no embedded
+preview fails its proxy (`no embedded JPEG preview`) and keeps the sha256 stand-in scores. Camera-raw video is not decoded. The preview
 reader is tested on synthetic containers, not yet on real camera files. The analysis stage now measures each photo and clip
 from decoded frames (sharpness, exposure, contrast, motion, framing) and groups
 near-identical shots by perceptual hash, so a burst or repeated take
@@ -88,8 +90,19 @@ on synthetic soft-edged horizons only, not yet on real photos. `noise_sigma` rea
 counted) and the grain's share is taken out of `sharpness`, which grain would
 otherwise inflate; heavy grain costs up to 15% of `technical_score`. Tested on
 Gaussian grain added to synthetic frames (recovered within 20%), not yet on real
-high-ISO files. It cannot see faces or closed eyes, and
-`story_score` is only a blend of the measured scores, so
+high-ISO files. It ships no face model, but photos can be scored for closed eyes
+through a detector you supply: set `SHOOTFLOW_FACE_DETECTOR` to a command that
+takes an image path and prints `{"faces": [{"size": 0.1, "eyes_open": 0.9}]}`
+(`src/shootflow/faces.py`). A prominent face (1% of the frame or more) with eyes
+open adds 0.03 to `story_score`; the least-open eye costs up to 0.25; off by
+default, run without a shell, and any failure keeps the measured score. `tools/opencv_face_detector.py` (2026-10-29) is a reference detector for that contract: OpenCV Haar
+cascades (`pip install "opencv-python-headless<5"`; 5.x dropped the cascade classifier), on your machine, nothing
+uploaded. `eyes_open` is 0.95, 0.5 or 0.1 for two, one or no eyes found in the upper face, and null under 70 px wide.
+It is a classical detector, not a blink classifier: the eye cascade was trained on open eyes, so sunglasses,
+shadow and head turns read as blinks. Checked on one real portrait (scikit-image's astronaut: one face, eyes
+0.95; coffee, camera-man and cat: no faces) and with that face's eye band blurred harder (kernel 9 to 31: 0.95,
+0.5, 0.5, 0.1), a crude stand-in for a closed lid. Not run on real closed-eye photos or human picks. Tested
+against made-up detector output and a fake command, and the tool's no-face path (`tests/test_opencv_face_detector.py`). `story_score` is otherwise only a blend of the measured scores, so
 *which* shot wins is technical, not taste-based. The scene and look stages are
 still deterministic stand-ins. The grade is your LUT, or no color change if you have
 none. Every asset is graded before selection; grading only the selected
@@ -330,6 +343,27 @@ This repo currently contains the first testable core utilities:
   summaries/receipts, carries the same root observe-only `workflow_authority`
   contract. Write-capable next actions are command-free descriptors so JSON
   payloads cannot double as executable workflow plans.
+- `shootflow.cull` (`shootflow cull FOLDER --out REPORT_DIR [--recursive] [--write-xmp] [--picks FILE] [--thumbs]`)
+  is the standalone culling pass: it scores each still (JPEG, PNG, TIFF, or a
+  RAW file's embedded preview), groups near-identical frames by dHash (Hamming
+  distance 8 or less, single linkage), keeps the best frame per group as the
+  keeper, and rejects blurred, badly exposed or (with `SHOOTFLOW_FACE_DETECTOR`)
+  closed-eye frames. It writes `cull_report.json` and `cull_report.html`, and
+  with `--write-xmp` a Lightroom/Bridge sidecar per photo (keeper 4 stars,
+  alternate 2, reject -1). Photos are read-only and an existing `.xmp` is never
+  overwritten. Tested on stubbed metrics and two real ffmpeg-made JPEGs; not yet
+  compared with a photographer's real picks on a wedding or event set.
+  `--thumbs` (2026-10-29) embeds 220 px JPEG thumbnails (via ffmpeg; a RAW's
+  embedded preview) in `cull_report.html` as a contact sheet by burst, keeper
+  green, rejects red, so the report can be judged by eye without opening a
+  catalogue; the file stays local. Tested on stubs and one ffmpeg-made JPEG;
+  no real shoot yet.
+  `--picks FILE` (one file name or path per line, `#` comments allowed) scores
+  the cull against the frames you would keep and adds an "Against your picks"
+  block to the report: how often the keeper is one of your picks, and how many
+  of your picks the cull flagged reject (the costly miss). Names match by path,
+  else by file name or stem; an ambiguous name matches nothing. Tested on stubs;
+  it gives the first real measurement as soon as someone supplies a shoot.
 - `shootflow.workspace_index` builds a metadata-only
   `shootflow_workspace_index.json` handoff for Mac apps, background agents, and
   continuation runs. It summarizes trusted ingest, production-status,

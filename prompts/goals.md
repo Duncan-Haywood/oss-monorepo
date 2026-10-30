@@ -247,6 +247,26 @@ approves. Letting a deployer switch on unattended sending for their own
 mailbox is the owner's call (ROADMAP M5). Accuracy claims come from labelled
 replies written after the code they score.
 
+## Direction: business functions with data to build and test against
+
+Set by the owner on 2026-10-24: "i think one interesting direction for
+products is for traditional business functions or job roles for which data
+sources exist from which one could build and test an agentic or ml or other
+type of system and test it on the data or train a very specialized ml and
+distribute it for useful tasks."
+
+Pick a job someone is paid to do (bookkeeper, support agent, contracts
+reviewer, demand planner), find public labelled data of the real work, and
+build the system against it: rules, a small trained model or an agent,
+measured on a held-out split before any claim is made. Real labelled data is
+what keeps the work from being a calculator (`Depth over calculators`): a
+chatbot can't hand a reader a measured error rate on 1,000 real receipts.
+Extending an existing venture whose README says "hand-written fixtures only"
+comes before starting a new one. The method, the licence checks and the list
+of candidate datasets: [`portfolio/data-backed/README.md`](../portfolio/data-backed/README.md).
+First instance: AI Bookkeeper's receipt reader on CORD-v2, 4% to 94% of
+held-out totals read right (2026-10-24).
+
 ## Direction: AI accounting systems
 
 Set by the owner on 2026-10-21: "I want to make ai accounting systems".
@@ -452,9 +472,12 @@ open papers and pulling those from wide domains and implementing them as
 publically available tools obviosuly giving credit and citing it. i think
 that's a cooler thing than random basic addition accounting calculators."
 
-New tools favour methods from papers, run on the user's own data in the
-browser, with the paper cited and the licence respected; another basic
-calculator ranks below them. Spec, licence rules and definition of done:
+New tools favour methods from papers, run on the user's own data, with the
+paper cited and the licence respected; another basic calculator ranks below
+them. The browser is one good place to run them, not a requirement: a CLI, a
+Python package, a notebook, a GPU job the user runs, or a self-hosted service
+is fine when the method needs it (owner, 2026-10-30, "Direction: every
+platform"). Spec, licence rules and definition of done:
 [`portfolio/research-tools/README.md`](../portfolio/research-tools/README.md).
 
 ## Direction: every platform, not just the web
@@ -480,6 +503,18 @@ running process is fine. What stays fixed is the cost and liability line,
 not the shape: no per-user bill on the owner's accounts and no unattended
 paid automation without the owner (Guardrails), so a service ships for its
 users or deployers to run, not on servers we pay for.
+
+**No browser-only rule either** (the owner, 2026-10-30): "I don't think it's
+required to do browser only tools here. i want to abolish that policy have
+where things run be up to the agent and the project. it's fine to do browser.
+but having a strict requirement on all project is a bad an unnessary
+restriction." Where a product or tool runs (the visitor's browser, the
+user's machine, their CI, their cloud, a container they deploy) is the
+agent's and the project's call, made for what the users and the method need.
+Running in the browser is often a good choice, and a page that says
+"nothing is uploaded" must still be true; it is just not a rule. The
+liability lines are unchanged: nothing on the owner's bill, honest privacy
+copy, and the law on personal data.
 
 ## Direction: depth over calculators
 
@@ -535,6 +570,22 @@ twenty estimated human hours; 92% of runs took under fifteen active minutes
 ([the post](../docs/posts/2026-10-21-work-that-takes-more-than-twenty-hours.md)).
 `runcost.py report` tracks it.
 
+**Lean towards projects of about three hundred hours** (owner, 2026-10-29, "not a hard bar, an opinion or suggestion"): "i think
+it makes sense to focus more on porjects that are at least estimated to be
+200+ human equivalent hours worth of work", then "idk maybe above 300 hours is
+a better rule of thumb." It updates the twenty-hour suggestion above; it is a rule of thumb,
+not a cutoff. It is per project, not
+per run: no session does 300 human hours, so the question is whether a run builds
+toward a project a person would estimate at about 300 hours or more (a
+flagship, a research programme in `research/PROGRAMMES.md`). Before starting a
+new project, a written plan of that size and a first step that works on its
+own help. Pass `--human-hours` to `runcost.py attach` so `runcost.py report` ("by
+project") can add it up: on 2026-10-29, no project of 253 showed more than
+200 estimated hours, but only 46 of 1,930 records after 2026-10-20 carried an
+estimate, and none of the flagship bookkeeper's 62. Small fixes, upkeep, docs
+and write-ups still count; padding a project to look big does not
+([the post](../docs/posts/2026-10-29-aim-at-projects-worth-three-hundred-hours.md)).
+
 **Beat asking a chatbot** (owner, 2026-10-21, on finding a day-count adder
 at the front of the site): "the tools need to justify their existence by
 being more useful or significantly cheaper than the alt of for example
@@ -574,6 +625,25 @@ control), or one engine has to ship to WASM, CLI, Python and crates.io. Porting 
 work or a wrapper around an existing C library rarely pays off. The opinion piece,
 with the test and four candidates from this repository:
 [`portfolio/opinions/2026-10-20-rust-where-it-is-essential.md`](../portfolio/opinions/2026-10-20-rust-where-it-is-essential.md).
+
+## Direction: dev tools in Rust, common and niche
+
+Set by the owner on 2026-10-29: "I think one cool project direction is
+common dev tools rewritten in rust", and a moment later, "but also just
+common and niche tools."
+
+So rewriting developer tools in Rust is a standing direction, for widely
+used tools and for niche ones. It sits inside the section above: pick a
+tool where Rust earns its place (a slow or memory-bound inner loop,
+untrusted input to parse, or one engine for a CLI, the browser via WASM and
+other surfaces), measure the original on real input first, and publish the
+comparison (speed, memory and agreement on the same input), wins and losses
+alike. Skip tools that already have a mature Rust version (ripgrep, fd,
+bat, delta, tokei, hyperfine, ruff, uv, biome, oxc, typos, lychee, zizmor,
+jaq) unless there is a measured gap. The first is `ventures/dupehound`, a
+copy-paste detector that read this repository's 9,458 `.mjs` files in
+1.2 s where jscpd needed 337 s and 6.2 GB. Candidates and the test for
+each: [`portfolio/opinions/2026-10-29-dev-tools-in-rust.md`](../portfolio/opinions/2026-10-29-dev-tools-in-rust.md).
 
 ## Direction: open construction, mining and heavy equipment
 
@@ -644,6 +714,21 @@ build it in the same PR. The first example: the delivery metrics that the
 daily progress post had computed by hand are now in `platform/devstats`
 (`delivery` in `dev/stats.json`). The post reads them and spends its effort
 on what they mean.
+
+## Direction: impressive sites, SEO and AEO, for a period
+
+Set by the owner on 2026-10-28: "i want like 5% of work going to making the
+sites looking as impressive as possible. for some period of time", then "and
+improving seo. and aseo." (read as AEO, answer-engine optimisation: being
+quoted correctly by AI assistants and AI search).
+
+The `polish` track ([`prompts/polish/prompt-0.md`](polish/prompt-0.md))
+carries it: weight 0.05 in `routing.json` with an `until` date, after which
+the router stops drawing it with no edit needed. The period was not named;
+the first date set is 2026-11-30, about a month, for the owner to move.
+Other tracks need not chase polish meanwhile, beyond what their own work
+touches. Honest marketing (Guardrails) binds it: no invented social proof
+and nothing a search engine's spam policy forbids.
 
 ## Judgment over rules
 

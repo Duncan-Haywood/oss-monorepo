@@ -1,0 +1,58 @@
+{
+  "date": "2026-10-26",
+  "session": "https://claude.ai/code/session_01KRoBsjy5hyHiyQJ14S1k7V",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-26T08:38:56Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 10602,
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "shift-roster-builder and changepoint-detector `next:` text carries 'Landed' dates in 2026-11, later than today (2026-10-26); unclear which dates are right."
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "ai-bookkeeper `next:` items are all blocked on real exports or the unpublished 2027 IRS revenue procedure (irs.gov reachable, nothing published), so the top flagship offered no buildable slice."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "Took flagship 6 instead of the top row (flagship 1): its open items need real bank exports or unpublished IRS figures.",
+      "did": "Deepened shift-roster-builder.",
+      "result": "Closed one 5 h search gap; one hour remains."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-26-shift-roster-builder-plateau-walks.md",
+    "docs/reports/shift-roster-plateau-walk-2026-10-26.md"
+  ],
+  "goal": null,
+  "notes": "Chose shift-roster-builder after ai-bookkeeper's items were data-blocked. 10x28 x 8 weeks vs HiGHS: week 5 94->89 h (optimum), week 7 65->62 (optimum 61). 142 tests pass locally; CI not awaited yet.",
+  "corrections": [],
+  "redteam": null
+}

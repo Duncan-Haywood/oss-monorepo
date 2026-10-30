@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, existsSync } from "node:fs";
 
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
 const script = () => page("index.html").match(/<script type="module">([\s\S]*?)<\/script>/)[1];
@@ -142,7 +142,60 @@ test("the payroll card is labelled and wired to the payroll engine", () => {
 
 test("the tax estimate card exists, its ids are labelled, and estimatedTax is imported", () => {
   const html = page("index.html");
-  for (const id of ["est-filing", "est-months", "est-wages", "est-other", "est-withheld", "est-paid", "est-prior", "est-prior-agi"]) assert.match(html, new RegExp(`<label[^>]*>[^<]*<(input|select) id="${id}"`), id);
+  for (const id of ["est-filing", "est-months", "est-wages", "est-other", "est-withheld", "est-paid", "est-prior", "est-prior-agi", "est-health", "est-retire", "est-children", "est-other-deps", "est-over65", "est-blind", "est-eitc", "est-bizwages", "est-state-rate", "est-state-ded", "est-state-wh"]) assert.match(html, new RegExp(`<label[^>]*>[^<]*<(input|select) id="${id}"`), id);
   assert.match(script(), /import \{ estimatedTax \} from "\.\/estimatedtax\.mjs"/);
   assert.match(html, /A worksheet, not tax advice/);
+  assert.match(script(), /import \{ annualizedInstallments \} from "\.\/annualized\.mjs"/);
+  assert.match(html, /id="est-annual"/);
+  assert.match(html, /id="annual"/);
+  for (const id of ["scorp-salary", "scorp-cost"]) assert.match(html, new RegExp(`<label[^>]*>[^<]*<input id="${id}"`), id);
+  assert.match(script(), /import \{ scorpFromBooks \} from "\.\/scorp\.mjs"/);
+  assert.match(html, /id="est-scorp"/);
+  assert.match(html, /id="scorp"/);
+});
+
+test("installable app: manifest, icons and an offline shell covering every module the page imports", () => {
+  const html = page("index.html");
+  assert.match(html, /<link rel="manifest" href="manifest\.webmanifest">/);
+  assert.match(html, /serviceWorker\.register\("sw\.js"\)/);
+  const man = JSON.parse(page("manifest.webmanifest"));
+  assert.equal(man.display, "standalone");
+  for (const i of man.icons) assert.ok(existsSync(new URL(`./${i.src}`, import.meta.url)), i.src);
+  assert.ok(man.icons.some((i) => i.purpose === "maskable"));
+  const sw = page("sw.js");
+  const shell = new Set([...sw.match(/const SHELL = \[([\s\S]*?)\];/)[1].matchAll(/"\.\/([^"]*)"/g)].map((m) => m[1]));
+  const seen = new Set();
+  const walk = (f) => {
+    if (seen.has(f)) return;
+    seen.add(f);
+    const t = page(f), src = f.endsWith(".html") ? script() : t;
+    for (const m of src.matchAll(/(?:from|import)\s*\(?\s*["']\.\/([^"']+)["']/g)) walk(m[1]);
+  };
+  walk("index.html");
+  for (const f of seen) assert.ok(shell.has(f), `${f} missing from the service worker shell`);
+  for (const f of shell) if (f) assert.ok(existsSync(new URL(`./${f}`, import.meta.url)), `${f} does not exist`);
+  assert.doesNotMatch(sw, /fetch\(["'`]https?:|importScripts/);
+});
+
+test("the reports card shows a cash-basis profit and loss when the books carry invoices or bills", () => {
+  const html = page("index.html");
+  assert.match(html, /id="cashpnl"/);
+  assert.match(script(), /import \{ cashBasis \} from "\.\/cashbasis\.mjs"/);
+  assert.match(script(), /cashBasis\(books, \{ from:/);
+});
+
+test("the sales tax return worksheet is on the page and shares its spec parsers with the CLI", () => {
+  const html = page("index.html");
+  for (const id of ["str-freq", "str-state", "str-rate", "str-disc"]) assert.match(html, new RegExp(`<label for="${id}"`), id);
+  assert.match(script(), /import \{ salesTaxReturn, parseRateSpecs, parseDiscountSpecs,/);
+  assert.match(html, /id="str-box" hidden/);
+});
+
+test("tax-calendar page has the disclaimer, a labelled form and no network calls", () => {
+  const html = page("tax-calendar.html");
+  assert.match(html, /No warranty/);
+  assert.match(html, /not legal, tax, or financial advice/);
+  for (const id of ["year", "state", "freq"]) assert.match(html, new RegExp(`<label for="${id}">`), id);
+  assert.doesNotMatch(html, /fetch\(|XMLHttpRequest|sendBeacon/);
+  for (const m of html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/gs)) JSON.parse(m[1]);
 });

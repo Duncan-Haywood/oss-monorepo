@@ -21,8 +21,9 @@ and one fix from step 5; skip the audit and drift report, say so in the log.
 python3 prompts/promptctl.py measure
 ```
 
-Full output is 50KB+: `--section candidates` or `--section friction` prints
-one part. Make the numbers true before you trust them:
+Full output is 50KB+ and, in a shallow clone, takes over 120 s (it deepens
+history): start it with `run_in_background` (plain `>file 2>&1`, not a chained subshell, which hides the file until done); `wait_for.py` gives up after 100 s and exits 1, so re-poll until it prints DONE, and read the output file;
+`--section candidates` or `--section friction` prints one part. Make the numbers true before you trust them:
 
 - **Measure what runs could not know.** Run first:
   `python3 prompts/derive.py fetch && python3 prompts/derive.py build`. It
@@ -30,8 +31,8 @@ one part. Make the numbers true before you trust them:
   record that names a PR into `prompts/derived/`, which `measure` reads, so
   records need no hand edits. Commit the regenerated directory with the review.
   `fetch` is incremental and takes 2 to 5 min: run `fetch && build` once with
-  `run_in_background` and poll its log under `timeout 110` (Monitor and chained
-  `sleep` are blocked). On a 403 (no GitHub API), skip both and say so.
+  `run_in_background`, as its own command (chained with others it blew the timeout) and poll it with `python3 platform/ci/wait_for.py <log>` (Monitor and chained
+  `sleep` are blocked). Run it and `measure` one after the other: `measure` holds git's `shallow.lock`, so a parallel `git fetch` fails. On a 403 (no GitHub API), skip both and say so.
 - **Count leaked work.** Branches or pull requests a recorded run pushed that
   were not on `main` 24 hours later. Set `merged: false` on their records.
   Then land or close each one, per `land-your-work.md`.

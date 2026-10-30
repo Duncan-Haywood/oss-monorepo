@@ -313,6 +313,15 @@ def with_site_chrome(page, chrome, root, replace_topbar, header_key="header", fi
     return page
 
 
+def title_tag(title, limit=48):
+    """The <title> text: a result snippet shows about 60 characters, and many
+    projects are titled with a whole question (up to 246). Cut at a word."""
+    if len(title) <= limit:
+        return title
+    cut = title[:limit - 1].rsplit(" ", 1)[0].rstrip(",:;-– ")
+    return cut + "\u2026"
+
+
 def text(s):
     """HTML (a title with entities or <em>) as escaped plain text, for <title>, attributes and crumbs."""
     return html.escape(plain(s).strip(), quote=True)
@@ -321,6 +330,12 @@ def text(s):
 def shared_title(p, themes):
     """Whether another project has the same title, so the page title needs the slug to be unique."""
     return any(q["title"] == p["title"] and q["slug"] != p["slug"] for t in themes for q in t["projects"])
+
+
+def clipped_title_taken(p, themes):
+    """True when another project's <title> clips to the same text as this one's."""
+    mine = title_tag(plain(p["title"]))
+    return any(title_tag(plain(q["title"])) == mine and q["slug"] != p["slug"] for t in themes for q in t["projects"])
 
 
 def topic_chips(themes, current, root):
@@ -398,7 +413,8 @@ def project_page(p, theme, lede, tests, tokens, theme_vars, tmpl, out, base_url=
         "TOKENS": tokens, "THEME_VARS": theme_vars, "SLUG": slug, "TITLE": p["title"], "LEDE": lede, "SUMMARY": p["summary"],
         "DESC": html.escape(plain(p["summary"])[:240]), "THEME_ID": theme["id"], "THEME_NAME": theme["name"],
         "STATS": stats, "FIGURE": figure, "LOG": log_html(slug), "LINKS": links, "REPO_URL": REPO_URL, "REPO": REPO,
-        "TITLE_TEXT": text(p["title"]) + (f" (research/{slug})" if shared_title(p, themes) else ""), "THEME_COUNT": str(len(theme["projects"])),
+        "TITLE_TEXT": text(p["title"]) + (f" (research/{slug})" if shared_title(p, themes) else ""),
+        "TITLE_TAG": html.escape(title_tag(plain(p["title"]))) + (f" (research/{slug})" if shared_title(p, themes) or clipped_title_taken(p, themes) else ""), "THEME_COUNT": str(len(theme["projects"])),
         "PAGER": pager(theme, index), "MORE": more_in_topic(theme, index, ledes or {}),
         "TOPICS": topic_chips(themes, theme["id"], "../"),
     }.items():

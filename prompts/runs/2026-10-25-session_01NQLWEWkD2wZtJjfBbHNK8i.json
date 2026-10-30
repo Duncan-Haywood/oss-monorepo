@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-25",
+  "session": "https://claude.ai/code/session_01NQLWEWkD2wZtJjfBbHNK8i",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-25T19:58:50Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 5): einvoice-preflight",
+  "projects": [
+    "einvoice-preflight"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/10468",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Router drew the creative track; the scheduled task asked for revenue ventures, so I worked a flagship venture (ventures track)."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-25-luxembourg-e-invoice-mandate-page.md"
+  ],
+  "goal": null,
+  "notes": "Luxembourg mandate page (draft bill, dates from vendor sources, bill unread, no penalty stated); hub 31 pages; 269 mandate-page tests pass (node --test).",
+  "corrections": [],
+  "redteam": null
+}

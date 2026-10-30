@@ -102,3 +102,8 @@ test("season odds: every day lost is a certain loss of the season costs", () => 
   assert.equal(s.pLoss, 1);
   assert.equal(Math.round(s.expected), -seasonFixed(base));
 });
+
+test("a negative input is treated as zero, as the page does, not carried into the profit", () => {
+  assert.equal(project({ ...base, rent: -5000 }).profit, project({ ...base, rent: 0 }).profit);
+  assert.deepEqual(analyze({ ...base, visitors: -10 }).now, analyze({ ...base, visitors: 0 }).now);
+});

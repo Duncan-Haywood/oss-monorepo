@@ -11,6 +11,7 @@ export function cleanOcr(text) {
     .replace(/(\d[.,])\s+(\d{2})(?!\d)/g, "$1$2")
     .replace(/(^|[\s$€£])([OoIl|])(?=[.,]\d{2}(?!\d))/g, (m, p, c) => p + LOOK[c]) // "O.87" -> "0.87"
     .replace(/[\w$€£|.,\/-]+/g, (tok) => {
+    if (/^\d+[.,]\d{2}(?:SR|ZR|TX|ES|RS)$/.test(tok)) return tok; // "7.50ZR": a price and its tax code (Malaysian SR/ZR), not 7.5025
     const digits = (tok.match(/\d/g) || []).length;
     const letters = (tok.match(/[A-Za-z|]/g) || []).length;
     if (digits < 2 || letters === 0 || letters > digits) return tok; // a word, or no anchor

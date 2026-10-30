@@ -1,0 +1,6 @@
+honest held-out loss 2.7252 (seed std 0.0083); update norm quantiles 10/50/90%: 0.0038 0.0806 0.2191; float32 reorder drift p99 9.11e-08, max 1.52e-07
+tau       skipped   degradation [95% CI]            seeds where skipping is better
+1e-03     0.051     +0.00009 [+0.00005, +0.00013]  0.00
+1e-02     0.163     +0.00167 [+0.00108, +0.00218]  0.10
+3e-02     0.288     +0.00847 [+0.00773, +0.00919]  0.00
+1e-01     0.588     +0.06199 [+0.05681, +0.06755]  0.00

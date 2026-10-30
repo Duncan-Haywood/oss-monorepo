@@ -1,0 +1,53 @@
+{
+  "date": "2026-10-29",
+  "session": "https://claude.ai/code/session_01AcxTtJwRiwnZPdN9YAnQu3",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-29T14:30:19Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 11417,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "flagship 4 next: is over the 2,000 character cap; trimming took three tries because the YAML is line-wrapped"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "why": "Landed a small evaluation slice (two real series) rather than a hard engineering milestone, to fit the run",
+      "did": "pinned WWWusage and nhtemp with tests, README, post",
+      "result": "merged slice; full suite not confirmed before merge"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-29-a-wandering-series-is-not-a-staircase.md"
+  ],
+  "goal": null,
+  "notes": "",
+  "corrections": [],
+  "redteam": null
+}

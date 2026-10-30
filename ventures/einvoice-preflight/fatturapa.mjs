@@ -9,15 +9,16 @@
 // tax number.
 
 import { parseXmlTree } from "./ubl.mjs";
+import { checkAgainstSchema } from "./fatturapa-xsd.mjs";
 
 const DOC_TYPES = new Set([
   "TD01", "TD02", "TD03", "TD04", "TD05", "TD06", "TD07", "TD08", "TD09",
   "TD16", "TD17", "TD18", "TD19", "TD20", "TD21", "TD22", "TD23", "TD24",
-  "TD25", "TD26", "TD27", "TD28",
+  "TD25", "TD26", "TD27", "TD28", "TD29",
 ]);
 const REGIMES = new Set([
   "RF01", "RF02", "RF04", "RF05", "RF06", "RF07", "RF08", "RF09", "RF10",
-  "RF11", "RF12", "RF13", "RF14", "RF15", "RF16", "RF17", "RF18", "RF19",
+  "RF11", "RF12", "RF13", "RF14", "RF15", "RF16", "RF17", "RF18", "RF19", "RF20",
 ]);
 const NATURE = new Set([
   "N1", "N2.1", "N2.2", "N3.1", "N3.2", "N3.3", "N3.4", "N3.5", "N3.6", "N4",
@@ -145,15 +146,19 @@ function adjust(price, discounts) {
   return value;
 }
 
-function checkBody(body, index, out, skipped) {
+function checkBody(body, index, out, skipped, sellerCountry) {
   const p = `/FatturaElettronicaBody[${index + 1}]`;
   const general = at(body, "DatiGenerali", "DatiGeneraliDocumento");
   const type = txt(general, "TipoDocumento");
   if (!type) {
     out.push(finding("IT-008", "TipoDocumento is missing.", "Set TipoDocumento, for example TD01 for an invoice or TD04 for a credit note.", `${p}/DatiGenerali/DatiGeneraliDocumento/TipoDocumento`));
   } else if (!DOC_TYPES.has(type)) {
-    out.push(finding("IT-008", "TipoDocumento is not a code this checker knows (TD01-TD09, TD16-TD28).",
+    out.push(finding("IT-008", "TipoDocumento is not a code this checker knows (TD01-TD09, TD16-TD29).",
       "Use a published TipoDocumento code; newer codes added after this list was built will be flagged until it is updated.", `${p}/DatiGenerali/DatiGeneraliDocumento/TipoDocumento`));
+  }
+  if (type === "TD29" && sellerCountry && sellerCountry !== "IT") {
+    out.push(finding("IT-023", "A TD29 (omitted or irregular invoicing report) must name an Italian seller; SdI rejects it when the seller's IdPaese is not IT (its error 00473).",
+      "Use TD29 only for a supplier established in Italy; for a foreign supplier use the document type that fits the case, for example TD17-TD19.", `${p}/DatiGenerali/DatiGeneraliDocumento/TipoDocumento`));
   }
   const currency = txt(general, "Divisa");
   if (!/^[A-Z]{3}$/.test(currency)) {
@@ -285,52 +290,6 @@ function ibanValid(iban) {
 }
 
 
-// Child order the schema (XSD) requires inside the blocks below. SdI rejects a
-// file whose elements are out of sequence, the commonest "not conforming to the
-// format" cause for hand-built files. Written from memory of the published
-// schema, so only the order of elements present is checked, never presence.
-const SEQUENCES = {
-  FatturaElettronicaHeader: ["DatiTrasmissione", "CedentePrestatore", "RappresentanteFiscale", "CessionarioCommittente", "TerzoIntermediarioOSoggettoEmittente", "SoggettoEmittente"],
-  DatiTrasmissione: ["IdTrasmittente", "ProgressivoInvio", "FormatoTrasmissione", "CodiceDestinatario", "ContattiTrasmittente", "PECDestinatario"],
-  DatiAnagrafici: ["IdFiscaleIVA", "CodiceFiscale", "Anagrafica", "AlboProfessionale", "ProvinciaAlbo", "NumeroIscrizioneAlbo", "DataIscrizioneAlbo", "RegimeFiscale"],
-  Sede: ["Indirizzo", "NumeroCivico", "CAP", "Comune", "Provincia", "Nazione"],
-  FatturaElettronicaBody: ["DatiGenerali", "DatiBeniServizi", "DatiVeicoli", "DatiPagamento", "Allegati"],
-  DatiGenerali: ["DatiGeneraliDocumento", "DatiOrdineAcquisto", "DatiContratto", "DatiConvenzione", "DatiRicezione", "DatiFattureCollegate", "DatiSAL", "DatiDDT", "DatiTrasporto", "FatturaPrincipale"],
-  DatiGeneraliDocumento: ["TipoDocumento", "Divisa", "Data", "Numero", "DatiRitenuta", "DatiBollo", "DatiCassaPrevidenziale", "ScontoMaggiorazione", "ImportoTotaleDocumento", "Arrotondamento", "Causale", "Art73"],
-  DatiBeniServizi: ["DettaglioLinee", "DatiRiepilogo"],
-  DettaglioLinee: ["NumeroLinea", "TipoCessionePrestazione", "CodiceArticolo", "Descrizione", "Quantita", "UnitaMisura", "DataInizioPeriodo", "DataFinePeriodo", "PrezzoUnitario", "ScontoMaggiorazione", "PrezzoTotale", "AliquotaIVA", "Ritenuta", "Natura", "RiferimentoAmministrazione", "AltriDatiGestionali"],
-  DatiRiepilogo: ["AliquotaIVA", "Natura", "SpeseAccessorie", "Arrotondamento", "ImponibileImporto", "Imposta", "EsigibilitaIVA", "RiferimentoNormativo"],
-  DatiPagamento: ["CondizioniPagamento", "DettaglioPagamento"],
-};
-
-// Elements whose relative order is not enforced: the Agenzia delle Entrate's own
-// sample IT01234567890_FPR02.xml (ZUGFeRD corpus, official/valid) puts
-// PECDestinatario before ContattiTrasmittente, against the order above, and the
-// corpus lists it as valid. Until the XSD itself is read, the pair is not ranked.
-const SAME_RANK = { DatiTrasmissione: ["ContattiTrasmittente", "PECDestinatario"] };
-
-function checkOrder(node, path, out) {
-  let seq = SEQUENCES[node.name];
-  if (seq && SAME_RANK[node.name]) seq = seq.map((n) => (SAME_RANK[node.name].includes(n) ? SAME_RANK[node.name][0] : n));
-  if (seq) {
-    let high = -1;
-    let highName = "";
-    for (const c of node.children) {
-      const same = SAME_RANK[node.name];
-      const idx = seq.indexOf(same && same.includes(c.name) ? same[0] : c.name);
-      if (idx < 0) continue;
-      if (idx < high) {
-        out.push(finding("IT-018", `${c.name} comes after ${highName} in ${node.name}, but the schema puts it before.`,
-          `Move ${c.name} ahead of ${highName}; SdI rejects elements out of sequence.`, `${path}/${c.name}`));
-        return;
-      }
-      high = idx;
-      highName = c.name;
-    }
-  }
-  for (const c of node.children) checkOrder(c, `${path}/${c.name}`, out);
-}
-
 /** @returns {{findings: object[], skipped: string[]}} */
 export function checkFatturaPa(source) {
   const text = typeof source === "string" ? source : new TextDecoder().decode(source);
@@ -362,7 +321,7 @@ export function checkFatturaPa(source) {
   checkParty("seller", at(seller, "DatiAnagrafici"), "/FatturaElettronicaHeader/CedentePrestatore/DatiAnagrafici", out);
   const regime = txt(seller, "DatiAnagrafici", "RegimeFiscale");
   if (!regime || !REGIMES.has(regime)) {
-    out.push(finding("IT-006", regime ? "RegimeFiscale is not a known code (RF01-RF19, no RF03)." : "The seller's RegimeFiscale is missing.",
+    out.push(finding("IT-006", regime ? "RegimeFiscale is not a known code (RF01-RF20, no RF03)." : "The seller's RegimeFiscale is missing.",
       "Set RegimeFiscale, for example RF01 for the ordinary regime or RF19 for the flat-rate regime.", "/FatturaElettronicaHeader/CedentePrestatore/DatiAnagrafici/RegimeFiscale"));
   }
   checkAddress("seller", at(seller, "Sede"), "/FatturaElettronicaHeader/CedentePrestatore/Sede", out);
@@ -374,7 +333,8 @@ export function checkFatturaPa(source) {
   if (!bodies.length) {
     out.push(finding("IT-010", "The file has no FatturaElettronicaBody.", "Add the body with DatiGenerali and DatiBeniServizi.", "/FatturaElettronica"));
   }
-  bodies.forEach((b, i) => checkBody(b, i, out, skipped));
-  checkOrder(root, "/FatturaElettronica", out);
+  const sellerCountry = txt(seller, "DatiAnagrafici", "IdFiscaleIVA", "IdPaese");
+  bodies.forEach((b, i) => checkBody(b, i, out, skipped, sellerCountry));
+  out.push(...checkAgainstSchema(root, text));
   return { findings: out, skipped: [...new Set(skipped)] };
 }

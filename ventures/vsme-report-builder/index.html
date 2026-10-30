@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%231d5a3a'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EV%3C/text%3E%3C/svg%3E"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>VSME Report Builder — Free Sustainability Report for Small Suppliers (Basic Module)</title>
+  <meta name="description" content="Free VSME Basic Module report builder for small EU suppliers asked for ESG data by customers or banks: fill in energy, emissions, workforce and safety figures, get a draft report, a completeness check and consistency flags. Runs in your browser; nothing is uploaded.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"VSME Report Builder","applicationCategory":"BusinessApplication","operatingSystem":"Any (web browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"}}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the VSME standard?","acceptedAnswer":{"@type":"Answer","text":"A voluntary standard for small and medium-sized undertakings from EFRAG (December 2024). Its Basic Module covers B1 to B11: basis for preparation, practices, energy and emissions, pollution, biodiversity, water, waste, workforce, health and safety, pay and training, and corruption fines."}},{"@type":"Question","name":"Do I have to report?","acceptedAnswer":{"@type":"Answer","text":"It is voluntary. Large customers, banks and investors that report under CSRD often ask suppliers for the same data; ask which format they want."}},{"@type":"Question","name":"Where do emission factors come from?","acceptedAnswer":{"@type":"Answer","text":"From your energy supplier's statement or a national or international factor table. The page does not supply factors, because a wrong one is worse than a blank; it asks you to name the source."}}]}</script>
+  <style>
+    :root{font:16px system-ui,sans-serif;color:#1b2a22;background:#f2f5f1}
+    body{max-width:1040px;margin:auto;padding:28px}
+    a{color:#1d5a3a}
+    h1{font-size:clamp(1.7rem,4.6vw,2.6rem);line-height:1.1;margin:0 0 14px;color:#143524}
+    h2{font-size:1.15rem;margin:0 0 10px;color:#143524}
+    h3{font-size:1rem;margin:20px 0 4px}
+    .note,footer{font-size:.86rem;color:#4a5a50}
+    .card{background:#fff;border:1px solid #d3dcd2;border-radius:14px;padding:22px;box-shadow:0 8px 24px #14352410;margin:18px 0}
+    label{display:block;font-weight:600;margin:10px 0 3px;font-size:.92rem}
+    input,select,textarea{width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid #a9b8ab;border-radius:7px;font:15px system-ui,sans-serif;background:#fff}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:4px 14px}
+    button{border:0;border-radius:8px;padding:11px 15px;background:#1d5a3a;color:#fff;font-weight:700;cursor:pointer;margin:14px 8px 0 0}
+    button.secondary{background:#e1ece4;color:#143524}
+    .pill{display:inline-block;font-size:.68rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:2px 8px;border-radius:999px;margin-right:8px}
+    .pill.complete{background:#dcf2e3;color:#14532d}.pill.partial{background:#fdf0d5;color:#7c5e10}.pill.missing{background:#fde8e8;color:#9a3412}
+    .pill.error{background:#fde8e8;color:#9a3412}.pill.warn{background:#fdf0d5;color:#7c5e10}
+    .row{padding:6px 0;border-bottom:1px solid #e6ece4}
+    pre{white-space:pre-wrap;font:13px/1.5 ui-monospace,monospace;background:#fafcf9;border:1px solid #d3dcd2;border-radius:8px;padding:16px;overflow-x:auto}
+    @media(max-width:720px){body{padding:16px}}
+    @media print{body{background:#fff;padding:0}.card{box-shadow:none;border:0}button,#inputs,footer,#faq,header{display:none}}
+  </style>
+</head>
+<body>
+<header>
+  <p class="note">VSME REPORT BUILDER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+  <h1>A customer or bank asked for your ESG data? Build the VSME Basic Module report.</h1>
+  <p>Fill in what you know, in any order. You get a <strong>draft report laid out as disclosures B1 to B11</strong>, a <strong>completeness check</strong> per disclosure, and <strong>flags</strong> where figures contradict each other (men plus women not equal to total staff, renewable energy above total, hazardous waste above total waste). Anything you leave blank prints as "not reported", never as zero.</p>
+  <p class="note">Written from secondary summaries of EFRAG's VSME standard (the standard's own text was not reachable when this was built): check the draft against it. A tool for preparing data, not assurance and not advice.</p>
+</header>
+<main>
+<section class="card" id="inputs">
+  <div id="form"></div>
+  <button id="run">Build the report</button>
+  <button id="example" class="secondary">Load an example</button>
+  <button id="clear" class="secondary">Clear</button>
+</section>
+<section class="card" id="out" hidden>
+  <h2>Completeness</h2><div id="status"></div>
+  <h2 style="margin-top:20px">Open points</h2><div id="flags"></div>
+  <h2 style="margin-top:20px">Draft report</h2><pre id="report"></pre>
+  <button id="dl">Download as Markdown</button><button id="print" class="secondary">Print or save as PDF</button>
+</section>
+<section class="card" id="faq">
+  <h2>Questions</h2>
+  <h3>What is the VSME standard?</h3><p>A voluntary standard for small and medium-sized undertakings from EFRAG (December 2024). Its Basic Module covers B1 to B11: basis for preparation, practices, energy and emissions, pollution, biodiversity, water, waste, workforce, health and safety, pay and training, and corruption fines.</p>
+  <h3>Do I have to report?</h3><p>It is voluntary. Large customers, banks and investors that report under CSRD often ask suppliers for the same data; ask which format they want.</p>
+  <h3>Where do emission factors come from?</h3><p>From your energy supplier's statement or a national or international factor table. The page does not supply factors, because a wrong one is worse than a blank; it asks you to name the source.</p>
+  <p>Related: the <a href="../eu-csrd-scope-checker/">EU CSRD scope checker</a>, the <a href="../cbam-cost-estimator/">CBAM cost estimator</a> and the <a href="../nis2-scope-checker/">NIS2 scope checker</a>.</p><h3>Not decided here</h3><p>Whether you are in scope of anyone's request, which Scope 2 method a customer wants, and whether your figures are right. Nothing is assured.</p>
+  <p class="note"><code>report_built</code>, <code>example_loaded</code> and <code>report_downloaded</code> are counted in this browser only (see the privacy line).</p>
+</section>
+</main>
+<footer>
+  <p><strong>No warranty.</strong> Free and as-is, MIT licensed. Provided for information; it is not legal, tax, accounting, compliance, or financial advice. Everything runs in your browser; nothing you type leaves this page. Local usage counters (events only, no figures) can be switched off: <label style="display:inline;font-weight:400"><input type="checkbox" id="optout" style="width:auto"> do not count my usage</label></p>
+  <p>Free to use. If it saved you time, <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. Source: <a href="https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/vsme-report-builder">vsme-report-builder</a>.</p>
+</footer>
+<script type="module">
+import { FIELDS, DISCLOSURES, EXAMPLE, analyse, reportMarkdown } from "./calc.mjs";
+import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+let html = "";
+for (const d of Object.keys(DISCLOSURES)) {
+  html += `<h3>${d} ${esc(DISCLOSURES[d])}</h3><div class="grid">`;
+  for (const f of FIELDS.filter((x) => x.d === d)) {
+    const lab = `${esc(f.label)}${f.unit ? " (" + esc(f.unit) + ")" : ""}`;
+    html += f.kind === "choice"
+      ? `<div><label for="f_${f.id}">${lab}</label><select id="f_${f.id}"><option value=""></option>${f.options.map((o) => `<option>${o}</option>`).join("")}</select></div>`
+      : `<div><label for="f_${f.id}">${lab}</label><input id="f_${f.id}" ${f.kind === "num" ? 'inputmode="decimal"' : ""}></div>`;
+  }
+  html += "</div>";
+}
+$("form").innerHTML = html;
+const read = () => Object.fromEntries(FIELDS.map((f) => [f.id, $("f_" + f.id).value]));
+const fill = (o) => FIELDS.forEach((f) => { $("f_" + f.id).value = o[f.id] ?? ""; });
+let md = "";
+function run() {
+  const input = read(), a = analyse(input);
+  md = reportMarkdown(input);
+  $("status").innerHTML = Object.entries(a.status).map(([d, s]) => `<div class="row"><span class="pill ${s.state}">${s.state}</span><strong>${d}</strong> ${esc(DISCLOSURES[d])}${s.missing.length ? ` <span class="note">needs: ${s.missing.map((id) => esc(FIELDS.find((f) => f.id === id).label)).join("; ")}</span>` : ""}</div>`).join("");
+  $("flags").innerHTML = a.flags.length ? a.flags.map((f) => `<div class="row"><span class="pill ${f.level}">${f.level}</span><strong>${f.d}</strong> ${esc(f.text)}</div>`).join("") : '<p class="note">No contradictions found in what you entered.</p>';
+  $("report").textContent = md; $("out").hidden = false; $("out").scrollIntoView();
+  record("report_built");
+}
+$("run").onclick = run;
+$("example").onclick = () => { fill(EXAMPLE); record("example_loaded"); run(); };
+$("clear").onclick = () => { fill({}); $("out").hidden = true; };
+$("dl").onclick = () => {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([md], { type: "text/markdown" })); a.download = "vsme-basic-report.md"; a.click();
+  record("report_downloaded");
+};
+$("print").onclick = () => window.print();
+$("optout").checked = usageOptedOut();
+$("optout").onchange = (e) => setUsageOptOut(e.target.checked);
+</script>
+</body>
+</html>

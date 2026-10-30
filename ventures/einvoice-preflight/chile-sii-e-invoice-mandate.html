@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e551b'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EE%3C/text%3E%3C/svg%3E"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chile electronic invoicing: SII folios (CAF), the 8-day rule and a RUT check digit | E-invoice Preflight</title>
+<meta name="description" content="Chile issues tax documents as signed XML (DTE) numbered with folios authorised by the tax authority, SII. The CAF, the 8-day acceptance rule as reported, and a free local RUT check-digit test.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/chile-sii-e-invoice-mandate.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Chile electronic invoicing: SII folios (CAF), the 8-day rule and a RUT check digit | E-invoice Preflight">
+<meta property="og:description" content="Chile issues tax documents as signed XML (DTE) numbered with folios authorised by the tax authority, SII. The CAF, the 8-day acceptance rule as reported, and a free local RUT check-digit test.">
+<meta property="og:url" content="https://example.invalid/einvoice-preflight/chile-sii-e-invoice-mandate.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is a DTE in Chile?","acceptedAnswer":{"@type":"Answer","text":"A DTE (documento tributario electrónico) is Chile’s electronic tax document: XML numbered with a folio from a range the tax authority (SII) authorised for that document type, and signed with a certificate recognised by the SII, stamp included. Invoices, sales receipts and purchase invoices are among them. This is a summary from SII documents and vendor guides, not advice; confirm with the SII or your accountant."}},{"@type":"Question","name":"What is a CAF?","acceptedAnswer":{"@type":"Answer","text":"The código de autorización de folios: what the SII returns when an authorised signatory requests a folio range for a document type. It carries a key pair used to generate and verify the electronic stamp. Each document type has its own CAF. Sources disagree on how long a CAF stays valid (6 months, counted from authorisation or from the request), so check the SII."}},{"@type":"Question","name":"How long does a buyer have to reject an invoice?","acceptedAnswer":{"@type":"Answer","text":"The SII says 8 calendar days from when it received the document; after that, with no acceptance and no claim, the invoice is presumed accepted. A vendor blog credits Law 20,956 of October 2016 with the 8-day limit, and one vendor page says 7 days, so confirm the count with the SII."}},{"@type":"Question","name":"Can this checker validate a Chilean DTE?","acceptedAnswer":{"@type":"Answer","text":"No. It does not read the SII’s DTE schema, and cannot verify a CAF, stamp or signature. It does test a RUT’s shape and check digit on this page, and a clean result is not an acceptance by the SII."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch}.lede{font-size:1.05rem;max-width:64ch;color:#3d4f5f}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #15202b10;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #d3dbe4;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#3d4f5f}.fine,.note{font-size:.88rem;color:#3d4f5f}footer{color:#3d4f5f;font-size:.86rem}footer p{margin:.6rem 0}.out{min-height:1.4em}.good{color:#0a6b3a;font-weight:600}.bad{color:#a12d1b}input{font:inherit;padding:.4rem .5rem;border:1px solid #9fb0c0;border-radius:8px}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; E-invoice Preflight</a></p>
+<header>
+<h1>Chile: SII hands you the invoice numbers, and the buyer has eight days</h1>
+<p class="lede">In Chile, per the guides read, a tax document is a DTE: XML signed with a certificate recognised by the tax authority (SII) and numbered from a range of folios the SII authorised for that document type. A received invoice counts as accepted if nobody claims against it in eight days. Below: how it works as vendor guides and SII documents report it, where sources disagree, and a local check of a RUT&rsquo;s check digit.</p>
+</header>
+<section>
+<h2>How it works (as vendor guides report it)</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Step</th><th scope="col">What happens</th></tr></thead>
+<tbody>
+<tr><td>Get folios</td><td>An authorised signatory authenticates on the SII site with a digital certificate and requests a range of folios for one document type. The SII returns a CAF (código de autorización de folios) with a key pair used to generate and verify the electronic stamp.</td></tr>
+<tr><td>Issue</td><td>Each document is numbered with a unique folio and signed in full, stamp included. The documents include invoices, sales receipts (boletas), and a purchase invoice (factura de compra) that the SII&rsquo;s free system also offers.</td></tr>
+<tr><td>Send</td><td>The issuer sends the DTE to the SII, which receives it and checks it; the buyer gets the document too.</td></tr>
+<tr><td>Accept or claim</td><td>The buyer may accept or claim the invoice within 8 calendar days counted from when the SII received it. The SII says that after 8 days with no acceptance and no claim, the invoice is presumed accepted.</td></tr>
+</tbody>
+</table>
+</div>
+<p class="fine">Where it is unsettled: how long a CAF stays valid (one source says 6 months from the date the CAF was authorised for CAFs authorised since 1 July 2018, another says 6 months from when the folios were requested), the date e-invoicing became mandatory for every taxpayer (one source says 2018; another names Law 20,727 as the base), and the 8-day rule&rsquo;s origin (a vendor blog credits Law 20,956 of October 2016; one vendor page says 7 days, the SII says 8). These are SII PDFs and vendor blogs read through search excerpts, not the laws. No penalty is stated because none was read. A summary, not tax advice.</p>
+</section>
+<section>
+<h2>Check a RUT</h2>
+<p>Tests the shape (up to eight digits, a hyphen and a check digit that is 0 to 9 or K) and the check digit. It does not look anything up, so it cannot say whether the RUT is registered or belongs to the name on the invoice. Dots and spaces are ignored. A single wrong digit is never missed, because the weights (2 to 7) are never a multiple of 11, and neither were swapped neighbouring digits in a sample (0 of 12,667 swaps on 2,000 sample company RUTs).</p>
+<label>RUT <input id="id" size="18" maxlength="20" autocomplete="off" spellcheck="false" placeholder="76.086.428-5"></label>
+<p id="id-out" class="out" aria-live="polite"></p>
+<p class="fine">The sample is a valid RUT I know of. The rule (mod 11, weights 2 to 7 repeating from the right, 11 gives 0 and 10 gives K) reproduces four RUTs I know, including the SII&rsquo;s own (60.805.000-0); it was not read from the SII&rsquo;s specification.</p>
+</section>
+<section>
+<h2>What this checker does and does not cover</h2>
+<p>The main checker reads UBL, CII and Factur-X and applies EN 16931 and Peppol rules. It does <strong>not</strong> read the DTE XML (the SII&rsquo;s own schema), cannot verify a CAF, stamp or signature, and has no SII catalogues. Treat the RUT test here as a typo catch only.</p>
+</section>
+<section>
+<h2>Test a file before you send it</h2>
+<p>For a European or Peppol invoice, open the <a href="./">checker</a>, drop your XML and read the findings, each with a rule ID and a fix (<a href="what-does-this-e-invoice-error-code-mean.html">the rule reference</a>). No account, nothing uploaded. No invoice yet? The <a href="create.html">e-invoice creator</a> turns a form into UBL or CII XML and checks it. Other countries: <a href="e-invoicing-mandates-by-country.html">all side by side</a> <a href="mexico-cfdi-e-invoice-mandate.html">Mexico</a> <a href="brazil-nfe-e-invoice-mandate.html">Brazil</a> <a href="colombia-dian-e-invoice-mandate.html">Colombia</a> <a href="japan-invoice-system-e-invoice-mandate.html">Japan</a> <a href="spain-verifactu-e-invoice-mandate.html">Spain</a>.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>What is a DTE in Chile?</h3>
+<p>A DTE (documento tributario electrónico) is Chile&rsquo;s electronic tax document: XML numbered with a folio from a range the tax authority (SII) authorised for that document type, and signed with a certificate recognised by the SII, stamp included. Invoices, sales receipts and purchase invoices are among them. This is a summary from SII documents and vendor guides, not advice; confirm with the SII or your accountant.</p>
+<h3>What is a CAF?</h3>
+<p>The código de autorización de folios: what the SII returns when an authorised signatory requests a folio range for a document type. It carries a key pair used to generate and verify the electronic stamp. Each document type has its own CAF. Sources disagree on how long a CAF stays valid (6 months, counted from authorisation or from the request), so check the SII.</p>
+<h3>How long does a buyer have to reject an invoice?</h3>
+<p>The SII says 8 calendar days from when it received the document; after that, with no acceptance and no claim, the invoice is presumed accepted. A vendor blog credits Law 20,956 of October 2016 with the 8-day limit, and one vendor page says 7 days, so confirm the count with the SII.</p>
+<h3>Can this checker validate a Chilean DTE?</h3>
+<p>No. It does not read the SII&rsquo;s DTE schema, and cannot verify a CAF, stamp or signature. It does test a RUT&rsquo;s shape and check digit on this page, and a clean result is not an acceptance by the SII.</p>
+<p class="note">Open the <a href="./">E-invoice Preflight</a> checker to validate your own invoice file.</p>
+</section>
+<section>
+<h2>More countries</h2>
+<p><a href="australia-e-invoice-mandate.html">Australia</a> <a href="austria-e-invoice-mandate.html">Austria</a> <a href="belgium-e-invoice-mandate.html">Belgium</a> <a href="brazil-nfe-e-invoice-mandate.html">Brazil</a> <a href="bulgaria-e-invoice-mandate.html">Bulgaria</a> <a href="croatia-e-invoice-mandate.html">Croatia</a> <a href="cyprus-e-invoice-mandate.html">Cyprus</a> <a href="czech-republic-e-invoice-mandate.html">Czech Republic</a> <a href="denmark-e-invoice-mandate.html">Denmark</a> <a href="estonia-e-invoice-mandate.html">Estonia</a> <a href="finland-e-invoice-mandate.html">Finland</a> <a href="france-e-invoice-mandate.html">France</a> <a href="germany-e-invoice-mandate.html">Germany</a> <a href="greece-mydata-e-invoice-mandate.html">Greece</a> <a href="hungary-e-invoice-mandate.html">Hungary</a> <a href="ireland-e-invoice-mandate.html">Ireland</a> <a href="italy-sdi-e-invoice-mandate.html">Italy</a> <a href="latvia-e-invoice-mandate.html">Latvia</a> <a href="lithuania-e-invoice-mandate.html">Lithuania</a> <a href="luxembourg-e-invoice-mandate.html">Luxembourg</a> <a href="malta-e-invoice-mandate.html">Malta</a> <a href="netherlands-e-invoice-mandate.html">Netherlands</a> <a href="norway-e-invoice-mandate.html">Norway</a> <a href="poland-ksef-e-invoice-mandate.html">Poland</a> <a href="portugal-e-invoice-mandate.html">Portugal</a> <a href="romania-e-factura-e-invoice-mandate.html">Romania</a> <a href="serbia-e-invoice-mandate.html">Serbia</a> <a href="singapore-invoicenow-e-invoice-mandate.html">Singapore Invoicenow</a> <a href="slovakia-e-invoice-mandate.html">Slovakia</a> <a href="slovenia-e-invoice-mandate.html">Slovenia</a> <a href="spain-verifactu-e-invoice-mandate.html">Spain</a> <a href="switzerland-e-invoice-mandate.html">Switzerland</a> <a href="uk-e-invoice-mandate.html">Uk</a> <a href="india-gst-e-invoice-mandate.html">India</a> <a href="malaysia-myinvois-e-invoice-mandate.html">Malaysia</a> <a href="saudi-arabia-zatca-e-invoice-mandate.html">Saudi Arabia</a> <a href="sweden-e-invoice-mandate.html">Sweden</a> <a href="turkey-e-invoice-mandate.html">Turkey</a> <a href="uae-e-invoice-mandate.html">United Arab Emirates</a> <a href="peru-sunat-e-invoice-mandate.html">Peru</a> <a href="argentina-arca-e-invoice-mandate.html">Argentina</a> <a href="colombia-dian-e-invoice-mandate.html">Colombia</a> <a href="uruguay-dgi-e-invoice-mandate.html">Uruguay</a> <a href="paraguay-dnit-e-invoice-mandate.html">Paraguay</a> <a href="ecuador-sri-e-invoice-mandate.html">Ecuador</a> <a href="vietnam-e-invoice-mandate.html">Vietnam</a></p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or accounting advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every check runs locally. This page is static and summarises the Chilean position from search excerpts of SII documents and vendor guides, not from the laws; things can change, so check the SII (sii.cl) and the current rules before relying on it.</p>
+<p class="support">Free and open source. If it caught a defect before a rejection, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+</footer>
+<script type="module">
+import{checkRut}from"./chile.mjs";
+const $=i=>document.getElementById(i);
+const esc=t=>String(t).replace(/[&<>"']/g,c=>"&#"+c.charCodeAt(0)+";");
+function r(){const v=$("id").value;if(!v.trim()){$("id-out").innerHTML="";return}const x=checkRut(v);$("id-out").innerHTML=x.ok?'<span class="good">'+"Shape and check digit are consistent ("+(x.kind==="company"?"a number in the usual company range":"a number in the usual person range")+")."+"</span>":x.problems.map(p=>`<span class="bad">${esc(p)}</span>`).join("<br>")}
+$("id").addEventListener("input",r);
+</script>
+</body>
+</html>

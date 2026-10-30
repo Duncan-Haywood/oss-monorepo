@@ -3,10 +3,21 @@
  "source": "platform/counter (first-party, cookieless, no IPs or referring hosts stored)",
  "days": {
   "2026-10-24": {
+   "about": 4,
+   "ask": 3,
+   "c": 3,
+   "hearth-and-horizon": 3
+  },
+  "2026-10-26": {
+   "about": 1,
+   "ask": 3,
+   "c": 2,
+   "c/self-hosted": 1
+  },
+  "2026-10-28": {
    "about": 1,
    "ask": 1,
-   "c": 1,
-   "hearth-and-horizon": 3
+   "c": 2
   }
  }
 }

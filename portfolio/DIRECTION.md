@@ -15,7 +15,7 @@ Companions that carry the detail:
   shapes at $0 per user to us, the API-key switch, disclaimer text, SEO checklist, definition of done.
 - [`portfolio/hosting/`](hosting/README.md): GitHub Pages hosts our web
   surfaces (the Hetzner/k3s route was deleted 2026-10-01). Products are not
-  limited to static pages (owner, 2026-10-21): apps, CLIs, packages and
+  limited to static pages or the browser (owner, 2026-10-21 and 2026-10-30): apps, CLIs, packages and
   services for others to run ship through their own channels
   ([`portfolio/distribution/`](distribution/README.md)).
 - [`portfolio/usage/`](usage/README.md): what may be counted (events, never

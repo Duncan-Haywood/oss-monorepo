@@ -1,0 +1,6 @@
+3b: validation loss (nats), 3,840 inner steps/worker, seeds 0-2, inner lr = 3a picks
+H      mean    sd   gap_vs_sync  paired_sd_of_gap
+sync  1.5994 0.0022 +0.0000      0.0000
+4     1.6033 0.0061 +0.0039      0.0041
+16    1.6338 0.0109 +0.0344      0.0124
+64    1.6164 0.0083 +0.0169      0.0087

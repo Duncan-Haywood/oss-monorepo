@@ -1,0 +1,10 @@
+counts with holidays, n=210 | false alarms plain / bootstrap | detection (x1.5 at 105) plain / bootstrap
+sd 0 all holidays given | 4% / 3% | 97% / 97%
+sd 0 every other given | 5% / 2% | 100% / 100%
+sd 0 none given | 6% / 3% | 100% / 100%
+sd 0.2 all holidays given | 85% / 21% | 76% / 72%
+sd 0.2 every other given | 86% / 20% | 82% / 77%
+sd 0.2 none given | 90% / 19% | 82% / 73%
+sd 0.4 all holidays given | 100% / 65% | 87% / 59%
+sd 0.4 every other given | 100% / 72% | 90% / 62%
+sd 0.4 none given | 100% / 73% | 89% / 63%

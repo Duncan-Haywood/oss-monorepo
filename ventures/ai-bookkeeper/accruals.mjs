@@ -120,7 +120,7 @@ export function documentEntries(books) {
     const lines = [{ account: d.kind === "invoice" ? AR : AP, debit: dr ? d.total : 0, credit: dr ? 0 : d.total }, ...d.lines.map((l) => ({ account: l.account, debit: dr ? 0 : l.cents, credit: dr ? l.cents : 0 }))];
     const name = d.credit ? (d.kind === "invoice" ? "Credit note" : "Vendor credit") : d.kind === "invoice" ? "Invoice" : "Bill";
     return { id: d.id, date: d.date, memo: `${name} ${d.number}, ${d.party}${d.against ? ` (against ${d.against})` : ""}`, source: d.credit ? "credit" : d.kind, lines };
-  }).concat(writeOffEntries(books), fxSettleEntries(books));
+  }).concat(writeOffEntries(books), fxSettleEntries(books), fxPartEntries(books), creditFxEntries(books));
 }
 
 // Write off what a customer will not pay: debits bad debts, credits receivable,
@@ -150,6 +150,13 @@ export function writeOff(booksIn, id, { date, account } = {}) {
 // A foreign invoice or bill settled by a base-currency bank line: what the line
 // paid differs from what was booked, and the difference is a realized exchange
 // gain or loss (6190; a gain shows as a negative expense).
+const fxPartEntries = (books) => (books.documents ?? []).flatMap((d) => (d.payments ?? []).filter((p) => p.fx).map((p) => ({ d, p }))).map(({ d, p }) => {
+  const t = books.transactions.find((x) => x.id === p.line);
+  const bill = d.kind !== "invoice", n = Math.abs(p.fx), toControl = bill ? p.fx > 0 : p.fx < 0;
+  return { id: `FX-${d.id}-${p.line}`, date: t?.date ?? d.date, memo: `Realized exchange ${(p.fx > 0) === !bill ? "loss" : "gain"} on ${bill ? "bill" : "invoice"} ${d.number}, ${d.party} (${d.currency})`, source: "fx", lines: [
+    { account: bill ? AP : AR, debit: toControl ? n : 0, credit: toControl ? 0 : n },
+    { account: FX_ACCOUNT, debit: toControl ? 0 : n, credit: toControl ? n : 0 }] };
+});
 const fxSettleEntries = (books) => (books.documents ?? []).map((d) => {
   // Month-end revaluation has already moved the carrying amount by its last cum.
   const diff = (d.fxDiff ?? 0) + (docRevals(books, d).at(-1)?.cum ?? 0);
@@ -159,6 +166,16 @@ const fxSettleEntries = (books) => (books.documents ?? []).map((d) => {
   const bill = d.kind !== "invoice", n = Math.abs(diff);
   const toControl = bill ? diff > 0 : diff < 0; // control account debited
   return { id: `FX-${d.id}`, date: t?.date ?? d.date, memo: `Realized exchange ${(diff > 0) === !bill ? "loss" : "gain"} on ${bill ? "bill" : "invoice"} ${d.number}, ${d.party} (${d.currency})`, source: "fx", lines: [
+    { account: bill ? AP : AR, debit: toControl ? n : 0, credit: toControl ? 0 : n },
+    { account: FX_ACCOUNT, debit: toControl ? 0 : n, credit: toControl ? n : 0 }] };
+});
+// A foreign credit note applied to a foreign invoice at another rate than the invoice
+// was booked at: the control account is cleared of exactly what the invoice carried,
+// the rest goes to 6190.
+const creditFxEntries = (books) => (books.documents ?? []).filter((c) => c.credit && c.creditFx).map((c) => {
+  const bill = c.kind !== "invoice", n = Math.abs(c.creditFx);
+  const toControl = bill ? c.creditFx < 0 : c.creditFx > 0; // control account debited
+  return { id: `FXC-${c.id}`, date: c.date, memo: `Realized exchange ${(c.creditFx > 0) === !bill ? "gain" : "loss"} on ${bill ? "vendor credit" : "credit note"} ${c.number}, ${c.party} (${c.currency})`, source: "fx", lines: [
     { account: bill ? AP : AR, debit: toControl ? n : 0, credit: toControl ? 0 : n },
     { account: FX_ACCOUNT, debit: toControl ? 0 : n, credit: toControl ? n : 0 }] };
 });
@@ -174,6 +191,14 @@ const hasNumber = (desc, number) => new RegExp(`(^|[^0-9a-z])${number.replace(/[
 const partyHit = (desc, party) => {
   const have = new Set(payeeTokens(desc));
   return payeeTokens(party).filter((w) => w.length >= 3).some((w) => have.has(w));
+};
+// Stricter, for a part-payment named only by its party: a party with two or more
+// meaningful words needs two of them in the description, so one generic word
+// ("paid", "services", "global") cannot claim an unrelated line.
+const partyHitStrict = (desc, party) => {
+  const have = new Set(payeeTokens(desc));
+  const words = payeeTokens(party).filter((w) => w.length >= 3);
+  return words.length > 0 && words.filter((w) => have.has(w)).length >= Math.min(2, words.length);
 };
 
 // What is still owed on a document: its total less credit notes applied to it
@@ -199,13 +224,28 @@ export function settle(booksIn) {
   const books = JSON.parse(JSON.stringify(booksIn));
   const docs = books.documents ?? [];
   for (const t of books.transactions) if (t.status === "settled") { t.status = "new"; delete t.posted; delete t.doc; delete t.docs; delete t.suggestion; delete t.partial; delete t.refund; }
-  for (const d of docs) { delete d.settledBy; delete d.payments; delete d.credited; delete d.applied; delete d.refund; delete d.fxDiff; }
+  for (const d of docs) { delete d.settledBy; delete d.payments; delete d.credited; delete d.applied; delete d.refund; delete d.fxDiff; delete d.creditedForeign; delete d.creditFx; delete d.paidForeign; }
   // Credit notes reduce the document they name, in date order, never below zero.
   for (const c of docs.filter((x) => x.credit).sort((a, b) => a.date.localeCompare(b.date) || a.id.localeCompare(b.id))) {
     const target = c.against && docs.find((x) => !x.credit && x.kind === c.kind && x.number === c.against);
     if (!target || target.date > c.date) continue;
-    const take = Math.min(c.total, balance(target));
+    let take = Math.min(c.total, balance(target));
     if (take <= 0) continue;
+    // Same foreign currency on both: the credit is applied in that currency, so the
+    // invoice loses what it carried for those units, and the rate difference to the
+    // credit note's own booking is a realized exchange gain or loss (creditFx).
+    if (target.currency && target.currency === c.currency && c.foreignTotal != null && target.foreignTotal != null) {
+      const left = target.foreignTotal - (target.creditedForeign ?? 0);
+      const takeF = Math.min(c.foreignTotal, left);
+      if (takeF <= 0) continue;
+      const carried = takeF === left ? target.total - (target.credited ?? 0) : convertCents(takeF, target.rate);
+      take = Math.min(carried, balance(target));
+      target.creditedForeign = (target.creditedForeign ?? 0) + takeF;
+      target.credited = (target.credited ?? 0) + take;
+      c.applied = takeF === c.foreignTotal ? c.total : convertCents(takeF, c.rate);
+      if (c.applied !== take) c.creditFx = c.applied - take;
+      continue;
+    }
     target.credited = (target.credited ?? 0) + take;
     c.applied = take;
   }
@@ -213,12 +253,19 @@ export function settle(booksIn) {
   const sign = (d) => (d.kind === "invoice" ? 1 : -1);
   const within = (d, t) => dayNum(t.date) >= dayNum(d.date) && dayNum(t.date) - dayNum(d.date) <= MATCH_DAYS;
   // A foreign document is paid in base currency at the bank's rate: close to the booked
-  // amount (within 3%) counts, but only with the number or party name in the description.
-  const near = (d, t) => d.currency && Math.sign(t.cents) === sign(d) && Math.abs(Math.abs(t.cents) - balance(d)) <= Math.max(100, Math.round(balance(d) * 0.03)) && within(d, t) && (hasNumber(t.desc, d.number) || partyHit(t.desc, d.party));
-  const fits = (d, t) => (t.cents === sign(d) * balance(d) && within(d, t)) || near(d, t);
+  // amount (within 3%, or 10% once an earlier instalment was paid, since the rate may have
+  // moved between payments) counts, but only with the number or party name in the description.
+  // A line in the document's own currency (a EUR deposit into a EUR account for a EUR
+  // invoice) is matched in that currency, so the rate it was paid at never decides
+  // whether it fits. Only when every credit applied was in that currency too.
+  const fcur = (d, t) => !!d.currency && t.foreign?.currency === d.currency && d.foreignTotal != null && (!d.credited || d.creditedForeign != null) && Math.sign(t.foreign.cents) === sign(d);
+  const fbal = (d) => d.foreignTotal - (d.creditedForeign ?? 0) - (d.paidForeign ?? 0);
+  const near = (d, t) => d.currency && !fcur(d, t) && Math.sign(t.cents) === sign(d) && Math.abs(Math.abs(t.cents) - balance(d)) <= Math.max(100, Math.round(balance(d) * (d.payments?.length ? 0.1 : 0.03))) && within(d, t) && (hasNumber(t.desc, d.number) || partyHit(t.desc, d.party));
+  const fits = (d, t) => (fcur(d, t) ? Math.abs(t.foreign.cents) === fbal(d) && within(d, t) : t.cents === sign(d) * balance(d) && within(d, t)) || near(d, t);
   const control = (d) => (d.kind === "invoice" ? AR : AP);
-  const pay = (d, t, cents) => {
-    (d.payments ??= []).push({ line: t.id, cents });
+  const pay = (d, t, cents, fx = 0) => {
+    (d.payments ??= []).push({ line: t.id, cents, ...(fx ? { fx } : {}) });
+    if (fcur(d, t)) d.paidForeign = (d.paidForeign ?? 0) + Math.abs(t.foreign.cents);
     if (balance(d) === 0) d.settledBy = t.id;
   };
   // Lines already filed by hand to a control account.
@@ -248,8 +295,10 @@ export function settle(booksIn) {
       if (score === 0 || usedLine.has(t.id) || balance(d) === 0 || !fits(d, t)) continue;
       post(t, d, score, false);
       const owed = balance(d);
-      if (d.currency && Math.abs(t.cents) !== owed) d.fxDiff = owed - Math.abs(t.cents);
-      pay(d, t, owed);
+      const diff = d.currency && Math.abs(t.cents) !== owed ? owed - Math.abs(t.cents) : 0;
+      // The first payment keeps the whole difference in fxDiff (month-end revaluation
+      // adjusts it); a last instalment books its own difference with the payment.
+      if (d.payments?.length) pay(d, t, owed, diff); else { if (diff) d.fxDiff = diff; pay(d, t, owed); }
       moved = true;
     }
     if (moved) continue;
@@ -267,16 +316,22 @@ export function settle(booksIn) {
     if (moved) continue;
     const parts = [];
     for (const t of lines) if (!usedLine.has(t.id) && t.cents !== 0) for (const d of open()) {
-      if (Math.sign(t.cents) !== sign(d) || Math.abs(t.cents) >= balance(d) || !within(d, t)) continue;
+      if (Math.sign(t.cents) !== sign(d) || !within(d, t)) continue;
+      if (fcur(d, t) ? Math.abs(t.foreign.cents) >= fbal(d) : Math.abs(t.cents) >= balance(d)) continue;
       const byNumber = hasNumber(t.desc, d.number);
-      const byParty = !byNumber && partyHit(t.desc, d.party) && open().filter((x) => x.kind === d.kind && x.party === d.party).length === 1;
+      const byParty = !byNumber && partyHitStrict(t.desc, d.party) && open().filter((x) => x.kind === d.kind && x.party === d.party).length === 1;
       if (byNumber || byParty) parts.push({ t, d, score: byNumber ? 2 : 1 });
     }
     parts.sort((a, b) => a.t.date.localeCompare(b.t.date) || b.score - a.score || a.t.id.localeCompare(b.t.id));
     if (!parts.length) break;
     const { t, d, score } = parts[0];
     post(t, d, score, true);
-    pay(d, t, Math.abs(t.cents));
+    if (fcur(d, t)) {
+      // Part of a foreign document paid in its own currency: the invoice carries those
+      // units at its booking rate; what the bank booked above or below that is exchange.
+      const carried = Math.min(convertCents(Math.abs(t.foreign.cents), d.rate), balance(d) - 1);
+      pay(d, t, carried, carried - Math.abs(t.cents));
+    } else pay(d, t, Math.abs(t.cents));
   }
   // Refunds: money paid back for a credit note nobody applied. A refund of a
   // customer's credit leaves the bank (negative); a supplier's refund comes in.

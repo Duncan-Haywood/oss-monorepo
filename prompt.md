@@ -12,15 +12,18 @@ measurements to improve the sub-prompts and the documentation.
 ## 1. Route
 
 If the message that started the session names a specific task, pass its track:
-`route --track ventures|research|process|explore|redteam|creative|perf|review` (otherwise
+`route --track ventures|research|process|explore|redteam|creative|polish|perf|review` (otherwise
 the draw can send you elsewhere).
 A direct request ([`human-requests.md`](.github/prompts/human-requests.md))
 that fits no track takes the closest one by the work's nature (`process` for repo or
 prompt work, else `ventures` or `research`); note it in `deviations`.
 
 ```
-python3 prompts/promptctl.py route
+python3 prompts/promptctl.py route --task "<the message that started the session>"
 ```
+
+`--task` reads phrases like "revenue", "venture" or "research programme" and picks
+that track; with none, the weighted draw stands (an explicit `--track` wins).
 
 It names the sub-prompt to follow, its version, and the commit trailer. Read
 that file and follow it for the rest of the run.
@@ -42,8 +45,8 @@ The router picks the review track itself once enough runs have merged since
 the last review (`review_when_due`). If an open pull request titled `prompts: review` already
 exists, another run has claimed that review; route again with `--skip-review`.
 
-`explore` (free choice), `creative` (stories, podcasts) and `perf` (performance
-engineering) get a share of runs, under the same guardrails and landing rules.
+`explore` (free choice), `creative` (stories, podcasts), `polish` (design, SEO
+and AEO, until a set date) and `perf` (performance) each get a share of runs.
 
 ## 2. Work, and land it
 

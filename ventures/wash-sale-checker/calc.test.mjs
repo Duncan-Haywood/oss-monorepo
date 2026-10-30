@@ -107,3 +107,18 @@ test("report CSV carries the Form 8949 code W column and safe date is 31 days on
   assert.equal(isoDate(safeRebuyDate(parseDate("2025-11-14"))), "2025-12-15");
   assert.equal(money(-1234.5), "-$1,234.50");
 });
+
+test("price may be the first column, and net gain is the exact sum of every sale", () => {
+  const r = evaluate(["Price,Date,Symbol,Action,Quantity", "100,2025-01-02,AAPL,buy,10", "80,2025-06-01,AAPL,sell,10", "130,2025-07-01,MSFT,sell,1"].join("\n"));
+  assert.ok(!r.error);
+  assert.equal(r.summary.netGain, -200 + 130);
+  const only = evaluate(csv("2025-01-02,AAPL,buy,10,100,Taxable", "2025-06-01,AAPL,sell,10,100,Taxable"));
+  assert.equal(only.summary.netGain, 0);
+});
+
+test("a basis column only attaches to sells, and a blank sell basis stays null", () => {
+  const p = parseTrades(["Date,Symbol,Action,Quantity,Price,Basis", "2025-01-02,AAPL,buy,10,100,999", "2025-06-01,AAPL,sell,10,80,", "2025-06-02,AAPL,sell,1,80,50"].join("\n"));
+  assert.deepEqual(p.trades.map((t) => t.basis), [null, null, 50]);
+  const noCol = parseTrades(csv("2025-01-02,AAPL,buy,10,100,Taxable", "2025-06-01,AAPL,sell,10,80,Taxable"));
+  assert.deepEqual(noCol.trades.map((t) => t.basis), [null, null]);
+});

@@ -1,0 +1,24 @@
+{
+  "id": "P055",
+  "title": "seo: publish the MCP server to the official MCP registry",
+  "status": "open",
+  "owner": "owner",
+  "effect": 2,
+  "cost": 1,
+  "problem": "Agents increasingly find tools through MCP registries. The repo builds an MCP server package and generates a server.json for registry.modelcontextprotocol.io, but publishing needs a GitHub login proving the io.github.<owner> namespace, so no agent has run it.",
+  "evidence": [
+    "portfolio/distribution/channels.yaml, channel mcp-server: owner_ask 'same npm token as npm-cli-packages; set DISTRIBUTE_MCP=true; optionally run mcp-publisher once against the generated server.json'"
+  ],
+  "change": "Owner: set the repository variable DISTRIBUTE_MCP=true with the npm token (the existing ask), then run mcp-publisher once logged in as the account against the generated server.json. Listing in third-party directories under the portfolio's name waits on the publication-identity decision.",
+  "touches": [
+    "portfolio/distribution/channels.yaml",
+    "platform/distribution/mcp.mjs"
+  ],
+  "metric": "registry entry exists for the server",
+  "baseline": "not published (2026-10-24)",
+  "opened": "2026-10-24",
+  "source": "Owner asked for SEO and AI-search action items in a Claude Code session, 2026-10-24",
+  "pr": null,
+  "result": null,
+  "history": []
+}

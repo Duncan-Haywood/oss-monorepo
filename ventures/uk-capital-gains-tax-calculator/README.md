@@ -1,6 +1,6 @@
 # UK Capital Gains Tax Calculator
 
-Free, private browser tool: enter a sale, its costs, any losses and your income, and see Capital Gains Tax for 2025/26 at 18% and 24%, the annual exempt amount used, losses to carry forward and when to report.
+Free, private browser tool: enter a sale, its costs, any losses and your income, and see Capital Gains Tax for 2025/26 and 2026/27 at 18% and 24%, the annual exempt amount used, losses to carry forward and when to report.
 
 **Live tool:** https://duncan-haywood.github.io/oss-monorepo/uk-capital-gains-tax-calculator/
 

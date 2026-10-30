@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e551b'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EE%3C/text%3E%3C/svg%3E"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vietnam e-invoicing: Decree 123 and 70, coded and uncoded invoices, and a free tax code check | E-invoice Preflight</title>
+<meta name="description" content="Vietnam has required electronic invoices since 1 July 2022 (Decree 123/2020), amended from 1 June 2025 (Decree 70/2025), with cash-register invoices for larger household businesses. How it works, where sources are thin, and a free tax code check digit test.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/vietnam-e-invoice-mandate.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Vietnam e-invoicing: Decree 123 and 70, coded and uncoded invoices, and a free tax code check | E-invoice Preflight">
+<meta property="og:description" content="Vietnam has required electronic invoices since 1 July 2022 (Decree 123/2020), amended from 1 June 2025 (Decree 70/2025), with cash-register invoices for larger household businesses. How it works, where sources are thin, and a free tax code check digit test.">
+<meta property="og:url" content="https://example.invalid/einvoice-preflight/vietnam-e-invoice-mandate.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is a Vietnamese e-invoice?","acceptedAnswer":{"@type":"Answer","text":"Under Decree 123/2020 and Circular 78/2021, businesses issue invoices as structured electronic data. Two kinds exist: one carrying a code from the tax authority, issued after the authority authenticates it, and one without a code, whose data must reach the authority by the day it is sent to the buyer, with sector exceptions. The first character of the invoice reference marks the type: C with a code, K without (secondary summaries; confirm with the tax authority or your accountant)."}},{"@type":"Question","name":"What changed on 1 June 2025?","acceptedAnswer":{"@type":"Answer","text":"Decree 70/2025/ND-CP amended Decree 123/2020 from 1 June 2025, and Circular 32/2025/TT-BTC guides it. Reported changes: cash-register e-invoices for household and individual businesses with annual revenue of VND 1 billion or more in sectors such as retail, catering, hotels and passenger transport; third-party issuance on behalf of households; voluntary VAT e-invoices for foreign e-commerce and platform suppliers; and a longer list of prohibited practices. Sources differ on threshold wording and scope, and the decree text was not read."}},{"@type":"Question","name":"What is a valid Vietnamese tax code?","acceptedAnswer":{"@type":"Answer","text":"A business code has 10 digits: two for the province, seven serial digits and a check digit that follows from the first nine by a mod 11 rule. A branch adds a hyphen and three digits. Vendor guides say individuals use their 12-digit citizen ID as their tax code from 1 July 2025. A matching digit does not mean the number is registered or active; the tax authority's public lookup answers that. The test on this page catches typos only."}},{"@type":"Question","name":"Can this checker validate a Vietnamese invoice?","acceptedAnswer":{"@type":"Answer","text":"No. It does not read the authority's XML schema, cannot obtain or verify a tax authority code, and has no Vietnamese rules. It does test a tax code's shape and check digit on this page, and a clean result is not an approval by the tax authority."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch}.lede{font-size:1.05rem;max-width:64ch;color:#3d4f5f}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #15202b10;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #d3dbe4;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#3d4f5f}.fine,.note{font-size:.88rem;color:#3d4f5f}footer{color:#3d4f5f;font-size:.86rem}footer p{margin:.6rem 0}.out{min-height:1.4em}.good{color:#0a6b3a;font-weight:600}.bad{color:#a12d1b}input{font:inherit;padding:.4rem .5rem;border:1px solid #9fb0c0;border-radius:8px}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; E-invoice Preflight</a></p>
+<header>
+<h1>Vietnam: e-invoices since 2022, amended in June 2025</h1>
+<p class="lede">In Vietnam, per the sources read, electronic invoices have been compulsory for most taxpayers since 1 July 2022 under Decree 123/2020 and Circular 78/2021, and Decree 70/2025 amended the rules from 1 June 2025. Below: how it works as secondary summaries report it, where the sources are thin, and a local check of a tax code&rsquo;s check digit.</p>
+</header>
+<section>
+<h2>How it works (as secondary summaries report)</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Step</th><th scope="col">What happens</th></tr></thead>
+<tbody>
+<tr><td>Identify</td><td>The seller has a tax code (mã số thuế, MST): 10 digits for a business, 13 for a branch, and for individuals the 12-digit citizen ID from 1 July 2025 (vendor guides).</td></tr>
+<tr><td>Issue</td><td>The invoice is structured electronic data. With a code (reference starts with C), the tax authority authenticates it before it goes to the buyer. Without a code (reference starts with K), the data must be sent to the authority by the day it is sent to the buyer, with exceptions for sectors such as telecoms, insurance, banking, aviation and securities.</td></tr>
+<tr><td>Cash register</td><td>From 1 June 2025, household and individual businesses with annual revenue of VND 1 billion or more in sectors such as retail, catering, hotels and passenger transport must issue invoices from cash registers connected to the tax authority; the buyer&rsquo;s details are needed only if the buyer asks.</td></tr>
+<tr><td>Verify</td><td>The tax authority has a public lookup for tax codes and invoices; this page does not use it.</td></tr>
+</tbody>
+</table>
+</div>
+<p class="fine">Reported by fiscal-requirements.com, vatupdate.com, Comarch and Vietnamese legal-news excerpts, read through web search only; the decree and circular texts were not read, and the authority&rsquo;s own site was unreachable. Where it is unsettled: the revenue threshold wording and scope of the cash-register rule differ between sources; one source describes Circular 32/2025 as replacing Circular 78/2021 while its own citation is inconsistent; invoice fine amounts (Decree 125/2020) were not found in any excerpt, so none is stated here; and the date individuals&rsquo; tax codes became their citizen ID number comes from vendor guides. A summary, not tax advice.</p>
+</section>
+<section>
+<h2>Check a tax code</h2>
+<p>Tests the shape (10 digits, 10 plus a three-digit branch suffix, or 12 digits; spaces and dots are ignored) and, for 10 and 13 digits, the check digit. It does not look anything up, so it cannot say whether the number is registered, active, or belongs to the name on the invoice.</p>
+<label>Tax code <input id="id" size="18" maxlength="20" autocomplete="off" spellcheck="false" placeholder="0100233488"></label>
+<p id="id-out" class="out" aria-live="polite"></p>
+<p class="fine">The rule (the first nine digits weighted 31, 29, 23, 19, 17, 13, 7, 5, 3; the check digit is 10 minus the sum mod 11, and no digit fits when the remainder is 0) is the one the python-stdnum library documents; it reproduces that library&rsquo;s example 0100233488 by hand. It was not read from the tax authority&rsquo;s specification, and a 12-digit citizen ID is tested for length only.</p>
+</section>
+<section>
+<h2>What this checker does and does not cover</h2>
+<p>The main checker reads UBL, CII and Factur-X and applies EN 16931 and Peppol rules. It does <strong>not</strong> call the Vietnamese tax authority&rsquo;s service, cannot obtain or verify an authentication code, and has no Vietnamese schema or codes. Treat the tax code test here as a typo catch only.</p>
+</section>
+<section>
+<h2>Test a file before you send it</h2>
+<p>For a European or Peppol invoice, open the <a href="./">checker</a>, drop your XML and read the findings, each with a rule ID and a fix (<a href="what-does-this-e-invoice-error-code-mean.html">the rule reference</a>). No account, nothing uploaded. No invoice yet? The <a href="create.html">e-invoice creator</a> turns a form into UBL or CII XML and checks it. Other countries: <a href="e-invoicing-mandates-by-country.html">all side by side</a> <a href="malaysia-myinvois-e-invoice-mandate.html">Malaysia</a> <a href="singapore-invoicenow-e-invoice-mandate.html">Singapore</a> <a href="india-gst-e-invoice-mandate.html">India</a> <a href="japan-invoice-system-e-invoice-mandate.html">Japan</a>.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>What is a Vietnamese e-invoice?</h3>
+<p>Under Decree 123/2020 and Circular 78/2021, businesses issue invoices as structured electronic data. Two kinds exist: one carrying a code from the tax authority, issued after the authority authenticates it, and one without a code, whose data must reach the authority by the day it is sent to the buyer, with sector exceptions. The first character of the invoice reference marks the type: C with a code, K without (secondary summaries; confirm with the tax authority or your accountant).</p>
+<h3>What changed on 1 June 2025?</h3>
+<p>Decree 70/2025/ND-CP amended Decree 123/2020 from 1 June 2025, and Circular 32/2025/TT-BTC guides it. Reported changes: cash-register e-invoices for household and individual businesses with annual revenue of VND 1 billion or more in sectors such as retail, catering, hotels and passenger transport; third-party issuance on behalf of households; voluntary VAT e-invoices for foreign e-commerce and platform suppliers; and a longer list of prohibited practices. Sources differ on threshold wording and scope, and the decree text was not read.</p>
+<h3>What is a valid Vietnamese tax code?</h3>
+<p>A business code has 10 digits: two for the province, seven serial digits and a check digit that follows from the first nine by a mod 11 rule. A branch adds a hyphen and three digits. Vendor guides say individuals use their 12-digit citizen ID as their tax code from 1 July 2025. A matching digit does not mean the number is registered or active; the tax authority's public lookup answers that. The test on this page catches typos only.</p>
+<h3>Can this checker validate a Vietnamese invoice?</h3>
+<p>No. It does not read the authority's XML schema, cannot obtain or verify a tax authority code, and has no Vietnamese rules. It does test a tax code's shape and check digit on this page, and a clean result is not an approval by the tax authority.</p>
+<p class="note">Open the <a href="./">E-invoice Preflight</a> checker to validate your own invoice file.</p>
+</section>
+<section>
+<h2>More countries</h2>
+<p><a href="australia-e-invoice-mandate.html">Australia</a> <a href="austria-e-invoice-mandate.html">Austria</a> <a href="belgium-e-invoice-mandate.html">Belgium</a> <a href="brazil-nfe-e-invoice-mandate.html">Brazil</a> <a href="bulgaria-e-invoice-mandate.html">Bulgaria</a> <a href="croatia-e-invoice-mandate.html">Croatia</a> <a href="cyprus-e-invoice-mandate.html">Cyprus</a> <a href="czech-republic-e-invoice-mandate.html">Czech Republic</a> <a href="denmark-e-invoice-mandate.html">Denmark</a> <a href="estonia-e-invoice-mandate.html">Estonia</a> <a href="finland-e-invoice-mandate.html">Finland</a> <a href="france-e-invoice-mandate.html">France</a> <a href="germany-e-invoice-mandate.html">Germany</a> <a href="greece-mydata-e-invoice-mandate.html">Greece</a> <a href="hungary-e-invoice-mandate.html">Hungary</a> <a href="ireland-e-invoice-mandate.html">Ireland</a> <a href="italy-sdi-e-invoice-mandate.html">Italy</a> <a href="latvia-e-invoice-mandate.html">Latvia</a> <a href="lithuania-e-invoice-mandate.html">Lithuania</a> <a href="luxembourg-e-invoice-mandate.html">Luxembourg</a> <a href="malta-e-invoice-mandate.html">Malta</a> <a href="netherlands-e-invoice-mandate.html">Netherlands</a> <a href="norway-e-invoice-mandate.html">Norway</a> <a href="poland-ksef-e-invoice-mandate.html">Poland</a> <a href="portugal-e-invoice-mandate.html">Portugal</a> <a href="romania-e-factura-e-invoice-mandate.html">Romania</a> <a href="serbia-e-invoice-mandate.html">Serbia</a> <a href="singapore-invoicenow-e-invoice-mandate.html">Singapore Invoicenow</a> <a href="slovakia-e-invoice-mandate.html">Slovakia</a> <a href="slovenia-e-invoice-mandate.html">Slovenia</a> <a href="spain-verifactu-e-invoice-mandate.html">Spain</a> <a href="switzerland-e-invoice-mandate.html">Switzerland</a> <a href="uk-e-invoice-mandate.html">Uk</a> <a href="india-gst-e-invoice-mandate.html">India</a> <a href="malaysia-myinvois-e-invoice-mandate.html">Malaysia</a> <a href="saudi-arabia-zatca-e-invoice-mandate.html">Saudi Arabia</a> <a href="sweden-e-invoice-mandate.html">Sweden</a> <a href="turkey-e-invoice-mandate.html">Turkey</a> <a href="uae-e-invoice-mandate.html">United Arab Emirates</a> <a href="peru-sunat-e-invoice-mandate.html">Peru</a> <a href="chile-sii-e-invoice-mandate.html">Chile</a> <a href="colombia-dian-e-invoice-mandate.html">Colombia</a> <a href="uruguay-dgi-e-invoice-mandate.html">Uruguay</a> <a href="paraguay-dnit-e-invoice-mandate.html">Paraguay</a> <a href="ecuador-sri-e-invoice-mandate.html">Ecuador</a></p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or accounting advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every check runs locally. This page is static and summarises the Vietnamese position from search excerpts of secondary summaries, not from the decrees or the tax authority&rsquo;s pages; things can change, so check the Vietnamese tax authority and the current rules before relying on it.</p>
+<p class="support">Free and open source. If it caught a defect before a rejection, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+</footer>
+<script type="module">
+import{checkMst}from"./vietnam.mjs";
+const $=i=>document.getElementById(i);
+const esc=t=>String(t).replace(/[&<>"']/g,c=>"&#"+c.charCodeAt(0)+";");
+function r(){const v=$("id").value;if(!v.trim()){$("id-out").innerHTML="";return}const x=checkMst(v);$("id-out").innerHTML=x.ok?'<span class="good">Shape and check digit are consistent.</span>':x.problems.map(p=>`<span class="bad">${esc(p)}</span>`).join("<br>")}
+$("id").addEventListener("input",r);
+</script>
+</body>
+</html>

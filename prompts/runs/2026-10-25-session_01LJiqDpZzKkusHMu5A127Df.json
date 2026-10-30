@@ -1,0 +1,52 @@
+{
+  "date": "2026-10-25",
+  "session": "https://claude.ai/code/session_01LJiqDpZzKkusHMu5A127Df",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-25T00:08:34Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/10263",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/PROGRAMMES.md",
+      "issue": "Two runs drew the same programme and did the same milestone; no claim step for programme steps."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/PROGRAMMES.md",
+      "why": "Paper step duplicated PR #10261 landed concurrently; kept only the blog post."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-25-skipping-training-steps-on-a-small-transformer.md",
+    "research/verifiable-training-mechanisms/LOG.md"
+  ],
+  "goal": null,
+  "notes": "Paper edits dropped in favour of #10261 at merge; only post + record ship.",
+  "corrections": [],
+  "redteam": null
+}

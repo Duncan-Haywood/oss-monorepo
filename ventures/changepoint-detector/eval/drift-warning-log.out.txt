@@ -1,0 +1,8 @@
+airline (growing season)         no trend drift warns yes  drift steps 20  log steps 22  window: 3 steps -> 11 log steps near it
+airline (growing season)         bend     drift warns yes  drift steps 8  log steps 8  window: 3 steps -> 3 log steps near it
+UK gas (growing season)          no trend drift warns yes  drift steps 15  log steps 5  window: 3 steps -> 1 log steps near it
+UK gas (growing season)          bend     drift warns yes  drift steps 7  log steps 2  window: 3 steps -> 0 log steps near it
+J&J (growing season)             no trend drift warns yes  drift steps 17  log steps 11  window: 3 steps -> 3 log steps near it
+J&J (growing season)             bend     drift warns no   drift steps 5  log steps 2  window: none
+UK driver deaths (1973 shock)    no trend drift warns yes  drift steps 6  log steps 8  window: 4 steps -> 4 log steps near it
+UK driver deaths (1973 shock)    bend     drift warns yes  drift steps 4  log steps 6  window: 3 steps -> 3 log steps near it

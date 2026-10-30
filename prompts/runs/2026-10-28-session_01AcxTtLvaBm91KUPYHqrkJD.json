@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-28",
+  "session": "https://claude.ai/code/session_01AcxTtLvaBm91KUPYHqrkJD",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md",
+  "input_sha256": "f9deac66f3092b0822ffff48bc3c0034c923410213472753663352b337302887",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-28T15:16:30Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Took a small validation fix on the top flagship rather than a multi-hour milestone; saturated salestax area had no verifiable open item offline.",
+      "did": "validated --discount input, test, short post",
+      "result": "landed small"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-28-a-mistyped-sales-tax-discount-no-longer-prints-nan.md"
+  ],
+  "goal": null,
+  "notes": "node --test salestaxreturn*.test.mjs: 43 pass. flagships.yaml next: unchanged.",
+  "corrections": [],
+  "redteam": null
+}

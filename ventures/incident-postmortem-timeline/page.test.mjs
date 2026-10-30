@@ -34,7 +34,8 @@ test('the page makes no network calls in its script', () => {
 
 test('the JSON-LD FAQPage questions match the visible FAQ headings', () => {
   const ld = index.match(/"@type":"FAQPage"[\s\S]*?<\/script>/)[0].replace(/\\"/g, '"');
-  const headings = [...index.matchAll(/<h3>(.*?)<\/h3>/g)].map((m) => m[1].trim());
+  const faq = index.slice(index.indexOf('<h2>Common questions</h2>'));
+  const headings = [...faq.matchAll(/<h3>(.*?)<\/h3>/g)].map((m) => m[1].trim());
   assert.ok(headings.length > 0);
   for (const h of headings) assert.ok(ld.includes(h), `heading not in FAQPage JSON-LD: ${h}`);
 });

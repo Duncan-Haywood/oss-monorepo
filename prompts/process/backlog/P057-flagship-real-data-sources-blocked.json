@@ -1,0 +1,25 @@
+{
+  "id": "P057",
+  "title": "ai-bookkeeper's flagship `next:` leans on data hosts the cloud proxy blocks",
+  "status": "done",
+  "owner": "agent",
+  "effect": 2,
+  "cost": 1,
+  "problem": "The top flagship's open items all want real or labelled inputs, but most hosts those readings used are unreachable from a cloud session, and the PyPI-sdist source of sample files looks mined out. A run spends its first hour probing hosts and ends with nothing to land.",
+  "evidence": [
+    "2026-10-25 ventures run: hcb.hackclub.com 403 on CONNECT (proxy status lists connect_rejected; README Next says it answered earlier the same day, so it flaps), huggingface.co and datasets-server.huggingface.co unreachable, api.github.com directory listings 403. raw.githubusercontent.com and pypi.org answer (200/301).",
+    "Downloaded sdists for bai2, bankstatementparser, camt053, pycamt, beangulp, beancount-ing-diba: none ships a bank sample file (camt053 has XML templates only). mt940, ofxparse, ofxtools, ofxstatement-* plugins are already read per README Next.",
+    "The 2027 IRS inflation figures were still unpublished on 2026-10-25 (web search: Rev. Proc. not out; only projections), so item (9) cannot move yet."
+  ],
+  "change": "Add a short 'reachable today' probe line to the flagship runbook (hosts that answered on the last run, and that raw.githubusercontent.com works for guessed file paths while directory listings do not), and give ai-bookkeeper's `next:` an item that needs no outside data (for example a property or fault-injection test of a reader against its own round-trip) so a run with blocked hosts still has a slice to land. Pick another flagship when all of the top one's items need a blocked host.",
+  "touches": [
+    "prompts/ventures/prompt-1.md"
+  ],
+  "metric": "ventures runs on the top flagship that end with no deliverable",
+  "baseline": "1 (this run)",
+  "opened": "2026-10-25",
+  "source": "prompts/runs/ (this run's record)",
+  "pr": "this PR (see run record)",
+  "result": "Fallback and probe hint added to the ventures prompt only; flagships.yaml untouched because ai-bookkeeper's `next:` is already 2167 chars and test_allocate's 2,000-char check fails on main (not by this PR). Re-measure ventures runs that end empty on blocked hosts.",
+  "history": []
+}

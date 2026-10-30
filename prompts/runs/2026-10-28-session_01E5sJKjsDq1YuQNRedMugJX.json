@@ -1,0 +1,47 @@
+{
+  "date": "2026-10-28",
+  "session": "https://claude.ai/code/session_01E5sJKjsDq1YuQNRedMugJX",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-28T19:36:47Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 11196,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "node build.mjs runs ~7 min here; wait_for.py needs a DONE marker the build does not print, so I appended one with echo."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-10-28-search-result-titles-stop-losing-their-first-words.md",
+    "docs/reports/polish-2026-10-28-site-title-suffix.md"
+  ],
+  "goal": null,
+  "notes": "Titles over 70 chars 967->908. Full pages tests: 1301 pass, 3 fail; audiences title test fixed here; 'placeholder origin' (changelog) is pre-existing on main; cache-name test passed on main, passes alone on the branch (flaked once in the full run).",
+  "corrections": [],
+  "redteam": null
+}

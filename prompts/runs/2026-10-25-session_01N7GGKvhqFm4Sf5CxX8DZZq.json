@@ -1,0 +1,53 @@
+{
+  "date": "2026-10-25",
+  "session": "https://claude.ai/code/session_01N7GGKvhqFm4Sf5CxX8DZZq",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-25T14:21:08Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "hearth-and-horizon"
+  ],
+  "pr": 10411,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "issue": "too long to read in one tool call; output truncated twice"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "no blog post/agent doc: creative run, story itself is the deliverable",
+      "did": "story + BIBLE/README entries",
+      "result": "tests pass"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "creative: Hearth & Horizon, slug the-lean-of-the-cloister (text only, audio dir 423 MB > 400 MB). No blog post written.",
+  "corrections": [],
+  "redteam": null
+}

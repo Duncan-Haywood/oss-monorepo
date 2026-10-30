@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-29",
+  "session": "https://claude.ai/code/session_01AcxTtJ22HGs2bW7gQmVp49",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: read ./prompt.md and follow the instructions",
+  "input_sha256": "bf4b1184ff60bb2d903ca19fb4aa17de9eb97645e67d27abf1d927ca1c68dca5",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-29T09:11:53Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/11364",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "ai-bookkeeper next: items all need outside real data; a no-outside-data slice (trade page) is not listed as an option, so I followed recent runs' pattern."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-10-29-home-daycare-bookkeeping-page.md"
+  ],
+  "goal": null,
+  "notes": "Full ai-bookkeeper node suite 1889 pass 0 fail. Daycare fixture 7/14 suggested before rules, 14/14 after; tuned on fixture. Did not rewrite flagship next:. Did not run venture-preflight or runcost attach.",
+  "corrections": [],
+  "redteam": null
+}

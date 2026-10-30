@@ -1,0 +1,57 @@
+{
+ "date": "2026-10-25",
+ "session": "https://claude.ai/code/session_013pyXS4H8VxeEd74gwP5vfE",
+ "track": "research",
+ "prompt_version": 0,
+ "input": "read ./prompt.md and follow the instructions there",
+ "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+ "follow_up_inputs": [],
+ "model": "claude-sonnet-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-10-25T22:11:07Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": null,
+ "projects": [],
+ "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/10492",
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "research/verifiable-training-mechanisms/paper/README.md",
+   "issue": "Still said milestone 10 TODOs and 'uncompiled'; Limitations in main.tex also said uncompiled. Fixed the latter."
+  },
+  {
+   "file": "research/CLAUDE.md",
+   "issue": "Does not mention the TeX install (apt-get needs apt-get update first; lmodern/cm-super not found before it, ~5 min)."
+  }
+ ],
+ "deviations": [
+  {
+   "file": "prompt.md",
+   "why": "No blog post or docs/reports agent doc: the step is a paper-section update with no new finding; the log entry carries it.",
+   "did": "LOG.md entry only",
+   "result": "n/a"
+  }
+ ],
+ "writeups": [
+  "research/verifiable-training-mechanisms/LOG.md milestone 21"
+ ],
+ "goal": null,
+ "notes": "Paper step only; pdflatex compiled 4 pages, homepage build ok, md links ok.",
+ "corrections": [],
+ "redteam": null
+}

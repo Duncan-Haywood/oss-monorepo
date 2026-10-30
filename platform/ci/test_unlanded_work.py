@@ -256,6 +256,14 @@ class TestSweep(Fixture):
         found = uw.sweep(str(self.clone), since=None, probe=deep)
         self.assertEqual([row[1] for row in found], ["claude/stranded"])
 
+    def test_probe_directory_that_exists_but_is_not_a_repository_is_initialised(self):
+        self.probe.mkdir()
+        self.branch("claude/stranded")
+        self.commit("a.txt", "a\n", "a", day="2026-10-01")
+        self.push("claude/stranded")
+        found = uw.sweep(str(self.clone), since=None, probe=self.probe)
+        self.assertEqual([row[1] for row in found], ["claude/stranded"])
+
     def test_sweep_finds_its_own_probe_when_none_is_given(self):
         self.branch("claude/stranded")
         self.commit("a.txt", "a\n", "a", day="2026-10-01")
@@ -282,6 +290,28 @@ class TestSweep(Fixture):
         self.squash_merge("ventures/q/index.html", "q\n", "q: new venture (#1)")
         self.assertEqual(uw.sweep(str(self.clone), since=None, probe=self.probe), [])
 
+    def test_modified_file_counts_as_landed_only_when_main_has_the_same_bytes(self):
+        self.branch("claude/same")
+        self.commit("README.md", "edited\n", "edit readme", day="2026-10-01")
+        self.push("claude/same")
+        self.branch("claude/differs")
+        self.commit("README.md", "mine\n", "edit readme differently", day="2026-10-01")
+        self.push("claude/differs")
+        self.squash_merge("README.md", "edited\n", "readme (#3)")
+        found = uw.sweep(str(self.clone), since=None, probe=self.probe)
+        self.assertEqual([r[1] for r in found], ["claude/differs"])
+
+    def test_long_stranded_list_is_cut_at_the_limit_with_a_count(self):
+        limit = uw.LIST_LIMIT
+        self.branch("claude/exact")
+        for i in range(limit):
+            self.commit(f"e{i}.txt", "e\n", f"e{i}")
+        self.push("claude/exact")
+        self.assertNotIn("more", self.check().problems[0])
+        self.commit("extra.txt", "x\n", "extra")
+        self.push("claude/exact")
+        self.assertIn("... and 1 more", self.check().problems[0])
+
     def test_work_main_has_not_got_is_still_reported(self):
         self.branch("claude/missing")
         self.commit("ventures/r/index.html", "mine\n", "r: new venture", day="2026-10-01")
@@ -294,6 +324,14 @@ class TestSweep(Fixture):
         run(self.clone, "checkout", "-q", "--orphan", "gh-pages")
         run(self.clone, "rm", "-rq", "--cached", ".")
         self.commit("index.html", "site\n", "publish")
+        self.push("gh-pages")
+        self.assertEqual(uw.sweep(str(self.clone), since=None, probe=self.probe), [])
+
+    def test_gh_pages_with_history_shared_with_main_is_never_reported(self):
+        # The orphan case above is vacuous: with no merge base the content
+        # check reads the branch as landed whatever the name filter does.
+        self.branch("gh-pages")
+        self.commit("index.html", "site\n", "publish", day="2026-10-01")
         self.push("gh-pages")
         self.assertEqual(uw.sweep(str(self.clone), since=None, probe=self.probe), [])
 

@@ -1,0 +1,9 @@
+pairs 14580; pairs where the glider saves energy and takes longer (a tie value exists): 14580; others 0
+v* kWh per day: median 0.37 (10th 0.17, 90th 0.72, min 0.03, max 1.25)
+v* as a multiple of the AUV's own daily energy use: median 0.08 (10th 0.04, 90th 0.15)
+share of pairs with v* below the AUV's daily energy use: 100.0%
+glider cheaper if a day of delay is worth 0.1 kWh: 97.8% of all pairs
+glider cheaper if a day of delay is worth 0.5 kWh: 30.8% of all pairs
+glider cheaper if a day of delay is worth 1 kWh: 1.3% of all pairs
+glider cheaper if a day of delay is worth 2 kWh: 0.0% of all pairs
+glider cheaper if a day of delay is worth 5 kWh: 0.0% of all pairs

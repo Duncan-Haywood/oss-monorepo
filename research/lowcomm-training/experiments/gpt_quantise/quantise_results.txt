@@ -1,0 +1,4 @@
+uncompressed: mean 1.5758 [1.5707, 1.583, 1.5738]
+levels 7 q: mean 1.5706 excess vs uncompressed [-0.0077, -0.0099, 0.0018] mean -0.0052
+levels 1 q: mean 1.5949 excess vs uncompressed [0.0124, 0.023, 0.022] mean +0.0191
+levels 1 q_ef: mean 2.4572 excess vs uncompressed [0.8491, 0.907, 0.888] mean +0.8814

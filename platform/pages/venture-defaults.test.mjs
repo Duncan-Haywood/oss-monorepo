@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { defaultFor, ground } from './venture-defaults.mjs';
+import { defaultFor, defaultInput, ground } from './venture-defaults.mjs';
 
 test('reads a numeric input default out of the markup', () => {
   assert.equal(defaultFor('<input id="jobs" type="number" value="20">', 'jobs'), '20');
@@ -52,4 +52,37 @@ test('grounds a page that fills its rates from kits at load', async () => {
   // proposedPrice is the optional "what if I bid X?" field and is meant to be
   // empty; anything else blank means the page was not faithfully reproduced.
   assert.deepEqual(blank, ['proposedPrice']);
+});
+
+// A kit fills a blank field and never overwrites one that already has a value,
+// the same rule applyKit() follows on the page.
+test('a load-time kit fills blanks but leaves a field with a value alone', () => {
+  const html = `<script>const FIELD_IDS = ['hours', 'rate'];
+    function readInput() {
+      return FIELD_IDS;
+    }</script>
+    <input id="hours" value="5"><input id="rate" value="">`;
+  const { input } = defaultInput(html, { suggestedRailKit: () => ({ hours: '99', rate: '40' }) });
+  assert.equal(input.hours, '5');
+  assert.equal(input.rate, '40');
+});
+
+// The CLI entry guard and exit codes: a caller tells "grounded everything" from
+// "needs the browser oracle" by the exit status alone.
+import { spawnSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
+
+const CLI = fileURLToPath(new URL('./venture-defaults.mjs', import.meta.url));
+const run = (...args) => spawnSync(process.execPath, [CLI, ...args], { encoding: 'utf8' });
+
+test('cli with no slug prints usage and exits 2', () => {
+  const r = run();
+  assert.equal(r.status, 2);
+  assert.match(r.stderr, /usage:/);
+});
+
+test('cli with an unknown slug reports it and exits 1', () => {
+  const r = run('no-such-venture-slug');
+  assert.equal(r.status, 1);
+  assert.match(r.stdout, /no-such-venture-slug/);
 });

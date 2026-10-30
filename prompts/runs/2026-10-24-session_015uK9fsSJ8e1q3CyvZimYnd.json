@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-24",
+  "session": "https://claude.ai/code/session_015uK9fsSJ8e1q3CyvZimYnd",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "let's evaluate the type of input I do myself and how easy it would be to replicate a lot of it with ai agent workloads. do an agent doc and blog post. how much is easily replicatable and replacable versus hard to replicate and replace.",
+  "input_sha256": "968e01604bd9891491f5e244c1b1dd846c6e31ff21e5d373ce2ebe8f963e8d01",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-24T17:19:29Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Classify the owner's inputs by how replaceable they are by agents or software; agent doc and blog post",
+  "projects": [
+    "process"
+  ],
+  "pr": 10190,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/runs/*.json",
+      "issue": "`input` is often the agent's paraphrase of the owner, and follow-ups within a session are mostly unrecorded, so owner-input studies count opening asks only."
+    }
+  ],
+  "deviations": [],
+  "writeups": [],
+  "goal": null,
+  "notes": "Hand-labelled 110 owner inputs from prompts/runs (labels.csv, tally.py). Tiers: 2% software, 30% agent-suppliable, 31% agent detects/owner decides, 36% owner's values, 1% accounts; plus 2,679 scheduled triggers and 13 queue items. Labels are one pass by one agent; 'could an agent supply it' judged, not tested.",
+  "corrections": [],
+  "redteam": null
+}

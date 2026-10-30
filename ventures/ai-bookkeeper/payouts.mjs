@@ -35,8 +35,8 @@ import { fmt } from "./ledger.mjs";
 
 const key = (h) => String(h).trim().toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "");
 const ALIASES = {
-  payout: ["automatic_payout_id", "payout_id", "payout", "transfer_id", "payout_reference", "payout_reference_id", "deposit_id"],
-  payoutDate: ["automatic_payout_effective_at", "automatic_payout_effective_at_utc", "payout_date", "payout_effective_at", "arrival_date", "transfer_date", "deposit_date"],
+  payout: ["automatic_payout_id", "payout_id", "payout", "transfer_id", "transfer", "payout_reference", "payout_reference_id", "deposit_id"],
+  payoutDate: ["automatic_payout_effective_at", "automatic_payout_effective_at_utc", "payout_date", "payout_effective_at", "arrival_date", "transfer_date", "transfer_date_utc", "deposit_date"],
   category: ["reporting_category", "event_type", "category", "type", "transaction_type"],
   gross: ["gross", "amount", "gross_amount", "gross_sales", "total_collected", "sale_price", "total", "customer_total"],
   fee: ["fee", "fees", "fee_amount", "processing_fees", "total_fee", "platform_fee", "gumroad_fee", "paddle_fee"],
@@ -64,6 +64,51 @@ const CATEGORY = {
   platform_earning: "sales", application_fee: "sales", platform_earning_refund: "refunds", application_fee_refund: "refunds",
   topup: "reserve", topup_reversal: "reserve", payout_reversal: "reserve", transfer_reversal: "reserve",
   advance: "reserve", advance_funding: "reserve", anticipation_repayment: "reserve", connect_collection_transfer: "reserve", connect_reserved_funds: "reserve",
+  // More categories from Stripe's reporting-categories reference (checked 2026-10-25): holds and releases, transfers refunded,
+  // and funds moved to or from other Stripe products are balance movements, not income; Climate contributions are a fee.
+  charge_failure: "refunds", climate_order_purchase: "fees", climate_reservation_purchase: "fees",
+  climate_order_refund: "fees", climate_reservation_refund: "fees", fee_credit_funding: "fees",
+  payment_network_reserve_hold: "reserve", payment_network_reserve_release: "reserve",
+  payout_minimum_balance_hold: "reserve", payout_minimum_balance_release: "reserve",
+  transfer_refund: "reserve", unreconciled_customer_funds: "reserve",
+  // A conversion between two currency balances moves money, it is not income (the two legs net to zero).
+  currency_conversion: "reserve",
+  // Stripe's balance_transaction `type` list (stripe/openapi spec3.json, fetched 2026-10-25; names only). Money moved in from
+  // a bank, set aside for Stripe Tax or left unreconciled is a balance movement; a reversed payment is a refund. Issuing,
+  // obligation and balance-payment types stay other: the name does not say whether they are cost or clearing.
+  inbound_transfer: "reserve", inbound_transfer_reversal: "reserve", tax_fund: "reserve", payment_unreconciled: "reserve", payment_reversal: "refunds",
+  issuing_authorization_hold: "reserve", issuing_authorization_release: "reserve", issuing_disbursement: "reserve",
+  // Older balance-transaction types some exports still carry in the category column.
+  reserve_transaction: "reserve", recipient_transfer: "skip", recipient_transfer_cancel: "reserve", recipient_transfer_failure: "reserve",
+  transfer_cancel: "reserve", transfer_failure: "reserve",
+  // Shopify Payments balance-transaction types (ShopifyPaymentsTransactionType in the Admin GraphQL reference, checked
+  // 2026-10-25; the reference gives names only, so the meaning of each is read from its name). Shipping labels, referral
+  // and protection charges, billing and duties are costs; loans, balance and merchant-to-merchant transfers and risk or
+  // reserve holds are balance movements, not income. Anomaly, collections, ads-publisher, Markets Pro and Shopify
+  // Collective or Source entries stay "other income": nothing in the name says what they are.
+  ach_bank_failure_debit_fee: "fees", ach_bank_failure_debit_reversal_fee: "fees", referral_fee: "fees", referral_fee_tax: "fees",
+  shipping_label: "fees", shipping_label_adjustment: "fees", shipping_label_adjustment_base: "fees", shipping_label_adjustment_surcharge: "fees",
+  shipping_other_carrier_charge_adjustment: "fees", shipping_return_to_origin_adjustment: "fees",
+  billing_debit: "fees", billing_debit_reversal: "fees", shop_cash_billing_debit: "fees", shop_cash_billing_debit_reversal: "fees",
+  shop_cash_campaign_billing_debit: "fees", shop_cash_campaign_billing_debit_reversal: "fees",
+  shop_cash_campaign_billing_credit: "fees", shop_cash_campaign_billing_credit_reversal: "fees",
+  chargeback_fee_refund: "fees", chargeback_protection_debit: "fees", chargeback_protection_debit_reversal: "fees",
+  marketplace_fee_credit: "fees", marketplace_fee_credit_reversal: "fees", promotion_credit: "fees", promotion_credit_reversal: "fees",
+  customs_duty: "fees", customs_duty_adjustment: "fees", import_tax: "fees", import_tax_adjustment: "fees", import_tax_refund: "fees",
+  tax_adjustment_credit: "tax", tax_adjustment_credit_reversal: "tax", tax_adjustment_debit: "tax", tax_adjustment_debit_reversal: "tax",
+  vat_refund_credit: "tax", vat_refund_credit_reversal: "tax",
+  charge_adjustment: "sales", channel_credit: "sales", channel_credit_reversal: "sales", channel_promotion_credit: "sales", channel_promotion_credit_reversal: "sales",
+  channel_transfer_credit: "sales", channel_transfer_credit_reversal: "sales", channel_transfer_debit: "sales", channel_transfer_debit_reversal: "sales",
+  shop_cash_credit: "sales", shop_cash_credit_reversal: "sales",
+  refund_adjustment: "refunds", shop_cash_refund_debit: "refunds", shop_cash_refund_debit_reversal: "refunds",
+  chargeback_hold_release: "disputes", chargeback_protection_credit: "disputes", chargeback_protection_credit_reversal: "disputes",
+  seller_protection_credit: "disputes", seller_protection_credit_reversal: "disputes",
+  balance_transfer_inbound: "reserve", balance_transfer_outbound: "reserve", reserved_funds_reversal: "reserve", reserved_funds_withdrawal: "reserve",
+  risk_reversal: "reserve", risk_withdrawal: "reserve",
+  lending_capital_refund: "reserve", lending_capital_refund_reversal: "reserve", lending_capital_remittance: "reserve", lending_capital_remittance_reversal: "reserve",
+  lending_credit: "reserve", lending_credit_refund: "reserve", lending_credit_refund_reversal: "reserve", lending_credit_remittance: "reserve",
+  lending_credit_remittance_reversal: "reserve", lending_credit_reversal: "reserve", lending_debit: "reserve", lending_debit_reversal: "reserve",
+  merchant_to_merchant_credit: "reserve", merchant_to_merchant_credit_reversal: "reserve", merchant_to_merchant_debit: "reserve", merchant_to_merchant_debit_reversal: "reserve",
 };
 
 // Read the report. -> { rows, payouts: [{ id, date, net, parts, rows }], pending, problems }
@@ -71,6 +116,9 @@ export function readPayoutReport(text) {
   if (/^\s*[\[{]/.test(text)) return readSquareJson(text);
   let table = parseCsv(text).filter((r) => r.some((c) => String(c).trim() !== ""));
   if (table.length < 2) throw new Error("The report has no rows.");
+  // PayPal's Balance Reconciliation report: RH header rows, an RD column row, RD detail rows, RF footer.
+  const rd = table.findIndex((r) => r[0] === "RD" && r.map(key).includes("record_type") && r.map(key).includes("net_transaction_amount"));
+  if (rd !== -1) return { ...readPaypalBalance(table.slice(rd).filter((r) => r[0] === "RD").map((r) => r.slice(1))), source: "paypal" };
   // Seller Central's date-range CSV opens with a few note lines before the header.
   const at0 = table.findIndex((r) => { const h = r.map(key); return h.includes("settlement_id") && h.includes("selling_fees") && h.includes("product_sales"); });
   if (at0 !== -1) return { ...readAmazonRange(table.slice(at0)), source: "amazon" };
@@ -80,6 +128,7 @@ export function readPayoutReport(text) {
   // Some dashboards put the currency in the amount headers ("Gross (USD)", "Net (EUR)").
   const head = table[0].map((h) => { const k = key(h); const m = /^(gross|fee|fees|net|amount)_[a-z]{3}$/.exec(k); return m ? m[1] : k; });
   if (head.includes("settlement_id") && head.includes("amount_type") && head.includes("amount_description")) return { ...readAmazon(table, head), source: "amazon" };
+  if (head.includes("psp_reference") && head.includes("batch_number") && head.some((h) => h.startsWith("net_credit"))) return { ...readAdyen(table, head), source: "adyen" };
   if (head.includes("fees_taxes") && head.includes("title") && head.includes("type") && head.includes("net")) return { ...readEtsy(table, head), source: "etsy" };
   if (head.includes("confirmation_code") && head.includes("gross_earnings") && head.includes("host_fee") && head.includes("type")) return { ...readAirbnb(table, head), source: "airbnb" };
   const col = Object.fromEntries(Object.entries(ALIASES).map(([k, names]) => [k, names.map((n) => head.indexOf(n)).find((i) => i !== -1) ?? -1]));
@@ -91,6 +140,7 @@ export function readPayoutReport(text) {
   if (col.payout === -1) throw new Error('No payout id column (Stripe: "automatic_payout_id"). Export the payout reconciliation report, not the plain payments list.');
   const problems = [];
   const rows = [];
+  const offPlatform = [];
   // Amounts are booked as written, with no conversion: say so when the report mixes currencies.
   const ci = head.indexOf("currency");
   if (ci !== -1) {
@@ -107,6 +157,12 @@ export function readPayoutReport(text) {
     if ([gross, net, fee].some((v) => v === null || Number.isNaN(v))) { problems.push(`Row ${n + 2}: cannot read the amounts.`); return; }
     if (net !== gross - fee) { problems.push(`Row ${n + 2}: net ${fmt(net)} is not gross ${fmt(gross)} less fee ${fmt(fee)}.`); return; }
     const category = key(at("category"));
+    // Square's export lists cash, gift-card and other-tender sales beside card ones; only card money passes through a payout.
+    const tender = (name) => { const i = head.indexOf(name); return i === -1 ? 0 : parseCents(String(r[i] ?? "")) || 0; };
+    if (squareSplit && head.includes("card") && !at("payout") && tender("card") === 0 && (tender("cash") || tender("square_gift_card") || tender("other_tender"))) {
+      offPlatform.push({ row: n + 2, id: at("id") || `row${n + 2}`, created: parseDate(at("created")), net });
+      return;
+    }
     const base = { row: n + 2, id: at("id") || `row${n + 2}`, payout: at("payout"), payoutDate: parseDate(at("payoutDate")), created: parseDate(at("created")), category, kind: CATEGORY[category] ?? "other", gross, fee, net, desc: at("desc") };
     // Square's Total Collected is net sales + tax + tip: tax is owed to the state and a tip to staff, neither is sales.
     const part = (name) => { const i = head.indexOf(name); return squareSplit && i !== -1 ? parseCents(String(r[i] ?? "")) || 0 : 0; };
@@ -119,20 +175,46 @@ export function readPayoutReport(text) {
   });
   const by = new Map();
   const pending = [];
+  // Stripe's balance report lists the payout itself as a "payout" row: its amount is what the bank received.
+  const own = new Map(rows.filter((x) => x.category === "payout" && x.payout && x.net).map((x) => [x.payout, Math.abs(x.net)]));
   for (const x of rows) {
     if (x.kind === "skip") continue;
     if (!x.payout) { pending.push(x); continue; }
     if (!by.has(x.payout)) by.set(x.payout, []);
     by.get(x.payout).push(x);
   }
+  for (const [id, rs] of by) {
+    const sum = rs.reduce((a, x) => a + x.net, 0);
+    if (own.has(id) && own.get(id) !== sum) problems.push(`Payout ${id}: the report's own payout row is ${fmt(own.get(id))} but its other rows net ${fmt(sum)}. Rows are missing from the export (or a hold was left out); the bank will show the payout row's amount.`);
+  }
   const payouts = [...by].map(([id, rs]) => {
     const dates = rs.map((x) => x.payoutDate).filter(Boolean).sort();
     const sum = (f) => rs.reduce((a, x) => a + f(x), 0);
     return { id, date: dates.at(-1) ?? rs.map((x) => x.created).filter(Boolean).sort().at(-1) ?? null, net: sum((x) => x.net), gross: sum((x) => x.gross), fees: sum((x) => x.fee), rows: rs };
   }).sort((a, b) => String(a.date).localeCompare(String(b.date)));
-  return { rows, payouts, pending, problems };
+  return { rows, payouts, pending, problems, offPlatform };
 }
 
+// Square's ActivityType list (square-python-sdk, activity_type.py, checked 2026-10-25), where a name alone would
+// mislead: a refunded fee is a fee credit, not a customer refund; app fees are a platform's earnings; holds,
+// savings, loans and money moved between Square products are balance movements, never income.
+const SQUARE_KIND = {
+  charge: "sales", refund: "refunds", app_fee_revenue: "sales", app_fee_refund: "refunds",
+  processing_fee_refund: "fees", paid_service_fee_refund: "fees", subscription_fee_refund: "fees", subscription_fee_paid_refund: "fees",
+  third_party_fee_refund: "fees", gift_card_load_fee_refund: "fees", undo_processing_fee_refund: "fees", undo_gift_card_load_fee_refund: "fees",
+  deposit_fee_reversed: "fees", tax_on_fee: "fees", free_processing: "fees", local_offers_cashback: "fees",
+  dispute: "disputes", open_dispute: "disputes", release_adjustment: "reserve",
+  reserve_hold: "reserve", reserve_release: "reserve", hold_adjustment: "reserve", returned_payout: "reserve",
+  automatic_savings: "reserve", automatic_savings_reversed: "reserve", square_capital_payment: "reserve", square_capital_reversed_payment: "reserve",
+  credit_card_repayment: "reserve", credit_card_repayment_reversed: "reserve", percentage_processing_repayment: "reserve", percentage_processing_repayment_reversed: "reserve",
+  balance_folders_transfer: "reserve", balance_folders_transfer_reversed: "reserve", gift_card_pool_transfer: "reserve", gift_card_pool_transfer_reversed: "reserve",
+  money_transfer_reversal: "reserve", square_payroll_transfer: "reserve", square_payroll_transfer_reversed: "reserve",
+  initial_balance_change: "reserve", automatic_bitcoin_conversions: "reserve", automatic_bitcoin_conversions_reversed: "reserve",
+  // From Square's OpenAPI ActivityType (square/connect-api-specification, fetched 2026-10-25): an escheatment is money
+  // remitted to a state as unclaimed property; percentage processing enrollment and deactivation move the repayment balance.
+  escheatment: "reserve", percentage_processing_enrollment: "reserve", percentage_processing_deactivation: "reserve",
+  payout: "skip", money_transfer: "skip",
+};
 // Square Payouts API: ListPayoutEntries JSON ({ payout_entries: [...] }), or
 // { payouts: [...], payout_entries: [...] } / an array of those entries. Each
 // entry has payout_id, type, effective_at and gross/fee/net_amount_money.amount
@@ -156,7 +238,7 @@ function readSquareJson(text) {
     if (net !== gross - fee && net === gross + fee) fee = -fee;
     if (net !== gross - fee) { problems.push(`Entry ${n + 1}: net ${fmt(net)} is not gross ${fmt(gross)} less fee ${fmt(fee)}.`); return; }
     const category = key(e.type ?? "");
-    const kind = /payout|transfer/.test(category) ? "skip" : category === "charge" ? "sales" : /refund/.test(category) ? "refunds" : /dispute|chargeback/.test(category) ? "disputes" : /fee/.test(category) ? "fees" : "other";
+    const kind = SQUARE_KIND[category] ?? (/payout|transfer/.test(category) ? "skip" : category === "charge" ? "sales" : /fee/.test(category) ? "fees" : /refund/.test(category) ? "refunds" : /dispute|chargeback/.test(category) ? "disputes" : "other");
     const created = parseDate(String(e.effective_at ?? "").slice(0, 10));
     rows.push({ row: n + 1, id: e.id ?? `entry${n + 1}`, payout: e.payout_id ?? "", payoutDate: dateOf.get(e.payout_id) ?? null, created, category, kind, gross, fee, net, desc: "" });
   });
@@ -177,19 +259,26 @@ function readSquareJson(text) {
 // PayPal's activity export. Rows are grouped under the withdrawal that paid them out.
 function readPaypal(table, head) {
   const ix = (...names) => names.map((n) => head.indexOf(n)).find((i) => i !== -1) ?? -1;
-  const c = { date: ix("date"), time: ix("time"), type: ix("type"), status: ix("status"), gross: ix("gross"), fee: ix("fee"), net: ix("net"), id: ix("transaction_id"), desc: ix("name", "description") };
+  const c = { date: ix("date"), time: ix("time"), type: ix("type"), status: ix("status"), gross: ix("gross"), fee: ix("fee"), net: ix("net"), id: ix("transaction_id"), desc: ix("name", "description"), impact: ix("balance_impact"), currency: ix("currency") };
   for (const need of ["date", "gross", "net"]) if (c[need] === -1) throw new Error(`The PayPal report has no "${need}" column.`);
   const problems = [];
   const all = [];
+  const currencies = new Set();
   table.slice(1).forEach((r, n) => {
     const at = (k) => (c[k] === -1 ? "" : String(r[c[k]] ?? "").trim());
     if (c.status !== -1 && key(at("status")) !== "completed") return;
+    // Newer exports mark rows that do not move the balance (authorizations, orders) "Memo".
+    if (key(at("impact")) === "memo") return;
+    const cur = at("currency").toUpperCase();
+    if (cur) { if (!currencies.size) currencies.add(cur); else if (!currencies.has(cur)) { currencies.add(cur); problems.push(`Row ${n + 2}: currency ${cur} differs from ${[...currencies][0]}. PayPal holds one balance per currency, so split the export by currency; amounts are not converted.`); } }
     const gross = parseCents(at("gross")), net = parseCents(at("net"));
     const fee = c.fee === -1 ? 0 : -(parseCents(at("fee")) ?? NaN);
     if ([gross, net, fee].some((v) => v === null || Number.isNaN(v))) { problems.push(`Row ${n + 2}: cannot read the amounts.`); return; }
     if (net !== gross - fee) { problems.push(`Row ${n + 2}: net ${fmt(net)} is not gross ${fmt(gross)} less fee ${fmt(fee)}.`); return; }
     const category = key(at("type"));
-    const kind = category.includes("withdrawal") ? "withdrawal" : /refund/.test(category) ? "refunds" : /reversal|dispute|chargeback|hold|reserve/.test(category) ? "disputes" : /conversion|bank_deposit|transfer|add_funds/.test(category) ? "skip" : /payment|sale|checkout|invoice|subscription/.test(category) ? "sales" : "other";
+    let kind = category.includes("withdrawal") ? "withdrawal" : /refund/.test(category) ? "refunds" : /reversal|dispute|chargeback|hold|reserve/.test(category) ? "disputes" : /conversion|bank_deposit|transfer|add_funds/.test(category) ? "skip" : /payment|sale|checkout|invoice|subscription/.test(category) ? "sales" : "other";
+    // A payment the account holder sent (negative gross) is a purchase, not a sale.
+    if (kind === "sales" && gross < 0) { kind = "other"; problems.push(`Row ${n + 2}: "${at("type")}" is a payment sent (${fmt(gross)}), not a sale. It is booked against other income; recategorise it as the expense it is.`); }
     all.push({ row: n + 2, id: at("id") || `row${n + 2}`, created: parseDate(at("date")), t: `${parseDate(at("date"))} ${at("time")}`, category, kind, gross, fee, net, desc: at("desc") });
   });
   all.sort((a, b) => a.t.localeCompare(b.t) || a.row - b.row);
@@ -206,6 +295,97 @@ function readPaypal(table, head) {
   }
   const pending = group.map((y) => ({ ...y, payout: "" }));
   return { rows: all, payouts, pending, problems };
+}
+
+// Adyen's settlement details report (Company Account, Merchant Account, Psp
+// Reference, Type, Creation Date, Gross Debit/Credit (GC), Net Debit/Credit
+// (NC), Commission, Markup, Scheme Fees, Interchange (all NC), Batch Number).
+// PayPal's Balance Reconciliation report (developer.paypal.com, "Balance Reconciliation
+// report", sample file checked 2026-10-25). Net Transaction Amount is gross less the
+// partner commission and the net-billed fees. Records of type Fees are gross-settled
+// (invoiced later, never in a deposit), so they are left out of the rows. Transfer ID
+// is the id on the merchant's bank statement: rows sharing one are one deposit. The
+// report has no deposit row of its own, so a deposit cannot be cross-checked.
+function readPaypalBalance(table) {
+  const head = table[0].map(key), ix = (n) => head.indexOf(n);
+  const c = { id: ix("record_id"), type: ix("record_type"), sub: ix("record_subtype"), date: ix("created_at"), gross: ix("gross_transaction_amount"), net: ix("net_transaction_amount"), transfer: ix("transfer_id"), cur: ix("transaction_currency"), name: ix("customer_name"), inv: ix("invoice_id") };
+  const problems = [], rows = [], cur = new Set();
+  let grossFees = 0;
+  table.slice(1).forEach((r, n) => {
+    const at = (i) => (i === -1 ? "" : String(r[i] ?? "").trim());
+    const category = key(at(c.type));
+    if (category === "fees") { grossFees += parseCents(at(ix("total_gross_fees"))) || 0; return; }
+    const gross = parseCents(at(c.gross)), net = parseCents(at(c.net));
+    if ([gross, net].some((v) => v === null || Number.isNaN(v))) { problems.push(`Row ${n + 2}: cannot read the amounts.`); return; }
+    if (at(c.cur)) cur.add(at(c.cur).toUpperCase());
+    const kind = category === "sale" ? "sales" : category === "refund" ? "refunds" : "other";
+    rows.push({ row: n + 2, id: at(c.id) || `row${n + 2}`, payout: at(c.transfer), payoutDate: null, created: parseDate(at(c.date)), category, kind, gross, fee: gross - net, net, desc: at(c.name) || at(c.inv) });
+  });
+  if (cur.size > 1) problems.push(`The report mixes currencies (${[...cur].sort().join(", ")}); amounts are read as written with no conversion.`);
+  if (grossFees) problems.push(`Gross-settled fees of ${fmt(Math.abs(grossFees))} are invoiced separately and are not in any deposit; book them from the invoice.`);
+  const by = new Map(), pending = [];
+  for (const x of rows) {
+    if (!x.payout) { pending.push(x); continue; }
+    if (!by.has(x.payout)) by.set(x.payout, []);
+    by.get(x.payout).push(x);
+  }
+  const payouts = [...by].map(([id, rs]) => {
+    const sm = (f) => rs.reduce((a, x) => a + f(x), 0);
+    return { id, date: rs.map((x) => x.created).filter(Boolean).sort().at(-1) ?? null, net: sm((x) => x.net), gross: sm((x) => x.gross), fees: sm((x) => x.fee), rows: rs };
+  }).sort((a, b) => String(a.date).localeCompare(String(b.date)));
+  return { rows, payouts, pending, problems, offPlatform: [] };
+}
+
+// A batch is one payout: its Settled/Refunded/Chargeback/Fee rows net to the
+// MerchantPayout row of that batch. Gross is taken as net plus the four cost
+// columns, so a sale in another currency than the payout still balances. Rows
+// that move no money (Received, Authorised, SentForSettle ...) are skipped; a
+// type not listed is "other income", never guessed. Written from Adyen's
+// published column list and a hand-made fixture; no real export has been tried.
+const ADYEN_KIND = {
+  settled: "sales", settledbulk: "sales", refunded: "refunds", refundedbulk: "refunds", refundedreversed: "refunds", refundreversed: "refunds",
+  chargeback: "disputes", chargebackreversed: "disputes", secondchargeback: "disputes", chargebackbulk: "disputes", chargebackreversedbulk: "disputes",
+  fee: "fees", misccosts: "fees", invoicededuction: "fees", paymentcost: "fees", depositcorrection: "other",
+  merchantpayout: "payout",
+};
+function readAdyen(table, head) {
+  const ix = (re) => head.findIndex((h) => re.test(h));
+  const c = {
+    type: head.indexOf("type"), id: head.indexOf("psp_reference"), batch: head.indexOf("batch_number"), date: ix(/^creation_date$/), desc: ix(/^merchant_reference$/),
+    ncred: ix(/^net_credit/), ndeb: ix(/^net_debit/), costs: [/^commission/, /^markup/, /^scheme_fees/, /^interchange/].map(ix).filter((i) => i !== -1),
+  };
+  for (const need of ["type", "date", "ncred", "ndeb"]) if (c[need] === -1) throw new Error(`The Adyen report has no "${need}" column.`);
+  const problems = [], rows = [], own = new Map();
+  table.slice(1).forEach((r, n) => {
+    const at = (i) => (i === -1 ? "" : String(r[i] ?? "").trim());
+    const category = at(c.type).toLowerCase().replace(/[^a-z]/g, "");
+    const kind = ADYEN_KIND[category] ?? (/^(received|authori[sz]ed|authorisedpending|sentforsettle|sentforrefund|sentforauth|cancel|capture|error|expired|refused|retry|pending)/.test(category) ? "skip" : "other");
+    if (kind === "skip") return;
+    const amt = (i) => (at(i) === "" ? 0 : parseCents(at(i)));
+    const net = amt(c.ncred) - amt(c.ndeb), fee = c.costs.reduce((a, i) => a + amt(i), 0);
+    if ([net, fee].some((v) => v === null || Number.isNaN(v))) { problems.push(`Row ${n + 2}: cannot read the amounts.`); return; }
+    const batch = at(c.batch);
+    if (kind === "payout") { if (batch) own.set(batch, [...(own.get(batch) ?? []), { net: -net, date: parseDate(at(c.date)) }]); return; }
+    rows.push({ row: n + 2, id: at(c.id) || `row${n + 2}`, payout: batch, payoutDate: null, created: parseDate(at(c.date)), category, kind, gross: net + fee, fee, net, desc: at(c.desc) });
+  });
+  const by = new Map(), pending = [];
+  for (const x of rows) {
+    if (!x.payout) { pending.push(x); continue; }
+    if (!by.has(x.payout)) by.set(x.payout, []);
+    by.get(x.payout).push(x);
+  }
+  const payouts = [];
+  for (const [id, rs] of by) {
+    const sum = rs.reduce((a, x) => a + x.net, 0), o = own.get(id);
+    if (o && o.reduce((a, x) => a + x.net, 0) !== sum) problems.push(`Batch ${id}: the MerchantPayout row is ${fmt(o.reduce((a, x) => a + x.net, 0))} but the batch's other rows net ${fmt(sum)}. Rows are missing from the export, or the payout was in another currency; not split.`);
+    else if (!o) problems.push(`Batch ${id}: no MerchantPayout row, so no bank line to match yet; listed as pending.`);
+    if (!o || o.reduce((a, x) => a + x.net, 0) !== sum) { pending.push(...rs); continue; }
+    const date = o.map((x) => x.date).filter(Boolean).sort().at(-1) ?? null;
+    const sm = (f) => rs.reduce((a, x) => a + f(x), 0);
+    payouts.push({ id, date, net: sum, gross: sm((x) => x.gross), fees: sm((x) => x.fee), rows: rs.map((x) => ({ ...x, payoutDate: date })) });
+  }
+  payouts.sort((a, b) => String(a.date).localeCompare(String(b.date)));
+  return { rows, payouts, pending, problems };
 }
 
 // Etsy's payment account ledger CSV (Date, Type, Title, Info, Currency, Amount,
@@ -230,6 +410,10 @@ function readEtsy(table, head) {
     const fee = gross - net;
     const kind = category === "deposit" ? "withdrawal" : category === "refund" ? "refunds" : isSale ? "sales" : /fee|marketing|shipping|listing|offsite|ads|tax|vat/.test(category) ? "fees" : /dispute|chargeback/.test(category) ? "disputes" : "other";
     const date = parseDate(at("date"));
+    // Etsy's API reference lists the ledger's entry kinds (a returned disbursement,
+    // a recoupment, a bill payment). A returned deposit puts money back that an
+    // earlier deposit took out, so as a "fee" it would read as a credit; say so.
+    if (/returned.*(disburs|deposit)/.test(category) || category.startsWith("recoup")) problems.push(`Row ${n + 2}: "${at("type")}" (${fmt(net)}) is not a fee. It is kept in the activity that the next deposit pays out, but book it against the bank by hand.`);
     all.push({ row: n + 2, id: at("id") || `row${n + 2}`, created: date, t: date ?? "", category, kind, gross: kind === "fees" || kind === "other" ? 0 : gross, fee: kind === "fees" || kind === "other" ? -net : fee, net, desc: at("title") });
   });
   const payouts = [];
@@ -274,6 +458,9 @@ function readEbay(table) {
     const category = key(at("type"));
     const pid = at("payout").replace(/^--$/, "");
     const date = parseDate(at("date"));
+    // A multi-item order carries its extra items on following rows that have no
+    // Type or amounts of their own (eBay's help page); they are not money.
+    if (category === "" && net === 0 && gross === 0) return;
     if (category === "payout") { payoutRows.push({ id: pid, net: Math.abs(net) }); return; }
     const kind = category === "order" ? "sales" : category === "refund" ? "refunds" : /dispute|chargeback|claim/.test(category) ? "disputes" : /hold|release|reserve/.test(category) ? "reserve" : /fee|charge|shipping|label|ad|promot|subscription/.test(category) ? "fees" : category === "transfer" ? "skip" : "other";
     const base = { row: n + 2, id: at("order") || `row${n + 2}`, payout: pid, payoutDate: parseDate(at("payoutDate")), created: date, category, kind, desc: at("title") };
@@ -377,9 +564,15 @@ function readAmazon(table, head) {
     let kind;
     if (/transfer/.test(type)) kind = "skip";
     else if (/reserve/.test(what) || /reserve/.test(amt)) kind = "reserve";
+    else if (/^(privatelabelcreditcard|storedvaluecard|collectondelivery)(revenue|refund)$/.test(what)) kind = "other"; // direct payments: money the buyer paid some other way
+    else if (/^(postagebilling|postagerefund)$/.test(what)) kind = "fees"; // shipping labels bought through Amazon
+    else if (/^tcs_/.test(what)) kind = "tax"; // India: tax collected at source
+    else if (what === "paymentmethodfee") kind = "fees";
+    else if (/^(goodwill|discount|returnshipping|freereplacementreturnshipping)$/.test(what)) kind = amt === "itemprice" ? "refunds" : "other";
+    else if (what === "genericdeduction") kind = "other"; // a bad-debt deduction, not a sale
     else if (amt === "itemprice") kind = /tax/.test(what) ? "tax" : type === "refund" ? "refunds" : "sales";
     else if (/withheld|tax/.test(amt)) kind = "tax";
-    else if (/promotion/.test(amt)) kind = "refunds";
+    else if (/promotion/.test(amt)) kind = /tax/.test(what) ? "tax" : "refunds";
     else if (/reimburs|goodwill|compensat/.test(what)) kind = "other";
     else if (/advertis/.test(what + amt)) kind = "ads";
     else if (/fee|commission|chargeback|subscription|storage|label|disposal|removal|inbound|fba/.test(what + amt)) kind = "fees";
@@ -498,7 +691,7 @@ export function planPayouts(books, report, { sales = "4000", refunds = "4000", f
     taken.add(line.id);
     matched.push({ ...row, line: line.id, lineDate: line.date, desc: line.desc, ambiguous: bank.length > 1 && gap(bank[1].date, p.date) === gap(line.date, p.date), single: parts.length < 2 });
   }
-  return { matched, unmatched, done, pending: report.pending, problems: report.problems, roles };
+  return { matched, unmatched, done, pending: report.pending, offPlatform: report.offPlatform ?? [], problems: report.problems, roles };
 }
 
 const sameParts = (a, b) => a?.length === b.length && [...a].sort(cmp).every((p, i) => p.account === [...b].sort(cmp)[i].account && p.cents === [...b].sort(cmp)[i].cents);

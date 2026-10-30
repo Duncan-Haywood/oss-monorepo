@@ -1,0 +1,28 @@
+{
+  "date": "2026-10-27",
+  "session": "https://claude.ai/code/session_01EhTJVLbgey8RhToyfyWUyL",
+  "track": "ventures",
+  "prompt_version": 1,
+  "model": "claude-sonnet-5-5",
+  "pr": 10811,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/routing.json",
+      "issue": "Router drew the process track while the scheduled prompt asked for revenue-generating products; followed the prompt."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/promptctl.py",
+      "why": "Ran the ventures track although promptctl route drew process."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-27-einvoice-preflight-peru-argentina.md"
+  ],
+  "notes": "Peru and Argentina pages with RUC/CUIT check digits. Search excerpts only (no page fetches). Checks: einvoice-preflight node --test *.test.mjs (839 pass, 0 fail); country-page More lists and hub/index/sitemap updated.",
+  "corrections": []
+}

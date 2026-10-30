@@ -1,0 +1,5 @@
+24 WidowX values (success columns of Table V) checked against the PDF text
+ours differ from the PDF: 0
+authors' repository differs from the PDF: 2
+  repo differs from PDF: eggplant_basket  Octo-Base  real PDF 0.233 repo 0.250 ours 0.233
+  repo differs from PDF: eggplant_basket  Octo-Small real PDF 0.433 repo 0.400 ours 0.433

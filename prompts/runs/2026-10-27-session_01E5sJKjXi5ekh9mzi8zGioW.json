@@ -1,0 +1,176 @@
+{
+  "date": "2026-10-27",
+  "session": "https://claude.ai/code/session_01E5sJKjXi5ekh9mzi8zGioW",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-27T11:23:02Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 10875,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "No blog post: small run; also first ran campaign without --record, so reran it"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "platform/distribution/ghaction.mjs",
+        "test": "node --test platform/distribution/ghaction.test.mjs  (in .)",
+        "seed": 201988385,
+        "commit": "83bc8b9f",
+        "sites": 26,
+        "baseline_seconds": 0.9,
+        "mutants": [
+          {
+            "file": "platform/distribution/ghaction.mjs",
+            "line": 31,
+            "col": 58,
+            "operator": "plus-to-minus",
+            "before": "export const USES_PREFIX = 'duncan-haywood/oss-monorepo/' + ACTIONS_DIR;",
+            "after": "export const USES_PREFIX = 'duncan-haywood/oss-monorepo/' - ACTIONS_DIR;",
+            "line_text": "export const USES_PREFIX = 'duncan-haywood/oss-monorepo/' + ACTIONS_DIR;",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/distribution/ghaction.mjs",
+            "line": 41,
+            "col": 34,
+            "operator": "const-plus-one",
+            "before": "const short = (d) => (d.length <= 125 ? d : d.slice(0, 124).replace(/\\s+\\S*$/, '') + '\u2026');",
+            "after": "const short = (d) => (d.length <= 126 ? d : d.slice(0, 124).replace(/\\s+\\S*$/, '') + '\u2026');",
+            "line_text": "const short = (d) => (d.length <= 125 ? d : d.slice(0, 124).replace(/\\s+\\S*$/, '') + '\u2026');",
+            "caught": false,
+            "seconds": 0.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "added boundary/orphan tests in ghaction.test.mjs"
+          },
+          {
+            "file": "platform/distribution/ghaction.mjs",
+            "line": 41,
+            "col": 55,
+            "operator": "const-plus-one",
+            "before": "const short = (d) => (d.length <= 125 ? d : d.slice(0, 124).replace(/\\s+\\S*$/, '') + '\u2026');",
+            "after": "const short = (d) => (d.length <= 125 ? d : d.slice(0, 125).replace(/\\s+\\S*$/, '') + '\u2026');",
+            "line_text": "const short = (d) => (d.length <= 125 ? d : d.slice(0, 124).replace(/\\s+\\S*$/, '') + '\u2026');",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/distribution/ghaction.mjs",
+            "line": 45,
+            "col": 33,
+            "operator": "const-plus-one",
+            "before": "const name = title(slug).slice(0, 60);",
+            "after": "const name = title(slug).slice(1, 60);",
+            "line_text": "  const name = title(slug).slice(0, 60);",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/distribution/ghaction.mjs",
+            "line": 69,
+            "col": 4,
+            "operator": "minus-to-plus",
+            "before": "- shell: bash",
+            "after": "+ shell: bash",
+            "line_text": "    - shell: bash",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/distribution/ghaction.mjs",
+            "line": 117,
+            "col": 78,
+            "operator": "neq-flip",
+            "before": "if ((await fs.readFile(path.join(root, rel), 'utf8').catch(() => null)) !== text) bad.push(rel);",
+            "after": "if ((await fs.readFile(path.join(root, rel), 'utf8').catch(() => null)) === text) bad.push(rel);",
+            "line_text": "      if ((await fs.readFile(path.join(root, rel), 'utf8').catch(() => null)) !== text) bad.push(rel);",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/distribution/ghaction.mjs",
+            "line": 121,
+            "col": 57,
+            "operator": "true-to-false",
+            "before": "for (const e of await fs.readdir(dir, { withFileTypes: true }).catch(() => [])) {",
+            "after": "for (const e of await fs.readdir(dir, { withFileTypes: false }).catch(() => [])) {",
+            "line_text": "  for (const e of await fs.readdir(dir, { withFileTypes: true }).catch(() => [])) {",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/distribution/ghaction.mjs",
+            "line": 122,
+            "col": 50,
+            "operator": "eq-flip",
+            "before": "if (e.isDirectory() && !ok.some((p) => p.slug === e.name)) bad.push(`${ACTIONS_DIR}/${e.name} (no longer qualifies)`);",
+            "after": "if (e.isDirectory() && !ok.some((p) => p.slug !== e.name)) bad.push(`${ACTIONS_DIR}/${e.name} (no longer qualifies)`);",
+            "line_text": "    if (e.isDirectory() && !ok.some((p) => p.slug === e.name)) bad.push(`${ACTIONS_DIR}/${e.name} (no longer qualifies)`);",
+            "caught": false,
+            "seconds": 0.9,
+            "triage": "gap",
+            "caught_after_fix": false,
+            "note": "added boundary/orphan tests in ghaction.test.mjs"
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "platform/distribution/actions/actions-continue-on-error-check",
+        "issue": "committed GitHub Action missing for a qualifying venture; ghaction.test.mjs baseline red on main",
+        "patched": true
+      }
+    ]
+  }
+}

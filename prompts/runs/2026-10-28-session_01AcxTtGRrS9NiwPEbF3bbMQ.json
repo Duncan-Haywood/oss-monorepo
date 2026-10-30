@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-28",
+  "session": "https://claude.ai/code/session_01AcxTtGRrS9NiwPEbF3bbMQ",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-28T16:16:12Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 11159,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "why": "Took a small flagship slice (siding page card) rather than a multi-hour milestone; run budget was short.",
+      "did": "page card + browser check",
+      "result": "landed"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-28-siding-takeoff-on-the-page.md"
+  ],
+  "goal": null,
+  "notes": "page/siding/usage/budget node tests 54 pass; example house checked in Playwright over http (file:// blocks modules). Full CI not run locally.",
+  "corrections": [],
+  "redteam": null
+}

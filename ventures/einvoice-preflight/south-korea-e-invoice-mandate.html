@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e551b'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EE%3C/text%3E%3C/svg%3E"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>South Korea e-invoicing: the electronic tax invoice, KRW 80 million threshold, free business number check | E-invoice Preflight</title>
+<meta name="description" content="South Korea requires an electronic tax invoice, sent to the National Tax Service by the next day, from all corporations and from individual businesses above a prior-year sales threshold. How it works, where this page's sources are thin, and a free business registration number check digit test.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/south-korea-e-invoice-mandate.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="South Korea e-invoicing: the electronic tax invoice, KRW 80 million threshold, free business number check | E-invoice Preflight">
+<meta property="og:description" content="South Korea requires an electronic tax invoice, sent to the National Tax Service by the next day, from all corporations and from individual businesses above a prior-year sales threshold. How it works, where this page's sources are thin, and a free business registration number check digit test.">
+<meta property="og:url" content="https://example.invalid/einvoice-preflight/south-korea-e-invoice-mandate.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is South Korea's electronic tax invoice?","acceptedAnswer":{"@type":"Answer","text":"A VAT tax invoice issued as structured data through the National Tax Service's Hometax portal or a certified service provider, with a copy sent to the NTS by the day after the issue date. Corporations must use it; individual businesses must once their prior-year supply value passes a threshold. This is how the rule is usually summarised; the statute and NTS notices were not read for this page."}},{"@type":"Question","name":"What is the threshold for individual businesses?","acceptedAnswer":{"@type":"Answer","text":"Summaries say KRW 80 million of supply value in the prior year from 1 July 2024, lowered in steps from KRW 300 million, and that the test is applied to the year before. The figure comes from memory of secondary summaries, not from an NTS notice; check the NTS before relying on it."}},{"@type":"Question","name":"What is a valid Korean business registration number?","acceptedAnswer":{"@type":"Answer","text":"It has 10 digits, written 123-45-67890. Multiply the first nine digits by 1, 3, 7, 1, 3, 7, 1, 3, 5, add the integer part of the ninth digit times 5 divided by 10, and the tenth digit must equal 10 minus the sum's last digit, taken mod 10. A match does not mean the number is registered or belongs to the name on the invoice."}},{"@type":"Question","name":"Can this checker validate a Korean tax invoice?","acceptedAnswer":{"@type":"Answer","text":"No. It does not read the Korean XML standard, does not call Hometax, and has no Korean rules. It tests a business registration number's shape and check digit on this page, and a clean result is not an approval by the National Tax Service."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch}.lede{font-size:1.05rem;max-width:64ch;color:#3d4f5f}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #15202b10;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #d3dbe4;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#3d4f5f}.fine,.note{font-size:.88rem;color:#3d4f5f}footer{color:#3d4f5f;font-size:.86rem}footer p{margin:.6rem 0}.out{min-height:1.4em}.good{color:#0a6b3a;font-weight:600}.bad{color:#a12d1b}input{font:inherit;padding:.4rem .5rem;border:1px solid #9fb0c0;border-radius:8px}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; E-invoice Preflight</a></p>
+<header>
+<h1>South Korea: the electronic tax invoice</h1>
+<p class="lede">In South Korea, per the summaries read, VAT tax invoices must be issued electronically and reported to the National Tax Service by the next day: always for corporations, and for individual businesses above a prior-year sales threshold (KRW 80 million, as reported). Below: how it works as secondary summaries describe it, where this page&rsquo;s knowledge is thin, and a local check of a business registration number&rsquo;s check digit.</p>
+</header>
+<section>
+<h2>How it works (as secondary summaries report)</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Step</th><th scope="col">What happens</th></tr></thead>
+<tbody>
+<tr><td>Issue</td><td>The seller issues the tax invoice as structured data through the NTS Hometax portal or a certified service provider (ASP), signed with a certificate.</td></tr>
+<tr><td>Report</td><td>A copy goes to the NTS by the day after the issue date. Reported consequence of missing the issue or the report: a percentage-of-supply-value penalty (rates unread here).</td></tr>
+<tr><td>Who</td><td>All corporations; individual businesses once their prior-year supply value passes a threshold, reported as KRW 80 million from 1 July 2024 (KRW 100 million before, KRW 300 million before that).</td></tr>
+<tr><td>Identify</td><td>Seller and buyer are identified by the 10-digit business registration number.</td></tr>
+<tr><td>Buyer</td><td>The buyer&rsquo;s input VAT deduction relies on a valid tax invoice; the exact conditions were not read.</td></tr>
+</tbody>
+</table>
+</div>
+<p class="fine">Written from memory of secondary summaries (vendor and adviser guides), not from the Act, NTS notices or Hometax pages, none of which were read for this page. The thresholds, the one-day report deadline and the penalty rates may have changed; treat every date and figure as a lead to check.</p>
+</section>
+<section>
+<h2>Check a business registration number</h2>
+<p>Tests the shape (10 digits; spaces and hyphens are ignored) and the check digit. It does not look anything up, so it cannot say whether the number is registered, active, or belongs to the name on the invoice.</p>
+<label>Business registration number <input id="id" size="14" maxlength="14" autocomplete="off" spellcheck="false" placeholder="124-81-00998"></label>
+<p id="id-out" class="out" aria-live="polite"></p>
+<p class="fine">The rule (first nine digits weighted 1, 3, 7, 1, 3, 7, 1, 3, 5, plus the integer part of the ninth digit times 5 over 10, tenth digit = 10 minus the sum mod 10, mod 10) is the one the python-stdnum library documents for Korean business numbers. It was not read from the NTS specification.</p>
+</section>
+<section>
+<h2>What this checker does and does not cover</h2>
+<p>The main checker reads UBL, CII and Factur-X and applies EN 16931 and Peppol rules. It does <strong>not</strong> read the Korean tax invoice XML, call Hometax or the NTS, or have Korean codes. Treat the number test here as a typo catch only.</p>
+</section>
+<section>
+<h2>Test a file before you send it</h2>
+<p>For a European or Peppol invoice, open the <a href="./">checker</a>, drop your XML and read the findings, each with a rule ID and a fix (<a href="what-does-this-e-invoice-error-code-mean.html">the rule reference</a>). No account, nothing uploaded. No invoice yet? The <a href="create.html">e-invoice creator</a> turns a form into UBL or CII XML and checks it. Other countries: <a href="e-invoicing-mandates-by-country.html">all mandates by country</a>.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>What is South Korea's electronic tax invoice?</h3>
+<p>A VAT tax invoice issued as structured data through the National Tax Service's Hometax portal or a certified service provider, with a copy sent to the NTS by the day after the issue date. Corporations must use it; individual businesses must once their prior-year supply value passes a threshold. This is how the rule is usually summarised; the statute and NTS notices were not read for this page.</p>
+<h3>What is the threshold for individual businesses?</h3>
+<p>Summaries say KRW 80 million of supply value in the prior year from 1 July 2024, lowered in steps from KRW 300 million, and that the test is applied to the year before. The figure comes from memory of secondary summaries, not from an NTS notice; check the NTS before relying on it.</p>
+<h3>What is a valid Korean business registration number?</h3>
+<p>It has 10 digits, written 123-45-67890. Multiply the first nine digits by 1, 3, 7, 1, 3, 7, 1, 3, 5, add the integer part of the ninth digit times 5 divided by 10, and the tenth digit must equal 10 minus the sum's last digit, taken mod 10. A match does not mean the number is registered or belongs to the name on the invoice.</p>
+<h3>Can this checker validate a Korean tax invoice?</h3>
+<p>No. It does not read the Korean XML standard, does not call Hometax, and has no Korean rules. It tests a business registration number's shape and check digit on this page, and a clean result is not an approval by the National Tax Service.</p>
+<p class="note">Open the <a href="./">E-invoice Preflight</a> checker to validate your own invoice file.</p>
+</section>
+<section>
+<h2>More countries</h2>
+<p><a href="australia-e-invoice-mandate.html">Australia</a> <a href="austria-e-invoice-mandate.html">Austria</a> <a href="belgium-e-invoice-mandate.html">Belgium</a> <a href="brazil-nfe-e-invoice-mandate.html">Brazil</a> <a href="bulgaria-e-invoice-mandate.html">Bulgaria</a> <a href="croatia-e-invoice-mandate.html">Croatia</a> <a href="cyprus-e-invoice-mandate.html">Cyprus</a> <a href="czech-republic-e-invoice-mandate.html">Czech Republic</a> <a href="denmark-e-invoice-mandate.html">Denmark</a> <a href="estonia-e-invoice-mandate.html">Estonia</a> <a href="finland-e-invoice-mandate.html">Finland</a> <a href="france-e-invoice-mandate.html">France</a> <a href="germany-e-invoice-mandate.html">Germany</a> <a href="greece-mydata-e-invoice-mandate.html">Greece</a> <a href="hungary-e-invoice-mandate.html">Hungary</a> <a href="ireland-e-invoice-mandate.html">Ireland</a> <a href="israel-allocation-number-e-invoice-mandate.html">Israel</a> <a href="italy-sdi-e-invoice-mandate.html">Italy</a> <a href="latvia-e-invoice-mandate.html">Latvia</a> <a href="lithuania-e-invoice-mandate.html">Lithuania</a> <a href="luxembourg-e-invoice-mandate.html">Luxembourg</a> <a href="malta-e-invoice-mandate.html">Malta</a> <a href="netherlands-e-invoice-mandate.html">Netherlands</a> <a href="norway-e-invoice-mandate.html">Norway</a> <a href="poland-ksef-e-invoice-mandate.html">Poland</a> <a href="portugal-e-invoice-mandate.html">Portugal</a> <a href="romania-e-factura-e-invoice-mandate.html">Romania</a> <a href="serbia-e-invoice-mandate.html">Serbia</a> <a href="singapore-invoicenow-e-invoice-mandate.html">Singapore Invoicenow</a> <a href="slovakia-e-invoice-mandate.html">Slovakia</a> <a href="south-korea-e-invoice-mandate.html">South Korea</a> <a href="slovenia-e-invoice-mandate.html">Slovenia</a> <a href="spain-verifactu-e-invoice-mandate.html">Spain</a> <a href="switzerland-e-invoice-mandate.html">Switzerland</a> <a href="uk-e-invoice-mandate.html">Uk</a> <a href="india-gst-e-invoice-mandate.html">India</a> <a href="malaysia-myinvois-e-invoice-mandate.html">Malaysia</a> <a href="saudi-arabia-zatca-e-invoice-mandate.html">Saudi Arabia</a> <a href="sweden-e-invoice-mandate.html">Sweden</a> <a href="turkey-e-invoice-mandate.html">Turkey</a> <a href="uae-e-invoice-mandate.html">United Arab Emirates</a> <a href="peru-sunat-e-invoice-mandate.html">Peru</a> <a href="chile-sii-e-invoice-mandate.html">Chile</a> <a href="colombia-dian-e-invoice-mandate.html">Colombia</a> <a href="uruguay-dgi-e-invoice-mandate.html">Uruguay</a> <a href="paraguay-dnit-e-invoice-mandate.html">Paraguay</a> <a href="ecuador-sri-e-invoice-mandate.html">Ecuador</a></p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or accounting advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for.</p>
+<p><strong>Nothing leaves your browser.</strong> Every check runs locally. This page is static and summarises the Korean position from memory of secondary summaries, not from the statute or the National Tax Service&rsquo;s pages; things can change, so check the National Tax Service and the current rules before relying on it.</p>
+<p class="support">Free and open source. If it caught a defect before a rejection, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+</footer>
+<script type="module">
+import{checkKoreanBrn}from"./korea.mjs";
+const $=i=>document.getElementById(i);
+const esc=t=>String(t).replace(/[&<>"']/g,c=>"&#"+c.charCodeAt(0)+";");
+function r(){const v=$("id").value;if(!v.trim()){$("id-out").innerHTML="";return}const x=checkKoreanBrn(v);$("id-out").innerHTML=x.ok?'<span class="good">Shape and check digit are consistent.</span>':x.problems.map(p=>`<span class="bad">${esc(p)}</span>`).join("<br>")}
+$("id").addEventListener("input",r);
+</script>
+</body>
+</html>

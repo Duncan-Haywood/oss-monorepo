@@ -1,0 +1,9 @@
+clean runs: init max|w| 4.101 3.946 3.703 3.846
+planted weight's tensor max / global max (m_t / m0): median 0.05, min 0.00, share of draws with m_t < m0/2: 0.88
+share harmful when a weight is set to +-a * reference (paired draws): global m0 vs own-tensor m_t
+a=1   n=40  global 2 (0.05)  tensor 0 (0.00)  harmful only under global 2, only under tensor 0
+a=2   n=40  global 0 (0.00)  tensor 0 (0.00)  harmful only under global 0, only under tensor 0
+a=4   n=40  global 11 (0.28)  tensor 1 (0.03)  harmful only under global 10, only under tensor 0
+a=8   n=40  global 13 (0.33)  tensor 1 (0.03)  harmful only under global 12, only under tensor 0
+tensor index: planted-draw count, init max|w|  0: n=16 m=3.89; 1: n=4 m=3.33; 3: n=1 m=0.00; 6: n=19 m=0.22; 8: n=5 m=0.18; 10: n=21 m=0.18; 11: n=1 m=0.17; 12: n=23 m=0.09; 18: n=10 m=0.22; 19: n=1 m=0.00; 20: n=10 m=0.18; 21: n=1 m=0.00; 22: n=17 m=0.18; 23: n=1 m=0.17; 24: n=15 m=0.09; 25: n=1 m=0.08; 28: n=14 m=0.18
+DONE

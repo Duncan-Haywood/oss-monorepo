@@ -141,12 +141,13 @@ export async function run(argv, { fetchTextImpl = fetchText, readFile = (p) => f
   lines.push(origin ? `Auditing ${origin}` : "Auditing local files");
   if (!robotsFound) lines.push("No robots.txt found (treated as allow-everything).");
   lines.push("");
-  lines.push("AI crawler          operator          purpose            status");
-  lines.push("-".repeat(72));
+  const w1 = Math.max("AI crawler".length, ...rows.map((r) => r.token.length)) + 2;
+  const w2 = Math.max("operator".length, ...rows.map((r) => r.operator.length)) + 2;
+  const w3 = Math.max("purpose".length, ...rows.map((r) => r.purpose.length)) + 2;
+  lines.push("AI crawler".padEnd(w1) + "operator".padEnd(w2) + "purpose".padEnd(w3) + "status");
+  lines.push("-".repeat(w1 + w2 + w3 + 7));
   for (const row of rows) {
-    lines.push(
-      `${row.token.padEnd(20)}${row.operator.padEnd(18)}${row.purpose.padEnd(19)}${row.status}`
-    );
+    lines.push(`${row.token.padEnd(w1)}${row.operator.padEnd(w2)}${row.purpose.padEnd(w3)}${row.status}`);
   }
   if (llmsFound) {
     lines.push("");

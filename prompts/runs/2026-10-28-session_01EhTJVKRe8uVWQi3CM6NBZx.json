@@ -1,0 +1,53 @@
+{
+  "date": "2026-10-28",
+  "session": "https://claude.ai/code/session_01EhTJVKRe8uVWQi3CM6NBZx",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: continue work on revenue-generating products",
+  "input_sha256": "cff201b615ebc2003116e6381e5d7785501e13f7175346ab5fb80e22eea17ced",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-28T08:03:11Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "wall-framing-takeoff stair guards and handrail",
+  "projects": [
+    "wall-framing-takeoff"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/11076",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "next: texts are ~2k chars of nested history; finding an offline slice took most of the run."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Router drew process; the scheduled prompt asked for revenue products, so re-routed with --track ventures.",
+      "did": "route --track ventures",
+      "result": "shipped a flagship slice"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "irs.gov 403 through proxy, so the ai-bookkeeper child-credit check was dropped. main_health 24/24. stairs, cli, page tests 71 pass locally; CI not waited on.",
+  "corrections": [],
+  "redteam": null
+}

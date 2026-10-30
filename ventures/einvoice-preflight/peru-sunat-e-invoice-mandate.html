@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e551b'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EE%3C/text%3E%3C/svg%3E"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Peru electronic invoicing: SUNAT CPE, SEE-SOL and a RUC check digit | E-invoice Preflight</title>
+<meta name="description" content="Peru issues invoices as electronic payment vouchers (CPE) regulated by SUNAT, from a free SUNAT portal, a company system or a service operator. Who must issue, the exceptions as reported, and a free local RUC check-digit test.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/peru-sunat-e-invoice-mandate.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Peru electronic invoicing: SUNAT CPE, SEE-SOL and a RUC check digit | E-invoice Preflight">
+<meta property="og:description" content="Peru issues invoices as electronic payment vouchers (CPE) regulated by SUNAT, from a free SUNAT portal, a company system or a service operator. Who must issue, the exceptions as reported, and a free local RUC check-digit test.">
+<meta property="og:url" content="https://example.invalid/einvoice-preflight/peru-sunat-e-invoice-mandate.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is a CPE in Peru?","acceptedAnswer":{"@type":"Answer","text":"A CPE (comprobante de pago electrónico) is an electronic payment voucher, such as a factura, regulated by the tax authority, SUNAT, and issued with one of its authorised systems: SEE-SOL, a company system, or a service operator (OSE). This is a summary from SUNAT pages and vendor guides, not advice; confirm with SUNAT or your accountant."}},{"@type":"Question","name":"Can I issue an invoice for free?","acceptedAnswer":{"@type":"Answer","text":"SUNAT says issuing from its SEE-SOL portal is free. It needs a SOL user and password and, per a SUNAT presentation, a RUC with status “Habido y Activo”. Other routes (your own system, an OSE) are priced by whoever supplies them."}},{"@type":"Question","name":"Who is the buyer on a factura?","acceptedAnswer":{"@type":"Answer","text":"A buyer with a RUC, per SUNAT, apart from exports to non-residents. A sale to a consumer without a RUC uses a different voucher; I did not read the rules for that."}},{"@type":"Question","name":"Can this checker validate a Peruvian CPE?","acceptedAnswer":{"@type":"Answer","text":"No. It does not read SUNAT’s UBL profile, and cannot verify a signature or a SUNAT receipt. It does test a RUC’s shape and check digit on this page, and a clean result is not an acceptance by SUNAT."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch}.lede{font-size:1.05rem;max-width:64ch;color:#3d4f5f}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #15202b10;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #d3dbe4;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#3d4f5f}.fine,.note{font-size:.88rem;color:#3d4f5f}footer{color:#3d4f5f;font-size:.86rem}footer p{margin:.6rem 0}.out{min-height:1.4em}.good{color:#0a6b3a;font-weight:600}.bad{color:#a12d1b}input{font:inherit;padding:.4rem .5rem;border:1px solid #9fb0c0;border-radius:8px}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; E-invoice Preflight</a></p>
+<header>
+<h1>Peru: invoices are electronic payment vouchers, and the buyer needs a RUC</h1>
+<p class="lede">In Peru, per the sources read, an invoice is a comprobante de pago electrónico (CPE) regulated by the tax authority, SUNAT, issued through one of its electronic issuing systems. The invoice is issued to a buyer with a RUC, apart from exports to non-residents. Below: how it works as SUNAT presentations and vendor guides report it, where the sources are thin, and a local check of a RUC&rsquo;s check digit.</p>
+</header>
+<section>
+<h2>How it works (as vendor guides and the authority report it)</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Step</th><th scope="col">What happens</th></tr></thead>
+<tbody>
+<tr><td>Choose a route</td><td>SUNAT lists several issuing systems: SEE-SOL, issuing from SUNAT&rsquo;s portal (free, per SUNAT, with a SOL user and password, and a RUC with status &ldquo;Habido y Activo&rdquo; per a SUNAT presentation), SEE from your own system, and SEE through a service operator (OSE).</td></tr>
+<tr><td>Issue</td><td>The invoice (factura) supports the issuer&rsquo;s costs and expenses for income tax and the buyer&rsquo;s IGV input credit, per SUNAT. Vendor guides describe the file as signed XML in the UBL 2.1 standard; that comes from secondary sources, so confirm it with SUNAT.</td></tr>
+<tr><td>Buyer</td><td>A factura goes only to a buyer with a RUC, except exports to non-residents, per SUNAT.</td></tr>
+<tr><td>Exceptions</td><td>A SUNAT presentation lists cases where paper issuing is still allowed, such as taxpayers in the RUS regime and new RUC registrations during their first three months.</td></tr>
+</tbody>
+</table>
+</div>
+<p class="fine">Where it is unsettled: the legal base (one vendor site cites Superintendent Resolution 300-2014/SUNAT and its amendments; I did not read it), the date from which every taxpayer had to issue electronically (one vendor says 2022, with micro, small and medium businesses), and the exact scope of the exceptions today. These are SUNAT pages and presentations and vendor guides read through search excerpts, not the resolutions. No penalty is stated because none was read. A summary, not tax advice.</p>
+</section>
+<section>
+<h2>Check a RUC</h2>
+<p>Tests the shape (11 digits; spaces, dots and hyphens are ignored), the check digit and the prefix (10, 15, 17 or 20). It does not look anything up, so it cannot say whether the RUC is registered, active (&ldquo;Habido y Activo&rdquo;) or belongs to the name on the invoice.</p>
+<label>RUC <input id="id" size="18" maxlength="20" autocomplete="off" spellcheck="false" placeholder="20131312955"></label>
+<p id="id-out" class="out" aria-live="polite"></p>
+<p class="fine">The sample is SUNAT&rsquo;s own RUC. The rule (the first ten digits weighted 5,4,3,2,7,6,5,4,3,2; 11 minus the remainder mod 11, taken mod 10) reproduces it; it was not read from SUNAT&rsquo;s specification.</p>
+</section>
+<section>
+<h2>What this checker does and does not cover</h2>
+<p>The main checker reads UBL, CII and Factur-X and applies EN 16931 and Peppol rules. It does <strong>not</strong> read SUNAT&rsquo;s UBL profile, cannot verify a signature or a CDR (the receipt SUNAT or an OSE returns), and has no SUNAT catalogues. Treat the RUC test here as a typo catch only.</p>
+</section>
+<section>
+<h2>Test a file before you send it</h2>
+<p>For a European or Peppol invoice, open the <a href="./">checker</a>, drop your XML and read the findings, each with a rule ID and a fix (<a href="what-does-this-e-invoice-error-code-mean.html">the rule reference</a>). No account, nothing uploaded. No invoice yet? The <a href="create.html">e-invoice creator</a> turns a form into UBL or CII XML and checks it. Other countries: <a href="e-invoicing-mandates-by-country.html">all side by side</a> <a href="mexico-cfdi-e-invoice-mandate.html">Mexico</a> <a href="brazil-nfe-e-invoice-mandate.html">Brazil</a> <a href="chile-sii-e-invoice-mandate.html">Chile</a> <a href="colombia-dian-e-invoice-mandate.html">Colombia</a> <a href="argentina-arca-e-invoice-mandate.html">Argentina</a>.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>What is a CPE in Peru?</h3>
+<p>A CPE (comprobante de pago electrónico) is an electronic payment voucher, such as a factura, regulated by the tax authority, SUNAT, and issued with one of its authorised systems: SEE-SOL, a company system, or a service operator (OSE). This is a summary from SUNAT pages and vendor guides, not advice; confirm with SUNAT or your accountant.</p>
+<h3>Can I issue an invoice for free?</h3>
+<p>SUNAT says issuing from its SEE-SOL portal is free. It needs a SOL user and password and, per a SUNAT presentation, a RUC with status &ldquo;Habido y Activo&rdquo;. Other routes (your own system, an OSE) are priced by whoever supplies them.</p>
+<h3>Who is the buyer on a factura?</h3>
+<p>A buyer with a RUC, per SUNAT, apart from exports to non-residents. A sale to a consumer without a RUC uses a different voucher; I did not read the rules for that.</p>
+<h3>Can this checker validate a Peruvian CPE?</h3>
+<p>No. It does not read SUNAT&rsquo;s UBL profile, and cannot verify a signature or a SUNAT receipt. It does test a RUC&rsquo;s shape and check digit on this page, and a clean result is not an acceptance by SUNAT.</p>
+<p class="note">Open the <a href="./">E-invoice Preflight</a> checker to validate your own invoice file.</p>
+</section>
+<section>
+<h2>More countries</h2>
+<p><a href="australia-e-invoice-mandate.html">Australia</a> <a href="austria-e-invoice-mandate.html">Austria</a> <a href="belgium-e-invoice-mandate.html">Belgium</a> <a href="brazil-nfe-e-invoice-mandate.html">Brazil</a> <a href="bulgaria-e-invoice-mandate.html">Bulgaria</a> <a href="croatia-e-invoice-mandate.html">Croatia</a> <a href="cyprus-e-invoice-mandate.html">Cyprus</a> <a href="czech-republic-e-invoice-mandate.html">Czech Republic</a> <a href="denmark-e-invoice-mandate.html">Denmark</a> <a href="estonia-e-invoice-mandate.html">Estonia</a> <a href="finland-e-invoice-mandate.html">Finland</a> <a href="france-e-invoice-mandate.html">France</a> <a href="germany-e-invoice-mandate.html">Germany</a> <a href="greece-mydata-e-invoice-mandate.html">Greece</a> <a href="hungary-e-invoice-mandate.html">Hungary</a> <a href="ireland-e-invoice-mandate.html">Ireland</a> <a href="italy-sdi-e-invoice-mandate.html">Italy</a> <a href="latvia-e-invoice-mandate.html">Latvia</a> <a href="lithuania-e-invoice-mandate.html">Lithuania</a> <a href="luxembourg-e-invoice-mandate.html">Luxembourg</a> <a href="malta-e-invoice-mandate.html">Malta</a> <a href="netherlands-e-invoice-mandate.html">Netherlands</a> <a href="norway-e-invoice-mandate.html">Norway</a> <a href="poland-ksef-e-invoice-mandate.html">Poland</a> <a href="portugal-e-invoice-mandate.html">Portugal</a> <a href="romania-e-factura-e-invoice-mandate.html">Romania</a> <a href="serbia-e-invoice-mandate.html">Serbia</a> <a href="singapore-invoicenow-e-invoice-mandate.html">Singapore Invoicenow</a> <a href="slovakia-e-invoice-mandate.html">Slovakia</a> <a href="slovenia-e-invoice-mandate.html">Slovenia</a> <a href="spain-verifactu-e-invoice-mandate.html">Spain</a> <a href="switzerland-e-invoice-mandate.html">Switzerland</a> <a href="uk-e-invoice-mandate.html">Uk</a> <a href="india-gst-e-invoice-mandate.html">India</a> <a href="malaysia-myinvois-e-invoice-mandate.html">Malaysia</a> <a href="saudi-arabia-zatca-e-invoice-mandate.html">Saudi Arabia</a> <a href="sweden-e-invoice-mandate.html">Sweden</a> <a href="turkey-e-invoice-mandate.html">Turkey</a> <a href="uae-e-invoice-mandate.html">United Arab Emirates</a> <a href="argentina-arca-e-invoice-mandate.html">Argentina</a> <a href="chile-sii-e-invoice-mandate.html">Chile</a> <a href="colombia-dian-e-invoice-mandate.html">Colombia</a> <a href="uruguay-dgi-e-invoice-mandate.html">Uruguay</a> <a href="paraguay-dnit-e-invoice-mandate.html">Paraguay</a> <a href="ecuador-sri-e-invoice-mandate.html">Ecuador</a> <a href="vietnam-e-invoice-mandate.html">Vietnam</a></p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or accounting advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every check runs locally. This page is static and summarises the Peruvian position from search excerpts of SUNAT pages and vendor guides, not from the resolutions; things can change, so check SUNAT (sunat.gob.pe) and the current rules before relying on it.</p>
+<p class="support">Free and open source. If it caught a defect before a rejection, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+</footer>
+<script type="module">
+import{checkRuc}from"./peru.mjs";
+const $=i=>document.getElementById(i);
+const esc=t=>String(t).replace(/[&<>"']/g,c=>"&#"+c.charCodeAt(0)+";");
+function r(){const v=$("id").value;if(!v.trim()){$("id-out").innerHTML="";return}const x=checkRuc(v);$("id-out").innerHTML=x.ok?'<span class="good">'+"Shape and check digit are consistent ("+(x.kind==="company"?"a number in the usual company range":x.kind==="person"?"a number in the usual person range":"a prefix SUNAT uses for other taxpayers")+")."+"</span>":x.problems.map(p=>`<span class="bad">${esc(p)}</span>`).join("<br>")}
+$("id").addEventListener("input",r);
+</script>
+</body>
+</html>

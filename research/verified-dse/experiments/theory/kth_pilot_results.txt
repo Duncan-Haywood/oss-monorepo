@@ -1,0 +1,63 @@
+pilot = 16 random routed points, iota^(k) computed on the pilot alone; 300 pilots per cell; log units
+clock | design | rung | k | true | pilot median | pilot p90 | share pilot >= true | share pilot >= 0.5 true
+tight | adder_op16 | r1 | 16->5 | 0.227 | 0.090 | 0.265 | 0.25 | 0.41
+tight | adder_op16 | r2 | 5->2 | 0.113 | 0.083 | 0.175 | 0.33 | 0.76
+tight | adder_op16 | r3 | 1->1 | 0.286 | 0.190 | 0.267 | 0.10 | 0.68
+tight | adder_ripple16 | r3 | 1->1 | 0.019 | 0.000 | 0.019 | 0.31 | 0.31
+tight | mult8 | r1 | 16->5 | 0.091 | 0.088 | 0.139 | 0.47 | 0.83
+tight | mult8 | r2 | 5->2 | 0.107 | 0.096 | 0.137 | 0.25 | 0.94
+tight | mult8 | r3 | 1->1 | 0.194 | 0.129 | 0.194 | 0.11 | 0.83
+tight | mac4 | r1 | 16->5 | 0.222 | 0.198 | 0.247 | 0.28 | 0.84
+tight | mac4 | r2 | 5->2 | 0.061 | 0.061 | 0.110 | 0.56 | 0.97
+tight | mac4 | r3 | 1->1 | 0.214 | 0.129 | 0.214 | 0.20 | 0.65
+tight | alu8 | r1 | 16->5 | 0.125 | 0.098 | 0.157 | 0.27 | 0.84
+tight | alu8 | r2 | 5->2 | 0.107 | 0.081 | 0.109 | 0.18 | 0.92
+tight | alu8 | r3 | 1->1 | 0.163 | 0.101 | 0.163 | 0.12 | 0.74
+tight | popcount16 | r1 | 16->5 | 0.119 | 0.119 | 0.123 | 0.65 | 1.00
+tight | popcount16 | r2 | 5->2 | 0.043 | 0.039 | 0.066 | 0.37 | 0.91
+tight | popcount16 | r3 | 1->1 | 0.108 | 0.050 | 0.108 | 0.11 | 0.43
+tight | barrel16 | r1 | 16->5 | 0.113 | 0.101 | 0.117 | 0.45 | 0.73
+tight | barrel16 | r2 | 5->2 | 0.113 | 0.113 | 0.117 | 0.60 | 0.98
+tight | barrel16 | r3 | 1->1 | 0.117 | 0.114 | 0.117 | 0.47 | 0.98
+tight | crc16 | r1 | 16->5 | 0.243 | 0.267 | 0.369 | 0.60 | 1.00
+tight | crc16 | r2 | 5->2 | 0.169 | 0.169 | 0.169 | 0.52 | 0.72
+tight | crc16 | r3 | 1->1 | 0.179 | 0.179 | 0.179 | 0.65 | 1.00
+tight | cmp_sat12 | r1 | 16->5 | 0.104 | 0.090 | 0.193 | 0.41 | 0.73
+tight | cmp_sat12 | r2 | 5->2 | 0.195 | 0.146 | 0.228 | 0.28 | 0.86
+tight | cmp_sat12 | r3 | 1->1 | 0.316 | 0.235 | 0.316 | 0.12 | 0.87
+tight | fifo8x4 | r1 | 16->5 | 0.176 | 0.165 | 0.211 | 0.42 | 0.99
+tight | fifo8x4 | r2 | 5->2 | 0.120 | 0.113 | 0.124 | 0.32 | 0.97
+tight | fifo8x4 | r3 | 1->1 | 0.196 | 0.155 | 0.196 | 0.22 | 0.98
+relaxed | adder_op16 | r1 | 16->5 | 0.151 | 0.087 | 0.163 | 0.19 | 0.56
+relaxed | adder_op16 | r2 | 5->2 | 0.086 | 0.080 | 0.117 | 0.43 | 0.90
+relaxed | adder_op16 | r3 | 1->1 | 0.232 | 0.178 | 0.232 | 0.11 | 0.88
+relaxed | mult8 | r1 | 16->5 | 0.140 | 0.122 | 0.144 | 0.23 | 0.85
+relaxed | mult8 | r2 | 5->2 | 0.063 | 0.054 | 0.095 | 0.43 | 0.88
+relaxed | mult8 | r3 | 1->1 | 0.063 | 0.053 | 0.059 | 0.10 | 0.88
+relaxed | mac4 | r1 | 16->5 | 0.214 | 0.212 | 0.258 | 0.40 | 0.74
+relaxed | mac4 | r2 | 5->2 | 0.013 | 0.018 | 0.044 | 0.74 | 0.79
+relaxed | mac4 | r3 | 1->1 | 0.059 | 0.035 | 0.059 | 0.18 | 0.69
+relaxed | alu8 | r1 | 16->5 | 0.232 | 0.198 | 0.254 | 0.25 | 0.91
+relaxed | alu8 | r2 | 5->2 | 0.099 | 0.091 | 0.114 | 0.40 | 0.89
+relaxed | alu8 | r3 | 1->1 | 0.130 | 0.078 | 0.123 | 0.09 | 0.56
+relaxed | popcount16 | r1 | 16->5 | 0.169 | 0.121 | 0.180 | 0.38 | 0.96
+relaxed | popcount16 | r2 | 5->2 | 0.036 | 0.030 | 0.043 | 0.37 | 0.74
+relaxed | popcount16 | r3 | 1->1 | 0.049 | 0.040 | 0.049 | 0.27 | 0.89
+relaxed | barrel16 | r1 | 16->5 | 0.132 | 0.132 | 0.191 | 0.55 | 0.89
+relaxed | barrel16 | r2 | 5->2 | 0.223 | 0.155 | 0.223 | 0.35 | 0.99
+relaxed | barrel16 | r3 | 1->1 | 0.209 | 0.155 | 0.209 | 0.21 | 1.00
+relaxed | crc16 | r1 | 16->5 | 0.146 | 0.146 | 0.147 | 0.55 | 0.95
+relaxed | crc16 | r2 | 5->2 | 0.030 | 0.030 | 0.030 | 0.66 | 0.68
+relaxed | crc16 | r3 | 1->1 | 0.050 | 0.028 | 0.050 | 0.26 | 0.71
+relaxed | cmp_sat12 | r1 | 16->5 | 0.118 | 0.104 | 0.163 | 0.40 | 0.92
+relaxed | cmp_sat12 | r2 | 5->2 | 0.066 | 0.065 | 0.104 | 0.42 | 0.87
+relaxed | cmp_sat12 | r3 | 1->1 | 0.117 | 0.096 | 0.114 | 0.10 | 0.94
+relaxed | fifo8x4 | r1 | 16->5 | 0.226 | 0.226 | 0.305 | 0.55 | 0.99
+relaxed | fifo8x4 | r2 | 5->2 | 0.143 | 0.096 | 0.162 | 0.38 | 0.68
+relaxed | fifo8x4 | r3 | 1->1 | 0.125 | 0.041 | 0.125 | 0.18 | 0.22
+
+cells with true iota^(k) > 0: 55
+pilot median / true: median 0.85, min 0.00
+cells where the pilot reaches the true value in at least 80% of draws: 0
+cells where the pilot reaches half the true value in at least 80% of draws: 35
+cells where the pilot never reaches half the true value in 90% of draws: 0

@@ -1,0 +1,57 @@
+LS/OC shaft-energy median (5-95%) | share LS>OC; 5000 cycles per cell
+
+load factor 0.5
+  OC idle bleed(2f), LS standby 0 L/min: 0.942 (0.721 to 1.194) |  34.9%
+  OC idle bleed(2f), LS standby 2 L/min: 0.947 (0.730 to 1.197) |  35.9%
+  OC idle bleed(2f), LS standby 6 L/min: 0.959 (0.746 to 1.201) |  38.4%
+  OC idle    40 bar, LS standby 0 L/min: 0.873 (0.635 to 1.177) |  24.8%
+  OC idle    40 bar, LS standby 2 L/min: 0.878 (0.644 to 1.178) |  25.2%
+  OC idle    40 bar, LS standby 6 L/min: 0.887 (0.661 to 1.180) |  25.9%
+  OC idle    20 bar, LS standby 0 L/min: 0.958 (0.747 to 1.199) |  38.5%
+  OC idle    20 bar, LS standby 2 L/min: 0.964 (0.755 to 1.202) |  39.7%
+  OC idle    20 bar, LS standby 6 L/min: 0.975 (0.771 to 1.206) |  42.6%
+  OC idle     8 bar, LS standby 0 L/min: 1.020 (0.810 to 1.240) |  55.5%
+  OC idle     8 bar, LS standby 2 L/min: 1.025 (0.817 to 1.247) |  57.2%
+  OC idle     8 bar, LS standby 6 L/min: 1.038 (0.830 to 1.257) |  61.3%
+
+load factor 0.375
+  OC idle bleed(2f), LS standby 0 L/min: 0.820 (0.619 to 1.079) |  12.5%
+  OC idle bleed(2f), LS standby 2 L/min: 0.832 (0.635 to 1.084) |  13.5%
+  OC idle bleed(2f), LS standby 6 L/min: 0.858 (0.666 to 1.096) |  15.7%
+  OC idle    40 bar, LS standby 0 L/min: 0.687 (0.501 to 1.024) |   6.2%
+  OC idle    40 bar, LS standby 2 L/min: 0.699 (0.515 to 1.026) |   6.4%
+  OC idle    40 bar, LS standby 6 L/min: 0.720 (0.542 to 1.031) |   6.7%
+  OC idle    20 bar, LS standby 0 L/min: 0.849 (0.661 to 1.092) |  15.1%
+  OC idle    20 bar, LS standby 2 L/min: 0.862 (0.679 to 1.097) |  16.6%
+  OC idle    20 bar, LS standby 6 L/min: 0.889 (0.711 to 1.110) |  19.9%
+  OC idle     8 bar, LS standby 0 L/min: 0.991 (0.792 to 1.198) |  46.9%
+  OC idle     8 bar, LS standby 2 L/min: 1.005 (0.808 to 1.211) |  51.8%
+  OC idle     8 bar, LS standby 6 L/min: 1.035 (0.839 to 1.237) |  61.2%
+
+load factor 0.346
+  OC idle bleed(2f), LS standby 0 L/min: 0.786 (0.593 to 1.042) |   8.4%
+  OC idle bleed(2f), LS standby 2 L/min: 0.801 (0.610 to 1.047) |   9.1%
+  OC idle bleed(2f), LS standby 6 L/min: 0.830 (0.644 to 1.061) |  11.6%
+  OC idle    40 bar, LS standby 0 L/min: 0.643 (0.468 to 0.965) |   3.3%
+  OC idle    40 bar, LS standby 2 L/min: 0.656 (0.484 to 0.969) |   3.6%
+  OC idle    40 bar, LS standby 6 L/min: 0.680 (0.514 to 0.978) |   3.9%
+  OC idle    20 bar, LS standby 0 L/min: 0.819 (0.637 to 1.055) |  10.4%
+  OC idle    20 bar, LS standby 2 L/min: 0.835 (0.656 to 1.062) |  11.5%
+  OC idle    20 bar, LS standby 6 L/min: 0.865 (0.692 to 1.079) |  15.0%
+  OC idle     8 bar, LS standby 0 L/min: 0.981 (0.785 to 1.184) |  43.9%
+  OC idle     8 bar, LS standby 2 L/min: 0.998 (0.804 to 1.199) |  49.5%
+  OC idle     8 bar, LS standby 6 L/min: 1.035 (0.841 to 1.233) |  61.1%
+
+load factor 0.25
+  OC idle bleed(2f), LS standby 0 L/min: 0.662 (0.489 to 0.894) |   0.6%
+  OC idle bleed(2f), LS standby 2 L/min: 0.684 (0.512 to 0.911) |   0.9%
+  OC idle bleed(2f), LS standby 6 L/min: 0.729 (0.559 to 0.940) |   1.7%
+  OC idle    40 bar, LS standby 0 L/min: 0.496 (0.363 to 0.737) |   0.0%
+  OC idle    40 bar, LS standby 2 L/min: 0.513 (0.382 to 0.747) |   0.0%
+  OC idle    40 bar, LS standby 6 L/min: 0.545 (0.419 to 0.770) |   0.0%
+  OC idle    20 bar, LS standby 0 L/min: 0.704 (0.545 to 0.916) |   1.0%
+  OC idle    20 bar, LS standby 2 L/min: 0.727 (0.571 to 0.930) |   1.3%
+  OC idle    20 bar, LS standby 6 L/min: 0.774 (0.623 to 0.960) |   2.5%
+  OC idle     8 bar, LS standby 0 L/min: 0.939 (0.753 to 1.132) |  30.8%
+  OC idle     8 bar, LS standby 2 L/min: 0.970 (0.785 to 1.161) |  40.4%
+  OC idle     8 bar, LS standby 6 L/min: 1.031 (0.843 to 1.221) |  60.3%

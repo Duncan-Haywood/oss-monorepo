@@ -1,0 +1,7 @@
+reps per cell: 200; cells 84 (2 systems x 21 pairs x 2 n)
+f=0.1: q median 0.936 (min 0.491, max 1.505); q_var median 0.628; median |q_var - q|/q 0.326; Spearman(q/q_var, skew_R) -0.231
+   pendulum: q median 0.662, q_var median 0.566, median err 0.137
+   cartpole: q median 1.327, q_var median 0.638, median err 0.474
+f=0.5: q median 1.014 (min 0.533, max 1.688); q_var median 0.675; median |q_var - q|/q 0.351; Spearman(q/q_var, skew_R) -0.242
+   pendulum: q median 0.713, q_var median 0.608, median err 0.139
+   cartpole: q median 1.401, q_var median 0.685, median err 0.497

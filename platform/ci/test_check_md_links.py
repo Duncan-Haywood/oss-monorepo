@@ -109,5 +109,13 @@ class Main(unittest.TestCase):
                     c.tracked_markdown(Path(e))
 
 
+class Help(unittest.TestCase):
+    def test_help_leads_with_summary_line(self):
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf), self.assertRaises(SystemExit):
+            c.main(["--help"])
+        self.assertIn("Report relative links in tracked Markdown files that point at nothing.", " ".join(buf.getvalue().split()))
+
+
 if __name__ == "__main__":
     unittest.main()

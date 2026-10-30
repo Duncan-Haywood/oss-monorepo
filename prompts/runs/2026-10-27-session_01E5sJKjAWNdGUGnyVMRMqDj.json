@@ -1,0 +1,47 @@
+{
+  "date": "2026-10-27",
+  "session": "https://claude.ai/code/session_01E5sJKjAWNdGUGnyVMRMqDj",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-27T19:23:20Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 10950,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/marine-hull/LOG.md",
+      "issue": "Prior log said the glider papers were unreachable; the gliderflight PyPI package (pip download works through the proxy) carries the Slocum coefficients. Worth noting in cloud-session.md as a route when paper hosts 403."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-10-27-a-slocum-glider-needs-five-times-the-auv-hotel-load-to-win.md",
+    "research/marine-hull/LOG.md"
+  ],
+  "goal": null,
+  "notes": "marine-hull milestone 4b. Tests 23 pass, homepage build ok, md links ok. Papers and DOI not cite-checked this step; coefficients read from the gliderflight package source.",
+  "corrections": [],
+  "redteam": null
+}

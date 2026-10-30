@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23471b7e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EN%3C/text%3E%3C/svg%3E">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>npm Lockfile Duplicates Check — Find Duplicate Packages in package-lock.json</title>
   <meta name="description" content="Paste your package-lock.json and see every package installed at more than one version, who pulls each copy in, and which ones npm dedupe can remove. Free duplicate dependency finder, runs in your browser, nothing uploaded.">
@@ -104,6 +104,7 @@ node dupes-check.mjs --json                   # machine-readable</code></pre>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="dupes-check.mjs" rel="noopener">dupes-check.mjs from the repo</a> and run it yourself.</p>
     <p>Everything runs in your browser. The lockfile you paste is never uploaded; there are no accounts, cookies, or analytics vendors, and the tool makes no network calls. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Duplicated code rather than duplicated packages: <a href="../dupehound/">dupehound</a> finds copy-pasted blocks across a codebase (a folder you pick, read in your browser) and shows each copy beside the other.</p>
     <p>Related checks: <a href="../lockfile-license-check/">Lockfile License Check</a> and <a href="../npm-lifecycle-script-check/">npm Lifecycle Script Check</a>.</p>
     <p class="support">Free and open source. If this shrank your install, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>

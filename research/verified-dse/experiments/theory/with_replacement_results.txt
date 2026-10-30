@@ -1,0 +1,66 @@
+alpha = delta = 0.2: 8 independent pilot pairs (at most 16 points); 2000 pilots per group and rung
+clock | design | rung | q median (indep) | q median (disjoint) | mean distinct points | coverage (indep)
+tight | adder_op16 | r1 | 0.126 | 0.125 | 13.86 | 0.845
+tight | adder_op16 | r2 | 0.023 | 0.021 | 13.94 | 1.000
+tight | adder_op16 | r3 | 0.031 | 0.034 | 13.89 | 1.000
+tight | adder_ripple16 | r1 | 0.561 | 0.561 | 13.98 | 0.929
+tight | adder_ripple16 | r2 | 0.000 | 0.000 | 14.02 | 1.000
+tight | adder_ripple16 | r3 | 0.000 | 0.000 | 14.00 | 1.000
+tight | mult8 | r1 | 0.139 | 0.139 | 14.00 | 0.831
+tight | mult8 | r2 | 0.057 | 0.059 | 13.96 | 0.839
+tight | mult8 | r3 | 0.058 | 0.058 | 13.95 | 0.832
+tight | mac4 | r1 | 0.198 | 0.198 | 13.93 | 0.842
+tight | mac4 | r2 | 0.049 | 0.051 | 13.91 | 0.837
+tight | mac4 | r3 | 0.049 | 0.049 | 13.91 | 0.846
+tight | alu8 | r1 | 0.166 | 0.167 | 13.95 | 0.833
+tight | alu8 | r2 | 0.053 | 0.054 | 13.95 | 0.845
+tight | alu8 | r3 | 0.049 | 0.048 | 13.92 | 0.834
+tight | popcount16 | r1 | 0.184 | 0.184 | 13.92 | 0.887
+tight | popcount16 | r2 | 0.008 | 0.008 | 13.96 | 1.000
+tight | popcount16 | r3 | 0.023 | 0.023 | 13.92 | 1.000
+tight | barrel16 | r1 | 0.088 | 0.088 | 13.96 | 0.844
+tight | barrel16 | r2 | 0.088 | 0.088 | 13.96 | 0.832
+tight | barrel16 | r3 | 0.051 | 0.057 | 13.92 | 0.826
+tight | crc16 | r1 | 0.372 | 0.372 | 13.91 | 0.830
+tight | crc16 | r2 | 0.061 | 0.061 | 13.93 | 1.000
+tight | crc16 | r3 | 0.124 | 0.124 | 13.90 | 0.861
+tight | cmp_sat12 | r1 | 0.116 | 0.114 | 13.92 | 0.835
+tight | cmp_sat12 | r2 | 0.054 | 0.058 | 13.92 | 1.000
+tight | cmp_sat12 | r3 | 0.085 | 0.086 | 13.89 | 1.000
+tight | fifo8x4 | r1 | 0.188 | 0.191 | 13.93 | 0.833
+tight | fifo8x4 | r2 | 0.073 | 0.074 | 13.90 | 0.835
+tight | fifo8x4 | r3 | 0.084 | 0.083 | 13.91 | 0.839
+relaxed | adder_op16 | r1 | 0.099 | 0.102 | 13.96 | 0.837
+relaxed | adder_op16 | r2 | 0.037 | 0.041 | 13.96 | 1.000
+relaxed | adder_op16 | r3 | 0.040 | 0.040 | 13.93 | 1.000
+relaxed | adder_ripple16 | r1 | 0.436 | 0.436 | 14.03 | 0.867
+relaxed | adder_ripple16 | r2 | 0.000 | 0.000 | 14.04 | 1.000
+relaxed | adder_ripple16 | r3 | 0.000 | 0.000 | 14.01 | 1.000
+relaxed | mult8 | r1 | 0.140 | 0.150 | 13.91 | 0.827
+relaxed | mult8 | r2 | 0.034 | 0.037 | 13.95 | 1.000
+relaxed | mult8 | r3 | 0.011 | 0.011 | 13.95 | 1.000
+relaxed | mac4 | r1 | 0.212 | 0.212 | 13.90 | 0.847
+relaxed | mac4 | r2 | 0.004 | 0.004 | 13.96 | 1.000
+relaxed | mac4 | r3 | 0.000 | 0.000 | 13.92 | 1.000
+relaxed | alu8 | r1 | 0.236 | 0.240 | 13.96 | 0.845
+relaxed | alu8 | r2 | 0.049 | 0.048 | 13.93 | 0.831
+relaxed | alu8 | r3 | 0.013 | 0.014 | 13.90 | 1.000
+relaxed | popcount16 | r1 | 0.167 | 0.171 | 13.95 | 0.857
+relaxed | popcount16 | r2 | 0.011 | 0.011 | 13.93 | 1.000
+relaxed | popcount16 | r3 | 0.011 | 0.011 | 13.94 | 1.000
+relaxed | barrel16 | r1 | 0.146 | 0.146 | 13.97 | 0.873
+relaxed | barrel16 | r2 | 0.127 | 0.127 | 13.90 | 0.854
+relaxed | barrel16 | r3 | 0.121 | 0.121 | 13.93 | 0.850
+relaxed | crc16 | r1 | 0.176 | 0.176 | 13.96 | 0.854
+relaxed | crc16 | r2 | 0.003 | 0.003 | 13.88 | 1.000
+relaxed | crc16 | r3 | 0.000 | 0.000 | 13.96 | 1.000
+relaxed | cmp_sat12 | r1 | 0.200 | 0.203 | 13.92 | 0.841
+relaxed | cmp_sat12 | r2 | 0.043 | 0.043 | 13.92 | 1.000
+relaxed | cmp_sat12 | r3 | 0.032 | 0.028 | 13.99 | 1.000
+relaxed | fifo8x4 | r1 | 0.300 | 0.301 | 13.93 | 0.827
+relaxed | fifo8x4 | r2 | 0.022 | 0.021 | 13.94 | 1.000
+relaxed | fifo8x4 | r3 | 0.000 | 0.000 | 13.93 | 1.000
+
+coverage over 60 cells: min 0.826, median 0.864; cells under 0.8: 0; under 0.782: 0
+median q within 0.02 of the disjoint scheme in 60 of 60 cells
+mean distinct points per pilot: 13.94 of 16 (min over cells 13.86)

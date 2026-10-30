@@ -72,3 +72,10 @@ test("several :86: lines after one :61: (Rabobank) are all kept; a soft hyphen i
   assert.equal(r.rows[0].cents, -121328);
   assert.equal(r.rows[1].desc, "iDEAL 10-06-2026");
 });
+
+test("Triodos-style '>NN' subfields read like '?NN' ones, with no '>20' left in the description", () => {
+  const r = readStatement([":20:X", ":25:TRIODOSBANK/0390123456", ":28:1", ":60F:C110101EUR100,00",
+    ":61:110125D7,00N000NONREF", ":86:000>100133967858", ">20 HUUR>21 KANTOOR - FEB 2010", ":62F:C110201EUR93,00", "-"].join("\n"));
+  assert.equal(r.rows[0].desc, "HUUR KANTOOR - FEB 2010");
+  assert.equal(r.rows[0].cents, -700);
+});

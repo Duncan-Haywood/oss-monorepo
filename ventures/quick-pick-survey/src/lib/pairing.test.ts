@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { PairItem, pairKey, sameCategoryBias, selectNextPair, surveyConfidence } from "./pairing";
+import { FIRST_OPTION_FALLBACK_SHARE, PairItem, pairKey, sameCategoryBias, selectNextPair, selectNextPairHybrid, surveyConfidence } from "./pairing";
 
 function items(n: number, category = "cat"): PairItem[] {
   return Array.from({ length: n }, (_, i) => ({
@@ -98,5 +98,36 @@ describe("surveyConfidence", () => {
   it("stays within 0..1 for out-of-range input", () => {
     expect(surveyConfidence([{ rd: 5 }])).toBeLessThanOrEqual(1);
     expect(surveyConfidence([{ rd: 9999 }])).toBeGreaterThanOrEqual(0);
+  });
+});
+
+describe("selectNextPairHybrid first-option fallback", () => {
+  const base = () => {
+    const list = items(12).map((it, i) => ({ ...it, rating: 1500 + i * 40, rd: 60 + i * 20 }));
+    return { items: list, timesShown: new Map<string, number>(), recentPairKeys: new Set<string>(), answeredCount: 200 };
+  };
+  const run = (firstOptionShare: number | undefined, seed: number) => {
+    let x = seed;
+    const rand = () => ((x = (x * 1664525 + 1013904223) % 4294967296) / 4294967296);
+    return selectNextPairHybrid({ ...base(), firstOptionShare, rand });
+  };
+
+  it("uses the shipped selector past the switch when the first-option share is at the threshold", () => {
+    for (let s = 1; s <= 5; s++) {
+      expect(run(FIRST_OPTION_FALLBACK_SHARE, s)).toEqual(
+        selectNextPair({ ...base(), rand: (() => { let x = s; return () => ((x = (x * 1664525 + 1013904223) % 4294967296) / 4294967296); })() })
+      );
+    }
+  });
+
+  it("uses the shipped selector when the share is as far below half as the threshold is above", () => {
+    for (let s = 1; s <= 5; s++) {
+      expect(run(1 - FIRST_OPTION_FALLBACK_SHARE, s)).toEqual(run(FIRST_OPTION_FALLBACK_SHARE, s));
+    }
+    expect(run(0.4, 3)).toEqual(run(undefined, 3));
+  });
+
+  it("keeps the information selector below the threshold or with no share", () => {
+    expect(run(0.55, 3)).toEqual(run(undefined, 3));
   });
 });

@@ -36,11 +36,14 @@ What still holds:
   seemed worth doing and what you would do next if it pays off.
 - **Skip audits that earlier explore runs already found clean.** Sitemap
   coverage, duplicate titles and h1s, canonical and og tags, venture README
-  live links, `.md` links and anchors, and unnamed form controls have each been
+  live links, `.md` links and anchors, and unnamed form controls, plus html `lang`, viewport, image `alt` and `rel`
+  attributes (three runs, 2026-10-26, found nothing), have each been
   swept (`platform/ci/check_*.py`, `serp_snippets.py`, `venture_live_links.py`,
   `page-identity.mjs`, `page-seo-audit`); re-run the tool if you doubt one, but
   there is no need to rebuild the sweep. Meta descriptions over 320 characters are clean too
   (`serp_snippets.py --desc-max 320` reports 0 of 2,830 venture pages, 2026-10-20).
+  `llms.txt` link targets are clean too (`platform/ci/check_llms_txt_links.py`, 0 dead of 16 files, 2026-10-28).
+  Untyped `<button>` inside forms (5 of 1,300 venture pages, all intended submit buttons), `href="#"` anchors (7 files, all script-wired) and missing `rel="icon"` (1 page, bid-price-engine, a PWA with manifest icons) are clean too (2026-10-29).
   Only sweeps of a kind not listed are open.
 - **Not more admin.** A free-choice run that only writes plans, ledger prose
   or direction documents has wasted the slot. Build something.

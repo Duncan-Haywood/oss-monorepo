@@ -12,6 +12,12 @@ export const ADDONS = {
   // Romania's national rules (RO e-Factura, ANAF). UBL only; no Saxon form is built, so
   // only the plain route (browser and Node fallback) runs them: build-ro-rules.mjs.
   "cius-ro": { source: "cius-ro-schematron", match: /CIUS-RO/i, files: { ubl: "cius-ro-ubl.sef.json" } },
+  // The Netherlands' NLCIUS (SI-UBL 2.0) and its G-account variant. UBL only, plain route
+  // only, like Romania: build-nl-rules.mjs. A Peppol BIS file does not match; its NL-R
+  // rules already run in the Peppol add-on.
+  nlcius: { source: "nlcius-schematron", match: /nen\.nl:(nlcius|gaccount)/i, files: { ubl: "nlcius-ubl.sef.json", cii: "nlcius-cii.sef.json" } },
+  // Portugal's CIUS-PT (AMA / FEAP), the checks the EU base does not carry. Plain route only: build-pt-rules.mjs.
+  "cius-pt": { source: "cius-pt-schematron", match: /CIUS-PT/i, files: { ubl: "cius-pt-ubl.sef.json" } },
 };
 
 // Peppol PINT profiles (Singapore InvoiceNow, Australia/New Zealand). Their
@@ -22,12 +28,17 @@ export const ADDONS = {
 export const PROFILES = {
   "pint-sg": { source: "pint-sg-schematron", match: /poacc:billing:international:sg:/i, files: { ubl: ["pint-sg-en16931-ubl.json", "pint-sg-peppol-ubl.json", "pint-sg-billing3-ubl.json"] } },
   "pint-aunz": { source: "pint-aunz-schematron", match: /poacc:billing:international:aunz:/i, files: { ubl: ["pint-aunz-en16931-ubl.json", "pint-aunz-peppol-ubl.json"] } },
+  // Saudi Arabia (ZATCA / Fatoora). The KSA invoice names no CustomizationID profile: its marker is
+  // the UBL ProfileID "reporting:1.0" (simplified) or "clearance:1.0" (standard). ZATCA ships its
+  // own cut of the EN 16931 rules beside the KSA ones, so the EU base steps aside. build-zatca-rules.mjs.
+  zatca: { source: "zatca-schematron", match: /(?!)/, profileId: /^\s*(?:reporting|clearance):1\.0\s*$/i, files: { ubl: ["zatca-en16931-ubl.json", "zatca-ksa-ubl.json"] } },
   "pint-aunz-sb": { source: "pint-aunz-schematron", match: /poacc:selfbilling:international:aunz:/i, files: { ubl: ["pint-aunz-en16931-ubl.json", "pint-aunz-sb-peppol-ubl.json"] } },
 };
 
 export function matchingProfile(xml, syntax) {
   const id = customizationId(xml);
-  return Object.entries(PROFILES).find(([, p]) => p.match.test(id) && p.files[syntax]) || null;
+  const profileId = xml.match(/<(?:\w+:)?ProfileID\b[^>]*>([^<]*)</)?.[1] ?? "";
+  return Object.entries(PROFILES).find(([, p]) => (p.match.test(id) || p.profileId?.test(profileId)) && p.files[syntax]) || null;
 }
 
 // BT-24 is cbc:CustomizationID in UBL and the ID inside

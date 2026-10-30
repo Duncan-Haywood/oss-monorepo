@@ -71,6 +71,10 @@ export function scheduleC(books, { from = null, to = null, mealsPct = 50, map = 
   if (year) {
     mileage = mileageDeduction(books, year, { rate: mileageRate });
     warnings.push(...mileage.warnings);
+    const actualCar = (byLine.get("9") ?? []).reduce((n, r) => n + r.cents, 0);
+    if (mileage.cents && actualCar) warnings.push(`Line 9 holds ${fmt(actualCar)} of car and truck costs booked from the bank and ${fmt(mileage.cents)} of standard-mileage deduction for the same year. The standard mileage rate is used instead of actual costs such as fuel, oil, repairs, insurance and depreciation, so only parking and tolls can be added to it; pick one method for the vehicle (the IRS also bars switching in some cases), then take the other amount off.`);
+    const insured = (byLine.get("15") ?? []).reduce((n, r) => n + r.cents, 0);
+    if (mileage.cents && insured) warnings.push(`Line 15 holds ${fmt(insured)} of insurance next to ${fmt(mileage.cents)} of standard-mileage deduction. The standard mileage rate already covers vehicle insurance, so take any auto insurance premium out of line 15; business liability or other insurance stays.`);
     if (mileage.cents) put("9", "miles", mileage.cents), byLine.get("9").at(-1).name = `Business miles (${mileage.label})`;
   }
   const sum = (line) => (byLine.get(line) ?? []).reduce((a, r) => a + r.cents, 0);
@@ -272,14 +276,15 @@ export function nec1099FilingCsv(r) {
 // 2.9% on all of them. Nothing is owed under $400 of net earnings. Half the tax is
 // an income-tax deduction (Schedule 1, line 15). Left out: the 0.9% additional
 // Medicare tax (Form 8959), farm income, church income and more than one business.
-// Wage bases are from memory (2024 168,600; 2025 176,100; 2026 184,500; 2027 192,300, announced Oct 2026 and seen in trade-press reports only) and
-// unchecked against the SSA page, so the result carries a warning; pass `wageBase`
+// Wage bases: 2024 168,600 and 2025 176,100 match the IRS Schedule SE instructions for
+// those years (read 2026-10-26); 2026 184,500 and 2027 192,300 (announced Oct 2026) are
+// seen in trade-press reports only, unchecked against SSA or IRS text, so those results carry a warning; pass `wageBase`
 // in cents to override. A worksheet, not a filing.
 export const SS_WAGE_BASE = { 2024: 16860000, 2025: 17610000, 2026: 18450000, 2027: 19230000 };
 export function selfEmployment(profitCents, { year = new Date().getFullYear(), wageBase, wages = 0 } = {}) {
   const warnings = [];
   const base = wageBase ?? SS_WAGE_BASE[year];
-  if (wageBase === undefined) warnings.push(base === undefined ? `No wage base on file for ${year}; pass wageBase.` : (year >= 2025 && year <= 2027) ? `The ${year} social security wage base ($${(base / 100).toLocaleString("en-US")}) matches published reports of the SSA announcement (compared 2026-10-23), not the SSA page itself; unchecked there, so confirm it on ssa.gov or pass wageBase.` : `The ${year} social security wage base is from memory and unchecked; confirm it on ssa.gov or pass wageBase.`);
+  if (wageBase === undefined && year !== 2024 && year !== 2025) warnings.push(base === undefined ? `No wage base on file for ${year}; pass wageBase.` : (year >= 2026 && year <= 2027) ? `The ${year} social security wage base ($${(base / 100).toLocaleString("en-US")}) matches published reports of the SSA announcement (compared 2026-10-23), not the SSA page itself; unchecked there, so confirm it on ssa.gov or pass wageBase.` : `The ${year} social security wage base is from memory and unchecked; confirm it on ssa.gov or pass wageBase.`);
   const limit = base ?? Infinity;
   if (profitCents <= 0) return { year, profit: profitCents, netEarnings: 0, socialSecurity: 0, medicare: 0, tax: 0, deduction: 0, warnings: [...warnings, "No profit, so no self-employment tax."] };
   const netEarnings = Math.round(profitCents * 0.9235);
@@ -292,13 +297,26 @@ export function selfEmployment(profitCents, { year = new Date().getFullYear(), w
 }
 
 // The four federal estimated-payment dates for a tax year: Apr 15, Jun 15, Sep 15
-// and Jan 15 of the next year, moved to Monday when one lands on a weekend
-// (holidays are not modelled).
+// and Jan 15 of the next year. A date on a weekend or a legal holiday in
+// Washington, DC moves to the next day that is neither (IRC 7503). The two
+// holidays that can reach these dates are Emancipation Day (Apr 16, observed on
+// the Friday or Monday when it falls on a weekend; it pushed the April 2022 and
+// 2023 deadlines to the 18th) and Martin Luther King Jr. Day (third Monday of
+// January; the January 2023 payment was due on the 17th).
+function dcHoliday(dt) {
+  const y = dt.getUTCFullYear(), m = dt.getUTCMonth() + 1, d = dt.getUTCDate(), dow = dt.getUTCDay();
+  if (m === 1) return dow === 1 && d >= 15 && d <= 21;
+  if (m === 4) {
+    const e = new Date(Date.UTC(y, 3, 16)), ed = e.getUTCDay();
+    const obs = ed === 6 ? 15 : ed === 0 ? 17 : 16;
+    return d === obs;
+  }
+  return false;
+}
 export function estimatedDueDates(year) {
   return [[year, 4, 15], [year, 6, 15], [year, 9, 15], [year + 1, 1, 15]].map(([y, m, d]) => {
     const dt = new Date(Date.UTC(y, m - 1, d));
-    const dow = dt.getUTCDay();
-    if (dow === 6) dt.setUTCDate(d + 2); else if (dow === 0) dt.setUTCDate(d + 1);
+    while (dt.getUTCDay() === 0 || dt.getUTCDay() === 6 || dcHoliday(dt)) dt.setUTCDate(dt.getUTCDate() + 1);
     return dt.toISOString().slice(0, 10);
   });
 }

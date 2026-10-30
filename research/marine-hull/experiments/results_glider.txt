@@ -1,0 +1,11 @@
+cases 19683; mass 52.0 kg; speeds 0.1 to 1.5 m/s; battery cancels
+glider wins at 0.25 m/s: 9851/13608 (72.4%)
+glider can reach 0.25 m/s in 13608/19683 cases, 1.0 m/s in 0/19683 (pump capped at 10.0 N)
+glider max horizontal speed: median 0.30, min 0.13, max 0.70 m/s
+crossover found in 5940/19683; none (glider wins everywhere reachable) in 13743
+crossover speed m/s: median 0.10 (10th 0.10, 90th 0.10); in 0.4-0.9: 45/19683 (0.2% of all cases, 0.8% of those with a crossover)
+best-range ratio glider/AUV (each at its own best speed): median 1.61, 10th 0.47, 90th 4.95; glider longer in 65.0%
+AUV hotel load x1 the glider's: glider longer best range in 387/6561 (5.9%)
+AUV hotel load x5 the glider's: glider longer best range in 5855/6561 (89.2%)
+AUV hotel load x20 the glider's: glider longer best range in 6561/6561 (100.0%)
+glider best-range horizontal speed: median 0.25 m/s

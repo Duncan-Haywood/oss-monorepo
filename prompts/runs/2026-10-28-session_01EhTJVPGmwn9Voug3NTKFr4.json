@@ -1,0 +1,53 @@
+{
+ "date": "2026-10-28",
+ "session": "https://claude.ai/code/session_01EhTJVPGmwn9Voug3NTKFr4",
+ "track": "ventures",
+ "prompt_version": 1,
+ "input": "continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products (scheduled)",
+ "input_sha256": "22ad619f9509f3b95d15aa5aec6eb43d01c80a2b2fc6623eadb43ae7f245ba82",
+ "follow_up_inputs": [],
+ "model": null,
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-10-28T11:00:27Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": null,
+ "projects": [],
+ "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/11105",
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "prompts/promptctl.py",
+   "issue": "route drew the research track for a run whose scheduled input asked for ventures; followed the input and recorded ventures/1."
+  }
+ ],
+ "deviations": [
+  {
+   "file": "prompts/research/prompt-0.md",
+   "why": "The scheduled input asked for revenue products, so I did venture work instead of the drawn research track.",
+   "did": "Vietnam page and MST check for einvoice-preflight (flagship 5; flagship 1 had 539 commits in 7 days and nothing offline-doable)",
+   "result": "897 venture tests pass, widget verified in Chromium"
+  }
+ ],
+ "writeups": [
+  "docs/posts/2026-10-28-einvoice-preflight-vietnam.md"
+ ],
+ "goal": null,
+ "notes": "Sources are web-search excerpts; authority hosts unreachable. MST digit pinned on python-stdnum's published example. Also fixed hub Uruguay row stray Paraguay link.",
+ "corrections": [],
+ "redteam": null
+}

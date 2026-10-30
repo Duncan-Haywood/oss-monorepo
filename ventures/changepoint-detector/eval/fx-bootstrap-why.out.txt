@@ -1,0 +1,20 @@
+chf: pilot segments 760,10,284,697; kurtosis raw 111.5 -> standardised 4.3
+  minSegment 10 bootstrap penalty 36.4  6 changes
+  minSegment 30 bootstrap penalty 37.0  6 changes
+  minSegment 60 bootstrap penalty 35.9  6 changes
+  minSegment 90 bootstrap penalty 37.5  5 changes
+gbp: pilot segments 1118,12,621; kurtosis raw 32.0 -> standardised 4.6
+  minSegment 10 bootstrap penalty 31.9  4 changes
+  minSegment 30 bootstrap penalty 33.0  4 changes
+  minSegment 60 bootstrap penalty 36.0  4 changes
+  minSegment 90 bootstrap penalty 31.4  4 changes
+jpy: pilot segments 1367,384; kurtosis raw 6.6 -> standardised 5.6
+  minSegment 10 bootstrap penalty 45.6  4 changes
+  minSegment 30 bootstrap penalty 45.6  4 changes
+  minSegment 60 bootstrap penalty 45.4  4 changes
+  minSegment 90 bootstrap penalty 45.3  4 changes
+chf, fixed penalty sweep:
+  penalty 36.4: 2014-03-07 2014-09-04 2015-01-15 2015-01-30 2016-03-18 2018-03-09
+  penalty 45: 2015-01-15 2015-01-30 2016-03-18
+  penalty 80: 2015-01-15 2015-01-30 2016-03-18
+  penalty 100: 2015-01-15 2015-01-30

@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b26'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EW%3C/text%3E%3C/svg%3E">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Wall Framing Takeoff — stud layout, cut list and lumber order for a house</title>
   <meta name="description" content="Free wall framing calculator for builders and framers. Enter walls, doors and windows; get the stud layout 16 or 24 on center, kings, jacks, headers and cripples, a cut list, plate splices over studs and the cheapest mix of board lengths to buy. Runs in your browser.">
@@ -44,11 +44,16 @@
     .legend i { display: inline-block; width: 12px; height: 12px; border-radius: 2px; margin-right: 4px; vertical-align: -2px; }
     code { font-size: .9em; }
     footer { margin-top: 24px; border-top: 1px solid #dcd7cb; padding-top: 14px; }
+      .cta-row { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 14px; }
+    a.cta { display: inline-block; padding: 11px 18px; border-radius: 8px; background: #1d5c7a; color: #fff; font-weight: 700; text-decoration: none; }
+    a.cta.alt { background: #dfeaf0; color: #14465e; }
+    a.cta:focus-visible { outline: 3px solid #14465e; outline-offset: 2px; }
   </style>
 </head>
 <body>
   <header>
     <h1>Wall Framing Takeoff</h1>
+    <p class="cta-row"><a class="cta" href="#h-settings">Start a takeoff</a> <a class="cta alt" href="#h-settings" id="cta-example">Try the example house</a></p>
     <p>Type the walls, doors and windows of a house. Get the stud layout (16 or 24 on center), every king, jack, header, sill and cripple, plate splices that land on studs, a cut list, and the <strong>cheapest mix of board lengths to buy</strong>, with a lower bound that shows how close the order is to the cheapest possible. Free, no sign-up, and nothing leaves your browser.</p>
     <p class="note">Lengths take feet and inches: <code>40'</code>, <code>13' 3"</code>, <code>92-5/8</code>, <code>150 1/2</code>. A bare number is inches. Positions are measured from the start of the wall (the end you lay out from). <a href="how-many-studs-for-a-wall.html">How the stud count is worked out</a>.</p>
   </header>
@@ -66,6 +71,7 @@
       <div><label for="lap">Cap plate joint offset from top plate joints</label><input id="lap" value="24"></div>
       <div><label for="kerf">Saw kerf</label><input id="kerf" value="1/8"></div>
       <div><label for="panelMax">Longest shop panel for the drawings (blank: whole walls)</label><input id="panelMax" placeholder="e.g. 12 ft"></div>
+      <div><label for="panelSheets"><input id="panelSheets" type="checkbox"> One sheet per shop panel in the HTML drawings (needs a longest panel)</label></div>
       <div><label for="sheathPsf">Sheathing weight on shop panels (lb per sq ft, blank: not weighed)</label><input id="sheathPsf" type="number" min="0" max="10" step="0.1" placeholder="e.g. 1.5 for 1/2 in OSB"></div>
       <div><label for="cornerStuds">Extra studs at a corner</label><input id="cornerStuds" type="number" min="0" max="4" step="1" value="2"></div>
       <div><label for="teeStuds">Extra studs where a wall meets this one</label><input id="teeStuds" type="number" min="0" max="4" step="1" value="2"></div>
@@ -74,6 +80,30 @@
       <div><label for="advFrame">Advanced framing</label><select id="advFrame"><option value="">Standard (3-stud corners, 2 backing studs at tees)</option><option value="corners">Two-stud corners (drywall clips; engineer's call)</option><option value="tees">Ladder blocking at tees instead of backing studs</option><option value="both">Both</option><option value="single">Single top plate (framing stacks over studs; engineer's call)</option></select></div>
       <div><label for="fireBlock">Fire blocking</label><select id="fireBlock"><option value="">Only the rows above</option><option value="fire">Add rows so no stud run passes 10 ft</option></select></div>
     </div>
+  </section>
+
+  <section class="card" aria-labelledby="h-sketch">
+    <h2 id="h-sketch">Draw the plan instead of typing it</h2>
+    <p class="note">Pick a tool and click on the grid. <strong>Wall</strong>: click the start, then each corner; a wall chain ends with Finish (or Escape) and ends meeting an existing wall snap to it. <strong>Door</strong> and <strong>Window</strong>: click a wall. <strong>Move</strong>: drag a wall end to move that corner (walls meeting there follow), or drag a wall to slide it; drag a door or window to slide it along its wall, or drag its end to resize it; a move that would crush a wall or strand a door is refused. <strong>Erase</strong>: click a wall or an opening. Type a length to fix the next wall's length and let the mouse choose the direction. "Use this sketch" fills the walls and openings below (corners, tees, the outside loop and opening positions are worked out from the drawing; heights and headers are defaults to check).</p>
+    <div class="grid">
+      <div><label for="skTool">Tool</label><select id="skTool"><option value="wall">Wall</option><option value="door">Door</option><option value="window">Window</option><option value="move">Move</option><option value="erase">Erase</option></select></div>
+      <div><label for="skGrid">Snap to</label><select id="skGrid"><option value="1">1 in</option><option value="6" selected>6 in</option><option value="12">1 ft</option><option value="24">2 ft</option></select></div>
+      <div><label for="skLen">Next wall length (blank: from the mouse)</label><input id="skLen" placeholder="e.g. 14 ft"></div>
+      <div><label for="skWidth">Opening width</label><input id="skWidth" value="36"></div>
+      <div><label for="skOrtho"><input id="skOrtho" type="checkbox" checked> Keep walls square (horizontal or vertical)</label></div>
+    </div>
+    <div class="grid">
+      <div><label for="skImg">Trace over a picture (optional; stays on your device)</label><input id="skImg" type="file" accept="image/*"></div>
+      <div><label for="skScaleLen">Real distance between two points on it</label><input id="skScaleLen" placeholder="e.g. 24 ft"></div>
+      <div><button type="button" class="secondary" id="skScale" disabled>Set scale: click the two points</button> <button type="button" class="secondary" id="skMovePic" disabled>Move picture: click a spot, then where it goes</button> <button type="button" class="secondary" id="skLevel" disabled>Straighten picture: click two points that should be level</button> <button type="button" class="secondary" id="skPlumb" disabled>…or plumb (straight up and down)</button> <button type="button" class="secondary" id="skImgOff" disabled>Remove picture</button></div>
+      <div><label for="skImgOpacity">Picture strength</label><input id="skImgOpacity" type="range" min="10" max="100" value="45"></div>
+    </div>
+    <svg id="skSvg" viewBox="-24 -24 648 448" role="img" aria-label="Plan sketch grid" style="width:100%;max-height:70vh;background:#fffdf7;border:1px solid #c9c3b3;touch-action:manipulation;cursor:crosshair"></svg>
+    <p class="note" id="skInfo" aria-live="polite">Nothing drawn yet.</p>
+    <button type="button" class="secondary" id="skFinish">Finish this wall chain</button>
+    <button type="button" class="secondary" id="skUndo">Undo</button>
+    <button type="button" class="secondary" id="skClear">Clear the sketch</button>
+    <button type="button" id="skUse">Use this sketch</button>
   </section>
 
   <section class="card" aria-labelledby="h-walls">
@@ -113,9 +143,10 @@
     <button type="button" class="secondary" id="clear">Start empty</button>
     <button type="button" class="secondary" id="csv">Download CSV</button>
     <button type="button" class="secondary" id="drawings">Download wall drawings (printable)</button>
+    <button type="button" class="secondary" id="drawingsPdf">Download wall drawings (PDF)</button>
     <button type="button" class="secondary" id="panelOrderBtn">Download shop-panel lumber order (needs a panel length above)</button>
     <button type="button" class="secondary" id="savePlan">Save plan file</button>
-    <label for="openPlan" style="display:inline-block;font-weight:600">Open plan file</label> <input type="file" id="openPlan" accept=".json,application/json" style="width:auto">
+    <label for="openPlan" style="display:inline-block;font-weight:600">Open plan file</label> <input type="file" id="openPlan" accept=".json,application/json,.dxf" style="width:auto">
     <p><input type="checkbox" id="sheath" style="width:auto"> <label for="sheath" style="display:inline">Also lay out wall sheathing (4 x 8 to 4 x 12 sheets, 1 per square foot)</label>
       <input type="checkbox" id="sheathH" style="width:auto;margin-left:1rem"> <label for="sheathH" style="display:inline">sheets long side along the wall</label>
       <input type="checkbox" id="sheathO" style="width:auto;margin-left:1rem"> <label for="sheathO" style="display:inline">run sheathing past corners</label>
@@ -135,8 +166,114 @@
     <p><input type="checkbox" id="dwOn" style="width:auto"> <label for="dwOn" style="display:inline">Also count interior drywall (inside faces of the exterior walls, both faces of partitions you mark unsheathed, optional flat ceilings; sheets hung in 4 ft courses)</label></p>
     <div class="grid" id="dwFields" hidden>
       <div><label for="dwLen">Sheet length</label><select id="dwLen"><option value="96" selected>8 ft</option><option value="108">9 ft</option><option value="120">10 ft</option><option value="144">12 ft</option><option value="192">16 ft</option></select></div>
-      <div><label for="dwCeil">Flat ceilings: width, depth; separate several with a semicolon (blank: none)</label><input id="dwCeil" placeholder="e.g. 40 ft, 28 ft"></div>
+      <div><label for="dwCeil">Flat ceilings: width, depth, then any dropped soffits as "length x drop"; separate several ceilings with a semicolon (blank: none)</label><input id="dwCeil" placeholder="e.g. 40 ft, 28 ft, 12 ft x 12 in"></div>
+      <div><label for="dwJoints">Wall end joints</label><select id="dwJoints"><option value="">Not placed (sheet count only)</option><option value="true">Snap to studs (sheets may be cut short)</option><option value="false">Placed, not snapped (report where joints land)</option></select></div>
+      <div><label for="dwJoist">Ceiling joist spacing (with snapping, cuts ceiling sheet ends back to a joist)</label><select id="dwJoist"><option value="">Not set</option><option value="roof">From the roof's ceiling joists (needs the roof on, with a ceiling joist size)</option><option value="12">12 in</option><option value="16">16 in</option><option value="19.2">19.2 in</option><option value="24">24 in</option></select></div>
       <div><label for="dwPrice">Price per sheet (blank: none)</label><input id="dwPrice" type="number" min="0" step="0.01" placeholder="e.g. 16"></div>
+    </div>
+    <p><input type="checkbox" id="inOn" style="width:auto"> <label for="inOn" style="display:inline">Also count insulation (open wall cavities from the framing placed, less openings; optional rim joist bays and attic loose fill; figures from the bag label)</label></p>
+    <div class="grid" id="inFields" hidden>
+      <div><label for="inBag">Wall bag coverage (sq ft per bag; blank: 88)</label><input id="inBag" type="number" min="10" max="500" step="1" placeholder="88"></div>
+      <div><label for="inWaste">Waste (fraction; blank: 0.05)</label><input id="inWaste" type="number" min="0" max="0.3" step="0.01" placeholder="0.05"></div>
+      <div><label for="inR">Wall R-value (blank: R-15 for 2x4, R-21 for 2x6)</label><input id="inR" type="number" min="1" max="60" step="1" placeholder="15"></div>
+      <div><label for="inPrice">Price per bag (blank: none)</label><input id="inPrice" type="number" min="0" step="0.01" placeholder="e.g. 60"></div>
+      <div><label for="inRim">Rim joist bays (needs the floor option)</label><select id="inRim"><option value="">Not counted</option><option value="true">Count front and back rim bays</option></select></div>
+      <div><label for="inAtticR">Attic loose fill target R-value (blank: no attic)</label><input id="inAtticR" type="number" min="10" max="80" step="1" placeholder="e.g. 38"></div>
+      <div><label for="inAtticPer">Attic R per inch (read it from the bag chart; blank: 2.5, assumed)</label><input id="inAtticPer" type="number" min="1" max="8" step="0.1" placeholder="2.5"></div>
+      <div><label for="inAtticBag">Attic bag volume (cu ft; blank: no bag count)</label><input id="inAtticBag" type="number" min="0" step="0.1" placeholder="e.g. 40"></div>
+    </div>
+    <p><input type="checkbox" id="stOn" style="width:auto"> <label for="stOn" style="display:inline">Also lay out a stair (equal risers under the code limit, notch geometry, stringers and treads, the stairwell opening; a rise over 147 in splits at a landing; the lumber joins the order)</label></p>
+    <div class="grid" id="stFields" hidden>
+      <div><label for="stRise">Total rise, finished floor to finished floor</label><input id="stRise" type="text" placeholder="e.g. 9' 0&quot;"></div>
+      <div><label for="stTread">Tread run, in (blank: from the 2R+T comfort rule)</label><input id="stTread" type="number" min="10" max="14" step="0.0625" placeholder="10"></div>
+      <div><label for="stWidth">Stair width (blank: 36 in)</label><input id="stWidth" type="text" placeholder="36 in"></div>
+      <div><label for="stStringer">Stringer board</label><select id="stStringer"><option>2x12</option><option>2x10</option></select></div>
+      <div><label for="stTreadBoard">Tread board</label><select id="stTreadBoard"><option>2x12</option><option>2x10</option><option>2x6</option></select></div>
+      <div><label for="stOpen">Stairwell opening length you framed (blank: not checked)</label><input id="stOpen" type="text" placeholder="e.g. 10' 0&quot;"></div>
+      <div><label for="stLanding">Landing</label><select id="stLanding"><option value="">Only if the rise needs one</option><option value="true">Split at a landing</option></select></div>
+    </div>
+    <p><input type="checkbox" id="dkOn" style="width:auto"> <label for="dkOn" style="display:inline">Also frame a deck (ledger or rim, joists, dropped beam, posts, footing concrete, decking rows with joints on joists, hardware; its pressure-treated lumber is its own order)</label></p>
+    <div class="grid" id="dkFields" hidden>
+      <div><label for="dkWidth">Width along the house</label><input id="dkWidth" type="text" placeholder="e.g. 16' 0&quot;"></div>
+      <div><label for="dkDepth">Depth out from the house</label><input id="dkDepth" type="text" placeholder="e.g. 12' 0&quot;"></div>
+      <div><label for="dkHeight">Height above grade</label><input id="dkHeight" type="text" placeholder="e.g. 36 in"></div>
+      <div><label for="dkJoist">Joist</label><select id="dkJoist"><option>2x8</option><option>2x6</option><option>2x10</option><option>2x12</option></select></div>
+      <div><label for="dkSpacing">Joist spacing, in o.c. (blank: 16)</label><input id="dkSpacing" type="number" min="8" max="24" step="1" placeholder="16"></div>
+      <div><label for="dkBeam">Beam board (doubled by default)</label><select id="dkBeam"><option>2x10</option><option>2x8</option><option>2x12</option></select></div>
+      <div><label for="dkPost">Post</label><select id="dkPost"><option>6x6</option><option>4x4</option></select></div>
+      <div><label for="dkFree">Attachment</label><select id="dkFree"><option value="">Ledger on the house</option><option value="true">Freestanding</option></select></div>
+    </div>
+    <p><input type="checkbox" id="trOn" style="width:auto"> <label for="trOn" style="display:inline">Also count interior trim (baseboard between doors; casing legs, head and window sill; packed into stock boards; lengths and widths are the trim you buy)</label></p>
+    <div class="grid" id="trFields" hidden>
+      <div><label for="trSides">Baseboard faces on sheathed walls (blank: 1; unsheathed walls get 2)</label><select id="trSides"><option value="">Default</option><option value="1">1</option><option value="2">2</option></select></div>
+      <div><label for="trBaseStock">Baseboard stock length, in (blank: 144)</label><input id="trBaseStock" type="number" min="48" max="240" step="1" placeholder="144"></div>
+      <div><label for="trCasStock">Casing stock length, in (blank: 96)</label><input id="trCasStock" type="number" min="48" max="240" step="1" placeholder="96"></div>
+      <div><label for="trCasWidth">Casing width, in (blank: 2.25)</label><input id="trCasWidth" type="number" min="0.5" max="8" step="0.05" placeholder="2.25"></div>
+      <div><label for="trReveal">Reveal, in (blank: 0.1875)</label><input id="trReveal" type="number" min="0" max="1" step="0.0625" placeholder="0.1875"></div>
+      <div><label for="trWaste">Waste (fraction; blank: 0.1)</label><input id="trWaste" type="number" min="0" max="0.3" step="0.01" placeholder="0.1"></div>
+      <div><label for="trBasePrice">Price per baseboard (blank: none)</label><input id="trBasePrice" type="number" min="0" step="0.01" placeholder="e.g. 14"></div>
+      <div><label for="trCasPrice">Price per casing board (blank: none)</label><input id="trCasPrice" type="number" min="0" step="0.01" placeholder="e.g. 9"></div>
+      <div><label for="trShoe">Shoe moulding</label><select id="trShoe"><option value="">Not counted</option><option value="true">Along the baseboard runs</option></select></div>
+      <div><label for="trShoeStock">Shoe stock length, in (blank: 96)</label><input id="trShoeStock" type="number" min="48" max="240" step="1" placeholder="96"></div>
+      <div><label for="trShoePrice">Price per shoe board (blank: none)</label><input id="trShoePrice" type="number" min="0" step="0.01" placeholder="e.g. 6"></div>
+      <div><label for="trScarf">Scarf overlap per splice, in (blank: butt joint)</label><input id="trScarf" type="number" min="0" max="12" step="0.5" placeholder="0"></div>
+    </div>
+    <p><input type="checkbox" id="sdOn" style="width:auto"> <label for="sdOn" style="display:inline">Also count exterior lap siding, house wrap and corner boards (course by course on sheathed walls, openings cut out; the reveal and board length are the siding you buy)</label></p>
+    <div class="grid" id="sdFields" hidden>
+      <div><label for="sdExposure">Exposure (reveal), in (blank: 7)</label><input id="sdExposure" type="number" min="2" max="16" step=".25" placeholder="7"></div>
+      <div><label for="sdStock">Board length, in (blank: 144)</label><input id="sdStock" type="number" min="48" max="240" step="1" placeholder="144"></div>
+      <div><label for="sdWaste">Waste (fraction; blank: 0.1)</label><input id="sdWaste" type="number" min="0" max="0.3" step="0.01" placeholder="0.1"></div>
+      <div><label for="sdWrapRoll">House wrap roll coverage, sq ft (blank: 1350)</label><input id="sdWrapRoll" type="number" min="1" step="1" placeholder="1350"></div>
+      <div><label for="sdCorners">Outside corners (blank: 4)</label><input id="sdCorners" type="number" min="0" max="40" step="1" placeholder="4"></div>
+      <div><label for="sdBoardPrice">Price per siding board (blank: none)</label><input id="sdBoardPrice" type="number" min="0" step="0.01" placeholder="e.g. 14"></div>
+      <div><label for="sdWrapPrice">Price per wrap roll (blank: none)</label><input id="sdWrapPrice" type="number" min="0" step="0.01" placeholder="e.g. 150"></div>
+      <div><label for="sdCornerPrice">Price per corner board (blank: none)</label><input id="sdCornerPrice" type="number" min="0" step="0.01" placeholder="e.g. 20"></div>
+    </div>
+    <p><input type="checkbox" id="eaOn" style="width:auto"> <label for="eaOn" style="display:inline">Also count soffit panels, fascia boards and J-channel under the roof overhangs (needs the roof option; counted from the roof's eave and rake overhangs)</label></p>
+    <div class="grid" id="eaFields" hidden>
+      <div><label for="eaPanelWidth">Soffit panel width, in (blank: 12)</label><input id="eaPanelWidth" type="number" min="6" max="24" step="0.5" placeholder="12"></div>
+      <div><label for="eaPanelStock">Soffit panel length, in (blank: 144)</label><input id="eaPanelStock" type="number" min="48" max="288" step="1" placeholder="144"></div>
+      <div><label for="eaFasciaStock">Fascia board length, in (blank: 192)</label><input id="eaFasciaStock" type="number" min="48" max="288" step="1" placeholder="192"></div>
+      <div><label for="eaChannelStock">J-channel length, in (blank: 144)</label><input id="eaChannelStock" type="number" min="48" max="288" step="1" placeholder="144"></div>
+      <div><label for="eaWaste">Waste (fraction; blank: 0.1)</label><input id="eaWaste" type="number" min="0" max="0.3" step="0.01" placeholder="0.1"></div>
+      <div><label for="eaRake">Rake soffit</label><select id="eaRake"><option value="" selected>open or fascia only</option><option value="true">box the rakes with soffit too</option></select></div>
+      <div><label for="eaPanelPrice">Price per soffit panel (blank: none)</label><input id="eaPanelPrice" type="number" min="0" step="0.01" placeholder="e.g. 12"></div>
+      <div><label for="eaFasciaPrice">Price per fascia board (blank: none)</label><input id="eaFasciaPrice" type="number" min="0" step="0.01" placeholder="e.g. 25"></div>
+      <div><label for="eaChannelPrice">Price per J-channel piece (blank: none)</label><input id="eaChannelPrice" type="number" min="0" step="0.01" placeholder="e.g. 7"></div>
+    </div>
+    <p><input type="checkbox" id="guOn" style="width:auto"> <label for="guOn" style="display:inline">Also count gutters, downspouts, hangers, end caps and elbows along the roof's eaves (needs the roof option; counted from the roof's eave runs)</label></p>
+    <div class="grid" id="guFields" hidden>
+      <div><label for="guStock">Gutter length, in (blank: 120)</label><input id="guStock" type="number" min="48" max="288" step="1" placeholder="120"></div>
+      <div><label for="guDsStock">Downspout length, in (blank: 120)</label><input id="guDsStock" type="number" min="48" max="240" step="1" placeholder="120"></div>
+      <div><label for="guHeight">Eave height above grade, in (blank: 120)</label><input id="guHeight" type="number" min="48" max="600" step="1" placeholder="120"></div>
+      <div><label for="guHanger">Hanger spacing, in (blank: 24)</label><input id="guHanger" type="number" min="12" max="48" step="1" placeholder="24"></div>
+      <div><label for="guMaxRun">Longest run per downspout, ft (blank: 40)</label><input id="guMaxRun" type="number" min="10" max="80" step="1" placeholder="40"></div>
+      <div><label for="guArea">Roof area per downspout, sq ft (blank: 600)</label><input id="guArea" type="number" min="100" max="2000" step="10" placeholder="600"></div>
+      <div><label for="guWaste">Waste (fraction; blank: 0.1)</label><input id="guWaste" type="number" min="0" max="0.3" step="0.01" placeholder="0.1"></div>
+      <div><label for="guGutterPrice">Price per gutter section (blank: none)</label><input id="guGutterPrice" type="number" min="0" step="0.01" placeholder="e.g. 12"></div>
+      <div><label for="guDsPrice">Price per downspout piece (blank: none)</label><input id="guDsPrice" type="number" min="0" step="0.01" placeholder="e.g. 9"></div>
+      <div><label for="guHangerPrice">Price per hanger (blank: none)</label><input id="guHangerPrice" type="number" min="0" step="0.01" placeholder="e.g. 1.5"></div>
+      <div><label for="guCapPrice">Price per end cap (blank: none)</label><input id="guCapPrice" type="number" min="0" step="0.01" placeholder="e.g. 3"></div>
+      <div><label for="guElbowPrice">Price per elbow (blank: none)</label><input id="guElbowPrice" type="number" min="0" step="0.01" placeholder="e.g. 4"></div>
+      <div><label for="guCornerPrice">Price per outside corner (blank: none)</label><input id="guCornerPrice" type="number" min="0" step="0.01" placeholder="e.g. 8"></div>
+      <div><label for="guStrapPrice">Price per downspout strap (blank: none)</label><input id="guStrapPrice" type="number" min="0" step="0.01" placeholder="e.g. 1"></div>
+    </div>
+    <p><input type="checkbox" id="faOn" style="width:auto"> <label for="faOn" style="display:inline">Also count nails by connection (stud ends, plates, jacks, headers, sills; sheathing nails when sheathing is on; spacings are typed defaults, not a code table)</label></p>
+    <div class="grid" id="faFields" hidden>
+      <div><label for="faStudEnd">Nails per stud end (blank: 2)</label><input id="faStudEnd" type="number" min="1" max="6" step="1" placeholder="2"></div>
+      <div><label for="faPlate">Plate face-nail spacing, in (blank: 16)</label><input id="faPlate" type="number" min="3" max="48" step="1" placeholder="16"></div>
+      <div><label for="faEdge">Sheathing edge spacing, in (blank: 6)</label><input id="faEdge" type="number" min="2" max="12" step="1" placeholder="6"></div>
+      <div><label for="faField">Sheathing field spacing, in (blank: 12)</label><input id="faField" type="number" min="3" max="48" step="1" placeholder="12"></div>
+      <div><label for="faWaste">Waste (fraction; blank: 0.1)</label><input id="faWaste" type="number" min="0" max="0.5" step="0.01" placeholder="0.1"></div>
+      <div><label for="faBox">Nails per box (from the label; blank: no box count)</label><input id="faBox" type="number" min="50" max="20000" step="1" placeholder="e.g. 2500"></div>
+      <div><label for="faPrice">Price per box (blank: none)</label><input id="faPrice" type="number" min="0" step="0.01" placeholder="e.g. 45"></div>
+      <div><label for="faHdEnds">Hold-downs at wall ends</label><select id="faHdEnds"><option value="" selected>none</option><option value="true">one at each end of every wall</option></select></div>
+      <div><label for="faHdOpen">Hold-downs beside openings at least this wide, in (blank: none)</label><input id="faHdOpen" type="number" min="6" max="600" step="1" placeholder="e.g. 96"></div>
+      <div><label for="faHdPrice">Price per hold-down (blank: none)</label><input id="faHdPrice" type="number" min="0" step="0.01" placeholder="e.g. 14"></div>
+      <div><label for="faPsOn">Plate straps across plate joints</label><select id="faPsOn"><option value="" selected>none</option><option value="1">1 per top- and cap-plate joint (and single-top-plate tie)</option><option value="2">2 per joint</option></select></div>
+      <div><label for="faPsPrice">Price per plate strap (blank: none)</label><input id="faPsPrice" type="number" min="0" step="0.01" placeholder="e.g. 3.5"></div>
+      <div><label for="faRtOn">Rafter ties (needs the roof option)</label><select id="faRtOn"><option value="" selected>none</option><option value="1">1 per rafter bearing (2 per truss)</option><option value="2">2 per rafter bearing (4 per truss)</option></select></div>
+      <div><label for="faRtPrice">Price per rafter tie (blank: none)</label><input id="faRtPrice" type="number" min="0" step="0.01" placeholder="e.g. 1.5"></div>
     </div>
     <div class="grid" id="fnFields" hidden>
       <div><label for="fnType">Type</label><select id="fnType"><option value="stem" selected>footing + stem wall + slab</option><option value="monolithic">monolithic slab, thickened edge</option></select></div>
@@ -147,6 +284,10 @@
       <div><label for="fnStemH">Stem wall height (in; stem type only)</label><input id="fnStemH" type="number" min="8" max="120" value="32"></div>
       <div><label for="fnStemT">Stem wall thickness (in; stem type only)</label><input id="fnStemT" type="number" min="6" max="58" value="8"></div>
       <div><label for="fnSlab">Slab thickness (in)</label><input id="fnSlab" type="number" min="3" max="12" value="4"></div>
+      <div><label for="fnCorner">Corner bars</label><select id="fnCorner"><option value="" selected>Bars bent into one loop on site</option><option value="true">Straight side bars with an L-bar at each corner</option></select></div>
+      <div><label for="fnAnchor">Anchor bolt spacing (in; blank: no bolts counted)</label><input id="fnAnchor" type="number" min="12" max="120" placeholder="e.g. 72"></div>
+      <div><label for="fnAnchorEnd">Anchor bolt distance from plate end (in)</label><input id="fnAnchorEnd" type="number" min="4" max="24" value="12"></div>
+      <div style="grid-column:1/-1"><label for="fnPiers">Piers, one group per line: <code>count, pad in, pad depth in, column in, column height in, bars, bar #, name</code> (the last five are optional; blank: none)</label><textarea id="fnPiers" rows="2" placeholder="e.g. 6, 24, 12, 8, 30, 4, 4, deck posts"></textarea></div>
       <div><label for="fnPrice">Concrete price per cu yd (blank: none)</label><input id="fnPrice" type="number" min="0" step="1" placeholder="e.g. 165"></div>
     </div>
     <p><input type="checkbox" id="rfOn" style="width:auto"> <label for="rfOn" style="display:inline">Also frame a roof, gable or hip (rafters, ridge, ceiling joists, collar ties, roof sheathing, shingles and felt; the lumber joins the order)</label></p>
@@ -197,10 +338,17 @@
 
   <section class="card" aria-labelledby="h-budget" id="budgetCard" hidden>
     <h2 id="h-budget">Budget from your prices</h2>
-    <p class="note">Type one price per line as <code>name, number</code> (names: wallSheet, floorSheet, roofSheet, truss, shingleBundle, underlaymentRoll, dripEdgePiece, ridgeBundle, starterBundle, concreteYd, rebarLb, formPlywoodSheet, gravelYd, anchorBolt, drywallSheet, vaporBarrierSqFt, laborWallFoot, laborFloorSqFt, laborRoofSquare, laborFoundationSqFt, laborConcreteYd; tax and contingency as fractions, e.g. <code>tax, 0.07</code>). Lumber uses the board prices in the stock table. A quantity with no price is listed and left out of the total. No price is supplied by this tool.</p>
+    <p class="note">Type one price per line as <code>name, number</code> (names: wallSheet, floorSheet, roofSheet, truss, shingleBundle, underlaymentRoll, dripEdgePiece, ridgeBundle, starterBundle, concreteYd, rebarLb, formPlywoodSheet, gravelYd, anchorBolt, plateStrap, drywallSheet, insulationBag, atticFillBag, vaporBarrierSqFt, laborWallFoot, laborFloorSqFt, laborRoofSquare, laborFoundationSqFt, laborConcreteYd, laborDrywallSheet, laborInsulationBag; tax and contingency as fractions, e.g. <code>tax, 0.07</code>). Lumber uses the board prices in the stock table. A quantity with no price is listed and left out of the total. No price is supplied by this tool.</p>
     <textarea id="priceText" rows="5" style="width:100%" aria-label="Unit prices, one per line" placeholder="wallSheet, 24&#10;laborWallFoot, 11&#10;tax, 0.07"></textarea>
     <p><button type="button" class="secondary" id="budgetCsvBtn">Download budget CSV</button></p>
     <div id="budgetOut"></div>
+  </section>
+
+  <section class="card" aria-labelledby="h-bids" id="bidsCard" hidden>
+    <h2 id="h-bids">Level subcontractor bids</h2>
+    <p class="note">Bids for the same scope rarely count the same. Paste one line per bid line as <code>bidder; item; quantity; unit price</code> (or <code>bidder; item; amount</code> with three fields), using the item names in the budget table above. A bid that is short on a quantity is priced up at its own unit price; scope it left out is priced from the other bids' median or your own price; anything with no price anywhere is listed, never guessed. Nothing is uploaded.</p>
+    <textarea id="bidText" rows="5" style="width:100%" aria-label="Bid lines, one per line" placeholder="Acme Framing; Wall sheathing; 40; 24&#10;Acme Framing; Labor, walls; 9000&#10;Bay Builders; Wall sheathing; 36; 26"></textarea>
+    <div id="bidsOut"></div>
   </section>
 
   <section class="card" aria-labelledby="h-drywall" id="drywallCard" hidden>
@@ -208,10 +356,50 @@
     <div id="drywallOut"></div>
   </section>
 
+  <section class="card" aria-labelledby="h-deck" id="deckCard" hidden>
+    <h2 id="h-deck">Deck</h2>
+    <div id="deckOut"></div>
+  </section>
+
+  <section class="card" aria-labelledby="h-stairs" id="stairsCard" hidden>
+    <h2 id="h-stairs">Stairs</h2>
+    <div id="stairsOut"></div>
+  </section>
+
+  <section class="card" aria-labelledby="h-siding" id="sidingCard" hidden>
+    <h2 id="h-siding">Exterior siding</h2>
+    <div id="sidingOut"></div>
+  </section>
+
+  <section class="card" aria-labelledby="h-gutters" id="guttersCard" hidden>
+    <h2 id="h-gutters">Gutters and downspouts</h2>
+    <div id="guttersOut"></div>
+  </section>
+  <section class="card" aria-labelledby="h-eaves" id="eavesCard" hidden>
+    <h2 id="h-eaves">Soffit, fascia and J-channel</h2>
+    <div id="eavesOut"></div>
+  </section>
+
+  <section class="card" aria-labelledby="h-trim" id="trimCard" hidden>
+    <h2 id="h-trim">Interior trim</h2>
+    <div id="trimOut"></div>
+  </section>
+  <section class="card" aria-labelledby="h-insulation" id="insulationCard" hidden>
+    <h2 id="h-insulation">Insulation</h2>
+    <div id="insulationOut"></div>
+  </section>
+
+  <section class="card" aria-labelledby="h-fasteners" id="fastenersCard" hidden>
+    <h2 id="h-fasteners">Nails by connection</h2>
+    <div id="fastenersOut"></div>
+  </section>
+
   <section class="card" aria-labelledby="h-schedule" id="scheduleCard">
     <h2 id="h-schedule">Build schedule (critical path)</h2>
-    <p class="note">Optional and separate from the wall list. Paste your own schedule as JSON (<code>start</code>, <code>crews</code>, <code>activities</code> with <code>id, name, days, after, crew, lag</code>, and <code>slips</code>), or load the invented example. Durations are working days (Mon-Fri) that you supply; none are shipped. Holidays and weather are not modelled.</p>
+    <p class="note">Optional and separate from the wall list. Paste your own schedule as JSON (<code>start</code>, <code>crews</code>, <code>activities</code> with <code>id, name, days, after, crew, lag</code>, and <code>slips</code>), or load the invented example. Durations are working days (Mon-Fri) that you supply; none are shipped. Holidays and weather days you list below are skipped; weather is not forecast.</p>
     <textarea id="schedIn" rows="12" spellcheck="false" aria-label="Schedule JSON" style="width:100%;font-family:monospace"></textarea>
+    <p><label for="schedHol">Holidays (YYYY-MM-DD, comma or space separated)</label><input id="schedHol" type="text" autocomplete="off" style="width:100%"></p>
+    <p><label for="schedWx">Weather days the crew will not work (YYYY-MM-DD)</label><input id="schedWx" type="text" autocomplete="off" style="width:100%"></p>
     <p><button type="button" class="secondary" id="schedEx">Load example schedule</button> <button type="button" id="schedRun">Find the critical path</button></p>
     <div id="schedOut" aria-live="polite"></div>
   </section>
@@ -269,7 +457,7 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, construction, building-code, legal or financial advice, and it does not replace a qualified professional, your plans or your building department. Header sizes, jack counts and stud spacing are your inputs and are not checked against any span table or code. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including every length before you cut. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Independent.</strong> Not affiliated with any lumberyard, builder, code body or software company. No lumber price is stated or implied; prices are what you type.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record: save your plan file. Your last entries stay in this browser's local storage only.</p>
-    <p>Everything runs in your browser. Your plan is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>takeoff_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>budget_csv_downloaded</code>, <code>drawings_downloaded</code>, <code>panel_order_downloaded</code>, <code>floor_on</code>, <code>roof_on</code>, <code>foundation_on</code>, <code>drywall_on</code>, <code>schedule_run</code>, <code>schedule_example_loaded</code>, <code>plan_saved</code>, <code>plan_opened</code>) are counted only in local storage on your device, never with anything you typed.</p>
+    <p>Everything runs in your browser. Your plan is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>takeoff_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>budget_csv_downloaded</code>, <code>bids_leveled</code>, <code>drawings_downloaded</code>, <code>drawings_pdf_downloaded</code>, <code>panel_order_downloaded</code>, <code>floor_on</code>, <code>roof_on</code>, <code>foundation_on</code>, <code>drywall_on</code>, <code>insulation_on</code>, <code>trim_on</code>, <code>siding_on</code>, <code>eaves_on</code>, <code>gutters_on</code>, <code>stairs_on</code>, <code>deck_on</code>, <code>fasteners_on</code>, <code>schedule_run</code>, <code>schedule_example_loaded</code>, <code>plan_saved</code>, <code>plan_opened</code>, <code>dxf_opened</code>, <code>sketch_wall</code>, <code>sketch_opening</code>, <code>sketch_move</code>, <code>sketch_used</code>, <code>sketch_trace_image</code>, <code>sketch_trace_scaled</code>, <code>sketch_trace_moved</code>, <code>sketch_trace_straightened</code>) are counted only in local storage on your device, never with anything you typed.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Related tools: the <a href="../cut-list-optimizer/">cut list optimizer</a> for sheet goods and shop stock, and the <a href="../tile-layout-planner/">tile layout planner</a>. Command line and source: <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/wall-framing-takeoff" rel="noopener">wall-framing-takeoff on GitHub</a>.</p>
     <p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
@@ -277,14 +465,26 @@
 
   <script type="module">
     import { takeoff, samplePlan, defaultStock, parseLength, formatLength, formatInches, toCsv, verifyWall, PRECUT, DEPTH } from "./engine.mjs";
+    import { planFromDxf } from "./dxf.mjs";
+    import { emptySketch, addWall, addOpening, snapPoint, pointAtLength, nearestWall, moveCorner, moveWall, moveOpening, resizeOpening, removeWall, removeOpening, openingEnds, planFromSketch, wallLength, restoreSketch, fitTrace, rescaleTrace, moveTrace, levelTrace, traceCorners } from "./sketch.mjs";
     import { drawingSetHtml } from "./drawings.mjs";
+    import { drawingSetPdf } from "./pdf.mjs";
     import { panelOrder, panelOrderText, panelPullText } from "./panels.mjs";
     import { sheathe, defaultSheathing, nailerCuts } from "./sheathing.mjs";
     import { layoutFloor, floorCuts, floorText } from "./floor.mjs";
     import { layoutRoof, roofCuts, roofText } from "./roof.mjs";
     import { layoutFoundation, foundationText } from "./foundation.mjs";
     import { layoutDrywall, drywallText } from "./drywall.mjs";
+    import { layoutInsulation, insulationText } from "./insulation.mjs";
+    import { layoutTrim, trimText } from "./trim.mjs";
+    import { layoutSiding, sidingText } from "./siding.mjs";
+    import { layoutEaves, eavesText } from "./eaves.mjs";
+    import { layoutGutters, guttersText } from "./gutters.mjs";
+    import { layoutDeck, deckText } from "./deck.mjs";
+    import { layoutStair, layoutStairWithLanding, stairCuts, stairText, landingCuts, landingText, STAIR_LIMITS } from "./stairs.mjs";
+    import { layoutFasteners, fastenerText } from "./fasteners.mjs";
     import { budget, budgetCsv } from "./budget.mjs";
+    import { levelBids } from "./bidlevel.mjs";
     import { schedule, scheduleText, sampleSchedule } from "./schedule.mjs";
     import { resolveHeaders } from "./headers.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
@@ -410,15 +610,104 @@
         const dw = { sheetLength: Number($("#dwLen").value) };
         for (const part of $("#dwCeil").value.split(";").map((t) => t.trim()).filter(Boolean)) {
           const q = part.split(",").map((t) => t.trim());
-          if (q.length !== 2) bad.push(`Ceiling "${part}": write two lengths, width then depth.`);
-          else { const [width, depth] = q.map((t) => L(t, "ceiling size")); (dw.ceiling = dw.ceiling || []).push({ width, depth }); }
+          if (q.length < 2) bad.push(`Ceiling "${part}": write two lengths, width then depth, then any steps as "length x drop".`);
+          else {
+            const [width, depth] = q.slice(0, 2).map((t) => L(t, "ceiling size"));
+            const c = { width, depth };
+            for (const st of q.slice(2)) {
+              const m = st.split(/\s+x\s+/i);
+              if (m.length !== 2) bad.push(`Ceiling step "${st}": write length x drop, such as 10 ft x 12 in.`);
+              else (c.steps = c.steps || []).push({ length: L(m[0], "ceiling step length"), drop: L(m[1], "ceiling step drop") });
+            }
+            (dw.ceiling = dw.ceiling || []).push(c);
+          }
         }
+        if ($("#dwJoints").value) dw.jointsOnStuds = $("#dwJoints").value === "true";
+        if ($("#dwJoist").value === "roof") dw.ceilingJoistsFromRoof = true;
+        else if ($("#dwJoist").value) dw.ceilingJoistSpacing = Number($("#dwJoist").value);
         if ($("#dwPrice").value.trim()) dw.price = Number($("#dwPrice").value);
         plan.drywall = dw;
+      }
+      if ($("#inOn").checked) {
+        const ins = {};
+        if ($("#inBag").value.trim()) ins.bagSqFt = Number($("#inBag").value);
+        if ($("#inWaste").value.trim()) ins.waste = Number($("#inWaste").value);
+        if ($("#inR").value.trim()) ins.rValue = Number($("#inR").value);
+        if ($("#inPrice").value.trim()) ins.price = Number($("#inPrice").value);
+        if ($("#inRim").value) ins.rim = true;
+        if ($("#inAtticR").value.trim()) {
+          ins.attic = { rValue: Number($("#inAtticR").value) };
+          if ($("#inAtticPer").value.trim()) ins.attic.rPerInch = Number($("#inAtticPer").value);
+          if ($("#inAtticBag").value.trim()) ins.attic.bagCuFt = Number($("#inAtticBag").value);
+        }
+        plan.insulation = ins;
+      }
+      if ($("#dkOn").checked) {
+        const dk = { id: "Deck", width: L($("#dkWidth").value, "deck width"), depth: L($("#dkDepth").value, "deck depth"), height: L($("#dkHeight").value, "deck height"), joist: $("#dkJoist").value, beam: $("#dkBeam").value, postSize: $("#dkPost").value };
+        if ($("#dkSpacing").value.trim()) dk.spacing = Number($("#dkSpacing").value);
+        if ($("#dkFree").value) dk.freestanding = true;
+        plan.deck = dk;
+      }
+      if ($("#stOn").checked) {
+        const st = { id: "Stair", totalRise: L($("#stRise").value, "stair total rise"), stringer: $("#stStringer").value, treadBoard: $("#stTreadBoard").value };
+        if ($("#stTread").value.trim()) st.tread = Number($("#stTread").value);
+        if ($("#stWidth").value.trim()) st.width = L($("#stWidth").value, "stair width");
+        if ($("#stOpen").value.trim()) st.openingLength = L($("#stOpen").value, "stairwell opening length");
+        if ($("#stLanding").value) st.landing = true;
+        plan.stairs = st;
+      }
+      if ($("#trOn").checked) {
+        const tr = {};
+        for (const [id, key] of [["trSides", "baseSides"], ["trBaseStock", "baseStock"], ["trCasStock", "casingStock"], ["trCasWidth", "casingWidth"], ["trReveal", "reveal"], ["trWaste", "waste"], ["trBasePrice", "basePrice"], ["trCasPrice", "casingPrice"], ["trShoeStock", "shoeStock"], ["trShoePrice", "shoePrice"], ["trScarf", "scarf"]]) if ($("#" + id).value.trim()) tr[key] = Number($("#" + id).value);
+        if ($("#trShoe").value) tr.shoe = true;
+        plan.trim = tr;
+      }
+      if ($("#sdOn").checked) {
+        const sd = {};
+        for (const [id, key] of [["sdExposure", "exposure"],["sdStock", "stock"],["sdWaste", "waste"],["sdWrapRoll", "wrapRollSqFt"],["sdCorners", "corners"],["sdBoardPrice", "boardPrice"],["sdWrapPrice", "wrapPrice"],["sdCornerPrice", "cornerPrice"]]) if ($("#" + id).value.trim()) sd[key] = Number($("#" + id).value);
+        plan.siding = sd;
+      }
+      if ($("#eaOn").checked) {
+        const ea = {};
+        for (const [id, key] of [["eaPanelWidth", "panelWidth"],["eaPanelStock", "panelStock"],["eaFasciaStock", "fasciaStock"],["eaChannelStock", "channelStock"],["eaWaste", "waste"],["eaPanelPrice", "panelPrice"],["eaFasciaPrice", "fasciaPrice"],["eaChannelPrice", "channelPrice"]]) if ($("#" + id).value.trim()) ea[key] = Number($("#" + id).value);
+        if ($("#eaRake").value) ea.rakeSoffit = true;
+        plan.eaves = ea;
+      }
+      if ($("#guOn").checked) {
+        const gu = {};
+        for (const [id, key] of [["guStock", "gutterStock"],["guDsStock", "downspoutStock"],["guHeight", "eaveHeight"],["guHanger", "hangerSpacing"],["guMaxRun", "maxRunFeet"],["guArea", "sqFtPerDownspout"],["guWaste", "waste"],["guGutterPrice", "gutterPrice"],["guDsPrice", "downspoutPrice"],["guHangerPrice", "hangerPrice"],["guCapPrice", "capPrice"],["guElbowPrice", "elbowPrice"],["guCornerPrice", "cornerPrice"],["guStrapPrice", "strapPrice"]]) if ($("#" + id).value.trim()) gu[key] = Number($("#" + id).value);
+        plan.gutters = gu;
+      }
+      if ($("#faOn").checked) {
+        const fa = {};
+        for (const [id, key] of [["faStudEnd", "studEndNails"], ["faPlate", "plateSpacing"], ["faEdge", "edgeSpacing"], ["faField", "fieldSpacing"], ["faWaste", "waste"], ["faBox", "nailsPerBox"], ["faPrice", "price"]]) if ($("#" + id).value.trim()) fa[key] = Number($("#" + id).value);
+        const hd = {};
+        if ($("#faHdEnds").value) hd.wallEnds = true;
+        if ($("#faHdOpen").value.trim()) hd.openingMinWidth = Number($("#faHdOpen").value);
+        if ($("#faHdPrice").value.trim()) hd.price = Number($("#faHdPrice").value);
+        if (hd.wallEnds || hd.openingMinWidth != null) fa.holdDowns = hd;
+        if ($("#faRtOn").value) { fa.rafterTies = { perBearing: Number($("#faRtOn").value) }; if ($("#faRtPrice").value.trim()) fa.rafterTies.price = Number($("#faRtPrice").value); }
+        if ($("#faPsOn").value) { fa.plateStraps = { perJoint: Number($("#faPsOn").value) }; if ($("#faPsPrice").value.trim()) fa.plateStraps.price = Number($("#faPsPrice").value); }
+        plan.fasteners = fa;
       }
       if ($("#fnOn").checked) {
         const fn = { id: "Foundation", type: $("#fnType").value, width: L($("#fnW").value, "foundation width"), depth: L($("#fnD").value, "foundation depth"), footing: { width: Number($("#fnFootW").value), depth: Number($("#fnFootD").value) }, slab: { thickness: Number($("#fnSlab").value) } };
         if (fn.type === "stem") fn.stem = { height: Number($("#fnStemH").value), thickness: Number($("#fnStemT").value) };
+        if ($("#fnCorner").value) fn.cornerBars = true;
+        if ($("#fnAnchor").value.trim()) fn.anchorBolts = { spacing: Number($("#fnAnchor").value), endDistance: Number($("#fnAnchorEnd").value) };
+        const piers = [];
+        for (const [i, line] of $("#fnPiers").value.split("\n").map((t) => t.trim()).filter(Boolean).entries()) {
+          const c = line.split(",").map((t) => t.trim());
+          const n = c.slice(0, 7).map((t) => (t === "" ? undefined : Number(t)));
+          if (c.length < 3 || c.length > 8 || n.slice(0, 3).some((v) => !Number.isFinite(v)) || n.some((v) => v !== undefined && !Number.isFinite(v))) { bad.push(`Pier line ${i + 1} ("${line}") needs: count, pad in, pad depth in, then optionally column, column height, bars, bar #, name.`); continue; }
+          const pier = { count: n[0], pad: n[1], padDepth: n[2] };
+          if (n[3]) { pier.column = n[3]; pier.columnHeight = n[4]; }
+          if (n[5]) pier.bars = n[5];
+          if (n[6]) pier.bar = n[6];
+          if (c[7]) pier.name = c[7];
+          piers.push(pier);
+        }
+        if (piers.length) fn.piers = piers;
         if ($("#fnPrice").value.trim()) fn.price = Number($("#fnPrice").value);
         plan.foundation = fn;
       }
@@ -433,6 +722,7 @@
       }
       const source = plan;
       { const pr = parsePrices(); if (!pr.bad.length && Object.keys(pr.prices).length) plan.prices = pr.prices; }
+      { const pb = parseBids(); if (!pb.bad.length && pb.bids.length) plan.bids = pb.bids; }
       const tableText = $("#hdrTable").value.trim();
       let resolved = plan, hdrRows = [];
       if (tableText) {
@@ -562,7 +852,47 @@
     function renderDrywall(dw) {
       $("#drywallCard").hidden = !dw;
       if (!dw) return;
-      $("#drywallOut").innerHTML = `<pre style="white-space:pre-wrap;overflow-x:auto">${esc(drywallText(dw).join("\n"))}</pre><p class="note">Sheets only, counted from the wall faces in the wall list. A wall marked unsheathed is treated as a partition with drywall on both sides. Screws and compound are rates, not schedules; tape is measured from the seams and the wall-to-ceiling angle. Corner bead is counted around openings (both jambs and the head); free wall ends count only where you set Free ends on a wall; ceiling steps and trim are not counted.</p>`;
+      $("#drywallOut").innerHTML = `<pre style="white-space:pre-wrap;overflow-x:auto">${esc(drywallText(dw).join("\n"))}</pre><p class="note">Sheets only, counted from the wall faces in the wall list. A wall marked unsheathed is treated as a partition with drywall on both sides. Screws and compound are rates, not schedules; tape is measured from the seams and the wall-to-ceiling angle. Corner bead is counted around openings (both jambs and the head); free wall ends count only where you set Free ends on a wall; a dropped soffit on a ceiling (length x drop) is counted as one course of board, bead along its lower edge and taped angle; trim and where a partition meets a step are not.</p>`;
+    }
+    function renderInsulation(ins) {
+      $("#insulationCard").hidden = !ins;
+      if (!ins) return;
+      $("#insulationOut").innerHTML = `<pre style="white-space:pre-wrap;overflow-x:auto">${esc(insulationText(ins).join("\n"))}</pre><p class="note">Open cavity is the wall panel area less every framing member placed and each opening's rough area. Bag coverage and R-values are the figures you type from the label; they are not checked against a real insulation order.</p>`;
+    }
+    function renderDeck(dk) {
+      $("#deckCard").hidden = !dk;
+      if (!dk) return;
+      $("#deckOut").innerHTML = `<pre style="white-space:pre-wrap;overflow-x:auto">${esc(deckText(dk).join("\n"))}</pre><p class="note">Joist spans come from a span table you can replace in the plan file; the built-in one is a rule of thumb, not your jurisdiction's table. Footing size, post sizing, guards and frost depth are yours to check against local code. Hand-checked arithmetic only, not a built deck.</p>`;
+    }
+    function renderStairs(st) {
+      $("#stairsCard").hidden = !st;
+      if (!st) return;
+      $("#stairsOut").innerHTML = `<pre style="white-space:pre-wrap;overflow-x:auto">${esc((st.flights ? landingText(st) : stairText(st)).join("\n"))}</pre><p class="note">Limits are the model residential code's usual ones (7-3/4 in riser, 10 in tread, 6 ft 8 in headroom, 36 in width); the edition your jurisdiction adopted is yours to check. Post sizing and winders are not modelled; guards and handrails are laid out only when the plan file has a stair “rail” object. Not checked against a built stair.</p>`;
+    }
+    function renderSiding(sd) {
+      $("#sidingCard").hidden = !sd;
+      if (!sd) return;
+      $("#sidingOut").innerHTML = `<pre style="white-space:pre-wrap;overflow-x:auto">${esc(sidingText(sd).join("\n"))}</pre><p class="note">Courses are counted per wall with openings cut out and packed first fit decreasing into the board length you typed. Gable triangles, soffit, fascia, window and door trim, flashing, nails, caulk and paint are not counted. Not checked against a real siding order.</p>`;
+    }
+    function renderGutters(gu) {
+      $("#guttersCard").hidden = !gu;
+      if (!gu) return;
+      $("#guttersOut").innerHTML = `<pre style="white-space:pre-wrap;overflow-x:auto">${esc(guttersText(gu).join("\n"))}</pre><p class="note">Gutters hang on the eave runs only; one downspout per longest run and per roof area drained, whichever needs more. The downspout count is a rule of thumb and the manufacturer's tables decide the real count. Not counted: slope, splash blocks, leaf guards, sealant and screws. Not checked against a real gutter order.</p>`;
+    }
+    function renderEaves(ea) {
+      $("#eavesCard").hidden = !ea;
+      if (!ea) return;
+      $("#eavesOut").innerHTML = `<pre style="white-space:pre-wrap;overflow-x:auto">${esc(eavesText(ea).join("\n"))}</pre><p class="note">Runs come from the roof's eave and rake overhangs; each course is packed first fit decreasing into the stock length you typed. Not counted: corner mitres, vented-panel mix, frieze, drip edge, nails, caulk and paint. Not checked against a real soffit order.</p>`;
+    }
+    function renderTrim(tr) {
+      $("#trimCard").hidden = !tr;
+      if (!tr) return;
+      $("#trimOut").innerHTML = `<pre style="white-space:pre-wrap;overflow-x:auto">${esc(trimText(tr).join("\n"))}</pre><p class="note">Pieces are packed first fit decreasing into the stock lengths you typed; mitres are not modelled; scarf joints are counted only if you type an overlap, otherwise the waste figure covers them. Not checked against a real trim order.</p>`;
+    }
+    function renderFasteners(fa) {
+      $("#fastenersCard").hidden = !fa;
+      if (!fa) return;
+      $("#fastenersOut").innerHTML = `<pre style="white-space:pre-wrap;overflow-x:auto">${esc(fastenerText(fa).join("\n"))}</pre><p class="note">Connections are counted from the members placed. Spacings and nails per end are your inputs (defaults are common practice, not a code table): check them against your code edition and your engineer's nailing schedule. Nail size and type and hardware other than the hold-downs you typed are not counted. Sheathing nails use the sheathing option above and over-count panels with openings cut out slightly.</p>`;
     }
     function renderFoundation(fn) {
       $("#foundationCard").hidden = !fn;
@@ -579,12 +909,42 @@
       });
       return { prices, bad };
     }
+    function parseBids() {
+      const byName = new Map(), bad = [];
+      ($("#bidText").value || "").split(/\n+/).map((x) => x.trim()).filter(Boolean).forEach((line, n) => {
+        const t = line.split(/\s*[;|\t]\s*/).map((x) => x.trim());
+        const nums = t.slice(2).map(Number);
+        if ((t.length !== 3 && t.length !== 4) || !t[0] || !t[1] || nums.some((v) => !Number.isFinite(v) || v < 0)) { bad.push(`Bid line ${n + 1}: write it as  Acme; Wall sheathing; 40; 24  or  Acme; Wall sheathing; 960`); return; }
+        const l = t.length === 4 ? { item: t[1], qty: nums[0], unitPrice: nums[1] } : { item: t[1], amount: nums[0] };
+        if (!byName.has(t[0])) byName.set(t[0], []);
+        byName.get(t[0]).push(l);
+      });
+      return { bids: [...byName].map(([bidder, lines]) => ({ bidder, lines })), bad };
+    }
+    function renderBids() {
+      const card = $("#bidsCard");
+      if (!last?.budget) { card.hidden = true; return; }
+      card.hidden = false;
+      const pb = parseBids();
+      if (pb.bad.length) { $("#bidsOut").innerHTML = `<div class="err"><ul>${pb.bad.map((e) => `<li>${esc(e)}</li>`).join("")}</ul></div>`; return; }
+      if (!pb.bids.length) { $("#bidsOut").innerHTML = ""; return; }
+      const lv = levelBids(last.budget, pb.bids);
+      const m = (v) => v.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 });
+      $("#bidsOut").innerHTML = `<table><thead><tr><th>Bidder</th><th class="n">As bid</th><th class="n">Added to level</th><th class="n">Leveled</th></tr></thead><tbody>${lv.bidders.map((b) => `<tr><td>${esc(b.bidder)}</td><td class="n">${m(b.bidTotal)}</td><td class="n">${m(b.additions)}</td><td class="n">${m(b.leveledTotal)}</td></tr>`).join("")}</tbody></table>
+        <ul>${lv.bidders.flatMap((b) => b.flags.map((f) => `<li>${esc(b.bidder)}: ${esc(f.kind)} ${esc(f.item)}: ${esc(f.note)}</li>`)).join("")}</ul>
+        ${lv.bidders.some((b) => b.unleveled.length) ? `<p class="note">No price anywhere, so not leveled: ${esc(lv.bidders.filter((b) => b.unleveled.length).map((b) => `${b.bidder} (${b.unleveled.join(", ")})`).join("; "))}.</p>` : ""}
+        ${lv.errors.length ? `<div class="err"><ul>${lv.errors.map((e) => `<li>${esc(e)}</li>`).join("")}</ul></div>` : ""}
+        <p><strong>${lv.lowestLeveled === lv.lowestAsBid ? `Lowest on both counts: ${esc(lv.lowestLeveled)}` : `Lowest as bid: ${esc(lv.lowestAsBid)}; lowest once leveled: ${esc(lv.lowestLeveled)}`}</strong></p>
+        <p class="note">Leveling compares quantities and scope, not quality, schedule, insurance or licence. Not advice on whom to hire.</p>`;
+      if (!bidsRecorded) { bidsRecorded = true; record("bids_leveled"); }
+    }
+    let bidsRecorded = false;
     function renderBudget() {
       const card = $("#budgetCard");
       if (!last) { card.hidden = true; return; }
       const pr = parsePrices();
       if (pr.bad.length) { $("#budgetOut").innerHTML = `<div class="err"><ul>${pr.bad.map((e) => `<li>${esc(e)}</li>`).join("")}</ul></div>`; card.hidden = false; return; }
-      const res = { ...last.result, floor: last.floor, roof: last.roof, foundation: last.foundation, drywall: last.drywall };
+      const res = { ...last.result, floor: last.floor, roof: last.roof, foundation: last.foundation, drywall: last.drywall, insulation: last.insulation, trim: last.trim, siding: last.siding, eaves: last.eaves, gutters: last.gutters, fasteners: last.fasteners };
       const b = budget(res, pr.prices);
       last.budget = b;
       const m = (v) => v.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 });
@@ -593,12 +953,13 @@
         ${b.unpriced.length ? `<p class="note">Not in the total, no price typed: ${esc(b.unpriced.join("; "))}.</p>` : ""}
         <p class="note">Excludes equipment, permits, delivery and overhead. An estimate from the prices you typed, not a quote.</p>`;
       card.hidden = false;
+      renderBids();
     }
     function run() {
       const { plan, bad, source } = toPlan();
       $("#errors").innerHTML = "";
       if (bad.length) { $("#errors").innerHTML = `<ul>${bad.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>`; return false; }
-      let result, nailers = [], floor = null, floorExtra = [], roof = null, foundation = null, drywall = null;
+      let result, nailers = [], floor = null, stairs = null, deck = null, floorExtra = [], roof = null, foundation = null, drywall = null;
       try {
         if (plan.foundation) {
           foundation = layoutFoundation(plan.foundation);
@@ -607,6 +968,10 @@
         if (plan.drywall) {
           drywall = layoutDrywall(plan.drywall, plan);
           if (!drywall.ok) { $("#errors").innerHTML = `<ul>${drywall.errors.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>`; last = null; $("#drywallCard").hidden = true; return false; }
+        }
+        if (plan.deck) {
+          deck = layoutDeck(plan.deck);
+          if (!deck.ok) { $("#errors").innerHTML = `<ul>${deck.errors.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>`; last = null; $("#deckCard").hidden = true; return false; }
         }
         if (plan.floor) {
           floor = layoutFloor(plan.floor, plan);
@@ -617,6 +982,11 @@
           roof = layoutRoof(plan.roof, plan);
           if (!roof.ok) { $("#errors").innerHTML = `<ul>${roof.errors.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>`; last = null; $("#roofCard").hidden = true; return false; }
           floorExtra = [...floorExtra, ...roofCuts(roof)];
+        }
+        if (plan.stairs) {
+          stairs = plan.stairs.landing || plan.stairs.totalRise > STAIR_LIMITS.maxRise ? layoutStairWithLanding(plan.stairs, plan) : layoutStair(plan.stairs, plan);
+          if (!stairs.ok) { $("#errors").innerHTML = `<ul>${stairs.errors.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>`; last = null; $("#stairsCard").hidden = true; return false; }
+          floorExtra = [...floorExtra, ...(stairs.flights ? [...stairs.flights.flatMap(stairCuts), ...landingCuts(stairs)] : stairCuts(stairs))];
         }
         result = takeoff(plan, floorExtra);
         if (result.ok && $("#sheath").checked) {
@@ -631,7 +1001,38 @@
         last = null; showWall();
         return false;
       }
-      last = { plan, result, nailers, floor, roof, foundation, drywall };
+      let insulation = null;
+      if (plan.insulation) {
+        try { insulation = layoutInsulation(plan.insulation, plan, result); } catch (e) { insulation = { ok: false, errors: [e instanceof Error ? e.message : String(e)] }; }
+        if (!insulation.ok) { $("#errors").innerHTML = `<ul>${insulation.errors.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>`; last = null; $("#insulationCard").hidden = true; return false; }
+      }
+      let trim = null;
+      if (plan.trim) {
+        try { trim = layoutTrim(plan.trim, plan); } catch (e) { trim = { ok: false, errors: [e instanceof Error ? e.message : String(e)] }; }
+        if (!trim.ok) { $("#errors").innerHTML = `<ul>${trim.errors.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>`; last = null; $("#trimCard").hidden = true; return false; }
+      }
+      let siding = null;
+      if (plan.siding) {
+        try { siding = layoutSiding(plan.siding, plan); } catch (e) { siding = { ok: false, errors: [e instanceof Error ? e.message : String(e)] }; }
+        if (!siding.ok) { $("#errors").innerHTML = `<ul>${siding.errors.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>`; last = null; $("#sidingCard").hidden = true; return false; }
+      }
+      let eaves = null;
+      if (plan.eaves) {
+        try { eaves = layoutEaves(plan.eaves, roof); } catch (e) { eaves = { ok: false, errors: [e instanceof Error ? e.message : String(e)] }; }
+        if (!eaves.ok) { $("#errors").innerHTML = `<ul>${eaves.errors.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>`; last = null; $("#eavesCard").hidden = true; return false; }
+      }
+      let gutters = null;
+      if (plan.gutters) {
+        try { gutters = layoutGutters(plan.gutters, roof); } catch (e) { gutters = { ok: false, errors: [e instanceof Error ? e.message : String(e)] }; }
+        if (!gutters.ok) { $("#errors").innerHTML = `<ul>${gutters.errors.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>`; last = null; $("#guttersCard").hidden = true; return false; }
+      }
+      let fasteners = null;
+      if (plan.fasteners) {
+        const sheathing = $("#sheath").checked ? sheathe({ ...plan, sheathing: { ...defaultSheathing(), ...($("#sheathH").checked ? { orientation: "horizontal" } : {}), ...($("#sheathO").checked ? { overhang: true } : {}), ...(Number($("#sheathR").value) > 0 ? { rimLap: Number($("#sheathR").value) } : {}) } }, result) : null;
+        try { fasteners = layoutFasteners(plan.fasteners, plan, { ...result, ...(sheathing?.ok ? { sheathing } : {}), ...(roof ? { roof } : {}) }); } catch (e) { fasteners = { ok: false, errors: [e instanceof Error ? e.message : String(e)] }; }
+        if (!fasteners.ok) { $("#errors").innerHTML = `<ul>${fasteners.errors.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>`; last = null; $("#fastenersCard").hidden = true; return false; }
+      }
+      last = { plan, result, nailers, floor, deck, stairs, roof, foundation, drywall, insulation, trim, siding, eaves, gutters, fasteners };
       const s = result.summary;
       const money = (v) => v.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 });
       $("#summary").innerHTML = `<div class="big">
@@ -650,6 +1051,14 @@
       renderRoof(roof);
       renderFoundation(foundation);
       renderDrywall(drywall);
+      renderInsulation(insulation);
+      renderDeck(deck);
+      renderStairs(stairs);
+      renderTrim(trim);
+      renderSiding(siding);
+      renderEaves(eaves);
+      renderGutters(gutters);
+      renderFasteners(fasteners);
       renderSheathing(plan, result);
       renderBudget();
       const prev = $("#wallPick").value;
@@ -676,21 +1085,64 @@
         $("#flOpen").value = (fl.openings || []).map((o) => [o.x, o.y, o.width, o.depth].map(formatLength).join(", ")).join("; ");
       }
       if (plan.prices && typeof plan.prices === "object") { $("#priceText").value = Object.entries(plan.prices).filter(([, v]) => Number.isFinite(v)).map(([k, v]) => `${k}, ${v}`).join("\n"); try { localStorage.setItem(KEY + ".prices", $("#priceText").value); } catch (e) { /* optional */ } }
+      if (Array.isArray(plan.bids)) $("#bidText").value = plan.bids.flatMap((b) => (b.lines || []).map((l) => [b.bidder, l.item, ...(typeof l.amount === "number" ? [l.amount] : [l.qty, l.unitPrice])].join("; "))).join("\n");
       const dw = plan.drywall;
       $("#dwOn").checked = Boolean(dw); $("#dwFields").hidden = !dw;
       if (dw) {
         $("#dwLen").value = String(dw.sheetLength || 96);
-        $("#dwCeil").value = (dw.ceiling || []).map((c) => [c.width, c.depth].map(formatLength).join(", ")).join("; ");
+        $("#dwCeil").value = (dw.ceiling || []).map((c) => [...[c.width, c.depth].map(formatLength), ...(c.steps || []).map((st) => `${formatLength(st.length)} x ${formatLength(st.drop)}`)].join(", ")).join("; ");
+        $("#dwJoints").value = typeof dw.jointsOnStuds === "boolean" ? String(dw.jointsOnStuds) : "";
+        $("#dwJoist").value = dw.ceilingJoistsFromRoof ? "roof" : dw.ceilingJoistSpacing != null ? String(dw.ceilingJoistSpacing) : "";
         $("#dwPrice").value = dw.price != null ? String(dw.price) : "";
       }
+      const ins = plan.insulation;
+      $("#inOn").checked = Boolean(ins); $("#inFields").hidden = !ins;
+      if (ins) {
+        $("#inBag").value = ins.bagSqFt != null ? String(ins.bagSqFt) : ""; $("#inWaste").value = ins.waste != null ? String(ins.waste) : "";
+        $("#inR").value = ins.rValue != null ? String(ins.rValue) : ""; $("#inPrice").value = ins.price != null ? String(ins.price) : "";
+        $("#inRim").value = ins.rim ? "true" : "";
+        $("#inAtticR").value = ins.attic?.rValue != null ? String(ins.attic.rValue) : ""; $("#inAtticPer").value = ins.attic?.rPerInch != null ? String(ins.attic.rPerInch) : "";
+        $("#inAtticBag").value = ins.attic?.bagCuFt != null ? String(ins.attic.bagCuFt) : "";
+      }
+      const dkp = plan.deck && typeof plan.deck === "object" ? plan.deck : null;
+      $("#dkOn").checked = Boolean(dkp); $("#dkFields").hidden = !dkp;
+      $("#dkWidth").value = dkp ? formatLength(dkp.width) : ""; $("#dkDepth").value = dkp ? formatLength(dkp.depth) : ""; $("#dkHeight").value = dkp ? formatLength(dkp.height) : "";
+      $("#dkJoist").value = dkp?.joist || "2x8"; $("#dkSpacing").value = dkp?.spacing != null ? String(dkp.spacing) : ""; $("#dkBeam").value = dkp?.beam || "2x10";
+      $("#dkPost").value = dkp?.postSize || "6x6"; $("#dkFree").value = dkp?.freestanding ? "true" : "";
+      const stp = plan.stairs && !Array.isArray(plan.stairs) ? plan.stairs : null;
+      $("#stOn").checked = Boolean(stp); $("#stFields").hidden = !stp;
+      $("#stRise").value = stp ? formatLength(stp.totalRise) : ""; $("#stTread").value = stp?.tread != null ? String(stp.tread) : "";
+      $("#stWidth").value = stp?.width != null ? formatLength(stp.width) : ""; $("#stOpen").value = stp?.openingLength != null ? formatLength(stp.openingLength) : "";
+      $("#stStringer").value = stp?.stringer || "2x12"; $("#stTreadBoard").value = stp?.treadBoard || "2x12"; $("#stLanding").value = stp?.landing ? "true" : "";
+      const trm = plan.trim;
+      $("#trOn").checked = Boolean(trm); $("#trFields").hidden = !trm; $("#trShoe").value = trm && trm.shoe ? "true" : "";
+      for (const [id, key] of [["trSides", "baseSides"], ["trBaseStock", "baseStock"], ["trCasStock", "casingStock"], ["trCasWidth", "casingWidth"], ["trReveal", "reveal"], ["trWaste", "waste"], ["trBasePrice", "basePrice"], ["trCasPrice", "casingPrice"], ["trShoeStock", "shoeStock"], ["trShoePrice", "shoePrice"], ["trScarf", "scarf"]]) $("#" + id).value = trm && trm[key] != null ? String(trm[key]) : "";
+      const sdg = plan.siding;
+      $("#sdOn").checked = Boolean(sdg); $("#sdFields").hidden = !sdg;
+      for (const [id, key] of [["sdExposure", "exposure"],["sdStock", "stock"],["sdWaste", "waste"],["sdWrapRoll", "wrapRollSqFt"],["sdCorners", "corners"],["sdBoardPrice", "boardPrice"],["sdWrapPrice", "wrapPrice"],["sdCornerPrice", "cornerPrice"]]) $("#" + id).value = sdg && sdg[key] != null ? String(sdg[key]) : "";
+      const eav = plan.eaves;
+      $("#eaOn").checked = Boolean(eav); $("#eaFields").hidden = !eav;
+      for (const [id, key] of [["eaPanelWidth", "panelWidth"],["eaPanelStock", "panelStock"],["eaFasciaStock", "fasciaStock"],["eaChannelStock", "channelStock"],["eaWaste", "waste"],["eaPanelPrice", "panelPrice"],["eaFasciaPrice", "fasciaPrice"],["eaChannelPrice", "channelPrice"]]) $("#" + id).value = eav && eav[key] != null ? String(eav[key]) : "";
+      $("#eaRake").value = eav?.rakeSoffit ? "true" : "";
+      const gut = plan.gutters;
+      $("#guOn").checked = Boolean(gut); $("#guFields").hidden = !gut;
+      for (const [id, key] of [["guStock", "gutterStock"],["guDsStock", "downspoutStock"],["guHeight", "eaveHeight"],["guHanger", "hangerSpacing"],["guMaxRun", "maxRunFeet"],["guArea", "sqFtPerDownspout"],["guWaste", "waste"],["guGutterPrice", "gutterPrice"],["guDsPrice", "downspoutPrice"],["guHangerPrice", "hangerPrice"],["guCapPrice", "capPrice"],["guElbowPrice", "elbowPrice"],["guCornerPrice", "cornerPrice"],["guStrapPrice", "strapPrice"]]) $("#" + id).value = gut && gut[key] != null ? String(gut[key]) : "";
+      const fa = plan.fasteners;
+      $("#faOn").checked = Boolean(fa); $("#faFields").hidden = !fa;
+      for (const [id, key] of [["faStudEnd", "studEndNails"], ["faPlate", "plateSpacing"], ["faEdge", "edgeSpacing"], ["faField", "fieldSpacing"], ["faWaste", "waste"], ["faBox", "nailsPerBox"], ["faPrice", "price"]]) $("#" + id).value = fa?.[key] != null ? String(fa[key]) : "";
+      $("#faHdEnds").value = fa?.holdDowns?.wallEnds ? "true" : ""; $("#faHdOpen").value = fa?.holdDowns?.openingMinWidth != null ? String(fa.holdDowns.openingMinWidth) : ""; $("#faHdPrice").value = fa?.holdDowns?.price != null ? String(fa.holdDowns.price) : "";
+      $("#faRtOn").value = fa?.rafterTies ? String(fa.rafterTies.perBearing ?? 1) : ""; $("#faRtPrice").value = fa?.rafterTies?.price != null ? String(fa.rafterTies.price) : "";
+      $("#faPsOn").value = fa?.plateStraps ? String(fa.plateStraps.perJoint ?? 1) : ""; $("#faPsPrice").value = fa?.plateStraps?.price != null ? String(fa.plateStraps.price) : "";
       const fn = plan.foundation;
       $("#fnOn").checked = Boolean(fn); $("#fnFields").hidden = !fn;
       if (fn) {
         $("#fnType").value = fn.type || "stem"; $("#fnW").value = formatLength(fn.width); $("#fnD").value = formatLength(fn.depth);
         $("#fnFootW").value = String(fn.footing?.width ?? 16); $("#fnFootD").value = String(fn.footing?.depth ?? 8);
         $("#fnStemH").value = String(fn.stem?.height ?? 32); $("#fnStemT").value = String(fn.stem?.thickness ?? 8);
-        $("#fnSlab").value = String(fn.slab?.thickness ?? 4); $("#fnPrice").value = fn.price != null ? String(fn.price) : "";
-      }
+        $("#fnSlab").value = String(fn.slab?.thickness ?? 4); $("#fnPrice").value = fn.price != null ? String(fn.price) : ""; $("#fnCorner").value = fn.cornerBars ? "true" : "";
+        $("#fnAnchor").value = fn.anchorBolts ? String(fn.anchorBolts.spacing ?? 72) : ""; $("#fnAnchorEnd").value = String(fn.anchorBolts?.endDistance ?? 12);
+        $("#fnPiers").value = (fn.piers || []).map((p) => [p.count, p.pad, p.padDepth, p.column ?? "", p.columnHeight ?? "", p.bars ?? "", p.bar ?? "", p.name ?? ""].join(", ").replace(/(, )+$/, "")).join("\n");
+      } else $("#fnPiers").value = "";
       const rf = plan.roof;
       $("#rfOn").checked = Boolean(rf); $("#rfFields").hidden = !rf;
       if (rf) {
@@ -760,7 +1212,8 @@
       setTimeout(() => URL.revokeObjectURL(a.href), 1000);
     };
     $("#csv").addEventListener("click", () => { if (run() && last) { download("framing-takeoff.csv", "text/csv", toCsv(last.result)); record("csv_downloaded"); } });
-    $("#drawings").addEventListener("click", () => { if (run() && last) { download("wall-drawings.html", "text/html", drawingSetHtml(last.result, last.plan, { panelMax: Math.max(0, parseLength($("#panelMax").value.trim() || "0") || 0), sheathPsf: Math.max(0, parseFloat($("#sheathPsf").value) || 0) })); record("drawings_downloaded"); } });
+    $("#drawingsPdf").addEventListener("click", () => { if (run() && last) { download("wall-drawings.pdf", "application/pdf", drawingSetPdf(last.result, last.plan, { panelMax: Math.max(0, parseLength($("#panelMax").value.trim() || "0") || 0) })); record("drawings_pdf_downloaded"); } });
+    $("#drawings").addEventListener("click", () => { if (run() && last) { download("wall-drawings.html", "text/html", drawingSetHtml(last.result, last.plan, { panelMax: Math.max(0, parseLength($("#panelMax").value.trim() || "0") || 0), sheathPsf: Math.max(0, parseFloat($("#sheathPsf").value) || 0), panelSheets: $("#panelSheets").checked })); record("drawings_downloaded"); } });
     $("#panelOrderBtn").addEventListener("click", () => {
       if (!run() || !last) return;
       const panelMax = Math.max(0, parseLength($("#panelMax").value.trim() || "0") || 0);
@@ -770,6 +1223,7 @@
       record("panel_order_downloaded");
     });
     $("#priceText").addEventListener("input", () => { renderBudget(); try { localStorage.setItem(KEY + ".prices", $("#priceText").value); } catch (e) { /* optional */ } });
+    $("#bidText").addEventListener("input", renderBids);
     $("#budgetCsvBtn").addEventListener("click", () => { if (run() && last?.budget) { download("framing-budget.csv", "text/csv", budgetCsv(last.budget)); record("budget_csv_downloaded"); } });
     $("#savePlan").addEventListener("click", () => { const { source, bad } = toPlan(); if (bad.length) { run(); return; } download("framing-plan.json", "application/json", JSON.stringify(source, null, 2)); record("plan_saved"); });
     $("#openPlan").addEventListener("change", async (e) => {
@@ -777,12 +1231,18 @@
       const file = input.files && input.files[0];
       if (!file) return;
       try {
-        const plan = JSON.parse(await file.text());
         const base = samplePlan();
+        let plan, dxfNote = "";
+        if (/\.dxf$/i.test(file.name)) {
+          const r = planFromDxf(await file.text());
+          if (!r.ok) { $("#status").textContent = `Could not read ${file.name}: ${r.errors.join(" ")}`; return; }
+          plan = r.plan;
+          dxfNote = ` ${r.stats.walls} walls, ${r.stats.tees} tees, ${r.stats.openings} openings. ${r.notes.join(" ")}`;
+        } else plan = JSON.parse(await file.text());
         for (const k of ["studSpacing", "studLength", "kerf", "topPlateLap", "cornerExtraStuds", "teeExtraStuds", "defaultHeaderHeight", "stock"]) if (!(k in plan)) plan[k] = base[k];
         load(plan);
-        record("plan_opened");
-        $("#status").textContent = `Opened ${file.name}.`;
+        if (dxfNote) record("dxf_opened"); else record("plan_opened");
+        $("#status").textContent = `Opened ${file.name}.${dxfNote}`;
       } catch (err) {
         $("#status").textContent = `Could not read ${file.name} as a plan file.`;
       }
@@ -793,18 +1253,270 @@
     $("#rfShape").addEventListener("change", () => { $("#rfHipBox").hidden = $("#rfShape").value !== "hip"; syncWing(); });
     $("#rfWing").addEventListener("change", syncWing);
     $("#rfWing2").addEventListener("change", syncWing);
+    $("#inOn").addEventListener("change", () => { $("#inFields").hidden = !$("#inOn").checked; if ($("#inOn").checked) record("insulation_on"); });
+    $("#dkOn").addEventListener("change", () => { $("#dkFields").hidden = !$("#dkOn").checked; if ($("#dkOn").checked) record("deck_on"); });
+    $("#stOn").addEventListener("change", () => { $("#stFields").hidden = !$("#stOn").checked; if ($("#stOn").checked) record("stairs_on"); });
+    $("#eaOn").addEventListener("change", () => { $("#eaFields").hidden = !$("#eaOn").checked; if ($("#eaOn").checked) record("eaves_on"); });
+    $("#guOn").addEventListener("change", () => { $("#guFields").hidden = !$("#guOn").checked; if ($("#guOn").checked) record("gutters_on"); });
+    $("#sdOn").addEventListener("change", () => { $("#sdFields").hidden = !$("#sdOn").checked; if ($("#sdOn").checked) record("siding_on"); });
+    $("#trOn").addEventListener("change", () => { $("#trFields").hidden = !$("#trOn").checked; if ($("#trOn").checked) record("trim_on"); });
+    $("#faOn").addEventListener("change", () => { $("#faFields").hidden = !$("#faOn").checked; if ($("#faOn").checked) record("fasteners_on"); });
     $("#dwOn").addEventListener("change", () => { $("#dwFields").hidden = !$("#dwOn").checked; if ($("#dwOn").checked) record("drywall_on"); });
     $("#fnOn").addEventListener("change", () => { $("#fnFields").hidden = !$("#fnOn").checked; if ($("#fnOn").checked) record("foundation_on"); });
     $("#schedEx").addEventListener("click", () => { $("#schedIn").value = JSON.stringify(sampleSchedule(), null, 2); $("#schedOut").innerHTML = ""; record("schedule_example_loaded"); });
     $("#schedRun").addEventListener("click", () => {
       let input;
       try { input = JSON.parse($("#schedIn").value); } catch (e) { $("#schedOut").innerHTML = `<div class="err">That is not valid JSON: ${esc(e.message)}</div>`; return; }
+      if (!input || typeof input !== "object") input = {};
+      const dates = (id) => $(id).value.split(/[\s,;]+/).filter(Boolean);
+      const hol = dates("#schedHol"), wx = dates("#schedWx");
+      if (hol.length) input.holidays = [...(input.holidays || []), ...hol];
+      if (wx.length) input.weatherDays = [...(input.weatherDays || []), ...wx];
       const s = schedule(input);
       $("#schedOut").innerHTML = `<pre style="white-space:pre-wrap;overflow-x:auto">${esc(scheduleText(s).join("\n"))}</pre>`;
       if (s.ok) record("schedule_run");
     });
     $("#rfOn").addEventListener("change", () => { $("#rfFields").hidden = !$("#rfOn").checked; if ($("#rfOn").checked) record("roof_on"); });
     if (usageOptedOut()) { const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; }
+
+
+    // ---- plan sketch editor ------------------------------------------------
+    {
+      const svg = /** @type {SVGSVGElement} */ ($("#skSvg"));
+      const NS = "http://www.w3.org/2000/svg";
+      let sk = emptySketch(), chain = null, hover = null, restoreNote = "";
+      const SKEY = KEY + ".sketch";
+      try {
+        const back = restoreSketch(JSON.parse(localStorage.getItem(SKEY) || "null"));
+        if (back) { sk = back.sketch; if (back.dropped) restoreNote = ` ${back.dropped} damaged stored item${back.dropped === 1 ? "" : "s"} left out.`; }
+      } catch (e) { /* storage is optional */ }
+      const persist = () => { try { sk.walls.length ? localStorage.setItem(SKEY, JSON.stringify(sk)) : localStorage.removeItem(SKEY); } catch (e) { /* optional */ } };
+      const history = [];
+      const snap = () => { history.push(JSON.stringify(sk)); if (history.length > 100) history.shift(); };
+      const num = (id, d) => { const v = parseLength($(id).value); return Number.isFinite(v) && v > 0 ? v : d; };
+      const cursor = (e) => {
+        const pt = svg.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY;
+        const m = svg.getScreenCTM(); const q = m ? pt.matrixTransform(m.inverse()) : pt;
+        return { x: q.x, y: q.y };
+      };
+      const opts = () => ({ grid: Number($("#skGrid").value), ortho: $("#skOrtho").checked, from: chain });
+      const target = (raw) => {
+        const typed = parseLength($("#skLen").value);
+        if (chain && Number.isFinite(typed) && typed > 0) {
+          const dir = snapPoint(raw, sk, { grid: 0, from: chain, ortho: $("#skOrtho").checked, tol: 0 });
+          const q = pointAtLength(chain, dir, typed, $("#skOrtho").checked);
+          if (q) return q;
+        }
+        return snapPoint(raw, sk, opts());
+      };
+      const el = (name, attrs, text) => { const n = document.createElementNS(NS, name); for (const k in attrs) n.setAttribute(k, attrs[k]); if (text !== undefined) n.textContent = text; return n; };
+      let trace = null, traceHref = "", scalePts = null, movePts = null, levelPts = null, levelAxis = "h";
+      // The picture is kept on this device only: downscaled to a JPEG data URL with its placement.
+      const TKEY = KEY + ".trace";
+      let traceSaved = "";
+      const enableTrace = (on) => { for (const id of ["#skScale", "#skMovePic", "#skLevel", "#skPlumb", "#skImgOff"]) $(id).disabled = !on; };
+      const persistTrace = () => {
+        const now = trace && traceHref.startsWith("data:") ? JSON.stringify({ trace, href: traceHref }) : "";
+        if (now === traceSaved) return;
+        traceSaved = now;
+        try { now ? localStorage.setItem(TKEY, now) : localStorage.removeItem(TKEY); } catch (e) { /* too big or no storage: the picture just won't survive a reload */ }
+      };
+      try {
+        const back = JSON.parse(localStorage.getItem(TKEY) || "null");
+        const t = back && back.trace;
+        if (t && typeof back.href === "string" && back.href.startsWith("data:image/") && ["x", "y", "w", "h"].every((k) => Number.isFinite(t[k])) && t.w > 0 && t.h > 0) {
+          trace = { x: t.x, y: t.y, w: t.w, h: t.h, ...(Number.isFinite(t.a) && t.a ? { a: t.a } : {}) };
+          traceHref = back.href; traceSaved = localStorage.getItem(TKEY) || ""; enableTrace(true);
+        }
+      } catch (e) { /* storage is optional */ }
+      function draw() {
+        persist(); persistTrace();
+        svg.replaceChildren();
+        let minX = 0, minY = 0, maxX = 600, maxY = 400;
+        if (trace) for (const c of traceCorners(trace)) { minX = Math.min(minX, c.x); minY = Math.min(minY, c.y); maxX = Math.max(maxX, c.x); maxY = Math.max(maxY, c.y); }
+        for (const w of sk.walls) for (const p of [w.a, w.b]) { minX = Math.min(minX, p.x - 36); minY = Math.min(minY, p.y - 36); maxX = Math.max(maxX, p.x + 36); maxY = Math.max(maxY, p.y + 36); }
+        minX = Math.floor(minX / 12) * 12; minY = Math.floor(minY / 12) * 12; maxX = Math.ceil(maxX / 12) * 12; maxY = Math.ceil(maxY / 12) * 12;
+        svg.setAttribute("viewBox", `${minX} ${minY} ${maxX - minX} ${maxY - minY}`);
+        const wpx = maxX - minX;
+        for (let x = minX; x <= maxX; x += 12) svg.append(el("line", { x1: x, y1: minY, x2: x, y2: maxY, stroke: x % 120 === 0 ? "#cfc8b4" : "#ebe6d8", "stroke-width": x % 120 === 0 ? 1.2 : 0.6 }));
+        for (let y = minY; y <= maxY; y += 12) svg.append(el("line", { x1: minX, y1: y, x2: maxX, y2: y, stroke: y % 120 === 0 ? "#cfc8b4" : "#ebe6d8", "stroke-width": y % 120 === 0 ? 1.2 : 0.6 }));
+        if (trace) svg.insertBefore(el("image", { href: traceHref, x: trace.x, y: trace.y, width: trace.w, height: trace.h, ...(trace.a ? { transform: `rotate(${trace.a} ${trace.x + trace.w / 2} ${trace.y + trace.h / 2})` } : {}), opacity: Number($("#skImgOpacity").value) / 100, preserveAspectRatio: "none", "pointer-events": "none" }), svg.firstChild);
+        const fs = Math.max(8, wpx / 55);
+        if (scalePts || levelPts) for (const p of scalePts || levelPts) svg.append(el("circle", { cx: p.x, cy: p.y, r: 5, fill: "none", stroke: "#2b6cb0", "stroke-width": 2 }));
+        for (const w of sk.walls) {
+          svg.append(el("line", { x1: w.a.x, y1: w.a.y, x2: w.b.x, y2: w.b.y, stroke: "#33302a", "stroke-width": 5, "stroke-linecap": "round" }));
+          svg.append(el("text", { x: (w.a.x + w.b.x) / 2, y: (w.a.y + w.b.y) / 2 - 7, "font-size": fs, "text-anchor": "middle", fill: "#555044" }, formatLength(wallLength(w))));
+        }
+        for (const o of sk.openings) {
+          const e = openingEnds(sk, o);
+          svg.append(el("line", { x1: e.a.x, y1: e.a.y, x2: e.b.x, y2: e.b.y, stroke: o.kind === "door" ? "#b5651d" : "#2b6cb0", "stroke-width": 9, "stroke-linecap": "butt", "data-opening": o.id }));
+        }
+        if (chain) {
+          svg.append(el("circle", { cx: chain.x, cy: chain.y, r: 6, fill: "#c0392b" }));
+          if (hover) {
+            svg.append(el("line", { x1: chain.x, y1: chain.y, x2: hover.x, y2: hover.y, stroke: "#c0392b", "stroke-width": 3, "stroke-dasharray": "8 5" }));
+            svg.append(el("text", { x: (chain.x + hover.x) / 2, y: (chain.y + hover.y) / 2 - 8, "font-size": fs, "text-anchor": "middle", fill: "#c0392b" }, formatLength(Math.hypot(hover.x - chain.x, hover.y - chain.y))));
+          }
+        } else if (hover && $("#skTool").value === "wall") svg.append(el("circle", { cx: hover.x, cy: hover.y, r: 4, fill: "#c0392b" }));
+        const d = sk.openings.filter((o) => o.kind === "door").length, wi = sk.openings.length - d;
+        $("#skInfo").textContent = sk.walls.length ? `${sk.walls.length} wall${sk.walls.length === 1 ? "" : "s"}, ${d} door${d === 1 ? "" : "s"}, ${wi} window${wi === 1 ? "" : "s"}.${chain ? " Click the next corner, or Finish." : ""}${restoreNote}` : "Nothing drawn yet.";
+      }
+      const finish = () => { chain = null; hover = null; draw(); };
+      let drag = null;
+      svg.addEventListener("pointerdown", (e) => {
+        if ($("#skTool").value !== "move") return;
+        const raw = cursor(e);
+        let best = null;
+        for (const w of sk.walls) for (const end of ["a", "b"]) {
+          const d = Math.hypot(w[end].x - raw.x, w[end].y - raw.y);
+          if (d <= 12 && (!best || d < best.d)) best = { d, w, end };
+        }
+        const base = JSON.stringify(sk);
+        const alongOf = (o, p) => { const w = sk.walls.find((x) => x.id === o.wall), L = wallLength(w); return ((p.x - w.a.x) * (w.b.x - w.a.x) + (p.y - w.a.y) * (w.b.y - w.a.y)) / L; };
+        let op = null;
+        if (!best) for (const o of sk.openings) {
+          const e = openingEnds(sk, o), w = sk.walls.find((x) => x.id === o.wall), L = wallLength(w);
+          const t = alongOf(o, raw), off = Math.abs((raw.x - w.a.x) * (w.b.y - w.a.y) - (raw.y - w.a.y) * (w.b.x - w.a.x)) / L;
+          if (off > 9 || t < o.offset - 4 || t > o.offset + o.width + 4) continue;
+          const edge = Math.min(6, o.width / 4);
+          op = { o, mode: t - o.offset <= edge ? "a" : o.offset + o.width - t <= edge ? "b" : "slide", grab: t - (o.offset + o.width / 2) };
+          break;
+        }
+        if (best) drag = { base, kind: "corner", id: best.w.id, end: best.end };
+        else if (op) drag = { base, kind: "opening", id: op.o.id, mode: op.mode, grab: op.grab, alongOf };
+        else { const hit = nearestWall(sk, raw, 10); if (hit) drag = { base, kind: "wall", id: hit.wall.id, from: raw }; }
+        if (drag) { try { svg.setPointerCapture(e.pointerId); } catch (x) { /* optional */ } e.preventDefault(); }
+      });
+      const endDrag = () => { if (!drag) return; const moved = JSON.stringify(sk) !== drag.base; if (moved) { history.push(drag.base); if (history.length > 100) history.shift(); record("sketch_move"); } drag = null; draw(); };
+      svg.addEventListener("pointerup", endDrag);
+      svg.addEventListener("pointercancel", () => { if (drag) { sk = JSON.parse(drag.base); drag = null; draw(); } });
+      svg.addEventListener("pointermove", (e) => {
+        if (drag) {
+          const raw = cursor(e), g = Number($("#skGrid").value);
+          sk = JSON.parse(drag.base);
+          let r;
+          if (drag.kind === "corner") r = moveCorner(sk, drag.id, drag.end, snapPoint(raw, { walls: [] }, { grid: g }));
+          else if (drag.kind === "opening") {
+            const o = sk.openings.find((x) => x.id === drag.id), t = drag.alongOf(o, raw), q = (v) => (g > 0 ? Math.round(v / g) * g : v);
+            r = drag.mode === "slide" ? moveOpening(sk, drag.id, o.offset + o.width / 2 + q(t - drag.grab - (o.offset + o.width / 2))) : resizeOpening(sk, drag.id, drag.mode, q(t));
+          }
+          else r = moveWall(sk, drag.id, g > 0 ? Math.round((raw.x - drag.from.x) / g) * g : raw.x - drag.from.x, g > 0 ? Math.round((raw.y - drag.from.y) / g) * g : raw.y - drag.from.y);
+          if (!r.ok) { sk = JSON.parse(drag.base); draw(); $("#skInfo").textContent = r.error; } else draw();
+          return;
+        }
+        const raw = cursor(e), tool = $("#skTool").value;
+        hover = tool === "wall" ? target(raw) : raw;
+        draw();
+      });
+      svg.addEventListener("click", (e) => {
+        const raw = cursor(e), tool = $("#skTool").value;
+        if (movePts) {
+          movePts.push({ x: raw.x, y: raw.y });
+          if (movePts.length < 2) { $("#skInfo").textContent = "Now click where that spot should go."; return; }
+          const m = moveTrace(trace, movePts[0], movePts[1]);
+          movePts = null;
+          if (m) { trace = m; record("sketch_trace_moved"); }
+          draw(); return;
+        }
+        if (levelPts) {
+          levelPts.push({ x: raw.x, y: raw.y });
+          if (levelPts.length < 2) { $("#skInfo").textContent = "Now click the other end of that line."; draw(); return; }
+          const r = levelTrace(trace, levelPts[0], levelPts[1], levelAxis);
+          levelPts = null;
+          if (!r) { $("#skInfo").textContent = "Those points are too close, or that line is more than 45 degrees off; pick two further apart on a line that is nearly " + (levelAxis === "v" ? "plumb" : "level") + "."; draw(); return; }
+          trace = r; record("sketch_trace_straightened"); draw(); return;
+        }
+        if (scalePts) {
+          scalePts.push({ x: raw.x, y: raw.y });
+          if (scalePts.length < 2) { $("#skInfo").textContent = "Now click the other end of that distance."; draw(); return; }
+          const real = parseLength($("#skScaleLen").value), r = rescaleTrace(trace, scalePts[0], scalePts[1], real);
+          scalePts = null;
+          if (!r) { $("#skInfo").textContent = "Type the real distance (for example 24 ft) in the box, then try again with two points further apart."; draw(); return; }
+          trace = r; record("sketch_trace_scaled"); draw(); return;
+        }
+        if (tool === "move") return;
+        if (tool === "wall") {
+          const p = target(raw);
+          if (!chain) { chain = p; }
+          else {
+            snap();
+            const w = addWall(sk, chain, p);
+            if (!w) history.pop();
+            else record("sketch_wall");
+            chain = p;
+            $("#skLen").value = "";
+          }
+        } else if (tool === "door" || tool === "window") {
+          const hit = nearestWall(sk, raw, 14);
+          if (!hit) { $("#skInfo").textContent = "Click on a wall to place it."; return; }
+          snap();
+          const r = addOpening(sk, hit.wall.id, tool, hit.along, num("#skWidth", 36));
+          if (!r.ok) { history.pop(); $("#skInfo").textContent = r.error; return; }
+          record("sketch_opening");
+        } else {
+          const near = sk.openings.map((o) => ({ o, e: openingEnds(sk, o) })).find(({ e }) => {
+            const L = Math.hypot(e.b.x - e.a.x, e.b.y - e.a.y), t = ((raw.x - e.a.x) * (e.b.x - e.a.x) + (raw.y - e.a.y) * (e.b.y - e.a.y)) / (L * L);
+            return t >= 0 && t <= 1 && Math.abs((raw.x - e.a.x) * (e.b.y - e.a.y) - (raw.y - e.a.y) * (e.b.x - e.a.x)) / L <= 8;
+          });
+          if (near) { snap(); removeOpening(sk, near.o.id); }
+          else { const hit = nearestWall(sk, raw, 10); if (hit) { snap(); removeWall(sk, hit.wall.id); } }
+        }
+        draw();
+      });
+      document.addEventListener("keydown", (e) => { if (e.key === "Escape" && chain) finish(); });
+      $("#skTool").addEventListener("change", finish);
+      $("#skFinish").addEventListener("click", finish);
+      $("#skImg").addEventListener("change", (e) => {
+        const f = /** @type {HTMLInputElement} */ (e.target).files?.[0];
+        if (!f || !/^image\//.test(f.type)) return;
+        const url = URL.createObjectURL(f), im = new Image();
+        im.onload = () => {
+          const t = fitTrace(im.naturalWidth, im.naturalHeight);
+          if (!t) { URL.revokeObjectURL(url); $("#skInfo").textContent = "That picture has no size."; return; }
+          if (traceHref.startsWith("blob:")) URL.revokeObjectURL(traceHref);
+          let href = url;
+          try {
+            const k = Math.min(1, 1600 / Math.max(im.naturalWidth, im.naturalHeight)), c = document.createElement("canvas");
+            c.width = Math.max(1, Math.round(im.naturalWidth * k)); c.height = Math.max(1, Math.round(im.naturalHeight * k));
+            const g = c.getContext("2d"); g.fillStyle = "#fff"; g.fillRect(0, 0, c.width, c.height); g.drawImage(im, 0, 0, c.width, c.height);
+            href = c.toDataURL("image/jpeg", 0.8); URL.revokeObjectURL(url);
+          } catch (e) { /* keep the blob URL: shown now, not kept across reloads */ }
+          trace = t; traceHref = href; enableTrace(true); record("sketch_trace_image");
+          $("#skInfo").textContent = "Picture placed 40 ft wide. Set its scale: type a distance you know on it, press the button, then click its two ends.";
+          draw();
+        };
+        im.onerror = () => { URL.revokeObjectURL(url); $("#skInfo").textContent = "That file could not be read as a picture."; };
+        im.src = url;
+      });
+      $("#skScale").addEventListener("click", () => {
+        if (!trace) return;
+        if (!(parseLength($("#skScaleLen").value) > 0)) { $("#skInfo").textContent = "Type the real distance between the two points first (for example 24 ft)."; return; }
+        finish(); movePts = null; levelPts = null; scalePts = []; $("#skInfo").textContent = "Click one end of that distance on the picture.";
+      });
+      $("#skMovePic").addEventListener("click", () => {
+        if (!trace) return;
+        finish(); scalePts = null; levelPts = null; movePts = []; $("#skInfo").textContent = "Click a spot on the picture (a wall corner, say).";
+      });
+      for (const [id, axis] of [["#skLevel", "h"], ["#skPlumb", "v"]]) $(id).addEventListener("click", () => {
+        if (!trace) return;
+        finish(); scalePts = null; movePts = null; levelAxis = axis; levelPts = []; $("#skInfo").textContent = "Click one end of a line on the picture that should be " + (axis === "v" ? "plumb" : "level") + " (a wall edge, say).";
+      });
+      $("#skImgOff").addEventListener("click", () => { enableTrace(false); levelPts = null; movePts = null; if (traceHref.startsWith("blob:")) URL.revokeObjectURL(traceHref); trace = null; traceHref = ""; scalePts = null; draw(); });
+      $("#skImgOpacity").addEventListener("input", draw);
+      $("#skUndo").addEventListener("click", () => { const h = history.pop(); if (h) { sk = JSON.parse(h); chain = null; hover = null; draw(); } });
+      $("#skClear").addEventListener("click", () => { if (!sk.walls.length) return; snap(); sk = emptySketch(); chain = null; hover = null; draw(); });
+      $("#skUse").addEventListener("click", () => {
+        const r = planFromSketch(sk);
+        if (!r.ok) { $("#skInfo").textContent = r.errors.join(" "); return; }
+        const base = samplePlan(), plan = r.plan;
+        for (const k of ["studSpacing", "studLength", "kerf", "topPlateLap", "cornerExtraStuds", "teeExtraStuds", "defaultHeaderHeight", "stock"]) if (!(k in plan)) plan[k] = base[k];
+        load(plan);
+        record("sketch_used");
+        $("#status").textContent = `Sketch loaded: ${r.stats.walls} walls, ${r.stats.tees} tees, ${r.stats.openings} openings. ${r.notes.join(" ")}`;
+        $("#skInfo").textContent = `Loaded into the walls and openings tables below (${r.stats.walls} walls, ${r.stats.openings} openings). Run the takeoff when the details are right.`;
+      });
+      draw();
+    }
 
     let restored = false;
     try {
@@ -813,5 +1525,6 @@
     } catch (e) { /* storage is optional */ }
     if (!restored) { load(samplePlan()); $("#status").textContent = "Showing the example house (invented). Change any field, or start empty."; }
   </script>
+<script>document.getElementById("cta-example").addEventListener("click",function(){var b=document.getElementById("example");if(b)b.click();});</script>
 </body>
 </html>

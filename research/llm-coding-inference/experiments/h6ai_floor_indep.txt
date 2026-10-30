@@ -1,0 +1,296 @@
+fear: corpus 6683, prevalence 0.0115, 500 draws: coder | design | n | rule | coverage % | mean half-width pts | mean humans used
+LLM score>0 | 1 pooled | 400 | human normal | 94.4 | 0.984 | 400
+LLM score>0 | 1 pooled | 400 | human Wilson (WH) | 95.2 | 1.077 | 400
+LLM score>0 | 1 pooled | 400 | P Wilson n_eff (WE) | 94.8 | 1.024 | 400
+LLM score>0 | 1 pooled | 1000 | human normal | 95.0 | 0.610 | 1000
+LLM score>0 | 1 pooled | 1000 | human Wilson (WH) | 94.4 | 0.630 | 1000
+LLM score>0 | 1 pooled | 1000 | P Wilson n_eff (WE) | 94.0 | 0.605 | 1000
+LLM score>0 | 2 cells oracle | 400 | human normal | 88.6 | 0.772 | 400
+LLM score>0 | 2 cells oracle | 400 | human Wilson (WH) | 88.8 | 0.813 | 400
+LLM score>0 | 2 cells oracle | 400 | P Wilson n_eff (WE) | 88.8 | 0.813 | 400
+LLM score>0 | 2 cells oracle | 1000 | human normal | 93.4 | 0.468 | 1000
+LLM score>0 | 2 cells oracle | 1000 | human Wilson (WH) | 94.0 | 0.477 | 1000
+LLM score>0 | 2 cells oracle | 1000 | P Wilson n_eff (WE) | 94.0 | 0.477 | 1000
+LLM score>0 | pilot floor 0.2 | 400 | human normal | 52.2 | 0.536 | 400
+LLM score>0 | pilot floor 0.2 | 400 | human Wilson (WH) | 50.6 | 0.567 | 400
+LLM score>0 | pilot floor 0.2 | 400 | P Wilson n_eff (WE) | 50.6 | 0.567 | 400
+LLM score>0 | pilot floor 0.2 | 1000 | human normal | 82.2 | 0.416 | 927
+LLM score>0 | pilot floor 0.2 | 1000 | human Wilson (WH) | 80.6 | 0.424 | 927
+LLM score>0 | pilot floor 0.2 | 1000 | P Wilson n_eff (WE) | 80.6 | 0.424 | 927
+LLM score>0 | pilot floor 0.35 | 400 | human normal | 53.2 | 0.607 | 400
+LLM score>0 | pilot floor 0.35 | 400 | human Wilson (WH) | 50.4 | 0.646 | 400
+LLM score>0 | pilot floor 0.35 | 400 | P Wilson n_eff (WE) | 50.4 | 0.646 | 400
+LLM score>0 | pilot floor 0.35 | 1000 | human normal | 82.2 | 0.438 | 921
+LLM score>0 | pilot floor 0.35 | 1000 | human Wilson (WH) | 81.8 | 0.447 | 921
+LLM score>0 | pilot floor 0.35 | 1000 | P Wilson n_eff (WE) | 81.8 | 0.447 | 921
+LLM score>0 | indep pilot floor 0.2 | 400 | human normal | 59.2 | 0.950 | 400
+LLM score>0 | indep pilot floor 0.2 | 400 | human Wilson (WH) | 60.0 | 1.046 | 400
+LLM score>0 | indep pilot floor 0.2 | 400 | P Wilson n_eff (WE) | 60.0 | 1.046 | 400
+LLM score>0 | indep pilot floor 0.2 | 1000 | human normal | 87.4 | 0.604 | 964
+LLM score>0 | indep pilot floor 0.2 | 1000 | human Wilson (WH) | 89.6 | 0.627 | 964
+LLM score>0 | indep pilot floor 0.2 | 1000 | P Wilson n_eff (WE) | 89.6 | 0.627 | 964
+LLM score>0 | indep pilot floor 0.35 | 400 | human normal | 54.4 | 0.974 | 400
+LLM score>0 | indep pilot floor 0.35 | 400 | human Wilson (WH) | 53.4 | 1.072 | 400
+LLM score>0 | indep pilot floor 0.35 | 400 | P Wilson n_eff (WE) | 53.4 | 1.072 | 400
+LLM score>0 | indep pilot floor 0.35 | 1000 | human normal | 88.2 | 0.629 | 972
+LLM score>0 | indep pilot floor 0.35 | 1000 | human Wilson (WH) | 86.6 | 0.652 | 972
+LLM score>0 | indep pilot floor 0.35 | 1000 | P Wilson n_eff (WE) | 86.6 | 0.652 | 972
+LLM 3x cut | 1 pooled | 400 | human normal | 94.4 | 0.984 | 400
+LLM 3x cut | 1 pooled | 400 | human Wilson (WH) | 95.2 | 1.077 | 400
+LLM 3x cut | 1 pooled | 400 | P Wilson n_eff (WE) | 93.6 | 0.998 | 400
+LLM 3x cut | 1 pooled | 1000 | human normal | 95.0 | 0.610 | 1000
+LLM 3x cut | 1 pooled | 1000 | human Wilson (WH) | 94.4 | 0.630 | 1000
+LLM 3x cut | 1 pooled | 1000 | P Wilson n_eff (WE) | 94.2 | 0.593 | 1000
+LLM 3x cut | 2 cells oracle | 400 | human normal | 90.0 | 0.786 | 400
+LLM 3x cut | 2 cells oracle | 400 | human Wilson (WH) | 88.0 | 0.827 | 400
+LLM 3x cut | 2 cells oracle | 400 | P Wilson n_eff (WE) | 88.0 | 0.827 | 400
+LLM 3x cut | 2 cells oracle | 1000 | human normal | 92.0 | 0.471 | 1000
+LLM 3x cut | 2 cells oracle | 1000 | human Wilson (WH) | 91.6 | 0.480 | 1000
+LLM 3x cut | 2 cells oracle | 1000 | P Wilson n_eff (WE) | 91.6 | 0.480 | 1000
+LLM 3x cut | pilot floor 0.2 | 400 | human normal | 64.8 | 0.627 | 376
+LLM 3x cut | pilot floor 0.2 | 400 | human Wilson (WH) | 63.4 | 0.667 | 376
+LLM 3x cut | pilot floor 0.2 | 400 | P Wilson n_eff (WE) | 63.4 | 0.667 | 376
+LLM 3x cut | pilot floor 0.2 | 1000 | human normal | 85.8 | 0.452 | 928
+LLM 3x cut | pilot floor 0.2 | 1000 | human Wilson (WH) | 90.6 | 0.461 | 928
+LLM 3x cut | pilot floor 0.2 | 1000 | P Wilson n_eff (WE) | 90.6 | 0.461 | 928
+LLM 3x cut | pilot floor 0.35 | 400 | human normal | 68.2 | 0.708 | 376
+LLM 3x cut | pilot floor 0.35 | 400 | human Wilson (WH) | 66.6 | 0.758 | 376
+LLM 3x cut | pilot floor 0.35 | 400 | P Wilson n_eff (WE) | 66.6 | 0.758 | 376
+LLM 3x cut | pilot floor 0.35 | 1000 | human normal | 85.8 | 0.452 | 928
+LLM 3x cut | pilot floor 0.35 | 1000 | human Wilson (WH) | 90.6 | 0.461 | 928
+LLM 3x cut | pilot floor 0.35 | 1000 | P Wilson n_eff (WE) | 90.6 | 0.461 | 928
+LLM 3x cut | indep pilot floor 0.2 | 400 | human normal | 63.8 | 0.885 | 400
+LLM 3x cut | indep pilot floor 0.2 | 400 | human Wilson (WH) | 61.4 | 0.968 | 400
+LLM 3x cut | indep pilot floor 0.2 | 400 | P Wilson n_eff (WE) | 61.4 | 0.968 | 400
+LLM 3x cut | indep pilot floor 0.2 | 1000 | human normal | 86.8 | 0.612 | 969
+LLM 3x cut | indep pilot floor 0.2 | 1000 | human Wilson (WH) | 87.8 | 0.633 | 969
+LLM 3x cut | indep pilot floor 0.2 | 1000 | P Wilson n_eff (WE) | 87.8 | 0.633 | 969
+LLM 3x cut | indep pilot floor 0.35 | 400 | human normal | 60.2 | 0.933 | 400
+LLM 3x cut | indep pilot floor 0.35 | 400 | human Wilson (WH) | 58.0 | 1.025 | 400
+LLM 3x cut | indep pilot floor 0.35 | 400 | P Wilson n_eff (WE) | 58.0 | 1.025 | 400
+LLM 3x cut | indep pilot floor 0.35 | 1000 | human normal | 85.6 | 0.625 | 957
+LLM 3x cut | indep pilot floor 0.35 | 1000 | human Wilson (WH) | 93.6 | 0.646 | 957
+LLM 3x cut | indep pilot floor 0.35 | 1000 | P Wilson n_eff (WE) | 93.6 | 0.646 | 957
+
+sadness: corpus 6683, prevalence 0.0230, 500 draws: coder | design | n | rule | coverage % | mean half-width pts | mean humans used
+LLM score>0 | 1 pooled | 400 | human normal | 96.4 | 1.418 | 400
+LLM score>0 | 1 pooled | 400 | human Wilson (WH) | 94.6 | 1.477 | 400
+LLM score>0 | 1 pooled | 400 | P Wilson n_eff (WE) | 95.6 | 1.325 | 400
+LLM score>0 | 1 pooled | 1000 | human normal | 96.0 | 0.859 | 1000
+LLM score>0 | 1 pooled | 1000 | human Wilson (WH) | 95.6 | 0.872 | 1000
+LLM score>0 | 1 pooled | 1000 | P Wilson n_eff (WE) | 95.6 | 0.793 | 1000
+LLM score>0 | 2 cells oracle | 400 | human normal | 90.8 | 1.107 | 400
+LLM score>0 | 2 cells oracle | 400 | human Wilson (WH) | 90.8 | 1.134 | 400
+LLM score>0 | 2 cells oracle | 400 | P Wilson n_eff (WE) | 90.8 | 1.134 | 400
+LLM score>0 | 2 cells oracle | 1000 | human normal | 93.0 | 0.669 | 1000
+LLM score>0 | 2 cells oracle | 1000 | human Wilson (WH) | 93.2 | 0.675 | 1000
+LLM score>0 | 2 cells oracle | 1000 | P Wilson n_eff (WE) | 93.2 | 0.675 | 1000
+LLM score>0 | pilot floor 0.2 | 400 | human normal | 84.2 | 1.061 | 395
+LLM score>0 | pilot floor 0.2 | 400 | human Wilson (WH) | 83.8 | 1.090 | 395
+LLM score>0 | pilot floor 0.2 | 400 | P Wilson n_eff (WE) | 83.8 | 1.090 | 395
+LLM score>0 | pilot floor 0.2 | 1000 | human normal | 92.2 | 0.677 | 989
+LLM score>0 | pilot floor 0.2 | 1000 | human Wilson (WH) | 94.4 | 0.684 | 989
+LLM score>0 | pilot floor 0.2 | 1000 | P Wilson n_eff (WE) | 94.4 | 0.684 | 989
+LLM score>0 | pilot floor 0.35 | 400 | human normal | 80.2 | 1.107 | 393
+LLM score>0 | pilot floor 0.35 | 400 | human Wilson (WH) | 83.4 | 1.143 | 393
+LLM score>0 | pilot floor 0.35 | 400 | P Wilson n_eff (WE) | 83.4 | 1.143 | 393
+LLM score>0 | pilot floor 0.35 | 1000 | human normal | 88.4 | 0.668 | 979
+LLM score>0 | pilot floor 0.35 | 1000 | human Wilson (WH) | 92.2 | 0.674 | 979
+LLM score>0 | pilot floor 0.35 | 1000 | P Wilson n_eff (WE) | 92.2 | 0.674 | 979
+LLM score>0 | indep pilot floor 0.2 | 400 | human normal | 87.8 | 1.452 | 400
+LLM score>0 | indep pilot floor 0.2 | 400 | human Wilson (WH) | 89.4 | 1.515 | 400
+LLM score>0 | indep pilot floor 0.2 | 400 | P Wilson n_eff (WE) | 89.4 | 1.515 | 400
+LLM score>0 | indep pilot floor 0.2 | 1000 | human normal | 90.0 | 0.837 | 993
+LLM score>0 | indep pilot floor 0.2 | 1000 | human Wilson (WH) | 92.8 | 0.849 | 993
+LLM score>0 | indep pilot floor 0.2 | 1000 | P Wilson n_eff (WE) | 92.8 | 0.849 | 993
+LLM score>0 | indep pilot floor 0.35 | 400 | human normal | 86.2 | 1.513 | 400
+LLM score>0 | indep pilot floor 0.35 | 400 | human Wilson (WH) | 84.0 | 1.584 | 400
+LLM score>0 | indep pilot floor 0.35 | 400 | P Wilson n_eff (WE) | 84.0 | 1.584 | 400
+LLM score>0 | indep pilot floor 0.35 | 1000 | human normal | 91.6 | 0.883 | 983
+LLM score>0 | indep pilot floor 0.35 | 1000 | human Wilson (WH) | 89.2 | 0.897 | 983
+LLM score>0 | indep pilot floor 0.35 | 1000 | P Wilson n_eff (WE) | 89.2 | 0.897 | 983
+LLM 3x cut | 1 pooled | 400 | human normal | 96.4 | 1.418 | 400
+LLM 3x cut | 1 pooled | 400 | human Wilson (WH) | 94.6 | 1.477 | 400
+LLM 3x cut | 1 pooled | 400 | P Wilson n_eff (WE) | 95.0 | 1.360 | 400
+LLM 3x cut | 1 pooled | 1000 | human normal | 96.0 | 0.859 | 1000
+LLM 3x cut | 1 pooled | 1000 | human Wilson (WH) | 95.6 | 0.872 | 1000
+LLM 3x cut | 1 pooled | 1000 | P Wilson n_eff (WE) | 94.4 | 0.810 | 1000
+LLM 3x cut | 2 cells oracle | 400 | human normal | 90.2 | 1.011 | 400
+LLM 3x cut | 2 cells oracle | 400 | human Wilson (WH) | 92.4 | 1.032 | 400
+LLM 3x cut | 2 cells oracle | 400 | P Wilson n_eff (WE) | 92.4 | 1.032 | 400
+LLM 3x cut | 2 cells oracle | 1000 | human normal | 93.6 | 0.601 | 1000
+LLM 3x cut | 2 cells oracle | 1000 | human Wilson (WH) | 94.0 | 0.605 | 1000
+LLM 3x cut | 2 cells oracle | 1000 | P Wilson n_eff (WE) | 94.0 | 0.605 | 1000
+LLM 3x cut | pilot floor 0.2 | 400 | human normal | 53.6 | 0.713 | 409
+LLM 3x cut | pilot floor 0.2 | 400 | human Wilson (WH) | 53.8 | 0.727 | 409
+LLM 3x cut | pilot floor 0.2 | 400 | P Wilson n_eff (WE) | 53.8 | 0.727 | 409
+LLM 3x cut | pilot floor 0.2 | 1000 | human normal | 86.8 | 0.558 | 979
+LLM 3x cut | pilot floor 0.2 | 1000 | human Wilson (WH) | 86.8 | 0.562 | 979
+LLM 3x cut | pilot floor 0.2 | 1000 | P Wilson n_eff (WE) | 86.8 | 0.562 | 979
+LLM 3x cut | pilot floor 0.35 | 400 | human normal | 68.6 | 0.897 | 400
+LLM 3x cut | pilot floor 0.35 | 400 | human Wilson (WH) | 68.0 | 0.918 | 400
+LLM 3x cut | pilot floor 0.35 | 400 | P Wilson n_eff (WE) | 68.0 | 0.918 | 400
+LLM 3x cut | pilot floor 0.35 | 1000 | human normal | 89.4 | 0.585 | 983
+LLM 3x cut | pilot floor 0.35 | 1000 | human Wilson (WH) | 89.6 | 0.589 | 983
+LLM 3x cut | pilot floor 0.35 | 1000 | P Wilson n_eff (WE) | 89.6 | 0.589 | 983
+LLM 3x cut | indep pilot floor 0.2 | 400 | human normal | 69.6 | 1.319 | 400
+LLM 3x cut | indep pilot floor 0.2 | 400 | human Wilson (WH) | 68.6 | 1.381 | 400
+LLM 3x cut | indep pilot floor 0.2 | 400 | P Wilson n_eff (WE) | 68.6 | 1.381 | 400
+LLM 3x cut | indep pilot floor 0.2 | 1000 | human normal | 90.4 | 0.779 | 994
+LLM 3x cut | indep pilot floor 0.2 | 1000 | human Wilson (WH) | 90.6 | 0.790 | 994
+LLM 3x cut | indep pilot floor 0.2 | 1000 | P Wilson n_eff (WE) | 90.6 | 0.790 | 994
+LLM 3x cut | indep pilot floor 0.35 | 400 | human normal | 69.6 | 1.263 | 400
+LLM 3x cut | indep pilot floor 0.35 | 400 | human Wilson (WH) | 69.8 | 1.311 | 400
+LLM 3x cut | indep pilot floor 0.35 | 400 | P Wilson n_eff (WE) | 69.8 | 1.311 | 400
+LLM 3x cut | indep pilot floor 0.35 | 1000 | human normal | 90.2 | 0.769 | 1000
+LLM 3x cut | indep pilot floor 0.35 | 1000 | human Wilson (WH) | 89.6 | 0.779 | 1000
+LLM 3x cut | indep pilot floor 0.35 | 1000 | P Wilson n_eff (WE) | 89.6 | 0.779 | 1000
+
+admiration: corpus 6683, prevalence 0.0811, 500 draws: coder | design | n | rule | coverage % | mean half-width pts | mean humans used
+LLM score>0 | 1 pooled | 400 | human normal | 95.2 | 2.589 | 400
+LLM score>0 | 1 pooled | 400 | human Wilson (WH) | 95.2 | 2.605 | 400
+LLM score>0 | 1 pooled | 400 | P Wilson n_eff (WE) | 95.8 | 2.350 | 400
+LLM score>0 | 1 pooled | 1000 | human normal | 96.0 | 1.561 | 1000
+LLM score>0 | 1 pooled | 1000 | human Wilson (WH) | 95.4 | 1.564 | 1000
+LLM score>0 | 1 pooled | 1000 | P Wilson n_eff (WE) | 94.4 | 1.415 | 1000
+LLM score>0 | 2 cells oracle | 400 | human normal | 93.8 | 1.930 | 400
+LLM score>0 | 2 cells oracle | 400 | human Wilson (WH) | 96.2 | 1.936 | 400
+LLM score>0 | 2 cells oracle | 400 | P Wilson n_eff (WE) | 96.2 | 1.936 | 400
+LLM score>0 | 2 cells oracle | 1000 | human normal | 94.6 | 1.139 | 1000
+LLM score>0 | 2 cells oracle | 1000 | human Wilson (WH) | 94.8 | 1.141 | 1000
+LLM score>0 | 2 cells oracle | 1000 | P Wilson n_eff (WE) | 94.8 | 1.141 | 1000
+LLM score>0 | pilot floor 0.2 | 400 | human normal | 82.6 | 1.785 | 402
+LLM score>0 | pilot floor 0.2 | 400 | human Wilson (WH) | 83.8 | 1.791 | 402
+LLM score>0 | pilot floor 0.2 | 400 | P Wilson n_eff (WE) | 83.8 | 1.791 | 402
+LLM score>0 | pilot floor 0.2 | 1000 | human normal | 92.6 | 1.114 | 1000
+LLM score>0 | pilot floor 0.2 | 1000 | human Wilson (WH) | 92.6 | 1.115 | 1000
+LLM score>0 | pilot floor 0.2 | 1000 | P Wilson n_eff (WE) | 92.6 | 1.115 | 1000
+LLM score>0 | pilot floor 0.35 | 400 | human normal | 89.6 | 1.857 | 400
+LLM score>0 | pilot floor 0.35 | 400 | human Wilson (WH) | 90.8 | 1.863 | 400
+LLM score>0 | pilot floor 0.35 | 400 | P Wilson n_eff (WE) | 90.8 | 1.863 | 400
+LLM score>0 | pilot floor 0.35 | 1000 | human normal | 93.8 | 1.120 | 1000
+LLM score>0 | pilot floor 0.35 | 1000 | human Wilson (WH) | 93.4 | 1.122 | 1000
+LLM score>0 | pilot floor 0.35 | 1000 | P Wilson n_eff (WE) | 93.4 | 1.122 | 1000
+LLM score>0 | indep pilot floor 0.2 | 400 | human normal | 90.8 | 2.451 | 400
+LLM score>0 | indep pilot floor 0.2 | 400 | human Wilson (WH) | 91.2 | 2.464 | 400
+LLM score>0 | indep pilot floor 0.2 | 400 | P Wilson n_eff (WE) | 91.2 | 2.464 | 400
+LLM score>0 | indep pilot floor 0.2 | 1000 | human normal | 93.4 | 1.440 | 1000
+LLM score>0 | indep pilot floor 0.2 | 1000 | human Wilson (WH) | 94.2 | 1.443 | 1000
+LLM score>0 | indep pilot floor 0.2 | 1000 | P Wilson n_eff (WE) | 94.2 | 1.443 | 1000
+LLM score>0 | indep pilot floor 0.35 | 400 | human normal | 92.8 | 2.367 | 400
+LLM score>0 | indep pilot floor 0.35 | 400 | human Wilson (WH) | 91.4 | 2.379 | 400
+LLM score>0 | indep pilot floor 0.35 | 400 | P Wilson n_eff (WE) | 91.4 | 2.379 | 400
+LLM score>0 | indep pilot floor 0.35 | 1000 | human normal | 93.8 | 1.423 | 1000
+LLM score>0 | indep pilot floor 0.35 | 1000 | human Wilson (WH) | 94.4 | 1.426 | 1000
+LLM score>0 | indep pilot floor 0.35 | 1000 | P Wilson n_eff (WE) | 94.4 | 1.426 | 1000
+LLM 3x cut | 1 pooled | 400 | human normal | 95.2 | 2.589 | 400
+LLM 3x cut | 1 pooled | 400 | human Wilson (WH) | 95.2 | 2.605 | 400
+LLM 3x cut | 1 pooled | 400 | P Wilson n_eff (WE) | 96.2 | 2.363 | 400
+LLM 3x cut | 1 pooled | 1000 | human normal | 96.0 | 1.561 | 1000
+LLM 3x cut | 1 pooled | 1000 | human Wilson (WH) | 95.4 | 1.564 | 1000
+LLM 3x cut | 1 pooled | 1000 | P Wilson n_eff (WE) | 94.0 | 1.423 | 1000
+LLM 3x cut | 2 cells oracle | 400 | human normal | 94.4 | 1.940 | 400
+LLM 3x cut | 2 cells oracle | 400 | human Wilson (WH) | 94.6 | 1.947 | 400
+LLM 3x cut | 2 cells oracle | 400 | P Wilson n_eff (WE) | 94.6 | 1.947 | 400
+LLM 3x cut | 2 cells oracle | 1000 | human normal | 95.4 | 1.130 | 1000
+LLM 3x cut | 2 cells oracle | 1000 | human Wilson (WH) | 95.2 | 1.132 | 1000
+LLM 3x cut | 2 cells oracle | 1000 | P Wilson n_eff (WE) | 95.2 | 1.132 | 1000
+LLM 3x cut | pilot floor 0.2 | 400 | human normal | 85.8 | 1.810 | 402
+LLM 3x cut | pilot floor 0.2 | 400 | human Wilson (WH) | 86.6 | 1.815 | 402
+LLM 3x cut | pilot floor 0.2 | 400 | P Wilson n_eff (WE) | 86.6 | 1.815 | 402
+LLM 3x cut | pilot floor 0.2 | 1000 | human normal | 91.8 | 1.117 | 1000
+LLM 3x cut | pilot floor 0.2 | 1000 | human Wilson (WH) | 91.4 | 1.118 | 1000
+LLM 3x cut | pilot floor 0.2 | 1000 | P Wilson n_eff (WE) | 91.4 | 1.118 | 1000
+LLM 3x cut | pilot floor 0.35 | 400 | human normal | 91.8 | 1.885 | 400
+LLM 3x cut | pilot floor 0.35 | 400 | human Wilson (WH) | 92.2 | 1.891 | 400
+LLM 3x cut | pilot floor 0.35 | 400 | P Wilson n_eff (WE) | 92.2 | 1.891 | 400
+LLM 3x cut | pilot floor 0.35 | 1000 | human normal | 92.8 | 1.120 | 1000
+LLM 3x cut | pilot floor 0.35 | 1000 | human Wilson (WH) | 93.6 | 1.121 | 1000
+LLM 3x cut | pilot floor 0.35 | 1000 | P Wilson n_eff (WE) | 93.6 | 1.121 | 1000
+LLM 3x cut | indep pilot floor 0.2 | 400 | human normal | 89.2 | 2.357 | 400
+LLM 3x cut | indep pilot floor 0.2 | 400 | human Wilson (WH) | 91.2 | 2.370 | 400
+LLM 3x cut | indep pilot floor 0.2 | 400 | P Wilson n_eff (WE) | 91.2 | 2.370 | 400
+LLM 3x cut | indep pilot floor 0.2 | 1000 | human normal | 94.4 | 1.437 | 1000
+LLM 3x cut | indep pilot floor 0.2 | 1000 | human Wilson (WH) | 94.8 | 1.440 | 1000
+LLM 3x cut | indep pilot floor 0.2 | 1000 | P Wilson n_eff (WE) | 94.8 | 1.440 | 1000
+LLM 3x cut | indep pilot floor 0.35 | 400 | human normal | 93.8 | 2.406 | 400
+LLM 3x cut | indep pilot floor 0.35 | 400 | human Wilson (WH) | 94.4 | 2.418 | 400
+LLM 3x cut | indep pilot floor 0.35 | 400 | P Wilson n_eff (WE) | 94.4 | 2.418 | 400
+LLM 3x cut | indep pilot floor 0.35 | 1000 | human normal | 94.6 | 1.433 | 1000
+LLM 3x cut | indep pilot floor 0.35 | 1000 | human Wilson (WH) | 94.4 | 1.436 | 1000
+LLM 3x cut | indep pilot floor 0.35 | 1000 | P Wilson n_eff (WE) | 94.4 | 1.436 | 1000
+
+neutral: corpus 6683, prevalence 0.2327, 500 draws: coder | design | n | rule | coverage % | mean half-width pts | mean humans used
+LLM score>0 | 1 pooled | 400 | human normal | 95.8 | 4.012 | 400
+LLM score>0 | 1 pooled | 400 | human Wilson (WH) | 96.0 | 4.001 | 400
+LLM score>0 | 1 pooled | 400 | P Wilson n_eff (WE) | 95.6 | 3.950 | 400
+LLM score>0 | 1 pooled | 1000 | human normal | 94.6 | 2.414 | 1000
+LLM score>0 | 1 pooled | 1000 | human Wilson (WH) | 95.0 | 2.412 | 1000
+LLM score>0 | 1 pooled | 1000 | P Wilson n_eff (WE) | 95.6 | 2.383 | 1000
+LLM score>0 | 2 cells oracle | 400 | human normal | 94.0 | 3.952 | 400
+LLM score>0 | 2 cells oracle | 400 | human Wilson (WH) | 93.8 | 3.942 | 400
+LLM score>0 | 2 cells oracle | 400 | P Wilson n_eff (WE) | 93.8 | 3.942 | 400
+LLM score>0 | 2 cells oracle | 1000 | human normal | 94.8 | 2.376 | 1000
+LLM score>0 | 2 cells oracle | 1000 | human Wilson (WH) | 94.0 | 2.374 | 1000
+LLM score>0 | 2 cells oracle | 1000 | P Wilson n_eff (WE) | 94.0 | 2.374 | 1000
+LLM score>0 | pilot floor 0.2 | 400 | human normal | 95.0 | 3.950 | 400
+LLM score>0 | pilot floor 0.2 | 400 | human Wilson (WH) | 95.6 | 3.940 | 400
+LLM score>0 | pilot floor 0.2 | 400 | P Wilson n_eff (WE) | 95.6 | 3.940 | 400
+LLM score>0 | pilot floor 0.2 | 1000 | human normal | 95.2 | 2.372 | 1000
+LLM score>0 | pilot floor 0.2 | 1000 | human Wilson (WH) | 95.4 | 2.370 | 1000
+LLM score>0 | pilot floor 0.2 | 1000 | P Wilson n_eff (WE) | 95.4 | 2.370 | 1000
+LLM score>0 | pilot floor 0.35 | 400 | human normal | 95.0 | 3.950 | 400
+LLM score>0 | pilot floor 0.35 | 400 | human Wilson (WH) | 95.6 | 3.940 | 400
+LLM score>0 | pilot floor 0.35 | 400 | P Wilson n_eff (WE) | 95.6 | 3.940 | 400
+LLM score>0 | pilot floor 0.35 | 1000 | human normal | 95.2 | 2.372 | 1000
+LLM score>0 | pilot floor 0.35 | 1000 | human Wilson (WH) | 95.4 | 2.370 | 1000
+LLM score>0 | pilot floor 0.35 | 1000 | P Wilson n_eff (WE) | 95.4 | 2.370 | 1000
+LLM score>0 | indep pilot floor 0.2 | 400 | human normal | 96.2 | 4.780 | 400
+LLM score>0 | indep pilot floor 0.2 | 400 | human Wilson (WH) | 96.4 | 4.762 | 400
+LLM score>0 | indep pilot floor 0.2 | 400 | P Wilson n_eff (WE) | 96.4 | 4.762 | 400
+LLM score>0 | indep pilot floor 0.2 | 1000 | human normal | 97.0 | 2.914 | 1000
+LLM score>0 | indep pilot floor 0.2 | 1000 | human Wilson (WH) | 96.8 | 2.910 | 1000
+LLM score>0 | indep pilot floor 0.2 | 1000 | P Wilson n_eff (WE) | 96.8 | 2.910 | 1000
+LLM score>0 | indep pilot floor 0.35 | 400 | human normal | 96.2 | 4.780 | 400
+LLM score>0 | indep pilot floor 0.35 | 400 | human Wilson (WH) | 96.4 | 4.762 | 400
+LLM score>0 | indep pilot floor 0.35 | 400 | P Wilson n_eff (WE) | 96.4 | 4.762 | 400
+LLM score>0 | indep pilot floor 0.35 | 1000 | human normal | 97.0 | 2.914 | 1000
+LLM score>0 | indep pilot floor 0.35 | 1000 | human Wilson (WH) | 96.8 | 2.910 | 1000
+LLM score>0 | indep pilot floor 0.35 | 1000 | P Wilson n_eff (WE) | 96.8 | 2.910 | 1000
+LLM 3x cut | 1 pooled | 400 | human normal | 95.8 | 4.012 | 400
+LLM 3x cut | 1 pooled | 400 | human Wilson (WH) | 96.0 | 4.001 | 400
+LLM 3x cut | 1 pooled | 400 | P Wilson n_eff (WE) | 94.4 | 3.940 | 400
+LLM 3x cut | 1 pooled | 1000 | human normal | 94.6 | 2.414 | 1000
+LLM 3x cut | 1 pooled | 1000 | human Wilson (WH) | 95.0 | 2.412 | 1000
+LLM 3x cut | 1 pooled | 1000 | P Wilson n_eff (WE) | 95.2 | 2.377 | 1000
+LLM 3x cut | 2 cells oracle | 400 | human normal | 95.0 | 3.940 | 400
+LLM 3x cut | 2 cells oracle | 400 | human Wilson (WH) | 95.0 | 3.930 | 400
+LLM 3x cut | 2 cells oracle | 400 | P Wilson n_eff (WE) | 95.0 | 3.930 | 400
+LLM 3x cut | 2 cells oracle | 1000 | human normal | 95.0 | 2.364 | 1000
+LLM 3x cut | 2 cells oracle | 1000 | human Wilson (WH) | 94.8 | 2.361 | 1000
+LLM 3x cut | 2 cells oracle | 1000 | P Wilson n_eff (WE) | 94.8 | 2.361 | 1000
+LLM 3x cut | pilot floor 0.2 | 400 | human normal | 92.8 | 3.932 | 400
+LLM 3x cut | pilot floor 0.2 | 400 | human Wilson (WH) | 93.0 | 3.922 | 400
+LLM 3x cut | pilot floor 0.2 | 400 | P Wilson n_eff (WE) | 93.0 | 3.922 | 400
+LLM 3x cut | pilot floor 0.2 | 1000 | human normal | 95.0 | 2.365 | 1000
+LLM 3x cut | pilot floor 0.2 | 1000 | human Wilson (WH) | 95.8 | 2.363 | 1000
+LLM 3x cut | pilot floor 0.2 | 1000 | P Wilson n_eff (WE) | 95.8 | 2.363 | 1000
+LLM 3x cut | pilot floor 0.35 | 400 | human normal | 92.8 | 3.932 | 400
+LLM 3x cut | pilot floor 0.35 | 400 | human Wilson (WH) | 93.0 | 3.922 | 400
+LLM 3x cut | pilot floor 0.35 | 400 | P Wilson n_eff (WE) | 93.0 | 3.922 | 400
+LLM 3x cut | pilot floor 0.35 | 1000 | human normal | 95.0 | 2.365 | 1000
+LLM 3x cut | pilot floor 0.35 | 1000 | human Wilson (WH) | 95.8 | 2.363 | 1000
+LLM 3x cut | pilot floor 0.35 | 1000 | P Wilson n_eff (WE) | 95.8 | 2.363 | 1000
+LLM 3x cut | indep pilot floor 0.2 | 400 | human normal | 95.4 | 4.766 | 400
+LLM 3x cut | indep pilot floor 0.2 | 400 | human Wilson (WH) | 95.8 | 4.748 | 400
+LLM 3x cut | indep pilot floor 0.2 | 400 | P Wilson n_eff (WE) | 95.8 | 4.748 | 400
+LLM 3x cut | indep pilot floor 0.2 | 1000 | human normal | 95.8 | 2.905 | 1000
+LLM 3x cut | indep pilot floor 0.2 | 1000 | human Wilson (WH) | 95.6 | 2.901 | 1000
+LLM 3x cut | indep pilot floor 0.2 | 1000 | P Wilson n_eff (WE) | 95.6 | 2.901 | 1000
+LLM 3x cut | indep pilot floor 0.35 | 400 | human normal | 95.2 | 4.765 | 400
+LLM 3x cut | indep pilot floor 0.35 | 400 | human Wilson (WH) | 95.6 | 4.747 | 400
+LLM 3x cut | indep pilot floor 0.35 | 400 | P Wilson n_eff (WE) | 95.6 | 4.747 | 400
+LLM 3x cut | indep pilot floor 0.35 | 1000 | human normal | 95.8 | 2.905 | 1000
+LLM 3x cut | indep pilot floor 0.35 | 1000 | human Wilson (WH) | 95.6 | 2.901 | 1000
+LLM 3x cut | indep pilot floor 0.35 | 1000 | P Wilson n_eff (WE) | 95.6 | 2.901 | 1000
+

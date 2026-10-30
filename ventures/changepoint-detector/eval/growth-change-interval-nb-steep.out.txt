@@ -1,0 +1,26 @@
+# fresh seeds 5, 13, 29, 61 (never used for tuning), temper 1.4, 2026-10-27
+## fresh seed 5
+clumpy counts, lognormal sd 0.35, overdispersion nb
+growth bump (per point)  found  covered  median width
+0.015  23/100  22/23 (96%)  94
+0.025  20/100  17/20 (85%)  73
+0.04  17/100  14/17 (82%)  46
+## fresh seed 13
+clumpy counts, lognormal sd 0.35, overdispersion nb
+growth bump (per point)  found  covered  median width
+0.015  20/100  20/20 (100%)  91
+0.025  17/100  16/17 (94%)  88
+0.04  13/100  10/13 (77%)  70
+## fresh seed 29
+clumpy counts, lognormal sd 0.35, overdispersion nb
+growth bump (per point)  found  covered  median width
+0.015  18/100  18/18 (100%)  100
+0.025  16/100  15/16 (94%)  91
+0.04  12/100  10/12 (83%)  43
+## fresh seed 61
+clumpy counts, lognormal sd 0.35, overdispersion nb
+growth bump (per point)  found  covered  median width
+0.015  23/100  23/23 (100%)  97
+0.025  20/100  20/20 (100%)  94
+0.04  16/100  13/16 (81%)  52
+# total: 198/215 found bends covered (92.1%); bump 0.015 83/84 (99%), 0.025 68/73 (93%), 0.04 47/58 (81%)

@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%231b587e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EA%3C/text%3E%3C/svg%3E"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>1099-K Doesn't Match My Books: Reconcile Gross Payments to Income (Worked Example)</title>
 <meta name="description" content="Your 1099-K shows $940.00 and your books show $850.00 of sales and $708.00 of deposits. A worked example bridges the form to the books line by line, with the numbers read by the tool.">
 <meta name="robots" content="index, follow">
@@ -44,7 +44,7 @@
 <h2>How to do it</h2>
 <ol>
 <li><strong>Get three things:</strong> the form's box 1a (and, if you have them, the twelve monthly boxes 5a to 5l), the processor's payout report for the same calendar year, and your bank statements.</li>
-<li><strong>Split the payouts</strong> in <a href="./">AI Bookkeeper</a> so sales, refunds and fees are booked apart from the lump deposits (see <a href="./stripe-bookkeeping.html">Stripe</a>, <a href="./etsy-bookkeeping.html">Etsy</a> or <a href="./amazon-seller-bookkeeping.html">Amazon</a>).</li>
+<li><strong>Split the payouts</strong> in <a href="./">AI Bookkeeper</a> so sales, refunds and fees are booked apart from the lump deposits (see <a href="./stripe-bookkeeping.html">Stripe</a>, <a href="./etsy-bookkeeping.html">Etsy</a>, <a href="./ebay-bookkeeping.html">eBay</a> or <a href="./amazon-seller-bookkeeping.html">Amazon</a>).</li>
 <li><strong>Run <code>form1099k REPORT.csv --year 2026 --gross AMOUNT [--months J,F,...,D]</code>.</strong> It lays out the report's gross, the form, the gap, the refunds and fees the form does not net, and what account 4000 should hold. With the monthly boxes it names the months that differ and catches a typo in their sum.</li>
 <li><strong>Read the notes.</strong> A form higher than the report usually means the export starts late, ends early or leaves out a profile or currency. The report higher than the form can mean non-reportable rows. A gap equal to the year's refunds or fees means the form may be netted, which box 1a is not.</li>
 </ol>

@@ -399,6 +399,8 @@ def jobs_from_payload(payload):
     """
     if isinstance(payload, dict):
         if "jobs" in payload:
+            if not isinstance(payload["jobs"], list):
+                raise ValueError("'jobs' must be a list of job objects")
             return payload["jobs"]
         return [payload]
     if isinstance(payload, list):
@@ -477,6 +479,11 @@ def main(argv=None, api=None):
         return 2
 
     print(json.dumps(rows, indent=2) if args.json else render(rows))
+
+    # No jobs is no evidence that runners are fine (run not created yet, wrong
+    # id), so it gets the "no answer" code rather than 0.
+    if not rows:
+        return 2
 
     # A run that is not an Actions workflow has no answer to give about
     # Actions, and 0 here would tell `if ci_starvation.py --run $ID` that

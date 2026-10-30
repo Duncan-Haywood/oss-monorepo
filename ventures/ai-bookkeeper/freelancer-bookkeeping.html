@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%231b587e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EA%3C/text%3E%3C/svg%3E"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Freelancer Bookkeeping: Client Payments and Quarterly Tax (Worked Example)</title>
+<meta name="description" content="A freelancer's bank statement shows IRS payments as money out, but they are not expenses. A worked quarter: $16,730.00 of client payments, $15,345.71 profit, and the next two estimated payments.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="./freelancer-bookkeeping.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Freelancer bookkeeping: client payments and quarterly tax">
+<meta property="og:description" content="A worked quarter: $16,730.00 of client payments, $1,384.29 of expenses, $15,345.71 profit, $3,600.00 of IRS payments that are not expenses.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Are the IRS payments I make each quarter a business expense?","acceptedAnswer":{"@type":"Answer","text":"No. A sole proprietor's federal estimated tax is a payment of your own tax, not a cost of the business. Book it as an owner draw (the tool leaves the line for you to file) so profit is not understated. In the worked example, $3,600.00 of IRS payments would turn $15,345.71 of profit into $11,745.71 if counted as an expense. Ask a tax professional how your situation is treated."}},{"@type":"Question","name":"How much should I set aside for the next quarterly payment?","acceptedAnswer":{"@type":"Answer","text":"The tool's estimate command annualises the profit so far, works out income tax and self-employment tax and spreads the safe-harbour amount over the dates still ahead. For the example it plans $3,760.18 on 2026-09-15 and again on 2027-01-15. It is a worksheet, not tax advice."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#1c2430;background:#f3f5f2}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#23613f}.eyebrow{font-weight:700;letter-spacing:.04em;color:#23613f;font-size:.85rem}h1{font-size:clamp(1.7rem,5vw,2.5rem);line-height:1.08;margin:.3rem 0;color:#183d2a}.lede{font-size:1.05rem;max-width:66ch;color:#4a5560}section{background:#fff;border:1px solid #d5ddd6;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #183d2a10;margin:1rem 0}h2{margin-top:0;color:#183d2a}p,li{line-height:1.55}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:.95rem}caption{caption-side:bottom;color:#4a5560;font-size:.85rem;text-align:left;padding-top:.6rem}th,td{border-bottom:1px solid #e1e7e2;padding:.5rem .45rem;text-align:right}th:first-child,td:first-child{text-align:left}tr.total td,tr.total th{font-weight:700}.fine,footer{font-size:.86rem;color:#4a5560}@media (max-width:600px){body{padding:1rem}}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; AI Bookkeeper</a></p>
+<header>
+<h1>Freelancer bookkeeping: client payments and quarterly tax</h1>
+<p class="lede">If you invoice clients as a designer, developer, writer or consultant, your bank statement mixes three things: payments from clients (some through Wise or Upwork), business costs, and the quarterly IRS payments that are not a cost of the business at all.</p>
+</header>
+
+<section>
+<h2>Worked example: one quarter, thirteen bank lines</h2>
+<p>The tool ships a <strong>synthetic</strong> checking statement for April to June 2026: three invoice payments from one client, a payout from a foreign client through Wise, an Upwork release, a coworking membership, software, one flight and two IRS estimated payments.</p>
+<div class="table-wrap">
+<table>
+<caption>Figures from fixtures/freelancer-checking.csv, run through the tool's import, report and estimate commands (freelancer.test.mjs). Synthetic data, not a real freelancer.</caption>
+<thead><tr><th scope="col">April to June 2026</th><th scope="col">Amount</th></tr></thead>
+<tbody>
+<tr><th scope="row">Client payments (five deposits)</th><td>$16,730.00</td></tr>
+<tr><th scope="row">Coworking rent (three months)</th><td>&minus;$897.00</td></tr>
+<tr><th scope="row">Software</th><td>&minus;$74.99</td></tr>
+<tr><th scope="row">Travel</th><td>&minus;$412.30</td></tr>
+<tr class="total"><th scope="row">Net profit</th><td>$15,345.71</td></tr>
+<tr><th scope="row">IRS estimated payments (owner draws, not expenses)</th><td>&minus;$3,600.00</td></tr>
+</tbody>
+</table>
+</div>
+<p>Counting the IRS debits as an expense would show $11,745.71 of profit and suggest you owe less than you do. The tool leaves those two lines in review for you; filed as <em>owner draws</em>, profit stays at $15,345.71. Over a full year that profit, about $61,383 annualised, comes to roughly $12,356 of federal income tax and self-employment tax on the tool's single-filer worksheet.</p>
+</section>
+
+<section>
+<h2>What the estimate says to pay next</h2>
+<p>Running <code>estimate --year 2026 --months 3 --filing single --paid 3600 --as-of 2026-06-16</code> annualises the quarter, subtracts the standard deduction and a simplified 20% QBI deduction, adds self-employment tax of $8,673.11, and plans on the 90% safe harbour: <strong>$3,760.18 on 2026-09-15 and $3,760.18 on 2027-01-15</strong>. Give it last year's tax and income (<code>--prior-tax</code>, <code>--prior-agi</code>) and it uses the 100% or 110% safe harbour instead, which is often smaller. It leaves out state tax, credits and itemised deductions.</p>
+</section>
+
+<section>
+<h2>How to book it</h2>
+<ol>
+<li><strong>Import your bank statement</strong> in <a href="./">AI Bookkeeper</a>. Deposits mentioning an invoice, Wise payout, Payoneer or Upwork are suggested as sales; the IRS debits are left in review on purpose, because the same descriptor can be a payroll deposit; file your own estimated payments as owner draws (account 3100) with <code>confirm ID=3100</code>. Every suggestion waits for you to accept it.</li>
+<li><strong>Check foreign payments.</strong> A Wise payout is what landed after conversion; keep the client's invoice for the gross amount and any fee.</li>
+<li><strong>Run the estimate</strong> after each quarter, with your actual payments entered as <code>--paid</code>.</li>
+<li><strong>State estimated payments</strong> are not covered by the rules; book them as owner draws too.</li>
+</ol>
+<p>The payee rules were written from remembered statement wording, not real bank exports, so check how your bank prints the IRS line. The page is not accounting or tax advice.</p>
+</section>
+
+<section>
+<h2>Questions</h2>
+<h3>Are the IRS payments I make each quarter a business expense?</h3>
+<p>No. A sole proprietor's federal estimated tax is a payment of your own tax, not a cost of the business. Book it as an owner draw (the tool leaves the line for you to file) so profit is not understated. In the worked example, $3,600.00 of IRS payments would turn $15,345.71 of profit into $11,745.71 if counted as an expense. Ask a tax professional how your situation is treated.</p>
+<h3>How much should I set aside for the next quarterly payment?</h3>
+<p>The tool's estimate command annualises the profit so far, works out income tax and self-employment tax and spreads the safe-harbour amount over the dates still ahead. For the example it plans $3,760.18 on 2026-09-15 and again on 2027-01-15. It is a worksheet, not tax advice.</p>
+<h3>Is it free?</h3>
+<p>Yes. It is open source (MIT), runs in your browser and nothing is uploaded.</p>
+</section>
+
+<p><a href="./">Open AI Bookkeeper</a> and import your bank statement.</p>
+</main>
+<footer>
+<p><strong>No warranty.</strong> This page and the tool are provided free and as-is, without warranty of any kind. They are not legal, tax, or financial advice and do not replace a qualified professional. You are responsible for reviewing and verifying any output before relying on it. The example is synthetic data, not a real business. Wise, Upwork, Payoneer, WeWork and the other names are trademarks of their owners, named only to describe a payee; this tool is independent of all of them.</p>
+</footer>
+</body>
+</html>

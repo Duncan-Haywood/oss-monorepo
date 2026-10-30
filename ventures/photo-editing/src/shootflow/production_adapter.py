@@ -5,6 +5,7 @@ import json
 import math
 import os
 import stat
+import tempfile
 import uuid
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
@@ -22,8 +23,10 @@ from shootflow.ffmpeg_media import (
     proxy_command,
     require_workspace_file,
 )
+from shootflow.faces import FaceReport, detect_faces
 from shootflow.frame_analysis import FrameMetrics, analyze_media
 from shootflow.production import ProductionJob, ProductionPlan
+from shootflow.raw_preview import extract_preview, is_raw_path
 from shootflow.production_status import (
     ProductionJobStatus,
     ProductionStatusError,
@@ -1032,6 +1035,10 @@ def _materialize_analysis_production_outputs(
     )
     media_type = _analysis_media_type_from_plan(action, trusted_plan=trusted_plan)
     metrics = _measure_analysis_input(root, action.inputs[0], media_type=media_type)
+    faces = None
+    if metrics is not None and media_type == "photo":
+        # Opt-in (SHOOTFLOW_FACE_DETECTOR); None when unset or the detector fails.
+        faces = detect_faces(_workspace_input_path(root, action.inputs[0], label="analysis production input"))
     materialized: list[str] = []
     for output in action.outputs:
         _write_analysis_output(
@@ -1041,6 +1048,7 @@ def _materialize_analysis_production_outputs(
             input_metadata=input_metadata,
             media_type=media_type,
             metrics=metrics,
+            faces=faces,
         )
         materialized.append(output)
     return tuple(materialized)
@@ -1134,18 +1142,26 @@ def _materialize_ffmpeg_proxy_production_outputs(
 
     _validate_proxy_action_shape(action, expected_adapter=_FFMPEG_PROXY_PRODUCTION_ADAPTER)
     root = _workspace_root(workspace_root)
-    source_path = _ffmpeg_source_path(root, action.inputs[0], label="proxy production input")
+    source_path = _ffmpeg_source_path(root, action.inputs[0], label="proxy production input", allow_raw=True)
     materialized: list[str] = []
     try:
         tools = find_ffmpeg_tools()
-        for output in action.outputs:
-            _validate_ffmpeg_output(root, output)
-            encode_new_output(
-                root,
-                output,
-                build_command=lambda temp_path: proxy_command(tools, source_path, temp_path),
-            )
-            materialized.append(output)
+        with tempfile.TemporaryDirectory(prefix="shootflow-raw-") as scratch:
+            if is_raw_path(source_path):
+                # No RAW developer: the proxy is the camera's own embedded JPEG, downscaled.
+                preview = extract_preview(source_path)
+                if preview is None:
+                    raise FfmpegMediaError(f"no embedded JPEG preview in {source_path.name}; develop it first")
+                source_path = Path(scratch) / "preview.jpg"
+                source_path.write_bytes(preview)
+            for output in action.outputs:
+                _validate_ffmpeg_output(root, output)
+                encode_new_output(
+                    root,
+                    output,
+                    build_command=lambda temp_path: proxy_command(tools, source_path, temp_path),
+                )
+                materialized.append(output)
     except FfmpegMediaError as exc:
         raise ProductionAdapterError(str(exc)) from exc
     return tuple(materialized)
@@ -1190,16 +1206,17 @@ def _materialize_ffmpeg_grade_production_outputs(
     return tuple(materialized)
 
 
-def _ffmpeg_source_path(root: Path, input_ref: str, *, label: str) -> Path:
+def _ffmpeg_source_path(root: Path, input_ref: str, *, label: str, allow_raw: bool = False) -> Path:
     input_path = _workspace_input_path(root, input_ref, label=label)
     _reject_symlink_path(input_path.parent, root, f"{label} directory")
     _reject_symlink_path(input_path, root, label)
     if not input_path.is_file():
         raise ProductionAdapterError(f"Missing {label}: {input_ref}")
-    try:
-        media_kind_for_path(input_path.name)
-    except FfmpegMediaError as exc:
-        raise ProductionAdapterError(str(exc)) from exc
+    if not (allow_raw and is_raw_path(input_path)):
+        try:
+            media_kind_for_path(input_path.name)
+        except FfmpegMediaError as exc:
+            raise ProductionAdapterError(str(exc)) from exc
     return input_path
 
 
@@ -1943,6 +1960,7 @@ def _write_analysis_output(
     input_metadata: dict[str, object],
     media_type: str,
     metrics: FrameMetrics | None = None,
+    faces: FaceReport | None = None,
 ) -> None:
     content = _analysis_output_bytes(
         action,
@@ -1950,6 +1968,7 @@ def _write_analysis_output(
         input_metadata=input_metadata,
         media_type=media_type,
         metrics=metrics,
+        faces=faces,
     )
     _write_production_output_bytes(root, output=output, content=content, label="analysis production")
 
@@ -2217,6 +2236,7 @@ def _analysis_output_bytes(
     input_metadata: dict[str, object],
     media_type: str,
     metrics: FrameMetrics | None = None,
+    faces: FaceReport | None = None,
 ) -> bytes:
     sha256 = input_metadata["sha256"]
     if not isinstance(sha256, str):
@@ -2250,7 +2270,7 @@ def _analysis_output_bytes(
                 "analysis_method": "frame_metrics",
                 "scene_label": f"frame_{metrics.dhash}",
                 "aesthetic_score": metrics.aesthetic_score,
-                "story_score": metrics.story_score,
+                "story_score": _clamp_unit(metrics.story_score + (faces.story_adjustment if faces else 0.0)),
                 "technical_score": metrics.technical_score,
                 "motion_score": metrics.motion,
                 "perceptual_hash": metrics.dhash,
@@ -2274,6 +2294,13 @@ def _analysis_output_bytes(
                 },
             }
         )
+        if faces is not None:
+            payload["faces"] = {
+                "count": faces.face_count,
+                "prominent": faces.prominent_faces,
+                "worst_eyes_open": faces.worst_eyes_open,
+                "story_adjustment": faces.story_adjustment,
+            }
         if media_type == "video":
             payload["duration_seconds"] = metrics.duration_seconds or 0.0
     else:
@@ -2682,6 +2709,10 @@ def _average_score(scores) -> float:
     if not values:
         return 0.0
     return round(sum(values) / len(values), 6)
+
+
+def _clamp_unit(value: float) -> float:
+    return max(0.0, min(1.0, value))
 
 
 def _analysis_score(sha256: str, *, offset: int) -> float:

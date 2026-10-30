@@ -1,0 +1,6 @@
+{'agg': 'median', 'offset': 0.0, 'seed': 0, 'loss': 1.594092719256878, 'secs': 451}
+{'agg': 'median', 'offset': 10.0, 'seed': 1, 'loss': 1.5930900126695633, 'secs': 452}
+{'agg': 'median', 'offset': 0.0, 'seed': 1, 'loss': 1.6017529368400574, 'secs': 452}
+{'agg': 'median', 'offset': 10.0, 'seed': 0, 'loss': 1.5854644179344177, 'secs': 455}
+{'agg': 'median', 'offset': 10.0, 'seed': 2, 'loss': 1.5929853022098541, 'secs': 427}
+{'agg': 'median', 'offset': 0.0, 'seed': 2, 'loss': 1.6007960140705109, 'secs': 427}

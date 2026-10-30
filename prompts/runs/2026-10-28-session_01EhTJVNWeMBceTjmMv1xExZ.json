@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-28",
+  "session": "https://claude.ai/code/session_01EhTJVNWeMBceTjmMv1xExZ",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-28T00:59:25Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 2): bid-leveling page card (duplicate)",
+  "projects": [
+    "wall-framing-takeoff"
+  ],
+  "pr": 11003,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Searched open PRs only by slug, not by feature, so missed the concurrent bid-leveling work",
+      "did": "merged main, kept main's version",
+      "result": "duplicate discarded"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Built a bid-leveling page card; before merge, another session landed the same feature on main with a different UI (bidText box, plan.bids restore). Dropped mine and took main's. Nothing else shipped this run.",
+  "corrections": [],
+  "redteam": null
+}

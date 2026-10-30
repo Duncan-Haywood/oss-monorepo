@@ -31,6 +31,8 @@
       <li>Safe ingest: planned copies with checksums, manifests and conflict detection; source media is never deleted.</li>
       <li>A catalog built from ingest manifests, and loaders for per-asset analysis output bound to a trusted production plan.</li>
       <li>Assembly of explicit render tasks, with resumable, lock-protected status files and a dry-run worker and scheduler.</li>
+      <li><strong>Cull a folder of photos offline:</strong> <code>shootflow cull FOLDER --out REPORT</code> scores every still for sharpness and exposure, groups near-identical burst frames, keeps the best of each group and flags blurred or badly exposed frames as rejects. It writes an HTML report and, with <code>--write-xmp</code>, Lightroom/Bridge sidecars (keeper 4 stars, alternate 2, reject -1). Your photos are only read, and nothing is uploaded.</li>
+      <li>Check it against your own taste: <code>--picks FILE</code> lists the frames you would keep and the report shows how often its keeper was one of yours and how many of your picks it flagged reject. It has not yet been measured on a real wedding or event shoot, so run that check before trusting it.</li>
     </ul>
   </section>
   <section>

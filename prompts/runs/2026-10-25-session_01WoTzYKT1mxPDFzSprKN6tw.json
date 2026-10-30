@@ -1,0 +1,55 @@
+{
+  "date": "2026-10-25",
+  "session": "https://claude.ai/code/session_01WoTzYKT1mxPDFzSprKN6tw",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-25T22:09:49Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "ai-bookkeeper: sweep Actual Budget sample statements",
+  "projects": [
+    "ai-bookkeeper"
+  ],
+  "pr": 10491,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "A harmless cd/iconv command was blocked by an rm safety check; simplified and reran."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "Did not rewrite next: (small slice, item 2 text unchanged); no agent doc written.",
+      "did": "README Next entry + post",
+      "result": "fine"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-25-ai-bookkeeper-actual-budget-samples.md"
+  ],
+  "goal": null,
+  "notes": "Local checks: otp-hu, bank-guards, thirdparty, metamorphic, formats, neobank tests (569 pass). Venture preflight not run (small reader change).",
+  "corrections": [],
+  "redteam": null
+}

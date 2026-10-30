@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-26",
+  "session": "https://claude.ai/code/session_018jqhSJ7YTYRaemny2vJidg",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-26T10:03:50Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "hearth-and-horizon"
+  ],
+  "pr": 10616,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "No audio rendered because audio size is over 400 MB; the prompt allows text only.",
+      "did": "landed text and pages",
+      "result": "story live on next build"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Hearth & Horizon, slug the-third-list: capture-recapture story; numbers computed in Python (Chapman, log-linear fits). Text only: audio dirs 423 MB, over the 400 MB cap. Blog post added.",
+  "corrections": [],
+  "redteam": null
+}

@@ -1,0 +1,23 @@
+6000 items, human negative share 0.327; synthetic symmetric-flip coder, 600 draws, seed 20261102
+columns per row: coverage human-only, coverage ppi++, mean half-width ratio ppi++/human-only
+a=0.60 n=100 dropped 0 MEAN 0.950 0.939 0.968
+a=0.60 n=200 dropped 0 MEAN 0.951 0.950 0.978
+a=0.60 n=400 dropped 0 MEAN 0.957 0.955 0.984
+a=0.70 n=100 dropped 0 MEAN 0.950 0.942 0.912
+a=0.70 n=200 dropped 0 MEAN 0.951 0.947 0.923
+a=0.70 n=400 dropped 0 MEAN 0.957 0.952 0.934
+a=0.75 n=100 dropped 0 MEAN 0.950 0.944 0.870
+a=0.75 n=200 dropped 0 MEAN 0.951 0.950 0.888
+a=0.75 n=400 dropped 0 MEAN 0.957 0.960 0.898
+a=0.80 n=100 dropped 0 MEAN 0.950 0.944 0.785
+a=0.80 n=200 dropped 0 MEAN 0.951 0.942 0.800
+a=0.80 n=400 dropped 0 MEAN 0.957 0.953 0.811
+a=0.85 n=100 dropped 0 MEAN 0.950 0.934 0.740
+a=0.85 n=200 dropped 0 MEAN 0.951 0.948 0.754
+a=0.85 n=400 dropped 0 MEAN 0.957 0.949 0.765
+a=0.90 n=100 dropped 0 MEAN 0.950 0.918 0.618
+a=0.90 n=200 dropped 0 MEAN 0.951 0.941 0.641
+a=0.90 n=400 dropped 0 MEAN 0.957 0.941 0.656
+a=0.95 n=100 dropped 0 MEAN 0.950 0.890 0.429
+a=0.95 n=200 dropped 0 MEAN 0.951 0.926 0.450
+a=0.95 n=400 dropped 0 MEAN 0.957 0.942 0.461

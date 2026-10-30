@@ -4,7 +4,7 @@ import { readFileSync, writeFileSync, mkdtempSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { parseDivisions, parseDivisionLinks, buildDivisions, applyDivisionRainouts, rainoutOptions, validateDivisions, linkConflicts, divisionsCsv, divisionsText, readDivisionsSpec, parseTravel, divisionStats, carryVenueHistory, venueImbalance, suggestFairnessWeight, encodeDivisionFields, decodeDivisionFields } from "./divisions.mjs";
+import { parseDivisions, parseDivisionLinks, buildDivisions, applyDivisionRainouts, rainoutOptions, validateDivisions, linkConflicts, divisionsCsv, divisionsText, divisionsIcs, readDivisionsSpec, parseTravel, divisionStats, carryVenueHistory, venueImbalance, suggestFairnessWeight, encodeDivisionFields, decodeDivisionFields } from "./divisions.mjs";
 import { parseDate, dayIso } from "./calc.mjs";
 
 const example = JSON.parse(readFileSync(new URL("./example-divisions.json", import.meta.url), "utf8"));
@@ -544,4 +544,85 @@ test("suggestFairnessWeight reads the league's own travel: free evenness on two 
   assert.ok(three.overSlack && three.weight > 0 && three.extraTravel > 0.05, JSON.stringify(three)); // 4 seeds: 0.5, +23%; 2 seeds in the test
   const zero = three.rows.find((r) => r.weight === 0), pick = three.rows.find((r) => r.weight === three.weight);
   assert.ok(pick.imbalance <= zero.imbalance / 2);
+});
+
+test("officials: every match gets a valid official across divisions", async () => {
+  const { parseDivisionOfficials, assignDivisionOfficials, validateDivisionOfficials, divisionsCsv } = await import("./divisions.mjs");
+  const { spec } = readDivisionsSpec(JSON.parse(readFileSync(new URL("./example-divisions.json", import.meta.url), "utf8")));
+  const s = buildDivisions(spec);
+  const text = "Ana (Hawks)\nBo (Rams): Tue\nCy\nDee\nEli\nFay\nGus";
+  const po = parseDivisionOfficials(text, spec.divisions);
+  assert.deepEqual(po.errors, []);
+  const a = assignDivisionOfficials(s, po.officials);
+  assert.deepEqual(validateDivisionOfficials(a.schedule, po.officials), []);
+  assert.equal(a.total + a.unfilled.length, s.stats.matches);
+  assert.equal(a.unfilled.length, 0);
+  assert.ok(a.schedule.nights.every((n) => n.matches.every((m) => m.official)));
+  assert.match(divisionsCsv(a.schedule).split("\n")[0], /,Official$/);
+  assert.ok(!/Official/.test(divisionsCsv(s).split("\n")[0]));
+});
+
+test("officials: caps leave matches unfilled with a reason, and a bad team is an error", async () => {
+  const { parseDivisionOfficials, assignDivisionOfficials, validateDivisionOfficials } = await import("./divisions.mjs");
+  const { spec } = readDivisionsSpec(JSON.parse(readFileSync(new URL("./example-divisions.json", import.meta.url), "utf8")));
+  const s = buildDivisions(spec);
+  const po = parseDivisionOfficials("Ana max 2\nBo (Nobody)", spec.divisions);
+  assert.equal(po.errors.length, 1);
+  const a = assignDivisionOfficials(s, po.officials.slice(0, 1));
+  assert.equal(a.total, 2);
+  assert.equal(a.unfilled.length, s.stats.matches - 2);
+  assert.ok(a.unfilled.every((u) => /at their match cap|already on another match/.test(u.reason)));
+  assert.deepEqual(validateDivisionOfficials(a.schedule, po.officials.slice(0, 1)), []);
+});
+
+test("calendar export: every match once, per division and per team, lines folded", () => {
+  const s = build();
+  const stamp = "20261029T000000Z";
+  const count = (t) => (t.match(/BEGIN:VEVENT/g) || []).length;
+  const all = divisionsIcs(s, { stamp });
+  assert.equal(count(all), s.stats.matches);
+  assert.equal(all, divisionsIcs(s, { stamp }));
+  assert.ok(all.startsWith("BEGIN:VCALENDAR\r\n") && all.endsWith("END:VCALENDAR\r\n"));
+  assert.ok(all.split("\r\n").every((l) => new TextEncoder().encode(l).length <= 75));
+  const uids = all.match(/^UID:.*$/gm);
+  assert.equal(new Set(uids).size, uids.length);
+  const d = s.divisions[0];
+  const per = divisionsIcs(s, { division: d.name, stamp });
+  assert.equal(count(per), d.rounds.reduce((n, r) => n + r.matches.length, 0));
+  const t = d.teams[0];
+  const mine = divisionsIcs(s, { team: t, stamp });
+  const expect = s.nights.flatMap((n) => n.matches).filter((m) => m.homeName === t || m.awayName === t).length;
+  assert.equal(count(mine), expect);
+  assert.match(mine, new RegExp(`SUMMARY:${t} vs .* \\((home|away)\\)`));
+  const first = s.nights[0].matches.find((m) => m.time);
+  const [hh, mm] = first.time.split(":").map(Number);
+  const end = hh * 60 + mm + 90;
+  const one = divisionsIcs({ ...s, nights: [{ day: s.nights[0].day, matches: [first] }] }, { stamp, minutes: 90 });
+  assert.match(one, new RegExp(`DTEND:\\d{8}T${String(Math.floor(end / 60) % 24).padStart(2, "0")}${String(end % 60).padStart(2, "0")}00`));
+});
+
+test("officials field: survives a share link and the page wires parse, assign and validate", async () => {
+  const { encodeDivisionFields, decodeDivisionFields } = await import("./divisions.mjs");
+  const { readFileSync } = await import("node:fs");
+  const f = { divisions: "U10: A, B, C, D", courts: "C1", times: "18:00", start: "2026-10-06", weekdays: "Tue", officials: "Ana (A): Tue max 6\nBo", seed: "1" };
+  assert.equal(decodeDivisionFields("#d=" + encodeDivisionFields(f)).officials, f.officials);
+  const html = readFileSync(new URL("./multi-division-league-schedule.html", import.meta.url), "utf8");
+  assert.match(html, /id="officials"/);
+  for (const fn of ["parseDivisionOfficials", "assignDivisionOfficials", "validateDivisionOfficials"]) assert.ok(html.includes(fn), fn);
+});
+
+test("team and official messages: every match appears once per side, byes add nothing, officials only their own", async () => {
+  const { divisionsTeamMessages, divisionsOfficialMessages, parseDivisionOfficials, assignDivisionOfficials } = await import("./divisions.mjs");
+  const { spec } = readDivisionsSpec(JSON.parse(readFileSync(new URL("./example-divisions.json", import.meta.url), "utf8")));
+  const s = buildDivisions(spec);
+  const msgs = divisionsTeamMessages(s);
+  assert.equal(msgs.length, spec.divisions.reduce((n, d) => n + d.teams.length, 0));
+  assert.equal(msgs.reduce((n, m) => n + m.matches, 0), 2 * s.stats.matches);
+  for (const m of msgs) assert.equal(m.text.split("\n").length, m.matches + 2, `${m.division}/${m.team}`);
+  const po = parseDivisionOfficials("Ana (Hawks)\nBo\nCy", spec.divisions);
+  const a = assignDivisionOfficials(s, po.officials);
+  const om = divisionsOfficialMessages(a.schedule);
+  assert.equal(om.reduce((n, m) => n + m.matches, 0), a.total);
+  assert.ok(om.every((m) => m.text.startsWith(`Hi ${m.official},`)));
+  assert.deepEqual(divisionsOfficialMessages(s), []);
 });

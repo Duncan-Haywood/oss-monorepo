@@ -56,3 +56,12 @@ test("links to the German and French pages and the sitemap entry is its own url 
   assert.match(html, /href="croatia-e-invoice-mandate\.html"/);
   assert.match(sitemap, /<\/url>\s*<url>\s*<loc>[^<]*spain-verifactu-e-invoice-mandate\.html<\/loc>\s*<\/url>/);
 });
+
+test("states the B2B e-invoicing dates and the order, with the source caveat", () => {
+  assert.match(html, /Order HAC\/1028\/2026/);
+  assert.match(html, /6 Oct 2027/);
+  assert.match(html, /6 Oct 2028/);
+  assert.match(html, /8 million euro/);
+  assert.match(html, /the BOE text was not read/);
+  assert.doesNotMatch(html, /which this page does not state/);
+});

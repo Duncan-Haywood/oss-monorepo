@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-29",
+  "session": "https://claude.ai/code/session_01E5sJKkKmkfNAD4mmYgswCg",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-29T12:42:17Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "ai-bookkeeper"
+  ],
+  "pr": 11400,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "why": "Took the small vertical-page slice instead of a hard flagship milestone; a first draft rule overrode an older Safety-Kleen rule and probe 3 caught it. flagship next: not rewritten; no agent doc written."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-29-auto-repair-shop-bookkeeping-page.md"
+  ],
+  "goal": null,
+  "notes": "Local checks: autorepair, probe-trades3, page tests pass. Venture preflight not run.",
+  "corrections": [],
+  "redteam": null
+}

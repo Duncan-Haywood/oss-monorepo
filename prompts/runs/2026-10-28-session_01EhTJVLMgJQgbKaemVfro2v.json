@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-28",
+  "session": "https://claude.ai/code/session_01EhTJVLMgJQgbKaemVfro2v",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-28T05:03:51Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 2): stair framing slice",
+  "projects": [
+    "wall-framing-takeoff"
+  ],
+  "pr": 11045,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 10,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/promptctl.py route",
+      "why": "routed to research track; the scheduled task text asked for revenue products",
+      "did": "worked a ventures flagship",
+      "result": "stair slice shipped"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Scheduled run. Router drew research; followed the task text (ventures). Duplicate checks showed the ideas tried (FBA reimbursements, certified payroll, freight margin, churn cohorts, duplicate payments) already exist; CMS hosts unreachable through the proxy so no real-data work. Landed stairs.mjs (equal risers, notch throat, stringers, stairwell opening from headroom), CLI --stairs, 9 engine tests + 1 CLI test, README entry, blog post. Whole wall-framing suite 287/287 pass locally. Hand-computed fixtures only; no page card.",
+  "corrections": [],
+  "redteam": null
+}

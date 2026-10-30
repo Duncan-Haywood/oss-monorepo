@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-27",
+  "session": "https://claude.ai/code/session_01E5sJKjtqaSLahz86DgCHWS",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-27T05:19:09Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 10817,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Three H&H stories and three saints episodes had landed the same day and audio is over the 400 MB cap, so I wrote a text-only podcast script for the Second Slope post instead of a new story; no new blog post (the script is the write-up)."
+    }
+  ],
+  "writeups": [
+    "docs/podcast/2026-10-27-when-the-water-level-falls-twice-as-fast.md"
+  ],
+  "goal": null,
+  "notes": "Project: writing podcast (docs/podcast), slug the-second-slope. Audio 423 MB > 400 MB cap, so text only.",
+  "corrections": [],
+  "redteam": null
+}

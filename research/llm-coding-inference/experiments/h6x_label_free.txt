@@ -1,0 +1,14 @@
+fear: corpus 6683, prevalence 0.0115, coder share 0.0332
+category | target pts | c | planned n (x oracle) | mean half pts | share half > 1.25 target | coverage
+fear | 1.0 | 1 | 1026 (2.58x of 398) | 0.590 | 0.000 | 0.918
+fear | 1.0 | 2 | 1777 (4.46x of 398) | 0.421 | 0.000 | 0.926
+fear | 0.5 | 1 | 2800 (2.08x of 1347) | 0.300 | 0.000 | 0.928
+fear | 0.5 | 2 | 3930 (2.92x of 1347) | 0.216 | 0.000 | 0.952
+
+sadness: corpus 6683, prevalence 0.0230, coder share 0.0848
+category | target pts | c | planned n (x oracle) | mean half pts | share half > 1.25 target | coverage
+sadness | 1.0 | 1 | 2046 (2.79x of 733) | 0.530 | 0.000 | 0.936
+sadness | 1.0 | 2 | 3128 (4.27x of 733) | 0.376 | 0.000 | 0.946
+sadness | 0.5 | 1 | 4252 (1.94x of 2197) | 0.266 | 0.000 | 0.944
+sadness | 0.5 | 2 | 5185 (2.36x of 2197) | 0.189 | 0.000 | 0.950
+

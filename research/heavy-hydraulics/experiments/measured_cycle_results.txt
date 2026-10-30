@@ -1,0 +1,6 @@
+random pressures per actuator: 20000 cycles; ordering OC>=LS>=metered 99.86%
+  LS/OC  median 0.667  5-95%: 0.479 to 0.859
+  Met/LS median 0.867  5-95%: 0.777 to 0.931; share < 0.85: 36.7%
+equal pressure within a phase: 20000 cycles; ordering OC>=LS>=metered 99.83%
+  LS/OC  median 0.669  5-95%: 0.477 to 0.869
+  Met/LS median 0.903  5-95%: 0.831 to 0.954; share < 0.85: 10.5%

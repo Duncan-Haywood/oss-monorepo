@@ -1,0 +1,18 @@
+flights used: 134 (cruise samples 25 to 1087); payload counts {0.0: 46, 250.0: 42, 500.0: 45, 750.0: 1}; speeds [np.float64(4.0), np.float64(6.0), np.float64(8.0), np.float64(10.0), np.float64(12.0)]
+mean cruise power by payload (W): {0.0: 439.6, 250.0: 489.8, 500.0: 534.1, 750.0: 577.9}
+mean cruise power by speed (W):   {4.0: 507.3, 6.0: 503.6, 8.0: 479.9, 10.0: 438.2, 12.0: 414.2}
+mass exponent [ln m + speed + speed^2 + wind]: 1.539  95% CI [1.413, 1.667] (width 0.254)
+mass exponent [ln m only]: 1.524  95% CI [1.303, 1.747] (width 0.444)
+mass exponent [ln m + speed + speed^2]: 1.539  95% CI [1.398, 1.685] (width 0.287)
+mass exponent [R1 only, n=125]: 1.509  95% CI [1.376, 1.643]
+mass exponent [alt 25 only, n=37]: 1.410  95% CI [1.211, 1.630]
+dates: 16; dates with a single payload: 3
+fitted speed effect 4 -> 12 m/s: -10.1% ; 4 -> 8: -0.4%
+payload 0 g: P_i = 239 W, mean cruise P = 440 W, ratio 1.84
+payload 250 g: P_i = 264 W, mean cruise P = 490 W, ratio 1.86
+payload 500 g: P_i = 289 W, mean cruise P = 534 W, ratio 1.85
+route H (hover, 0 g): n flights 4, mean P 431 W
+
+real	0m20.653s
+user	0m20.057s
+sys	0m0.369s

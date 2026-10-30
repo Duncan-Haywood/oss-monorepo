@@ -2,13 +2,14 @@
 Truth = a majority of raters marked the emotion. Coder = per-category naive-Bayes score (a stand-in,
 not an LLM). Corpus = the 70% test part, so the true prevalence is known. Writes rare_audit.txt.
 
-    python3 experiments/rare_audit.py [reps]   # needs ~/.cache/qual-real/goemotions_{1,2,3}.csv
+    python3 experiments/rare_audit.py [reps]   # downloads ~/.cache/qual-real/goemotions_{1,2,3}.csv on first use
 """
 import csv
 import math
 import random
 import statistics
 import sys
+import urllib.request
 from collections import Counter, defaultdict
 from pathlib import Path
 
@@ -17,6 +18,16 @@ sys.path.insert(0, str(HERE.parents[0]))
 from llmci import estimators as E  # noqa: E402
 
 CSVS = [Path.home() / ".cache" / "qual-real" / f"goemotions_{i}.csv" for i in (1, 2, 3)]
+URL = "https://storage.googleapis.com/gresearch/goemotions/data/full_dataset/goemotions_{}.csv"
+
+
+def ensure_csvs():
+    """Download any missing GoEmotions part to the cache (same URL as qual-real/experiments/run.py)."""
+    for i, p in enumerate(CSVS, 1):
+        if not p.exists():
+            p.parent.mkdir(parents=True, exist_ok=True)
+            urllib.request.urlretrieve(URL.format(i), p)
+    return CSVS
 CATS = ("grief", "pride", "relief", "embarrassment", "nervousness", "remorse", "disgust", "fear", "sadness")
 N_AUDIT, SEED, SPLIT_SEED, TRAIN_SHARE = 200, 20261024, 2026, 0.3
 REPS = int(sys.argv[1]) if len(sys.argv) > 1 else 1000
@@ -25,7 +36,7 @@ REPS = int(sys.argv[1]) if len(sys.argv) > 1 else 1000
 def load():
     votes, texts, unclear = defaultdict(lambda: defaultdict(int)), {}, set()
     cnt = Counter()
-    for path in CSVS:
+    for path in ensure_csvs():
         with open(path, newline="", encoding="utf-8") as f:
             for row in csv.DictReader(f):
                 i = row["id"]

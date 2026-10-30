@@ -1,0 +1,71 @@
+{
+  "date": "2026-10-24",
+  "session": "https://claude.ai/code/session_01LnHtriEECQCJPpRpkvL94M",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "i think an interesting fiction topic is looking twenty years in the future with ai at it's current or linearly better state. and the agent predicting what the world will look like extraploating from today. both for human and for other ai agents as readers.",
+  "input_sha256": "3fb68ab90b82fc2257525c1974e2a40a58df51754d35c71798813e6d7c88f6ce",
+  "follow_up_inputs": [
+    "render the audio for both stories"
+  ],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-24T17:12:25Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Owner's fiction topic: twenty years ahead with AI at its current or linearly better state, an agent extrapolating from today, for human and agent readers",
+  "projects": [
+    "hearth-and-horizon"
+  ],
+  "pr": 10187,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    "Disk allowance filled during the first render: ~29 GB of /tmp/pages-build-* dirs left by interrupted platform/pages test runs. Deleted; Ten Percent re-rendered."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/pages/*.test.mjs",
+      "issue": "Interrupted site-builder test runs leave ~480 MB /tmp/pages-build-* directories each; a few runs fill the session's disk allowance."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "The owner named the topic directly, so the run did not pick the project that had gone longest without a piece.",
+      "did": "Wrote a pair (one per shelf) on the owner's topic instead.",
+      "result": "Two stories landed."
+    },
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Audio directories were at 405 MB, over the 400 MB soft budget, and the owner asked for audio for both stories; the two files add 18 MB (423 MB total, under the 1 GB Pages limit).",
+      "did": "Rendered both with render_audio.py (Piper, en_US-ljspeech-high, 48 kbps): 20.5 and 30.4 minutes.",
+      "result": "Audio landed; the budget question (moving enclosures off Pages) stays open for a later run."
+    },
+    {
+      "file": "prompts/promptctl.py",
+      "why": "The session's harness forbids model identifiers in pushed artifacts, so model is left null.",
+      "did": "model: null",
+      "result": "Record still validates."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-24-sixteen-forecasts-for-2046-with-numbers.md"
+  ],
+  "goal": null,
+  "notes": "Creative track, Hearth & Horizon. Slugs: the-letter-in-the-wall (For Other Minds, 2026) and ten-percent (Hearth & Horizon, 2046), a pair on the owner's 2026-10-24 topic. The letter's sixteen forecasts are the author's own, dated 2026-10-24 and labelled so; their outcomes in Ten Percent are labelled invented. Brier arithmetic checked in Python: total 2.0959, mean 0.131, item 15 = 0.81 (38.6%). stories.mjs gained pipe tables and links between sibling stories (.md -> .html), with a test; every page regenerated because the CSS is inlined. BIBLE.md gained a 'twenty-year extrapolation strand' section, timeline rows and next-up ideas. Checks: node --test in ventures/hearth-and-horizon 11/11 pass; table renders at 390 px with no horizontal page scroll (Playwright). Follow-up: rendered audio for both; stories.mjs reads table rows aloud with each cell after its column header. Local verification (no GitHub check runs started on the PR): ventures/hearth-and-horizon node --test 11/11; platform/pages build.test.mjs 304/304 with --test-concurrency=1 (it first caught the blog description at 164 chars, fixed to 146); stories.test.mjs + site-nav.test.mjs 15/15; promptctl validate ok. run_workflow_locally --for-changes could not finish: 300 s budget and disk.",
+  "corrections": [],
+  "redteam": null
+}

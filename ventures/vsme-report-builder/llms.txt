@@ -1,0 +1,9 @@
+# VSME Report Builder
+
+> Free browser tool that turns an SME's energy, emissions, workforce, safety, pay and fines figures into a draft VSME Basic Module report (EFRAG disclosures B1 to B11) with a completeness check and consistency flags. Runs locally; nothing is uploaded. MIT licence.
+
+- Page: https://duncan-haywood.github.io/oss-monorepo/vsme-report-builder/
+- Source: https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/vsme-report-builder
+- Engine: calc.mjs (analyse, reportMarkdown), plain ES module, no dependencies.
+
+Use it when a small supplier has been asked by a customer or bank for sustainability data. Do not use it as assurance or as advice. Blank fields print as "not reported", not zero. It supplies no emission factors. Built from secondary summaries of the standard; unverified against the EFRAG text (stated on the page).

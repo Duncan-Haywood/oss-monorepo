@@ -694,5 +694,29 @@ class ExitCodeTests(unittest.TestCase):
         self.assertEqual(len(ps.disagreements([ok, bad])), 1)
 
 
+class MainExitCodeTests(EgressGatewayTests):
+    """`main` exits 0 green, 1 on a disagreement, 2 when nothing was measured.
+
+    Added by the 2026-10-25 red-team run: a seeded change of 1 to 2 survived,
+    so nothing pinned the difference between "broken" and "could not look".
+    """
+
+    def exit_code_for(self, results):
+        with unittest.mock.patch.object(ps, "host_probes", return_value=[]), \
+                unittest.mock.patch.object(ps, "pages_probes", return_value=[]), \
+                unittest.mock.patch.object(ps, "run_probes", return_value=results), \
+                unittest.mock.patch("builtins.print"):
+            return ps.main(["--hosts-only"])
+
+    def test_agreement_exits_zero(self):
+        self.assertEqual(self.exit_code_for([self.probe_with({APEX: served()})]), 0)
+
+    def test_a_disagreement_exits_one_not_two(self):
+        self.assertEqual(self.exit_code_for([self.probe_with({})]), 1)
+
+    def test_measuring_nothing_exits_two(self):
+        self.assertEqual(self.exit_code_for([self.probe_with({APEX: self.tunnel_refused()})]), 2)
+
+
 if __name__ == "__main__":
     unittest.main()

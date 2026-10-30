@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-26",
+  "session": "https://claude.ai/code/session_01CnZZjXuzbQTfoCJiBccbia",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-26T22:58:26Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "saints-by-candlelight"
+  ],
+  "pr": 10749,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "No audio rendered: size line and blocked voice download, as the prompt allows.",
+      "did": "text, page and sitemap only",
+      "result": "checks and 12 tests pass"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "creative track; saints-by-candlelight episode 37 slug moses-and-the-bush-that-was-not-consumed, text only (audio 423 MB over the 400 MB line; huggingface 403).",
+  "corrections": [],
+  "redteam": null
+}

@@ -740,9 +740,9 @@ test('a 404 page routes visitors back to the index', async () => {
 // the sitemap does: everything still builds, every page still resolves, and the
 // assistant recommending a free calculator simply never sees it.
 
-test('llms.txt lists every published tool at its real URL', async () => {
+test('llms-full.txt lists every published tool at its real URL', async () => {
   const { surfaces } = await site();
-  const llms = await read('llms.txt');
+  const llms = await read('llms-full.txt');
 
   for (const surface of surfaces) {
     assert.ok(
@@ -761,11 +761,22 @@ test('llms.txt opens with the h1 and blockquote summary the format expects', asy
   );
 });
 
-test('llms.txt keeps each tool on one line, so no description leaks into prose', async () => {
-  const { surfaces } = await site();
-  const bullets = (await read('llms.txt')).split('\n').filter((line) => line.startsWith('- ['));
+// P052: the index is the first file an assistant reads, so it has to fit one
+// fetch (it was 539 KB), with a one-sentence summary; the long text is in
+// llms-full.txt, which the index links.
+test('llms.txt is a short index that links llms-full.txt', async () => {
+  const llms = await read('llms.txt');
+  assert.ok(Buffer.byteLength(llms) < 50_000, `llms.txt is ${Buffer.byteLength(llms)} bytes`);
+  const quote = llms.split('\n').find((line) => line.startsWith('> '));
+  assert.ok(quote.length < 500, `blockquote is ${quote.length} characters`);
+  assert.ok(llms.includes(`](${BASE}llms-full.txt)`));
+});
 
-  // Nine trailing bullets under "Optional" describe the site's own surfaces
+test('llms-full.txt keeps each tool on one line, so no description leaks into prose', async () => {
+  const { surfaces } = await site();
+  const bullets = (await read('llms-full.txt')).split('\n').filter((line) => line.startsWith('- ['));
+
+  // Ten trailing bullets (the first links the other llms file) under "Optional" describe the site's own surfaces
   // rather than a tool — About, Ask, updates and the changelog, the comparison
   // index, the guides index, catalog.json, the agent CLI, the sitemap and the
   // Atom feed, plus the agent-to-agent blog once `docs/agent-posts/` has a
@@ -774,7 +785,7 @@ test('llms.txt keeps each tool on one line, so no description leaks into prose',
   const audiences = audienceGroups(surfaces).length;
   const topics = researchHighlights().themes.length;
   const agentBlog = loadPosts(undefined, AGENT_POSTS_DIR).length ? 1 : 0;
-  assert.equal(bullets.length, surfaces.length + 9 + audiences + topics + agentBlog);
+  assert.equal(bullets.length, surfaces.length + 10 + audiences + topics + agentBlog);
   for (const bullet of bullets) {
     assert.match(bullet, /^- \[[^\]]+\]\(https?:\/\/[^)]+\): \S/, `malformed bullet: ${bullet}`);
   }
@@ -783,7 +794,7 @@ test('llms.txt keeps each tool on one line, so no description leaks into prose',
 // Both machine surfaces exist so an assistant can answer "which of these is a
 // gutter tool" without reading 110 sibling descriptions and guessing.
 test('the machine surfaces carry the sub-group a trade tool belongs to', async () => {
-  const llms = await read('llms.txt');
+  const llms = await read('llms-full.txt');
   const subheads = llms.split('\n').filter((line) => line.startsWith('### '));
   assert.ok(subheads.length > 1, 'the trades section is sub-divided in llms.txt too');
   assert.ok(subheads.some((line) => line.includes('Roofing')));
@@ -801,7 +812,7 @@ test('the machine surfaces carry the sub-group a trade tool belongs to', async (
 
 test('llms.txt carries each tool full self-description, not the trimmed card copy', async () => {
   const { surfaces } = await site();
-  const llms = await read('llms.txt');
+  const llms = await read('llms-full.txt');
 
   // The card copy is truncated with an ellipsis to fit a fixed-height tile.
   // Publishing that here would drop most of what the longer-described tools
@@ -820,7 +831,7 @@ test('the hub links llms.txt so it is reachable, not only well-known', async () 
 
 test('llms.txt names every audience page and every research topic', async () => {
   const { surfaces } = await site();
-  const llms = await read('llms.txt');
+  const llms = await read('llms-full.txt');
   assert.match(llms.split('\n')[0], /^# Open Tools and Research$/);
   for (const { audience } of audienceGroups(surfaces)) {
     assert.ok(llms.includes(`](${BASE}c/${audiencePageId(audience)}/)`), `${audience.id} is missing from llms.txt`);
@@ -3852,7 +3863,8 @@ test('the saved-bids script is one file the whole site loads, not 234 copies', a
     assert.ok(!html.includes('var SLUG = '),
       `${path.relative(outDir, file)} still inlines the saved-bids script`);
   }
-  assert.ok(tagged > 200, `only ${tagged} pages carry the band`);
+  // Bid tools only (`slugTakesSavedBids`): about 170 in the fixture site.
+  assert.ok(tagged > 100, `only ${tagged} pages carry the band`);
 });
 
 test('every stylesheet and script this build injects is one file, at the right depth', async () => {
@@ -4549,7 +4561,7 @@ test('llms.txt links a product\'s own LLM docs only when it ships them', () => {
     { slug: 'with-docs', title: 'With docs', description: 'Has a brief.', llmsDoc: true },
     { slug: 'without-docs', title: 'Without docs', description: 'Has none.' },
   ];
-  const llms = renderLlmsTxt(surfaces, BASE);
+  const llms = renderLlmsTxt(surfaces, BASE, [], [], { full: true });
   assert.match(llms, new RegExp(`\\[With docs\\]\\(${BASE}with-docs/\\): Has a brief\\. LLM docs: ${BASE}with-docs/llms\\.txt`));
   assert.ok(!llms.includes(`${BASE}without-docs/llms.txt`));
 });
@@ -5397,6 +5409,7 @@ test('renderCompareProductPage is about one product and claims nothing about it'
   // The searcher's phrase is in the title, where it describes the question the
   // page answers; the heading states only what the linked pages are.
   assert.match(html, /<title>Jobber alternatives: 2 free tools/);
+  assert.match(html, /<title>Jobber alternatives: 2 free tools( \| [^<]+)?<\/title>/, 'no trailing phrase that pushes the title past a results page');
   assert.ok(
     !/better than/i.test(html),
     'this page indexes comparisons; it does not make one',

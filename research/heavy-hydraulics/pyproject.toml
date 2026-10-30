@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "heavy-hydraulics"
+version = "0.1.0"
+description = "Lumped energy accounting of excavator hydraulic circuits over a dig cycle (heavy-hydraulics programme)"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

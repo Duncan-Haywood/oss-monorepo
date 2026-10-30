@@ -1803,13 +1803,13 @@ generative agents, UIST.
    bounded confidence with backfire swept from none to strong? Bridging contact backfires; a
    ladder of committed voices within reach merges the camps in 24 of 25 settings. Ships a
    browser simulator.
-2. `civ-contact`: contact that also widens tolerance (Pettigrew and Tropp's prejudice reduction
+2. `civ-contact` (landed in civ-levers 2026-10-26): contact that also widens tolerance (Pettigrew and Tropp's prejudice reduction
    as a change in ε), and identity: a moderate voice each camp reads as the other side's. Does
    the bridging verdict flip?
 3. `civ-cascades`: Granovetter thresholds and complex contagion on clustered against random
    networks. Where to seed a behaviour (hubs, bridges, clustered patches) and how many seeds it
    takes; check against Centola and Macy (2007) and Centola et al. (2018)'s 25% tipping point.
-4. `civ-culture`: Axelrod's culture model with media and migration. Does a common broadcast
+4. `civ-culture` (first run landed in civ-levers 2026-10-28; broadcast fragments, q_c at L=150 not reproduced): Axelrod's culture model with media and migration. Does a common broadcast
    homogenise or fragment culture (Shibanai, Yasuno and Ishiguro 2001)? Reproduce the
    order–disorder transition of Castellano, Marsili and Vespignani (2000) first.
 5. `civ-commons`: public goods with punishment and institutions. Which sanctioning

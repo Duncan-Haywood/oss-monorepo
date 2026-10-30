@@ -1,0 +1,4 @@
+M=8 mean, no attack: mean 1.5527 [1.5551, 1.5447, 1.5581]
+median scale 1.0: excess vs mean/no-attack [0.0019, 0.0083, -0.0081] mean +0.0007
+median scale -10.0: excess vs mean/no-attack [0.0161, 0.0294, 0.0164] mean +0.0207
+trimmed scale -10.0: excess vs mean/no-attack [0.0256, 0.0341, 0.019] mean +0.0262

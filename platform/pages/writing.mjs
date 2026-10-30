@@ -39,7 +39,7 @@ import { promises as fs, existsSync, readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { esc, renderMarkdown } from '../devlog/markdown.mjs';
-import { SITE_NAME, sponsorsNote, withSiteHeader } from './site-nav.mjs';
+import { SITE_NAME, TITLE_BUDGET, siteTitle, sponsorsNote, withSiteHeader } from './site-nav.mjs';
 import { loadEpisodes, renderPlayer, renderPodcastBody, renderPodcastHero, writePodcastAssets, PODCAST_PATH, SHOW_DESCRIPTION, SHOW_TITLE } from './podcast.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -57,6 +57,7 @@ const RESERVED_SLUGS = new Set(['agents', 'podcast']);
  * exactly one: its `topic:` front matter, else the first rule its tags match.
  */
 export const TOPICS = Object.freeze([
+  { id: 'start', label: 'Start here', blurb: 'Who each project is for, what you get from it, and your first ten minutes with it.' },
   { id: 'agents', label: 'Building with AI agents', blurb: 'How the agent fleet builds, steers and measures itself: process, cost, mistakes and what changed.' },
   { id: 'research', label: 'Research findings', blurb: 'What the open research tracks found, with the numbers and caveats.' },
   { id: 'tools', label: 'Tools and projects', blurb: 'What a tool or project does, who it is for and why it exists.' },
@@ -68,7 +69,8 @@ const INFRA_TAGS = ['github-pages', 'hosting', 'kubernetes', 'github-actions', '
 const AGENT_TAGS = ['ai-agents', 'process', 'prompting', 'prompt-engineering', 'engineering-management'];
 
 /**
- * A post's topic from its tags, first rule wins: opinion pieces are about
+ * A post's topic from its tags, first rule wins: onboarding posts (`start-here`)
+ * are the newcomer's way in, so they group together whatever else they name; opinion pieces are about
  * steering the fleet; then research; then a named tool or channel; then
  * hosting and CI plumbing; then anything about agents; everything else is a tool or project.
  * A post the rules file wrongly says so with `topic:` in its front matter.
@@ -76,6 +78,7 @@ const AGENT_TAGS = ['ai-agents', 'process', 'prompting', 'prompt-engineering', '
 export function topicOf(tags = [], explicit = '') {
   if (explicit) return explicit;
   const has = (list) => tags.some((t) => list.includes(t));
+  if (tags.includes('start-here')) return 'start';
   if (tags.includes('opinion')) return 'agents';
   if (tags.includes('research')) return 'research';
   if (has(TOOL_TAGS)) return 'tools';
@@ -120,46 +123,35 @@ export function parseFrontMatter(src) {
   return { meta, body: text.slice(m[0].length) };
 }
 
-/** Every post in `docs/posts/` (or `dirName`), newest first. Throws on a malformed post so a bad file fails the build. */
-export function loadPosts(root = DEFAULT_ROOT, dirName = POSTS_DIR) {
+/**
+ * Every post in `docs/posts/` (or `dirName`), newest first. Throws on a
+ * malformed post so a bad file fails the build.
+ *
+ * `skipBad` (default: `PAGES_SKIP_BAD_POSTS=1`, which the deploy on `main`
+ * sets) leaves a malformed post out with a warning instead. One over-long
+ * description used to stop every deploy until someone fixed it: on
+ * 2026-10-24, 64 of 100 runs on `main` failed this way and the median merge
+ * took 48 minutes to go live (169 at worst). Pull requests stay strict, and
+ * the `test` job still fails on `main`, so the bad post is still flagged.
+ */
+export function loadPosts(root = DEFAULT_ROOT, dirName = POSTS_DIR, { skipBad = process.env.PAGES_SKIP_BAD_POSTS === '1' } = {}) {
   const POSTS_DIR = dirName; // shadows the module constant so every message names the directory read
   const dir = path.join(root, POSTS_DIR);
   if (!existsSync(dir)) return [];
   const posts = [];
   for (const name of readdirSync(dir).sort()) {
     if (!name.endsWith('.md')) continue;
-    const fm = FILE_RE.exec(name);
-    if (!fm) throw new Error(`${POSTS_DIR}/${name}: name must be <YYYY-MM-DD>-<slug>.md`);
-    const src = readFileSync(path.join(dir, name), 'utf8');
-    const { meta, body } = parseFrontMatter(src);
-    for (const key of ['title', 'description']) {
-      if (!meta[key]) throw new Error(`${POSTS_DIR}/${name}: front matter needs "${key}"`);
+    try {
+      posts.push(loadPost(root, POSTS_DIR, name));
+    } catch (err) {
+      if (!skipBad) throw err;
+      // A GitHub Actions annotation, so the skip shows on the run summary.
+      console.warn(`::warning file=${POSTS_DIR}/${name}::left off the site: ${err.message}`);
     }
-    // The site's checker holds every description to what a search result shows.
-    if (meta.description.length > 160) {
-      throw new Error(`${POSTS_DIR}/${name}: description is ${meta.description.length} characters; keep it to 160`);
-    }
-    const date = String(meta.date || fm[1]);
-    if (date !== fm[1]) throw new Error(`${POSTS_DIR}/${name}: date ${date} does not match the file name`);
-    if (RESERVED_SLUGS.has(fm[2])) throw new Error(`${POSTS_DIR}/${name}: the slug "${fm[2]}" is a section of the blog; pick another`);
-    if (meta.topic && !TOPIC_IDS.has(meta.topic)) {
-      throw new Error(`${POSTS_DIR}/${name}: topic "${meta.topic}" is not one of ${[...TOPIC_IDS].join(', ')}`);
-    }
-    const tags = Array.isArray(meta.tags) ? meta.tags : [];
-    const words = body.split(/\s+/).filter(Boolean).length;
-    posts.push({
-      slug: fm[2],
-      date,
-      title: meta.title,
-      description: meta.description,
-      tags,
-      topic: topicOf(tags, meta.topic),
-      source: `${POSTS_DIR}/${name}`,
-      body,
-      words,
-      minutes: Math.max(1, Math.round(words / 230)),
-    });
   }
+  // A post dated after today waits for its date; the site rebuilds every three hours.
+  const today = new Date().toISOString().slice(0, 10);
+  for (let i = posts.length - 1; i >= 0; i--) if (posts[i].date > today) posts.splice(i, 1);
   // Seen twice means two files would write the same URL.
   const seen = new Set();
   for (const p of posts) {
@@ -167,6 +159,46 @@ export function loadPosts(root = DEFAULT_ROOT, dirName = POSTS_DIR) {
     seen.add(p.slug);
   }
   return posts.sort((a, b) => (a.date === b.date ? a.slug.localeCompare(b.slug) : b.date.localeCompare(a.date)));
+}
+
+/** One post, validated. Throws on a malformed one. */
+function loadPost(root, POSTS_DIR, name) {
+  const dir = path.join(root, POSTS_DIR);
+  const fm = FILE_RE.exec(name);
+  if (!fm) throw new Error(`${POSTS_DIR}/${name}: name must be <YYYY-MM-DD>-<slug>.md`);
+  const src = readFileSync(path.join(dir, name), 'utf8');
+  const { meta, body } = parseFrontMatter(src);
+  for (const key of ['title', 'description']) {
+    if (!meta[key]) throw new Error(`${POSTS_DIR}/${name}: front matter needs "${key}"`);
+  }
+  // The site's checker holds every description to what a search result shows.
+  if (meta.description.length > 160) {
+    throw new Error(`${POSTS_DIR}/${name}: description is ${meta.description.length} characters; keep it to 160`);
+  }
+  if (meta.seo_title && String(meta.seo_title).length > TITLE_BUDGET) {
+    throw new Error(`${POSTS_DIR}/${name}: seo_title is ${String(meta.seo_title).length} characters; keep it to ${TITLE_BUDGET}`);
+  }
+  const date = String(meta.date || fm[1]);
+  if (date !== fm[1]) throw new Error(`${POSTS_DIR}/${name}: date ${date} does not match the file name`);
+  if (RESERVED_SLUGS.has(fm[2])) throw new Error(`${POSTS_DIR}/${name}: the slug "${fm[2]}" is a section of the blog; pick another`);
+  if (meta.topic && !TOPIC_IDS.has(meta.topic)) {
+    throw new Error(`${POSTS_DIR}/${name}: topic "${meta.topic}" is not one of ${[...TOPIC_IDS].join(', ')}`);
+  }
+  const tags = Array.isArray(meta.tags) ? meta.tags : [];
+  const words = body.split(/\s+/).filter(Boolean).length;
+  return {
+    slug: fm[2],
+    date,
+    title: meta.title,
+    seoTitle: meta.seo_title ? String(meta.seo_title) : undefined,
+    description: meta.description,
+    tags,
+    topic: topicOf(tags, meta.topic),
+    source: `${POSTS_DIR}/${name}`,
+    body,
+    words,
+    minutes: Math.max(1, Math.round(words / 230)),
+  };
 }
 
 const longDate = (iso) =>
@@ -237,13 +269,15 @@ const STYLE = `
   .vh { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
 `;
 
-/** Longest `<title>` a search result shows before cutting it off (rule of thumb, as in `serp_snippets.py`). */
-export const TITLE_BUDGET = 70;
+export { TITLE_BUDGET };
 
 /**
  * A post's `<title>`: the headline plus the site name when both fit, else the
  * headline alone, so the words that make a searcher click are never the ones cut.
  * Most headlines here are long enough that the suffix would push them over.
+ * A post can pass its optional `seo_title:` front-matter value instead of the
+ * headline, a shorter query-shaped title for the results page; the `h1` and
+ * the structured data keep the full headline.
  */
 export function postPageTitle(headline) {
   const full = `${headline} · ${SITE_NAME}`;
@@ -484,7 +518,7 @@ function renderPostPage(post, posts, { baseUrl = '', socialCard = '', episode = 
   const topic = `<a class="topic" href="../?topic=${esc(post.topic)}">${esc(topicLabel(post.topic))}</a>`;
   const markdown = isAgents ? ` · <a href="../${esc(post.slug)}.txt" type="text/plain">Markdown (plain text)</a>` : '';
   return shell({
-    title: postPageTitle(post.title),
+    title: postPageTitle(post.seoTitle || post.title),
     description: post.description,
     canonical,
     socialCard,

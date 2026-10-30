@@ -1,0 +1,52 @@
+{
+  "date": "2026-10-26",
+  "session": "https://claude.ai/code/session_01R9Qzy3JUK5cNcqdqy5Eg4Z",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-26T08:28:22Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 10601,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "ai-bookkeeper next: lists 2027 estimate as open but the revenue procedure is not out; a run cannot act on it"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "why": "venture-preflight not run (no new venture; engine change only)"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-26-ai-bookkeeper-receipt-merchant-ocr.md",
+    "ventures/ai-bookkeeper/README.md Next entry"
+  ],
+  "goal": null,
+  "notes": "Installed tesseract via apt, cloned SROIE, merchant exact 33.1->36.6% on OCR, boxes 63.7->63.6. Local checks: 56 receipt/ocr tests pass; CI not awaited.",
+  "corrections": [],
+  "redteam": null
+}

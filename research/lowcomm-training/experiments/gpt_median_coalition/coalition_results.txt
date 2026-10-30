@@ -1,0 +1,4 @@
+k=2: seeds [0, 1] excess over clean median [0.0053, 0.0221] mean +0.0137; predicted +0.0076
+k=4: seeds [0, 1] excess over clean median [0.0414, 0.0517] mean +0.0466; predicted +0.0184
+k=6: seeds [0, 1] excess over clean median [0.1405, 0.1391] mean +0.1398; predicted +0.0371
+k=8: seeds [0, 1] excess over clean median [556403.0496, 482330.7676] mean +519366.9086; predicted +0.0871

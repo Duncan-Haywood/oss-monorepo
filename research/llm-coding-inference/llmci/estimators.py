@@ -194,3 +194,48 @@ def label_shift(f_all, y, f):
     # dp/dq = 1/d ; dp/dfpr = (q - tpr)/d^2 ; dp/dtpr = -(q - fpr)/d^2
     se = math.sqrt(v_q / d**2 + v_f * ((q - tpr) / d**2) ** 2 + v_t * ((q - fpr) / d**2) ** 2)
     return Est(p, se)
+
+
+def neyman_total(sizes, s2, half, z=Z95):
+    """Smallest real-valued total audit size n so that the stratified-PPI half-width is `half` under Neyman
+    allocation n_h proportional to N_h S_h, with the finite-population correction. sizes: stratum sizes N_h;
+    s2: variances S_h^2 of r = y - f in each stratum. Solves z^2 [ (sum W S)^2 / n - sum W_h^2 S_h^2 / N_h ] = half^2,
+    so n = (sum W S)^2 / (half^2 / z^2 + sum W_h^2 S_h^2 / N_h)."""
+    big = sum(sizes)
+    w = [N / big for N in sizes]
+    s = [math.sqrt(v) for v in s2]
+    num = sum(a * b for a, b in zip(w, s)) ** 2
+    return num / (half ** 2 / z ** 2 + sum(a * a * v / N for a, v, N in zip(w, s2, sizes)))
+
+
+def stratified_ppi_tuned(strata, lam=None):
+    """stratified_ppi with a control-variate weight per stratum. Same input. Each stratum is estimated as
+    lam_s * mean(f_all_s) + mean(y - lam_s * f) over its audit; strata combine with weights N_s / N. With lam=None,
+    lam_s = cov_audit(y, f) / var_all(f) (f's variance is known on the whole stratum, so no 1 + n/N term),
+    clipped to [0, 1]; a stratum whose coder is constant gets 0. Pass lam (a number, or one per stratum) to fix it.
+    Variance: sum_s W_s^2 (1 - n_s/N_s) var_s(y - lam_s f) / n_s, plugging in the lam used."""
+    total = sum(s[0] for s in strata)
+    value, var = 0.0, 0.0
+    for i, (big_ns, f_all, y, f) in enumerate(strata):
+        n = len(y)
+        if n < 2 or n > big_ns or len(f_all) != big_ns:
+            raise ValueError("each stratum needs 2 <= n_s <= N_s audited items and all N_s coder codes")
+        if lam is None:
+            vf = _var(f_all)
+            ls = 0.0 if vf == 0 else min(1.0, max(0.0, _cov(y, f) / vf))
+        else:
+            ls = lam[i] if isinstance(lam, (list, tuple)) else lam
+        r = [a - ls * b for a, b in zip(y, f)]
+        w = big_ns / total
+        value += w * (ls * _mean(f_all) + _mean(r))
+        var += w * w * (1 - n / big_ns) * _var(r) / n
+    return Est(value, math.sqrt(var))
+
+
+def stratum_lambda_s2(y_all, f_all):
+    """Oracle control-variate weight and residual variance for one stratum, from y and f on every item:
+    lam = cov(y, f) / var(f) clipped to [0, 1], S2 = var(y - lam f) (sample variance). Feed the S2 values to
+    neyman_total to size an audit for stratified_ppi_tuned (lam=0 gives the human-only plan, lam=1 the plain PPI plan)."""
+    vf = _var(f_all)
+    lam = 0.0 if vf == 0 else min(1.0, max(0.0, _cov(y_all, f_all) / vf))
+    return lam, _var([a - lam * b for a, b in zip(y_all, f_all)])

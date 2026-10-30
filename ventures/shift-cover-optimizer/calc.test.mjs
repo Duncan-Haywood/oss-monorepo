@@ -178,3 +178,65 @@ test("the sample cafe data is pinned (Mon 3pm is 16 customers, Sat 10am is 48)",
   assert.ok(lines.includes("Mon,15,16"));
   assert.ok(lines.includes("Sat,10,48"));
 });
+
+import { demandFromHistory, sampleHistory } from "./calc.mjs";
+
+test("history to demand: counts orders per weekday and hour, averaged over dates", () => {
+  // Two Mondays (2026-10-05, 2026-10-12): 4 orders at 9 on the first, 2 on the second -> mean 3; 10am only on the first.
+  const rows = ["Created At,Total"];
+  for (let i = 0; i < 4; i++) rows.push(`2026-10-05 09:${10 + i},5.00`);
+  rows.push("2026-10-05 10:15,5.00", "2026-10-05 10:45,5.00");
+  for (let i = 0; i < 2; i++) rows.push(`2026-10-12T09:${10 + i}:00,5.00`);
+  const r = demandFromHistory(rows.join("\n"), { stat: "mean", minShare: 0.25 });
+  assert.equal(r.unit, "sales");
+  const lines = r.csv.split("\n");
+  assert.equal(lines[0], "day,hour,sales");
+  assert.ok(lines.includes("Mon,9,15")); // (20 + 10) / 2 days
+  assert.ok(lines.includes("Mon,10,5")); // (10 + 0) / 2 days
+  const parsed = parseDemand(r.csv);
+  assert.equal(parsed.error, undefined);
+  assert.equal(parsed.unit, "demand");
+});
+
+test("history to demand: counts rows when there is no amount column; p80 reads a busy day", () => {
+  const rows = ["Date,Customer"];
+  // five Tuesdays at noon with 1,1,1,1,9 orders
+  [["2026-09-01", 1], ["2026-09-08", 1], ["2026-09-15", 1], ["2026-09-22", 1], ["2026-09-29", 9]].forEach(([d, n]) => { for (let i = 0; i < n; i++) rows.push(`${d} 12:${10 + i},x`); });
+  const mean = demandFromHistory(rows.join("\n"));
+  assert.equal(mean.unit, "orders");
+  assert.ok(mean.csv.split("\n").includes("Tue,12,2.6"));
+  const busy = demandFromHistory(rows.join("\n"), { stat: "p80" });
+  assert.ok(busy.csv.split("\n").includes("Tue,12,1")); // 4th of 5 sorted values: 1,1,1,1,9 -> 1
+});
+
+test("history to demand: quiet hours inside the open span stay open at zero; stray hours drop out", () => {
+  const rows = ["Order time"];
+  for (const d of ["2026-10-05", "2026-10-12", "2026-10-19", "2026-10-26"]) rows.push(`${d} 09:00`, `${d} 12:00`);
+  rows.push("2026-10-05 03:00"); // one stray 3am order on 1 of 4 Mondays = 25% -> kept at minShare 0.25
+  const kept = demandFromHistory(rows.join("\n"), { minShare: 0.25 });
+  assert.ok(kept.csv.split("\n").includes("Mon,3,0.3"));
+  const dropped = demandFromHistory(rows.join("\n"), { minShare: 0.5 });
+  const l = dropped.csv.split("\n");
+  assert.ok(l.includes("Mon,10,0") && l.includes("Mon,11,0") && !l.some((x) => x.startsWith("Mon,3,")));
+});
+
+test("history to demand: reads US, day-first and 12-hour stamps; rejects files with no time of day", () => {
+  const r = demandFromHistory(["When", "10/5/2026 1:30 PM", "25/10/2026 14:05", "2026-10-06 08:00:00Z"].join("\n"));
+  assert.equal(r.error, undefined);
+  assert.equal(r.orders, 3);
+  assert.ok(r.csv.split("\n").includes("Mon,13,1"));
+  assert.ok(r.csv.split("\n").includes("Sun,14,1")); // 25 Oct 2026 is a Sunday
+  assert.ok(r.csv.split("\n").includes("Tue,8,1"));
+  assert.match(demandFromHistory("Date\n2026-10-05\n2026-10-06").error, /date and time/);
+  assert.match(demandFromHistory("x").error, /header/);
+});
+
+test("history to demand: the sample feeds the optimizer end to end", () => {
+  const h = demandFromHistory(sampleHistory(), { stat: "p80" });
+  assert.equal(h.error, undefined);
+  assert.equal(h.dateCount, 28);
+  const parsed = parseDemand(h.csv);
+  const r = optimize(parsed, { wage: 16, perStaff: 12, minStaff: 1, minShiftHours: 4, maxShiftHours: 8 });
+  assert.equal(r.error, undefined);
+  assert.ok(r.shifts > 0 && r.cost > 0);
+});

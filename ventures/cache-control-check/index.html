@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
+<meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%231b7e3c'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EC%3C/text%3E%3C/svg%3E">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Cache-Control Checker — Vary: *, public + Set-Cookie, weak ETags</title>
 <meta name="description" content="Free tool: run a CLI that sends one real request to your site, then paste the JSON here for a plain-English report on Vary: * (uncacheable forever), Cache-Control: public alongside a Set-Cookie header (a shared cache can leak one visitor's cookie to another), and lower-severity caching directive conflicts.">
@@ -90,6 +90,7 @@
   th, td { border: 1px solid #8886; padding: 0.35rem 0.5rem; text-align: left; vertical-align: top; }
   footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #8886; font-size: 0.85rem; opacity: 0.85; }
   footer p { margin: 0.6rem 0; }
+  th[scope="row"] { font-weight: normal; font-size: inherit; text-transform: none; letter-spacing: normal; color: inherit; }
 </style>
 </head>
 <body>
@@ -136,7 +137,7 @@
   <p class="verdict" id="verdict"></p>
   <div id="findings"></div>
   <h3>Raw caching headers</h3>
-  <table id="header-table"><tbody></tbody></table>
+  <table id="header-table"><thead><tr><th scope="col">Header</th><th scope="col">Value</th></tr></thead><tbody></tbody></table>
 </section>
 
 <section class="card">
@@ -201,7 +202,7 @@
     const rows = Object.entries(headers).filter(([, v]) => v !== null);
     els.headerTable.innerHTML = rows.length === 0
       ? '<tr><td>(no caching headers on this response)</td></tr>'
-      : rows.map(([name, value]) => `<tr><td>${escapeHtml(name)}</td><td>${escapeHtml(value)}</td></tr>`).join('');
+      : rows.map(([name, value]) => `<tr><th scope="row">${escapeHtml(name)}</th><td>${escapeHtml(value)}</td></tr>`).join('');
 
     els.reportCard.hidden = false;
     els.reportCard.scrollIntoView({ behavior: 'smooth', block: 'start' });

@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e551b'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EE%3C/text%3E%3C/svg%3E">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>E-invoice Preflight — Check JSON, UBL, CII, or Factur-X</title>
   <meta name="description" content="Free local e-invoice check: drop a JSON, UBL, CII or Factur-X/ZUGFeRD invoice to catch missing fields, bad totals, VAT and IBAN typos. Nothing is uploaded.">
@@ -79,12 +79,17 @@
     footer a { color: #0b5f8a; }
     code { overflow-wrap: anywhere; }
     @media (max-width: 800px) { .layout { grid-template-columns: 1fr; } }
+      .cta-row { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 14px; }
+    a.cta { display: inline-block; padding: 11px 18px; border-radius: 8px; background: #0b5f8a; color: #fff; font-weight: 700; text-decoration: none; }
+    a.cta.alt { background: #dcebf3; color: #084a6d; }
+    a.cta:focus-visible { outline: 3px solid #084a6d; outline-offset: 2px; }
   </style>
 </head>
 <body>
   <header>
     <p class="eyebrow">FOR BOOKKEEPERS AND ERP ADAPTERS</p>
     <h1>Catch invoice defects before you submit.</h1>
+    <p class="cta-row"><a class="cta" href="#drop">Check an invoice</a> <a class="cta alt" href="#drop" id="cta-example">Try a broken example</a></p>
     <p>
       Drop a JSON, UBL, CII, or Factur-X PDF invoice or credit note — or paste the JSON shape —
       and get rule IDs plus a suggested fix for missing fields, totals that do
@@ -191,10 +196,40 @@
   <p>All countries side by side: <a href="e-invoicing-mandates-by-country.html">e-invoicing mandates by country, with dates, formats and what this checker covers</a>.</p>
   <p>Slovakia: domestic B2B and B2G e-invoicing is reported to become mandatory on 1 January 2027 over Peppol; vendor sources only, said plainly. See <a href="slovakia-e-invoice-mandate.html">the Slovak dates and what this checker does not cover</a>.</p>
   <p>Hungary: every domestic B2B invoice is reported to NAV (Online Számla) but there is no general structured e-invoice mandate yet; vendor sources only, said plainly. See <a href="hungary-e-invoice-mandate.html">the Hungarian rules and what this checker does not cover</a>.</p>
+  <p>Denmark: no general B2B e-invoice date, but the Bookkeeping Act pulls businesses onto registered systems and NemHandel in 2027; secondary sources only, said plainly. See <a href="denmark-e-invoice-mandate.html">the Danish dates and what this checker does not cover</a>.</p>
+  <p>Estonia: public buyers have taken e-invoices since 2019 and, since 1 July 2025, a business registered as an e-invoice recipient can require them from suppliers; a full B2B mandate is only discussed for 2027. See <a href="estonia-e-invoice-mandate.html">the Estonian dates, where sources disagree, and what this checker does not cover</a>.</p>
+  <p>Latvia: e-invoices for state budget bodies since 1 January 2025; the domestic B2B mandate was postponed from 2026 to 1 January 2028 (vendor sources only). See <a href="latvia-e-invoice-mandate.html">the Latvian dates and what this checker does not cover</a>.</p>
+  <p>Slovenia: domestic B2B e-invoicing adopted 23 October 2025 for 1 January 2028, PDFs excluded (vendor sources only). See <a href="slovenia-e-invoice-mandate.html">the Slovenian dates and formats</a>.</p>
+  <p>Serbia: every B2B and B2G invoice is cleared through the state SEF platform (UBL 2.1) and the buyer accepts it there; vendor sources only. See <a href="serbia-e-invoice-mandate.html">the Serbian dates, where sources disagree and what this checker does not cover</a>.</p>
+  <p>Czech Republic: public bodies have accepted e-invoices since 2016; no domestic B2B mandate was enacted as of mid-2026 (advisory sources). See <a href="czech-republic-e-invoice-mandate.html">what is known and what is not</a>.</p>
   <p>Singapore: GST InvoiceNow phases in from 1 November 2025 for new voluntary GST registrants. See <a href="singapore-invoicenow-e-invoice-mandate.html">the dates and what is unconfirmed</a>.</p>
   <p>India: GST e-invoices are registered with the government portal above ₹5 crore turnover (secondary guides); this checker does not read India's format, but the page has a GSTIN check and an IRN calculator. See <a href="india-gst-e-invoice-mandate.html">India's rules and what is not covered</a>.</p>
   <p>Australia: federal agencies receive Peppol e-invoices; B2B is voluntary. See <a href="australia-e-invoice-mandate.html">the dates and what is unconfirmed</a>.</p>
   <p>Ireland: structured EN 16931 e-invoicing over Peppol is planned from November 2028 for large corporates, with every VAT-registered business receiving; vendor sources only, said plainly. See <a href="ireland-e-invoice-mandate.html">the Irish phases and what is unconfirmed</a>.</p>
+  <p>Norway: bookkeeping-liable businesses must be able to send EHF / Peppol e-invoices to each other from 1 January 2027; receiving follows in 2030. See <a href="norway-e-invoice-mandate.html">the Norwegian dates and format</a>.</p>
+  <p>Lithuania: B2G e-invoicing is mandatory through SABIS and i.SAF reports invoice data monthly, but no domestic B2B mandate is enacted (2028 and 2030 are floated by secondary sources). See <a href="lithuania-e-invoice-mandate.html">what is in force and what is only planned</a>.</p>
+  <p>United Kingdom: structured e-invoicing for VAT invoices (B2B and B2G) is confirmed from April 2029 over Peppol; phasing and penalties are still to come. See <a href="uk-e-invoice-mandate.html">what is confirmed and what is not</a>.</p>
+  <p>Luxembourg: a draft bill would make domestic B2B e-invoicing mandatory over Peppol, receiving from 1 January 2028 and issuing from July 2028 (large and medium) and January 2029 (all); it is not law yet. See <a href="luxembourg-e-invoice-mandate.html">what the draft says and what is open</a>.</p>
+  <p>Austria: federal government suppliers must send EN 16931 e-invoices (ebInterface or Peppol); B2B is voluntary with no adopted date. See <a href="austria-e-invoice-mandate.html">what is law and what is only forecast</a>.</p>
+  <p>Finland: no domestic B2B e-invoicing mandate yet (voluntary, though a buyer can ask for a structured invoice); government buyers take Peppol BIS 3.0 since 2019 to 2020, and EU rules reach intra-EU B2B in 2030. See <a href="finland-e-invoice-mandate.html">what is reported and what sources disagree on</a>.</p>
+  <p>Japan: since 1 Oct 2023 buyers claim the consumption-tax credit only on a qualified invoice with a T-number, and the transitional credit for unregistered sellers halves on 1 Oct 2026. <a href="japan-invoice-system-e-invoice-mandate.html">Check a T-number and see the dates</a>.</p>
+  <p>Mexico: every invoice is a CFDI, XML stamped by a SAT-authorised PAC, and version 4.0 requires the customer's RFC, exact name, postal code and tax regime. <a href="mexico-cfdi-e-invoice-mandate.html">Check an RFC and see how it works</a>.</p>
+  <p>Colombia: electronic sales invoices are UBL 2.1 XML that the tax authority, DIAN, validates before the buyer gets them, each with a CUFE. <a href="colombia-dian-e-invoice-mandate.html">Check a NIT and see how it works</a>.</p>
+  <p>Chile: tax documents are signed XML numbered with folios the SII authorises, and a received invoice is presumed accepted after 8 days without a claim. <a href="chile-sii-e-invoice-mandate.html">Check a RUT and see how it works</a>.</p>
+  <p>Peru: invoices are electronic payment vouchers (CPE) regulated by SUNAT and issued from its free portal, a company system or a service operator. <a href="peru-sunat-e-invoice-mandate.html">Check a RUC and see how it works</a>.</p>
+  <p>Argentina: an electronic invoice needs a CAE from the tax authority, ARCA, to have tax value. <a href="argentina-arca-e-invoice-mandate.html">Check a CUIT and see how it works</a>.</p>
+  <p>Paraguay: the tax authority DNIT runs the SIFEN, and press reports electronic invoicing brought in by taxpayer group between June 2026 and September 2027. <a href="paraguay-dnit-e-invoice-mandate.html">Check a RUC and see how it works</a>.</p>
+  <p>Ecuador: the tax authority, the SRI, authorises electronic receipts, each identified by a 49-digit clave de acceso. <a href="ecuador-sri-e-invoice-mandate.html">Check a RUC or a clave de acceso and see how it works</a>.</p>
+  <p>Vietnam: electronic invoices have been compulsory for most taxpayers since July 2022, with a tax authority code or without, and Decree 70/2025 added cash-register invoices from June 2025. <a href="vietnam-e-invoice-mandate.html">Check a tax code and see what sources differ on</a>.</p>
+  <p>South Korea: tax invoices must be electronic and reported to the National Tax Service by the next day. <a href="south-korea-e-invoice-mandate.html">Check a business registration number and see what the sources leave open</a>.</p>
+  <p>Israel: tax invoices above NIS 5,000 (before VAT, from 1 June 2026) need an allocation number from the Tax Authority. <a href="israel-allocation-number-e-invoice-mandate.html">Check an ID or company number and see what sources differ on</a>.</p>
+  <p>Uruguay: tax receipts are electronic (CFE) in the tax authority DGI's format, and recent resolutions reportedly extend the duty to all VAT taxpayers. <a href="uruguay-dgi-e-invoice-mandate.html">Check a RUT and see how it works</a>.</p>
+  <p>Brazil: goods invoices are NF-e, XML the state authorises before the goods move, and from July 2026 a new CNPJ can contain letters. <a href="brazil-nfe-e-invoice-mandate.html">Check a CNPJ or CPF and see what sources differ on</a>.</p>
+  <p>Sweden: no domestic B2B e-invoicing mandate yet (optional); public-sector suppliers send e-invoices since 2019, with Peppol BIS 3.0 preferred, and EU rules reach intra-EU B2B in 2030. See <a href="sweden-e-invoice-mandate.html">what is reported and what sources disagree on</a>.</p>
+  <p>Malta: no domestic B2B e-invoicing mandate yet (voluntary); public bodies receive EN 16931 invoices over Peppol BIS 3.0, and EU rules reach intra-EU B2B in 2030. See <a href="malta-e-invoice-mandate.html">what is reported and what sources disagree on</a>.</p>
+  <p>Turkey: e-Fatura is mandatory above TRY 3 million gross sales (TRY 500,000 in some sectors) and e-Arşiv covers every other invoice, in the national UBL-TR format. This checker has no UBL-TR rules. See <a href="turkey-e-invoice-mandate.html">what is reported and what it cannot check</a>.</p>
+  <p>Cyprus: public bodies must receive e-invoices (since 2019) but suppliers are not required to send them, and no domestic B2B mandate has been reported. See <a href="cyprus-e-invoice-mandate.html">what guides report and what is unknown</a>.</p>
+  <p>Switzerland: e-invoices are required from suppliers to the federal administration on contracts of CHF 5,000 or more, with no private B2B mandate. See <a href="switzerland-e-invoice-mandate.html">what is reported and what sources disagree on</a>.</p>
   <p>Belgium: structured Peppol e-invoicing has been mandatory for domestic B2B since 1 January 2026, with fines from the second quarter. See <a href="belgium-e-invoice-mandate.html">the Belgian date, fines and format</a>.</p>
   <p>Poland: KSeF became mandatory on 1 February 2026 for the largest taxpayers and on 1 April 2026 for most others; its FA(3) format is not EN 16931. See <a href="poland-ksef-e-invoice-mandate.html">the Polish dates, penalty position and what to check first</a>.</p>
   <p>Croatia: structured EN 16931 e-invoicing with reporting to the Tax Administration has been mandatory for VAT-registered domestic B2B and B2G since 1 January 2026. See <a href="croatia-e-invoice-mandate.html">the Croatian date and format</a>.</p>
@@ -205,7 +240,7 @@
   <p>Saudi Arabia: ZATCA e-invoicing integrates taxpayers with the Fatoora platform in waves; Wave 24 was due on 30 June 2026 and Wave 25 (taxable turnover above SAR 187,500) must integrate by 1 February 2027. See <a href="saudi-arabia-zatca-e-invoice-mandate.html">the waves and what this checker covers</a>.</p>
   <p>Portugal: no B2B e-invoicing date is confirmed; B2G is phased in, certified software and monthly reporting apply, and PDFs need a qualified signature from 2027 per most sources. See <a href="portugal-e-invoice-mandate.html">what applies and where sources disagree</a>.</p>
   <p>Greece: B2B invoices are cleared through AADE's myDATA platform via a certified provider (MARK number), phased in from early 2026 for larger businesses and from October 2026 for the rest; the format is not EN 16931. See <a href="greece-mydata-e-invoice-mandate.html">the Greek dates and model</a>.</p>
-  <p>Spain: the Verifactu rules for invoicing software were delayed to 1 January 2027 (corporate taxpayers) and 1 July 2027 (others); they are not an e-invoicing mandate. See <a href="spain-verifactu-e-invoice-mandate.html">what Verifactu covers and what this checker does</a>.</p>
+  <p>Spain: B2B e-invoicing starts 6 October 2027 for businesses with turnover above 8 million euro and 6 October 2028 for the rest (Order HAC/1028/2026, as reported); Verifactu, a separate rule for invoicing software, is delayed to 2027. See <a href="spain-verifactu-e-invoice-mandate.html">the dates and what this checker does</a>.</p>
   <p>Italy: e-invoices have gone through the SdI exchange as FatturaPA XML since 2019, a national format rather than EN 16931. See <a href="italy-sdi-e-invoice-mandate.html">how SdI works and what this checker covers</a>.</p>
   <p>Netherlands: e-invoices are mandatory for government suppliers (NLCIUS, a Dutch EN 16931 profile); domestic B2B is still voluntary. See <a href="netherlands-e-invoice-mandate.html">the dates, format and what this checker covers</a>.</p>
   <h3>Should I use this checker or a platform like Avalara?</h3>
@@ -575,5 +610,6 @@
       }
     }
   </script>
+<script>document.getElementById("cta-example").addEventListener("click",function(){var b=document.getElementById("sample");if(b)b.click();});</script>
 </body>
 </html>

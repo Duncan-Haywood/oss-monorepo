@@ -1,0 +1,54 @@
+# milestone 19: learned score vs hand-made ADP, 40 cells, held out by design (lambda 1.0), no flow run
+
+pooled in-sample weights for [la2, lp2, lc1, ld1]: [1.029, 0.421, -0.28, 0.308] (a hand-made ADP has [1, 1, 0, 0] on the first two)
+
+model: mean / median / max regret %, cells>10%, cells better / worse than adp2 by >1 point
+adp2 (hand)                                  7.69   2.48   82.74   12    0 /   0
+adp3 (hand)                                  4.77   1.90   18.15   10    5 /   5
+in-sample ridge R2+R1 (not held out)         6.39   0.90   86.77   10    9 /   4
+ridge R2 (a2,p2)                             7.59   2.48   82.74   12    1 /   0
+ridge R2+R1 (a2,p2,cells,depth)              6.99   1.53   86.77   11    8 /   6
+ridge R3 (a3,p3)                             4.77   1.90   18.15   10    5 /   5
+ridge R2+R3 (a2,p2,a3,p3)                    5.01   1.53   18.15   11    4 /   4
+
+per cell regret: tag design | adp2 adp3 R2 R2+R1 R3 R2+R3
+relaxed adder_op16     |   4.97   4.97   4.97   4.97   4.97   4.97
+relaxed adder_op64     |   2.93   4.03   3.62   3.62   4.03   4.03
+relaxed adder_ripple16 |   0.00   0.00   0.00   0.00   0.00   0.00
+relaxed adder_ripple64 |   0.00   0.00   0.00   0.00   0.00   0.00
+relaxed alu32          |   0.00   0.00   0.00  12.62   0.00   0.00
+relaxed alu8           |   0.00   0.00   0.00   0.00   0.00   0.00
+relaxed barrel128      |   0.00   0.00   0.00   0.00   0.00   0.00
+relaxed barrel16       |  15.12  12.87  15.12   0.00  12.87  12.87
+relaxed barrel64       |  82.74   0.00  82.74  86.77   0.00   0.00
+relaxed cmp_sat12      |   1.83   1.83   1.83   1.83   1.83   1.83
+relaxed crc16          |   0.00   0.00   0.00   0.10   0.00   0.00
+relaxed fifo8x4        |   4.28   0.00   4.28   4.99   0.00   0.60
+relaxed mac4           |   0.00   6.08   0.00   1.23   6.08   0.00
+relaxed mult16         |   0.00   0.00   0.00  19.13   0.00   0.00
+relaxed mult24         |  11.35  17.59  11.35  11.35  17.59  17.59
+relaxed mult32         |  14.12  14.04  14.12  13.17  14.04  14.04
+relaxed mult8          |   0.00   0.00   0.00   0.00   0.00   0.00
+relaxed popcount128    |   0.57   0.57   0.57   0.57   0.57   0.57
+relaxed popcount16     |   0.00   0.00   0.00   0.00   0.00   0.00
+relaxed popcount64     |   2.75   2.75   2.75   0.00   2.75   2.75
+tight   adder_op16     |  18.15  18.15  18.15  18.15  18.15  18.15
+tight   adder_op64     |   7.42  12.72   2.78   2.78  12.72  12.72
+tight   adder_ripple16 |  -0.00  -0.00  -0.00  -0.00  -0.00  -0.00
+tight   adder_ripple64 |   0.00   0.00   0.00   0.00   0.00   0.00
+tight   alu32          |  15.70  15.70  15.70  19.18  15.70  15.70
+tight   alu8           |  10.57  10.57  10.57  10.57  10.57  10.57
+tight   barrel128      |   0.00   0.00   0.00   0.00   0.00   0.00
+tight   barrel16       |  10.38  12.03  10.38   0.00  12.03  12.03
+tight   barrel64       |  32.68   0.00  32.68  26.26   0.00   0.00
+tight   cmp_sat12      |   2.63   2.63   2.63   2.63   2.63   2.63
+tight   crc16          |   8.29   8.29   8.29   0.00   8.29   8.29
+tight   fifo8x4        |  17.34  16.95  17.34  11.98  16.95  17.13
+tight   mac4           |  16.71   1.97  16.71   0.00   1.97  16.71
+tight   mult16         |   2.12   2.12   2.12   3.44   2.12   2.12
+tight   mult24         |   0.39   0.44   0.39   0.39   0.44   0.44
+tight   mult32         |   0.77   0.77   0.77   0.00   0.77   0.77
+tight   mult8          |  12.43  12.43  12.43  12.43  12.43  12.43
+tight   popcount128    |   2.33   2.33   2.33   2.33   2.33   2.33
+tight   popcount16     |   1.23   1.23   1.23   1.23   1.23   1.23
+tight   popcount64     |   7.91   7.91   7.91   7.91   7.91   7.91

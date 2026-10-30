@@ -1,0 +1,49 @@
+{
+  "date": "2026-10-26",
+  "session": "https://claude.ai/code/session_01M66BiEhqLCJV8kAGmTRMuc",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there (scheduled run)",
+  "input_sha256": "f0e69490fe1b3fd6202ab3cb325f5b409a6fa9b5b399cc8beeec58853b8ab54d",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-26T08:13:53Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/10597",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "first m7q run had non-exchangeable uniform-PPI summand order (coverage 0%); fixed and disclosed in LOG.md"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "No new blog post: scheduled research run, result is a negative step recorded in LOG.md and the paper; writeups limited to LOG and paper."
+    }
+  ],
+  "writeups": [
+    "research/sim2real-inference/LOG.md (m7q)",
+    "research/sim2real-inference/paper/main.tex"
+  ],
+  "goal": null,
+  "notes": "",
+  "corrections": [],
+  "redteam": null
+}

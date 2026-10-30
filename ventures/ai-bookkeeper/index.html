@@ -1,15 +1,21 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%231b587e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EA%3C/text%3E%3C/svg%3E">
   <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="theme-color" content="#23613f">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Bookkeeper">
   <title>AI Bookkeeper: free double-entry books from your bank CSV, that learn</title>
   <meta name="description" content="Free AI bookkeeping in your browser. Import bank and card CSVs, get an account suggested for every line with a reason, file the review queue once and it learns your payees. Transfers paired, trial balance, P&amp;L, balance sheet, close checks, QuickBooks and Xero journals. Nothing uploaded.">
   <meta property="og:title" content="AI Bookkeeper: double-entry books that learn from your corrections">
   <meta property="og:description" content="Bank and card CSVs in, balanced books out. Learns your payees, pairs transfers, reconciles to the statement, exports QuickBooks Online, Xero and IIF journals. Optional AI on your own key or a local model.">
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "AI Bookkeeper", "applicationCategory": "FinanceApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Double-entry bookkeeping from bank and card CSV exports. Suggests an account for every line with a confidence and a reason, learns from each line you confirm, pairs transfers between your own accounts, reconciles to the statement's running balance, and produces a trial balance, profit and loss, balance sheet, close checks and journals for QuickBooks Online, Xero and QuickBooks Desktop. Optional AI suggestions on your own API key or a model on your own computer. Runs in the browser.", "featureList": "bank CSV import, transaction categorization, learns payees, review queue, transfer matching, double-entry journal, trial balance, profit and loss, balance sheet, bank reconciliation, close checklist, QuickBooks Online journal import, Xero manual journal, IIF, bring-your-own-key AI, local model (Ollama, LM Studio)"}</script>
-  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What does AI Bookkeeper actually do with my bank file?", "acceptedAnswer": {"@type": "Answer", "text": "It reads each line, suggests the account it belongs to with a confidence and the reason, and turns every line you accept into a balanced double-entry journal entry. From those entries it builds a trial balance, a profit and loss by month and a balance sheet. The file is read in your browser and never uploaded."}}, {"@type": "Question", "name": "How does it learn?", "acceptedAnswer": {"@type": "Answer", "text": "Every line you file is remembered by its payee, cleaned of store numbers and reference codes. Next time the same payee posts itself once you have filed it the same way three times, and a small naive Bayes classifier trained on everything you filed suggests accounts for payees it has not seen exactly. On a synthetic year of a small studio's lines, 60% of each month posted by itself from the fourth month on, and 1 of those 1,300 lines went to the wrong account."}}, {"@type": "Question", "name": "Is the AI required, and where does my data go?", "acceptedAnswer": {"@type": "Answer", "text": "No. The rules, memory and classifier run in your browser with no key. If you add your own Anthropic, OpenAI or Gemini key, or point it at a model on your own computer such as Ollama or LM Studio, the dates, descriptions and amounts of the lines still in review, your chart of accounts and up to 40 lines you already filed are sent from your browser straight to that provider, never to us. The model only suggests; nothing is posted until you accept it."}}, {"@type": "Question", "name": "Why doesn't a credit card payment show up as an expense?", "acceptedAnswer": {"@type": "Answer", "text": "Because it is not one. Paying the card from checking moves money between two of your own accounts. When you import both statements, the payment out of checking and the payment received on the card are paired into one transfer entry, so the expense is counted once, when you bought the thing."}}, {"@type": "Question", "name": "Can I take the books to QuickBooks or Xero, or to my accountant?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Export a QuickBooks Online journal entry import, a Xero manual journal CSV, a QuickBooks Desktop IIF file, a plain journal CSV, or a CSV of every line with its account, suggestion and reason. Check the account names match your company file before you import."}}, {"@type": "Question", "name": "Where are my books saved?", "acceptedAnswer": {"@type": "Answer", "text": "In this browser's local storage and in the books file you download. Nothing is kept on a server. Download the books file regularly; clearing site data deletes the copy in the browser."}}, {"@type": "Question", "name": "Is this a replacement for an accountant?", "acceptedAnswer": {"@type": "Answer", "text": "No. It does the sorting and the arithmetic of bookkeeping and tells you what to check. It does not know your tax position, accrual adjustments, depreciation, payroll filings or sales tax rules. Have a qualified accountant review the books before you file anything."}}]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What does AI Bookkeeper actually do with my bank file?", "acceptedAnswer": {"@type": "Answer", "text": "It reads each line, suggests the account it belongs to with a confidence and the reason, and turns every line you accept into a balanced double-entry journal entry. From those entries it builds a trial balance, a profit and loss by month and a balance sheet. The file is read in your browser and never uploaded."}}, {"@type": "Question", "name": "How does it learn?", "acceptedAnswer": {"@type": "Answer", "text": "Every line you file is remembered by its payee, cleaned of store numbers and reference codes. Next time the same payee posts itself once you have filed it the same way three times, and a small naive Bayes classifier trained on everything you filed suggests accounts for payees it has not seen exactly. On a synthetic year of a small studio's lines, 60% of each month posted by itself from the fourth month on, and 1 of those 1,300 lines went to the wrong account."}}, {"@type": "Question", "name": "Is the AI required, and where does my data go?", "acceptedAnswer": {"@type": "Answer", "text": "No. The rules, memory and classifier run in your browser with no key. If you add your own Anthropic, OpenAI or Gemini key, or point it at a model on your own computer such as Ollama or LM Studio, the dates, descriptions and amounts of the lines still in review, your chart of accounts and up to 40 lines you already filed are sent from your browser straight to that provider, never to us. The model only suggests; nothing is posted until you accept it."}}, {"@type": "Question", "name": "Why doesn't a credit card payment show up as an expense?", "acceptedAnswer": {"@type": "Answer", "text": "Because it is not one. Paying the card from checking moves money between two of your own accounts. When you import both statements, the payment out of checking and the payment received on the card are paired into one transfer entry, so the expense is counted once, when you bought the thing."}}, {"@type": "Question", "name": "Can I take the books to QuickBooks or Xero, or to my accountant?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Export a QuickBooks Online journal entry import, a Xero manual journal CSV, a QuickBooks Desktop IIF file, a plain journal CSV, or a CSV of every line with its account, suggestion and reason. Check the account names match your company file before you import."}}, {"@type": "Question", "name": "Where are my books saved?", "acceptedAnswer": {"@type": "Answer", "text": "In this browser's local storage and in the books file you download. In Chrome, Edge or Opera you can also keep a live copy in a file you pick (a synced folder works). Nothing is kept on a server. Download the books file regularly; clearing site data deletes the copy in the browser."}}, {"@type": "Question", "name": "Is this a replacement for an accountant?", "acceptedAnswer": {"@type": "Answer", "text": "No. It does the sorting and the arithmetic of bookkeeping and tells you what to check. It does not know your tax position, accrual adjustments, depreciation, payroll filings or sales tax rules. Have a qualified accountant review the books before you file anything."}}]}</script>
   <style>
     :root { font: 16px system-ui, sans-serif; color: #1c2430; background: #f3f5f2; }
     body { max-width: 1120px; margin: auto; padding: 28px; }
@@ -48,6 +54,10 @@
     .reason { font-size: .8rem; color: #4a5560; }
     footer { margin-top: 28px; border-top: 1px solid #d5ddd6; padding-top: 16px; }
     details summary { cursor: pointer; font-weight: 700; color: #183d2a; }
+    .cta-row { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 14px; }
+    a.cta { display: inline-block; padding: 11px 18px; border-radius: 8px; background: #23613f; color: #fff; font-weight: 700; text-decoration: none; }
+    a.cta.alt { background: #e3ece5; color: #183d2a; }
+    a.cta:focus-visible { outline: 3px solid #183d2a; outline-offset: 2px; }
     @media (max-width: 720px) { body { padding: 16px; } .card { padding: 16px; } }
   </style>
 </head>
@@ -55,8 +65,9 @@
   <header>
     <p class="note">AI BOOKKEEPER · DOUBLE-ENTRY · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
     <h1>Books from your bank file that learn your business.</h1>
+    <p class="cta-row"><a class="cta" href="#h-import">Import a bank file</a> <a class="cta alt" href="#h-import" id="cta-example">Try the example</a></p>
     <p>Import the <strong>CSV from your bank and your card</strong>. Every line gets a <strong>suggested account, a confidence and the reason</strong>. You file the ones it is unsure of, and it <strong>remembers</strong>: next month the payees you have filed post themselves. A card payment from checking is <strong>paired into one transfer</strong>, not counted as an expense. Out come a <strong>trial balance, profit and loss and balance sheet</strong>, the <strong>close checks</strong> a bookkeeper runs, and journals for <strong>QuickBooks Online, Xero</strong> or your accountant.</p>
-    <p class="note">AI is optional: on your own API key or a model running on your own computer, it suggests accounts for the lines still in review, and never posts by itself. Independent of every bank, card issuer and accounting software company. Not accounting or tax advice. New to this? Read <a href="./how-to-do-bookkeeping-from-bank-statements.html">how to do bookkeeping from bank statements</a>, with a worked example of the two mistakes that turn a profit into a loss. Moving to QuickBooks or Xero? See <a href="./bank-statement-to-quickbooks-xero.html">bank statement to QuickBooks or Xero</a> or a <a href="./mint-export-to-business-books.html">Mint-style export</a>. Selling online? See bookkeeping for <a href="./stripe-bookkeeping.html">Stripe</a>, <a href="./shopify-bookkeeping.html">Shopify</a>, <a href="./amazon-seller-bookkeeping.html">Amazon sellers</a> <a href="./etsy-bookkeeping.html">Etsy</a> and <a href="./airbnb-bookkeeping.html">Airbnb hosts</a>; got a 1099-K that does not match? <a href="./form-1099-k-reconciliation.html">Bridge it to your books</a>.</p>
+    <p class="note">AI is optional: on your own API key or a model running on your own computer, it suggests accounts for the lines still in review, and never posts by itself. Independent of every bank, card issuer and accounting software company. Not accounting or tax advice. New to this? Read <a href="./how-to-do-bookkeeping-from-bank-statements.html">how to do bookkeeping from bank statements</a>, with a worked example of the two mistakes that turn a profit into a loss. Moving to QuickBooks or Xero? See <a href="./bank-statement-to-quickbooks-xero.html">bank statement to QuickBooks or Xero</a> or a <a href="./mint-export-to-business-books.html">Mint-style export</a>. Selling online? See bookkeeping for <a href="./stripe-bookkeeping.html">Stripe</a>, <a href="./shopify-bookkeeping.html">Shopify</a>, <a href="./square-bookkeeping.html">Square</a>, <a href="./paypal-bookkeeping.html">PayPal</a>, <a href="./amazon-seller-bookkeeping.html">Amazon sellers</a> <a href="./etsy-bookkeeping.html">Etsy</a>, <a href="./ebay-bookkeeping.html">eBay</a>, <a href="./reseller-bookkeeping.html">Poshmark, Mercari and Depop</a>, <a href="./freelancer-bookkeeping.html">freelancers</a> and <a href="./airbnb-bookkeeping.html">Airbnb hosts</a>, <a href="./driver-bookkeeping.html">rideshare and delivery drivers</a>, <a href="./creator-bookkeeping.html">creators</a>, <a href="./restaurant-bookkeeping.html">restaurants</a>, <a href="./realtor-bookkeeping.html">real estate agents</a>, <a href="./cleaning-bookkeeping.html">house cleaners</a>, <a href="./landscaping-bookkeeping.html">landscaping</a>, <a href="./salon-bookkeeping.html">hair salons and barbers</a>, <a href="./trainer-bookkeeping.html">personal trainers</a>, <a href="./petcare-bookkeeping.html">pet sitters and dog walkers</a>, <a href="./massage-bookkeeping.html">massage therapists and estheticians</a>, <a href="./daycare-bookkeeping.html">home daycares</a>, <a href="./therapist-bookkeeping.html">therapists and counselors</a>, <a href="./marketvendor-bookkeeping.html">farmers market and cottage food vendors</a>, <a href="./photographer-bookkeeping.html">photographers</a>, <a href="./tutor-bookkeeping.html">tutors and online teachers</a>, <a href="./club-bookkeeping.html">club and PTO treasurers</a>, <a href="./trades-bookkeeping.html">plumbers, HVAC and electricians</a>; want your tax deadlines in your calendar? <a href="./tax-calendar.html">Free tax calendar (.ics)</a>; got a 1099-K that does not match? <a href="./form-1099-k-reconciliation.html">Bridge it to your books</a>.</p>
   </header>
 
   <main>
@@ -240,7 +251,7 @@
       <p class="note">Shown at the top of an invoice or credit note. Kept in your books file only; nothing is sent anywhere.</p>
       <label for="pf-name">Business name</label><input id="pf-name" autocomplete="organization">
       <label for="pf-address">Address</label><textarea id="pf-address" rows="2"></textarea>
-      <label for="pf-email">Email</label><input id="pf-email" type="email">
+      <label for="pf-email">Email</label><input id="pf-email" type="email" autocomplete="email">
       <label for="pf-taxId">Tax or VAT number</label><input id="pf-taxId">
       <label for="pf-payTo">How to pay you (bank details, payment link)</label><textarea id="pf-payTo" rows="2"></textarea>
       <label for="pf-terms">Terms</label><input id="pf-terms" placeholder="Payment due within 30 days">
@@ -248,6 +259,15 @@
     </details>
     <div class="scroll" id="aging"></div>
     <div class="scroll" id="salestax"></div>
+    <details id="str-box" hidden>
+      <summary>Sales tax return worksheet (by jurisdiction and filing period)</summary>
+      <p class="note">Splits the tax on your invoices by the jurisdiction named in each tax line's description, per filing period, with the due date, a rate check and the vendor discount. A worksheet to check a return against, not a filing: rates, exemptions, discounts and due dates are your state's to say.</p>
+      <p><label for="str-freq">Filing frequency</label> <select id="str-freq"><option value="monthly">Monthly</option><option value="quarterly" selected>Quarterly</option><option value="semiannual">Semiannual</option><option value="annual">Annual</option></select>
+      <label for="str-state">State (sets due day and year)</label> <select id="str-state"><option value="">Other (20th of the month after)</option></select></p>
+      <p><label for="str-rate">Expected rates, one per line, <code>CA state=7.25</code></label><br><textarea id="str-rate" rows="2" cols="34"></textarea>
+      <label for="str-disc">Vendor discounts, one per line, <code>TX state=0.5</code> or <code>IL state=1.75,1000/mo</code></label><br><textarea id="str-disc" rows="2" cols="34"></textarea></p>
+      <div class="scroll" id="str"></div>
+    </details>
   </section>
 
   <section class="card" aria-labelledby="h-open">
@@ -272,11 +292,15 @@
     </div>
     <h3>Profit and loss</h3>
     <div class="scroll" id="pnl"></div>
+    <div id="cashpnl"></div>
     <h3>Balance sheet</h3>
     <div class="scroll" id="bs"></div>
     <h3>Cash flow</h3>
     <p class="note">Indirect method: net profit adjusted for receivables, payables, tax and the like, then purchases of fixed assets, then loans and owner money. A card counts as a liability, so card spending shows as operating until the card is paid. The sections add up to the change in your bank accounts.</p>
     <div class="scroll" id="cf"></div>
+    <h3>Ratios</h3>
+    <p class="note">What a lender reads off the statements. Current assets are cash, receivables and the like; the quick ratio leaves out prepaid and inventory. The loan counts as long term, so a payment due this year is understated. n/a means the figure under the line is zero or negative.</p>
+    <div class="scroll" id="ratios"></div>
     <details><summary>Trial balance</summary><div class="scroll" id="tb"></div></details>
     <h3>US Schedule C worksheet</h3>
     <p class="note">For a US sole proprietor or single-member LLC: the profit and loss regrouped onto the lines of Schedule C, with meals cut to 50%. A worksheet for you or your preparer, not a filing; it leaves out depreciation and self-employment tax; miles and a simplified home office come in from the card below the reports.</p>
@@ -311,8 +335,10 @@
     <p class="note">Takes the year's Schedule C profit (annualised from the months elapsed), self-employment tax, the standard deduction and a simplified 20% QBI deduction, then the bracket tax, and spreads the IRS safe harbour (the smaller of 90% of this year's total and 100% of last year's tax, 110% above $150,000 AGI) over the Form 1040-ES dates still ahead. Leaves out state tax, credits and itemising. A worksheet, not tax advice; the year is that of the From date (or your latest year). Blank boxes mean zero.</p>
     <p><label>Filing status <select id="est-filing"><option value="single">Single</option><option value="mfj">Married filing jointly</option><option value="hoh">Head of household</option></select></label> <label>Months of the year in the books <input id="est-months" inputmode="numeric" size="3" value="12"></label></p>
     <p><label>Wages elsewhere $ <input id="est-wages" inputmode="decimal" size="9"></label> <label>Other income $ <input id="est-other" inputmode="decimal" size="9"></label> <label>Withholding $ <input id="est-withheld" inputmode="decimal" size="9"></label> <label>Already paid in estimates $ <input id="est-paid" inputmode="decimal" size="9"></label></p>
-    <p><label>Last year's total tax $ <input id="est-prior" inputmode="decimal" size="9"></label> <label>Last year's AGI $ <input id="est-prior-agi" inputmode="decimal" size="9"></label> <button type="button" id="est-run">Estimate</button> <span id="est-status" class="note" role="status"></span></p>
+    <p><label>Last year's total tax $ <input id="est-prior" inputmode="decimal" size="9"></label> <label>Last year's AGI $ <input id="est-prior-agi" inputmode="decimal" size="9"></label> <label>Self-employed health premiums $ <input id="est-health" inputmode="decimal" size="8"></label> <label>SEP / solo 401(k) paid $ <input id="est-retire" inputmode="decimal" size="8"></label> <label>Children under 17 <input id="est-children" inputmode="numeric" size="3"></label> <label>Other dependents <input id="est-other-deps" inputmode="numeric" size="3"></label> <label>People 65 or older (0-2) <input id="est-over65" inputmode="numeric" size="2"></label> <label>Blind (0-2) <input id="est-blind" inputmode="numeric" size="2"></label> <label>Earned income credit, qualifying children (blank = none claimed) <input id="est-eitc" inputmode="numeric" size="2"></label> <label>State flat income-tax rate % (blank = federal only) <input id="est-state-rate" inputmode="decimal" size="5"></label> <label>State deduction $ <input id="est-state-ded" inputmode="decimal" size="8"></label> <label>State tax withheld $ <input id="est-state-wh" inputmode="decimal" size="8"></label> <label><input type="checkbox" id="est-service"> Service business (QBI phase-out)</label> <label>W-2 wages the business paid $ <input id="est-bizwages" inputmode="decimal" size="8"></label> <button type="button" id="est-run">Estimate</button> <button type="button" id="est-annual" class="secondary">Annualized installments (lumpy income)</button> <label>S-corp owner salary $ (blank = half the profit) <input id="scorp-salary" inputmode="decimal" size="8"></label> <label>S-corp yearly running cost $ (blank = 1,500) <input id="scorp-cost" inputmode="decimal" size="8"></label> <button type="button" id="est-scorp" class="secondary">Would an S corporation save tax?</button> <span id="est-status" class="note" role="status"></span></p>
     <div class="scroll" id="est"></div>
+    <div class="scroll" id="annual"></div>
+    <div class="scroll" id="scorp"></div>
   </section>
 
   <section class="card" aria-labelledby="h-budget">
@@ -320,6 +346,12 @@
     <p class="note">Set a monthly amount for an income or expense account, then see it beside what was posted in the From and To dates above (the latest month if they are empty). "Better" and "worse" mean for profit. Lines still waiting in the queue are not counted.</p>
     <p><label>Account <select id="budget-account"></select></label> <label>Per month <input id="budget-amount" inputmode="decimal" placeholder="200.00" size="10"></label> <button type="button" id="budget-set" class="secondary">Set budget</button> <span id="budget-status" class="note" role="status"></span></p>
     <div class="scroll" id="budget"></div>
+  </section>
+
+  <section class="card" aria-labelledby="h-compare">
+    <h2 id="h-compare">This period against the last</h2>
+    <p class="note">Profit and loss for the From and To dates above beside the period of the same length just before it (the latest month against the month before, if the dates are empty): income, expenses, net, then every account that moved, largest change first. It reports the difference and does not explain it. Lines still waiting in the queue are in neither period.</p>
+    <div class="scroll" id="compare"></div>
   </section>
 
   <section class="card" aria-labelledby="h-recon">
@@ -340,6 +372,7 @@
     <h2 id="h-receipts">Optional: match receipts to bank lines</h2>
     <p class="note">Paste the text of receipts (typed, copied from an email, or read off a photo by any OCR tool), with a line of <code>---</code> between them. Each is read into a merchant, date, total and tax, then paired with the bank or card line that paid it (the same amount, within a few days; a tip up to 25% on top counts when the name agrees). Below: receipts with no bank line, and spending over the amount you choose that has no receipt. The text stays in this browser. A reading aid, not a statement of what any tax authority requires you to keep.</p>
     <p><textarea id="receipts-text" aria-label="Receipt text, one receipt per block" rows="6" placeholder="Blue Bottle Coffee&#10;03/14/2026&#10;Subtotal 9.75&#10;Sales Tax 0.87&#10;Total 10.62&#10;---&#10;Hardware Hank&#10;2026-03-16&#10;Total 43.20" style="width:100%;font-family:monospace"></textarea></p>
+    <p><label class="secondary" style="cursor:pointer"><input type="file" id="receipts-photos" accept="image/*" multiple> Receipt photos</label> <span class="note">read on this computer; the first photo downloads a ~20&nbsp;MB reader from jsDelivr. Check the text before you press Read receipts.</span></p>
     <p><button type="button" id="receipts-read" class="secondary">Read receipts</button> <label>Ask for a receipt at or over <input id="receipts-min" inputmode="decimal" value="75" size="6"></label> <button type="button" id="receipts-clear" class="secondary">Remove all receipts</button> <span id="receipts-status" class="note" role="status"></span></p>
     <div class="scroll" id="receipts"></div>
   </section>
@@ -369,6 +402,13 @@
     <button type="button" class="secondary" id="save">Download the books file</button>
     <label for="open">Open a books file</label><input id="open" type="file" accept=".json,application/json">
     <button type="button" class="secondary" id="clear">Start empty books</button>
+    <div id="live-box" hidden>
+      <button type="button" class="secondary" id="live-new">Keep a live copy in a new file</button>
+      <button type="button" class="secondary" id="live-open">Open a books file and keep it saved</button>
+      <button type="button" class="secondary" id="live-resume" hidden></button>
+      <button type="button" class="secondary" id="live-stop" hidden>Stop saving to the file</button>
+      <p class="note" id="live-status" role="status" aria-live="polite">Pick a file, for example in a synced folder (iCloud Drive, Dropbox, OneDrive, Google Drive), and every change is saved to it as you work. The file stays on your device; this page never uploads it. Needs Chrome, Edge or Opera.</p>
+    </div>
     <p id="save-status" class="note" role="status" aria-live="polite"></p>
   </section>
 
@@ -404,7 +444,7 @@
     <h3>Can I take the books to QuickBooks or Xero, or to my accountant?</h3>
     <p>Yes. Export a QuickBooks Online journal entry import, a Xero manual journal CSV, a QuickBooks Desktop IIF file, a plain journal CSV, or a CSV of every line with its account, suggestion and reason. Check the account names match your company file before you import.</p>
     <h3>Where are my books saved?</h3>
-    <p>In this browser's local storage and in the books file you download. Nothing is kept on a server. Download the books file regularly; clearing site data deletes the copy in the browser.</p>
+    <p>In this browser's local storage and in the books file you download. In Chrome, Edge or Opera you can also keep a live copy in a file you pick (a synced folder works). Nothing is kept on a server. Download the books file regularly; clearing site data deletes the copy in the browser.</p>
     <h3>Is this a replacement for an accountant?</h3>
     <p>No. It does the sorting and the arithmetic of bookkeeping and tells you what to check. It does not know your tax position, accrual adjustments, depreciation, payroll filings or sales tax rules. Have a qualified accountant review the books before you file anything.</p>
   </section>
@@ -418,7 +458,9 @@
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Related: <a href="../payment-reconciliation-workbench/">payment reconciliation workbench</a>, <a href="../sales-export-to-journal/">sales export to journal</a>, <a href="../freelancer-schedule-c-categorizer/">Schedule C categorizer</a>, <a href="../quickbooks-import-csv-check/">QuickBooks import CSV check</a>.</p>
     <p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> or <a href="https://buymeacoffee.com/duncanhaywood" rel="noopener">buy me a coffee</a> is entirely optional and never changes what the tool does.</p>
+  <p class="more-pages">Also: <a href="tattoo-bookkeeping.html">Tattoo Artist Bookkeeping From a Bank Statement</a> · <a href="eventpro-bookkeeping.html">Wedding DJ, Planner and Florist Bookkeeping From a Bank Statement</a> · <a href="inspector-bookkeeping.html">Home Inspector Bookkeeping From a Bank Statement</a> · <a href="vending-bookkeeping.html">Vending Route Bookkeeping From a Bank Statement</a> · <a href="rental-property-bookkeeping.html">Rental Property Bookkeeping for Landlords: Schedule E by Property (Free, Open Source)</a> · <a href="smallfarm-bookkeeping.html">Small Farm and CSA Bookkeeping From a Bank Statement</a> · <a href="detailing-bookkeeping.html">Mobile Detailer Bookkeeping From a Bank Statement</a> · <a href="autorepair-bookkeeping.html">Auto Repair Shop Bookkeeping From a Bank Statement</a> · <a href="trucking-bookkeeping.html">Owner-Operator Trucker Bookkeeping From a Bank Statement</a></p>
   </footer>
+  <script>if ("serviceWorker" in navigator) addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));</script>
   <script type="module">
     import { sniffFormat, splitOfx, splitQif, readStatement } from "./bank.mjs";
     import { scheduleC, scheduleCCsv, contractors1099, contractors1099Csv, nec1099FilingCsv, markW9, mergePayees } from "./taxforms.mjs";
@@ -436,10 +478,15 @@
     import { planBills } from "./billpay.mjs";
     import { setBudget, budgetVsActual } from "./budget.mjs";
     import { reconcile } from "./reconcile.mjs";
+    import { cashBasis } from "./cashbasis.mjs";
+    import { compareProfit, precedingPeriod } from "./compare.mjs";
     import { readPayoutReport, planPayouts, applyPayouts } from "./payouts.mjs";
     import { addPayroll, planPayroll, applyPayroll, payrollSummary, form941, employerCost } from "./payroll.mjs";
     import { addTrip, removeTrip, setHomeOffice, mileageDeduction, homeOfficeDeduction } from "./deductions.mjs";
     import { estimatedTax } from "./estimatedtax.mjs";
+    import { annualizedInstallments } from "./annualized.mjs";
+    import { scorpFromBooks } from "./scorp.mjs";
+    import { salesTaxReturn, parseRateSpecs, parseDiscountSpecs, stateDiscounts, stateDueDay, stateEndMonth, stateFilingNote, STATE_DUE_DAYS } from "./salestaxreturn.mjs";
     import { closeYear, reopenYear, yearEndReport } from "./yearend.mjs";
     import { addReceipts, receiptReport, taxOnReceipts, planReceiptSplit, splitFromReceipt } from "./receipts.mjs";
     import { renderInvoice, setProfile, PROFILE_KEYS } from "./invoice.mjs";
@@ -448,13 +495,15 @@
     import { aiSuggest } from "./ai.mjs";
     import { detectLocal, isLocal } from "./byok.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    import { liveFileSupported, pickNewFile, pickExistingFile, readBooksFromHandle, ensureWritable, createLiveWriter, serializeBooks, rememberHandle, recallHandle, forgetHandle } from "./livefile.mjs";
 
     const $ = (sel) => document.querySelector(sel);
     const STORE = "ai-bookkeeper-books", AI_STORE = "ai-bookkeeper-ai";
     const el = (tag, attrs = {}, ...kids) => { const e = document.createElement(tag); for (const [k, v] of Object.entries(attrs)) { if (k === "class") e.className = v; else if (k === "text") e.textContent = v; else e.setAttribute(k, v); } for (const k of kids) e.append(k); return e; };
     const load = () => { try { const s = localStorage.getItem(STORE); return s ? JSON.parse(s) : null; } catch { return null; } };
     let books = load() ?? newBooks();
-    const persist = () => { try { localStorage.setItem(STORE, JSON.stringify(books)); } catch { $("#save-status").textContent = "This browser would not save the books (private window or storage full). Download the books file to keep them."; } };
+    let live = null;
+    const persist = () => { live?.schedule(); try { localStorage.setItem(STORE, JSON.stringify(books)); } catch { $("#save-status").textContent = "This browser would not save the books (private window or storage full). Download the books file to keep them."; } };
     const opts = () => ({ autoPost: Math.min(1, Math.max(0.5, parseFloat($("#auto").value) || 0.85)), invert: $("#invert").checked || undefined, dayFirst: $("#dayfirst").checked || undefined });
     const name = (c) => books.accounts.find((a) => a.code === c)?.name ?? c;
 
@@ -514,11 +563,25 @@
       const p = r.profitAndLoss, m = p.months;
       const line = (l) => [l.name, ...l.months.map((v) => fmt(v)), fmt(l.total)];
       $("#pnl").replaceChildren(m.length ? table(["Account", ...m, "Total"], [...p.income.map(line), ["Total income", ...p.incomeByMonth.map((v) => fmt(v)), fmt(p.totalIncome)], ...p.expense.map(line)], [["Total expenses", ...p.expenseByMonth.map((v) => fmt(v)), fmt(p.totalExpense)], ["Net profit", ...p.netByMonth.map((v) => fmt(v)), fmt(p.net)]]) : el("p", { class: "note", text: "Nothing posted yet." }));
+      const cb = (books.documents ?? []).length ? cashBasis(books, { from: $("#from").value || null, to: $("#to").value || null }) : null;
+      if (!cb) $("#cashpnl").replaceChildren();
+      else {
+        const cp = cb.profitAndLoss;
+        $("#cashpnl").replaceChildren(
+          el("h3", { text: "Profit and loss, cash basis" }),
+          el("p", { class: "note", text: "The same books on the cash method most US sole proprietors file on: income when the money arrives, an expense when it is paid. Check which method your return uses." }),
+          table(["", "Amount"], [["Total income", fmt(cp.totalIncome)], ["Total expenses", fmt(cp.totalExpense)]], [["Net profit (cash)", fmt(cp.net)], ["Net profit (accrual)", fmt(cb.accrual.net)], ["Timing difference (invoiced or billed, not yet paid)", fmt(cb.timing.net)]]),
+          ...cb.notes.map((n) => el("p", { class: "note", text: n })));
+      }
       const b = r.balanceSheet;
       const sec = (h, list) => [[h, ""], ...list.map((l) => [`   ${l.name}`, fmt(l.amount)])];
       $("#bs").replaceChildren(table(["", "Amount"], [...sec("Assets", b.assets), ["Total assets", fmt(b.totalAssets)], ...sec("Liabilities", b.liabilities), ...sec("Equity", b.equity), ["   Current earnings (not yet closed)", fmt(b.currentEarnings)]], [["Liabilities + equity", fmt(b.totalLiabilities + b.totalEquity)], [b.balanced ? "Balanced" : "NOT BALANCED", ""]]));
       const cfl = r.cashFlow, cashRow = (n, v) => [n, fmt(v)];
-      $("#cf").replaceChildren(table(["", "Amount"], [cashRow("Net profit", cfl.netProfit), ...cfl.operatingItems.map((l) => cashRow(`   Change in ${l.name.toLowerCase()}`, l.amount)), cashRow("Cash from operations", cfl.operating), ...cfl.investingItems.map((l) => cashRow(`   ${l.name}`, l.amount)), cashRow("Cash from investing", cfl.investing), ...cfl.financingItems.map((l) => cashRow(`   ${l.name}`, l.amount)), cashRow("Cash from financing", cfl.financing)], [cashRow("Change in cash", cfl.change), [`Cash ${fmt(cfl.openingCash)} to ${fmt(cfl.closingCash)}`, cfl.ties ? "Ties to the bank accounts" : "DOES NOT TIE"]]));
+      $("#cf").replaceChildren(table(["", "Amount"], [cashRow("Net profit", cfl.netProfit), ...cfl.operatingItems.map((l) => cashRow(`   Change in ${l.name.toLowerCase()}`, l.amount)), cashRow("Cash from operations", cfl.operating), ...cfl.investingItems.map((l) => cashRow(`   ${l.name}`, l.amount)), cashRow("Cash from investing", cfl.investing), ...cfl.financingItems.map((l) => cashRow(`   ${l.name}`, l.amount)), cashRow("Cash from financing", cfl.financing)], [cashRow("Change in cash", cfl.change), cashRow("Free cash flow (operations less asset purchases)", cfl.freeCashFlow), ...(cfl.monthlyBurn ? [[`Burn a month before financing${cfl.runwayMonths == null ? "; no cash left" : `; ${cfl.runwayMonths} months of runway`}`, fmt(cfl.monthlyBurn)]] : []), [`Cash ${fmt(cfl.openingCash)} to ${fmt(cfl.closingCash)}`, cfl.ties ? "Ties to the bank accounts" : "DOES NOT TIE"]]));
+      const k = r.ratios, pct = (v) => (v == null ? "n/a" : `${(v * 100).toFixed(1)}%`), x = (v) => (v == null ? "n/a" : v.toFixed(2));
+      $("#ratios").replaceChildren(table(["Ratio", "Value"], [["Gross margin", pct(k.grossMargin)], ["Net margin", pct(k.netMargin)], ["Working capital", fmt(k.workingCapital)], ["Current ratio", x(k.currentRatio)], ["Quick ratio", x(k.quickRatio)], ["Debt to equity", x(k.debtToEquity)]].concat(k.receivableDays != null ? [["Days sales outstanding", k.receivableDays]] : [], k.payableDays != null ? [["Days payable", k.payableDays]] : []).concat(r.breakEven ? [["Break-even income a month", r.breakEven.breakEvenMonthly == null ? "n/a" : fmt(r.breakEven.breakEvenMonthly)], ["Margin of safety", pct(r.breakEven.marginOfSafety)]] : [])));
+      const bm = r.cashByMonth;
+      if (bm.months.length > 1) $("#cf").append(table(["Month", "Operations", "Investing", "Financing", "Closing cash"], bm.months.map((m) => [m.month, fmt(m.operating), fmt(m.investing), fmt(m.financing), fmt(m.closingCash)]), bm.recentBurn ? [[`Last three months burn a month${bm.recentRunwayMonths == null ? "; no cash left" : `; ${bm.recentRunwayMonths} months of runway`}`, fmt(bm.recentBurn), "", "", ""]] : []));
       const t = r.trialBalance;
       $("#tb").replaceChildren(table(["Account", "Debit", "Credit"], t.rows.map((x) => [`${x.code} ${x.name}`, x.debit ? fmt(x.debit) : "", x.credit ? fmt(x.credit) : ""]), [["Total", fmt(t.debit), fmt(t.credit)]]));
       const c = closeChecks(books, opts());
@@ -567,6 +630,19 @@
       $("#budget").replaceChildren(
         el("p", { class: "note", text: `${b.from} to ${b.to}, ${b.months} month${b.months === 1 ? "" : "s"}.${b.empty ? ` ${b.empty.replace("use `budget CODE AMOUNT`", "pick an account above")}.` : ""}${b.partial ? ` ${b.partial}.` : ""}` }),
         table(["Account", "Budget", "Actual", "Variance", "Status"], rows, [["Net profit", fmt(b.net.budget), fmt(b.net.actual), fmt(b.net.variance), ""]]));
+    }
+
+    function renderCompare() {
+      const from = $("#from").value, to = $("#to").value;
+      const period = from && to ? { from, to } : null;
+      const c = compareProfit(books, period ? { period, against: precedingPeriod(period) } : {});
+      if (!c) { $("#compare").replaceChildren(el("p", { class: "note", text: from && to ? "Import a statement first, and check the From date is not after the To date." : "Import a statement first, or set both From and To dates." })); return; }
+      const pct = (x) => x.pct === null ? "" : ` ${x.pct > 0 ? "+" : ""}${(x.pct * 100).toFixed(0)}%`;
+      const rows = c.accounts.map((x) => [`${x.code} ${x.name}`, fmt(x.now), fmt(x.then), fmt(x.change) + pct(x), x.status === "changed" ? (x.hurtsProfit ? "lowers profit" : "raises profit") : x.status]);
+      const notes = [c.empty, c.partial].filter(Boolean).join("; ");
+      $("#compare").replaceChildren(
+        el("p", { class: "note", text: `${c.period.from} to ${c.period.to} against ${c.against.from} to ${c.against.to}.${notes ? ` ${notes}.` : ""}` }),
+        table(["Account", "This period", "Before", "Change", "Effect"], rows, [["Income", fmt(c.income.now), fmt(c.income.then), fmt(c.income.now - c.income.then), ""], ["Expenses", fmt(c.expense.now), fmt(c.expense.then), fmt(c.expense.now - c.expense.then), ""], ["Net profit", fmt(c.net.now), fmt(c.net.then), fmt(c.net.change), ""]]));
     }
 
     function renderYearEnd() {
@@ -874,10 +950,30 @@
 
     function renderSalesTax() {
       const t = salesTax(books);
-      if (!t.months.some((m) => m.collected || m.credited || m.remitted)) { $("#salestax").replaceChildren(); return; }
+      if (!t.months.some((m) => m.collected || m.credited || m.remitted)) { $("#salestax").replaceChildren(); $("#str-box").hidden = true; return; }
+      $("#str-box").hidden = false;
+      renderSalesTaxReturn();
       const r = (label, m) => [label, fmt(m.sales), fmt(m.collected), fmt(m.credited), fmt(m.remitted), fmt(m.owed ?? t.owed)];
       $("#salestax").replaceChildren(el("p", { class: "note", text: `Sales tax (account ${t.account}): collected on invoices, taken off by credit notes, paid over by bank lines. ${fmt(t.owed)} is still owed to the tax authority.` }), table(["Month", "Sales", "Collected", "Credited", "Paid over", "Owed"], [...t.months.map((m) => r(m.month, m)), r("Total", t.totals)]));
     }
+
+    for (const st of Object.keys(STATE_DUE_DAYS).sort()) $("#str-state").append(el("option", { value: st, text: st }));
+    function renderSalesTaxReturn() {
+      try {
+        const lines = (id) => $(id).value.split("\n").map((x) => x.trim()).filter(Boolean);
+        const freq = $("#str-freq").value, st = $("#str-state").value || null;
+        const t = salesTaxReturn(books, { frequency: freq, endMonth: st ? stateEndMonth(st, freq) : null, dueDay: st ? stateDueDay(st, freq) : 20, rates: parseRateSpecs(lines("#str-rate")), discounts: { ...stateDiscounts(st), ...parseDiscountSpecs(lines("#str-disc")) }, asOf: new Date().toISOString().slice(0, 10) });
+        const note = stateFilingNote(st, freq);
+        if (note) t.warnings.push(note);
+        const rows = [];
+        for (const p of t.periods) {
+          for (const r of p.rows) rows.push([p.period, r.jurisdiction, fmt(r.taxableSales), fmt(r.tax), r.rate == null ? "-" : (r.rate * 100).toFixed(2) + "%", r.due, r.discount ? fmt(r.discount) : ""]);
+          rows.push([p.period, "Payable / paid / owed", "", fmt(p.payable), "", `paid ${fmt(p.paid)}`, `owed ${fmt(p.owed)}`]);
+        }
+        $("#str").replaceChildren(table(["Period", "Jurisdiction", "Taxable sales", "Tax", "Rate", "Due", "Discount"], rows), ...t.warnings.map((w) => el("p", { class: "note", text: w })));
+      } catch (e) { $("#str").replaceChildren(el("p", { class: "note", text: e.message })); }
+    }
+    for (const id of ["#str-freq", "#str-state", "#str-rate", "#str-disc"]) $(id).addEventListener("change", () => { record("salestax_return"); renderSalesTaxReturn(); });
 
     function renderVat() {
       const v = vatReturn(books, { from: $("#from").value || null, to: $("#to").value || null });
@@ -887,12 +983,43 @@
     }
 
     function dollars(sel) { const v = $(sel).value.replace(/[$,\s]/g, ""); if (!v) return undefined; const n = Number(v); if (!Number.isFinite(n)) throw new Error("Use plain numbers in the dollar boxes."); return Math.round(n * 100); }
+    function estOpts() { return { year: deductYear(), monthsElapsed: parseInt($("#est-months").value, 10) || 12, filing: $("#est-filing").value, wages: dollars("#est-wages"), otherIncome: dollars("#est-other"), withholding: dollars("#est-withheld"), paid: dollars("#est-paid"), priorYearTax: dollars("#est-prior"), priorAgi: dollars("#est-prior-agi"), healthInsurance: dollars("#est-health"), retirement: dollars("#est-retire"), children: parseInt($("#est-children").value, 10) || 0, otherDependents: parseInt($("#est-other-deps").value, 10) || 0, over65: parseInt($("#est-over65").value, 10) || 0, blind: parseInt($("#est-blind").value, 10) || 0, eitcChildren: $("#est-eitc").value.trim() === "" ? undefined : parseInt($("#est-eitc").value, 10) || 0, stateRate: $("#est-state-rate").value.trim() === "" ? undefined : (parseFloat($("#est-state-rate").value) || 0) / 100, stateDeduction: dollars("#est-state-ded"), stateWithheld: dollars("#est-state-wh"), service: $("#est-service").checked, businessWages: dollars("#est-bizwages"), asOf: new Date().toISOString().slice(0, 10) }; }
+    $("#est-annual").addEventListener("click", () => {
+      try {
+        const o = estOpts(); delete o.paid; delete o.monthsElapsed;
+        const r = annualizedInstallments(books, o);
+        record("tax_annualized");
+        $("#annual").replaceChildren(table(["Period", "Due", "Profit to date", "Required this date", "Regular method", "Saved"], r.rows.map((x, i) => [x.period, x.due, fmt(x.profitToDate), fmt(x.cumulativeRequired), fmt(x.regularCumulative), fmt(r.saved[i])])), ...r.warnings.map((w) => el("p", { class: "note", text: w })));
+        $("#est-status").textContent = "";
+      } catch (e) { $("#est-status").textContent = e.message; }
+    });
+    $("#est-scorp").addEventListener("click", () => {
+      try {
+        const o = estOpts();
+        const r = scorpFromBooks(books, { year: o.year, monthsElapsed: o.monthsElapsed, filing: o.filing, otherIncome: o.otherIncome, service: o.service, salary: dollars("#scorp-salary"), extraCost: dollars("#scorp-cost") });
+        record("tax_scorp");
+        const row = (l, a, b) => [l, fmt(a), fmt(b)];
+        $("#scorp").replaceChildren(
+          el("p", { class: "note", text: `S-corporation election ${r.year} (${r.filing}): profit annualised ${fmt(r.profit)}, owner salary ${fmt(r.salary)}.` }),
+          table(["", "Sole proprietor", "S corporation"], [row("Income tax", r.sole.incomeTax, r.scorp.incomeTax), row("Payroll / self-employment tax", r.sole.payrollTax, r.scorp.payrollTax), row("Yearly cost of the entity", 0, r.scorp.extraCost)], [row("All in", r.sole.allIn, r.scorp.allIn)]),
+          el("p", { class: "note", text: `${r.savings >= 0 ? "An S corporation would save" : "An S corporation would cost"} ${fmt(Math.abs(r.savings))} at this salary; break-even profit ${r.breakEven === null ? "not found up to $500,000" : fmt(r.breakEven)}.` }),
+          table(["Salary as a share of profit", "Salary", "Saving"], r.sweep.map((x) => [x.salaryPct + "%", fmt(x.salary), fmt(x.savings)])),
+          ...r.warnings.map((w) => el("p", { class: "note", text: w })));
+        $("#est-status").textContent = "";
+      } catch (e) { $("#est-status").textContent = e.message; }
+    });
     $("#est-run").addEventListener("click", () => {
       try {
-        const r = estimatedTax(books, { year: deductYear(), monthsElapsed: parseInt($("#est-months").value, 10) || 12, filing: $("#est-filing").value, wages: dollars("#est-wages"), otherIncome: dollars("#est-other"), withholding: dollars("#est-withheld"), paid: dollars("#est-paid"), priorYearTax: dollars("#est-prior"), priorAgi: dollars("#est-prior-agi"), asOf: new Date().toISOString().slice(0, 10) });
+        const r = estimatedTax(books, estOpts());
         record("tax_estimated");
         const rows = [["Schedule C profit (annualised)", fmt(r.profit)], ["Adjusted gross income", fmt(r.agi)], ["Standard deduction", fmt(r.standardDeduction)], ["QBI deduction", fmt(r.qbiDeduction)], ["Taxable income", fmt(r.taxable)], [`Income tax (${Math.round(r.marginalRate * 100)}% top bracket)`, fmt(r.incomeTax)], ["Self-employment tax", fmt(r.se.tax)], ["Additional Medicare tax", fmt(r.addlMedicare)]];
-        $("#est").replaceChildren(table(["Item", "Amount"], rows, [["Total federal tax", `${fmt(r.totalTax)} (${(r.effectiveRate * 100).toFixed(1)}% of income)`]]), el("p", { class: "note", text: `Safe harbour: 90% of this year is ${fmt(r.safeHarbor.current90)}${r.safeHarbor.prior != null ? `, last year's route ${fmt(r.safeHarbor.prior)}` : ""}; pay ${fmt(r.safeHarbor.required)} in estimates.` }), table(["Due", "Pay"], r.payments.map((p) => [p.due, p.status === "past" ? "(past)" : fmt(p.cents)])), ...r.warnings.map((w) => el("p", { class: "note", text: w })));
+        if (r.extraStandard) rows.push(["Extra standard deduction (65 or blind)", fmt(r.extraStandard)]);
+        if (r.seniorDeduction) rows.push(["Senior deduction", fmt(r.seniorDeduction)]);
+        if (r.eitcCredit) rows.push(["Earned income credit (refundable)", "-" + fmt(r.eitcCredit)]);
+        if (r.childCredit) rows.push(["Child and dependent credit (against income tax)", "-" + fmt(r.childCredit)]);
+        if (r.refundableCredit) rows.push(["Refundable child credit", "-" + fmt(r.refundableCredit)]);
+        const stateRows = r.state ? [["State income tax (" + (r.state.rate * 100).toFixed(2).replace(/\.?0+$/, "") + "% flat, supplied by you)", fmt(r.state.tax)], ["Less state withholding", "-" + fmt(r.state.withheld)], ["State balance (a quarter's share " + fmt(r.state.quarterly) + ")", fmt(r.state.balance)]] : null;
+        $("#est").replaceChildren(table(["Item", "Amount"], rows, [["Total federal tax", `${fmt(r.totalTax)} (${(r.effectiveRate * 100).toFixed(1)}% of income)`]]), ...(stateRows ? [table(["State (apart from the federal total)", "Amount"], stateRows)] : []), el("p", { class: "note", text: `Safe harbour: 90% of this year is ${fmt(r.safeHarbor.current90)}${r.safeHarbor.prior != null ? `, last year's route ${fmt(r.safeHarbor.prior)}` : ""}; pay ${fmt(r.safeHarbor.required)} in estimates.` }), table(["Due", "Pay"], r.payments.map((p) => [p.due, p.status === "past" ? "(past)" : fmt(p.cents)])), ...r.warnings.map((w) => el("p", { class: "note", text: w })));
         $("#est-status").textContent = "";
       } catch (e) { $("#est-status").textContent = e.message; }
     });
@@ -948,7 +1075,7 @@
 
     $("#nec-filing-csv").addEventListener("click", () => { record("contractors_filing_downloaded"); download(nec1099FilingCsv(contractors1099(books, { year: necYear() })), "contractors-1099-nec-filing-prep.csv", "text/csv"); });
 
-    function render() { fillSetup(); renderScheduleC(); renderDeduct(); renderNec(); renderStatus(); renderQueue(); renderReports(); renderRuleSuggestions(); renderAging(); renderRecurring(); renderBudget(); renderReconcile(); renderYearEnd(); renderReceipts(); renderVat(); renderAssets(); renderPrepaid(); renderInventory(); renderLoans(); renderTaxDepr(); renderSalesTax(); renderOpening(); persist(); }
+    function render() { fillSetup(); renderScheduleC(); renderDeduct(); renderNec(); renderStatus(); renderQueue(); renderReports(); renderRuleSuggestions(); renderAging(); renderRecurring(); renderBudget(); renderCompare(); renderReconcile(); renderYearEnd(); renderReceipts(); renderVat(); renderAssets(); renderPrepaid(); renderInventory(); renderLoans(); renderTaxDepr(); renderSalesTax(); renderOpening(); persist(); }
 
     function renderOpening() {
       const tb = books.openingTB;
@@ -1050,6 +1177,7 @@
       render();
     });
 
+    $("#cta-example").addEventListener("click", () => $("#example").click());
     $("#example").addEventListener("click", () => {
       books = analyze({ example: true }).books;
       $("#import-status").textContent = "Loaded three synthetic months for a made-up studio: a checking statement with a running balance, and a card statement. File the queue, then import nothing more and look at the reports.";
@@ -1137,10 +1265,22 @@
       $("#receipts-status").textContent = `Read ${r.added.length}; ${r.duplicates.length} already on file; ${r.skipped.length} could not be read${r.skipped.length ? ` (${r.skipped.map((x) => `"${x.text.slice(0, 24)}": ${x.notes.join(", ")}`).join("; ")})` : ""}.`;
       if (r.added.length) $("#receipts-text").value = "";
     });
+    $("#receipts-photos").addEventListener("change", async (ev) => {
+      const files = [...ev.target.files]; ev.target.value = "";
+      if (!files.length) return;
+      const st = $("#receipts-status");
+      try {
+        const { readPhotos } = await import("./photoocr.mjs");
+        st.textContent = "Loading the photo reader…";
+        const r = await readPhotos(files, { onProgress: (m) => { st.textContent = m.status === "reading" ? `Reading photo ${m.index + 1} of ${m.total}…` : m.status === "recognizing text" ? `Reading… ${Math.round((m.progress || 0) * 100)}%` : st.textContent; } });
+        if (r.text) { const box = $("#receipts-text"); box.value = (box.value.trim() ? box.value.trim() + "\n---\n" : "") + r.text; record("receipt_photos_read"); }
+        st.textContent = `Read ${r.read} photo${r.read === 1 ? "" : "s"} into the box above${r.skipped.length ? `; skipped ${r.skipped.map((x) => `${x.name} (${x.why})`).join(", ")}` : ""}. Fix any misread amount, then press Read receipts.`;
+      } catch (e) { st.textContent = e.message; }
+    });
     $("#receipts-min").addEventListener("change", renderReceipts);
     $("#receipts-clear").addEventListener("click", () => { books = { ...books, receipts: [] }; render(); $("#receipts-status").textContent = "Receipts removed."; });
-    $("#from").addEventListener("change", () => { renderReports(); renderScheduleC(); renderDeduct(); renderBudget(); renderReceipts(); renderVat(); });
-    $("#to").addEventListener("change", () => { renderReports(); renderScheduleC(); renderDeduct(); renderBudget(); renderReceipts(); renderVat(); });
+    $("#from").addEventListener("change", () => { renderReports(); renderScheduleC(); renderDeduct(); renderBudget(); renderCompare(); renderReceipts(); renderVat(); });
+    $("#to").addEventListener("change", () => { renderReports(); renderScheduleC(); renderDeduct(); renderBudget(); renderCompare(); renderReceipts(); renderVat(); });
 
     const download = (text, file, type) => { const a = el("a", { href: URL.createObjectURL(new Blob([text], { type })), download: file }); document.body.append(a); a.click(); a.remove(); };
     for (const b of document.querySelectorAll("[data-export]")) b.addEventListener("click", () => {
@@ -1149,7 +1289,7 @@
       else download(exportJournal(books, f), `bookkeeper-journal-${f}.${f === "iif" ? "iif" : f === "ledger" ? "journal" : f === "beancount" ? "beancount" : "csv"}`, ["iif", "ledger", "beancount"].includes(f) ? "text/plain" : "text/csv");
       record("exported");
     });
-    $("#save").addEventListener("click", () => { download(JSON.stringify(books, null, 1), `books-${new Date().toISOString().slice(0, 10)}.json`, "application/json"); $("#save-status").textContent = "Books file downloaded. Open it here on any computer to carry on."; });
+    $("#save").addEventListener("click", () => { download(serializeBooks(books), `books-${new Date().toISOString().slice(0, 10)}.json`, "application/json"); $("#save-status").textContent = "Books file downloaded. Open it here on any computer to carry on."; });
     $("#open").addEventListener("change", async () => {
       const f = $("#open").files[0];
       if (!f) return;
@@ -1157,6 +1297,41 @@
       catch (e) { $("#save-status").textContent = `Could not open that file: ${e.message}.`; }
     });
     $("#clear").addEventListener("click", () => { if (!confirm_("Start empty books? Download the books file first if you want to keep these.")) return; books = newBooks(); render(); });
+    // Live copy in a file the user picked (File System Access API, Chromium only).
+    if (liveFileSupported()) {
+      $("#live-box").hidden = false;
+      const say = (t) => { $("#live-status").textContent = t; };
+      const show = () => { $("#live-stop").hidden = !live; $("#live-new").hidden = $("#live-open").hidden = !!live; };
+      const start = async (handle) => {
+        live?.stop();
+        live = createLiveWriter({ handle, getBooks: () => books, onStatus: (st) => say(st.ok ? `Saved to ${st.name} at ${new Date(st.at).toLocaleTimeString()}.` : `Could not write ${st.name}: ${st.error}. The copy in this browser is still saved.`) });
+        await rememberHandle(handle); $("#live-resume").hidden = true; show(); await live.flush();
+      };
+      $("#live-new").addEventListener("click", async () => { try { const h = await pickNewFile(); if (!(await ensureWritable(h, true))) return say("Write permission was not given."); record("live_file_new"); await start(h); } catch (e) { if (e.name !== "AbortError") say(`Could not use that file: ${e.message}`); } });
+      $("#live-open").addEventListener("click", async () => {
+        try {
+          const h = await pickExistingFile();
+          if (!(await ensureWritable(h, true))) return say("Write permission was not given.");
+          const b = await readBooksFromHandle(h);
+          if (books.transactions.length && !confirm_(`Replace the books in this browser (${books.transactions.length} lines) with ${h.name} (${b.transactions.length} lines)? Download the books file first if you want to keep these.`)) return;
+          books = b; record("live_file_open"); render(); await start(h);
+        } catch (e) { if (e.name !== "AbortError") say(`Could not open that file: ${e.message}.`); }
+      });
+      $("#live-stop").addEventListener("click", async () => { live?.stop(); live = null; await forgetHandle(); show(); say("Stopped. Changes stay in this browser; the file keeps its last saved copy."); });
+      // A returning visitor: offer to reconnect, because a browser asks again for permission after a restart.
+      recallHandle().then((h) => {
+        if (!h) return;
+        const b = $("#live-resume"); b.hidden = false; b.textContent = `Reconnect to ${h.name}`;
+        b.addEventListener("click", async () => {
+          try {
+            if (!(await ensureWritable(h, true))) return say("Write permission was not given.");
+            const fromFile = await readBooksFromHandle(h);
+            if (JSON.stringify(fromFile) !== JSON.stringify(books) && confirm_(`${h.name} differs from the books in this browser (${fromFile.transactions.length} lines in the file, ${books.transactions.length} here). OK loads the file; Cancel keeps this browser's books and overwrites the file.`)) { books = fromFile; render(); }
+            await start(h);
+          } catch (e) { say(`Could not reconnect: ${e.message}.`); }
+        });
+      });
+    }
     function confirm_(msg) { return typeof window.confirm === "function" ? window.confirm(msg) : true; }
 
     $("#save-setup").addEventListener("click", () => {

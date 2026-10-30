@@ -2,13 +2,14 @@
   "review_every": 40,
   "review_when_due": 0.25,
   "tracks": {
-    "ventures": {"weight": 0.315, "champion": 1, "candidate": 2, "candidate_share": 0.2},
-    "research": {"weight": 0.315, "champion": 0, "candidate": null, "candidate_share": 0},
+    "ventures": {"weight": 0.29, "champion": 1, "candidate": 2, "candidate_share": 0.2},
+    "research": {"weight": 0.29, "champion": 0, "candidate": null, "candidate_share": 0},
     "process": {"weight": 0.10, "champion": 1, "candidate": 2, "candidate_share": 0.2},
     "explore": {"weight": 0.05, "champion": 0, "candidate": null, "candidate_share": 0},
     "redteam": {"weight": 0.07, "champion": 0, "candidate": null, "candidate_share": 0},
     "perf": {"weight": 0.05, "champion": 0, "candidate": null, "candidate_share": 0},
     "creative": {"weight": 0.10, "champion": 0, "candidate": null, "candidate_share": 0},
+    "polish": {"weight": 0.05, "champion": 0, "candidate": null, "candidate_share": 0, "until": "2026-11-30"},
     "review": {"weight": 0, "champion": 1, "candidate": 2, "candidate_share": 0.2}
   }
 }

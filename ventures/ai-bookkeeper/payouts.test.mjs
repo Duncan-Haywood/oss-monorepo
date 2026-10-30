@@ -213,6 +213,12 @@ test("Square Payouts API entries split a payout; fees may be signed either way",
   assert.deepEqual(by, { 4000: 10000, 6010: -3365 });
 });
 
+test("Square ActivityType names classify by meaning: fee refunds are fees, holds and loans are not income", () => {
+  const e = (type, amount) => ({ payout_id: "p", type, effective_at: "2026-03-04T15:00:00Z", gross_amount_money: { amount }, fee_amount_money: { amount: 0 }, net_amount_money: { amount } });
+  const kinds = Object.fromEntries(["CHARGE", "REFUND", "PROCESSING_FEE_REFUND", "APP_FEE_REVENUE", "RESERVE_HOLD", "SQUARE_CAPITAL_PAYMENT", "OPEN_DISPUTE", "PAYOUT", "TAX_ON_FEE", "ESCHEATMENT", "PERCENTAGE_PROCESSING_ENROLLMENT", "PERCENTAGE_PROCESSING_DEACTIVATION", "LOCAL_OFFERS_FEE", "SOMETHING_NEW"].map((t) => [t, readPayoutReport(JSON.stringify({ payout_entries: [e(t, 100)] })).rows[0].kind]));
+  assert.deepEqual(kinds, { CHARGE: "sales", REFUND: "refunds", PROCESSING_FEE_REFUND: "fees", APP_FEE_REVENUE: "sales", RESERVE_HOLD: "reserve", SQUARE_CAPITAL_PAYMENT: "reserve", OPEN_DISPUTE: "disputes", PAYOUT: "skip", TAX_ON_FEE: "fees", ESCHEATMENT: "reserve", PERCENTAGE_PROCESSING_ENROLLMENT: "reserve", PERCENTAGE_PROCESSING_DEACTIVATION: "reserve", LOCAL_OFFERS_FEE: "fees", SOMETHING_NEW: "other" });
+});
+
 test("a Square entry whose net fits neither fee sign is refused", () => {
   const r = readPayoutReport(JSON.stringify({ payout_entries: [{ payout_id: "p", type: "CHARGE", gross_amount_money: { amount: 1000 }, fee_amount_money: { amount: 30 }, net_amount_money: { amount: 900 } }] }));
   assert.equal(r.payouts.length, 0);
@@ -265,6 +271,21 @@ test("an Etsy payment-account ledger is grouped under each deposit, newest first
   assert.equal(r.pending.length, 1);
 });
 
+test("an Etsy returned deposit or recoupment is flagged, not booked as a fee, and the deposit after it still splits", () => {
+  const e = `Date,Type,Title,Info,Currency,Amount,Fees & Taxes,Net,Tax Details
+"March 5, 2026",Deposit,Deposit to bank,,USD,--,--,-$157.00,
+"March 4, 2026",Sale,Payment for Order #2,,USD,$100.00,-$5.00,$95.00,
+"March 3, 2026",Returned disbursement,Deposit returned by bank,,USD,--,--,$62.00,
+"March 2, 2026",Deposit,Deposit to bank,,USD,--,--,-$62.00,
+"March 1, 2026",Sale,Payment for Order #1,,USD,$65.00,-$3.00,$62.00,
+`;
+  const r = readPayoutReport(e);
+  assert.equal(r.problems.length, 1);
+  assert.equal(r.payouts.length, 2);
+  assert.equal(r.payouts[1].net, 15700);
+  assert.match(r.problems[0], /Row 4.*Returned disbursement.*book it against the bank/);
+});
+
 test("the Etsy fixture behind etsy-bookkeeping.html splits one deposit as the page says", () => {
   const r = readPayoutReport(readFileSync(new URL("./fixtures/etsy-ledger.csv", import.meta.url), "utf8"));
   assert.deepEqual(r.problems, []);
@@ -273,6 +294,22 @@ test("the Etsy fixture behind etsy-bookkeeping.html splits one deposit as the pa
   assert.equal(p.net, 31509);
   assert.equal(p.gross, 36150);
   assert.equal(p.fees, 4641);
+});
+
+test("the eBay fixture behind ebay-bookkeeping.html splits one payout as the page says", () => {
+  const r = readPayoutReport(readFileSync(new URL("./fixtures/ebay-transactions.csv", import.meta.url), "utf8"));
+  const p = r.payouts[0];
+  assert.equal(p.net, 11170);
+  assert.equal(p.gross, 14000);
+  assert.equal(p.fees, 2830);
+  const sum = (k) => p.rows.filter((x) => x.kind === k).reduce((a, x) => a + x.gross, 0);
+  assert.equal(sum("sales"), 14500);
+  assert.equal(sum("refunds"), -1000);
+  assert.equal(sum("tax"), 500);
+  assert.equal(p.rows.filter((x) => x.kind === "sales").reduce((a, x) => a + x.fee, 0), 2010);
+  assert.equal(r.pending[0].net, 2610);
+  const page = readFileSync(new URL("./ebay-bookkeeping.html", import.meta.url), "utf8");
+  for (const t of ["$145.00", "$135.00", "$20.10", "$8.20", "$5.00", "$111.70", "$106.70", "$28.30"]) assert.ok(page.includes(t), t);
 });
 
 test("Stripe's balance-transactions export (Type, Amount, Created (UTC), Automatic Payout ID) splits a payout", () => {
@@ -300,6 +337,23 @@ test("the Shopify fixture behind shopify-bookkeeping.html splits two payouts as 
   assert.equal(sales, 49550);
   assert.equal(costs, 7695);
   assert.equal(sales - costs, 41855);
+});
+
+test("the Square and PayPal fixtures behind square-bookkeeping.html and paypal-bookkeeping.html split as the pages say", () => {
+  const sq = readPayoutReport(readFileSync(new URL("./fixtures/square-transactions.csv", import.meta.url), "utf8"));
+  const sp = planPayouts(books([["2026-03-05", "SQUARE INC", "9.36"]]), sq, {}).matched[0].parts;
+  const by = (a) => sp.find((x) => x.account === a).cents;
+  assert.deepEqual([by("4000"), by("2100"), by("6010")], [1000, 63, -127]);
+  assert.equal(by("4000") + by("2100") + by("6010"), 936);
+  const pp = readPayoutReport(readFileSync(new URL("./fixtures/paypal-activity.csv", import.meta.url), "utf8"));
+  assert.deepEqual(pp.problems, []);
+  const pm = planPayouts(books([["2026-03-04", "PAYPAL TRANSFER", "145.05"]]), pp, {}).matched[0].parts;
+  assert.deepEqual(pm, [{ account: "4000", cents: 15000 }, { account: "6010", cents: -495 }]);
+  for (const [f, figs] of [["square-bookkeeping.html", ["$9.36", "$10.00", "$0.63", "$1.27"]], ["paypal-bookkeeping.html", ["$145.05", "$150.00", "$4.95"]]]) {
+    const html = readFileSync(new URL("./" + f, import.meta.url), "utf8");
+    for (const x of figs) assert.ok(html.includes(x), f + " lacks " + x);
+    assert.ok(html.includes("No warranty"));
+  }
 });
 
 test("creator-platform column and category names (Gumroad, Paddle, Lemon Squeezy style) read through the aliases", () => {
@@ -344,6 +398,52 @@ po_9,2026-04-05,txn_4,2026-04-03,anticipation_repayment,-30.00,0.00,-30.00,Advan
   const plan = planPayouts(books([["2026-04-06", "STRIPE PAYOUT", "260.00"]]), r);
   assert.equal(plan.matched.length, 1);
   assert.deepEqual(plan.matched[0].parts, [{ account: "4000", cents: 9000 }, { account: "1200", cents: 17000 }]);
+});
+
+test("Stripe reporting categories added from the reference: holds and releases are clearing, Climate is a fee", () => {
+  const rep = `${HEAD}
+po_8,2026-04-05,txn_1,2026-04-01,charge,100.00,3.20,96.80,Sale
+po_8,2026-04-05,txn_2,2026-04-02,payout_minimum_balance_hold,-20.00,0.00,-20.00,Hold
+po_8,2026-04-05,txn_3,2026-04-02,payment_network_reserve_release,5.00,0.00,5.00,Release
+po_8,2026-04-05,txn_4,2026-04-03,climate_order_purchase,-1.00,0.00,-1.00,Climate
+po_8,2026-04-05,txn_5,2026-04-03,charge_failure,-10.00,0.00,-10.00,Failed
+`;
+  const r = readPayoutReport(rep);
+  assert.deepEqual(r.rows.map((x) => x.kind), ["sales", "reserve", "reserve", "fees", "refunds"]);
+});
+
+test("Shopify Payments transaction types from the Admin reference: costs are fees, loans and transfers are clearing", () => {
+  const rep = `Transaction Date,Type,Order,Amount,Fee,Net,Payout Date,Payout ID
+2026-04-01,charge,#1,100.00,3.20,96.80,2026-04-03,5
+2026-04-01,shipping_label,#1,-8.00,0.00,-8.00,2026-04-03,5
+2026-04-02,referral_fee,#2,-2.00,0.00,-2.00,2026-04-03,5
+2026-04-02,lending_credit_remittance,,-15.00,0.00,-15.00,2026-04-03,5
+2026-04-02,merchant_to_merchant_credit,,10.00,0.00,10.00,2026-04-03,5
+2026-04-02,seller_protection_credit,#3,12.00,0.00,12.00,2026-04-03,5
+2026-04-02,anomaly_credit,,1.00,0.00,1.00,2026-04-03,5
+`;
+  const r = readPayoutReport(rep);
+  assert.deepEqual(r.problems, []);
+  assert.deepEqual(r.rows.map((x) => x.kind), ["sales", "fees", "fees", "reserve", "reserve", "disputes", "other"]);
+});
+
+test("Stripe currency_conversion is a balance movement, not other income", () => {
+  const rep = `${HEAD}
+po_7,2026-04-05,txn_1,2026-04-01,charge,100.00,3.20,96.80,Sale
+po_7,2026-04-05,txn_2,2026-04-02,currency_conversion,-50.00,0.00,-50.00,Converted out
+`;
+  assert.deepEqual(readPayoutReport(rep).rows.map((x) => x.kind), ["sales", "reserve"]);
+});
+
+test("Stripe types from the OpenAPI list: bank inflows and tax funds are clearing, a reversed payment is a refund", () => {
+  const rep = `${HEAD}
+po_8,2026-04-05,txn_1,2026-04-01,charge,100.00,3.20,96.80,Sale
+po_8,2026-04-05,txn_2,2026-04-02,inbound_transfer,50.00,0.00,50.00,ACH in
+po_8,2026-04-05,txn_3,2026-04-02,tax_fund,-5.00,0.00,-5.00,Tax set aside
+po_8,2026-04-05,txn_4,2026-04-03,payment_reversal,-20.00,0.00,-20.00,Reversed
+po_8,2026-04-05,txn_5,2026-04-03,obligation_outbound,-1.00,0.00,-1.00,Unknown
+`;
+  assert.deepEqual(readPayoutReport(rep).rows.map((x) => x.kind), ["sales", "reserve", "reserve", "refunds", "other"]);
 });
 
 test("Square dashboard transactions CSV: deposit id groups payments and refunds, fees are negatives", () => {
@@ -394,9 +494,101 @@ test("eBay's Seller Hub transaction report splits a payout, takes seller-collect
   assert.equal(r.pending.length, 1);
 });
 
+test("an eBay multi-item order's item-detail rows (no Type, no amounts) are not read as money", () => {
+  const t = readFileSync(new URL("./fixtures/ebay-transactions.csv", import.meta.url), "utf8").replace("Vintage lens\n", "Vintage lens\n,,12-00001-11111,,,--,,,PO-1001,,,--,--,--,$40.00,--,--,Second item\n");
+  const r = readPayoutReport(t);
+  assert.deepEqual(r.problems, []);
+  assert.equal(r.payouts[0].net, 11170);
+  assert.equal(r.payouts[0].rows.length, 5);
+  assert.equal(r.pending.length, 1);
+});
+
 test("an eBay Payout row that disagrees with its rows is not split", () => {
   const t = readFileSync(new URL("./fixtures/ebay-transactions.csv", import.meta.url), "utf8").replace("Bank,USD,--,--,--,--,--,--,--", "Bank,USD,--,--,--,--,--,--,--").replace("$111.70,USD", "$111.71,USD");
   const r = readPayoutReport(t);
   assert.equal(r.payouts.length, 0);
   assert.match(r.problems[0], /PO-1001/);
+});
+
+test("Stripe's wide settlement layout (bracketed metadata columns, customer columns) reads and balances", () => {
+  const head = "balance_transaction_id,payment_metadata[external_identifier],payment_metadata[orchestrator_tx_ref],source_id,payment_intent_id,charge_id,created,available_on,automatic_payout_effective_at,currency,gross,fee,net,reporting_category,payment_method_type,card_brand,card_country,card_funding,description,trace_id_status,gateway_account,automatic_payout_id,customer_facing_amount,customer_facing_currency,customer_name,customer_email";
+  const t = `${head}
+txn_1,100.1,,ch_1,pi_1,ch_1,2026-01-30 10:11:12,2026-01-30 00:00:00,2026-01-31 00:00:00,USD,25,0.95,24.05,charge,card,visa,US,credit,,pending,acct_live,po_1,25,usd,A Donor,a@example.org
+txn_2,,,re_1,pi_1,ch_1,2026-01-30 12:30:00,2026-01-30 00:00:00,2026-01-31 00:00:00,USD,-10,0,-10,refund,card,visa,US,credit,,pending,acct_live,po_1,-10,usd,,
+txn_3,,,,,,2026-01-30 12:30:00,2026-01-30 00:00:00,2026-01-31 00:00:00,USD,-0.5,0,-0.5,fee,,,,,Radar (2026-03-25): Standard,,,po_1,,,,
+txn_4,,,po_9,,,2026-01-31 00:00:00,2026-01-31 00:00:00,2026-01-31 00:00:00,USD,-13.55,0,-13.55,payout,,,,,Payout,available,acct_live,po_1,,,,
+`;
+  const r = readPayoutReport(t);
+  assert.equal(r.payouts.length, 1);
+  assert.equal(r.payouts[0].id, "po_1");
+  assert.equal(r.payouts[0].net, 1355);
+  assert.equal(r.problems.length, 0);
+});
+
+test("an Amazon promotion's tax line (Promotion/TaxDiscount) is tax, not a refund", () => {
+  const head = "settlement-id\tsettlement-start-date\tsettlement-end-date\tdeposit-date\ttotal-amount\tcurrency\ttransaction-type\torder-id\tamount-type\tamount-description\tamount";
+  const r = readPayoutReport(`${head}\nS3\t\t\t2026-03-05\t94.60\tUSD\t\t\t\t\t\nS3\t\t\t\t\t\tOrder\tA\tItemPrice\tPrincipal\t100.00\nS3\t\t\t\t\t\tOrder\tA\tPromotion\tPrincipal\t-5.00\nS3\t\t\t\t\t\tOrder\tA\tPromotion\tTaxDiscount\t-0.40\n`);
+  assert.deepEqual(r.problems, []);
+  assert.deepEqual(r.payouts[0].rows.map((x) => x.kind), ["sales", "refunds", "tax"]);
+});
+
+test("a PayPal payment the account holder sent is not booked as a sale", () => {
+  const pp = `Date,Time,Name,Type,Status,Currency,Gross,Fee,Net,Transaction ID
+03/01/2026,10:00:00,Ann,Website Payment,Completed,USD,100.00,-3.20,96.80,T1
+03/02/2026,11:00:00,Supplier,Express Checkout Payment,Completed,USD,-20.00,0.00,-20.00,T2
+03/04/2026,09:00:00,Bank,General Withdrawal,Completed,USD,-76.80,0.00,-76.80,W1
+`;
+  const r = readPayoutReport(pp);
+  assert.equal(r.payouts.length, 1);
+  assert.equal(r.payouts[0].rows.find((x) => x.id === "T2").kind, "other");
+  assert.equal(r.problems.length, 1);
+  assert.match(r.problems[0], /payment sent/);
+});
+
+test("Amazon charge and adjustment names from the SP-API Finances model book to the right kind", () => {
+  const head = "settlement-id\tsettlement-start-date\tsettlement-end-date\tdeposit-date\ttotal-amount\tcurrency\ttransaction-type\torder-id\tamount-type\tamount-description\tamount";
+  const names = [["Order", "ItemPrice", "TCS-CGST", "tax"], ["Order", "ItemPrice", "PaymentMethodFee", "fees"], ["Order", "ItemPrice", "Goodwill", "refunds"],
+    ["Order", "ItemPrice", "GenericDeduction", "other"], ["other-transaction", "other-transaction", "PostageBilling", "fees"],
+    ["other-transaction", "other-transaction", "PrivateLabelCreditCardRevenue", "other"], ["other-transaction", "other-transaction", "StoredValueCardRefund", "other"]];
+  const rows = names.map(([t, a, w], i) => `S\t\t\t\t\t\t${t}\tA${i}\t${a}\t${w}\t1.00`).join("\n");
+  const r = readPayoutReport(`${head}\nS\t\t\t2026-03-05\t${names.length}.00\tUSD\t\t\t\t\t\n${rows}\n`);
+  assert.deepEqual(r.problems, []);
+  assert.deepEqual(r.payouts[0].rows.map((x) => x.kind), names.map((n) => n[3]));
+});
+
+test("the report's own payout row is checked against the rows that make it up", () => {
+  const rows = (paid) => `${HEAD}
+po_1,2026-03-05,txn_a,2026-03-02,charge,100.00,3.20,96.80,Order
+po_1,2026-03-05,txn_b,2026-03-03,charge,50.00,1.75,48.25,Order
+po_1,2026-03-05,txn_p,2026-03-05,payout,${paid},0.00,${paid},STRIPE PAYOUT
+`;
+  assert.deepEqual(readPayoutReport(rows("-145.05")).problems, []);
+  const bad = readPayoutReport(rows("-195.05")).problems;
+  assert.equal(bad.length, 1);
+  assert.match(bad[0], /po_1.*195\.05.*145\.05/);
+});
+
+// Stripe's older "All transactions" export (Id, Type, Source, Amount, Fee, Net, Currency, Created (UTC),
+// Available On (UTC), Description, Transfer, Transfer Date (UTC)) carries no reporting category: the payout id
+// is in "Transfer", and amounts may use a decimal comma. Layout seen in a public accounting-import test suite
+// (BananaAccounting/Universal, read at run time, not copied); the rows below are made up.
+test("the older Stripe all-transactions export reads by its Transfer column", () => {
+  const csv = [
+    "id,Type,Source,Amount,Fee,Net,Currency,Created (UTC),Available On (UTC),Description,Transfer,Transfer Date (UTC)",
+    'txn_p1,payout,po_1,"-90,00","0,00","-90,00",eur,2026-03-04 02:00,2026-03-09 00:00,PAYOUT,po_1,2026-03-09 00:00',
+    'txn_c1,charge,ch_1,"100,00","3,50","96,50",eur,2026-03-02 07:48,2026-03-09 00:00,Order 1,po_1,2026-03-09 00:00',
+    'txn_r1,reserved_funds,,"-6,50","0,00","-6,50",eur,2026-03-02 07:48,2026-03-09 00:00,Reserve,po_1,2026-03-09 00:00',
+    'txn_r2,reserved_funds,,"6,50","0,00","6,50",eur,2026-03-02 07:48,2026-04-02 00:00,Reserve,,',
+    'txn_c2,payment,py_2,"20,00","0,80","19,20",eur,2026-03-05 09:00,2026-03-12 00:00,Order 2,,',
+  ].join("\n");
+  const r = readPayoutReport(csv);
+  assert.deepEqual(r.problems, []);
+  assert.equal(r.payouts.length, 1);
+  assert.equal(r.payouts[0].id, "po_1");
+  assert.equal(r.payouts[0].net, 9000);
+  assert.equal(r.payouts[0].fees, 350);
+  assert.equal(r.pending.length, 2);
+  // a missing row makes the payout's own row disagree and is reported
+  const short = csv.split("\n").filter((l) => !l.startsWith("txn_c1")).join("\n");
+  assert.equal(readPayoutReport(short).problems.length, 1);
 });

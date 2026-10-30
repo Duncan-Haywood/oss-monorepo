@@ -104,3 +104,52 @@ test("csv neutralises formulas and parseNum is strict", () => {
   assert.ok(Number.isNaN(parseNum("1e5")));
   assert.match(reportCsv(analyze(sampleInput())), /^Year,NOI,Debt service/);
 });
+
+test("small loans and zero-rate balances are not rounded away", () => {
+  near(loanPayment(1, 0, 1), 1 / 12, 1e-9);
+  near(loanPayment(0.5, 0, 1), 0.5 / 12, 1e-9);
+  near(balanceAfter(1200, 0, 1, 6), 600, 1e-6);
+});
+
+test("sale proceeds use the balance at the sale date when the hold is shorter than the term", () => {
+  const p = { ...P, loan: 80000, apr: 0.06, years: 10, termYears: 30, cashInvested: 20000 };
+  const h = hold(p);
+  near(h.rows[9].sale, 100000 - balanceAfter(80000, 6, 30, 120), 0.01);
+});
+
+test("analyze defaults, each one pinned, and the percent inputs scale by 100", () => {
+  const { p } = analyze({ price: 200000, rent: 2000 });
+  assert.equal(p.vacancy, 0.05);
+  assert.equal(p.maintenance, 0.05);
+  assert.equal(p.management, 0);
+  assert.equal(p.targetDscr, 1.2);
+  assert.equal(p.rentGrowth, 0.03);
+  assert.equal(p.expenseGrowth, 0.03);
+  assert.equal(p.appreciation, 0.03);
+  assert.equal(p.sellCost, 0.06);
+  assert.equal(p.years, 10);
+  assert.equal(p.apr, 0.07);
+  assert.equal(p.termYears, 30);
+  const q = analyze({ price: 200000, rent: 2000, expenseGrowth: 5, maintenance: 8, management: 10 }).p;
+  assert.equal(q.expenseGrowth, 0.05);
+  assert.equal(q.maintenance, 0.08);
+  assert.equal(q.management, 0.1);
+});
+
+test("input caps accept the limit and reject just above it", () => {
+  const base = { price: 200000, rent: 2000 };
+  assert.ok(analyze({ ...base, otherIncome: 1e6 }).p);
+  assert.ok(analyze({ ...base, otherIncome: 1e6 + 1 }).error);
+  assert.ok(analyze({ ...base, vacancy: 100 }).p);
+  assert.ok(analyze({ ...base, vacancy: 101 }).error);
+  assert.ok(analyze({ ...base, maintenance: 50 }).p);
+  assert.ok(analyze({ ...base, maintenance: 51 }).error);
+  assert.ok(analyze({ ...base, targetDscr: 5 }).p);
+  assert.ok(analyze({ ...base, targetDscr: 5.5 }).error);
+});
+
+test("rate table payment is the monthly debt service", () => {
+  const a = analyze({ price: 200000, rent: 2000 });
+  near(a.rates[1].payment, loanPayment(a.p.loan, 7, 30), 0.01);
+  near(a.rates[2].payment, loanPayment(a.p.loan, 8, 30), 0.01);
+});

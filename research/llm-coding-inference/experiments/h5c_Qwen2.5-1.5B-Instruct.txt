@@ -1,0 +1,23 @@
+model Qwen2.5-1.5B-Instruct: 6000 items, human negative share 0.327; c=100, 600 draws, seed 20261101
+columns: coverage hum(n+c) hc3t, ppi++(n) hc3t; mean half-width ratio ppi++(n)/hum(n+c); mean calibrated sens+spec
+# Qwen2.5-1.5B-Instruct n=100: 0 of 600 dropped; mean sens+spec 1.191
+Qwen2.5-1.5B-Instruct 100 intercept(yor) 0.942 0.908 1.417
+Qwen2.5-1.5B-Instruct 100 hau 0.962 0.945 1.425
+Qwen2.5-1.5B-Instruct 100 ibo 0.952 0.950 1.450
+Qwen2.5-1.5B-Instruct 100 pcm 0.963 0.950 1.387
+Qwen2.5-1.5B-Instruct 100 loglen_z 0.960 0.948 1.416
+Qwen2.5-1.5B-Instruct 100 MEAN 0.956 0.940 1.419
+# Qwen2.5-1.5B-Instruct n=200: 0 of 600 dropped; mean sens+spec 1.187
+Qwen2.5-1.5B-Instruct 200 intercept(yor) 0.945 0.935 1.231
+Qwen2.5-1.5B-Instruct 200 hau 0.947 0.952 1.225
+Qwen2.5-1.5B-Instruct 200 ibo 0.953 0.955 1.237
+Qwen2.5-1.5B-Instruct 200 pcm 0.960 0.945 1.200
+Qwen2.5-1.5B-Instruct 200 loglen_z 0.958 0.955 1.210
+Qwen2.5-1.5B-Instruct 200 MEAN 0.953 0.948 1.220
+# Qwen2.5-1.5B-Instruct n=400: 0 of 600 dropped; mean sens+spec 1.192
+Qwen2.5-1.5B-Instruct 400 intercept(yor) 0.940 0.935 1.121
+Qwen2.5-1.5B-Instruct 400 hau 0.960 0.938 1.116
+Qwen2.5-1.5B-Instruct 400 ibo 0.933 0.933 1.126
+Qwen2.5-1.5B-Instruct 400 pcm 0.950 0.948 1.094
+Qwen2.5-1.5B-Instruct 400 loglen_z 0.963 0.955 1.108
+Qwen2.5-1.5B-Instruct 400 MEAN 0.949 0.942 1.113

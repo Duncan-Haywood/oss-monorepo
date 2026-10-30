@@ -37,7 +37,8 @@ test('neither the page script nor the engine makes network calls', () => {
 test('the JSON-LD FAQPage questions match the visible FAQ headings', () => {
   const ld = JSON.parse([...index.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((m) => m[1]).find((s) => s.includes('FAQPage')));
   const names = ld.mainEntity.map((q) => q.name);
-  const headings = [...index.matchAll(/<h3>(.*?)<\/h3>/g)].map((m) => m[1].trim().replace(/&amp;/g, '&'));
+  const faq = index.slice(index.indexOf('<h2>Questions</h2>'));
+  const headings = [...faq.matchAll(/<h3>(.*?)<\/h3>/g)].map((m) => m[1].trim().replace(/&amp;/g, '&'));
   assert.ok(headings.length > 0);
   for (const h of headings) assert.ok(names.includes(h), `heading not in FAQPage JSON-LD: ${h}`);
 });

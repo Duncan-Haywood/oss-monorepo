@@ -65,21 +65,25 @@ function withYear(token, win, dayFirst) {
 export function readStatementText(text, { dayFirst = false, decimalComma = false, year } = {}) {
   const win = yearWindow(text, year);
   const rows = [], problems = [];
-  let section = 0, last = null, undirected = 0, opening = null, pending = null;
+  let section = 0, last = null, undirected = 0, opening = null, closing = null, pending = null;
+  const guessed = [];
   const lines = text.split(/\r?\n/);
   for (let i = 0; i < lines.length; i++) {
-    let line = lines[i].replace(/\s+/g, " ").trim();
+    let line = lines[i].replace(/[\u200b-\u200d\u2060\ufeff]/g, "").replace(/\s+/g, " ").trim();
     if (!line) { last = null; pending = null; continue; }
     let dm = DATE_AT_START.exec(line);
     if (!dm && pending) {
       // the description wrapped and the amount is on a later line
-      const { amts } = splitTail(line, decimalComma);
-      if (amts.length) { line = `${pending.head} ${line}`; dm = DATE_AT_START.exec(line); pending = null; }
+      const { amts, rest: cont } = splitTail(line, decimalComma);
+      // a balance line under a header or print-date line is not that line's amount
+      if (amts.length && /^(beginning|opening|previous|starting|ending|closing)\b.*balance/i.test(cont)) pending = null;
+      else if (amts.length) { line = `${pending.head} ${line}`; dm = DATE_AT_START.exec(line); pending = null; }
       else if (pending.n < 2 && line.length <= 70 && !NOISE.test(line)) { pending.head += " " + line; pending.n++; continue; }
       else pending = null;
     }
     if (!dm) {
       const { amts, rest } = splitTail(line, decimalComma);
+      if (amts.length && /^(ending|closing)\b.*balance/i.test(rest)) { closing = parseCents(amts[amts.length - 1].replace(/\s?(CR|DR)$/i, ""), decimalComma); last = null; continue; }
       if (amts.length && /^(beginning|opening|previous|starting|balance (?:forward|brought forward))/i.test(rest) && BALANCE_LINE.test(rest)) {
         if (opening === null && !rows.length) opening = parseCents(amts[amts.length - 1].replace(/\s?(CR|DR)$/i, ""), decimalComma);
         last = null; continue;
@@ -119,14 +123,32 @@ export function readStatementText(text, { dayFirst = false, decimalComma = false
       if (prevBal + mag === balance) sign = 1; else if (prevBal - mag === balance) sign = -1;
     }
     if (!sign && section) sign = section;
-    if (!sign) { sign = -1; undirected++; }
+    if (!sign) { sign = -1; undirected++; guessed.push(rows.length); }
     const row = { line: i + 1, date: iso, desc: rest, cents: sign * mag, balance: Number.isFinite(balance) ? balance : null };
     if (row.cents === 0) { last = null; continue; }
     rows.push(row); last = row;
   }
   if (!rows.length && problems.length) return { rows: [], problems: [...new Set(problems.map((x) => x.replace(/^Line \d+: /, "").replace(/"[^"]*"/, "the dates")))].slice(0, 3).concat(problems.length > 1 ? [`${problems.length} lines were skipped for the same reason.`] : []), columns: null };
   if (!rows.length) return { rows: [], problems: ["No transaction lines were found. A line should start with a date and end with an amount, like \"03/09 CAFE LUNA 12.50\"."], columns: null };
-  for (const r of rows) r.desc = r.desc.replace(/\s+/g, " ").trim();
-  const inferred = undirected ? `${undirected} of ${rows.length} rows had no sign, no running balance and no section heading, so they were read as money out. Check them.` : null;
+  for (const r of rows) r.desc = r.desc.replace(/\s+/g, " ").trim().replace(/\s[$€£]$/, "");
+  // Unsigned rows with no running balance: the opening and closing balance fix the
+  // total, so if exactly one in/out assignment of them reaches it, that is the answer.
+  let byBalance = 0;
+  if (guessed.length && guessed.length <= 20 && opening !== null && closing !== null) {
+    const fixed = rows.reduce((a, r, k) => a + (guessed.includes(k) ? 0 : r.cents), 0);
+    const want = closing - opening - fixed;
+    let ways = new Map([[0, { n: 1, signs: [] }]]);
+    for (const k of guessed) {
+      const m = Math.abs(rows[k].cents), next = new Map();
+      for (const [sum, w] of ways) for (const sg of [1, -1]) {
+        const t = sum + sg * m, e = next.get(t);
+        if (e) e.n += w.n; else next.set(t, { n: w.n, signs: [...w.signs, sg] });
+      }
+      ways = next;
+    }
+    const hit = ways.get(want);
+    if (hit && hit.n === 1) { guessed.forEach((k, j) => { rows[k].cents = hit.signs[j] * Math.abs(rows[k].cents); }); byBalance = guessed.length; undirected -= guessed.length; }
+  }
+  const inferred = byBalance ? `${byBalance} unsigned rows were read as money in or out from the statement's opening and closing balance (only one split adds up).` : undirected ? `${undirected} of ${rows.length} rows had no sign, no running balance and no section heading, so they were read as money out. Check them.` : null;
   return { rows, problems, columns: null, bank: "text", inferred };
 }

@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%231b587e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EA%3C/text%3E%3C/svg%3E"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>YouTuber, Podcaster and Newsletter Bookkeeping From a Bank Statement</title>
+<meta name="description" content="AdSense, Substack, Patreon, affiliate and Twitch payouts are sales; editing and email tools are software. A worked July: $3,157.92 in, $505.99 out, $2,651.93 profit.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="./creator-bookkeeping.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Creator bookkeeping from a bank statement">
+<meta property="og:description" content="A worked month of ad, newsletter, membership and affiliate payouts, booked from a bank CSV.">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is AdSense, Patreon or Substack money income when it lands in my bank?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, as self-employment sales (Schedule C line 1 in the US). Platforms pay on their own schedule and sometimes hold back tax or fees, so compare the deposit with the platform's statement and the 1099 it issues."}}, {"@type": "Question", "name": "Do I count the camera and microphone as an expense?", "acceptedAnswer": {"@type": "Answer", "text": "Usually, if they are for the business. A $349 purchase is an expense this year in the tool's chart (supplies); larger gear may be depreciated or expensed under a safe harbour, so check with a tax professional. Personal-use share is not deductible."}}, {"@type": "Question", "name": "Is it free?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. It is open source (MIT), runs in your browser and nothing is uploaded."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#1c2430;background:#f3f5f2}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#23613f}.eyebrow{font-weight:700;letter-spacing:.04em;color:#23613f;font-size:.85rem}h1{font-size:clamp(1.7rem,5vw,2.5rem);line-height:1.08;margin:.3rem 0;color:#183d2a}.lede{font-size:1.05rem;max-width:66ch;color:#4a5560}section{background:#fff;border:1px solid #d5ddd6;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #183d2a10;margin:1rem 0}h2{margin-top:0;color:#183d2a}p,li{line-height:1.55}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:.95rem}caption{caption-side:bottom;color:#4a5560;font-size:.85rem;text-align:left;padding-top:.6rem}th,td{border-bottom:1px solid #e1e7e2;padding:.5rem .45rem;text-align:right}th:first-child,td:first-child{text-align:left}tr.total td,tr.total th{font-weight:700}.fine,footer{font-size:.86rem;color:#4a5560}@media (max-width:600px){body{padding:1rem}}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; AI Bookkeeper</a></p>
+<header>
+<h1>Creator bookkeeping: five payout streams, one bank statement</h1>
+<p class="lede">If you earn from YouTube ads, a newsletter, memberships, affiliate links or streaming, you are self-employed, and each platform pays on its own calendar under its own name. The bank statement is the one place they all land.</p>
+</header>
+<section>
+<h2>Worked example: one July</h2>
+<p>The tool ships a <strong>synthetic</strong> statement for a creator (<code>fixtures/creator-checking.csv</code>): five payouts and five costs. Every line gets a suggested account with no rules taught.</p>
+<div class="table-wrap">
+<table>
+<caption>Read by the tool's importer. Synthetic data, not a real creator.</caption>
+<thead><tr><th scope="col">July 2026</th><th scope="col">Amount</th></tr></thead>
+<tbody>
+<tr><th scope="row">AdSense</th><td>$1,184.62</td></tr>
+<tr><th scope="row">Patreon</th><td>$910.55</td></tr>
+<tr><th scope="row">Substack</th><td>$642.10</td></tr>
+<tr><th scope="row">Amazon Associates</th><td>$233.40</td></tr>
+<tr><th scope="row">Twitch</th><td>$187.25</td></tr>
+<tr class="total"><th scope="row">Sales</th><td>$3,157.92</td></tr>
+<tr><th scope="row">Adobe, Riverside, ConvertKit, Epidemic Sound (software)</th><td>&minus;$156.99</td></tr>
+<tr><th scope="row">Camera gear (B&amp;H)</th><td>&minus;$349.00</td></tr>
+<tr class="total"><th scope="row">Profit</th><td>$2,651.93</td></tr>
+</tbody>
+</table>
+</div>
+<p>Platform payouts are usually net of the platform's cut, so the deposit understates what your audience paid; compare with each platform's earnings report. Quarterly estimated tax is worth planning for: the tool's <code>estimate</code> command works from these books.</p>
+</section>
+<section>
+<h2>What the tool does for a creator</h2>
+<ol>
+<li><strong>Imports the bank CSV</strong> and suggests <em>Sales</em> for AdSense, YouTube, Twitch, Substack, Beehiiv, Patreon, Gumroad, Ko-fi, Lemon Squeezy, Teachable and affiliate networks.</li>
+<li><strong>Files the tools</strong> (editing, podcast hosting, email, stock audio) as software and gear as supplies.</li>
+<li><strong>Reports</strong> a P&amp;L, Schedule C worksheet and self-employment tax estimate, and exports QuickBooks, Xero or IIF journals.</li>
+</ol>
+<p>Rules are written from the platforms' names; no real creator's statement has been tried.</p>
+</section>
+<section>
+<h2>Questions</h2>
+<h3>Is AdSense, Patreon or Substack money income when it lands in my bank?</h3><p>Yes, as self-employment sales (Schedule C line 1 in the US). Platforms pay on their own schedule and sometimes hold back tax or fees, so compare the deposit with the platform's statement and the 1099 it issues.</p><h3>Do I count the camera and microphone as an expense?</h3><p>Usually, if they are for the business. A $349 purchase is an expense this year in the tool's chart (supplies); larger gear may be depreciated or expensed under a safe harbour, so check with a tax professional. Personal-use share is not deductible.</p><h3>Is it free?</h3><p>Yes. It is open source (MIT), runs in your browser and nothing is uploaded.</p>
+</section>
+<p><a href="./">Open AI Bookkeeper</a> and import your bank statement.</p>
+</main>
+<footer>
+<p><strong>No warranty.</strong> This page and the tool are provided free and as-is, without warranty of any kind. They are not legal, tax, or financial advice and do not replace a qualified professional. You are responsible for reviewing and verifying any output before relying on it. The example is synthetic data, not a real business. Platform names are trademarks of their owners, named only to describe a payee.</p>
+</footer>
+</body>
+</html>

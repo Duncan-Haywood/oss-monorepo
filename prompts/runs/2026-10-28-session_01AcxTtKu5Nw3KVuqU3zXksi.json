@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-28",
+  "session": "https://claude.ai/code/session_01AcxTtKu5Nw3KVuqU3zXksi",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-28T01:08:31Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship 4 changepoint-detector: measure excursions power",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": 11004,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No docs/reports agent doc: README and flagship next: already carry the result."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-28-does-the-burst-or-two-steps-note-work.md"
+  ],
+  "goal": null,
+  "notes": "Local: node eval/excursions.mjs run, great-discoveries.test.mjs passes. No agent doc written (nothing the next run needs beyond README).",
+  "corrections": [],
+  "redteam": null
+}

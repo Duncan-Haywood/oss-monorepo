@@ -230,7 +230,8 @@ export async function checkAll(root = VENTURES) {
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1] ?? "").href) {
-  const results = await checkAll();
+  // An optional root lets the test file drive the exit-code path on fixtures.
+  const results = await checkAll(process.argv[2] ?? VENTURES);
   const failed = results.filter((r) => r.status === "fail");
   const errored = results.filter((r) => r.status === "error");
   const undrivable = results.filter((r) => r.status === "undrivable");

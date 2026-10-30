@@ -1,0 +1,15 @@
+== break-even capital charge lambda* per unit stake per job (p=0.1, reward = compute = 1); odd m 3..201
+g     kappa  S*(1)   lambda*   at m
+0.5   0.2     0.000       inf  None
+0.5   0.35    0.000       inf  None
+0.5   0.5     0.000       inf  None
+0.5   0.65    0.205    16.313  3
+0.5   0.8     0.786       inf  None
+0.5   1.0     4.000       inf  None
+0.9   0.2     0.098    20.500  3
+0.9   0.35    0.314    25.488  9
+0.9   0.5     0.636       inf  None
+0.9   0.65    1.169       inf  None
+0.9   0.8     2.214       inf  None
+0.9   1.0     8.000       inf  None
+== smallest break-even over all cells: 16.313

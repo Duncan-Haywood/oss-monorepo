@@ -1,0 +1,7 @@
+measured P(harm | flip) at eps 0.01 = 0.045
+q (jobs with a flip)  f=q*P   cells choosing m>1 (grid: g 0.5/0.9, kappa 0.2/1, L 100/1000/10000, c 5/20, lam 0.01/1)
+0.001                0.00004  0 of 48
+0.01                 0.00045  13 of 48
+0.1                  0.00450  28 of 48
+0.5                  0.02250  38 of 48
+1                    0.04500  43 of 48

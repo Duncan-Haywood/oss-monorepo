@@ -1,0 +1,51 @@
+{
+  "date": "2026-10-29",
+  "session": "https://claude.ai/code/session_01XpHqyfcjS4uehnNXURCmVz",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "what would it look like to build a static web framework for websites like the ghp which is created entirely from ai agents and massive. creating a framework that especially focuses on performance. / blog post and potential r and d direction",
+  "input_sha256": "80ef66d8bbb4c3ac60c0cb00ae219b0978b4fecfcb7cdc072482e4ce24725cb6",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-29T03:53:14Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Owner question: what would a performance-first static framework for the agent-written GitHub Pages site look like; asked for a blog post and an R&D direction.",
+  "projects": [
+    "platform/pages"
+  ],
+  "pr": 11284,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/promptctl.py",
+      "why": "Left the run record's model field empty: the session's harness forbids model identifiers in pushed files.",
+      "did": "model: null",
+      "result": "record validates"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-29-what-a-static-framework-for-an-agent-written-site-needs.md",
+    "docs/reports/static-framework-rd-2026-10-29.md"
+  ],
+  "goal": null,
+  "notes": "Built the site at main 65032126 (2m56s, 5,344 HTML pages, 403 MB) and weighed it with docs/reports/assets/static-framework/measure.mjs and drift.mjs: median page 7.4 KB gzip; 61% of inline CSS/JS bytes repeated across pages; /research/ 240 KB gzip live; 555 :root token sets; GitHub Pages sends max-age=600, gzip only. No code change to the build; the note proposes stages A-F with A (shard indexes) first.",
+  "corrections": [],
+  "redteam": null
+}

@@ -182,6 +182,10 @@ const GENERATED_DIRECTORIES = new Set([
   "build",
   ".turbo",
   "coverage",
+  // Server-side Node code a person deploys themselves (an OAuth authorization
+  // URL to a provider needs its query string). It is not a page, so it cannot
+  // build a share link for a visitor.
+  "self-host",
 ]);
 
 /**

@@ -1,0 +1,10 @@
+k=3: seeds [0] excess over clean median [0.0926] mean +0.0926
+k=4: seeds [0] excess over clean median [0.231] mean +0.2310
+k=5: seeds [0] excess over clean median [0.3631] mean +0.3631
+k=6: seeds [0] excess over clean median [0.5161] mean +0.5161
+k=4: seeds [0, 1] excess over clean median [0.231, 0.2315] mean +0.2312
+k=5: seeds [0, 1] excess over clean median [0.3631, 0.3664] mean +0.3647
+k=6: seeds [0, 1] excess over clean median [0.5161, 0.5411] mean +0.5286
+k=7: seeds [1] excess over clean median [0.7662] mean +0.7662
+k=8: seeds [0, 1] excess over clean median [inf, inf] mean +inf
+k=9: seeds [0, 1] excess over clean median [37989928.4559, 33393099.5957] mean +35691514.0258

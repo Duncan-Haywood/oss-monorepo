@@ -132,3 +132,10 @@ test('a registry error aborts rather than guessing', async () => {
   const root = await fixture(venture('a-check'));
   await assert.rejects(run({ env: {}, fetchImpl: async () => ({ status: 503 }), log: () => {}, root }), /HTTP 503/);
 });
+
+test('package.json keywords keep slug words of 3+ characters, drop shorter ones, and cap at four', async () => {
+  const slug = 'ab-abc-abcd-w-x1-y22-z33-q44';
+  const root = await fixture(venture(slug));
+  const r = await buildPackage({ slug, dir: path.join(root, 'ventures', slug) });
+  assert.deepEqual(JSON.parse(r.files['package.json']).keywords, ['cli', 'free', 'open-source', 'abc', 'abcd', 'y22', 'z33']);
+});

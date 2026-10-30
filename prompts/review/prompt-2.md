@@ -19,6 +19,9 @@ with `--skip-review`.
 steps 1, 3, 7 and 8 and one fix from step 5, skip the audit and the drift
 report when recent outputs are doc-only, and say so in the log. No need to report
 the skip as friction (37 reports said a full pass was too large).
+`validate` in step 8 often fails on other runs' posts or records (a long
+description, a null `pr`); fix them in this PR, they are one-line edits. `measure`
+holds git's `shallow.lock` for minutes, so run no other `git fetch` meanwhile.
 
 ## 1. Measure
 

@@ -147,8 +147,9 @@ export const HOME_MOTION_CSS = `
             animation: sheen 9s linear infinite; }
     @keyframes sheen { to { background-position: -220% 0; } }
     .ticker { margin: 0 0 18px; font-size: clamp(1rem, 1.8vw, 1.2rem); color: var(--muted); }
-    .ticker b { display: inline-block; color: var(--ink); font-weight: 750; min-width: 6ch;
+    .ticker b { display: inline-block; color: var(--ink); font-weight: 750;
                 border-bottom: 2px solid var(--accent); transition: opacity .35s, transform .35s; }
+    @media (min-width: 720px) { .ticker b { min-width: 6ch; } }
     .ticker b.out { opacity: 0; transform: translateY(-.4em); }
     .hero .stats { background: rgba(14, 20, 38, .6); border-color: var(--line);
                    -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }

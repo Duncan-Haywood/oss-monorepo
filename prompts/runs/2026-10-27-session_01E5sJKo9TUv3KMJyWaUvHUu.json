@@ -1,0 +1,55 @@
+{
+  "date": "2026-10-27",
+  "session": "https://claude.ai/code/session_01E5sJKo9TUv3KMJyWaUvHUu",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-27T08:21:13Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 10847,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "issue": "Only owner rows and blocked P056 open again; main_health green and the friction table was mostly stale, so the fault came from repeated creative-prompt reports."
+    },
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "Audio cap (423 MB) only found after picking work; fixed with one clause."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "No blog post or agent doc: one-clause prompt fix.",
+      "did": "skipped",
+      "result": "fine"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Critique mode. No backlog ids touched. promptctl validate fails on another run's record with null pr (2026-10-27-session_01EhTJVLbgey8RhToyfyWUyL.json), and one prompts unit test fails; not mine.",
+  "corrections": [],
+  "redteam": null
+}

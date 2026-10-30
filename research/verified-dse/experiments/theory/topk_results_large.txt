@@ -1,0 +1,30 @@
+pilot m = 16, 300 pilots x 20 tie-breaks per cell; A = max over 8 random disjoint pairs, B = best 3 pilot points vs all pilot points
+clock | design | start | coverage A | coverage B | median bound A | median bound B | realised regret (mean)
+tight | adder_op64 | r1 | 0.660 | 0.997 | 0.209 | 0.449 | 0.120
+tight | adder_op64 | r2 | 1.000 | 1.000 | 0.103 | 0.386 | 0.000
+tight | adder_ripple64 | r1 | 1.000 | 1.000 | 0.562 | 0.562 | 0.000
+tight | adder_ripple64 | r2 | 1.000 | 1.000 | 0.000 | 0.000 | 0.000
+tight | mult16 | r1 | 0.968 | 1.000 | 0.211 | 0.428 | 0.062
+tight | mult16 | r2 | 0.963 | 1.000 | 0.110 | 0.253 | 0.007
+tight | mult24 | r1 | 1.000 | 1.000 | 0.179 | 0.326 | 0.007
+tight | mult24 | r2 | 1.000 | 1.000 | 0.074 | 0.157 | 0.000
+tight | mult32 | r1 | 0.990 | 1.000 | 0.155 | 0.294 | 0.008
+tight | mult32 | r2 | 0.870 | 0.987 | 0.059 | 0.133 | 0.008
+relaxed | adder_op64 | r1 | 0.797 | 1.000 | 0.131 | 0.305 | 0.040
+relaxed | adder_op64 | r2 | 1.000 | 1.000 | 0.036 | 0.171 | 0.000
+relaxed | adder_ripple64 | r1 | 1.000 | 1.000 | 0.443 | 0.443 | 0.000
+relaxed | adder_ripple64 | r2 | 1.000 | 1.000 | 0.000 | 0.000 | 0.000
+relaxed | mult16 | r1 | 0.897 | 1.000 | 0.311 | 0.510 | 0.204
+relaxed | mult16 | r2 | 1.000 | 1.000 | 0.141 | 0.236 | 0.000
+relaxed | mult24 | r1 | 0.793 | 0.973 | 0.287 | 0.502 | 0.156
+relaxed | mult24 | r2 | 0.613 | 0.853 | 0.143 | 0.247 | 0.107
+relaxed | mult32 | r1 | 0.747 | 0.973 | 0.248 | 0.503 | 0.131
+relaxed | mult32 | r2 | 0.483 | 0.810 | 0.123 | 0.284 | 0.129
+
+A: coverage median 0.979, min 0.483; cells under 0.8: 6 of 20; pooled mean 0.889
+B: coverage median 1.000, min 0.810; cells under 0.8: 0 of 20; pooled mean 0.980
+B covers more than A in 11 cells, less in 0
+tight from r1: median bound A 0.209, B 0.428; B covers >= 0.8 on 5 of 5 (of those, bound under 0.1 on 0); A covers >= 0.8 on 4; realised regret above 0 in 4
+relaxed from r1: median bound A 0.287, B 0.502; B covers >= 0.8 on 5 of 5 (of those, bound under 0.1 on 0); A covers >= 0.8 on 2; realised regret above 0 in 4
+tight from r2: median bound A 0.074, B 0.157; B covers >= 0.8 on 5 of 5 (of those, bound under 0.1 on 1); A covers >= 0.8 on 5; realised regret above 0 in 2
+relaxed from r2: median bound A 0.123, B 0.236; B covers >= 0.8 on 5 of 5 (of those, bound under 0.1 on 1); A covers >= 0.8 on 3; realised regret above 0 in 2

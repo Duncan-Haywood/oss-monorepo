@@ -1,0 +1,21 @@
+NaijaSenti corpus 44485 tweets, true negative share 0.3285; strata hau 15538, ibo 11068, pcm 7353, yor 10526
+1000 audit draws per cell, seed 20261025. Part 1: plug-in half-width (from per-stratum prevalence, sens, spec, allocation) vs mean simulated half-width of stratified PPI, points. Part 2: audit-size rule for a +/-3 point target.
+
+PART 1 design | coder | per-stratum sens/spec/S2 | predicted half | simulated half | ratio sim/pred | coverage
+B equal quota [100, 100, 100, 100] | lexicon-en | hau:0.01/1.00/0.224 ibo:0.02/1.00/0.192 pcm:0.09/0.95/0.286 yor:0.00/1.00/0.172 | 4.64 | 4.64 | 1.000 | 0.947
+C 70% hau [280, 40, 40, 40] | lexicon-en | hau:0.01/1.00/0.224 ibo:0.02/1.00/0.192 pcm:0.09/0.95/0.286 yor:0.00/1.00/0.172 | 5.63 | 5.62 | 0.998 | 0.944
+N Neyman n=400 [143, 95, 77, 85] | lexicon-en | hau:0.01/1.00/0.224 ibo:0.02/1.00/0.192 pcm:0.09/0.95/0.286 yor:0.00/1.00/0.172 | 4.49 | 4.49 | 1.000 | 0.958
+  (Neyman total for +/-3 points under lexicon-en: 887.5)
+B equal quota [100, 100, 100, 100] | nb-english | hau:0.02/0.99/0.231 ibo:0.02/0.97/0.224 pcm:0.39/0.73/0.405 yor:0.11/0.93/0.234 | 5.02 | 5.02 | 0.999 | 0.947
+C 70% hau [280, 40, 40, 40] | nb-english | hau:0.02/0.99/0.231 ibo:0.02/0.97/0.224 pcm:0.39/0.73/0.405 yor:0.11/0.93/0.234 | 6.34 | 6.32 | 0.996 | 0.936
+N Neyman n=400 [133, 93, 83, 91] | nb-english | hau:0.02/0.99/0.231 ibo:0.02/0.97/0.224 pcm:0.39/0.73/0.405 yor:0.11/0.93/0.234 | 4.93 | 4.93 | 1.000 | 0.943
+  (Neyman total for +/-3 points under nb-english: 1063.4)
+B equal quota [100, 100, 100, 100] | nb-in-language | hau:0.66/0.80/0.245 ibo:0.15/0.98/0.196 pcm:0.98/0.06/0.250 yor:0.15/0.97/0.184 | 4.74 | 4.73 | 0.996 | 0.955
+C 70% hau [280, 40, 40, 40] | nb-in-language | hau:0.66/0.80/0.245 ibo:0.15/0.98/0.196 pcm:0.98/0.06/0.250 yor:0.15/0.97/0.184 | 5.66 | 5.64 | 0.997 | 0.945
+N Neyman n=400 [148, 94, 71, 87] | nb-in-language | hau:0.66/0.80/0.245 ibo:0.15/0.98/0.196 pcm:0.98/0.06/0.250 yor:0.15/0.97/0.184 | 4.56 | 4.55 | 0.998 | 0.948
+  (Neyman total for +/-3 points under nb-in-language: 911.7)
+
+PART 2 coder | rule n (Neyman, +/-3 pts) | allocation | simulated mean half | simulated half 95th pct | coverage | human-only (strat) n for same target
+lexicon-en | 888 | [319, 210, 170, 189] | 3.00 | 3.09 | 0.946 | 851
+nb-english | 1064 | [354, 248, 222, 241] | 3.00 | 3.10 | 0.953 | 851
+nb-in-language | 912 | [337, 215, 161, 198] | 3.00 | 3.13 | 0.958 | 851

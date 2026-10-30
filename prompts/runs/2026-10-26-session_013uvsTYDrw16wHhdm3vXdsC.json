@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-26",
+  "session": "https://claude.ai/code/session_013uvsTYDrw16wHhdm3vXdsC",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-26T18:58:40Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/10706",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/routing.json",
+      "why": "Router sent a review/creative track; the scheduled brief asks for revenue product work, so I deepened flagship 5 (einvoice-preflight).",
+      "did": "Added a Cyprus mandate page",
+      "result": "14 tests pass"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-26-einvoice-preflight-cyprus.md"
+  ],
+  "goal": null,
+  "notes": "Cyprus page from search excerpts only (vendor/advisory guides); TAD unread, flagged on page. Bulgaria page checked first: still current, no outcome published. Tests: cyprus + hub 14 pass.",
+  "corrections": [],
+  "redteam": null
+}

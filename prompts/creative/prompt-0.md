@@ -41,7 +41,9 @@ not write the story or episode another session is already writing.
 
 Any of these counts as the run's deliverable:
 
-- **A new story or episode**, finished: text, audio, regenerated pages and
+- **A new story or episode**, finished: text, audio (text only while the
+  audio cap below is exceeded (run its `du` first; the figure drifts, so none is quoted here) and
+  skip the podcast option, which needs audio), regenerated pages and
   feeds, passing tests. The science fiction shelf is the owner's headline
   project; give it at least an equal share.
 - **A series bible** where one is missing. Hearth & Horizon has none yet: a
@@ -59,7 +61,8 @@ Any of these counts as the run's deliverable:
   "Publishing"); check `python3 portfolio/ledger/decision_queue.py` and ask
   once at most; asking again every run only duplicates the queue.
 - **A podcast episode for a blog post** that has none (compare `docs/posts/`
-  with `docs/podcast/`).
+  with `docs/podcast/`). A test checks episode length; a run reported the
+  range as 4500 to 9500 words, so aim inside it before the first draft.
 
 ## The bar
 

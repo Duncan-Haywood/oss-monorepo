@@ -283,6 +283,15 @@ class GitRemoteRepo(unittest.TestCase):
             self.assertIsNone(cs.git_remote_repo())
 
 
+class GitRemoteCapture(unittest.TestCase):
+    def test_git_output_is_captured_not_printed(self):
+        proc = unittest.mock.Mock(returncode=0, stdout="https://github.com/o/n.git\n")
+        with unittest.mock.patch.object(cs.subprocess, "run", return_value=proc) as run:
+            cs.git_remote_repo()
+        self.assertTrue(run.call_args.kwargs.get("capture_output"))
+        self.assertTrue(run.call_args.kwargs.get("text"))
+
+
 class ApiToken(unittest.TestCase):
     def test_gh_token_wins(self):
         self.assertEqual(
@@ -415,6 +424,20 @@ class FromJson(unittest.TestCase):
         code, out = self.run_from_json({"jobs": [job()]})
         self.assertEqual(code, 0)
         self.assertIn("got a real runner", out)
+
+    def test_no_jobs_is_no_answer_not_healthy(self):
+        # 0 tells `if ci_starvation.py --run $ID` that runners are fine; a run
+        # with no jobs (not created yet, wrong id) has not shown that.
+        for payload in ({"jobs": []}, []):
+            code, out = self.run_from_json(payload)
+            self.assertEqual(code, 2, payload)
+            self.assertIn("no jobs found", out)
+
+    def test_malformed_jobs_value_is_an_error_not_starvation(self):
+        # An uncaught TypeError exits 1, which callers read as "starved".
+        for payload in ({"jobs": None}, {"jobs": "x"}, {"jobs": 3}):
+            code, _ = self.run_from_json(payload)
+            self.assertEqual(code, 2, payload)
 
     def test_it_never_touches_the_api(self):
         api = unittest.mock.Mock()

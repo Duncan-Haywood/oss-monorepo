@@ -35,7 +35,13 @@ class TestBenchmark(unittest.TestCase):
         self.assertLess(slow, base - 0.2)
 
     def test_analysis_helpers(self):
-        import analyse
+        # several experiments ship an analyse.py; load this one by path so a
+        # module of the same name cached by another test cannot shadow it
+        import importlib.util
+        spec = importlib.util.spec_from_file_location(
+            "m3_analyse", os.path.join(os.path.dirname(__file__), "..", "experiments", "m3_benchmark", "analyse.py"))
+        analyse = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(analyse)
         self.assertAlmostEqual(analyse.spearman([1, 2, 3, 4], [10, 20, 30, 40]), 1.0)
         self.assertAlmostEqual(analyse.spearman([1, 2, 3, 4], [4, 3, 2, 1]), -1.0)
         self.assertAlmostEqual(analyse.ks_distance(np.array([0., 1.]), np.array([0., 1.])), 0.0)

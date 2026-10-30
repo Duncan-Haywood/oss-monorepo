@@ -1,0 +1,30 @@
+fear: corpus 6683, prevalence 0.0115
+category | target pts | pilot | rule | planned n mean (x oracle) | sd/oracle n | mean half | share half > 1.25 target | coverage
+fear | 1.0 | 400 | A plug-in | 286 (0.72x of 398) | 0.397 | 1.149 | 0.142 | 0.696
+fear | 1.0 | 400 | B wilson | 1513 (3.80x of 398) | 0.408 | 0.472 | 0.000 | 0.920
+fear | 1.0 | 400 | C shrink | 342 (0.86x of 398) | 0.386 | 1.069 | 0.294 | 0.784
+fear | 1.0 | 1500 | A plug-in | 377 (0.95x of 398) | 0.214 | 1.012 | 0.202 | 0.854
+fear | 1.0 | 1500 | B wilson | 896 (2.25x of 398) | 0.235 | 0.634 | 0.000 | 0.914
+fear | 1.0 | 1500 | C shrink | 385 (0.97x of 398) | 0.199 | 0.982 | 0.168 | 0.860
+fear | 0.5 | 400 | A plug-in | 994 (0.74x of 1347) | 0.366 | 0.868 | 0.248 | 0.702
+fear | 0.5 | 400 | B wilson | 3569 (2.65x of 1347) | 0.170 | 0.240 | 0.000 | 0.944
+fear | 0.5 | 400 | C shrink | 1172 (0.87x of 1347) | 0.335 | 0.649 | 0.376 | 0.916
+fear | 0.5 | 1500 | A plug-in | 1279 (0.95x of 1347) | 0.177 | 0.530 | 0.158 | 0.910
+fear | 0.5 | 1500 | B wilson | 2529 (1.88x of 1347) | 0.139 | 0.326 | 0.000 | 0.928
+fear | 0.5 | 1500 | C shrink | 1296 (0.96x of 1347) | 0.170 | 0.529 | 0.168 | 0.930
+
+sadness: corpus 6683, prevalence 0.0230
+category | target pts | pilot | rule | planned n mean (x oracle) | sd/oracle n | mean half | share half > 1.25 target | coverage
+sadness | 1.0 | 400 | A plug-in | 629 (0.86x of 733) | 0.300 | 1.281 | 0.184 | 0.858
+sadness | 1.0 | 400 | B wilson | 1840 (2.51x of 733) | 0.243 | 0.581 | 0.000 | 0.936
+sadness | 1.0 | 400 | C shrink | 697 (0.95x of 733) | 0.293 | 1.105 | 0.238 | 0.930
+sadness | 1.0 | 1500 | A plug-in | 715 (0.98x of 733) | 0.133 | 1.025 | 0.092 | 0.910
+sadness | 1.0 | 1500 | B wilson | 1265 (1.73x of 733) | 0.132 | 0.731 | 0.000 | 0.932
+sadness | 1.0 | 1500 | C shrink | 723 (0.99x of 733) | 0.124 | 1.015 | 0.068 | 0.932
+sadness | 0.5 | 400 | A plug-in | 1834 (0.83x of 2197) | 0.245 | 0.800 | 0.318 | 0.890
+sadness | 0.5 | 400 | B wilson | 3995 (1.82x of 2197) | 0.104 | 0.295 | 0.000 | 0.944
+sadness | 0.5 | 400 | C shrink | 2057 (0.94x of 2197) | 0.195 | 0.563 | 0.230 | 0.932
+sadness | 0.5 | 1500 | A plug-in | 2143 (0.98x of 2197) | 0.101 | 0.530 | 0.090 | 0.950
+sadness | 0.5 | 1500 | B wilson | 3224 (1.47x of 2197) | 0.075 | 0.367 | 0.000 | 0.938
+sadness | 0.5 | 1500 | C shrink | 2161 (0.98x of 2197) | 0.098 | 0.516 | 0.048 | 0.942
+

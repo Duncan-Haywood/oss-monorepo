@@ -1,0 +1,62 @@
+{
+  "date": "2026-10-24",
+  "session": "https://claude.ai/code/session_01E7BjRjSFvZfVEnBiRFS9fN",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "is there a way to set up the ghp website so it's significantly faster to build and more performant? another framework or language or something? wasm or something",
+  "input_sha256": "068acc6eeb9655ff18a7ed1822ee2c1b1f42cd2751542e26cbe66592a88d9ad5",
+  "follow_up_inputs": [
+    "yes do all four, move the mp3s too",
+    "what about the alleged 120 minute build for the ghp site?"
+  ],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-24T18:20:22Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Pages merge-to-live speed: fail-soft posts on deploy, share-card cache, MP3s served from jsDelivr, concurrent page passes, dashboard in background",
+  "projects": [
+    "platform/pages",
+    ".github/workflows"
+  ],
+  "pr": 10208,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [
+    "Guessed copyTree/file copying was the slow part from a CPU profile that was 84% idle; phase timestamps showed copying was 6 s and card drawing ~55 s. Measured before changing it.",
+    "Shipped-then-reverted within the PR: a blob-less checkout. The daily brief's --numstat makes git batch-fetch every changed blob per commit (attributes ignored), slower than the full clone; reverted before merge, documented.",
+    "build.test.mjs 'an identical build produces an identical cache name' failed twice (303/304 the second time) because this session edited docs/posts and the run record while it ran; both are build inputs (writing.mjs, engineering.mjs). Checked directly: two buildSite calls in one process on an unchanged tree gave the same cache name (portfolio-dcfdf7b4e10a) and diff -rq found no difference."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/daily/collect.mjs",
+      "issue": "readMerges reads 14 days (7 editions + a 7-day lookback) with --numstat; nothing at the workflow level says so, and it is what pins the Pages build to a full 5.2 GB clone."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/runs/README.md",
+      "why": "model left null: this session's harness forbids writing a model identifier into any pushed artifact"
+    }
+  ],
+  "writeups": [
+    "docs/history/pages-build-speed-2026-10-24.md",
+    "docs/posts/2026-10-24-the-site-was-not-slow-to-build-it-was-slow-to-ship.md"
+  ],
+  "goal": null,
+  "notes": "Answered 'faster framework/language/WASM?': no; ~7 s of 110 s build is JS work (node --cpu-prof), pages are static (median 14.5 KB). '120 min build': last 100 main runs 6 success/64 failure (60 on an over-long post description)/29 cancelled; push to next deploy median 48 min, max 169. Local build (4 cores, phase timestamps): 110 s -> 96 s cold card cache -> 50 s warm; diff -rq cold vs warm identical; check.mjs on warm output: 1316 products, 4434 pages, no dead links. Artifact 776 MB -> 371 MB (78 MP3s, 424 MB, to jsDelivr; curl: 200/206 audio/mpeg, CORS *, immutable, enclosure length = content-length). Clone: full depth-3000 264 s / 5.2 GB vs blob:none 59 s / 600 MB, but daily brief lazily fetched (94 batches, >119 s vs 35 s full) -> not shipped. Tests: audio-cdn 4/4, share 19/19, writing 15/15, podcast pass. Overlaps: absorbed PR #10195's in-process card cache into renderCards (memory then disk); PR #10206 (sitemap lastmod) reads --name-only only, unaffected. build.test.mjs: 303/304, the one failure explained by mid-run edits (errors[2]); twin-build check identical. After merging main: main red again from PR #10210's post with no description; the PAGES_SKIP_BAD_POSTS build skipped it with a ::warning:: and built 4,442 pages (49 s warm, check.mjs publishable). Added its description and tags here.",
+  "corrections": [],
+  "redteam": null
+}

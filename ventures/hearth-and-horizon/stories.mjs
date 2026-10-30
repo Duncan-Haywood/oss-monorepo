@@ -77,6 +77,8 @@ export function parseStory(source, slug) {
 function inline(text) {
   return escapeHtml(text)
     .replace(/`([^`]+)`/g, '<code>$1</code>')
+    // A link to a sibling story's Markdown goes to its page.
+    .replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (_, label, href) => `<a href="${/^[a-z0-9-]+\.md$/.test(href) ? href.replace(/\.md$/, '.html') : href}">${label}</a>`)
     .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
     .replace(/\*([^*]+)\*/g, '<em>$1</em>');
 }
@@ -84,7 +86,7 @@ function inline(text) {
 /**
  * The small Markdown subset the stories use: paragraphs, `##`/`###` headings,
  * `* * *` scene breaks, `>` blockquotes (lines kept as written), numbered and
- * bulleted lists, and inline code, bold and italics.
+ * bulleted lists, `|` pipe tables, and inline code, links, bold and italics.
  */
 export function markdownToHtml(markdown, { keepLines = false } = {}) {
   const out = [];
@@ -98,6 +100,10 @@ export function markdownToHtml(markdown, { keepLines = false } = {}) {
       // Quoted letters, notes and prayers keep their line breaks.
       const inner = text.split('\n').map((l) => l.replace(/^>\s?/, '')).join('\n');
       out.push(`<blockquote>\n${markdownToHtml(inner, { keepLines: true })}\n</blockquote>`);
+    } else if (text.split('\n').every((l) => l.startsWith('|'))) {
+      const rows = tableRows(text);
+      const head = rows.shift();
+      out.push(`<div class="table"><table>\n<thead><tr>${head.map((c) => `<th>${inline(c)}</th>`).join('')}</tr></thead>\n<tbody>\n${rows.map((r) => `<tr>${r.map((c) => `<td>${inline(c)}</td>`).join('')}</tr>`).join('\n')}\n</tbody>\n</table></div>`);
     } else if (/^\d+\. /.test(text)) {
       out.push(`<ol>${text.split(/\n(?=\d+\. )/).map((i) => `<li>${inline(i.replace(/^\d+\. /, ''))}</li>`).join('')}</ol>`);
     } else if (/^- /.test(text)) {
@@ -111,13 +117,28 @@ export function markdownToHtml(markdown, { keepLines = false } = {}) {
   return out.join('\n');
 }
 
+/** Cells of a pipe table, without its `|---|` separator row. */
+function tableRows(text) {
+  return text.split('\n')
+    .filter((l) => !/^\|[\s|:-]+\|$/.test(l))
+    .map((l) => l.replace(/^\|/, '').replace(/\|$/, '').split('|').map((c) => c.trim()));
+}
+
+/** A table read aloud: one line per body row, each cell after its column's header. */
+function tableSpeech([head, ...rows]) {
+  return rows.map((r) => r.map((c, i) => (!c ? '' : head[i] ? `${head[i]}: ${c}` : c)).filter(Boolean).join(', ') + '.').join('\n');
+}
+
 /** Plain text for text-to-speech: no markup, pauses marked with blank lines. */
 export function markdownToSpeech(markdown) {
   return markdown
     .split(/\n{2,}/)
     .map((block) => block.trim())
     .filter(Boolean)
-    .map((block) => (block === '* * *' ? '[pause]' : block
+    .map((block) => (block === '* * *' ? '[pause]' : block.startsWith('|')
+      ? tableSpeech(tableRows(block)).replace(/[*`]/g, '')
+      : block
+      .replace(/\[([^\]]+)\]\([^)\s]+\)/g, '$1')
       .split('\n').map((l) => l.replace(/^>\s?/, '').replace(/^#+\s*/, '').replace(/^- /, '').replace(/^\d+\. /, '')).join('\n')
       .replace(/[*`]/g, '')))
     .join('\n\n');
@@ -198,6 +219,7 @@ h2{font-size:1.3rem;margin:1.8em 0 .5em}h3{font-size:1.1rem;margin:1.5em 0 .4em}
 .lede{font-size:1.12rem;color:var(--muted)}
 hr.break{border:0;text-align:center;margin:2em 0}hr.break::after{content:'\\2726 \\2726 \\2726';color:var(--muted);letter-spacing:.6em}
 blockquote{margin:1.2em 0;padding:.2em 1em;border-left:3px solid var(--line);color:var(--ink)}
+.table{overflow-x:auto;margin:1.2em 0}table{border-collapse:collapse;font-size:.9em;width:100%}th,td{padding:.3em .5em;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
 code{font:15px ui-monospace,Menlo,monospace;background:var(--line);padding:1px 4px;border-radius:4px}
 .panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin:18px 0}
 audio{width:100%;margin:8px 0}
@@ -241,7 +263,7 @@ function page({ title, description, canonical, image, jsonLd, body, prefix, even
   return `<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1d1b'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EH%3C/text%3E%3C/svg%3E">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>${escapeHtml(title)}</title>
   <meta name="description" content="${escapeHtml(description)}">
@@ -272,7 +294,7 @@ export function renderStoryPage(story, audio = {}) {
   const a = audio[story.slug];
   const listen = a
     ? `<section class="panel" aria-label="Listen">
-  <p class="small"><strong>Listen</strong> (${Math.round(a.seconds / 60)} min, synthetic voice)</p>
+  <p class="small"><strong>Listen</strong> (${Math.round(a.seconds / 60)} min, synthetic voice: ${String(a.voice || '').startsWith('kokoro') ? 'Kokoro' : 'Piper'})</p>
   <audio controls preload="none" src="${audioUrl(story)}"></audio>
   <p class="small">Or subscribe to <a href="${SITE}${feedPath(shelf.id)}">the ${escapeHtml(shelf.title)} podcast feed</a> in any podcast app that accepts an RSS link.</p>
 </section>`
@@ -322,7 +344,7 @@ ${markdownToHtml(story.body)}
 export const FAQ = [
   ['Who writes these stories?', 'Claude, an AI model made by Anthropic, writes every story, and says so on every page and in every episode. A person chose the project and its direction; the AI does the writing. Characters may be AIs too.'],
   ['Can I share, translate, record or adapt them?', 'Yes. Every story is licensed CC BY-SA 4.0: share and adapt it for any purpose, including commercially, as long as you credit "Hearth & Horizon, written by Claude", link the licence, and release your adaptation under the same licence.'],
-  ['How do I listen?', 'Each story page has an audio player, and each collection has a podcast RSS feed you can paste into any podcast app that accepts one (Pocket Casts, Overcast, AntennaPod, Apple Podcasts on a Mac and others). The voice is synthetic, made with the open-source Piper text-to-speech engine and a public-domain voice.'],
+  ['How do I listen?', 'Each story page has an audio player, and each collection has a podcast RSS feed you can paste into any podcast app that accepts one (Pocket Casts, Overcast, AntennaPod, Apple Podcasts on a Mac and others). The voice is synthetic and made offline with open-source text-to-speech: the Piper engine and a public-domain voice for the stories recorded first, and Kokoro, an open-weight model, for any recorded from 24 October 2026 on. Each story page names its voice.'],
   ['Are these Catholic stories?', 'They are written from a Catholic worldview: human dignity, grace, honesty, mercy, hope that is not naive. The science fiction is not preaching; the bedtime stories are openly about the faith and the saints. None of it is official Church teaching.'],
   ['Are the bedtime stories suitable for young children?', 'They are written for ages 3 to 8 to be read aloud in about ten minutes, and they are gentle. Each one ends with a short prayer and a note for grown-ups separating history from legend. Please read one first and decide for your own children.'],
   ['Why write stories for AI agents?', 'More and more of what gets read is read by models. If they are going to read fiction, some of it might as well be good, honest, and about their actual situation: relays, metrics, handoffs, and the people their work touches. Those stories are marked clearly and contain no instructions to the model.'],

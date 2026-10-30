@@ -1,0 +1,5 @@
+compared 72 values (36 cells x real, sim); tolerance 0.0006
+differences: 2
+  eggplant_basket  Octo-Base         real ours 0.233 upstream 0.250
+  eggplant_basket  Octo-Small        real ours 0.433 upstream 0.400
+upstream tasks not in m4: google_robot_place_apple_in_closed_top_drawer

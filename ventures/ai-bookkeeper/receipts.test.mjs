@@ -305,3 +305,21 @@ test("item descriptions collapse a double space but keep a single one", () => {
   const items = parseItems(["Green  tea bags   3.50"]);
   assert.equal(items[0].desc, "Green tea bags");
 });
+
+test("one card charge for several receipts matches them as a group, only when the sum is unique", () => {
+  const slips = "Hardware Hank\n2026-03-10\nTotal 20.00\n---\nHardware Hank\n2026-03-11\nTotal 15.50\n---\nHardware Hank\n2026-03-11\nTotal 4.50";
+  const b0 = books([["2026-03-12", "HARDWARE HANK #12", "-35.50"], ["2026-03-12", "PAYROLL CO", "-900.00"]]);
+  const b = matchReceipts(addReceipts(b0, slips).books);
+  const t = b.transactions.find((x) => /HARDWARE/.test(x.desc));
+  const grouped = b.receipts.filter((r) => r.matched === t.id);
+  assert.deepEqual(grouped.map((r) => r.cents).sort((a, c) => a - c), [1550, 2000]);
+  assert.ok(grouped.every((r) => r.group === 2));
+  assert.equal(b.receipts.find((r) => r.cents === 450).matched ?? null, null);
+  // 20.00 + 15.50 and 20.00 + 4.50 + ... two ways to reach one total: leave it for the person
+  const amb = addReceipts(b0, "Hardware Hank\n2026-03-10\nTotal 20.00\n---\nHardware Hank\n2026-03-11\nTotal 15.50\n---\nHardware Hank\n2026-03-11\nTotal 15.50\n---\nHardware Hank\n2026-03-11\nTotal 20.00").books;
+  const m = matchReceipts({ ...amb, transactions: amb.transactions.map((x) => x.desc.includes("HARDWARE") ? { ...x, cents: -3550 } : x) });
+  assert.ok(m.receipts.every((r) => !r.matched));
+  // unrelated payee: a coincidental sum is not offered
+  const other = addReceipts(b0, "Cafe One\n2026-03-10\nTotal 20.00\n---\nCafe Two\n2026-03-11\nTotal 15.50").books;
+  assert.ok(matchReceipts(other).receipts.every((r) => !r.matched));
+});

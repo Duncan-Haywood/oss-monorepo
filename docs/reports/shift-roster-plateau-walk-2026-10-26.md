@@ -1,0 +1,3 @@
+# shift-roster-builder: plateau walks (2026-10-26)
+
+For the next run: `eval/ilp-export.mjs 10 28 8` plus `eval/ilp-check.py` (needs scipy; `platform/ci/pyenv.py scipy numpy`) checks 8 weeks, not 4. Engine vs HiGHS optimum after this change: 110/110, 93/93, 57/57, 78/78, 89/89, 99/99, 62/61 (week 7, open), 39/39. `coverPassRuns`/`coverPassScale` (12/4) are new knobs in `calc.mjs`. More runs of the same annealed walk stall at 62 on week 7; try a depth-3 swap chain. Coverage-branch budget (400 nodes, 20 s) did not change which weeks are proven. The `next:` text in `flagships.yaml` has dates in 2026-11 that are later than today (2026-10-26); I added mine in date order without correcting them.

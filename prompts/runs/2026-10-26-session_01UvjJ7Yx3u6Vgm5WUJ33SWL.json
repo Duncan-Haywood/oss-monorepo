@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-26",
+  "session": "https://claude.ai/code/session_01UvjJ7Yx3u6Vgm5WUJ33SWL",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-26T03:26:17Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 10550,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "No blog post or agent doc written this run: the step is a log entry and three result files in a programme; the finding is in LOG.md.",
+      "did": "wrote LOG.md entry only",
+      "result": "ok"
+    }
+  ],
+  "writeups": [
+    "research/llm-coding-inference/LOG.md (milestone 6n)"
+  ],
+  "goal": null,
+  "notes": "Milestone 6n: width of HC3+t PPI++ intervals vs human-only. 3 of 4 predictions held; (2) refuted. Cross-fit n=60 invalid (nan se, disclosed). Bare python3 lacks numpy; pyenv.py output ended up /usr/local/bin/python3 which worked.",
+  "corrections": [],
+  "redteam": null
+}

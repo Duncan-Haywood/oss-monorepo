@@ -1,0 +1,5 @@
+Milestone 4f: SIMPLER twin pairwise ranking accuracy versus real trials per policy; interval = 4,000 resamples of tasks, 95% percentile
+real-gap >= 0.00: 71 pairs, twin accuracy 0.887 [0.817, 0.966], m_rank 11 [5, 38] (infinite in 0.003 of resamples)
+   real-trial accuracy at m = 5, 10, 20, 30, 50, 100: 0.832, 0.884, 0.925, 0.944, 0.962, 0.979
+real-gap >= 0.15: 52 pairs, twin accuracy 0.942 [0.875, 0.986], m_rank 10 [5, 27] (infinite in 0.019 of resamples)
+   real-trial accuracy at m = 5, 10, 20, 30, 50, 100: 0.898, 0.945, 0.975, 0.987, 0.995, 0.999

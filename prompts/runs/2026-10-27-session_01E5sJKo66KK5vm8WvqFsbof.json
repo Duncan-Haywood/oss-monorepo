@@ -1,0 +1,54 @@
+{
+  "date": "2026-10-27",
+  "session": "https://claude.ai/code/session_01E5sJKo66KK5vm8WvqFsbof",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-27T08:24:02Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 10849,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "ai-bookkeeper next: items are nearly all blocked on real data/hosts; top flagship offers no doable slice"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "took flagship 4 instead of top row 1",
+      "did": "landed a real-series measurement",
+      "result": "landed"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-27-changepoint-detector-airline-passengers.md",
+    "ventures/changepoint-detector/README.md"
+  ],
+  "goal": null,
+  "notes": "Flagship 1 item 9 (2027 revenue procedure) not out and irs.gov refused by proxy again; took changepoint-detector open item (multiplicative season on a real series). New test passes; full venture suite started in background but not confirmed before merge.",
+  "corrections": [],
+  "redteam": null
+}

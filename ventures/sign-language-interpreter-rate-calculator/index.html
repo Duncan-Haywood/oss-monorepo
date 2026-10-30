@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%231b787e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3ES%3C/text%3E%3C/svg%3E">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Sign Language Interpreter Rate Calculator — Free, No Sign-Up</title>
   <meta name="description" content="Turn an assignment request's hours, travel, and setting into a defensible interpreting fee, plus a late-cancellation fee calculator. Entirely client-side.">
@@ -42,7 +42,8 @@
     .stats { font-size: .85rem; color: #435048; margin-bottom: 10px; }
     .error { color: #9a3412; font-weight: 600; }
     footer { margin-top: 28px; border-top: 1px solid #cfe0d6; padding-top: 16px; }
-  </style>
+    th[scope="row"] { font-weight: normal; font-size: inherit; text-transform: none; letter-spacing: normal; color: inherit; }
+</style>
 </head>
 <body>
   <header>
@@ -260,11 +261,11 @@
       const result = computeAssignmentQuote(input);
       els.stats.textContent = `${result.billableHours.toLocaleString()} billable hour(s) at ${SETTING_LABELS[input.setting] ?? "General / business / community"}.`;
       els.resultBody.innerHTML = `
-        <tr><td>Interpreting fee</td><td class="price">${money(result.interpretingFee)}</td></tr>
-        <tr><td>Travel time fee</td><td class="price">${money(result.travelTimeFee)}</td></tr>
-        <tr><td>Mileage fee</td><td class="price">${money(result.mileageFee)}</td></tr>
-        <tr><td><strong>Suggested assignment fee</strong></td><td class="price">${money(result.total)}</td></tr>
-        <tr><td>Effective hourly on this assignment</td><td class="price">${money(result.effectiveHourlyOnAssignment)}</td></tr>`;
+        <tr><th scope="row">Interpreting fee</th><td class="price">${money(result.interpretingFee)}</td></tr>
+        <tr><th scope="row">Travel time fee</th><td class="price">${money(result.travelTimeFee)}</td></tr>
+        <tr><th scope="row">Mileage fee</th><td class="price">${money(result.mileageFee)}</td></tr>
+        <tr><th scope="row"><strong>Suggested assignment fee</strong></th><td class="price">${money(result.total)}</td></tr>
+        <tr><th scope="row">Effective hourly on this assignment</th><td class="price">${money(result.effectiveHourlyOnAssignment)}</td></tr>`;
       renderFindings(result.findings);
       els.reportCard.hidden = false;
       els.status.textContent = "";
@@ -313,8 +314,8 @@
         hoursNotice: Number(els.hoursNotice.value),
       });
       els.cancellationBody.innerHTML = `
-        <tr><td>Cancellation tier</td><td>${result.tierLabel ?? "-"} (${result.feePercentage}%)</td></tr>
-        <tr><td><strong>Cancellation fee owed</strong></td><td class="price">${money(result.feeOwed)}</td></tr>`;
+        <tr><th scope="row">Cancellation tier</th><td>${result.tierLabel ?? "-"} (${result.feePercentage}%)</td></tr>
+        <tr><th scope="row"><strong>Cancellation fee owed</strong></th><td class="price">${money(result.feeOwed)}</td></tr>`;
       els.cancellationResult.hidden = false;
       els.cancellationStatus.textContent = "";
       recordEvent("cancellation-calculated");

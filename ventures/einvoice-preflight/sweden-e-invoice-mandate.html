@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e551b'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EE%3C/text%3E%3C/svg%3E"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sweden e-invoice mandate: B2B voluntary, Peppol BIS 3.0 for government | E-invoice Preflight</title>
+<meta name="description" content="Sweden has no domestic B2B e-invoicing mandate; public buyers have required e-invoices since 2019 and prefer Peppol BIS 3.0, and EU rules reach intra-EU B2B in 2030. What is reported, where sources disagree, and a free local checker.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/sweden-e-invoice-mandate.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Sweden e-invoice mandate: B2B voluntary, Peppol BIS 3.0 for government | E-invoice Preflight">
+<meta property="og:description" content="Sweden has no domestic B2B e-invoicing mandate; public buyers have required e-invoices since 2019 and prefer Peppol BIS 3.0, and EU rules reach intra-EU B2B in 2030. What is reported, where sources disagree, and a free local checker.">
+<meta property="og:url" content="https://example.invalid/einvoice-preflight/sweden-e-invoice-mandate.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does Sweden have a B2B e-invoicing mandate?","acceptedAnswer":{"@type":"Answer","text":"Not yet, per 2025 to 2026 vendor and advisory guides: domestic B2B e-invoicing is optional and agreed between trading partners. No B2B deadline was found; one guide mentions a regime around 2030 alongside EU rules. The first fixed date is the EU-wide 1 July 2030 for intra-EU B2B under ViDA. These are not the law or the Swedish Tax Agency (Skatteverket), so confirm there. This is a summary, not advice."}},{"@type":"Question","name":"What format do Swedish public buyers accept?","acceptedAnswer":{"@type":"Answer","text":"Vendor guides say Peppol BIS Billing 3.0, which is built on EN 16931, with suppliers to public bodies required to send e-invoices since April 2019. Sources disagree on the older Svefaktura and EDIFACT formats: one says they are being phased out and allowed only by agreement, another says they stopped being supported from 1 July 2025."}},{"@type":"Question","name":"What does this checker cover for Sweden?","acceptedAnswer":{"@type":"Answer","text":"EN 16931 and the Peppol BIS 3.0 rules it knows, for JSON, UBL, CII and Factur-X PDFs. It has no Svefaktura reader or Swedish national rules, and no operator or Peppol network lookup. A clean result means the invoice passes EN 16931 and the Peppol rules it knows, not that a Swedish buyer will accept it."}},{"@type":"Question","name":"How do I check an invoice for a Swedish public buyer before sending it?","acceptedAnswer":{"@type":"Answer","text":"Drop the file into the checker and tick the Peppol option. It tests the Peppol identifiers, electronic addresses, totals and tax breakdown arithmetic, and VAT, IBAN and BIC typos, each with a rule ID and a fix. Nothing is uploaded when you use the page. It is an offline observation, not an access point's acceptance and not legal advice."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch}.lede{font-size:1.05rem;max-width:64ch;color:#3d4f5f}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #15202b10;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #d3dbe4;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#3d4f5f}.fine,.note{font-size:.88rem;color:#3d4f5f}footer{color:#3d4f5f;font-size:.86rem}footer p{margin:.6rem 0}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; E-invoice Preflight</a></p>
+<header>
+<h1>Sweden's e-invoice rules: voluntary for B2B, Peppol for the public sector</h1>
+<p class="lede">Sweden has no domestic business-to-business e-invoicing mandate that the sources found put a date on. Suppliers to public bodies have had to send e-invoices since April 2019, with Peppol BIS Billing 3.0 the preferred format, and EU-wide rules reach cross-border B2B in 2030. Below: what is reported, where sources disagree, and how to test a file before it goes to a customer.</p>
+</header>
+<section>
+<h2>The timeline (as vendor guides and Commission sheets report it)</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Date</th><th scope="col">What changes</th></tr></thead>
+<tbody>
+<tr><td>Apr 2019</td><td>Suppliers to public bodies must send e-invoices, per vendor guides; the EU e-invoicing directive was applied to the public sector.</td></tr>
+<tr><td>1 Jul 2025</td><td>Peppol BIS Billing 3.0 reported as the preferred public-sector format. One guide says Svefaktura and EDIFACT stopped being supported then; another says they are phased out and kept only by agreement.</td></tr>
+<tr><td>Today</td><td><strong>B2B</strong> e-invoicing is optional, agreed between trading partners. No B2B deadline was found.</td></tr>
+<tr><td>1 Jul 2030</td><td>EU-wide ViDA e-invoicing for intra-EU B2B transactions, in a structured EN 16931-based format.</td></tr>
+</tbody>
+</table>
+</div>
+<p class="fine">Where sources disagree: the fate of Svefaktura and EDIFACT for public buyers (see the table), and whether Sweden will mandate B2B before the EU date (one 2022 article says the Tax Agency found adoption would not proceed without a mandate; a 2026 guide anticipates a mandate around 2030). These are vendor and advisory pages, not the Swedish law, Skatteverket or DIGG, the digital-government agency. No penalty is stated because none was found. Confirm against the law. A summary, not tax advice.</p>
+</section>
+<section>
+<h2>Which file counts, and how it travels</h2>
+<p>Swedish public buyers are reported to take <strong>Peppol BIS Billing 3.0</strong>, a profile of EN 16931, sent over the Peppol network. This checker does not read Svefaktura. A UBL or CII file that passes EN 16931 and the Peppol rules is the safe common ground for a Peppol-reachable buyer. A plain PDF is not a structured e-invoice.</p>
+</section>
+<section>
+<h2>What this checker does and does not cover</h2>
+<p>It applies EN 16931 and the Peppol BIS 3.0 rules it knows. It has <strong>no</strong> Svefaktura reader or Swedish national rules, no operator lookup and no Peppol directory lookup. Treat a clean result as "passes the European and Peppol rules", not "accepted by a Swedish buyer".</p>
+</section>
+<section>
+<h2>Test a file before you send it</h2>
+<p>Open the <a href="./">checker</a>, drop your XML, and tick <em>Also apply the Peppol BIS Billing 3.0 rules</em>. It flags a wrong business process or specification identifier, a missing or malformed electronic address, arithmetic that does not add up, a missing tax reason on a 0% or exempt line, and VAT, IBAN and BIC typos, each with a rule ID and a fix (<a href="what-does-this-e-invoice-error-code-mean.html">the rule reference</a>). No account, nothing uploaded.</p>
+<p>No invoice yet? The <a href="create.html">e-invoice creator</a> turns a form into UBL or CII XML and checks it. Other countries: <a href="e-invoicing-mandates-by-country.html">all side by side</a>, <a href="finland-e-invoice-mandate.html">Finland</a>, <a href="germany-e-invoice-mandate.html">Germany</a>, <a href="france-e-invoice-mandate.html">France</a>, <a href="hungary-e-invoice-mandate.html">Hungary</a>, <a href="belgium-e-invoice-mandate.html">Belgium</a>, <a href="malta-e-invoice-mandate.html">Malta</a>, <a href="austria-e-invoice-mandate.html">Austria</a>, <a href="poland-ksef-e-invoice-mandate.html">Poland</a>, <a href="croatia-e-invoice-mandate.html">Croatia</a>, <a href="spain-verifactu-e-invoice-mandate.html">Spain</a>, <a href="italy-sdi-e-invoice-mandate.html">Italy</a>, <a href="netherlands-e-invoice-mandate.html">the Netherlands</a>, <a href="romania-e-factura-e-invoice-mandate.html">Romania</a>, <a href="greece-mydata-e-invoice-mandate.html">Greece</a>, <a href="bulgaria-e-invoice-mandate.html">Bulgaria</a>, <a href="portugal-e-invoice-mandate.html">Portugal</a>, <a href="uk-e-invoice-mandate.html">the UK</a>, <a href="uae-e-invoice-mandate.html">the UAE</a>, <a href="india-gst-e-invoice-mandate.html">India</a>, <a href="saudi-arabia-zatca-e-invoice-mandate.html">Saudi Arabia</a>, <a href="malaysia-myinvois-e-invoice-mandate.html">Malaysia</a>, <a href="hungary-e-invoice-mandate.html">Hungary</a>, <a href="denmark-e-invoice-mandate.html">Denmark</a>, <a href="estonia-e-invoice-mandate.html">Estonia</a>, <a href="slovakia-e-invoice-mandate.html">Slovakia</a>, <a href="lithuania-e-invoice-mandate.html">Lithuania</a>, <a href="luxembourg-e-invoice-mandate.html">Luxembourg</a>, <a href="slovenia-e-invoice-mandate.html">Slovenia</a>, <a href="norway-e-invoice-mandate.html">Norway</a>, <a href="latvia-e-invoice-mandate.html">Latvia</a>, <a href="serbia-e-invoice-mandate.html">Serbia</a>, <a href="czech-republic-e-invoice-mandate.html">Czech Republic</a>, <a href="slovakia-e-invoice-mandate.html">Slovakia</a>, <a href="latvia-e-invoice-mandate.html">Latvia</a>, or the <a href="../eu-einvoicing-mandate-checker/">EU e-invoicing mandate checker</a>.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Does Sweden have a B2B e-invoicing mandate?</h3>
+<p>Not yet, per 2025 to 2026 vendor and advisory guides: domestic B2B e-invoicing is optional and agreed between trading partners. No B2B deadline was found; one guide mentions a regime around 2030 alongside EU rules. The first fixed date is the EU-wide 1 July 2030 for intra-EU B2B under ViDA. These are not the law or the Swedish Tax Agency (Skatteverket), so confirm there. This is a summary, not advice.</p>
+<h3>What format do Swedish public buyers accept?</h3>
+<p>Vendor guides say Peppol BIS Billing 3.0, which is built on EN 16931, with suppliers to public bodies required to send e-invoices since April 2019. Sources disagree on the older Svefaktura and EDIFACT formats: one says they are being phased out and allowed only by agreement, another says they stopped being supported from 1 July 2025.</p>
+<h3>What does this checker cover for Sweden?</h3>
+<p>EN 16931 and the Peppol BIS 3.0 rules it knows, for JSON, UBL, CII and Factur-X PDFs. It has no Svefaktura reader or Swedish national rules, and no operator or Peppol network lookup. A clean result means the invoice passes EN 16931 and the Peppol rules it knows, not that a Swedish buyer will accept it.</p>
+<h3>How do I check an invoice for a Swedish public buyer before sending it?</h3>
+<p>Drop the file into the checker and tick the Peppol option. It tests the Peppol identifiers, electronic addresses, totals and tax breakdown arithmetic, and VAT, IBAN and BIC typos, each with a rule ID and a fix. Nothing is uploaded when you use the page. It is an offline observation, not an access point's acceptance and not legal advice.</p>
+<p class="note">Open the <a href="./">E-invoice Preflight</a> checker to validate your own invoice file.</p>
+</section>
+<section>
+<h2>More countries</h2>
+<p><a href="australia-e-invoice-mandate.html">Australia</a> <a href="brazil-nfe-e-invoice-mandate.html">Brazil</a> <a href="cyprus-e-invoice-mandate.html">Cyprus</a> <a href="ireland-e-invoice-mandate.html">Ireland</a> <a href="japan-invoice-system-e-invoice-mandate.html">Japan</a> <a href="mexico-cfdi-e-invoice-mandate.html">Mexico</a> <a href="colombia-dian-e-invoice-mandate.html">Colombia</a> <a href="chile-sii-e-invoice-mandate.html">Chile</a> <a href="peru-sunat-e-invoice-mandate.html">Peru</a> <a href="argentina-arca-e-invoice-mandate.html">Argentina</a> <a href="singapore-invoicenow-e-invoice-mandate.html">Singapore Invoicenow</a> <a href="switzerland-e-invoice-mandate.html">Switzerland</a> <a href="turkey-e-invoice-mandate.html">Turkey</a> <a href="uruguay-dgi-e-invoice-mandate.html">Uruguay</a> <a href="paraguay-dnit-e-invoice-mandate.html">Paraguay</a> <a href="ecuador-sri-e-invoice-mandate.html">Ecuador</a> <a href="vietnam-e-invoice-mandate.html">Vietnam</a></p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or accounting advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every check runs locally. This page is static and summarises the Swedish position as vendor and advisory guides report it, not from the law; things can change, so check the Swedish Tax Agency (Skatteverket) and DIGG and the law before relying on it.</p>
+<p class="support">Free and open source. If it caught a defect before a rejection, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+</footer>
+</main>
+</body></html>

@@ -360,7 +360,16 @@ series, 40 each, in `engine.test.mjs`):
   `--ar1` and not offered for counts (a line subtracted from counts is not a count; a Poisson trend is the open item); with `--period` the profile is removed first.
 
 - **Growth-change range scored with the NB cost (2026-10-23).** The 2026-10-22 fix widened a Poisson-scored range by `1 + mean / size`. The range now refits each candidate knot with the negative-binomial cost itself (`eval/growth-change-interval-nb.mjs 100 <seed> 0.35 nb`, seeds 2026, 7, 99, three bump sizes): the planted bend sits inside the range on 145 of 161 found bends (90%) against 142 of 161 (88%) for the ratio widening, with narrower ranges (seed 2026, median width 79, 70 and 61 points against 139, 100 and 61). The weakest cell is still bump 0.04 on seed 7 (10 of 15). Runs a few seconds per series.
-- **Growth-change range on clumpy counts widened to 95% (2026-10-26).** The NB-scored range covered the planted bend on 145 of 161 found bends (90%). The NB path now tempers the weights by 1.4 instead of 1.15 (`RANGE_TEMPER_NB`; Poisson keeps 1.15). Tuning seeds 2026, 7, 99 (`eval/growth-change-interval-nb.mjs 100 <seed> 0.35 nb`): 1.15 covered 145/161, 1.4 153/161 (95%), 1.7 157/161 (97.5%, wider ranges). Held-out seeds 3, 11, 500, run once at 1.4: 161 of 170 found bends (94.7%); the weakest cell is still bump 0.04 (38 of 44, 86%). Output in `eval/growth-change-interval-nb-temper.out.txt`. Ranges are about 15% wider than before. Open: a real series with a documented slope break.
+- **Growth-change range on clumpy counts widened to 95% (2026-10-26).** The NB-scored range covered the planted bend on 145 of 161 found bends (90%). The NB path now tempers the weights by 1.4 instead of 1.15 (`RANGE_TEMPER_NB`; Poisson keeps 1.15). Tuning seeds 2026, 7, 99 (`eval/growth-change-interval-nb.mjs 100 <seed> 0.35 nb`): 1.15 covered 145/161, 1.4 153/161 (95%), 1.7 157/161 (97.5%, wider ranges). Held-out seeds 3, 11, 500, run once at 1.4: 161 of 170 found bends (94.7%); the weakest cell is still bump 0.04 (38 of 44, 86%). Output in `eval/growth-change-interval-nb-temper.out.txt`. Ranges are about 15% wider than before. Two further fresh seeds (41, 77; never used for tuning, 2026-10-26) covered 101 of 107 found bends (94.4%), so the 95% holds on 277 found bends across five untuned-or-held-out seeds taken together; the bump 0.04 cell stays low (18 of 21, 86%, small counts), so treat ranges on steep bends as slightly optimistic. Open: a real series with a documented slope break.
+- **The steep-bend range is under-covered (2026-10-27, `eval/growth-change-interval-nb-steep.out.txt`).** Four more fresh seeds (5, 13, 29, 61; same script, temper 1.4, nothing tuned) covered 198 of 215 found bends (92.1%): bump 0.015 83/84 (99%), 0.025 68/73 (93%), 0.04 47/58 (81%). With the earlier 21 steep bends that is 65 of 79 (82%) for bump 0.04, so the 95% label is optimistic there; the steep cell has the narrowest median ranges (43 to 52 points against 90 or more). Not retuned: raising the temper for steep bends would be fitting this one synthetic design. Synthetic only; a real series with a documented steep slope break is still wanted. From 2026-10-27 the NB growth range carries this caveat itself: the CLI prints a note under it and the JSON has `trend.growthChangeRangeNote` (not set for Poisson).
+- **A real count series with a documented break: the UK seat-belt law (2026-10-26).** Monthly car drivers killed or seriously injured in Great Britain, 1969-1984 (`data/uk-driver-deaths.csv`, 192 months); the front-seat belt law took effect on 31 January 1983 (Harvey and Durbin 1986). `node eval/seatbelt-law.mjs` (output in `eval/seatbelt-law.out.txt`, test `seatbelt-law.test.mjs`). `--model poisson --period 12 --overdispersion nb` returns 8 changes, one of them 1983-01 (1600 to 1329 a month) with `range95` 1983-01 to 1983-02, which holds the first full month under the law; the other changes include the winter-1973 dip (1973-11, range 1973-10 to 1973-11, fuel rationing and the new speed limits that winter) and the 1974 rebound. Adding `--trend bends` gives the same date and range. Two things the series shows: plain `--model poisson --period 12` treats the clumpy counts as exact Poisson and returns 33 changes, so use `--overdispersion nb` on counts like these; and `--model mean --period 12` finds 1983-01 (range 1982-12 to 1983-02) but also a 2-month dip in 1981-12 and 1982-02 that the count model does not report. One series, one documented break, 0 of 1 misses: this shows the range is not absurd on real data, not that it is calibrated (the calibration is the seeded sets above). The date is one month before the law's first full month, as the January 1983 count is already low.
+- **A real daily count series with a documented shock: Puerto Rico deaths and Hurricane Maria (2026-10-29).** All-cause deaths per day, 1,201 days from 2015-01-01 (`data/puerto-rico-daily-deaths.csv`, R's `dslabs::pr_death_counts`). Maria made landfall on 2017-09-20; the count was 106 that day against a 60-day mean of 78.5. `node eval/maria-deaths.mjs` (output `eval/maria-deaths.out.txt`, test `maria-deaths.test.mjs`). All five setups (`mean` and `poisson --overdispersion nb`, with no season, weekly 7 or yearly 365) put a change within a day of landfall, 78.8 to 82.1 per day before and 101.7 to 119.8 after, and the `range95` holds 2017-09-20 in all five (a single day in three of them). The cost is the same as for Ansett: 9 to 11 other changes, mostly the winter peak and the rebound (a drop to about 90 on 2017-10-08 or 10-29), which a three-year series cannot pin as a yearly cycle (a yearly period gave 10, not fewer). The detector reports the rebound as a second change rather than a burst. Two real events now hold, one closure and one shock.
+- **A real series quiet outside its one event: US airline passenger miles, 1937-1960 (2026-10-29).** 24 annual values, in logs (`data/airmiles.csv`, R's `datasets::airmiles`). `--model trend` reports exactly one change, 1946 (the first peacetime year; `range95` 1945 to 1948), where the slope falls from 0.250 to 0.136 per year and the level jumps by 0.276 (about 30%). A level-only model reads the same smooth growth as 7 steps, so on a trending series use `trend`. The series is strongly autocorrelated (rho about 0.95, the tool says so and the range is then too narrow); one event and 24 points make this a sanity check, not a coverage test. `node eval/airmiles.mjs` (output `eval/airmiles.out.txt`, test `airmiles.test.mjs`). Still wanted: a closure series quiet outside it.
+- **All 30 Ansett route and class series: no quiet closure series exists, and the count model's range holds the stop in 29 (2026-10-29).** Last entry asked for a closure series that is quiet outside the closure. The full `tsibbledata::ansett` table (10 routes x economy, business, first; `data/ansett-all.csv`) is 30 weekly series covering the 1989 pilots' dispute. `node eval/ansett-sweep.mjs` (output `eval/ansett-sweep.out.txt`, test `ansett-sweep.test.mjs`) runs `mean` and `poisson --overdispersion nb` (no season) on each and scores whether a `range95` holds the first week below 25% of the prior median (1989 W34 in 29 of 30; SYD-BNE First closes in W33). The count model's range holds it in 29 of 30 series, the mean model's in 19 of 30 (it misses most MEL-SYD, SYD-* economy and first series, where the mean model's steps sit away from the stop). Quiet outside the closure: none. The fewest other changes is 8 (SYD-OOL Business, count model), the most 36, typically 12 to 30; business series are shortest (about 176 weeks from 1989 W28) and quietest. So the Ansett data cannot score false alarms; it scores the closure range, and the bar for a quiet series still stands. Caveat: the closure week is defined from the data by a threshold, and one series, not thirty, is independent evidence for the pilots' dispute (the same event hit every route).
+
+- **A real weekly series with a documented closure: Ansett's 1989 pilots' dispute (2026-10-29).** Weekly economy-class passengers, Melbourne to Sydney, 283 weeks from 1987-06-29 (`data/ansett-melsyd-economy.csv`, R's `fpp2::melsyd`). The airline's pilots' dispute began on 18 August 1989: the series falls to 7.0 thousand in the week of 1989-08-21, is 0 for the seven weeks to 1989-10-09 and is 11.6 in the week of 1989-10-16 as flights resume. `node eval/ansett-strike.mjs` (output `eval/ansett-strike.out.txt`, test `ansett-strike.test.mjs`). All four setups (`mean` and `poisson --overdispersion nb`, each with and without `--period 52`) put a change within a week of 1989-08-21 and on 1989-10-16, and the stop's and the restart's `range95` holds the true week in all four. The cost is the other changes: the series swings with school holidays and Christmas, so the seasonal mean model returns 24 changes and the count model 43 (28 without the season), of which about 20 are nowhere near the dispute. A period of 52 with five cycles of data does not pin that swing down. One series, one closure: this shows the ranges hold on a clean documented event, not that the other changes are false alarms or that the range is calibrated. The seven zero weeks come back as separate steps, not one burst; `--episodes` was not tried here.
+- **The same dispute in first class, which was not quiet either (2026-10-29).** First-class passengers on the same route (`data/ansett-melsyd-first.csv`, `fpp2::melsyd` column `First.Class`, 270 weeks from 1988-03-28; the first 13 weeks are dropped because source week 13 is blank). `node eval/ansett-first.mjs` (output `eval/ansett-first.out.txt`, test `ansett-first.test.mjs`). The hope was a closure series without economy's school-holiday swing, so the other changes would drop. They did not: 29 and 30 changes for `mean` (seasonal 52, none) and 37 and 30 for `poisson --overdispersion nb`, mostly Christmas and Easter dips and the slow 1990-92 slide. The stop's `range95` holds 1989-08-21 or the next week in all four setups. The restart is different: first class opens at 0.05 thousand on 1989-10-16 and climbs for two months, so the two count setups hold the restart (0 to about 50 passengers) and the two mean setups do not (they put the step at 1989-11-06 or 11-13). One more series, and still none that is quiet outside a closure; the open item stays open.
+
 - **Speed: the bend search ranks knots on the Poisson cost (added 2026-10-21).** Profiling a 240-point `--model poisson --trend bend --overdispersion nb` run put 96% of the time in the NB cost, whose continuous-exposure form is O(segment length) and is called O(n^2) times per PELT, for about 35 knots. With 80 or more points under NB the grid and the neighbours of its best knot are now ranked with the Poisson cost (about 25x cheaper), and only the 8 best are refitted with the NB likelihood, which still picks the winner and decides the `3 log n` test. A 240-point series, one bend: 6.4 s to 1.8 s, two bends 12.9 s to 3.4 s, same knot (109) and slope. Cost, said plainly: on `data/measure_nb_bend.mjs` (40 series per row) the no-season row is unchanged (bend kept 18, knot within 15 points 13, 2.30 changes per series; false bends 0/40), but weekly goes from 22 kept / 18 near / 2.15 to 21 / 14 / 2.02 with 8 finalists (3 finalists: 19 / 14 / 1.95 in 1.5 min; 14: 21 / 15 / 2.08 in 3.1 min, no better). So the Poisson ranking misplaces some knots under a season; the whole measurement script runs in 2.4 min instead of about 10. Not done: ranking with a season-aware Poisson cost, which is what the weekly gap suggests.
 - **Speed: NB finalists are spread-out grid knots (2026-10-21).** The README entry above blamed the weekly gap on a Poisson ranking that is not season-aware. It is: `poissonTrend` already passes the seasonal factors as exposures to the Poisson cost. What crowded the finalist list was the winner's fine neighbours, which filled most of the 8 NB slots with near-copies of one knot. Finalists are now the 8 best grid knots and the neighbour scan is gone (also cheaper). Same 40 series per row (`data/measure_nb_bend.mjs`), bend kept / knot within 15 points / changes per series: no season 18 / 13 / 2.30 -> 18 / 14 / 2.30; weekly 21 / 14 / 2.02 -> 21 / 16 / 2.05; false bends 0 of 40 in both. A mix of 5 grid and 3 fine finalists was tried and dropped (12 and 15 near, no better). Gains of 1 and 2 series out of 40 are inside noise: the change is kept because it is simpler and no slower, not because it is shown to be better.
 - **Tried and dropped: refitting the seasonal factors under the trend (2026-10-21).** The Speed note above ended with "ranking with a season-aware Poisson cost" as not done, but the ranking already runs under the seasonal exposure; what the factors lack is the trend (they are fitted by `poissonSeasonal` with none). Refitting them under the trend found, then the trend under them, was measured on `data/measure_nb_bend.mjs` weekly rows (40 series): Poisson bend kept 18 and knot within 15 points 13, both unchanged (changes per series 4.08 -> 4.00); NB bend kept 21 -> 19, knot within 15 points 14 -> 13, changes per series 2.02 -> 2.30. No gain, so the code was removed. The weekly gap against the no-season row (22 -> 21 kept) is inside the noise of 40 series (about 3 either way), so more finalists or a better ranking is not clearly the cause.
@@ -434,6 +443,35 @@ With `--period`, the holidays are now left out of the seasonal factors (they no 
 
 The seasonal PELT pass now sees the fitted holiday exposure: with `--period` and `--holidays`, the engine alternates (seasonal factors with the holidays as an exposure, then the holidays refitted on the new factors) for two extra rounds. `node eval/holiday-alternate.mjs` runs the check on 40 seeded 224-day weekly series (every 28th day a 0.3x holiday on the busiest weekday; half the series carry a 1.5x step at 120): planted step found 20/20 both ways, no extra changes either way, holiday factor error 0.022 -> 0.021, largest seasonal-factor error 0.052 -> 0.045. A small gain on synthetic data, not measured on real holiday series; the previous behaviour is behind the engine option `noHolidayAlternation`.
 
+## A real volatility break: the Great Moderation (2026-10-24)
+
+Every volatility result above is on seeded synthetic series. `eval/great-moderation.mjs`
+(output in `eval/great-moderation.out.txt`, test in `great-moderation.test.mjs`) runs
+`--model meanvar` on 202 quarters of US real GDP growth, 1959Q2 to 2009Q3
+(`data/us-gdp-growth.csv`, public domain, source in `data/SOURCE.md`). The documented
+break is the fall in the volatility of growth at 1984Q1 (McConnell and Perez-Quiros 2000);
+the sample standard deviation is 4.34 before it and 2.04 from it to 2007Q4.
+
+| setting | changes | the one near 1984 | range95 holds 1984Q1? |
+|---|---|---|---|
+| `--min-segment 5` (the default until 2026-11-09) | 3 | 1983Q2 (sd 4.32 to 0.75) and 1984Q3 (0.75 to 1.97) | no: 1984Q3 "that point only" |
+| `--min-segment 12` | 2 | 1984Q3 (sd 4.33 to 2.00) | yes, 1984Q1 to 1985Q4 |
+| `--min-segment 20` | 2 | 1984Q3 (sd 4.33 to 2.02) | yes, 1983Q3 to 1985Q4 |
+
+So the break is found, dated one to two quarters late, but the default setting finds it
+the wrong way: a five-quarter calm patch in 1983Q2 to 1984Q2 (sd 0.75) beats one clean
+drop, and the reported range around the second change is a single quarter that excludes the
+documented date. Quarterly macro data has too few points per regime for a 5-point minimum
+segment on a variance model, since a short run of similar numbers has a tiny variance and
+looks like its own regime. With a minimum segment of 12 to 20 the range is honest. One
+series, one documented break; the default is not changed on this evidence. Since 2026-11-03 a `meanvar` run with any segment under 10 points returns a `rangeWarning` naming it (the CLI prints it), and the default GDP run shows it; `--min-segment 12` does not. `--model mean` on
+the same series reports 12 level changes (recessions read as mean shifts), and `--ar1`
+refuses `meanvar`. A slope break (log real GDP with `--trend bend`) was tried too: the engine
+reports 30 steps under the default and, with `--ar1`, none; a plain least-squares hinge puts the best knot at
+1967Q3 (4.8% a year to 3.0%) with residual autocorrelation 0.96, which is the
+unit-root problem Perron (1989) and Nelson and Plosser (1982) argued over, so no slope
+claim is made from it.
+
 ## Holidays on a real daily series
 
 Everything above about holidays is on seeded synthetic counts. As a first
@@ -457,6 +495,25 @@ or burst rule, not a holiday list. One series only; a second article was
 refused by the Wikimedia API's rate limit (429) and not retried. A series with
 a real holiday closure (a shop's or office's daily counts) is still the test
 that would show the factor earning its place.
+
+## Burst or two steps? (`excursions`, counts)
+
+With `--model poisson`, the result lists an `excursions` entry (and one sentence in `summary`) when two neighbouring changes enclose a short stretch (at most a quarter of the series) whose rate sits above or below both sides, and the rate before and after it is statistically one rate (Poisson likelihood ratio under 3.84, 1 df). That reads as a temporary burst or dip on a steady baseline, not two level changes. The changes themselves are not altered. Function: `findExcursions`.
+
+Checked: a planted 10-point burst at 4x on a flat series is flagged; a plain step is not (`great-discoveries.test.mjs`). On the real great-discoveries series it is **not** flagged: the rate before 1884 (2.5 a year) and after 1888 (3.68) differ with a likelihood ratio of 6.9, so the honest reading there is a burst plus a persistent rise, which is what the three PELT changes say. The threshold was not moved to make that series pass. Synthetic power and false-flag rates (`eval/excursions.mjs`, plain Poisson counts, level 5, 100 points, 100 seeded series per row, 2026-10-28; output in `eval/excursions.out.txt`):
+
+| series | series with a change | excursion flagged |
+|---|---|---|
+| no change | 7 | 3 |
+| 5-point burst 2x | 61 | 55 |
+| 5-point burst 3x | 100 | 97 |
+| 10-point burst 2x | 96 | 86 |
+| 10-point burst 3x | 100 | 91 |
+| 10-point dip 0.3x | 97 | 84 |
+| lasting step 2x | 100 | 1 |
+| 3x burst for 5 points, then a 1.5x rise for good | 100 | 4 |
+
+When PELT cuts a true burst the note names it in 84 to 97% of series (the 2x, 5-point burst is cut in only 61% at all). A lasting step is wrongly called a burst in 1 of 100, and a burst riding a persistent rise is correctly left alone in 96 of 100. On a series with no change, the 3 flags are among the 7 false alarms PELT itself raised. Synthetic only, no overdispersion; no second real series.
 
 ## Bursts
 
@@ -483,6 +540,24 @@ it flags 0.4 but finds 90/160. 2.5 is a compromise, not an optimum. On the real
 none are cut. The bursts there are mostly runs and wide, so this rule is a
 partial answer on that series (2023-24, one series). Synthetic bursts are
 planted with the rule's own shape in mind, so the recall figures flatter it.
+
+### Burst episodes (`--episodes [n]`)
+
+For counts (`--model poisson`). Plain Poisson reads a burst as two steps, one up and one back down. `--episodes` looks at the fitted changes and labels an up-step followed within `n` points (default a tenth of the series, at least 5) by a down-step as one **episode** when the level after it is within half of the episode's own jump on a log scale of the level before. It also covers a dip. The changes, ranges and penalty are not touched: the result gains an `episodes` list, and the CLI prints it.
+
+Real series, great discoveries (1860-1959): the three plain-Poisson changes stay, and `--episodes` lists one burst, **1884 to 1888**, 8.2 a year against 2.5 before and 3.68 after (3.28x episode, 1.47x net). Test: `great-discoveries.test.mjs`.
+
+`eval/episodes.mjs` (output `eval/episodes.out.txt`; negative-binomial counts, size 8, level 5, 100 points, 40 seeded series per row):
+
+| series | series with a change | labelled an episode |
+|---|---|---|
+| no change | 5 of 40 | 5 of 40 |
+| 5-point burst 3x | 32 of 40 | 31 of 40 |
+| 8-point burst 2.5x | 37 of 40 | 30 of 40 |
+| lasting 2x step | 40 of 40 | 5 of 40 |
+| burst 3x for 5 points, then 1.8x for good | 40 of 40 | 14 of 40 |
+
+Read plainly: a true burst the model cut is labelled about 80 to 97% of the time, a lasting step almost never. The last row is the limit of the rule: a spike that settles at 1.8x scores 0.53 against the 0.5 cut, so it is labelled a burst in 14 of 40 series. It is a label for the reader, not a test: it cannot tell a burst from a short-lived change of regime, and when no change is found (`--bootstrap` on great discoveries) there is nothing to label. Synthetic apart from the one real series; the 0.5 and the length limit are not tuned.
 
 ### Short runs (`--burst-runs n`)
 
@@ -563,3 +638,532 @@ Measured with `node eval/growth-change-interval.mjs` (100 seeded Poisson series 
 **Calibrated 2026-10-22.** The first version weighted positions by `exp(-(cost - min cost) / 2 / scale)` and held only about 86% (88, 88, 84%) at a nominal 95%; the knots had no bias, the misses were tails. The weights are now tempered by 1.15 (`RANGE_TEMPER` in `engine.mjs`). Sweep on seed 2026, pooled over the three bumps (268 found series): 1.0 gave 86%, 1.1 gave 91%, 1.2 gave 97%, 1.3 gave 99%, 1.5 gave 100% (median width 64 against 37 at bump 0.015). The table is 1.15. Checked on two other seeds (`node eval/growth-change-interval.mjs 100 7`, `... 99`): 246/257 (96%) and 256/269 (95%), widths 22 to 52. 1.15 was picked from the seed 2026 sweep, so that seed is in-sample; the two other seeds are not. Output in `eval/growth-change-interval.out.txt`. Still open: a count series with a documented growth break. Simulated data only, Poisson counts (not clumpy ones).
 
 **Clumpy counts (2026-10-23).** The range above was only measured on Poisson counts. `node eval/growth-change-interval-nb.mjs [runs] [seed] [sd] [nb|poisson]` draws each count at an independent lognormal rate (sd 0.35) and runs `--overdispersion nb --trend bend` on the same series (200 points, 100 per row, seeds 2026 and 7; counted only if the knot landed within 20 points, which on clumpy counts is 11 to 24 of 100). Before: the range held the planted bend on 77 of 100 found series (79, 53, 100% and 92, 75, 67% for bumps 0.015, 0.025, 0.04), against a nominal 95%. Cause: a series of 80 or more points is ranked with the Poisson cost, which on clumpy counts is too sure of itself. Now the weights are also divided by the negative-binomial variance-to-mean ratio `1 + mean / size`: 89 of 100 on those two seeds (100, 79, 100 and 96, 92, 67%), and 53 of 61 (87%) on seed 99, which the change was not tuned on. Still under 95%, and the ranges are wide (median 61 to 142 points of 200). Not claimed calibrated. Output: `eval/growth-change-interval-nb.out.txt`. Still open: a real series with a documented growth break.
+
+## The `meanvar` default minimum segment is now 10 (2026-11-09)
+
+The GDP series above was one real case. `eval/meanvar-min-segment.mjs` (output in
+`eval/meanvar-min-segment.out.txt`, seeded, 100 series per cell) checks the minimum segment on
+simulated Gaussian series with a known truth:
+
+- **No change (sd 1 throughout):** false alarms 3% / 2% / 1% at n = 60 / 100 / 200 with a minimum of 5,
+  2% / 1% / 1% with 10.
+- **One sd break at the midpoint (2 to 1, or 1 to 2):** the share of series with exactly one change
+  rises from 62-67% (min 5) to 69-72% (min 10) at n = 60, 85-87% to 90% at n = 100 and 95-96% to 97%
+  at n = 200. The median dating error and the range95 hit rate (94-98%) do not move.
+- **The price:** an 8-point patch of sd 4 inside sd 1 (n = 100) is found by 77% of runs at a minimum
+  of 5, 73% at 10, 30% at 12 and none at 20.
+
+So 10 is better or equal everywhere except a true regime of about 8 points, where it loses four
+points of detection, and it fixes the real GDP case (1984Q3, range 1984Q1 to 1985Q4, no warning).
+`meanvar` now defaults to `--min-segment 10` (`mean` stays at 2, `trend` at 4); pass `--min-segment 5`
+for short regimes. Gaussian noise only: heavy tails and autocorrelated variance are untested.
+
+## `meanvar` on noise that is not Gaussian (2026-11-15)
+
+The minimum-segment check above used Gaussian noise only. `eval/meanvar-robustness.mjs` (output in
+`eval/meanvar-robustness.out.txt`, seeded, 200 series per cell, default minimum segment) draws unit-variance
+noise of four kinds and looks at a series with **no change** and one with an sd 1 to 2 break:
+
+| noise | false alarms, n = 100 / 200 | one change found on the break, n = 100 / 200 |
+|---|---|---|
+| Gaussian | 4% / 1% | 92% / 97% |
+| t with 3 df (heavy tails) | 39% / 62% | 57% / 55% |
+| GARCH(1,1) (clustered volatility, no break) | 42% / 51% | 61% / 57% |
+| AR(1), rho 0.5 | 51% / 54% | 44% / 37% |
+
+So on such noise `meanvar` reports a change about half the time when there is none, and range95 holds the
+true date on only 70% to 83% of the series where it does find the break. The cost has no cheap fix inside the model.
+What shipped is a warning: `meanvarNoiseCheck` in `engine.mjs` standardises the series by its fitted segments and
+sets `rangeWarning` for a fourth moment above 4.5, a lag-1 autocorrelation of the residuals from 0.25, or of their
+squares from 0.2. Fire rates on the same series (null / break): Gaussian 1% to 2% / 0% to 2%, t3 66% to 80% / 55% to
+76%, AR(1) 90% to 100% / 88% to 98%, GARCH only 16% to 20% / 11% to 18%. The thresholds were set on seed-based
+quantiles of these same simulations, so the rates are in-sample. Clustered volatility is mostly *not* caught, and
+no real heavy-tailed series has been tried. Test: `meanvar-noise.test.mjs`.
+
+## `--dispersion`: a heavier penalty when the squared residuals are over-dispersed (2026-10-26)
+
+`--robust` helps on heavy tails but not on clustered volatility (GARCH leaves 21-29% false alarms). `--model meanvar
+--dispersion` (`dispersion: true`) fits once, standardises each segment, takes the long-run variance of the squared
+residuals (Bartlett window) over 2 (the Gaussian value) as a factor of at least 1, and refits with the BIC penalty times
+that factor, the same idea as `overdispersion` for counts. The factor is returned as `dispersion`. Not for use with
+`--robust`. `eval/meanvar-dispersion.mjs` (output `eval/meanvar-dispersion.out.txt`, seeded, 200 series per cell, same
+generators as `meanvar-robustness.mjs`): false alarms on a null series / exactly one change on an sd 1 to 2 break.
+
+| noise, n = 100 / 200 | plain | `--dispersion` |
+|---|---|---|
+| Gaussian | 4% / 1%, 92% / 97% | 3% / 1%, 91% / 98% |
+| t3 | 39% / 62%, 57% / 55% | 21% / 29%, 56% / 64% |
+| GARCH | 42% / 51%, 61% / 57% | 34% / 30%, 58% / 64% |
+| AR(1) 0.5 | 51% / 54%, 44% / 37% | 44% / 40%, 48% / 43% |
+
+It roughly halves the false alarms at n = 200 and leaves Gaussian behaviour and detection alone, but 30% on GARCH and
+t3 is still not safe: the noise warning stays on and the dates remain candidates. At n = 100 the gain on GARCH is small
+(42% to 34%). A GARCH likelihood cost is still open.
+
+### A GARCH filter removes the false alarms and the real variance break with them (2026-10-27, negative result)
+
+The remaining route named above was a GARCH likelihood cost. A cheaper first test of the idea: fit GARCH(1,1) by Gaussian
+quasi-ML to the series less its median (`garchSigma` in `engine.mjs`, variance targeting plus a grid and local search), divide
+the series by the fitted conditional sd, then run plain `meanvar`. `eval/meanvar-garch-filter.mjs` (output
+`eval/meanvar-garch-filter.out.txt`, 200 series per cell, same seeds and noise kinds as the dispersion runs) reports, plain
+then filtered: null series with any change / sd 1 to 2 break found exactly once / mean +1.5 sd shift found exactly once.
+
+| n, noise | plain | GARCH-filtered |
+|---|---|---|
+| 200, Gaussian | 1% / 97% / 98% | 1% / 6% / 99% |
+| 200, GARCH | 51% / 57% / 50% | 1% / 9% / 78% |
+| 200, t3 | 62% / 55% / 38% | 54% / 41% / 43% |
+| 200, AR(1) | 54% / 37% / 47% | 42% / 23% / 63% |
+| 100, GARCH | 42% / 61% / 65% | 3% / 13% / 83% |
+
+False alarms on GARCH noise fall from about 50% to 1% to 3%, far below the 30% of `--dispersion`, and mean shifts are
+found more often. But a GARCH model reads a lasting jump in variance as high persistence, so the filter also absorbs the real
+sd 1 to 2 break (97% down to 6% on Gaussian noise at n = 200). It cannot be a default, and a filter does nothing for t3. What is
+left is a joint likelihood where the variance path may break at a changepoint while GARCH holds within segments, which PELT's
+segment-independent cost cannot express (the recursion depends on the previous segment's state). Not shipped as an option;
+the function and the script stay so the next attempt starts from this baseline. Simulated noise only.
+
+### A second dispersion round does not help (2026-10-26, negative result)
+
+The factor is estimated from a fit that already holds the false breaks, so one idea is to re-estimate it on the refit's
+residuals and refit again. `eval/meanvar-dispersion-iter.mjs` (output `eval/meanvar-dispersion-iter.out.txt`, same seeds
+and cells, 200 series each) runs one, two and three rounds. False alarms on a null series at n = 200: GARCH 30% / 27% / 27%,
+t3 29% / 23% / 22%, AR(1) 40% / 40% / 39%; at n = 100 GARCH stays 34%. Detection of the sd 1 to 2 break moves by at most
+4 points either way and Gaussian is unchanged. The gain stops after round two and the residual false alarms are the
+noise's memory, which a scale factor cannot remove, so the single pass stays the default and a GARCH likelihood cost is the
+remaining route.
+
+## `--bootstrap`: a penalty read off block-resampled residuals (2026-10-27)
+
+`--model meanvar --bootstrap` (`bootstrap: true`) fits once with 3x the BIC penalty, standardises each segment, resamples
+the residuals in blocks of 2 n^(1/3) points (so volatility clustering and short memory survive), and takes the 95th
+percentile, over 100 seeded resamples, of the best single-split cost drop. The penalty is the larger of that and BIC and is
+returned as `bootstrapPenalty`. Unlike `--dispersion` it asks the data how big a spurious drop gets under the noise it
+actually has, not for one scale factor. Not for use with `--robust` or `--dispersion`. `eval/meanvar-block-bootstrap.mjs`
+(output `eval/meanvar-block-bootstrap.out.txt`, seeded, 200 series per cell, same generators and seeds as
+`meanvar-dispersion.mjs`; A = standardised by a BIC pass, B = by a 3x BIC pass, B shipped). False alarms on a null series /
+exactly one change on an sd 1 to 2 break:
+
+| noise, n = 100 / 200 | plain | A | B (`--bootstrap`) |
+|---|---|---|---|
+| Gaussian | 4% / 92%, 1% / 97% | 4% / 92%, 1% / 97% | 2% / 80%, 1% / 100% |
+| t3 | 39% / 57%, 62% / 55% | 35% / 59%, 54% / 61% | 8% / 44%, 15% / 69% |
+| GARCH | 42% / 61%, 51% / 57% | 39% / 60%, 47% / 60% | 14% / 57%, 16% / 74% |
+| AR(1) 0.5 | 51% / 44%, 54% / 37% | 39% / 50%, 36% / 48% | 8% / 49%, 7% / 80% |
+
+At n = 200 it takes GARCH from 51% to 16% false alarms (`--dispersion`: 30%) and detection rises. The price is at n = 100:
+Gaussian detection falls from 92% to 80% and t3 from 57% to 44%. Variant A, which standardises by the BIC pass that already holds the false breaks, barely
+helps. In-sample on the generators above, simulated data only, no real series tried; the noise warning stays on. About
+0.2 s per 200-point series. Test: `meanvar-bootstrap.test.mjs`.
+
+### The mean model too (2026-10-26)
+
+`--model mean --bootstrap` does the same with residuals about the segment means kept in units of the noise scale the mean
+cost uses, so autocorrelated noise (residual sd above that scale) raises the penalty. Not with `--ar1`. Measured by
+`eval/mean-block-bootstrap.mjs` (seeded, 100 series per cell, n = 200, unit-variance AR(1) noise, detection is a 2 sd step at 100 found within 10):
+
+| noise | false alarms plain | false alarms `--bootstrap` | detection plain / `--bootstrap` |
+|---|---|---|---|
+| iid | 5% | 1% | 100% / 100% |
+| AR(1) 0.3 | 80% | 13% | 98% / 98% |
+| AR(1) 0.5 | 100% | 53% | 98% / 94% |
+
+Synthetic noise only; a real autocorrelated series is still wanted.
+
+### Counts too (2026-10-26)
+
+`--model poisson --bootstrap` takes Pearson residuals from a 3x BIC fit (using any seasonal or holiday exposure), resamples
+them in blocks and turns them back into counts about the overall rate, so runs of busy and quiet days (overdispersion that
+clusters) raise the penalty. `eval/poisson-block-bootstrap.mjs` (seeded, 100 series per cell, n = 200, mean 10, log rate AR(1)
+0.8 with the sd shown, detection is a x1.5 step at 100 found within 10):
+
+| clustering (sd of log rate) | false alarms plain | false alarms `--bootstrap` | detection plain / `--bootstrap` |
+|---|---|---|---|
+| 0 (pure Poisson) | 5% | 4% | 98% / 98% |
+| 0.2 | 89% | 11% | 83% / 73% |
+| 0.4 | 100% | 74% | 86% / 63% |
+
+Synthetic only, and at sd 0.4 it still raises 74% false alarms; a real clumpy count series is still wanted. Holidays are
+still untested. Test: `meanvar-bootstrap.test.mjs`.
+
+**Combined with `--trend`, a weekly season or `nb` (2026-10-28).** `eval/poisson-bootstrap-options.mjs` (n = 210, steady
+growth 0.3% a day and/or a weekly season with two days at x0.6, same clustering and detection step at 105; output in
+`eval/poisson-bootstrap-options.out.txt`). False alarms plain / `--bootstrap`:
+
+| options | sd 0 | sd 0.2 | sd 0.4 |
+|---|---|---|---|
+| weekly season (`--period 7`) | 8% / 3% | 81% / 8% | 100% / 73% |
+| `--trend` | 6% / 6% | 94% / 59% | 100% / 96% |
+| `--trend` + season | 11% / 9% | 87% / 42% | 100% / 92% |
+| `--trend` + `--overdispersion nb` | 4% / 4% | 88% / 52% | 100% / 97% |
+
+The season alone behaves like the plain case. With `--trend` the bootstrap barely helps (59% false alarms at sd 0.2 against
+8% with the season alone) and detection falls from 82% to 57%, so on clustered counts with a growth term the
+penalty is not trustworthy yet. Cause not established (guess: the growth term is fitted before the pilot, so the pilot's
+residuals already absorb some clustering). Synthetic only.
+
+**With known holidays (2026-10-28).** `eval/poisson-bootstrap-holidays.mjs` (n = 210, a holiday every 28th day at x0.3 given
+with `--holidays`, same clustering and x1.5 step at 105; output in `eval/poisson-bootstrap-holidays.out.txt`, seeded, 100
+series per cell, synthetic only). False alarms plain / `--bootstrap`, then detection:
+
+| options | sd 0 | sd 0.2 | sd 0.4 | detection at sd 0.2 / 0.4 |
+|---|---|---|---|---|
+| holidays | 4% / 3% | 85% / 21% | 100% / 65% | 76% / 72%, 87% / 59% |
+| holidays + `--period 7` | 2% / 2% | 77% / 15% | 100% / 67% | 75% / 71%, 81% / 47% |
+
+Holidays behave like the weekly season, not like `--trend`: the bootstrap cuts clustered false alarms to 15-21% at sd 0.2
+for a few points of detection. At sd 0.4 it is still 65%, as in every other cell. Holiday dates were given exactly here.
+
+**Missed holidays (2026-10-27).** `eval/poisson-bootstrap-missed-holidays.mjs` (same series, seeded, 100 per cell, output in
+`eval/poisson-bootstrap-missed-holidays.out.txt`) tells the engine all, every other, or none of the seven true holidays.
+False alarms plain / `--bootstrap` at sd 0.2: 85% / 21%, 86% / 20%, 90% / 19%; at sd 0.4: 100% / 65%, 100% / 72%, 100% / 73%.
+Detection at sd 0.2 with `--bootstrap`: 72%, 77%, 73%. At sd 0 false alarms stay 2-6%. So with seven holidays in 210 days a
+missed one does not move false alarms or detection beyond seed noise (about +-4 points); the bootstrap's gain does not depend
+on the holiday list being complete. This is a small test (a x0.3 day among 30 is a weak outlier); a series with many missed
+closures is untested. Synthetic only.
+
+## `--robust`: a Laplace cost for `meanvar` on heavy tails (2026-10-25)
+
+The section above ended with a warning because the Gaussian variance cost has no cheap fix. A different noise model does
+help on heavy tails. `--model meanvar --robust` (`robust: true` in `analyze`) fits each segment's median and mean absolute
+deviation (double-exponential noise) instead of its mean and variance, so one extreme point no longer inflates a segment's
+variance. `eval/meanvar-laplace.mjs` (output in `eval/meanvar-laplace.out.txt`, seeded, 100 series per cell, same
+generators as `meanvar-robustness.mjs`, default minimum segment of 10):
+
+| noise, cost | false alarms, n = 100 / 200 | one change found on an sd 1 to 2 break, n = 100 / 200 | range95 holds the date |
+|---|---|---|---|
+| Gaussian, Gaussian cost | 4% / 0% | 94% / 97% | 98% / 98% |
+| Gaussian, Laplace cost | 5% / 4% | **57%** / 92% | 95% / 99% |
+| t3, Gaussian cost | 37% / 63% | 58% / 55% | 78% / 69% |
+| t3, Laplace cost | **5% / 8%** | 59% / **89%** | 88% / 97% |
+| GARCH, Gaussian cost | 41% / 50% | 63% / 58% | 70% / 72% |
+| GARCH, Laplace cost | 21% / 29% | 62% / 69% | 85% / 83% |
+
+On heavy tails it removes most false alarms and, at n = 200, finds the break 89% of the time instead of 55%. It is not a
+free upgrade: on Gaussian noise at n = 100 it finds the single break in only 57% of series (94% with the Gaussian cost),
+so it stays opt-in. Clustered volatility is only half fixed (21% to 29% false alarms). Not changed: the Bayesian
+probability view still used the Gaussian model (changed 2026-10-27, below), and the kurtosis part of the noise warning is skipped when `--robust` is
+on (autocorrelation and clustered-volatility parts stay). Simulated noise only; no real heavy-tailed series tried. Test:
+`meanvar-robust.test.mjs`. Cost: each segment is sorted on demand, so long series (several thousand points) run slower.
+
+## A calibrated penalty for `meanvar`: a mostly negative result (2026-10-25)
+
+The Laplace cost above leaves clustered volatility at 21% to 29% false alarms. A different idea is to keep the Gaussian cost and
+scale its BIC penalty by how much the noise inflates the variance-change statistic. For standardised Gaussian residuals the squares
+have variance 2; the long-run variance of the squares (Bartlett kernel) divided by 2 is a factor c, and the penalty becomes
+max(1, c) times BIC. `eval/meanvar-calibrated-penalty.mjs` (output in `eval/meanvar-calibrated-penalty.out.txt`, seeded, 100 series
+per cell, generators and seeds as in `meanvar-laplace.mjs`, plus AR(1) with rho 0.5) tries two ways to get the residuals:
+**A** standardise by the first-pass segments, **B** by segments from a 3x BIC pass.
+
+| noise | false alarms n = 100 / 200: plain, A, B | exactly one change near the sd 1 to 2 break n = 100 / 200: plain, A, B |
+|---|---|---|
+| Gaussian | 4 / 0, 3 / 0, 2 / 0 | 89 / 94, 89 / 96, 41 / 94 |
+| t3 | 37 / 63, 17 / 27, 4 / 5 | 46 / 38, 47 / 48, 22 / 42 |
+| GARCH(1,1) | 41 / 50, 37 / 35, 8 / 8 | 46 / 42, 45 / 44, 26 / 48 |
+| AR(1) 0.5 | 49 / 46, 42 / 34, 31 / 19 | 36 / 35, 40 / 41, 34 / 52 |
+
+A is free (Gaussian rows unchanged) but only halves the false alarms on t3 and barely moves GARCH, because the first pass's
+false segments soak up the very inflation it tries to measure. B removes most false alarms on t3 and GARCH but, at n = 100, loses
+half the real breaks on Gaussian noise (89% to 41%), because a break left inside one segment looks like heavy-tailed noise. Neither
+beats `--robust` on t3 and neither is wired into `analyze`. The open problem is estimating the inflation without the break itself
+feeding it. Simulated noise only; 100 series per cell, so differences under about 10 points are within noise.
+
+The page has the option too (2026-10-25): a "Heavy-tailed noise: Laplace cost" checkbox, sent as `robust: true` only when the model is
+"Level and volatility". `page.test.mjs` checks the wiring; the Bayesian view is unchanged.
+
+## `--robust` in the Bayesian view (2026-10-27)
+
+The probability view's Normal-Inverse-Gamma model has no Laplace version that stays exact, so with `robust` on, the Bayesian pass
+reads the series clipped at its median plus or minus 2 robust noise sds (`robustSd`, successive differences, so a level shift does
+not inflate it). One outlier then counts as a bounded surprise, not as evidence for a new segment. PELT is unchanged.
+`eval/meanvar-bayes-tails.mjs` (output `eval/meanvar-bayes-tails.out.txt`, seeded, 100 series per cell, threshold 0.5):
+
+| noise, n | null false alarm, plain to robust | mean +1.5 sd found within 3 points | sd 1 to 2 found within 3 points |
+|---|---|---|---|
+| t3, 100 | 18% to 1% | 45% to 56% | 8% to 0% |
+| t3, 200 | 47% to 1% | 48% to 62% | 3% to 1% |
+| Gaussian, 100 | 0% to 1% | 23% to 27% | 5% to 1% |
+| Gaussian, 200 | 1% to 2% | 19% to 26% | 4% to 1% |
+
+Cost: the Bayesian view, which already caught few variance breaks (3 to 8%), now catches almost none with `--robust`; PELT is the
+volatility detector. Mean shifts are found at least as often. The clip width (2) was tried against 1.5 and 3 on t3 only
+(3: 2% false alarms, 50% found; 1.5: 1%, 67%); it was not tuned on Gaussian data, and 100 series per cell means differences under
+about 10 points are noise. Simulated noise only. Test: `meanvar-robust.test.mjs`.
+
+## A Ljung-Box line for clustered volatility in the `meanvar` warning (2026-10-25)
+
+The noise warning above caught GARCH noise only 16% to 20% of the time, because it read lag 1 of the squared residuals
+and GARCH(1,1) with these settings keeps lag 1 under 0.2 while lags 2 to 5 stay up. `meanvarNoiseCheck` now also
+adds a Ljung-Box statistic over lags 1 to 5 of the squared segment residuals (needs 50 points) and warns at 11.07,
+the 95th percentile of chi-square with 5 df. Same simulation, same seeds (`eval/meanvar-robustness.mjs`, 200 per
+cell), null series / sd 1 to 2 break series:
+
+| noise | before, n = 100 / 200 | now, n = 100 / 200 |
+|---|---|---|
+| Gaussian (false warning) | 2% / 1% | 7% / 4% (null), 6% / 2% (break) |
+| GARCH, null | 20% / 16% | 34% / 49% |
+| GARCH, break | 11% / 18% | 19% / 39% |
+
+So the cost of the line is about 3 to 5 points of extra false warnings on clean Gaussian series, and the gain is
+real but partial: about half of GARCH series at n = 200 are flagged, still about a third at n = 100. The 11.07 cut
+is the textbook value, not tuned on these runs; a stricter 15 would hold Gaussian false warnings near 2% to 3%
+and flag 11% / 35% of GARCH nulls. Only simulated GARCH was tried, no real volatility-clustering series.
+
+Nile variants (2026-10-26, `nile-variants.test.mjs`): on the real Nile series the documented 1898 dam break comes back as one change at 1899 under `mean`, `--ar1`, `meanvar` and `meanvar --robust`, and every 95% range holds 1899. `--ar1` widens the range from 1897-1899 to 1897-1901 and cuts the Bayesian probability from 79% to 50%: the autocorrelation allowance costs certainty about the date, not the date itself.
+
+## A real count series: British coal-mining disasters (2026-10-26)
+
+Until now the Poisson path was checked on real counts only through the seasonal and trend variants (UK driver casualties, Wikipedia pageviews). `data/coal-mining-disasters.csv` is the plain annual case: 191 disasters of ten or more deaths in 112 years (1851-1962, Jarrett 1979). Plain `poisson` PELT returns two changes: **1892** (3.10 to 1.07 a year, `range95` 1886 to 1897, which holds the literature's 1890) and a second at 1948 (1.07 to 0.27, `range95` 1897 to 1961). The 1948 change is real in the data (a handful of disasters after nationalisation) but the range is 64 years wide: eleven or so events cannot date it, and the tool says so instead of giving a point. `--overdispersion nb` returns the same two changes. One real series, one run: it shows the interval is honest here, not that its coverage is 95%. Test: `coal-disasters.test.mjs`.
+
+## Real overdispersed counts: great discoveries (2026-10-27)
+
+`data/great-discoveries.csv` is 310 "great" inventions and discoveries in 100 years (1860-1959, World Almanac; variance 1.64 times the mean). Years 1884-1888 read 7, 12, 3, 10, 9 against about 2.5 a year before, so the series is a five-year burst more than a level shift. Plain `poisson` PELT returns three changes: **1884** (2.50 to 8.20 a year, `range95` 1883 to 1885), **1889** (8.20 to 3.68, `range95` 1886 to 1894) and **1933** (3.68 to 1.74, `range95` 1930 to 1954). `--overdispersion nb` returns the same three with the 1889 range widened to 1886-1919, so it admits that the fall is not dated. `--bootstrap` returns **no change** (penalty 31.9). The honest reading is that the 1884 and 1889 cuts are one burst the plain Poisson test splits into two steps with narrow ranges that are too confident, and the bootstrap penalty declines to call a level change on 100 clustered annual counts. Whether the slow fall after 1933 is real is not settled by this series either way. One real series, one run: it shows the cost of the default on bursty counts, not a coverage rate. **Two options not tried above (measured 2026-10-28, same series).** `--overdispersion` (quasi-Poisson, estimated dispersion 2.76) returns **no change**, as the bootstrap does, and is the cheaper way to decline the burst. `--bursts` flags 1885 (12, kept as 3) and then still returns a step at **1884** (2.50 to 4.00 a year) and **1933** (4.00 to 1.74): it removes the spike, not the five-year plateau around it, so on a burst this long it is the wrong tool. Neither is a burst-aware count model, which stays open. One real series. Test: `great-discoveries.test.mjs`.
+
+## Real heavy tails: daily exchange-rate returns (2026-10-26)
+
+The robust, dispersion and bootstrap options above were tuned on seeded synthetic noise.
+`eval/fx-shocks.mjs` (output `eval/fx-shocks.out.txt`, test `fx-shocks.test.mjs`) runs
+`--model meanvar` on 1,750 real daily log returns of the Swiss franc, pound and yen against
+the dollar, 2012-2018 (`data/fx-daily-returns.csv`, Fed H.10 via a public-domain mirror,
+source in `data/SOURCE.md`). Two dated shocks: the Swiss National Bank dropped its euro
+floor on 2015-01-15 (kurtosis of the franc series 111) and the UK voted for Brexit on
+2016-06-23 (pound kurtosis 32). Yen (kurtosis 6.6) has no single documented break.
+
+| series | default | `--robust` | `--dispersion` | `--bootstrap` |
+|---|---|---|---|---|
+| CHF changes (event found; not near the event) | 6 (yes; 4) | 3 (yes; 1) | 3 (yes; 1) | 6 (yes; 4) |
+| GBP | 5 (yes; 3) | 4 (yes; 3) | 3 (yes; 1) | 4 (yes; 2) |
+| JPY (no event) | 7 | 4 | 4 | 4 |
+
+What this says, on three series and with no labels beyond two dates:
+
+- Every mode finds both events, on the day (CHF 2015-01-15) or the week before (GBP 2016-06-17,
+  inside the run-up to the vote; "near" is within 10 trading days of 2016-06-24).
+- All four also report the end of the shock as a second change (CHF 2015-01-30, GBP 2016-07-06 or 07-20), which is true: the volatility burst has ended.
+- The extra changes are quiet-versus-busy-year splits that default `meanvar` reads from heavy tails. `--dispersion` removes the most on GBP (3 of 5 changes left), `--robust` and `--dispersion` tie on CHF and JPY.
+- **`--bootstrap` did not help on the franc, and the reason is measured** (2026-10-26, `eval/fx-bootstrap-why.mjs`, test `fx-bootstrap-why.test.mjs`). The bootstrap standardises the series by a 3x-BIC pilot fit. On the franc that fit cuts the shock into a 10-day segment, and standardising each segment by its own sd removes the tail: kurtosis 111.5 falls to 4.3 (pound 32.0 to 4.6; yen 6.6 to 5.6, no shock to hide). The resampled noise is so much lighter than the data that the penalty rises only from 22.4 to 36.4, and the extra changes drop out at about 45 (a fixed penalty of 45 returns the three-change answer; 100 drops to two). A longer minimum segment for the pilot does not recover the tail (penalty 36 to 38 at 10, 30, 60 and 90 days). So the option suits clustered noise that stays inside the series, and under-corrects when one giant day dominates. Untested fix: standardise by a robust scale fitted across the shock, not segment by segment.
+- **The untested fix does not work either** (2026-10-27, `eval/fx-bootstrap-tail.mjs`, test `fx-bootstrap-tail.test.mjs`). Two ways to keep the tail in the bootstrap's pilot residuals, same 3x-BIC pilot, same seeds. Each segment by 1.4826 x its MAD instead of its sd: the franc penalty goes 36.4 to 35.2 and the same six dates come back (a 10-day shock still sets its own scale, because most of its days are big); pound 31.9 to 34.1, yen 45.6 to 47.8, no change in what is found. One global MAD scale after removing segment means: the tail is kept, and the penalty is 589 for the franc and 211 for the pound, so **zero changes**, the real 2015 shock included (yen 61.2, two changes, neither of them the 2013 to 2014 ones). On synthetic n=200 noise (60 reps) the three standardisations match: Gaussian 0% false alarms and 88% detection of an sd doubling, t3 12% / 12% / 8% false alarms, GARCH 17% for all. So the shipped per-segment sd stays. What is left is a pilot that knows which large days are one shock and which are the noise's tail, which needs the shock's date from outside the pilot (a joint fit), not a different scale.
+- Residual clustering is still there after the fit (the Ljung-Box line prints for CHF, JPY and the robust runs), so the dates stay candidates.
+
+Not claimed: that these dates are all the true regimes (the year-to-year splits may be real volatility changes), nor a false-alarm rate; that needs labelled series.
+
+## A real slope change that is not a count: UK gas consumption (2026-10-27)
+
+Every real series so far was a level step (Nile, seat belts), a volatility break or counts. `data/uk-gas.csv` is quarterly UK gas consumption, 1960Q1 to 1986Q4 (108 points, R's `UKgas`, source in `data/SOURCE.md`): a strong seasonal swing that grows with the level, and growth that picks up around 1970 (the North Sea gas era; recalled, not checked against a paper, so this is a plausibility check and not a labelled test). `eval/uk-gas.mjs` (output `eval/uk-gas.out.txt`, test `uk-gas.test.mjs`) runs it with `--period 4`.
+
+- **Raw series, `--trend bend`:** one slope change at **1969Q4**, `slopeChangeRange95` **1966Q1 to 1971Q4** (slope 1.69 to 7.79 per quarter), and no level steps. Same bend under `meanvar`. It holds 1970 inside its range.
+- **Log series, `--trend bend`:** no slope change at all, and two level steps (1963Q4, 1982Q2) instead. A log-linear series with a changing growth rate is the case the Gaussian trend should read as a bend, and it does not. Not diagnosed: the log scale shrinks the seasonal swing, so the cost drop from one bend may fall under the 3 log n bar; nobody has checked that.
+- **`--drift` (drifting seasonal shape):** the seasonal amplitude grows, a fixed additive profile cannot hold it, and drift cuts the 1969 to 1972 stretch into 4 to 6 steps (raw: 1970Q2, 1970Q4, 1971Q2; log: 1969Q4, 1970Q2, 1970Q4, 1971Q3). They mark a changing seasonal shape, not four separate regime changes; the warning text does not say that yet.
+
+What it says: the slope-bend range is useful here, but the answer depends on the scale, and a multiplicative season is not modelled on the Gaussian path (counts have it). Not claimed: a coverage rate; one series cannot give one.
+
+Warning landed (2026-10-27, `driftWarning` in the result, a CLI line, a test in `uk-gas.test.mjs`): with `--drift` and `--period`, three or more steps within two cycles of each other now come back with a note that they usually mark a seasonal shape that is still changing, not separate regimes. It fires on the UK gas series (raw) and stays silent on the fixed profile. Only that one real series was checked, so the threshold (3 steps in 2 cycles) is a guess; a false-alarm rate on drift-free seasonal series is not measured.
+
+**`driftWarning` false-alarm rate (measured 2026-10-28, `eval/drift-warning.mjs`, output `eval/drift-warning.out.txt`, test `drift-warning.test.mjs`; made-up series, mean model with `drift: true`, a sine season of swing 4, noise sd 1, 200 seeded series per row).** How often the note appears:
+
+| series | quarterly, n=120 | monthly, n=144 |
+|---|---|---|
+| fixed season, no change | 4/200 (2%) | 7/200 (3.5%) |
+| two real level steps, far apart | 4/200 (2%) | 23/200 (11.5%) |
+| three real steps inside two cycles | 190/200 | 200/200 |
+| amplitude tripling over the series | 4/200 | 10/200 |
+
+Read plainly: without a change the note is rare, but with monthly data and two genuine steps it fired on one series in nine, so the 3-steps-in-2-cycles rule is not free of false alarms there. Three genuine steps packed together get the note nearly every time, and that is correct only if they are one drifting shape: the rule cannot tell a real burst of regime changes from drift, and the note's wording ("usually marks", "check the dates") says so. Unexpected, and worth knowing: a tripling amplitude barely produced steps (0.54 to 0.63 per series; the drift option follows a smooth sine amplitude), so the note seldom fires on this kind of drift; UK gas has a more abrupt change. Synthetic, one profile shape, no autocorrelation; the threshold is unchanged.
+
+**Multiplicative season (2026-10-27).** `--multiplicative` (with `--period`, `mean`/`meanvar`; `seasonMode: 'multiplicative'` in the API) estimates the season as a factor: the median of x over its centred moving average at each phase, scaled to mean 1, and divides it out instead of subtracting an amount. It needs positive values and refuses `--drift`. `node eval/multiplicative-season.mjs 200 2026` (output in `eval/multiplicative-season.out.txt`; Gaussian noise at 3% of the level, 120 quarterly or 144 monthly points, one step of x1.3 or x2 at the midpoint, growth runs use `--trend`). Read plainly, the result is mixed. Monthly, a step with a season that scales with the level: steps per series 3.44 to 1.36 (x1.3) and 8.23 to 2.71 (x2), with the step found on 200 of 200 either way; monthly with no step, any alarm 47 to 31 of 200. Quarterly, the additive profile is already robust to a lone step (1.0 steps per series) and the multiplicative one is worse (1.38 and 2.54), probably because my noise is proportional to the level and so the variance doubles after the step; with growth 0.005 per point and `--trend` it is worse still on quarterly data (false alarms 23 to 186 of 200, a linear trend under an exponential level). So: an opt-in for monthly-or-longer cycles where the swing visibly grows with the level, not a default, and the log of the series (README, UK gas) remains the other route. Simulated data only, one profile shape per period; not yet run on a real series with a growing season (UK gas quarterly is the candidate).
+
+**Multiplicative season on a real series (2026-10-28).** `data/airline-passengers.csv` (monthly passengers 1949-1960, 144 points; the season grows with the level; no documented step, so every step is a false alarm; `airline-passengers.test.mjs`). Raw series, `mean`: additive season 21 steps, `--multiplicative` 22; with `--trend bend` 20 and 15. The multiplicative season did not rescue the raw level model here: the underlying rise is exponential, and a linear trend or a level step cannot follow it. The log of the series with `--trend bend` gives 8 steps, and 5 with `--model meanvar`. So the real-series answer agrees with the UK gas one: for a season that scales with the level, take the log first; `--multiplicative` helped only on simulated step data. One series, no claim about rates.
+
+**A narrower window, measured and not shipped (2026-10-28, `eval/drift-warning.mjs` now also counts three windows on the same change points; output in `eval/drift-warning.out.txt`).** The note asks for 3 steps inside 2 cycles. Using one cycle plus 3 points instead, monthly: two genuine far-apart steps 23/200 to 19/200 (one cycle alone: 10/200), no change 7 to 4, but three packed steps 200/200 to 58/200 (one cycle: 38/200). Quarterly: no change 4 to 2, packed steps 190 to 182. The packed cell spans 2P-1 points by construction, so it measures "inside two cycles" and cannot say whether a narrower rule would also catch real drift; the false-alarm gain on the monthly two-step row is 4 series in 200, inside seed noise for one profile shape. So the rule stays at 2 cycles. Made-up series only; wanted: a real monthly series with a known drifting season to choose between windows.
+
+**`driftWarning` on five real series (measured 2026-10-28, `eval/drift-warning-real.mjs`, output `eval/drift-warning-real.out.txt`, test `drift-warning-real.test.mjs`).** `--drift` with the real period, raw and logged, with and without `--trend bend`:
+
+| series | season | warning in 4 runs |
+|---|---|---|
+| airline passengers (monthly) | grows with the level | 4 of 4 (8 to 21 steps) |
+| UK gas (quarterly) | grows with the level | 4 of 4 |
+| Johnson & Johnson EPS (quarterly) | grows with the level | 2 of 4 (silent with `--trend bend`) |
+| UK driver deaths (monthly) | fixed | 4 of 4 |
+| Nottingham temperatures (monthly) | fixed, no change | 0 of 4 |
+
+It is silent on the series with a fixed season and no change, and fires where the season grows, as intended. The UK driver deaths row is the miss: the warning says "usually marks a seasonal shape that is still changing", but its four packed steps (1972-11, 1973-11, 1974-06, 1974-11) are the winter-1973 fuel-rationing dip and the rebound, genuine regime changes in a fixed-season series. The same steps are named in the seat-belt section above. The signs do not separate the cases either: dip-and-rebound (-, +, -) in the deaths, but airline and UK gas also carry mixed signs (1953-03+ 1953-06-; 1970Q2+ 1970Q4- 1971Q2+). Five series, one wrong, no rule found on them; a run-sign test would be fitted to this sample. Not changed: the threshold or the text. Open: more real series, and a way to tell a seasonal shape from a short-lived real shock (a seasonal-profile refit at each step is the candidate).
+
+
+## Four European indices: a common rise or a German one? (2026-10-29)
+
+`EuStockMarkets` also carries SMI, CAC and FTSE over the same 1,859 trading days, so a cut at the same row is the same
+day (`data/{smi,cac,ftse}-returns.csv`, `eval/eu-markets.mjs`, output in `eval/eu-markets.out.txt`, about 6 minutes).
+Standard deviation of the returns before and after row 1482, computed directly: DAX 0.90 to 1.43, SMI 0.83 to 1.23,
+CAC 1.04 to 1.34, FTSE 0.74 to 0.98. All four rise (by 59%, 48%, 29% and 32%), but the detector does not find it in all four.
+
+| Index | plain `meanvar` | `--bootstrap` | `--dispersion` | `--robust` |
+| --- | --- | --- | --- | --- |
+| DAX | 32, 42, 275, 332, 1132, 1482 | 32, 42, 1482 | 39, 1482 | 275, 1132, 1488 |
+| SMI | 35, 45, 275, 334, 681, 804, 1489 | 1489 | 1489 | 681, 799, 1476 |
+| CAC | 32, 42, 99, 1179, 1417 | 1179, 1417 | none | none |
+| FTSE | 309, 344, 653, 906, 1545 | 309, 334, 1550 | 309, 334, 1550 | 972, 1545 |
+
+What this shows: the DAX and SMI cut within 7 rows of each other (1482 and 1489) under `--bootstrap` and `--dispersion`, so the rise is not a one-index artifact. FTSE's comes about 60 rows later (1545 to 1550). CAC's rise is the
+smallest of the four, and `--dispersion` and `--robust` report no change at all on it: a 29% rise in the
+standard deviation on 1,859 clustered, heavy-tailed days is below what these penalties will call a change. Also seen: plain `meanvar` cuts the
+same early spike (rows 32 to 45) in DAX, SMI and CAC, around a one-day fall at row 36, so that cut is a shared event too, not noise
+in one index. Not checked: calendar dates (the dataset has none), and whether CAC's cut at 1417 is part of the same rise (it
+sits 65 rows before the DAX's, so read it as a separate candidate). Test: `eu-markets.test.mjs` (about 4 minutes, `--bootstrap` left to the eval script).
+
+## Two more real series: WWWusage and nhtemp (2026-10-29)
+
+`data/www-usage.csv` (users on an internet server each minute, 100 points) and `data/nhtemp.csv` (New Haven annual temperature, 1912 to 1971), both R datasets (`data/SOURCE.md`). `wwwusage-nhtemp.test.mjs` pins what the detector does; neither series has a documented break.
+
+- **WWWusage wanders and has no steps.** Defaults cut it into 22 segments (21 "changes", 2 to 6 noise sds each); `--trend bend` still gives 15 segments; `--ar1` gives none; `--ar1 joint` gives one (minute 82, up from 125 to 190, only 0.53 noise sds). So on a wandering real series the plain mean model reports a staircase, and `--ar1` is the right switch, as on Lake Huron. One series; no detection-rate claim.
+- **nhtemp: one rise at 1944** (50.5 to 51.9 F, 1.2 sds) under the default, `--ar1` and `--ar1 joint`, with a 95% range of 1927 to 1949, wide because the shift is small. `--trend bend` finds no change: a straight line explains the warming. The literature gives no single break to score against.
+
+## A real autocorrelated series: Lake Huron levels (2026-10-27)
+
+`data/lake-huron.csv` is the annual mean level of Lake Huron, 1875 to 1972 (98 points, R's `LakeHuron`, source in `data/SOURCE.md`). The literature puts one drop near 1920; the series has lag-1 autocorrelation of about 0.8, so it is the case the Nile is not. `lake-huron.test.mjs` pins what the detector does today (no eval script; three runs of `analyze`).
+
+- **Plain `mean`:** 10 changes (1889, 1923, 1929, 1931, 1942, 1951, 1956, 1963, 1966, 1969). 1923 has range95 1921 to 1924. A run of short steps is what positive autocorrelation looks like to a white-noise cost.
+- **`--ar1`, plain and `joint`:** no change at all. The noise scale is widened enough to hide the drop as well. That is a failure for a user who wants the 1920 drop, and it is not diagnosed (the drop is a few feet over a few years, so an AR(1) around a level may read part of it as persistence).
+- **`--model meanvar`:** two changes, 1889 and 1923, 1923 range95 1919 to 1925.
+
+What it says: on a strongly autocorrelated real series, `mean` over-segments and `--ar1` under-segments, and only `meanvar` lands near the documented date here (probably by luck of the variance term; one series, no rate claimed). The 1889 change is not in the literature I recalled; not checked against a paper. Open: an AR(1) mean model that keeps a drop of this size, for instance a penalty rescaled by the estimated coefficient on segment residuals instead of the whole series.
+
+**Diagnosis (2026-10-28, `lake-huron-profile.test.mjs`).** The `--ar1` rho start is 0.95, the clip, so the fit starts from near-unit-root noise. Fitting `ar1mean` afresh at each rho from 0 to 0.9 (innovation sd re-estimated per fit, score n log sd² − log(1−rho²) + 2 log n per change) shows the likelihood itself prefers rho 0.8 with no change (score −64.4, against −63.5 at 0.9 and −26.8 at 0). 1923 appears only at rho 0 to 0.3 (white-noise end) and is gone by 0.5. So `--ar1` is not hiding a drop the exact likelihood supports: on this series a persistent AR(1) around one level is the better description, and the 1920 drop is what you get when persistence is priced as steps. Whether the literature's drop is real is a modelling question this likelihood cannot settle; the 2-parameters-per-change score is a rough BIC, not a tuned one. One series; no detection-rate claim. Still open: a start for the joint fit that is not the clip (a profile over rho is cheap here, 10 PELT runs), tested on simulated AR(1)-plus-step series for detection.
+
+**Profile over rho as the fit itself: measured, no gain (2026-10-28, `ar1ProfileFit` in `engine.mjs`, `eval/ar1-profile.mjs`, `ar1-profile.test.mjs`).** The open item was whether scoring the exact AR(1) likelihood on a grid of rho (each with its own PELT fit) should replace the difference-based start of `--ar1 joint`. Simulated AR(1) noise, n = 100, 200 series per cell, seeds 1..200; "false alarm" is any change on a no-change series, "hit" is exactly one change within 5 points of the true one (shift of 2 stationary sds at the midpoint). rho 0: false alarms white 11.0%, `--ar1` 6.5%, joint 6.0%, profile 5.5%; hits 88.5 / 94.0 / 94.5 / 96.0%. rho 0.5: false alarms 99.0 / 15.0 / 21.5 / 26.5%; hits 2.0 / 67.5 / 69.0 / 66.5%. rho 0.8: false alarms 100 / 17.5 / 24.5 / 34.0%; hits 0.0 / 31.5 / 59.5 / 50.5%. The profile fit is no better than `--ar1 joint` and has more false alarms at high rho (it can pick a lower rho and spend the difference on a step), so it is exported as a diagnostic (`ar1ProfileFit` returns the whole grid of scores) and not wired to a CLI flag. Synthetic only; one noise model.
+
+
+## A real mean series with several regimes: US inflation (2026-10-27)
+
+`data/us-inflation.csv` is quarterly US CPI inflation, 1959Q2 to 2009Q3 (202 points, source in `data/SOURCE.md`). The literature has a rise with the 1973 oil shock, a second surge in 1978-79, and the Volcker disinflation of 1981-82. `eval/us-inflation.mjs` (output in `eval/us-inflation.out.txt`, `us-inflation.test.mjs`, 2 tests) runs the `mean` model:
+
+- **Defaults:** 12 changes, including a run of short steps in 1980-86 and 2007-09. It over-segments, as on Lake Huron.
+- **`--ar1`:** 9 changes; 1973Q3 (4.6 to 11.2), 1978Q2 (6.2 to 10.8) and 1981Q4 (10.8 to 4.0) are the three documented ones.
+- **`--bootstrap`:** 7 changes with the same three (1981Q4 now 10.8 to 3.2). The 1973Q3 and 1981Q4 ranges are a single quarter, narrower than the 1978 one (1978Q1 to 1979Q1); I did not check that coverage on this series.
+- **Artefact:** the one quarter of 2008Q4 deflation (-5.97) is cut as its own segment by every setting (`--bootstrap` leaves 2008Q3 and 2009Q1 as two changes); minimum segment 8 removes it but also moves 1973Q3 to 1973Q1 and 1965Q4. Treat a one-or-two-quarter segment as an outlier, not a regime.
+
+One series, regime dates from the literature, no rate claimed; this is a real-data check that the settings built on synthetic data land where economists put the breaks.
+
+## A real null series: Nottingham temperatures (2026-10-27)
+
+Monthly mean air temperature at Nottingham Castle, 1920-1939 (240 months, `data/nottem.csv`, R's `nottem`). A
+stable climate with a strong season and no documented step, so every cut is a false alarm. With `--period 12`:
+
+| Run | Steps cut |
+| --- | --- |
+| default (`mean`) | 4: 1922-07, 1922-09, 1929-01, 1929-03 (two pairs, each a spike cut out as a short segment) |
+| `--min-segment 6` | 2: 1933-03, 1933-10 (a 7-month warm spell) |
+| `--min-segment 6 --model meanvar` | 0 |
+| `--model meanvar --bootstrap` | 0 |
+
+So the default `mean` model reads two unusual months as four steps. The pairs are the tell: a step up and back down
+within a few months is a spike, not a regime. Use a longer minimum segment or `meanvar` when spikes are expected.
+Only the counts above are claimed; whether the spikes are the cold February 1929 and the cool 1922 summer is not
+checked against a record here. Test: `nottem.test.mjs`.
+
+## A real volatility rise: DAX returns (2026-10-27)
+
+Daily log returns of the DAX, 1,859 days, 1991 to 1998 (`data/dax-returns.csv`, R's `EuStockMarkets`; the file
+carries row numbers, not dates). Volatility is clustered and the tails are heavy, the case `--model meanvar` warns
+about. Standard deviation of the returns, computed directly: 0.90 over rows 2-1481, then 1.20, 1.56, 1.53 and 1.32
+over the four stretches after 1482 (rows 1482-1560, 1560-1640, 1640-1760, 1760-1860).
+
+| Run | Cuts (row) |
+| --- | --- |
+| `--model meanvar` | 32, 42, 275, 332, 1132, 1482 |
+| `--model meanvar --bootstrap` | 32, 42, 1482 |
+| `--model meanvar --dispersion` | 39, 1482 |
+| `--model meanvar --robust` | 275, 1132, 1488 |
+
+Every variant keeps a cut near row 1482, where the spread goes from 0.86 to 1.43 (bootstrap run). The earlier cuts
+differ by variant: plain `meanvar` cuts a 10-day spike (32-41) and a 57-day dip (275-331), and `--bootstrap` and
+`--dispersion` keep only the first spike. The Ljung-Box line fires on all four runs, so read them as candidates.
+Not checked: the calendar date of row 1482 (the dataset has no dates; a rough count of 260 days a year puts it in
+early 1997, earlier than the October 1997 Asian-crisis turbulence one might expect), or any record of what moved
+the market then. Test: `dax-returns.test.mjs` (about 95 s, mostly the bootstrap).
+
+## A real exponential-growth series: Johnson & Johnson earnings (2026-10-28)
+
+`data/johnson-johnson.csv` is J&J's quarterly earnings per share, 1960Q1 to 1980Q4 (84 points, source in `data/SOURCE.md`). It grows roughly 15% a year with a seasonal pattern and has no documented changepoint, so any change reported is, at best, a change in the growth rate. `johnson-johnson.test.mjs` pins what the settings do (2 tests; run by hand with the CLI, no eval script):
+
+- **Raw, `mean`, `--period 4`:** 12 changes with no season, 15 with an additive season, 16 with `--multiplicative`; all up-steps of 0.5 to 2.5 dollars apart from small dips in 1978Q3 and 1980Q3. `--period 4 --trend` still gives 11 and `--model trend --period 4` 5. A straight line or a staircase cannot follow a curve, so the staircase is what comes out.
+- **Logged (`ln eps`), `--period 4`:** still 11 steps (the log series still trends).
+- **Logged, `--period 4 --trend`:** 5 changes (1960Q4, 1962Q4, 1970Q2, 1975Q3, 1979Q4), each of 0.1 to 0.26 in log units. `--trend bend` leaves 2 (1960Q4, a 3-point opening segment, and 1970Q2); `--trend --bootstrap` leaves 2 (1960Q4 and 1975Q3).
+
+What it says: on a series that grows by a constant percentage, take logs first (`--log` does it, 2026-10-28, below). The 1970 and 1975 dates are where the growth rate looks to change, which I did not check against any account of the company; the 1960Q4 change is an opening-segment effect. One series, no rate claimed. Open: a series with a documented growth-rate break.
+
+### `--log` (2026-10-28)
+
+`--log` (engine option `log: true`) takes natural logs before any other step, for `mean`, `meanvar` and `trend` (counts refuse it: they already model the rate as a factor). Values must be positive; a zero or negative row is an error naming the row. Results come back in original units where that is meaningful: each segment (without a trend) carries `geometricMean` (e^mean), each change a `ratio` (e^shift, the factor the level moves by), and `values` holds the original series. Means, shifts and noise sd stay in log units, and the summary says so. On J&J it gives the same changes as logging the column by hand (`--period 4`: 11 steps; with `--trend` 5; with `--trend bend` 2), pinned in `johnson-johnson.test.mjs`. Not done: the page has no log checkbox yet; `--log` with `--multiplicative` is redundant (a log already makes the season multiplicative) and is not rejected. The page has the same option as a checkbox, "Take logs first" (2026-10-28); checked in headless Chromium on J&J earnings: 12 changes off, 10 on, no page errors, same result as `node cli.mjs --log`. `page.test.mjs` pins the wiring only.
+
+## Shape or shock? A negative result on the drift warning (2026-10-29)
+
+The drift warning fires on UK driver deaths (fixed season, a real 1973 fuel-crisis dip and rebound) as well as on the three series whose seasonal shape really grows (README, drift warning). Idea tested: a shock cancels (dip then rebound) while a growing shape does not, so `net/abs` of the shifts in the warning's window would separate them. `eval/drift-warning-shape.mjs` (output `eval/drift-warning-shape.out.txt`, 14 warned cells on 4 series):
+
+- Airline and J&J, no trend: `net/abs` 1.00 (all steps up), as hoped. Driver deaths: -0.06 to -0.04 raw and log, no trend: cancelling, as hoped.
+- With `--trend bend` the shape series cancel too: airline 0.06 (raw) and 0.30 (log), gas 0.10 and 0.04. Gas without trend is 0.38 and 0.50. Driver deaths with bend is -0.56 and -0.44.
+
+So the statistic separates the series only when no trend is fitted, and a cut between the groups (about 0.3) would label UK gas and the bent airline fits as shocks. Not adopted; the warning text is unchanged. Not tried: a joint refit with a seasonal amplitude that scales with level, to see whether the steps vanish (a shape) or stay (a shock). Four series, one shock.
+
+## Shape or shock, second try: a level-scaled season (2026-10-29)
+
+The untried idea from the section above: refit with a seasonal amplitude that scales with the level (`seasonMode: 'multiplicative'`, no `--drift`) and see whether the steps near the drift warning vanish (a shape) or stay (a shock). `eval/drift-warning-multiplicative.mjs` (output `eval/drift-warning-multiplicative.out.txt`), same four real series, steps in the first two-cycle window the drift fit warns on, then steps from the multiplicative fit within one cycle either side of that window:
+
+- UK gas: 3 steps become 1 (no trend) and 0 (bend). Works as hoped.
+- Airline: 3 become 6 (no trend) and 5 (bend). Worse, not better.
+- J&J without trend: 3 or more become 4 (the bent fit does not warn at all).
+- UK driver deaths (the shock): 4 become 4 and 3 become 4. Stays, as a shock should.
+
+So it separates one of three growing-season series from the shock. On the airline series the multiplicative fit finds more steps than the drift fit (22 against 20 in all with no trend, 15 against 8 with bend): a fixed multiplicative factor does not fit a shape that also changes in form, and the mean model has no growth term. Not adopted, and the warning text is unchanged. Both attempts to tell a shape from a shock automatically (cancellation, refit) failed on four real series with one shock; the note's wording ("check the dates against the series") stays the honest answer. Not tried: a multiplicative fit on the log, which turns a growing amplitude into a fixed one. Wanted: a second real series with a documented shock inside a seasonal series.
+
+## Shape or shock, third try: refit on the log (2026-10-29)
+
+The idea left untried above: take logs first (`log: true`, no drift), so a season that grows with the level has a fixed amplitude, and see whether the steps near the drift warning vanish. `eval/drift-warning-log.mjs` (output `eval/drift-warning-log.out.txt`, test `drift-warning-log.test.mjs`), same four series and same window as the multiplicative try:
+
+- UK gas: 15 steps in all fall to 5 (no trend) and 7 to 2 (bend); the 3 steps in the window become 1 and 0. Works.
+- J&J: 17 fall to 11 (no trend), the window's 3 steps stay 3; the bent fit, which never warned, goes 5 to 2.
+- Airline: no trend, 20 become 22 and the window's 3 become 11, worse; with bend, 8 become 8 and 3 stay 3.
+- UK driver deaths (the shock): 6 become 8 and 4 stay 4 (no trend); 4 become 6 and 3 stay 3 (bend). Stays, as a shock should.
+
+So the log refit clears one growing series (UK gas) and thins J&J, but leaves the airline's window untouched or worse, and the shock behaves the same as the airline. A rule "the window empties, so it was a shape" would call one of three shapes right and miss two. Third failed automatic test (cancellation, level-scaled refit, log refit) on four real series with one shock; not adopted, the warning text is unchanged. Wanted, still: a second real seasonal series with a documented shock.
+
+## Shape or shock, a second real series with shocks (2026-10-29)
+
+The README asked for a second real seasonal series with a documented shock. Quarterly arrivals to Australia, 1981Q1 to 2012Q3, from the US (11 Sept 2001, the 2003 Iraq war and SARS) and from Japan (SARS, 2003): `data/au-arrivals-*.csv`, `eval/drift-warning-arrivals.mjs`, output `eval/drift-warning-arrivals.out.txt`, test `drift-warning-arrivals.test.mjs`. Same cells as the other real series (`--drift --period 4`, raw and log, with and without `--trend bend`).
+
+- The warning fires in 7 of 8 cells (only US raw with bend is silent). These series trend hard, so the fit cuts 7 to 17 steps and some window always holds three. The warning cannot tell a shape from a shock here, and it has no way to say the cause is a trend the fit cut into steps.
+- The dated shock is found: in all four US cells the fit puts a downward step at 2001Q3, the quarter of the attacks (the visitor drop shows in the quarter itself). The Japan SARS dip appears as a pair, a fall at 2003Q1 or Q2 and a rise at 2003Q4 (cancelling, as a shock does), in all four cells.
+- So the "cancelling pair" signature from the earlier negative result holds on this shock too, but only a person reading the dates sees it: the warning window sits on the trend steps, not on the shock, and the 3-in-2-cycles rule would fire without it. Not adopted; the warning text is unchanged. One series pair, one fit, no ground truth beyond the event dates.
+- Wanted: a trendless seasonal series with a shock, which would test the warning without the trend confound.
+
+## Shape or shock, a trendless seasonal series (2026-10-29)
+
+The last section asked for a trendless seasonal series with a shock, to test the warning without the trend confound. Monthly UK deaths from bronchitis, emphysema and asthma, 1974-79 (all, male, female; 72 months each), have the January 1976 peak of a bad winter; US accidental deaths 1973-78 have no documented shock and serve as the null. Data in `data/` (`SOURCE.md`), `eval/drift-warning-trendless.mjs`, output `eval/drift-warning-trendless.out.txt`, test `drift-warning-trendless.test.mjs`. Same cells as before (`--drift --period 12`, raw and log, with and without `--trend bend`).
+
+- The spike is found as a cancelling pair in all 12 cells on the three UK series: a rise at 1976-02 and a fall at 1976-04. The warning fires in 11 of the 12 (it is silent only on the female series, log, no trend, which fits just that pair).
+- **The null warns too:** 3 of 4 cells on US accidental deaths (silent only on log with bend). The fit cuts 2 to 8 steps in a series with no break a person would name, and a window of three steps lands in two cycles. So here the warning does not tell a shock from a shape, and it does not tell a shape from nothing: 14 of 16 cells warn, 3 of them null cells.
+- Takeaway: on 72 months the 3-in-2-cycles rule is not a test of anything. The cancelling pair is visible to a reader (and could be a rule: opposite-sign steps within a few months, net near zero), but the null series also produces such pairs (1976-02+ and 1976-04- appear in US deaths too), so the pair alone does not separate shock from noise. Not adopted; the warning text is unchanged.
+- One 72-month series per kind and no ground truth beyond a dated peak. Wanted: a longer trendless seasonal series with a documented one-off event, and a null series long enough that the warning rate means something.
+
+## Shape or shock, 195 months of euro-area factory orders (2026-10-29)
+
+The last section wanted a longer seasonal series with a documented event. Euro-area new orders for electrical equipment, 1996-01 to 2012-03 (195 months, R's `fpp2::elecequip`, `data/eu-elecequip.csv`, `data/SOURCE.md`), carry the late-2008 collapse and the 2009-10 recovery. `eval/drift-warning-elecequip.mjs`, output `eval/drift-warning-elecequip.out.txt`, test `drift-warning-elecequip.test.mjs`; the same four cells (`--drift --period 12`, raw and log, with and without `--trend bend`).
+
+- The collapse is found in all four cells (falls at 2008-11 and 2009-01, after one at 2008-05), and the rebound as a rise at 2009-09 to 2010-08 in three or four.
+- **The warning fires in all four cells, and so do 12 to 18 other steps**, from 1996-12 to 2011-06: the series is a business cycle with a long run of small shifts, not one event. So the 3-in-2-cycles rule again does not separate a shock from a shape; with this many steps it cannot fail to find three close together.
+- Takeaway: on a longer series the warning is no better evidence than on 72 months. The text's advice (check the dates against the series) is what a reader should do; the number of steps cut (16 to 22 here) is the stronger signal that the segmentation is chasing a cycle, and a candidate for a rule.
+- Still wanted: a null series of the same length with no event, so the warning rate means something. No such series is in the repository.
+
+### A same-length null (2026-10-29)
+
+`eval/drift-warning-null195.mjs` (output `eval/drift-warning-null195.out.txt`, test `drift-warning-null195.test.mjs`) builds 195 synthetic months: a fixed 12-month shape, a slow rise of 0.2% a month and Gaussian noise (sd 1%, 2% or 4% of the level), no shock and no drifting shape. 40 seeds per noise setting, `--drift --period 12`, raw and log, with and without `--trend bend`. Synthetic, so it says what the rule does on a clean null, not on real data.
+
+- **White noise, with `--trend bend`:** the warning fires in 0 to 3 of 40 (0% to 8%) in every cell, with 0.4 to 1.1 steps on average. On a clean series the warning is quiet.
+- **White noise, no trend term:** the rise is read as steps. At sd 1% it fires in 40 of 40 (16 steps on average); at sd 2%, 8 to 17 of 40; at sd 4%, 2 to 3 of 40. Whether it fires depends on how the noise compares with the drift, so it is no test of a seasonal shape here.
+- **Autocorrelated noise (rho 0.5), even with `--trend bend`:** 30 to 35 of 40 at every noise level, with 7 to 9 steps. This is the finding: autocorrelation alone, with no shock and no changing shape, makes the warning fire as often as it did on the real euro series (4 of 4).
+
+So the 16 to 22 steps on the real euro series are what a white-noise null does with no trend term (16 steps), and the warning on it is also what a null with autocorrelation does (8 to 9 steps, trend modelled). Neither a trend nor the warning is evidence of a shock or a shape. The real series' step count was above both nulls, which is weak evidence of a cycle; one real series against a synthetic null with a made-up shape does not fix a rule. Not changed: the rule or its text. Candidate next: point the warning's text at `--ar1` when the residuals are autocorrelated (the `rangeWarning` already does this).
+
+
+**`driftWarning` and autocorrelated noise: the text now points at `--ar1` (measured 2026-10-29).** `eval/drift-warning-null195-ar1.mjs` re-runs the 195-month null (fixed season, no shock, 40 seeds per cell, raw scale, `--trend bend`) with and without `--ar1`. At rho 0.5 the warning fired in 33, 33 and 35 of 40 series without `--ar1` (sd 0.01, 0.02, 0.04) and in 0, 0 and 1 of 40 with it; at rho 0 it fired 0 to 3 of 40 either way (3, 2, 0 without; 2, 2, 0 with). So when the series looks autocorrelated (rho of 0.3 or more) and `--ar1` is off, the warning now says so and asks for a re-run before reading the steps as a changing shape. Not measured: whether `--ar1` also keeps the warning on a real drifting shape under sticky noise (the `--period --drift --ar1` section above covers the fit, not this warning). Output: `eval/drift-warning-null195-ar1.out.txt`; test: `drift-warning-null195-ar1.test.mjs`.
+
+**`--ar1` on real drifting series (2026-10-29, `eval/drift-warning-real-ar1.mjs`).** With `--trend bend`, `--ar1` keeps the drift warning on the airline-passengers series (raw and log, 8 to 10 steps, warning yes) and stays silent on the fixed-season Nottingham temperatures, but it loses the warning on UK gas, a genuinely growing season (raw and log each fall from 6 or 7 steps to 1), and on UK driver deaths raw (the 1973 shock; log still warns). Johnson & Johnson never warned with bend. So `--ar1` is not a free fix for the autocorrelated false alarm: on a short quarterly series it widens the noise scale enough to swallow the drifting shape. Use it when the lag-1 autocorrelation is high and read the warning as "not shown" rather than "absent" on short series.

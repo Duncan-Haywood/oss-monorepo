@@ -4,6 +4,8 @@ import { pairKey, selectNextPair, selectNextPairHybrid, surveyConfidence } from 
 import { loadRatedItems } from "@/lib/participantRatings";
 
 const RECENT_TRIALS_TO_AVOID = 10;
+/** Decided answers before a first-option share means anything (30 coin flips: sd 0.09). */
+const FIRST_OPTION_MIN_DECIDED = 30;
 
 /**
  * How long a shown-but-unanswered question stays the *same* question.
@@ -73,7 +75,7 @@ export async function POST(req: NextRequest) {
     }
 
     const answeredCount = answeredCountForPending;
-    const [shownCounts, recentTrials] = await Promise.all([
+    const [shownCounts, recentTrials, resultCounts] = await Promise.all([
       prisma.trial.groupBy({
         by: ["itemAId", "itemBId"],
         where: { participantId },
@@ -85,7 +87,16 @@ export async function POST(req: NextRequest) {
         take: RECENT_TRIALS_TO_AVOID,
         select: { itemAId: true, itemBId: true },
       }),
+      prisma.trial.groupBy({
+        by: ["result"],
+        where: { participantId, result: { in: ["A", "B"] } },
+        _count: { _all: true },
+      }),
     ]);
+    const decided = resultCounts.reduce((n, r) => n + r._count._all, 0);
+    const firstOptionShare = decided >= FIRST_OPTION_MIN_DECIDED
+      ? (resultCounts.find((r) => r.result === "A")?._count._all ?? 0) / decided
+      : undefined;
 
     const timesShown = new Map<string, number>();
     for (const row of shownCounts) {
@@ -106,6 +117,7 @@ export async function POST(req: NextRequest) {
       timesShown,
       recentPairKeys,
       answeredCount,
+      firstOptionShare,
     });
     // Randomize which slot (A/B, i.e. top/bottom on screen) each pick lands in,
     // so a real position bias can't creep into the ratings.

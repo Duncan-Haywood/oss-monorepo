@@ -1,0 +1,20 @@
+Equator-Pacific (lat 0.0, lon -90.0): annual mean 231 W/m2, range 200 to 281
+  neutral share of 54 boats by month: Jan 48 Feb 50 Mar 56 Apr 50 May 48 Jun 37 Jul 33 Aug 33 Sep 33 Oct 39 Nov 37 Dec 39
+  central 4 m boat (30 W, 0.20, 0.85; load 43.5 W, harvest at annual mean 45.3 W): neutral in 7 months; annual-mean verdict neutral; worst month AUG not neutral
+  central 5 m boat (30 W, 0.20, 0.85; load 44.4 W, harvest at annual mean 70.7 W): neutral in 12 months; annual-mean verdict neutral; worst month AUG neutral
+Florida-Straits (lat 25.0, lon -80.0): annual mean 218 W/m2, range 145 to 270
+  neutral share of 54 boats by month: Jan 19 Feb 30 Mar 44 Apr 50 May 52 Jun 48 Jul 50 Aug 48 Sep 37 Oct 33 Nov 19 Dec 11
+  central 4 m boat (30 W, 0.20, 0.85; load 43.5 W, harvest at annual mean 42.7 W): neutral in 6 months; annual-mean verdict not neutral; worst month DEC not neutral
+  central 5 m boat (30 W, 0.20, 0.85; load 44.4 W, harvest at annual mean 66.8 W): neutral in 12 months; annual-mean verdict neutral; worst month DEC neutral
+Gulf-of-Maine (lat 42.0, lon -70.0): annual mean 161 W/m2, range 53 to 256
+  neutral share of 54 boats by month: Jan 0 Feb 2 Mar 15 Apr 33 May 41 Jun 48 Jul 48 Aug 41 Sep 28 Oct 6 Nov 0 Dec 0
+  central 4 m boat (30 W, 0.20, 0.85; load 43.5 W, harvest at annual mean 31.5 W): neutral in 4 months; annual-mean verdict not neutral; worst month DEC not neutral
+  central 5 m boat (30 W, 0.20, 0.85; load 44.4 W, harvest at annual mean 49.3 W): neutral in 7 months; annual-mean verdict neutral; worst month DEC not neutral
+North-Sea (lat 55.0, lon 5.0): annual mean 121 W/m2, range 14 to 235
+  neutral share of 54 boats by month: Jan 0 Feb 0 Mar 2 Apr 20 May 41 Jun 43 Jul 39 Aug 28 Sep 6 Oct 0 Nov 0 Dec 0
+  central 4 m boat (30 W, 0.20, 0.85; load 43.5 W, harvest at annual mean 23.7 W): neutral in 3 months; annual-mean verdict not neutral; worst month DEC not neutral
+  central 5 m boat (30 W, 0.20, 0.85; load 44.4 W, harvest at annual mean 37.0 W): neutral in 5 months; annual-mean verdict not neutral; worst month DEC not neutral
+Gulf-of-Alaska (lat 60.0, lon -145.0): annual mean 102 W/m2, range 7 to 220
+  neutral share of 54 boats by month: Jan 0 Feb 0 Mar 0 Apr 19 May 33 Jun 37 Jul 33 Aug 13 Sep 2 Oct 0 Nov 0 Dec 0
+  central 4 m boat (30 W, 0.20, 0.85; load 43.5 W, harvest at annual mean 20.1 W): neutral in 0 months; annual-mean verdict not neutral; worst month DEC not neutral
+  central 5 m boat (30 W, 0.20, 0.85; load 44.4 W, harvest at annual mean 31.4 W): neutral in 5 months; annual-mean verdict not neutral; worst month DEC not neutral

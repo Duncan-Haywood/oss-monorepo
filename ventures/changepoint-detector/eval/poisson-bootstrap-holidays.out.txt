@@ -1,0 +1,7 @@
+counts with holidays, n=210 | false alarms plain / bootstrap | detection (x1.5 at 105) plain / bootstrap
+sd 0 holidays | 4% / 3% | 97% / 97%
+sd 0 holidays + weekly season | 2% / 2% | 96% / 96%
+sd 0.2 holidays | 85% / 21% | 76% / 72%
+sd 0.2 holidays + weekly season | 77% / 15% | 75% / 71%
+sd 0.4 holidays | 100% / 65% | 87% / 59%
+sd 0.4 holidays + weekly season | 100% / 67% | 81% / 47%

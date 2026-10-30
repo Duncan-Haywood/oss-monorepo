@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%231b587e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EA%3C/text%3E%3C/svg%3E"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PayPal Bookkeeping: Book Sales and Fees, Not Withdrawals (Worked Example)</title>
+<meta name="description" content="A PayPal withdrawal is sales less fees. A worked example turns a $145.05 transfer to your bank into $150.00 of sales and $4.95 of PayPal fees, read by the tool from the activity CSV.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="./paypal-bookkeeping.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PayPal bookkeeping: book sales and fees, not withdrawals">
+<meta property="og:description" content="A worked example: a $145.05 PayPal withdrawal is $150.00 of sales and $4.95 of fees.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I book PayPal withdrawals or PayPal sales as income?","acceptedAnswer":{"@type":"Answer","text":"Book the gross payments as sales and PayPal's fees as an expense. The withdrawal to your bank is only a transfer of what is left, so booking it alone hides both the sales and what PayPal charged."}},{"@type":"Question","name":"Which PayPal report do I need?","acceptedAnswer":{"@type":"Answer","text":"The activity (transaction) CSV from the PayPal Reports page, with the Gross, Fee and Net columns, for the same dates as your bank statement."}},{"@type":"Question","name":"Why was my withdrawal not split?","acceptedAnswer":{"@type":"Answer","text":"PayPal's CSV has no payout id, so the tool adds up completed payments since the last withdrawal. If they do not add up to the withdrawal, a balance was carried over from before the report, and the tool lists it instead of guessing. Download from an earlier start date."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#1c2430;background:#f3f5f2}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#23613f}.eyebrow{font-weight:700;letter-spacing:.04em;color:#23613f;font-size:.85rem}h1{font-size:clamp(1.7rem,5vw,2.5rem);line-height:1.08;margin:.3rem 0;color:#183d2a}.lede{font-size:1.05rem;max-width:66ch;color:#4a5560}section{background:#fff;border:1px solid #d5ddd6;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #183d2a10;margin:1rem 0}h2{margin-top:0;color:#183d2a}p,li{line-height:1.55}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:.95rem}caption{caption-side:bottom;color:#4a5560;font-size:.85rem;text-align:left;padding-top:.6rem}th,td{border-bottom:1px solid #e1e7e2;padding:.5rem .45rem;text-align:right}th:first-child,td:first-child{text-align:left}tr.total td,tr.total th{font-weight:700}.fine,footer{font-size:.86rem;color:#4a5560}@media (max-width:600px){body{padding:1rem}}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; AI Bookkeeper</a></p>
+<header>
+<h1>PayPal bookkeeping: book the sales and the fees, not just the withdrawals</h1>
+<p class="lede">Money leaves PayPal in a lump transfer to your bank, after PayPal has taken its fee from each payment. Book only the transfer and you never see what you sold or what PayPal cost you. The activity CSV has the detail.</p>
+</header>
+<section>
+<h2>Worked example: two payments, one withdrawal</h2>
+<p>The tool ships a <strong>synthetic</strong> PayPal activity CSV for March 2026 (<code>fixtures/paypal-activity.csv</code>): a $100.00 payment with a $3.20 fee, a $50.00 payment with a $1.75 fee, a further payment still pending, and a $145.05 withdrawal to the bank. The payout command matched the withdrawal to its bank line and split it into $150.00 of sales and $4.95 of fees.</p>
+<div class="table-wrap">
+<table>
+<caption>Figures from running <code>payouts paypal-activity.csv --apply</code> on a one-line bank statement. Synthetic data, not a real business.</caption>
+<thead><tr><th scope="col">March 2026</th><th scope="col">Booked from deposits</th><th scope="col">Booked from the report</th></tr></thead>
+<tbody>
+<tr><th scope="row">Sales</th><td>$145.05</td><td>$150.00</td></tr>
+<tr><th scope="row">PayPal fees</th><td>$0.00</td><td>&minus;$4.95</td></tr>
+<tr class="total"><th scope="row">Net profit</th><td>$145.05</td><td>$145.05</td></tr>
+</tbody>
+</table>
+</div>
+<p>The profit is the same, but one set of books shows your real sales, which is what you compare with a 1099-K, and a fee line you can watch.</p>
+</section>
+
+<section>
+<h2>How to book it</h2>
+<ol>
+<li><strong>Download the activity CSV</strong> from PayPal and your bank statement for the same dates.</li>
+<li><strong>Import the bank statement</strong> in <a href="./">AI Bookkeeper</a>, then run <code>payouts paypal-activity.csv</code>. Each withdrawal is matched to its bank line and shown as a plan; add <code>--apply</code> to post the splits.</li>
+<li><strong>Read the leftovers.</strong> A withdrawal whose payments do not add up to it is reported under problems.</li>
+<li><strong>Run it again next month.</strong> A withdrawal already split is reported as done and nothing posts twice.</li>
+</ol>
+<p>The layout was checked against one hand-written file in PayPal's documented column order; no real PayPal export has been tried, so check the totals against your own statement.</p>
+</section>
+
+<section>
+<h2>Questions</h2>
+<h3>Should I book PayPal withdrawals or PayPal sales as income?</h3>
+<p>Book the gross payments as sales and PayPal's fees as an expense. The withdrawal to your bank is only a transfer of what is left, so booking it alone hides both the sales and what PayPal charged.</p>
+<h3>Which PayPal report do I need?</h3>
+<p>The activity (transaction) CSV from the PayPal Reports page, with the Gross, Fee and Net columns, for the same dates as your bank statement.</p>
+<h3>Why was my withdrawal not split?</h3>
+<p>PayPal's CSV has no payout id, so the tool adds up completed payments since the last withdrawal. If they do not add up to the withdrawal, a balance was carried over from before the report, and the tool lists it instead of guessing. Download from an earlier start date.</p>
+<h3>Is it free?</h3>
+<p>Yes. It is open source (MIT), runs in your browser or as a command line tool, and nothing is uploaded.</p>
+</section>
+
+<p><a href="./">Open AI Bookkeeper</a> and import your bank statement and report.</p>
+</main>
+<footer>
+<p><strong>No warranty.</strong> This page and the tool are provided free and as-is, without warranty of any kind. They are not legal, tax, or financial advice and do not replace a qualified professional. You are responsible for reviewing and verifying any output before relying on it. The example is synthetic data, not a real business. PayPal, Stripe, Shopify and Etsy are trademarks of their owners, named only to describe a payee or a report; this project is not affiliated with them.</p>
+</footer>
+</body>
+</html>

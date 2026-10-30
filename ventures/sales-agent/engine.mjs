@@ -113,10 +113,40 @@ const EMAIL_RE = /[a-z0-9._%+'-]+@[a-z0-9.-]+\.[a-z]{2,}/i;
 
 /** Remove quoted history and signatures so only what the person wrote is read. */
 export function stripQuoted(body) {
+  const lines = String(body).split(/\r?\n/);
   const out = [];
-  for (const line of String(body).split(/\r?\n/)) {
-    if (/^\s*>/.test(line)) continue;
-    if (/^\s*On .{3,120}wrote:\s*$/i.test(line) || /^-{2,}\s*(original|forwarded) message/i.test(line) || /^\s*(From|Sent|De|Von):\s.+/i.test(line) && out.some((l) => l.trim()) || /^-- ?$/.test(line) || /^_{5,}$/.test(line) || /^Sent from my (iphone|ipad|android|phone|mobile)/i.test(line.trim())) break;
+  const quoted = (l) => /^\s*>/.test(l);
+  // "On <date>, <name> wrote:" can wrap over up to three lines ("...<a@b.c>wrote:" included).
+  const attribution = (i) => {
+    if (!/^\s*On\s.{3,120}/i.test(lines[i])) return 0;
+    for (let n = 1; n <= 3 && i + n <= lines.length; n++) {
+      if (/\bwrote:\s*$/i.test(lines.slice(i, i + n).join(" "))) return n;
+    }
+    return 0;
+  };
+  // Other languages ("schrieb:", "a écrit :", "написал:") have no fixed first word, so they count only when a quote follows.
+  const WROTE = /(?:schrieb|a écrit|ha scritto|escribió|escreveu|schreef|skrev|kirjoitti|napisał|написал[аи]?|пишет|écrit)(?:\s[^:]{0,80})?\s*:\s*$/i;
+  const foreignAttribution = (i) => {
+    if (quoted(lines[i]) || !/[\d@]/.test(lines[i])) return 0; // an attribution names a date or an address
+    for (let n = 1; n <= 3 && i + n <= lines.length; n++) {
+      const joined = lines.slice(i, i + n).join(" ");
+      if (joined.length > 200) break;
+      if (WROTE.test(joined)) return n;
+    }
+    return 0;
+  };
+  const nextIsQuote = (i) => { while (i < lines.length && !lines[i].trim()) i++; return i < lines.length && quoted(lines[i]); };
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (quoted(line)) continue;
+    let n = attribution(i);
+    if (!n) { n = foreignAttribution(i); if (n && !nextIsQuote(i + n)) n = 0; }
+    if (n) {
+      // A reply typed under the quote (bottom-posted or between quoted paragraphs) is still the reply.
+      if (nextIsQuote(i + n)) { i += n - 1; continue; }
+      break;
+    }
+    if (/^-{2,}\s*(original|forwarded) message/i.test(line) || /^\s*[*_]*(From|Sent|De|Von)[*_]*:[*_]*\s.+/i.test(line) && out.some((l) => l.trim()) || /^-- ?$/.test(line) || /^_{5,}$/.test(line) || /^\s*-{5,}\s*$/.test(line) && out.some((l) => l.trim()) || /^Sent from my (iphone|ipad|android|phone|mobile)/i.test(line.trim())) break;
     out.push(line);
   }
   return out.join("\n").trim();
@@ -184,6 +214,20 @@ const RULES = {
     P("\\b(do not|don'?t|dont|never) (contact|email|e-mail|message|reach out to) (me|us|again)\\b"), P("\\bopt(ed)?[ -]?out\\b"), P("\\bopt (me|us) out\\b"), P("\\bremove (it|them|this|my \\w+|our \\w+) from\\b"), P("\\b(from|off) your (database|list|mailing list|system|crm)\\b"), P("^\\s*stop\\.?\\s*$"),
     P("\\b(don'?t|do not) (email|contact|write to) me\\b"), P("\\bno more (emails|messages)\\b"), P("\\bstop spamming\\b"), P("\\bthis is spam\\b"), P("\\bgdpr\\b.*\\b(delete|erase|erasure|remove)"),
     P("\\b(delete|erase) (my|our) (data|details|information)\\b"), P("\\bmark(ing)? (this|you) as spam\\b"), P("\\breport(ing)? (this|you) as spam\\b"), P("\\bnot interested,? (please )?(stop|remove)"),
+    // Added 2026-10-25 after a fourth set missed 9 of 18 unsubscribes: bare "please stop", "leave me alone", "strike me from",
+    // "don't write again", "never gave you permission", "unsub", and FR/DE/ES "no longer receive/send" phrasings.
+    P("^\\s*(please )?stop( it| please)?[.!]*\\s*$"), P("\\bleave (me|us) alone\\b"), P("\\b(strike|drop|purge|scrub) (me|us|my \\w+) from\\b"), P("\\b(don'?t|do not|never) (write|call|text|bother) (to )?(me|us)?\\s*(again|anymore|any more)\\b"),
+    P("\\b(never|didn'?t|did not) (gave|give|given|opt(ed)? in|sign(ed)? up|consent|agree)\\b.*\\b(permission|consent|to (this|your))"), P("\\bunsub\\b"), P("\\btake (it|my \\w+|this) off\\b"), P("\\bwhat(ever)? list you\\b"),
+    P("\\bno (longer )?(wish|want)s? to (receive|get|hear)\\b"), P("\\bne souhaite plus recevoir\\b"), P("\\bplus recevoir (de |vos )?(messages|mails|courriels|e-?mails)\\b"), P("\\bkeine e-?mails mehr\\b"), P("\\bno quiero recibir\\b"),
+    P("\\bunsolicited\\b.*\\b(remove|strike|delete|stop)\\b"),
+    // Added 2026-10-26: non-English opt-outs and auto-replies fell to "unclear" in a probe (DE, FR, ES, IT, PT, NL). Written by the
+    // agent from common phrasings, not scored on real mail. No \\b around accented letters: JS \\b is ASCII-only.
+    P("entfernen sie mich"), P("aus (ihrem|dem|ihrer) (e-?mail-?)?(verteiler|liste|datenbank)"), P("\\b(abmelden|austragen|abbestellen)\\b"), P("\\bnicht mehr (per )?(e-?mail )?(zu)?(kontaktier|anschreib|belästig|beläst)"), P("l[öo]schen sie (meine|unsere) (daten|e-?mail|adresse)"),
+    P("ne m'?envoyez plus"), P("d[ée]sabonn"), P("d[ée]sinscri"), P("ne plus recevoir"), P("retirez[- ]moi"), P("supprimez (mon|mes|notre|nos)\\b"),
+    P("darme de baja"), P("no me (env[ií]en?|manden?|escriban?|contacten?) m[aá]s"), P("elimin(e|en|ar) (mi|mis|nuestro)\\b.*(correo|datos|lista|direcci)"), P("cancelar (la |mi )?suscripci"), P("\\bdarse de baja\\b"),
+    P("\\b(cancellatemi|rimuovetemi|toglietemi|disiscriv)"), P("non (voglio|vogliamo) pi[uù] ricevere"),
+    P("n[ãa]o (me )?(envie|mande|escreva|contate)n? mais"), P("remov(a|am|er) (meu|minha|o meu)\\b"), P("cancelar (a )?inscri"),
+    P("\\b(schrijf|schrijven) (mij|me|ons) uit\\b"), P("\\buitschrijven\\b"), P("verwijder (mij|me|mijn|ons)\\b"), P("mail (mij|ons) (niet|nooit) meer"),
     P("\\bcease and desist\\b"), P("\\bcease (all )?(further )?(email|e-mail|communication|contact)"),
     // Other languages (added after the third eval set; unverified beyond one example each): FR, DE, ES, IT opt-out phrasings.
     P("\\bne (me )?contactez plus\\b"), P("\\b(retirer|supprimer) (de|mon|mes|mon adresse)\\b.*\\b(liste|diffusion|donn[ée]es)"), P("\\b(kontaktieren|anschreiben|schreiben)( sie)? mich nicht mehr\\b"), P("\\bnicht mehr (kontaktieren|anschreiben|schreiben)\\b"), P("\\bsc?hreiben sie mir nicht mehr\\b"), P("\\bno me (vuelvan a )?(escrib|contact)"), P("\\bnon (mi |ci )?contatt\\w* pi[uù]\\b"), P("\\bnon contattatemi\\b"),
@@ -191,10 +235,19 @@ const RULES = {
   bounce: [
     P("\\bdelivery (status notification|has failed|failure)\\b"), P("\\bundeliverable\\b"), P("\\bmail delivery (subsystem|failed|system)\\b"), P("\\baddress (not found|couldn'?t be found|rejected)\\b"),
     P("\\b55[0-4][ -]5\\.\\d\\.\\d\\b"), P("\\bmailbox (unavailable|not found|does not exist|is full)\\b"), P("\\buser unknown\\b"), P("\\bno such user\\b"), P("\\brecipient address rejected\\b"), P("\\bmessage (wasn'?t|was not|could not be) delivered\\b"),
+    P("\\breturned mail\\b"), P("\\bautomatically rejected\\b"), P("\\b(cannot|can'?t|could ?n[o']?t|unable to) be delivered\\b"), P("\\bnot (be )?delivered to (the following|one or more)\\b"), P("\\b(mail|message) (rejected|undeliverable)\\b"), P("не может быть доставлен"),
   ],
   out_of_office: [
     P("\\bout of (the )?office\\b"), P("\\booo\\b"), P("\\bautomatic reply\\b"), P("\\bauto(matic)?[- ]?reply\\b"), P("\\bon (annual |parental |maternity |paternity |medical |sick )?leave\\b"), P("\\b(i am|i'?m) (currently )?(away|travell?ing|on vacation|on holiday|out)\\b"),
     P("\\b(limited|no) access to (my )?e-?mail\\b"), P("\\bwill (be back|return)\\b"), P("\\bback in the office\\b"), P("\\breturning (on|to the office)\\b"), P("\\baway from (the office|my desk)\\b"),
+
+    // Added 2026-10-26, same caveat as the opt-outs above: DE, FR, ES, IT, PT, NL auto-reply phrasings.
+    P("abwesenheit"), P("\\bnicht (im|in meinem|im meinem) b[üu]ro\\b"), P("\\bau(ß|ss)er haus\\b"), P("\\bbin (bis|vom|ab) .{0,40}(abwesend|im urlaub|nicht erreichbar)"), P("automatische antwort"), P("\\bim urlaub\\b"),
+    P("r[ée]ponse automatique"), P("message d'?absence"), P("\\b(absent|absente) (du bureau|jusqu)"), P("\\ben cong[ée]s?\\b"), P("\\bde retour (le|lundi|mardi|mercredi|jeudi|vendredi|d[èe]s)\\b"), P("hors du bureau"),
+    P("respuesta autom[áa]tica"), P("fuera de (la )?oficina"), P("\\bestar[ée] (ausente|de vacaciones|fuera)\\b"), P("\\bde vacaciones\\b"), P("mensaje autom[áa]tico"),
+    P("risposta automatica"), P("fuori (dall')?ufficio"), P("\\bsono (in ferie|assente)\\b"),
+    P("resposta autom[áa]tica"), P("fora do escrit[óo]rio"), P("\\best(ou|arei) (ausente|de f[ée]rias)\\b"),
+    P("automatisch antwoord"), P("automatisch bericht"), P("\\bafwezig\\b"), P("niet (aanwezig|op kantoor)"), P("buiten kantoor"),
   ],
   left_company: [
     P("\\b(doesn'?t|does not|don'?t|do not|no longer) work(s|ing)? (here|there|for|at)\\b"), P("\\bno longer at\\b"), P("\\b(i|we) (don'?t|do not) (handle|deal with|look after|manage) (this|that|these|purchasing|software)\\b"), P("\\b(would be|is) the (one|person|right one) to (talk|speak) to\\b"), P("\\breplacement is\\b"), P("\\bmoved (on|to a new role|to another company)\\b"),
@@ -249,7 +302,8 @@ export function triage(reply, today) {
   const signal = typeof reply === "string" ? "" : reply.signal || "";
   if (signal === "dsn-permanent") return res("bounce", { s: "delivery status Status 5.x.x", m: "5.x.x" }, { why: "the receiving server reported a permanent failure" });
   if (signal === "dsn-temporary") return res("out_of_office", { s: "delivery status Status 4.x.x", m: "4.x.x" }, { subtype: "delivery_delayed", why: "delivery delayed, not failed; no address change" });
-  if (signal === "auto-reply" && !find("bounce")) { const d = (() => { for (const s of all) { const f = findDate(s, today); if (f && /\b(back|return|until|till|away|leave|office)\b/i.test(s)) return f; } return null; })(); return res("out_of_office", { s: "Auto-Submitted header", m: "auto-replied" }, { date: d?.date || null, dateText: d?.text || null, why: "sent by an auto-responder (header), not a person" }); }
+  if (!signal && /\b(mail delivery warning|has been postponed|continue to try to deliver)\b/i.test(all.join("\n")) && /^(mailer-daemon|postmaster)@|delivery/i.test(from + subject)) return res("out_of_office", { s: all.find((x) => /postponed|delivery warning|continue to try/i.test(x)) || subject, m: "delivery delayed" }, { subtype: "delivery_delayed", why: "delivery delayed, not failed; no address change" });
+  if (signal === "auto-reply" && !find("bounce") && !/^(mailer-daemon|postmaster)@/i.test(from)) { const d = (() => { for (const s of all) { const f = findDate(s, today); if (f && /\b(back|return|until|till|away|leave|office)\b/i.test(s)) return f; } return null; })(); return res("out_of_office", { s: "Auto-Submitted header", m: "auto-replied" }, { date: d?.date || null, dateText: d?.text || null, why: "sent by an auto-responder (header), not a person" }); }
   if ((ev = find("bounce")) || /^(mailer-daemon|postmaster)@/i.test(from)) return res("bounce", ev || { s: from, m: from }, { why: "a delivery failure, not a person" });
   if ((ev = find("unsubscribe"))) return res("unsubscribe", ev, { why: "asked not to be contacted" });
 

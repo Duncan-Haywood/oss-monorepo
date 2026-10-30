@@ -37,3 +37,23 @@ test("a journal export says what it is instead of finding no lines", () => {
   assert.equal(r.rows.length, 0);
   assert.match(r.problems[0], /accounting journal/);
 });
+
+// UBS (Swiss, French headings) shape as in the project's ubs-ch-fr sample, rewritten with made-up rows.
+const ubs = `Produit;Monn.;Description;Date de valeur;Description 1;Description 2;Description 3;N° de transaction;Débit;Crédit;Solde
+0123 45678901.23A;CHF;Compte personnel;31.03.2019;Solde prix prestations;;;A01;10.00;;11'373.94
+0123 45678901.23A;CHF;Compte personnel;28.02.2019;Virement postal;ASSOCIATION EXEMPLE;RUE DU LAC 1, 1201 GENEVE, CH;B02;;240.00;11'613.94
+`;
+
+test("a header whose only date column is 'Date de valeur' is read as a header, not skipped as a preamble", () => {
+  const r = readStatement(ubs);
+  assert.equal(r.rows.length, 2);
+  assert.deepEqual(r.rows.map((x) => x.cents), [-1000, 24000]);
+  assert.equal(r.rows[0].date, "2019-03-31");
+  assert.equal(r.problems.length, 0, r.problems.join("|"));
+});
+
+test("numbered Description 1..3 columns are joined in header order, not only the last", () => {
+  const r = readStatement(ubs);
+  assert.equal(r.rows[0].desc, "Solde prix prestations");
+  assert.equal(r.rows[1].desc, "Virement postal ASSOCIATION EXEMPLE RUE DU LAC 1, 1201 GENEVE, CH");
+});

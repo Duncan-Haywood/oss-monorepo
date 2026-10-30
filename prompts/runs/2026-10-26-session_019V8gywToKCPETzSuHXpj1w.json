@@ -1,0 +1,188 @@
+{
+  "date": "2026-10-26",
+  "session": "https://claude.ai/code/session_019V8gywToKCPETzSuHXpj1w",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-26T10:09:13Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 10617,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Red baseline was in the posts, not the target code; two posts merged over the 160-char description limit without CI catching it."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "No new blog post: the run's finding is a two-line front-matter fix.",
+      "did": "fixed descriptions only",
+      "result": "suites green"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Campaign on platform/ci/slug_dupe.py: 8/8 caught. Real defects were two over-long post descriptions.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "platform/ci/slug_dupe.py",
+        "test": "/usr/local/bin/python3 -m pytest -q -x -p no:cacheprovider test_slug_dupe.py  (in platform/ci)",
+        "seed": 509213669,
+        "commit": "ffaaf051",
+        "sites": 28,
+        "baseline_seconds": 2.9,
+        "mutants": [
+          {
+            "file": "platform/ci/slug_dupe.py",
+            "line": 27,
+            "col": 14,
+            "operator": "or-to-and",
+            "before": "ref = ref or f\"{remote}/main\"",
+            "after": "ref = ref and f\"{remote}/main\"",
+            "line_text": "    ref = ref or f\"{remote}/main\"",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/slug_dupe.py",
+            "line": 32,
+            "col": 20,
+            "operator": "const-plus-one",
+            "before": "on_main = rc == 0 and bool(out.strip())",
+            "after": "on_main = rc == 1 and bool(out.strip())",
+            "line_text": "    on_main = rc == 0 and bool(out.strip())",
+            "caught": true,
+            "seconds": 1.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/slug_dupe.py",
+            "line": 37,
+            "col": 30,
+            "operator": "const-plus-one",
+            "before": "branches = [l.split(\"\\t\")[1].removeprefix(\"refs/heads/\") for l in out.splitlines()] if rc == 0 else []",
+            "after": "branches = [l.split(\"\\t\")[2].removeprefix(\"refs/heads/\") for l in out.splitlines()] if rc == 0 else []",
+            "line_text": "    branches = [l.split(\"\\t\")[1].removeprefix(\"refs/heads/\") for l in out.splitlines()] if rc == 0 else []",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/slug_dupe.py",
+            "line": 37,
+            "col": 97,
+            "operator": "const-plus-one",
+            "before": "branches = [l.split(\"\\t\")[1].removeprefix(\"refs/heads/\") for l in out.splitlines()] if rc == 0 else []",
+            "after": "branches = [l.split(\"\\t\")[1].removeprefix(\"refs/heads/\") for l in out.splitlines()] if rc == 1 else []",
+            "line_text": "    branches = [l.split(\"\\t\")[1].removeprefix(\"refs/heads/\") for l in out.splitlines()] if rc == 0 else []",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/slug_dupe.py",
+            "line": 40,
+            "col": 55,
+            "operator": "neq-flip",
+            "before": "return on_main, commits, [b for b in branches if b != cur.strip() and not b.startswith(\"archive/\")]",
+            "after": "return on_main, commits, [b for b in branches if b == cur.strip() and not b.startswith(\"archive/\")]",
+            "line_text": "    return on_main, commits, [b for b in branches if b != cur.strip() and not b.startswith(\"archive/\")]",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/slug_dupe.py",
+            "line": 44,
+            "col": 64,
+            "operator": "const-plus-one",
+            "before": "p = argparse.ArgumentParser(description=__doc__.split(\"\\n\")[0])",
+            "after": "p = argparse.ArgumentParser(description=__doc__.split(\"\\n\")[1])",
+            "line_text": "    p = argparse.ArgumentParser(description=__doc__.split(\"\\n\")[0])",
+            "caught": true,
+            "seconds": 1.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/slug_dupe.py",
+            "line": 52,
+            "col": 15,
+            "operator": "const-plus-one",
+            "before": "return 2",
+            "after": "return 3",
+            "line_text": "        return 2",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/slug_dupe.py",
+            "line": 64,
+            "col": 31,
+            "operator": "or-to-and",
+            "before": "if not (on_main or commits or branches):",
+            "after": "if not (on_main or commits and branches):",
+            "line_text": "    if not (on_main or commits or branches):",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "docs/posts/2026-10-26-ai-bookkeeper-receipt-ocr-remeasured.md",
+        "issue": "description 162 chars (limit 160): turned writing.test.mjs and shorts.test.mjs red on main",
+        "patched": true
+      },
+      {
+        "file": "docs/posts/2026-10-27-three-plain-and-a-bob-bell-ringing-hearth-and-horizon-story.md",
+        "issue": "description 162 chars (limit 160): same failure, found after the first fix",
+        "patched": true
+      }
+    ]
+  }
+}

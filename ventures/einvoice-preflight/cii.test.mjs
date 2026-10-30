@@ -75,3 +75,21 @@ test("parseInvoiceSource routes the shipped CII example through the CII reader",
   assert.equal(invoice.invoice_number, "INV-2026-0043");
   assert.deepEqual(checkInvoice(invoice), []);
 });
+
+test("an EXTENDED SpecifiedLogisticsServiceCharge counts as a header charge", () => {
+  const charge = "<ram:SpecifiedLogisticsServiceCharge><ram:Description>Freight</ram:Description><ram:AppliedAmount>40.00</ram:AppliedAmount>"
+    + "<ram:AppliedTradeTax><ram:TypeCode>VAT</ram:TypeCode><ram:CategoryCode>AE</ram:CategoryCode><ram:RateApplicablePercent>0</ram:RateApplicablePercent></ram:AppliedTradeTax>"
+    + "</ram:SpecifiedLogisticsServiceCharge>";
+  const source = example("cii-invoice.xml")
+    .replace("</ram:SpecifiedTradeSettlementPaymentMeans>", `</ram:SpecifiedTradeSettlementPaymentMeans>${charge}`)
+    .replace("<ram:BasisAmount>250.00</ram:BasisAmount>", "<ram:BasisAmount>290.00</ram:BasisAmount>")
+    .replace("<ram:ChargeTotalAmount>0.00", "<ram:ChargeTotalAmount>40.00")
+    .replace("<ram:TaxBasisTotalAmount>250.00", "<ram:TaxBasisTotalAmount>290.00")
+    .replace("<ram:GrandTotalAmount>250.00", "<ram:GrandTotalAmount>290.00")
+    .replace("<ram:DuePayableAmount>250.00", "<ram:DuePayableAmount>290.00");
+  const invoice = parseCiiInvoice(source);
+  assert.deepEqual(invoice.adjustments, [{ kind: "charge", amount: 40, tax_percent: 0, tax_category: "AE", reason: "Freight" }]);
+  assert.deepEqual(checkInvoice(invoice), []);
+  const without = source.replace(charge, "");
+  assert.ok(checkInvoice(parseCiiInvoice(without)).length > 0, "dropping the charge must break the totals");
+});

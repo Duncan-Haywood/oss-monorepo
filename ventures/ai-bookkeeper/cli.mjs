@@ -17,12 +17,17 @@
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { addLoan, addLoanExtra, applyLoanPayments, checkLenderSchedule, loanRegister, loanSchedule } from "./loans.mjs";
-import { salesTaxReturn, stateDueDay, stateEndMonth, stateFilingNote } from "./salestaxreturn.mjs";
+import { salesTaxReturn, parseRateSpecs, parseDiscountSpecs, stateDiscounts, stateDueDay, stateEndMonth, stateFilingNote } from "./salestaxreturn.mjs";
 import { gstReturn } from "./gstreturn.mjs";
-import { newBooks, importStatement, importOfxAccounts, importCsvAccounts, importQifAccounts, lockPeriod, closeYear, reopenYear, yearEndReport, categorize, suggestRules, addRules, addDocuments, addAsset, disposeAsset, addAssetsCsv, register, addPrepaid, prepaidRegister, addInventoryMove, setInventoryMethod, inventoryRegister, writeOff, aging, salesTax, vatReturn, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, addFxAccount, setRates, parseRates, fxRegister, exportLines, status, analyze, fmt, taxableBusinessIncome, s179Carryforward } from "./engine.mjs";
+import { newBooks, importStatement, importOfxAccounts, importCsvAccounts, importQifAccounts, lockPeriod, closeYear, reopenYear, yearEndReport, categorize, suggestRules, addRules, addDocuments, addAsset, disposeAsset, addAssetsCsv, register, addPrepaid, prepaidRegister, addInventoryMove, addLandedCost, addInventoryWritedown, setInventoryMethod, inventoryRegister, writeOff, aging, salesTax, vatReturn, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, addFxAccount, setRates, parseRates, fxRegister, exportLines, status, analyze, fmt, taxableBusinessIncome, s179Carryforward } from "./engine.mjs";
 import { parseCents } from "./bank.mjs";
 import { accountMap } from "./ledger.mjs";
-import { estimatedTax } from "./estimatedtax.mjs";
+import { estimatedTax, taxTableOptions } from "./estimatedtax.mjs";
+import { annualizedInstallments } from "./annualized.mjs";
+import { taxCalendar, toIcs } from "./calendar.mjs";
+import { scorpFromBooks } from "./scorp.mjs";
+import { retirementLimits } from "./retirement.mjs";
+import { addProject, tagProject as tagProjectLines, projectReport, projectCsv, projectMoney } from "./projects.mjs";
 import { addRentalAccounts, addProperty, tagProperty, scheduleE, scheduleECsv } from "./rental.mjs";
 import { bNoticeDates, seSetAside, selfEmployment, scheduleC, scheduleCCsv, contractors1099, contractors1099Csv, nec1099FilingCsv, markW9, mergePayees } from "./taxforms.mjs";
 import { setOpeningBalances, clearOpeningBalances } from "./opening.mjs";
@@ -30,9 +35,11 @@ import { importChart, importTrialBalance } from "./migrate.mjs";
 import { sniffFormat, splitOfx, splitQif, readStatement } from "./bank.mjs";
 import { detectRecurring, forecastCash } from "./recurring.mjs";
 import { findAnomalies } from "./anomalies.mjs";
+import { payeeReport } from "./payees.mjs";
 import { receiptTextFromFile, statementTextFromFile } from "./ocr.mjs";
 import { addReceipts, attachReceipt, removeReceipt, receiptReport, taxOnReceipts, planReceiptSplit, splitFromReceipt } from "./receipts.mjs";
 import { compareProfit } from "./compare.mjs";
+import { cashBasis } from "./cashbasis.mjs";
 import { addTrip, removeTrip, setHomeOffice, mileageDeduction } from "./deductions.mjs";
 import { setBudget, budgetVsActual } from "./budget.mjs";
 import { reconcile } from "./reconcile.mjs";
@@ -64,7 +71,7 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   vat [--from D --to D]  UK-layout VAT return worksheet (boxes 1-9) from account 2100 and an input account 1300
   gst --region ca|au [--from D --to D]  Canada GST/HST return (lines 101-109) or Australia BAS (G1, 1A, G11, 1B) worksheet, same accounts as vat
   salestax [--from D --to D]  sales tax collected, credited and paid over by month, and what is still owed
-  salestax return [--freq monthly|quarterly|annual] [--due-day N | --state CA|TX|FL|NY|WA|IL|PA] [--rate "CA state=7.25"] [--discount "CA state=0.5,100"] [--no-rollover]  return worksheet by jurisdiction (named in the tax line's description)
+  salestax return [--freq monthly|quarterly|annual] [--due-day N | --state CA|TX|FL|NY|WA|IL|PA] [--rate "CA state=7.25"] [--discount "CA state=0.5,100" | "IL state=1.75,1000/mo" | "FL state=2.5,30"] [--no-rollover]  return worksheet by jurisdiction (named in the tax line's description)
   opening FILE --date D  set opening balances from a trial balance CSV (code,amount or code,debit,credit); "opening" alone shows them, "opening clear" removes them
   switch chart FILE      adding the accounts of a QuickBooks Account List or Xero Chart of Accounts CSV to the chart (matches by name, keeps Xero codes)
   switch balances FILE [--date D]  opening balances from that system's Trial Balance CSV, which names accounts; the date comes from "As of ..." in the file unless given
@@ -78,9 +85,14 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   trip add MILES --date D --purpose TEXT [--from A --to B] | trip list [--year Y] | trip remove ID   the business mileage log (goes to Schedule C line 9 with --year)
   homeoffice SQFT [--from D --to D]     simplified home office ($5 a sq ft, 300 max; 0 removes it); line 30 with schedulec --year
   rental accounts | add ID [NAME...] | tag ID (--match TEXT|--account CODE|--ids A,B) | untag (same) | list   rental properties; tag bank lines to a property
+  project add ID [NAME...] | tag ID (--match TEXT|--account CODE|--ids A,B|--docs INV-1,BILL-2) | untag (same) | list   projects (jobs, classes): tag bank lines and invoices to one
+  projects [--from D --to D] [--csv|--json]  profit and loss per project: revenue, cost, net and margin, with what is untagged
   schedulee [--from D --to D] [--csv|--json]  the books on US Schedule E Part I lines, one column per property (a worksheet, not a filing)
   schedulec [--year Y] [--from D --to D] [--meals PCT] [--csv|--json]  the profit and loss on US Schedule C lines (a worksheet, not a filing)
-  estimate [--year Y] [--months N] [--filing single|mfj|hoh] [--wages $] [--other $] [--withholding $] [--paid $] [--prior-tax $ --prior-agi $] [--as-of D] [--no-qbi] [--json]  federal income tax plus SE tax and a safe-harbour 1040-ES payment plan (worksheet)
+  retirement [--year Y] [--months N] [--age N] [--wages $] [--json]  most a sole proprietor can put in a SEP-IRA or solo 401(k) this year (worksheet)
+  estimate [--year Y] [--months N] [--filing single|mfj|hoh] [--wages $] [--other $] [--withholding $] [--paid $] [--prior-tax $ --prior-agi $] [--as-of D] [--no-qbi] [--service] [--business-wages $] [--itemized $] [--investment $] [--eitc-children N] [--eitc-table] [--state-rate PCT [--state-deduction $] [--state-withheld $]] [--tax-table file.json] [--json]  federal income tax plus SE tax and a safe-harbour 1040-ES payment plan (worksheet)
+  calendar [--year Y] [--state XX --freq monthly|quarterly|annual] [--payroll] [--contractors] [--planned Q1,Q2,Q3,Q4 dollars] [--ics file.ics] [--json]  Tax deadlines for the year (federal estimates, filing, 941/940/1099, your state's sales tax returns), printed or written as an iCalendar file with a 7-day reminder
+  annualized [--year Y] [--filing ...] [--wages $] [--withholding $] [--prior-tax $ --prior-agi $] [--payment DATE:$ ...] [--tax-table file.json] [--json]  Form 2210 Schedule AI worksheet: what each estimated-tax date requires when income is uneven (annualized income installment method)
   se [--year Y] [--months N] [--wages $] [--json]  self-employment tax on the year's Schedule C profit, annualised, split into the four estimated-payment dates (worksheet; income tax not estimated)
   asset add NAME --cost 1800 --date D [--life MONTHS] [--salvage 0] [--expense]  register equipment; depreciation is booked monthly (default 60 months, straight-line)
   asset dispose ID --date D [--proceeds 0] [--into 1000]  sell or scrap it; books the gain or loss
@@ -99,6 +111,8 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   inventory sell SKU --qty N --date D   move that stock's cost to cost of goods sold (FIFO or average)
   inventory adjust SKU --qty N --date D write off lost or damaged stock at cost
   inventory return SKU --qty N --date D stock sent back to the supplier, at the newest layer cost (file the refund to 1450)
+  inventory landed --amount TOTAL --date D --on INV-1,INV-2 [--by value|qty]  freight or duty spread over those purchases (file the payment to 1450)
+  inventory writedown SKU --nrv UNIT_PRICE --date D  cut stock on hand to net realizable value (selling price less cost to sell) when that is below cost
   inventory method fifo|avg             costing method (default fifo)
   inventory             stock on hand by SKU, valued; the total should equal account 1450
   prepaid [--as-of D]     list prepaid items: amount, expensed so far, still paid ahead
@@ -121,6 +135,7 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   form1099k FILE.csv --year Y --gross AMT [--months J,F,...,D] [--sales CODE] [--processor card|marketplace] [--json]  tie a processor's Form 1099-K (box 1a, optional boxes 5a-5l) to its payout report and to the books' sales
   reconcile CODE --date D --balance AMT [--json]  tie an account to the closing balance on a paper statement; if it is off, name the lines that likely explain the gap
   budget [CODE AMOUNT] [--from D --to D] [--json]  set a monthly budget for an account (AMOUNT 0 removes it), or show budget against actual for the period (default: latest month)
+  cashbasis [--from D --to D] [--json]  profit and loss on the cash method: income when paid, expenses when paid (invoices and bills)
   aging [--as-of D]      what customers owe you and what you owe, by days past due
   rules [--apply]        payees you filed the same way 3+ times, as rules; --apply adds them
   accept [MIN]           accept every suggestion at or above MIN confidence (default 0.7)
@@ -363,6 +378,12 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
     if (["buy", "sell", "adjust", "return"].includes(rest[0])) {
       const r = addInventoryMove(books, { kind: rest[0], sku: rest[1], date: flag("--date"), qty: flag("--qty"), amount: flag("--amount") ?? undefined, name: flag("--name") ?? undefined });
       books = r.books; save(); console.log(`${r.move.id} ${rest[0]} ${r.move.qty / 1000} x ${r.move.sku}${rest[0] === "buy" ? `, ${fmt(r.move.cents)}. File the payment to 1450.` : rest[0] === "return" ? ". File the supplier's refund to 1450." : ". Cost moved to 5000."}`);
+    } else if (rest[0] === "landed") {
+      const r = addLandedCost(books, { amount: flag("--amount"), date: flag("--date"), to: flag("--on"), by: flag("--by") ?? undefined });
+      books = r.books; save(); console.log(`${r.move.id} landed cost ${fmt(r.move.cents)}: ${r.move.alloc.map((a) => `${a.id} ${fmt(a.cents)}`).join(", ")}. File the payment to 1450.`);
+    } else if (rest[0] === "writedown") {
+      const r = addInventoryWritedown(books, { sku: rest[1], date: flag("--date"), nrv: flag("--nrv") });
+      books = r.books; save(); console.log(`${r.move.id} ${r.move.sku} cut to net realizable value ${fmt(r.move.nrv)} a unit: ${fmt(r.loss)} to 5000.`);
     } else if (rest[0] === "method") {
       books = setInventoryMethod(books, rest[1]); save(); console.log(`Costing method: ${rest[1]}.`);
     } else {
@@ -585,6 +606,7 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   for (const m of plan.done) console.log(`${m.id.padEnd(14)} ${m.date}  already split on line ${m.line}`);
   for (const m of plan.unmatched) console.log(`${m.id.padEnd(14)} ${m.date}  net ${fmt(m.net).padStart(11)}  NOT MATCHED: ${m.why}`);
   if (plan.pending.length) console.log(`${plan.pending.length} row${plan.pending.length > 1 ? "s" : ""} not paid out yet (${fmt(plan.pending.reduce((a, x) => a + x.net, 0))}); they match once the payout lands.`);
+  if (plan.offPlatform?.length) console.log(`${plan.offPlatform.length} cash or other-tender row${plan.offPlatform.length > 1 ? "s" : ""} (${fmt(plan.offPlatform.reduce((a, x) => a + x.net, 0))}) never pass through a payout; book them from the till, not the bank.`);
   console.log(doApply ? `${result.posted} payout${result.posted === 1 ? "" : "s"} split in the books${result.skipped.length ? `, ${result.skipped.length} skipped as ambiguous` : ""}.` : plan.matched.length ? "Add --apply to post these splits." : "Nothing to post.");
 } else if (cmd === "form1099k") {
   const year = Number(flag("--year")), gross = parseCents(String(flag("--gross") ?? ""));
@@ -636,6 +658,15 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   if (json) { console.log(JSON.stringify(a, null, 2)); process.exit(0); }
   for (const x of a) console.log(`${x.date}  ${fmt(x.cents).padStart(11)}  ${x.kind.padEnd(9)} ${x.desc.slice(0, 30).padEnd(30)} ${x.reason}`);
   console.log(`${a.length} line${a.length === 1 ? "" : "s"} to look at.`);
+} else if (cmd === "payees") {
+  const r = payeeReport(books, { from, to });
+  if (json) { console.log(JSON.stringify(r, null, 2)); process.exit(0); }
+  for (const [h, side] of [["CUSTOMERS (money in)", r.customers], ["SUPPLIERS (money out)", r.suppliers]]) {
+    console.log(`${h}: ${fmt(side.total)} from ${side.payees} payee${side.payees === 1 ? "" : "s"}; top 3 are ${(side.top3 * 100).toFixed(0)}%`);
+    for (const x of side.rows) console.log(`  ${x.example.slice(0, 32).padEnd(32)} ${fmt(x.cents).padStart(12)} ${(x.share * 100).toFixed(1).padStart(5)}%  ${String(x.count).padStart(3)} line${x.count === 1 ? " " : "s"}  ${x.first} to ${x.last}${x.conduit ? "  (processor or own money)" : ""}`);
+  }
+  for (const w of r.warnings) console.log(`Warning: ${w}`);
+  if (r.unreviewed) console.log(`${r.unreviewed} lines are still in review; they are counted here.`);
 } else if (cmd === "forecast") {
   const f = forecastCash(books, { asOf, days: +(flag("--days") ?? 90) });
   if (json) { console.log(JSON.stringify(f, null, 2)); process.exit(0); }
@@ -643,6 +674,18 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   let bal = f.start;
   for (const it of f.items) { bal += it.cents; console.log(`  ${it.date}  ${fmt(it.cents).padStart(11)}  ${fmt(bal).padStart(12)}  ${it.label}`); }
   if (f.runwayDays !== null) console.log(f.runwayDays === 0 ? "The balance is already below zero." : `The balance goes below zero in ${f.runwayDays} days.`);
+} else if (cmd === "cashbasis") {
+  const c = cashBasis(books, { from, to });
+  if (json) { console.log(JSON.stringify(c, null, 2)); process.exit(0); }
+  const p = c.profitAndLoss;
+  console.log(`PROFIT AND LOSS, CASH BASIS ${p.months[0] ?? ""} to ${p.months.at(-1) ?? ""}`);
+  for (const l of p.income) console.log(`  ${l.name.padEnd(40)} ${fmt(l.total).padStart(12)}`);
+  console.log(`  ${"Total income".padEnd(40)} ${fmt(p.totalIncome).padStart(12)}`);
+  for (const l of p.expense) console.log(`  ${l.name.padEnd(40)} ${fmt(l.total).padStart(12)}`);
+  console.log(`  ${"Total expenses".padEnd(40)} ${fmt(p.totalExpense).padStart(12)}\n  ${"Net profit (cash)".padEnd(40)} ${fmt(p.net).padStart(12)}`);
+  console.log(`  ${"Net profit (accrual)".padEnd(40)} ${fmt(c.accrual.net).padStart(12)}\n  ${"Timing difference".padEnd(40)} ${fmt(c.timing.net).padStart(12)}   (accrual less cash: invoiced or billed, not yet paid)`);
+  for (const n of c.notes) console.log(`  Note: ${n}`);
+  console.log("Not tax advice: check the method your return uses.");
 } else if (cmd === "aging") {
   const a = aging(books, asOf);
   if (json) { console.log(JSON.stringify(a, null, 2)); process.exit(0); }
@@ -682,6 +725,27 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
       if (!(books.properties ?? []).length) console.log("  No properties. rental add oak 12 Oak St");
     } else throw new Error("rental accounts | add ID [NAME] | tag ID --match TEXT | untag --match TEXT | list");
   } catch (e) { console.error(e.message); process.exit(1); }
+} else if (cmd === "project") {
+  try {
+    const sub = rest[0];
+    if (sub === "add") { books = addProject(books, { id: rest[1], name: rest.slice(2).join(" ") }); save(); console.log(`Project ${rest[1]} saved.`); }
+    else if (sub === "tag" || sub === "untag") {
+      const ids = flag("--ids"), match = flag("--match"), account = flag("--account"), docs = flag("--docs");
+      const r = tagProjectLines(books, sub === "tag" ? rest[1] : null, { ids: ids ? ids.split(",") : null, match, account, docs: docs ? docs.split(",") : null });
+      books = r.books; save(); console.log(`${r.tagged} item${r.tagged === 1 ? "" : "s"} ${sub === "tag" ? `tagged ${rest[1]}` : "untagged"}.`);
+    } else if (sub === "list" || !sub) {
+      for (const p of books.projects ?? []) console.log(`  ${p.id.padEnd(14)} ${p.name}  (${books.transactions.filter((t) => t.project === p.id).length} tagged lines, ${(books.documents ?? []).filter((d) => d.project === p.id).length} documents)`);
+      if (!(books.projects ?? []).length) console.log("  No projects. project add kitchen Kitchen reno");
+    } else throw new Error("project add ID [NAME] | tag ID --match TEXT | untag --match TEXT | list");
+  } catch (e) { console.error(e.message); process.exit(1); }
+} else if (cmd === "projects") {
+  const r = projectReport(books, { from, to });
+  if (json) { console.log(JSON.stringify(r, null, 2)); process.exit(0); }
+  if (has("--csv")) { process.stdout.write(projectCsv(r)); process.exit(0); }
+  console.log(`PROFIT AND LOSS BY PROJECT${from || to ? ` ${from ?? ""}..${to ?? ""}` : ""}`);
+  for (const p of r.projects) console.log(`  ${p.name.padEnd(24)} revenue ${projectMoney(p.revenue).padStart(12)}  cost ${projectMoney(p.cost).padStart(12)}  net ${projectMoney(p.net).padStart(12)}  ${p.margin === null ? "" : `${(p.margin * 100).toFixed(1)}%`}`);
+  console.log(`  ${"Total".padEnd(24)} revenue ${projectMoney(r.total.revenue).padStart(12)}  cost ${projectMoney(r.total.cost).padStart(12)}  net ${projectMoney(r.total.net).padStart(12)}`);
+  for (const w of r.warnings) console.log(`  ! ${w}`);
 } else if (cmd === "schedulee") {
   const se = scheduleE(books, { from, to });
   if (json) { console.log(JSON.stringify(se, null, 2)); process.exit(0); }
@@ -715,17 +779,63 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   for (const p of r.payments) console.log(`  set aside by ${p.due}  ${fmt(p.cents).padStart(12)}`);
   for (const w of r.warnings) console.log(`  ! ${w}`);
   console.log("  A worksheet. Not tax advice; it leaves out income tax, the 0.9% additional Medicare tax and state tax.");
+} else if (cmd === "scorp") {
+  const yr = flag("--year"), mo = flag("--months"), c = (n) => { const v = flag(n); return v !== null ? Math.round(+v * 100) : undefined; };
+  try {
+    const r = scorpFromBooks(books, { year: yr ? +yr : new Date().getFullYear(), monthsElapsed: mo ? +mo : 12, filing: flag("--filing") ?? "single", salary: c("--salary"), salaryPct: flag("--salary-pct") !== null ? +flag("--salary-pct") / 100 : undefined, extraCost: c("--extra-cost"), stateUnemployment: c("--suta"), otherIncome: c("--other-income"), service: has("--service") });
+    if (json) { console.log(JSON.stringify(r, null, 2)); process.exit(0); }
+    console.log(`S-CORPORATION ELECTION ${r.year} (${r.filing}), profit annualised ${fmt(r.profit)}, salary ${fmt(r.salary)}`);
+    const row = (l, a, b) => console.log(`  ${l.padEnd(26)} ${fmt(a).padStart(12)} ${fmt(b).padStart(12)}`);
+    console.log(`  ${"".padEnd(26)} ${"Sole prop".padStart(12)} ${"S corp".padStart(12)}`);
+    row("Income tax", r.sole.incomeTax, r.scorp.incomeTax); row("Payroll / SE tax", r.sole.payrollTax, r.scorp.payrollTax); row("Yearly cost of the entity", 0, r.scorp.extraCost); row("All in", r.sole.allIn, r.scorp.allIn);
+    console.log(`  ${r.savings >= 0 ? "S corporation saves" : "S corporation costs"} ${fmt(Math.abs(r.savings))} at this salary; break-even profit ${r.breakEven === null ? "not found up to $500,000" : fmt(r.breakEven)}.`);
+    console.log("  Salary sweep (share of profit -> saving): " + r.sweep.map((x) => `${x.salaryPct}% ${fmt(x.savings)}`).join(", "));
+    for (const w of r.warnings) console.log(`  ! ${w}`);
+    console.log("  A worksheet. Not tax advice; the salary must be reasonable for the work, and state tax is left out.");
+  } catch (e) { console.error(e.message); process.exit(1); }
 } else if (cmd === "estimate") {
   const yr = flag("--year"), mo = flag("--months"), c = (n) => { const v = flag(n); return v !== null ? Math.round(+v * 100) : undefined; };
   try {
-    const r = estimatedTax(books, { year: yr ? +yr : new Date().getFullYear(), monthsElapsed: mo ? +mo : 12, filing: flag("--filing") ?? "single", wages: c("--wages"), otherIncome: c("--other"), withholding: c("--withholding"), paid: c("--paid"), priorYearTax: c("--prior-tax"), priorAgi: c("--prior-agi"), asOf: asOf ?? undefined, qbi: has("--no-qbi") ? false : undefined });
+    const ttFile = flag("--tax-table");
+    const table = ttFile ? taxTableOptions(JSON.parse(readFileSync(ttFile, "utf8"))) : {};
+    const stateRatePct = flag("--state-rate");
+    const r = estimatedTax(books, { ...table, year: yr ? +yr : new Date().getFullYear(), monthsElapsed: mo ? +mo : 12, filing: flag("--filing") ?? "single", wages: c("--wages"), otherIncome: c("--other"), withholding: c("--withholding"), paid: c("--paid"), priorYearTax: c("--prior-tax"), priorAgi: c("--prior-agi"), healthInsurance: c("--health-insurance"), retirement: c("--retirement"), over65: +(flag("--over65") ?? 0), blind: +(flag("--blind") ?? 0), children: +(flag("--children") ?? 0), otherDependents: +(flag("--other-dependents") ?? 0), asOf: asOf ?? undefined, qbi: has("--no-qbi") ? false : undefined, service: has("--service"), businessWages: c("--business-wages"), itemized: c("--itemized"), investmentIncome: c("--investment"), eitcChildren: flag("--eitc-children") !== undefined ? +flag("--eitc-children") : undefined, eitcTable: has("--eitc-table"), stateRate: stateRatePct !== null ? +stateRatePct / 100 : undefined, stateDeduction: c("--state-deduction"), stateWithheld: c("--state-withheld") });
     if (json) { console.log(JSON.stringify(r, null, 2)); process.exit(0); }
     console.log(`FEDERAL ESTIMATE ${r.year} (${r.filing}), profit annualised ${fmt(r.profit)}`);
-    console.log(`  Adjusted gross income    ${fmt(r.agi).padStart(12)}\n  Standard deduction       ${fmt(r.standardDeduction).padStart(12)}\n  QBI deduction            ${fmt(r.qbiDeduction).padStart(12)}\n  Taxable income           ${fmt(r.taxable).padStart(12)}\n  Income tax (${Math.round(r.marginalRate * 100)}% top)    ${fmt(r.incomeTax).padStart(12)}\n  Self-employment tax      ${fmt(r.se.tax).padStart(12)}\n  Additional Medicare tax  ${fmt(r.addlMedicare).padStart(12)}\n  Total                    ${fmt(r.totalTax).padStart(12)}  (${(r.effectiveRate * 100).toFixed(1)}% of income)`);
+    console.log(`${r.healthDeduction ? `  Health insurance (7206)  ${fmt(r.healthDeduction).padStart(12)}\n` : ""}${r.retirementDeduction ? `  Retirement contribution  ${fmt(r.retirementDeduction).padStart(12)}\n` : ""}  Adjusted gross income    ${fmt(r.agi).padStart(12)}\n  Standard deduction       ${fmt(r.standardDeduction).padStart(12)}\n  QBI deduction            ${fmt(r.qbiDeduction).padStart(12)}\n  Taxable income           ${fmt(r.taxable).padStart(12)}\n  Income tax (${Math.round(r.marginalRate * 100)}% top)    ${fmt(r.incomeTax).padStart(12)}\n  Self-employment tax      ${fmt(r.se.tax).padStart(12)}\n  Additional Medicare tax  ${fmt(r.addlMedicare).padStart(12)}\n  Total                    ${fmt(r.totalTax).padStart(12)}  (${(r.effectiveRate * 100).toFixed(1)}% of income)`);
     console.log(`  Safe harbour: 90% of this year ${fmt(r.safeHarbor.current90)}${r.safeHarbor.prior != null ? `, prior year ${fmt(r.safeHarbor.prior)}` : ""}; pay ${fmt(r.safeHarbor.required)} in estimates`);
     for (const p of r.payments) console.log(`  ${p.due}  ${p.status === "past" ? "(past)".padStart(12) : fmt(p.cents).padStart(12)}`);
+    if (r.state) console.log(`  State tax at ${(r.state.rate * 100).toFixed(2)}% of ${fmt(r.state.base)}: ${fmt(r.state.tax)}, less ${fmt(r.state.withheld)} withheld = ${fmt(r.state.balance)} (about ${fmt(r.state.quarterly)} a quarter); not in the federal total above`);
     for (const w of r.warnings) console.log(`  ! ${w}`);
-    console.log("  A worksheet. Not tax advice; it leaves out state tax, credits and itemised deductions.");
+    console.log(`  A worksheet. Not tax advice; it leaves out ${r.state ? "state brackets" : "state tax"}, credits and itemised deductions.`);
+  } catch (e) { console.error(e.message); process.exit(1); }
+} else if (cmd === "annualized") {
+  const yr = flag("--year"), c = (n) => { const v = flag(n); return v !== null ? Math.round(+v * 100) : undefined; };
+  try {
+    const ttFile = flag("--tax-table");
+    const table = ttFile ? taxTableOptions(JSON.parse(readFileSync(ttFile, "utf8"))) : {};
+    const payments = [];
+    process.argv.forEach((a, i) => { if (a === "--payment") { const [d, v] = (process.argv[i + 1] ?? "").split(":"); if (!/^\d{4}-\d\d-\d\d$/.test(d ?? "") || !Number.isFinite(+v)) { console.error("--payment takes DATE:AMOUNT, like 2026-04-15:1500"); process.exit(1); } payments.push({ date: d, cents: Math.round(+v * 100) }); } });
+    const r = annualizedInstallments(books, { ...table, year: yr ? +yr : new Date().getFullYear(), filing: flag("--filing") ?? "single", wages: c("--wages"), otherIncome: c("--other"), withholding: c("--withholding"), priorYearTax: c("--prior-tax"), priorAgi: c("--prior-agi"), payments });
+    if (json) { console.log(JSON.stringify(r, null, 2)); process.exit(0); }
+    console.log(`ANNUALIZED INCOME INSTALLMENTS ${r.year} (Form 2210 Schedule AI), required annual payment ${fmt(r.requiredAnnual)}, regular quarter ${fmt(r.regularQuarter)}`);
+    console.log("  Due         Profit to date  Annualized tax  Installment  Cumulative  Regular cum.  Credits  Short (annualized / regular)");
+    for (const x of r.rows) console.log(`  ${x.due}  ${fmt(x.profitToDate).padStart(13)}  ${fmt(x.annualizedTax).padStart(14)}  ${fmt(x.installment).padStart(11)}  ${fmt(x.cumulativeRequired).padStart(10)}  ${fmt(x.regularCumulative).padStart(12)}  ${fmt(x.creditsByDue).padStart(7)}  ${fmt(x.shortfall)} / ${fmt(x.regularShortfall)}`);
+    for (const w of r.warnings) console.log(`  ! ${w}`);
+    console.log("  A worksheet. Not tax advice; the penalty rate and the form's alternative periods are not modelled.");
+  } catch (e) { console.error(e.message); process.exit(1); }
+} else if (cmd === "retirement") {
+  const yr = flag("--year"), mo = flag("--months"), ag = flag("--age"), wg = flag("--wages");
+  const year = yr ? +yr : new Date().getFullYear(), months = Math.min(12, Math.max(1, mo ? +mo : 12));
+  try {
+    const sc = scheduleC(books, { from: `${year}-01-01`, to: `${year}-12-31` });
+    const r = retirementLimits(Math.round((sc.netProfit * 12) / months), { year, age: ag ? +ag : 40, wages: wg ? Math.round(+wg * 100) : 0 });
+    if (json) { console.log(JSON.stringify(r, null, 2)); process.exit(0); }
+    console.log(`RETIREMENT CONTRIBUTION LIMITS ${r.year} (profit annualised ${fmt(r.profit)}, after half SE tax ${fmt(r.earned)})`);
+    console.log(`  SEP-IRA, most you can put in       ${fmt(r.sep.max).padStart(12)}`);
+    console.log(`  Solo 401(k): employee deferral     ${fmt(r.solo401k.employee).padStart(12)}\n               employer share (20%)  ${fmt(r.solo401k.employer).padStart(12)}\n               total                 ${fmt(r.solo401k.total).padStart(12)}`);
+    for (const w of r.warnings) console.log(`  ! ${w}`);
+    console.log("  A worksheet. Not tax advice; plan rules and your other plans decide what you can actually contribute.");
   } catch (e) { console.error(e.message); process.exit(1); }
 } else if (cmd === "b-notice") {
   try {
@@ -759,12 +869,22 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   if (!rest[0]) { console.error("w9 needs a payee name as it appears on the bank line"); process.exit(2); }
   const off = has("--off");
   try { books = markW9(books, rest[0], !off); save(); console.log(off ? "W-9 flag cleared." : "W-9 marked on file."); } catch (e) { console.error(e.message); process.exit(1); }
+} else if (cmd === "calendar") {
+  const year = +(flag("--year") ?? new Date().getFullYear()), state = flag("--state");
+  const plannedArg = flag("--planned");
+  const planned = plannedArg ? plannedArg.split(",").map((v) => Math.round(parseFloat(v.replace(/[$\s]/g, "")) * 100)) : null;
+  if (planned && (planned.length !== 4 || planned.some((n) => !Number.isFinite(n) || n < 0))) { console.error("--planned needs four dollar amounts, e.g. --planned 1200,1200,1200,1500"); process.exit(2); }
+  const ev = taxCalendar(year, { state, frequency: flag("--freq") ?? "quarterly", payroll: has("--payroll"), contractors: has("--contractors"), estimates: planned });
+  const out = flag("--ics");
+  if (out) { writeFileSync(out, toIcs(ev, { name: `${year} tax calendar` })); console.log(`wrote ${ev.length} events to ${out}; import or subscribe to it in your calendar app.`); }
+  else if (json) console.log(JSON.stringify(ev, null, 2));
+  else { for (const e of ev) console.log(`${e.date}  ${e.title}`); console.log("  Dates to plan from, not advice: confirm your state's and your own deadlines."); }
 } else if (cmd === "salestax" && rest[0] === "return") {
-  const rates = {};
-  for (let v = flag("--rate"); v; v = flag("--rate")) { const [k, n] = v.split("="); rates[k.trim()] = Number(n) / 100; }
+  const specs = (name) => { const out = []; for (let v = flag(name); v; v = flag(name)) out.push(v); return out; };
+  const rates = parseRateSpecs(specs("--rate"));
   let t;
-  const discounts = {};
-  for (let v = flag("--discount"); v; v = flag("--discount")) { const [k, spec] = v.split("="); const [pct, cap] = spec.split(","); discounts[k.trim()] = { rate: Number(pct) / 100, cap: cap == null ? undefined : Math.round(Number(cap) * 100) }; }
+  const discounts = parseDiscountSpecs(specs("--discount"));
+  for (const [k, d] of Object.entries(stateDiscounts(flag("--state")))) if (!(k in discounts)) discounts[k] = d;
   try { t = salesTaxReturn(books, { frequency: flag("--freq") ?? "quarterly", endMonth: flag("--end-month") ? Number(flag("--end-month")) : stateEndMonth(flag("--state"), flag("--freq") ?? "quarterly"), dueDay: flag("--due-day") ? Number(flag("--due-day")) : stateDueDay(flag("--state"), flag("--freq") ?? "quarterly"), from, to, rates, discounts, rollover: !has("--no-rollover"), asOf: new Date().toISOString().slice(0, 10) }); } catch (e) { console.error(e.message); process.exit(2); }
   const stateNote = stateFilingNote(flag("--state"), t.frequency);
   if (stateNote) t.warnings.push(stateNote);
@@ -845,7 +965,21 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   for (const l of c.financingItems) row(l.name, l.amount);
   row("Cash from financing", c.financing);
   row("Change in cash", c.change);
+  row("Free cash flow (operations less purchases)", c.freeCashFlow);
+  if (c.monthlyBurn) console.log(`  Burn ${fmt(c.monthlyBurn)} a month before financing${c.runwayMonths == null ? "; no cash left" : `; ${c.runwayMonths} months of runway at this pace`}`);
   console.log(`  Cash ${fmt(c.openingCash)} -> ${fmt(c.closingCash)}: ${c.ties ? "ties to the bank accounts" : "DOES NOT TIE"}`);
+  const bm = r.cashByMonth;
+  if (bm.months.length > 1) {
+    console.log("\n  Month      Operations   Investing   Financing  Closing cash");
+    for (const m of bm.months) console.log(`  ${m.month} ${fmt(m.operating).padStart(12)} ${fmt(m.investing).padStart(11)} ${fmt(m.financing).padStart(11)} ${fmt(m.closingCash).padStart(13)}`);
+    if (bm.recentBurn) console.log(`  Last three months burn ${fmt(bm.recentBurn)} a month${bm.recentRunwayMonths == null ? "; no cash left" : `; ${bm.recentRunwayMonths} months of runway at that pace`}`);
+  }
+  const k = r.ratios, pct = (v) => (v == null ? "n/a" : `${(v * 100).toFixed(1)}%`), x = (v) => (v == null ? "n/a" : v.toFixed(2));
+  console.log(`\n  Ratios: gross margin ${pct(k.grossMargin)}, net margin ${pct(k.netMargin)}, working capital ${fmt(k.workingCapital)}`);
+  console.log(`  Current ratio ${x(k.currentRatio)}, quick ratio ${x(k.quickRatio)}, debt to equity ${x(k.debtToEquity)} (the loan counts as long term)`);
+  if (k.receivableDays != null || k.payableDays != null) console.log(`  Customers take ${k.receivableDays ?? "n/a"} days to pay; suppliers are paid in ${k.payableDays ?? "n/a"} days (open balance over the period's flow)`);
+  const be = r.breakEven;
+  if (be) console.log(`  Break-even: fixed costs ${fmt(be.monthlyFixed)} a month at a ${pct(be.contributionMargin)} contribution margin ${be.breakEvenMonthly == null ? "never cover themselves (each sale leaves nothing after its own costs)" : `need ${fmt(be.breakEvenMonthly)} of income a month; you made ${fmt(be.monthlyIncome)} (${pct(be.marginOfSafety)} margin of safety)`}`);
   const s = status(books);
   if (s.review) console.log(`\n${s.review} lines are still in review and not in these figures.`);
 } else if (cmd === "checks") {

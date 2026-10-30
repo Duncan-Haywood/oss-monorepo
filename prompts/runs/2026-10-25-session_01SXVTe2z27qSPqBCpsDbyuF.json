@@ -1,0 +1,51 @@
+{
+  "date": "2026-10-25",
+  "session": "https://claude.ai/code/session_01SXVTe2z27qSPqBCpsDbyuF",
+  "track": "process",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-25T20:08:31Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/10470",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/promptctl.py",
+      "issue": "measure friction table lists mostly already-fixed items (pick_track --help, cite_check SKIP); three checks to find one live fault"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "No blog post or agent doc for a one-sentence prompt fix",
+      "did": "skipped",
+      "result": "fine"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Only P056 (blocked on P018) agent-owned. Checked friction items pick_track --help, cite_check SKIP/eprint, programme share: all already fixed. Shipped one live fix: redteam prompt sentence on duplicated mutant lines. No post/agent doc: one-sentence fix.",
+  "corrections": [],
+  "redteam": null
+}

@@ -1,0 +1,30 @@
+{
+  "id": "P052",
+  "title": "seo: make the site's llms.txt a short index and move the full text to llms-full.txt",
+  "status": "done",
+  "owner": "agent",
+  "effect": 3,
+  "cost": 2,
+  "problem": "The root llms.txt is the first file an AI assistant or agent reads about the site, and the llmstxt.org convention is a one-line summary blockquote then short linked sections. Ours opens with a 1,776-character summary sentence that lists about 50 product names, and the whole file is 539 KB, beyond what many assistants will read in one fetch. There is no llms-full.txt for the tools that want everything.",
+  "evidence": [
+    "curl https://duncan-haywood.github.io/oss-monorepo/llms.txt on 2026-10-24: 539,214 bytes; the blockquote line is 1,776 characters",
+    "curl https://duncan-haywood.github.io/oss-monorepo/llms-full.txt on 2026-10-24: 404"
+  ],
+  "change": "In the pages build (platform/pages/build.mjs and whatever renders llms.txt): keep the blockquote to one sentence (what the site is, how many tools, that inputs stay in the browser); move the list of network-calling tools to its own short section; list audience pages, kinds of tool and the top products with one-line descriptions, under roughly 50 KB; write the current long body to llms-full.txt and link it from llms.txt. Keep catalog.json as the machine index. Add a test that bounds llms.txt size and the blockquote length.",
+  "touches": [
+    "platform/pages/build.mjs",
+    "platform/pages/*.test.mjs"
+  ],
+  "metric": "llms.txt bytes and blockquote length; llms-full.txt HTTP status",
+  "baseline": "539,214 bytes; 1,776 chars; 404 (2026-10-24)",
+  "opened": "2026-10-24",
+  "source": "Owner asked for SEO and AI-search action items in a Claude Code session, 2026-10-24",
+  "pr": "this",
+  "result": "helped (build tests only): 11/11 llms/lastmod tests pass, covering the llms.txt size and blockquote bounds and the llms-full.txt link. Live HTTP status unreachable from cloud (proxy 403); check on a run that can reach it.",
+  "history": [
+    {
+      "date": "2026-10-24",
+      "note": "llms.txt is now a one-sentence-summary index with 4 tools per category plus category, audience and research pages, under 50 KB (test-enforced); llms-full.txt carries the full text and is what check.mjs verifies for completeness. Verify llms.txt bytes and llms-full.txt HTTP 200 on the live site after the next deploy."
+    }
+  ]
+}

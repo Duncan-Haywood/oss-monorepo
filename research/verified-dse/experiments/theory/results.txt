@@ -1,0 +1,37 @@
+log-units; bound = sum of rung inversions over the cut rungs; realised = mean over 200 random tie-breaks of log(best routed found / pool minimum)
+clock | design | n | iota1 | iota2 | iota3 | bound R1->R4 | realised R1->R4 | bound R2->R4 | realised R2->R4 | pilot10/iota (r1 r2 r3, median)
+tight | adder_op16 | 50 | 0.45 | 0.26 | 0.29 | 1.00 | 0.181 | 0.54 | 0.130 | 0.42 0.38 0.32
+tight | adder_ripple16 | 52 | 0.56 | 0.02 | 0.02 | 0.60 | 0.000 | 0.04 | 0.000 | 1.00 0.00 0.00
+tight | mult8 | 50 | 0.35 | 0.19 | 0.19 | 0.74 | 0.055 | 0.39 | 0.000 | 0.63 0.55 0.52
+tight | mac4 | 50 | 0.41 | 0.15 | 0.21 | 0.78 | 0.020 | 0.37 | 0.000 | 0.60 0.55 0.40
+tight | alu8 | 50 | 0.36 | 0.16 | 0.16 | 0.68 | 0.157 | 0.32 | 0.000 | 0.58 0.56 0.46
+tight | popcount16 | 50 | 0.33 | 0.10 | 0.11 | 0.55 | 0.089 | 0.21 | 0.012 | 0.85 0.37 0.40
+tight | barrel16 | 50 | 0.18 | 0.12 | 0.12 | 0.42 | 0.112 | 0.23 | 0.082 | 0.61 0.86 0.79
+tight | crc16 | 50 | 0.48 | 0.17 | 0.18 | 0.82 | 0.113 | 0.35 | 0.000 | 0.96 1.00 0.94
+tight | cmp_sat12 | 50 | 0.33 | 0.29 | 0.32 | 0.94 | 0.063 | 0.61 | 0.000 | 0.67 0.50 0.64
+tight | fifo8x4 | 50 | 0.29 | 0.16 | 0.20 | 0.65 | 0.156 | 0.36 | 0.048 | 0.80 0.75 0.68
+relaxed | adder_op16 | 50 | 0.33 | 0.18 | 0.23 | 0.75 | 0.162 | 0.42 | 0.049 | 0.51 0.63 0.53
+relaxed | adder_ripple16 | 52 | 0.44 | 0.00 | 0.00 | 0.44 | 0.000 | 0.00 | 0.000 | 1.00 n/a n/a
+relaxed | mult8 | 50 | 0.32 | 0.13 | 0.06 | 0.52 | 0.054 | 0.20 | 0.000 | 0.60 0.44 0.60
+relaxed | mac4 | 50 | 0.37 | 0.08 | 0.06 | 0.52 | 0.059 | 0.14 | 0.000 | 0.84 0.43 0.29
+relaxed | alu8 | 50 | 0.47 | 0.16 | 0.13 | 0.76 | 0.190 | 0.29 | 0.000 | 0.65 0.67 0.36
+relaxed | popcount16 | 50 | 0.26 | 0.04 | 0.05 | 0.36 | 0.115 | 0.09 | 0.000 | 0.84 0.78 0.75
+relaxed | barrel16 | 50 | 0.34 | 0.26 | 0.21 | 0.81 | 0.148 | 0.47 | 0.112 | 0.66 0.81 0.70
+relaxed | crc16 | 50 | 0.27 | 0.03 | 0.05 | 0.35 | 0.025 | 0.08 | 0.000 | 1.00 1.00 0.00
+relaxed | cmp_sat12 | 50 | 0.47 | 0.15 | 0.12 | 0.73 | 0.000 | 0.27 | 0.000 | 0.66 0.61 0.67
+relaxed | fifo8x4 | 50 | 0.45 | 0.21 | 0.12 | 0.79 | 0.010 | 0.34 | 0.000 | 0.80 0.42 0.15
+
+violations of the bound (realised > bound): 0 of 40 cells
+tight iota_1: median 0.36, groups with iota < 0.05: 0 of 10, with iota > 0.3: 8
+tight iota_2: median 0.16, groups with iota < 0.05: 1 of 10, with iota > 0.3: 0
+tight iota_3: median 0.19, groups with iota < 0.05: 1 of 10, with iota > 0.3: 1
+relaxed iota_1: median 0.36, groups with iota < 0.05: 0 of 10, with iota > 0.3: 8
+relaxed iota_2: median 0.14, groups with iota < 0.05: 3 of 10, with iota > 0.3: 0
+relaxed iota_3: median 0.09, groups with iota < 0.05: 3 of 10, with iota > 0.3: 0
+tight halving from r1: median bound 0.71, median realised 0.101, bound below 0.05 on 0 of 10, median realised/bound 0.15
+tight halving from r2: median bound 0.35, median realised 0.000, bound below 0.05 on 1 of 10, median realised/bound 0.00
+relaxed halving from r1: median bound 0.63, median realised 0.056, bound below 0.05 on 0 of 10, median realised/bound 0.11
+relaxed halving from r2: median bound 0.23, median realised 0.000, bound below 0.05 on 1 of 10, median realised/bound 0.00
+pilot of 10 sees median 0.67 of iota_1 (across 20 groups, median over draws)
+pilot of 10 sees median 0.56 of iota_2 (across 19 groups, median over draws)
+pilot of 10 sees median 0.52 of iota_3 (across 19 groups, median over draws)

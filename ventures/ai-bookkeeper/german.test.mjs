@@ -27,3 +27,18 @@ test("a real second currency in a Waehrung column is still flagged", () => {
   const t = readFileSync(new URL("./fixtures/deutsche-bank-de.csv", import.meta.url), "utf8").replace("39,99;;EUR", "39,99;;USD");
   assert.ok(readStatement(t).problems.some((p) => /mixes currencies/.test(p)));
 });
+
+// DKB's online banking changed in 2023 (layouts from the MIT beancount-dkb extractors' field lists, cloned at run time; rows made up).
+test("DKB 2023 account export: Betrag (€), two-digit years, status, payee by direction", () => {
+  const r = read("dkb-2023-giro.csv");
+  assert.equal(r.bank, "dkb");
+  assert.deepEqual(view(r), [["2023-06-15", -867, "EDEKA//MUENCHEN/DE - EDEKA SAGT DANKE"], ["2023-06-16", 120050, "Kunde AG - Rechnung 1042"]]);
+  assert.ok(r.problems.some((p) => /Vorgemerkt/.test(p)), "the pending row is skipped and said so");
+});
+
+test("DKB 2023 credit-card export: Belegdatum is the date", () => {
+  const r = read("dkb-2023-credit.csv");
+  assert.equal(r.bank, "dkb-card");
+  assert.deepEqual(view(r), [["2023-01-30", -2234, "Amazon EU"], ["2023-01-28", 10000, "Zahlung Danke"]]);
+  assert.deepEqual(r.problems, []);
+});

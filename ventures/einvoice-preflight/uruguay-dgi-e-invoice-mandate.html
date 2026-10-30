@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e551b'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EE%3C/text%3E%3C/svg%3E"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Uruguay electronic invoicing: DGI, the CFE and a RUT check digit | E-invoice Preflight</title>
+<meta name="description" content="Uruguay's tax authority, DGI, has made the electronic tax receipt (CFE) mandatory for VAT taxpayers as vendor guides report it. What a CFE is, where the sources disagree, and a free local RUT check-digit test.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/uruguay-dgi-e-invoice-mandate.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Uruguay electronic invoicing: DGI, the CFE and a RUT check digit | E-invoice Preflight">
+<meta property="og:description" content="Uruguay's tax authority, DGI, has made the electronic tax receipt (CFE) mandatory for VAT taxpayers as vendor guides report it. What a CFE is, where the sources disagree, and a free local RUT check-digit test.">
+<meta property="og:url" content="https://example.invalid/einvoice-preflight/uruguay-dgi-e-invoice-mandate.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is a CFE?","acceptedAnswer":{"@type":"Answer","text":"The comprobante fiscal electrónico: the electronic tax receipt (e-factura, e-ticket and related documents) issued in the format DGI specifies. A vendor guide says issuers must send the data to DGI and receive an authorisation. This is a summary from vendor guides, not advice; confirm with DGI or your accountant."}},{"@type":"Question","name":"Who has to issue one?","acceptedAnswer":{"@type":"Answer","text":"A December 2023 KPMG bulletin reports that DGI resolutions made the CFE mandatory for all VAT taxpayers, including those on the minimum VAT regime; a 2026 vendor guide says almost every VAT taxpayer is covered from 2025, with few exceptions. The resolutions were not read, so dates and exceptions are unsettled; check dgi.gub.uy."}},{"@type":"Question","name":"What is a valid RUT?","acceptedAnswer":{"@type":"Answer","text":"Twelve digits whose last digit follows from the first eleven by a mod 11 rule. A matching digit does not mean the RUT is registered or active; DGI’s public register answers that. The test on this page catches typos only."}},{"@type":"Question","name":"Can this checker validate a Uruguayan invoice?","acceptedAnswer":{"@type":"Answer","text":"No. It does not read DGI’s XML schema and cannot obtain or verify a CFE authorisation. It does test a RUT’s shape and check digit on this page, and a clean result is not an authorisation by DGI."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch}.lede{font-size:1.05rem;max-width:64ch;color:#3d4f5f}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #15202b10;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #d3dbe4;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#3d4f5f}.fine,.note{font-size:.88rem;color:#3d4f5f}footer{color:#3d4f5f;font-size:.86rem}footer p{margin:.6rem 0}.out{min-height:1.4em}.good{color:#0a6b3a;font-weight:600}.bad{color:#a12d1b}input{font:inherit;padding:.4rem .5rem;border:1px solid #9fb0c0;border-radius:8px}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; E-invoice Preflight</a></p>
+<header>
+<h1>Uruguay: the CFE is mandatory for VAT taxpayers</h1>
+<p class="lede">In Uruguay, per the sources read, tax receipts are electronic (CFE, comprobante fiscal electrónico) in the format the tax authority, DGI, specifies, and recent DGI resolutions reportedly extend the duty to all VAT taxpayers. Below: how it works as vendor guides report it, where the sources are thin, and a local check of a RUT&rsquo;s check digit.</p>
+</header>
+<section>
+<h2>How it works (as vendor guides and the authority report it)</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Step</th><th scope="col">What happens</th></tr></thead>
+<tbody>
+<tr><td>Identify</td><td>The issuer has a RUT (12 digits: a two-digit office, a six-digit number, a three-digit branch and a check digit, as one validator describes it).</td></tr>
+<tr><td>Issue a CFE</td><td>The issuer produces the receipt as XML in DGI&rsquo;s schema, signed and sent to DGI, which accepts or rejects it (vendor guides; the technical documentation is unread).</td></tr>
+<tr><td>Deliver</td><td>The buyer receives the CFE; a vendor guide says manual documents are allowed only in justified contingencies.</td></tr>
+<tr><td>Verify</td><td>DGI has a public RUT lookup at dgi.gub.uy; this page does not use it.</td></tr>
+</tbody>
+</table>
+</div>
+<p class="fine">Where it is unsettled: the resolutions and the dates for each taxpayer group, which I did not read; the legal basis (sources cite Resolution 798/012 and Decree 36/015); the date of the 2026 format versions (a vendor says 3 March 2026). Sources are a KPMG bulletin and vendor guides read through search excerpts, not DGI&rsquo;s resolutions. No penalty is stated because none was read. A summary, not tax advice.</p>
+</section>
+<section>
+<h2>Check a RUT</h2>
+<p>Tests the shape (12 digits; spaces, dots and hyphens are ignored) and the check digit. It does not look anything up, so it cannot say whether the RUT is registered, active, or belongs to the name on the invoice.</p>
+<label>RUT <input id="id" size="18" maxlength="20" autocomplete="off" spellcheck="false" placeholder="21 100342 001 7"></label>
+<p id="id-out" class="out" aria-live="polite"></p>
+<p class="fine">The sample is a RUT published in a public forum thread and a vendor validator. The rule (the first eleven digits weighted 4,3,2,9,8,7,6,5,4,3,2; 11 minus the remainder mod 11, with 11 read as 0; a result of 10 has no digit) reproduces that one RUT only; it was not read from DGI&rsquo;s specification.</p>
+</section>
+<section>
+<h2>What this checker does and does not cover</h2>
+<p>The main checker reads UBL, CII and Factur-X and applies EN 16931 and Peppol rules. It does <strong>not</strong> call DGI&rsquo;s service, cannot obtain or verify a CFE, and has no DGI schema or codes. Treat the RUT test here as a typo catch only.</p>
+</section>
+<section>
+<h2>Test a file before you send it</h2>
+<p>For a European or Peppol invoice, open the <a href="./">checker</a>, drop your XML and read the findings, each with a rule ID and a fix (<a href="what-does-this-e-invoice-error-code-mean.html">the rule reference</a>). No account, nothing uploaded. No invoice yet? The <a href="create.html">e-invoice creator</a> turns a form into UBL or CII XML and checks it. Other countries: <a href="e-invoicing-mandates-by-country.html">all side by side</a> <a href="mexico-cfdi-e-invoice-mandate.html">Mexico</a> <a href="brazil-nfe-e-invoice-mandate.html">Brazil</a> <a href="chile-sii-e-invoice-mandate.html">Chile</a> <a href="colombia-dian-e-invoice-mandate.html">Colombia</a> <a href="peru-sunat-e-invoice-mandate.html">Peru</a> <a href="argentina-arca-e-invoice-mandate.html">Argentina</a>.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>What is a CFE?</h3>
+<p>The comprobante fiscal electrónico: the electronic tax receipt (e-factura, e-ticket and related documents) issued in the format DGI specifies. A vendor guide says issuers must send the data to DGI and receive an authorisation. This is a summary from vendor guides, not advice; confirm with DGI or your accountant.</p>
+<h3>Who has to issue one?</h3>
+<p>A December 2023 KPMG bulletin reports that DGI resolutions made the CFE mandatory for all VAT taxpayers, including those on the minimum VAT regime; a 2026 vendor guide says almost every VAT taxpayer is covered from 2025, with few exceptions. The resolutions were not read, so dates and exceptions are unsettled; check dgi.gub.uy.</p>
+<h3>What is a valid RUT?</h3>
+<p>Twelve digits whose last digit follows from the first eleven by a mod 11 rule. A matching digit does not mean the RUT is registered or active; DGI&rsquo;s public register answers that. The test on this page catches typos only.</p>
+<h3>Can this checker validate a Uruguayan invoice?</h3>
+<p>No. It does not read DGI&rsquo;s XML schema and cannot obtain or verify a CFE authorisation. It does test a RUT&rsquo;s shape and check digit on this page, and a clean result is not an authorisation by DGI.</p>
+<p class="note">Open the <a href="./">E-invoice Preflight</a> checker to validate your own invoice file.</p>
+</section>
+<section>
+<h2>More countries</h2>
+<p><a href="australia-e-invoice-mandate.html">Australia</a> <a href="austria-e-invoice-mandate.html">Austria</a> <a href="belgium-e-invoice-mandate.html">Belgium</a> <a href="brazil-nfe-e-invoice-mandate.html">Brazil</a> <a href="bulgaria-e-invoice-mandate.html">Bulgaria</a> <a href="croatia-e-invoice-mandate.html">Croatia</a> <a href="cyprus-e-invoice-mandate.html">Cyprus</a> <a href="czech-republic-e-invoice-mandate.html">Czech Republic</a> <a href="denmark-e-invoice-mandate.html">Denmark</a> <a href="estonia-e-invoice-mandate.html">Estonia</a> <a href="finland-e-invoice-mandate.html">Finland</a> <a href="france-e-invoice-mandate.html">France</a> <a href="germany-e-invoice-mandate.html">Germany</a> <a href="greece-mydata-e-invoice-mandate.html">Greece</a> <a href="hungary-e-invoice-mandate.html">Hungary</a> <a href="ireland-e-invoice-mandate.html">Ireland</a> <a href="italy-sdi-e-invoice-mandate.html">Italy</a> <a href="latvia-e-invoice-mandate.html">Latvia</a> <a href="lithuania-e-invoice-mandate.html">Lithuania</a> <a href="luxembourg-e-invoice-mandate.html">Luxembourg</a> <a href="malta-e-invoice-mandate.html">Malta</a> <a href="netherlands-e-invoice-mandate.html">Netherlands</a> <a href="norway-e-invoice-mandate.html">Norway</a> <a href="poland-ksef-e-invoice-mandate.html">Poland</a> <a href="portugal-e-invoice-mandate.html">Portugal</a> <a href="romania-e-factura-e-invoice-mandate.html">Romania</a> <a href="serbia-e-invoice-mandate.html">Serbia</a> <a href="singapore-invoicenow-e-invoice-mandate.html">Singapore Invoicenow</a> <a href="slovakia-e-invoice-mandate.html">Slovakia</a> <a href="slovenia-e-invoice-mandate.html">Slovenia</a> <a href="spain-verifactu-e-invoice-mandate.html">Spain</a> <a href="switzerland-e-invoice-mandate.html">Switzerland</a> <a href="uk-e-invoice-mandate.html">Uk</a> <a href="india-gst-e-invoice-mandate.html">India</a> <a href="malaysia-myinvois-e-invoice-mandate.html">Malaysia</a> <a href="saudi-arabia-zatca-e-invoice-mandate.html">Saudi Arabia</a> <a href="sweden-e-invoice-mandate.html">Sweden</a> <a href="turkey-e-invoice-mandate.html">Turkey</a> <a href="uae-e-invoice-mandate.html">United Arab Emirates</a> <a href="peru-sunat-e-invoice-mandate.html">Peru</a> <a href="chile-sii-e-invoice-mandate.html">Chile</a> <a href="colombia-dian-e-invoice-mandate.html">Colombia</a> <a href="paraguay-dnit-e-invoice-mandate.html">Paraguay</a> <a href="ecuador-sri-e-invoice-mandate.html">Ecuador</a> <a href="vietnam-e-invoice-mandate.html">Vietnam</a></p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or accounting advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every check runs locally. This page is static and summarises the Uruguayan position from search excerpts of a KPMG bulletin and vendor guides, not from DGI&rsquo;s resolutions; things can change, so check DGI (dgi.gub.uy) and the current rules before relying on it.</p>
+<p class="support">Free and open source. If it caught a defect before a rejection, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+</footer>
+<script type="module">
+import{checkRut}from"./uruguay.mjs";
+const $=i=>document.getElementById(i);
+const esc=t=>String(t).replace(/[&<>"']/g,c=>"&#"+c.charCodeAt(0)+";");
+function r(){const v=$("id").value;if(!v.trim()){$("id-out").innerHTML="";return}const x=checkRut(v);$("id-out").innerHTML=x.ok?'<span class="good">Shape and check digit are consistent.</span>':x.problems.map(p=>`<span class="bad">${esc(p)}</span>`).join("<br>")}
+$("id").addEventListener("input",r);
+</script>
+</body>
+</html>

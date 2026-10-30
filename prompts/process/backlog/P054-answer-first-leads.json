@@ -1,0 +1,41 @@
+{
+  "id": "P054",
+  "title": "seo: open the most-searched tool pages with a short, sourced, dated direct answer",
+  "status": "done",
+  "owner": "agent",
+  "effect": 2,
+  "cost": 2,
+  "problem": "AI answer engines (Google AI Overviews, ChatGPT search, Perplexity, Copilot) quote pages that state a fact plainly near the top with its source and date. A calculator page that only shows numbers after input gives them nothing to quote, even when the page knows the answer (a threshold, a fee rate, a rule of thumb).",
+  "evidence": [
+    "Owner direction on SEO and AI discovery, prompts/goals.md ('SEO moves up a lot'); no measurement of AI citations exists yet"
+  ],
+  "change": "Pilot on 10 tool pages whose question has a single factual answer (tax thresholds, marketplace fee rates and the like): add one or two sentences under the H1 that answer it, cite the primary source and give an as-of date, taken from the venture's own calc data so they cannot drift. Make sure the FAQ schema the build derives picks it up. Do it only where the answer is a real fact the page already encodes; never invent one. Add a check that the lead's numbers match the calc module.",
+  "touches": [
+    "ventures/<slug>/index.html for the pilot pages",
+    "platform/pages/build.mjs"
+  ],
+  "metric": "pilot pages carrying a sourced lead; later, AI-referrer visits once platform/counter runs (P046)",
+  "baseline": "0 pages (2026-10-24)",
+  "opened": "2026-10-24",
+  "source": "Owner asked for SEO and AI-search action items in a Claude Code session, 2026-10-24",
+  "pr": "this",
+  "result": "10 pilot pages carry a sourced, dated lead (baseline 0), each figure test-checked against its calc module. AI-referrer effect not measurable until P046.",
+  "history": [
+    {
+      "date": "2026-10-24",
+      "note": "Pilot slice 1: 3 pages (1099-k-threshold-checker, hsa-contribution-limit-calculator, exempt-salary-threshold-checker) carry a data-answer-lead paragraph with source and as-of date; platform/pages/answer-lead.test.mjs checks every dollar figure against the venture's calc module. 7 pages remain. P052/P053 live verification was not possible: the cloud proxy returns 403 for duncan-haywood.github.io."
+    },
+    {
+      "date": "2026-10-25",
+      "note": "Pilot slice 2: discogs-fee-calculator, grailed-fee-calculator and facebook-marketplace-fee-calculator carry a sourced, dated lead, checked by answer-lead.test.mjs. 6 of 10 pilot pages done; 4 remain. Grailed's lead says its source is third-party guides, as calc.mjs does."
+    },
+    {
+      "date": "2026-10-25",
+      "note": "Pilot slice 3: depop, mercari and poshmark fee calculators carry a sourced, dated lead, checked by answer-lead.test.mjs. 9 of 10 pilot pages done; 1 remains (reverb is skipped: its calc has no single headline fee). Sources are the fee pages named in each calc.mjs header, not live fetches."
+    },
+    {
+      "date": "2026-10-25",
+      "note": "Pilot slice 4: kickstarter-fee-calculator carries a sourced, dated lead, checked by answer-lead.test.mjs. 10 of 10 pilot pages done (reverb skipped, no single headline fee). AI-referrer follow-up waits on P046."
+    }
+  ]
+}

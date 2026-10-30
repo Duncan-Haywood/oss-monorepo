@@ -1,4 +1,4 @@
-// UK Capital Gains Tax on a disposal (shares, funds, crypto, second homes, other assets) for 2025/26.
+// UK Capital Gains Tax on a disposal (shares, funds, crypto, second homes, other assets) for 2025/26 and 2026/27.
 // Pure functions, no I/O. Bad input is rejected with a message, never clamped.
 // Written from memory WITHOUT network access in the building session. Modelled for 2025/26: annual exempt amount GBP 3,000; rates 18% within the
 // unused basic-rate band and 24% above it, for residential property and all other assets alike (rates aligned from 30 October 2024). The
@@ -14,7 +14,8 @@ export const ALLOWANCE = 12570;
 export const TAPER_FROM = 100000;
 export const LOW_RATE = 0.18;
 export const HIGH_RATE = 0.24;
-export const YEARS = { 2025: "2025/26" };
+// 2026/27 has the same exempt amount, rates, allowance and band as 2025/26 (GOV.UK "Capital Gains Tax rates and allowances", checked 2026-10-28).
+export const YEARS = { 2025: "2025/26", 2026: "2026/27" };
 
 const money = (n) => (n < 0 ? "-" : "") + "GBP " + Number(Math.round(Math.abs(n) * 100) / 100).toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
 const r2 = (n) => Math.round(n * 100) / 100;
@@ -94,7 +95,7 @@ export function compute(input) {
   return { errors: [], label, type, gain, net, lossUsed, lossCarried, lossAfter, aeaUsed, taxable, allowance, taxableIncome, bandLeft, atLow, atHigh, taxLow, taxHigh, tax, effective, findings, obligations, proceeds, cost, costs, other, lossNow, lossBf, income };
 }
 
-export const SAMPLE = { year: 2025, type: "other", proceeds: 40000, cost: 15000, costs: 500, other: 0, lossNow: 0, lossBf: 0, income: 50000 };
+export const SAMPLE = { year: 2026, type: "other", proceeds: 40000, cost: 15000, costs: 500, other: 0, lossNow: 0, lossBf: 0, income: 50000 };
 
 export function summaryText(r) {
   const L = [`UK Capital Gains Tax, ${r.label}`, "", `Gain on this disposal: ${money(r.gain)}`, `Net gains for the year: ${money(r.net)}`, `Annual exempt amount used: ${money(r.aeaUsed)}`, `Losses brought forward used: ${money(r.lossUsed)}`, `Taxable gain: ${money(r.taxable)}`, ""];

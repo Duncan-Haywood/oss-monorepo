@@ -1,0 +1,22 @@
+# milestone 23: TPE (BOHB model), 40 cells, 100 paired seeds, m=5, screen share 0.4, gamma 0.25, bw floor 0.3, random frac 0.33
+
+## mean regret % over cells (n/a: some seed could not afford the arm)
+budget | rand | fixed1.5 | fixedf3 | tpe1 | tpe2 | tpe2r
+15 | 3.56 | 3.40 | 3.03 | 4.59 | 4.33 | 4.32
+25 | 1.77 | 2.12 | 1.49 | 2.87 | 2.49 | 2.34
+40 | 0.36 | 1.37 | 0.45 | 1.67 | 1.35 | 1.11
+
+## worst-cell mean regret % (cell)
+15 | 15.1 (barrel64 relaxed) | 26.9 (barrel64 tight) | 11.6 (adder_op16 tight) | 19.9 (barrel64 relaxed) | 16.8 (adder_op16 tight) | 16.8 (adder_op16 tight)
+25 | 9.4 (adder_op16 tight) | 26.9 (barrel64 tight) | 10.8 (barrel16 relaxed) | 19.1 (barrel64 relaxed) | 14.5 (barrel64 relaxed) | 12.5 (adder_op16 tight)
+40 | 2.5 (adder_op16 tight) | 26.9 (barrel64 tight) | 11.9 (barrel16 relaxed) | 18.6 (barrel64 relaxed) | 12.3 (barrel64 tight) | 8.3 (adder_op16 tight)
+
+## barrel64 (mean over its two clocks)
+15 | 14.60 | 26.90 | 10.63 | 19.93 | 15.80 | 15.69
+25 | 6.14 | 26.89 | 4.44 | 18.89 | 14.11 | 10.67
+40 | 0.80 | 26.89 | 0.00 | 18.47 | 12.22 | 7.03
+
+## paired per-cell wins of tpe1 over f3 (cells where tpe1 mean regret is lower / higher), and sign-test p (two-sided, ties dropped)
+15: wins 11, losses 25, p 0.029
+25: wins 7, losses 25, p 0.002
+40: wins 3, losses 24, p 0.000

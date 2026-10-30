@@ -9,8 +9,9 @@
 //
 // Plan `prices` (all optional, dollars): { wallSheet, floorSheet, roofSheet,
 // truss, shingleBundle, underlaymentRoll, dripEdgePiece, ridgeBundle,
-// starterBundle, concreteYd, rebarLb, formPlywoodSheet, gravelYd, anchorBolt, drywallSheet,
-// vaporBarrierSqFt, laborWallFoot, laborFloorSqFt, laborRoofSquare, laborFoundationSqFt, laborConcreteYd, tax (fraction on materials), contingency (fraction) }.
+// starterBundle, concreteYd, rebarLb, formPlywoodSheet, gravelYd, anchorBolt, drywallSheet, baseboard, casing (price per board), sidingBoard, houseWrapRoll, cornerBoard, soffitPanel, fasciaBoard, jChannel, insulationBag, atticFillBag,
+// vaporBarrierSqFt, laborWallFoot, laborFloorSqFt, laborRoofSquare, laborFoundationSqFt, laborConcreteYd, laborDrywallSheet (hang, tape and finish, per sheet), laborInsulationBag (per bag installed, wall, rim and attic), tax (fraction on materials), contingency (fraction) }.
+// nailBox falls back to fasteners.price; insulationBag falls back to the plan's insulation.price; atticFillBag to insulation.attic.price.
 // Labor lines appear once any labor* rate is typed. Wall sheathing is priced by the sheet order's own per-sheet prices
 // (`sheathing.summary.cost`) unless `wallSheet` is typed.
 
@@ -55,6 +56,45 @@ export function budget(result, prices = {}) {
     }
   }
   if (result.drywall) add("Interior", "Drywall sheets", result.drywall.sheets.count, "sheets", P("drywallSheet") ?? result.drywall.sheets.price, "drywall.sheets.count");
+  const ins = result.insulation;
+  if (ins?.ok) {
+    const bagPrice = P("insulationBag") ?? ins.price;
+    add("Insulation", "Wall cavity insulation bags", ins.bags, "bags", bagPrice, `cavity ${ins.cavitySqFt.toFixed(0)} sq ft at ${(100 * ins.waste).toFixed(0)}% waste, ${ins.bagSqFt} sq ft per bag`);
+    if (ins.rim) add("Insulation", "Rim joist insulation bags", ins.rim.bags, "bags", bagPrice, `rim bays ${ins.rim.sqFt.toFixed(0)} sq ft`);
+    if (ins.attic?.bags != null) add("Insulation", "Attic loose-fill bags", ins.attic.bags, "bags", P("atticFillBag") ?? ins.attic.price, `${ins.attic.bagCuFt} cu ft per bag`);
+  }
+  const tr = result.trim;
+  if (tr?.ok) {
+    add("Interior", "Baseboard boards", tr.baseBoards, "boards", P("baseboard") ?? tr.basePrice, `${tr.baseFeet.toFixed(0)} ft in ${tr.baseStock / 12} ft boards`);
+    if (tr.shoeBoards) add("Interior", "Shoe moulding boards", tr.shoeBoards, "boards", P("shoeMoulding") ?? tr.shoePrice, `${tr.shoeFeet.toFixed(0)} ft in ${tr.shoeStock / 12} ft boards`);
+    add("Interior", "Casing boards", tr.casingBoards, "boards", P("casing") ?? tr.casingPrice, `${tr.doorFaces} door and ${tr.windowFaces} window faces`);
+  }
+  const sd = result.siding;
+  if (sd?.ok) {
+    add("Exterior", "Siding boards", sd.boards, "boards", P("sidingBoard") ?? sd.boardPrice, `${sd.courses} courses at ${sd.exposure} in exposure in ${sd.stock / 12} ft boards`);
+    add("Exterior", "House wrap rolls", sd.wrapRolls, "rolls", P("houseWrapRoll") ?? sd.wrapPrice, `${sd.wrapSqFt.toFixed(0)} sq ft with laps, ${sd.wrapRollSqFt} sq ft per roll`);
+    if (sd.cornerBoards) add("Exterior", "Corner boards", sd.cornerBoards, "boards", P("cornerBoard") ?? sd.cornerPrice, `${sd.corners} outside corners`);
+  }
+  const ea = result.eaves;
+  if (ea?.ok) {
+    if (ea.panels) add("Exterior", "Soffit panels", ea.panels, "panels", P("soffitPanel") ?? ea.panelPrice, `${ea.soffitSqFt.toFixed(0)} sq ft, ${ea.panelWidth} in wide in ${ea.panelStock / 12} ft panels`);
+    add("Exterior", "Fascia boards", ea.fascia, "boards", P("fasciaBoard") ?? ea.fasciaPrice, `${(ea.eaveFeet + ea.rakeFeet).toFixed(0)} ft in ${ea.fasciaStock / 12} ft boards`);
+    if (ea.channel) add("Exterior", "J-channel", ea.channel, "pieces", P("jChannel") ?? ea.channelPrice, `${ea.channelStock / 12} ft pieces along the wall`);
+  }
+  const gu = result.gutters;
+  if (gu?.ok) {
+    add("Exterior", "Gutter sections", gu.gutters, "sections", P("gutterSection"), `${gu.runFeet.toFixed(0)} ft in ${gu.gutterStock / 12} ft sections`);
+    add("Exterior", "Downspout pieces", gu.downspoutPieces, "pieces", P("downspoutPiece"), `${gu.downspouts} downspouts, ${gu.downspoutStock / 12} ft pieces`);
+    add("Exterior", "Gutter hangers", gu.hangers, "each", P("gutterHanger"), `every ${gu.hangerSpacing} in`);
+    add("Exterior", "Gutter end caps", gu.endCaps, "each", P("gutterCap"), "two per run");
+    add("Exterior", "Downspout elbows", gu.elbows, "each", P("downspoutElbow"), "top offset and bottom kick-out");
+    if (gu.outsideCorners) add("Exterior", "Gutter outside corners", gu.outsideCorners, "each", P("gutterCorner"), "hip roof");
+    add("Exterior", "Downspout straps", gu.straps, "each", P("downspoutStrap"), "one per strap spacing of drop");
+  }
+  const fa = result.fasteners;
+  if (fa?.ok && fa.boxes != null) add("Fasteners", "Framing nails (boxes)", fa.boxes, "boxes", P("nailBox") ?? fa.price, `${fa.order} nails incl. ${(100 * fa.waste).toFixed(0)}% waste, ${fa.nailsPerBox} per box`);
+  if (fa?.ok && fa.holdDowns?.count) add("Fasteners", "Hold-downs", fa.holdDowns.count, "each", P("holdDown") ?? fa.holdDowns.price, `${fa.holdDowns.wallEnds} at wall ends, ${fa.holdDowns.openingSides} beside openings`);
+  if (fa?.ok && fa.plateStraps?.count) add("Fasteners", "Plate straps", fa.plateStraps.count, "each", P("plateStrap") ?? fa.plateStraps.price, `${fa.plateStraps.topJoints} top-plate and ${fa.plateStraps.capJoints} cap-plate joints, ${fa.plateStraps.plateTies} single-top-plate ties`);
   const f = result.foundation;
   if (f) {
     add("Foundation", "Concrete", f.concrete.order, "cu yd", P("concreteYd") ?? (f.concrete.cost != null ? f.concrete.cost / f.concrete.order : null), `${f.concrete.trucks} truck(s) incl. ${(100 * f.concrete.waste).toFixed(0)}% waste`);
@@ -72,6 +112,9 @@ export function budget(result, prices = {}) {
   if (laborTyped && roof?.roofing?.squares > 0) add("Labor", "Roof framing and roofing", roof.roofing.squares, "squares", P("laborRoofSquare"), "roof.roofing.squares x typed laborRoofSquare");
   if (laborTyped && f?.slabSqFt > 0) add("Labor", "Foundation forming, rebar and finishing", f.slabSqFt, "sq ft of slab", P("laborFoundationSqFt"), "foundation.slabSqFt x typed laborFoundationSqFt");
   if (laborTyped && f?.concrete?.net > 0) add("Labor", "Concrete placing", f.concrete.net, "cu yd", P("laborConcreteYd"), "foundation.concrete.net (before waste) x typed laborConcreteYd");
+  if (laborTyped && result.drywall?.sheets?.count > 0) add("Labor", "Drywall hanging and finishing", result.drywall.sheets.count, "sheets", P("laborDrywallSheet"), "drywall.sheets.count x typed laborDrywallSheet");
+  const insBags = ins?.ok ? (ins.bags || 0) + (ins.rim?.bags || 0) + (ins.attic?.bags || 0) : 0;
+  if (laborTyped && insBags > 0) add("Labor", "Insulation installation", insBags, "bags", P("laborInsulationBag"), "wall + rim + attic bags x typed laborInsulationBag");
 
   const sections = [...new Set(lines.map((l) => l.section))].map((name) => {
     const ls = lines.filter((l) => l.section === name);

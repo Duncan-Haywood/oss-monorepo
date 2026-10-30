@@ -1,0 +1,5 @@
+reps per cell: 100; cells 84; f=0.1
+pendulum: q_raw median 0.659, share q>1 0.05; q_flip median 0.659, share q>1 0.05; q_power median 0.635, share q>1 0.00
+cartpole: q_raw median 1.322, share q>1 0.93; q_flip median 1.322, share q>1 0.93; q_power median 1.026, share q>1 0.52
+Spearman(q_raw, mean_R) 0.615; Spearman(q_power, mean_R) 0.509
+max |q_flip - q_raw| 0.000

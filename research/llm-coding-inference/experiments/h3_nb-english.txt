@@ -1,0 +1,30 @@
+coder nb-english: corpus 6000 items, human negative share 0.327; coder positive share 0.090; agreement 0.678, sensitivity 0.145, specificity 0.937; sizes (60, 100, 200, 400), 600 draws, seed 20261031
+columns: coverage hum-hc3t, ins-hc3t; mean half-width ratio ins-hc3t/hum-hc3t (same audit)
+# nb-english n=60: 0 of 600 draws dropped
+nb-english 60 intercept(yor) 0.910 0.902 0.945
+nb-english 60 hau 0.942 0.942 0.975
+nb-english 60 ibo 0.970 0.965 0.960
+nb-english 60 pcm 0.930 0.920 0.953
+nb-english 60 loglen_z 0.952 0.943 0.958
+nb-english 60 MEAN 0.941 0.934 0.958
+# nb-english n=100: 0 of 600 draws dropped
+nb-english 100 intercept(yor) 0.933 0.917 0.966
+nb-english 100 hau 0.917 0.917 0.987
+nb-english 100 ibo 0.940 0.947 0.979
+nb-english 100 pcm 0.943 0.943 0.973
+nb-english 100 loglen_z 0.945 0.943 0.977
+nb-english 100 MEAN 0.936 0.933 0.976
+# nb-english n=200: 0 of 600 draws dropped
+nb-english 200 intercept(yor) 0.933 0.928 0.982
+nb-english 200 hau 0.960 0.963 0.995
+nb-english 200 ibo 0.937 0.935 0.989
+nb-english 200 pcm 0.942 0.948 0.985
+nb-english 200 loglen_z 0.947 0.952 0.991
+nb-english 200 MEAN 0.944 0.945 0.988
+# nb-english n=400: 0 of 600 draws dropped
+nb-english 400 intercept(yor) 0.947 0.950 0.991
+nb-english 400 hau 0.942 0.943 0.999
+nb-english 400 ibo 0.950 0.955 0.995
+nb-english 400 pcm 0.937 0.940 0.991
+nb-english 400 loglen_z 0.955 0.955 0.997
+nb-english 400 MEAN 0.946 0.949 0.994

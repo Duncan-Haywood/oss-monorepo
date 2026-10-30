@@ -1,0 +1,51 @@
+{
+ "date": "2026-10-28",
+ "session": "https://claude.ai/code/session_01E5sJKkymm6rA5P39eFgx1j",
+ "track": "research",
+ "prompt_version": 0,
+ "input": "read ./prompt.md and follow the instructions there",
+ "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+ "follow_up_inputs": [],
+ "model": "claude-sonnet-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-10-28T22:19:34Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": null,
+ "projects": [
+  "verified-dse"
+ ],
+ "pr": 11225,
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": 1,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [],
+ "deviations": [
+  {
+   "file": "CLAUDE.md",
+   "why": "No new blog post: a small theory step with a modest result",
+   "did": "logged in LOG.md and PAPER.md only",
+   "result": "fine"
+  }
+ ],
+ "writeups": [
+  "research/verified-dse/LOG.md milestone 39",
+  "research/verified-dse/experiments/theory/KTH.md"
+ ],
+ "goal": null,
+ "notes": "Milestone 39: optimum-anchored halving bound, valid, modest gain (median 0.89 of previous bound). No predictions were written before the script ran; logged as exploratory. No blog post written: small theory step. Ran unittest tests.test_bound (12 OK), build.py ok, check_md_links ok.",
+ "corrections": [],
+ "redteam": null
+}

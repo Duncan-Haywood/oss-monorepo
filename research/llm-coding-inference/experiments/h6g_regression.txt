@@ -1,0 +1,53 @@
+NaijaSenti test corpus 44485 tweets; outcome = human negative label; OLS truth on the whole corpus:
+  intercept(yor) +0.2064, hau +0.1260, ibo +0.0599, pcm +0.3827, loglen_z +0.0262
+audit n=400 simple random, 1000 draws per cell, seed 20261025; coverage of the 95% interval (binomial sd about 0.007), mean se, mean bias
+
+coder estimator coefficient coverage se bias
+# lexicon-en: agreement with the human label 0.678
+lexicon-en naive intercept(yor) 0.000 0.0013 -0.2097
+lexicon-en naive hau 0.000 0.0017 -0.1137
+lexicon-en naive ibo 0.000 0.0018 -0.0430
+lexicon-en naive pcm 0.000 0.0019 -0.3125
+lexicon-en naive loglen_z 0.000 0.0007 -0.0158
+lexicon-en human intercept(yor) 0.944 0.0431 -0.0008
+lexicon-en human hau 0.944 0.0606 +0.0022
+lexicon-en human ibo 0.956 0.0631 +0.0028
+lexicon-en human pcm 0.939 0.0729 +0.0021
+lexicon-en human loglen_z 0.952 0.0249 -0.0001
+lexicon-en PPI intercept(yor) 0.942 0.0482 -0.0004
+lexicon-en PPI hau 0.946 0.0729 +0.0010
+lexicon-en PPI ibo 0.949 0.0716 +0.0024
+lexicon-en PPI pcm 0.936 0.1025 +0.0009
+lexicon-en PPI loglen_z 0.948 0.0316 -0.0012
+# nb-english: agreement with the human label 0.680
+nb-english naive intercept(yor) 0.000 0.0025 -0.1628
+nb-english naive hau 0.000 0.0033 -0.1336
+nb-english naive ibo 0.000 0.0036 -0.0391
+nb-english naive pcm 0.000 0.0038 -0.1228
+nb-english naive loglen_z 0.000 0.0013 +0.0498
+nb-english human intercept(yor) 0.944 0.0431 -0.0008
+nb-english human hau 0.944 0.0606 +0.0022
+nb-english human ibo 0.956 0.0631 +0.0028
+nb-english human pcm 0.939 0.0729 +0.0021
+nb-english human loglen_z 0.952 0.0249 -0.0001
+nb-english PPI intercept(yor) 0.945 0.0516 +0.0001
+nb-english PPI hau 0.948 0.0747 +0.0003
+nb-english PPI ibo 0.955 0.0759 +0.0019
+nb-english PPI pcm 0.943 0.0982 +0.0016
+nb-english PPI loglen_z 0.955 0.0318 -0.0010
+# nb-in-language: agreement with the human label 0.743
+nb-in-language naive intercept(yor) 0.000 0.0032 -0.2092
+nb-in-language naive hau 0.000 0.0042 +0.2567
+nb-in-language naive ibo 0.000 0.0046 +0.0542
+nb-in-language naive pcm 0.000 0.0048 +0.5239
+nb-in-language naive loglen_z 0.000 0.0016 +0.0926
+nb-in-language human intercept(yor) 0.944 0.0431 -0.0008
+nb-in-language human hau 0.944 0.0606 +0.0022
+nb-in-language human ibo 0.956 0.0631 +0.0028
+nb-in-language human pcm 0.939 0.0729 +0.0021
+nb-in-language human loglen_z 0.952 0.0249 -0.0001
+nb-in-language PPI intercept(yor) 0.944 0.0465 -0.0005
+nb-in-language PPI hau 0.955 0.0651 +0.0013
+nb-in-language PPI ibo 0.956 0.0689 +0.0024
+nb-in-language PPI pcm 0.957 0.0849 +0.0015
+nb-in-language PPI loglen_z 0.947 0.0277 -0.0001

@@ -11,11 +11,14 @@ def run(cmd):
 
 class T(unittest.TestCase):
     def test_blocks(self):
-        for c in ["pkill -f node", "pgrep -f x | head", "until ! pgrep -fa run; do :; done"]:
+        for c in ["pkill -f node", "pgrep -f x | head", "until ! pgrep -fa run; do :; done",
+                  "sleep 1 && pkill -f node", "nohup pkill -f x &",
+                  "pkill -f '[n]ode'; nohup node server.js &"]:
             self.assertEqual(run(c), 2, c)
 
     def test_allows(self):
-        for c in ["pkill -f '[n]ode'", "pkill node", "ls -f", "kill 123"]:
+        for c in ["pkill -f '[n]ode'", "pkill node", "ls -f", "kill 123",
+                  "echo 'do not run pgrep -f x'", 'git commit -m "hook blocks pkill -f foo"']:
             self.assertEqual(run(c), 0, c)
 
 

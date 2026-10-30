@@ -181,7 +181,8 @@ test("Schedule SE: 92.35% of profit, 15.3% under the wage base, half deductible"
   assert.equal(se.medicare, 267815);
   assert.equal(se.tax, 1412955);
   assert.equal(se.deduction, 706478);
-  assert.ok(se.warnings.some((w) => /unchecked/.test(w)));
+  assert.equal(se.warnings.length, 0); // 2025 base matches the IRS Schedule SE instructions
+  assert.ok(selfEmployment(10000000, { year: 2026 }).warnings.some((w) => /unchecked/.test(w)));
 });
 
 test("Schedule SE: social security stops at the wage base, wages use it up, tiny and negative profits owe nothing", () => {
@@ -200,7 +201,7 @@ test("Schedule SE: social security stops at the wage base, wages use it up, tiny
 test("estimated payment dates roll off weekends", () => {
   assert.deepEqual(estimatedDueDates(2026), ["2026-04-15", "2026-06-15", "2026-09-15", "2027-01-15"]);
   assert.deepEqual(estimatedDueDates(2025), ["2025-04-15", "2025-06-16", "2025-09-15", "2026-01-15"]);
-  assert.equal(estimatedDueDates(2027)[3], "2028-01-17"); // Jan 15 2028 is a Saturday, Monday the 17th
+  assert.equal(estimatedDueDates(2027)[3], "2028-01-18"); // Jan 15 2028 is a Saturday, Monday the 17th is MLK Day
 });
 
 test("seSetAside annualises the profit to date and splits the tax into four payments that add up", () => {

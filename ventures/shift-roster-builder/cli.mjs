@@ -10,6 +10,7 @@
 //   node cli.mjs --open-post [--week-start 2026-10-19] staff.txt shifts.txt   # group message for shifts left open, with who could take each
 //   node cli.mjs --check staff.txt shifts.txt               # exit 1 if any shift stays open (cron, CI, a Sunday reminder)
 //   node cli.mjs --weeks 4 --week-start 2026-11-02 staff.txt shifts.txt   # a month: rest gaps and tough-shift tallies carry week to week
+//   node cli.mjs --changes posted.csv --week-start 2026-11-02 --changed-at "2026-10-30 14:00" staff.txt shifts.txt   # what changed since you posted, notice and premium on your numbers
 //   node cli.mjs --example                                  # run on the built-in invented week
 //
 // Staff and shift files are the same text as on the web page. Zero dependencies, no network: names and wages never
@@ -19,7 +20,7 @@
 import { readFile } from "node:fs/promises";
 import process from "node:process";
 import {
-  parseStaff, parseShifts, buildRoster, planWeeks, planFairness, optimalityText, rosterCsv, hoursCsv, rosterIcs, rosterMessages, openShiftPost, carryOverStaff, sampleStaff, sampleShifts,
+  parseStaff, parseShifts, buildRoster, planWeeks, planFairness, optimalityText, rosterCsv, scheduleChanges, hoursCsv, rosterIcs, rosterMessages, openShiftPost, carryOverStaff, sampleStaff, sampleShifts,
   DAYS, fmtClock, money, num,
 } from "./calc.mjs";
 
@@ -42,10 +43,15 @@ Options:
   --ics [--person <name>]    calendar file for the week (needs --week-start, a Monday); one person's shifts with --person
   --messages                 a paste-ready text per person
   --open-post                a group message for the shifts left open and who could take each (empty when none)
+  --open-shift-hours <h>  when shifts must stay open, count each open shift as <h> hours: 0 leaves the fewest hours open, 100 the fewest shifts
+                      (runs the slower exact repair; the plain build leaves it out)
   --no-prove          skip the exact search (it runs by itself on weeks of up to 14 shifts)
   --prove             also run an exact search (small weeks) and say whether the roster is provably the best, or how far off
   --weeks <n>         plan n consecutive weeks (1-8) from the same shifts; needs --week-start so dated time off lands in its week;
                       rest gaps and the tough-shift tally carry over; prints a fairness total. With --csv a "week" column is added
+  --changes <csv>     compare the roster you posted (CSV) with this build: every shift added, cancelled or moved, its notice and the premium
+                      on your numbers. Needs --week-start and --changed-at "YYYY-MM-DD HH:MM" for notice; --notice-hours (default 336),
+                      --premium-hours (default 1) and --exempt "Ben,Cleo" (employee-requested changes) are yours to set, not a statement of any law
   --check             print the report; exit 1 if any shift is left open
   --example           use the built-in invented week
   -h, --help          this text
@@ -55,7 +61,7 @@ Planning aid, not legal advice. It does not know your local scheduling-notice, b
 
 const FLAGS = {
   "--rest": "minRestHours", "--consec": "maxConsecDays", "--daily": "maxDailyHours", "--ot-after": "otAfter",
-  "--ot-mult": "otMult", "--balance": "balance", "--tough-balance": "toughBalance",
+  "--ot-mult": "otMult", "--balance": "balance", "--tough-balance": "toughBalance", "--open-shift-hours": "openShiftWeight",
 };
 
 export function parseArgs(argv) {
@@ -71,6 +77,17 @@ export function parseArgs(argv) {
     else if (a === "--open-post") o.mode = "open-post";
     else if (a === "--person") { o.person = argv[++i]; if (!o.person) throw new Error("--person needs a name"); }
     else if (a === "--check") o.check = true;
+    else if (a === "--changes") { o.changes = argv[++i]; if (!o.changes) throw new Error("--changes needs the posted roster CSV"); }
+    else if (a === "--changed-at") {
+      o.changedAt = argv[++i];
+      if (!/^\d{4}-\d{2}-\d{2}[ T]\d{1,2}:\d{2}$/.test(o.changedAt || "")) throw new Error('--changed-at needs a date and time like "2026-10-30 14:00"');
+    }
+    else if (a === "--exempt") { o.exempt = argv[++i]; if (o.exempt === undefined) throw new Error("--exempt needs names, comma separated"); }
+    else if (a === "--notice-hours" || a === "--premium-hours") {
+      const v = Number(argv[++i]);
+      if (!Number.isFinite(v) || v < 0) throw new Error(`${a} needs a number`);
+      o[a === "--notice-hours" ? "noticeHours" : "premiumHours"] = v;
+    }
     else if (a === "--prove") o.options.exact = true;
     else if (a === "--no-prove") o.options.exact = false;
     else if (a === "--weeks") {
@@ -89,6 +106,7 @@ export function parseArgs(argv) {
     } else if (a === "-" || !a.startsWith("--")) o.files.push(a);
     else throw new Error(`Unknown option ${a}. Try --help.`);
   }
+  if (o.options.openShiftWeight !== undefined) o.options.openShiftWeight = Math.min(1000, Math.max(0, o.options.openShiftWeight));
   if (o.options.balance !== undefined) o.options.balance = Math.min(100, Math.max(0, o.options.balance));
   return o;
 }
@@ -99,6 +117,32 @@ async function readInput(file) {
 }
 
 const clock = (s) => `${fmtClock(s.startMin)}-${fmtClock(s.endMin)}`;
+
+// Minutes from Monday 00:00 of weekStart to a "YYYY-MM-DD HH:MM" wall-clock time (calendar arithmetic only, no time zones).
+function minutesSinceMonday(weekStart, when) {
+  const t = (x) => { const m = /^(\d{4})-(\d{2})-(\d{2})[ T](\d{1,2}):(\d{2})$/.exec(x); return Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4], +m[5]) / 60000; };
+  return t(when) - t(`${weekStart} 00:00`);
+}
+
+function changesReport(staff, opts, revisedCsv) {
+  const known = opts.changedAt && opts.weekStart;
+  const wages = Object.fromEntries(staff.map((p) => [p.name, p.wage]));
+  const r = scheduleChanges(opts.postedCsv, revisedCsv, {
+    changedAt: known ? minutesSinceMonday(opts.weekStart, opts.changedAt) : null,
+    noticeHours: opts.noticeHours ?? 336, premiumHours: opts.premiumHours ?? 1, wages, exempt: String(opts.exempt || "").split(","),
+  });
+  const lines = [];
+  for (const c of r.changes) {
+    const what = c.kind === "added" ? `added ${clockOf(c.to)}` : c.kind === "cancelled" ? `cancelled ${clockOf(c.from)}` : `moved ${clockOf(c.from)} -> ${clockOf(c.to)}`;
+    const note = !r.noticeKnown ? "" : c.exempt ? "  requested, no premium" : c.premiumUnpriced ? "  short notice, no wage on file" : c.shortNotice ? `  ${num(c.noticeHours)} h notice, premium ${money(c.premium)}` : `  ${num(c.noticeHours)} h notice`;
+    lines.push(`${c.person.padEnd(12)} ${DAYS[(c.to || c.from).day]} ${what} (${c.hoursDelta > 0 ? "+" : ""}${num(c.hoursDelta)} h)${note}`);
+  }
+  const head = r.noticeKnown
+    ? `${r.changes.length} change(s), ${r.shortNotice} on short notice (under ${num(opts.noticeHours ?? 336)} h). Premium on your numbers (${num(opts.premiumHours ?? 1)} h of pay each): ${money(r.owed)}.`
+    : `${r.changes.length} change(s). Give --week-start and --changed-at to see notice and premium.`;
+  return [head, ...lines, "", "Arithmetic on the window and premium you entered, not a statement of what any scheduling law requires. Not legal advice.", ""].join("\n");
+}
+const clockOf = (x) => `${fmtClock(x.start % 1440)}-${fmtClock(x.end % 1440 || 1440)}`;
 
 /** Pure core: returns { code, out } so tests need no process. */
 export function run(staffText, shiftsText, opts = {}) {
@@ -123,6 +167,7 @@ export function run(staffText, shiftsText, opts = {}) {
   if (opts.mode === "messages") {
     try { return { code, out: rosterMessages(r, opts.weekStart || null).map((m) => m.text).join("\n\n") + "\n" }; } catch (e) { return { code: 2, out: e.message + "\n" }; }
   }
+  if (opts.postedCsv) return { code, out: changesReport(st.staff, opts, rosterCsv(r)) };
   if (opts.mode === "hours") return { code, out: hoursCsv(r) };
   if (opts.mode === "json") {
     return {
@@ -200,8 +245,9 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     const [staffText, shiftsText] = o.example
       ? [sampleStaff(), sampleShifts()]
       : [await readInput(o.files[0]), await readFile(o.files[1], "utf8")];
+    const postedCsv = o.changes ? await readFile(o.changes, "utf8") : null;
     const lastWeekCsv = o.lastWeek ? await readFile(o.lastWeek, "utf8") : null;
-    const r = o.weeks > 1 ? runPlan(staffText, shiftsText, { ...o, lastWeekCsv }) : run(staffText, shiftsText, { ...o, lastWeekCsv });
+    const r = o.weeks > 1 ? runPlan(staffText, shiftsText, { ...o, lastWeekCsv }) : run(staffText, shiftsText, { ...o, lastWeekCsv, postedCsv });
     (r.code === 2 ? process.stderr : process.stdout).write(r.out);
     process.exit(r.code);
   } catch (e) { process.stderr.write(`${e.message}\n`); process.exit(2); }

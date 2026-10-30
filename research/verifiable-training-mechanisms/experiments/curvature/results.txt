@@ -1,0 +1,3 @@
+tau     accept  Rayleigh(orth)  Rayleigh(rand)  Rayleigh(g_hat)  lambda_max  orth/rand mean [95% range over seeds]  second-order pred  measured damage
+3e-02   0.218  1.0055  0.00311  1.1589  5.626  323.8 [297.5,360.7]  +0.01196  +0.00027
+1e-01   0.428  0.9644  0.00301  1.2936  5.410  320.2 [299.8,349.0]  +0.26445  +0.00240

@@ -1,0 +1,53 @@
+{
+  "date": "2026-10-26",
+  "session": "https://claude.ai/code/session_01T5d6378RGyHg3jTiaw45RB",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-26T07:32:10Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "verifiable-training-mechanisms"
+  ],
+  "pr": 10591,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Fresh container lacks torch; pyenv install took several minutes and blocked a foreground call past the 120 s timeout."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/goals.md",
+      "why": "No blog post: a one-step programme log entry; the result is a single decomposition with intervals containing zero.",
+      "did": "LOG.md entry only",
+      "result": "fine"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Milestone 28 run (10 seeds x 6 arms) executed locally; results in experiments/subsample_decomp. Checks: research CI not run locally beyond the experiment itself.",
+  "corrections": [],
+  "redteam": null
+}

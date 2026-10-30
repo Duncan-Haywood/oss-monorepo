@@ -1,0 +1,10 @@
+{
+ "base_period_ns": {
+  "mult16": 3.91,
+  "mult24": 4.69,
+  "mult32": 5.29,
+  "adder_op64": 1.93,
+  "adder_ripple64": 8.2
+ },
+ "n_sequences": 60
+}

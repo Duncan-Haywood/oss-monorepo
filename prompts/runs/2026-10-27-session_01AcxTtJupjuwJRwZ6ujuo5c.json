@@ -1,0 +1,53 @@
+{
+  "date": "2026-10-27",
+  "session": "https://claude.ai/code/session_01AcxTtJupjuwJRwZ6ujuo5c",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-27T22:17:58Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 10976,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [
+    "first run failed: aerosandbox missing from both interpreters; pyenv install took ~5 min"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "pyenv.py command for aerosandbox/neuralfoil takes ~5 min and ends up using /usr/bin/python3.13; no hint that aerolog-scaling needs it"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "no new blog post or homepage change: single small programme step; also no hypothesis numbers written before the run (qualitative only), disclosed in LOG.md"
+    }
+  ],
+  "writeups": [
+    "research/aerolog-scaling/LOG.md milestone 7f"
+  ],
+  "goal": null,
+  "notes": "Merge of the PR is not done in this record; see final message.",
+  "corrections": [],
+  "redteam": null
+}

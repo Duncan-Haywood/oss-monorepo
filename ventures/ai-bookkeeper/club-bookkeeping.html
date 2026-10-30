@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%231b587e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EA%3C/text%3E%3C/svg%3E"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Club, PTO and Small Nonprofit Treasurer Bookkeeping From a Bank Statement</title>
+<meta name="description" content="Zeffy, Givebutter and fundraiser payouts are income; web, post and insurance are costs. A worked September: $2,798.25 in, $628.53 out, free and in your browser.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="./club-bookkeeping.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Club and PTO treasurer bookkeeping from a bank statement">
+<meta property="og:description" content="A worked month of donation-platform and fundraiser payouts and small costs, booked from a bank CSV.">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is a donation-platform payout the whole donation?", "acceptedAnswer": {"@type": "Answer", "text": "Usually not. Platforms pay out net of card fees or tips, so the deposit is less than what donors gave. Compare with the platform's report and book the difference as fees, so donor receipts and your books agree."}}, {"@type": "Question", "name": "Does this handle restricted funds or fund accounting?", "acceptedAnswer": {"@type": "Answer", "text": "No. It keeps one set of books with income and cost accounts. If a gift is restricted, track that separately or with your treasurer's own notes; this is not a substitute for a nonprofit accountant, a Form 990 or state filings."}}, {"@type": "Question", "name": "Is it free?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. It is open source (MIT), runs in your browser and nothing is uploaded."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#1c2430;background:#f3f5f2}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#23613f}.eyebrow{font-weight:700;letter-spacing:.04em;color:#23613f;font-size:.85rem}h1{font-size:clamp(1.7rem,5vw,2.5rem);line-height:1.08;margin:.3rem 0;color:#183d2a}.lede{font-size:1.05rem;max-width:66ch;color:#4a5560}section{background:#fff;border:1px solid #d5ddd6;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #183d2a10;margin:1rem 0}h2{margin-top:0;color:#183d2a}p,li{line-height:1.55}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:.95rem}caption{caption-side:bottom;color:#4a5560;font-size:.85rem;text-align:left;padding-top:.6rem}th,td{border-bottom:1px solid #e1e7e2;padding:.5rem .45rem;text-align:right}th:first-child,td:first-child{text-align:left}tr.total td,tr.total th{font-weight:700}.fine,footer{font-size:.86rem;color:#4a5560}@media (max-width:600px){body{padding:1rem}}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; AI Bookkeeper</a></p>
+<header>
+<h1>Club and PTO treasurer bookkeeping: donations, dues and a few bills</h1>
+<p class="lede">Booster clubs, PTOs, robotics teams and small nonprofits usually have one bank account, a volunteer treasurer and a board that asks, every month, where the money went. The bank statement is where that answer starts.</p>
+</header>
+<section>
+<h2>Worked example: one September</h2>
+<p>The tool ships a <strong>synthetic</strong> statement for a club (<code>fixtures/club-checking.csv</code>): three income deposits and seven payments. Nine of ten lines get a suggested account with no rules taught; one is left for a person on purpose.</p>
+<div class="table-wrap">
+<table>
+<caption>Read by the tool's importer. Synthetic data, not a real organisation.</caption>
+<thead><tr><th scope="col">September 2026</th><th scope="col">Amount</th></tr></thead>
+<tbody>
+<tr><th scope="row">Zeffy donations payout</th><td>$1,420.00</td></tr>
+<tr><th scope="row">Givebutter payout</th><td>$865.50</td></tr>
+<tr><th scope="row">Square fundraiser deposit</th><td>$512.75</td></tr>
+<tr class="total"><th scope="row">Income</th><td>$2,798.25</td></tr>
+<tr><th scope="row">Website, event insurance, state annual report</th><td>&minus;$258.00</td></tr>
+<tr><th scope="row">Staples, PO box, Vistaprint (office and printing)</th><td>&minus;$227.35</td></tr>
+<tr><th scope="row">Sam's Club (food, prizes or supplies? left for you)</th><td>&minus;$143.18</td></tr>
+<tr class="total"><th scope="row">Surplus</th><td>$2,169.72</td></tr>
+</tbody>
+</table>
+</div>
+<p>The Sam's Club trip is the kind of line only the treasurer can place, so the tool asks instead of guessing. Closing balance on the statement: $4,169.72; the books reconcile to it.</p>
+</section>
+<section>
+<h2>What the tool does for a treasurer</h2>
+<ol>
+<li><strong>Imports the bank CSV</strong> and suggests <em>income</em> for Zeffy, Givebutter, Donorbox, Classy, GoFundMe, MemberPlanet, dues and fundraiser deposits.</li>
+<li><strong>Files the usual bills</strong> (website, insurance, state filings, printing, office) and leaves ambiguous warehouse-club and big-box trips for review.</li>
+<li><strong>Reports</strong> an income and cost statement and a balance sheet you can hand a board, and exports QuickBooks, Xero or IIF journals if you outgrow it.</li>
+</ol>
+<p>Rules are written from the platforms' names; no real treasurer's statement has been tried.</p>
+</section>
+<section>
+<h2>Questions</h2>
+<h3>Is a donation-platform payout the whole donation?</h3><p>Usually not. Platforms pay out net of card fees or tips, so the deposit is less than what donors gave. Compare with the platform's report and book the difference as fees, so donor receipts and your books agree.</p><h3>Does this handle restricted funds or fund accounting?</h3><p>No. It keeps one set of books with income and cost accounts. If a gift is restricted, track that separately or with your treasurer's own notes; this is not a substitute for a nonprofit accountant, a Form 990 or state filings.</p><h3>Is it free?</h3><p>Yes. It is open source (MIT), runs in your browser and nothing is uploaded.</p>
+</section>
+<p><a href="./">Open AI Bookkeeper</a> and import your bank statement.</p>
+</main>
+<footer>
+<p><strong>No warranty.</strong> This page and the tool are provided free and as-is, without warranty of any kind. They are not legal, tax, or financial advice and do not replace a qualified professional. You are responsible for reviewing and verifying any output before relying on it. The example is synthetic data, not a real organisation. Platform names are trademarks of their owners, named only to describe a payee.</p>
+</footer>
+</body>
+</html>

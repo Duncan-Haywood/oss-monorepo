@@ -64,9 +64,11 @@ test('live: creates the release once, skips an existing tag', async () => {
     return { ok: true, status: 201 };
   };
   let calls = [];
-  assert.equal((await run({ env, fetchImpl: mk(calls, false), log() {}, now })).posted, 1);
+  const made = await run({ env, fetchImpl: mk(calls, false), log() {}, now });
+  assert.deepEqual({ posted: made.posted, planned: made.planned }, { posted: 1, planned: 1 });
   assert.equal(calls.length, 2);
   calls = [];
-  assert.equal((await run({ env, fetchImpl: mk(calls, true), log() {}, now })).posted, 0);
+  const seen = await run({ env, fetchImpl: mk(calls, true), log() {}, now });
+  assert.deepEqual({ posted: seen.posted, planned: seen.planned }, { posted: 0, planned: 1 });
   assert.deepEqual(calls.map((c) => c.split(' ')[0]), ['GET']);
 });

@@ -1,13 +1,13 @@
 // Share cards and share tags: the type rasteriser, the card, and the pass.
 
 import assert from 'node:assert/strict';
-import { test } from 'node:test';
-import fs from 'node:fs/promises';
+import { existsSync, mkdtempSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { test } from 'node:test';
 
 import { fillText, fitText, font, measureText, wrapText } from './fontraster.mjs';
-import { cardTitle, completeShareTags, crumbsOf, pageCardPlan, renderCards, researchTopicColour, siteAddress } from './share.mjs';
+import { accentFor, cardKey, cardTitle, completeShareTags, crumbsOf, mapLimit, pageCardPlan, renderCards, researchTopicColour, siteAddress } from './share.mjs';
 import { CARD_HEIGHT, CARD_WIDTH, quantize, renderCard, renderMarkIcon, renderSiteCard } from './sharecard.mjs';
 
 const PNG = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
@@ -203,27 +203,78 @@ test('the CLI reads --base= and --only= values whole', async () => {
   }
 });
 
-test('a card is the same bytes every time it is drawn', () => {
-  // renderCards reuses a card drawn earlier in the process, so a repeat build
-  // no longer redraws anything. This is what makes that safe, and what the
-  // "identical build" test in build.test.mjs used to prove for cards.
-  const options = { headline: 'Roofing bid calculator', kicker: 'Trades', subtitle: 'Price a reroof', address: 'example.test/roof/' };
-  assert.ok(renderCard(options).equals(renderCard(options)));
+test('the card cache copies an unchanged card and draws a changed one', async () => {
+  const dir = mkdtempSync(path.join(os.tmpdir(), 'cards-'));
+  const cacheDir = path.join(dir, 'cache');
+  const job = (name, headline) => ({ file: path.join(dir, 'out', name), options: { headline } });
+  // A drawn card is stored under its key, byte for byte.
+  await renderCards([job('a.png', 'Cache A')], { cacheDir });
+  const key = cardKey({ headline: 'Cache A' });
+  assert.deepEqual(readdirSync(cacheDir), [`${key}.png`]);
+  assert.deepEqual(readFileSync(path.join(cacheDir, `${key}.png`)), readFileSync(path.join(dir, 'out', 'a.png')));
+
+  // An entry planted for a card this process never drew proves a later build
+  // (a new CI run) copies from the directory rather than drawing.
+  const planted = cardKey({ headline: 'Cache planted' });
+  writeFileSync(path.join(cacheDir, `${planted}.png`), 'cached');
+  await renderCards([job('p.png', 'Cache planted'), job('b.png', 'Cache B')], { cacheDir });
+  assert.equal(readFileSync(path.join(dir, 'out', 'p.png'), 'utf8'), 'cached');
+  assert.deepEqual(readFileSync(path.join(dir, 'out', 'b.png')), renderCard({ headline: 'Cache B' }));
+  assert.ok(existsSync(path.join(cacheDir, `${cardKey({ headline: 'Cache B' })}.png`)));
+  assert.notEqual(cardKey({ headline: 'Cache A' }), cardKey({ headline: 'Cache B' }));
 });
 
-test('renderCards writes a reused card byte for byte as a fresh draw', async () => {
-  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'cards-'));
+test('a card drawn earlier in the process is reused byte for byte, with no cache directory', async () => {
+  const dir = mkdtempSync(path.join(os.tmpdir(), 'cards-mem-'));
   const options = { headline: 'Gutter guard bid calculator', kicker: 'Trades', address: 'example.test/gutter/' };
-  const other = { headline: 'A different card', kicker: 'Research' };
-  await renderCards([{ file: path.join(dir, 'a', 'card.png'), options }]);
-  // The second call takes the first card from the cache and draws the other.
-  await renderCards([
-    { file: path.join(dir, 'b', 'card.png'), options },
-    { file: path.join(dir, 'c', 'card.png'), options: other },
-  ]);
-  const fresh = renderCard(options);
-  assert.ok((await fs.readFile(path.join(dir, 'a', 'card.png'))).equals(fresh));
-  assert.ok((await fs.readFile(path.join(dir, 'b', 'card.png'))).equals(fresh));
-  assert.ok((await fs.readFile(path.join(dir, 'c', 'card.png'))).equals(renderCard(other)));
-  await fs.rm(dir, { recursive: true, force: true });
+  await renderCards([{ file: path.join(dir, 'a.png'), options }], { cacheDir: '' });
+  await renderCards([{ file: path.join(dir, 'b.png'), options }], { cacheDir: '' });
+  assert.deepEqual(readFileSync(path.join(dir, 'b.png')), renderCard(options));
+});
+
+test('mapLimit keeps input order', async () => {
+  const out = await mapLimit([30, 10, 20], 2, (ms, i) => new Promise((r) => setTimeout(() => r(i), ms)));
+  assert.deepEqual(out, [0, 1, 2]);
+});
+
+test('crumbsOf decodes hex character references, zeros and upper case included', () => {
+  const html = '<nav class="crumbs"><a href="/">Home</a><a href="/a/">Tax &#x2014; VAT</a><a href="/b/">Cost &#X1F4B0; &#x20AC;10</a></nav>';
+  assert.deepEqual(crumbsOf(html), ['Tax — VAT', 'Cost 💰 €10']);
+});
+
+test('the card kicker: a section the site names, an unnamed one, a long crumb and no topic', () => {
+  const crumbs = (...labels) => labels.map((l) => `<a href="../">${l}</a>`).join('');
+  const kickerOf = (relative, html) => pageCardPlan(html, relative, { baseUrl: BASE }).options.kicker;
+  // An unnamed section takes its first crumb as the name and the next as the topic.
+  const unnamed = page({ crumbs: crumbs('Alpha', 'Beta') }).replace('<a href="../">Research</a>', '');
+  assert.equal(kickerOf('zzz/x/index.html', unnamed), 'Alpha · Beta');
+  // A crumb of 70 characters is too long to be a topic; 69 is not.
+  assert.equal(kickerOf('research/x/index.html', page({ crumbs: crumbs('t'.repeat(70)) })), 'Research');
+  assert.equal(kickerOf('research/x/index.html', page({ crumbs: crumbs('t'.repeat(69)) })), `Research · ${'t'.repeat(69)}`);
+  // With no topic the kicker is the section alone, with no dangling separator.
+  assert.equal(kickerOf('research/x/index.html', page()), 'Research');
+});
+
+test('accentFor hashes section and topic to a stable palette colour', () => {
+  assert.deepEqual(['a', 'Energy', 'Housing', 'Tax and pay', 'Long topic name here'].map((t) => accentFor('research', t)), ['#1d4ed8', '#c2410c', '#9333ea', '#b91c1c', '#0f766e']);
+});
+
+test('only a section front page carries a subtitle on its card', () => {
+  const html = page();
+  const plan = (relative) => pageCardPlan(html, relative, { baseUrl: BASE });
+  assert.equal(plan('writing/index.html').options.subtitle, "Adds a price to energy-home's model (ten years).");
+  assert.equal(plan('writing/post/index.html').options.subtitle, '');
+});
+
+test('renderCards takes its cache directory from PAGES_CARD_CACHE', async () => {
+  const dir = mkdtempSync(path.join(os.tmpdir(), 'cards-env-'));
+  const cacheDir = path.join(dir, 'cache');
+  const saved = process.env.PAGES_CARD_CACHE;
+  process.env.PAGES_CARD_CACHE = cacheDir;
+  try {
+    await renderCards([{ file: path.join(dir, 'out', 'e.png'), options: { headline: 'Env cache' } }]);
+    assert.deepEqual(readdirSync(cacheDir), [`${cardKey({ headline: 'Env cache' })}.png`]);
+  } finally {
+    if (saved === undefined) delete process.env.PAGES_CARD_CACHE; else process.env.PAGES_CARD_CACHE = saved;
+  }
 });
