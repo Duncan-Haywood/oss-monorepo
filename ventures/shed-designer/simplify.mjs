@@ -75,7 +75,7 @@ export function sidingSpan(d) {
 export const MINUTES = {
   floorSheet: 12, floorOSB: 12, roofSheet: 12, wallSheathing: 12,
   siding8: 15, siding9: 16, siding10: 18, lpPanel: 15, lpPanel9: 16, lpPanel10: 18, lpPanel76: 15, lpPanel76x9: 16, lpPanel76x10: 18,
-  vinylBox: 240, vinylJ: 10, vinylStarter: 8, vinylCorner: 15, hardiePlank: 10, lapHardie: 12, lapLP12: 10, lapLP16: 12, houseWrap: 45, jointFlashing: 20, boardBox: 20, battenBox: 30,
+  vinylBox: 240, vinylJ: 10, vinylStarter: 8, vinylCorner: 15, hardiePlank: 10, lapHardie: 12, lapHardie5: 12, lapLP12: 10, lapLP16: 12, houseWrap: 45, jointFlashing: 20, boardBox: 20, battenBox: 30,
   shingleBundle: 25, starterShingle: 20, ridgeCapShingle: 30, underlayment: 45, dripEdge: 10, metalPanel: 10, metalRidge: 15,
   fasciaTrim: 15, soffitPanel: 20, rakeTrim: 15, gableVent: 30, zFlashing: 10,
   paint: 45, stain: 45, accentPaint: 60, interiorPaint: 45, glitter: 0,

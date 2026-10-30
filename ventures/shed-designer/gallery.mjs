@@ -20,7 +20,7 @@
 
 import { buildShed, normalize, defaultDesign } from './model.mjs';
 import { estimate } from './estimate.mjs';
-import { searchDesigns, picks, DEFAULT_CONSTRAINTS } from './designsearch.mjs';
+import { searchDesigns, picks, evaluateDesign, DEFAULT_CONSTRAINTS } from './designsearch.mjs';
 
 /** The permit line in the owner's town, and the gallery's hard limit. */
 export const GALLERY_LIMIT_SQFT = 100;
@@ -159,6 +159,41 @@ export const GALLERY = [
 ];
 
 /**
+ * Framing changes that mostly move cost, tried on each card's design before it
+ * is shown. A card that ranks by its own measure (the most room per dollar of
+ * the barns, say) can take a design off the search's front, which the
+ * search's polish never reached: at 400 designs the barn card kept 2x6 floor
+ * joists where 2x4s pass at 67%, $98 dearer for the same room and looks
+ * (paretoaudit.test.mjs found it, 2026-10-30).
+ */
+export const CARD_POLISH = { joistSize: ['2x4', '2x6', '2x8'], joistSpacing: [16, 24], rafterSpacing: [16, 24], rafterSize: ['2x4', '2x6'], floorPanel: ['OSB', 'plywood'] };
+
+/**
+ * Take, one at a time, any polish change that makes the design cheaper with no
+ * less room and no worse looks, still passing the gallery's rules and drawing
+ * with no warning.
+ * @param {any} s a scored design from a gallery search
+ * @param {import('./estimate.mjs').Prices} [prices]
+ */
+export function polishCard(s, prices) {
+  let cur = s;
+  for (let improved = true; improved;) {
+    improved = false;
+    for (const [k, vals] of Object.entries(CARD_POLISH)) {
+      for (const v of vals) {
+        if (cur.design[k] === v) continue;
+        const r = evaluateDesign(normalize({ ...cur.design, [k]: v }), prices, CONSTRAINTS);
+        if (!r.feasible || r.cost > cur.cost - 0.5 || r.storage.volumeCuFt < cur.storage.volumeCuFt - 1e-9 || r.looks.score < cur.looks.score - 1e-9) continue;
+        if (buildShed(r.design).warnings.length) continue;
+        cur = { ...cur, ...r, design: r.design };
+        improved = true;
+      }
+    }
+  }
+  return cur;
+}
+
+/**
  * Run both searches and pick every card. Slow (tens of seconds):
  * `make-gallery.mjs` runs it, not the page.
  * @param {import('./estimate.mjs').Prices} [prices]
@@ -176,15 +211,18 @@ export function generateGallery(prices, runs = gallerySearches(prices)) {
     const full = card.rank(run.kept, front).filter(Boolean);
     const ranked = full.filter((x) => !used.has(keyOf(x.design)));
     // A size no earlier card shows, when the card's own measure leaves one.
-    const s = ranked.find((x) => !sizes.has(sizeOf(x.design))) || ranked[0];
-    if (!s) throw new Error(`gallery card ${card.id}: the search kept no design for it`);
+    const pick = ranked.find((x) => !sizes.has(sizeOf(x.design))) || ranked[0];
+    if (!pick) throw new Error(`gallery card ${card.id}: the search kept no design for it`);
+    const polished = polishCard(pick, prices);
+    const s = used.has(keyOf(polished.design)) ? pick : polished;
     used.add(keyOf(s.design));
+    used.add(keyOf(pick.design));
     sizes.add(sizeOf(s.design));
     const title = card.title(s);
     const paint = card.colour && s.design.siding && !['natural', 'unfinished'].includes(s.design.sidingColor) && s.design.sidingType !== 'vinyl';
     const design = normalize({ ...s.design, name: title, ...(paint ? { sidingColor: card.colour } : {}) });
     if (Math.abs(estimate(buildShed(design), prices).total - s.cost) > 0.01) throw new Error(`gallery card ${card.id}: its colour changed its price`);
-    out.push({ id: card.id, title, reason: card.why(s, run.kept, s === full[0]), design });
+    out.push({ id: card.id, title, reason: card.why(s, run.kept, pick === full[0]), design });
   }
   return out;
 }
