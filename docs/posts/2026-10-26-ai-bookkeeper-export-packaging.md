@@ -1,5 +1,6 @@
 ---
 title: "Bank exports that arrive wrapped in Excel: 28 new checks on the ai-bookkeeper reader, no faults"
+seo_title: "Bank exports that arrive wrapped in Excel"
 date: 2026-10-26
 description: "A sep= line, blank rows, a title block, timestamps and long dates: the ai-bookkeeper statement reader gives the same rows for all of them."
 tags: [ai-bookkeeper, testing, bank-import]

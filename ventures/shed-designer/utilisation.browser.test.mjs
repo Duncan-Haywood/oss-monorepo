@@ -70,6 +70,9 @@ test('the Structure tab lists every checked member, most used first, with its ch
   const margin = await page.textContent('#util-margin');
   assert.match(margin, /Ridge beam at 79%/);
   assert.match(margin, /2x4 joists at 16" would still pass/);
+  // Each oversized member's lighter option says what it saves at the page's prices.
+  const joistRow = await page.$$eval('#util-margin .util-far tbody tr', (l) => l.map((r) => r.textContent).find((t) => /2x4 joists at 16"/.test(t)) || '');
+  assert.match(joistRow, /\$\d+$/, joistRow);
   await page.fill('#util-target', '85');
   await page.dispatchEvent('#util-target', 'change');
   assert.match(await page.textContent('#util-margin'), /No member is above your 85% target/);

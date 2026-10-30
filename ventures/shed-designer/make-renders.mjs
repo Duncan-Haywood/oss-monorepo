@@ -22,7 +22,8 @@ import { extname, join, normalize } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { buildShed } from './model.mjs';
 import { meshOf, solidsOf } from './render3d.mjs';
-import { BUDGET, COVERINGS, RENDER_VERSION, VIEWS, altFor, designKey, renderTargets } from './renders.mjs';
+import { BUDGET, COVERINGS, EXTRA_VIEWS, RENDER_VERSION, SHARE_TARGET, VIEWS, altFor, budgetFor, designKey, renderTargets, viewOf } from './renders.mjs';
+import { PRESETS } from './model.mjs';
 import { GALLERY_DESIGNS } from './gallery-data.mjs';
 import { SIZES, design as sizeDesign } from './make-size-pages.mjs';
 
@@ -49,9 +50,9 @@ export function rendererSource() {
  * @param {any} design
  * @param {string} [renderer] from `rendererSource()`
  */
-export function sceneHash(design, renderer = rendererSource()) {
+export function sceneHash(design, renderer = rendererSource(), views = VIEWS) {
   const h = createHash('sha256');
-  h.update(JSON.stringify({ v: RENDER_VERSION, views: VIEWS, coverings: COVERINGS }));
+  h.update(JSON.stringify({ v: RENDER_VERSION, views, coverings: COVERINGS }));
   h.update(renderer);
   const solids = solidsOf(buildShed(design));
   for (const layer of new Set(solids.map((s) => s.layer))) {
@@ -74,10 +75,21 @@ export function galleryTargets() {
   return GALLERY_DESIGNS.map((g) => ({ slug: `gallery-${g.id}`, key: g.title, design: g.design, views: ['card'] }));
 }
 
-/** Everything `make-renders.mjs` draws: the presets (every view), the size pages' designs and the gallery's cards. */
-export function allTargets() {
-  return [...renderTargets(), ...sizeTargets(), ...galleryTargets()];
+/** The share picture: the default design at 1200x630, which the venture's pages name as `og:image`. */
+export function shareTargets() {
+  return [{ slug: SHARE_TARGET.slug, key: `${SHARE_TARGET.preset} share picture`, design: PRESETS[SHARE_TARGET.preset](), views: ['share'] }];
 }
+
+/** Everything `make-renders.mjs` draws: the presets (every view), the size pages' designs, the gallery's cards and the share picture. */
+export function allTargets() {
+  return [...renderTargets(), ...sizeTargets(), ...galleryTargets(), ...shareTargets()];
+}
+
+/** The views whose definitions a target's hash covers: its own extra views, or the shared set. */
+export const hashViews = (t) => (t.views.every((v) => EXTRA_VIEWS[v]) ? Object.fromEntries(t.views.map((v) => [v, EXTRA_VIEWS[v]])) : VIEWS);
+
+/** The file name for one view: WebP unless the view says otherwise. */
+export const fileFor = (slug, view) => `${slug}-${view}.${viewOf(view).type === 'image/jpeg' ? 'jpg' : 'webp'}`;
 
 export function readManifest() {
   try { return JSON.parse(readFileSync(MANIFEST, 'utf8')); } catch { return { designs: {} }; }
@@ -88,7 +100,7 @@ export function staleTargets(manifest = readManifest(), targets = allTargets()) 
   const renderer = rendererSource();
   return targets.filter((t) => {
     const m = manifest.designs?.[t.slug];
-    if (!m || m.hash !== sceneHash(t.design, renderer) || m.designKey !== designKey(t.design)) return true;
+    if (!m || m.hash !== sceneHash(t.design, renderer, hashViews(t)) || m.designKey !== designKey(t.design)) return true;
     if (Object.keys(m.files || {}).some((v) => !t.views.includes(v))) return true;
     return t.views.some((v) => !m.files?.[v] || !existsSync(join(OUT, m.files[v].file)));
   });
@@ -153,7 +165,7 @@ export async function openStage() {
       // Lower the quality until the file fits its budget.
       const sizes = [];
       for (const q of [0.8, 0.72, 0.64, 0.56, 0.48]) {
-        const url = out.toDataURL('image/webp', q);
+        const url = out.toDataURL(v.type || 'image/webp', q);
         sizes.push(url);
         if (url.length * 0.75 <= v.budget) break;
       }
@@ -162,10 +174,10 @@ export async function openStage() {
   });
   return {
     async draw(design, view) {
-      const v = { ...VIEWS[view], budget: view === 'hero' ? BUDGET.hero : BUDGET.other };
+      const v = { ...viewOf(view), budget: budgetFor(view) };
       const url = await page.evaluate(([d, vv, cov]) => /** @type {any} */ (window).__draw(d, vv, cov), [design, v, COVERINGS]);
       if (errors.length) throw new Error(`page error: ${errors.join('; ')}`);
-      if (!String(url).startsWith('data:image/webp')) throw new Error('this Chromium cannot encode WebP');
+      if (!String(url).startsWith(`data:${v.type || 'image/webp'}`)) throw new Error(`this Chromium cannot encode ${v.type || 'WebP'}`);
       return Buffer.from(String(url).split(',')[1], 'base64');
     },
     async close() { await browser.close(); server.close(); },
@@ -221,11 +233,11 @@ async function main(argv) {
         const files = {};
         for (const view of t.views) {
           const png = await stage.draw(t.design, view);
-          const file = `${t.slug}-${view}.webp`;
+          const file = fileFor(t.slug, view);
           writeFileSync(join(OUT, file), png);
-          files[view] = { file, w: VIEWS[view].w, h: VIEWS[view].h, bytes: png.length, alt: altFor(t.design, view) };
+          files[view] = { file, w: viewOf(view).w, h: viewOf(view).h, bytes: png.length, alt: altFor(t.design, view) };
         }
-        manifest.designs[t.slug] = { key: t.key, name: t.design.name, hash: sceneHash(t.design, renderer), designKey: designKey(t.design), files };
+        manifest.designs[t.slug] = { key: t.key, name: t.design.name, hash: sceneHash(t.design, renderer, hashViews(t)), designKey: designKey(t.design), files };
         console.log(`${t.slug}: ${Object.values(files).map((f) => `${f.file} ${(f.bytes / 1024).toFixed(1)} KB`).join(', ')}`);
       }
     } finally { await stage.close(); }
@@ -234,7 +246,7 @@ async function main(argv) {
   const keep = new Set(targets.map((t) => t.slug));
   for (const slug of Object.keys(manifest.designs)) if (!keep.has(slug)) delete manifest.designs[slug];
   const wanted = new Set(Object.values(manifest.designs).flatMap((d) => Object.values(d.files).map((f) => f.file)));
-  for (const f of readdirSync(OUT)) if (f.endsWith('.webp') && !wanted.has(f)) rmSync(join(OUT, f));
+  for (const f of readdirSync(OUT)) if (/\.(webp|jpg)$/.test(f) && !wanted.has(f)) rmSync(join(OUT, f));
   const sorted = Object.fromEntries(Object.entries(manifest.designs).sort(([a], [b]) => a.localeCompare(b)));
   writeFileSync(MANIFEST, `${JSON.stringify({ note: 'Written by make-renders.mjs; do not edit by hand.', renderVersion: RENDER_VERSION, designs: sorted }, null, 1)}\n`);
   const total = Object.values(sorted).flatMap((d) => Object.values(d.files)).reduce((s, f) => s + f.bytes, 0);

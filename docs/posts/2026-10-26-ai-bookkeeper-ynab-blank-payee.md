@@ -1,5 +1,6 @@
 ---
 title: "A bookkeeping row with no name: sweeping another repo's import fixtures"
+seo_title: "A bookkeeping row with no name"
 date: 2026-10-26
 description: "ai-bookkeeper read 56 lines of Mint, YNAB and Actual Budget exports from an open-source finance app and found one fault: a blank payee."
 tags: [ai-bookkeeper, bank-import, testing]

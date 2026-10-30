@@ -1,5 +1,6 @@
 ---
 title: "Cleaning business bookkeeping from a bank statement: nine lines, $837.20 profit"
+seo_title: "Cleaning business bookkeeping from a bank statement"
 date: 2026-10-29
 description: "A synthetic September in AI Bookkeeper: $1,285.00 of Zelle, Thumbtack and Stripe deposits, $447.80 of costs, and one supply buy left for the owner to file."
 tags: [ai-bookkeeper, small-business, bookkeeping, open-source]

@@ -1,5 +1,6 @@
 ---
 title: "A 114-descriptor bank-feed probe: bookkeeping keywords went from 84% to 97% suggested"
+seo_title: "A 114-descriptor bank-feed probe"
 date: 2026-10-25
 description: "The AI bookkeeper's built-in rules against 114 small-business card descriptors in real bank-feed formats, what was missed, and what we left open on purpose."
 tags: [bookkeeping, measurement, ai-bookkeeper]

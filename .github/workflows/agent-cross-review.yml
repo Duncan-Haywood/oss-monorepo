@@ -36,6 +36,12 @@ permissions:
   contents: read
   pull-requests: read
 
+# A newer push to the same pull request cancels the superseded run; `main`
+# keeps every run (platform/ci/validate_workflows.py, invariant 9).
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || inputs.pr_number }}
+  cancel-in-progress: true
+
 jobs:
   resolve-pr:
     if: github.event_name == 'workflow_dispatch' || github.event.pull_request.draft == false

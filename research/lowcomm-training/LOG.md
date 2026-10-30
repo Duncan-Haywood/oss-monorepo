@@ -2,6 +2,12 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-30 · Milestone 7c: draft the compression section of the paper from 6a to 6m (no training)
+
+- Wrote `paper/section_compression.md`: setup, seven numbered results, related work, limits, what it does not claim. Every number is copied from the 6a to 6m entries above; no new runs.
+- Honest framing chosen: the size-1 rule (6f) wins on held-out cells but the size-2 six-seed plateau (6k, 6l) contradicts its power law in H, so the section claims only omega-scaling, small cost at H = 4, and an open H-form from 16 up.
+- Next: the H = 8 and second-keep-level cells named in 6m, then a third size.
+
 ## 2026-10-30 · Milestone 6m (H6 scale-up): which form in H describes the size-2 excess? (analysis of existing runs; no new training)
 
 - Why: 6l's "Next". Forms fixed in `refit.py` before the first run of it, but I did not log the plan first (deviation from the log-before-result rule; nothing was tuned afterwards). Data: the six paired excess cells at size 2 (H = 4, 16, 32, 64, 128 at keep 1/16; H = 16 at keep 1/4), each weighted by 1/se^2. Forms, all times omega = 1/keep - 1: power a (H/16)^b, saturating a H/(H + h0), plateau a, and a + c log2(H/16). Score: leave-one-cell-out error.

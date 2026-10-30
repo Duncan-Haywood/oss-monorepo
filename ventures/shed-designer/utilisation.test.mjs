@@ -138,3 +138,23 @@ test('the breakdown reproduces the check across roofs, sizes, spacings, loads an
     }
   assert.ok(n > 1000);
 });
+
+test('the margin report\'s oversized members become cheaper-build moves, priced beside its own', async () => {
+  const { marginMoves } = await import('./utilisation.mjs');
+  const { budget } = await import('./simplify.mjs');
+  const { estimate } = await import('./estimate.mjs');
+  const d = PRESETS['8x12']();
+  const moves = marginMoves(buildShed(d));
+  assert.ok(moves.length >= 1);
+  for (const m of moves) {
+    assert.ok(m.lighter <= 0.7 + 1e-9 && m.ratio < 0.35, `${m.member}: far below the target, its lighter size inside it`);
+    const alt = buildShed({ ...d, ...m.change });
+    assert.ok(structuralChecks(alt).ok);
+  }
+  // Every margin move the cheaper build could take is one it took or beat: its result is no dearer than taking any one of them.
+  const r = budget(d);
+  for (const m of moves) {
+    const alone = estimate(buildShed({ ...d, ...m.change })).total;
+    assert.ok(r.best.total <= alone + 0.01, m.label);
+  }
+});

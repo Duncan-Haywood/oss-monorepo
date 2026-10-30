@@ -1,5 +1,6 @@
 ---
 title: "Where did religion come from? Classic theories and the Church's own frameworks, tested against the evidence"
+seo_title: "Where did religion come from?"
 date: 2026-10-24
 description: "Tylor, Frazer, Durkheim, Freud, Schmidt's primordial monotheism, Girard, Justin Martyr and Nostra Aetate, each tested against the evidence."
 tags: [religion, history, research, anthropology, theology, catholic, orthodox]

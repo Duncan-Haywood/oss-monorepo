@@ -11,7 +11,7 @@
 // (drawings.mjs, from the lot you type), reused as is.
 
 import { fmtFtIn, fmtIn } from './lumber.mjs';
-import { paletteOf, finishName, SIDING_FINISHES, TRIM_FINISHES, DOOR_FINISHES, SHINGLE_FAMILIES } from './looks.mjs';
+import { paletteOf, doorRgb, finishName, SIDING_FINISHES, TRIM_FINISHES, DOOR_FINISHES, SHINGLE_FAMILIES } from './looks.mjs';
 import { buildSheets, sheetSvg } from './drawings.mjs';
 import { productById } from './products.mjs';
 import { LAP_PRODUCTS } from './lap.mjs';
@@ -39,7 +39,7 @@ export function sidingLook(type) {
   if (lap) return { direction: 'horizontal', pattern: 'lap', spacing: lap.exposure, label: `${lap.short} siding (horizontal, ${fmtIn(lap.exposure)} exposure)` };
   if (t === 'fiber cement' || /lap|hardie|plank|clapboard/.test(t)) return { direction: 'horizontal', pattern: 'lap', spacing: 7, label: `${type} lap siding (horizontal, 7" exposure)` };
   if (t === 't1-11') return { direction: 'vertical', pattern: 'grooves', spacing: 8, label: 'T1-11 panel siding (vertical grooves 8" apart)' };
-  if (t === 'board and batten') return { direction: 'vertical', pattern: 'battens', spacing: 12, label: 'board and batten (vertical battens about 12" apart)' };
+  if (t === 'board and batten') return { direction: 'vertical', pattern: 'battens', spacing: 5.5, label: 'board and batten (vertical battens about 5-1/2" apart)' };
   return { direction: 'vertical', pattern: 'panel', spacing: 48, label: `${type} panel siding (smooth, 4 ft panel joints)` };
 }
 
@@ -59,6 +59,27 @@ const trimHex = (d) => hex(paletteOf(d).trim);
 const roofName = (d) => finishName(d.roofColor, SHINGLE_FAMILIES);
 const trimName = (d) => finishName(d.trimColor, TRIM_FINISHES);
 const doorName = (d) => finishName(d.doorColor, DOOR_FINISHES);
+
+/**
+ * The door finish as built. "Stained" is only the default colour choice: a
+ * site-built door is skinned with the siding cut from its opening, so it takes
+ * the siding's finish (the elevations draw it that way), and a bought door keeps
+ * its factory finish. "Same as the siding/trim" names that finish.
+ * @param {any} d
+ */
+export function doorFinish(d) {
+  const doors = (d.openings || []).filter((o) => o.kind === 'door');
+  if (!doors.length) return 'no doors';
+  if (d.doorColor === 'match siding') return `same as the siding: ${sidingFinish(d).name}`;
+  if (d.doorColor === 'match trim') return `same as the trim: ${trimName(d)} paint`;
+  if (d.doorColor !== 'stained') return `${doorName(d)} paint`;
+  const site = doors.filter((o) => o.product === 'site-built').length;
+  const bought = doors.length - site;
+  return [
+    site && `${site > 1 ? 'site-built doors' : 'site-built door'} skinned with the siding cut from the opening, finished with it: ${d.siding ? sidingFinish(d).name : 'unfinished'}`,
+    bought && `${bought > 1 ? 'bought doors' : 'bought door'} in the maker's factory finish`,
+  ].filter(Boolean).join('; ');
+}
 
 /** A repeatable pseudo-random number in [0, 1) for a tab or course, so a drawing is the same every time. */
 const rand = (a, b) => { const x = Math.sin(a * 127.1 + b * 311.7) * 43758.5453; return x - Math.floor(x); };
@@ -95,14 +116,16 @@ export function packetSummary(shed) {
     ['Roof outline', `about ${fmtFtIn(d.length + 3)} x ${fmtFtIn(d.width + 2 * d.overhang)} including a ${fmtIn(d.overhang)} eave overhang front and back`],
     ['Height to the peak', `${fmtFtIn(k.peak)} above the ground (top of the gravel or blocks)`],
     ['Height to the eave walls', `${fmtFtIn(k.plateTop)} above the ground; walls ${fmtFtIn(d.wallHeight)} floor to top of plates`],
-    ['Floor height', `${fmtFtIn(k.floorTop)} above the ground`],
+    k.floorless ? ['Floor', `none: a gravel floor; walls on timbers ${fmtFtIn(k.floorTop)} high`] : ['Floor height', `${fmtFtIn(k.floorTop)} above the ground`],
     ['Roof', d.style === 'gambrel'
       ? `gambrel (barn), ${d.gambrelLower}/12 lower and ${d.pitch}/12 upper slopes (${(Math.atan(d.gambrelLower / 12) * 180 / Math.PI).toFixed(0)} and ${(Math.atan(d.pitch / 12) * 180 / Math.PI).toFixed(0)} degrees), the bend ${fmtIn(kneeRun(d))} in from each long wall, peak running the ${fmtFtIn(d.length)} length`
-      : `gable, ${d.pitch}/12 pitch (${(Math.atan(d.pitch / 12) * 180 / Math.PI).toFixed(1)} degrees), ridge running the ${fmtFtIn(d.length)} length`],
+      : d.style === 'saltbox'
+        ? `saltbox: a ${d.frontPitch}/12 front slope and a ${d.pitch}/12 back slope (${(Math.atan(d.frontPitch / 12) * 180 / Math.PI).toFixed(1)} and ${(Math.atan(d.pitch / 12) * 180 / Math.PI).toFixed(1)} degrees), the ridge ${fmtIn(k.ridgeY)} back from the front wall and running the ${fmtFtIn(d.length)} length`
+        : `gable, ${d.pitch}/12 pitch (${(Math.atan(d.pitch / 12) * 180 / Math.PI).toFixed(1)} degrees), ridge running the ${fmtFtIn(d.length)} length`],
     ['Siding', d.siding ? `${look.label}${LAP_PRODUCTS[d.sidingType] ? ` (${d.sidingType})` : ''}, ${sidingFinish(d).name}${d.polkaDots ? ', with purple polka dots' : ''}` : 'none shown'],
     ['Roofing', d.roofing ? (d.roofCover === 'metal' ? `corrugated metal, ${roofName(d)}` : `asphalt shingles, ${roofName(d)} colour family`) : 'none shown'],
     ['Trim', d.wallTrim === 'none' ? `fascia and rake boards, ${trimName(d)}; no corner boards or casings` : `${d.wallTrim} corner boards and casings, fascia and rake boards, ${trimName(d)}`],
-    ['Door finish', doorName(d) + (d.doorColor === 'stained' ? '' : ' paint')],
+    ['Door finish', doorFinish(d)],
     ['Doors', count('door').length ? list('door') : 'none'],
     ['Windows', count('window').length ? list('window') : 'none'],
   ];
@@ -123,7 +146,9 @@ export function elevationSvg(shed, name) {
   const eave = name === 'front' || name === 'back';
   const F = eave ? d.length : d.width;
   const o = d.overhang;
-  const tt = d.pitch / 12;
+  // A saltbox's front eave is on its steep slope.
+  const salt = d.style === 'saltbox' && k.slopes ? k.slopes : null;
+  const tt = (salt && name === 'front' ? salt.front.pitch : d.pitch) / 12;
   const cosA = 1 / Math.sqrt(1 + tt * tt);
   // Top of the roof at a distance in from a wall face (negative is out over the eave), as drawings.mjs has it.
   const zt = (dist) => k.plateTop + (dist - k.stud) * tt + k.plumbH;
@@ -134,6 +159,20 @@ export function elevationSvg(shed, name) {
   const gTop = gam ? bandAbove(gam, cover) : null;
   const gEdge = gam ? bandAbove(gam, -0.75) : null;
   const gRake = gam ? bandAbove(gam, -4.25) : null;
+  // A saltbox's gable: two straight slopes meeting over the off-centre ridge, `up` inches above the
+  // rafters' top line (square to each slope), eave tip to eave tip, in this face's left-to-right order.
+  const saltLine = (up) => {
+    if (!salt) return null;
+    const seat = k.connector ? 0 : k.stud;
+    const W = d.width;
+    const fT = salt.front.pitch / 12; const bT = salt.back.pitch / 12;
+    const f = (y) => k.plateTop + (y - seat) * fT + (k.rafterDepth + up) / salt.front.cos;
+    const b = (y) => k.plateTop + (W - y - seat) * bT + (k.rafterDepth + up) / salt.back.cos;
+    const yc = (b(0) - f(0)) / (fT + bT);
+    return /** @type {[number, number][]} */ ([[-o, f(-o)], [yc, f(yc)], [W + o, b(W + o)]].map(([y, z]) => [hxOf(y), z]).sort((p, q) => p[0] - q[0]));
+  };
+  /** The rake's line over the wall itself, from one corner to the other. @param {[number, number][]} pts */
+  const overWall = (pts) => /** @type {[number, number][]} */ ([[0, zOnPoly(pts, 0)], ...pts.filter(([x]) => x > 1e-9 && x < F - 1e-9), [F, zOnPoly(pts, F)]]);
   const roofTop = (dist) => (gTop ? zOnPoly(gTop, dist) : zt(dist) + roofThick);
   const eaveZ = roofTop(-o);
   const rakeOut = 1.5; // sheathing and rake board past the gable wall
@@ -145,7 +184,7 @@ export function elevationSvg(shed, name) {
   const roofC = roofHex(d);
   const trim = trimHex(d);
   const look = sidingLook(d.sidingType);
-  const z0 = Math.max(0, k.skidTop - 1);
+  const z0 = k.floorless ? k.sidingBottom : Math.max(0, k.skidTop - 1);
 
   // Extent of the drawing, in inches. Text is sized to the shed so every
   // elevation of it prints at the same weight.
@@ -159,10 +198,14 @@ export function elevationSvg(shed, name) {
   const P = (pts) => pts.map(([x, z]) => `${(+x).toFixed(2)},${Y(z)}`).join(' ');
 
   // Siding outline: a rectangle on an eave wall, a pentagon up to the rake board on a gable end.
-  const wallTop = eave ? k.plateTop : gRake ? zOnPoly(gRake, 0) : roofTop(0) - 3.5;
+  const sTop = !eave ? saltLine(cover) : null;
+  const sEdge = !eave ? saltLine(-0.75) : null;
+  const sRake = !eave ? saltLine(-4.25) : null;
+  const wallTop = eave ? k.plateTop : gRake ? zOnPoly(gRake, 0) : sRake ? zOnPoly(sRake, 0) : roofTop(0) - 3.5;
   const outline = eave
     ? [[0, z0], [F, z0], [F, k.plateTop], [0, k.plateTop]]
     : gRake ? [[0, z0], [F, z0], ...gRake.slice().reverse()]
+      : sRake ? [[0, z0], [F, z0], ...overWall(sRake).reverse()]
       : [[0, z0], [F, z0], [F, wallTop], [F / 2, k.peak - roofThick - 3.5 / cosA], [0, wallTop]];
   const clipId = `clip-${name}`;
   parts.push(`<defs><clipPath id="${clipId}"><polygon points="${P(outline)}"/></clipPath></defs>`);
@@ -190,7 +233,7 @@ export function elevationSvg(shed, name) {
   if (eave) lines.push(`<rect x="0" y="${Y(k.plateTop)}" width="${F}" height="${(o + fascia).toFixed(2)}" fill="#000" fill-opacity="0.16"/>`);
   else {
     const dz = (rakeOut + 4) / cosA;
-    const rake = gRake || [[0, wallTop], [F / 2, k.peak - roofThick - 3.5 / cosA], [F, wallTop]];
+    const rake = gRake || (sRake && overWall(sRake)) || [[0, wallTop], [F / 2, k.peak - roofThick - 3.5 / cosA], [F, wallTop]];
     lines.push(`<polygon points="${P([...rake, ...rake.slice().reverse().map(([x, z]) => [x, z - dz])])}" fill="#000" fill-opacity="0.14"/>`);
   }
   parts.push(`<g clip-path="url(#${clipId})">${lines.join('')}</g>`);
@@ -211,7 +254,7 @@ export function elevationSvg(shed, name) {
     if (cas) parts.push(`<rect x="${(xa - cas).toFixed(2)}" y="${Y(zb + cas)}" width="${(xb - xa + 2 * cas).toFixed(2)}" height="${(zb - za + cas + (p.op.kind === 'window' ? cas : 0)).toFixed(2)}" fill="${trim}" stroke="#555" stroke-width="0.3"/>`);
     if (p.op.kind === 'door') {
       const site = p.op.product === 'site-built';
-      const fill = d.doorColor && d.doorColor !== 'stained' ? hex(paletteOf(d).door) : site ? sid : '#f3f1ec';
+      const fill = site && !d.siding && d.doorColor === 'stained' ? sid : hex(doorRgb(d, p.op));
       parts.push(`<rect x="${xa.toFixed(2)}" y="${Y(zb)}" width="${(xb - xa).toFixed(2)}" height="${(zb - za).toFixed(2)}" fill="${fill}" stroke="#333" stroke-width="0.6" data-kind="door"/>`);
       const leaves = xb - xa > 60 ? 2 : 1;
       const lw = (xb - xa) / leaves;
@@ -264,6 +307,8 @@ export function elevationSvg(shed, name) {
           const w = 9 + 6 * rand(i, j + 2);
           const xa = Math.max(-rakeOut, x); const xb = Math.min(F + rakeOut, x + w);
           const f = 1 + blend * (rand(j, i + 0.5) * 2 - 1);
+          // A course starts up to a tab left of the rake, so its first tab can fall wholly outside.
+          if (xb - xa < 0.01) { x += w; continue; }
           tabs.push(`<rect x="${xa.toFixed(2)}" y="${Y(zt2)}" width="${(xb - xa).toFixed(2)}" height="${(zt2 - z).toFixed(2)}" fill="${hex(shade(base, f))}" stroke="${c}" stroke-width="0.15"/>`);
           x += w;
         }
@@ -275,10 +320,11 @@ export function elevationSvg(shed, name) {
       for (let x = 0; x < F; x += 2.67) parts.push(`<line x1="${x.toFixed(2)}" y1="${Y(eaveZ)}" x2="${x.toFixed(2)}" y2="${Y(k.peak)}" stroke="${c}" stroke-width="0.3"/>`);
     }
     if (gam && gTop) parts.push(`<line x1="${-rakeOut}" y1="${Y(zOnPoly(gTop, gam.yk))}" x2="${F + rakeOut}" y2="${Y(zOnPoly(gTop, gam.yk))}" stroke="#222" stroke-width="0.6"/>`);
-  } else if (gTop && gEdge && gRake) {
-    // A gambrel's gable: the roof edge and the rake board below it follow both slopes.
-    parts.push(`<polygon points="${P([...gTop, ...gEdge.slice().reverse()])}" fill="${roofC}" stroke="#222" stroke-width="0.5"/>`);
-    parts.push(`<polygon points="${P([...gEdge, ...gRake.slice().reverse()])}" fill="${trim}" stroke="#555" stroke-width="0.4"/>`);
+  } else if ((gTop && gEdge && gRake) || (sTop && sEdge && sRake)) {
+    // A gambrel's or a saltbox's gable: the roof edge and the rake board below it follow both slopes.
+    const [rt, re, rr] = /** @type {[number, number][][]} */ (gTop ? [gTop, gEdge, gRake] : [sTop, sEdge, sRake]);
+    parts.push(`<polygon points="${P([...rt, ...re.slice().reverse()])}" fill="${roofC}" stroke="#222" stroke-width="0.5"/>`);
+    parts.push(`<polygon points="${P([...re, ...rr.slice().reverse()])}" fill="${trim}" stroke="#555" stroke-width="0.4"/>`);
   } else {
     const band = roofThick + 0.75;
     parts.push(`<polygon points="${P([[-o, eaveZ], [F / 2, k.peak], [F + o, eaveZ], [F + o, eaveZ - band], [F / 2, k.peak - band / cosA], [-o, eaveZ - band]])}" fill="${roofC}" stroke="#222" stroke-width="0.5"/>`);
@@ -311,9 +357,12 @@ export function elevationSvg(shed, name) {
   vdim(rx, 0, k.peak, `${fmtFtIn(k.peak)} to peak`, 'peak');
   vdim(rx - fs * 2.6, 0, k.plateTop, `${fmtFtIn(k.plateTop)} to wall top`, 'wall');
   const lx = x0 - fs * 2.2;
-  vdim(lx, 0, k.floorTop, `floor ${fmtFtIn(k.floorTop)}`, 'floor', -1);
+  vdim(lx, 0, k.floorTop, k.floorless ? `timber ${fmtFtIn(k.floorTop)}` : `floor ${fmtFtIn(k.floorTop)}`, 'floor', -1);
   // Pitch: a little triangle on the roof (gable ends) or a note above it (eave sides).
-  if (gam) {
+  if (salt) {
+    // A saltbox: both slopes, named, on every side.
+    dims.push(`<g class="dim pitch"><text x="${(F / 2).toFixed(2)}" y="${(Y(k.peak) - fs * 0.6).toFixed(2)}" text-anchor="middle" font-size="${fs}">${salt.back.pitch}/12 roof pitch at the back, ${salt.front.pitch}/12 at the front (saltbox); ridge ${fmtFtIn(k.peak)} up</text></g>`);
+  } else if (gam) {
     dims.push(`<g class="dim pitch"><text x="${(F / 2).toFixed(2)}" y="${(Y(k.peak) - fs * 0.6).toFixed(2)}" text-anchor="middle" font-size="${fs}">${d.pitch}/12 roof pitch above the bend, ${d.gambrelLower}/12 below it (gambrel); peak ${fmtFtIn(k.peak)} up</text></g>`);
   } else if (!eave) {
     const bx = F * 0.12; const bz = roofTop(F * 0.12) + fs * 2.2; const run = Math.max(12, F * 0.12);
@@ -368,12 +417,20 @@ export function planSvg(shed) {
   const parts = [];
   const roofC = roofHex(d);
   parts.push(`<rect x="${X(-r)}" y="${Y(W + o)}" width="${X(L + 2 * r)}" height="${X(W + 2 * o)}" fill="${roofC}" fill-opacity="0.25" stroke="#222" stroke-width="${(fs * 0.08).toFixed(2)}" data-kind="roof"/>`);
-  parts.push(`<line x1="${X(-r)}" y1="${Y(W / 2)}" x2="${X(L + r)}" y2="${Y(W / 2)}" stroke="#222" stroke-width="${(fs * 0.08).toFixed(2)}" data-kind="ridge"/>`);
+  // The ridge: mid-width on a gable, off centre on a saltbox; a lean-to has none, only its high front edge.
+  const lean = d.style === 'leanTo';
+  const salt = d.style === 'saltbox';
+  const yR = shed.dims.ridgeY ?? W / 2;
+  if (!lean) parts.push(`<line x1="${X(-r)}" y1="${Y(yR)}" x2="${X(L + r)}" y2="${Y(yR)}" stroke="#222" stroke-width="${(fs * 0.08).toFixed(2)}" data-kind="ridge"/>`);
   parts.push(`<rect x="0" y="${Y(W)}" width="${L}" height="${W}" fill="none" stroke="#444" stroke-width="${(fs * 0.07).toFixed(2)}" stroke-dasharray="${fs * 0.5} ${fs * 0.3}" data-kind="walls"/>`);
   const t = (x, y, text, size = fs, anchor = 'middle', extra = '') => parts.push(`<text x="${X(x)}" y="${Y(y)}" text-anchor="${anchor}" font-size="${size.toFixed(2)}"${extra}>${esc(text)}</text>`);
-  t(L / 2, W / 2 + fs * 0.4, 'RIDGE', fs * 0.8);
-  t(L / 2, W * 0.25, `slope down ${d.pitch}/12`, fs * 0.8);
-  t(L / 2, W * 0.75 + fs * 0.6, `slope down ${d.pitch}/12`, fs * 0.8);
+  if (lean) {
+    t(L / 2, W / 2, `one slope, down ${d.pitch}/12 from the front to the back`, fs * 0.8);
+  } else {
+    t(L / 2, yR + fs * 0.4, 'RIDGE', fs * 0.8);
+    t(L / 2, salt ? yR / 2 : W * 0.25, `slope down ${salt ? d.frontPitch : d.pitch}/12`, fs * 0.8);
+    t(L / 2, salt ? (yR + W) / 2 + fs * 0.6 : W * 0.75 + fs * 0.6, `slope down ${d.pitch}/12`, fs * 0.8);
+  }
   t(L / 2, -o - fs * 3.6, 'FRONT', fs, 'middle', ' font-weight="700"');
   // Each door and window, as a thick mark on its wall line with its width.
   for (const f of shed.fixtures.filter((x) => x.kind === 'door' || x.kind === 'window')) {
@@ -413,19 +470,48 @@ function hexToRgb(h) {
 
 /**
  * The site plan sheet from the plan set, when you have typed a lot; null
- * otherwise (and on a build of the plan set that has no site plan).
+ * otherwise (and on a build of the plan set that has no site plan). Drawn
+ * without the plan set's title block: the packet page has its own header,
+ * footer and disclaimer.
  * @param {Shed} shed
  */
 export function siteSheetSvg(shed) {
   const site = buildSheets(shed).find((s) => s.id === 'site');
-  return site ? sheetSvg(site, { name: shed.design.name }) : null;
+  return site ? sheetSvg(site, { name: shed.design.name, bare: true, height: 700 }) : null;
+}
+
+/**
+ * The corners the packet's 3D view can be seen from: the viewer's orbit angle
+ * (front is -pi/2, as in renders.mjs) and the two walls each shows.
+ */
+export const CORNERS = {
+  'front-right': { label: 'front and right side', theta: -0.95, walls: ['front', 'right'] },
+  'front-left': { label: 'front and left side', theta: -Math.PI + 0.95, walls: ['front', 'left'] },
+  'back-left': { label: 'back and left side', theta: Math.PI - 0.95, walls: ['back', 'left'] },
+  'back-right': { label: 'back and right side', theta: 0.95, walls: ['back', 'right'] },
+};
+
+/**
+ * The corner to show: the one asked for, or ('auto') the one that shows the
+ * door, with the most windows as the tie-break, front-right first.
+ * @param {any} design
+ * @param {string} [choice]
+ * @returns {keyof typeof CORNERS}
+ */
+export function cornerFor(design, choice = 'auto') {
+  if (choice in CORNERS) return /** @type {keyof typeof CORNERS} */ (choice);
+  const ops = design.openings || [];
+  const score = (/** @type {string[]} */ walls) => ops.reduce((t, o) => t + (walls.includes(o.wall) ? (o.kind === 'door' ? 100 : 1) : 0), 0);
+  let best = /** @type {keyof typeof CORNERS} */ ('front-right');
+  for (const k of /** @type {(keyof typeof CORNERS)[]} */ (Object.keys(CORNERS))) if (score(CORNERS[k].walls) > score(CORNERS[best].walls)) best = k;
+  return best;
 }
 
 /**
  * The whole packet as HTML pages, ready to print. `perspective` is a PNG data
  * URL of the 3D view, or null to leave it out.
  * @param {Shed} shed
- * @param {{ perspective?: string|null, date?: string }} [opts]
+ * @param {{ perspective?: string|null, date?: string, corner?: string }} [opts]
  */
 export function packetHtml(shed, opts = {}) {
   const d = shed.design;
@@ -437,14 +523,15 @@ export function packetHtml(shed, opts = {}) {
   const fig = (v) => `<figure class="hoa-fig">${elevationSvg(shed, v)}<figcaption>${esc(v[0].toUpperCase() + v.slice(1))} elevation, ${v === 'front' || v === 'back' ? 'eave side' : 'gable end'}</figcaption></figure>`;
   const summary = `<table class="hoa-summary">${rows.map(([a, b]) => `<tr><th>${esc(a)}</th><td>${esc(b)}</td></tr>`).join('')}</table>`;
   const colours = `<p class="hoa-colours">${d.siding ? swatch(fin.hex, `Siding: ${fin.name}`) : ''}${swatch(roofHex(d), `Roof: ${roofName(d)}`)}${swatch(trimHex(d), `Trim: ${trimName(d)}`)}${d.doorColor && d.doorColor !== 'stained' ? swatch(hex(paletteOf(d).door), `Door: ${doorName(d)}`) : ''}</p>`;
-  const persp = opts.perspective ? `<figure class="hoa-fig hoa-3d"><img src="${opts.perspective}" alt="3D view of the finished shed"><figcaption>3D view of the finished shed</figcaption></figure>` : '';
+  const seen = opts.corner && CORNERS[opts.corner] ? `, seen from the ${CORNERS[opts.corner].label}` : '';
+  const persp = opts.perspective ? `<figure class="hoa-fig hoa-3d"><img src="${esc(opts.perspective)}" alt="3D view of the finished shed${esc(seen)}"><figcaption>3D view of the finished shed${esc(seen)}</figcaption></figure>` : '';
   return [
     page('Summary', `<h1>${esc(d.name)}: exterior design for HOA review</h1><div class="hoa-cover-grid"><div>${summary}${colours}</div>${persp}</div>`, 'hoa-cover'),
     page('Front and back elevations', fig('front') + fig('back')),
     page('Left and right elevations', fig('left') + fig('right')),
     page('Roof and footprint plan', `<figure class="hoa-fig hoa-planfig">${planSvg(shed)}<figcaption>Seen from above, front wall at the bottom: the roof outline with its overhangs, the ridge, the walls (dashed) and where each door and window sits.</figcaption></figure>`),
     page('Site plan', site
-      ? `<figure class="hoa-fig hoa-site">${site}<figcaption>Where the shed goes, with its distance to each lot line and the house, as typed. Not a survey.</figcaption></figure>`
+      ? `<figure class="hoa-fig hoa-site">${site}<figcaption>Where the shed goes, with its distance to each lot line and the house, as typed. Not a survey.${esc(/ Add [^.]* before you submit it\./.exec(buildSheets(shed).find((x) => x.id === 'site')?.note || '')?.[0] || '')}</figcaption></figure>`
       : '<div class="hoa-nosite"><p><strong>No site plan yet.</strong> Type your lot, where the shed sits on it and your house under "Site plan" in Shed Designer, and this page shows the shed on the lot with its distance to each lot line and the house.</p><p>Until then, sketch it here: lot lines, the house, the shed, and the distance from the shed to each lot line.</p></div>', 'hoa-sitepage'),
   ].join('\n');
 }

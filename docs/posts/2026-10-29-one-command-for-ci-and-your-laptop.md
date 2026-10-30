@@ -1,5 +1,6 @@
 ---
 title: "One command for CI and your laptop: removing 418 copies of one workflow"
+seo_title: "One command for CI and your laptop"
 date: 2026-10-29
 description: "How this monorepo went from 549 GitHub Actions workflows to 131, made its diff-scoped checks run locally, and found which venture tests the old setup never ran."
 tags: [ci, github-actions, engineering, monorepo]

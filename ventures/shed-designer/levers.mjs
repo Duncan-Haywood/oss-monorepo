@@ -50,8 +50,8 @@ export function floorMoves(d, set) {
 export const LOCKABLE = {
   siding: { label: 'Siding', keys: ['siding', 'sidingType', 'sidingColor', 'polkaDots', 'glitter'] },
   roofing: { label: 'Roofing', keys: ['roofing', 'roofCover', 'roofColor'] },
-  foundation: { label: 'Foundation', keys: ['foundation', 'pad', 'pierDepth', 'skidSize', 'skidSpacing', 'compaction'] },
-  floor: { label: 'Floor', keys: ['joistSize', 'joistSpacing', 'floorPanel'] },
+  foundation: { label: 'Foundation', keys: ['foundation', 'pad', 'pierDepth', 'blockSpacing', 'skidSize', 'skidSpacing', 'compaction'] },
+  floor: { label: 'Floor', keys: ['floor', 'joistSize', 'joistSpacing', 'floorPanel'] },
   doors: { label: 'Doors', keys: ['openings'] },
   windows: { label: 'Windows', keys: ['openings'] },
 };
@@ -80,4 +80,9 @@ export const LEVER_KNOBS = {
   joistSize: ['2x4', '2x6', '2x8'],
   joistSpacing: [16, 24],
   floorPanel: ['plywood', 'OSB'],
+  // No floor (walls on PT 4x6 timbers, a gravel floor) is a different shed, damper and open to
+  // burrowers: designsearch.mjs tries it only when asked (opts.knobs.floor) or when the design has it.
+  floor: ['framed', 'none'],
+  // Blocks or piers further apart along a skid: fewer of them, if the skid and soil checks pass.
+  blockSpacing: [48, 72],
 };

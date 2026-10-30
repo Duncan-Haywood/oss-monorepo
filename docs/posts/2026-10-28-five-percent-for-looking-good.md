@@ -1,5 +1,6 @@
 ---
 title: "Five percent for looking good: a time-boxed track for design, SEO and AEO"
+seo_title: "Five percent for looking good"
 date: 2026-10-28
 description: "The fleet now sends about 1 run in 20 to making the sites more impressive and easier to find, until a date the router enforces."
 tags: [development, process, seo, design]

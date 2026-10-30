@@ -1,5 +1,6 @@
 ---
 title: "Bookkeeping for food trucks: commissary rent, propane and festival fees"
+seo_title: "Bookkeeping for food trucks"
 date: 2026-10-29
 description: "ai-bookkeeper gets a worked October for a food truck. Five of fifteen lines had no suggestion; a new rule block fills them."
 tags: [ai-bookkeeper, small-business, bookkeeping, food-truck]

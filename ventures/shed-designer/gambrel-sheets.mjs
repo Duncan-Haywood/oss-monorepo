@@ -163,7 +163,7 @@ export function gambrelTrussDetail(shed) {
   items.push(text([W / 2, zr + 10], `peak: plumb cut, ${g.ridgeDeg} deg off square`, 8));
   return {
     id: 'truss', title: 'Gambrel truss detail',
-    note: `${d.rafterSize} chords, ${d.gambrelLower}/12 lower and ${d.pitch}/12 upper. Gussets (dashed): 15/32" plywood both faces, ${g.gusset.knee}" along each chord at the knees, ${g.gusset.peak}" at the peak; 8d commons 3" apart in rows 2" apart, staggered (${g.nailsPerKnee} a knee, ${g.nailsPerPeak} a peak, both faces). Snap the outline full size on the deck, screw stop blocks round it and build every truss in that jig.`,
+    note: `${d.rafterSize} chords, ${d.gambrelLower}/12 lower and ${d.pitch}/12 upper. Gussets (dashed): 15/32" plywood both faces, ${g.gusset.knee}" along each chord at the knees${g.gusset.kneeExt ? ` and reaching ${fmtIn(g.gusset.kneeExt)} past the chords' inside edges into the corner (deep enough across the mitre for the knee's bending)` : ''}, ${g.gusset.peak}" at the peak; 8d commons 3" apart in rows 2" apart, staggered (${g.nailsPerKnee} a knee, ${g.nailsPerPeak} a peak, both faces). Snap the outline full size on the deck, screw stop blocks round it and build every truss in that jig.`,
     items,
   };
 }
@@ -238,6 +238,8 @@ export function gambrelBuildSteps(shed, est, marks, qty, list) {
       `Lift each truss upside down between the walls, rotate it up, set its feet on the plates at its mark and toenail each foot with two 16d; fix each foot to the plate with a rafter-to-plate tie (on the list).`,
       `Nail a ${g.tieSize} ${loft ? 'loft joist' : 'tie'} (mark ${marks((m) => m.kind === 'rafter tie')}) on the plates beside every inside truss, ${g.heelNails} 16d commons into each lower chord: it holds the truss's outward push (the Structure tab shows the working). Do it before the next truss goes up, and keep the temporary braces on until the roof is sheathed.`,
       loft ? `Loft: set the joists against the inside of ${d.loft === 'full' ? 'each gable wall' : 'the right gable wall'} (mark ${marks((m) => m.kind === 'loft joist')}) on the long walls' plates, then lay the loft floor (${est.shopping.find((r) => /loft floor/.test(r.name))?.qty ?? 0} sheets on the list) across the joists, every end joint on a joist, glued and nailed 6" at the ends and 12" along each joist. It is sized for 20 psf of stored things, not for people; put a stop board along its open edge.` : '',
+      loft && d.loft === 'full' ? `Hatch: leave the floor out over ${shed.notes.find((n) => n.startsWith('Loft hatch'))?.replace(/^Loft hatch: /, '').replace(/, the ladder under it\.$/, '') ?? 'one bay'}, and fit the floor pieces round it, every edge on a joist or on a 2x4 block between joists.` : '',
+      loft && qty((m) => m.kind === 'ladder rail') ? `Ladder: cut the two rails (mark ${marks((m) => m.kind === 'ladder rail')}) with a level cut at the foot and a plumb cut at the top, stand them 16" apart in the clear leaning 1 in 4 against the ${d.loft === 'full' ? "hatch's" : "loft's edge"} joist, and screw each to the joist with three 3" screws. Fix the rungs (mark ${marks((m) => m.kind === 'ladder rung')}) flat between the rails 12" apart, glued, with two 3" screws through each rail into each end. Check it takes your weight before you load the loft.` : '',
     ].filter(Boolean),
     check: ['Every chord in one plane: sight along the knees and run a string along the peak.', 'Diagonals across the ties match.'],
   });

@@ -93,6 +93,18 @@ about, one paragraph above where it is described):
    2026-10-29 (docs/history/ci-local-first-2026-10-29.md). A per-venture
    workflow that does anything more (pytest, a build, a service) is fine.
 
+9. Every workflow a `pull_request` triggers declares a `concurrency:` group
+   (top level, or on every job). Agents push to an open PR several times in a
+   few minutes, and without a group each push queues a full new run while the
+   superseded ones keep their runners. On the free plan the account gets 20
+   concurrent jobs, so those stale runs are what kept every other PR queued
+   on 2026-10-30 (docs/reports/2026-10-30-actions-usage.md). The usual block
+   cancels superseded pull-request runs and keeps every `main` run:
+
+       concurrency:
+         group: ${{ github.workflow }}-${{ github.ref }}
+         cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 Usage: python3 platform/ci/validate_workflows.py
 """
 import re
@@ -206,6 +218,23 @@ def check(path, errors):
             "`timeout-minutes:` sized with headroom over the job's real runtime"
         )
 
+    # Invariant 9: a pull-request workflow collapses superseded runs.
+    if "pull_request" in _triggers(data) and "concurrency" not in data:
+        ungrouped = [
+            name
+            for name, body in jobs.items()
+            if isinstance(body, dict) and "concurrency" not in body
+        ]
+        if ungrouped:
+            err(
+                "runs on `pull_request` but declares no `concurrency:` group, so "
+                "every push to a PR queues another full run while the superseded "
+                "ones keep their runners (20 concurrent jobs on the free plan). "
+                "Add at top level: `concurrency: {group: ${{ github.workflow }}-"
+                "${{ github.ref }}, cancel-in-progress: ${{ github.event_name == "
+                "'pull_request' }}}`"
+            )
+
     for expr in sorted(reserved_github_refs(data)):
         err(
             f"references `{expr}`, whose name GitHub reserves -- a configuration "
@@ -227,6 +256,16 @@ def check(path, errors):
             "one. Guard it: `if [ \"$(git rev-parse --is-shallow-repository)\" = "
             "true ]; then git fetch --depth=1 ...; else git fetch ...; fi`"
         )
+
+
+def _triggers(data):
+    """The event names in a workflow's `on:`, whichever of its three shapes."""
+    on = data.get("on", data.get(True))
+    if isinstance(on, str):
+        return {on}
+    if isinstance(on, (list, dict)):
+        return set(on)
+    return set()
 
 
 # A `git fetch` carrying `--depth` / `--depth=N`, anywhere in a `run:` body.

@@ -1,5 +1,6 @@
 ---
 title: "Red team on the posts-per-day script: 8 of 8 seeded bugs caught, 2 real ones found"
+seo_title: "Red team on the posts-per-day script"
 date: 2026-10-28
 description: "We seeded eight faults into platform/ci/post_rate.py; the tests caught all eight. Reading it by hand still found two real bugs."
 tags: [redteam, testing, ci]
