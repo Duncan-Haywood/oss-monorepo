@@ -88,6 +88,8 @@
     <h2>Shifts to cover</h2>
     <label for="shifts">One requirement per line: day(s), start, end, people needed, label (optional)</label>
     <textarea id="shifts" spellcheck="false" placeholder="Mon-Fri, 6, 14, 2, open&#10;Sat, 12, 22, 2, close&#10;Fri, 22, 6, 1, night"></textarea>
+    <label for="import-shifts-file">…or convert a published-schedule export from another scheduler (one row per shift: date, start, end, position)</label>
+    <input id="import-shifts-file" type="file" accept=".csv,.tsv,.txt,text/csv,text/plain">
     <p class="note">Days can be a range (<code>Mon-Fri</code>) or a list (<code>Mon/Wed/Fri</code>). Times can be <code>9</code>, <code>9:30</code> or <code>9am</code>. An end at or before the start runs overnight into the next day. People needed makes that many separate shifts. To lock a shift to someone, add <code>fixed: Ana</code> as a last cell (use <code>fixed: Ana + Ben</code> to pin two copies); the tool plans everyone else around it.</p>
     <label for="file">…or upload a staff CSV</label>
     <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv,text/plain">
@@ -263,6 +265,7 @@
 
   <script type="module">
     import { importStaffCsv } from "./import-staff.mjs";
+    import { importShiftsCsv } from "./import-shifts.mjs";
     import { planWeeks, planFairness, parseAvailability, placeBreaks, placeRestBreaks, scheduleChanges, carryOverStaff, scheduleFlags, unsupervisedStretches, loneStretches, shortShifts, seventhDayPay, parseStaff, parseShifts, buildRoster, optimalityText, laborPercent, budgetCheck, dailyLabor, salesPerLaborHour, coverageGrid, fairnessReport, hoursThresholds, tipPool, trimOptions, coverOptions, absencePlan, swapOptions, checkTrade, rosterCsv, hoursCsv, rosterIcs, splitShiftPay, rosterMessages, openShiftPost, mergeAvailabilityReplies, sampleStaff, sampleShifts, TEMPLATES, fmtClock, money, money2, num, DAYS } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
@@ -573,6 +576,12 @@
       const f = e.target.files[0]; if (!f) return;
       const rd = new FileReader();
       rd.onload = () => { const r = importStaffCsv(String(rd.result)); if (r.rows) { $("#staff").value = r.staffText; persist(); } status.textContent = r.rows ? `Imported ${r.rows} ${r.rows === 1 ? "person" : "people"} from ${f.name}. ${r.notes.join(" ")}${r.skipped.length ? " Skipped: " + r.skipped.join("; ") + "." : ""}` : r.notes.join(" "); };
+      rd.readAsText(f);
+    });
+    $("#import-shifts-file").addEventListener("change", (e) => {
+      const f = e.target.files[0]; if (!f) return;
+      const rd = new FileReader();
+      rd.onload = () => { const r = importShiftsCsv(String(rd.result)); if (r.shifts) { $("#shifts").value = r.shiftsText; persist(); } status.textContent = r.shifts ? `Imported ${r.shifts} shift ${r.shifts === 1 ? "line" : "lines"} from ${f.name}. ${r.notes.join(" ")}${r.skipped.length ? " Skipped: " + r.skipped.join("; ") + "." : ""}` : r.notes.join(" "); };
       rd.readAsText(f);
     });
     $("#setup-file").addEventListener("change", (e) => {
