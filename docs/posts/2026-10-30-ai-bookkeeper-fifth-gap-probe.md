@@ -1,9 +1,9 @@
 ---
 title: "A fifth gap probe for ai-bookkeeper: 36 of 67 right before, 3 confidently wrong"
-seo_title: "Bank line categorizer test: dentists, landlords, gyms, freelance developers"
+seo_title: "Bank line categorizer test: dentists, landlords, gyms, developers"
 date: 2026-10-30
 tags: [ai-bookkeeper, evaluation, bookkeeping]
-description: "We wrote 67 bank descriptions for four kinds of small business and ran them through the built-in rules before changing anything: 36 right, 3 wrong, 28 no suggestion."
+description: "We ran 67 bank descriptions for four kinds of small business through the built-in rules before changing anything: 36 right, 3 wrong, 28 no suggestion."
 ---
 
 The earlier probes of [ai-bookkeeper](https://duncan-haywood.github.io/oss-monorepo/ai-bookkeeper/) covered trades, consultants, nonprofits, caterers and online sellers. This one covers four shapes they did not: freelance developers, dental and medical practices, landlords with a few rentals, and gyms and studios.
