@@ -75,7 +75,6 @@ export const LOWES = [
   { key: 'roofingNails', name: 'Grip-Rite 1-1/4 in. electro-galvanized roofing nails, 5 lb', model: '114EGRFG5', price: 17.98, url: 'https://www.lowes.com/pd/Grip-Rite-11-Gauge-Electro-Galvanized-Steel-Roofing-Nails-5-lbs/4744095', note: 'a copy about 1,443 days old; $20.98 on another page' },
   { key: 'trimNails', name: 'Fas-n-Tite 8d galvanized finish nails, 186 (per 168)', model: 'item 88565', price: per(7.98, 168, 186), url: 'https://www.lowes.com/pd/Fas-n-Tite-2-1-2-in-Gauge-Galvanized-Steel-Finish-Nails-1-lb/1000098208', note: '$7.98 for 186 nails, converted to the list\'s 168-nail box' },
   { key: 'connectorNails', name: 'Simpson 10d x 1-1/2 in. HDG connector nails, 120', model: 'category listing', price: 5.78, url: 'https://www.lowes.com/pl/fasteners/nails/framing-nails/simpson-strong-tie/10d/536545200-4294965588-4294736589', note: '$5.57 also seen' },
-  { key: 'rafterHanger', name: 'Simpson Strong-Tie LUS26', model: 'item 51752', price: 1.58, url: 'https://www.lowes.com/pd/Simpson-Strong-Tie-LUS26-2-x-6-Double-Shear-Hanger/1187273', note: 'a copy 5-6 years old' },
   { key: 'hurricaneTie', name: 'Simpson Strong-Tie H2.5A', model: 'H2.5A', price: 0.68, url: 'https://www.lowes.com/pd/Simpson-Strong-Tie-H2-5A-18-Gauge-Galvanized-Hurricane-Tie/1002748772', note: 'a copy about 1,738 days old' },
   { key: 'caulk', name: 'DAP Dynaflex 230, 10.1 oz', model: '18300', price: 7.08, url: 'https://www.lowes.com/pd/DAP-Dynaflex-230-10-1-oz-White-Paintable-Latex-Caulk/1000191841', note: 'a copy about 1,591 days old' },
   { key: 'flashingTape', name: 'RELIABILT 4 in. x 75 ft butyl self-adhesive flashing', model: 'category listing', price: 34.98, url: 'https://www.lowes.com/pl/roofing/flashings/reliabilt/4294524190-811991473980', note: "read 2026-10-30 from a search result's copy of the page of the category page; another category page showed $36.98" },
@@ -87,6 +86,7 @@ export const LOWES = [
   // Door hardware
   { key: 'tHinge', name: 'RELIABILT 8 in. zinc tee hinge', model: '33029ZCLLG', price: 8.64, url: 'https://www.lowes.com/pd/ReliaBilt-RB-8-IN-ZN-EXT-HD-T-HINGE/5001634819' },
   { key: 'hasp', name: 'Gatehouse 3-1/2 in. galvanized safety hasp', model: '605543', price: 7.25, url: 'https://www.lowes.com/pd/Gatehouse-3-1-2-in-Galvanized-Fixed-Staple-Hasps/4777896', note: '$7.98 on a category page' },
+  { key: 'caneBolt', name: 'National Hardware 5/8 x 18 in. zinc cane bolt', model: 'item 4103312, model N166-007', price: 17.98, url: 'https://www.lowes.com/pd/National-Hardware-N166-007-Cane-Bolt-in-Zinc-Plated-5-8-in-x-18-in/5005330917', note: 'read 2026-10-30 from a search result; a copy about 716 days old' },
   { key: 'doorPull', name: 'Gatehouse 5-1/2 in. zinc gate pull', model: 'product 3353260', price: 5.38, url: 'https://www.lowes.com/pd/Gatehouse-Gate-pull-5-1-2-in-Zinc-Gate-Pull/3353260' },
   // Foundation and site
   { key: 'deckBlock', name: 'concrete deck block, 11 x 11 x 7 in.', model: 'category listing', price: 8.98, url: 'https://www.lowes.com/pl/concrete-cement-masonry/deck-block/242869498-721802947237', note: '$7.88-$9.98 across pages' },
