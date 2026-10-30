@@ -1,0 +1,69 @@
+{
+  "label": "session A r2 (after suite)",
+  "probed_at": "2026-10-30T22:16:25Z",
+  "specs": {
+    "hostname": "vm",
+    "kernel": "6.18.44-fc-v185",
+    "hypervisor": "KVM",
+    "firecracker": true,
+    "cpu_model": "Intel(R) Xeon(R) Processor @ 2.80GHz",
+    "cpu_mhz_reported": 2799.998,
+    "cpu_family_model_stepping": [
+      "6",
+      "85",
+      "7"
+    ],
+    "vcpus": 4,
+    "threads_per_core": "1",
+    "l2": "4 MiB (4 instances)",
+    "l3": "33 MiB (1 instance)",
+    "avx2": true,
+    "avx512f": true,
+    "avx512_vnni": true,
+    "amx": false,
+    "sha_ni": false,
+    "cpu_generation_guess": "Skylake-SP / Cascade Lake (stepping 7 = Cascade Lake)",
+    "mem_total_gib": 15.71,
+    "mem_available_gib": 15.07,
+    "process_cgroup_mem_limit_gib": 13.36,
+    "swap_gib": 0.0,
+    "shm_gib": 15.7,
+    "root_fs_size_gib": 252.0,
+    "root_fs_used_gib": 10.0,
+    "root_fs_avail_gib": 28.5,
+    "gpu": null,
+    "uptime_s": 1532.36,
+    "loadavg": "5.65 6.14 3.54 1/112 4544",
+    "cpu_pressure": "some avg10=4.34 avg60=38.06 avg300=39.54 total=240541608\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+    "python": "3.13.17",
+    "node": "v22.22.0"
+  },
+  "cpu": {
+    "sha256_mb_s_1core": 319.8,
+    "sha256_mb_s_2proc": 593.2,
+    "scaling_2proc": 1.86,
+    "sha256_mb_s_4proc": 1081.8,
+    "scaling_4proc": 3.38,
+    "sha256_mb_s_8proc": 1219.5,
+    "scaling_8proc": 3.81,
+    "py_loop_10m_s": 1.2
+  },
+  "memory": {
+    "first_touch_gib_s": 1.66,
+    "warm_memcpy_gib_s": 9.08,
+    "allocated_and_touched_gib": 9.5,
+    "alloc_gib_s": 0.17
+  },
+  "disk": {
+    "seq_write_fsync_mb_s": 597.6,
+    "seq_read_mb_s": 1498.3,
+    "fsync_4k_per_s": 2513,
+    "create_small_files_per_s": 23043
+  },
+  "network": {
+    "https_proxy_set": true,
+    "npm_registry_fetch_s_median": 0.125,
+    "npm_registry_body_kb": 6936,
+    "npm_registry_mb_s": 71.4
+  }
+}
