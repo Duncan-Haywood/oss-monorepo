@@ -505,21 +505,84 @@ export function anchorage(shed) {
     { dir: 'on a gable end', F: p * W * (wall + rise / 2), M: p * W * (wall * (wall / 2) + (rise / 2) * (wall + rise / 3)), arm: L / 2, base: L },
   ];
   let worst = null;
+  const all = [];
   for (const x of dirs) {
     const over = 0.6 * (x.M + U * x.arm); // ft-lb, the wind's moment (heights above the skid bottoms)
     const resist = 0.6 * Wt * x.arm;
     const ratio = over / resist;
     const holdDown = Math.max(0, (over - resist) / x.base / 2);
-    if (!worst || ratio > worst.ratio) worst = { ...x, over, resist, ratio, holdDown, weight: Wt, uplift: U, z0: zb };
+    const one = { ...x, over, resist, ratio, holdDown, weight: Wt, uplift: U, z0: zb };
+    all.push(one);
+    if (!worst || ratio > worst.ratio) worst = one;
   }
   const a = /** @type {NonNullable<typeof worst>} */ (worst);
-  return { ...a, tipsAtPsf: a.ratio > 0 ? p / a.ratio : Infinity };
+  return { ...a, tipsAtPsf: a.ratio > 0 ? p / a.ratio : Infinity, dirs: all };
+}
+
+/**
+ * Ground anchor kits, by the anchorage setting. Tie Down Engineering's
+ * double-head auger anchors with 8 ft G60 straps and slotted tensioning bolts,
+ * four to a kit. The maker's instruction sheet 08465 (D2048, Rev. 5/21/24)
+ * says every kit is "HUD Compliant, tested to 4725 lbs. for 3150 lbs. working
+ * load with 1.5 safety factor", and lists the 30" kit (59800) as RADCO Class 2
+ * and the 48" kit (59802) as Class 4a. The class is the soil the rating holds
+ * in, read with a soil test probe (the maker's catalog D2109): class 2 is
+ * very dense or cemented sands, coarse gravel, cobbles; class 4a loose to
+ * medium-dense sands and firm to stiff clays. Softer soil (class 4b, under
+ * 276 in-lb on the probe) is outside both ratings.
+ */
+export const ANCHOR_KITS = {
+  48: { item: 'anchorKit48', model: 'Tie Down 59802', length: 48, soil: 'class 4a (loose to medium-dense sand, firm to stiff clay) or firmer', working: 3150 },
+  30: { item: 'anchorKit30', model: 'Tie Down 59800', length: 30, soil: 'class 2 (very dense sand, coarse gravel, cobbles)', working: 3150 },
+};
+/** Allowable uplift of a Simpson H2.5A, SPF/HF, load duration 160 (C-C-2024), as at the rafter ties. */
+const SKID_TIE_LB = RAFTER_TIES.birdsmouth.uplift;
+/** The strap's slope from vertical, and its line in plan: along the corner's diagonal, 45 degrees to each wall. */
+const STRAP_SLOPE = Math.PI / 4;
+
+/**
+ * The shed's anchors at its four corners, against overturning and sliding
+ * (ASD 0.6D + 0.6W, as anchorage()). Each strap wraps the outer skid at the
+ * corner, as the maker's sheet wraps a beam, and runs down at 45 degrees to an
+ * anchor set out along the corner's diagonal, so one strap holds both up and
+ * sideways. For each wind direction the two windward corners take:
+ * - V, the hold-down anchorage() works out;
+ * - H, half the wind's whole sideways push, 0.6W on the face from the skid
+ *   bottoms to the ridge. Friction under the blocks or skids is not counted
+ *   (uplift can take the weight off them), so the straps hold it all.
+ * The strap's pull is the larger of V / cos 45 and H / (sin 45 cos 45), as its
+ * plan line is 45 degrees off the wind. The ratio is that pull over the kit's
+ * 3,150 lb working load. The floor frame is tied to the outer skid at each
+ * corner with enough H2.5A ties (615 lb each) for V.
+ * Null with anchors set to none.
+ * @param {import('./model.mjs').Shed} shed
+ */
+export function groundAnchors(shed) {
+  const d = shed.design;
+  const kit = /** @type {Record<string, typeof ANCHOR_KITS[48]>} */ (ANCHOR_KITS)[d.anchors];
+  if (!kit) return null;
+  const a = anchorage(shed);
+  const c = Math.cos(STRAP_SLOPE);
+  const sn = Math.sin(STRAP_SLOPE);
+  const plan = Math.cos(Math.PI / 4);
+  let worst = null;
+  for (const x of a.dirs) {
+    const V = x.holdDown;
+    const H = (0.6 * x.F) / 2;
+    const pull = Math.max(V / c, H / (sn * plan));
+    if (!worst || pull > worst.pull) worst = { dir: x.dir, V, H, pull, governs: V / c >= H / (sn * plan) ? 'overturning' : 'sliding' };
+  }
+  const w = /** @type {NonNullable<typeof worst>} */ (worst);
+  const ties = Math.max(1, Math.ceil(Math.max(...a.dirs.map((x) => x.holdDown)) / SKID_TIE_LB - 1e-9));
+  return { kit, ...w, ratio: w.pull / kit.working, ties, tieLb: SKID_TIE_LB, anchorage: a };
 }
 
 /** One sentence on anchoring, for the Structure tab and the build instructions. */
 export function anchorageText(shed) {
   const a = anchorage(shed);
   const w = shed.design.windLoad;
+  const g = groundAnchors(shed);
+  if (g && a.ratio > 1) return `The shed weighs about ${(Math.round(a.weight / 10) * 10).toLocaleString('en-US')} lb (framing and sheets only, counted low). Wind ${a.dir} would tip it at about ${Math.floor(a.tipsAtPsf)} psf, so it is held down by four ${g.kit.length}" ground anchors (${g.kit.model}): at ${w} psf each windward strap pulls about ${Math.ceil(g.pull / 10) * 10} lb against the kit's ${g.kit.working.toLocaleString('en-US')} lb working load in soil ${g.kit.soil}.`;
   const lead = `The shed weighs about ${(Math.round(a.weight / 10) * 10).toLocaleString('en-US')} lb (framing and sheets only, counted low), and nothing in these plans ties it to the ground.`;
   if (a.ratio <= 1) return `${lead} At ${w} psf its weight holds it down with ${Math.round((1 / a.ratio - 1) * 100)}% to spare (wind ${a.dir}, ASD 0.6D + 0.6W); it would tip at about ${Math.floor(a.tipsAtPsf)} psf.`;
   return `${lead} Wind ${a.dir} tips it at about ${Math.floor(a.tipsAtPsf)} psf (ASD 0.6D + 0.6W), so at the ${w} psf you set it needs anchors: ground anchors or straps that hold about ${Math.ceil(a.holdDown / 10) * 10} lb at each windward corner, on all four corners as the wind can come from either side.`;
@@ -634,6 +697,13 @@ export function structuralChecks(shed) {
     add('Truss heels (uplift)', `${h.nails} ${GUSSET_NAIL.name}s into the bottom chord`, h.H <= 0
       ? `at ${wind} psf the roof's and ceiling's weight outweigh 0.6W on the truss, so its chords do not reverse`
       : `${Math.round(h.H)} lb reversed thrust at ${wind} psf (0.6W less 0.6 of the roof and ceiling weight, ${h.wNet.toFixed(1)} lb/ft on plan): ${Math.round(h.perNail)} lb a gusset nail at CD 1.6, and the ${d.tieSize} bottom chord in compression over ${fmtIn(h.le)}${h.braced && !trussChecks(d).king ? (d.atticStorage ? ' (braced by the attic deck)' : ' (braced at mid-span by a 2x4)') : ''}${h.slender > 50 ? `, le/d ${Math.round(h.slender)} past the NDS limit of 50 (3.7.1.4): a 2x4 brace nailed across the bottom chords at mid-span, tied to both gable ends, would halve it` : ''}`, h.ratio, h.governs);
+  }
+  // The shed to the ground: anchors against overturning and sliding, or with none, whether its weight holds it.
+  {
+    const g = groundAnchors(shed);
+    const a = g ? g.anchorage : anchorage(shed);
+    if (g) add('Ground anchors (overturning and sliding)', `four ${g.kit.length}" auger anchors with straps (${g.kit.model})`, `wind ${g.dir}: ${Math.round(g.V)} lb up and ${Math.round(g.H)} lb sideways at each windward corner (ASD 0.6D + 0.6W, friction not counted), so each strap at 45 degrees pulls ${Math.round(g.pull)} lb; ${g.kit.working.toLocaleString('en-US')} lb working load (maker's rating, HUD tested at 1.5 safety factor) in soil ${g.kit.soil}, read with a soil probe; the floor frame tied to the outer skid at each corner with ${g.ties} Simpson H2.5A (${g.tieLb} lb each)`, g.ratio, g.governs);
+    else add('Anchorage (none)', 'no ground anchors', `wind ${a.dir} tips the shed at about ${Math.floor(a.tipsAtPsf)} psf (ASD 0.6D + 0.6W, its weight counted low)${a.ratio > 1 ? '; nothing holds it down or stops it sliding' : ''}`, a.ratio, 'overturning');
   }
   // The walls against racking.
   {

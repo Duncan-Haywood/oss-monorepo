@@ -16,7 +16,7 @@
 // reviewed by an engineer.
 
 import { buildShed } from './model.mjs';
-import { structuralChecks, heelJoint, nailZ, skidOnBlocks, SOIL_PSF, rafterUplift, racking, bayPlates, eaveRoofPlf, ridgeBeamLoad } from './checks.mjs';
+import { structuralChecks, heelJoint, nailZ, skidOnBlocks, SOIL_PSF, rafterUplift, racking, bayPlates, eaveRoofPlf, ridgeBeamLoad, groundAnchors, anchorage } from './checks.mjs';
 import { trussForces } from './truss.mjs';
 import { connectionChecks } from './connections.mjs';
 import { check, roofCase, FLOOR, SPF2, T, DEPTH, designValues } from './structure.mjs';
@@ -292,6 +292,16 @@ export function utilisation(shed, sc = structuralChecks(shed)) {
       u.kinds = ['rafter', 'top chord', 'lower chord'];
       u.explain = 'Wind lifts the roof; the metal tie at each rafter end holds it to the wall plate.';
       u.ids = idsOf((m) => u.kinds.includes(m.kind));
+    } else if (row.member === 'Ground anchors (overturning and sliding)' || row.member === 'Anchorage (none)') {
+      const g = groundAnchors(shed);
+      const a = anchorage(shed);
+      u.inputs = [['Weight', `${n0(a.weight)} lb, framing and sheets only (counted low)`], ['Wind', `${d.windLoad} psf on the face and up under the roof`]];
+      u.parts = g
+        ? [{ name: g.governs, ratio: g.ratio, words: `Each windward corner holds ${n0(g.V)} lb up and ${n0(g.H)} lb sideways (wind ${g.dir}); a strap at 45 degrees pulls ${n0(g.pull)} lb against the ${g.kit.model} kit's ${n0(g.kit.working)} lb working load: ${pct(g.ratio)}.` }]
+        : [{ name: 'overturning', ratio: a.ratio, words: `The wind's moment ${n0(a.over)} ft-lb against 0.6 of the weight's ${n0(a.resist / 0.6)} ft-lb: ${pct(a.ratio)}. It would tip at about ${Math.floor(a.tipsAtPsf)} psf.` }];
+      u.kinds = ['skid'];
+      u.explain = 'Wind pushes the shed sideways and lifts its roof; a shed this light needs anchors to stay put.';
+      u.ids = idsOf((m) => m.kind === 'skid');
     } else if (row.member === 'Wall bracing (racking)') {
       const r = racking(shed);
       u.parts = [{ name: 'shear', ratio: r.ratio, words: r.why }];
