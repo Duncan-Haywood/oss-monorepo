@@ -4,9 +4,10 @@ import { readFileSync } from 'node:fs';
 import { buildShed, defaultDesign, PRESETS } from './model.mjs';
 import { buildSheets } from './drawings.mjs';
 import { fmtFtIn, fmtIn } from './lumber.mjs';
-import { VIEWS, elevationSvg, packetHtml, packetSummary, sidingLook, encodeDesign, decodeDesign } from './hoa.mjs';
+import { VIEWS, elevationSvg, planSvg, packetHtml, packetSummary, sidingLook, encodeDesign, decodeDesign } from './hoa.mjs';
 
 const views = (html) => [...html.matchAll(/<svg[^>]*class="hoa-elev" data-view="(\w+)"/g)].map((m) => m[1]);
+const planned = (html) => /class="hoa-elev hoa-plan" data-view="plan"/.test(html);
 const texts = (svg) => [...svg.matchAll(/<text[^>]*>([^<]*)<\/text>/g)].map((m) => m[1].replace(/&quot;/g, '"').replace(/&amp;/g, '&'));
 
 for (const [key, make] of Object.entries(PRESETS)) {
@@ -16,6 +17,7 @@ for (const [key, make] of Object.entries(PRESETS)) {
     const k = shed.dims;
     const html = packetHtml(shed);
     assert.deepEqual(views(html).sort(), [...VIEWS].sort());
+    assert.ok(planned(html), 'roof and footprint plan');
     for (const v of VIEWS) {
       const svg = elevationSvg(shed, v);
       const t = texts(svg);
@@ -106,7 +108,7 @@ test('the packet makes no approval or permit claim and keeps the disclaimer on e
   const html = packetHtml(buildShed(defaultDesign()));
   assert.doesNotMatch(html, /permit-ready|HOA-approved|\bapproved\b|meets code|code-compliant/i);
   const pages = html.split('<section class="hoa-page').length - 1;
-  assert.equal(pages, 4);
+  assert.equal(pages, 5);
   assert.equal((html.match(/Not engineered or code-checked, and not an approval/g) || []).length, pages);
 });
 
@@ -127,4 +129,45 @@ test('the packet page has what its script looks up, the disclaimer, and the desi
   assert.match(html, /@page \{ size: letter landscape/);
   assert.match(readFileSync(new URL('./index.html', import.meta.url), 'utf8'), /id="hoa-packet"/);
   assert.match(readFileSync(new URL('./app.mjs', import.meta.url), 'utf8'), /hoa-packet\.html#d=\$\{encodeDesign\(design\(\)\)\}/);
+});
+
+for (const [key, make] of Object.entries(PRESETS)) {
+  test(`${key}: the roof plan gives the wall and roof sizes both ways and marks every door and window`, () => {
+    const shed = buildShed(make());
+    const d = shed.design;
+    const svg = planSvg(shed);
+    const t = texts(svg);
+    assert.ok(t.includes(`${fmtFtIn(d.length)} walls`));
+    assert.ok(t.includes(`${fmtFtIn(d.width)} walls`));
+    assert.ok(t.includes(`${fmtFtIn(d.width + 2 * d.overhang)} roof`));
+    assert.ok(t.some((s) => s.endsWith(' roof') && s.startsWith('about ')));
+    assert.ok(t.includes('FRONT') && t.includes('RIDGE'));
+    if (d.overhang > 0) assert.ok(t.includes(fmtIn(d.overhang)));
+    for (const kind of ['door', 'window']) {
+      const n = shed.framedOpenings.filter((o) => o.kind === kind).length;
+      assert.equal((svg.match(new RegExp(`data-kind="${kind}"`, 'g')) || []).length, n, `${kind} marks`);
+    }
+    // Every mark sits on a wall line.
+    for (const m of svg.matchAll(/<line x1="([\d.-]+)" y1="([\d.-]+)" x2="([\d.-]+)" y2="([\d.-]+)"[^>]*data-kind="(?:door|window)"/g)) {
+      const [x1, y1, x2, y2] = m.slice(1, 5).map(Number);
+      const onWall = (x1 === x2 && (Math.abs(x1) < 0.01 || Math.abs(x1 - d.length) < 0.01)) || (y1 === y2 && (Math.abs(y1 - (d.width + d.overhang)) < 0.01 || Math.abs(y1 - d.overhang) < 0.01));
+      assert.ok(onWall, m[0]);
+    }
+  });
+}
+
+test('elevations show the chosen door paint, blended shingle tabs, lap shadows and the eave shadow', () => {
+  const shed = buildShed({ ...defaultDesign(), sidingType: 'fiber cement', sidingColor: 'sage', doorColor: 'navy', roofColor: 'gray-brown blend' });
+  const front = elevationSvg(shed, 'front');
+  assert.match(front, /<rect[^>]*fill="#263352"[^>]*data-kind="door"/, 'navy door');
+  const tabFills = new Set([...front.matchAll(/<rect [^>]*fill="(#[0-9a-f]{6})" stroke="#[0-9a-f]{6}" stroke-width="0.15"/g)].map((m) => m[1]));
+  assert.ok(tabFills.size > 10, `shingle tabs vary in shade (${tabFills.size} shades)`);
+  assert.match(front, /fill="#000" fill-opacity="0.16"/, 'eave shadow');
+  assert.match(elevationSvg(shed, 'left'), /fill="#000" fill-opacity="0.14"/, 'rake shadow');
+  const html = packetHtml(shed);
+  assert.match(html, /Roof: gray-brown blend/);
+  assert.match(html, /Door: navy/);
+  assert.match(html, /Siding: fiber cement lap siding|sage green paint/);
+  // The same drawing every time: the tab pattern is seeded, not random.
+  assert.equal(elevationSvg(shed, 'front'), front);
 });
