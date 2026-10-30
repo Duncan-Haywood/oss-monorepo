@@ -9,6 +9,7 @@
 //   POST /inquiry          the website's form: becomes a scored lead; optional auto-reply and alert
 //   GET|POST /book         open times only (no family data); a request becomes a lead with
 //                          status "requested" that the sitter approves in the app
+//   POST /book/waitlist    a family asks to be told if a taken time opens up (waitlist-server.mjs)
 //   GET|POST /ref/<token>  a referee's private link: their words and two separate consents
 //   GET  /calendar.ics?t=  your sits as a feed your phone's calendar can subscribe to
 //   GET|PUT /api/desk      the desk as JSON (Authorization: Bearer ADMIN_KEY)
@@ -41,11 +42,13 @@ import { mergeAutomationState } from "./automations.mjs";
 import { automationRoutes, runAutomations } from "./automations-server.mjs";
 import { blogRoute, serverDraft } from "./content.mjs";
 import { loadDesk, atomicWrite, backupApi, backupDir, dailyBackup } from "./backup.mjs";
+import { mergeWaitlist } from "./waitlist.mjs";
+import { waitlistRoutes } from "./waitlist-server.mjs";
 
 const MAX_BODY = 64 * 1024;
 const MAX_DESK = 8 * 1024 * 1024;
 const MAX_LEADS = 2000;
-const FILES = { "/": "index.html", "/index.html": "index.html", "/engine.mjs": "engine.mjs", "/usage.mjs": "usage.mjs", "/taxes.mjs": "taxes.mjs", "/slots.mjs": "slots.mjs", "/intake.mjs": "intake.mjs", "/meet-and-greet.html": "meet-and-greet.html", "/references.mjs": "references.mjs", "/site.mjs": "site.mjs", "/print.mjs": "print.mjs", "/qr.mjs": "qr.mjs", "/automations.mjs": "automations.mjs", "/automations-ui.mjs": "automations-ui.mjs", "/content.mjs": "content.mjs", "/content-ui.mjs": "content-ui.mjs", "/byok.mjs": "byok.mjs", "/admin": "admin.html" };
+const FILES = { "/": "index.html", "/index.html": "index.html", "/engine.mjs": "engine.mjs", "/usage.mjs": "usage.mjs", "/taxes.mjs": "taxes.mjs", "/slots.mjs": "slots.mjs", "/intake.mjs": "intake.mjs", "/meet-and-greet.html": "meet-and-greet.html", "/references.mjs": "references.mjs", "/site.mjs": "site.mjs", "/print.mjs": "print.mjs", "/qr.mjs": "qr.mjs", "/automations.mjs": "automations.mjs", "/automations-ui.mjs": "automations-ui.mjs", "/content.mjs": "content.mjs", "/content-ui.mjs": "content-ui.mjs", "/byok.mjs": "byok.mjs", "/waitlist.mjs": "waitlist.mjs", "/waitlist-ui.mjs": "waitlist-ui.mjs", "/admin": "admin.html" };
 const TYPES = { html: "text/html; charset=utf-8", mjs: "text/javascript; charset=utf-8" };
 // The installable app (PWA) and the guide pages, so a self-hosted copy works offline and links resolve.
 for (const f of ["tabs.mjs", "sw.js", "manifest.webmanifest", "icon.svg", "icon-192.png", "icon-512.png", "icon-maskable-512.png", "apple-touch-icon.png", "babysitting-taxes.html", "how-to-start-a-babysitting-business.html", "how-much-to-charge-for-babysitting.html", "babysitting-references.html", "self-host.html"]) FILES[`/${f}`] = f;
@@ -98,12 +101,14 @@ export function handler(state, save, env = process.env, now = Date.now, fetchImp
   const msg = messenger(env, fetchImpl);
   const hits = new Map();
   const auto = automationRoutes(state, save, env, now, fetchImpl, msg.sitter);
+  const waitlist = waitlistRoutes(state, save, env, now, msg.sitter); // holds expire; POST /book/waitlist
   return async (req, res) => {
     const send = (code, body, type = TYPES.html, extra = {}) => { res.writeHead(code, { "content-type": type, "x-content-type-options": "nosniff", "referrer-policy": "no-referrer", ...extra }); res.end(body); };
     const url = new URL(req.url, "http://x");
     const today = localDate(now(), env.TZ);
     if (url.pathname === "/healthz") return send(200, "ok\n", "text/plain");
     if (await auto(req, url, send)) return;
+    if (await waitlist(req, url, send)) return;
     if (req.method === "GET" && FILES[url.pathname]) {
       const f = FILES[url.pathname];
       return send(200, readFileSync(new URL(f, dir)), TYPES[f.split(".").pop()]);
@@ -218,6 +223,7 @@ export function handler(state, save, env = process.env, now = Date.now, fetchImp
         const known = new Set(incoming.knownLeadIds || []);
         const fresh = state.desk.leads.filter((l) => !ids.has(l.id) && !known.has(l.id));
         incoming.automations = mergeAutomationState(state.desk.automations, incoming.automations);
+        incoming.waitlist = mergeWaitlist(state.desk.waitlist, incoming.waitlist, today); // keep families who joined through /book
         if (Array.isArray(incoming.references)) incoming.references = mergeReferences(state.desk, incoming.references); // keep answers that arrived by link
         state.desk = normalizeDesk(keepIntakes(state.desk, incoming)); // and info sheets families filled in
         state.desk.leads.push(...fresh);
