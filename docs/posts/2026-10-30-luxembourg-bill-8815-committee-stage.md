@@ -1,6 +1,8 @@
 ---
 title: "Luxembourg's e-invoicing bill 8815: where it stands on 30 October 2026"
 date: 2026-10-30
+description: "Where Luxembourg draft law 8815 on mandatory B2B e-invoicing stands after the 18 September Finance Committee hearing, and the 2028 dates."
+tags: [einvoice-preflight, e-invoicing, luxembourg]
 ---
 
 Luxembourg's draft law No. 8815 would make structured B2B e-invoicing
