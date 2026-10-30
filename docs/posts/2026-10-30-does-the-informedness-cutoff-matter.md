@@ -2,7 +2,7 @@
 title: "Does the 0.3 informedness cutoff matter? A sweep on LLM-coded audits"
 date: 2026-10-30
 tags: [llm-coding-inference, research, prediction-powered-inference]
-description: "A screen picks between pooled and coder-cell audits by the coder's estimated informedness. Sweeping its cutoff from 0.1 to 0.5 moved half-widths by under 1% once a prevalence guard was in place."
+description: "Sweeping the J_hat cutoff of a pooled-vs-coder-cell audit screen from 0.1 to 0.5 moved half-widths by under 1% once a prevalence guard was in place."
 ---
 
 The [llm-coding-inference](https://github.com/Duncan-Haywood/oss-monorepo/tree/main/research/llm-coding-inference) programme asks how many items a researcher must hand-code to get a valid interval from LLM-coded text. Its latest rule says: use the coder's own positive and negative cells as audit strata only if a 30% pilot shows the coder is informative (estimated J = sensitivity + specificity - 1 at least 0.3) and holds at least 20 human positives; otherwise pool.
