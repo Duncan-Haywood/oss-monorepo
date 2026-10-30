@@ -2068,6 +2068,34 @@ export function planFairness(plan, opts = {}) {
   return { weeks: weeks.length, rows, spread, flag: weeks.length > 0 && spread >= 2 * weeks.length, most: rows[0] || null, least: rows[rows.length - 1] || null };
 }
 
+// Longest run of consecutive worked days per person over a whole plan. The per-week check (`scheduleFlags.sevenDays`)
+// only sees seven days inside one Monday-to-Sunday week, so a run of Wed to the next Tue is missed; here a Sunday shift
+// joins a Monday shift of the following week. A shift counts on the day it starts. `flag` lists people whose run is
+// longer than `maxDays` (default 6). A report only: the search does not limit it, and it knows nothing about days
+// worked before the first planned week.
+export function planStreaks(plan, { maxDays = 6 } = {}) {
+  const weeks = (plan && plan.weeks) || [];
+  const worked = new Map();
+  weeks.forEach((w, k) => {
+    for (const a of (w.roster && w.roster.assignments) || []) {
+      if (!a.person) continue;
+      const set = worked.get(a.person) || new Set();
+      set.add(k * 7 + a.slot.day);
+      worked.set(a.person, set);
+    }
+  });
+  const rows = [...worked].map(([name, set]) => {
+    const days = [...set].sort((a, b) => a - b);
+    let best = 0, bestEnd = -1, run = 0;
+    days.forEach((d, i) => {
+      run = i > 0 && d === days[i - 1] + 1 ? run + 1 : 1;
+      if (run > best) { best = run; bestEnd = d; }
+    });
+    return { name, longest: best, from: bestEnd - best + 1, to: bestEnd };
+  }).sort((a, b) => b.longest - a.longest || a.name.localeCompare(b.name));
+  return { maxDays, rows, flag: rows.filter((x) => x.longest > maxDays) };
+}
+
 // Labor cost as a share of projected sales, against an optional target.
 // Returns null when sales is not a positive number. maxPayroll is the payroll
 // that would hit the target exactly; headroom is how much of it is unspent.

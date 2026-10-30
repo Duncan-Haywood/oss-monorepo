@@ -1652,3 +1652,21 @@ test("splitShiftPay: one premium hour per split or over-spread person-day, optio
   assert.equal(c.total, 30);
   assert.equal(splitShiftPay({}).total, 0);
 });
+
+import { planStreaks } from "./calc.mjs";
+
+test("planStreaks joins a Sunday shift to the next week's Monday and flags runs over six days", () => {
+  const a = (person, day) => ({ person, slot: { day, startMin: 600, endMin: 900 } });
+  // Ann: Thu..Sun of week 1 (4) + Mon..Wed of week 2 (3) = 7 in a row, though no single week has seven.
+  const w1 = { roster: { assignments: [3, 4, 5, 6].map((d) => a("Ann", d)).concat([a("Bo", 0), a("Bo", 2)]) } };
+  const w2 = { roster: { assignments: [0, 1, 2].map((d) => a("Ann", d)).concat([a("Bo", 0)]) } };
+  const s = planStreaks({ weeks: [w1, w2] });
+  assert.equal(s.rows[0].name, "Ann");
+  assert.equal(s.rows[0].longest, 7);
+  assert.equal(s.rows[0].from, 3);
+  assert.equal(s.rows[0].to, 9);
+  assert.deepEqual(s.flag.map((x) => x.name), ["Ann"]);
+  assert.equal(s.rows.find((x) => x.name === "Bo").longest, 1);
+  assert.equal(planStreaks({ weeks: [w1, w2] }, { maxDays: 7 }).flag.length, 0);
+  assert.deepEqual(planStreaks(null).rows, []);
+});
