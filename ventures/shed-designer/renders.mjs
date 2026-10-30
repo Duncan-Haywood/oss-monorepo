@@ -123,7 +123,7 @@ export function altFor(design, view) {
     ? `, showing ${[...groups].map(([k, n]) => { const [thing, where] = k.split('|'); return `${COUNT[n] || n} ${thing}${n > 1 ? 's' : ''}${where}`; }).join(' and ')}`
     : '';
   const sid = d.siding === false ? 'unsided' : `${colour} ${SIDING[d.sidingType] || 'siding'}`;
-  return `3D render of the ${name}, ${size}, seen ${viewOf(view)?.label || view}: ${sid}, ${cover}, ${d.pitch}/12 ${k.lean ? 'lean-to roof' : 'roof'}, ${fmtFtIn(k.peak)} to the ${k.lean ? 'high edge' : 'peak'}${what}.`;
+  return `3D render of the ${name}, ${size}, seen ${viewOf(view)?.label || view}: ${sid}, ${cover}, ${k.saltbox ? `${d.frontPitch}/12 and ${d.pitch}/12 saltbox roof` : `${d.pitch}/12 ${k.lean ? 'lean-to roof' : 'roof'}`}, ${fmtFtIn(k.peak)} to the ${k.lean ? 'high edge' : 'peak'}${what}.`;
 }
 
 /**

@@ -478,6 +478,11 @@ export function estimate(shed, prices = examplePrices()) {
       const n = r.boards.filter((b) => b.stock === Number(len)).length;
       if (n) line('Wall trim', label(k), n, 'piece', item(k), src(k));
     }
+    // With one stock length there is nothing shorter to fall back on, so say when it is longer than the haul limit.
+    const longest = Math.max(...r.boards.map((b) => b.stock));
+    if (d.maxHaulFt > 0 && longest > d.maxHaulFt * 12) {
+      notes.push(`Wall trim: ${d.wallTrim} trim comes in ${longest / 12} ft lengths only, longer than your ${d.maxHaulFt} ft haul limit. Have it delivered or cut to length where you buy it, or choose 1x4 trim.`);
+    }
   }
   // Trim paint: the face of every primed trim board (1x6 fascia, 1x4 or 5/4 rake,
   // corner boards and casings), two coats at the same 350 sq ft a gallon as the
@@ -622,7 +627,11 @@ export function estimate(shed, prices = examplePrices()) {
     line('Fasteners and sealants', label('sheathingNails'), Math.ceil((sheathingSheets * 60) / 478), 'box', item('sheathingNails'), src('sheathingNails'));
     if (panelSiding) {
       const sheets = shed.sidingFull.length + sidingUpperSheets(shed);
-      sidingNails(sheets * 60);
+      // LP panels: each shiplap joint double-nailed (16 more a sheet at 6" up an
+      // 8 ft edge), and the 7/16" panel on studs at 24" nailed at 6" in the field
+      // too (ESR-1301), another 16 a sheet.
+      const lp = d.sidingType.startsWith('LP SmartSide') ? 16 + (d.sidingType === 'LP SmartSide 7/16' && d.studSpacing > 16 ? 16 : 0) : 0;
+      sidingNails(sheets * (60 + lp));
     }
     // Lap siding: a nail at every stud in every course (140 to the 1 lb box), plus 10% for misses.
     if (lapCuts) sidingNails(lapCuts.nails * 1.1);

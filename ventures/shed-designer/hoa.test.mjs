@@ -141,7 +141,8 @@ for (const [key, make] of Object.entries(PRESETS)) {
     assert.ok(t.includes(`${fmtFtIn(d.width)} walls`));
     assert.ok(t.includes(`${fmtFtIn(d.width + 2 * d.overhang)} roof`));
     assert.ok(t.some((s) => s.endsWith(' roof') && s.startsWith('about ')));
-    assert.ok(t.includes('FRONT') && t.includes('RIDGE'));
+    // A lean-to has no ridge: its plan says which way the one slope falls.
+    assert.ok(t.includes('FRONT') && (d.style === 'leanTo' ? !t.includes('RIDGE') : t.includes('RIDGE')));
     if (d.overhang > 0) assert.ok(t.includes(fmtIn(d.overhang)));
     for (const kind of ['door', 'window']) {
       const n = shed.framedOpenings.filter((o) => o.kind === kind).length;
@@ -199,4 +200,18 @@ test('no shingle tab in an elevation has a negative or zero width', () => {
       assert.ok(widths.every((w) => w > 0), `${shed.design.name} ${v}: ${widths.filter((w) => w <= 0).join(', ')}`);
     }
   }
+});
+
+test('the door finish names what the door is: a site-built door takes the siding finish, a bought one its factory finish', async () => {
+  const { doorFinish } = await import('./hoa.mjs');
+  const { defaultDesign, normalize } = await import('./model.mjs');
+  const base = normalize({ ...defaultDesign(), sidingType: 'LP SmartSide lap', sidingColor: 'white' });
+  const site = { ...base, openings: base.openings.map((o) => (o.kind === 'door' ? { ...o, product: 'site-built' } : o)) };
+  assert.match(doorFinish(site), /site-built door skinned with the siding.*white paint/);
+  assert.doesNotMatch(doorFinish(site), /stained/i);
+  const bought = { ...base, openings: base.openings.map((o) => (o.kind === 'door' ? { ...o, product: 'masonite-3280-flush' } : o)) };
+  assert.match(doorFinish(bought), /factory finish/);
+  assert.match(doorFinish({ ...site, doorColor: 'match siding' }), /^same as the siding: white paint$/);
+  assert.doesNotMatch(doorFinish({ ...site, doorColor: 'match trim' }), /Same as the trim paint/);
+  assert.equal(doorFinish({ ...base, openings: base.openings.filter((o) => o.kind !== 'door') }), 'no doors');
 });
