@@ -998,6 +998,13 @@ test('the mirror names the same favicon file the front door writes', () => {
   assert.ok(APEX_ROOT_PATHS.has(`/${FAVICON_FILE}`));
 });
 
+test('a relative image the mirror does not store is not a dead link, but a missing page still is', () => {
+  const files = [{ slug: 'a', file: 'index.html', contents: '<img src="renders/hero.webp"><img src="b.PNG"><a href="gone.html">' }];
+  const problems = validateLinks(files);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0], /gone\.html/);
+});
+
 test('a root-absolute link is checked against the apex root, not the mirror', () => {
   // `validateLinks` resolves relative hrefs inside the venture directory. A
   // root-absolute href is answered by the front door's own document root
