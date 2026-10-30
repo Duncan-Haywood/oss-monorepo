@@ -435,7 +435,13 @@ jobs:
           PAGE_URL: ${{ needs.gate.outputs.base }}
         run: bash platform/pages/verify-live.sh "$PAGE_URL"
 
+      # Announcing is a courtesy to search engines, not part of publishing:
+      # a refusal (IndexNow answers 403 SiteVerificationNotCompleted while it
+      # first verifies a new host's key file, as on 2026-10-30) shows red on
+      # this step but must not hold back the GitHub Pages redirect deploy,
+      # which waits on this job.
       - name: Announce the deployed site to IndexNow
+        continue-on-error: true
         env:
           EXIT_NO_EGRESS: "3"
         run: |
