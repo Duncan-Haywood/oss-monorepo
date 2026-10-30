@@ -64,6 +64,8 @@ export const BUILT_IN = [
   ["6150", "out", /\badp\s+(totalsource|payroll|run)/],
   ["4000", "in", /(square|toast)\s*(inc\s*)?deposit|amazon\s+mktplace\s+pmts/],
   ["6060", "out", /sendgrid/],
+  // Second probe of ~95 descriptions (2026-10-30, saas-gaps.test.mjs): more SaaS names missed. Loans, card payments, Cash App/Venmo cashouts, warehouse clubs and bare check deposits stay unsuggested on purpose (principal, transfers, mixed baskets).
+  ["6060", "out", /taxjar|bill\.com|expensify|trello|hubspot/],
   ["6150", "out", /gusto (payroll|wages|net pay)(?!.*(fee|subscription|monthly))|gusto.*(tax|debit)/],
   ["6100", "out", /manduka|gaiam|hugger mugger|yoga ?props|pilates (reformer|equipment)|balanced body|merrithew/],
   ["6060", "out", /momence (subscription|monthly)|walla (subscription|monthly)|marianatek|pushpress/],
