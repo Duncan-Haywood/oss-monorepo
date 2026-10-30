@@ -36,6 +36,7 @@ function evaluate(d, prices) {
 function siteNote(shed) {
   const d = shed.design;
   const k = shed.dims;
+  if (k.floorless) return `No floor: strip and fill a pad 1 ft bigger than the shed all round (about ${k.gravelCuYd.toFixed(1)} cu yd of stone), lay four PT 4x6 timbers on it and frame the walls on them${k.postPiers ? `, with a pier dug ${d.pierDepth}" deep under each ridge-beam post` : ''}. The gravel is the floor: lower to step into and roll a mower onto, but damp and open to burrowing animals (see the notes).`;
   const block = /** @type {any} */ (BLOCKS)[d.foundation];
   if (!block) return `Strip the turf over a pad 1 ft bigger than the shed all round, lay fabric, then about ${k.gravelCuYd.toFixed(1)} cu yd of crushed stone in 4" lifts, compacted, and level. Drains well and spreads the load; the most digging and hauling.`;
   if (block.pier) return `${k.blockCount} holes dug ${d.pierDepth}" deep (set the depth to your frost line), a tube in each and ${k.pierBags} bags of concrete mixed and poured. The most digging and the most work, but nothing to settle or heave where the ground freezes; call 811 before digging.`;
@@ -83,10 +84,21 @@ export function leverOptions(design, prices) {
   {
     const name = (f, pad) => (f === 'gravel' ? 'Skids on a full gravel pad' : /** @type {any} */ (BLOCKS)[f].pier ? 'Skids on concrete piers in 12" form tubes' : `Skids on ${/** @type {any} */ (BLOCKS)[f].plural}, ${{ full: 'on a full gravel pad', 'under blocks': 'gravel only under each block', none: 'on tamped soil, no gravel' }[pad]}`);
     const rows = [];
+    // With no floor the foundation is the timbers on a pad; every skid foundation brings the framed floor back.
+    const floorless = start.floor === 'none';
+    if (floorless) rows.push(current('No floor: PT 4x6 timbers on a full gravel pad', siteNote));
     for (const f of ['gravel', ...Object.keys(BLOCKS)]) {
       for (const pad of f === 'gravel' ? ['full'] : /** @type {any} */ (BLOCKS)[f].pier ? ['none'] : ['full', 'under blocks', 'none']) {
-        const isCur = start.foundation === f && (f === 'gravel' || /** @type {any} */ (BLOCKS)[f].pier || start.pad === pad);
-        rows.push(isCur ? current(name(f, pad), siteNote) : row(name(f, pad), { foundation: f, pad }, siteNote));
+        const isCur = !floorless && start.foundation === f && (f === 'gravel' || /** @type {any} */ (BLOCKS)[f].pier || start.pad === pad);
+        rows.push(isCur ? current(name(f, pad), siteNote) : row(`${name(f, pad)}${floorless ? ', with a framed floor' : ''}`, { foundation: f, pad, ...(floorless ? { floor: 'framed' } : {}) }, siteNote));
+      }
+    }
+    // Blocks or piers further apart: fewer of them, each carrying more (the skid and soil checks decide).
+    const cur = /** @type {any} */ (BLOCKS)[start.foundation];
+    if (!floorless && cur) {
+      for (const s of [48, 60, 72, 96]) {
+        if (s === start.blockSpacing) continue;
+        rows.push(row(`${cur.pier ? 'Piers' : 'Blocks'} up to ${fmtFtIn(s)} apart along each skid`, { blockSpacing: s }, siteNote));
       }
     }
     groups.push({ title: 'Foundation', rows: rows.filter(Boolean), locked: isLocked() });
@@ -94,10 +106,18 @@ export function leverOptions(design, prices) {
   lockKey = 'floor';
   // Floor frame and subfloor.
   {
-    const rows = [current(`${start.joistSize} joists at ${start.joistSpacing}", ${start.floorPanel === 'OSB' ? 'OSB' : 'plywood'} subfloor`)];
-    for (const s of [16, 24]) if (s !== start.joistSpacing) rows.push(row(`Joists at ${s}"`, { joistSpacing: s }));
-    for (const sz of ['2x4', '2x6', '2x8']) if (sz !== start.joistSize) rows.push(row(`${sz} joists`, { joistSize: sz }));
-    rows.push(row(start.floorPanel === 'OSB' ? '23/32" T&G plywood subfloor' : '23/32" T&G OSB subfloor', { floorPanel: start.floorPanel === 'OSB' ? 'plywood' : 'OSB' }));
+    const framedName = `${start.joistSize} joists at ${start.joistSpacing}", ${start.floorPanel === 'OSB' ? 'OSB' : 'plywood'} subfloor`;
+    const rows = [];
+    if (start.floor === 'none') {
+      rows.push(current('No floor: the gravel pad is the floor', siteNote));
+      rows.push(row(`Framed floor: ${framedName}, on ${start.foundation === 'gravel' ? 'skids on the gravel' : `skids on ${/** @type {any} */ (BLOCKS)[start.foundation].plural}`}`, { floor: 'framed' }, siteNote));
+    } else {
+      rows.push(current(framedName));
+      for (const s of [16, 24]) if (s !== start.joistSpacing) rows.push(row(`Joists at ${s}"`, { joistSpacing: s }));
+      for (const sz of ['2x4', '2x6', '2x8']) if (sz !== start.joistSize) rows.push(row(`${sz} joists`, { joistSize: sz }));
+      rows.push(row(start.floorPanel === 'OSB' ? '23/32" T&G plywood subfloor' : '23/32" T&G OSB subfloor', { floorPanel: start.floorPanel === 'OSB' ? 'plywood' : 'OSB' }));
+      rows.push(row('No floor: walls on PT 4x6 timbers, the gravel pad is the floor', { floor: 'none' }, siteNote));
+    }
     groups.push({ title: 'Floor', rows: rows.filter(Boolean), locked: isLocked() });
   }
   lockKey = 'doors';

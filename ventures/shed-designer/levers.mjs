@@ -50,8 +50,8 @@ export function floorMoves(d, set) {
 export const LOCKABLE = {
   siding: { label: 'Siding', keys: ['siding', 'sidingType', 'sidingColor', 'polkaDots', 'glitter'] },
   roofing: { label: 'Roofing', keys: ['roofing', 'roofCover', 'roofColor'] },
-  foundation: { label: 'Foundation', keys: ['foundation', 'pad', 'pierDepth', 'skidSize', 'skidSpacing', 'compaction'] },
-  floor: { label: 'Floor', keys: ['joistSize', 'joistSpacing', 'floorPanel'] },
+  foundation: { label: 'Foundation', keys: ['foundation', 'pad', 'pierDepth', 'blockSpacing', 'skidSize', 'skidSpacing', 'compaction'] },
+  floor: { label: 'Floor', keys: ['floor', 'joistSize', 'joistSpacing', 'floorPanel'] },
   doors: { label: 'Doors', keys: ['openings'] },
   windows: { label: 'Windows', keys: ['openings'] },
 };

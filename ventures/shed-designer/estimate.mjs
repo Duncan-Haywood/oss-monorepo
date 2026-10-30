@@ -409,7 +409,7 @@ export function estimate(shed, prices = examplePrices()) {
         const jFt = openFt + (2 * d.length + 4 * (d.width / 2 / Math.cos(Math.atan(d.pitch / 12)))) / 12;
         line('Siding', label('vinylStarter'), Math.ceil((perimFt * 1.05) / 12), 'piece', item('vinylStarter'), src('vinylStarter'));
         line('Siding', label('vinylJ'), Math.ceil((jFt * 1.1) / 12.6), 'piece', item('vinylJ'), src('vinylJ'));
-        line('Siding', label('vinylCorner'), 4 * Math.ceil(((dims.highPlateTop ?? dims.plateTop) - dims.skidTop) / 120), 'piece', item('vinylCorner'), src('vinylCorner'));
+        line('Siding', label('vinylCorner'), 4 * Math.ceil(((dims.highPlateTop ?? dims.plateTop) - (dims.sidingBottom ?? dims.skidTop)) / 120), 'piece', item('vinylCorner'), src('vinylCorner'));
       } else if (shed.lap?.length) {
         lapCuts = lapPlan(shed, d, item);
         // Sheathing: one 4x8 per 4 ft column, strips above packed from whole sheets.
@@ -530,7 +530,8 @@ export function estimate(shed, prices = examplePrices()) {
   if (d.compaction === 'plate compactor') line('Site prep', label('plateCompactor'), 1, 'day', item('plateCompactor'), src('plateCompactor'));
   else line('Site prep', label('handTamper'), 1, 'each', item('handTamper'), src('handTamper'));
   if (dims.gravelCuYd) line('Site prep', label('gravelTon'), Math.ceil(dims.gravelCuYd * 1.4 * 10) / 10, 'ton', item('gravelTon'), src('gravelTon'));
-  if (dims.block?.pier) {
+  // Piers under the skids, or under the ridge-beam posts of a shed with no floor.
+  if (dims.block?.pier || dims.pierCount) {
     line('Foundation and hardware', label('formTube'), dims.pierTubes, 'each', item('formTube'), src('formTube'));
     line('Foundation and hardware', label('concreteBag'), dims.pierBags, 'bag', item('concreteBag'), src('concreteBag'));
   } else if (dims.block) line('Foundation and hardware', label(dims.block.item), dims.blockCount, 'each', item(dims.block.item), src(dims.block.item));

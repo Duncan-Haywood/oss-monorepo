@@ -352,7 +352,7 @@ export function lapSteps(shed, est) {
   const trimmed = d.wallTrim !== 'none';
   const eave = shed.lap.find((f) => f.wall === 'front');
   const gable = shed.lap.find((f) => f.wall === 'right');
-  const marks = (f) => f.courses.slice(0, 4).map((c) => fmtIn(c.zb - k.skidTop)).join(', ');
+  const marks = (f) => f.courses.slice(0, 4).map((c) => fmtIn(c.zb - (k.sidingBottom ?? k.skidTop))).join(', ');
   const joints = shed.lap.flatMap((f) => f.joints.map((j) => jointLabel(f, j)));
   const fc = d.sidingType === 'fiber cement';
   return [
