@@ -91,11 +91,14 @@ export const LAP_STOCKS = {
   'LP SmartSide lap': [{ length: 144, key: 'lapLP12' }, { length: 192, key: 'lapLP16' }],
 };
 
-/** The plank lengths this design may buy: those in its board lengths, or all of them when none is ticked. @param {any} d */
+/** The plank lengths this design may buy: those within the haul limit and in its board lengths (or all within the limit when none is ticked). @param {any} d */
 export function lapStocks(d) {
   const all = LAP_STOCKS[d.sidingType] || [];
-  const ticked = all.filter((x) => d.lengths.includes(x.length / 12));
-  return ticked.length ? ticked : all;
+  // The longest board you can haul applies to planks too; every product comes in 12 ft.
+  const haul = d.maxHaulFt > 0 ? all.filter((x) => x.length <= d.maxHaulFt * 12) : all;
+  const can = haul.length ? haul : all;
+  const ticked = can.filter((x) => d.lengths.includes(x.length / 12));
+  return ticked.length ? ticked : can;
 }
 
 /** How far apart butt joints in neighbouring courses must be, in inches. @param {any} d */

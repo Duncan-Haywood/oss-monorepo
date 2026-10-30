@@ -387,7 +387,7 @@ function renderStores(est, d) {
   }
 }
 
-/** "3 x 8' boards" or "8' board". @param {{ count: number, stock: number }} b */
+/** "3 x 8' boards" or "8' board". @param {{ count: number, stock: number, why?: string }} b */
 const boardName = (b) => `${b.count > 1 ? `${b.count} x ` : ''}${b.stock / 12}' board${b.count > 1 ? 's' : ''}${b.why ? ` <span class="muted">(${esc(b.why)})</span>` : ''}`;
 
 function renderCuts(est) {

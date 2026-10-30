@@ -63,6 +63,10 @@ At r3 lane 8's request (relayed by the parent), each lap product now carries `ma
 
 `lapStudLimit(d)` reads that figure, `sidingSpan()` in `simplify.mjs` uses it, and the built shed exposes it as `shed.sidingStudLimit`. Lane 1's right-sizing can take studs to 24" o.c. whenever lap is chosen. T1-11 and the 3/8" LP panel stay at 16".
 
+Lap planks also honour lane 5's "longest board I can haul" limit (`maxHaulFt`, default 12 ft), so engineered wood uses only 12 ft planks by default. That puts it at +$324 over T1-11, against +$314 with 16 ft planks.
+
+This PR also fixes three typecheck diagnostics left on `main` by PR #11550.
+
 ## Next steps
 
 1. **Lap direct to studs, braced another way.** Hardie allows studs up to 24" o.c.; LP's 3/8" lap allows 16". That saves the OSB ($128 on the 8x12) but needs let-in bracing or OSB only at the corners. It needs a racking check: see the r2 structure PR #11543 on racking.

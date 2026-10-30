@@ -31,7 +31,7 @@ test('the default 8x12 in fiber cement: no butt joints, 7" courses, OSB under it
 
 test('long walls: every butt joint on a stud, two stud bays from the course below for fiber cement at 16", one for LP', () => {
   for (const [type, sp, gap] of [['fiber cement', 16, 32], ['fiber cement', 24, 24], ['LP SmartSide lap', 16, 16]]) {
-    const shed = lap({ sidingType: type, length: 288, width: 144, studSpacing: sp });
+    const shed = lap({ sidingType: type, length: 288, width: 144, studSpacing: sp, maxHaulFt: 0 });
     assert.equal(lapStagger(shed.design), gap);
     const joints = shed.lap.flatMap((f) => f.joints.map((j) => ({ ...j, f })));
     assert.ok(joints.length > 0, `${type} has joints on a 24 ft wall`);
@@ -66,9 +66,11 @@ test('the order: planks from the cut plan, OSB, wrap, starter ripped from a plan
 });
 
 test('engineered wood lap uses only 12 ft planks when 16 ft boards are not ticked', () => {
-  const both = estimate(lap({ sidingType: 'LP SmartSide lap', length: 240 }));
+  // The default 12 ft haul limit keeps 16 ft planks off the order; with no limit the cut plan uses them.
+  assert.ok(estimate(lap({ sidingType: 'LP SmartSide lap', length: 240 })).lapCuts.boards.every((b) => b.stock === 144));
+  const both = estimate(lap({ sidingType: 'LP SmartSide lap', length: 240, maxHaulFt: 0 }));
   assert.ok(both.lapCuts.boards.some((b) => b.stock === 192));
-  const short = lap({ sidingType: 'LP SmartSide lap', length: 240, lengths: [8, 10, 12] });
+  const short = lap({ sidingType: 'LP SmartSide lap', length: 240, lengths: [8, 10, 12], maxHaulFt: 0 });
   const est = estimate(short);
   assert.ok(est.lapCuts.boards.every((b) => b.stock === 144));
   assert.ok(!est.shopping.some((l) => /8 in x 16 ft/.test(l.name)));
