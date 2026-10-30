@@ -32,7 +32,7 @@ permissions:
   contents: read
 
 jobs:
-  check:
+  conflict-markers:
     runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     # Checkout, Python setup, and a scan of tracked files for conflict
     # markers -- normally under 15s. See hetzner-gitops-ci.yml's

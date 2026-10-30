@@ -46,6 +46,8 @@
     .workspace { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 14px; }
     .jump { position: sticky; top: 0; z-index: 15; display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: center; padding: 8px 0; margin: 0 0 6px; background: var(--paper); border-bottom: 1px solid var(--line); font-size: .9rem; }
     html { scroll-padding-top: 64px; }
+    .jump { transition: opacity .15s; }
+    .jump.over-handle { opacity: .3; pointer-events: none; }
     .jump a, .jump .link { min-height: 32px; display: inline-flex; align-items: center; color: var(--accent2); font-weight: 600; }
     @media (max-width: 600px) { .jump { flex-wrap: nowrap; overflow-x: auto; white-space: nowrap; } }
     .editors { display: grid; gap: 14px; align-content: start; }
@@ -192,9 +194,14 @@
     .pick-img img, .pick-img .thumb-wait { width: 100%; height: auto; aspect-ratio: 3 / 2; border-radius: 8px; background: #edf1f5; display: grid; place-items: center; color: var(--muted); font-size: .8rem; }
     .pick-line { font-size: .85rem; font-weight: 600; }
     .pick-why { font-size: .8rem; color: var(--muted); }
+    .pick-more { margin-top: auto; padding-top: 6px; font-size: .85rem; font-weight: 600; color: var(--accent2); }
+    .pick-open:hover .pick-more { text-decoration: underline; }
     .pick-cmp { margin: 0 10px 10px; min-height: 44px; }
     .pick-cmp[aria-pressed="true"], .dlg-actions [aria-pressed="true"] { background: var(--accent2); color: #fff; }
-    .compare-tray { position: sticky; bottom: 8px; z-index: 5; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; background: var(--card); border: 1px solid var(--accent2); border-radius: 12px; padding: 8px 12px; margin: 0 0 12px; box-shadow: 0 4px 14px rgba(0,0,0,.12); }
+    /* Fixed to the bottom of the screen, so a design can be added from anywhere on the page and compared. */
+    .compare-tray { position: fixed; left: 50%; transform: translateX(-50%); bottom: max(8px, env(safe-area-inset-bottom)); width: min(760px, calc(100% - 24px)); box-sizing: border-box; z-index: 25; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; background: var(--card); border: 1px solid var(--accent2); border-radius: 12px; padding: 8px 12px; margin: 0; box-shadow: 0 4px 14px rgba(0,0,0,.18); }
+    body:has(#compare-tray:not([hidden])) { padding-bottom: 96px; }
+    @media print { .compare-tray { display: none !important; } }
     .compare-tray[hidden] { display: none; }
     .compare-tray > span { flex: 1 1 200px; font-size: .9rem; }
     .pick-dialog { width: min(1100px, calc(100vw - 16px)); max-height: calc(100dvh - 16px); padding: 0 16px 16px; border: 1px solid var(--line); border-radius: 14px; background: var(--card); color: var(--ink); box-sizing: border-box; }
@@ -324,7 +331,7 @@
         <button type="button" class="btn" id="starts-next" aria-label="Next design">&rarr;</button>
       </div>
     </div>
-    <p class="hint">Ten sheds under 100 sq ft (six in painted lap siding and asphalt shingles, to match a house), each picked from 2,400 designs this tool's search built and checked: every member at 90% of its capacity or less, a peak of 13 ft or less, nothing the model warns about, and the best on the measure its card names. Prices are worked out now at the prices below. Flick through with the arrows or a swipe; open one to see it from every side, what it costs and how much it holds; add two or three to Compare. "Start from this design" opens a copy in the editor below, to change as you like.</p>
+    <p class="hint"><span id="gallery-count">Sheds under 100 sq ft, many in painted lap siding and asphalt shingles to match a house</span>, each picked from 2,400 designs this tool's search built and checked: every member at 90% of its capacity or less, a peak of 13 ft or less, nothing the model warns about, and the best on the measure its card names. Prices are worked out now at the prices below. Flick through with the arrows or a swipe; open one to see it from every side, what it costs and how much it holds; add two or three to Compare. "Start from this design" opens a copy in the editor below, to change as you like.</p>
     <ul class="pick-list" tabindex="0" aria-label="Ready-made designs: arrow keys move through them"></ul>
   </section>
   <div id="compare-tray" class="compare-tray" role="region" aria-label="Designs to compare" hidden></div>
@@ -399,7 +406,7 @@
       <div class="toolrow"><label class="check"><input type="checkbox" id="show-dims" checked> Dimensions</label><label class="check"><input type="checkbox" id="show-outlines" checked> Board outlines</label><label class="check"><input type="checkbox" id="show-scenery" checked> Lawn and sky</label><label class="check"><input type="checkbox" id="heat-3d"> Colour by structural use</label></div>
       <p class="hint" id="heat-legend" hidden></p>
       <p class="hint" id="pick-info" aria-live="polite"></p>
-      <p class="hint">Click a board in the 3D view to see what it is, or "Show in 3D" on a line of the shopping list, cut sheet or parts list to see where its pieces go.</p>
+      <p class="hint">Click a board, sheet, siding course or the roof in the 3D view to see what it is and what it is bought as, or "Show in 3D" on a line of the shopping list, cut sheet or parts list to see where its pieces go.</p>
       <div class="xref" id="xref" hidden aria-live="polite"></div>
 
       <div class="panel summary" id="summary" aria-live="polite">
@@ -526,7 +533,8 @@
       <div class="fields">
         <label class="check"><input id="siding" type="checkbox"> Siding</label>
         <label>Siding type<select id="sidingType"><option value="T1-11">T1-11 plywood panels</option><option value="LP SmartSide">LP SmartSide 38 Series primed panels, 3/8"</option><option value="LP SmartSide 7/16">LP SmartSide 76 Series primed panels, 7/16"</option><option value="board and batten">Board and batten over OSB</option><option value="vinyl">Vinyl lap over OSB</option><option value="fiber cement">Fiber cement lap (HardiePlank-type), 7" exposure, over OSB and wrap</option><option value="LP SmartSide lap">Engineered wood lap (LP SmartSide-type), 6-13/16" exposure, over OSB and wrap</option></select></label>
-        <label>Wall trim<select id="wallTrim"><option value="1x4">1x4 corner boards and casings</option><option value="none">None</option></select></label>
+        <label>Wall trim<select id="wallTrim"><option value="1x4">1x4 corner boards and casings (3/4" primed pine)</option><option value="5/4">5/4 corner boards and casings (HardieTrim with fiber cement, LP 540 otherwise)</option><option value="none">None</option></select></label>
+        <label>Climate (picks the fiber cement plank)<select id="climate"><option value="mild">Mild winters (HardiePlank HZ10)</option><option value="freezing">Freezing winters (HardiePlank HZ5)</option></select></label>
         <label>Roof covering<select id="roofCover"><option value="shingles">Architectural shingles</option><option value="metal">Corrugated metal panels</option></select></label>
         <label>Siding colour<span class="swatchrow"><select id="sidingColor"></select><input type="color" id="sidingColor-custom" aria-label="Siding: pick any colour, or match a photo of your house"></span></label>
         <label class="check"><input id="polkaDots" type="checkbox"> Purple polka dots</label>

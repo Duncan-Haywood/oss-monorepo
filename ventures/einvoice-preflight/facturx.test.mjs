@@ -99,7 +99,8 @@ test("preflight of the shipped PDF carries the envelope note and not a custom na
     { name: "factur-x-invoice.pdf", source: example("factur-x-invoice.pdf") },
   ]);
   assert.equal(result.reports[0].envelope, "Unwrapped factur-x.xml (CII) from the PDF.");
-  assert.equal(result.reports[0].errors.length, 0);
+  // The example is hand-made with no XMP, so only the PDF/A-3 note is expected.
+  assert.deepEqual(result.reports[0].errors.map((e) => e.rule), ["PDF-001"]);
   assert.equal(result.reports[0].envelope.includes("notes"), false);
 });
 
