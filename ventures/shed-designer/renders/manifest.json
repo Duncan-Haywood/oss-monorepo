@@ -5,7 +5,7 @@
   "10x10-barn": {
    "key": "10x10 barn",
    "name": "10x10 gambrel barn with loft",
-   "hash": "1b20d22c10217494",
+   "hash": "cc3cafea79a74a88",
    "designKey": "eff39241",
    "files": {
     "hero": {
@@ -26,7 +26,7 @@
      "file": "10x10-barn-front.webp",
      "w": 480,
      "h": 320,
-     "bytes": 4970,
+     "bytes": 5012,
      "alt": "3D render of the 10x10 gambrel barn with loft, 10 by 10 ft, seen from the front: white siding, charcoal shingles, 6/12 roof, 13' 8-1/8\" to the peak, showing two 14\" windows."
     },
     "side": {
@@ -40,14 +40,14 @@
      "file": "10x10-barn-back.webp",
      "w": 480,
      "h": 320,
-     "bytes": 4092,
+     "bytes": 4080,
      "alt": "3D render of the 10x10 gambrel barn with loft, 10 by 10 ft, seen from the back: white siding, charcoal shingles, 6/12 roof, 13' 8-1/8\" to the peak."
     },
     "framing": {
      "file": "10x10-barn-framing.webp",
      "w": 640,
      "h": 427,
-     "bytes": 22552,
+     "bytes": 22316,
      "alt": "Framing of the 10x10 gambrel barn with loft (10 by 10 ft) with the siding, sheathing and roofing removed: studs at 24\" on centre, rafters at 24\" and a 2x6 ridge board with rafter ties."
     }
    }
@@ -470,7 +470,7 @@
   "gallery-barn": {
    "key": "Barn for storage 7x14",
    "name": "Barn for storage 7x14",
-   "hash": "db1ea76ef483874d",
+   "hash": "85e82b1bd1d4a34e",
    "designKey": "94dbd497",
    "files": {
     "card": {

@@ -345,10 +345,11 @@ export function gambrelAnalysis(d) {
   const kneeDepth = Math.hypot(g.yk - g.ykIn, g.zk - g.zkIn);
   const peakDepth = g.rd / g.cu;
   // A gusset no deeper than the chords is a strip a chord deep across the mitre carrying the whole knee
-  // moment; it reaches into the inside corner until its section passes, up to the 24" PDS 4.4.5 allows.
+  // moment; it reaches into the inside corner until its section is at 85% or less (the margin the heel
+  // nailing is sized to, checks.mjs HEEL_TARGET), up to the 24" PDS 4.4.5 allows.
   const kneePanelAt = (b) => worstOf((c) => c.f.knee.map((k) => gussetPanel(k.M / 2, k.N / 2, k.V / 2, b, c.CD)).reduce((best, r) => (r.ratio > best.ratio ? r : best)));
   let kneeSection = kneeDepth;
-  while (kneeSection < 24 && kneePanelAt(kneeSection).ratio > 1) kneeSection = Math.min(24, Math.ceil((kneeSection + 0.5) * 2) / 2);
+  while (kneeSection < 24 && kneePanelAt(kneeSection).ratio > 0.85) kneeSection = Math.min(24, Math.ceil((kneeSection + 0.5) * 2) / 2);
   const kneePanel = kneePanelAt(kneeSection);
   const kneeExt = Math.max(0, Math.ceil((g.rd * (kneeSection / kneeDepth - 1)) * 4 - 1e-9) / 4);
   const peakPanel = worstOf((c) => gussetPanel(0, c.f.peak.H / 2, c.f.peak.V / 2, peakDepth, c.CD));
