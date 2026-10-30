@@ -1,0 +1,48 @@
+log units; bound_q = sum over cuts of the q-quantile of g_x^(k_j) over all candidates x; violation = realised regret above bound_q
+clock | design | start | viol@0.5 | viol@0.75 | viol@0.9 | viol@0.95 | max-bound
+tight | adder_op16 | r1 | 1.00 | 1.00 | 0.00 | 0.00 | 0.626
+tight | adder_op16 | r2 | 1.00 | 1.00 | 1.00 | 1.00 | 0.213
+tight | adder_ripple16 | r1 | 0.00 | 0.00 | 0.00 | 0.00 | 0.019
+tight | adder_ripple16 | r2 | 0.00 | 0.00 | 0.00 | 0.00 | 0.000
+tight | mult8 | r1 | 0.00 | 0.00 | 0.00 | 0.00 | 0.393
+tight | mult8 | r2 | 0.00 | 0.00 | 0.00 | 0.00 | 0.206
+tight | mac4 | r1 | 0.00 | 0.00 | 0.00 | 0.00 | 0.497
+tight | mac4 | r2 | 0.00 | 0.00 | 0.00 | 0.00 | 0.092
+tight | alu8 | r1 | 1.00 | 0.00 | 0.00 | 0.00 | 0.395
+tight | alu8 | r2 | 0.00 | 0.00 | 0.00 | 0.00 | 0.123
+tight | popcount16 | r1 | 1.00 | 0.00 | 0.00 | 0.00 | 0.270
+tight | popcount16 | r2 | 1.00 | 1.00 | 0.00 | 0.00 | 0.047
+tight | barrel16 | r1 | 1.00 | 1.00 | 0.00 | 0.00 | 0.343
+tight | barrel16 | r2 | 1.00 | 1.00 | 0.00 | 0.00 | 0.173
+tight | crc16 | r1 | 1.00 | 0.00 | 0.00 | 0.00 | 0.591
+tight | crc16 | r2 | 0.00 | 0.00 | 0.00 | 0.00 | 0.189
+tight | cmp_sat12 | r1 | 1.00 | 0.00 | 0.00 | 0.00 | 0.615
+tight | cmp_sat12 | r2 | 0.00 | 0.00 | 0.00 | 0.00 | 0.336
+tight | fifo8x4 | r1 | 1.00 | 0.00 | 0.00 | 0.00 | 0.491
+tight | fifo8x4 | r2 | 1.00 | 0.00 | 0.00 | 0.00 | 0.219
+relaxed | adder_op16 | r1 | 1.00 | 1.00 | 0.00 | 0.00 | 0.469
+relaxed | adder_op16 | r2 | 1.00 | 1.00 | 0.00 | 0.00 | 0.107
+relaxed | adder_ripple16 | r1 | 0.00 | 0.00 | 0.00 | 0.00 | 0.000
+relaxed | adder_ripple16 | r2 | 0.00 | 0.00 | 0.00 | 0.00 | 0.000
+relaxed | mult8 | r1 | 1.00 | 0.00 | 0.00 | 0.00 | 0.266
+relaxed | mult8 | r2 | 0.00 | 0.00 | 0.00 | 0.00 | 0.040
+relaxed | mac4 | r1 | 1.00 | 1.00 | 1.00 | 0.00 | 0.286
+relaxed | mac4 | r2 | 0.00 | 0.00 | 0.00 | 0.00 | 0.021
+relaxed | alu8 | r1 | 1.00 | 1.00 | 0.00 | 0.00 | 0.461
+relaxed | alu8 | r2 | 0.00 | 0.00 | 0.00 | 0.00 | 0.132
+relaxed | popcount16 | r1 | 1.00 | 1.00 | 0.00 | 0.00 | 0.254
+relaxed | popcount16 | r2 | 0.00 | 0.00 | 0.00 | 0.00 | 0.038
+relaxed | barrel16 | r1 | 1.00 | 0.00 | 0.00 | 0.00 | 0.564
+relaxed | barrel16 | r2 | 1.00 | 1.00 | 0.00 | 0.00 | 0.258
+relaxed | crc16 | r1 | 0.42 | 0.42 | 0.00 | 0.00 | 0.225
+relaxed | crc16 | r2 | 0.00 | 0.00 | 0.00 | 0.00 | 0.055
+relaxed | cmp_sat12 | r1 | 0.00 | 0.00 | 0.00 | 0.00 | 0.301
+relaxed | cmp_sat12 | r2 | 0.00 | 0.00 | 0.00 | 0.00 | 0.066
+relaxed | fifo8x4 | r1 | 1.00 | 0.00 | 0.00 | 0.00 | 0.494
+relaxed | fifo8x4 | r2 | 0.00 | 0.00 | 0.00 | 0.00 | 0.065
+
+40 cells x 200 tie-breaks = 8000 draws
+q=0.5: share of draws with realised regret above bound_q 0.5106; cells with any violation 21 of 40; bound_q under the spread in 40 cells
+q=0.75: share of draws with realised regret above bound_q 0.2856; cells with any violation 12 of 40; bound_q under the spread in 40 cells
+q=0.9: share of draws with realised regret above bound_q 0.0500; cells with any violation 2 of 40; bound_q under the spread in 38 cells
+q=0.95: share of draws with realised regret above bound_q 0.0250; cells with any violation 1 of 40; bound_q under the spread in 35 cells
