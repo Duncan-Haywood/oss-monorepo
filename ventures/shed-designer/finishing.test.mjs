@@ -9,6 +9,7 @@ import { EXAMPLE_ITEMS } from './lumber.mjs';
 import { OFFERS, storeComparison, swapsFor, storeTotals, storeList, pricesFor } from './catalog.mjs';
 import { simplify, cutMetrics, sidingSpan, budget, laborHours } from './simplify.mjs';
 import { connectionChecks } from './connections.mjs';
+import { structuralChecks } from './checks.mjs';
 import { integrity } from './integrity.mjs';
 import { buildSheets } from './drawings.mjs';
 import { buildInstructions } from './instructions.mjs';
@@ -30,6 +31,18 @@ test('1x4 trim: two boards a corner, and a casing round every opening', () => {
   for (const b of est.trimCuts.boards) assert.ok(b.cuts.reduce((t, c) => t + c, 0) <= b.stock);
   assert.ok(est.shopping.some((r) => r.section === 'Wall trim'));
   assert.equal(buildShed(normalize({ ...defaultDesign(), wallTrim: 'none' })).wallTrim.length, 0);
+});
+
+test('a site-built door too short or too narrow for its Z brace is warned about', () => {
+  const brace = (width, height) => {
+    const d = defaultDesign();
+    d.openings = d.openings.map((o) => (o.kind === 'door' ? { ...o, product: 'site-built', width, height } : o));
+    return buildShed(normalize(d)).warnings.filter((w) => w.includes('Z brace'));
+  };
+  assert.deepEqual(brace(38.5, 78), [], 'the starting door is fine');
+  assert.deepEqual(brace(60, 78), [], 'a pair is fine');
+  assert.match(brace(38.5, 12)[0], /runs at 1 deg .* taller or narrower/, 'a 12" leaf');
+  assert.match(brace(20, 78)[0], /runs at 70 deg .* wider/, 'a 20" leaf');
 });
 
 test('a site-built door: Z frame on the cut sheet, hinges on the list, a plan sheet and steps', () => {
@@ -304,4 +317,14 @@ test('one store only: its own prices and item numbers, re-optimized, the gaps ma
   // Lowe's own lumber prices change what the optimizer buys there.
   const lw = estimate(shed, pricesFor('lowes', examplePrices()));
   assert.notEqual(lw.lumberCost, estimate(shed).lumberCost);
+});
+
+test('the budget search may move floor joists to 24" and resize them, and every result still passes', () => {
+  const d = defaultDesign();
+  const r = budget(d);
+  const labels = r.best.steps.map((s) => s.label).join('|');
+  assert.match(labels, /floor joists/);
+  const sc = structuralChecks(buildShed(r.best.design));
+  assert.ok(sc.ok);
+  assert.ok(sc.rows.find((x) => x.member === 'Subfloor').ratio <= 1);
 });

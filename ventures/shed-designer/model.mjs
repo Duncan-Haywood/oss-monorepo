@@ -89,6 +89,8 @@ export function defaultDesign() {
     glitter: false,
     interior: 'none',
     insulation: false,
+    // Count custom-size doors and windows at the median of the catalogue's range (off: left out of the total).
+    customRange: false,
     sidingType: 'T1-11',
     wallTrim: '1x4',
     roofCover: 'shingles',
@@ -208,6 +210,7 @@ export function normalize(input) {
     glitter: o.glitter === true,
     interior: pick(o.interior, ['none', 'OSB', 'plywood', 'drywall', 'beadboard', 'pegboard', 'teen bedroom'], d.interior),
     insulation: o.insulation === true,
+    customRange: o.customRange === true,
     wallTrim: pick(o.wallTrim, ['1x4', 'none'], d.wallTrim),
     sidingType: pick(o.sidingType, ['T1-11', 'LP SmartSide', 'LP SmartSide 7/16', 'board and batten', 'vinyl', 'fiber cement'], d.sidingType),
     roofCover: pick(o.roofCover, ['shingles', 'metal'], d.roofCover),
@@ -666,6 +669,11 @@ function buildFramed(d) {
     }
     for (const v of verticals) addM(v.kind, d.studSize, v.s, v.s + 1.5, 1.5, 1.5 + studLen);
     const breakCenters = verticals.map((v) => v.s + 0.75);
+    // Where a plate may also break over a header: on a top cripple (or, with
+    // the header tight to the plate, anywhere on it), with the header running
+    // at least a stud width past the joint each side. Used only when the stud
+    // centres leave no plate split.
+    const headerBreaks = [];
     for (const p of ops) {
       const jack = p.bottom + p.op.height - 1.5;
       addM('king stud', d.studSize, p.a - 3, p.a - 1.5, 1.5, 1.5 + studLen);
@@ -692,6 +700,8 @@ function buildFramed(d) {
         if (bumped && crippleSpots.every((x) => Math.abs(x - jack0) >= 1.5 - 1e-9)) crippleSpots.push(jack0);
       }
       const topGap = H - 3 - p.headerTop;
+      const overHdr = topGap >= 1.5 ? crippleSpots.map((x) => x + 0.75) : [...inside.map((x) => x + 0.75), p.a + p.w / 2];
+      headerBreaks.push(...overHdr.filter((x) => x - 1.5 >= p.a - 1.5 - 1e-9 && x + 1.5 <= p.a + p.w + 1.5 + 1e-9));
       if (topGap >= 1.5) {
         for (const s of crippleSpots) addM('top cripple', d.studSize, s, s + 1.5, p.headerTop, H - 3);
       } else if (topGap > 0.01) {
@@ -724,31 +734,42 @@ function buildFramed(d) {
     // depth short of each end, and the gable walls' cap runs that much long to
     // lap over the eave walls' top plate.
     const [c0, c1] = spec.eave ? [D, len - D] : [-D, len + D];
-    let top = splitRun(0, len, maxStock, breakCenters);
-    let topJoints = top.runs.slice(1).map((r) => r[0]);
-    let cap = splitRun(c0, c1, maxStock, breakCenters, topJoints, 48);
     // The greedy split takes the longest top-plate piece first, which can leave
     // the cap no joint 4 ft clear of it (a window can remove the stud the cap
-    // joint needs). Then choose both plates' joints together.
-    // 4 ft is the aim; the IRC's minimum (R602.3.2) is 24", the fallback.
+    // joint needs). Then choose both plates' joints together: on stud centres,
+    // 4 ft apart, then the IRC's 24" minimum (R602.3.2), then over a header.
     const clearOf = (tj, gap) => (b) => tj.every((t) => Math.abs(t - b) >= gap - 1e-9);
-    const capJoints = (r) => r.runs.slice(1).map((x) => x[0]);
-    if (topJoints.length && !capJoints(cap).every(clearOf(topJoints, 48))) {
-      search: for (const gap of [48, PLATE_OFFSET_MIN]) {
-        for (const tj of jointSets(0, len, maxStock, breakCenters, () => true, 400)) {
-          const cj = jointSets(c0, c1, maxStock, breakCenters, clearOf(tj, gap), 400).next().value;
+    const runsOf = (a, b, js) => /** @type {[number, number][]} */ ([a, ...js].map((x, i) => [x, [...js, b][i]]));
+    const choosePlates = (stock) => {
+      const top0 = splitRun(0, len, stock, breakCenters);
+      const tj0 = top0.runs.slice(1).map((r) => r[0]);
+      const cap0 = splitRun(c0, c1, stock, breakCenters, tj0, 48);
+      if (!tj0.length || cap0.runs.slice(1).every((x) => clearOf(tj0, 48)(x[0]))) return { top: top0, cap: cap0, overHeader: false };
+      for (const [breaks, gap] of [[breakCenters, 48], [breakCenters, PLATE_OFFSET_MIN], [[...breakCenters, ...headerBreaks], PLATE_OFFSET_MIN]]) {
+        for (const tj of jointSets(0, len, stock, breaks, () => true, 400)) {
+          const cj = jointSets(c0, c1, stock, breaks, clearOf(tj, gap), 400).next().value;
           if (!cj) continue;
-          const runs = (a, b, js) => /** @type {[number, number][]} */ ([a, ...js].map((x, i) => [x, [...js, b][i]]));
-          top = { runs: runs(0, len, tj), forced: false };
-          topJoints = tj;
-          cap = { runs: runs(c0, c1, cj), forced: false };
-          break search;
+          const overHeader = [...tj, ...cj].some((x) => !breakCenters.some((c) => Math.abs(c - x) < 1e-9));
+          return { top: { runs: runsOf(0, len, tj), forced: false }, cap: { runs: runsOf(c0, c1, cj), forced: false }, overHeader };
         }
       }
-    }
+      return { top: top0, cap: cap0, overHeader: false };
+    };
+    const { top, cap, overHeader } = choosePlates(maxStock);
     for (const [s0, s1] of top.runs) addM('top plate', d.studSize, s0, s1, H - 3, H - 1.5);
     for (const [s0, s1] of cap.runs) addM('cap plate', d.studSize, s0, s1, H - 1.5, H, spec.eave ? `stops ${D}" short of each end; the end walls' cap laps over it` : `runs ${D}" past each end to lap over the long walls`);
     if (top.runs.length > 1) notes.push(`${WALL_LABEL[name]}: plates are longer than your longest board, so they splice over studs; the cap plate's joints are kept 4 ft from the top plate's where the layout allows, and never under the code's 24".`);
+    if (overHeader) notes.push(`${WALL_LABEL[name]}: with ${maxStock / 12} ft boards no plate split keeps its joints on full studs, so a plate joint sits over the header, which runs at least 1-1/2" past it each side. Nail both plate ends down into the header (or its cripple).`);
+    // A short plate stub is legal but fussy; say when one longer board avoids it.
+    const stub = (pl) => Math.min(...[...pl.top.runs, ...pl.cap.runs].map(([a, b]) => b - a));
+    const shortest = stub({ top, cap });
+    if (top.runs.length > 1 && shortest < PLATE_OFFSET_MIN - 1e-9) {
+      const better = DEFAULT_LENGTHS_FT.filter((ft) => ft * 12 > maxStock).find((ft) => {
+        const pl = choosePlates(ft * 12);
+        return !pl.overHeader && stub(pl) >= PLATE_OFFSET_MIN - 1e-9;
+      });
+      if (better) notes.push(`${WALL_LABEL[name]}: the plates need a ${fmtIn(shortest)} piece with ${maxStock / 12} ft boards; adding ${better} ft boards to your list avoids it.`);
+    }
     // Siding nailers: a 4 ft siding joint needs wood under both panel edges.
     // Where an opening's king, jack or cripples leave one side (or both) bare
     // between the plates, add a nailer flush with the framing that is there.
@@ -1298,6 +1319,12 @@ function buildFramed(d) {
     const braceLen = Math.hypot(railLen, bay);
     const braceAngle = (Math.atan2(bay, railLen) * 180) / Math.PI;
     doors.push({ id: op.id, leaves, w, h, railLen, braceLen, braceAngle });
+    // A Z brace only holds a leaf square when it runs at a real slope: in a short,
+    // wide leaf the rails take most of the height and the brace lies nearly flat
+    // (a 12"-tall door gives about 1 degree); in a narrow one it stands nearly upright.
+    if (braceAngle < 25 || braceAngle > 65) {
+      warnings.push(`The site-built ${fmtIn(op.width)} x ${fmtIn(op.height)} door on the ${WALL_LABEL[op.wall].toLowerCase()} wall makes ${leaves > 1 ? 'leaves' : 'a leaf'} ${fmtIn(w)} wide and ${fmtIn(h)} tall, so its Z brace runs at ${braceAngle.toFixed(0)} deg and will not keep the door from sagging; it works best between about 30 and 60 deg. ${braceAngle < 25 ? 'Make the door taller or narrower' : 'Make the door wider'}, or choose a ready-made door.`);
+    }
     // Pieces that are the same in both leaves and in every rail position share one note, so they share a part mark.
     for (let i = 0; i < leaves; i++) {
       const tag = `door ${op.id}`;
