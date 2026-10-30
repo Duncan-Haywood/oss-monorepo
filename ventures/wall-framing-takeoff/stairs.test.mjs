@@ -329,3 +329,12 @@ test("winder chord rule is stricter than the arc rule at the edge of passing", (
   assert.equal(edge.ok, true);
   assert.equal(edge.chordPasses, false); // 6 in of arc is under 6 in of straight edge
 });
+
+test("stair hardware: one top connector and one foot anchor per stringer (hand: 36 in wide at 16 in spacing is 3 stringers)", () => {
+  const l = layoutStair({ totalRise: 108, tread: 10 }, plan());
+  assert.equal(l.hardware.topConnectors, l.stringer.count);
+  assert.equal(l.hardware.footAnchors, l.stringer.count);
+  const wide = layoutStair({ totalRise: 108, tread: 10, width: 60 }, plan());
+  assert.equal(wide.hardware.topConnectors, Math.ceil((60 - 1.5) / 16) + 1);
+  assert.match(stairText(l).join("\n"), /Hardware: \d+ top connectors/);
+});

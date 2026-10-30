@@ -113,6 +113,8 @@ export function layoutStair(input, plan) {
   return {
     ok: true, id: s.id, totalRise: s.totalRise, risers, treads, riser, tread, run, angle, pitch, firstRiserCut, comfort,
     stringer: { size: s.stringer, count: stringers, length: stringerLength, throat, spacing: treadSpan, depth, treadSpanMax },
+    // Hardware (2026-10-30): one hanger or ledger-bolt connection at the top of every stringer, and one anchor at its foot (a typed count of what the framer buys, not an engineered connection).
+    hardware: { topConnectors: stringers, footAnchors: stringers },
     treadBoards, openRisers: !!s.openRisers, riserBoards: s.openRisers ? 0 : risers, riserStock: riserBoards, width: s.width,
     minOpening: Math.ceil(minOpening * 16) / 16, opening, rail, marks, sumRise, notes, limits: L, nosing: s.nosing,
   };
@@ -198,6 +200,7 @@ export function stairText(l) {
   const out = [`${l.id}: ${formatLength(l.totalRise)} rise, ${l.risers} risers of ${formatInches(l.riser)}, ${l.treads} treads of ${formatInches(l.tread)} (${l.angle.toFixed(1)} deg, 2R+T ${l.comfort.toFixed(2)} in)`];
   out.push(`  Total run ${formatLength(l.run)}; the first riser is cut ${formatInches(l.firstRiserCut)} so the finished first step is ${formatInches(l.riser)} once the tread is on`);
   out.push(`  ${l.stringer.count} ${l.stringer.size} stringers ${formatLength(l.stringer.length)} long, ${formatInches(l.stringer.spacing)} apart, ${formatInches(l.stringer.throat)} left under the notches`);
+  out.push(`  Hardware: ${l.hardware.topConnectors} top connectors (one per stringer, hanger or bolted ledger) and ${l.hardware.footAnchors} foot anchors; sizes and fasteners are the engineer's or manufacturer's call`);
   out.push(`  ${l.treadBoards.count} ${l.treadBoards.size} tread boards ${formatLength(l.treadBoards.length)} (${l.treadBoards.perStep} per step covering ${formatInches(l.treadBoards.coverage)} for ${formatInches(l.treadBoards.need)} of tread and nosing)${l.openRisers ? ", open risers" : `, ${l.riserBoards} risers${l.riserStock ? ` of ${l.riserStock.count} ${l.riserStock.size} boards` : ""}`}`);
   out.push(`  Stairwell opening at least ${formatLength(l.minOpening)} long for ${formatInches(l.limits.headroom)} of headroom${l.opening ? `; yours ${formatLength(l.opening.length)} leaves ${formatInches(l.opening.headroom)}${l.opening.ok ? "" : " (too short)"}` : ""}`);
   if (l.rail) {
