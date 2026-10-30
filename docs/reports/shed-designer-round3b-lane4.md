@@ -27,6 +27,6 @@ How storage is measured (also in the `designfacts.mjs` header):
 ## Open, next step
 
 1. **Wire the search's designs into `setEntries`** once `designsearch.mjs` lands. The six old presets are mostly over the owner's 100 sq ft limit (10x12, 12x16) and are not optimised. This is the most valuable next step.
-2. **Re-pricing on price edits** landed: typing a lumber, item or delivery price re-prices the strip 500 ms after typing pauses (`reprice()`, browser-tested).
+2. **Priced as the page prices** (second PR): the panel prices through the page's `storeEstimate`, so a design's detail shows the same total as the page for the store chosen under "Price the list at", and changing the store re-prices the strip. A browser test fails without it (Lowe's total differed). **Re-pricing on price edits** landed in the first PR: typing a lumber, item or delivery price re-prices the strip 500 ms after typing pauses (`reprice()`, browser-tested).
 3. **The compare tray is sticky** only while the strip's container is on screen. That is fine while picking, but it could be fixed at the bottom if users compare from further down.
 4. **Usage counting** reuses the existing `compares` event for opening a detail or a compare. A separate `details` event would need `usage.mjs` and its README line.

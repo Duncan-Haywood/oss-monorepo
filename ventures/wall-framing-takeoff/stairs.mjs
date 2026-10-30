@@ -16,7 +16,7 @@
 // the finished first step matches the rest once the tread is on.
 import { THICK, DEPTH, formatLength, formatInches } from "./engine.mjs";
 
-export const STAIR_LIMITS = { maxRiser: 7.75, minTread: 10, riserVariance: 0.375, headroom: 80, minWidth: 36, maxRise: 147, minThroat: 3.5 };
+export const STAIR_LIMITS = { maxRiser: 7.75, minTread: 10, riserVariance: 0.375, headroom: 80, minWidth: 36, maxRise: 147, minThroat: 3.5, openRiserGap: 4 };
 
 /** Longest span a stair tread board may run between stringers, by board thickness (typed, model-code-style figures: under 1-1/4 in 12 in, under 1-1/2 in 16 in, 1-1/2 in and thicker 24 in; the local book rules). */
 export function maxTreadSpan(thickness) { return thickness < 1.25 ? 12 : thickness < 1.5 ? 16 : 24; }
@@ -71,7 +71,11 @@ export function layoutStair(input, plan) {
   if (throat < L.minThroat) notes.push(`Only ${formatInches(throat)} left under the notches; the rule of thumb and most codes want ${L.minThroat} in: use a deeper board, a shorter tread or add a centre support.`);
   const comfort = 2 * riser + tread;
   if (comfort < 24 || comfort > 25.5) notes.push(`2 x riser + tread is ${comfort.toFixed(2)} in; steps between 24 and 25.5 in feel natural.`);
-  if (s.nosing > 1.25 || s.nosing < 0.75) if (tread < 11) notes.push(`Nosing ${s.nosing} in is outside the 3/4 to 1-1/4 in the code allows on solid-riser treads under 11 in.`);
+  // Open risers (2026-10-30): the clear gap between one tread's top and the next tread's underside is the riser less the tread thickness; the usual code lets no 4 in sphere pass (a vertical-gap bound; the slope makes a real sphere test slightly easier to pass). Nosing rules are for solid risers, so they are skipped here.
+  if (s.openRisers) {
+    const gap = riser - s.treadThickness;
+    if (gap > L.openRiserGap + 1e-9) notes.push(`Open risers leave a ${formatInches(gap)} gap between treads; the usual limit is ${L.openRiserGap} in: add risers (solid or slats) or a thicker tread. Some codes relax this for a stair rising 30 in or less.`);
+  } else if (s.nosing > 1.25 || s.nosing < 0.75) if (tread < 11) notes.push(`Nosing ${s.nosing} in is outside the 3/4 to 1-1/4 in the code allows on solid-riser treads under 11 in.`);
 
   // Headroom: the nose line passes x*R/T below the top floor surface at x from the top riser; the floor above hangs `floorThickness` below it.
   const minOpening = ((L.headroom + s.floorThickness) * tread) / riser;

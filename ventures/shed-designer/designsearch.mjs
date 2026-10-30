@@ -138,7 +138,7 @@ export const LAYOUTS = {
 
 /** The knobs the search turns, each with its values. Keys in opts.fixed are left as the base has them. */
 const KNOBS = {
-  roofType: ['ridgeBoard', 'ridgeBeam'],
+  roofType: ['ridgeBoard', 'ridgeBeam', 'truss'],
   pitch: [4, 5, 6, 7, 8, 9],
   overhang: [6, 9, 12],
   wall: ['auto', 92, 97.125],
@@ -184,7 +184,9 @@ export function storageOf(shed) {
   let shelf = 2 * Lin + 2 * Win;
   for (const op of d.openings) shelf -= Math.min(op.width + 6, op.wall === 'front' || op.wall === 'back' ? Lin : Win);
   const notes = [];
-  if (!open) notes.push('The space over the rafter ties counts as loft storage; deck the ties before loading it, and keep it to light things.');
+  if (!open) notes.push(d.roofType === 'truss'
+    ? (d.atticStorage ? 'The space over the truss bottom chords counts as loft storage: the chords are sized for 20 psf; deck them before loading it.' : 'The space over the truss bottom chords counts as loft storage; the chords are sized for a 10 psf attic, so tick attic storage before loading it.')
+    : 'The space over the rafter ties counts as loft storage; deck the ties before loading it, and keep it to light things.');
   return {
     floorSqFt: r1(floorSqFt), clearHeightIn: r1(clearHeightIn), wallVolumeCuFt: r1(wallVolumeCuFt), overheadCuFt: r1(overheadCuFt),
     volumeCuFt: r1(wallVolumeCuFt + overheadCuFt), shelfFt: r1(Math.max(0, shelf) / 12), overheadOpen: open, notes,

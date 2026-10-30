@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { BUDGET, VIEWS, altFor, renderFor, renderTargets } from './renders.mjs';
-import { MANIFEST, OUT, openStage, readManifest, sceneHash, staleTargets } from './make-renders.mjs';
+import { MANIFEST, OUT, allTargets, openStage, readManifest, sceneHash, sizeTargets, staleTargets } from './make-renders.mjs';
 
 const FIX = 'redraw them with: node ventures/shed-designer/make-renders.mjs (needs Playwright; see the README, "Pictures of the designs")';
 
@@ -43,10 +43,10 @@ test('the scene hash moves with what is drawn and nothing else', () => {
 test('each picture is a WebP of the size the manifest says, within budget, with alt text', () => {
   const m = readManifest();
   let total = 0;
-  for (const t of renderTargets()) {
+  for (const t of allTargets()) {
     const entry = m.designs[t.slug];
     assert.ok(entry, `${t.slug} has no pictures; ${FIX}`);
-    for (const view of Object.keys(VIEWS)) {
+    for (const view of t.views) {
       const f = entry.files[view];
       const buf = readFileSync(join(OUT, f.file));
       total += buf.length;
@@ -110,5 +110,5 @@ test('pages that show a picture use its current file and alt text', () => {
       seen++;
     }
   }
-  assert.ok(seen >= 2, 'the marketing page shows the 8x12 classic');
+  assert.ok(seen >= 2 + sizeTargets().length, 'the marketing page shows the 8x12 classic and each size page its own design');
 });

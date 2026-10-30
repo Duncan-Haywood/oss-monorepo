@@ -180,3 +180,22 @@ test('typing a new lumber price re-prices the starting designs', { skip }, async
   const n = (x) => Number(x.match(/\$([\d,]+)/)[1].replace(/,/g, ''));
   assert.ok(n(after) > n(before), `the strip's price follows the typed price (${before} -> ${after})`);
 });
+
+test('the starting designs are priced the way the page prices: same store, same total', { skip }, async (t) => {
+  const { page } = await open(t);
+  const n = (x) => Math.round(Number(String(x).replace(/[^0-9.]/g, '')));
+  // The page opens on the default 8x12, which is the "8x12" starting design; its
+  // big total includes tax and delivery, as the detail's "with tax" figure does.
+  const detailWithTax = async () => {
+    await page.locator('#starts .pick-open[data-detail="8x12"]').click();
+    const txt = await page.locator('#pick-dialog').innerText();
+    await page.locator('#pick-dialog [data-close]').click();
+    return n(/\((\$[\d,]+) with tax/.exec(txt)?.[1]);
+  };
+  assert.equal(await detailWithTax(), n(await page.locator('#total').innerText()), 'same total as the page');
+  for (const store of ['lowes', 'homedepot']) {
+    await page.selectOption('#buy-at', store);
+    await page.waitForTimeout(900); // the strip re-prices 500 ms after the change
+    assert.equal(await detailWithTax(), n(await page.locator('#total').innerText()), `same total at ${store}`);
+  }
+});

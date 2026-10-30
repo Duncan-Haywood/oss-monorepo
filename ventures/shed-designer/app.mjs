@@ -2,7 +2,7 @@
 // The page: several designs, a drag editor, the 3D view, the lists and the
 // plan sheets, all rebuilt from one design object on every change.
 
-import { buildShed, normalize, defaultDesign, PRESETS, WALLS, WALL_LABEL, wallFaceLength } from './model.mjs';
+import { buildShed, normalize, defaultDesign, PRESETS, WALLS, WALL_LABEL, wallFaceLength, ROOF_TYPES } from './model.mjs';
 import { estimate, examplePrices, cutSheetCsv, shoppingCsv, groupBoards, sourceLabel, boardUse, lumberUses } from './estimate.mjs';
 import { buildSheets, sheetSvg, sheetsDxf } from './drawings.mjs';
 import { createViewer, LAYERS } from './render3d.mjs';
@@ -153,7 +153,7 @@ const SITE_FIELDS = ['lotWidthFt', 'lotDepthFt', 'siteLeftFt', 'siteRearFt', 'se
 const FIELDS = ['name', 'lengthFt', 'widthFt', 'wallHeight', 'pitch', 'overhang', 'studSize', 'studSpacing', 'joistSize', 'joistSpacing',
   'rafterSize', 'rafterSpacing', 'tieSize', 'skidSize', 'skidSpacing', 'foundation', 'floorTreated', 'siding', 'roofing', 'gableVents', 'ventWidth', 'ventHeight', 'kerf',
   'roofType', 'beamSize', 'sidingColor', 'polkaDots', 'autoWall', 'autoPitch',
-  'autoOverhang', 'snowLoad', 'windLoad', 'roofColor', 'trimColor', 'doorColor', 'glitter', 'interior', 'sidingType', 'roofCover', 'insulation', 'customRange', 'wallTrim', 'rafterSeat', 'maxFootprint', 'pierDepth', 'compaction', 'pad', 'floorPanel', 'spares', 'taxRate', 'delivery', 'laborRate', ...SITE_FIELDS];
+  'autoOverhang', 'snowLoad', 'windLoad', 'roofColor', 'trimColor', 'doorColor', 'glitter', 'interior', 'sidingType', 'roofCover', 'insulation', 'customRange', 'wallTrim', 'rafterSeat', 'maxFootprint', 'pierDepth', 'compaction', 'pad', 'floorPanel', 'spares', 'taxRate', 'delivery', 'laborRate', 'maxHaulFt', ...SITE_FIELDS];
 
 
 /** A colour select keeps one "Your colour" option for a hex code typed or picked. @param {HTMLSelectElement} sel @param {string} v */
@@ -190,7 +190,7 @@ function readForm() {
   d.length = Math.round(num('lengthFt', d.length / 12) * 12);
   d.width = Math.round(num('widthFt', d.width / 12) * 12);
   d.maxPeak = Math.round(num('maxPeakFt', d.maxPeak / 12) * 12);
-  for (const f of ['wallHeight', 'pitch', 'overhang', 'studSpacing', 'joistSpacing', 'rafterSpacing', 'skidSpacing', 'ventWidth', 'ventHeight', 'kerf', 'snowLoad', 'windLoad', 'maxFootprint', 'pierDepth', 'spares', 'taxRate', 'laborRate', ...SITE_FIELDS]) d[f] = num(f, d[f]);
+  for (const f of ['wallHeight', 'pitch', 'overhang', 'studSpacing', 'joistSpacing', 'rafterSpacing', 'skidSpacing', 'ventWidth', 'ventHeight', 'kerf', 'snowLoad', 'windLoad', 'maxFootprint', 'pierDepth', 'spares', 'taxRate', 'laborRate', 'maxHaulFt', ...SITE_FIELDS]) d[f] = num(f, d[f]);
   for (const f of ['studSize', 'joistSize', 'rafterSize', 'tieSize', 'skidSize', 'foundation', 'roofType', 'beamSize', 'sidingColor', 'roofColor', 'trimColor', 'doorColor', 'interior', 'sidingType', 'roofCover', 'wallTrim', 'rafterSeat', 'compaction', 'pad', 'floorPanel', 'delivery']) d[f] = v(f).value;
   for (const f of ['floorTreated', 'siding', 'roofing', 'gableVents', 'polkaDots', 'autoWall', 'autoPitch', 'autoOverhang', 'glitter', 'insulation', 'customRange']) d[f] = v(f).checked;
   d.lengths = $$('input[name="stock"]:checked').map((c) => Number(c.value));
@@ -219,6 +219,18 @@ function renderOpenings(d) {
 }
 
 // ---------- results ----------
+/** What the haul limit costs or saves against buying any length, the whole order priced both ways. */
+function haulLine(shed, est) {
+  const d = shed.design;
+  const longest = Math.max(...est.lumber.flatMap((l) => l.result.boards.map((b) => b.stock))) / 12;
+  if (!d.maxHaulFt) return `${longest} ft (no limit set)`;
+  const free = estimate(buildShed(normalize({ ...d, maxHaulFt: 0 })), state.prices);
+  const diff = est.total - free.total;
+  const vs = Math.abs(diff) < 0.005 ? 'the same as with no limit' : `${money(Math.abs(diff))} ${diff > 0 ? 'more' : 'less'} than with no limit`;
+  const over = longest > d.maxHaulFt ? `; ${longest} ft boards only where a piece needs one (see the cut sheet)` : '';
+  return `${longest} ft against your ${d.maxHaulFt} ft haul limit${over}. The order is ${vs}.`;
+}
+
 function renderSummary(shed, est) {
   const d = shed.design;
   const buy = toBuy(est);
@@ -229,6 +241,7 @@ function renderSummary(shed, est) {
     ['Footprint', `${fmtFtIn(d.length)} x ${fmtFtIn(d.width)} (${est.footprintSqFt.toFixed(0)} sq ft)`],
     ['Peak above the gravel', fmtFtIn(shed.dims.peak)],
     ['Boards to buy', `${est.boards} for ${est.pieces} pieces`],
+    ['Longest board', haulLine(shed, est)],
     ['Lumber', `${money(est.lumberCost)}; the cut sheet's boards, ${money(est.cutSheetCost)}, are ${est.cutSheetCost - est.lowerBound < 0.005 ? 'proven the cheapest possible' : `within ${((est.cutSheetCost / est.lowerBound - 1) * 100).toFixed(1)}% of the least any order could cost (${money(est.lowerBound)})`}`],
     ...(est.unpriced.length ? [['Not in the total', `${est.unpriced.length} custom-size opening${est.unpriced.length > 1 ? 's' : ''} with no unit picked; see the shopping list for a typical range`]] : []),
     ['Sheets', `${est.floorSheets} floor, ${est.roofSheets} roof${d.siding ? `, ${shed.sidingFull.length + (shed.sidingUpper.length ? 1 : 0)}+ siding` : ''}`],
@@ -376,7 +389,7 @@ function renderStores(est, d) {
 }
 
 /** "3 x 8' boards" or "8' board". @param {{ count: number, stock: number }} b */
-const boardName = (b) => `${b.count > 1 ? `${b.count} x ` : ''}${b.stock / 12}' board${b.count > 1 ? 's' : ''}`;
+const boardName = (b) => `${b.count > 1 ? `${b.count} x ` : ''}${b.stock / 12}' board${b.count > 1 ? 's' : ''}${b.why ? ` <span class="muted">(${esc(b.why)})</span>` : ''}`;
 
 function renderCuts(est) {
   let html = '';
@@ -889,7 +902,7 @@ function wire() {
           <button type="button" data-pick="${i}">Use this one</button></article>`;
       }).join('');
       html += '</div><h4>Every design found that nothing else beats on cost, cuts and angled cuts at once</h4><div class="table-wrap"><table><thead><tr><th scope="col" class="n">Total</th><th scope="col" class="n">Straight cuts</th><th scope="col" class="n">Angled</th><th scope="col" class="n">Notches</th><th scope="col">Roof</th><th scope="col">Size</th></tr></thead><tbody>';
-      html += r.front.map((f) => `<tr><td class="n">${money(f.total)}</td><td class="n">${f.cuts.straight}</td><td class="n">${f.cuts.angled}</td><td class="n">${f.cuts.notches}</td><td>${f.design.pitch}/12, ${fmtIn(f.design.overhang)} overhang, ${f.design.roofType === 'ridgeBeam' ? 'ridge beam' : 'ridge board and ties'}, ${f.design.rafterSeat === 'connector' ? 'connectors' : 'birdsmouth'}</td><td>${fmtFtIn(f.design.length)} x ${fmtFtIn(f.design.width)}</td></tr>`).join('');
+      html += r.front.map((f) => `<tr><td class="n">${money(f.total)}</td><td class="n">${f.cuts.straight}</td><td class="n">${f.cuts.angled}</td><td class="n">${f.cuts.notches}</td><td>${f.design.pitch}/12, ${fmtIn(f.design.overhang)} overhang, ${ROOF_TYPES.find((r) => r.type === f.design.roofType)?.short ?? f.design.roofType}, ${f.design.rafterSeat === 'connector' ? 'connectors' : 'birdsmouth'}</td><td>${fmtFtIn(f.design.length)} x ${fmtFtIn(f.design.width)}</td></tr>`).join('');
       html += '</tbody></table></div>';
       $('#simplify-out').innerHTML = html;
       $('#simplify-out').onclick = (ev) => {
@@ -966,7 +979,7 @@ function wire() {
   for (const id of ['#quote-store', '#quote-name', '#quote-phone', '#quote-zip', '#quote-date']) $(id).addEventListener('input', () => quoteCtx && renderQuote(quoteCtx.shed, quoteCtx.est));
   $('#quote-store').addEventListener('change', () => quoteCtx && renderQuote(quoteCtx.shed, quoteCtx.est));
   $('#buy-at').value = state.buyAt;
-  $('#buy-at').addEventListener('change', () => { state.buyAt = $('#buy-at').value; render(); });
+  $('#buy-at').addEventListener('change', () => { state.buyAt = $('#buy-at').value; render(); picker?.reprice(); });
   $('#quote-copy').addEventListener('click', async () => {
     try { await navigator.clipboard.writeText($('#quote-body').value); $('#status').textContent = 'Email copied.'; } catch { $('#quote-body').select(); }
   });
@@ -1019,7 +1032,7 @@ render();
 picker = mountPicker({
   root: $('#starts'), dialog: $('#pick-dialog'), tray: $('#compare-tray'),
   entries: galleryEntries(),
-  prices: () => state.prices, count,
+  prices: () => state.prices, priceOf: (shed) => storeEstimate(shed), count,
   onStart(d) {
     state.designs.push(normalize(d));
     state.active = state.designs.length - 1;
