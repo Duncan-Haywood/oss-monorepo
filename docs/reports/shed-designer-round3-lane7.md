@@ -26,7 +26,7 @@ Posts:
 - **Doors:**
   - a 60" site-built pair costs $76.24 more than the 38-1/2" site-built door;
   - stock prehung doors cost $219 to $564 more and save about 2 hours.
-- **Foundation:** blocks on tamped soil are cheapest. Options cost up to $422 more (deck blocks on a full pad). Piers add $142 (12" deep) to $508 (48" deep).
+- **Foundation:** blocks on tamped soil are cheapest. Options cost up to $422 more (deck blocks on a full pad). Piers add $165 (12" deep) to $531 (48" deep) over the starter's blocks on gravel beds, footings included (follow-up PR: a bare 12" tube failed PR #11531's soil check at 1.63; a 16" square, 6" footing pad brings it to 0.66 for $106.38, cheaper than about six more piers).
 - **With siding and roofing fixed,** the cheaper-build search still finds $170.88 (joists, subfloor, overhang, rafters).
 - **No single lever in this lane gets close to the $1,000 gap.** The big money is in siding, roofing, framing and size (r3 lanes 1 and 6).
 

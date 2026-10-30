@@ -1,12 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Open Tools and Research — tools on marisstella.dev</title>
-  <subtitle>The 1321 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 1322 free, browser-only tools served directly from marisstella.dev — the newest 20 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
-  <updated>2026-10-29T00:00:00Z</updated>
+  <updated>2026-10-30T00:00:00Z</updated>
   <rights>Tools are MIT-licensed. They are estimates and records to act on, not professional advice.</rights>
+  <entry>
+    <title>Babysitting Business Kit: free app to run a babysitting business (leads, schedule, taxes, references, website)</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/babysitting-business-kit/"/>
+    <id>tag:marisstella.dev,2026:tool/babysitting-business-kit</id>
+    <updated>2026-10-30T00:00:00Z</updated>
+    <category term="Self-hosted business apps"/>
+    <summary type="text">Free app for babysitters who run their own business: score and answer inquiries, quote and schedule sits without double-booking, track who has paid, set aside self-employment tax with quarterly due dates, collect references and testimonials with consent, build your own babysitting website and plan posts. Runs in your browser; nothing is uploaded.</summary>
+  </entry>
   <entry>
     <title>dupehound: Find Copy-Pasted Code in Your Repo, Fast (Rust, Runs in Your Browser)</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/dupehound/"/>
@@ -158,13 +166,5 @@
     <updated>2026-10-20T00:00:00Z</updated>
     <category term="Research algorithms &amp; ML"/>
     <summary type="text">Free matrix profile tool for time series anomaly detection and motif discovery. Paste or upload a CSV and find repeated patterns (motifs) and the most unusual stretches (discords) with the exact STOMP algorithm. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Personality Conversation Simulator: Fictional Characters (Free)</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/persona-conversation-simulator/"/>
-    <id>tag:marisstella.dev,2026:tool/persona-conversation-simulator</id>
-    <updated>2026-10-20T00:00:00Z</updated>
-    <category term="More free tools"/>
-    <summary type="text">Build fictional characters with Big Five personalities and simulate negotiations, team meetings and arguments between them. Free, private, runs in your browser.</summary>
   </entry>
 </feed>

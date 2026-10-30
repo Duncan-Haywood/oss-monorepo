@@ -88,6 +88,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import zlib from 'node:zlib';
 import { fileURLToPath } from 'node:url';
+import { generateVenturePages } from '../pages/generated-pages.mjs';
 // The canonical site build's own entry-point rules, imported rather than
 // restated. `venturePageRoot` is the only consumer; see its comment for why a
 // copy here has twice gone stale against the original.
@@ -2188,6 +2189,9 @@ export function validateLinks(files) {
  * the per-venture titles the front door needs to name its cards.
  */
 export async function buildMirror({ set, venturesDir = VENTURES_DIR } = {}) {
+  // Pages a venture builds rather than commits must be on disk before packing,
+  // or the mirror packs a different set than the site serves.
+  generateVenturePages(venturesDir);
   // Resolved here rather than in the parameter list because it reads the
   // filesystem; a caller passing an explicit `set` (every test that exercises
   // packing or a deliberate failure) must not pay for a scan of `ventures/`.

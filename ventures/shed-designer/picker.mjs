@@ -10,7 +10,7 @@
 
 import { PRESETS, buildShed, normalize } from './model.mjs';
 import { createViewer } from './render3d.mjs';
-import { renderFor, slugOf } from './renders.mjs';
+import { pictureFor } from './renders.mjs';
 import { designFacts, compareRows, tradeOff } from './designfacts.mjs';
 import { fmtFtIn, fmtIn } from './lumber.mjs';
 import { kitLineHtml } from './value.mjs';
@@ -34,7 +34,11 @@ export function presetEntries() {
 export const MAX_COMPARE = 3;
 
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-const money = (n) => `$${Math.round(n).toLocaleString('en-US')}`;
+const money = (n) => {
+  const format = (n) => `$${Math.round(n).toLocaleString('en-US')}`;
+  const text = format(Math.abs(n));
+  return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+};
 const n1 = (x) => (Math.round(x * 10) / 10).toString();
 const WALL = { front: 'front', back: 'back', left: 'left gable', right: 'right gable' };
 
@@ -94,12 +98,10 @@ export function mountPicker(opts) {
 
   /** @type {any} */
   let manifest = null;
-  /** The stored picture of a design from one view, when the design is a drawn preset unchanged. */
+  /** The stored picture of a design from one view, when that exact design was drawn (a preset or a gallery card, unchanged). */
   const stored = (id, view) => {
     const e = entry(id);
-    const make = /** @type {any} */ (PRESETS)[id];
-    if (!manifest || !e || !make || JSON.stringify(e.design) !== JSON.stringify(make())) return null;
-    return renderFor(manifest, slugOf(id), view);
+    return manifest && e ? pictureFor(manifest, e.design, view) : null;
   };
   const thumb = (id) => {
     // The strip's cards are about 260 px wide: the 480 px card picture, not the hero.
@@ -142,6 +144,8 @@ export function mountPicker(opts) {
           <span class="pick-img" data-shot="${esc(e.id)}">${thumb(e.id) || '<span class="thumb-wait">rendering...</span>'}</span>
           <strong>${esc(titleOf(e.id))}</strong>
           <span class="pick-line">${money(f.total)} &middot; ${Math.round(f.footprintSqFt)} sq ft &middot; peak ${fmtFtIn(f.peak)}</span>
+          <span class="pick-line">${Math.round(f.storage.volumeCuFt)} cu ft inside &middot; ${Math.round(f.storage.shelfFt)} ft of clear wall</span>
+          <span class="pick-line pick-finish">Siding: ${esc(f.siding.split(',')[0])} &middot; ${esc(f.design.roofing ? (f.design.roofCover === 'metal' ? 'metal roof' : 'asphalt shingle roof') : 'no roofing')}</span>
           <span class="pick-why">${esc(tradeOff(f, all))}</span>
         </button>
         <button type="button" class="btn pick-cmp" data-compare="${esc(e.id)}" aria-pressed="${on}">${on ? 'In compare' : 'Compare'}</button>

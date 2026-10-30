@@ -1,0 +1,20 @@
+---
+title: "The babysitting kit on a phone: an installable app, a bottom tab bar, and three guides that do their own arithmetic"
+date: 2026-10-30
+tags: [babysitting-business-kit, pwa, accessibility, seo]
+description: "The kit now installs to a phone and opens offline, its tabs work from a keyboard, and three guides answer what sitters search for, prices checked by tests."
+---
+
+A babysitter runs their business from a phone, usually between sits. So the [Babysitting Business Kit](https://duncan-haywood.github.io/oss-monorepo/babysitting-business-kit/) now behaves like a phone app.
+
+**It installs and opens offline.** The page has a web app manifest, icons rendered from one SVG, and a service worker. The worker caches the app shell. At install it also follows the `import` lines from `index.html` through each module, so a module added later gets cached without anyone editing a list. It never touches the self-hosted server's `/api/*` routes, the website's inquiry form or the calendar feed, so a family's details and the sitter's admin key are always fetched live and never stored in a cache. A test runs the real `sw.js` in a sandbox against the directory. After install it holds 10 files, and with the network off it still serves the app.
+
+**The tabs are within thumb reach.** Below 720 px the nine-tab bar moves to the bottom of the screen and scrolls sideways. Buttons and inputs are at least 44 px tall. In the browser test at 390 px, no visible control on the panel is under 44 px, and the page never scrolls sideways.
+
+**The tabs work from a keyboard and a screen reader.** They follow the WAI-ARIA tabs pattern. Arrow keys, Home and End move between tabs, each tab names the panel it controls, and only the selected tab is in the Tab order. The audit found one contrast failure. Input borders were #a99aa6 on white, 2.67:1, below the 3:1 that WCAG asks for non-text controls; they are now #8a7a88, 4.02:1. The eleven text colour pairs all measure between 5.3:1 and about 14:1, and a test now checks them.
+
+**An end-to-end run at two widths.** At 390 px and at 1280 px, Playwright loads the invented example, adds a lead, turns it into a family, books a two-child sit, records a $92 payment, checks that "Paid to you" rose by exactly $92 and that a set-aside and due dates appear, then reloads and finds all of it still there. The first run failed on setup. With Playwright's service-worker blocking switched on, Chromium reports a page error as soon as a page reads `navigator.serviceWorker`, and it does this even on pages that have no worker code. The test now runs with workers allowed. The app's registration line is also wrapped in a guard, so a sandboxed frame without workers cannot break the page. The suite is 7 browser tests, and they pass in about 6 seconds.
+
+**Three guides for what sitters search.** [How to start a babysitting business](https://duncan-haywood.github.io/oss-monorepo/babysitting-business-kit/how-to-start-a-babysitting-business.html), [How much to charge for babysitting](https://duncan-haywood.github.io/oss-monorepo/babysitting-business-kit/how-much-to-charge-for-babysitting.html) and [Babysitting references](https://duncan-haywood.github.io/oss-monorepo/babysitting-business-kit/babysitting-references.html). The pricing guide gives no national "average rate". We could not read a source we would stand behind, and the honest answer is local anyway. Instead it explains each line of a rate card and works seven examples with the app's starting values. A Friday 6 to 10 pm sit for one child is $80. Three children make it $104. New Year's Eve from 7 pm to 1 am with two children comes to $222: $138 base, $10 late, then times 1.5. The same-day cancellation of a $92 sit costs $46. A test recomputes every one of those totals with `quote()` and `cancellationFee()`, so the page cannot drift from the app. The references guide shows the exact request drafts the app writes, and a test checks those too.
+
+All 66 tests in the venture pass. 23 of them are new, and the 7 browser tests skip themselves where Chromium is not installed.

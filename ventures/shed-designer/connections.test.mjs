@@ -162,3 +162,17 @@ test('a forced short plate stub says which longer board avoids it', () => {
   assert.ok(fixed.walls.front.members.filter((m) => /plate/.test(m.kind) && m.kind !== 'bottom plate').every((m) => m.local.s1 - m.local.s0 >= 24));
   assert.ok(!fixed.notes.some((n) => /avoids it/.test(n)));
 });
+
+// Lane 4's wide fuzz sweep (FUZZ_N=2000 FUZZ_SEED=20756), before the
+// joints-over-headers rule: a 228" x 186" shed with only 8 ft boards and a
+// 64" front window had no plate split. The cap joint now sits at 160" over the
+// window's header, which is tight under the plate (no cripples).
+test('regression: a wide window with 8 ft boards splices its cap over the header', () => {
+  const d = { ...defaultDesign(), length: 228, width: 186, lengths: [8], openings: [{ id: 'w', kind: 'window', wall: 'front', offset: 114, width: 64, height: 36, sill: 42 }] };
+  const s = buildShed(d);
+  const row = connectionChecks(s).rows.find((r) => r.check === 'front wall: plate splices');
+  assert.ok(row?.ok, row?.detail);
+  const caps = s.walls.front.members.filter((m) => m.kind === 'cap plate').map((m) => m.local.s0).sort((a, b) => a - b).slice(1);
+  const hdr = s.walls.front.members.find((m) => m.kind === 'header').local;
+  assert.ok(caps.some((x) => x - 1.5 >= hdr.s0 && x + 1.5 <= hdr.s1), String(caps));
+});

@@ -16,13 +16,14 @@
 // reviewed by an engineer.
 
 import { buildShed } from './model.mjs';
-import { structuralChecks, heelJoint, nailZ } from './checks.mjs';
+import { structuralChecks, heelJoint, nailZ, skidOnBlocks, SOIL_PSF, rafterUplift, racking, bayPlates } from './checks.mjs';
 import { trussForces } from './truss.mjs';
 import { connectionChecks } from './connections.mjs';
-import { check, roofCase, FLOOR, SPF2, T, DEPTH } from './structure.mjs';
+import { check, roofCase, FLOOR, SPF2, T, DEPTH, designValues } from './structure.mjs';
 import { sidingSpan } from './simplify.mjs';
 import { subfloorCheck } from './levers.mjs';
-import { fmtIn } from './lumber.mjs';
+import { gambrelAnalysis } from './gambrel.mjs';
+import { fmtIn, actual } from './lumber.mjs';
 
 // NDS Supplement Table 4A size factors for No. 2 dimension lumber, as
 // structure.mjs uses them (bending, and compression parallel to grain).
@@ -47,7 +48,7 @@ const pct = (r) => `${Math.round(r * 100)}%`;
  * A simple-span member under uniform load, written out (structure.mjs check()).
  * @returns {{ parts: Part[], inputs: [string, string][] }}
  */
-function beamWords({ size, plies = 1, spacingIn, pitch = 0, bearingIn, repetitive = true }, clearIn, c, what) {
+function beamWords({ size, plies = 1, spacingIn, pitch = 0, bearingIn, repetitive = true, species = 'SPF' }, clearIn, c, what) {
   const L = clearIn + bearingIn;
   const cos = 1 / Math.sqrt(1 + (pitch / 12) ** 2);
   const wD = (c.dead / cos) * (spacingIn / 144);
@@ -57,33 +58,36 @@ function beamWords({ size, plies = 1, spacingIn, pitch = 0, bearingIn, repetitiv
   const d = DEPTH[size];
   const S = (b * d * d) / 6, A = b * d, I = (b * d ** 3) / 12;
   const Cr = repetitive && plies === 1 && spacingIn <= 24 ? CR : 1;
-  const Fb = SPF2.Fb * c.CD * CF_B[size] * Cr;
-  const Fv = SPF2.Fv * c.CD;
+  // SPF's Fb takes the size factor; Southern pine's published values have it in.
+  const v = designValues(size, species);
+  const syp = species === 'SYP';
+  const Fb = v.Fb * c.CD * Cr;
+  const Fv = v.Fv * c.CD;
   const M = (w * L * L) / 8;
   const V = w * (L / 2 - d) * cos;
   const R = (w * L) / 2;
-  const k = (5 * L ** 4) / (384 * SPF2.E * I * cos ** 2);
+  const k = (5 * L ** 4) / (384 * v.E * I * cos ** 2);
   const fb = M / S, fv = (1.5 * V) / A, fp = R / (b * bearingIn);
   const dl = k * wL, dt = k * w;
   const slope = pitch ? ` The dead load is ${c.dead} psf on the slope, so ${n2(c.dead / cos)} psf on plan at ${pitch}/12.` : '';
   const live = c.name === 'floor' ? 'live' : 'snow';
   const inputs = /** @type {[string, string][]} */ ([
-    ['Member', `${plies > 1 ? `${plies}-ply ` : ''}${size}, ${n2(b)}" x ${n2(d)}" (SPF No. 2)`],
+    ['Member', `${plies > 1 ? `${plies}-ply ` : ''}${size}, ${n2(b)}" x ${n2(d)}" (${syp ? 'Southern pine' : 'SPF'} No. 2)`],
     ['Span used', `${fmtIn(clearIn)} clear + ${fmtIn(bearingIn)} bearing = ${n2(L)}"`],
     ['Load width', `${n2(spacingIn)}" ${what}`],
     ['Loads', `${c.dead} psf dead + ${c.live} psf ${live}.${slope}`],
     ['Section', `S = bd²/6 = ${n2(S)} in³, A = ${n2(A)} in², I = bd³/12 = ${n2(I)} in⁴`],
-    ['Design values', `Fb ${SPF2.Fb} psi, Fv ${SPF2.Fv} psi, Fc⊥ ${SPF2.Fc_perp} psi, E ${(SPF2.E / 1e6).toFixed(1)} million psi; load duration CD ${c.CD}`],
+    ['Design values', `Fb ${syp ? `${v.Fb} psi (size factor in, SPIB 2013)` : `${SPF2.Fb} psi`}, Fv ${v.Fv} psi, Fc⊥ ${v.Fc_perp} psi, E ${(v.E / 1e6).toFixed(1)} million psi; load duration CD ${c.CD}`],
   ]);
   const parts = [
-    { name: 'bending', ratio: fb / Fb, words: `Load on the member w = ${n2(w * 12)} lb/ft. Moment M = wL²/8 = ${n0(M)} lb·in. Stress fb = M/S = ${n0(fb)} psi. Allowable F'b = ${SPF2.Fb} × CD ${c.CD} × size factor ${CF_B[size]}${Cr > 1 ? ` × repetitive ${CR}` : ''} = ${n0(Fb)} psi. ${n0(fb)} / ${n0(Fb)} = ${pct(fb / Fb)}.` },
-    { name: 'shear', ratio: fv / Fv, words: `Shear a depth in from the support V = w(L/2 - d) = ${n0(V)} lb. Stress fv = 1.5V/A = ${n0(fv)} psi against F'v = ${SPF2.Fv} × ${c.CD} = ${n0(Fv)} psi: ${pct(fv / Fv)}.` },
+    { name: 'bending', ratio: fb / Fb, words: `Load on the member w = ${n2(w * 12)} lb/ft. Moment M = wL²/8 = ${n0(M)} lb·in. Stress fb = M/S = ${n0(fb)} psi. Allowable F'b = ${syp ? v.Fb : `${SPF2.Fb} × size factor ${CF_B[size]}`} × CD ${c.CD}${Cr > 1 ? ` × repetitive ${CR}` : ''} = ${n0(Fb)} psi. ${n0(fb)} / ${n0(Fb)} = ${pct(fb / Fb)}.` },
+    { name: 'shear', ratio: fv / Fv, words: `Shear a depth in from the support V = w(L/2 - d) = ${n0(V)} lb. Stress fv = 1.5V/A = ${n0(fv)} psi against F'v = ${v.Fv} × ${c.CD} = ${n0(Fv)} psi: ${pct(fv / Fv)}.` },
     { name: 'deflection live', ratio: dl / (L / c.liveLimit), words: `Sag under the ${live} load alone, 5wL⁴/384EI = ${dl.toFixed(3)}", against L/${c.liveLimit} = ${(L / c.liveLimit).toFixed(3)}": ${pct(dl / (L / c.liveLimit))}.` },
     { name: 'deflection total', ratio: dt / (L / c.totalLimit), words: `Sag under all the load = ${dt.toFixed(3)}", against L/${c.totalLimit} = ${(L / c.totalLimit).toFixed(3)}": ${pct(dt / (L / c.totalLimit))}.` },
-    { name: 'bearing', ratio: fp / SPF2.Fc_perp, words: `End reaction wL/2 = ${n0(R)} lb on ${n2(b)}" x ${n2(bearingIn)}" of support = ${n0(fp)} psi against Fc⊥ ${SPF2.Fc_perp} psi: ${pct(fp / SPF2.Fc_perp)}.` },
+    { name: 'bearing', ratio: fp / v.Fc_perp, words: `End reaction wL/2 = ${n0(R)} lb on ${n2(b)}" x ${n2(bearingIn)}" of support = ${n0(fp)} psi against Fc⊥ ${v.Fc_perp} psi: ${pct(fp / v.Fc_perp)}.` },
   ];
   // The check this was written from must agree with it.
-  const ref = check({ size, plies, spacingIn, pitch, bearingIn, repetitive }, clearIn / 12, c);
+  const ref = check({ size, plies, spacingIn, pitch, bearingIn, repetitive, species }, clearIn / 12, c);
   const same = parts.every((p) => Math.abs(p.ratio - /** @type {any} */ (ref)[p.name]) < 1e-9);
   return { parts: same ? parts : [], inputs };
 }
@@ -161,16 +165,22 @@ export function utilisation(shed, sc = structuralChecks(shed)) {
   const k = shed.dims;
   const cos = 1 / Math.sqrt(1 + (d.pitch / 12) ** 2);
   const roof = roofCase(d.snowLoad);
-  const beam = d.roofType === 'ridgeBeam';
+  // A lean-to's rafter spans wall to wall, and its tall front wall has the studs checked (checks.mjs).
+  const lean = d.style === 'leanTo';
+  const beam = !lean && d.roofType === 'ridgeBeam';
   const idsOf = (pred) => shed.members.filter(pred).map((m) => m.id);
-  const truss = d.roofType === 'truss';
-  const rafterRunIn = d.width / 2 - (beam ? 1.5 : truss ? 0 : 0.75) - k.stud;
+  const truss = !lean && d.roofType === 'truss';
+  const rafterRunIn = lean ? d.width - 2 * k.stud : d.width / 2 - (beam ? 1.5 : truss ? 0 : 0.75) - k.stud;
+  const studLen = lean ? k.highWall - 4.5 : k.studLen;
   const tribFt = (beam ? rafterRunIn / 2 + k.stud + d.overhang : d.width / 2 + d.overhang) / 12;
   // As in checks.mjs: under trusses the eave walls also carry half the attic load.
-  const deadPlf = (15 / cos) * tribFt + (truss ? (trussForces(d).wc * d.width) / 2 / 12 / (d.rafterSpacing / 12) : 0);
-  const snowPlf = d.snowLoad * tribFt;
+  // On a gambrel, as in checks.mjs: the trusses' reactions, a loft's storage counted as dead.
+  const gam = d.style === 'gambrel' ? gambrelAnalysis(d) : null;
+  const deadPlf = gam ? gam.wall.dead + gam.wall.loft : (15 / cos) * tribFt + (truss ? (trussForces(d).wc * d.width) / 2 / 12 / (d.rafterSpacing / 12) : 0);
+  const snowPlf = gam ? gam.wall.snow : d.snowLoad * tribFt;
   // Headers pair with rows in the order checks.mjs walks the walls.
-  const headerQueue = Object.entries(shed.walls).flatMap(([name, wall]) => wall.openings.map((p) => ({ name, p })));
+  const headerQueue = Object.entries(shed.walls).flatMap(([name, wall]) => wall.openings.filter((p) => !p.bay).map((p) => ({ name, p })));
+  const bayQueue = Object.entries(shed.walls).flatMap(([name, wall]) => wall.openings.filter((p) => p.bay).map((p) => ({ name, p })));
   /** @type {Use[]} */
   const out = [];
   for (const row of sc.rows) {
@@ -179,12 +189,12 @@ export function utilisation(shed, sc = structuralChecks(shed)) {
     if (row.member === 'Floor joists') {
       const gaps = k.skidYs.slice(1).map((y, i) => y - k.skidYs[i]);
       const skidThick = shed.members.find((m) => m.kind === 'skid')?.geom.thickness ?? 3.5;
-      const r = beamWords({ size: d.joistSize, spacingIn: d.joistSpacing, bearingIn: skidThick }, Math.max(...gaps) - skidThick, FLOOR, 'on centre: each joist carries that strip of floor');
-      Object.assign(u, r, { kinds: ['floor joist'], explain: 'Each joist is a simple beam from skid to skid, checked over the widest gap between skids.' });
+      const r = beamWords({ size: d.joistSize, spacingIn: d.joistSpacing, bearingIn: skidThick, species: d.floorTreated ? 'SYP' : 'SPF' }, Math.max(...gaps) - skidThick, FLOOR, 'on centre: each joist carries that strip of floor');
+      Object.assign(u, r, { kinds: ['floor joist'], explain: `Each joist is a simple beam from skid to skid, checked over the widest gap between skids${d.floorTreated ? ', as Southern pine: treated lumber usually is' : ''}.` });
       u.ids = idsOf((m) => m.kind === 'floor joist');
     } else if (row.member === 'Rafters') {
       const r = beamWords({ size: d.rafterSize, spacingIn: d.rafterSpacing, pitch: d.pitch, bearingIn: k.stud }, rafterRunIn, roof, 'on centre: each rafter carries that strip of roof');
-      Object.assign(u, r, { kinds: ['rafter'], explain: 'Each rafter is checked on its horizontal run from the wall plate to the ridge, with the load on plan.' });
+      Object.assign(u, r, { kinds: ['rafter'], explain: lean ? 'Each rafter is a simple beam between the two walls, checked on its horizontal clear span with the load on plan.' : 'Each rafter is checked on its horizontal run from the wall plate to the ridge, with the load on plan.' });
       u.ids = idsOf((m) => m.kind === 'rafter');
     } else if (row.member === 'Ridge beam') {
       const r = beamWords({ size: d.beamSize, plies: 2, spacingIn: d.width / 2, pitch: d.pitch, repetitive: false, bearingIn: 3 }, d.length - 2 * k.stud, roof, 'of roof: the upper half of each rafter, both slopes');
@@ -222,6 +232,14 @@ export function utilisation(shed, sc = structuralChecks(shed)) {
         : bottom ? 'The bottom chord holds the heels together against the roof\'s outward thrust, and carries the attic load between its supports.'
           : 'The gussets join the members; their nails take the force that passes through the joint.';
       u.ids = top ? idsOf((m) => m.kind === 'rafter') : bottom ? idsOf((m) => m.kind === 'bottom chord') : [];
+    } else if (gam && GAMBREL_KINDS[row.member]) {
+      // The gambrel's rows come from its frame analysis (gambrel.mjs); the detail is the working.
+      u.kinds = GAMBREL_KINDS[row.member];
+      u.ids = idsOf((m) => u.kinds.includes(m.kind));
+      u.parts = [{ name: row.governs, ratio: row.ratio, words: `${row.size}: ${row.detail}.` }];
+      u.explain = /gusset|Heel/.test(row.member) ? 'A joint of the gambrel truss: its nails take the force or the moment that passes through it, from the truss solved as a three-hinged frame.'
+        : /tie|Loft/.test(row.member) ? 'The tie holds the truss feet together against the outward thrust; under a loft it is also the loft joist and bends under the stored load.'
+          : 'A gambrel chord carries the roof in bending and the truss\'s thrust along its length, checked for both together (NDS 3.9.2).';
     } else if (/^Header over the /.test(row.member)) {
       const q = headerQueue.shift();
       if (q) {
@@ -239,12 +257,60 @@ export function utilisation(shed, sc = structuralChecks(shed)) {
       u.parts = [{ name: 'span rating', ratio: d.joistSpacing / sf.spanOC, words: `Joists ${d.joistSpacing}" apart against the panel's APA span rating of ${sf.spanOC}" on centre (check the stamp): ${d.joistSpacing} / ${sf.spanOC} = ${pct(d.joistSpacing / sf.spanOC)}.` }];
       u.inputs = [['Panel', sf.name], ['Joist spacing', `${d.joistSpacing}"`]];
       u.explain = 'A panel, not a framing member: its maker rates it for a widest joist spacing, and that rating is the check.';
+    } else if (/^Plates over the /.test(row.member)) {
+      const q = bayQueue.shift();
+      if (q) {
+        const pl = bayPlates(shed, q.name, q.p);
+        u.parts = [{ name: 'bending', ratio: pl.ratio, words: pl.point
+          ? `A rafter landing mid-bay brings ${n0(pl.load)} lb; M = PL/4 over ${fmtIn(pl.span)} on two flat ${d.studSize} plates: ${pct(pl.ratio)}.`
+          : `${n0(pl.load)} lb/ft over ${fmtIn(pl.span)}; M = wL²/8 on two flat ${d.studSize} plates: ${pct(pl.ratio)}.` }];
+        u.inputs = [['Opening', `${fmtIn(q.p.w)} wide, inside one stud bay of the ${q.name} wall: no header`]];
+        u.ids = shed.walls[q.name].members.filter((m) => (m.kind === 'top plate' || m.kind === 'cap plate') && /** @type {any} */ (m.local).s0 <= q.p.bay[0] && /** @type {any} */ (m.local).s1 >= q.p.bay[1]).map((m) => m.id);
+      }
+      u.kinds = ['top plate', 'cap plate'];
+      u.explain = 'A window that fits between two studs cuts none, so the plates span its bay as they span every other.';
+    } else if (row.member === 'Rafter-to-plate ties (uplift)') {
+      const up = rafterUplift(shed);
+      u.inputs = [['Tie', `${up.tie.model}, ${up.tie.uplift} lb allowable uplift in SPF (Simpson catalog C-C-2024)`], ['Wind', `${d.windLoad} psf up on the rafter's strip of roof and under the overhang`]];
+      u.parts = [{ name: 'uplift', ratio: Math.max(0, up.net) / up.tie.uplift, words: `0.6 × wind = ${n0(up.up)} lb up, less 0.6 × the roof's weight = ${n0(up.dead)} lb, leaves ${n0(Math.max(0, up.net))} lb on the tie against ${up.tie.uplift} lb: ${pct(Math.max(0, up.net) / up.tie.uplift)}. It holds to about ${Math.floor(up.holdsPsf)} psf.` }];
+      // The member the tie holds down: a rafter, a truss's top chord, or a gambrel's lower chord.
+      u.kinds = ['rafter', 'top chord', 'lower chord'];
+      u.explain = 'Wind lifts the roof; the metal tie at each rafter end holds it to the wall plate.';
+      u.ids = idsOf((m) => u.kinds.includes(m.kind));
+    } else if (row.member === 'Wall bracing (racking)') {
+      const r = racking(shed);
+      u.parts = [{ name: 'shear', ratio: r.ratio, words: r.why }];
+      u.inputs = [['Bracing', r.what]];
+      u.kinds = ['stud'];
+      u.explain = 'Wind on one side pushes the walls toward a parallelogram; the panels nailed to the walls parallel to the wind hold them square.';
+      u.ids = idsOf((m) => m.group === `wall:${r.wall || 'front'}` && /stud/.test(m.kind));
+    } else if (row.member === 'Skids on blocks' || row.member === 'Blocks on the soil') {
+      const sk = skidOnBlocks(shed);
+      if (sk) {
+        const v = sk.values;
+        const inputs = /** @type {[string, string][]} */ ([['Skid', `PT ${d.skidSize}, ${sk.outer ? 'an outer skid, under the eave wall' : 'an inner skid'}; Southern pine No. 2, wet service: Fb ${n0(v.Fb)}, Fv ${n2(v.Fv)}, Fc⊥ ${n2(v.Fc_perp)} psi, E ${(v.E / 1e6).toFixed(2)} million psi`], ['Span', `${fmtIn(sk.L)} block to block`], ['Worst reaction', `${n0(sk.R)} lb on a block`]]);
+        if (row.member === 'Skids on blocks') {
+          u.parts = [
+            { name: 'bending', ratio: sk.ratios.bending, words: `wL²/8 on the block spacing, the worst of D+L, D+S and D+0.75(L+S) against F'b × CD: ${pct(sk.ratios.bending)}.` },
+            { name: 'shear', ratio: sk.ratios.shear, words: `0.625wL (a two-span skid's inside shear), fv = 1.5V/A against F'v × CD: ${pct(sk.ratios.shear)}.` },
+            { name: 'deflection', ratio: sk.ratios.deflection, words: `5wL⁴/384EI against L/240: ${pct(sk.ratios.deflection)}.` },
+            { name: 'bearing', ratio: sk.ratios.bearing, words: `${n0(sk.R)} lb on the skid's ${n2(actual(d.skidSize).thick)}" width x ${k.block.along}" of block against Fc⊥: ${pct(sk.ratios.bearing)}.` },
+          ];
+          u.explain = 'On blocks, a skid is a beam from block to block; treated skids are usually Southern pine, and on blocks they stay damp.';
+        } else {
+          u.parts = [{ name: 'soil bearing', ratio: sk.soil, words: `${n0(sk.R)} lb plus 50 lb for the block and skid, on ${n2(sk.footSqFt)} sq ft${sk.spread ? ' (spread 2" each side through the gravel bed)' : ''}, against ${SOIL_PSF} psf: ${pct(sk.soil)}.` }];
+          u.explain = 'The IRC presumes 1,500 psf for clay or silt when nobody has tested the soil (Table R401.4.1).';
+        }
+        u.inputs = inputs;
+      }
+      u.kinds = ['skid'];
+      u.ids = idsOf((m) => m.kind === 'skid');
     } else if (row.member === 'Wall studs') {
-      u.parts = studWords(d.studSize, d.studSpacing, k.studLen, [deadPlf, snowPlf], d.windLoad);
-      u.inputs = [['Stud', `${d.studSize} at ${d.studSpacing}", ${fmtIn(k.studLen)} long`], ['Roof on the eave wall', `${n0(deadPlf)} lb/ft dead + ${n0(snowPlf)} lb/ft snow`], ['Wind', `${d.windLoad} psf on the wall face`]];
+      u.parts = studWords(d.studSize, d.studSpacing, studLen, [deadPlf, snowPlf], d.windLoad);
+      u.inputs = [['Stud', `${d.studSize} at ${d.studSpacing}", ${fmtIn(studLen)} long${lean ? ' (the tall front wall)' : ''}`], ['Roof on the eave wall', `${n0(deadPlf)} lb/ft dead + ${n0(snowPlf)} lb/ft snow`], ['Wind', `${d.windLoad} psf on the wall face`]];
       u.kinds = ['stud'];
       u.explain = 'An eave-wall stud is a column under the roof that also bends under wind on the siding. Gable-wall studs carry less and share this result.';
-      u.ids = idsOf((m) => m.kind === 'stud' && (m.group === 'wall:front' || m.group === 'wall:back'));
+      u.ids = idsOf((m) => m.kind === 'stud' && (m.group === 'wall:front' || (!lean && m.group === 'wall:back')));
     }
     if (u.parts.length) {
       const top = worstPart(u.parts);
@@ -322,7 +388,7 @@ function lighter(u, d) {
   if (u.member === 'Subfloor') return { probes: [], reason: 'code', why: 'Its use is the joist spacing over the panel\'s rated span; it rises only if the joists spread out.' };
   if (u.member === 'Ridge beam posts') return { probes: [], reason: 'minimum', why: `Two plies of the ${d.studSize} studs is the smallest post that gives the two-ply beam (3" wide) full bearing; the load is small, so it sits well under capacity.` };
   if (u.member === 'Ridge board') return { probes: [], reason: 'code', why: 'Not a beam. IRC R802.3 asks for a ridge board at least 1" nominal and no less in depth than the cut end of the rafter, so its size follows the rafter.' };
-  if (/^Header over/.test(u.member)) return { probes: [], reason: 'minimum', why: '2-ply 2x6 is the smallest header the tool frames. A short opening could take less (a single or flat header); the tool does not frame that yet.' };
+  if (/^Header over/.test(u.member)) return { probes: [], reason: 'minimum', why: 'Two 2x4s, the shallowest header the tool frames (each header is sized to its load). A window that fits between two studs needs none: slide it into a stud bay.' };
   if (u.member === 'Wall studs') {
     if (d.studSize !== '2x4') return { probes: [{ label: `2x4 studs at ${d.studSpacing}"`, change: { studSize: '2x4' } }] };
     if (d.studSpacing < 24 && sidingSpan(d) >= 24) return { probes: [{ label: '2x4 studs at 24"', change: { studSpacing: 24 } }] };
@@ -380,3 +446,16 @@ export function marginReport(shed, target = 0.7, uses = utilisation(shed)) {
   }
   return { target, over, above, far };
 }
+
+/** Gambrel check rows and the member kinds each colours. */
+const GAMBREL_KINDS = /** @type {Record<string, string[]>} */ ({
+  'Lower chords': ['lower chord'],
+  'Upper chords': ['upper chord'],
+  'Truss ties': ['rafter tie'],
+  'Loft joists (also the truss ties)': ['rafter tie', 'loft joist'],
+  'Loft joist deflection': ['rafter tie', 'loft joist'],
+  'Knee gussets (nails)': ['lower chord', 'upper chord'],
+  'Peak gussets (nails)': ['upper chord'],
+  'Heel (tie to lower chord)': ['rafter tie'],
+  'Chord seat on the plate': ['lower chord'],
+});

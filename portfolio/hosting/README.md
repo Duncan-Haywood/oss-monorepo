@@ -8,12 +8,22 @@ Read it for study; nothing in it is current instruction.
 
 ## What is served now
 
-- **The catalogue is served by GitHub Pages** at
-  **https://duncan-haywood.github.io/oss-monorepo/**. The Pages source is
-  "GitHub Actions" (since 2026-10-20): `.github/workflows/portfolio-pages.yml`
-  builds and deploys it on every merge that touches a site input, and every
-  three hours. Deploying is on by default; `vars.PAGES_ENABLED=false` pauses
-  it.
+- **The catalogue is served by Cloudflare** at
+  **https://monorepo-projects-site.duncan-andrew-haywood.workers.dev/**
+  (owner, 2026-10-29: "we are moving from ghp to cloudflare"). Two free-plan
+  Workers serve it as static files, because one free Worker holds at most
+  20,000 files and the site is past that: `platform/pages/cloudflare/README.md`.
+  `.github/workflows/portfolio-pages.yml` builds for that origin and deploys
+  on every merge and every three hours. `vars.PAGES_ENABLED=false` pauses it;
+  `vars.PAGES_BASE_URL` moves it (a custom domain, once its route exists).
+- **GitHub Pages now serves redirect pages.** The old address,
+  https://duncan-haywood.github.io/oss-monorepo/, carries one page per old
+  URL with a canonical link, a zero-second refresh and a script redirect to
+  the same path on Cloudflare (`platform/pages/redirect-stubs.mjs`); feeds,
+  sitemaps and JSON are copied unchanged. GitHub Pages cannot send a real
+  301. The redirect deploy runs only after the Cloudflare deploy has
+  published and answered. Without the Cloudflare secrets the workflow falls
+  back to serving the full site on GitHub Pages, as before.
 - **The Hetzner boxes, the k3s cluster and Argo CD were deleted on
   2026-10-01.** That route is retired, not down. Manifests under
   `gitops/prod` describe a dead origin, and its old IP addresses may now
@@ -33,7 +43,7 @@ Read it for study; nothing in it is current instruction.
 
 **Pick the form the product's users need** (`PRODUCT_PLAYBOOK.md` §2). There
 is no static-only rule (owner, 2026-10-21). A web surface, if it has one,
-lives on GitHub Pages. A product that needs a process, disk or webhook ships
+lives on the site (Cloudflare since 2026-10-29). A product that needs a process, disk or webhook ships
 for its users or deployers to run (container image, self-deploy, local
 package). Hosting it on a bill of the owner's needs the owner, because that
 spends money and opens an account (`goals.md`, "Guardrails").
@@ -71,13 +81,12 @@ python3 platform/ci/build_pages_site.py          # build into _site/
 python3 platform/ci/check_pages_links.py _site   # fail on any link that 404s
 ```
 
-**Other hosts.** Cloudflare, Vercel and Railway are not portfolio defaults,
-and the gated workflows that mention them stay unused. The reason is cost
-and ownership, not taste: Pages is $0, has no box to patch and keeps no user
-data on a disk of ours, while a new host means an account only the owner can
-open. A product with a real need Pages cannot meet (a backend, say) is the
-case to make, with the need stated. `local-site-studio` keeps Convex for its
-backend; replacing it would be a rewrite.
+**Other hosts.** The site moved from GitHub Pages to Cloudflare's free plan
+on 2026-10-29 at the owner's request. The free plan cannot bill: going over
+a limit fails requests rather than charging. Vercel and Railway are still not
+defaults, and a product that needs a backend should state the need.
+`local-site-studio` keeps Convex for its backend; replacing it would be a
+rewrite.
 
 **Terms users see.** Hosted surfaces carry the no-warranty and no-SLA copy
 in [`PRODUCT_PLAYBOOK.md`](../../PRODUCT_PLAYBOOK.md) §5b; the Pages build

@@ -1,0 +1,32 @@
+# Any box with Docker (a VPS, a Raspberry Pi, a home server). From this folder:
+#   ADMIN_KEY=$(openssl rand -hex 16) CAL_TOKEN=$(openssl rand -hex 12) docker compose up -d
+# Keep the two values somewhere safe (a password manager). Put it behind HTTPS
+# (Caddy, nginx, a Cloudflare or Tailscale tunnel) before families use the form.
+# Your desk and its daily snapshots live in the "state" volume. Guide: self-host.html.
+services:
+  babysitting-desk:
+    build: .
+    restart: unless-stopped
+    ports: ["8080:8080"]
+    volumes: ["state:/data"]
+    environment:
+      ADMIN_KEY: ${ADMIN_KEY:?set ADMIN_KEY}
+      CAL_TOKEN: ${CAL_TOKEN:?set CAL_TOKEN}
+      STATE: /data/desk.json
+      TZ: ${TZ:-America/Chicago}
+      DIGEST_HOUR: ${DIGEST_HOUR:-7}
+      # Optional, your own accounts: leave blank to keep them off
+      NOTIFY_WEBHOOK_URL: ${NOTIFY_WEBHOOK_URL:-}
+      NOTIFY_FORMAT: ${NOTIFY_FORMAT:-ntfy}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      FROM_EMAIL: ${FROM_EMAIL:-}
+      NOTIFY_EMAIL: ${NOTIFY_EMAIL:-}
+      AUTO_REPLY: ${AUTO_REPLY:-0}
+      AUTO_FOLLOW_UP: ${AUTO_FOLLOW_UP:-0}
+      BACKUP_S3_ENDPOINT: ${BACKUP_S3_ENDPOINT:-}
+      BACKUP_S3_REGION: ${BACKUP_S3_REGION:-}
+      BACKUP_S3_BUCKET: ${BACKUP_S3_BUCKET:-}
+      BACKUP_S3_ACCESS_KEY_ID: ${BACKUP_S3_ACCESS_KEY_ID:-}
+      BACKUP_S3_SECRET_ACCESS_KEY: ${BACKUP_S3_SECRET_ACCESS_KEY:-}
+volumes:
+  state:

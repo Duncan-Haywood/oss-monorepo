@@ -129,7 +129,7 @@ export const isLap = (type) => Object.prototype.hasOwnProperty.call(LAP_PRODUCTS
 
 /**
  * @typedef {{ s0: number, s1: number, z0: number, z1: number }} Box
- * @typedef {{ wall: string, len: number, bottom: number, top: (s: number) => number, peakAt?: number,
+ * @typedef {{ wall: string, len: number, bottom: number, top: (s: number) => number, peakAt?: number, bends?: number[],
  *   from: number, to: number, holes: Box[], wood: Box[], maxPlank: number, stagger: number }} Face
  * @typedef {{ wall: string, course: number, zb: number, a: number, b: number, len: number, rake: boolean, notched: boolean, pts: [number, number][] }} LapPiece
  */
@@ -159,20 +159,15 @@ export function layoutFace(face, spec) {
   const topMax = Math.max(...[face.from, face.to, face.peakAt ?? face.from].map((s) => face.top(s)));
   /** Places where a joint may go: full-height framing at least 1-1/2" wide. */
   const centres = [...new Set(face.wood.filter((w) => w.z1 - w.z0 >= 12 && w.s1 - w.s0 >= 1.5 - EPS).map((w) => Math.round(((w.s0 + w.s1) / 2) * 16) / 16))].sort((a, b) => a - b);
-  /** @type {LapPiece[]} */
-  const pieces = [];
-  /** @type {{ x: number, course: number, zb: number, backed: boolean }[]} */
-  const joints = [];
-  let starter = 0;
-  let below = /** @type {number[]} */ ([]);
-  let nails = 0;
-  const courses = [];
+
+  // Pass 1: each course's extent, its runs between openings and its notches.
+  /** @type {{ i: number, zb: number, zt: number, rake: boolean, segs: number[][], notches: Box[], wooded: (c: number) => boolean }[]} */
+  const rows = [];
   for (let i = 0; ; i++) {
     const zb = face.bottom + i * e;
     if (zb > topMax - 1) break;
-    // The band this course shows, and the band its plank covers (for nailing into wood).
     const zt = zb + e;
-    // Extent: where the top of the wall is at least an inch above the course bottom.
+    // Extent: where the top of the wall is at least 2" above the course bottom.
     let a = face.from;
     let b = face.to;
     const reach = (s) => face.top(s) > zb + 2;
@@ -182,8 +177,9 @@ export function layoutFace(face, spec) {
     if (!reach(b)) { let lo = face.peakAt ?? (a + b) / 2; let hi = b; for (let k = 0; k < 40; k++) { const m = (lo + hi) / 2; if (reach(m)) lo = m; else hi = m; } b = lo; }
     if (b - a < 1) break;
     const rake = face.top(a) < zt - EPS || face.top(b) < zt - EPS;
-    // Openings that cover the whole exposed band split the course.
+    // Openings that cover the whole exposed band split the course; others notch it.
     let segs = [[a, b]];
+    /** @type {Box[]} */
     const notches = [];
     for (const h of face.holes) {
       if (h.s1 <= a + EPS || h.s0 >= b - EPS || h.z1 <= zb + EPS || h.z0 >= zt - EPS) continue;
@@ -191,39 +187,86 @@ export function layoutFace(face, spec) {
         segs = segs.flatMap(([p, q]) => (h.s1 <= p || h.s0 >= q ? [[p, q]] : [[p, Math.max(p, h.s0)], [Math.min(q, h.s1), q]])).filter(([p, q]) => q - p > 0.5);
       } else notches.push(h);
     }
-    const course = { course: i, zb, segs: [] };
+    // A joint needs wood under both plank ends the height of the plank, clear of any notch.
+    const wooded = (c) => backed(face.wood, c, zb + 0.75, Math.min(zb + spec.width, face.top(c)) - 0.75)
+      && !notches.some((h) => h.s0 < c + 0.75 && h.s1 > c - 0.75);
+    rows.push({ i, zb, zt, rake, segs, notches, wooded });
+  }
+
+  // Pass 2: butt joints. Every joint sits on a stud centre with wood under both
+  // plank ends, clear of the joints in the course below. Plans are searched
+  // depth first, longest plank first; a course takes the first plan that still
+  // leaves the course above a legal one (a greedy pick can strand it, as a
+  // window notching the next course can leave only a stud or two to break on).
+  const reachable = (row, q, pos) => [...centres].reverse().filter((c) => c > pos + spec.minPiece - EPS && c <= pos + face.maxPlank + EPS && q - c >= spec.minPiece - EPS && row.wooded(c));
+  /** Legal joint sets for one run, best first (at most `cap`). */
+  const segPlans = (row, p, q, below, cap) => {
+    /** @type {number[][]} */
+    const out = [];
+    const walk = (pos, acc) => {
+      if (out.length >= cap) return;
+      if (q - pos <= face.maxPlank + EPS) { out.push(acc); return; }
+      for (const c of reachable(row, q, pos)) if (below.every((j) => Math.abs(j - c) >= face.stagger - EPS)) walk(c, [...acc, c]);
+    };
+    walk(p, []);
+    return out;
+  };
+  /** Legal joint sets for a whole course, best first: the runs' plans combined. */
+  const coursePlans = (row, below, cap) => {
+    /** @type {number[][]} */
+    let combos = [[]];
+    for (const [p, q] of row.segs) {
+      const opts = segPlans(row, p, q, below, cap);
+      if (!opts.length) return [];
+      combos = combos.flatMap((c) => opts.map((o) => [...c, ...o])).slice(0, cap);
+    }
+    return combos;
+  };
+
+  /** @type {LapPiece[]} */
+  const pieces = [];
+  /** @type {{ x: number, course: number, zb: number, backed: boolean }[]} */
+  const joints = [];
+  let starter = 0;
+  let below = /** @type {number[]} */ ([]);
+  let nails = 0;
+  const courses = [];
+  for (const [n, row] of rows.entries()) {
+    const next = rows[n + 1];
+    const plans = coursePlans(row, below, 40);
+    const chosen = plans.find((pl) => !next || coursePlans(next, pl, 1).length) ?? plans[0];
     /** @type {number[]} */
     const here = [];
-    for (const [p, q] of segs) {
-      // Butt joints: each plank as long as it can be, ending on a stud centre
-      // clear of the joints in the course below.
+    const course = { course: row.i, zb: row.zb, segs: /** @type {number[][]} */ ([]) };
+    for (const [p, q] of row.segs) {
       const cuts = [p];
-      let pos = p;
-      while (q - pos > face.maxPlank + EPS) {
-        const wooded = (c) => backed(face.wood, c, zb + 0.75, Math.min(zb + spec.width, face.top(c)) - 0.75)
-          && !notches.some((h) => h.s0 < c + 0.75 && h.s1 > c - 0.75);
-        const ok = (c) => c > pos + spec.minPiece - EPS && c <= pos + face.maxPlank + EPS && (q - c >= spec.minPiece - EPS)
-          && below.every((j) => Math.abs(j - c) >= face.stagger - EPS) && wooded(c);
-        // No stud clear of the course below: take the best stud anyway and let the stagger check say so.
-        const c = [...centres].reverse().find(ok) ?? [...centres].reverse().find((x) => x > pos + spec.minPiece - EPS && x <= pos + face.maxPlank + EPS && wooded(x));
-        const at = c ?? pos + face.maxPlank;
-        joints.push({ x: at, course: i, zb, backed: c !== undefined });
-        here.push(at);
-        cuts.push(at);
-        pos = at;
+      if (chosen) {
+        for (const c of chosen.filter((x) => x > p && x < q)) { joints.push({ x: c, course: row.i, zb: row.zb, backed: true }); here.push(c); cuts.push(c); }
+      } else {
+        // No legal set exists: the best stud each time, and the checks say which rule it breaks.
+        let pos = p;
+        while (q - pos > face.maxPlank + EPS) {
+          const opts = reachable(row, q, pos);
+          const c = opts.find((x) => below.every((j) => Math.abs(j - x) >= face.stagger - EPS)) ?? opts[0];
+          const at = c ?? pos + face.maxPlank;
+          joints.push({ x: at, course: row.i, zb: row.zb, backed: c !== undefined });
+          here.push(at);
+          cuts.push(at);
+          pos = at;
+        }
       }
       cuts.push(q);
       for (let k = 0; k + 1 < cuts.length; k++) {
         const s0 = cuts[k];
         const s1 = cuts[k + 1];
         // A sliver at the peak is left to the rake board that covers it.
-        if (rake && s1 - s0 < 4) continue;
-        const pts = outline(face, s0, s1, zb, zt, notches);
-        pieces.push({ wall: face.wall, course: i, zb, a: s0, b: s1, len: Math.ceil((s1 - s0) * 8) / 8, rake, notched: notches.some((h) => h.s0 < s1 && h.s1 > s0), pts });
+        if (row.rake && s1 - s0 < 4) continue;
+        const pts = outline(face, s0, s1, row.zb, row.zt, row.notches);
+        pieces.push({ wall: face.wall, course: row.i, zb: row.zb, a: s0, b: s1, len: Math.ceil((s1 - s0) * 8) / 8, rake: row.rake, notched: row.notches.some((h) => h.s0 < s1 && h.s1 > s0), pts });
         // One nail per stud the piece crosses (the ends share the joint's stud).
         nails += centres.filter((c) => c >= s0 - 0.75 && c <= s1 + 0.75).length;
       }
-      if (i === 0) starter += q - p;
+      if (row.i === 0) starter += q - p;
       course.segs.push([p, q]);
     }
     courses.push(course);
@@ -239,7 +282,18 @@ export function layoutFace(face, spec) {
 function outline(face, s0, s1, zb, zt, notches) {
   const brk = new Set([s0, s1]);
   if (face.peakAt !== undefined && face.peakAt > s0 && face.peakAt < s1) brk.add(face.peakAt);
+  // A gambrel's knees bend the roof line too.
+  for (const s of face.bends || []) if (s > s0 && s < s1) brk.add(s);
   for (const h of notches) for (const s of [h.s0, h.s1]) if (s > s0 && s < s1) brk.add(s);
+  // Where the course's top meets the roof line, so the piece follows the rake instead of cutting a corner off it.
+  const roofAt = [...brk].sort((p, q) => p - q);
+  for (let k = 0; k + 1 < roofAt.length; k++) {
+    let [lo, hi] = [roofAt[k], roofAt[k + 1]];
+    const f = (s) => face.top(s) - zt;
+    if (f(lo) * f(hi) >= 0) continue;
+    for (let n = 0; n < 40; n++) { const m = (lo + hi) / 2; if (f(m) * f(lo) > 0) lo = m; else hi = m; }
+    brk.add((lo + hi) / 2);
+  }
   const xs = [...brk].sort((p, q) => p - q);
   const topAt = (s, mid) => {
     let z = Math.min(zt, face.top(s));

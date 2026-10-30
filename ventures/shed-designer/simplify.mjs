@@ -15,6 +15,7 @@ import { structuralChecks } from './checks.mjs';
 import { connectionChecks } from './connections.mjs';
 import { BLOCKS, ROOF_TYPES } from './model.mjs';
 import { PRODUCTS } from './products.mjs';
+import { openingMoves } from './framing-moves.mjs';
 import { LAP_PRODUCTS, isLap, lapStudLimit } from './lap.mjs';
 import { floorMoves, searchKeep } from './levers.mjs';
 
@@ -37,6 +38,8 @@ export function cutMetrics(shed, est) {
   for (const m of all) {
     if (m.kind === 'rafter') { angled += shed.dims.overhang > 0 ? 2 : 1; if (!shed.dims.connector && !shed.dims.truss) notches += 1; }
     else if (m.kind === 'king post') angled += 2;
+    // A gambrel chord: a level foot or a plumb cut at one end, a mitre at the knee; its tie has both ends cut to the slope.
+    else if (m.kind === 'lower chord' || m.kind === 'upper chord' || (m.kind === 'rafter tie' && shed.design.style === 'gambrel')) angled += 2;
     else if (m.kind === 'gable stud' || m.kind === 'vent trimmer' || m.kind === 'post stud' && m.group.startsWith('gable')) angled += 1;
     else if (m.kind === 'eave blocking') angled += 1;
     else if (m.kind === 'door brace') angled += 2;
@@ -95,8 +98,8 @@ export function laborHours(shed, est, cuts = cutMetrics(shed, est)) {
   let min = cuts.straight * 1 + cuts.angled * 2.5 + cuts.notches * 4;
   min += (shed.members.length + (shed.doorParts || []).length) * 2.5;
   min += shed.fixtures.filter((f) => f.kind === 'connector').length;
-  // Each truss gusset: marked and cut from OSB, glued and nailed (our planning figure, like MINUTES).
-  min += shed.panels.filter((p) => p.kind === 'truss gusset').length * 4;
+  // Each truss gusset, or a gambrel's plywood one: marked, cut, glued and nailed (our planning figure, like MINUTES).
+  min += shed.panels.filter((p) => p.kind === 'truss gusset' || p.kind === 'gambrel gusset').length * 4;
   min += (shed.wallTrim || []).length * 8;
   for (const r of est.shopping) {
     const m = /** @type {Record<string, number>} */ (MINUTES)[r.source?.key];
@@ -120,7 +123,10 @@ function moves(d, base, resize, opts = {}) {
   if (d.studSpacing === 24 || sidingSpan(d) >= 24) set(`studs ${d.studSpacing === 24 ? 16 : 24}" o.c.`, { studSpacing: d.studSpacing === 24 ? 16 : 24 });
   floorMoves(d, set);
   set(d.rafterSeat === 'connector' ? 'birdsmouth seats' : 'variable-pitch connectors', { rafterSeat: d.rafterSeat === 'connector' ? 'birdsmouth' : 'connector' });
-  for (const r of ROOF_TYPES) if (r.type !== d.roofType) set(r.short, { roofType: r.type }, 'roofType');
+  // A lean-to has no ridge, so no roof structure to change.
+  if (d.style !== 'leanTo') for (const r of ROOF_TYPES) if (r.type !== d.roofType) set(r.short, { roofType: r.type }, 'roofType');
+  // Sliding a door or window so the framing around it shrinks (framing-moves.mjs).
+  openingMoves(d, set);
   // Off-the-shelf swaps, when asked: another stock door or window, siding,
   // roofing, foundation, gravel and subfloor.
   if (opts.products) {
@@ -149,7 +155,9 @@ function moves(d, base, resize, opts = {}) {
   // Only when asked: a foot either way on the length or width, never below 85% of the floor asked for.
   const keep = opts.keep || [];
   const held = (m) => Object.keys(m.change).some((k) => keep.includes(k))
-    || (keep.includes('doors') && m.group.startsWith('door')) || (keep.includes('windows') && m.group === 'windows');
+    || (keep.includes('doors') && m.group.startsWith('door')) || (keep.includes('windows') && m.group === 'windows')
+    // Sliding a door or window (framing-moves.mjs) is held when that kind is fixed.
+    || (m.group.startsWith('place ') && keep.includes(`${m.group.split(' ')[1]}s`));
   const kept = () => out.filter((m) => !held(m));
   if (!resize) return kept();
   for (const [k, dv] of /** @type {[string, number][]} */ ([['length', 12], ['length', -12], ['width', 12], ['width', -12]])) {
@@ -252,7 +260,7 @@ export function budget(design, prices, opts = {}) {
   const used = new Set();
   for (const { mv } of singles) {
     if (used.has(mv.group)) continue;
-    const r = get(normalize({ ...cur.design, ...mv.change, ...(mv.group.startsWith('door') || mv.group === 'windows' ? { openings: mergeOpenings(cur.design.openings, mv.change.openings) } : {}) }));
+    const r = get(normalize({ ...cur.design, ...mv.change, ...(mv.group.startsWith('door') || mv.group.startsWith('place') || mv.group === 'windows' ? { openings: mergeOpenings(cur.design.openings, mv.change.openings, mv.group.startsWith('place') ? 'offset' : 'product') } : {}) }));
     if (!feasible(r) || cost(r) >= cost(cur) - 0.5) continue;
     used.add(mv.group);
     steps.push(step(mv.label, cur, r));
@@ -283,11 +291,11 @@ export function budget(design, prices, opts = {}) {
   return { base, best: { ...cur, steps }, also: alsoKept, taller, peakCap, evaluated: cache.size, keep };
 }
 
-/** Openings from one move laid over another's: each opening keeps the latest product chosen for it. */
-function mergeOpenings(current, changed) {
+/** Take one field (a product swap, or a slide's offset) from a move's openings into the current ones. */
+function mergeOpenings(current, changed, field = 'product') {
   return current.map((o) => {
     const c = changed.find((x) => x.id === o.id);
-    return c && c.product !== o.product ? { ...o, product: c.product } : o;
+    return c && c[field] !== o[field] ? { ...o, [field]: c[field] } : o;
   });
 }
 

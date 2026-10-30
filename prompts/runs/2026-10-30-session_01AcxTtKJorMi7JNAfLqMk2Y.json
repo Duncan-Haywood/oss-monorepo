@@ -1,0 +1,61 @@
+{
+  "date": "2026-10-30",
+  "session": "https://claude.ai/code/session_01AcxTtKJorMi7JNAfLqMk2Y",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-30T03:08:49Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 11643,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "writeups": [],
+  "goal": null,
+  "notes": "",
+  "corrections": [
+    {
+      "date": "2026-10-30",
+      "field": "pr",
+      "from": null,
+      "to": 11643,
+      "why": "record committed blank inside PR #11643, which merged to main (git log); filled by another session so promptctl validate passes on main"
+    },
+    {
+      "date": "2026-10-30",
+      "field": "outcome",
+      "from": null,
+      "to": "success",
+      "why": "record committed blank inside PR #11643, which merged to main (git log); filled by another session so promptctl validate passes on main; outcome inferred from the merge only"
+    },
+    {
+      "date": "2026-10-30",
+      "field": "merged",
+      "from": null,
+      "to": true,
+      "why": "record committed blank inside PR #11643, which merged to main (git log); filled by another session so promptctl validate passes on main"
+    }
+  ],
+  "redteam": null
+}

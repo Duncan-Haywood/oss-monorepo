@@ -24,7 +24,7 @@ export function maxTreadSpan(thickness) { return thickness < 1.25 ? 12 : thickne
 /** Guard and handrail limits (model residential code's usual ones, typed so the local book can change them): 36 in guard, handrail 34 to 38 in above the nose line, balusters with no clear gap a 4 in sphere passes, posts no more than 72 in apart, 4 in under the bottom rail. */
 export const RAIL_LIMITS = { guardHeight: 36, handrailMin: 34, handrailMax: 38, maxGap: 4, maxPostSpacing: 72, bottomGap: 4 };
 
-/** @typedef {{ sides?: number, handrail?: boolean, handrailHeight?: number, balusterWidth?: number, railBoard?: string, postWidth?: number, limits?: Partial<typeof RAIL_LIMITS> }} Rail */
+/** @typedef {{ sides?: number, handrail?: boolean, handrailHeight?: number, bracketSpacing?: number, balusterWidth?: number, railBoard?: string, postWidth?: number, limits?: Partial<typeof RAIL_LIMITS> }} Rail */
 /** @typedef {{ id?: string, rail?: Rail, totalRise: number, tread?: number, stringer?: string, width?: number, stringerSpacing?: number, treadThickness?: number, treadBoard?: string, treadGap?: number, nosing?: number, floorThickness?: number, openingLength?: number, openRisers?: boolean, riserBoard?: string, treadSpanMax?: number, limits?: Partial<typeof STAIR_LIMITS> }} Stair */
 
 export function sampleStair() {
@@ -146,7 +146,7 @@ export function layoutRail(g, r, notes) {
     sides, segments, posts: { count: posts * sides, perSide: posts, width: post },
     balusters: { count: perSegment * segments * sides, perSegment, length: balusterLength, width: bw, gap },
     guardRails: { size: board, count: 2 * sides, length: railLength },
-    handrail: r.handrail === false ? null : { count: 1, height: hh, length: g.pitch + 12 + g.tread },
+    handrail: r.handrail === false ? null : handrailWithBrackets({ count: 1, height: hh, length: g.pitch + 12 + g.tread }, r.bracketSpacing ?? 48),
     guardHeight: L.guardHeight, maxGap: L.maxGap,
   };
 }
@@ -177,6 +177,11 @@ export function layoutLandingGuard(edges, r = {}, sharedCorners = 0) {
   return { edges, sharedCorners, posts: { count: posts, width: post }, balusters: { count: balusters, length: L.guardHeight - 2 * thick - L.bottomGap, width: bw, maxGap: gapMax }, guardRails: { size: board, count: rails.length, lengths: rails }, guardHeight: L.guardHeight };
 }
 
+/** Wall brackets for a handrail: one near each end plus enough between that none is farther apart than `spacing` (a typed 48 in, not a code figure). */
+function handrailWithBrackets(h, spacing) {
+  return { ...h, bracketSpacing: spacing, brackets: Math.max(2, Math.ceil(h.length / spacing - 1e-9) + 1) };
+}
+
 /** Cut rows in the engine's shape, so `takeoff(plan, stairCuts(layout))` buys stair lumber with the walls'. */
 export function stairCuts(l) {
   if (!l.ok) return [];
@@ -197,7 +202,7 @@ export function stairText(l) {
   out.push(`  Stairwell opening at least ${formatLength(l.minOpening)} long for ${formatInches(l.limits.headroom)} of headroom${l.opening ? `; yours ${formatLength(l.opening.length)} leaves ${formatInches(l.opening.headroom)}${l.opening.ok ? "" : " (too short)"}` : ""}`);
   if (l.rail) {
     const q = l.rail;
-    out.push(`  Guard (${q.sides} side${q.sides === 1 ? "" : "s"}, ${formatInches(q.guardHeight)} high): ${q.posts.count} posts, ${q.balusters.count} balusters ${formatInches(q.balusters.length)} at the long point with ${formatInches(q.balusters.gap)} clear (limit ${formatInches(q.maxGap)}), ${q.guardRails.count} ${q.guardRails.size} rails ${formatLength(q.guardRails.length)}${q.handrail ? `; handrail ${formatLength(q.handrail.length)} at ${formatInches(q.handrail.height)}` : ""}`);
+    out.push(`  Guard (${q.sides} side${q.sides === 1 ? "" : "s"}, ${formatInches(q.guardHeight)} high): ${q.posts.count} posts, ${q.balusters.count} balusters ${formatInches(q.balusters.length)} at the long point with ${formatInches(q.balusters.gap)} clear (limit ${formatInches(q.maxGap)}), ${q.guardRails.count} ${q.guardRails.size} rails ${formatLength(q.guardRails.length)}${q.handrail ? `; handrail ${formatLength(q.handrail.length)} at ${formatInches(q.handrail.height)} on ${q.handrail.brackets} brackets (at most ${formatInches(q.handrail.bracketSpacing)} apart)` : ""}`);
   }
   for (const n of l.notes) out.push(`  Note: ${n}`);
   return out;
@@ -239,6 +244,7 @@ export function layoutStairWithLanding(input, plan) {
     deck: { size: deckSize, count: deckBoards, length: width, area: (width * depth) / 144 },
     footprint: lower.run + depth + upper.run,
     posts: layoutLandingPosts(width, depth, rise1 - DEPTH[joistSize] - 1.5, lc.postSpacing ?? 96),
+    footings: lc.soilBearing != null ? sizeLandingFootings(width, depth, lc.postSpacing ?? 96, { soilBearing: lc.soilBearing, liveLoad: lc.liveLoad, deadLoad: lc.deadLoad }) : null,
     guard: lc.openEdges?.length ? layoutLandingGuard(lc.openEdges.map((e) => (e === "end" ? width : depth)), input.rail || {}, Math.min(4, lc.openEdges.filter((e) => e === "end").length * lc.openEdges.filter((e) => e !== "end").length)) : null,
     notes: ["Landing posts are counted, not sized, and footings are not sized: the platform carries a stair load plus the flights' ends, so check post size, footings and the typed `postSpacing` (96 in unless set) against your code and the actual spans."],
   };
@@ -255,6 +261,26 @@ export function layoutLandingPosts(width, depth, height, spacing = 96) {
   const along = bays(width), across = bays(depth);
   const count = 2 * (along + across);
   return { count, height: Math.max(0, height), alongBays: along, acrossBays: across, spacing };
+}
+
+/**
+ * Footing size under the heaviest landing post, from typed figures only (`soilBearing` psf has no default: it is the
+ * site's, from the soil report or the local book; `liveLoad` 40 and `deadLoad` 10 psf are the usual figures, typed over
+ * if yours differ). The platform load is shared by the posts around its edge: a mid-edge post takes half a bay, a corner
+ * post a quarter bay, so the heaviest is the edge post when any side has two bays or more. The flights' ends and
+ * the guard are not added. Returns the load, the area it needs, and a round and a square footing rounded up to the inch.
+ */
+export function sizeLandingFootings(width, depth, spacing, { soilBearing, liveLoad = 40, deadLoad = 10 } = {}) {
+  if (!(soilBearing > 0)) return { ok: false, errors: ["soilBearing must be a positive figure in psf."] };
+  const bays = (len) => Math.max(1, Math.ceil(len / spacing - 1e-9));
+  const along = bays(width), across = bays(depth);
+  const bay = (width / along) * (depth / across) / 144; // sq ft
+  const share = along > 1 || across > 1 ? 0.5 : 0.25;
+  const load = bay * share * (liveLoad + deadLoad);
+  const area = (load / soilBearing) * 144; // sq in
+  const round = Math.max(1, Math.ceil(2 * Math.sqrt(area / Math.PI) - 1e-9));
+  const square = Math.max(1, Math.ceil(Math.sqrt(area) - 1e-9));
+  return { ok: true, soilBearing, liveLoad, deadLoad, tributary: bay * share, load, area, round, square, count: 2 * (along + across) };
 }
 
 export function landingCuts(r) {
@@ -276,6 +302,7 @@ export function landingText(r) {
     ...r.flights.flatMap(stairText),
     `  Landing: ${g.joists.count} ${g.joists.size} joists ${formatLength(g.joists.length)} (${formatInches(g.joists.spacing)} apart), 2 rims ${formatLength(g.rims.length)}, ${g.deck.count} ${g.deck.size} deck boards ${formatLength(g.deck.length)}; run on plan ${formatLength(g.footprint)} for a straight stair`,
     `  Landing posts: ${g.posts.count} (${g.posts.alongBays} x ${g.posts.acrossBays} bays around the edge, at most ${formatInches(g.posts.spacing)} apart), each ${formatInches(g.posts.height)} above its footing`,
+    ...(g.footings?.ok ? [`  Landing footings: heaviest post ${Math.round(g.footings.load)} lb (${g.footings.tributary.toFixed(1)} sq ft at ${g.footings.liveLoad + g.footings.deadLoad} psf) on ${g.footings.soilBearing} psf soil needs ${g.footings.area.toFixed(0)} sq in: ${g.footings.round} in round or ${g.footings.square} in square, ${g.footings.count} footings`] : []),
     ...(g.guard ? [`  Landing guard (${g.guard.edges.length} open edge${g.guard.edges.length === 1 ? "" : "s"}, ${formatInches(g.guard.guardHeight)} high): ${g.guard.posts.count} posts, ${g.guard.balusters.count} balusters ${formatInches(g.guard.balusters.length)} with at most ${formatInches(g.guard.balusters.maxGap)} clear (limit ${formatInches(RAIL_LIMITS.maxGap)}), ${g.guard.guardRails.count} ${g.guard.guardRails.size} rails`] : []),
     ...g.notes.map((n) => `  Note: ${n}`),
   ];

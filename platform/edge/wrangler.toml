@@ -7,8 +7,10 @@ compatibility_date = "2025-09-01"
 # makes requests fail; it never creates a charge.
 
 [vars]
-# The only origin whose pages may post feedback (scheme + host, no path).
-ALLOWED_ORIGIN = "https://duncan-haywood.github.io"
+# The origins whose pages may post feedback (scheme + host, no path),
+# comma-separated: the Cloudflare site first, then the GitHub Pages one it
+# replaced, which still serves redirect pages.
+ALLOWED_ORIGIN = "https://monorepo-projects-site.duncan-andrew-haywood.workers.dev,https://duncan-haywood.github.io"
 # At most this many feedback messages a day, site-wide, whatever the source.
 FEEDBACK_DAILY_CAP = "50"
 MAX_PER_SLUG_PER_DAY = "20000"
