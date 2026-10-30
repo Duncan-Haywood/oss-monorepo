@@ -23,6 +23,19 @@ export function galleryEntries(opts = {}) {
     .map((g) => ({ id: g.id, title: g.title, reason: g.reason, design: structuredClone(g.design) }));
 }
 
+/**
+ * The design a first-time visitor opens on: the gallery's balanced card (the
+ * design nearest to being cheapest, roomiest and best looking at once). Every
+ * gallery design passes every check at 90% of capacity and draws with no
+ * warning, so the first view has no "Check these" list. The 8x12 the tool
+ * opened on before (an 8 ft height limit it cannot meet: its peak is 10 ft)
+ * is still in the "New design" menu.
+ */
+export function firstDesign() {
+  const g = GALLERY_DESIGNS.find((x) => x.id === 'balanced') || GALLERY_DESIGNS[0];
+  return /** @type {any} */ (structuredClone(g.design));
+}
+
 const MATCH_KEY = 'shed-designer-gallery-match-house';
 
 /**

@@ -12,6 +12,7 @@ import { createRequire } from 'node:module';
 import { existsSync, readFileSync } from 'node:fs';
 import { extname, join, normalize } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { defaultDesign } from './model.mjs';
 
 const ROOT = fileURLToPath(new URL('.', import.meta.url));
 
@@ -46,8 +47,14 @@ before(async () => {
 after(async () => { await browser?.close(); server?.close(); });
 
 /** A fresh page with an error log; fails the test if anything was logged as an error. */
+// These tests edit the 8x12 default (model.mjs defaultDesign), so each page
+// starts with it saved. A first-time visitor opens on the gallery's balanced
+// design instead (gallery-ui.mjs firstDesign; the test below checks that view).
+const START_FROM_DEFAULT = `try { if (!localStorage.getItem('shed-designer-state-v1')) localStorage.setItem('shed-designer-state-v1', ${JSON.stringify(JSON.stringify({ designs: [defaultDesign()], active: 0 }))}); } catch {}`;
+
 async function open(t, ctxOpts = { viewport: { width: 1366, height: 900 } }) {
   const ctx = await browser.newContext(ctxOpts);
+  await ctx.addInitScript(START_FROM_DEFAULT);
   const page = await ctx.newPage();
   const errors = [];
   page.on('pageerror', (e) => errors.push(`pageerror: ${e.message}`));
@@ -745,4 +752,20 @@ test('Save picture downloads the 3D view as a PNG', { skip }, async (t) => {
   const path = await dl.path();
   const head = readFileSync(/** @type {string} */ (path)).subarray(0, 8);
   assert.deepEqual([...head], [137, 80, 78, 71, 13, 10, 26, 10], 'a PNG file');
+});
+
+test('a first-time visitor opens on the balanced gallery design with nothing to check', { skip }, async (t) => {
+  const ctx = await browser.newContext({ viewport: { width: 1366, height: 900 } });
+  t.after(() => ctx.close());
+  const page = await ctx.newPage();
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await page.goto(base);
+  await page.waitForFunction(() => document.querySelector('#total')?.textContent?.startsWith('$'));
+  const { GALLERY_DESIGNS } = await import('./gallery-data.mjs');
+  const balanced = GALLERY_DESIGNS.find((g) => g.id === 'balanced');
+  assert.equal(await page.$eval('#name', (e) => e.value), balanced.title);
+  assert.equal(await page.$eval('#lengthFt', (e) => Number(e.value)), balanced.design.length / 12);
+  assert.equal((await page.locator('#warnings').innerText()).trim(), '', 'no "Check these" list');
+  assert.deepEqual(errors, []);
 });
