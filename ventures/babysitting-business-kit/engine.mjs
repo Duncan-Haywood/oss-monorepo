@@ -68,6 +68,7 @@ export function normalizeDesk(d) {
   if (!d || typeof d !== "object") return out;
   out.profile = { ...out.profile, ...(d.profile || {}), rates: { ...out.profile.rates, ...((d.profile || {}).rates || {}) } };
   for (const k of ["leads", "families", "bookings", "expenses", "references"]) out[k] = Array.isArray(d[k]) ? d[k].filter((x) => x && typeof x === "object") : [];
+  if (d.automations && typeof d.automations === "object" && !Array.isArray(d.automations)) out.automations = d.automations; // sent log and opt-outs (automations.mjs)
   return out;
 }
 

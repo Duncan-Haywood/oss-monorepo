@@ -22,6 +22,8 @@
 //   AUTO_REPLY=1: email the family your reply to their inquiry straight away (only
 //     when they gave an email address and the lead is not a decline)
 //   AUTO_FOLLOW_UP=1: send due follow-ups to emailed leads with the daily digest
+//   TWILIO_ACCOUNT_SID + TWILIO_AUTH_TOKEN + TWILIO_FROM, PUBLIC_URL: texts and unsubscribe
+//     links for the automations the sitter turns on in Settings (automations-server.mjs)
 
 import http from "node:http";
 import { readFileSync, writeFileSync, renameSync, existsSync } from "node:fs";
@@ -32,11 +34,13 @@ import { openSlots, bookingRequest, bookPage, localMinutes } from "./slots.mjs";
 import { intakeFormPage, parseIntake, mergeIntake, keepIntakes, isIntakeToken, MAX_INTAKE_BYTES } from "./intake.mjs";
 import { buildSiteFiles } from "./site.mjs";
 import { creditReferral } from "./print.mjs";
+import { mergeAutomationState } from "./automations.mjs";
+import { automationRoutes, runAutomations } from "./automations-server.mjs";
 
 const MAX_BODY = 64 * 1024;
 const MAX_DESK = 8 * 1024 * 1024;
 const MAX_LEADS = 2000;
-const FILES = { "/": "index.html", "/index.html": "index.html", "/engine.mjs": "engine.mjs", "/usage.mjs": "usage.mjs", "/taxes.mjs": "taxes.mjs", "/slots.mjs": "slots.mjs", "/intake.mjs": "intake.mjs", "/meet-and-greet.html": "meet-and-greet.html", "/references.mjs": "references.mjs", "/site.mjs": "site.mjs", "/print.mjs": "print.mjs", "/qr.mjs": "qr.mjs" };
+const FILES = { "/": "index.html", "/index.html": "index.html", "/engine.mjs": "engine.mjs", "/usage.mjs": "usage.mjs", "/taxes.mjs": "taxes.mjs", "/slots.mjs": "slots.mjs", "/intake.mjs": "intake.mjs", "/meet-and-greet.html": "meet-and-greet.html", "/references.mjs": "references.mjs", "/site.mjs": "site.mjs", "/print.mjs": "print.mjs", "/qr.mjs": "qr.mjs", "/automations.mjs": "automations.mjs", "/automations-ui.mjs": "automations-ui.mjs" };
 const TYPES = { html: "text/html; charset=utf-8", mjs: "text/javascript; charset=utf-8" };
 
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -85,11 +89,13 @@ async function readBody(req, limit = MAX_BODY) {
 export function handler(state, save, env = process.env, now = Date.now, fetchImpl = globalThis.fetch, dir = new URL(".", import.meta.url)) {
   const msg = messenger(env, fetchImpl);
   const hits = new Map();
+  const auto = automationRoutes(state, save, env, now, fetchImpl, msg.sitter);
   return async (req, res) => {
     const send = (code, body, type = TYPES.html, extra = {}) => { res.writeHead(code, { "content-type": type, "x-content-type-options": "nosniff", "referrer-policy": "no-referrer", ...extra }); res.end(body); };
     const url = new URL(req.url, "http://x");
     const today = localDate(now(), env.TZ);
     if (url.pathname === "/healthz") return send(200, "ok\n", "text/plain");
+    if (await auto(req, url, send)) return;
     if (req.method === "GET" && FILES[url.pathname]) {
       const f = FILES[url.pathname];
       return send(200, readFileSync(new URL(f, dir)), TYPES[f.split(".").pop()]);
@@ -201,6 +207,7 @@ export function handler(state, save, env = process.env, now = Date.now, fetchImp
         const ids = new Set((incoming.leads || []).map((l) => l && l.id));
         const known = new Set(incoming.knownLeadIds || []);
         const fresh = state.desk.leads.filter((l) => !ids.has(l.id) && !known.has(l.id));
+        incoming.automations = mergeAutomationState(state.desk.automations, incoming.automations);
         if (Array.isArray(incoming.references)) incoming.references = mergeReferences(state.desk, incoming.references); // keep answers that arrived by link
         state.desk = normalizeDesk(keepIntakes(state.desk, incoming)); // and info sheets families filled in
         state.desk.leads.push(...fresh);
@@ -247,6 +254,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   setInterval(() => {
     const d = new Date();
     const today = localDate(d.getTime(), process.env.TZ);
+    runAutomations(state, save, process.env, d.getTime()).catch((e) => console.error("automations failed:", e.message));
     if (d.getHours() === digestHour && lastDigest !== today) { lastDigest = today; dailyDigest(state, save, process.env, today).catch((e) => console.error("digest failed:", e.message)); }
   }, 5 * 60 * 1000).unref?.();
 }
