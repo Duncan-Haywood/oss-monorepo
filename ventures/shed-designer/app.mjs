@@ -144,7 +144,7 @@ function preview(next) {
   requestAnimationFrame(() => {
     const d = normalize(previewQueued);
     previewQueued = null;
-    const shed = buildShed(d);
+    const shed = buildShed(d, state.prices);
     viewer?.show(shed);
     $('#live').textContent = `${fmtFtIn(d.length)} x ${fmtFtIn(d.width)}, ${fmtFtIn(d.wallHeight)} walls, ${d.pitch}/12 roof, ${d.overhang}" overhang`;
   });
@@ -230,7 +230,7 @@ function haulLine(shed, est) {
   const d = shed.design;
   const longest = Math.max(...est.lumber.flatMap((l) => l.result.boards.map((b) => b.stock))) / 12;
   if (!d.maxHaulFt) return `${longest} ft (no limit set)`;
-  const free = estimate(buildShed(normalize({ ...d, maxHaulFt: 0 })), state.prices);
+  const free = estimate(buildShed(normalize({ ...d, maxHaulFt: 0 }), state.prices), state.prices);
   const diff = est.total - free.total;
   const vs = Math.abs(diff) < 0.005 ? 'the same as with no limit' : `${money(Math.abs(diff))} ${diff > 0 ? 'more' : 'less'} than with no limit`;
   const over = longest > d.maxHaulFt ? `; ${longest} ft boards only where a piece needs one (see the cut sheet)` : '';
@@ -395,7 +395,7 @@ function renderStores(est, d) {
   if (swaps.length) {
     html += '<h3 class="h4">Swaps worth a look</h3><ul class="swaps">';
     for (const sw of swaps) {
-      const alt = estimate(buildShed(normalize({ ...d, ...sw.change })), state.prices);
+      const alt = estimate(buildShed(normalize({ ...d, ...sw.change }), state.prices), state.prices);
       const diff = alt.total - est.total;
       html += `<li><strong>${esc(sw.title)}</strong>: ${diff < 0 ? `saves ${money(-diff)}` : `adds ${money(diff)}`}. ${esc(sw.why)} <span class="muted">${esc(sw.cost)}</span> <button type="button" class="btn" data-swap="${esc(sw.id)}">Try it and show me</button></li>`;
     }
@@ -544,7 +544,7 @@ function renderTabs() {
 
 function renderCompare() {
   const rows = state.designs.map((d, i) => {
-    const shed = buildShed(d);
+    const shed = buildShed(d, state.prices);
     const est = estimate(shed, state.prices);
     return { d, i, shed, est };
   });
@@ -605,7 +605,7 @@ function queueThumbs() {
     for (const d of state.designs) {
       const key = JSON.stringify(d);
       if (thumbs.has(key)) continue;
-      thumbViewer.show(buildShed(d), { refit: true });
+      thumbViewer.show(buildShed(d, state.prices), { refit: true });
       thumbs.set(key, thumbViewer.snapshot());
       changed = true;
     }
@@ -632,7 +632,7 @@ function render() {
 }
 function renderNow() {
   const d = design();
-  const shed = buildShed(d);
+  const shed = buildShed(d, state.prices);
   const est = storeEstimate(shed);
   lastEst = est;
   lastShed = shed;
@@ -900,7 +900,7 @@ function wire() {
     $('#option-cards').innerHTML = opts.map((o, i) => {
       const change = deltaPhrase(costDelta(here, breakdownOf(o.design, state.prices)));
       let img = '';
-      if (tv) { tv.show(buildShed(o.design), { refit: true }); img = `<img src="${tv.snapshot()}" alt="3D view of option ${i + 1}" width="480" height="320">`; }
+      if (tv) { tv.show(buildShed(o.design, state.prices), { refit: true }); img = `<img src="${tv.snapshot()}" alt="3D view of option ${i + 1}" width="480" height="320">`; }
       return `<article class="card"><div>${img}</div><h3 class="h4">${i === 0 ? '<span class="pill">best value</span> ' : ''}${esc(o.label)}</h3>
         <dl><div><dt>Total</dt><dd>${money(o.total)}</dd></div><div><dt>Lumber</dt><dd>${money(o.lumber)}, ${o.boards} boards</dd></div>
         <div><dt>Against your design</dt><dd>${o.delta > 0.005 ? `${money(o.delta)} more` : o.delta < -0.005 ? `${money(-o.delta)} less` : 'same price'}</dd></div>
@@ -936,7 +936,7 @@ function wire() {
         let img = '';
         const fromB = breakdownOf(design(), state.prices);
         const toB = breakdownOf(b.design, state.prices);
-        if (tv) { tv.show(buildShed(b.design), { refit: true }); img = `<img src="${tv.snapshot()}" alt="3D view of the cheaper build" width="480" height="320" style="max-width:100%;height:auto">`; }
+        if (tv) { tv.show(buildShed(b.design, state.prices), { refit: true }); img = `<img src="${tv.snapshot()}" alt="3D view of the cheaper build" width="480" height="320" style="max-width:100%;height:auto">`; }
         html += `<article class="card">${img}<h4>${money(b.total)} of materials, ${money(r.base.total - b.total)} less than your ${money(r.base.total)}; about ${Math.round(b.hours)} hours of work (yours: ${Math.round(r.base.hours)})</h4>
           <p>${esc(deltaSentence(fromB, toB, 'By assembly'))}</p>
           <ol>${b.steps.map((st) => `<li>${esc(st.label)}: saves ${money(st.saving)}${st.hours ? ` (${st.materials >= 0 ? `${money(st.materials)} of materials` : `${money(-st.materials)} more materials`}, ${Math.abs(st.hours)} h ${st.hours > 0 ? 'less' : 'more'} work)` : ''}</li>`).join('')}</ol>
@@ -994,7 +994,7 @@ function wire() {
       let html = `<p class="muted">Tried ${r.evaluated} designs; each kept passes every load and connection check${design().maxFootprint ? `, stays within ${design().maxFootprint} sq ft` : ''} and is no more than 1" taller. Your design: ${money(r.base.total)}, ${cutsText(r.base.cuts)} cuts, ${(r.base.cuts.waste * 100).toFixed(1)}% offcut.</p><div class="cards">`;
       html += picks.map((w, i) => {
         let img = '';
-        if (tv) { tv.show(buildShed(w.design), { refit: true }); img = `<img src="${tv.snapshot()}" alt="3D view of the ${esc(w.goal.toLowerCase())} pick" width="480" height="320">`; }
+        if (tv) { tv.show(buildShed(w.design, state.prices), { refit: true }); img = `<img src="${tv.snapshot()}" alt="3D view of the ${esc(w.goal.toLowerCase())} pick" width="480" height="320">`; }
         return `<article class="card"><div>${img}</div><h4>${esc(w.goal)}</h4>
           <dl><div><dt>Changes</dt><dd>${w.changes.length ? esc(w.changes.join(', ')) : 'none: yours is already best for this goal'}</dd></div>
           <div><dt>Total</dt><dd>${money(w.total)} (${w.total <= r.base.total ? 'saves' : 'adds'} ${money(Math.abs(r.base.total - w.total))})</dd></div>

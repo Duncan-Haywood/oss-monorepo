@@ -38,7 +38,7 @@ export const BREAKDOWN_TOP = 5;
  *   must return the estimate's shape (`shopping`, `total`, `grandTotal`).
  */
 export function designFacts(input, opts = {}) {
-  const shed = buildShed(normalize(input));
+  const shed = buildShed(normalize(input), opts.prices);
   const d = shed.design;
   const k = shed.dims;
   const est = opts.price ? opts.price(shed) : estimate(shed, opts.prices || examplePrices());

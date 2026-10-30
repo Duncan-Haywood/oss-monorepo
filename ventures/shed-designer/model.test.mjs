@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { buildShed, defaultDesign, normalize, splitRun, PRESETS, minWallFor } from './model.mjs';
-import { estimate } from './estimate.mjs';
+import { estimate, examplePrices } from './estimate.mjs';
 
 const classic = () => PRESETS['8x12 classic']();
 
@@ -241,4 +241,22 @@ test('the auto overhang never buys its saving by leaving a door unframed', () =>
   const s = buildShed(normalize({ ...d, openings }));
   const framed = new Set(s.framedOpenings.map((p) => p.op?.id ?? p.id));
   assert.ok(s.design.openings.every((o) => framed.has(o.id)), `overhang ${s.design.overhang}`);
+});
+
+test('the automatic overhang weighs each eave at the prices passed in (the visitor\'s), not the starting ones', () => {
+  const start = buildShed(defaultDesign());
+  // Every price zero: every overhang costs the same, so the longest (18") wins.
+  const p = examplePrices();
+  const free = {
+    lumber: Object.fromEntries(Object.entries(p.lumber).map(([m, byFt]) => [m, Object.fromEntries(Object.keys(byFt).map((ft) => [ft, 0]))])),
+    items: Object.fromEntries(Object.keys(p.items).map((k) => [k, 0])),
+    delivery: p.delivery,
+  };
+  const typed = buildShed(defaultDesign(), free);
+  assert.ok(start.design.overhang < 18, `${start.design.overhang}" at the starting prices`);
+  assert.equal(typed.design.overhang, 18);
+  assert.equal(typed.overhangChoice.adds, 0);
+  // Without prices, or with a design that does not choose its overhang, nothing changes.
+  assert.equal(buildShed(defaultDesign(), examplePrices()).design.overhang, start.design.overhang);
+  assert.equal(buildShed({ ...defaultDesign(), autoOverhang: false, overhang: 9 }, free).design.overhang, 9);
 });
