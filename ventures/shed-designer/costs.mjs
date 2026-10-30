@@ -45,7 +45,7 @@ export const MATERIAL_TYPES = [
   { key: 'other', label: 'Other', short: 'other' },
 ];
 
-const CONNECTORS = new Set(['rafterHanger', 'pitchConnector', 'hurricaneTie']);
+const CONNECTORS = new Set(['rafterHanger', 'rafterHanger28', 'rafterHanger210', 'pitchConnector', 'hurricaneTie']);
 const METAL = new Set([...CONNECTORS, 'gableVent', 'zFlashing']);
 
 /** The assembly a framing member belongs to, from its group. @param {string} group */
