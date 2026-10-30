@@ -3,7 +3,7 @@ title: "Bookkeeping rules for salons, electricians, podcasters and print-on-dema
 seo_title: "Bank-line categories for salons, trades and podcasters"
 date: 2026-10-30
 tags: [ai-bookkeeper, categorization, evaluation]
-description: "A seventh probe of 64 made-up bank descriptors: 46 right before new rules, 64 after. Most misses were our own wrong expectations, and one was an electric supplier read as an electric bill."
+description: "A seventh probe of 64 made-up bank descriptors: 46 right before new rules, 64 after. Most misses were our own wrong expectations."
 ---
 
 The [AI bookkeeper](https://duncan-haywood.github.io/oss-monorepo/ai-bookkeeper/) files bank lines with built-in keyword rules before any learning happens. To find where those rules are thin, we write bank descriptors for a kind of business we have not covered and count what the rules do with them.
