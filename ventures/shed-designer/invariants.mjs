@@ -52,7 +52,7 @@ export function invariants(input, prices = examplePrices()) {
   if (integ.clashes.length && !shed.warnings.some((w) => w.startsWith('The ridge sits too low'))) bad.push(`clashes: ${integ.clashes.slice(0, 3).join(', ')}`);
   const sc = structuralChecks(shed);
   for (const row of sc.rows) if (!finite(row.ratio) || row.ratio < 0) bad.push(`check ${row.member} ratio ${row.ratio}`);
-  for (const n of ['Floor joists', 'Rafters', 'Wall studs']) if (!sc.rows.some((x) => x.member === n)) bad.push(`check missing: ${n}`);
+  for (const n of ['Floor joists', shed.design.style === 'gambrel' ? 'Lower chords' : 'Rafters', 'Wall studs']) if (!sc.rows.some((x) => x.member === n)) bad.push(`check missing: ${n}`);
   const cc = connectionChecks(shed);
   for (const row of cc.rows) if (!row.ok) bad.push(`connection: ${row.check}: ${row.detail.slice(0, 120)}`);
   const sheets = buildSheets(shed);

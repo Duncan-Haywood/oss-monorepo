@@ -193,9 +193,11 @@ export function solidsOf(shed, heat) {
   const texture = d.sidingType === 'board and batten' ? FINISH.batten : d.sidingType === 'vinyl' ? FINISH.lap : d.sidingType === 'T1-11' ? FINISH.grooves : 0;
   for (const p of shed.panels) {
     const sheathing = p.kind === 'roof sheathing' || p.kind === 'wall sheathing';
-    const gusset = p.kind === 'truss gusset';
-    const layer = p.kind === 'floor sheet' ? 'floor' : sheathing ? 'sheathing' : gusset ? 'roof' : 'siding';
-    const color = p.kind === 'floor sheet' ? COLORS.floor : sheathing || gusset ? COLORS.osb : siding;
+    // A gambrel's gussets are part of the roof frame like a truss's; its loft floor, like a truss attic's deck, is plywood like the floor.
+    const gusset = p.kind === 'truss gusset' || p.kind === 'gambrel gusset';
+    const deck = p.kind === 'attic deck' || p.kind === 'loft deck';
+    const layer = p.kind === 'floor sheet' ? 'floor' : sheathing ? 'sheathing' : gusset || deck ? 'roof' : 'siding';
+    const color = p.kind === 'floor sheet' || deck ? COLORS.floor : sheathing || gusset ? COLORS.osb : siding;
     out.push({ geom: p.geom, color: /** @type {any} */ (color), layer, flags: p.kind === 'siding' ? (d.polkaDots ? 1 : 0) + glitter + texture : p.kind === 'lap siding' ? (d.polkaDots ? 1 : 0) + glitter : 0 });
   }
   const roof = pal.roof;

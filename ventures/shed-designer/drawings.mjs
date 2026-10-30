@@ -307,6 +307,10 @@ export function buildSheets(shed, marks = new Map()) {
     for (const m of shed.members.filter((x) => (x.kind === 'bottom chord' || x.kind === 'king post') && x.geom.origin[0] === chordX)) {
       items.push({ t: 'poly', pts: m.geom.profile.map((p) => /** @type {P} */ ([p[0], p[1]])), closed: true, cls: 'member' });
     }
+    // The attic deck, where there is one, on the bottom chords.
+    for (const p of shed.panels.filter((x) => x.kind === 'attic deck' && x.geom.origin[0] <= chordX + 1e-9 && x.geom.origin[0] + x.geom.profile[2][0] >= chordX + 1.5 - 1e-9)) {
+      items.push(rect(p.geom.origin[1], p.geom.origin[2], p.geom.origin[1] + p.geom.profile[2][1], p.geom.origin[2] + p.geom.thickness, 'sheet'));
+    }
     for (const g of shed.panels.filter((x) => x.kind === 'truss gusset' && Math.abs(x.geom.origin[0] - (chordX + 1.5)) < 0.01)) {
       items.push({ t: 'poly', pts: g.geom.profile.map((p) => /** @type {P} */ ([p[0], p[1]])), closed: true, cls: 'hidden' });
     }
