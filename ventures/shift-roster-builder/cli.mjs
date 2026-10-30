@@ -22,7 +22,7 @@ import process from "node:process";
 import { importStaffCsv } from "./import-staff.mjs";
 import { importShiftsCsv } from "./import-shifts.mjs";
 import {
-  parseStaff, parseShifts, buildRoster, planWeeks, planFairness, optimalityText, rosterCsv, scheduleChanges, hoursCsv, rosterIcs, rosterMessages, openShiftPost, carryOverStaff, sampleStaff, sampleShifts,
+  parseStaff, parseShifts, buildRoster, planWeeks, planFairness, planStreaks, optimalityText, rosterCsv, scheduleChanges, hoursCsv, rosterIcs, rosterMessages, openShiftPost, carryOverStaff, sampleStaff, sampleShifts,
   DAYS, fmtClock, money, num,
 } from "./calc.mjs";
 
@@ -229,6 +229,7 @@ export function runPlan(staffText, shiftsText, opts = {}) {
       totalPayroll: plan.totalCost, totalOpenHours: plan.totalOpenHours,
       weeks: plan.weeks.map((w) => ({ weekStart: w.weekStart, payroll: w.roster.cost, overtimeHours: w.roster.otHours, unfilledShifts: w.roster.unfilledSlots, unfilledHours: w.roster.unfilledHours })),
       fairness: planFairness(plan).rows,
+      streaks: planStreaks(plan).rows,
     }, null, 2) + "\n" };
   }
   if (opts.mode !== "report") return { code: 2, out: "--weeks works with the report, --csv and --json outputs\n" };
@@ -239,6 +240,9 @@ export function runPlan(staffText, shiftsText, opts = {}) {
   const w = Math.max(...f.rows.map((x) => x.name.length));
   for (const x of f.rows) lines.push(`  ${x.name.padEnd(w)}  ${x.tough} tough of ${x.shifts} shifts (${x.weekend} weekend, ${x.closing} closing, ${x.opening} opening), ${num(x.hours)} h`);
   if (f.flag) lines.push("", `Uneven: ${f.most.name} has ${f.spread} more tough shifts than ${f.least.name}. Try --tough-balance, or widen who can close or open.`);
+  const st = planStreaks(plan);
+  const dayName = (d) => `week ${Math.floor(d / 7) + 1} ${DAYS[d % 7]}`;
+  for (const x of st.flag) lines.push("", `${x.name} works ${x.longest} days in a row (${dayName(x.from)} to ${dayName(x.to)}). Check your state's consecutive-day rule; the search does not limit it.`);
   lines.push("", "Planning aid, not legal advice. Local scheduling-notice, break and minor-labor rules are not modelled.");
   return { code, out: lines.join("\n") + "\n" };
 }
