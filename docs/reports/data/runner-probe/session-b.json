@@ -1,0 +1,65 @@
+{
+  "label": "session B",
+  "probed_at": "2026-10-30T21:57:17Z",
+  "specs": {
+    "hostname": "vm",
+    "kernel": "6.18.44-fc-v185",
+    "hypervisor": "KVM",
+    "firecracker": true,
+    "cpu_model": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+    "cpu_mhz_reported": 2100.0,
+    "cpu_family_model_stepping": [
+      "6",
+      "207",
+      "2"
+    ],
+    "vcpus": 4,
+    "threads_per_core": "1",
+    "l2": "8 MiB (4 instances)",
+    "l3": "260 MiB (1 instance)",
+    "avx2": true,
+    "avx512f": true,
+    "avx512_vnni": true,
+    "amx": true,
+    "mem_total_gib": 15.71,
+    "swap_gib": 0.0,
+    "shm_gib": 15.7,
+    "root_fs_size_gib": 252.0,
+    "root_fs_used_gib": 10.0,
+    "root_fs_avail_gib": 28.5,
+    "gpu": null,
+    "python": "3.13.17",
+    "node": "v22.22.0",
+    "sha_ni": true,
+    "mem_available_gib": 15.12,
+    "uptime_s": 155.56
+  },
+  "cpu": {
+    "sha256_mb_s_1core": 1396.0,
+    "sha256_mb_s_2proc": 2777.0,
+    "scaling_2proc": 1.99,
+    "sha256_mb_s_4proc": 5662.2,
+    "scaling_4proc": 4.06,
+    "sha256_mb_s_8proc": 5467.2,
+    "scaling_8proc": 3.92,
+    "py_loop_10m_s": 0.58
+  },
+  "memory": {
+    "memcpy_gb_s": 0.27,
+    "allocated_and_touched_gib": 13.0,
+    "alloc_gib_s": 0.21
+  },
+  "disk": {
+    "seq_write_fsync_mb_s": 546.4,
+    "seq_read_mb_s": 1412.0,
+    "fsync_4k_per_s": 4842,
+    "create_small_files_per_s": 51963
+  },
+  "network": {
+    "https_proxy_set": true,
+    "npm_registry_fetch_s_median": 0.162,
+    "npm_registry_body_kb": 6936,
+    "npm_registry_mb_s": 74.5
+  },
+  "source": "reported verbatim by child cloud session session_01XpHqye1Qdj271VVpYNV6yp; sha_ni added from its lscpu flags line"
+}

@@ -25,6 +25,16 @@ import time
 import urllib.request
 
 
+# (family, model) -> name, for the Intel parts seen so far behind the runner.
+INTEL_MODELS = {
+    ("6", "85"): "Skylake-SP / Cascade Lake (stepping 7 = Cascade Lake)",
+    ("6", "106"): "Ice Lake-SP",
+    ("6", "143"): "Sapphire Rapids",
+    ("6", "207"): "Emerald Rapids",
+    ("6", "173"): "Granite Rapids",
+}
+
+
 def _read(path, default=""):
     try:
         with open(path) as fh:
@@ -38,6 +48,18 @@ def _sh(cmd):
         return subprocess.run(cmd, shell=True, capture_output=True, text=True, timeout=20).stdout.strip()
     except Exception:
         return ""
+
+
+def _bash_mem_limit():
+    """Memory limit of this process's cgroup (v1 or v2), or None if unlimited."""
+    for line in _read("/proc/self/cgroup").splitlines():
+        _, ctrl, path = line.split(":", 2)
+        for f in (f"/sys/fs/cgroup/memory{path}/memory.limit_in_bytes", f"/sys/fs/cgroup{path}/memory.max"):
+            if ("memory" in ctrl.split(",") or ctrl == "") and os.path.exists(f):
+                v = _read(f)
+                if v.isdigit() and int(v) < 1 << 60:
+                    return int(v)
+    return None
 
 
 def specs():
@@ -74,8 +96,13 @@ def specs():
         "avx512f": "avx512f" in flags,
         "avx512_vnni": "avx512_vnni" in flags,
         "amx": any(f.startswith("amx") for f in flags),
+        # SHA-NI makes hashlib.sha256 ~5x faster, so the hash benchmark is
+        # only comparable between hosts that agree on this flag.
+        "sha_ni": "sha_ni" in flags,
+        "cpu_generation_guess": INTEL_MODELS.get((lscpu_field("CPU family"), lscpu_field("Model"))),
         "mem_total_gib": round(meminfo.get("MemTotal", 0) / 2**20, 2),
         "mem_available_gib": round(meminfo.get("MemAvailable", 0) / 2**20, 2),
+        "process_cgroup_mem_limit_gib": round(_bash_mem_limit() / 2**30, 2) if _bash_mem_limit() else None,
         "swap_gib": round(meminfo.get("SwapTotal", 0) / 2**20, 2),
         "shm_gib": round(shutil.disk_usage("/dev/shm").total / 2**30, 1) if os.path.exists("/dev/shm") else None,
         "root_fs_size_gib": round(root.total / 2**30, 1),
@@ -119,17 +146,31 @@ def cpu_bench(seconds=4.0):
 
 
 def mem_bench(size_mb=512):
+    """First-touch versus warm memory speed.
+
+    In a fresh Firecracker VM the guest's pages are backed lazily by the host,
+    so the first write to each page costs a fault on both sides. The
+    first-touch figure is what a fresh session feels when a process grows;
+    the warm figure is the RAM itself.
+    """
     out = {}
-    src = bytearray(os.urandom(1 << 20)) * size_mb
+    t = time.perf_counter()
+    src = bytearray(size_mb << 20)
+    src[:: 4096] = b"\x01" * len(src[:: 4096])
+    out["first_touch_gib_s"] = round(size_mb / 1024 / (time.perf_counter() - t), 2)
+    dst = bytearray(size_mb << 20)
+    dst[:] = src  # fault dst in before timing
     t = time.perf_counter()
     for _ in range(4):
-        dst = bytes(src)
-    out["memcpy_gb_s"] = round(4 * size_mb / 1024 / (time.perf_counter() - t), 2)
+        dst[:] = src
+    out["warm_memcpy_gib_s"] = round(4 * size_mb / 1024 / (time.perf_counter() - t), 2)
     del dst, src
-    # How much can one process actually allocate and touch? Stop at 85 % of
-    # MemAvailable so the probe never pushes the VM into the OOM killer.
+    # How much can one process actually allocate and touch? Stop at 70 % of
+    # the smaller of MemAvailable and the cgroup limit: there is no swap, and
+    # an earlier 85 % target was OOM-killed when a test suite ran alongside.
     avail = int(_read("/proc/meminfo").split("MemAvailable:")[1].split()[0]) * 1024
-    target = int(avail * 0.85)
+    limit = _bash_mem_limit()
+    target = int(min(avail, limit or avail) * 0.7)
     chunks, got = [], 0
     t = time.perf_counter()
     try:
