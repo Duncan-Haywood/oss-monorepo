@@ -81,7 +81,7 @@ export function mountPicker(opts) {
     if (shots.has(key)) return shots.get(key);
     if (viewer === undefined) {
       const c = document.createElement('canvas'); c.width = 600; c.height = 400;
-      viewer = createViewer(c);
+      viewer = createViewer(c, { presentation: true });
     }
     if (!viewer) return '';
     viewer.show(buildShed(normalize(/** @type {Entry} */ (entry(id)).design)), { refit: true });

@@ -50,7 +50,7 @@ export function floorMoves(d, set) {
 export const LOCKABLE = {
   siding: { label: 'Siding', keys: ['siding', 'sidingType', 'sidingColor', 'polkaDots', 'glitter'] },
   roofing: { label: 'Roofing', keys: ['roofing', 'roofCover', 'roofColor'] },
-  foundation: { label: 'Foundation', keys: ['foundation', 'pad', 'skidSize', 'skidSpacing', 'compaction'] },
+  foundation: { label: 'Foundation', keys: ['foundation', 'pad', 'pierDepth', 'skidSize', 'skidSpacing', 'compaction'] },
   floor: { label: 'Floor', keys: ['joistSize', 'joistSpacing', 'floorPanel'] },
   doors: { label: 'Doors', keys: ['openings'] },
   windows: { label: 'Windows', keys: ['openings'] },
@@ -75,7 +75,7 @@ export function searchKeep(d) {
  * merging into its own knobs (keys as in the design).
  */
 export const LEVER_KNOBS = {
-  foundation: ['gravel', 'blocks', 'deck blocks', 'CMU'],
+  foundation: ['gravel', 'blocks', 'deck blocks', 'CMU', 'piers'],
   pad: ['full', 'under blocks', 'none'],
   joistSize: ['2x4', '2x6', '2x8'],
   joistSpacing: [16, 24],
