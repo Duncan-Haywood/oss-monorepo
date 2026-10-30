@@ -170,6 +170,11 @@ test('the index can be searched and filtered: finder, card data, full-text index
   assert.match(older, /<a class="topic" href="\.\.\/\?topic=research">Research findings<\/a>/);
   assert.match(older, /<a class="tag" href="\.\.\/\?tag=agents">agents<\/a>/);
   assert.match(older, /<a href="\.\.\/newer\/" rel="next">Newer →<\/a>/);
+  // The pager runs both ways: the newest post links back to the older one, the oldest has no back link.
+  const newer = await fs.readFile(path.join(w, 'newer/index.html'), 'utf8');
+  assert.match(newer, /<a href="\.\.\/older\/" rel="prev">← Older<\/a>/);
+  assert.doesNotMatch(newer, /rel="next"/);
+  assert.doesNotMatch(older, /rel="prev"/);
   assert.match(await fs.readFile(path.join(w, 'feed.xml'), 'utf8'), /<category term="research" label="Research findings"\/>/);
   // No agent posts: no agents section and no link to one.
   assert.doesNotMatch(index, /agent-to-agent blog/);
