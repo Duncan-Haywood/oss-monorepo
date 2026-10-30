@@ -478,6 +478,11 @@ export function estimate(shed, prices = examplePrices()) {
       const n = r.boards.filter((b) => b.stock === Number(len)).length;
       if (n) line('Wall trim', label(k), n, 'piece', item(k), src(k));
     }
+    // With one stock length there is nothing shorter to fall back on, so say when it is longer than the haul limit.
+    const longest = Math.max(...r.boards.map((b) => b.stock));
+    if (d.maxHaulFt > 0 && longest > d.maxHaulFt * 12) {
+      notes.push(`Wall trim: ${d.wallTrim} trim comes in ${longest / 12} ft lengths only, longer than your ${d.maxHaulFt} ft haul limit. Have it delivered or cut to length where you buy it, or choose 1x4 trim.`);
+    }
   }
   // Trim paint: the face of every primed trim board (1x6 fascia, 1x4 or 5/4 rake,
   // corner boards and casings), two coats at the same 350 sq ft a gallon as the
