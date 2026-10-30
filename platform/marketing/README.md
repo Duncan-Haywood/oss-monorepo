@@ -9,7 +9,7 @@ it also held the generators for the `marisstella.dev` front door
 (`front-door.mjs`, `front-door-tools.mjs`, `regen.mjs` and the mirror-merge
 helper), which wrote a committed copy of the catalogue into `gitops/prod/` for
 the retired k3s origin. That origin was deleted on 2026-10-01 and the domain's
-DNS points at a released IP, so the copy served nobody; it was removed with
+DNS no longer resolves, so the copy served nobody; it was removed with
 `gitops/`. `git log --diff-filter=D -- platform/marketing/` finds it.
 
 ## `indexnow.mjs` — telling search engines the catalogue changed

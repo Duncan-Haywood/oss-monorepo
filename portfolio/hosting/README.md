@@ -8,14 +8,16 @@ Read it for study; nothing in it is current instruction.
 
 ## What is served now
 
-- **The catalogue is served by Cloudflare** at
-  **https://monorepo-projects-site.duncan-andrew-haywood.workers.dev/**
-  (owner, 2026-10-29: "we are moving from ghp to cloudflare"). Two free-plan
+- **The catalogue is served by Cloudflare** at **https://marisstella.app/**
+  (owner, 2026-10-29: "we are moving from ghp to cloudflare"; the domain was
+  added to the Cloudflare account on 2026-10-30). The first address,
+  https://monorepo-projects-site.duncan-andrew-haywood.workers.dev/, serves
+  the same files with canonicals naming the domain. Two free-plan
   Workers serve it as static files, because one free Worker holds at most
   20,000 files and the site is past that: `platform/pages/cloudflare/README.md`.
   `.github/workflows/portfolio-pages.yml` builds for that origin and deploys
   on every merge and every three hours. `vars.PAGES_ENABLED=false` pauses it;
-  `vars.PAGES_BASE_URL` moves it (a custom domain, once its route exists).
+  `vars.PAGES_BASE_URL` overrides the origin the build names.
 - **GitHub Pages now serves redirect pages.** The old address,
   https://duncan-haywood.github.io/oss-monorepo/, carries one page per old
   URL with a canonical link, a zero-second refresh and a script redirect to
@@ -30,10 +32,11 @@ Read it for study; nothing in it is current instruction.
   were deleted on 2026-10-30; `git log --diff-filter=D -- gitops/` finds
   them. Its old IP addresses may now belong to a stranger, so nothing should
   connect to them.
-- **`marisstella.dev` DNS still points at a released IP.** Repointing or
-  removing it is the owner's `pages-custom-domain` row in
-  `portfolio/ledger/asks.yaml`. If it is repointed at Pages, the Pages
-  publisher carries the `CNAME` file forward (see "Lessons" below).
+- **`marisstella.dev` resolves to nothing.** Checked 2026-10-30: it is still
+  registered and delegated to Hetzner's DNS servers, which refuse queries for
+  it (the zone went with the servers), so the released-IP takeover risk in
+  `asks.yaml`'s `pages-custom-domain` row is gone. The site's domain is
+  `marisstella.app` instead (above).
 - **Readers that are known to be stale.** `pages_state.py`'s "source" and
   "snapshot" lines still describe the retired `gh-pages` branch route.
   `indexnow_state.py` reads `portfolio-pages.yml`'s deploy runs and is
