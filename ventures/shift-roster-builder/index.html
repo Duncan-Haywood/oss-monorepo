@@ -91,6 +91,8 @@
     <p class="note">Days can be a range (<code>Mon-Fri</code>) or a list (<code>Mon/Wed/Fri</code>). Times can be <code>9</code>, <code>9:30</code> or <code>9am</code>. An end at or before the start runs overnight into the next day. People needed makes that many separate shifts. To lock a shift to someone, add <code>fixed: Ana</code> as a last cell (use <code>fixed: Ana + Ben</code> to pin two copies); the tool plans everyone else around it.</p>
     <label for="file">…or upload a staff CSV</label>
     <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv,text/plain">
+    <label for="import-file">…or convert a staff export from 7shifts, When I Work, Homebase or similar (name, hourly rate, hours and position columns; availability is not in most exports)</label>
+    <input id="import-file" type="file" accept=".csv,.tsv,.txt,text/csv,text/plain">
     <div class="row3">
       <div><label for="rest">Minimum rest between shifts (hours)</label><input id="rest" inputmode="decimal" value="10"></div>
       <div><label for="consec">Most days in a row</label><input id="consec" inputmode="decimal" value="6"></div>
@@ -260,6 +262,7 @@
   </footer>
 
   <script type="module">
+    import { importStaffCsv } from "./import-staff.mjs";
     import { planWeeks, planFairness, parseAvailability, placeBreaks, placeRestBreaks, scheduleChanges, carryOverStaff, scheduleFlags, unsupervisedStretches, loneStretches, shortShifts, seventhDayPay, parseStaff, parseShifts, buildRoster, optimalityText, laborPercent, budgetCheck, dailyLabor, salesPerLaborHour, coverageGrid, fairnessReport, hoursThresholds, tipPool, trimOptions, coverOptions, absencePlan, swapOptions, checkTrade, rosterCsv, hoursCsv, rosterIcs, splitShiftPay, rosterMessages, openShiftPost, mergeAvailabilityReplies, sampleStaff, sampleShifts, TEMPLATES, fmtClock, money, money2, num, DAYS } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
@@ -564,6 +567,12 @@
       const f = e.target.files[0]; if (!f) return;
       const rd = new FileReader();
       rd.onload = () => { const r = carryOverStaff($("#staff").value, String(rd.result)); $("#staff").value = r.text; persist(); status.textContent = r.changed ? `Set "prev:" and the running "tough:" tally for ${r.changed} ${r.changed === 1 ? "person" : "people"} from ${f.name}. Click the button to rebuild.` : `No names in ${f.name} matched your people. Is it a roster CSV from this tool?`; };
+      rd.readAsText(f);
+    });
+    $("#import-file").addEventListener("change", (e) => {
+      const f = e.target.files[0]; if (!f) return;
+      const rd = new FileReader();
+      rd.onload = () => { const r = importStaffCsv(String(rd.result)); if (r.rows) { $("#staff").value = r.staffText; persist(); } status.textContent = r.rows ? `Imported ${r.rows} ${r.rows === 1 ? "person" : "people"} from ${f.name}. ${r.notes.join(" ")}${r.skipped.length ? " Skipped: " + r.skipped.join("; ") + "." : ""}` : r.notes.join(" "); };
       rd.readAsText(f);
     });
     $("#setup-file").addEventListener("change", (e) => {
