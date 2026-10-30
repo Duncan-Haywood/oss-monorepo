@@ -14,6 +14,7 @@
 //   GET|PUT /api/desk      the desk as JSON (Authorization: Bearer ADMIN_KEY)
 //   GET  /api/today        today's to-do list (Authorization: Bearer ADMIN_KEY)
 //   GET|POST /intake/<t>   a family's one-time info sheet (token made in the app's Families tab)
+//   GET  /admin            status page; /api/status, /api/backup, /api/restore (backup.mjs)
 //   a daily digest at DIGEST_HOUR (server time) to your webhook or email
 //
 // Every outside service is off until you set its variables, on your own accounts:
@@ -39,11 +40,12 @@ import { creditReferral } from "./print.mjs";
 import { mergeAutomationState } from "./automations.mjs";
 import { automationRoutes, runAutomations } from "./automations-server.mjs";
 import { blogRoute, serverDraft } from "./content.mjs";
+import { loadDesk, atomicWrite, backupApi, backupDir, dailyBackup } from "./backup.mjs";
 
 const MAX_BODY = 64 * 1024;
 const MAX_DESK = 8 * 1024 * 1024;
 const MAX_LEADS = 2000;
-const FILES = { "/": "index.html", "/index.html": "index.html", "/engine.mjs": "engine.mjs", "/usage.mjs": "usage.mjs", "/taxes.mjs": "taxes.mjs", "/slots.mjs": "slots.mjs", "/intake.mjs": "intake.mjs", "/meet-and-greet.html": "meet-and-greet.html", "/references.mjs": "references.mjs", "/site.mjs": "site.mjs", "/print.mjs": "print.mjs", "/qr.mjs": "qr.mjs", "/automations.mjs": "automations.mjs", "/automations-ui.mjs": "automations-ui.mjs", "/content.mjs": "content.mjs", "/content-ui.mjs": "content-ui.mjs", "/byok.mjs": "byok.mjs" };
+const FILES = { "/": "index.html", "/index.html": "index.html", "/engine.mjs": "engine.mjs", "/usage.mjs": "usage.mjs", "/taxes.mjs": "taxes.mjs", "/slots.mjs": "slots.mjs", "/intake.mjs": "intake.mjs", "/meet-and-greet.html": "meet-and-greet.html", "/references.mjs": "references.mjs", "/site.mjs": "site.mjs", "/print.mjs": "print.mjs", "/qr.mjs": "qr.mjs", "/automations.mjs": "automations.mjs", "/automations-ui.mjs": "automations-ui.mjs", "/content.mjs": "content.mjs", "/content-ui.mjs": "content-ui.mjs", "/byok.mjs": "byok.mjs", "/admin": "admin.html" };
 const TYPES = { html: "text/html; charset=utf-8", mjs: "text/javascript; charset=utf-8" };
 
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -201,6 +203,7 @@ export function handler(state, save, env = process.env, now = Date.now, fetchImp
       if (!env.ADMIN_KEY) return send(503, "Set ADMIN_KEY.\n", "text/plain");
       const auth = String(req.headers.authorization || "").replace(/^Bearer\s+/i, "");
       if (!same(auth, env.ADMIN_KEY)) return send(401, "admin key required\n", "text/plain");
+      if (await backupApi(req, url, send, state, save, env, now, readBody)) return; // backup.mjs: status, backup, restore
       if (url.pathname === "/api/desk" && req.method === "GET") return send(200, JSON.stringify(state.desk), "application/json");
       if (url.pathname === "/api/desk" && req.method === "PUT") {
         const raw = await readBody(req, MAX_DESK);
@@ -255,8 +258,11 @@ export async function dailyDigest(state, save, env, today, fetchImpl = globalThi
 
 if (import.meta.url === `file://${process.argv[1]}`) {
   const statePath = process.env.STATE || "desk.json";
-  const state = { desk: existsSync(statePath) ? normalizeDesk(JSON.parse(readFileSync(statePath, "utf8"))) : emptyDesk() };
-  const save = () => { writeFileSync(statePath + ".tmp", JSON.stringify(state.desk)); renameSync(statePath + ".tmp", statePath); };
+  const state = { desk: loadDesk(statePath, { dir: backupDir(process.env) }).desk }; // a damaged file is moved aside, never overwritten
+  const save = () => atomicWrite(statePath, JSON.stringify(state.desk));
+  let lastBackup = "";
+  const backup = () => { const t = localDate(Date.now(), process.env.TZ); if (t !== lastBackup) { lastBackup = t; dailyBackup(state, process.env, t); } };
+  backup();
   const port = Number(process.env.PORT || 8080);
   http.createServer(handler(state, save)).listen(port, () => console.log(`babysitting desk on :${port}${process.env.ADMIN_KEY ? "" : " (set ADMIN_KEY to sync and read the API)"}`));
   const digestHour = Number(process.env.DIGEST_HOUR ?? 7);
@@ -265,6 +271,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     const d = new Date();
     const today = localDate(d.getTime(), process.env.TZ);
     runAutomations(state, save, process.env, d.getTime()).catch((e) => console.error("automations failed:", e.message));
-    if (d.getHours() === digestHour && lastDigest !== today) { lastDigest = today; dailyDigest(state, save, process.env, today).catch((e) => console.error("digest failed:", e.message)); }
+    if (d.getHours() === digestHour && lastDigest !== today) { lastDigest = today; state.lastDigest = today; dailyDigest(state, save, process.env, today).catch((e) => console.error("digest failed:", e.message)); }
+    backup();
   }, 5 * 60 * 1000).unref?.();
 }

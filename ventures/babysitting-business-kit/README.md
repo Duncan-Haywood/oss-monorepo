@@ -77,7 +77,9 @@ Everything outside the box is **off until you set it, on your own accounts**:
 | `PUBLIC_URL` (`https://...`) | your server's address: puts an unsubscribe link in automated emails and is the URL Twilio signs (set the number's incoming-message webhook to `PUBLIC_URL/twilio/inbound`) |
 | `LLM_PROVIDER` (`anthropic`, `openai`, `openai-compatible`, `ollama`), `LLM_API_KEY`, `LLM_MODEL`, `LLM_BASE_URL` | blog drafts from your own model account or a local model; with none set, drafts come from the topic template |
 
-**Deploy:** `render.yaml` (Render, starter plan with a 1 GB disk; it generates `ADMIN_KEY` and `CAL_TOKEN`) or the `Dockerfile` anywhere. Nothing runs on the author's accounts.
+**Deploy:** `render.yaml` (Render, starter plan with a 1 GB disk; it generates `ADMIN_KEY` and `CAL_TOKEN`), `fly.toml` (Fly.io, one always-on machine with a volume), `docker-compose.yml` (any box with Docker), or the [one-click deploy page](https://duncan-haywood.github.io/oss-monorepo/deploy/?app=babysitting-business-kit), which builds all three from `render.yaml`. Nothing runs on the author's accounts. Step by step, with costs: [self-host.html](self-host.html).
+
+**Data safety (`backup.mjs`):** atomic writes; a daily snapshot beside the state file (newest 14 kept); at startup a state file that does not parse is moved to `desk.json.corrupt-<time>` and logged, never overwritten, and the newest good snapshot loads instead; `GET /api/backup` downloads the desk, `GET /api/backups` lists snapshots, `POST /api/restore` takes a desk JSON or `{"snapshot": "desk-YYYY-MM-DD.json"}` and saves the current desk first; `/admin` (admin key, sent as a header) shows versions, lead counts, last digest, which integrations are on (names only), disk use and the snapshots. Optional off-site copy to your own S3-compatible bucket (`BACKUP_S3_BUCKET`, `BACKUP_S3_ACCESS_KEY_ID`, `BACKUP_S3_SECRET_ACCESS_KEY`, plus `BACKUP_S3_ENDPOINT`/`BACKUP_S3_REGION` for R2, B2 or MinIO), signed with AWS Signature V4 in plain `node:crypto` and tested against AWS's published SigV4 test suite.
 
 ### Automations (sales follow-through)
 

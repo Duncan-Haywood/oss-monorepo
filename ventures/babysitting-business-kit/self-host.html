@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Run your own babysitting business server: Render, Fly.io or Docker, step by step</title>
+  <meta name="description" content="A step-by-step guide for a babysitter, or a friend helping, to run the free Babysitting Business Kit server on their own Render or Fly.io account: what it costs, the settings, connecting the website form, a phone calendar feed, and daily backups.">
+  <link rel="canonical" href="./self-host.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"HowTo","name":"Run your own Babysitting Business Kit server","step":[{"@type":"HowToStep","name":"Pick a host","text":"Render (simplest, about $7.25 a month) or Fly.io (about $2.34 a month, needs the command line)."},{"@type":"HowToStep","name":"Deploy","text":"Create the service from the kit's render.yaml or fly.toml in your own account, with a disk for your data."},{"@type":"HowToStep","name":"Keep your keys","text":"Copy ADMIN_KEY and CAL_TOKEN into a password manager."},{"@type":"HowToStep","name":"Connect the app","text":"In the app's Settings, enter the server address and admin key and press Sync now."},{"@type":"HowToStep","name":"Connect your website and phone","text":"Point the website form at /inquiry and subscribe your phone's calendar to /calendar.ics."}]}</script>
+  <style>
+    :root { font: 17px/1.6 system-ui, sans-serif; color: #2b2433; background: #fbf7f4; }
+    body { max-width: 760px; margin: auto; padding: 24px 16px; }
+    a { color: #9b3f68; } h1 { font-size: clamp(1.6rem, 4.5vw, 2.3rem); line-height: 1.15; } h2 { margin-top: 1.8em; font-size: 1.25rem; }
+    table { border-collapse: collapse; width: 100%; } th, td { border-bottom: 1px solid #e8ded8; padding: 6px; text-align: left; vertical-align: top; } td.n { text-align: right; }
+    .box { background: #fff; border: 1px solid #e8ded8; border-radius: 12px; padding: 14px 18px; }
+    code { background: #f1e8e3; padding: 1px 4px; border-radius: 4px; overflow-wrap: anywhere; } pre { background: #f1e8e3; padding: 10px; border-radius: 8px; overflow-x: auto; }
+    .scroll { overflow-x: auto; } footer { font-size: .86rem; color: #5f5669; margin-top: 40px; }
+  </style>
+</head>
+<body>
+  <p><a href="./index.html">← Babysitting Business Kit</a></p>
+  <h1>Run your own server, step by step</h1>
+  <p>The app works on its own in your browser. The optional server adds three things: your website's form turns each inquiry into a scored lead (with a phone alert, and an instant reply email if you want one), a calendar link your phone can subscribe to, and a morning to-do list. It runs on <strong>your</strong> hosting account. Nobody else, including the people who wrote it, can see your data or your bill.</p>
+  <p>If a friend is helping you, they can do steps 1 to 3; you only need the two keys at the end.</p>
+
+  <h2>What it costs</h2>
+  <div class="box scroll">
+    <table>
+      <tr><th>Host</th><th>What you pay for</th><th>Per month</th></tr>
+      <tr><td>Render</td><td>Starter web service ($7) plus a 1 GB disk ($0.25 per GB)</td><td class="n">about $7.25</td></tr>
+      <tr><td>Fly.io</td><td>One shared-cpu-1x machine with 256 MB, always on ($2.19) plus a 1 GB volume ($0.15 per GB)</td><td class="n">about $2.34</td></tr>
+      <tr><td>Your own computer or a VPS</td><td>Docker Compose; whatever the box already costs</td><td class="n">varies</td></tr>
+    </table>
+    <p>Prices as published on <a href="https://render.com/pricing" rel="noopener">render.com/pricing</a> and <a href="https://fly.io/docs/about/pricing/" rel="noopener">fly.io/docs/about/pricing</a> when this was written (October 2026). <strong>Check current pricing</strong> before you sign up; both need a card on file. Render's free plan has no disk, so leads would vanish when it restarts; that is why the kit asks for Starter. Email through Resend and phone alerts through ntfy.sh have free tiers; check theirs too.</p>
+  </div>
+
+  <h2>Option A: Render (simplest)</h2>
+  <ol>
+    <li>Make a free GitHub account if you do not have one.</li>
+    <li>Open the <a href="https://duncan-haywood.github.io/oss-monorepo/deploy/?app=babysitting-business-kit">one-click deploy page</a>, choose <strong>Render</strong>, and follow it. It copies just this kit into a new repository in <em>your</em> GitHub account and opens Render with the kit's <code>render.yaml</code>. (Or fork the repository yourself and use <code>https://render.com/deploy?repo=&lt;your fork&gt;</code>.)</li>
+    <li>Render shows the settings. It <strong>generates</strong> <code>ADMIN_KEY</code> and <code>CAL_TOKEN</code> for you. Leave the optional ones blank for now. Pick your time zone in <code>TZ</code> (for example <code>America/New_York</code>).</li>
+    <li>Click <strong>Apply</strong>. The first build takes a few minutes. When it is live you get an address like <code>https://babysitting-desk-xxxx.onrender.com</code>.</li>
+    <li>In the service's <strong>Environment</strong> tab, copy <code>ADMIN_KEY</code> and <code>CAL_TOKEN</code> into a password manager.</li>
+  </ol>
+
+  <h2>Option B: Fly.io (cheaper, needs the command line)</h2>
+  <ol>
+    <li>Install <a href="https://fly.io/docs/flyctl/install/" rel="noopener">flyctl</a> and run <code>fly auth signup</code> (or <code>fly auth login</code>).</li>
+    <li>Get the kit: download it from the <a href="https://duncan-haywood.github.io/oss-monorepo/deploy/?app=babysitting-business-kit">deploy page</a> (Fly.io) or copy the <code>ventures/babysitting-business-kit</code> folder, and open a terminal in it.</li>
+    <li>Run, one line at a time (choose your own app name; Fly names are shared by everyone):
+<pre>fly launch --copy-config --no-deploy --dockerfile Dockerfile --name my-sitter-desk
+fly volumes create state --size 1 --region iad
+fly secrets set ADMIN_KEY=$(openssl rand -hex 16) CAL_TOKEN=$(openssl rand -hex 12)
+fly deploy</pre></li>
+    <li>Before <code>fly secrets set</code>, you can print the two values with <code>openssl rand -hex 16</code> and <code>openssl rand -hex 12</code>, save them in a password manager, then paste them in. Fly will not show a secret again.</li>
+    <li>Your address is <code>https://my-sitter-desk.fly.dev</code>. The kit's <code>fly.toml</code> keeps one machine always on, because your data lives on its volume and the morning digest needs it awake.</li>
+  </ol>
+
+  <h2>Option C: Docker on a box you already have</h2>
+  <pre>ADMIN_KEY=$(openssl rand -hex 16) CAL_TOKEN=$(openssl rand -hex 12) docker compose up -d</pre>
+  <p>From the kit's folder, with <code>docker-compose.yml</code>. Put it behind HTTPS (Caddy, nginx or a tunnel) before families use the form.</p>
+
+  <h2>Connect the app</h2>
+  <p>Open your server's address in your browser: it serves the same app. In <strong>Settings</strong>, under "Sync with your own server", enter the address and your <code>ADMIN_KEY</code>, then press <strong>Sync now</strong>. Leads that arrive through your website are merged in; the key is kept in that browser only.</p>
+
+  <h2>Connect your website form</h2>
+  <ul>
+    <li><strong>Use the server's page:</strong> your website is already live at <code>https://your-address/site</code>, with the form wired up. Share that link, or point your own domain at it.</li>
+    <li><strong>Host the page elsewhere</strong> (GitHub Pages, Netlify): in Settings, set "Website form address" to <code>https://your-address/inquiry</code>, then download the website again from the Website tab.</li>
+  </ul>
+  <p>Test it: fill in the form yourself. The lead should appear in the Leads tab after the next sync. The form has a hidden spam trap and accepts at most 10 messages an hour from one address.</p>
+
+  <h2>Subscribe your phone's calendar</h2>
+  <p>Your feed is <code>https://your-address/calendar.ics?t=CAL_TOKEN</code> (your own token in place of <code>CAL_TOKEN</code>). Anyone with that link can see your sits, so share it with no one.</p>
+  <ul>
+    <li><strong>iPhone:</strong> Settings → Calendar → Accounts → Add Account → Other → Add Subscribed Calendar, and paste the link.</li>
+    <li><strong>Google Calendar (Android):</strong> on a computer, open calendar.google.com → Other calendars → + → From URL, and paste the link. Google can take several hours to pick up a change.</li>
+  </ul>
+
+  <h2>Settings (environment variables)</h2>
+  <div class="scroll">
+  <table>
+    <tr><th>Variable</th><th>Needed?</th><th>What it does</th></tr>
+    <tr><td><code>ADMIN_KEY</code></td><td>Yes</td><td>Password for syncing, the API and the <code>/admin</code> page. 32 random characters.</td></tr>
+    <tr><td><code>CAL_TOKEN</code></td><td>For the calendar</td><td>The secret part of your calendar link.</td></tr>
+    <tr><td><code>TZ</code></td><td>Recommended</td><td>Your time zone, e.g. <code>America/Chicago</code>.</td></tr>
+    <tr><td><code>DIGEST_HOUR</code></td><td>No (7)</td><td>Hour of the morning to-do list.</td></tr>
+    <tr><td><code>NOTIFY_WEBHOOK_URL</code>, <code>NOTIFY_FORMAT</code></td><td>No</td><td>Phone alerts: an ntfy.sh topic address (default format), or a Slack or Discord webhook.</td></tr>
+    <tr><td><code>RESEND_API_KEY</code>, <code>FROM_EMAIL</code>, <code>NOTIFY_EMAIL</code></td><td>No</td><td>Email through your own Resend account; <code>NOTIFY_EMAIL</code> is where your alerts go and where families' replies land.</td></tr>
+    <tr><td><code>AUTO_REPLY</code></td><td>No (0)</td><td><code>1</code> emails your reply draft to a family as soon as they ask (never to a lead the kit marks as a decline).</td></tr>
+    <tr><td><code>AUTO_FOLLOW_UP</code></td><td>No (0)</td><td><code>1</code> emails due follow-ups with the morning digest.</td></tr>
+    <tr><td><code>BACKUP_S3_BUCKET</code>, <code>BACKUP_S3_ACCESS_KEY_ID</code>, <code>BACKUP_S3_SECRET_ACCESS_KEY</code></td><td>No</td><td>A daily off-site copy to your own S3-compatible bucket (AWS S3, Cloudflare R2, Backblaze B2). Off until all three are set.</td></tr>
+    <tr><td><code>BACKUP_S3_ENDPOINT</code>, <code>BACKUP_S3_REGION</code>, <code>BACKUP_S3_PREFIX</code></td><td>No</td><td>For non-AWS buckets: the provider's S3 endpoint (https only) and region (R2 uses <code>auto</code>). Prefix defaults to <code>babysitting-desk/</code>.</td></tr>
+    <tr><td><code>BACKUP_DIR</code>, <code>BACKUP_KEEP</code></td><td>No</td><td>Where daily snapshots go (default: <code>backups</code> beside the state file) and how many to keep (14).</td></tr>
+    <tr><td><code>BOOK_WEEKS</code></td><td>No (2)</td><td>How many weeks of open times the public <code>/book</code> page shows (1 to 8).</td></tr>
+    <tr><td><code>PUBLIC_URL</code></td><td>For automations</td><td>Your server's address (<code>https://...</code>): puts an unsubscribe link in automated emails and is the address Twilio's incoming-text webhook calls.</td></tr>
+    <tr><td><code>UNSUBSCRIBE_SECRET</code></td><td>No</td><td>Signs unsubscribe links; defaults to <code>ADMIN_KEY</code>.</td></tr>
+    <tr><td><code>TWILIO_ACCOUNT_SID</code>, <code>TWILIO_AUTH_TOKEN</code>, <code>TWILIO_FROM</code></td><td>No</td><td>Texts through your own Twilio account, for the automations you turn on in Settings. Families must have agreed to texts.</td></tr>
+    <tr><td><code>TWILIO_WEBHOOK_URL</code></td><td>No</td><td>The exact incoming-text URL Twilio signs, if it differs from <code>PUBLIC_URL</code> + <code>/twilio/inbound</code>.</td></tr>
+    <tr><td><code>LLM_PROVIDER</code>, <code>LLM_API_KEY</code>, <code>LLM_MODEL</code>, <code>LLM_BASE_URL</code></td><td>No</td><td>Blog drafts on your own model account (<code>anthropic</code>, <code>openai</code>, <code>openai-compatible</code>, <code>ollama</code>). Drafts wait for your approval.</td></tr>
+    <tr><td><code>ANTHROPIC_API_KEY</code>, <code>OPENAI_API_KEY</code>, <code>GEMINI_API_KEY</code>, <code>OLLAMA_HOST</code></td><td>No</td><td>Alternatives to <code>LLM_PROVIDER</code>: setting one of these picks that provider.</td></tr>
+    <tr><td><code>STATE</code>, <code>PORT</code></td><td>Set for you</td><td><code>/data/desk.json</code> and <code>8080</code> in the container.</td></tr>
+  </table>
+  </div>
+
+  <h2>Backups and the status page</h2>
+  <ul>
+    <li>Every save is written to a temporary file and then renamed, so a crash cannot leave half a file.</li>
+    <li>Once a day the server keeps a snapshot; the newest 14 are kept on the disk.</li>
+    <li>If the data file is ever damaged, the server does not overwrite it: it moves it aside as <code>desk.json.corrupt-&lt;time&gt;</code>, logs that, and starts from the newest good snapshot.</li>
+    <li><code>https://your-address/admin</code> asks for your admin key and shows the version, lead counts, the last morning digest, which integrations are on (names only, never values), disk use, and the snapshots, with buttons to download one or restore from it or from a file. A restore saves the current desk first.</li>
+    <li>Snapshots live on the same disk as your data. For a copy that survives losing the disk, set the <code>BACKUP_S3_*</code> settings, or download a backup from <code>/admin</code> now and then.</li>
+  </ul>
+
+  <h2>You are the operator</h2>
+  <p>Your copy runs on your account: you choose who sees it, you pay the host, and you keep the keys. Families' messages are stored in your server's file and only leave it through services you switch on. Keep the server updated by redeploying from the latest kit now and then.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This guide and tool are provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Hosting prices change; check the host's current pricing. You are responsible for reviewing and verifying its output before relying on it, and for the server you run. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p>Not affiliated with Render, Fly.io, Resend, ntfy, Amazon Web Services, Cloudflare or Backblaze; they are named only to say where you can run it. Free and open source under the MIT licence. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional.</p>
+  </footer>
+</body>
+</html>
