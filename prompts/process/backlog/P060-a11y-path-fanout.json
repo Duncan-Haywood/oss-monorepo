@@ -19,7 +19,7 @@
   "baseline": "9 workflows, 2026-10-30",
   "opened": "2026-10-30",
   "source": "prompts/process/backlog/P049-jobs-per-pr-head.json",
-  "pr": null,
+  "pr": "this",
   "result": null,
   "history": [
     {
