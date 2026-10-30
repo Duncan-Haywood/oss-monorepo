@@ -293,3 +293,14 @@ test("landing footings: sized only when soilBearing is typed, from hand-computed
   assert.deepEqual([b.landing.footings.load, b.landing.footings.round, b.landing.footings.square, b.landing.footings.count], [500, 8, 7, 6]);
   assert.match(landingText(b).join("\n"), /Landing footings: heaviest post 500 lb .* 8 in round or 7 in square, 6 footings/);
 });
+
+test("handrail brackets: ends plus enough between that none is past the typed spacing (hand: 108 in rise, 10 in tread)", () => {
+  const l = layoutStair({ totalRise: 108, tread: 10, rail: { sides: 1 } }, plan());
+  const len = l.rail.handrail.length;
+  assert.equal(l.rail.handrail.brackets, Math.ceil(len / 48) + 1);
+  assert.ok(len / (l.rail.handrail.brackets - 1) <= 48);
+  const tight = layoutStair({ totalRise: 108, tread: 10, rail: { sides: 1, bracketSpacing: 24 } }, plan());
+  assert.equal(tight.rail.handrail.brackets, Math.ceil(len / 24) + 1);
+  assert.equal(layoutStair({ totalRise: 108, tread: 10, rail: { sides: 1, handrail: false } }, plan()).rail.handrail, null);
+  assert.match(stairText(l).join("\n"), new RegExp(`on ${l.rail.handrail.brackets} brackets`));
+});

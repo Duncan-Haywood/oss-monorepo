@@ -5,49 +5,49 @@
   "10x10-barn": {
    "key": "10x10 barn",
    "name": "10x10 gambrel barn with loft",
-   "hash": "71687f83aa9951d7",
-   "designKey": "8be7e63f",
+   "hash": "7aad331d9526ccb4",
+   "designKey": "b4714e8f",
    "files": {
     "hero": {
      "file": "10x10-barn-hero.webp",
      "w": 960,
      "h": 640,
-     "bytes": 17812,
-     "alt": "3D render of the 10x10 gambrel barn with loft, 10 by 10 ft, seen from the front corner: white siding, charcoal shingles, 6/12 roof, 13' 10-1/8\" to the peak, showing two 14\" windows on the front (eave side)."
+     "bytes": 17846,
+     "alt": "3D render of the 10x10 gambrel barn with loft, 10 by 10 ft, seen from the front corner: white siding, charcoal shingles, 6/12 roof, 13' 8-1/8\" to the peak, showing two 14\" windows on the front (eave side)."
     },
     "card": {
      "file": "10x10-barn-card.webp",
      "w": 480,
      "h": 320,
-     "bytes": 6438,
-     "alt": "3D render of the 10x10 gambrel barn with loft, 10 by 10 ft, seen from the front corner: white siding, charcoal shingles, 6/12 roof, 13' 10-1/8\" to the peak, showing two 14\" windows on the front (eave side)."
+     "bytes": 6778,
+     "alt": "3D render of the 10x10 gambrel barn with loft, 10 by 10 ft, seen from the front corner: white siding, charcoal shingles, 6/12 roof, 13' 8-1/8\" to the peak, showing two 14\" windows on the front (eave side)."
     },
     "front": {
      "file": "10x10-barn-front.webp",
      "w": 480,
      "h": 320,
-     "bytes": 4714,
-     "alt": "3D render of the 10x10 gambrel barn with loft, 10 by 10 ft, seen from the front: white siding, charcoal shingles, 6/12 roof, 13' 10-1/8\" to the peak, showing two 14\" windows."
+     "bytes": 4896,
+     "alt": "3D render of the 10x10 gambrel barn with loft, 10 by 10 ft, seen from the front: white siding, charcoal shingles, 6/12 roof, 13' 8-1/8\" to the peak, showing two 14\" windows."
     },
     "side": {
      "file": "10x10-barn-side.webp",
      "w": 480,
      "h": 320,
-     "bytes": 3230,
-     "alt": "3D render of the 10x10 gambrel barn with loft, 10 by 10 ft, seen from the gable end: white siding, charcoal shingles, 6/12 roof, 13' 10-1/8\" to the peak."
+     "bytes": 3442,
+     "alt": "3D render of the 10x10 gambrel barn with loft, 10 by 10 ft, seen from the gable end: white siding, charcoal shingles, 6/12 roof, 13' 8-1/8\" to the peak."
     },
     "back": {
      "file": "10x10-barn-back.webp",
      "w": 480,
      "h": 320,
-     "bytes": 3966,
-     "alt": "3D render of the 10x10 gambrel barn with loft, 10 by 10 ft, seen from the back: white siding, charcoal shingles, 6/12 roof, 13' 10-1/8\" to the peak."
+     "bytes": 4086,
+     "alt": "3D render of the 10x10 gambrel barn with loft, 10 by 10 ft, seen from the back: white siding, charcoal shingles, 6/12 roof, 13' 8-1/8\" to the peak."
     },
     "framing": {
      "file": "10x10-barn-framing.webp",
      "w": 640,
      "h": 427,
-     "bytes": 22752,
+     "bytes": 23394,
      "alt": "Framing of the 10x10 gambrel barn with loft (10 by 10 ft) with the siding, sheathing and roofing removed: studs at 16\" on centre, rafters at 24\" and a 2x6 ridge board with rafter ties."
     }
    }
@@ -55,8 +55,8 @@
   "10x12": {
    "key": "10x12",
    "name": "10x12 gable shed",
-   "hash": "b75986784feebf67",
-   "designKey": "fbb6ddfc",
+   "hash": "104674663bc35ba3",
+   "designKey": "dd1b4dea",
    "files": {
     "hero": {
      "file": "10x12-hero.webp",
@@ -76,14 +76,14 @@
      "file": "10x12-front.webp",
      "w": 480,
      "h": 320,
-     "bytes": 5600,
+     "bytes": 5574,
      "alt": "3D render of the 10x12 gable shed, 10 by 12 ft, seen from the front: stained T1-11 panel siding, charcoal shingles, 6/12 roof, 11' 10-5/8\" to the peak, showing a 52\" door."
     },
     "side": {
      "file": "10x12-side.webp",
      "w": 480,
      "h": 320,
-     "bytes": 6050,
+     "bytes": 6042,
      "alt": "3D render of the 10x12 gable shed, 10 by 12 ft, seen from the gable end: stained T1-11 panel siding, charcoal shingles, 6/12 roof, 11' 10-5/8\" to the peak, showing a 32\" window."
     },
     "back": {
@@ -97,7 +97,7 @@
      "file": "10x12-framing.webp",
      "w": 640,
      "h": 427,
-     "bytes": 20638,
+     "bytes": 20688,
      "alt": "Framing of the 10x12 gable shed (10 by 12 ft) with the siding, sheathing and roofing removed: studs at 16\" on centre, rafters at 24\" and a 2x8 ridge board with rafter ties."
     }
    }
@@ -105,8 +105,8 @@
   "12x16": {
    "key": "12x16",
    "name": "12x16 gable shed",
-   "hash": "7723e58f036a907c",
-   "designKey": "a0547f66",
+   "hash": "3418aedb84579ef6",
+   "designKey": "77bf23e4",
    "files": {
     "hero": {
      "file": "12x16-hero.webp",
@@ -126,7 +126,7 @@
      "file": "12x16-front.webp",
      "w": 480,
      "h": 320,
-     "bytes": 5656,
+     "bytes": 5646,
      "alt": "3D render of the 12x16 gable shed, 12 by 16 ft, seen from the front: stained T1-11 panel siding, charcoal shingles, 5/12 roof, 11' 10-13/16\" to the peak, showing two 36\" windows."
     },
     "side": {
@@ -147,7 +147,7 @@
      "file": "12x16-framing.webp",
      "w": 640,
      "h": 427,
-     "bytes": 21498,
+     "bytes": 21624,
      "alt": "Framing of the 12x16 gable shed (12 by 16 ft) with the siding, sheathing and roofing removed: studs at 16\" on centre, rafters at 24\" and a 2x8 ridge board with rafter ties."
     }
    }
@@ -155,8 +155,8 @@
   "8x10": {
    "key": "8x10",
    "name": "8x10 gable shed",
-   "hash": "411717ff93ebefeb",
-   "designKey": "911ca546",
+   "hash": "d6042435b375c75e",
+   "designKey": "d0bafdf8",
    "files": {
     "hero": {
      "file": "8x10-hero.webp",
@@ -176,14 +176,14 @@
      "file": "8x10-front.webp",
      "w": 480,
      "h": 320,
-     "bytes": 5166,
+     "bytes": 5134,
      "alt": "3D render of the 8x10 gable shed, 8 by 10 ft, seen from the front: stained T1-11 panel siding, charcoal shingles, 6/12 roof, 11' 4-5/8\" to the peak, showing a 52\" door."
     },
     "side": {
      "file": "8x10-side.webp",
      "w": 480,
      "h": 320,
-     "bytes": 5724,
+     "bytes": 5712,
      "alt": "3D render of the 8x10 gable shed, 8 by 10 ft, seen from the gable end: stained T1-11 panel siding, charcoal shingles, 6/12 roof, 11' 4-5/8\" to the peak, showing a 32\" window."
     },
     "back": {
@@ -197,7 +197,7 @@
      "file": "8x10-framing.webp",
      "w": 640,
      "h": 427,
-     "bytes": 19556,
+     "bytes": 19552,
      "alt": "Framing of the 8x10 gable shed (8 by 10 ft) with the siding, sheathing and roofing removed: studs at 16\" on centre, rafters at 24\" and a 2x8 ridge board with rafter ties."
     }
    }
@@ -205,49 +205,49 @@
   "8x12": {
    "key": "8x12",
    "name": "8x12 ridge-beam shed",
-   "hash": "cab641802f82081c",
-   "designKey": "4929adc7",
+   "hash": "676a79fa4aa29e43",
+   "designKey": "bb616dd3",
    "files": {
     "hero": {
      "file": "8x12-hero.webp",
      "w": 960,
      "h": 640,
-     "bytes": 20182,
-     "alt": "3D render of the 8x12 ridge-beam shed, 8 by 12 ft, seen from the front corner: stained T1-11 panel siding, charcoal shingles, 4/12 roof, 10' 2-3/8\" to the peak, showing a 39\" door on the front (eave side)."
+     "bytes": 20634,
+     "alt": "3D render of the 8x12 ridge-beam shed, 8 by 12 ft, seen from the front corner: stained T1-11 panel siding, charcoal shingles, 4/12 roof, 10' 3/8\" to the peak, showing a 39\" door on the front (eave side)."
     },
     "card": {
      "file": "8x12-card.webp",
      "w": 480,
      "h": 320,
-     "bytes": 7688,
-     "alt": "3D render of the 8x12 ridge-beam shed, 8 by 12 ft, seen from the front corner: stained T1-11 panel siding, charcoal shingles, 4/12 roof, 10' 2-3/8\" to the peak, showing a 39\" door on the front (eave side)."
+     "bytes": 7880,
+     "alt": "3D render of the 8x12 ridge-beam shed, 8 by 12 ft, seen from the front corner: stained T1-11 panel siding, charcoal shingles, 4/12 roof, 10' 3/8\" to the peak, showing a 39\" door on the front (eave side)."
     },
     "front": {
      "file": "8x12-front.webp",
      "w": 480,
      "h": 320,
-     "bytes": 5180,
-     "alt": "3D render of the 8x12 ridge-beam shed, 8 by 12 ft, seen from the front: stained T1-11 panel siding, charcoal shingles, 4/12 roof, 10' 2-3/8\" to the peak, showing a 39\" door."
+     "bytes": 5314,
+     "alt": "3D render of the 8x12 ridge-beam shed, 8 by 12 ft, seen from the front: stained T1-11 panel siding, charcoal shingles, 4/12 roof, 10' 3/8\" to the peak, showing a 39\" door."
     },
     "side": {
      "file": "8x12-side.webp",
      "w": 480,
      "h": 320,
-     "bytes": 5328,
-     "alt": "3D render of the 8x12 ridge-beam shed, 8 by 12 ft, seen from the gable end: stained T1-11 panel siding, charcoal shingles, 4/12 roof, 10' 2-3/8\" to the peak."
+     "bytes": 5656,
+     "alt": "3D render of the 8x12 ridge-beam shed, 8 by 12 ft, seen from the gable end: stained T1-11 panel siding, charcoal shingles, 4/12 roof, 10' 3/8\" to the peak."
     },
     "back": {
      "file": "8x12-back.webp",
      "w": 480,
      "h": 320,
-     "bytes": 5206,
-     "alt": "3D render of the 8x12 ridge-beam shed, 8 by 12 ft, seen from the back: stained T1-11 panel siding, charcoal shingles, 4/12 roof, 10' 2-3/8\" to the peak, showing two 14\" windows."
+     "bytes": 5452,
+     "alt": "3D render of the 8x12 ridge-beam shed, 8 by 12 ft, seen from the back: stained T1-11 panel siding, charcoal shingles, 4/12 roof, 10' 3/8\" to the peak, showing two 14\" windows."
     },
     "framing": {
      "file": "8x12-framing.webp",
      "w": 640,
      "h": 427,
-     "bytes": 19256,
+     "bytes": 19264,
      "alt": "Framing of the 8x12 ridge-beam shed (8 by 12 ft) with the siding, sheathing and roofing removed: studs at 16\" on centre, rafters at 24\" and a two-ply 2x10 ridge beam on posts."
     }
    }
@@ -255,8 +255,8 @@
   "8x12-classic": {
    "key": "8x12 classic",
    "name": "8x12 gable shed",
-   "hash": "edbcbd58c0b46959",
-   "designKey": "b1aadf5a",
+   "hash": "4403019268441abc",
+   "designKey": "9d96257c",
    "files": {
     "hero": {
      "file": "8x12-classic-hero.webp",
@@ -276,7 +276,7 @@
      "file": "8x12-classic-front.webp",
      "w": 480,
      "h": 320,
-     "bytes": 5436,
+     "bytes": 5410,
      "alt": "3D render of the 8x12 gable shed, 8 by 12 ft, seen from the front: stained T1-11 panel siding, charcoal shingles, 6/12 roof, 11' 4-5/8\" to the peak, showing a 38\" door."
     },
     "side": {
@@ -290,14 +290,14 @@
      "file": "8x12-classic-back.webp",
      "w": 480,
      "h": 320,
-     "bytes": 5140,
+     "bytes": 5184,
      "alt": "3D render of the 8x12 gable shed, 8 by 12 ft, seen from the back: stained T1-11 panel siding, charcoal shingles, 6/12 roof, 11' 4-5/8\" to the peak, showing two 24\" windows."
     },
     "framing": {
      "file": "8x12-classic-framing.webp",
      "w": 640,
      "h": 427,
-     "bytes": 19986,
+     "bytes": 20048,
      "alt": "Framing of the 8x12 gable shed (8 by 12 ft) with the siding, sheathing and roofing removed: studs at 16\" on centre, rafters at 24\" and a 2x8 ridge board with rafter ties."
     }
    }
@@ -305,49 +305,49 @@
   "8x12-lean-to": {
    "key": "8x12 lean-to",
    "name": "8x12 lean-to shed",
-   "hash": "6d7c59f107996282",
-   "designKey": "5396dea5",
+   "hash": "98c2b872eddbec3f",
+   "designKey": "a3a50317",
    "files": {
     "hero": {
      "file": "8x12-lean-to-hero.webp",
      "w": 960,
      "h": 640,
-     "bytes": 18908,
+     "bytes": 19342,
      "alt": "3D render of the 8x12 lean-to shed, 8 by 12 ft, seen from the front corner: stained T1-11 panel siding, charcoal shingles, 4/12 lean-to roof, 10' 7-1/16\" to the high edge, showing a 39\" door on the front (tall side) and a 14\" window on the front (tall side) and a 14\" window on the right (end wall)."
     },
     "card": {
      "file": "8x12-lean-to-card.webp",
      "w": 480,
      "h": 320,
-     "bytes": 7264,
+     "bytes": 7482,
      "alt": "3D render of the 8x12 lean-to shed, 8 by 12 ft, seen from the front corner: stained T1-11 panel siding, charcoal shingles, 4/12 lean-to roof, 10' 7-1/16\" to the high edge, showing a 39\" door on the front (tall side) and a 14\" window on the front (tall side) and a 14\" window on the right (end wall)."
     },
     "front": {
      "file": "8x12-lean-to-front.webp",
      "w": 480,
      "h": 320,
-     "bytes": 5646,
+     "bytes": 5798,
      "alt": "3D render of the 8x12 lean-to shed, 8 by 12 ft, seen from the front: stained T1-11 panel siding, charcoal shingles, 4/12 lean-to roof, 10' 7-1/16\" to the high edge, showing a 39\" door and a 14\" window."
     },
     "side": {
      "file": "8x12-lean-to-side.webp",
      "w": 480,
      "h": 320,
-     "bytes": 5596,
+     "bytes": 5742,
      "alt": "3D render of the 8x12 lean-to shed, 8 by 12 ft, seen from the gable end: stained T1-11 panel siding, charcoal shingles, 4/12 lean-to roof, 10' 7-1/16\" to the high edge, showing a 14\" window."
     },
     "back": {
      "file": "8x12-lean-to-back.webp",
      "w": 480,
      "h": 320,
-     "bytes": 4902,
+     "bytes": 5052,
      "alt": "3D render of the 8x12 lean-to shed, 8 by 12 ft, seen from the back: stained T1-11 panel siding, charcoal shingles, 4/12 lean-to roof, 10' 7-1/16\" to the high edge."
     },
     "framing": {
      "file": "8x12-lean-to-framing.webp",
      "w": 640,
      "h": 427,
-     "bytes": 17726,
+     "bytes": 18092,
      "alt": "Framing of the 8x12 lean-to shed (8 by 12 ft) with the siding, sheathing and roofing removed: studs at 16\" on centre and rafters at 24\" running from the tall front wall down to the low back wall (a lean-to, no ridge)."
     }
    }
@@ -355,8 +355,8 @@
   "8x8-lean": {
    "key": "8x8 lean",
    "name": "8x8 garden shed",
-   "hash": "49758a53436a3ad3",
-   "designKey": "432c53fc",
+   "hash": "953bc82ee514b3e3",
+   "designKey": "d39b40ee",
    "files": {
     "hero": {
      "file": "8x8-lean-hero.webp",
@@ -397,181 +397,181 @@
      "file": "8x8-lean-framing.webp",
      "w": 640,
      "h": 427,
-     "bytes": 18436,
+     "bytes": 18642,
      "alt": "Framing of the 8x8 garden shed (8 by 8 ft) with the siding, sheathing and roofing removed: studs at 16\" on centre, rafters at 24\" and a 2x8 ridge board with rafter ties."
     }
    }
   },
   "gallery-balanced": {
-   "key": "Balanced 8x12",
-   "name": "Balanced 8x12",
-   "hash": "86c00490a4962517",
-   "designKey": "4e2fb284",
+   "key": "Balanced 8x11",
+   "name": "Balanced 8x11",
+   "hash": "4e1f3bb5aadb6f32",
+   "designKey": "54eed234",
    "files": {
     "card": {
      "file": "gallery-balanced-card.webp",
      "w": 480,
      "h": 320,
-     "bytes": 6494,
-     "alt": "3D render of the Balanced 8x12, 8 by 12 ft, seen from the front corner: stained T1-11 panel siding, charcoal shingles, 4/12 lean-to roof, 11' 7-9/16\" to the high edge, showing a 39\" door on the right (end wall)."
+     "bytes": 7392,
+     "alt": "3D render of the Balanced 8x11, 11 by 8 ft, seen from the front corner: stained T1-11 panel siding, charcoal shingles, 6/12 roof, 12' 2-5/16\" to the peak, showing a 39\" door on the right (gable end)."
     }
    }
   },
   "gallery-barn": {
    "key": "Barn for storage 7x14",
    "name": "Barn for storage 7x14",
-   "hash": "aaf0f2f4a0c66103",
-   "designKey": "5e0bae26",
+   "hash": "b95df15395ee4b6a",
+   "designKey": "2d681ae9",
    "files": {
     "card": {
      "file": "gallery-barn-card.webp",
      "w": 480,
      "h": 320,
-     "bytes": 7876,
-     "alt": "3D render of the Barn for storage 7x14, 7 by 14 ft, seen from the front corner: red fiber cement siding, charcoal shingles, 6/12 roof, 12' 5/8\" to the peak, showing a 39\" door on the right (gable end)."
+     "bytes": 7908,
+     "alt": "3D render of the Barn for storage 7x14, 7 by 14 ft, seen from the front corner: red fiber cement siding, charcoal shingles, 6/12 roof, 12' 5/8\" to the peak, showing a 39\" door on the front (eave side)."
     }
    }
   },
   "gallery-cheapest": {
    "key": "Cheapest 8x10",
    "name": "Cheapest 8x10",
-   "hash": "f4e96300905d9b14",
-   "designKey": "1f007334",
+   "hash": "d6284b421c99932e",
+   "designKey": "d4d30754",
    "files": {
     "card": {
      "file": "gallery-cheapest-card.webp",
      "w": 480,
      "h": 320,
-     "bytes": 7086,
-     "alt": "3D render of the Cheapest 8x10, 10 by 8 ft, seen from the front corner: stained LP SmartSide panel siding, charcoal metal roof, 6/12 roof, 11' 2-3/16\" to the peak, showing a 39\" door on the right (gable end)."
+     "bytes": 7990,
+     "alt": "3D render of the Cheapest 8x10, 10 by 8 ft, seen from the front corner: stained T1-11 panel siding, charcoal shingles, 6/12 roof, 10' 10-11/16\" to the peak, showing a 39\" door on the right (gable end)."
     }
    }
   },
   "gallery-house": {
-   "key": "9x10 to match the house",
-   "name": "9x10 to match the house",
-   "hash": "c88678b741216718",
-   "designKey": "9aed3072",
+   "key": "10x10 to match the house",
+   "name": "10x10 to match the house",
+   "hash": "23edf81f07ed5ff7",
+   "designKey": "9cb31c6b",
    "files": {
     "card": {
      "file": "gallery-house-card.webp",
      "w": 480,
      "h": 320,
-     "bytes": 5892,
-     "alt": "3D render of the 9x10 to match the house, 10 by 9 ft, seen from the front corner: white fiber cement siding, charcoal shingles, 6/12 roof, 11' 11-5/16\" to the peak, showing a 39\" door on the right (gable end)."
+     "bytes": 6118,
+     "alt": "3D render of the 10x10 to match the house, 10 by 10 ft, seen from the front corner: white fiber cement siding, charcoal shingles, 6/12 roof, 11' 11-5/16\" to the peak, showing a 39\" door on the right (gable end)."
     }
    }
   },
   "gallery-house-cheapest": {
    "key": "Cheapest lap-sided 7x12",
    "name": "Cheapest lap-sided 7x12",
-   "hash": "b7233863b4aa72ad",
-   "designKey": "69fcd7d9",
+   "hash": "68d4cb3c7b2bd02d",
+   "designKey": "c1cc9cad",
    "files": {
     "card": {
      "file": "gallery-house-cheapest-card.webp",
      "w": 480,
      "h": 320,
-     "bytes": 6164,
-     "alt": "3D render of the Cheapest lap-sided 7x12, 7 by 12 ft, seen from the front corner: cream fiber cement siding, charcoal shingles, 6/12 roof, 10' 3-11/16\" to the peak, showing a 39\" door on the right (gable end)."
+     "bytes": 6192,
+     "alt": "3D render of the Cheapest lap-sided 7x12, 12 by 7 ft, seen from the front corner: cream fiber cement siding, charcoal shingles, 6/12 roof, 11' 6-11/16\" to the peak, showing a 39\" door on the right (gable end)."
     }
    }
   },
   "gallery-long": {
    "key": "Long 6x16",
    "name": "Long 6x16",
-   "hash": "2d2ec14edac21d3d",
-   "designKey": "28f2c99f",
+   "hash": "9a4d51458c8534f8",
+   "designKey": "9ed7700e",
    "files": {
     "card": {
      "file": "gallery-long-card.webp",
      "w": 480,
      "h": 320,
-     "bytes": 6456,
-     "alt": "3D render of the Long 6x16, 6 by 16 ft, seen from the front corner: sage fiber cement siding, charcoal shingles, 6/12 roof, 10' 11/16\" to the peak, showing a 39\" door on the right (gable end)."
+     "bytes": 6260,
+     "alt": "3D render of the Long 6x16, 16 by 6 ft, seen from the front corner: sage fiber cement siding, charcoal shingles, 6/12 roof, 12' 10-5/8\" to the peak, showing a 39\" door on the right (gable end)."
     }
    }
   },
   "gallery-looks": {
-   "key": "Best looking 8x11",
-   "name": "Best looking 8x11",
-   "hash": "d66704857b51946e",
-   "designKey": "90da5527",
+   "key": "Best looking 9x10",
+   "name": "Best looking 9x10",
+   "hash": "c5fea45b7f35793f",
+   "designKey": "64421615",
    "files": {
     "card": {
      "file": "gallery-looks-card.webp",
      "w": 480,
      "h": 320,
-     "bytes": 5738,
-     "alt": "3D render of the Best looking 8x11, 8 by 11 ft, seen from the front corner: greige fiber cement siding, charcoal shingles, 4/12 lean-to roof, 10' 11-1/16\" to the high edge, showing a 39\" door on the front (tall side) and two 18\" windows on the front (tall side)."
+     "bytes": 5760,
+     "alt": "3D render of the Best looking 9x10, 9 by 10 ft, seen from the front corner: greige fiber cement siding, charcoal shingles, 4/12 lean-to roof, 11' 4-3/8\" to the high edge, showing a 39\" door on the front (tall side) and two 18\" windows on the front (tall side)."
     }
    }
   },
   "gallery-mower": {
    "key": "Mower shed 10x10",
    "name": "Mower shed 10x10",
-   "hash": "515ccc595a75fee2",
-   "designKey": "fd64fef7",
+   "hash": "727263d7d5b6a660",
+   "designKey": "58b28736",
    "files": {
     "card": {
      "file": "gallery-mower-card.webp",
      "w": 480,
      "h": 320,
-     "bytes": 5372,
-     "alt": "3D render of the Mower shed 10x10, 10 by 10 ft, seen from the front corner: forest green fiber cement siding, charcoal shingles, 4/12 lean-to roof, 12' 6-3/8\" to the high edge, showing a 48\" door on the right (end wall)."
+     "bytes": 5652,
+     "alt": "3D render of the Mower shed 10x10, 10 by 10 ft, seen from the front corner: forest green fiber cement siding, charcoal shingles, 4/12 lean-to roof, 11' 8-3/8\" to the high edge, showing a 48\" door on the right (end wall)."
     }
    }
   },
   "gallery-square": {
    "key": "10x10 square",
    "name": "10x10 square",
-   "hash": "2bc76d8c8a24535f",
-   "designKey": "da290c12",
+   "hash": "eabe431ae05bdafc",
+   "designKey": "e17d67f2",
    "files": {
     "card": {
      "file": "gallery-square-card.webp",
      "w": 480,
      "h": 320,
-     "bytes": 6314,
-     "alt": "3D render of the 10x10 square, 10 by 10 ft, seen from the front corner: khaki fiber cement siding, charcoal shingles, 6/12 roof, 11' 11-5/16\" to the peak, showing a 39\" door on the right (gable end)."
+     "bytes": 5382,
+     "alt": "3D render of the 10x10 square, 10 by 10 ft, seen from the front corner: khaki fiber cement siding, charcoal shingles, 4/12 lean-to roof, 12' 4-3/8\" to the high edge, showing a 39\" door on the right (end wall)."
     }
    }
   },
   "gallery-storage": {
    "key": "Most storage 9x11",
    "name": "Most storage 9x11",
-   "hash": "4fb2ba49fdeff3f6",
-   "designKey": "77b61194",
+   "hash": "ccee2c1d23f71971",
+   "designKey": "6c0ed59a",
    "files": {
     "card": {
      "file": "gallery-storage-card.webp",
      "w": 480,
      "h": 320,
-     "bytes": 6582,
+     "bytes": 6934,
      "alt": "3D render of the Most storage 9x11, 9 by 11 ft, seen from the front corner: stained T1-11 panel siding, charcoal shingles, 4/12 lean-to roof, 12' 10-3/16\" to the high edge, showing a 39\" door on the right (end wall)."
     }
    }
   },
   "gallery-value": {
-   "key": "Most room per dollar, 10x10",
-   "name": "Most room per dollar, 10x10",
-   "hash": "5d9058e026063eab",
-   "designKey": "3d4488e2",
+   "key": "Most room per dollar, 8x12",
+   "name": "Most room per dollar, 8x12",
+   "hash": "0d8a186e54609377",
+   "designKey": "e7b4072c",
    "files": {
     "card": {
      "file": "gallery-value-card.webp",
      "w": 480,
      "h": 320,
-     "bytes": 7796,
-     "alt": "3D render of the Most room per dollar, 10x10, 10 by 10 ft, seen from the front corner: stained T1-11 panel siding, charcoal metal roof, 6/12 roof, 11' 11-5/16\" to the peak, showing a 39\" door on the right (gable end)."
+     "bytes": 7532,
+     "alt": "3D render of the Most room per dollar, 8x12, 12 by 8 ft, seen from the front corner: stained T1-11 panel siding, charcoal shingles, 6/12 roof, 12' 5-5/16\" to the peak, showing a 39\" door on the right (gable end)."
     }
    }
   },
   "size-10x10": {
    "key": "10x10 size page",
    "name": "10x10 gable shed",
-   "hash": "e9dc43b5ab93702f",
-   "designKey": "7ff770dd",
+   "hash": "c37a2aeaea58c10c",
+   "designKey": "3d50ab3f",
    "files": {
     "hero": {
      "file": "size-10x10-hero.webp",
@@ -585,8 +585,8 @@
   "size-10x12": {
    "key": "10x12 size page",
    "name": "10x12 gable shed",
-   "hash": "b75986784feebf67",
-   "designKey": "fbb6ddfc",
+   "hash": "104674663bc35ba3",
+   "designKey": "dd1b4dea",
    "files": {
     "hero": {
      "file": "size-10x12-hero.webp",
@@ -600,8 +600,8 @@
   "size-10x14": {
    "key": "10x14 size page",
    "name": "10x14 gable shed",
-   "hash": "8fab8b62007e4945",
-   "designKey": "0a409774",
+   "hash": "e8ae717dee390692",
+   "designKey": "d51e2422",
    "files": {
     "hero": {
      "file": "size-10x14-hero.webp",
@@ -615,8 +615,8 @@
   "size-10x16": {
    "key": "10x16 size page",
    "name": "10x16 gable shed",
-   "hash": "d717e15a959460b2",
-   "designKey": "12fd2aeb",
+   "hash": "11540806e8d92fcd",
+   "designKey": "c7fb5ad1",
    "files": {
     "hero": {
      "file": "size-10x16-hero.webp",
@@ -630,8 +630,8 @@
   "size-10x20": {
    "key": "10x20 size page",
    "name": "10x20 gable shed",
-   "hash": "2563570d559ba8a6",
-   "designKey": "b05332b2",
+   "hash": "d177a9a98ba32235",
+   "designKey": "e6fcf860",
    "files": {
     "hero": {
      "file": "size-10x20-hero.webp",
@@ -645,8 +645,8 @@
   "size-12x12": {
    "key": "12x12 size page",
    "name": "12x12 gable shed",
-   "hash": "8cfb5006fa288440",
-   "designKey": "2b9a761d",
+   "hash": "21263cdb194e5b62",
+   "designKey": "bf262047",
    "files": {
     "hero": {
      "file": "size-12x12-hero.webp",
@@ -660,8 +660,8 @@
   "size-12x14": {
    "key": "12x14 size page",
    "name": "12x14 gable shed",
-   "hash": "58a19a24fb8d04db",
-   "designKey": "d715aaf9",
+   "hash": "5b4a6d2290790b18",
+   "designKey": "bc5fe173",
    "files": {
     "hero": {
      "file": "size-12x14-hero.webp",
@@ -675,8 +675,8 @@
   "size-12x16": {
    "key": "12x16 size page",
    "name": "12x16 gable shed",
-   "hash": "7723e58f036a907c",
-   "designKey": "a0547f66",
+   "hash": "3418aedb84579ef6",
+   "designKey": "77bf23e4",
    "files": {
     "hero": {
      "file": "size-12x16-hero.webp",
@@ -690,8 +690,8 @@
   "size-12x20": {
    "key": "12x20 size page",
    "name": "12x20 gable shed",
-   "hash": "f0432904bd4ca78b",
-   "designKey": "ccfd4475",
+   "hash": "63b08966ecdfb03f",
+   "designKey": "5df9484b",
    "files": {
     "hero": {
      "file": "size-12x20-hero.webp",
@@ -705,8 +705,8 @@
   "size-12x24": {
    "key": "12x24 size page",
    "name": "12x24 gable shed",
-   "hash": "903ba9240b2bd1fd",
-   "designKey": "f7bd83b5",
+   "hash": "aeb2c91c86706f6e",
+   "designKey": "1b8b3f8b",
    "files": {
     "hero": {
      "file": "size-12x24-hero.webp",
@@ -720,8 +720,8 @@
   "size-12x32": {
    "key": "12x32 size page",
    "name": "12x32 gable shed",
-   "hash": "f75b06f6ef18349c",
-   "designKey": "864c2a17",
+   "hash": "d08a2aa486b56da4",
+   "designKey": "02a6075d",
    "files": {
     "hero": {
      "file": "size-12x32-hero.webp",
@@ -735,8 +735,8 @@
   "size-14x14": {
    "key": "14x14 size page",
    "name": "14x14 gable shed",
-   "hash": "bd8a18fb6095d729",
-   "designKey": "b4db9519",
+   "hash": "29298a704cd4bc54",
+   "designKey": "3c8c3e13",
    "files": {
     "hero": {
      "file": "size-14x14-hero.webp",
@@ -750,8 +750,8 @@
   "size-14x20": {
    "key": "14x20 size page",
    "name": "14x20 gable shed",
-   "hash": "3034a7dfffec586f",
-   "designKey": "b7cb44c5",
+   "hash": "c8368ed4150f2397",
+   "designKey": "f889629b",
    "files": {
     "hero": {
      "file": "size-14x20-hero.webp",
@@ -765,8 +765,8 @@
   "size-16x20": {
    "key": "16x20 size page",
    "name": "16x20 gable shed",
-   "hash": "430e443ae5d84cc0",
-   "designKey": "0e8a4678",
+   "hash": "20ebd780827d7533",
+   "designKey": "1b3d978e",
    "files": {
     "hero": {
      "file": "size-16x20-hero.webp",
@@ -780,8 +780,8 @@
   "size-16x24": {
    "key": "16x24 size page",
    "name": "16x24 gable shed",
-   "hash": "8f43602dfb8fcabd",
-   "designKey": "437e0628",
+   "hash": "8268e5460154fe05",
+   "designKey": "cb71bf7e",
    "files": {
     "hero": {
      "file": "size-16x24-hero.webp",
@@ -795,8 +795,8 @@
   "size-8x10": {
    "key": "8x10 size page",
    "name": "8x10 gable shed",
-   "hash": "2b5832a9b7049eaf",
-   "designKey": "4d30f59f",
+   "hash": "186820301bfd402a",
+   "designKey": "7bd20e29",
    "files": {
     "hero": {
      "file": "size-8x10-hero.webp",
@@ -810,8 +810,8 @@
   "size-8x16": {
    "key": "8x16 size page",
    "name": "8x16 gable shed",
-   "hash": "47e95cfae711a8c5",
-   "designKey": "9b601b1e",
+   "hash": "3f6678dc04fa1a92",
+   "designKey": "de0b09f4",
    "files": {
     "hero": {
      "file": "size-8x16-hero.webp",
@@ -825,8 +825,8 @@
   "size-8x8": {
    "key": "8x8 size page",
    "name": "8x8 gable shed",
-   "hash": "9414d505a52fe576",
-   "designKey": "1f875123",
+   "hash": "009a61361fdea948",
+   "designKey": "770bb061",
    "files": {
     "hero": {
      "file": "size-8x8-hero.webp",

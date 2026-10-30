@@ -10,8 +10,8 @@ import { mountPicker } from './picker.mjs';
 import { drawPlan, drawEnd } from './editor.mjs';
 import { fmtIn, fmtFtIn, actual, STANDARD_LENGTHS_FT, EXAMPLE_ITEMS } from './lumber.mjs';
 import { recordUsage, clearUsage } from './usage.mjs';
+import { structuralChecks, anchorageText } from './checks.mjs';
 import { encodeDesign } from './hoa.mjs';
-import { structuralChecks } from './checks.mjs';
 import { initUtilisation, renderUtilisation, heatOption } from './utilisation-ui.mjs';
 import { connectionChecks } from './connections.mjs';
 import { generateCandidates, designDiff, openingCosts } from './candidates.mjs';
@@ -331,7 +331,8 @@ function renderStructure(shed) {
   const c = connectionChecks(shed);
   $('#connections tbody').innerHTML = c.rows.map((x) => `<tr><th scope="row">${esc(x.check)}</th><td>${esc(x.detail)}</td><td class="${x.ok ? 'ok' : 'fail'}">${x.ok ? 'passes' : 'needs fixing'}</td></tr>`).join('');
   const r = structuralChecks(shed);
-  $('#structure-note').textContent = `Loads you set: ${r.loads.snow} psf snow on the roof, ${r.loads.wind} psf wind on the walls, plus ${r.loads.roofDead} psf roof dead load and ${r.loads.floorLive} psf on the floor. SPF No. 2 lumber, allowable-stress (NDS) checks of the kind a span table encodes: a screening check, not an engineer's review. Connections, uplift, racking and the foundation are not checked; ask your building department for your area's snow and wind loads.`;
+  $('#structure-note').textContent = `Loads you set: ${r.loads.snow} psf snow on the roof, ${r.loads.wind} psf wind on the walls, plus ${r.loads.roofDead} psf roof dead load and ${r.loads.floorLive} psf on the floor. SPF No. 2 lumber (treated joists and skids as Southern pine No. 2), allowable-stress (NDS) checks of the kind a span table encodes, rafter ties against Simpson's published uplift loads, and walls against racking with SDPWS shear-wall values: a screening check, not an engineer's review. The wind is one pressure on the walls and roof (ASCE 7 is higher at roof edges and corners); hold-downs are not checked (anchoring the shed is worked out below the table), and the soil check assumes clay or silt. Ask your building department for your area's snow and wind loads.`;
+  $('#anchorage-note').textContent = anchorageText(shed);
   $('#structure tbody').innerHTML = r.rows.map((x) => {
     const pct = Math.round(x.ratio * 100);
     const meter = `<span class="meter${x.ratio > 0.9 ? ' hot' : ''}"><span style="width:${Math.min(100, pct)}%"></span></span>${pct}%`;

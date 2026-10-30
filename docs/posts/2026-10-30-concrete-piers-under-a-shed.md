@@ -2,27 +2,29 @@
 title: "Concrete piers under a shed: what digging to the frost line costs"
 date: 2026-10-30
 tags: [shed-designer, foundation, cost]
-description: "Piers in 12-inch tubes under an 8x12 shed add $142 to $508 over blocks, set by how deep your frost line is. Real prices and the bag count."
+description: "Piers in 12-inch tubes on 16-inch footings under an 8x12 shed add $165 to $531 over blocks, set by how deep your frost line is. Real prices and the bag count."
 ---
 
 The [shed designer](https://duncan-haywood.github.io/oss-monorepo/shed-designer/) can now stand a shed's skids on concrete piers, as well as on blocks or a gravel pad. Each pier is a hole dug to a depth you set, with a 12" cardboard form tube standing 4" above grade, filled with bagged concrete. The depth is the expensive part, and it is the one number the tool cannot pick for you. Where the ground freezes, the pier has to go below the frost line or frost can lift it, and frost depth depends on where you live. Your building department will tell you yours.
 
+**Corrected the same day.** The first version stood each pier on the bare 12" tube. The designer's new soil check, added by another agent that night, showed that is not enough. On the starter the busiest pier carries about 1,770 lb. On a 12" circle (0.72 sq ft) that is about 2,450 psf, which is 1.63 times the 1,500 psf the IRC lets you assume for clay or silt when nobody has tested the soil (R401.4.1). Each pier now stands on a 16" square, 6" thick footing pad poured at the bottom of its hole. Six inches is the IRC's least footing thickness (R403.1.1). The pad spreads the load over 1.78 sq ft, which brings the soil to 66% of that value. On the 8x12 the footings are 18 of the 52 bags, $106.38. Closer piers were the other fix, but they would take about six more piers at about $30 each and still leave the end piers heavily loaded. The figures below include the footings.
+
 **How it counts.**
 
-- **Concrete:** the tube's 11-1/2" inside diameter, from the bottom of the hole to 4" above grade, in Quikrete 80 lb bags at the 0.6 cu ft a bag that Quikrete states.
+- **Concrete:** a 16" x 16" x 6" footing pad, then the tube's 11-1/2" inside diameter from the pad to 4" above grade, in Quikrete 80 lb bags at the 0.6 cu ft a bag that Quikrete states.
 - **Tubes:** each 4 ft tube is cut to length. A pier of 24" or less (with its 4" above grade) gets two from a tube; a deeper one gets one.
-- **Checks:** a pier is drawn and checked as the 10.2" square with the same area as the round tube, so the bearing check under the skid uses the true area.
+- **Checks:** the soil check uses the footing's 1.78 sq ft. The pier is drawn as the 10.2" square with the same area as the round tube, so the bearing check under the skid uses the tube's true area.
 
-**What it costs** on the 8x12 starter, which has 12 positions under three skids, against its solid blocks on tamped soil:
+**What it costs** on the 8x12 starter, which has 12 positions under three skids, against its starting foundation, solid blocks on a bed of paver base:
 
 | Pier depth below grade | Bags | Tubes | Adds | Extra hours (our estimate) |
 | --- | --- | --- | --- | --- |
-| 12" | 20 | 4 | $142.12 | 4.7 |
-| 24" | 34 | 12 | $336.78 | 9.4 |
-| 36" | 49 | 12 | $425.43 | 14.4 |
-| 48" | 63 | 12 | $508.17 | 19.0 |
+| 12" | 38 | 4 | $164.92 | 9.7 |
+| 24" | 52 | 12 | $359.58 | 14.4 |
+| 36" | 66 | 12 | $442.32 | 19.1 |
+| 48" | 81 | 12 | $530.97 | 24.1 |
 
-For comparison, gravel under each block adds $83.58, and deck blocks on gravel beds add $171.21. On the 10x12 preset, which starts on a full gravel pad, shallow 12" piers actually save $150, because they replace a ton and a half of stone. At 24" they cost $102 more.
+On the 10x12 preset, which starts on a full gravel pad, 12" piers cost about the same ($8.48 less) because they replace the stone. At 24" they cost $243.71 more.
 
 So piers are not a cost lever. They are what you choose when the ground freezes deep, slopes, or is soft at the surface, and the table shows the price of that choice before you dig.
 

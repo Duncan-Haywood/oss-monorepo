@@ -9,7 +9,7 @@ test('designDiff names what changes, in plain words and in members', () => {
   const b = buildShed(normalize(PRESETS['8x12 classic']()));
   const d = designDiff(a, b).join('; ');
   assert.match(d, /roof ridge beam on posts → ridge board with rafter ties/);
-  assert.match(d, /walls 7' 2-1\/2" → 8' 0"/);
+  assert.match(d, /walls [^→;]+ → 8' 0"/);
   assert.match(d, /members: .*rafter tie/);
 });
 

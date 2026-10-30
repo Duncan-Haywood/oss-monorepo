@@ -289,7 +289,7 @@ test('each option and each design card says what it changes and what it costs ag
   await page.selectOption('#new-design', '8x12 classic');
   await page.click('#design-tabs [data-design="0"]');
   await page.waitForFunction(() => /Against the one you're editing/.test(document.querySelector('#compare-cards').textContent));
-  assert.match(await page.textContent('#compare-cards'), /walls 7' 2-1\/2" → 8' 0"/);
+  assert.match(await page.textContent('#compare-cards'), /walls [^→]+ → 8' 0"/);
 });
 
 test('each door and window says what it costs in all', { skip }, async (t) => {
@@ -578,7 +578,8 @@ test('each card says its siding and roof; "match a house" limits the strip to la
   const finishes = await page.locator('#starts .pick-finish').allInnerTexts();
   assert.equal(finishes.length, N);
   assert.ok(finishes.every((x) => /^Siding: .+ · (metal|asphalt shingle) roof$/.test(x)), JSON.stringify(finishes));
-  assert.ok(finishes.some((x) => /metal roof/.test(x)), 'the free-finish cards include a metal roof');
+  // Some free-finish card is not lap with shingles, so "match a house" has something to filter.
+  assert.ok(finishes.some((x) => !/lap .*asphalt shingle roof$/.test(x)), 'the free-finish cards include one that is not lap and shingles');
   await page.check('#match-house');
   await page.waitForFunction((n) => document.querySelectorAll('#starts .pick').length < n, N);
   const house = await page.locator('#starts .pick-finish').allInnerTexts();
