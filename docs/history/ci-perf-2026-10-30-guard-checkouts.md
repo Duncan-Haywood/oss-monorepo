@@ -98,3 +98,13 @@ compare each guard's checkout median.
    checkout) is the pool's largest consumer now. Its cost is its steps, not
    its clone: "Check inline scripts parse" took 24.6 minutes. That belongs to
    a perf run of its own, not to P048.
+
+## Part 2a: doc references (same day)
+
+`check_md_links.py` and `check_code_refs.py` now accept a target that is in
+`git ls-files` (files and their directories) as present, so the
+`doc-refs-ci.yml` checkout is `*.md` plus `platform/ci/` with `blob:none`.
+Verified in a sparse worktree (53 MB, no media): both guards exit 0 with the
+new scripts and the 5,108-file link check passes; the old scripts reported
+2,596 dead links on the same tree. New unit test `SparseCheckout`. README live
+links and sibling links remain (items 2 and 3 above).
