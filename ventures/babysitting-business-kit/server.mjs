@@ -10,6 +10,7 @@
 //   GET|POST /book         open times only (no family data); a request becomes a lead with
 //                          status "requested" that the sitter approves in the app
 //   GET|POST /ref/<token>  a referee's private link: their words and two separate consents
+//   GET|POST /agree/<t>    a family's single-use link to read and sign the agreement (agreements.mjs)
 //   GET  /calendar.ics?t=  your sits as a feed your phone's calendar can subscribe to
 //   GET|PUT /api/desk      the desk as JSON (Authorization: Bearer ADMIN_KEY)
 //   GET  /api/today        today's to-do list (Authorization: Bearer ADMIN_KEY)
@@ -32,6 +33,7 @@ import http from "node:http";
 import { readFileSync, writeFileSync, renameSync, existsSync } from "node:fs";
 import { timingSafeEqual } from "node:crypto";
 import { handleRef, mergeReferences, LIMITS as REF_LIMITS } from "./references.mjs";
+import { handleAgreement, mergeAgreements, LIMITS as AGREE_LIMITS } from "./agreements.mjs";
 import { normalizeDesk, emptyDesk, leadFromForm, scoreLead, leadReply, followUpMessage, todayQueue, toICS, newId } from "./engine.mjs";
 import { openSlots, bookingRequest, bookPage, localMinutes } from "./slots.mjs";
 import { intakeFormPage, parseIntake, mergeIntake, keepIntakes, isIntakeToken, MAX_INTAKE_BYTES } from "./intake.mjs";
@@ -45,7 +47,7 @@ import { loadDesk, atomicWrite, backupApi, backupDir, dailyBackup } from "./back
 const MAX_BODY = 64 * 1024;
 const MAX_DESK = 8 * 1024 * 1024;
 const MAX_LEADS = 2000;
-const FILES = { "/": "index.html", "/index.html": "index.html", "/engine.mjs": "engine.mjs", "/usage.mjs": "usage.mjs", "/taxes.mjs": "taxes.mjs", "/slots.mjs": "slots.mjs", "/intake.mjs": "intake.mjs", "/meet-and-greet.html": "meet-and-greet.html", "/references.mjs": "references.mjs", "/site.mjs": "site.mjs", "/print.mjs": "print.mjs", "/qr.mjs": "qr.mjs", "/automations.mjs": "automations.mjs", "/automations-ui.mjs": "automations-ui.mjs", "/content.mjs": "content.mjs", "/content-ui.mjs": "content-ui.mjs", "/byok.mjs": "byok.mjs", "/admin": "admin.html" };
+const FILES = { "/": "index.html", "/index.html": "index.html", "/engine.mjs": "engine.mjs", "/usage.mjs": "usage.mjs", "/taxes.mjs": "taxes.mjs", "/slots.mjs": "slots.mjs", "/intake.mjs": "intake.mjs", "/meet-and-greet.html": "meet-and-greet.html", "/references.mjs": "references.mjs", "/site.mjs": "site.mjs", "/print.mjs": "print.mjs", "/qr.mjs": "qr.mjs", "/automations.mjs": "automations.mjs", "/automations-ui.mjs": "automations-ui.mjs", "/content.mjs": "content.mjs", "/content-ui.mjs": "content-ui.mjs", "/byok.mjs": "byok.mjs", "/agreements.mjs": "agreements.mjs", "/agreements-ui.mjs": "agreements-ui.mjs", "/admin": "admin.html" };
 const TYPES = { html: "text/html; charset=utf-8", mjs: "text/javascript; charset=utf-8" };
 // The installable app (PWA) and the guide pages, so a self-hosted copy works offline and links resolve.
 for (const f of ["tabs.mjs", "sw.js", "manifest.webmanifest", "icon.svg", "icon-192.png", "icon-512.png", "icon-maskable-512.png", "apple-touch-icon.png", "babysitting-taxes.html", "how-to-start-a-babysitting-business.html", "how-much-to-charge-for-babysitting.html", "babysitting-references.html", "self-host.html"]) FILES[`/${f}`] = f;
@@ -198,6 +200,20 @@ export function handler(state, save, env = process.env, now = Date.now, fetchImp
       if (out.notice) await msg.sitter("Babysitting reference", out.notice);
       return send(out.code, out.html, TYPES.html, out.headers);
     }
+    if (url.pathname.startsWith("/agree/") && (req.method === "GET" || req.method === "POST")) {
+      // A family's single-use signing link: the exact text, a typed name, its SHA-256 (agreements.mjs).
+      let fields = null;
+      if (req.method === "POST") {
+        const raw = await readBody(req, AGREE_LIMITS.body);
+        if (raw === null) return send(413, page("Too long", "<p>That was too long to send.</p>"));
+        fields = Object.fromEntries(new URLSearchParams(raw));
+      }
+      const out = handleAgreement(state.desk, req.method, url.pathname.slice(7), fields, now());
+      if (out.family) state.desk.families = state.desk.families.map((f) => (f.id === out.family.id ? out.family : f));
+      if (out.family || out.versionAdded) save();
+      if (out.notice) await msg.sitter("Babysitting agreement signed", out.notice);
+      return send(out.code, out.html, TYPES.html, out.headers);
+    }
     if (req.method === "GET" && url.pathname === "/calendar.ics") {
       if (!env.CAL_TOKEN || !same(url.searchParams.get("t") || "", env.CAL_TOKEN)) return send(401, "calendar link required\n", "text/plain");
       return send(200, toICS(state.desk, { from: today.slice(0, 4) + "-01-01" }), "text/calendar; charset=utf-8");
@@ -219,6 +235,7 @@ export function handler(state, save, env = process.env, now = Date.now, fetchImp
         const fresh = state.desk.leads.filter((l) => !ids.has(l.id) && !known.has(l.id));
         incoming.automations = mergeAutomationState(state.desk.automations, incoming.automations);
         if (Array.isArray(incoming.references)) incoming.references = mergeReferences(state.desk, incoming.references); // keep answers that arrived by link
+        mergeAgreements(state.desk, incoming); // and signatures, used links and photo choices (agreements.mjs)
         state.desk = normalizeDesk(keepIntakes(state.desk, incoming)); // and info sheets families filled in
         state.desk.leads.push(...fresh);
         save();
