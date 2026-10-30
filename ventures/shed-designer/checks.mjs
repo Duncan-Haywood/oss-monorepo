@@ -55,6 +55,9 @@ export function nailZ(D, ls, lm, G = 0.42, Fyb = 90000) {
   );
 }
 
+/** The heel joint's highest use of capacity: one more nail is pennies, and the joint carries the whole thrust. */
+export const HEEL_TARGET = 0.85;
+
 /**
  * The heel joint of a ridge-board roof: the rafter tie at the plate holds the
  * pair's outward thrust, H = wL^2 / 8h for the pair's load w (lb/ft on plan)
@@ -70,14 +73,16 @@ export function heelJoint(shed) {
     const g = gambrelAnalysis(d);
     return { thrust: g.thrust, perNail: nailZ(0.162, 1.5, 2.0) * 1.15, nails: g.heelNails };
   }
-  if (d.roofType !== 'ridgeBoard') return null;
+  if (d.roofType !== 'ridgeBoard' || d.style === 'leanTo') return null;
   const cos = 1 / Math.sqrt(1 + (d.pitch / 12) ** 2);
   const w = (15 / cos + d.snowLoad) * (d.rafterSpacing / 12);
   const L = d.width / 12;
   const h = (L / 2) * (d.pitch / 12);
   const thrust = (w * L * L) / (8 * h);
   const perNail = nailZ(0.162, 1.5, 2.0) * 1.15;
-  return { thrust, perNail, nails: Math.max(3, Math.ceil(thrust / perNail - 1e-9)) };
+  // Enough nails to keep the joint at or under HEEL_TARGET of its capacity: a
+  // connection sized to exactly 100% leaves nothing for a nail set off line.
+  return { thrust, perNail, nails: Math.max(3, Math.ceil(thrust / (HEEL_TARGET * perNail) - 1e-9)) };
 }
 
 /**
@@ -92,9 +97,11 @@ export function eaveRoofPlf(shed) {
   const d = shed.design;
   const k = shed.dims;
   const cos = 1 / Math.sqrt(1 + (d.pitch / 12) ** 2);
-  const beam = d.roofType === 'ridgeBeam';
-  const truss = d.roofType === 'truss';
-  const rafterRunIn = d.width / 2 - (beam ? 1.5 : truss ? 0 : 0.75) - k.stud;
+  // A lean-to has no ridge: its rafter is a simple span, so each wall takes half of it plus its own overhang.
+  const lean = d.style === 'leanTo';
+  const beam = !lean && d.roofType === 'ridgeBeam';
+  const truss = !lean && d.roofType === 'truss';
+  const rafterRunIn = lean ? d.width - 2 * k.stud : d.width / 2 - (beam ? 1.5 : truss ? 0 : 0.75) - k.stud;
   const tribFt = (beam ? rafterRunIn / 2 + k.stud + d.overhang : d.width / 2 + d.overhang) / 12;
   // Under trusses each eave wall also carries half the attic (bottom chord) load.
   // On a gambrel: the trusses' reactions, with a loft's storage load counted as dead (it is always there).
@@ -447,16 +454,17 @@ export function structuralChecks(shed) {
       add('Blocks on the soil', k.block.pier ? `${k.pierFootIn}" x ${k.pierFootIn}" pier footing` : `${k.block.along}" x ${k.block.across}" ${d.foundation === 'deck blocks' ? 'deck block' : 'block'}`, `${Math.round(sk.R + BLOCK_SELF_LB)} lb on ${sk.footSqFt.toFixed(2)} sq ft${k.block.pier ? ` (the ${k.pierFootIn}" square footing at the bottom of each pier)` : sk.spread ? ' (spread 2" each side through the 4" gravel bed)' : ', straight on the soil'}; ${SOIL_PSF} psf, the IRC's value for clay or silt (R401.4.1)${sk.soil > 1 && !sk.spread ? (k.block.pier ? '. A wider footing at the bottom of each pier (or more piers) spreads the load over more ground' : '. A 4" bed of paver base under each block spreads the load over more ground') : ''}`, sk.soil, 'soil bearing');
     }
   }
-  // Rafters: from the inside of the wall plate to the ridge.
-  const beam = d.roofType === 'ridgeBeam';
-  const truss = d.roofType === 'truss';
-  const rafterRunIn = d.width / 2 - (beam ? 1.5 : truss ? 0 : 0.75) - k.stud;
+  // Rafters: from the inside of the wall plate to the ridge (on a lean-to, from wall to wall).
+  const lean = d.style === 'leanTo';
+  const beam = !lean && d.roofType === 'ridgeBeam';
+  const truss = !lean && d.roofType === 'truss';
+  const rafterRunIn = lean ? d.width - 2 * k.stud : d.width / 2 - (beam ? 1.5 : truss ? 0 : 0.75) - k.stud;
   // A gambrel's trusses are checked as frames (gambrel.mjs) in place of rafters and a ridge.
   const gam = d.style === 'gambrel' ? gambrelAnalysis(d) : null;
   if (gam) for (const r of gam.rows) add(r.member, r.size, r.detail, r.ratio, r.governs);
   else {
     const [gov, r] = worst(check({ size: d.rafterSize, spacingIn: d.rafterSpacing, pitch: d.pitch, bearingIn: k.stud }, rafterRunIn / 12, roof));
-    add('Rafters', `${d.rafterSize} at ${d.rafterSpacing}"`, `${fmtIn(rafterRunIn)} horizontal run at ${d.pitch}/12, ${snow} psf snow + 15 dead`, r, gov);
+    add('Rafters', `${d.rafterSize} at ${d.rafterSpacing}"`, `${fmtIn(rafterRunIn)} horizontal ${lean ? 'span between the walls' : 'run'} at ${d.pitch}/12, ${snow} psf snow + 15 dead`, r, gov);
   }
   // Roof load on each eave wall per foot (eaveRoofPlf; on a gambrel, its trusses' reactions).
   const { dead: deadPlf, snow: snowPlf } = eaveRoofPlf(shed);
@@ -471,12 +479,14 @@ export function structuralChecks(shed) {
     const postH = shed.members.find((m) => m.kind === 'beam post')?.length ?? 12;
     add('Ridge beam posts', `2-ply ${d.studSize}`, `${Math.round(P)} lb each, ${fmtIn(postH)} above the plate, then the two post studs to the floor`,
       Math.max(postCheck(2, d.studSize, postH, P), postCheck(2, d.studSize, k.studLen, P)), 'compression');
+  } else if (lean) {
+    // No ridge and no ties: the rafters bear on two walls and push neither outward.
   } else if (truss) {
     rows.push(...trussChecks(d).rows);
   } else {
     add('Ridge board', d.ridgeSize || k.ridgeSize, 'not a beam: rafter ties at the plate carry the rafters\' outward thrust', 0, 'none');
     const heel = /** @type {NonNullable<ReturnType<typeof heelJoint>>} */ (heelJoint(shed));
-    add('Rafter tie nailing (heel joint)', `${d.tieSize} tie, ${heel.nails} 16d commons a rafter`, `${Math.round(heel.thrust)} lb outward thrust per pair; ${Math.round(heel.perNail)} lb a nail (NDS yield limit, SPF)`, heel.thrust / (heel.nails * heel.perNail), 'nail shear');
+    add('Rafter tie nailing (heel joint)', `${d.tieSize} tie, ${heel.nails} 16d commons a rafter`, `${Math.round(heel.thrust)} lb outward thrust per pair; ${Math.round(heel.perNail)} lb a nail (NDS yield limit, SPF); nailed to ${Math.round(HEEL_TARGET * 100)}% at most, so ${Math.round((1 - heel.thrust / (heel.nails * heel.perNail)) * 100)}% to spare`, heel.thrust / (heel.nails * heel.perNail), 'nail shear');
   }
   // Headers over doors and windows.
   for (const [name, wall] of Object.entries(shed.walls)) {
@@ -506,11 +516,13 @@ export function structuralChecks(shed) {
       add('Wall bracing (racking)', r.what, r.why, r.ratio, 'shear');
     }
   }
-  // Eave-wall studs: roof gravity plus wind on the face.
+  // Eave-wall studs: roof gravity plus wind on the face. A lean-to's tall front wall has the longest studs.
   {
-    const r = studCheck(d.studSize, d.studSpacing, k.studLen, [deadPlf, snowPlf], wind);
+    // A lean-to's tall front wall has the longest studs.
+    const len = lean ? k.highWall - 4.5 : k.studLen;
+    const r = studCheck(d.studSize, d.studSpacing, len, [deadPlf, snowPlf], wind);
     // studCheck answers Infinity when the load reaches the stud's buckling load; show that as over capacity.
-    add('Wall studs', `${d.studSize} at ${d.studSpacing}"`, `${fmtIn(k.studLen)} tall, roof load${gam && gam.wall.loft ? ' and the loft' : ''} plus ${wind} psf wind on the wall${Number.isFinite(r) ? '' : '; the load reaches the stud\'s buckling load'}`, Number.isFinite(r) ? r : 9.99, 'combined bending and compression');
+    add('Wall studs', `${d.studSize} at ${d.studSpacing}"`, `${fmtIn(len)} tall${lean ? ' (the tall front wall)' : ''}, roof load${gam && gam.wall.loft ? ' and the loft' : ''} plus ${wind} psf wind on the wall${Number.isFinite(r) ? '' : '; the load reaches the stud\'s buckling load'}`, Number.isFinite(r) ? r : 9.99, 'combined bending and compression');
   }
   return {
     rows,

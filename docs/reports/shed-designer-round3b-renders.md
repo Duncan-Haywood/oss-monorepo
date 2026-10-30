@@ -33,12 +33,7 @@ Bump `RENDER_VERSION` for a camera, crop or encoding change the hash can't see. 
 
 ## Open, for the next run
 
-- **Gallery designs (#11561, r3 lane 2).** Not merged when this ran. Once it lands:
-  - add `GALLERY_DESIGNS` from `gallery-data.mjs` as targets in `allTargets()` (slug `gallery-<id>`; views `card`, `hero`, `side`, `back`, `framing`);
-  - make `gallery-ui.mjs` use `pictureFor(manifest, design, 'card')` with its live render as the fallback (its current thumbnails are live, 360x240);
-  - the size budget will need about 600 KB more. Either raise `BUDGET.total` to about 1.4 MB and say why, or drop the size-page heroes to a 640 px view.
-
-  I told lane 2 about the API by message.
+- **Gallery designs: done by r3 lane 2 in #11561.** `galleryTargets()` in `make-renders.mjs` draws the ten `GALLERY_DESIGNS` (slug `gallery-<id>`) as cards only, and `picker.mjs` matches them with `pictureFor`. `renders/` stood at 827 of 900 KB afterwards. Whoever adds more views or designs must either raise `BUDGET.total` and say why, or shrink the size-page heroes (about 22 KB each, 18 of them). After running `make-gallery.mjs`, run `make-renders.mjs` too.
 - **HOA samples (r3 lane 5).** The packet draws the user's own design live, which is right. A sample packet for a preset could use `renderFor(manifest, slug, 'hero')` instead of drawing.
 - **History cost.** The committed pictures now only change when someone runs `make-renders.mjs` on purpose, since the Pages build redraws without committing. Refresh them now and then, so local serving and pull-request previews are not far behind, and batch the refreshes. Each full redraw adds about 760 KB to git history.
 - **Not done:**

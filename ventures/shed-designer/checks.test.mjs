@@ -120,18 +120,21 @@ test('16d common in SPF: the NDS yield limit is mode IV, worked by hand', () => 
   assert.ok(modeIV > 119 && modeIV < 121);
 });
 
-test('rafter-tie nails follow the thrust: 3 on the 8x12 classic, 4 on the 10x12, 5 on the 12x16', () => {
+// Nailed to 85% of capacity at most (HEEL_TARGET, 2026-10-30): a 16d holds
+// 137.6 lb for snow, so 374 lb takes 4 (not 3), 468 lb 4, and 666 lb 6 (not 5).
+test('rafter-tie nails follow the thrust: 4 on the 8x12 classic, 4 on the 10x12, 6 on the 12x16, each at 85% or less', () => {
   const thrust = (W, pitch) => {
     const w = (15 * Math.sqrt(1 + (pitch / 12) ** 2) + 30) * 2; // lb/ft per pair at 24"
     return (w * (W / 12) ** 2) / (8 * (W / 24) * (pitch / 12));
   };
-  for (const [name, W, pitch, nails] of [['8x12 classic', 96, 6, 3], ['10x12', 120, 6, 4], ['12x16', 144, 5, 5]]) {
+  for (const [name, W, pitch, nails] of [['8x12 classic', 96, 6, 4], ['10x12', 120, 6, 4], ['12x16', 144, 5, 6]]) {
     const s = buildShed(PRESETS[name]());
     const h = heelJoint(s);
     assert.ok(Math.abs(h.thrust - thrust(W, pitch)) < 1e-9, name);
     assert.equal(h.nails, nails, name);
     const row = structuralChecks(s).rows.find((x) => x.member === 'Rafter tie nailing (heel joint)');
-    assert.ok(row.ok && row.ratio <= 1, name);
+    assert.ok(row.ok && row.ratio <= 0.85, name);
+    assert.equal(h.nails, Math.max(3, Math.ceil(h.thrust / (0.85 * h.perNail))), name);
     const text = JSON.stringify(buildInstructions(s, estimate(s)));
     assert.match(text, new RegExp(`${nails} 16d commons into each rafter`), name);
   }
@@ -141,7 +144,7 @@ test('rafter-tie nails follow the thrust: 3 on the 8x12 classic, 4 on the 10x12,
 test('the nailing schedule and the nail count carry the heel-joint nails', async () => {
   const { buildSheets } = await import('./drawings.mjs');
   const s = buildShed(PRESETS['12x16']());
-  assert.match(JSON.stringify(buildSheets(s)), /Rafter tie to rafter, each end.{0,120}"5-16d common/);
+  assert.match(JSON.stringify(buildSheets(s)), /Rafter tie to rafter, each end.{0,120}"6-16d common/);
   assert.doesNotMatch(JSON.stringify(buildSheets(buildShed(defaultDesign()))), /Rafter tie to rafter/);
 });
 

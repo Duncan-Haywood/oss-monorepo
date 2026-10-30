@@ -252,6 +252,56 @@
     }
    }
   },
+  "8x12-lean-to": {
+   "key": "8x12 lean-to",
+   "name": "8x12 lean-to shed",
+   "hash": "ef216be5f66baf1f",
+   "designKey": "a3a50317",
+   "files": {
+    "hero": {
+     "file": "8x12-lean-to-hero.webp",
+     "w": 960,
+     "h": 640,
+     "bytes": 19342,
+     "alt": "3D render of the 8x12 lean-to shed, 8 by 12 ft, seen from the front corner: stained T1-11 panel siding, charcoal shingles, 4/12 lean-to roof, 10' 7-1/16\" to the high edge, showing a 39\" door on the front (tall side) and a 14\" window on the front (tall side) and a 14\" window on the right (end wall)."
+    },
+    "card": {
+     "file": "8x12-lean-to-card.webp",
+     "w": 480,
+     "h": 320,
+     "bytes": 7482,
+     "alt": "3D render of the 8x12 lean-to shed, 8 by 12 ft, seen from the front corner: stained T1-11 panel siding, charcoal shingles, 4/12 lean-to roof, 10' 7-1/16\" to the high edge, showing a 39\" door on the front (tall side) and a 14\" window on the front (tall side) and a 14\" window on the right (end wall)."
+    },
+    "front": {
+     "file": "8x12-lean-to-front.webp",
+     "w": 480,
+     "h": 320,
+     "bytes": 5798,
+     "alt": "3D render of the 8x12 lean-to shed, 8 by 12 ft, seen from the front: stained T1-11 panel siding, charcoal shingles, 4/12 lean-to roof, 10' 7-1/16\" to the high edge, showing a 39\" door and a 14\" window."
+    },
+    "side": {
+     "file": "8x12-lean-to-side.webp",
+     "w": 480,
+     "h": 320,
+     "bytes": 5742,
+     "alt": "3D render of the 8x12 lean-to shed, 8 by 12 ft, seen from the gable end: stained T1-11 panel siding, charcoal shingles, 4/12 lean-to roof, 10' 7-1/16\" to the high edge, showing a 14\" window."
+    },
+    "back": {
+     "file": "8x12-lean-to-back.webp",
+     "w": 480,
+     "h": 320,
+     "bytes": 5052,
+     "alt": "3D render of the 8x12 lean-to shed, 8 by 12 ft, seen from the back: stained T1-11 panel siding, charcoal shingles, 4/12 lean-to roof, 10' 7-1/16\" to the high edge."
+    },
+    "framing": {
+     "file": "8x12-lean-to-framing.webp",
+     "w": 640,
+     "h": 427,
+     "bytes": 18092,
+     "alt": "Framing of the 8x12 lean-to shed (8 by 12 ft) with the siding, sheathing and roofing removed: studs at 16\" on centre and rafters at 24\" running from the tall front wall down to the low back wall (a lean-to, no ridge)."
+    }
+   }
+  },
   "8x8-lean": {
    "key": "8x8 lean",
    "name": "8x8 garden shed",
@@ -299,6 +349,156 @@
      "h": 427,
      "bytes": 18642,
      "alt": "Framing of the 8x8 garden shed (8 by 8 ft) with the siding, sheathing and roofing removed: studs at 16\" on centre, rafters at 24\" and a 2x8 ridge board with rafter ties."
+    }
+   }
+  },
+  "gallery-balanced": {
+   "key": "Balanced 8x11",
+   "name": "Balanced 8x11",
+   "hash": "0051ba921477edc9",
+   "designKey": "54eed234",
+   "files": {
+    "card": {
+     "file": "gallery-balanced-card.webp",
+     "w": 480,
+     "h": 320,
+     "bytes": 7392,
+     "alt": "3D render of the Balanced 8x11, 11 by 8 ft, seen from the front corner: stained T1-11 panel siding, charcoal shingles, 6/12 roof, 12' 2-5/16\" to the peak, showing a 39\" door on the right (gable end)."
+    }
+   }
+  },
+  "gallery-cheapest": {
+   "key": "Cheapest 8x10",
+   "name": "Cheapest 8x10",
+   "hash": "fed5548fd6e7c0e3",
+   "designKey": "d4d30754",
+   "files": {
+    "card": {
+     "file": "gallery-cheapest-card.webp",
+     "w": 480,
+     "h": 320,
+     "bytes": 7990,
+     "alt": "3D render of the Cheapest 8x10, 10 by 8 ft, seen from the front corner: stained T1-11 panel siding, charcoal shingles, 6/12 roof, 10' 10-11/16\" to the peak, showing a 39\" door on the right (gable end)."
+    }
+   }
+  },
+  "gallery-house": {
+   "key": "10x10 to match the house",
+   "name": "10x10 to match the house",
+   "hash": "45d4b16377eca946",
+   "designKey": "9cb31c6b",
+   "files": {
+    "card": {
+     "file": "gallery-house-card.webp",
+     "w": 480,
+     "h": 320,
+     "bytes": 6234,
+     "alt": "3D render of the 10x10 to match the house, 10 by 10 ft, seen from the front corner: white fiber cement siding, charcoal shingles, 6/12 roof, 11' 11-5/16\" to the peak, showing a 39\" door on the right (gable end)."
+    }
+   }
+  },
+  "gallery-house-cheapest": {
+   "key": "Cheapest lap-sided 7x12",
+   "name": "Cheapest lap-sided 7x12",
+   "hash": "14ef3558534ddbea",
+   "designKey": "c1cc9cad",
+   "files": {
+    "card": {
+     "file": "gallery-house-cheapest-card.webp",
+     "w": 480,
+     "h": 320,
+     "bytes": 6508,
+     "alt": "3D render of the Cheapest lap-sided 7x12, 12 by 7 ft, seen from the front corner: cream fiber cement siding, charcoal shingles, 6/12 roof, 11' 6-11/16\" to the peak, showing a 39\" door on the right (gable end)."
+    }
+   }
+  },
+  "gallery-long": {
+   "key": "Long 7x14",
+   "name": "Long 7x14",
+   "hash": "56368fc4eac22dd8",
+   "designKey": "25acba58",
+   "files": {
+    "card": {
+     "file": "gallery-long-card.webp",
+     "w": 480,
+     "h": 320,
+     "bytes": 6476,
+     "alt": "3D render of the Long 7x14, 14 by 7 ft, seen from the front corner: sage fiber cement siding, charcoal shingles, 6/12 roof, 12' 8-3/8\" to the peak, showing a 39\" door on the right (gable end)."
+    }
+   }
+  },
+  "gallery-looks": {
+   "key": "Best looking 9x10",
+   "name": "Best looking 9x10",
+   "hash": "1c2e413ecf2a7672",
+   "designKey": "64421615",
+   "files": {
+    "card": {
+     "file": "gallery-looks-card.webp",
+     "w": 480,
+     "h": 320,
+     "bytes": 5956,
+     "alt": "3D render of the Best looking 9x10, 9 by 10 ft, seen from the front corner: greige fiber cement siding, charcoal shingles, 4/12 lean-to roof, 11' 4-3/8\" to the high edge, showing a 39\" door on the front (tall side) and two 18\" windows on the front (tall side)."
+    }
+   }
+  },
+  "gallery-mower": {
+   "key": "Mower shed 10x10",
+   "name": "Mower shed 10x10",
+   "hash": "d6503786690fa6e4",
+   "designKey": "58b28736",
+   "files": {
+    "card": {
+     "file": "gallery-mower-card.webp",
+     "w": 480,
+     "h": 320,
+     "bytes": 6006,
+     "alt": "3D render of the Mower shed 10x10, 10 by 10 ft, seen from the front corner: forest green fiber cement siding, charcoal shingles, 4/12 lean-to roof, 11' 8-3/8\" to the high edge, showing a 48\" door on the right (end wall)."
+    }
+   }
+  },
+  "gallery-square": {
+   "key": "10x10 square",
+   "name": "10x10 square",
+   "hash": "b25e8fe2f60a2fae",
+   "designKey": "e17d67f2",
+   "files": {
+    "card": {
+     "file": "gallery-square-card.webp",
+     "w": 480,
+     "h": 320,
+     "bytes": 5470,
+     "alt": "3D render of the 10x10 square, 10 by 10 ft, seen from the front corner: khaki fiber cement siding, charcoal shingles, 4/12 lean-to roof, 12' 4-3/8\" to the high edge, showing a 39\" door on the right (end wall)."
+    }
+   }
+  },
+  "gallery-storage": {
+   "key": "Most storage 9x11",
+   "name": "Most storage 9x11",
+   "hash": "2a71497e0153fba9",
+   "designKey": "6c0ed59a",
+   "files": {
+    "card": {
+     "file": "gallery-storage-card.webp",
+     "w": 480,
+     "h": 320,
+     "bytes": 6934,
+     "alt": "3D render of the Most storage 9x11, 9 by 11 ft, seen from the front corner: stained T1-11 panel siding, charcoal shingles, 4/12 lean-to roof, 12' 10-3/16\" to the high edge, showing a 39\" door on the right (end wall)."
+    }
+   }
+  },
+  "gallery-value": {
+   "key": "Most room per dollar, 8x12",
+   "name": "Most room per dollar, 8x12",
+   "hash": "58025baf8df58b8d",
+   "designKey": "e7b4072c",
+   "files": {
+    "card": {
+     "file": "gallery-value-card.webp",
+     "w": 480,
+     "h": 320,
+     "bytes": 7532,
+     "alt": "3D render of the Most room per dollar, 8x12, 12 by 8 ft, seen from the front corner: stained T1-11 panel siding, charcoal shingles, 6/12 roof, 12' 5-5/16\" to the peak, showing a 39\" door on the right (gable end)."
     }
    }
   },
