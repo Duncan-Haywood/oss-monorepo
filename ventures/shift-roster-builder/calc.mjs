@@ -144,6 +144,9 @@ const AVOID_CELL = /^(avoid|rather[ -]?not)\s*:/i;
 const PREFER_CELL = /^(prefer|would[ -]?like|extra[ -]?hours)\s*:/i;
 const AGE_CELL = /^age\s*:/i;
 const SUPERVISED_CELL = /^(minor|supervised|needs[ -]?supervision)$/i;
+// "seniority: 3" = rank for the seniority report (higher = more senior). Not a search rule: `seniorityClaims` lists shifts a
+// more senior person could have taken with every hard rule still holding.
+const SENIORITY_CELL = /^seniority\s*:/i;
 const TOUGH_CELL = /^(tough|recent[ -]?tough)\s*:/i;
 // "streak: 4" = days worked in a row up to and including last Sunday, so the days-in-a-row limit also holds across
 // Monday (written by carryOverStaff). Without it the search starts every week from zero.
@@ -269,7 +272,13 @@ export function parseStaff(text, { weekStart = null } = {}) {
       streakBefore = Number(streakCell.replace(STREAK_CELL, "").trim());
       if (!Number.isInteger(streakBefore) || streakBefore < 0) { errors.push(`${where} (${c[0]}): could not read "${streakCell}"; write it like "streak: 4" (days worked in a row up to last Sunday)`); streakBefore = 0; }
     }
-    const isExtra = (x) => STREAK_CELL.test(x) || ROLE_CELL.test(x) || PREV_CELL.test(x) || OFF_CELL.test(x) || DAILY_CELL.test(x) || AVOID_CELL.test(x) || PREFER_CELL.test(x) || TOUGH_CELL.test(x) || SUPERVISED_CELL.test(x) || AGE_CELL.test(x);
+    let seniority = null;
+    const senCell = tail.find((x) => SENIORITY_CELL.test(x));
+    if (senCell) {
+      seniority = Number(senCell.replace(SENIORITY_CELL, "").trim());
+      if (!Number.isFinite(seniority)) { errors.push(`${where} (${c[0]}): could not read "${senCell}"; write it like "seniority: 3" (higher = more senior)`); seniority = null; }
+    }
+    const isExtra = (x) => SENIORITY_CELL.test(x) || STREAK_CELL.test(x) || ROLE_CELL.test(x) || PREV_CELL.test(x) || OFF_CELL.test(x) || DAILY_CELL.test(x) || AVOID_CELL.test(x) || PREFER_CELL.test(x) || TOUGH_CELL.test(x) || SUPERVISED_CELL.test(x) || AGE_CELL.test(x);
     const avoidCells = tail.filter((x) => AVOID_CELL.test(x));
     const av2 = parseAvoid(avoidCells.map((x) => x.replace(AVOID_CELL, "")).join(";"));
     av2.errors.forEach((e) => errors.push(`${where} (${c[0]}): ${e}`));
@@ -301,7 +310,7 @@ export function parseStaff(text, { weekStart = null } = {}) {
         }
       }
     }
-    staff.push({ age, youth, name: c[0], wage, maxHours: maxHoursEff, minHours: Math.min(minH, maxHoursEff), roles, days: av.days, anyTime: av.any && !youth && !tail.some((x) => OFF_CELL.test(x)), prevEnd, streakBefore, maxDaily: maxDailyEff, avoid: avoidCells.length ? av2.avoid : null, prefer: preferCells.length ? pf2.avoid : null, toughBefore, supervised: tail.some((x) => SUPERVISED_CELL.test(x)) || (age !== null && age < 18) });
+    staff.push({ seniority, age, youth, name: c[0], wage, maxHours: maxHoursEff, minHours: Math.min(minH, maxHoursEff), roles, days: av.days, anyTime: av.any && !youth && !tail.some((x) => OFF_CELL.test(x)), prevEnd, streakBefore, maxDaily: maxDailyEff, avoid: avoidCells.length ? av2.avoid : null, prefer: preferCells.length ? pf2.avoid : null, toughBefore, supervised: tail.some((x) => SUPERVISED_CELL.test(x)) || (age !== null && age < 18) });
   });
   if (!staff.length && !errors.length) errors.push("Add at least one person.");
   if (staff.length > MAX_STAFF) errors.push(`That is ${staff.length} people; this tool handles up to ${MAX_STAFF}.`);
@@ -1665,6 +1674,36 @@ export function coverOptions(staff, slots, roster, slotIndex, options = {}) {
   }
   fits.sort((a, b) => a.extraCost - b.extraCost || a.name.localeCompare(b.name));
   return { slot, current: current >= 0 ? staff[current].name : null, fits, blocked };
+}
+
+// Seniority report: for every staffed shift, the more senior people (`seniority:` cell, higher = more senior) who could take
+// it from the junior holder with every hard rule still holding, with the payroll change and each side's hours. Shows where a
+// seniority-bidding rule or a union contract would ask for a different roster; the search does not apply it. Most senior first.
+export function seniorityClaims(staff, slots, roster, options = {}) {
+  if (!roster || !roster.owner) return { error: "Build a roster first." };
+  const ctx = buildContext(staff, slots, { ...(roster.options || {}), ...options });
+  const owner = roster.owner;
+  const listOf = (p) => owner.map((q, k) => (q === p ? k : -1)).filter((k) => k >= 0).sort((x, y) => slots[x].start - slots[y].start || x - y);
+  const claims = [];
+  owner.forEach((j, i) => {
+    if (j < 0 || staff[j].seniority == null) return;
+    const jBase = listOf(j), jRest = jBase.filter((k) => k !== i);
+    for (let s = 0; s < ctx.P; s++) {
+      if (s === j || staff[s].seniority == null || staff[s].seniority <= staff[j].seniority || !ctx.elig[s][i]) continue;
+      const sBase = listOf(s);
+      const sNew = insertSorted(ctx, sBase, i);
+      if (!validList(ctx, s, sNew)) continue;
+      claims.push({
+        slot: slots[i], senior: staff[s].name, junior: staff[j].name,
+        extraCost: payroll(ctx, s, sNew) - payroll(ctx, s, sBase) + payroll(ctx, j, jRest) - payroll(ctx, j, jBase),
+        seniorHours: hoursOf(ctx, sBase), juniorHours: hoursOf(ctx, jBase),
+        underMinimum: hoursOf(ctx, sBase) < staff[s].minHours - 1e-9,
+        juniorWouldDropBelowMinimum: hoursOf(ctx, jRest) < staff[j].minHours - 1e-9,
+      });
+    }
+  });
+  claims.sort((a, b) => a.slot.start - b.slot.start || a.senior.localeCompare(b.senior));
+  return { claims, shifts: new Set(claims.map((c) => `${c.slot.day}|${c.slot.startMin}|${c.junior}`)).size };
 }
 
 // "Ana and Ben want to swap Tuesday close for Saturday open": check that one specific trade (the owners of shifts
