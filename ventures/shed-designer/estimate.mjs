@@ -3,7 +3,7 @@
 // saw: the parts list (every distinct piece with a mark), the cut sheet (which
 // board each piece comes out of), and the shopping list with a cost.
 
-import { EXAMPLE_ITEMS, fmtIn } from './lumber.mjs';
+import { EXAMPLE_ITEMS, fmtIn, fmtFtIn } from './lumber.mjs';
 import { boardPrice, itemPrice } from './prices.mjs';
 import { catalogueRange, productById } from './products.mjs';
 import { optimizeCuts } from './optimize.mjs';
@@ -463,6 +463,38 @@ export function groupBoards(boards) {
     const key = `${b.stock}|${b.cuts.map((c) => (typeof c === 'number' ? String(c) : `${c.mark ?? ''}:${c.len}`)).join(',')}`;
     if (at.has(key)) out[at.get(key)].count += 1;
     else { at.set(key, out.length); out.push({ ...b, count: 1 }); }
+  }
+  return out;
+}
+
+/**
+ * What one board is cut into, in words: "2 x 7' 0" rafter (R1)" or
+ * "8' 9" top plate (P3) + 3' 0" cripple (C2)". Same marks are counted together.
+ * @param {{ cuts: { mark?: string, kind?: string, len: number }[] }} b
+ */
+export function boardUse(b) {
+  /** @type {Map<string, { n: number, c: any }>} */
+  const by = new Map();
+  for (const c of b.cuts) { const k = `${c.mark}|${c.len}`; const e = by.get(k); if (e) e.n += 1; else by.set(k, { n: 1, c }); }
+  return [...by.values()].map(({ n, c }) => `${n > 1 ? `${n} x ` : ''}${fmtFtIn(c.len)} ${c.kind}${c.mark ? ` (${c.mark})` : ''}`).join(' + ');
+}
+
+/**
+ * For each material and board length on the cut sheet, what its pieces are for,
+ * keyed like the shopping list's lumber lines ("2x6:14" -> "rafter, ridge board").
+ */
+export function lumberUses(est) {
+  /** @type {Map<string, string>} */
+  const out = new Map();
+  for (const l of est.lumber) {
+    /** @type {Map<number, Map<string, number>>} */
+    const byLen = new Map();
+    for (const b of l.result.boards) {
+      const kinds = byLen.get(b.stock) || new Map();
+      for (const c of b.cuts) kinds.set(c.kind, (kinds.get(c.kind) || 0) + 1);
+      byLen.set(b.stock, kinds);
+    }
+    for (const [stock, kinds] of byLen) out.set(`${l.material}:${stock / 12}`, [...kinds.entries()].sort((a, b) => b[1] - a[1]).map(([k, n]) => `${k}${n > 1 ? ` x ${n}` : ''}`).join(', '));
   }
   return out;
 }

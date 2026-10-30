@@ -271,6 +271,8 @@ test('the section bar opens each results tab, and a left-out line comes off the 
   assert.ok(Math.abs(drop - num(line.total) * (1 + rate / 100)) < 0.02, `the total fell by the line and its tax (${drop})`);
   assert.equal(await page.$eval(`#shopping input[data-skip="${line.name}"]`, (cb) => cb.closest('tr').className), 'skip');
   assert.match(await page.textContent('#summary-lines'), /you have or left out/);
+  assert.match(await page.textContent('#shopping'), /PT 4x4 x \d+'for skid/, 'lumber lines say what they are for');
+  assert.match(await page.textContent('#cuts'), /\d+ ft → .*\(\w+\)/, 'cut sheet boards say what they are cut into');
 });
 
 test('on a phone: no sideways scroll, finger-size handles, touch drag and pinch', { skip }, async (t) => {

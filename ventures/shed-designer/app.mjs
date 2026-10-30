@@ -3,7 +3,7 @@
 // plan sheets, all rebuilt from one design object on every change.
 
 import { buildShed, normalize, defaultDesign, PRESETS, WALLS, WALL_LABEL, wallFaceLength } from './model.mjs';
-import { estimate, examplePrices, cutSheetCsv, shoppingCsv, groupBoards, sourceLabel } from './estimate.mjs';
+import { estimate, examplePrices, cutSheetCsv, shoppingCsv, groupBoards, sourceLabel, boardUse, lumberUses } from './estimate.mjs';
 import { buildSheets, sheetSvg, sheetsDxf } from './drawings.mjs';
 import { createViewer, LAYERS } from './render3d.mjs';
 import { drawPlan, drawEnd } from './editor.mjs';
@@ -222,11 +222,15 @@ function renderShopping(est) {
   // (so the plans and quotes are whole) but come off what is left to buy and the total.
   const have = new Set(state.have);
   const skip = new Set(state.skip);
+  // What each length of lumber is for, so a 14 ft board on an 8x12 explains itself.
+  const uses = lumberUses(est);
   for (const r of est.shopping) {
     if (r.section !== section) { section = r.section; html += `<tr class="sec"><th colspan="8" scope="colgroup">${esc(section)}</th></tr>`; }
     const got = have.has(r.name);
     const left = skip.has(r.name);
-    html += `<tr${got ? ' class="have"' : left ? ' class="skip"' : ''}><td>${esc(r.name)}</td><td class="n">${r.qty}</td><td>${r.unit}</td><td class="n">${money(r.price)}</td><td class="n">${money(r.total)}</td><td>${r.elsewhere ? `<span class="muted">not listed at ${esc(est.storeList.store)}: </span>` : ''}${sourceCell(r.source)}</td>`
+    const lm = r.section === 'Lumber' ? /^(.+) x (\d+)'/.exec(r.name) : null;
+    const use = lm && uses.get(`${lm[1]}:${lm[2]}`);
+    html += `<tr${got ? ' class="have"' : left ? ' class="skip"' : ''}><td>${esc(r.name)}${use ? `<div class="use">for ${esc(use)}</div>` : ''}</td><td class="n">${r.qty}</td><td>${r.unit}</td><td class="n">${money(r.price)}</td><td class="n">${money(r.total)}</td><td>${r.elsewhere ? `<span class="muted">not listed at ${esc(est.storeList.store)}: </span>` : ''}${sourceCell(r.source)}</td>`
       + `<td><input type="checkbox" data-have="${esc(r.name)}"${got ? ' checked' : ''} aria-label="I already have: ${esc(r.name)}"></td>`
       + `<td><input type="checkbox" data-skip="${esc(r.name)}"${left ? ' checked' : ''} aria-label="Leave out of the total: ${esc(r.name)}"></td></tr>`;
   }
@@ -359,7 +363,7 @@ function renderCuts(est) {
         x += w;
         return seg;
       }).join('');
-      html += `<li><span class="board-name">${boardName(b)}</span><span class="bar">${segs}</span><span class="off">offcut ${fmtIn(b.offcut)}${b.count > 1 ? ' each' : ''}</span></li>`;
+      html += `<li><span class="board-name">${boardName(b)}</span><span class="bar">${segs}</span><span class="off">offcut ${fmtIn(b.offcut)}${b.count > 1 ? ' each' : ''}</span><span class="use">${b.stock / 12} ft &rarr; ${esc(boardUse(b))}</span></li>`;
     }
     html += '</ul>';
   }

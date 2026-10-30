@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { buildShed, defaultDesign, normalize, PRESETS } from './model.mjs';
-import { estimate, examplePrices, markName, cutSheetCsv, shoppingCsv } from './estimate.mjs';
+import { estimate, examplePrices, markName, cutSheetCsv, shoppingCsv, boardUse, lumberUses, groupBoards } from './estimate.mjs';
 
 const classic = () => PRESETS['8x12 classic']();
 
@@ -103,4 +103,18 @@ test('the siding note explains why a taller wall can cost less', () => {
   assert.match(high.notes.join(' '), /8 use a strip \(of 8 columns\)/);
   const bare = estimate(buildShed(normalize({ ...PRESETS['8x8 lean'](), siding: false })));
   assert.deepEqual(bare.notes, [], 'no siding, no note');
+});
+
+test('each board and each lumber line says what it is for', () => {
+  const est = estimate(buildShed(normalize(defaultDesign())));
+  assert.equal(boardUse({ cuts: [{ mark: 'R1', kind: 'rafter', len: 84 }, { mark: 'R1', kind: 'rafter', len: 84 }] }), `2 x 7' 0" rafter (R1)`);
+  assert.equal(boardUse({ cuts: [{ mark: 'P3', kind: 'top plate', len: 105 }, { mark: 'C2', kind: 'cripple', len: 36 }] }), `8' 9" top plate (P3) + 3' 0" cripple (C2)`);
+  const uses = lumberUses(est);
+  assert.match(uses.get('PT 4x4:12'), /^skid/);
+  // Every cut sheet board is described, and every lumber line of the shopping list has a use.
+  for (const l of est.lumber) for (const b of groupBoards(l.result.boards)) assert.ok(boardUse(b).length > 0);
+  for (const r of est.shopping.filter((x) => x.section === 'Lumber' && !/spares/.test(x.name))) {
+    const m = /^(.+) x (\d+)'/.exec(r.name);
+    assert.ok(uses.get(`${m[1]}:${m[2]}`), r.name);
+  }
 });
