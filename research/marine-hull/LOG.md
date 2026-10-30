@@ -2,6 +2,20 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-30 · Milestone 6f: with a genuinely iid sea state, what does the persistence forecast capture, and how does it grow with spell length? (planned before running)
+- Why: 6e's "Next". Its spell-1 cells are a deterministic alternation (hit rate 0.00) and must not be quoted. At p = 0.5 the `markov` chain with mean rough-spell 2 days has stay = enter = 0.5, which is iid, so spell 2 is the honest no-persistence baseline; spell 3 fills the curve between it and 7.
+- Plan (`experiments/run_solar_seastate_persist_iid.py`, 6e's script with SPELLS = 2, 3, 7 days; same boat, sites, packs, p = 0.5, F = 3, seed 1): report E/B, hit rate and the share of the C-B gap E recovers.
+- **Predictions (before running):** (1) at spell 2 (iid) the hit rate is within 0.03 of 0.50 in all 10 cells (prior 90%, binomial sd about 0.01 over 3650 days). (2) At spell 2 the median share of the C-B gap is at most 0.15 and E/B is under +1.5% in every cell (prior 60%; yesterday carries no information, so E can only gain by in-sample fitting of the pair). (3) The median share rises monotonically 2 -> 3 -> 7 days (prior 85%). Refuted: (1) any hit rate off by 0.03 or more; (2) median share above 0.15 or any E/B of +1.5% or more; (3) any non-monotone step.
+- Limits known in advance: as 6e (p = 0.5, F = 3, one seed, in-sample pair, exact persistence, two-state chain).
+
+### Outcome of milestone 6f (`experiments/run_solar_seastate_persist_iid.py`, 17 seconds, seeded; `experiments/results_solar_seastate_persist_iid.txt`; 30 cells)
+- **(1) held:** every spell-2 (iid) cell has a hit rate of 0.50 to two decimals.
+- **(2) held:** the median share of the C-B gap that persistence recovers at spell 2 is 0.06 (range 0.00 to 0.10) and the largest E/B is +0.6% (Equator and Florida, 1 kWh pack); 0 of 30 cells have E below B. The small positive part is in-sample fitting of the speed pair, not forecast skill (hit rate 0.50).
+- **(3) held:** median share 0.06 (spell 2, hit 0.50) -> 0.28 (spell 3, hit 0.67; range 0.18 to 0.39) -> 0.75 (spell 7, hit 0.85; range 0.68 to 0.80). The 7-day cells reproduce 6e exactly.
+- Reading: replaces 6e's artifact cells. Persistence is worthless on an iid sea, recovers about a quarter of the oracle gain at 3-day spells and three quarters at 7-day spells, so whether a boat's own wave sensor suffices depends on how long rough spells last, which this programme cannot source (no climatology reachable). Quote the spell-2 row as the no-information baseline; ignore 6e's spell-1 rows.
+- Limits: as planned; p = 0.5, F = 3, one seed, in-sample pair, exact persistence, two-state chain.
+- Next: a three-state chain or real wave-height series if one becomes reachable; milestone 3 tank data remains blocked.
+
 ## 2026-10-30 · Milestone 6e: does a no-parameter persistence forecast (tomorrow = today) capture the oracle back-off gain? (planned before reading the output)
 - Why: 6d's skill s was a free parameter tied to no real product. Persistence needs none: the call for day t is the true state of day t-1. Its hit rate is set by the spell length, so it is the realistic floor a boat with no external forecast (only its own wave sensor) could use.
 - Plan (`experiments/run_solar_seastate_persist.py`, 6d's script with the skill sweep replaced; same boat, sites, p = 0.5, F = 3, spells 1 and 7 days, packs 10 and 1 kWh, seed 1): policy E uses the pair (v_calm, v_rough) chosen in-sample on persistence calls. Report E/B, hit rate and the share of the C minus B gap E recovers. The script was executed once before these predictions were written, but its output had not been read.
