@@ -375,8 +375,10 @@ function designAt(base, size, layout, knobs) {
  *
  * Phase 1 seeds one design per size, ridge direction and layout at a lean
  * setting. Phase 2 is a Pareto local search: from each design on the current
- * front it tries every one-knob change, adds what it finds, and repeats from
- * the new front until the budget is spent or the front stops changing.
+ * front it tries every one-knob change, every other layout and every other size, adds what it finds, and repeats from
+ * the new front until the budget is spent or the front stops changing. It
+ * expands one design at a time, the best unexpanded one on each objective in
+ * turn, so each end of the front is followed out early.
  *
  * @param {{ base?: any, prices?: import('./estimate.mjs').Prices, constraints?: Partial<typeof DEFAULT_CONSTRAINTS>,
  *   objectives?: string[], fixed?: string[], budget?: number, sizes?: { length: number, width: number }[], layouts?: string[],
@@ -427,25 +429,33 @@ export function* searchSteps(opts = {}) {
     if (r && !r.feasible && !r.ok) tryOne(size, layout, { ...lean, ...Object.fromEntries(Object.entries(knobs).filter(([k]) => /Size$/.test(k)).map(([k, v]) => [k, v[v.length - 1]])), studSpacing: knobs.studSpacing[0], rafterSpacing: knobs.rafterSpacing[0] });
     yield progress();
   }
-  // Phase 2: Pareto local search, one knob at a time from each front design.
+  // Phase 2: Pareto local search, one knob at a time, one design at a time:
+  // each step expands the unexpanded front design that is best on one
+  // objective, taking the objectives in turn, so a cheaper (or roomier, or
+  // better-looking) design found is itself expanded soon after.
   // While nothing passes yet, it searches out from the designs that failed on the fewest counts.
   const expanded = new Set();
-  for (let round = 0; seen.size < budget; round++) {
+  const keyOf = (s) => JSON.stringify({ ...s.design, name: '' });
+  let step = 0;
+  while (seen.size < budget) {
     const from = all.length ? front() : [...seen.values()].sort((a, b) => a.why.length - b.why.length || a.cost - b.cost).slice(0, 8);
-    const todo = from.filter((s) => !expanded.has(JSON.stringify({ ...s.design, name: '' })));
+    const todo = from.filter((s) => !expanded.has(keyOf(s)));
     if (!todo.length) break;
-    for (const s of todo) {
-      expanded.add(JSON.stringify({ ...s.design, name: '' }));
-      for (const [k, vals] of Object.entries(knobs)) {
-        for (const v of vals) {
-          if (seen.size >= budget) break;
-          if (s.knobs[k] === v) continue;
-          tryOne(s.size, s.layout, { ...s.knobs, [k]: v });
-          yield progress();
-        }
+    // Take turns between the objectives: the unexpanded design best on this turn's objective.
+    const f = OBJECTIVES[objectives[step++ % objectives.length]];
+    const s = todo.reduce((m, x) => (f.sense * f.of(x) > f.sense * f.of(m) ? x : m));
+    expanded.add(keyOf(s));
+    for (const [k, vals] of Object.entries(knobs)) {
+      for (const v of vals) {
+        if (seen.size >= budget) break;
+        if (s.knobs[k] === v) continue;
+        tryOne(s.size, s.layout, { ...s.knobs, [k]: v });
+        yield progress();
       }
-      if (seen.size >= budget) break;
     }
+    // The same design in another layout, and on another size.
+    for (const layout of layouts) { if (seen.size >= budget) break; if (layout !== s.layout) { tryOne(s.size, layout, s.knobs); yield progress(); } }
+    for (const size of sizes) { if (seen.size >= budget) break; if (size !== s.size) { tryOne(size, s.layout, s.knobs); yield progress(); } }
   }
   return { front: front(), all, evaluated: seen.size, rejected, constraints: c, objectives };
 }
