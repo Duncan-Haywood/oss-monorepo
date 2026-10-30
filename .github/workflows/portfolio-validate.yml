@@ -555,6 +555,24 @@ jobs:
         working-directory: platform/ci
         run: python3 -m unittest test_check_duplicate_ids
 
+      # A relative fetch() of a file nobody committed 404s at runtime; unit
+      # tests import the engine and never run the page.
+      - name: Check no page fetches a missing local file
+        run: python3 platform/ci/check_local_fetch.py
+
+      - name: Local-fetch checker unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_check_local_fetch
+
+      # A label or ARIA reference to a missing id is dropped silently, leaving
+      # the control unnamed for a screen reader.
+      - name: Check label and ARIA id references resolve
+        run: python3 platform/ci/check_aria_refs.py
+
+      - name: ARIA-reference checker unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_check_aria_refs
+
       # A table of bare <td> cells has no row or column names for a screen reader.
       - name: Check every venture table has header cells
         run: python3 platform/ci/check_table_headers.py

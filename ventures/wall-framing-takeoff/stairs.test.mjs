@@ -197,7 +197,7 @@ test("landing guard: a 48 in end edge and a 36 in side edge keep gaps under 4 in
   assert.ok(r.ok && r.landing.guard);
   const g = r.landing.guard;
   assert.deepEqual(g.edges, [36, 36]); // width 36 default, depth 36
-  assert.equal(g.posts.count, 4); // one segment per edge, 2 posts each
+  assert.equal(g.posts.count, 3); // one segment per edge, 2 posts each, the shared corner post counted once
   assert.ok(g.balusters.maxGap <= 4 + 1e-9);
   // hand check, 36 in edge: clear 32.5, ceil((32.5-4)/5.5)=6 balusters, gap (32.5-9)/7 = 3.357
   assert.equal(g.balusters.count, 12);
@@ -206,7 +206,49 @@ test("landing guard: a 48 in end edge and a 36 in side edge keep gaps under 4 in
   assert.ok(landingText(r).some((t) => /Landing guard/.test(t)));
 });
 
+test("landing guard: two end edges and one side edge share two corners", () => {
+  const r = layoutStairWithLanding({ totalRise: 160, tread: 10, landing: { openEdges: ["end", "end", "side"] } }, plan());
+  assert.equal(r.landing.guard.posts.count, 6 - 2);
+  assert.equal(layoutLandingGuard([36, 36], {}, 1).posts.count, 3);
+});
+
 test("landing guard: an edge over 72 in gets a middle post", () => {
   assert.equal(layoutLandingGuard([96]).posts.count, 3);
   assert.equal(layoutLandingGuard([96]).guardRails.count, 2);
+});
+
+test("riser boards join the order only when a riser board is typed", () => {
+  const none = layoutStair({ totalRise: 108, tread: 10 }, plan());
+  assert.ok(!stairCuts(none).some((r) => r.kind === "stair riser"));
+  const l = layoutStair({ totalRise: 108, tread: 10, riserBoard: "2x8" }, plan()); // riser 7-5/7 in, a 7-1/4 in board is short: two per riser
+  assert.equal(l.riserStock.perRiser, 2);
+  const row = stairCuts(l).find((r) => r.kind === "stair riser");
+  assert.equal(row.qty, 28);
+  assert.equal(row.length, 36);
+  const tall = layoutStair({ totalRise: 108, tread: 10, riserBoard: "2x10" }, plan());
+  assert.equal(stairCuts(tall).find((r) => r.kind === "stair riser").qty, 14);
+  assert.ok(stairText(tall).some((x) => /14 risers of 14 2x10 boards/.test(x)));
+  assert.ok(layoutStair({ totalRise: 108, tread: 10, riserBoard: "1x8" }, plan()).errors.some((e) => /riser board size/.test(e)));
+  assert.ok(!stairCuts(layoutStair({ totalRise: 108, tread: 10, riserBoard: "2x10", openRisers: true }, plan())).some((r) => r.kind === "stair riser"));
+});
+
+test("rail: the handrail is bought as one board of the pitch plus the overhangs", () => {
+  const l = layoutStair({ totalRise: 108, tread: 10, rail: { sides: 2 } }, plan());
+  const row = stairCuts(l).find((r) => r.kind === "stair handrail");
+  assert.equal(row.qty, 1);
+  assert.equal(row.length, Math.round((l.pitch + 22) * 16) / 16);
+  assert.ok(!stairCuts(layoutStair({ totalRise: 108, tread: 10, rail: { handrail: false } }, plan())).some((r) => r.kind === "stair handrail"));
+});
+
+test("tread span between stringers is checked against the tread thickness", () => {
+  // width 60, spacing 24, 1 in treads: span 58.5 -> 4 stringers, 19.5 in apart, over the 12 in limit for under 1-1/4 in.
+  const bad = layoutStair({ totalRise: 108, width: 60, stringerSpacing: 24, treadThickness: 1 }, plan());
+  assert.equal(bad.stringer.count, 4);
+  assert.equal(bad.stringer.spacing, 19.5);
+  assert.equal(bad.stringer.treadSpanMax, 12);
+  assert.ok(bad.notes.some((n) => /between stringers/.test(n)));
+  // the same stair with 2x treads (24 in) and the sample 36 in stair raise no span note
+  const ok = layoutStair({ totalRise: 108, width: 60, stringerSpacing: 24, treadThickness: 1.5 }, plan());
+  assert.ok(!ok.notes.some((n) => /between stringers/.test(n)));
+  assert.ok(!layoutStair({ totalRise: 108 }, plan()).notes.some((n) => /between stringers/.test(n)));
 });

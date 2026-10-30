@@ -353,11 +353,11 @@ function rowMatchesScope(node, scope) {
   if (words.length === 0) return false;
   var row = node.closest ? node.closest('.run, .row, .item, fieldset, tr, li, [data-row]') : null;
   if (!row) return false;
-  var text = normalizeLabel(row.textContent || '');
+  var text = labelWords(row.textContent || '').join(' ');
   var selects = row.querySelectorAll('select');
   for (var i = 0; i < selects.length; i += 1) {
     var picked = selects[i].selectedOptions && selects[i].selectedOptions[0];
-    if (picked) text += ' ' + normalizeLabel(picked.textContent || '');
+    if (picked) text += ' ' + labelWords(picked.textContent || '').join(' ');
   }
   for (var w = 0; w < words.length; w += 1) {
     if (text.indexOf(words[w]) === -1) return false;

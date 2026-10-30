@@ -46,7 +46,7 @@ flagships:
       named lender's own schedule against the loan register (`loan check`);
       (5) receipts through real OCR (SROIE: totals 76.2%, dates 80.2%, merchants 45.8%; wanted: phone photos, real paper); (6) payroll (941, Schedule B, 940,
       deposits, `payroll reconcile`): a real Gusto or ADP report; (7) one named
-      filing service's import layout, from its own spec; (8) `salestax return` (page card; no-sales-tax states warn): due dates read from the state's own page only for WA, TX, FL, NY, VA, MN, MO, IL, SC, OH and UT monthly (OH quarterly unseen); TX, FL and GA discounts preset from search excerpts, 1.25% prepayment not modelled; the rest from excerpts or memory; open: a real return layout; (8b) `annualized` (Schedule AI): factors tested, form text unread (irs.gov blocked); (9) EITC: built-in 2025 and 2026 schedules (Schedule EIC rows unchecked); 2027 `estimate` takes `--tax-table file.json` until the IRS publishes the figures. Built-in keywords also probed on 92 + 78 trade descriptors (tuned on themselves, README Next 2026-10-28). A run that lands a slice replaces its item here; keep this under 2,000
+      filing service's import layout, from its own spec; (8) `salestax return` (page card; no-sales-tax states warn): due dates read from the state's own page only for WA, TX, FL, NY, VA, MN, MO, IL, SC, OH and UT monthly (OH quarterly: guides disagree on who files it; OH 0.75% discount capped $750 a month from excerpts); TX, FL and GA discounts preset from search excerpts, 1.25% prepayment not modelled; the rest from excerpts or memory; open: a real return layout; (8b) `annualized` (Schedule AI): factors tested, form text unread (irs.gov blocked); (9) EITC: built-in 2025 and 2026 schedules (Schedule EIC rows unchecked); 2027 `estimate` takes `--tax-table file.json` until the IRS publishes the figures. A run that lands a slice replaces its item here; keep this under 2,000
       characters.
 
   # Added 2026-10-21 second, on the owner's direction that day: "I want to make
@@ -60,10 +60,9 @@ flagships:
       cutting-stock order within 0.02% of its LP bound on whole houses; page,
       CLI and agent engine. First tool of the new-home construction program.
     next: >-
-      Open items only; landed work is in ventures/wall-framing-takeoff/README.md and ROADMAP.md (roof, foundation, gables, sheathing, drywall, budget, schedule landed on hand-checked fixtures).
-      Siding, eaves, gutters (downspout count a rule of thumb) and stairs (`--stairs`; no post sizing or winder framing) landed, all hand-checked, with page cards. shop drawings PDF, DXF import, shared and end-stud kings, gable plate cuts, nail counts, hold-downs, rafter ties and plate-joint straps have landed (README; hand-checked only). Open: a real architect's DXF through it (jamb-and-arc door symbols from LibreCAD's library read as one door each 2026-10-28, symbols only; door and window block symbols landed on hand-written blocks only; nested and dynamic blocks, gaps at openings); a real IFC export with doors (buildingSMART's wall-with-opening-and-window reads, sill and height from the file 2026-10-28; reader landed; buildingSMART's Simple-Scene house reads, mesh walls via bounding box, no openings in it; swept bodies, centred openings, multi-storey still hand-written only); a real foundation plan (the page now has anchor bolt spacing fields, 2026-10-27, wiring test only); ceiling steps checked against a real soffit (engine, page box); trim boards (a real trim order unchecked); drywall `jointsOnStuds` (walls and ceilings) checked against a real hang, ceiling joists from the roof (`ceilingJoistsFromRoof` landed 2026-10-26; page option 2026-10-26, source-asserted only); bid leveling (`--level-bids`, made-up bids only; a real sub's bid unchecked); a real sub's labor rates; a real builder's activity list for
-      `--schedule`; gable sheathing nested on real sheets (offcut-triangle heights are hand-made); the code edition, typed by a person who has the book; insulation (page 2026-10-26, budget lines 2026-10-27; attic bag chart and a real order unchecked); a 2D reuse of
-      opening cut-outs, only worth rechecking on a real plan (sample house: 0 panels fit a hole).
+      Open items only; landed work is in ventures/wall-framing-takeoff/README.md and ROADMAP.md. Deck framing (`--deck`, page card 2026-10-30) landed on hand arithmetic only; wanted: a real permitted deck plan.
+      Siding (gable triangles landed 2026-10-29, hand-checked), eaves, gutters, stairs (`--stairs`; tread span note landed 2026-10-29; no post sizing or winder framing) landed, hand-checked.  Open: a real architect's DXF through it (jamb-and-arc door symbols from LibreCAD's library read as one door each 2026-10-28, symbols only; door and window block symbols landed on hand-written blocks only; dynamic blocks (nested blocks landed 2026-10-29, hand-written only), gaps at openings); a real IFC export with doors (multi-storey files read one storey at a time, `--storey=N`, checked on KIT's FZK-Haus locally 2026-10-29, not committed; buildingSMART's samples read; swept bodies, centred openings, multi-storey still hand-written only); a real foundation plan (page has anchor bolt spacing fields, 2026-10-27, wiring test only; piers landed 2026-10-29 (page box too), stepped footings landed 2026-10-29, plan file only, hand-checked); ceiling steps checked against a real soffit (engine, page box); trim boards (scarf overlap per splice landed 2026-10-29, typed figure; a real trim order unchecked); drywall `jointsOnStuds` (walls and ceilings) checked against a real hang, ceiling joists from the roof (`ceilingJoistsFromRoof` landed 2026-10-26; page option 2026-10-26, source-asserted only); bid leveling (`--level-bids`, made-up bids only); a real sub's labor rates; a real builder's activity list for
+      `--schedule` (holidays and typed weather days landed 2026-10-29; page fields 2026-10-29); gable sheathing nested on real sheets (offcut-triangle heights are hand-made); insulation  (attic bag chart and a real order unchecked; baffles counted 2026-10-29, hand-checked).
   # Added 2026-10-21 third, on the owner's direction that day: "I want to make ai sales agents this is a long term
   # process" (prompts/goals.md, "AI sales agents, a long-term build"). Stages in ventures/sales-agent/ROADMAP.md.
   - venture: sales-agent
@@ -95,20 +94,20 @@ flagships:
       against brute force and a closed-form evidence check, reproducing the
       published Nile 1898 change; page, CLI and agent engine.
     next: >-
-      Landed history (Poisson, seasonal, AR(1), trend, holidays, bursts,
-      --log, change-date range95, bootstrap penalty, excursions,
-      driftWarning) and every measurement live in the README and git. Open:
-      (1) range95 on a real count series with a true holiday closure or
-      documented slope break (log GDP is a near-unit-root; coal disasters
-      hold 1890); (2) the steep-bump (0.04) clumpy-count cell is under-
+      Landed history and every measurement live in the README and git (four-index
+      cross-check, DAX/SMI/FTSE cut, CAC's 29% rise not: README 2026-10-29). Open:
+      (1) range95 now holds on a real closure, Ansett's 1989 pilots' dispute
+      (4 of 4 setups) and on a real shock, Hurricane Maria in Puerto Rico's
+      daily deaths (5 of 5); a real trending series now gives one change, US airline miles 1946; WWWusage (wanders): 21 steps, 0 by --ar1; wanted: a closure series quiet
+      outside it, as none of 30 Ansett route/class series is (8 to 36 other changes; count-model range95 holds the stop in 29, mean model 19; 2026-10-29); (2) the steep-bump (0.04) clumpy-count cell is under-
       covered, 65/79 (82%) over six seeds, and the CLI and JSON carry that
       caveat; (3) a GARCH-filtered series has 1% false alarms but loses the
       real sd break (97% to 6%), so a GARCH likelihood needs a segment-wise
       joint fit; (4) driftWarning fires on growing seasons but also on a
       real shock and rebound (1973 UK driver deaths): wanted a way to tell a
       shape from a shock; net/abs of the window's shifts fails with --trend
-      bend, a level-scaled refit and a refit on the log each separate only UK gas
-      (2026-10-29, README); wanted: a second real shock in a seasonal series; (5) bootstrap and holiday
+      bend, a level-scaled refit and a refit on the log each separate only UK gas;
+      a second shock series (Australian arrivals) warns in 7 of 8 cells on trend steps; trendless 72-month series (UK lung deaths 1976 spike) warns in 11 of 12 cells but also 3 of 4 on a no-shock null: a 195-month euro factory-orders series (2008-09 collapse) warns in 4 of 4 cells with 16 to 22 steps, so length did not help: a same-length synthetic null (195 months, no shock) warns in 0 to 8% of white-noise cells with --trend bend but 75% to 88% under rho 0.5 noise, so autocorrelation alone fires it: the text now points at --ar1 when rho >= 0.3, and --ar1 cuts the rho 0.5 null from 33-35 of 40 warned to 0-1; --ar1 keeps the warning on airline but loses it on UK gas (6-7 steps to 1), wanted: a way to widen the noise scale without swallowing a short quarterly shape; (5) bootstrap and holiday
       false-alarm cuts are synthetic only.
   - venture: einvoice-preflight
     why: >-
@@ -116,14 +115,14 @@ flagships:
       XRechnung, Peppol profiles) with a self-hosted API, Docker and Render
       deploy, ~48 test files, and a regulatory tailwind (EU e-invoicing mandates).
     next: >-
-      Landed history lives in the README and git (UK page: refresh after Budget 2026). Open: ZATCA rules on a real sandbox invoice, a real ZATCA credit or debit note (both made-up examples landed 2026-10-25/26), the Saxon route; FatturaPA
+      Landed history lives in the README and git (UK page: refresh after Budget 2026; South Korea page from memory, NTS unread). Open: ZATCA rules on a real sandbox invoice, a real ZATCA credit or debit note (both made up), the Saxon route; FatturaPA
       code lists (TD29, RF20 added 2026-10-24 from vendor summaries) and tolerances against the primary spec 1.9 text and any later structure change; Portugal's CIUS-PT add-on (made-up invoice; AA/RED/INT/NOR fail EU BR-CL-17/18 though AMA's rules admit them: which validator does AT run?); Poland's FA(3) (PL-001..017, XSD gate matches xmllint on 4,860 mutations; the Ministry's 14 own templates agree with xmllint and 12 are clean, 2026-10-27) on an issued invoice or KSeF test-environment file, more seeds covering the correction, advance and attachment branches;
       the rules and a repair on a real ERP or
       Factur-X export (open the repaired PDF in veraPDF or a viewer); a page
       button for PDFs; PINT SG and A-NZ rules on the Saxon/server route and on a
       real PINT file; RO_CIUS on a real ANAF file and the Saxon route; NLCIUS
       on a real Dutch file (UBL and CII both landed 2026-10-25, made-up examples); India's INV-01 schema check; mandate
-      dates read from primary sources where pages cite guides (Denmark, Czech, Estonia, Latvia, Slovenia vendor-only; Luxembourg bill 8815 text unread (status read in search excerpts 2026-10-28: still in committee); iras.gov.sg,
+      dates read from primary sources where pages cite guides (Israel page 2026-10-29 from vendor summaries, directive 01/2025 unread; Denmark, Czech, Estonia, Latvia, Slovenia vendor-only; Luxembourg bill 8815 text unread (status read in search excerpts 2026-10-28: still in committee); iras.gov.sg,
       ato.gov.au, revenue.ie, CBIC); Latin American pages 2026-10-27 (Ecuador SRI sheet unread), Spain B2B dates 2026-10-27 (Order HAC/1028/2026, BOE unread), Brazil NF-e page 2026-10-26 (search excerpts only; open: CFDI and NF-e XSD readers, NFS-e); refresh the Bulgaria page when its draft
       passes or changes (consultation closed 2026-10-23, no outcome found 2026-10-26; penalties from 1 Jul 2028 and scope added from adviser reports). A run that lands a slice replaces its item here; keep
       this under 2,000 characters.
@@ -147,7 +146,7 @@ flagships:
       10x28 week 7 and all four 12x30 weeks. Landed 2026-10-27: node
       budget, so it is deterministic; default-on measured: open hours 19 -> 15 but
       open shifts 3 -> 5 on the sample cafe, 547 s suite, so it stays off. Landed 2026-10-28: open-shift
-      tiebreak and `openShiftWeight` (weight 0: 15 h / 5 shifts; 100: 19 h / 3, sample cafe; page select and `--open-shift-hours` landed 2026-10-27). Measured 2026-10-28 (eval/relaxation-check.py): no LP relaxation closes 12x30 week 2 (cliques 68, cover cuts 68.4, Dantzig-Wolfe 72.33; floor 72, optimum 75), so the clique cut is dropped. Next: branch-and-price on the Dantzig-Wolfe LP; then a tighter pay bound once coverage is proven, then a
+      tiebreak and `openShiftWeight` (weight 0: 15 h / 5 shifts; 100: 19 h / 3, sample cafe; page select and `--open-shift-hours` landed 2026-10-27). Measured 2026-10-28 (eval/relaxation-check.py): no LP relaxation closes 12x30 week 2 (cliques 68, cover cuts 68.4, Dantzig-Wolfe 72.33; floor 72, optimum 75), so the clique cut is dropped. Landed 2026-10-30: `placeRestBreaks` (paid rest breaks from the operator's own spacing and length, page boxes; not enforced by the search). Next: branch-and-price on the Dantzig-Wolfe LP; then a tighter pay bound once coverage is proven, then a
       joint multi-week solve. Multi-week fairness is measured (eval/fairness-
       bench.mjs: tough-shift spread 13.2 -> 3.2 over 8 weeks for +0.4% payroll,
       synthetic crews).
@@ -157,7 +156,7 @@ flagships:
       ShootFlow works end to end on real media: checksum-verified ingest,
       catalog, ffmpeg proxies, LUT-graded masters, reels and carousels.
     next: >-
-      `shootflow cull` (2026-10-29) turns that into a standalone folder cull with XMP
+      `shootflow cull --thumbs` (2026-10-29) adds a thumbnail contact sheet by burst to the report. `shootflow cull` (2026-10-29) turns that into a standalone folder cull with XMP
       sidecars; `--picks FILE` (2026-10-29) now scores it against a photographer's keepers
       (keeper hit rate, false-reject rate); wanted: a real shoot and its picks to run it on.
       Sharpness, exposure, motion and dHash near-duplicate grouping now run
@@ -167,12 +166,15 @@ flagships:
       patches only, not yet checked against human picks). Horizon tilt
       (tilt_degrees, 2026-10-22; synthetic horizons only) costs a crooked frame up to 8% of story score. Grain (noise_sigma, 2026-10-23; synthetic Gaussian noise only) is taken out of sharpness and costs technical score. Face and closed-eye
       scores landed 2026-10-26 as an opt-in external detector command
-      (SHOOTFLOW_FACE_DETECTOR, faces.py; made-up output only). Next: wire a real
-      small on-device model to that contract and check it against human picks.
+      (SHOOTFLOW_FACE_DETECTOR, faces.py; made-up output only). A Haar-cascade
+      reference detector (tools/opencv_face_detector.py, 2026-10-29) fills it (one
+      real portrait, no real blinks). Next: a trained blink model behind the same
+      contract, checked against a photographer's picks (wanted: a labelled portrait set).
       RAW stills are scored from their embedded JPEG preview (raw_preview.py,
       2026-10-22; synthetic containers only, so try real CR2/CR3/NEF/ARW/DNG
-      files); developing RAW into proxies and masters (a RAW developer) is
-      still open.
+      files); review proxies of RAW stills are
+      the embedded preview downscaled (2026-10-29, synthetic containers); developing
+      RAW into graded masters (a RAW developer) is still open.
   - venture: quick-pick-survey
     why: >-
       Next.js + Postgres app with Glicko-2 ranking, adaptive pairing and a
@@ -202,7 +204,7 @@ flagships:
     next: >-
       Done so far (README holds the measurements and the fuzz scripts under
       eval/): multi-division scheduling on shared venues, venue-to-venue
-      travel times, rainouts with make-up dates, share links, partial-night
+      travel times, rainouts with make-up dates, share links, officials on the multi-division page, partial-night
       filling, home/away break balance and flip pass, make-up relocation and
       swapNights, venue fairness with multi-season carry-over,
       suggestFairnessWeight (CLI --suggest-weight and a page button), play-

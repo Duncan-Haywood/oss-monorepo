@@ -64,6 +64,10 @@
       #wall table { width: 100%; border-collapse: collapse; font-size: 1rem; }
       #wall th, #wall td { border: 1px solid #000; padding: 6px; vertical-align: top; }
     }
+    .cta-row { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 14px; }
+    a.cta { display: inline-block; padding: 11px 18px; border-radius: 8px; background: #1f4e5f; color: #fff; font-weight: 700; text-decoration: none; }
+    a.cta.alt { background: #e4edf0; color: #17394a; }
+    a.cta:focus-visible { outline: 3px solid #17394a; outline-offset: 2px; }
   </style>
 </head>
 <body>
@@ -71,11 +75,12 @@
     <p class="note">SHIFT ROSTER BUILDER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
     <h1>Build this week's schedule without the spreadsheet puzzle</h1>
     <p>List <strong>the shifts you need covered</strong> and <strong>your people</strong> with their availability, weekly hour limits and wages. The tool assigns people to shifts so that <strong>every shift is covered if it can be</strong>, nobody works outside their availability, gets less rest than you allow, or goes into <strong>overtime</strong> when someone cheaper is free. Shifts it cannot fill come back with the reason, and it shows <strong>who the week depends on</strong>. Download the roster as a CSV.</p>
-    <p class="note">Your staff list never leaves this browser tab. Planning aid, not legal, tax, or financial advice. It does not know your local scheduling-notice, break or minor-labor laws. See <a href="how-to-make-an-employee-schedule.html">how to make an employee schedule</a> for the method, and <a href="do-i-need-to-hire-another-employee.html">do I need to hire another employee?</a> for testing a hire before you post the job. Checking payroll against sales? See <a href="labor-cost-percentage-by-day.html">labor cost percentage by day</a>. Worried about close-then-open shifts? See <a href="how-to-avoid-clopening.html">what a rest gap costs</a>, or <a href="how-to-reduce-overtime-in-a-schedule.html">how to reduce overtime in a schedule</a>. Scheduling a 14 or 15 year old? See <a href="scheduling-14-and-15-year-olds.html">what the youth hour limits do to a roster</a>, <a href="free-alternative-to-7shifts-when-i-work-homebase.html">a free alternative to paid scheduling apps for the rota</a>. Need a blank grid to print? See the <a href="employee-schedule-template.html">free weekly employee schedule template</a>. Closes and weekends landing on the same people? See <a href="how-to-rotate-closing-and-weekend-shifts-fairly.html">how to rotate them fairly</a>. Someone just called out? See <a href="how-to-cover-a-shift-when-someone-calls-out.html">patch it or rebuild the week</a>. Weekend requests piling up? See <a href="how-to-handle-time-off-requests.html">how many you can grant</a>. Shifts staying open? See <a href="whose-availability-is-worth-widening.html">whose availability is worth asking to widen</a>.</p>
+    <p class="cta-row"><a class="cta" href="#start">Build a schedule</a> <a class="cta alt" href="#start" id="cta-example">Try an example</a></p>
+    <p class="note">Your staff list never leaves this browser tab. Planning aid, not legal, tax, or financial advice. It does not know your local scheduling-notice, break or minor-labor laws. See <a href="how-to-make-an-employee-schedule.html">how to make an employee schedule</a> for the method, and <a href="do-i-need-to-hire-another-employee.html">do I need to hire another employee?</a> for testing a hire before you post the job. Checking payroll against sales? See <a href="labor-cost-percentage-by-day.html">labor cost percentage by day</a>. Worried about close-then-open shifts? See <a href="how-to-avoid-clopening.html">what a rest gap costs</a>, or <a href="how-to-reduce-overtime-in-a-schedule.html">how to reduce overtime in a schedule</a>. Scheduling a 14 or 15 year old? See <a href="scheduling-14-and-15-year-olds.html">what the youth hour limits do to a roster</a>, <a href="free-alternative-to-7shifts-when-i-work-homebase.html">a free alternative to paid scheduling apps for the rota</a>. Need a blank grid to print? See the <a href="employee-schedule-template.html">free weekly employee schedule template</a>. Closes and weekends landing on the same people? See <a href="how-to-rotate-closing-and-weekend-shifts-fairly.html">how to rotate them fairly</a>. Someone just called out? See <a href="how-to-cover-a-shift-when-someone-calls-out.html">patch it or rebuild the week</a>. Weekend requests piling up? See <a href="how-to-handle-time-off-requests.html">how many you can grant</a>, <a href="schedule-change-after-posting.html">changing a posted schedule</a>. Shifts staying open? See <a href="whose-availability-is-worth-widening.html">whose availability is worth asking to widen</a>.</p>
   </header>
 <main>
 
-  <section class="card">
+  <section class="card" id="start">
     <h2>Your people</h2>
     <label for="staff">One person per line: name, hourly wage, max hours a week, min hours a week, availability</label>
     <textarea id="staff" spellcheck="false" placeholder="Ana, 18, 40, 30, Mon-Sat 6-22&#10;Ben, 16, 32, 20, Mon-Fri 6-22; Sat 8-16&#10;Cleo, 15, 24, 12, any"></textarea>
@@ -96,12 +101,15 @@
       <div><label for="dotafter">Daily overtime after (hours, 0 = off)</label><input id="dotafter" inputmode="decimal" value="0"></div>
       <div><label for="mealafter">Unpaid meal break on shifts over (hours, 0 = off)</label><input id="mealafter" inputmode="decimal" value="0"></div>
       <div><label for="minday">Flag days shorter than (hours, 0 = off)</label><input id="minday" inputmode="decimal" value="0"></div>
+      <div><label for="minwage">Local minimum wage, to price split-shift premiums ($, 0 = off)</label><input id="minwage" inputmode="decimal" value="0"></div>
       <div><label for="splitprem">Split-shift premium per split day ($, 0 = off)</label><input id="splitprem" inputmode="decimal" value="0"></div>
       <div><label for="diffwhen">Pay differential hours (e.g. Sat-Sun; Mon-Fri 22-24)</label><input id="diffwhen" value=""></div>
       <div><label for="diffhour">Differential, extra $ per hour</label><input id="diffhour" inputmode="decimal" value="0"></div>
       <div><label for="diffpct">Differential, extra % of wage</label><input id="diffpct" inputmode="decimal" value="0"></div>
       <div><label for="splitgap">A split shift has a gap over (hours)</label><input id="splitgap" inputmode="decimal" value="1"></div>
       <div><label for="mealmin">Unpaid break length (minutes)</label><input id="mealmin" inputmode="decimal" value="30"></div>
+      <div><label for="restevery">Paid rest break for every (hours worked straight, 0 = off)</label><input id="restevery" inputmode="decimal" value="0"></div>
+      <div><label for="restmin">Paid rest break length (minutes)</label><input id="restmin" inputmode="decimal" value="10"></div>
       <div><label for="ddtafter">Double time after (hours a day, 0 = off)</label><input id="ddtafter" inputmode="decimal" value="0"></div>
       <div><label for="burden">Payroll taxes and extras (%)</label><input id="burden" inputmode="decimal" value="0"></div>
       <div><label for="minshift">Warn about shifts shorter than (hours, optional)</label><input id="minshift" inputmode="decimal" placeholder="e.g. 4"></div>
@@ -213,7 +221,7 @@
   <section class="card">
     <h2>How it is calculated</h2>
     <p><strong>Hard rules</strong> (never broken): a person is only given a shift that falls inside one of their availability windows for the whole shift; shifts for one person never overlap and leave at least your rest gap between them; weekly hours stay at or under their maximum; days in a row stay at or under your limit. <strong>Objective:</strong> first cover as many shift-hours as possible, then minimise real payroll (wage × (1 + extras), overtime hours above your threshold at the multiplier), plus a small penalty for each hour a person is under their minimum and a quadratic penalty for hours drifting from a fair share (the balance slider). <strong>Search:</strong> a greedy build that fills the most constrained shifts first, then seeded simulated annealing with reassign and swap moves over several restarts; a fixed seed makes it repeatable. On small problems the tests compare it with an exhaustive search of every roster and it finds the same optimum; on large ones it is a strong heuristic, not a proof.</p>
-    <p><strong>Not modelled:</strong> predictive-scheduling and fair-workweek rules as built-in law (the page flags a short-notice week and a changes report prices a premium you enter), paid rest breaks (unpaid meal breaks are deducted and suggested break times are shown, but breaks are not a hard rule), minor-labor limits beyond a per-person <code>daily:</code> cap, union rules, seniority, time off requests across weeks (a running <code>tough: 3</code> cell, filled in by &ldquo;carry over last week&rdquo;, remembers who closed or worked weekends lately so the next week spreads them fairly when the spread setting is above 0; one week's time off works: add <code>off: Wed; Fri 5pm-close</code> to a person; a soft wish works too: <code>prefer: Sat</code> gives that person those hours when it costs nothing; <code>avoid: Sat; Fri 5pm-close</code> keeps those hours free unless the roster would otherwise leave a shift open or cost more). The rest rule does carry over from last week if you add <code>prev: Sun 10pm</code> to a person (when their last shift ended). Roles work: <code>role: keyholder x1</code> on a shift needing 3 people asks for one keyholder among them. <strong>Unverified:</strong> checked against exhaustive search and invented data in unit tests, not against a real operator's payroll or a scheduling law.</p>
+    <p><strong>Not modelled:</strong> predictive-scheduling and fair-workweek rules as built-in law (the page flags a short-notice week and a changes report prices a premium you enter), breaks as a hard rule (unpaid meal breaks are deducted, and suggested meal and paid rest break times are shown from the numbers you enter), minor-labor limits beyond a per-person <code>daily:</code> cap, union rules, seniority, time off requests across weeks (a running <code>tough: 3</code> cell, filled in by &ldquo;carry over last week&rdquo;, remembers who closed or worked weekends lately so the next week spreads them fairly when the spread setting is above 0; one week's time off works: add <code>off: Wed; Fri 5pm-close</code> to a person; a soft wish works too: <code>prefer: Sat</code> gives that person those hours when it costs nothing; <code>avoid: Sat; Fri 5pm-close</code> keeps those hours free unless the roster would otherwise leave a shift open or cost more). The rest rule does carry over from last week if you add <code>prev: Sun 10pm</code> to a person (when their last shift ended). Roles work: <code>role: keyholder x1</code> on a shift needing 3 people asks for one keyholder among them. <strong>Unverified:</strong> checked against exhaustive search and invented data in unit tests, not against a real operator's payroll or a scheduling law.</p>
   </section>
 
   <section class="card">
@@ -244,14 +252,15 @@
     <p>Next step: the <a href="../time-off-request-planner/">time-off request planner</a> decides which vacation requests fit your minimum cover.</p>
     <p>Once the roster is posted: the <a href="../fair-workweek-schedule-checker/">fair workweek schedule checker</a> prices the premium pay that late changes and short rests trigger under predictive scheduling laws.</p>
     <p>Then check the hours as worked: the <a href="../ca-meal-rest-break-premium-checker/">California meal and rest break premium checker</a> audits timecards for late, short and missed meal periods.</p>
-    <p>Related tools: the <a href="../shift-cover-optimizer/">shift-cover optimizer</a> (how many people each hour needs, and the cheapest shift lengths), the <a href="../restaurant-labor-cost-daypart-analyzer/">restaurant labor cost daypart analyzer</a> and the <a href="../tip-pool-compliance-calculator/">tip pool compliance calculator</a>.</p>
+    <p>Related tools: the <a href="../shift-cover-optimizer/">shift-cover optimizer</a> (how many people each hour needs, and the cheapest shift lengths; it now reads a POS or booking export of timestamped orders), the <a href="../restaurant-labor-cost-daypart-analyzer/">restaurant labor cost daypart analyzer</a> and the <a href="../tip-pool-compliance-calculator/">tip pool compliance calculator</a>.</p>
     <p>Running a fixed rotation instead of a weekly rota? The <a href="../shift-rotation-schedule-generator/">shift rotation schedule generator</a> builds Pitman, DuPont, 4-on-4-off and 24/48 calendars with an .ics export.</p>
     <p>After the roster is set, <a href="../meeting-action-items/">meeting action items</a> turns the staff-meeting notes into who-does-what-by-when and a follow-up message.</p>
     <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  <p class="more-pages">Also: <a href="availability.html">Send Your Work Availability To Your Manager</a></p>
   </footer>
 
   <script type="module">
-    import { planWeeks, planFairness, parseAvailability, placeBreaks, scheduleChanges, carryOverStaff, scheduleFlags, unsupervisedStretches, loneStretches, shortShifts, seventhDayPay, parseStaff, parseShifts, buildRoster, optimalityText, laborPercent, budgetCheck, dailyLabor, salesPerLaborHour, coverageGrid, fairnessReport, hoursThresholds, tipPool, trimOptions, coverOptions, absencePlan, swapOptions, checkTrade, rosterCsv, hoursCsv, rosterIcs, rosterMessages, openShiftPost, mergeAvailabilityReplies, sampleStaff, sampleShifts, TEMPLATES, fmtClock, money, money2, num, DAYS } from "./calc.mjs";
+    import { planWeeks, planFairness, parseAvailability, placeBreaks, placeRestBreaks, scheduleChanges, carryOverStaff, scheduleFlags, unsupervisedStretches, loneStretches, shortShifts, seventhDayPay, parseStaff, parseShifts, buildRoster, optimalityText, laborPercent, budgetCheck, dailyLabor, salesPerLaborHour, coverageGrid, fairnessReport, hoursThresholds, tipPool, trimOptions, coverOptions, absencePlan, swapOptions, checkTrade, rosterCsv, hoursCsv, rosterIcs, splitShiftPay, rosterMessages, openShiftPost, mergeAvailabilityReplies, sampleStaff, sampleShifts, TEMPLATES, fmtClock, money, money2, num, DAYS } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -351,6 +360,7 @@
       const flagMsgs = [
         ...sf.overDaily.map((x) => `${x.person} works ${num(x.hours)} hours on ${x.day}, ${num(x.overBy)} over 8 in a day. Some states pay daily overtime; check yours.`),
         ...sf.splits.map((x) => `${x.person} has a split shift on ${x.day} with a ${num(x.gapHours)}-hour gap. Some places owe split-shift pay.`),
+        ...(val("minwage", 0) > 0 ? (() => { const sp = splitShiftPay(r, { minWage: val("minwage", 0), burdenPct: r.options.burdenPct }); return sp.rows.length ? [`Split-shift or spread-of-hours premium, for scale: one extra hour at ${money2(val("minwage", 0))} on ${sp.rows.length} person-day${sp.rows.length > 1 ? "s" : ""} (${sp.rows.map((x) => x.person + " " + x.day).join(", ")}) adds about ${money(sp.total)}. Rules differ by place (gap length, who is exempt, wage credit); check yours. The search does not price it.`] : []; })() : []),
         ...sf.shortDays.map((x) => `${x.person} is scheduled only ${num(x.hours)} hours on ${x.day}, under your ${num(val("minday", 0))}-hour minimum. Short days cost people a commute for little pay, and some cities owe reporting-time pay; merge it into a longer shift or give it to someone already in.`),
         ...sf.longStretches.map((x) => `${x.person} works ${num(x.hours)} hours straight on ${x.day} (${fmtClock(x.startMin)}–${fmtClock(x.endMin)}). Many places require an unpaid or paid meal break after about 5 hours; a suggested break time is in the last notice below.`),
         ...sf.sevenDays.map((x) => { const e = seventhDayPay(r, { burdenPct: r.options.burdenPct }).rows.find((y) => y.person === x.person); return `${x.person} works all seven days. Some states (California, for one) owe a premium for the seventh consecutive day in a workweek; the search does not price it.` + (e ? ` For scale: if the premium were 1.5x for the first 8 hours and 2x after, Sunday would add about ${money(e.extra)} for ${x.person} (assumes the workweek starts Monday; check your state's rule).` : ""); }),
@@ -361,6 +371,8 @@
       ];
       const brk = placeBreaks(r);
       if (brk.length) flagMsgs.push("Suggested meal breaks (30 min, before the 5th hour, staggered so others stay on): " + brk.map((x) => `${x.person} ${x.dayName} ${fmtClock(x.startMin)}${x.alone ? " (nobody else on)" : ""}`).join("; ") + ".");
+      const rb = placeRestBreaks(r, { restEvery: val("restevery", 0), restMin: val("restmin", 10), mealAfter: val("mealafter", 0) > 0 ? val("mealafter", 0) : 5, mealMin: val("mealmin", 30) });
+      if (rb.length) flagMsgs.push(`Suggested paid rest breaks (${num(val("restmin", 10))} min, one per ${num(val("restevery", 0))} hours worked straight, staggered so others stay on): ` + rb.map((x) => `${x.person} ${x.dayName} ${fmtClock(x.startMin)}${x.alone ? " (nobody else on)" : ""}`).join("; ") + ".");
       if (r.optimality) flagMsgs.unshift(optimalityText(r.optimality));
       $("#notices").innerHTML = r.warnings.concat(st.notes, flagMsgs).map((w) => `<div class="warn">${esc(w)}</div>`).join("");
       const big = [
@@ -499,7 +511,7 @@
     });
 
     // Remember the team on this device only; nothing is sent anywhere.
-    const FIELDS = ["staff", "shifts", "rest", "consec", "otafter", "otmult", "dotafter", "ddtafter", "mealafter", "mealmin", "splitprem", "splitgap", "diffwhen", "diffhour", "diffpct", "burden", "balance", "tough", "sales", "dailysales", "splh", "labortarget", "budget", "loneafter", "minshift", "hoursline", "tippot"];
+    const FIELDS = ["staff", "shifts", "rest", "consec", "otafter", "otmult", "dotafter", "ddtafter", "mealafter", "mealmin", "restevery", "restmin", "splitprem", "splitgap", "diffwhen", "diffhour", "diffpct", "burden", "balance", "tough", "sales", "dailysales", "splh", "labortarget", "budget", "loneafter", "minshift", "hoursline", "tippot"];
     const KEY = "shift-roster-builder:setup:v1";
     const snapshot = () => Object.fromEntries(FIELDS.map((f) => [f, $("#" + f).value]));
     const apply = (o) => { for (const f of FIELDS) if (o && typeof o[f] === "string") $("#" + f).value = o[f]; };
@@ -587,5 +599,6 @@
     if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
   </script>
 <div id="wall" aria-hidden="true"></div>
+<script>document.getElementById("cta-example").addEventListener("click",function(){var b=document.getElementById("load-example");if(b)b.click();});</script>
 </body>
 </html>

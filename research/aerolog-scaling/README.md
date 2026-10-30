@@ -109,4 +109,12 @@ only as a topic; no affiliation is implied. Written with AI assistance (Claude C
 
 ## Next
 
+**Milestone 9d** (`experiments/adjustable_tail`): a tail whose area is adjustable by about 0.85 to 1.3 times nominal recovers the three longitudinal modes within 5% for 76 of the 78 mode-matched designs at every tail-slope scale 0.75 to 1.0 (fixed tails recover none, 8e). Gust metrics with the adjustable tail are open.
+
+**Milestone 9e** (`experiments/adjustable_gust`): with the tail area set from the modes alone, 67 of the 78 designs keep every gust peak (H = 5, 12.5, 25 chords) within 10% at every slope scale 0.75 to 1.0, and 43 within 5% (median worst gust error 4.7% at scale 0.75, against 21.5% for a fixed tail and none within 10% in 9c). Assumes the short-period is identified exactly; identification noise is open.
+
+**Milestone 9g** (`experiments/identification_noise`, frequency-only variant of 9f): with the tail area set from a noisy short-period frequency, a gust match within 10% needs the frequency known to about 2% (51 to 53 of 78 designs at sd 2%, none at 5%); modes within 10% tolerate about 5%. The 9e result assumed exact identification.
+
+**Milestone 9h** (`experiments/doublet_fit`): a least-squares fit of a noisy simulated free response (4 states, 78 designs) gives mode errors small enough for the adjustable tail at 1% sensor noise and about one phugoid period (87% of draws within 10% on gust, 0.3% short-period frequency error), but not with longer records (short-period error 4.5% at 4 periods) or 10% noise (61 to 63%). A naive fit is a floor, not the best estimator.
+
 Open the NASA table and each reference; gust response and a thrust model for H1; XFOIL polars against Selig data (H2, H3; milestone 8c did NACA 0009 against UIUC Vol. 1, see `experiments/uiuc_tail_slope`, and found NeuralFoil's section slope 15 to 28% off at Re 4e4 to 1e5, and milestone 8d did the cambered NACA 2414/2415 at Re 1e5 to 2e5, `experiments/uiuc_naca241x`, finding NeuralFoil's slope 1.22 to 1.67 times measured; symmetric 0012 and 0015 remain, and a tail re-search with the slope cut by 20 to 25%); full-size propeller Reynolds number from a sourced propeller (to close H4); a motor-efficiency model.

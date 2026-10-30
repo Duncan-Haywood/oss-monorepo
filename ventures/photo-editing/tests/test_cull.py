@@ -7,6 +7,7 @@ import unittest
 from pathlib import Path
 
 from shootflow.cli import main
+from shootflow.cull import thumbnail_data_uris
 from shootflow.cull import CullError, cull_folder, read_picks, score_against_picks, write_report, write_sidecars
 from shootflow.frame_analysis import FrameMetrics
 from shootflow.faces import FaceReport
@@ -115,6 +116,41 @@ class CullTests(unittest.TestCase):
         report = json.loads((self.root / "rep" / "cull_report.json").read_text())
         self.assertEqual(report["summary"]["photos"], 2)
         self.assertEqual(report["summary"]["unreadable"], 0)
+
+
+class ThumbnailTests(CullTests):
+    def test_contact_sheet_embeds_thumbnails_and_survives_a_failure(self) -> None:
+        from shootflow.ffmpeg_media import FfmpegMediaError
+
+        result = cull_folder(self.root, analyzer=self.analyzer)
+
+        def maker(path: Path) -> bytes:
+            if path.name == "c1.jpg":
+                raise FfmpegMediaError("no")
+            return b"\xff\xd8jpeg"
+
+        uris = thumbnail_data_uris(result, maker=maker)
+        self.assertNotIn("c1.jpg", uris)
+        self.assertTrue(uris["a2.jpg"].startswith("data:image/jpeg;base64,"))
+        _, html_path = write_report(result, self.root / "out", thumbs=uris)
+        page = html_path.read_text(encoding="utf-8")
+        self.assertIn('<figure class="keeper">', page)
+        self.assertIn("(no preview)", page)
+        self.assertIn("Contact sheet", page)
+
+    @unittest.skipUnless(shutil.which("ffmpeg"), "ffmpeg not installed")
+    def test_real_ffmpeg_thumbnail(self) -> None:
+        src = self.root / "real.jpg"
+        subprocess.run(
+            ["ffmpeg", "-v", "error", "-f", "lavfi", "-i", "testsrc=size=640x480", "-frames:v", "1", str(src)],
+            check=True,
+        )
+        from shootflow.cull import make_thumbnail
+        from shootflow.ffmpeg_media import find_ffmpeg_tools
+
+        data = make_thumbnail(find_ffmpeg_tools(), src)
+        self.assertEqual(data[:2], b"\xff\xd8")
+        self.assertLess(len(data), 40000)
 
 
 if __name__ == "__main__":

@@ -69,6 +69,13 @@ await page.waitForFunction(() => document.querySelector("#fastenersOut")?.textCo
 const nailTxt = await page.textContent("#fastenersOut");
 const nailOk = /Sheathing nails/.test(nailTxt) && !/NaN|undefined/.test(nailTxt) && (await page.textContent("#budgetOut")).includes("Framing nails");
 console.log(nailOk ? "ok: nails by connection with sheathing, box count and budget line" : "FAIL: nails card\n" + nailTxt.slice(0, 400));
+// Piers: a typed group reaches the foundation card with its name, concrete and rebar.
+await page.check("#fnOn");
+await page.fill("#fnPiers", "6, 24, 12, 8, 30, 4, 4, deck posts");
+await page.waitForFunction(() => document.querySelector("#foundationOut")?.textContent.includes("deck posts (6 pads and columns)"));
+const pierTxt = await page.textContent("#foundationOut");
+console.log(/pad mat/.test(pierTxt) && !/NaN|undefined/.test(pierTxt) ? "ok: foundation piers from the page box" : "FAIL: pier box\n" + pierTxt.slice(0, 400));
+await page.fill("#fnPiers", ""); await page.uncheck("#fnOn");
 await page.uncheck("#sheath");
 await page.waitForFunction(() => document.querySelector("#fastenersOut")?.textContent.includes("add --sheathing"));
 await page.check("#sheath");

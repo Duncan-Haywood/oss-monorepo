@@ -5,19 +5,22 @@
 //   { start: "2026-03-02", activities: [{ id, name, days, after: [ids], crew?, lag? }],
 //     crews: { framing: 1 }, slips: [{ id, days }] }
 // `lag` is working days of waiting after predecessors finish (cure time, an
-// inspection booking). Weekends are skipped (Mon-Fri working days); holidays are
-// not modelled. Crew levelling is a serial greedy pass (earliest start, ties by
+// inspection booking). Weekends are skipped (Mon-Fri working days); `holidays` is
+// an optional list of YYYY-MM-DD dates (yours; none are shipped) that are skipped
+// too, as are `weatherDays` (dates the crew will not work, same format). Weather
+// itself is not forecast. Crew levelling is a serial greedy pass (earliest start, ties by
 // least slack); it is a heuristic, not an optimal resource schedule.
 
 /** @typedef {{ id: string, name?: string, days: number, after?: string[], crew?: string, lag?: number }} Activity */
 
-const isWork = (/** @type {Date} */ d) => d.getUTCDay() !== 0 && d.getUTCDay() !== 6;
+/** @param {Set<string>} off dates that are not worked besides weekends */
+const isWork = (/** @type {Date} */ d, off = new Set()) => d.getUTCDay() !== 0 && d.getUTCDay() !== 6 && !off.has(d.toISOString().slice(0, 10));
 /** Date of working day index n (0 = start, rolled forward to a working day). */
-function dateOf(/** @type {Date} */ start, /** @type {number} */ n) {
+function dateOf(/** @type {Date} */ start, /** @type {number} */ n, /** @type {Set<string>} */ off = new Set()) {
   const d = new Date(start);
-  while (!isWork(d)) d.setUTCDate(d.getUTCDate() + 1);
+  while (!isWork(d, off)) d.setUTCDate(d.getUTCDate() + 1);
   let left = n;
-  while (left > 0) { d.setUTCDate(d.getUTCDate() + 1); if (isWork(d)) left--; }
+  while (left > 0) { d.setUTCDate(d.getUTCDate() + 1); if (isWork(d, off)) left--; }
   return d.toISOString().slice(0, 10);
 }
 
@@ -112,7 +115,11 @@ export function schedule(input) {
   if (base.errors.length) return { ok: false, errors: base.errors };
   const start = new Date((input.start || "2026-01-05") + "T00:00:00Z");
   if (isNaN(start.getTime())) return { ok: false, errors: [`start "${input.start}" is not a date (YYYY-MM-DD).`] };
-  const date = (/** @type {number} */ n) => dateOf(start, n);
+  const offList = [...(input.holidays || []), ...(input.weatherDays || [])];
+  const badOff = offList.filter((/** @type {string} */ h) => isNaN(new Date(h + "T00:00:00Z").getTime()));
+  if (badOff.length) return { ok: false, errors: [`holidays and weatherDays must be YYYY-MM-DD dates; not: ${badOff.join(", ")}.`] };
+  const off = new Set(offList.map((/** @type {string} */ h) => new Date(h + "T00:00:00Z").toISOString().slice(0, 10)));
+  const date = (/** @type {number} */ n) => dateOf(start, n, off);
   const lv = level(acts, crews, base.rows);
   const rows = base.rows.map((r) => ({ ...r, leveledStart: lv.start.get(r.id), leveledFinish: lv.finish.get(r.id), startDate: date(lv.start.get(r.id)), finishDate: r.days ? date(lv.finish.get(r.id) - 1) : date(lv.start.get(r.id)) }));
   // What a slip does: re-run with the extra days added and compare the finish.
@@ -139,7 +146,7 @@ export function scheduleText(s) {
   for (const r of s.rows.slice().sort((/** @type {any} */ a, /** @type {any} */ b) => a.leveledStart - b.leveledStart)) out.push(`  ${r.critical ? "*" : " "} ${r.id.padEnd(12)} ${String(r.days).padStart(3)}d  ${r.startDate} to ${r.finishDate}  slack ${r.slack}${r.crew ? `  [${r.crew}]` : ""}  ${r.name}`);
   for (const sl of s.slips) out.push(sl.error ? `  Slip ${sl.id}: ${sl.error}` : `  A ${sl.days}-day slip on ${sl.id} moves the finish ${sl.finishShift} day(s) (${sl.leveledFinishShift} with crews), to ${sl.newFinishDate}.`);
   for (const w of s.warnings) out.push(`  note: ${w}`);
-  out.push("  * = critical. Durations, order and crews are your inputs; weekends skipped, holidays and weather not modelled.");
+  out.push("  * = critical. Durations, order and crews are your inputs; weekends and any holidays or weather days you list are skipped; weather is not forecast.");
   return out;
 }
 

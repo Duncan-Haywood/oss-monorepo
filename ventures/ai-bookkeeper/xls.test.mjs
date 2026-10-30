@@ -92,3 +92,20 @@ test("an unknown BIFF version is still refused", () => {
   const b = biff5Workbook(); b[512 * 3 + 4] = 0x02; // BOF version 0x0200 (BIFF2-style)
   assert.throws(() => xlsToCsv(b), /BIFF5 and BIFF8/);
 });
+
+// Found by mutating the binary fixtures (2026-10-29): a directory entry whose name length was wild
+// (or a header whose sector size was) made the reader build strings for seconds and allocate hundreds
+// of megabytes before failing. Both now stop at once with a plain Error.
+test("a damaged compound-file header or directory name length fails fast", () => {
+  const fx = new Uint8Array(readFileSync(new URL("./fixtures/generic-statement.xls", import.meta.url)));
+  const dv = (b) => new DataView(b.buffer);
+  const wildNames = fx.slice();
+  const dirAt = (dv(fx).getUint32(48, true) + 1) * 512;
+  for (let o = dirAt; o + 128 <= fx.length && o < dirAt + 512; o += 128) dv(wildNames).setUint16(o + 64, 0xffff, true);
+  const wildSector = fx.slice(); dv(wildSector).setUint16(30, 31, true);
+  for (const bad of [wildNames, wildSector]) {
+    const t0 = Date.now();
+    assert.throws(() => xlsToCsv(bad), (e) => e.constructor === Error);
+    assert.ok(Date.now() - t0 < 500);
+  }
+});

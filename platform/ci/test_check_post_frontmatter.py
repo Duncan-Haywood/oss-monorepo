@@ -33,6 +33,11 @@ class T(unittest.TestCase):
         t = GOOD.replace('"d"', '"' + "x" * 160 + '"')
         self.assertEqual(problems("2026-10-24-x.md", t), [])
 
+    def test_long_seo_title(self):
+        t = GOOD.replace('title: "T"\n', 'title: "T"\nseo_title: "' + "x" * 71 + '"\n')
+        self.assertEqual(problems("2026-10-24-x.md", t), ["seo_title is 71 characters; keep it to 70"])
+        self.assertEqual(problems("2026-10-24-x.md", t.replace("x" * 71, "x" * 70)), [])
+
     def test_future_date(self):
         t = GOOD.replace("2026-10-24", "2026-10-27")
         today = datetime.date(2026, 10, 25)

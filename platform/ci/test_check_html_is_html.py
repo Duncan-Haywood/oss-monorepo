@@ -28,6 +28,20 @@ class HtmlIsHtml(unittest.TestCase):
             self.assertNotIn("ok.html", out.getvalue())
             self.assertNotIn("node_modules", out.getvalue())
 
+    def test_default_root_is_the_ventures_tree(self):
+        # A wrong default (e.g. one directory too high) scans nothing and passes.
+        self.assertTrue((ROOT / "ventures").is_dir())
+        self.assertTrue((ROOT / "platform" / "ci").is_dir())
+        seen = []
+        import check_html_is_html as m
+        orig = m.bad_files
+        m.bad_files = lambda root: seen.append(Path(root)) or iter(())
+        try:
+            self.assertEqual(main([]), 0)
+        finally:
+            m.bad_files = orig
+        self.assertEqual(seen, [ROOT / "ventures"])
+
     def test_repo_is_clean(self):
         with contextlib.redirect_stdout(io.StringIO()):
             self.assertEqual(main(["--root", str(ROOT / "ventures")]), 0)

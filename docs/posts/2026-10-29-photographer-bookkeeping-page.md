@@ -1,7 +1,7 @@
 ---
 title: "A bookkeeping page for photographers, and the five payees it had to learn"
 date: 2026-10-29
-description: "ai-bookkeeper gets a worked October for a wedding photographer. Writing it exposed gaps: ShootProof-style software, PPA dues, a second shooter, WHCC and Lightroom went unfiled."
+description: "A worked October in ai-bookkeeper for a wedding photographer exposed gaps: gallery software, PPA dues, a second shooter, WHCC and Lightroom went unfiled."
 tags: [ai-bookkeeper, small-business, bookkeeping]
 ---
 

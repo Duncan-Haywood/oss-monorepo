@@ -152,6 +152,16 @@ return for row 2 onward); no calendar dates are carried.
   later). Only a derived column of returns is kept here: check the licence before reusing it elsewhere.
 - **Used by:** `dax-returns.test.mjs`.
 
+# Example data: SMI, CAC and FTSE daily log returns, 1991-1998
+
+`smi-returns.csv`, `cac-returns.csv`, `ftse-returns.csv`: `100 * ln(X_t / X_t-1)` for the other three indices in R's
+`EuStockMarkets`, same rows as `dax-returns.csv` (row 2 onward; no calendar dates).
+
+- **Retrieved:** 2026-10-29 from
+  <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/datasets/EuStockMarkets.csv>.
+- **Licence:** as for the DAX file above (base R, GPL-2 or later; only derived returns are kept; check before reusing).
+- **Used by:** `eu-markets.test.mjs`, `eval/eu-markets.mjs`.
+
 # Example data: great inventions and discoveries, 1860-1959
 
 `great-discoveries.csv`: yearly counts (100 years, 310 events) of "great" inventions and scientific discoveries
@@ -171,3 +181,116 @@ from The World Almanac and Book of Facts, as in R's `datasets::discoveries`.
   (time 1960.25 steps rewritten as `1960Q2` labels).
 - **Licence:** R's `datasets` package is GPL-2 or later as a package; the 84 numbers are company-reported facts. Not checked further.
 - **Used by:** `johnson-johnson.test.mjs`.
+
+# Example data: short-term visitor arrivals to Australia from the US and Japan, 1981Q1-2012Q3
+
+`au-arrivals-us.csv`, `au-arrivals-japan.csv`: quarterly arrivals in thousands, 127 quarters (the `US` and `Japan` columns of `fpp2::arrivals`).
+
+- **Retrieved:** 2026-10-29 from
+  <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/fpp2/arrivals.csv> (row numbers rewritten as `1981Q1` labels).
+- **Licence:** the fpp2 package is GPL-3; the series are published counts. Not checked further.
+- **Used by:** `drift-warning-arrivals.test.mjs`, `eval/drift-warning-arrivals.mjs`.
+
+# Example data: UK lung deaths 1974-79 and US accidental deaths 1973-78
+
+`uk-ldeaths.csv`, `uk-mdeaths.csv`, `uk-fdeaths.csv`: monthly UK deaths from
+bronchitis, emphysema and asthma, all / male / female, 72 months from 1974-01.
+`us-accidental-deaths.csv`: monthly US accidental deaths, 72 months from 1973-01.
+R's `datasets::ldeaths`, `mdeaths`, `fdeaths` and `USAccDeaths`.
+
+- **Retrieved:** 2026-10-29 from the Rdatasets mirror,
+  <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/datasets/>
+  (`ldeaths.csv`, `mdeaths.csv`, `fdeaths.csv`, `USAccDeaths.csv`).
+- **Licence:** R's datasets package is GPL-2/3; the figures are national
+  statistics counts (Diggle 1990; Brockwell and Davis 1991). Used here as
+  test data only.
+- **Used by:** `eval/drift-warning-trendless.mjs`.
+
+# Example data: Ansett Melbourne-Sydney economy-class passengers, 1987-1992
+
+`ansett-melsyd-economy.csv`: weekly economy-class passengers (thousands) on
+Ansett's Melbourne-Sydney route, 283 weeks from 1987-06-29 (week start dates
+computed from the series' start). R's `fpp2::melsyd`, column `Economy.Class`.
+The airline's pilots' dispute from 18 August 1989 is in the data as seven zero
+weeks.
+
+- **Retrieved:** 2026-10-29 from the Rdatasets mirror,
+  <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/fpp2/melsyd.csv>.
+- **Licence:** the fpp2 package is GPL-3 (Hyndman); the figures are airline
+  traffic counts. Used here as test data only.
+- **Used by:** `eval/ansett-strike.mjs`, `ansett-strike.test.mjs`.
+
+# Example data: Puerto Rico daily deaths, 2015-2018 (Hurricane Maria)
+
+`puerto-rico-daily-deaths.csv`: all-cause deaths per day in Puerto Rico, 1,201
+days from 2015-01-01 to 2018-04-15 (R's `dslabs::pr_death_counts`). Hurricane
+Maria made landfall on 2017-09-20.
+
+- **Retrieved:** 2026-10-29 from the Rdatasets mirror,
+  <https://vincentarelbundock.github.io/Rdatasets/csv/dslabs/pr_death_counts.csv>
+  (columns `date`, `deaths`; the row-number column is dropped).
+- **Licence:** the dslabs package is GPL-2 (Irizarry); the figures are
+  government vital-statistics death counts. Used here as test data only.
+- **Used by:** `eval/maria-deaths.mjs`, `maria-deaths.test.mjs`.
+
+# Example data: euro-area electrical-equipment orders, 1996-2012
+
+`eu-elecequip.csv`: monthly index of new orders of electrical equipment in the
+euro area (2005 = 100), 195 months from 1996-01 to 2012-03 (R's
+`fpp2::elecequip`; the row-number and decimal-year columns are replaced by a
+`YYYY-MM` label). The late-2008 collapse and the 2009-10 recovery are the dated
+shock.
+
+- **Retrieved:** 2026-10-29 from the Rdatasets mirror,
+  <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/fpp2/elecequip.csv>.
+- **Licence:** the fpp2 package is GPL-3 (Hyndman); the figures are Eurostat
+  order indices. Used here as test data only.
+- **Used by:** `eval/drift-warning-elecequip.mjs`, `drift-warning-elecequip.test.mjs`.
+
+# Example data: US airline passenger miles, 1937-1960
+
+`airmiles.csv`: revenue passenger miles flown by US commercial airlines each
+year, 24 values (R's `datasets::airmiles`; columns renamed `year`, `miles`).
+Growth is steady until the war ends, then the civil boom starts.
+
+- **Retrieved:** 2026-10-29 from the Rdatasets mirror,
+  <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/datasets/airmiles.csv>.
+- **Licence:** R datasets (GPL-2 or later with R); the figures are Civil
+  Aeronautics Board statistics. Used here as test data only.
+- **Used by:** `eval/airmiles.mjs`, `airmiles.test.mjs`.
+
+# Example data: WWWusage and nhtemp (R datasets)
+
+`www-usage.csv`: users logged on to an internet server each minute, 100 minutes
+(R's `datasets::WWWusage`, columns renamed `time`, `users`). `nhtemp.csv`: mean
+annual temperature at New Haven, Connecticut, 1912-1971, degrees F
+(`datasets::nhtemp`, columns `year`, `temp`).
+
+- **Retrieved:** 2026-10-29 from the Rdatasets mirror,
+  <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/datasets/>
+  `WWWusage.csv` and `nhtemp.csv`.
+- **Licence:** R datasets (GPL-2 or later with R). Test data only.
+- **Used by:** `wwwusage-nhtemp.test.mjs`.
+
+# Example data: Ansett Melbourne-Sydney first-class passengers, 1987-1992
+
+`ansett-melsyd-first.csv`: weekly first-class passengers (thousands) on the
+same route, 270 weeks from 1988-03-28. R's `fpp2::melsyd`, column
+`First.Class`. The first 13 weeks are dropped because week 13 of the source is
+blank (not filled in). The dispute is in the data as seven zero weeks.
+
+- **Retrieved:** 2026-10-29 from the same Rdatasets mirror as
+  `ansett-melsyd-economy.csv`.
+- **Licence:** fpp2 is GPL-3 (Hyndman); airline traffic counts, test data only.
+- **Used by:** `eval/ansett-first.mjs`, `ansett-first.test.mjs`.
+
+---
+
+# Example data: all Ansett route and class series
+
+`ansett-all.csv`: weekly passengers for 10 Ansett routes in economy, business and first class (7,407 rows, 30 series;
+economy and first from 1987 W26, business from 1989 W28 to 1992 W47). Columns: rownames, Week (ISO year and week),
+Airports, Class, Passengers. R's `tsibbledata::ansett` via the Rdatasets CSV mirror
+(`vincentarelbundock/Rdatasets`, `csv/tsibbledata/ansett.csv`). Open data; fetched 2026-10-29.
+
+- **Used by:** `eval/ansett-sweep.mjs`, `ansett-sweep.test.mjs`.

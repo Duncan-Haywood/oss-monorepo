@@ -1,0 +1,30 @@
+parts (USD):
+    147.42  gear pump 28 cc (Hydraulic Megastore UK, GBP 113.40 ex VAT; x1.30 USD/GBP assumed)
+   1707.99  load-sensing piston pump 28 cc (Kawasaki K3VL28, OneHydraulics sale)
+    342.99  open-centre 3-section monoblock valve (Youli MB-3, OneHydraulics sale)
+pump premium 1561 USD; valve premium = (m-1) x 343 for LS valve at m x the monoblock price
+
+mean shaft power, kW (open-centre, load-sensing), LF 0.346, q_sb 2 L/min; saving; fuel L per working hour
+  p_n    8 bar: OC 2.33, LS 2.31, saving +0.02 kW = +0.005 L/h
+  p_n   20 bar: OC 2.73, LS 2.31, saving +0.43 kW = +0.127 L/h
+  p_n   40 bar: OC 3.41, LS 2.31, saving +1.10 kW = +0.329 L/h
+
+payback hours = premium / (saving kW x 0.298 L/kWh x $/L); 'never' if saving <= 0; H5 limit 2,000 h
+
+diesel $3.00/gal ($0.79/L)
+  LS valve 1x monoblock (premium $1,561): p_n 8: 378,920 h | 20:  15,559 h | 40:   5,988 h
+  LS valve 2x monoblock (premium $1,904): p_n 8: 462,201 h | 20:  18,979 h | 40:   7,305 h
+  LS valve 3x monoblock (premium $2,247): p_n 8: 545,482 h | 20:  22,398 h | 40:   8,621 h
+  LS valve 5x monoblock (premium $2,933): p_n 8: 712,045 h | 20:  29,238 h | 40:  11,253 h
+
+diesel $6.28/gal ($1.66/L)
+  LS valve 1x monoblock (premium $1,561): p_n 8: 181,013 h | 20:   7,433 h | 40:   2,861 h
+  LS valve 2x monoblock (premium $1,904): p_n 8: 220,797 h | 20:   9,066 h | 40:   3,489 h
+  LS valve 3x monoblock (premium $2,247): p_n 8: 260,581 h | 20:  10,700 h | 40:   4,118 h
+  LS valve 5x monoblock (premium $2,933): p_n 8: 340,149 h | 20:  13,967 h | 40:   5,376 h
+
+diesel $7.00/gal ($1.85/L)
+  LS valve 1x monoblock (premium $1,561): p_n 8: 162,394 h | 20:   6,668 h | 40:   2,566 h
+  LS valve 2x monoblock (premium $1,904): p_n 8: 198,086 h | 20:   8,134 h | 40:   3,131 h
+  LS valve 3x monoblock (premium $2,247): p_n 8: 233,778 h | 20:   9,599 h | 40:   3,695 h
+  LS valve 5x monoblock (premium $2,933): p_n 8: 305,162 h | 20:  12,530 h | 40:   4,823 h

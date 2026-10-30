@@ -1627,3 +1627,59 @@ or `ventures`) until its success rate passes 80% over 20 runs?
 - Decisions: candidates (ventures 2, process 2, review 2) still "keep
   collecting: the intervals overlap"; no audit or drift report (reduced pass).
 - Result: (next review)
+
+## E108: review 2026-10-29 (reduced pass, thirty-fifth run)
+
+- Change: `prompts/redteam/prompt-0.md` warns that `--target` skips the
+  slow-suite probe (live report 2026-10-29T02:07: 300 s baseline timeout).
+- Metric: friction reports naming `prompts/redteam/prompt-0.md` about baseline
+  timeouts; compare the next 40 runs.
+- Decisions: candidates (ventures 2, process 2, review 2) still "keep
+  collecting: the intervals overlap"; no audit or drift report, no derive
+  re-run (reduced pass).
+- Result: (next review)
+
+## E109: review 2026-10-29 (reduced pass, thirty-sixth run)
+
+- Change: `platform/ci/wait_for.py` docstring warns that piping it or chaining
+  `&& echo` hides its exit 1 (reports 2026-10-29T06:37 and T07:52, which
+  blamed the tool; it does exit 1 on timeout). Re-ran `derive.py fetch &&
+  build` (3758 rows).
+- Metric: friction reports naming `wait_for.py` or background waits; compare
+  the next 40 runs.
+- Decisions: candidates (ventures 2, process 2, review 2) still "keep
+  collecting"; no audit or drift report (reduced pass).
+- Result: (next review)
+
+## E110: review 2026-10-29 (reduced pass, thirty-seventh run)
+
+- Change: `prompts/redteam/prompt-0.md` says a stdlib `unittest` target needs no
+  `pyenv.py` either (live report 2026-10-29T11:28). No derive re-run.
+- Metric: friction reports naming `prompts/redteam/prompt-0.md` about
+  `pyenv.py`; compare the next 40 runs.
+- Decisions: candidates (ventures 2, process 2, review 2) still "keep
+  collecting: the intervals overlap"; no audit or drift report (reduced pass).
+- Result: (next review)
+
+## E111: review 2026-10-29 (reduced pass, thirty-eighth run)
+
+- Change: `prompts/review/prompt-1.md` step 1 says `wait_for.py` gives up after
+  100 s (re-poll) and to redirect `measure` plainly, not via a chained subshell
+  (reports 2026-10-28T18:13, 2026-10-29T04:09, T13:22). No derive re-run.
+- Metric: friction reports naming `prompts/review/prompt-1.md` about
+  `measure` or `wait_for` timing; compare the next 40 runs.
+- Decisions: candidates (ventures 2, process 2, review 2) not re-decided here
+  beyond the standing "keep collecting"; no audit or drift report (reduced pass).
+- Result: (next review)
+
+## E112: review 2026-10-30 (reduced pass, thirty-ninth run)
+
+- Change: `.claude/hooks/check_posts_before_push.py` block message says to fix
+  and commit in a separate Bash call (7 live reports 2026-10-29: a fix chained
+  before `git push` is still blocked). Re-ran `derive.py fetch && build`
+  (3884 rows).
+- Metric: friction reports naming `check_posts_before_push.py`; compare the
+  next 40 runs.
+- Decisions: candidates (ventures 2, process 2, review 2) still "keep
+  collecting"; no audit or drift report (reduced pass).
+- Result: (next review)

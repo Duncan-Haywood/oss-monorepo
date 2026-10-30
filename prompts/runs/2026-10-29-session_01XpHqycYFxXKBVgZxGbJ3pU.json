@@ -1,0 +1,60 @@
+{
+  "date": "2026-10-29",
+  "session": "https://claude.ai/code/session_01XpHqycYFxXKBVgZxGbJ3pU",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "I think the ci system we have by default using ci that is runnable locally not just on gha runners. optimizing it. in general.",
+  "input_sha256": "ae8196840538694d93dd7b57963863fef8998efebdf3192a5d7c5f4138b2009d",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-29T04:10:25Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Make the default CI runnable locally and optimise it",
+  "projects": [
+    "platform/ci"
+  ],
+  "pr": 11293,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 10,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/validate_workflows.py",
+      "issue": "Invariant 7's remedy said 'copy a sibling', which grew 802 per-venture copies of one node --test job that ventures-tests.yml already ran; now points at ventures-tests.yml and invariant 8 rejects copies."
+    },
+    {
+      "file": "PRODUCT_PLAYBOOK.md",
+      "issue": "Checklist said validate_workflows.py requires a <slug>-ci.yml for any venture with tests; untrue since ventures-tests.yml (2026-10-16). Rewritten."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "The owner gave a direct CI task, so the run took the process track instead of the routed ventures draw.",
+      "did": "process/1",
+      "result": "PR 11293"
+    }
+  ],
+  "writeups": [
+    "docs/history/ci-local-first-2026-10-29.md",
+    "docs/posts/2026-10-29-one-command-for-ci-and-your-laptop.md"
+  ],
+  "goal": null,
+  "notes": "549 -> 131 workflows (418 node --test-only per-venture copies removed; invariant 8 blocks regrowth). ventures-tests.yml now runs run_venture_tests.py, the same command used locally; run_workflow_locally.py resolves PR base/sha/workspace/runner.temp, so ventures-tests.yml runs 4/4 steps locally (0 before). Full venture sweep 1,315 suites in 12m53s; own-workflow ventures keep *.test.mjs-only to avoid their TS/npm suites. shift-roster-builder already red on main (5 runs). Local verification: see the history doc; run_workflow_locally --for-changes output summarised in the PR.",
+  "corrections": [],
+  "redteam": null
+}

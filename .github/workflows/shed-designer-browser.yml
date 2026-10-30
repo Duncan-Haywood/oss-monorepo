@@ -1,0 +1,64 @@
+name: shed-designer browser tests
+
+# Drives the shed designer in headless Chromium: drags, arrow keys, touch and
+# pinch, typing and undo, share links, an axe accessibility pass on every
+# results tab, and no console errors (`ventures/shed-designer/browser.test.mjs`).
+# `ventures-tests.yml` already runs the venture's `node --test`, where this
+# file skips for want of Playwright; this job is the one that has it.
+#
+# Playwright and axe-core install into the runner's temp directory, outside
+# the checkout, as browser-checks-ci.yml does, so the product stays
+# dependency-free. It publishes nothing, registers nothing and spends no API
+# budget. It runs only on changes to the shed designer.
+
+on:
+  pull_request:
+    paths:
+      - "ventures/shed-designer/**"
+      - ".github/workflows/shed-designer-browser.yml"
+  push:
+    branches: [main]
+    paths:
+      - "ventures/shed-designer/**"
+      - ".github/workflows/shed-designer-browser.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: shed-designer-browser-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  browser-test:
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "22"
+      - name: Install Playwright and axe-core outside the checkout
+        env:
+          # 1.63.0, the version the tests were written against. 1.56.x (the
+          # pin in browser-checks-ci.yml and platform/uitest) cannot install
+          # Chromium on the ubuntu-latest image of 2026-10 (Ubuntu 26.04):
+          # "Playwright does not support chromium on ubuntu26.04-x64".
+          PLAYWRIGHT_VERSION: "1.63.0"
+          AXE_VERSION: "4.13.0"
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/pw" && cd "$RUNNER_TEMP/pw"
+          npm init -y >/dev/null
+          npm install --no-audit --no-fund "playwright@$PLAYWRIGHT_VERSION" "axe-core@$AXE_VERSION"
+          # --with-deps needs root; a self-hosted runner without it falls back.
+          ./node_modules/.bin/playwright install --with-deps chromium || ./node_modules/.bin/playwright install chromium
+      - name: Browser tests
+        working-directory: ventures/shed-designer
+        env:
+          PLAYWRIGHT: ${{ runner.temp }}/pw/node_modules/playwright/index.js
+          AXE: ${{ runner.temp }}/pw/node_modules/axe-core/axe.min.js
+        run: node --test browser.test.mjs picker.browser.test.mjs renders.test.mjs

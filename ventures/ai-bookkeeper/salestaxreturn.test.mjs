@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { newBooks, addDocuments, importStatement, confirm } from "./engine.mjs";
-import { salesTaxReturn, dueDate, stateDueDay, stateEndMonth, stateFilingNote, STATE_DUE_DAYS } from "./salestaxreturn.mjs";
+import { salesTaxDueDates, salesTaxReturn, dueDate, stateDueDay, stateEndMonth, stateFilingNote, STATE_DUE_DAYS } from "./salestaxreturn.mjs";
 
 const csv = [
   "type,number,date,due,party,amount,account,description",
@@ -373,6 +373,7 @@ test("stateDiscounts presets IL, TX and FL under their <ST> state label and noth
   assert.deepEqual(stateDiscounts("il"), { "IL state": { rate: 0.0175, capPerMonth: 100000 } });
   assert.deepEqual(stateDiscounts("TX"), { "TX state": { rate: 0.005 } });
   assert.deepEqual(stateDiscounts("FL"), { "FL state": { rate: 0.025, cap: 3000 } });
+  assert.deepEqual(stateDiscounts("oh"), { "OH state": { rate: 0.0075, capPerMonth: 75000 } });
   assert.deepEqual(stateDiscounts("CA"), {});
   assert.equal(stateDiscounts("ga")["GA state"].tiers.length, 2);
   assert.deepEqual(stateDiscounts(undefined), {});
@@ -385,6 +386,12 @@ test("SC: the 20th for monthly, quarterly and annual returns (dor.sc.gov Due Dat
   assert.equal(dueDate("2026", stateDueDay("SC", "annual")), "2027-01-20");
 });
 
+test("OH quarterly returns are due Apr 23, Jul 23, Oct 23 and Jan 23 (Xero and Stripe guides via search 2026-10-29; earlier note says vendors file monthly or semiannual, so the sources disagree on who is quarterly)", () => {
+  assert.equal(dueDate("2026-Q1", stateDueDay("OH", "quarterly")), "2026-04-23");
+  assert.equal(dueDate("2026-Q2", stateDueDay("OH", "quarterly")), "2026-07-23");
+  assert.equal(dueDate("2026-Q3", stateDueDay("OH", "quarterly")), "2026-10-23");
+  assert.equal(dueDate("2026-Q4", stateDueDay("OH", "quarterly")), "2027-01-23");
+});
 test("OH: the 23rd for monthly and semiannual returns (tax.ohio.gov Due Dates and vendor FAQ, via search 2026-10-28)", () => {
   assert.equal(dueDate("2026-01", stateDueDay("OH", "monthly")), "2026-02-23");
   assert.equal(dueDate("2026-H1", stateDueDay("OH", "semiannual")), "2026-07-23");
@@ -408,7 +415,28 @@ test("GA vendor's compensation: 3% of the first $3,000 of tax, 0.5% of the rest,
   assert.throws(() => salesTaxReturn(mk(100), { discounts: { "GA state": { rate: 0.03, tiers: [{ rate: 2 }] } } }));
 });
 
+test("OH vendor discount: 0.75% of tax, capped at $750 for the month (R.C. 5739.12 as amended for 2026)", async () => {
+  const { salesTaxReturn, stateDiscounts } = await import("./salestaxreturn.mjs");
+  const mk = (cents) => addDocuments(importStatement(newBooks(), "Date,Description,Amount\n2026-03-01,X,1.00\n", "1000").books,
+    `type,number,date,due,party,amount,account,description\ninvoice,1,2026-03-10,,A Co,1000.00,4000,Goods\ninvoice,1,2026-03-10,,A Co,${cents / 100}.00,2100,OH state\n`).books;
+  const run = (cents) => salesTaxReturn(mk(cents), { frequency: "monthly", discounts: stateDiscounts("OH") }).periods[0].rows.find((x) => x.jurisdiction === "OH state");
+  assert.equal(run(1000000).discount, 7500);           // $10,000 x 0.75%
+  assert.equal(run(20000000).discount, 75000);         // $200,000 x 0.75% = $1,500, capped at $750
+});
+
 test("Utah monthly returns are due at the end of the next month (tax.utah.gov due-dates page, read 2026-10-28)", async () => {
   const { stateDueDay } = await import("./salestaxreturn.mjs");
   assert.equal(dueDate("2026-08", stateDueDay("UT", "monthly")), "2026-09-30");
+});
+
+test("a due date that rolls across New Year lands in the later year's calendar (WI monthly, last-day states)", () => {
+  // Nov 2023 is due Sun 2023-12-31, moves past the Jan 1 holiday to Tue 2024-01-02, so 2024 lists 13 returns and 2023 lists 12 (Nov 2022 rolled in from 2022-12-31).
+  const y24 = salesTaxDueDates(2024, { state: "WI", frequency: "monthly" });
+  assert.equal(y24.length, 13);
+  assert.deepEqual(y24[0], { period: "2023-11", due: "2024-01-02" });
+  assert.equal(y24[1].period, "2023-12");
+  assert.equal(salesTaxDueDates(2023, { state: "WI", frequency: "monthly" }).length, 12);
+  // no due date falls on a weekend in any year, any state, any frequency
+  for (const s of Object.keys(STATE_DUE_DAYS)) for (const f of ["monthly", "quarterly", "semiannual", "annual"]) for (const y of [2026, 2027, 2028])
+    for (const e of salesTaxDueDates(y, { state: s, frequency: f })) assert.ok(![0, 6].includes(new Date(`${e.due}T00:00:00Z`).getUTCDay()), `${s} ${f} ${e.due}`);
 });

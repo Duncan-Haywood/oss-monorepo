@@ -142,6 +142,7 @@ test('topics: front matter wins, else the first rule the tags match; a bad topic
   assert.equal(topicOf(['github-pages', 'ai-agents']), 'infrastructure');
   assert.equal(topicOf(['ai-agents', 'git']), 'agents');
   assert.equal(topicOf(['statistics']), 'tools');
+  assert.equal(topicOf(['start-here', 'mcp', 'ai-agents']), 'start');
   assert.equal(topicOf(['ai-agents'], 'infrastructure'), 'infrastructure');
   assert.equal(loadPosts(repoWith({ '2026-10-01-x.md': post('X', '2026-10-01', 'topic: research\n') }))[0].topic, 'research');
   assert.throws(() => loadPosts(repoWith({ '2026-10-01-x.md': post('X', '2026-10-01', 'topic: cooking\n') })), /is not one of/);
@@ -230,4 +231,14 @@ test('the index tag filter keeps a post whose tag is the first in its list', asy
   // indexOf() is 0 for the first tag: ">= 1" would hide every post filtered by its first tag.
   assert.match(index, /data-tags="[^"]*"/);
   assert.match(index, /split\(' '\)\.indexOf\(tag\.value\) >= 0/);
+});
+
+test('every committed post loads, so a 161-character description fails here and not in the site build', () => {
+  assert.ok(loadPosts(undefined, undefined, { skipBad: false }).length > 0);
+});
+
+test('a post may give a shorter seo_title for the results page and is held to the title budget', async () => {
+  const fm = (extra) => `---\ntitle: "A very long headline that goes on and on past what a results page shows"\ndate: 2026-01-01\ndescription: "d"\n${extra}---\n\n# H\n\nbody\n`;
+  const ok = parseFrontMatter(fm('seo_title: "Short query title"\n'));
+  assert.equal(ok.meta.seo_title, 'Short query title');
 });

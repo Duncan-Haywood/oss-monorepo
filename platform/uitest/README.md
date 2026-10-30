@@ -158,7 +158,7 @@ Pin `@main` to a commit SHA for reproducible runs.
 | `api-key`, `provider`, `model`, `base-url` | | the model (provider defaults to `anthropic` when a key is given) |
 | `out`, `upload-report`, `report-name` | `uitest-report`, `true` | the report and its artifact |
 | `fail-on-skip` | `true` | fail when nothing was verified |
-| `playwright-version` | `1.56.1` | installed into a scratch directory, not your project |
+| `playwright-version` | `1.63.0` | installed into a scratch directory, not your project |
 
 Outputs: `result` (`pass` / `fail` / `skipped`), `exit-code`, `report-dir`.
 The Markdown summary is added to the job summary automatically.
@@ -174,11 +174,11 @@ It is one command. With Microsoft's Playwright image there is nothing else to in
 ```yaml
 # GitLab CI
 ui-test:
-  image: mcr.microsoft.com/playwright:v1.56.1-noble
+  image: mcr.microsoft.com/playwright:v1.63.0-noble
   script:
     - npm ci && npm run build
     - git clone --depth 1 https://github.com/Duncan-Haywood/oss-monorepo /tmp/uit
-    - npm i --prefix /tmp/pw playwright@1.56.1
+    - npm i --prefix /tmp/pw playwright@1.63.0
     - PLAYWRIGHT=/tmp/pw/node_modules/playwright/index.js node /tmp/uit/platform/uitest/uitest.mjs uitest.json --serve dist --out uitest-report
   artifacts:
     when: always

@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-29",
+  "session": "https://claude.ai/code/session_01AcxTtJ5oV9x6Fa7arbbVTs",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: read prompt.md and follow it",
+  "input_sha256": "2abc11ce438e08917dbfbd5f6a49fe9cdcb2b7d6c1dd885255dfd4b7b4c9fbca",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-29T18:10:27Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/11453",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Flagship items mostly needed real outside data; landed a no-data slice (export fuzz check) on league-schedule-generator instead; flagship next: unchanged.",
+      "did": "fuzz check of ics/csv exports",
+      "result": "0 faults, pinned in tests"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-29-do-the-league-calendar-files-hold-up.md"
+  ],
+  "goal": null,
+  "notes": "Local: node --test fuzz-build.test.mjs 6/6 pass. No agent doc written.",
+  "corrections": [],
+  "redteam": null
+}

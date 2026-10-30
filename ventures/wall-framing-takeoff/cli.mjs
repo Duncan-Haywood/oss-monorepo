@@ -5,6 +5,7 @@
 import { readFileSync } from "node:fs";
 import { sheathe, defaultSheathing, sheathingText, nailerCuts } from "./sheathing.mjs";
 import { layoutFloor, floorCuts, floorText } from "./floor.mjs";
+import { layoutDeck, deckText } from "./deck.mjs";
 import { layoutFoundation, foundationText } from "./foundation.mjs";
 import { layoutDrywall, drywallText } from "./drywall.mjs";
 import { layoutInsulation, insulationText } from "./insulation.mjs";
@@ -23,6 +24,16 @@ import { budget, budgetText, budgetCsv } from "./budget.mjs";
 import { levelBids, levelText } from "./bidlevel.mjs";
 import { schedule, scheduleText } from "./schedule.mjs";
 import { planFromDxf } from "./dxf.mjs";
+
+/** `--wall-layer=RE`, `--door-layer=RE`, `--window-layer=RE`: layer-name patterns (case-insensitive) for drawings whose layers are not named like "wall". */
+function layerOptions(argv) {
+  const out = {};
+  for (const [flag, key] of [["wall", "wallLayer"], ["door", "doorLayer"], ["window", "windowLayer"]]) {
+    const v = argv.find((a) => a.startsWith(`--${flag}-layer=`))?.slice(flag.length + 9);
+    if (v) out[key] = new RegExp(v, "i");
+  }
+  return out;
+}
 import { planFromIfc } from "./ifc.mjs";
 import { takeoff, samplePlan, toCsv, formatLength, formatInches, parseLength } from "./engine.mjs";
 
@@ -42,13 +53,14 @@ Usage:
   node cli.mjs plan.json --panel-max=12ft --panel-sheets  one printable sheet per panel after each wall's sheet
   node cli.mjs plan.json --panel-max=12ft --sheathing-psf=1.5  also weigh the sheathing on each panel (lb per sq ft)
   node cli.mjs plan.json --floor     add the plan's floor (joists, rim, blocking, subfloor sheets); its lumber joins the order
+  node cli.mjs plan.json --deck      add the plan's deck (plan "deck": {width, depth, height, joist, spacing, beam, beamPlies, postSize, freestanding, overhang, spanTable}): joists, rims or ledger, beam and posts, footing concrete, decking rows with joints on joists, hardware; its own pressure-treated lumber order
   node cli.mjs plan.json --stairs    add the plan's stairs (plan "stairs": one object or a list of {totalRise, tread, stringer, width, treadBoard, floorThickness, openingLength}): equal risers under the code limit, notch geometry, stringers and treads, the stairwell opening the headroom needs; the lumber joins the order
   node cli.mjs plan.json --roof      add the plan's gable roof, or hip roof with shape "hip" (rafters, ridge, sheathing, shingle and felt quantities); its lumber joins the order
   node cli.mjs plan.json --fasteners   count nails by connection (plan fasteners: studEndNails, plateSpacing, edgeSpacing, nailsPerBox, price; add --sheathing for sheathing nails)
   node cli.mjs plan.json --gutters    add gutters, downspouts, hangers, caps and elbows along the roof's eaves (needs a roof; plan gutters: gutterStock, downspoutStock, eaveHeight, hangerSpacing, maxRunFeet, sqFtPerDownspout, strapSpacing, waste, and a price for each part)
   node cli.mjs plan.json --eaves       add soffit panels, fascia boards and J-channel under the roof overhangs (needs a roof; plan eaves: panelWidth, panelStock, fasciaStock, channelStock, waste, rakeSoffit, panelPrice, fasciaPrice, channelPrice)
   node cli.mjs plan.json --siding      add exterior lap siding courses, house wrap and corner boards (plan siding: exposure, stock, waste, wrapRollSqFt, wrapLap, corners, cornerStock, height, boardPrice, wrapPrice, cornerPrice)
-  node cli.mjs plan.json --trim        add baseboard and door and window casing boards (plan trim: baseSides, baseStock, casingStock, casingWidth, reveal, waste, basePrice, casingPrice)
+  node cli.mjs plan.json --trim        add baseboard and door and window casing boards (plan trim: scarf, shoe, shoeStock, shoePrice, baseSides, baseStock, casingStock, casingWidth, reveal, waste, basePrice, casingPrice)
   node cli.mjs plan.json --insulation  add wall-cavity insulation bags (measured from the framing placed; plan insulation: bagSqFt, rValue, waste, price)
   node cli.mjs plan.json --drywall     add interior drywall (inside faces, partitions both sides, optional ceilings; plan drywall: sheetLength, ceiling, price)
   node cli.mjs plan.json --foundation  add the plan's foundation (footing, stem wall and slab concrete, trucks, rebar, forms, gravel, vapor barrier)
@@ -58,8 +70,8 @@ Usage:
   node cli.mjs plan.json --drawings   printable HTML shop drawings, one sheet per wall (marked members, dimensions, parts table)
   node cli.mjs plan.json --pdf > walls.pdf   the same shop drawings as a PDF file (no browser; add --panel-max=12ft for panel cut lines)
   node cli.mjs plan.json --headers  size headers from the plan's own headerTable ({upTo, header, plies?} rows from your span table; an opening with "header": "auto" takes the first row that covers it) and list hand-picked ones the table says are too light
-  node cli.mjs house.ifc          the same from an IFC file (IfcWall axis lines, IfcDoor/IfcWindow; hand-written fixtures only so far)
-  node cli.mjs house.dxf --plan-only  read a DXF floor plan (wall centre lines on a layer named like "wall", openings as lines on "door"/"window" layers; --units=in|ft|mm|cm|m when the file does not say; walls drawn as two face lines are paired into centre lines automatically, --double-line forces it, --single-line turns it off) and print the plan JSON; without --plan-only it goes straight on to the takeoff
+  node cli.mjs house.ifc [--storey=N|name]  the same from an IFC file (one storey at a time; the lowest by default) (IfcWall axis lines, IfcDoor/IfcWindow; hand-written fixtures only so far)
+  node cli.mjs house.dxf --plan-only  read a DXF floor plan (wall centre lines on a layer named like "wall", openings as lines on "door"/"window" layers; --units=in|ft|mm|cm|m when the file does not say; --wall-layer=RE, --door-layer=RE and --window-layer=RE name the layers when they are not called like that; walls drawn as two face lines are paired into centre lines automatically, --double-line forces it, --single-line turns it off) and print the plan JSON; without --plan-only it goes straight on to the takeoff
   node cli.mjs --example            print the example plan (an invented 40 x 28 ft ranch) to start from
   cat plan.json | node cli.mjs -    read the plan from stdin
 
@@ -102,7 +114,7 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
   try {
     if (/\.(dxf|ifc)$/i.test(args[0])) {
       const units = argv.find((a) => a.startsWith("--units="))?.slice(8);
-      const r = /** @type {{ ok: boolean, errors: string[], notes: string[], plan?: any, stats?: any }} */ ((/\.ifc$/i.test(args[0]) ? planFromIfc : planFromDxf)(readInput(args[0]), { units: /** @type {any} */ (units), doubleLine: argv.includes("--single-line") ? false : argv.includes("--double-line") ? true : "auto" }));
+      const r = /** @type {{ ok: boolean, errors: string[], notes: string[], plan?: any, stats?: any }} */ ((/\.ifc$/i.test(args[0]) ? planFromIfc : planFromDxf)(readInput(args[0]), { units: /** @type {any} */ (units), storey: (() => { const v = argv.find((a) => a.startsWith("--storey="))?.slice(9); return v == null ? undefined : /^\d+$/.test(v) ? Number(v) : v; })(), doubleLine: argv.includes("--single-line") ? false : argv.includes("--double-line") ? true : "auto", ...layerOptions(argv) }));
       if (!r.ok) return { code: 2, out: `Could not read the drawing: ${r.errors.join(" ")}` };
       const note = r.notes.map((n) => `  - ${n}`).join("\n");
       if (flags.has("--plan-only")) return { code: 0, out: JSON.stringify(r.plan, null, 2) + `\n\nNotes (not part of the JSON):\n${note}` };
@@ -126,6 +138,13 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
     for (const o of plan.floor.openings || []) for (const k of ["x", "y", "width", "depth"]) if (typeof o[k] === "string") o[k] = parseLength(o[k]);
     floor = layoutFloor(plan.floor, plan);
     if (!floor.ok) return { code: 1, out: `The floor has problems:\n${floor.errors.map((e) => `  - ${e}`).join("\n")}` };
+  }
+  let deck = null;
+  if (flags.has("--deck") || plan.deck) {
+    if (!plan.deck) return { code: 2, out: "The plan has no `deck` object (width, depth, height; joist, spacing, beam, postSize optional)." };
+    for (const k of ["width", "depth", "height", "overhang"]) if (typeof plan.deck[k] === "string") plan.deck[k] = parseLength(plan.deck[k]);
+    deck = layoutDeck(plan.deck);
+    if (!deck.ok) return { code: 1, out: `The deck has problems:\n${deck.errors.map((e) => `  - ${e}`).join("\n")}` };
   }
   /** @type {any[]} */
   const stairs = [];
@@ -168,6 +187,7 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
   /** @type {any} */
   let r = takeoff(plan, shell());
   if (floor && r.ok) r.floor = floor;
+  if (deck && r.ok) r.deck = deck;
   if (stairs.length && r.ok) r.stairs = stairs;
   if (roof && r.ok) r.roof = roof;
   if (foundation && r.ok) r.foundation = foundation;
@@ -206,7 +226,7 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
   if (flags.has("--sheathing") || flags.has("--horizontal") || flags.has("--overhang") || rimLap > 0 || plan.sheathing) {
     const sheathing = sheathe({ ...plan, sheathing: { ...defaultSheathing(), ...(plan.sheathing || {}), ...(flags.has("--horizontal") ? { orientation: "horizontal" } : {}), ...(flags.has("--overhang") ? { overhang: true } : {}), ...(rimLap > 0 ? { rimLap } : {}) } }, r);
     const extra = nailerCuts(sheathing);
-    if (extra.length) { r = takeoff(plan, [...extra, ...shell()]); if (floor) r.floor = floor; if (stairs.length) r.stairs = stairs; if (roof) r.roof = roof; if (foundation) r.foundation = foundation; if (drywall) r.drywall = drywall; if (insulation) r.insulation = insulation; if (trimmed) r.trim = trimmed; if (sided) r.siding = sided; if (eaved) r.eaves = eaved; if (guttered) r.gutters = guttered; } // nailers join the cut list and the lumber order
+    if (extra.length) { r = takeoff(plan, [...extra, ...shell()]); if (floor) r.floor = floor; if (deck) r.deck = deck; if (stairs.length) r.stairs = stairs; if (roof) r.roof = roof; if (foundation) r.foundation = foundation; if (drywall) r.drywall = drywall; if (insulation) r.insulation = insulation; if (trimmed) r.trim = trimmed; if (sided) r.siding = sided; if (eaved) r.eaves = eaved; if (guttered) r.gutters = guttered; } // nailers join the cut list and the lumber order
     r.sheathing = sheathing;
   }
   if (r.ok && (flags.has("--fasteners") || plan.fasteners)) {
@@ -252,6 +272,7 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
   lines.push("  K = king, C = corner backing, T = tee backing; jacks sit inside the kings.");
   if (r.sheathing) lines.push("", `SHEATHING (panels run ${r.sheathing.orientation === "horizontal" ? "horizontally, course by course from the floor" : "vertically from the wall start"}; lengths left to right)`, ...sheathingText(r.sheathing));
   if (r.floor) lines.push("", "FLOOR", ...floorText(r.floor));
+  if (r.deck) lines.push("", "DECK", ...deckText(r.deck));
   if (r.stairs) lines.push("", "STAIRS", ...r.stairs.flatMap((x) => [...(x.flights ? landingText(x) : stairText(x)), ...(x.winders ? winderText(x.winders) : [])]));
   if (r.foundation) lines.push("", "FOUNDATION", ...foundationText(r.foundation));
   if (r.drywall) lines.push("", "DRYWALL", ...drywallText(r.drywall));

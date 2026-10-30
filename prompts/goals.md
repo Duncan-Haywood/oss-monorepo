@@ -557,6 +557,22 @@ twenty estimated human hours; 92% of runs took under fifteen active minutes
 ([the post](../docs/posts/2026-10-21-work-that-takes-more-than-twenty-hours.md)).
 `runcost.py report` tracks it.
 
+**Lean towards projects of about three hundred hours** (owner, 2026-10-29, "not a hard bar, an opinion or suggestion"): "i think
+it makes sense to focus more on porjects that are at least estimated to be
+200+ human equivalent hours worth of work", then "idk maybe above 300 hours is
+a better rule of thumb." It updates the twenty-hour suggestion above; it is a rule of thumb,
+not a cutoff. It is per project, not
+per run: no session does 300 human hours, so the question is whether a run builds
+toward a project a person would estimate at about 300 hours or more (a
+flagship, a research programme in `research/PROGRAMMES.md`). Before starting a
+new project, a written plan of that size and a first step that works on its
+own help. Pass `--human-hours` to `runcost.py attach` so `runcost.py report` ("by
+project") can add it up: on 2026-10-29, no project of 253 showed more than
+200 estimated hours, but only 46 of 1,930 records after 2026-10-20 carried an
+estimate, and none of the flagship bookkeeper's 62. Small fixes, upkeep, docs
+and write-ups still count; padding a project to look big does not
+([the post](../docs/posts/2026-10-29-aim-at-projects-worth-three-hundred-hours.md)).
+
 **Beat asking a chatbot** (owner, 2026-10-21, on finding a day-count adder
 at the front of the site): "the tools need to justify their existence by
 being more useful or significantly cheaper than the alt of for example
@@ -596,6 +612,25 @@ control), or one engine has to ship to WASM, CLI, Python and crates.io. Porting 
 work or a wrapper around an existing C library rarely pays off. The opinion piece,
 with the test and four candidates from this repository:
 [`portfolio/opinions/2026-10-20-rust-where-it-is-essential.md`](../portfolio/opinions/2026-10-20-rust-where-it-is-essential.md).
+
+## Direction: dev tools in Rust, common and niche
+
+Set by the owner on 2026-10-29: "I think one cool project direction is
+common dev tools rewritten in rust", and a moment later, "but also just
+common and niche tools."
+
+So rewriting developer tools in Rust is a standing direction, for widely
+used tools and for niche ones. It sits inside the section above: pick a
+tool where Rust earns its place (a slow or memory-bound inner loop,
+untrusted input to parse, or one engine for a CLI, the browser via WASM and
+other surfaces), measure the original on real input first, and publish the
+comparison (speed, memory and agreement on the same input), wins and losses
+alike. Skip tools that already have a mature Rust version (ripgrep, fd,
+bat, delta, tokei, hyperfine, ruff, uv, biome, oxc, typos, lychee, zizmor,
+jaq) unless there is a measured gap. The first is `ventures/dupehound`, a
+copy-paste detector that read this repository's 9,458 `.mjs` files in
+1.2 s where jscpd needed 337 s and 6.2 GB. Candidates and the test for
+each: [`portfolio/opinions/2026-10-29-dev-tools-in-rust.md`](../portfolio/opinions/2026-10-29-dev-tools-in-rust.md).
 
 ## Direction: open construction, mining and heavy equipment
 

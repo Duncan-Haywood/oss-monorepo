@@ -1,0 +1,20 @@
+17 power-matched wings; area multiplier grid 0.6..1.8 step 0.05; tolerance 5.0% on all three modes
+
+78 designs within 5.0% at slope scale 1.0 (tail_search count: 78)
+
+true slope scale | designs recoverable by some f in grid | median f_min | median f_max | recoverable with f <= 1.33
+           0.75 |   76 of 78 | 1.27 | 1.40 | 54 of 78
+            0.8 |   78 of 78 | 1.20 | 1.30 | 78 of 78
+            0.9 |   77 of 78 | 1.05 | 1.15 | 77 of 78
+            1.0 |   78 of 78 | 0.95 | 1.05 | 78 of 78
+
+designs recoverable at every scale in (0.75, 0.8, 0.9, 1.0): 76 of 78
+tightest-range design (wing, k, AR, tail section, area, AR_t, arm): ('naca5406', 1.0, 12, 'naca0009', 0.15, 5.0, 3.5)
+  scale 0.75: f in [1.10, 1.30]
+  scale 0.8: f in [1.05, 1.25]
+  scale 0.9: f in [0.95, 1.10]
+  scale 1.0: f in [0.85, 1.00]
+area multiplier needed at scale 0.75 (f_min), over those designs: min 1.10, median 1.27, max 1.35; compensation 1/0.75 = 1.33
+
+per design f_min at 0.75 vs 1/0.75, distribution:
+  f_min at 0.75: min 1.10, 25% 1.20, median 1.27, 75% 1.35, max 1.35

@@ -214,6 +214,12 @@ jobs:
           restore-keys: |
             share-cards-${{ hashFiles('platform/pages/sharecard.mjs', 'platform/pages/fontraster.mjs', 'platform/pages/fonts/**') }}-
 
+      # The build throws on a post whose description is over 160 characters
+      # (writing.mjs, loadPost) after minutes of work and deploys nothing;
+      # the checker says the same in a second. 2026-10-29: a merged post did it.
+      - name: Check blog post front matter before the long build
+        run: python3 platform/ci/check_post_frontmatter.py
+
       - name: Build the site
         id: build-site
         env:

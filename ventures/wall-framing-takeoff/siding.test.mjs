@@ -42,3 +42,22 @@ test("corner boards, wrap laps, prices, text and bad input", () => {
   assert.equal(validateSiding({ corners: 2.5 }).length, 1);
   assert.equal(layoutSiding({ waste: 0.9 }, plan([{ id: "A", length: 100 }])).ok, false);
 });
+
+test("a gable end counts its triangle, by hand", () => {
+  // 120 in wide, 6:12, peak at 60: rise 30 in over 8 ft eave (96 in); exposure 6 -> 21 courses (126 / 6)
+  const s = layoutSiding({ waste: 0, exposure: 6, stock: 240 }, plan([{ id: "G", length: 120, gable: { pitch: 6 } }]));
+  assert.equal(s.courses, 21);
+  assert.ok(Math.abs(s.netSqFt - (120 * 96 + 0.5 * 120 * 30) / 144) < 1e-9);
+  // 16 courses to the eave at 120; triangle courses at 96, 102, ..., 120 above: widths 120 - 2*(up/0.5) = 120 - 4 up
+  // up = 0, 6, 12, 18, 24: 120, 96, 72, 48, 24
+  assert.ok(Math.abs(s.runFeet * 12 - (16 * 120 + 120 + 96 + 72 + 48 + 24)) < 1e-9);
+});
+
+test("an off-centre peak: the far side has the steeper-or-shallower pitch to the same peak", () => {
+  // 100 wide, peak at 25, 12:12 -> rise 25; far slope 25/75; up=10 -> 100 - 10 - 30 = 60
+  const s = layoutSiding({ waste: 0, exposure: 10, stock: 240, height: 96 }, plan([{ id: "G", length: 100, gable: { pitch: 12, peak: 25 } }]));
+  assert.ok(Math.abs(s.netSqFt - (100 * 96 + 0.5 * 100 * 25) / 144) < 1e-9);
+  // 13 courses: ten full (one straddles the eave line), then up = 4, 14, 24 -> 100 - up - 3 up = 84, 44, 4
+  assert.equal(s.courses, 13);
+  assert.ok(Math.abs(s.runFeet * 12 - (1000 + 84 + 44 + 4)) < 1e-9);
+});

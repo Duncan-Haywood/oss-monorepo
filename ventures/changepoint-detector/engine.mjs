@@ -1802,7 +1802,9 @@ export function analyze(input = {}) {
   if (o.drift && period && p.changepoints.length >= 3) {
     const cp = p.changepoints;
     const k = cp.findIndex((c, j) => j + 2 < cp.length && cp[j + 2] - c <= 2 * period);
-    if (k >= 0) driftWarning = `With a drifting seasonal shape, ${cp.slice(k).filter((c) => c - cp[k] <= 2 * period).length} steps fall within two cycles of ${labels[cp[k]]}: that usually marks a seasonal shape that is still changing (for example an amplitude that grows), not separate regime changes. Check the dates against the series.`;
+    // autocorrelated noise alone fires this warning (75% to 88% of null series at rho 0.5, eval/drift-warning-null195-ar1.mjs); --ar1 cut that to 0 to 3%
+    const hintAr1 = !o.ar1 && ar1Rho(values) >= 0.3 ? ` The residuals look autocorrelated (rho about ${round(ar1Rho(values), 2)}), which alone can cause such a run of steps: re-run with --ar1 (page: allow for autocorrelation) before reading them as a changing shape.` : '';
+    if (k >= 0) driftWarning = `With a drifting seasonal shape, ${cp.slice(k).filter((c) => c - cp[k] <= 2 * period).length} steps fall within two cycles of ${labels[cp[k]]}: that usually marks a seasonal shape that is still changing (for example an amplitude that grows), not separate regime changes. Check the dates against the series.${hintAr1}`;
   }
   const changes = p.changepoints.map((i, k) => {
     const before = segments[k];

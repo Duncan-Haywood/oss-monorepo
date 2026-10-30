@@ -45,7 +45,7 @@ export const PRECUT = { "8ft": 92.625, "9ft": 104.625, "10ft": 116.625 };
  * @typedef {{ size: string, length: number, price: number, label?: string }} Stock
  * @typedef {{ studSpacing: number, studLength: number, kerf: number, topPlateLap: number,
  *   cornerExtraStuds: number, teeExtraStuds: number, defaultHeaderHeight: number,
- *   blocking?: { rows?: number, fire?: boolean }, plateLaps?: boolean, advanced?: { twoStudCorners?: boolean, ladderTees?: boolean, singleTopPlate?: boolean }, stock: Stock[], walls: Wall[] }} Plan
+ *   blocking?: { rows?: number, fire?: boolean, stagger?: boolean }, plateLaps?: boolean, advanced?: { twoStudCorners?: boolean, ladderTees?: boolean, singleTopPlate?: boolean }, stock: Stock[], walls: Wall[] }} Plan
  * @typedef {{ kind: string, x: number, y: number, w: number, h: number, size: string,
  *   length: number, orient: "v"|"h", label: string, sloped?: boolean }} Member
  */
@@ -537,7 +537,9 @@ export function layoutWall(plan, wall) {
         const x1 = tall[i + 1].x;
         if (x1 - x0 < 1 - EPS) continue;
         if (ops.some((op) => x0 < op.offset + op.width - EPS && x1 > op.offset + EPS)) continue;
-        add("blocking", x0, y, x1 - x0, THICK, stud, "h", plan.blocking?.fire ? "fire blocking" : "blocking");
+        // Staggered: alternate bays sit THICK above and below the row line, so each block's end can be face-nailed through the stud.
+        const dy = plan.blocking?.stagger ? (i % 2 ? THICK : -THICK) : 0;
+        add("blocking", x0, y + dy, x1 - x0, THICK, stud, "h", plan.blocking?.fire ? "fire blocking" : "blocking");
       }
     }
   } else if (plan.studLength > 120 + EPS) {
@@ -719,7 +721,7 @@ function layoutGable(plan, wall) {
   }
   if (shimGaps.length) notes.push(`a gap too small for cripples between header and top plate over ${shimGaps.join(", ")}: shim or fill it.`);
   if (spacers.length) notes.push(`header spacers not in the takeoff: ${spacers.join(", ")}.`);
-  return { id: wall.id, length: L, height: base + maxRise + 2 * Math.max(vtL, vtR), stud, members, notes, layout, lapped: false, gable: { pitch: wall.gable.pitch, peak: mid, peakRise: maxRise, ...(mid !== L / 2 ? { farPitch: slopeR * 12 } : {}) }, joints: { bottom: bottomJoints, top: topJoints, cap: capJoints } };
+  return { id: wall.id, length: L, height: base + maxRise + 2 * Math.max(vtL, vtR), stud, members, notes, layout, lapped: false, gable: { pitch: wall.gable.pitch, peak: mid, peakRise: maxRise, eave: base, ...(mid !== L / 2 ? { farPitch: slopeR * 12 } : {}) }, joints: { bottom: bottomJoints, top: topJoints, cap: capJoints } };
 }
 
 function wall_studMin(w) {
@@ -729,7 +731,8 @@ function wall_studMin(w) {
 /** Rows of blocking: the asked-for count, or what fire blocking needs so no stud run exceeds 10 ft. */
 export function blockingRows(plan) {
   const b = plan.blocking || {};
-  const fire = b.fire ? Math.max(0, Math.ceil((plan.studLength + 2 * THICK) / 120 - EPS) - 1) : 0;
+  // a staggered row can sit THICK off its line either way, so a run can grow by 2 * THICK
+  const fire = b.fire ? Math.max(0, Math.ceil((plan.studLength + 2 * THICK + (b.stagger ? 2 * THICK : 0)) / 120 - EPS) - 1) : 0;
   return Math.max(Math.floor(b.rows || 0), fire);
 }
 

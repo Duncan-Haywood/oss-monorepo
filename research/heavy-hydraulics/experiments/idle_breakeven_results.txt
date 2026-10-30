@@ -1,0 +1,25 @@
+p_n* (bar) above which load-sensing beats open-centre in median shaft energy (LS/OC<1); 1,500 cycles per evaluation
+
+load factor 0.346
+  q_sb 0 L/min: p_n* = 6.4
+  q_sb 1 L/min: p_n* = 7.0
+  q_sb 2 L/min: p_n* = 7.5
+  q_sb 4 L/min: p_n* = 8.6
+  q_sb 6 L/min: p_n* = 9.7
+  q_sb 8 L/min: p_n* = 10.8
+
+load factor 0.375
+  q_sb 0 L/min: p_n* = 6.8
+  q_sb 1 L/min: p_n* = 7.3
+  q_sb 2 L/min: p_n* = 7.9
+  q_sb 4 L/min: p_n* = 9.0
+  q_sb 6 L/min: p_n* = 10.1
+  q_sb 8 L/min: p_n* = 11.2
+
+load factor 0.5
+  q_sb 0 L/min: p_n* = 10.5
+  q_sb 1 L/min: p_n* = 11.1
+  q_sb 2 L/min: p_n* = 11.6
+  q_sb 4 L/min: p_n* = 12.7
+  q_sb 6 L/min: p_n* = 13.8
+  q_sb 8 L/min: p_n* = 14.9
