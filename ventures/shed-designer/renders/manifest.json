@@ -405,8 +405,8 @@
   "gallery-balanced": {
    "key": "Balanced 8x11",
    "name": "Balanced 8x11",
-   "hash": "0051ba921477edc9",
-   "designKey": "5f47a0f6",
+   "hash": "4e1f3bb5aadb6f32",
+   "designKey": "8b4090ca",
    "files": {
     "card": {
      "file": "gallery-balanced-card.webp",
@@ -420,23 +420,23 @@
   "gallery-barn": {
    "key": "Barn for storage 7x14",
    "name": "Barn for storage 7x14",
-   "hash": "98f3068f9e108e46",
-   "designKey": "66a0ed4a",
+   "hash": "46330592c159e1cf",
+   "designKey": "94dbd497",
    "files": {
     "card": {
      "file": "gallery-barn-card.webp",
      "w": 480,
      "h": 320,
-     "bytes": 7908,
-     "alt": "3D render of the Barn for storage 7x14, 7 by 14 ft, seen from the front corner: red fiber cement siding, charcoal shingles, 6/12 roof, 12' 5/8\" to the peak, showing a 39\" door on the front (eave side)."
+     "bytes": 7884,
+     "alt": "3D render of the Barn for storage 7x14, 7 by 14 ft, seen from the front corner: red fiber cement siding, charcoal shingles, 6/12 roof, 11' 10-5/8\" to the peak, showing a 39\" door on the front (eave side)."
     }
    }
   },
   "gallery-cheapest": {
    "key": "Cheapest 8x10",
    "name": "Cheapest 8x10",
-   "hash": "fed5548fd6e7c0e3",
-   "designKey": "09b6a600",
+   "hash": "d6284b421c99932e",
+   "designKey": "eec0ec9c",
    "files": {
     "card": {
      "file": "gallery-cheapest-card.webp",
@@ -450,8 +450,8 @@
   "gallery-house": {
    "key": "10x10 to match the house",
    "name": "10x10 to match the house",
-   "hash": "21132273532f6f22",
-   "designKey": "7d5565bd",
+   "hash": "23edf81f07ed5ff7",
+   "designKey": "846cbabd",
    "files": {
     "card": {
      "file": "gallery-house-card.webp",
@@ -465,23 +465,23 @@
   "gallery-house-cheapest": {
    "key": "Cheapest lap-sided 7x12",
    "name": "Cheapest lap-sided 7x12",
-   "hash": "5a180a1f387cdeff",
-   "designKey": "84d3b80c",
+   "hash": "4b136817d81bd81f",
+   "designKey": "1e994f34",
    "files": {
     "card": {
      "file": "gallery-house-cheapest-card.webp",
      "w": 480,
      "h": 320,
-     "bytes": 6192,
-     "alt": "3D render of the Cheapest lap-sided 7x12, 12 by 7 ft, seen from the front corner: cream fiber cement siding, charcoal shingles, 6/12 roof, 11' 6-11/16\" to the peak, showing a 39\" door on the right (gable end)."
+     "bytes": 6246,
+     "alt": "3D render of the Cheapest lap-sided 7x12, 12 by 7 ft, seen from the front corner: cream fiber cement siding, charcoal shingles, 6/12 roof, 11' 4-11/16\" to the peak, showing a 39\" door on the right (gable end)."
     }
    }
   },
   "gallery-long": {
    "key": "Long 6x16",
    "name": "Long 6x16",
-   "hash": "f0576e9f55761aa6",
-   "designKey": "af078eb6",
+   "hash": "5c5a4e049015e6a4",
+   "designKey": "16318d9c",
    "files": {
     "card": {
      "file": "gallery-long-card.webp",
@@ -495,8 +495,8 @@
   "gallery-looks": {
    "key": "Best looking 9x10",
    "name": "Best looking 9x10",
-   "hash": "38076871079684ce",
-   "designKey": "395571fc",
+   "hash": "0a0b4842e6868e90",
+   "designKey": "1d9d8fce",
    "files": {
     "card": {
      "file": "gallery-looks-card.webp",
@@ -510,8 +510,8 @@
   "gallery-mower": {
    "key": "Mower shed 10x10",
    "name": "Mower shed 10x10",
-   "hash": "ce132cba94a872b3",
-   "designKey": "68561987",
+   "hash": "97f36a93eeee2b45",
+   "designKey": "18362e81",
    "files": {
     "card": {
      "file": "gallery-mower-card.webp",
@@ -525,8 +525,8 @@
   "gallery-square": {
    "key": "10x10 square",
    "name": "10x10 square",
-   "hash": "dd26e5399aea0e92",
-   "designKey": "cf76d8a3",
+   "hash": "76e9538ff9e3d553",
+   "designKey": "e42506f7",
    "files": {
     "card": {
      "file": "gallery-square-card.webp",
@@ -540,8 +540,8 @@
   "gallery-storage": {
    "key": "Most storage 9x11",
    "name": "Most storage 9x11",
-   "hash": "2a71497e0153fba9",
-   "designKey": "6fe98f14",
+   "hash": "ccee2c1d23f71971",
+   "designKey": "f43476a6",
    "files": {
     "card": {
      "file": "gallery-storage-card.webp",
@@ -555,8 +555,8 @@
   "gallery-value": {
    "key": "Most room per dollar, 8x12",
    "name": "Most room per dollar, 8x12",
-   "hash": "58025baf8df58b8d",
-   "designKey": "1a88e666",
+   "hash": "0d8a186e54609377",
+   "designKey": "ad625434",
    "files": {
     "card": {
      "file": "gallery-value-card.webp",
