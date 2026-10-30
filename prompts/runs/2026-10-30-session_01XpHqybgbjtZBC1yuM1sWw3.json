@@ -1,0 +1,76 @@
+{
+  "date": "2026-10-30",
+  "session": "https://claude.ai/code/session_01XpHqybgbjtZBC1yuM1sWw3",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Round 2 lane 2 (shed-designer): numbers that drift; then owner store feedback and a fastener audit",
+  "input_sha256": "e67e31c83a6d6b2df81f0881aaf8da71b95e9d82c2f92639167bd80bf275c0e7",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-30T03:39:20Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "shed-designer round 2 lane 2: stop drifting numbers (generated size pages, tested README/marketing figures), store comparison like for like, overhang budget, fastener audit",
+  "projects": [
+    "shed-designer",
+    "platform/pages"
+  ],
+  "pr": 11620,
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    "Committed unresolved conflict markers in the README on #11528 once; caught by the README test and fixed before merge.",
+    "#11524 broke two things after it merged: pages.yml had no setup-node for the generator (fixed in #11641), and renders.test.mjs read size pages from disk (fixed in #11654).",
+    "An instructions test hard-coded a 6\" overhang and failed once the auto overhang moved; pinned it to autoOverhang:false.",
+    "Fastener post first said 660 siding nails (the build needs 600) and gave the wrong preset counts; corrected before merge."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Suggests `node --test *.test.mjs`; the shed-designer suite takes 3-5 minutes and must run in the background."
+    },
+    {
+      "file": "docs/reports/shed-designer-overnight-lane2.md",
+      "issue": "Its guidance on merging generated size pages went stale once #11524 landed; the round-2 lane report replaces it."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Merged #11524, #11528, #11547, #11641, #11654, #11595 and #11620 on local verification while CI runners were starved, as allowed; evidence on each PR and in notes."
+    },
+    {
+      "file": "ventures/shed-designer",
+      "why": "Closed #11590 (spares rule) unmerged: measured on current main it cost more and was less stable."
+    },
+    {
+      "file": "prompts/runs/2026-10-30-session_01XpHqybgbjtZBC1yuM1sWw3.json",
+      "why": "Left model null: this environment forbids model identifiers in pushed files."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-30-shed-designer-readme-numbers-tested.md",
+    "docs/posts/2026-10-30-shed-designer-store-comparison-like-for-like.md",
+    "docs/posts/2026-10-30-shed-designer-overhang-budget.md",
+    "docs/posts/2026-10-30-shed-designer-fastener-audit.md",
+    "docs/reports/shed-designer-price-gaps-2026-10-30.md",
+    "docs/reports/shed-designer-round2-lane2.md"
+  ],
+  "goal": null,
+  "notes": "PRs: #11524, #11641, #11654, #11528, #11547, #11595, #11620 merged; #11571 closed as superseded (parts landed via a9ba244b, #11640, #11650, #11641); #11590 closed with measurements. Local verification: shed-designer full suite (node --test *.test.mjs) passed on each branch after merging main; marketing.test.mjs 263/263; gitops suite 603 passed; full site build with size pages deleted from disk passed check.mjs (5,575 pages, no dead links). Measured: lumber +-5% changed board count on 188/240 size-page builds, pieces 0. Default 8x12 now $3,143.08 with the fastener fix; auto overhang 8\" (9\" would add $40.47).",
+  "corrections": [],
+  "redteam": null
+}
