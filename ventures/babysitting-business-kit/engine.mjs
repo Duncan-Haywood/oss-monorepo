@@ -69,6 +69,8 @@ export function normalizeDesk(d) {
   out.profile = { ...out.profile, ...(d.profile || {}), rates: { ...out.profile.rates, ...((d.profile || {}).rates || {}) } };
   for (const k of ["leads", "families", "bookings", "expenses", "references"]) out[k] = Array.isArray(d[k]) ? d[k].filter((x) => x && typeof x === "object") : [];
   if (d.automations && typeof d.automations === "object" && !Array.isArray(d.automations)) out.automations = d.automations; // sent log and opt-outs (automations.mjs)
+  if (Array.isArray(d.credentials)) out.credentials = d.credentials.filter((x) => x && typeof x === "object"); // the sitter's own credentials (credentials.mjs)
+  if (d.business && typeof d.business === "object" && !Array.isArray(d.business)) out.business = d.business; // business-readiness ticks (credentials.mjs)
   if (Array.isArray(d.posts)) out.posts = d.posts.filter((x) => x && typeof x === "object"); // blog posts (content.mjs)
   return out;
 }
