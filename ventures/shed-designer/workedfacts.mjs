@@ -18,7 +18,11 @@ import { boardPrice } from './prices.mjs';
 
 export const WORKED_PAGE = 'shed-plans-with-cut-list.html';
 
-const money = (n) => `$${n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+const money = (n) => {
+  const format = (v) => `$${v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const text = format(Math.abs(n));
+  return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+};
 
 export function workedFacts() {
   const classic = buildShed(PRESETS['8x12 classic']());
