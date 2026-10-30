@@ -203,6 +203,43 @@ export function shelfSheets(pieces, kerf = 0.125) {
 const panelPieces = (panels, kind) => panels.filter((p) => p.kind === kind).map((p) => ({ len: p.geom.profile[2][0], w: p.geom.profile[2][1] }));
 
 /**
+ * The cut plan within the longest board you can haul: boards no longer than
+ * the limit, and a longer board only for a piece longer than every board
+ * within it (each such board says which piece needs it). Splittable members
+ * are already spliced at the limit by the model, so what is left here are
+ * pieces like a one-piece ridge beam or a long joist.
+ * @param {import('./optimize.mjs').Piece[]} pieces
+ * @param {import('./optimize.mjs').Stock[]} stocks
+ * @param {number} kerf
+ * @param {number} haulFt the longest board you can carry, 0 for no limit
+ */
+export function cutWithinHaul(pieces, stocks, kerf, haulFt) {
+  const short = haulFt > 0 ? stocks.filter((x) => x.length <= haulFt * 12) : stocks;
+  if (!short.length || short.length === stocks.length) return optimizeCuts(pieces, stocks, kerf);
+  const reach = Math.max(...short.map((x) => x.length));
+  const long = pieces.filter((p) => p.len > reach + 1e-9);
+  const rest = pieces.filter((p) => p.len <= reach + 1e-9);
+  const a = rest.length ? optimizeCuts(rest, short, kerf) : null;
+  const b = long.length ? optimizeCuts(long, stocks.filter((x) => x.length > reach), kerf) : null;
+  for (const bd of b ? b.boards : []) {
+    const need = bd.cuts.reduce((m, c) => (c.len > m.len ? c : m));
+    /** @type {any} */ (bd).why = `${need.mark ? `${need.mark} ` : ''}${need.kind || 'piece'} ${fmtIn(need.len)} needs it`;
+  }
+  const parts = [a, b].filter(Boolean);
+  const boards = parts.flatMap((r) => /** @type {any} */ (r).boards);
+  const cost = Math.round(parts.reduce((t, r) => t + /** @type {any} */ (r).cost, 0) * 100) / 100;
+  const lowerBound = Math.round(parts.reduce((t, r) => t + /** @type {any} */ (r).lowerBound, 0) * 100) / 100;
+  const bought = boards.reduce((t, x) => t + x.stock, 0);
+  const cut = pieces.filter((p) => !parts.some((r) => /** @type {any} */ (r).tooLong.includes(p))).reduce((t, p) => t + p.len, 0);
+  return {
+    boards, cost, lowerBound,
+    gap: lowerBound > 0 ? Math.max(0, cost / lowerBound - 1) : 0,
+    waste: bought > 0 ? 1 - cut / bought : 0,
+    tooLong: parts.flatMap((r) => /** @type {any} */ (r).tooLong),
+  };
+}
+
+/**
  * Lap siding cut plan: every course piece packed into the plank lengths sold
  * (the ones in your board lengths where there is a choice), plus whole planks
  * ripped lengthwise into the starter strip.
@@ -257,7 +294,7 @@ export function estimate(shed, prices = examplePrices()) {
   const lumber = materials.map((material) => {
     const pieces = all.filter((m) => m.material === material).map((m) => ({ len: m.length, mark: markOf.get(m.id), id: m.id, kind: m.kind }));
     const stocks = d.lengths.map((ft) => ({ length: ft * 12, price: boardCost(prices, material, ft) }));
-    const result = optimizeCuts(pieces, stocks, d.kerf);
+    const result = cutWithinHaul(pieces, stocks, d.kerf, d.maxHaulFt);
     return { material, pieces: pieces.length, result };
   });
   /** @type {string[]} */
@@ -403,7 +440,7 @@ export function estimate(shed, prices = examplePrices()) {
   if (shed.wallTrim && shed.wallTrim.length) {
     const keys = { 96: 'trim1x4x8', 144: 'trim1x4x12', 192: 'trim1x4x16' };
     const stocks = Object.entries(keys).map(([len, k]) => ({ length: Number(len), price: item(k) }));
-    const r = optimizeCuts(shed.wallTrim.map((t) => ({ len: t.length, kind: t.where })), stocks, d.kerf);
+    const r = cutWithinHaul(shed.wallTrim.map((t) => ({ len: t.length, kind: t.where })), stocks, d.kerf, d.maxHaulFt);
     trimCuts = { boards: r.boards.map((b) => ({ stock: b.stock, cuts: b.cuts.map((c) => c.len), offcut: b.offcut })), pieces: shed.wallTrim };
     for (const [len, k] of Object.entries(keys)) {
       const n = r.boards.filter((b) => b.stock === Number(len)).length;
@@ -595,7 +632,7 @@ export function lumberCostOf(shed, materials, prices = examplePrices()) {
     const pieces = shed.members.filter((m) => m.material === material).map((m) => ({ len: m.length, id: m.id, kind: m.kind }));
     if (!pieces.length) continue;
     const stocks = d.lengths.map((ft) => ({ length: ft * 12, price: boardCost(prices, material, ft) }));
-    cost += optimizeCuts(pieces, stocks, d.kerf).cost;
+    cost += cutWithinHaul(pieces, stocks, d.kerf, d.maxHaulFt).cost;
   }
   return Math.round(cost * 100) / 100;
 }
@@ -654,14 +691,14 @@ export function lumberUses(est) {
 
 /** CSV of the cut sheet: one row per set of identical boards, its cuts and the offcut of each. */
 export function cutSheetCsv(est) {
-  const rows = [['boards', 'material', 'stock length', 'cuts (mark: length)', 'offcut each']];
+  const rows = [['boards', 'material', 'stock length', 'cuts (mark: length)', 'offcut each', 'why this long']];
   for (const l of est.lumber) {
     for (const b of groupBoards(l.result.boards)) {
-      rows.push([String(b.count), l.material, `${b.stock / 12}'`, b.cuts.map((c) => `${c.mark}: ${fmtIn(c.len)}`).join('; '), fmtIn(b.offcut)]);
+      rows.push([String(b.count), l.material, `${b.stock / 12}'`, b.cuts.map((c) => `${c.mark}: ${fmtIn(c.len)}`).join('; '), fmtIn(b.offcut), /** @type {any} */ (b).why || '']);
     }
   }
   if (est.trimCuts) {
-    for (const b of groupBoards(est.trimCuts.boards)) rows.push([String(b.count), '1x4 trim', `${b.stock / 12}'`, b.cuts.map((c) => fmtIn(c)).join('; '), fmtIn(b.offcut)]);
+    for (const b of groupBoards(est.trimCuts.boards)) rows.push([String(b.count), '1x4 trim', `${b.stock / 12}'`, b.cuts.map((c) => fmtIn(c)).join('; '), fmtIn(b.offcut), '']);
   }
   if (est.lapCuts) {
     for (const b of groupBoards(est.lapCuts.boards)) rows.push([String(b.count), 'lap siding', `${b.stock / 12}'`, b.cuts.map((c) => fmtIn(c)).join('; '), fmtIn(b.offcut)]);

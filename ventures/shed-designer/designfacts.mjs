@@ -27,6 +27,7 @@ const SIDING_NAME = {
   'board and batten': 'board and batten',
   vinyl: 'vinyl lap',
   'fiber cement': 'fiber cement lap',
+  'LP SmartSide lap': 'LP SmartSide engineered wood lap',
 };
 const COLOUR_NAME = { natural: 'stained', unfinished: 'unfinished' };
 
@@ -35,13 +36,15 @@ export const BREAKDOWN_TOP = 5;
 
 /**
  * @param {any} input a design (normalized here)
- * @param {{ prices?: any, reason?: string, id?: string }} [opts]
+ * @param {{ prices?: any, reason?: string, id?: string, price?: (shed: any) => any }} [opts]
+ *   `price` prices the built shed the way the page does (its store choice); it
+ *   must return the estimate's shape (`shopping`, `total`, `grandTotal`).
  */
 export function designFacts(input, opts = {}) {
   const shed = buildShed(normalize(input));
   const d = shed.design;
   const k = shed.dims;
-  const est = estimate(shed, opts.prices || examplePrices());
+  const est = opts.price ? opts.price(shed) : estimate(shed, opts.prices || examplePrices());
   const checks = structuralChecks(shed);
 
   // Cost: the shopping list grouped by section, largest first.

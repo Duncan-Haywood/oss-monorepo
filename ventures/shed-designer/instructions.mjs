@@ -220,6 +220,7 @@ export function buildInstructions(shed, est) {
     ] : [
       `The ridge board (mark ${marks((m) => m.kind === 'ridge board')}, ${k.ridgeSize}) is not a beam: rafter ties hold the rafters. Mark rafter centres on it to match the top plates.`,
       `Prop it on temporary posts so its top is ${fmtFtIn(k.ridgeTop - k.floorTop)} above the floor, centred over the width.`,
+      'Leave the props in until every rafter pair and its tie is nailed, then take them out: the ties, not the props, keep the walls from spreading.',
     ],
   });
 

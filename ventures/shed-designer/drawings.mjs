@@ -308,7 +308,7 @@ export function buildSheets(shed, marks = new Map()) {
     items.push(text([ax + run / 2, az + 1.5], '12', 9));
     items.push(text([ax + run + 3, az + d.pitch / 2 - 3], String(d.pitch), 9, 'start'));
     items.push(dim([0, k.floorTop], [0, k.plateTop], 34, `${fmtFtIn(d.wallHeight)} wall`));
-    const sidingLabel = d.siding ? (d.sidingType === 'T1-11' || d.sidingType === 'LP SmartSide' || d.sidingType === 'LP SmartSide 7/16' ? `${d.sidingType} panels` : `${LAP_PRODUCTS[d.sidingType]?.short || d.sidingType} over OSB${LAP_PRODUCTS[d.sidingType] ? ` and wrap, ${fmtIn(LAP_PRODUCTS[d.sidingType].exposure)} exposure` : ''}`) : '';
+    const sidingLabel = d.siding ? (d.sidingType === 'T1-11' || d.sidingType === 'LP SmartSide' || d.sidingType === 'LP SmartSide 7/16' ? `${d.sidingType} panels` : `${LAP_PRODUCTS[d.sidingType]?.short || d.sidingType} over OSB${LAP_PRODUCTS[d.sidingType] ? ` and wrap, ${fmtIn(shed.lapExposure ?? LAP_PRODUCTS[d.sidingType].exposure)} exposure` : ''}`) : '';
     // Clear of the siding label, which sits between the wall and this dimension.
     items.push(dim([W, 0], [W, k.peak], -(40 + textWidth(sidingLabel, 8)), `${fmtFtIn(k.peak)} to peak`));
     items.push(dim([0, 0], [W, 0], -30));
@@ -409,7 +409,7 @@ export function buildSheets(shed, marks = new Map()) {
       elevation(pair[1], face(pair[0]) + 2 * o + 96, items);
       sheets.push({
         id: `exterior-${pair[0]}-${pair[1]}`, title: `Exterior elevations: ${pair[0]} and ${pair[1]}`,
-        note: `Finished outside as seen from each side: ${d.siding ? (LAP_PRODUCTS[d.sidingType] ? `${LAP_PRODUCTS[d.sidingType].short} siding, ${fmtIn(LAP_PRODUCTS[d.sidingType].exposure)} exposure (course lines and butt joints shown)` : `${d.sidingType} siding (panel and sheet joints shown)`) : 'no siding'}, ${d.roofCover === 'metal' ? 'metal roof' : 'shingle roof'}, rough openings for doors, windows and vents. Heights from the top of the gravel.`,
+        note: `Finished outside as seen from each side: ${d.siding ? (LAP_PRODUCTS[d.sidingType] ? `${LAP_PRODUCTS[d.sidingType].short} siding, ${fmtIn(shed.lapExposure ?? LAP_PRODUCTS[d.sidingType].exposure)} exposure (course lines and butt joints shown)` : `${d.sidingType} siding (panel and sheet joints shown)`) : 'no siding'}, ${d.roofCover === 'metal' ? 'metal roof' : 'shingle roof'}, rough openings for doors, windows and vents. Heights from the top of the gravel.`,
         items,
       });
     }

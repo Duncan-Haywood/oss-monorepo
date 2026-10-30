@@ -467,6 +467,10 @@
         <label>Sales tax (% where you buy)<input id="taxRate" type="number" min="0" max="15" step="0.05"></label>
         <label>Delivery<select id="delivery"><option value="pickup">I'll pick it up</option><option value="homedepot">Home Depot delivery</option><option value="lowes">Lowe's delivery</option></select></label>
       </div>
+      <div class="fields">
+        <label>Longest board I can haul<select id="maxHaulFt"><option value="8">8 ft</option><option value="10">10 ft</option><option value="12">12 ft (a pickup bed, tailgate down)</option><option value="14">14 ft</option><option value="16">16 ft</option><option value="0">No limit (delivery)</option></select></label>
+      </div>
+      <p class="hint">Longer boards are bought only for a piece that cannot be spliced, and the cut sheet says which piece needs one.</p>
       <p class="hint">Board lengths your yard has:</p>
       <div id="stock"></div>
     </fieldset>

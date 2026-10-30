@@ -19,7 +19,7 @@ import { actual, ceil16, TWO_BY, DEFAULT_LENGTHS_FT, fmtFtIn as fmtFt, fmtIn } f
 import { lumberCostOf } from './estimate.mjs';
 import { productById } from './products.mjs';
 import { needsKingPost } from './truss.mjs';
-import { LAP_PRODUCTS, layoutFace, lapStocks, lapStagger } from './lap.mjs';
+import { LAP_PRODUCTS, layoutFace, lapStocks, lapStagger, evenExposure } from './lap.mjs';
 import { bbox } from './integrity.mjs';
 import { pickFinish, SIDING_FINISHES, TRIM_FINISHES, DOOR_FINISHES, SHINGLE_FAMILIES } from './looks.mjs';
 import { LOCKABLE } from './levers.mjs';
@@ -106,6 +106,10 @@ export function defaultDesign() {
     roofCover: 'shingles',
     rafterSeat: 'connector',
     maxFootprint: 100,
+    // The longest board you can carry home (ft, 0 for no limit). Longer stock is
+    // bought only for a piece that cannot be spliced; a pickup's 8 ft bed with
+    // the tailgate down carries 12 ft.
+    maxHaulFt: 12,
     // Site plan, all in feet and typed by you (0 for none): the lot, where the
     // shed sits on it (its front wall faces the street), the house, and the
     // setback your town asks for. Nothing here changes the framing.
@@ -261,6 +265,7 @@ export function normalize(input) {
     roofCover: pick(o.roofCover, ['shingles', 'metal'], d.roofCover),
     rafterSeat: pick(o.rafterSeat, ['birdsmouth', 'connector'], d.rafterSeat),
     maxFootprint: Math.min(1000, Math.max(0, num(o.maxFootprint, d.maxFootprint))),
+    maxHaulFt: o.maxHaulFt !== '' && o.maxHaulFt !== null && [0, 8, 10, 12, 14, 16, 18, 20].includes(Number(o.maxHaulFt)) ? Number(o.maxHaulFt) : d.maxHaulFt,
     ...Object.fromEntries(['lotWidthFt', 'lotDepthFt', 'siteLeftFt', 'siteRearFt', 'houseWidthFt', 'houseDepthFt', 'houseLeftFt', 'houseFrontFt', 'setbackFt']
       .map((f) => [f, Math.min(2000, Math.max(0, num(o[f], d[f])))])),
     locked: Array.isArray(o.locked) ? [...new Set(o.locked.filter((k) => typeof k === 'string' && k in LOCKABLE))] : [],
@@ -540,6 +545,11 @@ function buildFramed(d) {
   const L = d.length;
   const W = d.width;
   const maxStock = Math.max(...d.lengths) * 12;
+  // Members that can be spliced (skids, rims, plates, a ridge board, the
+  // sub-fascia) break at the longest board you can haul, so they never need a
+  // long one; a ridge beam, joists, studs and rafters still take what they need.
+  const shortest = Math.min(...d.lengths) * 12;
+  const spliceAt = d.maxHaulFt > 0 ? Math.min(maxStock, Math.max(shortest, ...d.lengths.filter((ft) => ft <= d.maxHaulFt).map((ft) => ft * 12))) : maxStock;
   const X = /** @type {Vec} */ ([1, 0, 0]);
   const Y = /** @type {Vec} */ ([0, 1, 0]);
   const Z = /** @type {Vec} */ ([0, 0, 1]);
@@ -561,9 +571,9 @@ function buildFramed(d) {
   if (d.roofType === 'ridgeBeam' && skidCount % 2 === 0) skidCount += 1;
   const skidYs = [];
   for (let i = 0; i < skidCount; i++) skidYs.push(skid.thick / 2 + (i * (W - skid.thick)) / (skidCount - 1));
-  const skidSplit = splitRun(0, L, maxStock, [], [], 0);
+  const skidSplit = splitRun(0, L, spliceAt, [], [], 0);
   if (skidSplit.runs.length > 1) {
-    notes.push(`Skids are longer than the longest board you allowed (${maxStock / 12} ft), so each is spliced; stagger the joints between skids${block ? ' and land each joint on a block' : ''}.`);
+    notes.push(`Skids are longer than the longest board you allowed or can haul (${spliceAt / 12} ft), so each is spliced; stagger the joints between skids${block ? ' and land each joint on a block' : ''}.`);
   }
   // Even pieces read better than one long and one stub.
   const skidPieces = skidSplit.runs.length;
@@ -638,7 +648,7 @@ function buildFramed(d) {
   const jz = skidTop;
   const floorTop = jz + joist.depth + 0.75;
   const joistCenters = [0.75, ...layoutCenters(d.joistSpacing, 0.75 + 1.5, L - 0.75 - 1.5), L - 0.75];
-  const rimSplit = splitRun(0, L, maxStock, joistCenters);
+  const rimSplit = splitRun(0, L, spliceAt, joistCenters);
   for (const y0 of [0, W - 1.5]) {
     for (const [s0, s1] of rimSplit.runs) {
       push({
@@ -831,9 +841,6 @@ function buildFramed(d) {
     let cur = 0;
     for (const [g0, g1] of doorGaps) { if (g0 > cur) bottomRuns.push([cur, g0]); cur = g1; }
     if (cur < len) bottomRuns.push([cur, len]);
-    for (const [r0, r1] of bottomRuns) {
-      for (const [s0, s1] of splitRun(r0, r1, maxStock, breakCenters).runs) addM('bottom plate', d.studSize, s0, s1, 0, 1.5);
-    }
     // The cap plate interlocks the corners: on the eave walls it stops one wall
     // depth short of each end, and the gable walls' cap runs that much long to
     // lap over the eave walls' top plate.
@@ -859,20 +866,34 @@ function buildFramed(d) {
       }
       return { top: top0, cap: cap0, overHeader: false };
     };
-    const { top, cap, overHeader } = choosePlates(maxStock);
+    // Splice at the longest board you can haul; where that leaves a joint off
+    // the framing or caps closer than 24" to a top-plate joint, take the next
+    // longer board you allowed.
+    const bottomWithin = (stock) => bottomRuns.map(([r0, r1]) => splitRun(r0, r1, stock, breakCenters));
+    const fine = (stock, pl) => !pl.top.forced && !pl.cap.forced && !bottomWithin(stock).some((r) => r.forced)
+      && pl.cap.runs.slice(1).every((x) => clearOf(pl.top.runs.slice(1).map((r) => r[0]), PLATE_OFFSET_MIN)(x[0]));
+    let plateStock = spliceAt;
+    let plates = choosePlates(plateStock);
+    for (const ft of d.lengths.filter((x) => x * 12 > spliceAt).sort((x, y) => x - y)) {
+      if (fine(plateStock, plates)) break;
+      plateStock = ft * 12;
+      plates = choosePlates(plateStock);
+    }
+    const { top, cap, overHeader } = plates;
+    for (const r of bottomWithin(plateStock)) for (const [s0, s1] of r.runs) addM('bottom plate', d.studSize, s0, s1, 0, 1.5);
     for (const [s0, s1] of top.runs) addM('top plate', d.studSize, s0, s1, H - 3, H - 1.5);
     for (const [s0, s1] of cap.runs) addM('cap plate', d.studSize, s0, s1, H - 1.5, H, spec.eave ? `stops ${D}" short of each end; the end walls' cap laps over it` : `runs ${D}" past each end to lap over the long walls`);
-    if (top.runs.length > 1) notes.push(`${WALL_LABEL[name]}: plates are longer than your longest board, so they splice over studs; the cap plate's joints are kept 4 ft from the top plate's where the layout allows, and never under the code's 24".`);
-    if (overHeader) notes.push(`${WALL_LABEL[name]}: with ${maxStock / 12} ft boards no plate split keeps its joints on full studs, so a plate joint sits over the header, which runs at least 1-1/2" past it each side. Nail both plate ends down into the header (or its cripple).`);
+    if (top.runs.length > 1) notes.push(`${WALL_LABEL[name]}: plates are longer than the longest board you allowed or can haul, so they splice over studs; the cap plate's joints are kept 4 ft from the top plate's where the layout allows, and never under the code's 24".`);
+    if (overHeader) notes.push(`${WALL_LABEL[name]}: with ${plateStock / 12} ft boards no plate split keeps its joints on full studs, so a plate joint sits over the header, which runs at least 1-1/2" past it each side. Nail both plate ends down into the header (or its cripple).`);
     // A short plate stub is legal but fussy; say when one longer board avoids it.
     const stub = (pl) => Math.min(...[...pl.top.runs, ...pl.cap.runs].map(([a, b]) => b - a));
     const shortest = stub({ top, cap });
     if (top.runs.length > 1 && shortest < PLATE_OFFSET_MIN - 1e-9) {
-      const better = DEFAULT_LENGTHS_FT.filter((ft) => ft * 12 > maxStock).find((ft) => {
+      const better = DEFAULT_LENGTHS_FT.filter((ft) => ft * 12 > plateStock).find((ft) => {
         const pl = choosePlates(ft * 12);
         return !pl.overHeader && stub(pl) >= PLATE_OFFSET_MIN - 1e-9;
       });
-      if (better) notes.push(`${WALL_LABEL[name]}: the plates need a ${fmtIn(shortest)} piece with ${maxStock / 12} ft boards; adding ${better} ft boards to your list avoids it.`);
+      if (better) notes.push(`${WALL_LABEL[name]}: the plates need a ${fmtIn(shortest)} piece with ${plateStock / 12} ft boards; ${d.maxHaulFt && better > d.maxHaulFt ? `${better} ft boards would avoid it, if you can haul them (your limit is ${d.maxHaulFt} ft)` : `adding ${better} ft boards to your list avoids it`}.`);
     }
     // Siding nailers: a 4 ft siding joint needs wood under both panel edges.
     // Where an opening's king, jack or cripples leave one side (or both) bare
@@ -1063,7 +1084,7 @@ function buildFramed(d) {
     if (L > maxStock) warnings.push(`The ridge beam should be one piece ${Math.ceil(L / 12)} ft long; add that length to your board list.`);
     notes.push(`Ridge-beam roof: the beam carries the rafters (fix them with hangers), so there are no rafter ties and the inside is open to the roof. The beam size is your choice, not a span-table result; check it for a ${fmtSpan(L)} span and your snow load.`);
   } else {
-    const ridgeSplit = splitRun(0, L, maxStock, rafterCenters);
+    const ridgeSplit = splitRun(0, L, spliceAt, rafterCenters);
     for (const [s0, s1] of ridgeSplit.runs) {
       push({
         id: nextId('RB'), group: 'roof', kind: 'ridge board', material: ridgeSize, length: ceil16(s1 - s0),
@@ -1338,7 +1359,7 @@ function buildFramed(d) {
   if (o > 0) {
     const fz = zt(-o);
     const sf = actual('2x6');
-    const fsplit = splitRun(0, L, maxStock, rafterCenters);
+    const fsplit = splitRun(0, L, spliceAt, rafterCenters);
     for (const back of [false, true]) {
       const y0 = back ? W + o : -o - 1.5;
       for (const [s0, s1] of fsplit.runs) {
@@ -1409,7 +1430,9 @@ function buildFramed(d) {
   // Lap siding goes over 7/16" OSB sheathing (laid out like panel siding, so
   // its joints fall on the studs and nailers) and its courses stand out by up
   // to two plank thicknesses at each butt edge.
-  const lapSpec = d.siding ? LAP_PRODUCTS[d.sidingType] : undefined;
+  const lapBase = d.siding ? LAP_PRODUCTS[d.sidingType] : undefined;
+  const lapExposure = lapBase ? evenExposure(lapBase, plateTop - skidTop) : undefined;
+  const lapSpec = lapBase && { ...lapBase, exposure: /** @type {number} */ (lapExposure) };
   const sheathT = 7 / 16;
   const sidingT = lapSpec ? sheathT + 2 * lapSpec.thickness : d.sidingType === 'LP SmartSide' ? 3 / 8 : d.sidingType === 'LP SmartSide 7/16' ? 7 / 16 : 19 / 32;
   /** @type {{ wall: string, length: number }[]} */
@@ -1621,7 +1644,7 @@ function buildFramed(d) {
     warnings.push(`The peak is ${fmtFt(dims.peak)} above the gravel, ${fmtFt(dims.peak - d.maxPeak)} over your ${fmtFt(d.maxPeak)} limit. Your tallest opening needs walls of at least ${fmtFt(minWall)}; with those walls and a 3/12 roof (about the least that sheds water under shingles) the peak would still be ${fmtFt(low)}. To get lower: a shorter door, a door in the gable end, a lower floor or a narrower shed${d.gableVents ? ', or smaller or no gable vents (they need a steeper roof to fit)' : ''}.`);
   }
 
-  return { design: d, members, panels, fixtures, walls, framedOpenings, warnings, notes, dims, vents: ventInfo, trim, wallTrim, doorParts, doors, interior, sidingArea, floorPieces, roofPieces, sidingFull, sidingUpper, sidingUpperShapes, lap };
+  return { design: d, members, panels, fixtures, walls, framedOpenings, warnings, notes, dims, vents: ventInfo, trim, wallTrim, doorParts, doors, interior, sidingArea, floorPieces, roofPieces, sidingFull, sidingUpper, sidingUpperShapes, lap, lapExposure };
 }
 
 /** @typedef {ReturnType<typeof buildFramed>} Shed */
