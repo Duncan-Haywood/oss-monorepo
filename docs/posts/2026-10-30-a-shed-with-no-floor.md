@@ -2,7 +2,7 @@
 title: "A shed with no floor: what leaving out the floor really saves"
 date: 2026-10-30
 tags: [shed-designer, foundation, cost]
-description: "Leaving the floor out of an 8x12 shed and standing the walls on PT 4x6 timbers on gravel drops $235 of floor and adds $244 of gravel. Real numbers, the checks and the catches."
+description: "Leaving the floor out of an 8x12 shed drops $235 of floor framing but adds $244 of gravel. Real numbers, the checks and the catches."
 ---
 
 The [shed designer](https://monorepo-projects-site.duncan-andrew-haywood.workers.dev/shed-designer/) now has a **Floor: none** choice. With it there are no skids, blocks, joists or subfloor. Each wall's bottom plate sits on a ground-contact pressure-treated 4x6, laid on edge on a full gravel pad, and the gravel is the floor. The plate itself is treated too, since it sits a few inches off the ground. If the roof hangs on a ridge beam, each gable post carries about half the beam's load straight down. So each post gets a concrete pier of its own under the timber: a 12" form tube on a 16" square footing, dug to the frost depth you set.

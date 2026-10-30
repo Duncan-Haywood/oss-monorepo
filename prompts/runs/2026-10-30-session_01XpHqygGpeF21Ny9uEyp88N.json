@@ -1,0 +1,56 @@
+{
+ "date": "2026-10-30",
+ "session": "https://claude.ai/code/session_01XpHqygGpeF21Ny9uEyp88N",
+ "track": "ventures",
+ "prompt_version": 1,
+ "input": "round-4 lane 5 brief: floorless and foundation options for ventures/shed-designer",
+ "input_sha256": "22801002f91109456576c651e8ce08348ff9cb8c825b0f9071f0c0d68fb59c81",
+ "follow_up_inputs": [],
+ "model": null,
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-10-30T20:40:40Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": "shed-designer r4 lane 5: floorless shed, block/pier spacing, Lowe's concrete listing, search knobs",
+ "projects": [
+  "shed-designer"
+ ],
+ "pr": 11861,
+ "repo": "duncan-haywood/oss-monorepo",
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": 12,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "ventures/shed-designer/make-renders.mjs",
+   "issue": "The render hash covers the whole normalised design, so adding any design field redraws all 37 renders and conflicts renders/manifest.json with every other lane; take main's manifest and re-run make-renders after each merge."
+  }
+ ],
+ "deviations": [
+  {
+   "file": "docs/reports/shed-designer-round3-lane7.md",
+   "why": "Floorless is opt-in in the search, not a default knob: it is a different shed (damp, burrowers) and on the starter it costs $15.82 more, so making it a silent search move would not be clearly better and safe.",
+   "did": "designsearch keeps the design's floor unless opts.knobs.floor asks",
+   "result": "default search unchanged; opt-in search finds floorless designs on the front but never cheapest"
+  }
+ ],
+ "writeups": [
+  "docs/posts/2026-10-30-a-shed-with-no-floor.md",
+  "docs/reports/shed-designer-round4-lane5.md"
+ ],
+ "goal": "Floorless and foundation options for the owner's shed, priced and checked",
+ "notes": "Local verification: node --test *.test.mjs in ventures/shed-designer after merging main: 404 tests, 0 failures (before the search-knob commit); designsearch, crossfeature, gallery, paretoaudit and levers tests after it: 39 pass, 0 fail. platform/pages/typecheck.mjs shed-designer: 0 diagnostics. make-renders.mjs re-run after the merge. Baseline run on main before any change had 2 flaky browser-test failures (3D orbit labels, store table catch-up) that passed on later runs.",
+ "corrections": [],
+ "redteam": null
+}

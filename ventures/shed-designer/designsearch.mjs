@@ -156,7 +156,7 @@ const POLISH_SHARE = 0.35;
 /** The lighter value of each framing knob, tried on every front design first. */
 const LIGHT = { joistSize: '2x4', joistSpacing: 24, rafterSpacing: 24, studSpacing: 'auto', rafterSize: '2x4' };
 /** Knobs the polish tries: they mostly move cost, and leave the plan and openings alone. */
-const POLISH_KNOBS = ['joistSize', 'joistSpacing', 'rafterSpacing', 'studSpacing', 'rafterSize', 'overhang', 'wall', 'floorPanel', 'foundation', 'pad', 'roofCover', 'sidingType'];
+const POLISH_KNOBS = ['joistSize', 'joistSpacing', 'rafterSpacing', 'studSpacing', 'rafterSize', 'overhang', 'wall', 'floorPanel', 'foundation', 'pad', 'blockSpacing', 'floor', 'roofCover', 'sidingType'];
 /** The layouts that put every opening in the front wall: seeded for a lean-to, not a gable. */
 const FRONT_WALL_LAYOUTS = ['eave door, no windows', 'eave door and a window beside it'];
 
@@ -436,6 +436,8 @@ export function* searchSteps(opts = {}) {
   const baseProduct = (kind, list) => { const p = base.openings.find((o) => o.kind === kind)?.product; return p && p in list ? p : Object.keys(list)[0]; };
   const fixedValue = (k) => (k === 'studSpacing' && base.autoStuds ? 'auto' : k === 'wall' ? base.wallHeight : k === 'door' ? baseProduct('door', DOORS) : k === 'window' ? baseProduct('window', WINDOWS) : base[k]);
   for (const [k, vals] of Object.entries({ ...KNOBS, ...(opts.knobs ?? {}) })) knobs[k] = fixed.has(k) ? [fixedValue(k)] : vals;
+  // Leaving the floor out is opt-in: the search keeps your floor unless opts.knobs.floor asks for both.
+  if (!opts.knobs?.floor) knobs.floor = [base.floor];
   // A lean-to and a gambrel pin their roofType, so a roof structure you fixed rules them out.
   if (fixed.has('roofType') && knobs.roofType[0] !== 'ridgeBoard') knobs.style = knobs.style.filter((st) => st === 'gable');
   const sizes = opts.sizes ?? sizesUnder(c.maxFootprint > 0 ? c.maxFootprint : 100, c);

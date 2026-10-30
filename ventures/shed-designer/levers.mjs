@@ -80,4 +80,9 @@ export const LEVER_KNOBS = {
   joistSize: ['2x4', '2x6', '2x8'],
   joistSpacing: [16, 24],
   floorPanel: ['plywood', 'OSB'],
+  // No floor (walls on PT 4x6 timbers, a gravel floor) is a different shed, damper and open to
+  // burrowers: designsearch.mjs tries it only when asked (opts.knobs.floor) or when the design has it.
+  floor: ['framed', 'none'],
+  // Blocks or piers further apart along a skid: fewer of them, if the skid and soil checks pass.
+  blockSpacing: [48, 72],
 };
