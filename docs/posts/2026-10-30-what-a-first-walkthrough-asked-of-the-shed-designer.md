@@ -1,5 +1,6 @@
 ---
 title: "What one walkthrough asked of the shed designer, and the answers it now gives"
+seo_title: "What one walkthrough asked of the shed designer, and the answers"
 date: 2026-10-30
 tags: [shed-designer, ux, cost]
 description: "Which board is the 14 footer for? What does a window really cost? Why do two options cost the same? The shed designer now answers these on the page."

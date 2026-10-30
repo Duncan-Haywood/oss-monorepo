@@ -1,5 +1,6 @@
 ---
 title: "Kenya's eTIMS: no invoice, no deduction, and what a PIN check can and cannot tell you"
+seo_title: "Kenya's eTIMS: no invoice, no deduction, and what a PIN check shows"
 date: 2026-10-30
 tags: [einvoice-preflight, e-invoicing, kenya]
 description: "A new e-invoice Preflight page for Kenya's eTIMS, with a free KRA PIN format check and a plain list of what the sources leave open."

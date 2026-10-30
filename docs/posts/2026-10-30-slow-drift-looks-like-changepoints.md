@@ -1,5 +1,6 @@
 ---
 title: "Slow drift looks like changepoints, even when lag-1 autocorrelation is small"
+seo_title: "Slow drift looks like changepoints, even at low lag-1 autocorrelation"
 date: 2026-10-30
 tags: [changepoint-detector, time-series, evaluation]
 description: "7,980 tree rings have lag-1 autocorrelation 0.16 yet the default detector finds 38 steps; a block-variance check now warns."

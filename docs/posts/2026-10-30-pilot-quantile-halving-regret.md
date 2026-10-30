@@ -1,5 +1,6 @@
 ---
 title: "Can 16 random chip designs predict how much successive halving will lose?"
+seo_title: "Can 16 random chip designs predict successive-halving regret?"
 date: 2026-10-30
 tags: [verified-dse, multi-fidelity, successive-halving]
 description: "On 40 real SKY130 flow cells, a quantile of the rival-excess computed inside a 16-point pilot bounded halving regret in 97.6% of draws at q = 0.95."

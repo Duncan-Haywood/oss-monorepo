@@ -1,5 +1,6 @@
 ---
 title: "UK e-invoicing: the Budget 2026 roadmap is out, and what we could and could not read"
+seo_title: "UK e-invoicing: the Budget 2026 roadmap, and what we could read"
 date: 2026-10-30
 tags: [einvoice-preflight, uk, e-invoicing]
 description: "The UK published its e-invoicing implementation roadmap on 28 October 2026. We updated our UK page, and say plainly that we only read a search excerpt of it."

@@ -1,5 +1,6 @@
 ---
 title: "Why boiling well water raises its nitrate, and what that means for a formula-fed baby"
+seo_title: "Why boiling well water raises nitrate, and what it means for formula"
 date: 2026-10-30
 tags: [hearth-and-horizon, fiction, water-safety]
 description: "A Hearth & Horizon story does the sum: boiled-down well water at 68 mg/L nitrate becomes 85, so a 3.8 kg baby takes 48 mg a day."

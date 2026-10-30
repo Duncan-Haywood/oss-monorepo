@@ -1,5 +1,6 @@
 ---
 title: "Switching schedulers: turn last month's published schedule into the shifts to cover"
+seo_title: "Switching schedulers: turn last month's schedule into shifts"
 date: 2026-10-30
 tags: [shift-roster-builder, scheduling, import]
 description: "The shift roster builder now reads a published-schedule CSV and writes the shift-requirement lines, counting people per weekday, time and position."

@@ -1,5 +1,6 @@
 ---
 title: "The cold corner of the dormitory: why heat treatment is about the mattress core"
+seo_title: "The cold corner of the dormitory: heat treatment and the mattress core"
 date: 2026-10-30
 tags: [hearth-and-horizon, fiction, heat-transfer]
 description: "A new Hearth & Horizon story: bed bugs at a pilgrim hostel, and why 60 degrees on the thermostat is the wrong number to aim at."

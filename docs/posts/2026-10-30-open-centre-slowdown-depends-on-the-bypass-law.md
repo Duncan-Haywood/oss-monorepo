@@ -1,5 +1,6 @@
 ---
 title: "An excavator's open-centre slowdown depends on one number nobody had measured"
+seo_title: "An excavator's open-centre slowdown depends on one unmeasured number"
 date: 2026-10-30
 tags: [heavy-hydraulics, hydraulics, sensitivity]
 description: "A steady-state model says an open-centre valve slows a two-actuator dig by a median 6%. Change how fast the bypass closes and that becomes 0% or 22%."

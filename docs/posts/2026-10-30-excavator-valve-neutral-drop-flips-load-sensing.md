@@ -1,5 +1,6 @@
 ---
 title: "One number decides whether load-sensing beats open-centre on a small excavator"
+seo_title: "One number decides if load-sensing beats open-centre on an excavator"
 date: 2026-10-30
 tags: [heavy-hydraulics, hydraulics, excavator, research]
 description: "An excavator valve's ~11 bar neutral bypass drop, read from a Danfoss curve, moves the load-sensing break-even margin to 28 bar and reverses an earlier result."

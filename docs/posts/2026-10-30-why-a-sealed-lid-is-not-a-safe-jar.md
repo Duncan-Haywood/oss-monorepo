@@ -1,5 +1,6 @@
 ---
 title: "Why a sealed lid is not a safe jar: botulism spores and boiling water at altitude"
+seo_title: "Why a sealed lid is not a safe jar: botulism and altitude"
 date: 2026-10-30
 tags: [hearth-and-horizon, fiction, food-safety]
 description: "A Hearth & Horizon story does the sum: at 1,820 m water boils at 94 C, so a 3-hour bath gives about a seventh of the heat green beans need."

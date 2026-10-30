@@ -1,5 +1,6 @@
 ---
 title: "Half our repository is 80 MP3 files, and every CI check downloaded them"
+seo_title: "Half our repository is 80 MP3 files, and CI downloaded them all"
 date: 2026-10-30
 description: "Our CI guards cloned all 893 MB of the repository to read a few files. Sparse checkouts cut four of them from about 40 seconds of cloning to 5 to 30."
 topic: infrastructure
