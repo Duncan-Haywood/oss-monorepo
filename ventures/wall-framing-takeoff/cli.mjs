@@ -53,7 +53,7 @@ Usage:
   node cli.mjs plan.json --panel-max=12ft --panel-sheets  one printable sheet per panel after each wall's sheet
   node cli.mjs plan.json --panel-max=12ft --sheathing-psf=1.5  also weigh the sheathing on each panel (lb per sq ft)
   node cli.mjs plan.json --floor     add the plan's floor (joists, rim, blocking, subfloor sheets); its lumber joins the order
-  node cli.mjs plan.json --deck      add the plan's deck (plan "deck": {width, depth, height, joist, spacing, beam, beamPlies, postSize, freestanding, overhang, spanTable}): joists, rims or ledger, beam and posts, footing concrete, decking rows with joints on joists, hardware; its own pressure-treated lumber order
+  node cli.mjs plan.json --deck      add the plan's deck (plan "deck": {stairs: {width, tread, stringer} adds a stair with the deck height as its rise; width, depth, height, joist, spacing, beam, beamPlies, postSize, freestanding, overhang, spanTable}): joists, rims or ledger, beam and posts, footing concrete, decking rows with joints on joists, hardware; its own pressure-treated lumber order
   node cli.mjs plan.json --stairs    add the plan's stairs (plan "stairs": one object or a list of {totalRise, tread, stringer, width, treadBoard, floorThickness, openingLength}): equal risers under the code limit, notch geometry, stringers and treads, the stairwell opening the headroom needs; the lumber joins the order
   node cli.mjs plan.json --roof      add the plan's gable roof, or hip roof with shape "hip" (rafters, ridge, sheathing, shingle and felt quantities); its lumber joins the order
   node cli.mjs plan.json --fasteners   count nails by connection (plan fasteners: studEndNails, plateSpacing, edgeSpacing, nailsPerBox, price; add --sheathing for sheathing nails)
@@ -148,9 +148,11 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
   }
   /** @type {any[]} */
   const stairs = [];
-  if (flags.has("--stairs") || plan.stairs) {
-    if (!plan.stairs) return { code: 2, out: "The plan has no `stairs` object (totalRise, tread, stringer, width)." };
-    for (const [i, st] of (Array.isArray(plan.stairs) ? plan.stairs : [plan.stairs]).entries()) {
+  // a deck's own stair takes its total rise from the deck surface height above grade
+  const deckStair = deck && plan.deck.stairs ? [{ id: "Deck stair", tread: 10, stringer: "2x12", width: 36, ...plan.deck.stairs, totalRise: plan.deck.height }] : [];
+  if (flags.has("--stairs") || plan.stairs || deckStair.length) {
+    if (!plan.stairs && !deckStair.length) return { code: 2, out: "The plan has no `stairs` object (totalRise, tread, stringer, width)." };
+    for (const [i, st] of [...(plan.stairs ? (Array.isArray(plan.stairs) ? plan.stairs : [plan.stairs]) : []), ...deckStair].entries()) {
       for (const k of ["totalRise", "tread", "width", "openingLength", "floorThickness"]) if (typeof st[k] === "string") st[k] = parseLength(st[k]);
       if (typeof st.landing === "object" && st.landing) for (const k of ["depth", "landingRise"]) if (typeof st.landing[k] === "string") st.landing[k] = parseLength(st.landing[k]);
       const withLanding = st.landing || st.totalRise > (st.limits?.maxRise ?? STAIR_LIMITS.maxRise);
