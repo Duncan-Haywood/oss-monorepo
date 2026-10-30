@@ -7653,6 +7653,11 @@ const CUSTOM_DEV_STYLE = `
     .cd-ask { color: var(--muted); font-size: .92em; }
     .cd-st { display: inline-block; font-weight: 600; font-size: .85em; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--line); }
     .cd-building, .cd-accepted { border-color: var(--accent); color: var(--accent); }
+    @media (max-width: 600px) {
+      .cd-table thead { display: none; }
+      .cd-table tr, .cd-table td { display: block; border: 0; padding: 2px 0; }
+      .cd-table tr { padding: 10px 0; border-bottom: 1px solid var(--line); }
+    }
 `;
 
 /** The slim search index the hub (and nothing else) loads. See `renderSearchIndex`. */

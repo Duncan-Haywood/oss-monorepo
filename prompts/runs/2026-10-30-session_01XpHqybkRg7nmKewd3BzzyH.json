@@ -45,7 +45,7 @@
     "docs/posts/2026-10-30-open-custom-development.md"
   ],
   "goal": null,
-  "notes": "requests.test.mjs pass; custom-development-page, feedback-page, check, product-llms, writing tests pass after merging main (pre-merge failure was the Bulgaria post description, fixed on main). Full build.mjs + check.mjs run locally in background; result below if it finished before merge.",
+  "notes": "requests.test.mjs pass; custom-development-page, feedback-page, check, product-llms, writing tests pass after merging main (pre-merge failure was the Bulgaria post description, fixed on main). Full local `node build.mjs --out=dist --audio-cdn` exit 0 and `node check.mjs dist`: 'looks publishable: 1321 products, 44 category pages, 5904 pages, no dead links'. custom-development/ in sitemap-hub.xml and llms.txt; 390px screenshot has no horizontal scroll, request table stacks on phones.",
   "corrections": [],
   "redteam": null
 }
