@@ -1,0 +1,49 @@
+{
+ "date": "2026-10-30",
+ "session": "https://claude.ai/code/session_01XpHqydoGdaJGH3sNoMcqDs",
+ "track": "process",
+ "prompt_version": 1,
+ "input": "is there a way to evolve our cicd system and platoform? do a blog report on it",
+ "input_sha256": "705aa26440d84be7e33c779138249a5e30228c269b0c40f1f0d9fb99519d7301",
+ "follow_up_inputs": [],
+ "model": null,
+ "models_seen": [],
+ "started": null,
+ "ended": null,
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": "CI/CD evolution blog report from a day of Actions data; gate the inert cross-review/auto-merge loop on AGENT_REVIEW_ENABLED",
+ "projects": [
+  "platform/ci"
+ ],
+ "pr": 11901,
+ "repo": "duncan-haywood/oss-monorepo",
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": 0,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "gitops/ci/README.md",
+   "issue": "Opens by calling the repository private with metered minutes; CLAUDE.md and the hosting docs say public with free standard runners, so a reader cannot tell which cost model applies."
+  }
+ ],
+ "deviations": [],
+ "writeups": [
+  "docs/posts/2026-10-30-evolving-our-ci-from-a-gate-nobody-trusts.md",
+  "docs/reports/2026-10-30-ci-platform-evolution.md"
+ ],
+ "goal": "Say with real data how the CI/CD platform should evolve next, and ship the first cheap step",
+ "notes": "Data: 10,071 runs 2026-10-29T21:00Z..2026-10-30T21:00Z via the Actions API in hourly windows; ci_profile.py --runs 300. Local checks: validate_workflows.py (125 valid), dogfood_workflows.py (no unaccepted findings), check_post_frontmatter.py exit 0, check_md_links.py ok, both workflow YAMLs parse. promptctl validate was already red on main for three other sessions' run records.",
+ "corrections": [],
+ "redteam": null
+}

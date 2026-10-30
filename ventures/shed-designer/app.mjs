@@ -2,7 +2,7 @@
 // The page: several designs, a drag editor, the 3D view, the lists and the
 // plan sheets, all rebuilt from one design object on every change.
 
-import { buildShed, normalize, defaultDesign, PRESETS, WALLS, wallLabel, wallFaceLength, ROOF_TYPES } from './model.mjs';
+import { buildShed, normalize, PRESETS, WALLS, wallLabel, wallFaceLength, ROOF_TYPES } from './model.mjs';
 import { estimate, examplePrices, cutSheetCsv, shoppingCsv, groupBoards, sourceLabel, boardUse, lumberUses, sectionTotals } from './estimate.mjs';
 import { buildSheets, sheetSvg, sheetsDxf } from './drawings.mjs';
 import { createViewer, LAYERS } from './render3d.mjs';
@@ -20,7 +20,8 @@ import { quoteRequest, mailtoLink, STORES } from './quote.mjs';
 import { PRODUCTS } from './products.mjs';
 import { storeComparison, swapsFor, storeTotals, storeList, pricesFor } from './catalog.mjs';
 import { simplify, cutMetrics, budget, laborHours } from './simplify.mjs';
-import { galleryEntries, mountMatchHouse, mountStripNav, matchesHouse } from './gallery-ui.mjs';
+import { budgetPath, budgetPathHtml } from './budgetpath.mjs';
+import { galleryEntries, mountMatchHouse, mountStripNav, matchesHouse, firstDesign } from './gallery-ui.mjs';
 import { showCosts, wireCosts, bridgeHtml, breakdownOf, deltaSentence } from './costview.mjs';
 import { costDelta, deltaPhrase } from './costs.mjs';
 import { valueComparison, valueHtml } from './value.mjs';
@@ -31,6 +32,8 @@ import { idsForLine, describePiece } from './xref.mjs';
 const $ = (sel) => /** @type {any} */ (document.querySelector(sel));
 const $$ = (sel) => /** @type {any[]} */ ([...document.querySelectorAll(sel)]);
 const STORE = 'shed-designer-state-v1';
+/** The budget typed beside "Find a cheaper build", remembered in this browser only. */
+const BUDGET_KEY = 'shed-designer-budget';
 const OPT = 'shed-designer-usage-preference';
 const KEEP = 'shed-designer-keep-designs';
 const money = (n) => {
@@ -112,7 +115,7 @@ function load() {
     }
     history.replaceState(null, '', location.pathname + location.search);
   }
-  if (!state.designs.length) state.designs = [defaultDesign()];
+  if (!state.designs.length) state.designs = [normalize(firstDesign())];
 }
 const design = () => state.designs[state.active];
 
@@ -643,6 +646,8 @@ let lastShed = null;
 function render() {
   try {
     renderNow();
+    // The gallery cards show their cost against the open design.
+    picker?.refresh();
     return true;
   } catch (err) {
     console.error(err);
@@ -941,6 +946,7 @@ function wire() {
       $('#workspace').scrollIntoView({ behavior: 'smooth' });
     };
   });
+  try { const t = localStorage.getItem(BUDGET_KEY); if (t) $('#budget-target').value = t; } catch { /* nothing remembered */ }
   $('#budget').addEventListener('click', () => {
     $('#budget').disabled = true;
     $('#budget-out').innerHTML = '<p class="muted">Pricing the alternatives...</p>';
@@ -966,11 +972,18 @@ function wire() {
           <button type="button" data-budget-use>Use this one</button></article>`;
       }
       if (r.also.length) html += `<p><strong>Also possible, if you will change the structure you chose:</strong> ${r.also.map((a) => `${esc(a.label)} saves ${money(a.saving)} more counting your time (${money(a.materials)} of materials, ${a.hours >= 0 ? `${a.hours} h less` : `${-a.hours} h more`} work)`).join('; ')}.</p>`;
+      const target = Number($('#budget-target').value);
+      try { if (target > 0) localStorage.setItem(BUDGET_KEY, String(target)); } catch { /* remembered only where storage works */ }
+      const path = target > 0 ? budgetPath(design(), target, r, state.prices) : null;
+      if (path) html += budgetPathHtml(path);
       if (r.taller.length) html += `<p><strong>Held back by height:</strong> ${r.taller.map((a) => `${esc(a.label)} would save ${money(a.saving)} more but put the peak at ${ft(a.peak)}`).join('; ')}.</p>`;
       $('#budget-out').innerHTML = html;
+      const smallerDesign = path?.shrink?.fits ? path.shrink.design : null;
       $('#budget-out').onclick = (ev) => {
         if (!ev.target.closest('button[data-budget-use]')) return;
-        state.designs.push(normalize({ ...b.design, name: `${design().name}: cheaper build` }));
+        const smaller = ev.target.closest('button[data-budget-use="smaller"]');
+        const pick = smaller && smallerDesign ? smallerDesign : b.design;
+        state.designs.push(normalize({ ...pick, name: `${design().name}: ${smaller ? 'smaller, to fit the budget' : 'cheaper build'}` }));
         state.active = state.designs.length - 1;
         count('designs');
         render();
@@ -1214,7 +1227,7 @@ render();
 picker = mountPicker({
   root: $('#starts'), dialog: $('#pick-dialog'), tray: $('#compare-tray'),
   entries: galleryEntries(),
-  prices: () => state.prices, priceOf: (shed) => storeEstimate(shed), count,
+  prices: () => state.prices, priceOf: (shed) => storeEstimate(shed), count, current: () => design(),
   onStart(d) {
     state.designs.push(normalize(d));
     state.active = state.designs.length - 1;

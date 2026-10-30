@@ -24,14 +24,12 @@ on:
       - ".github/workflows/distribution-versions-ci.yml"
   workflow_dispatch:
 
-permissions:
-  contents: read
-
-# A newer push to the same pull request cancels the superseded run; `main`
-# keeps every run (platform/ci/validate_workflows.py, invariant 9).
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
 
 jobs:
   check:

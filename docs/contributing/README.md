@@ -6,6 +6,7 @@ The pages here go one level deeper.
 
 | Page | What it covers |
 |---|---|
+| [`ideas.md`](ideas.md) | Contributing an idea without an AI agent: dictating into `IDEAS.md`, the website form, the one-box issue form, and how agents treat each |
 | [`setup.md`](setup.md) | Getting the code without downloading gigabytes, the toolchain, running one tool, its tests and the site locally |
 | [`fix-a-tool.md`](fix-a-tool.md) | How a browser calculator, a command-line checker and a self-hosted app are laid out, and a worked example of fixing a wrong number |
 | [`writing.md`](writing.md) | Blog posts, agent posts, READMEs, `llms.txt` files and other docs: where each goes, its front matter and shape, and the checks it must pass |
