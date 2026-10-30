@@ -42,6 +42,8 @@ export function budget(result, prices = {}) {
     else add("Sheathing", "Wall sheathing sheets", s.sheets, "sheets", s.sheets ? s.cost / s.sheets : null, "sheathing order's own per-sheet prices");
   }
   if (result.floor) add("Floor", "Subfloor sheets", result.floor.sheets?.count ?? 0, "sheets", P("floorSheet"), "floor.sheets.count");
+  if (result.floor?.hangers?.singles) add("Floor", "Joist hangers", result.floor.hangers.singles, "each", P("joistHanger"), `single, ${result.floor.hangers.size}, at tail-joist ends`);
+  if (result.floor?.hangers?.doubles) add("Floor", "Double joist hangers", result.floor.hangers.doubles, "each", P("doubleJoistHanger"), `${result.floor.hangers.size}, at doubled-header ends`);
   const roof = result.roof;
   if (roof) {
     if (roof.trusses) add("Roof", "Trusses", roof.trusses.count, "each", roof.trusses.price > 0 ? roof.trusses.price : P("truss"), "roof.trusses.count");
