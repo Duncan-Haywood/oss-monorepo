@@ -339,7 +339,7 @@ prompt. Whether a 7B or fine-tuned coder reaches J above 0.5 is untested.
 Each table is written by one script in `experiments/` (about 30 s to 3 min
 each); data come from the public NaijaSenti and GoEmotions releases through the
 loaders of `qual-dialect` and `qual-real`; seeds are fixed in the scripts. Tests:
-`python3 -m pytest research/llm-coding-inference/test_llmci.py`.
+`python3 -m pytest research/llm-coding-inference/test_llmci.py`. The design rule and its closing interval are library code (`llmci.audit_design`: `plan_audit`, `audit_interval`); `experiments/h7c_end_to_end.py` runs a whole audit through them and matches the guarded-screen experiment of Section 8 within Monte Carlo noise (half-width within 2% in 14 cells; coverage 92.0 to 96.6%, two cells 2.6 and 2.8 points from the experiment's).
 
 ## Status of each section
 
