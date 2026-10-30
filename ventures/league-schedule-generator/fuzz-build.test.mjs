@@ -49,3 +49,9 @@ test("fixed-date pins keep every match, stay valid and land on the chosen night"
   assert.equal(r.status, 0, r.stdout + r.stderr);
   assert.match(r.stdout, /bad: 0/);
 });
+
+test("the multi-division validator notices every seeded fault", () => {
+  const r = spawnSync(process.execPath, ["eval/mutate-divisions.mjs", "60", "3"], { cwd: new URL(".", import.meta.url).pathname, encoding: "utf8" });
+  assert.equal(r.status, 0, r.stdout + r.stderr);
+  assert.match(r.stdout, /0 missed/);
+});
