@@ -8,6 +8,8 @@
 import { fmtIn, fmtFtIn } from './lumber.mjs';
 import { WALL_LABEL } from './model.mjs';
 import { heelJoint } from './checks.mjs';
+import { sidingUpperSheets } from './estimate.mjs';
+import { finishName, SIDING_FINISHES } from './looks.mjs';
 
 /** @typedef {{ title: string, why?: string, steps: string[], check?: string[] }} Section */
 
@@ -213,7 +215,7 @@ export function buildInstructions(shed, est) {
     title: 'Roof sheathing and dry-in',
     why: 'The fascia goes on before the drip edge, and the eave drip edge before the underlayment, so each layer laps over the one below it.',
     steps: [
-      `Sheathe with 7/16" OSB, long edges across the rafters (${est.roofSheets} sheets, ${k.roofRows} courses a side). Start at the eave with full sheets flush with the ${d.overhang > 0 ? 'face of the sub-fascia' : 'rafter tails'}, stagger the next course by half a sheet, and land every end joint on a rafter. Leave 1/8" between sheets. The course at the ridge is narrower than a sheet: rip its strips side by side from whole sheets, as many to a sheet as fit (the sheet count assumes that).`,
+      `Sheathe with 7/16" OSB, long edges across the rafters (${est.roofSheets} sheets, ${k.roofRows} courses a side). Start at the eave with full sheets flush with the ${d.overhang > 0 ? 'face of the sub-fascia' : 'rafter tails'}, stagger the next course by half a sheet, and land every end joint on a rafter. Leave 1/8" between sheets. The course at the ridge is narrower than a sheet: rip its strips side by side, as many to a sheet as fit, and take them from what is left of a sheet after a short full-width piece before starting a new one (the sheet count assumes that).`,
       'Nail with 8d every 6" on the edges and every 12" in the field.',
       d.overhang > 0 ? 'Fascia: nail the 1x6 fascia to the sub-fascia, its top edge tight under the sheathing, with two 8d galvanized finish nails at each rafter tail.' : '',
       `Drip edge along the eaves, over the ${d.overhang > 0 ? 'fascia' : 'sheathing edge'} and under the underlayment.`,
@@ -221,12 +223,16 @@ export function buildInstructions(shed, est) {
     ].filter(Boolean),
   });
 
+  // Name the nesting only where it is what saves a panel.
+  const upperPanels = sidingUpperSheets(shed);
+  const nested = d.siding && upperPanels < sidingUpperSheets(shed, false) ? upperPanels : 0;
   out.push({
     title: 'Siding',
     steps: [
       d.siding ? `T1-11 panels, grooves vertical, ${shed.sidingFull.length} panel positions around the shed (see the shopping list for 8, 9 and 10 ft lengths). Start at a corner, keep the bottom edge level with the top of the skids so it laps the rim joist and floor, and plumb the first panel with a level.` : 'Siding is off in this design.',
       'Every vertical panel edge lands on a stud. Nail 8d galvanized every 6" on edges and every 12" on intermediate studs.',
       shed.sidingUpper.length ? 'Where a gable needs a second panel above the first, put Z-flashing over the lower panel\'s top edge before the upper one.' : 'Each panel reaches from the bottom to the top in one piece.',
+      nested ? `The ${shed.sidingUpper.length} upper gable pieces come from ${nested} panel${nested > 1 ? 's' : ''}: two pieces that slope the same way are cut head to toe along one panel, the second turned end for end so the two sloped cuts run side by side. Its shiplap edges then face the other way, so where it meets its neighbour, plane or rip the lap off both edges and butt the joint over the stud with a bead of caulk.` : '',
       openings ? 'Leave out the nails in the 8" of siding above each door and window head for now, so the head flashing can slip up behind it in the trim step.' : '',
       `Cut the ${openings && vents.length ? 'door, window and gable vent openings' : openings ? 'door and window openings' : vents.length ? 'gable vent openings' : 'panels to the roof line'} with a circular saw from inside, along the framing, after the panel is nailed; finish the corners with a handsaw.`,
       trimmed ? 'The corners get 1x4 corner boards in the trim step; leave the panel edges flush with the corner.' : 'No corner boards: caulk the corner joints and paint the panel edges.',
@@ -277,7 +283,7 @@ export function buildInstructions(shed, est) {
     out.push({
       title: 'Paint',
       steps: [
-        `Prime bare wood and T1-11 with an exterior primer, then two coats of exterior paint (${d.sidingColor}).`,
+        `Prime bare wood and T1-11 with an exterior primer, then two coats of exterior paint (${finishName(d.sidingColor, SIDING_FINISHES)}).`,
         d.polkaDots ? 'Polka dots: make a 3" circle stencil. Snap chalk lines 9" apart up the wall and dab a dot every 9" along each line, shifting every other row by 4-1/2" so they stagger. Use the purple accent paint and a foam pouncer.' : '',
         d.glitter ? 'Glitter: stir a packet of paint glitter into each gallon of the final coat, or dust it onto the wet final coat, and keep stirring as you paint so it does not settle.' : '',
       ].filter(Boolean),

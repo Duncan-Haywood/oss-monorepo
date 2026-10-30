@@ -35,16 +35,16 @@ The summary also prices the whole order with no limit and shows the difference. 
 
 | preset | no limit | 12 ft limit | difference |
 |---|---|---|---|
-| 8x10 | $3,016.20 | $3,030.27 | +$14.07 |
+| 8x10 | $2,925.32 | $2,939.39 | +$14.07 |
 | 8x12 default | $3,026.46 | $3,074.14 | +$47.68 |
-| 8x12 classic | $3,247.40 | $3,256.15 | +$8.75 |
+| 8x12 classic | $3,195.05 | $3,203.80 | +$8.75 |
 | 10x12 | $3,692.52 | $3,708.19 | +$15.67 |
-| 12x16 | $4,700.46 | $4,703.62 | +$3.16 |
-| 8x8 | $2,547.58 | $2,550.81 | +$3.23 |
+| 12x16 | $4,648.11 | $4,651.27 | +$3.16 |
+| 8x8 | $2,403.44 | $2,404.86 | +$1.42 |
 
 Two rows need a note:
 
 - **The 12x16's lumber is $14.80 cheaper with the limit.** Its 16 ft plates, rims and skids become shorter boards, and at these prices a 16 ft 2x4 costs more per foot than an 8. The order still ends up $3.16 dearer once the other lines are counted.
 - **Most of the default's $47.68 is roofing.** The automatic overhang takes the longest overhang that needs no more lumber. Within 12 ft boards that is 9", not 6", and the extra 3" of roof costs one more shingle bundle ($40.47).
 
-So the limit costs between $3 and $16 on most presets, against a delivery fee of $79 at Home Depot. The tool shows the difference on every design, so you can decide.
+So the limit costs between $1 and $16 on most presets, against a delivery fee of $79 at Home Depot. The tool shows the difference on every design, so you can decide.

@@ -145,3 +145,11 @@ test('a ridge board\'s temporary props come out only after the rafters and ties 
   const md = instructionsMarkdown(buildInstructions(buildShed(PRESETS['10x12']()), estimate(buildShed(PRESETS['10x12']()))), 'x');
   assert.match(md, /Leave the props in until every rafter pair and its tie is nailed, then take them out/);
 });
+
+test('the siding step says how the nested gable pieces are cut and joined', () => {
+  const { md } = mdOf(PRESETS['8x10']());
+  assert.match(md, /The 4 upper gable pieces come from 1 panel: two pieces that slope the same way are cut head to toe/);
+  assert.match(md, /butt the joint over the stud with a bead of caulk/);
+  assert.match(md, /take them from what is left of a sheet after a short full-width piece/);
+  assert.ok(!/upper gable pieces come from/.test(mdOf(defaultDesign()).md)); // its panels reach the roof in one piece
+});
