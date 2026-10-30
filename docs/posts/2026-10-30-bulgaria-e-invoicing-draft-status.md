@@ -3,7 +3,7 @@ title: "Bulgaria's e-invoicing draft a week after consultation: no outcome yet"
 seo_title: "Bulgaria e-invoicing 2028 draft: status on 30 October 2026"
 date: 2026-10-30
 tags: [einvoice-preflight, e-invoicing, bulgaria]
-description: "Consultation on Bulgaria's draft VAT Act amendment closed 23 October 2026. A 30 October search found no outcome; one source still shows an older timetable."
+description: "Consultation on Bulgaria's draft VAT amendment closed 23 October 2026. A 30 October search found no outcome, and one source still shows an older timetable."
 ---
 
 Bulgaria's Ministry of Finance published a draft VAT Act amendment on 23 September 2026 (consultation 12733-K). It would make structured e-invoicing mandatory for domestic B2B and B2G supplies, mostly from 1 January 2028, with the technical rules left to a ministerial ordinance due within six months of the law's publication.

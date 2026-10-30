@@ -638,7 +638,9 @@ Actions secrets. They cannot mint servers or raise an OpenAI hard limit.
   README.md`'s "One-time owner setup" is the whole procedure: create 4
   GitHub Apps (Pull requests: Read & write; Contents: Read; Metadata:
   Read; installed on this repo only), add the 8 `AGENT_REVIEWER_*`
-  secrets it names, and set `required_approving_review_count: 2` plus
+  secrets it names, set the repository variable `AGENT_REVIEW_ENABLED` to
+  `true` (since 2026-10-30 both workflows skip before taking a runner
+  without it), and set `required_approving_review_count: 2` plus
   required status checks on the `main` branch ruleset. The
   `agent-cross-review-automerge` row in `portfolio/ledger/asks.yaml`
   used to say this shape was abandoned (#870, closed 2026-08-24) and
