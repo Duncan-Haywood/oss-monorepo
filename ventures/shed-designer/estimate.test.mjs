@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildShed, defaultDesign, PRESETS } from './model.mjs';
-import { estimate, examplePrices, markName, cutSheetCsv, shoppingCsv } from './estimate.mjs';
+import { buildShed, defaultDesign, normalize, PRESETS } from './model.mjs';
+import { estimate, examplePrices, markName, cutSheetCsv, shoppingCsv, boardUse, lumberUses, groupBoards } from './estimate.mjs';
 
 const classic = () => PRESETS['8x12 classic']();
 
@@ -120,5 +120,31 @@ test('gable siding pieces that slope the same way nest head to toe', async () =>
     const n = sidingUpperSheets(s);
     assert.ok(n >= Math.ceil(area - 1e-9), `${s.design.name}: ${n} panels for ${area.toFixed(2)} panels of area`);
     assert.ok(n <= Math.max(plain, s.sidingUpper.length), s.design.name);
+  }
+});
+
+test('the siding note explains why a taller wall can cost less', () => {
+  const at = (h) => estimate(buildShed(normalize({ ...PRESETS['8x8 lean'](), wallHeight: h, autoWall: false })));
+  const [low, high] = [at(112), at(114)];
+  // Before the gable pieces nested (2026-10-30), 114" walls cost less than 112". Nesting the four
+  // sloped strips at 112" into one panel took that dip away; the note still explains the panel rule.
+  assert.ok(low.total < high.total, `112" walls now cost less than 114" (${low.total} vs ${high.total})`);
+  assert.match(low.notes.join(' '), /4 use a 9 or 10 ft panel and 4 use a strip \(of 8 columns\)/);
+  assert.match(high.notes.join(' '), /8 use a strip \(of 8 columns\)/);
+  const bare = estimate(buildShed(normalize({ ...PRESETS['8x8 lean'](), siding: false })));
+  assert.deepEqual(bare.notes, [], 'no siding, no note');
+});
+
+test('each board and each lumber line says what it is for', () => {
+  const est = estimate(buildShed(normalize(defaultDesign())));
+  assert.equal(boardUse({ cuts: [{ mark: 'R1', kind: 'rafter', len: 84 }, { mark: 'R1', kind: 'rafter', len: 84 }] }), `2 x 7' 0" rafter (R1)`);
+  assert.equal(boardUse({ cuts: [{ mark: 'P3', kind: 'top plate', len: 105 }, { mark: 'C2', kind: 'cripple', len: 36 }] }), `8' 9" top plate (P3) + 3' 0" cripple (C2)`);
+  const uses = lumberUses(est);
+  assert.match(uses.get('PT 4x4:12'), /^skid/);
+  // Every cut sheet board is described, and every lumber line of the shopping list has a use.
+  for (const l of est.lumber) for (const b of groupBoards(l.result.boards)) assert.ok(boardUse(b).length > 0);
+  for (const r of est.shopping.filter((x) => x.section === 'Lumber' && !/spares/.test(x.name))) {
+    const m = /^(.+) x (\d+)'/.exec(r.name);
+    assert.ok(uses.get(`${m[1]}:${m[2]}`), r.name);
   }
 });

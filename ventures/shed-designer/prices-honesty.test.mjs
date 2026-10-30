@@ -56,11 +56,30 @@ test('a custom-size door or window is named as not in the total, and a picked un
   const d = PRESETS['8x12 classic']();
   const est = estimate(buildShed(normalize(d)));
   assert.equal(est.unpriced.length, 3);
-  assert.match(est.unpriced[0], /^Door 38" x 82" on the front wall \(custom size\)$/);
+  assert.match(est.unpriced[0], /^Door 38" x 82" on the front wall \(custom size; typical range \$246\.00 to \$615\.00 across the 5 single shed doors in our catalogue\)$/);
   assert.match(shoppingCsv(est), /Not in the total,"Door 38/);
   const picked = { ...d, openings: d.openings.map((op) => (op.kind === 'door' ? { ...op, product: 'site-built' } : { ...op, product: 'swm-2436' })) };
   const est2 = estimate(buildShed(normalize(picked)));
   assert.deepEqual(est2.unpriced, []);
   assert.ok(est2.shopping.some((r) => r.section === 'Doors and windows' && r.qty === 2));
   assert.ok(est2.shopping.some((r) => r.section === 'Door hardware'));
+});
+
+test('a custom-size opening counts at the range median only when asked, marked as an estimate', () => {
+  const d = PRESETS['8x12 classic']();
+  const off = estimate(buildShed(normalize(d)));
+  const on = estimate(buildShed(normalize({ ...d, customRange: true })));
+  assert.deepEqual(on.unpriced, []);
+  const lines = on.shopping.filter((r) => r.section === 'Doors and windows');
+  assert.equal(lines.length, 3);
+  for (const r of lines) {
+    assert.match(r.name, /custom size: typical range .* counted at the median$/);
+    assert.equal(r.source.kind, 'estimate');
+    assert.equal(sourceLabel(r.source), 'estimate', 'never reads as a listing');
+    assert.equal(r.source.url, undefined, 'links no listing');
+  }
+  assert.equal(Math.round((on.total - off.total) * 100) / 100, Math.round(lines.reduce((t, r) => t + r.total, 0) * 100) / 100);
+  // A double door is compared with the double doors.
+  const wide = estimate(buildShed(normalize({ ...d, openings: [{ id: 'o1', kind: 'door', wall: 'left', offset: 18, width: 60, height: 74 }] })));
+  assert.match(wide.unpriced[0], /\$465\.00 to \$585\.00 across the 2 double shed doors/);
 });
