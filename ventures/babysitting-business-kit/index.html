@@ -85,6 +85,7 @@
     <button type="button" role="tab" data-tab="money">Money &amp; taxes</button>
     <button type="button" role="tab" data-tab="insights">Insights</button>
     <button type="button" role="tab" data-tab="invoices">Invoices</button>
+    <button type="button" role="tab" data-tab="packages">Packages</button>
     <button type="button" role="tab" data-tab="references">References</button>
     <button type="button" role="tab" data-tab="agreements">Agreements</button>
     <button type="button" role="tab" data-tab="website">Website</button>
@@ -248,6 +249,9 @@
     <section data-panel="invoices" class="card" hidden>
       <h2>Invoices &amp; getting paid</h2>
       <div id="invoiceKit"></div>
+    <section data-panel="packages" class="card" hidden>
+      <h2>Packages, gift certificates and group nights</h2>
+      <div id="packagesKit"></div>
     </section>
 
     <section data-panel="references" class="card" hidden>
@@ -454,6 +458,7 @@
     import { mountSafety } from "./safety-ui.mjs";
     import * as CRED from "./credentials-ui.mjs";
     import { mountInvoices } from "./invoices-ui.mjs";
+    import { mountPackages } from "./packages-ui.mjs";
     import { enhanceTabs } from "./tabs.mjs";
     import { mountInsights } from "./insights-ui.mjs";
     import { mountSitReports } from "./sitreport-ui.mjs";
@@ -476,6 +481,7 @@
     let renderSafety = () => {};
     let renderCredentials = () => {};
     let renderSitReports = () => {};
+    let renderPackages = () => {};
 
     function load() {
       try { return E.normalizeDesk(JSON.parse(localStorage.getItem(STORE) || "null")); } catch { return E.emptyDesk(); }
@@ -703,6 +709,7 @@
       renderSafety();
       renderCredentials();
       renderSitReports();
+      renderPackages();
       fillForm($("profileForm"), { ...desk.profile, certifications: desk.profile.certifications, holidays: desk.profile.holidays, followUpDays: desk.profile.followUpDays });
       $("profileForm").scrollIntoView = () => {};
     }
@@ -966,6 +973,7 @@
     renderSafety = mountSafety($("safetyKit"), { getDesk: () => desk, save, esc, record, today, openPage, server: () => ({ url: $("syncUrl").value.trim().replace(/\/+$/, ""), key: $("syncKey").value }) });
     mountInsights($("insightsPanel"), { getDesk: () => desk, save, esc, record, today });
     mountInvoices($("invoiceKit"), { getDesk: () => desk, save, record, today, serverUrl: () => $("syncUrl").value.trim().replace(/\/+$/, "") });
+    renderPackages = mountPackages($("packagesKit"), { getDesk: () => desk, setDesk: (d) => { desk = E.normalizeDesk(d); save(); }, record, today, serverUrl: () => $("syncUrl").value.trim().replace(/\/+$/, "") });
     record("page_loaded");
     render();
     show("today");

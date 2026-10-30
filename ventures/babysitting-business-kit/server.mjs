@@ -16,6 +16,7 @@
 //   GET  /api/today        today's to-do list (Authorization: Bearer ADMIN_KEY)
 //   GET|POST /intake/<t>   a family's one-time info sheet (token made in the app's Families tab)
 //   GET|POST /safe/<t>     the sitter's late-sit check-in link; PUT /api/safety/checkin (safety-server.mjs)
+//   GET|POST /event/<t>    a parents' night out sign-up form (link made in the app's Packages tab)
 //   GET  /admin            status page; /api/status, /api/backup, /api/restore (backup.mjs)
 //   POST /network/handoff  a signed pass-on from another sitter's kit server (network-server.mjs)
 //   a daily digest at DIGEST_HOUR (server time) to your webhook or email
@@ -48,6 +49,7 @@ import { mergeAutomationState } from "./automations.mjs";
 import { automationRoutes, runAutomations } from "./automations-server.mjs";
 import { blogRoute, serverDraft } from "./content.mjs";
 import { sitReportApi, mergeSitReports } from "./sitreport.mjs";
+import { handleEventRoute, mergeEventSignups, MAX_SIGNUP_BYTES } from "./packages.mjs";
 import { loadDesk, atomicWrite, backupApi, backupDir, dailyBackup } from "./backup.mjs";
 import { networkRoutes, mergeNetwork } from "./network-server.mjs";
 import { mergeSafety } from "./safety.mjs";
@@ -58,7 +60,7 @@ import { invoiceRoutes } from "./invoices-server.mjs";
 const MAX_BODY = 64 * 1024;
 const MAX_DESK = 8 * 1024 * 1024;
 const MAX_LEADS = 2000;
-const FILES = { "/": "index.html", "/index.html": "index.html", "/engine.mjs": "engine.mjs", "/usage.mjs": "usage.mjs", "/taxes.mjs": "taxes.mjs", "/slots.mjs": "slots.mjs", "/intake.mjs": "intake.mjs", "/meet-and-greet.html": "meet-and-greet.html", "/references.mjs": "references.mjs", "/site.mjs": "site.mjs", "/print.mjs": "print.mjs", "/qr.mjs": "qr.mjs", "/automations.mjs": "automations.mjs", "/automations-ui.mjs": "automations-ui.mjs", "/content.mjs": "content.mjs", "/content-ui.mjs": "content-ui.mjs", "/byok.mjs": "byok.mjs", "/agreements.mjs": "agreements.mjs", "/agreements-ui.mjs": "agreements-ui.mjs", "/admin": "admin.html", "/safety.mjs": "safety.mjs", "/safety-ui.mjs": "safety-ui.mjs", "/sitreport.mjs": "sitreport.mjs", "/sitreport-ui.mjs": "sitreport-ui.mjs" };
+const FILES = { "/": "index.html", "/index.html": "index.html", "/engine.mjs": "engine.mjs", "/usage.mjs": "usage.mjs", "/taxes.mjs": "taxes.mjs", "/slots.mjs": "slots.mjs", "/intake.mjs": "intake.mjs", "/meet-and-greet.html": "meet-and-greet.html", "/references.mjs": "references.mjs", "/site.mjs": "site.mjs", "/print.mjs": "print.mjs", "/qr.mjs": "qr.mjs", "/automations.mjs": "automations.mjs", "/automations-ui.mjs": "automations-ui.mjs", "/content.mjs": "content.mjs", "/content-ui.mjs": "content-ui.mjs", "/byok.mjs": "byok.mjs", "/agreements.mjs": "agreements.mjs", "/agreements-ui.mjs": "agreements-ui.mjs", "/admin": "admin.html", "/safety.mjs": "safety.mjs", "/safety-ui.mjs": "safety-ui.mjs", "/sitreport.mjs": "sitreport.mjs", "/sitreport-ui.mjs": "sitreport-ui.mjs", "/packages.mjs": "packages.mjs", "/packages-ui.mjs": "packages-ui.mjs" };
 const TYPES = { html: "text/html; charset=utf-8", mjs: "text/javascript; charset=utf-8" };
 // The installable app (PWA) and the guide pages, so a self-hosted copy works offline and links resolve.
 for (const f of ["tabs.mjs", "sw.js", "manifest.webmanifest", "icon.svg", "icon-192.png", "icon-512.png", "icon-maskable-512.png", "apple-touch-icon.png", "babysitting-taxes.html", "how-to-start-a-babysitting-business.html", "how-much-to-charge-for-babysitting.html", "babysitting-references.html", "self-host.html", "network.mjs", "network-ui.mjs"]) FILES[`/${f}`] = f;
@@ -207,6 +209,18 @@ export function handler(state, save, env = process.env, now = Date.now, fetchImp
       await msg.sitter(`Family info sheet received: ${fam.name || fam.contactName || "a family"}`, "Sync the app to see it in the Families tab.");
       return send(200, done, TYPES.html, nostore);
     }
+    if (url.pathname.startsWith("/event/") && (req.method === "GET" || req.method === "POST")) {
+      // A parents' night out sign-up link (packages.mjs): made in the Packages tab, put here by Sync.
+      let fields = null;
+      if (req.method === "POST") {
+        const raw = await readBody(req, MAX_SIGNUP_BYTES);
+        if (raw === null) return send(413, page("Too long", "<p>That was too long to send.</p>"));
+        fields = Object.fromEntries(new URLSearchParams(raw));
+      }
+      const out = handleEventRoute(state.desk, req.method, url.pathname.slice(7), fields, today, new Date(now()).toISOString());
+      if (out.desk) { state.desk = out.desk; save(); await msg.sitter(`Event sign-up: ${out.signup.parent}${out.waitlisted ? " (waitlist)" : ""}`, `${out.event.title} ${out.event.date}: ${out.signup.kids.length} child(ren). Sync the app to see it in the Packages tab.`); }
+      return send(out.code, out.html, TYPES.html, { "cache-control": "no-store" });
+    }
     if (url.pathname.startsWith("/ref/") && (req.method === "GET" || req.method === "POST")) {
       // A referee's private link: their words and two separate consents (references.mjs).
       let fields = null;
@@ -261,6 +275,7 @@ export function handler(state, save, env = process.env, now = Date.now, fetchImp
         incoming.safety = mergeSafety(state.desk.safety, incoming.safety, now()); // keep check-in taps and alerts from the server
         mergeSitReports(state.desk, incoming); // reports the email route saved, and their "emailed" stamps
         mergeInvoicePayments(state.desk, incoming); // card payments the server recorded
+        mergeEventSignups(state.desk, incoming); // and event sign-ups that arrived by link (packages.mjs)
         state.desk = normalizeDesk(keepIntakes(state.desk, incoming)); // and info sheets families filled in
         state.desk.leads.push(...fresh);
         save();
