@@ -43,6 +43,8 @@ test("nothing is visible to players until published; then fixtures, table and pe
   assert.match(ics.headers.get("content-type"), /calendar/);
   assert.match(await ics.text(), /BEGIN:VEVENT/);
   assert.equal((await fetch(s.base + "/league/ics?t=tok&team=99")).status, 404);
+  assert.doesNotMatch(await (await fetch(s.base + "/league/ics?t=tok&team=0")).text(), /VALARM/);
+  assert.match(await (await fetch(s.base + "/league/ics?t=tok&team=0&alarm=60")).text(), /TRIGGER:-PT60M/);
   s.close();
 });
 
