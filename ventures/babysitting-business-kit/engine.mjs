@@ -690,6 +690,7 @@ ${quotes.length ? `<section><h2>What families say</h2><div class="card">${quotes
 <label for="m">Anything else?</label><textarea id="m" name="notes" rows="3"></textarea>
 <label class="hp" for="hp">Leave this empty</label><input class="hp" id="hp" name="website" tabindex="-1" autocomplete="off">
 <button type="submit">Send</button></form></div></section>
+<script>(function(){var r=new URLSearchParams(location.search).get("ref"),h=document.getElementById("h");if(r&&h&&!h.value)h.value=r.slice(0,60)})()</script>
 <footer>${esc(title)} · ${esc(p.city)}${p.phone ? ` · ${esc(p.phone)}` : ""}${p.email ? ` · ${esc(p.email)}` : ""}</footer>
 </main></body></html>
 `;

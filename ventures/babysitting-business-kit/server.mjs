@@ -23,11 +23,12 @@ import http from "node:http";
 import { readFileSync, writeFileSync, renameSync, existsSync } from "node:fs";
 import { timingSafeEqual } from "node:crypto";
 import { normalizeDesk, emptyDesk, buildSite, leadFromForm, scoreLead, leadReply, followUpMessage, todayQueue, toICS, newId } from "./engine.mjs";
+import { creditReferral } from "./print.mjs";
 
 const MAX_BODY = 64 * 1024;
 const MAX_DESK = 8 * 1024 * 1024;
 const MAX_LEADS = 2000;
-const FILES = { "/": "index.html", "/index.html": "index.html", "/engine.mjs": "engine.mjs", "/usage.mjs": "usage.mjs" };
+const FILES = { "/": "index.html", "/index.html": "index.html", "/engine.mjs": "engine.mjs", "/usage.mjs": "usage.mjs", "/print.mjs": "print.mjs", "/qr.mjs": "qr.mjs" };
 const TYPES = { html: "text/html; charset=utf-8", mjs: "text/javascript; charset=utf-8" };
 
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -100,7 +101,7 @@ export function handler(state, save, env = process.env, now = Date.now, fetchImp
       const thanks = page("Thank you!", `<p>Your message was sent. ${esc(state.desk.profile.name)} will get back to you soon.</p><p><a href="/site">Back</a></p>`);
       if (fields.website) return send(200, thanks); // the honeypot: bots fill it, people never see it
       if (!String(fields.name || "").trim() || !String(fields.contact || "").trim()) return send(400, page("Almost", `<p>Please include your name and a phone number or email.</p><p><a href="/site">Back</a></p>`));
-      const lead = leadFromForm(fields, today, newId("lead"));
+      const lead = creditReferral(leadFromForm(fields, today, newId("lead")), state.desk);
       const sc = scoreLead(lead, state.desk.profile);
       state.desk.leads.push(lead);
       if (state.desk.leads.length > MAX_LEADS) state.desk.leads.shift();

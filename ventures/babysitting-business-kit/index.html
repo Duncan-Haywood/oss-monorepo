@@ -61,6 +61,7 @@
     <button type="button" role="tab" data-tab="references">References</button>
     <button type="button" role="tab" data-tab="website">Website</button>
     <button type="button" role="tab" data-tab="content">Content</button>
+    <button type="button" role="tab" data-tab="print">Print</button>
     <button type="button" role="tab" data-tab="settings">Settings</button>
   </nav>
 
@@ -206,6 +207,23 @@
       <div id="familyMsgs"></div>
     </section>
 
+    <section data-panel="print" class="card" hidden>
+      <h2>Print: flyers, cards and referral cards</h2>
+      <p class="note">For church and library bulletin boards, school newsletters, coffee shops and neighbors' doors. Each piece is built from your profile in Settings, with a QR code to your website. Faith wording appears only if you turned on your faith section, and then in your own words. Ask before you post: many boards and bulletins have rules.</p>
+      <div class="grid">
+        <div><label for="pr_url">Link for the QR code (your website or booking page)</label><input id="pr_url" type="url" placeholder="https://your-site.example"></div>
+        <div><label for="pr_kind">Piece</label><select id="pr_kind"></select></div>
+        <div><label for="pr_family">Family (for referral cards)</label><select id="pr_family"></select></div>
+      </div>
+      <label><input type="checkbox" id="pr_rate" checked> Show my hourly rate</label>
+      <p><button type="button" id="pr_open">Open to print</button><button type="button" class="secondary" id="pr_download">Download .html</button></p>
+      <p class="note" id="pr_note"></p>
+      <iframe id="pr_preview" title="Print preview" sandbox=""></iframe>
+      <h3>Where your leads come from</h3>
+      <p class="note">A referral card carries a code. When an inquiry's "How did you hear about me?" includes it (the card's QR code fills it in on your website), the lead is credited to that family and gets the referral bonus in its score.</p>
+      <div id="pr_stats"></div>
+    </section>
+
     <section data-panel="settings" class="card" hidden>
       <h2>Settings: you, your rates, your limits</h2>
       <form id="profileForm">
@@ -289,6 +307,7 @@
   <script type="module">
     import * as E from "./engine.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    import * as P from "./print.mjs";
 
     const STORE = "babysitting-business-kit-desk";
     const SYNC = "babysitting-business-kit-sync";
@@ -359,7 +378,7 @@
     }
     const yn = (v) => (v === "yes" ? true : v === "no" ? false : undefined);
 
-    $("leadForm").addEventListener("submit", (e) => { e.preventDefault(); upsert("leads", e.target, (o) => ({ ...o, kids: o.kids.split(/[,;]/).map((s) => s.trim()).filter(Boolean), created: o.created || today(), status: o.status || "new" })); });
+    $("leadForm").addEventListener("submit", (e) => { e.preventDefault(); upsert("leads", e.target, (o) => P.creditReferral({ ...o, kids: o.kids.split(/[,;]/).map((s) => s.trim()).filter(Boolean), created: o.created || today(), status: o.status || "new" }, desk)); });
     $("familyForm").addEventListener("submit", (e) => { e.preventDefault(); upsert("families", e.target, (o) => ({ ...o, kids: parseKids(o.kidsText) })); });
     $("bookingForm").addEventListener("submit", (e) => {
       e.preventDefault();
@@ -478,6 +497,7 @@
 
       renderContent();
       renderFamilyMsgs();
+      renderPrint();
       fillForm($("profileForm"), { ...desk.profile, certifications: desk.profile.certifications, holidays: desk.profile.holidays, followUpDays: desk.profile.followUpDays });
       $("profileForm").scrollIntoView = () => {};
     }
@@ -514,6 +534,35 @@
       $("familyMsgs").innerHTML = m.map(([t, x]) => `<h3>${t}</h3><div class="msg">${esc(x)}</div>${copyBtn(x)}`).join("");
     }
     $("msgFamily").addEventListener("change", renderFamilyMsgs);
+
+    // ---- print pieces and lead sources (print.mjs)
+    $("pr_kind").innerHTML = Object.entries(P.PIECES).map(([k, v]) => `<option value="${k}">${esc(v.label)}</option>`).join("");
+    function printHtml() {
+      return P.printPiece($("pr_kind").value, desk, { familyId: $("pr_family").value, showRate: $("pr_rate").checked });
+    }
+    function renderPrint() {
+      const fams = $("pr_family"), v = fams.value;
+      fams.innerHTML = desk.families.map((f) => `<option value="${esc(f.id)}">${esc(f.name)} (${esc(P.referralCode(f))})</option>`).join("");
+      fams.value = desk.families.some((f) => f.id === v) ? v : (desk.families[0] || {}).id || "";
+      if (document.activeElement !== $("pr_url")) $("pr_url").value = P.siteLink(desk.profile);
+      try { $("pr_preview").srcdoc = printHtml(); $("pr_note").textContent = P.siteLink(desk.profile) ? "" : "Add the link to your website to put a QR code on the pieces."; }
+      catch (err) { $("pr_preview").srcdoc = ""; $("pr_note").textContent = err.message; }
+      const st = P.sourceStats(desk);
+      $("pr_stats").innerHTML = table(["Source", { t: "Leads", n: 1 }, { t: "Booked", n: 1 }], st.sources.map((r) => `<tr><td>${esc(r.source)}</td><td class="n">${r.leads}</td><td class="n">${r.booked}</td></tr>`))
+        + (st.referrers.length ? `<h3>Referrals by family</h3>` + table(["Family", "Code", { t: "Leads", n: 1 }, { t: "Booked", n: 1 }], st.referrers.map((r) => `<tr><td>${esc(r.family)}</td><td><code>${esc(r.code)}</code></td><td class="n">${r.leads}</td><td class="n">${r.booked}</td></tr>`)) : "");
+    }
+    for (const id of ["pr_kind", "pr_family", "pr_rate"]) $(id).addEventListener("change", renderPrint);
+    $("pr_url").addEventListener("change", () => { desk.profile.siteUrl = $("pr_url").value.trim(); save(); });
+    $("pr_open").addEventListener("click", () => {
+      try {
+        const w = window.open(URL.createObjectURL(new Blob([printHtml()], { type: "text/html" })));
+        if (w) w.addEventListener("load", () => w.print());
+        record(`print_${$("pr_kind").value}`);
+      } catch (err) { $("pr_note").textContent = err.message; }
+    });
+    $("pr_download").addEventListener("click", () => {
+      try { download(`${$("pr_kind").value}.html`, printHtml(), "text/html"); record(`print_download_${$("pr_kind").value}`); } catch (err) { $("pr_note").textContent = err.message; }
+    });
 
     function renderSite() { $("sitePreview").srcdoc = E.buildSite(desk); }
     $("siteRefresh").addEventListener("click", renderSite);
