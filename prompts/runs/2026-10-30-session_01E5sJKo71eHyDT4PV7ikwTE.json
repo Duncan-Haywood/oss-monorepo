@@ -1,0 +1,53 @@
+{
+  "date": "2026-10-30",
+  "session": "https://claude.ai/code/session_01E5sJKo71eHyDT4PV7ikwTE",
+  "track": "process",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "null",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-30T20:10:55Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 11844,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "Bare re-run drew a different programme (3 reports); fixed with a per-branch cached draw."
+    },
+    {
+      "file": "prompts/process/prompt-2.md",
+      "issue": "Only owner rows open; critique via doc_friction found the fix quickly."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "No docs/posts post written: small tool fix; no blog-worthy finding."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Critique mode; no backlog ids touched. main_health.py was still running at PR time. Tests: test_pick_track 16 OK.",
+  "corrections": [],
+  "redteam": null
+}
