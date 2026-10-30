@@ -203,6 +203,15 @@ export const PRESETS = {
   '8x8 lean': () => ({ ...classic(), name: '8x8 garden shed', length: 96, width: 96, wallHeight: 84, pitch: 6, rafterSpacing: 24, openings: [
     { id: 'o1', kind: 'door', wall: 'left', offset: 22, width: 52, height: 72 },
   ] }),
+  // A barn for storage under the 100 sq ft line: gambrel trusses of 2x4 (they check at about 30%),
+  // a loft over half the length, the door in the gable end under the tall middle, shingles and
+  // primed lap siding to paint, and two windows on the long side.
+  '10x10 barn': () => ({ ...defaultDesign(), name: '10x10 gambrel barn with loft', length: 120, width: 120, style: 'gambrel', gambrelLower: 20, pitch: 6,
+    autoPitch: false, autoOverhang: false, maxPeak: 0, rafterSize: '2x4', loft: 'half', sidingType: 'LP SmartSide lap', sidingColor: 'white', openings: [
+      { id: 'o1', kind: 'door', wall: 'left', offset: 40.75, width: 38.5, height: 78, product: 'site-built' },
+      { id: 'o2', kind: 'window', wall: 'front', offset: 24, width: 14.25, height: 21.25, sill: 44, product: 'swm-1421' },
+      { id: 'o3', kind: 'window', wall: 'front', offset: 81.75, width: 14.25, height: 21.25, sill: 44, product: 'swm-1421' },
+    ] }),
 };
 
 
@@ -1037,12 +1046,12 @@ function buildFramed(d) {
   if (beam && actual(d.beamSize).depth < plumbH - 1e-9) {
     warnings.push(`A ${d.beamSize} ridge beam is shallower than the rafters' ${plumbH.toFixed(2)}" plumb cut; choose a deeper beam.`);
   }
-  if (!ridgeSize && !lean) {
+  if (!ridgeSize && !lean && !gam) {
     ridgeSize = '2x12';
     warnings.push(`At ${d.pitch}/12 the rafter's plumb cut is ${plumbH.toFixed(2)}" deep, more than a 2x12 ridge; use a built-up or engineered ridge.`);
   }
-  const ridgeD = lean || truss ? 0 : actual(ridgeSize).depth;
-  if (!connector && !truss && D * t > rd / 3 + 1e-9) {
+  const ridgeD = lean || truss || gam ? 0 : actual(ridgeSize).depth;
+  if (!connector && !truss && !gam && D * t > rd / 3 + 1e-9) {
     warnings.push(`The birdsmouth is ${(D * t).toFixed(2)}" deep, more than a third of the ${d.rafterSize} rafter; a deeper rafter or lower pitch keeps more wood over the wall.`);
   }
   const rafterCut = ceil16(((lean ? W + o : r) + o) / cos + rd * Math.tan(Math.atan(t)));
@@ -1747,7 +1756,7 @@ function buildFramed(d) {
       const inset = trimW ? (eave ? trimW - (sidingT + 0.75) : trimW - sidingT) : 0;
       const face = layoutFace({
         // A lean-to's end wall tops out at its front edge, so that is where its courses peak.
-        wall: name, len: faceLen, bottom: skidTop, top: (s) => (eave ? (lean && name === 'front' ? highPlateTop : eaveTop) : gam ? gam.top(s) : lean ? zt(W - s) : zt(Math.min(s, W - s))), peakAt: eave ? undefined : lean ? inset : W / 2,
+        wall: name, len: faceLen, bottom: skidTop, top: (s) => (eave ? (lean && name === 'front' ? highPlateTop : eaveTop) : gam ? gam.top(s) : lean ? zt(W - s) : zt(Math.min(s, W - s))), peakAt: eave ? undefined : lean ? inset : W / 2, bends: !eave && gam ? [gam.yk, W - gam.yk] : undefined,
         from: inset, to: faceLen - inset, holes, wood, maxPlank: Math.max(...lapStocks(d).map((x) => x.length)), stagger: lapStagger(d),
       }, lapSpec);
       lap.push(face);

@@ -22,6 +22,7 @@ import { connectionChecks } from './connections.mjs';
 import { check, roofCase, FLOOR, SPF2, T, DEPTH } from './structure.mjs';
 import { sidingSpan } from './simplify.mjs';
 import { subfloorCheck } from './levers.mjs';
+import { gambrelAnalysis } from './gambrel.mjs';
 import { fmtIn } from './lumber.mjs';
 
 // NDS Supplement Table 4A size factors for No. 2 dimension lumber, as
@@ -170,8 +171,10 @@ export function utilisation(shed, sc = structuralChecks(shed)) {
   const studLen = lean ? k.highWall - 4.5 : k.studLen;
   const tribFt = (beam ? rafterRunIn / 2 + k.stud + d.overhang : d.width / 2 + d.overhang) / 12;
   // As in checks.mjs: under trusses the eave walls also carry half the attic load.
-  const deadPlf = (15 / cos) * tribFt + (truss ? (trussForces(d).wc * d.width) / 2 / 12 / (d.rafterSpacing / 12) : 0);
-  const snowPlf = d.snowLoad * tribFt;
+  // On a gambrel, as in checks.mjs: the trusses' reactions, a loft's storage counted as dead.
+  const gam = d.style === 'gambrel' ? gambrelAnalysis(d) : null;
+  const deadPlf = gam ? gam.wall.dead + gam.wall.loft : (15 / cos) * tribFt + (truss ? (trussForces(d).wc * d.width) / 2 / 12 / (d.rafterSpacing / 12) : 0);
+  const snowPlf = gam ? gam.wall.snow : d.snowLoad * tribFt;
   // Headers pair with rows in the order checks.mjs walks the walls.
   const headerQueue = Object.entries(shed.walls).flatMap(([name, wall]) => wall.openings.map((p) => ({ name, p })));
   /** @type {Use[]} */
@@ -225,6 +228,14 @@ export function utilisation(shed, sc = structuralChecks(shed)) {
         : bottom ? 'The bottom chord holds the heels together against the roof\'s outward thrust, and carries the attic load between its supports.'
           : 'The gussets join the members; their nails take the force that passes through the joint.';
       u.ids = top ? idsOf((m) => m.kind === 'rafter') : bottom ? idsOf((m) => m.kind === 'bottom chord') : [];
+    } else if (gam && GAMBREL_KINDS[row.member]) {
+      // The gambrel's rows come from its frame analysis (gambrel.mjs); the detail is the working.
+      u.kinds = GAMBREL_KINDS[row.member];
+      u.ids = idsOf((m) => u.kinds.includes(m.kind));
+      u.parts = [{ name: row.governs, ratio: row.ratio, words: `${row.size}: ${row.detail}.` }];
+      u.explain = /gusset|Heel/.test(row.member) ? 'A joint of the gambrel truss: its nails take the force or the moment that passes through it, from the truss solved as a three-hinged frame.'
+        : /tie|Loft/.test(row.member) ? 'The tie holds the truss feet together against the outward thrust; under a loft it is also the loft joist and bends under the stored load.'
+          : 'A gambrel chord carries the roof in bending and the truss\'s thrust along its length, checked for both together (NDS 3.9.2).';
     } else if (/^Header over the /.test(row.member)) {
       const q = headerQueue.shift();
       if (q) {
@@ -383,3 +394,16 @@ export function marginReport(shed, target = 0.7, uses = utilisation(shed)) {
   }
   return { target, over, above, far };
 }
+
+/** Gambrel check rows and the member kinds each colours. */
+const GAMBREL_KINDS = /** @type {Record<string, string[]>} */ ({
+  'Lower chords': ['lower chord'],
+  'Upper chords': ['upper chord'],
+  'Truss ties': ['rafter tie'],
+  'Loft joists (also the truss ties)': ['rafter tie', 'loft joist'],
+  'Loft joist deflection': ['rafter tie', 'loft joist'],
+  'Knee gussets (nails)': ['lower chord', 'upper chord'],
+  'Peak gussets (nails)': ['upper chord'],
+  'Heel (tie to lower chord)': ['rafter tie'],
+  'Chord seat on the plate': ['lower chord'],
+});
