@@ -58,7 +58,7 @@ export function invariants(input, prices = examplePrices()) {
   const uses = utilisation(shed, sc);
   const words = JSON.stringify(marginReport(shed, 0.7, uses)) + heatSheets(shed, heatById(uses)).map((s) => heatSheetSvg(s)).join('');
   if (/Infinity|NaN|undefined/.test(words)) bad.push(`utilisation text: ${words.match(/.{0,40}(Infinity|NaN|undefined).{0,10}/)?.[0]}`);
-  for (const n of ['Floor joists', shed.design.style === 'gambrel' ? 'Lower chords' : 'Rafters', 'Wall studs']) if (!sc.rows.some((x) => x.member === n)) bad.push(`check missing: ${n}`);
+  for (const n of [shed.dims.floorless ? 'Perimeter timbers on the gravel' : 'Floor joists', shed.design.style === 'gambrel' ? 'Lower chords' : 'Rafters', 'Wall studs']) if (!sc.rows.some((x) => x.member === n)) bad.push(`check missing: ${n}`);
   const cc = connectionChecks(shed);
   for (const row of cc.rows) if (!row.ok) bad.push(`connection: ${row.check}: ${row.detail.slice(0, 120)}`);
   const sheets = buildSheets(shed);
