@@ -5,7 +5,7 @@
   "10x12": {
    "key": "10x12",
    "name": "10x12 gable shed",
-   "hash": "9ba32f0c96c318f9",
+   "hash": "bb331867e4051696",
    "files": {
     "hero": {
      "file": "10x12-hero.webp",
@@ -47,7 +47,7 @@
   "12x16": {
    "key": "12x16",
    "name": "12x16 gable shed",
-   "hash": "ca5156c3536c7968",
+   "hash": "cefe9a09ece168ca",
    "files": {
     "hero": {
      "file": "12x16-hero.webp",
@@ -89,7 +89,7 @@
   "8x10": {
    "key": "8x10",
    "name": "8x10 gable shed",
-   "hash": "4fdb239bdbed40fd",
+   "hash": "4ac1eac580b7109a",
    "files": {
     "hero": {
      "file": "8x10-hero.webp",
@@ -131,7 +131,7 @@
   "8x12": {
    "key": "8x12",
    "name": "8x12 ridge-beam shed",
-   "hash": "e28d29adc0b322a2",
+   "hash": "d6f88907ec1b884a",
    "files": {
     "hero": {
      "file": "8x12-hero.webp",
@@ -173,7 +173,7 @@
   "8x12-classic": {
    "key": "8x12 classic",
    "name": "8x12 gable shed",
-   "hash": "e91e48e926ad70dc",
+   "hash": "677e1aeac6388259",
    "files": {
     "hero": {
      "file": "8x12-classic-hero.webp",
@@ -215,7 +215,7 @@
   "8x8-lean": {
    "key": "8x8 lean",
    "name": "8x8 garden shed",
-   "hash": "cec30125e2e72f25",
+   "hash": "241002fcf3348020",
    "files": {
     "hero": {
      "file": "8x8-lean-hero.webp",
