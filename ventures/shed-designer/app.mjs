@@ -360,8 +360,9 @@ function renderStores(est, d) {
   const cmp = storeComparison(est);
   const whole = storeTotals(est);
   const two = whole.stores.filter((x) => x.lines > 0);
-  let html = `<h3 class="h4">The whole list at each store</h3><div class="table-wrap"><table><thead><tr><th scope="col">Store</th><th scope="col" class="n">Lines priced there</th><th scope="col" class="n">Those lines</th><th scope="col" class="n">Other lines, at the list's price</th><th scope="col" class="n">Total</th></tr></thead><tbody>${two.map((x) => `<tr><th scope="row">${esc(x.store)}</th><td class="n">${x.lines} of ${x.of}</td><td class="n">${money(x.priced)}</td><td class="n">${money(x.carried)}</td><td class="n">${money(x.total)}</td></tr>`).join('')}</tbody></table></div>`;
-  if (whole.shared) html += `<p class="muted">Like for like, on the ${whole.shared} lines every store here lists: ${Object.entries(whole.sharedTotals).map(([st, t]) => `${esc(st)} ${money(t)}`).join(', ')}.</p>`;
+  // Coverage first: a store that lists fewer lines is not cheaper for leaving them out.
+  let html = `<h3 class="h4">The whole list at each store</h3><div class="table-wrap"><table><thead><tr><th scope="col">Store</th><th scope="col" class="n">Lines it lists</th><th scope="col" class="n">The ${whole.shared} lines both list</th></tr></thead><tbody>${two.map((x) => `<tr><th scope="row">${esc(x.store)}</th><td class="n"><strong>${x.lines} of ${x.of}</strong></td><td class="n">${money(whole.sharedTotals[x.store])}</td></tr>`).join('')}</tbody></table></div>`;
+  for (const x of two) if (x.missing.length) html += `<p class="muted"><strong>No ${esc(x.store)} listing found yet for ${x.missing.length} line${x.missing.length === 1 ? '' : 's'}:</strong> ${x.missing.map(esc).join('; ')}. Store totals compare only the lines both stores list.</p>`;
   html += `<h3 class="h4">Line by line</h3><div class="table-wrap"><table><thead><tr><th scope="col">Item</th><th scope="col" class="n">Qty</th>${cmp.stores.map((s) => `<th scope="col">${esc(s)}</th>`).join('')}<th scope="col" class="n">Saving at the cheapest</th></tr></thead><tbody>`;
   for (const row of cmp.rows) {
     html += `<tr><td>${esc(row.line.name)}</td><td class="n">${row.line.qty}</td>${cmp.stores.map((st) => {
@@ -371,13 +372,15 @@ function renderStores(est, d) {
       return `<td><a href="${esc(o.url)}" target="_blank" rel="noopener" title="${esc(o.note || '')}">${money(o.price)}</a>${best}<br><span class="muted">${esc(o.name)}; ${esc(o.model)}</span></td>`;
     }).join('')}<td class="n">${money(row.saving)}</td></tr>`;
   }
-  html += `<tr class="tot"><th colspan="2" scope="row">These lines at one store</th>${cmp.stores.map((st) => `<td>${cmp.totals[st].missing === cmp.rows.length ? '<span class="muted">none of these</span>' : `${money(cmp.totals[st].total)}${cmp.totals[st].missing ? ` <span class="muted">(${cmp.totals[st].missing} not listed)</span>` : ''}`}</td>`).join('')}<td class="n">${money(cmp.cheapestMix)} mixed</td></tr></tbody></table></div>`;
+  html += `<tr class="tot"><th colspan="2" scope="row">The ${cmp.both} lines both stores list</th>${cmp.stores.map((st) => `<td>${cmp.totals[st].total === null ? '' : money(cmp.totals[st].total)}</td>`).join('')}<td class="n">${money(cmp.cheapestMix)} mixed</td></tr></tbody></table></div>`;
   // A second trip or delivery is only worth it for a real saving.
   const worth = cmp.addOns.filter((a) => a.saving >= 25);
+  const stale = cmp.oneStop ? Object.entries(cmp.stale).filter(([, n]) => n > 0).map(([st, n]) => `${n} of the ${esc(st)} prices`).join(' and ') : '';
+  const caveat = stale ? ` ${stale} compared come from copies of the page over a year old, so check them before choosing a store.` : '';
   if (cmp.oneStop && worth.length) {
-    html += `<p><strong>Where to buy:</strong> ${esc(cmp.oneStop.store)} is the cheapest single store for these lines (${money(cmp.oneStop.total)}). ${worth.map((a) => `Adding ${esc(a.store)} for ${a.lines.map(esc).join(', ')} saves ${money(a.saving)}`).join('; ')}. Buying every line at its cheapest store saves ${money(cmp.splitSaving)} in all. Savings are before any delivery charge for a second order.</p>`;
+    html += `<p><strong>Where to buy:</strong> on the ${cmp.both} lines both stores list, ${esc(cmp.oneStop.store)} comes to ${money(cmp.oneStop.total)}, ${money(cmp.oneStop.by)} less than ${esc(cmp.oneStop.other)}. ${worth.map((a) => `Buying ${a.lines.map(esc).join(', ')} at ${esc(a.store)} instead saves ${money(a.saving)}`).join('; ')}. Savings are before any delivery charge for a second order.${caveat}</p>`;
   } else if (cmp.oneStop) {
-    html += `<p><strong>One stop:</strong> ${esc(cmp.oneStop.store)}${cmp.splitSaving > 0 ? `, within ${money(cmp.splitSaving)} of splitting the order between stores, which is not worth a second trip` : ' is cheapest or tied on every compared line'}.</p>`;
+    html += `<p><strong>One stop:</strong> on the ${cmp.both} lines both stores list, ${esc(cmp.oneStop.store)}${cmp.splitSaving > 0 ? ` is ${money(cmp.oneStop.by)} less, and within ${money(cmp.splitSaving)} of splitting the order between stores, which is not worth a second trip` : ' is cheapest or tied on every line'}.${caveat}</p>`;
   }
   html += `<p class="muted">Prices read from search-result copies of each product page on ${cmp.seen}; follow the link to check today's price and see the product. Lines with no listing at a second store are not shown.</p>`;
   const swaps = swapsFor(d);
