@@ -471,3 +471,12 @@ test('ticking a fixed choice keeps it out of the part options, and undo unticks 
   await settle(page);
   assert.equal(await page.isChecked('input[name="lock"][value="windows"]'), false, 'undo unticks it');
 });
+
+test('Save picture downloads the 3D view as a PNG', { skip }, async (t) => {
+  const { page } = await open(t);
+  const [dl] = await Promise.all([page.waitForEvent('download'), page.click('#save-picture')]);
+  assert.match(dl.suggestedFilename(), /-3d\.png$/);
+  const path = await dl.path();
+  const head = readFileSync(/** @type {string} */ (path)).subarray(0, 8);
+  assert.deepEqual([...head], [137, 80, 78, 71, 13, 10, 26, 10], 'a PNG file');
+});

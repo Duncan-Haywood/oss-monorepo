@@ -39,9 +39,9 @@ test('site-built doors come in every width, centred where the door was, and over
   assert.ok(Math.abs(door.offset + door.width / 2 - (was.offset + was.width / 2)) <= 1, 'kept centred');
 });
 
-test('foundation rows cover a gravel pad and each block on each kind of gravel, with the site prep', () => {
+test('foundation rows cover a gravel pad, each block on each kind of gravel and piers, with the site prep', () => {
   const rows = group('Foundation').rows;
-  assert.equal(rows.length, 1 + 3 * 3);
+  assert.equal(rows.length, 1 + 3 * 3 + 1); // a pad; three blocks on three kinds of gravel; piers, which need none
   for (const x of rows) assert.ok(x.note.length > 40, x.label);
   assert.ok(rows.some((x) => /full gravel pad/.test(x.label) && /cu yd/.test(x.note)));
 });

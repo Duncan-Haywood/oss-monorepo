@@ -402,7 +402,7 @@ const TFS = `precision mediump float; varying vec2 vuv; uniform sampler2D tex; v
  * `snapshot()` and `reset()`, or null when WebGL is unavailable.
  * @param {HTMLCanvasElement} canvas
  */
-export function createViewer(canvas) {
+export function createViewer(canvas, { presentation = false } = {}) {
   const gl = /** @type {WebGLRenderingContext|null} */ (canvas.getContext('webgl', { antialias: true, preserveDrawingBuffer: true }));
   if (!gl) return null;
   const sh = (type, src) => { const s = /** @type {WebGLShader} */ (gl.createShader(type)); gl.shaderSource(s, src); gl.compileShader(s); return s; };
@@ -462,7 +462,8 @@ export function createViewer(canvas) {
   /** @type {Record<string, any>} */
   const layers = {};
   const visible = new Set(LAYERS);
-  const cam = { theta: -0.95, phi: 0.42, dist: 400, target: [0, 0, 0], fit: 400 };
+  // A presentation viewer (pictures for cards and the HOA packet) looks from lower, with sky behind the roof.
+  const cam = { theta: -0.95, phi: presentation ? 0.2 : 0.42, dist: 400, target: [0, 0, 0], fit: 400 };
   let fitted = false;
 
   const buf = (data) => { const b = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, b); gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW); return b; };
@@ -471,7 +472,9 @@ export function createViewer(canvas) {
   let ground = null;
   let foot = [0, 0, 0, 0];
   let scenery = true;
-  let outlines = true;
+  let outlines = !presentation;
+  /** True while a pointer orbits or pinches: the outline pass is skipped until it lets go. */
+  let moving = false;
 
   /** @type {any} */
   let shown = null;
@@ -558,7 +561,7 @@ export function createViewer(canvas) {
       use(name === 'siding' ? variants.siding : name === 'roofing' ? variants.roof : variants.plain, 1, 0);
       attr(L.p, loc.p); attr(L.n, loc.n); attr(L.c, loc.c, 4);
       gl.drawArrays(gl.TRIANGLES, 0, L.count);
-      if (!outlines) continue;
+      if (!outlines || moving) continue;
       use(variants.plain, 0, 0.00004);
       attr(L.l, loc.p); attr(L.ln, loc.n); attr(L.lc, loc.c, 4);
       gl.drawArrays(gl.LINES, 0, L.lcount);
@@ -652,11 +655,13 @@ export function createViewer(canvas) {
     if (!pointers.has(e.pointerId)) return;
     pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
     if (pinch && pointers.size === 2) {
+      moving = true;
       cam.dist = Math.max(cam.fit * 0.25, Math.min(cam.fit * 3, pinch.dist * (pinch.d / spread())));
       requestDraw();
       return;
     }
     if (!drag) return;
+    moving = true;
     cam.theta = drag.theta - (e.clientX - drag.x) * 0.008;
     cam.phi = Math.max(-0.15, Math.min(1.45, drag.phi + (e.clientY - drag.y) * 0.008));
     requestDraw();
@@ -667,6 +672,7 @@ export function createViewer(canvas) {
     // Lifting one finger of a pinch carries on as an orbit from where it is.
     const [rest] = [...pointers.values()];
     drag = rest ? { x: rest.x, y: rest.y, theta: cam.theta, phi: cam.phi } : null;
+    if (!rest && moving) { moving = false; requestDraw(); }
   };
   canvas.addEventListener('pointerup', end); canvas.addEventListener('pointercancel', end);
   canvas.addEventListener('wheel', (e) => { e.preventDefault(); zoom(e.deltaY > 0 ? 1.1 : 1 / 1.1); }, { passive: false });
