@@ -1,5 +1,6 @@
 ---
 title: "Machine learning on qualitative data: what LLMs make possible, and the correction you can't skip"
+seo_title: "Machine learning on qualitative data"
 date: 2026-10-20
 description: "LLMs let you model interviews and survey answers. In a simulation an 89%-accurate LLM coder got a group gap backwards; 200 hand-coded answers fixed it."
 tags: [research, llm, qualitative-research, machine-learning, statistics, survey-analysis]

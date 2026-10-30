@@ -567,6 +567,21 @@
     }
    }
   },
+  "og-8x12": {
+   "key": "8x12 share picture",
+   "name": "8x12 ridge-beam shed",
+   "hash": "3b7fa7c0ee061e55",
+   "designKey": "a2ff8337",
+   "files": {
+    "share": {
+     "file": "og-8x12-share.jpg",
+     "w": 1200,
+     "h": 630,
+     "bytes": 54388,
+     "alt": "3D render of the 8x12 ridge-beam shed, 8 by 12 ft, seen from the front corner: stained T1-11 panel siding, charcoal shingles, 4/12 roof, 10' 3/8\" to the peak, showing a 39\" door on the front (eave side)."
+    }
+   }
+  },
   "size-10x10": {
    "key": "10x10 size page",
    "name": "10x10 gable shed",

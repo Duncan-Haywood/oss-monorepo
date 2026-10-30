@@ -1,5 +1,6 @@
 ---
 title: "Open-source chip design loops on Yosys, OpenROAD and SKY130: what 57 small experiments found"
+seo_title: "Open-source chip design loops on Yosys, OpenROAD and SKY130"
 date: 2026-10-20
 description: "What 57 small experiments on open EDA tools found about synthesis scripts, design search, cheap estimates and verification, with the limits of tiny designs."
 tags: [research, chip-design, eda, yosys, openroad, open-source]

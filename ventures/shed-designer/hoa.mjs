@@ -39,7 +39,7 @@ export function sidingLook(type) {
   if (lap) return { direction: 'horizontal', pattern: 'lap', spacing: lap.exposure, label: `${lap.short} siding (horizontal, ${fmtIn(lap.exposure)} exposure)` };
   if (t === 'fiber cement' || /lap|hardie|plank|clapboard/.test(t)) return { direction: 'horizontal', pattern: 'lap', spacing: 7, label: `${type} lap siding (horizontal, 7" exposure)` };
   if (t === 't1-11') return { direction: 'vertical', pattern: 'grooves', spacing: 8, label: 'T1-11 panel siding (vertical grooves 8" apart)' };
-  if (t === 'board and batten') return { direction: 'vertical', pattern: 'battens', spacing: 12, label: 'board and batten (vertical battens about 12" apart)' };
+  if (t === 'board and batten') return { direction: 'vertical', pattern: 'battens', spacing: 5.5, label: 'board and batten (vertical battens about 5-1/2" apart)' };
   return { direction: 'vertical', pattern: 'panel', spacing: 48, label: `${type} panel siding (smooth, 4 ft panel joints)` };
 }
 
@@ -59,6 +59,27 @@ const trimHex = (d) => hex(paletteOf(d).trim);
 const roofName = (d) => finishName(d.roofColor, SHINGLE_FAMILIES);
 const trimName = (d) => finishName(d.trimColor, TRIM_FINISHES);
 const doorName = (d) => finishName(d.doorColor, DOOR_FINISHES);
+
+/**
+ * The door finish as built. "Stained" is only the default colour choice: a
+ * site-built door is skinned with the siding cut from its opening, so it takes
+ * the siding's finish (the elevations draw it that way), and a bought door keeps
+ * its factory finish. "Same as the siding/trim" names that finish.
+ * @param {any} d
+ */
+export function doorFinish(d) {
+  const doors = (d.openings || []).filter((o) => o.kind === 'door');
+  if (!doors.length) return 'no doors';
+  if (d.doorColor === 'match siding') return `same as the siding: ${sidingFinish(d).name}`;
+  if (d.doorColor === 'match trim') return `same as the trim: ${trimName(d)} paint`;
+  if (d.doorColor !== 'stained') return `${doorName(d)} paint`;
+  const site = doors.filter((o) => o.product === 'site-built').length;
+  const bought = doors.length - site;
+  return [
+    site && `${site > 1 ? 'site-built doors' : 'site-built door'} skinned with the siding cut from the opening, finished with it: ${d.siding ? sidingFinish(d).name : 'unfinished'}`,
+    bought && `${bought > 1 ? 'bought doors' : 'bought door'} in the maker's factory finish`,
+  ].filter(Boolean).join('; ');
+}
 
 /** A repeatable pseudo-random number in [0, 1) for a tab or course, so a drawing is the same every time. */
 const rand = (a, b) => { const x = Math.sin(a * 127.1 + b * 311.7) * 43758.5453; return x - Math.floor(x); };
@@ -102,7 +123,7 @@ export function packetSummary(shed) {
     ['Siding', d.siding ? `${look.label}${LAP_PRODUCTS[d.sidingType] ? ` (${d.sidingType})` : ''}, ${sidingFinish(d).name}${d.polkaDots ? ', with purple polka dots' : ''}` : 'none shown'],
     ['Roofing', d.roofing ? (d.roofCover === 'metal' ? `corrugated metal, ${roofName(d)}` : `asphalt shingles, ${roofName(d)} colour family`) : 'none shown'],
     ['Trim', d.wallTrim === 'none' ? `fascia and rake boards, ${trimName(d)}; no corner boards or casings` : `${d.wallTrim} corner boards and casings, fascia and rake boards, ${trimName(d)}`],
-    ['Door finish', doorName(d) + (d.doorColor === 'stained' ? '' : ' paint')],
+    ['Door finish', doorFinish(d)],
     ['Doors', count('door').length ? list('door') : 'none'],
     ['Windows', count('window').length ? list('window') : 'none'],
   ];

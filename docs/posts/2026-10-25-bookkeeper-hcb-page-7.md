@@ -1,5 +1,6 @@
 ---
 title: "Bookkeeping keywords on 356 more unseen card charges: 41% suggested before, 57% after"
+seo_title: "Bookkeeping keywords on 356 more unseen card charges"
 date: 2026-10-25
 description: "Page 7 of public Hack Club HCB card charges: the bookkeeper's built-in keywords suggested an account for 41.3% before we looked."
 tags: [bookkeeping, measurement, ai-bookkeeper]

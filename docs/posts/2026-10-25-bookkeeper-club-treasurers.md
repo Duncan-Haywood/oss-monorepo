@@ -1,5 +1,6 @@
 ---
 title: "Bookkeeping for club and PTO treasurers: donation payouts from one bank statement"
+seo_title: "Bookkeeping for club and PTO treasurers"
 date: 2026-10-25
 description: "ai-bookkeeper now books Zeffy, Givebutter, Donorbox and fundraiser payouts as income, and has a page for volunteer treasurers."
 tags: [ventures, ai-bookkeeper, nonprofits, bookkeeping]

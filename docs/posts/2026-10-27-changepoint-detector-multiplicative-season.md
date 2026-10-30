@@ -1,5 +1,6 @@
 ---
 title: "A season that grows with the level: changepoint-detector gets --multiplicative"
+seo_title: "A season that grows with the level"
 date: 2026-10-27
 description: "A seasonal swing that grows with the level reads as steps when removed as a fixed amount. A multiplicative option helps monthly data and hurts quarterly."
 tags: [changepoint-detector, statistics, time-series]

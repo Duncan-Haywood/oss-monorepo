@@ -1,5 +1,6 @@
 ---
 title: "Research algorithms in your browser: changepoints, conformal intervals and matrix profiles"
+seo_title: "Research algorithms in your browser"
 date: 2026-10-20
 description: "Three methods from published statistics papers as free tools on your own CSV: in the browser, the command line and AI agents, with the papers cited."
 tags: [projects, statistics, machine-learning, time-series, open-source]

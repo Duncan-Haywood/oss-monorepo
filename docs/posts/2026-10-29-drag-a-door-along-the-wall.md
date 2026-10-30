@@ -1,5 +1,6 @@
 ---
 title: "Drag a door along the wall: the plan sketch editor learns to edit openings"
+seo_title: "Drag a door along the wall"
 date: 2026-10-29
 description: "The wall-framing takeoff's plan sketch now lets you slide a door or window along its wall and resize it by dragging an edge, with overlaps and slivers refused."
 tags: [wall-framing-takeoff, construction, sketch]

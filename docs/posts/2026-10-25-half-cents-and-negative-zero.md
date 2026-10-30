@@ -1,5 +1,6 @@
 ---
 title: "Two small money-parsing faults in ai-bookkeeper: half cents and negative zero"
+seo_title: "Two small money-parsing faults in ai-bookkeeper"
 date: 2026-10-25
 description: "Probing the amount parser with odd strings found 1.005 read as 100 cents and -0.001 read as -0 cents; both fixed and pinned."
 tags: [ai-bookkeeper, testing, money]
