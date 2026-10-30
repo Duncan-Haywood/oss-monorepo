@@ -275,6 +275,21 @@ test('the section bar opens each results tab, and a left-out line comes off the 
   assert.match(await page.textContent('#cuts'), /\d+ ft → .*\(\w+\)/, 'cut sheet boards say what they are cut into');
 });
 
+test('each option and each design card says what it changes and what it costs against yours', { skip }, async (t) => {
+  const { page } = await open(t);
+  await page.click('#make-options');
+  await page.waitForSelector('#option-cards article');
+  const cards = await page.$$eval('#option-cards article', (as) => as.map((a) => a.textContent));
+  const ridge = cards.find((c) => /Ridge board with rafter ties/.test(c));
+  assert.match(ridge, /roof ridge beam on posts → ridge board with rafter ties/);
+  assert.match(ridge, /\+\d+ rafter tie/);
+  assert.match(ridge, /\$[\d,.]+ less/);
+  await page.selectOption('#new-design', '8x12 classic');
+  await page.click('#design-tabs [data-design="0"]');
+  await page.waitForFunction(() => /Against the one you're editing/.test(document.querySelector('#compare-cards').textContent));
+  assert.match(await page.textContent('#compare-cards'), /walls 7' 2-1\/2" → 8' 0"/);
+});
+
 test('on a phone: no sideways scroll, finger-size handles, touch drag and pinch', { skip }, async (t) => {
   const { ctx, page } = await open(t, pw.devices['Pixel 7']);
   const sw = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);

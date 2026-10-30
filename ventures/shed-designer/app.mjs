@@ -11,7 +11,7 @@ import { fmtIn, fmtFtIn, actual, STANDARD_LENGTHS_FT, EXAMPLE_ITEMS } from './lu
 import { recordUsage, clearUsage } from './usage.mjs';
 import { structuralChecks } from './checks.mjs';
 import { connectionChecks } from './connections.mjs';
-import { generateCandidates } from './candidates.mjs';
+import { generateCandidates, designDiff } from './candidates.mjs';
 import { buildInstructions, instructionsMarkdown } from './instructions.mjs';
 import { quoteRequest, mailtoLink, STORES } from './quote.mjs';
 import { PRODUCTS } from './products.mjs';
@@ -435,6 +435,7 @@ function renderCompare() {
     return { d, i, shed, est };
   });
   const cheapest = Math.min(...rows.map((r) => r.est.total));
+  const here = rows[state.active];
   $('#compare-cards').innerHTML = rows.map(({ d, i, shed, est }) => `
     <article class="card${i === state.active ? ' active' : ''}">
       ${thumbs.get(JSON.stringify(d)) ? `<img src="${thumbs.get(JSON.stringify(d))}" alt="3D view of ${esc(d.name)}" width="360" height="240">` : '<div class="thumb-wait">rendering...</div>'}
@@ -447,6 +448,7 @@ function renderCompare() {
         <div><dt>Boards</dt><dd>${est.boards}</dd></div>
         <div><dt>Total</dt><dd>${money(est.total)}</dd></div>
         <div><dt>Per sq ft</dt><dd>${money(est.total / est.footprintSqFt)}</dd></div>
+        ${i !== state.active && here ? (() => { const ch = designDiff(here.shed, shed); const dlt = est.total - here.est.total; return `<div class="wide"><dt>Against the one you're editing</dt><dd>${Math.abs(dlt) < 0.005 ? 'same price' : `${money(Math.abs(dlt))} ${dlt > 0 ? 'more' : 'less'}`}${ch.length ? `<ul class="changes">${ch.map((c) => `<li>${esc(c)}</li>`).join('')}</ul>` : '; the same design'}</dd></div>`; })() : ''}
       </dl>
       <button type="button" data-design="${i}">${i === state.active ? 'Editing' : 'Open this design'}</button>
     </article>`).join('');
@@ -726,6 +728,8 @@ function wire() {
       if (tv) { tv.show(buildShed(o.design), { refit: true }); img = `<img src="${tv.snapshot()}" alt="3D view of option ${i + 1}" width="480" height="320">`; }
       return `<article class="card"><div>${img}</div><h3 class="h4">${i === 0 ? '<span class="pill">best value</span> ' : ''}${esc(o.label)}</h3>
         <dl><div><dt>Total</dt><dd>${money(o.total)}</dd></div><div><dt>Lumber</dt><dd>${money(o.lumber)}, ${o.boards} boards</dd></div>
+        <div><dt>Against your design</dt><dd>${o.delta > 0.005 ? `${money(o.delta)} more` : o.delta < -0.005 ? `${money(-o.delta)} less` : 'same price'}</dd></div>
+        <div class="wide"><dt>What changes</dt><dd>${o.changes.length ? `<ul class="changes">${o.changes.map((c) => `<li>${esc(c)}</li>`).join('')}</ul>` : 'nothing: this is your design'}</dd></div>
         <div><dt>Roof</dt><dd>${esc(o.summary)}</dd></div><div><dt>Structure</dt><dd class="${o.ok ? 'ok' : 'fail'}">${o.ok ? 'passes' : 'over capacity'} (${Math.round(o.worst * 100)}%)</dd></div>
         ${o.warnings ? `<div><dt>Warnings</dt><dd>${o.warnings}</dd></div>` : ''}</dl>
         <button type="button" data-option="${i}">Use this one</button></article>`;
