@@ -26,6 +26,16 @@
       <itunes:explicit>false</itunes:explicit>
     </item>
     <item>
+      <title>Giles and the Doe</title>
+      <link>https://example.invalid/hearth-and-horizon/giles-and-the-doe.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/giles-and-the-doe.html</guid>
+      <pubDate>Fri, 30 Oct 2026 12:00:00 GMT</pubDate>
+      <description>A bedtime story about Saint Giles, a hermit who lived quietly in a forest, and the doe who came to share his cave. When hunters chased her, Giles stepped in between, and the arrow meant for the deer struck him instead. Told as the old legend tells it, with a note for grown-ups on what is history and what is legend. For ages 3 to 8, about nine minutes read aloud. His feast day is the 1st of September. Setting: A wild forest near the mouth of the Rhône, in what is now the south of France, about thirteen hundred years ago. Read the full text at https://example.invalid/hearth-and-horizon/giles-and-the-doe.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A bedtime story about Saint Giles, a hermit who lived quietly in a forest, and the doe who came to share his cave. When hunters chased her, Giles stepped in between, and the arrow meant for the deer struck him instead. Told as the old legend tells it, with a note for grown-ups on what is history and what is legend. For ages 3 to 8, about nine minutes read aloud. His feast day is the 1st of September.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>The Bell Will Not Carry</title>
       <link>https://example.invalid/hearth-and-horizon/the-bell-will-not-carry.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-bell-will-not-carry.html</guid>
