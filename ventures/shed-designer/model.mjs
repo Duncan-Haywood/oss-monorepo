@@ -181,7 +181,12 @@ export const BLOCKS = {
 
 const classic = () => ({ ...defaultDesign(), foundation: 'gravel', pad: 'full', wallHeight: 96, pitch: 6, skidSize: '4x6', roofType: 'ridgeBoard', sidingColor: 'natural', polkaDots: false, maxPeak: 0, ventHeight: 12, autoWall: false, autoPitch: false, autoOverhang: false, rafterSeat: 'birdsmouth', maxFootprint: 0, roofColor: 'charcoal', trimColor: 'white', glitter: false, interior: 'none' });
 
-/** @typedef {ReturnType<typeof defaultDesign>} Design */
+/**
+ * Site plan extras that `normalize` fills in (not `defaultDesign`, so the
+ * presets' design keys stay put).
+ * @typedef {{ siteFacing: string, northDeg: number | null, easementSide: string, easementFt: number, easementNote: string }} SiteExtras
+ */
+/** @typedef {ReturnType<typeof defaultDesign> & Partial<SiteExtras>} Design */
 
 /** Starting points for the "New design" menu. */
 export const PRESETS = {
@@ -321,6 +326,16 @@ export function normalize(input) {
     maxHaulFt: /** @type {any} */ (o.maxHaulFt) !== '' && o.maxHaulFt !== null && [0, 8, 10, 12, 14, 16, 18, 20].includes(Number(o.maxHaulFt)) ? Number(o.maxHaulFt) : d.maxHaulFt,
     ...Object.fromEntries(['lotWidthFt', 'lotDepthFt', 'siteLeftFt', 'siteRearFt', 'houseWidthFt', 'houseDepthFt', 'houseLeftFt', 'houseFrontFt', 'setbackFt']
       .map((f) => [f, Math.min(2000, Math.max(0, num(o[f], d[f])))])),
+    // Site plan extras, defaulted here rather than in defaultDesign() so the
+    // presets' design keys (and their stored pictures) do not move: which way
+    // the front (door) wall faces on the lot; north in degrees clockwise from
+    // straight up the plan (toward the rear lot line), null for no arrow; and
+    // an easement strip along one lot line, with a note as on the plat.
+    siteFacing: pick(o.siteFacing, ['street', 'left', 'right', 'rear'], 'street'),
+    northDeg: o.northDeg === null || o.northDeg === undefined || /** @type {any} */ (o.northDeg) === '' || typeof o.northDeg === 'boolean' || !Number.isFinite(Number(o.northDeg)) ? null : ((Math.round(Number(o.northDeg)) % 360) + 360) % 360,
+    easementSide: pick(o.easementSide, ['none', 'street', 'left', 'right', 'rear'], 'none'),
+    easementFt: Math.min(200, Math.max(0, num(o.easementFt, 0))),
+    easementNote: typeof o.easementNote === 'string' ? o.easementNote.replace(/[\u0000-\u001f]/g, ' ').trim().slice(0, 120) : '',
     locked: Array.isArray(o.locked) ? [...new Set(o.locked.filter((k) => typeof k === 'string' && k in LOCKABLE))] : [],
     ventWidth: Math.min(36, Math.max(6, num(o.ventWidth, d.ventWidth))),
     ventHeight: Math.min(36, Math.max(6, num(o.ventHeight, d.ventHeight))),
@@ -537,20 +552,27 @@ function layoutCenters(spacing, lo, hi) {
 export function siteLayout(d) {
   if (!(d.lotWidthFt > 0 && d.lotDepthFt > 0)) return null;
   const lot = { w: d.lotWidthFt * 12, d: d.lotDepthFt * 12 };
+  const facing = d.siteFacing || 'street';
+  // Facing a side lot line turns the shed a quarter turn: its length runs front to back.
+  const turned = facing === 'left' || facing === 'right';
+  const [fx, fy] = turned ? [d.width, d.length] : [d.length, d.width];
   const x0 = d.siteLeftFt * 12;
   const y1 = lot.d - d.siteRearFt * 12;
-  const shed = { x0, x1: x0 + d.length, y0: y1 - d.width, y1 };
+  const shed = { x0, x1: x0 + fx, y0: y1 - fy, y1 };
   const o = d.overhang;
-  const clear = {
-    left: shed.x0, right: lot.w - shed.x1, front: shed.y0, rear: lot.d - shed.y1,
-    frontEave: shed.y0 - o, rearEave: lot.d - shed.y1 - o,
-  };
+  // The eaves overhang the front and back walls; the gable ends have none.
+  const eaves = turned ? ['left', 'right'] : ['front', 'rear'];
+  const raw = { left: shed.x0, right: lot.w - shed.x1, front: shed.y0, rear: lot.d - shed.y1 };
+  const eave = Object.fromEntries(Object.entries(raw).map(([k, v]) => [k, eaves.includes(k) ? v - o : v]));
+  const clear = { ...raw, frontEave: eave.front, rearEave: eave.rear, leftEave: eave.left, rightEave: eave.right };
   const house = d.houseWidthFt > 0 && d.houseDepthFt > 0
     ? { x0: d.houseLeftFt * 12, x1: (d.houseLeftFt + d.houseWidthFt) * 12, y0: d.houseFrontFt * 12, y1: (d.houseFrontFt + d.houseDepthFt) * 12 }
     : null;
   // Nearest gap between the shed's walls and the house (0 when they overlap).
   const gap = house ? Math.hypot(Math.max(0, house.x0 - shed.x1, shed.x0 - house.x1), Math.max(0, house.y0 - shed.y1, shed.y0 - house.y1)) : null;
-  return { lot, shed, overhang: o, clear, house, houseGap: gap, setback: d.setbackFt * 12 };
+  const side = d.easementSide === 'street' ? 'front' : d.easementSide;
+  const easement = side && side !== 'none' && d.easementFt > 0 ? { side, width: d.easementFt * 12, note: d.easementNote || '' } : null;
+  return { lot, shed, overhang: o, clear, eaves, facing, house, houseGap: gap, setback: d.setbackFt * 12, north: d.northDeg ?? null, easement };
 }
 
 /** Site-plan problems worth a warning: off the lot, inside the setback you typed, or on top of the house. @param {Design} d */
@@ -562,10 +584,16 @@ function siteWarnings(d) {
   const off = lines.filter(([k]) => site.clear[k] < -1e-9).map(([, name]) => name);
   if (off.length) out.push(`On the site plan the shed runs past the ${off.join(' and ')} lot line${off.length > 1 ? 's' : ''}; check the lot size and where you placed it.`);
   else if (site.setback > 0) {
-    const near = lines.filter(([k]) => Math.min(site.clear[k], k === 'front' ? site.clear.frontEave : k === 'rear' ? site.clear.rearEave : Infinity) < site.setback - 1e-9);
+    const near = lines.filter(([k]) => Math.min(site.clear[k], site.clear[`${k}Eave`]) < site.setback - 1e-9);
     if (near.length) out.push(`On the site plan the shed (or its eave) is closer than your ${fmtFt(site.setback)} setback to the ${near.map(([, n]) => n).join(', ').replace(/, ([^,]*)$/, ' and $1')} lot line${near.length > 1 ? 's' : ''}.`);
   }
   if (site.house && site.houseGap !== null && site.houseGap < 1e-9) out.push('On the site plan the shed overlaps the house; check where you placed each.');
+  const e = site.easement;
+  if (e) {
+    const key = /** @type {'left'|'right'|'front'|'rear'} */ (e.side);
+    const reach = Math.min(site.clear[key], site.clear[`${key}Eave`]);
+    if (reach < e.width - 1e-9) out.push(`On the site plan the shed${reach < site.clear[key] ? ' (or its eave)' : ''} reaches into the ${fmtFt(e.width)} easement along the ${key === 'front' ? 'street' : key} lot line; most easements do not allow a building in them.`);
+  }
   return out;
 }
 

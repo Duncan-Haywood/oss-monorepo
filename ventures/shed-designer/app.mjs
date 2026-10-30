@@ -151,11 +151,11 @@ function preview(next) {
 }
 
 // ---------- form ----------
-const SITE_FIELDS = ['lotWidthFt', 'lotDepthFt', 'siteLeftFt', 'siteRearFt', 'setbackFt', 'houseWidthFt', 'houseDepthFt', 'houseLeftFt', 'houseFrontFt'];
+const SITE_FIELDS = ['lotWidthFt', 'lotDepthFt', 'siteLeftFt', 'siteRearFt', 'setbackFt', 'houseWidthFt', 'houseDepthFt', 'houseLeftFt', 'houseFrontFt', 'easementFt'];
 const FIELDS = ['name', 'lengthFt', 'widthFt', 'style', 'wallHeight', 'pitch', 'overhang', 'studSize', 'studSpacing', 'joistSize', 'joistSpacing',
   'rafterSize', 'rafterSpacing', 'tieSize', 'skidSize', 'skidSpacing', 'foundation', 'floorTreated', 'siding', 'roofing', 'gableVents', 'ventWidth', 'ventHeight', 'kerf',
   'roofType', 'beamSize', 'sidingColor', 'polkaDots', 'autoWall', 'autoStuds', 'autoPitch',
-  'autoOverhang', 'overhangBudget', 'snowLoad', 'windLoad', 'roofColor', 'trimColor', 'doorColor', 'glitter', 'interior', 'sidingType', 'roofCover', 'insulation', 'customRange', 'atticStorage', 'wallTrim', 'rafterSeat', 'maxFootprint', 'pierDepth', 'compaction', 'pad', 'floorPanel', 'spares', 'taxRate', 'delivery', 'laborRate', 'maxHaulFt', 'gambrelLower', 'gambrelKnee', 'loft', 'loftJoist', ...SITE_FIELDS];
+  'autoOverhang', 'overhangBudget', 'snowLoad', 'windLoad', 'roofColor', 'trimColor', 'doorColor', 'glitter', 'interior', 'sidingType', 'roofCover', 'insulation', 'customRange', 'atticStorage', 'wallTrim', 'rafterSeat', 'maxFootprint', 'pierDepth', 'compaction', 'pad', 'floorPanel', 'spares', 'taxRate', 'delivery', 'laborRate', 'maxHaulFt', 'gambrelLower', 'gambrelKnee', 'loft', 'loftJoist', 'siteFacing', 'northDeg', 'easementSide', 'easementNote', ...SITE_FIELDS];
 
 
 /** A colour select keeps one "Your colour" option for a hex code typed or picked. @param {HTMLSelectElement} sel @param {string} v */
@@ -178,7 +178,7 @@ function fillForm(d) {
   set('lengthFt', +(d.length / 12).toFixed(2));
   set('widthFt', +(d.width / 12).toFixed(2));
   set('maxPeakFt', +(d.maxPeak / 12).toFixed(2));
-  for (const f of FIELDS.slice(3)) set(f, d[f]);
+  for (const f of FIELDS.slice(3)) set(f, d[f] ?? '');
   for (const cb of $$('input[name="stock"]')) cb.checked = d.lengths.includes(Number(cb.value));
   for (const cb of $$('input[name="lock"]')) cb.checked = (d.locked || []).includes(cb.value);
   // The gambrel's own fields show only on a gambrel.
@@ -195,7 +195,7 @@ function readForm() {
   d.width = Math.round(num('widthFt', d.width / 12) * 12);
   d.maxPeak = Math.round(num('maxPeakFt', d.maxPeak / 12) * 12);
   for (const f of ['wallHeight', 'pitch', 'overhang', 'studSpacing', 'joistSpacing', 'rafterSpacing', 'skidSpacing', 'ventWidth', 'ventHeight', 'kerf', 'snowLoad', 'windLoad', 'maxFootprint', 'pierDepth', 'spares', 'taxRate', 'laborRate', 'maxHaulFt', 'gambrelLower', 'gambrelKnee', ...SITE_FIELDS, 'overhangBudget']) d[f] = num(f, d[f]);
-  for (const f of ['style', 'studSize', 'joistSize', 'rafterSize', 'tieSize', 'skidSize', 'foundation', 'roofType', 'beamSize', 'sidingColor', 'roofColor', 'trimColor', 'doorColor', 'interior', 'sidingType', 'roofCover', 'wallTrim', 'rafterSeat', 'compaction', 'pad', 'floorPanel', 'delivery', 'loft', 'loftJoist']) d[f] = v(f).value;
+  for (const f of ['style', 'studSize', 'joistSize', 'rafterSize', 'tieSize', 'skidSize', 'foundation', 'roofType', 'beamSize', 'sidingColor', 'roofColor', 'trimColor', 'doorColor', 'interior', 'sidingType', 'roofCover', 'wallTrim', 'rafterSeat', 'compaction', 'pad', 'floorPanel', 'delivery', 'loft', 'loftJoist', 'siteFacing', 'northDeg', 'easementSide', 'easementNote']) d[f] = v(f).value;
   for (const f of ['floorTreated', 'siding', 'roofing', 'gableVents', 'polkaDots', 'autoWall', 'autoStuds', 'autoPitch', 'autoOverhang', 'glitter', 'insulation', 'customRange', 'atticStorage']) d[f] = v(f).checked;
   d.lengths = $$('input[name="stock"]:checked').map((c) => Number(c.value));
   d.locked = $$('input[name="lock"]:checked').map((c) => c.value);
