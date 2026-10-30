@@ -9,6 +9,7 @@ import { createRequire } from 'node:module';
 import { existsSync, readFileSync } from 'node:fs';
 import { extname, join, normalize } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { defaultDesign } from './model.mjs';
 
 const ROOT = fileURLToPath(new URL('.', import.meta.url));
 
@@ -43,8 +44,13 @@ before(async () => {
 after(async () => { await browser?.close(); server?.close(); });
 
 /** A fresh page with an error log; fails the test if anything was logged as an error. */
+// These tests read the 8x12 default (model.mjs defaultDesign), so each page
+// starts with it saved; a first-time visitor opens on the gallery's balanced design.
+const START_FROM_DEFAULT = `try { if (!localStorage.getItem('shed-designer-state-v1')) localStorage.setItem('shed-designer-state-v1', ${JSON.stringify(JSON.stringify({ designs: [defaultDesign()], active: 0 }))}); } catch {}`;
+
 async function open(t, ctxOpts = { viewport: { width: 1366, height: 900 } }) {
   const ctx = await browser.newContext(ctxOpts);
+  await ctx.addInitScript(START_FROM_DEFAULT);
   const page = await ctx.newPage();
   const errors = [];
   page.on('pageerror', (e) => errors.push(`pageerror: ${e.message}`));

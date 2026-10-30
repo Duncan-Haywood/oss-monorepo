@@ -186,6 +186,12 @@ The root price leaves a duality gap because the relaxation lets a contested shif
 
 Case 0 went from two-thirds of an open hour to $2.53 of pay. Still 0 of 4 proven: cases 2 and 3 barely move (case 3's gap is about one open hour that neither the roster nor the bound resolves), and case 1 is still a coverage gap of two hours. Costs 2 to 8 s per week at the default limits. A test checks the branched bound never passes the brute-force optimum on 40 tight random weeks and rises on at least one. One generator, one run each. (The clopening and call-out guide tables that failed on `main` here were re-derived from the engine on 2026-10-25.)
 
+## Trade pages (2026-10-30)
+
+[`daycare-staff-schedule.html`](daycare-staff-schedule.html) and
+[`coffee-shop-staff-schedule.html`](coffee-shop-staff-schedule.html) show a
+week for that trade; the coffee-shop page uses real CLI output, pinned by a test.
+
 ## Limits
 
 Not modelled: predictive-scheduling and fair-workweek rules as built-in law (the changes report prices a rule you enter), breaks as a hard rule (unpaid meal breaks are deducted from paid time; suggested meal-break times, and from 2026-10-30 paid rest breaks of the length and spacing you enter via `placeRestBreaks`, are shown but not enforced by the search), minor-labor limits other than the federal 14-15 rules in `age:` (state rules, work permits), union rules, seniority, time-off across weeks. A

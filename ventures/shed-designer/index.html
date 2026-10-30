@@ -93,7 +93,9 @@
     #view3d:focus-visible { outline: 3px solid #e0662f; outline-offset: 2px; }
     #view3d { width: 100%; aspect-ratio: 4 / 3; display: block; border-radius: 10px; border: 1px solid var(--line); background: #edf1f5; touch-action: none; cursor: grab; }
     .swatchrow { display: flex; gap: 6px; align-items: center; }
-    .swatchrow select { flex: 1; min-width: 0; }
+    .swatchrow select { flex: 1; min-width: 0; width: 100%; }
+    /* A long colour name in the select must not widen the form column past the page (1366 px, 2026-10-30). */
+    label:has(> .swatchrow) { min-width: 0; }
     .swatchrow input[type=color] { inline-size: 2.6em; block-size: 2.2em; padding: 2px; flex: none; }
     .toolrow { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; align-items: center; }
     .check { display: inline-flex; align-items: center; gap: 6px; font-size: .88rem; font-weight: 600; }
@@ -220,6 +222,10 @@
     .pick-img img, .pick-img .thumb-wait { width: 100%; height: auto; aspect-ratio: 3 / 2; border-radius: 8px; background: #edf1f5; display: grid; place-items: center; color: var(--muted); font-size: .8rem; }
     .pick-line { font-size: .85rem; font-weight: 600; }
     .pick-why { font-size: .8rem; color: var(--muted); }
+    .pick-line.pick-delta, .pick-line.pick-looks { font-weight: 400; }
+    .looks-terms { list-style: none; padding: 0; margin: .25rem 0 .75rem; font-size: .85rem; }
+    .looks-terms li { display: grid; grid-template-columns: minmax(0, 10rem) 3.5rem minmax(0, 1fr); gap: .5rem; padding: .15rem 0; border-bottom: 1px solid var(--line, #ddd); }
+    @media (max-width: 480px) { .looks-terms li { grid-template-columns: minmax(0, 1fr) 3.5rem; } .looks-terms li .muted { grid-column: 1 / -1; } }
     .pick-more { margin-top: auto; padding-top: 6px; font-size: .85rem; font-weight: 600; color: var(--accent2); }
     .pick-open:hover .pick-more { text-decoration: underline; }
     .pick-cmp { margin: 0 10px 10px; min-height: 44px; }
@@ -693,7 +699,7 @@
     <div id="option-cards"></div>
     <h3 style="margin-top:16px">Bring the price down, same size</h3>
     <p class="muted">Counts your time at the hourly rate you set (in the buying settings) as well as materials. Tries cheaper off-the-shelf parts and settings one at a time (stock doors and windows, siding, roofing, the foundation and its gravel, the subfloor, overhang, pitch and spacing), keeps your footprint, the ridge and rafter-seat choices you made and anything you fixed under "Your limits and fixed choices", and keeps a change only if the shed still passes every check and the peak rises by no more than 6". It lists each saving so you can take some and leave others.</p>
-    <div class="toolrow"><button type="button" class="btn primary" id="budget">Find a cheaper build</button></div>
+    <div class="toolrow"><label>Your budget, materials before tax ($) <input id="budget-target" type="number" min="0" step="50" inputmode="numeric" placeholder="optional" style="width:8em"></label> <button type="button" class="btn primary" id="budget">Find a cheaper build</button></div>
     <div id="budget-out"></div>
     <h3 style="margin-top:16px">What each foundation, floor, door and window choice costs</h3>
     <p class="muted">Every alternative for the parts under and around the shed (blocks or a gravel pad, the floor joists and subfloor, a door built on site at 36" to 72" or a stock door, the windows or none), each framed, priced and checked against the design you are editing. Shows what it saves or adds in materials and your time, whether the peak moves, and what it means on site. "Use this" changes your design; Undo takes it back.</p>

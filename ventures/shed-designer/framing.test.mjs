@@ -99,3 +99,25 @@ test('a header carries the same eave-wall load as the studs, for every roof type
     assert.ok(Math.abs(headerLoadPlf(s.design, 'front') - (e.dead + e.snow + 10)) < 1e-9, JSON.stringify(o));
   }
 });
+
+test('a panel joint between a ridge-beam post and a window king gets a nailer ripped to the gap (fuzz seed 7, #990)', () => {
+  // The fuzz design as generated (normalize resizes the stock units and drops the door that sits on the post).
+  const base = {
+    ...defaultDesign(), length: 78, width: 90, wallHeight: 90, pitch: 11, overhang: 23, studSize: '2x4', studSpacing: 12, autoStuds: true, joistSize: '2x8', rafterSize: '2x8', rafterSpacing: 12,
+    roofType: 'ridgeBeam', beamSize: '2x12', skidSize: '4x6', skidSpacing: 66, foundation: 'gravel', siding: true, sidingColor: 'natural', gableVents: true, ventWidth: 14, ventHeight: 9,
+    maxPeak: 0, snowLoad: 10, windLoad: 15, autoPitch: true, interior: 'plywood', sidingType: 'T1-11', wallTrim: '1x4', rafterSeat: 'birdsmouth', maxFootprint: 100, maxHaulFt: 12, lengths: [8, 12, 14, 16, 18],
+    openings: [
+      { id: 'o1', kind: 'door', wall: 'left', offset: 16, width: 38, height: 13, product: 'masonite-3280-flush' },
+      { id: 'o2', kind: 'window', wall: 'left', offset: 15, width: 32, height: 57, sill: 46, product: 'swm-2427' },
+      { id: 'o3', kind: 'window', wall: 'left', offset: -5, width: 78, height: 52, sill: 64 },
+    ],
+  };
+  for (const floor of ['framed', 'none']) {
+    const shed = buildShed({ ...base, floor });
+    const joint = connectionChecks(shed).rows.find((r) => /Siding joints on framing/.test(r.check));
+    assert.ok(joint && joint.ok, `${floor}: ${joint?.detail ?? 'no check'}`);
+    const nailer = shed.members.find((m) => m.group === 'wall:left' && m.kind === 'siding nailer' && /ripped/.test(m.note || ''));
+    assert.ok(nailer, floor);
+    assert.ok(nailer.local.s1 - nailer.local.s0 < 1.5 && nailer.local.s1 - nailer.local.s0 > 1, JSON.stringify(nailer.local));
+  }
+});

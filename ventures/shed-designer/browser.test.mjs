@@ -12,6 +12,7 @@ import { createRequire } from 'node:module';
 import { existsSync, readFileSync } from 'node:fs';
 import { extname, join, normalize } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { defaultDesign } from './model.mjs';
 
 const ROOT = fileURLToPath(new URL('.', import.meta.url));
 
@@ -46,8 +47,14 @@ before(async () => {
 after(async () => { await browser?.close(); server?.close(); });
 
 /** A fresh page with an error log; fails the test if anything was logged as an error. */
+// These tests edit the 8x12 default (model.mjs defaultDesign), so each page
+// starts with it saved. A first-time visitor opens on the gallery's balanced
+// design instead (gallery-ui.mjs firstDesign; the test below checks that view).
+const START_FROM_DEFAULT = `try { if (!localStorage.getItem('shed-designer-state-v1')) localStorage.setItem('shed-designer-state-v1', ${JSON.stringify(JSON.stringify({ designs: [defaultDesign()], active: 0 }))}); } catch {}`;
+
 async function open(t, ctxOpts = { viewport: { width: 1366, height: 900 } }) {
   const ctx = await browser.newContext(ctxOpts);
+  await ctx.addInitScript(START_FROM_DEFAULT);
   const page = await ctx.newPage();
   const errors = [];
   page.on('pageerror', (e) => errors.push(`pageerror: ${e.message}`));
@@ -792,6 +799,43 @@ test('Save picture downloads the 3D view as a PNG', { skip }, async (t) => {
   const path = await dl.path();
   const head = readFileSync(/** @type {string} */ (path)).subarray(0, 8);
   assert.deepEqual([...head], [137, 80, 78, 71, 13, 10, 26, 10], 'a PNG file');
+});
+
+test('a first-time visitor opens on a gallery design (the balanced one, unless it costs more than the 8x12) with nothing to check', { skip }, async (t) => {
+  const ctx = await browser.newContext({ viewport: { width: 1366, height: 900 } });
+  t.after(() => ctx.close());
+  const page = await ctx.newPage();
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await page.goto(base);
+  await page.waitForFunction(() => document.querySelector('#total')?.textContent?.startsWith('$'));
+  const first = (await import('./gallery-ui.mjs')).firstDesign();
+  assert.equal(await page.$eval('#name', (e) => e.value), first.name);
+  assert.equal(await page.$eval('#lengthFt', (e) => Number(e.value)), first.length / 12);
+  assert.equal((await page.locator('#warnings').innerText()).trim(), '', 'no "Check these" list');
+  assert.deepEqual(errors, []);
+});
+
+test('a typed budget shows how far the cheaper build gets, what else would close the gap, and a smaller shed that fits', { skip }, async (t) => {
+  const { page } = await open(t);
+  await page.fill('#budget-target', '2000');
+  await page.click('#budget');
+  const out = page.locator('#budget-out .budget-path');
+  await out.waitFor({ timeout: 60000 });
+  const text = await out.innerText();
+  assert.match(text, /Your budget: \$2,000/);
+  assert.match(text, /No spare boards: saves \$\d+/);
+  assert.match(text, /What fits \$2,000 in this design|Smaller does not get there either/);
+  if (await out.locator('[data-budget-use="smaller"]').count()) {
+    const before = await page.locator('#design-list option, #designs option').count();
+    await out.locator('[data-budget-use="smaller"]').click();
+    assert.match(await page.$eval('#name', (e) => e.value), /smaller, to fit the budget/);
+    assert.ok((await page.locator('#design-list option, #designs option').count()) >= before);
+  }
+  // Remembered for the next visit, in this browser only.
+  await page.reload();
+  await page.waitForFunction(() => document.querySelector('#total')?.textContent?.startsWith('$'));
+  assert.equal(await page.$eval('#budget-target', (e) => e.value), '2000');
 });
 
 test('the sticky section bar fades and lets a click through when a plan handle is under it', { skip }, async (t) => {
