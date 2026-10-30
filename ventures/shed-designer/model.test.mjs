@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { buildShed, defaultDesign, normalize, splitRun, PRESETS, minWallFor } from './model.mjs';
+import { estimate } from './estimate.mjs';
 
 const classic = () => PRESETS['8x12 classic']();
 
@@ -184,4 +185,26 @@ test('picking a catalogue product sets the rough opening to the maker\'s and lis
   // A door product on a window is ignored, not misapplied.
   const bad = buildShed({ ...d, openings: [{ ...d.openings[1], product: 'sr-36x76' }] });
   assert.equal(bad.design.openings[0].product, undefined);
+});
+
+test('auto overhang: the longest from 6" to 18" within the allowance of the cheapest whole order', () => {
+  const totals = (d) => {
+    const base = buildShed(d).design;
+    const out = new Map();
+    for (let oh = 6; oh <= 18; oh++) out.set(oh, estimate(buildShed(normalize({ ...base, autoWall: false, autoPitch: false, autoOverhang: false, overhang: oh }))).total);
+    return out;
+  };
+  const t = totals(defaultDesign());
+  const min = Math.min(...t.values());
+  for (const budget of [0, 25, 60, 500]) {
+    const s = buildShed({ ...defaultDesign(), overhangBudget: budget });
+    const within = [...t.entries()].filter(([, c]) => c <= min + budget + 0.005).map(([oh]) => oh);
+    assert.equal(s.design.overhang, Math.max(...within), `$${budget}`);
+    assert.equal(s.overhangChoice.budget, budget);
+    assert.ok(Math.abs(s.overhangChoice.adds - (t.get(s.design.overhang) - min)) < 0.005);
+    assert.match(s.notes[0], new RegExp(`overhang ${s.design.overhang}"`));
+  }
+  assert.equal(buildShed({ ...defaultDesign(), overhangBudget: 500 }).overhangChoice.next, null);
+  assert.equal(normalize({ ...defaultDesign(), overhangBudget: -5 }).overhangBudget, 0);
+  assert.equal(normalize({ ...defaultDesign(), overhangBudget: 'x' }).overhangBudget, 25);
 });
