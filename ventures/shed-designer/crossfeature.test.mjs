@@ -1,6 +1,6 @@
 // Features from different lanes meeting in one design: every siding with every
-// foundation, roof, seat, cover, spacing, trim and door, on every preset. The
-// full product is thousands of builds, so the matrix is an all-pairs set: each
+// foundation, pad, floor, roof, seat, cover, spacing, trim and door, on every preset. The
+// full product is hundreds of thousands of builds, so the matrix is an all-pairs set: each
 // value of each axis meets each value of every other axis in at least one
 // design. A new option joins by adding its value to AXES below.
 import test from 'node:test';
@@ -10,13 +10,17 @@ import { buildShed, PRESETS, BLOCKS } from './model.mjs';
 import { structuralChecks } from './checks.mjs';
 import { connectionChecks } from './connections.mjs';
 import { invariants } from './invariants.mjs';
+import { VIEWS, packetHtml, encodeDesign, decodeDesign } from './hoa.mjs';
 
 /** @type {Record<string, any[]>} */
 export const AXES = {
   preset: Object.keys(PRESETS),
   sidingType: ['T1-11', 'LP SmartSide', 'LP SmartSide 7/16', 'board and batten', 'vinyl', 'fiber cement'],
   foundation: ['gravel', ...Object.keys(BLOCKS)],
-  pad: ['full', 'under blocks'],
+  pad: ['full', 'under blocks', 'none'],
+  floorPanel: ['plywood', 'OSB'],
+  joistSize: ['2x6', '2x8'],
+  joistSpacing: [16, 24],
   roofType: ['ridgeBeam', 'ridgeBoard'],
   rafterSeat: ['birdsmouth', 'connector'],
   roofCover: ['shingles', 'metal'],
@@ -79,6 +83,25 @@ test(`every pairing of features keeps every invariant (${ROWS.length} designs)`,
     let bad;
     try { bad = invariants(designOf(row)); } catch (e) { bad = [`throws: ${e.stack.split('\n').slice(0, 3).join(' | ')}`]; }
     if (bad.length) failures.push(`${JSON.stringify(row)}: ${bad.slice(0, 3).join('; ')}`);
+  }
+  assert.deepEqual(failures, []);
+});
+
+// The HOA packet (round 3, lane 5) is drawn from whatever the design is: every
+// pairing must give four elevations and a site page with no NaN or undefined,
+// and the packet's #d= link must carry the design back intact.
+test('every pairing of features renders its HOA packet', () => {
+  const failures = [];
+  for (const row of ROWS) {
+    const shed = buildShed(designOf(row));
+    let html;
+    try { html = packetHtml(shed); } catch (e) { failures.push(`${JSON.stringify(row)}: throws ${e.message}`); continue; }
+    const views = [...html.matchAll(/class="hoa-elev" data-view="(\w+)"/g)].map((m) => m[1]).sort();
+    if (views.join() !== [...VIEWS].sort().join()) failures.push(`${JSON.stringify(row)}: elevations ${views}`);
+    if (/NaN|undefined|Infinity/.test(html)) failures.push(`${JSON.stringify(row)}: NaN/undefined in the packet`);
+    if (!/Not engineered or code-checked/.test(html)) failures.push(`${JSON.stringify(row)}: no disclaimer`);
+    const back = decodeDesign(`#d=${encodeDesign(shed.design)}`);
+    if (JSON.stringify(buildShed(back).design) !== JSON.stringify(shed.design)) failures.push(`${JSON.stringify(row)}: #d= link does not round-trip`);
   }
   assert.deepEqual(failures, []);
 });
