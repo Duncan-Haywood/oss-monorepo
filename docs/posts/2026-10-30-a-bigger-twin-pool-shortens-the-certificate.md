@@ -1,7 +1,7 @@
 ---
 title: "Can a simulator shorten a robot-safety certificate? Only with a big enough pool of runs"
 date: 2026-10-30
-tags: [research, sim2real, digital-twins, confidence-intervals]
+tags: [research, sim2real, digital-twin, confidence-intervals]
 description: "A twin-assisted interval beat real-only betting on 20 of 21 pendulum pairs with 20,000 twin runs, 7 to 8 with 4,000, and none with 500."
 ---
 
