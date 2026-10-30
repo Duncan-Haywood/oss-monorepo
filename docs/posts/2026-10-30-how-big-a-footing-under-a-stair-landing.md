@@ -2,7 +2,7 @@
 title: "How big a footing goes under a stair landing"
 date: 2026-10-30
 tags: [wall-framing-takeoff, stairs, footings]
-description: "A free-standing stair landing's heaviest post carries 112 lb on a 36 in square landing and 500 lb on a 48 by 120 in one; on 1,500 psf soil that is a 4 in and an 8 in footing, before the flights."
+description: "A stair landing's heaviest post carries 112 lb on a 36 in square landing and 500 lb on 48 by 120 in; on 1,500 psf soil that is a 4 in and an 8 in footing."
 ---
 
 The [wall framing takeoff](https://duncan-haywood.github.io/oss-monorepo/wall-framing-takeoff/) already counts the posts under a stair landing. It did not say how big a footing each one needs. As of today it can, if you type in the one number only the site knows: the soil's bearing capacity in psf, from a soil report or your local book. There is no default for it.
