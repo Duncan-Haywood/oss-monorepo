@@ -2,7 +2,7 @@
 title: "Switching schedulers: turn last month's published schedule into the shifts to cover"
 date: 2026-10-30
 tags: [shift-roster-builder, scheduling, import]
-description: "The shift roster builder now reads a published-schedule CSV (date, start, end, position) and writes the shift-requirement lines, counting people per weekday, time and position."
+description: "The shift roster builder now reads a published-schedule CSV and writes the shift-requirement lines, counting people per weekday, time and position."
 ---
 
 People leave paid schedulers because of the per-seat price, then face retyping every shift. The [shift roster builder](https://duncan-haywood.github.io/oss-monorepo/shift-roster-builder/) already imported a staff export. It now imports the shifts too: one row per scheduled shift (date or a datetime, start, end, position) becomes lines like `Mon, 7:00, 15:00, 2, , server`.
