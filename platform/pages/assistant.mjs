@@ -92,8 +92,10 @@ export const ASSISTANT_LAUNCHER_JS = `
         // has under it, so it needs an opaque fill with a known contrast
         // (white on #12594a is 7.9:1). pf-chrome.css stays colour-free.
         var s=document.createElement('style');
-        s.textContent='.pf-ask-voice{position:fixed;right:16px;bottom:16px;z-index:2147482000;display:inline-flex;align-items:center;gap:6px;padding:10px 14px;margin:0;border:0;border-radius:999px;background:#12594a;color:#fff;font:600 14px/1 system-ui,sans-serif;box-shadow:0 4px 14px rgba(0,0,0,.25);cursor:pointer}.pf-ask-voice:focus-visible{outline:3px solid #f59f00;outline-offset:2px}@media (max-width:560px){.pf-ask-voice span{display:none}.pf-ask-voice{padding:12px}}@media print{.pf-ask-voice{display:none}}';
+        s.textContent='.pf-ask-voice{position:fixed;right:16px;bottom:16px;z-index:2147482000;display:inline-flex;align-items:center;gap:6px;padding:10px 14px;margin:0;border:0;border-radius:999px;background:#12594a;color:#fff;font:600 14px/1 system-ui,sans-serif;box-shadow:0 4px 14px rgba(0,0,0,.25);cursor:pointer}.pf-ask-voice:focus-visible{outline:3px solid #f59f00;outline-offset:2px}@media (max-width:560px){.pf-ask-voice span{display:none}.pf-ask-voice{padding:12px}}@media print{.pf-ask-voice{display:none}}@media (max-width:560px){body{padding-bottom:72px}}.pf-ask-voice{transition:transform .2s,opacity .2s}.pf-ask-voice.pf-away{transform:translateY(80px);opacity:0;pointer-events:none}.pf-ask-voice.pf-away:focus-visible{transform:none;opacity:1;pointer-events:auto}@media (prefers-reduced-motion:reduce){.pf-ask-voice{transition:none}}';
         document.head.appendChild(s);document.body.appendChild(b);
+        // Step aside while reading downwards so it never sits on the text; any upward scroll brings it back.
+        var y=window.scrollY;window.addEventListener('scroll',function(){var n=window.scrollY;if(Math.abs(n-y)>8){b.classList.toggle('pf-away',n>y&&n>200);y=n;}},{passive:true});
       }
       if(navigator.modelContext)get().then(function(m){m.registerAgentTools();},function(){});
     };

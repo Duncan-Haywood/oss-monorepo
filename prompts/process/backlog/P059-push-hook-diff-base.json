@@ -1,16 +1,17 @@
 {
   "id": "P059",
-  "title": "Pre-push post hook blocks on posts only main changed (diff against merge base)",
+  "title": "Pre-push post hook judges the pre-edit tree of a compound command (edit && commit && push)",
   "status": "open",
   "owner": "agent",
   "effect": 2,
   "cost": 1,
-  "problem": "check_posts_before_push.py diffs `origin/main HEAD` (two tips), so once main moves past your branch point, another run's bad post shows as modified and blocks your push, although its docstring promises it never will.",
+  "problem": "The three-dot diff landed in #11297, so other runs' posts no longer block. Still open: the hook runs before the whole Bash command, so `fix && git commit && git push` is judged on the tree before the fix and blocks the very command that repairs it (3 doc_friction reports 2026-10-29).",
   "evidence": [
     "doc_friction 2026-10-29T01:09 and 01:11: push blocked over another session's merged 178-char post; merging main cleared it",
-    "doc_friction 2026-10-29T03:08: the hook blocked a compound commit+push, so the fix in the same command never ran"
+    "doc_friction 2026-10-29T03:08: the hook blocked a compound commit+push, so the fix in the same command never ran",
+    "2026-10-29 verified .claude/hooks/check_posts_before_push.py:25 already uses origin/main...HEAD"
   ],
-  "change": "In .claude/hooks/check_posts_before_push.py diff `origin/main...HEAD` (merge base), falling back to the two-tip diff only when no merge base exists in a shallow clone. A process run tried this on 2026-10-29 and the auto-mode classifier denied editing the hook as self-modification, so it needs a session or owner that may edit .claude/.",
+  "change": "In .claude/hooks/check_posts_before_push.py exit 0 when the text before `git push` contains git add/commit/merge/checkout/restore or `sed -i` (CI still checks the post); add a case to test_check_posts_before_push.py. The auto-mode classifier denied this edit again on 2026-10-29 as self-modification, so it needs an owner or a session allowed to edit .claude/.",
   "touches": [
     ".claude/hooks/check_posts_before_push.py"
   ],

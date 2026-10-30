@@ -101,3 +101,40 @@ test("cornerBars: straight side runs plus an L-bar per layer per corner, legs on
   assert.ok(l.rebarLb > base.rebarLb); // corner bars add steel to the bent-loop count
   assert.ok(base.notes.some((n) => /continuous loop/.test(n)) && l.notes.some((n) => /L-bar at every corner/.test(n)));
 });
+
+test("piers: pad and column volume and rebar by hand", () => {
+  const base = layoutFoundation(sampleFoundation());
+  const l = layoutFoundation({ ...sampleFoundation(), piers: [{ name: "deck", count: 4, pad: 24, padDepth: 12, column: 8, columnHeight: 30 }] });
+  assert.ok(l.ok);
+  const p = l.pours.find((x) => x.name.startsWith("deck"));
+  near(p.cuYd, 4 * (24 * 24 * 12 + 8 * 8 * 30) / 46656, 0.001);
+  // verticals: 4 per column, (12 - 3 + 30 + 20) in each; mat: floor(18/6)+1 = 4 bars each way, 18 in long
+  const v = l.rebar.find((r) => r.what === "deck column verticals"), m = l.rebar.find((r) => r.what === "deck pad mat");
+  assert.equal(v.qty, 16); near(v.feet, 16 * 59 / 12, 0.1);
+  assert.equal(m.qty, 32); near(m.feet, 32 * 18 / 12, 0.1);
+  assert.ok(l.rebarLb > base.rebarLb);
+});
+
+test("piers are validated", () => {
+  assert.ok(validateFoundation({ ...sampleFoundation(), piers: [{ count: 0, pad: 24, padDepth: 12 }] }).length);
+  assert.ok(validateFoundation({ ...sampleFoundation(), piers: [{ count: 2, pad: 12, padDepth: 12, column: 16, columnHeight: 10 }] }).length);
+});
+
+test("a footing step makes the stem taller over the lowered run and adds a riser block", () => {
+  const base = layoutFoundation({ ...sampleFoundation(), interior: [] });
+  const f = sampleFoundation(); f.interior = []; f.footing = { ...f.footing, steps: [{ rise: 16, length: 120 }] };
+  const l = layoutFoundation(f);
+  assert.ok(l.ok);
+  near(l.pours.find((p) => p.name === "stem wall").cuYd - base.pours.find((p) => p.name === "stem wall").cuYd, 120 * 16 * 8 / 46656, 1e-3);
+  near(l.pours.find((p) => p.name === "footing step risers").cuYd, 20 * 16 * 10 / 46656, 1e-3);
+  near(l.forms.contactSqFt - base.forms.contactSqFt, 2 * 120 * 16 / 144, 0.1);
+  assert.ok(l.rebar.some((r) => r.what.startsWith("step 1 stem verticals") && r.qty === Math.ceil(120 / 32)));
+  assert.ok(!l.notes.some((n) => n.includes("steeper")));
+});
+
+test("a step steeper than 1 to 2 warns, and a bad rise is refused", () => {
+  const f = sampleFoundation(); f.footing = { ...f.footing, steps: [{ rise: 20, length: 30 }] };
+  assert.ok(layoutFoundation(f).notes.some((n) => n.includes("steeper")));
+  f.footing.steps = [{ rise: 40, length: 100 }];
+  assert.ok(!layoutFoundation(f).ok);
+});

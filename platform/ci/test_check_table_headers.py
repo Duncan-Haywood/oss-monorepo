@@ -37,6 +37,13 @@ class TableHeaders(unittest.TestCase):
                 self.assertEqual(main(["--root", d]), 1)
             page.write_text("<table><tr><th>a</th></tr></table>")
             self.assertEqual(scan(d), [])
+            with contextlib.redirect_stdout(io.StringIO()):
+                self.assertEqual(main(["--root", d]), 0)
+
+    def test_root_is_the_repository_root(self):
+        # a wrong ROOT makes test_repository_is_clean scan nothing and pass
+        self.assertTrue((ROOT / "ventures").is_dir())
+        self.assertTrue(any(ROOT.glob("ventures/*/**/*.html")))
 
     def test_repository_is_clean(self):
         self.assertEqual(scan(ROOT), [])

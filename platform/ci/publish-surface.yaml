@@ -8,15 +8,6 @@
 #
 # classification: live | gated | dispatch | none  (see the module docstring)
 workflows:
-- workflow: 1099k-reconciliation-worksheet-ci.yml
-  classification: none
-  publishes: []
-- workflow: 3d-print-price-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: 3pl-quote-normalizer-ci.yml
-  classification: none
-  publishes: []
 - workflow: a11y-axe-recall-ci.yml
   classification: none
   publishes: []
@@ -59,9 +50,6 @@ workflows:
 - workflow: actions-injection-check-ci.yml
   classification: none
   publishes: []
-- workflow: actions-minutes-estimator-ci.yml
-  classification: none
-  publishes: []
 - workflow: actions-permissions-check-ci.yml
   classification: none
   publishes: []
@@ -83,22 +71,10 @@ workflows:
 - workflow: actions-timeout-check-ci.yml
   classification: none
   publishes: []
-- workflow: actions-transitive-pin-check-ci.yml
-  classification: none
-  publishes: []
 - workflow: adopt-stranded-branches.yml
   classification: none
   publishes: []
-- workflow: affiliate-disclosure-checker-ci.yml
-  classification: none
-  publishes: []
 - workflow: agent-cross-review.yml
-  classification: none
-  publishes: []
-- workflow: agent-instructions-drift-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: agent-permission-config-check-ci.yml
   classification: none
   publishes: []
 - workflow: agent-permission-harness-ci.yml
@@ -108,12 +84,6 @@ workflows:
   classification: none
   publishes: []
 - workflow: agentic-trading-lab-ci.yml
-  classification: none
-  publishes: []
-- workflow: ai-coding-plan-cost-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: ai-crawler-access-check-ci.yml
   classification: none
   publishes: []
 - workflow: ai-engineering-academy-ci.yml
@@ -128,328 +98,34 @@ workflows:
   - job: deploy
     step: runs 'npm run deploy'
     gates: []
-- workflow: amazon-fba-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: android-data-safety-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: app-store-commission-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: app-store-screenshot-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: app-subscription-proceeds-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: apparel-decoration-price-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: appliance-repair-quote-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: appointment-deposit-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: appraisal-assignment-picker-ci.yml
-  classification: none
-  publishes: []
-- workflow: artificial-turf-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: asbestos-abatement-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: asphalt-driveway-pave-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: asphalt-sealcoat-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: atm-route-margin-ci.yml
-  classification: none
-  publishes: []
-- workflow: ats-resume-checker-ci.yml
-  classification: none
-  publishes: []
-- workflow: attic-insulation-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: auth-mau-pricing-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: auto-glass-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: automatic-driveway-gate-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: aws-bill-change-explainer-ci.yml
-  classification: none
-  publishes: []
-- workflow: backflow-test-fee-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: backup-file-exposure-check-ci.yml
-  classification: none
-  publishes: []
 - workflow: backup-verification-evidence-ci.yml
-  classification: none
-  publishes: []
-- workflow: backyard-egg-profit-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: backyard-honey-profit-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: basement-finishing-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: basement-waterproofing-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: bigquery-query-cost-advisor-ci.yml
-  classification: none
-  publishes: []
-- workflow: biohazard-cleanup-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: boiler-replacement-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: booking-request-chooser-ci.yml
-  classification: none
-  publishes: []
-- workflow: bookkeeping-client-fee-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: branch-cleanup.yml
   classification: none
   publishes: []
-- workflow: branch-protection-drift-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: brand-deal-rate-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: bridal-hair-makeup-pricing-calculator-ci.yml
-  classification: none
-  publishes: []
 - workflow: browser-checks-ci.yml
-  classification: none
-  publishes: []
-- workflow: business-loan-offer-comparator-ci.yml
   classification: none
   publishes: []
 - workflow: business-template-ci.yml
   classification: none
   publishes: []
-- workflow: business-vehicle-depreciation-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: caa-record-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: cabinet-refinishing-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: cache-control-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: call-recording-consent-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: cam-reconciliation-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: canonical-tag-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: caption-quality-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: card-grading-submission-picker-ci.yml
-  classification: none
-  publishes: []
-- workflow: card-processing-fee-audit-ci.yml
-  classification: none
-  publishes: []
-- workflow: carpet-cleaning-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: carpet-install-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: cash-runway-planner-ci.yml
-  classification: none
-  publishes: []
-- workflow: cat-adjuster-fee-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: catering-quote-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: cdn-bandwidth-pricing-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: certified-payroll-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: change-order-margin-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: chargeback-evidence-packet-ci.yml
-  classification: none
-  publishes: []
 - workflow: checklist-coverage.yml
-  classification: none
-  publishes: []
-- workflow: childcare-tuition-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: chimney-sweep-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: chrome-extension-permission-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: ci-minutes-pricing-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: ci-profile-ci.yml
   classification: none
   publishes: []
-- workflow: ci-test-shard-balancer-ci.yml
-  classification: none
-  publishes: []
-- workflow: claude-code-hooks-security-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: claude-code-settings-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: claude-code-subagent-check-ci.yml
-  classification: none
-  publishes: []
 - workflow: claude-routine-trigger.yml
-  classification: none
-  publishes: []
-- workflow: claude-skill-scaffold-generator-ci.yml
-  classification: none
-  publishes: []
-- workflow: cleaning-dilution-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: client-concentration-risk-analyzer-ci.yml
-  classification: none
-  publishes: []
-- workflow: cloud-bucket-exposure-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: cloud-egress-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: cloudflare-bill-estimator-ci.yml
-  classification: none
-  publishes: []
-- workflow: cloudwatch-logs-cost-advisor-ci.yml
-  classification: none
-  publishes: []
-- workflow: cnc-machining-quote-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: cobra-vs-marketplace-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: codeowners-shadow-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: coffee-roaster-margin-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: commercial-photo-license-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: commissary-kitchen-cost-split-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: concrete-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: concrete-lifting-bid-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: conflict-markers-ci.yml
   classification: none
   publishes: []
-- workflow: consent-change-record-ci.yml
-  classification: none
-  publishes: []
-- workflow: consignment-markdown-planner-ci.yml
-  classification: none
-  publishes: []
-- workflow: construction-evidence-log-ci.yml
-  classification: none
-  publishes: []
-- workflow: contractor-bid-readiness-ci.yml
-  classification: none
-  publishes: []
-- workflow: cookie-security-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: cors-misconfig-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: countertop-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: court-reporter-transcript-calculator-ci.yml
-  classification: none
-  publishes: []
 - workflow: coverage-drop-check-ci.yml
   classification: none
   publishes: []
-- workflow: cow-calf-breakeven-calculator-ci.yml
-  classification: none
-  publishes: []
 - workflow: cra-evidence-desk-ci.yml
-  classification: none
-  publishes: []
-- workflow: craft-fair-booth-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: crawl-space-encapsulation-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: cron-dst-drift-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: crown-molding-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: csa-share-pricing-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: custom-farm-rate-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: cut-list-optimizer-ci.yml
-  classification: none
-  publishes: []
-- workflow: databricks-cluster-cost-advisor-ci.yml
-  classification: none
-  publishes: []
-- workflow: datadog-bill-estimator-ci.yml
-  classification: none
-  publishes: []
-- workflow: deck-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: deck-staining-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: delivery-app-margin-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: demand-signal-reachability-ci.yml
@@ -464,13 +140,7 @@ workflows:
 - workflow: deploy-iac-check.yml
   classification: none
   publishes: []
-- workflow: depreciation-recapture-calculator-ci.yml
-  classification: none
-  publishes: []
 - workflow: devsec-toolkit-ci.yml
-  classification: none
-  publishes: []
-- workflow: discogs-fee-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: distribute-bluesky.yml
@@ -534,58 +204,16 @@ workflows:
 - workflow: docker-build-secrets-check-ci.yml
   classification: none
   publishes: []
-- workflow: docker-cache-order-check-ci.yml
-  classification: none
-  publishes: []
 - workflow: docker-compose-security-check-ci.yml
   classification: none
   publishes: []
-- workflow: dog-boarding-daycare-pricing-ci.yml
-  classification: none
-  publishes: []
-- workflow: dog-grooming-day-planner-ci.yml
-  classification: none
-  publishes: []
-- workflow: dog-grooming-price-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: dog-walking-route-pricing-ci.yml
-  classification: none
-  publishes: []
-- workflow: dotenv-exposure-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: driving-instructor-lesson-pricing-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: dryer-vent-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: drywall-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: duct-cleaning-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: dumpster-rental-margin-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: duplicate-payment-audit-ci.yml
+- workflow: dupehound-ci.yml
   classification: none
   publishes: []
 - workflow: duplicate-symbols-ci.yml
   classification: none
   publishes: []
-- workflow: dynamodb-capacity-mode-advisor-ci.yml
-  classification: none
-  publishes: []
 - workflow: eaa-wcag-triage-ci.yml
-  classification: none
-  publishes: []
-- workflow: ebay-fee-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: ebs-volume-cost-advisor-ci.yml
   classification: none
   publishes: []
 - workflow: edge-deploy.yml
@@ -595,136 +223,19 @@ workflows:
     step: runs 'wrangler deploy'
     gates:
     - ${{ needs.gate.outputs.ready == 'true' }}
-- workflow: egress-window-bid-calculator-ci.yml
-  classification: none
-  publishes: []
 - workflow: einvoice-preflight-ci.yml
-  classification: none
-  publishes: []
-- workflow: electrical-panel-upgrade-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: email-api-pricing-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: email-auth-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: embroidery-shop-quote-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: employee-cost-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: entry-door-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: env-example-drift-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: epk-generator-ci.yml
-  classification: none
-  publishes: []
-- workflow: epoxy-garage-floor-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: equipment-auction-buyer-premium-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: equipment-lease-buyout-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: equipment-rental-break-even-ci.yml
   classification: none
   publishes: []
 - workflow: error-rate-disclosure-ci.yml
   classification: none
   publishes: []
-- workflow: error-tracking-pricing-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: estate-sale-net-proceeds-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: etsy-profit-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: ev-charger-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: exterior-painting-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: faire-wholesale-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: farmers-market-booth-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: feie-physical-presence-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: fence-bid-calculator-ci.yml
-  classification: none
-  publishes: []
 - workflow: fifo-pick-evidence-ci.yml
-  classification: none
-  publishes: []
-- workflow: fire-extinguisher-inspection-route-margin-ci.yml
-  classification: none
-  publishes: []
-- workflow: firebase-rules-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: fireplace-insert-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: firewood-profit-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: flaky-test-finder-ci.yml
   classification: none
   publishes: []
-- workflow: flat-roof-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: fleet-repair-or-replace-planner-ci.yml
-  classification: none
-  publishes: []
-- workflow: flooring-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: food-truck-event-margin-calculator-ci.yml
-  classification: none
-  publishes: []
 - workflow: forge-surface-reachability-ci.yml
-  classification: none
-  publishes: []
-- workflow: foundation-repair-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: free-shipping-threshold-optimizer-ci.yml
-  classification: none
-  publishes: []
-- workflow: freelance-project-picker-ci.yml
-  classification: none
-  publishes: []
-- workflow: freelance-retainer-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: freight-accessorial-auditor-ci.yml
-  classification: none
-  publishes: []
-- workflow: freight-broker-load-margin-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: french-drain-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: furnace-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: garage-door-bid-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: garmin-world-traveler-watchface-ci.yml
@@ -733,226 +244,28 @@ workflows:
 - workflow: git-bus-factor-check-ci.yml
   classification: none
   publishes: []
-- workflow: git-exposure-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: git-timesheet-ci.yml
-  classification: none
-  publishes: []
-- workflow: grailed-fee-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: grant-deadline-tracker-ci.yml
-  classification: none
-  publishes: []
-- workflow: grant-indirect-cost-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: graphql-introspection-exposure-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: gravel-driveway-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: gutter-cleaning-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: gutter-guard-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: gutter-install-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: hands-free-language-coach-ci.yml
-  classification: none
-  publishes: []
-- workflow: hardwood-refinishing-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: hearth-and-horizon-ci.yml
-  classification: none
-  publishes: []
-- workflow: helm-values-schema-check-ci.yml
-  classification: none
-  publishes: []
 - workflow: hetzner-gitops-ci.yml
-  classification: none
-  publishes: []
-- workflow: hidden-unicode-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: hoa-reserve-fund-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: holiday-light-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: home-elevator-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: home-inspection-fee-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: home-staging-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: hood-cleaning-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: hot-tub-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: hreflang-reciprocity-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: hvac-maintenance-contract-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: hvac-repair-tier-price-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: ice-dam-removal-bid-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: ig-media-pipeline-ci.yml
   classification: none
   publishes: []
-- workflow: import-landed-cost-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: influencer-media-kit-generator-ci.yml
-  classification: none
-  publishes: []
-- workflow: interior-design-fee-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: interior-door-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: interview-content-studio-ci.yml
-  classification: none
-  publishes: []
-- workflow: invoice-payment-terms-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: ios-privacy-manifest-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: irrigation-install-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: irrigation-winterization-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: janitorial-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: job-application-tracker-ci.yml
-  classification: none
-  publishes: []
-- workflow: job-margin-variance-ci.yml
-  classification: none
-  publishes: []
-- workflow: junk-removal-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: jwt-security-check-ci.yml
-  classification: none
-  publishes: []
 - workflow: jwt-verification-misuse-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: k8s-deprecated-api-check-ci.yml
   classification: none
   publishes: []
 - workflow: k8s-pod-security-check-ci.yml
   classification: none
   publishes: []
-- workflow: k8s-requests-rightsizer-ci.yml
-  classification: none
-  publishes: []
-- workflow: k8s-resource-limits-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: k8s-rollout-safety-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: kdp-royalty-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: kitchen-tile-backsplash-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: lambda-memory-rightsizer-ci.yml
-  classification: none
-  publishes: []
-- workflow: lambda-vs-fargate-cost-breakeven-ci.yml
-  classification: none
-  publishes: []
-- workflow: land-survey-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: landscape-lighting-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: lawn-care-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: league-schedule-generator-ci.yml
-  classification: none
-  publishes: []
 - workflow: liability-audit-ci.yml
-  classification: none
-  publishes: []
-- workflow: license-compat-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: license-drift-check-ci.yml
   classification: none
   publishes: []
 - workflow: link-contrast-ci.yml
   classification: none
   publishes: []
-- workflow: listen-and-learn-audio-ci.yml
-  classification: none
-  publishes: []
-- workflow: llm-api-pricing-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: llm-call-cost-scan-ci.yml
-  classification: none
-  publishes: []
-- workflow: llm-output-regression-diff-ci.yml
-  classification: none
-  publishes: []
 - workflow: llm-spend-guard-ci.yml
   classification: none
   publishes: []
-- workflow: llm-usage-log-analyzer-ci.yml
-  classification: none
-  publishes: []
-- workflow: llms-txt-generator-ci.yml
-  classification: none
-  publishes: []
 - workflow: local-site-studio-ci.yml
-  classification: none
-  publishes: []
-- workflow: locksmith-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: log-management-pricing-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: lot-split-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: ltl-freight-class-estimator-ci.yml
-  classification: none
-  publishes: []
-- workflow: market-event-picker-ci.yml
-  classification: none
-  publishes: []
-- workflow: mcp-config-risk-check-ci.yml
   classification: none
   publishes: []
 - workflow: mcp-drift-watch-ci.yml
@@ -961,88 +274,13 @@ workflows:
 - workflow: mcp-supply-chain-watch-ci.yml
   classification: none
   publishes: []
-- workflow: medical-courier-route-margin-ci.yml
-  classification: none
-  publishes: []
-- workflow: menu-engineering-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: merchant-feed-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: merchant-of-record-fee-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: metal-roof-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: mini-split-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: mobile-bartender-event-quote-ci.yml
-  classification: none
-  publishes: []
-- workflow: mobile-detailing-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: mobile-signing-agent-day-picker-ci.yml
-  classification: none
-  publishes: []
-- workflow: mobile-tire-van-job-picker-ci.yml
-  classification: none
-  publishes: []
-- workflow: mold-remediation-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: moving-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: mrr-waterfall-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: nail-tech-booth-rent-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: nat-gateway-cost-advisor-ci.yml
-  classification: none
-  publishes: []
-- workflow: neon-bill-estimator-ci.yml
-  classification: none
-  publishes: []
-- workflow: newsletter-sponsorship-rate-calculator-ci.yml
-  classification: none
-  publishes: []
 - workflow: no-show-fee-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: node-version-drift-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: notary-trip-quote-ci.yml
   classification: none
   publishes: []
 - workflow: npm-deployment-evidence-ci.yml
   classification: none
   publishes: []
-- workflow: npm-lifecycle-script-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: npm-provenance-check-ci.yml
-  classification: none
-  publishes: []
 - workflow: npm-reachability-triage-ci.yml
-  classification: none
-  publishes: []
-- workflow: ny-llc-transparency-act-tracker-ci.yml
-  classification: none
-  publishes: []
-- workflow: object-storage-pricing-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: obsidian-plugin-review-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: oidc-trust-policy-check-ci.yml
   classification: none
   publishes: []
 - workflow: open-floor-robots-ci.yml
@@ -1060,61 +298,10 @@ workflows:
 - workflow: opencode-high-throughput.yml
   classification: none
   publishes: []
-- workflow: osha-trir-dart-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: overtime-pay-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: owner-operator-load-chain-planner-ci.yml
-  classification: none
-  publishes: []
-- workflow: package-exports-drift-check-ci.yml
-  classification: none
-  publishes: []
 - workflow: page-integrity-ci.yml
   classification: none
   publishes: []
 - workflow: pages.yml
-  classification: none
-  publishes: []
-- workflow: painting-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: parcel-dim-weight-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: parking-lot-striping-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: patio-door-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: paver-patio-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: payment-reconciliation-workbench-ci.yml
-  classification: none
-  publishes: []
-- workflow: pdf-accessibility-tag-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: pergola-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: persona-conversation-simulator-ci.yml
-  classification: none
-  publishes: []
-- workflow: personal-trainer-package-pricing-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: pet-grooming-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: photo-addon-pricing-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: photo-booth-event-quote-ci.yml
   classification: none
   publishes: []
 - workflow: photo-editing-ci.yml
@@ -1129,78 +316,32 @@ workflows:
 - workflow: pinned-actions-check-ci.yml
   classification: none
   publishes: []
-- workflow: plantation-shutter-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: plumber-flat-rate-price-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: podcast-feed-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: podcast-sponsorship-rate-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: pole-barn-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: pool-plaster-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: pool-route-pricing-ci.yml
-  classification: none
-  publishes: []
-- workflow: pool-service-route-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: popcorn-ceiling-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: portable-restroom-event-quote-ci.yml
-  classification: none
-  publishes: []
 - workflow: portfolio-pages.yml
   classification: gated
   publishes:
+  - job: deploy-cloudflare
+    step: runs 'wrangler deploy'
+    gates:
+    - ${{ github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && vars.PAGES_ENABLED
+      != 'false' && needs.gate.outputs.cloudflare == 'true' }}
+  - job: deploy-cloudflare
+    step: runs 'wrangler deploy'
+    gates:
+    - ${{ github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && vars.PAGES_ENABLED
+      != 'false' && needs.gate.outputs.cloudflare == 'true' }}
   - job: deploy
     step: uses actions/deploy-pages
     gates:
-    - ${{ github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && vars.PAGES_ENABLED
-      != 'false' }}
+    - ${{ !cancelled() && needs.build.result == 'success' && (needs.gate.outputs.cloudflare != 'true'
+      || needs.deploy-cloudflare.result == 'success') && github.ref == 'refs/heads/main' && github.event_name
+      != 'pull_request' && vars.PAGES_ENABLED != 'false' }}
 - workflow: portfolio-validate.yml
-  classification: none
-  publishes: []
-- workflow: postgres-explain-analyzer-ci.yml
-  classification: none
-  publishes: []
-- workflow: pour-cost-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: pressure-washing-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: price-increase-breakeven-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: print-atelier-ci.yml
   classification: none
   publishes: []
-- workflow: process-server-day-picker-ci.yml
-  classification: none
-  publishes: []
-- workflow: process-server-fee-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: product-analytics-pricing-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: prometheus-cardinality-cost-ci.yml
-  classification: none
-  publishes: []
 - workflow: prompts-ci.yml
-  classification: none
-  publishes: []
-- workflow: propane-delivery-route-margin-ci.yml
   classification: none
   publishes: []
 - workflow: proposal-module-ci.yml
@@ -1215,31 +356,10 @@ workflows:
 - workflow: publish-kit-ci.yml
   classification: none
   publishes: []
-- workflow: pwa-installability-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: pypi-provenance-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: qbi-deduction-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: quarterly-estimated-tax-calendar-ci.yml
-  classification: none
-  publishes: []
 - workflow: quick-pick-survey-ci.yml
   classification: none
   publishes: []
 - workflow: quote-margin-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: radon-mitigation-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: rds-instance-cost-advisor-ci.yml
-  classification: none
-  publishes: []
-- workflow: rds-instance-rightsizer-ci.yml
   classification: none
   publishes: []
 - workflow: readme-live-links-ci.yml
@@ -1255,15 +375,6 @@ workflows:
     step: uses cloudflare/wrangler-action
     gates:
     - env.CLOUDFLARE_API_TOKEN != ''
-- workflow: redirect-chain-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: referrer-permissions-policy-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: regex-redos-check-ci.yml
-  classification: none
-  publishes: []
 - workflow: register-change-rate-ci.yml
   classification: none
   publishes: []
@@ -1271,9 +382,6 @@ workflows:
   classification: none
   publishes: []
 - workflow: required-checks-drift-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: requirements-pin-check-ci.yml
   classification: none
   publishes: []
 - workflow: research-archive.yml
@@ -1296,91 +404,13 @@ workflows:
     step: uses amondnet/vercel-action
     gates:
     - ${{ vars.VERCEL_DEPLOY == 'true' }}
-- workflow: retaining-wall-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: retirement-withdrawal-sequencer-ci.yml
-  classification: none
-  publishes: []
-- workflow: returns-policy-cost-analyzer-ci.yml
-  classification: none
-  publishes: []
-- workflow: reverb-fee-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: rfp-compliance-matrix-ci.yml
-  classification: none
-  publishes: []
-- workflow: roofing-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: s-corp-basis-tracker-ci.yml
-  classification: none
-  publishes: []
-- workflow: s3-bucket-exposure-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: s3-storage-class-advisor-ci.yml
-  classification: none
-  publishes: []
-- workflow: s3-storage-class-savings-ci.yml
-  classification: none
-  publishes: []
-- workflow: saas-renewal-planner-ci.yml
-  classification: none
-  publishes: []
-- workflow: saas-seat-true-up-ci.yml
-  classification: none
-  publishes: []
-- workflow: saints-by-candlelight-ci.yml
-  classification: none
-  publishes: []
-- workflow: salary-range-posting-check-ci.yml
-  classification: none
-  publishes: []
 - workflow: sbom-diff-check-ci.yml
   classification: none
   publishes: []
-- workflow: scope-creep-change-order-calculator-ci.yml
+- workflow: shed-designer-browser.yml
   classification: none
   publishes: []
-- workflow: screened-porch-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: security-deposit-return-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: security-headers-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: security-questionnaire-matcher-ci.yml
-  classification: none
-  publishes: []
-- workflow: security-txt-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: seller-net-sheet-ci.yml
-  classification: none
-  publishes: []
-- workflow: septic-pumping-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: sewer-hydrojet-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: sewer-line-replace-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: shed-install-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: shift-roster-builder-ci.yml
-  classification: none
-  publishes: []
-- workflow: shopify-a11y-evidence-ci.yml
-  classification: none
-  publishes: []
-- workflow: shopify-fee-calculator-ci.yml
+- workflow: shed-designer-fuzz.yml
   classification: none
   publishes: []
 - workflow: shopify-permission-drift-ci.yml
@@ -1389,220 +419,19 @@ workflows:
 - workflow: sibling-links-ci.yml
   classification: none
   publishes: []
-- workflow: siding-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: sign-language-interpreter-rate-calculator-ci.yml
-  classification: none
-  publishes: []
 - workflow: site-usage-pull.yml
-  classification: none
-  publishes: []
-- workflow: sitemap-lastmod-freshness-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: skill-manifest-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: skylight-install-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: slo-burn-rate-alerts-ci.yml
-  classification: none
-  publishes: []
-- workflow: slopsquatting-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: sms-segment-cost-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: snow-plow-contract-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: snow-removal-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: snowflake-warehouse-cost-advisor-ci.yml
-  classification: none
-  publishes: []
-- workflow: social-preview-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: sod-install-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: soffit-fascia-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: solar-pv-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: source-map-leak-check-ci.yml
   classification: none
   publishes: []
 - workflow: source-silence-detector-ci.yml
   classification: none
   publishes: []
-- workflow: speech-to-text-pricing-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: sponsor-ready-ci.yml
-  classification: none
-  publishes: []
-- workflow: spray-foam-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: sql-migration-lock-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: sri-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: stair-lift-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: standby-generator-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: state-residency-day-counter-ci.yml
-  classification: none
-  publishes: []
-- workflow: stockx-seller-payout-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: storage-auction-max-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: str-turnover-crew-planner-ci.yml
-  classification: none
-  publishes: []
-- workflow: structured-data-drift-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: stucco-repair-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: subcontractor-cashflow-planner-ci.yml
-  classification: none
-  publishes: []
-- workflow: subdomain-takeover-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: subpath-robots-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: subscription-price-impact-ci.yml
-  classification: none
-  publishes: []
 - workflow: substitute-supply-ci.yml
-  classification: none
-  publishes: []
-- workflow: sump-pump-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: sunroom-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: supabase-bill-estimator-ci.yml
-  classification: none
-  publishes: []
-- workflow: supabase-rls-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: support-staffing-planner-ci.yml
-  classification: none
-  publishes: []
-- workflow: tax-season-client-picker-ci.yml
-  classification: none
-  publishes: []
-- workflow: tcgplayer-fee-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: tender-bid-readiness-ci.yml
-  classification: none
-  publishes: []
-- workflow: tender-radar-ci.yml
-  classification: none
-  publishes: []
-- workflow: terraform-plan-blast-radius-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: terraform-plan-cost-estimate-ci.yml
-  classification: none
-  publishes: []
-- workflow: terraform-plan-secret-exposure-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: thrift-haul-buy-picker-ci.yml
-  classification: none
-  publishes: []
-- workflow: thumbtack-lead-roi-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: ticket-resale-profit-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: time-off-request-planner-ci.yml
-  classification: none
-  publishes: []
-- workflow: toilet-replacement-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: trade-show-roi-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: training-gpu-pricing-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: translation-job-picker-ci.yml
-  classification: none
-  publishes: []
-- workflow: translator-project-quote-ci.yml
-  classification: none
-  publishes: []
-- workflow: tree-service-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: tuckpointing-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: turo-host-payout-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: tutor-package-pricing-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: twitch-payout-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: ubuntu-agent-server-ci.yml
   classification: none
   publishes: []
 - workflow: uitest-ci.yml
-  classification: none
-  publishes: []
-- workflow: upstash-redis-bill-estimator-ci.yml
-  classification: none
-  publishes: []
-- workflow: uptime-monitoring-pricing-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: upwork-connects-roi-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: us-substantial-presence-test-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: used-car-lot-aging-planner-ci.yml
-  classification: none
-  publishes: []
-- workflow: vector-db-cost-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: vehicle-wrap-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: vending-machine-route-margin-ci.yml
   classification: none
   publishes: []
 - workflow: vendor-change-evidence-ci.yml
@@ -1617,70 +446,7 @@ workflows:
 - workflow: ventures-tests.yml
   classification: none
   publishes: []
-- workflow: vercel-bill-estimator-ci.yml
-  classification: none
-  publishes: []
-- workflow: video-hosting-pricing-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: vinyl-liner-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: voiceover-project-rate-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: vscode-extension-drift-check-ci.yml
-  classification: none
-  publishes: []
-- workflow: walk-in-shower-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: walk-in-tub-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: walmart-marketplace-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: wash-and-fold-price-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: water-heater-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: water-softener-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: wedding-florist-proposal-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: well-pump-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: wheelchair-ramp-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: where-to-sell-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: which-job-first-ci.yml
-  classification: none
-  publishes: []
-- workflow: window-cleaning-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: window-replacement-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: window-tinting-bid-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: wordpress-plugin-review-check-ci.yml
-  classification: none
-  publishes: []
 - workflow: world-clock-widget-ci.yml
-  classification: none
-  publishes: []
-- workflow: youtube-sponsorship-rate-calculator-ci.yml
   classification: none
   publishes: []
 gitops:

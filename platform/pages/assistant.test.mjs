@@ -230,3 +230,9 @@ test('the Ask page prints the score the build measured, and says where words go'
   assert.match(html, /290 MB/);
   for (const [, body] of html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)) JSON.parse(body);
 });
+
+test('the floating mic steps aside on downward scroll, pads the page on phones, and honours reduced motion', () => {
+  assert.match(ASSISTANT_LAUNCHER_JS, /pf-away/);
+  assert.match(ASSISTANT_LAUNCHER_JS, /body\{padding-bottom:72px\}/);
+  assert.match(ASSISTANT_LAUNCHER_JS, /prefers-reduced-motion:reduce\)\{\.pf-ask-voice\{transition:none/);
+});

@@ -8,5 +8,10 @@ services:
     environment:
       ADMIN_KEY: ${ADMIN_KEY:?set ADMIN_KEY}
       TEAM_TOKEN: ${TEAM_TOKEN:?set TEAM_TOKEN}
+      # Optional alerts to a webhook you own (Slack, Discord, ntfy); see README
+      NOTIFY_WEBHOOK_URL: ${NOTIFY_WEBHOOK_URL:-}
+      TEAM_WEBHOOK_URL: ${TEAM_WEBHOOK_URL:-}
+      NOTIFY_FORMAT: ${NOTIFY_FORMAT:-slack}
+      PUBLIC_URL: ${PUBLIC_URL:-}
 volumes:
   state:

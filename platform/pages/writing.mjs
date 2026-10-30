@@ -57,6 +57,7 @@ const RESERVED_SLUGS = new Set(['agents', 'podcast']);
  * exactly one: its `topic:` front matter, else the first rule its tags match.
  */
 export const TOPICS = Object.freeze([
+  { id: 'start', label: 'Start here', blurb: 'Who each project is for, what you get from it, and your first ten minutes with it.' },
   { id: 'agents', label: 'Building with AI agents', blurb: 'How the agent fleet builds, steers and measures itself: process, cost, mistakes and what changed.' },
   { id: 'research', label: 'Research findings', blurb: 'What the open research tracks found, with the numbers and caveats.' },
   { id: 'tools', label: 'Tools and projects', blurb: 'What a tool or project does, who it is for and why it exists.' },
@@ -68,7 +69,8 @@ const INFRA_TAGS = ['github-pages', 'hosting', 'kubernetes', 'github-actions', '
 const AGENT_TAGS = ['ai-agents', 'process', 'prompting', 'prompt-engineering', 'engineering-management'];
 
 /**
- * A post's topic from its tags, first rule wins: opinion pieces are about
+ * A post's topic from its tags, first rule wins: onboarding posts (`start-here`)
+ * are the newcomer's way in, so they group together whatever else they name; opinion pieces are about
  * steering the fleet; then research; then a named tool or channel; then
  * hosting and CI plumbing; then anything about agents; everything else is a tool or project.
  * A post the rules file wrongly says so with `topic:` in its front matter.
@@ -76,6 +78,7 @@ const AGENT_TAGS = ['ai-agents', 'process', 'prompting', 'prompt-engineering', '
 export function topicOf(tags = [], explicit = '') {
   if (explicit) return explicit;
   const has = (list) => tags.some((t) => list.includes(t));
+  if (tags.includes('start-here')) return 'start';
   if (tags.includes('opinion')) return 'agents';
   if (tags.includes('research')) return 'research';
   if (has(TOOL_TAGS)) return 'tools';
@@ -172,6 +175,9 @@ function loadPost(root, POSTS_DIR, name) {
   if (meta.description.length > 160) {
     throw new Error(`${POSTS_DIR}/${name}: description is ${meta.description.length} characters; keep it to 160`);
   }
+  if (meta.seo_title && String(meta.seo_title).length > TITLE_BUDGET) {
+    throw new Error(`${POSTS_DIR}/${name}: seo_title is ${String(meta.seo_title).length} characters; keep it to ${TITLE_BUDGET}`);
+  }
   const date = String(meta.date || fm[1]);
   if (date !== fm[1]) throw new Error(`${POSTS_DIR}/${name}: date ${date} does not match the file name`);
   if (RESERVED_SLUGS.has(fm[2])) throw new Error(`${POSTS_DIR}/${name}: the slug "${fm[2]}" is a section of the blog; pick another`);
@@ -184,6 +190,7 @@ function loadPost(root, POSTS_DIR, name) {
     slug: fm[2],
     date,
     title: meta.title,
+    seoTitle: meta.seo_title ? String(meta.seo_title) : undefined,
     description: meta.description,
     tags,
     topic: topicOf(tags, meta.topic),
@@ -268,6 +275,9 @@ export { TITLE_BUDGET };
  * A post's `<title>`: the headline plus the site name when both fit, else the
  * headline alone, so the words that make a searcher click are never the ones cut.
  * Most headlines here are long enough that the suffix would push them over.
+ * A post can pass its optional `seo_title:` front-matter value instead of the
+ * headline, a shorter query-shaped title for the results page; the `h1` and
+ * the structured data keep the full headline.
  */
 export function postPageTitle(headline) {
   const full = `${headline} · ${SITE_NAME}`;
@@ -508,7 +518,7 @@ function renderPostPage(post, posts, { baseUrl = '', socialCard = '', episode = 
   const topic = `<a class="topic" href="../?topic=${esc(post.topic)}">${esc(topicLabel(post.topic))}</a>`;
   const markdown = isAgents ? ` · <a href="../${esc(post.slug)}.txt" type="text/plain">Markdown (plain text)</a>` : '';
   return shell({
-    title: postPageTitle(post.title),
+    title: postPageTitle(post.seoTitle || post.title),
     description: post.description,
     canonical,
     socialCard,

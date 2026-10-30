@@ -38,12 +38,17 @@
     .summary { font-size: 1.05rem; background: #f2f7f9; border-radius: 10px; padding: 14px; }
     .error { color: #7d1f16; font-weight: 600; }
     pre { background: #f6f8fa; padding: 12px; border-radius: 8px; overflow-x: auto; font-size: .8rem; }
+      .cta-row { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 14px; }
+    a.cta { display: inline-block; padding: 11px 18px; border-radius: 8px; background: #1f5f86; color: #fff; font-weight: 700; text-decoration: none; }
+    a.cta.alt { background: #dfeaf2; color: #164a69; }
+    a.cta:focus-visible { outline: 3px solid #164a69; outline-offset: 2px; }
   </style>
 </head>
 <body>
   <header>
     <p class="note">CHANGEPOINT DETECTOR · RESEARCH ALGORITHMS IN YOUR BROWSER · NOTHING UPLOADED</p>
     <h1>When did your series change?</h1>
+    <p class="cta-row"><a class="cta" href="#data-h">Analyse a series</a> <a class="cta alt" href="#data-h" id="cta-example">Try the Nile river example</a></p>
     <p>Paste or upload a time series — sales, sign-ups, sensor readings, latency, prices — and find the points where its <strong>level</strong> or its <strong>volatility</strong> shifted. Two published methods run side by side: <strong>PELT</strong> returns the exact best segmentation, and <strong>Bayesian online changepoint detection</strong> gives the probability that a change happened at each point.</p>
     <p class="note">Nothing you enter leaves this browser tab. Statistical analysis of data you supply, not advice. Not legal, tax, or financial advice.</p>
   </header>
@@ -141,6 +146,7 @@
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>More research algorithms on your own data: <a href="../conformal-prediction-intervals/">conformal prediction intervals</a> and the <a href="../matrix-profile-explorer/">matrix profile explorer</a> for repeated patterns and anomalies. Testing a change you made on purpose? The <a href="../ab-test-significance-calculator/">A/B test significance calculator</a>.</p>
     <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  <p class="more-pages">Also: <a href="how-do-you-know-if-a-time-series-really-changed.html">How Do You Know If a Time Series Really Changed? (Free Changepoint Detection)</a></p>
   </footer>
 
   <script type="module">
@@ -217,5 +223,6 @@
     $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
     if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
   </script>
+<script>document.getElementById("cta-example").addEventListener("click",function(){var b=document.getElementById("example");if(b)b.click();});</script>
 </body>
 </html>

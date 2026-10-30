@@ -1,5 +1,6 @@
 ---
 title: "Zita and the Bread in the Oven: a Little Lamps bedtime story"
+seo_title: "Saint Zita bread legend: a bedtime story for ages 3 to 8"
 date: 2026-10-29
 description: "A new Little Lamps story for ages 3 to 8: Saint Zita, a Lucca servant, and the legend of the bread found baked while she prayed."
 tags: [hearth-and-horizon, little-lamps, fiction]

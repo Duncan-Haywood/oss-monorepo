@@ -48,6 +48,10 @@
     .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
     .check input { width: auto; }
     @media (max-width: 720px) { body { padding: 16px; } }
+    .cta-row { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 14px; }
+    a.cta { display: inline-block; padding: 11px 18px; border-radius: 8px; background: #1f4e5f; color: #fff; font-weight: 700; text-decoration: none; }
+    a.cta.alt { background: #e4edf0; color: #17394a; }
+    a.cta:focus-visible { outline: 3px solid #17394a; outline-offset: 2px; }
   </style>
 </head>
 <body>
@@ -55,10 +59,11 @@
     <p class="note">SALES AGENT · INBOX AGENT · RUNS IN YOUR BROWSER · SENDS NOTHING</p>
     <h1>The AI sales agent for your replies, with you in the loop</h1>
     <p>Paste the <strong>replies your outreach got back</strong>. The agent decides what each one means, <strong>honours every unsubscribe</strong> (with their words kept as the record), <strong>pauses</strong> out-of-office and not-now prospects until the right date, <strong>stops the cadence</strong> for anyone who answered, and <strong>drafts the replies worth sending</strong> for you to approve.</p>
+    <p class="cta-row"><a class="cta" href="#start">Paste your replies</a> <a class="cta alt" href="#start" id="cta-example">Try an example</a></p>
     <p class="note">One rule runs through it: <strong>the agent may always do less on its own; it may never do more without you.</strong> Stopping and pausing happen automatically. Anything that would contact a person waits for your approval, and you send it yourself. Pairs with the <a href="../sales-cadence-builder/">sales cadence builder</a> (the outreach) and <a href="../deal-keeper/">Deal Keeper</a> (the pipeline).</p>
   </header>
   <main>
-  <section class="card">
+  <section class="card" id="start">
     <h2>1. The replies</h2>
     <label for="replies">Paste replies. Start each one with <code>From:</code> (and optionally <code>Subject:</code>), or separate them with a line of <code>---</code>. Quoted history below "On … wrote:" is ignored.</label>
     <textarea id="replies" rows="12" placeholder="From: Dana Reyes &lt;dana@brightline.example&gt;&#10;Subject: Re: route planning&#10;Sounds interesting. Could you send a few times next week?&#10;---&#10;From: omar@peakdental.example&#10;Please remove me from your list."></textarea>
@@ -373,5 +378,6 @@
     $("#optout").addEventListener("click", () => { setUsageOptOut(true); const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; });
     if (usageOptedOut()) { const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; }
   </script>
+<script>document.getElementById("cta-example").addEventListener("click",function(){var b=document.getElementById("load-example");if(b)b.click();});</script>
 </body>
 </html>

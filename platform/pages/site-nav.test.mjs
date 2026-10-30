@@ -192,3 +192,9 @@ test('siteTitle adds the site name only when the whole title still fits a result
   assert.equal(siteTitle(long), long, 'the suffix would push it past the budget');
   for (const n of [1, 20, 40, 60, 90]) assert.ok(siteTitle('x'.repeat(n)).length <= Math.max(TITLE_BUDGET, n));
 });
+
+test('on a phone the breadcrumb stays on one line and cuts the current title', async () => {
+  const { SITE_HEADER_CSS } = await import('./site-nav.mjs');
+  const m = /@media \(max-width:600px\)\{[^}]*\.pfs-crumbs\{[^}]*white-space:nowrap[\s\S]*?text-overflow:ellipsis/.exec(SITE_HEADER_CSS);
+  assert.ok(m, 'phone rule keeps .pfs-crumbs nowrap and ellipsises [aria-current]');
+});

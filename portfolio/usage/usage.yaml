@@ -7231,3 +7231,14 @@ products:
           load does not count; only a visitor's own plan or scatter does.
           GitHub stars, forks and build-report issues are the signal for the
           hardware side.
+  - slug: shed-designer
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-10-29
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Launched 2026-10-29 on GitHub Pages. Counters (builds, drags, designs,
+          compares, plans-printed, dxf/svg/csv downloads, links-copied) are
+          browser-local and opt-out; nothing is reported back yet.

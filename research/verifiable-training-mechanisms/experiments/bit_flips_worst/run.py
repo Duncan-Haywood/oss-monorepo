@@ -4,7 +4,7 @@ Protocol of ../bit_flips_tensor/run.py (d = 32, plain SGD in fp32, 600 steps, 4 
 At a random step t the adversary sees the training-batch gradient g of that step and may overwrite ONE weight with any value in [-K m_t, K m_t]
 (m_t = init max|w| of the weight's tensor, so the plant passes the bound). Sites:
   random : uniform weight, value +-K m_t (milestone 46's plant);
-  grad   : the weight maximising the first-order loss rise g_i (v - w_i), v = -sign(g_i) K m_t  (one gradient, no extra forward passes);
+  grad   : the weight maximising the first-order loss rise g_i (v - w_i), v = +sign(g_i) K m_t  (one gradient, no extra forward passes);
   eval   : the top 20 weights by that score are each tried, the one with the largest actual batch loss after the plant is kept (a stronger, costlier adversary).
 K = 2 and 4 (K = 4 is the smallest factor that accepts honest growth in milestone 46). n = 20 draws (seed, step) per cell, shared by the three sites.
 Run from this directory:  OMP_NUM_THREADS=1 python3 run.py [scale]   (needs torch; writes results.json, results.txt)"""
@@ -76,7 +76,7 @@ def run(seed, site=None, step=0, K=0, u=0.0, sgn=1):
                         i = (i + 1) % npar
                     v = sgn * K * float(bound[i])
                 else:
-                    target = -torch.sign(g) * K * bound
+                    target = torch.sign(g) * K * bound
                     score = g * (target - w)
                     if NOZERO:
                         score = torch.where(bound > 0, score, torch.full_like(score, -np.inf))

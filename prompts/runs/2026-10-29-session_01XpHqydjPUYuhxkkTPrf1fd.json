@@ -1,0 +1,60 @@
+{
+  "date": "2026-10-29",
+  "session": "https://claude.ai/code/session_01XpHqydjPUYuhxkkTPrf1fd",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Overnight shed-designer quality, lane 1: land PR #11268, then structural and geometric correctness (integrity, bearing, nailing, NDS cross-checks).",
+  "input_sha256": "0d9a545c570c8f6ec1125bed82a47ab98c9274fb21691dd141eb916c91dbd961",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-29T04:36:36Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "shed-designer structural correctness (overnight lane 1)",
+  "projects": [
+    "shed-designer"
+  ],
+  "pr": 11307,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 9,
+  "outcome": "success",
+  "errors": [
+    "A `git checkout HEAD -- model.mjs` while comparing totals discarded an uncommitted fix; caught by the failing test and re-applied before push.",
+    "#11315 merged after another lane added generated size pages; its nail change left size-pages.test.mjs red on main until the next PR regenerated them."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/shed-designer/README.md",
+      "issue": "Stated totals and piece counts (and shed-plans-with-cut-list.html's '144 pieces from 93 boards, $2,166.66') drift from the model on every pricing change; nothing pins them to estimate()."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "overnight brief (lane 1)",
+      "why": "Did not take over PR #11268: its author kept committing (04:31, 04:35, 04:55) and merged it at 05:14, so a takeover would have raced them.",
+      "did": "audited and fixed on a local branch, landed after the merge",
+      "result": "no conflicts; fixes cherry-picked cleanly onto main"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-29-four-framing-faults-the-shed-checks-missed.md",
+    "docs/posts/2026-10-29-how-many-nails-hold-a-shed-rafter-tie.md",
+    "docs/reports/shed-designer-overnight-lane1.md"
+  ],
+  "goal": null,
+  "notes": "Local verification: node --test in ventures/shed-designer 87 pass on fresh main + these commits; typecheck.mjs shed-designer 0 diagnostics. Pages build + check.mjs passed (1319 products, no dead links) on a local merge of main into #11268 at 04:32. Hand-calcs: header, stud (NDS 3.9-3), floor joist, rafter, ridge beam all match structure.mjs. Open: cap-plate joints within 4 ft of top-plate joints with 8-10 ft stock (needs joint choice across both plates); README totals stale. Later PRs in the same session: #11313 (plate joints chosen together, IRC 24\" offset), #11315 (rafter-tie heel joint nailed for thrust), and the gable-header + lane report PR, which also regenerates the size pages #11315 left stale.",
+  "corrections": [],
+  "redteam": null
+}

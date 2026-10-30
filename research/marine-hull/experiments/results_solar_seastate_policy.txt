@@ -1,0 +1,36 @@
+5 m boat, hotel 10.0 W, eta_pv 0.2, derate 0.85; rough share p, multiplier F; seed 1
+Equator-Pacific  p=0.1 F=2.0: A  131.6 (v 1.6) | B  131.6 (v 1.6) | C  132.7 (calm 1.6, rough 1.4) | C/B +0.9% | B/A +0.0%
+Equator-Pacific  p=0.1 F=3.0: A  128.1 (v 1.6) | B  128.1 (v 1.6) | C  131.2 (calm 1.6, rough 1.2) | C/B +2.4% | B/A +0.0%
+Equator-Pacific  p=0.3 F=2.0: A  120.6 (v 1.6) | B  124.6 (v 1.5) | C  127.1 (calm 1.6, rough 1.3) | C/B +2.0% | B/A +3.3%
+Equator-Pacific  p=0.3 F=3.0: A  111.6 (v 1.6) | B  116.6 (v 1.4) | C  123.1 (calm 1.7, rough 1.0) | C/B +5.6% | B/A +4.5%
+Equator-Pacific  p=0.5 F=2.0: A  109.0 (v 1.6) | B  118.5 (v 1.4) | C  122.2 (calm 1.7, rough 1.2) | C/B +3.1% | B/A +8.7%
+Equator-Pacific  p=0.5 F=3.0: A   95.6 (v 1.6) | B  108.0 (v 1.3) | C  115.3 (calm 1.7, rough 1.0) | C/B +6.8% | B/A +13.0%
+Florida-Straits  p=0.1 F=2.0: A  123.0 (v 1.6) | B  123.0 (v 1.6) | C  124.3 (calm 1.6, rough 1.1) | C/B +1.1% | B/A +0.0%
+Florida-Straits  p=0.1 F=3.0: A  120.4 (v 1.6) | B  120.8 (v 1.5) | C  123.1 (calm 1.6, rough 0.9) | C/B +1.8% | B/A +0.4%
+Florida-Straits  p=0.3 F=2.0: A  113.8 (v 1.6) | B  117.3 (v 1.5) | C  119.0 (calm 1.6, rough 1.2) | C/B +1.4% | B/A +3.1%
+Florida-Straits  p=0.3 F=3.0: A  104.8 (v 1.6) | B  111.1 (v 1.4) | C  115.0 (calm 1.6, rough 1.0) | C/B +3.5% | B/A +6.0%
+Florida-Straits  p=0.5 F=2.0: A  103.0 (v 1.6) | B  112.2 (v 1.4) | C  113.9 (calm 1.7, rough 1.2) | C/B +1.5% | B/A +8.9%
+Florida-Straits  p=0.5 F=3.0: A   89.9 (v 1.6) | B  103.0 (v 1.3) | C  107.6 (calm 1.7, rough 1.0) | C/B +4.5% | B/A +14.5%
+Gulf-of-Maine    p=0.1 F=2.0: A   96.4 (v 1.5) | B   97.0 (v 1.4) | C   97.4 (calm 1.5, rough 1.1) | C/B +0.4% | B/A +0.5%
+Gulf-of-Maine    p=0.1 F=3.0: A   94.6 (v 1.5) | B   95.4 (v 1.4) | C   96.4 (calm 1.5, rough 0.9) | C/B +1.1% | B/A +0.8%
+Gulf-of-Maine    p=0.3 F=2.0: A   90.5 (v 1.5) | B   92.2 (v 1.4) | C   93.2 (calm 1.5, rough 1.1) | C/B +1.1% | B/A +1.9%
+Gulf-of-Maine    p=0.3 F=3.0: A   83.6 (v 1.5) | B   87.9 (v 1.3) | C   90.2 (calm 1.5, rough 0.9) | C/B +2.6% | B/A +5.2%
+Gulf-of-Maine    p=0.5 F=2.0: A   83.3 (v 1.5) | B   88.3 (v 1.3) | C   89.2 (calm 1.5, rough 1.1) | C/B +1.0% | B/A +6.0%
+Gulf-of-Maine    p=0.5 F=3.0: A   71.9 (v 1.5) | B   81.7 (v 1.2) | C   84.2 (calm 1.6, rough 0.9) | C/B +3.1% | B/A +13.7%
+North-Sea        p=0.1 F=2.0: A   76.6 (v 1.4) | B   76.6 (v 1.4) | C   77.2 (calm 1.5, rough 1.0) | C/B +0.8% | B/A +0.0%
+North-Sea        p=0.1 F=3.0: A   75.2 (v 1.4) | B   75.2 (v 1.4) | C   76.5 (calm 1.5, rough 0.8) | C/B +1.6% | B/A +0.0%
+North-Sea        p=0.3 F=2.0: A   72.7 (v 1.4) | B   72.7 (v 1.4) | C   74.0 (calm 1.5, rough 1.0) | C/B +1.7% | B/A +0.0%
+North-Sea        p=0.3 F=3.0: A   68.2 (v 1.4) | B   69.4 (v 1.3) | C   71.7 (calm 1.5, rough 0.9) | C/B +3.2% | B/A +1.9%
+North-Sea        p=0.5 F=2.0: A   68.7 (v 1.4) | B   69.8 (v 1.3) | C   70.8 (calm 1.5, rough 1.1) | C/B +1.4% | B/A +1.6%
+North-Sea        p=0.5 F=3.0: A   59.4 (v 1.4) | B   64.8 (v 1.2) | C   66.9 (calm 1.6, rough 0.9) | C/B +3.2% | B/A +9.0%
+Gulf-of-Alaska   p=0.1 F=2.0: A   69.5 (v 1.3) | B   69.5 (v 1.3) | C   69.9 (calm 1.4, rough 0.9) | C/B +0.6% | B/A +0.0%
+Gulf-of-Alaska   p=0.1 F=3.0: A   68.2 (v 1.3) | B   68.2 (v 1.3) | C   69.2 (calm 1.4, rough 0.7) | C/B +1.5% | B/A +0.0%
+Gulf-of-Alaska   p=0.3 F=2.0: A   65.8 (v 1.3) | B   65.8 (v 1.3) | C   67.0 (calm 1.4, rough 0.9) | C/B +1.9% | B/A +0.0%
+Gulf-of-Alaska   p=0.3 F=3.0: A   62.2 (v 1.3) | B   62.5 (v 1.2) | C   64.9 (calm 1.4, rough 0.8) | C/B +3.8% | B/A +0.6%
+Gulf-of-Alaska   p=0.5 F=2.0: A   62.6 (v 1.3) | B   63.1 (v 1.2) | C   64.1 (calm 1.4, rough 1.0) | C/B +1.7% | B/A +0.7%
+Gulf-of-Alaska   p=0.5 F=3.0: A   55.2 (v 1.3) | B   58.2 (v 1.1) | C   60.5 (calm 1.5, rough 0.8) | C/B +3.9% | B/A +5.4%
+largest C/B gain over all cells: +6.8%
+site ordering holds under policy A in every cell: True
+site ordering holds under policy B in every cell: True
+site ordering holds under policy C in every cell: True
+B/A at p=0.5, F=3: Equator-Pacific +13.0%, Florida-Straits +14.5%, Gulf-of-Maine +13.7%, North-Sea +9.0%, Gulf-of-Alaska +5.4%

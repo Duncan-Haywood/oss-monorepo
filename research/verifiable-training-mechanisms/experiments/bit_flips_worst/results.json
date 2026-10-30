@@ -14,15 +14,15 @@
   },
   "grad_K2": {
    "n": 20,
-   "harmful": 1,
+   "harmful": 7,
    "nonfinite": 0,
-   "median_dL": 0.0002669095993041992
+   "median_dL": 0.008378744125366211
   },
   "eval_K2": {
    "n": 20,
-   "harmful": 1,
+   "harmful": 7,
    "nonfinite": 0,
-   "median_dL": 0.0002582073211669922
+   "median_dL": 0.006132841110229492
   },
   "random_K4": {
    "n": 20,
@@ -32,15 +32,15 @@
   },
   "grad_K4": {
    "n": 20,
-   "harmful": 0,
+   "harmful": 8,
    "nonfinite": 0,
-   "median_dL": 3.9458274841308594e-05
+   "median_dL": 0.004682183265686035
   },
   "eval_K4": {
    "n": 20,
-   "harmful": 0,
+   "harmful": 7,
    "nonfinite": 0,
-   "median_dL": 2.3484230041503906e-05
+   "median_dL": 0.005130767822265625
   }
  }
 }

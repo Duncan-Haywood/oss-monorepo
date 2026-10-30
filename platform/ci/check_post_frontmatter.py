@@ -41,6 +41,10 @@ def problems(name, text, today=None):
     desc = fields.get("description", "").strip("\"'")
     if len(desc) > 160:  # writing.mjs throws on this; PR builds fail, so say so early
         out.append(f"description is {len(desc)} characters; keep it to 160")
+    # writing.mjs throws on this too: three posts on 2026-10-29 broke every site build.
+    seo = fields.get("seo_title", "").strip("\"'")
+    if len(seo) > 70:
+        out.append(f"seo_title is {len(seo)} characters; keep it to 70")
     tags = fields.get("tags")
     if tags and not re.fullmatch(r"\[\s*[^\]\s][^\]]*\]", tags):
         out.append("`tags` is not a non-empty [list]")

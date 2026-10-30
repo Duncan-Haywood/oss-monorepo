@@ -21,7 +21,7 @@ deploy it themselves".
 
 **Deploy-first.** Products already on `main` with no public URL outrank new
 candidates: give them a way to reach people (a GitHub Pages page, a package,
-a release or an app build; there is no static-only rule) rather than starting another product
+a release or an app build; there is no static-only or browser-only rule) rather than starting another product
 ([`portfolio/hosting/`](../portfolio/hosting/README.md)).
 
 Target super-niches where users have money and a real problem — especially
@@ -36,4 +36,6 @@ ones only when broken; already-built calculator work can still be merged
 depth over calculators").
 
 Running venture tests: `python3 platform/ci/run_venture_tests.py --changed`
-(or named slugs; no args runs all, in minutes); it beats looping `node --test` serially.
+(or named slugs; no args runs all, in minutes). It is the command
+`ventures-tests.yml` runs, so a local pass is the CI pass; a venture needs no
+`<slug>-ci.yml` just for `node --test`.

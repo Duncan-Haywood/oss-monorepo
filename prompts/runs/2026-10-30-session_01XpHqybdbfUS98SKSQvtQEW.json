@@ -1,0 +1,53 @@
+{
+  "date": "2026-10-30",
+  "session": "https://claude.ai/code/session_01XpHqybdbfUS98SKSQvtQEW",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-30T01:49:41Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "shed-designer r3 lane 4: horizontal lap siding (fiber cement and engineered wood) over OSB and wrap, course layout, checks, cut sheet, prices, build steps",
+  "projects": [
+    "shed-designer"
+  ],
+  "pr": 11567,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "ventures/shed-designer/costlevers.mjs",
+      "why": "main's typecheck was red from PR #11562 (6 diagnostics); fixed two JSDoc types here so this PR's typecheck could pass",
+      "did": "added locked?/keep? to two JSDoc types",
+      "result": "0 diagnostics"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-30-lap-siding-on-a-small-shed.md",
+    "docs/reports/shed-designer-round3-lap-siding.md"
+  ],
+  "goal": null,
+  "notes": "Local verification (runners starved): node --test *.test.mjs in the venture 272 pass / 0 fail / 3 skipped on the merged head (main merged four times; resolved conflicts with lanes 2, 5 and 7 and the looks lane); browser.test.mjs with Playwright 11 pass / 1 skipped; node platform/pages/typecheck.mjs shed-designer 0 diagnostics; a sweep of 224 sizes/spacings/pitches had 0 lap or sheathing check failures. Prices come from search-result copies seen 2026-10-30 because store pages 403; the lines with no Lowe's listing are in the report. Default 8x12 painted: fiber cement lap +$207 and LP lap +$248 over T1-11, driven by OSB ($128) and wrap ($115); the planks alone are cheaper than the panels. Follow-up PR (even courses): exposure evened to the wall height so the top course meets the plate; corrected the cost difference, which had left out the OSB's 8d nails (true +$261/+$302 at #11567; +$293/+$314 with even courses). That PR's local run: 273 pass / 0 fail / 3 skipped; typecheck 0.",
+  "corrections": [
+    "PR #11567's post, README and report understated lap's extra cost ($207/$248, siding section only); corrected in the follow-up PR with a dated note"
+  ],
+  "redteam": null
+}

@@ -22,7 +22,7 @@ python3 prompts/promptctl.py measure
 ```
 
 Full output is 50KB+ and, in a shallow clone, takes over 120 s (it deepens
-history): start it with `run_in_background` and read the output file;
+history): start it with `run_in_background` (plain `>file 2>&1`, not a chained subshell, which hides the file until done); `wait_for.py` gives up after 100 s and exits 1, so re-poll until it prints DONE, and read the output file;
 `--section candidates` or `--section friction` prints one part. Make the numbers true before you trust them:
 
 - **Measure what runs could not know.** Run first:

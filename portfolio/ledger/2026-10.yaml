@@ -4216,3 +4216,58 @@ entries:
         passed the gate (10 ind. holdout Sharpe 0.50 vs 0.53 EW; 49 ind. 0.62 vs 0.55, DSR
         0.890; crypto 20-day SMA 2.07 -> -0.08, PBO 0.81). Usage unmeasured.
     mrr_end: 0
+  - venture: shed-designer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Built at the owner's request (2026-10-29): click-and-drag gable shed designer. Frames
+        foundation (skids on gravel or blocks), floor, four walls and a ridge-board or ridge-beam
+        roof board by board at true 2x4-2x12 sizes, with doors, windows and gable vents; prints
+        eight plan sheets (SVG, DXF R12), renders a WebGL 3D view, packs a producer cut sheet over
+        8-20 ft boards with a lower bound, and prices a shopping list; several designs compared.
+        Starter is the owner's spec (8x12, 6'6" door, two windows, vents, ridge beam, 8 ft peak
+        limit, which it reports cannot be met with that door). Second round the same day, on
+        owner feedback: NDS screening checks (joists, rafters, ridge beam and posts, headers,
+        studs under snow and wind), a floating/overlap geometry test that found wall members
+        placed at floor level in 3D (fixed), Home Depot prices with a link per line, generated
+        priced variations, fascia, soffit, rake, eave blocking, overhang chosen for lumber,
+        colours, glitter and a decorated interior. Later rounds: interlocking cap plates, quote
+        emails, a 16-sheet plan set, off-the-shelf doors and windows setting rough openings,
+        variable-pitch connectors, 1x4 corner and casing trim, a site-built Z-frame door, deck
+        block and CMU foundations, cited fasteners, caulk, flashing and site prep, a Home
+        Depot/Lowe's/Menards comparison with item numbers, priced design swaps, and a search for
+        the cheapest and fewest-cut build (default 8x12: $3,868 as specified; $3,746 keeping
+        connectors, $3,665 with 14 birdsmouth notches). 69 node tests; driven in Chromium.
+        Usage unmeasured.
+    mrr_end: 0
+  - venture: dupehound
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Built at the owner's direction (2026-10-29: dev tools in Rust, common and niche). The
+        repository's first Rust crate: a token-based copy-paste detector, one engine as a CLI and
+        a 195 KB WebAssembly page. On ventures/ (9,458 .mjs files) 1.2 s and 500 MB against
+        jscpd 4.3.0's 337 s and 6.2 GB (out of memory at the default heap); line-level agreement
+        93.6% / 95.5%. Brute-force cross-check and CLI-WASM parity tests in CI. Usage unmeasured.
+    mrr_end: 0
+  - venture: babysitting-business-kit
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        New venture on a direct request (tools for a friend's Christian babysitting sole
+        proprietorship). Browser app: lead scoring with reasons and reply drafts, rate quotes,
+        schedule with conflict checks and .ics, unpaid sits, SE-tax set-aside with 2026 quarterly
+        dates and household-employee / 1099-K flags, family year-end statements, references with
+        separate consent, generated website, content calendar. Optional zero-dependency server:
+        website inquiries to scored leads, Resend auto-reply, webhook alerts, daily digest,
+        calendar feed. Then ten parallel lanes merged into the same PR: federal estimate,
+        safe harbor and Schedule C CSV; open slots and a /book request page; meet-and-greet kit,
+        red flags and family info sheets; self-serve reference links with recorded consent;
+        multi-page site in three themes; flyers, cards and a QR encoder with referral credit;
+        six opt-in email/SMS automations with quiet hours and STOP; a topic bank, blog and BYOK
+        drafts; Render/Fly/Docker, snapshots and S3 backup; installable PWA, keyboard tabs and
+        three guides. 197 tests. Usage unmeasured.
+    mrr_end: 0

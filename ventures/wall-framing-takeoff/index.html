@@ -44,11 +44,16 @@
     .legend i { display: inline-block; width: 12px; height: 12px; border-radius: 2px; margin-right: 4px; vertical-align: -2px; }
     code { font-size: .9em; }
     footer { margin-top: 24px; border-top: 1px solid #dcd7cb; padding-top: 14px; }
+      .cta-row { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 14px; }
+    a.cta { display: inline-block; padding: 11px 18px; border-radius: 8px; background: #1d5c7a; color: #fff; font-weight: 700; text-decoration: none; }
+    a.cta.alt { background: #dfeaf0; color: #14465e; }
+    a.cta:focus-visible { outline: 3px solid #14465e; outline-offset: 2px; }
   </style>
 </head>
 <body>
   <header>
     <h1>Wall Framing Takeoff</h1>
+    <p class="cta-row"><a class="cta" href="#h-settings">Start a takeoff</a> <a class="cta alt" href="#h-settings" id="cta-example">Try the example house</a></p>
     <p>Type the walls, doors and windows of a house. Get the stud layout (16 or 24 on center), every king, jack, header, sill and cripple, plate splices that land on studs, a cut list, and the <strong>cheapest mix of board lengths to buy</strong>, with a lower bound that shows how close the order is to the cheapest possible. Free, no sign-up, and nothing leaves your browser.</p>
     <p class="note">Lengths take feet and inches: <code>40'</code>, <code>13' 3"</code>, <code>92-5/8</code>, <code>150 1/2</code>. A bare number is inches. Positions are measured from the start of the wall (the end you lay out from). <a href="how-many-studs-for-a-wall.html">How the stud count is worked out</a>.</p>
   </header>
@@ -75,6 +80,30 @@
       <div><label for="advFrame">Advanced framing</label><select id="advFrame"><option value="">Standard (3-stud corners, 2 backing studs at tees)</option><option value="corners">Two-stud corners (drywall clips; engineer's call)</option><option value="tees">Ladder blocking at tees instead of backing studs</option><option value="both">Both</option><option value="single">Single top plate (framing stacks over studs; engineer's call)</option></select></div>
       <div><label for="fireBlock">Fire blocking</label><select id="fireBlock"><option value="">Only the rows above</option><option value="fire">Add rows so no stud run passes 10 ft</option></select></div>
     </div>
+  </section>
+
+  <section class="card" aria-labelledby="h-sketch">
+    <h2 id="h-sketch">Draw the plan instead of typing it</h2>
+    <p class="note">Pick a tool and click on the grid. <strong>Wall</strong>: click the start, then each corner; a wall chain ends with Finish (or Escape) and ends meeting an existing wall snap to it. <strong>Door</strong> and <strong>Window</strong>: click a wall. <strong>Move</strong>: drag a wall end to move that corner (walls meeting there follow), or drag a wall to slide it; drag a door or window to slide it along its wall, or drag its end to resize it; a move that would crush a wall or strand a door is refused. <strong>Erase</strong>: click a wall or an opening. Type a length to fix the next wall's length and let the mouse choose the direction. "Use this sketch" fills the walls and openings below (corners, tees, the outside loop and opening positions are worked out from the drawing; heights and headers are defaults to check).</p>
+    <div class="grid">
+      <div><label for="skTool">Tool</label><select id="skTool"><option value="wall">Wall</option><option value="door">Door</option><option value="window">Window</option><option value="move">Move</option><option value="erase">Erase</option></select></div>
+      <div><label for="skGrid">Snap to</label><select id="skGrid"><option value="1">1 in</option><option value="6" selected>6 in</option><option value="12">1 ft</option><option value="24">2 ft</option></select></div>
+      <div><label for="skLen">Next wall length (blank: from the mouse)</label><input id="skLen" placeholder="e.g. 14 ft"></div>
+      <div><label for="skWidth">Opening width</label><input id="skWidth" value="36"></div>
+      <div><label for="skOrtho"><input id="skOrtho" type="checkbox" checked> Keep walls square (horizontal or vertical)</label></div>
+    </div>
+    <div class="grid">
+      <div><label for="skImg">Trace over a picture (optional; stays on your device)</label><input id="skImg" type="file" accept="image/*"></div>
+      <div><label for="skScaleLen">Real distance between two points on it</label><input id="skScaleLen" placeholder="e.g. 24 ft"></div>
+      <div><button type="button" class="secondary" id="skScale" disabled>Set scale: click the two points</button> <button type="button" class="secondary" id="skMovePic" disabled>Move picture: click a spot, then where it goes</button> <button type="button" class="secondary" id="skLevel" disabled>Straighten picture: click two points that should be level</button> <button type="button" class="secondary" id="skPlumb" disabled>…or plumb (straight up and down)</button> <button type="button" class="secondary" id="skImgOff" disabled>Remove picture</button></div>
+      <div><label for="skImgOpacity">Picture strength</label><input id="skImgOpacity" type="range" min="10" max="100" value="45"></div>
+    </div>
+    <svg id="skSvg" viewBox="-24 -24 648 448" role="img" aria-label="Plan sketch grid" style="width:100%;max-height:70vh;background:#fffdf7;border:1px solid #c9c3b3;touch-action:manipulation;cursor:crosshair"></svg>
+    <p class="note" id="skInfo" aria-live="polite">Nothing drawn yet.</p>
+    <button type="button" class="secondary" id="skFinish">Finish this wall chain</button>
+    <button type="button" class="secondary" id="skUndo">Undo</button>
+    <button type="button" class="secondary" id="skClear">Clear the sketch</button>
+    <button type="button" id="skUse">Use this sketch</button>
   </section>
 
   <section class="card" aria-labelledby="h-walls">
@@ -163,6 +192,17 @@
       <div><label for="stOpen">Stairwell opening length you framed (blank: not checked)</label><input id="stOpen" type="text" placeholder="e.g. 10' 0&quot;"></div>
       <div><label for="stLanding">Landing</label><select id="stLanding"><option value="">Only if the rise needs one</option><option value="true">Split at a landing</option></select></div>
     </div>
+    <p><input type="checkbox" id="dkOn" style="width:auto"> <label for="dkOn" style="display:inline">Also frame a deck (ledger or rim, joists, dropped beam, posts, footing concrete, decking rows with joints on joists, hardware; its pressure-treated lumber is its own order)</label></p>
+    <div class="grid" id="dkFields" hidden>
+      <div><label for="dkWidth">Width along the house</label><input id="dkWidth" type="text" placeholder="e.g. 16' 0&quot;"></div>
+      <div><label for="dkDepth">Depth out from the house</label><input id="dkDepth" type="text" placeholder="e.g. 12' 0&quot;"></div>
+      <div><label for="dkHeight">Height above grade</label><input id="dkHeight" type="text" placeholder="e.g. 36 in"></div>
+      <div><label for="dkJoist">Joist</label><select id="dkJoist"><option>2x8</option><option>2x6</option><option>2x10</option><option>2x12</option></select></div>
+      <div><label for="dkSpacing">Joist spacing, in o.c. (blank: 16)</label><input id="dkSpacing" type="number" min="8" max="24" step="1" placeholder="16"></div>
+      <div><label for="dkBeam">Beam board (doubled by default)</label><select id="dkBeam"><option>2x10</option><option>2x8</option><option>2x12</option></select></div>
+      <div><label for="dkPost">Post</label><select id="dkPost"><option>6x6</option><option>4x4</option></select></div>
+      <div><label for="dkFree">Attachment</label><select id="dkFree"><option value="">Ledger on the house</option><option value="true">Freestanding</option></select></div>
+    </div>
     <p><input type="checkbox" id="trOn" style="width:auto"> <label for="trOn" style="display:inline">Also count interior trim (baseboard between doors; casing legs, head and window sill; packed into stock boards; lengths and widths are the trim you buy)</label></p>
     <div class="grid" id="trFields" hidden>
       <div><label for="trSides">Baseboard faces on sheathed walls (blank: 1; unsheathed walls get 2)</label><select id="trSides"><option value="">Default</option><option value="1">1</option><option value="2">2</option></select></div>
@@ -173,6 +213,10 @@
       <div><label for="trWaste">Waste (fraction; blank: 0.1)</label><input id="trWaste" type="number" min="0" max="0.3" step="0.01" placeholder="0.1"></div>
       <div><label for="trBasePrice">Price per baseboard (blank: none)</label><input id="trBasePrice" type="number" min="0" step="0.01" placeholder="e.g. 14"></div>
       <div><label for="trCasPrice">Price per casing board (blank: none)</label><input id="trCasPrice" type="number" min="0" step="0.01" placeholder="e.g. 9"></div>
+      <div><label for="trShoe">Shoe moulding</label><select id="trShoe"><option value="">Not counted</option><option value="true">Along the baseboard runs</option></select></div>
+      <div><label for="trShoeStock">Shoe stock length, in (blank: 96)</label><input id="trShoeStock" type="number" min="48" max="240" step="1" placeholder="96"></div>
+      <div><label for="trShoePrice">Price per shoe board (blank: none)</label><input id="trShoePrice" type="number" min="0" step="0.01" placeholder="e.g. 6"></div>
+      <div><label for="trScarf">Scarf overlap per splice, in (blank: butt joint)</label><input id="trScarf" type="number" min="0" max="12" step="0.5" placeholder="0"></div>
     </div>
     <p><input type="checkbox" id="sdOn" style="width:auto"> <label for="sdOn" style="display:inline">Also count exterior lap siding, house wrap and corner boards (course by course on sheathed walls, openings cut out; the reveal and board length are the siding you buy)</label></p>
     <div class="grid" id="sdFields" hidden>
@@ -243,6 +287,7 @@
       <div><label for="fnCorner">Corner bars</label><select id="fnCorner"><option value="" selected>Bars bent into one loop on site</option><option value="true">Straight side bars with an L-bar at each corner</option></select></div>
       <div><label for="fnAnchor">Anchor bolt spacing (in; blank: no bolts counted)</label><input id="fnAnchor" type="number" min="12" max="120" placeholder="e.g. 72"></div>
       <div><label for="fnAnchorEnd">Anchor bolt distance from plate end (in)</label><input id="fnAnchorEnd" type="number" min="4" max="24" value="12"></div>
+      <div style="grid-column:1/-1"><label for="fnPiers">Piers, one group per line: <code>count, pad in, pad depth in, column in, column height in, bars, bar #, name</code> (the last five are optional; blank: none)</label><textarea id="fnPiers" rows="2" placeholder="e.g. 6, 24, 12, 8, 30, 4, 4, deck posts"></textarea></div>
       <div><label for="fnPrice">Concrete price per cu yd (blank: none)</label><input id="fnPrice" type="number" min="0" step="1" placeholder="e.g. 165"></div>
     </div>
     <p><input type="checkbox" id="rfOn" style="width:auto"> <label for="rfOn" style="display:inline">Also frame a roof, gable or hip (rafters, ridge, ceiling joists, collar ties, roof sheathing, shingles and felt; the lumber joins the order)</label></p>
@@ -311,6 +356,11 @@
     <div id="drywallOut"></div>
   </section>
 
+  <section class="card" aria-labelledby="h-deck" id="deckCard" hidden>
+    <h2 id="h-deck">Deck</h2>
+    <div id="deckOut"></div>
+  </section>
+
   <section class="card" aria-labelledby="h-stairs" id="stairsCard" hidden>
     <h2 id="h-stairs">Stairs</h2>
     <div id="stairsOut"></div>
@@ -346,8 +396,10 @@
 
   <section class="card" aria-labelledby="h-schedule" id="scheduleCard">
     <h2 id="h-schedule">Build schedule (critical path)</h2>
-    <p class="note">Optional and separate from the wall list. Paste your own schedule as JSON (<code>start</code>, <code>crews</code>, <code>activities</code> with <code>id, name, days, after, crew, lag</code>, and <code>slips</code>), or load the invented example. Durations are working days (Mon-Fri) that you supply; none are shipped. Holidays and weather are not modelled.</p>
+    <p class="note">Optional and separate from the wall list. Paste your own schedule as JSON (<code>start</code>, <code>crews</code>, <code>activities</code> with <code>id, name, days, after, crew, lag</code>, and <code>slips</code>), or load the invented example. Durations are working days (Mon-Fri) that you supply; none are shipped. Holidays and weather days you list below are skipped; weather is not forecast.</p>
     <textarea id="schedIn" rows="12" spellcheck="false" aria-label="Schedule JSON" style="width:100%;font-family:monospace"></textarea>
+    <p><label for="schedHol">Holidays (YYYY-MM-DD, comma or space separated)</label><input id="schedHol" type="text" autocomplete="off" style="width:100%"></p>
+    <p><label for="schedWx">Weather days the crew will not work (YYYY-MM-DD)</label><input id="schedWx" type="text" autocomplete="off" style="width:100%"></p>
     <p><button type="button" class="secondary" id="schedEx">Load example schedule</button> <button type="button" id="schedRun">Find the critical path</button></p>
     <div id="schedOut" aria-live="polite"></div>
   </section>
@@ -405,7 +457,7 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, construction, building-code, legal or financial advice, and it does not replace a qualified professional, your plans or your building department. Header sizes, jack counts and stud spacing are your inputs and are not checked against any span table or code. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including every length before you cut. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Independent.</strong> Not affiliated with any lumberyard, builder, code body or software company. No lumber price is stated or implied; prices are what you type.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record: save your plan file. Your last entries stay in this browser's local storage only.</p>
-    <p>Everything runs in your browser. Your plan is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>takeoff_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>budget_csv_downloaded</code>, <code>bids_leveled</code>, <code>drawings_downloaded</code>, <code>drawings_pdf_downloaded</code>, <code>panel_order_downloaded</code>, <code>floor_on</code>, <code>roof_on</code>, <code>foundation_on</code>, <code>drywall_on</code>, <code>insulation_on</code>, <code>trim_on</code>, <code>siding_on</code>, <code>eaves_on</code>, <code>gutters_on</code>, <code>stairs_on</code>, <code>fasteners_on</code>, <code>schedule_run</code>, <code>schedule_example_loaded</code>, <code>plan_saved</code>, <code>plan_opened</code>, <code>dxf_opened</code>) are counted only in local storage on your device, never with anything you typed.</p>
+    <p>Everything runs in your browser. Your plan is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>takeoff_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>budget_csv_downloaded</code>, <code>bids_leveled</code>, <code>drawings_downloaded</code>, <code>drawings_pdf_downloaded</code>, <code>panel_order_downloaded</code>, <code>floor_on</code>, <code>roof_on</code>, <code>foundation_on</code>, <code>drywall_on</code>, <code>insulation_on</code>, <code>trim_on</code>, <code>siding_on</code>, <code>eaves_on</code>, <code>gutters_on</code>, <code>stairs_on</code>, <code>deck_on</code>, <code>fasteners_on</code>, <code>schedule_run</code>, <code>schedule_example_loaded</code>, <code>plan_saved</code>, <code>plan_opened</code>, <code>dxf_opened</code>, <code>sketch_wall</code>, <code>sketch_opening</code>, <code>sketch_move</code>, <code>sketch_used</code>, <code>sketch_trace_image</code>, <code>sketch_trace_scaled</code>, <code>sketch_trace_moved</code>, <code>sketch_trace_straightened</code>) are counted only in local storage on your device, never with anything you typed.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Related tools: the <a href="../cut-list-optimizer/">cut list optimizer</a> for sheet goods and shop stock, and the <a href="../tile-layout-planner/">tile layout planner</a>. Command line and source: <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/wall-framing-takeoff" rel="noopener">wall-framing-takeoff on GitHub</a>.</p>
     <p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
@@ -414,6 +466,7 @@
   <script type="module">
     import { takeoff, samplePlan, defaultStock, parseLength, formatLength, formatInches, toCsv, verifyWall, PRECUT, DEPTH } from "./engine.mjs";
     import { planFromDxf } from "./dxf.mjs";
+    import { emptySketch, addWall, addOpening, snapPoint, pointAtLength, nearestWall, moveCorner, moveWall, moveOpening, resizeOpening, removeWall, removeOpening, openingEnds, planFromSketch, wallLength, restoreSketch, fitTrace, rescaleTrace, moveTrace, levelTrace, traceCorners } from "./sketch.mjs";
     import { drawingSetHtml } from "./drawings.mjs";
     import { drawingSetPdf } from "./pdf.mjs";
     import { panelOrder, panelOrderText, panelPullText } from "./panels.mjs";
@@ -427,6 +480,7 @@
     import { layoutSiding, sidingText } from "./siding.mjs";
     import { layoutEaves, eavesText } from "./eaves.mjs";
     import { layoutGutters, guttersText } from "./gutters.mjs";
+    import { layoutDeck, deckText } from "./deck.mjs";
     import { layoutStair, layoutStairWithLanding, stairCuts, stairText, landingCuts, landingText, STAIR_LIMITS } from "./stairs.mjs";
     import { layoutFasteners, fastenerText } from "./fasteners.mjs";
     import { budget, budgetCsv } from "./budget.mjs";
@@ -588,6 +642,12 @@
         }
         plan.insulation = ins;
       }
+      if ($("#dkOn").checked) {
+        const dk = { id: "Deck", width: L($("#dkWidth").value, "deck width"), depth: L($("#dkDepth").value, "deck depth"), height: L($("#dkHeight").value, "deck height"), joist: $("#dkJoist").value, beam: $("#dkBeam").value, postSize: $("#dkPost").value };
+        if ($("#dkSpacing").value.trim()) dk.spacing = Number($("#dkSpacing").value);
+        if ($("#dkFree").value) dk.freestanding = true;
+        plan.deck = dk;
+      }
       if ($("#stOn").checked) {
         const st = { id: "Stair", totalRise: L($("#stRise").value, "stair total rise"), stringer: $("#stStringer").value, treadBoard: $("#stTreadBoard").value };
         if ($("#stTread").value.trim()) st.tread = Number($("#stTread").value);
@@ -598,7 +658,8 @@
       }
       if ($("#trOn").checked) {
         const tr = {};
-        for (const [id, key] of [["trSides", "baseSides"], ["trBaseStock", "baseStock"], ["trCasStock", "casingStock"], ["trCasWidth", "casingWidth"], ["trReveal", "reveal"], ["trWaste", "waste"], ["trBasePrice", "basePrice"], ["trCasPrice", "casingPrice"]]) if ($("#" + id).value.trim()) tr[key] = Number($("#" + id).value);
+        for (const [id, key] of [["trSides", "baseSides"], ["trBaseStock", "baseStock"], ["trCasStock", "casingStock"], ["trCasWidth", "casingWidth"], ["trReveal", "reveal"], ["trWaste", "waste"], ["trBasePrice", "basePrice"], ["trCasPrice", "casingPrice"], ["trShoeStock", "shoeStock"], ["trShoePrice", "shoePrice"], ["trScarf", "scarf"]]) if ($("#" + id).value.trim()) tr[key] = Number($("#" + id).value);
+        if ($("#trShoe").value) tr.shoe = true;
         plan.trim = tr;
       }
       if ($("#sdOn").checked) {
@@ -634,6 +695,19 @@
         if (fn.type === "stem") fn.stem = { height: Number($("#fnStemH").value), thickness: Number($("#fnStemT").value) };
         if ($("#fnCorner").value) fn.cornerBars = true;
         if ($("#fnAnchor").value.trim()) fn.anchorBolts = { spacing: Number($("#fnAnchor").value), endDistance: Number($("#fnAnchorEnd").value) };
+        const piers = [];
+        for (const [i, line] of $("#fnPiers").value.split("\n").map((t) => t.trim()).filter(Boolean).entries()) {
+          const c = line.split(",").map((t) => t.trim());
+          const n = c.slice(0, 7).map((t) => (t === "" ? undefined : Number(t)));
+          if (c.length < 3 || c.length > 8 || n.slice(0, 3).some((v) => !Number.isFinite(v)) || n.some((v) => v !== undefined && !Number.isFinite(v))) { bad.push(`Pier line ${i + 1} ("${line}") needs: count, pad in, pad depth in, then optionally column, column height, bars, bar #, name.`); continue; }
+          const pier = { count: n[0], pad: n[1], padDepth: n[2] };
+          if (n[3]) { pier.column = n[3]; pier.columnHeight = n[4]; }
+          if (n[5]) pier.bars = n[5];
+          if (n[6]) pier.bar = n[6];
+          if (c[7]) pier.name = c[7];
+          piers.push(pier);
+        }
+        if (piers.length) fn.piers = piers;
         if ($("#fnPrice").value.trim()) fn.price = Number($("#fnPrice").value);
         plan.foundation = fn;
       }
@@ -785,6 +859,11 @@
       if (!ins) return;
       $("#insulationOut").innerHTML = `<pre style="white-space:pre-wrap;overflow-x:auto">${esc(insulationText(ins).join("\n"))}</pre><p class="note">Open cavity is the wall panel area less every framing member placed and each opening's rough area. Bag coverage and R-values are the figures you type from the label; they are not checked against a real insulation order.</p>`;
     }
+    function renderDeck(dk) {
+      $("#deckCard").hidden = !dk;
+      if (!dk) return;
+      $("#deckOut").innerHTML = `<pre style="white-space:pre-wrap;overflow-x:auto">${esc(deckText(dk).join("\n"))}</pre><p class="note">Joist spans come from a span table you can replace in the plan file; the built-in one is a rule of thumb, not your jurisdiction's table. Footing size, post sizing, guards and frost depth are yours to check against local code. Hand-checked arithmetic only, not a built deck.</p>`;
+    }
     function renderStairs(st) {
       $("#stairsCard").hidden = !st;
       if (!st) return;
@@ -808,7 +887,7 @@
     function renderTrim(tr) {
       $("#trimCard").hidden = !tr;
       if (!tr) return;
-      $("#trimOut").innerHTML = `<pre style="white-space:pre-wrap;overflow-x:auto">${esc(trimText(tr).join("\n"))}</pre><p class="note">Pieces are packed first fit decreasing into the stock lengths you typed; mitres and scarf joints are not modelled, the waste figure covers them. Not checked against a real trim order.</p>`;
+      $("#trimOut").innerHTML = `<pre style="white-space:pre-wrap;overflow-x:auto">${esc(trimText(tr).join("\n"))}</pre><p class="note">Pieces are packed first fit decreasing into the stock lengths you typed; mitres are not modelled; scarf joints are counted only if you type an overlap, otherwise the waste figure covers them. Not checked against a real trim order.</p>`;
     }
     function renderFasteners(fa) {
       $("#fastenersCard").hidden = !fa;
@@ -880,7 +959,7 @@
       const { plan, bad, source } = toPlan();
       $("#errors").innerHTML = "";
       if (bad.length) { $("#errors").innerHTML = `<ul>${bad.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>`; return false; }
-      let result, nailers = [], floor = null, stairs = null, floorExtra = [], roof = null, foundation = null, drywall = null;
+      let result, nailers = [], floor = null, stairs = null, deck = null, floorExtra = [], roof = null, foundation = null, drywall = null;
       try {
         if (plan.foundation) {
           foundation = layoutFoundation(plan.foundation);
@@ -889,6 +968,10 @@
         if (plan.drywall) {
           drywall = layoutDrywall(plan.drywall, plan);
           if (!drywall.ok) { $("#errors").innerHTML = `<ul>${drywall.errors.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>`; last = null; $("#drywallCard").hidden = true; return false; }
+        }
+        if (plan.deck) {
+          deck = layoutDeck(plan.deck);
+          if (!deck.ok) { $("#errors").innerHTML = `<ul>${deck.errors.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>`; last = null; $("#deckCard").hidden = true; return false; }
         }
         if (plan.floor) {
           floor = layoutFloor(plan.floor, plan);
@@ -949,7 +1032,7 @@
         try { fasteners = layoutFasteners(plan.fasteners, plan, { ...result, ...(sheathing?.ok ? { sheathing } : {}), ...(roof ? { roof } : {}) }); } catch (e) { fasteners = { ok: false, errors: [e instanceof Error ? e.message : String(e)] }; }
         if (!fasteners.ok) { $("#errors").innerHTML = `<ul>${fasteners.errors.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>`; last = null; $("#fastenersCard").hidden = true; return false; }
       }
-      last = { plan, result, nailers, floor, stairs, roof, foundation, drywall, insulation, trim, siding, eaves, gutters, fasteners };
+      last = { plan, result, nailers, floor, deck, stairs, roof, foundation, drywall, insulation, trim, siding, eaves, gutters, fasteners };
       const s = result.summary;
       const money = (v) => v.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 });
       $("#summary").innerHTML = `<div class="big">
@@ -969,6 +1052,7 @@
       renderFoundation(foundation);
       renderDrywall(drywall);
       renderInsulation(insulation);
+      renderDeck(deck);
       renderStairs(stairs);
       renderTrim(trim);
       renderSiding(siding);
@@ -1020,14 +1104,19 @@
         $("#inAtticR").value = ins.attic?.rValue != null ? String(ins.attic.rValue) : ""; $("#inAtticPer").value = ins.attic?.rPerInch != null ? String(ins.attic.rPerInch) : "";
         $("#inAtticBag").value = ins.attic?.bagCuFt != null ? String(ins.attic.bagCuFt) : "";
       }
+      const dkp = plan.deck && typeof plan.deck === "object" ? plan.deck : null;
+      $("#dkOn").checked = Boolean(dkp); $("#dkFields").hidden = !dkp;
+      $("#dkWidth").value = dkp ? formatLength(dkp.width) : ""; $("#dkDepth").value = dkp ? formatLength(dkp.depth) : ""; $("#dkHeight").value = dkp ? formatLength(dkp.height) : "";
+      $("#dkJoist").value = dkp?.joist || "2x8"; $("#dkSpacing").value = dkp?.spacing != null ? String(dkp.spacing) : ""; $("#dkBeam").value = dkp?.beam || "2x10";
+      $("#dkPost").value = dkp?.postSize || "6x6"; $("#dkFree").value = dkp?.freestanding ? "true" : "";
       const stp = plan.stairs && !Array.isArray(plan.stairs) ? plan.stairs : null;
       $("#stOn").checked = Boolean(stp); $("#stFields").hidden = !stp;
       $("#stRise").value = stp ? formatLength(stp.totalRise) : ""; $("#stTread").value = stp?.tread != null ? String(stp.tread) : "";
       $("#stWidth").value = stp?.width != null ? formatLength(stp.width) : ""; $("#stOpen").value = stp?.openingLength != null ? formatLength(stp.openingLength) : "";
       $("#stStringer").value = stp?.stringer || "2x12"; $("#stTreadBoard").value = stp?.treadBoard || "2x12"; $("#stLanding").value = stp?.landing ? "true" : "";
       const trm = plan.trim;
-      $("#trOn").checked = Boolean(trm); $("#trFields").hidden = !trm;
-      for (const [id, key] of [["trSides", "baseSides"], ["trBaseStock", "baseStock"], ["trCasStock", "casingStock"], ["trCasWidth", "casingWidth"], ["trReveal", "reveal"], ["trWaste", "waste"], ["trBasePrice", "basePrice"], ["trCasPrice", "casingPrice"]]) $("#" + id).value = trm && trm[key] != null ? String(trm[key]) : "";
+      $("#trOn").checked = Boolean(trm); $("#trFields").hidden = !trm; $("#trShoe").value = trm && trm.shoe ? "true" : "";
+      for (const [id, key] of [["trSides", "baseSides"], ["trBaseStock", "baseStock"], ["trCasStock", "casingStock"], ["trCasWidth", "casingWidth"], ["trReveal", "reveal"], ["trWaste", "waste"], ["trBasePrice", "basePrice"], ["trCasPrice", "casingPrice"], ["trShoeStock", "shoeStock"], ["trShoePrice", "shoePrice"], ["trScarf", "scarf"]]) $("#" + id).value = trm && trm[key] != null ? String(trm[key]) : "";
       const sdg = plan.siding;
       $("#sdOn").checked = Boolean(sdg); $("#sdFields").hidden = !sdg;
       for (const [id, key] of [["sdExposure", "exposure"],["sdStock", "stock"],["sdWaste", "waste"],["sdWrapRoll", "wrapRollSqFt"],["sdCorners", "corners"],["sdBoardPrice", "boardPrice"],["sdWrapPrice", "wrapPrice"],["sdCornerPrice", "cornerPrice"]]) $("#" + id).value = sdg && sdg[key] != null ? String(sdg[key]) : "";
@@ -1052,7 +1141,8 @@
         $("#fnStemH").value = String(fn.stem?.height ?? 32); $("#fnStemT").value = String(fn.stem?.thickness ?? 8);
         $("#fnSlab").value = String(fn.slab?.thickness ?? 4); $("#fnPrice").value = fn.price != null ? String(fn.price) : ""; $("#fnCorner").value = fn.cornerBars ? "true" : "";
         $("#fnAnchor").value = fn.anchorBolts ? String(fn.anchorBolts.spacing ?? 72) : ""; $("#fnAnchorEnd").value = String(fn.anchorBolts?.endDistance ?? 12);
-      }
+        $("#fnPiers").value = (fn.piers || []).map((p) => [p.count, p.pad, p.padDepth, p.column ?? "", p.columnHeight ?? "", p.bars ?? "", p.bar ?? "", p.name ?? ""].join(", ").replace(/(, )+$/, "")).join("\n");
+      } else $("#fnPiers").value = "";
       const rf = plan.roof;
       $("#rfOn").checked = Boolean(rf); $("#rfFields").hidden = !rf;
       if (rf) {
@@ -1164,6 +1254,7 @@
     $("#rfWing").addEventListener("change", syncWing);
     $("#rfWing2").addEventListener("change", syncWing);
     $("#inOn").addEventListener("change", () => { $("#inFields").hidden = !$("#inOn").checked; if ($("#inOn").checked) record("insulation_on"); });
+    $("#dkOn").addEventListener("change", () => { $("#dkFields").hidden = !$("#dkOn").checked; if ($("#dkOn").checked) record("deck_on"); });
     $("#stOn").addEventListener("change", () => { $("#stFields").hidden = !$("#stOn").checked; if ($("#stOn").checked) record("stairs_on"); });
     $("#eaOn").addEventListener("change", () => { $("#eaFields").hidden = !$("#eaOn").checked; if ($("#eaOn").checked) record("eaves_on"); });
     $("#guOn").addEventListener("change", () => { $("#guFields").hidden = !$("#guOn").checked; if ($("#guOn").checked) record("gutters_on"); });
@@ -1176,12 +1267,256 @@
     $("#schedRun").addEventListener("click", () => {
       let input;
       try { input = JSON.parse($("#schedIn").value); } catch (e) { $("#schedOut").innerHTML = `<div class="err">That is not valid JSON: ${esc(e.message)}</div>`; return; }
+      if (!input || typeof input !== "object") input = {};
+      const dates = (id) => $(id).value.split(/[\s,;]+/).filter(Boolean);
+      const hol = dates("#schedHol"), wx = dates("#schedWx");
+      if (hol.length) input.holidays = [...(input.holidays || []), ...hol];
+      if (wx.length) input.weatherDays = [...(input.weatherDays || []), ...wx];
       const s = schedule(input);
       $("#schedOut").innerHTML = `<pre style="white-space:pre-wrap;overflow-x:auto">${esc(scheduleText(s).join("\n"))}</pre>`;
       if (s.ok) record("schedule_run");
     });
     $("#rfOn").addEventListener("change", () => { $("#rfFields").hidden = !$("#rfOn").checked; if ($("#rfOn").checked) record("roof_on"); });
     if (usageOptedOut()) { const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; }
+
+
+    // ---- plan sketch editor ------------------------------------------------
+    {
+      const svg = /** @type {SVGSVGElement} */ ($("#skSvg"));
+      const NS = "http://www.w3.org/2000/svg";
+      let sk = emptySketch(), chain = null, hover = null, restoreNote = "";
+      const SKEY = KEY + ".sketch";
+      try {
+        const back = restoreSketch(JSON.parse(localStorage.getItem(SKEY) || "null"));
+        if (back) { sk = back.sketch; if (back.dropped) restoreNote = ` ${back.dropped} damaged stored item${back.dropped === 1 ? "" : "s"} left out.`; }
+      } catch (e) { /* storage is optional */ }
+      const persist = () => { try { sk.walls.length ? localStorage.setItem(SKEY, JSON.stringify(sk)) : localStorage.removeItem(SKEY); } catch (e) { /* optional */ } };
+      const history = [];
+      const snap = () => { history.push(JSON.stringify(sk)); if (history.length > 100) history.shift(); };
+      const num = (id, d) => { const v = parseLength($(id).value); return Number.isFinite(v) && v > 0 ? v : d; };
+      const cursor = (e) => {
+        const pt = svg.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY;
+        const m = svg.getScreenCTM(); const q = m ? pt.matrixTransform(m.inverse()) : pt;
+        return { x: q.x, y: q.y };
+      };
+      const opts = () => ({ grid: Number($("#skGrid").value), ortho: $("#skOrtho").checked, from: chain });
+      const target = (raw) => {
+        const typed = parseLength($("#skLen").value);
+        if (chain && Number.isFinite(typed) && typed > 0) {
+          const dir = snapPoint(raw, sk, { grid: 0, from: chain, ortho: $("#skOrtho").checked, tol: 0 });
+          const q = pointAtLength(chain, dir, typed, $("#skOrtho").checked);
+          if (q) return q;
+        }
+        return snapPoint(raw, sk, opts());
+      };
+      const el = (name, attrs, text) => { const n = document.createElementNS(NS, name); for (const k in attrs) n.setAttribute(k, attrs[k]); if (text !== undefined) n.textContent = text; return n; };
+      let trace = null, traceHref = "", scalePts = null, movePts = null, levelPts = null, levelAxis = "h";
+      // The picture is kept on this device only: downscaled to a JPEG data URL with its placement.
+      const TKEY = KEY + ".trace";
+      let traceSaved = "";
+      const enableTrace = (on) => { for (const id of ["#skScale", "#skMovePic", "#skLevel", "#skPlumb", "#skImgOff"]) $(id).disabled = !on; };
+      const persistTrace = () => {
+        const now = trace && traceHref.startsWith("data:") ? JSON.stringify({ trace, href: traceHref }) : "";
+        if (now === traceSaved) return;
+        traceSaved = now;
+        try { now ? localStorage.setItem(TKEY, now) : localStorage.removeItem(TKEY); } catch (e) { /* too big or no storage: the picture just won't survive a reload */ }
+      };
+      try {
+        const back = JSON.parse(localStorage.getItem(TKEY) || "null");
+        const t = back && back.trace;
+        if (t && typeof back.href === "string" && back.href.startsWith("data:image/") && ["x", "y", "w", "h"].every((k) => Number.isFinite(t[k])) && t.w > 0 && t.h > 0) {
+          trace = { x: t.x, y: t.y, w: t.w, h: t.h, ...(Number.isFinite(t.a) && t.a ? { a: t.a } : {}) };
+          traceHref = back.href; traceSaved = localStorage.getItem(TKEY) || ""; enableTrace(true);
+        }
+      } catch (e) { /* storage is optional */ }
+      function draw() {
+        persist(); persistTrace();
+        svg.replaceChildren();
+        let minX = 0, minY = 0, maxX = 600, maxY = 400;
+        if (trace) for (const c of traceCorners(trace)) { minX = Math.min(minX, c.x); minY = Math.min(minY, c.y); maxX = Math.max(maxX, c.x); maxY = Math.max(maxY, c.y); }
+        for (const w of sk.walls) for (const p of [w.a, w.b]) { minX = Math.min(minX, p.x - 36); minY = Math.min(minY, p.y - 36); maxX = Math.max(maxX, p.x + 36); maxY = Math.max(maxY, p.y + 36); }
+        minX = Math.floor(minX / 12) * 12; minY = Math.floor(minY / 12) * 12; maxX = Math.ceil(maxX / 12) * 12; maxY = Math.ceil(maxY / 12) * 12;
+        svg.setAttribute("viewBox", `${minX} ${minY} ${maxX - minX} ${maxY - minY}`);
+        const wpx = maxX - minX;
+        for (let x = minX; x <= maxX; x += 12) svg.append(el("line", { x1: x, y1: minY, x2: x, y2: maxY, stroke: x % 120 === 0 ? "#cfc8b4" : "#ebe6d8", "stroke-width": x % 120 === 0 ? 1.2 : 0.6 }));
+        for (let y = minY; y <= maxY; y += 12) svg.append(el("line", { x1: minX, y1: y, x2: maxX, y2: y, stroke: y % 120 === 0 ? "#cfc8b4" : "#ebe6d8", "stroke-width": y % 120 === 0 ? 1.2 : 0.6 }));
+        if (trace) svg.insertBefore(el("image", { href: traceHref, x: trace.x, y: trace.y, width: trace.w, height: trace.h, ...(trace.a ? { transform: `rotate(${trace.a} ${trace.x + trace.w / 2} ${trace.y + trace.h / 2})` } : {}), opacity: Number($("#skImgOpacity").value) / 100, preserveAspectRatio: "none", "pointer-events": "none" }), svg.firstChild);
+        const fs = Math.max(8, wpx / 55);
+        if (scalePts || levelPts) for (const p of scalePts || levelPts) svg.append(el("circle", { cx: p.x, cy: p.y, r: 5, fill: "none", stroke: "#2b6cb0", "stroke-width": 2 }));
+        for (const w of sk.walls) {
+          svg.append(el("line", { x1: w.a.x, y1: w.a.y, x2: w.b.x, y2: w.b.y, stroke: "#33302a", "stroke-width": 5, "stroke-linecap": "round" }));
+          svg.append(el("text", { x: (w.a.x + w.b.x) / 2, y: (w.a.y + w.b.y) / 2 - 7, "font-size": fs, "text-anchor": "middle", fill: "#555044" }, formatLength(wallLength(w))));
+        }
+        for (const o of sk.openings) {
+          const e = openingEnds(sk, o);
+          svg.append(el("line", { x1: e.a.x, y1: e.a.y, x2: e.b.x, y2: e.b.y, stroke: o.kind === "door" ? "#b5651d" : "#2b6cb0", "stroke-width": 9, "stroke-linecap": "butt", "data-opening": o.id }));
+        }
+        if (chain) {
+          svg.append(el("circle", { cx: chain.x, cy: chain.y, r: 6, fill: "#c0392b" }));
+          if (hover) {
+            svg.append(el("line", { x1: chain.x, y1: chain.y, x2: hover.x, y2: hover.y, stroke: "#c0392b", "stroke-width": 3, "stroke-dasharray": "8 5" }));
+            svg.append(el("text", { x: (chain.x + hover.x) / 2, y: (chain.y + hover.y) / 2 - 8, "font-size": fs, "text-anchor": "middle", fill: "#c0392b" }, formatLength(Math.hypot(hover.x - chain.x, hover.y - chain.y))));
+          }
+        } else if (hover && $("#skTool").value === "wall") svg.append(el("circle", { cx: hover.x, cy: hover.y, r: 4, fill: "#c0392b" }));
+        const d = sk.openings.filter((o) => o.kind === "door").length, wi = sk.openings.length - d;
+        $("#skInfo").textContent = sk.walls.length ? `${sk.walls.length} wall${sk.walls.length === 1 ? "" : "s"}, ${d} door${d === 1 ? "" : "s"}, ${wi} window${wi === 1 ? "" : "s"}.${chain ? " Click the next corner, or Finish." : ""}${restoreNote}` : "Nothing drawn yet.";
+      }
+      const finish = () => { chain = null; hover = null; draw(); };
+      let drag = null;
+      svg.addEventListener("pointerdown", (e) => {
+        if ($("#skTool").value !== "move") return;
+        const raw = cursor(e);
+        let best = null;
+        for (const w of sk.walls) for (const end of ["a", "b"]) {
+          const d = Math.hypot(w[end].x - raw.x, w[end].y - raw.y);
+          if (d <= 12 && (!best || d < best.d)) best = { d, w, end };
+        }
+        const base = JSON.stringify(sk);
+        const alongOf = (o, p) => { const w = sk.walls.find((x) => x.id === o.wall), L = wallLength(w); return ((p.x - w.a.x) * (w.b.x - w.a.x) + (p.y - w.a.y) * (w.b.y - w.a.y)) / L; };
+        let op = null;
+        if (!best) for (const o of sk.openings) {
+          const e = openingEnds(sk, o), w = sk.walls.find((x) => x.id === o.wall), L = wallLength(w);
+          const t = alongOf(o, raw), off = Math.abs((raw.x - w.a.x) * (w.b.y - w.a.y) - (raw.y - w.a.y) * (w.b.x - w.a.x)) / L;
+          if (off > 9 || t < o.offset - 4 || t > o.offset + o.width + 4) continue;
+          const edge = Math.min(6, o.width / 4);
+          op = { o, mode: t - o.offset <= edge ? "a" : o.offset + o.width - t <= edge ? "b" : "slide", grab: t - (o.offset + o.width / 2) };
+          break;
+        }
+        if (best) drag = { base, kind: "corner", id: best.w.id, end: best.end };
+        else if (op) drag = { base, kind: "opening", id: op.o.id, mode: op.mode, grab: op.grab, alongOf };
+        else { const hit = nearestWall(sk, raw, 10); if (hit) drag = { base, kind: "wall", id: hit.wall.id, from: raw }; }
+        if (drag) { try { svg.setPointerCapture(e.pointerId); } catch (x) { /* optional */ } e.preventDefault(); }
+      });
+      const endDrag = () => { if (!drag) return; const moved = JSON.stringify(sk) !== drag.base; if (moved) { history.push(drag.base); if (history.length > 100) history.shift(); record("sketch_move"); } drag = null; draw(); };
+      svg.addEventListener("pointerup", endDrag);
+      svg.addEventListener("pointercancel", () => { if (drag) { sk = JSON.parse(drag.base); drag = null; draw(); } });
+      svg.addEventListener("pointermove", (e) => {
+        if (drag) {
+          const raw = cursor(e), g = Number($("#skGrid").value);
+          sk = JSON.parse(drag.base);
+          let r;
+          if (drag.kind === "corner") r = moveCorner(sk, drag.id, drag.end, snapPoint(raw, { walls: [] }, { grid: g }));
+          else if (drag.kind === "opening") {
+            const o = sk.openings.find((x) => x.id === drag.id), t = drag.alongOf(o, raw), q = (v) => (g > 0 ? Math.round(v / g) * g : v);
+            r = drag.mode === "slide" ? moveOpening(sk, drag.id, o.offset + o.width / 2 + q(t - drag.grab - (o.offset + o.width / 2))) : resizeOpening(sk, drag.id, drag.mode, q(t));
+          }
+          else r = moveWall(sk, drag.id, g > 0 ? Math.round((raw.x - drag.from.x) / g) * g : raw.x - drag.from.x, g > 0 ? Math.round((raw.y - drag.from.y) / g) * g : raw.y - drag.from.y);
+          if (!r.ok) { sk = JSON.parse(drag.base); draw(); $("#skInfo").textContent = r.error; } else draw();
+          return;
+        }
+        const raw = cursor(e), tool = $("#skTool").value;
+        hover = tool === "wall" ? target(raw) : raw;
+        draw();
+      });
+      svg.addEventListener("click", (e) => {
+        const raw = cursor(e), tool = $("#skTool").value;
+        if (movePts) {
+          movePts.push({ x: raw.x, y: raw.y });
+          if (movePts.length < 2) { $("#skInfo").textContent = "Now click where that spot should go."; return; }
+          const m = moveTrace(trace, movePts[0], movePts[1]);
+          movePts = null;
+          if (m) { trace = m; record("sketch_trace_moved"); }
+          draw(); return;
+        }
+        if (levelPts) {
+          levelPts.push({ x: raw.x, y: raw.y });
+          if (levelPts.length < 2) { $("#skInfo").textContent = "Now click the other end of that line."; draw(); return; }
+          const r = levelTrace(trace, levelPts[0], levelPts[1], levelAxis);
+          levelPts = null;
+          if (!r) { $("#skInfo").textContent = "Those points are too close, or that line is more than 45 degrees off; pick two further apart on a line that is nearly " + (levelAxis === "v" ? "plumb" : "level") + "."; draw(); return; }
+          trace = r; record("sketch_trace_straightened"); draw(); return;
+        }
+        if (scalePts) {
+          scalePts.push({ x: raw.x, y: raw.y });
+          if (scalePts.length < 2) { $("#skInfo").textContent = "Now click the other end of that distance."; draw(); return; }
+          const real = parseLength($("#skScaleLen").value), r = rescaleTrace(trace, scalePts[0], scalePts[1], real);
+          scalePts = null;
+          if (!r) { $("#skInfo").textContent = "Type the real distance (for example 24 ft) in the box, then try again with two points further apart."; draw(); return; }
+          trace = r; record("sketch_trace_scaled"); draw(); return;
+        }
+        if (tool === "move") return;
+        if (tool === "wall") {
+          const p = target(raw);
+          if (!chain) { chain = p; }
+          else {
+            snap();
+            const w = addWall(sk, chain, p);
+            if (!w) history.pop();
+            else record("sketch_wall");
+            chain = p;
+            $("#skLen").value = "";
+          }
+        } else if (tool === "door" || tool === "window") {
+          const hit = nearestWall(sk, raw, 14);
+          if (!hit) { $("#skInfo").textContent = "Click on a wall to place it."; return; }
+          snap();
+          const r = addOpening(sk, hit.wall.id, tool, hit.along, num("#skWidth", 36));
+          if (!r.ok) { history.pop(); $("#skInfo").textContent = r.error; return; }
+          record("sketch_opening");
+        } else {
+          const near = sk.openings.map((o) => ({ o, e: openingEnds(sk, o) })).find(({ e }) => {
+            const L = Math.hypot(e.b.x - e.a.x, e.b.y - e.a.y), t = ((raw.x - e.a.x) * (e.b.x - e.a.x) + (raw.y - e.a.y) * (e.b.y - e.a.y)) / (L * L);
+            return t >= 0 && t <= 1 && Math.abs((raw.x - e.a.x) * (e.b.y - e.a.y) - (raw.y - e.a.y) * (e.b.x - e.a.x)) / L <= 8;
+          });
+          if (near) { snap(); removeOpening(sk, near.o.id); }
+          else { const hit = nearestWall(sk, raw, 10); if (hit) { snap(); removeWall(sk, hit.wall.id); } }
+        }
+        draw();
+      });
+      document.addEventListener("keydown", (e) => { if (e.key === "Escape" && chain) finish(); });
+      $("#skTool").addEventListener("change", finish);
+      $("#skFinish").addEventListener("click", finish);
+      $("#skImg").addEventListener("change", (e) => {
+        const f = /** @type {HTMLInputElement} */ (e.target).files?.[0];
+        if (!f || !/^image\//.test(f.type)) return;
+        const url = URL.createObjectURL(f), im = new Image();
+        im.onload = () => {
+          const t = fitTrace(im.naturalWidth, im.naturalHeight);
+          if (!t) { URL.revokeObjectURL(url); $("#skInfo").textContent = "That picture has no size."; return; }
+          if (traceHref.startsWith("blob:")) URL.revokeObjectURL(traceHref);
+          let href = url;
+          try {
+            const k = Math.min(1, 1600 / Math.max(im.naturalWidth, im.naturalHeight)), c = document.createElement("canvas");
+            c.width = Math.max(1, Math.round(im.naturalWidth * k)); c.height = Math.max(1, Math.round(im.naturalHeight * k));
+            const g = c.getContext("2d"); g.fillStyle = "#fff"; g.fillRect(0, 0, c.width, c.height); g.drawImage(im, 0, 0, c.width, c.height);
+            href = c.toDataURL("image/jpeg", 0.8); URL.revokeObjectURL(url);
+          } catch (e) { /* keep the blob URL: shown now, not kept across reloads */ }
+          trace = t; traceHref = href; enableTrace(true); record("sketch_trace_image");
+          $("#skInfo").textContent = "Picture placed 40 ft wide. Set its scale: type a distance you know on it, press the button, then click its two ends.";
+          draw();
+        };
+        im.onerror = () => { URL.revokeObjectURL(url); $("#skInfo").textContent = "That file could not be read as a picture."; };
+        im.src = url;
+      });
+      $("#skScale").addEventListener("click", () => {
+        if (!trace) return;
+        if (!(parseLength($("#skScaleLen").value) > 0)) { $("#skInfo").textContent = "Type the real distance between the two points first (for example 24 ft)."; return; }
+        finish(); movePts = null; levelPts = null; scalePts = []; $("#skInfo").textContent = "Click one end of that distance on the picture.";
+      });
+      $("#skMovePic").addEventListener("click", () => {
+        if (!trace) return;
+        finish(); scalePts = null; levelPts = null; movePts = []; $("#skInfo").textContent = "Click a spot on the picture (a wall corner, say).";
+      });
+      for (const [id, axis] of [["#skLevel", "h"], ["#skPlumb", "v"]]) $(id).addEventListener("click", () => {
+        if (!trace) return;
+        finish(); scalePts = null; movePts = null; levelAxis = axis; levelPts = []; $("#skInfo").textContent = "Click one end of a line on the picture that should be " + (axis === "v" ? "plumb" : "level") + " (a wall edge, say).";
+      });
+      $("#skImgOff").addEventListener("click", () => { enableTrace(false); levelPts = null; movePts = null; if (traceHref.startsWith("blob:")) URL.revokeObjectURL(traceHref); trace = null; traceHref = ""; scalePts = null; draw(); });
+      $("#skImgOpacity").addEventListener("input", draw);
+      $("#skUndo").addEventListener("click", () => { const h = history.pop(); if (h) { sk = JSON.parse(h); chain = null; hover = null; draw(); } });
+      $("#skClear").addEventListener("click", () => { if (!sk.walls.length) return; snap(); sk = emptySketch(); chain = null; hover = null; draw(); });
+      $("#skUse").addEventListener("click", () => {
+        const r = planFromSketch(sk);
+        if (!r.ok) { $("#skInfo").textContent = r.errors.join(" "); return; }
+        const base = samplePlan(), plan = r.plan;
+        for (const k of ["studSpacing", "studLength", "kerf", "topPlateLap", "cornerExtraStuds", "teeExtraStuds", "defaultHeaderHeight", "stock"]) if (!(k in plan)) plan[k] = base[k];
+        load(plan);
+        record("sketch_used");
+        $("#status").textContent = `Sketch loaded: ${r.stats.walls} walls, ${r.stats.tees} tees, ${r.stats.openings} openings. ${r.notes.join(" ")}`;
+        $("#skInfo").textContent = `Loaded into the walls and openings tables below (${r.stats.walls} walls, ${r.stats.openings} openings). Run the takeoff when the details are right.`;
+      });
+      draw();
+    }
 
     let restored = false;
     try {
@@ -1190,5 +1525,6 @@
     } catch (e) { /* storage is optional */ }
     if (!restored) { load(samplePlan()); $("#status").textContent = "Showing the example house (invented). Change any field, or start empty."; }
   </script>
+<script>document.getElementById("cta-example").addEventListener("click",function(){var b=document.getElementById("example");if(b)b.click();});</script>
 </body>
 </html>

@@ -50,6 +50,8 @@ ACCEPTED = {
         "the cross-review bots assist and are not a merge gate (CLAUDE.md); one bot's outage must not turn the others red",
     ("actions-continue-on-error-check", ".github/workflows/browser-checks-ci.yml", "step-continue-on-error"):
         "the Chromium install retries once without --with-deps; if it still fails the sweep step after it fails loudly",
+    ("actions-continue-on-error-check", ".github/workflows/portfolio-pages.yml", "step-continue-on-error"):
+        "the Shed Designer picture redraw is optional: if Playwright cannot install, the committed pictures ship; a redraw that ran is checked strictly by the next step",
     ("actions-continue-on-error-check", ".github/workflows/distribute-shorts.yml", "step-continue-on-error"):
         "the Piper voice is optional narration (commented in the workflow); videos render silent with captions",
 }

@@ -87,5 +87,14 @@ class OpenPrsTest(unittest.TestCase):
             self.assertEqual(pick_track.open_prs_for("x"), [])
 
 
+class CliTest(unittest.TestCase):
+    def test_non_numeric_draw_is_a_usage_error(self):
+        import subprocess, sys
+        r = subprocess.run([sys.executable, pick_track.__file__, "hanger"], capture_output=True, text=True)
+        self.assertEqual(r.returncode, 1)
+        self.assertIn("usage:", r.stderr)
+        self.assertNotIn("Traceback", r.stderr)
+
+
 if __name__ == "__main__":
     unittest.main()

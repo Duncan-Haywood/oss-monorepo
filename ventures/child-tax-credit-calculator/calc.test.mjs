@@ -215,3 +215,45 @@ test('non-numeric and negative inputs are treated as zero, never NaN or negative
   assert.equal(result.totalAfter, 0);
   assert.ok(Number.isFinite(result.totalAfter));
 });
+
+// Red-team 2026-10-29: guards for finding selection and the zero result.
+const titles = (r) => r.findings.map((f) => f.title);
+const base = { filingStatus: 'single', magi: 50000, earnedIncome: 50000, filerHasSsn: true };
+
+test('zero results (no SSN, no dependents) report a zero reduction', () => {
+  assert.equal(computeChildTaxCredit({ ...base, filerHasSsn: false, qualifyingChildren: 1 }).reduction, 0);
+  assert.equal(computeChildTaxCredit({ ...base }).reduction, 0);
+});
+
+test('under the threshold the finding is "full amount", not a phase-out finding', () => {
+  const t = titles(computeChildTaxCredit({ ...base, qualifyingChildren: 1 }));
+  assert.ok(t.includes('Full amount before the income phase-out binds'));
+  assert.ok(!t.some((x) => /phase-out$|phased out/.test(x)));
+});
+
+test('a partial phase-out is "Reduced", and only a fully exhausted credit is "Fully phased out"', () => {
+  const part = titles(computeChildTaxCredit({ ...base, magi: 210000, qualifyingChildren: 1 }));
+  assert.ok(part.includes('Reduced by the income phase-out'));
+  assert.ok(!part.includes('Fully phased out at this income'));
+  const full = titles(computeChildTaxCredit({ ...base, magi: 300000, qualifyingChildren: 1 }));
+  assert.ok(full.includes('Fully phased out at this income'));
+});
+
+test('the Credit for Other Dependents note appears only when other dependents are entered', () => {
+  const none = titles(computeChildTaxCredit({ ...base, qualifyingChildren: 1 }));
+  assert.ok(!none.some((x) => /Credit for Other Dependents/.test(x)));
+  const one = titles(computeChildTaxCredit({ ...base, otherDependents: 1 }));
+  assert.ok(one.some((x) => /Credit for Other Dependents/.test(x)));
+});
+
+test('the earned-income-floor note needs a qualifying child; other-dependent-only returns skip it', () => {
+  const odcOnly = titles(computeChildTaxCredit({ ...base, earnedIncome: 1000, otherDependents: 1 }));
+  assert.ok(!odcOnly.some((x) => /No refundable Additional/.test(x)));
+  const child = titles(computeChildTaxCredit({ ...base, earnedIncome: 1000, qualifyingChildren: 1 }));
+  assert.ok(child.some((x) => /No refundable Additional/.test(x)));
+});
+
+test('earned income exactly at the floor yields neither the floor note nor an "Up to" refundable note', () => {
+  const t = titles(computeChildTaxCredit({ ...base, earnedIncome: EARNED_INCOME_FLOOR, qualifyingChildren: 1 }));
+  assert.ok(!t.some((x) => /No refundable Additional|Up to/.test(x)));
+});

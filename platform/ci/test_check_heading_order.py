@@ -65,5 +65,18 @@ class HeadingOrder(unittest.TestCase):
         self.assertEqual(c.main([]), 0)
 
 
+    def test_script_entry_point_passes_every_argument(self):
+        import subprocess
+        import sys
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            f = Path(d) / "p.html"
+            f.write_text("<html><h1>a</h1><h3>b</h3></html>")
+            r = subprocess.run([sys.executable, str(Path(c.__file__)), str(f)],
+                               capture_output=True, text=True)
+        self.assertEqual(r.returncode, 1)
+        self.assertIn("1 page(s)", r.stdout)
+
+
 if __name__ == "__main__":
     unittest.main()

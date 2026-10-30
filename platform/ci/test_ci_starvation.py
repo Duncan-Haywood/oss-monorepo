@@ -283,6 +283,15 @@ class GitRemoteRepo(unittest.TestCase):
             self.assertIsNone(cs.git_remote_repo())
 
 
+class GitRemoteCapture(unittest.TestCase):
+    def test_git_output_is_captured_not_printed(self):
+        proc = unittest.mock.Mock(returncode=0, stdout="https://github.com/o/n.git\n")
+        with unittest.mock.patch.object(cs.subprocess, "run", return_value=proc) as run:
+            cs.git_remote_repo()
+        self.assertTrue(run.call_args.kwargs.get("capture_output"))
+        self.assertTrue(run.call_args.kwargs.get("text"))
+
+
 class ApiToken(unittest.TestCase):
     def test_gh_token_wins(self):
         self.assertEqual(

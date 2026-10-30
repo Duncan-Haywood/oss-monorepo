@@ -1,0 +1,6 @@
+plain top-k keep 1/16 excess over uncompressed (nats), with rand-k:
+H=4: topk +0.0330 (n=3, per seed [0.0306, 0.0335, 0.0347])  randk +0.0402
+H=16: topk +0.0639 (n=3, per seed [0.0674, 0.0558, 0.0685])  randk +0.0826
+H=64: topk +0.0896 (n=3, per seed [0.0948, 0.0804, 0.0937])  randk +0.0987
+H=4: g-scaled prediction +0.0311 err -0.0018;  H-independent rival +0.0639 err +0.0309
+H=64: g-scaled prediction +0.0763 err -0.0133;  H-independent rival +0.0639 err -0.0257

@@ -1,0 +1,47 @@
+{
+  "date": "2026-10-29",
+  "session": "https://claude.ai/code/session_01E5sJKkyJj8BZk88AJH7amd",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-29T15:45:42Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/11427",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "pgrep -f hook blocks any command line that also contains the pattern text; waiting on a background job needed a ps|grep workaround"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-10-29-estimating-an-audit-allocation-from-a-pilot.md",
+    "research/llm-coding-inference/LOG.md (6ai)"
+  ],
+  "goal": null,
+  "notes": "Milestone 6ai of llm-coding-inference: floor and independent pilot for coder-cell allocation; two of four predictions refuted. Ran research/_homepage/build.py (ok). No separate agent doc; LOG.md carries the outcome.",
+  "corrections": [],
+  "redteam": null
+}
