@@ -295,7 +295,7 @@ export function drawEnd(svg, design, dims, hooks) {
   const rise = run * t;
   // Room above the roof for four more pitch steps (to the 14/12 limit), not
   // always the full 14/12: reserving that letterboxed an 8 ft gable end to
-  // about 76 px wide on a phone. A steeper drag rescales on release.
+  // about 76 px wide on a phone. A steeper drag grows the view upward as it goes.
   const roomRise = Math.min(run * (14 / 12), rise + run * (4 / 12));
   // The roof outline for a wall height, pitch and overhang, and where the peak handle sits.
   // On a lean-to the pitch handle sits mid-slope, clear of the eave handle at the high corner;
@@ -354,9 +354,16 @@ export function drawEnd(svg, design, dims, hooks) {
         if (hd.id === 'eave') { next.overhang = clamp(snap(-p.x, 1), 0, 36); next.autoOverhang = false; }
         last = next;
         const t2 = next.pitch / 12; const H2 = next.wallHeight; const o2 = next.overhang;
+        // The roof's highest point: the peak, or a lean-to's high front tail.
+        const high = lean ? eaveZ(H2, t2, o2) : H2 + run * t2;
         ghost.setAttribute('points', outline(H2, t2, o2));
         const at = hd.id === 'peak' ? [peakX, peakZ(H2, t2)] : hd.id === 'wall' ? [W, H2] : [-o2, eaveZ(H2, t2, o2)];
         moveTo(at[0], Y(at[1]));
+        // Keep the peak and its label in sight: extend the view upward (same
+        // coordinates, so the drawing and the pointer mapping stay put) rather
+        // than letting the peak leave the box until release.
+        const extra = Math.max(0, high + 30 - (top + pad / 2));
+        svg.setAttribute('viewBox', `${-o - pad} ${-pad / 2 - extra} ${viewW} ${viewH + extra}`);
         hooks.onPreview?.(next);
       };
       const up = () => {

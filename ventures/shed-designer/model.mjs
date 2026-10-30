@@ -18,6 +18,8 @@
 import { actual, ceil16, TWO_BY, DEFAULT_LENGTHS_FT, fmtFtIn as fmtFt, fmtIn } from './lumber.mjs';
 import { lumberCostOf } from './estimate.mjs';
 import { productById } from './products.mjs';
+import { pickFinish, SIDING_FINISHES, TRIM_FINISHES, DOOR_FINISHES, SHINGLE_FAMILIES } from './looks.mjs';
+import { LOCKABLE } from './levers.mjs';
 
 /** @typedef {[number, number, number]} Vec */
 /** @typedef {{ origin: Vec, u: Vec, v: Vec, w: Vec, profile: [number, number][], thickness: number }} Geom */
@@ -96,14 +98,31 @@ export function defaultDesign() {
     autoOverhang: true,
     roofColor: 'charcoal',
     trimColor: 'white',
+    doorColor: 'stained',
     glitter: false,
     interior: 'none',
     insulation: false,
+    // Count custom-size doors and windows at the median of the catalogue's range (off: left out of the total).
+    customRange: false,
     sidingType: 'T1-11',
     wallTrim: '1x4',
     roofCover: 'shingles',
     rafterSeat: 'connector',
     maxFootprint: 100,
+    // Site plan, all in feet and typed by you (0 for none): the lot, where the
+    // shed sits on it (its front wall faces the street), the house, and the
+    // setback your town asks for. Nothing here changes the framing.
+    lotWidthFt: 0,
+    lotDepthFt: 0,
+    siteLeftFt: 0,
+    siteRearFt: 0,
+    houseWidthFt: 0,
+    houseDepthFt: 0,
+    houseLeftFt: 0,
+    houseFrontFt: 0,
+    setbackFt: 0,
+    // Choices no search may change (keys of LOCKABLE in levers.mjs).
+    locked: /** @type {string[]} */ ([]),
     kerf: 0.125,
     lengths: [...DEFAULT_LENGTHS_FT],
     openings: /** @type {Opening[]} */ ([
@@ -156,7 +175,8 @@ export const PRESETS = {
       { id: 'o2', kind: 'window', wall: 'front', offset: 98, width: 14.25, height: 21.25, sill: 50, product: 'swm-1421' },
       { id: 'o3', kind: 'window', wall: 'right', offset: 41, width: 14.25, height: 21.25, sill: 40, product: 'swm-1421' },
     ] }),
-  '8x8 lean': () => ({ ...classic(), name: '8x8 garden shed', length: 96, width: 96, wallHeight: 84, pitch: 8, rafterSpacing: 24, openings: [
+  // 6/12, not 8/12: at 8/12 a 2x6 rafter's birdsmouth is more than a third of its depth (paretoaudit found it).
+  '8x8 lean': () => ({ ...classic(), name: '8x8 garden shed', length: 96, width: 96, wallHeight: 84, pitch: 6, rafterSpacing: 24, openings: [
     { id: 'o1', kind: 'door', wall: 'left', offset: 22, width: 52, height: 72 },
   ] }),
 };
@@ -221,21 +241,26 @@ export function normalize(input) {
     maxPeak: Math.min(240, Math.max(0, num(o.maxPeak, d.maxPeak))),
     snowLoad: Math.min(150, Math.max(0, num(o.snowLoad, d.snowLoad))),
     windLoad: Math.min(80, Math.max(0, num(o.windLoad, d.windLoad))),
-    sidingColor: pick(o.sidingColor, ['natural', 'unfinished', 'red', 'pink', 'hot pink', 'lavender', 'mint', 'gray', 'blue', 'green', 'white'], d.sidingColor),
+    sidingColor: pickFinish(o.sidingColor, SIDING_FINISHES, d.sidingColor),
     polkaDots: o.polkaDots === true,
     autoWall: o.autoWall === true,
     autoPitch: o.autoPitch === true,
     autoOverhang: o.autoOverhang === true,
-    roofColor: pick(o.roofColor, ['charcoal', 'brown', 'pink', 'purple', 'teal'], d.roofColor),
-    trimColor: pick(o.trimColor, ['white', 'purple', 'pink', 'black', 'gold'], d.trimColor),
+    roofColor: pickFinish(o.roofColor, SHINGLE_FAMILIES, d.roofColor, false),
+    trimColor: pickFinish(o.trimColor, TRIM_FINISHES, d.trimColor),
+    doorColor: pickFinish(o.doorColor, DOOR_FINISHES, d.doorColor),
     glitter: o.glitter === true,
     interior: pick(o.interior, ['none', 'OSB', 'plywood', 'drywall', 'beadboard', 'pegboard', 'teen bedroom'], d.interior),
     insulation: o.insulation === true,
+    customRange: o.customRange === true,
     wallTrim: pick(o.wallTrim, ['1x4', 'none'], d.wallTrim),
     sidingType: pick(o.sidingType, ['T1-11', 'LP SmartSide', 'LP SmartSide 7/16', 'board and batten', 'vinyl', 'fiber cement'], d.sidingType),
     roofCover: pick(o.roofCover, ['shingles', 'metal'], d.roofCover),
     rafterSeat: pick(o.rafterSeat, ['birdsmouth', 'connector'], d.rafterSeat),
     maxFootprint: Math.min(1000, Math.max(0, num(o.maxFootprint, d.maxFootprint))),
+    ...Object.fromEntries(['lotWidthFt', 'lotDepthFt', 'siteLeftFt', 'siteRearFt', 'houseWidthFt', 'houseDepthFt', 'houseLeftFt', 'houseFrontFt', 'setbackFt']
+      .map((f) => [f, Math.min(2000, Math.max(0, num(o[f], d[f])))])),
+    locked: Array.isArray(o.locked) ? [...new Set(o.locked.filter((k) => typeof k === 'string' && k in LOCKABLE))] : [],
     ventWidth: Math.min(36, Math.max(6, num(o.ventWidth, d.ventWidth))),
     ventHeight: Math.min(36, Math.max(6, num(o.ventHeight, d.ventHeight))),
     kerf: Math.min(0.25, Math.max(0, num(o.kerf, d.kerf))),
@@ -355,6 +380,49 @@ function layoutCenters(spacing, lo, hi) {
  * Build the whole shed.
  * @param {Partial<Design>} input
  */
+/**
+ * Where the shed sits on the lot you typed, in inches from the front-left lot
+ * corner (x along the street, y back from it); the shed's front wall faces the
+ * street. Clearances are to the walls and, front and back, to the eave's drip
+ * line, since some towns measure a setback to the wall and some to the eave.
+ * Null when no lot is typed.
+ * @param {Design} d
+ */
+export function siteLayout(d) {
+  if (!(d.lotWidthFt > 0 && d.lotDepthFt > 0)) return null;
+  const lot = { w: d.lotWidthFt * 12, d: d.lotDepthFt * 12 };
+  const x0 = d.siteLeftFt * 12;
+  const y1 = lot.d - d.siteRearFt * 12;
+  const shed = { x0, x1: x0 + d.length, y0: y1 - d.width, y1 };
+  const o = d.overhang;
+  const clear = {
+    left: shed.x0, right: lot.w - shed.x1, front: shed.y0, rear: lot.d - shed.y1,
+    frontEave: shed.y0 - o, rearEave: lot.d - shed.y1 - o,
+  };
+  const house = d.houseWidthFt > 0 && d.houseDepthFt > 0
+    ? { x0: d.houseLeftFt * 12, x1: (d.houseLeftFt + d.houseWidthFt) * 12, y0: d.houseFrontFt * 12, y1: (d.houseFrontFt + d.houseDepthFt) * 12 }
+    : null;
+  // Nearest gap between the shed's walls and the house (0 when they overlap).
+  const gap = house ? Math.hypot(Math.max(0, house.x0 - shed.x1, shed.x0 - house.x1), Math.max(0, house.y0 - shed.y1, shed.y0 - house.y1)) : null;
+  return { lot, shed, overhang: o, clear, house, houseGap: gap, setback: d.setbackFt * 12 };
+}
+
+/** Site-plan problems worth a warning: off the lot, inside the setback you typed, or on top of the house. @param {Design} d */
+function siteWarnings(d) {
+  const site = siteLayout(d);
+  if (!site) return [];
+  const out = [];
+  const lines = /** @type {const} */ ([['left', 'left'], ['right', 'right'], ['front', 'street'], ['rear', 'rear']]);
+  const off = lines.filter(([k]) => site.clear[k] < -1e-9).map(([, name]) => name);
+  if (off.length) out.push(`On the site plan the shed runs past the ${off.join(' and ')} lot line${off.length > 1 ? 's' : ''}; check the lot size and where you placed it.`);
+  else if (site.setback > 0) {
+    const near = lines.filter(([k]) => Math.min(site.clear[k], k === 'front' ? site.clear.frontEave : k === 'rear' ? site.clear.rearEave : Infinity) < site.setback - 1e-9);
+    if (near.length) out.push(`On the site plan the shed (or its eave) is closer than your ${fmtFt(site.setback)} setback to the ${near.map(([, n]) => n).join(', ').replace(/, ([^,]*)$/, ' and $1')} lot line${near.length > 1 ? 's' : ''}.`);
+  }
+  if (site.house && site.houseGap !== null && site.houseGap < 1e-9) out.push('On the site plan the shed overlaps the house; check where you placed each.');
+  return out;
+}
+
 export function buildShed(input) {
   const d0 = normalize(input);
   // The page, the swaps, the options and the simplicity search rebuild the same
@@ -1303,6 +1371,10 @@ function buildFramed(d) {
   const sidingFull = [];
   /** @type {number[]} */
   const sidingUpper = [];
+  // The same upper pieces as shapes: the height above the lower panel at each
+  // edge (left and right as seen from outside), and whether the peak is in it.
+  /** @type {{ h0: number, h1: number, peak: boolean }[]} */
+  const sidingUpperShapes = [];
   if (d.siding) {
     const bottomZ = skidTop; // siding laps down over the rim joist
     const sheetFor = (h) => [96, 108, 120].find((s) => s >= h - 1e-9);
@@ -1322,7 +1394,12 @@ function buildFramed(d) {
         const need = Math.max(...prof.map((p) => p[1])) - bottomZ;
         const sheet = sheetFor(need);
         if (sheet) sidingFull.push({ wall: name, length: sheet });
-        else { sidingFull.push({ wall: name, length: 96 }); sidingUpper.push(Math.ceil(need - 96)); }
+        else {
+          sidingFull.push({ wall: name, length: 96 });
+          sidingUpper.push(Math.ceil(need - 96));
+          const above = (x) => Math.max(0, clip(x) - bottomZ - 96);
+          sidingUpperShapes.push({ h0: above(s0), h1: above(s1), peak: prof.length > 4 });
+        }
         panels.push({
           id: nextId('SD'), kind: 'siding', item: 'siding', group: 'siding', wall: name,
           geom: { origin: /** @type {Vec} */ (origin), u, v: Z, w, profile: prof, thickness: sidingT },
@@ -1396,6 +1473,12 @@ function buildFramed(d) {
     const braceLen = Math.hypot(railLen, bay);
     const braceAngle = (Math.atan2(bay, railLen) * 180) / Math.PI;
     doors.push({ id: op.id, leaves, w, h, railLen, braceLen, braceAngle });
+    // A Z brace only holds a leaf square when it runs at a real slope: in a short,
+    // wide leaf the rails take most of the height and the brace lies nearly flat
+    // (a 12"-tall door gives about 1 degree); in a narrow one it stands nearly upright.
+    if (braceAngle < 25 || braceAngle > 65) {
+      warnings.push(`The site-built ${fmtIn(op.width)} x ${fmtIn(op.height)} door on the ${WALL_LABEL[op.wall].toLowerCase()} wall makes ${leaves > 1 ? 'leaves' : 'a leaf'} ${fmtIn(w)} wide and ${fmtIn(h)} tall, so its Z brace runs at ${braceAngle.toFixed(0)} deg and will not keep the door from sagging; it works best between about 30 and 60 deg. ${braceAngle < 25 ? 'Make the door taller or narrower' : 'Make the door wider'}, or choose a ready-made door.`);
+    }
     // Pieces that are the same in both leaves and in every rail position share one note, so they share a part mark.
     for (let i = 0; i < leaves; i++) {
       const tag = `door ${op.id}`;
@@ -1433,6 +1516,7 @@ function buildFramed(d) {
   if (d.siding && d.studSpacing > 16 && (d.sidingType === 'T1-11' || d.sidingType === 'LP SmartSide')) {
     warnings.push(`${d.sidingType === 'T1-11' ? 'T1-11' : 'LP SmartSide 3/8"'} panels are rated for studs at 16" on centre; at ${d.studSpacing}" use the 7/16" LP panel, lap siding over OSB, or studs at 16".`);
   }
+  warnings.push(...siteWarnings(d));
   if (d.maxFootprint > 0 && (L * W) / 144 > d.maxFootprint + 1e-9) {
     warnings.push(`The footprint is ${((L * W) / 144).toFixed(0)} sq ft, over your ${d.maxFootprint} sq ft limit (often the size below which a shed needs no permit; check your local rule).`);
   }
@@ -1443,7 +1527,7 @@ function buildFramed(d) {
     warnings.push(`The peak is ${fmtFt(dims.peak)} above the gravel, ${fmtFt(dims.peak - d.maxPeak)} over your ${fmtFt(d.maxPeak)} limit. Your tallest opening needs walls of at least ${fmtFt(minWall)}; with those walls and a 3/12 roof (about the least that sheds water under shingles) the peak would still be ${fmtFt(low)}. To get lower: a shorter door, ${lean ? 'a door in an end wall or the low back wall' : 'a door in the gable end'}, a lower floor or a narrower shed${d.gableVents && !lean ? ', or smaller or no gable vents (they need a steeper roof to fit)' : ''}.`);
   }
 
-  return { design: d, members, panels, fixtures, walls, framedOpenings, warnings, notes, dims, vents: ventInfo, trim, wallTrim, doorParts, doors, interior, sidingArea, floorPieces, roofPieces, sidingFull, sidingUpper };
+  return { design: d, members, panels, fixtures, walls, framedOpenings, warnings, notes, dims, vents: ventInfo, trim, wallTrim, doorParts, doors, interior, sidingArea, floorPieces, roofPieces, sidingFull, sidingUpper, sidingUpperShapes };
 }
 
 /** @typedef {ReturnType<typeof buildFramed>} Shed */
