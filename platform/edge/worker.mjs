@@ -6,6 +6,10 @@
 //   POST /hit       the page-view ping `pf-site.js` already sends when
 //                   `platform/counter/site.json` names an origin. Same rules as
 //                   the Node counter (`platform/counter/core.mjs`), stored in D1.
+//                   Each counted load also adds one to its day's `geo:<country>`
+//                   (Cloudflare's own country lookup) and `dev:<class>`; a
+//                   crawler's beacon adds to `bot:<class>` and `botpage:<slug>`
+//                   instead of the page total (`core.mjs` has the lists).
 //   GET  /counts    the daily aggregates, which `platform/counter/pull.mjs`
 //                   copies into `portfolio/usage/site-visits.json`.
 //   POST /feedback  the site's "Report a problem or suggest a feature" form,
@@ -21,7 +25,10 @@
 // written) and stops answering past them rather than billing. Nothing here can
 // run up a charge. Setup: `README.md` beside this file.
 
-import { classify, utcDay, REF_KEY, SOURCE_KEY } from '../counter/core.mjs';
+import {
+  classify, utcDay, deviceClass, countryCode,
+  REF_KEY, SOURCE_KEY, GEO_KEY, DEVICE_KEY, BOT_KEY, BOT_PAGE_KEY,
+} from '../counter/core.mjs';
 import { feedbackRecord } from './feedback.mjs';
 
 const FEEDBACK_MAX_BODY = 6000;
@@ -29,20 +36,28 @@ const FEEDBACK_MAX_BODY = 6000;
 const json = (status, obj, headers = {}) =>
   new Response(JSON.stringify(obj), { status, headers: { 'content-type': 'application/json', ...headers } });
 
-async function countHit(request, env, headers) {
+async function countHit(request, env, headers, cf) {
   const body = await request.text();
   const verdict = classify({ method: 'POST', url: '/hit', headers, body });
-  if (!verdict.count) return;
+  if (!verdict.count && !verdict.bot) return;
   const day = utcDay();
   const cap = Number(env.MAX_PER_SLUG_PER_DAY || 20000);
   const add = (slug) =>
     env.DB.prepare(
       'INSERT INTO counts (day, slug, n) VALUES (?1, ?2, 1) ON CONFLICT (day, slug) DO UPDATE SET n = n + 1 WHERE n < ?3',
     ).bind(day, slug, cap).run();
+  if (verdict.bot) {
+    const r = await add(`${BOT_KEY}${verdict.bot}`);
+    if (r?.meta?.changes && verdict.slug) await add(`${BOT_PAGE_KEY}${verdict.slug}`);
+    return;
+  }
   const r = await add(verdict.slug);
   if (!r?.meta?.changes) return;
   if (verdict.ref) await add(`${REF_KEY}${verdict.ref}`);
   if (verdict.src) await add(`${SOURCE_KEY}${verdict.src}`);
+  const geo = countryCode(cf?.country);
+  if (geo) await add(`${GEO_KEY}${geo}`);
+  await add(`${DEVICE_KEY}${deviceClass(headers['user-agent'] || '')}`);
 }
 
 async function readCounts(env, since) {
@@ -119,7 +134,7 @@ export default {
       if (request.method === 'GET' && url.pathname === '/healthz') return new Response('ok\n');
       if (request.method === 'GET' && url.pathname === '/counts') {
         const since = /^\d{4}-\d{2}-\d{2}$/.test(url.searchParams.get('since') || '') ? url.searchParams.get('since') : '0000-00-00';
-        return json(200, { unit: 'page loads by browsers that did not opt out; not people', days: await readCounts(env, since) },
+        return json(200, { unit: 'page loads by browsers that did not opt out; not people (bot: and botpage: keys are crawler beacons, not page loads)', days: await readCounts(env, since) },
           { 'cache-control': 'no-store', 'access-control-allow-origin': '*' });
       }
       if (request.method === 'GET' && url.pathname === '/feedback') {
@@ -128,7 +143,7 @@ export default {
           { 'cache-control': 'no-store', 'access-control-allow-origin': '*' });
       }
       if (request.method === 'POST' && url.pathname === '/hit') {
-        await countHit(request, env, headers);
+        await countHit(request, env, headers, request.cf);
         // 204 either way, as in the Node counter: a refusal tells a page nothing.
         return new Response(null, { status: 204, headers: cors });
       }
