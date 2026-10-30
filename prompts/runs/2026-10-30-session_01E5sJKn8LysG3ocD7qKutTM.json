@@ -26,16 +26,26 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": "success",
+  "outcome": "partial",
   "errors": [],
   "integrity_issues": [],
-  "doc_friction": [],
-  "deviations": [],
-  "writeups": [
-    "docs/posts/2026-10-30-changepoint-page-now-shows-its-warnings.md"
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Duplicate-PR check is advised before opening a PR, but I only searched after the code was written; the flagship next: line was the shared claim and the overlapping run had already edited it on main."
+    }
   ],
+  "deviations": [
+    {
+      "file": "docs/posts",
+      "why": "No post: the only work duplicated #11923",
+      "did": "dropped my post",
+      "result": "run shipped no new value"
+    }
+  ],
+  "writeups": [],
   "goal": null,
-  "notes": "Page now shows cycle/drift/range warnings; page.test.mjs + spectral-peak.test.mjs pass (23). security-alerts branch did not exist, so step 0 was skipped. Small slice; no agent doc written.",
+  "notes": "Built the page warnings block for changepoint-detector, then found #11923 had landed the same change first; took main's version and dropped my diff and post. Nothing else shipped. security-alerts branch did not exist, so step 0 was skipped.",
   "corrections": [],
   "redteam": null
 }

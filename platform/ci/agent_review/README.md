@@ -44,6 +44,12 @@ separate Cursor reviewer App is safest).
 | `AGENT_REVIEWER_CLAUDE_APP_ID` | App ID |
 | `AGENT_REVIEWER_CLAUDE_PRIVATE_KEY` | PEM |
 
+Then add the repository **variable** (not a secret) `AGENT_REVIEW_ENABLED`
+with the value `true`. Both workflows skip before taking a runner until it is
+set, so the unconfigured scaffold no longer spends about 1,450 runs a day
+doing nothing (`docs/reports/2026-10-30-ci-platform-evolution.md`).
+`workflow_dispatch` of `agent-cross-review.yml` still runs without it.
+
 ### 3. Update the `main` ruleset
 
 In **Settings → Rules → Rulesets → main**:
