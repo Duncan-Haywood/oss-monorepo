@@ -20,7 +20,7 @@ import { estimate } from './estimate.mjs';
 import { productById } from './products.mjs';
 import { headerCheck, studCheck } from './structure.mjs';
 import { gambrelShape, gambrelParts, gambrelAnalysis, loftSpan, bandAbove, zOnPoly, GUSSET_T as GAMBREL_GUSSET_T, LOFT_LIVE } from './gambrel.mjs';
-import { needsKingPost, trussForces } from './truss.mjs';
+import { needsKingPost, needsChordBrace, trussForces } from './truss.mjs';
 import { LAP_PRODUCTS, layoutFace, lapStocks, lapStagger, evenExposure, lapStudLimit } from './lap.mjs';
 import { bbox } from './integrity.mjs';
 import { pickFinish, SIDING_FINISHES, TRIM_FINISHES, DOOR_FINISHES, SHINGLE_FAMILIES } from './looks.mjs';
@@ -1401,6 +1401,30 @@ function buildFramed(d) {
         }
       }
       trusses.push({ x: c, heel: gl, peak: pl, foot: fl });
+    }
+    // Under net wind uplift the bottom chords push: with no king post, a 2x4
+    // laid flat across their tops at mid-span, end to end between the gable
+    // walls, halves their unbraced length (truss.mjs, needsChordBrace). An
+    // attic deck nailed to the chords braces them instead. Pieces
+    // no longer than the longest board, each joint on a truss.
+    if (kpTop < 3 && needsChordBrace(d) && !d.atticStorage && rafterCenters.length > 3) {
+      // From the inside face of one gable wall's framing to the other's.
+      const x0 = stud.depth;
+      const x1 = L - stud.depth;
+      const cuts = [x0];
+      while (x1 - cuts[cuts.length - 1] > spliceAt + 1e-9) {
+        const at = rafterCenters.filter((c) => c > cuts[cuts.length - 1] + 1 && c <= cuts[cuts.length - 1] + spliceAt + 1e-9).pop();
+        if (at === undefined) break;
+        cuts.push(at);
+      }
+      cuts.push(x1);
+      for (let i = 0; i + 1 < cuts.length; i++) {
+        push({
+          id: nextId('CB'), group: 'roof', kind: 'chord brace', material: '2x4', length: ceil16(cuts[i + 1] - cuts[i]),
+          note: 'flat across the bottom chords at mid-span, two 10d into each; ends butt the gable-end framing, toenailed',
+          geom: { origin: [cuts[i], W / 2 - 1.75, seatBase], u: X, v: Y, w: Z, profile: [[0, 0], [cuts[i + 1] - cuts[i], 0], [cuts[i + 1] - cuts[i], 3.5], [0, 3.5]], thickness: 1.5 },
+        });
+      }
     }
     notes.push(`Trusses: ${rafterCenters.length - 2} site-built ${kpTop >= 3 ? 'king-post trusses' : 'trusses (no web: the bottom chord spans the walls on its own)'} at ${d.rafterSpacing}" on centre, ${d.rafterSize} top chords and a ${d.tieSize} bottom chord${kpTop >= 3 ? ` and king post` : ''}, joined by 7/16" OSB gussets glued and nailed on both faces. Over each gable wall the top chords bear on the gable studs instead, with the gable siding nailed to both as their gusset. Build the trusses flat on a jig, then stand them on the walls; nothing is longer than ${fmtSpan(Math.max(W, rafterCut))}.`);
     if (W > maxStock) warnings.push(`Truss bottom chords need ${Math.ceil(W / 12)} ft boards; add that length to your stock list.`);
