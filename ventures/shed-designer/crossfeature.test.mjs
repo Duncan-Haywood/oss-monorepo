@@ -34,6 +34,9 @@ export const AXES = {
   studSpacing: [16, 24],
   wallTrim: ['1x4', '5/4', 'none'],
   climate: ['mild', 'freezing'],
+  insulation: [false, true],
+  siteFacing: ['street', 'left', 'right', 'rear'],
+  easementSide: ['none', 'street', 'left', 'right', 'rear'],
   interior: ['none', 'OSB', 'plywood', 'drywall', 'beadboard', 'pegboard', 'teen bedroom'],
   door: ['as drawn', 'site-built'],
 };
@@ -69,7 +72,8 @@ export function allPairs(axes) {
 /** A design from one matrix row. */
 export function designOf(row) {
   const { preset, door, ...rest } = row;
-  const d = { ...PRESETS[preset](), ...rest };
+  // A lot, so the site plan (facing, easement) is drawn and not skipped.
+  const d = { ...PRESETS[preset](), lotWidthFt: 50, lotDepthFt: 100, siteLeftFt: 6, siteRearFt: 6, easementFt: 5, ...rest };
   if (door === 'site-built') d.openings = d.openings.map((o) => (o.kind === 'door' ? { ...o, product: 'site-built' } : o));
   return d;
 }
