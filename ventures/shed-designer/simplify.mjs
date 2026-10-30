@@ -18,6 +18,7 @@ import { PRODUCTS } from './products.mjs';
 import { openingMoves } from './framing-moves.mjs';
 import { LAP_PRODUCTS, isLap, lapStudLimit } from './lap.mjs';
 import { floorMoves, searchKeep } from './levers.mjs';
+import { marginMoves } from './utilisation.mjs';
 
 /**
  * Saw cuts the build needs. A board cut into n pieces takes n cuts (one fewer
@@ -250,8 +251,13 @@ export function budget(design, prices, opts = {}) {
   const peakCap = start.maxPeak > 0 && base.peak <= start.maxPeak ? start.maxPeak : base.peak + 6;
   const feasible = (r) => r.ok && (!(start.maxFootprint > 0) || r.footprint <= start.maxFootprint + 1e-9) && r.peak <= peakCap + 0.01;
   const mopts = { products: true, keep };
+  // The margin report's oversized members (utilisation.mjs): a lighter size
+  // that still passes inside its 70% target, priced like any other move.
+  const pc = (/** @type {number} */ r) => `${Math.round(r * 100)}%`;
+  const margin = marginMoves(buildShed(start, prices)).filter((m) => !Object.keys(m.change).some((k) => keep.includes(k)))
+    .map((m) => ({ label: `${m.label} (${m.member.toLowerCase()} at ${pc(m.ratio)}, ${pc(m.lighter)} lighter; the Structure tab's margin report)`, change: m.change, group: Object.keys(m.change).join('+') }));
   // 1. Price every single move from your design.
-  const singles = moves(start, start, false, mopts).map((mv) => ({ mv, r: get(normalize({ ...start, ...mv.change })) }))
+  const singles = [...moves(start, start, false, mopts), ...margin].map((mv) => ({ mv, r: get(normalize({ ...start, ...mv.change })) }))
     .filter((x) => feasible(x.r) && cost(x.r) < cost(base) - 0.5).sort((a, b) => cost(a.r) - cost(b.r));
   // 2. Apply them biggest saving first, one per group, keeping each only if it still saves.
   let cur = base;

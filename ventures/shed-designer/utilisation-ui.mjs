@@ -6,6 +6,8 @@
 
 import { utilisation, marginReport, heatById, BANDS, UNCHECKED, bandOf, REASONS } from './utilisation.mjs';
 import { heatSheets, heatSheetSvg } from './utilisation-sheets.mjs';
+import { buildShed } from './model.mjs';
+import { estimate } from './estimate.mjs';
 
 const $ = (s) => /** @type {HTMLElement} */ (document.querySelector(s));
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -22,6 +24,8 @@ let turn = 0;
 let target = 0.7;
 /** @type {(event: string) => void} */
 let count = () => {};
+/** The page's prices, for what each lighter option saves. @type {() => any} */
+let pricesNow = () => undefined;
 const open = new Set();
 
 const heatOn = () => /** @type {HTMLInputElement|null} */ (document.querySelector('#heat-3d'))?.checked === true;
@@ -53,6 +57,19 @@ function useHtml(u) {
   return `<li><details data-key="${esc(u.key)}"${open.has(u.key) ? ' open' : ''}><summary><span class="swatch" style="background:${band.hex}"></span><strong>${esc(u.key)}</strong> <span class="muted">${esc(u.size)}</span> <span class="util-pct">${u.governs === 'none' ? 'carries no load' : `${pct(u.ratio)}, ${esc(u.governs)}`}</span></summary>${body}</details></li>`;
 }
 
+/**
+ * What a far member's lighter option saves in materials, at the page's prices.
+ * @param {{ reason: string, option?: { change?: Record<string, any> } }} f
+ */
+function savesText(f) {
+  if (f.reason !== 'oversized' || !f.option?.change || !shed) return '-';
+  const p = pricesNow();
+  const now = estimate(shed, p).total;
+  const alt = estimate(buildShed({ ...shed.design, ...f.option.change }, p), p).total;
+  const d = now - alt;
+  return Math.abs(d) < 0.5 ? '$0' : d > 0 ? `$${Math.round(d).toLocaleString('en-US')}` : `costs $${Math.round(-d).toLocaleString('en-US')} more`;
+}
+
 function renderMargin() {
   const box = $('#util-margin');
   if (!box || !shed) return;
@@ -63,8 +80,9 @@ function renderMargin() {
     ? `<p><strong>Above your ${pct(target)} target</strong> (passes, but needs a bigger size or a shorter span to keep that margin): ${r.above.map((u) => `${esc(u.key)} at ${pct(u.ratio)}, ${esc(u.governs)}`).join('; ')}.</p>`
     : `<p>No member is above your ${pct(target)} target.</p>`;
   if (r.far.length) {
-    html += `<p><strong>Far below it</strong> (under ${pct(target / 2)}), and why:</p><div class="table-wrap"><table class="util-far"><thead><tr><th scope="col">Member</th><th scope="col" class="n">Use</th><th scope="col">Reason</th><th scope="col">What the tool found</th></tr></thead><tbody>${
-      r.far.map((f) => `<tr><th scope="row">${esc(f.use.key)}</th><td class="n">${f.use.governs === 'none' ? '-' : pct(f.use.ratio)}</td><td>${esc(REASONS[f.reason])}</td><td>${esc(f.why)}</td></tr>`).join('')}</tbody></table></div>`;
+    html += `<p><strong>Far below it</strong> (under ${pct(target / 2)}), and why:</p><div class="table-wrap"><table class="util-far"><thead><tr><th scope="col">Member</th><th scope="col" class="n">Use</th><th scope="col">Reason</th><th scope="col">What the tool found</th><th scope="col" class="n">Saves</th></tr></thead><tbody>${
+      r.far.map((f) => `<tr><th scope="row">${esc(f.use.key)}</th><td class="n">${f.use.governs === 'none' ? '-' : pct(f.use.ratio)}</td><td>${esc(REASONS[f.reason])}</td><td>${esc(f.why)}</td><td class="n">${savesText(f)}</td></tr>`).join('')}</tbody></table></div>`;
+    if (r.far.some((f) => f.reason === 'oversized')) html += '<p class="muted">"Saves" is materials before tax at your prices for that one change. The cheaper build under "Options made for you" prices these beside its other moves.</p>';
   }
   box.innerHTML = html;
 }
@@ -114,11 +132,12 @@ export function renderUtilisation(s, sc) {
 
 /**
  * Wire the controls once.
- * @param {{ viewer: any, count?: (event: string) => void, storage?: Storage | null }} opts
+ * @param {{ viewer: any, count?: (event: string) => void, storage?: Storage | null, prices?: () => any }} opts
  */
 export function initUtilisation(opts) {
   viewer = opts.viewer;
   if (opts.count) count = opts.count;
+  if (opts.prices) pricesNow = opts.prices;
   try { const v = Number(opts.storage?.getItem(TARGET_KEY)); if (v >= 0.3 && v <= 1) target = v; } catch { /* storage can be off */ }
   const input = /** @type {HTMLInputElement|null} */ (document.querySelector('#util-target'));
   if (input) {

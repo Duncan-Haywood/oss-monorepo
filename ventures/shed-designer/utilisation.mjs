@@ -418,7 +418,7 @@ export function marginReport(shed, target = 0.7, uses = utilisation(shed)) {
     if (u.ratio > target) { above.push(u); continue; }
     if (u.ratio >= target / 2 && u.governs !== 'none') continue;
     const l = lighter(u, d);
-    /** @type {{ use: Use, reason: keyof typeof REASONS, why: string, option?: { label: string, ratio: number, governs: string } }} */
+    /** @type {{ use: Use, reason: keyof typeof REASONS, why: string, option?: { label: string, ratio: number, governs: string, change?: Record<string, any> } }} */
     let item = { use: u, reason: l.reason || 'minimum', why: l.why || 'No lighter option is modelled for this member.' };
     /** @type {any} */
     let firstFail = null;
@@ -428,7 +428,7 @@ export function marginReport(shed, target = 0.7, uses = utilisation(shed)) {
       if (!row) continue;
       const conn = connectionChecks(alt).ok;
       if (row.ok && conn) {
-        const option = { label: p.label, ratio: row.ratio, governs: row.governs };
+        const option = { label: p.label, ratio: row.ratio, governs: row.governs, change: p.change };
         item = row.ratio <= target
           ? { use: u, reason: 'oversized', why: `${p.label} would still pass, at ${pct(row.ratio)} (${row.governs}), inside your ${pct(target)} target.`, option }
           : { use: u, reason: 'margin', why: `${p.label} would pass at ${pct(row.ratio)} (${row.governs}), above your ${pct(target)} target.`, option };
@@ -445,6 +445,21 @@ export function marginReport(shed, target = 0.7, uses = utilisation(shed)) {
     far.push(item);
   }
   return { target, over, above, far };
+}
+
+/**
+ * The margin report's oversized members as cheaper-build moves: each member
+ * far below the target whose lighter option still passes inside it, with the
+ * change that makes it. The cheaper-build search (simplify.mjs budget) prices
+ * them beside its own moves; most are moves it tries anyway (joists, rafters,
+ * studs), and the ridge beam's depth is one it does not.
+ * @param {import('./model.mjs').Shed} shed
+ * @param {number} [target]
+ * @returns {{ label: string, change: Record<string, any>, member: string, ratio: number, lighter: number }[]}
+ */
+export function marginMoves(shed, target = 0.7) {
+  return marginReport(shed, target).far.filter((f) => f.reason === 'oversized' && f.option?.change)
+    .map((f) => ({ label: /** @type {any} */ (f.option).label, change: /** @type {any} */ (f.option).change, member: f.use.key, ratio: f.use.ratio, lighter: /** @type {any} */ (f.option).ratio }));
 }
 
 /** Gambrel check rows and the member kinds each colours. */
