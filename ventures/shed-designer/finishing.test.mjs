@@ -343,3 +343,16 @@ test('fiber cement follows the climate (HZ5 where winters freeze) and 5/4 trim f
   assert.ok(lp54.includes('trim54LP') && !lp54.includes('trim54Hardie'));
   assert.equal(normalize({ ...defaultDesign(), wallTrim: '2x6', climate: 'arctic' }).wallTrim, '1x4');
 });
+
+test('primed trim gets two coats of trim paint, in quarts until a gallon is cheaper, and none when the siding is left unfinished', () => {
+  const rows = (d) => estimate(buildShed(normalize(d))).shopping.filter((r) => /^trimPaint/.test(r.source?.key || ''));
+  const def = rows(defaultDesign());
+  assert.equal(def.length, 1);
+  assert.equal(def[0].section, 'Paint');
+  const sq = Number(/(\d+) sq ft of trim face/.exec(def[0].name)?.[1]);
+  assert.ok(sq > 20 && sq < 120, String(sq));
+  const quarts = Math.ceil((sq * 2) / 87.5);
+  // Whichever is bought covers two coats at 350 sq ft a gallon.
+  assert.ok(def[0].unit === 'quart' ? def[0].qty >= quarts - 1 : def[0].qty * 4 >= quarts - 1);
+  assert.equal(rows({ ...defaultDesign(), sidingColor: 'unfinished' }).length, 0);
+});
