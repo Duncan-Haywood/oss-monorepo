@@ -4,6 +4,8 @@
 // count studs. No library; drag to orbit, wheel, pinch or buttons to zoom,
 // arrow keys and +/- when the canvas has focus.
 
+import { paletteOf, PAINTS, SHINGLE_FAMILIES, TRIM_FINISHES } from './looks.mjs';
+
 /** @typedef {import('./model.mjs').Geom} Geom */
 /** @typedef {{ geom: Geom, color: [number, number, number], layer: string, flags?: number }} Solid */
 
@@ -15,14 +17,58 @@ const COLORS = {
   'bulb-0': [1.0, 0.95, 0.6], 'bulb-1': [1.0, 0.5, 0.8], 'bulb-2': [0.6, 0.85, 1.0], 'bulb-3': [0.75, 1.0, 0.7],
 };
 
-/** Paint colours for the siding; natural is the stained T1-11 look. */
-export const SIDING_COLORS = {
-  natural: [0.64, 0.36, 0.27], red: [0.62, 0.16, 0.13], pink: [0.96, 0.62, 0.76], 'hot pink': [1.0, 0.33, 0.66],
-  lavender: [0.76, 0.64, 0.93], mint: [0.6, 0.9, 0.78], gray: [0.6, 0.62, 0.62],
-  blue: [0.38, 0.52, 0.66], green: [0.42, 0.55, 0.38], white: [0.93, 0.92, 0.88],
-};
-export const ROOF_COLORS = { charcoal: [0.3, 0.32, 0.35], brown: [0.38, 0.27, 0.2], pink: [0.93, 0.45, 0.66], purple: [0.5, 0.28, 0.68], teal: [0.2, 0.55, 0.58] };
-export const TRIM_COLORS = { white: [0.97, 0.97, 0.97], purple: [0.5, 0.28, 0.68], pink: [1.0, 0.55, 0.78], black: [0.13, 0.13, 0.15], gold: [0.92, 0.76, 0.3] };
+const HEAT_NONE = [0.82, 0.82, 0.82];
+
+/**
+ * The framing member a ray first hits, as {id, t}, or null: the ray from o
+ * along dir against every face of each member's extruded profile.
+ * @param {{ id: string, geom: Geom }[]} members
+ * @param {number[]} o @param {number[]} dir
+ */
+export function pickMember(members, o, dir) {
+  let best = null;
+  const sub = (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
+  const cross = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+  const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+  // Moller-Trumbore ray-triangle intersection.
+  const hit = (a, b, c) => {
+    const e1 = sub(b, a); const e2 = sub(c, a);
+    const p = cross(dir, e2); const det = dot(e1, p);
+    if (Math.abs(det) < 1e-12) return Infinity;
+    const s = sub(o, a); const u = dot(s, p) / det;
+    if (u < 0 || u > 1) return Infinity;
+    const q = cross(s, e1); const v = dot(dir, q) / det;
+    if (v < 0 || u + v > 1) return Infinity;
+    const t = dot(e2, q) / det;
+    return t > 1e-6 ? t : Infinity;
+  };
+  for (const m of members) {
+    const g = m.geom;
+    const { pts: pr, tris } = triangulate(g.profile);
+    const front = pr.map((p) => world(g, p, 0)); const back = pr.map((p) => world(g, p, g.thickness));
+    let t = Infinity;
+    for (const [a, b, c] of tris) t = Math.min(t, hit(front[a], front[b], front[c]), hit(back[a], back[b], back[c]));
+    for (let i = 0; i < pr.length; i++) {
+      const j = (i + 1) % pr.length;
+      t = Math.min(t, hit(front[i], front[j], back[j]), hit(front[i], back[j], back[i]));
+    }
+    if (t < Infinity && (!best || t < best.t)) best = { id: m.id, t };
+  }
+  return best;
+}
+
+/** Paint colours by name (the full lists, with labels, are in looks.mjs). */
+export const SIDING_COLORS = { natural: [0.64, 0.36, 0.27], ...Object.fromEntries(Object.entries(PAINTS).map(([k, v]) => [k, v.rgb])) };
+export const ROOF_COLORS = Object.fromEntries(Object.entries(SHINGLE_FAMILIES).map(([k, v]) => [k, v.rgb]));
+export const TRIM_COLORS = Object.fromEntries(Object.entries(TRIM_FINISHES).map(([k, v]) => [k, v.rgb]));
+
+/**
+ * Finish flags carried in the colour's fourth component, added together:
+ * 1 polka dots, 2 glitter, 4 lap siding, 8 board and batten, 16 metal ribs,
+ * 32 asphalt shingle courses, 64 T1-11 grooves. A shingle face's colour blend
+ * (0 to 0.5) rides in the fraction.
+ */
+export const FINISH = { dots: 1, glitter: 2, lap: 4, batten: 8, metal: 16, shingle: 32, grooves: 64 };
 
 /** Signed area of a 2D polygon. @param {[number, number][]} pts */
 function area2(pts) {
@@ -122,29 +168,38 @@ export function meshOf(solids) {
   return { pos: new Float32Array(pos), nor: new Float32Array(nor), col: new Float32Array(col), lines: new Float32Array(lines) };
 }
 
-/** Colour, layer and finish for each piece of a built shed. @param {import('./model.mjs').Shed} shed */
-export function solidsOf(shed) {
+const layerOf = (m) => (m.group === 'foundation' ? 'foundation' : m.group === 'floor' ? 'floor' : m.group === 'roof' ? 'roof' : m.group === 'wall:front' ? 'front wall' : 'walls');
+
+/**
+ * Colour, layer and finish for each piece of a built shed. With a heat map
+ * (member id -> colour, utilisation.mjs) only the framing is drawn, each
+ * checked member in its colour and the rest grey.
+ * @param {import('./model.mjs').Shed} shed
+ * @param {Map<string, number[]>} [heat]
+ */
+export function solidsOf(shed, heat) {
   const d = shed.design;
   const glitter = d.glitter ? 2 : 0;
   /** @type {Solid[]} */
   const out = [];
   for (const m of shed.members) {
-    const layer = m.group === 'foundation' ? 'foundation' : m.group === 'floor' ? 'floor' : m.group === 'roof' ? 'roof' : m.group === 'wall:front' ? 'front wall' : 'walls';
-    const color = /^PT /.test(m.material) ? COLORS.pt : (m.kind === 'header' || m.kind === 'ridge board' || m.kind === 'ridge beam') ? COLORS.header : COLORS.framing;
-    out.push({ geom: m.geom, color: /** @type {any} */ (color), layer });
+    const color = heat ? heat.get(m.id) || HEAT_NONE : /^PT /.test(m.material) ? COLORS.pt : (m.kind === 'header' || m.kind === 'ridge board' || m.kind === 'ridge beam') ? COLORS.header : COLORS.framing;
+    out.push({ geom: m.geom, color: /** @type {any} */ (color), layer: layerOf(m) });
   }
-  // Unfinished: bare plywood, or LP's factory primer (a pale grey).
-  const bare = d.sidingType?.startsWith('LP SmartSide') ? [0.84, 0.83, 0.79] : [0.78, 0.62, 0.43];
-  const siding = d.sidingColor === 'unfinished' ? bare : /** @type {any} */ (SIDING_COLORS)[d.sidingColor] || COLORS.siding;
+  if (heat) return out;
+  const pal = paletteOf(d);
+  const siding = pal.siding;
+  // Lap siding is modelled course by course, so it needs no painted-on shadow lines.
+  const texture = d.sidingType === 'board and batten' ? FINISH.batten : d.sidingType === 'vinyl' ? FINISH.lap : d.sidingType === 'T1-11' ? FINISH.grooves : 0;
   for (const p of shed.panels) {
-    const layer = p.kind === 'floor sheet' ? 'floor' : p.kind === 'roof sheathing' ? 'sheathing' : 'siding';
-    const color = p.kind === 'floor sheet' ? COLORS.floor : p.kind === 'roof sheathing' ? COLORS.osb : siding;
-    const texture = d.sidingType === 'board and batten' ? 8 : (d.sidingType === 'vinyl' || d.sidingType === 'fiber cement') ? 4 : 0;
-    const vinyl = d.sidingType === 'vinyl' && d.sidingColor === 'natural' ? [0.93, 0.92, 0.88] : null;
-    out.push({ geom: p.geom, color: /** @type {any} */ (p.kind === 'siding' && vinyl ? vinyl : color), layer, flags: p.kind === 'siding' ? (d.polkaDots ? 1 : 0) + glitter + texture : 0 });
+    const sheathing = p.kind === 'roof sheathing' || p.kind === 'wall sheathing';
+    const gusset = p.kind === 'truss gusset';
+    const layer = p.kind === 'floor sheet' ? 'floor' : sheathing ? 'sheathing' : gusset ? 'roof' : 'siding';
+    const color = p.kind === 'floor sheet' ? COLORS.floor : sheathing || gusset ? COLORS.osb : siding;
+    out.push({ geom: p.geom, color: /** @type {any} */ (color), layer, flags: p.kind === 'siding' ? (d.polkaDots ? 1 : 0) + glitter + texture : p.kind === 'lap siding' ? (d.polkaDots ? 1 : 0) + glitter : 0 });
   }
-  const roof = /** @type {any} */ (ROOF_COLORS)[d.roofColor] || COLORS.shingles;
-  const trim = /** @type {any} */ (TRIM_COLORS)[d.trimColor] || TRIM_COLORS.white;
+  const roof = pal.roof;
+  const trim = pal.trim;
   for (const f of shed.fixtures) {
     if (f.kind === 'poster') continue; // drawn with its picture in the texture pass
     const layer = f.kind === 'shingles' ? 'roofing'
@@ -152,9 +207,9 @@ export function solidsOf(shed) {
       : (f.kind === 'door' || f.kind === 'window' || f.kind === 'vent') ? 'siding'
         : (['trim', 'interior', 'decor', 'front lining'].includes(f.group) ? f.group : 'foundation');
     const lining = { OSB: [0.8, 0.66, 0.44], plywood: [0.93, 0.92, 0.88], drywall: [0.95, 0.95, 0.94], beadboard: [0.96, 0.95, 0.9], pegboard: [0.72, 0.58, 0.42] }[d.interior] || COLORS.lining;
-    const color = f.kind === 'shingles' ? roof : (f.kind === 'fascia' || f.kind === 'soffit' || f.kind === 'casing') ? trim : f.kind === 'connector' ? [0.62, 0.64, 0.66] : f.kind === 'lining' ? lining : /** @type {any} */ (COLORS)[f.kind] || COLORS.block;
-    const metal = d.roofCover === 'metal' ? 16 : 0;
-    out.push({ geom: f.geom, color: /** @type {any} */ (color), layer, flags: f.kind === 'shingles' ? glitter + metal : 0 });
+    const color = f.kind === 'shingles' ? roof : (f.kind === 'fascia' || f.kind === 'soffit' || f.kind === 'casing') ? trim : f.kind === 'door' ? pal.door : f.kind === 'connector' ? [0.62, 0.64, 0.66] : f.kind === 'lining' ? lining : /** @type {any} */ (COLORS)[f.kind] || COLORS.block;
+    const cover = d.roofCover === 'metal' ? FINISH.metal : FINISH.shingle + pal.roofBlend;
+    out.push({ geom: f.geom, color: /** @type {any} */ (color), layer, flags: f.kind === 'shingles' ? glitter + cover : 0 });
   }
   return out;
 }
@@ -278,25 +333,67 @@ function mul(a, b) {
 
 const VS = `attribute vec3 p; attribute vec3 n; attribute vec4 c; uniform mat4 m; uniform float bias; varying vec3 vn; varying vec4 vc; varying vec3 vp;
 void main(){ gl_Position = m * vec4(p,1.0); gl_Position.z -= bias * gl_Position.w; vn = n; vc = c; vp = p; }`;
-// Finish flags in vc.a: 1 = purple polka dots (3" on a 9" staggered grid, in the
-// face's own plane), 2 = glitter (sparse flecks that twinkle with time t).
-const FS = `precision highp float; varying vec3 vn; varying vec4 vc; varying vec3 vp; uniform float lit; uniform float t;
-float hash(vec2 q){ return fract(sin(dot(q, vec2(12.9898,78.233))) * 43758.5453); }
+// Finish flags in vc.a (see FINISH): 1 = purple polka dots (3" on a 9" staggered
+// grid, in the face's own plane), 2 = glitter (sparse flecks that twinkle with
+// time t), 4 = lap siding, 8 = board and batten, 16 = metal ribs, 32 = shingle
+// courses (blend in the fraction), 64 = T1-11 grooves, 128 = the lawn, with a
+// soft shadow under and beside the shed (foot = length, width, peak).
+// Each material class gets its own compiled variant (SIDING, ROOF, LAWN or none):
+// software GL, which many phones fall back to, runs every branch of a shader
+// for every pixel, so a board should not pay for the shingle maths.
+const FS = `precision highp float; varying vec3 vn; varying vec4 vc; varying vec3 vp; uniform float lit; uniform float t; uniform vec4 foot;
+// A hash without trig (Dave Hoskins' hash12): software GL on phones pays dearly for sin().
+float hash(vec2 q){ vec3 p = fract(vec3(q.xyx) * 0.1031); p += dot(p, p.yzx + 33.33); return fract((p.x + p.y) * p.z); }
+bool has(float f, float bit){ return mod(floor(f / bit), 2.0) > 0.5; }
+float boxd(vec2 p, vec2 lo, vec2 hi){ vec2 d = max(max(lo - p, p - hi), 0.0); return length(d); }
 void main(){ vec3 n = normalize(vn); vec3 base = vc.rgb; vec3 an = abs(n);
  vec2 uv = an.x > an.y ? (an.x > an.z ? vp.yz : vp.xy) : (an.y > an.z ? vp.xz : vp.xy);
- float f = floor(vc.a + 0.5);
- if (mod(f, 2.0) > 0.5) {
+ float f = floor(vc.a + 0.001); float blend = vc.a - f;
+#ifdef LAWN
+ {
+  // Grass speckle, then contact shadow and a sun shadow cast away from the key light.
+  vec3 col = base * (0.94 + 0.08 * hash(floor(vp.xy / 2.0)));
+  float d0 = boxd(vp.xy, vec2(0.0), foot.xy);
+  vec2 sh = -vec2(0.45, -0.6) / 0.75 * foot.z * 0.55;
+  float d1 = boxd(vp.xy, min(vec2(0.0), sh), foot.xy + max(vec2(0.0), sh));
+  col *= 1.0 - 0.35 * exp(-d0 / 10.0) - 0.3 * (1.0 - smoothstep(0.0, 30.0, d1));
+  gl_FragColor = vec4(col, 1.0); return; }
+#endif
+#ifdef SIDING
+ if (has(f, 1.0)) {
   vec2 cell = floor(uv / 9.0); vec2 g = fract(uv / 9.0) - 0.5; if (mod(cell.y, 2.0) > 0.5) g = fract(uv / 9.0 + vec2(0.5, 0.0)) - 0.5;
   if (length(g) < 0.17) base = vec3(0.47, 0.23, 0.66); }
- // 4 = lap siding (a shadow line every 5"), 8 = board and batten (a batten every 8"), 16 = metal ribs.
- if (mod(floor(f / 4.0), 2.0) > 0.5 && fract(vp.z / 5.0) < 0.12) base *= 0.72;
- if (mod(floor(f / 8.0), 2.0) > 0.5) { float bx = an.x > an.y ? vp.y : vp.x; if (fract(bx / 8.0) < 0.3) base *= 0.85; }
- if (mod(floor(f / 16.0), 2.0) > 0.5 && fract(vp.x / 2.67) < 0.25) base *= 0.78;
+ // Lap siding: a 5" course, the shadow under each butt and a faint bevel.
+ if (has(f, 4.0)) { float c = fract(vp.z / 5.0); base *= c > 0.88 ? 0.7 : 0.9 + 0.1 * c; }
+ if (has(f, 8.0)) { float bx = an.x > an.y ? vp.y : vp.x; if (fract(bx / 8.0) < 0.3) base *= 0.85; }
+ // T1-11: a groove every 8".
+ if (has(f, 64.0)) { float bx = an.x > an.y ? vp.y : vp.x; if (fract(bx / 8.0) < 0.05) base *= 0.72; }
+#endif
+#ifdef ROOF
+ if (has(f, 16.0) && fract(vp.x / 2.67) < 0.25) base *= 0.78;
+ // Asphalt shingles: 5" courses up the slope, tabs of uneven width staggered
+ // course to course, each tab a shade lighter or darker, granule speckle.
+ if (has(f, 32.0) && an.z > 0.2) {
+  // The ridge runs along x, so up the slope is (0, -n.z, n.y) up to sign.
+  float s = dot(vp.yz, vec2(-n.z, n.y) * sign(n.y + 1e-6)) / (length(n.yz) * 5.0); float x = vp.x; float course = floor(s); float fr = fract(s);
+  float off = hash(vec2(course, 3.1)) * 40.0; float tab = floor((x + off) / (9.0 + 6.0 * hash(vec2(course, 7.7))));
+  base *= 1.0 + blend * (hash(vec2(tab, course)) * 2.0 - 1.0);
+  if (fr < 0.1) base *= 0.62; else if (fr < 0.35 && hash(vec2(tab, course + 0.5)) > 0.5) base *= 0.88; }
+#endif
  float a = abs(dot(n, normalize(vec3(0.45,-0.6,0.75)))); float b = abs(dot(n, normalize(vec3(-0.6,0.5,0.3))));
  vec3 col = base * (0.42 + 0.5*a + 0.18*b);
- if (mod(floor(f / 2.0), 2.0) > 0.5) { float h = hash(floor(uv * 1.3)); float s = h > 0.95 ? pow(0.5 + 0.5 * sin(t * 3.0 + h * 90.0), 8.0) : 0.0;
+ // Walls darken a little toward the ground (cheap ambient occlusion).
+ if (an.z < 0.5) col *= 0.82 + 0.18 * smoothstep(-4.0, 30.0, vp.z);
+#if defined(SIDING) || defined(ROOF)
+ if (has(f, 2.0)) { float h = hash(floor(uv * 1.3)); float s = h > 0.95 ? pow(0.5 + 0.5 * sin(t * 3.0 + h * 90.0), 8.0) : 0.0;
   col = col * (0.96 + 0.08 * hash(floor(uv * 4.0))) + vec3(1.0, 0.92, 1.0) * s; }
+#endif
  gl_FragColor = vec4(mix(base, col, lit), 1.0); }`;
+
+// The sky: a gradient behind everything, from haze at the horizon to blue.
+const SVS = `attribute vec2 p; varying float y; void main(){ gl_Position = vec4(p, 0.999, 1.0); y = p.y * 0.5 + 0.5; }`;
+const SFS = `precision mediump float; varying float y; uniform float horizon; void main(){ float k = smoothstep(horizon - 0.05, 1.0, y);
+ vec3 c = mix(vec3(0.86, 0.9, 0.92), vec3(0.47, 0.66, 0.86), k); if (y < horizon) c = vec3(0.86, 0.9, 0.92); gl_FragColor = vec4(c, 1.0); }`;
 
 const TVS = `attribute vec3 p; attribute vec2 uv; uniform mat4 m; varying vec2 vuv; void main(){ gl_Position = m * vec4(p,1.0); vuv = uv; }`;
 const TFS = `precision mediump float; varying vec2 vuv; uniform sampler2D tex; void main(){ gl_FragColor = texture2D(tex, vuv); }`;
@@ -306,15 +403,27 @@ const TFS = `precision mediump float; varying vec2 vuv; uniform sampler2D tex; v
  * `snapshot()` and `reset()`, or null when WebGL is unavailable.
  * @param {HTMLCanvasElement} canvas
  */
-export function createViewer(canvas) {
+export function createViewer(canvas, { presentation = false } = {}) {
   const gl = /** @type {WebGLRenderingContext|null} */ (canvas.getContext('webgl', { antialias: true, preserveDrawingBuffer: true }));
   if (!gl) return null;
   const sh = (type, src) => { const s = /** @type {WebGLShader} */ (gl.createShader(type)); gl.shaderSource(s, src); gl.compileShader(s); return s; };
-  const prog = /** @type {WebGLProgram} */ (gl.createProgram());
-  gl.attachShader(prog, sh(gl.VERTEX_SHADER, VS)); gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, FS)); gl.linkProgram(prog);
+  const vs = sh(gl.VERTEX_SHADER, VS);
+  /** One program per material class; attributes are bound to the same slots in each. */
+  const variant = (define) => {
+    const pr = /** @type {WebGLProgram} */ (gl.createProgram());
+    gl.attachShader(pr, vs); gl.attachShader(pr, sh(gl.FRAGMENT_SHADER, FS.replace('precision highp float;', `precision highp float;\n${define ? `#define ${define}\n` : ''}`)));
+    gl.bindAttribLocation(pr, 0, 'p'); gl.bindAttribLocation(pr, 1, 'n'); gl.bindAttribLocation(pr, 2, 'c');
+    gl.linkProgram(pr);
+    return { prog: pr, m: gl.getUniformLocation(pr, 'm'), lit: gl.getUniformLocation(pr, 'lit'), bias: gl.getUniformLocation(pr, 'bias'), t: gl.getUniformLocation(pr, 't'), foot: gl.getUniformLocation(pr, 'foot') };
+  };
+  const variants = { plain: variant(''), siding: variant('SIDING'), roof: variant('ROOF'), lawn: variant('LAWN') };
+  const loc = { p: 0, n: 1, c: 2, ...variants.plain };
+  const prog = variants.plain.prog;
   gl.useProgram(prog);
-  const loc = { p: gl.getAttribLocation(prog, 'p'), n: gl.getAttribLocation(prog, 'n'), c: gl.getAttribLocation(prog, 'c'), m: gl.getUniformLocation(prog, 'm'), lit: gl.getUniformLocation(prog, 'lit'), bias: gl.getUniformLocation(prog, 'bias'), t: gl.getUniformLocation(prog, 't') };
   gl.enable(gl.DEPTH_TEST);
+  const sprog = /** @type {WebGLProgram} */ (gl.createProgram());
+  gl.attachShader(sprog, sh(gl.VERTEX_SHADER, SVS)); gl.attachShader(sprog, sh(gl.FRAGMENT_SHADER, SFS)); gl.linkProgram(sprog);
+  const sloc = { p: gl.getAttribLocation(sprog, 'p'), horizon: gl.getUniformLocation(sprog, 'horizon') };
   const tprog = /** @type {WebGLProgram} */ (gl.createProgram());
   gl.attachShader(tprog, sh(gl.VERTEX_SHADER, TVS)); gl.attachShader(tprog, sh(gl.FRAGMENT_SHADER, TFS)); gl.linkProgram(tprog);
   const tloc = { p: gl.getAttribLocation(tprog, 'p'), uv: gl.getAttribLocation(tprog, 'uv'), m: gl.getUniformLocation(tprog, 'm') };
@@ -354,12 +463,24 @@ export function createViewer(canvas) {
   /** @type {Record<string, any>} */
   const layers = {};
   const visible = new Set(LAYERS);
-  const cam = { theta: -0.95, phi: 0.42, dist: 400, target: [0, 0, 0], fit: 400 };
+  // A presentation viewer (pictures for cards and the HOA packet) looks from lower, with sky behind the roof.
+  const cam = { theta: -0.95, phi: presentation ? 0.2 : 0.42, dist: 400, target: [0, 0, 0], fit: 400 };
   let fitted = false;
 
   const buf = (data) => { const b = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, b); gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW); return b; };
+  const skyBuf = buf(new Float32Array([-1, -1, 3, -1, -1, 3]));
+  /** The lawn: one big quad just under grade; colour and shadow come from the shader. */
+  let ground = null;
+  let foot = [0, 0, 0, 0];
+  let scenery = true;
+  let outlines = !presentation;
+  /** True while a pointer orbits or pinches: the outline pass is skipped until it lets go. */
+  let moving = false;
 
-  function show(shed, { refit = false } = {}) {
+  /** @type {any} */
+  let shown = null;
+  function show(shed, { refit = false, heat = undefined } = {}) {
+    shown = shed;
     for (const k of Object.keys(layers)) { const L = layers[k]; for (const b of [L.p, L.n, L.c, L.l, L.lc]) gl.deleteBuffer(b); delete layers[k]; }
     for (const q of posters) { gl.deleteBuffer(q.p); gl.deleteBuffer(q.uv); }
     posters = shed.fixtures.filter((f) => f.kind === 'poster').map((f) => {
@@ -385,7 +506,7 @@ export function createViewer(canvas) {
       overlay.innerHTML = dims.map((dm) => `<span>${dm.label}</span>`).join('');
       labelHalf = [];
     }
-    const solids = solidsOf(shed);
+    const solids = solidsOf(shed, heat);
     for (const name of LAYERS) {
       const mesh = meshOf(solids.filter((s) => s.layer === name));
       if (!mesh.pos.length) continue;
@@ -394,6 +515,14 @@ export function createViewer(canvas) {
       layers[name] = { p: buf(mesh.pos), n: buf(mesh.nor), c: buf(mesh.col), count: mesh.pos.length / 3, l: buf(mesh.lines), ln: buf(ln), lc: buf(lc), lcount: mesh.lines.length / 3 };
     }
     const d = shed.dims;
+    {
+      const R = Math.max(d.length, d.width) * 6 + 600;
+      const x0 = d.length / 2 - R; const x1 = d.length / 2 + R; const y0 = d.width / 2 - R; const y1 = d.width / 2 + R; const z = -0.25;
+      const g = [0.43, 0.56, 0.3, 128];
+      if (ground) for (const b of [ground.p, ground.n, ground.c]) gl.deleteBuffer(b);
+      ground = { p: buf(new Float32Array([x0, y0, z, x1, y0, z, x1, y1, z, x0, y0, z, x1, y1, z, x0, y1, z])), n: buf(new Float32Array(Array(6).fill([0, 0, 1]).flat())), c: buf(new Float32Array(Array(6).fill(g).flat())) };
+      foot = [d.length, d.width, d.peak, 0];
+    }
     cam.target = [d.length / 2, d.width / 2, d.peak / 2.4];
     cam.fit = Math.hypot(d.length + 2 * d.overhang, d.width + 2 * d.overhang, d.peak) * 1.35;
     if (!fitted || refit) { cam.dist = cam.fit; fitted = true; }
@@ -408,23 +537,44 @@ export function createViewer(canvas) {
     gl.viewport(0, 0, canvas.width, canvas.height);
     gl.clearColor(0.93, 0.95, 0.97, 1); gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     const eye = [cam.target[0] + cam.dist * Math.cos(cam.phi) * Math.cos(cam.theta), cam.target[1] + cam.dist * Math.cos(cam.phi) * Math.sin(cam.theta), cam.target[2] + cam.dist * Math.sin(cam.phi)];
-    const m = mul(perspective(0.75, canvas.width / canvas.height, cam.dist * 0.08, cam.dist * 4), lookAt(eye, cam.target, [0, 0, 1]));
-    gl.useProgram(prog);
-    gl.uniformMatrix4fv(loc.m, false, new Float32Array(m));
-    gl.uniform1f(loc.t, (globalThis.performance?.now?.() ?? 0) / 1000);
+    const m = mul(perspective(0.75, canvas.width / canvas.height, cam.dist * 0.08, cam.dist * 8), lookAt(eye, cam.target, [0, 0, 1]));
     const attr = (b, l, size = 3) => { gl.bindBuffer(gl.ARRAY_BUFFER, b); gl.enableVertexAttribArray(l); gl.vertexAttribPointer(l, size, gl.FLOAT, false, 0, 0); };
+    const horizon = 0.5 + 0.5 * Math.tan(cam.phi) / Math.tan(0.375);
+    if (scenery && horizon < 1) {
+      // The horizon sits tan(phi) above the middle of the picture (in units of the half-height).
+      gl.useProgram(sprog);
+      gl.uniform1f(sloc.horizon, Math.max(0, horizon));
+      gl.depthMask(false);
+      attr(skyBuf, sloc.p, 2); gl.drawArrays(gl.TRIANGLES, 0, 3); gl.disableVertexAttribArray(sloc.p);
+      gl.depthMask(true);
+    }
+    const mm = new Float32Array(m);
+    const now = (globalThis.performance?.now?.() ?? 0) / 1000;
+    for (const v of Object.values(variants)) {
+      gl.useProgram(v.prog);
+      gl.uniformMatrix4fv(v.m, false, mm); gl.uniform1f(v.t, now); gl.uniform4fv(v.foot, new Float32Array(foot));
+    }
+    /** @param {{ prog: WebGLProgram, lit: any, bias: any }} v */
+    const use = (v, lit, bias) => { gl.useProgram(v.prog); gl.uniform1f(v.lit, lit); gl.uniform1f(v.bias, bias); };
     for (const name of LAYERS) {
       const L = layers[name];
       if (!L || !visible.has(name)) continue;
-      gl.uniform1f(loc.lit, 1); gl.uniform1f(loc.bias, 0);
+      use(name === 'siding' ? variants.siding : name === 'roofing' ? variants.roof : variants.plain, 1, 0);
       attr(L.p, loc.p); attr(L.n, loc.n); attr(L.c, loc.c, 4);
       gl.drawArrays(gl.TRIANGLES, 0, L.count);
-      gl.uniform1f(loc.lit, 0); gl.uniform1f(loc.bias, 0.00004);
+      if (!outlines || moving) continue;
+      use(variants.plain, 0, 0.00004);
       attr(L.l, loc.p); attr(L.ln, loc.n); attr(L.lc, loc.c, 4);
       gl.drawArrays(gl.LINES, 0, L.lcount);
     }
+    // The lawn, after the shed so the pixels it hides are never shaded; from above only: from below it would hide the foundation.
+    if (scenery && ground && eye[2] > 0) {
+      use(variants.lawn, 1, 0);
+      attr(ground.p, loc.p); attr(ground.n, loc.n); attr(ground.c, loc.c, 4);
+      gl.drawArrays(gl.TRIANGLES, 0, 6);
+    }
     if (overlay && dimCount && showDims) {
-      gl.uniform1f(loc.lit, 0); gl.uniform1f(loc.bias, 0.001);
+      use(variants.plain, 0, 0.001);
       attr(dimBuf, loc.p);
       gl.disableVertexAttribArray(loc.n); gl.vertexAttrib3f(loc.n, 0, 0, 1);
       gl.disableVertexAttribArray(loc.c); gl.vertexAttrib4f(loc.c, 0.12, 0.3, 0.55, 0);
@@ -506,11 +656,13 @@ export function createViewer(canvas) {
     if (!pointers.has(e.pointerId)) return;
     pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
     if (pinch && pointers.size === 2) {
+      moving = true;
       cam.dist = Math.max(cam.fit * 0.25, Math.min(cam.fit * 3, pinch.dist * (pinch.d / spread())));
       requestDraw();
       return;
     }
     if (!drag) return;
+    moving = true;
     cam.theta = drag.theta - (e.clientX - drag.x) * 0.008;
     cam.phi = Math.max(-0.15, Math.min(1.45, drag.phi + (e.clientY - drag.y) * 0.008));
     requestDraw();
@@ -521,6 +673,7 @@ export function createViewer(canvas) {
     // Lifting one finger of a pinch carries on as an orbit from where it is.
     const [rest] = [...pointers.values()];
     drag = rest ? { x: rest.x, y: rest.y, theta: cam.theta, phi: cam.phi } : null;
+    if (!rest && moving) { moving = false; requestDraw(); }
   };
   canvas.addEventListener('pointerup', end); canvas.addEventListener('pointercancel', end);
   canvas.addEventListener('wheel', (e) => { e.preventDefault(); zoom(e.deltaY > 0 ? 1.1 : 1 / 1.1); }, { passive: false });
@@ -544,9 +697,28 @@ export function createViewer(canvas) {
     zoom,
     setLayer(name, on) { if (on) visible.add(name); else visible.delete(name); draw(); },
     setDimensions(on) { showDims = on; draw(); },
+    /** Board outlines on or off (presentation mode turns them off). */
+    setOutlines(on) { outlines = on; draw(); },
+    /** Lawn, shadow and sky on or off. */
+    setScenery(on) { scenery = on; draw(); },
     view(theta, phi) { cam.theta = theta; cam.phi = phi; cam.dist = cam.fit; draw(); },
     reset() { cam.theta = -0.95; cam.phi = 0.42; cam.dist = cam.fit; draw(); },
     snapshot() { draw(); return canvas.toDataURL('image/png'); },
+    /** The framing member under a point on the canvas (client pixels), among the layers shown, or null. */
+    pick(clientX, clientY) {
+      if (!shown) return null;
+      const r = canvas.getBoundingClientRect();
+      const nx = ((clientX - r.left) / (r.width || 1)) * 2 - 1;
+      const ny = 1 - ((clientY - r.top) / (r.height || 1)) * 2;
+      const eye = [cam.target[0] + cam.dist * Math.cos(cam.phi) * Math.cos(cam.theta), cam.target[1] + cam.dist * Math.cos(cam.phi) * Math.sin(cam.theta), cam.target[2] + cam.dist * Math.sin(cam.phi)];
+      const norm = (v) => { const l = Math.hypot(v[0], v[1], v[2]) || 1; return [v[0] / l, v[1] / l, v[2] / l]; };
+      const f = norm([cam.target[0] - eye[0], cam.target[1] - eye[1], cam.target[2] - eye[2]]);
+      const rt = norm([f[1], -f[0], 0]);
+      const up = [rt[1] * f[2] - rt[2] * f[1], rt[2] * f[0] - rt[0] * f[2], rt[0] * f[1] - rt[1] * f[0]];
+      const th = Math.tan(0.375); const asp = (r.width || 1) / (r.height || 1);
+      const dir = [0, 1, 2].map((i) => f[i] + nx * th * asp * rt[i] + ny * th * up[i]);
+      return pickMember(shown.members.filter((m) => visible.has(layerOf(m))), eye, dir)?.id ?? null;
+    },
     /** Show a picture of the viewer's own on the big poster (it stays in the browser). */
     setPosterImage(img) { posterImage = img; if (textures.big) { gl.deleteTexture(textures.big); delete textures.big; } draw(); },
   };

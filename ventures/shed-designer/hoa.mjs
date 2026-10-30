@@ -11,9 +11,10 @@
 // (drawings.mjs, from the lot you type), reused as is.
 
 import { fmtFtIn, fmtIn } from './lumber.mjs';
-import { SIDING_COLORS, ROOF_COLORS, TRIM_COLORS } from './render3d.mjs';
+import { paletteOf, finishName, SIDING_FINISHES, TRIM_FINISHES, DOOR_FINISHES, SHINGLE_FAMILIES } from './looks.mjs';
 import { buildSheets, sheetSvg } from './drawings.mjs';
 import { productById } from './products.mjs';
+import { LAP_PRODUCTS } from './lap.mjs';
 
 /** @typedef {ReturnType<typeof import('./model.mjs').buildShed>} Shed */
 
@@ -33,6 +34,8 @@ const shade = (rgb, f) => rgb.map((c) => c * f);
 export function sidingLook(type) {
   const t = String(type || '').toLowerCase();
   if (t === 'vinyl') return { direction: 'horizontal', pattern: 'lap', spacing: 4, label: 'vinyl lap siding (horizontal, 4" reveal)' };
+  const lap = LAP_PRODUCTS[type];
+  if (lap) return { direction: 'horizontal', pattern: 'lap', spacing: lap.exposure, label: `${lap.short} siding (horizontal, ${fmtIn(lap.exposure)} exposure)` };
   if (t === 'fiber cement' || /lap|hardie|plank|clapboard/.test(t)) return { direction: 'horizontal', pattern: 'lap', spacing: 7, label: `${type} lap siding (horizontal, 7" exposure)` };
   if (t === 't1-11') return { direction: 'vertical', pattern: 'grooves', spacing: 8, label: 'T1-11 panel siding (vertical grooves 8" apart)' };
   if (t === 'board and batten') return { direction: 'vertical', pattern: 'battens', spacing: 12, label: 'board and batten (vertical battens about 12" apart)' };
@@ -41,14 +44,23 @@ export function sidingLook(type) {
 
 /** The siding colour as a word and a hex value. @param {any} d */
 export function sidingFinish(d) {
-  if (/^#[0-9a-f]{6}$/i.test(String(d.sidingColor))) return { name: `paint ${d.sidingColor}`, hex: d.sidingColor };
-  if (d.sidingColor === 'unfinished') return { name: d.sidingType === 'vinyl' ? 'factory colour' : 'unfinished (primed or bare)', hex: '#d8cfbd' };
-  const rgb = SIDING_COLORS[d.sidingColor] || SIDING_COLORS.natural;
-  return { name: d.sidingColor === 'natural' ? 'natural stain' : `${d.sidingColor} paint`, hex: hex(rgb) };
+  // The same colour the 3D view paints (looks.mjs), so the packet and the picture agree.
+  const h = hex(paletteOf(d).siding);
+  if (/^#[0-9a-f]{6}$/i.test(String(d.sidingColor))) return { name: `paint ${d.sidingColor}`, hex: h };
+  if (d.sidingColor === 'unfinished') return { name: d.sidingType === 'vinyl' ? 'factory colour' : 'unfinished (primed or bare)', hex: h };
+  if (d.sidingType === 'vinyl' && d.sidingColor === 'natural') return { name: 'white (factory colour)', hex: h };
+  return { name: d.sidingColor === 'natural' ? 'natural stain' : `${finishName(d.sidingColor, SIDING_FINISHES)} paint`, hex: h };
 }
 
-const roofHex = (d) => (/^#[0-9a-f]{6}$/i.test(String(d.roofColor)) ? d.roofColor : hex(ROOF_COLORS[d.roofColor] || ROOF_COLORS.charcoal));
-const trimHex = (d) => (/^#[0-9a-f]{6}$/i.test(String(d.trimColor)) ? d.trimColor : hex(TRIM_COLORS[d.trimColor] || TRIM_COLORS.white));
+const roofHex = (d) => hex(paletteOf(d).roof);
+const trimHex = (d) => hex(paletteOf(d).trim);
+/** Colour names as a reader sees them: "gray-brown blend", "custom colour #5a6e8c". */
+const roofName = (d) => finishName(d.roofColor, SHINGLE_FAMILIES);
+const trimName = (d) => finishName(d.trimColor, TRIM_FINISHES);
+const doorName = (d) => finishName(d.doorColor, DOOR_FINISHES);
+
+/** A repeatable pseudo-random number in [0, 1) for a tab or course, so a drawing is the same every time. */
+const rand = (a, b) => { const x = Math.sin(a * 127.1 + b * 311.7) * 43758.5453; return x - Math.floor(x); };
 
 /** What a door or window is, in words an HOA reads. @param {any} op */
 function openingName(op) {
@@ -85,8 +97,9 @@ export function packetSummary(shed) {
     ['Floor height', `${fmtFtIn(k.floorTop)} above the ground`],
     ['Roof', `gable, ${d.pitch}/12 pitch (${(Math.atan(d.pitch / 12) * 180 / Math.PI).toFixed(1)} degrees), ridge running the ${fmtFtIn(d.length)} length`],
     ['Siding', d.siding ? `${look.label}, ${sidingFinish(d).name}${d.polkaDots ? ', with purple polka dots' : ''}` : 'none shown'],
-    ['Roofing', d.roofing ? (d.roofCover === 'metal' ? `corrugated metal, ${d.roofColor}` : `asphalt shingles, ${d.roofColor}`) : 'none shown'],
-    ['Trim', d.wallTrim === 'none' ? `fascia and rake boards, ${d.trimColor}; no corner boards or casings` : `1x4 corner boards and casings, fascia and rake boards, ${d.trimColor}`],
+    ['Roofing', d.roofing ? (d.roofCover === 'metal' ? `corrugated metal, ${roofName(d)}` : `asphalt shingles, ${roofName(d)} colour family`) : 'none shown'],
+    ['Trim', d.wallTrim === 'none' ? `fascia and rake boards, ${trimName(d)}; no corner boards or casings` : `1x4 corner boards and casings, fascia and rake boards, ${trimName(d)}`],
+    ['Door finish', doorName(d) + (d.doorColor === 'stained' ? '' : ' paint')],
     ['Doors', count('door').length ? list('door') : 'none'],
     ['Windows', count('window').length ? list('window') : 'none'],
   ];
@@ -150,7 +163,9 @@ export function elevationSvg(shed, name) {
   const dark = hex(shade(hexToRgb(sid), 0.72));
   if (d.siding) {
     if (look.pattern === 'lap') {
-      for (let z = z0 + look.spacing; z < k.peak; z += look.spacing) line(0, z, F, z, 0.45, dark);
+      // Each course's butt edge, and the soft shadow it casts on the course below.
+      const soft = hex(shade(hexToRgb(sid), 0.86));
+      for (let z = z0 + look.spacing; z < k.peak; z += look.spacing) { lines.push(`<rect x="0" y="${Y(z)}" width="${F}" height="${(look.spacing * 0.18).toFixed(2)}" fill="${soft}"/>`); line(0, z, F, z, 0.45, dark); }
     } else {
       const step = look.pattern === 'panel' ? 48 : look.spacing;
       for (let x = step; x < F; x += step) {
@@ -159,6 +174,13 @@ export function elevationSvg(shed, name) {
       }
     }
     if (d.polkaDots) for (let x = 6; x < F; x += 12) for (let z = z0 + 6; z < k.peak; z += 12) lines.push(`<circle cx="${(x + ((Math.round(z / 12) % 2) * 6)).toFixed(2)}" cy="${Y(z)}" r="2.2" fill="#8047ad"/>`);
+  }
+  // Shade and shadow, drawn the drafting way with the sun at 45 degrees: the
+  // eave casts a band as deep as it sticks out; the rake a narrower one.
+  if (eave) lines.push(`<rect x="0" y="${Y(k.plateTop)}" width="${F}" height="${(o + fascia).toFixed(2)}" fill="#000" fill-opacity="0.16"/>`);
+  else {
+    const dz = (rakeOut + 4) / cosA;
+    lines.push(`<polygon points="${P([[0, wallTop], [F / 2, k.peak - roofThick - 3.5 / cosA], [F, wallTop], [F, wallTop - dz], [F / 2, k.peak - roofThick - 3.5 / cosA - dz], [0, wallTop - dz]])}" fill="#000" fill-opacity="0.14"/>`);
   }
   parts.push(`<g clip-path="url(#${clipId})">${lines.join('')}</g>`);
   // Corner boards.
@@ -178,7 +200,7 @@ export function elevationSvg(shed, name) {
     if (cas) parts.push(`<rect x="${(xa - cas).toFixed(2)}" y="${Y(zb + cas)}" width="${(xb - xa + 2 * cas).toFixed(2)}" height="${(zb - za + cas + (p.op.kind === 'window' ? cas : 0)).toFixed(2)}" fill="${trim}" stroke="#555" stroke-width="0.3"/>`);
     if (p.op.kind === 'door') {
       const site = p.op.product === 'site-built';
-      const fill = site ? sid : '#f3f1ec';
+      const fill = d.doorColor && d.doorColor !== 'stained' ? hex(paletteOf(d).door) : site ? sid : '#f3f1ec';
       parts.push(`<rect x="${xa.toFixed(2)}" y="${Y(zb)}" width="${(xb - xa).toFixed(2)}" height="${(zb - za).toFixed(2)}" fill="${fill}" stroke="#333" stroke-width="0.6" data-kind="door"/>`);
       const leaves = xb - xa > 60 ? 2 : 1;
       const lw = (xb - xa) / leaves;
@@ -215,11 +237,24 @@ export function elevationSvg(shed, name) {
     parts.push(`<polygon points="${P([[-rakeOut, eaveZ], [F + rakeOut, eaveZ], [F + rakeOut, k.peak], [-rakeOut, k.peak]])}" fill="${roofC}" stroke="#222" stroke-width="0.5"/>`);
     if (d.roofing && d.roofCover !== 'metal') {
       // Shingle courses (5" exposure along the slope), foreshortened by the view.
+      // Architectural shingles are blends: tabs of uneven width, staggered
+      // course to course, each a shade lighter or darker (the family's blend).
       const step = 5 * Math.sin(Math.atan(tt));
-      const c = hex(shade(hexToRgb(roofC), 0.7));
-      for (let z = eaveZ + step, i = 0; z < k.peak - 0.3; z += step, i++) {
-        parts.push(`<line x1="${-rakeOut}" y1="${Y(z)}" x2="${F + rakeOut}" y2="${Y(z)}" stroke="${c}" stroke-width="0.25"/>`);
-        for (let x = (i % 2) * 6; x < F; x += 12) parts.push(`<line x1="${x}" y1="${Y(z)}" x2="${x}" y2="${Y(Math.max(eaveZ, z - step))}" stroke="${c}" stroke-width="0.2"/>`);
+      const base = hexToRgb(roofC);
+      const blend = paletteOf(d).roofBlend;
+      const c = hex(shade(base, 0.7));
+      const tabs = [];
+      for (let z = eaveZ, i = 0; z < k.peak - 0.3; z += step, i++) {
+        const zt2 = Math.min(k.peak, z + step);
+        for (let x = -rakeOut - rand(i, 1) * 12, j = 0; x < F + rakeOut; j++) {
+          const w = 9 + 6 * rand(i, j + 2);
+          const xa = Math.max(-rakeOut, x); const xb = Math.min(F + rakeOut, x + w);
+          const f = 1 + blend * (rand(j, i + 0.5) * 2 - 1);
+          tabs.push(`<rect x="${xa.toFixed(2)}" y="${Y(zt2)}" width="${(xb - xa).toFixed(2)}" height="${(zt2 - z).toFixed(2)}" fill="${hex(shade(base, f))}" stroke="${c}" stroke-width="0.15"/>`);
+          x += w;
+        }
+        parts.push(...tabs.splice(0));
+        parts.push(`<line x1="${-rakeOut}" y1="${Y(z)}" x2="${F + rakeOut}" y2="${Y(z)}" stroke="${hex(shade(base, 0.55))}" stroke-width="0.5"/>`);
       }
     } else if (d.roofing) {
       const c = hex(shade(hexToRgb(roofC), 0.75));
@@ -294,6 +329,61 @@ export function elevationSvg(shed, name) {
     + `${parts.join('')}${dims.join('')}</svg>`;
 }
 
+/**
+ * The roof and footprint seen from above: the roof's outline with its
+ * overhangs, the ridge, the walls under it, and where each door and window
+ * sits, front wall at the bottom. Dimensioned in feet and inches.
+ * @param {Shed} shed
+ */
+export function planSvg(shed) {
+  const d = shed.design;
+  const L = d.length;
+  const W = d.width;
+  const o = d.overhang;
+  const r = 1.5; // sheathing and rake board past each gable wall
+  const fs = +(Math.max(L, W + 2 * o) / 40).toFixed(2);
+  const X = (x) => +x.toFixed(2);
+  const Y = (y) => +(W + o - y).toFixed(2); // front (y = 0) at the bottom
+  const parts = [];
+  const roofC = roofHex(d);
+  parts.push(`<rect x="${X(-r)}" y="${Y(W + o)}" width="${X(L + 2 * r)}" height="${X(W + 2 * o)}" fill="${roofC}" fill-opacity="0.25" stroke="#222" stroke-width="${(fs * 0.08).toFixed(2)}" data-kind="roof"/>`);
+  parts.push(`<line x1="${X(-r)}" y1="${Y(W / 2)}" x2="${X(L + r)}" y2="${Y(W / 2)}" stroke="#222" stroke-width="${(fs * 0.08).toFixed(2)}" data-kind="ridge"/>`);
+  parts.push(`<rect x="0" y="${Y(W)}" width="${L}" height="${W}" fill="none" stroke="#444" stroke-width="${(fs * 0.07).toFixed(2)}" stroke-dasharray="${fs * 0.5} ${fs * 0.3}" data-kind="walls"/>`);
+  const t = (x, y, text, size = fs, anchor = 'middle', extra = '') => parts.push(`<text x="${X(x)}" y="${Y(y)}" text-anchor="${anchor}" font-size="${size.toFixed(2)}"${extra}>${esc(text)}</text>`);
+  t(L / 2, W / 2 + fs * 0.4, 'RIDGE', fs * 0.8);
+  t(L / 2, W * 0.25, `slope down ${d.pitch}/12`, fs * 0.8);
+  t(L / 2, W * 0.75 + fs * 0.6, `slope down ${d.pitch}/12`, fs * 0.8);
+  t(L / 2, -o - fs * 3.6, 'FRONT', fs, 'middle', ' font-weight="700"');
+  // Each door and window, as a thick mark on its wall line with its width.
+  for (const f of shed.fixtures.filter((x) => x.kind === 'door' || x.kind === 'window')) {
+    const g = f.geom;
+    const w = g.profile[1][0];
+    const [x0, y0] = [g.origin[0], g.origin[1]];
+    const [x1, y1] = [x0 + g.u[0] * w, y0 + g.u[1] * w];
+    const col = f.kind === 'door' ? '#8a3b12' : '#2563a8';
+    parts.push(`<line x1="${X(x0)}" y1="${Y(y0)}" x2="${X(x1)}" y2="${Y(y1)}" stroke="${col}" stroke-width="${(fs * 0.45).toFixed(2)}" data-kind="${f.kind}"/>`);
+    const mx = (x0 + x1) / 2; const my = (y0 + y1) / 2;
+    const inX = mx <= 0.01 ? fs * 0.6 : mx >= L - 0.01 ? -fs * 0.6 : 0;
+    const inY = my <= 0.01 ? fs * 1.4 : my >= W - 0.01 ? -fs * 0.9 : 0;
+    t(mx + inX, my + inY, `${f.kind} ${fmtIn(w)}`, fs * 0.75, inX > 0 ? 'start' : inX < 0 ? 'end' : 'middle');
+  }
+  // Dimensions: walls and roof, both ways.
+  const ds = [];
+  const sw = (fs * 0.06).toFixed(2);
+  const tk = fs * 0.4;
+  const h = (a, b, y, text, cls) => ds.push(`<g class="dim ${cls}"><line x1="${X(a)}" y1="${Y(y)}" x2="${X(b)}" y2="${Y(y)}" stroke-width="${sw}"/><line x1="${X(a)}" y1="${Y(y) - tk}" x2="${X(a)}" y2="${Y(y) + tk}" stroke-width="${sw}"/><line x1="${X(b)}" y1="${Y(y) - tk}" x2="${X(b)}" y2="${Y(y) + tk}" stroke-width="${sw}"/><text x="${X((a + b) / 2)}" y="${(Y(y) - fs * 0.3).toFixed(2)}" text-anchor="middle" font-size="${fs}">${esc(text)}</text></g>`);
+  const v = (x, a, b, text, cls) => { const tx = X(x - fs * 0.4); const ty = Y((a + b) / 2); ds.push(`<g class="dim ${cls}"><line x1="${X(x)}" y1="${Y(a)}" x2="${X(x)}" y2="${Y(b)}" stroke-width="${sw}"/><line x1="${X(x) - tk}" y1="${Y(a)}" x2="${X(x) + tk}" y2="${Y(a)}" stroke-width="${sw}"/><line x1="${X(x) - tk}" y1="${Y(b)}" x2="${X(x) + tk}" y2="${Y(b)}" stroke-width="${sw}"/><text x="${tx}" y="${ty}" text-anchor="middle" font-size="${fs}" transform="rotate(-90 ${tx} ${ty})">${esc(text)}</text></g>`); };
+  h(0, L, -o - fs * 1.4, `${fmtFtIn(L)} walls`, 'walls-l');
+  h(-r, L + r, W + o + fs * 1.4, `about ${fmtFtIn(L + 2 * r)} roof`, 'roof-l');
+  v(L + r + fs * 2, 0, W, `${fmtFtIn(W)} walls`, 'walls-w');
+  v(L + r + fs * 4.4, -o, W + o, `${fmtFtIn(W + 2 * o)} roof`, 'roof-w');
+  if (o > 0) v(-r - fs * 1.2, W, W + o, `${fmtIn(o)}`, 'overhang');
+  const vb = { x: -r - fs * 3.5, y: Y(W + o + fs * 3.4), w: L + 2 * r + fs * 9.5, h: W + 2 * o + fs * 8.6 };
+  return `<svg xmlns="http://www.w3.org/2000/svg" class="hoa-elev hoa-plan" data-view="plan" viewBox="${vb.x.toFixed(1)} ${vb.y.toFixed(1)} ${vb.w.toFixed(1)} ${vb.h.toFixed(1)}" role="img" aria-label="Roof and footprint plan">`
+    + `<style>.hoa-plan .dim line{stroke:#1f4e8c}.hoa-plan .dim text{fill:#1f4e8c}.hoa-plan text{font-family:ui-sans-serif,system-ui,sans-serif}</style>`
+    + `<rect x="${vb.x.toFixed(1)}" y="${vb.y.toFixed(1)}" width="${vb.w.toFixed(1)}" height="${vb.h.toFixed(1)}" fill="#fff"/>${parts.join('')}${ds.join('')}</svg>`;
+}
+
 /** @param {string} h */
 function hexToRgb(h) {
   const m = /^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(h) || ['', 'cc', 'cc', 'cc'];
@@ -325,12 +415,13 @@ export function packetHtml(shed, opts = {}) {
   const page = (title, body, cls = '') => `<section class="hoa-page ${cls}"><header class="hoa-head"><span>${esc(d.name)}</span><span>${esc(title)}</span></header>${body}<footer class="hoa-foot">Drawn from the design by Shed Designer${opts.date ? ` on ${esc(opts.date)}` : ''}. Dimensions in feet and inches; heights from the ground. Not engineered or code-checked, and not an approval: submit it to your HOA for its review.</footer></section>`;
   const fig = (v) => `<figure class="hoa-fig">${elevationSvg(shed, v)}<figcaption>${esc(v[0].toUpperCase() + v.slice(1))} elevation, ${v === 'front' || v === 'back' ? 'eave side' : 'gable end'}</figcaption></figure>`;
   const summary = `<table class="hoa-summary">${rows.map(([a, b]) => `<tr><th>${esc(a)}</th><td>${esc(b)}</td></tr>`).join('')}</table>`;
-  const colours = `<p class="hoa-colours">${d.siding ? swatch(fin.hex, `Siding: ${fin.name}`) : ''}${swatch(roofHex(d), `Roof: ${d.roofColor}`)}${swatch(trimHex(d), `Trim: ${d.trimColor}`)}</p>`;
+  const colours = `<p class="hoa-colours">${d.siding ? swatch(fin.hex, `Siding: ${fin.name}`) : ''}${swatch(roofHex(d), `Roof: ${roofName(d)}`)}${swatch(trimHex(d), `Trim: ${trimName(d)}`)}${d.doorColor && d.doorColor !== 'stained' ? swatch(hex(paletteOf(d).door), `Door: ${doorName(d)}`) : ''}</p>`;
   const persp = opts.perspective ? `<figure class="hoa-fig hoa-3d"><img src="${opts.perspective}" alt="3D view of the finished shed"><figcaption>3D view of the finished shed</figcaption></figure>` : '';
   return [
     page('Summary', `<h1>${esc(d.name)}: exterior design for HOA review</h1><div class="hoa-cover-grid"><div>${summary}${colours}</div>${persp}</div>`, 'hoa-cover'),
     page('Front and back elevations', fig('front') + fig('back')),
     page('Left and right elevations', fig('left') + fig('right')),
+    page('Roof and footprint plan', `<figure class="hoa-fig hoa-planfig">${planSvg(shed)}<figcaption>Seen from above, front wall at the bottom: the roof outline with its overhangs, the ridge, the walls (dashed) and where each door and window sits.</figcaption></figure>`),
     page('Site plan', site
       ? `<figure class="hoa-fig hoa-site">${site}<figcaption>Where the shed goes, with its distance to each lot line and the house, as typed. Not a survey.</figcaption></figure>`
       : '<div class="hoa-nosite"><p><strong>No site plan yet.</strong> Type your lot, where the shed sits on it and your house under "Site plan" in Shed Designer, and this page shows the shed on the lot with its distance to each lot line and the house.</p><p>Until then, sketch it here: lot lines, the house, the shed, and the distance from the shed to each lot line.</p></div>', 'hoa-sitepage'),

@@ -185,3 +185,29 @@ test('the runtime wrap skips a table that is already boxed', () => {
   assert.ok(WRAP_TABLES_JS.includes("p.closest('table')"), 'nested tables are skipped');
   assert.ok(!/\b(const|let|=>)\b/.test(WRAP_TABLES_JS), 'must stay ES5');
 });
+
+test('the runtime wrap boxes every table, including the first in the document', () => {
+  // Run the spliced body against a minimal DOM. The loop counts down so that
+  // inserting a box cannot shift the tables still to visit; an off-by-one in
+  // its bound silently leaves the first table on the page unwrapped.
+  const boxed = [];
+  const mk = () => {
+    const parent = {
+      className: '',
+      insertBefore(box) { boxed.push(box); },
+    };
+    return { parentElement: parent };
+  };
+  const tables = [mk(), mk(), mk()];
+  const document = {
+    getElementsByTagName: () => tables,
+    createElement: () => ({ className: '', appendChild() {} }),
+  };
+  new Function('document', WRAP_TABLES_JS)(document);
+  assert.equal(boxed.length, 3);
+});
+
+test('the scroll shadow is on the scrolling box, and form controls cap at the viewport', () => {
+  assert.match(REFLOW_CSS, new RegExp(`\\.${TABLE_SCROLL_CLASS}\\[data-pf-scrollable\\]\\{box-shadow:inset -12px 0 8px -8px rgba\\(0,0,0,\\.28\\)\\}`));
+  assert.match(REFLOW_CSS, /:where\(input,select,textarea\)\{min-width:0;max-width:100%\}/);
+});
