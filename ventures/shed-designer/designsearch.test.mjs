@@ -1,7 +1,7 @@
 // @ts-check
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { searchDesigns, searchSteps, evaluateDesign, storageOf, looksOf, paretoFront, picks, sizesUnder, layoutOpenings, LAYOUTS, OBJECTIVES } from './designsearch.mjs';
+import { searchDesigns, searchSteps, evaluateDesign, storageOf, looksOf, paretoFront, picks, sizesUnder, layoutOpenings, LAYOUTS, DOORS, WINDOWS, OBJECTIVES } from './designsearch.mjs';
 import { buildShed, defaultDesign, normalize } from './model.mjs';
 import { structuralChecks } from './checks.mjs';
 import { connectionChecks } from './connections.mjs';
@@ -119,4 +119,40 @@ test('fixed keys are never changed, and the generator reports progress', () => {
 
 test('objectives are documented with a unit and a direction', () => {
   for (const [k, o] of Object.entries(OBJECTIVES)) { assert.ok(o.label && o.unit && o.pick, k); assert.ok(o.sense === 1 || o.sense === -1); }
+});
+
+test('doors, windows, siding and roofing are choices unless fixed', () => {
+  // Every door and window the search knows fits the layouts, heads in line.
+  for (const door of Object.keys(DOORS)) for (const win of Object.keys(WINDOWS)) {
+    const ops = layoutOpenings('eave door, two windows opposite', { length: 144, width: 96 }, 'ridgeBoard', door, win) ?? [];
+    const shed = buildShed(normalize({ ...defaultDesign(), length: 144, width: 96, roofType: 'ridgeBoard', autoWall: true, autoPitch: false, pitch: 6, maxPeak: 0, openings: ops }));
+    assert.ok(!shed.warnings.some((w) => /left out/.test(w)), `${door} ${win}: ${shed.warnings.join(' ')}`);
+    const d = shed.design.openings.find((o) => o.kind === 'door');
+    for (const w of shed.design.openings.filter((o) => o.kind === 'window')) assert.ok(Math.abs((w.sill ?? 0) + w.height - (d?.height ?? 0)) < 0.01);
+  }
+  const r = searchDesigns({ budget: 120, sizes: [{ length: 144, width: 96 }], layouts: ['eave door, two windows opposite'] });
+  const seen = (f) => new Set(r.all.map(f));
+  assert.ok(seen((s) => s.design.sidingType).size > 1);
+  assert.ok(seen((s) => s.design.openings.find((o) => o.kind === 'door')?.product).size > 1);
+  // Fixed: the base's own door product and siding.
+  const base = { ...defaultDesign(), sidingType: 'fiber cement', openings: [{ id: 'o1', kind: 'door', wall: 'front', offset: 50, width: 34, height: 82, product: 'masonite-3280-flush' }] };
+  const f = searchDesigns({ base, budget: 30, fixed: ['sidingType', 'door', 'roofCover'], sizes: [{ length: 144, width: 96 }] });
+  for (const s of f.all) {
+    assert.equal(s.design.sidingType, 'fiber cement');
+    assert.equal(s.design.openings.find((o) => o.kind === 'door')?.product, 'masonite-3280-flush');
+  }
+});
+
+test('choices the design locks (levers.mjs) are never changed', () => {
+  const base = { ...defaultDesign(), sidingType: 'fiber cement', foundation: 'deck blocks', joistSpacing: 16, locked: ['siding', 'roofing', 'foundation', 'floor', 'doors'] };
+  const r = searchDesigns({ base, budget: 60, sizes: [{ length: 144, width: 96 }, { length: 120, width: 120 }] });
+  assert.ok(r.all.length > 0);
+  for (const s of r.all) {
+    assert.equal(s.design.sidingType, 'fiber cement');
+    assert.equal(s.design.roofCover, 'shingles');
+    assert.equal(s.design.foundation, 'deck blocks');
+    assert.equal(s.design.joistSpacing, 16);
+    assert.equal(s.design.joistSize, defaultDesign().joistSize);
+    assert.equal(s.design.openings.find((o) => o.kind === 'door')?.product, 'site-built');
+  }
 });
