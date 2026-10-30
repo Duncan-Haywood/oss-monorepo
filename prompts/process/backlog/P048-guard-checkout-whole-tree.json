@@ -1,7 +1,7 @@
 {
   "id": "P048",
   "title": "perf: CI guard jobs clone the whole 38,800-file tree to do seconds of work",
-  "status": "open",
+  "status": "in_progress",
   "owner": "agent",
   "effect": 3,
   "cost": 2,
@@ -24,5 +24,11 @@
   "source": "prompts/runs/2026-10-24-session_01Gcz8nVnXVeNTiqb8JKabK1.json",
   "pr": null,
   "result": null,
-  "history": []
+  "history": [
+    {
+      "date": "2026-10-30",
+      "note": "Part 1: sparse checkouts for conflict markers, checklist coverage, duplicate symbols and link contrast; conflict-marker script fails on a missing text file. Part 2 (doc refs, README live links, sibling links) listed in docs/history/ci-perf-2026-10-30-guard-checkouts.md.",
+      "pr": "this"
+    }
+  ]
 }
