@@ -19,12 +19,12 @@
   "projects": [
     "wall-framing-takeoff"
   ],
-  "pr": null,
+  "pr": 11736,
   "repo": null,
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
-  "merged": null,
+  "merged": true,
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": 1,
