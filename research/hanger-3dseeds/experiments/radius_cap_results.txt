@@ -1,0 +1,21 @@
+3D loop, M tee, 3 cm half-depth, 64 drapes on err_all, end-radius upper limit raised (other bounds as 3d-wide)
+cap seed err err_all crease sag design
+9 0 1.063 1.008 9.4 2.62 w=22.8 slope=4.0 bow=1.02 r=6.20
+9 1 0.685 0.831 6.5 2.59 w=20.4 slope=13.3 bow=-2.00 r=9.00
+9 2 0.666 0.808 8.7 2.42 w=22.4 slope=12.3 bow=-0.24 r=6.73
+9 3 0.746 0.925 7.5 2.14 w=22.1 slope=0.0 bow=2.00 r=7.74
+9 4 1.064 1.310 6.8 1.93 w=23.7 slope=14.0 bow=1.79 r=8.55
+9 5 0.814 1.194 6.5 1.89 w=21.9 slope=20.2 bow=-0.75 r=9.00
+9 6 0.634 0.799 9.6 2.67 w=22.7 slope=0.0 bow=2.54 r=6.09
+9 7 0.870 1.315 10.4 2.88 w=22.7 slope=0.0 bow=4.46 r=5.58
+12 0 0.597 0.705 6.8 1.95 w=22.7 slope=3.9 bow=1.29 r=8.52
+12 1 0.892 1.019 5.6 1.62 w=23.2 slope=1.6 bow=2.05 r=10.39
+12 2 0.568 0.945 9.4 2.60 w=22.5 slope=7.2 bow=1.95 r=6.19
+12 3 0.778 1.152 12.1 3.24 w=22.1 slope=0.0 bow=3.34 r=4.80
+12 4 0.784 0.956 9.2 2.58 w=21.9 slope=0.0 bow=2.15 r=6.32
+12 5 0.505 0.815 6.8 2.18 w=21.6 slope=16.7 bow=-1.20 r=8.56
+12 6 0.764 0.785 7.9 2.25 w=22.1 slope=0.0 bow=1.30 r=7.36
+12 7 1.587 1.715 7.8 2.24 w=25.5 slope=12.0 bow=4.12 r=7.39
+
+cap 9: on the limit in 2 of 8; err_all minus 6 cm cap (cm): n=8 vs 8  mean3d=1.024 sd=0.220  mean2d=1.124 sd=0.249  diff=-0.100  95% bootstrap CI [-0.323, +0.113]  permutation p=0.412
+cap 12: on the limit in 0 of 8; err_all minus 6 cm cap (cm): n=8 vs 8  mean3d=1.011 sd=0.318  mean2d=1.124 sd=0.249  diff=-0.113  95% bootstrap CI [-0.364, +0.159]  permutation p=0.445
