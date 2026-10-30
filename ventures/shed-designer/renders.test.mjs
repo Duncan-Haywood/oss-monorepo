@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { BUDGET, VIEWS, altFor, renderFor, renderTargets } from './renders.mjs';
-import { MANIFEST, OUT, allTargets, openStage, readManifest, sceneHash, sizeTargets, staleTargets } from './make-renders.mjs';
+import { MANIFEST, OUT, allTargets, galleryTargets, openStage, readManifest, sceneHash, sizeTargets, staleTargets } from './make-renders.mjs';
 
 const FIX = 'redraw them with: node ventures/shed-designer/make-renders.mjs (needs Playwright; see the README, "Pictures of the designs")';
 
@@ -143,7 +143,8 @@ test('the starting-design strip shows the pre-drawn pictures', { skip: hasPw ? f
   try {
     const page = await browser.newPage();
     await page.goto(`http://127.0.0.1:${server.address().port}/`);
-    const fresh = renderTargets().filter((t) => !STALE.has(t.slug));
+    // The strip shows the ready-design gallery: each card uses its drawn card picture.
+    const fresh = galleryTargets().filter((t) => !STALE.has(t.slug));
     await page.waitForFunction((n) => document.querySelectorAll('.pick-img img[src*="renders/"]').length >= n, fresh.length, { timeout: 30000 });
     const srcs = await page.$$eval('.pick-img img', (els) => els.map((e) => e.getAttribute('src')));
     const m = readManifest();
