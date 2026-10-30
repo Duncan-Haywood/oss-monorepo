@@ -497,7 +497,7 @@ function queueThumbs() {
   thumbTimer = setTimeout(() => {
     if (!thumbViewer) {
       const c = document.createElement('canvas'); c.width = 720; c.height = 480;
-      thumbViewer = createViewer(c);
+      thumbViewer = createViewer(c, { presentation: true });
     }
     if (!thumbViewer) return;
     let changed = false;
@@ -749,6 +749,15 @@ function wire() {
   $('#view-top').addEventListener('click', () => viewer?.view(-Math.PI / 2 + 0.01, 1.45));
   $('#view-reset').addEventListener('click', () => viewer?.reset());
   $('#show-dims').addEventListener('change', (e) => viewer?.setDimensions(e.target.checked));
+  // The 3D view as it is now, as a PNG for a neighbour, an HOA or a contractor.
+  $('#save-picture').addEventListener('click', () => {
+    if (!viewer) return;
+    const a = document.createElement('a');
+    a.href = viewer.snapshot();
+    a.download = `${(design().name || 'shed').replace(/[^\w-]+/g, '-').replace(/^-|-$/g, '') || 'shed'}-3d.png`;
+    document.body.append(a); a.click(); a.remove();
+    count('pictures-saved');
+  });
   $('#show-outlines').addEventListener('change', (e) => viewer?.setOutlines(e.target.checked));
   $('#show-scenery').addEventListener('change', (e) => viewer?.setScenery(e.target.checked));
   // Presentation: every finished layer, no board outlines or dimension lines, a
@@ -781,7 +790,7 @@ function wire() {
   $('#make-options').addEventListener('click', () => {
     const opts = generateCandidates(design(), state.prices);
     const thumbCanvas = document.createElement('canvas'); thumbCanvas.width = 480; thumbCanvas.height = 320;
-    const tv = createViewer(thumbCanvas);
+    const tv = createViewer(thumbCanvas, { presentation: true });
     $('#option-cards').innerHTML = opts.map((o, i) => {
       let img = '';
       if (tv) { tv.show(buildShed(o.design), { refit: true }); img = `<img src="${tv.snapshot()}" alt="3D view of option ${i + 1}" width="480" height="320">`; }
@@ -813,7 +822,7 @@ function wire() {
         html = `<p>Nothing cheaper passed the checks: your design is already the cheapest of the ${r.evaluated} tried.</p>`;
       } else {
         const thumbCanvas = document.createElement('canvas'); thumbCanvas.width = 480; thumbCanvas.height = 320;
-        const tv = createViewer(thumbCanvas);
+        const tv = createViewer(thumbCanvas, { presentation: true });
         let img = '';
         if (tv) { tv.show(buildShed(b.design), { refit: true }); img = `<img src="${tv.snapshot()}" alt="3D view of the cheaper build" width="480" height="320" style="max-width:100%;height:auto">`; }
         html += `<article class="card">${img}<h4>${money(b.total)} of materials, ${money(r.base.total - b.total)} less than your ${money(r.base.total)}; about ${Math.round(b.hours)} hours of work (yours: ${Math.round(r.base.hours)})</h4>
@@ -867,7 +876,7 @@ function wire() {
         if (same) same.goal += ` / ${w.goal.toLowerCase()}`; else picks.push({ ...w });
       }
       const thumbCanvas = document.createElement('canvas'); thumbCanvas.width = 480; thumbCanvas.height = 320;
-      const tv = createViewer(thumbCanvas);
+      const tv = createViewer(thumbCanvas, { presentation: true });
       let html = `<p class="muted">Tried ${r.evaluated} designs; each kept passes every load and connection check${design().maxFootprint ? `, stays within ${design().maxFootprint} sq ft` : ''} and is no more than 1" taller. Your design: ${money(r.base.total)}, ${cutsText(r.base.cuts)} cuts, ${(r.base.cuts.waste * 100).toFixed(1)}% offcut.</p><div class="cards">`;
       html += picks.map((w, i) => {
         let img = '';
