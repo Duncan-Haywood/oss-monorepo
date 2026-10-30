@@ -2,7 +2,7 @@
 title: "Vertical siding: a 3-foot window cuts four columns, not three"
 date: 2026-10-30
 tags: [wall-framing-takeoff, siding, takeoff]
-description: "The wall-framing takeoff now counts vertical siding as columns of full-height boards, and shows why a window that is 36 in wide on 12 in boards touches four of them."
+description: "The wall-framing takeoff now counts vertical siding as columns of full-height boards, and shows why a 36 in window on 12 in boards touches four columns."
 ---
 
 Lap siding runs sideways in courses, so a window splits a few courses. Vertical siding (board and batten and similar) runs the other way: boards stand side by side from the wall's corner, and a window leaves a short piece above it and a short piece below it in every column it touches.
