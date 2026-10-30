@@ -456,7 +456,7 @@
    "key": "Balanced 8x11",
    "name": "Balanced 8x11",
    "hash": "e45fcccdc93e91d5",
-   "designKey": "8b4090ca",
+   "designKey": "0336c7af",
    "files": {
     "card": {
      "file": "gallery-balanced-card.webp",
@@ -471,7 +471,7 @@
    "key": "Barn for storage 7x14",
    "name": "Barn for storage 7x14",
    "hash": "bd4089aa1ca77db6",
-   "designKey": "94dbd497",
+   "designKey": "7ccc950e",
    "files": {
     "card": {
      "file": "gallery-barn-card.webp",
@@ -486,7 +486,7 @@
    "key": "Cheapest 8x10",
    "name": "Cheapest 8x10",
    "hash": "a122dd4ba5691961",
-   "designKey": "eec0ec9c",
+   "designKey": "14e1a311",
    "files": {
     "card": {
      "file": "gallery-cheapest-card.webp",
@@ -501,7 +501,7 @@
    "key": "10x10 to match the house",
    "name": "10x10 to match the house",
    "hash": "ae97594cf828d988",
-   "designKey": "846cbabd",
+   "designKey": "665acf90",
    "files": {
     "card": {
      "file": "gallery-house-card.webp",
@@ -516,7 +516,7 @@
    "key": "Cheapest lap-sided 7x12",
    "name": "Cheapest lap-sided 7x12",
    "hash": "01b828116e3a4a9e",
-   "designKey": "1e994f34",
+   "designKey": "f8458509",
    "files": {
     "card": {
      "file": "gallery-house-cheapest-card.webp",
@@ -531,7 +531,7 @@
    "key": "Long 6x16",
    "name": "Long 6x16",
    "hash": "6519eade01533d60",
-   "designKey": "16318d9c",
+   "designKey": "043f807b",
    "files": {
     "card": {
      "file": "gallery-long-card.webp",
@@ -546,7 +546,7 @@
    "key": "Best looking 9x10",
    "name": "Best looking 9x10",
    "hash": "a91fbbec425e3323",
-   "designKey": "1d9d8fce",
+   "designKey": "dd111e17",
    "files": {
     "card": {
      "file": "gallery-looks-card.webp",
@@ -561,7 +561,7 @@
    "key": "Mower shed 10x10",
    "name": "Mower shed 10x10",
    "hash": "354e72850d024d6a",
-   "designKey": "18362e81",
+   "designKey": "f4f00d08",
    "files": {
     "card": {
      "file": "gallery-mower-card.webp",
@@ -576,7 +576,7 @@
    "key": "10x10 square",
    "name": "10x10 square",
    "hash": "105afc6c695138b4",
-   "designKey": "e42506f7",
+   "designKey": "7ffdb584",
    "files": {
     "card": {
      "file": "gallery-square-card.webp",
@@ -591,7 +591,7 @@
    "key": "Most storage 9x11",
    "name": "Most storage 9x11",
    "hash": "7d5bda29313d408f",
-   "designKey": "f43476a6",
+   "designKey": "a20a31b3",
    "files": {
     "card": {
      "file": "gallery-storage-card.webp",
@@ -606,7 +606,7 @@
    "key": "Most room per dollar, 8x12",
    "name": "Most room per dollar, 8x12",
    "hash": "7ea2c1202d1fb11a",
-   "designKey": "ad625434",
+   "designKey": "0fe486a5",
    "files": {
     "card": {
      "file": "gallery-value-card.webp",

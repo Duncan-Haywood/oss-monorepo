@@ -3,7 +3,15 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { importsOf, disqualifying, moduleName, pyproject, buildPackage, writePackage, discover, plan, run, MAX_PER_RUN } from './pypi.mjs';
+import { importsOf, disqualifying, moduleName, pyproject, buildPackage, writePackage, discover, plan, run, isOurs, MAX_PER_RUN } from './pypi.mjs';
+import { parseAllowlist } from './versions.mjs';
+
+/** An allow-list and a versions manifest naming `slugs` for PyPI at `version`. */
+const listed = (slugs, version = '0.1.0') => ({
+  allow: parseAllowlist({ tools: slugs.map((slug) => ({ slug, channels: ['pypi'], why: 'test' })) }),
+  versions: Object.fromEntries(slugs.map((slug) => [slug, { version, hash: 'sha256-x' }])),
+});
+const OURS = { project_urls: { Source: 'https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/x' } };
 
 async function fixture(files) {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), 'pypitest-'));
@@ -84,35 +92,57 @@ test('writePackage writes every file', async () => {
 
 function many(n) {
   const files = {};
-  for (let i = 0; i < n; i++) Object.assign(files, venture(`t${String(i).padStart(2, '0')}-check`));
-  return files;
+  const slugs = [];
+  for (let i = 0; i < n; i++) { slugs.push(`t${String(i).padStart(2, '0')}-check`); Object.assign(files, venture(slugs.at(-1))); }
+  return { files, slugs };
 }
 
-test('dry run publishes nothing, skips names PyPI already has, caps at MAX_PER_RUN', async () => {
-  const root = await fixture(many(8));
+test('dry run publishes nothing, skips versions PyPI already has, caps at MAX_PER_RUN', async () => {
+  const { files, slugs } = many(8);
+  const root = await fixture(files);
   const logs = [];
-  const asked = [];
-  const fetchImpl = async (url) => { asked.push(url); return { status: url.includes('/t00-check/') ? 200 : 404 }; };
+  const fetchImpl = async (url) => (url.includes('/t00-check/')
+    ? { status: 200, json: async () => ({ info: OURS, releases: { '0.1.0': [] } }) }
+    : { status: 404 });
   const publish = async () => assert.fail('must not publish on a dry run');
-  const r = await run({ env: {}, root, fetchImpl, log: (l) => logs.push(l), publish });
+  const r = await run({ env: {}, root, fetchImpl, log: (l) => logs.push(l), publish, ...listed(slugs) });
   assert.deepEqual(r, { published: 0, planned: MAX_PER_RUN });
   assert.ok(logs.some((l) => /DRY RUN/.test(l)));
   assert.ok(!logs.some((l) => /t00-check/.test(l) && /==/.test(l)));
 });
 
+test('only allow-listed tools are published; a name someone else owns is skipped', async () => {
+  const { files, slugs } = many(3);
+  const root = await fixture(files);
+  const logs = [];
+  const fetchImpl = async (url) => (url.includes('/t01-check/')
+    ? { status: 200, json: async () => ({ info: { project_urls: { Source: 'https://example.com/other' } }, releases: {} }) }
+    : { status: 404 });
+  const done = [];
+  const publish = async (dir) => { done.push(await fs.readFile(path.join(dir, 'pyproject.toml'), 'utf8')); };
+  const r = await run({ env: { DISTRIBUTE_PYPI: 'true', TWINE_PASSWORD: 'x' }, root, fetchImpl, log: (l) => logs.push(l), publish, ...listed(slugs.slice(1), '2.0.1') });
+  assert.equal(r.published, 1);
+  assert.match(done[0], /name = "t02-check"/);
+  assert.match(done[0], /version = "2\.0\.1"/);
+  assert.ok(logs.some((l) => /skip t01-check: the name belongs to another project/.test(l)));
+  assert.equal(isOurs({ info: OURS }), true);
+});
+
 test('live run needs both the variable and the token, then publishes the fresh ones', async () => {
-  const root = await fixture(many(2));
+  const { files, slugs } = many(2);
+  const root = await fixture(files);
   const fetchImpl = async () => ({ status: 404 });
   const done = [];
   const publish = async (dir) => { done.push(await fs.readdir(dir)); };
-  const half = await run({ env: { DISTRIBUTE_PYPI: 'true' }, root, fetchImpl, log() {}, publish });
+  const half = await run({ env: { DISTRIBUTE_PYPI: 'true' }, root, fetchImpl, log() {}, publish, ...listed(slugs) });
   assert.equal(half.published, 0);
-  const live = await run({ env: { DISTRIBUTE_PYPI: 'true', TWINE_PASSWORD: 'pypi-x' }, root, fetchImpl, log() {}, publish });
+  const live = await run({ env: { DISTRIBUTE_PYPI: 'true', TWINE_PASSWORD: 'pypi-x' }, root, fetchImpl, log() {}, publish, ...listed(slugs) });
   assert.equal(live.published, 2);
   assert.equal(done.length, 2);
 });
 
 test('an unexpected registry status stops the run rather than guessing', async () => {
-  const root = await fixture(many(1));
-  await assert.rejects(run({ env: {}, root, fetchImpl: async () => ({ status: 503 }), log() {} }), /HTTP 503/);
+  const { files, slugs } = many(1);
+  const root = await fixture(files);
+  await assert.rejects(run({ env: {}, root, fetchImpl: async () => ({ status: 503 }), log() {}, ...listed(slugs) }), /HTTP 503/);
 });

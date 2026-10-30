@@ -29,7 +29,7 @@ jobs:
           python-version: '3.12'
       - run: python3 -m pip install build twine
         if: ${{ vars.DISTRIBUTE_PYPI == 'true' }}
-      - run: node platform/distributio./pypi-packages.mjs
+      - run: node platform/distribution/pypi-packages.mjs
         env:
           DISTRIBUTE_PYPI: ${{ vars.DISTRIBUTE_PYPI }}
           TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}

@@ -99,7 +99,7 @@ export async function plan({ root = REPO_ROOT, slugs } = {}) {
       slug,
       files: {
         [`${ACTIONS_DIR}/${slug}/action.yml`]: actionYaml({ slug, description }),
-        [`${ACTIONS_DIR}/${slug}/README.md`]: `# ${title(slug)} (GitHub Action)\n\n${description}\n\n\`\`\`yaml\n- uses: actions/checkout@v4\n- uses: ${USES_PREFIX}/${slug}@main\n  with:\n    path: .\n\`\`\`\n\nRuns [\`ventures/${slug}/check.py\`](../../../../ventures/${slug}/check.py) (MIT, stdlib-only Python, no network calls). Docs: ${tagUrl(toolUrl(slug), 'gh-action')}\n`,
+        [`${ACTIONS_DIR}/${slug}/README.md`]: `# ${title(slug)} (GitHub Action)\n\n${description}\n\n\`\`\`yaml\n- uses: actions/checkout@v4\n- uses: ${USES_PREFIX}/${slug}@main\n  with:\n    path: .\n\`\`\`\n\nFor a stable pin, replace \`@main\` with a full commit SHA, or with a \`${slug}-v<version>\` tag from this repository's Releases once one exists (portfolio/distribution/versions.json has the current version).\n\nRuns [\`ventures/${slug}/check.py\`](../../../../ventures/${slug}/check.py) (MIT, stdlib-only Python, no network calls). Docs: ${tagUrl(toolUrl(slug), 'gh-action')}\n`,
       },
     });
   }

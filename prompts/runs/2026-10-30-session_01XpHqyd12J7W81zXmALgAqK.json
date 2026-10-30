@@ -1,0 +1,55 @@
+{
+  "date": "2026-10-30",
+  "session": "https://claude.ai/code/session_01XpHqyd12J7W81zXmALgAqK",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "for dev and agent tools. does it make sense to have releases or anything? or publishing to package managers or anything? / yes build 1, the allow-list and versioning",
+  "input_sha256": "a42b56bcfcf6c40b2030c7a71e8731e65080c7305f79b64a64b90156b38f8daa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-30T21:15:53Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Allow-list and content-hash versioning for the registry channels; versioned tool releases",
+  "projects": [
+    "devsec-toolkit"
+  ],
+  "pr": 11890,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/workflows/distribute-pypi-packages.yml",
+      "issue": "ran platform/distributio./pypi-packages.mjs, a path that does not exist; nothing caught it because no CI ran the distribution scripts or tests. Fixed, and distribution-versions-ci.yml now runs the publisher tests."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "User-directed task (answer about releases, then build releases, allow-list and versioning), so the weighted route draw (ventures) was recorded but not followed as a brief.",
+      "did": "built the requested distribution work",
+      "result": "shipped in PR 11890"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-30-31-tools-not-180-packages.md"
+  ],
+  "goal": null,
+  "notes": "Dry runs before: npm would publish 180 CLIs, PyPI 24, all at 0.1.0 with name-only dedupe. After: 7 npm, 3 PyPI, 31 release tags, versions from a SHA-256 of shipped files. npm names llm-spend-guard and llms-txt-generator are taken (HTTP 200 on registry.npmjs.org, other repository) and are skipped. devsec-toolkit bundle tarball 128147 bytes, reproducible across two builds, runs from a fresh dir. Tests: versions 9, tool-releases 8, npm 16, pypi 11, pypi-packages 8, homebrew+ghcr 9, all pass; gitops test_ci_runner 24 pass after sync_readme_counts; publish_surface --check, ghaction --check, check_md_links pass.",
+  "corrections": [],
+  "redteam": null
+}
