@@ -38,6 +38,8 @@ export function buildInstructions(shed, est) {
   const qty = (pred) => shed.members.filter(pred).length;
   const t = d.pitch / 12;
   const angle = Math.atan(t);
+  // A saltbox: two slopes and an off-centre ridge (model.mjs dims.slopes).
+  const salt = Boolean(k.saltbox && k.slopes);
   const lean = Boolean(k.lean);
   const beam = !lean && d.roofType === 'ridgeBeam';
   /** @type {Section[]} */
@@ -230,13 +232,13 @@ export function buildInstructions(shed, est) {
   out.push({
     title: beam ? 'Ridge beam and posts' : 'Ridge board',
     steps: beam ? [
-      `Build each gable post from two ${d.studSize} (mark ${marks((m) => m.kind === 'beam post')}, ${fmtIn(shed.members.find((m) => m.kind === 'beam post')?.length ?? 0)}), nailed face to face, and stand one centred on each gable wall's cap plate, directly over the two post studs in that wall.`,
+      `Build each gable post from two ${d.studSize} (mark ${marks((m) => m.kind === 'beam post')}, ${fmtIn(shed.members.find((m) => m.kind === 'beam post')?.length ?? 0)}), nailed face to face, and stand one ${salt ? `on each gable wall's cap plate with its centre ${fmtIn(k.ridgeY)} back from the front wall's outside face` : "centred on each gable wall's cap plate"}, directly over the two post studs in that wall.`,
       `Nail the two plies of the ridge beam together (mark ${marks((m) => m.kind === 'ridge beam')}, two ${d.beamSize} at ${fmtIn(L)}): 16d in two rows every 12", staggered.`,
       `Lift the beam onto the posts with a helper. Its top sits ${fmtFtIn(k.ridgeTop - k.floorTop)} above the floor; check it with a level and a tape from the floor at both ends. Toenail it to each post with four 16d, two from each side. A metal strap from beam to post adds hold where your code asks for one (none is on the list).`,
       'Brace the beam level and straight with temporary braces to the floor until rafters are on both sides.',
     ] : [
       `The ridge board (mark ${marks((m) => m.kind === 'ridge board')}, ${k.ridgeSize}) is not a beam: rafter ties hold the rafters. Mark rafter centres on it to match the top plates.`,
-      `Prop it on temporary posts so its top is ${fmtFtIn(k.ridgeTop - k.floorTop)} above the floor, centred over the width.`,
+      `Prop it on temporary posts so its top is ${fmtFtIn(k.ridgeTop - k.floorTop)} above the floor, ${salt ? `its centre ${fmtIn(k.ridgeY)} back from the front wall's outside face (the saltbox's ridge is off centre, toward the steep front). Its top is flush with the steep front rafters' tops; the long back rafters stand a little proud of it` : 'centred over the width'}.`,
       'Leave the props in until every rafter pair and its tie is nailed, then take them out: the ties, not the props, keep the walls from spreading.',
     ],
   });
@@ -263,21 +265,33 @@ export function buildInstructions(shed, est) {
     ].filter(Boolean),
     check: ['Every rafter top in one plane: sight along them or run a string.', 'Pattern rafter fits at both ends of the shed and the middle before cutting the rest.'],
   });
+  /** A rafter's own layout: pitch, ridge cut, seat, tail and cut length. A saltbox has two. */
+  const rafterLayout = (pitch, ang, wr, rn, heel, cut, isSide) => [
+    `Pitch ${pitch}/12: the roof rises ${pitch}" for every 12" across, an angle of ${deg(ang)}. On a speed square, pivot on the pivot point and read ${pitch} on the COMMON scale for every plumb and seat line.`,
+    `Ridge end: a plumb cut, marked with the square at ${pitch} on the common scale (${deg(ang)} off a square cut).`,
+    k.connector
+      ? `No birdsmouth: from the ridge plumb line measure ${fmtIn(wr / Math.cos(ang))} along the bottom edge (a level run of ${fmtIn(wr)}) and square a line across: that is the wall line, where the rafter's underside rests on the outside top edge of the wall. Each rafter sits there on a variable-pitch connector (Simpson VPA2 or equal) nailed to the cap plate; set the connector's seat to the ${pitch}/12 slope and nail as Simpson's instructions show.`
+      : `Birdsmouth over the wall: from the ridge plumb line measure ${fmtIn(rn / Math.cos(ang))} along the bottom edge (a level run of ${fmtIn(rn)} to the inside face of the wall, where the seat starts). Draw the seat cut ${fmtIn(k.stud)} long (the wall's depth) and the heel cut ${fmtIn(heel)} deep. Never cut past the line; finish the corner with a handsaw.`,
+    d.overhang > 0 ? `Tail: ${fmtIn(d.overhang)} of overhang beyond the wall, ${fmtIn(d.overhang / Math.cos(ang))} along the bottom edge past the ${k.connector ? 'wall line' : 'heel cut'}, ended with a plumb cut so the fascia hangs straight.` : `No overhang: the tail ends at the ${k.connector ? 'wall line, with a plumb cut' : 'heel cut'}.`,
+    `Cut length from a square end: ${fmtIn(cut)} (mark ${marks(isSide)}, ${qty(isSide)} rafters, ${d.rafterSize}).`,
+  ];
   if (!lean) out.push({
     title: 'Rafters',
     why: 'Cut one rafter, test it at both ends and in the middle, then use it as the pattern for the rest.',
     steps: [
-      `Pitch ${d.pitch}/12: the roof rises ${d.pitch}" for every 12" across, an angle of ${deg(angle)}. On a speed square, pivot on the pivot point and read ${d.pitch} on the COMMON scale for every plumb and seat line.`,
-      `Ridge end: a plumb cut, marked with the square at ${d.pitch} on the common scale (${deg(angle)} off a square cut).`,
-      k.connector
-        ? `No birdsmouth: from the ridge plumb line measure ${fmtIn(wallRun / Math.cos(angle))} along the bottom edge (a level run of ${fmtIn(wallRun)}) and square a line across: that is the wall line, where the rafter's underside rests on the outside top edge of the wall. Each rafter sits there on a variable-pitch connector (Simpson VPA2 or equal) nailed to the cap plate; set the connector's seat to the ${d.pitch}/12 slope and nail as Simpson's instructions show.`
-        : `Birdsmouth over the wall: from the ridge plumb line measure ${fmtIn(run / Math.cos(angle))} along the bottom edge (a level run of ${fmtIn(run)} to the inside face of the wall, where the seat starts). Draw the seat cut ${fmtIn(k.stud)} long (the wall's depth) and the heel cut ${fmtIn(k.heel)} deep. Never cut past the line; finish the corner with a handsaw.`,
-      d.overhang > 0 ? `Tail: ${fmtIn(d.overhang)} of overhang beyond the wall, ${fmtIn(d.overhang / Math.cos(angle))} along the bottom edge past the ${k.connector ? 'wall line' : 'heel cut'}, ended with a plumb cut so the fascia hangs straight.` : `No overhang: the tail ends at the ${k.connector ? 'wall line, with a plumb cut' : 'heel cut'}.`,
-      `Cut length from a square end: ${fmtIn(k.rafterCut)} (mark ${marks((m) => m.kind === 'rafter')}, ${qty((m) => m.kind === 'rafter')} rafters, ${d.rafterSize}).`,
+      ...(salt
+        ? ['front', 'back'].flatMap((side) => {
+          const sd = k.slopes[side];
+          const back = side === 'back';
+          const wr = (back ? W - k.ridgeY : k.ridgeY) - (beam ? 1.5 : 0.75);
+          const isSide = (m) => m.kind === 'rafter' && m.geom.profile.some((q) => q[0] > k.ridgeY + 0.1) === back;
+          return rafterLayout(sd.pitch, Math.atan(sd.pitch / 12), wr, wr - k.stud, sd.heel, sd.rafterCut, isSide).map((x, n) => (n ? x : `${back ? 'Back (long slope)' : 'Front (steep)'} rafters. ${x}`));
+        })
+        : rafterLayout(d.pitch, angle, wallRun, run, k.heel, k.rafterCut, (m) => m.kind === 'rafter')),
       `Mark rafter centres on the top plates and the ${beam ? 'beam' : 'ridge'}: the first and last flush with the gable ends, the rest at ${list(k.rafterCenters.slice(1, -1))} from the left end.`,
       `Set rafters in opposite pairs so the ${beam ? 'beam' : 'ridge'} stays straight. ${beam ? `Hang each one from the beam with a ${d.rafterSize} slope-adjustable rafter hanger (on the list), bent to the roof pitch before nailing` : 'Nail through the ridge board into each rafter (three 16d)'}${k.connector ? ', and nail it to its connector' : ', and fix each one to the wall plate with a rafter-to-plate tie (on the list)'}.`,
       beam ? 'There are no rafter ties: the beam carries the rafters, so the inside is open to the roof.' : `Nail a ${d.tieSize} rafter tie (mark ${marks((m) => m.kind === 'rafter tie')}) beside every pair but the gable ends, on top of the wall plates, ${heelJoint(shed)?.nails ?? 3} 16d commons into each rafter (the tie holds the rafters' outward push; the Structure tab shows the count's working).`,
-      `Fit the blocks between rafters on top of each eave wall (mark ${marks((m) => m.kind === 'eave blocking')}), top edges bevelled to ${d.pitch}/12.${d.overhang > 0 ? ' The soffit is vented, so the air has to get past them: drill two 1-1/2" holes through each block and staple insect screen over them.' : ''}`,
+      `Fit the blocks between rafters on top of each eave wall (mark ${marks((m) => m.kind === 'eave blocking')}), top edges bevelled to ${salt ? `${k.slopes.front.pitch}/12 on the front wall and ${d.pitch}/12 on the back` : `${d.pitch}/12`}.${d.overhang > 0 ? ' The soffit is vented, so the air has to get past them: drill two 1-1/2" holes through each block and staple insect screen over them.' : ''}`,
       d.overhang > 0 ? `Nail the 2x6 sub-fascia (mark ${marks((m) => m.kind === 'sub-fascia')}) across the rafter tails, top flush with the rafter tops, two 16d per tail.` : '',
     ].filter(Boolean),
     check: ['Every rafter top in one plane: sight along them or run a string.', `Pattern rafter fits at both gable ends and the middle before cutting the rest.`],

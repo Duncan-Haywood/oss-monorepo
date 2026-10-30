@@ -15,7 +15,7 @@
 // Screening checks on SPF No. 2 by allowable stress; nothing here has been
 // reviewed by an engineer.
 
-import { buildShed } from './model.mjs';
+import { buildShed, headerLoadPlf } from './model.mjs';
 import { structuralChecks, heelJoint, nailZ, skidOnBlocks, SOIL_PSF, rafterUplift, racking, bayPlates, eaveRoofPlf, ridgeBeamLoad } from './checks.mjs';
 import { trussForces } from './truss.mjs';
 import { connectionChecks } from './connections.mjs';
@@ -259,9 +259,11 @@ export function utilisation(shed, sc = structuralChecks(shed)) {
       const q = headerQueue.shift();
       if (q) {
         const eave = q.name === 'front' || q.name === 'back';
-        const wPlf = eave ? deadPlf + snowPlf + 10 : 40 + (15 / cos + d.snowLoad) * (d.rafterSpacing / 2) / 12;
+        // A saltbox's eave walls each carry their own slope, as checks.mjs sizes them (model.mjs headerLoadPlf).
+        const own = salt && eave ? eaveRoofPlf(shed, q.name) : null;
+        const wPlf = salt ? headerLoadPlf(d, q.name) : eave ? deadPlf + snowPlf + 10 : 40 + (15 / cos + d.snowLoad) * (d.rafterSpacing / 2) / 12;
         u.parts = headerWords(q.p.hdr, q.p.w, wPlf, 2, 1, d.studSize);
-        u.inputs = [['Opening', `${fmtIn(q.p.w)} wide in the ${q.name} wall`], ['Load', eave ? `roof ${n0(deadPlf)} dead + ${n0(snowPlf)} snow lb/ft, plus 10 lb/ft of wall` : `the gable framing above (40 lb/ft) plus half a rafter spacing of roof`], ['Member', `2-ply ${q.p.hdr}`]];
+        u.inputs = [['Opening', `${fmtIn(q.p.w)} wide in the ${q.name} wall`], ['Load', eave ? `roof ${n0(own ? own.dead : deadPlf)} dead + ${n0(own ? own.snow : snowPlf)} snow lb/ft, plus 10 lb/ft of wall` : `the gable framing above (40 lb/ft) plus half a rafter spacing of roof`], ['Member', `2-ply ${q.p.hdr}`]];
         u.key = `${row.member} (${fmtIn(q.p.a)} along)`;
         u.ids = shed.walls[q.name].members.filter((m) => m.kind === 'header' && /** @type {any} */ (m.local).s0 < q.p.a + q.p.w && /** @type {any} */ (m.local).s1 > q.p.a).map((m) => m.id);
       }
