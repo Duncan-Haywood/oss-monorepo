@@ -22,7 +22,7 @@ export const STAIR_LIMITS = { maxRiser: 7.75, minTread: 10, riserVariance: 0.375
 export function maxTreadSpan(thickness) { return thickness < 1.25 ? 12 : thickness < 1.5 ? 16 : 24; }
 
 /** Guard and handrail limits (model residential code's usual ones, typed so the local book can change them): 36 in guard, handrail 34 to 38 in above the nose line, balusters with no clear gap a 4 in sphere passes, posts no more than 72 in apart, 4 in under the bottom rail. */
-export const RAIL_LIMITS = { guardHeight: 36, handrailMin: 34, handrailMax: 38, maxGap: 4, maxPostSpacing: 72, bottomGap: 4 };
+export const RAIL_LIMITS = { guardHeight: 36, handrailMin: 34, handrailMax: 38, maxGap: 4, maxPostSpacing: 72, bottomGap: 4, maxBottomOpening: 6 };
 
 /** @typedef {{ sides?: number, handrail?: boolean, handrailHeight?: number, bracketSpacing?: number, balusterWidth?: number, railBoard?: string, postWidth?: number, limits?: Partial<typeof RAIL_LIMITS> }} Rail */
 /** @typedef {{ id?: string, rail?: Rail, totalRise: number, tread?: number, stringer?: string, width?: number, stringerSpacing?: number, treadThickness?: number, treadBoard?: string, treadGap?: number, nosing?: number, floorThickness?: number, openingLength?: number, openRisers?: boolean, riserBoard?: string, treadSpanMax?: number, limits?: Partial<typeof STAIR_LIMITS> }} Stair */
@@ -137,6 +137,7 @@ export function layoutRail(g, r, notes) {
   const sides = r.sides ?? 1, bw = r.balusterWidth ?? 1.5, post = r.postWidth ?? 3.5, board = r.railBoard ?? "2x4";
   const hh = r.handrailHeight ?? 36;
   if (hh < L.handrailMin || hh > L.handrailMax) notes.push(`Handrail height ${hh} in is outside ${L.handrailMin} to ${L.handrailMax} in above the nose line.`);
+  if (L.bottomGap > L.maxBottomOpening) notes.push(`A ${L.bottomGap} in space under the bottom rail passes a ${L.maxBottomOpening} in sphere; the usual stair guard limit is ${L.maxBottomOpening} in (code edition not checked).`);
   const angle = Math.atan2(g.riser, g.tread);
   const segments = Math.max(1, Math.ceil(g.pitch / L.maxPostSpacing - 1e-9));
   const posts = segments + 1;
