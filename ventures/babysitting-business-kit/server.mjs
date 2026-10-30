@@ -15,6 +15,7 @@
 //   GET|PUT /api/desk      the desk as JSON (Authorization: Bearer ADMIN_KEY)
 //   GET  /api/today        today's to-do list (Authorization: Bearer ADMIN_KEY)
 //   GET|POST /intake/<t>   a family's one-time info sheet (token made in the app's Families tab)
+//   GET|POST /safe/<t>     the sitter's late-sit check-in link; PUT /api/safety/checkin (safety-server.mjs)
 //   GET  /admin            status page; /api/status, /api/backup, /api/restore (backup.mjs)
 //   POST /network/handoff  a signed pass-on from another sitter's kit server (network-server.mjs)
 //   a daily digest at DIGEST_HOUR (server time) to your webhook or email
@@ -46,11 +47,13 @@ import { automationRoutes, runAutomations } from "./automations-server.mjs";
 import { blogRoute, serverDraft } from "./content.mjs";
 import { loadDesk, atomicWrite, backupApi, backupDir, dailyBackup } from "./backup.mjs";
 import { networkRoutes, mergeNetwork } from "./network-server.mjs";
+import { mergeSafety } from "./safety.mjs";
+import { safetyRoutes, runSafety } from "./safety-server.mjs";
 
 const MAX_BODY = 64 * 1024;
 const MAX_DESK = 8 * 1024 * 1024;
 const MAX_LEADS = 2000;
-const FILES = { "/": "index.html", "/index.html": "index.html", "/engine.mjs": "engine.mjs", "/usage.mjs": "usage.mjs", "/taxes.mjs": "taxes.mjs", "/slots.mjs": "slots.mjs", "/intake.mjs": "intake.mjs", "/meet-and-greet.html": "meet-and-greet.html", "/references.mjs": "references.mjs", "/site.mjs": "site.mjs", "/print.mjs": "print.mjs", "/qr.mjs": "qr.mjs", "/automations.mjs": "automations.mjs", "/automations-ui.mjs": "automations-ui.mjs", "/content.mjs": "content.mjs", "/content-ui.mjs": "content-ui.mjs", "/byok.mjs": "byok.mjs", "/agreements.mjs": "agreements.mjs", "/agreements-ui.mjs": "agreements-ui.mjs", "/admin": "admin.html" };
+const FILES = { "/": "index.html", "/index.html": "index.html", "/engine.mjs": "engine.mjs", "/usage.mjs": "usage.mjs", "/taxes.mjs": "taxes.mjs", "/slots.mjs": "slots.mjs", "/intake.mjs": "intake.mjs", "/meet-and-greet.html": "meet-and-greet.html", "/references.mjs": "references.mjs", "/site.mjs": "site.mjs", "/print.mjs": "print.mjs", "/qr.mjs": "qr.mjs", "/automations.mjs": "automations.mjs", "/automations-ui.mjs": "automations-ui.mjs", "/content.mjs": "content.mjs", "/content-ui.mjs": "content-ui.mjs", "/byok.mjs": "byok.mjs", "/agreements.mjs": "agreements.mjs", "/agreements-ui.mjs": "agreements-ui.mjs", "/admin": "admin.html", "/safety.mjs": "safety.mjs", "/safety-ui.mjs": "safety-ui.mjs" };
 const TYPES = { html: "text/html; charset=utf-8", mjs: "text/javascript; charset=utf-8" };
 // The installable app (PWA) and the guide pages, so a self-hosted copy works offline and links resolve.
 for (const f of ["tabs.mjs", "sw.js", "manifest.webmanifest", "icon.svg", "icon-192.png", "icon-512.png", "icon-maskable-512.png", "apple-touch-icon.png", "babysitting-taxes.html", "how-to-start-a-babysitting-business.html", "how-much-to-charge-for-babysitting.html", "babysitting-references.html", "self-host.html", "network.mjs", "network-ui.mjs"]) FILES[`/${f}`] = f;
@@ -104,6 +107,7 @@ export function handler(state, save, env = process.env, now = Date.now, fetchImp
   const hits = new Map();
   const auto = automationRoutes(state, save, env, now, fetchImpl, msg.sitter);
   const net = networkRoutes(state, save, env, now, fetchImpl, msg.sitter); // sitter network handoffs (network-server.mjs)
+  const safe = safetyRoutes(state, save, env, now, fetchImpl, msg.sitter); // late-sit check-in (safety-server.mjs)
   return async (req, res) => {
     const send = (code, body, type = TYPES.html, extra = {}) => { res.writeHead(code, { "content-type": type, "x-content-type-options": "nosniff", "referrer-policy": "no-referrer", ...extra }); res.end(body); };
     const url = new URL(req.url, "http://x");
@@ -111,6 +115,7 @@ export function handler(state, save, env = process.env, now = Date.now, fetchImp
     if (url.pathname === "/healthz") return send(200, "ok\n", "text/plain");
     if (await auto(req, url, send)) return;
     if (await net(req, url, send)) return;
+    if (await safe(req, url, send)) return;
     if (req.method === "GET" && FILES[url.pathname]) {
       const f = FILES[url.pathname];
       return send(200, readFileSync(new URL(f, dir)), TYPES[f.split(".").pop()]);
@@ -242,6 +247,7 @@ export function handler(state, save, env = process.env, now = Date.now, fetchImp
         if (incoming.network || state.desk.network) incoming.network = mergeNetwork(state.desk.network, incoming.network); // keep handoffs the server sent
         if (Array.isArray(incoming.references)) incoming.references = mergeReferences(state.desk, incoming.references); // keep answers that arrived by link
         mergeAgreements(state.desk, incoming); // and signatures, used links and photo choices (agreements.mjs)
+        incoming.safety = mergeSafety(state.desk.safety, incoming.safety, now()); // keep check-in taps and alerts from the server
         state.desk = normalizeDesk(keepIntakes(state.desk, incoming)); // and info sheets families filled in
         state.desk.leads.push(...fresh);
         save();
@@ -300,4 +306,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     if (d.getHours() === digestHour && lastDigest !== today) { lastDigest = today; state.lastDigest = today; dailyDigest(state, save, process.env, today).catch((e) => console.error("digest failed:", e.message)); }
     backup();
   }, 5 * 60 * 1000).unref?.();
+  // Late-sit check-ins every minute, at any hour: safety alerts ignore quiet hours.
+  const sitterMsg = messenger(process.env).sitter;
+  setInterval(() => { runSafety(state, save, process.env, Date.now(), globalThis.fetch, sitterMsg).catch((e) => console.error("safety check failed:", e.message)); }, 60 * 1000).unref?.();
 }

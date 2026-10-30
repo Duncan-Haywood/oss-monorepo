@@ -90,6 +90,7 @@
     <button type="button" role="tab" data-tab="print">Print</button>
     <button type="button" role="tab" data-tab="blog">Posts &amp; blog</button>
     <button type="button" role="tab" data-tab="network">Network</button>
+    <button type="button" role="tab" data-tab="safety">Safety</button>
     <button type="button" role="tab" data-tab="settings">Settings</button>
   </nav>
 
@@ -335,6 +336,9 @@
     <section data-panel="network" class="card" hidden>
       <h2>Sitter network</h2>
       <div id="networkKit"></div>
+    <section data-panel="safety" class="card" hidden>
+      <h2>Your safety</h2>
+      <div id="safetyKit"></div>
     </section>
 
     <section data-panel="settings" class="card" hidden>
@@ -433,6 +437,7 @@
     import { mountAgreements } from "./agreements-ui.mjs";
     import { mountContent } from "./content-ui.mjs";
     import { mountNetwork } from "./network-ui.mjs";
+    import { mountSafety } from "./safety-ui.mjs";
     import { enhanceTabs } from "./tabs.mjs";
 
     const STORE = "babysitting-business-kit-desk";
@@ -450,6 +455,7 @@
     let renderAutomations = () => {};
     let renderAgreements = () => {};
     let renderNetwork = () => {};
+    let renderSafety = () => {};
 
     function load() {
       try { return E.normalizeDesk(JSON.parse(localStorage.getItem(STORE) || "null")); } catch { return E.emptyDesk(); }
@@ -674,6 +680,7 @@
       renderAutomations();
       renderAgreements();
       renderNetwork();
+      renderSafety();
       fillForm($("profileForm"), { ...desk.profile, certifications: desk.profile.certifications, holidays: desk.profile.holidays, followUpDays: desk.profile.followUpDays });
       $("profileForm").scrollIntoView = () => {};
     }
@@ -932,6 +939,7 @@
     renderNetwork = mountNetwork($("networkKit"), { getDesk: () => desk, save, esc, record, today, server: () => ({ url: $("syncUrl").value.trim().replace(/\/+$/, ""), key: $("syncKey").value }) });
     $("contentStart").value = today();
     mountContent($("contentKit"), { getDesk: () => desk, save, record, today, buildSite: (d) => E.buildSite(d) });
+    renderSafety = mountSafety($("safetyKit"), { getDesk: () => desk, save, esc, record, today, openPage, server: () => ({ url: $("syncUrl").value.trim().replace(/\/+$/, ""), key: $("syncKey").value }) });
     record("page_loaded");
     render();
     show("today");
