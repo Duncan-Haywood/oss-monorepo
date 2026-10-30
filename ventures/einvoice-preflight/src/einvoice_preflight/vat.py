@@ -158,6 +158,8 @@ def _classify(country: str, body: str) -> str:
     lengths = _FORMAT_ONLY.get(country)
     if lengths is None:
         return "unknown"
+    if country in _EXTRA and _EXTRA[country][0](body):
+        return "checksum"
     if body.isalnum() and len(body) in lengths:
         return "format"
     return "bad-format"
@@ -194,7 +196,76 @@ def _checksum_ok(country: str, body: str) -> bool:
         return _ie(body)
     if country in {"GB", "UK"}:
         return _gb(body)
+    if country in _EXTRA:
+        return _EXTRA[country][1](body)
     return False
+
+
+def _w(text: str, weights: list[int]) -> int:
+    return sum(int(d) * w for d, w in zip(text, weights))
+
+
+def _mod11_retry(body: str, retry: list[int]) -> bool:
+    total = _w(body[:8], [1, 2, 3, 4, 5, 6, 7, 8]) % 11
+    if total == 10:
+        total = _w(body[:8], retry) % 11
+    if total == 10:
+        total = 0
+    return total == int(body[8])
+
+
+def _ro(body: str) -> bool:
+    padded = body.rjust(10, "0")
+    check = (_w(padded[:9], [7, 5, 3, 2, 1, 7, 5, 3, 2]) * 10) % 11
+    return (0 if check == 10 else check) == int(padded[9])
+
+
+def _si(body: str) -> bool:
+    if body[0] == "0":
+        return False
+    check = 11 - _w(body[:7], [8, 7, 6, 5, 4, 3, 2]) % 11
+    return (0 if check == 10 else check) == int(body[7])
+
+
+def _hr(body: str) -> bool:
+    product = 10
+    for ch in body[:10]:
+        step = (int(ch) + product) % 10 or 10
+        product = (2 * step) % 11
+    return (11 - product) % 10 == int(body[10])
+
+
+def _el(body: str) -> bool:
+    total = sum(int(body[i]) * 2 ** (8 - i) for i in range(8))
+    return (total % 11) % 10 == int(body[8])
+
+
+def _cz(body: str) -> bool:
+    check = 11 - _w(body[:7], [8, 7, 6, 5, 4, 3, 2]) % 11
+    check = {10: 0, 11: 1}.get(check, check)
+    return check == int(body[7])
+
+
+def _digits(n: int, first: str = "0123456789"):
+    return lambda b: len(b) == n and b.isascii() and b.isdigit() and b[0] in first
+
+
+# country: (applies, ok). Variants not listed (10-digit BG, 12-digit LT,
+# 9/10-digit CZ, LV natural persons) stay shape-only. Same checks as vat.mjs.
+_EXTRA = {
+    "EE": (_digits(9), lambda b: b[0] == "1" and _w(b, [3, 7, 1, 3, 7, 1, 3, 7, 1]) % 10 == 0),
+    "HU": (_digits(8), lambda b: _w(b, [9, 7, 3, 1, 9, 7, 3, 1]) % 10 == 0),
+    "SI": (_digits(8), _si),
+    "SK": (_digits(10), lambda b: b[0] != "0" and b[2] in "234789" and int(b) % 11 == 0),
+    "HR": (_digits(11), _hr),
+    "LV": (_digits(11, "456789"), lambda b: _w(b, [9, 1, 4, 8, 3, 10, 2, 5, 7, 6, 1]) % 11 == 3),
+    "LT": (_digits(9), lambda b: b[7] == "1" and _mod11_retry(b, [3, 4, 5, 6, 7, 8, 9, 1])),
+    "BG": (_digits(9), lambda b: _mod11_retry(b, [3, 4, 5, 6, 7, 8, 9, 10])),
+    "RO": (lambda b: b.isascii() and b.isdigit() and 2 <= len(b) <= 10 and b[0] != "0", _ro),
+    "EL": (_digits(9), _el),
+    "GR": (_digits(9), _el),
+    "CZ": (_digits(8, "012345678"), _cz),
+}
 
 
 def _de(digits: str) -> bool:

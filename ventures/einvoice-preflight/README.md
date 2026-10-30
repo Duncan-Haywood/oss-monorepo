@@ -37,6 +37,8 @@ code, the XRechnung 3.x specification identifier, and a seller tax identifier.
 Off by default. JS (page and API) only; the Python CLI does not apply it yet.
 It is an offline observation, not the KoSIT validator.
 
+**VAT check digits for 11 more countries (2026-10-30).** EE, HU, SI, SK, HR, LV (companies), LT (9 digits), BG (9 digits), RO, EL and CZ (8 digits) now fail INV-023 on a bad check digit, not only INV-022 on length (`vat.mjs` and `vat.py`). Algorithms from memory of the public descriptions (python-stdnum), each tested on a published example number and a one-digit mutation; no real invoice, no tax-authority text read. Variants not implemented stay length-only.
+
 **Peppol profile.** Tick "Also apply the Peppol BIS Billing 3.0 rules" on the
 page, or call `POST /v1/validate?profile=peppol`, to add five `PP-001`..`PP-005`
 rules that mirror what a Peppol access point rejects: the business process
