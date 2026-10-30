@@ -170,6 +170,55 @@
     .card dt { color: var(--muted); }
     .card dd { margin: 0; font-weight: 700; }
     .pill { background: var(--gold); color: var(--ink); border-radius: 999px; padding: 1px 8px; font-size: .72rem; }
+    .starts { margin: 6px 0 18px; }
+    .pick-list { list-style: none; padding: 0; margin: 10px 0 0; display: grid; grid-auto-flow: column; grid-auto-columns: minmax(220px, 260px); gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 6px; }
+    .pick { scroll-snap-align: start; border: 1px solid var(--line); border-radius: 12px; background: #fff; display: flex; flex-direction: column; overflow: hidden; }
+    .pick-open { all: unset; cursor: pointer; display: flex; flex-direction: column; gap: 4px; padding: 10px 10px 6px; flex: 1; }
+    .pick-open:focus-visible { outline: 3px solid var(--accent); outline-offset: -3px; border-radius: 12px; }
+    .pick-img img, .pick-img .thumb-wait { width: 100%; height: auto; aspect-ratio: 3 / 2; border-radius: 8px; background: #edf1f5; display: grid; place-items: center; color: var(--muted); font-size: .8rem; }
+    .pick-line { font-size: .85rem; font-weight: 600; }
+    .pick-why { font-size: .8rem; color: var(--muted); }
+    .pick-cmp { margin: 0 10px 10px; min-height: 44px; }
+    .pick-cmp[aria-pressed="true"], .dlg-actions [aria-pressed="true"] { background: var(--accent2); color: #fff; }
+    .compare-tray { position: sticky; bottom: 8px; z-index: 5; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; background: var(--card); border: 1px solid var(--accent2); border-radius: 12px; padding: 8px 12px; margin: 0 0 12px; box-shadow: 0 4px 14px rgba(0,0,0,.12); }
+    .compare-tray[hidden] { display: none; }
+    .compare-tray > span { flex: 1 1 200px; font-size: .9rem; }
+    .pick-dialog { width: min(1100px, calc(100vw - 16px)); max-height: calc(100dvh - 16px); padding: 0 16px 16px; border: 1px solid var(--line); border-radius: 14px; background: var(--card); color: var(--ink); box-sizing: border-box; }
+    .pick-dialog::backdrop { background: rgba(20,24,20,.55); }
+    .dlg-head { position: sticky; top: 0; z-index: 2; display: flex; gap: 10px; align-items: center; justify-content: space-between; background: var(--card); padding: 12px 0 8px; border-bottom: 1px solid var(--line); }
+    .dlg-title { margin: 0; font-size: 1.15rem; }
+    .pick-dialog .why { background: var(--warn); border-radius: 8px; padding: 8px 10px; }
+    .shots { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(240px, 1fr); gap: 10px; overflow-x: auto; scroll-snap-type: x mandatory; }
+    .shots figure { margin: 0; scroll-snap-align: start; }
+    .shots img, .shots .thumb-wait { width: 100%; height: auto; aspect-ratio: 3 / 2; border-radius: 8px; background: #edf1f5; display: grid; place-items: center; color: var(--muted); }
+    .shots figcaption { font-size: .8rem; color: var(--muted); text-align: center; }
+    .detail-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 6px 22px; }
+    .detail-grid h3 { margin: 14px 0 6px; font-size: 1rem; }
+    .detail-grid h4 { margin: 10px 0 4px; font-size: .92rem; }
+    .facts { margin: 0; display: grid; gap: 3px; font-size: .88rem; }
+    .facts div { display: grid; grid-template-columns: 7.5em minmax(0, 1fr); gap: 8px; }
+    .facts dt { color: var(--muted); }
+    .facts dd { margin: 0; }
+    .bars { list-style: none; padding: 0; margin: 0; display: grid; gap: 4px; font-size: .86rem; }
+    .bars li { display: grid; grid-template-columns: minmax(0, 9em) minmax(0, 1fr) 4.5em; gap: 8px; align-items: center; }
+    .bars .bar { height: 10px; border-radius: 5px; background: #e7e1d4; overflow: hidden; }
+    .bars .bar span { display: block; height: 100%; background: var(--accent); }
+    .bars .n { text-align: right; font-variant-numeric: tabular-nums; }
+    .ops { margin: 0; padding-left: 18px; font-size: .86rem; line-height: 1.45; }
+    .dlg-actions { position: sticky; bottom: -16px; display: flex; flex-wrap: wrap; gap: 8px; background: var(--card); padding: 12px 0; border-top: 1px solid var(--line); margin-top: 12px; }
+    .cmp { display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: 0 10px; font-size: .86rem; }
+    .cmp-heads, .cmp-row { display: contents; }
+    .cmp-head { display: flex; flex-direction: column; gap: 4px; padding: 8px 0; }
+    .cmp-head img, .cmp-head .thumb-wait { width: 100%; height: auto; aspect-ratio: 3 / 2; border-radius: 8px; background: #edf1f5; }
+    .cmp-head .btn { min-height: 44px; }
+    .cmp-group { grid-column: 1 / -1; margin: 12px 0 2px; font-size: .95rem; border-bottom: 2px solid var(--line); }
+    .cmp-label { grid-column: 1 / -1; color: var(--muted); font-size: .78rem; font-weight: 700; padding-top: 6px; }
+    .cmp-cell { padding: 2px 0 6px; border-bottom: 1px solid var(--line); overflow-wrap: anywhere; }
+    .cmp-row.differs .cmp-cell { background: #fff7e0; }
+    .cmp-row.same .cmp-cell { color: var(--muted); }
+    .cmp-cell.best { font-weight: 800; }
+    .best-tag { background: #1d6b3a; color: #fff; border-radius: 999px; padding: 0 6px; font-size: .7rem; font-weight: 700; }
+    .cmp.only-diff .cmp-row.same { display: none; }
     #status { min-height: 1.3em; font-size: .88rem; color: var(--muted); }
     .faq details { border-top: 1px solid var(--line); padding: 10px 0; }
     .faq summary { font-weight: 700; cursor: pointer; }
@@ -210,6 +259,14 @@
   </header>
   <main>
 
+  <section id="starts" class="starts" aria-labelledby="starts-h">
+    <h2 id="starts-h">Start from a ready-made design</h2>
+    <p class="hint">Open one to see it from every side, what it costs and where the money goes, and how much it holds. Add two or three to Compare to see them side by side. "Start from this design" opens a copy in the editor below, to change as you like.</p>
+    <ul class="pick-list"></ul>
+  </section>
+  <div id="compare-tray" class="compare-tray" role="region" aria-label="Designs to compare" hidden></div>
+  <dialog id="pick-dialog" class="pick-dialog"></dialog>
+
   <nav class="jump" id="jump" aria-label="Jump to the cost and the results">
     <a href="#summary" class="jump-total" id="total-pill">Total <strong id="total-pill-n"></strong></a>
     <a href="#results-h" data-jump="panel-shopping">Shopping list</a>
@@ -224,7 +281,7 @@
     <nav class="tabs" id="design-tabs" role="tablist" aria-label="Your designs"></nav>
     <label class="sr-only" for="new-design">New design</label>
     <select id="new-design" class="btn" aria-label="Start a new design">
-      <option value="">+ New design...</option>
+      <option value="">+ Quick new...</option>
       <option value="copy">Copy this design</option>
       <option value="8x12">8x12 ridge beam, 6'6" door, 8 ft height limit</option>
       <option value="8x12 classic">8x12 classic, 8 ft walls</option>
@@ -261,6 +318,7 @@
       <p id="view3d-fallback" hidden>This browser has no WebGL, so the 3D view is off. The plans, cut sheet and estimate below still work.</p>
       <div class="toolrow">
         <button type="button" class="btn" id="presentation" aria-pressed="false">Presentation</button>
+        <button type="button" class="btn" id="save-picture">Save picture</button>
         <button type="button" class="btn" id="framing-only">Framing only</button>
         <button type="button" class="btn" id="finished">Finished</button>
         <button type="button" class="btn" id="view-front">Front</button>
@@ -342,7 +400,8 @@
     <fieldset>
       <legend>Foundation</legend>
       <div class="fields">
-        <label>Foundation<select id="foundation"><option value="gravel">Skids on a gravel pad</option><option value="blocks">Skids on solid 4x8x16 concrete blocks</option><option value="deck blocks">Skids on concrete deck blocks</option><option value="CMU">Skids on 8x8x16 CMU (cinder) blocks</option></select></label>
+        <label>Foundation<select id="foundation"><option value="gravel">Skids on a gravel pad</option><option value="blocks">Skids on solid 4x8x16 concrete blocks</option><option value="deck blocks">Skids on concrete deck blocks</option><option value="CMU">Skids on 8x8x16 CMU (cinder) blocks</option><option value="piers">Skids on concrete piers poured in 12" form tubes</option></select></label>
+        <label>Pier depth below grade (in; your frost depth, piers only)<input id="pierDepth" type="number" min="12" max="72" step="1"></label>
         <label>Gravel<select id="pad"><option value="full">A pad under the whole shed (bulk stone)</option><option value="under blocks">Only under each block (bagged paver base; needs a block foundation)</option><option value="none">None: blocks on tamped firm soil (needs a block foundation)</option></select></label>
         <label>Subfloor<select id="floorPanel"><option value="plywood">3/4" tongue-and-groove plywood</option><option value="OSB">23/32" tongue-and-groove OSB</option></select></label>
         <label>Compacting the gravel<select id="compaction"><option value="hand tamper">Buy a hand tamper</option><option value="plate compactor">Rent a plate compactor for a day</option></select></label>
@@ -389,7 +448,7 @@
       <legend>Covering and boards</legend>
       <div class="fields">
         <label class="check"><input id="siding" type="checkbox"> Siding</label>
-        <label>Siding type<select id="sidingType"><option value="T1-11">T1-11 plywood panels</option><option value="LP SmartSide">LP SmartSide 38 Series primed panels, 3/8"</option><option value="LP SmartSide 7/16">LP SmartSide 76 Series primed panels, 7/16"</option><option value="board and batten">Board and batten over OSB</option><option value="vinyl">Vinyl lap over OSB</option><option value="fiber cement">Fiber cement lap over OSB</option></select></label>
+        <label>Siding type<select id="sidingType"><option value="T1-11">T1-11 plywood panels</option><option value="LP SmartSide">LP SmartSide 38 Series primed panels, 3/8"</option><option value="LP SmartSide 7/16">LP SmartSide 76 Series primed panels, 7/16"</option><option value="board and batten">Board and batten over OSB</option><option value="vinyl">Vinyl lap over OSB</option><option value="fiber cement">Fiber cement lap (HardiePlank-type), 7" exposure, over OSB and wrap</option><option value="LP SmartSide lap">Engineered wood lap (LP SmartSide-type), 6-13/16" exposure, over OSB and wrap</option></select></label>
         <label>Wall trim<select id="wallTrim"><option value="1x4">1x4 corner boards and casings</option><option value="none">None</option></select></label>
         <label>Roof covering<select id="roofCover"><option value="shingles">Architectural shingles</option><option value="metal">Corrugated metal panels</option></select></label>
         <label>Siding colour<span class="swatchrow"><select id="sidingColor"></select><input type="color" id="sidingColor-custom" aria-label="Siding: pick any colour, or match a photo of your house"></span></label>
@@ -408,6 +467,10 @@
         <label>Sales tax (% where you buy)<input id="taxRate" type="number" min="0" max="15" step="0.05"></label>
         <label>Delivery<select id="delivery"><option value="pickup">I'll pick it up</option><option value="homedepot">Home Depot delivery</option><option value="lowes">Lowe's delivery</option></select></label>
       </div>
+      <div class="fields">
+        <label>Longest board I can haul<select id="maxHaulFt"><option value="8">8 ft</option><option value="10">10 ft</option><option value="12">12 ft (a pickup bed, tailgate down)</option><option value="14">14 ft</option><option value="16">16 ft</option><option value="0">No limit (delivery)</option></select></label>
+      </div>
+      <p class="hint">Longer boards are bought only for a piece that cannot be spliced, and the cut sheet says which piece needs one.</p>
       <p class="hint">Board lengths your yard has:</p>
       <div id="stock"></div>
     </fieldset>

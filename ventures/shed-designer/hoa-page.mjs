@@ -35,7 +35,7 @@ function render() {
     if (key !== lastKey || !perspective) {
       const c = document.createElement('canvas');
       c.width = 1200; c.height = 760;
-      const v = createViewer(c);
+      const v = createViewer(c, { presentation: true });
       perspective = v ? (v.show(shed, { refit: true }), v.snapshot()) : null;
     }
   }

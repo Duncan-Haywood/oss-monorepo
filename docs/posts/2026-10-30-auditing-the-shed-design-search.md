@@ -2,10 +2,10 @@
 title: "Auditing a shed design search from outside: every pick was one change from better"
 date: 2026-10-30
 tags: [shed-designer, optimisation, testing]
-description: "An outside check found all 67 designs on the shed search's front beaten by one change it offered. A polish phase fixed it and cut the cheapest pick by $140."
+description: "An outside check found all 67 designs on the shed search's first front beaten by one change it offered. A new search order fixed most of it; a test now pins it."
 ---
 
-The [shed designer](https://duncan-haywood.github.io/oss-monorepo/shed-designer/) now has a design search. It looks for the sheds under 100 sq ft that nothing else beats on cost, storage and looks at once. The gallery of ready-made designs is built on it, so its picks need to be right. We checked them from outside.
+The [shed designer](https://duncan-haywood.github.io/oss-monorepo/shed-designer/) now has a design search. It looks for the sheds under 100 sq ft that nothing else beats on cost, storage and looks at once. The ready-made designs people will pick from are meant to come from it, so its picks need to be right. We checked them from outside.
 
 **The check.** For every design on the search's front, try every single change to the knobs that mostly move cost:
 
@@ -14,33 +14,34 @@ The [shed designer](https://duncan-haywood.github.io/oss-monorepo/shed-designer/
 - stud spacing;
 - overhang.
 
-Each changed design goes through the search's own pricing, checks and scoring. If it passes and is at least as good on all three objectives and better on one, the front design should not be on the front.
+Each changed design goes through the search's own pricing, checks and scoring. If it passes and is at least as good on all three objectives and better on one, the front design should not have been on the front.
 
-**What it found.** On a default run of 2,000 designs:
+**What it found on the first version** (PR #11569), on a default run of 2,000 designs:
 
 - All 67 designs on the front were beaten that way. The saving was 1.7% at the median and 3.6% at most, with the same storage and the same looks score.
 - Every one of those changes was one the search already offered. The commonest was floor joists at 24" on centre instead of 16".
 
-The search was not wrong; it was short of budget. It works outward from each front design one knob at a time, but a three-way front has 60 to 90 designs, each with about 30 one-knob moves. The 2,000-design budget ran out before most of the front had been tried.
+The search was not wrong; it was short of budget. It worked outward from each front design one knob at a time. A three-way front has 50 to 90 designs, each with about 30 one-knob moves, so the budget ran out before most of the front had been tried.
 
-**The fix** is a polish phase. Half the budget is kept back for it once anything passes. Each front design, cheapest first, takes any one change to the cost-only knobs that beats it outright, and keeps going until nothing does.
+**Two fixes, one kept.**
 
-**Results**, comparing the old and new searches run side by side:
+- **A polish phase (not kept).** We wrote one that held half the budget back for one-change improvements to each front design. On the first version it cut the misses from 67 of 67 to 1 of 51, and the cheapest design found from $2,554 to $2,414 at 800 designs.
+- **A new search order (kept).** Meanwhile the search's own lane changed the order (PR #11573). It now expands one design at a time, the best unexpanded one on each objective in turn, and also tries it in the other layouts and sizes. At 2,000 designs, 5 of 45 front designs are still beaten by a change the search offers, and the cheapest design found is $2,268.
 
-| Budget | Designs on the combined front | from the old search | from the new | Cheapest design found |
-|---|---|---|---|---|
-| 800 (in the browser) | 59 | 13 | 46 | $2,554 → $2,414 |
-| 2,000 (default) | 61 | 14 | 47 | $2,479 → $2,414 |
+We tried the polish on top of the new order, and it made things worse. Of the 57 designs on the combined front at 2,000 designs, 38 came from the new order alone and 19 from the order with polish. So the polish was not shipped.
 
-At 2,000 designs the search now finishes early, at 1,800, because the polish runs out of improvements. After the fix, 1 of 51 front designs is still beaten by a change the search offers. 21 are beaten only by values it does not offer, by 0.1% at the median:
+| Search version, 2,000 designs | Front designs beaten by one change it offers | Cheapest design found |
+|---|---|---|
+| First version (#11569) | 67 of 67 | $2,468 to $2,479 (two runs, as the pricing model changed under it) |
+| First version with polish (not shipped) | 1 of 51 | $2,414 |
+| New order (#11573, on `main`) | 5 of 45 | $2,268 |
 
-- an 8" overhang, between its 6", 9" and 12";
-- 88" walls, which add 9 cu ft at no extra cost on the 8x10 and 8x11.
+One gap remains for the next round. With a small budget of 800 designs, all 25 front designs are still beaten by one change (median 1.9%). Nothing on the page runs the search at that size yet, but a page that does should either use the full budget or polish its picks.
 
-Both are notes for the search's next round.
+Two values the search does not offer would also help: an 8" overhang (it has 6", 9" and 12"), and 88" walls, which add 9 cu ft at no extra cost on the 8x10 and 8x11.
 
-There is one trade-off: with half the budget on polish, the single roomiest design on a 2,000-design front holds 802 cu ft instead of 821. A test now pins the fix. It runs a small search to completion, then checks that no front design is beaten by one cost-only change. The old search fails it: it does not finish inside its budget.
+**The test.** `paretoaudit.test.mjs` runs a small search: one size, two layouts, 1,500 designs. It then checks that no front design is beaten by one cost-only change. The first version fails it with dozens of misses; the version on `main` passes. It shares nothing with the search but the model, the estimate and the checks.
 
-The same audit (`paretoaudit.mjs`) also brute-forces about 3,500 designs around each starting preset. Every preset is within 2.5% of the cheapest design that looks the same and stores as much ([how the presets compare with store-bought kits](2026-10-30-is-a-designed-shed-a-better-deal-than-a-kit.md)).
+The same audit also brute-forces about 3,500 designs around each starting preset. Every preset is within 2.5% of the cheapest design that looks the same and stores as much ([how the presets compare with store-bought kits](2026-10-30-is-a-designed-shed-a-better-deal-than-a-kit.md)).
 
 *The search's structural checks are screening checks against NDS values. Shed Designer is not engineered or code-checked.*

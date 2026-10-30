@@ -5,13 +5,13 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { buildShed, normalize, defaultDesign, PRESETS, WALLS, BLOCKS } from './model.mjs';
 import { estimate, examplePrices, priceOr } from './estimate.mjs';
-import { structuralChecks } from './checks.mjs';
 import { connectionChecks } from './connections.mjs';
 import { integrity } from './integrity.mjs';
-import { buildSheets, sheetSvg, sheetsDxf, dxfText } from './drawings.mjs';
-import { buildInstructions } from './instructions.mjs';
-import { solidsOf } from './render3d.mjs';
+import { buildSheets, sheetsDxf, dxfText } from './drawings.mjs';
 import { PRODUCTS } from './products.mjs';
+import { invariants, dxfProblems } from './invariants.mjs';
+
+export { invariants };
 
 // FUZZ_N=2000 FUZZ_SEED=5 node --test fuzz.test.mjs sweeps wider; FUZZ_OUT=file.json writes the failures.
 const N = Number(process.env.FUZZ_N || 150);
@@ -42,7 +42,7 @@ function randomDesign(r) {
     ventWidth: between(6, 24), ventHeight: between(6, 18),
     maxPeak: r() < 0.5 ? 0 : between(84, 180), snowLoad: between(0, 80, 5), windLoad: between(0, 40, 5),
     autoWall: r() < 0.3, autoPitch: r() < 0.3, autoOverhang: r() < 0.2,
-    sidingType: pick(['T1-11', 'LP SmartSide', 'LP SmartSide 7/16', 'board and batten', 'vinyl', 'fiber cement']),
+    sidingType: pick(['T1-11', 'LP SmartSide', 'LP SmartSide 7/16', 'board and batten', 'vinyl', 'fiber cement', 'LP SmartSide lap']),
     sidingColor: pick(['natural', 'unfinished', 'pink']), polkaDots: r() < 0.2, glitter: r() < 0.1,
     roofCover: pick(['shingles', 'metal']), rafterSeat: pick(['birdsmouth', 'connector']),
     interior: pick(['none', 'OSB', 'plywood', 'drywall', 'teen bedroom']), insulation: r() < 0.2,
@@ -60,69 +60,6 @@ function randomDesign(r) {
     d.openings.push({ id: `o${i + 1}`, kind, wall, offset: between(-12, face + 12), width: between(12, 96), height: between(12, 96), ...(kind === 'window' ? { sill: between(0, 72) } : {}), ...(product ? { product } : {}) });
   }
   return d;
-}
-
-/** What a strict R12 reader would reject: code/value pairs, integer codes, ASCII values, numeric coordinates, balanced sections, EOF. */
-function dxfProblems(dxf) {
-  const out = [];
-  const lines = dxf.split('\n');
-  if (lines.pop() !== '') out.push('dxf does not end in a newline');
-  if (lines.length % 2) out.push('dxf has an odd number of lines');
-  let open = 0;
-  for (let i = 0; i + 1 < lines.length; i += 2) {
-    const [code, val] = [lines[i], lines[i + 1]];
-    if (!/^\d+$/.test(code)) { out.push(`dxf group code ${JSON.stringify(code)}`); break; }
-    if (/[^\x20-\x7e]/.test(val) || val.length > 255) { out.push(`dxf value not short ASCII: ${val.slice(0, 40)}`); break; }
-    if (/^(10|20|30|11|21|31|40|50)$/.test(code) && !Number.isFinite(Number(val))) { out.push(`dxf number ${code}=${val}`); break; }
-    if (code === '0' && val === 'SECTION') open++;
-    if (code === '0' && val === 'ENDSEC') open--;
-  }
-  if (open) out.push('dxf sections unbalanced');
-  if (lines.at(-1) !== 'EOF') out.push('dxf does not end with EOF');
-  return out;
-}
-
-const finite = (x) => typeof x === 'number' && Number.isFinite(x);
-
-/** Every invariant one design must keep; returns the list of broken ones. */
-export function invariants(input, prices = examplePrices()) {
-  const bad = [];
-  const shed = buildShed(input);
-  for (const m of [...shed.members, ...(shed.doorParts || [])]) {
-    if (!finite(m.length) || m.length <= 0) bad.push(`member ${m.id} ${m.kind} length ${m.length}`);
-  }
-  for (const g of [...shed.members, ...shed.panels, ...shed.fixtures].map((x) => x.geom).filter(Boolean)) {
-    if (![...g.origin, ...g.profile.flat(), g.thickness].every(finite)) { bad.push('non-finite geometry'); break; }
-  }
-  for (const [k, v] of Object.entries(shed.dims)) if (typeof v === 'number' && !finite(v)) bad.push(`dims.${k} = ${v}`);
-  const est = estimate(shed, prices);
-  if (!finite(est.total) || est.total <= 0) bad.push(`total ${est.total}`);
-  for (const r of est.shopping) if (!finite(r.qty) || r.qty <= 0 || !finite(r.price) || r.price < 0 || !finite(r.total)) bad.push(`shopping ${r.name} qty ${r.qty} price ${r.price}`);
-  const integ = integrity(shed);
-  if (integ.floating.length) bad.push(`floating: ${integ.floating.slice(0, 3).join(', ')}`);
-  // A ridge too low to clear the ties or plates is a design the tool warns about, not a modelling bug.
-  if (integ.clashes.length && !shed.warnings.some((w) => w.startsWith('The ridge sits too low'))) bad.push(`clashes: ${integ.clashes.slice(0, 3).join(', ')}`);
-  const sc = structuralChecks(shed);
-  for (const row of sc.rows) if (!finite(row.ratio) || row.ratio < 0) bad.push(`check ${row.member} ratio ${row.ratio}`);
-  for (const n of ['Floor joists', 'Rafters', 'Wall studs']) if (!sc.rows.some((x) => x.member === n)) bad.push(`check missing: ${n}`);
-  const cc = connectionChecks(shed);
-  for (const row of cc.rows) if (!row.ok) bad.push(`connection: ${row.check}: ${row.detail.slice(0, 120)}`);
-  const sheets = buildSheets(shed);
-  for (const s of sheets) {
-    const svg = sheetSvg(s, { name: shed.design.name });
-    if (/NaN|undefined|Infinity/.test(svg)) bad.push(`svg ${s.id} has NaN/undefined`);
-    // Well-formed enough for an XML parser: no stray < or & in text, every element closed.
-    const body = svg.replace(/<style>[\s\S]*?<\/style>/, '');
-    if (/>[^<]*[&](?!amp;|lt;|gt;|quot;|#\d+;)/.test(body) || /<[^>]*</.test(body)) bad.push(`svg ${s.id} has unescaped text`);
-    const open = (body.match(/<[a-z]+[^>]*[^/]>/g) || []).length;
-    const close = (body.match(/<\/[a-z]+>/g) || []).length;
-    if (open !== close) bad.push(`svg ${s.id}: ${open} open tags, ${close} closed`);
-  }
-  bad.push(...dxfProblems(sheetsDxf(sheets)));
-  const ins = buildInstructions(shed, est);
-  if (/NaN|undefined/.test(JSON.stringify(ins))) bad.push('instructions have NaN/undefined');
-  solidsOf(shed);
-  return bad;
 }
 
 test(`random designs keep every invariant (seed ${SEED}, ${N} designs)`, async () => {

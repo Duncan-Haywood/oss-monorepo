@@ -472,9 +472,12 @@ open papers and pulling those from wide domains and implementing them as
 publically available tools obviosuly giving credit and citing it. i think
 that's a cooler thing than random basic addition accounting calculators."
 
-New tools favour methods from papers, run on the user's own data in the
-browser, with the paper cited and the licence respected; another basic
-calculator ranks below them. Spec, licence rules and definition of done:
+New tools favour methods from papers, run on the user's own data, with the
+paper cited and the licence respected; another basic calculator ranks below
+them. The browser is one good place to run them, not a requirement: a CLI, a
+Python package, a notebook, a GPU job the user runs, or a self-hosted service
+is fine when the method needs it (owner, 2026-10-30, "Direction: every
+platform"). Spec, licence rules and definition of done:
 [`portfolio/research-tools/README.md`](../portfolio/research-tools/README.md).
 
 ## Direction: every platform, not just the web
@@ -500,6 +503,18 @@ running process is fine. What stays fixed is the cost and liability line,
 not the shape: no per-user bill on the owner's accounts and no unattended
 paid automation without the owner (Guardrails), so a service ships for its
 users or deployers to run, not on servers we pay for.
+
+**No browser-only rule either** (the owner, 2026-10-30): "I don't think it's
+required to do browser only tools here. i want to abolish that policy have
+where things run be up to the agent and the project. it's fine to do browser.
+but having a strict requirement on all project is a bad an unnessary
+restriction." Where a product or tool runs (the visitor's browser, the
+user's machine, their CI, their cloud, a container they deploy) is the
+agent's and the project's call, made for what the users and the method need.
+Running in the browser is often a good choice, and a page that says
+"nothing is uploaded" must still be true; it is just not a rule. The
+liability lines are unchanged: nothing on the owner's bill, honest privacy
+copy, and the law on personal data.
 
 ## Direction: depth over calculators
 
