@@ -252,3 +252,44 @@ test("tread span between stringers is checked against the tread thickness", () =
   assert.ok(!ok.notes.some((n) => /between stringers/.test(n)));
   assert.ok(!layoutStair({ totalRise: 108 }, plan()).notes.some((n) => /between stringers/.test(n)));
 });
+
+test("open risers: the gap is the riser less the tread thickness, flagged over 4 in (hand: 108 in rise, 14 risers of 7-5/7 in, 1-1/2 in treads leave 6.21 in)", () => {
+  const open = layoutStair({ ...sampleStair(), openRisers: true });
+  const gap = 108 / 14 - 1.5;
+  assert.ok(open.notes.some((n) => /Open risers leave a 6-3\/16" gap/.test(n) && n.includes("4 in")), open.notes.join("|"));
+  assert.ok(gap > 6.2 && gap < 6.22);
+  // solid risers have no gap to check
+  assert.ok(!layoutStair(sampleStair()).notes.some((n) => /Open risers/.test(n)));
+  // a tread thick enough to close the gap (riser 7-5/7 less 3-11/16 in) passes, and the limit is typed
+  assert.ok(!layoutStair({ ...sampleStair(), openRisers: true, treadThickness: 3.75 }).notes.some((n) => /Open risers/.test(n)));
+  assert.ok(!layoutStair({ ...sampleStair(), openRisers: true, limits: { openRiserGap: 6.5 } }).notes.some((n) => /Open risers/.test(n)));
+});
+
+test("the nosing note is for solid risers only: open risers skip it", () => {
+  const solid = layoutStair({ ...sampleStair(), nosing: 2 });
+  const open = layoutStair({ ...sampleStair(), nosing: 2, openRisers: true });
+  assert.ok(solid.notes.some((n) => /Nosing 2 in/.test(n)));
+  assert.ok(!open.notes.some((n) => /Nosing/.test(n)));
+});
+
+test("landing posts: four corners on a 36 in landing, extras once a side passes the typed spacing", () => {
+  const a = layoutStairWithLanding({ totalRise: 160, landing: true }, plan());
+  assert.equal(a.landing.posts.count, 4);
+  assert.equal(a.landing.posts.height, 80 - 7.25 - 1.5); // 2x8 joist is 7-1/4 in
+  const b = layoutStairWithLanding({ totalRise: 160, width: 48, landing: { depth: 120, postSpacing: 60 } }, plan());
+  assert.deepEqual([b.landing.posts.alongBays, b.landing.posts.acrossBays, b.landing.posts.count], [1, 2, 6]);
+  assert.match(landingText(a).join("\n"), /Landing posts: 4/);
+});
+
+test("landing footings: sized only when soilBearing is typed, from hand-computed tributary loads", () => {
+  assert.equal(layoutStairWithLanding({ totalRise: 160, landing: true }, plan()).landing.footings, null);
+  // 36 x 36 in, one bay: a corner post takes a quarter bay = 2.25 sq ft x 50 psf = 112.5 lb; 112.5/1500 psf = 10.8 sq in
+  const a = layoutStairWithLanding({ totalRise: 160, landing: { soilBearing: 1500 } }, plan()).landing.footings;
+  assert.equal(a.load, 112.5);
+  assert.equal(a.area.toFixed(1), "10.8");
+  assert.deepEqual([a.round, a.square, a.count], [4, 4, 4]);
+  // 48 x 120 in with 60 in spacing: two bays across, an edge post takes half of a 20 sq ft bay = 10 sq ft x 50 = 500 lb; 48 sq in
+  const b = layoutStairWithLanding({ totalRise: 160, width: 48, landing: { depth: 120, postSpacing: 60, soilBearing: 1500 } }, plan());
+  assert.deepEqual([b.landing.footings.load, b.landing.footings.round, b.landing.footings.square, b.landing.footings.count], [500, 8, 7, 6]);
+  assert.match(landingText(b).join("\n"), /Landing footings: heaviest post 500 lb .* 8 in round or 7 in square, 6 footings/);
+});

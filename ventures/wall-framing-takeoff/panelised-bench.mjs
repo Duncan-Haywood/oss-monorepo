@@ -29,7 +29,7 @@ export const PANEL_MAXES = [96, 144, 192]; // 8, 12, 16 ft
 export function measure(plan, maxes = PANEL_MAXES, seamSpacing = SEAM_SPACING) {
   const r = takeoff(plan);
   if (!r.ok) return { ok: false, errors: r.errors };
-  const nails = layoutFasteners({ sheathing: false }, plan, r);
+  const nails = layoutFasteners({ sheathing: false }, plan, /** @type {any} */ (r));
   if (!nails.ok) return { ok: false, errors: nails.errors };
   const conn = (n) => nails.connections.find((c) => c.name === n)?.nails ?? 0;
   const floorNails = conn("Bottom plate to floor");
