@@ -2,6 +2,17 @@
 
 Newest first.
 
+## 2026-10-30 · Milestone 3a: how much longer does an open-centre parallel valve make the dig phase? (planned before running)
+- Why: milestone 3 (dynamics) was never started and every ranking so far is energy only; cycle time is the other half of the question. Full dynamics (compensator, line volumes) need component data I do not have, so this step is the steady-state part: `src/heavy_hydraulics/flow_share.py`, orifice sections sized to pass their demand alone, a bypass that closes as sections open, p_n 10.9 bar (2n) and 1.44 bar (2i), 5 x 1,000 random cycles of 2d. Only the dig phase has two actuators. No operator feathering (so an upper-ish bound before a person corrects it); a stalled actuator (supply pressure below its load) is charged the bound factor 2 (sequential motion).
+- **Prediction (before running):** median cycle-time penalty under 2% but 95th percentile 10% or more (prior 55%): most cycles lose little because the closing bypass lifts supply pressure, a tail where the high-pressure actuator stalls. Refuted if the median is 2% or more, or the 95th percentile is under 10%.
+- Limits known in advance: orifice law, one bypass shape (area closes linearly with section area), sections sized alone, no compensator dynamics, no line volume: this is not yet the dynamic model.
+
+### Outcome of 3a (`experiments/flow_share.py`, `flow_share_results.txt`, about 1 minute, seeded; 3 new tests, 10 pass)
+- p_n 10.9 bar: cycle-time penalty median **6.4%**, 95th percentile 21.6% (the cap); 65.5% of cycles slow at all; 35.6% of dig phases sit at the stall bound (factor 2). p_n 1.44 bar: 21.6% median, 98.4% of dig phases at the bound.
+- **Prediction half refuted:** median 6.4% is not under 2% (the 95th percentile of at least 10% held). The closing bypass did not save most cycles.
+- Reading: with no operator feathering, an uncompensated open-centre valve loses real cycle time in the dig phase because the lighter actuator takes the flow, and a freer centre (smaller p_n) makes it worse, not better. That is a cost the energy-only rankings (2f to 2o) leave out, and it works against open-centre exactly where 2i to 2k had it winning on energy. Load-sensing is 1.0 here by construction, so the comparison is one-sided until a compensator model exists.
+- Limits: the 21.6% cap and the 98% stall share are mostly the bound I set (factor 2), not a measurement; the result depends on sizing each section alone and on the linear bypass closure; real operators feather. Treat it as a direction (open-centre pays in time, not only in energy), not a number. Next: a dynamic model with pressure compensators and a feathering rule, then a time-penalised energy ranking.
+
 ## 2026-10-30 · Milestone 2o: how far does the unsourced LS standby flow move 2n's break-even? (planned before running)
 - Why: 2m and 2n both end with "a standby flow from a pump datasheet". Hosts for datasheets are still unreachable, so sweep it instead: `experiments/standby_sweep.py`, p_n 10.91 bar (2n), load factor 0.346, q_sb 0, 1, 2, 4, 6, 8, 10 L/min, dp_ls 10 to 40 bar.
 - **Prediction (before running):** break-even falls monotonically with q_sb, reproduces 28.0 bar at 2 L/min, is above 30 bar at 0 and below 25 bar by 8 L/min (prior 70%), so at q_sb of 6 L/min or more the thesis 25 bar margin loses again. Refuted if non-monotone, or if the 8 L/min break-even is 25 bar or more.
