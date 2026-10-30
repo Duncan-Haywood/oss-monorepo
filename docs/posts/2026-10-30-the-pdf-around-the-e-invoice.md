@@ -3,7 +3,7 @@ title: "The PDF around the e-invoice: four ways a Factur-X file gets rejected"
 seo_title: "Why a Factur-X or ZUGFeRD PDF is rejected: four envelope checks"
 date: 2026-10-30
 tags: [einvoice-preflight, factur-x, zugferd]
-description: "Checking the XML inside a Factur-X PDF is not enough. The preflight checker now flags a missing PDF/A-3 marker, a wrong attachment name, a missing AFRelationship and a profile that disagrees with the XML."
+description: "The preflight checker now flags a missing PDF/A-3 marker, a wrong attachment name, a missing AFRelationship and a profile that disagrees with the XML."
 ---
 
 A Factur-X or ZUGFeRD invoice is a PDF with an XML file inside. Until now the [e-invoice preflight checker](https://duncan-haywood.github.io/oss-monorepo/einvoice-preflight/) unwrapped the XML and checked only that. A receiver also looks at the PDF itself, and these four things are enough to get a file bounced:
