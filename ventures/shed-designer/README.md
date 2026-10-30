@@ -70,6 +70,13 @@ At the starting prices that design is 151 pieces from 84 boards. The cut sheet's
   A carpenter's read-through on 2026-10-30 (default 8x12, 10x12, 12x16) fixed the order of the roof-edge layers and the head flashing, the door wall's bottom plate, the rafter layout on connector seats, the site-built door's assembly, and fasteners that did not match the list; `instructions.test.mjs` pins each one.
 
   Every piece is called by its cut-sheet mark. You can print it or download it as Markdown. Fastener spacings are typical values to check against local code and product instructions.
+- **Storage per dollar, beside real kits** (`value.mjs`). The summary gives the design's square feet and cubic feet of storage per $1,000 of materials. Storage is the inside floor times the clear wall height, plus half the roof space. Beside it are the three nearest-size wood shed kits or installed sheds from 17 Home Depot and Lowe's listings. Each kit's price is a search engine's copy of the listing, seen 2026-10-30, and is linked so you can check it. Each kit is also shown with the roofing and paint it leaves out added at your design's own prices.
+- **Are the starting designs any good?** (`paretoaudit.mjs`). An audit that shares nothing with the design search but the model, the estimate and the checks.
+  - It brute-forces about 3,500 designs per preset under 100 sq ft: footprint, walls, pitch, spacings, 2x4 or 2x6 rafters and joists, and foundation.
+  - It adds random restarts with local search on a finer grid.
+  - It reports how far each preset is from the cheapest design that looks the same and stores as much.
+  - On 2026-10-30 every preset was within 2.5%, almost all of it from 2x4 floor joists.
+  - `paretoaudit.test.mjs` fails if any preset drifts more than 3% from its best one-step neighbour. `AUDIT_FULL=1` runs the full search.
 - **Options made for you** (`candidates.mjs`). Seven close variations of the design you are editing: rafter spacing, ridge beam or board, a steeper or lower roof, a foot of overhang, a foot wider. Each is framed, priced and structurally checked, then ranked with passing designs first and cheapest first. "Use this one" adds it to your designs.
 - **Roof edge.** A 2x6 sub-fascia across the rafter tails (in the cut list), a 1x6 fascia, a vented soffit under the tails and a 1x4 rake board on each gable edge. Blocking between the rafters closes each wall top.
 - **Wall trim.** Primed 1x4 (3/4" x 3-1/2") corner boards, two to a corner with the long-wall board lapping the end-wall board, and a picture-frame casing round each door and window (no sill board under a door). The pieces are packed into 8, 12 and 16 ft primed boards by the same cut optimizer, and the cut plan is on the Cut sheet tab.
