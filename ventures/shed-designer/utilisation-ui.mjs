@@ -6,10 +6,11 @@
 
 import { utilisation, marginReport, heatById, BANDS, UNCHECKED, bandOf, REASONS } from './utilisation.mjs';
 import { heatSheets, heatSheetSvg } from './utilisation-sheets.mjs';
+import { fmtUse } from './checks.mjs';
 
 const $ = (s) => /** @type {HTMLElement} */ (document.querySelector(s));
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-const pct = (r) => `${Math.round(r * 100)}%`;
+const pct = fmtUse;
 const TARGET_KEY = 'shed-designer-util-target';
 
 /** @type {any} */

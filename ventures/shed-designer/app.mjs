@@ -11,7 +11,7 @@ import { drawPlan, drawEnd } from './editor.mjs';
 import { fmtIn, fmtFtIn, actual, STANDARD_LENGTHS_FT, EXAMPLE_ITEMS } from './lumber.mjs';
 import { recordUsage, clearUsage } from './usage.mjs';
 import { encodeDesign } from './hoa.mjs';
-import { structuralChecks } from './checks.mjs';
+import { structuralChecks, fmtUse } from './checks.mjs';
 import { initUtilisation, renderUtilisation, heatOption } from './utilisation-ui.mjs';
 import { connectionChecks } from './connections.mjs';
 import { generateCandidates } from './candidates.mjs';
@@ -312,8 +312,7 @@ function renderStructure(shed) {
   const r = structuralChecks(shed);
   $('#structure-note').textContent = `Loads you set: ${r.loads.snow} psf snow on the roof, ${r.loads.wind} psf wind on the walls, plus ${r.loads.roofDead} psf roof dead load and ${r.loads.floorLive} psf on the floor. SPF No. 2 lumber, allowable-stress (NDS) checks of the kind a span table encodes: a screening check, not an engineer's review. Connections, uplift, racking and the foundation are not checked; ask your building department for your area's snow and wind loads.`;
   $('#structure tbody').innerHTML = r.rows.map((x) => {
-    const pct = Math.round(x.ratio * 100);
-    const meter = `<span class="meter${x.ratio > 0.9 ? ' hot' : ''}"><span style="width:${Math.min(100, pct)}%"></span></span>${pct}%`;
+    const meter = `<span class="meter${x.ratio > 0.9 ? ' hot' : ''}"><span style="width:${Math.min(100, Math.round(x.ratio * 100))}%"></span></span>${fmtUse(x.ratio)}`;
     return `<tr><th scope="row">${esc(x.member)}</th><td>${esc(x.size)}</td><td>${esc(x.detail)}</td><td class="n">${x.governs === 'none' ? '-' : meter}</td><td class="${x.ok ? 'ok' : 'fail'}">${x.governs === 'none' ? 'not a beam' : x.ok ? 'passes' : 'over capacity'}</td></tr>`;
   }).join('');
   return r;
@@ -387,7 +386,7 @@ function renderStores(est, d) {
   }
 }
 
-/** "3 x 8' boards" or "8' board". @param {{ count: number, stock: number }} b */
+/** "3 x 8' boards" or "8' board". @param {{ count: number, stock: number, why?: string }} b */
 const boardName = (b) => `${b.count > 1 ? `${b.count} x ` : ''}${b.stock / 12}' board${b.count > 1 ? 's' : ''}${b.why ? ` <span class="muted">(${esc(b.why)})</span>` : ''}`;
 
 function renderCuts(est) {

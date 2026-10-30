@@ -9,6 +9,8 @@ import { integrity } from './integrity.mjs';
 import { buildSheets, sheetSvg, sheetsDxf } from './drawings.mjs';
 import { buildInstructions } from './instructions.mjs';
 import { solidsOf } from './render3d.mjs';
+import { utilisation, marginReport, heatById } from './utilisation.mjs';
+import { heatSheets, heatSheetSvg } from './utilisation-sheets.mjs';
 
 /** What a strict R12 reader would reject: code/value pairs, integer codes, ASCII values, numeric coordinates, balanced sections, EOF. */
 export function dxfProblems(dxf) {
@@ -51,7 +53,12 @@ export function invariants(input, prices = examplePrices()) {
   // A ridge too low to clear the ties or plates is a design the tool warns about, not a modelling bug.
   if (integ.clashes.length && !shed.warnings.some((w) => w.startsWith('The ridge sits too low'))) bad.push(`clashes: ${integ.clashes.slice(0, 3).join(', ')}`);
   const sc = structuralChecks(shed);
-  for (const row of sc.rows) if (!finite(row.ratio) || row.ratio < 0) bad.push(`check ${row.member} ratio ${row.ratio}`);
+  // Infinity is a real answer (a column past its Euler buckling load), but only on a failing row.
+  for (const row of sc.rows) if (Number.isNaN(row.ratio) || row.ratio < 0 || (row.ratio === Infinity && row.ok)) bad.push(`check ${row.member} ratio ${row.ratio}`);
+  // The utilisation report and the heat-map plan sheets print every ratio as text.
+  const uses = utilisation(shed, sc);
+  const words = JSON.stringify(marginReport(shed, 0.7, uses)) + heatSheets(shed, heatById(uses)).map((s) => heatSheetSvg(s)).join('');
+  if (/Infinity|NaN|undefined/.test(words)) bad.push(`utilisation text: ${words.match(/.{0,40}(Infinity|NaN|undefined).{0,10}/)?.[0]}`);
   for (const n of ['Floor joists', 'Rafters', 'Wall studs']) if (!sc.rows.some((x) => x.member === n)) bad.push(`check missing: ${n}`);
   const cc = connectionChecks(shed);
   for (const row of cc.rows) if (!row.ok) bad.push(`connection: ${row.check}: ${row.detail.slice(0, 120)}`);

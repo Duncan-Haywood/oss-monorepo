@@ -73,6 +73,14 @@ export function heelJoint(shed) {
 /**
  * @param {import('./model.mjs').Shed} shed
  */
+/**
+ * A member's use of capacity as text. A column loaded past its Euler buckling
+ * load has no finite ratio (structure.mjs returns Infinity), so it is named
+ * rather than printed as "Infinity%".
+ * @param {number} r
+ */
+export const fmtUse = (r) => (Number.isFinite(r) ? `${Math.round(r * 100)}%` : 'past its buckling load');
+
 export function structuralChecks(shed) {
   const d = shed.design;
   const k = shed.dims;

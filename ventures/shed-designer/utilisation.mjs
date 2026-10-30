@@ -16,7 +16,7 @@
 // reviewed by an engineer.
 
 import { buildShed } from './model.mjs';
-import { structuralChecks, heelJoint, nailZ } from './checks.mjs';
+import { structuralChecks, heelJoint, nailZ, fmtUse } from './checks.mjs';
 import { connectionChecks } from './connections.mjs';
 import { check, roofCase, FLOOR, SPF2, T, DEPTH } from './structure.mjs';
 import { sidingSpan } from './simplify.mjs';
@@ -31,7 +31,7 @@ const CR = 1.15;
 
 const n0 = (x) => Math.round(x).toLocaleString('en-US');
 const n2 = (x) => (Math.abs(x) >= 100 ? n0(x) : x.toFixed(2));
-const pct = (r) => `${Math.round(r * 100)}%`;
+const pct = fmtUse;
 
 /**
  * @typedef {{ name: string, ratio: number, words: string }} Part
