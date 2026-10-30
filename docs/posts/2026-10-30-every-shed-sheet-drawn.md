@@ -2,7 +2,7 @@
 title: "Every 4x8 sheet in a shed, drawn"
 date: 2026-10-30
 tags: [shed-designer, cut-list, plans]
-description: "The shed designer's plans now show where each floor, roof and siding piece comes out of each sheet it tells you to buy, built from the same packing that counts the sheets."
+description: "The shed designer's plans now draw where each floor, roof and siding piece comes out of each 4x8 sheet it tells you to buy."
 ---
 
 The [shed designer](https://monorepo-projects-site.duncan-andrew-haywood.workers.dev/shed-designer/) has long counted the sheets of plywood and OSB a shed takes. It packs each floor, roof and siding piece into whole 4x8 sheets several ways and buys the fewest. What it didn't do was show the packing. A builder looking at "4 sheets of roof OSB" had to work out for themselves how three and a half sheets of roof come out of four. If they cut the first sheet a different way, they could find they needed a fifth.
