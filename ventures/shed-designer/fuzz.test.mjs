@@ -59,6 +59,8 @@ function randomDesign(r) {
     const product = r() < 0.3 && prods.length ? pick(prods).id : (kind === 'door' && r() < 0.15 ? 'site-built' : undefined);
     d.openings.push({ id: `o${i + 1}`, kind, wall, offset: between(-12, face + 12), width: between(12, 96), height: between(12, 96), ...(kind === 'window' ? { sill: between(0, 72) } : {}), ...(product ? { product } : {}) });
   }
+  // Attic storage applies to truss roofs; elsewhere it is ignored.
+  d.atticStorage = r() < 0.3;
   // A quarter are gambrels (barn roofs), with or without a loft.
   if (r() < 0.25) Object.assign(d, { style: 'gambrel', gambrelLower: between(16, 30), gambrelKnee: r() < 0.5 ? 0 : between(0, 120), loft: pick(['none', 'half', 'full']), loftJoist: pick(['2x6', '2x8', '2x10']) });
   return d;
