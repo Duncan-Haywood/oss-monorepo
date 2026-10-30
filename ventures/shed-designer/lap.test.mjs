@@ -127,3 +127,18 @@ test('stud spacing: lap over OSB allows 24" o.c. for both products (cited in lap
   assert.equal(LAP_PRODUCTS['LP SmartSide lap'].maxStuds.directToStuds, 16);
   assert.equal(buildShed({ ...defaultDesign(), sidingType: 'T1-11' }).sidingStudLimit, undefined);
 });
+
+// Fuzz seed 11 (FUZZ_N=2000): a window notching the course above left it no stud
+// 32" clear of the joint below, because the lower course picked its joint without
+// looking up. Each course now takes the first legal plan that leaves the next one a legal plan.
+const SEED11 = [
+  {"length": 120, "width": 192, "wallHeight": 65.5, "pitch": 8, "overhang": 18, "studSize": "2x4", "studSpacing": 16, "joistSize": "2x4", "joistSpacing": 16, "rafterSize": "2x4", "rafterSpacing": 12, "roofType": "truss", "beamSize": "2x8", "skidSize": "4x4", "skidSpacing": 66, "foundation": "piers", "pad": "under blocks", "gableVents": false, "ventWidth": 9, "ventHeight": 9, "maxPeak": 151, "autoWall": true, "autoPitch": false, "autoOverhang": false, "sidingType": "fiber cement", "wallTrim": "none", "roofCover": "metal", "rafterSeat": "connector", "maxHaulFt": 12, "kerf": 0.125, "lengths": [8, 10, 12, 14, 16, 18, 20], "openings": [{"id": "o1", "kind": "window", "wall": "front", "offset": 72, "width": 13, "height": 81, "sill": 10}, {"id": "o2", "kind": "window", "wall": "left", "offset": 80, "width": 81, "height": 30, "sill": 1}, {"id": "o3", "kind": "window", "wall": "left", "offset": 56, "width": 51, "height": 16, "sill": 69}]},
+  {"length": 282, "width": 120, "wallHeight": 65, "pitch": 6, "overhang": 14, "studSize": "2x6", "studSpacing": 16, "joistSize": "2x8", "joistSpacing": 24, "rafterSize": "2x8", "rafterSpacing": 24, "roofType": "ridgeBoard", "beamSize": "2x12", "skidSize": "4x6", "skidSpacing": 54, "foundation": "blocks", "pad": "full", "gableVents": true, "ventWidth": 13, "ventHeight": 17, "maxPeak": 145, "autoWall": false, "autoPitch": true, "autoOverhang": false, "sidingType": "fiber cement", "wallTrim": "1x4", "roofCover": "metal", "rafterSeat": "birdsmouth", "maxHaulFt": 12, "kerf": 0.125, "lengths": [8, 10, 12, 14, 16, 20], "openings": [{"id": "o1", "kind": "window", "wall": "front", "offset": 56, "width": 21, "height": 23, "sill": 43, "product": "swm-2427"}, {"id": "o2", "kind": "window", "wall": "back", "offset": -4, "width": 52, "height": 37, "sill": 0}, {"id": "o3", "kind": "door", "wall": "back", "offset": 156, "width": 92, "height": 22}, {"id": "o4", "kind": "door", "wall": "back", "offset": 242, "width": 39, "height": 23, "product": "jeldwen-3280-6p"}, {"id": "o5", "kind": "door", "wall": "right", "offset": -7, "width": 61, "height": 94, "product": "masonite-3680"}]},
+];
+test('fuzz seed 11: a course picks its joints so the notched course above can still break on a stud', () => {
+  for (const d of SEED11) {
+    const shed = buildShed(d);
+    const rows = connectionChecks(shed).rows.filter((r) => r.check.startsWith('Lap'));
+    assert.ok(rows.length && rows.every((r) => r.ok), rows.map((r) => r.detail).join('\n'));
+  }
+});
