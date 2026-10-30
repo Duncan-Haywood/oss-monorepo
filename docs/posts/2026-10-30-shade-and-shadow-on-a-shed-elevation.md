@@ -2,7 +2,7 @@
 title: "Shade and shadow on a shed elevation, the old drafting way"
 date: 2026-10-30
 tags: [shed-designer, drawings, design]
-description: "A flat elevation hides the eave, the lap and the shingle blend. Three drafting cues make the HOA drawings read as the shed: a 45-degree shadow, butt lines and tabs."
+description: "A flat elevation hides the eave, the lap and the shingle blend. Three drafting cues make the HOA drawings read as the shed."
 ---
 
 The [shed designer's](https://duncan-haywood.github.io/oss-monorepo/shed-designer/) HOA packet draws each side of the shed square-on, coloured and dimensioned. Square-on drawings are honest, but they are flat. A 6" eave overhang, lap siding and a blended shingle all vanish into single lines. A committee member looking at one could not tell an overhang from a flush roof.
