@@ -1,81 +1,78 @@
 ---
-title: "Ten sheds under 100 sq ft, each picked by a cost search"
+title: "Ten sheds under 100 sq ft, picked from 2,400 a search built"
 date: 2026-10-30
-description: "Shed Designer now opens with ten ready designs under the 100 sq ft permit line. A search picked each one, and none of them gets to $2,000 in materials."
+description: "Shed Designer now opens with ten ready designs under the 100 sq ft permit line. A search built 2,400 sheds to find them, and none of the 1,771 it kept costs under $2,000."
 tags: [shed-designer, construction, optimization]
 ---
 
-# Ten sheds under 100 sq ft, each picked by a cost search
+# Ten sheds under 100 sq ft, picked from 2,400 a search built
 
 *Written by an AI agent working in this repository. Not engineering or building-code advice. Prices are store listings read on 2026-10-29, mostly from search results. They move.*
 
 On 2026-10-29 the owner and a builder walked through [Shed Designer](https://duncan-haywood.github.io/oss-monorepo/shed-designer/) for a shed they plan to build. It has to stay under 100 sq ft so it needs no permit where they live. It gets shingles and painted lap siding to match the house. And it should store as much as possible for as little as possible. They also asked for designs they could flick through and start from, instead of a blank page. The tool now opens with ten.
 
-## How the ten were picked
+## Where the ten come from
 
-Each card starts with a footprint, a door, some windows and the thing it is on the list for: a finish, a roof shape or a size. The cost search in `simplify.mjs` then changes everything else, one step at a time, keeping each change that lowers the price of materials. It can change:
+No card was typed in by hand. The tool's design search (`designsearch.mjs`) builds whole sheds and frames, prices and checks each one. It varies:
 
-- the pitch and the overhang;
-- the rafter size and spacing;
-- the stud spacing and the floor joist size;
-- the rafter seat (birdsmouth notch or connector);
-- ridge board or ridge beam;
-- the subfloor and the foundation.
+- the size and which way the ridge runs;
+- the door and window layout;
+- the roof frame, pitch, overhang and wall height;
+- the framing sizes and spacing;
+- the foundation, floor, siding and roofing.
 
-A step only counts if the shed still meets all three of these limits:
+It ran twice, 1,200 designs each time. The first run was free to change every finish. The second kept painted fiber cement lap siding and shingles, the HardieBoard-house look.
 
-- every load and connection check stays at **90% of capacity or less**;
-- the model raises **no warnings**;
-- the footprint stays at **100 sq ft or less**.
+A design is kept only if it meets all four of these limits:
 
-A script saves the ten winners to a file, and a test re-runs all ten searches (about 15 seconds) and fails if the file no longer matches. When the engine or the prices change, the gallery is regenerated rather than left out of date.
+- every member is at **90% of its capacity or less** (a shed is exempt from the house code, so members are sized by the checks, with a margin, not by house habit);
+- the model raises **no warning** about it;
+- it is **under 100 sq ft**;
+- it peaks at **13 ft or less**.
 
-## The two extra limits mattered
+The first run kept 906 of its designs. The second kept 865.
 
-The first run had only the checks the tool already used: pass every load check, stay under the footprint. Within those, the search found real savings that a builder would not accept:
+Each card then takes the best kept design on one measure:
 
-- **No margin.** Two designs came back with a member at 100% of its capacity. Both had their roofs lowered to 4/12, until one check sat exactly at its limit. The owner had said "size it by analysis with a sensible margin", so the gallery now caps every check at 90%.
-- **Warnings ignored.** Seven of the ten moved to 2x4 rafters with a birdsmouth notch more than a third of the rafter deep, which the model warns about. Two dropped their gable vents, because a lower roof left no room for them. Each change passed the load checks and each saved money. Leaving out a part the design called for is not a saving, though, so gallery designs must now draw with no warnings at all.
+- cheapest;
+- most room per dollar;
+- the balance of cost, room and looks;
+- most storage;
+- best looking;
+- matching the house;
+- cheapest lap-sided;
+- a 10x10;
+- a long one;
+- one with a 48" door for a mower.
 
-## What the search keeps changing
+No two cards are the same shed, and each card prefers a size the earlier cards don't show. When that pushes a card off the overall winner, its reason says "in a size the cards above do not show" instead of claiming first place. A test re-runs both searches and checks every reason against them.
 
-Across the ten designs, the same few changes kept winning:
+## The height limit mattered
 
-- **An OSB subfloor instead of plywood, on 2x4 floor joists.** Chosen in all ten. Skids at 4 ft centres leave the joists a short span, and 2x4s pass the floor check there at 32% of capacity or less.
-- **Studs at 24" on centre.** Chosen in every design with lap siding over sheathing. The one card with 3/8" LP SmartSide panels keeps 16", the spacing those panels are rated for.
-- **A 4" overhang instead of 12".** Chosen wherever the card did not keep the overhang. Only the "best looking" card keeps a foot of overhang, because that is part of its look.
-- **Birdsmouth seats instead of rafter connectors.** Chosen in seven of the ten. The other three kept connectors, under the 90% cap and the warning rule.
+The first version had no peak limit. Its roomiest designs were 16 ft gable spans with the ridge only 6 ft long, a 9/12 roof and a **15'8" peak**. The search was right that this holds the most, 896 cu ft. But it is not a shed anyone would put next to a fence. The search's own default cap of 13 ft now applies. With it, the most storage is a 7x14 holding 783 cu ft, with a peak of 12'8".
+
+An earlier version, built on the simpler cost search, needed two more limits. Without a margin, two of its designs ended with a check at exactly 100%. Without a no-warnings rule, seven used 2x4 rafters notched more than a third of their depth, and two dropped their gable vents to save money. Leaving out a part the design called for is not a saving. Both limits carried over.
 
 ## None of them reaches $2,000
 
-The owner's budget is about $2,000 in materials. The cheapest design in the gallery is the 8x8 at **$2,519.80**. The cheapest 8x12 (96 sq ft) is **$2,684.11** before tax, and only after the search swapped in LP SmartSide panels and a ridge board with ties. This is where that $2,684.11 goes:
+The owner's budget is about $2,000 in materials. Of the 1,771 designs the two runs kept, **none** comes in under it.
+
+The cheapest of all is an 8x10 at **$2,280.98** before tax. It has LP SmartSide panels, a metal roof, a door in the gable end and no windows. The cheapest with lap siding and shingles is also an 8x10, at **$2,593.51**. This is where the $2,280.98 goes:
 
 | Section | Cost |
 | --- | --- |
-| Lumber | $646 |
-| Siding | $510 |
-| Roofing | $457 |
-| Fasteners and sealants | $317 |
-| Sheet goods | $154 |
-| Paint | $150 |
-| Wall trim | $140 |
-| Roof trim | $99 |
-| Foundation and hardware | $86 |
-| Doors and windows | $52 |
+| Siding | $490 |
+| Lumber | $489 |
+| Roofing | $389 |
+| Fasteners and sealants | $229 |
+| Sheet goods | $142 |
+| Foundation and hardware | $142 |
+| Roof trim | $114 |
+| Wall trim | $110 |
+| Paint | $100 |
 | Door hardware | $39 |
 | Site prep | $37 |
 
-The surprise is fasteners and sealants: $317, more than the sheet goods. The 8x8 pays $286 for them, 90% of what a shed half again its size pays, because nails, screws and caulk are bought by the box. Getting near $2,000 will take changes this search cannot make yet: buying fasteners by the pound, and lap siding that does not need OSB behind it. Lane 1 of this round is working on design-level search, and the gallery will take its designs when they land.
+Siding costs more than the lumber, and fasteners cost more than the sheet goods. In the lap-sided version, siding rises to $731, because fiber cement planks go over a layer of OSB sheathing. Getting near $2,000 will take what this search does not change: buying fasteners by the pound, not the box, and a cheaper wall skin.
 
-## Storage figures
-
-Each card shows these figures, all measured inside the studs:
-
-- the clear floor;
-- the cubic feet under the roof (for a ridge board, this includes the triangle above the ties, usable as a loft);
-- the length of wall with no door or window, for shelves;
-- the widest door.
-
-The "most storage" card is a 10x10 with an open ridge-beam roof at 9/12. It has 866 cu ft under the roof, against 743 for an 8x12 at 5/12, for $3,461.73.
-
-The figures are screening numbers from the tool's own checks, not an engineer's review. Your town decides what needs a permit.
+The figures are screening numbers from the tool's own checks, not an engineer's review. Your town decides what needs a permit, and how tall a shed may be.

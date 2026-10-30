@@ -15,6 +15,7 @@ import { structuralChecks } from './checks.mjs';
 import { connectionChecks } from './connections.mjs';
 import { BLOCKS } from './model.mjs';
 import { PRODUCTS } from './products.mjs';
+import { LAP_PRODUCTS, isLap } from './lap.mjs';
 import { floorMoves, searchKeep } from './levers.mjs';
 
 /**
@@ -40,12 +41,18 @@ export function cutMetrics(shed, est) {
     else if (m.kind === 'door brace') angled += 2;
   }
   for (const p of shed.panels) if (p.kind === 'siding' && p.geom.profile.length > 4) angled += 2;
+  // Lap siding: a square cut per piece, an angled one at each rake end, a notch round part of an opening, and the starter rips.
+  if (est.lapCuts) {
+    for (const b of est.lapCuts.boards) straight += b.cuts.length - (b.offcut < 0.25 ? 1 : 0);
+    straight += est.lapCuts.starterPlanks * (est.lapCuts.perPlank - 1);
+    for (const f of shed.lap) for (const pc of f.pieces) { if (pc.rake) angled += f.wall === 'left' || f.wall === 'right' ? 1 : 0; if (pc.notched) notches += 1; }
+  }
   const offcut = est.lumber.reduce((t, l) => t + l.result.boards.reduce((u, x) => u + x.offcut, 0), 0);
   const bought = est.lumber.reduce((t, l) => t + l.result.boards.reduce((u, x) => u + x.stock, 0), 0);
   return { straight, angled, notches, total: straight + angled + 2 * notches, waste: bought ? offcut / bought : 0 };
 }
 
-const SIDING_NAMES = { 'T1-11': 'T1-11 plywood panels', 'LP SmartSide': 'LP SmartSide 38 Series primed panels, 3/8"', 'LP SmartSide 7/16': 'LP SmartSide 76 Series primed panels, 7/16"', 'board and batten': 'board and batten over OSB', vinyl: 'vinyl lap over OSB, with its starter, J-channel and corner posts' };
+const SIDING_NAMES = { 'T1-11': 'T1-11 plywood panels', 'LP SmartSide': 'LP SmartSide 38 Series primed panels, 3/8"', 'LP SmartSide 7/16': 'LP SmartSide 76 Series primed panels, 7/16"', 'board and batten': 'board and batten over OSB', vinyl: 'vinyl lap over OSB, with its starter, J-channel and corner posts' , 'fiber cement': 'fiber cement lap over OSB and house wrap', 'LP SmartSide lap': 'engineered wood lap over OSB and house wrap' };
 
 /** The widest stud spacing the siding is rated for, in inches. */
 export function sidingSpan(d) {
@@ -63,12 +70,12 @@ export function sidingSpan(d) {
 export const MINUTES = {
   floorSheet: 12, floorOSB: 12, roofSheet: 12, wallSheathing: 12,
   siding8: 15, siding9: 16, siding10: 18, lpPanel: 15, lpPanel9: 16, lpPanel10: 18, lpPanel76: 15, lpPanel76x9: 16, lpPanel76x10: 18,
-  vinylBox: 240, vinylJ: 10, vinylStarter: 8, vinylCorner: 15, hardiePlank: 10, boardBox: 20, battenBox: 30,
+  vinylBox: 240, vinylJ: 10, vinylStarter: 8, vinylCorner: 15, hardiePlank: 10, lapHardie: 12, lapLP12: 10, lapLP16: 12, houseWrap: 45, jointFlashing: 20, boardBox: 20, battenBox: 30,
   shingleBundle: 25, starterShingle: 20, ridgeCapShingle: 30, underlayment: 45, dripEdge: 10, metalPanel: 10, metalRidge: 15,
   fasciaTrim: 15, soffitPanel: 20, rakeTrim: 15, gableVent: 30, zFlashing: 10,
   paint: 45, stain: 45, accentPaint: 60, interiorPaint: 45, glitter: 0,
   insulation: 30, drywall: 20, plywoodLining: 15, osbLining: 15, pegboard: 15, beadboard: 15, interiorPanel: 15, jointCompound: 120,
-  deckBlock: 10, cmuBlock: 10, concreteBlock: 10, gravelTon: 90, paverBase: 4, landscapeFabric: 15,
+  deckBlock: 10, cmuBlock: 10, concreteBlock: 10, formTube: 0, concreteBag: 20, gravelTon: 90, paverBase: 4, landscapeFabric: 15,
 };
 
 /**
@@ -124,13 +131,15 @@ function moves(d, base, resize, opts = {}) {
         set(`windows: ${pr.name}`, { openings: d.openings.map((o) => (o.kind === 'window' ? { ...o, product: pr.id } : o)) }, 'windows');
       }
     }
-    // Fiber cement is left out: its trim boards are not priced yet, so it would look cheaper than it is.
-    for (const t of ['T1-11', 'LP SmartSide', 'LP SmartSide 7/16', 'board and batten', 'vinyl']) if (d.siding && t !== d.sidingType) set(`siding: ${SIDING_NAMES[t] || t}`, { sidingType: t });
+    // Lap siding is a look you chose (often to match a house), so from lap the
+    // search only weighs the other lap product, and from panels it never offers lap.
+    const sidings = isLap(d.sidingType) ? Object.keys(LAP_PRODUCTS) : ['T1-11', 'LP SmartSide', 'LP SmartSide 7/16', 'board and batten', 'vinyl'];
+    for (const t of sidings) if (d.siding && t !== d.sidingType) set(`siding: ${SIDING_NAMES[t] || t}`, { sidingType: t });
     set(d.roofCover === 'metal' ? 'shingle roof' : 'metal roof', { roofCover: d.roofCover === 'metal' ? 'shingles' : 'metal' });
     for (const f of ['gravel', ...Object.keys(BLOCKS)]) if (f !== d.foundation) set(f === 'gravel' ? 'skids on a gravel pad' : `skids on ${/** @type {any} */ (BLOCKS)[f].plural}`, { foundation: f }, 'foundation');
-    if (d.foundation !== 'gravel') for (const pd of ['full', 'under blocks', 'none']) if (pd !== d.pad) set({ full: 'a full gravel pad', 'under blocks': 'gravel only under the blocks', none: 'no gravel: blocks on tamped soil' }[pd], { pad: pd }, 'pad');
+    if (d.foundation !== 'gravel' && !/** @type {any} */ (BLOCKS)[d.foundation]?.pier) for (const pd of ['full', 'under blocks', 'none']) if (pd !== d.pad) set({ full: 'a full gravel pad', 'under blocks': 'gravel only under the blocks', none: 'no gravel: blocks on tamped soil' }[pd], { pad: pd }, 'pad');
     // Blocks pay off only with the gravel cut back to under them, so offer the pair as one move.
-    for (const f of Object.keys(BLOCKS)) if (f !== d.foundation || d.pad !== 'under blocks') set(`skids on ${/** @type {any} */ (BLOCKS)[f].plural}, gravel only under the blocks`, { foundation: f, pad: 'under blocks' }, 'foundation');
+    for (const f of Object.keys(BLOCKS).filter((x) => !/** @type {any} */ (BLOCKS)[x].pier)) if (f !== d.foundation || d.pad !== 'under blocks') set(`skids on ${/** @type {any} */ (BLOCKS)[f].plural}, gravel only under the blocks`, { foundation: f, pad: 'under blocks' }, 'foundation');
     set(d.floorPanel === 'OSB' ? 'plywood subfloor' : 'OSB subfloor', { floorPanel: d.floorPanel === 'OSB' ? 'plywood' : 'OSB' });
   }
   // Only when asked: a foot either way on the length or width, never below 85% of the floor asked for.
@@ -158,9 +167,7 @@ export const GOALS = {
 /**
  * @param {any} design
  * @param {import('./estimate.mjs').Prices} [prices]
- * @param {{ rounds?: number, resize?: boolean, products?: boolean, peakSlack?: number, goals?: string[], keep?: string[], maxRatio?: number, clean?: boolean }} [opts]
- *   maxRatio: the most any structural check may be used (1 = right at its limit);
- *   clean: only designs the model has no warning about
+ * @param {{ rounds?: number, resize?: boolean, products?: boolean, peakSlack?: number, goals?: string[], keep?: string[] }} [opts]
  */
 export function simplify(design, prices, opts = {}) {
   const rounds = opts.rounds ?? 6;
@@ -175,8 +182,7 @@ export function simplify(design, prices, opts = {}) {
   };
   // Never over the peak limit if the design meets it, and never more than 1" taller than it is.
   const peakCap = start.maxPeak > 0 && base.peak <= start.maxPeak ? start.maxPeak : base.peak + (opts.peakSlack ?? 1);
-  const feasible = (r) => r.ok && (!(start.maxFootprint > 0) || r.footprint <= start.maxFootprint + 1e-9) && r.peak <= peakCap + 0.01
-    && (!(opts.maxRatio > 0) || r.worst <= opts.maxRatio + 1e-9) && (!opts.clean || r.warnings === 0);
+  const feasible = (r) => r.ok && (!(start.maxFootprint > 0) || r.footprint <= start.maxFootprint + 1e-9) && r.peak <= peakCap + 0.01;
   const winners = {};
   for (const [goal, g] of Object.entries(GOALS).filter(([k]) => !opts.goals || opts.goals.includes(k))) {
     const score = (r) => r.total + (g.time ? r.timeCost : 0) + g.perCut * r.cuts.straight + g.perAngled * (r.cuts.angled + 2 * r.cuts.notches);
@@ -293,7 +299,6 @@ function evaluate(d, prices) {
   return {
     hours, timeCost: Math.round(hours * (shed.design.laborRate ?? 0) * 100) / 100,
     design: shed.design, total: est.total, boards: est.boards, cuts, ok: sc.ok && cc.ok,
-    worst: sc.rows.reduce((m, x) => Math.max(m, x.ratio), 0), warnings: shed.warnings.length,
     peak: shed.dims.peak, footprint: (shed.design.length * shed.design.width) / 144,
     pitch: shed.design.pitch, overhang: shed.design.overhang,
   };
