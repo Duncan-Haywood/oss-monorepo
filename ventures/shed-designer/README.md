@@ -40,7 +40,7 @@ All three automatic choices are ticked:
 - **Pitch:** 4/12. No pitch keeps the peak under 8 ft with that door, so the tool takes the lowest pitch at which the vents still fit, and the warning says the peak is 10' 2-3/8" above the gravel. Even 3/12 would be 9' 10-3/8".
 - **Overhang:** 9". Any longer and the 60-3/8" rafters cost more lumber. (It was 6" while 16 ft boards were allowed; within the 12 ft haul limit the 2x6s are cut from shorter boards, and 9" needs no more lumber than 6".)
 
-At the starting prices, with nothing longer than 12 ft, that design is 151 pieces from 92 boards. The cut sheet's boards cost $657.33 against a proven lower bound of $656.09; with spare boards the lumber is $743.93, and the whole shed is $3,074.14 before sales tax. Every structural check passes, and the ridge beam is the most loaded member. The "8x12 classic" preset (8 ft walls, 6/12, ridge board and ties, 38" x 82" door, unpainted) is 143 pieces from 98 boards and $3,203.80 before sales tax.
+At the starting prices, with nothing longer than 12 ft, that design is 151 pieces from 92 boards. The cut sheet's boards cost $657.33 against a proven lower bound of $656.09; with spare boards the lumber is $743.93, and the whole shed is $3,065.16 before sales tax. Every structural check passes, and the ridge beam is the most loaded member. The "8x12 classic" preset (8 ft walls, 6/12, ridge board and ties, 38" x 82" door, unpainted) is 143 pieces from 98 boards and $3,194.82 before sales tax.
 
 ## Structure, integrity and prices
 

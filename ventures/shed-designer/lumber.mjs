@@ -180,6 +180,7 @@ export const EXAMPLE_ITEMS = Object.freeze({
   framingNails: { name: '16d 3-1/2 in. galvanized common nails, 5 lb box', unit: 'box', price: 25 },
   sheathingNails: { name: '8d 2-1/2 in. hot-dipped galvanized common nails, 5 lb box (floor and roof sheathing)', unit: 'box', price: 27 },
   sidingNails: { name: '8d 2-1/2 in. hot-dipped galvanized siding nails, 1 lb box', unit: 'box', price: 6 },
+  sidingNails5: { name: '8d 2-1/2 in. hot-dipped galvanized siding nails, 5 lb box (about 770)', unit: 'box', price: 19 },
   roofingNails: { name: '1-1/4 in. electro-galvanized roofing nails, 5 lb box', unit: 'box', price: 16 },
   trimNails: { name: '8d 2-1/2 in. hot-dipped galvanized finish nails, 1 lb box', unit: 'box', price: 10 },
   connectorNails: { name: 'Simpson N10DHDG 10d x 1-1/2 in. connector nails, 120-pack', unit: 'pack', price: 5 },
