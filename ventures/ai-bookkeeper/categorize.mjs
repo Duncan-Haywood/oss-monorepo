@@ -59,6 +59,11 @@ export const BUILT_IN = [
   ["4000", "in", /momence payout|walla payout|zen ?planner payout|zelle from .*(wellness|corporate)/],
   // QuickBooks/Intuit payroll debits are wages too (2026-10-30, payroll-software.test.mjs): the generic quickbooks/intuit rule files them as software; a fee, subscription or tax line is left to the rules below.
   ["6150", "out", /(quickbooks|intuit|qbooks)\W+payroll(?!.*(fee|subscription|monthly|tax))/],
+  // Gaps found by a 69-description probe (2026-10-30, processor-payroll-gaps.test.mjs, made-up descriptions): ADP TotalSource (a PEO) debits are wages;
+  // Square and Toast deposits and Amazon marketplace payments are sales; SendGrid is software. IRS and EFTPS lines stay unsuggested: payroll, estimated and sales-tax payments look alike.
+  ["6150", "out", /\badp\s+(totalsource|payroll|run)/],
+  ["4000", "in", /(square|toast)\s*(inc\s*)?deposit|amazon\s+mktplace\s+pmts/],
+  ["6060", "out", /sendgrid/],
   ["6150", "out", /gusto (payroll|wages|net pay)(?!.*(fee|subscription|monthly))|gusto.*(tax|debit)/],
   ["6100", "out", /manduka|gaiam|hugger mugger|yoga ?props|pilates (reformer|equipment)|balanced body|merrithew/],
   ["6060", "out", /momence (subscription|monthly)|walla (subscription|monthly)|marianatek|pushpress/],
