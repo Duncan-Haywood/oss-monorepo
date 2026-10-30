@@ -3,7 +3,7 @@
 // plan sheets, all rebuilt from one design object on every change.
 
 import { buildShed, normalize, defaultDesign, PRESETS, WALLS, wallLabel, wallFaceLength, ROOF_TYPES } from './model.mjs';
-import { estimate, examplePrices, cutSheetCsv, shoppingCsv, groupBoards, sourceLabel, boardUse, lumberUses } from './estimate.mjs';
+import { estimate, examplePrices, cutSheetCsv, shoppingCsv, groupBoards, sourceLabel, boardUse, lumberUses, sectionTotals } from './estimate.mjs';
 import { buildSheets, sheetSvg, sheetsDxf } from './drawings.mjs';
 import { createViewer, LAYERS } from './render3d.mjs';
 import { mountPicker } from './picker.mjs';
@@ -14,7 +14,7 @@ import { structuralChecks, anchorageText } from './checks.mjs';
 import { encodeDesign } from './hoa.mjs';
 import { initUtilisation, renderUtilisation, heatOption } from './utilisation-ui.mjs';
 import { connectionChecks } from './connections.mjs';
-import { generateCandidates } from './candidates.mjs';
+import { generateCandidates, designDiff, openingCosts } from './candidates.mjs';
 import { buildInstructions, instructionsMarkdown } from './instructions.mjs';
 import { quoteRequest, mailtoLink, STORES } from './quote.mjs';
 import { PRODUCTS } from './products.mjs';
@@ -155,7 +155,7 @@ const SITE_FIELDS = ['lotWidthFt', 'lotDepthFt', 'siteLeftFt', 'siteRearFt', 'se
 const FIELDS = ['name', 'lengthFt', 'widthFt', 'style', 'wallHeight', 'pitch', 'overhang', 'studSize', 'studSpacing', 'joistSize', 'joistSpacing',
   'rafterSize', 'rafterSpacing', 'tieSize', 'skidSize', 'skidSpacing', 'foundation', 'floorTreated', 'siding', 'roofing', 'gableVents', 'ventWidth', 'ventHeight', 'kerf',
   'roofType', 'beamSize', 'sidingColor', 'polkaDots', 'autoWall', 'autoPitch',
-  'autoOverhang', 'snowLoad', 'windLoad', 'roofColor', 'trimColor', 'doorColor', 'glitter', 'interior', 'sidingType', 'roofCover', 'insulation', 'customRange', 'atticStorage', 'wallTrim', 'rafterSeat', 'maxFootprint', 'pierDepth', 'compaction', 'pad', 'floorPanel', 'spares', 'taxRate', 'delivery', 'laborRate', 'maxHaulFt', 'gambrelLower', 'gambrelKnee', 'loft', 'loftJoist', ...SITE_FIELDS];
+  'autoOverhang', 'overhangBudget', 'snowLoad', 'windLoad', 'roofColor', 'trimColor', 'doorColor', 'glitter', 'interior', 'sidingType', 'roofCover', 'insulation', 'customRange', 'atticStorage', 'wallTrim', 'rafterSeat', 'maxFootprint', 'pierDepth', 'compaction', 'pad', 'floorPanel', 'spares', 'taxRate', 'delivery', 'laborRate', 'maxHaulFt', 'gambrelLower', 'gambrelKnee', 'loft', 'loftJoist', ...SITE_FIELDS];
 
 
 /** A colour select keeps one "Your colour" option for a hex code typed or picked. @param {HTMLSelectElement} sel @param {string} v */
@@ -194,7 +194,7 @@ function readForm() {
   d.length = Math.round(num('lengthFt', d.length / 12) * 12);
   d.width = Math.round(num('widthFt', d.width / 12) * 12);
   d.maxPeak = Math.round(num('maxPeakFt', d.maxPeak / 12) * 12);
-  for (const f of ['wallHeight', 'pitch', 'overhang', 'studSpacing', 'joistSpacing', 'rafterSpacing', 'skidSpacing', 'ventWidth', 'ventHeight', 'kerf', 'snowLoad', 'windLoad', 'maxFootprint', 'pierDepth', 'spares', 'taxRate', 'laborRate', 'maxHaulFt', 'gambrelLower', 'gambrelKnee', ...SITE_FIELDS]) d[f] = num(f, d[f]);
+  for (const f of ['wallHeight', 'pitch', 'overhang', 'studSpacing', 'joistSpacing', 'rafterSpacing', 'skidSpacing', 'ventWidth', 'ventHeight', 'kerf', 'snowLoad', 'windLoad', 'maxFootprint', 'pierDepth', 'spares', 'taxRate', 'laborRate', 'maxHaulFt', 'gambrelLower', 'gambrelKnee', ...SITE_FIELDS, 'overhangBudget']) d[f] = num(f, d[f]);
   for (const f of ['style', 'studSize', 'joistSize', 'rafterSize', 'tieSize', 'skidSize', 'foundation', 'roofType', 'beamSize', 'sidingColor', 'roofColor', 'trimColor', 'doorColor', 'interior', 'sidingType', 'roofCover', 'wallTrim', 'rafterSeat', 'compaction', 'pad', 'floorPanel', 'delivery', 'loft', 'loftJoist']) d[f] = v(f).value;
   for (const f of ['floorTreated', 'siding', 'roofing', 'gableVents', 'polkaDots', 'autoWall', 'autoPitch', 'autoOverhang', 'glitter', 'insulation', 'customRange', 'atticStorage']) d[f] = v(f).checked;
   d.lengths = $$('input[name="stock"]:checked').map((c) => Number(c.value));
@@ -217,9 +217,11 @@ function renderOpenings(d) {
       <td><input type="number" min="12" max="144" step="1" data-i="${i}" data-k="width" value="${op.width}" aria-label="Opening ${i + 1} rough opening width (in)"></td>
       <td><input type="number" min="12" max="120" step="1" data-i="${i}" data-k="height" value="${op.height}" aria-label="Opening ${i + 1} rough opening height (in)"></td>
       <td>${op.kind === 'window' ? `<input type="number" min="6" max="96" step="1" data-i="${i}" data-k="sill" value="${op.sill ?? 42}" aria-label="Opening ${i + 1} sill height above the floor (in)">` : '<span class="muted">floor</span>'}</td>
+      <td class="n" data-cost="${esc(op.id)}"><span class="muted">...</span></td>
       <td><button type="button" class="link" data-remove="${i}" aria-label="Remove opening ${i + 1}">Remove</button></td>`;
     tbody.appendChild(tr);
   });
+  queueOpeningCosts();
 }
 
 // ---------- results ----------
@@ -242,6 +244,7 @@ function renderSummary(shed, est) {
   $('#total-pill-n').textContent = money(buy.total);
   $('#summary-lines').innerHTML = [
     ['Materials', `${money(buy.sub)}${buy.less ? ` (${money(est.total)} less ${money(buy.less)} you have or left out)` : ''}${buy.tax ? ` + ${money(buy.tax)} tax (${d.taxRate}%)` : ' (no sales tax set)'}${d.delivery !== 'pickup' ? (est.deliveryFee ? ` + ${money(est.deliveryFee)} delivery` : ' + delivery (type your store\'s charge under Prices)') : ''}`],
+    ['Where the money goes', sectionTotals(est.shopping).sort((a, b) => b.total - a.total).slice(0, 5).map((x) => `${esc(x.section)} ${money(x.total)} (${Math.round(x.share * 100)}%)`).join(', ')],
     ['Footprint', `${fmtFtIn(d.length)} x ${fmtFtIn(d.width)} (${est.footprintSqFt.toFixed(0)} sq ft)`],
     ['Peak above the gravel', fmtFtIn(shed.dims.peak)],
     ['Boards to buy', `${est.boards} for ${est.pieces} pieces`],
@@ -276,16 +279,21 @@ function renderShopping(est) {
   const skip = new Set(state.skip);
   // What each length of lumber is for, so a 14 ft board on an 8x12 explains itself.
   const uses = lumberUses(est);
-  for (const r of est.shopping) {
+  const subs = new Map(sectionTotals(est.shopping).map((x) => [x.section, x]));
+  est.shopping.forEach((r, i) => {
     if (r.section !== section) { section = r.section; html += `<tr class="sec"><th colspan="8" scope="colgroup">${esc(section)}</th></tr>`; }
     const got = have.has(r.name);
     const left = skip.has(r.name);
     const lm = r.section === 'Lumber' ? /^(.+) x (\d+)'/.exec(r.name) : null;
     const use = lm && uses.get(`${lm[1]}:${lm[2]}`);
-    html += `<tr${got ? ' class="have"' : left ? ' class="skip"' : ''}><td>${esc(r.name)}${use ? `<div class="use">for ${esc(use)}</div>` : ''}</td><td class="n">${r.qty}</td><td>${r.unit}</td><td class="n">${money(r.price)}</td><td class="n">${money(r.total)}</td><td>${r.elsewhere ? `<span class="muted">not listed at ${esc(est.storeList.store)}: </span>` : ''}${sourceCell(r.source)}</td>`
+    html += `<tr${got ? ' class="have"' : left ? ' class="skip"' : ''}><td>${esc(r.name)}${lm ? `<button type="button" class="link xref-btn" data-xref-lumber="${esc(`${lm[1]}:${lm[2]}`)}">Show in 3D</button>` : ''}${use ? `<div class="use">for ${esc(use)}</div>` : ''}</td><td class="n">${r.qty}</td><td>${r.unit}</td><td class="n">${money(r.price)}</td><td class="n">${money(r.total)}</td><td>${r.elsewhere ? `<span class="muted">not listed at ${esc(est.storeList.store)}: </span>` : ''}${sourceCell(r.source)}</td>`
       + `<td><input type="checkbox" data-have="${esc(r.name)}"${got ? ' checked' : ''} aria-label="I already have: ${esc(r.name)}"></td>`
       + `<td><input type="checkbox" data-skip="${esc(r.name)}"${left ? ' checked' : ''} aria-label="Leave out of the total: ${esc(r.name)}"></td></tr>`;
-  }
+    if (est.shopping[i + 1]?.section !== r.section) {
+      const x = subs.get(r.section);
+      html += `<tr class="subtot"><th colspan="4" scope="row">${esc(r.section)} subtotal <span class="muted">(${Math.round(x.share * 100)}% of the materials)</span></th><td class="n">${money(x.total)}</td><td></td><td></td><td></td></tr>`;
+    }
+  });
   const buy = toBuy(est);
   const row = (label, v, cls = '') => `<tr${cls ? ` class="${cls}"` : ''}><th colspan="4" scope="row">${label}</th><td class="n">${v}</td><td></td><td></td><td></td></tr>`;
   html += row('Materials', money(est.total), 'tot');
@@ -420,7 +428,7 @@ function renderCuts(est) {
         x += w;
         return seg;
       }).join('');
-      html += `<li><span class="board-name">${boardName(b)}</span><span class="bar">${segs}</span><span class="off">offcut ${fmtIn(b.offcut)}${b.count > 1 ? ' each' : ''}</span><span class="use">${b.stock / 12} ft &rarr; ${esc(boardUse(b))}</span></li>`;
+      html += `<li data-marks="${esc([...new Set(b.cuts.map((c) => c.mark))].join(' '))}"><span class="board-name">${boardName(b)}<button type="button" class="link xref-btn" data-xref-marks="${esc([...new Set(b.cuts.map((c) => c.mark))].join(' '))}">Show in 3D</button></span><span class="bar">${segs}</span><span class="off">offcut ${fmtIn(b.offcut)}${b.count > 1 ? ' each' : ''}</span><span class="use">${b.stock / 12} ft &rarr; ${esc(boardUse(b))}</span></li>`;
     }
     html += '</ul>';
   }
@@ -450,7 +458,7 @@ function renderParts(est) {
   $('#parts tbody').innerHTML = est.parts.map((p) => {
     const s = actual(p.material);
     const where = Object.entries(p.where).map(([k, v]) => `${k} ${v}`).join(', ');
-    return `<tr><th scope="row">${p.mark}</th><td>${esc(p.kind)}</td><td>${p.material} <span class="muted">${fmtIn(s.thick)} x ${fmtIn(s.depth)}</span></td><td class="n">${fmtIn(p.length)}</td><td class="n">${p.qty}</td><td>${esc(where)}</td><td>${esc(p.note)}</td></tr>`;
+    return `<tr data-mark="${p.mark}"><th scope="row">${p.mark} <button type="button" class="link xref-btn" data-xref-marks="${p.mark}" aria-label="Show part ${p.mark} in 3D">Show in 3D</button></th><td>${esc(p.kind)}</td><td>${p.material} <span class="muted">${fmtIn(s.thick)} x ${fmtIn(s.depth)}</span></td><td class="n">${fmtIn(p.length)}</td><td class="n">${p.qty}</td><td>${esc(where)}</td><td>${esc(p.note)}</td></tr>`;
   }).join('');
 }
 
@@ -484,8 +492,47 @@ function renderQuote(shed, est) {
 }
 
 let buildMd = '';
+let buildSections = /** @type {any[]} */ ([]);
+
+// ---------- cross-reference: lists <-> 3D view <-> build steps ----------
+/** The first build section that names one of these marks ("mark F", "(F)", "marks K, L"). */
+function stepFor(marks) {
+  const res = marks.map((m) => new RegExp(`(?:\\bmarks? |\\(|, |and )${m}(?![A-Za-z])`));
+  return buildSections.findIndex((sec) => { const text = sec.steps.join(' '); return res.some((r) => r.test(text)); });
+}
+function idsForMarks(marks) {
+  const want = new Set(marks);
+  return lastEst.parts.filter((p) => want.has(p.mark)).flatMap((p) => p.ids);
+}
+/** Highlight pieces in 3D and the lists, and say what they are with links onward. */
+function showPieces(ids, title, { scroll = false } = {}) {
+  const set = new Set(ids);
+  const parts = lastEst.parts.filter((p) => p.ids.some((id) => set.has(id)));
+  const marks = parts.map((p) => p.mark);
+  viewer?.highlight(ids);
+  for (const el of $$('.xref-on')) el.classList.remove('xref-on');
+  for (const tr of $$('#parts tr[data-mark]')) if (marks.includes(tr.dataset.mark)) tr.classList.add('xref-on');
+  for (const li of $$('#cuts li[data-marks]')) if (li.dataset.marks.split(' ').some((m) => marks.includes(m))) li.classList.add('xref-on');
+  // On the plan sheets, the part marks drawn on those members.
+  const onSheets = [];
+  for (const fig of $$('#plans figure.sheet')) {
+    let hit = false;
+    for (const t of fig.querySelectorAll('text.mark')) if (marks.includes(t.textContent.trim())) { t.classList.add('xref-on'); hit = true; }
+    if (hit) onSheets.push(fig.querySelector('figcaption')?.firstChild?.textContent?.replace(/^\d+\.\s*/, '').trim() || fig.id);
+  }
+  const step = stepFor(marks);
+  const box = $('#xref');
+  box.hidden = false;
+  box.innerHTML = `<h3>${esc(title)}</h3><p>${parts.map((p) => `${esc(p.kind)} (${p.mark}): ${p.qty} x ${fmtIn(p.length)} ${p.material}`).join('; ') || 'No framing pieces.'}</p>
+    <div class="toolrow">${step >= 0 ? `<button type="button" class="btn" data-xstep="${step}">Build step: ${esc(buildSections[step].title)}</button>` : ''}
+    ${onSheets.length ? `<button type="button" class="btn" data-xgo="panel-plans">Plans: ${esc(onSheets.slice(0, 3).join(', '))}${onSheets.length > 3 ? ` and ${onSheets.length - 3} more` : ''}</button>` : ''}
+    <button type="button" class="btn" data-xgo="panel-cuts">Cut sheet</button><button type="button" class="btn" data-xgo="panel-parts">Parts list</button><button type="button" class="btn" data-xclear>Clear</button></div>`;
+  if (scroll) $('#view3d').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
 function renderBuild(shed, est) {
   const sections = buildInstructions(shed, est);
+  buildSections = sections;
   buildMd = instructionsMarkdown(sections, shed.design.name);
   $('#build-steps').innerHTML = sections.map((s) => `<li><h3>${esc(s.title)}</h3>${s.why ? `<p class="muted">${esc(s.why)}</p>` : ''}<ol>${s.steps.map((x) => `<li>${esc(x)}</li>`).join('')}</ol>${s.check?.length ? `<div class="check"><strong>Check:</strong> ${s.check.map(esc).join(' ')}</div>` : ''}</li>`).join('');
 }
@@ -502,6 +549,7 @@ function renderCompare() {
     return { d, i, shed, est };
   });
   const cheapest = Math.min(...rows.map((r) => r.est.total));
+  const here = rows[state.active];
   $('#compare-cards').innerHTML = rows.map(({ d, i, shed, est }) => `
     <article class="card${i === state.active ? ' active' : ''}">
       ${thumbs.get(JSON.stringify(d)) ? `<img src="${thumbs.get(JSON.stringify(d))}" alt="3D view of ${esc(d.name)}" width="360" height="240">` : '<div class="thumb-wait">rendering...</div>'}
@@ -514,9 +562,32 @@ function renderCompare() {
         <div><dt>Boards</dt><dd>${est.boards}</dd></div>
         <div><dt>Total</dt><dd>${money(est.total)}</dd></div>
         <div><dt>Per sq ft</dt><dd>${money(est.total / est.footprintSqFt)}</dd></div>
+        ${i !== state.active && here ? (() => { const ch = designDiff(here.shed, shed); const dlt = est.total - here.est.total; return `<div class="wide"><dt>Against the one you're editing</dt><dd>${Math.abs(dlt) < 0.005 ? 'same price' : `${money(Math.abs(dlt))} ${dlt > 0 ? 'more' : 'less'}`}${ch.length ? `<ul class="changes">${ch.map((c) => `<li>${esc(c)}</li>`).join('')}</ul>` : '; the same design'}</dd></div>`; })() : ''}
       </dl>
       <button type="button" data-design="${i}">${i === state.active ? 'Editing' : 'Open this design'}</button>
     </article>`).join('');
+}
+
+// What each door and window costs in all needs the shed priced once more per
+// opening, so it fills in just after the edit, like the other out-of-sight work.
+let costTimer = /** @type {any} */ (0);
+let costKey = '';
+let costs = /** @type {any[]} */ ([]);
+function fillOpeningCosts() {
+  for (const c of costs) {
+    const td = document.querySelector(`#openings td[data-cost="${CSS.escape(c.id)}"]`);
+    if (td) td.innerHTML = `${money(c.total)}${c.unpriced ? '<br><span class="muted">plus the unit (custom size, not priced)</span>' : ''}<br><span class="muted">lumber ${money(c.lumber)}</span>`;
+  }
+}
+function queueOpeningCosts() {
+  const key = JSON.stringify([design(), state.prices]);
+  if (key === costKey) { fillOpeningCosts(); return; }
+  clearTimeout(costTimer);
+  costTimer = setTimeout(() => {
+    costs = openingCosts(design(), state.prices);
+    costKey = key;
+    fillOpeningCosts();
+  }, 400);
 }
 
 // Thumbnails come from a second, off-page viewer so the main view never flickers.
@@ -829,6 +900,8 @@ function wire() {
       if (tv) { tv.show(buildShed(o.design), { refit: true }); img = `<img src="${tv.snapshot()}" alt="3D view of option ${i + 1}" width="480" height="320">`; }
       return `<article class="card"><div>${img}</div><h3 class="h4">${i === 0 ? '<span class="pill">best value</span> ' : ''}${esc(o.label)}</h3>
         <dl><div><dt>Total</dt><dd>${money(o.total)}</dd></div><div><dt>Lumber</dt><dd>${money(o.lumber)}, ${o.boards} boards</dd></div>
+        <div><dt>Against your design</dt><dd>${o.delta > 0.005 ? `${money(o.delta)} more` : o.delta < -0.005 ? `${money(-o.delta)} less` : 'same price'}</dd></div>
+        <div class="wide"><dt>What changes</dt><dd>${o.changes.length ? `<ul class="changes">${o.changes.map((c) => `<li>${esc(c)}</li>`).join('')}</ul>` : 'nothing: this is your design'}</dd></div>
         <div><dt>Roof</dt><dd>${esc(o.summary)}</dd></div><div><dt>Structure</dt><dd class="${o.ok ? 'ok' : 'fail'}">${o.ok ? 'passes' : 'over capacity'} (${Math.round(o.worst * 100)}%)</dd></div>
         ${change ? `<div><dt>Against yours</dt><dd>${esc(change)}</dd></div>` : ''}
         ${o.warnings ? `<div><dt>Warnings</dt><dd>${o.warnings}</dd></div>` : ''}</dl>
@@ -943,6 +1016,35 @@ function wire() {
   });
   $('#zoom-in').addEventListener('click', () => viewer?.zoom(1 / 1.2));
   $('#zoom-out').addEventListener('click', () => viewer?.zoom(1.2));
+
+  // "Show in 3D" on a list line, and the links in the box under the 3D view.
+  $('.results').addEventListener('click', (e) => {
+    const b = e.target.closest('button.xref-btn');
+    if (!b || !lastEst) return;
+    if (b.dataset.xrefLumber) {
+      const [mat, ft] = b.dataset.xrefLumber.split(':');
+      const ids = lastEst.lumber.filter((l) => l.material === mat).flatMap((l) => l.result.boards.filter((x) => x.stock === Number(ft) * 12).flatMap((x) => x.cuts.map((c) => c.id)));
+      showPieces(ids, `${mat} x ${ft}': where its pieces go`, { scroll: true });
+    } else {
+      const marks = b.dataset.xrefMarks.split(' ');
+      showPieces(idsForMarks(marks), `Mark${marks.length > 1 ? 's' : ''} ${marks.join(', ')}`, { scroll: true });
+    }
+  });
+  $('#xref').addEventListener('click', (e) => {
+    const b = e.target.closest('button');
+    if (!b) return;
+    if (b.dataset.xclear !== undefined) { viewer?.highlight([]); $('#xref').hidden = true; for (const el of $$('.xref-on')) el.classList.remove('xref-on'); return; }
+    const go = b.dataset.xgo || (b.dataset.xstep !== undefined ? 'panel-build' : '');
+    $(`.result-tabs button[data-panel="${go}"]`)?.click();
+    const target = b.dataset.xstep !== undefined ? $('#build-steps').children[Number(b.dataset.xstep)] : $(`#${go} .xref-on`) || $('#results-h');
+    if (b.dataset.xstep !== undefined) { for (const li of $$('#build-steps > li')) li.classList.remove('xref-on'); target?.classList.add('xref-on'); }
+    target?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+  if (viewer) viewer.onPick = (id) => {
+    if (!id || !lastEst) return;
+    const part = lastEst.parts.find((p) => p.ids.includes(id));
+    if (part) showPieces(part.ids, `${part.kind[0].toUpperCase()}${part.kind.slice(1)}, mark ${part.mark}`);
+  };
 
   // The section bar at the top opens a results tab and scrolls to it.
   $('#jump').addEventListener('click', (e) => {

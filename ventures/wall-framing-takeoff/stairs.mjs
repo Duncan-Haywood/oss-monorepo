@@ -344,5 +344,38 @@ export function winderText(c) {
   if (!c.ok && !c.problems) return c.errors.map((e) => `  - ${e}`);
   const out = [`  Winders: ${c.count} treads of ${c.anglePerTread.toFixed(1)} degrees round a ${formatInches(c.innerRadius)} inner radius: ${c.narrow.toFixed(2)} in at the narrow end, ${c.walk.toFixed(2)} in at ${c.limits.winderWalkline} in out, ${c.outer.toFixed(2)} in at the wide end`];
   out.push(c.ok ? "  Winders pass the 6 in and 10 in rules as typed." : `  Winders fail: ${c.problems.join("; ")}. The smallest inner radius that passes is ${c.minInnerRadius.toFixed(1)} in.`);
+  if (c.treads) {
+    out.push(`  Straight-edge depths: ${c.chordNarrow.toFixed(2)} in narrow, ${c.chordWalk.toFixed(2)} in at ${c.limits.winderWalkline} in out, ${c.chordWide.toFixed(2)} in wide${c.chordPasses ? "" : " (a straight edge fails where the arc passes: add radius)"}`);
+    for (const t of c.treads) out.push(`  Winder tread ${t.index}: ${t.area.toFixed(1)} sq in, cut from a ${formatInches(t.blank.x)} x ${formatInches(t.blank.y)} blank`);
+  }
   return out;
+}
+
+// Winder tread layout (2026-10-30): the wedge each tread is cut from. Tread k
+// lies between the radial lines at k*theta and (k+1)*theta, from the inner
+// radius to inner radius + width, with straight edges (corners at radius x
+// angle). Reported per tread: the four corners (inches, pivot at 0,0), the
+// shoelace area, the smallest rectangle of board it is cut from, and the
+// straight-edge ("chord") depth 2 x radius x sin(theta/2) at the narrow end,
+// 12 in out and the wide end. A chord is shorter than the arc `checkWinders`
+// measures, so `chordPasses` is the stricter answer for a straight edge.
+/** @param {{ count?: number, turn?: number, innerRadius?: number, width?: number, limits?: Partial<typeof WINDER_LIMITS> }} w */
+export function layoutWinders(w) {
+  const c = checkWinders(w);
+  if (!c.problems) return c;
+  const { count, anglePerTread, innerRadius: r, limits: L } = c, width = w.width ?? 36, R = r + width;
+  const theta = anglePerTread * Math.PI / 180;
+  const chord = (rad) => 2 * rad * Math.sin(theta / 2);
+  const pt = (rad, a) => [rad * Math.cos(a), rad * Math.sin(a)];
+  const treads = Array.from({ length: count }, (_, k) => {
+    const a0 = k * theta, a1 = (k + 1) * theta;
+    const corners = [pt(r, a0), pt(R, a0), pt(R, a1), pt(r, a1)];
+    let area = 0;
+    for (let i = 0; i < 4; i++) { const [x1, y1] = corners[i], [x2, y2] = corners[(i + 1) % 4]; area += x1 * y2 - x2 * y1; }
+    const xs = corners.map((p) => p[0]), ys = corners.map((p) => p[1]);
+    return { index: k + 1, corners, area: Math.abs(area) / 2, blank: { x: Math.max(...xs) - Math.min(...xs), y: Math.max(...ys) - Math.min(...ys) } };
+  });
+  const chordNarrow = chord(r), chordWalk = chord(r + L.winderWalkline), chordWide = chord(R);
+  const chordPasses = chordNarrow >= L.winderMinDepth - 1e-9 && chordWalk >= L.winderWalkDepth - 1e-9;
+  return { ...c, treads, chordNarrow, chordWalk, chordWide, chordPasses };
 }

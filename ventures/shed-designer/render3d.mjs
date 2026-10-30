@@ -1,13 +1,13 @@
 // @ts-check
 // A small WebGL viewer for the framed shed: every board is its own extruded
 // profile with real dimensions, lit with two lights and outlined so you can
-// count studs. No library; drag to orbit, wheel, pinch or buttons to zoom,
+// count studs. No library; drag to orbit, right- or Shift-drag (two fingers on a phone) to pan, wheel, pinch or buttons to zoom,
 // arrow keys and +/- when the canvas has focus.
 
 import { paletteOf, PAINTS, SHINGLE_FAMILIES, TRIM_FINISHES } from './looks.mjs';
 
 /** @typedef {import('./model.mjs').Geom} Geom */
-/** @typedef {{ geom: Geom, color: [number, number, number], layer: string, flags?: number }} Solid */
+/** @typedef {{ geom: Geom, color: [number, number, number], layer: string, flags?: number, id?: string }} Solid */
 
 const COLORS = {
   pt: [0.71, 0.77, 0.58], framing: [0.9, 0.79, 0.57], header: [0.85, 0.66, 0.38], floor: [0.83, 0.7, 0.47],
@@ -184,7 +184,7 @@ export function solidsOf(shed, heat) {
   const out = [];
   for (const m of shed.members) {
     const color = heat ? heat.get(m.id) || HEAT_NONE : /^PT /.test(m.material) ? COLORS.pt : (m.kind === 'header' || m.kind === 'ridge board' || m.kind === 'ridge beam') ? COLORS.header : COLORS.framing;
-    out.push({ geom: m.geom, color: /** @type {any} */ (color), layer: layerOf(m) });
+    out.push({ geom: m.geom, color: /** @type {any} */ (color), layer: layerOf(m), id: m.id });
   }
   if (heat) return out;
   const pal = paletteOf(d);
@@ -473,9 +473,18 @@ export function createViewer(canvas, { presentation = false } = {}) {
 
   /** @type {Record<string, any>} */
   const layers = {};
+  // Boards you can point at: each member's triangles, for picking with a click,
+  // and the ones shown highlighted (drawn last, over everything, so a stud shows
+  // through the siding).
+  /** @type {{ id: string, layer: string, pos: Float32Array }[]} */
+  let pickables = [];
+  let hl = null;
+  let hlIds = /** @type {string[]} */ ([]);
+  /** @type {((id: string|null) => void) | null} */
+  let onPick = null;
   const visible = new Set(LAYERS);
   // A presentation viewer (pictures for cards and the HOA packet) looks from lower, with sky behind the roof.
-  const cam = { theta: -0.95, phi: presentation ? 0.2 : 0.42, dist: 400, target: [0, 0, 0], fit: 400 };
+  const cam = { theta: -0.95, phi: presentation ? 0.2 : 0.42, dist: 400, target: [0, 0, 0], fit: 400, pan: [0, 0, 0] };
   let fitted = false;
 
   const buf = (data) => { const b = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, b); gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW); return b; };
@@ -518,6 +527,8 @@ export function createViewer(canvas, { presentation = false } = {}) {
       labelHalf = [];
     }
     const solids = solidsOf(shed, heat);
+    pickables = solids.filter((x) => x.id).map((x) => ({ id: /** @type {string} */ (x.id), layer: x.layer, pos: meshOf([x]).pos }));
+    setHighlight(hlIds.filter((id) => pickables.some((q) => q.id === id)));
     for (const name of LAYERS) {
       const mesh = meshOf(solids.filter((s) => s.layer === name));
       if (!mesh.pos.length) continue;
@@ -536,7 +547,7 @@ export function createViewer(canvas, { presentation = false } = {}) {
     }
     cam.target = [d.length / 2, d.width / 2, d.peak / 2.4];
     cam.fit = Math.hypot(d.length + 2 * d.overhang, d.width + 2 * d.overhang, d.peak) * 1.35;
-    if (!fitted || refit) { cam.dist = cam.fit; fitted = true; }
+    if (!fitted || refit) { cam.dist = cam.fit; cam.pan = [0, 0, 0]; fitted = true; }
     draw();
   }
 
@@ -547,8 +558,9 @@ export function createViewer(canvas, { presentation = false } = {}) {
     if (w && h && (canvas.width !== Math.round(w * dpr) || canvas.height !== Math.round(h * dpr))) { canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr); }
     gl.viewport(0, 0, canvas.width, canvas.height);
     gl.clearColor(0.93, 0.95, 0.97, 1); gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    const eye = [cam.target[0] + cam.dist * Math.cos(cam.phi) * Math.cos(cam.theta), cam.target[1] + cam.dist * Math.cos(cam.phi) * Math.sin(cam.theta), cam.target[2] + cam.dist * Math.sin(cam.phi)];
-    const m = mul(perspective(0.75, canvas.width / canvas.height, cam.dist * 0.08, cam.dist * 8), lookAt(eye, cam.target, [0, 0, 1]));
+    const tgt = [0, 1, 2].map((i) => cam.target[i] + cam.pan[i]);
+    const eye = [tgt[0] + cam.dist * Math.cos(cam.phi) * Math.cos(cam.theta), tgt[1] + cam.dist * Math.cos(cam.phi) * Math.sin(cam.theta), tgt[2] + cam.dist * Math.sin(cam.phi)];
+    const m = mul(perspective(0.75, canvas.width / canvas.height, cam.dist * 0.08, cam.dist * 8), lookAt(eye, tgt, [0, 0, 1]));
     const attr = (b, l, size = 3) => { gl.bindBuffer(gl.ARRAY_BUFFER, b); gl.enableVertexAttribArray(l); gl.vertexAttribPointer(l, size, gl.FLOAT, false, 0, 0); };
     const horizon = 0.5 + 0.5 * Math.tan(cam.phi) / Math.tan(0.375);
     if (scenery && horizon < 1) {
@@ -635,11 +647,64 @@ export function createViewer(canvas, { presentation = false } = {}) {
       gl.disableVertexAttribArray(tloc.p); gl.disableVertexAttribArray(tloc.uv);
       gl.useProgram(prog);
     }
+    if (hl) {
+      gl.clear(gl.DEPTH_BUFFER_BIT);
+      use(variants.plain, 1, 0);
+      attr(hl.p, loc.p); attr(hl.n, loc.n); attr(hl.c, loc.c, 4);
+      gl.drawArrays(gl.TRIANGLES, 0, hl.count);
+      use(variants.plain, 0, 0.00004);
+      attr(hl.l, loc.p); attr(hl.ln, loc.n); attr(hl.lc, loc.c, 4);
+      gl.drawArrays(gl.LINES, 0, hl.lcount);
+      for (const l of [loc.p, loc.n, loc.c]) gl.disableVertexAttribArray(l);
+    }
     // Glitter twinkles, so keep drawing while it is on screen.
     if (glitter && !animating && canvas.isConnected) {
       animating = true;
       requestAnimationFrame(() => { animating = false; if (glitter) draw(); });
     }
+  }
+
+  function setHighlight(ids) {
+    hlIds = [...ids];
+    if (hl) for (const k of ['p', 'n', 'c', 'l', 'ln', 'lc']) gl.deleteBuffer(hl[k]);
+    hl = null;
+    const want = new Set(hlIds);
+    const pos = []; for (const q of pickables) if (want.has(q.id)) pos.push(q);
+    if (!pos.length) return;
+    // Rebuild a mesh in the highlight colour from the members' own triangles.
+    const tris = new Float32Array(pos.reduce((t, q) => t + q.pos.length, 0));
+    let o = 0; for (const q of pos) { tris.set(q.pos, o); o += q.pos.length; }
+    const n = tris.length / 3;
+    const nor = new Float32Array(tris.length);
+    for (let i = 0; i < n; i += 3) {
+      const a = i * 3; const ux = tris[a + 3] - tris[a]; const uy = tris[a + 4] - tris[a + 1]; const uz = tris[a + 5] - tris[a + 2];
+      const vx = tris[a + 6] - tris[a]; const vy = tris[a + 7] - tris[a + 1]; const vz = tris[a + 8] - tris[a + 2];
+      let nx = uy * vz - uz * vy; let ny = uz * vx - ux * vz; let nz = ux * vy - uy * vx; const l = Math.hypot(nx, ny, nz) || 1; nx /= l; ny /= l; nz /= l;
+      for (let k = 0; k < 3; k++) nor.set([nx, ny, nz], a + k * 3);
+    }
+    const col = new Float32Array(n * 4); for (let i = 0; i < n; i++) col.set([0.96, 0.45, 0.08, 0], i * 4);
+    // Outline every triangle edge in a darker orange so the pieces read apart.
+    const lines = []; for (let i = 0; i < n; i += 3) { const a = i * 3; for (const [x, y] of [[0, 1], [1, 2], [2, 0]]) lines.push(tris[a + x * 3], tris[a + x * 3 + 1], tris[a + x * 3 + 2], tris[a + y * 3], tris[a + y * 3 + 1], tris[a + y * 3 + 2]); }
+    const ln = new Float32Array(lines.length).fill(0); for (let i = 2; i < ln.length; i += 3) ln[i] = 1;
+    const lc = new Float32Array((lines.length / 3) * 4); for (let i = 0; i < lc.length; i += 4) lc.set([0.55, 0.22, 0.02, 0], i);
+    hl = { p: buf(tris), n: buf(nor), c: buf(col), count: n, l: buf(new Float32Array(lines)), ln: buf(ln), lc: buf(lc), lcount: lines.length / 3 };
+  }
+
+  /** The framing member under a point on the canvas (client pixels), among the layers shown, or null: a ray through the panned view. */
+  function pick(clientX, clientY) {
+    if (!shown) return null;
+    const r = canvas.getBoundingClientRect();
+    const nx = ((clientX - r.left) / (r.width || 1)) * 2 - 1;
+    const ny = 1 - ((clientY - r.top) / (r.height || 1)) * 2;
+    const tgt = [0, 1, 2].map((i) => cam.target[i] + cam.pan[i]);
+    const eye = [tgt[0] + cam.dist * Math.cos(cam.phi) * Math.cos(cam.theta), tgt[1] + cam.dist * Math.cos(cam.phi) * Math.sin(cam.theta), tgt[2] + cam.dist * Math.sin(cam.phi)];
+    const norm = (v) => { const l = Math.hypot(v[0], v[1], v[2]) || 1; return [v[0] / l, v[1] / l, v[2] / l]; };
+    const f = norm([tgt[0] - eye[0], tgt[1] - eye[1], tgt[2] - eye[2]]);
+    const rt = norm([f[1], -f[0], 0]);
+    const up = [rt[1] * f[2] - rt[2] * f[1], rt[2] * f[0] - rt[0] * f[2], rt[0] * f[1] - rt[1] * f[0]];
+    const th = Math.tan(0.375); const asp = (r.width || 1) / (r.height || 1);
+    const dir = [0, 1, 2].map((i) => f[i] + nx * th * asp * rt[i] + ny * th * up[i]);
+    return pickMember(shown.members.filter((m) => visible.has(layerOf(m))), eye, dir)?.id ?? null;
   }
 
   // One draw per frame however many pointer events arrive: on a big design a
@@ -651,17 +716,33 @@ export function createViewer(canvas, { presentation = false } = {}) {
     requestAnimationFrame(() => { drawQueued = false; draw(); });
   };
 
-  // Orbit with one pointer, pinch with two, zoom with the wheel or the keys.
+  // Pan: slide the point the camera looks at across the screen, by pixels.
+  // It stays within about half the shed's size of the centre, so the shed
+  // can't be lost off screen.
+  function panBy(dx, dy) {
+    const per = (2 * Math.tan(0.375) * cam.dist) / (canvas.clientHeight || 300);
+    const r = [-Math.sin(cam.theta), Math.cos(cam.theta), 0];
+    const u = [-Math.sin(cam.phi) * Math.cos(cam.theta), -Math.sin(cam.phi) * Math.sin(cam.theta), Math.cos(cam.phi)];
+    const p = [0, 1, 2].map((i) => cam.pan[i] - r[i] * dx * per + u[i] * dy * per);
+    const len = Math.hypot(...p); const max = cam.fit * 0.4;
+    cam.pan = len > max ? p.map((x) => (x * max) / len) : p;
+    requestDraw();
+  }
+
+  // Orbit with one pointer (pan with the right button or Shift held), pinch and
+  // pan with two fingers, zoom with the wheel or the keys.
   /** @type {Map<number, { x: number, y: number }>} */
   const pointers = new Map();
   let drag = null;
   let pinch = null;
   const spread = () => { const [a, b] = [...pointers.values()]; return Math.hypot(a.x - b.x, a.y - b.y) || 1; };
+  const mid = () => { const [a, b] = [...pointers.values()]; return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }; };
+  canvas.addEventListener('contextmenu', (e) => e.preventDefault());
   canvas.addEventListener('pointerdown', (e) => {
     pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
     canvas.setPointerCapture(e.pointerId);
-    if (pointers.size === 1) drag = { x: e.clientX, y: e.clientY, theta: cam.theta, phi: cam.phi };
-    else if (pointers.size === 2) { drag = null; pinch = { d: spread(), dist: cam.dist }; }
+    if (pointers.size === 1) { drag = { x: e.clientX, y: e.clientY, theta: cam.theta, phi: cam.phi, pan: e.button === 2 || e.shiftKey }; press = { x: e.clientX, y: e.clientY, button: e.button }; } else press = null;
+    if (pointers.size === 2) { drag = null; pinch = { d: spread(), dist: cam.dist, mid: mid() }; }
   });
   canvas.addEventListener('pointermove', (e) => {
     if (!pointers.has(e.pointerId)) return;
@@ -669,16 +750,23 @@ export function createViewer(canvas, { presentation = false } = {}) {
     if (pinch && pointers.size === 2) {
       moving = true;
       cam.dist = Math.max(cam.fit * 0.25, Math.min(cam.fit * 3, pinch.dist * (pinch.d / spread())));
-      requestDraw();
+      const m2 = mid();
+      panBy(m2.x - pinch.mid.x, m2.y - pinch.mid.y);
+      pinch.mid = m2;
       return;
     }
     if (!drag) return;
     moving = true;
+    if (drag.pan) { panBy(e.clientX - drag.x, e.clientY - drag.y); drag.x = e.clientX; drag.y = e.clientY; return; }
     cam.theta = drag.theta - (e.clientX - drag.x) * 0.008;
     cam.phi = Math.max(-0.15, Math.min(1.45, drag.phi + (e.clientY - drag.y) * 0.008));
     requestDraw();
   });
+  // A press that barely moves is a click: pick the board under it.
+  let press = /** @type {{ x: number, y: number, button: number }|null} */ (null);
   const end = (e) => {
+    if (press && e.type === 'pointerup' && press.button === 0 && Math.hypot(e.clientX - press.x, e.clientY - press.y) < 5 && pointers.size === 1) onPick?.(pick(e.clientX, e.clientY));
+    press = null;
     pointers.delete(e.pointerId);
     pinch = null;
     // Lifting one finger of a pinch carries on as an orbit from where it is.
@@ -690,7 +778,9 @@ export function createViewer(canvas, { presentation = false } = {}) {
   canvas.addEventListener('wheel', (e) => { e.preventDefault(); zoom(e.deltaY > 0 ? 1.1 : 1 / 1.1); }, { passive: false });
   canvas.addEventListener('keydown', (e) => {
     const turn = { ArrowLeft: [0.12, 0], ArrowRight: [-0.12, 0], ArrowUp: [0, 0.08], ArrowDown: [0, -0.08] }[e.key];
-    if (turn) {
+    const slide = { ArrowLeft: [40, 0], ArrowRight: [-40, 0], ArrowUp: [0, 40], ArrowDown: [0, -40] }[e.key];
+    if (slide && e.shiftKey) panBy(slide[0], slide[1]);
+    else if (turn) {
       cam.theta += turn[0];
       cam.phi = Math.max(-0.15, Math.min(1.45, cam.phi + turn[1]));
       requestDraw();
@@ -712,24 +802,17 @@ export function createViewer(canvas, { presentation = false } = {}) {
     setOutlines(on) { outlines = on; draw(); },
     /** Lawn, shadow and sky on or off. */
     setScenery(on) { scenery = on; draw(); },
-    view(theta, phi) { cam.theta = theta; cam.phi = phi; cam.dist = cam.fit; draw(); },
-    reset() { cam.theta = -0.95; cam.phi = 0.42; cam.dist = cam.fit; draw(); },
+    view(theta, phi) { cam.theta = theta; cam.phi = phi; cam.dist = cam.fit; cam.pan = [0, 0, 0]; draw(); },
+    reset() { cam.theta = -0.95; cam.phi = 0.42; cam.dist = cam.fit; cam.pan = [0, 0, 0]; draw(); },
+    panBy,
+    /** Show these members (by id) in orange, over everything; [] clears. */
+    highlight(ids) { setHighlight(ids); draw(); },
+    pick,
+    /** Called with the member id under a click (null for none). */
+    set onPick(fn) { onPick = fn; },
+    /** How far the view is panned from the shed's centre, in inches (for tests). */
+    panned() { return Math.hypot(...cam.pan); },
     snapshot() { draw(); return canvas.toDataURL('image/png'); },
-    /** The framing member under a point on the canvas (client pixels), among the layers shown, or null. */
-    pick(clientX, clientY) {
-      if (!shown) return null;
-      const r = canvas.getBoundingClientRect();
-      const nx = ((clientX - r.left) / (r.width || 1)) * 2 - 1;
-      const ny = 1 - ((clientY - r.top) / (r.height || 1)) * 2;
-      const eye = [cam.target[0] + cam.dist * Math.cos(cam.phi) * Math.cos(cam.theta), cam.target[1] + cam.dist * Math.cos(cam.phi) * Math.sin(cam.theta), cam.target[2] + cam.dist * Math.sin(cam.phi)];
-      const norm = (v) => { const l = Math.hypot(v[0], v[1], v[2]) || 1; return [v[0] / l, v[1] / l, v[2] / l]; };
-      const f = norm([cam.target[0] - eye[0], cam.target[1] - eye[1], cam.target[2] - eye[2]]);
-      const rt = norm([f[1], -f[0], 0]);
-      const up = [rt[1] * f[2] - rt[2] * f[1], rt[2] * f[0] - rt[0] * f[2], rt[0] * f[1] - rt[1] * f[0]];
-      const th = Math.tan(0.375); const asp = (r.width || 1) / (r.height || 1);
-      const dir = [0, 1, 2].map((i) => f[i] + nx * th * asp * rt[i] + ny * th * up[i]);
-      return pickMember(shown.members.filter((m) => visible.has(layerOf(m))), eye, dir)?.id ?? null;
-    },
     /** Show a picture of the viewer's own on the big poster (it stays in the browser). */
     setPosterImage(img) { posterImage = img; if (textures.big) { gl.deleteTexture(textures.big); delete textures.big; } draw(); },
   };

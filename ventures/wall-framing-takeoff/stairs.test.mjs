@@ -304,3 +304,28 @@ test("handrail brackets: ends plus enough between that none is past the typed sp
   assert.equal(layoutStair({ totalRise: 108, tread: 10, rail: { sides: 1, handrail: false } }, plan()).rail.handrail, null);
   assert.match(stairText(l).join("\n"), new RegExp(`on ${l.rail.handrail.brackets} brackets`));
 });
+
+import { layoutWinders } from "./stairs.mjs";
+test("winder treads: three 30 degree treads at 12 in inner radius, hand geometry", () => {
+  const l = layoutWinders({ count: 3, innerRadius: 12 });
+  assert.equal(l.treads.length, 3);
+  // tread 1: radial edges at 0 and 30 degrees, radii 12 and 48
+  const [a, b, c, d] = l.treads[0].corners;
+  assert.deepEqual(a.map((v) => +v.toFixed(6)), [12, 0]);
+  assert.deepEqual(b.map((v) => +v.toFixed(6)), [48, 0]);
+  assert.deepEqual(c.map((v) => +v.toFixed(3)), [41.569, 24]);
+  assert.deepEqual(d.map((v) => +v.toFixed(3)), [10.392, 6]);
+  // shoelace area of the quadrilateral: 1/2 sin(30) (48^2 - 12^2) = 540
+  assert.ok(Math.abs(l.treads[0].area - 540) < 1e-9);
+  assert.ok(Math.abs(l.treads[0].blank.x - 37.608) < 1e-3 && Math.abs(l.treads[0].blank.y - 24) < 1e-9);
+  // chord at the narrow end: 2 x 12 x sin 15 = 6.212; at 24 in: 12.423
+  assert.ok(Math.abs(l.chordNarrow - 6.2117) < 1e-3 && Math.abs(l.chordWalk - 12.4233) < 1e-3);
+  assert.equal(l.chordPasses, true);
+});
+test("winder chord rule is stricter than the arc rule at the edge of passing", () => {
+  const arc = checkWinders({ count: 3 }); // zero pivot fails
+  assert.equal(layoutWinders({ count: 3 }).ok, false);
+  const edge = layoutWinders({ count: 3, innerRadius: arc.minInnerRadius });
+  assert.equal(edge.ok, true);
+  assert.equal(edge.chordPasses, false); // 6 in of arc is under 6 in of straight edge
+});

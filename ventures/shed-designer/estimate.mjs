@@ -553,6 +553,19 @@ export function estimate(shed, prices = examplePrices()) {
       // Plates, headers, rims, skids, beams and anything long: two nails every 16".
       n16 += m.kind === 'rafter tie' ? 2 * tieNails : k !== undefined ? k : 2 * Math.ceil(m.length / 16);
     }
+    // Siding nails come in 1 lb boxes (about 140) and 5 lb boxes (about 770):
+    // buy whichever mix of the two covers the count for the least money.
+    const sidingNails = (n) => {
+      const p1 = item('sidingNails'); const p5 = item('sidingNails5');
+      let best = { five: 0, one: Math.ceil(n / 140), cost: Math.ceil(n / 140) * p1 };
+      for (let five = 1; five <= Math.ceil(n / 770); five++) {
+        const one = Math.ceil(Math.max(0, n - five * 770) / 140);
+        const cost = five * p5 + one * p1;
+        if (cost < best.cost - 0.005) best = { five, one, cost };
+      }
+      line('Fasteners and sealants', label('sidingNails5'), best.five, 'box', p5, src('sidingNails5'));
+      line('Fasteners and sealants', label('sidingNails'), best.one, 'box', p1, src('sidingNails'));
+    };
     // 16d galvanized commons run about 45 to the pound (a 5 lb box holds about 225).
     line('Fasteners and sealants', label('framingNails'), Math.ceil(n16 / 225), 'box', item('framingNails'), src('framingNails'));
     // Sheathing: about 60 8d nails a 4x8 sheet (6" at edges, 12" in the field); 478 in a 5 lb box.
@@ -563,10 +576,10 @@ export function estimate(shed, prices = examplePrices()) {
     line('Fasteners and sealants', label('sheathingNails'), Math.ceil((sheathingSheets * 60) / 478), 'box', item('sheathingNails'), src('sheathingNails'));
     if (panelSiding) {
       const sheets = shed.sidingFull.length + sidingUpperSheets(shed);
-      line('Fasteners and sealants', label('sidingNails'), Math.ceil((sheets * 60) / 140), 'box', item('sidingNails'), src('sidingNails'));
+      sidingNails(sheets * 60);
     }
     // Lap siding: a nail at every stud in every course (140 to the 1 lb box), plus 10% for misses.
-    if (lapCuts) line('Fasteners and sealants', label('sidingNails'), Math.ceil((lapCuts.nails * 1.1) / 140), 'box', item('sidingNails'), src('sidingNails'));
+    if (lapCuts) sidingNails(lapCuts.nails * 1.1);
     line('Fasteners and sealants', label('roofingNails'), roofNailBoxes, 'box', item('roofingNails'), src('roofingNails'));
     // Trim: two nails every 16" along each board, about 168 to the pound.
     const trimIn = (shed.wallTrim || []).reduce((t, x) => t + x.length, 0) + (shed.trim ? (shed.trim.fasciaFt + shed.trim.rakeFt) * 12 : 0);
@@ -739,12 +752,28 @@ export function sourceLabel(s) {
 }
 
 /** CSV of the shopping list. */
+/**
+ * Where the money goes: each section of the shopping list (lumber, sheet goods,
+ * siding, roofing, hardware...) with its total and share, in list order.
+ * @param {{ section: string, total: number }[]} shopping
+ */
+export function sectionTotals(shopping) {
+  /** @type {Map<string, number>} */
+  const by = new Map();
+  for (const r of shopping) by.set(r.section, (by.get(r.section) || 0) + r.total);
+  const all = [...by.values()].reduce((t, x) => t + x, 0) || 1;
+  return [...by].map(([section, total]) => ({ section, total: Math.round(total * 100) / 100, share: total / all }));
+}
+
 export function shoppingCsv(est) {
   const rows = [['section', 'item', 'qty', 'unit', 'unit price', 'total', 'price source', 'listing']];
-  for (const r of est.shopping) {
+  const sub = new Map(sectionTotals(est.shopping).map((x) => [x.section, x.total]));
+  est.shopping.forEach((r, i) => {
     const s = r.source || {};
     rows.push([r.section, r.name, String(r.qty), r.unit, r.price.toFixed(2), r.total.toFixed(2), sourceLabel(s), s.url || '']);
-  }
+    // A subtotal row closes each section.
+    if (est.shopping[i + 1]?.section !== r.section) rows.push([r.section, `Subtotal, ${r.section.toLowerCase()}`, '', '', '', /** @type {number} */ (sub.get(r.section)).toFixed(2), '', '']);
+  });
   rows.push(['', 'Total', '', '', '', est.total.toFixed(2), '', '']);
   for (const u of est.unpriced) rows.push(['Not in the total', u, '1', 'each', '', '', 'no unit picked', '']);
   return rows.map((r) => r.map((c) => (/[",\n]/.test(c) ? `"${c.replace(/"/g, '""')}"` : c)).join(',')).join('\n') + '\n';

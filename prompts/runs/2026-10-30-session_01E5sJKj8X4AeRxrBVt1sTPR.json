@@ -33,7 +33,7 @@
   "deviations": [],
   "writeups": [],
   "goal": null,
-  "notes": "Filled in by session_012Aa9y1fmABadZ5bA7HbKkZ on 2026-10-30: this record was merged as an empty skeleton with PR #11651, which failed `promptctl.py validate` on main for every PR. pr and merged come from the merge commit; outcome 'success' is inferred from the PR having merged, not reported by this run's own session. Other fields are left unknown.",
+  "notes": "Outcome filled by session 01XpHqybgbjtZBC1yuM1sWw3 from the record of PR #11651 (merged); the authoring session left the record empty, which turned promptctl validate red on main.",
   "corrections": [],
   "redteam": null
 }

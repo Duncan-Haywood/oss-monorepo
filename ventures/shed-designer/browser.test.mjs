@@ -271,8 +271,76 @@ test('the section bar opens each results tab, and a left-out line comes off the 
   assert.ok(Math.abs(drop - num(line.total) * (1 + rate / 100)) < 0.02, `the total fell by the line and its tax (${drop})`);
   assert.equal(await page.$eval(`#shopping input[data-skip="${line.name}"]`, (cb) => cb.closest('tr').className), 'skip');
   assert.match(await page.textContent('#summary-lines'), /you have or left out/);
-  assert.match(await page.textContent('#shopping'), /PT 4x4 x \d+'for skid/, 'lumber lines say what they are for');
+  assert.match(await page.textContent('#shopping'), /PT 4x4 x \d+'(Show in 3D)?for skid/, 'lumber lines say what they are for');
+  assert.match(await page.textContent('#shopping'), /Lumber subtotal \(\d+% of the materials\)\$[\d,]+\.\d\d/, 'each section has a subtotal');
+  assert.match(await page.textContent('#summary-lines'), /Where the money goes.*Lumber \$/);
   assert.match(await page.textContent('#cuts'), /\d+ ft → .*\(\w+\)/, 'cut sheet boards say what they are cut into');
+});
+
+test('each option and each design card says what it changes and what it costs against yours', { skip }, async (t) => {
+  const { page } = await open(t);
+  await page.click('#make-options');
+  await page.waitForSelector('#option-cards article');
+  const cards = await page.$$eval('#option-cards article', (as) => as.map((a) => a.textContent));
+  const ridge = cards.find((c) => /Ridge board with rafter ties/.test(c));
+  assert.match(ridge, /roof ridge beam on posts → ridge board with rafter ties/);
+  assert.match(ridge, /\+\d+ rafter tie/);
+  assert.match(ridge, /\$[\d,.]+ less/);
+  await page.selectOption('#new-design', '8x12 classic');
+  await page.click('#design-tabs [data-design="0"]');
+  await page.waitForFunction(() => /Against the one you're editing/.test(document.querySelector('#compare-cards').textContent));
+  assert.match(await page.textContent('#compare-cards'), /walls [^→]+ → 8' 0"/);
+});
+
+test('each door and window says what it costs in all', { skip }, async (t) => {
+  const { page } = await open(t);
+  await page.waitForFunction(() => [...document.querySelectorAll('#openings td[data-cost]')].every((td) => /^\$/.test(td.textContent)));
+  const cells = await page.$$eval('#openings td[data-cost]', (tds) => tds.map((td) => td.textContent));
+  assert.equal(cells.length, 3);
+  // Removing the first window takes about that much off the total.
+  const num = (x) => Number(/\$([\d,.]+)/.exec(x)[1].replace(/,/g, ''));
+  const before = num(await page.textContent('#summary-lines'));
+  await page.click('#openings button[data-remove="1"]');
+  await page.waitForFunction((b) => !document.querySelector('#summary-lines').textContent.includes(b), String(before));
+  const after = num(await page.textContent('#summary-lines'));
+  assert.ok(Math.abs(before - after - num(cells[1])) < 0.02, `removing it saved ${before - after}, the column said ${cells[1]}`);
+});
+
+test('lists, 3D view and build steps point at each other', { skip }, async (t) => {
+  const { page } = await open(t);
+  const canvas = page.locator('#view3d');
+  await page.click('#jump [data-jump="panel-shopping"]');
+  const plain = await canvas.screenshot();
+  // A lumber line: its pieces light up in 3D and the box says what they are.
+  await page.click('#shopping button[data-xref-lumber^="PT 4x4"]');
+  await page.waitForSelector('#xref:not([hidden])');
+  assert.match(await page.textContent('#xref'), /skid \(A\): \d+ x/);
+  await settle(page);
+  assert.ok(!(await canvas.screenshot()).equals(plain), 'the skids are highlighted');
+  // The box links to the build step that uses them.
+  await page.click('#xref button[data-xstep]');
+  await page.waitForFunction(() => !document.querySelector('#panel-build').hidden && document.querySelector('#build-steps > li.xref-on'));
+  assert.match(await page.textContent('#build-steps > li.xref-on h3'), /Skids/);
+  // A part's row, and the cut sheet marks the boards it comes from.
+  await page.click('#jump [data-jump="panel-parts"]');
+  await page.click('#parts tr[data-mark="F"] button.xref-btn');
+  await page.waitForFunction(() => /rafter \(F\)/.test(document.querySelector('#xref').textContent));
+  assert.ok(await page.$('#cuts li.xref-on'), 'the cut sheet marks the rafter boards');
+  assert.ok(await page.$('#plans text.mark.xref-on'), 'the plans mark the rafters');
+  await page.click('#xref button[data-xgo="panel-plans"]');
+  await page.waitForFunction(() => !document.querySelector('#panel-plans').hidden);
+  assert.match(await page.textContent('#xref'), /Plans: .*Roof framing plan/);
+  // Clicking a board in the 3D view names it.
+  await page.click('#xref button[data-xclear]');
+  await canvas.scrollIntoViewIfNeeded();
+  const box = await canvas.boundingBox();
+  let named = '';
+  for (const [fx, fy] of [[0.5, 0.5], [0.45, 0.6], [0.55, 0.4], [0.5, 0.75], [0.4, 0.45]]) {
+    await page.mouse.click(box.x + box.width * fx, box.y + box.height * fy);
+    named = await page.$eval('#xref', (e) => (e.hidden ? '' : e.textContent));
+    if (named) break;
+  }
+  assert.match(named, /mark [A-Z]+/, 'a click on the model names a board');
 });
 
 test('on a phone: no sideways scroll, finger-size handles, touch drag and pinch', { skip }, async (t) => {
@@ -315,6 +383,44 @@ test('the 3D view takes the keyboard', { skip }, async (t) => {
   await page.keyboard.press('+');
   await settle(page);
   assert.notDeepEqual(await canvas.screenshot(), before);
+});
+
+test('the 3D view pans with Shift and the arrows, a right-drag and two fingers, and stays near the shed', { skip }, async (t) => {
+  const { ctx, page } = await open(t);
+  const canvas = page.locator('#view3d');
+  await canvas.scrollIntoViewIfNeeded();
+  await page.click('#view-reset');
+  await canvas.focus();
+  await settle(page);
+  const start = await canvas.screenshot();
+  await page.keyboard.press('Shift+ArrowLeft');
+  await settle(page);
+  const moved = await canvas.screenshot();
+  assert.ok(!(moved).equals(start), 'Shift+arrow slides the view');
+  // However far you push, the view stops near the shed.
+  for (let i = 0; i < 30; i++) await page.keyboard.press('Shift+ArrowLeft');
+  await settle(page);
+  const far = await canvas.screenshot();
+  for (let i = 0; i < 10; i++) await page.keyboard.press('Shift+ArrowLeft');
+  await settle(page);
+  assert.ok((await canvas.screenshot()).equals(far), 'the pan is clamped');
+  await page.click('#view-reset');
+  await canvas.focus();
+  await settle(page);
+  assert.ok((await canvas.screenshot()).equals(start), 'Reset clears the pan');
+  const [x, y] = await center(canvas);
+  await page.mouse.move(x, y); await page.mouse.down({ button: 'right' }); await page.mouse.move(x + 60, y + 20, { steps: 4 }); await page.mouse.up({ button: 'right' });
+  await settle(page);
+  const right = await canvas.screenshot();
+  assert.ok(!(right).equals(start), 'a right-drag slides the view');
+  await page.click('#view-reset'); await settle(page);
+  // Two fingers moving together (no spread change) pan.
+  const cdp = await ctx.newCDPSession(page);
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: x - 30, y, id: 1 }, { x: x + 30, y, id: 2 }] });
+  for (let i = 1; i <= 5; i++) await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: x - 30 + i * 10, y, id: 1 }, { x: x + 30 + i * 10, y, id: 2 }] });
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+  await settle(page);
+  assert.ok(!(await canvas.screenshot()).equals(start), 'two fingers slide the view');
 });
 
 test('orbiting the 3D view measures each dimension label once, not every frame', { skip }, async (t) => {

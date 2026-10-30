@@ -61,3 +61,21 @@ test("an off-centre peak: the far side has the steeper-or-shallower pitch to the
   assert.equal(s.courses, 13);
   assert.ok(Math.abs(s.runFeet * 12 - (1000 + 84 + 44 + 4)) < 1e-9);
 });
+
+test("opening trim: head, jambs and a window sill, packed by hand (2026-10-30)", () => {
+  const p = plan([{ id: "A", length: 240, openings: [
+    { kind: "window", offset: 20, width: 36, height: 36, headerHeight: 72 },
+    { kind: "door", offset: 120, width: 36, height: 80, headerHeight: 80 },
+  ] }]);
+  const off = layoutSiding({ waste: 0 }, p);
+  assert.equal(off.trim, null); // off by default: earlier totals do not move
+  const s = layoutSiding({ waste: 0, openingTrim: true, trimStock: 96, trimPrice: 10 }, p);
+  // 3.5 in boards: window head and sill 43, jambs 36 x2; door head 43, jambs 80 x2
+  // pieces 80 80 43 43 43 36 36 = 361 in; first fit decreasing into 96 in: [80] [80] [43 43] [43 36] [36] = 5 boards
+  assert.equal(s.trim.doors, 1); assert.equal(s.trim.windows, 1);
+  assert.ok(Math.abs(s.trim.feet - 361 / 12) < 1e-9);
+  assert.equal(s.trim.boards, 5);
+  assert.equal(s.cost, 50);
+  assert.ok(sidingText(s).some((x) => x.includes("Opening trim: 1 door(s)")));
+  assert.equal(layoutSiding({ trimWidth: 9 }, p).ok, false);
+});
