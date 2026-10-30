@@ -513,6 +513,35 @@ test('on a phone the end view fills its box and every label is inside it', { ski
   }
 });
 
+test('presentation mode: sky, no outlines or dimensions, and a picked colour reaches the design', { skip }, async (t) => {
+  const { page } = await open(t);
+  /** The canvas colour at a fraction of its width and height, 0 to 255. */
+  const pixel = (fx, fy) => page.$eval('#view3d', (c, [x, y]) => {
+    const g = document.createElement('canvas'); g.width = c.width; g.height = c.height;
+    const k = /** @type {CanvasRenderingContext2D} */ (g.getContext('2d')); k.drawImage(c, 0, 0);
+    return [...k.getImageData(Math.floor(c.width * x), Math.floor(c.height * y), 1, 1).data.slice(0, 3)];
+  }, [fx, fy]);
+  await page.click('#presentation');
+  await settle(page);
+  assert.equal(await page.getAttribute('#presentation', 'aria-pressed'), 'true');
+  assert.equal(await page.isChecked('#show-outlines'), false);
+  assert.equal(await page.isChecked('#show-dims'), false);
+  const [r, g, b] = await pixel(0.02, 0.03);
+  assert.ok(b > r + 40 && b > 150, `the top corner is sky blue (${r},${g},${b})`);
+  const [gr, gg, gb] = await pixel(0.02, 0.97);
+  assert.ok(gg > gr && gg > gb, `the bottom corner is lawn (${gr},${gg},${gb})`);
+  // A hex from the picker becomes the siding colour, and one undo step takes it back.
+  await page.$eval('#sidingColor-custom', (e) => { e.value = '#5a6e8c'; e.dispatchEvent(new Event('input', { bubbles: true })); e.dispatchEvent(new Event('change', { bubbles: true })); });
+  assert.equal(await val(page, 'sidingColor'), '#5a6e8c');
+  await page.selectOption('#doorColor', 'match trim');
+  assert.equal(await val(page, 'doorColor'), 'match trim');
+  await page.click('#undo');
+  await page.click('#undo');
+  assert.equal(await val(page, 'sidingColor'), 'natural');
+  await page.click('#presentation');
+  assert.equal(await page.isChecked('#show-outlines'), true, 'leaving presentation brings the outlines back');
+});
+
 test('the part options table prices each choice, and "Use this" changes the design with one undo', { skip }, async (t) => {
   const { page } = await open(t);
   const before = await page.$eval('#total', (e) => e.textContent);

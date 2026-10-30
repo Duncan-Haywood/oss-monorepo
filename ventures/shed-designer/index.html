@@ -83,6 +83,9 @@
     .dim-overlay span { position: absolute; transform: translate(-50%, -50%); background: #ffffffd9; color: #1f4e8c; font: 600 12px ui-sans-serif, system-ui, sans-serif; padding: 1px 5px; border-radius: 4px; white-space: nowrap; }
     #view3d:focus-visible { outline: 3px solid #e0662f; outline-offset: 2px; }
     #view3d { width: 100%; aspect-ratio: 4 / 3; display: block; border-radius: 10px; border: 1px solid var(--line); background: #edf1f5; touch-action: none; cursor: grab; }
+    .swatchrow { display: flex; gap: 6px; align-items: center; }
+    .swatchrow select { flex: 1; min-width: 0; }
+    .swatchrow input[type=color] { inline-size: 2.6em; block-size: 2.2em; padding: 2px; flex: none; }
     .toolrow { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; align-items: center; }
     .check { display: inline-flex; align-items: center; gap: 6px; font-size: .88rem; font-weight: 600; }
     .summary { background: var(--accent2); color: #f8f5eb; border-color: var(--accent2); margin-top: 14px; }
@@ -92,6 +95,10 @@
     .summary dt { font-size: .78rem; opacity: .8; }
     .summary dd { margin: 0; font-weight: 700; font-variant-numeric: tabular-nums; }
     .summary .muted { color: #d9e0d5; }
+    .summary dl div.wide { grid-column: 1 / -1; }
+    .summary dd ul { margin: 4px 0; padding-left: 18px; font-weight: 400; }
+    .summary dd a { color: var(--gold); }
+    .summary dd .muted { display: block; font-weight: 400; }
     .summary .scope { margin: -4px 0 10px; font-size: .85rem; color: #d9e0d5; }
     #warnings:not(:empty) { background: var(--warn); color: var(--ink); border: 1px solid #d9a273; border-radius: 10px; padding: 10px 12px; margin-top: 12px; font-size: .9rem; }
     #warnings ul, #notes ul { margin: 6px 0 0; padding-left: 18px; }
@@ -260,6 +267,7 @@
       <canvas id="view3d" tabindex="0" role="img" aria-label="3D model of the framed shed. Drag to turn it, right-drag or Shift-drag (two fingers on a phone) to slide it, scroll or pinch to zoom; with the keyboard, the arrow keys turn it, Shift and the arrow keys slide it, and + and - zoom."></canvas>
       <p id="view3d-fallback" hidden>This browser has no WebGL, so the 3D view is off. The plans, cut sheet and estimate below still work.</p>
       <div class="toolrow">
+        <button type="button" class="btn" id="presentation" aria-pressed="false">Presentation</button>
         <button type="button" class="btn" id="framing-only">Framing only</button>
         <button type="button" class="btn" id="finished">Finished</button>
         <button type="button" class="btn" id="view-front">Front</button>
@@ -272,11 +280,15 @@
       </div>
       <div class="toolrow" id="layers" aria-label="Layers"></div>
 <<<<<<< HEAD
+<<<<<<< HEAD
       <div class="toolrow"><label class="check"><input type="checkbox" id="show-dims" checked> Dimensions</label></div>
       <p class="hint">Click a board in the 3D view to see what it is, or "Show in 3D" on a line of the shopping list, cut sheet or parts list to see where its pieces go.</p>
       <div class="xref" id="xref" hidden aria-live="polite"></div>
 =======
       <div class="toolrow"><label class="check"><input type="checkbox" id="show-dims" checked> Dimensions</label><label class="check"><input type="checkbox" id="heat-3d"> Colour by structural use</label></div>
+=======
+      <div class="toolrow"><label class="check"><input type="checkbox" id="show-dims" checked> Dimensions</label><label class="check"><input type="checkbox" id="show-outlines" checked> Board outlines</label><label class="check"><input type="checkbox" id="show-scenery" checked> Lawn and sky</label><label class="check"><input type="checkbox" id="heat-3d"> Colour by structural use</label></div>
+>>>>>>> origin/main
       <p class="hint" id="heat-legend" hidden></p>
       <p class="hint" id="pick-info" aria-live="polite"></p>
 >>>>>>> origin/main
@@ -376,17 +388,33 @@
       </div>
     </fieldset>
     <fieldset>
+      <legend>Site plan, for a permit or HOA (optional; feet, 0 for none)</legend>
+      <p class="muted">Type your lot and where the shed goes, and the plans get a site plan sheet with every clearance. It draws what you type; it is not a survey.</p>
+      <div class="fields">
+        <label>Lot width along the street (ft)<input id="lotWidthFt" type="number" min="0" max="2000" step="0.5"></label>
+        <label>Lot depth (ft)<input id="lotDepthFt" type="number" min="0" max="2000" step="0.5"></label>
+        <label>Shed from the left lot line (ft)<input id="siteLeftFt" type="number" min="0" max="2000" step="0.5"></label>
+        <label>Shed from the rear lot line (ft)<input id="siteRearFt" type="number" min="0" max="2000" step="0.5"></label>
+        <label>Setback your town or HOA asks for (ft)<input id="setbackFt" type="number" min="0" max="200" step="0.5"></label>
+        <label>House width along the street (ft)<input id="houseWidthFt" type="number" min="0" max="2000" step="0.5"></label>
+        <label>House depth (ft)<input id="houseDepthFt" type="number" min="0" max="2000" step="0.5"></label>
+        <label>House from the left lot line (ft)<input id="houseLeftFt" type="number" min="0" max="2000" step="0.5"></label>
+        <label>House from the street lot line (ft)<input id="houseFrontFt" type="number" min="0" max="2000" step="0.5"></label>
+      </div>
+    </fieldset>
+    <fieldset>
       <legend>Covering and boards</legend>
       <div class="fields">
         <label class="check"><input id="siding" type="checkbox"> Siding</label>
         <label>Siding type<select id="sidingType"><option value="T1-11">T1-11 plywood panels</option><option value="LP SmartSide">LP SmartSide 38 Series primed panels, 3/8"</option><option value="LP SmartSide 7/16">LP SmartSide 76 Series primed panels, 7/16"</option><option value="board and batten">Board and batten over OSB</option><option value="vinyl">Vinyl lap over OSB</option><option value="fiber cement">Fiber cement lap over OSB</option></select></label>
         <label>Wall trim<select id="wallTrim"><option value="1x4">1x4 corner boards and casings</option><option value="none">None</option></select></label>
         <label>Roof covering<select id="roofCover"><option value="shingles">Architectural shingles</option><option value="metal">Corrugated metal panels</option></select></label>
-        <label>Siding colour<select id="sidingColor"><option value="natural">Stained (solid colour)</option><option value="unfinished">Unfinished (no paint or stain)</option><option value="red">Barn red</option><option value="pink">Pink</option><option value="hot pink">Hot pink</option><option value="lavender">Lavender</option><option value="mint">Mint</option><option value="gray">Gray</option><option value="blue">Blue</option><option value="green">Green</option><option value="white">White</option></select></label>
+        <label>Siding colour<span class="swatchrow"><select id="sidingColor"></select><input type="color" id="sidingColor-custom" aria-label="Siding: pick any colour, or match a photo of your house"></span></label>
         <label class="check"><input id="polkaDots" type="checkbox"> Purple polka dots</label>
         <label class="check"><input id="glitter" type="checkbox"> Glitter finish</label>
-        <label>Roof colour<select id="roofColor"><option value="charcoal">Charcoal</option><option value="brown">Brown</option><option value="pink">Pink</option><option value="purple">Purple</option><option value="teal">Teal</option></select></label>
-        <label>Trim colour (fascia, soffit, rake)<select id="trimColor"><option value="white">White</option><option value="purple">Purple</option><option value="pink">Pink</option><option value="black">Black</option><option value="gold">Gold</option></select></label>
+        <label>Roof colour (shingle colour family)<select id="roofColor"></select></label>
+        <label>Trim colour (corner boards, casings, fascia, soffit, rake)<span class="swatchrow"><select id="trimColor"></select><input type="color" id="trimColor-custom" aria-label="Trim: pick any colour"></span></label>
+        <label>Door colour<span class="swatchrow"><select id="doorColor"></select><input type="color" id="doorColor-custom" aria-label="Door: pick any colour"></span></label>
         <label>Inside walls<select id="interior"><option value="none">Bare framing</option><option value="OSB">OSB</option><option value="plywood">Plywood, painted</option><option value="drywall">Drywall, taped and painted</option><option value="beadboard">Beadboard, painted</option><option value="pegboard">Pegboard (workshop)</option><option value="teen bedroom">Teen bedroom: pink walls, posters, lights</option></select></label>
         <label class="check"><input id="insulation" type="checkbox"> Insulate the walls (R-13 batts)</label>
         <label>Big poster picture (stays in your browser)<input id="posterFile" type="file" accept="image/*"></label>
@@ -468,6 +496,7 @@
     </div>
     <div class="result-panel print-target" id="panel-plans" hidden>
       <div class="toolrow"><button type="button" class="btn primary" id="print-plans">Print all plans</button><button type="button" class="btn" id="dxf-all">Download all as DXF</button><button type="button" class="btn" id="hoa-packet">HOA packet (PDF)</button></div>
+      <p class="muted">Taking these to a building department or an HOA? "HOA packet (PDF)" gives coloured, dimensioned elevations, the finishes and the site plan on four pages; the plan set has a cover sheet with materials and colours, a site plan (type your lot under "Site plan" above), plans, elevations with overall height, a section and details. It is not engineered or code-checked, and it is not "permit-ready": what a submission needs is set locally. Many places need no building permit for a small shed (the IRC, R105.2, exempts a one-storey detached accessory building up to 200 sq ft; the IBC sets 120 sq ft; many towns use less), but zoning setbacks and HOA rules can still apply. Check with yours.</p>
       <div id="plans"></div>
     </div>
   </section>

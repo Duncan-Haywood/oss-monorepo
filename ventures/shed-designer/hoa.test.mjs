@@ -155,3 +155,19 @@ for (const [key, make] of Object.entries(PRESETS)) {
     }
   });
 }
+
+test('elevations show the chosen door paint, blended shingle tabs, lap shadows and the eave shadow', () => {
+  const shed = buildShed({ ...defaultDesign(), sidingType: 'fiber cement', sidingColor: 'sage', doorColor: 'navy', roofColor: 'gray-brown blend' });
+  const front = elevationSvg(shed, 'front');
+  assert.match(front, /<rect[^>]*fill="#263352"[^>]*data-kind="door"/, 'navy door');
+  const tabFills = new Set([...front.matchAll(/<rect [^>]*fill="(#[0-9a-f]{6})" stroke="#[0-9a-f]{6}" stroke-width="0.15"/g)].map((m) => m[1]));
+  assert.ok(tabFills.size > 10, `shingle tabs vary in shade (${tabFills.size} shades)`);
+  assert.match(front, /fill="#000" fill-opacity="0.16"/, 'eave shadow');
+  assert.match(elevationSvg(shed, 'left'), /fill="#000" fill-opacity="0.14"/, 'rake shadow');
+  const html = packetHtml(shed);
+  assert.match(html, /Roof: gray-brown blend/);
+  assert.match(html, /Door: navy/);
+  assert.match(html, /Siding: fiber cement lap siding|sage green paint/);
+  // The same drawing every time: the tab pattern is seeded, not random.
+  assert.equal(elevationSvg(shed, 'front'), front);
+});
