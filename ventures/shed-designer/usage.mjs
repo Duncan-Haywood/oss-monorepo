@@ -6,8 +6,9 @@
 // built ('builds'), edits made by dragging rather than typing ('drags'), a
 // second design started to compare ('designs'), and the outputs a builder
 // takes away ('plans-printed', 'dxf-downloads', 'svg-downloads',
-// 'csv-downloads', 'links-copied').
-export const EVENTS = ['builds', 'drags', 'designs', 'compares', 'plans-printed', 'dxf-downloads', 'svg-downloads', 'csv-downloads', 'links-copied'];
+// 'csv-downloads', 'links-copied'), and whether anyone looks at where the
+// structure's capacity goes ('utilisation-opened').
+export const EVENTS = ['builds', 'drags', 'designs', 'compares', 'plans-printed', 'dxf-downloads', 'svg-downloads', 'csv-downloads', 'links-copied', 'utilisation-opened'];
 
 const PREFIX = 'shed-designer-';
 

@@ -49,6 +49,9 @@ At the starting prices that design is 151 pieces from 84 boards. The cut sheet's
   - the eave-wall studs under roof load plus wind on the wall face.
 
   These are allowable-stress (NDS) checks on SPF No. 2 under a roof snow load and a wall wind pressure you set (defaults 30 and 20 psf), with 15 psf roof dead load and 40 + 10 psf on the floor. The engine is `structure.mjs`, copied unchanged from `open-house-plans`, where it is pinned against the research track's Python; its fixture test comes with it. Each member shows its use of capacity. This is a screening check: connections, uplift, racking and the foundation are not checked.
+- **Where the capacity goes** (`utilisation.mjs`, `utilisation-sheets.mjs`, `utilisation-ui.mjs`, Structure tab). Every checked member is listed with the highest use first. Opening one writes out its check: the inputs, each formula and the numbers, and which check governs. The breakdown is computed separately and compared with the Structure check. If the two ever disagree, the member shows only the Structure result and says so, and a test sweeps over 1,000 variations to keep them in step. Two hand calculations in `utilisation.test.mjs` reproduce the default 8x12's 15% readings. The floor joist's 15% is bending over a 46.25" span. The wall stud's 15% comes from wind on the siding (dead + 0.6W), and the roof alone uses under 5% of it.
+  - A target margin (70% by default) lists the members above it, and the members under half of it with the reason. The reason is one of: simply oversized, the next size down misses the target, the next size down fails, stiffness, a sheathing or siding rating, or the smallest size the tool frames. Each lighter option is built, and it is offered only if it passes every load and connection check.
+  - "Colour by structural use" on the 3D view colours the framing by utilisation band, with unchecked members grey. Tapping a member names it and opens its check. The floor, roof and four wall framing plans are drawn in the same colours.
 - **Integrity tests** (`integrity.mjs`, `integrity.test.mjs`).
   - Starting from the gravel pad, every board, sheet and fixture must be reachable through pieces that touch it, so nothing floats.
   - No two square-cut members may overlap by more than 1/16".
@@ -114,6 +117,7 @@ Serve this folder as static files, for example `python3 -m http.server` here, th
 | `render3d.mjs` | WebGL viewer and ear-clipping triangulation |
 | `editor.mjs` | drag editing of the plan and end view |
 | `checks.mjs`, `structure.mjs` | structural checks (NDS, SPF No. 2) |
+| `utilisation.mjs`, `utilisation-sheets.mjs`, `utilisation-ui.mjs` | each member's use of capacity written out, the target-margin report, the heat map in 3D and on the framing plans |
 | `integrity.mjs` | nothing floats, nothing overlaps |
 | `prices.mjs` | starting prices and their sources |
 | `recheck_prices.py` | re-reads, by hand, the prices of sellers whose robots.txt allows reading product pages (the window maker, the door seller, Hemlock Hardware) and prints any that moved; Home Depot, Lowe's and Menards are never fetched and are checked in a browser |
