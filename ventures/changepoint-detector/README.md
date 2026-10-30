@@ -1328,3 +1328,13 @@ covers the cycle half of the "cycle check not tied to rho" item and not the drif
 warning already covers. It is not wired into the output yet: with a seasonal monthly series it fires for the
 season, which `--period` already handles, so a hint needs to be suppressed when a period is set. Wanted: a documented step inside
 a real series with a known cycle, to check the test still lets the step through.
+
+## The spectral peak test is wired into the output (2026-10-30, last)
+
+`analyze` now returns `cycleWarning` (and the CLI prints it) when the default fit finds 5 or more steps in a series of
+60 or more points, no `--period` is set, the model is not Poisson, and Fisher's g on the residuals about those steps has
+p < 0.01 at a period of 3 points or more. It names the peak period and points at `--period`. Sunspots fire (p 2e-6, 11 years);
+`lh` and the monthly deaths series with `--period 12` do not (tests in `spectral-peak.test.mjs`). Calibration is the
+synthetic 1% to 3% above, so on a series with no cycle about 1 in 50 to 1 in 100 runs with 5+ steps would show it.
+Lynx (p 0.02) and treering (drift, not a cycle) stay quiet. Still open: a documented step inside a real cycle, to check the warning
+does not drown a true step; the warning is not shown on the page card.

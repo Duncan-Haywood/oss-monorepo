@@ -25,3 +25,11 @@ test('calibration: near 1% on no cycle, a sine of amplitude 1 found with or with
   assert.ok(cell(100, 0, 0, 60) <= 0.1);
   assert.ok(cell(100, 1, 1, 60) >= 0.85);
 });
+
+test('analyze: cycleWarning fires on sunspots, not on a quiet series, and is off with a period', async () => {
+  const { analyze } = await import('./engine.mjs');
+  assert.match(analyze(load('sunspot-year')).cycleWarning ?? '', /periodic component/);
+  assert.equal(analyze(load('lh')).cycleWarning, undefined);
+  const m = load('us-accidental-deaths');
+  assert.equal(analyze({ ...m, period: 12 }).cycleWarning, undefined);
+});

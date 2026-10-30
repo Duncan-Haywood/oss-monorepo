@@ -734,6 +734,40 @@ export function ar1Rho(x) {
   return Math.max(0, Math.min(0.95, 1 + 2 * rd));
 }
 
+/** Residuals of x about the segment means set by changepoints (indices where a new segment starts). */
+export function stepResiduals(x, cps) {
+  const b = [0, ...cps, x.length], r = [];
+  for (let s = 0; s + 1 < b.length; s++) {
+    let m = 0;
+    for (let i = b[s]; i < b[s + 1]; i++) m += x[i];
+    m /= b[s + 1] - b[s];
+    for (let i = b[s]; i < b[s + 1]; i++) r.push(x[i] - m);
+  }
+  return r;
+}
+
+/** Fisher's g (largest periodogram share) with its exact p-value, over Fourier frequencies 1..floor((n-1)/2). */
+export function fisherG(r) {
+  const n = r.length, q = Math.floor((n - 1) / 2);
+  if (q < 2) return { g: 0, p: 1, period: null };
+  let tot = 0, best = 0, bk = 1;
+  for (let k = 1; k <= q; k++) {
+    let c = 0, s = 0;
+    for (let t = 0; t < n; t++) { const a = 2 * Math.PI * k * t / n; c += r[t] * Math.cos(a); s += r[t] * Math.sin(a); }
+    const I = c * c + s * s;
+    tot += I;
+    if (I > best) { best = I; bk = k; }
+  }
+  const g = tot > 0 ? best / tot : 0;
+  let p = 0;
+  for (let j = 1; j <= Math.min(q, Math.floor(1 / g)); j++) {
+    let lc = 0;
+    for (let i = 1; i <= j; i++) lc += Math.log(q - i + 1) - Math.log(i); // log C(q,j)
+    p += (j % 2 ? 1 : -1) * Math.exp(lc + (q - 1) * Math.log(1 - j * g));
+  }
+  return { g, p: Math.min(1, Math.max(0, p)), period: n / bk };
+}
+
 /**
  * Variance ratio of block means: the spread of means of blocks of ~n/20 points against what independent noise
  * of the series' own difference-based sd would give (1 for white noise; 95th percentile of white noise 1.6 at
@@ -1830,6 +1864,13 @@ export function analyze(input = {}) {
     const hintAr1 = !o.ar1 && ar1Rho(values) >= 0.3 ? ` The residuals look autocorrelated (rho about ${round(ar1Rho(values), 2)}), which alone can cause such a run of steps: re-run with --ar1 (page: allow for autocorrelation) before reading them as a changing shape.` : '';
     if (k >= 0) driftWarning = `With a drifting seasonal shape, ${cp.slice(k).filter((c) => c - cp[k] <= 2 * period).length} steps fall within two cycles of ${labels[cp[k]]}: that usually marks a seasonal shape that is still changing (for example an amplitude that grows), not separate regime changes. Check the dates against the series.${hintAr1}`;
   }
+  // a cycle read as steps leaves a spectral peak in the residuals (Fisher's g; sunspots p 2e-6, ~1-3% false on synthetic nulls,
+  // README 2026-10-30); with --period the season is already modelled, so the hint stays off
+  let cycleWarning = null;
+  if (!period && model !== 'poisson' && p.changepoints.length >= 5 && values.length >= 60) {
+    const fg = fisherG(stepResiduals(values, p.changepoints));
+    if (fg.p < 0.01 && fg.period >= 3) cycleWarning = `The residuals about these ${p.changepoints.length} steps carry a periodic component (peak at about ${round(fg.period, 1)} points, p ${fg.p < 1e-4 ? '< 0.0001' : round(fg.p, 4)}), so some steps may be a cycle read as regime changes, not separate changes: on sunspots (an 11-year cycle) the default found 46 steps and none were real. If the period is known, give it with --period; otherwise read the dates with care.`;
+  }
   const changes = p.changepoints.map((i, k) => {
     const before = segments[k];
     const after = segments[k + 1];
@@ -1873,6 +1914,7 @@ export function analyze(input = {}) {
     ...(bootstrap ? { bootstrapPenalty: bootstrap } : {}),
     ...(rangeWarning ? { rangeWarning } : {}),
     ...(driftWarning ? { driftWarning } : {}),
+    ...(cycleWarning ? { cycleWarning } : {}),
     ...(rho !== null ? { ar1: { rho: round(rho, 3) } } : {}),
     ...(phi !== null ? { dispersion: round(phi, 3) } : {}),
     ...(burstInfo ? { bursts: burstInfo } : {}),
