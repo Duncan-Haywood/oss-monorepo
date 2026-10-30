@@ -2,7 +2,7 @@
 title: "Is the 0.3 informedness cutoff a knife edge? Not between 0.2 and 0.5"
 date: 2026-10-30
 tags: [llm-coding-inference, research, audit-design]
-description: "Sweeping the cutoff that decides whether an audit is split by an LLM coder's own labels: nothing moves by more than 1% in width from 0.2 to 0.5; only 0.1 is too eager."
+description: "Sweeping the cutoff that splits an audit by an LLM coder's labels: width moves under 1% from 0.2 to 0.5; only 0.1 is too eager."
 ---
 
 When you audit an LLM's text coding by hand, you can split the audit by the coder's own label (positive or negative), but only if the coder is informative. The [llm-coding-inference](https://github.com/Duncan-Haywood/oss-monorepo/tree/main/research/llm-coding-inference) programme uses a pilot to estimate the coder's informedness J (sensitivity plus specificity minus one) and splits only when J is at least 0.3 and the pilot holds 20 human positives. The 0.3 was chosen before looking and never tested.
