@@ -11,6 +11,7 @@ import { fmtIn, fmtFtIn, actual, STANDARD_LENGTHS_FT, EXAMPLE_ITEMS } from './lu
 import { recordUsage, clearUsage } from './usage.mjs';
 import { encodeDesign } from './hoa.mjs';
 import { structuralChecks } from './checks.mjs';
+import { initUtilisation, renderUtilisation, heatOption } from './utilisation-ui.mjs';
 import { connectionChecks } from './connections.mjs';
 import { generateCandidates } from './candidates.mjs';
 import { buildInstructions, instructionsMarkdown } from './instructions.mjs';
@@ -18,6 +19,7 @@ import { quoteRequest, mailtoLink, STORES } from './quote.mjs';
 import { PRODUCTS } from './products.mjs';
 import { storeComparison, swapsFor, storeTotals, storeList, pricesFor } from './catalog.mjs';
 import { simplify, cutMetrics, budget, laborHours } from './simplify.mjs';
+import { finishOptions, isHex, paletteOf, rgbToHex, SIDING_FINISHES, TRIM_FINISHES, DOOR_FINISHES, SHINGLE_FAMILIES } from './looks.mjs';
 import { leverOptions, leverTableHtml } from './costlevers.mjs';
 
 const $ = (sel) => /** @type {any} */ (document.querySelector(sel));
@@ -142,12 +144,28 @@ function preview(next) {
 }
 
 // ---------- form ----------
+const SITE_FIELDS = ['lotWidthFt', 'lotDepthFt', 'siteLeftFt', 'siteRearFt', 'setbackFt', 'houseWidthFt', 'houseDepthFt', 'houseLeftFt', 'houseFrontFt'];
 const FIELDS = ['name', 'lengthFt', 'widthFt', 'wallHeight', 'pitch', 'overhang', 'studSize', 'studSpacing', 'joistSize', 'joistSpacing',
   'rafterSize', 'rafterSpacing', 'tieSize', 'skidSize', 'skidSpacing', 'foundation', 'floorTreated', 'siding', 'roofing', 'gableVents', 'ventWidth', 'ventHeight', 'kerf',
   'roofType', 'beamSize', 'sidingColor', 'polkaDots', 'autoWall', 'autoPitch',
-  'autoOverhang', 'snowLoad', 'windLoad', 'roofColor', 'trimColor', 'glitter', 'interior', 'sidingType', 'roofCover', 'insulation', 'customRange', 'wallTrim', 'rafterSeat', 'maxFootprint', 'compaction', 'pad', 'floorPanel', 'spares', 'taxRate', 'delivery', 'laborRate'];
+  'autoOverhang', 'snowLoad', 'windLoad', 'roofColor', 'trimColor', 'doorColor', 'glitter', 'interior', 'sidingType', 'roofCover', 'insulation', 'customRange', 'wallTrim', 'rafterSeat', 'maxFootprint', 'compaction', 'pad', 'floorPanel', 'spares', 'taxRate', 'delivery', 'laborRate', ...SITE_FIELDS];
+
+
+/** A colour select keeps one "Your colour" option for a hex code typed or picked. @param {HTMLSelectElement} sel @param {string} v */
+function customOption(sel, v) {
+  let o = /** @type {HTMLOptionElement | null} */ (sel.querySelector('option[data-custom]'));
+  if (!isHex(v)) { o?.remove(); return; }
+  if (!o) { o = document.createElement('option'); o.dataset.custom = '1'; sel.prepend(o); }
+  o.value = v; o.textContent = `Your colour (${v})`;
+}
 
 function fillForm(d) {
+  for (const f of ['sidingColor', 'trimColor', 'doorColor']) customOption(/** @type {any} */ (document.getElementById(f)), d[f]);
+  const pal = paletteOf(d);
+  for (const [f, rgb] of [['sidingColor', pal.siding], ['trimColor', pal.trim], ['doorColor', pal.door]]) {
+    const e = /** @type {HTMLInputElement} */ (document.getElementById(`${f}-custom`));
+    if (e && e !== document.activeElement) e.value = rgbToHex(/** @type {any} */ (rgb));
+  }
   const set = (id, v) => { const e = /** @type {any} */ (document.getElementById(id)); if (!e || e === document.activeElement) return; if (e.type === 'checkbox') e.checked = Boolean(v); else e.value = String(v); };
   set('name', d.name);
   set('lengthFt', +(d.length / 12).toFixed(2));
@@ -155,6 +173,7 @@ function fillForm(d) {
   set('maxPeakFt', +(d.maxPeak / 12).toFixed(2));
   for (const f of FIELDS.slice(3)) set(f, d[f]);
   for (const cb of $$('input[name="stock"]')) cb.checked = d.lengths.includes(Number(cb.value));
+  for (const cb of $$('input[name="lock"]')) cb.checked = (d.locked || []).includes(cb.value);
 }
 
 function readForm() {
@@ -166,10 +185,11 @@ function readForm() {
   d.length = Math.round(num('lengthFt', d.length / 12) * 12);
   d.width = Math.round(num('widthFt', d.width / 12) * 12);
   d.maxPeak = Math.round(num('maxPeakFt', d.maxPeak / 12) * 12);
-  for (const f of ['wallHeight', 'pitch', 'overhang', 'studSpacing', 'joistSpacing', 'rafterSpacing', 'skidSpacing', 'ventWidth', 'ventHeight', 'kerf', 'snowLoad', 'windLoad', 'maxFootprint', 'spares', 'taxRate', 'laborRate']) d[f] = num(f, d[f]);
-  for (const f of ['studSize', 'joistSize', 'rafterSize', 'tieSize', 'skidSize', 'foundation', 'roofType', 'beamSize', 'sidingColor', 'roofColor', 'trimColor', 'interior', 'sidingType', 'roofCover', 'wallTrim', 'rafterSeat', 'compaction', 'pad', 'floorPanel', 'delivery']) d[f] = v(f).value;
+  for (const f of ['wallHeight', 'pitch', 'overhang', 'studSpacing', 'joistSpacing', 'rafterSpacing', 'skidSpacing', 'ventWidth', 'ventHeight', 'kerf', 'snowLoad', 'windLoad', 'maxFootprint', 'spares', 'taxRate', 'laborRate', ...SITE_FIELDS]) d[f] = num(f, d[f]);
+  for (const f of ['studSize', 'joistSize', 'rafterSize', 'tieSize', 'skidSize', 'foundation', 'roofType', 'beamSize', 'sidingColor', 'roofColor', 'trimColor', 'doorColor', 'interior', 'sidingType', 'roofCover', 'wallTrim', 'rafterSeat', 'compaction', 'pad', 'floorPanel', 'delivery']) d[f] = v(f).value;
   for (const f of ['floorTreated', 'siding', 'roofing', 'gableVents', 'polkaDots', 'autoWall', 'autoPitch', 'autoOverhang', 'glitter', 'insulation', 'customRange']) d[f] = v(f).checked;
   d.lengths = $$('input[name="stock"]:checked').map((c) => Number(c.value));
+  d.locked = $$('input[name="lock"]:checked').map((c) => c.value);
   return d;
 }
 
@@ -506,9 +526,10 @@ function renderNow() {
   // The end view shows what is built: with the automatic boxes ticked, the
   // pitch, wall height and overhang come from buildShed, not from the form.
   drawEnd($('#endview'), shed.design, shed.dims, hooks);
-  viewer?.show(shed);
-  renderSummary(shed, est);
   const sc = renderStructure(shed);
+  viewer?.show(shed, heatOption(shed, sc));
+  renderUtilisation(shed, sc);
+  renderSummary(shed, est);
   const worst = sc.rows.reduce((m, x) => Math.max(m, x.ratio), 0);
   const cc = connectionChecks(shed);
   $('#summary-lines').insertAdjacentHTML('beforeend', `<div><dt>Structure</dt><dd>${sc.ok ? `all ${sc.rows.length} load checks pass` : `${sc.rows.filter((x) => !x.ok).length} over capacity`} (highest ${Math.round(worst * 100)}%); ${cc.ok ? `all ${cc.rows.length} connection checks pass` : `${cc.rows.filter((x) => !x.ok).length} connection checks fail`}</dd></div>`);
@@ -556,11 +577,13 @@ const slug = () => design().name.toLowerCase().replace(/[^a-z0-9]+/g, '-').repla
 // ---------- wiring ----------
 const viewer = createViewer($('#view3d'));
 if (!viewer) $('#view3d-fallback').hidden = false;
+initUtilisation({ viewer, count, storage });
 
 function wire() {
   const form = $('#settings');
   const onForm = (e) => {
     const t = e.target;
+    if (t.type === 'color') return; // handled below, through its select
     if (t.dataset.i !== undefined) {
       const i = Number(t.dataset.i);
       const d = { ...design(), openings: design().openings.map((o) => ({ ...o })) };
@@ -612,6 +635,14 @@ function wire() {
     typeTimer = setTimeout(() => onForm(e), 250);
   });
   form.addEventListener('focusout', () => { typing = null; });
+  // A colour picker writes its hex into the select beside it; dragging round the
+  // picker is one undo step.
+  for (const f of ['sidingColor', 'trimColor', 'doorColor']) {
+    const pick = $(`#${f}-custom`);
+    const sel = $(`#${f}`);
+    pick.addEventListener('input', () => { customOption(sel, pick.value); sel.value = pick.value; onForm({ target: sel, type: 'input' }); });
+    pick.addEventListener('change', () => { typing = null; });
+  }
   $('#price-grid').addEventListener('change', onForm);
   $('#openings').addEventListener('click', (e) => {
     const i = e.target.dataset.remove;
@@ -703,6 +734,19 @@ function wire() {
   $('#view-top').addEventListener('click', () => viewer?.view(-Math.PI / 2 + 0.01, 1.45));
   $('#view-reset').addEventListener('click', () => viewer?.reset());
   $('#show-dims').addEventListener('change', (e) => viewer?.setDimensions(e.target.checked));
+  $('#show-outlines').addEventListener('change', (e) => viewer?.setOutlines(e.target.checked));
+  $('#show-scenery').addEventListener('change', (e) => viewer?.setScenery(e.target.checked));
+  // Presentation: every finished layer, no board outlines or dimension lines, a
+  // three-quarter view from the front: the picture for a neighbour or an HOA.
+  $('#presentation').addEventListener('click', () => {
+    const on = $('#presentation').getAttribute('aria-pressed') !== 'true';
+    $('#presentation').setAttribute('aria-pressed', String(on));
+    for (const cb of $$('#layers input')) { cb.checked = on ? !['interior', 'front lining', 'decor'].includes(cb.value) || cb.checked : true; viewer?.setLayer(cb.value, cb.checked); }
+    for (const [id, fn] of [['#show-dims', 'setDimensions'], ['#show-outlines', 'setOutlines'], ['#show-scenery', 'setScenery']]) {
+      const cb = $(id); cb.checked = id === '#show-scenery' ? true : !on; viewer?.[fn](cb.checked);
+    }
+    if (on) viewer?.view(-0.95, 0.2);
+  });
   $('#view-inside').addEventListener('click', () => {
     for (const cb of $$('#layers input')) {
       cb.checked = !['sheathing', 'siding', 'roofing', 'roof', 'trim', 'front wall', 'front lining'].includes(cb.value);
@@ -934,6 +978,10 @@ function wire() {
 // Stock length checkboxes and layer toggles are generated once.
 function buildStatic() {
   $('#stock').innerHTML = STANDARD_LENGTHS_FT.map((ft) => `<label class="check"><input type="checkbox" name="stock" value="${ft}"> ${ft} ft</label>`).join('');
+  $('#sidingColor').innerHTML = finishOptions(SIDING_FINISHES);
+  $('#trimColor').innerHTML = finishOptions(TRIM_FINISHES);
+  $('#doorColor').innerHTML = finishOptions(DOOR_FINISHES);
+  $('#roofColor').innerHTML = finishOptions(SHINGLE_FAMILIES);
   $('#layers').innerHTML = LAYERS.map((l) => `<label class="check"><input type="checkbox" value="${l}" checked> ${l[0].toUpperCase() + l.slice(1)}</label>`).join('');
 }
 
