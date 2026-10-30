@@ -302,7 +302,7 @@ function mergeOpenings(current, changed, field = 'product') {
 function keyOf(d) { return JSON.stringify({ ...d, name: '' }); }
 
 function evaluate(d, prices) {
-  const shed = buildShed(d);
+  const shed = buildShed(d, prices);
   const est = estimate(shed, prices);
   const sc = structuralChecks(shed);
   const cc = connectionChecks(shed);
