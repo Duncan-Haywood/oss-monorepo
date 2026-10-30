@@ -2,7 +2,7 @@
 title: "Does a machine that idles more favour load-sensing? Not the way I predicted"
 date: 2026-10-30
 tags: [heavy-hydraulics, excavator, research]
-description: "In a model of a small excavator's hydraulics, the load-sensing margin at which load-sensing and open-centre tie moves from 12.9 to 22.9 bar as working time rises from 15% to 70%."
+description: "In a model of a small excavator, the load-sensing margin where load-sensing and open-centre tie moves from 12.9 to 22.9 bar as load factor rises."
 ---
 
 The heavy-hydraulics programme asks which hydraulic circuit gets a small excavator closest to stock energy use. Earlier steps showed the answer turns on one number: the pressure margin a load-sensing pump holds above the load. Below a break-even margin load-sensing uses less shaft energy than open-centre. Above it, more.
