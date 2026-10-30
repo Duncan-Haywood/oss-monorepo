@@ -1,0 +1,118 @@
+{
+  "date": "2026-10-30",
+  "session": "https://claude.ai/code/session_01AcxTtJQaLkwEiAUJJCJHYg",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "scheduled: read prompt.md and follow it",
+  "input_sha256": "2abc11ce438e08917dbfbd5f6a49fe9cdcb2b7d6c1dd885255dfd4b7b4c9fbca",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-10-30T19:07:24Z",
+  "ended": "2026-10-30T19:09:31Z",
+  "wall_minutes": 2.23,
+  "tokens_in": 977474,
+  "tokens_out": 6395,
+  "cost_usd": 0.4606,
+  "tool_calls": 15,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/11834",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "Two consecutive runs drew different programmes (marine-hull, then llm-coding-inference), so the draw is not stable within a session."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-10-30-persistence-forecast-needs-long-spells.md",
+    "research/marine-hull/LOG.md (milestone 6f)"
+  ],
+  "goal": null,
+  "notes": "",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ca8890bc-5997-5faa-bf06-d4029bf9aa29",
+    "transcripts": 1,
+    "first": "2026-10-30T19:07:24Z",
+    "last": "2026-10-30T19:09:38Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 14,
+        "input": 29,
+        "output": 6395,
+        "thinking": 769,
+        "cache_read": 924533,
+        "cache_write_5m": 0,
+        "cache_write_1h": 52912,
+        "api_equivalent_usd": 0.4606,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 14,
+      "input": 29,
+      "output": 6395,
+      "thinking": 769,
+      "cache_read": 924533,
+      "cache_write_5m": 0,
+      "cache_write_1h": 52912,
+      "api_equivalent_usd": 0.4606,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.946,
+    "tool_calls": 15,
+    "tools": {
+      "Bash": 13,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 2.23,
+      "active_minutes": 2.23,
+      "model_minutes": 1.4,
+      "tool_minutes": 0.83,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
