@@ -195,8 +195,30 @@ export function connectionChecks(shed) {
     else if (d.style !== 'gambrel') add('Rafters seat on the plates and meet the ridge', fails, rafters.length, k.connector ? 'rafters resting on the outside edge of a long wall\'s cap plate for a variable-pitch connector, their top end at the ridge' : 'rafters with a full birdsmouth seat on a long wall and their top end at the ridge');
   }
 
+  // No floor: each wall's bottom plate on a perimeter timber, the timbers on
+  // the pad, and a pier under each ridge-beam post.
+  if (k.floorless) {
+    const timbers = shed.members.filter((m) => m.kind === 'perimeter timber').map((m) => bbox(m.geom));
+    const plates = shed.members.filter((m) => m.kind === 'bottom plate');
+    const on = (b) => timbers.filter((t) => near(t.hi[2], b.lo[2]) && t.lo[0] < b.hi[0] - EPS && t.hi[0] > b.lo[0] + EPS && t.lo[1] < b.hi[1] - EPS && t.hi[1] > b.lo[1] + EPS);
+    const plateFails = plates.filter((m) => {
+      const b = bbox(m.geom);
+      const along = b.hi[0] - b.lo[0] > b.hi[1] - b.lo[1] ? 0 : 1;
+      return !covered(b.lo[along] + 0.5, b.hi[along] - 0.5, on(b).map((t) => ({ s0: t.lo[along], s1: t.hi[along] })));
+    }).map((m) => m.id);
+    add('Bottom plates bear on the timbers', plateFails, plates.length, 'every bottom plate on a perimeter timber along its whole length');
+    const timberFails = timbers.filter((t) => !near(t.lo[2], 0)).map((t) => `timber at ${fmtIn(t.lo[0])}, ${fmtIn(t.lo[1])}`);
+    add('Timbers bear on the gravel', timberFails, timbers.length, 'perimeter timbers on the gravel pad');
+    const posts = shed.members.filter((m) => m.kind === 'post stud').map((m) => bbox(m.geom));
+    if (posts.length) {
+      const piers = shed.fixtures.filter((f) => f.kind === 'post pier').map((f) => bbox(f.geom));
+      const postFails = posts.filter((p) => !piers.some((q) => near(q.hi[2], 0) && q.lo[0] < p.hi[0] && q.hi[0] > p.lo[0] && q.lo[1] < p.hi[1] && q.hi[1] > p.lo[1])).map((p) => `post stud at ${fmtIn(p.lo[0])}, ${fmtIn(p.lo[1])}`);
+      add('Ridge-beam posts bear on a pier', postFails, posts.length, 'post studs with a pier straight under them');
+    }
+  }
+
   // Floor on skids, skids on the ground.
-  {
+  if (!k.floorless) {
     const skids = shed.members.filter((m) => m.kind === 'skid').map((m) => bbox(m.geom));
     const joists = shed.members.filter((m) => m.kind === 'floor joist');
     const fails = joists.filter((j) => {

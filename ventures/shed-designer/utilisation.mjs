@@ -320,6 +320,15 @@ export function utilisation(shed, sc = structuralChecks(shed)) {
       }
       u.kinds = ['skid'];
       u.ids = idsOf((m) => m.kind === 'skid');
+    } else if (row.member === 'Perimeter timbers on the gravel' || row.member === 'Bottom plate on the timbers' || row.member === 'Post piers on the soil') {
+      // No floor (floorless.mjs): the parts are in the row's own words.
+      u.parts = [{ name: row.governs, ratio: row.ratio, words: `${row.detail}: ${pct(row.ratio)}.` }];
+      u.inputs = [['Load and area', row.detail]];
+      u.kinds = row.member === 'Bottom plate on the timbers' ? ['bottom plate', 'perimeter timber'] : ['perimeter timber'];
+      u.ids = idsOf((m) => u.kinds.includes(m.kind));
+      u.explain = row.member === 'Bottom plate on the timbers'
+        ? 'With no floor, the bottom plate sits on the timber; the heaviest point load the wall brings down crushes the wet timber across its grain first.'
+        : 'The IRC presumes 1,500 psf for clay or silt when nobody has tested the soil (Table R401.4.1).';
     } else if (row.member === 'Wall studs') {
       u.parts = studWords(d.studSize, d.studSpacing, studLen, [deadPlf, snowPlf], d.windLoad);
       u.inputs = [['Stud', `${d.studSize} at ${d.studSpacing}", ${fmtIn(studLen)} long${lean ? ' (the tall front wall)' : ''}`], ['Roof on the eave wall', `${n0(deadPlf)} lb/ft dead + ${n0(snowPlf)} lb/ft snow`], ['Wind', `${d.windLoad} psf on the wall face`]];

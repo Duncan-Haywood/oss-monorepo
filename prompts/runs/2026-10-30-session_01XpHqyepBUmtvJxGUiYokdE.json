@@ -1,0 +1,68 @@
+{
+  "date": "2026-10-30",
+  "session": "https://claude.ai/code/session_01XpHqyepBUmtvJxGUiYokdE",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "round-4 lane 7 brief: shed-designer cross-reference and UX polish (orchestrator message)",
+  "input_sha256": "9539893799a285348bae4a226e1b09919626c104f6451bbc25f3b2a1342b8878",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-30T20:55:02Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "shed-designer round 4 lane 7: cross-reference and UX polish, plus a first-time-user pass",
+  "projects": [
+    "shed-designer"
+  ],
+  "pr": 11870,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 9,
+  "outcome": "success",
+  "errors": [
+    "First background test run ran the whole repository's tests (a cd that did not take in a backgrounded command); killed and rerun with absolute paths.",
+    "First siding-note version compared against unnested current strips and over-claimed a saving; estimate.test caught it before merge.",
+    "Pushed PR 11855 before running the looks test after adding window-glass flags; CI changed-ventures went red on it, fixed in the next commit.",
+    "Resolving PR 11870's merge conflict with `git checkout --ours` dropped main's new wall-trim and climate options from index.html; caught by diffing against main and redone by re-applying only this PR's patch."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Backgrounded `cd dir && node --test ...` can run from the repo root, which then runs every platform test; say to pass absolute test paths in background runs."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "docs/reports/shed-designer-round2-lane3.md",
+      "why": "Brief asked for a per-opening cost cache; measured 107 ms for 15 openings (18 ms for 3) behind a 400 ms debounce and an existing per-design cache, so it was not built.",
+      "did": "measured and recorded instead",
+      "result": "no user-visible delay; less code"
+    },
+    {
+      "file": "prompts/README.md",
+      "why": "The run record's model field is left empty: the session's instructions keep model identifiers out of pushed artifacts.",
+      "did": "model: null",
+      "result": "record still validates"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-30-pointing-at-every-shed-part.md",
+    "docs/posts/2026-10-30-a-first-visit-to-the-shed-designer.md",
+    "docs/reports/shed-designer-round4-lane7.md"
+  ],
+  "goal": null,
+  "notes": "PR 11855: xref.mjs (Show in 3D for sheet goods, siding, roofing, trim, hardware), panel/fixture picking, door-frame geometry, siding note only when cheaper (1 of 168 preset x wall-height combos), catalogue range by area, fixed compare tray, sticky bar fade, details usage, window glass. PR 11870: first-time-user fixes (HOA packet in bar, phone shopping cards, folded gallery hint, total label, print hides screen controls). Local verification: venture unit suite, typecheck 0 diagnostics, make-renders, browser suites (50 pass, 2 axe skips). CI reds unrelated to this venture: check (research/marine-path README live link), site test (shift-roster-builder FAQ page).",
+  "corrections": [],
+  "redteam": null
+}

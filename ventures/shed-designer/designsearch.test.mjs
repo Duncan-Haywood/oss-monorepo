@@ -184,3 +184,17 @@ test('an 8" overhang and 88" walls are offered, and a small budget still leaves 
   }
   assert.ok(beaten <= Math.ceil(r.front.length * 0.15), `${beaten} of ${r.front.length} front designs beaten by one change`);
 });
+
+test('no floor is searched only when asked; block spacing is a move the skid check rules on', () => {
+  const sizes = [{ length: 144, width: 96 }];
+  const plain = searchDesigns({ budget: 80, sizes });
+  assert.ok(plain.all.every((s) => s.design.floor === 'framed'), 'the default search keeps the framed floor');
+  const asked = searchDesigns({ budget: 200, sizes, knobs: { floor: ['framed', 'none'] } });
+  const none = asked.all.filter((s) => s.design.floor === 'none');
+  assert.ok(none.length > 0, 'asked, it tries designs with no floor');
+  assert.ok(none.every((s) => s.design.floor === 'none' && Number.isFinite(s.cost)));
+  const floorless = searchDesigns({ base: { ...defaultDesign(), floor: 'none' }, budget: 40, sizes });
+  assert.ok(floorless.all.every((s) => s.design.floor === 'none'), 'a floorless design stays floorless');
+  const wide = searchDesigns({ budget: 200, sizes, knobs: { foundation: ['blocks'], blockSpacing: [72] } });
+  assert.ok(wide.all.every((s) => s.design.blockSpacing === 72));
+});
