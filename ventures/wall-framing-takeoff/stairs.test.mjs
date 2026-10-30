@@ -330,6 +330,12 @@ test("winder treads: three 30 degree treads at 12 in inner radius, hand geometry
   assert.ok(Math.abs(l.chordNarrow - 6.2117) < 1e-3 && Math.abs(l.chordWalk - 12.4233) < 1e-3);
   assert.equal(l.chordPasses, true);
 });
+test("winder framing: three treads need four radial supports, two shared (hand: 4 x 36 = 144 in)", () => {
+  const f = layoutWinders({ count: 3, innerRadius: 12 }).framing;
+  assert.deepEqual(f, { supports: 4, supportLength: 36, totalLength: 144, treadSpan: 36, shared: 2 });
+  assert.equal(layoutWinders({ count: 4, innerRadius: 16, width: 42 }).framing.totalLength, 5 * 42);
+  assert.match(winderText(layoutWinders({ count: 3, innerRadius: 12 })).join("\n"), /4 radial supports of 36"/);
+});
 test("winder chord rule is stricter than the arc rule at the edge of passing", () => {
   const arc = checkWinders({ count: 3 }); // zero pivot fails
   assert.equal(layoutWinders({ count: 3 }).ok, false);
