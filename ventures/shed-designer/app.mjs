@@ -35,8 +35,8 @@ try { storage = globalThis.localStorage; } catch { storage = null; }
 const optedOut = () => Boolean($('#optout')?.checked);
 const count = (event) => recordUsage(storage, optedOut(), event);
 
-/** @type {{ designs: any[], active: number, prices: any, have: string[], buyAt: string }} */
-const state = { designs: [], active: 0, prices: examplePrices(), have: [], buyAt: 'mixed' };
+/** @type {{ designs: any[], active: number, prices: any, have: string[], skip: string[], buyAt: string }} */
+const state = { designs: [], active: 0, prices: examplePrices(), have: [], skip: [], buyAt: 'mixed' };
 
 /**
  * The estimate as one store would sell it, or line by line from wherever each
@@ -49,6 +49,17 @@ function storeEstimate(shed, key = state.buyAt) {
   const sl = storeList(est, key);
   const tax = Math.round(sl.total * shed.design.taxRate) / 100;
   return { ...est, shopping: sl.lines, total: sl.total, tax, grandTotal: Math.round((sl.total + tax + est.deliveryFee) * 100) / 100, storeList: sl };
+}
+/**
+ * What is left to buy: the list less the lines you already have or left out,
+ * with sales tax on what is left and the delivery charge.
+ */
+function toBuy(est) {
+  const off = new Set([...state.have, ...state.skip]);
+  const less = Math.round(est.shopping.filter((r) => off.has(r.name)).reduce((t, r) => t + r.total, 0) * 100) / 100;
+  const sub = Math.round((est.total - less) * 100) / 100;
+  const tax = Math.round(sub * design().taxRate) / 100;
+  return { less, sub, tax, total: Math.round((sub + tax + est.deliveryFee) * 100) / 100 };
 }
 const undo = []; const redo = [];
 const thumbs = new Map();
@@ -69,6 +80,7 @@ function load() {
         state.active = Math.min(s.designs.length - 1, Math.max(0, Number(s.active) || 0));
         if (typeof s.buyAt === 'string') state.buyAt = s.buyAt;
         if (Array.isArray(s.have)) state.have = s.have.filter((x) => typeof x === 'string');
+        if (Array.isArray(s.skip)) state.skip = s.skip.filter((x) => typeof x === 'string');
         if (s.prices?.lumber) state.prices = { lumber: { ...state.prices.lumber, ...s.prices.lumber }, items: { ...state.prices.items, ...s.prices.items }, delivery: { ...(state.prices.delivery || {}), ...(s.prices.delivery || {}) } };
       }
     }
@@ -182,10 +194,11 @@ function renderOpenings(d) {
 // ---------- results ----------
 function renderSummary(shed, est) {
   const d = shed.design;
-  $('#total').textContent = money(est.grandTotal);
-  $('#total-pill-n').textContent = money(est.grandTotal);
+  const buy = toBuy(est);
+  $('#total').textContent = money(buy.total);
+  $('#total-pill-n').textContent = money(buy.total);
   $('#summary-lines').innerHTML = [
-    ['Materials', `${money(est.total)}${est.tax ? ` + ${money(est.tax)} tax (${d.taxRate}%)` : ' (no sales tax set)'}${d.delivery !== 'pickup' ? (est.deliveryFee ? ` + ${money(est.deliveryFee)} delivery` : ' + delivery (type your store\'s charge under Prices)') : ''}`],
+    ['Materials', `${money(buy.sub)}${buy.less ? ` (${money(est.total)} less ${money(buy.less)} you have or left out)` : ''}${buy.tax ? ` + ${money(buy.tax)} tax (${d.taxRate}%)` : ' (no sales tax set)'}${d.delivery !== 'pickup' ? (est.deliveryFee ? ` + ${money(est.deliveryFee)} delivery` : ' + delivery (type your store\'s charge under Prices)') : ''}`],
     ['Footprint', `${fmtFtIn(d.length)} x ${fmtFtIn(d.width)} (${est.footprintSqFt.toFixed(0)} sq ft)`],
     ['Peak above the gravel', fmtFtIn(shed.dims.peak)],
     ['Boards to buy', `${est.boards} for ${est.pieces} pieces`],
@@ -205,32 +218,38 @@ function renderSummary(shed, est) {
 function renderShopping(est) {
   let html = '';
   let section = '';
-  // Lines you already have stay on the list (so the plans and quotes are whole) but come off what is left to buy.
+  // Lines you already have, or leave out for now, stay on the list struck through
+  // (so the plans and quotes are whole) but come off what is left to buy and the total.
   const have = new Set(state.have);
-  let had = 0;
+  const skip = new Set(state.skip);
   for (const r of est.shopping) {
-    if (r.section !== section) { section = r.section; html += `<tr class="sec"><th colspan="7" scope="colgroup">${esc(section)}</th></tr>`; }
+    if (r.section !== section) { section = r.section; html += `<tr class="sec"><th colspan="8" scope="colgroup">${esc(section)}</th></tr>`; }
     const got = have.has(r.name);
-    if (got) had += r.total;
-    html += `<tr${got ? ' class="have"' : ''}><td>${esc(r.name)}</td><td class="n">${r.qty}</td><td>${r.unit}</td><td class="n">${money(r.price)}</td><td class="n">${money(r.total)}</td><td>${r.elsewhere ? `<span class="muted">not listed at ${esc(est.storeList.store)}: </span>` : ''}${sourceCell(r.source)}</td><td><input type="checkbox" data-have="${esc(r.name)}"${got ? ' checked' : ''} aria-label="I already have: ${esc(r.name)}"></td></tr>`;
+    const left = skip.has(r.name);
+    html += `<tr${got ? ' class="have"' : left ? ' class="skip"' : ''}><td>${esc(r.name)}</td><td class="n">${r.qty}</td><td>${r.unit}</td><td class="n">${money(r.price)}</td><td class="n">${money(r.total)}</td><td>${r.elsewhere ? `<span class="muted">not listed at ${esc(est.storeList.store)}: </span>` : ''}${sourceCell(r.source)}</td>`
+      + `<td><input type="checkbox" data-have="${esc(r.name)}"${got ? ' checked' : ''} aria-label="I already have: ${esc(r.name)}"></td>`
+      + `<td><input type="checkbox" data-skip="${esc(r.name)}"${left ? ' checked' : ''} aria-label="Leave out of the total: ${esc(r.name)}"></td></tr>`;
   }
-  html += `<tr class="tot"><th colspan="4" scope="row">Materials</th><td class="n">${money(est.total)}</td><td></td><td></td></tr>`;
-  if (had) html += `<tr><th colspan="4" scope="row">Less what you already have</th><td class="n">-${money(had)}</td><td></td><td></td></tr><tr class="tot"><th colspan="4" scope="row">Still to buy</th><td class="n">${money(est.total - had)}</td><td></td><td></td></tr>`;
-  const tax = (Math.round((est.total - had) * design().taxRate) / 100);
-  if (tax) html += `<tr><th colspan="4" scope="row">Sales tax at ${design().taxRate}%</th><td class="n">${money(tax)}</td><td></td><td></td></tr>`;
-  if (est.deliveryFee) html += `<tr><th colspan="4" scope="row">Delivery</th><td class="n">${money(est.deliveryFee)}</td><td></td><td></td></tr>`;
-  if (tax || est.deliveryFee) html += `<tr class="tot"><th colspan="4" scope="row">Estimated total</th><td class="n">${money(est.total - had + tax + est.deliveryFee)}</td><td></td><td></td></tr>`;
-  if (est.unpriced.length) html += `<tr><td colspan="7" class="muted"><strong>Not in the total:</strong> ${est.unpriced.map(esc).join('; ')}. Each shows a typical range from our catalogue, which is not a listing for that size. Pick a unit for each under Doors and windows, choose "Build it on site" for a door, or tick "Count custom-size openings at the range's median" there.</td></tr>`;
+  const buy = toBuy(est);
+  const row = (label, v, cls = '') => `<tr${cls ? ` class="${cls}"` : ''}><th colspan="4" scope="row">${label}</th><td class="n">${v}</td><td></td><td></td><td></td></tr>`;
+  html += row('Materials', money(est.total), 'tot');
+  if (buy.less) html += row('Less what you have or left out', `-${money(buy.less)}`) + row('Still to buy', money(buy.sub), 'tot');
+  if (buy.tax) html += row(`Sales tax at ${design().taxRate}%`, money(buy.tax));
+  if (est.deliveryFee) html += row('Delivery', money(est.deliveryFee));
+  if (buy.tax || est.deliveryFee) html += row('Estimated total (materials only, not your labour)', money(buy.total), 'tot');
+  if (est.unpriced.length) html += `<tr><td colspan="8" class="muted"><strong>Not in the total:</strong> ${est.unpriced.map(esc).join('; ')}. Each shows a typical range from our catalogue, which is not a listing for that size. Pick a unit for each under Doors and windows, choose "Build it on site" for a door, or tick "Count custom-size openings at the range's median" there.</td></tr>`;
   $('#shopping tbody').innerHTML = html;
   const sl = est.storeList;
   $('#buy-at-note').textContent = sl ? `${sl.here} of ${sl.lines.length} lines (${sl.share}% of the money) at ${sl.store}, its own prices and item numbers; the rest are marked with where we found them.` : 'Each line at wherever it was priced.';
-  for (const cb of $$('#shopping input[data-have]')) {
+  for (const cb of $$('#shopping input[data-have], #shopping input[data-skip]')) {
     cb.addEventListener('change', () => {
-      const set = new Set(state.have);
-      if (cb.checked) set.add(cb.dataset.have); else set.delete(cb.dataset.have);
-      state.have = [...set];
+      const key = cb.dataset.have !== undefined ? 'have' : 'skip';
+      const set = new Set(state[key]);
+      if (cb.checked) set.add(cb.dataset[key]); else set.delete(cb.dataset[key]);
+      state[key] = [...set];
       save();
       renderShopping(est);
+      renderSummary(lastShed, est);
     });
   }
 }
@@ -453,6 +472,7 @@ function queueThumbs() {
 }
 
 let lastEst = null;
+let lastShed = null;
 // If a design ever fails to draw, say so and offer undo, rather than leave a
 // half-updated page that looks fine. The error still goes to the console.
 function render() {
@@ -471,6 +491,7 @@ function renderNow() {
   const shed = buildShed(d);
   const est = storeEstimate(shed);
   lastEst = est;
+  lastShed = shed;
   fillForm(shed.design);
   renderOpenings(d);
   renderTabs();
@@ -531,16 +552,6 @@ const viewer = createViewer($('#view3d'));
 if (!viewer) $('#view3d-fallback').hidden = false;
 
 function wire() {
-  // While you edit with the cost panel out of sight, a small pill keeps the total in view.
-  if ('IntersectionObserver' in window) {
-    const seen = { summary: false, workspace: true };
-    const pill = $('#total-pill');
-    const io = new IntersectionObserver((entries) => {
-      for (const en of entries) seen[en.target.id] = en.isIntersecting;
-      pill.hidden = seen.summary || !seen.workspace;
-    });
-    io.observe($('#summary')); io.observe($('#workspace'));
-  }
   const form = $('#settings');
   const onForm = (e) => {
     const t = e.target;
@@ -802,6 +813,14 @@ function wire() {
   $('#zoom-in').addEventListener('click', () => viewer?.zoom(1 / 1.2));
   $('#zoom-out').addEventListener('click', () => viewer?.zoom(1.2));
 
+  // The section bar at the top opens a results tab and scrolls to it.
+  $('#jump').addEventListener('click', (e) => {
+    const a = e.target.closest('[data-jump]');
+    if (!a) { if (e.target.closest('#total-pill')) { e.preventDefault(); $('#summary').scrollIntoView({ behavior: 'smooth', block: 'start' }); } return; }
+    e.preventDefault();
+    $(`.result-tabs button[data-panel="${a.dataset.jump}"]`)?.click();
+    $('#results-h').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
   for (const b of $$('.result-tabs button')) {
     b.addEventListener('click', () => {
       for (const o of $$('.result-tabs button')) o.setAttribute('aria-selected', String(o === b));
@@ -847,6 +866,7 @@ function wire() {
     window.print();
   };
   $('#print-plans').addEventListener('click', () => printWhat('plans'));
+  $('#print-all').addEventListener('click', () => printWhat('all'));
   for (const id of ['#quote-store', '#quote-name', '#quote-phone', '#quote-zip', '#quote-date']) $(id).addEventListener('input', () => quoteCtx && renderQuote(quoteCtx.shed, quoteCtx.est));
   $('#quote-store').addEventListener('change', () => quoteCtx && renderQuote(quoteCtx.shed, quoteCtx.est));
   $('#buy-at').value = state.buyAt;

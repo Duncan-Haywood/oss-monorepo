@@ -239,24 +239,38 @@ test('a custom-size opening shows a catalogue range, and counts it only when tic
   assert.doesNotMatch(await page.textContent('#shopping'), /Not in the total/);
 });
 
-test('on a phone the total follows you while you edit, and the plan boxes do not stretch on a laptop', { skip }, async (t) => {
+test('on a phone the total stays in view while you edit, and the plan boxes do not stretch on a laptop', { skip }, async (t) => {
   const { page } = await open(t, { ...pw.devices['Pixel 7'] });
   const pill = page.locator('#total-pill');
-  await page.locator('#plan').scrollIntoViewIfNeeded();
-  await pill.waitFor({ state: 'visible' });
+  await page.locator('#endview').scrollIntoViewIfNeeded();
   assert.equal(await page.textContent('#total-pill-n'), await page.textContent('#total'));
-  // It must not sit on a handle: the plan's handles stay clickable.
-  for (const k of ['plan-len', 'plan-wid', 'plan-both']) {
-    const b = await page.locator(`#plan [data-key="${k}"]`).boundingBox();
-    const hit = await page.evaluate(([x, y]) => document.elementFromPoint(x, y)?.closest('#total-pill') !== null, [b.x + b.width / 2, b.y + b.height / 2]);
-    assert.equal(hit, false, `${k} is not under the pill`);
-  }
+  const top = await pill.boundingBox();
+  assert.ok(top.y >= 0 && top.y < 80, `the total sits in the bar at the top (${top.y})`);
   await pill.click();
-  await page.waitForFunction(() => document.querySelector('#total-pill').hidden);
+  await page.waitForFunction(() => { const r = document.querySelector('#summary').getBoundingClientRect(); return r.top >= 0 && r.top < innerHeight; }, null, { timeout: 5000 });
   // Laptop: the plan's box ends near its drawing instead of stretching to the 3D column's height.
   const { page: desk } = await open(t);
   const [planSec, svg] = await desk.evaluate(() => [document.querySelector('#plan').closest('section').getBoundingClientRect().height, document.querySelector('#plan').getBoundingClientRect().height]);
   assert.ok(planSec < svg + 160, `plan section ${planSec} px for a ${svg} px drawing`);
+});
+
+test('the section bar opens each results tab, and a left-out line comes off the total', { skip }, async (t) => {
+  const { page } = await open(t);
+  assert.match(await page.textContent('#total-scope'), /Materials, sales tax and delivery only/);
+  await page.click('#jump [data-jump="panel-plans"]');
+  await page.waitForFunction(() => !document.querySelector('#panel-plans').hidden);
+  await page.waitForFunction(() => { const r = document.querySelector('#results-h').getBoundingClientRect(); return r.top >= 0 && r.top < innerHeight; }, null, { timeout: 5000 });
+  await page.click('#jump [data-jump="panel-shopping"]');
+  const total = await page.textContent('#total');
+  const line = await page.$eval('#shopping input[data-skip]', (cb) => { const tr = cb.closest('tr'); return { name: cb.dataset.skip, total: tr.children[4].textContent }; });
+  await page.check(`#shopping input[data-skip="${line.name}"]`);
+  await page.waitForFunction((b) => document.querySelector('#total').textContent !== b, total);
+  const num = (x) => Number(x.replace(/[$,]/g, ''));
+  const drop = num(total) - num(await page.textContent('#total'));
+  const rate = Number(await page.inputValue('#taxRate'));
+  assert.ok(Math.abs(drop - num(line.total) * (1 + rate / 100)) < 0.02, `the total fell by the line and its tax (${drop})`);
+  assert.equal(await page.$eval(`#shopping input[data-skip="${line.name}"]`, (cb) => cb.closest('tr').className), 'skip');
+  assert.match(await page.textContent('#summary-lines'), /you have or left out/);
 });
 
 test('on a phone: no sideways scroll, finger-size handles, touch drag and pinch', { skip }, async (t) => {
