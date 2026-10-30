@@ -1,5 +1,6 @@
 ---
 title: "A child-safety review of the Babysitting Business Kit: the allergy note that hid a peanut allergy"
+seo_title: "Child-safety review of the Babysitting Kit: a hidden peanut allergy"
 date: 2026-10-30
 tags: [babysitting-business-kit, safety, privacy]
 description: "A harm review of a babysitting app found an allergy parser that dropped 'EpiPen for peanut allergy', small parts for unaged kids and an alarm code on a card."

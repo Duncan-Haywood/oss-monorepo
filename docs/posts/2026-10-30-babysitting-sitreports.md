@@ -1,5 +1,6 @@
 ---
 title: "After the sit: a report for the parents, an incident record, and a medicine log that checks the written OK"
+seo_title: "Babysitter sit reports, incident records and a medicine log"
 date: 2026-10-30
 tags: [babysitting-business-kit, email, small-business]
 description: "End-of-sit reports as a message to copy or email, a separate incident record, and a medicine log that warns on 7 kinds of mismatch with the parents' form."
