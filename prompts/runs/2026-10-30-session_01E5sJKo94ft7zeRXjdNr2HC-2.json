@@ -34,7 +34,7 @@
   "doc_friction": [
     {
       "file": "prompts/promptctl.py record",
-      "what": "Refuses when a record for the same session id exists (session ids repeat across scheduled firings); had to write the second file by hand."
+      "issue": "Refuses when a record for the same session id exists (session ids repeat across scheduled firings); had to write the second file by hand."
     }
   ],
   "deviations": [
