@@ -342,22 +342,37 @@ export function bayPlates(shed, wall, p) {
 }
 
 /**
- * Wind-resisting (ASD) unit shear of the wall bracing, plf, for SPF framing:
- * SDPWS 2015 Table 4.3A nominal wind capacity vw at 6" edge nailing, divided
- * by 2.0 for allowable stress (4.3.3) and times the specific-gravity factor
- * 1 - (0.5 - G) = 0.92 for SPF (G 0.42, footnote 3).
- * - Panel siding (T1-11, 19/32" plywood) is the "Plywood Siding, 3/8" row,
- *   8d galvanized casing nails: vw 450.
- * - Lap, board-and-batten and fiber-cement siding go over 7/16" OSB, the
- *   "Wood Structural Panels - Sheathing, 7/16", 8d" row: vw 670.
- * LP SmartSide panels are rated in LP's own report (APA PR-N124), which this
- * tool has not read; they get no value here.
+ * Wind-resisting (ASD) unit shear of the wall bracing, plf, for SPF framing
+ * (G 0.42), as `allow`.
+ * - Panel siding (T1-11, 19/32" plywood) is SDPWS 2015 Table 4.3A's
+ *   "Plywood Siding, 3/8" row, 8d galvanized casing nails at 6" edges: nominal
+ *   vw 450, divided by 2.0 for allowable stress (4.3.3) and times the
+ *   specific-gravity factor 1 - (0.5 - G) = 0.92 (footnote 3).
+ * - Lap, board-and-batten and fiber-cement siding go over 7/16" OSB, Table
+ *   4.3A's "Wood Structural Panels - Sheathing, 7/16", 8d" row: vw 670, the
+ *   same way.
+ * - LP SmartSide panels: APA Product Report PR-N124 (revised July 2, 2026),
+ *   Table 1, panels applied directly to framing, nails at 6" on panel edges.
+ *   Its values are allowable (ASD) already; footnote 3 permits x1.4 for wind,
+ *   and footnote 1 takes x0.82 for framing of G 0.42 to 0.49 (SPF). Footnote
+ *   5 rates a panel nailed at its shiplap edges at the next thinner category:
+ *   the 3/8" panel at 5/16" (6d, 180 plf) and the 7/16" at 3/8" (8d, 220
+ *   plf). Every panel edge but the corners is a shiplap edge here, so those
+ *   values are used throughout. The rating holds with the shiplap edges
+ *   double-nailed (footnote 6), every edge backed by framing (footnote 2,
+ *   true of full-height panels), and no nails in the grooves (footnote 7); the
+ *   build steps say so. ESR-1301 (the joint ICC-ES/APA report) adds nails at
+ *   6" on intermediate studs for these panels on studs at 24".
  */
-export const BRACING = {
-  'T1-11': { what: 'T1-11 plywood siding, 8d galvanized casing at 6" edges', vw: 450 },
-  osb: { what: '7/16" OSB sheathing, 8d at 6" edges', vw: 670 },
-};
 const SG_SPF = 1 - (0.5 - 0.42);
+const LP_WIND = 1.4;
+const LP_SG = 0.82;
+export const BRACING = {
+  'T1-11': { what: 'T1-11 plywood siding, 8d galvanized casing at 6" edges', vw: 450, allow: (450 / 2) * SG_SPF, source: 'SDPWS Table 4.3A, SPF' },
+  osb: { what: '7/16" OSB sheathing, 8d at 6" edges', vw: 670, allow: (670 / 2) * SG_SPF, source: 'SDPWS Table 4.3A, SPF' },
+  'LP SmartSide': { what: 'LP SmartSide 3/8" panels, 8d (6d or larger) at 6" edges, shiplap edges double-nailed', table: 180, allow: 180 * LP_WIND * LP_SG, source: 'APA PR-N124 Table 1, wind, SPF' },
+  'LP SmartSide 7/16': { what: 'LP SmartSide 7/16" panels, 8d at 6" edges, shiplap edges double-nailed', table: 220, allow: 220 * LP_WIND * LP_SG, source: 'APA PR-N124 Table 1, wind, SPF' },
+};
 /** The ratio shown when nothing carries a load at all (999%); kept finite so it sorts and prints. */
 export const NO_CAPACITY = 9.99;
 
@@ -382,9 +397,8 @@ export function racking(shed) {
   const d = shed.design;
   const k = shed.dims;
   if (!d.siding) return { rated: true, ratio: NO_CAPACITY, why: 'nothing braces the walls against racking: they need siding panels or sheathing nailed to them', what: 'no siding or sheathing' };
-  const brace = d.sidingType === 'T1-11' ? BRACING['T1-11'] : d.sidingType.startsWith('LP SmartSide') ? null : BRACING.osb;
-  if (!brace) return { rated: false, ratio: 0, why: '', what: '' };
-  const cap = (brace.vw / 2) * SG_SPF;
+  const brace = BRACING[d.sidingType] ?? BRACING.osb;
+  const cap = brace.allow;
   const h = d.wallHeight;
   const rise = (k.ridgeTop - k.plateTop) / 12; // ft
   const hFt = h / 12;
@@ -414,7 +428,7 @@ export function racking(shed) {
   const per = (lb, ft) => (ft > 0 ? lb / ft : NO_CAPACITY * cap);
   for (const dir of dirs) {
     const open = dir.pair.filter((n) => eff[n] <= 0);
-    const tag = (n, lb, ft, extra = '') => `${n} wall: ${Math.round(lb)} lb of wind (0.6 x ${d.windLoad} psf) on ${ft.toFixed(1)} ft of full-height panel${extra}; ${Math.round(per(lb, ft))} lb/ft against ${Math.round(cap)} allowed (SDPWS Table 4.3A, SPF)`;
+    const tag = (n, lb, ft, extra = '') => `${n} wall: ${Math.round(lb)} lb of wind (0.6 x ${d.windLoad} psf) on ${ft.toFixed(1)} ft of full-height panel${extra}; ${Math.round(per(lb, ft))} lb/ft against ${Math.round(cap)} allowed (${brace.source})`;
     if (open.length === 2) { worse(NO_CAPACITY, `neither the ${dir.pair[0]} nor the ${dir.pair[1]} wall has a full-height panel wide enough to brace it (narrower than its height / 3.5)`); continue; }
     if (open.length === 0) {
       for (const n of dir.pair) worse(per(dir.F / 2, eff[n]) / cap, tag(n, dir.F / 2, eff[n]), n, per(dir.F / 2, eff[n]));

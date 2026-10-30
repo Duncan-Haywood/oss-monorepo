@@ -339,7 +339,9 @@ export function buildInstructions(shed, est) {
     title: 'Siding',
     steps: [
       d.siding ? `${sidingPanelName(d.sidingType)}, grooves vertical, ${shed.sidingFull.length} panel positions around the shed (see the shopping list for 8, 9 and 10 ft lengths). Start at a corner, keep the bottom edge level with the top of the skids so it laps the rim joist and floor, and plumb the first panel with a level.` : 'Siding is off in this design.',
-      'Every vertical panel edge lands on a stud. Nail 8d galvanized every 6" on edges and every 12" on intermediate studs.',
+      d.sidingType.startsWith('LP SmartSide')
+        ? `Every vertical panel edge lands on a stud. Nail 8d hot-dipped galvanized box or common nails (the siding nails on the list) every 6" on every edge, and every ${d.sidingType === 'LP SmartSide 7/16' && d.studSpacing > 16 ? '6" on intermediate studs (on studs at 24", LP\'s ESR-1301)' : '12" on intermediate studs'}, none in the grooves. Double-nail each shiplap joint: one nail through the underlap and a second through the full thickness about 1" from the edge, both at 6". That nailing is what LP's racking value (APA PR-N124) assumes, and these panels are what brace the walls.`
+        : 'Every vertical panel edge lands on a stud. Nail 8d galvanized every 6" on edges and every 12" on intermediate studs.',
       shed.sidingUpper.length ? 'Where a gable needs a second panel above the first, put Z-flashing over the lower panel\'s top edge before the upper one.' : 'Each panel reaches from the bottom to the top in one piece.',
       nested ? `The ${shed.sidingUpper.length} upper gable pieces come from ${nested} panel${nested > 1 ? 's' : ''}: two pieces that slope the same way are cut head to toe along one panel, the second turned end for end so the two sloped cuts run side by side. Its shiplap edges then face the other way, so where it meets its neighbour, plane or rip the lap off both edges and butt the joint over the stud with a bead of caulk.` : '',
       openings ? 'Leave out the nails in the 8" of siding above each door and window head for now, so the head flashing can slip up behind it in the trim step.' : '',
