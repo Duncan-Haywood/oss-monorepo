@@ -2,7 +2,7 @@
 // cuts, unequal loads on the eave walls, through the engine and its checks.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { buildShed, normalize, defaultDesign, SALTBOX_PRESETS, WALLS, eaveWallLoads } from './model.mjs';
+import { buildShed, normalize, defaultDesign, PRESETS, WALLS, eaveWallLoads } from './model.mjs';
 import { roofSides, threeHinged } from './saltbox.mjs';
 import { structuralChecks, heelJoint } from './checks.mjs';
 import { connectionChecks } from './connections.mjs';
@@ -10,7 +10,7 @@ import { integrity } from './integrity.mjs';
 import { invariants } from './invariants.mjs';
 import { estimate } from './estimate.mjs';
 
-const salt = (o = {}) => ({ ...SALTBOX_PRESETS['8x12 saltbox'](), ...o });
+const salt = (o = {}) => ({ ...PRESETS['8x12 saltbox'](), ...o });
 
 test('the three-hinged pair: a gable gives wL^2/8h, and every saltbox is in equilibrium', () => {
   const g = threeHinged(100, 100, 48, 48, 20);

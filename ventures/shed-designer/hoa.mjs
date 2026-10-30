@@ -98,7 +98,9 @@ export function packetSummary(shed) {
     k.floorless ? ['Floor', `none: a gravel floor; walls on timbers ${fmtFtIn(k.floorTop)} high`] : ['Floor height', `${fmtFtIn(k.floorTop)} above the ground`],
     ['Roof', d.style === 'gambrel'
       ? `gambrel (barn), ${d.gambrelLower}/12 lower and ${d.pitch}/12 upper slopes (${(Math.atan(d.gambrelLower / 12) * 180 / Math.PI).toFixed(0)} and ${(Math.atan(d.pitch / 12) * 180 / Math.PI).toFixed(0)} degrees), the bend ${fmtIn(kneeRun(d))} in from each long wall, peak running the ${fmtFtIn(d.length)} length`
-      : `gable, ${d.pitch}/12 pitch (${(Math.atan(d.pitch / 12) * 180 / Math.PI).toFixed(1)} degrees), ridge running the ${fmtFtIn(d.length)} length`],
+      : d.style === 'saltbox'
+        ? `saltbox: a ${d.frontPitch}/12 front slope and a ${d.pitch}/12 back slope (${(Math.atan(d.frontPitch / 12) * 180 / Math.PI).toFixed(1)} and ${(Math.atan(d.pitch / 12) * 180 / Math.PI).toFixed(1)} degrees), the ridge ${fmtIn(k.ridgeY)} back from the front wall and running the ${fmtFtIn(d.length)} length`
+        : `gable, ${d.pitch}/12 pitch (${(Math.atan(d.pitch / 12) * 180 / Math.PI).toFixed(1)} degrees), ridge running the ${fmtFtIn(d.length)} length`],
     ['Siding', d.siding ? `${look.label}${LAP_PRODUCTS[d.sidingType] ? ` (${d.sidingType})` : ''}, ${sidingFinish(d).name}${d.polkaDots ? ', with purple polka dots' : ''}` : 'none shown'],
     ['Roofing', d.roofing ? (d.roofCover === 'metal' ? `corrugated metal, ${roofName(d)}` : `asphalt shingles, ${roofName(d)} colour family`) : 'none shown'],
     ['Trim', d.wallTrim === 'none' ? `fascia and rake boards, ${trimName(d)}; no corner boards or casings` : `${d.wallTrim} corner boards and casings, fascia and rake boards, ${trimName(d)}`],
@@ -123,7 +125,9 @@ export function elevationSvg(shed, name) {
   const eave = name === 'front' || name === 'back';
   const F = eave ? d.length : d.width;
   const o = d.overhang;
-  const tt = d.pitch / 12;
+  // A saltbox's front eave is on its steep slope.
+  const salt = d.style === 'saltbox' && k.slopes ? k.slopes : null;
+  const tt = (salt && name === 'front' ? salt.front.pitch : d.pitch) / 12;
   const cosA = 1 / Math.sqrt(1 + tt * tt);
   // Top of the roof at a distance in from a wall face (negative is out over the eave), as drawings.mjs has it.
   const zt = (dist) => k.plateTop + (dist - k.stud) * tt + k.plumbH;
@@ -134,6 +138,20 @@ export function elevationSvg(shed, name) {
   const gTop = gam ? bandAbove(gam, cover) : null;
   const gEdge = gam ? bandAbove(gam, -0.75) : null;
   const gRake = gam ? bandAbove(gam, -4.25) : null;
+  // A saltbox's gable: two straight slopes meeting over the off-centre ridge, `up` inches above the
+  // rafters' top line (square to each slope), eave tip to eave tip, in this face's left-to-right order.
+  const saltLine = (up) => {
+    if (!salt) return null;
+    const seat = k.connector ? 0 : k.stud;
+    const W = d.width;
+    const fT = salt.front.pitch / 12; const bT = salt.back.pitch / 12;
+    const f = (y) => k.plateTop + (y - seat) * fT + (k.rafterDepth + up) / salt.front.cos;
+    const b = (y) => k.plateTop + (W - y - seat) * bT + (k.rafterDepth + up) / salt.back.cos;
+    const yc = (b(0) - f(0)) / (fT + bT);
+    return /** @type {[number, number][]} */ ([[-o, f(-o)], [yc, f(yc)], [W + o, b(W + o)]].map(([y, z]) => [hxOf(y), z]).sort((p, q) => p[0] - q[0]));
+  };
+  /** The rake's line over the wall itself, from one corner to the other. @param {[number, number][]} pts */
+  const overWall = (pts) => /** @type {[number, number][]} */ ([[0, zOnPoly(pts, 0)], ...pts.filter(([x]) => x > 1e-9 && x < F - 1e-9), [F, zOnPoly(pts, F)]]);
   const roofTop = (dist) => (gTop ? zOnPoly(gTop, dist) : zt(dist) + roofThick);
   const eaveZ = roofTop(-o);
   const rakeOut = 1.5; // sheathing and rake board past the gable wall
@@ -159,10 +177,14 @@ export function elevationSvg(shed, name) {
   const P = (pts) => pts.map(([x, z]) => `${(+x).toFixed(2)},${Y(z)}`).join(' ');
 
   // Siding outline: a rectangle on an eave wall, a pentagon up to the rake board on a gable end.
-  const wallTop = eave ? k.plateTop : gRake ? zOnPoly(gRake, 0) : roofTop(0) - 3.5;
+  const sTop = !eave ? saltLine(cover) : null;
+  const sEdge = !eave ? saltLine(-0.75) : null;
+  const sRake = !eave ? saltLine(-4.25) : null;
+  const wallTop = eave ? k.plateTop : gRake ? zOnPoly(gRake, 0) : sRake ? zOnPoly(sRake, 0) : roofTop(0) - 3.5;
   const outline = eave
     ? [[0, z0], [F, z0], [F, k.plateTop], [0, k.plateTop]]
     : gRake ? [[0, z0], [F, z0], ...gRake.slice().reverse()]
+      : sRake ? [[0, z0], [F, z0], ...overWall(sRake).reverse()]
       : [[0, z0], [F, z0], [F, wallTop], [F / 2, k.peak - roofThick - 3.5 / cosA], [0, wallTop]];
   const clipId = `clip-${name}`;
   parts.push(`<defs><clipPath id="${clipId}"><polygon points="${P(outline)}"/></clipPath></defs>`);
@@ -190,7 +212,7 @@ export function elevationSvg(shed, name) {
   if (eave) lines.push(`<rect x="0" y="${Y(k.plateTop)}" width="${F}" height="${(o + fascia).toFixed(2)}" fill="#000" fill-opacity="0.16"/>`);
   else {
     const dz = (rakeOut + 4) / cosA;
-    const rake = gRake || [[0, wallTop], [F / 2, k.peak - roofThick - 3.5 / cosA], [F, wallTop]];
+    const rake = gRake || (sRake && overWall(sRake)) || [[0, wallTop], [F / 2, k.peak - roofThick - 3.5 / cosA], [F, wallTop]];
     lines.push(`<polygon points="${P([...rake, ...rake.slice().reverse().map(([x, z]) => [x, z - dz])])}" fill="#000" fill-opacity="0.14"/>`);
   }
   parts.push(`<g clip-path="url(#${clipId})">${lines.join('')}</g>`);
@@ -277,10 +299,11 @@ export function elevationSvg(shed, name) {
       for (let x = 0; x < F; x += 2.67) parts.push(`<line x1="${x.toFixed(2)}" y1="${Y(eaveZ)}" x2="${x.toFixed(2)}" y2="${Y(k.peak)}" stroke="${c}" stroke-width="0.3"/>`);
     }
     if (gam && gTop) parts.push(`<line x1="${-rakeOut}" y1="${Y(zOnPoly(gTop, gam.yk))}" x2="${F + rakeOut}" y2="${Y(zOnPoly(gTop, gam.yk))}" stroke="#222" stroke-width="0.6"/>`);
-  } else if (gTop && gEdge && gRake) {
-    // A gambrel's gable: the roof edge and the rake board below it follow both slopes.
-    parts.push(`<polygon points="${P([...gTop, ...gEdge.slice().reverse()])}" fill="${roofC}" stroke="#222" stroke-width="0.5"/>`);
-    parts.push(`<polygon points="${P([...gEdge, ...gRake.slice().reverse()])}" fill="${trim}" stroke="#555" stroke-width="0.4"/>`);
+  } else if ((gTop && gEdge && gRake) || (sTop && sEdge && sRake)) {
+    // A gambrel's or a saltbox's gable: the roof edge and the rake board below it follow both slopes.
+    const [rt, re, rr] = /** @type {[number, number][][]} */ (gTop ? [gTop, gEdge, gRake] : [sTop, sEdge, sRake]);
+    parts.push(`<polygon points="${P([...rt, ...re.slice().reverse()])}" fill="${roofC}" stroke="#222" stroke-width="0.5"/>`);
+    parts.push(`<polygon points="${P([...re, ...rr.slice().reverse()])}" fill="${trim}" stroke="#555" stroke-width="0.4"/>`);
   } else {
     const band = roofThick + 0.75;
     parts.push(`<polygon points="${P([[-o, eaveZ], [F / 2, k.peak], [F + o, eaveZ], [F + o, eaveZ - band], [F / 2, k.peak - band / cosA], [-o, eaveZ - band]])}" fill="${roofC}" stroke="#222" stroke-width="0.5"/>`);
@@ -315,7 +338,10 @@ export function elevationSvg(shed, name) {
   const lx = x0 - fs * 2.2;
   vdim(lx, 0, k.floorTop, k.floorless ? `timber ${fmtFtIn(k.floorTop)}` : `floor ${fmtFtIn(k.floorTop)}`, 'floor', -1);
   // Pitch: a little triangle on the roof (gable ends) or a note above it (eave sides).
-  if (gam) {
+  if (salt) {
+    // A saltbox: both slopes, named, on every side.
+    dims.push(`<g class="dim pitch"><text x="${(F / 2).toFixed(2)}" y="${(Y(k.peak) - fs * 0.6).toFixed(2)}" text-anchor="middle" font-size="${fs}">saltbox: ${salt.front.pitch}/12 front slope, ${salt.back.pitch}/12 back slope; ridge ${fmtFtIn(k.peak)} up</text></g>`);
+  } else if (gam) {
     dims.push(`<g class="dim pitch"><text x="${(F / 2).toFixed(2)}" y="${(Y(k.peak) - fs * 0.6).toFixed(2)}" text-anchor="middle" font-size="${fs}">${d.pitch}/12 roof pitch above the bend, ${d.gambrelLower}/12 below it (gambrel); peak ${fmtFtIn(k.peak)} up</text></g>`);
   } else if (!eave) {
     const bx = F * 0.12; const bz = roofTop(F * 0.12) + fs * 2.2; const run = Math.max(12, F * 0.12);
@@ -370,12 +396,20 @@ export function planSvg(shed) {
   const parts = [];
   const roofC = roofHex(d);
   parts.push(`<rect x="${X(-r)}" y="${Y(W + o)}" width="${X(L + 2 * r)}" height="${X(W + 2 * o)}" fill="${roofC}" fill-opacity="0.25" stroke="#222" stroke-width="${(fs * 0.08).toFixed(2)}" data-kind="roof"/>`);
-  parts.push(`<line x1="${X(-r)}" y1="${Y(W / 2)}" x2="${X(L + r)}" y2="${Y(W / 2)}" stroke="#222" stroke-width="${(fs * 0.08).toFixed(2)}" data-kind="ridge"/>`);
+  // The ridge: mid-width on a gable, off centre on a saltbox; a lean-to has none, only its high front edge.
+  const lean = d.style === 'leanTo';
+  const salt = d.style === 'saltbox';
+  const yR = shed.dims.ridgeY ?? W / 2;
+  if (!lean) parts.push(`<line x1="${X(-r)}" y1="${Y(yR)}" x2="${X(L + r)}" y2="${Y(yR)}" stroke="#222" stroke-width="${(fs * 0.08).toFixed(2)}" data-kind="ridge"/>`);
   parts.push(`<rect x="0" y="${Y(W)}" width="${L}" height="${W}" fill="none" stroke="#444" stroke-width="${(fs * 0.07).toFixed(2)}" stroke-dasharray="${fs * 0.5} ${fs * 0.3}" data-kind="walls"/>`);
   const t = (x, y, text, size = fs, anchor = 'middle', extra = '') => parts.push(`<text x="${X(x)}" y="${Y(y)}" text-anchor="${anchor}" font-size="${size.toFixed(2)}"${extra}>${esc(text)}</text>`);
-  t(L / 2, W / 2 + fs * 0.4, 'RIDGE', fs * 0.8);
-  t(L / 2, W * 0.25, `slope down ${d.pitch}/12`, fs * 0.8);
-  t(L / 2, W * 0.75 + fs * 0.6, `slope down ${d.pitch}/12`, fs * 0.8);
+  if (lean) {
+    t(L / 2, W / 2, `one slope, down ${d.pitch}/12 from the front to the back`, fs * 0.8);
+  } else {
+    t(L / 2, yR + fs * 0.4, 'RIDGE', fs * 0.8);
+    t(L / 2, salt ? yR / 2 : W * 0.25, `slope down ${salt ? d.frontPitch : d.pitch}/12`, fs * 0.8);
+    t(L / 2, salt ? (yR + W) / 2 + fs * 0.6 : W * 0.75 + fs * 0.6, `slope down ${d.pitch}/12`, fs * 0.8);
+  }
   t(L / 2, -o - fs * 3.6, 'FRONT', fs, 'middle', ' font-weight="700"');
   // Each door and window, as a thick mark on its wall line with its width.
   for (const f of shed.fixtures.filter((x) => x.kind === 'door' || x.kind === 'window')) {
