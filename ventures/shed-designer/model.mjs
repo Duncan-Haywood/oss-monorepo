@@ -293,7 +293,7 @@ export function normalize(input) {
       return pr && pr.kind === (op.kind === 'window' ? 'window' : 'door') ? { ...op, width: pr.roW, height: pr.roH } : { ...op, product: undefined };
     }).map((op, i) => ({
       id: idOf(op.id, i),
-      kind: op.kind === 'window' ? 'window' : 'door',
+      kind: /** @type {'door'|'window'} */ (op.kind === 'window' ? 'window' : 'door'),
       wall: pick(op.wall, WALLS, 'front'),
       offset: Math.max(0, num(op.offset, 24)),
       width: Math.min(144, Math.max(12, num(op.width, 36))),
