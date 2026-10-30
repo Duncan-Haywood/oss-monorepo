@@ -2,7 +2,7 @@
 title: "A stair stringer calculator that checks the board left under the notch"
 date: 2026-10-30
 tags: [wall-framing-takeoff, stairs, framing]
-description: "Type a total rise, get equal risers, the shorter first cut, stringer length and the stairwell opening for headroom. It also warns when the notch leaves under 3-1/2 inches of board."
+description: "Type a total rise, get equal risers, the shorter first cut, stringer length and stairwell opening. It warns when the notch leaves under 3-1/2 inches of board."
 ---
 
 Most stair calculators stop at "14 risers of 7-11/16 inches". The [wall framing takeoff](https://duncan-haywood.github.io/oss-monorepo/wall-framing-takeoff/) already had a stair engine behind its `--stairs` flag, so it now has its own page: the [stair stringer calculator](https://duncan-haywood.github.io/oss-monorepo/wall-framing-takeoff/stair-stringer-calculator.html), which runs in the browser and sends nothing anywhere.
