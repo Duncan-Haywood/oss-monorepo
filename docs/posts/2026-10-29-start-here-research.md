@@ -1,5 +1,6 @@
 ---
 title: "Start here: the open research, and how to check it, reuse it and cite it"
+seo_title: "The open research, and how to check, reuse and cite it"
 date: 2026-10-29
 tags: [start-here, open-science, reproducibility, citations]
 description: "For researchers, students and curious readers: what the open research portfolio holds, how to rerun one result, and how to build on it or cite it honestly."

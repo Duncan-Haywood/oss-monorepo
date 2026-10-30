@@ -68,9 +68,9 @@ test('a design card opens its detail, with renders, cost, storage, openings and 
   for (const want of ['Why it\'s here', 'Price: $', 'Footprint', 'Wall height', 'Peak', 'Floor inside', 'Volume inside', 'Shelf wall', 'Siding', 'Roof', 'Doors (', 'Rafters', 'Checks', 'Not engineered or code-checked', 'Start from this design']) {
     assert.ok(text.includes(want), `detail shows "${want}"`);
   }
-  assert.equal(await dlg.locator('.shots img').count(), 3, 'three renders: front, back, gable end');
   const srcs = await dlg.locator('.shots img').evaluateAll((is) => is.map((i) => i.getAttribute('src')));
-  assert.equal(new Set(srcs).size, 3, 'the three renders differ');
+  assert.ok(srcs.length >= 3, `at least three renders (${srcs.length})`);
+  assert.equal(new Set(srcs).size, srcs.length, 'the renders differ');
   assert.ok(await dlg.locator('.bars li').count() >= 3, 'a cost breakdown');
   // Focus moved into the dialog; Escape closes it and gives focus back.
   assert.equal(await page.evaluate(() => document.activeElement?.closest('dialog')?.id), 'pick-dialog');
@@ -198,4 +198,17 @@ test('the starting designs are priced the way the page prices: same store, same 
     await page.waitForTimeout(900); // the strip re-prices 500 ms after the change
     assert.equal(await detailWithTax(), n(await page.locator('#total').innerText()), `same total at ${store}`);
   }
+});
+
+test('a preset shows its pictures from renders/, with their alt text; the strip uses them too', { skip }, async (t) => {
+  const { page } = await open(t);
+  await page.waitForFunction(() => document.querySelector('#starts [data-shot="8x12"] img')?.getAttribute('src')?.startsWith('renders/'), null, { timeout: 10000 });
+  await page.locator('#starts .pick-open[data-detail="8x12"]').click();
+  const imgs = await page.locator('#pick-dialog .shots img').evaluateAll((is) => is.map((i) => ({ src: i.getAttribute('src'), alt: i.getAttribute('alt') })));
+  assert.equal(imgs.length, 4, 'front corner, gable end, back and framing');
+  assert.ok(imgs.every((i) => i.src.startsWith('renders/') && i.src.endsWith('.webp')), JSON.stringify(imgs));
+  assert.ok(imgs.every((i) => i.alt.length > 40), 'alt text from the manifest');
+  assert.match(imgs[3].alt, /^Framing of/);
+  // Every picture loads.
+  assert.ok(await page.locator('#pick-dialog .shots img').evaluateAll((is) => Promise.all(is.map((i) => i.decode().then(() => i.naturalWidth > 0)))).then((a) => a.every(Boolean)));
 });
