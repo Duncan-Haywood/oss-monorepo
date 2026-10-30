@@ -717,7 +717,7 @@ const slug = () => design().name.toLowerCase().replace(/[^a-z0-9]+/g, '-').repla
 // ---------- wiring ----------
 const viewer = createViewer($('#view3d'));
 if (!viewer) $('#view3d-fallback').hidden = false;
-initUtilisation({ viewer, count, storage });
+initUtilisation({ viewer, count, storage, prices: () => state.prices });
 
 function wire() {
   const form = $('#settings');

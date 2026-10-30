@@ -1,0 +1,45 @@
+# Tags and releases each allow-listed tool version (<slug>-v<version>), so users
+# can pin `uses:` and pre-commit `rev:` instead of following @main.
+# Off by default: with vars.DISTRIBUTE_TOOL_RELEASES unset this only prints a dry run.
+# Free API, no paid spend, no commits pushed; tags only main.
+# Spec: portfolio/distribution/README.md, "Allow-list and versions".
+name: distribute-tool-releases
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'portfolio/distribution/versions.json'
+  schedule:
+    - cron: '23 15 * * 2'
+  workflow_dispatch:
+permissions:
+  contents: read
+# One run at a time: two overlapping runs could both see a tag as missing.
+concurrency:
+  group: distribute-tool-releases
+  cancel-in-progress: false
+jobs:
+  release:
+    permissions:
+      contents: write
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.12'
+      - run: node platform/distribution/tool-releases.mjs
+        env:
+          DISTRIBUTE_TOOL_RELEASES: ${{ vars.DISTRIBUTE_TOOL_RELEASES }}
+          DISTRIBUTE_NPM: ${{ vars.DISTRIBUTE_NPM }}
+          DISTRIBUTE_PYPI: ${{ vars.DISTRIBUTE_PYPI }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_REF: ${{ github.ref }}
