@@ -1630,6 +1630,7 @@ test("placeRestBreaks: short stretches get none, off at 0, joined shifts count o
   assert.equal(joined.length, 2);
   assert.ok(joined.every((x) => x.alone && x.startMin >= 510 && x.endMin <= 930));
   assert.equal(placeRestBreaks({ assignments: [A("Ana", 480, 960)] }, { restEvery: 2, mealAfter: 0 }).length, 4);
+});
 
 test("splitShiftPay: one premium hour per split or over-spread person-day, optional wage credit", async () => {
   const { splitShiftPay } = await import("./calc.mjs");
