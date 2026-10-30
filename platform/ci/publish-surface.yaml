@@ -380,6 +380,9 @@ workflows:
 - workflow: sbom-diff-check-ci.yml
   classification: none
   publishes: []
+- workflow: security-alert-queue.yml
+  classification: none
+  publishes: []
 - workflow: shed-designer-browser.yml
   classification: none
   publishes: []
