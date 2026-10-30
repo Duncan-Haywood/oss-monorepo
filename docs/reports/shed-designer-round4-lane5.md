@@ -91,3 +91,13 @@ Run of 2026-10-30. The brief came from round 3 lane 7's "Open" list:
 4. **Lowe's form tube price** from a store page with a store selected.
 
 Not engineered or code-checked; every check here is a screening check.
+
+## Follow-up fix (same day)
+
+Lane 2 found that a floorless 2x6-wall shed failed "Bottom plates bear on the timbers". The cause was a plate piece next to a door: it was 4-1/2" long and 5-1/2" deep, and the check took the plate's direction from its bounding box, so it read the piece as running the wrong way.
+
+- **The fix:** the direction now comes from the plate's wall. The case is pinned in `floorless.test.mjs`.
+- **A new floorless fuzz pass** in `fuzz.test.mjs` found one more bug: the teen-bedroom rug and beanbags floated at the top of the timbers. They now sit on the gravel.
+- **Wide fuzz:**
+  - seed 201: 1,200 floorless designs, 0 failures;
+  - seed 7: 1,000 designs, 1 failure, a siding-joint check that fails on the framed version of the same design too, so not from the floorless work.

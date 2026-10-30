@@ -1790,9 +1790,11 @@ function buildFramed(d) {
         }
       }
       // A rug and a beanbag on the floor.
-      fixtures.push({ kind: 'rug', group: 'decor', geom: rectGeom([L / 2 - 30, W / 2 - 20, floorTop], X, Y, Z, 60, 40, 0.4) });
-      fixtures.push({ kind: 'beanbag', group: 'decor', geom: rectGeom([L - D - 34, W - D - 34, floorTop], X, Y, Z, 28, 28, 14) });
-      fixtures.push({ kind: 'beanbag', group: 'decor', geom: rectGeom([L - D - 31, W - D - 31, floorTop + 14], X, Y, Z, 22, 22, 6) });
+      // With no floor they sit on the gravel, not up at the top of the timbers.
+      const onFloor = floorless ? 0 : floorTop;
+      fixtures.push({ kind: 'rug', group: 'decor', geom: rectGeom([L / 2 - 30, W / 2 - 20, onFloor], X, Y, Z, 60, 40, 0.4) });
+      fixtures.push({ kind: 'beanbag', group: 'decor', geom: rectGeom([L - D - 34, W - D - 34, onFloor], X, Y, Z, 28, 28, 14) });
+      fixtures.push({ kind: 'beanbag', group: 'decor', geom: rectGeom([L - D - 31, W - D - 31, onFloor + 14], X, Y, Z, 22, 22, 6) });
     }
     interior = { type: d.interior, sqft, panels: Math.ceil((sqft * 1.1) / 32), paint: d.interior === 'teen bedroom' ? 'pink' : 'white' };
   }
