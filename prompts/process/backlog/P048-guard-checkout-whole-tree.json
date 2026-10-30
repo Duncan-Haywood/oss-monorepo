@@ -22,18 +22,18 @@
   "baseline": "40% (302 of 750 job-minutes), 2026-10-24",
   "opened": "2026-10-24",
   "source": "prompts/runs/2026-10-24-session_01Gcz8nVnXVeNTiqb8JKabK1.json",
-  "pr": null,
+  "pr": 11711,
   "result": null,
   "history": [
     {
       "date": "2026-10-30",
       "note": "Part 1: sparse checkouts for conflict markers, checklist coverage, duplicate symbols and link contrast; conflict-marker script fails on a missing text file. Part 2 (doc refs, README live links, sibling links) listed in docs/history/ci-perf-2026-10-30-guard-checkouts.md.",
-      "pr": "this"
+      "pr": 11711
     },
     {
       "date": "2026-10-30",
       "note": "Part 2b: README live links sparse checkout; sibling links left whole (build.mjs import graph too wide, see history doc). Doc refs shipped in PR #11700. Item complete apart from measuring the checkout share.",
-      "pr": "this"
+      "pr": 11711
     }
   ]
 }
