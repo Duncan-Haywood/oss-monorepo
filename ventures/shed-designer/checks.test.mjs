@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { buildShed, defaultDesign, PRESETS } from './model.mjs';
-import { structuralChecks, postCheck, nailZ, heelJoint, skidOnBlocks } from './checks.mjs';
+import { structuralChecks, postCheck, nailZ, heelJoint, skidOnBlocks, rafterUplift, racking } from './checks.mjs';
 import { buildInstructions } from './instructions.mjs';
 import { estimate } from './estimate.mjs';
 import { check, worst, roofCase, designValues } from './structure.mjs';
@@ -217,4 +217,72 @@ test('blocks straight on soft ground fail the soil check; the starter has a bed 
   const start = structuralChecks(buildShed(defaultDesign()));
   assert.equal(defaultDesign().pad, 'under blocks');
   assert.ok(start.ok && start.rows.find((x) => x.member === 'Blocks on the soil').ratio < 0.75);
+});
+
+// Wind uplift at the rafter-to-plate tie, ASD 0.6D + 0.6W. 12x16 preset: ridge
+// board, 5/12, rafters at 24", 12" overhang, 20 psf wind, H2.5A ties (615 lb
+// uplift in SPF/HF, Simpson C-C-2024).
+test('the rafter-tie uplift check is the hand calculation', () => {
+  const s = buildShed(PRESETS['12x16']());
+  const cos = 12 / 13;
+  const strip = 2 * (72 + 12) / 12; // 2 ft of rafter spacing x (half of 144" + overhang) on plan, sq ft
+  const soffit = 2 * 1; // under the 12" overhang
+  const up = 0.6 * 20 * (strip + soffit);
+  const dead = 0.6 * (15 / cos) * strip;
+  const u = rafterUplift(s);
+  assert.ok(Math.abs(u.net - (up - dead)) < 1e-9, `${u.net} vs ${up - dead}`);
+  assert.equal(u.tie.uplift, 615);
+  assert.ok(Math.abs(u.holdsPsf - (615 + dead) / (0.6 * (strip + soffit))) < 1e-9);
+  assert.ok(u.net > 50 && u.net < 60 && u.holdsPsf > 78 && u.holdsPsf < 79);
+  const row = structuralChecks(s).rows.find((x) => x.member === 'Rafter-to-plate ties (uplift)');
+  assert.ok(Math.abs(row.ratio - (up - dead) / 615) < 1e-9);
+  assert.match(row.detail, /holds to 78 psf/);
+  // A VPA2 connector seat holds less (220 lb): the starter holds to 72 psf, so 80 psf fails it.
+  assert.equal(rafterUplift(buildShed(defaultDesign())).tie.model, 'Simpson VPA2');
+  assert.ok(!structuralChecks(buildShed({ ...defaultDesign(), windLoad: 80 })).rows.find((x) => x.member === 'Rafter-to-plate ties (uplift)').ok);
+  // With no wind there is nothing to hold down.
+  assert.equal(structuralChecks(buildShed({ ...defaultDesign(), windLoad: 0 })).rows.find((x) => x.member === 'Rafter-to-plate ties (uplift)').ratio, 0);
+});
+
+// Racking, SDPWS 2015 Table 4.3A: T1-11 is plywood siding (3/8" row, 8d
+// galvanized casing at 6" edges), vw 450 plf nominal; ASD divides by 2.0 and
+// SPF framing (G 0.42) multiplies by 1 - (0.5 - 0.42) = 0.92: 207 plf.
+test('the racking check is the hand calculation', () => {
+  const cap = (450 / 2) * 0.92;
+  // 12x16: 96" walls, the left gable wall has a 72" door at 36", leaving two
+  // 36" panels; h/b = 96/36 = 2.67 > 2, so each counts at 1.25 - 0.125 x 2.67.
+  const s = buildShed(PRESETS['12x16']());
+  const rise = (s.dims.ridgeTop - s.dims.plateTop) / 12;
+  const F = 0.6 * 20 * 16 * (4 + rise); // wind on the 16 ft eave face, mid-wall to ridge
+  const eff = (2 * 36 * (1.25 - 0.125 * (96 / 36))) / 12;
+  assert.ok(Math.abs(eff - 5.5) < 1e-9);
+  const r = racking(s);
+  assert.equal(r.wall, 'left');
+  assert.ok(Math.abs(r.ratio - F / 2 / eff / cap) < 1e-9, `${r.ratio} vs ${F / 2 / eff / cap}`);
+  assert.ok(r.ratio > 0.5 && r.ratio < 0.65);
+  assert.ok(Math.abs(structuralChecks(s).rows.find((x) => x.member === 'Wall bracing (racking)').ratio - r.ratio) < 1e-9);
+  // Over 7/16" OSB (lap siding): the 7/16" sheathing row with 8d, vw 670.
+  assert.ok(Math.abs(racking(buildShed({ ...PRESETS['12x16'](), sidingType: 'vinyl' })).ratio - F / 2 / eff / ((670 / 2) * 0.92)) < 1e-9);
+});
+
+// The 8x8 lean's 52" door leaves 22" panels on an 84" wall (h/b 3.8 > 3.5):
+// that wall braces nothing. Its roof cantilevers 8 ft over 8 ft (1:1), so
+// SDPWS 4.2.5.2.1 lets the roof carry the twist: the right wall takes the
+// whole force, and the eave walls the couple F x 4 ft / 8 ft.
+test('an open-front wall hands its share to the opposite wall, within SDPWS 1:1', () => {
+  const s = buildShed(PRESETS['8x8 lean']());
+  const cap = (450 / 2) * 0.92;
+  const rise = (s.dims.ridgeTop - s.dims.plateTop) / 12;
+  const F = 0.6 * 20 * 8 * (84 / 24 + rise);
+  const r = racking(s);
+  assert.equal(r.wall, 'right');
+  assert.ok(Math.abs(r.ratio - F / 8 / cap) < 1e-9, `${r.ratio} vs ${F / 8 / cap}`);
+  assert.match(r.why, /all of it, as the left wall braces nothing/);
+  // The same door in a 12 ft long shed: 12 ft over 8 ft is past 1:1, so it fails.
+  const long = racking(buildShed({ ...PRESETS['8x8 lean'](), length: 144 }));
+  assert.ok(long.ratio > 1);
+  assert.match(long.why, /past the 1:1 SDPWS allows/);
+  // No siding: nothing braces the walls. LP SmartSide: rated in LP's own report, not checked here.
+  assert.ok(!structuralChecks(buildShed({ ...defaultDesign(), siding: false })).rows.find((x) => x.member === 'Wall bracing (racking)').ok);
+  assert.equal(structuralChecks(buildShed({ ...defaultDesign(), sidingType: 'LP SmartSide' })).rows.find((x) => x.member === 'Wall bracing (racking)'), undefined);
 });
