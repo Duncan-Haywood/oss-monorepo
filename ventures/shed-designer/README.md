@@ -38,6 +38,8 @@ All three automatic choices are ticked:
 
 At the starting prices that design is 151 pieces from 84 boards. The cut sheet's boards cost $639.32 against a proven lower bound of $638.34; with spare boards the lumber is $736.72, and the whole shed is $3,026.46 before sales tax. Every structural check passes, and the ridge beam is the most loaded member at 80%. The "8x12 classic" preset (8 ft walls, 6/12, ridge board and ties, 38" x 82" door, unpainted) is 143 pieces from 92 boards and $3,250.97 before sales tax.
 
+- **Ready designs.** A strip at the top of the page holds ten sheds under 100 sq ft (cheapest, most storage, best looking, balanced, a 10x10 mower shed, a 7x14, an 8x8, a 6x16 bike shed, a 9x11 workshop and one in painted lap siding to match a house). None is typed in: each is a starting shape plus what it keeps (size, doors, windows, look), and the cost search in `simplify.mjs` picks everything else, with every structural check at 90% of capacity or less and no model warnings. Cards show the price at your prices, clear floor, cubic feet under the roof, wall length for shelves and the widest door. Flick through with the arrows, the arrow keys or a swipe; "Customise this design" opens it as a new design.
+
 ## Structure, integrity and prices
 
 - **Structural checks** (`checks.mjs`, Structure tab). The members checked are:
@@ -118,6 +120,7 @@ Serve this folder as static files, for example `python3 -m http.server` here, th
 | `prices.mjs` | starting prices and their sources |
 | `recheck_prices.py` | re-reads, by hand, the prices of sellers whose robots.txt allows reading product pages (the window maker, the door seller, Hemlock Hardware) and prints any that moved; Home Depot, Lowe's and Menards are never fetched and are checked in a browser |
 | `candidates.mjs` | the options made for you |
+| `gallery.mjs`, `gallery-data.mjs`, `make-gallery.mjs`, `gallery-ui.mjs` | the ready-design gallery: ten sheds under 100 sq ft, each the winner of the engine's own cheapest-build search for what that card keeps; `node make-gallery.mjs` rewrites `gallery-data.mjs` and `gallery.test.mjs` fails if it drifts |
 | `instructions.mjs` | step-by-step build instructions from the design |
 | `app.mjs`, `index.html` | the page |
 | `make-size-pages.mjs`, `how-much-lumber-for-a-*-shed.html`, `shed-lumber-list-by-size.html` | one page per common size (8x8 to 12x24) written from the engine; `node make-size-pages.mjs` rewrites them and `size-pages.test.mjs` fails if they drift |

@@ -140,6 +140,15 @@
     .card dt { color: var(--muted); }
     .card dd { margin: 0; font-weight: 700; }
     .pill { background: var(--gold); color: var(--ink); border-radius: 999px; padding: 1px 8px; font-size: .72rem; }
+    #gallery { margin: 0 0 14px; }
+    #gallery .gallery-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; justify-content: space-between; }
+    #gallery .gallery-nav { display: flex; align-items: center; gap: 8px; }
+    #gallery-track { display: flex; gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 4px 2px 10px; overscroll-behavior-x: contain; }
+    #gallery-track:focus-visible { outline: 2px solid var(--accent2); outline-offset: 2px; }
+    .gallery-card { flex: 0 0 min(300px, 84%); scroll-snap-align: start; display: flex; flex-direction: column; }
+    .gallery-card .gallery-why { font-size: .9rem; margin: 4px 0; }
+    .gallery-card .btn { margin-top: auto; align-self: flex-start; }
+    .gallery-price { margin: 4px 0 0; font-size: 1.15rem; }
     #status { min-height: 1.3em; font-size: .88rem; color: var(--muted); }
     .faq details { border-top: 1px solid var(--line); padding: 10px 0; }
     .faq summary { font-weight: 700; cursor: pointer; }
@@ -176,6 +185,19 @@
     <p>Drag out a gable shed and get what you need to build it: <strong>framing plans</strong> for the foundation, floor, all four walls and the roof, a <strong>3D view</strong>, a <strong>producer cut sheet</strong> that says which 8, 10, 12, 14 or 16 ft board each piece comes out of, and a <strong>shopping list with a cost</strong>. Every 2x4 to 2x12 is framed at its real size (a 2x4 is 1-1/2" x 3-1/2"). Make a few designs and compare them side by side.</p>
   </header>
   <main>
+
+  <section id="gallery" aria-labelledby="gallery-h">
+    <div class="gallery-head">
+      <h2 id="gallery-h">Start from a ready design</h2>
+      <div class="gallery-nav">
+        <button type="button" class="btn" id="gallery-prev" aria-label="Previous design">&larr;</button>
+        <span id="gallery-pos" aria-live="polite">1 of 10</span>
+        <button type="button" class="btn" id="gallery-next" aria-label="Next design">&rarr;</button>
+      </div>
+    </div>
+    <p class="hint">Ten sheds under 100 sq ft, each found by this tool's own search: every one passes the strength and connection checks with at least 10% in hand and is the cheapest build it found for what that card keeps (its size, doors, windows and look). Flick through, then customise one: it opens as a new design you can change. Prices are materials at the example prices below, before tax and delivery.</p>
+    <div id="gallery-track" tabindex="0" role="region" aria-roledescription="carousel" aria-label="Ready designs"></div>
+  </section>
 
   <div class="bar-top">
     <nav class="tabs" id="design-tabs" role="tablist" aria-label="Your designs"></nav>

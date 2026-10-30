@@ -17,6 +17,7 @@ import { quoteRequest, mailtoLink, STORES } from './quote.mjs';
 import { PRODUCTS } from './products.mjs';
 import { storeComparison, swapsFor, storeTotals, storeList, pricesFor } from './catalog.mjs';
 import { simplify, cutMetrics, budget, laborHours } from './simplify.mjs';
+import { mountGallery } from './gallery-ui.mjs';
 
 const $ = (sel) => /** @type {any} */ (document.querySelector(sel));
 const $$ = (sel) => /** @type {any[]} */ ([...document.querySelectorAll(sel)]);
@@ -52,6 +53,8 @@ function storeEstimate(shed, key = state.buyAt) {
 }
 const undo = []; const redo = [];
 const thumbs = new Map();
+/** @type {{ refresh: (key: string) => void } | null} */
+let gallery = null;
 
 // ---------- persistence ----------
 function save() {
@@ -507,6 +510,7 @@ function renderLate(shed, est, d) {
     renderQuote(shed, est);
     renderCompare();
     queueThumbs();
+    gallery?.refresh(JSON.stringify([state.prices, state.buyAt]));
   }, 0));
 }
 
@@ -861,5 +865,20 @@ function buildStatic() {
 buildStatic();
 load();
 wire();
+// The ready-design strip: "Customise" opens the design as a new tab.
+gallery = mountGallery({
+  root: $('#gallery'),
+  priceOf: (shed) => storeEstimate(shed),
+  createViewer,
+  onPick: (d, title) => {
+    state.designs.push(normalize(d));
+    state.active = state.designs.length - 1;
+    count('designs');
+    undo.length = 0; redo.length = 0;
+    render();
+    $('#status').textContent = `Opened the ${title} as a new design. Change anything: the cost and checks update as you go.`;
+    $('#workspace').scrollIntoView({ behavior: 'smooth' });
+  },
+});
 render();
 if (linkNote) $('#status').textContent = linkNote;

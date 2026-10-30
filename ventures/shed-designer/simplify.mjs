@@ -153,7 +153,9 @@ export const GOALS = {
 /**
  * @param {any} design
  * @param {import('./estimate.mjs').Prices} [prices]
- * @param {{ rounds?: number, resize?: boolean, products?: boolean, peakSlack?: number, goals?: string[] }} [opts]
+ * @param {{ rounds?: number, resize?: boolean, products?: boolean, peakSlack?: number, goals?: string[], keep?: string[], maxRatio?: number, clean?: boolean }} [opts]
+ *   maxRatio: the most any structural check may be used (1 = right at its limit);
+ *   clean: only designs the model has no warning about
  */
 export function simplify(design, prices, opts = {}) {
   const rounds = opts.rounds ?? 6;
@@ -168,7 +170,8 @@ export function simplify(design, prices, opts = {}) {
   };
   // Never over the peak limit if the design meets it, and never more than 1" taller than it is.
   const peakCap = start.maxPeak > 0 && base.peak <= start.maxPeak ? start.maxPeak : base.peak + (opts.peakSlack ?? 1);
-  const feasible = (r) => r.ok && (!(start.maxFootprint > 0) || r.footprint <= start.maxFootprint + 1e-9) && r.peak <= peakCap + 0.01;
+  const feasible = (r) => r.ok && (!(start.maxFootprint > 0) || r.footprint <= start.maxFootprint + 1e-9) && r.peak <= peakCap + 0.01
+    && (!(opts.maxRatio > 0) || r.worst <= opts.maxRatio + 1e-9) && (!opts.clean || r.warnings === 0);
   const winners = {};
   for (const [goal, g] of Object.entries(GOALS).filter(([k]) => !opts.goals || opts.goals.includes(k))) {
     const score = (r) => r.total + (g.time ? r.timeCost : 0) + g.perCut * r.cuts.straight + g.perAngled * (r.cuts.angled + 2 * r.cuts.notches);
@@ -283,6 +286,7 @@ function evaluate(d, prices) {
   return {
     hours, timeCost: Math.round(hours * (shed.design.laborRate ?? 0) * 100) / 100,
     design: shed.design, total: est.total, boards: est.boards, cuts, ok: sc.ok && cc.ok,
+    worst: sc.rows.reduce((m, x) => Math.max(m, x.ratio), 0), warnings: shed.warnings.length,
     peak: shed.dims.peak, footprint: (shed.design.length * shed.design.width) / 144,
     pitch: shed.design.pitch, overhang: shed.design.overhang,
   };

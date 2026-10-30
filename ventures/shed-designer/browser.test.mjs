@@ -273,3 +273,54 @@ test('on a phone the end view fills its box and every label is inside it', { ski
     assert.equal(r.out, 0, `labels outside the end view (${preset || 'default'})`);
   }
 });
+
+test('the ready-design gallery: ten priced cards with 3D thumbnails, arrows and keys flick through, Customise opens a new design', { skip }, async (t) => {
+  const { page } = await open(t);
+  const cards = page.locator('#gallery-track .gallery-card');
+  assert.equal(await cards.count(), 10);
+  // Every card is priced and carries its storage figures and reason.
+  for (const text of await cards.allInnerTexts()) {
+    assert.match(text, /\$\d[\d,]* materials before tax/);
+    assert.match(text, /Room under the roof\s+\d+ cu ft/);
+    assert.match(text, /Customise this design/);
+  }
+  // The 3D thumbnails fill in one by one.
+  await page.waitForFunction(() => document.querySelectorAll('#gallery-track .gallery-card img').length === 10, null, { timeout: 60000 });
+  assert.equal(await page.textContent('#gallery-pos'), '1 of 10');
+  assert.ok(await page.isDisabled('#gallery-prev'));
+  await page.click('#gallery-next');
+  await page.waitForFunction(() => document.querySelector('#gallery-pos')?.textContent === '2 of 10');
+  await page.focus('#gallery-track');
+  await page.keyboard.press('ArrowRight');
+  await page.waitForFunction(() => document.querySelector('#gallery-pos')?.textContent === '3 of 10');
+  await page.keyboard.press('ArrowLeft');
+  await page.waitForFunction(() => document.querySelector('#gallery-pos')?.textContent === '2 of 10');
+  // On a wide screen the last cards share the view: the arrow still steps to each one.
+  for (let i = 0; i < 8; i++) await page.click('#gallery-next');
+  await page.waitForFunction(() => document.querySelector('#gallery-pos')?.textContent === '10 of 10');
+  assert.ok(await page.isDisabled('#gallery-next'));
+  for (let i = 0; i < 8; i++) await page.click('#gallery-prev');
+  await page.waitForFunction(() => document.querySelector('#gallery-pos')?.textContent === '2 of 10');
+  // Customise the second card: it opens as a new tab with the card's price.
+  const card = cards.nth(1);
+  const title = (await card.locator('h3').innerText()).replace(/\s+(lowest price|most room.*|biggest floor)$/, '');
+  const tabs = await page.locator('#design-tabs [role=tab]').count();
+  await card.locator('[data-pick]').click();
+  await page.waitForFunction((n) => document.querySelectorAll('#design-tabs [role=tab]').length === n + 1, tabs);
+  assert.match(await page.textContent('#status'), new RegExp(`Opened the ${title.replace(/[()]/g, '.')}`));
+  assert.equal(await page.getAttribute('#design-tabs [role=tab]:last-child', 'aria-selected'), 'true');
+});
+
+test('on a phone the gallery shows one card at a time and swipes sideways', { skip }, async (t) => {
+  const { page } = await open(t, pw.devices['Pixel 7']);
+  const r = await page.evaluate(() => {
+    const track = /** @type {HTMLElement} */ (document.querySelector('#gallery-track'));
+    const card = /** @type {HTMLElement} */ (track.querySelector('.gallery-card'));
+    return { track: track.clientWidth, card: card.getBoundingClientRect().width, scrolls: track.scrollWidth > track.clientWidth, page: document.documentElement.scrollWidth, vw: window.innerWidth };
+  });
+  assert.ok(r.card > r.track * 0.7 && r.card <= r.track, `card ${r.card}px in a ${r.track}px strip`);
+  assert.ok(r.scrolls, 'the strip scrolls sideways');
+  assert.ok(r.page <= r.vw + 1, `the page itself does not scroll sideways (${r.page} > ${r.vw})`);
+  await page.click('#gallery-next');
+  await page.waitForFunction(() => document.querySelector('#gallery-pos')?.textContent === '2 of 10');
+});
