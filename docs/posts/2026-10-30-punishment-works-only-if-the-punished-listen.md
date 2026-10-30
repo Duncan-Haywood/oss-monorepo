@@ -2,7 +2,7 @@
 title: "Punishment sustains cooperation only if the punished respond, and it gets expensive at scale"
 date: 2026-10-30
 tags: [civ-levers, public-goods, simulation]
-description: "In a simulated public-goods game, peer punishment with no behavioural response changes nothing; with one, contributions hold up but the payoff in groups of 40 falls to 3 of 21."
+description: "In a simulated public-goods game, punishment with no response changes nothing; with one, contributions hold but payoff in groups of 40 falls to 3 of 21."
 ---
 
 The [civ-levers](https://duncan-haywood.github.io/oss-monorepo/research/civ-levers/) programme added a public-goods game with peer punishment, following the protocol of Fehr and Gächter (2000): endowment 20, punishing costs 1 token and removes 3.
