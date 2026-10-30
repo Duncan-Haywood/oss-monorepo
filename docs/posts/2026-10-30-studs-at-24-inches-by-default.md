@@ -21,14 +21,14 @@ If either fails, the walls stay at 16". With no siding at all there is no sheath
 
 **The check that sends it back to 16".** Take the 8x10 default, lap-sided, with 100 psf of snow, 40 psf of wind and 10 ft walls, at a fixed 5/12 pitch and 12" overhang. A 2x4 at 24" comes out at 1.02 of its capacity, so it fails and the walls stay at 16". Let the tool lower the pitch or shorten the overhang and the roof load drops: the same stud passes at 24". The spacing is worked out again after those automatic settings, so the stud check always sees the roof that is actually built.
 
-**What it saves.** Among the presets, only the 10x10 barn has lap siding. It drops from 58 studs to 44 and costs $61 less, and every check still passes.
+**What it saves.** Among the presets, only the 10x10 barn has lap siding. It drops from 58 studs to 44 and costs $55 less, and every check still passes.
 
 In the gallery, all seven lap-sided designs now come out at 24". The figures below are at the tool's sample prices:
 
-- four keep everything else and save $42 to $88 each (the best-looking 10x9, the 7x12, the 14x7 barn and the 10x10 mower shed);
-- the 10x10 to match the house also swapped its plywood floor for OSB and costs $56 less;
-- the "square" 10x10 changed shape (the search picked a gable over a lean-to) and costs $39 less;
-- the long 6x16 drops by $212. With one knob gone, the search used its budget on others and also found 2x4 floor joists and rafters at 24".
+- four keep everything else and save $36 to $82 each (the best-looking 10x9, the 7x12, the 14x7 barn and the 10x10 mower shed);
+- the 10x10 to match the house also swapped its plywood floor for OSB and costs $55 less;
+- the "square" 10x10 changed shape (the search picked a gable over a lean-to) and costs $33 less;
+- the long 6x16 drops by $211. With one knob gone, the search used its budget on others and also found 2x4 floor joists and rafters at 24".
 
 The panel-sided presets don't move. If you want 24" on those, choose LP's 7/16" panel or lap siding over OSB.
 
