@@ -101,6 +101,7 @@
       <div><label for="dotafter">Daily overtime after (hours, 0 = off)</label><input id="dotafter" inputmode="decimal" value="0"></div>
       <div><label for="mealafter">Unpaid meal break on shifts over (hours, 0 = off)</label><input id="mealafter" inputmode="decimal" value="0"></div>
       <div><label for="minday">Flag days shorter than (hours, 0 = off)</label><input id="minday" inputmode="decimal" value="0"></div>
+      <div><label for="minwage">Local minimum wage, to price split-shift premiums ($, 0 = off)</label><input id="minwage" inputmode="decimal" value="0"></div>
       <div><label for="splitprem">Split-shift premium per split day ($, 0 = off)</label><input id="splitprem" inputmode="decimal" value="0"></div>
       <div><label for="diffwhen">Pay differential hours (e.g. Sat-Sun; Mon-Fri 22-24)</label><input id="diffwhen" value=""></div>
       <div><label for="diffhour">Differential, extra $ per hour</label><input id="diffhour" inputmode="decimal" value="0"></div>
@@ -257,7 +258,7 @@
   </footer>
 
   <script type="module">
-    import { planWeeks, planFairness, parseAvailability, placeBreaks, scheduleChanges, carryOverStaff, scheduleFlags, unsupervisedStretches, loneStretches, shortShifts, seventhDayPay, parseStaff, parseShifts, buildRoster, optimalityText, laborPercent, budgetCheck, dailyLabor, salesPerLaborHour, coverageGrid, fairnessReport, hoursThresholds, tipPool, trimOptions, coverOptions, absencePlan, swapOptions, checkTrade, rosterCsv, hoursCsv, rosterIcs, rosterMessages, openShiftPost, mergeAvailabilityReplies, sampleStaff, sampleShifts, TEMPLATES, fmtClock, money, money2, num, DAYS } from "./calc.mjs";
+    import { planWeeks, planFairness, parseAvailability, placeBreaks, scheduleChanges, carryOverStaff, scheduleFlags, unsupervisedStretches, loneStretches, shortShifts, seventhDayPay, parseStaff, parseShifts, buildRoster, optimalityText, laborPercent, budgetCheck, dailyLabor, salesPerLaborHour, coverageGrid, fairnessReport, hoursThresholds, tipPool, trimOptions, coverOptions, absencePlan, swapOptions, checkTrade, rosterCsv, hoursCsv, rosterIcs, splitShiftPay, rosterMessages, openShiftPost, mergeAvailabilityReplies, sampleStaff, sampleShifts, TEMPLATES, fmtClock, money, money2, num, DAYS } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -357,6 +358,7 @@
       const flagMsgs = [
         ...sf.overDaily.map((x) => `${x.person} works ${num(x.hours)} hours on ${x.day}, ${num(x.overBy)} over 8 in a day. Some states pay daily overtime; check yours.`),
         ...sf.splits.map((x) => `${x.person} has a split shift on ${x.day} with a ${num(x.gapHours)}-hour gap. Some places owe split-shift pay.`),
+        ...(val("minwage", 0) > 0 ? (() => { const sp = splitShiftPay(r, { minWage: val("minwage", 0), burdenPct: r.options.burdenPct }); return sp.rows.length ? [`Split-shift or spread-of-hours premium, for scale: one extra hour at ${money2(val("minwage", 0))} on ${sp.rows.length} person-day${sp.rows.length > 1 ? "s" : ""} (${sp.rows.map((x) => x.person + " " + x.day).join(", ")}) adds about ${money(sp.total)}. Rules differ by place (gap length, who is exempt, wage credit); check yours. The search does not price it.`] : []; })() : []),
         ...sf.shortDays.map((x) => `${x.person} is scheduled only ${num(x.hours)} hours on ${x.day}, under your ${num(val("minday", 0))}-hour minimum. Short days cost people a commute for little pay, and some cities owe reporting-time pay; merge it into a longer shift or give it to someone already in.`),
         ...sf.longStretches.map((x) => `${x.person} works ${num(x.hours)} hours straight on ${x.day} (${fmtClock(x.startMin)}–${fmtClock(x.endMin)}). Many places require an unpaid or paid meal break after about 5 hours; a suggested break time is in the last notice below.`),
         ...sf.sevenDays.map((x) => { const e = seventhDayPay(r, { burdenPct: r.options.burdenPct }).rows.find((y) => y.person === x.person); return `${x.person} works all seven days. Some states (California, for one) owe a premium for the seventh consecutive day in a workweek; the search does not price it.` + (e ? ` For scale: if the premium were 1.5x for the first 8 hours and 2x after, Sunday would add about ${money(e.extra)} for ${x.person} (assumes the workweek starts Monday; check your state's rule).` : ""); }),
