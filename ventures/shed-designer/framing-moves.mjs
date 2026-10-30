@@ -35,7 +35,7 @@ export function openingMoves(d, set) {
       if (Math.abs(to - a) < 1 / 16 || Math.abs(to - a) > sp || off < 0 || off + op.width > face) return;
       const by = to - a;
       set(`${op.kind} ${op.id} ${Math.abs(by) < 1 ? `${Math.round(Math.abs(by) * 16)}/16"` : `${Math.round(Math.abs(by) * 8) / 8}"`} ${(op.wall === 'back' || op.wall === 'left') === by > 0 ? 'left' : 'right'} (${why})`,
-        { openings: d.openings.map((o) => (o.id === op.id ? { ...o, offset: off } : o)) }, `place ${op.id}`);
+        { openings: d.openings.map((o) => (o.id === op.id ? { ...o, offset: off } : o)) }, `place ${op.kind} ${op.id}`);
     };
     const bay = sp - 1.5;
     if (op.kind === 'window' && !op.header && op.width <= bay && bay - op.width < 1.5) {

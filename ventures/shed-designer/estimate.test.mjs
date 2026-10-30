@@ -95,10 +95,40 @@ test('narrow sheet rows are ripped from shared sheets, and the count never beats
   }
 });
 
+test('sheet goods mix strip widths and rip strips from a full sheet\'s offcut', async () => {
+  const { sheetCount2d } = await import('./estimate.mjs');
+  // Two 24" ends of full-width rows use half a sheet; the other half rips into two 19" ridge strips.
+  assert.equal(sheetCount2d([{ len: 24, w: 48 }, { len: 24, w: 48 }, { len: 48, w: 19 }, { len: 48, w: 19 }]), 1);
+  // A 30" strip and a 16" strip of different widths share one sheet.
+  assert.equal(sheetCount2d([{ len: 96, w: 30 }, { len: 96, w: 16 }]), 1);
+  // Pieces keep their direction: two 48 x 25 pieces cannot lie side by side across 48".
+  assert.equal(sheetCount2d([{ len: 96, w: 25 }, { len: 96, w: 25 }]), 2);
+  // The 8x10 preset's roof: 96 and 24 full-width rows and 48 and 72 ridge strips, 19-1/16" wide.
+  assert.equal(estimate(buildShed(PRESETS['8x10']())).roofSheets, 4); // five before 2026-10-30
+});
+
+test('gable siding pieces that slope the same way nest head to toe', async () => {
+  const { sidingUpperSheets } = await import('./estimate.mjs');
+  const shed = buildShed(PRESETS['8x10']()); // 8 ft walls, 6/12: four pieces 10-5/8" rising to 34-5/8"
+  assert.equal(shed.sidingUpper.length, 4);
+  // Nested in pairs each takes 10.65 + 34.65 = 45.3, so 46" a pair and both pairs on one panel; alone they took two.
+  assert.equal(sidingUpperSheets(shed), 1);
+  for (const make of [defaultDesign, ...Object.values(PRESETS)]) {
+    const s = buildShed(make());
+    const plain = s.sidingUpper.length ? Math.ceil(s.sidingUpper.reduce((t, h) => t + h, 0) / 96) : 0;
+    const area = s.sidingUpperShapes.reduce((t, p) => t + 48 * (p.h0 + p.h1) / 2, 0) / (96 * 48);
+    const n = sidingUpperSheets(s);
+    assert.ok(n >= Math.ceil(area - 1e-9), `${s.design.name}: ${n} panels for ${area.toFixed(2)} panels of area`);
+    assert.ok(n <= Math.max(plain, s.sidingUpper.length), s.design.name);
+  }
+});
+
 test('the siding note explains why a taller wall can cost less', () => {
   const at = (h) => estimate(buildShed(normalize({ ...PRESETS['8x8 lean'](), wallHeight: h, autoWall: false })));
   const [low, high] = [at(112), at(114)];
-  assert.ok(high.total < low.total, `114" walls cost less than 112" (${high.total} vs ${low.total})`);
+  // Before the gable pieces nested (2026-10-30), 114" walls cost less than 112". Nesting the four
+  // sloped strips at 112" into one panel took that dip away; the note still explains the panel rule.
+  assert.ok(low.total < high.total, `112" walls now cost less than 114" (${low.total} vs ${high.total})`);
   assert.match(low.notes.join(' '), /4 use a 9 or 10 ft panel and 4 use a strip \(of 8 columns\)/);
   assert.match(high.notes.join(' '), /8 use a strip \(of 8 columns\)/);
   const bare = estimate(buildShed(normalize({ ...PRESETS['8x8 lean'](), siding: false })));
