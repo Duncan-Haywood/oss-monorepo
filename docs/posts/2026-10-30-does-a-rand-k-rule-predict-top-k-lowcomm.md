@@ -2,7 +2,7 @@
 title: "Does a rule fitted on random sparsification predict top-k in low-communication training?"
 seo_title: "Predicting top-k compression loss in DiLoCo-style local SGD from a rand-k rule"
 date: 2026-10-30
-description: "A three-constant rule fitted on rand-k cells predicts plain top-k final loss within 0.44% MAPE on a small GPT, with a clear sign of a compressor-specific H shape."
+description: "A three-constant rule fitted on rand-k cells predicts plain top-k final loss within 0.44% MAPE on a small GPT, with a compressor-specific H shape."
 tags: [research, lowcomm-training, local-sgd]
 ---
 
