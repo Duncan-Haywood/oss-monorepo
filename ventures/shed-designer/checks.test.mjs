@@ -218,3 +218,12 @@ test('blocks straight on soft ground fail the soil check; the starter has a bed 
   assert.equal(defaultDesign().pad, 'under blocks');
   assert.ok(start.ok && start.rows.find((x) => x.member === 'Blocks on the soil').ratio < 0.75);
 });
+
+test('the subfloor is checked against its APA span rating: 23/32" T&G spans 24" joists, not wider', async () => {
+  const { subfloorCheck } = await import('./levers.mjs');
+  const row = (d) => structuralChecks(buildShed(d)).rows.find((x) => x.member === 'Subfloor');
+  assert.equal(row(defaultDesign()).ratio, 16 / 24);
+  assert.ok(row({ ...defaultDesign(), joistSpacing: 24 }).ok);
+  assert.equal(subfloorCheck({ floorPanel: 'OSB', joistSpacing: 24 }).ratio, 1);
+  assert.ok(subfloorCheck({ floorPanel: 'plywood', joistSpacing: 32 }).ratio > 1);
+});
