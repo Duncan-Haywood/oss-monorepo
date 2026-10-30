@@ -21,6 +21,7 @@ people owe each other, not on whether the gadget works. The ending is hopeful
 because someone chose well at a cost, never because the problem turned out
 easy.
 
+- *(Done: Three Cents a Degree, Saint Tegfan's, Llanfachreth-y-Glyn, Gwynedd, 2048; text only.)* Flue pipes follow the speed of sound, reeds do not: 36 cents flat at 8 C, 24 at 12, 18 at 14 (3.0 cents a degree); the organist's late husband's notebook rule, tune at the Mass's heat; the cellist tunes to the organ, the reeds stay off, heating on at six.
 - *(Done: The Eclipse Turn, Juniper Wells, Utah, 12 August 2045; text only.)* Solar farm, import cap, five pivot pumps and a lent water turn; times from the Salt Lake City table (edge of the path, totality 1 min 26 s).
 - *(Done: The Mark on the Pillar, Saltmoor St Brannock, Somerset Levels, 2051; text only.)* A flood agent, a gauge record that cannot tell one in a hundred from one in a thousand, a 1607 mark in a church pillar, and a school raised on a plinth.
 - *(Done: More Roof, Santa Rosa Yucuyaa, Oaxaca, 2051; text only.)* A rainwater tank that cannot fill in a dry year: a bigger tank buys nothing, more roof buys everything; the ration is the stick reading on 1 November divided by the days left, painted on the wall.

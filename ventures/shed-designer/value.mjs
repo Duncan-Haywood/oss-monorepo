@@ -79,7 +79,11 @@ export function valueComparison(shed, est, n = 4) {
   return { yours, kits, leftOut };
 }
 
-const money = (x) => `$${Math.round(x).toLocaleString('en-US')}`;
+const money = (x) => {
+  const format = (x) => `$${Math.round(x).toLocaleString('en-US')}`;
+  const text = format(Math.abs(x));
+  return x < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+};
 const escAttr = (s) => String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
 
 /** The comparison as a short HTML block for the summary panel. */
