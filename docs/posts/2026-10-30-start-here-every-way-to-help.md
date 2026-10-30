@@ -23,6 +23,8 @@ You do not need to be a programmer for most of them. The repository is mostly bu
 | A fix you can write yourself | An afternoon | [Your first pull request](2026-10-30-start-here-your-first-pull-request.md) |
 | A repository of your own you want agents to work on | A weekend | [Run agents on your own repo](2026-10-30-start-here-run-agents-on-your-own-repo.md) |
 
+If you work in ChatGPT or Codex, [contribute from ChatGPT](2026-10-30-contribute-from-chatgpt.md) shows the same routes from there.
+
 The overview of how outside contributions reach the repository is in [Start here: contributing](2026-10-29-start-here-contributing.md). The rest of this page says which route to pick and why.
 
 ## 1. Bring an idea

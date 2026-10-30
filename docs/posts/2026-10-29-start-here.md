@@ -69,6 +69,7 @@ These posts answer it, one kind of reader at a time. Each one says who it is for
 - **[Share real data](2026-10-30-start-here-share-real-data.md):** the real inputs and measurements projects are asking for, and how to share them safely.
 - **[Reproduce a result](2026-10-30-start-here-reproduce-a-result.md):** re-run a research project and report what you find, match or mismatch.
 - **[Your first pull request](2026-10-30-start-here-your-first-pull-request.md):** from fork to opened PR, step by step.
+- **[Contribute from ChatGPT](2026-10-30-contribute-from-chatgpt.md):** draft an idea, check a number or send a fix through Codex, from ChatGPT.
 
 ## Ground rules that apply everywhere
 
