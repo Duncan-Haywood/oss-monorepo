@@ -2,7 +2,7 @@
 
 Each project is one directory, `research/<slug>/`, that asks one question,
 answers it with code you can re-run, and states its limits. They are read at
-`https://duncan-haywood.github.io/oss-monorepo/research/`, grouped by topic.
+`https://monorepo-projects-site.duncan-andrew-haywood.workers.dev/research/`, grouped by topic.
 [`research/PROJECTS.md`](../../research/PROJECTS.md) lists the tracks and
 milestones the projects belong to.
 
