@@ -112,7 +112,7 @@ export function mountPicker(opts) {
     if (!d) return null;
     const key = JSON.stringify(d);
     if (here?.key !== key) {
-      const shed = buildShed(normalize(d));
+      const shed = buildShed(normalize(d), opts.prices?.());
       const est = opts.priceOf ? opts.priceOf(shed) : estimate(shed, opts.prices?.() || examplePrices());
       here = { key, name: shed.design.name, costs: costBreakdown(shed, est) };
     }
