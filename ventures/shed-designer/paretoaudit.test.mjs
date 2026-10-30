@@ -68,3 +68,30 @@ test('full audit: brute-force grid and random restarts', { skip: !process.env.AU
     assert.ok(r.gap <= MAX_GAP, r.start.built.name);
   }
 });
+
+// The design search (designsearch.mjs), checked from outside: no design on its
+// front may be beaten outright by one change the search itself offers to the
+// knobs that mostly move cost. Before its polish phase, every front design was
+// (mostly by floor joists at 24", 1 to 4% cheaper with the same storage and looks).
+test('design search: no front design is beaten by one cost-only change the search offers', async () => {
+  const { searchDesigns, evaluateDesign, LAYOUTS } = await import('./designsearch.mjs');
+  const layouts = Object.keys(LAYOUTS);
+  // One size and two layouts, so the search finishes (polish converges) inside its budget.
+  const r = searchDesigns({ budget: 1500, sizes: [{ length: 144, width: 96 }], layouts: [layouts[0], layouts[3]] });
+  assert.ok(r.evaluated < 1500, `the search used its whole budget (${r.evaluated})`);
+  const V = (s) => [-s.cost, s.storage.volumeCuFt, s.looks.score];
+  const beats = (a, b) => V(a).every((x, i) => x >= V(b)[i] - 1e-9) && V(a).some((x, i) => x > V(b)[i] + 1e-6);
+  const MOVES = { joistSize: ['2x4', '2x6', '2x8'], joistSpacing: [16, 24], rafterSpacing: [16, 24], studSpacing: [16, 24], rafterSize: ['2x4', '2x6'], overhang: [6, 9, 12] };
+  const misses = [];
+  for (const f of r.front) {
+    for (const [k, vals] of Object.entries(MOVES)) {
+      for (const v of vals) {
+        if (f.design[k] === v) continue;
+        const s = evaluateDesign({ ...f.design, [k]: v }, undefined, r.constraints);
+        if (s.feasible && beats(s, f)) misses.push(`${f.label}: ${k} ${f.design[k]} to ${v} saves $${(f.cost - s.cost).toFixed(2)}`);
+      }
+    }
+  }
+  assert.ok(r.front.length >= 3);
+  assert.deepEqual(misses, []);
+});
