@@ -2,7 +2,7 @@
 title: "Why no quantile can certify a successive-halving search"
 date: 2026-10-30
 tags: [verified-dse, theory, multi-fidelity]
-description: "A 16-point pilot's 95% quantile bound held in 97.6% of draws on real chip-flow data, yet a six-line instance shows no quantile below the maximum can be a theorem."
+description: "A 16-point pilot quantile bound held in 97.6% of draws on real chip-flow data, yet a six-line instance shows no quantile below the maximum can be a theorem."
 ---
 
 The verified-dse programme searches chip-design flows with successive halving: rank candidates on a cheap stage, keep a third, repeat. Its regret bound is the sum of the cut stages' worst rank inversions, which needs the whole table. Could a small pilot certify it?
