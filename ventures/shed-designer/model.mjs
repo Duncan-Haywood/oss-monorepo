@@ -1783,6 +1783,85 @@ function buildFramed(d, lapNailers) {
       }
     }
     notes.push(`Loft: ${fmtIn(xb - xa)} of the length, ${fmtIn(W - 2 * yd)} wide between the lower chords, its floor ${fmtFt(deckZ - floorTop)} above the shed floor. It is sized for ${LOFT_LIVE} psf of stored things (IRC Table R301.5, attics with limited storage), not for people to stand in. Add a guard or a stop board along its open edge.`);
+    loftAccess(joists, xa, yd, deckZ);
+  }
+
+  /**
+   * The way up. A half loft is open over the other half of the shed, so a
+   * ladder leans on its edge joist. A full loft gets a hatch: the deck is left
+   * out over the bay nearest the left gable that is at least 22" clear between
+   * joists, 30" across the width, the least attic opening IRC R807.1 asks for,
+   * and the ladder leans on the hatch's far joist. The ladder is site-built:
+   * two 2x4 rails 16" apart in the clear, leaning 1 in 4, with 2x4 rungs 12"
+   * apart (OSHA 1910.23 spaces ladder rungs 10" to 14"), screwed to the joist
+   * at the top.
+   * @param {number[]} joists loft joist centres @param {number} xa where the deck starts @param {number} yd its edge in from each wall @param {number} deckZ its underside
+   */
+  function loftAccess(joists, xa, yd, deckZ) {
+    const deckTop = deckZ + 0.75;
+    // Centred across the width, or toward the back when a door in a gable end would open onto the ladder.
+    const gableDoor = d.openings.some((op) => op.kind === 'door' && (op.wall === 'left' || op.wall === 'right') && axisStart(d, op) < W / 2 + 24 && axisStart(d, op) + op.width > W / 2 - 24);
+    const yc = gableDoor ? Math.max(W / 2, W - yd - 15) : W / 2;
+    let face = xa - 0.75;
+    let lean = -1; // the ladder's foot is toward smaller x
+    if (d.loft === 'full') {
+      const bays = joists.slice(1).map((j, i) => ({ x0: joists[i] + 0.75, x1: j - 0.75 }));
+      const bay = bays.find((b) => b.x1 - b.x0 >= 22 - 1e-9) ?? bays.reduce((a, b) => (b.x1 - b.x0 > a.x1 - a.x0 ? b : a), bays[0]);
+      if (!bay) return;
+      if (bay.x1 - bay.x0 < 22 - 1e-9) warnings.push(`The loft hatch between joists is ${fmtIn(bay.x1 - bay.x0)} wide, under the 22" IRC R807.1 asks of an attic opening; with joists at ${d.rafterSpacing}" header off a wider opening, or set the trusses at 24".`);
+      const h0 = Math.max(yd, yc - 15);
+      const h1 = Math.min(W - yd, yc + 15);
+      // Cut the hatch out of every deck piece it overlaps, keeping the rest of each piece as up to four rectangles.
+      for (let i = panels.length - 1; i >= 0; i--) {
+        const p = panels[i];
+        if (p.kind !== 'loft deck') continue;
+        const [px, py, pz] = p.geom.origin;
+        const pw = p.geom.profile[2][0];
+        const ph = p.geom.profile[2][1];
+        if (px >= bay.x1 - 1e-9 || px + pw <= bay.x0 + 1e-9 || py >= h1 - 1e-9 || py + ph <= h0 + 1e-9) continue;
+        const keep = [];
+        if (bay.x0 > px + 1e-9) keep.push([px, py, bay.x0 - px, ph]);
+        if (px + pw > bay.x1 + 1e-9) keep.push([bay.x1, py, px + pw - bay.x1, ph]);
+        const cx0 = Math.max(px, bay.x0); const cx1 = Math.min(px + pw, bay.x1);
+        if (h0 > py + 1e-9) keep.push([cx0, py, cx1 - cx0, h0 - py]);
+        if (py + ph > h1 + 1e-9) keep.push([cx0, h1, cx1 - cx0, py + ph - h1]);
+        panels.splice(i, 1, ...keep.map(([x, y, w, h]) => ({ ...p, id: nextId('LD'), geom: rectGeom([x, y, pz], X, Y, Z, w, h, 0.75) })));
+      }
+      notes.push(`Loft hatch: ${fmtIn(bay.x1 - bay.x0)} x ${fmtIn(h1 - h0)} between the joists ${fmtIn(bay.x0)} to ${fmtIn(bay.x1)} from the left end, the ladder under it.`);
+      // Lean on the far joist with the foot toward the left gable, or on the near one if the foot would hit the wall.
+      face = bay.x1;
+      lean = -1;
+    }
+    // The foot has to land inside the walls: lean the other way off the hatch's other joist, or leave the ladder out.
+    const reach = (deckTop - floorTop) / 4 + 3.5 / (4 / Math.hypot(1, 4)) + 3;
+    if (lean < 0 && face - reach < D && d.loft === 'full') {
+      const other = joists.filter((j) => j + 0.75 < face - 1).pop();
+      if (other !== undefined && other + 0.75 + reach <= L - D) { face = other + 0.75; lean = 1; }
+    }
+    if ((lean < 0 && face - reach < D) || (lean > 0 && face + reach > L - D)) {
+      notes.push('Loft ladder: the shed is too short for a ladder leaning 1 in 4 to land inside the walls; use a stepladder to reach the loft.');
+      return;
+    }
+    const zc = deckZ - (deckZ - plateTop) / 2; // the rail's near edge meets the joist halfway up it
+    const sinA = 4 / Math.hypot(1, 4);
+    const wH = 3.5 / sinA; // the rail's width, level
+    const nearX = (z) => face + lean * ((zc - z) / 4);
+    const farX = (z) => nearX(z) + lean * wH;
+    const yl = [yc - 8 - 1.5, yc + 8];
+    /** @type {[number, number][]} */
+    const prof = [[farX(floorTop), floorTop], [nearX(floorTop), floorTop], [face, zc], [face, deckTop], [farX(deckTop), deckTop]];
+    if (lean > 0) prof.reverse();
+    const railLen = ceil16(Math.hypot(deckTop - floorTop, (deckTop - floorTop) / 4) + wH / 4);
+    for (const y of yl) {
+      push({ id: nextId('LL'), group: 'roof', kind: 'ladder rail', material: '2x4', length: railLen, note: 'leans 1 in 4: level cut at the floor, plumb cut against the loft joist, screwed to it', geom: { origin: [0, y, 0], u: X, v: Z, w: Y, profile: prof, thickness: 1.5 } });
+    }
+    let rungs = 0;
+    for (let z = floorTop + 12; z + 1.5 <= deckTop - 3; z += 12) {
+      const xm = (nearX(z + 0.75) + farX(z + 0.75)) / 2;
+      push({ id: nextId('LL'), group: 'roof', kind: 'ladder rung', material: '2x4', length: 16, note: 'flat between the rails, 12" apart; two 3" screws through each rail into its ends, glued', geom: rectGeom([xm - 1.75, yc - 8, z], Y, X, Z, 16, 3.5, 1.5) });
+      rungs++;
+    }
+    notes.push(`Loft ladder: two 2x4 rails 16" apart and ${rungs} 2x4 rungs 12" apart, leaning 1 in 4 against the ${d.loft === 'full' ? 'hatch' : "loft's edge"} joist and screwed to it. It reaches the loft floor; there is no handhold above it, so keep a hand on the joist going over.`);
   }
 
   // Gable studs between the gable wall's top plate and the end rafter. With a

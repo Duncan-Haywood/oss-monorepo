@@ -5,7 +5,7 @@
   "10x10-barn": {
    "key": "10x10 barn",
    "name": "10x10 gambrel barn with loft",
-   "hash": "a5620c31532e349a",
+   "hash": "a336ff5bda53ecf1",
    "designKey": "eff39241",
    "files": {
     "hero": {
@@ -47,7 +47,7 @@
      "file": "10x10-barn-framing.webp",
      "w": 640,
      "h": 427,
-     "bytes": 22316,
+     "bytes": 22734,
      "alt": "Framing of the 10x10 gambrel barn with loft (10 by 10 ft) with the siding, sheathing and roofing removed: studs at 24\" on centre, rafters at 24\" and a 2x6 ridge board with rafter ties."
     }
    }
