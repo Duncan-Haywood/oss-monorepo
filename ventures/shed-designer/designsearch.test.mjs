@@ -90,11 +90,14 @@ test('a small search returns a front of priced designs that pass every check and
 });
 
 test('constraints bind: a tighter footprint, a peak limit and a utilisation cap', () => {
-  const r = searchDesigns({ budget: 40, constraints: { maxFootprint: 64, maxPeak: 120, maxUtilisation: 0.8 } });
+  // 132": at 120" the only design that met every limit was a 7x8 with its door
+  // in the 7 ft gable, which the racking check (2026-10-30) fails: the door
+  // leaves that wall no panel wide enough to brace it.
+  const r = searchDesigns({ budget: 40, constraints: { maxFootprint: 64, maxPeak: 132, maxUtilisation: 0.8 } });
   assert.ok(r.front.length > 0);
   for (const s of r.front) {
     assert.ok(s.footprintSqFt <= 64);
-    assert.ok(s.peak <= 120);
+    assert.ok(s.peak <= 132);
     assert.ok((s.worst?.ratio ?? 0) <= 0.8);
   }
   // Panel siding on studs wider apart than its rating is rejected.
