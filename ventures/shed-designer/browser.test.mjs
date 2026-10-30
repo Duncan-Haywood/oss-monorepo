@@ -255,7 +255,7 @@ test('grabbing a door near its end does not jump it, and a phone-size target let
 
 test('on a phone the end view fills its box and every label is inside it', { skip }, async (t) => {
   const { page } = await open(t, pw.devices['Pixel 7']);
-  for (const preset of [null, '12x16']) {
+  for (const preset of [null, '12x16', 'lean-to']) {
     if (preset) {
       const opt = await page.$$eval('#new-design option', (os, p) => os.find((o) => o.textContent.includes(p))?.value, preset);
       if (!opt) continue;
@@ -272,4 +272,28 @@ test('on a phone the end view fills its box and every label is inside it', { ski
     assert.ok(r.share > 0.35, `the gable end is ${(r.share * 100).toFixed(0)}% of the box width (${preset || 'default'})`);
     assert.equal(r.out, 0, `labels outside the end view (${preset || 'default'})`);
   }
+});
+
+test('the lean-to preset draws one slope in the editor, and the shape box switches it back to a gable', { skip }, async (t) => {
+  const { page } = await open(t);
+  const opt = await page.$$eval('#new-design option', (os) => os.find((o) => o.textContent.includes('lean-to'))?.value);
+  assert.ok(opt, 'a lean-to in the New design menu');
+  await page.selectOption('#new-design', opt);
+  await settle(page);
+  assert.equal(await val(page, 'style'), 'leanTo');
+  const labels = await page.$$eval('#endview text', (xs) => xs.map((x) => x.textContent).join(' | '));
+  assert.match(labels, /back wall/);
+  assert.match(labels, /end wall/);
+  assert.doesNotMatch(await page.$eval('#plan', (e) => e.textContent), /ridge/);
+  // The pitch handle sits on the tall front wall; an arrow key steepens the roof.
+  const pitch0 = Number(await val(page, 'pitch'));
+  await page.focus('[data-key="end-peak"]');
+  await page.keyboard.press('ArrowUp');
+  await settle(page);
+  assert.equal(Number(await val(page, 'pitch')), pitch0 + 1);
+  const total = await page.$eval('#total', (e) => e.textContent);
+  await page.selectOption('#style', 'gable');
+  await settle(page);
+  assert.match(await page.$eval('#plan', (e) => e.textContent), /ridge/);
+  assert.notEqual(await page.$eval('#total', (e) => e.textContent), total, 'the gable is priced again');
 });

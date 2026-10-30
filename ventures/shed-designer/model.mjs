@@ -33,6 +33,14 @@ export const WALL_LABEL = {
   front: 'Front (eave side)', back: 'Back (eave side)', left: 'Left (gable end)', right: 'Right (gable end)',
 };
 
+/** A lean-to's walls by what they are: a tall front, a low back and two end walls. */
+export const LEAN_WALL_LABEL = {
+  front: 'Front (tall side)', back: 'Back (low side)', left: 'Left (end wall)', right: 'Right (end wall)',
+};
+
+/** The label for a wall in this design's style. @param {{ style?: string }} design @param {string} wall */
+export const wallLabel = (design, wall) => (design.style === 'leanTo' ? LEAN_WALL_LABEL : WALL_LABEL)[wall];
+
 /**
  * The starter, as asked for: an 8x12 with a single 6'6" door on one 12 ft side,
  * two windows on the other, gable vents, a ridge-beam roof and an 8 ft peak limit,
@@ -140,17 +148,6 @@ export const PRESETS = {
     { id: 'o2', kind: 'window', wall: 'front', offset: 36, width: 36, height: 36, sill: 42 },
     { id: 'o3', kind: 'window', wall: 'front', offset: 120, width: 36, height: 36, sill: 42 },
   ] }),
-  '8x8 lean': () => ({ ...classic(), name: '8x8 garden shed', length: 96, width: 96, wallHeight: 84, pitch: 8, rafterSpacing: 24, openings: [
-    { id: 'o1', kind: 'door', wall: 'left', offset: 22, width: 52, height: 72 },
-  ] }),
-};
-
-/**
- * Designs in another roof style, kept out of the "New design" menu until the
- * plan sheets, 3D labels and build steps draw them (r3b lane 1). The search and
- * the gallery can start from them now.
- */
-export const STYLE_PRESETS = {
   // One slope from a tall front wall down to a low back wall: no ridge, no ties,
   // and the back wall can stand against a fence or the house. 96 sq ft.
   '8x12 lean-to': () => ({ ...defaultDesign(), name: '8x12 lean-to shed', style: 'leanTo', wallHeight: 72, pitch: 4, maxPeak: 0, gableVents: false,
@@ -159,7 +156,14 @@ export const STYLE_PRESETS = {
       { id: 'o2', kind: 'window', wall: 'front', offset: 98, width: 14.25, height: 21.25, sill: 50, product: 'swm-1421' },
       { id: 'o3', kind: 'window', wall: 'right', offset: 41, width: 14.25, height: 21.25, sill: 40, product: 'swm-1421' },
     ] }),
+  '8x8 lean': () => ({ ...classic(), name: '8x8 garden shed', length: 96, width: 96, wallHeight: 84, pitch: 8, rafterSpacing: 24, openings: [
+    { id: 'o1', kind: 'door', wall: 'left', offset: 22, width: 52, height: 72 },
+  ] }),
 };
+
+
+/** The presets in a roof style other than the gable, for the design search and the gallery to start from. */
+export const STYLE_PRESETS = Object.fromEntries(Object.entries(PRESETS).filter(([, make]) => make().style === 'leanTo'));
 
 const fmtSpan = (inches) => `${Math.round(inches / 12 * 10) / 10} ft`;
 
@@ -793,8 +797,8 @@ function buildFramed(d) {
     const { top, cap, overHeader } = choosePlates(maxStock);
     for (const [s0, s1] of top.runs) addM('top plate', d.studSize, s0, s1, Hw - 3, Hw - 1.5);
     for (const [s0, s1] of cap.runs) addM('cap plate', d.studSize, s0, s1, Hw - 1.5, Hw, capNote);
-    if (top.runs.length > 1) notes.push(`${WALL_LABEL[name]}: plates are longer than your longest board, so they splice over studs; the cap plate's joints are kept 4 ft from the top plate's where the layout allows, and never under the code's 24".`);
-    if (overHeader) notes.push(`${WALL_LABEL[name]}: with ${maxStock / 12} ft boards no plate split keeps its joints on full studs, so a plate joint sits over the header, which runs at least 1-1/2" past it each side. Nail both plate ends down into the header (or its cripple).`);
+    if (top.runs.length > 1) notes.push(`${wallLabel(d, name)}: plates are longer than your longest board, so they splice over studs; the cap plate's joints are kept 4 ft from the top plate's where the layout allows, and never under the code's 24".`);
+    if (overHeader) notes.push(`${wallLabel(d, name)}: with ${maxStock / 12} ft boards no plate split keeps its joints on full studs, so a plate joint sits over the header, which runs at least 1-1/2" past it each side. Nail both plate ends down into the header (or its cripple).`);
     // A short plate stub is legal but fussy; say when one longer board avoids it.
     const stub = (pl) => Math.min(...[...pl.top.runs, ...pl.cap.runs].map(([a, b]) => b - a));
     const shortest = stub({ top, cap });
@@ -803,7 +807,7 @@ function buildFramed(d) {
         const pl = choosePlates(ft * 12);
         return !pl.overHeader && stub(pl) >= PLATE_OFFSET_MIN - 1e-9;
       });
-      if (better) notes.push(`${WALL_LABEL[name]}: the plates need a ${fmtIn(shortest)} piece with ${maxStock / 12} ft boards; adding ${better} ft boards to your list avoids it.`);
+      if (better) notes.push(`${wallLabel(d, name)}: the plates need a ${fmtIn(shortest)} piece with ${maxStock / 12} ft boards; adding ${better} ft boards to your list avoids it.`);
     }
     // Siding nailers: a 4 ft siding joint needs wood under both panel edges.
     // Where an opening's king, jack or cripples leave one side (or both) bare
@@ -1262,12 +1266,12 @@ function buildFramed(d) {
   /** @type {number[]} */
   const roofPieces = [];
   const roofRows = Math.ceil(slopeLen / 48 - 1e-9);
-  for (const back of lean ? [false] : [false, true]) {
+  // A lean-to's one slope is laid like a gable's back slope: from the low back eave up, over the whole width.
+  for (const back of lean ? [true] : [false, true]) {
     const vy = back ? -cos : cos;
-    // A lean-to's one slope starts at the high front tail and runs down to the back.
-    const eave = /** @type {Vec} */ ([0, yOf(-o, back), lean ? zt(W + o) : zt(-o)]);
-    const v = /** @type {Vec} */ ([0, vy, lean ? -sin : sin]);
-    const w = /** @type {Vec} */ ([0, back || lean ? sin : -sin, cos]);
+    const eave = /** @type {Vec} */ ([0, yOf(-o, back), zt(-o)]);
+    const v = /** @type {Vec} */ ([0, vy, sin]);
+    const w = /** @type {Vec} */ ([0, back ? sin : -sin, cos]);
     for (let rr = 0; rr < roofRows; rr++) {
       const q0 = rr * 48;
       const h = Math.min(48, slopeLen - q0);

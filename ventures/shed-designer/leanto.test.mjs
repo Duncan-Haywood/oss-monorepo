@@ -87,9 +87,11 @@ test('lean-to roofing: one slope, two rakes, drip edge on both eaves and both ra
   const e = estimate(s, examplePrices());
   const drip = e.shopping.find((r) => r.section === 'Roofing' && /drip/i.test(r.name));
   assert.equal(drip.qty, Math.ceil((2 * s.design.length + 2 * k.slopeLen) / 12 / 10));
-  // Sheathing covers the one slope only.
+  // Sheathing covers the one slope only, laid from the low back eave up.
   const sheets = s.panels.filter((p) => p.kind === 'roof sheathing');
-  assert.ok(sheets.every((p) => p.side === 'front'));
+  assert.ok(sheets.every((p) => p.side === 'back'));
+  const first = sheets.find((p) => p.pos[1] === 0);
+  assert.ok(Math.abs(first.geom.origin[2] - Math.min(...sheets.map((p) => p.geom.origin[2]))) < 1e-9, 'first course at the low edge');
 });
 
 test('the 8x12 lean-to costs less than the default 8x12 gable for about the same wall volume', () => {
