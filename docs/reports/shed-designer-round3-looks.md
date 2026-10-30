@@ -28,6 +28,15 @@ How to measure: serve the venture folder and open the page with Playwright (`--u
 
 Checks: `node --test` on all non-browser tests passed 150 of 150. `browser.test.mjs` passed 13 of 13, including axe, and gained a new presentation and colour test. `tsc --checkJs` (non-strict) on the changed modules gave 0 errors, the same as main. The size pages are unchanged after `make-size-pages.mjs`.
 
+### PR 2: shade, shadow and texture on the HOA elevations (`hoa.mjs`, from r3 lane 5)
+- Colours come from `paletteOf`, so the packet and the 3D view agree. That covers LP primer grey, vinyl white and hex codes. Names read generically: "gray-brown blend colour family", "sage green paint", "custom colour #...". There is a new "Door finish" row and a door swatch.
+- The door is drawn in its paint colour unless it is stained.
+- Shade and shadow at 45 degrees: a band under the eave as deep as the overhang plus the fascia, and a narrower band under the rake.
+- Lap siding: a soft shadow strip under each butt line.
+- Shingles: blended tabs 9" to 15" wide, staggered from course to course and shaded by the family's blend, with a seeded pattern so the same design prints the same drawing.
+- I tried an earth hatch below grade and dropped it: it ran into the overall dimension text.
+- Checks: non-browser tests passed 210 of 210, including a new elevation test in `hoa.test.mjs`. Browser tests passed 22, with axe skipped because no AXE path was set in that run.
+
 ## Open, next steps
 - Hatching and texture on the elevation drawings (lap lines, shingle courses, T1-11 grooves) for the HOA sheets of r3 lane 5.
 - Colours on the elevation drawings, from `paletteOf`.
