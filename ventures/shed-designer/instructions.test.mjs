@@ -140,3 +140,8 @@ test('blocks, vents and eave blocking say what to do with them', () => {
   assert.match(ten, /4x6 skids \(mark A, \d+ pieces\) on edge/);
   assert.ok(!/4x4 skids[^.]*on edge/.test(md));
 });
+
+test('a ridge board\'s temporary props come out only after the rafters and ties are on', () => {
+  const md = instructionsMarkdown(buildInstructions(buildShed(PRESETS['10x12']()), estimate(buildShed(PRESETS['10x12']()))), 'x');
+  assert.match(md, /Leave the props in until every rafter pair and its tie is nailed, then take them out/);
+});
