@@ -232,7 +232,7 @@ function renderShopping(est) {
     const left = skip.has(r.name);
     const lm = r.section === 'Lumber' ? /^(.+) x (\d+)'/.exec(r.name) : null;
     const use = lm && uses.get(`${lm[1]}:${lm[2]}`);
-    html += `<tr${got ? ' class="have"' : left ? ' class="skip"' : ''}><td>${esc(r.name)}${use ? `<div class="use">for ${esc(use)}</div>` : ''}</td><td class="n">${r.qty}</td><td>${r.unit}</td><td class="n">${money(r.price)}</td><td class="n">${money(r.total)}</td><td>${r.elsewhere ? `<span class="muted">not listed at ${esc(est.storeList.store)}: </span>` : ''}${sourceCell(r.source)}</td>`
+    html += `<tr${got ? ' class="have"' : left ? ' class="skip"' : ''}><td>${esc(r.name)}${lm ? `<button type="button" class="link xref-btn" data-xref-lumber="${esc(`${lm[1]}:${lm[2]}`)}">Show in 3D</button>` : ''}${use ? `<div class="use">for ${esc(use)}</div>` : ''}</td><td class="n">${r.qty}</td><td>${r.unit}</td><td class="n">${money(r.price)}</td><td class="n">${money(r.total)}</td><td>${r.elsewhere ? `<span class="muted">not listed at ${esc(est.storeList.store)}: </span>` : ''}${sourceCell(r.source)}</td>`
       + `<td><input type="checkbox" data-have="${esc(r.name)}"${got ? ' checked' : ''} aria-label="I already have: ${esc(r.name)}"></td>`
       + `<td><input type="checkbox" data-skip="${esc(r.name)}"${left ? ' checked' : ''} aria-label="Leave out of the total: ${esc(r.name)}"></td></tr>`;
   }
@@ -365,7 +365,7 @@ function renderCuts(est) {
         x += w;
         return seg;
       }).join('');
-      html += `<li><span class="board-name">${boardName(b)}</span><span class="bar">${segs}</span><span class="off">offcut ${fmtIn(b.offcut)}${b.count > 1 ? ' each' : ''}</span><span class="use">${b.stock / 12} ft &rarr; ${esc(boardUse(b))}</span></li>`;
+      html += `<li data-marks="${esc([...new Set(b.cuts.map((c) => c.mark))].join(' '))}"><span class="board-name">${boardName(b)}<button type="button" class="link xref-btn" data-xref-marks="${esc([...new Set(b.cuts.map((c) => c.mark))].join(' '))}">Show in 3D</button></span><span class="bar">${segs}</span><span class="off">offcut ${fmtIn(b.offcut)}${b.count > 1 ? ' each' : ''}</span><span class="use">${b.stock / 12} ft &rarr; ${esc(boardUse(b))}</span></li>`;
     }
     html += '</ul>';
   }
@@ -385,7 +385,7 @@ function renderParts(est) {
   $('#parts tbody').innerHTML = est.parts.map((p) => {
     const s = actual(p.material);
     const where = Object.entries(p.where).map(([k, v]) => `${k} ${v}`).join(', ');
-    return `<tr><th scope="row">${p.mark}</th><td>${esc(p.kind)}</td><td>${p.material} <span class="muted">${fmtIn(s.thick)} x ${fmtIn(s.depth)}</span></td><td class="n">${fmtIn(p.length)}</td><td class="n">${p.qty}</td><td>${esc(where)}</td><td>${esc(p.note)}</td></tr>`;
+    return `<tr data-mark="${p.mark}"><th scope="row">${p.mark} <button type="button" class="link xref-btn" data-xref-marks="${p.mark}" aria-label="Show part ${p.mark} in 3D">Show in 3D</button></th><td>${esc(p.kind)}</td><td>${p.material} <span class="muted">${fmtIn(s.thick)} x ${fmtIn(s.depth)}</span></td><td class="n">${fmtIn(p.length)}</td><td class="n">${p.qty}</td><td>${esc(where)}</td><td>${esc(p.note)}</td></tr>`;
   }).join('');
 }
 
@@ -419,8 +419,39 @@ function renderQuote(shed, est) {
 }
 
 let buildMd = '';
+let buildSections = /** @type {any[]} */ ([]);
+
+// ---------- cross-reference: lists <-> 3D view <-> build steps ----------
+/** The first build section that names one of these marks ("mark F", "(F)", "marks K, L"). */
+function stepFor(marks) {
+  const res = marks.map((m) => new RegExp(`(?:\\bmarks? |\\(|, |and )${m}(?![A-Za-z])`));
+  return buildSections.findIndex((sec) => { const text = sec.steps.join(' '); return res.some((r) => r.test(text)); });
+}
+function idsForMarks(marks) {
+  const want = new Set(marks);
+  return lastEst.parts.filter((p) => want.has(p.mark)).flatMap((p) => p.ids);
+}
+/** Highlight pieces in 3D and the lists, and say what they are with links onward. */
+function showPieces(ids, title, { scroll = false } = {}) {
+  const set = new Set(ids);
+  const parts = lastEst.parts.filter((p) => p.ids.some((id) => set.has(id)));
+  const marks = parts.map((p) => p.mark);
+  viewer?.highlight(ids);
+  for (const el of $$('.xref-on')) el.classList.remove('xref-on');
+  for (const tr of $$('#parts tr[data-mark]')) if (marks.includes(tr.dataset.mark)) tr.classList.add('xref-on');
+  for (const li of $$('#cuts li[data-marks]')) if (li.dataset.marks.split(' ').some((m) => marks.includes(m))) li.classList.add('xref-on');
+  const step = stepFor(marks);
+  const box = $('#xref');
+  box.hidden = false;
+  box.innerHTML = `<h3>${esc(title)}</h3><p>${parts.map((p) => `${esc(p.kind)} (${p.mark}): ${p.qty} x ${fmtIn(p.length)} ${p.material}`).join('; ') || 'No framing pieces.'}</p>
+    <div class="toolrow">${step >= 0 ? `<button type="button" class="btn" data-xstep="${step}">Build step: ${esc(buildSections[step].title)}</button>` : ''}
+    <button type="button" class="btn" data-xgo="panel-cuts">Cut sheet</button><button type="button" class="btn" data-xgo="panel-parts">Parts list</button><button type="button" class="btn" data-xclear>Clear</button></div>`;
+  if (scroll) $('#view3d').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
 function renderBuild(shed, est) {
   const sections = buildInstructions(shed, est);
+  buildSections = sections;
   buildMd = instructionsMarkdown(sections, shed.design.name);
   $('#build-steps').innerHTML = sections.map((s) => `<li><h3>${esc(s.title)}</h3>${s.why ? `<p class="muted">${esc(s.why)}</p>` : ''}<ol>${s.steps.map((x) => `<li>${esc(x)}</li>`).join('')}</ol>${s.check?.length ? `<div class="check"><strong>Check:</strong> ${s.check.map(esc).join(' ')}</div>` : ''}</li>`).join('');
 }
@@ -844,6 +875,35 @@ function wire() {
   });
   $('#zoom-in').addEventListener('click', () => viewer?.zoom(1 / 1.2));
   $('#zoom-out').addEventListener('click', () => viewer?.zoom(1.2));
+
+  // "Show in 3D" on a list line, and the links in the box under the 3D view.
+  $('.results').addEventListener('click', (e) => {
+    const b = e.target.closest('button.xref-btn');
+    if (!b || !lastEst) return;
+    if (b.dataset.xrefLumber) {
+      const [mat, ft] = b.dataset.xrefLumber.split(':');
+      const ids = lastEst.lumber.filter((l) => l.material === mat).flatMap((l) => l.result.boards.filter((x) => x.stock === Number(ft) * 12).flatMap((x) => x.cuts.map((c) => c.id)));
+      showPieces(ids, `${mat} x ${ft}': where its pieces go`, { scroll: true });
+    } else {
+      const marks = b.dataset.xrefMarks.split(' ');
+      showPieces(idsForMarks(marks), `Mark${marks.length > 1 ? 's' : ''} ${marks.join(', ')}`, { scroll: true });
+    }
+  });
+  $('#xref').addEventListener('click', (e) => {
+    const b = e.target.closest('button');
+    if (!b) return;
+    if (b.dataset.xclear !== undefined) { viewer?.highlight([]); $('#xref').hidden = true; for (const el of $$('.xref-on')) el.classList.remove('xref-on'); return; }
+    const go = b.dataset.xgo || (b.dataset.xstep !== undefined ? 'panel-build' : '');
+    $(`.result-tabs button[data-panel="${go}"]`)?.click();
+    const target = b.dataset.xstep !== undefined ? $('#build-steps').children[Number(b.dataset.xstep)] : $(`#${go} .xref-on`) || $('#results-h');
+    if (b.dataset.xstep !== undefined) { for (const li of $$('#build-steps > li')) li.classList.remove('xref-on'); target?.classList.add('xref-on'); }
+    target?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+  if (viewer) viewer.onPick = (id) => {
+    if (!id || !lastEst) return;
+    const part = lastEst.parts.find((p) => p.ids.includes(id));
+    if (part) showPieces(part.ids, `${part.kind[0].toUpperCase()}${part.kind.slice(1)}, mark ${part.mark}`);
+  };
 
   // The section bar at the top opens a results tab and scrolls to it.
   $('#jump').addEventListener('click', (e) => {

@@ -122,6 +122,11 @@
     .boards .cut { position: absolute; top: 0; bottom: 0; background: #f1dfb9; border-right: 2px solid #6b4f2a; font-size: .72rem; line-height: 24px; padding-left: 4px; white-space: nowrap; overflow: hidden; }
     .boards .off { color: var(--muted); }
     .boards .use { grid-column: 2 / -1; margin-top: -2px; color: var(--muted); }
+    .xref { margin: 8px 0; padding: 10px 12px; border: 2px solid #f07318; border-radius: 10px; background: #fff6ee; font-size: .9rem; }
+    .xref h3 { margin: 0 0 4px; font-size: 1rem; }
+    .xref .toolrow { margin-top: 6px; }
+    .xref-on, .xref-on td, .xref-on th { background: #ffe6cf !important; }
+    button.xref-btn { font-size: .8rem; margin-left: 6px; }
     .card .wide { grid-column: 1 / -1; }
     .card ul.changes { margin: 2px 0 0; padding-left: 18px; font-weight: 400; }
     #shopping .use { font-size: .8rem; color: var(--muted); }
@@ -254,6 +259,8 @@
       </div>
       <div class="toolrow" id="layers" aria-label="Layers"></div>
       <div class="toolrow"><label class="check"><input type="checkbox" id="show-dims" checked> Dimensions</label></div>
+      <p class="hint">Click a board in the 3D view to see what it is, or "Show in 3D" on a line of the shopping list, cut sheet or parts list to see where its pieces go.</p>
+      <div class="xref" id="xref" hidden aria-live="polite"></div>
 
       <div class="panel summary" id="summary" aria-live="polite">
         <h2>Estimated cost</h2>

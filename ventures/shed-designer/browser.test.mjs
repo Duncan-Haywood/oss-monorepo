@@ -271,7 +271,7 @@ test('the section bar opens each results tab, and a left-out line comes off the 
   assert.ok(Math.abs(drop - num(line.total) * (1 + rate / 100)) < 0.02, `the total fell by the line and its tax (${drop})`);
   assert.equal(await page.$eval(`#shopping input[data-skip="${line.name}"]`, (cb) => cb.closest('tr').className), 'skip');
   assert.match(await page.textContent('#summary-lines'), /you have or left out/);
-  assert.match(await page.textContent('#shopping'), /PT 4x4 x \d+'for skid/, 'lumber lines say what they are for');
+  assert.match(await page.textContent('#shopping'), /PT 4x4 x \d+'(Show in 3D)?for skid/, 'lumber lines say what they are for');
   assert.match(await page.textContent('#cuts'), /\d+ ft → .*\(\w+\)/, 'cut sheet boards say what they are cut into');
 });
 
@@ -302,6 +302,39 @@ test('each door and window says what it costs in all', { skip }, async (t) => {
   await page.waitForFunction((b) => !document.querySelector('#summary-lines').textContent.includes(b), String(before));
   const after = num(await page.textContent('#summary-lines'));
   assert.ok(Math.abs(before - after - num(cells[1])) < 0.02, `removing it saved ${before - after}, the column said ${cells[1]}`);
+});
+
+test('lists, 3D view and build steps point at each other', { skip }, async (t) => {
+  const { page } = await open(t);
+  const canvas = page.locator('#view3d');
+  await page.click('#jump [data-jump="panel-shopping"]');
+  const plain = await canvas.screenshot();
+  // A lumber line: its pieces light up in 3D and the box says what they are.
+  await page.click('#shopping button[data-xref-lumber^="PT 4x4"]');
+  await page.waitForSelector('#xref:not([hidden])');
+  assert.match(await page.textContent('#xref'), /skid \(A\): \d+ x/);
+  await settle(page);
+  assert.ok(!(await canvas.screenshot()).equals(plain), 'the skids are highlighted');
+  // The box links to the build step that uses them.
+  await page.click('#xref button[data-xstep]');
+  await page.waitForFunction(() => !document.querySelector('#panel-build').hidden && document.querySelector('#build-steps > li.xref-on'));
+  assert.match(await page.textContent('#build-steps > li.xref-on h3'), /Skids/);
+  // A part's row, and the cut sheet marks the boards it comes from.
+  await page.click('#jump [data-jump="panel-parts"]');
+  await page.click('#parts tr[data-mark="F"] button.xref-btn');
+  await page.waitForFunction(() => /rafter \(F\)/.test(document.querySelector('#xref').textContent));
+  assert.ok(await page.$('#cuts li.xref-on'), 'the cut sheet marks the rafter boards');
+  // Clicking a board in the 3D view names it.
+  await page.click('#xref button[data-xclear]');
+  await canvas.scrollIntoViewIfNeeded();
+  const box = await canvas.boundingBox();
+  let named = '';
+  for (const [fx, fy] of [[0.5, 0.5], [0.45, 0.6], [0.55, 0.4], [0.5, 0.75], [0.4, 0.45]]) {
+    await page.mouse.click(box.x + box.width * fx, box.y + box.height * fy);
+    named = await page.$eval('#xref', (e) => (e.hidden ? '' : e.textContent));
+    if (named) break;
+  }
+  assert.match(named, /mark [A-Z]+/, 'a click on the model names a board');
 });
 
 test('on a phone: no sideways scroll, finger-size handles, touch drag and pinch', { skip }, async (t) => {

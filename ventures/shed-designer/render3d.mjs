@@ -5,7 +5,7 @@
 // arrow keys and +/- when the canvas has focus.
 
 /** @typedef {import('./model.mjs').Geom} Geom */
-/** @typedef {{ geom: Geom, color: [number, number, number], layer: string, flags?: number }} Solid */
+/** @typedef {{ geom: Geom, color: [number, number, number], layer: string, flags?: number, id?: string }} Solid */
 
 const COLORS = {
   pt: [0.71, 0.77, 0.58], framing: [0.9, 0.79, 0.57], header: [0.85, 0.66, 0.38], floor: [0.83, 0.7, 0.47],
@@ -131,7 +131,7 @@ export function solidsOf(shed) {
   for (const m of shed.members) {
     const layer = m.group === 'foundation' ? 'foundation' : m.group === 'floor' ? 'floor' : m.group === 'roof' ? 'roof' : m.group === 'wall:front' ? 'front wall' : 'walls';
     const color = /^PT /.test(m.material) ? COLORS.pt : (m.kind === 'header' || m.kind === 'ridge board' || m.kind === 'ridge beam') ? COLORS.header : COLORS.framing;
-    out.push({ geom: m.geom, color: /** @type {any} */ (color), layer });
+    out.push({ geom: m.geom, color: /** @type {any} */ (color), layer, id: m.id });
   }
   // Unfinished: bare plywood, or LP's factory primer (a pale grey).
   const bare = d.sidingType?.startsWith('LP SmartSide') ? [0.84, 0.83, 0.79] : [0.78, 0.62, 0.43];
@@ -353,6 +353,16 @@ export function createViewer(canvas) {
 
   /** @type {Record<string, any>} */
   const layers = {};
+  // Boards you can point at: each member's triangles, for picking with a click,
+  // and the ones shown highlighted (drawn last, over everything, so a stud shows
+  // through the siding).
+  /** @type {{ id: string, layer: string, pos: Float32Array }[]} */
+  let pickables = [];
+  let hl = null;
+  let hlIds = /** @type {string[]} */ ([]);
+  let lastM = null;
+  /** @type {((id: string|null) => void) | null} */
+  let onPick = null;
   const visible = new Set(LAYERS);
   const cam = { theta: -0.95, phi: 0.42, dist: 400, target: [0, 0, 0], fit: 400, pan: [0, 0, 0] };
   let fitted = false;
@@ -386,6 +396,8 @@ export function createViewer(canvas) {
       labelHalf = [];
     }
     const solids = solidsOf(shed);
+    pickables = solids.filter((x) => x.id).map((x) => ({ id: /** @type {string} */ (x.id), layer: x.layer, pos: meshOf([x]).pos }));
+    setHighlight(hlIds.filter((id) => pickables.some((q) => q.id === id)));
     for (const name of LAYERS) {
       const mesh = meshOf(solids.filter((s) => s.layer === name));
       if (!mesh.pos.length) continue;
@@ -410,6 +422,7 @@ export function createViewer(canvas) {
     const tgt = [0, 1, 2].map((i) => cam.target[i] + cam.pan[i]);
     const eye = [tgt[0] + cam.dist * Math.cos(cam.phi) * Math.cos(cam.theta), tgt[1] + cam.dist * Math.cos(cam.phi) * Math.sin(cam.theta), tgt[2] + cam.dist * Math.sin(cam.phi)];
     const m = mul(perspective(0.75, canvas.width / canvas.height, cam.dist * 0.08, cam.dist * 4), lookAt(eye, tgt, [0, 0, 1]));
+    lastM = m;
     gl.useProgram(prog);
     gl.uniformMatrix4fv(loc.m, false, new Float32Array(m));
     gl.uniform1f(loc.t, (globalThis.performance?.now?.() ?? 0) / 1000);
@@ -475,11 +488,75 @@ export function createViewer(canvas) {
       gl.disableVertexAttribArray(tloc.p); gl.disableVertexAttribArray(tloc.uv);
       gl.useProgram(prog);
     }
+    if (hl) {
+      gl.clear(gl.DEPTH_BUFFER_BIT);
+      gl.uniform1f(loc.lit, 1); gl.uniform1f(loc.bias, 0);
+      attr(hl.p, loc.p); attr(hl.n, loc.n); attr(hl.c, loc.c, 4);
+      gl.drawArrays(gl.TRIANGLES, 0, hl.count);
+      gl.uniform1f(loc.lit, 0); gl.uniform1f(loc.bias, 0.00004);
+      attr(hl.l, loc.p); attr(hl.ln, loc.n); attr(hl.lc, loc.c, 4);
+      gl.drawArrays(gl.LINES, 0, hl.lcount);
+      for (const l of [loc.p, loc.n, loc.c]) gl.disableVertexAttribArray(l);
+    }
     // Glitter twinkles, so keep drawing while it is on screen.
     if (glitter && !animating && canvas.isConnected) {
       animating = true;
       requestAnimationFrame(() => { animating = false; if (glitter) draw(); });
     }
+  }
+
+  function setHighlight(ids) {
+    hlIds = [...ids];
+    if (hl) for (const k of ['p', 'n', 'c', 'l', 'ln', 'lc']) gl.deleteBuffer(hl[k]);
+    hl = null;
+    const want = new Set(hlIds);
+    const pos = []; for (const q of pickables) if (want.has(q.id)) pos.push(q);
+    if (!pos.length) return;
+    // Rebuild a mesh in the highlight colour from the members' own triangles.
+    const tris = new Float32Array(pos.reduce((t, q) => t + q.pos.length, 0));
+    let o = 0; for (const q of pos) { tris.set(q.pos, o); o += q.pos.length; }
+    const n = tris.length / 3;
+    const nor = new Float32Array(tris.length);
+    for (let i = 0; i < n; i += 3) {
+      const a = i * 3; const ux = tris[a + 3] - tris[a]; const uy = tris[a + 4] - tris[a + 1]; const uz = tris[a + 5] - tris[a + 2];
+      const vx = tris[a + 6] - tris[a]; const vy = tris[a + 7] - tris[a + 1]; const vz = tris[a + 8] - tris[a + 2];
+      let nx = uy * vz - uz * vy; let ny = uz * vx - ux * vz; let nz = ux * vy - uy * vx; const l = Math.hypot(nx, ny, nz) || 1; nx /= l; ny /= l; nz /= l;
+      for (let k = 0; k < 3; k++) nor.set([nx, ny, nz], a + k * 3);
+    }
+    const col = new Float32Array(n * 4); for (let i = 0; i < n; i++) col.set([0.96, 0.45, 0.08, 0], i * 4);
+    // Outline every triangle edge in a darker orange so the pieces read apart.
+    const lines = []; for (let i = 0; i < n; i += 3) { const a = i * 3; for (const [x, y] of [[0, 1], [1, 2], [2, 0]]) lines.push(tris[a + x * 3], tris[a + x * 3 + 1], tris[a + x * 3 + 2], tris[a + y * 3], tris[a + y * 3 + 1], tris[a + y * 3 + 2]); }
+    const ln = new Float32Array(lines.length).fill(0); for (let i = 2; i < ln.length; i += 3) ln[i] = 1;
+    const lc = new Float32Array((lines.length / 3) * 4); for (let i = 0; i < lc.length; i += 4) lc.set([0.55, 0.22, 0.02, 0], i);
+    hl = { p: buf(tris), n: buf(nor), c: buf(col), count: n, l: buf(new Float32Array(lines)), ln: buf(ln), lc: buf(lc), lcount: lines.length / 3 };
+  }
+
+  /** The member under a point on the canvas (client coordinates), nearest the eye, in a visible layer. */
+  function pick(clientX, clientY) {
+    if (!lastM) return null;
+    const r = canvas.getBoundingClientRect();
+    const px = ((clientX - r.left) / r.width) * 2 - 1; const py = 1 - ((clientY - r.top) / r.height) * 2;
+    const m = lastM;
+    let best = null; let bestZ = Infinity;
+    for (const q of pickables) {
+      if (!visible.has(q.layer)) continue;
+      const P = q.pos; const sx = []; const sy = []; const sz = [];
+      for (let i = 0; i < P.length; i += 3) {
+        const x = P[i]; const y = P[i + 1]; const z = P[i + 2];
+        const w = m[3] * x + m[7] * y + m[11] * z + m[15];
+        sx.push((m[0] * x + m[4] * y + m[8] * z + m[12]) / w); sy.push((m[1] * x + m[5] * y + m[9] * z + m[13]) / w); sz.push(w > 0 ? (m[2] * x + m[6] * y + m[10] * z + m[14]) / w : Infinity);
+      }
+      for (let t = 0; t < sx.length; t += 3) {
+        const [ax, bx, cx] = [sx[t], sx[t + 1], sx[t + 2]]; const [ay, by, cy] = [sy[t], sy[t + 1], sy[t + 2]];
+        const d = (by - cy) * (ax - cx) + (cx - bx) * (ay - cy);
+        if (Math.abs(d) < 1e-12) continue;
+        const l1 = ((by - cy) * (px - cx) + (cx - bx) * (py - cy)) / d; const l2 = ((cy - ay) * (px - cx) + (ax - cx) * (py - cy)) / d; const l3 = 1 - l1 - l2;
+        if (l1 < 0 || l2 < 0 || l3 < 0) continue;
+        const z = l1 * sz[t] + l2 * sz[t + 1] + l3 * sz[t + 2];
+        if (z < bestZ && z > -1) { bestZ = z; best = q.id; }
+      }
+    }
+    return best;
   }
 
   // One draw per frame however many pointer events arrive: on a big design a
@@ -516,8 +593,8 @@ export function createViewer(canvas) {
   canvas.addEventListener('pointerdown', (e) => {
     pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
     canvas.setPointerCapture(e.pointerId);
-    if (pointers.size === 1) drag = { x: e.clientX, y: e.clientY, theta: cam.theta, phi: cam.phi, pan: e.button === 2 || e.shiftKey };
-    else if (pointers.size === 2) { drag = null; pinch = { d: spread(), dist: cam.dist, mid: mid() }; }
+    if (pointers.size === 1) { drag = { x: e.clientX, y: e.clientY, theta: cam.theta, phi: cam.phi, pan: e.button === 2 || e.shiftKey }; press = { x: e.clientX, y: e.clientY, button: e.button }; } else press = null;
+    if (pointers.size === 2) { drag = null; pinch = { d: spread(), dist: cam.dist, mid: mid() }; }
   });
   canvas.addEventListener('pointermove', (e) => {
     if (!pointers.has(e.pointerId)) return;
@@ -535,7 +612,11 @@ export function createViewer(canvas) {
     cam.phi = Math.max(-0.15, Math.min(1.45, drag.phi + (e.clientY - drag.y) * 0.008));
     requestDraw();
   });
+  // A press that barely moves is a click: pick the board under it.
+  let press = /** @type {{ x: number, y: number, button: number }|null} */ (null);
   const end = (e) => {
+    if (press && e.type === 'pointerup' && press.button === 0 && Math.hypot(e.clientX - press.x, e.clientY - press.y) < 5 && pointers.size === 1) onPick?.(pick(e.clientX, e.clientY));
+    press = null;
     pointers.delete(e.pointerId);
     pinch = null;
     // Lifting one finger of a pinch carries on as an orbit from where it is.
@@ -569,6 +650,11 @@ export function createViewer(canvas) {
     view(theta, phi) { cam.theta = theta; cam.phi = phi; cam.dist = cam.fit; cam.pan = [0, 0, 0]; draw(); },
     reset() { cam.theta = -0.95; cam.phi = 0.42; cam.dist = cam.fit; cam.pan = [0, 0, 0]; draw(); },
     panBy,
+    /** Show these members (by id) in orange, over everything; [] clears. */
+    highlight(ids) { setHighlight(ids); draw(); },
+    pick,
+    /** Called with the member id under a click (null for none). */
+    set onPick(fn) { onPick = fn; },
     /** How far the view is panned from the shed's centre, in inches (for tests). */
     panned() { return Math.hypot(...cam.pan); },
     snapshot() { draw(); return canvas.toDataURL('image/png'); },
