@@ -38,7 +38,7 @@ jobs:
       - name: Is this version already on crates.io?
         id: version
         run: |
-          version=$(cargo metadata --no-deps --format-version 1 | python3 -c "import json,sys; print(json.load(sys.stdin)['packages'][0]['version'])")
+          version=$(sed -n 's/^version = "\(.*\)"$/\1/p' Cargo.toml | head -n 1)
           name='${{ matrix.crate }}'
           case ${#name} in 1) p="1";; 2) p="2";; 3) p="3/${name:0:1}";; *) p="${name:0:2}/${name:2:2}";; esac
           if curl -fsS "https://index.crates.io/$p/$name" 2>/dev/null | grep -q "\"vers\":\"$version\""; then
