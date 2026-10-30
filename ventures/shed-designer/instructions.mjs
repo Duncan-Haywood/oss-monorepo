@@ -134,6 +134,10 @@ export function buildInstructions(shed, est) {
     ];
     for (const p of w.openings) {
       const left = Math.min(fromLeft(p.a + off - off), fromLeft(p.a + p.w));
+      if (p.bay) {
+        steps.push(`Window ${fmtIn(p.w)} wide x ${fmtIn(p.op.height)} high, in the stud bay starting ${fmtIn(fromLeft(name === 'front' || name === 'right' ? p.bay[0] : p.bay[1]))} from the left end of the plate: it cuts no stud, so no king, jack or header. Nail a flat ${d.studSize} block (marks ${marks((m) => m.group === `wall:${name}` && (m.kind === 'sill block' || m.kind === 'head block'))}) between the two studs with its top ${fmtIn(p.bottom)} above the floor, and another with its underside ${fmtIn(p.bottom + p.op.height)} up; two 16d through each stud into each end.`);
+        continue;
+      }
       steps.push(`${p.op.kind === 'door' ? 'Door' : 'Window'} ${fmtIn(p.w)} wide x ${fmtIn(p.op.height)} high rough opening, starting ${fmtIn(fromLeft(name === 'front' || name === 'right' ? p.a : p.a + p.w) + (eave ? 0 : 0))} from the left end of the plate: a king stud each side, a jack each side at ${fmtIn(p.bottom + p.op.height - 1.5)}, a header of two ${p.hdr} at ${fmtIn(p.w + 3)} nailed together${k.stud > 3 ? ` around a ${fmtIn(k.stud - 3)} plywood spacer` : ''} and set on the jacks${p.op.kind === 'window' ? `, a rough sill at ${fmtIn(p.w)} with its top ${fmtIn(p.bottom)} above the floor and cripples under it` : ''}, then cripples above at the layout marks.`);
       void left;
     }

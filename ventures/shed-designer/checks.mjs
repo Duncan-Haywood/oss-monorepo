@@ -15,8 +15,6 @@
 import { check, worst, studCheck, headerCheck, roofCase, FLOOR, SPF2, T, DEPTH, designValues } from './structure.mjs';
 import { fmtIn, actual } from './lumber.mjs';
 import { headerLoadPlf } from './model.mjs';
-});
-
 import { subfloorCheck } from './levers.mjs';
 
 const CF_C = { '2x4': 1.15, '2x6': 1.1 };
@@ -206,6 +204,31 @@ export function skidOnBlocks(shed) {
     if (!worstSkid || Math.max(ratio, ratios.soil) > Math.max(worstSkid.ratio, worstSkid.soil)) worstSkid = { skid: i, outer, L, R, governs, ratio, soil: ratios.soil, ratios, values: v, footSqFt, spread };
   });
   return worstSkid;
+}
+
+/**
+ * A window inside one stud bay has no header: the double top plate spans the
+ * bay over it, as it spans every bay. Checked in bending (NDS, SPF No. 2, two
+ * plies laid flat acting side by side, flat-use factor 1.1 for a 2x4 and 1.15
+ * for a 2x6, CD 1.15) over the stud centres. On an eave wall a rafter can land
+ * mid-bay: a point load P of its strip of roof, M = PL/4. On a gable wall the
+ * end rafter's strip and the gable framing are a line load, M = wL^2/8.
+ * @param {import('./model.mjs').Shed} shed @param {string} wall @param {any} p
+ */
+export function bayPlates(shed, wall, p) {
+  const d = shed.design;
+  const span = p.bay[1] - p.bay[0] + 1.5;
+  const t = actual(d.studSize).depth;
+  const S = 2 * (t * 1.5 ** 2) / 6;
+  const Cfu = d.studSize === '2x4' ? 1.1 : 1.15;
+  const Fb = designValues(d.studSize).Fb * Cfu * 1.15;
+  const eave = wall === 'front' || wall === 'back';
+  if (eave) {
+    const P = (headerLoadPlf(d, wall) - 10) * (d.rafterSpacing / 12);
+    return { span, point: true, load: P, ratio: (P * span) / 4 / S / Fb };
+  }
+  const w = headerLoadPlf(d, wall) / 12;
+  return { span, point: false, load: w * 12, ratio: (w * span * span) / 8 / S / Fb };
 }
 
 /**
@@ -436,6 +459,11 @@ export function structuralChecks(shed) {
   // Headers over doors and windows.
   for (const [name, wall] of Object.entries(shed.walls)) {
     for (const p of wall.openings) {
+      if (p.bay) {
+        const pl = bayPlates(shed, name, p);
+        add(`Plates over the ${name} ${p.op.kind} (no header)`, `two ${d.studSize} plates, flat`, `${fmtIn(pl.span)} stud bay, ${pl.point ? `a ${Math.round(pl.load)} lb rafter landing mid-bay` : `${Math.round(pl.load)} lb/ft`}`, pl.ratio, 'bending');
+        continue;
+      }
       // The wall's line load (model.mjs, headerLoadPlf): the eave walls' strip
       // of roof, or on a gable wall its framing (40 lb/ft) and the end rafter's
       // strip, half a rafter spacing, as the roof does not overhang the gable.

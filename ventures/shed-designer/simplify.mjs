@@ -15,6 +15,7 @@ import { structuralChecks } from './checks.mjs';
 import { connectionChecks } from './connections.mjs';
 import { BLOCKS } from './model.mjs';
 import { PRODUCTS } from './products.mjs';
+import { openingMoves } from './framing-moves.mjs';
 import { floorMoves } from './levers.mjs';
 
 /**
@@ -110,6 +111,8 @@ function moves(d, base, resize, opts = {}) {
   floorMoves(d, set);
   set(d.rafterSeat === 'connector' ? 'birdsmouth seats' : 'variable-pitch connectors', { rafterSeat: d.rafterSeat === 'connector' ? 'birdsmouth' : 'connector' });
   set(d.roofType === 'ridgeBeam' ? 'ridge board and ties' : 'ridge beam on posts', { roofType: d.roofType === 'ridgeBeam' ? 'ridgeBoard' : 'ridgeBeam' });
+  // Sliding a door or window so the framing around it shrinks (framing-moves.mjs).
+  openingMoves(d, set);
   // Off-the-shelf swaps, when asked: another stock door or window, siding,
   // roofing, foundation, gravel and subfloor.
   if (opts.products) {
@@ -234,7 +237,7 @@ export function budget(design, prices, opts = {}) {
   const used = new Set();
   for (const { mv } of singles) {
     if (used.has(mv.group)) continue;
-    const r = get(normalize({ ...cur.design, ...mv.change, ...(mv.group.startsWith('door') || mv.group === 'windows' ? { openings: mergeOpenings(cur.design.openings, mv.change.openings) } : {}) }));
+    const r = get(normalize({ ...cur.design, ...mv.change, ...(mv.group.startsWith('door') || mv.group.startsWith('place') || mv.group === 'windows' ? { openings: mergeOpenings(cur.design.openings, mv.change.openings, mv.group.startsWith('place') ? 'offset' : 'product') } : {}) }));
     if (!feasible(r) || cost(r) >= cost(cur) - 0.5) continue;
     used.add(mv.group);
     steps.push(step(mv.label, cur, r));
@@ -265,11 +268,11 @@ export function budget(design, prices, opts = {}) {
   return { base, best: { ...cur, steps }, also: alsoKept, taller, peakCap, evaluated: cache.size, keep };
 }
 
-/** Openings from one move laid over another's: each opening keeps the latest product chosen for it. */
-function mergeOpenings(current, changed) {
+/** Take one field (a product swap, or a slide's offset) from a move's openings into the current ones. */
+function mergeOpenings(current, changed, field = 'product') {
   return current.map((o) => {
     const c = changed.find((x) => x.id === o.id);
-    return c && c.product !== o.product ? { ...o, product: c.product } : o;
+    return c && c[field] !== o[field] ? { ...o, [field]: c[field] } : o;
   });
 }
 

@@ -78,6 +78,12 @@ export function connectionChecks(shed) {
       ...bc.filter((l) => !(near(l.z0, 1.5) && covered(l.s0, l.s1, bottoms) && sills.some((s) => near(s.z0, l.z1) && within(l.s0, l.s1, s.s0, s.s1)))).map((l) => `bottom ${tag(l)}`),
       ...sills.filter((s) => bc.filter((l) => near(l.z1, s.z0) && within(l.s0, l.s1, s.s0, s.s1)).length < 2).map((s) => `sill ${tag(s)}`),
     ];
+    // A window inside a stud bay: its blocks fit between two full studs.
+    const blocks = [...of('sill block'), ...of('head block')];
+    if (blocks.length) {
+      const fits = (b) => full.some((l) => near(l.s1, b.s0) && l.z0 <= b.z0 + EPS && l.z1 >= b.z1 - EPS) && full.some((l) => near(l.s0, b.s1) && l.z0 <= b.z0 + EPS && l.z1 >= b.z1 - EPS);
+      add(`${name} wall: window blocks fit between studs`, blocks.filter((b) => !fits(b)).map(tag), blocks.length, 'flat blocks over and under a window in a stud bay, each end against a full stud');
+    }
     if (tc.length || bc.length || sills.length) add(`${name} wall: cripples and sills bear`, crFails, tc.length + bc.length + sills.length, 'cripples and rough sills bearing on a header, sill or plate');
 
     // Plate joints land on a stud centre, and cap joints keep clear of top joints.

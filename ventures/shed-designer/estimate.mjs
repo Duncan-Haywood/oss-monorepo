@@ -348,7 +348,7 @@ export function estimate(shed, prices = examplePrices()) {
   // Fasteners, sealants and flashing. Counts follow the nailing schedule on
   // the details sheet (rounded up); boxes are rounded up from the counts.
   {
-    const per = { stud: 4, 'corner stud': 6, 'king stud': 6, 'jack stud': 6, 'post stud': 6, 'top cripple': 4, 'bottom cripple': 4, 'rough sill': 4, 'floor joist': 6, 'rim joist': 0, rafter: 4, 'rafter tie': 6, 'eave blocking': 4, 'gable stud': 4, 'vent trimmer': 4, 'vent header': 4, 'door stile': 0, 'door rail': 0, 'door brace': 0 };
+    const per = { stud: 4, 'corner stud': 6, 'king stud': 6, 'jack stud': 6, 'post stud': 6, 'top cripple': 4, 'bottom cripple': 4, 'rough sill': 4, 'sill block': 4, 'head block': 4, 'floor joist': 6, 'rim joist': 0, rafter: 4, 'rafter tie': 6, 'eave blocking': 4, 'gable stud': 4, 'vent trimmer': 4, 'vent header': 4, 'door stile': 0, 'door rail': 0, 'door brace': 0 };
     let n16 = 0;
     const tieNails = heelJoint(shed)?.nails ?? 3;
     for (const m of all) {

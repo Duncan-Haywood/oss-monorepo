@@ -48,7 +48,7 @@ export function defaultDesign() {
     name: '8x12 ridge-beam shed',
     length: 144,
     width: 96,
-    wallHeight: 86.5,
+    wallHeight: 84.5,
     pitch: 5,
     overhang: 12,
     studSize: '2x4',
@@ -641,7 +641,7 @@ function buildFramed(d) {
     const addM = (kind, material, s0, s1, z0, z1, note) => {
       const m = push({
         id: nextId(`${P}`), group: `wall:${name}`, kind, material, note,
-        length: ceil16(kind.includes('plate') || kind === 'header' || kind === 'rough sill' ? s1 - s0 : z1 - z0),
+        length: ceil16(kind.includes('plate') || kind === 'header' || kind === 'rough sill' || kind.endsWith(' block') ? s1 - s0 : z1 - z0),
         geom: rectGeom(add(add(spec.base, spec.axis, s0), Z, z0), spec.axis, Z, spec.w, s1 - s0, z1 - z0, D),
         local: { s0, s1, z0, z1 },
       });
@@ -682,10 +682,28 @@ function buildFramed(d) {
         warnings.push(`${label} overlaps another opening's king studs; it is left out.`);
         continue;
       }
-      ops.push({ op, a, w: op.width, hdr, hd, bottom, headerTop });
+      ops.push({ op, a, w: op.width, hdr, hd, bottom, headerTop, bay: /** @type {[number, number] | null} */ (null) });
     }
     // Studs: ends, corner studs on eave walls, layout, then openings replace what they cover.
     const layout = layoutCenters(d.studSpacing, start, start + len).map((c) => c - start);
+    // A window that fits inside one stud bay cuts no stud, so it needs no king,
+    // jack or header (IRC R602.7 headers are for openings that interrupt
+    // studs): the two layout studs are its sides, with a flat block above and
+    // below. The plates span that bay as they span every other one; checks.mjs
+    // checks them with a rafter landing mid-bay. Not for a door, nor when a
+    // header was asked for, nor when the bay is more than 1-1/2" wider than the
+    // window (it would need a filler stud).
+    for (const p of ops) {
+      if (p.op.kind !== 'window' || p.op.header || p.bottom + p.op.height + 1.5 > H - 3 + 1e-9) continue;
+      for (let i = 0; i + 1 < layout.length; i++) {
+        const f0 = layout[i] + 0.75;
+        const f1 = layout[i + 1] - 0.75;
+        if (!(f0 <= p.a + 1e-9 && p.a + p.w <= f1 + 1e-9 && f1 - f0 - p.w < 1.5 - 1e-9 && f0 - 1.5 >= 0 && f1 + 1.5 <= len)) continue;
+        // Its side studs must stay: no other opening's kings over them.
+        if (ops.some((q) => q !== p && !q.bay && f0 - 1.5 < q.a + q.w + 3 && f1 + 1.5 > q.a - 3)) continue;
+        p.bay = [f0, f1];
+      }
+    }
     const verticals = [];
     verticals.push({ s: 0, kind: 'stud' });
     verticals.push({ s: len - 1.5, kind: 'stud' });
@@ -699,7 +717,7 @@ function buildFramed(d) {
       verticals.push({ s: W / 2 - start, kind: 'post stud' });
     }
     const occupied = (s0) => verticals.some((v) => s0 < v.s + 1.5 - 1e-9 && s0 + 1.5 > v.s + 1e-9);
-    const inOpening = (s0) => ops.some((p) => s0 < p.a + p.w + 3 - 1e-9 && s0 + 1.5 > p.a - 3 + 1e-9);
+    const inOpening = (s0) => ops.some((p) => !p.bay && s0 < p.a + p.w + 3 - 1e-9 && s0 + 1.5 > p.a - 3 + 1e-9);
     for (const c of layout) {
       const s0 = c - 0.75;
       if (s0 < 0 || s0 + 1.5 > len) continue;
@@ -714,6 +732,16 @@ function buildFramed(d) {
     // centres leave no plate split.
     const headerBreaks = [];
     for (const p of ops) {
+      const fixture = () => fixtures.push({
+        kind: p.op.kind, group: `wall:${name}`, from: spec.start + p.a, bottom: p.bottom,
+        geom: rectGeom(add(add(spec.base, spec.axis, p.a), Z, p.bottom), spec.axis, Z, neg(spec.w), p.w, p.op.height, d.siding ? 1.0 : 0.4),
+      });
+      if (p.bay) {
+        addM('sill block', d.studSize, p.bay[0], p.bay[1], p.bottom - 1.5, p.bottom, 'flat, between the studs');
+        addM('head block', d.studSize, p.bay[0], p.bay[1], p.bottom + p.op.height, p.bottom + p.op.height + 1.5, 'flat, between the studs');
+        fixture();
+        continue;
+      }
       const jack = p.bottom + p.op.height - 1.5;
       addM('king stud', d.studSize, p.a - 3, p.a - 1.5, 1.5, 1.5 + studLen);
       addM('king stud', d.studSize, p.a + p.w + 1.5, p.a + p.w + 3, 1.5, 1.5 + studLen);
@@ -755,10 +783,7 @@ function buildFramed(d) {
         const below = [...ends, ...inside.filter((s) => ends.every((e) => Math.abs(s - e) >= 1.5 - 1e-9))].sort((x, y) => x - y);
         if (p.bottom - 3 >= 1.5) for (const s of below) addM('bottom cripple', d.studSize, s, s + 1.5, 1.5, p.bottom - 1.5);
       }
-      fixtures.push({
-        kind: p.op.kind, group: `wall:${name}`, from: spec.start + p.a, bottom: p.bottom,
-        geom: rectGeom(add(add(spec.base, spec.axis, p.a), Z, p.bottom), spec.axis, Z, neg(spec.w), p.w, p.op.height, d.siding ? 1.0 : 0.4),
-      });
+      fixture();
     }
     // Plates: bottom plate is cut out at doors; top and cap plates break on studs, cap joints kept 4 ft from top joints.
     const doorGaps = ops.filter((p) => p.op.kind === 'door').map((p) => [p.a, p.a + p.w]).sort((a, b) => a[0] - b[0]);
