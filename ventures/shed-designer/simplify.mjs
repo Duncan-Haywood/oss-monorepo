@@ -2,7 +2,7 @@
 // Parametric search for a simpler, cheaper build of the same shed. It counts
 // the saw cuts a design needs (and which of them are angled or notched),
 // then nudges one setting at a time (pitch, overhang, rafter and stud
-// spacing, rafter seat, ridge type, a foot on the length or width within the
+// spacing, floor joist spacing and size, rafter seat, ridge type, a foot on the length or width within the
 // footprint limit) and keeps a change only if the shed still passes every
 // load and connection check, stays inside the footprint limit and gets no
 // taller than 1" (or over the peak limit). It runs a greedy search for each of three goals and returns the
@@ -16,6 +16,7 @@ import { connectionChecks } from './connections.mjs';
 import { BLOCKS } from './model.mjs';
 import { PRODUCTS } from './products.mjs';
 import { LAP_PRODUCTS, isLap } from './lap.mjs';
+import { floorMoves, searchKeep } from './levers.mjs';
 
 /**
  * Saw cuts the build needs. A board cut into n pieces takes n cuts (one fewer
@@ -113,6 +114,7 @@ function moves(d, base, resize, opts = {}) {
   // Smaller or larger rafters: kept only if the strength checks still pass.
   for (const sz of ['2x4', '2x6', '2x8']) if (sz !== d.rafterSize) set(`${sz} rafters`, { rafterSize: sz });
   if (d.studSpacing === 24 || sidingSpan(d) >= 24) set(`studs ${d.studSpacing === 24 ? 16 : 24}" o.c.`, { studSpacing: d.studSpacing === 24 ? 16 : 24 });
+  floorMoves(d, set);
   set(d.rafterSeat === 'connector' ? 'birdsmouth seats' : 'variable-pitch connectors', { rafterSeat: d.rafterSeat === 'connector' ? 'birdsmouth' : 'connector' });
   set(d.roofType === 'ridgeBeam' ? 'ridge board and ties' : 'ridge beam on posts', { roofType: d.roofType === 'ridgeBeam' ? 'ridgeBoard' : 'ridgeBeam' });
   // Off-the-shelf swaps, when asked: another stock door or window, siding,
@@ -141,7 +143,10 @@ function moves(d, base, resize, opts = {}) {
     set(d.floorPanel === 'OSB' ? 'plywood subfloor' : 'OSB subfloor', { floorPanel: d.floorPanel === 'OSB' ? 'plywood' : 'OSB' });
   }
   // Only when asked: a foot either way on the length or width, never below 85% of the floor asked for.
-  const kept = () => (opts.keep ? out.filter((m) => !Object.keys(m.change).some((k) => opts.keep.includes(k))) : out);
+  const keep = opts.keep || [];
+  const held = (m) => Object.keys(m.change).some((k) => keep.includes(k))
+    || (keep.includes('doors') && m.group.startsWith('door')) || (keep.includes('windows') && m.group === 'windows');
+  const kept = () => out.filter((m) => !held(m));
   if (!resize) return kept();
   for (const [k, dv] of /** @type {[string, number][]} */ ([['length', 12], ['length', -12], ['width', 12], ['width', -12]])) {
     const next = { ...d, [k]: d[k] + dv };
@@ -162,7 +167,7 @@ export const GOALS = {
 /**
  * @param {any} design
  * @param {import('./estimate.mjs').Prices} [prices]
- * @param {{ rounds?: number, resize?: boolean, products?: boolean, peakSlack?: number, goals?: string[] }} [opts]
+ * @param {{ rounds?: number, resize?: boolean, products?: boolean, peakSlack?: number, goals?: string[], keep?: string[] }} [opts]
  */
 export function simplify(design, prices, opts = {}) {
   const rounds = opts.rounds ?? 6;
@@ -187,7 +192,7 @@ export function simplify(design, prices, opts = {}) {
     const steps = [];
     for (let i = 0; i < rounds; i++) {
       let best = null;
-      for (const mv of moves(cur.design, start, Boolean(opts.resize), opts)) {
+      for (const mv of moves(cur.design, start, Boolean(opts.resize), { ...opts, keep: [...(opts.keep || []), ...searchKeep(start)] })) {
         const r = get(normalize({ ...cur.design, ...mv.change }));
         if (!feasible(r)) continue;
         if (score(r) < score(best ? best.r : cur) - 0.5) best = { r, mv };
@@ -223,7 +228,9 @@ export function budget(design, prices, opts = {}) {
   const cost = (r) => r.total + r.timeCost;
   /** A step's saving, in all and split into materials and hours. */
   const step = (label, from, to) => ({ label, saving: Math.round((cost(from) - cost(to)) * 100) / 100, materials: Math.round((from.total - to.total) * 100) / 100, hours: Math.round((from.hours - to.hours) * 10) / 10 });
-  const keep = opts.keep ?? ['roofType', 'rafterSeat'];
+  // The structure you chose (offered back in `also`) and the choices you fixed (never touched).
+  const structural = opts.keep ?? ['roofType', 'rafterSeat'];
+  const keep = [...structural, ...searchKeep(start)];
   const base = evaluate(start, prices);
   /** @type {Map<string, any>} */
   const cache = new Map([[keyOf(start), base]]);
@@ -259,7 +266,7 @@ export function budget(design, prices, opts = {}) {
     cur = best.r;
   }
   // What the kept structure choices would save on top, each on its own.
-  const alsoKept = moves(cur.design, start, false, { products: true }).filter((mv) => Object.keys(mv.change).some((k) => keep.includes(k)))
+  const alsoKept = moves(cur.design, start, false, { products: true, keep: searchKeep(start) }).filter((mv) => Object.keys(mv.change).some((k) => structural.includes(k)))
     .map((mv) => ({ label: mv.label, r: get(normalize({ ...cur.design, ...mv.change })) }))
     .filter((x) => feasible(x.r) && cost(x.r) < cost(cur) - 0.5)
     .map((x) => ({ ...step(x.label, cur, x.r), cuts: x.r.cuts }));

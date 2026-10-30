@@ -13,7 +13,7 @@ import { LAP_PRODUCTS } from './lap.mjs';
 /** @typedef {[number, number]} P */
 /**
  * @typedef {{ t: 'poly', pts: P[], closed?: boolean, cls: string }
- *   | { t: 'text', at: P, text: string, size?: number, anchor?: 'start'|'middle'|'end', cls?: string, rot?: number }
+ *   | { t: 'text', at: P, text: string, size?: number, anchor?: 'start'|'middle'|'end', cls?: string, rot?: number, spread?: string, from?: P }
  *   | { t: 'dim', a: P, b: P, off: number, text?: string }} Item
  */
 /** @typedef {{ id: string, title: string, note?: string, items: Item[] }} Sheet */
@@ -171,7 +171,8 @@ export function buildSheets(shed, marks = new Map()) {
       const l = /** @type {any} */ (m.local);
       const c = hx((l.s0 + l.s1) / 2 + off);
       items.push(line([c, -floorBand], [c, -floorBand - 1.5], 'dim'));
-      items.push({ t: 'text', at: [c + 0.8, -floorBand - 2], text: fmtIn(hx((l.s0 + l.s1) / 2 + off)), size: 7, anchor: 'end', cls: 'dimt', rot: 90 });
+      // A king and a jack stand 1-1/2" apart: sheetSvg spreads labels that would touch and draws a leader to each tick.
+      items.push({ t: 'text', at: [c + 0.8, -floorBand - 2], text: fmtIn(hx((l.s0 + l.s1) / 2 + off)), size: 7, anchor: 'end', cls: 'dimt', rot: 90, spread: 'centres', from: [c, -floorBand - 1.5] });
     }
     items.push(text([-2, -floorBand - 3], 'centres from left:', 7, 'end', 'muted'));
     items.push(dim([0, -floorBand], [face, -floorBand], -70));
@@ -471,7 +472,7 @@ export function buildSheets(shed, marks = new Map()) {
       ...(heelJoint(shed) ? [['Rafter tie to rafter, each end', `${heelJoint(shed)?.nails}-16d common, face nailed`]] : []),
       ['Subfloor', '1-5/8" screws 6" edges, 12" field, with adhesive'],
       ['Wall and roof sheathing', '8d at 6" edges, 12" field'],
-      ['Siding panels', '8d galvanized 6" edges, 12" field'],
+      LAP_PRODUCTS[d.sidingType] ? ['Lap siding', '8d HDG siding nail, blind, each stud each course'] : ['Siding panels', '8d galvanized 6" edges, 12" field'],
     ];
     const tx = 140;
     items.push(text([tx, 18], 'NAILING SCHEDULE (typical; your code and each maker\'s instructions win)', 9, 'start', 'muted'));
@@ -635,6 +636,34 @@ function bounds(items) {
   return { x0, y0, x1, y1 };
 }
 
+/** Spread labels: least gap between neighbours, how far one may move, and how far a moved one drops for its leader (px). */
+const SPREAD_GAP = 8.5;
+const SPREAD_REACH = 24;
+const SPREAD_DROP = 4;
+
+/**
+ * Screen x for each label of a row (sorted by x), at least `gap` apart and
+ * each as near its own x as the others allow: neighbours that would touch are
+ * merged into a run centred on the mean of their own positions.
+ * @param {number[]} xs sorted
+ * @param {number} gap
+ */
+export function spreadRow(xs, gap) {
+  /** @type {number[][]} */
+  const runs = [];
+  const startOf = (r) => r.reduce((t, x, j) => t + x - j * gap, 0) / r.length;
+  for (const x of xs) {
+    let r = [x];
+    while (runs.length) {
+      const prev = runs[runs.length - 1];
+      if (startOf(prev) + prev.length * gap <= startOf(r) + 1e-9) break;
+      r = [.../** @type {number[]} */ (runs.pop()), ...r];
+    }
+    runs.push(r);
+  }
+  return runs.flatMap((r) => { const s0 = startOf(r); return r.map((_, j) => s0 + j * gap); });
+}
+
 /** Rough width of a line of lettering in pixels. */
 const textWidth = (s, size) => String(s).length * size * 0.56;
 
@@ -656,7 +685,12 @@ function screenReach(items) {
   };
   for (const it of items) {
     if (it.t === 'poly') for (const [x, y] of it.pts) out.push({ x, y, dx0: -1, dx1: 1, dy0: -1, dy1: 1 });
-    else if (it.t === 'text') { if (it.text) box(it.at[0], it.at[1], 0, 0, textWidth(it.text, it.size || 11), it.size || 11, -(it.rot || 0), it.anchor || 'middle'); }
+    else if (it.t === 'text') {
+      if (!it.text) continue;
+      const w = textWidth(it.text, it.size || 11); const h = it.size || 11; const ang = -(it.rot || 0);
+      if (it.spread) for (const dx of [-SPREAD_REACH, SPREAD_REACH]) box(it.at[0], it.at[1], dx, SPREAD_DROP, w, h, ang, it.anchor || 'middle');
+      else box(it.at[0], it.at[1], 0, 0, w, h, ang, it.anchor || 'middle');
+    }
     else {
       const dx = it.b[0] - it.a[0]; const dy = -(it.b[1] - it.a[1]); const len = Math.hypot(dx, dy) || 1;
       const nx = dy / len; const ny = -dx / len;
@@ -756,13 +790,31 @@ export function sheetSvg(sheet, meta = {}) {
   const X = (x) => +(ox + (x - b.x0) * scale).toFixed(2);
   const Y = (y) => +(oy + (b.y1 - y) * scale).toFixed(2);
   const parts = [];
+  // Labels in a spread row that would touch move apart; each moved one hangs on a leader from its tick.
+  /** @type {Map<Item, number>} */
+  const spreadX = new Map();
+  /** @type {Map<string, Item[]>} */
+  const rows = new Map();
+  for (const it of sheet.items) if (it.t === 'text' && it.spread) rows.set(it.spread, [...(rows.get(it.spread) || []), it]);
+  for (const row of rows.values()) {
+    const sorted = row.slice().sort((p, q) => /** @type {any} */ (p).at[0] - /** @type {any} */ (q).at[0]);
+    const xs = spreadRow(sorted.map((it) => X(/** @type {any} */ (it).at[0])), SPREAD_GAP);
+    sorted.forEach((it, i) => spreadX.set(it, xs[i]));
+  }
   for (const it of sheet.items) {
     if (it.t === 'poly') {
       const pts = it.pts.map(([x, y]) => `${X(x)},${Y(y)}`).join(' ');
       parts.push(it.closed ? `<polygon class="${it.cls}" points="${pts}"/>` : `<polyline class="${it.cls}" points="${pts}"/>`);
     } else if (it.t === 'text') {
-      const rot = it.rot ? ` transform="rotate(${-it.rot} ${X(it.at[0])} ${Y(it.at[1])})"` : '';
-      parts.push(`<text class="${it.cls || 'label'}" x="${X(it.at[0])}" y="${Y(it.at[1])}" text-anchor="${it.anchor || 'middle'}" style="font-size:${it.size || 11}px"${rot}>${esc(it.text)}</text>`);
+      let x = X(it.at[0]); let y = Y(it.at[1]);
+      const sx = spreadX.get(it);
+      if (sx !== undefined && Math.abs(sx - x) > 0.05) {
+        x = +sx.toFixed(2); y = +(y + SPREAD_DROP).toFixed(2);
+        const f = it.from || it.at;
+        parts.push(`<polyline class="dim" points="${X(f[0])},${Y(f[1])} ${(x - X(it.at[0]) + X(f[0])).toFixed(2)},${(y - 1).toFixed(2)}"/>`);
+      }
+      const rot = it.rot ? ` transform="rotate(${-it.rot} ${x} ${y})"` : '';
+      parts.push(`<text class="${it.cls || 'label'}" x="${x}" y="${y}" text-anchor="${it.anchor || 'middle'}" style="font-size:${it.size || 11}px"${rot}>${esc(it.text)}</text>`);
     } else {
       const ax = X(it.a[0]); const ay = Y(it.a[1]); const bx = X(it.b[0]); const by = Y(it.b[1]);
       const dx = bx - ax; const dy = by - ay; const len = Math.hypot(dx, dy) || 1;

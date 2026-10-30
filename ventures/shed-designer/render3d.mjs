@@ -15,6 +15,46 @@ const COLORS = {
   'bulb-0': [1.0, 0.95, 0.6], 'bulb-1': [1.0, 0.5, 0.8], 'bulb-2': [0.6, 0.85, 1.0], 'bulb-3': [0.75, 1.0, 0.7],
 };
 
+const HEAT_NONE = [0.82, 0.82, 0.82];
+
+/**
+ * The framing member a ray first hits, as {id, t}, or null: the ray from o
+ * along dir against every face of each member's extruded profile.
+ * @param {{ id: string, geom: Geom }[]} members
+ * @param {number[]} o @param {number[]} dir
+ */
+export function pickMember(members, o, dir) {
+  let best = null;
+  const sub = (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
+  const cross = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+  const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+  // Moller-Trumbore ray-triangle intersection.
+  const hit = (a, b, c) => {
+    const e1 = sub(b, a); const e2 = sub(c, a);
+    const p = cross(dir, e2); const det = dot(e1, p);
+    if (Math.abs(det) < 1e-12) return Infinity;
+    const s = sub(o, a); const u = dot(s, p) / det;
+    if (u < 0 || u > 1) return Infinity;
+    const q = cross(s, e1); const v = dot(dir, q) / det;
+    if (v < 0 || u + v > 1) return Infinity;
+    const t = dot(e2, q) / det;
+    return t > 1e-6 ? t : Infinity;
+  };
+  for (const m of members) {
+    const g = m.geom;
+    const { pts: pr, tris } = triangulate(g.profile);
+    const front = pr.map((p) => world(g, p, 0)); const back = pr.map((p) => world(g, p, g.thickness));
+    let t = Infinity;
+    for (const [a, b, c] of tris) t = Math.min(t, hit(front[a], front[b], front[c]), hit(back[a], back[b], back[c]));
+    for (let i = 0; i < pr.length; i++) {
+      const j = (i + 1) % pr.length;
+      t = Math.min(t, hit(front[i], front[j], back[j]), hit(front[i], back[j], back[i]));
+    }
+    if (t < Infinity && (!best || t < best.t)) best = { id: m.id, t };
+  }
+  return best;
+}
+
 /** Paint colours for the siding; natural is the stained T1-11 look. */
 export const SIDING_COLORS = {
   natural: [0.64, 0.36, 0.27], red: [0.62, 0.16, 0.13], pink: [0.96, 0.62, 0.76], 'hot pink': [1.0, 0.33, 0.66],
@@ -122,17 +162,25 @@ export function meshOf(solids) {
   return { pos: new Float32Array(pos), nor: new Float32Array(nor), col: new Float32Array(col), lines: new Float32Array(lines) };
 }
 
-/** Colour, layer and finish for each piece of a built shed. @param {import('./model.mjs').Shed} shed */
-export function solidsOf(shed) {
+const layerOf = (m) => (m.group === 'foundation' ? 'foundation' : m.group === 'floor' ? 'floor' : m.group === 'roof' ? 'roof' : m.group === 'wall:front' ? 'front wall' : 'walls');
+
+/**
+ * Colour, layer and finish for each piece of a built shed. With a heat map
+ * (member id -> colour, utilisation.mjs) only the framing is drawn, each
+ * checked member in its colour and the rest grey.
+ * @param {import('./model.mjs').Shed} shed
+ * @param {Map<string, number[]>} [heat]
+ */
+export function solidsOf(shed, heat) {
   const d = shed.design;
   const glitter = d.glitter ? 2 : 0;
   /** @type {Solid[]} */
   const out = [];
   for (const m of shed.members) {
-    const layer = m.group === 'foundation' ? 'foundation' : m.group === 'floor' ? 'floor' : m.group === 'roof' ? 'roof' : m.group === 'wall:front' ? 'front wall' : 'walls';
-    const color = /^PT /.test(m.material) ? COLORS.pt : (m.kind === 'header' || m.kind === 'ridge board' || m.kind === 'ridge beam') ? COLORS.header : COLORS.framing;
-    out.push({ geom: m.geom, color: /** @type {any} */ (color), layer });
+    const color = heat ? heat.get(m.id) || HEAT_NONE : /^PT /.test(m.material) ? COLORS.pt : (m.kind === 'header' || m.kind === 'ridge board' || m.kind === 'ridge beam') ? COLORS.header : COLORS.framing;
+    out.push({ geom: m.geom, color: /** @type {any} */ (color), layer: layerOf(m) });
   }
+  if (heat) return out;
   // Unfinished: bare plywood, or LP's factory primer (a pale grey).
   const bare = d.sidingType?.startsWith('LP SmartSide') || d.sidingType === 'fiber cement' ? [0.84, 0.83, 0.79] : [0.78, 0.62, 0.43];
   const siding = d.sidingColor === 'unfinished' ? bare : /** @type {any} */ (SIDING_COLORS)[d.sidingColor] || COLORS.siding;
@@ -343,6 +391,8 @@ export function createViewer(canvas) {
   let dimCount = 0;
   let showDims = true;
   const overlay = canvas.parentElement && canvas.isConnected ? document.createElement('div') : null;
+  /** Half the width and height of each dimension label, measured on its first frame. @type {number[][]} */
+  let labelHalf = [];
   if (overlay && canvas.parentElement) {
     overlay.className = 'dim-overlay';
     overlay.setAttribute('aria-hidden', 'true');
@@ -358,7 +408,10 @@ export function createViewer(canvas) {
 
   const buf = (data) => { const b = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, b); gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW); return b; };
 
-  function show(shed, { refit = false } = {}) {
+  /** @type {any} */
+  let shown = null;
+  function show(shed, { refit = false, heat = undefined } = {}) {
+    shown = shed;
     for (const k of Object.keys(layers)) { const L = layers[k]; for (const b of [L.p, L.n, L.c, L.l, L.lc]) gl.deleteBuffer(b); delete layers[k]; }
     for (const q of posters) { gl.deleteBuffer(q.p); gl.deleteBuffer(q.uv); }
     posters = shed.fixtures.filter((f) => f.kind === 'poster').map((f) => {
@@ -382,8 +435,9 @@ export function createViewer(canvas) {
       dimBuf = buf(new Float32Array(pts));
       dimCount = pts.length / 3;
       overlay.innerHTML = dims.map((dm) => `<span>${dm.label}</span>`).join('');
+      labelHalf = [];
     }
-    const solids = solidsOf(shed);
+    const solids = solidsOf(shed, heat);
     for (const name of LAYERS) {
       const mesh = meshOf(solids.filter((s) => s.layer === name));
       if (!mesh.pos.length) continue;
@@ -446,7 +500,10 @@ export function createViewer(canvas) {
         if (w4 <= 0 || away) { el.style.display = 'none'; return; }
         el.style.display = '';
         const sx = ((x / w4 + 1) / 2) * cw; const sy = ((1 - y / w4) / 2) * ch;
-        const hw = el.offsetWidth / 2; const hh = el.offsetHeight / 2;
+        // A label's size is read once per show(), not every frame: each read forces a layout.
+        let half = labelHalf[i];
+        if (!half) { half = [el.offsetWidth / 2, el.offsetHeight / 2]; if (half[0]) labelHalf[i] = half; }
+        const [hw, hh] = half;
         const box = [sx - hw, sy - hh, sx + hw, sy + hh];
         const clash = placed.some((b) => box[0] < b[2] && b[0] < box[2] && box[1] < b[3] && b[1] < box[3]);
         if (showDims && (clash || box[0] < 0 || box[2] > cw || box[1] < 0 || box[3] > ch)) { el.style.display = 'none'; return; }
@@ -542,6 +599,21 @@ export function createViewer(canvas) {
     view(theta, phi) { cam.theta = theta; cam.phi = phi; cam.dist = cam.fit; draw(); },
     reset() { cam.theta = -0.95; cam.phi = 0.42; cam.dist = cam.fit; draw(); },
     snapshot() { draw(); return canvas.toDataURL('image/png'); },
+    /** The framing member under a point on the canvas (client pixels), among the layers shown, or null. */
+    pick(clientX, clientY) {
+      if (!shown) return null;
+      const r = canvas.getBoundingClientRect();
+      const nx = ((clientX - r.left) / (r.width || 1)) * 2 - 1;
+      const ny = 1 - ((clientY - r.top) / (r.height || 1)) * 2;
+      const eye = [cam.target[0] + cam.dist * Math.cos(cam.phi) * Math.cos(cam.theta), cam.target[1] + cam.dist * Math.cos(cam.phi) * Math.sin(cam.theta), cam.target[2] + cam.dist * Math.sin(cam.phi)];
+      const norm = (v) => { const l = Math.hypot(v[0], v[1], v[2]) || 1; return [v[0] / l, v[1] / l, v[2] / l]; };
+      const f = norm([cam.target[0] - eye[0], cam.target[1] - eye[1], cam.target[2] - eye[2]]);
+      const rt = norm([f[1], -f[0], 0]);
+      const up = [rt[1] * f[2] - rt[2] * f[1], rt[2] * f[0] - rt[0] * f[2], rt[0] * f[1] - rt[1] * f[0]];
+      const th = Math.tan(0.375); const asp = (r.width || 1) / (r.height || 1);
+      const dir = [0, 1, 2].map((i) => f[i] + nx * th * asp * rt[i] + ny * th * up[i]);
+      return pickMember(shown.members.filter((m) => visible.has(layerOf(m))), eye, dir)?.id ?? null;
+    },
     /** Show a picture of the viewer's own on the big poster (it stays in the browser). */
     setPosterImage(img) { posterImage = img; if (textures.big) { gl.deleteTexture(textures.big); delete textures.big; } draw(); },
   };
