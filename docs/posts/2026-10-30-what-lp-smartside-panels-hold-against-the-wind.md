@@ -2,7 +2,7 @@
 title: "What LP SmartSide panels hold against the wind"
 date: 2026-10-30
 tags: [shed-designer, wind, structure, siding]
-description: "LP's own product report rates its panel siding as a shear wall. Read the footnotes and a 3/8 inch panel on spruce studs braces a shed about as well as T1-11, and the 7/16 inch panel 22% better."
+description: "LP rates its panel siding as a shear wall. Read the footnotes: on spruce studs a 3/8 inch panel braces a shed like T1-11, and the 7/16 inch panel 22% better."
 ---
 
 The [shed designer](https://monorepo-projects-site.duncan-andrew-haywood.workers.dev/shed-designer/) checks each wall as a shear wall: the wind on one face of the shed is carried to the ground by the walls parallel to it, through the siding nailed to the studs. T1-11 and the OSB under lap siding have values in the AWC's wind design standard (SDPWS 2015, Table 4.3A). LP SmartSide panels are not in that table, so until now a SmartSide shed got no racking check at all. That mattered more than it sounds: the tool's own "bring the price down" search picks the 3/8" SmartSide panel for the default 8x12.
