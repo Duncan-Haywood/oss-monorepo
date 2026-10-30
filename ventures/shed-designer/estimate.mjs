@@ -10,7 +10,7 @@ import { optimizeCuts } from './optimize.mjs';
 import { heelJoint } from './checks.mjs';
 import { trussChecks } from './truss.mjs';
 import { LAP_PRODUCTS, lapStocks } from './lap.mjs';
-import { finishName, SIDING_FINISHES } from './looks.mjs';
+import { finishName, SIDING_FINISHES, TRIM_FINISHES } from './looks.mjs';
 
 /** @typedef {import('./model.mjs').Shed} Shed */
 /** @typedef {{ lumber: Record<string, Record<string, number>>, items: Record<string, number>, delivery?: Record<string, number> }} Prices */
@@ -426,7 +426,7 @@ export function estimate(shed, prices = examplePrices()) {
         const jFt = openFt + (2 * d.length + 4 * (d.width / 2 / Math.cos(Math.atan(d.pitch / 12)))) / 12;
         line('Siding', label('vinylStarter'), Math.ceil((perimFt * 1.05) / 12), 'piece', item('vinylStarter'), src('vinylStarter'));
         line('Siding', label('vinylJ'), Math.ceil((jFt * 1.1) / 12.6), 'piece', item('vinylJ'), src('vinylJ'));
-        line('Siding', label('vinylCorner'), 4 * Math.ceil(((dims.highPlateTop ?? dims.plateTop) - dims.skidTop) / 120), 'piece', item('vinylCorner'), src('vinylCorner'));
+        line('Siding', label('vinylCorner'), 4 * Math.ceil(((dims.highPlateTop ?? dims.plateTop) - (dims.sidingBottom ?? dims.skidTop)) / 120), 'piece', item('vinylCorner'), src('vinylCorner'));
       } else if (shed.lap?.length) {
         lapCuts = lapPlan(shed, d, item);
         // Sheathing: one 4x8 per 4 ft column, strips above packed from whole sheets.
@@ -474,6 +474,23 @@ export function estimate(shed, prices = examplePrices()) {
       const n = r.boards.filter((b) => b.stock === Number(len)).length;
       if (n) line('Wall trim', label(k), n, 'piece', item(k), src(k));
     }
+  }
+  // Trim paint: the face of every primed trim board (1x6 fascia, 1x4 or 5/4 rake,
+  // corner boards and casings), two coats at the same 350 sq ft a gallon as the
+  // siding paint. The boards are factory primed and the paint is a paint-and-primer,
+  // so no separate primer: cut ends take the paint. Quarts until a gallon is cheaper.
+  const trimFaceSqFt = ((shed.trim ? shed.trim.fasciaFt * 12 * 5.5 + shed.trim.rakeFt * 12 * 3.5 : 0)
+    + (shed.wallTrim || []).reduce((t, x) => t + x.length * 3.5, 0)) / 144;
+  if (trimFaceSqFt > 0 && d.siding && d.sidingColor !== 'unfinished') {
+    const quarts = Math.ceil((trimFaceSqFt * 2) / (350 / 4));
+    const gallons = Math.ceil(quarts / 4);
+    const qt = quarts * Number(item('trimPaintQt')) <= gallons * Number(item('trimPaintGal'));
+    const name = `${label(qt ? 'trimPaintQt' : 'trimPaintGal')} (${finishName(d.trimColor, TRIM_FINISHES)}, ${Math.round(trimFaceSqFt)} sq ft of trim face)`;
+    if (qt) line('Paint', name, quarts, 'quart', item('trimPaintQt'), src('trimPaintQt'));
+    else line('Paint', name, gallons, 'gallon', item('trimPaintGal'), src('trimPaintGal'));
+    // Keep it with the siding paint so each section stays in one run.
+    const last = shopping.map((r) => r.section).lastIndexOf('Paint', shopping.length - 2);
+    if (last >= 0) shopping.splice(last + 1, 0, /** @type {any} */ (shopping.pop()));
   }
   if (shed.interior) {
     const it = shed.interior;
@@ -548,7 +565,8 @@ export function estimate(shed, prices = examplePrices()) {
   if (d.compaction === 'plate compactor') line('Site prep', label('plateCompactor'), 1, 'day', item('plateCompactor'), src('plateCompactor'));
   else line('Site prep', label('handTamper'), 1, 'each', item('handTamper'), src('handTamper'));
   if (dims.gravelCuYd) line('Site prep', label('gravelTon'), Math.ceil(dims.gravelCuYd * 1.4 * 10) / 10, 'ton', item('gravelTon'), src('gravelTon'));
-  if (dims.block?.pier) {
+  // Piers under the skids, or under the ridge-beam posts of a shed with no floor.
+  if (dims.block?.pier || dims.pierCount) {
     line('Foundation and hardware', label('formTube'), dims.pierTubes, 'each', item('formTube'), src('formTube'));
     line('Foundation and hardware', label('concreteBag'), dims.pierBags, 'bag', item('concreteBag'), src('concreteBag'));
   } else if (dims.block) line('Foundation and hardware', label(dims.block.item), dims.blockCount, 'each', item(dims.block.item), src(dims.block.item));

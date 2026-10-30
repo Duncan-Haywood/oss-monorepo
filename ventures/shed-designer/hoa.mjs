@@ -95,7 +95,7 @@ export function packetSummary(shed) {
     ['Roof outline', `about ${fmtFtIn(d.length + 3)} x ${fmtFtIn(d.width + 2 * d.overhang)} including a ${fmtIn(d.overhang)} eave overhang front and back`],
     ['Height to the peak', `${fmtFtIn(k.peak)} above the ground (top of the gravel or blocks)`],
     ['Height to the eave walls', `${fmtFtIn(k.plateTop)} above the ground; walls ${fmtFtIn(d.wallHeight)} floor to top of plates`],
-    ['Floor height', `${fmtFtIn(k.floorTop)} above the ground`],
+    k.floorless ? ['Floor', `none: a gravel floor; walls on timbers ${fmtFtIn(k.floorTop)} high`] : ['Floor height', `${fmtFtIn(k.floorTop)} above the ground`],
     ['Roof', d.style === 'gambrel'
       ? `gambrel (barn), ${d.gambrelLower}/12 lower and ${d.pitch}/12 upper slopes (${(Math.atan(d.gambrelLower / 12) * 180 / Math.PI).toFixed(0)} and ${(Math.atan(d.pitch / 12) * 180 / Math.PI).toFixed(0)} degrees), the bend ${fmtIn(kneeRun(d))} in from each long wall, peak running the ${fmtFtIn(d.length)} length`
       : `gable, ${d.pitch}/12 pitch (${(Math.atan(d.pitch / 12) * 180 / Math.PI).toFixed(1)} degrees), ridge running the ${fmtFtIn(d.length)} length`],
@@ -145,7 +145,7 @@ export function elevationSvg(shed, name) {
   const roofC = roofHex(d);
   const trim = trimHex(d);
   const look = sidingLook(d.sidingType);
-  const z0 = Math.max(0, k.skidTop - 1);
+  const z0 = k.floorless ? k.sidingBottom : Math.max(0, k.skidTop - 1);
 
   // Extent of the drawing, in inches. Text is sized to the shed so every
   // elevation of it prints at the same weight.
@@ -313,7 +313,7 @@ export function elevationSvg(shed, name) {
   vdim(rx, 0, k.peak, `${fmtFtIn(k.peak)} to peak`, 'peak');
   vdim(rx - fs * 2.6, 0, k.plateTop, `${fmtFtIn(k.plateTop)} to wall top`, 'wall');
   const lx = x0 - fs * 2.2;
-  vdim(lx, 0, k.floorTop, `floor ${fmtFtIn(k.floorTop)}`, 'floor', -1);
+  vdim(lx, 0, k.floorTop, k.floorless ? `timber ${fmtFtIn(k.floorTop)}` : `floor ${fmtFtIn(k.floorTop)}`, 'floor', -1);
   // Pitch: a little triangle on the roof (gable ends) or a note above it (eave sides).
   if (gam) {
     dims.push(`<g class="dim pitch"><text x="${(F / 2).toFixed(2)}" y="${(Y(k.peak) - fs * 0.6).toFixed(2)}" text-anchor="middle" font-size="${fs}">${d.pitch}/12 roof pitch above the bend, ${d.gambrelLower}/12 below it (gambrel); peak ${fmtFtIn(k.peak)} up</text></g>`);

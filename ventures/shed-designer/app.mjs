@@ -156,7 +156,7 @@ const SITE_FIELDS = ['lotWidthFt', 'lotDepthFt', 'siteLeftFt', 'siteRearFt', 'se
 const FIELDS = ['name', 'lengthFt', 'widthFt', 'style', 'wallHeight', 'pitch', 'overhang', 'studSize', 'studSpacing', 'joistSize', 'joistSpacing',
   'rafterSize', 'rafterSpacing', 'tieSize', 'skidSize', 'skidSpacing', 'foundation', 'floorTreated', 'siding', 'roofing', 'gableVents', 'ventWidth', 'ventHeight', 'kerf',
   'roofType', 'beamSize', 'sidingColor', 'polkaDots', 'autoWall', 'autoStuds', 'autoPitch',
-  'autoOverhang', 'overhangBudget', 'snowLoad', 'windLoad', 'roofColor', 'trimColor', 'doorColor', 'glitter', 'interior', 'sidingType', 'roofCover', 'insulation', 'customRange', 'atticStorage', 'wallTrim', 'climate', 'rafterSeat', 'maxFootprint', 'pierDepth', 'compaction', 'pad', 'floorPanel', 'spares', 'taxRate', 'delivery', 'laborRate', 'maxHaulFt', 'gambrelLower', 'gambrelKnee', 'loft', 'loftJoist', 'siteFacing', 'northDeg', 'easementSide', 'easementNote', ...SITE_FIELDS];
+  'autoOverhang', 'overhangBudget', 'snowLoad', 'windLoad', 'roofColor', 'trimColor', 'doorColor', 'glitter', 'interior', 'sidingType', 'roofCover', 'insulation', 'customRange', 'atticStorage', 'wallTrim', 'climate', 'rafterSeat', 'maxFootprint', 'pierDepth', 'blockSpacing', 'compaction', 'pad', 'floor', 'floorPanel', 'spares', 'taxRate', 'delivery', 'laborRate', 'maxHaulFt', 'gambrelLower', 'gambrelKnee', 'loft', 'loftJoist', 'siteFacing', 'northDeg', 'easementSide', 'easementNote', ...SITE_FIELDS];
 
 
 /** A colour select keeps one "Your colour" option for a hex code typed or picked. @param {HTMLSelectElement} sel @param {string} v */
@@ -195,8 +195,8 @@ function readForm() {
   d.length = Math.round(num('lengthFt', d.length / 12) * 12);
   d.width = Math.round(num('widthFt', d.width / 12) * 12);
   d.maxPeak = Math.round(num('maxPeakFt', d.maxPeak / 12) * 12);
-  for (const f of ['wallHeight', 'pitch', 'overhang', 'studSpacing', 'joistSpacing', 'rafterSpacing', 'skidSpacing', 'ventWidth', 'ventHeight', 'kerf', 'snowLoad', 'windLoad', 'maxFootprint', 'pierDepth', 'spares', 'taxRate', 'laborRate', 'maxHaulFt', 'gambrelLower', 'gambrelKnee', ...SITE_FIELDS, 'overhangBudget']) d[f] = num(f, d[f]);
-  for (const f of ['style', 'studSize', 'joistSize', 'rafterSize', 'tieSize', 'skidSize', 'foundation', 'roofType', 'beamSize', 'sidingColor', 'roofColor', 'trimColor', 'doorColor', 'interior', 'sidingType', 'roofCover', 'wallTrim', 'climate', 'rafterSeat', 'compaction', 'pad', 'floorPanel', 'delivery', 'loft', 'loftJoist', 'siteFacing', 'northDeg', 'easementSide', 'easementNote']) d[f] = v(f).value;
+  for (const f of ['wallHeight', 'pitch', 'overhang', 'studSpacing', 'joistSpacing', 'rafterSpacing', 'skidSpacing', 'ventWidth', 'ventHeight', 'kerf', 'snowLoad', 'windLoad', 'maxFootprint', 'pierDepth', 'blockSpacing', 'spares', 'taxRate', 'laborRate', 'maxHaulFt', 'gambrelLower', 'gambrelKnee', ...SITE_FIELDS, 'overhangBudget']) d[f] = num(f, d[f]);
+  for (const f of ['style', 'studSize', 'joistSize', 'rafterSize', 'tieSize', 'skidSize', 'foundation', 'roofType', 'beamSize', 'sidingColor', 'roofColor', 'trimColor', 'doorColor', 'interior', 'sidingType', 'roofCover', 'wallTrim', 'climate', 'rafterSeat', 'compaction', 'pad', 'floor', 'floorPanel', 'delivery', 'loft', 'loftJoist', 'siteFacing', 'northDeg', 'easementSide', 'easementNote']) d[f] = v(f).value;
   for (const f of ['floorTreated', 'siding', 'roofing', 'gableVents', 'polkaDots', 'autoWall', 'autoStuds', 'autoPitch', 'autoOverhang', 'glitter', 'insulation', 'customRange', 'atticStorage']) d[f] = v(f).checked;
   d.lengths = $$('input[name="stock"]:checked').map((c) => Number(c.value));
   d.locked = $$('input[name="lock"]:checked').map((c) => c.value);
@@ -243,6 +243,8 @@ function renderSummary(shed, est) {
   const buy = toBuy(est);
   $('#total').textContent = money(buy.total);
   $('#total-pill-n').textContent = money(buy.total);
+  // The gallery and the cards price materials before tax; say what this total adds, so the jump is not a surprise.
+  $('#total-pill-l').textContent = buy.tax && est.deliveryFee ? 'Total incl. tax + delivery' : buy.tax ? 'Total incl. tax' : est.deliveryFee ? 'Total incl. delivery' : 'Total';
   $('#summary-lines').innerHTML = [
     ['Materials', `${money(buy.sub)}${buy.less ? ` (${money(est.total)} less ${money(buy.less)} you have or left out)` : ''}${buy.tax ? ` + ${money(buy.tax)} tax (${d.taxRate}%)` : ' (no sales tax set)'}${d.delivery !== 'pickup' ? (est.deliveryFee ? ` + ${money(est.deliveryFee)} delivery` : ' + delivery (type your store\'s charge under Prices)') : ''}`],
     ['Where the money goes', sectionTotals(est.shopping).sort((a, b) => b.total - a.total).slice(0, 5).map((x) => `${esc(x.section)} ${money(x.total)} (${Math.round(x.share * 100)}%)`).join(', ')],
@@ -252,7 +254,7 @@ function renderSummary(shed, est) {
     ['Longest board', haulLine(shed, est)],
     ['Lumber', `${money(est.lumberCost)}; the cut sheet's boards, ${money(est.cutSheetCost)}, are ${est.cutSheetCost - est.lowerBound < 0.005 ? 'proven the cheapest possible' : `within ${((est.cutSheetCost / est.lowerBound - 1) * 100).toFixed(1)}% of the least any order could cost (${money(est.lowerBound)})`}`],
     ...(est.unpriced.length ? [['Not in the total', `${est.unpriced.length} custom-size opening${est.unpriced.length > 1 ? 's' : ''} with no unit picked; see the shopping list for a typical range`]] : []),
-    ['Sheets', `${est.floorSheets} floor, ${est.roofSheets} roof${d.siding ? `, ${shed.sidingFull.length + (shed.sidingUpper.length ? 1 : 0)}+ siding` : ''}`],
+    ['Sheets', `${est.floorSheets ? `${est.floorSheets} floor, ` : ''}${est.roofSheets} roof${d.siding ? `, ${shed.sidingFull.length + (shed.sidingUpper.length ? 1 : 0)}+ siding` : ''}`],
     ['Your time', (() => { const h = laborHours(shed, est); return `about ${Math.round(h)} hours${d.laborRate ? `, ${money(h * d.laborRate)} at ${money(d.laborRate)} an hour (materials and time ${money(est.total + h * d.laborRate)})` : ''}`; })()],
     ['Saw cuts', (() => { const c = cutMetrics(shed, est); return `${c.straight} straight, ${c.angled} angled${c.notches ? `, ${c.notches} notches` : ''}; ${(c.waste * 100).toFixed(1)}% offcut`; })()],
   ].map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join('');
@@ -1153,6 +1155,8 @@ function wire() {
   $('#print-all').addEventListener('click', () => printWhat('all'));
   // The HOA packet is its own page, carrying the design in its link as "Copy link" does.
   $('#hoa-packet').addEventListener('click', () => { window.open(`hoa-packet.html#d=${encodeDesign(design())}`, '_blank', 'noopener'); });
+  // The packet is what an HOA asks for, so the section bar links it too, not only the Plans tab.
+  $('#jump-hoa').addEventListener('click', () => $('#hoa-packet').click());
   for (const id of ['#quote-store', '#quote-name', '#quote-phone', '#quote-zip', '#quote-date']) $(id).addEventListener('input', () => quoteCtx && renderQuote(quoteCtx.shed, quoteCtx.est));
   $('#quote-store').addEventListener('change', () => quoteCtx && renderQuote(quoteCtx.shed, quoteCtx.est));
   $('#buy-at').value = state.buyAt;
