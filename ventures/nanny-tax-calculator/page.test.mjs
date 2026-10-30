@@ -47,3 +47,10 @@ test("usage events named on the page are the ones the code records", () => {
 test("page says its defaults are placeholders", () => {
   assert.match(page("index.html"), /placeholders, not/i);
 });
+
+// Closest sibling: the sitter's side of the same arrangement (self-employed babysitter).
+test("index links one hop to the babysitting-business-kit sibling", () => {
+  const html = page("index.html");
+  assert.match(html, /href="\.\.\/babysitting-business-kit\/"/);
+  assert.match(html, /babysitting business kit/i);
+});
