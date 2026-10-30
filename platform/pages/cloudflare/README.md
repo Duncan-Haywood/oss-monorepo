@@ -1,7 +1,9 @@
 # The site on Cloudflare
 
-Since 2026-10-29 the public site is served by Cloudflare at
-https://monorepo-projects-site.duncan-andrew-haywood.workers.dev/ (owner:
+Since 2026-10-29 the public site is served by Cloudflare, at
+https://marisstella.app/ since 2026-10-30 (first at
+https://monorepo-projects-site.duncan-andrew-haywood.workers.dev/, which still
+serves the same files; owner:
 "we are moving from ghp to cloudflare"). The old GitHub Pages address
 serves a redirect page for every URL (`../redirect-stubs.mjs`).
 
@@ -57,15 +59,19 @@ two-Worker dev mode, the shard reads its files from the first Worker's
 directory: a page placed there was served instead. Run `wrangler dev` inside
 `shard/` to check the shard alone.
 
-## A custom domain
+## The custom domain: marisstella.app
 
-The domain must be in the Cloudflare account. The token needs Zone → DNS →
-Edit and Zone → Workers Routes → Edit, scoped to that zone only. With those
-in place:
+Since 2026-10-30 the site Worker is attached to **https://marisstella.app/**
+(the owner added the zone to this Cloudflare account that day).
+`wrangler.toml`'s `routes` entry with `custom_domain = true` makes Cloudflare
+create the DNS record and the certificate on deploy. The deploy token needs,
+scoped to that zone only: Zone → Zone → Read, Zone → DNS → Edit and
+Zone → Workers Routes → Edit (account-level DNS settings, DNS Firewall, DNS
+Views and Registrar permissions are not used). The workflow builds for that
+origin (`CLOUDFLARE_BASE` in `portfolio-pages.yml`), so every canonical link,
+sitemap and feed names it. The workers.dev address keeps serving the same
+files. `platform/edge/wrangler.toml`'s `ALLOWED_ORIGIN` lists both.
 
-1. add `routes = [{ pattern = "<domain>", custom_domain = true }]` to
-   `wrangler.toml`;
-2. set the repository variable `PAGES_BASE_URL` to `https://<domain>/`;
-3. add the new origin to `platform/edge/wrangler.toml`'s `ALLOWED_ORIGIN`.
-
-The next build then names that origin in every canonical link and sitemap.
+To move to another domain: add it to the account, change the `routes` entry
+and `CLOUDFLARE_BASE` (or set the repository variable `PAGES_BASE_URL`), and
+add the origin to `ALLOWED_ORIGIN`.

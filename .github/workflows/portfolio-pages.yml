@@ -96,7 +96,9 @@ jobs:
         env:
           CONFIGURED: ${{ (secrets.CLOUDFLARE_API_TOKEN || secrets.CLOUDFLAREAPITOKEN || secrets.CLOUDFLARERESTRICTEDAPIKEY) != '' && (secrets.CLOUDFLARE_ACCOUNT_ID || secrets.CLOUDFLAREACCOUNTID) != '' }}
           OVERRIDE: ${{ vars.PAGES_BASE_URL }}
-          CLOUDFLARE_BASE: https://monorepo-projects-site.duncan-andrew-haywood.workers.dev/
+          # The custom domain attached in platform/pages/cloudflare/wrangler.toml
+          # (2026-10-30); the workers.dev address serves the same files.
+          CLOUDFLARE_BASE: https://marisstella.app/
           GITHUB_PAGES_BASE: ${{ format('https://{0}.github.io/{1}/', github.repository_owner, github.event.repository.name) }}
         run: |
           if [ "$CONFIGURED" = true ]; then cf=true; base="$CLOUDFLARE_BASE"; else cf=false; base="$GITHUB_PAGES_BASE"; fi

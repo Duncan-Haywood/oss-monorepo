@@ -134,8 +134,8 @@ is already asked; don't duplicate it.
 
 ## Hosting
 
-The catalogue is served by Cloudflare (free plan) at
-**https://monorepo-projects-site.duncan-andrew-haywood.workers.dev/**, built and
+The catalogue is served by Cloudflare (free plan) at **https://marisstella.app/**
+(owner, 2026-10-30; the workers.dev address serves the same files), built and
 deployed by `.github/workflows/portfolio-pages.yml` on every merge (and every
 three hours); the old GitHub Pages address serves redirect pages to it
 (owner, 2026-10-29). Merging is publishing; there is no branch to push by hand.

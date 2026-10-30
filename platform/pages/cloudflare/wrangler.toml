@@ -7,6 +7,12 @@ name = "monorepo-projects-site"
 main = "router.mjs"
 compatibility_date = "2025-09-01"
 workers_dev = true
+# The site's own domain (owner, 2026-10-30: marisstella.app, added to this
+# Cloudflare account). A custom domain makes Cloudflare create the DNS record
+# and the certificate itself; the deploy token needs Zone Read, DNS Edit and
+# Workers Routes Edit on this zone. The workers.dev address keeps serving the
+# same files, with every canonical link naming this domain.
+routes = [{ pattern = "marisstella.app", custom_domain = true }]
 
 [assets]
 directory = "../dist"
