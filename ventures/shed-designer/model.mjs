@@ -1848,7 +1848,7 @@ function buildFramed(d) {
     let rungs = 0;
     for (let z = floorTop + 12; z + 1.5 <= deckTop - 3; z += 12) {
       const xm = (nearX(z + 0.75) + farX(z + 0.75)) / 2;
-      push({ id: nextId('LL'), group: 'roof', kind: 'ladder rung', material: '2x4', length: 16, note: 'flat between the rails, 12" apart; two 3" screws into each rail through a cleat', geom: rectGeom([xm - 1.75, yc - 8, z], Y, X, Z, 16, 3.5, 1.5) });
+      push({ id: nextId('LL'), group: 'roof', kind: 'ladder rung', material: '2x4', length: 16, note: 'flat between the rails, 12" apart; two 3" screws through each rail into its ends, glued', geom: rectGeom([xm - 1.75, yc - 8, z], Y, X, Z, 16, 3.5, 1.5) });
       rungs++;
     }
     notes.push(`Loft ladder: two 2x4 rails 16" apart and ${rungs} 2x4 rungs 12" apart, leaning 1 in 4 against the ${d.loft === 'full' ? 'hatch' : "loft's edge"} joist and screwed to it. It reaches the loft floor; there is no handhold above it, so keep a hand on the joist going over.`);
