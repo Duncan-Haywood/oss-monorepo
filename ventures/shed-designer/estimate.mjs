@@ -576,7 +576,11 @@ export function estimate(shed, prices = examplePrices()) {
     line('Fasteners and sealants', label('sheathingNails'), Math.ceil((sheathingSheets * 60) / 478), 'box', item('sheathingNails'), src('sheathingNails'));
     if (panelSiding) {
       const sheets = shed.sidingFull.length + sidingUpperSheets(shed);
-      sidingNails(sheets * 60);
+      // LP panels: each shiplap joint double-nailed (16 more a sheet at 6" up an
+      // 8 ft edge), and the 7/16" panel on studs at 24" nailed at 6" in the field
+      // too (ESR-1301), another 16 a sheet.
+      const lp = d.sidingType.startsWith('LP SmartSide') ? 16 + (d.sidingType === 'LP SmartSide 7/16' && d.studSpacing > 16 ? 16 : 0) : 0;
+      sidingNails(sheets * (60 + lp));
     }
     // Lap siding: a nail at every stud in every course (140 to the 1 lb box), plus 10% for misses.
     if (lapCuts) sidingNails(lapCuts.nails * 1.1);
