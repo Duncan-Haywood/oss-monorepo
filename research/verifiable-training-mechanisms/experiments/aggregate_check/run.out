@@ -1,0 +1,12 @@
+/home/user/oss-monorepo/research/verifiable-training-mechanisms/experiments/aggregate_check/run.py:61: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /__w/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:820.)
+  mt = [float(p.abs().max()) for p in params]
+/home/user/oss-monorepo/research/verifiable-training-mechanisms/experiments/aggregate_check/run.py:61: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /__w/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:820.)
+  mt = [float(p.abs().max()) for p in params]
+/home/user/oss-monorepo/research/verifiable-training-mechanisms/experiments/aggregate_check/run.py:61: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /__w/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:820.)
+  mt = [float(p.abs().max()) for p in params]
+/home/user/oss-monorepo/research/verifiable-training-mechanisms/experiments/aggregate_check/run.py:61: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /__w/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:820.)
+  mt = [float(p.abs().max()) for p in params]
