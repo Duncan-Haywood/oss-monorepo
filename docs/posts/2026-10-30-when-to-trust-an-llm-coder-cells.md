@@ -1,7 +1,7 @@
 ---
 title: "When is it safe to split an audit by the LLM's own label?"
 date: 2026-10-30
-description: "A pilot-based informedness screen with a prevalence guard decides when splitting a human audit by an LLM coder's label pays, tested on GoEmotions and NaijaSenti."
+description: "A pilot-based informedness screen with a prevalence guard decides when splitting a human audit by an LLM coder's label pays, tested on two corpora."
 tags: [research, llm-coding, survey-sampling]
 ---
 
