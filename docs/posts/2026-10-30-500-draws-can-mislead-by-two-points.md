@@ -1,6 +1,6 @@
 ---
 title: "500 simulation draws can mislead by two points: rechecking an audit's coverage"
-seo_title: "Is 500 Monte Carlo draws enough? Rechecking confidence-interval coverage"
+seo_title: "Is 500 Monte Carlo draws enough? Rechecking interval coverage"
 date: 2026-10-30
 tags: [llm-coding-inference, coverage, evaluation]
 description: "An audit interval showed 92.0% coverage in 500 draws and 94.1% in 2,000. A rerun of the same cell shows how far a small simulation can wander."
