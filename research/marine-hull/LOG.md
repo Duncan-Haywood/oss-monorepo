@@ -2,6 +2,21 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-30 · Milestone 6g: with three sea states instead of two, how much of the oracle gain does persistence capture? (planned before running)
+- Why: 6f's "Next". A two-state chain forces a single rough/calm boundary; a third state (moderate) makes yesterday's call wrong more often at a boundary and gives the policy a middle speed to use. Still swept, not sourced.
+- Plan (`experiments/run_solar_seastate_persist3.py`, 6f's boat, five sites, packs 10 and 1 kWh, seed 1): states calm / moderate / rough with multipliers F = 1, 1.5, 3 and stationary shares 0.4, 0.3, 0.3. Each day the state is resampled from those shares with probability q and kept otherwise; q in {1.0 (iid), 0.5, 0.15} (mean spells about 1.7, 3.3 and 11 days). Policies: B best constant speed; C oracle with a speed per state; E persistence (speed per state chosen in-sample on yesterday's state). Report E/B, hit rate and the share of the C-B gap E recovers.
+- **Predictions (before running):** (1) at q = 1 the hit rate equals the sum of squared shares, 0.34, within 0.03 in all 10 cells (prior 90%). (2) At q = 1 the median share is at most 0.15 and E/B under +1.5% everywhere (prior 65%). (3) The median share rises monotonically with 1/q, and at q = 0.15 is at least 0.5 (prior 70%). (4) At q = 0.15 the three-state share is below 6f's two-state 7-day median of 0.75 in the median (prior 55%: more boundaries, more wrong calls). Refuted: (1) any cell off by 0.03 or more; (2) median above 0.15 or any E/B of +1.5% or more; (3) a non-monotone step or median under 0.5; (4) median share 0.75 or above.
+- Limits known in advance: F values and shares are swept choices, not sourced; one seed; in-sample speed triple; exact persistence; resampling chain, not a fitted wave climate.
+
+### Outcome of milestone 6g (`experiments/run_solar_seastate_persist3.py`, about 6 minutes, seeded; `experiments/results_solar_seastate_persist3.txt`; 30 cells)
+- **(1) held:** the hit rate at q = 1 is 0.34 in all 10 cells.
+- **(2) held:** at q = 1 the median share of the C-B gap is 0.10 (range 0.04 to 0.16) and the largest E/B is +0.6%; 0 of 30 cells have E below B.
+- **(3) held:** median share 0.10 (hit 0.34) -> 0.48 (q = 0.5, hit 0.67; range 0.43 to 0.65) -> 0.89 (q = 0.15, hit 0.90; range 0.86 to 0.93).
+- **(4) refuted, with a confound:** the q = 0.15 median share is 0.89, above 6f's two-state 7-day 0.75. The comparison is not like for like: q = 0.15 gives mean spells of about 11 days against 7, and hit rate 0.90 against 0.85. At comparable hit rates the two chains look alike (6f: 0.85 -> 0.75; here 0.90 -> 0.89, 0.67 -> 0.48 against 6f's 0.67 -> 0.28), so the third state does not obviously hurt persistence; if anything the middle speed lets a wrong call cost less. I did not test this separately.
+- Reading: the shape from 6f carries over to three states. Persistence is near worthless on an iid sea (a tenth of the oracle gain, all of it in-sample fitting of the speed triple) and recovers about half the gain at a 67% hit rate and about 90% at a 90% hit rate. What a sensor-only boat gains depends on spell length, which this programme still cannot source.
+- Limits: as planned. F values and shares are choices, one seed, in-sample triple, exact persistence, resampling chain rather than a fitted wave climate.
+- Next: a wave-height series if one becomes reachable; milestone 3 tank data remains blocked (Crossref and arXiv answer through the proxy but only return papers, not tables; `eprints.soton.ac.uk` still 401).
+
 
 ## 2026-10-30 · Milestone 3a: one published Wigley tank point against the Michell + ITTC model (planned before running)
 - Why: milestone 3 (tank data) has been blocked for a week by data hosts. This session zenodo.org was reachable and holds Wang et al., *Wave-resistance computation via CFD and IGA-BEM solvers: a comparative study* (OPEC 2017, zenodo.org/records/1169033, CC BY-NC-ND, read only, nothing redistributed). It quotes the Wigley tank measurement of Ju (1983): U0 = 1.67 m/s (Fr = 0.267), wetted area Aw = Cs L (2D + B) with Cs = 0.661, **CT = 4.16e-3** on Aw. One point, not a curve, and second-hand (I have not opened Ju 1983). It is the first number in the programme from a tank.
