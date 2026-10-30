@@ -480,7 +480,11 @@ export function familyStatement(desk, familyId, year) {
   const f = desk.families.find((x) => x.id === familyId);
   const p = desk.profile;
   const rows = [];
-  for (const b of desk.bookings) if (b.familyId === familyId) for (const pay of payments(b)) if (String(pay.date).startsWith(String(year))) rows.push({ ...pay, sit: b.date });
+  // Money this family paid: sits they paid for, and packages they bought (on the day bought).
+  // A package or gift-certificate use is a credit, not a payment, so it is left out; a gift
+  // certificate someone else bought is not this family's payment at all.
+  for (const b of desk.bookings) if (b.familyId === familyId) for (const pay of payments(b)) if (!pay.credit && String(pay.date).startsWith(String(year))) rows.push({ ...pay, sit: b.date });
+  for (const s of (desk.packages && desk.packages.sold) || []) if (s.familyId === familyId && String(s.soldOn).startsWith(String(year)) && num(s.price)) rows.push({ amount: num(s.price), date: s.soldOn, method: s.method || "", sit: `package: ${s.name}` });
   rows.sort((a, b) => a.date.localeCompare(b.date));
   const total = r2(rows.reduce((a, x) => a + num(x.amount), 0));
   const text = [
@@ -493,7 +497,7 @@ export function familyStatement(desk, familyId, year) {
     `Paid by: ${f ? f.name : familyId}`,
     `Total paid for care in ${year}: $${total.toFixed(2)}`,
     ``,
-    ...rows.map((x) => `  ${x.date}  $${num(x.amount).toFixed(2)}  ${x.method || ""}  (sit on ${x.sit})`),
+    ...rows.map((x) => `  ${x.date}  $${num(x.amount).toFixed(2)}  ${x.method || ""}  (${String(x.sit).startsWith("package:") ? x.sit : `sit on ${x.sit}`})`),
     ``,
     `This is a record of payments received, prepared by the provider. It is not tax advice.`,
   ].join("\n");
