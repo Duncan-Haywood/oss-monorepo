@@ -1,0 +1,57 @@
+{
+  "date": "2026-10-29",
+  "session": "https://claude.ai/code/session_01XpHqyfLW7wSEJmLBRH72gZ",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "let's work more on distribution in general ideally getting users on this even if not paying yet. agent time going to distribution rather than $ spend. do a report on the state of this.",
+  "input_sha256": "5779a455b50672ec81ee0e52d0fc25cfc6fbab6d50db5c2fb183044c89789085",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-29T03:46:51Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Owner asked for distribution work (agent time, no spend) and a report on its state.",
+  "projects": [
+    "platform/pages",
+    "platform/distribution"
+  ],
+  "pr": 11281,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    "First post description was 164 chars (limit 160); caught by build.test.mjs and fixed.",
+    "actions-continue-on-error-check was missing from DOWNLOADABLE_CLI_FILES, so its curl snippet would have 404ed; added, and the new test asserts it."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/usage/README.md",
+      "issue": "Gave the dead /monorepo-projects/ site URL; fixed."
+    },
+    {
+      "file": "portfolio/ledger/decision_queue.py",
+      "issue": "Row pages-custom-domain still cites /monorepo-projects/; left for the ledger owner."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/reports/distribution-state-2026-10-29.md",
+    "docs/posts/2026-10-29-thirty-three-channels-none-switched-on.md"
+  ],
+  "goal": null,
+  "notes": "Findings (2026-10-29): 33 channels all at rung artifact, 0 live; counter /counts shows ~24 loads across 3 days, none on a tool page; host-root robots.txt 404; web search returns repo PRs, not site pages. Shipped CI install snippets on the 20 linter entry pages. Verification: node --test platform/pages/ci-install.test.mjs 3/3 pass; full platform/pages suite and platform/marketing/front-door-tools.test.mjs run locally, result in the PR.",
+  "corrections": [],
+  "redteam": null
+}

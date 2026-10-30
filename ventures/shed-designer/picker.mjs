@@ -90,7 +90,7 @@ export function mountPicker(opts) {
   const allFacts = () => entries.map((e) => factsOf(e.id));
   // The design's own roofing and paint, which store kits leave out (value.mjs).
   const leftOutOf = (f) => {
-    const shed = buildShed(normalize(f.design));
+    const shed = buildShed(normalize(f.design), opts.prices?.());
     const est = opts.priceOf ? opts.priceOf(shed) : estimate(shed, opts.prices?.() || examplePrices());
     return est.shopping.filter((l) => l.section === 'Roofing' || l.section === 'Paint').reduce((t, l) => t + (l.total || 0), 0);
   };
@@ -147,6 +147,7 @@ export function mountPicker(opts) {
           <span class="pick-line">${Math.round(f.storage.volumeCuFt)} cu ft inside &middot; ${Math.round(f.storage.shelfFt)} ft of clear wall</span>
           <span class="pick-line pick-finish">Siding: ${esc(f.siding.split(',')[0])} &middot; ${esc(f.design.roofing ? (f.design.roofCover === 'metal' ? 'metal roof' : 'asphalt shingle roof') : 'no roofing')}</span>
           <span class="pick-why">${esc(tradeOff(f, all))}</span>
+          <span class="pick-more" aria-hidden="true">See all sides, cost and storage &rarr;</span>
         </button>
         <button type="button" class="btn pick-cmp" data-compare="${esc(e.id)}" aria-pressed="${on}">${on ? 'In compare' : 'Compare'}</button>
       </li>`;
@@ -265,7 +266,7 @@ export function mountPicker(opts) {
         ${chosen.length >= 2 || (chosen.length === 1 && !on) ? '<button type="button" class="btn" data-compare-open>Compare side by side</button>' : ''}
       </div>`;
     show(html, titleOf(id));
-    opts.count?.('compares');
+    opts.count?.('details');
   }
 
   function openCompare() {
