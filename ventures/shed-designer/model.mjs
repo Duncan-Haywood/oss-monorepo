@@ -18,6 +18,7 @@
 import { actual, ceil16, TWO_BY, DEFAULT_LENGTHS_FT, fmtFtIn as fmtFt, fmtIn } from './lumber.mjs';
 import { lumberCostOf } from './estimate.mjs';
 import { productById } from './products.mjs';
+import { headerCheck } from './structure.mjs';
 
 /** @typedef {[number, number, number]} Vec */
 /** @typedef {{ origin: Vec, u: Vec, v: Vec, w: Vec, profile: [number, number][], thickness: number }} Geom */
@@ -251,11 +252,47 @@ export function axisStart(design, op) {
   return wallFaceLength(design, op.wall) - op.offset - op.width;
 }
 
-/** Header depth by rough-opening width. A rule of thumb for a light shed, not a span table. */
+/** Header depth by rough-opening width: the old rule of thumb, kept for a design with no loads to size from. */
 export function defaultHeader(width) {
   if (width <= 48) return '2x6';
   if (width <= 72) return '2x8';
   if (width <= 96) return '2x10';
+  return '2x12';
+}
+
+/**
+ * The line load on a header in this wall, lb/ft (checks.mjs checks it with the
+ * same number). An eave wall carries its strip of roof: under a ridge beam the
+ * lower half of the rafter run plus the wall and overhang, under a ridge board
+ * the whole half roof (the pair and its tie are a truss), plus 10 lb/ft of
+ * wall. A gable wall carries 40 lb/ft of gable framing and the end rafter's
+ * strip, half a rafter spacing.
+ * @param {Partial<Design>} d @param {string} wall
+ */
+export function headerLoadPlf(d, wall) {
+  const cos = 1 / Math.sqrt(1 + ((d.pitch ?? 0) / 12) ** 2);
+  const roof = 15 / cos + (d.snowLoad ?? 0);
+  if (wall === 'front' || wall === 'back') {
+    const D = actual(d.studSize || '2x4').depth;
+    const beam = d.roofType === 'ridgeBeam';
+    const run = (d.width ?? 0) / 2 - (beam ? 1.5 : 0.75) - D;
+    const tribFt = (beam ? run / 2 + D + (d.overhang ?? 0) : (d.width ?? 0) / 2 + (d.overhang ?? 0)) / 12;
+    return roof * tribFt + 10;
+  }
+  return 40 + roof * ((d.rafterSpacing ?? 24) / 2) / 12;
+}
+
+/**
+ * The header over an opening: the one asked for, or the shallowest two-ply
+ * size that carries this wall's load (headerCheck: bending, shear, L/240 and
+ * bearing on one jack a side). IRC Table R602.7(1) starts at two 2x4s too.
+ * Sized to the load rather than to a house rule of thumb.
+ * @param {Partial<Design>} d @param {Opening} op
+ */
+export function headerFor(d, op) {
+  if (op.header) return op.header;
+  const w = headerLoadPlf(d, op.wall);
+  for (const size of ['2x4', '2x6', '2x8', '2x10', '2x12']) if (headerCheck(size, op.width, w, 2, 1, d.studSize || '2x4') <= 1) return size;
   return '2x12';
 }
 
@@ -355,7 +392,7 @@ export function minWallFor(d) {
   let need = 60;
   for (const op of d.openings) {
     const bottom = op.kind === 'window' ? op.sill ?? 42 : 0;
-    need = Math.max(need, bottom + op.height + actual(op.header || defaultHeader(op.width)).depth + 3);
+    need = Math.max(need, bottom + op.height + actual(headerFor(d, op)).depth + 3);
   }
   return Math.ceil(need * 8) / 8;
 }
@@ -613,7 +650,7 @@ function buildFramed(d) {
     const ops = [];
     for (const op of d.openings.filter((o) => o.wall === name)) {
       const a = axisStart(d, op) - start;
-      const hdr = op.header || defaultHeader(op.width);
+      const hdr = headerFor(d, op);
       const hd = actual(hdr).depth;
       const bottom = op.kind === 'window' ? op.sill ?? 42 : 0;
       const headerTop = bottom + op.height + hd;
@@ -1134,7 +1171,12 @@ function buildFramed(d) {
       let bulb = 0;
       for (const name of WALLS) {
         const f = faces[name];
+        const spec = wallSpecs[name];
+        const holes = walls[name].openings.map((p) => [spec.start + p.a, spec.start + p.a + p.w, p.bottom, p.bottom + p.op.height]);
         for (let x = f.from + 6; x < f.to - 6; x += 8) {
+          // Not in front of a door or window head (a low wall puts the lights at the head's height).
+          const z = H - 8 - ((bulb + 1) % 2) * 1.5;
+          if (holes.some((h) => x + 1.6 > h[0] - 1e-9 && x < h[1] + 1e-9 && z + 1.6 > h[2] && z < h[3] + 1e-9)) continue;
           fixtures.push({ kind: `bulb-${bulb++ % 4}`, group: name === 'front' ? 'front lining' : 'decor', geom: rectGeom(add(add(add(f.origin, f.u, x), Z, H - 8 - (bulb % 2) * 1.5), f.w, pt), f.u, Z, f.w, 1.6, 1.6, 1.6) });
         }
       }

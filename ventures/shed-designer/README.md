@@ -32,11 +32,11 @@ The starting design is the owner's spec: an 8x12 with a single 38" x 78" (6'6") 
 
 All three automatic choices are ticked:
 
-- **Walls:** 86-1/2". That is 78 for the door, 5-1/2 for a 2x6 header and three 1-1/2" plates.
-- **Pitch:** 4/12. No pitch keeps the peak under 8 ft with that door, so the tool takes the lowest pitch at which the vents still fit, and the warning says the peak is 10' 2-3/8" above the gravel. Even 3/12 would be 9' 10-3/8".
-- **Overhang:** 6". Any longer and the 57-3/16" rafters cost more lumber. (Before the cut optimizer solved the relaxation, 6" to 9" all priced the same and the tool chose 9"; the exact optimizer finds 6" cheaper by $2.87 of 2x6.)
+- **Walls:** 84-1/2". That is 78 for the door, 3-1/2 for a header of two 2x4s (the shallowest that carries the roof load on that wall; headers were 2x6 by a rule of thumb until 2026-10-30) and three 1-1/2" plates.
+- **Pitch:** 4/12. No pitch keeps the peak under 8 ft with that door, so the tool takes the lowest pitch at which the vents still fit, and the warning says the peak is 10' 3/8" above the gravel. Even 3/12 would be 9' 8-3/8".
+- **Overhang:** 7". Any longer and the 58-1/4" rafters cost more lumber.
 
-At the starting prices that design is 151 pieces from 84 boards. The cut sheet's boards cost $639.32 against a proven lower bound of $638.34; with spare boards the lumber is $736.72, and the whole shed is $3,110.04 before sales tax, with a 4" bed of paver base under each block. Every structural check passes, and the ridge beam is the most loaded member at 80%. (The starter set its blocks straight on the ground until 2026-10-30, which cost $3,026.46; the new soil check put that at 1.32 times what the IRC presumes clay or silt carries.) The "8x12 classic" preset (8 ft walls, 6/12, ridge board and ties, 38" x 82" door, unpainted) is 143 pieces from 92 boards and $3,250.97 before sales tax.
+At the starting prices that design is 151 pieces from 87 boards. The cut sheet's boards cost $634.98 against a proven lower bound of $633.35; with spare boards the lumber is $728.72, and the whole shed is $3,097.73 before sales tax, with a 4" bed of paver base under each block. Every structural check passes, and the ridge beam is the most loaded member at 79%. (The starter set its blocks straight on the ground until 2026-10-30, which cost $3,026.46; the new soil check put that at 1.32 times what the IRC presumes clay or silt carries.) The "8x12 classic" preset (8 ft walls, 6/12, ridge board and ties, 38" x 82" door, unpainted) is 143 pieces from 93 boards and $3,246.19 before sales tax.
 
 ## Structure, integrity and prices
 

@@ -14,7 +14,7 @@ test('instructions run in build order and carry this design\'s numbers', () => {
   let last = -1;
   for (const t of order) { const i = titles.indexOf(t); assert.ok(i > last, t); last = i; }
   const md = instructionsMarkdown(sections, s.design.name);
-  assert.match(md, /Cut 12 full studs at 82"/); // 86-1/2" wall less three plates
+  assert.match(md, /Cut 12 full studs at 80"/); // 84-1/2" wall less three plates
   assert.match(md, /diagonals must read 14' 5-1\/16"/); // floor frame: hypot(144, 96)
   assert.ok(md.includes(`read ${s.design.pitch} on the COMMON scale`));
   assert.ok(md.includes(`Cut length from a square end: ${fmtIn(s.dims.rafterCut)}`));
@@ -87,11 +87,11 @@ test('a door wall is framed with the bottom plate already in pieces, as the cut 
 });
 
 test('the rafter step gives the wall line and tail on the board, and names the right hanger', () => {
-  const { s, md } = mdOf(defaultDesign()); // 8 ft wide, 4/12, ridge beam, connector seats, 6" overhang
+  const { s, md } = mdOf(defaultDesign()); // 8 ft wide, 4/12, ridge beam, connector seats, 7" overhang
   assert.equal(s.dims.connector, true);
   // run to the outside of the wall: 48 - 1-1/2 (half the beam) = 46-1/2; along the slope 46.5 / cos(18.43 deg) = 49.01
   assert.match(md, /measure 49" along the bottom edge \(a level run of 46-1\/2"\)/);
-  assert.match(md, /6-5\/16" along the bottom edge past the wall line/); // 6 / cos
+  assert.match(md, /7-3\/8" along the bottom edge past the wall line/); // 7 / cos
   assert.ok(!/, \./.test(md), 'no dangling ", ."');
   const deep = mdOf({ ...defaultDesign(), rafterSize: '2x8', autoOverhang: false }).md;
   assert.match(deep, /a 2x8 rafter hanger/);

@@ -54,13 +54,15 @@ test('a ridge-board roof puts the whole half roof on each eave wall: the header 
   const wPlf = (15 / cos) * tribFt + 30 * tribFt + 10;
   const row = structuralChecks(s).rows.find((x) => x.member === 'Header over the front door');
   assert.match(row.detail, new RegExp(`${Math.round(wPlf)} lb/ft`));
-  // 2-ply 2x6 over the 38" door: shear governs, V = wL/2 at CD 1.15.
+  // Two 2x4s over the 38" door (the shallowest header that carries it): bending
+  // governs, M = wL^2/8 at CD 1.15 and CF 1.5.
+  assert.equal(row.size, '2-ply 2x4');
   const w = wPlf / 12;
   const V = (w * 38) / 2;
-  const shear = (1.5 * V) / (3 * 5.5) / (135 * 1.15);
-  const bending = (w * 38 ** 2) / 8 / ((3 * 5.5 ** 2) / 6) / (875 * 1.15 * 1.3);
-  assert.ok(shear > bending);
-  assert.ok(Math.abs(row.ratio - shear) < 1e-9, `${row.ratio} vs ${shear}`);
+  const shear = (1.5 * V) / (3 * 3.5) / (135 * 1.15);
+  const bending = (w * 38 ** 2) / 8 / ((3 * 3.5 ** 2) / 6) / (875 * 1.15 * 1.5);
+  assert.ok(bending > shear);
+  assert.ok(Math.abs(row.ratio - bending) < 1e-9, `${row.ratio} vs ${bending}`);
 });
 
 test('a ridge beam takes the upper half of the rafters off the eave walls', () => {
