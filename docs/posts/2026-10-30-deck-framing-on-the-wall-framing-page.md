@@ -1,6 +1,6 @@
 ---
 title: "Deck framing now has a page in the wall framing takeoff"
-seo_title: "Deck framing takeoff in the browser: joists, beam, posts, footings, decking"
+seo_title: "Deck framing takeoff in the browser: joists, beam, posts, decking"
 date: 2026-10-30
 description: "The wall framing takeoff's deck layout, a CLI feature this morning, now runs from a card on the page, in the browser, with no upload."
 tags: [wall-framing-takeoff, construction]
