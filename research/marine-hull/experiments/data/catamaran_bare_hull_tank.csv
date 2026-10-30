@@ -1,0 +1,10 @@
+# Bare-hull towing-tank points of a catamaran model, water 16.8 C. Source: "Numerical and Experimental Investigation of
+# Hull Vane Configuration on the Resistance of a Catamaran", Zenodo record 18459868 (CC BY 4.0), file "HV Experimental Data.xlsx",
+# sheet HV0 (V, trim, RTM in kg and N) and "Hull Vane Paper Tables_Numerical_Experimental.xlsx" (Fn, 10^3 CT Exp.).
+# Copied here as five numbers per speed; the authors' tables are the source, not this file.
+v_m_s,fn,trim_deg,rt_N,ct_exp_x1e3
+1.709,0.32544,-0.2106,21.5451,8.6432
+2.400,0.45703,-1.417,52.4261,10.6643
+3.020,0.57510,-2.622,77.0603,9.8998
+3.766,0.71716,-2.153,84.6898,6.9965
+4.134,0.78724,-1.890,93.4765,6.4087
