@@ -4,11 +4,11 @@ export const GALLERY_DESIGNS = [
  {
   "id": "cheapest",
   "title": "Cheapest 8x10",
-  "reason": "The lowest price of the 733 designs the search kept with every finish free to change ($2,553 when it ran).",
+  "reason": "The lowest price of the 738 designs the search kept with every finish free to change ($2,554 when it ran).",
   "design": {
    "name": "Cheapest 8x10",
-   "length": 96,
-   "width": 120,
+   "length": 120,
+   "width": 96,
    "wallHeight": 84.5,
    "pitch": 6,
    "overhang": 6,
@@ -94,7 +94,7 @@ export const GALLERY_DESIGNS = [
      "id": "o1",
      "kind": "door",
      "wall": "right",
-     "offset": 40.75,
+     "offset": 28.75,
      "width": 38.5,
      "height": 78,
      "product": "site-built"
@@ -110,7 +110,7 @@ export const GALLERY_DESIGNS = [
  {
   "id": "value",
   "title": "Most room per dollar, 8x12",
-  "reason": "The most room inside for the money of the 733 designs the search kept, counting only space you can load.",
+  "reason": "The most room inside for the money of the 738 designs the search kept, counting only space you can load.",
   "design": {
    "name": "Most room per dollar, 8x12",
    "length": 144,
@@ -322,7 +322,7 @@ export const GALLERY_DESIGNS = [
  {
   "id": "storage",
   "title": "Most storage 10x10",
-  "reason": "The most room inside of the 733 designs the search kept in a size no card before it in the strip shows, counting only space you can load (the room, and roof space open to it or over a deck); this one is open to the roof.",
+  "reason": "The most room inside of the 738 designs the search kept in a size no card before it in the strip shows, counting only space you can load (the room, and roof space open to it or over a deck); this one is open to the roof.",
   "design": {
    "name": "Most storage 10x10",
    "length": 120,
@@ -559,7 +559,7 @@ export const GALLERY_DESIGNS = [
    "name": "9x10 to match the house",
    "length": 108,
    "width": 120,
-   "wallHeight": 88.5,
+   "wallHeight": 84.5,
    "pitch": 4,
    "overhang": 12,
    "studSize": "2x4",
@@ -644,10 +644,10 @@ export const GALLERY_DESIGNS = [
      "id": "o1",
      "kind": "door",
      "wall": "right",
-     "offset": 42.875,
-     "width": 34.25,
-     "height": 82,
-     "product": "masonite-3280-flush"
+     "offset": 40.75,
+     "width": 38.5,
+     "height": 78,
+     "product": "site-built"
     }
    ],
    "siteFacing": "street",
@@ -660,7 +660,7 @@ export const GALLERY_DESIGNS = [
  {
   "id": "house-cheapest",
   "title": "Cheapest lap-sided 7x12",
-  "reason": "The lowest price of the 687 designs kept with painted lap siding and shingles in a size no card before it in the strip shows ($2,904 when it ran).",
+  "reason": "The lowest price of the 691 designs kept with painted lap siding and shingles in a size no card before it in the strip shows ($2,904 when it ran).",
   "design": {
    "name": "Cheapest lap-sided 7x12",
    "length": 84,
@@ -765,13 +765,13 @@ export const GALLERY_DESIGNS = [
  },
  {
   "id": "barn",
-  "title": "Barn for storage 7x14",
-  "reason": "A gambrel roof: steep lower slopes and a shallow top put the most room under the gallery's 13 ft height limit. The most room per dollar of the 178 barns its own search kept in painted lap siding and shingles. Searched apart from the other cards, which show gables and lean-tos.",
+  "title": "Barn for storage 6x16",
+  "reason": "A gambrel roof: steep lower slopes and a shallow top put the most room under the gallery's 13 ft height limit. The most room per dollar of the 136 barns its own search kept in painted lap siding and shingles in a size no card before it in the strip shows. Searched apart from the other cards, which show gables and lean-tos.",
   "design": {
-   "name": "Barn for storage 7x14",
-   "length": 168,
-   "width": 84,
-   "wallHeight": 97.125,
+   "name": "Barn for storage 6x16",
+   "length": 192,
+   "width": 72,
+   "wallHeight": 84.5,
    "pitch": 6,
    "overhang": 0,
    "studSize": "2x4",
@@ -787,7 +787,7 @@ export const GALLERY_DESIGNS = [
    "frontPitch": 10,
    "gambrelLower": 20,
    "gambrelKnee": 0,
-   "loft": "full",
+   "loft": "none",
    "loftJoist": "2x6",
    "beamSize": "2x10",
    "skidSize": "4x4",
@@ -814,7 +814,7 @@ export const GALLERY_DESIGNS = [
    "maxPeak": 0,
    "snowLoad": 30,
    "windLoad": 20,
-   "autoWall": false,
+   "autoWall": true,
    "autoPitch": false,
    "autoOverhang": false,
    "overhangBudget": 25,
@@ -856,7 +856,7 @@ export const GALLERY_DESIGNS = [
      "id": "o1",
      "kind": "door",
      "wall": "front",
-     "offset": 64.75,
+     "offset": 76.75,
      "width": 38.5,
      "height": 78,
      "product": "site-built"
@@ -977,12 +977,12 @@ export const GALLERY_DESIGNS = [
  },
  {
   "id": "long",
-  "title": "Long 6x16",
-  "reason": "Narrow and long, for a side yard or along a fence; the most room per dollar of the 14 ft and longer sheds kept in a size no card before it in the strip shows.",
+  "title": "Long 7x14",
+  "reason": "Narrow and long, for a side yard or along a fence; the most room per dollar of the 14 ft and longer sheds kept.",
   "design": {
-   "name": "Long 6x16",
-   "length": 192,
-   "width": 72,
+   "name": "Long 7x14",
+   "length": 168,
+   "width": 84,
    "wallHeight": 78,
    "pitch": 4,
    "overhang": 12,
@@ -991,7 +991,7 @@ export const GALLERY_DESIGNS = [
    "autoStuds": true,
    "joistSize": "2x4",
    "joistSpacing": 16,
-   "rafterSize": "2x4",
+   "rafterSize": "2x6",
    "rafterSpacing": 24,
    "tieSize": "2x4",
    "roofType": "ridgeBoard",
@@ -1068,10 +1068,30 @@ export const GALLERY_DESIGNS = [
      "id": "o1",
      "kind": "door",
      "wall": "front",
-     "offset": 76.75,
+     "offset": 64.75,
      "width": 38.5,
      "height": 78,
      "product": "site-built"
+    },
+    {
+     "id": "o2",
+     "kind": "window",
+     "wall": "front",
+     "offset": 23.25,
+     "width": 18.25,
+     "height": 23.25,
+     "sill": 54.75,
+     "product": "swm-1823"
+    },
+    {
+     "id": "o3",
+     "kind": "window",
+     "wall": "front",
+     "offset": 126.5,
+     "width": 18.25,
+     "height": 23.25,
+     "sill": 54.75,
+     "product": "swm-1823"
     }
    ],
    "siteFacing": "street",

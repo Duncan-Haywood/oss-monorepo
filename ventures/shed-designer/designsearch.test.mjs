@@ -239,3 +239,22 @@ test('the search tries attic storage on truss gables only, and a decked attic ad
   assert.equal(truss(false).usableCuFt, truss(false).wallVolumeCuFt, 'bare chords hold nothing');
   assert.ok(truss(true).usableCuFt > truss(false).usableCuFt, 'the attic deck adds space you can load');
 });
+
+test('clerestory windows: a row of transoms high in a lean-to\'s tall wall, all framed', async () => {
+  const { PRESETS } = await import('./model.mjs');
+  const ops = layoutOpenings('eave door and clerestory windows', { length: 144, width: 96 }, undefined);
+  const door = ops.find((o) => o.kind === 'door');
+  const wins = ops.filter((o) => o.kind === 'window');
+  assert.equal(wins.length, 2);
+  for (const w of wins) {
+    assert.equal(w.product, 'swm-t2312');
+    assert.equal(w.wall, 'front');
+    assert.ok(w.sill >= door.height + 6 - 1e-9, 'sill over the door head');
+  }
+  const shed = buildShed({ ...PRESETS['8x12 lean-to'](), openings: ops });
+  assert.equal(shed.framedOpenings.length, ops.length);
+  assert.deepEqual(shed.warnings, []);
+  // On a gable the front wall is too low for them: the search does not seed gables with this layout.
+  const g = evaluateDesign({ ...defaultDesign(), openings: ops, autoWall: true });
+  assert.ok(!g.feasible);
+});
