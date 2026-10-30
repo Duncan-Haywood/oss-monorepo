@@ -20,11 +20,7 @@ import { quoteRequest, mailtoLink, STORES } from './quote.mjs';
 import { PRODUCTS } from './products.mjs';
 import { storeComparison, swapsFor, storeTotals, storeList, pricesFor } from './catalog.mjs';
 import { simplify, cutMetrics, budget, laborHours } from './simplify.mjs';
-<<<<<<< HEAD
-import { galleryEntries, mountMatchHouse, mountStripNav, firstDesign } from './gallery-ui.mjs';
-=======
-import { galleryEntries, mountMatchHouse, mountStripNav, matchesHouse } from './gallery-ui.mjs';
->>>>>>> origin/main
+import { galleryEntries, mountMatchHouse, mountStripNav, matchesHouse, firstDesign } from './gallery-ui.mjs';
 import { showCosts, wireCosts, bridgeHtml, breakdownOf, deltaSentence } from './costview.mjs';
 import { costDelta, deltaPhrase } from './costs.mjs';
 import { valueComparison, valueHtml } from './value.mjs';
