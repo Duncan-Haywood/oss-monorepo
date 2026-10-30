@@ -85,3 +85,22 @@ test("attic eave baffles: one per bay on both eaves, by hand", () => {
   const n = layoutInsulation({ attic: { baffles: true } }, { defaultHeaderHeight: 82.5, walls: [] }, r);
   assert.equal(n.ok, false);
 });
+
+test("eave compression: the squeezed band and the missing fill, by hand", () => {
+  const r = { walls: [] };
+  const roof = { width: 336, length: 480, pitch: 4, spacing: 24 };
+  const p = { defaultHeaderHeight: 82.5, walls: [], roof };
+  const l = layoutInsulation({ waste: 0, attic: { heel: 3.5, bagCuFt: 40 } }, p, r);
+  assert.equal(l.ok, true);
+  const depth = 38 / 2.5, run = (depth - 3.5) * 3; // 11.7 in of rise to make up at 4/12 = 35.1 in of run
+  assert.ok(Math.abs(l.attic.eave.runIn - run) < 1e-9);
+  assert.ok(Math.abs(l.attic.eave.bandSqFt - (2 * run * 480) / 144) < 1e-9);
+  const lost = (2 * 480 * run * (depth - 3.5)) / 2 / 1728; // a triangle along each eave
+  assert.ok(Math.abs(l.attic.eave.lostCuFt - lost) < 1e-9);
+  const full = layoutInsulation({ waste: 0, attic: { bagCuFt: 40 } }, p, r);
+  assert.ok(Math.abs(full.attic.cuFt - l.attic.cuFt - lost) < 1e-9);
+  assert.ok(insulationText(l).some((x) => x.includes("Eave compression")));
+  // a heel as tall as the depth loses nothing
+  assert.equal(layoutInsulation({ attic: { heel: 16 } }, p, r).attic.eave.lostCuFt, 0);
+  assert.equal(layoutInsulation({ attic: { heel: 3.5 } }, { ...p, roof: undefined, drywall: { ceiling: [{ width: 100, depth: 100 }] } }, r).ok, false);
+});
