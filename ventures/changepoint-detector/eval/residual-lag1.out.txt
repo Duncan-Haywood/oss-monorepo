@@ -1,0 +1,7 @@
+nile           steps 1    raw rho 0.20   residual lag-1 0.16
+lh             steps 5    raw rho 0.95   residual lag-1 0.17
+treering       steps 38   raw rho 0.16   residual lag-1 0.17
+lynx           steps 23   raw rho 0.95   residual lag-1 -0.16
+sunspot-year   steps 46   raw rho 0.95   residual lag-1 0.16
+nottem         steps 40   raw rho 0.95   residual lag-1 -0.02
+white noise n=100, 200 seeds: residual lag-1 median -0.02, 5th -0.21, 95th 0.12

@@ -1268,3 +1268,24 @@ too narrow. When the mean model has found 5 or more steps and rho is 0.3 or more
 steps may be false alarms, with the measured counts (lynx 23, sunspots 46 by default; `--ar1` none; `--ar1 joint` keeps
 a 2 sd step). Test: `cyclic-series.test.mjs`. Not covered: `treering` (38 false steps) has rho 0.16 by this estimate, so
 it gets no hint; a cycle detector that does not rely on rho is open.
+
+## A cycle check that does not use rho: residual lag-1 does not work (2026-10-30, negative result)
+
+`treering` has a raw lag-1 rho of 0.16 and 38 false steps by default, so the autocorrelation hint never fires on it.
+One candidate for a check that does not lean on rho is the lag-1 autocorrelation of the residuals after the default
+fit (`eval/residual-lag1.mjs`, `residual-lag1.test.mjs`). It does not separate the cases:
+
+| Series | Steps | Raw rho | Residual lag-1 |
+| --- | --- | --- | --- |
+| `nile` (one documented step) | 1 | 0.20 | 0.16 |
+| `lh` | 5 | 0.95 | 0.17 |
+| `treering` | 38 | 0.16 | 0.17 |
+| `lynx` | 23 | 0.95 | -0.16 |
+| `sunspot-year` | 46 | 0.95 | 0.16 |
+| `nottem` | 40 | 0.95 | -0.02 |
+| white noise, n=100, 200 seeds | | | median -0.02 (5th -0.21, 95th 0.12) |
+
+Nile, which has a real step and should get no warning, scores the same as treering. The fit has absorbed the
+slow structure into steps, so the residuals look like noise whether the steps were real or not (lynx and nottem
+even go negative). Not shipped. Still open: a check on the step list itself (alternating signs, segment length
+against a periodogram peak) rather than on residuals.
