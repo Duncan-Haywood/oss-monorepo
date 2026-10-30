@@ -10,7 +10,7 @@ const make = (d) => { const s = buildShed(d); return { s, sections: buildInstruc
 test('instructions run in build order and carry this design\'s numbers', () => {
   const { s, sections } = make(defaultDesign());
   const titles = sections.map((x) => x.title);
-  const order = ['Before you start', 'Ground under each block', 'Skids', 'Floor frame', 'Subfloor', 'Tie the walls together', 'Ridge beam and posts', 'Rafters', 'Gable ends', 'Roof sheathing and dry-in', 'Siding', 'Rake trim and roofing', 'Trim, vents, door and windows', 'Final checks'];
+  const order = ['Before you start', 'Gravel under each block', 'Skids', 'Floor frame', 'Subfloor', 'Tie the walls together', 'Ridge beam and posts', 'Rafters', 'Gable ends', 'Roof sheathing and dry-in', 'Siding', 'Rake trim and roofing', 'Trim, vents, door and windows', 'Final checks'];
   let last = -1;
   for (const t of order) { const i = titles.indexOf(t); assert.ok(i > last, t); last = i; }
   const md = instructionsMarkdown(sections, s.design.name);
@@ -129,7 +129,7 @@ test('the site-built door goes together in an order that works', () => {
 });
 
 test('blocks, vents and eave blocking say what to do with them', () => {
-  const { md } = mdOf(defaultDesign()); // blocks on tamped soil
+  const { md } = mdOf({ ...defaultDesign(), pad: 'none' }); // blocks on tamped soil
   assert.ok(!/shim the blocks/.test(md), 'the ground step says no shims; the skid step must agree');
   assert.match(md, /Lay the skids on the 12 blocks you levelled/);
   assert.match(md, /cap plate, directly over the two post studs/);

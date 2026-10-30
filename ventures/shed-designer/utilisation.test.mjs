@@ -10,7 +10,7 @@ const close = (a, b, tol = 1e-9) => assert.ok(Math.abs(a - b) < tol, `${a} vs ${
 // are written from the NDS formulas and the default 8x12's geometry, not from
 // the code, to show that the 15% is real arithmetic and what drives it.
 
-test('hand calculation: the default floor joist is at 15% in bending', () => {
+test('hand calculation: the default floor joist is at 17% in bending', () => {
   const u = utilisation(buildShed(defaultDesign())).find((x) => x.member === 'Floor joists');
   // Skids at 1-3/4", 48" and 94-1/4" across the 96" floor: 46-1/4" centre to
   // centre, 42-3/4" clear of the 3-1/2" skids. Span = clear + bearing = 46.25".
@@ -19,12 +19,15 @@ test('hand calculation: the default floor joist is at 15% in bending', () => {
   const w = (50 * 16) / 144;
   const M = (w * L * L) / 8; // 1,485 lb-in
   const S = (1.5 * 5.5 ** 2) / 6; // 7.5625 in^3
-  // SPF No. 2: Fb 875 psi x CD 1.0 x CF 1.3 (2x6) x Cr 1.15 (repetitive) = 1,308 psi.
-  const ratio = M / S / (875 * 1.3 * 1.15);
-  close(ratio, 0.15016, 1e-4);
+  // The default floor is treated, and treated lumber is usually Southern pine
+  // (checked as such since 2026-10-30): SPIB No. 2 2x6 Fb 1,000 psi with its size
+  // factor in x CD 1.0 x Cr 1.15 (repetitive) = 1,150 psi. As SPF (875 x CF 1.3 x
+  // 1.15 = 1,308 psi) it was 15%.
+  const ratio = M / S / (1000 * 1.15);
+  close(ratio, 0.17080, 1e-4);
   close(u.ratio, ratio);
   assert.equal(u.governs, 'bending');
-  assert.equal(Math.round(u.ratio * 100), 15);
+  assert.equal(Math.round(u.ratio * 100), 17);
 });
 
 test('hand calculation: the default wall stud is at 15%, and wind on the siding governs, not the roof', () => {
@@ -93,7 +96,8 @@ test('the heat map colours every checked member, and nothing else', () => {
 test('margin report on the default: the beam is above a 70% target; joists and rafters are simply oversized', () => {
   const shed = buildShed(defaultDesign());
   const r = marginReport(shed, 0.7);
-  assert.deepEqual(r.above.map((u) => u.member), ['Ridge beam']);
+  // The blocks press on the ground at 70.2% of the IRC's 1,500 psf for clay or silt.
+  assert.deepEqual(r.above.map((u) => u.member), ['Ridge beam', 'Blocks on the soil']);
   const far = Object.fromEntries(r.far.map((f) => [f.use.member, f]));
   assert.equal(far['Floor joists'].reason, 'oversized');
   assert.equal(far['Floor joists'].option.label, '2x4 joists at 16"');

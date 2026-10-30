@@ -68,9 +68,11 @@ export function defaultDesign() {
     skidSpacing: 48,
     foundation: 'blocks',
     compaction: 'hand tamper',
+    // Gravel under each block: on bare clay or silt the starter's blocks would
+    // carry about 1,970 psf, over the IRC's 1,500 (see checks.mjs, skidOnBlocks).
+    pad: 'under blocks',
     // How deep a pier goes below grade, inches: your frost depth, or 12" to firm soil where the ground does not freeze.
     pierDepth: 24,
-    pad: 'none',
     spares: 5,
     laborRate: 50,
     // The US average combined state and local sales tax (Tax Foundation, mid-2026: 7.53%); set your own.

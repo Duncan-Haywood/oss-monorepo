@@ -16,13 +16,13 @@
 // reviewed by an engineer.
 
 import { buildShed } from './model.mjs';
-import { structuralChecks, heelJoint, nailZ } from './checks.mjs';
+import { structuralChecks, heelJoint, nailZ, skidOnBlocks, SOIL_PSF } from './checks.mjs';
 import { trussForces } from './truss.mjs';
 import { connectionChecks } from './connections.mjs';
-import { check, roofCase, FLOOR, SPF2, T, DEPTH } from './structure.mjs';
+import { check, roofCase, FLOOR, SPF2, T, DEPTH, designValues } from './structure.mjs';
 import { sidingSpan } from './simplify.mjs';
 import { subfloorCheck } from './levers.mjs';
-import { fmtIn } from './lumber.mjs';
+import { fmtIn, actual } from './lumber.mjs';
 
 // NDS Supplement Table 4A size factors for No. 2 dimension lumber, as
 // structure.mjs uses them (bending, and compression parallel to grain).
@@ -47,7 +47,7 @@ const pct = (r) => `${Math.round(r * 100)}%`;
  * A simple-span member under uniform load, written out (structure.mjs check()).
  * @returns {{ parts: Part[], inputs: [string, string][] }}
  */
-function beamWords({ size, plies = 1, spacingIn, pitch = 0, bearingIn, repetitive = true }, clearIn, c, what) {
+function beamWords({ size, plies = 1, spacingIn, pitch = 0, bearingIn, repetitive = true, species = 'SPF' }, clearIn, c, what) {
   const L = clearIn + bearingIn;
   const cos = 1 / Math.sqrt(1 + (pitch / 12) ** 2);
   const wD = (c.dead / cos) * (spacingIn / 144);
@@ -57,33 +57,36 @@ function beamWords({ size, plies = 1, spacingIn, pitch = 0, bearingIn, repetitiv
   const d = DEPTH[size];
   const S = (b * d * d) / 6, A = b * d, I = (b * d ** 3) / 12;
   const Cr = repetitive && plies === 1 && spacingIn <= 24 ? CR : 1;
-  const Fb = SPF2.Fb * c.CD * CF_B[size] * Cr;
-  const Fv = SPF2.Fv * c.CD;
+  // SPF's Fb takes the size factor; Southern pine's published values have it in.
+  const v = designValues(size, species);
+  const syp = species === 'SYP';
+  const Fb = v.Fb * c.CD * Cr;
+  const Fv = v.Fv * c.CD;
   const M = (w * L * L) / 8;
   const V = w * (L / 2 - d) * cos;
   const R = (w * L) / 2;
-  const k = (5 * L ** 4) / (384 * SPF2.E * I * cos ** 2);
+  const k = (5 * L ** 4) / (384 * v.E * I * cos ** 2);
   const fb = M / S, fv = (1.5 * V) / A, fp = R / (b * bearingIn);
   const dl = k * wL, dt = k * w;
   const slope = pitch ? ` The dead load is ${c.dead} psf on the slope, so ${n2(c.dead / cos)} psf on plan at ${pitch}/12.` : '';
   const live = c.name === 'floor' ? 'live' : 'snow';
   const inputs = /** @type {[string, string][]} */ ([
-    ['Member', `${plies > 1 ? `${plies}-ply ` : ''}${size}, ${n2(b)}" x ${n2(d)}" (SPF No. 2)`],
+    ['Member', `${plies > 1 ? `${plies}-ply ` : ''}${size}, ${n2(b)}" x ${n2(d)}" (${syp ? 'Southern pine' : 'SPF'} No. 2)`],
     ['Span used', `${fmtIn(clearIn)} clear + ${fmtIn(bearingIn)} bearing = ${n2(L)}"`],
     ['Load width', `${n2(spacingIn)}" ${what}`],
     ['Loads', `${c.dead} psf dead + ${c.live} psf ${live}.${slope}`],
     ['Section', `S = bd²/6 = ${n2(S)} in³, A = ${n2(A)} in², I = bd³/12 = ${n2(I)} in⁴`],
-    ['Design values', `Fb ${SPF2.Fb} psi, Fv ${SPF2.Fv} psi, Fc⊥ ${SPF2.Fc_perp} psi, E ${(SPF2.E / 1e6).toFixed(1)} million psi; load duration CD ${c.CD}`],
+    ['Design values', `Fb ${syp ? `${v.Fb} psi (size factor in, SPIB 2013)` : `${SPF2.Fb} psi`}, Fv ${v.Fv} psi, Fc⊥ ${v.Fc_perp} psi, E ${(v.E / 1e6).toFixed(1)} million psi; load duration CD ${c.CD}`],
   ]);
   const parts = [
-    { name: 'bending', ratio: fb / Fb, words: `Load on the member w = ${n2(w * 12)} lb/ft. Moment M = wL²/8 = ${n0(M)} lb·in. Stress fb = M/S = ${n0(fb)} psi. Allowable F'b = ${SPF2.Fb} × CD ${c.CD} × size factor ${CF_B[size]}${Cr > 1 ? ` × repetitive ${CR}` : ''} = ${n0(Fb)} psi. ${n0(fb)} / ${n0(Fb)} = ${pct(fb / Fb)}.` },
-    { name: 'shear', ratio: fv / Fv, words: `Shear a depth in from the support V = w(L/2 - d) = ${n0(V)} lb. Stress fv = 1.5V/A = ${n0(fv)} psi against F'v = ${SPF2.Fv} × ${c.CD} = ${n0(Fv)} psi: ${pct(fv / Fv)}.` },
+    { name: 'bending', ratio: fb / Fb, words: `Load on the member w = ${n2(w * 12)} lb/ft. Moment M = wL²/8 = ${n0(M)} lb·in. Stress fb = M/S = ${n0(fb)} psi. Allowable F'b = ${syp ? v.Fb : `${SPF2.Fb} × size factor ${CF_B[size]}`} × CD ${c.CD}${Cr > 1 ? ` × repetitive ${CR}` : ''} = ${n0(Fb)} psi. ${n0(fb)} / ${n0(Fb)} = ${pct(fb / Fb)}.` },
+    { name: 'shear', ratio: fv / Fv, words: `Shear a depth in from the support V = w(L/2 - d) = ${n0(V)} lb. Stress fv = 1.5V/A = ${n0(fv)} psi against F'v = ${v.Fv} × ${c.CD} = ${n0(Fv)} psi: ${pct(fv / Fv)}.` },
     { name: 'deflection live', ratio: dl / (L / c.liveLimit), words: `Sag under the ${live} load alone, 5wL⁴/384EI = ${dl.toFixed(3)}", against L/${c.liveLimit} = ${(L / c.liveLimit).toFixed(3)}": ${pct(dl / (L / c.liveLimit))}.` },
     { name: 'deflection total', ratio: dt / (L / c.totalLimit), words: `Sag under all the load = ${dt.toFixed(3)}", against L/${c.totalLimit} = ${(L / c.totalLimit).toFixed(3)}": ${pct(dt / (L / c.totalLimit))}.` },
-    { name: 'bearing', ratio: fp / SPF2.Fc_perp, words: `End reaction wL/2 = ${n0(R)} lb on ${n2(b)}" x ${n2(bearingIn)}" of support = ${n0(fp)} psi against Fc⊥ ${SPF2.Fc_perp} psi: ${pct(fp / SPF2.Fc_perp)}.` },
+    { name: 'bearing', ratio: fp / v.Fc_perp, words: `End reaction wL/2 = ${n0(R)} lb on ${n2(b)}" x ${n2(bearingIn)}" of support = ${n0(fp)} psi against Fc⊥ ${v.Fc_perp} psi: ${pct(fp / v.Fc_perp)}.` },
   ];
   // The check this was written from must agree with it.
-  const ref = check({ size, plies, spacingIn, pitch, bearingIn, repetitive }, clearIn / 12, c);
+  const ref = check({ size, plies, spacingIn, pitch, bearingIn, repetitive, species }, clearIn / 12, c);
   const same = parts.every((p) => Math.abs(p.ratio - /** @type {any} */ (ref)[p.name]) < 1e-9);
   return { parts: same ? parts : [], inputs };
 }
@@ -179,8 +182,8 @@ export function utilisation(shed, sc = structuralChecks(shed)) {
     if (row.member === 'Floor joists') {
       const gaps = k.skidYs.slice(1).map((y, i) => y - k.skidYs[i]);
       const skidThick = shed.members.find((m) => m.kind === 'skid')?.geom.thickness ?? 3.5;
-      const r = beamWords({ size: d.joistSize, spacingIn: d.joistSpacing, bearingIn: skidThick }, Math.max(...gaps) - skidThick, FLOOR, 'on centre: each joist carries that strip of floor');
-      Object.assign(u, r, { kinds: ['floor joist'], explain: 'Each joist is a simple beam from skid to skid, checked over the widest gap between skids.' });
+      const r = beamWords({ size: d.joistSize, spacingIn: d.joistSpacing, bearingIn: skidThick, species: d.floorTreated ? 'SYP' : 'SPF' }, Math.max(...gaps) - skidThick, FLOOR, 'on centre: each joist carries that strip of floor');
+      Object.assign(u, r, { kinds: ['floor joist'], explain: `Each joist is a simple beam from skid to skid, checked over the widest gap between skids${d.floorTreated ? ', as Southern pine: treated lumber usually is' : ''}.` });
       u.ids = idsOf((m) => m.kind === 'floor joist');
     } else if (row.member === 'Rafters') {
       const r = beamWords({ size: d.rafterSize, spacingIn: d.rafterSpacing, pitch: d.pitch, bearingIn: k.stud }, rafterRunIn, roof, 'on centre: each rafter carries that strip of roof');
@@ -239,6 +242,27 @@ export function utilisation(shed, sc = structuralChecks(shed)) {
       u.parts = [{ name: 'span rating', ratio: d.joistSpacing / sf.spanOC, words: `Joists ${d.joistSpacing}" apart against the panel's APA span rating of ${sf.spanOC}" on centre (check the stamp): ${d.joistSpacing} / ${sf.spanOC} = ${pct(d.joistSpacing / sf.spanOC)}.` }];
       u.inputs = [['Panel', sf.name], ['Joist spacing', `${d.joistSpacing}"`]];
       u.explain = 'A panel, not a framing member: its maker rates it for a widest joist spacing, and that rating is the check.';
+    } else if (row.member === 'Skids on blocks' || row.member === 'Blocks on the soil') {
+      const sk = skidOnBlocks(shed);
+      if (sk) {
+        const v = sk.values;
+        const inputs = /** @type {[string, string][]} */ ([['Skid', `PT ${d.skidSize}, ${sk.outer ? 'an outer skid, under the eave wall' : 'an inner skid'}; Southern pine No. 2, wet service: Fb ${n0(v.Fb)}, Fv ${n2(v.Fv)}, Fc⊥ ${n2(v.Fc_perp)} psi, E ${(v.E / 1e6).toFixed(2)} million psi`], ['Span', `${fmtIn(sk.L)} block to block`], ['Worst reaction', `${n0(sk.R)} lb on a block`]]);
+        if (row.member === 'Skids on blocks') {
+          u.parts = [
+            { name: 'bending', ratio: sk.ratios.bending, words: `wL²/8 on the block spacing, the worst of D+L, D+S and D+0.75(L+S) against F'b × CD: ${pct(sk.ratios.bending)}.` },
+            { name: 'shear', ratio: sk.ratios.shear, words: `0.625wL (a two-span skid's inside shear), fv = 1.5V/A against F'v × CD: ${pct(sk.ratios.shear)}.` },
+            { name: 'deflection', ratio: sk.ratios.deflection, words: `5wL⁴/384EI against L/240: ${pct(sk.ratios.deflection)}.` },
+            { name: 'bearing', ratio: sk.ratios.bearing, words: `${n0(sk.R)} lb on the skid's ${n2(actual(d.skidSize).thick)}" width x ${k.block.along}" of block against Fc⊥: ${pct(sk.ratios.bearing)}.` },
+          ];
+          u.explain = 'On blocks, a skid is a beam from block to block; treated skids are usually Southern pine, and on blocks they stay damp.';
+        } else {
+          u.parts = [{ name: 'soil bearing', ratio: sk.soil, words: `${n0(sk.R)} lb plus 50 lb for the block and skid, on ${n2(sk.footSqFt)} sq ft${sk.spread ? ' (spread 2" each side through the gravel bed)' : ''}, against ${SOIL_PSF} psf: ${pct(sk.soil)}.` }];
+          u.explain = 'The IRC presumes 1,500 psf for clay or silt when nobody has tested the soil (Table R401.4.1).';
+        }
+        u.inputs = inputs;
+      }
+      u.kinds = ['skid'];
+      u.ids = idsOf((m) => m.kind === 'skid');
     } else if (row.member === 'Wall studs') {
       u.parts = studWords(d.studSize, d.studSpacing, k.studLen, [deadPlf, snowPlf], d.windLoad);
       u.inputs = [['Stud', `${d.studSize} at ${d.studSpacing}", ${fmtIn(k.studLen)} long`], ['Roof on the eave wall', `${n0(deadPlf)} lb/ft dead + ${n0(snowPlf)} lb/ft snow`], ['Wind', `${d.windLoad} psf on the wall face`]];

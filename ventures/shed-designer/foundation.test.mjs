@@ -39,7 +39,15 @@ test('a shed on piers passes integrity, structure and connections, and the steps
   const s = piers();
   const ig = integrity(s);
   assert.deepEqual([ig.floating.length, ig.clashes.length], [0, 0]);
-  assert.ok(structuralChecks(s).ok);
+  // Every member passes. The soil under a bare 12" pier does not: the starter's
+  // 1,767 lb on 0.72 sq ft is about 2,450 psf, against the IRC's 1,500 for clay
+  // or silt (R401.4.1; the soil check came in 2026-10-30). A footing wider than
+  // the tube is the fix; the row says so.
+  const rows = structuralChecks(s).rows;
+  assert.ok(rows.filter((r) => r.member !== 'Blocks on the soil').every((r) => r.ok));
+  const soil = rows.find((r) => r.member === 'Blocks on the soil');
+  assert.ok(!soil.ok && soil.ratio > 1.5 && soil.ratio < 1.8, String(soil.ratio));
+  assert.match(soil.detail, /wider footing at the bottom of each pier/);
   assert.ok(connectionChecks(s).ok);
   const md = instructionsMarkdown(buildInstructions(s, estimate(s)), s.design.name);
   assert.match(md, /Concrete piers/);

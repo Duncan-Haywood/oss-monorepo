@@ -8,10 +8,11 @@
 // load and wind pressure on the walls, plus 15 psf roof dead load, and 10 dead
 // and 40 live on the floor. A ratio is demand over capacity, so 1.00 is at the
 // limit. This is a screening check of the kind a span table encodes, not an
-// engineer's review: connections, uplift, racking and foundations are not checked.
+// engineer's review: uplift, racking and the soil itself are not checked
+// (blocks are checked against the IRC's lowest presumptive soil value).
 
-import { check, worst, studCheck, headerCheck, roofCase, FLOOR, SPF2, T, DEPTH } from './structure.mjs';
-import { fmtIn } from './lumber.mjs';
+import { check, worst, studCheck, headerCheck, roofCase, FLOOR, SPF2, T, DEPTH, designValues } from './structure.mjs';
+import { fmtIn, actual } from './lumber.mjs';
 import { trussChecks, trussForces } from './truss.mjs';
 import { subfloorCheck } from './levers.mjs';
 
@@ -72,6 +73,106 @@ export function heelJoint(shed) {
 }
 
 /**
+ * Roof load on each eave wall, lb/ft: dead and snow. Under a ridge beam the
+ * beam takes the upper half of each rafter, so the wall carries the lower half
+ * of the run plus the wall and the overhang. Under a ridge board the board
+ * carries nothing (the rafter pair and its tie are a truss), so each eave wall
+ * carries the whole half roof, ridge to eave tip.
+ * @param {import('./model.mjs').Shed} shed
+ */
+export function eaveRoofPlf(shed) {
+  const d = shed.design;
+  const k = shed.dims;
+  const cos = 1 / Math.sqrt(1 + (d.pitch / 12) ** 2);
+  const beam = d.roofType === 'ridgeBeam';
+  const truss = d.roofType === 'truss';
+  const rafterRunIn = d.width / 2 - (beam ? 1.5 : truss ? 0 : 0.75) - k.stud;
+  const tribFt = (beam ? rafterRunIn / 2 + k.stud + d.overhang : d.width / 2 + d.overhang) / 12;
+  // Under trusses each eave wall also carries half the attic (bottom chord) load.
+  const dead = (15 / cos) * tribFt + (truss ? (trussForces(d).wc * d.width) / 2 / 12 / (d.rafterSpacing / 12) : 0);
+  return { dead, snow: d.snowLoad * tribFt, rafterRunIn };
+}
+
+/** Wall dead load, psf of wall face: studs, plates, sheathing or siding. */
+export const WALL_DEAD_PSF = 10;
+/** Presumptive load-bearing value of the weakest soils (clay, silt), IRC Table R401.4.1. */
+export const SOIL_PSF = 1500;
+/** Allowance for the block's and the skid's own weight at each block, lb. */
+const BLOCK_SELF_LB = 50;
+
+/**
+ * A skid on blocks is a beam from block to block. Treated skids are usually
+ * Southern pine, and on blocks they stay damp: SYP No. 2, wet service. The
+ * worst skid is checked for bending (wL^2/8 on the block-to-block spacing,
+ * which is also the support moment of a two-span skid), shear (0.625wL, the
+ * two-span interior shear), L/240 deflection, bearing on the block (1.25wL,
+ * the two-span interior reaction; less on more spans), or the end reaction with the gable wall and
+ * any ridge-beam post on it), and the block on the soil at 1,500 psf.
+ * Loads: floor 10 dead + 40 live psf over the skid's strip; on an outer skid
+ * the eave wall (10 psf) and its roof; combinations D+L (CD 1.0), D+S and
+ * D+0.75L+0.75S (CD 1.15). Null without blocks (a skid on gravel bears along
+ * its length).
+ * @param {import('./model.mjs').Shed} shed
+ */
+export function skidOnBlocks(shed) {
+  const d = shed.design;
+  const k = shed.dims;
+  if (!k.block) return null;
+  const size = d.skidSize;
+  const { thick: b, depth: h } = actual(size);
+  const v = designValues(size, 'SYP', true);
+  const ys = k.skidYs;
+  const first = shed.fixtures.filter((f) => f.kind === 'block' && Math.abs(f.geom.origin[1] + k.block.across / 2 - ys[0]) < 1e-6);
+  const xs = first.map((f) => f.geom.origin[0] + k.block.along / 2).sort((p, q) => p - q);
+  const L = Math.max(...xs.slice(1).map((x, i) => x - xs[i]));
+  const roof = eaveRoofPlf(shed);
+  const cos = 1 / Math.sqrt(1 + (d.pitch / 12) ** 2);
+  const gablePlf = 40 + (15 / cos + d.snowLoad) * (d.rafterSpacing / 2) / 12;
+  const beam = d.roofType === 'ridgeBeam';
+  const postLb = beam ? ((15 / cos + d.snowLoad) * (d.width / 2) / 12 * d.length) / 12 / 2 : 0;
+  // A 4" gravel bed under the block spreads the load 2" each side (a 2:1
+  // spread, and the bed's own size when it is laid under each block alone).
+  const spread = k.noPad ? 0 : 2;
+  const footSqFt = ((k.block.along + 2 * spread) * (k.block.across + 2 * spread)) / 144;
+  let worstSkid = null;
+  ys.forEach((y, i) => {
+    const lo = i === 0 ? 0 : (ys[i - 1] + y) / 2;
+    const hi = i === ys.length - 1 ? d.width : (y + ys[i + 1]) / 2;
+    const trib = (hi - lo) / 12; // ft of floor
+    const outer = i === 0 || i === ys.length - 1;
+    // lb/in: dead, live, snow
+    const D = (10 * trib + (outer ? WALL_DEAD_PSF * (d.wallHeight / 12) + roof.dead : 0)) / 12;
+    const Lv = (40 * trib) / 12;
+    const S = (outer ? roof.snow : 0) / 12;
+    const post = beam && Math.abs(y - d.width / 2) < 1e-6 ? postLb : 0;
+    const combos = [[D + Lv, 1.0], [D + S, 1.15], [D + 0.75 * Lv + 0.75 * S, 1.15]];
+    const A = b * h, Sx = (b * h * h) / 6, I = (b * h ** 3) / 12;
+    let ratios = { bending: 0, shear: 0, deflection: 0, bearing: 0, soil: 0 };
+    let R = 0;
+    // Reactions of a continuous skid on equal spans: one span 0.5wL at each
+    // end; two spans 1.25wL inside and 0.375wL at the ends; three or more at
+    // most 1.143wL inside (four spans) and 0.4wL at the ends (three spans).
+    const spans = xs.length - 1;
+    const [kIn, kEnd] = spans === 1 ? [0, 0.5] : spans === 2 ? [1.25, 0.375] : [1.143, 0.4];
+    for (const [w, CD] of combos) {
+      const end = kEnd * w * L + (gablePlf * trib) + post;
+      const r = Math.max(kIn * w * L, end);
+      R = Math.max(R, r);
+      ratios = {
+        bending: Math.max(ratios.bending, (w * L * L) / 8 / Sx / (v.Fb * CD)),
+        shear: Math.max(ratios.shear, (1.5 * 0.625 * w * L) / A / (v.Fv * CD)),
+        deflection: Math.max(ratios.deflection, ((5 * w * L ** 4) / (384 * v.E * I)) / (L / 240)),
+        bearing: Math.max(ratios.bearing, r / (b * k.block.along) / v.Fc_perp),
+        soil: Math.max(ratios.soil, (r + BLOCK_SELF_LB) / footSqFt / SOIL_PSF),
+      };
+    }
+    const [governs, ratio] = worst({ bending: ratios.bending, shear: ratios.shear, deflection: ratios.deflection, bearing: ratios.bearing });
+    if (!worstSkid || Math.max(ratio, ratios.soil) > Math.max(worstSkid.ratio, worstSkid.soil)) worstSkid = { skid: i, outer, L, R, governs, ratio, soil: ratios.soil, ratios, values: v, footSqFt, spread };
+  });
+  return worstSkid;
+}
+
+/**
  * @param {import('./model.mjs').Shed} shed
  */
 export function structuralChecks(shed) {
@@ -90,10 +191,20 @@ export function structuralChecks(shed) {
   const skidThick = shed.members.find((m) => m.kind === 'skid')?.geom.thickness ?? 3.5;
   const floorSpanIn = Math.max(...gaps) - skidThick;
   {
-    const [gov, r] = worst(check({ size: d.joistSize, spacingIn: d.joistSpacing, bearingIn: skidThick }, floorSpanIn / 12, FLOOR));
-    add('Floor joists', `${d.joistSize} at ${d.joistSpacing}"`, `${fmtIn(floorSpanIn)} clear between skids, 40 psf live + 10 dead (spread load; a mower's wheel is a point load, not checked)`, r, gov);
+    // Treated joists are usually Southern pine, whose No. 2 bending value is
+    // below SPF's from 2x6 up; a dry floor stays dry service.
+    const species = d.floorTreated ? 'SYP' : 'SPF';
+    const [gov, r] = worst(check({ size: d.joistSize, spacingIn: d.joistSpacing, bearingIn: skidThick, species }, floorSpanIn / 12, FLOOR));
+    add('Floor joists', `${d.floorTreated ? 'PT ' : ''}${d.joistSize} at ${d.joistSpacing}"`, `${fmtIn(floorSpanIn)} clear between skids, 40 psf live + 10 dead (spread load; a mower's wheel is a point load, not checked), ${species === 'SYP' ? 'Southern pine' : 'SPF'} No. 2`, r, gov);
     const sf = subfloorCheck(d);
     add('Subfloor', sf.name, `joists ${d.joistSpacing}" apart; APA span rating ${sf.spanOC} oc (check the panel's stamp)`, sf.ratio, 'span rating');
+  }
+  {
+    const sk = skidOnBlocks(shed);
+    if (sk) {
+      add('Skids on blocks', `PT ${d.skidSize}, Southern pine No. 2, wet`, `${fmtIn(sk.L)} block to block, ${sk.outer ? 'outer skid with the eave wall and its roof' : 'inner skid'}; ${Math.round(sk.R)} lb on a block`, sk.ratio, sk.governs);
+      add('Blocks on the soil', `${k.block.along}" x ${k.block.across}" ${d.foundation === 'deck blocks' ? 'deck block' : 'block'}`, `${Math.round(sk.R + BLOCK_SELF_LB)} lb on ${sk.footSqFt.toFixed(2)} sq ft${sk.spread ? ' (spread 2" each side through the 4" gravel bed)' : ', straight on the soil'}; ${SOIL_PSF} psf, the IRC's value for clay or silt (R401.4.1)${sk.soil > 1 && !sk.spread ? (k.block.pier ? '. A wider footing at the bottom of each pier (or more piers) spreads the load over more ground' : '. A 4" bed of paver base under each block spreads the load over more ground') : ''}`, sk.soil, 'soil bearing');
+    }
   }
   // Rafters: from the inside of the wall plate to the ridge.
   const beam = d.roofType === 'ridgeBeam';
@@ -103,15 +214,8 @@ export function structuralChecks(shed) {
     const [gov, r] = worst(check({ size: d.rafterSize, spacingIn: d.rafterSpacing, pitch: d.pitch, bearingIn: k.stud }, rafterRunIn / 12, roof));
     add('Rafters', `${d.rafterSize} at ${d.rafterSpacing}"`, `${fmtIn(rafterRunIn)} horizontal run at ${d.pitch}/12, ${snow} psf snow + 15 dead`, r, gov);
   }
-  // Roof load on each eave wall per foot. Under a ridge beam the beam takes
-  // the upper half of each rafter, so the wall carries the lower half of the
-  // run plus the wall and the overhang. Under a ridge board the board carries
-  // nothing (the rafter pair and its tie are a truss), so each eave wall
-  // carries the whole half roof, ridge to eave tip.
-  const tribFt = (beam ? rafterRunIn / 2 + k.stud + d.overhang : d.width / 2 + d.overhang) / 12;
-  // Under trusses each eave wall also carries half the attic (bottom chord) load.
-  const deadPlf = (15 / cos) * tribFt + (truss ? (trussForces(d).wc * d.width) / 2 / 12 / (d.rafterSpacing / 12) : 0);
-  const snowPlf = snow * tribFt;
+  // Roof load on each eave wall per foot (eaveRoofPlf).
+  const { dead: deadPlf, snow: snowPlf } = eaveRoofPlf(shed);
   if (beam) {
     const spanIn = d.length - 2 * k.stud;
     const [gov, r] = worst(check({ size: d.beamSize, plies: 2, spacingIn: d.width / 2, pitch: d.pitch, repetitive: false, bearingIn: 3 }, spanIn / 12, roof));
