@@ -174,17 +174,31 @@ export function estimate(shed, prices = examplePrices()) {
     }
   }
   // Spare boards: real orders carry a few extra for warped, split or mis-cut
-  // boards. A share of each material's boards, rounded up, in its commonest length.
+  // boards, a share of each material's boards, rounded up. Their lengths come
+  // from the pieces, not the cut plan, so a better plan can't make them dearer
+  // by changing which board length is commonest: one spare in the cheapest
+  // ticked length that holds the material's longest piece, so any piece can be
+  // recut, and the rest in the cheapest length that holds its commonest piece.
   if (d.spares > 0) {
     for (const l of lumber) {
       if (!l.result.boards.length) continue;
-      const counts = new Map();
-      for (const b of l.result.boards) counts.set(b.stock, (counts.get(b.stock) || 0) + 1);
-      const [len] = [...counts.entries()].sort((a, b) => b[1] - a[1] || a[0] - b[0])[0];
-      const ft = len / 12;
+      const lens = l.result.boards.flatMap((b) => b.cuts.map((c) => c.len));
+      const tally = new Map();
+      for (const len of lens) tally.set(len, (tally.get(len) || 0) + 1);
+      const commonest = [...tally.entries()].sort((a, b) => b[1] - a[1] || b[0] - a[0])[0][0];
+      const cheapestHolding = (len) => {
+        const fits = d.lengths.filter((ft) => ft * 12 >= len).sort((a, b) => a - b);
+        if (!fits.length) return Math.max(...l.result.boards.map((b) => b.stock)) / 12;
+        return fits.reduce((a, b) => (boardCost(prices, l.material, b) < boardCost(prices, l.material, a) - 0.005 ? b : a));
+      };
       const qty = Math.ceil((l.result.boards.length * d.spares) / 100);
-      const p = boardCost(prices, l.material, ft);
-      line('Lumber', `${l.material} x ${ft}' spares (${d.spares}% for culls and mis-cuts)`, qty, 'board', p, { ...sourceOf(p, boardPrice(l.material, ft)), key: `lumber:${l.material}:${ft}` });
+      const long = cheapestHolding(Math.max(...lens));
+      const common = cheapestHolding(commonest);
+      const spares = long === common ? [[long, qty]] : [[long, 1], [common, qty - 1]];
+      for (const [ft, n] of spares.sort((a, b) => a[0] - b[0])) {
+        const p = boardCost(prices, l.material, ft);
+        line('Lumber', `${l.material} x ${ft}' spares (${d.spares}% for culls and mis-cuts)`, n, 'board', p, { ...sourceOf(p, boardPrice(l.material, ft)), key: `lumber:${l.material}:${ft}` });
+      }
     }
   }
   const item = (k) => priceOr(prices.items?.[k], itemPrice(k).price);

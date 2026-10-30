@@ -2,7 +2,7 @@
 // design swaps and the simplicity search.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildShed, defaultDesign, normalize, BLOCKS } from './model.mjs';
+import { buildShed, defaultDesign, normalize, BLOCKS, PRESETS } from './model.mjs';
 import { estimate } from './estimate.mjs';
 import { itemPrice } from './prices.mjs';
 import { EXAMPLE_ITEMS } from './lumber.mjs';
@@ -225,14 +225,36 @@ test('the build cache returns the same shed for the same design, and a new one f
   assert.notEqual(buildShed({ ...defaultDesign(), overhang: 10, autoOverhang: false }), a);
 });
 
+test('spares: one holds the longest piece, the rest the commonest, each in its cheapest length', () => {
+  const d = defaultDesign();
+  for (const design of [d, PRESETS['8x12 classic'](), PRESETS['12x16']()]) {
+    const shed = buildShed(design);
+    const est = estimate(shed);
+    const prices = examplePrices();
+    const cheapestHolding = (material, len) => shed.design.lengths
+      .filter((ft) => ft * 12 >= len).sort((a, b) => a - b)
+      .reduce((a, b) => (prices.lumber[material][b] < prices.lumber[material][a] - 0.005 ? b : a));
+    for (const l of est.lumber) {
+      const lens = shed.members.concat(shed.doorParts || []).filter((m) => m.material === l.material).map((m) => m.length);
+      const tally = new Map();
+      for (const len of lens) tally.set(len, (tally.get(len) || 0) + 1);
+      const commonest = [...tally.entries()].sort((a, b) => b[1] - a[1] || b[0] - a[0])[0][0];
+      const ft = est.shopping.filter((r) => r.name.startsWith(`${l.material} x`) && /spares/.test(r.name)).map((r) => Number(r.name.match(/x (\d+)'/)[1]));
+      const long = cheapestHolding(l.material, Math.max(...lens));
+      assert.ok(ft.includes(long), `${l.material}: a spare holds the longest piece (${long}')`);
+      if (ft.length === 2) assert.ok(ft.includes(cheapestHolding(l.material, commonest)), `${l.material}: the rest hold the commonest piece`);
+    }
+  }
+});
+
 test('a realistic order: spare boards, consumables, sales tax and delivery', () => {
   const plain = estimate(buildShed(normalize({ ...defaultDesign(), spares: 0 })));
   const est = estimate(buildShed(defaultDesign()));
   const spares = est.shopping.filter((r) => /spares/.test(r.name));
-  assert.equal(spares.length, est.lumber.filter((l) => l.result.boards.length).length, 'one spares line a material');
   for (const l of est.lumber) {
-    const line = spares.find((r) => r.name.startsWith(`${l.material} x`));
-    assert.equal(line.qty, Math.ceil(l.result.boards.length * 0.05), l.material);
+    const lines = spares.filter((r) => r.name.startsWith(`${l.material} x`));
+    assert.ok(lines.length >= 1 && lines.length <= 2, `one or two spares lines for ${l.material}`);
+    assert.equal(lines.reduce((t, r) => t + r.qty, 0), Math.ceil(l.result.boards.length * 0.05), l.material);
   }
   assert.ok(!plain.shopping.some((r) => /spares/.test(r.name)));
   for (const re of [/adhesive/i, /screws/i, /Flashing tape/, /shims/i]) assert.ok(est.shopping.some((r) => re.test(r.name)), String(re));
