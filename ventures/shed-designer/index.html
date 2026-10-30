@@ -424,6 +424,21 @@
       </div>
     </fieldset>
     <fieldset>
+      <legend>Site plan, for a permit or HOA (optional; feet, 0 for none)</legend>
+      <p class="muted">Type your lot and where the shed goes, and the plans get a site plan sheet with every clearance. It draws what you type; it is not a survey.</p>
+      <div class="fields">
+        <label>Lot width along the street (ft)<input id="lotWidthFt" type="number" min="0" max="2000" step="0.5"></label>
+        <label>Lot depth (ft)<input id="lotDepthFt" type="number" min="0" max="2000" step="0.5"></label>
+        <label>Shed from the left lot line (ft)<input id="siteLeftFt" type="number" min="0" max="2000" step="0.5"></label>
+        <label>Shed from the rear lot line (ft)<input id="siteRearFt" type="number" min="0" max="2000" step="0.5"></label>
+        <label>Setback your town or HOA asks for (ft)<input id="setbackFt" type="number" min="0" max="200" step="0.5"></label>
+        <label>House width along the street (ft)<input id="houseWidthFt" type="number" min="0" max="2000" step="0.5"></label>
+        <label>House depth (ft)<input id="houseDepthFt" type="number" min="0" max="2000" step="0.5"></label>
+        <label>House from the left lot line (ft)<input id="houseLeftFt" type="number" min="0" max="2000" step="0.5"></label>
+        <label>House from the street lot line (ft)<input id="houseFrontFt" type="number" min="0" max="2000" step="0.5"></label>
+      </div>
+    </fieldset>
+    <fieldset>
       <legend>Covering and boards</legend>
       <div class="fields">
         <label class="check"><input id="siding" type="checkbox"> Siding</label>
@@ -517,6 +532,7 @@
     </div>
     <div class="result-panel print-target" id="panel-plans" hidden>
       <div class="toolrow"><button type="button" class="btn primary" id="print-plans">Print all plans</button><button type="button" class="btn" id="dxf-all">Download all as DXF</button><button type="button" class="btn" id="hoa-packet">HOA packet (PDF)</button></div>
+      <p class="muted">Taking these to a building department or an HOA? "HOA packet (PDF)" gives coloured, dimensioned elevations, the finishes and the site plan on four pages; the plan set has a cover sheet with materials and colours, a site plan (type your lot under "Site plan" above), plans, elevations with overall height, a section and details. It is not engineered or code-checked, and it is not "permit-ready": what a submission needs is set locally. Many places need no building permit for a small shed (the IRC, R105.2, exempts a one-storey detached accessory building up to 200 sq ft; the IBC sets 120 sq ft; many towns use less), but zoning setbacks and HOA rules can still apply. Check with yours.</p>
       <div id="plans"></div>
     </div>
   </section>
