@@ -10,6 +10,7 @@ import { WALLS, wallLabel, siteLayout } from './model.mjs';
 import { heelJoint } from './checks.mjs';
 import { trussChecks } from './truss.mjs';
 import { LAP_PRODUCTS } from './lap.mjs';
+import { cuttingSheet } from './cutting-sheets.mjs';
 import { gambrelSectionItems, gambrelSectionNote, gambrelRoofPlan, gambrelTrussDetail, gambrelElevationRoof, gambrelRoofWords } from './gambrel-sheets.mjs';
 
 /** @typedef {[number, number]} P */
@@ -501,6 +502,12 @@ export function buildSheets(shed, marks = new Map()) {
       note: `Each rectangle is one piece, with its size; pieces under 8 ft are cut from whole sheets (the shopping list counts the sheets after packing the cuts). Floor ${fmtFtIn(L)} x ${fmtFtIn(W)}; ${k.lean ? 'the roof' : 'each roof slope'} ${fmtFtIn(L)} x ${fmtIn(slope)} along the slope.`,
       items,
     });
+  }
+
+  // Cutting layout: where each piece comes out of each sheet the list buys.
+  {
+    const cut = cuttingSheet(shed);
+    if (cut) sheets.push(cut);
   }
 
   // Typical details and nailing schedule.
