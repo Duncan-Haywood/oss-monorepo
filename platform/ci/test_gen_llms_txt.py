@@ -24,6 +24,14 @@ class GenLlms(unittest.TestCase):
         with tempfile.TemporaryDirectory() as r:
             self.assertIsNone(g.build(self._venture(r, "y", "<h1>Only a heading</h1>")))
 
+    def test_site_subfolder_entry(self):
+        with tempfile.TemporaryDirectory() as r:
+            d = Path(r) / "z"
+            (d / "site").mkdir(parents=True)
+            (d / "site" / "index.html").write_text('<meta name="description" content="D."><h1>Z</h1>')
+            out = g.build(d)
+            self.assertTrue(out.startswith("# Z\n\n> D."))
+
 
 if __name__ == "__main__":
     unittest.main()

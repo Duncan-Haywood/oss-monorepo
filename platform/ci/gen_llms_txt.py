@@ -29,7 +29,9 @@ def meta(text: str, pattern: str) -> str:
 
 
 def build(d: Path) -> str | None:
-    page = d / "index.html"
+    # platform/pages/build.mjs (ENTRY_CANDIDATES) serves site/index.html too
+    pages = d if (d / "index.html").exists() else d / "site"
+    page = pages / "index.html"
     if not page.exists():
         return None
     t = page.read_text(errors="replace")
@@ -50,7 +52,7 @@ def build(d: Path) -> str | None:
         "",
         f"- [The tool]({SITE}/{slug}/)",
     ]
-    for p in sorted(d.glob("*.html")):
+    for p in sorted(pages.glob("*.html")):
         if p.name == "index.html":
             continue
         pt = meta(p.read_text(errors="replace"), r"<h1[^>]*>(.*?)</h1>")

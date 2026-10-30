@@ -1,0 +1,15 @@
+# Print file preflight
+
+> Free print-file preflight for artists and photographers: check implied DPI at a target print size, compare up to five export masters, and download a dated technical record before you pay for a proof. Runs entirely in your browser — artwork is never uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/print-atelier/)
+- [This tool vs. Printful](https://duncan-haywood.github.io/oss-monorepo/print-atelier/vs-printful.html)
+- [What resolution do I need to print my artwork?](https://duncan-haywood.github.io/oss-monorepo/print-atelier/what-resolution-do-i-need-to-print-my-artwork.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/print-atelier): MIT licensed.
