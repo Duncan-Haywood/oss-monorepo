@@ -1,0 +1,57 @@
+{
+  "date": "2026-10-30",
+  "session": "https://claude.ai/code/session_01XpHqyepM9fa6ojWjcfNEsj",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-30T20:49:36Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 11867,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "'files first' covered write-ups but not work queues; v2 used GitHub issues. Added the owner's 2026-10-30 extension."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Security alerts preempt the weighted routing draw, per the owner's request in this session.",
+      "did": "added step 0",
+      "result": "pending first alert"
+    },
+    {
+      "file": "prompt.md",
+      "why": "Step 0 takes prompt.md ~6 lines past its soft 100-line budget; it is the only always-read place scheduled sessions would see the queue."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-30-agents-fix-code-scanning-alerts.md"
+  ],
+  "goal": null,
+  "notes": "Owner asked for agents to fix GitHub security scan results. v1 ran claude-code-action on ANTHROPIC_API_KEY: rejected (no API-key billing; use the scheduled agents). v2 mirrored alerts into GitHub issues: rejected (file based, easier to process). Final: security-alert-queue.yml writes QUEUE.md + alerts/<n>.md to the security-alerts data branch with GITHUB_TOKEN; prompt.md step 0 sends scheduled sessions there; claim = pushing security-fix/code-scanning-<n>; branch_cleanup protects security-alerts. 5 unit tests + test_branch_cleanup pass; validate_workflows and the repo's actions-* checkers (incl. secret-leak) clean; commit/push shell logic simulated against a local bare repo. Live alerts unreadable from the container (403): first scheduled run is the end-to-end test.",
+  "corrections": [],
+  "redteam": null
+}

@@ -9,6 +9,13 @@ routes each run to a sub-prompt, measures how runs go, and uses the
 measurements to improve the sub-prompts and the documentation.
 [`prompts/README.md`](prompts/README.md) explains the whole loop.
 
+## 0. Security alerts first
+
+Unless the starting message names a task, read the security queue first:
+`git fetch -q --depth=1 origin security-alerts && git show origin/security-alerts:QUEUE.md`.
+Take the top alert with no `security-fix/code-scanning-<n>` branch (`git ls-remote`); its
+`alerts/<n>.md` says how. `security-alert-queue.yml` regenerates it hourly (owner, 2026-10-30).
+
 ## 1. Route
 
 If the message that started the session names a specific task, pass its track:
