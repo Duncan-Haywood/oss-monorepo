@@ -1,5 +1,6 @@
 ---
 title: "Turning 65 lowers your estimated tax: the senior deduction in a $100,000 example"
+seo_title: "Turning 65 lowers your estimated tax"
 date: 2026-10-28
 description: "A single sole proprietor aged 65 with $100,000 profit sees estimated 2026 federal tax fall from $22,364.55 to $21,137.14 with the senior deductions."
 tags: [ai-bookkeeper, tax, self-employed]

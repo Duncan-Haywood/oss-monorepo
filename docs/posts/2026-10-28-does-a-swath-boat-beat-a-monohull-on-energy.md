@@ -1,5 +1,6 @@
 ---
 title: "Does hiding a small boat's hulls underwater save energy? A SWATH model says no"
+seo_title: "Does hiding a small boat's hulls underwater save energy?"
 date: 2026-10-28
 description: "A Michell thin-ship model of a 200 kg survey boat with two submerged torpedo hulls on struts never out-ranges a plain 4 m monohull in 4,374 swept cases."
 tags: [research, marine-hull, ocean-engineering, simulation]

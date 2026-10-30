@@ -1,5 +1,6 @@
 ---
 title: "Lumpy income no longer has to pay a quarter early: annualized installments in the browser"
+seo_title: "Lumpy income no longer has to pay a quarter early"
 date: 2026-10-28
 description: "ai-bookkeeper's page now shows what the annualized method requires by each estimated-tax date, next to the regular quarters."
 tags: [ai-bookkeeper, tax, self-employed]

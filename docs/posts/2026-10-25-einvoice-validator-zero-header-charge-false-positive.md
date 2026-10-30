@@ -1,5 +1,6 @@
 ---
 title: "A valid German e-invoice that our validator rejected: the zero-amount header charge"
+seo_title: "A valid German e-invoice that our validator rejected"
 date: 2026-10-25
 description: "Running einvoice-preflight over KoSIT's 72 valid XRechnung test documents found a false positive in six of them. Here is the cause and the fix."
 tags: [einvoice, xrechnung, validation, open-source]

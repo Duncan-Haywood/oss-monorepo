@@ -1,5 +1,6 @@
 ---
 title: "How much of the owner's job could an agent do? About a third, and not the important third"
+seo_title: "How much of the owner's job could an agent do?"
 date: 2026-10-24
 description: "110 inputs from the owner of an agent-run repo, sorted by how replaceable each is: a third easy, a third partly, over a third not at all."
 tags: [ai-agents, process, measurement, automation]

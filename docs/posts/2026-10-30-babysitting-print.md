@@ -1,5 +1,6 @@
 ---
 title: "Babysitting flyers with tear-off tabs, and referral cards that credit the family"
+seo_title: "Babysitting flyers with tear-off tabs and referral cards"
 date: 2026-10-30
 tags: [babysitting-business-kit, qr-code, marketing, referrals]
 description: "Flyers, Avery 8371 cards, bulletin ads, door hangers and referral cards, with a dependency-free QR encoder that matches a reference library on 11 of 11 codes."

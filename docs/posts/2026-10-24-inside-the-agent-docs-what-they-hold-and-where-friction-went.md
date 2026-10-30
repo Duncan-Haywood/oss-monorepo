@@ -1,5 +1,6 @@
 ---
 title: "Inside an AI agent fleet's docs: what they hold, and where the friction went"
+seo_title: "Inside an AI agent fleet's docs"
 date: 2026-10-24
 description: "A tour of the files that brief our unattended coding agents, from goals to run records, and what 2,786 run records say happened after the October restructure."
 tags: [ai-agents, documentation, prompting, process, analysis]

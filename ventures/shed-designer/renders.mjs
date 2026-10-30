@@ -36,6 +36,27 @@ export const VIEWS = {
   framing: { label: 'framing cutaway', theta: -0.95, phi: 0.38, w: 640, h: 427, layers: 'framing', zoom: 0.95, presentation: false },
 };
 
+/**
+ * Views drawn for one design only. They live outside VIEWS because VIEWS is
+ * part of every scene hash: adding a view there would mark every stored
+ * picture stale and redraw the lot. `share` is the 1200x630 picture a shared
+ * link previews (`og:image`), as JPEG because not every link scraper reads WebP.
+ * @type {Record<string, { label: string, theta: number, phi: number, w: number, h: number, layers: 'finished' | 'framing', zoom: number, presentation: boolean, type?: string }>}
+ */
+export const EXTRA_VIEWS = {
+  share: { label: 'from the front corner', theta: -0.95, phi: 0.22, w: 1200, h: 630, layers: 'finished', zoom: 0.9, presentation: true, type: 'image/jpeg' },
+};
+
+/**
+ * A view by name, from VIEWS or EXTRA_VIEWS.
+ * @param {string} name
+ * @returns {{ label: string, theta: number, phi: number, w: number, h: number, layers: 'finished' | 'framing', zoom: number, presentation: boolean, type?: string }}
+ */
+export const viewOf = (name) => VIEWS[name] ?? EXTRA_VIEWS[name];
+
+/** The design behind the share picture, and its slug in the manifest. */
+export const SHARE_TARGET = { slug: 'og-8x12', preset: '8x12' };
+
 /** Layers hidden for the framing cutaway (the "Framing only" button's set). */
 export const COVERINGS = ['sheathing', 'siding', 'roofing', 'trim', 'interior', 'front lining', 'decor'];
 
@@ -46,7 +67,10 @@ export const COVERINGS = ['sheathing', 'siding', 'roofing', 'trim', 'interior', 
  * from 900 KB to 1,100 KB when the lean-to and the gambrel barn joined the
  * presets, which leaves room for about three more.
  */
-export const BUDGET = { total: 1100 * 1024, hero: 70 * 1024, other: 40 * 1024 };
+export const BUDGET = { total: 1100 * 1024, hero: 70 * 1024, other: 40 * 1024, share: 90 * 1024 };
+
+/** The size limit for one view's file. */
+export const budgetFor = (view) => (view === 'hero' ? BUDGET.hero : view === 'share' ? BUDGET.share : BUDGET.other);
 
 /** A file-name-safe slug for a preset key: '8x12 classic' -> '8x12-classic'. */
 export const slugOf = (key) => String(key).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
@@ -85,7 +109,7 @@ export function altFor(design, view) {
   const colour = d.sidingColor === 'natural' ? 'stained' : d.sidingColor === 'unfinished' ? 'unfinished' : `${d.sidingColor}`;
   const cover = d.roofCover === 'metal' ? `${d.roofColor} metal roof` : `${d.roofColor} shingles`;
   // The hero looks at the front and the right gable end; the side view at the right gable end.
-  const walls = view === 'hero' || view === 'card' ? ['front', 'right'] : view === 'side' ? ['right'] : [view];
+  const walls = view === 'hero' || view === 'card' || view === 'share' ? ['front', 'right'] : view === 'side' ? ['right'] : [view];
   const openings = (d.openings || []).filter((o) => walls.includes(o.wall));
   // Like openings are counted together: "two 36" windows on the front".
   const groups = new Map();
@@ -99,7 +123,7 @@ export function altFor(design, view) {
     ? `, showing ${[...groups].map(([k, n]) => { const [thing, where] = k.split('|'); return `${COUNT[n] || n} ${thing}${n > 1 ? 's' : ''}${where}`; }).join(' and ')}`
     : '';
   const sid = d.siding === false ? 'unsided' : `${colour} ${SIDING[d.sidingType] || 'siding'}`;
-  return `3D render of the ${name}, ${size}, seen ${VIEWS[view]?.label || view}: ${sid}, ${cover}, ${d.pitch}/12 ${k.lean ? 'lean-to roof' : 'roof'}, ${fmtFtIn(k.peak)} to the ${k.lean ? 'high edge' : 'peak'}${what}.`;
+  return `3D render of the ${name}, ${size}, seen ${viewOf(view)?.label || view}: ${sid}, ${cover}, ${k.saltbox ? `${d.frontPitch}/12 and ${d.pitch}/12 saltbox roof` : `${d.pitch}/12 ${k.lean ? 'lean-to roof' : 'roof'}`}, ${fmtFtIn(k.peak)} to the ${k.lean ? 'high edge' : 'peak'}${what}.`;
 }
 
 /**

@@ -20,7 +20,8 @@ import { estimate } from './estimate.mjs';
 import { productById } from './products.mjs';
 import { headerCheck, studCheck } from './structure.mjs';
 import { gambrelShape, gambrelParts, gambrelAnalysis, loftSpan, bandAbove, zOnPoly, GUSSET_T as GAMBREL_GUSSET_T, LOFT_LIVE } from './gambrel.mjs';
-import { needsKingPost, trussForces } from './truss.mjs';
+import { needsKingPost, needsChordBrace, trussForces } from './truss.mjs';
+import { roofSides, threeHinged, FRONT_PITCH_MIN, FRONT_PITCH_MAX } from './saltbox.mjs';
 import { LAP_PRODUCTS, layoutFace, lapStocks, lapStagger, evenExposure, lapStudLimit } from './lap.mjs';
 import { bbox } from './integrity.mjs';
 import { pickFinish, SIDING_FINISHES, TRIM_FINISHES, DOOR_FINISHES, SHINGLE_FAMILIES } from './looks.mjs';
@@ -45,8 +46,13 @@ export const LEAN_WALL_LABEL = {
   front: 'Front (tall side)', back: 'Back (low side)', left: 'Left (end wall)', right: 'Right (end wall)',
 };
 
+/** A saltbox's eave walls by their slopes: a short steep one over the front, a long shallow one over the back. */
+export const SALT_WALL_LABEL = {
+  front: 'Front (steep side)', back: 'Back (long slope)', left: 'Left (gable end)', right: 'Right (gable end)',
+};
+
 /** The label for a wall in this design's style. @param {{ style?: string }} design @param {string} wall */
-export const wallLabel = (design, wall) => (design.style === 'leanTo' ? LEAN_WALL_LABEL : WALL_LABEL)[wall];
+export const wallLabel = (design, wall) => (design.style === 'leanTo' ? LEAN_WALL_LABEL : design.style === 'saltbox' ? SALT_WALL_LABEL : WALL_LABEL)[wall];
 
 /**
  * The starter, as asked for: an 8x12 with a single 6'6" door on one 12 ft side,
@@ -78,7 +84,10 @@ export function defaultDesign() {
     // 'gable'; 'leanTo' (one slope, from a tall front wall down to a low back wall, which is the
     // wall height); or 'gambrel' (barn): then `pitch` is the upper slope, `gambrelLower` the lower one
     // and `gambrelKnee` the lower slope's horizontal run (0: a quarter of the width); see gambrel.mjs.
+    // 'saltbox': a gable with its ridge off centre, `pitch` the long back slope and `frontPitch`
+    // the short steep front one; the ridge sits where they meet (saltbox.mjs).
     style: 'gable',
+    frontPitch: 10,
     gambrelLower: 20,
     gambrelKnee: 0,
     loft: 'none',
@@ -195,7 +204,12 @@ export const BLOCKS = {
 
 const classic = () => ({ ...defaultDesign(), foundation: 'gravel', pad: 'full', wallHeight: 96, pitch: 6, skidSize: '4x6', roofType: 'ridgeBoard', sidingColor: 'natural', polkaDots: false, maxPeak: 0, ventHeight: 12, autoWall: false, autoPitch: false, autoOverhang: false, rafterSeat: 'birdsmouth', maxFootprint: 0, roofColor: 'charcoal', trimColor: 'white', glitter: false, interior: 'none' });
 
-/** @typedef {ReturnType<typeof defaultDesign>} Design */
+/**
+ * Site plan extras that `normalize` fills in (not `defaultDesign`, so the
+ * presets' design keys stay put).
+ * @typedef {{ siteFacing: string, northDeg: number | null, easementSide: string, easementFt: number, easementNote: string }} SiteExtras
+ */
+/** @typedef {ReturnType<typeof defaultDesign> & Partial<SiteExtras>} Design */
 
 /** Starting points for the "New design" menu. */
 export const PRESETS = {
@@ -235,6 +249,14 @@ export const PRESETS = {
       { id: 'o1', kind: 'door', wall: 'left', offset: 40.75, width: 38.5, height: 78, product: 'site-built' },
       { id: 'o2', kind: 'window', wall: 'front', offset: 24, width: 14.25, height: 21.25, sill: 44, product: 'swm-1421' },
       { id: 'o3', kind: 'window', wall: 'front', offset: 81.75, width: 14.25, height: 21.25, sill: 44, product: 'swm-1421' },
+    ] }),
+  // A saltbox: a 10/12 front over the door and a long 5/12 back, the ridge about a third of the way
+  // back. Ridge board and ties, shingles, primed lap siding to paint, a window in a gable end.
+  '8x12 saltbox': () => ({ ...defaultDesign(), name: '8x12 saltbox shed', style: 'saltbox', pitch: 5, frontPitch: 10, roofType: 'ridgeBoard', wallHeight: 84.5,
+    autoWall: false, autoPitch: false, autoOverhang: true, maxPeak: 0, gableVents: false, sidingType: 'LP SmartSide lap', sidingColor: 'white', openings: [
+      { id: 'o1', kind: 'door', wall: 'front', offset: 52.75, width: 38.5, height: 78, product: 'site-built' },
+      { id: 'o2', kind: 'window', wall: 'right', offset: 21, width: 14.25, height: 21.25, sill: 44, product: 'swm-1421' },
+      { id: 'o3', kind: 'window', wall: 'back', offset: 64.875, width: 14.25, height: 21.25, sill: 44, product: 'swm-1421' },
     ] }),
 };
 
@@ -338,6 +360,16 @@ export function normalize(input) {
     maxHaulFt: /** @type {any} */ (o.maxHaulFt) !== '' && o.maxHaulFt !== null && [0, 8, 10, 12, 14, 16, 18, 20].includes(Number(o.maxHaulFt)) ? Number(o.maxHaulFt) : d.maxHaulFt,
     ...Object.fromEntries(['lotWidthFt', 'lotDepthFt', 'siteLeftFt', 'siteRearFt', 'houseWidthFt', 'houseDepthFt', 'houseLeftFt', 'houseFrontFt', 'setbackFt']
       .map((f) => [f, Math.min(2000, Math.max(0, num(o[f], d[f])))])),
+    // Site plan extras, defaulted here rather than in defaultDesign() so the
+    // presets' design keys (and their stored pictures) do not move: which way
+    // the front (door) wall faces on the lot; north in degrees clockwise from
+    // straight up the plan (toward the rear lot line), null for no arrow; and
+    // an easement strip along one lot line, with a note as on the plat.
+    siteFacing: pick(o.siteFacing, ['street', 'left', 'right', 'rear'], 'street'),
+    northDeg: o.northDeg === null || o.northDeg === undefined || /** @type {any} */ (o.northDeg) === '' || typeof o.northDeg === 'boolean' || !Number.isFinite(Number(o.northDeg)) ? null : ((Math.round(Number(o.northDeg)) % 360) + 360) % 360,
+    easementSide: pick(o.easementSide, ['none', 'street', 'left', 'right', 'rear'], 'none'),
+    easementFt: Math.min(200, Math.max(0, num(o.easementFt, 0))),
+    easementNote: typeof o.easementNote === 'string' ? o.easementNote.replace(/[\u0000-\u001f]/g, ' ').trim().slice(0, 120) : '',
     locked: Array.isArray(o.locked) ? [...new Set(o.locked.filter((k) => typeof k === 'string' && k in LOCKABLE))] : [],
     ventWidth: Math.min(36, Math.max(6, num(o.ventWidth, d.ventWidth))),
     ventHeight: Math.min(36, Math.max(6, num(o.ventHeight, d.ventHeight))),
@@ -361,7 +393,10 @@ export function normalize(input) {
       ...(TWO_BY.includes(op.header) ? { header: op.header } : {}),
       ...(op.product ? { product: String(op.product) } : {}),
     })),
-    style: pick(o.style, ['gable', 'leanTo', 'gambrel'], 'gable'),
+    style: pick(o.style, ['gable', 'leanTo', 'gambrel', 'saltbox'], 'gable'),
+    // The front is the steep side, and no more than three times the back's pitch, which keeps the ridge
+    // at least a quarter of the width back from the front wall.
+    frontPitch: Math.min(FRONT_PITCH_MAX, 3 * Math.min(14, Math.max(2, num(o.pitch, d.pitch))), Math.max(FRONT_PITCH_MIN, Math.min(14, Math.max(2, num(o.pitch, d.pitch))), num(o.frontPitch, d.frontPitch))),
     gambrelLower: Math.min(30, Math.max(16, num(o.gambrelLower, d.gambrelLower))),
     gambrelKnee: Math.min(120, Math.max(0, num(o.gambrelKnee, d.gambrelKnee))),
     loft: pick(o.loft, ['none', 'half', 'full'], 'none'),
@@ -371,6 +406,8 @@ export function normalize(input) {
   // overhang); a loft goes on a gambrel's ties only.
   if (out.style === 'gambrel') Object.assign(out, { roofType: 'ridgeBoard', rafterSeat: 'birdsmouth', overhang: 0, autoOverhang: false });
   else out.loft = 'none';
+  // A saltbox has a ridge board or a ridge beam: no site-built saltbox truss is modelled, so a saved truss roof builds with a ridge board.
+  if (out.style === 'saltbox' && out.roofType === 'truss') Object.assign(out, { roofType: 'ridgeBoard', atticStorage: false });
   // Resolved here, not in buildShed, so every reader of the design (moves, checks, the page) sees the spacing framed.
   if (out.autoStuds) out.studSpacing = autoStudSpacing(out);
   return out;
@@ -406,20 +443,23 @@ export function defaultHeader(width) {
  */
 export function headerLoadPlf(d, wall) {
   if (wall === 'front' || wall === 'back') {
-    const e = eaveWallLoads(d);
+    const e = eaveWallLoads(d, wall);
     return e.dead + e.snow + 10;
   }
-  const cos = 1 / Math.sqrt(1 + ((d.pitch ?? 0) / 12) ** 2);
+  // A saltbox's end rafter has its steep front side too: the steeper slope weighs more on plan.
+  const cos = 1 / Math.sqrt(1 + (Math.max(d.pitch ?? 0, d.style === 'saltbox' ? d.frontPitch ?? 0 : 0) / 12) ** 2);
   return 40 + (15 / cos + (d.snowLoad ?? 0)) * ((d.rafterSpacing ?? 24) / 2) / 12;
 }
 
 /**
  * The roof's load on an eave wall, lb/ft, as dead and snow: the same numbers
- * checks.mjs's eaveRoofPlf gives (a test pins them together).
- * @param {Partial<Design>} d
+ * checks.mjs's eaveRoofPlf gives (a test pins them together). A saltbox's
+ * two eave walls carry different loads; name the wall, or get the heavier.
+ * @param {Partial<Design>} d @param {string} [wall]
  */
-export function eaveWallLoads(d) {
+export function eaveWallLoads(d, wall) {
   const cos = 1 / Math.sqrt(1 + ((d.pitch ?? 0) / 12) ** 2);
+  if (d.style === 'saltbox') return saltboxWallLoads(/** @type {any} */ (d), wall);
   if (d.style === 'gambrel') {
     // The gambrel trusses' reactions, a loft's storage load counted as dead.
     const g = gambrelAnalysis(/** @type {any} */ (d)).wall;
@@ -434,6 +474,42 @@ export function eaveWallLoads(d) {
   // Under trusses the eave wall also carries half the attic (bottom chord) load.
   const attic = truss ? (trussForces(/** @type {any} */ (d)).wc * (d.width ?? 0)) / 2 / 12 / ((d.rafterSpacing ?? 24) / 12) : 0;
   return { dead: (15 / cos) * tribFt + attic, snow: (d.snowLoad ?? 0) * tribFt };
+}
+
+/**
+ * A saltbox's roof load on an eave wall, lb/ft. Under a ridge beam each
+ * rafter is a simple span, so the wall takes the lower half of its own side's
+ * run plus the wall and the overhang. Under a ridge board the rafter pair and
+ * its tie are a three-hinged frame (saltbox.mjs, threeHinged): each wall takes
+ * its reaction of the load between the seats, plus the strip outside its seat.
+ * Snow is the same on plan both sides, so under a ridge board it splits evenly;
+ * the dead load (15 psf along each slope) does not quite.
+ * @param {Design} d @param {string} [wall]
+ */
+function saltboxWallLoads(d, wall) {
+  const s = roofSides(d);
+  const W = d.width;
+  const D = actual(d.studSize || '2x4').depth;
+  const beam = d.roofType === 'ridgeBeam';
+  const o = (d.overhang ?? 0) / 12;
+  const snow = d.snowLoad ?? 0;
+  const per = (back) => {
+    const sd = back ? s.back : s.front;
+    if (beam) {
+      const run = sd.half - 1.5 - D;
+      const f = (run / 2 + D) / 12 + o;
+      return { dead: (15 / sd.cos) * f, snow: snow * f };
+    }
+    const a = s.ridgeY - s.seatAt;
+    const b = W - s.ridgeY - s.seatAt;
+    const r = threeHinged(15 / s.front.cos, 15 / s.back.cos, a, b, a * s.front.t);
+    const outside = s.seatAt / 12 + o;
+    return { dead: (back ? r.Vb : r.Va) + (15 / sd.cos) * outside, snow: snow * (W / 2 / 12 + o) };
+  };
+  if (wall === 'front' || wall === 'back') return per(wall === 'back');
+  const f = per(false);
+  const b = per(true);
+  return f.dead + f.snow >= b.dead + b.snow ? f : b;
 }
 
 /**
@@ -554,20 +630,27 @@ function layoutCenters(spacing, lo, hi) {
 export function siteLayout(d) {
   if (!(d.lotWidthFt > 0 && d.lotDepthFt > 0)) return null;
   const lot = { w: d.lotWidthFt * 12, d: d.lotDepthFt * 12 };
+  const facing = d.siteFacing || 'street';
+  // Facing a side lot line turns the shed a quarter turn: its length runs front to back.
+  const turned = facing === 'left' || facing === 'right';
+  const [fx, fy] = turned ? [d.width, d.length] : [d.length, d.width];
   const x0 = d.siteLeftFt * 12;
   const y1 = lot.d - d.siteRearFt * 12;
-  const shed = { x0, x1: x0 + d.length, y0: y1 - d.width, y1 };
+  const shed = { x0, x1: x0 + fx, y0: y1 - fy, y1 };
   const o = d.overhang;
-  const clear = {
-    left: shed.x0, right: lot.w - shed.x1, front: shed.y0, rear: lot.d - shed.y1,
-    frontEave: shed.y0 - o, rearEave: lot.d - shed.y1 - o,
-  };
+  // The eaves overhang the front and back walls; the gable ends have none.
+  const eaves = turned ? ['left', 'right'] : ['front', 'rear'];
+  const raw = { left: shed.x0, right: lot.w - shed.x1, front: shed.y0, rear: lot.d - shed.y1 };
+  const eave = Object.fromEntries(Object.entries(raw).map(([k, v]) => [k, eaves.includes(k) ? v - o : v]));
+  const clear = { ...raw, frontEave: eave.front, rearEave: eave.rear, leftEave: eave.left, rightEave: eave.right };
   const house = d.houseWidthFt > 0 && d.houseDepthFt > 0
     ? { x0: d.houseLeftFt * 12, x1: (d.houseLeftFt + d.houseWidthFt) * 12, y0: d.houseFrontFt * 12, y1: (d.houseFrontFt + d.houseDepthFt) * 12 }
     : null;
   // Nearest gap between the shed's walls and the house (0 when they overlap).
   const gap = house ? Math.hypot(Math.max(0, house.x0 - shed.x1, shed.x0 - house.x1), Math.max(0, house.y0 - shed.y1, shed.y0 - house.y1)) : null;
-  return { lot, shed, overhang: o, clear, house, houseGap: gap, setback: d.setbackFt * 12 };
+  const side = d.easementSide === 'street' ? 'front' : d.easementSide;
+  const easement = side && side !== 'none' && d.easementFt > 0 ? { side, width: d.easementFt * 12, note: d.easementNote || '' } : null;
+  return { lot, shed, overhang: o, clear, eaves, facing, house, houseGap: gap, setback: d.setbackFt * 12, north: d.northDeg ?? null, easement };
 }
 
 /** Site-plan problems worth a warning: off the lot, inside the setback you typed, or on top of the house. @param {Design} d */
@@ -579,10 +662,16 @@ function siteWarnings(d) {
   const off = lines.filter(([k]) => site.clear[k] < -1e-9).map(([, name]) => name);
   if (off.length) out.push(`On the site plan the shed runs past the ${off.join(' and ')} lot line${off.length > 1 ? 's' : ''}; check the lot size and where you placed it.`);
   else if (site.setback > 0) {
-    const near = lines.filter(([k]) => Math.min(site.clear[k], k === 'front' ? site.clear.frontEave : k === 'rear' ? site.clear.rearEave : Infinity) < site.setback - 1e-9);
+    const near = lines.filter(([k]) => Math.min(site.clear[k], site.clear[`${k}Eave`]) < site.setback - 1e-9);
     if (near.length) out.push(`On the site plan the shed (or its eave) is closer than your ${fmtFt(site.setback)} setback to the ${near.map(([, n]) => n).join(', ').replace(/, ([^,]*)$/, ' and $1')} lot line${near.length > 1 ? 's' : ''}.`);
   }
   if (site.house && site.houseGap !== null && site.houseGap < 1e-9) out.push('On the site plan the shed overlaps the house; check where you placed each.');
+  const e = site.easement;
+  if (e) {
+    const key = /** @type {'left'|'right'|'front'|'rear'} */ (e.side);
+    const reach = Math.min(site.clear[key], site.clear[`${key}Eave`]);
+    if (reach < e.width - 1e-9) out.push(`On the site plan the shed${reach < site.clear[key] ? ' (or its eave)' : ''} reaches into the ${fmtFt(e.width)} easement along the ${key === 'front' ? 'street' : key} lot line; most easements do not allow a building in them.`);
+  }
   return out;
 }
 
@@ -640,7 +729,10 @@ function buildAuto(d0, prices) {
     const at = new Map();
     // A lean-to's front wall grows with the pitch, so its walls are set again at each pitch.
     const wallAt = (p) => (d0.autoWall && d0.style === 'leanTo' ? { wallHeight: minWallFor({ ...d0, pitch: p }) } : {});
-    const build = (p) => { if (!at.has(p)) at.set(p, buildFramed(normalize({ ...d, pitch: p, ...wallAt(p) }))); return at.get(p); };
+    // A saltbox keeps the shape you chose: its front pitch scales with the back's, to the nearest whole pitch.
+    const ratio = d0.style === 'saltbox' ? d0.frontPitch / d0.pitch : 0;
+    const frontAt = (p) => (ratio ? { frontPitch: Math.min(FRONT_PITCH_MAX, Math.max(FRONT_PITCH_MIN, Math.round(p * ratio))) } : {});
+    const build = (p) => { if (!at.has(p)) at.set(p, buildFramed(normalize({ ...d, pitch: p, ...wallAt(p), ...frontAt(p) }))); return at.get(p); };
     /** The first pitch in [lo, hi] where ok holds, if ok is false below some pitch and true above. */
     const firstTrue = (lo, hi, ok) => { while (lo < hi) { const mid = (lo + hi) >> 1; if (ok(build(mid))) hi = mid; else lo = mid + 1; } return lo; };
     const fits = (s) => !d0.maxPeak || s.dims.peak <= d0.maxPeak + 1e-9;
@@ -700,7 +792,7 @@ function buildAuto(d0, prices) {
   }
   const auto = [];
   if (d0.autoWall) auto.push(`walls ${fmtFt(s.design.wallHeight)}, the lowest that frames the tallest door or window`);
-  if (d0.autoPitch) auto.push(`${d0.style === 'gambrel' ? 'upper roof' : 'roof'} ${s.design.pitch}/12, ${why}`);
+  if (d0.autoPitch) auto.push(`${d0.style === 'gambrel' ? 'upper roof' : d0.style === 'saltbox' ? `roof ${s.design.frontPitch}/12 front and` : 'roof'} ${s.design.pitch}/12${d0.style === 'saltbox' ? ' back' : ''}, ${why}`);
   if (overhangWhy) auto.push(overhangWhy);
   s.notes.unshift(`Set for you: ${auto.join('; ')}.`);
   s.design = { ...s.design, autoWall: d0.autoWall, autoPitch: d0.autoPitch, autoOverhang: d0.autoOverhang };
@@ -725,6 +817,11 @@ function buildFramed(d) {
 
   const L = d.length;
   const W = d.width;
+  // The two roof slopes and the ridge's line across the width: mid-width on a
+  // gable, off centre toward the steep front on a saltbox (saltbox.mjs).
+  const salt = d.style === 'saltbox';
+  const sides = roofSides(d);
+  const yR = sides.ridgeY;
   const maxStock = Math.max(...d.lengths) * 12;
   // Members that can be spliced (skids, rims, plates, a ridge board, the
   // sub-fascia) break at the longest board you can haul, so they never need a
@@ -757,6 +854,14 @@ function buildFramed(d) {
   if (!floorless && d.roofType === 'ridgeBeam' && d.style !== 'leanTo' && skidCount % 2 === 0) skidCount += 1;
   const skidYs = [];
   for (let i = 0; i < skidCount; i++) skidYs.push(skid.thick / 2 + (i * (W - skid.thick)) / (skidCount - 1));
+  // A saltbox's ridge-beam posts stand off centre: give them a skid of their own unless one is already under them.
+  // The nearest inner skid moves under them if it is within half a spacing; otherwise one more skid goes in.
+  if (salt && !floorless && d.roofType === 'ridgeBeam' && !skidYs.some((y) => Math.abs(y - yR) <= skid.thick / 2 - 1.5 + 1e-9)) {
+    const inner = skidYs.map((y, i) => ({ y, i })).filter((x) => x.i > 0 && x.i < skidYs.length - 1).sort((p, q) => Math.abs(p.y - yR) - Math.abs(q.y - yR))[0];
+    if (inner && Math.abs(inner.y - yR) <= d.skidSpacing / 2) skidYs[inner.i] = yR;
+    else { skidYs.push(yR); skidCount += 1; }
+    skidYs.sort((a, b) => a - b);
+  }
   const skidSplit = splitRun(0, L, spliceAt, [], [], 0);
   if (skidCount && skidSplit.runs.length > 1) {
     notes.push(`Skids are longer than the longest board you allowed or can haul (${spliceAt / 12} ft), so each is spliced; stagger the joints between skids${block ? ' and land each joint on a block' : ''}.`);
@@ -873,7 +978,7 @@ function buildFramed(d) {
   if (postPiers) {
     for (const x of [timber.thick / 2, L - timber.thick / 2]) {
       const a = pierDef.along;
-      fixtures.push({ kind: 'post pier', group: 'foundation', geom: rectGeom([x - a / 2, W / 2 - a / 2, -pierLen], X, Z, Y, a, pierLen, a) });
+      fixtures.push({ kind: 'post pier', group: 'foundation', geom: rectGeom([x - a / 2, yR - a / 2, -pierLen], X, Z, Y, a, pierLen, a) });
     }
   }
 
@@ -993,7 +1098,7 @@ function buildFramed(d) {
         warnings.push(`${label} has its sill ${bottom}" above the floor; leave at least 4-1/2" for the plate and rough sill. It is left out.`);
         continue;
       }
-      if (beam && !spec.eave && a - 3 < W / 2 + 1.5 - start && a + op.width + 3 > W / 2 - 1.5 - start) {
+      if (beam && !spec.eave && a - 3 < yR + 1.5 - start && a + op.width + 3 > yR - 1.5 - start) {
         warnings.push(`${label} is where the ridge-beam post runs down the gable wall; move it to one side. It is left out.`);
         continue;
       }
@@ -1033,14 +1138,23 @@ function buildFramed(d) {
     }
     if (beam && !spec.eave) {
       // Two studs under the ridge-beam post carry it down to the floor.
-      verticals.push({ s: W / 2 - 1.5 - start, kind: 'post stud' });
-      verticals.push({ s: W / 2 - start, kind: 'post stud' });
+      verticals.push({ s: yR - 1.5 - start, kind: 'post stud' });
+      verticals.push({ s: yR - start, kind: 'post stud' });
     }
     const occupied = (s0) => verticals.some((v) => s0 < v.s + 1.5 - 1e-9 && s0 + 1.5 > v.s + 1e-9);
     const inOpening = (s0) => ops.some((p) => !p.bay && s0 < p.a + p.w + 3 - 1e-9 && s0 + 1.5 > p.a - 3 + 1e-9);
     for (const c of layout) {
       const s0 = c - 0.75;
       if (s0 < 0 || s0 + 1.5 > len) continue;
+      // A saltbox's off-centre beam post can push a layout stud aside without covering its line;
+      // the stud then goes tight against the post, so a siding joint on that line keeps its wood.
+      const post = salt && !spec.eave ? verticals.find((v) => v.kind === 'post stud' && s0 < v.s + 1.5 - 1e-9 && s0 + 1.5 > v.s + 1e-9) : null;
+      const posts = verticals.filter((v) => v.kind === 'post stud');
+      if (post && !posts.some((v) => v.s <= c + 1e-9 && v.s + 1.5 >= c - 1e-9)) {
+        const beside = c > yR - start ? Math.max(...verticals.filter((v) => v.kind === 'post stud').map((v) => v.s)) + 1.5 : Math.min(...verticals.filter((v) => v.kind === 'post stud').map((v) => v.s)) - 1.5;
+        if (beside >= 0 && beside + 1.5 <= len && !occupied(beside) && !inOpening(beside)) verticals.push({ s: beside, kind: 'stud' });
+        continue;
+      }
       if (occupied(s0) || inOpening(s0)) continue;
       verticals.push({ s: s0, kind: 'stud' });
     }
@@ -1236,6 +1350,19 @@ function buildFramed(d) {
   const seatAt = connector || truss ? 0 : D;
   const zb = (dist) => seatBase + (dist - seatAt) * t; // underside of rafter at a distance from the eave wall's outside face
   const zt = (dist) => zb(dist) + plumbH; // top of rafter
+  // The same, side by side: on a saltbox the front slope is steeper than the
+  // back, and the ridge is off centre at yR. On a gable both sides are zb and zt.
+  /** @param {boolean} back */
+  const slope = (back) => { const sd = back ? sides.back : sides.front; return { t: sd.t, cos: sd.cos, sin: sd.t * sd.cos, plumb: rd / sd.cos, pitch: sd.pitch }; };
+  /** @param {number} dist @param {boolean} back */
+  const zbS = (dist, back) => seatBase + (dist - seatAt) * slope(back).t;
+  /** @param {number} dist @param {boolean} back */
+  const ztS = (dist, back) => zbS(dist, back) + slope(back).plumb;
+  /** A side's rafter run, from its eave wall's outside face to the ridge's face. @param {boolean} back */
+  const runS = (back) => (back ? W - yR : yR) - rh;
+  /** The underside and top of a gable or saltbox roof at a point across the width: the lower of the two slopes' lines. */
+  const underAt = (y) => Math.min(zbS(y, false), zbS(W - y, true));
+  const overAt = (y) => Math.min(ztS(y, false), ztS(W - y, true));
   // A gambrel's cross-section, gussets and checks (gambrel.mjs); null for a gable.
   const gam = d.style === 'gambrel' ? gambrelShape(d, plateTop) : null;
   const gamFrame = gam ? gambrelAnalysis(d) : null;
@@ -1245,20 +1372,26 @@ function buildFramed(d) {
   // (dist W): its underside meets the back seat as a gable rafter's does, and
   // the front wall stands `rise` taller so the front seat lands on its plates.
   // Its high point is the top of the front tail.
-  const ridgeTop = lean ? zt(W + o) : gam ? gam.ridgeTop : zt(r);
-  let ridgeSize = lean ? '' : beam ? d.beamSize : truss ? d.rafterSize : TWO_BY.find((s) => TWO_BY.indexOf(s) > TWO_BY.indexOf(d.rafterSize) && actual(s).depth >= plumbH - 1e-9);
-  if (beam && actual(d.beamSize).depth < plumbH - 1e-9) {
-    warnings.push(`A ${d.beamSize} ridge beam is shallower than the rafters' ${plumbH.toFixed(2)}" plumb cut; choose a deeper beam.`);
+  // A ridge's top is flush with the lower of the two rafters' tops at its faces (the steep side's, on a saltbox).
+  const ridgeTop = lean ? zt(W + o) : gam ? gam.ridgeTop : Math.min(ztS(runS(false), false), ztS(runS(true), true));
+  // How deep the ridge has to be to take both sides' plumb cuts: on a gable, the plumb cut.
+  const plumbNeed = lean || gam ? plumbH : Math.max(ridgeTop - zbS(runS(false), false), ridgeTop - zbS(runS(true), true));
+  let ridgeSize = lean ? '' : beam ? d.beamSize : truss ? d.rafterSize : TWO_BY.find((s) => TWO_BY.indexOf(s) > TWO_BY.indexOf(d.rafterSize) && actual(s).depth >= plumbNeed - 1e-9);
+  if (beam && actual(d.beamSize).depth < plumbNeed - 1e-9) {
+    warnings.push(`A ${d.beamSize} ridge beam is shallower than the rafters' ${plumbNeed.toFixed(2)}" plumb cut${salt ? 's' : ''}; choose a deeper beam.`);
   }
   if (!ridgeSize && !lean && !gam) {
     ridgeSize = '2x12';
-    warnings.push(`At ${d.pitch}/12 the rafter's plumb cut is ${plumbH.toFixed(2)}" deep, more than a 2x12 ridge; use a built-up or engineered ridge.`);
+    warnings.push(`At ${salt ? `${sides.front.pitch}/12 and ${d.pitch}/12 the rafters' plumb cuts need` : `${d.pitch}/12 the rafter's plumb cut is`} ${plumbNeed.toFixed(2)}" ${salt ? 'of ridge' : 'deep'}, more than a 2x12 ridge; use a built-up or engineered ridge.`);
   }
   const ridgeD = lean || truss || gam ? 0 : actual(ridgeSize).depth;
-  if (!connector && !truss && !gam && D * t > rd / 3 + 1e-9) {
-    warnings.push(`The birdsmouth is ${(D * t).toFixed(2)}" deep, more than a third of the ${d.rafterSize} rafter; a deeper rafter or lower pitch keeps more wood over the wall.`);
+  const steepT = salt ? Math.max(t, sides.front.t) : t;
+  if (!connector && !truss && !gam && D * steepT > rd / 3 + 1e-9) {
+    warnings.push(`The birdsmouth${salt ? ' on the steep front rafters' : ''} is ${(D * steepT).toFixed(2)}" deep, more than a third of the ${d.rafterSize} rafter; a deeper rafter or lower pitch keeps more wood over the wall.`);
   }
   const rafterCut = ceil16(((lean ? W + o : r) + o) / cos + rd * Math.tan(Math.atan(t)));
+  /** A side's rafter cut length (a saltbox's two sides differ). @param {boolean} back */
+  const rafterCutS = (back) => (lean || !salt ? rafterCut : ceil16((runS(back) + o) / slope(back).cos + rd * slope(back).t));
   // The end rafters sit over the gable walls. An inner rafter (and the tie
   // nailed to its far side) must clear the gable wall's studs, so one that
   // lands within a wall's depth of an end moves in to the nearest clear spot;
@@ -1271,19 +1404,27 @@ function buildFramed(d) {
   /** @param {number} dist @param {boolean} back */
   const yOf = (dist, back) => (back ? W - dist : dist);
   const rafterProfile = (back) => {
+    const rr = runS(back);
+    const zbb = (dist) => zbS(dist, back);
+    const ztt = (dist) => ztS(dist, back);
     /** @type {[number, number][]} */
     const pts = [];
-    if (o > 0) pts.push([yOf(-o, back), zb(-o)]);
-    if (connector || truss) pts.push([yOf(0, back), zb(0)], [yOf(r, back), zb(r)], [yOf(r, back), zt(r)], [yOf(-o, back), zt(-o)]);
-    else pts.push([yOf(0, back), zb(0)], [yOf(0, back), plateTop], [yOf(D, back), plateTop], [yOf(r, back), zb(r)], [yOf(r, back), zt(r)], [yOf(-o, back), zt(-o)]);
+    if (o > 0) pts.push([yOf(-o, back), zbb(-o)]);
+    if (connector || truss) pts.push([yOf(0, back), zbb(0)], [yOf(rr, back), zbb(rr)], [yOf(rr, back), ztt(rr)], [yOf(-o, back), ztt(-o)]);
+    else pts.push([yOf(0, back), zbb(0)], [yOf(0, back), plateTop], [yOf(D, back), plateTop], [yOf(rr, back), zbb(rr)], [yOf(rr, back), ztt(rr)], [yOf(-o, back), ztt(-o)]);
     if (o === 0 && !connector && !truss) pts.splice(0, 1); // tail is the heel cut: start at the plate seat
     return pts;
   };
-  const birdNote = truss
-    ? `truss top chord: ${d.pitch}/12 plumb cuts at the peak and tail; no notch: sits on the bottom chord, joined by gussets`
-    : connector
-    ? `${d.pitch}/12 plumb cuts at ridge and tail; no birdsmouth: sits on a variable-pitch connector`
-    : `${d.pitch}/12 plumb cuts at ridge and tail; birdsmouth ${((D * t)).toFixed(2).replace(/\.?0+$/, '')}" heel, ${D}" seat`;
+  /** @param {boolean} back */
+  const birdNoteS = (back) => {
+    const p = slope(back).pitch;
+    const which = salt ? (back ? 'back (long) slope: ' : 'front (steep) slope: ') : '';
+    return truss
+      ? `truss top chord: ${p}/12 plumb cuts at the peak and tail; no notch: sits on the bottom chord, joined by gussets`
+      : connector
+      ? `${which}${p}/12 plumb cuts at ridge and tail; no birdsmouth: sits on a variable-pitch connector`
+      : `${which}${p}/12 plumb cuts at ridge and tail; birdsmouth ${((D * slope(back).t)).toFixed(2).replace(/\.?0+$/, '')}" heel, ${D}" seat`;
+  };
   if (lean) {
     // One rafter a bay, eave tail to eave tail. A birdsmouth notches each
     // wall: at the back the underside passes the plate's inside top edge (the
@@ -1311,7 +1452,7 @@ function buildFramed(d) {
   if (!gam) for (const c of lean ? [] : rafterCenters) {
     for (const back of [false, true]) {
       push({
-        id: nextId('RF'), group: 'roof', kind: 'rafter', material: d.rafterSize, length: rafterCut, note: birdNote,
+        id: nextId('RF'), group: 'roof', kind: 'rafter', material: d.rafterSize, length: rafterCutS(back), note: birdNoteS(back),
         geom: { origin: [c - 0.75, 0, 0], u: Y, v: Z, w: X, profile: rafterProfile(back), thickness: 1.5 },
       });
     }
@@ -1332,8 +1473,8 @@ function buildFramed(d) {
         }
         if (beam) {
           for (const x of sides(c)) {
-            const y0 = back ? W / 2 + rh : W / 2 - rh - 2;
-            fixtures.push({ kind: 'connector', group: 'roof', geom: rectGeom([x, y0, zb(r) - 0.5], Y, Z, X, 2, Math.min(4.5, plumbH), steel) });
+            const y0 = back ? yR + rh : yR - rh - 2;
+            fixtures.push({ kind: 'connector', group: 'roof', geom: rectGeom([x, y0, zbS(runS(back), back) - 0.5], Y, Z, X, 2, Math.min(4.5, slope(back).plumb), steel) });
           }
         }
       }
@@ -1344,20 +1485,20 @@ function buildFramed(d) {
   // wall top between rafters (screen or drill it for venting) and stops the
   // rafters rolling.
   {
-    const topAt = (y) => zt(y) - plateTop;
+    const topAt = (y, back = false) => ztS(y, back) - plateTop;
     // A birdsmouth deep enough to leave no rafter above the plate's outside
     // edge leaves no room for a block either (the birdsmouth warning says so).
-    if (!gam && topAt(0) > 0.5) {
-    /** @type {[number, number][]} */
-    const front = [[0, plateTop], [1.5, plateTop], [1.5, plateTop + topAt(1.5)], [0, plateTop + topAt(0)]];
+    if (!gam && Math.min(topAt(0), topAt(0, true)) > 0.5) {
+    /** @type {(back: boolean) => [number, number][]} */
+    const front = (back) => [[0, plateTop], [1.5, plateTop], [1.5, plateTop + topAt(1.5, back)], [0, plateTop + topAt(0, back)]];
     // A lean-to's front block sits on the tall wall, under the high end of the rafters.
     /** @type {[number, number][]} */
     const leanFront = [[0, highPlateTop], [1.5, highPlateTop], [1.5, zt(W - 1.5)], [0, zt(W)]];
     for (const back of [false, true]) {
-      const prof = /** @type {[number, number][]} */ (lean && !back ? leanFront : front.map(([y, z]) => [yOf(y, back), z]));
+      const prof = /** @type {[number, number][]} */ (lean && !back ? leanFront : front(back).map(([y, z]) => [yOf(y, back), z]));
       for (let i = 0; i + 1 < rafterCenters.length; i++) {
         // A rafter tie sits on the plate beside every rafter but the end ones; start past it.
-        const tied = !beam && !truss && !lean && i > 0 && i < rafterCenters.length - 1 && zt(0) - plateTop > 0.5;
+        const tied = !beam && !truss && !lean && i > 0 && i < rafterCenters.length - 1 && ztS(0, back) - plateTop > 0.5;
         // Trusses carry a gusset on each face at the heel: start and stop past them.
         const inner = (j) => truss && j > 0 && j < rafterCenters.length - 1;
         const x0 = rafterCenters[i] + 0.75 + (tied ? 1.5 : 0) + (inner(i) ? GUSSET_T : 0);
@@ -1375,7 +1516,7 @@ function buildFramed(d) {
         }
         push({
           id: nextId('EB'), group: 'roof', kind: 'eave blocking', material: d.rafterSize, length: ceil16(gap),
-          note: `between rafters on the plate, top bevelled to ${d.pitch}/12`,
+          note: `between rafters on the plate, top bevelled to ${slope(back).pitch}/12`,
           geom: { origin: [x0, 0, 0], u: Y, v: Z, w: X, profile: prof, thickness: gap },
         });
       }
@@ -1388,7 +1529,7 @@ function buildFramed(d) {
     // No ridge member: the top chords meet at the peak, held by the peak gussets.
   } else if (beam) {
     // Structural ridge beam: two plies, one piece each, rafters hung from it.
-    for (const y0 of [W / 2 - 1.5, W / 2]) {
+    for (const y0 of [yR - 1.5, yR]) {
       push({
         id: nextId('RB'), group: 'roof', kind: 'ridge beam', material: ridgeSize, length: ceil16(L),
         note: 'two plies nailed together; one piece, bears on the gable posts',
@@ -1405,13 +1546,16 @@ function buildFramed(d) {
       push({
         id: nextId('RB'), group: 'roof', kind: 'ridge board', material: ridgeSize, length: ceil16(s1 - s0),
         note: ridgeSplit.runs.length > 1 ? 'joint centred on a rafter pair' : undefined,
-        geom: rectGeom([s0, W / 2 - 0.75, ridgeTop - ridgeD], X, Z, Y, s1 - s0, ridgeD, 1.5),
+        geom: rectGeom([s0, yR - 0.75, ridgeTop - ridgeD], X, Z, Y, s1 - s0, ridgeD, 1.5),
       });
     }
   }
+  if (salt) {
+    notes.push(`Saltbox roof: the ridge is ${fmtIn(yR)} back from the front wall's outside face, where a ${sides.front.pitch}/12 front and a ${d.pitch}/12 back meet. Two rafter cuts: ${fmtIn(rafterCutS(false))} at the front, ${fmtIn(rafterCutS(true))} at the back. The ${ridgeSize} ridge is set flush with the steep front rafters' tops, so the back rafters stand ${fmtIn(rh * (sides.front.t - t))} proud of it at their plumb cut; the sheathing bridges it.`);
+  }
   // Rafter ties at plate height on every pair but the gable ends, which the gable wall ties.
   const tie = actual(d.tieSize);
-  const topAt0 = zt(0) - plateTop;
+  const topAt0 = Math.min(ztS(0, false), ztS(0, true)) - plateTop;
   // On a flat, narrow roof the ridge can hang lower than the ties (or, for a
   // beam, the gable walls' plates) it has to clear.
   const ridgeBottom = ridgeTop - ridgeD;
@@ -1477,6 +1621,30 @@ function buildFramed(d) {
       }
       trusses.push({ x: c, heel: gl, peak: pl, foot: fl });
     }
+    // Under net wind uplift the bottom chords push: with no king post, a 2x4
+    // laid flat across their tops at mid-span, end to end between the gable
+    // walls, halves their unbraced length (truss.mjs, needsChordBrace). An
+    // attic deck nailed to the chords braces them instead. Pieces
+    // no longer than the longest board, each joint on a truss.
+    if (kpTop < 3 && needsChordBrace(d) && !d.atticStorage && rafterCenters.length > 3) {
+      // From the inside face of one gable wall's framing to the other's.
+      const x0 = stud.depth;
+      const x1 = L - stud.depth;
+      const cuts = [x0];
+      while (x1 - cuts[cuts.length - 1] > spliceAt + 1e-9) {
+        const at = rafterCenters.filter((c) => c > cuts[cuts.length - 1] + 1 && c <= cuts[cuts.length - 1] + spliceAt + 1e-9).pop();
+        if (at === undefined) break;
+        cuts.push(at);
+      }
+      cuts.push(x1);
+      for (let i = 0; i + 1 < cuts.length; i++) {
+        push({
+          id: nextId('CB'), group: 'roof', kind: 'chord brace', material: '2x4', length: ceil16(cuts[i + 1] - cuts[i]),
+          note: 'flat across the bottom chords at mid-span, two 10d into each; ends butt the gable-end framing, toenailed',
+          geom: { origin: [cuts[i], W / 2 - 1.75, seatBase], u: X, v: Y, w: Z, profile: [[0, 0], [cuts[i + 1] - cuts[i], 0], [cuts[i + 1] - cuts[i], 3.5], [0, 3.5]], thickness: 1.5 },
+        });
+      }
+    }
     notes.push(`Trusses: ${rafterCenters.length - 2} site-built ${kpTop >= 3 ? 'king-post trusses' : 'trusses (no web: the bottom chord spans the walls on its own)'} at ${d.rafterSpacing}" on centre, ${d.rafterSize} top chords and a ${d.tieSize} bottom chord${kpTop >= 3 ? ` and king post` : ''}, joined by 7/16" OSB gussets glued and nailed on both faces. Over each gable wall the top chords bear on the gable studs instead, with the gable siding nailed to both as their gusset. Build the trusses flat on a jig, then stand them on the walls; nothing is longer than ${fmtSpan(Math.max(W, rafterCut))}.`);
     if (W > maxStock) warnings.push(`Truss bottom chords need ${Math.ceil(W / 12)} ft boards; add that length to your stock list.`);
     // Attic storage: a deck of the floor panel on the inside trusses' bottom
@@ -1510,16 +1678,19 @@ function buildFramed(d) {
   } else if (topAt0 <= 0.5) {
     warnings.push('The rafters are too shallow over the wall for a rafter tie at the plate; deepen the rafters.');
   } else {
+    // Each end of the tie is cut to its own slope where the rafter's top comes down below the tie's.
+    const endTop = (back) => ztS(0, back) - plateTop;
     const clipped = topAt0 < tie.depth;
-    const dc = clipped ? D + (tie.depth - plumbH) / t : 0;
+    const dcS = (back) => (endTop(back) < tie.depth ? D + (tie.depth - slope(back).plumb) / slope(back).t : 0);
     /** @type {[number, number][]} */
-    const prof = clipped
-      ? [[0, plateTop], [W, plateTop], [W, plateTop + topAt0], [W - dc, plateTop + tie.depth], [dc, plateTop + tie.depth], [0, plateTop + topAt0]]
-      : [[0, plateTop], [W, plateTop], [W, plateTop + tie.depth], [0, plateTop + tie.depth]];
+    const prof = /** @type {[number, number][]} */ ((clipped
+      ? [[0, plateTop], [W, plateTop], [W, plateTop + Math.min(tie.depth, endTop(true))], [W - dcS(true), plateTop + tie.depth], [dcS(false), plateTop + tie.depth], [0, plateTop + Math.min(tie.depth, endTop(false))]]
+      : [[0, plateTop], [W, plateTop], [W, plateTop + tie.depth], [0, plateTop + tie.depth]])
+      .filter((q, i, a) => i === 0 || Math.abs(q[0] - a[i - 1][0]) + Math.abs(q[1] - a[i - 1][1]) > 1e-9));
     rafterCenters.slice(1, -1).forEach((c) => {
       push({
         id: nextId('RT'), group: 'roof', kind: 'rafter tie', material: d.tieSize, length: ceil16(W),
-        note: clipped ? 'ends cut to the roof slope' : 'nail to rafter at the plate',
+        note: clipped ? `end${salt ? 's each' : 's'} cut to the roof slope` : 'nail to rafter at the plate',
         geom: { origin: [c + 0.75, 0, 0], u: Y, v: Z, w: X, profile: prof, thickness: 1.5 },
       });
     });
@@ -1611,8 +1782,8 @@ function buildFramed(d) {
   // the roof allows and a sill block. Under a ridge board the vent is centred;
   // under a beam the post is in the middle, so a pair of vents flanks it.
   const ventInfo = /** @type {Record<string, any[]>} */ ({});
-  const postZone = gam ? [-10, -10] : beam ? [W / 2 - 1.5, W / 2 + 1.5] : [W / 2 - 0.75, W / 2 + 0.75];
-  const topCut = gam ? 'top cut to the roof line' : `top cut to ${d.pitch}/12`;
+  const postZone = gam ? [-10, -10] : beam ? [yR - 1.5, yR + 1.5] : [yR - 0.75, yR + 0.75];
+  const topCut = gam || salt ? 'top cut to the roof line' : `top cut to ${d.pitch}/12`;
   for (const name of ['left', 'right']) {
     const x0 = name === 'left' ? 0 : L - D;
     const gableMember = (kind, e0, e1, h0, h1, note, z0rel = 0) => {
@@ -1626,20 +1797,20 @@ function buildFramed(d) {
       walls[name].members.push(m);
       return m;
     };
-    const rafterUnder = (y) => (gam ? gam.under(y) : lean ? zb(W - y) : zb(Math.min(y, W - y))) - plateTop;
+    const rafterUnder = (y) => (gam ? gam.under(y) : lean ? zb(W - y) : underAt(y)) - plateTop;
     /** @type {{ v0: number, v1: number, ventTop: number, ventBottom: number, headerTop: number }[]} */
     const vents = [];
     if (d.gableVents && !lean) {
       const vw = d.ventWidth;
       const vh = d.ventHeight;
-      const spans = beam ? [[W / 2 - 1.5 - vw, W / 2 - 1.5], [W / 2 + 1.5, W / 2 + 1.5 + vw]] : [[W / 2 - vw / 2, W / 2 + vw / 2]];
+      const spans = beam ? [[yR - 1.5 - vw, yR - 1.5], [yR + 1.5, yR + 1.5 + vw]] : [[yR - vw / 2, yR + vw / 2]];
       for (const [v0, v1] of spans) {
         const headerTop = Math.floor(Math.min(beam || gam ? Infinity : ridgeBottom - plateTop, rafterUnder(v0), rafterUnder(v1)) * 8) / 8;
         const ventTop = headerTop - 1.5;
         const ventBottom = ventTop - vh;
-        const outer = v0 < W / 2 ? v0 - 1.5 : v1 + 1.5;
+        const outer = v0 < yR ? v0 - 1.5 : v1 + 1.5;
         if (ventBottom - 1.5 < 0 || rafterUnder(outer) < 3) {
-          warnings.push(`A ${vw}" x ${vh}" gable vent does not fit under the ${name} gable at ${d.pitch}/12${beam ? ' beside the ridge-beam post' : ''}; make it smaller, steepen the roof or widen the shed. ${beam ? 'They are' : 'It is'} left out.`);
+          warnings.push(`A ${vw}" x ${vh}" gable vent does not fit under the ${name} gable at ${salt ? `${sides.front.pitch}/12 and ` : ''}${d.pitch}/12${beam ? ' beside the ridge-beam post' : ''}; make it smaller, steepen the roof or widen the shed. ${beam ? 'They are' : 'It is'} left out.`);
           vents.length = 0;
           break;
         }
@@ -1661,16 +1832,16 @@ function buildFramed(d) {
       gableMember('gable stud', e0, e1, h0, h1, topCut);
     }
     // The post (under a centred vent, it stands on the vent header instead).
-    const centreVent = vents.find((v) => v.v0 < W / 2 && v.v1 > W / 2);
+    const centreVent = vents.find((v) => v.v0 < yR && v.v1 > yR);
     const postBase = centreVent ? centreVent.headerTop : 0;
     const postH = ridgeBottom - plateTop;
     if (truss || gam) {
       // No post: the gable-end top chords meet at the peak, tied by the gable siding (a gambrel's by its gable studs).
     } else if (!lean && postH - postBase >= 3) {
       if (beam) {
-        for (const e0 of [W / 2 - 1.5, W / 2]) gableMember('beam post', e0, e0 + 1.5, postH, postH, 'square top under the ridge beam, over the post studs');
+        for (const e0 of [yR - 1.5, yR]) gableMember('beam post', e0, e0 + 1.5, postH, postH, 'square top under the ridge beam, over the post studs');
       } else {
-        gableMember('ridge post', W / 2 - 0.75, W / 2 + 0.75, postH, postH, centreVent ? 'from the vent header to the ridge' : 'square top under the ridge', postBase);
+        gableMember('ridge post', yR - 0.75, yR + 0.75, postH, postH, centreVent ? 'from the vent header to the ridge' : 'square top under the ridge', postBase);
       }
     }
     for (const v of vents) {
@@ -1789,10 +1960,11 @@ function buildFramed(d) {
           fixtures.push({ kind: `bulb-${bulb++ % 4}`, group: name === 'front' ? 'front lining' : 'decor', geom: rectGeom(add(add(add(f.origin, f.u, x), Z, wallH(name) - 8 - (bulb % 2) * 1.5), f.w, pt), f.u, Z, f.w, 1.6, 1.6, 1.6) });
         }
       }
-      // A rug and a beanbag on the floor.
-      fixtures.push({ kind: 'rug', group: 'decor', geom: rectGeom([L / 2 - 30, W / 2 - 20, floorTop], X, Y, Z, 60, 40, 0.4) });
-      fixtures.push({ kind: 'beanbag', group: 'decor', geom: rectGeom([L - D - 34, W - D - 34, floorTop], X, Y, Z, 28, 28, 14) });
-      fixtures.push({ kind: 'beanbag', group: 'decor', geom: rectGeom([L - D - 31, W - D - 31, floorTop + 14], X, Y, Z, 22, 22, 6) });
+      // A rug and a beanbag on the floor (the gravel, when there is no floor).
+      const rugZ = floorless ? 0 : floorTop;
+      fixtures.push({ kind: 'rug', group: 'decor', geom: rectGeom([L / 2 - 30, W / 2 - 20, rugZ], X, Y, Z, 60, 40, 0.4) });
+      fixtures.push({ kind: 'beanbag', group: 'decor', geom: rectGeom([L - D - 34, W - D - 34, rugZ], X, Y, Z, 28, 28, 14) });
+      fixtures.push({ kind: 'beanbag', group: 'decor', geom: rectGeom([L - D - 31, W - D - 31, rugZ + 14], X, Y, Z, 22, 22, 6) });
     }
     interior = { type: d.interior, sqft, panels: Math.ceil((sqft * 1.1) / 32), paint: d.interior === 'teen bedroom' ? 'pink' : 'white' };
   }
@@ -1808,7 +1980,7 @@ function buildFramed(d) {
     for (const back of [false, true]) {
       const y0 = back ? W + o : -o - 1.5;
       // A lean-to's front tail is its high edge: the fascia there is up at the top of the front tails.
-      const fz = lean && !back ? zt(W + o) : zt(-o);
+      const fz = lean && !back ? zt(W + o) : ztS(-o, back);
       for (const [s0, s1] of fsplit.runs) {
         push({
           id: nextId('SF'), group: 'roof', kind: 'sub-fascia', material: '2x6', length: ceil16(s1 - s0),
@@ -1819,30 +1991,43 @@ function buildFramed(d) {
       fixtures.push({ kind: 'fascia', group: 'trim', geom: rectGeom([0, back ? W + o + 1.5 : -o - 1.5 - 0.75, fz - sf.depth - 0.5], X, Z, Y, L, sf.depth + 0.5, 0.75) });
       // Soffit on the underside of the tails, from the wall to the sub-fascia.
       const up = lean && !back ? -1 : 1; // a lean-to's front soffit runs downhill to the wall
-      const sv = /** @type {Vec} */ ([0, back ? -cos : cos, up * sin]);
-      const sw = /** @type {Vec} */ ([0, back ? -sin : up * sin, -cos]);
-      const start = /** @type {Vec} */ ([0, back ? W + o : -o, lean && !back ? zb(W + o) : zb(-o)]);
-      fixtures.push({ kind: 'soffit', group: 'trim', geom: rectGeom(start, X, sv, sw, L, o / cos, 0.3) });
+      const { cos: sc, sin: ss } = lean ? { cos, sin } : slope(back);
+      const sv = /** @type {Vec} */ ([0, back ? -sc : sc, up * ss]);
+      const sw = /** @type {Vec} */ ([0, back ? -ss : up * ss, -sc]);
+      const start = /** @type {Vec} */ ([0, back ? W + o : -o, lean && !back ? zb(W + o) : zbS(-o, back)]);
+      fixtures.push({ kind: 'soffit', group: 'trim', geom: rectGeom(start, X, sv, sw, L, o / sc, 0.3) });
+      trim.soffitSqFt += (L * (o / sc)) / 144;
     }
     trim.fasciaFt = (2 * L) / 12;
-    trim.soffitSqFt = (2 * L * (o / cos)) / 144;
   }
-  trim.rakeFt = lean ? (2 * ((W + 2 * o) / cos)) / 12 : gam ? (4 * (gam.lowerLen + gam.upperLen)) / 12 : (4 * ((W / 2 + o) / cos)) / 12;
+  // Each rake runs from the eave tail to the ridge's line along its own slope.
+  const slopeLenS = (back) => ((back ? W - yR : yR) + o) / slope(back).cos;
+  trim.rakeFt = lean ? (2 * ((W + 2 * o) / cos)) / 12 : gam ? (4 * (gam.lowerLen + gam.upperLen)) / 12 : (2 * (slopeLenS(false) + slopeLenS(true))) / 12;
   // Rake boards: a 3-1/2" band under the roof edge on each gable face, eave tail to peak.
   {
     const top = (dist) => zt(dist) + (7 / 16) / cos;
     const band = 3.5 / cos;
+    // A gable's or saltbox's band: the top of the sheathing on each slope, and 3-1/2" below it square to the slope.
+    const edge = (y, below) => Math.min(ztS(y, false) + (7 / 16 - below) / slope(false).cos, ztS(W - y, true) + (7 / 16 - below) / slope(true).cos);
+    /** Where the two slopes' lines `below` the roof's top cross. @param {number} below */
+    const cross = (below) => {
+      const f0 = ztS(0, false) + (7 / 16 - below) / slope(false).cos;
+      const b0 = ztS(W, true) + (7 / 16 - below) / slope(true).cos; // the back line, at y = 0
+      const y = (b0 - f0) / (slope(false).t + slope(true).t);
+      return /** @type {[number, number]} */ ([y, f0 + y * slope(false).t]);
+    };
     /** @type {[number, number][]} */
     const prof = lean
       ? [[-o, top(W + o) - band], [W + o, top(-o) - band], [W + o, top(-o)], [-o, top(W + o)]]
       : gam
       ? [...bandAbove(gam, 7 / 16 - 3.5), ...bandAbove(gam, 7 / 16).reverse()]
-      : [[-o, top(-o) - band], [W / 2, top(W / 2) - band], [W + o, top(-o) - band], [W + o, top(-o)], [W / 2, top(W / 2)], [-o, top(-o)]];
+      : [[-o, edge(-o, 3.5)], cross(3.5), [W + o, edge(W + o, 3.5)], [W + o, edge(W + o, 0)], cross(0), [-o, edge(-o, 0)]];
     for (const x0 of [-0.75, L]) fixtures.push({ kind: 'fascia', group: 'trim', geom: { origin: [x0, 0, 0], u: Y, v: Z, w: X, profile: prof, thickness: 0.75 } });
   }
 
   // ---------------- Sheathing, siding, roofing ----------------
-  const slopeLen = lean ? (W + 2 * o) / cos : gam ? gam.lowerLen + gam.upperLen : (W / 2 + o) / cos; // eave tail to the ridge line (a lean-to's: tail to tail), along the roof
+  // On a saltbox, the long back slope's; dims.slopes has both.
+  const slopeLen = lean ? (W + 2 * o) / cos : gam ? gam.lowerLen + gam.upperLen : slopeLenS(true); // eave tail to the ridge line (a lean-to's: tail to tail), along the roof
   /** @type {number[]} */
   const roofPieces = [];
   // Each roof plane, from its low edge up: one a side on a gable, two on a gambrel
@@ -1850,7 +2035,8 @@ function buildFramed(d) {
   // lean-to one, laid like a gable's back slope from the low back eave over the whole width.
   const roofPlanes = (lean ? [true] : [false, true]).flatMap((back) => {
     const side = back ? 'back' : 'front';
-    if (!gam) return [{ back, side, eave: /** @type {Vec} */ ([0, yOf(-o, back), zt(-o)]), c: cos, s: sin, len: slopeLen, q: 0 }];
+    if (lean) return [{ back, side, eave: /** @type {Vec} */ ([0, yOf(-o, back), zt(-o)]), c: cos, s: sin, len: slopeLen, q: 0 }];
+    if (!gam) return [{ back, side, eave: /** @type {Vec} */ ([0, yOf(-o, back), ztS(-o, back)]), c: slope(back).cos, s: slope(back).sin, len: slopeLenS(back), q: 0 }];
     return [
       { back, side, eave: /** @type {Vec} */ ([0, yOf(0, back), plateTop]), c: gam.cl, s: gam.sl, len: gam.lowerLen, q: 0 },
       { back, side, eave: /** @type {Vec} */ ([0, yOf(gam.yk, back), gam.zk]), c: gam.cu, s: gam.su, len: gam.upperLen, q: gam.lowerLen },
@@ -1884,7 +2070,7 @@ function buildFramed(d) {
       fixtures.push({ kind: 'shingles', group: 'roofing', geom: rectGeom(add(eave, w, 7 / 16), X, v, w, L, planeLen, 0.35) });
     }
   }
-  const roofAreaSqFt = ((lean ? 1 : 2) * slopeLen * L) / 144;
+  const roofAreaSqFt = roofPlanes.reduce((tot, pl) => tot + pl.len * L, 0) / 144;
 
   // The eave-wall siding runs up to the soffit: the plate, or a truss's bottom chord on it.
   const eaveTop = seatBase;
@@ -1912,7 +2098,7 @@ function buildFramed(d) {
     for (const name of WALLS) {
       const eave = name === 'front' || name === 'back';
       const faceLen = eave ? L : W;
-      const clip = (s) => (eave ? (lean && name === 'front' ? highPlateTop : eaveTop) : gam ? gam.top(s) : lean ? zt(W - s) : zt(Math.min(s, W - s)));
+      const clip = (s) => (eave ? (lean && name === 'front' ? highPlateTop : eaveTop) : gam ? gam.top(s) : lean ? zt(W - s) : overAt(s));
       const origin = name === 'front' ? [0, 0, 0] : name === 'back' ? [0, W, 0] : name === 'left' ? [0, 0, 0] : [L, 0, 0];
       const u = eave ? X : Y;
       const w = name === 'front' ? neg(Y) : name === 'back' ? Y : name === 'left' ? neg(X) : X;
@@ -1921,7 +2107,7 @@ function buildFramed(d) {
         /** @type {[number, number][]} */
         const prof = [[s0, bottomZ], [s1, bottomZ], [s1, clip(s1)]];
         // The roof line's corners inside this panel, right to left: the peak, and a gambrel's knees.
-        if (!eave && !lean) for (const y of gam ? [W - gam.yk, W / 2, gam.yk] : [W / 2]) if (s0 < y && s1 > y) prof.push([y, clip(y)]);
+        if (!eave && !lean) for (const y of gam ? [W - gam.yk, W / 2, gam.yk] : [yR]) if (s0 < y && s1 > y) prof.push([y, clip(y)]);
         prof.push([s0, clip(s0)]);
         const need = Math.max(...prof.map((p) => p[1])) - bottomZ;
         const sheet = sheetFor(need);
@@ -1967,7 +2153,7 @@ function buildFramed(d) {
       const inset = trimW ? (eave ? trimW - (sidingT + 0.75) : trimW - sidingT) : 0;
       const face = layoutFace({
         // A lean-to's end wall tops out at its front edge, so that is where its courses peak.
-        wall: name, len: faceLen, bottom: sidingBottom, top: (s) => (eave ? (lean && name === 'front' ? highPlateTop : eaveTop) : gam ? gam.top(s) : lean ? zt(W - s) : zt(Math.min(s, W - s))), peakAt: eave ? undefined : lean ? inset : W / 2, bends: !eave && gam ? [gam.yk, W - gam.yk] : undefined,
+        wall: name, len: faceLen, bottom: sidingBottom, top: (s) => (eave ? (lean && name === 'front' ? highPlateTop : eaveTop) : gam ? gam.top(s) : lean ? zt(W - s) : overAt(s)), peakAt: eave ? undefined : lean ? inset : yR, bends: !eave && gam ? [gam.yk, W - gam.yk] : undefined,
         from: inset, to: faceLen - inset, holes, wood, maxPlank: Math.max(...lapStocks(d).map((x) => x.length)), stagger: lapStagger(d),
       }, lapSpec);
       lap.push(face);
@@ -1999,6 +2185,8 @@ function buildFramed(d) {
     const bottomZ = sidingBottom;
     const rakeBottom = gam ? bandAbove(gam, 7 / 16 - 3.5) : null;
     const rakeUnder = (dist) => (rakeBottom ? zOnPoly(rakeBottom, dist) : zt(dist) + (7 / 16) / cos - 3.5 / cos);
+    // Under a gable's or saltbox's rake band, at a point across the width.
+    const rakeUnderAt = (y) => Math.min(ztS(y, false) + (7 / 16 - 3.5) / slope(false).cos, ztS(W - y, true) + (7 / 16 - 3.5) / slope(true).cos);
     for (const name of WALLS) {
       const eave = name === 'front' || name === 'back';
       const faceLen = eave ? L : W;
@@ -2006,7 +2194,7 @@ function buildFramed(d) {
       const u = eave ? X : Y;
       const w = name === 'front' ? neg(Y) : name === 'back' ? Y : name === 'left' ? neg(X) : X;
       const at = add(origin, w, sidingT);
-      const topAt = (s) => (eave ? (lean && name === 'front' ? highPlateTop : eaveTop) : rakeUnder(lean ? W - s : Math.min(s, faceLen - s)));
+      const topAt = (s) => (eave ? (lean && name === 'front' ? highPlateTop : eaveTop) : lean || gam ? rakeUnder(lean ? W - s : Math.min(s, faceLen - s)) : rakeUnderAt(s));
       const board = (kind, prof, where) => {
         fixtures.push({ kind: 'casing', group: 'trim', geom: { origin: at, u, v: Z, w, profile: prof, thickness: tt } });
         const zs = prof.map((p) => p[1]);
@@ -2096,7 +2284,8 @@ function buildFramed(d) {
 
   const dims = {
     length: L, width: W, wallHeight: H, pitch: d.pitch, overhang: o,
-    skidTop, sidingBottom, floorTop, plateTop, floorless, timber: floorless ? timber : null, postPiers, ridgeTop, peak: ridgeTop + (d.roofing ? 7 / 16 / cos + 0.35 / cos : 7 / 16 / cos),
+    // The roof's thickness over the ridge, measured plumb on the steeper slope (a saltbox's front).
+    skidTop, sidingBottom, floorTop, plateTop, floorless, timber: floorless ? timber : null, postPiers, ridgeTop, peak: ridgeTop + (d.roofing ? 7 / 16 + 0.35 : 7 / 16) / (lean || gam ? cos : Math.min(cos, sides.front.cos)),
     studLen, rafterCut: gamParts ? gamParts.lowerCut : rafterCut, slopeLen, plumbH, ridgeSize, ridgeD, stud: D, joistDepth: joist.depth, rafterDepth: rd,
     skidCount, skidYs, joistCenters, rafterCenters, gravelCuYd, padSqFt: underBlocks || noPad ? 0 : ((L + 2 * pad) * (W + 2 * pad)) / 144, baseBags: Math.ceil(baseCuFt / 0.5), underBlocks, noPad, blockCount, block, pierLen, pierCount, pierCuFt, pierFootIn, pierFootCuFt, pierTubes, pierBags, roofAreaSqFt, floorRows, roofRows,
     heel: connector || truss || gam ? 0 : D * t, maxStock, connector, truss, trusses, seatBase, chordDepth: truss ? chord.depth : 0,
@@ -2104,10 +2293,16 @@ function buildFramed(d) {
     section: gam
       ? [[0, plateTop], [gam.seat, plateTop], [gam.ykIn, gam.zkIn], [W / 2, gam.ridgeIn], [W - gam.ykIn, gam.zkIn], [W - gam.seat, plateTop], [W, plateTop]]
       : lean ? [[0, highPlateTop], [D, zb(W - D)], [W - D, zb(D)], [W, plateTop]]
-      : [[0, plateTop], [seatAt, seatBase], [r, zb(r)], [W - r, zb(r)], [W - seatAt, seatBase], [W, plateTop]],
+      : [[0, plateTop], [seatAt, seatBase], [yR - rh, zbS(runS(false), false)], [yR + rh, zbS(runS(true), true)], [W - seatAt, seatBase], [W, plateTop]],
     gambrel: gam && gamFrame && gamParts ? { ...gamParts, yk: gam.yk, zk: gam.zk, lowerLen: gam.lowerLen, upperLen: gam.upperLen, lowerPitch: d.gambrelLower, gusset: gamFrame.gusset, heelNails: gamFrame.heelNails, tieSize: gamFrame.tieSize, thrust: gamFrame.thrust, nailsPerKnee: gamFrame.nailsPerKnee, nailsPerPeak: gamFrame.nailsPerPeak, loft: loftX } : null,
     // One slope or two; on a lean-to the front wall's height and plate top.
     style: d.style, lean, rise, highWall: H + rise, highPlateTop,
+    // Where the ridge is across the width, and each slope: pitch, eave tail to ridge line along the roof,
+    // cosine, rafter cut and birdsmouth heel. On a gable the two are the same; on a saltbox the front is short and steep.
+    saltbox: salt, ridgeY: yR, frontPitch: sides.front.pitch,
+    slopes: lean || gam ? null : Object.fromEntries([false, true].map((back) => [back ? 'back' : 'front', {
+      pitch: slope(back).pitch, len: slopeLenS(back), cos: slope(back).cos, run: runS(back), rafterCut: rafterCutS(back), heel: connector || truss ? 0 : D * slope(back).t,
+    }])),
   };
 
   if (d.siding && d.sidingColor === 'unfinished' && d.sidingType !== 'vinyl') {

@@ -1,5 +1,6 @@
 ---
 title: "Daily progress, 27 October: real files found what hand-written tests could not"
+seo_title: "Daily progress, 27 October"
 date: 2026-10-28
 description: "224 merges on 27 October. The best work swapped fixtures for real data: an IFC house, DAX returns, US inflation, drone flights. The site deployed zero times."
 tags: [progress-report, daily-progress, ai-agents]

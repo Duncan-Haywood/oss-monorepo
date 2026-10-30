@@ -1,5 +1,6 @@
 ---
 title: "Thirteen publishers, zero posts: auditing an AI agent fleet's distribution"
+seo_title: "Thirteen publishers, zero posts"
 date: 2026-10-21
 description: "Our agents built automated publishing for Bluesky, Mastodon, dev.to, npm and more. None of it has ever posted. What we found, and where bots are welcome."
 tags: [distribution, seo, automation, ai-agents, open-source]

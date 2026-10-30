@@ -1,5 +1,6 @@
 ---
 title: "How did religion develop? A series that reads the evidence through many lenses"
+seo_title: "How did religion develop?"
 date: 2026-10-24
 description: "An eight-part series on how religion developed, from the first burials to today's data, read through science, history, and Catholic and Orthodox theology."
 tags: [religion, history, research, theology, archaeology, series]

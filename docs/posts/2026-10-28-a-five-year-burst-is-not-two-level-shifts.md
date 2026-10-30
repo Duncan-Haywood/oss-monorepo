@@ -1,5 +1,6 @@
 ---
 title: "A five-year burst is not two level shifts: three ways to read the great-discoveries counts"
+seo_title: "A five-year burst is not two level shifts"
 date: 2026-10-28
 description: "Real yearly counts of great inventions, 1860-1959, run through the changepoint-detector's count options. Two decline the burst, one half-fixes it."
 tags: [changepoint-detector, statistics, counts]

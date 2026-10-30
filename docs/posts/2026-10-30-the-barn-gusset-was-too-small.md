@@ -2,7 +2,7 @@
 title: "The barn's knee gussets were too small, and the search now shapes the barn"
 date: 2026-10-30
 tags: [shed-designer, structure, gambrel, search]
-description: "Checking the gambrel's plywood gussets against APA's published capacities showed them at 334%. They now reach into the corner. The search also varies the barn's shape and loft."
+description: "APA's published capacities put the shed designer's barn knee gussets at 334%. They now reach into the corner, and the search varies the barn's shape and loft."
 ---
 
 The [shed designer](https://duncan-haywood.github.io/oss-monorepo/shed-designer/)'s gambrel (barn) roof is framed as site-built trusses. Each truss has four chords, joined at the two knees and the peak by 15/32" plywood gussets on both faces. Until today the tool checked the gussets' nails but not the plywood. The handoff note from the lane that built the barn said so, and asked for the plywood check to cite APA's *Panel Design Specification* before it was added.

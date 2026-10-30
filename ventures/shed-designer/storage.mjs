@@ -28,7 +28,7 @@
 // - overheadCuFt: the triangle under the roof, over the inside width (its
 //   rise is the inside half-width at the pitch), the whole inside length;
 //   for a lean-to, the wedge up to the tall front wall over the whole inside
-//   width; for a gambrel, roofSpaceCuFt from its cross-section. Under a ridge beam it is open; over rafter ties or truss chords it is loft
+//   width; for a saltbox, the triangle up to its off-centre ridge; for a gambrel, roofSpaceCuFt from its cross-section. Under a ridge beam it is open; over rafter ties or truss chords it is loft
 //   space that needs decking first, which `notes` says.
 // - volumeCuFt: wallVolumeCuFt + overheadCuFt.
 // - usableCuFt: wallVolumeCuFt, plus overheadCuFt where the roof space is open
@@ -114,7 +114,8 @@ export function storageOf(shed) {
   const wallVolumeCuFt = (inL * inW * wallHeightIn) / 1728;
   // A lean-to's one slope rises over the whole width, open (no ties).
   const lean = d.style === 'leanTo';
-  const rise = (lean ? inW : inW / 2) * (d.pitch / 12);
+  // A saltbox's triangle peaks over its off-centre ridge, at the steep front's rise.
+  const rise = d.style === 'saltbox' ? (k.ridgeY - k.stud) * (d.frontPitch / 12) : (lean ? inW : inW / 2) * (d.pitch / 12);
   // A gambrel's roof is no triangle: measure its cross-section.
   const overheadCuFt = d.style === 'gambrel' ? roofSpaceCuFt(shed) : (0.5 * inW * rise * inL) / 1728;
   const open = lean || d.roofType === 'ridgeBeam';

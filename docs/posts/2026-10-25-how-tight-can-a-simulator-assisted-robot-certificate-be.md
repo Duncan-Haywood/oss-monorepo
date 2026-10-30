@@ -1,5 +1,6 @@
 ---
 title: "How tight can a simulator-assisted robot certificate be? A 1/m floor, even for a perfect simulator"
+seo_title: "How tight can a simulator-assisted robot certificate be?"
 date: 2026-10-25
 description: "A short proof that no valid 95% lower bound on a robot policy's mean return from m real trials plus any simulation can beat a gap of about 2.3/m."
 tags: [research, robotics, sim2real, statistics]

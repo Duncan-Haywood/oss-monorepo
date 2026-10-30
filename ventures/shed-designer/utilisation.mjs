@@ -15,8 +15,8 @@
 // Screening checks on SPF No. 2 by allowable stress; nothing here has been
 // reviewed by an engineer.
 
-import { buildShed } from './model.mjs';
-import { structuralChecks, heelJoint, nailZ, skidOnBlocks, SOIL_PSF, rafterUplift, racking, bayPlates } from './checks.mjs';
+import { buildShed, headerLoadPlf } from './model.mjs';
+import { structuralChecks, heelJoint, nailZ, skidOnBlocks, SOIL_PSF, rafterUplift, racking, bayPlates, eaveRoofPlf, ridgeBeamLoad } from './checks.mjs';
 import { trussForces } from './truss.mjs';
 import { connectionChecks } from './connections.mjs';
 import { check, roofCase, FLOOR, SPF2, T, DEPTH, designValues } from './structure.mjs';
@@ -176,8 +176,9 @@ export function utilisation(shed, sc = structuralChecks(shed)) {
   // As in checks.mjs: under trusses the eave walls also carry half the attic load.
   // On a gambrel, as in checks.mjs: the trusses' reactions, a loft's storage counted as dead.
   const gam = d.style === 'gambrel' ? gambrelAnalysis(d) : null;
-  const deadPlf = gam ? gam.wall.dead + gam.wall.loft : (15 / cos) * tribFt + (truss ? (trussForces(d).wc * d.width) / 2 / 12 / (d.rafterSpacing / 12) : 0);
-  const snowPlf = gam ? gam.wall.snow : d.snowLoad * tribFt;
+  const salt = d.style === 'saltbox' ? eaveRoofPlf(shed) : null;
+  const deadPlf = gam ? gam.wall.dead + gam.wall.loft : salt ? salt.dead : (15 / cos) * tribFt + (truss ? (trussForces(d).wc * d.width) / 2 / 12 / (d.rafterSpacing / 12) : 0);
+  const snowPlf = gam ? gam.wall.snow : salt ? salt.snow : d.snowLoad * tribFt;
   // Headers pair with rows in the order checks.mjs walks the walls.
   const headerQueue = Object.entries(shed.walls).flatMap(([name, wall]) => wall.openings.filter((p) => !p.bay).map((p) => ({ name, p })));
   const bayQueue = Object.entries(shed.walls).flatMap(([name, wall]) => wall.openings.filter((p) => p.bay).map((p) => ({ name, p })));
@@ -192,19 +193,28 @@ export function utilisation(shed, sc = structuralChecks(shed)) {
       const r = beamWords({ size: d.joistSize, spacingIn: d.joistSpacing, bearingIn: skidThick, species: d.floorTreated ? 'SYP' : 'SPF' }, Math.max(...gaps) - skidThick, FLOOR, 'on centre: each joist carries that strip of floor');
       Object.assign(u, r, { kinds: ['floor joist'], explain: `Each joist is a simple beam from skid to skid, checked over the widest gap between skids${d.floorTreated ? ', as Southern pine: treated lumber usually is' : ''}.` });
       u.ids = idsOf((m) => m.kind === 'floor joist');
+    } else if (/^Rafters, (front|back)/.test(row.member) && k.slopes) {
+      // A saltbox's two rafters, each on its own slope and run (checks.mjs).
+      const back = /^Rafters, back/.test(row.member);
+      const sd = k.slopes[back ? 'back' : 'front'];
+      const run = (back ? d.width - k.ridgeY : k.ridgeY) - (beam ? 1.5 : 0.75) - k.stud;
+      const r = beamWords({ size: d.rafterSize, spacingIn: d.rafterSpacing, pitch: sd.pitch, bearingIn: k.stud }, run, roof, 'on centre: each rafter carries that strip of roof');
+      Object.assign(u, r, { kinds: ['rafter'], explain: `Each ${back ? 'long back' : 'steep front'} rafter is checked on its horizontal run from the wall plate to the ridge, with the load on plan.` });
+      u.ids = idsOf((m) => m.kind === 'rafter' && (m.geom.profile.some((p) => p[0] > k.ridgeY + 0.1) === back));
     } else if (row.member === 'Rafters') {
       const r = beamWords({ size: d.rafterSize, spacingIn: d.rafterSpacing, pitch: d.pitch, bearingIn: k.stud }, rafterRunIn, roof, 'on centre: each rafter carries that strip of roof');
       Object.assign(u, r, { kinds: ['rafter'], explain: lean ? 'Each rafter is a simple beam between the two walls, checked on its horizontal clear span with the load on plan.' : 'Each rafter is checked on its horizontal run from the wall plate to the ridge, with the load on plan.' });
       u.ids = idsOf((m) => m.kind === 'rafter');
     } else if (row.member === 'Ridge beam') {
-      const r = beamWords({ size: d.beamSize, plies: 2, spacingIn: d.width / 2, pitch: d.pitch, repetitive: false, bearingIn: 3 }, d.length - 2 * k.stud, roof, 'of roof: the upper half of each rafter, both slopes');
+      // A saltbox's beam is checked with the steep front's dead load over its whole strip (checks.mjs).
+      const r = beamWords({ size: d.beamSize, plies: 2, spacingIn: d.width / 2, pitch: d.style === 'saltbox' ? Math.max(d.pitch, d.frontPitch) : d.pitch, repetitive: false, bearingIn: 3 }, d.length - 2 * k.stud, roof, 'of roof: the upper half of each rafter, both slopes');
       Object.assign(u, r, { kinds: ['ridge beam'], explain: 'The ridge beam spans gable to gable on its two posts and carries the top half of every rafter on both sides.' });
       u.ids = idsOf((m) => m.kind === 'ridge beam');
     } else if (row.member === 'Ridge beam posts') {
-      const P = ((15 / cos + d.snowLoad) * (d.width / 2) / 12 * d.length) / 12 / 2;
+      const P = ridgeBeamLoad(shed).post;
       const postH = shed.members.find((m) => m.kind === 'beam post')?.length ?? 12;
       u.parts = [...postWords(2, d.studSize, postH, P, 'post above the plate'), ...postWords(2, d.studSize, k.studLen, P, 'post studs in the wall')];
-      u.inputs = [['Load', `half the ridge beam's load: (${n2(15 / cos)} + ${d.snowLoad}) psf × ${n2(d.width / 24)} ft × ${n2(d.length / 12)} ft / 2 = ${n0(P)} lb`], ['Member', `2-ply ${d.studSize}, ${n2(2 * T)}" x ${n2(DEPTH[d.studSize])}"`]];
+      u.inputs = [['Load', d.style === 'saltbox' ? `half the ridge beam's load: ${n0(ridgeBeamLoad(shed).plf)} lb/ft (half of each slope's rafters, each at its own slope's dead load) × ${n2(d.length / 12)} ft / 2 = ${n0(P)} lb` : `half the ridge beam's load: (${n2(15 / cos)} + ${d.snowLoad}) psf × ${n2(d.width / 24)} ft × ${n2(d.length / 12)} ft / 2 = ${n0(P)} lb`], ['Member', `2-ply ${d.studSize}, ${n2(2 * T)}" x ${n2(DEPTH[d.studSize])}"`]];
       u.kinds = ['beam post', 'post stud'];
       u.explain = 'Each gable post carries half of the ridge beam\'s load down through two post studs to the floor.';
       u.ids = idsOf((m) => m.kind === 'beam post' || m.kind === 'post stud');
@@ -215,7 +225,12 @@ export function utilisation(shed, sc = structuralChecks(shed)) {
       u.verified = true;
     } else if (/^Rafter tie nailing/.test(row.member)) {
       const h = heelJoint(shed);
-      if (h) {
+      if (h && d.style === 'saltbox') {
+        const a = (k.ridgeY - (k.connector ? 0 : k.stud)) / 12;
+        const b = (d.width - k.ridgeY - (k.connector ? 0 : k.stud)) / 12;
+        u.inputs = [['Geometry', `front run ${n2(a)} ft at ${d.frontPitch}/12, back run ${n2(b)} ft at ${d.pitch}/12, ridge ${n2(a * d.frontPitch / 12)} ft above the seats`], ['Nail', `16d common, 0.162" x 3-1/2", NDS yield limit Z = ${n2(nailZ(0.162, 1.5, 2.0))} lb × CD 1.15`]];
+        u.parts = [{ name: 'nail shear', ratio: h.thrust / (h.nails * h.perNail), words: `Outward thrust of the unequal pair, H = w·a·b/2h with each slope's load = ${n0(h.thrust)} lb; ${h.nails} nails × ${n0(h.perNail)} lb = ${n0(h.nails * h.perNail)} lb: ${pct(h.thrust / (h.nails * h.perNail))}.` }];
+      } else if (h) {
         const L = d.width / 12, rise = (L / 2) * (d.pitch / 12);
         const w = (15 / cos + d.snowLoad) * (d.rafterSpacing / 12);
         u.inputs = [['Load on a pair', `(${n2(15 / cos)} + ${d.snowLoad}) psf × ${d.rafterSpacing}" = ${n2(w)} lb/ft on plan`], ['Geometry', `span ${n2(L)} ft, ridge ${n2(rise)} ft above the tie`], ['Nail', `16d common, 0.162" x 3-1/2", NDS yield limit Z = ${n2(nailZ(0.162, 1.5, 2.0))} lb × CD 1.15`]];
@@ -244,9 +259,11 @@ export function utilisation(shed, sc = structuralChecks(shed)) {
       const q = headerQueue.shift();
       if (q) {
         const eave = q.name === 'front' || q.name === 'back';
-        const wPlf = eave ? deadPlf + snowPlf + 10 : 40 + (15 / cos + d.snowLoad) * (d.rafterSpacing / 2) / 12;
+        // A saltbox's eave walls each carry their own slope, as checks.mjs sizes them (model.mjs headerLoadPlf).
+        const own = salt && eave ? eaveRoofPlf(shed, q.name) : null;
+        const wPlf = salt ? headerLoadPlf(d, q.name) : eave ? deadPlf + snowPlf + 10 : 40 + (15 / cos + d.snowLoad) * (d.rafterSpacing / 2) / 12;
         u.parts = headerWords(q.p.hdr, q.p.w, wPlf, 2, 1, d.studSize);
-        u.inputs = [['Opening', `${fmtIn(q.p.w)} wide in the ${q.name} wall`], ['Load', eave ? `roof ${n0(deadPlf)} dead + ${n0(snowPlf)} snow lb/ft, plus 10 lb/ft of wall` : `the gable framing above (40 lb/ft) plus half a rafter spacing of roof`], ['Member', `2-ply ${q.p.hdr}`]];
+        u.inputs = [['Opening', `${fmtIn(q.p.w)} wide in the ${q.name} wall`], ['Load', eave ? `roof ${n0(own ? own.dead : deadPlf)} dead + ${n0(own ? own.snow : snowPlf)} snow lb/ft, plus 10 lb/ft of wall` : `the gable framing above (40 lb/ft) plus half a rafter spacing of roof`], ['Member', `2-ply ${q.p.hdr}`]];
         u.key = `${row.member} (${fmtIn(q.p.a)} along)`;
         u.ids = shed.walls[q.name].members.filter((m) => m.kind === 'header' && /** @type {any} */ (m.local).s0 < q.p.a + q.p.w && /** @type {any} */ (m.local).s1 > q.p.a).map((m) => m.id);
       }

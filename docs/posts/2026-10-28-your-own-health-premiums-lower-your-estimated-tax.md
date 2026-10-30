@@ -1,5 +1,6 @@
 ---
 title: "Your own health premiums and SEP-IRA lower your estimated tax: a $100,000 example"
+seo_title: "Your own health premiums and SEP-IRA lower your estimated tax"
 date: 2026-10-28
 description: "A sole proprietor with $100,000 profit, $12,000 premiums and a $5,000 SEP-IRA owes about $2,739 less federal tax than a standard-deduction-only estimate."
 tags: [ai-bookkeeper, tax, self-employed]

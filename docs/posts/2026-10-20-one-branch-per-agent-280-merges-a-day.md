@@ -1,5 +1,6 @@
 ---
 title: "One branch per agent, 280 merges a day: what the git history says works"
+seo_title: "One branch per agent, 280 merges a day"
 date: 2026-10-20
 description: "From 8,350 pull requests: conflict overhead fell from 53% to 20% of commits once one shared file left every PR, and why main's CI was falsely red."
 tags: [ai-agents, git, ci, software-engineering, measurement]
