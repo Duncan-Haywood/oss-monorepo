@@ -147,7 +147,7 @@ const KNOBS = {
   rafterSize: ['2x4', '2x6'],
   // Foundation and floor options and their limits live in levers.mjs.
   ...LEVER_KNOBS,
-  sidingType: ['T1-11', 'LP SmartSide', 'LP SmartSide 7/16', 'fiber cement', 'vinyl', 'board and batten'],
+  sidingType: ['T1-11', 'LP SmartSide', 'LP SmartSide 7/16', 'fiber cement', 'LP SmartSide lap', 'vinyl', 'board and batten'],
   roofCover: ['shingles', 'metal'],
   door: Object.keys(DOORS),
   window: Object.keys(WINDOWS),
