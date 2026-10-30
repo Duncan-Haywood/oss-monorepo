@@ -1,7 +1,7 @@
 // Writes one "how much lumber does an NxM shed take" page per common size,
 // plus an index, from the framing engine itself, so the counts on the pages are
 // the ones the tool prints. Run: node make-size-pages.mjs  (then commit the output).
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { PRESETS, buildShed } from './model.mjs';
 import { estimate } from './estimate.mjs';
 
@@ -197,9 +197,9 @@ export function generate() {
 if (import.meta.url === `file://${process.argv[1]}`) {
   const { files } = generate();
   for (const [name, html] of Object.entries(files)) writeFileSync(new URL(name, import.meta.url), html);
-  // Hand-written pages this script does not generate but whose sitemap it
-  // owns: without them here, each run drops them from sitemap.xml.
-  const urls = ['', HAND_FILE, 'hoa-packet.html', ...Object.keys(files)];
+  // Every hand-written page beside the tool (the marketing page, the HOA packet, any new one) goes in too, so a new page is never left out.
+  const hand = readdirSync(new URL('.', import.meta.url)).filter((f) => f.endsWith('.html') && f !== 'index.html' && !(f in files)).sort((x, y) => (x === HAND_FILE ? -1 : y === HAND_FILE ? 1 : x.localeCompare(y)));
+  const urls = ['', ...hand, ...Object.keys(files)];
   const base = 'https://example.invalid/shed-designer/';
   writeFileSync(new URL('sitemap.xml', import.meta.url), `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls.map((u) => `<url><loc>${base}${u}</loc></url>`).join('')}</urlset>`);
   console.log(`wrote ${Object.keys(files).length} pages`);
