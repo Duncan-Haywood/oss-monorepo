@@ -1,7 +1,7 @@
 ---
 title: "Checking a stair landing post against your own span table"
 date: 2026-10-30
-tags: [wall-framing-takeoff, stairs, decks]
+tags: [wall-framing-takeoff, stairs, deck]
 description: "The takeoff now compares the heaviest landing post's load with a capacity you type from your own post table, instead of guessing a post size."
 ---
 

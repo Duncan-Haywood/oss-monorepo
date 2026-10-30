@@ -1684,7 +1684,19 @@ or `ventures`) until its success rate passes 80% over 20 runs?
   collecting"; no audit or drift report (reduced pass).
 - Result: (next review)
 
-## E113: A perf track, about 5% of runs (2026-10-24, owner request)
+## E113: review 2026-10-30 (reduced pass, fortieth run)
+
+- Change: `research/CLAUDE.md` torch note says download.pytorch.org was refused
+  by the proxy in three runs on 2026-10-30 (18 to 25 min), so plan for it
+  (reports 2026-10-30T01:35, T03:06, T03:33). Re-ran `derive.py fetch && build`
+  (3932 rows).
+- Metric: friction reports naming `research/CLAUDE.md` about `pyenv.py` torch
+  time; compare the next 40 runs.
+- Decisions: candidates (ventures 2, process 2, review 2) still "keep
+  collecting: the intervals overlap"; no audit or drift report (reduced pass).
+- Result: (next review)
+
+## E114: A perf track, about 5% of runs (2026-10-24, owner request)
 
 - Change: new track `perf` (`prompts/perf/prompt-0.md`) at weight 0.05 in
   `routing.json`; ventures and research go from 0.315 to 0.29 each (the `polish` track had

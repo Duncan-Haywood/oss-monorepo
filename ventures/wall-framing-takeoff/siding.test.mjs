@@ -79,3 +79,22 @@ test("opening trim: head, jambs and a window sill, packed by hand (2026-10-30)",
   assert.ok(sidingText(s).some((x) => x.includes("Opening trim: 1 door(s)")));
   assert.equal(layoutSiding({ trimWidth: 9 }, p).ok, false);
 });
+
+test("vertical siding: columns, pieces round an opening, gable and refusal, by hand (2026-10-30)", () => {
+  // 120 in wall, 8 ft high, 12 in boards: 10 columns; window x 40..76 (36 wide), y 36..72 touches columns 3,4,5,6 (x 36..84)
+  const p = plan([{ id: "A", length: 120, openings: [{ kind: "window", offset: 40, width: 36, height: 36, headerHeight: 72 }] }]);
+  const s = layoutSiding({ waste: 0, style: "vertical", boardWidth: 12, stock: 96 }, p);
+  assert.equal(s.style, "vertical");
+  assert.equal(s.courses, 10);
+  // 6 full 96 in boards + 4 columns x (36 below + 24 above) = 576 + 240 = 816 in
+  assert.ok(Math.abs(s.runFeet * 12 - 816) < 1e-9);
+  // 6 boards of 96; the eight pieces of 36 and 24 pack into 96 in boards: 36+36+24 | 36+36+24 | 24+24 -> 3 boards
+  assert.equal(s.boards, 6 + 3);
+  assert.ok(sidingText(s)[0].includes("Siding (vertical)"));
+  // gable: 120 wide, 6:12, 12 in columns; the column holding the peak (x 60) is 96 + 30 long; first column 96 + 0.5 * 12 = 102
+  const g = layoutSiding({ waste: 0, style: "vertical", boardWidth: 12, stock: 144 }, plan([{ id: "G", length: 120, gable: { pitch: 6 } }]));
+  assert.ok(g.ok); assert.ok(Math.abs(g.runFeet * 12 - 2 * (102 + 108 + 114 + 120 + 126)) < 1e-9);
+  assert.equal(layoutSiding({ style: "vertical", stock: 72 }, plan([{ id: "A", length: 100 }])).ok, false);
+  assert.equal(validateSiding({ style: "slate" }).length, 1);
+  assert.equal(validateSiding({ boardWidth: 1 }).length, 1);
+});
