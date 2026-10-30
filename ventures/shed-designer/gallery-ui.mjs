@@ -3,12 +3,47 @@
 // previous and next buttons with an "n of m" count, the arrow keys while the
 // strip has focus, and a swipe (the strip scrolls sideways and snaps to a
 // card). The strip may be redrawn at any time; cards are counted fresh.
+// Also the "match a house" switch that limits it to lap siding and shingles.
 
 import { GALLERY_DESIGNS } from './gallery-data.mjs';
 
-/** The gallery as picker.mjs entries. */
-export function galleryEntries() {
-  return GALLERY_DESIGNS.map((g) => ({ id: g.id, title: g.title, reason: g.reason, design: structuredClone(g.design) }));
+/** Lap siding that is painted, as on a HardieBoard house. */
+export const HOUSE_LAP = ['fiber cement', 'LP SmartSide lap'];
+
+/** A design that matches a lap-sided house: painted lap siding and asphalt shingles. @param {any} d */
+export const matchesHouse = (d) => d.siding && HOUSE_LAP.includes(d.sidingType) && d.roofing && d.roofCover === 'shingles';
+
+/**
+ * The gallery as picker.mjs entries, all of them or only those that match a
+ * lap-sided house.
+ * @param {{ houseOnly?: boolean }} [opts]
+ */
+export function galleryEntries(opts = {}) {
+  return GALLERY_DESIGNS.filter((g) => !opts.houseOnly || matchesHouse(g.design))
+    .map((g) => ({ id: g.id, title: g.title, reason: g.reason, design: structuredClone(g.design) }));
+}
+
+const MATCH_KEY = 'shed-designer-gallery-match-house';
+
+/**
+ * The "match a house" switch: limits the strip to lap siding and shingles,
+ * and is remembered in this browser (a convenience only; nothing breaks
+ * without storage).
+ * @param {{ box: HTMLInputElement, picker: { setEntries: (e: any[]) => void }, nav?: { go: (i: number) => void }, storage?: Storage | null }} opts
+ */
+export function mountMatchHouse({ box, picker, nav, storage }) {
+  let on = false;
+  try { on = storage?.getItem(MATCH_KEY) === '1'; } catch { on = false; }
+  const apply = () => {
+    picker.setEntries(galleryEntries({ houseOnly: box.checked }));
+    nav?.go(0);
+  };
+  box.checked = on;
+  if (on) apply();
+  box.addEventListener('change', () => {
+    try { storage?.setItem(MATCH_KEY, box.checked ? '1' : '0'); } catch { /* storage denied */ }
+    apply();
+  });
 }
 
 /**

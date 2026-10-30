@@ -35,12 +35,12 @@ import { buildShed, normalize, defaultDesign, minWallFor } from './model.mjs';
 import { estimate } from './estimate.mjs';
 import { structuralChecks } from './checks.mjs';
 import { connectionChecks } from './connections.mjs';
+import { storageOf as sharedStorage } from './storage.mjs';
 import { LEVER_KNOBS, searchKeep } from './levers.mjs';
-import { roofSpaceCuFt } from './storage.mjs';
 
 /**
- * @typedef {{ floorSqFt: number, clearHeightIn: number, wallVolumeCuFt: number, overheadCuFt: number,
- *   volumeCuFt: number, shelfFt: number, overheadOpen: boolean, notes: string[] }} Storage
+ * @typedef {{ floorSqFt: number, clearHeightIn: number, wallHeightIn: number, wallVolumeCuFt: number, overheadCuFt: number,
+ *   volumeCuFt: number, shelfFt: number, headroom: number, overheadOpen: boolean, notes: string[] }} Storage
  * @typedef {{ key: string, label: string, points: number, max: number, why: string }} LooksTerm
  * @typedef {{ score: number, terms: LooksTerm[] }} Looks
  * @typedef {{ design: any, label: string, cost: number, storage: Storage, looks: Looks, ok: boolean,
@@ -151,6 +151,12 @@ export const LAYOUTS = {
   },
 };
 
+/** Share of the budget kept for the polish phase. */
+const POLISH_SHARE = 0.35;
+/** The lighter value of each framing knob, tried on every front design first. */
+const LIGHT = { joistSize: '2x4', joistSpacing: 24, rafterSpacing: 24, studSpacing: 24, rafterSize: '2x4' };
+/** Knobs the polish tries: they mostly move cost, and leave the plan and openings alone. */
+const POLISH_KNOBS = ['joistSize', 'joistSpacing', 'rafterSpacing', 'studSpacing', 'rafterSize', 'overhang', 'wall', 'floorPanel', 'foundation', 'pad', 'roofCover', 'sidingType'];
 /** The layouts that put every opening in the front wall: seeded for a lean-to, not a gable. */
 const FRONT_WALL_LAYOUTS = ['eave door, no windows', 'eave door and a window beside it'];
 
@@ -158,8 +164,8 @@ const FRONT_WALL_LAYOUTS = ['eave door, no windows', 'eave door and a window bes
 const KNOBS = {
   roofType: ['ridgeBoard', 'ridgeBeam', 'truss'],
   pitch: [4, 5, 6, 7, 8, 9],
-  overhang: [6, 9, 12],
-  wall: ['auto', 92, 97.125],
+  overhang: [6, 8, 9, 12],
+  wall: ['auto', 88, 92, 97.125],
   studSpacing: [16, 24],
   rafterSpacing: [16, 24],
   rafterSize: ['2x4', '2x6'],
@@ -174,47 +180,16 @@ const KNOBS = {
 };
 
 /**
- * Storage, measured from the framed shed. Inside means inside the wall framing.
- * - floorSqFt: inside length x inside width.
- * - clearHeightIn: floor to the underside of the top plates (and of the rafter
- *   ties, which sit on them), the height you can stand a shelf unit in.
- * - wallVolumeCuFt: floor area x clear height.
- * - overheadCuFt: the triangle between the plates and the rafters, over the
- *   inside width, the whole inside length. Under a ridge beam it is open; under
- *   a ridge board it is above the rafter ties, usable as a loft only once the
- *   ties are decked (not priced) and only for light things, so it is flagged.
- *   On a lean-to the clear height is the low back wall's, and the triangle is
- *   the wedge up to the tall front wall: open, as there are no ties.
- * - volumeCuFt: the sum, the search's storage objective.
- * - shelfFt: inside wall length with no door or window in it, each opening
- *   taking its rough width plus a king and a trimmer stud each side (6").
+ * Storage, by the one definition in storage.mjs (shared with the detail panel,
+ * designfacts.mjs), rounded to 0.1. Volume is the search's storage objective.
  * @param {any} shed
  * @returns {Storage}
  */
 export function storageOf(shed) {
-  const d = shed.design;
-  const k = shed.dims;
-  const t = k.stud;
-  const Lin = d.length - 2 * t;
-  const Win = d.width - 2 * t;
-  const floorSqFt = (Lin * Win) / 144;
-  const clearHeightIn = k.plateTop - k.floorTop - 3; // under the two top plates
-  const wallVolumeCuFt = (floorSqFt * clearHeightIn) / 12;
-  const lean = d.style === 'leanTo';
-  const rise = (lean ? Win : Win / 2) * (d.pitch / 12);
-  // A gambrel's roof is no triangle: measure its cross-section (storage.mjs).
-  const overheadCuFt = d.style === 'gambrel' ? roofSpaceCuFt(shed) : (0.5 * Win * rise * Lin) / 1728;
-  const open = lean || d.roofType === 'ridgeBeam';
-  let shelf = 2 * Lin + 2 * Win;
-  for (const op of d.openings) shelf -= Math.min(op.width + 6, op.wall === 'front' || op.wall === 'back' ? Lin : Win);
-  const notes = [];
-  if (d.style === 'gambrel') notes.push(d.loft !== 'none' ? 'The gambrel\'s loft is decked and sized for 20 psf of stored things; the rest of the roof space is over the truss ties.' : 'The space over the gambrel\'s truss ties counts as loft storage; add the loft to deck it.');
-  else if (!open) notes.push(d.roofType === 'truss'
-    ? (d.atticStorage ? 'The space over the truss bottom chords counts as loft storage: the chords are sized for 20 psf; deck them before loading it.' : 'The space over the truss bottom chords counts as loft storage; the chords are sized for a 10 psf attic, so tick attic storage before loading it.')
-    : 'The space over the rafter ties counts as loft storage; deck the ties before loading it, and keep it to light things.');
+  const s = sharedStorage(shed);
   return {
-    floorSqFt: r1(floorSqFt), clearHeightIn: r1(clearHeightIn), wallVolumeCuFt: r1(wallVolumeCuFt), overheadCuFt: r1(overheadCuFt),
-    volumeCuFt: r1(wallVolumeCuFt + overheadCuFt), shelfFt: r1(Math.max(0, shelf) / 12), overheadOpen: open, notes,
+    floorSqFt: r1(s.floorSqFt), clearHeightIn: r1(s.clearHeightIn), wallHeightIn: r1(s.wallHeightIn), wallVolumeCuFt: r1(s.wallVolumeCuFt), overheadCuFt: r1(s.overheadCuFt),
+    volumeCuFt: r1(s.volumeCuFt), shelfFt: r1(s.shelfFt), headroom: r1(s.headroom), overheadOpen: s.overheadOpen, notes: s.notes,
   };
 }
 
@@ -491,7 +466,9 @@ export function* searchSteps(opts = {}) {
   const keyOf = (s) => JSON.stringify({ ...s.design, name: '' });
   const styleFronts = styles.filter((st) => st !== 'gable');
   let step = 0;
-  while (seen.size < budget) {
+  const exploreUntil = budget - Math.floor(budget * POLISH_SHARE);
+  // The polish's share is held back only once something passes.
+  while (seen.size < (all.length ? exploreUntil : budget)) {
     // The whole front first; once every design on it is expanded, each other style's own front,
     // so a lean-to still rough from its seed gets refined with the budget that is left.
     const fresh = (list) => list.filter((x) => !expanded.has(keyOf(x)));
@@ -506,15 +483,59 @@ export function* searchSteps(opts = {}) {
     expanded.add(keyOf(s));
     for (const [k, vals] of Object.entries(knobs)) {
       for (const v of vals) {
-        if (seen.size >= budget) break;
+        if (seen.size >= (all.length ? exploreUntil : budget)) break;
         if (s.knobs[k] === v) continue;
         tryOne(s.size, s.layout, { ...s.knobs, [k]: v });
         yield progress();
       }
     }
     // The same design in another layout, and on another size.
-    for (const layout of layouts) { if (seen.size >= budget) break; if (layout !== s.layout) { tryOne(s.size, layout, s.knobs); yield progress(); } }
-    for (const size of sizes) { if (seen.size >= budget) break; if (size !== s.size) { tryOne(size, s.layout, s.knobs); yield progress(); } }
+    for (const layout of layouts) { if (seen.size >= (all.length ? exploreUntil : budget)) break; if (layout !== s.layout) { tryOne(s.size, layout, s.knobs); yield progress(); } }
+    for (const size of sizes) { if (seen.size >= (all.length ? exploreUntil : budget)) break; if (size !== s.size) { tryOne(size, s.layout, s.knobs); yield progress(); } }
+  }
+  // Phase 3: polish. Each front design, cheapest first, takes any one change to
+  // the framing, floor, foundation, overhang or wall height that beats it
+  // outright (no worse on any objective, better on one), until none does or
+  // the budget is spent. Phase 2 spreads its budget over the whole front, so
+  // on a small budget a cheaper twin one knob away is often left untried.
+  const beats = (a, b) => objectives.every((o) => OBJECTIVES[o].sense * (OBJECTIVES[o].of(a) - OBJECTIVES[o].of(b)) >= -1e-9)
+    && objectives.some((o) => OBJECTIVES[o].sense * (OBJECTIVES[o].of(a) - OBJECTIVES[o].of(b)) > 1e-6);
+  const polishMoves = Object.keys(knobs).filter((k) => POLISH_KNOBS.includes(k)).flatMap((k) => knobs[k].map((v) => [k, v]));
+  /** @type {Map<string, number>} */
+  const wins = new Map();
+  const polished = new Set();
+  // The first pass tries only the lighter framing (smaller joists and rafters,
+  // wider spacing), the overhangs and the wall heights on every front design, which is where most of the saving is;
+  // later passes try every polish move.
+  const light = ([k, v]) => (LIGHT[k] !== undefined && LIGHT[k] === v) || k === 'overhang' || k === 'wall';
+  for (let pass = 0; pass < 5 && seen.size < budget; pass++) {
+    let moved = false;
+    const tier = pass === 0 ? polishMoves.filter(light) : polishMoves;
+    if (pass === 1) polished.clear();
+    for (const f of front()) {
+      if (seen.size >= budget) break;
+      if (polished.has(keyOf(f))) continue;
+      polished.add(keyOf(f));
+      let cur = f;
+      for (let improved = true; improved && seen.size < budget;) {
+        improved = false;
+        // Moves that have paid before are tried first, and the first that beats the design is taken.
+        const order = tier.sort((p, q) => (wins.get(`${q[0]}=${q[1]}`) ?? 0) - (wins.get(`${p[0]}=${p[1]}`) ?? 0));
+        for (const [k, v] of order) {
+          if (seen.size >= budget || cur.knobs[k] === v) continue;
+          const d = designAt(base, cur.size, cur.layout, { ...cur.knobs, [k]: v });
+          const r = d && (seen.get(JSON.stringify({ ...d, name: '' })) ?? tryOne(cur.size, cur.layout, { ...cur.knobs, [k]: v }));
+          if (r && r.feasible && beats(r, cur)) {
+            wins.set(`${k}=${v}`, (wins.get(`${k}=${v}`) ?? 0) + 1);
+            cur = r; improved = true; moved = true;
+            break;
+          }
+        }
+        yield progress();
+      }
+      polished.add(keyOf(cur));
+    }
+    if (!moved) break;
   }
   return { front: front(), all, evaluated: seen.size, rejected, constraints: c, objectives };
 }

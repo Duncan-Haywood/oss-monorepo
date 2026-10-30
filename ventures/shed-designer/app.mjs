@@ -20,7 +20,7 @@ import { quoteRequest, mailtoLink, STORES } from './quote.mjs';
 import { PRODUCTS } from './products.mjs';
 import { storeComparison, swapsFor, storeTotals, storeList, pricesFor } from './catalog.mjs';
 import { simplify, cutMetrics, budget, laborHours } from './simplify.mjs';
-import { galleryEntries, mountStripNav } from './gallery-ui.mjs';
+import { galleryEntries, mountMatchHouse, mountStripNav } from './gallery-ui.mjs';
 import { showCosts, wireCosts, bridgeHtml, breakdownOf, deltaSentence } from './costview.mjs';
 import { costDelta, deltaPhrase } from './costs.mjs';
 import { valueComparison, valueHtml } from './value.mjs';
@@ -1071,5 +1071,6 @@ picker = mountPicker({
     $('#workspace').scrollIntoView({ behavior: 'smooth' });
   },
 });
-mountStripNav({ track: $('#starts .pick-list'), prev: $('#starts-prev'), next: $('#starts-next'), pos: $('#starts-pos') });
+const stripNav = mountStripNav({ track: $('#starts .pick-list'), prev: $('#starts-prev'), next: $('#starts-next'), pos: $('#starts-pos') });
+if (picker) mountMatchHouse({ box: $('#match-house'), picker, nav: stripNav, storage });
 if (linkNote) $('#status').textContent = linkNote;
