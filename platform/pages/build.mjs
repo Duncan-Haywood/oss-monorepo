@@ -7616,7 +7616,7 @@ export function renderCustomDevelopmentPage({ surfaces = [], baseUrl, requests =
     <main class="prose">
       <h2>How it works</h2>
       <ol>
-        <li><strong>Ask.</strong> <a href="${escapeHtml(issueUrl)}">Open a request</a> on GitHub (a free account), or use the <a href="${escapeHtml(`${toRoot}${FEEDBACK_PATH}`)}">feedback form</a> and pick “An idea” if you have no account. Describe the job from the inside: who does it, how, and where today's tools fall short.</li>
+        <li><strong>Ask.</strong> <a href="${escapeHtml(issueUrl)}">Open a request</a> on GitHub (a free account), or use the <a href="${escapeHtml(`${toRoot}${FEEDBACK_PATH}`)}">feedback form</a> and pick “An idea” if you have no account. Short on time? The one-box <a href="${escapeHtml(`${REPO_URL}/issues/new?template=idea.yml`)}">idea form</a> works too. Describe the job from the inside: who does it, how, and where today's tools fall short.</li>
         <li><strong>It is triaged.</strong> Each request gets an ID in the table below and a status: ${counts.map(([s]) => `<em>${s}</em>`).join(', ')}. A declined request says why.</li>
         <li><strong>It is built in public.</strong> Sessions work in the open: every change is a pull request, and the project's README says what was tested and what was not.</li>
         <li><strong>You follow it.</strong> Watch your issue for replies, check its row here (rebuilt on every merge), or browse <a href="${escapeHtml(listUrl)}">all requests on GitHub</a>. Add detail or real sample material to the issue at any time; that is the fastest way to move a request forward.</li>

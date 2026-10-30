@@ -1,0 +1,8 @@
+p_n 10.91 bar; load factor 0.346; LS standby 2.0 L/min; 1,500 cycles per cell; OC charged full pump power for stretched seconds
+k None: median time penalty 0.00%; break-even dp_ls 28.0 bar; LS/OC at 14 bar 0.757, 20 bar 0.862, 26 bar 0.965
+k 1.0: median time penalty 5.76%; break-even dp_ls 35.8 bar; LS/OC at 14 bar 0.667, 20 bar 0.760, 26 bar 0.853
+k 1.5: median time penalty 0.00%; break-even dp_ls 31.1 bar; LS/OC at 14 bar 0.718, 20 bar 0.815, 26 bar 0.915
+k 2.0: median time penalty 0.00%; break-even dp_ls 29.4 bar; LS/OC at 14 bar 0.741, 20 bar 0.843, 26 bar 0.943
+k 3.0: median time penalty 0.00%; break-even dp_ls 28.3 bar; LS/OC at 14 bar 0.757, 20 bar 0.860, 26 bar 0.961
+k 5.0: median time penalty 0.00%; break-even dp_ls 28.0 bar; LS/OC at 14 bar 0.757, 20 bar 0.862, 26 bar 0.965
+k 10.0: median time penalty 0.00%; break-even dp_ls 29.5 bar; LS/OC at 14 bar 0.743, 20 bar 0.844, 26 bar 0.942

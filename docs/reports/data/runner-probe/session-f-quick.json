@@ -1,0 +1,40 @@
+{
+  "label": "F",
+  "probed_at": "2026-10-30T22:13:01Z",
+  "specs": {
+    "hostname": "vm",
+    "kernel": "6.18.44-fc-v185",
+    "hypervisor": "KVM",
+    "firecracker": true,
+    "cpu_model": "Intel(R) Xeon(R) Processor @ 2.80GHz",
+    "cpu_family_model_stepping": [
+      "6",
+      "85",
+      "7"
+    ],
+    "vcpus": 4,
+    "threads_per_core": "1",
+    "l2": "4 MiB (4 instances)",
+    "l3": "33 MiB (1 instance)",
+    "avx2": true,
+    "avx512f": true,
+    "avx512_vnni": true,
+    "amx": false,
+    "sha_ni": false,
+    "cpu_generation_guess": "Skylake-SP / Cascade Lake (stepping 7 = Cascade Lake)",
+    "mem_total_gib": 15.71,
+    "process_cgroup_mem_limit_gib": 13.36,
+    "swap_gib": 0.0,
+    "shm_gib": 15.7,
+    "root_fs_size_gib": 252.0,
+    "root_fs_used_gib": 10.0,
+    "root_fs_avail_gib": 28.5,
+    "gpu": null,
+    "python": "3.13.17",
+    "node": "v22.22.0",
+    "cpu_mhz_reported": 2799.998,
+    "mem_available_gib": 15.17,
+    "uptime_s": 28.53
+  },
+  "source": "--quick run reported verbatim by child cloud session session_01XpHqydSWDtxBXx5MjRB7xm"
+}

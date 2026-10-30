@@ -28,6 +28,10 @@ public, with the right to run the result yourself.
    [custom development page](https://monorepo-projects-site.duncan-andrew-haywood.workers.dev/custom-development/).
    It is free; the one condition is that the result stays MIT licensed, held by
    the repository owner ([`portfolio/requests/`](portfolio/requests/README.md)).
+   Short on time, or no AI agent? Dictate it: the one-box
+   [idea form](https://github.com/duncan-haywood/oss-monorepo/issues/new?template=idea.yml),
+   or, with write access, a paragraph in [`IDEAS.md`](IDEAS.md)
+   ([how](docs/contributing/ideas.md)).
 3. **Fix something yourself** with a pull request: a wrong default, a broken
    page, a missing test, a clearer explanation. Start with
    [`docs/contributing/fix-a-tool.md`](docs/contributing/fix-a-tool.md).

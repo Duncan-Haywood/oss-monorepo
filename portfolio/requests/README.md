@@ -11,7 +11,11 @@ owner").
   `renderCustomDevelopmentPage` in `platform/pages/build.mjs` on every merge.
 - **Intake:** the [`custom-build.yml`](../../.github/ISSUE_TEMPLATE/custom-build.yml)
   issue form (label `custom-request`), or an `idea` from the no-account
-  feedback form (`portfolio/usage/site-feedback.json`).
+  feedback form (`portfolio/usage/site-feedback.json`), or an `idea`-labelled
+  issue. `prompts/ideas.py` lists those last two. Ideas from people with write
+  access go to [`IDEAS.md`](../../IDEAS.md) and are direct requests; when one
+  becomes a multi-session project, list it here too (`source: owner`) so its
+  progress has a public row.
 - **Check:** `node --test portfolio/requests/requests.test.mjs`.
 
 ## For agents: triage
