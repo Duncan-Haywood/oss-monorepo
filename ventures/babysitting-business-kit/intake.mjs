@@ -33,7 +33,7 @@ export const MEET_AND_GREET = [
   { topic: "Screens and photos", questions: [
     "Which shows, games and apps are allowed, and for how long?",
     "Any screens before bed or at meals?",
-    "May I text you photos during the sit? (I never post children's photos anywhere.)",
+    "May I text you photos during the sit? (I never post children's photos unless you agree in writing.)",
   ] },
   { topic: "Allergies, medications and health", questions: [
     "Any allergies (food, insect stings, medicine)? How severe, and what does a reaction look like?",

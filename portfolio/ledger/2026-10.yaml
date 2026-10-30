@@ -4257,8 +4257,8 @@ entries:
     human_hours: 0
     outcomes:
       - >-
-        New venture on a direct request (tools for a friend's Christian babysitting sole
-        proprietorship). Browser app: lead scoring with reasons and reply drafts, rate quotes,
+        New venture on a direct request (tools for a one-person babysitting
+        business). Browser app: lead scoring with reasons and reply drafts, rate quotes,
         schedule with conflict checks and .ics, unpaid sits, SE-tax set-aside with 2026 quarterly
         dates and household-employee / 1099-K flags, family year-end statements, references with
         separate consent, generated website, content calendar. Optional zero-dependency server:

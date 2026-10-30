@@ -8,7 +8,7 @@ Free and MIT. A browser app with no build step and no account, plus an optional 
 
 ## Who it is for
 
-A babysitter who works for themselves (a student, a parent, a church-nursery volunteer turning it into a business) and finds families by word of mouth, church, school, Nextdoor or their own website. It was started for a Christian sitter, so it has an **optional** faith section: a statement on the website and faith-based activities (Bible stories, prayers at bedtime) offered **when parents ask**. A family's beliefs are never scored or used to filter leads; asking for those activities only counts as a match.
+A babysitter who works for themselves (a student, a parent, a church-nursery volunteer turning it into a business) and finds families by word of mouth, church, school, Nextdoor or their own website. It has an **optional** faith section, for sitters who want one: a statement on the website and faith-based activities (Bible stories, prayers at bedtime) offered **when parents ask**. A family's beliefs are never scored or used to filter leads; asking for those activities only counts as a match.
 
 ## Why someone would use it
 

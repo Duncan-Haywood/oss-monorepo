@@ -7,7 +7,7 @@ description: "A free app for self-employed babysitters: score inquiries, schedul
 
 A babysitter who works for themselves runs a small business without calling it one. Inquiries come by text, church, school and Nextdoor. Rates have rules: extra children, late nights, holidays, a minimum. Families pay by cash and Venmo. Then, in April, there is a tax bill they did not save for.
 
-The [Babysitting Business Kit](https://duncan-haywood.github.io/oss-monorepo/babysitting-business-kit/) puts that in one place. It started as a request for tools for a friend's Christian babysitting business, and it is built for any sitter.
+The [Babysitting Business Kit](https://duncan-haywood.github.io/oss-monorepo/babysitting-business-kit/) puts that in one place. It is built for any self-employed sitter.
 
 **Today, most urgent first.** New inquiries, follow-ups on day 2 and day 7, sits that are not paid yet, references to chase, families to invite back after a month, and a reminder two weeks before each estimated-tax date. Each comes with a message to copy.
 

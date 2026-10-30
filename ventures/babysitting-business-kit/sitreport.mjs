@@ -48,7 +48,7 @@ export function normalizeReport(r = {}, date = "") {
   for (const k of INCIDENT_TEXT) out.incident[k] = str(inc[k]);
   if (!out.incident.happened && !out.incident.what) out.incident = { happened: false };
   else out.incident.happened = true;
-  out.doses = (Array.isArray(r.doses) ? r.doses : []).filter((d) => d && typeof d === "object").slice(0, 40).map((d) => ({ id: str(d.id, CAP.short), authId: str(d.authId, CAP.short), child: str(d.child, CAP.short), drug: str(d.drug, CAP.short), dose: str(d.dose, CAP.short), at: hhmm(d.at), note: str(d.note, 300), warnings: Array.isArray(d.warnings) ? d.warnings.map((w) => str(w, 200)).slice(0, 8) : [] }));
+  out.doses = (Array.isArray(r.doses) ? r.doses : []).filter((d) => d && typeof d === "object").slice(0, 40).map((d) => ({ id: str(d.id, CAP.short), authId: str(d.authId, CAP.short), child: str(d.child, CAP.short), drug: str(d.drug, CAP.short), dose: str(d.dose, CAP.short), at: hhmm(d.at), note: str(d.note, 300), beforeSit: !!d.beforeSit, warnings: Array.isArray(d.warnings) ? d.warnings.map((w) => str(w, 200)).slice(0, 8) : [] }));
   for (const k of ["created", "updated", "emailedAt"]) if (r[k]) out[k] = str(r[k], 40);
   return out;
 }
@@ -124,7 +124,8 @@ export function reportMessage(report, { family = {}, profile = {} } = {}) {
   add("Diapers / potty", r.diapers);
   add("What we did", r.activities);
   add("Mood", [r.mood && r.mood[0].toUpperCase() + r.mood.slice(1), r.moodNote].filter(Boolean).join(". "));
-  if (r.doses.length) lines.push(`Medicine (from your written instructions): ${r.doses.map((d) => `${d.child ? `${d.child}, ` : ""}${d.drug} ${d.dose} at ${clock(d.at)}`).join("; ")}`);
+  const given = r.doses.filter((d) => !d.beforeSit);
+  if (given.length) lines.push(`Medicine given: ${given.map((d) => `${d.child ? `${d.child}, ` : ""}${d.drug} ${d.dose} at ${clock(d.at)}${(d.warnings || []).length ? ` (please check: ${d.warnings.join(" ")})` : ""}`).join("; ")}`);
   add("Good to know", r.notes);
   if (hasIncident(r)) {
     const i = r.incident;
@@ -195,14 +196,17 @@ export function checkDose(dose, family = {}, date, given = []) {
     const last = before.map((g) => minutesApart(g.at, at)).reduce((m, x) => Math.min(m, x), Infinity);
     if (last < auth.minHours * 60) warnings.push(`Only ${Math.round(last)} minutes since the last dose; the parents allowed one every ${auth.minHours} hours at most.`);
   }
-  if (auth.maxDoses && before.length + 1 > auth.maxDoses) warnings.push(`That would be dose ${before.length + 1}; the parents allowed at most ${auth.maxDoses} during a sit.`);
+  const during = before.filter((g) => !g.beforeSit);
+  if (auth.maxDoses && during.length + 1 > auth.maxDoses) warnings.push(`That would be dose ${during.length + 1}; the parents allowed at most ${auth.maxDoses} during a sit.`);
   return { auth, warnings };
 }
 
 // Log a dose on a report; the warnings are stored with it so the record shows them.
 export function logDose(report, dose, family, date, id) {
-  const d = { id: id || `dose_${(report.doses || []).length + 1}`, authId: dose.authId || "", child: str(dose.child, CAP.short), drug: str(dose.drug, CAP.short), dose: str(dose.dose, CAP.short), at: hhmm(dose.at), note: str(dose.note, 300) };
+  const d = { id: id || `dose_${(report.doses || []).length + 1}`, authId: dose.authId || "", child: str(dose.child, CAP.short), drug: str(dose.drug, CAP.short), dose: str(dose.dose, CAP.short), at: hhmm(dose.at), note: str(dose.note, 300), beforeSit: !!dose.beforeSit };
   const chk = checkDose(d, family, date, report.doses || []);
+  // A dose the parents gave before the sit is a fact to plan around, not one the sitter gave.
+  if (d.beforeSit) chk.warnings = [];
   if (chk.auth) { d.authId = chk.auth.id; d.drug = d.drug || chk.auth.drug; d.dose = d.dose || chk.auth.dose; d.child = d.child || chk.auth.child; }
   d.warnings = chk.warnings;
   return { report: { ...report, doses: [...(report.doses || []), d] }, dose: d, warnings: chk.warnings };

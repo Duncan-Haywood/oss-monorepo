@@ -193,7 +193,7 @@ export const HOUSE_CHECKLIST = [
   { id: "pets", label: "Pets", ask: "Names, are they friendly, anything to keep the kids away from?" },
   { id: "water", label: "Pool, hot tub or water", ask: "Is it fenced or covered? Bath and pool rules?" },
   { id: "hazards", label: "Locked away", ask: "Cleaning products, sharp tools and any firearms locked and stored away while I'm there?" },
-  { id: "doors", label: "Doors, keys and alarm", ask: "How do I lock up, and the alarm code or a hint?" },
+  { id: "doors", label: "Doors, keys and alarm", ask: "How do I lock up and set the alarm? (Don't write the code here; ask the parents in person.)" },
   { id: "address", label: "Address for 911", ask: "The exact address, nearest cross streets and how responders find the door." },
   { id: "phone", label: "Phone and Wi-Fi", ask: "Is there a landline, and does my phone get a signal in the house?" },
 ];
@@ -264,12 +264,12 @@ export function emergencyCard(desk, familyId, today = "") {
   const tel = (p) => (digits(p).length >= 7 ? `<a href="tel:${esc(digits(p))}">${esc(p)}</a>` : esc(p));
   const row = (label, value) => (value ? `<tr><th>${esc(label)}</th><td>${value}</td></tr>` : "");
   const kids = d.kids.length ? d.kids.map((k) => `<li><strong>${esc(k.name || "Child")}</strong>${k.age ? ` (${esc(k.age)})` : ""}${k.allergies ? `<br><span class="alert">Allergies: ${esc(k.allergies)}</span>` : ""}${k.meds ? `<br>Medicines: ${esc(k.meds)}` : ""}${k.notes ? `<br><span class="small">${esc(k.notes)}</span>` : ""}</li>`).join("") : "<li>No children on file yet.</li>";
-  const whereLabels = { firstaid: "First-aid kit", meds: "Medicines", alarms: "Fire extinguisher", exits: "Exits", pets: "Pets", water: "Water", doors: "Doors and alarm", phone: "Phone", hazards: "Locked away" };
+  const whereLabels = { firstaid: "First-aid kit", meds: "Medicines", alarms: "Fire extinguisher", exits: "Exits", pets: "Pets", water: "Water", phone: "Phone", hazards: "Locked away" };
   const where = Object.entries(d.where).filter(([k]) => whereLabels[k]).map(([k, v]) => row(whereLabels[k], esc(v))).join("");
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Emergency card: ${esc(d.family)}</title><style>body{font:15px/1.45 system-ui,sans-serif;max-width:40rem;margin:1.2rem auto;padding:0 1rem;color:#1d1a22;background:#fff}h1{font-size:1.35rem;margin:.2rem 0}h2{font-size:1rem;margin:1rem 0 .3rem;border-bottom:2px solid #1d1a22}.first{border:3px solid #a3122a;border-radius:10px;padding:.6rem .9rem;margin:.6rem 0}.first strong{color:#a3122a}.big{font-size:1.25rem;font-weight:700}table{border-collapse:collapse;width:100%}th{text-align:left;vertical-align:top;padding:3px 8px 3px 0;width:9.5rem;font-weight:600}td{padding:3px 0}.alert{color:#a3122a;font-weight:700}.small,footer{font-size:.82rem;color:#4a4452}ul{padding-left:1.1rem;margin:.2rem 0}a{color:inherit}@media print{body{margin:0}.noprint{display:none}}</style></head><body>
 <p class="noprint small"><button type="button" onclick="print()">Print</button> Keep one in your bag and one on the family's fridge.</p>
 <h1>Emergency card: ${esc(d.family)}</h1>
-<div class="first"><p class="big"><strong>Call 911 first</strong> for anything life-threatening: not breathing, unconscious, choking that does not clear, a seizure, a severe allergic reaction, serious bleeding or a fire. Then call the parents.</p>
+<div class="first"><p class="big"><strong>Call 911 first</strong> for anything life-threatening: not breathing, unconscious, choking that does not clear, a seizure, a severe allergic reaction (use the child's EpiPen as the parents' plan says, then call), serious bleeding or a fire. Then call the parents.</p>
 <p>Tell the dispatcher the address below and the cross streets, stay on the line and do what they say. Get everyone out first in a fire.</p>
 <p><strong>Poison Help: <a href="tel:18002221222">${POISON_HELP}</a></strong> (US, free, 24 hours) if a child swallowed, breathed or touched something and is awake and breathing; call 911 instead if they are not.</p></div>
 <h2>Where you are</h2><table>${row("Address", esc(d.address) || "<em>add the address</em>")}${row("Cross streets", esc(d.crossStreets) || "<em>ask the parents</em>")}</table>

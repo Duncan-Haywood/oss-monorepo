@@ -30,7 +30,7 @@ export const LIMITS = { body: 8 * 1024, name: 120, text: 2000 };
 export const PHOTO_CHOICES = {
   none: "No photos of my children, please.",
   private: "Photos may be sent to us only, never posted or shown to anyone else.",
-  public: "Photos may also be posted on the sitter's website or social media, with first names only and no faces of other children; we can withdraw this at any time.",
+  public: "Photos may also be posted on the sitter's website or social media, without names, school or location; we can withdraw this at any time.",
 };
 export const NOT_LEGAL_ADVICE = "This agreement is a template, not legal advice. Read it, change anything that does not fit, and ask a lawyer where you live if you need certainty about what it means or whether it binds.";
 
