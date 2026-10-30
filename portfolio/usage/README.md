@@ -11,7 +11,7 @@ not noticed.** It read: "While every row here is still a zero baseline with
 `live_url_visitors: null`, the next task is a public URL for something already
 on `main`, not another instrumented-but-undeployed calculator." Both halves are
 now false. All 175 finished products are served at
-`https://duncan-haywood.github.io/monorepo-projects/` — measured, not inferred:
+`https://duncan-haywood.github.io/oss-monorepo/` — measured, not inferred:
 GitHub's own managed builder ran the `gh-pages` branch and concluded `success`
 (`python3 platform/ci/pages_state.py`, the `deployed` row). So "get a public
 URL" is no longer the next task, and a session reading the old line would have
