@@ -12,13 +12,16 @@ On the evening of 2026-10-30, eight agent sessions worked on the [shed designer]
 
 ## Two clashes no single lane could see
 
-The [all-pairs test](2026-10-30-shed-designer-all-pairs-cross-feature-test.md) builds a small set of designs in which every value of every option meets every value of every other option at least once. Round 4 added five values to it:
+The [all-pairs test](2026-10-30-shed-designer-all-pairs-cross-feature-test.md) builds a small set of designs in which every value of every option meets every value of every other option at least once. Round 4 added to it:
 - saltbox and lean-to roofs;
 - no floor;
 - a freezing-climate setting;
-- 5/4 trim.
+- 5/4 trim;
+- insulation;
+- which lot line the shed faces;
+- an easement strip on the site plan.
 
-The set grew from 57 designs to 65, and it found two clashes on its first run.
+The set grew from 57 designs to 72, and the first five additions found two clashes on their first run.
 
 - **5/4 trim and the haul limit.** LP's 540 Series 5/4 trim is sold in 16 ft lengths only, and the designer's default haul limit is 12 ft. When no length fits the limit, the cut planner buys the long boards, which is right because there is nothing else to buy. But it said nothing, and the summary's "longest board" line only looks at framing lumber. So a design with 5/4 trim quietly asked a person who can haul 12 ft boards to bring home 16 ft ones. Now the estimate says so, and offers the ways out: delivery, a cut at the store, or 1x4 trim.
 - **No floor and the teen bedroom.** The interior option draws a rug and two beanbags on the floor. With no floor, "the floor" in the code was the top of the perimeter timbers, 5-1/2" above the gravel, so the rug floated. The invariant that catches floating parts flagged it.
