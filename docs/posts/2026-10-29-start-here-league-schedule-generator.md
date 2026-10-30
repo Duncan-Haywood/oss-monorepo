@@ -1,5 +1,6 @@
 ---
 title: "Start here: League Schedule Generator, a fair season from a list of team names"
+seo_title: "League Schedule Generator: a fair season from team names"
 date: 2026-10-29
 tags: [start-here, league-schedule-generator, sports, scheduling, volunteers]
 description: "For league organisers and club volunteers: what the free schedule maker gives you, your first season in ten minutes, and what it leaves to you."

@@ -1,5 +1,6 @@
 ---
 title: "Making a 3D shed look like the house next to it, without slowing the phone"
+seo_title: "Making a 3D shed look like the house, without slowing phones"
 date: 2026-10-30
 tags: [shed-designer, webgl, design]
 description: "House paint colours, shingle families, lap and T1-11 textures, a lawn and sky. Splitting the shader per material made the 3D view faster, not slower."

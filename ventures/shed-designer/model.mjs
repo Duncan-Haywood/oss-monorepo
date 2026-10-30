@@ -19,7 +19,7 @@ import { actual, ceil16, TWO_BY, DEFAULT_LENGTHS_FT, fmtFtIn as fmtFt, fmtIn } f
 import { lumberCostOf } from './estimate.mjs';
 import { productById } from './products.mjs';
 import { needsKingPost } from './truss.mjs';
-import { LAP_PRODUCTS, layoutFace, lapStocks, lapStagger, evenExposure } from './lap.mjs';
+import { LAP_PRODUCTS, layoutFace, lapStocks, lapStagger, evenExposure, lapStudLimit } from './lap.mjs';
 import { bbox } from './integrity.mjs';
 import { pickFinish, SIDING_FINISHES, TRIM_FINISHES, DOOR_FINISHES, SHINGLE_FAMILIES } from './looks.mjs';
 import { LOCKABLE } from './levers.mjs';
@@ -189,6 +189,9 @@ export const ROOF_TYPES = [
 
 /** Truss gusset thickness (7/16" OSB) and sizes in inches: along the bottom chord at a heel, each way from the peak, and each way from the king post's foot. */
 export const GUSSET_T = 7 / 16;
+/** Attic storage: the deck's thickness (23/32" or 3/4" panel) and the least clear height over it counted as storage (a 12" tote). */
+export const ATTIC_DECK_T = 0.75;
+export const ATTIC_CLEAR = 12;
 export const GUSSET = { heel: 16, peak: 12, foot: 8 };
 
 const fmtSpan = (inches) => `${Math.round(inches / 12 * 10) / 10} ft`;
@@ -265,7 +268,7 @@ export function normalize(input) {
     roofCover: pick(o.roofCover, ['shingles', 'metal'], d.roofCover),
     rafterSeat: pick(o.rafterSeat, ['birdsmouth', 'connector'], d.rafterSeat),
     maxFootprint: Math.min(1000, Math.max(0, num(o.maxFootprint, d.maxFootprint))),
-    maxHaulFt: o.maxHaulFt !== '' && o.maxHaulFt !== null && [0, 8, 10, 12, 14, 16, 18, 20].includes(Number(o.maxHaulFt)) ? Number(o.maxHaulFt) : d.maxHaulFt,
+    maxHaulFt: /** @type {any} */ (o.maxHaulFt) !== '' && o.maxHaulFt !== null && [0, 8, 10, 12, 14, 16, 18, 20].includes(Number(o.maxHaulFt)) ? Number(o.maxHaulFt) : d.maxHaulFt,
     ...Object.fromEntries(['lotWidthFt', 'lotDepthFt', 'siteLeftFt', 'siteRearFt', 'houseWidthFt', 'houseDepthFt', 'houseLeftFt', 'houseFrontFt', 'setbackFt']
       .map((f) => [f, Math.min(2000, Math.max(0, num(o[f], d[f])))])),
     locked: Array.isArray(o.locked) ? [...new Set(o.locked.filter((k) => typeof k === 'string' && k in LOCKABLE))] : [],
@@ -531,7 +534,7 @@ function buildAuto(d0) {
 function buildFramed(d) {
   /** @type {Member[]} */
   const members = [];
-  /** @type {{ id: string, kind: string, item: string, geom: Geom, group: string, wall?: string, side?: string, pos?: number[], course?: number, face?: [number, number][] }[]} */
+  /** @type {{ id: string, kind: string, item: string, geom: Geom, group: string, wall?: string, side?: string, pos?: number[], course?: number, face?: [number, number][], where?: string }[]} */
   const panels = [];
   /** @type {{ kind: string, geom: Geom, group: string, tex?: string, from?: number, bottom?: number }[]} */
   const fixtures = [];
@@ -1161,6 +1164,34 @@ function buildFramed(d) {
     }
     notes.push(`Trusses: ${rafterCenters.length - 2} site-built ${kpTop >= 3 ? 'king-post trusses' : 'trusses (no web: the bottom chord spans the walls on its own)'} at ${d.rafterSpacing}" on centre, ${d.rafterSize} top chords and a ${d.tieSize} bottom chord${kpTop >= 3 ? ` and king post` : ''}, joined by 7/16" OSB gussets glued and nailed on both faces. Over each gable wall the top chords bear on the gable studs instead, with the gable siding nailed to both as their gusset. Build the trusses flat on a jig, then stand them on the walls; nothing is longer than ${fmtSpan(Math.max(W, rafterCut))}.`);
     if (W > maxStock) warnings.push(`Truss bottom chords need ${Math.ceil(W / 12)} ft boards; add that length to your stock list.`);
+    // Attic storage: a deck of the floor panel on the inside trusses' bottom
+    // chords, where a 12" tote fits under the top chords, in two strips either
+    // side of the king posts. The end bays stay open as the way up.
+    if (d.atticStorage && rafterCenters.length > 3) {
+      const clear = ATTIC_CLEAR + ATTIC_DECK_T;
+      const yIn = clear / t; // the top chord's underside is `clear` above the chord here
+      const kp = kpTop >= 3;
+      const strips = kp ? [[yIn, W / 2 - kpHalf], [W / 2 + kpHalf, W - yIn]] : [[yIn, W - yIn]];
+      const x0 = rafterCenters[1] - 0.75;
+      const x1 = rafterCenters[rafterCenters.length - 2] + 0.75;
+      // Panel ends land on a truss centre, no piece longer than a sheet.
+      const cuts = [x0];
+      while (x1 - cuts[cuts.length - 1] > 96 + 1e-9) {
+        const at = rafterCenters.filter((c) => c > cuts[cuts.length - 1] + 1 && c <= cuts[cuts.length - 1] + 96 + 1e-9).pop();
+        if (at === undefined) break;
+        cuts.push(at);
+      }
+      cuts.push(x1);
+      for (const [y0, y1] of strips) {
+        if (y1 - y0 < 6) continue;
+        for (let i = 0; i + 1 < cuts.length; i++) {
+          panels.push({ id: nextId('AD'), kind: 'attic deck', item: d.floorPanel === 'OSB' ? 'floorOSB' : 'floorSheet', group: 'roof', geom: rectGeom([cuts[i], y0, seatBase], X, Y, Z, cuts[i + 1] - cuts[i], y1 - y0, ATTIC_DECK_T) });
+        }
+      }
+      const area = panels.filter((p) => p.kind === 'attic deck').reduce((tot, p) => tot + (p.geom.profile[2][0] * p.geom.profile[2][1]) / 144, 0);
+      if (area) notes.push(`Attic storage: ${area.toFixed(0)} sq ft of deck on the truss bottom chords, where a 12" tote fits under the roof; the chords and walls are checked for 20 psf of storage (IRC Table R301.5). Reach it through the open end bays.`);
+      else warnings.push('Attic storage: the roof is too low for 12" of clear height over the bottom chords, so no deck is laid; steepen the roof.');
+    }
   } else if (topAt0 <= 0.5) {
     warnings.push('The rafters are too shallow over the wall for a rafter tie at the plate; deepen the rafters.');
   } else {
@@ -1644,7 +1675,7 @@ function buildFramed(d) {
     warnings.push(`The peak is ${fmtFt(dims.peak)} above the gravel, ${fmtFt(dims.peak - d.maxPeak)} over your ${fmtFt(d.maxPeak)} limit. Your tallest opening needs walls of at least ${fmtFt(minWall)}; with those walls and a 3/12 roof (about the least that sheds water under shingles) the peak would still be ${fmtFt(low)}. To get lower: a shorter door, a door in the gable end, a lower floor or a narrower shed${d.gableVents ? ', or smaller or no gable vents (they need a steeper roof to fit)' : ''}.`);
   }
 
-  return { design: d, members, panels, fixtures, walls, framedOpenings, warnings, notes, dims, vents: ventInfo, trim, wallTrim, doorParts, doors, interior, sidingArea, floorPieces, roofPieces, sidingFull, sidingUpper, sidingUpperShapes, lap, lapExposure };
+  return { design: d, members, panels, fixtures, walls, framedOpenings, warnings, notes, dims, vents: ventInfo, trim, wallTrim, doorParts, doors, interior, sidingArea, floorPieces, roofPieces, sidingFull, sidingUpper, sidingUpperShapes, lap, lapExposure, sidingStudLimit: lapStudLimit(d) };
 }
 
 /** @typedef {ReturnType<typeof buildFramed>} Shed */
