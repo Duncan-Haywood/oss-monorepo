@@ -2,7 +2,7 @@
 title: "150 random Stripe reports through the payout splitter: nothing broke"
 date: 2026-10-30
 tags: [ai-bookkeeper, payouts, testing]
-description: "A seeded property test feeds made-up payout reports to ai-bookkeeper's splitter and checks that parts add to net, the journal balances and a second run finds nothing left."
+description: "A seeded property test feeds made-up payout reports to ai-bookkeeper's splitter and checks parts add to net, the journal balances and a rerun finds nothing."
 ---
 
 A card processor pays out one lump: 970.00 for 1,000.00 of sales less 30.00 of fees. [ai-bookkeeper](https://duncan-haywood.github.io/oss-monorepo/ai-bookkeeper/) reads the processor's report, finds the bank line and splits it into sales, refunds, fees and disputes, so the books show gross sales and the real cost of taking cards.
