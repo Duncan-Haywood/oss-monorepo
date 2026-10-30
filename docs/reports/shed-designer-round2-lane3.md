@@ -44,6 +44,10 @@ Also #11521: fixed `main`, where wall-framing-takeoff's `next:` in `flagships.ya
 - **Starting design warns.** A first-time visitor's very first view has a "Check these" warning (the peak is over the 8 ft limit). That is the owner's spec, and the warning says how to fix it, but it is the first thing a newcomer reads.
 - Axe was not run locally (no axe-core in the container). CI's `browser-test` runs it.
 
+## Afterwards: #11579 broke two checks on main
+
+`changed-ventures` runs `node platform/pages/typecheck.mjs shed-designer`. It is in `platform/pages/`, not `platform/ci/`, and I didn't run it. It rejected `designDiff`'s untyped `SAID` table (6 diagnostics). The site `test` job also failed `venture-sitemap-coverage`, because lane 3b's `hoa-packet.html` was missing from `sitemap.xml`: `make-size-pages.mjs` wrote the sitemap from a single hard-coded hand-written page. The follow-up PR types `SAID`, and makes the generator list every hand-written `.html` beside the tool. **Run the typecheck before merging any shed-designer change.**
+
 ## How to drive the page
 
 As in round 1's lane 3 report, plus: `#jump [data-jump=panel-…]` for the section bar, and `#total-pill-n` for the total in it; `#shopping input[data-skip]` for Leave out; `button.xref-btn` (`data-xref-lumber`, `data-xref-marks`) and `#xref` for cross-reference; `#openings td[data-cost]`; `#customRange` for the range box; `input[data-i="0"][data-k="height"]` for opening fields. Scroll an editor into view (`scrollIntoViewIfNeeded`) before driving it with the mouse. Compare screenshots with `Buffer.equals`, never `assert.deepEqual`: a failing deepEqual on two PNG buffers builds a diff big enough to get the test process OOM-killed with no output.
