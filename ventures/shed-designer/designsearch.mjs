@@ -489,15 +489,15 @@ export function* searchSteps(opts = {}) {
   const styleFronts = styles.filter((st) => st !== 'gable');
   let step = 0;
   while (seen.size < budget) {
-    // Turns go round the whole front and each other style's own front.
-    const pools = [front(), ...styleFronts.map((st) => paretoFront(all.filter((x) => x.design.style === st), objectives))];
-    const pool = all.length ? pools[step % pools.length] : [];
+    // The whole front first; once every design on it is expanded, each other style's own front,
+    // so a lean-to still rough from its seed gets refined with the budget that is left.
     const fresh = (list) => list.filter((x) => !expanded.has(keyOf(x)));
-    const from = all.length ? (fresh(pool).length ? pool : pools.flat()) : [...seen.values()].sort((a, b) => a.why.length - b.why.length || a.cost - b.cost).slice(0, 8);
+    const pools = all.length ? [front(), ...styleFronts.map((st) => paretoFront(all.filter((x) => x.design.style === st), objectives))] : [];
+    const from = all.length ? (pools.find((p) => fresh(p).length) ?? []) : [...seen.values()].sort((a, b) => a.why.length - b.why.length || a.cost - b.cost).slice(0, 8);
     const todo = fresh(from);
     if (!todo.length) break;
     // Take turns between the objectives: the unexpanded design best on this turn's objective.
-    const f = OBJECTIVES[objectives[Math.floor(step / (styleFronts.length + 1)) % objectives.length]];
+    const f = OBJECTIVES[objectives[step % objectives.length]];
     step++;
     const s = todo.reduce((m, x) => (f.sense * f.of(x) > f.sense * f.of(m) ? x : m));
     expanded.add(keyOf(s));

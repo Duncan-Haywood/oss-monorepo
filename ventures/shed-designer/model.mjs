@@ -19,7 +19,7 @@ import { actual, ceil16, TWO_BY, DEFAULT_LENGTHS_FT, fmtFtIn as fmtFt, fmtIn } f
 import { lumberCostOf } from './estimate.mjs';
 import { productById } from './products.mjs';
 import { needsKingPost } from './truss.mjs';
-import { LAP_PRODUCTS, layoutFace, lapStocks, lapStagger, evenExposure } from './lap.mjs';
+import { LAP_PRODUCTS, layoutFace, lapStocks, lapStagger, evenExposure, lapStudLimit } from './lap.mjs';
 import { bbox } from './integrity.mjs';
 import { pickFinish, SIDING_FINISHES, TRIM_FINISHES, DOOR_FINISHES, SHINGLE_FAMILIES } from './looks.mjs';
 import { LOCKABLE } from './levers.mjs';
@@ -288,7 +288,7 @@ export function normalize(input) {
     roofCover: pick(o.roofCover, ['shingles', 'metal'], d.roofCover),
     rafterSeat: pick(o.rafterSeat, ['birdsmouth', 'connector'], d.rafterSeat),
     maxFootprint: Math.min(1000, Math.max(0, num(o.maxFootprint, d.maxFootprint))),
-    maxHaulFt: o.maxHaulFt !== '' && o.maxHaulFt !== null && [0, 8, 10, 12, 14, 16, 18, 20].includes(Number(o.maxHaulFt)) ? Number(o.maxHaulFt) : d.maxHaulFt,
+    maxHaulFt: /** @type {any} */ (o.maxHaulFt) !== '' && o.maxHaulFt !== null && [0, 8, 10, 12, 14, 16, 18, 20].includes(Number(o.maxHaulFt)) ? Number(o.maxHaulFt) : d.maxHaulFt,
     ...Object.fromEntries(['lotWidthFt', 'lotDepthFt', 'siteLeftFt', 'siteRearFt', 'houseWidthFt', 'houseDepthFt', 'houseLeftFt', 'houseFrontFt', 'setbackFt']
       .map((f) => [f, Math.min(2000, Math.max(0, num(o[f], d[f])))])),
     locked: Array.isArray(o.locked) ? [...new Set(o.locked.filter((k) => typeof k === 'string' && k in LOCKABLE))] : [],
@@ -558,7 +558,7 @@ function buildAuto(d0) {
 function buildFramed(d) {
   /** @type {Member[]} */
   const members = [];
-  /** @type {{ id: string, kind: string, item: string, geom: Geom, group: string, wall?: string, side?: string, pos?: number[], course?: number, face?: [number, number][] }[]} */
+  /** @type {{ id: string, kind: string, item: string, geom: Geom, group: string, wall?: string, side?: string, pos?: number[], course?: number, face?: [number, number][], where?: string }[]} */
   const panels = [];
   /** @type {{ kind: string, geom: Geom, group: string, tex?: string, from?: number, bottom?: number }[]} */
   const fixtures = [];
@@ -1728,7 +1728,7 @@ function buildFramed(d) {
     warnings.push(`The peak is ${fmtFt(dims.peak)} above the gravel, ${fmtFt(dims.peak - d.maxPeak)} over your ${fmtFt(d.maxPeak)} limit. Your tallest opening needs walls of at least ${fmtFt(minWall)}; with those walls and a 3/12 roof (about the least that sheds water under shingles) the peak would still be ${fmtFt(low)}. To get lower: a shorter door, ${lean ? 'a door in an end wall or the low back wall' : 'a door in the gable end'}, a lower floor or a narrower shed${d.gableVents && !lean ? ', or smaller or no gable vents (they need a steeper roof to fit)' : ''}.`);
   }
 
-  return { design: d, members, panels, fixtures, walls, framedOpenings, warnings, notes, dims, vents: ventInfo, trim, wallTrim, doorParts, doors, interior, sidingArea, floorPieces, roofPieces, sidingFull, sidingUpper, sidingUpperShapes, lap, lapExposure };
+  return { design: d, members, panels, fixtures, walls, framedOpenings, warnings, notes, dims, vents: ventInfo, trim, wallTrim, doorParts, doors, interior, sidingArea, floorPieces, roofPieces, sidingFull, sidingUpper, sidingUpperShapes, lap, lapExposure, sidingStudLimit: lapStudLimit(d) };
 }
 
 /** @typedef {ReturnType<typeof buildFramed>} Shed */

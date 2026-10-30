@@ -1,5 +1,6 @@
 ---
 title: "Start here: AI Bookkeeper, books from your bank file that learn your business"
+seo_title: "AI Bookkeeper: books from your bank file that learn your business"
 date: 2026-10-29
 tags: [start-here, ai-bookkeeper, bookkeeping, small-business]
 description: "Who AI Bookkeeper is for, what you get, your first ten minutes from a bank CSV to a profit and loss, and what it will not do for you."

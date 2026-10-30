@@ -226,16 +226,55 @@
     footer p { line-height: 1.5; }
     .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
     @media (max-width: 900px) { .workspace { grid-template-columns: 1fr; } .boards li { grid-template-columns: 96px minmax(0, 1fr); } .boards .off { grid-column: 2; } }
+    /* Where the money goes: ranked bars in one hue, a waterfall in blue (saves) and red (costs more) from grey totals. */
+    .cost-host { position: relative; }
+    .cost-bars, .bridge { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+    .cost-row, .bridge li { box-sizing: border-box; display: grid; grid-template-columns: minmax(9rem, 14rem) minmax(0, 1fr) 8.5rem; gap: 10px; align-items: center; width: 100%; padding: 6px 4px; }
+    .cost-row { font: inherit; color: inherit; background: none; border: 0; border-radius: 6px; text-align: left; cursor: pointer; min-height: 44px; }
+    .cost-row:hover, .cost-row[aria-expanded="true"] { background: #f1ece1; }
+    .cost-row:focus-visible { outline: 2px solid #1f4e8c; outline-offset: 1px; }
+    .cost-name { font-weight: 600; }
+    .cost-name::before { content: "▸ "; color: var(--muted); }
+    .cost-row[aria-expanded="true"] .cost-name::before { content: "▾ "; }
+    .bridge .cost-name::before { content: none; }
+    .cost-track { position: relative; height: 14px; }
+    .cost-bar { position: absolute; left: 0; top: 0; bottom: 0; background: #2a78d6; border-radius: 0 4px 4px 0; min-width: 2px; }
+    .bridge-bar { position: absolute; top: 0; bottom: 0; border-radius: 4px; min-width: 2px; }
+    .bridge-total .bridge-bar, .sw-total { background: #5b6157; }
+    .bridge-down .bridge-bar, .bridge-rest .bridge-bar, .sw-down { background: #2a78d6; }
+    .bridge-up .bridge-bar, .sw-up { background: #e34948; }
+    .bridge-total .cost-name, .bridge-total .cost-amt { font-weight: 800; }
+    .cost-amt { text-align: right; font-variant-numeric: tabular-nums; }
+    .bridge-legend { font-size: .85rem; color: var(--muted); }
+    .sw { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; margin-left: 8px; }
+    .cost-lines { padding: 4px 4px 10px 1.4rem; }
+    .cost-lines table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    .cost-lines th, .cost-lines td { text-align: left; padding: 3px 6px; border-bottom: 1px solid var(--line); }
+    .cost-lines .n { text-align: right; white-space: nowrap; }
+    .cost-foot { font-size: .85rem; }
+    .cost-tip { position: absolute; z-index: 5; width: 300px; max-width: 90vw; background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; box-shadow: 0 6px 18px #33281722; font-size: .85rem; pointer-events: none; }
+    .cost-tip ul { margin: 4px 0; padding: 0; list-style: none; }
+    .cost-tip li { display: flex; justify-content: space-between; gap: 8px; }
+    .cost-delta { margin: 0 0 6px; font-weight: 600; }
+    .cost-delta:empty { display: none; }
+    @media (max-width: 640px) {
+      .cost-row, .bridge li { grid-template-columns: minmax(0, 1fr) auto; gap: 2px 10px; }
+      .cost-row .cost-track, .bridge .cost-track { grid-column: 1 / -1; grid-row: 2; }
+    }
     @page plan-sheet { size: letter landscape; margin: 0.35in; }
     @media print {
       body { max-width: none; padding: 0; background: #fff; }
       /* The results live inside <main>, so hide main's other children, not main itself. */
       body[data-print] > *:not(main), body[data-print] main > *:not(.results) { display: none !important; }
       body[data-print] .results > *:not(.print-target) { display: none !important; }
-      body[data-print="plans"] #panel-plans, body[data-print="cuts"] #panel-cuts, body[data-print="build"] #panel-build { display: block !important; }
-      body[data-print="all"] #panel-shopping, body[data-print="all"] #panel-cuts, body[data-print="all"] #panel-plans, body[data-print="all"] #panel-build { display: block !important; }
-      body[data-print="all"] #panel-cuts, body[data-print="all"] #panel-plans, body[data-print="all"] #panel-build { break-before: page; }
+      body[data-print="plans"] #panel-plans, body[data-print="cuts"] #panel-cuts, body[data-print="build"] #panel-build, body[data-print="costs"] #panel-costs { display: block !important; }
+      body[data-print="all"] #panel-shopping, body[data-print="all"] #panel-costs, body[data-print="all"] #panel-cuts, body[data-print="all"] #panel-plans, body[data-print="all"] #panel-build { display: block !important; }
+      body[data-print="all"] #panel-costs, body[data-print="all"] #panel-cuts, body[data-print="all"] #panel-plans, body[data-print="all"] #panel-build { break-before: page; }
       .jump { display: none !important; }
+      body[data-print="costs"] .cost-lines, body[data-print="all"] .cost-lines { display: block !important; }
+      #cost-tip, #cost-bridge-run { display: none !important; }
+      .cost-bar, .bridge-bar, .sw { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .cost-row, .bridge li { break-inside: avoid; }
       body[data-print] .result-panel { display: none; }
       body[data-print] section.results { border: none; box-shadow: none; padding: 0; }
       /* Plan sheets are drawn landscape: give each its own landscape page, full width. */
@@ -270,6 +309,7 @@
   <nav class="jump" id="jump" aria-label="Jump to the cost and the results">
     <a href="#summary" class="jump-total" id="total-pill">Total <strong id="total-pill-n"></strong></a>
     <a href="#results-h" data-jump="panel-shopping">Shopping list</a>
+    <a href="#results-h" data-jump="panel-costs">Where the money goes</a>
     <a href="#results-h" data-jump="panel-cuts">Cut sheet</a>
     <a href="#results-h" data-jump="panel-parts">Parts list</a>
     <a href="#results-h" data-jump="panel-structure">Structure</a>
@@ -339,6 +379,7 @@
         <h2>Estimated cost</h2>
         <p class="big" id="total">$0</p>
         <p class="scope" id="total-scope">Materials, sales tax and delivery only. Your own labour is not in it; see "Your time" below.</p>
+        <p id="cost-delta" class="cost-delta"></p>
         <dl id="summary-lines"></dl>
         <div id="warnings"></div>
         <div id="notes"></div>
@@ -482,6 +523,7 @@
     <h2 id="results-h">What to buy, how to cut it, how to build it</h2>
     <div class="result-tabs" role="tablist">
       <button type="button" role="tab" aria-selected="true" data-panel="panel-shopping">Shopping list</button>
+      <button type="button" role="tab" aria-selected="false" data-panel="panel-costs">Where the money goes</button>
       <button type="button" role="tab" aria-selected="false" data-panel="panel-cuts">Cut sheet</button>
       <button type="button" role="tab" aria-selected="false" data-panel="panel-parts">Parts list</button>
       <button type="button" role="tab" aria-selected="false" data-panel="panel-structure">Structure</button>
@@ -515,6 +557,16 @@
         <summary><strong>Your prices</strong> (examples until you change them; saved in this browser)</summary>
         <div id="price-grid" class="table-wrap"></div>
       </details>
+    </div>
+    <div class="result-panel print-target" id="panel-costs" hidden>
+      <div class="toolrow" role="group" aria-label="Split the cost"><button type="button" class="btn" data-cost-by="assemblies" aria-pressed="true">By assembly</button><button type="button" class="btn" data-cost-by="materials" aria-pressed="false">By material type</button><button type="button" class="btn" id="cost-print">Print the breakdown</button></div>
+      <div class="cost-host"><div id="cost-chart"></div><div id="cost-tip" class="cost-tip" hidden></div></div>
+      <h3>What the last change did</h3>
+      <p id="cost-change" class="muted">Change anything (a size, a door, the siding, an option or a design from the list) and the cost change shows here by assembly.</p>
+      <h3>From your design to the cheapest passing one</h3>
+      <p class="muted">The same search as "Find a cheaper build": same footprint, every load and connection check passing, peak no more than 6" higher. It weighs your time at your labour rate, so a saving that costs more work than it is worth is not taken.</p>
+      <div class="toolrow"><button type="button" class="btn primary" id="cost-bridge-run">Show the bridge</button></div>
+      <div id="cost-bridge"></div>
     </div>
     <div class="result-panel print-target" id="panel-cuts" hidden>
       <p class="muted">One line per board to buy, with identical boards counted together. Letters are part marks (see Parts list and the plans); the hatched end is offcut. Kerf is allowed between cuts.</p>

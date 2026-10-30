@@ -41,14 +41,14 @@ Its siding costs $23 more, because the front wall is taller. Its rafters come ou
 
 One thing to correct while writing this up. The first build of the lean-to still priced rafter hangers, because its saved roof type was the default "ridge beam". It now prices none.
 
-**Where it lands in the design search.** The design search (`designsearch.mjs`) now tries lean-tos too, with two new layouts that keep every opening in the tall front wall. It also gives the best lean-tos their own turns in its local search.
+**Where it lands in the design search.** The design search (`designsearch.mjs`) now tries lean-tos too, with two new layouts that keep every opening in the tall front wall. Once every design on the front has been explored, it spends what is left of its budget refining the best lean-tos.
 
-We ran a 2,000-design search under 100 sq ft. Of the 61 designs on the Pareto front of cost, storage and looks, 40 are lean-tos. Two of the search's four picks are lean-tos:
+We ran a 2,000-design search under 100 sq ft. Of the 68 designs on the Pareto front of cost, storage and looks, 37 are lean-tos. Two of the search's four picks are lean-tos:
 
 - **Most storage:** a 10x10 lean-to, 797 cu ft, at $2,885.05.
 - **Best looks:** an 8x10 lean-to with a door between two windows in the tall wall, at $2,651.00.
 
-**Against a cheaper gable it does not win on cost.** The cheapest design on the front is still a gable: an 8x10 with a ridge board and rafter ties, at $2,335.34. The cheapest lean-to on the front is $2,576.18. So a lean-to beats the beam-and-post gable, not the gable with ties.
+**Against a cheaper gable it does not win on cost.** The cheapest design on the front is still a gable: an 8x10 with a ridge board and rafter ties, at $2,267.88. The cheapest lean-to on the front is $2,611.51. So a lean-to beats the beam-and-post gable, not the gable with ties.
 
 The looks score is a heuristic we wrote: full marks for a single slope between 3/12 and 5/12, and for a gable between 6/12 and 9/12. Read it as a rule of thumb, not a verdict.
 

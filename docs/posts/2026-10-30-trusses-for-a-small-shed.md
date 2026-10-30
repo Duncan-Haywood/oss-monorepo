@@ -1,5 +1,6 @@
 ---
 title: "Ridge beam, ridge board or trusses for a small shed: what the numbers say"
+seo_title: "Ridge beam, ridge board or trusses for a small shed?"
 date: 2026-10-30
 tags: [shed-designer, framing, structure, cost]
 description: "Site-built trusses with OSB gussets, priced against a ridge beam and a ridge board. The ridge board still wins on cost; trusses win on short boards."
