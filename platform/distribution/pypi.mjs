@@ -7,8 +7,10 @@
  *   node platform/distribution/pypi.mjs --pack <slug> <outDir>   # write one project to disk (to inspect or `python3 -m build`)
  *   DISTRIBUTE_PYPI=true TWINE_PASSWORD=pypi-... node platform/distribution/pypi.mjs
  *
- * Stateless de-duplication: a project name that already exists on PyPI is left
- * alone, and at most MAX_PER_RUN new projects go out per run. Only tools whose
+ * Only tools on the pypi allow-list (portfolio/distribution/allowlist.json) are
+ * published, at the version versions.json gives them (versions.mjs). Stateless
+ * de-duplication: a version PyPI already has is left alone, and at most
+ * MAX_PER_RUN projects go out per run. Only tools whose
  * every import is on the stdlib allowlist below and none on the network list
  * qualify: anything else is skipped, not guessed at. The tool's source is
  * shipped unchanged as `<module>/cli.py`; only packaging files are generated.
@@ -22,6 +24,7 @@ import { fileURLToPath } from 'node:url';
 import { toolUrl } from './bluesky.mjs';
 import { tagUrl } from './attribution.mjs';
 import { descriptionOf } from './npm.mjs';
+import { allowed, loadAllowlist, loadVersions } from './versions.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(HERE, '..', '..');
@@ -133,12 +136,13 @@ export async function writePackage(pkg, outDir) {
   }
 }
 
-/** Projects that qualify, with skip reasons for the rest. */
-export async function plan({ root = REPO_ROOT, slugs } = {}) {
+/** Projects that qualify, with skip reasons for the rest. `versions` maps slug -> { version }. */
+export async function plan({ root = REPO_ROOT, slugs, versions = {} } = {}) {
   const ok = [];
   const skipped = [];
   for (const slug of slugs ?? await discover(root)) {
-    const pkg = await buildPackage({ slug, dir: path.join(root, 'ventures', slug) });
+    const version = versions[slug]?.version ?? VERSION;
+    const pkg = await buildPackage({ slug, dir: path.join(root, 'ventures', slug), version });
     if (pkg.skip) skipped.push({ slug, reason: pkg.skip });
     else ok.push({ slug, ...pkg });
   }
@@ -147,20 +151,31 @@ export async function plan({ root = REPO_ROOT, slugs } = {}) {
 
 const exec = promisify(execFile);
 
-export async function run({ env = process.env, fetchImpl = fetch, log = console.log, publish, root = REPO_ROOT } = {}) {
+/** Whether PyPI's JSON for a project is one this repository published (a project URL names this repo). */
+export const isOurs = (doc) => Object.values(doc?.info?.project_urls ?? {}).some((u) => String(u).toLowerCase().includes('duncan-haywood/oss-monorepo'));
+
+export async function run({ env = process.env, fetchImpl = fetch, log = console.log, publish, root = REPO_ROOT, allow, versions } = {}) {
   const live = env.DISTRIBUTE_PYPI === 'true' && !!env.TWINE_PASSWORD;
-  const { ok, skipped } = await plan({ root });
-  log(`${ok.length} of ${ok.length + skipped.length} venture CLIs qualify (${skipped.length} skipped)`);
+  allow ??= await loadAllowlist(root);
+  versions ??= await loadVersions(root);
+  const slugs = [...allowed(allow, 'pypi')].sort();
+  const { ok, skipped } = await plan({ root, slugs, versions });
+  log(`${ok.length} of ${slugs.length} allow-listed CLIs qualify`);
+  for (const s of skipped) log(`  skip ${s.slug}: ${s.reason}`);
   const fresh = [];
   for (const p of ok) {
     if (fresh.length >= MAX_PER_RUN) break;
+    if (!versions[p.slug]) { log(`  skip ${p.slug}: no version in versions.json (run versions.mjs --write)`); continue; }
     const res = await fetchImpl(`https://pypi.org/pypi/${p.name}/json`);
-    if (res.status === 200) continue;
-    if (res.status !== 404) throw new Error(`PyPI: HTTP ${res.status} for ${p.name}`);
+    if (res.status === 200) {
+      const doc = await res.json();
+      if (!isOurs(doc)) { log(`  skip ${p.name}: the name belongs to another project`); continue; }
+      if (doc.releases?.[p.version]) continue;
+    } else if (res.status !== 404) throw new Error(`PyPI: HTTP ${res.status} for ${p.name}`);
     fresh.push(p);
   }
   if (!live) {
-    log(`DRY RUN (set DISTRIBUTE_PYPI=true and TWINE_PASSWORD to publish). Would publish up to ${MAX_PER_RUN} new projects:`);
+    log(`DRY RUN (set DISTRIBUTE_PYPI=true and TWINE_PASSWORD to publish). Would publish up to ${MAX_PER_RUN} new versions:`);
     for (const p of fresh) log(`  ${p.name}==${p.version}  ${Object.keys(p.files).length} files`);
     return { published: 0, planned: fresh.length };
   }
@@ -186,7 +201,8 @@ export async function run({ env = process.env, fetchImpl = fetch, log = console.
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const [flag, slug, outDir] = process.argv.slice(2);
   if (flag === '--pack') {
-    const pkg = await buildPackage({ slug, dir: path.join(REPO_ROOT, 'ventures', slug) });
+    const version = (await loadVersions())[slug]?.version ?? VERSION;
+    const pkg = await buildPackage({ slug, dir: path.join(REPO_ROOT, 'ventures', slug), version });
     if (pkg.skip) { console.error(`${slug}: ${pkg.skip}`); process.exit(1); }
     await writePackage(pkg, outDir);
     console.log(`wrote ${pkg.name}==${pkg.version} to ${outDir}`);

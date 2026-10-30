@@ -7,7 +7,8 @@
  *   DISTRIBUTE_HOMEBREW=true node platform/distribution/homebrew.mjs --write <tapCheckout>
  *
  * The formula installs the npm tarball (so it depends on npm-cli-packages
- * being live); a package that is not on the registry yet is skipped. The
+ * being live, and covers only npm's allow-list, at versions.json's version);
+ * a package that is not on the registry yet is skipped. The
  * sha256 is computed from the tarball the registry serves, never guessed.
  * Stateless: a formula file that already exists in the tap is left alone, and
  * at most MAX_PER_RUN new formulas are written per run.
@@ -19,6 +20,7 @@ import { fileURLToPath } from 'node:url';
 import { plan, packageName, VERSION } from './npm.mjs';
 import { toolUrl } from './bluesky.mjs';
 import { tagUrl } from './attribution.mjs';
+import { allowed, loadAllowlist, loadVersions } from './versions.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(HERE, '..', '..');
@@ -70,11 +72,14 @@ async function tarball(fetchImpl, url) {
   return Buffer.from(await res.arrayBuffer());
 }
 
-export async function run({ env = process.env, fetchImpl = fetch, log = console.log, root = REPO_ROOT, outDir = null } = {}) {
+export async function run({ env = process.env, fetchImpl = fetch, log = console.log, root = REPO_ROOT, outDir = null, allow, versions } = {}) {
   const live = env.DISTRIBUTE_HOMEBREW === 'true' && !!outDir;
   const scope = env.NPM_SCOPE || '';
-  const { ok, skipped } = await plan({ root, scope });
-  log(`${ok.length} of ${ok.length + skipped.length} venture CLIs qualify for npm (${skipped.length} skipped)`);
+  allow ??= await loadAllowlist(root);
+  versions ??= await loadVersions(root);
+  const slugs = [...allowed(allow, 'npm')].sort();
+  const { ok } = await plan({ root, scope, slugs, versions });
+  log(`${ok.length} of ${slugs.length} npm-allow-listed CLIs qualify`);
   const todo = [];
   for (const p of ok) {
     if (todo.length >= MAX_PER_RUN) break;

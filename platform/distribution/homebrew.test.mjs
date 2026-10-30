@@ -4,6 +4,13 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { className, tarballUrl, formula, sha256Of, run, MAX_PER_RUN } from './homebrew.mjs';
+import { parseAllowlist } from './versions.mjs';
+
+/** An allow-list and a versions manifest naming `slugs` for npm at 0.1.0. */
+const listed = (slugs) => ({
+  allow: parseAllowlist({ tools: slugs.map((slug) => ({ slug, channels: ['npm'], why: 'test' })) }),
+  versions: Object.fromEntries(slugs.map((slug) => [slug, { version: '0.1.0', hash: 'sha256-x' }])),
+});
 
 const SHA = 'a'.repeat(64);
 const MIT = 'MIT License\n\nCopyright (c) x';
@@ -49,12 +56,12 @@ test('dry run writes nothing; live run writes only packages already on npm and n
   const root = await fixture(['aa-tool', 'bb-tool', 'cc-tool']);
   const out = await fs.mkdtemp(path.join(os.tmpdir(), 'tap-'));
   const lines = [];
-  const dry = await run({ env: {}, root, fetchImpl: registry(['aa-tool', 'bb-tool']), log: (l) => lines.push(l), outDir: out });
+  const dry = await run({ env: {}, root, fetchImpl: registry(['aa-tool', 'bb-tool']), log: (l) => lines.push(l), outDir: out, ...listed(['aa-tool', 'bb-tool', 'cc-tool']) });
   assert.deepEqual(dry, { written: 0, planned: 2 });
   assert.deepEqual(await fs.readdir(out), []);
   await fs.mkdir(path.join(out, 'Formula'));
   await fs.writeFile(path.join(out, 'Formula', 'aa-tool.rb'), 'keep');
-  const live = await run({ env: { DISTRIBUTE_HOMEBREW: 'true' }, root, fetchImpl: registry(['aa-tool', 'bb-tool']), log: () => {}, outDir: out });
+  const live = await run({ env: { DISTRIBUTE_HOMEBREW: 'true' }, root, fetchImpl: registry(['aa-tool', 'bb-tool']), log: () => {}, outDir: out, ...listed(['aa-tool', 'bb-tool', 'cc-tool']) });
   assert.deepEqual(live, { written: 1, planned: 1 });
   assert.equal(await fs.readFile(path.join(out, 'Formula', 'aa-tool.rb'), 'utf8'), 'keep');
   const bb = await fs.readFile(path.join(out, 'Formula', 'bb-tool.rb'), 'utf8');
@@ -65,6 +72,6 @@ test('dry run writes nothing; live run writes only packages already on npm and n
 test('caps new formulas per run', async () => {
   const slugs = Array.from({ length: MAX_PER_RUN + 3 }, (_, i) => `t${String.fromCharCode(97 + i)}-tool`);
   const root = await fixture(slugs);
-  const r = await run({ env: {}, root, fetchImpl: registry(slugs), log: () => {} });
+  const r = await run({ env: {}, root, fetchImpl: registry(slugs), log: () => {}, ...listed(slugs) });
   assert.equal(r.planned, MAX_PER_RUN);
 });
