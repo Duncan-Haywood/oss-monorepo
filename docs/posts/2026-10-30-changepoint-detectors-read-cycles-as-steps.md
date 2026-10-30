@@ -1,6 +1,8 @@
 ---
 title: A changepoint detector reads a cycle as 23 steps
 date: 2026-10-30
+tags: [changepoint-detector, false-alarms, time-series]
+description: "On real lynx and sunspot cycles a default changepoint detector finds 23 and 46 steps that are not there; --ar1 or a bootstrapped penalty removes them."
 ---
 
 Ask a default changepoint detector about the Canadian lynx trapping record, 1821 to 1934, and it finds 23 level
