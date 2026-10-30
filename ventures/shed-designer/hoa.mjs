@@ -15,6 +15,7 @@ import { paletteOf, finishName, SIDING_FINISHES, TRIM_FINISHES, DOOR_FINISHES, S
 import { buildSheets, sheetSvg } from './drawings.mjs';
 import { productById } from './products.mjs';
 import { LAP_PRODUCTS } from './lap.mjs';
+import { gambrelShape, bandAbove, zOnPoly, kneeRun } from './gambrel.mjs';
 
 /** @typedef {ReturnType<typeof import('./model.mjs').buildShed>} Shed */
 
@@ -95,8 +96,10 @@ export function packetSummary(shed) {
     ['Height to the peak', `${fmtFtIn(k.peak)} above the ground (top of the gravel or blocks)`],
     ['Height to the eave walls', `${fmtFtIn(k.plateTop)} above the ground; walls ${fmtFtIn(d.wallHeight)} floor to top of plates`],
     ['Floor height', `${fmtFtIn(k.floorTop)} above the ground`],
-    ['Roof', `gable, ${d.pitch}/12 pitch (${(Math.atan(d.pitch / 12) * 180 / Math.PI).toFixed(1)} degrees), ridge running the ${fmtFtIn(d.length)} length`],
-    ['Siding', d.siding ? `${look.label}, ${sidingFinish(d).name}${d.polkaDots ? ', with purple polka dots' : ''}` : 'none shown'],
+    ['Roof', d.style === 'gambrel'
+      ? `gambrel (barn), ${d.gambrelLower}/12 lower and ${d.pitch}/12 upper slopes (${(Math.atan(d.gambrelLower / 12) * 180 / Math.PI).toFixed(0)} and ${(Math.atan(d.pitch / 12) * 180 / Math.PI).toFixed(0)} degrees), the bend ${fmtIn(kneeRun(d))} in from each long wall, peak running the ${fmtFtIn(d.length)} length`
+      : `gable, ${d.pitch}/12 pitch (${(Math.atan(d.pitch / 12) * 180 / Math.PI).toFixed(1)} degrees), ridge running the ${fmtFtIn(d.length)} length`],
+    ['Siding', d.siding ? `${look.label}${LAP_PRODUCTS[d.sidingType] ? ` (${d.sidingType})` : ''}, ${sidingFinish(d).name}${d.polkaDots ? ', with purple polka dots' : ''}` : 'none shown'],
     ['Roofing', d.roofing ? (d.roofCover === 'metal' ? `corrugated metal, ${roofName(d)}` : `asphalt shingles, ${roofName(d)} colour family`) : 'none shown'],
     ['Trim', d.wallTrim === 'none' ? `fascia and rake boards, ${trimName(d)}; no corner boards or casings` : `1x4 corner boards and casings, fascia and rake boards, ${trimName(d)}`],
     ['Door finish', doorName(d) + (d.doorColor === 'stained' ? '' : ' paint')],
@@ -125,7 +128,13 @@ export function elevationSvg(shed, name) {
   // Top of the roof at a distance in from a wall face (negative is out over the eave), as drawings.mjs has it.
   const zt = (dist) => k.plateTop + (dist - k.stud) * tt + k.plumbH;
   const roofThick = (7 / 16 + (d.roofCover === 'metal' ? 0.6 : 0.35)) / cosA;
-  const roofTop = (dist) => zt(dist) + roofThick;
+  // A gambrel's roof line, and lines square to it: the roof's top, the bottom of its edge and of the rake board.
+  const gam = d.style === 'gambrel' ? gambrelShape(d, k.plateTop) : null;
+  const cover = 7 / 16 + (d.roofCover === 'metal' ? 0.6 : 0.35);
+  const gTop = gam ? bandAbove(gam, cover) : null;
+  const gEdge = gam ? bandAbove(gam, -0.75) : null;
+  const gRake = gam ? bandAbove(gam, -4.25) : null;
+  const roofTop = (dist) => (gTop ? zOnPoly(gTop, dist) : zt(dist) + roofThick);
   const eaveZ = roofTop(-o);
   const rakeOut = 1.5; // sheathing and rake board past the gable wall
   const fascia = 5.5;
@@ -150,10 +159,11 @@ export function elevationSvg(shed, name) {
   const P = (pts) => pts.map(([x, z]) => `${(+x).toFixed(2)},${Y(z)}`).join(' ');
 
   // Siding outline: a rectangle on an eave wall, a pentagon up to the rake board on a gable end.
-  const wallTop = eave ? k.plateTop : roofTop(0) - 3.5;
+  const wallTop = eave ? k.plateTop : gRake ? zOnPoly(gRake, 0) : roofTop(0) - 3.5;
   const outline = eave
     ? [[0, z0], [F, z0], [F, k.plateTop], [0, k.plateTop]]
-    : [[0, z0], [F, z0], [F, wallTop], [F / 2, k.peak - roofThick - 3.5 / cosA], [0, wallTop]];
+    : gRake ? [[0, z0], [F, z0], ...gRake.slice().reverse()]
+      : [[0, z0], [F, z0], [F, wallTop], [F / 2, k.peak - roofThick - 3.5 / cosA], [0, wallTop]];
   const clipId = `clip-${name}`;
   parts.push(`<defs><clipPath id="${clipId}"><polygon points="${P(outline)}"/></clipPath></defs>`);
   parts.push(`<polygon points="${P(outline)}" fill="${sid}" stroke="#333" stroke-width="0.5"/>`);
@@ -180,7 +190,8 @@ export function elevationSvg(shed, name) {
   if (eave) lines.push(`<rect x="0" y="${Y(k.plateTop)}" width="${F}" height="${(o + fascia).toFixed(2)}" fill="#000" fill-opacity="0.16"/>`);
   else {
     const dz = (rakeOut + 4) / cosA;
-    lines.push(`<polygon points="${P([[0, wallTop], [F / 2, k.peak - roofThick - 3.5 / cosA], [F, wallTop], [F, wallTop - dz], [F / 2, k.peak - roofThick - 3.5 / cosA - dz], [0, wallTop - dz]])}" fill="#000" fill-opacity="0.14"/>`);
+    const rake = gRake || [[0, wallTop], [F / 2, k.peak - roofThick - 3.5 / cosA], [F, wallTop]];
+    lines.push(`<polygon points="${P([...rake, ...rake.slice().reverse().map(([x, z]) => [x, z - dz])])}" fill="#000" fill-opacity="0.14"/>`);
   }
   parts.push(`<g clip-path="url(#${clipId})">${lines.join('')}</g>`);
   // Corner boards.
@@ -233,19 +244,22 @@ export function elevationSvg(shed, name) {
   }
   // Roof.
   if (eave) {
-    parts.push(`<rect x="${(-rakeOut).toFixed(2)}" y="${Y(eaveZ)}" width="${(F + 2 * rakeOut).toFixed(2)}" height="${fascia}" fill="${trim}" stroke="#555" stroke-width="0.4"/>`);
+    // No fascia on a gambrel: its lower slope meets the wall with no overhang.
+    if (!gam) parts.push(`<rect x="${(-rakeOut).toFixed(2)}" y="${Y(eaveZ)}" width="${(F + 2 * rakeOut).toFixed(2)}" height="${fascia}" fill="${trim}" stroke="#555" stroke-width="0.4"/>`);
     parts.push(`<polygon points="${P([[-rakeOut, eaveZ], [F + rakeOut, eaveZ], [F + rakeOut, k.peak], [-rakeOut, k.peak]])}" fill="${roofC}" stroke="#222" stroke-width="0.5"/>`);
     if (d.roofing && d.roofCover !== 'metal') {
       // Shingle courses (5" exposure along the slope), foreshortened by the view.
       // Architectural shingles are blends: tabs of uneven width, staggered
       // course to course, each a shade lighter or darker (the family's blend).
-      const step = 5 * Math.sin(Math.atan(tt));
+      // On a gambrel each slope foreshortens its courses differently.
+      const kneeZ = gam && gTop ? zOnPoly(gTop, gam.yk) : Infinity;
+      const stepAt = (z) => 5 * Math.sin(Math.atan(gam && z < kneeZ - 1e-9 ? d.gambrelLower / 12 : tt));
       const base = hexToRgb(roofC);
       const blend = paletteOf(d).roofBlend;
       const c = hex(shade(base, 0.7));
       const tabs = [];
-      for (let z = eaveZ, i = 0; z < k.peak - 0.3; z += step, i++) {
-        const zt2 = Math.min(k.peak, z + step);
+      for (let z = eaveZ, i = 0; z < k.peak - 0.3; z += stepAt(z), i++) {
+        const zt2 = Math.min(k.peak, z + stepAt(z));
         for (let x = -rakeOut - rand(i, 1) * 12, j = 0; x < F + rakeOut; j++) {
           const w = 9 + 6 * rand(i, j + 2);
           const xa = Math.max(-rakeOut, x); const xb = Math.min(F + rakeOut, x + w);
@@ -260,6 +274,11 @@ export function elevationSvg(shed, name) {
       const c = hex(shade(hexToRgb(roofC), 0.75));
       for (let x = 0; x < F; x += 2.67) parts.push(`<line x1="${x.toFixed(2)}" y1="${Y(eaveZ)}" x2="${x.toFixed(2)}" y2="${Y(k.peak)}" stroke="${c}" stroke-width="0.3"/>`);
     }
+    if (gam && gTop) parts.push(`<line x1="${-rakeOut}" y1="${Y(zOnPoly(gTop, gam.yk))}" x2="${F + rakeOut}" y2="${Y(zOnPoly(gTop, gam.yk))}" stroke="#222" stroke-width="0.6"/>`);
+  } else if (gTop && gEdge && gRake) {
+    // A gambrel's gable: the roof edge and the rake board below it follow both slopes.
+    parts.push(`<polygon points="${P([...gTop, ...gEdge.slice().reverse()])}" fill="${roofC}" stroke="#222" stroke-width="0.5"/>`);
+    parts.push(`<polygon points="${P([...gEdge, ...gRake.slice().reverse()])}" fill="${trim}" stroke="#555" stroke-width="0.4"/>`);
   } else {
     const band = roofThick + 0.75;
     parts.push(`<polygon points="${P([[-o, eaveZ], [F / 2, k.peak], [F + o, eaveZ], [F + o, eaveZ - band], [F / 2, k.peak - band / cosA], [-o, eaveZ - band]])}" fill="${roofC}" stroke="#222" stroke-width="0.5"/>`);
@@ -294,7 +313,9 @@ export function elevationSvg(shed, name) {
   const lx = x0 - fs * 2.2;
   vdim(lx, 0, k.floorTop, `floor ${fmtFtIn(k.floorTop)}`, 'floor', -1);
   // Pitch: a little triangle on the roof (gable ends) or a note above it (eave sides).
-  if (!eave) {
+  if (gam) {
+    dims.push(`<g class="dim pitch"><text x="${(F / 2).toFixed(2)}" y="${(Y(k.peak) - fs * 0.6).toFixed(2)}" text-anchor="middle" font-size="${fs}">${d.pitch}/12 roof pitch above the bend, ${d.gambrelLower}/12 below it (gambrel); peak ${fmtFtIn(k.peak)} up</text></g>`);
+  } else if (!eave) {
     const bx = F * 0.12; const bz = roofTop(F * 0.12) + fs * 2.2; const run = Math.max(12, F * 0.12);
     dims.push(`<g class="dim pitch"><polyline fill="none" points="${P([[bx, bz], [bx + run, bz], [bx + run, bz + run * tt]])}"/>`
       + `<text x="${(bx + run / 2).toFixed(2)}" y="${(Y(bz) + fs * 1.05).toFixed(2)}" text-anchor="middle" font-size="${fs * 0.9}">12</text>`

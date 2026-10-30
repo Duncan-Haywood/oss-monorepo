@@ -109,6 +109,7 @@ test('every labelled dimension says the length it spans, to 1/16"', () => {
 test('the rafter detail dimensions the board from long point to long point', () => {
   for (const { name, shed, sheets } of sets) {
     const sheet = sheets.find((s) => s.id === 'rafter');
+    if (shed.design.style === 'gambrel') { assert.ok(!sheet && sheets.some((s) => s.id === 'truss'), name); continue; }
     const d = sheet.items.find((it) => it.t === 'dim' && /cut length/.test(it.text || ''));
     assert.ok(Math.abs(Math.hypot(d.b[0] - d.a[0], d.b[1] - d.a[1]) - shed.dims.rafterCut) < 1 / 16, name);
   }
