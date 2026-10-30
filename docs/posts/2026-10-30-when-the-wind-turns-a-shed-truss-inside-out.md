@@ -2,7 +2,7 @@
 title: "When the wind turns a shed truss inside out"
 date: 2026-10-30
 tags: [shed-designer, wind, structure, trusses]
-description: "Under enough wind uplift a site-built truss's bottom chord stops pulling and starts pushing. An unbraced 8 ft 2x4 chord is too slender for that, so the shed designer now adds an $8 brace when the wind you set calls for it."
+description: "Under wind uplift a site-built truss chord stops pulling and starts pushing. Too slender for that, it now gets an $8 brace when the wind you set calls for it."
 ---
 
 The [shed designer](https://monorepo-projects-site.duncan-andrew-haywood.workers.dev/shed-designer/) can frame a shed's roof with site-built trusses: two top chords, a bottom chord and OSB gussets nailed on both faces. Until now every check on those trusses was a gravity check. Snow and the roof's own weight push the heels apart, the bottom chord is in tension, and the heel gussets are nailed for that pull.
