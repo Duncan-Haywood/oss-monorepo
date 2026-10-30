@@ -99,6 +99,18 @@ export function defaultDesign() {
     roofCover: 'shingles',
     rafterSeat: 'connector',
     maxFootprint: 100,
+    // Site plan, all in feet and typed by you (0 for none): the lot, where the
+    // shed sits on it (its front wall faces the street), the house, and the
+    // setback your town asks for. Nothing here changes the framing.
+    lotWidthFt: 0,
+    lotDepthFt: 0,
+    siteLeftFt: 0,
+    siteRearFt: 0,
+    houseWidthFt: 0,
+    houseDepthFt: 0,
+    houseLeftFt: 0,
+    houseFrontFt: 0,
+    setbackFt: 0,
     // Choices no search may change (keys of LOCKABLE in levers.mjs).
     locked: /** @type {string[]} */ ([]),
     kerf: 0.125,
@@ -222,6 +234,8 @@ export function normalize(input) {
     roofCover: pick(o.roofCover, ['shingles', 'metal'], d.roofCover),
     rafterSeat: pick(o.rafterSeat, ['birdsmouth', 'connector'], d.rafterSeat),
     maxFootprint: Math.min(1000, Math.max(0, num(o.maxFootprint, d.maxFootprint))),
+    ...Object.fromEntries(['lotWidthFt', 'lotDepthFt', 'siteLeftFt', 'siteRearFt', 'houseWidthFt', 'houseDepthFt', 'houseLeftFt', 'houseFrontFt', 'setbackFt']
+      .map((f) => [f, Math.min(2000, Math.max(0, num(o[f], d[f])))])),
     locked: Array.isArray(o.locked) ? [...new Set(o.locked.filter((k) => typeof k === 'string' && k in LOCKABLE))] : [],
     ventWidth: Math.min(36, Math.max(6, num(o.ventWidth, d.ventWidth))),
     ventHeight: Math.min(36, Math.max(6, num(o.ventHeight, d.ventHeight))),
@@ -342,6 +356,49 @@ function layoutCenters(spacing, lo, hi) {
  * Build the whole shed.
  * @param {Partial<Design>} input
  */
+/**
+ * Where the shed sits on the lot you typed, in inches from the front-left lot
+ * corner (x along the street, y back from it); the shed's front wall faces the
+ * street. Clearances are to the walls and, front and back, to the eave's drip
+ * line, since some towns measure a setback to the wall and some to the eave.
+ * Null when no lot is typed.
+ * @param {Design} d
+ */
+export function siteLayout(d) {
+  if (!(d.lotWidthFt > 0 && d.lotDepthFt > 0)) return null;
+  const lot = { w: d.lotWidthFt * 12, d: d.lotDepthFt * 12 };
+  const x0 = d.siteLeftFt * 12;
+  const y1 = lot.d - d.siteRearFt * 12;
+  const shed = { x0, x1: x0 + d.length, y0: y1 - d.width, y1 };
+  const o = d.overhang;
+  const clear = {
+    left: shed.x0, right: lot.w - shed.x1, front: shed.y0, rear: lot.d - shed.y1,
+    frontEave: shed.y0 - o, rearEave: lot.d - shed.y1 - o,
+  };
+  const house = d.houseWidthFt > 0 && d.houseDepthFt > 0
+    ? { x0: d.houseLeftFt * 12, x1: (d.houseLeftFt + d.houseWidthFt) * 12, y0: d.houseFrontFt * 12, y1: (d.houseFrontFt + d.houseDepthFt) * 12 }
+    : null;
+  // Nearest gap between the shed's walls and the house (0 when they overlap).
+  const gap = house ? Math.hypot(Math.max(0, house.x0 - shed.x1, shed.x0 - house.x1), Math.max(0, house.y0 - shed.y1, shed.y0 - house.y1)) : null;
+  return { lot, shed, overhang: o, clear, house, houseGap: gap, setback: d.setbackFt * 12 };
+}
+
+/** Site-plan problems worth a warning: off the lot, inside the setback you typed, or on top of the house. @param {Design} d */
+function siteWarnings(d) {
+  const site = siteLayout(d);
+  if (!site) return [];
+  const out = [];
+  const lines = /** @type {const} */ ([['left', 'left'], ['right', 'right'], ['front', 'street'], ['rear', 'rear']]);
+  const off = lines.filter(([k]) => site.clear[k] < -1e-9).map(([, name]) => name);
+  if (off.length) out.push(`On the site plan the shed runs past the ${off.join(' and ')} lot line${off.length > 1 ? 's' : ''}; check the lot size and where you placed it.`);
+  else if (site.setback > 0) {
+    const near = lines.filter(([k]) => Math.min(site.clear[k], k === 'front' ? site.clear.frontEave : k === 'rear' ? site.clear.rearEave : Infinity) < site.setback - 1e-9);
+    if (near.length) out.push(`On the site plan the shed (or its eave) is closer than your ${fmtFt(site.setback)} setback to the ${near.map(([, n]) => n).join(', ').replace(/, ([^,]*)$/, ' and $1')} lot line${near.length > 1 ? 's' : ''}.`);
+  }
+  if (site.house && site.houseGap !== null && site.houseGap < 1e-9) out.push('On the site plan the shed overlaps the house; check where you placed each.');
+  return out;
+}
+
 export function buildShed(input) {
   const d0 = normalize(input);
   // The page, the swaps, the options and the simplicity search rebuild the same
@@ -1367,6 +1424,7 @@ function buildFramed(d) {
   if (d.siding && d.studSpacing > 16 && (d.sidingType === 'T1-11' || d.sidingType === 'LP SmartSide')) {
     warnings.push(`${d.sidingType === 'T1-11' ? 'T1-11' : 'LP SmartSide 3/8"'} panels are rated for studs at 16" on centre; at ${d.studSpacing}" use the 7/16" LP panel, lap siding over OSB, or studs at 16".`);
   }
+  warnings.push(...siteWarnings(d));
   if (d.maxFootprint > 0 && (L * W) / 144 > d.maxFootprint + 1e-9) {
     warnings.push(`The footprint is ${((L * W) / 144).toFixed(0)} sq ft, over your ${d.maxFootprint} sq ft limit (often the size below which a shed needs no permit; check your local rule).`);
   }
