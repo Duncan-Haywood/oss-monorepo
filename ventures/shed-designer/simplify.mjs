@@ -15,7 +15,7 @@ import { structuralChecks } from './checks.mjs';
 import { connectionChecks } from './connections.mjs';
 import { BLOCKS } from './model.mjs';
 import { PRODUCTS } from './products.mjs';
-import { floorMoves } from './levers.mjs';
+import { floorMoves, searchKeep } from './levers.mjs';
 
 /**
  * Saw cuts the build needs. A board cut into n pieces takes n cuts (one fewer
@@ -134,7 +134,10 @@ function moves(d, base, resize, opts = {}) {
     set(d.floorPanel === 'OSB' ? 'plywood subfloor' : 'OSB subfloor', { floorPanel: d.floorPanel === 'OSB' ? 'plywood' : 'OSB' });
   }
   // Only when asked: a foot either way on the length or width, never below 85% of the floor asked for.
-  const kept = () => (opts.keep ? out.filter((m) => !Object.keys(m.change).some((k) => opts.keep.includes(k))) : out);
+  const keep = opts.keep || [];
+  const held = (m) => Object.keys(m.change).some((k) => keep.includes(k))
+    || (keep.includes('doors') && m.group.startsWith('door')) || (keep.includes('windows') && m.group === 'windows');
+  const kept = () => out.filter((m) => !held(m));
   if (!resize) return kept();
   for (const [k, dv] of /** @type {[string, number][]} */ ([['length', 12], ['length', -12], ['width', 12], ['width', -12]])) {
     const next = { ...d, [k]: d[k] + dv };
@@ -180,7 +183,7 @@ export function simplify(design, prices, opts = {}) {
     const steps = [];
     for (let i = 0; i < rounds; i++) {
       let best = null;
-      for (const mv of moves(cur.design, start, Boolean(opts.resize), opts)) {
+      for (const mv of moves(cur.design, start, Boolean(opts.resize), { ...opts, keep: [...(opts.keep || []), ...searchKeep(start)] })) {
         const r = get(normalize({ ...cur.design, ...mv.change }));
         if (!feasible(r)) continue;
         if (score(r) < score(best ? best.r : cur) - 0.5) best = { r, mv };
@@ -216,7 +219,9 @@ export function budget(design, prices, opts = {}) {
   const cost = (r) => r.total + r.timeCost;
   /** A step's saving, in all and split into materials and hours. */
   const step = (label, from, to) => ({ label, saving: Math.round((cost(from) - cost(to)) * 100) / 100, materials: Math.round((from.total - to.total) * 100) / 100, hours: Math.round((from.hours - to.hours) * 10) / 10 });
-  const keep = opts.keep ?? ['roofType', 'rafterSeat'];
+  // The structure you chose (offered back in `also`) and the choices you fixed (never touched).
+  const structural = opts.keep ?? ['roofType', 'rafterSeat'];
+  const keep = [...structural, ...searchKeep(start)];
   const base = evaluate(start, prices);
   /** @type {Map<string, any>} */
   const cache = new Map([[keyOf(start), base]]);
@@ -252,7 +257,7 @@ export function budget(design, prices, opts = {}) {
     cur = best.r;
   }
   // What the kept structure choices would save on top, each on its own.
-  const alsoKept = moves(cur.design, start, false, { products: true }).filter((mv) => Object.keys(mv.change).some((k) => keep.includes(k)))
+  const alsoKept = moves(cur.design, start, false, { products: true, keep: searchKeep(start) }).filter((mv) => Object.keys(mv.change).some((k) => structural.includes(k)))
     .map((mv) => ({ label: mv.label, r: get(normalize({ ...cur.design, ...mv.change })) }))
     .filter((x) => feasible(x.r) && cost(x.r) < cost(cur) - 0.5)
     .map((x) => ({ ...step(x.label, cur, x.r), cuts: x.r.cuts }));
