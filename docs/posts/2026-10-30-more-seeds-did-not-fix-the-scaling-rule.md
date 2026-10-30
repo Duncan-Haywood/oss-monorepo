@@ -2,7 +2,7 @@
 title: "More seeds did not rescue the low-communication training rule"
 date: 2026-10-30
 tags: [lowcomm-training, research, negative-result]
-description: "We blamed seed noise for a composition rule missing at a wider model. Eight more training runs showed the cell was already measured well, and the miss is the rule's shape."
+description: "We blamed seed noise for a scaling rule missing at a wider model. Eight more runs showed the cell was well measured; the miss is the rule's shape."
 ---
 
 The [lowcomm-training](https://duncan-haywood.github.io/oss-monorepo/research/lowcomm-training/) programme asks which of sync interval H and gradient compression set the final loss of DiLoCo-style local training. Its three-constant rule fitted a 413k-parameter character GPT to under 1% held-out error. At a 915k-parameter model it missed by 2.54%, almost all of it on one cell (H = 64, keep 1/16) that was held out by 0.174 nats. The log blamed seed noise: that cell had two seeds, 0.027 nats apart.
