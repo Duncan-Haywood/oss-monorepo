@@ -2,6 +2,15 @@
 
 Newest first.
 
+## 2026-10-30 · Milestone 3c: how much of 3a's penalty is open-centre, and how much is just the pump limit? (planned before running)
+- Why: 3a and 3b set load-sensing's cycle-time factor to 1.0 by construction. But a compensated valve also slows when the actuators' demands add to more than the 45 L/min pump flow. `experiments/flow_share_ls.py` charges LS `max(1, sum q / Q_pump)` per phase, floors open-centre at that, and reports open-centre cycle time over load-sensing cycle time. The PVG 32 bypass-versus-stroke data for fitting k is not reachable this session (Danfoss document URLs return 404/403), so k stays 1.
+- **Prediction (before running):** load-sensing's own median penalty is under 1% (most demands fit in the pump flow), and the net open-centre median at p_n 10.9 bar is within 1 point of 3a's 6.4% (prior 65%). Refuted if the LS median is 1% or more, or the net median differs from 6.4% by more than 1 point.
+
+### Outcome of 3c (`experiments/flow_share_ls.py`, `flow_share_ls_results.txt`, 2 s, seeded; 1 new test)
+- Load-sensing's own pump-limit penalty is **0.00%** (median and 95th percentile) at both neutral drops; across 5 x 300 sampled cycles no phase's summed demand exceeds the 45 L/min pump, so no phase was floored. Net open-centre over load-sensing: p_n 10.9 bar median **5.80%**, p95 21.62%; p_n 1.44 bar median 21.62%. **Prediction held** (LS median under 1%; 5.80% is within 1 point of 3a's 6.4%; the 5.80 is 3b's k = 1 row, 300 cycles per seed instead of 1,000).
+- Reading: 3a's "one-sided comparison" caveat is closed for the sampled cycles: the penalty is entirely the uncompensated open-centre valve's flow sharing, none of it a pump limit both circuits share. This holds only for the duty-cycle generator's demands (2d); a larger excavator task could exceed the pump.
+- Limits: unchanged from 3a/3b (k = 1, factor-2 stall bound, no feathering, no dynamics). k still needs the PVG 32 bypass-versus-stroke curve, not reachable this session.
+
 ## 2026-10-30 · Milestone 3b: is 3a's cycle-time penalty an artefact of the bypass closing law? (planned before running)
 - Why: 3a listed "one bypass shape (area closes linearly with section area)" as a limit. `flow_share.py` now takes k, the bypass area closed per unit of section area (k = 1 is 3a); `experiments/flow_share_shape.py` sweeps k = 0.5, 1, 1.5, 2, 3 at both sourced neutral drops, 5 seeds x 300 cycles (3a used 1,000 per seed, so the k = 1 row differs slightly from 3a).
 - **Prediction (before running):** the 3a median (6.4%) moves by more than a factor of 2 across k = 0.5 to 2: prior 70%. Refuted if it stays within 3.2% to 12.8%.
