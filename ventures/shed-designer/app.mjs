@@ -398,7 +398,7 @@ function renderStores(est, d) {
 }
 
 /** "3 x 8' boards" or "8' board". @param {{ count: number, stock: number }} b */
-const boardName = (b) => `${b.count > 1 ? `${b.count} x ` : ''}${b.stock / 12}' board${b.count > 1 ? 's' : ''}${b.why ? ` <span class="muted">(${esc(b.why)})</span>` : ''}`;
+const boardName = (b) => `${b.count > 1 ? `${b.count} x ` : ''}${b.stock / 12}' board${b.count > 1 ? 's' : ''}${/** @type {any} */ (b).why ? ` <span class="muted">(${esc(/** @type {any} */ (b).why)})</span>` : ''}`;
 
 function renderCuts(est) {
   let html = '';

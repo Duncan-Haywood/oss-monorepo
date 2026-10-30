@@ -41,13 +41,20 @@
       "issue": "PRESETS are factories (call p()), not designs; passing one to buildShed silently builds the default design, which made a first test pass vacuously."
     }
   ],
-  "deviations": [],
+  "deviations": [
+    {
+      "file": "ventures/shed-designer/model.mjs",
+      "why": "two tsc diagnostics red on main blocked the venture's typecheck step for every PR; one-line casts fixed here rather than waiting",
+      "did": "cast o.maxHaulFt and b.why to any",
+      "result": "typecheck 0 diagnostics"
+    }
+  ],
   "writeups": [
     "docs/posts/2026-10-30-where-a-sheds-money-goes.md",
     "docs/reports/shed-designer-round3-lane6.md"
   ],
   "goal": null,
-  "notes": "Local verification (runners starved): node --test *.test.mjs in ventures/shed-designer with Playwright and axe-core 4.13.0: 178 pass before the leave-out browser fix, then browser.test.mjs 22/22 and costs.test.mjs 7/7 after it. Palette validated with the dataviz validator (CVD dE 21.6, normal 32.3, contrast >=3:1 on #fffdf8). Screenshots (desktop, Pixel 7) and print PDF checked by eye.",
+  "notes": "Local verification (no check runs were scheduled on the PR; runners starved): after merging main at d5b92453, node --test *.test.mjs in ventures/shed-designer with Playwright and axe-core 4.13.0: 302 pass, 1 fail, 2 skipped. The one failure, renders.test.mjs 'every starting design has up-to-date pictures' (13 size-* renders stale), fails identically on origin/main and is left to the renders lane. node platform/pages/typecheck.mjs shed-designer: 3 diagnostics on origin/main (app.mjs b.why, model.mjs maxHaulFt), fixed here with casts; 0 now. run_workflow_locally --for-changes on the pre-merge head caught a tsc error in costs.test.mjs, fixed. Palette validated with the dataviz validator. Screenshots (desktop, Pixel 7) and print PDF checked by eye. Post and report numbers re-derived on the merged engine.",
   "corrections": [],
   "redteam": null
 }
