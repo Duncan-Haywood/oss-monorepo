@@ -37,7 +37,7 @@ Session: https://claude.ai/code/session_01XpHqydkF4sUA1mkqDAyNmJ, 2026-10-30.
 
 ## Verification
 
-- The venture's `node --test *.test.mjs` on each PR after merging `main`: 248, 315 and (this PR) the count in its body, with no failures. The skips are axe (axe-core is not installed here) and the opt-in full audit.
+- The venture's `node --test *.test.mjs` on each PR after merging `main`: 248, 315 and 316 on this PR, with no failures. The skips are axe (axe-core is not installed here) and the opt-in full audit.
 - `AUDIT_FULL=1` brute force: passes, with gaps of 0.3% to 2.4%.
 - For #11566, `ink.mjs --strict`, `siblings.mjs --check` and `webcheck/check_pages.mjs` were clean.
 - Each UI change was screenshotted at 1280 px and 390 px, with no console errors and no horizontal scroll.
