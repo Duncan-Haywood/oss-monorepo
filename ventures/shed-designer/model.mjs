@@ -20,6 +20,7 @@ import { lumberCostOf } from './estimate.mjs';
 import { productById } from './products.mjs';
 import { LAP_PRODUCTS, layoutFace, lapStocks, lapStagger } from './lap.mjs';
 import { bbox } from './integrity.mjs';
+import { pickFinish, SIDING_FINISHES, TRIM_FINISHES, DOOR_FINISHES, SHINGLE_FAMILIES } from './looks.mjs';
 import { LOCKABLE } from './levers.mjs';
 
 /** @typedef {[number, number, number]} Vec */
@@ -89,6 +90,7 @@ export function defaultDesign() {
     autoOverhang: true,
     roofColor: 'charcoal',
     trimColor: 'white',
+    doorColor: 'stained',
     glitter: false,
     interior: 'none',
     insulation: false,
@@ -205,13 +207,14 @@ export function normalize(input) {
     maxPeak: Math.min(240, Math.max(0, num(o.maxPeak, d.maxPeak))),
     snowLoad: Math.min(150, Math.max(0, num(o.snowLoad, d.snowLoad))),
     windLoad: Math.min(80, Math.max(0, num(o.windLoad, d.windLoad))),
-    sidingColor: pick(o.sidingColor, ['natural', 'unfinished', 'red', 'pink', 'hot pink', 'lavender', 'mint', 'gray', 'blue', 'green', 'white'], d.sidingColor),
+    sidingColor: pickFinish(o.sidingColor, SIDING_FINISHES, d.sidingColor),
     polkaDots: o.polkaDots === true,
     autoWall: o.autoWall === true,
     autoPitch: o.autoPitch === true,
     autoOverhang: o.autoOverhang === true,
-    roofColor: pick(o.roofColor, ['charcoal', 'brown', 'pink', 'purple', 'teal'], d.roofColor),
-    trimColor: pick(o.trimColor, ['white', 'purple', 'pink', 'black', 'gold'], d.trimColor),
+    roofColor: pickFinish(o.roofColor, SHINGLE_FAMILIES, d.roofColor, false),
+    trimColor: pickFinish(o.trimColor, TRIM_FINISHES, d.trimColor),
+    doorColor: pickFinish(o.doorColor, DOOR_FINISHES, d.doorColor),
     glitter: o.glitter === true,
     interior: pick(o.interior, ['none', 'OSB', 'plywood', 'drywall', 'beadboard', 'pegboard', 'teen bedroom'], d.interior),
     insulation: o.insulation === true,

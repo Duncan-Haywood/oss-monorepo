@@ -107,7 +107,7 @@ At the starting prices that design is 151 pieces from 84 boards. The cut sheet's
 - **Defaults as built.** The starter now has a door built from the siding (no prehung door), the 14 x 21 shed window Home Depot sells, and solid blocks on tamped soil with no crushed stone; gravel under the blocks or a full pad are options. Connectors and ridge hangers show in the 3D view.
 - **Faster builds.** The automatic pitch is a binary search (the peak and the gable's room for a vent both rise with pitch), the automatic overhang re-prices only the materials whose cut list changes, and recent builds are cached, so a fresh build takes about 13 ms instead of 46 and re-pricing the swaps on each edit about 7 ms instead of 192.
 - **More measurements in 3D.** Besides length, width and heights: every door and window's rough width and height, its distance from the corner, each window's sill height, the floor height, the overhang and the roof pitch and slope length. Labels on walls facing away are hidden.
-- **Looks.** Siding, roof and trim colours, polka dots and a glitter finish. The siding paint (two coats, 350 sq ft a gallon) and glitter packets are added to the list. A "teen bedroom" interior adds pink paneling, generic poster art of an invented band, string lights, a rug and a beanbag. The big poster can show a picture you upload, which stays in your browser. "Look inside" opens the front wall.
+- **Looks.** Siding, trim and door paint in generic house colours (white, cream, greige, sage, navy, charcoal and more) or any colour from the picker beside each list; asphalt shingle colour families with tab-to-tab blend; lap, T1-11 and board-and-batten textures; a lawn, sky and soft shadow; and a Presentation button (no board outlines or dimension lines, a lower three-quarter view) for a neighbour or an HOA. Colours live in `looks.mjs`; the shader is compiled once per material class so a phone on software GL stays quick (`docs/posts/2026-10-30-making-a-shed-look-like-the-house.md`). Polka dots and a glitter finish too. The siding paint (two coats, 350 sq ft a gallon) and glitter packets are added to the list. A "teen bedroom" interior adds pink paneling, generic poster art of an invented band, string lights, a rug and a beanbag. The big poster can show a picture you upload, which stays in your browser. "Look inside" opens the front wall.
 
 ## What it does not do
 
@@ -134,6 +134,7 @@ Serve this folder as static files, for example `python3 -m http.server` here, th
 | `drawings.mjs` | plan sheets as primitives, rendered to SVG and DXF |
 | `hoa.mjs`, `hoa-page.mjs`, `hoa-packet.html` | the HOA packet: coloured, dimensioned elevations, a summary of size and finishes, the site plan; printed to PDF by the browser |
 | `render3d.mjs` | WebGL viewer and ear-clipping triangulation |
+| `looks.mjs` | Paint, trim, door and shingle colour families, custom hex colours |
 | `editor.mjs` | drag editing of the plan and end view |
 | `checks.mjs`, `structure.mjs` | structural checks (NDS, SPF No. 2) |
 | `utilisation.mjs`, `utilisation-sheets.mjs`, `utilisation-ui.mjs` | each member's use of capacity written out, the target-margin report, the heat map in 3D and on the framing plans |

@@ -9,6 +9,7 @@ import { catalogueRange, productById } from './products.mjs';
 import { optimizeCuts } from './optimize.mjs';
 import { heelJoint } from './checks.mjs';
 import { LAP_PRODUCTS, lapStocks } from './lap.mjs';
+import { finishName, SIDING_FINISHES } from './looks.mjs';
 
 /** @typedef {import('./model.mjs').Shed} Shed */
 /** @typedef {{ lumber: Record<string, Record<string, number>>, items: Record<string, number>, delivery?: Record<string, number> }} Prices */
@@ -283,7 +284,7 @@ export function estimate(shed, prices = examplePrices()) {
     if (type !== 'vinyl' && d.sidingColor !== 'unfinished') {
       // Two coats: 350 sq ft per gallon for paint, 300 for solid stain (typical label coverage).
       const stain = d.sidingColor === 'natural';
-      line('Paint', stain ? label('stain') : `${label('paint')} (${d.sidingColor})`, Math.ceil((area * 2) / (stain ? 300 : 350)), 'gallon', item(stain ? 'stain' : 'paint'), src(stain ? 'stain' : 'paint'));
+      line('Paint', stain ? label('stain') : `${label('paint')} (${finishName(d.sidingColor, SIDING_FINISHES)})`, Math.ceil((area * 2) / (stain ? 300 : 350)), 'gallon', item(stain ? 'stain' : 'paint'), src(stain ? 'stain' : 'paint'));
       if (d.glitter) line('Paint', label('glitter'), Math.ceil((area * 2) / 350), 'packet', item('glitter'), src('glitter'));
       if (d.polkaDots) line('Paint', `${label('accentPaint')} (purple, for the polka dots)`, 1, 'quart', item('accentPaint'), src('accentPaint'));
     }

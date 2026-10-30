@@ -9,6 +9,7 @@ import { fmtIn, fmtFtIn } from './lumber.mjs';
 import { WALL_LABEL } from './model.mjs';
 import { heelJoint } from './checks.mjs';
 import { lapSteps } from './lap.mjs';
+import { finishName, SIDING_FINISHES } from './looks.mjs';
 
 /** @typedef {{ title: string, why?: string, steps: string[], check?: string[] }} Section */
 
@@ -278,7 +279,7 @@ export function buildInstructions(shed, est) {
     out.push({
       title: 'Paint',
       steps: [
-        `Prime bare wood and T1-11 with an exterior primer, then two coats of exterior paint (${d.sidingColor}).`,
+        `Prime bare wood and T1-11 with an exterior primer, then two coats of exterior paint (${finishName(d.sidingColor, SIDING_FINISHES)}).`,
         d.polkaDots ? 'Polka dots: make a 3" circle stencil. Snap chalk lines 9" apart up the wall and dab a dot every 9" along each line, shifting every other row by 4-1/2" so they stagger. Use the purple accent paint and a foam pouncer.' : '',
         d.glitter ? 'Glitter: stir a packet of paint glitter into each gallon of the final coat, or dust it onto the wet final coat, and keep stirring as you paint so it does not settle.' : '',
       ].filter(Boolean),
