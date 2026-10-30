@@ -382,16 +382,33 @@ export function estimate(shed, prices = examplePrices()) {
       const keys = type === 'T1-11' ? ['siding8', 'siding9', 'siding10'] : type === 'LP SmartSide' ? ['lpPanel', 'lpPanel9', 'lpPanel10'] : ['lpPanel76', 'lpPanel76x9', 'lpPanel76x10'];
       [96, 108, 120].forEach((len, i) => line('Siding', label(keys[i]), by[len], 'sheet', item(keys[i]), src(keys[i])));
       // The panel rule makes the price jump about as the walls rise: a column that
-      // outgrows a 10 ft panel switches to a 4x8 with a strip above it, which is
-      // often cheaper. Say so, with the prices, so a dip is not taken for a bug.
+      // outgrows a 10 ft panel switches to a 4x8 with a strip above it, which can
+      // be cheaper. Price the next few wall steps the same way (every column rises
+      // with the walls; strips counted unnested, an upper bound) and say so
+      // only when one of them makes the siding cheaper, with the numbers.
       const tall = shed.sidingFull.filter((x) => x.length > 96).length;
       const strips = shed.sidingUpper.length;
-      if (tall || strips) {
-        const [p8, p9, p10] = keys.map((k) => `$${Number(item(k)).toFixed(2)}`);
-        notes.push(`Siding: each 4 ft column takes the shortest panel that reaches its top (4x8 ${p8}, 4x9 ${p9}, 4x10 ${p10}); `
+      const needs = shed.sidingFull.map((x) => x.need).filter((x) => Number.isFinite(x));
+      const [p8, p9, p10] = keys.map((k) => Number(item(k)));
+      const sidingAt = (dz) => {
+        let t = 0;
+        const up = [];
+        for (const h of needs) {
+          const n = h + dz;
+          if (n <= 96 + 1e-9) t += p8; else if (n <= 108 + 1e-9) t += p9; else if (n <= 120 + 1e-9) t += p10; else { t += p8; up.push(Math.ceil(n - 96)); }
+        }
+        return t + sheetCount(up) * p8;
+      };
+      const steps = [...new Set(needs.flatMap((h) => [96, 108, 120].map((s) => Math.ceil((s - h + 0.01) * 2) / 2)).filter((dz) => dz > 0 && dz <= 12))].sort((a, b) => a - b);
+      // Now: the panels as bought (strips nested where they nest), so a claimed saving is never flattered.
+      const now = [96, 108, 120].reduce((t, len, i) => t + by[len] * [p8, p9, p10][i], 0);
+      const best = steps.map((dz) => ({ dz, cost: sidingAt(dz) })).reduce((a, b) => (b.cost < a.cost - 0.005 ? b : a), { dz: 0, cost: now });
+      if ((tall || strips) && needs.length === shed.sidingFull.length && best.dz > 0 && now - best.cost >= 1) {
+        const fmt = (x) => `$${x.toFixed(2)}`;
+        notes.push(`Siding: each 4 ft column takes the shortest panel that reaches its top (4x8 ${fmt(p8)}, 4x9 ${fmt(p9)}, 4x10 ${fmt(p10)}); `
           + `a column taller than 10 ft takes a 4x8 with a strip cut from another 4x8 above it, Z-flashed at the joint. `
           + `Here ${[tall && `${tall} use a 9 or 10 ft panel`, strips && `${strips} use a strip`].filter(Boolean).join(' and ')} (of ${shed.sidingFull.length} columns). `
-          + `Because the taller panels cost more, a few inches more wall can make the siding cheaper when it tips a column into the 4x8-and-strip layout.`);
+          + `Walls ${fmtIn(best.dz)} taller would tip columns into the 4x8-and-strip layout and make the siding panels about ${fmt(now - best.cost)} cheaper (the framing, trim and paint cost a little more), so a dip in price as the walls rise is not a bug.`);
       }
     } else {
       // Lap and board-and-batten siding go over OSB sheathing.
@@ -515,7 +532,7 @@ export function estimate(shed, prices = examplePrices()) {
   for (const op of d.openings) {
     if (op.product === 'site-built' || productById(op.product)) continue;
     const what = `${op.kind === 'door' ? 'Door' : 'Window'} ${fmtIn(op.width)} x ${fmtIn(op.height)} on the ${WHERE[`wall:${op.wall}`] || op.wall}`;
-    const r = catalogueRange(op.kind, op.width);
+    const r = catalogueRange(op.kind, op.width, op.height);
     const range = r ? `typical range $${r.lo.toFixed(2)} to $${r.hi.toFixed(2)} across the ${r.n} ${r.group} in our catalogue` : '';
     if (r && d.customRange && shed.framedOpenings.some((f) => f.id === op.id)) {
       line('Doors and windows', `${what}, custom size: ${range}, counted at the median`, 1, 'each', r.median,

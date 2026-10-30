@@ -688,7 +688,7 @@ function buildFramed(d) {
   const members = [];
   /** @type {{ id: string, kind: string, item: string, geom: Geom, group: string, wall?: string, side?: string, pos?: number[], course?: number, face?: [number, number][], where?: string }[]} */
   const panels = [];
-  /** @type {{ kind: string, geom: Geom, group: string, tex?: string, from?: number, bottom?: number }[]} */
+  /** @type {{ id?: string, kind: string, geom: Geom, group: string, op?: string, tex?: string, from?: number, bottom?: number }[]} */
   const fixtures = [];
   /** @type {string[]} */
   const warnings = [];
@@ -978,7 +978,7 @@ function buildFramed(d) {
     const headerBreaks = [];
     for (const p of ops) {
       const fixture = () => fixtures.push({
-        kind: p.op.kind, group: `wall:${name}`, from: spec.start + p.a, bottom: p.bottom,
+        kind: p.op.kind, group: `wall:${name}`, op: p.op.id, from: spec.start + p.a, bottom: p.bottom,
         geom: rectGeom(add(add(spec.base, spec.axis, p.a), Z, p.bottom), spec.axis, Z, neg(spec.w), p.w, p.op.height, d.siding ? 1.0 : 0.4),
       });
       if (p.bay) {
@@ -1821,7 +1821,7 @@ function buildFramed(d) {
   const lapSpec = lapBase && { ...lapBase, exposure: /** @type {number} */ (lapExposure) };
   const sheathT = 7 / 16;
   const sidingT = lapSpec ? sheathT + 2 * lapSpec.thickness : d.sidingType === 'LP SmartSide' ? 3 / 8 : d.sidingType === 'LP SmartSide 7/16' ? 7 / 16 : 19 / 32;
-  /** @type {{ wall: string, length: number }[]} */
+  /** @type {{ wall: string, length: number, need?: number }[]} */
   const sidingFull = [];
   /** @type {number[]} */
   const sidingUpper = [];
@@ -1848,9 +1848,9 @@ function buildFramed(d) {
         prof.push([s0, clip(s0)]);
         const need = Math.max(...prof.map((p) => p[1])) - bottomZ;
         const sheet = sheetFor(need);
-        if (sheet) sidingFull.push({ wall: name, length: sheet });
+        if (sheet) sidingFull.push({ wall: name, length: sheet, need });
         else {
-          sidingFull.push({ wall: name, length: 96 });
+          sidingFull.push({ wall: name, length: 96, need });
           sidingUpper.push(Math.ceil(need - 96));
           const above = (x) => Math.max(0, clip(x) - bottomZ - 96);
           sidingUpperShapes.push({ h0: above(s0), h1: above(s1), peak: prof.length > 4 });
@@ -1983,14 +1983,30 @@ function buildFramed(d) {
       warnings.push(`The site-built ${fmtIn(op.width)} x ${fmtIn(op.height)} door on the ${wallLabel(d, op.wall).toLowerCase()} wall makes ${leaves > 1 ? 'leaves' : 'a leaf'} ${fmtIn(w)} wide and ${fmtIn(h)} tall, so its Z brace runs at ${braceAngle.toFixed(0)} deg and will not keep the door from sagging; it works best between about 30 and 60 deg. ${braceAngle < 25 ? 'Make the door taller or narrower' : 'Make the door wider'}, or choose a ready-made door.`);
     }
     // Pieces that are the same in both leaves and in every rail position share one note, so they share a part mark.
+    // Each piece is drawn too, laid flat on the back of the door in its opening,
+    // so the parts list can point at it in 3D.
+    const slab = fixtures.find((f) => f.op === op.id);
+    const frameAt = (profile) => (slab ? { origin: slab.geom.origin, u: slab.geom.u, v: slab.geom.v, w: neg(slab.geom.w), profile, thickness: 1.5 } : undefined);
+    const box = (u0, v0, lu, lv) => frameAt([[u0, v0], [u0 + lu, v0], [u0 + lu, v0 + lv], [u0, v0 + lv]]);
     for (let i = 0; i < leaves; i++) {
       const tag = `door ${op.id}`;
-      const part = (kind, length, note) => doorParts.push({ id: nextId('DR'), group: 'door', kind, material: '2x4', length: Math.ceil(length * 8) / 8, note: `${tag}: ${note}` });
-      part('door stile', h, 'laid flat, full height');
-      part('door stile', h, 'laid flat, full height');
-      for (let r = 0; r < 3; r++) part('door rail', railLen, 'top, middle and bottom rails between the stiles');
-      part('door brace', braceLen + 3.5, `Z brace, ends cut at ${braceAngle.toFixed(0)} deg to fit between rails, low end at the hinge side`);
-      part('door brace', braceLen + 3.5, `Z brace, ends cut at ${braceAngle.toFixed(0)} deg to fit between rails, low end at the hinge side`);
+      const part = (kind, length, note, geom) => doorParts.push({ id: nextId('DR'), group: 'door', kind, material: '2x4', length: Math.ceil(length * 8) / 8, note: `${tag}: ${note}`, ...(geom ? { geom } : {}) });
+      const u0 = 0.25 + i * (w + 0.25);
+      const v0 = 0.25;
+      part('door stile', h, 'laid flat, full height', box(u0, v0, 3.5, h));
+      part('door stile', h, 'laid flat, full height', box(u0 + w - 3.5, v0, 3.5, h));
+      for (let r = 0; r < 3; r++) part('door rail', railLen, 'top, middle and bottom rails between the stiles', box(u0 + 3.5, v0 + r * (3.5 + bay), railLen, 3.5));
+      // A brace fills its bay corner to corner; the low end is at the hinge side
+      // (the outer edge of each leaf: left on the first, right on a pair's second).
+      const dx = 3.5 / Math.sin(Math.atan2(bay, railLen));
+      const a = u0 + 3.5;
+      const b = a + railLen;
+      for (let k = 0; k < 2; k++) {
+        const y0 = v0 + 3.5 + k * (3.5 + bay);
+        const y1 = y0 + bay;
+        const pts = /** @type {[number, number][]} */ (i === 0 ? [[a, y0], [a + dx, y0], [b, y1], [b - dx, y1]] : [[b - dx, y0], [b, y0], [a + dx, y1], [a, y1]]);
+        part('door brace', braceLen + 3.5, `Z brace, ends cut at ${braceAngle.toFixed(0)} deg to fit between rails, low end at the hinge side`, frameAt(pts));
+      }
     }
   }
 
@@ -2040,6 +2056,9 @@ function buildFramed(d) {
     const low = buildFramed(normalize({ ...d, wallHeight: minWall, pitch: 3, maxPeak: 0, autoWall: false, autoPitch: false })).dims.peak;
     warnings.push(`The peak is ${fmtFt(dims.peak)} above the gravel, ${fmtFt(dims.peak - d.maxPeak)} over your ${fmtFt(d.maxPeak)} limit. Your tallest opening needs walls of at least ${fmtFt(minWall)}; with those walls and a 3/12 roof (about the least that sheds water under shingles) the peak would still be ${fmtFt(low)}. To get lower: a shorter door, ${lean ? 'a door in an end wall or the low back wall' : 'a door in the gable end'}, a lower floor or a narrower shed${d.gableVents && !lean ? ', or smaller or no gable vents (they need a steeper roof to fit)' : ''}.`);
   }
+
+  // Every fixture gets an id too, so the 3D view can pick and highlight it.
+  for (const f of fixtures) f.id ??= nextId('FX');
 
   return { design: d, members, panels, fixtures, walls, framedOpenings, warnings, notes, dims, vents: ventInfo, trim, wallTrim, doorParts, doors, interior, sidingArea, floorPieces, roofPieces, sidingFull, sidingUpper, sidingUpperShapes, lap, lapExposure, sidingStudLimit: lapStudLimit(d) };
 }
