@@ -1,0 +1,36 @@
+# One-click self-deploy: https://render.com/deploy?repo=<your fork URL>
+# Render builds the Dockerfile in YOUR account; nothing runs on the author's.
+# Starter plan on purpose: the free plan has no disk, so leads would vanish on restart.
+# Render generates ADMIN_KEY and CAL_TOKEN; read them in the service's Environment tab.
+services:
+  - type: web
+    name: babysitting-desk
+    runtime: docker
+    dockerContext: ventures/babysitting-business-kit
+    dockerfilePath: ventures/babysitting-business-kit/Dockerfile
+    plan: starter
+    healthCheckPath: /healthz
+    disk:
+      name: state
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      - key: ADMIN_KEY
+        generateValue: true
+      - key: CAL_TOKEN
+        generateValue: true
+      - key: TZ
+        value: America/Chicago
+      # Optional, your own accounts (see README): leave blank to keep them off
+      - key: NOTIFY_WEBHOOK_URL
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: FROM_EMAIL
+        sync: false
+      - key: NOTIFY_EMAIL
+        sync: false
+      - key: AUTO_REPLY
+        value: "0"
+      - key: AUTO_FOLLOW_UP
+        value: "0"

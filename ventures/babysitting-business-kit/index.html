@@ -1,0 +1,580 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23b0507a'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EB%3C/text%3E%3C/svg%3E">
+  <title>Babysitting Business Kit: free app to run a babysitting business (leads, schedule, taxes, references, website)</title>
+  <meta name="description" content="Free app for babysitters who run their own business: score and answer inquiries, quote and schedule sits without double-booking, track who has paid, set aside self-employment tax with quarterly due dates, collect references and testimonials with consent, build your own babysitting website and plan posts. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Babysitting Business Kit: free, private, in your browser">
+  <meta property="og:description" content="Leads, scheduling, payments, taxes, references and a website for a one-person babysitting business.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Babysitting Business Kit","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser; optional Node 22 server","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"A free, open-source back office for a one-person babysitting business: lead scoring and reply drafts, rate quotes, a schedule with double-booking and travel-gap checks, a calendar feed, unpaid-sit reminders, self-employment tax set-aside with quarterly due dates, year-end child care statements for families, reference and testimonial tracking with consent, a generated marketing website and a content calendar.","featureList":"babysitter lead tracker, babysitting rate quote, babysitter schedule, babysitting taxes, quarterly estimated tax, child care receipt for Form 2441, babysitter references, babysitting website builder, babysitting marketing ideas"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Do babysitters have to pay taxes?","acceptedAnswer":{"@type":"Answer","text":"Yes, in the US babysitting income is taxable, cash included. A babysitter who runs their own business reports it on Schedule C, and once net profit reaches $400 for the year also owes self-employment tax (15.3% on 92.35% of profit, for Social Security and Medicare) on Schedule SE. This app adds up what you were paid, subtracts expenses and mileage, and suggests how much to set aside and when the quarterly estimated payments are due."}},{"@type":"Question","name":"Am I self-employed or a household employee?","acceptedAnswer":{"@type":"Answer","text":"It depends on who controls the work. A sitter who sets their own rates and schedule and works for many families is usually self-employed. If one family controls how and when you work in their home, the IRS can treat you as that family's household employee (Publication 926), and once they pay you $3,000 or more in 2026 they owe household employment taxes and give you a W-2. The app flags any family that crosses that line so you can talk it through."}},{"@type":"Question","name":"What do families need from me for the child care tax credit?","acceptedAnswer":{"@type":"Answer","text":"To claim the child and dependent care credit on Form 2441, or to be reimbursed from a dependent-care FSA, parents need your name, address and taxpayer ID, and the amount they paid. The app prints a year-end statement per family with every payment. A free EIN from the IRS lets you give a taxpayer ID without sharing your Social Security number."}},{"@type":"Question","name":"How do I decide which babysitting inquiries to take?","acceptedAnswer":{"@type":"Answer","text":"Set your own limits once (how far you travel, how many children, the youngest age you take, your availability and rate) and the app scores each inquiry against them, says why, and drafts a reply: a warm yes with your rates for a good fit, or a kind no for one that does not fit. Recurring work and referrals score higher because they book more often."}},{"@type":"Question","name":"How do I ask families for references and testimonials?","acceptedAnswer":{"@type":"Answer","text":"The References tab drafts the request, reminds you to follow up after five days, and keeps a separate yes or no for whether a quote may appear on your website. Only quotes marked yes are ever put on the site the app builds, shown with first name and last initial."}},{"@type":"Question","name":"Is my families' information uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"Not by this page. Families, kids, allergies and payments stay in this browser's storage and in the backup file you download. If you choose to run the optional server on your own hosting account, the app syncs to it with your own admin key, and your website's inquiry form posts to it."}}]}</script>
+  <style>
+    :root { --ink:#2b2433; --soft:#5f5669; --accent:#9b3f68; --accent2:#f6e7ee; --bg:#fbf7f4; --card:#fff; --line:#e8ded8; --ok:#1d5a24; --warn:#7c5e10; --bad:#7d1f16; font: 16px system-ui, sans-serif; color: var(--ink); background: var(--bg); }
+    body { max-width: 1060px; margin: auto; padding: 22px; }
+    a { color: var(--accent); }
+    h1 { font-size: clamp(1.7rem, 4.5vw, 2.5rem); line-height: 1.1; margin: 0 0 10px; }
+    h2 { font-size: 1.2rem; margin: 0 0 10px; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .87rem; color: var(--soft); }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px; margin: 16px 0; }
+    nav { display: flex; flex-wrap: wrap; gap: 6px; margin: 14px 0; position: sticky; top: 0; background: var(--bg); padding: 8px 0; z-index: 2; }
+    nav button { margin: 0; background: var(--accent2); color: var(--accent); }
+    nav button[aria-selected="true"] { background: var(--accent); color: #fff; }
+    label { display: block; font-weight: 600; margin: 10px 0 3px; font-size: .92rem; }
+    input, select, textarea { width: 100%; box-sizing: border-box; padding: 8px 9px; border: 1px solid #a99aa6; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input[type=checkbox] { width: auto; }
+    textarea { min-height: 70px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 0 14px; }
+    button { border: 0; border-radius: 8px; padding: 9px 14px; background: var(--accent); color: #fff; font-weight: 700; cursor: pointer; margin: 12px 8px 0 0; font-size: .92rem; }
+    button.secondary { background: var(--accent2); color: var(--accent); }
+    button.small { padding: 4px 9px; margin: 2px; font-size: .8rem; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: .93rem; }
+    th, td { text-align: left; padding: 7px 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th { font-size: .76rem; text-transform: uppercase; letter-spacing: .03em; color: var(--soft); }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .pill { display: inline-block; font-size: .7rem; font-weight: 700; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; }
+    .hot, .good { background: #dcefdc; color: var(--ok); } .warm { background: #fdf0d5; color: var(--warn); } .cool { background: #e3e9ef; color: #1f4a5d; } .decline, .bad { background: #f8d9d6; color: var(--bad); }
+    .msg { white-space: pre-wrap; background: #faf5f8; border-left: 3px solid var(--accent); padding: 8px 10px; margin: 6px 0; font-size: .92rem; }
+    .stat { display: inline-block; min-width: 140px; margin: 6px 16px 6px 0; } .stat b { display: block; font-size: 1.35rem; }
+    [hidden] { display: none !important; }
+    iframe { width: 100%; height: 520px; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
+    @media (max-width: 720px) { body { padding: 14px; } table { font-size: .85rem; } }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Babysitting Business Kit</h1>
+    <p>The back office for a one-person babysitting business: answer the right inquiries first, quote and schedule sits without double-booking, know who still owes you, set aside the right amount for taxes, collect references, and publish your own website. Free, and it runs in your browser. <a href="#about">How it works</a> · <a href="babysitting-taxes.html">Babysitting taxes, explained</a></p>
+    <p class="note" id="firstrun">Your data is saved in this browser. Download a backup in <strong>Settings</strong> now and then. <button type="button" class="secondary small" id="loadExample">Load an invented example</button></p>
+  </header>
+
+  <nav role="tablist" aria-label="Sections">
+    <button type="button" role="tab" data-tab="today">Today</button>
+    <button type="button" role="tab" data-tab="leads">Leads</button>
+    <button type="button" role="tab" data-tab="families">Families</button>
+    <button type="button" role="tab" data-tab="schedule">Schedule</button>
+    <button type="button" role="tab" data-tab="money">Money &amp; taxes</button>
+    <button type="button" role="tab" data-tab="references">References</button>
+    <button type="button" role="tab" data-tab="website">Website</button>
+    <button type="button" role="tab" data-tab="content">Content</button>
+    <button type="button" role="tab" data-tab="settings">Settings</button>
+  </nav>
+
+  <main>
+    <section data-panel="today" class="card">
+      <h2>Today</h2>
+      <p class="note">New inquiries and follow-ups, unpaid sits, references to chase, families to invite back, tax deadlines and tomorrow's sits, most urgent first. Copy the drafted message, send it the way you normally do, then mark it done.</p>
+      <div id="todayList"></div>
+    </section>
+
+    <section data-panel="leads" class="card" hidden>
+      <h2>Leads</h2>
+      <p class="note">Each inquiry is scored against your own limits in Settings (distance, number and age of children, availability, rate). A family's beliefs are never scored; asking for faith-based activities only counts as a match when you offer them.</p>
+      <form id="leadForm" data-kind="leads">
+        <div class="grid">
+          <div><label for="l_name">Parent's name</label><input id="l_name" name="name" required></div>
+          <div><label for="l_contact">Phone or email</label><input id="l_contact" name="contact"></div>
+          <div><label for="l_kids">Children's ages (4, 18 months)</label><input id="l_kids" name="kids"></div>
+          <div><label for="l_schedule">When (Fri 18-23; Mon-Thu 15-18)</label><input id="l_schedule" name="schedule"></div>
+          <div><label for="l_wants">One-time or regular?</label><input id="l_wants" name="wants" placeholder="date nights, weekly after school"></div>
+          <div><label for="l_source">How they found you</label><input id="l_source" name="source" placeholder="referral, church, Nextdoor"></div>
+          <div><label for="l_distance">Miles away</label><input id="l_distance" name="distanceMiles" type="number" step="0.1" min="0"></div>
+          <div><label for="l_budget">Their budget ($/hour)</label><input id="l_budget" name="budget" type="number" step="0.5" min="0"></div>
+          <div><label for="l_status">Status</label><select id="l_status" name="status"><option>new</option><option>contacted</option><option>meet-and-greet</option><option>booked</option><option>lost</option><option>declined</option></select></div>
+          <div><label for="l_created">Received</label><input id="l_created" name="created" type="date"></div>
+        </div>
+        <label><input type="checkbox" name="faithActivities"> They asked for faith-based activities</label>
+        <label for="l_notes">Notes</label><textarea id="l_notes" name="notes"></textarea>
+        <button type="submit">Save lead</button><button type="reset" class="secondary">Clear</button>
+      </form>
+      <div id="leadsList"></div>
+    </section>
+
+    <section data-panel="families" class="card" hidden>
+      <h2>Families</h2>
+      <form id="familyForm" data-kind="families">
+        <div class="grid">
+          <div><label for="f_name">Family name</label><input id="f_name" name="name" required placeholder="Rivera family"></div>
+          <div><label for="f_contactName">Parent</label><input id="f_contactName" name="contactName"></div>
+          <div><label for="f_contact">Phone or email</label><input id="f_contact" name="contact"></div>
+          <div><label for="f_address">Address</label><input id="f_address" name="address"></div>
+          <div><label for="f_emergency">Emergency contact</label><input id="f_emergency" name="emergency"></div>
+        </div>
+        <label for="f_kids">Kids, one per line: name, birth date, allergies or notes</label>
+        <textarea id="f_kids" name="kidsText" placeholder="Leo, 2021-04-02&#10;Mia, 2023-09-10, peanut allergy (EpiPen in diaper bag)"></textarea>
+        <label for="f_notes">House notes (bedtimes, screen rules, pets, door code hint)</label><textarea id="f_notes" name="notes"></textarea>
+        <button type="submit">Save family</button><button type="reset" class="secondary">Clear</button>
+      </form>
+      <div id="familiesList"></div>
+    </section>
+
+    <section data-panel="schedule" class="card" hidden>
+      <h2>Schedule</h2>
+      <form id="bookingForm" data-kind="bookings">
+        <div class="grid">
+          <div><label for="b_family">Family</label><select id="b_family" name="familyId"></select></div>
+          <div><label for="b_date">Date</label><input id="b_date" name="date" type="date" required></div>
+          <div><label for="b_start">Start</label><input id="b_start" name="start" type="time" required></div>
+          <div><label for="b_end">End</label><input id="b_end" name="end" type="time" required></div>
+          <div><label for="b_kids">Children</label><input id="b_kids" name="kids" type="number" min="1" value="1"></div>
+          <div><label for="b_repeat">Repeat weekly (number of weeks)</label><input id="b_repeat" name="repeatWeeks" type="number" min="1" value="1"></div>
+          <div><label for="b_miles">Business miles (round trip)</label><input id="b_miles" name="miles" type="number" step="0.1" min="0"></div>
+          <div><label for="b_price">Agreed price (blank = your rates)</label><input id="b_price" name="price" type="number" step="0.01" min="0"></div>
+          <div><label for="b_booked">Booked on</label><input id="b_booked" name="bookedOn" type="date"></div>
+          <div><label for="b_status">Status</label><select id="b_status" name="status"><option>scheduled</option><option>done</option><option>cancelled</option></select></div>
+        </div>
+        <label for="b_notes">Notes</label><textarea id="b_notes" name="notes"></textarea>
+        <p id="quoteOut" class="msg" aria-live="polite"></p>
+        <button type="submit">Save sit</button><button type="reset" class="secondary">Clear</button>
+      </form>
+      <h3>Upcoming and recent sits</h3>
+      <div id="conflictsOut"></div>
+      <div id="bookingsList"></div>
+      <p><button type="button" class="secondary" id="icsBtn">Download calendar (.ics)</button></p>
+    </section>
+
+    <section data-panel="money" class="card" hidden>
+      <h2>Money &amp; taxes</h2>
+      <div class="grid"><div><label for="taxYear">Tax year</label><select id="taxYear"></select></div></div>
+      <div id="taxOut"></div>
+      <h3>Record a payment</h3>
+      <form id="payForm">
+        <div class="grid">
+          <div><label for="p_booking">Sit</label><select id="p_booking" name="bookingId"></select></div>
+          <div><label for="p_amount">Amount</label><input id="p_amount" name="amount" type="number" step="0.01" min="0" required></div>
+          <div><label for="p_date">Date paid</label><input id="p_date" name="date" type="date" required></div>
+          <div><label for="p_method">How</label><select id="p_method" name="method"><option>cash</option><option>Venmo</option><option>Zelle</option><option>PayPal</option><option>Cash App</option><option>check</option><option>other</option></select></div>
+        </div>
+        <button type="submit">Add payment</button>
+      </form>
+      <h3>Expenses</h3>
+      <form id="expenseForm" data-kind="expenses">
+        <div class="grid">
+          <div><label for="e_date">Date</label><input id="e_date" name="date" type="date" required></div>
+          <div><label for="e_amount">Amount</label><input id="e_amount" name="amount" type="number" step="0.01" min="0"></div>
+          <div><label for="e_cat">Category</label><select id="e_cat" name="category"></select></div>
+          <div><label for="e_miles">Or miles driven</label><input id="e_miles" name="miles" type="number" step="0.1" min="0"></div>
+          <div><label for="e_note">What for</label><input id="e_note" name="note"></div>
+        </div>
+        <button type="submit">Save expense</button><button type="reset" class="secondary">Clear</button>
+      </form>
+      <div id="expensesList"></div>
+      <h3>Year-end statement for a family (Form 2441 / dependent-care FSA)</h3>
+      <div class="grid"><div><label for="stmtFamily">Family</label><select id="stmtFamily"></select></div></div>
+      <pre id="stmtOut" class="msg"></pre>
+    </section>
+
+    <section data-panel="references" class="card" hidden>
+      <h2>References &amp; testimonials</h2>
+      <p class="note">Keep who you asked, what they said and whether they agreed to be named. Only quotes marked "yes, publish" ever reach your website.</p>
+      <form id="refForm" data-kind="references">
+        <div class="grid">
+          <div><label for="r_name">Name</label><input id="r_name" name="name" required></div>
+          <div><label for="r_family">Family (optional)</label><select id="r_family" name="familyId"></select></div>
+          <div><label for="r_rel">Relationship</label><input id="r_rel" name="relationship" placeholder="mom of two, church nursery lead"></div>
+          <div><label for="r_contact">Their phone or email</label><input id="r_contact" name="contact"></div>
+          <div><label for="r_kind">Asking for</label><select id="r_kind" name="kind"><option value="reference">a reference families can call</option><option value="testimonial">a testimonial quote</option></select></div>
+          <div><label for="r_requested">Asked on</label><input id="r_requested" name="requested" type="date"></div>
+          <div><label for="r_received">Received on</label><input id="r_received" name="received" type="date"></div>
+          <div><label for="r_consent">May the quote go on your website?</label><select id="r_consent" name="consentPublic"><option value="">not asked yet</option><option value="yes">yes, publish</option><option value="no">no, private</option></select></div>
+          <div><label for="r_share">May you give their contact to new families?</label><select id="r_share" name="consentContact"><option value="">not asked yet</option><option value="yes">yes</option><option value="no">no</option></select></div>
+        </div>
+        <label for="r_quote">What they said (their words)</label><textarea id="r_quote" name="quote"></textarea>
+        <button type="submit">Save</button><button type="reset" class="secondary">Clear</button>
+      </form>
+      <div id="refsList"></div>
+    </section>
+
+    <section data-panel="website" class="card" hidden>
+      <h2>Your website</h2>
+      <p>One page with your story, rates, certifications, an optional faith section, the testimonials families agreed to share, and an inquiry form. Edit the words in <strong>Settings</strong>. Download it and host it free (GitHub Pages, Netlify, Cloudflare Pages), or run the optional server, which serves it at <code>/site</code> and turns each inquiry into a scored lead.</p>
+      <p><button type="button" id="siteDownload">Download index.html</button><button type="button" class="secondary" id="siteRefresh">Refresh preview</button></p>
+      <iframe id="sitePreview" title="Website preview" sandbox=""></iframe>
+    </section>
+
+    <section data-panel="content" class="card" hidden>
+      <h2>Content calendar</h2>
+      <p class="note">Twelve weeks of post ideas, rotated across Facebook, Nextdoor, Instagram, a church or school bulletin and your website, tied to the season. Each draft leaves a space for a real moment in your own words. Never post a child's name or photo without the parents' yes.</p>
+      <div class="grid"><div><label for="contentStart">Start week</label><input id="contentStart" type="date"></div></div>
+      <div id="contentOut"></div>
+      <h3>Messages for your families</h3>
+      <div class="grid"><div><label for="msgFamily">Family</label><select id="msgFamily"></select></div></div>
+      <div id="familyMsgs"></div>
+    </section>
+
+    <section data-panel="settings" class="card" hidden>
+      <h2>Settings: you, your rates, your limits</h2>
+      <form id="profileForm">
+        <div class="grid">
+          <div><label for="s_name">Your name</label><input id="s_name" name="name"></div>
+          <div><label for="s_business">Business name</label><input id="s_business" name="businessName"></div>
+          <div><label for="s_city">Town or city</label><input id="s_city" name="city"></div>
+          <div><label for="s_area">Area you serve</label><input id="s_area" name="area"></div>
+          <div><label for="s_radius">Travel radius (miles)</label><input id="s_radius" name="serviceRadiusMiles" type="number" min="0"></div>
+          <div><label for="s_phone">Phone</label><input id="s_phone" name="phone"></div>
+          <div><label for="s_email">Email</label><input id="s_email" name="email"></div>
+          <div><label for="s_youngest">Youngest age you take (months)</label><input id="s_youngest" name="youngestMonths" type="number" min="0"></div>
+          <div><label for="s_maxkids">Most children at once</label><input id="s_maxkids" name="maxKids" type="number" min="1"></div>
+        </div>
+        <label for="s_avail">Weekly availability (Mon-Fri 15:00-22:00; Sat 08:00-23:30; Sun off)</label><input id="s_avail" name="availability">
+        <label for="s_certs">Certifications (comma separated)</label><input id="s_certs" name="certifications">
+        <label for="s_bio">About you (website)</label><textarea id="s_bio" name="bio"></textarea>
+        <label><input type="checkbox" name="showFaith"> Show a faith section on my website and in post ideas</label>
+        <label for="s_faith">Faith statement (in your own words)</label><textarea id="s_faith" name="faithStatement" placeholder="I'm a Christian, and caring for kids is one way I try to love my neighbors well."></textarea>
+        <label for="s_faithAct">Faith-based activities you offer when parents ask</label><input id="s_faithAct" name="faithActivities">
+        <h3>Rates</h3>
+        <div class="grid">
+          <div><label for="s_hourly">Hourly, one child ($)</label><input id="s_hourly" name="rates.hourly" type="number" step="0.5"></div>
+          <div><label for="s_extra">Each extra child ($/h)</label><input id="s_extra" name="rates.extraChild" type="number" step="0.5"></div>
+          <div><label for="s_min">Minimum hours</label><input id="s_min" name="rates.minimumHours" type="number" step="0.5"></div>
+          <div><label for="s_lateAfter">Late rate after</label><input id="s_lateAfter" name="rates.lateAfter" type="time"></div>
+          <div><label for="s_lateExtra">Late extra ($/h)</label><input id="s_lateExtra" name="rates.lateExtra" type="number" step="0.5"></div>
+          <div><label for="s_holiday">Holiday multiplier</label><input id="s_holiday" name="rates.holidayMultiplier" type="number" step="0.05"></div>
+          <div><label for="s_lmh">Last-minute if booked under (hours)</label><input id="s_lmh" name="rates.lastMinuteHours" type="number"></div>
+          <div><label for="s_lmf">Last-minute fee ($)</label><input id="s_lmf" name="rates.lastMinuteFee" type="number"></div>
+          <div><label for="s_ch">Cancellation window (hours)</label><input id="s_ch" name="rates.cancelHours" type="number"></div>
+          <div><label for="s_cp">Late cancellation fee (% of sit)</label><input id="s_cp" name="rates.cancelFeePct" type="number"></div>
+        </div>
+        <label for="s_holidays">Holiday dates (MM-DD, comma separated)</label><input id="s_holidays" name="holidays">
+        <h3>Taxes and follow-up</h3>
+        <div class="grid">
+          <div><label for="s_tax">Federal income tax bracket (%)</label><input id="s_tax" name="taxRate" type="number" step="0.1"></div>
+          <div><label for="s_state">State income tax (%)</label><input id="s_state" name="stateTaxRate" type="number" step="0.1"></div>
+          <div><label for="s_mile">Mileage rate override ($/mile, blank = IRS)</label><input id="s_mile" name="mileageRate" type="number" step="0.005"></div>
+          <div><label for="s_addr">Your address (for family statements)</label><input id="s_addr" name="address"></div>
+          <div><label for="s_fu">Follow-up days for leads</label><input id="s_fu" name="followUpDays" placeholder="0, 2, 7"></div>
+          <div><label for="s_rebook">Invite families back after (days)</label><input id="s_rebook" name="rebookAfterDays" type="number"></div>
+          <div><label for="s_form">Website form address (blank = opens email)</label><input id="s_form" name="formAction" placeholder="https://your-server/inquiry"></div>
+        </div>
+        <button type="submit">Save settings</button>
+      </form>
+      <h3>Backup</h3>
+      <p><button type="button" id="exportBtn">Download backup (.json)</button><label class="secondary" style="display:inline"><span class="note">Restore from a backup:</span> <input type="file" id="importFile" accept="application/json,.json" aria-label="Restore from a backup file"></label></p>
+      <h3>Sync with your own server (optional)</h3>
+      <p class="note">If you run the server from the README on your own account, enter its address and admin key to keep this desk and the leads your website collects in one place. The key is kept in this browser only.</p>
+      <div class="grid"><div><label for="syncUrl">Server address</label><input id="syncUrl" placeholder="https://my-sitter-desk.onrender.com"></div><div><label for="syncKey">Admin key</label><input id="syncKey" type="password" autocomplete="off"></div></div>
+      <p><button type="button" id="syncBtn">Sync now</button> <span id="syncOut" class="note" aria-live="polite"></span></p>
+      <p><button type="button" class="secondary" id="wipeBtn">Erase everything in this browser</button></p>
+    </section>
+  </main>
+
+  <section class="card" id="about">
+    <h2>How it works, and what it is not</h2>
+    <h3>Do babysitters have to pay taxes?</h3>
+    <p>Yes, in the US babysitting income is taxable, cash included. A babysitter who runs their own business reports it on Schedule C, and once net profit reaches $400 for the year also owes self-employment tax (15.3% on 92.35% of profit, for Social Security and Medicare) on Schedule SE. This app adds up what you were paid, subtracts expenses and mileage, and suggests how much to set aside and when the quarterly estimated payments are due.</p>
+    <h3>Am I self-employed or a household employee?</h3>
+    <p>It depends on who controls the work. A sitter who sets their own rates and schedule and works for many families is usually self-employed. If one family controls how and when you work in their home, the IRS can treat you as that family's household employee (Publication 926), and once they pay you $3,000 or more in 2026 they owe household employment taxes and give you a W-2. The app flags any family that crosses that line so you can talk it through.</p>
+    <h3>What do families need from me for the child care tax credit?</h3>
+    <p>To claim the child and dependent care credit on Form 2441, or to be reimbursed from a dependent-care FSA, parents need your name, address and taxpayer ID, and the amount they paid. The app prints a year-end statement per family with every payment. A free EIN from the IRS lets you give a taxpayer ID without sharing your Social Security number.</p>
+    <h3>How do I decide which babysitting inquiries to take?</h3>
+    <p>Set your own limits once (how far you travel, how many children, the youngest age you take, your availability and rate) and the app scores each inquiry against them, says why, and drafts a reply: a warm yes with your rates for a good fit, or a kind no for one that does not fit. Recurring work and referrals score higher because they book more often.</p>
+    <h3>How do I ask families for references and testimonials?</h3>
+    <p>The References tab drafts the request, reminds you to follow up after five days, and keeps a separate yes or no for whether a quote may appear on your website. Only quotes marked yes are ever put on the site the app builds, shown with first name and last initial.</p>
+    <h3>Is my families' information uploaded anywhere?</h3>
+    <p>Not by this page. Families, kids, allergies and payments stay in this browser's storage and in the backup file you download. If you choose to run the optional server on your own hosting account, the app syncs to it with your own admin key, and your website's inquiry form posts to it.</p>
+    <h3>When to use something else</h3>
+    <p>Marketplaces such as Care.com and Sittercity bring you families you have not met; this app is for running the business once they find you, and for the families who come by word of mouth. If you take on a family as their regular nanny, use a payroll service for household employees. The tax figures are a set-aside, not a return: your bracket, deductions and credits are for you or a tax preparer to finish.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are estimates from the numbers you enter. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for, including taxes, licensing and child-safety rules where you live. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Privacy.</strong> Everything runs in your browser. Your data is never uploaded by this page, and there are no accounts, tracking cookies or analytics vendor. Your desk is kept in this browser's localStorage so it is there next time. We count anonymous events (which features get used, nothing about who used them) in this browser. <button type="button" class="secondary small" id="optout">Turn usage counting off</button></p>
+    <p>Not affiliated with Care.com, Sittercity, UrbanSitter, the IRS or any church or denomination. Free and open source under the <a href="LICENSE">MIT licence</a>: <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/babysitting-business-kit">source and self-hosting guide</a>. If this helped, <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import * as E from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const STORE = "babysitting-business-kit-desk";
+    const SYNC = "babysitting-business-kit-sync";
+    const $ = (id) => document.getElementById(id);
+    const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    const money = (x) => `$${(Number(x) || 0).toFixed(2)}`;
+    const today = () => new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10);
+    let desk = load();
+    let knownLeadIds = [];
+
+    function load() {
+      try { return E.normalizeDesk(JSON.parse(localStorage.getItem(STORE) || "null")); } catch { return E.emptyDesk(); }
+    }
+    function save() {
+      try { localStorage.setItem(STORE, JSON.stringify(desk)); } catch { /* storage full or blocked: the backup button still works */ }
+      render();
+    }
+    function download(name, text, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([text], { type }));
+      a.download = name;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    }
+    const famName = (id) => (desk.families.find((f) => f.id === id) || {}).name || "";
+    const copyBtn = (text) => `<button type="button" class="secondary small" data-copy="${esc(text)}">Copy message</button>`;
+
+    // ---- tabs
+    function show(tab) {
+      for (const b of document.querySelectorAll("nav button")) b.setAttribute("aria-selected", String(b.dataset.tab === tab));
+      for (const p of document.querySelectorAll("[data-panel]")) p.hidden = p.dataset.panel !== tab;
+      if (tab === "website") renderSite();
+      record(`tab_${tab}`);
+    }
+    for (const b of document.querySelectorAll("nav button")) b.addEventListener("click", () => show(b.dataset.tab));
+
+    // ---- generic forms: fill for edit, read on submit
+    function readForm(form) {
+      const o = {};
+      for (const el of form.elements) {
+        if (!el.name) continue;
+        o[el.name] = el.type === "checkbox" ? el.checked : el.type === "number" ? (el.value === "" ? "" : Number(el.value)) : el.value.trim();
+      }
+      return o;
+    }
+    function fillForm(form, obj) {
+      form.reset();
+      for (const el of form.elements) {
+        if (!el.name) continue;
+        const v = el.name.split(".").reduce((a, k) => (a == null ? a : a[k]), obj);
+        if (el.type === "checkbox") el.checked = !!v;
+        else el.value = v === true ? "yes" : v === false ? "no" : Array.isArray(v) ? v.join(", ") : v ?? "";
+      }
+      form.dataset.editing = obj.id || "";
+      form.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+    function upsert(kind, form, shape) {
+      const o = shape(readForm(form));
+      const id = form.dataset.editing;
+      const list = desk[kind];
+      const i = list.findIndex((x) => x.id === id);
+      if (i >= 0) list[i] = { ...list[i], ...o };
+      else list.push({ id: E.newId(kind.slice(0, 3)), ...o });
+      form.dataset.editing = "";
+      form.reset();
+      record(`saved_${kind}`);
+      save();
+    }
+    const yn = (v) => (v === "yes" ? true : v === "no" ? false : undefined);
+
+    $("leadForm").addEventListener("submit", (e) => { e.preventDefault(); upsert("leads", e.target, (o) => ({ ...o, kids: o.kids.split(/[,;]/).map((s) => s.trim()).filter(Boolean), created: o.created || today(), status: o.status || "new" })); });
+    $("familyForm").addEventListener("submit", (e) => { e.preventDefault(); upsert("families", e.target, (o) => ({ ...o, kids: parseKids(o.kidsText) })); });
+    $("bookingForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const o = readForm(e.target);
+      const chk = E.canTake({ ...desk, bookings: desk.bookings.filter((b) => b.id !== e.target.dataset.editing) }, o);
+      if (!chk.ok && !confirm(`Heads up: this sit is ${chk.why.join("; ")}. Save anyway?`)) return;
+      upsert("bookings", e.target, (x) => x);
+    });
+    $("expenseForm").addEventListener("submit", (e) => { e.preventDefault(); upsert("expenses", e.target, (x) => x); });
+    $("refForm").addEventListener("submit", (e) => { e.preventDefault(); upsert("references", e.target, (o) => ({ ...o, consentPublic: yn(o.consentPublic), consentContact: yn(o.consentContact) })); });
+    $("payForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const o = readForm(e.target);
+      const b = desk.bookings.find((x) => x.id === o.bookingId);
+      if (!b) return;
+      b.payments = [...E.payments(b), { amount: Number(o.amount), date: o.date, method: o.method }];
+      delete b.paid;
+      e.target.reset();
+      record("payment_added");
+      save();
+    });
+    function parseKids(text) {
+      return String(text || "").split("\n").map((l) => l.split(",").map((s) => s.trim())).filter((p) => p[0]).map(([name, birth, ...rest]) => ({ name, birth: /^\d{4}-\d{2}-\d{2}$/.test(birth || "") ? birth : "", allergies: [/^\d{4}-/.test(birth || "") ? "" : birth, ...rest].filter(Boolean).join(", ") }));
+    }
+
+    // live quote on the schedule form
+    $("bookingForm").addEventListener("input", () => {
+      const o = readForm($("bookingForm"));
+      if (!o.start || !o.end) { $("quoteOut").textContent = ""; return; }
+      const q = E.quote(o, desk.profile.rates, desk.profile.holidays);
+      const chk = o.date ? E.canTake({ ...desk, bookings: desk.bookings.filter((b) => b.id !== $("bookingForm").dataset.editing) }, o) : { ok: true, why: [] };
+      $("quoteOut").textContent = `Quote: ${money(q.total)}\n${q.lines.map((l) => `  ${l.label}: ${money(l.amount)}`).join("\n")}${chk.ok ? "" : `\nCheck: ${chk.why.join("; ")}`}`;
+    });
+
+    // delete / edit / copy / done buttons
+    document.addEventListener("click", async (e) => {
+      const t = e.target.closest("button");
+      if (!t) return;
+      if (t.dataset.copy !== undefined) {
+        try { await navigator.clipboard.writeText(t.dataset.copy); t.textContent = "Copied"; } catch { prompt("Copy this message:", t.dataset.copy); }
+        record("message_copied");
+      }
+      if (t.dataset.del) {
+        const [kind, id] = t.dataset.del.split(":");
+        if (confirm("Delete this?")) { desk[kind] = desk[kind].filter((x) => x.id !== id); save(); }
+      }
+      if (t.dataset.edit) {
+        const [kind, id, formId] = t.dataset.edit.split(":");
+        const item = desk[kind].find((x) => x.id === id);
+        if (item) fillForm($(formId), { ...item, kids: Array.isArray(item.kids) && kind === "leads" ? item.kids.join(", ") : item.kids, kidsText: kind === "families" ? (item.kids || []).map((k) => [k.name, k.birth, k.allergies].filter(Boolean).join(", ")).join("\n") : undefined });
+      }
+      if (t.dataset.done) {
+        const [kind, id, step] = t.dataset.done.split(":");
+        if (kind === "lead") { const l = desk.leads.find((x) => x.id === id); if (l) { l.followUps = Number(step) + 1; l.status = l.status === "new" ? "contacted" : l.status; l.lastContact = today(); } }
+        if (kind === "rebook") { const f = desk.families.find((x) => x.id === id); if (f) f.nudged = today(); }
+        if (kind === "reference") { const r = desk.references.find((x) => x.id === id); if (r) { if (!r.requested) r.requested = today(); else if (!r.received) r.requested = today(); } }
+        record(`done_${kind}`);
+        save();
+      }
+      if (t.dataset.book) {
+        const l = desk.leads.find((x) => x.id === t.dataset.book);
+        if (!l) return;
+        const fam = { id: E.newId("fam"), name: `${l.name.split(" ").slice(-1)[0]} family`, contactName: l.name, contact: l.contact, kids: (l.kids || []).map((a) => ({ name: "", allergies: `age ${a}` })), notes: l.notes };
+        desk.families.push(fam);
+        l.status = "booked";
+        record("lead_converted");
+        save();
+        show("schedule");
+        $("b_family").value = fam.id;
+      }
+    });
+
+    // ---- renderers
+    function table(head, rows) {
+      if (!rows.length) return `<p class="note">Nothing here yet.</p>`;
+      return `<table><thead><tr>${head.map((h) => `<th${h.n ? ' class="n"' : ""}>${h.t || h}</th>`).join("")}</tr></thead><tbody>${rows.join("")}</tbody></table>`;
+    }
+    const actions = (kind, id, form) => `<button type="button" class="secondary small" data-edit="${kind}:${id}:${form}">Edit</button><button type="button" class="secondary small" data-del="${kind}:${id}">Delete</button>`;
+
+    function render() {
+      const opts = (sel, list, label, blank) => { const v = sel.value; sel.innerHTML = (blank ? `<option value="">${blank}</option>` : "") + list.map((x) => `<option value="${esc(x.id)}">${esc(label(x))}</option>`).join(""); sel.value = v; };
+      for (const s of ["b_family", "stmtFamily", "msgFamily"]) opts($(s), desk.families, (f) => f.name, s === "b_family" ? "(choose)" : "");
+      opts($("r_family"), desk.families, (f) => f.name, "(none)");
+      opts($("p_booking"), E.expandBookings(desk.bookings).filter((b) => b.occurrence === 0).slice().reverse(), (b) => `${b.date} ${b.start} ${famName(b.familyId)}`);
+      $("e_cat").innerHTML = Object.entries(E.EXPENSE_CATEGORIES).map(([k, v]) => `<option value="${k}">${esc(v)}</option>`).join("");
+
+      // today
+      const q = E.todayQueue(desk, today());
+      $("todayList").innerHTML = q.length ? q.map((i) => `<div class="card" style="margin:10px 0"><strong>${esc(i.title)}</strong>${i.message ? `<div class="msg">${esc(i.message)}</div>${copyBtn(i.message)}` : ""}${["lead", "rebook", "reference"].includes(i.kind) ? `<button type="button" class="small" data-done="${i.kind}:${esc(i.id)}:${i.step ?? 0}">Sent, mark done</button>` : ""}</div>`).join("") : `<p>Nothing due today. Add a lead, a family or a sit to get started, or load the invented example above.</p>`;
+
+      // leads
+      const scored = desk.leads.map((l) => ({ l, s: E.scoreLead(l, desk.profile) })).sort((a, b) => b.s.score - a.s.score);
+      $("leadsList").innerHTML = table(["Lead", "Score", "Why", "Status", ""], scored.map(({ l, s }) => `<tr><td><strong>${esc(l.name)}</strong><br><span class="note">${esc(l.contact)} · ${esc((l.kids || []).join(", "))} · ${esc(l.schedule)}</span></td><td><span class="pill ${s.tier}">${s.tier} ${s.score}</span></td><td class="note">${s.reasons.map(esc).join("<br>")}<details><summary>Reply draft</summary><div class="msg">${esc(E.leadReply(l, desk.profile, s))}</div>${copyBtn(E.leadReply(l, desk.profile, s))}</details></td><td>${esc(l.status)}</td><td>${l.status !== "booked" ? `<button type="button" class="small" data-book="${esc(l.id)}">Make family</button>` : ""}${actions("leads", l.id, "leadForm")}</td></tr>`));
+
+      // families
+      $("familiesList").innerHTML = table(["Family", "Kids", "Contact", ""], desk.families.map((f) => `<tr><td><strong>${esc(f.name)}</strong><br><span class="note">${esc(f.address)}</span></td><td>${(f.kids || []).map((k) => `${esc(k.name)}${k.birth ? ` (${esc(E.fmtAge(Math.floor(E.daysBetween(k.birth, today()) / 30.44)))})` : ""}${k.allergies ? ` <span class="pill bad">${esc(k.allergies)}</span>` : ""}`).join("<br>")}</td><td>${esc(f.contactName)} ${esc(f.contact)}<br><span class="note">${f.emergency ? `Emergency: ${esc(f.emergency)}` : ""}</span></td><td>${actions("families", f.id, "familyForm")}</td></tr>`));
+
+      // schedule
+      const all = E.expandBookings(desk.bookings);
+      const from = E.addDays(today(), -14);
+      $("bookingsList").innerHTML = table(["When", "Family", { t: "Quote", n: 1 }, "Status", ""], all.filter((b) => b.date >= from).slice(0, 80).map((b) => { const qq = E.quote(b, desk.profile.rates, desk.profile.holidays); return `<tr><td>${esc(b.date)} ${E.DAYS[E.dayOf(b.date)]}<br>${esc(b.start)}-${esc(b.end)}${b.repeatWeeks > 1 ? ` <span class="note">(week ${b.occurrence + 1} of ${b.repeatWeeks})</span>` : ""}</td><td>${esc(famName(b.familyId))}</td><td class="n">${money(b.price || qq.total)}</td><td>${esc(b.status)}</td><td>${b.occurrence === 0 ? actions("bookings", b.id, "bookingForm") : ""}</td></tr>`; }));
+      const cf = E.conflicts(desk.bookings).filter((c) => c.a.date >= today());
+      $("conflictsOut").innerHTML = cf.map((c) => `<p class="msg">${c.kind === "overlap" ? "Double-booked" : "Tight"}: ${esc(c.a.date)} ${esc(c.a.start)}-${esc(c.a.end)} ${esc(famName(c.a.familyId))} and ${esc(c.b.start)}-${esc(c.b.end)} ${esc(famName(c.b.familyId))} (${c.kind === "overlap" ? `${c.minutes} min overlap` : `${c.minutes} min to travel`})</p>`).join("");
+
+      // money
+      const years = [...new Set([today().slice(0, 4), ...desk.bookings.map((b) => String(b.date).slice(0, 4))])].sort().reverse();
+      const ty = $("taxYear"), keep = ty.value;
+      ty.innerHTML = years.map((y) => `<option>${y}</option>`).join("");
+      ty.value = years.includes(keep) ? keep : years[0];
+      renderTax();
+      $("expensesList").innerHTML = table(["Date", "What", { t: "Amount", n: 1 }, ""], desk.expenses.slice().sort((a, b) => String(b.date).localeCompare(a.date)).map((x) => `<tr><td>${esc(x.date)}</td><td>${esc(E.EXPENSE_CATEGORIES[x.category] || x.category)}${x.note ? `: ${esc(x.note)}` : ""}${x.miles ? ` (${esc(x.miles)} mi)` : ""}</td><td class="n">${x.amount ? money(x.amount) : ""}</td><td>${actions("expenses", x.id, "expenseForm")}</td></tr>`));
+      renderStatement();
+
+      // references
+      $("refsList").innerHTML = table(["Who", "Status", "Quote", ""], desk.references.map((r) => `<tr><td><strong>${esc(r.name)}</strong><br><span class="note">${esc(r.relationship)}</span></td><td>${r.received ? `<span class="pill good">received</span>` : r.requested ? `<span class="pill warm">asked ${esc(r.requested)}</span>` : `<span class="pill cool">not asked</span>`}<br><span class="note">website: ${r.consentPublic === true ? "yes" : r.consentPublic === false ? "no" : "not asked"}</span></td><td class="note">${esc(r.quote)}${!r.received ? `<details><summary>Request draft</summary><div class="msg">${esc(E.referenceRequest(r, desk.profile, r.kind))}</div>${copyBtn(E.referenceRequest(r, desk.profile, r.kind))}</details>` : ""}</td><td>${actions("references", r.id, "refForm")}</td></tr>`));
+
+      renderContent();
+      renderFamilyMsgs();
+      fillForm($("profileForm"), { ...desk.profile, certifications: desk.profile.certifications, holidays: desk.profile.holidays, followUpDays: desk.profile.followUpDays });
+      $("profileForm").scrollIntoView = () => {};
+    }
+
+    function renderTax() {
+      const y = Number($("taxYear").value || today().slice(0, 4));
+      const t = E.taxSummary(desk, y, today());
+      const qrows = t.quarters.map((q) => `<tr><td>Q${q.quarter} (through ${q.through})</td><td>${q.due}${q.past ? ' <span class="note">(past)</span>' : ""}</td><td class="n">${money(q.income)}</td><td class="n">${money(q.suggested)}</td></tr>`);
+      const fams = Object.entries(t.byFamily).sort((a, b) => b[1] - a[1]).map(([id, v]) => `<tr><td>${esc(famName(id) || id)}</td><td class="n">${money(v)}</td></tr>`);
+      $("taxOut").innerHTML = `
+        <p><span class="stat">Paid to you<b>${money(t.income)}</b></span><span class="stat">Expenses<b>${money(t.expenses)}</b></span><span class="stat">Mileage (${t.totalMiles} mi)<b>${money(t.mileage)}</b></span><span class="stat">Net profit<b>${money(t.net)}</b></span><span class="stat">Set aside<b>${money(t.setAside)}</b><span class="note">${t.setAsidePct}% of income</span></span></p>
+        <p class="note">Set-aside = self-employment tax ${money(t.seTax)} + federal income tax at your ${desk.profile.taxRate}% bracket ${money(t.incomeTax)} + state at ${desk.profile.stateTaxRate}% ${money(t.stateTax)}. It ignores the standard deduction and credits, so it errs high: a safe amount to move into savings, not your tax bill.</p>
+        ${table(["Quarter", "Estimated payment due", { t: "Income", n: 1 }, { t: "Suggested payment", n: 1 }], qrows)}
+        <h3>By family</h3>${table(["Family", { t: "Paid", n: 1 }], fams)}
+        <h3>Unpaid</h3>${table(["Sit", { t: "Owed", n: 1 }, "Days"], t.unpaid.map((u) => `<tr><td>${esc(u.booking.date)} ${esc(famName(u.booking.familyId))}</td><td class="n">${money(u.owed)}</td><td>${u.days}</td></tr>`))}
+        <h3>Things to know</h3><ul>${t.flags.map((f) => `<li>${esc(f)}</li>`).join("")}</ul>`;
+    }
+    $("taxYear").addEventListener("change", () => { renderTax(); renderStatement(); });
+    function renderStatement() {
+      const id = $("stmtFamily").value;
+      $("stmtOut").textContent = id ? E.familyStatement(desk, id, Number($("taxYear").value || today().slice(0, 4))).text : "Add a family first.";
+    }
+    $("stmtFamily").addEventListener("change", renderStatement);
+
+    function renderContent() {
+      const start = $("contentStart").value || today();
+      $("contentOut").innerHTML = E.contentCalendar(start, 12, desk.profile).map((c) => `<div class="card" style="margin:10px 0"><strong>Week ${c.week} (${c.date}), ${esc(c.channel)}:</strong> ${esc(c.topic)}<div class="msg">${esc(c.draft)}</div>${copyBtn(c.draft)}</div>`).join("");
+    }
+    $("contentStart").addEventListener("change", renderContent);
+    function renderFamilyMsgs() {
+      const f = desk.families.find((x) => x.id === $("msgFamily").value);
+      if (!f) { $("familyMsgs").innerHTML = `<p class="note">Add a family to get rebooking and referral messages.</p>`; return; }
+      const m = [["Invite back", E.rebookMessage(f, desk.profile, today())], ["Ask for referrals", E.referralAsk(f, desk.profile)], ["Ask for a testimonial", E.referenceRequest({ name: f.contactName || f.name }, desk.profile, "testimonial")]];
+      $("familyMsgs").innerHTML = m.map(([t, x]) => `<h3>${t}</h3><div class="msg">${esc(x)}</div>${copyBtn(x)}`).join("");
+    }
+    $("msgFamily").addEventListener("change", renderFamilyMsgs);
+
+    function renderSite() { $("sitePreview").srcdoc = E.buildSite(desk); }
+    $("siteRefresh").addEventListener("click", renderSite);
+    $("siteDownload").addEventListener("click", () => { download("index.html", E.buildSite(desk), "text/html"); record("site_downloaded"); });
+    $("icsBtn").addEventListener("click", () => { download("babysitting.ics", E.toICS(desk), "text/calendar"); record("ics_downloaded"); });
+
+    // settings
+    $("profileForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const o = readForm(e.target);
+      const p = { ...desk.profile, rates: { ...desk.profile.rates } };
+      for (const [k, v] of Object.entries(o)) { if (k.startsWith("rates.")) p.rates[k.slice(6)] = v; else p[k] = v; }
+      p.certifications = String(o.certifications).split(",").map((s) => s.trim()).filter(Boolean);
+      p.holidays = String(o.holidays).split(",").map((s) => s.trim()).filter((s) => /^\d{2}-\d{2}$/.test(s));
+      p.followUpDays = String(o.followUpDays).split(",").map((s) => Number(s.trim())).filter((n) => Number.isFinite(n));
+      const bad = E.parseWeekly(p.availability).errors;
+      if (bad.length) { alert(bad.join("\n")); return; }
+      desk.profile = p;
+      record("settings_saved");
+      save();
+      alert("Saved.");
+    });
+    $("exportBtn").addEventListener("click", () => { download(`babysitting-desk-${today()}.json`, JSON.stringify(desk, null, 2), "application/json"); record("backup_downloaded"); });
+    $("importFile").addEventListener("change", async (e) => {
+      const f = e.target.files[0];
+      if (!f) return;
+      try { desk = E.normalizeDesk(JSON.parse(await f.text())); save(); alert("Restored."); } catch { alert("That file is not a backup from this app."); }
+    });
+    $("wipeBtn").addEventListener("click", () => { if (confirm("Erase every lead, family, sit and setting in this browser? Download a backup first if you need one.")) { desk = E.emptyDesk(); save(); } });
+    $("loadExample").addEventListener("click", () => {
+      if ((desk.families.length || desk.leads.length) && !confirm("Replace what is here with the invented example?")) return;
+      desk = E.exampleDesk(today());
+      record("example_loaded");
+      save();
+      show("today");
+    });
+
+    // optional sync with the sitter's own server
+    try { const s = JSON.parse(localStorage.getItem(SYNC) || "{}"); $("syncUrl").value = s.url || ""; $("syncKey").value = s.key || ""; knownLeadIds = s.known || []; } catch { /* nothing saved */ }
+    $("syncBtn").addEventListener("click", async () => {
+      const url = $("syncUrl").value.trim().replace(/\/+$/, ""), key = $("syncKey").value;
+      if (!/^https?:\/\//.test(url) || !key) { $("syncOut").textContent = "Enter your server address and admin key."; return; }
+      try {
+        const r = await fetch(`${url}/api/desk`, { method: "PUT", headers: { authorization: `Bearer ${key}`, "content-type": "application/json" }, body: JSON.stringify({ ...desk, knownLeadIds }) });
+        if (!r.ok) throw new Error(`server said ${r.status}`);
+        const out = await r.json();
+        desk = E.normalizeDesk(out.desk);
+        knownLeadIds = desk.leads.map((l) => l.id);
+        try { localStorage.setItem(SYNC, JSON.stringify({ url, key, known: knownLeadIds })); } catch { /* fine */ }
+        $("syncOut").textContent = `Synced. ${out.added} new lead(s) from your website.`;
+        record("synced");
+        save();
+      } catch (err) { $("syncOut").textContent = `Could not sync: ${err.message}`; }
+    });
+
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+    $("contentStart").value = today();
+    record("page_loaded");
+    render();
+    show("today");
+  </script>
+</body>
+</html>
