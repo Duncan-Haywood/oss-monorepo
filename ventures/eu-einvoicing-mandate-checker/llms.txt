@@ -1,0 +1,13 @@
+# When must your business send and receive e-invoices?
+
+> Free EU e-invoicing mandate checker: when your business must receive and issue structured e-invoices in Germany, France, Belgium, Poland, Italy, Croatia, Greece or Spain, in what format, and whether PDF is still enough. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/eu-einvoicing-mandate-checker/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/eu-einvoicing-mandate-checker): MIT licensed.

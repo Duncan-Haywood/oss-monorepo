@@ -1,0 +1,13 @@
+# Is your property tax assessment too high, and would an appeal pay?
+
+> Free property tax appeal calculator: adjust comparable sales to your home, compare with your assessed value, and see the yearly tax saved, the break-even odds and what an appeal firm would keep. Runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/property-tax-appeal-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/property-tax-appeal-calculator): MIT licensed.

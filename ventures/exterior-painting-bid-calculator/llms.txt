@@ -1,0 +1,16 @@
+# Bid the elevation, the stories, and the scrape.
+
+> Price an exterior house-painting job from extra stories, extra elevation square footage, scrape and prime, trim, shutters, and hard access — not a published $3,999 house special. See the walk-away number before you match a cheaper ranch quote.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/exterior-painting-bid-calculator/)
+- [How much to charge to paint the exterior of a house](https://duncan-haywood.github.io/oss-monorepo/exterior-painting-bid-calculator/how-much-to-charge-to-paint-the-exterior-of-a-house.html)
+- [This calculator vs. a flat $3,999 house special](https://duncan-haywood.github.io/oss-monorepo/exterior-painting-bid-calculator/vs-a-flat-3999-house-special.html)
+- [This calculator vs. PaintScout](https://duncan-haywood.github.io/oss-monorepo/exterior-painting-bid-calculator/vs-paintscout.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/exterior-painting-bid-calculator): MIT licensed.

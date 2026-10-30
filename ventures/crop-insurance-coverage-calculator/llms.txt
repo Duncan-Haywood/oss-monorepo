@@ -1,0 +1,13 @@
+# Is the next 5 points of crop insurance coverage worth what it costs?
+
+> Free crop insurance coverage level calculator for farmers: compare 70, 75, 80 and 85 percent RP, RP-HPE or YP using your agent's quoted premiums. See the guarantee, break-even yield, what each extra 5 points costs and your net across yield and price scenarios. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/crop-insurance-coverage-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/crop-insurance-coverage-calculator): MIT licensed.

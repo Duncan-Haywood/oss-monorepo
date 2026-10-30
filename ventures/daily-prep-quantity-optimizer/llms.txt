@@ -1,0 +1,13 @@
+# How many should I prep today so I waste less and still do not sell out?
+
+> Free daily prep quantity optimizer for bakeries, cafes and food trucks: paste past daily sales, mark sell-out days, and get the prep per item that earns the most after waste, with oven-minute and cash limits. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/daily-prep-quantity-optimizer/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/daily-prep-quantity-optimizer): MIT licensed.

@@ -1,0 +1,13 @@
+# If you buy a duplex, triplex or fourplex and live in one unit, what does it really cost you?
+
+> Free house hacking calculator for a duplex, triplex or fourplex: FHA or conventional payment with mortgage insurance, the rent you need to live free, the FHA self-sufficiency test, and the 10-year return versus renting. Runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/house-hack-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/house-hack-calculator): MIT licensed.

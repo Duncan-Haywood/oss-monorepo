@@ -1,0 +1,13 @@
+# How much TFSA room do you have, and what would an excess cost?
+
+> Free TFSA room and over-contribution checker for Canadians: work out your contribution room from 2009, see whether a planned deposit puts you over, and what the CRA's 1% per month tax would cost. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/tfsa-over-contribution-checker/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/tfsa-over-contribution-checker): MIT licensed.

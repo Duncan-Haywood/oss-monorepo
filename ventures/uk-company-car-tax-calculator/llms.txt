@@ -1,0 +1,13 @@
+# What will this company car cost me in tax?
+
+> Free UK company car tax calculator for 2026/27: benefit in kind for electric, plug-in hybrid and petrol or diesel cars, monthly tax at your rate, employer Class 1A, free-fuel charge, the 4% to 9% electric schedule to 2029/30 and a side-by-side with a second car. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/uk-company-car-tax-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/uk-company-car-tax-calculator): MIT licensed.

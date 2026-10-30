@@ -201,3 +201,17 @@ test("normalizeDesk repairs junk input", () => {
   assert.equal(d.profile.rates.hourly, 25);
   assert.equal(d.profile.rates.extraChild, P.rates.extraChild);
 });
+
+test("familyStatement counts what the family paid: packages when bought, not credits when used", () => {
+  const d = E.emptyDesk();
+  d.families = [{ id: "f", name: "Pat family" }];
+  d.packages = { plans: [], sold: [{ id: "s1", familyId: "f", name: "Date nights x4", price: 300, soldOn: "2026-02-01", method: "Venmo", redemptions: [] }], gifts: [], events: [] };
+  d.bookings = [
+    { id: "b1", familyId: "f", date: "2026-02-14", start: "18:00", end: "22:00", payments: [{ amount: 75, date: "2026-02-14", method: "package", credit: true }] },
+    { id: "b2", familyId: "f", date: "2026-03-01", start: "18:00", end: "21:00", payments: [{ amount: 60, date: "2026-03-01", method: "cash" }, { amount: 80, date: "2026-03-01", method: "gift certificate", credit: true }] },
+  ];
+  const s = E.familyStatement(d, "f", 2026);
+  assert.equal(s.total, 360);
+  assert.equal(s.rows.length, 2);
+  assert.doesNotMatch(s.text, /gift certificate/);
+});

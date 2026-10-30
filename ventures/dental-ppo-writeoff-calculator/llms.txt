@@ -1,0 +1,17 @@
+# Your fee schedule is not what you collect.
+
+> Your fee schedule is not what you collect. Enter one month of production and contractual write-offs by carrier and see the effective reimbursement rate for every plan, which plans pay less than an hour of chair time costs you, and exactly what a fee increase would and would not collect. Free, private, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/dental-ppo-writeoff-calculator/)
+- [This calculator vs. hiring a PPO fee negotiator](https://duncan-haywood.github.io/oss-monorepo/dental-ppo-writeoff-calculator/vs-ppo-fee-negotiators.html)
+- [This calculator vs. your practice management system's reports](https://duncan-haywood.github.io/oss-monorepo/dental-ppo-writeoff-calculator/vs-practice-management-report.html)
+- [What is my effective reimbursement rate, and why is it lower than I think?](https://duncan-haywood.github.io/oss-monorepo/dental-ppo-writeoff-calculator/what-is-my-effective-reimbursement-rate.html)
+- [Which PPO contract should I renegotiate first?](https://duncan-haywood.github.io/oss-monorepo/dental-ppo-writeoff-calculator/which-ppo-contract-to-renegotiate-first.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/dental-ppo-writeoff-calculator): MIT licensed.

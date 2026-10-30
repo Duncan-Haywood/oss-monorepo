@@ -1,0 +1,14 @@
+# Four financing offers, four different ways of quoting the price. Compare them honestly.
+
+> Free business loan comparison tool. Type in the term-loan, SBA-style and merchant cash advance offers you have received and see the true APR with fees, total repaid, cash actually received and what paying early would cost. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/business-loan-offer-comparator/)
+- [How to compare business loan offers that are quoted in different ways](https://duncan-haywood.github.io/oss-monorepo/business-loan-offer-comparator/how-to-compare-business-loan-offers.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/business-loan-offer-comparator): MIT licensed.

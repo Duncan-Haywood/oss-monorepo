@@ -1,0 +1,13 @@
+# Should you file an 83(b) election on your vesting stock?
+
+> Free 83(b) election calculator for founders and startup employees with vesting stock. See tax due at grant, tax at each vest date, the break-even sale value, the tax wasted if you leave early, and your 30-day deadline. Runs in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/section-83b-election-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/section-83b-election-calculator): MIT licensed.

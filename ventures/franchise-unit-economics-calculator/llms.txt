@@ -1,0 +1,13 @@
+# Will this franchise unit actually pay you?
+
+> Free franchise calculator: fee, build-out, loan, sales ramp, costs and royalties in; payback, IRR, break-even sales, the cash cushion you need and whether the brand beats going independent out. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/franchise-unit-economics-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/franchise-unit-economics-calculator): MIT licensed.

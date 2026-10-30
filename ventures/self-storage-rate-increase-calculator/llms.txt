@@ -1,0 +1,16 @@
+# A move-out costs the gap, not the rent.
+
+> Price an existing-customer rate increase (ECRI) at your storage facility: what one induced move-out really costs once the unit re-rents at street rate, and the move-out rate at which the increase stops paying. Free, private, nothing leaves your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/self-storage-rate-increase-calculator/)
+- [How much can I raise rent on an existing storage tenant?](https://duncan-haywood.github.io/oss-monorepo/self-storage-rate-increase-calculator/how-much-can-i-raise-storage-rent.html)
+- [This calculator vs. pricing a move-out at the tenant's rent](https://duncan-haywood.github.io/oss-monorepo/self-storage-rate-increase-calculator/vs-pricing-a-move-out-at-the-tenants-rent.html)
+- [This calculator vs. SiteLink](https://duncan-haywood.github.io/oss-monorepo/self-storage-rate-increase-calculator/vs-sitelink.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/self-storage-rate-increase-calculator): MIT licensed.

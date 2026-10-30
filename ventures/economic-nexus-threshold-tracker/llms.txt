@@ -1,0 +1,16 @@
+# Which states have you crossed the economic nexus threshold in?
+
+> Free browser tracker for online and multi-channel sellers: enter trailing-12-month gross sales and transaction count by state, and see which states' economic-nexus sales-tax-registration thresholds you've crossed, per state, against each state's own published $100k/$250k/$500k and 200-transaction figures.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/economic-nexus-threshold-tracker/)
+- [This tracker vs. paid nexus-monitoring software](https://duncan-haywood.github.io/oss-monorepo/economic-nexus-threshold-tracker/vs-paid-nexus-monitoring-software.html)
+- [This tracker vs. tracking thresholds in a spreadsheet](https://duncan-haywood.github.io/oss-monorepo/economic-nexus-threshold-tracker/vs-tracking-it-in-a-spreadsheet.html)
+- [Why does economic nexus differ by state?](https://duncan-haywood.github.io/oss-monorepo/economic-nexus-threshold-tracker/why-does-economic-nexus-differ-by-state.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/economic-nexus-threshold-tracker): MIT licensed.

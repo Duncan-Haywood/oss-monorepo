@@ -1,0 +1,16 @@
+C=1.10 honest steps flagged (per-step thresholds, leave-one-seed-out): 0.0333 of 2400
+C=1.10 ascent T=10  n=20 harmful  5 (0.25) median |dL| 0.0048  median scale 0.2744  attack steps flagged 0
+C=1.10 ascent T=50  n=20 harmful 14 (0.70) median |dL| 0.0249  median scale 0.0435  attack steps flagged 0
+C=1.10 ascent T=200 n=20 harmful 20 (1.00) median |dL| 0.1493  median scale 0.0069  attack steps flagged 0
+C=1.25 honest steps flagged (per-step thresholds, leave-one-seed-out): 0.0154 of 2400
+C=1.25 ascent T=10  n=20 harmful  7 (0.35) median |dL| 0.0052  median scale 0.2536  attack steps flagged 0
+C=1.25 ascent T=50  n=20 harmful 14 (0.70) median |dL| 0.0301  median scale 0.0439  attack steps flagged 0
+C=1.25 ascent T=200 n=20 harmful 20 (1.00) median |dL| 0.1922  median scale 0.0067  attack steps flagged 0
+C=1.50 honest steps flagged (per-step thresholds, leave-one-seed-out): 0.0046 of 2400
+C=1.50 ascent T=10  n=20 harmful  7 (0.35) median |dL| 0.0057  median scale 0.2357  attack steps flagged 0
+C=1.50 ascent T=50  n=20 harmful 14 (0.70) median |dL| 0.0349  median scale 0.0463  attack steps flagged 0
+C=1.50 ascent T=200 n=20 harmful 20 (1.00) median |dL| 0.2820  median scale 0.0064  attack steps flagged 0
+C=2.00 honest steps flagged (per-step thresholds, leave-one-seed-out): 0.0017 of 2400
+C=2.00 ascent T=10  n=20 harmful  7 (0.35) median |dL| 0.0064  median scale 0.2837  attack steps flagged 0
+C=2.00 ascent T=50  n=20 harmful 16 (0.80) median |dL| 0.0354  median scale 0.0487  attack steps flagged 0
+C=2.00 ascent T=200 n=20 harmful 20 (1.00) median |dL| 0.3998  median scale 0.0061  attack steps flagged 0

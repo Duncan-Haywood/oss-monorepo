@@ -1,0 +1,13 @@
+# What unit mix earns the most from this storage building?
+
+> Free self-storage unit mix optimizer: enter rentable square feet, rates, occupancy and demand limits per unit size to find the mix that earns the most net operating income, and see what extra space is worth. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/self-storage-unit-mix-optimizer/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/self-storage-unit-mix-optimizer): MIT licensed.

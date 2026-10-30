@@ -1,0 +1,13 @@
+# Which beer should go in which tank, and when, to finish the most margin?
+
+> Free brewery tank schedule optimizer: enter your fermenters, bright tanks and beers, and get the brew-day and tank plan that finishes the most margin, with batch minimums and maximums, utilisation, and what one more tank is worth. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/brewery-tank-schedule-optimizer/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/brewery-tank-schedule-optimizer): MIT licensed.

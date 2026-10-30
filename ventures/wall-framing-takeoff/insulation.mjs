@@ -13,7 +13,7 @@ import { joistCentres } from "./floor.mjs";
 
 const DEFAULT_R = { "2x4": 15, "2x6": 21 };
 
-/** @typedef {{ rValue?: number, rPerInch?: number, bagCuFt?: number, price?: number, baffles?: boolean, baffleLength?: number, baffleWidth?: number, ceiling?: { width: number, depth: number }[] }} Attic */
+/** @typedef {{ rValue?: number, rPerInch?: number, bagCuFt?: number, price?: number, heel?: number, baffles?: boolean, baffleLength?: number, baffleWidth?: number, ceiling?: { width: number, depth: number }[] }} Attic */
 /** @typedef {{ bagSqFt?: number, waste?: number, rValue?: number, price?: number, attic?: Attic, rim?: boolean }} Insulation */
 
 /** @param {Insulation} d */
@@ -27,6 +27,7 @@ export function validateInsulation(d) {
     if (a.rValue != null && !(a.rValue >= 10 && a.rValue <= 80)) e.push("Attic R-value must be between 10 and 80.");
     if (a.rPerInch != null && !(a.rPerInch >= 1 && a.rPerInch <= 8)) e.push("Attic R per inch must be between 1 and 8 (read it from the bag's coverage chart).");
     if (a.bagCuFt != null && !(a.bagCuFt > 0 && a.bagCuFt <= 200)) e.push("Attic bag volume must be between 0 and 200 cubic feet.");
+    if (a.heel != null && !(a.heel >= 1 && a.heel <= 30)) e.push("Attic heel height must be between 1 and 30 inches (the clear height above the top plate at the eave).");
     for (const c of a.ceiling || []) if (!(c.width > 0 && c.depth > 0)) e.push("Each attic ceiling rectangle needs a positive width and depth (inches).");
   }
   return e;
@@ -48,7 +49,18 @@ function layoutAttic(a, waste, drywall, roof) {
   const rValue = a.rValue ?? 38, rPerInch = a.rPerInch ?? 2.5;
   const depthIn = rValue / rPerInch;
   const sqFt = areaSqIn / 144;
-  const cuFt = (sqFt * depthIn) / 12 * (1 + waste);
+  let cuFt = (sqFt * depthIn) / 12 * (1 + waste);
+  let eave = null;
+  if (a.heel != null) {
+    if (!(roof && roof.width > 0 && roof.length > 0 && roof.pitch > 0)) return { ok: false, errors: ["Eave compression needs a plan `roof` (width, length and pitch)."] };
+    // clear height under the roof at x from the wall = heel + x * pitch / 12; the fill is squeezed where that is below the settled depth
+    const run = depthIn > a.heel ? Math.min((depthIn - a.heel) * 12 / roof.pitch, roof.width / 2) : 0;
+    const d0 = Math.max(0, depthIn - a.heel), d1 = Math.max(0, d0 - run * roof.pitch / 12);
+    const lostSqIn = 2 * roof.length * run * (d0 + d1) / 2; // trapezoid of missing fill along each eave
+    const lostCuFt = lostSqIn / 1728 * (1 + waste);
+    eave = { heel: a.heel, pitch: roof.pitch, runIn: run, bandSqFt: 2 * run * roof.length / 144, lostCuFt, energyHeelIn: depthIn };
+    cuFt -= lostCuFt;
+  }
   const bags = a.bagCuFt ? Math.ceil(cuFt / a.bagCuFt - 1e-9) : null;
   let baffles = null;
   if (a.baffles) {
@@ -62,7 +74,7 @@ function layoutAttic(a, waste, drywall, roof) {
   }
   return {
     ok: true, errors: [], source: rects ? "ceiling rectangles" : "roof footprint (eaves not netted off)", sqFt, rValue, rPerInch,
-    rPerInchAssumed: a.rPerInch == null, depthIn, cuFt, bagCuFt: a.bagCuFt ?? null, bags,
+    rPerInchAssumed: a.rPerInch == null, depthIn, cuFt, eave, bagCuFt: a.bagCuFt ?? null, bags,
     cost: bags != null && a.price != null ? bags * a.price : null, price: a.price ?? null, baffles,
   };
 }
@@ -152,6 +164,7 @@ export function insulationText(d) {
   const a = d.attic;
   if (a) {
     l.push(`  Attic (loose fill) over ${a.sqFt.toFixed(0)} sq ft, from ${a.source}: R-${a.rValue} at R-${a.rPerInch}/in${a.rPerInchAssumed ? " (assumed: read yours from the bag's coverage chart)" : ""} = ${a.depthIn.toFixed(1)} in settled depth, ${a.cuFt.toFixed(0)} cu ft with waste`);
+    if (a.eave) l.push(`    Eave compression: with a ${a.eave.heel} in heel at ${a.eave.pitch}/12 the fill is squeezed under ${a.eave.energyHeelIn.toFixed(1)} in for the first ${a.eave.runIn.toFixed(1)} in from each wall (${a.eave.bandSqFt.toFixed(0)} sq ft in all), so that band stays below R-${a.rValue}; ${a.eave.lostCuFt.toFixed(0)} cu ft left out of the count. A raised (energy) heel of ${a.eave.energyHeelIn.toFixed(1)} in or more holds full depth to the wall.`);
     if (a.baffles) l.push(`    Eave baffles: ${a.baffles.count} (${a.baffles.bays} bays at ${a.baffles.spacing} in, both eaves, ${a.baffles.baffleLength} in chutes); keep them clear of the blown fill`);
     l.push(a.bags != null ? `    ${a.bags} bags at ${a.bagCuFt} cu ft${a.cost != null ? `, ${a.cost.toFixed(2)} at ${a.price} each` : ""}` : "    Bag count needs the label's cubic feet per bag (attic.bagCuFt); coverage charts list bags per 1,000 sq ft by R-value.");
   }

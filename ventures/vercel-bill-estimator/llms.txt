@@ -1,0 +1,14 @@
+# What will your Vercel bill be, and what cuts it most?
+
+> Estimate a monthly Vercel Pro bill from your own usage (bandwidth, edge requests, functions, images, builds, seats) at editable list prices, and see which changes cut it most, with a dollar saving for each. Free, runs in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/vercel-bill-estimator/)
+- [How to reduce your Vercel bill: levers ranked by dollar impact](https://duncan-haywood.github.io/oss-monorepo/vercel-bill-estimator/how-to-reduce-your-vercel-bill.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/vercel-bill-estimator): MIT licensed.

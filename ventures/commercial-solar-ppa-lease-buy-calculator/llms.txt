@@ -1,0 +1,13 @@
+# Buy, PPA or lease: which commercial solar quote is actually best?
+
+> Free calculator for businesses, farms, nonprofits and landlords: compare buying commercial solar, a PPA and a lease on one set of after-tax cash flows. NPV, payback, break-even PPA rate and utility escalation sensitivity. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/commercial-solar-ppa-lease-buy-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/commercial-solar-ppa-lease-buy-calculator): MIT licensed.

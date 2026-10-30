@@ -1,0 +1,16 @@
+# Security Headers Checker
+
+> Free tool: run a CLI that sends one real request to your site, then paste the JSON here for a plain-English report on missing clickjacking protection, X-Frame-Options: ALLOW-FROM being ignored by current browsers, a CSP that allows unsafe-inline or wildcard script sources, and missing HSTS. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/security-headers-check/)
+- [Why X-Frame-Options: ALLOW-FROM doesn't protect you anymore](https://duncan-haywood.github.io/oss-monorepo/security-headers-check/clickjacking-and-csp-frame-ancestors.html)
+- [This checker vs. checking headers by eye in DevTools](https://duncan-haywood.github.io/oss-monorepo/security-headers-check/vs-checking-headers-by-eye-in-devtools.html)
+- [This checker vs. Security Headers (securityheaders.com)](https://duncan-haywood.github.io/oss-monorepo/security-headers-check/vs-securityheaders.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/security-headers-check): MIT licensed.

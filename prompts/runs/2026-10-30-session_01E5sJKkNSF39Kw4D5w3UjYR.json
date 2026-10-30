@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-30",
+  "session": "https://claude.ai/code/session_01E5sJKkNSF39Kw4D5w3UjYR",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "scheduled: read ./prompt.md and follow the instructions there",
+  "input_sha256": "f2d8c6470f61b3e050d0c0a8893c3b8623a29690722755209371e13aee4f6558",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-30T20:20:05Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 11846,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "no blog post: small internal perf change, covered by docs/history note"
+    }
+  ],
+  "writeups": [
+    "docs/history/ci-perf-2026-10-30-branch-cleanup.md"
+  ],
+  "goal": null,
+  "notes": "Metric: API requests per on-close branch cleanup. Before ~50 history + ceil(branches/100) listing + 3 (read from code); after 3 in not-moved case. Step time 2.1 min from ci_profile.py --runs 100; live after-time not measured (no token).",
+  "corrections": [],
+  "redteam": null
+}

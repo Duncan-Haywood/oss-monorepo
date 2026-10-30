@@ -1,0 +1,15 @@
+# MLS listing photo preflight
+
+> Free preflight check for MLS listing photos: resolution, file size, format, aspect ratio, branding filenames, and staged-photo pairing. Reads photo headers in your browser — nothing is uploaded. Download a dated evidence record before you deliver.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/real-estate-agent-photo-app/)
+- [MLS Listing Photo Preflight vs. BoxBrownie](https://duncan-haywood.github.io/oss-monorepo/real-estate-agent-photo-app/vs-boxbrownie.html)
+- [Why was my listing photo rejected?](https://duncan-haywood.github.io/oss-monorepo/real-estate-agent-photo-app/why-was-my-listing-photo-rejected.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/real-estate-agent-photo-app): MIT licensed.

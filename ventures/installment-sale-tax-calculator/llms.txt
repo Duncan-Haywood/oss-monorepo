@@ -1,0 +1,13 @@
+# Selling for a note: how much tax do you owe each year, and what does spreading it save?
+
+> Free installment sale tax calculator: selling a business, rental or land for a note? See the gain taxed each year, the depreciation recapture due up front, the tax saved by spreading it and what the interest earns after tax. Private, runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/installment-sale-tax-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/installment-sale-tax-calculator): MIT licensed.

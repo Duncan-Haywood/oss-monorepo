@@ -1,0 +1,13 @@
+# Why aren't my YouTube chapters showing up?
+
+> Free YouTube chapters checker: finds why chapters do not show (no 0:00 start, fewer than three, under 10 seconds, out of order), fixes the list, and converts Premiere or Audacity markers to chapters, chapters.json, FFmetadata and WebVTT. Runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/youtube-chapters-check/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/youtube-chapters-check): MIT licensed.

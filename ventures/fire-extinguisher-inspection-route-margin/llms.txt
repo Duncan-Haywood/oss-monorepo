@@ -1,0 +1,16 @@
+# Unit count lies. Profit per site doesn't.
+
+> Free calculator for independent fire-extinguisher and life-safety inspection route operators: find real monthly profit per customer site after recharge, hydro-test, and replacement materials, tags, drive time, and recordkeeping cost, then see whether your whole route hits your income goal.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/fire-extinguisher-inspection-route-margin/)
+- [How many extinguishers make a site worth servicing?](https://duncan-haywood.github.io/oss-monorepo/fire-extinguisher-inspection-route-margin/how-many-extinguishers-make-a-site-worth-servicing.html)
+- [This calculator vs. ranking sites by extinguisher count](https://duncan-haywood.github.io/oss-monorepo/fire-extinguisher-inspection-route-margin/vs-ranking-sites-by-extinguisher-count.html)
+- [This calculator vs. ServiceTitan](https://duncan-haywood.github.io/oss-monorepo/fire-extinguisher-inspection-route-margin/vs-servicetitan.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/fire-extinguisher-inspection-route-margin): MIT licensed.

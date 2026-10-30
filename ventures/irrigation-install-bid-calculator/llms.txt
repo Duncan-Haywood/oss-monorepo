@@ -1,0 +1,16 @@
+# Bid the zones, the trench, and the backflow.
+
+> Price a new sprinkler system from zones, extra heads, trench footage, soil, controller, 3/4-inch PVB versus 1-inch versus 1.5-inch RPZ, drip conversion, rain sensor, and a master valve — not a published $400-a-zone special. See the walk-away number before you match a cheaper quote.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/irrigation-install-bid-calculator/)
+- [How much to charge to install a sprinkler system](https://duncan-haywood.github.io/oss-monorepo/irrigation-install-bid-calculator/how-much-to-charge-to-install-a-sprinkler-system.html)
+- [This calculator vs. a flat $400-a-zone special](https://duncan-haywood.github.io/oss-monorepo/irrigation-install-bid-calculator/vs-a-flat-400-a-zone-special.html)
+- [This calculator vs. Aspire](https://duncan-haywood.github.io/oss-monorepo/irrigation-install-bid-calculator/vs-aspire.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/irrigation-install-bid-calculator): MIT licensed.

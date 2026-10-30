@@ -1,0 +1,13 @@
+# What do you really earn per hour driving, after the car?
+
+> Free earnings analyzer for Uber, Lyft, DoorDash and Instacart drivers: drop in your trip history CSV and see net pay per hour and per mile after vehicle cost, which app, weekday and time of day pays best, and which trips cost more to drive than they paid. Runs in your browser, the file is never uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/gig-driver-earnings-report-analyzer/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/gig-driver-earnings-report-analyzer): MIT licensed.

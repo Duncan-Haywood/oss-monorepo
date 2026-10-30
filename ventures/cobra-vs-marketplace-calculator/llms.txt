@@ -1,0 +1,14 @@
+# Lost your job-based health insurance: is COBRA or a marketplace plan cheaper?
+
+> Enter your COBRA premium and a marketplace quote and see the total cost of each over the months you need coverage, at five levels of medical care, with the break-even point and your election and special-enrollment deadlines. Free, runs in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/cobra-vs-marketplace-calculator/)
+- [COBRA election deadlines, explained](https://duncan-haywood.github.io/oss-monorepo/cobra-vs-marketplace-calculator/cobra-election-deadlines-explained.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/cobra-vs-marketplace-calculator): MIT licensed.

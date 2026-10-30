@@ -81,7 +81,7 @@ test("posts survive normalizeDesk, get unique slugs, and template drafts cannot 
   assert.ok(r.issues.some((i) => i.blocking && i.text.includes(C.PLACEHOLDER)));
   assert.equal(C.publishedPosts(d).length, 0);
 
-  // The sitter writes her own words but mentions a child from the desk.
+  // The sitter writes their own words but mentions a child from the desk.
   C.updatePost(d, "post_a", { body: "Last week Leo and I built a pillow fort and read under it with a flashlight. It was a hit, and it took ten minutes to set up.\n\n## Treasure hunt\n\n- Picture clues for little ones" }, TODAY);
   r = C.approvePost(d, "post_a", TODAY);
   assert.equal(r.ok, false);
@@ -96,7 +96,7 @@ test("posts survive normalizeDesk, get unique slugs, and template drafts cannot 
 
 test("review flags quotes and unbacked claims without blocking", () => {
   const d = emptyDesk();
-  const p = C.addPost(d, { title: "Hi", body: `I'm the best sitter in town. "She is wonderful and the kids adore her every time," a mom said. More words here to pass the length check easily.` }, TODAY);
+  const p = C.addPost(d, { title: "Hi", body: `I'm the best sitter in town. "They are wonderful and the kids adore them every time," a mom said. More words here to pass the length check easily.` }, TODAY);
   const issues = C.reviewPost(d, p);
   assert.ok(issues.some((i) => !i.blocking && /quotation/.test(i.text)));
   assert.ok(issues.some((i) => !i.blocking && /claim/.test(i.text)));

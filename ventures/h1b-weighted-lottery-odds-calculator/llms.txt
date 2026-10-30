@@ -1,0 +1,13 @@
+# What are my H-1B odds when Level IV gets four entries?
+
+> Free H-1B weighted lottery odds calculator: enter registrations by wage level (I-IV) and your candidates, and see each person's selection chance under the weighted rule versus the old flat lottery, and what one wage level higher is worth. Private, runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/h1b-weighted-lottery-odds-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/h1b-weighted-lottery-odds-calculator): MIT licensed.

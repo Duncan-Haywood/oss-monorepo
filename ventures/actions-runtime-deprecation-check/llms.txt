@@ -1,0 +1,13 @@
+# Which of your workflow steps run on a deprecated Node runtime?
+
+> Paste your GitHub Actions workflow YAML and list every actions/* step pinned to a major that runs on a deprecated Node runtime (Node 12 or 16) or that GitHub has shut down. Free, runs in your browser, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/actions-runtime-deprecation-check/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/actions-runtime-deprecation-check): MIT licensed.

@@ -1,0 +1,14 @@
+# Which pool accounts are worth the drive?
+
+> Find what each pool account on your route really earns per hour after drive time, chemicals and callbacks: which accounts to reprice or drop, the price that clears your target, what dropping or adding a stop 15 minutes away does to the whole route, and a CSV audit. Free, runs in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/pool-service-route-calculator/)
+- [Which pool service accounts are not worth keeping](https://duncan-haywood.github.io/oss-monorepo/pool-service-route-calculator/which-pool-service-accounts-are-not-worth-keeping.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/pool-service-route-calculator): MIT licensed.

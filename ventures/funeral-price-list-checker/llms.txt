@@ -1,0 +1,14 @@
+# Which funeral charges are required, and which are your choice?
+
+> Paste a funeral home's price list or quote and see which charges you cannot decline, which are your choice, which are paid to others, and which the FTC Funeral Rule questions, such as casket handling fees. Compare two homes. Free, in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/funeral-price-list-checker/)
+- [What the FTC Funeral Rule gives you, and what it does not](https://duncan-haywood.github.io/oss-monorepo/funeral-price-list-checker/what-is-the-ftc-funeral-rule.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/funeral-price-list-checker): MIT licensed.

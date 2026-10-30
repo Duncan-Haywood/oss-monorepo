@@ -1,0 +1,16 @@
+# The box decides the bill, not the item.
+
+> Work out the billable weight of a parcel from its box size, weight and DIM divisor — then see the box size that stops you paying for air, and whether the carton trips an additional-handling or oversize surcharge.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/parcel-dim-weight-calculator/)
+- [How dimensional weight is billed, and why the box wins](https://duncan-haywood.github.io/oss-monorepo/parcel-dim-weight-calculator/how-dimensional-weight-is-billed.html)
+- [This calculator vs. guessing which box triggers the dimensional penalty](https://duncan-haywood.github.io/oss-monorepo/parcel-dim-weight-calculator/vs-guessing-the-box-size.html)
+- [This calculator vs. ShipStation's dimensional weight](https://duncan-haywood.github.io/oss-monorepo/parcel-dim-weight-calculator/vs-shipstation.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/parcel-dim-weight-calculator): MIT licensed.

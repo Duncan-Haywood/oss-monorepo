@@ -1,0 +1,16 @@
+# What does a pound of wash and fold actually cost you?
+
+> Free wash and fold pricing calculator for laundromats and laundry pickup-and-delivery routes: work out your real cost per pound from labour minutes, wash and dry cycles, supplies, delivery stops and overhead, then see the break-even price per pound and the margin at what you charge today. Runs entirely in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/wash-and-fold-price-calculator/)
+- [How much should I charge for wash and fold?](https://duncan-haywood.github.io/oss-monorepo/wash-and-fold-price-calculator/how-much-to-charge-for-wash-and-fold.html)
+- [This calculator vs. Cents](https://duncan-haywood.github.io/oss-monorepo/wash-and-fold-price-calculator/vs-cents.html)
+- [This calculator vs. doing the cost math yourself](https://duncan-haywood.github.io/oss-monorepo/wash-and-fold-price-calculator/vs-doing-the-cost-math-yourself.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/wash-and-fold-price-calculator): MIT licensed.

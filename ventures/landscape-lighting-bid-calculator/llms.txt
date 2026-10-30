@@ -1,0 +1,16 @@
+# Bid the fixtures, the trench, and the extras.
+
+> Price low-voltage landscape lighting from fixture mix, fixtures-only versus new-system versus existing-add-on, trench and soil, transformer size, and extras — plus the walk-away price a $150 / light special cannot see.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/landscape-lighting-bid-calculator/)
+- [How much to charge to install landscape lighting](https://duncan-haywood.github.io/oss-monorepo/landscape-lighting-bid-calculator/how-much-to-charge-to-install-landscape-lighting.html)
+- [This calculator vs. a flat $150-a-light special](https://duncan-haywood.github.io/oss-monorepo/landscape-lighting-bid-calculator/vs-a-flat-150-per-light-special.html)
+- [This calculator vs. Aspire](https://duncan-haywood.github.io/oss-monorepo/landscape-lighting-bid-calculator/vs-aspire.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/landscape-lighting-bid-calculator): MIT licensed.

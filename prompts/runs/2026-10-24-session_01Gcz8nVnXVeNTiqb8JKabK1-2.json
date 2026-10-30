@@ -1,0 +1,55 @@
+{
+  "date": "2026-10-24",
+  "session": "https://claude.ai/code/session_01Gcz8nVnXVeNTiqb8JKabK1",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "well lets add as an action item the cloning only whats needed and running the jobs that are relevant only. let's add the second piece is the site builder test job. let's look into improving this system. let's also add some work distribution to overall performance engineering across the repo.",
+  "input_sha256": "6893d92ba4b6c0e14a948faa72ef5b8b401c51db2ad19af477b662fc89dcb11b",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-24T17:40:52Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "perf track (about 5% of runs), backlog P048-P050, and P050: stop the Pages test suite redrawing identical share cards",
+  "projects": [
+    "platform/pages",
+    "prompts"
+  ],
+  "pr": 10195,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    "build.test.mjs baseline run had 1 failure (identical cache name) caused by this session committing mid-run: the build reads git history. Not a code defect; the after run (no commits) passed 304/304.",
+    "main's Pages build was red again on arrival: PR #10185 merged a 238-char post description; shortened it here (writing.test.mjs 14/14).",
+    "PR sat unmerged 6 days (session idle). On return (2026-10-30): main's PR #10208 had shipped the same in-process card cache plus a disk cache, so share.mjs/share.test.mjs took main's version; main's new polish track (0.05) meant perf's 0.05 now comes from ventures/research 0.315 -> 0.29; experiments entry renumbered E84 -> E113; ported a fix for main's red validate (PR #11575 post description 180 chars)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/runs/README.md",
+      "why": "model left null: this session's harness forbids writing a model identifier into any pushed artifact"
+    },
+    {
+      "file": "prompts/runs/README.md",
+      "why": "second record for one session (-2 suffix, as earlier runs did): the first record (track process, PR #9964) is merged and may only have null fields filled"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Routing: perf 0.05, ventures/research 0.315 -> 0.29 each after main's polish track (E113). Backlog: P048 guard checkouts (baseline checkout 302/750 job-min = 40%; 359 jobs <15s work took 261 job-min, 210 checkout), P049 jobs per PR head (median 15 jobs / 10 workflows over 45 heads), P050 done. P050: phase timestamps on a 2-tool fixture build (36.9s): addShareCards 27.4s (~1,228 research/writing cards every build); renderCard 62.7 ms/card; full build 2,563 cards / 133 MB. Fix: in-process PNG cache in share.mjs renderCards keyed by card options. node build.mjs before/after: diff -rq identical over 15,367 files (87s vs 93s). node --test build.test.mjs: 460s -> 325s, 304/304 pass. share.test.mjs 18/18 (2 new). prompts test_promptctl 61 OK (1 new); promptctl validate ok.",
+  "corrections": [],
+  "redteam": null
+}

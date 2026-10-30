@@ -1,0 +1,17 @@
+# No-Show & Cancellation Fee Calculator
+
+> Free calculator for personal trainers, salons, tutors, and therapists: work out a defensible no-show fee, see whether overbooking the empty chairs still beats collecting it, and copy a cancellation policy.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/no-show-fee-calculator/)
+- [24 hours vs 48 hours: the notice window is a waitlist question](https://duncan-haywood.github.io/oss-monorepo/no-show-fee-calculator/24h-vs-48h-cancellation-notice.html)
+- [Should I overbook or charge a no-show fee?](https://duncan-haywood.github.io/oss-monorepo/no-show-fee-calculator/should-i-overbook-or-charge-a-no-show-fee.html)
+- [No-Show Fee Calculator vs. guessing a flat dollar fee](https://duncan-haywood.github.io/oss-monorepo/no-show-fee-calculator/vs-a-flat-no-show-fee.html)
+- [This calculator vs. Acuity Scheduling](https://duncan-haywood.github.io/oss-monorepo/no-show-fee-calculator/vs-acuity-scheduling.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/no-show-fee-calculator): MIT licensed.

@@ -23,6 +23,7 @@ import {
   annotateNumberInputs,
   stepAllowsDecimals,
   buildSite,
+  collectOfflineBundle,
   categoryFor,
   DOWNLOADABLE_CLI_FILES,
   collectPageTitles,
@@ -3483,7 +3484,15 @@ test('the worker can be withdrawn from devices that already have it', async () =
   // A service worker outlives the deploy that installed it, so reverting a
   // commit is not on its own a way to take one back. This is the lever that is.
   const outDir = await fs.mkdtemp(path.join(os.tmpdir(), 'pages-killswitch-'));
-  await buildSite({ outDir, baseUrl: BASE, disableWorker: true });
+  // Only sw.js is read, and `disableWorker` changes nothing else in the build,
+  // so the worker is rendered over a one-page directory instead of building
+  // the whole site a second time (about 80 s).
+  await fs.writeFile(path.join(outDir, 'index.html'), '<!doctype html><title>x</title><body></body>');
+  for (const file of (await collectOfflineBundle(outDir, [])).shared) {
+    await fs.mkdir(path.dirname(path.join(outDir, file)), { recursive: true });
+    await fs.writeFile(path.join(outDir, file), '');
+  }
+  await addOfflineSupport({ outDir, base: BASE, surfaces: [], disableWorker: true });
   const sw = await fs.readFile(path.join(outDir, 'sw.js'), 'utf8');
 
   assert.match(sw, /registration\.unregister\(\)/);

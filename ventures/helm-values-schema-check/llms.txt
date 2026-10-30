@@ -1,0 +1,16 @@
+# Does your values.yaml actually match its own schema?
+
+> Paste a Helm values.yaml and values.schema.json to find silently ignored typos, missing required fields and type mismatches. Runs in your browser, no Helm needed.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/helm-values-schema-check/)
+- [This checker vs. eyeballing values.yaml against the schema](https://duncan-haywood.github.io/oss-monorepo/helm-values-schema-check/vs-checking-it-by-eye.html)
+- [This checker vs. helm lint](https://duncan-haywood.github.io/oss-monorepo/helm-values-schema-check/vs-helm-lint.html)
+- [Why Helm silently accepts a typo in values.yaml](https://duncan-haywood.github.io/oss-monorepo/helm-values-schema-check/why-helm-silently-accepts-a-typo-in-values-yaml.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/helm-values-schema-check): MIT licensed.

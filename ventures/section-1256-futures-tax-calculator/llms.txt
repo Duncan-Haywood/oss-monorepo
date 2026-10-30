@@ -1,0 +1,13 @@
+# What does the 60/40 rule save me on futures and index options?
+
+> Free Section 1256 60/40 tax calculator for futures and index option traders: enter Form 1099-B boxes 8, 9 and 10, see the aggregate, the 60% long-term and 40% short-term split, the blended rate and how much 60/40 saves against short-term. Private, runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/section-1256-futures-tax-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/section-1256-futures-tax-calculator): MIT licensed.

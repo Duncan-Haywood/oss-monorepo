@@ -1,0 +1,13 @@
+# What is my EIS or SEIS investment really going to cost me?
+
+> Free UK EIS and SEIS calculator: income tax relief you can actually use, CGT deferral or reinvestment relief, loss relief if the company fails, and the break-even sale price. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/uk-eis-seis-relief-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/uk-eis-seis-relief-calculator): MIT licensed.

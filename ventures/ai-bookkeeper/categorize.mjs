@@ -34,6 +34,10 @@ const amountBucket = (cents) => `amt:${Math.min(12, Math.floor(Math.log2(Math.ab
 // keyword that fits two accounts is left out, so the line goes to review rather
 // than being guessed. `dir` limits a rule to money in or money out.
 export const BUILT_IN = [
+  // Pressure washing and window cleaning (2026-10-30, pressurewash.test.mjs; agent-written from the companies' public names, not from a real export):
+  // Jobber payouts and HOA or property-manager Zelles are sales; washer gear, cleaning chemicals and squeegees are supplies (a bare "sodium hypochlorite" line is chemicals, not a pool bill).
+  ["4000", "in", /jobber payout|zelle from .*(\bhoa\b|property (mgmt|management)|apartments)/],
+  ["6100", "out", /northern tool|karcher|hotsy|surface cleaner|pressure washer|sodium hypochlorite|simple green|\bunger\b|\bettore\b|squeegee/],
   // Food trucks (2026-10-29, foodtruck.test.mjs; agent-written from the companies' public names, not from a real export):
   // catering deposits are sales; commissary rent is rent, propane is utilities, event and festival fees are advertising, generator and truck-equipment service is repairs.
   ["4000", "in", /catering (deposit|payment)|food truck (event|festival) (payout|payment)/],
@@ -49,6 +53,48 @@ export const BUILT_IN = [
   ["6060", "out", /snapdocs.*(subscription|monthly)|notarycam|bluenotary|notarize\.com pro/],
   ["6100", "out", /notary (stamp|seal|journal)/],
   ["6110", "out", /secretary of state.*notary|notary commission/],
+  // Yoga and Pilates studios (2026-10-30, yogastudio.test.mjs; agent-written from the companies' public names, not from a real export):
+  // class-marketplace and booking-platform payouts are sales; studio lease is rent; props and mats are supplies; booking software is software;
+  // a Gusto payroll debit is wages, not software (the generic Gusto rule files its monthly fee as software).
+  ["4000", "in", /momence payout|walla payout|zen ?planner payout|zelle from .*(wellness|corporate)/],
+  // QuickBooks/Intuit payroll debits are wages too (2026-10-30, payroll-software.test.mjs): the generic quickbooks/intuit rule files them as software; a fee, subscription or tax line is left to the rules below.
+  ["6150", "out", /(quickbooks|intuit|qbooks)\W+payroll(?!.*(fee|subscription|monthly|tax))/],
+  // Gaps found by a 69-description probe (2026-10-30, processor-payroll-gaps.test.mjs, made-up descriptions): ADP TotalSource (a PEO) debits are wages;
+  // Square and Toast deposits and Amazon marketplace payments are sales; SendGrid is software. IRS and EFTPS lines stay unsuggested: payroll, estimated and sales-tax payments look alike.
+  ["6150", "out", /\badp\s+(totalsource|payroll|run)/],
+  ["4000", "in", /(square|toast)\s*(inc\s*)?deposit|amazon\s+mktplace\s+pmts/],
+  ["6060", "out", /sendgrid/],
+  // Second probe, ~125 descriptions (2026-10-30, saas-peo-lender-gaps.test.mjs, made-up): 32 unsuggested. Work-management and CRM software; formation and legal-template services; PEOs (as ADP TotalSource above) are wages;
+  // Deel and Remote.com pay contractors; small-business lender debits are loan payments; eBay and Paddle payouts are sales. Streaming, Costco, Venmo/Cash App/Zelle stay for a person (personal or mixed).
+  ["6060", "out", /taxjar|expensify|\bhubspot|\btrello|\basana\b|intercom|bill\.com/],
+  ["6050", "out", /rocket ?lawyer|\bclerky/],
+  ["6050", "out", /turbo ?tax|h&r block|\btaxact\b|freetaxusa/],
+  ["6060", "out", /\btoast\b(?!.*(deposit|payout))|linkedin premium|salesforce|zendesk|\bsqsp\b|mindbody|\bacuity\b|square appointments|\bprintify\b/],
+  ["6000", "out", /\bindeed\b|etsy (ads|offsite)/],
+  ["6010", "out", /etsy listing fee|bank service (fee|charge)/],
+  ["6140", "out", /\bat&t\b|\batt (bill|wireless|mobility)/],
+  ["6060", "out", /nordvpn|expressvpn|proton ?(vpn|mail)|google \*(storage|one)/],
+  ["6150", "out", /\b(trinet|justworks)\b/],
+  ["6020", "out", /\bdeel\b|remote\.com/],
+  ["2200", "out", /\bsba eidl|kabbage|bluevine|fundbox/],
+  ["4000", "in", /ebay.*payout|paddle\.com/],
+  ["6150", "out", /gusto (payroll|wages|net pay)(?!.*(fee|subscription|monthly))|gusto.*(tax|debit)/],
+  ["6100", "out", /manduka|gaiam|hugger mugger|yoga ?props|pilates (reformer|equipment)|balanced body|merrithew/],
+  ["6060", "out", /momence (subscription|monthly)|walla (subscription|monthly)|marianatek|pushpress/],
+  ["6080", "out", /studio lease/],
+  // Pool service routes (2026-10-30, poolservice.test.mjs; agent-written from the companies' public names, not from a real export):
+  // route-software payouts and customer Zelle are sales; chemical and equipment distributors are supplies; route software is software; CPO certification is a licence.
+  ["4000", "in", /skimmer payout|poolbrain payout|pool ?dash payout|zelle from .*pool service/],
+  ["6100", "out", /leslie'?s pool|scp pool|pool corp|pinch a penny|sctpool|chlorine|muriatic/],
+  ["6060", "out", /skimmer (subscription|monthly)|poolbrain (subscription|monthly)|pool ?dash (subscription|monthly)|pool ?office/],
+  ["6110", "out", /cpo certification|phta|nspf|pool operator (cert|licen)/],
+  // Movers and junk removal (2026-10-30, movers.test.mjs; agent-written from the companies' public names, not from a real export):
+  // lead-platform payouts and moving-software transfers are sales; truck rentals are vehicle costs; moving supplies and dump fees are supplies; scheduling software is software; USDOT/UCR filings are licences.
+  ["4000", "in", /hireahelper payout|moving help payout|movebuddy payout|zelle from .*move deposit/],
+  ["6160", "out", /penske truck|u-?haul truck|budget truck|uhaul (truck|rental)/],
+  ["6100", "out", /uhaul moving supplies|u-?haul.*supplies|dump fee|transfer station|landfill/],
+  ["6060", "out", /smartmoving|moveitpro|supermove|mover ?base/],
+  ["6110", "out", /usdot|ucr registration|motor carrier/],
   // Vending route operators (2026-10-29, vending.test.mjs; agent-written from the companies' public names, not from a real export):
   // cashless-reader settlements and route cash deposits are sales; location commissions are rent; machine parts are repairs and maintenance (before the older "vending" meals rule).
   ["4000", "in", /cantaloupe deposit|nayax.*(settlement|deposit)|cash deposit vending|vending (route )?(cash|deposit)/],
@@ -213,12 +259,12 @@ export const BUILT_IN = [
   ["4000", "in", /\b(poshmark|mercari|depop|vinted|thredup|offerup|grailed|reverb)\b/],
   ["1450", "out", /goodwill|salvation army|plato'?s closet|value village|buffalo exchange|once upon a child|savers thrift|thrift (store|shop)/],
   ["6070", "out", /staples|office depot|officemax|usps|stamps\.com|post office/],
-  ["6080", "out", /wework|regus|coworking|office rent|monthly rent|rent payment|paying the rent|storage unit|public storage/],
+  ["6080", "out", /wework|regus|coworking|office rent|monthly rent|rent payment|paying the rent|property management|miete\b|loyer\b|alquiler|storage unit|public storage/],
   ["6100", "out", /home depot|lowes|ace hardware|menards|harbor freight|uline|grainger/],
   ["6110", "out", /business licen[cs]e|secretary of|annual report|franchise tax|permit fee/],
   ["6120", "out", /airline|\btram\b|subway fare|metro transit|transit authority|delta air|united air|american air|southwest|jetblue|marriott|hilton|hyatt|expedia|booking\.com|amtrak|hertz|\bavis\b|enterprise rent|uber\s+\*?\s*trip|uber\s+\*?\s*(?:ride|pool)|lyft|radisson|wyndham|best western|airbnb|priceline|hotwire|car rental|rent a car|\bturo\b|budget rent/],
   ["6130", "out", /restaurant|eating out|cafe|coffee|starbucks|doordash|uber eats|grubhub|chipotle|panera|mcdonald|pizza|bistro|diner|taqueria|sushi|ihop|applebee|jack in the box|\bsonic\b|tim hortons|wingstop|tgi friday|panda express|dunkin|wendy|burger king|\bkfc\b|taco bell|popeyes|domino|chick-fil-a|\bramen\b|dim sum|bakery|\bgrill\b|steakhouse|noodle|\bbbq\b|\bdeli\b|kebab|burrito|wings/],
-  ["6140", "out", /verizon|at&t|t-mobile|tmobile|comcast|xfinity|spectrum|cox comm|google fi|mint mobile|electric|pg&e|pgande|pg ?and ?e\b|pacific gas|national grid|duke energy|monkeybrains|sonic\.net|google fiber|webpass|starry|frontier comm|centurylink|\blumen\b|astound|con ?ed|water bill|utility|\bwater\b|\bpower\b(?! (manager|supply|module|adapter|bank|strip|cable|board|tool|button|switch|led))|\benergy\b|ebill|edison|dominion|entergy|eversource|cricket|visible|optimum|us mobile|\bting\b/],
+  ["6140", "out", /verizon|at&t|t-mobile|tmobile|comcast|xfinity|spectrum|cox comm|google fi|mint mobile|electric|pg&e|pgande|pg ?and ?e\b|pacific gas|national grid|duke energy|monkeybrains|sonic\.net|google fiber|webpass|starry|frontier comm|centurylink|\blumen\b|astound|con ?ed|water bill|utility|\bwater\b|\bpower\b(?! (manager|supply|module|adapter|bank|strip|cable|board|tool|button|switch|led))|\benergy\b|ebill|edison|dominion|entergy|eversource|cricket|visible|optimum|us mobile|\bting\b|telekom|vodafone|\bo2 (uk|germany)|orange (s\.?a|france)|\bbt group|sky broadband|virgin media|\bee limited|rogers comm|bell canada|telus|optus|telstra|stadtwerke/],
   ["6150", "out", /net pay|payroll(?! tax)|wages/],
   ["6160", "out", /shell oil|chevron|exxon|mobil\b|\bbp\b|sunoco|valero|\barco\b|phillips 66|quiktrip|speedway|casey's|firestone|safelite|gas station|fuel|jiffy lube|car wash|autozone|parking|toll/],
   ["6170", "out", /udemy|coursera|chegg|datacamp|skillshare|linkedin learning|masterclass|pearson|mcgraw|tuition|conference|membership dues|association dues|chamber of commerce/],

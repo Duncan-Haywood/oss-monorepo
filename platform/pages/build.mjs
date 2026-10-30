@@ -5682,7 +5682,9 @@ function disclaimerHtml(toRoot, surfaces = []) {
         (which page, which day, and — if you followed one of our own channel
         links, such as a release note or package page — which channel, and what
         kind of site sent you, such as "google" or "reddit", never its address;
-        nothing you type, no cookie, no IP address stored; its host sees each
+        plus the country the request came from as a two-letter code and whether
+        the browser is a phone, tablet or desktop, each kept only as a daily
+        total; nothing you type, no cookie, no IP address stored; its host sees each
         request the way any web server does), and those totals are
         published in the repository.` : ''} Browsers sending
         <em>Do&nbsp;Not&nbsp;Track</em> or <em>Global Privacy Control</em> are
@@ -7244,7 +7246,7 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
         </p>
         <ul>
           <li><strong>No account and no sign-up.</strong> There is no login, no email capture, and no "enter your address to see the result" gate.</li>
-          <li><strong>${exceptions.length ? `Nothing you enter is transmitted, with ${exceptions.length === 1 ? 'one documented exception' : `${exceptions.length} documented exceptions`}.` : 'Nothing you enter is transmitted.'}</strong> These pages make no network request with your input — no form post, no background beacon${counterOn() ? ' (the page-view ping described below carries only the page name and where-from labels)' : ''}${exceptions.length ? ` — except ${exceptionNames}, each of which checks a live public API as its whole job. What you paste there to look up goes to ${exceptionHosts} and nowhere else on this site; that page explains exactly what is sent` : ''}.</li>
+          <li><strong>${exceptions.length ? `Nothing you enter is transmitted, with ${exceptions.length === 1 ? 'one documented exception' : `${exceptions.length} documented exceptions`}.` : 'Nothing you enter is transmitted.'}</strong> These pages make no network request with your input — no form post, no background beacon${counterOn() ? ' (the page-view ping described below carries only the page name and where-from labels; the counter adds the country code and device type from the request)' : ''}${exceptions.length ? ` — except ${exceptionNames}, each of which checks a live public API as its whole job. What you paste there to look up goes to ${exceptionHosts} and nowhere else on this site; that page explains exactly what is sent` : ''}.</li>
           <li><strong>No third-party scripts.</strong> No analytics vendor, no tag manager, no advertising network, no hosted fonts, no CDN. ${exceptions.length ? `Besides the live API call${exceptions.length === 1 ? '' : 's'} ${exceptionNames} make${exceptions.length === 1 ? 's' : ''}, above, the` : 'The'} only outside addresses on this site are links you can choose to click.</li>
           <li><strong>No cookies and no cross-site identifiers.</strong></li>${feedbackOn() ? `
           <li><strong>Feedback is sent only when you send it.</strong> The <a href="${escapeHtml(`${toRoot}${FEEDBACK_PATH}`)}">feedback form</a> posts the message you write, the type you pick and the tool it is about, and nothing else, to this site's own small server, and is then published in the site's public GitHub repository. Nothing about you is stored with it, and email addresses are removed from the text first. Don't include anything you would not want published.</li>` : ''}
@@ -7262,9 +7264,15 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
         channel's name, plus what kind of site sent you (a label from a fixed
         list, such as <code>google</code>, <code>reddit</code> or
         <code>other</code>, worked out in your browser so the referring
-        address itself is never sent), and nothing else. The counter keeps one
-        number per page, per channel and per kind of site, per day. No IP
-        address, cookie, browser string or referring address is stored. The daily totals are committed to the public
+        address itself is never sent), and nothing else. From the request itself
+        the counter also reads the country it came from (Cloudflare's two-letter
+        code, such as <code>US</code>) and whether the browser string is a
+        phone's, a tablet's or a desktop's. It keeps one number per page, per
+        channel, per kind of site, per country and per device type, per day,
+        and none of these is linked to another or to you. Self-declared
+        crawlers are tallied separately by name (such as <code>googlebot</code>)
+        and never counted as visits. No IP address, cookie, browser string or
+        referring address is stored. The daily totals are committed to the public
         repository. That counter's host sees each request the way any web server
         does; the counter stores none of it` : ` and is never
         sent anywhere`}. It exists so the next tool built is one people actually
@@ -10643,7 +10651,7 @@ export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guid
     full
       ? `- [Short index](${baseUrl}llms.txt): the same tools with one-sentence descriptions, small enough to read in one fetch.`
       : `- [Full text](${baseUrl}llms-full.txt): every tool with its complete description and the LLM docs a product ships; large (several hundred KB), fetch only when the index does not answer the question.`,
-    `- [About and press kit](${baseUrl}${ABOUT_PATH}): what this site is, how visitor data is handled (${counterOn() ? 'inputs never leave the browser; a cookieless per-page daily tally, with the kind of referring site, goes to a first-party counter' : 'it never leaves the browser'}${exceptions.length ? ', with a documented exception listed there' : ''}), the licence, and pre-written boilerplate for citing or linking to these tools.`,
+    `- [About and press kit](${baseUrl}${ABOUT_PATH}): what this site is, how visitor data is handled (${counterOn() ? 'inputs never leave the browser; a cookieless per-page daily tally, with the kind of referring site, the country code and the device type, goes to a first-party counter' : 'it never leaves the browser'}${exceptions.length ? ', with a documented exception listed there' : ''}), the licence, and pre-written boilerplate for citing or linking to these tools.`,
     `- [Ask](${baseUrl}${ASK_PATH}): fill any calculator here by voice or a typed sentence, find a tool, or hear a result read back; in browsers with WebMCP every page also offers \`search_site_tools\`, \`read_page_results\` and (on calculators) \`fill_form\` to an agent. Runs in the browser; no model unless the visitor switches one on. The page states the measured accuracy and the limitations.`,
     `- [Updates and roadmap](${baseUrl}${UPDATES_PATH}): what shipped this week, what is in progress, the owner's direction for the project and how AI agents build it; and the [changelog](${baseUrl}${CHANGELOG_PATH}) of every change merged, by day.`,
     `- [Comparisons](${baseUrl}${COMPARE_PATH}): every page on this site that compares one of these tools with a named commercial product, grouped by product. Useful for answering "is there a free alternative to X?" with a page that says what the free tool does *not* do as well as what it does.`,

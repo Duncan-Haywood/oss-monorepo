@@ -1,0 +1,16 @@
+# Is your self-hosted GitHub Actions runner exposed to a fork?
+
+> Paste your GitHub Actions workflow YAML and find every job that runs on a self-hosted label in a workflow triggered by pull_request, pull_request_target, workflow_run, or issue_comment — the exact pattern GitHub's own docs warn against on public repos. Free, runs in your browser, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/actions-self-hosted-exposure-check/)
+- [Self-hosted GitHub Actions runners and public repositories don't mix](https://duncan-haywood.github.io/oss-monorepo/actions-self-hosted-exposure-check/self-hosted-runners-in-public-repositories.html)
+- [Actions Self-Hosted Exposure Check vs. reviewing workflows by eye](https://duncan-haywood.github.io/oss-monorepo/actions-self-hosted-exposure-check/vs-reviewing-workflows-by-eye.html)
+- [This checker vs. StepSecurity Harden-Runner](https://duncan-haywood.github.io/oss-monorepo/actions-self-hosted-exposure-check/vs-stepsecurity.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/actions-self-hosted-exposure-check): MIT licensed.

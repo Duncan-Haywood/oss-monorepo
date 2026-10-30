@@ -482,6 +482,21 @@ def containment(main=None, compares=None, budget=50):
     return probe
 
 
+class LazyHistoryTest(unittest.TestCase):
+    def test_history_is_read_only_when_a_sha_is_checked(self):
+        loads = []
+
+        def history():
+            loads.append(1)
+            return {MAIN_TIP: OLD}
+
+        probe = MainContainment(history, lambda sha: None)
+        self.assertEqual(loads, [])
+        self.assertEqual(probe.check(MAIN_TIP)[0], True)
+        probe.check(MAIN_TIP)
+        self.assertEqual(loads, [1])
+
+
 class InMainRuleTest(unittest.TestCase):
     """The 2026-10-16 leak: branches re-pushed at main's own commit, and
     branches no PR ever used, kept forever although they hold nothing new."""

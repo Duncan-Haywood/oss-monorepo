@@ -1,0 +1,14 @@
+# What interest rate is really inside your car lease quote?
+
+> Free car lease calculator. Turn a money factor into APR, find the money factor hiding in a quoted payment, price dealer markup in dollars, and compare leasing with buying. Private, in your browser, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/car-lease-deal-checker/)
+- [What is a money factor? Lease APR explained, with an example](https://duncan-haywood.github.io/oss-monorepo/car-lease-deal-checker/what-is-a-money-factor.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/car-lease-deal-checker): MIT licensed.

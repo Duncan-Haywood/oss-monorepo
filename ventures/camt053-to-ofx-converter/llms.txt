@@ -1,0 +1,13 @@
+# Convert a camt.053 or MT940 bank statement to OFX, QBO, QIF or a Xero CSV
+
+> Free camt.053 and MT940 converter: balance-check the statement, then download OFX/QBO for QuickBooks and Quicken, QIF, or a Xero statement CSV, with stable transaction IDs. Runs in your browser; the file is never uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/camt053-to-ofx-converter/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/camt053-to-ofx-converter): MIT licensed.

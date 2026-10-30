@@ -49,6 +49,21 @@ class DeadLinks(unittest.TestCase):
             self.assertEqual(list(c.dead_links(doc, root)), [(1, "nope.md")])
 
 
+class SparseCheckout(unittest.TestCase):
+    def test_tracked_but_absent_file_is_not_dead(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            subprocess.run(["git", "-C", d, "init", "-q"], check=True)
+            (root / "img").mkdir()
+            (root / "img/a.png").write_bytes(b"x")
+            (root / "a.md").write_text("[a](img/a.png) [b](img/b.png) [c](img/)\n")
+            subprocess.run(["git", "-C", d, "add", "img/a.png", "a.md"], check=True)
+            (root / "img/a.png").unlink()  # as a sparse checkout leaves it
+            known = c.tracked_paths(root)
+            self.assertEqual([t for _, t in c.dead_links(root / "a.md", root, known)],
+                             ["img/b.png"])
+
+
 class Anchors(unittest.TestCase):
     def test_slugs_follow_github(self):
         text = "# Usage counting\n## d. `Foo` [bar](x.md)?\n## Same\n## Same\n```\n# not a heading\n```\n"

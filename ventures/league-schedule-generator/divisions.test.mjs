@@ -4,7 +4,7 @@ import { readFileSync, writeFileSync, mkdtempSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { parseDivisions, parseDivisionLinks, buildDivisions, applyDivisionRainouts, rainoutOptions, validateDivisions, linkConflicts, divisionsCsv, divisionsText, divisionsIcs, readDivisionsSpec, parseTravel, divisionStats, carryVenueHistory, venueImbalance, suggestFairnessWeight, encodeDivisionFields, decodeDivisionFields } from "./divisions.mjs";
+import { parseDivisionBlackouts, applyDivisionBlackouts, parseDivisions, parseDivisionLinks, buildDivisions, applyDivisionRainouts, rainoutOptions, validateDivisions, linkConflicts, divisionsCsv, divisionsText, divisionsIcs, readDivisionsSpec, parseTravel, divisionStats, carryVenueHistory, venueImbalance, suggestFairnessWeight, travelWarnings, encodeDivisionFields, decodeDivisionFields } from "./divisions.mjs";
 import { parseDate, dayIso } from "./calc.mjs";
 
 const example = JSON.parse(readFileSync(new URL("./example-divisions.json", import.meta.url), "utf8"));
@@ -625,4 +625,65 @@ test("team and official messages: every match appears once per side, byes add no
   assert.equal(om.reduce((n, m) => n + m.matches, 0), a.total);
   assert.ok(om.every((m) => m.text.startsWith(`Hi ${m.official},`)));
   assert.deepEqual(divisionsOfficialMessages(s), []);
+});
+
+test("travelWarnings flags a missing pair and a direct time longer than going via a third venue", () => {
+  const v = ["Park", "School", "Lake"];
+  const full = parseTravel("Park - School: 10\nSchool - Lake: 20\nPark - Lake: 25", v).travel;
+  assert.deepEqual(travelWarnings(full, v), []);
+  const missing = parseTravel("Park - School: 10\nSchool - Lake: 20", v).travel;
+  const w1 = travelWarnings(missing, v);
+  assert.equal(w1.length, 1);
+  assert.match(w1[0], /No travel time for Park - Lake.*20 min/);
+  const typo = parseTravel("Park - School: 10\nSchool - Lake: 20\nPark - Lake: 250", v).travel;
+  const w2 = travelWarnings(typo, v);
+  assert.equal(w2.length, 1);
+  assert.match(w2[0], /Park - Lake is 250 min but Park - School - Lake is 30/);
+  assert.deepEqual(travelWarnings({}, v), []);
+});
+
+test("the multi-division page shows the travel-table warnings readDivisionsSpec returns", async () => {
+  const { readFileSync } = await import("node:fs");
+  const html = readFileSync(new URL("./multi-division-league-schedule.html", import.meta.url), "utf8");
+  assert.match(html, /readDivisionsSpec\(f\);/);
+  assert.match(html, /const \{ spec, errors, warnings \} = readDivisionsSpec/);
+  assert.match(html, /Travel table:/);
+});
+
+test("season grid: one row per team, one column per night, every match shows once per side", async () => {
+  const { divisionsSeasonGrid, divisionsSeasonGridCsv } = await import("./divisions.mjs");
+  const s = build();
+  const { header, rows } = divisionsSeasonGrid(s);
+  assert.equal(header.length, 2 + s.nights.length);
+  assert.equal(rows.length, s.divisions.reduce((a, d) => a + d.teams.length, 0));
+  const cells = rows.flatMap((r) => r.slice(2)).filter(Boolean).flatMap((c) => c.split(" / "));
+  const matches = s.nights.reduce((a, n) => a + n.matches.length, 0);
+  assert.equal(cells.length, matches * 2);
+  assert.equal(cells.filter((c) => c.startsWith("v ")).length, matches);
+  const csv = divisionsSeasonGridCsv(s);
+  assert.ok(csv.endsWith("\r\n"));
+  assert.equal(csv.trim().split("\r\n").length, rows.length + 1);
+});
+
+test("team unavailable dates: no match is left on a blackout night, moved matches avoid every blackout, and bad lines are named", () => {
+  const s = build();
+  const blackouts = {};
+  const lines = [];
+  // block the first three nights each team plays in the first two divisions' opening rounds
+  for (const n of s.nights.slice(0, 3)) {
+    const m = n.matches[0];
+    const k = `${m.div}/${m.home}`;
+    (blackouts[k] = blackouts[k] || []).push(n.day);
+    lines.push(`${m.division}/${m.homeName}: ${dayIso(n.day)}`);
+  }
+  const pb = parseDivisionBlackouts(lines.join("\n"), s.divisions);
+  assert.deepEqual(pb.errors, []);
+  const r = applyDivisionBlackouts(s, pb.blackouts);
+  assert.deepEqual(r.errors, []);
+  assert.ok(r.moves.length >= 3);
+  assert.deepEqual(validateDivisions(r.schedule).errors, []);
+  assert.equal(r.schedule.stats.matches, s.stats.matches);
+  for (const n of r.schedule.nights) for (const m of n.matches) for (const t of [m.home, m.away]) assert.ok(!(pb.blackouts[`${m.div}/${t}`] || []).includes(n.day));
+  const bad = parseDivisionBlackouts("Nope/Team: 2026-10-06\nnonsense", s.divisions);
+  assert.equal(bad.errors.length, 2);
 });

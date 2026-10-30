@@ -79,11 +79,11 @@ def refs_in(text: str):
                 yield n, c
 
 
-def missing_refs(path: Path, root: Path, tops: set[str]):
+def missing_refs(path: Path, root: Path, tops: set[str], known: set[str] = frozenset()):
     for n, c in refs_in(path.read_text(encoding="utf-8", errors="replace")):
         if c.split("/", 1)[0] not in tops:
             continue  # not rooted at a repo top-level name (e.g. `owner/repo`)
-        if not (root / c.rstrip("/")).exists():
+        if not (root / c.rstrip("/")).exists() and c.rstrip("/") not in known:
             yield n, c
 
 
@@ -93,14 +93,20 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("paths", nargs="*")
     a = ap.parse_args(argv)
     root = Path(a.root).resolve()
-    tops = {p.split("/", 1)[0] for p in tracked(root) if "/" in p}
+    files_tracked = tracked(root)
+    tops = {p.split("/", 1)[0] for p in files_tracked if "/" in p}
+    known = set(files_tracked)
+    for p in files_tracked:  # directories too: a sparse checkout may omit them
+        while "/" in p:
+            p = p.rpartition("/")[0]
+            known.add(p)
     files = [Path(p).resolve() for p in a.paths] if a.paths else default_files(root)
     bad = 0
     for f in files:
         rel = f.relative_to(root).as_posix()
         if rel.startswith(ARCHIVE_DIRS):
             continue
-        for n, c in missing_refs(f, root, tops):
+        for n, c in missing_refs(f, root, tops, known):
             print(f"{rel}:{n}: {c}")
             bad += 1
     if bad:

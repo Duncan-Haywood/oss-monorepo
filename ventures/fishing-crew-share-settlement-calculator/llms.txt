@@ -1,0 +1,13 @@
+# Who gets what from the trip?
+
+> Free settlement calculator for commercial fishing boats. Enter the catch, fuel, ice, bait and food, the boat share and each crew share; get every payout, the boat's true trip profit and the gross sales needed to pay a deckhand your target. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/fishing-crew-share-settlement-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/fishing-crew-share-settlement-calculator): MIT licensed.

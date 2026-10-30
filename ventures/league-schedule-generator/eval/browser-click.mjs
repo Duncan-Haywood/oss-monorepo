@@ -63,6 +63,17 @@ for (const o of OPTS) {
   check(await page.locator("#nights tbody tr").count() === baseline, `${o} ticked: match count unchanged`);
 }
 
+await page.fill("#blackouts", "U10/Hawks: 2026-10-06, 2026-10-08");
+await page.click("#build");
+check(/Moved for rainouts/.test(await page.locator("#notices").textContent()), "unavailable dates move matches and say so");
+check(/checked/.test(await page.locator("#check-line").textContent()), "unavailable dates: schedule still passes its check");
+check(await page.locator("#nights tbody tr").count() === baseline, "unavailable dates: match count unchanged");
+await page.fill("#blackouts", "Nope/Team: 2026-10-06");
+await page.click("#build");
+check(/not a Division\/Team/.test(await page.locator("#form-status").textContent()), "a bad unavailable line is named");
+await page.fill("#blackouts", "U10/Hawks: 2026-10-06, 2026-10-08");
+await page.click("#build");
+
 await page.click("#share-link");
 const hash = await page.evaluate(() => location.hash);
 check(hash.startsWith("#d="), "share link holds the setup in the hash");
@@ -81,6 +92,16 @@ const sug = await page.locator("#suggest-out").textContent();
 const w = await page.locator("#fairnessWeight").inputValue();
 check(w !== "" && Number.isFinite(Number(w)), `suggest button fills the weight box (${sug.slice(0, 60)})`);
 check(await page.locator("#venueFairness").isChecked(), "suggest button turns venue fairness on");
+
+for (const [btn, name, test] of [
+  ["#dl-grid", "division-season-grid.csv", (t) => t.split("\n").length > 2 && t.includes(",")],
+]) {
+  const [dl] = await Promise.all([page.waitForEvent("download", { timeout: 10000 }), page.click(btn)]);
+  const path = await dl.path();
+  const text = (await readFile(path, "utf8")).trim();
+  check(dl.suggestedFilename() === name, `${btn} downloads ${name}`);
+  check(test(text), `${name} has a header and rows (${text.split("\n").length} lines)`);
+}
 
 check(errors.length === 0, `no page errors${errors.length ? ": " + errors.join("; ") : ""}`);
 await browser.close();

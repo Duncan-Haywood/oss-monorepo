@@ -1,0 +1,31 @@
+{
+  "id": "P060",
+  "title": "perf: one touch to a11y research paths starts 9+ workflows; fold them into one job per trigger set",
+  "status": "done",
+  "owner": "agent",
+  "effect": 2,
+  "cost": 2,
+  "problem": "A yaml scan of pull_request paths shows portfolio/research/a11y-evidence-record/** triggers 9 workflows and portfolio/pipeline/probes/eaa-wcag-triage/** triggers 8, each paying runner start-up and a checkout for a few seconds of work. These are the largest shared-path fan-outs in the trigger map; unscoped guards are only 2 workflows.",
+  "evidence": [
+    "python3 yaml scan of .github/workflows/*.yml pull_request.paths, 2026-10-30: a11y-evidence-record/** 9 workflows, eaa-wcag-triage/** 8, a11y-own-sites/** 3, ventures/**/*.html 4",
+    "same scan: 2 of 134 workflows have no pull_request paths filter (6 jobs)"
+  ],
+  "change": "List the workflows behind each of the two top paths, fold those with the same checkout and runtime into one workflow with a job per tool (or one job, one step each), keep every script and failure message, check required status names first, then re-run the scan and ci_profile.py.",
+  "touches": [
+    ".github/workflows/",
+    "platform/ci/validate_workflows.py"
+  ],
+  "metric": "workflows triggered by a change under portfolio/research/a11y-evidence-record/**",
+  "baseline": "9 workflows, 2026-10-30",
+  "opened": "2026-10-30",
+  "source": "prompts/process/backlog/P049-jobs-per-pr-head.json",
+  "pr": "this",
+  "result": null,
+  "history": [
+    {
+      "date": "2026-10-30",
+      "note": "Folded nine a11y-*-ci workflows into a11y-research-ci.yml (one job, a step per suite, if !cancelled so every red suite shows). All 20 steps pass locally. Path a11y-evidence-record/** now triggers 1 workflow (was 9); eaa-wcag-triage/** 2 (was 8; eaa-wcag-triage-ci kept separate, it needs pytest).",
+      "pr": "this"
+    }
+  ]
+}

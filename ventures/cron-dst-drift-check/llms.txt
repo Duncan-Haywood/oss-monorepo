@@ -1,0 +1,15 @@
+# Will your cron job survive daylight saving?
+
+> Paste a cron expression and timezone to see which runs a daylight-saving change skips or doubles, and how UTC-only schedulers drift. Runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/cron-dst-drift-check/)
+- [This checker vs. checking a DST calendar by hand](https://duncan-haywood.github.io/oss-monorepo/cron-dst-drift-check/vs-checking-a-dst-calendar-by-hand.html)
+- [Why cron jobs break across daylight saving](https://duncan-haywood.github.io/oss-monorepo/cron-dst-drift-check/why-cron-jobs-break-across-dst.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/cron-dst-drift-check): MIT licensed.

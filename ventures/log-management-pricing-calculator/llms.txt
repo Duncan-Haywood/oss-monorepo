@@ -1,0 +1,14 @@
+# What will logging cost at your GB-per-month volume, and who is cheapest?
+
+> Enter your monthly log volume (GB ingested) and see what Datadog Logs, Grafana Cloud Logs, Axiom, Better Stack and Papertrail charge, the 12-month spend under your growth rate, and the volume where the cheapest provider changes. Free, runs in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/log-management-pricing-calculator/)
+- [How to choose a log management tool by GB ingested](https://duncan-haywood.github.io/oss-monorepo/log-management-pricing-calculator/how-to-choose-a-log-management-tool-by-gb-ingested.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/log-management-pricing-calculator): MIT licensed.

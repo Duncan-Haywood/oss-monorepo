@@ -20,6 +20,7 @@ Exit 0: no dead links. Exit 1: dead links printed as file:line: target.
 from __future__ import annotations
 
 import argparse
+import os
 import re
 import subprocess
 import sys
@@ -90,7 +91,25 @@ def heading_slugs(text: str) -> set[str]:
     return slugs
 
 
-def dead_links(path: Path, root: Path):
+def tracked_paths(root: Path) -> set[str]:
+    """Every tracked file and directory, so a sparse checkout that omits a
+    PNG or MP3 still sees the link target as present."""
+    try:
+        out = subprocess.run(
+            ["git", "-C", str(root), "ls-files"],
+            capture_output=True, text=True, check=True,
+        ).stdout.split("\n")
+    except (OSError, subprocess.CalledProcessError):
+        return set()
+    paths = set()
+    for p in out:
+        while p and p not in paths:
+            paths.add(p)
+            p = p.rpartition("/")[0]
+    return paths
+
+
+def dead_links(path: Path, root: Path, known: frozenset | set = frozenset()):
     try:
         text = path.read_text(encoding="utf-8")
     except (OSError, UnicodeDecodeError):
@@ -104,7 +123,11 @@ def dead_links(path: Path, root: Path):
             continue
         base = root if local.startswith("/") else path.parent
         dest = base / local.lstrip("/") if local else path
-        if not dest.exists():
+        try:
+            rel = os.path.normpath(dest.relative_to(root)).replace(os.sep, "/")
+        except ValueError:
+            rel = None
+        if not dest.exists() and rel not in known:
             yield n, target
         elif frag and dest.suffix == ".md" and dest.is_file():
             try:
@@ -124,9 +147,10 @@ def main(argv: list[str] | None = None) -> int:
     args = ap.parse_args(argv)
     root = Path(args.root).resolve()
     files = [Path(p).resolve() for p in args.paths] or tracked_markdown(root)
+    known = tracked_paths(root)
     bad = 0
     for f in files:
-        for n, target in dead_links(f, root):
+        for n, target in dead_links(f, root, known):
             print(f"{f.relative_to(root)}:{n}: {target}")
             bad += 1
     if bad:

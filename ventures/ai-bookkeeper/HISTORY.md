@@ -68,3 +68,5 @@ Moved out of `portfolio/flagships.yaml` (its `next:` had grown to ~18 KB with re
 - 2026-10-23: header-less CBA/ANZ/TD-style files with summary lines above the data (`Account Summary`, period lines) read zero rows; `readStatement` now drops up to 10 leading rows until the rest has a layout and says so in `problems` (`preamble.test.mjs`, hand-made preambles on the two fixtures, no real file).
 
 - 2026-10-23: Swedish (Bokföringsdatum, Text, Belopp), Danish (Dato, Tekst, Beløb) and Norwegian (Ut fra konto / Inn på konto) CSV headers read (`nordic.test.mjs`, made-up rows; no real export tried).
+
+- 2026-10-30: `categorize-property.test.mjs` (2 tests, 1,500 seeded random descriptions, made up): token, suggest and classifier invariants hold (case/spacing-blind tokens, idempotent re-tokenising, deterministic suggestions, confidence in [0,1], accounts inside the chart, probabilities sum to 1, hostile input yields no account). No fault found; it pins the layer order's contract for later changes.

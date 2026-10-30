@@ -1,0 +1,13 @@
+# How many coils should each product get in my vending machine?
+
+> Free vending machine planogram tool: enter your coils, each product's price, cost, weekly sales and units per coil, and get the coil split that earns the most, plus the best restocking gap. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/vending-machine-planogram-optimizer/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/vending-machine-planogram-optimizer): MIT licensed.

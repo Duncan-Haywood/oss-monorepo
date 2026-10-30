@@ -1,0 +1,14 @@
+# What did that schedule change just cost you?
+
+> Free fair workweek and predictive scheduling checker for restaurants and retail. Paste your posted schedule and later changes, see late postings, short-notice change premiums, cancellation pay and clopening rest violations. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/fair-workweek-schedule-checker/)
+- [What is predictive scheduling pay? A worked example](https://duncan-haywood.github.io/oss-monorepo/fair-workweek-schedule-checker/what-is-predictive-scheduling-pay.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/fair-workweek-schedule-checker): MIT licensed.

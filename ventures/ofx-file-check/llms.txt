@@ -1,0 +1,13 @@
+# Why won't this QFX / OFX file import?
+
+> Free OFX and QFX file checker: finds the problems that make QuickBooks, Quicken, YNAB and Xero reject a bank or credit-card Web Connect file — bad header, unclosed tags, duplicate FITIDs, invalid dates and amounts, unescaped ampersands, DTSTART and DTEND mismatches — and writes the file back fixed.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/ofx-file-check/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/ofx-file-check): MIT licensed.

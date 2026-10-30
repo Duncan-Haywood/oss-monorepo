@@ -1,0 +1,13 @@
+# Should you buy a baler, or keep paying a custom baler by the bale?
+
+> Free hay baling calculator: should you own a baler or hire a custom baler? Acres, yield, equipment cost, labour and the custom price per bale in; own vs hire cost, break-even acres, cost per bale and what to charge neighbours out. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/hay-baling-own-vs-hire-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/hay-baling-own-vs-hire-calculator): MIT licensed.

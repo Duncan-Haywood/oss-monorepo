@@ -21,6 +21,11 @@ found whatever order the generator wrote its dictionary in (`/Filter` or `/Lengt
 before `/Type`) and with an indirect `/Length 5 0 R`; before 2026-10-22 those
 PDFs were refused as having no invoice XML (found by building such files; tested
 on hand-made PDFs, not yet on a real Mustang, Ghostscript or Acrobat export).
+Opened in poppler (2026-10-30): the shipped example PDFs had an empty page tree
+(`pdfinfo`: "Invalid page count 0"), so no viewer could show them. They now carry
+one page, and a test (skipped where poppler is absent) repairs the credit note
+with defects, checks `pdfinfo` reads one page with no syntax error and that
+`pdfdetach` returns exactly the corrected XML. veraPDF and Acrobat are still unrun.
 
 **XRechnung profile (Germany).** Tick "Also apply the German XRechnung rules"
 on the page, or call the API with `POST /v1/validate?profile=xrechnung`, to add
@@ -820,3 +825,9 @@ exports, which stay the open item.
 ## How often a check digit misses a typo (2026-10-27)
 
 `node eval/id-blindspots.mjs [N] [seed]` takes N seeded random IDs that pass each validator (Mexico RFC, Colombia NIT, Chile RUT, Brazil CNPJ plain and alphanumeric, Peru RUC, Argentina CUIT, Japan T-number), then tries every single-character substitution and every adjacent swap of two different characters. At 2,000 IDs per seed (seeds 7, 99, 12345), share of mistyped IDs that still pass: Chile 0% and Argentina 0% (substitution and swap); Brazil CNPJ 0.03 to 0.04% (swap 0.11 to 0.15%); Peru 1.3 to 1.4% (swap 1.7 to 2.0%); Colombia 1.4 to 1.8% (swap 1.5 to 2.1%); Japan 2.0 to 2.1% (swap 2.0 to 2.2%); Brazil alphanumeric CNPJ 5.9% (swap 5.7 to 6.1%); Mexico RFC 14.5% of substitutions (swaps 0%, the shape check catches them). Mexico's rate is stable across seeds because the name and homoclave letters take values up to 37 under mod 11. Synthetic IDs on rules pinned to a few known numbers, not read from the authorities' specifications; it says nothing about how often real people mistype. Test: `id-blindspots.test.mjs`. A pass is never confirmation that a number is registered.
+
+## India INV-01 payload check (2026-10-30)
+
+`india-inv01.mjs` (`checkInv01`, 4 tests) pre-checks an IRP INV-01 (version 1.1) JSON payload and names the field for each fault: required blocks, GSTIN shape and check character on seller and buyer, six-digit PIN, DD/MM/YYYY date, HSN length, GST slab, IGST versus CGST+SGST from seller state against place of supply, line arithmetic (Qty x UnitPrice, discount, tax, TotItemVal) and the ValDtls totals, with a one-rupee rounding tolerance. Field names, the slab list and the tolerance are from memory of the public schema and secondary guides; the IRP specification and JSON schema were not read, and no real IRP payload or rejection was run. Tests use a made-up consistent invoice. CLI (2026-10-30): `node india-cli.mjs payload.json [--json]` (exit 0 clean, 1 findings, 2 usage; examples `examples/india-inv01.json` and `-with-defects.json`, made up, tested in `india-inv01.test.mjs`). Page card (2026-10-30): the India page has a paste box that runs `checkInv01` in the browser (nothing sent); run in headless Chromium on both examples, clean and defective. Open: a real IRP sandbox payload, export/SEZ and e-way-bill blocks.
+
+**Turkey (2026-10-30).** The Turkey page tests a VKN (10 digits) or TCKN (11 digits) by length and check digits (`turkey.mjs`). Rules are the widely published ones from open-source validators, not GİB's text; a pass is not a registry lookup. Wanted: a real VKN from a GİB-issued e-Fatura to confirm.

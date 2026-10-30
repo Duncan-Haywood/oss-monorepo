@@ -1,0 +1,16 @@
+# Is a secret baked into your Docker image?
+
+> Paste your Dockerfile and find every ENV or ARG instruction whose name looks like a secret, and every COPY/ADD of a credential file like .env or id_rsa into the build. Free, runs in your browser, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/docker-build-secrets-check/)
+- [How to pass a Docker build secret without baking it into the image](https://duncan-haywood.github.io/oss-monorepo/docker-build-secrets-check/how-to-pass-a-docker-build-secret-without-baking-it-into-the-image.html)
+- [Docker Build Secrets Check vs. gitleaks](https://duncan-haywood.github.io/oss-monorepo/docker-build-secrets-check/vs-gitleaks.html)
+- [Docker Build Secrets Check vs. reading a Dockerfile by hand](https://duncan-haywood.github.io/oss-monorepo/docker-build-secrets-check/vs-reading-a-dockerfile-by-hand.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/docker-build-secrets-check): MIT licensed.

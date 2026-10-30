@@ -1,0 +1,13 @@
+# Which free UK tax or pay calculator do I need?
+
+> Tick what applies to you (employee, Scottish taxpayer, landlord, contractor, director, parent, buying a home) and get the right free UK tax, pay and employment calculators from 55 tools. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/uk-money-tools-finder/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/uk-money-tools-finder): MIT licensed.

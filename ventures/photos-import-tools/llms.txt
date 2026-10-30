@@ -1,0 +1,13 @@
+# Import photos without losing your place.
+
+> Resumable, manifest-backed command-line tools that import JPEG and RAW photos into Apple Photos and offload SD cards with hash verification.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/photos-import-tools/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/photos-import-tools): MIT licensed.

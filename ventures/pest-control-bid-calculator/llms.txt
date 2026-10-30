@@ -1,0 +1,16 @@
+# Price the drive and the stations, not the house.
+
+> Price a pest control route stop from on-site minutes, bait stations, and drive time — not house size. See initial vs recurring invoices, effective hourly with the drive, and how many stops recover a free initial.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/pest-control-bid-calculator/)
+- [How much should I charge for pest control?](https://duncan-haywood.github.io/oss-monorepo/pest-control-bid-calculator/how-much-to-charge.html)
+- [This calculator vs. a flat quote by house size](https://duncan-haywood.github.io/oss-monorepo/pest-control-bid-calculator/vs-a-flat-quote-by-house-size.html)
+- [This calculator vs. PestPac](https://duncan-haywood.github.io/oss-monorepo/pest-control-bid-calculator/vs-pestpac.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/pest-control-bid-calculator): MIT licensed.

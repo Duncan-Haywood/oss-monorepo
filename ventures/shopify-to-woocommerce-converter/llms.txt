@@ -1,0 +1,13 @@
+# Move your Shopify products to WooCommerce
+
+> Free Shopify to WooCommerce product CSV converter: variants become variable products with variations, Compare At Price becomes Regular and Sale price, inventory, weight, images and tags are mapped, and anything not carried across is listed. Runs in your browser; the file is never uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/shopify-to-woocommerce-converter/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/shopify-to-woocommerce-converter): MIT licensed.

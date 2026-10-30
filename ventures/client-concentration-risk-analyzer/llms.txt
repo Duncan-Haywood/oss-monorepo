@@ -1,0 +1,14 @@
+# How much of your revenue could walk out the door with one client?
+
+> Paste an invoice export and see each client's share of revenue, your top-three share, whether dependence is rising, and whether you survive losing your biggest client. Free, runs in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/client-concentration-risk-analyzer/)
+- [How much revenue from one client is too much, and what to do about it](https://duncan-haywood.github.io/oss-monorepo/client-concentration-risk-analyzer/client-concentration-guide.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/client-concentration-risk-analyzer): MIT licensed.

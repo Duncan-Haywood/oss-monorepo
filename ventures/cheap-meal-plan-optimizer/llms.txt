@@ -1,0 +1,17 @@
+# What is the cheapest way to hit your protein and calories?
+
+> Free cheapest meal plan optimizer. Enter foods with prices and nutrition, set calorie, protein, fat and fibre targets, and get the lowest-cost daily servings plus the cost of each extra target. A minimum-cost diet solver in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/cheap-meal-plan-optimizer/)
+- [A cheap vegan high-protein meal plan: what it costs](https://duncan-haywood.github.io/oss-monorepo/cheap-meal-plan-optimizer/cheap-vegan-high-protein-meal-plan.html)
+- [How to eat high-protein on a budget](https://duncan-haywood.github.io/oss-monorepo/cheap-meal-plan-optimizer/how-to-eat-high-protein-on-a-budget.html)
+- [What does one more gram of protein cost?](https://duncan-haywood.github.io/oss-monorepo/cheap-meal-plan-optimizer/what-does-one-more-gram-of-protein-cost.html)
+- [How much protein does a daily food budget buy?](https://duncan-haywood.github.io/oss-monorepo/cheap-meal-plan-optimizer/what-protein-does-a-grocery-budget-buy.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/cheap-meal-plan-optimizer): MIT licensed.

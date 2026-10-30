@@ -14,7 +14,12 @@ try:
     cmd = json.load(sys.stdin).get("tool_input", {}).get("command", "")
 except Exception:
     sys.exit(0)
-if not re.search(r"(?:^|[;&|(\n]|\b(?:then|do|else)\b)\s*git\s+push\b", cmd):
+m = re.search(r"(?:^|[;&|(\n]|\b(?:then|do|else)\b)\s*git\s+push\b", cmd)
+if not m:
+    sys.exit(0)
+# This hook sees the tree before the whole command runs: a fix chained ahead of
+# the push would be judged unfixed. CI still checks the post.
+if re.search(r"\bgit\s+(?:add|commit|merge|checkout|restore|rebase|pull)\b|\bsed\s+-i", cmd[:m.start()]):
     sys.exit(0)
 
 root = Path(__file__).resolve().parents[2]

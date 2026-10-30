@@ -1,0 +1,16 @@
+# Does your GITHUB_TOKEN use least-privilege permissions?
+
+> Paste your GitHub Actions workflow YAML and find every workflow or job with no explicit permissions block (running on the ambient default) or permissions: write-all. Free, runs in your browser, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/actions-permissions-check/)
+- [How to set least-privilege permissions for GitHub Actions](https://duncan-haywood.github.io/oss-monorepo/actions-permissions-check/how-to-set-least-privilege-permissions-for-github-actions.html)
+- [Actions Permissions Check vs. OpenSSF Scorecard](https://duncan-haywood.github.io/oss-monorepo/actions-permissions-check/vs-openssf-scorecard.html)
+- [Actions Permissions Check vs. reading the workflow YAML by hand](https://duncan-haywood.github.io/oss-monorepo/actions-permissions-check/vs-reading-the-workflow-yaml-by-hand.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/actions-permissions-check): MIT licensed.

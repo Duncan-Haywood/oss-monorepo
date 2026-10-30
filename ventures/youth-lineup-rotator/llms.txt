@@ -1,0 +1,14 @@
+# Youth soccer lineup generator: equal playing time, no kid benched twice in a row
+
+> Free youth sports lineup generator for volunteer coaches. Equal playing time, nobody benched twice in a row, goalkeeper turns shared, subs planned per period. Soccer, basketball, hockey and more. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/youth-lineup-rotator/)
+- [How to give every kid equal playing time](https://duncan-haywood.github.io/oss-monorepo/youth-lineup-rotator/how-to-give-every-kid-equal-playing-time.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/youth-lineup-rotator): MIT licensed.

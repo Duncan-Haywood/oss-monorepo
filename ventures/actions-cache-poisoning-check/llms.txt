@@ -1,0 +1,16 @@
+# Can a fork PR poison your GitHub Actions cache?
+
+> Paste your GitHub Actions workflow YAML and find actions/cache steps reachable from pull_request_target/workflow_run, and restore-keys fallbacks that can adopt a poisoned prefix match. Free, runs in your browser, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/actions-cache-poisoning-check/)
+- [Actions Cache Poisoning Check vs. reviewing workflows by eye](https://duncan-haywood.github.io/oss-monorepo/actions-cache-poisoning-check/vs-checking-by-hand.html)
+- [GitHub Actions Cache Poisoning Check vs. zizmor](https://duncan-haywood.github.io/oss-monorepo/actions-cache-poisoning-check/vs-zizmor.html)
+- [What is GitHub Actions cache poisoning?](https://duncan-haywood.github.io/oss-monorepo/actions-cache-poisoning-check/what-is-github-actions-cache-poisoning.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/actions-cache-poisoning-check): MIT licensed.

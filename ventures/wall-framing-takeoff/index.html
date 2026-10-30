@@ -181,6 +181,7 @@
       <div><label for="inAtticR">Attic loose fill target R-value (blank: no attic)</label><input id="inAtticR" type="number" min="10" max="80" step="1" placeholder="e.g. 38"></div>
       <div><label for="inAtticPer">Attic R per inch (read it from the bag chart; blank: 2.5, assumed)</label><input id="inAtticPer" type="number" min="1" max="8" step="0.1" placeholder="2.5"></div>
       <div><label for="inAtticBag">Attic bag volume (cu ft; blank: no bag count)</label><input id="inAtticBag" type="number" min="0" step="0.1" placeholder="e.g. 40"></div>
+      <div><label for="inAtticHeel">Attic heel height at the eave (in; blank: not checked for eave compression)</label><input id="inAtticHeel" type="number" min="1" max="30" step="0.5" placeholder="e.g. 5"></div>
     </div>
     <p><input type="checkbox" id="stOn" style="width:auto"> <label for="stOn" style="display:inline">Also lay out a stair (equal risers under the code limit, notch geometry, stringers and treads, the stairwell opening; a rise over 147 in splits at a landing; the lumber joins the order)</label></p>
     <div class="grid" id="stFields" hidden>
@@ -202,6 +203,9 @@
       <div><label for="dkBeam">Beam board (doubled by default)</label><select id="dkBeam"><option>2x10</option><option>2x8</option><option>2x12</option></select></div>
       <div><label for="dkPost">Post</label><select id="dkPost"><option>6x6</option><option>4x4</option></select></div>
       <div><label for="dkFree">Attachment</label><select id="dkFree"><option value="">Ledger on the house</option><option value="true">Freestanding</option></select></div>
+      <div><label for="dkGuard">Guard (railing)</label><select id="dkGuard"><option value="">Automatic (over 30 in above grade)</option><option value="always">Always lay out</option><option value="none">None</option></select></div>
+      <div><label for="dkGuardSides">Guarded edges</label><select id="dkGuardSides"><option value="">All open edges</option><option value="outer">Outer edge only</option><option value="outer,left,right">Outer, left and right</option></select></div>
+      <div><label for="dkStair">Stair down to grade</label><select id="dkStair"><option value="">None</option><option value="true">Yes (rise taken from the deck height)</option></select></div>
     </div>
     <p><input type="checkbox" id="trOn" style="width:auto"> <label for="trOn" style="display:inline">Also count interior trim (baseboard between doors; casing legs, head and window sill; packed into stock boards; lengths and widths are the trim you buy)</label></p>
     <div class="grid" id="trFields" hidden>
@@ -228,6 +232,15 @@
       <div><label for="sdBoardPrice">Price per siding board (blank: none)</label><input id="sdBoardPrice" type="number" min="0" step="0.01" placeholder="e.g. 14"></div>
       <div><label for="sdWrapPrice">Price per wrap roll (blank: none)</label><input id="sdWrapPrice" type="number" min="0" step="0.01" placeholder="e.g. 150"></div>
       <div><label for="sdCornerPrice">Price per corner board (blank: none)</label><input id="sdCornerPrice" type="number" min="0" step="0.01" placeholder="e.g. 20"></div>
+      <div><label for="sdStyle">Style</label><select id="sdStyle"><option value="">Lap (horizontal courses)</option><option value="vertical">Vertical boards</option></select></div>
+      <div><label for="sdBoardWidth">Vertical board coverage, in (blank: 11.25)</label><input id="sdBoardWidth" type="number" min="2" max="24" step=".25" placeholder="11.25"></div>
+      <div><label for="sdBattens">Battens (vertical only)</label><select id="sdBattens"><option value="">None</option><option value="true">One over each seam</option></select></div>
+      <div><label for="sdBattenStock">Batten length, in (blank: board length)</label><input id="sdBattenStock" type="number" min="48" max="240" step="1" placeholder="144"></div>
+      <div><label for="sdBattenPrice">Price per batten (blank: none)</label><input id="sdBattenPrice" type="number" min="0" step="0.01" placeholder="e.g. 5"></div>
+      <div><label for="sdOpeningTrim">Window and door trim boards</label><select id="sdOpeningTrim"><option value="">Not counted</option><option value="true">Head and two jambs per opening</option></select></div>
+      <div><label for="sdTrimWidth">Trim board width, in (blank: engine default)</label><input id="sdTrimWidth" type="number" min="1" max="12" step=".25"></div>
+      <div><label for="sdTrimStock">Trim board length, in (blank: engine default)</label><input id="sdTrimStock" type="number" min="48" max="240" step="1"></div>
+      <div><label for="sdTrimPrice">Price per trim board (blank: none)</label><input id="sdTrimPrice" type="number" min="0" step="0.01" placeholder="e.g. 9"></div>
     </div>
     <p><input type="checkbox" id="eaOn" style="width:auto"> <label for="eaOn" style="display:inline">Also count soffit panels, fascia boards and J-channel under the roof overhangs (needs the roof option; counted from the roof's eave and rake overhangs)</label></p>
     <div class="grid" id="eaFields" hidden>
@@ -639,6 +652,7 @@
           ins.attic = { rValue: Number($("#inAtticR").value) };
           if ($("#inAtticPer").value.trim()) ins.attic.rPerInch = Number($("#inAtticPer").value);
           if ($("#inAtticBag").value.trim()) ins.attic.bagCuFt = Number($("#inAtticBag").value);
+          if ($("#inAtticHeel").value.trim()) ins.attic.heel = Number($("#inAtticHeel").value);
         }
         plan.insulation = ins;
       }
@@ -646,6 +660,9 @@
         const dk = { id: "Deck", width: L($("#dkWidth").value, "deck width"), depth: L($("#dkDepth").value, "deck depth"), height: L($("#dkHeight").value, "deck height"), joist: $("#dkJoist").value, beam: $("#dkBeam").value, postSize: $("#dkPost").value };
         if ($("#dkSpacing").value.trim()) dk.spacing = Number($("#dkSpacing").value);
         if ($("#dkFree").value) dk.freestanding = true;
+        if ($("#dkGuard").value === "none") dk.guard = false;
+        else if ($("#dkGuard").value === "always" || $("#dkGuardSides").value) dk.guard = $("#dkGuardSides").value ? { sides: $("#dkGuardSides").value.split(",") } : {};
+        if ($("#dkStair").value) dk.stairs = {};
         plan.deck = dk;
       }
       if ($("#stOn").checked) {
@@ -665,6 +682,10 @@
       if ($("#sdOn").checked) {
         const sd = {};
         for (const [id, key] of [["sdExposure", "exposure"],["sdStock", "stock"],["sdWaste", "waste"],["sdWrapRoll", "wrapRollSqFt"],["sdCorners", "corners"],["sdBoardPrice", "boardPrice"],["sdWrapPrice", "wrapPrice"],["sdCornerPrice", "cornerPrice"]]) if ($("#" + id).value.trim()) sd[key] = Number($("#" + id).value);
+        if ($("#sdStyle").value) sd.style = $("#sdStyle").value;
+        for (const [id, key] of [["sdBoardWidth", "boardWidth"],["sdBattenStock", "battenStock"],["sdBattenPrice", "battenPrice"],["sdTrimWidth", "trimWidth"],["sdTrimStock", "trimStock"],["sdTrimPrice", "trimPrice"]]) if ($("#" + id).value.trim()) sd[key] = Number($("#" + id).value);
+        if ($("#sdBattens").value) sd.battens = true;
+        if ($("#sdOpeningTrim").value) sd.openingTrim = true;
         plan.siding = sd;
       }
       if ($("#eaOn").checked) {
@@ -862,7 +883,7 @@
     function renderDeck(dk) {
       $("#deckCard").hidden = !dk;
       if (!dk) return;
-      $("#deckOut").innerHTML = `<pre style="white-space:pre-wrap;overflow-x:auto">${esc(deckText(dk).join("\n"))}</pre><p class="note">Joist spans come from a span table you can replace in the plan file; the built-in one is a rule of thumb, not your jurisdiction's table. Footing size, post sizing, guards and frost depth are yours to check against local code. Hand-checked arithmetic only, not a built deck.</p>`;
+      $("#deckOut").innerHTML = `<pre style="white-space:pre-wrap;overflow-x:auto">${esc(deckText(dk).join("\n"))}</pre><p class="note">Joist spans come from a span table you can replace in the plan file; the built-in one is a rule of thumb, not your jurisdiction's table. Footing size, post sizing, guard post attachment and frost depth are yours to check against local code. Hand-checked arithmetic only, not a built deck.</p>`;
     }
     function renderStairs(st) {
       $("#stairsCard").hidden = !st;
@@ -872,7 +893,7 @@
     function renderSiding(sd) {
       $("#sidingCard").hidden = !sd;
       if (!sd) return;
-      $("#sidingOut").innerHTML = `<pre style="white-space:pre-wrap;overflow-x:auto">${esc(sidingText(sd).join("\n"))}</pre><p class="note">Courses are counted per wall with openings cut out and packed first fit decreasing into the board length you typed. Gable triangles, soffit, fascia, window and door trim, flashing, nails, caulk and paint are not counted. Not checked against a real siding order.</p>`;
+      $("#sidingOut").innerHTML = `<pre style="white-space:pre-wrap;overflow-x:auto">${esc(sidingText(sd).join("\n"))}</pre><p class="note">Courses are counted per wall with openings cut out and packed first fit decreasing into the board length you typed. Soffit, fascia, flashing, nails, caulk and paint are not counted. Not checked against a real siding order.</p>`;
     }
     function renderGutters(gu) {
       $("#guttersCard").hidden = !gu;
@@ -983,8 +1004,10 @@
           if (!roof.ok) { $("#errors").innerHTML = `<ul>${roof.errors.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>`; last = null; $("#roofCard").hidden = true; return false; }
           floorExtra = [...floorExtra, ...roofCuts(roof)];
         }
-        if (plan.stairs) {
-          stairs = plan.stairs.landing || plan.stairs.totalRise > STAIR_LIMITS.maxRise ? layoutStairWithLanding(plan.stairs, plan) : layoutStair(plan.stairs, plan);
+        // a deck's own stair takes its total rise from the deck height, as the CLI does; a separate stair card wins
+        const stairPlan = plan.stairs || (plan.deck?.stairs ? { id: "Deck stair", tread: 10, stringer: "2x12", width: 36, ...plan.deck.stairs, totalRise: plan.deck.height } : null);
+        if (stairPlan) {
+          stairs = stairPlan.landing || stairPlan.totalRise > STAIR_LIMITS.maxRise ? layoutStairWithLanding(stairPlan, plan) : layoutStair(stairPlan, plan);
           if (!stairs.ok) { $("#errors").innerHTML = `<ul>${stairs.errors.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>`; last = null; $("#stairsCard").hidden = true; return false; }
           floorExtra = [...floorExtra, ...(stairs.flights ? [...stairs.flights.flatMap(stairCuts), ...landingCuts(stairs)] : stairCuts(stairs))];
         }
@@ -1103,12 +1126,15 @@
         $("#inRim").value = ins.rim ? "true" : "";
         $("#inAtticR").value = ins.attic?.rValue != null ? String(ins.attic.rValue) : ""; $("#inAtticPer").value = ins.attic?.rPerInch != null ? String(ins.attic.rPerInch) : "";
         $("#inAtticBag").value = ins.attic?.bagCuFt != null ? String(ins.attic.bagCuFt) : "";
+        $("#inAtticHeel").value = ins.attic?.heel != null ? String(ins.attic.heel) : "";
       }
       const dkp = plan.deck && typeof plan.deck === "object" ? plan.deck : null;
       $("#dkOn").checked = Boolean(dkp); $("#dkFields").hidden = !dkp;
       $("#dkWidth").value = dkp ? formatLength(dkp.width) : ""; $("#dkDepth").value = dkp ? formatLength(dkp.depth) : ""; $("#dkHeight").value = dkp ? formatLength(dkp.height) : "";
       $("#dkJoist").value = dkp?.joist || "2x8"; $("#dkSpacing").value = dkp?.spacing != null ? String(dkp.spacing) : ""; $("#dkBeam").value = dkp?.beam || "2x10";
-      $("#dkPost").value = dkp?.postSize || "6x6"; $("#dkFree").value = dkp?.freestanding ? "true" : "";
+      $("#dkPost").value = dkp?.postSize || "6x6"; $("#dkFree").value = dkp?.freestanding ? "true" : ""; $("#dkStair").value = dkp?.stairs ? "true" : "";
+      $("#dkGuard").value = dkp?.guard === false ? "none" : dkp?.guard ? "always" : "";
+      { const gs = dkp?.guard && typeof dkp.guard === "object" && Array.isArray(dkp.guard.sides) ? dkp.guard.sides.join(",") : ""; $("#dkGuardSides").value = [...$("#dkGuardSides").options].some((o) => o.value === gs) ? gs : ""; }
       const stp = plan.stairs && !Array.isArray(plan.stairs) ? plan.stairs : null;
       $("#stOn").checked = Boolean(stp); $("#stFields").hidden = !stp;
       $("#stRise").value = stp ? formatLength(stp.totalRise) : ""; $("#stTread").value = stp?.tread != null ? String(stp.tread) : "";
@@ -1120,6 +1146,8 @@
       const sdg = plan.siding;
       $("#sdOn").checked = Boolean(sdg); $("#sdFields").hidden = !sdg;
       for (const [id, key] of [["sdExposure", "exposure"],["sdStock", "stock"],["sdWaste", "waste"],["sdWrapRoll", "wrapRollSqFt"],["sdCorners", "corners"],["sdBoardPrice", "boardPrice"],["sdWrapPrice", "wrapPrice"],["sdCornerPrice", "cornerPrice"]]) $("#" + id).value = sdg && sdg[key] != null ? String(sdg[key]) : "";
+      for (const [id, key] of [["sdBoardWidth", "boardWidth"],["sdBattenStock", "battenStock"],["sdBattenPrice", "battenPrice"],["sdTrimWidth", "trimWidth"],["sdTrimStock", "trimStock"],["sdTrimPrice", "trimPrice"]]) $("#" + id).value = sdg && sdg[key] != null ? String(sdg[key]) : "";
+      $("#sdStyle").value = sdg?.style === "vertical" ? "vertical" : ""; $("#sdBattens").value = sdg?.battens ? "true" : ""; $("#sdOpeningTrim").value = sdg?.openingTrim ? "true" : "";
       const eav = plan.eaves;
       $("#eaOn").checked = Boolean(eav); $("#eaFields").hidden = !eav;
       for (const [id, key] of [["eaPanelWidth", "panelWidth"],["eaPanelStock", "panelStock"],["eaFasciaStock", "fasciaStock"],["eaChannelStock", "channelStock"],["eaWaste", "waste"],["eaPanelPrice", "panelPrice"],["eaFasciaPrice", "fasciaPrice"],["eaChannelPrice", "channelPrice"]]) $("#" + id).value = eav && eav[key] != null ? String(eav[key]) : "";

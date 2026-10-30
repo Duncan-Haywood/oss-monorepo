@@ -1,0 +1,14 @@
+# Will it fit in the container?
+
+> Free container load planner for small exporters, Amazon FBA and DTC sellers. Enter cartons or pallets, pick a 20 ft, 40 ft, 40 ft high cube, 53 ft trailer, box truck or pallet; see what fits, what is left over, how many containers the whole load needs, and a to-scale loading plan.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/container-load-planner/)
+- [How to plan a container load, with a worked example](https://duncan-haywood.github.io/oss-monorepo/container-load-planner/how-to-plan-a-container-load.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/container-load-planner): MIT licensed.

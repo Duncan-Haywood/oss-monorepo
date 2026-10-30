@@ -1,0 +1,14 @@
+# Turn JSON into TypeScript, Zod, JSON Schema or Go
+
+> Convert JSON to TypeScript interfaces, Zod schemas, JSON Schema or Go structs. Merges many samples to find optional and nullable fields. Free, runs in your browser, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/json-to-types-generator/)
+- [How to type an API response safely](https://duncan-haywood.github.io/oss-monorepo/json-to-types-generator/how-to-type-an-api-response.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/json-to-types-generator): MIT licensed.

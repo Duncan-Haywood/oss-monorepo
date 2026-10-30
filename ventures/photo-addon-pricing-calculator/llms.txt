@@ -1,0 +1,15 @@
+# A flat add-on price can still be a losing job.
+
+> Free calculator for wedding and event photographers: net profit and effective hourly rate for each package add-on after editing time, gear and subcontractor costs.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/photo-addon-pricing-calculator/)
+- [Is a second shooter worth it?](https://duncan-haywood.github.io/oss-monorepo/photo-addon-pricing-calculator/is-a-second-shooter-worth-it.html)
+- [This calculator vs. pricing an add-on by comparing to what other studios charge](https://duncan-haywood.github.io/oss-monorepo/photo-addon-pricing-calculator/vs-pricing-by-comparing-to-other-studios.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/photo-addon-pricing-calculator): MIT licensed.

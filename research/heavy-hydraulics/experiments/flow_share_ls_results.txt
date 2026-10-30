@@ -1,0 +1,6 @@
+p_n 10.9: LS own penalty median 0.00% p95 0.00%; OC vs ideal-pump median 5.80% p95 21.62%; NET OC over LS median 5.80% p95 21.62%; cycles with LS>0.5%: 0.0%; floored phases 0
+p_n 1.44: LS own penalty median 0.00% p95 0.00%; OC vs ideal-pump median 21.62% p95 21.62%; NET OC over LS median 21.62% p95 21.62%; cycles with LS>0.5%: 0.0%; floored phases 0
+
+real	0m2.421s
+user	0m2.361s
+sys	0m0.024s

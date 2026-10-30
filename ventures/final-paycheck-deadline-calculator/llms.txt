@@ -1,0 +1,14 @@
+# When is the final paycheck legally due?
+
+> Free calculator for the legal deadline on a departing employee's final paycheck — by US state and separation type (fired/laid off vs. quit), including California's notice-based rule, Minnesota's demand-triggered 24-hour rule, and whether the state requires accrued unused vacation/PTO to be paid out.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/final-paycheck-deadline-calculator/)
+- [This calculator vs. checking the final-paycheck deadline yourself](https://duncan-haywood.github.io/oss-monorepo/final-paycheck-deadline-calculator/vs-checking-the-deadline-yourself.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/final-paycheck-deadline-calculator): MIT licensed.

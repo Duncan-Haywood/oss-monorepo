@@ -1,0 +1,13 @@
+# Sole trader or limited company: what do you keep?
+
+> Free UK calculator: compare what you keep as a sole trader or limited company director in 2026/27. Finds the best salary and dividend split, shows every tax line, and flags the Making Tax Digital threshold. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/uk-sole-trader-vs-limited-company-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/uk-sole-trader-vs-limited-company-calculator): MIT licensed.

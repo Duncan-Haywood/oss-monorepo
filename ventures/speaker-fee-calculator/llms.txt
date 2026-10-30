@@ -1,0 +1,13 @@
+# What does a keynote have to cost for your speaking year to pay?
+
+> Free speaker fee calculator: the keynote fee you need to hit an income goal after bureau commission and travel, plus a stacked quote with add-ons, virtual pricing and net per hour. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/speaker-fee-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/speaker-fee-calculator): MIT licensed.

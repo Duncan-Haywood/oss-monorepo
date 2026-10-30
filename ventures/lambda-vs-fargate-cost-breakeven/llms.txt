@@ -1,0 +1,14 @@
+# Lambda, Cloud Run, Fargate or EC2: which is cheapest for your traffic?
+
+> Enter requests per month, duration, memory and concurrency and compare the monthly cost of AWS Lambda, Google Cloud Run, AWS Fargate and EC2, plus the request volume where always-on containers become cheaper. Free, runs in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/lambda-vs-fargate-cost-breakeven/)
+- [Lambda vs Fargate vs Cloud Run: what each actually costs](https://duncan-haywood.github.io/oss-monorepo/lambda-vs-fargate-cost-breakeven/lambda-vs-fargate-vs-cloud-run-cost.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/lambda-vs-fargate-cost-breakeven): MIT licensed.

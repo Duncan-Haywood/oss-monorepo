@@ -1,0 +1,17 @@
+# Bid the duct and the fan, not the hood count.
+
+> Price a restaurant hood and exhaust cleaning from the system — canopy, filters, duct, and rooftop fan — plus grease load, after-hours access, and the walk-away number. Not a per-hood guess.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/hood-cleaning-bid-calculator/)
+- [How much should I charge for kitchen hood cleaning?](https://duncan-haywood.github.io/oss-monorepo/hood-cleaning-bid-calculator/how-much-to-charge.html)
+- [This calculator vs. HoodCleaningDispatch](https://duncan-haywood.github.io/oss-monorepo/hood-cleaning-bid-calculator/vs-hoodcleaningdispatch.html)
+- [This calculator vs. HoodClean Pro](https://duncan-haywood.github.io/oss-monorepo/hood-cleaning-bid-calculator/vs-hoodcleanpro.html)
+- [This calculator vs. tracking it in a spreadsheet](https://duncan-haywood.github.io/oss-monorepo/hood-cleaning-bid-calculator/vs-tracking-it-in-a-spreadsheet.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/hood-cleaning-bid-calculator): MIT licensed.

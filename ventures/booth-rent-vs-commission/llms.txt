@@ -1,0 +1,16 @@
+# Compare the hour, not just the check.
+
+> Free booth rent vs commission calculator for hair stylists, barbers, and nail techs. Compare take-home and hourly pay on your own book after rent, card fees, backbar, and unpaid hours.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/booth-rent-vs-commission/)
+- [How many clients do I need before booth rent pays off?](https://duncan-haywood.github.io/oss-monorepo/booth-rent-vs-commission/how-many-clients-does-booth-rent-need.html)
+- [This calculator vs. guessing which pays more](https://duncan-haywood.github.io/oss-monorepo/booth-rent-vs-commission/vs-guessing-which-pays-more.html)
+- [This calculator vs. Vagaro](https://duncan-haywood.github.io/oss-monorepo/booth-rent-vs-commission/vs-vagaro.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/booth-rent-vs-commission): MIT licensed.

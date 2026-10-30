@@ -1,0 +1,13 @@
+# What can you pay for this junk car and still make money?
+
+> Free junk car buyer calculator: the most you can offer for a scrap or salvage car after weight, converter, parts, tow, storage and labour. Profit at the seller's ask and the farthest tow that still pays. Runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/junk-car-buyer-offer-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/junk-car-buyer-offer-calculator): MIT licensed.

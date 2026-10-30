@@ -1,0 +1,18 @@
+# Gross pay isn’t take-home pay.
+
+> Free calculator for DoorDash, Uber Eats, Instacart, Uber, and Lyft drivers: turn one session's gross pay into real net pay per hour and per mile after gas, maintenance, and insurance, plus a tax set-aside.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/gig-driver-net-pay-calculator/)
+- [How much to set aside for gig driving taxes](https://duncan-haywood.github.io/oss-monorepo/gig-driver-net-pay-calculator/how-much-should-i-set-aside-for-gig-driving-taxes.html)
+- [Is this order worth taking?](https://duncan-haywood.github.io/oss-monorepo/gig-driver-net-pay-calculator/offer.html)
+- [Standard mileage or actual expenses?](https://duncan-haywood.github.io/oss-monorepo/gig-driver-net-pay-calculator/tax.html)
+- [This calculator vs. the Gridwise app](https://duncan-haywood.github.io/oss-monorepo/gig-driver-net-pay-calculator/vs-gridwise.html)
+- [This calculator vs. the app's own earnings screen](https://duncan-haywood.github.io/oss-monorepo/gig-driver-net-pay-calculator/vs-the-apps-earnings-screen.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/gig-driver-net-pay-calculator): MIT licensed.

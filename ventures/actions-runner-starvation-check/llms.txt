@@ -1,0 +1,16 @@
+# Is your red GitHub Actions check even real?
+
+> Paste the JSON from a GitHub Actions run and find out in one click whether a red check is a real failure or GitHub silently never assigned it a runner. Free, runs in your browser, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/actions-runner-starvation-check/)
+- [Add a starvation guard step to a GitHub Actions workflow](https://duncan-haywood.github.io/oss-monorepo/actions-runner-starvation-check/add-a-starvation-guard-to-a-github-actions-workflow.html)
+- [This checker vs. just re-running the job](https://duncan-haywood.github.io/oss-monorepo/actions-runner-starvation-check/vs-rerunning-the-job.html)
+- [Why is my GitHub Actions check red in 3 seconds with no output?](https://duncan-haywood.github.io/oss-monorepo/actions-runner-starvation-check/why-is-my-github-actions-check-red-in-seconds.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/actions-runner-starvation-check): MIT licensed.

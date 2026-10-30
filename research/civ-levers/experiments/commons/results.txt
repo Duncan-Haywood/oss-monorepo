@@ -1,0 +1,16 @@
+n4 partner, no punishment          r1  7.52  r5  2.63  r10  1.87 (+-0.07)  payoff r10 21.12
+n4 partner, punishment react 0.0   r1  7.52  r5  2.63  r10  1.87 (+-0.07)  payoff r10 19.81
+n4 partner, punishment react 0.5   r1  7.52  r5  5.42  r10  5.40 (+-0.24)  payoff r10 20.72
+n4 partner, punishment react 1.0   r1  7.52  r5  8.98  r10 10.20 (+-0.26)  payoff r10 21.83
+n4 partner, punishment react 2.0   r1  7.52  r5 10.96  r10 12.23 (+-0.26)  payoff r10 22.57
+n4 stranger, no punishment         r1  7.54  r5  2.08  r10  1.63 (+-0.04)  payoff r10 20.98
+n4 stranger, punishment react 1    r1  7.54  r5 10.17  r10 10.90 (+-0.27)  payoff r10 21.16
+n8 stranger, no punishment         r1  7.54  r5  2.03  r10  1.60 (+-0.04)  payoff r10 20.96
+n8 stranger, punishment react 1    r1  7.54  r5 13.38  r10 14.44 (+-0.16)  payoff r10 18.06
+n16 stranger, no punishment        r1  7.54  r5  2.02  r10  1.58 (+-0.04)  payoff r10 20.95
+n16 stranger, punishment react 1   r1  7.54  r5 13.53  r10 15.25 (+-0.09)  payoff r10 11.36
+n40 stranger, no punishment        r1  7.54  r5  2.02  r10  1.58 (+-0.04)  payoff r10 20.95
+n40 stranger, punishment react 1   r1  7.54  r5 12.68  r10 16.07 (+-0.09)  payoff r10  2.90
+n4 partner, react 1, punisher share 0.1 r1  7.52  r5  3.54  r10  3.00 (+-0.17)  payoff r10 21.37
+n4 partner, react 1, punisher share 0.3 r1  7.52  r5  6.11  r10  6.44 (+-0.30)  payoff r10 21.83
+n4 partner, react 1, punisher share 0.8 r1  7.52  r5 12.43  r10 13.86 (+-0.15)  payoff r10 19.81

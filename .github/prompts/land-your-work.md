@@ -121,11 +121,7 @@ These are **not** reasons:
 - **Another session may be doing the same thing.** Check open PRs and run
   `python3 platform/ci/slug_dupe.py <slug>` (exit 1: already on `main` or
   landed in the last 14 days), then land yours or close it with a pointer to
-  the survivor ([`duplicate-work.md`](duplicate-work.md)).
-  To check open PRs cheaply, use `search_pull_requests` with
-  `is:open repo:duncan-haywood/oss-monorepo <slug or keyword> in:title` and
-  `minimal_output` and `perPage` 5-10 (without a keyword the result can still
-  run to 200KB); `list_pull_requests` returns tens of KB of unrelated PRs.
+  the survivor ([`duplicate-work.md`](duplicate-work.md)). Cheap open-PR search: `duplicate-work.md`.
 - **The brief didn't say to open a PR.** This file says so.
 
 ## Other agents' unlanded work is yours too

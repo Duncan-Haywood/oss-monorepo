@@ -1,0 +1,15 @@
+# What time is it there — and are they awake?
+
+> A free world clock that shows current local time, sunrise, sunset, daylight length and whether each city is awake — for as many cities as you like, side by side. Sunrise and sunset are computed in your browser from the US Naval Observatory almanac algorithm. No account, no upload, no API key.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/world-clock-widget/)
+- [This tool vs. your phone's built-in world clock](https://duncan-haywood.github.io/oss-monorepo/world-clock-widget/vs-your-phones-clock-app.html)
+- [Why is India's time zone UTC+5:30, not a whole number?](https://duncan-haywood.github.io/oss-monorepo/world-clock-widget/why-is-indias-time-zone-utc-5-30.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/world-clock-widget): MIT licensed.

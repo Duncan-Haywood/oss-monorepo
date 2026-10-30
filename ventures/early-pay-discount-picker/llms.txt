@@ -1,0 +1,13 @@
+# Several suppliers offer 2/10 net 30. I cannot pay them all early. Which do I pay?
+
+> Free tool for small businesses with several 2/10 net 30 style supplier discounts and not enough cash to take them all: get the exact set of invoices to pay early after your cost of cash, compared with highest-rate-first and other rules. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/early-pay-discount-picker/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/early-pay-discount-picker): MIT licensed.

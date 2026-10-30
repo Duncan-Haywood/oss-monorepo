@@ -1,0 +1,38 @@
+{
+  "id": "P049",
+  "title": "perf: every PR push starts ~15 jobs, each with its own checkout, mostly for guards a diff cannot fail",
+  "status": "dropped",
+  "owner": "agent",
+  "effect": 3,
+  "cost": 2,
+  "problem": "A PR head triggers a median of 10 workflows and 15 jobs. Many are cheap guards with overlapping triggers, each paying runner start-up and a checkout, and some run on diffs that cannot affect them. Jobs that should run on a change sometimes do not: PR #10185 merged a post whose description broke every Pages build on main, which suggests the trigger map is wide where it is cheap to be narrow and narrow where it matters.",
+  "evidence": [
+    "ci_profile.py saved payload, 2026-10-24 (45 PR heads, 600 runs): jobs per PR head median 15 (mean 14.6), workflows per head median 10",
+    "45 jobs in the same window ran with every work step skipped (12.3 job-minutes), e.g. Duplicate symbols 7, Prompts validate 6, Portfolio Pages site build 7",
+    "main red 2026-10-24 after PR #10185 (docs/posts description 238 chars > 160): writing.mjs loadPosts throws, failing build.mjs and every buildSite test"
+  ],
+  "change": "Premise partly stale (see history 2026-10-30): the lever is shared-path fan-out, filed as P060. Re-run ci_profile.py for a fresh jobs-per-head baseline, then fold only guards that still share a trigger.",
+  "touches": [
+    ".github/workflows/",
+    "platform/ci/validate_workflows.py",
+    "platform/ci/ci_profile.py"
+  ],
+  "metric": "jobs per PR head (median) and job-minutes per merged PR",
+  "baseline": "median 15 jobs / 10 workflows per PR head, 2026-10-24",
+  "opened": "2026-10-24",
+  "source": "prompts/runs/2026-10-24-session_01Gcz8nVnXVeNTiqb8JKabK1.json",
+  "pr": null,
+  "result": "Dropped 2026-10-30: unscoped guards are already cheap (Conflict markers median job 33 s); remaining cost is shared-path fan-out, tracked as P060.",
+  "history": [
+    {
+      "date": "2026-10-30",
+      "note": "Re-measured the trigger map (yaml scan of .github/workflows, 134 files): only 2 workflows (agent-cross-review, conflict-markers-ci; 6 jobs) have no pull_request paths filter, the docs/posts front-matter check already runs in Portfolio Pages (step 'Check blog post front matter'), and the actions-*-check-ci family is scoped to its own venture dir. So the 15 jobs per head come from shared-path fan-out, not unscoped guards; split into P060. Remaining here: re-run ci_profile.py for a fresh baseline.",
+      "pr": "this"
+    },
+    {
+      "date": "2026-10-30",
+      "note": "Fresh reading (ci_profile.py --runs 200, 11:17-11:59Z, 255 jobs, 250.8 job-min, checkout 21%): the unscoped guards are already cheap (Conflict markers sparse blob-less checkout, 33 s median job); the minutes are in Portfolio Pages 98.6 (site-builder tests), agent-permission-harness 30.8 (deliberately wide trigger, see its header) and quick-pick-survey 21.6. main_health.py: 30/30 pass. Nothing left here that is not P060's shared-path fan-out, so dropped in favour of P060.",
+      "pr": "this"
+    }
+  ]
+}

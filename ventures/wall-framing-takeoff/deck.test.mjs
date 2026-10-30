@@ -101,3 +101,13 @@ test("guard: low decks skip it, freestanding adds the inner edge, false turns it
   assert.ok(off.warnings.some((w) => /guard/.test(w)));
   assert.ok(deckText(layoutDeck(sampleDeck())).some((t) => /Guard \(outer, left, right\)/.test(t)));
 });
+
+test("blocking: off by default; rows split the joist length and one block fills each bay", () => {
+  assert.equal(layoutDeck(sampleDeck()).blocking, null);
+  const l = layoutDeck({ ...sampleDeck(), blocking: { every: 96 } }); // joists 141 in: 2 parts, 1 row
+  assert.equal(l.blocking.rows, 1);
+  assert.equal(l.blocking.pieces, 12); // 13 joists, 12 bays
+  assert.equal(l.lumber.filter((x) => x.kind === "blocking").length, 12);
+  assert.ok(Math.abs(l.blocking.bays[1] - 14.5) < 1e-9); // 16 in centres less one joist
+  assert.equal(layoutDeck({ ...sampleDeck(), blocking: { every: 200 } }).blocking, null);
+});

@@ -1,0 +1,17 @@
+# Which lots did you really sell?
+
+> Free crypto cost basis calculator. Paste your buys, sales and income as a CSV; it matches every sale to your lots under FIFO, LIFO, HIFO, LOFO or a tax-aware rule, compares the methods side by side and exports Form 8949 style rows. Runs in your browser; your history is never uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/crypto-cost-basis-calculator/)
+- [Crypto tax-loss harvesting, with a worked example](https://duncan-haywood.github.io/oss-monorepo/crypto-cost-basis-calculator/crypto-tax-loss-harvesting-worked-example.html)
+- [FIFO vs HIFO for crypto cost basis, with a worked example](https://duncan-haywood.github.io/oss-monorepo/crypto-cost-basis-calculator/fifo-vs-hifo-crypto-cost-basis.html)
+- [Form 8949 boxes G to L for crypto: which box is each sale?](https://duncan-haywood.github.io/oss-monorepo/crypto-cost-basis-calculator/form-8949-crypto-boxes-g-h-i-j-k-l.html)
+- [Import Coinbase, Kraken, Binance and other exchange CSVs for crypto taxes](https://duncan-haywood.github.io/oss-monorepo/crypto-cost-basis-calculator/import-coinbase-kraken-binance-csv-crypto-taxes.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/crypto-cost-basis-calculator): MIT licensed.

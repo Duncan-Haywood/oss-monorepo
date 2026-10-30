@@ -1,0 +1,15 @@
+# Skill Manifest Check
+
+> Lint a SKILL.md for missing frontmatter, a description too vague to trigger, overlapping triggers and body size. Free, runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/skill-manifest-check/)
+- [How to write a description that actually triggers](https://duncan-haywood.github.io/oss-monorepo/skill-manifest-check/how-to-write-a-description-that-triggers.html)
+- [Skill Manifest Check vs. reading the SKILL.md by hand](https://duncan-haywood.github.io/oss-monorepo/skill-manifest-check/vs-reading-the-skill-by-hand.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/skill-manifest-check): MIT licensed.

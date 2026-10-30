@@ -8,34 +8,7 @@
 #
 # classification: live | gated | dispatch | none  (see the module docstring)
 workflows:
-- workflow: a11y-axe-recall-ci.yml
-  classification: none
-  publishes: []
-- workflow: a11y-contrast-decidability-ci.yml
-  classification: none
-  publishes: []
-- workflow: a11y-delivered-contrast-ci.yml
-  classification: none
-  publishes: []
-- workflow: a11y-engine-agreement-ci.yml
-  classification: none
-  publishes: []
-- workflow: a11y-evidence-record-ci.yml
-  classification: none
-  publishes: []
-- workflow: a11y-external-coverage-reference-ci.yml
-  classification: none
-  publishes: []
-- workflow: a11y-generated-sites-ci.yml
-  classification: none
-  publishes: []
-- workflow: a11y-own-sites-ci.yml
-  classification: none
-  publishes: []
-- workflow: a11y-render-recovery-ci.yml
-  classification: none
-  publishes: []
-- workflow: a11y-theme-resolution-ci.yml
+- workflow: a11y-research-ci.yml
   classification: none
   publishes: []
 - workflow: actions-artifact-poisoning-check-ci.yml

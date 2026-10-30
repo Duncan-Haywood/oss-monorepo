@@ -1,0 +1,13 @@
+# What can you offer the seller and still get paid?
+
+> Free calculator for real estate wholesalers: the most you can offer the seller, the end buyer's ceiling by the 70% rule and by profit, your fee by assignment versus double close, and how ARV errors move it. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/wholesale-real-estate-offer-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/wholesale-real-estate-offer-calculator): MIT licensed.

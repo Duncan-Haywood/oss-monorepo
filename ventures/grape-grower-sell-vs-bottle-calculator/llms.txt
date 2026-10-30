@@ -1,0 +1,13 @@
+# Is your acreage worth more as fruit or as your own wine?
+
+> Free vineyard calculator: compare selling your grapes by the ton with bottling and selling your own wine. Break-even sell-through, bottle price, grape price and acreage. Runs in your browser, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/grape-grower-sell-vs-bottle-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/grape-grower-sell-vs-bottle-calculator): MIT licensed.

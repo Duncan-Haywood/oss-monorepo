@@ -1,0 +1,14 @@
+# Is your requirements.txt actually reproducible?
+
+> Paste your requirements.txt and see every unpinned version, missing hash, extra index URL and unpinned git dependency. Free pip requirements pin checker, runs in your browser, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/requirements-pin-check/)
+- [How to pin and hash Python dependencies](https://duncan-haywood.github.io/oss-monorepo/requirements-pin-check/pin-python-dependencies-guide.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/requirements-pin-check): MIT licensed.

@@ -1,0 +1,14 @@
+# A prospecting cadence for every lead on your list, checked before you send
+
+> Free sales cadence builder and outreach sequence planner. Paste your prospect list and get a multi-channel cadence (email, phone call with voicemail script, LinkedIn note, mailed letter) on business days, call times inside each prospect's local business hours, suppression and consent checks, and a CSV and calendar file. Runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/sales-cadence-builder/)
+- [B2B sales cadence template: 8 touches over 15 business days](https://duncan-haywood.github.io/oss-monorepo/sales-cadence-builder/sales-cadence-template.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/sales-cadence-builder): MIT licensed.

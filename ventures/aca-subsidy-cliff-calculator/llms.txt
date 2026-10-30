@@ -1,0 +1,13 @@
+# How close is your income to the 2026 ACA subsidy cliff?
+
+> Free 2026 ACA subsidy cliff calculator: enter household size, MAGI and your benchmark premium to see your premium tax credit, how far you are from the 400% of poverty cliff, and how much a dollar over it costs. Entirely client-side, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/aca-subsidy-cliff-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/aca-subsidy-cliff-calculator): MIT licensed.

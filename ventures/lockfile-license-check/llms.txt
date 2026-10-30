@@ -1,0 +1,14 @@
+# Is anything in your node_modules GPL?
+
+> Paste your package-lock.json and see every dependency licence: copyleft (GPL, AGPL), unlicensed and unknown packages flagged first. Free npm license checker, runs in your browser, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/lockfile-license-check/)
+- [An npm licence compliance checklist for shipping software](https://duncan-haywood.github.io/oss-monorepo/lockfile-license-check/npm-license-compliance-guide.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/lockfile-license-check): MIT licensed.

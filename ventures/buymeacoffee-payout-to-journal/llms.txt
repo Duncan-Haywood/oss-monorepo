@@ -1,0 +1,13 @@
+# Turn a Buy Me a Coffee transactions export into a Xero or QuickBooks journal
+
+> Turn a Buy Me a Coffee transactions export into month-split journal entries. Nothing leaves your device.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/buymeacoffee-payout-to-journal/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/buymeacoffee-payout-to-journal): MIT licensed.

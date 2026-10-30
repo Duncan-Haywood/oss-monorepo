@@ -1,0 +1,13 @@
+# Which of your Ghost members are worth keeping, and which are ready to pay?
+
+> Free analyzer for Ghost publishers: drop in your members export CSV and see paid and free members, free-to-paid conversion, who never opens your emails, what cleaning the list saves, conversion by label and growth. Runs in your browser, the file is never uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/ghost-members-export-analyzer/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/ghost-members-export-analyzer): MIT licensed.

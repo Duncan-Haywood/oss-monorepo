@@ -1,0 +1,48 @@
+{
+ "date": "2026-10-30",
+ "session": "https://claude.ai/code/session_01AcxTtLsMUF7QcCuPj4rmXq",
+ "track": "ventures",
+ "prompt_version": 1,
+ "input": "scheduled: read ./prompt.md",
+ "input_sha256": "309d74eee7a943668cd28140b1420200644d428dcdd742af9d32a7d7ced9746f",
+ "follow_up_inputs": [],
+ "model": "claude-sonnet-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-10-30T11:09:50Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": null,
+ "projects": [],
+ "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/11751",
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [],
+ "deviations": [
+  {
+   "file": "CLAUDE.md",
+   "why": "Skipped venture-preflight and full CI wait; ran divisions.test.mjs (57 pass) locally",
+   "did": "local test + CLI run",
+   "result": "fine"
+  }
+ ],
+ "writeups": [
+  "docs/posts/2026-10-30-one-sheet-for-every-division.md"
+ ],
+ "goal": null,
+ "notes": "Flagship 9 slice: multi-division season grid CSV.",
+ "corrections": [],
+ "redteam": null
+}

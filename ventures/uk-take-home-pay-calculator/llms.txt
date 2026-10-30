@@ -1,0 +1,13 @@
+# How much of my salary do I actually take home?
+
+> Free UK take-home pay calculator for 2025/26: income tax, National Insurance, student loan and pension by salary sacrifice, net pay or relief at source, with monthly and weekly pay and your marginal rate. England, Wales and NI. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/uk-take-home-pay-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/uk-take-home-pay-calculator): MIT licensed.

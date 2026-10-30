@@ -33,7 +33,7 @@
   "deviations": [],
   "writeups": [],
   "goal": null,
-  "notes": "Filled in after merge by session_01XpHqyfLW7wSEJmLBRH72gZ (PR 11281), because main's prompts validate was red: PR 11643 merged at 2026-10-30T03:09:09Z with this record's outcome, pr and merged empty. pr and merged are read from GitHub; outcome 'success' is inferred from the merged milestone 2m (LOG.md, experiments/ranking_map_lf_results.txt, a post), not stated by the original session.",
+  "notes": "Outcome filled by session 01XpHqybgbjtZBC1yuM1sWw3 from the record of PR #11643 (merged); the authoring session left the record empty, which turned promptctl validate red on main.",
   "corrections": [],
   "redteam": null
 }

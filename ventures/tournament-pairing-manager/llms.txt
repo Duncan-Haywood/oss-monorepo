@@ -1,0 +1,14 @@
+# Run a Swiss tournament or bracket without the spreadsheet
+
+> Free Swiss pairing generator and bracket maker. Paste your players, get round-by-round Swiss pairings with colour balance, Buchholz and Sonneborn-Berger tiebreaks, or a single or double elimination bracket with byes. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/tournament-pairing-manager/)
+- [How to run a Swiss tournament, with a worked example](https://duncan-haywood.github.io/oss-monorepo/tournament-pairing-manager/how-to-run-a-swiss-tournament.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/tournament-pairing-manager): MIT licensed.

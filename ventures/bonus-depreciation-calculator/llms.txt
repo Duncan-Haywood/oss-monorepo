@@ -1,0 +1,14 @@
+# Bonus depreciation, Section 179, or plain MACRS? Compare all three.
+
+> Free calculator comparing 100% bonus depreciation, a Section 179 election, and plain MACRS depreciation for a new equipment or asset purchase — with the 2025/2026 OBBBA dollar limits and phase-out, the net-operating-loss vs. carryforward distinction, and cash tax savings for each path.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/bonus-depreciation-calculator/)
+- [This calculator vs. working out bonus depreciation and Section 179 by hand](https://duncan-haywood.github.io/oss-monorepo/bonus-depreciation-calculator/vs-doing-the-math-by-hand.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/bonus-depreciation-calculator): MIT licensed.

@@ -1167,3 +1167,211 @@ So the 16 to 22 steps on the real euro series are what a white-noise null does w
 **`driftWarning` and autocorrelated noise: the text now points at `--ar1` (measured 2026-10-29).** `eval/drift-warning-null195-ar1.mjs` re-runs the 195-month null (fixed season, no shock, 40 seeds per cell, raw scale, `--trend bend`) with and without `--ar1`. At rho 0.5 the warning fired in 33, 33 and 35 of 40 series without `--ar1` (sd 0.01, 0.02, 0.04) and in 0, 0 and 1 of 40 with it; at rho 0 it fired 0 to 3 of 40 either way (3, 2, 0 without; 2, 2, 0 with). So when the series looks autocorrelated (rho of 0.3 or more) and `--ar1` is off, the warning now says so and asks for a re-run before reading the steps as a changing shape. Not measured: whether `--ar1` also keeps the warning on a real drifting shape under sticky noise (the `--period --drift --ar1` section above covers the fit, not this warning). Output: `eval/drift-warning-null195-ar1.out.txt`; test: `drift-warning-null195-ar1.test.mjs`.
 
 **`--ar1` on real drifting series (2026-10-29, `eval/drift-warning-real-ar1.mjs`).** With `--trend bend`, `--ar1` keeps the drift warning on the airline-passengers series (raw and log, 8 to 10 steps, warning yes) and stays silent on the fixed-season Nottingham temperatures, but it loses the warning on UK gas, a genuinely growing season (raw and log each fall from 6 or 7 steps to 1), and on UK driver deaths raw (the 1973 shock; log still warns). Johnson & Johnson never warned with bend. So `--ar1` is not a free fix for the autocorrelated false alarm: on a short quarterly series it widens the noise scale enough to swallow the drifting shape. Use it when the lag-1 autocorrelation is high and read the warning as "not shown" rather than "absent" on short series.
+
+## A "null" that was not: US accidental deaths, 1973-78 (2026-10-30)
+
+`eval/drift-warning-trendless.mjs` had used the 72 months of US accidental
+deaths (R's `USAccDeaths`) as a no-shock null. It is not quiet. With the
+12-month season, every setup tried (mean, NB counts, `--ar1`, `--trend bend`)
+puts a fall at 1973-12 of about 1,000 deaths a month (9,707 to 8,757 for the
+mean model), and all but the bend run add a second step at 1975-07. With no
+seasonal term the winter peaks read as steps instead (1973-05, 1973-11,
+1978-05). `eval/us-accidental-deaths.mjs` prints the table and
+`us-accidental-deaths.test.mjs` locks it.
+
+The timing sits with the oil embargo of late 1973 and the national 55 mph
+limit of January 1974, which is the usual reading of that drop in driving
+deaths. This is one dated coincidence on one series, not a test of the
+detector against a known date, and the first segment is only 12 months long.
+The note in the drift-warning eval now says so; its warning counts on this
+series are unchanged, so read them as warnings on a series with a real step,
+not as false alarms.
+
+## Two quiet real series: lh and treering (2026-10-30)
+
+The open item "a quiet real series is wanted" is met by two series with no documented step, so every cut is a false
+alarm (`data/lh.csv`, `data/treering.csv`, both R's `datasets`; `quiet-series.test.mjs`).
+
+| Series | Default `mean` | `--min-segment 6` | `--min-segment 20` | `--ar1` | `--model meanvar --bootstrap` |
+| --- | --- | --- | --- | --- | --- |
+| `lh`, 48 luteinizing hormone readings, lag-1 autocorrelation 0.58 | 5 steps (15, 18, 23, 35, 40) | 3 | 1 | 0 | 0 |
+| `treering`, 7,980 yearly tree-ring widths, 6000 BC to 1979, lag-1 autocorrelation 0.22 | 38 | 33 | 31 | 11 | 1 (-4353) |
+
+`lh` repeats the synthetic result on a real series: autocorrelation alone makes the default model see steps, and
+`--ar1` removes all five. A longer minimum segment only thins them. `treering` is harder: its correlation at lag 1 is
+modest but it drifts slowly over centuries, so `--ar1` still leaves 11 and only the bootstrapped `meanvar` penalty is
+near quiet (1). Do not read a tree-ring "step" as a climate event from this tool; the counts are the claim, nothing
+here is checked against a dendrochronology record. `--ar1` is for the `mean` model only.
+
+## Two cyclic real series: lynx and sunspots (2026-10-30)
+
+Quasi-periodic series with no documented step are a different false-alarm test from `lh` and `treering`: the level
+swings up and down every ten or eleven years, and a model of "flat segments" reads each swing as two changes.
+`data/lynx.csv` (Canadian lynx trappings, 1821-1934, 114 years) and `data/sunspot-year.csv` (yearly sunspot numbers,
+1700-1988, 289 years), both R's `datasets` (`eval/cyclic-series.mjs`, `cyclic-series.test.mjs`).
+
+| Series | Default `mean` | `--min-segment 20` | `--ar1` | `--model meanvar --bootstrap` |
+| --- | --- | --- | --- | --- |
+| `lynx` | 23 steps | 3 | 0 | 0 |
+| `sunspot-year` | 46 steps | 7 | 0 | 0 |
+
+(2026-10-30, later: `--ar1 joint` added as a fifth setup, `lynx` 0 steps, `sunspot-year` 1.)
+
+So on a cycle the default model is wrong by a wide margin, a longer minimum segment only thins the steps, and
+`--ar1` or the bootstrapped penalty removes them. Zero is the right answer here, but it is also the answer for a
+tool that finds nothing: this table says nothing about power on a series with a real step inside a cycle, which is
+not measured. The default output does not warn about a cycle; pointing the text at `--ar1` when it sees a periodic
+autocorrelation pattern is open.
+
+## Power on a step inside a cycle (2026-10-30)
+
+The table above only counts false alarms, so it cannot tell a quiet tool from a blind one. This one adds a level
+shift of 0.5, 1 or 2 series standard deviations to the real lynx and sunspot series from 30%, 50% or 70% of the way
+through, and asks whether a setup puts a change within 3 points of it (hits out of 3 positions;
+`eval/cyclic-power.mjs`, `cyclic-power.test.mjs`). "Other" is the count of further changes in the same run.
+
+| Series | Setup | 0.5 sd | 1 sd | 2 sd | Other changes (1 sd) |
+| --- | --- | --- | --- | --- | --- |
+| `lynx` | default `mean` | 2/3 | 2/3 | 3/3 | 22, 22, 20 |
+| `lynx` | `--min-segment 20` | 2/3 | 2/3 | 3/3 | 2, 4, 2 |
+| `lynx` | `--ar1` | 0/3 | 0/3 | 0/3 | 0 |
+| `lynx` | `meanvar --bootstrap` | 0/3 | 2/3 | 3/3 | 0, 1, 0 |
+| `sunspot-year` | default `mean` | 3/3 | 3/3 | 3/3 | 45, 46, 45 |
+| `sunspot-year` | `--min-segment 20` | 2/3 | 2/3 | 3/3 | 7 each |
+| `sunspot-year` | `--ar1` | 0/3 | 0/3 | 0/3 | 0 |
+| `sunspot-year` | `meanvar --bootstrap` | 0/3 | 0/3 | 3/3 | 1 each |
+
+The zeros above were not free. On a cyclic series `--ar1` reports nothing, and that includes a step of two standard
+deviations of the whole series: the AR(1) term absorbs the step into the noise, so 0 of 18 inserted steps were found.
+The bootstrapped `meanvar` penalty is quiet and does find a 2 sd step, but misses 0.5 sd and (on sunspots) 1 sd.
+The default model finds the step and buries it in 20 to 46 false ones. A longer minimum segment is the only setup
+that both finds most steps and leaves a readable list, and it is still noisy (2 to 7 extra changes).
+Practical reading: on a series with a visible cycle, use the bootstrapped `meanvar` for a large break and treat
+`--ar1` as a false-alarm filter that cannot confirm a step. Caveats: two series, one step shape, three positions,
+a tolerance of 3 points, so each cell is 3 trials; a step added to a real series is not a real step.
+
+**`--ar1 joint` keeps a step that plain `--ar1` buries (2026-10-30, same script and test, one more setup).** The joint
+fit prices persistence with the exact AR(1) likelihood instead of widening the noise scale, so a level shift is not
+absorbed whole. On the same inserted steps, hits out of 3 positions (0.5 / 1 / 2 sd): `lynx` 1 / 1 / 3 with 0 to 1
+other changes; `sunspot-year` 0 / 2 / 3 with 1 other each (the same single false step it reports with no inserted
+step, so it is not caused by the insertion). Plain `--ar1` found 0 / 0 / 0 on both. So the earlier advice to treat
+`--ar1` as a filter that cannot confirm a step holds for plain `--ar1` only: on a visible cycle, `--ar1 joint` finds
+a 2 sd step as often as the bootstrapped `meanvar` (3/3 on both), finds a 1 sd step on 3 of 6 cells where the
+bootstrap finds 2 of 6, and leaves at most one extra change. It still misses most 0.5 sd steps and has one false step
+on sunspots. Same caveats: two series, one step shape, 3 trials per cell, a step added to a real series is not a real
+step. Open: a joint fit with a second AR term (a cycle is closer to AR(2) than AR(1)), and a real series with a
+documented step inside a cycle.
+
+**The default output now says so (2026-10-30, later).** The earlier line "the default output does not warn about a cycle"
+was half stale: on both series the existing range warning already fired (lag-1 rho 0.95) but only said the ranges were
+too narrow. When the mean model has found 5 or more steps and rho is 0.3 or more, the warning now adds that many of the
+steps may be false alarms, with the measured counts (lynx 23, sunspots 46 by default; `--ar1` none; `--ar1 joint` keeps
+a 2 sd step). Test: `cyclic-series.test.mjs`. Not covered: `treering` (38 false steps) has rho 0.16 by this estimate, so
+it gets no hint; a cycle detector that does not rely on rho is open.
+
+## A warning that does not depend on lag-1 rho (2026-10-30)
+
+The old autocorrelation warning needed rho >= 0.3, so the 7,980 tree rings (rho 0.16, 38 default steps, 11 with `--ar1`) got
+none. `blockVarianceRatio` compares the spread of block means (blocks of n/20) with what independent noise of the series'
+own difference-based sd gives. White noise: 95th percentile 1.6 at n >= 200, 2.5 at n = 48 (200 draws each, hand-run).
+Real series: treering 6.0, Nile 6.5, US inflation 28.9, DAX returns 1.6, great discoveries 2.3, nhtemp 2.6.
+When rho < 0.3, 5 or more steps and a ratio of 3 or more, `rangeWarning` says the steps may be slow drift or a cycle.
+It fires on treering (38 steps) and US inflation (12); not on DAX (6 steps), Nile (1) or the others. Limits: a real step
+raises the ratio too (Nile 6.5), so the text calls it a prompt to check dates, and the 5-step floor does the separating;
+tested on these series only, not on a documented many-step series. Test: `quiet-series.test.mjs`.
+
+## Is residual autocorrelation a cycle test that does not rely on rho? No (2026-10-30, later still)
+
+The open item above asked for a cycle check that also catches `treering` (38 false steps, raw rho 0.16). The obvious
+candidate is the lag-1 autocorrelation of the residuals after the default fit (each point minus its segment mean),
+which does not depend on the differenced rho estimate. `eval/residual-rho.mjs` computes it for all 34 numeric series in
+`data/` (output in `eval/residual-rho.out.txt`). It does not separate cycles from series with real, sticky structure:
+
+| series | steps | residual rho | is it a false-alarm case? |
+|---|---|---|---|
+| `treering` | 38 | 0.22 | yes, no documented step |
+| `lh` | 5 | 0.58 | yes |
+| `lynx`, `sunspot-year` | 23, 46 | 0.71, 0.81 | yes |
+| `us-inflation` | 12 | 0.64 | no, inflation is persistent and has real regimes |
+| `us-gdp-growth` | 12 | 0.30 | partly (Great Moderation is a real break) |
+| `johnson-johnson` | 12 | 0.93 | no, a growing quarterly series |
+| `cac/dax/ftse/smi-returns` | 6 to 11 | -0.00 to 0.09 | mixed |
+
+`treering` (0.22) sits below real-structure series (`us-inflation` 0.64, `puerto-rico-daily-deaths` 0.40) and above the
+index returns, so no threshold on residual rho flags it without also flagging series where steps are right. No code
+changed. A rho-free cycle detector stays open; a spectral peak test on the residuals is the next thing to try.
+
+## A spectral peak test on the residuals of the steps (2026-10-30, last)
+
+The previous section found that lag-1 rho of the residuals does not separate a cycle from steps. This tries the
+untried alternative: Fisher's g (the largest periodogram ordinate over the sum, exact p-value) on the residuals
+about the default model's segment means. `node eval/spectral-peak.mjs`, `node eval/spectral-null.mjs`, test
+`spectral-peak.test.mjs`.
+
+| series | default steps | g | p | peak period |
+|---|---|---|---|---|
+| sunspots (cycle) | 46 | 0.119 | 2e-6 | 11.1 years |
+| lynx (cycle) | 23 | 0.134 | 0.02 | 9.5 years |
+| treering | 38 | 0.003 | 0.04 | 7.0 (no known cycle) |
+| lh | 5 | 0.155 | 0.49 | |
+| US inflation | 12 | 0.063 | 0.15 | |
+| Nile, Lake Huron, nhtemp, discoveries | 1 to 10 | | 0.37 to 0.73 | |
+| US accidental deaths (monthly) | 3 | 0.506 | 1e-9 | 12 (months: the season) |
+
+Calibration on 100 synthetic series per cell, p < 0.01: no cycle 3% (n=100) and 1% (n=300); two true 2 sd steps and
+no cycle 2% and 1%; a sine of amplitude 1 (period 11, noise sd 1) found in 97% to 100% with or without steps; amplitude 0.5 in 28% (n=100) and 86% (n=300).
+
+Reading: unlike rho it finds sunspots clearly (p 2e-6) and names the period, and steps do not trigger it. On
+lynx it is weak (0.02: a 114-point series with 10 or so cycles has few frequencies near the peak) and on treering
+it does not fire usefully (p 0.04 at a period of 7 with 38 steps; treering's false steps come from slow drift, not a cycle). So it
+covers the cycle half of the "cycle check not tied to rho" item and not the drift half, which the block-variance
+warning already covers. It is not wired into the output yet: with a seasonal monthly series it fires for the
+season, which `--period` already handles, so a hint needs to be suppressed when a period is set. Wanted: a documented step inside
+a real series with a known cycle, to check the test still lets the step through.
+
+## The spectral peak test is wired into the output (2026-10-30, last)
+
+`analyze` now returns `cycleWarning` (and the CLI prints it) when the default fit finds 5 or more steps in a series of
+60 or more points, no `--period` is set, the model is not Poisson, and Fisher's g on the residuals about those steps has
+p < 0.01 at a period of 3 points or more. It names the peak period and points at `--period`. Sunspots fire (p 2e-6, 11 years);
+`lh` and the monthly deaths series with `--period 12` do not (tests in `spectral-peak.test.mjs`). Calibration is the
+synthetic 1% to 3% above, so on a series with no cycle about 1 in 50 to 1 in 100 runs with 5+ steps would show it.
+Lynx (p 0.02) and treering (drift, not a cycle) stay quiet. Still open: a documented step inside a real cycle, to check the warning
+does not drown a true step; the warning is not shown on the page card.
+
+## A staircase of real steps: the block-variance warning cannot tell it from drift (2026-10-30, last)
+
+The block-variance section said the warning was "tested on these series only, not on a documented many-step series".
+The repository has no documented series with 5 or more real steps, so this uses seeded synthetic ones where every step
+is real: 5, 8 or 12 level changes of 2 or 3 noise sd between segments of 40 points, rising or alternating, 20 seeds each
+(`node eval/staircase-warning.mjs`, output `eval/staircase-warning.out.txt`, test `staircase-warning.test.mjs`).
+
+| true steps | warning fired (jump 2 and 3 sd, both shapes) | mean steps found |
+|---|---|---|
+| 5 | 19 of 20 | 5.0 to 5.2 |
+| 8 | 20 of 20 | 8.1 |
+| 12 | 20 of 20 | 12.0 to 12.1 |
+
+So on a series made only of real steps the warning fires 95% to 100% of the time, as it does on treering's false ones: the
+5-step floor does not separate them, and the text's "a real step raises this ratio too" is a limit, not a nuance. A
+residual check does not rescue it (`node eval/staircase-residual.mjs`): the ratio of the residuals about the fitted steps is
+0.6 to 0.7 (median) on the staircases, but 1.3 on treering, 0.8 on US inflation and 1.2 on DAX returns, because 38 steps
+fit treering's drift just as well as 12 fit a staircase. No code changed. What would separate them is data: a real series with a
+documented run of 5 or more steps and a quiet baseline.
+
+## AR(2) by iterated prewhitening does not work (2026-10-30, last)
+
+The open item "a joint fit with an AR(2) term" was tried the cheap way first (`node eval/ar2-prewhiten.mjs`, output
+`eval/ar2-prewhiten.out.txt`, no engine change): whiten the series with AR(1) or AR(2) coefficients (Yule-Walker on the residuals
+about the fitted steps, three passes, seeded with the robust rho as `ar1JointFit` is), then run mean PELT on the whitened series.
+
+| series | AR(1) prewhitened | AR(2) prewhitened | `--ar1` (exact likelihood) |
+|---|---|---|---|
+| lynx, false steps | 21 | 22 | 0 |
+| sunspots, false steps | 34 | 16 | 0 |
+
+Starting with no whitening is worse (19 and 51: the first pass cuts the cycle into steps, whose residuals look white, so the
+coefficients fall to about 0). Even seeded, the coefficients drift (sunspots AR(2): 1.07, -0.48) and many steps remain. A check that a
+1 or 2 sd step inserted at six positions is found with 3 or fewer steps reported found 0 of 6 in every cell, so there is no power to
+protect either. Plain prewhitening is not the route; an AR(2) fit would need the exact two-lag likelihood inside PELT
+(as `ar1mean` does for one lag) with coefficients profiled on a grid. Not built. Real data only; no inserted-step claim beyond the table.

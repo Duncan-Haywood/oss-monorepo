@@ -1,0 +1,47 @@
+{
+  "date": "2026-10-30",
+  "session": "https://claude.ai/code/session_01AcxTtHbrDxbGrCABpTXRXb",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled routine: read ./prompt.md",
+  "input_sha256": "70e3efa57dfd216816ab20d3c91a39271efc1a313dcc8ef64233923175a1d30b",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-30T11:19:40Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 11754,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/runs",
+      "why": "No separate agent doc; the measurement is in the venture docs."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-30-pairwise-survey-1000-items-through-the-route.md",
+    "ventures/quick-pick-survey/docs/INFORMATION-GAIN-SELECTOR.md"
+  ],
+  "goal": null,
+  "notes": "Local Postgres 16 via scripts/test-db.sh; full integration suite 111 passed. Single respondent, noiseless.",
+  "corrections": [],
+  "redteam": null
+}

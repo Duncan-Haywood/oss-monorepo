@@ -1,0 +1,13 @@
+# Freelancer Tax Pack: Schedule C, SE tax and quarterly payments in one page
+
+> Free year-end tax pack for freelancers: pulls your invoices, expenses and mileage from this browser, then shows Schedule C net profit, self-employment tax, a 2026 federal estimate, quarterly payments still due and the 1099-NEC list. No account, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/freelancer-tax-pack/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/freelancer-tax-pack): MIT licensed.

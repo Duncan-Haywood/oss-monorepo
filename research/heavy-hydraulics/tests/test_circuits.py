@@ -53,3 +53,48 @@ def test_idle_sensitivity_hits_target_load_factor():
     peak = max(i.useful_power(p) for p in c)
     lf = sum(i.useful_power(p) * p.seconds for p in c2) / sum(p.seconds for p in c2) / peak
     assert 0.34 < lf < 0.36
+
+
+def test_flow_share_single_actuator_unchanged():
+    from heavy_hydraulics.flow_share import phase_slowdown
+    assert phase_slowdown([(100.0, 20.0)], 45.0, 10.9) == 1.0
+
+
+def test_flow_share_equal_loads_split_evenly_within_pump_flow():
+    from heavy_hydraulics.flow_share import shared_flows
+    got = shared_flows([(100.0, 10.0), (100.0, 10.0)], 45.0, 10.9)
+    assert abs(got[0] - got[1]) < 1e-6 and 10.0 <= got[0] and sum(got) <= 45.0 + 1e-6
+
+
+def test_flow_share_low_pressure_actuator_steals():
+    from heavy_hydraulics.flow_share import shared_flows
+    hi, lo = shared_flows([(150.0, 10.0), (40.0, 10.0)], 45.0, 10.9)
+    assert hi < 10.0 < lo
+
+
+def test_flow_share_faster_bypass_closing_helps_the_stalled_actuator():
+    from heavy_hydraulics.flow_share import phase_slowdown
+    d = [(40.0, 20.0), (160.0, 20.0)]
+    slow = [phase_slowdown(d, 45.0, 10.9, k) for k in (0.5, 1.0, 2.0, 3.0)]
+    assert all(a >= b for a, b in zip(slow, slow[1:]))
+    assert phase_slowdown(d, 45.0, 10.9, 1.0) == phase_slowdown(d, 45.0, 10.9)
+
+
+def test_flow_share_ls_factor_is_one_inside_pump_flow_and_scales_beyond():
+    import os, sys
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "experiments"))
+    from flow_share_ls import ls_factor
+    assert ls_factor([(50.0, 20.0), (100.0, 20.0)], 45.0) == 1.0
+    assert abs(ls_factor([(50.0, 40.0), (100.0, 40.0)], 45.0) - 80.0 / 45.0) < 1e-12
+
+
+def test_section_area_root_found_when_supply_pressure_exceeds_old_bracket():
+    # k = 20 at the PVG 32 neutral drop: the sizing root is above p_i + 400 bar; the old bracket
+    # returned its endpoint (area 1.5 for a 30 L/min section at 200 bar), the correct root is smaller.
+    from heavy_hydraulics.flow_share import bypass_area, section_area
+    from math import sqrt
+    a0 = bypass_area(45.0, 10.9)
+    a = section_area(30.0, 200.0, 45.0, a0, 20.0)
+    ps = 200.0 + (30.0 / a) ** 2
+    assert a < 1.0
+    assert abs((a0 - 20.0 * a) * sqrt(ps) - 15.0) < 1e-6

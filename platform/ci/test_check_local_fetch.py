@@ -4,7 +4,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from check_local_fetch import main, missing, scan
+from check_local_fetch import ROOT, main, missing, scan
 
 
 class LocalFetch(unittest.TestCase):
@@ -21,6 +21,15 @@ class LocalFetch(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             src = "fetch('/v1/cases/') fetch('https://a.b/c.json') fetch(`./x/${id}.json`) fetch('api/run')"
             self.assertEqual(missing(src, Path(d)), [])
+
+    def test_api_and_v1_paths_with_extension_are_skipped(self):
+        with tempfile.TemporaryDirectory() as d:
+            self.assertEqual(missing("fetch('api/run.json') fetch('v1/x.json')", Path(d)), [])
+
+    def test_clean_tree_exits_zero_and_root_has_ventures(self):
+        self.assertTrue((ROOT / "ventures").is_dir())
+        with tempfile.TemporaryDirectory() as d, contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual(main(["--root", d]), 0)
 
     def test_scan_and_exit_code(self):
         with tempfile.TemporaryDirectory() as d:

@@ -1,0 +1,15 @@
+# Does your job posting state a pay range?
+
+> Paste a job posting and pick the states it could be filled from. Instantly see whether the text appears to state a pay range, and which of those states currently require one by law, with the effective date and size threshold cited. Free, runs entirely in your browser — not legal advice.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/salary-range-posting-check/)
+- [This checker vs. checking each state's law by hand](https://duncan-haywood.github.io/oss-monorepo/salary-range-posting-check/vs-checking-each-states-law-by-hand.html)
+- [Why pay-range posting laws differ by state](https://duncan-haywood.github.io/oss-monorepo/salary-range-posting-check/why-pay-range-laws-differ-by-state.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/salary-range-posting-check): MIT licensed.

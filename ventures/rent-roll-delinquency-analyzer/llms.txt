@@ -1,0 +1,13 @@
+# Who owes you rent, and how old is it?
+
+> Free analyzer for small landlords: load your rent ledger and see who owes what and how old it is, which units pay late, monthly collection rate and a late-fee upper bound. Runs in your browser, the file is never uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/rent-roll-delinquency-analyzer/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/rent-roll-delinquency-analyzer): MIT licensed.

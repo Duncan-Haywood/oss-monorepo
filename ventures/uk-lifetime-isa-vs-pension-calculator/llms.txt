@@ -1,0 +1,13 @@
+# Lifetime ISA or pension: which is worth more to me?
+
+> Free UK Lifetime ISA vs pension calculator: per £1 of take-home pay, which pot is worth more at 60, for a first home or if you withdraw early, and the retirement tax rate or employer match where the answer flips. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/uk-lifetime-isa-vs-pension-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/uk-lifetime-isa-vs-pension-calculator): MIT licensed.

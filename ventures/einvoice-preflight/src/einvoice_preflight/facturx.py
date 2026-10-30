@@ -129,7 +129,7 @@ def build_pdf_with_attachment(
             f"/AF [4 0 R] >>"
         ).encode("ascii"),
     )
-    add_object(2, b"<< /Type /Pages /Kids [] /Count 0 >>")
+    add_object(2, b"<< /Type /Pages /Kids [6 0 R] /Count 1 >>")
     add_object(3, f"<< /Names [({fname}) 4 0 R] >>".encode("ascii"))
     add_object(
         4,
@@ -143,6 +143,19 @@ def build_pdf_with_attachment(
         f"{filter_line} >>\nstream\n"
     ).encode("ascii") + data + b"\nendstream"
     add_object(5, stream)
+    # One A4 page with a line of text, so viewers open the file instead of
+    # reporting an empty page tree (poppler: "Invalid page count 0").
+    add_object(
+        6,
+        b"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] "
+        b"/Resources << /Font << /F1 8 0 R >> >> /Contents 7 0 R >>",
+    )
+    page_text = b"BT /F1 14 Tf 56 780 Td (Test invoice envelope: the invoice is the attached factur-x.xml) Tj ET"
+    add_object(
+        7,
+        b"<< /Length " + str(len(page_text)).encode("ascii") + b" >>\nstream\n" + page_text + b"\nendstream",
+    )
+    add_object(8, b"<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>")
 
     xref_at = len(out)
     out.extend(f"xref\n0 {len(offsets)}\n".encode("ascii"))
@@ -150,7 +163,7 @@ def build_pdf_with_attachment(
     for number in range(1, len(offsets)):
         out.extend(f"{offsets[number]:010d} 00000 n \n".encode("ascii"))
     # A real encrypt dict is not required: refusal only looks at the trailer.
-    encrypt_ref = " /Encrypt 6 0 R" if encrypt else ""
+    encrypt_ref = " /Encrypt 9 0 R" if encrypt else ""
     out.extend(
         (
             f"trailer\n<< /Size {len(offsets)} /Root 1 0 R{encrypt_ref} >>\n"

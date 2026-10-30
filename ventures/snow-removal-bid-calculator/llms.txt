@@ -1,0 +1,16 @@
+# Price the winter, not the driveway.
+
+> Price a snow-removal winter from route minutes, truck cost, salt, and expected storms. Compare per-push vs seasonal, see the ice-event drain, and the storm count where a cheap seasonal goes underwater.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/snow-removal-bid-calculator/)
+- [How much should I charge for snow removal?](https://duncan-haywood.github.io/oss-monorepo/snow-removal-bid-calculator/how-much-to-charge.html)
+- [This calculator vs. quoting one flat seasonal rate for every driveway](https://duncan-haywood.github.io/oss-monorepo/snow-removal-bid-calculator/vs-a-flat-seasonal-rate.html)
+- [This calculator vs. Aspire](https://duncan-haywood.github.io/oss-monorepo/snow-removal-bid-calculator/vs-aspire.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/snow-removal-bid-calculator): MIT licensed.

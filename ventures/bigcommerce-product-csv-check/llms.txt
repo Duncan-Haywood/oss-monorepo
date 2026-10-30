@@ -1,0 +1,13 @@
+# Why did my BigCommerce product import fail?
+
+> Free BigCommerce product CSV checker: finds SKU rows with no product or option set, duplicate SKUs, bad prices, wrong Y/N flags, wrong barcode check digits, broken image URLs, Excel-damaged SKUs and semicolon files, with line numbers, and applies safe fixes. Runs in your browser; the file is never uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/bigcommerce-product-csv-check/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/bigcommerce-product-csv-check): MIT licensed.

@@ -1,0 +1,13 @@
+# What does each beer really earn, and where should it be sold?
+
+> Free craft brewery batch margin calculator: cost each beer after yield loss, labour, federal and state excise and overhead, see profit per barrel by channel (taproom, kegs, distributor cans) and which beer earns most per fermenter day. Private, runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/craft-brewery-batch-margin-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/craft-brewery-batch-margin-calculator): MIT licensed.

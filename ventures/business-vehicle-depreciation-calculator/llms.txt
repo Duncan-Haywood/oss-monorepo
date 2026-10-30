@@ -1,0 +1,14 @@
+# How much of your business vehicle can you deduct this year, and which method wins?
+
+> Enter the vehicle price, class and business-use percentage and see the first-year deduction and tax saved under regular MACRS, 100% bonus depreciation and Section 179, with the car luxury-auto caps and the 6,000 lb SUV cap applied, plus standard mileage. Free, runs in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/business-vehicle-depreciation-calculator/)
+- [How to deduct a business vehicle](https://duncan-haywood.github.io/oss-monorepo/business-vehicle-depreciation-calculator/how-to-deduct-a-business-vehicle.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/business-vehicle-depreciation-calculator): MIT licensed.

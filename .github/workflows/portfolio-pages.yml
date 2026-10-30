@@ -129,7 +129,27 @@ jobs:
       # `clauses.test.mjs` had never run here — a suite can be added beside the
       # thing it tests and silently not be CI's problem, which is the one way a
       # test file is worse than no test file.
+      #
+      # The suite builds the whole site several times, and the first build
+      # draws about 1,200 share-card PNGs (45 of its 60 s). The deploy's
+      # cache of those cards (the `build` job saves it) is restored here
+      # read-only, so a card drawn the same way is copied, not drawn
+      # (docs/history/pages-test-perf-2026-10-30-card-cache.md).
+      - name: Day for the share-card cache
+        id: cards
+        run: echo "day=$(date -u +%Y%m%d)" >> "$GITHUB_OUTPUT"
+
+      - name: Restore the share cards
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: ${{ runner.temp }}/share-cards
+          key: share-cards-${{ hashFiles('platform/pages/sharecard.mjs', 'platform/pages/fontraster.mjs', 'platform/pages/fonts/**') }}-${{ steps.cards.outputs.day }}
+          restore-keys: |
+            share-cards-${{ hashFiles('platform/pages/sharecard.mjs', 'platform/pages/fontraster.mjs', 'platform/pages/fonts/**') }}-
+
       - name: Test the site builder
+        env:
+          PAGES_CARD_CACHE: ${{ runner.temp }}/share-cards
         run: node --test "*.test.mjs" "cloudflare/*.test.mjs"
         working-directory: platform/pages
 
@@ -336,12 +356,20 @@ jobs:
           path: ${{ runner.temp }}/share-cards
           key: share-cards-${{ hashFiles('platform/pages/sharecard.mjs', 'platform/pages/fontraster.mjs', 'platform/pages/fonts/**') }}-${{ steps.cards.outputs.day }}
 
+      # One tarball, not the directory: upload-artifact refuses a file whose
+      # name has a colon or other NTFS-reserved character, and one stray
+      # venture file once stopped the whole deploy that way (2026-10-30).
+      # upload-pages-artifact tars for the same reason.
+      - name: Pack the site for Cloudflare
+        if: github.event_name != 'pull_request' && needs.gate.outputs.cloudflare == 'true'
+        run: tar -cf "$RUNNER_TEMP/site.tar" -C platform/pages/dist .
+
       - name: Upload the site for Cloudflare
         if: github.event_name != 'pull_request' && needs.gate.outputs.cloudflare == 'true'
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: site
-          path: platform/pages/dist
+          path: ${{ runner.temp }}/site.tar
           retention-days: 3
 
       # Once the site lives on Cloudflare, GitHub Pages serves a page per old
@@ -391,7 +419,12 @@ jobs:
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           name: site
-          path: platform/pages/dist
+          path: ${{ runner.temp }}/site-artifact
+
+      - name: Unpack the built site
+        run: |
+          mkdir -p platform/pages/dist
+          tar -xf "$RUNNER_TEMP/site-artifact/site.tar" -C platform/pages/dist
 
       - name: Install wrangler (pinned)
         run: npm install --global wrangler@4.145.0
@@ -422,7 +455,13 @@ jobs:
           PAGE_URL: ${{ needs.gate.outputs.base }}
         run: bash platform/pages/verify-live.sh "$PAGE_URL"
 
+      # Announcing is a courtesy to search engines, not part of publishing:
+      # a refusal (IndexNow answers 403 SiteVerificationNotCompleted while it
+      # first verifies a new host's key file, as on 2026-10-30) shows red on
+      # this step but must not hold back the GitHub Pages redirect deploy,
+      # which waits on this job.
       - name: Announce the deployed site to IndexNow
+        continue-on-error: true
         env:
           EXIT_NO_EGRESS: "3"
         run: |

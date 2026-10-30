@@ -73,7 +73,7 @@ test('server: counts a hit, persists nothing about the request, serves aggregate
 test('pull merge never shrinks a recorded day and ignores junk', () => {
   const merged = mergeDays({ '2026-10-15': { hub: 5 } }, { '2026-10-15': { hub: 3, a: 1 }, '2026-10-16': { hub: 2, bad: -1 }, nope: { x: 1 } });
   assert.deepEqual(merged, { '2026-10-15': { a: 1, hub: 5 }, '2026-10-16': { hub: 2 } });
-  assert.deepEqual(summarise(merged), { days: 2, page_loads: 8, top: [['hub', 7], ['a', 1]], channels: {}, sources: {} });
+  assert.deepEqual(summarise(merged), { days: 2, page_loads: 8, top: [['hub', 7], ['a', 1]], channels: {}, sources: {}, countries: {}, devices: {}, bot_pages: {}, bots: {} });
 });
 
 test('a known channel tag is attributed; an unknown one is dropped but the view still counts', () => {
@@ -127,4 +127,29 @@ test('the server adds src:<class> beside the page count; a host or unknown class
   const s = summarise(tally.days);
   assert.equal(s.page_loads, 3);
   assert.deepEqual(s.sources, { google: 2, reddit: 1 });
+});
+
+test('crawler, device and country classes', async () => {
+  const { botClass, deviceClass, countryCode, isPageKey } = await import('./core.mjs');
+  assert.equal(botClass('Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/130.0'), '');
+  assert.equal(botClass('Mozilla/5.0 (compatible; bingbot/2.0)'), 'bingbot');
+  assert.equal(botClass('Mozilla/5.0 (compatible; GPTBot/1.2)'), 'gptbot');
+  assert.equal(botClass('Mozilla/5.0 (compatible; ClaudeBot/1.0)'), 'claudebot');
+  assert.equal(botClass('Mozilla/5.0 (compatible; Claude-User/1.0)'), 'claude-user');
+  assert.equal(botClass('facebookexternalhit/1.1'), 'meta');
+  assert.equal(botClass('Mozilla/5.0 HeadlessChrome/130.0'), 'headless');
+  assert.equal(botClass('NewCrawler/0.1'), 'other');
+  assert.equal(deviceClass('Mozilla/5.0 (iPhone; CPU iPhone OS 18_0) Mobile/15E148'), 'mobile');
+  assert.equal(deviceClass('Mozilla/5.0 (Linux; Android 14; Pixel 8) Mobile Safari/537.36'), 'mobile');
+  assert.equal(deviceClass('Mozilla/5.0 (iPad; CPU OS 17_0)'), 'tablet');
+  assert.equal(deviceClass('Mozilla/5.0 (Macintosh; Intel Mac OS X 14_0)'), 'desktop');
+  assert.equal(countryCode('DE'), 'DE');
+  assert.equal(countryCode('T1'), 'T1');
+  assert.equal(countryCode('de'), '');
+  assert.equal(countryCode(undefined), '');
+  assert.ok(isPageKey('categories/trades'));
+  for (const k of ['ref:npm', 'src:google', 'geo:US', 'dev:mobile', 'bot:googlebot', 'botpage:hub']) assert.ok(!isPageKey(k), k);
+  // A crawler's beacon reports its class and page instead of counting.
+  assert.deepEqual(classify({ ...ok, headers: { 'user-agent': 'Googlebot/2.1' } }), { count: false, reason: 'bot', bot: 'googlebot', slug: 'shop-rate-calculator' });
+  assert.deepEqual(classify({ ...ok, headers: { 'user-agent': 'ChatGPT-User/1.0' } }).reason, 'bot');
 });

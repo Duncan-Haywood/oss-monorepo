@@ -19,8 +19,10 @@
 
 import { readFile } from "node:fs/promises";
 import process from "node:process";
+import { importStaffCsv } from "./import-staff.mjs";
+import { importShiftsCsv } from "./import-shifts.mjs";
 import {
-  parseStaff, parseShifts, buildRoster, planWeeks, planFairness, optimalityText, rosterCsv, scheduleChanges, hoursCsv, rosterIcs, rosterMessages, openShiftPost, carryOverStaff, sampleStaff, sampleShifts,
+  parseStaff, parseShifts, buildRoster, planWeeks, planFairness, planStreaks, optimalityText, rosterCsv, scheduleChanges, hoursCsv, rosterIcs, rosterMessages, openShiftPost, carryOverStaff, sampleStaff, sampleShifts,
   DAYS, fmtClock, money, num,
 } from "./calc.mjs";
 
@@ -52,6 +54,8 @@ Options:
   --changes <csv>     compare the roster you posted (CSV) with this build: every shift added, cancelled or moved, its notice and the premium
                       on your numbers. Needs --week-start and --changed-at "YYYY-MM-DD HH:MM" for notice; --notice-hours (default 336),
                       --premium-hours (default 1) and --exempt "Ben,Cleo" (employee-requested changes) are yours to set, not a statement of any law
+  --import-shifts <csv> convert a published-schedule export (date, start, end, position rows) to shift lines on stdout; notes on stderr
+  --import-staff <csv>  convert a staff export from another scheduler (name, hourly rate, hours, position columns) to staff lines on stdout; notes on stderr
   --check             print the report; exit 1 if any shift is left open
   --example           use the built-in invented week
   -h, --help          this text
@@ -76,6 +80,8 @@ export function parseArgs(argv) {
     else if (a === "--messages") o.mode = "messages";
     else if (a === "--open-post") o.mode = "open-post";
     else if (a === "--person") { o.person = argv[++i]; if (!o.person) throw new Error("--person needs a name"); }
+    else if (a === "--import-shifts") { o.importShifts = argv[++i]; if (!o.importShifts) throw new Error("--import-shifts needs a CSV file"); }
+    else if (a === "--import-staff") { o.importStaff = argv[++i]; if (!o.importStaff) throw new Error("--import-staff needs a CSV file"); }
     else if (a === "--check") o.check = true;
     else if (a === "--changes") { o.changes = argv[++i]; if (!o.changes) throw new Error("--changes needs the posted roster CSV"); }
     else if (a === "--changed-at") {
@@ -223,6 +229,7 @@ export function runPlan(staffText, shiftsText, opts = {}) {
       totalPayroll: plan.totalCost, totalOpenHours: plan.totalOpenHours,
       weeks: plan.weeks.map((w) => ({ weekStart: w.weekStart, payroll: w.roster.cost, overtimeHours: w.roster.otHours, unfilledShifts: w.roster.unfilledSlots, unfilledHours: w.roster.unfilledHours })),
       fairness: planFairness(plan).rows,
+      streaks: planStreaks(plan).rows,
     }, null, 2) + "\n" };
   }
   if (opts.mode !== "report") return { code: 2, out: "--weeks works with the report, --csv and --json outputs\n" };
@@ -233,6 +240,9 @@ export function runPlan(staffText, shiftsText, opts = {}) {
   const w = Math.max(...f.rows.map((x) => x.name.length));
   for (const x of f.rows) lines.push(`  ${x.name.padEnd(w)}  ${x.tough} tough of ${x.shifts} shifts (${x.weekend} weekend, ${x.closing} closing, ${x.opening} opening), ${num(x.hours)} h`);
   if (f.flag) lines.push("", `Uneven: ${f.most.name} has ${f.spread} more tough shifts than ${f.least.name}. Try --tough-balance, or widen who can close or open.`);
+  const st = planStreaks(plan);
+  const dayName = (d) => `week ${Math.floor(d / 7) + 1} ${DAYS[d % 7]}`;
+  for (const x of st.flag) lines.push("", `${x.name} works ${x.longest} days in a row (${dayName(x.from)} to ${dayName(x.to)}). Check your state's consecutive-day rule; the search does not limit it.`);
   lines.push("", "Planning aid, not legal advice. Local scheduling-notice, break and minor-labor rules are not modelled.");
   return { code, out: lines.join("\n") + "\n" };
 }
@@ -241,6 +251,18 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   try {
     const o = parseArgs(process.argv.slice(2));
     if (o.help) { process.stdout.write(USAGE); process.exit(0); }
+    if (o.importShifts) {
+      const r = importShiftsCsv(await readFile(o.importShifts, "utf8"));
+      for (const n of [...r.notes, ...r.skipped.map((x) => "Skipped " + x)]) process.stderr.write(n + "\n");
+      if (!r.rows) process.exit(1);
+      process.stdout.write(r.shiftsText + "\n"); process.exit(0);
+    }
+    if (o.importStaff) {
+      const r = importStaffCsv(await readFile(o.importStaff, "utf8"));
+      for (const n of [...r.notes, ...r.skipped.map((x) => "Skipped " + x)]) process.stderr.write(n + "\n");
+      if (!r.rows) process.exit(1);
+      process.stdout.write(r.staffText + "\n"); process.exit(0);
+    }
     if (!o.example && o.files.length !== 2) { process.stderr.write(USAGE); process.exit(2); }
     const [staffText, shiftsText] = o.example
       ? [sampleStaff(), sampleShifts()]

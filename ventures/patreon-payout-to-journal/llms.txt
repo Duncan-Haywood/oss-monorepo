@@ -1,0 +1,13 @@
+# Turn a Patreon earnings export into a Xero or QuickBooks journal
+
+> Free Patreon payout to journal converter: proves the pledges add up to your payout, splits membership income, shipping, tax you collected, Patreon platform and processing fees and refunds by month, and downloads a balanced journal for Xero, QuickBooks Online or QuickBooks Desktop.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/patreon-payout-to-journal/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/patreon-payout-to-journal): MIT licensed.

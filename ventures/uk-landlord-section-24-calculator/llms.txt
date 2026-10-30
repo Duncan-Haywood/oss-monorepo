@@ -1,0 +1,13 @@
+# How much more tax does Section 24 cost my rental property?
+
+> Free UK landlord Section 24 calculator for 2025/26 and 2026/27: enter rent, costs, mortgage interest and other income to see your tax bill, the 20% finance cost credit and how much more you pay than under the old rules. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/uk-landlord-section-24-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/uk-landlord-section-24-calculator): MIT licensed.
