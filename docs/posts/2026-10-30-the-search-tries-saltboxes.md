@@ -2,7 +2,7 @@
 title: "The design search tries saltboxes: 12 of 54 on the front"
 date: 2026-10-30
 tags: [shed-designer, search, saltbox]
-description: "The shed designer's search now tries a saltbox roof. In a 600-design run under 100 sq ft it took the most-storage and best-looks picks, and a gable is still cheapest."
+description: "The shed designer's search now tries saltboxes. Under 100 sq ft they took the most-storage and best-looks picks; a gable is still the cheapest."
 ---
 
 The [shed designer](https://duncan-haywood.github.io/oss-monorepo/shed-designer/) learned to frame and draw a saltbox today: a gable with its ridge off centre, a short steep front and a long shallow back. Its design search now tries one too, alongside the gable, the lean-to and the gambrel barn.
