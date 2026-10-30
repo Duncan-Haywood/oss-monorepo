@@ -114,7 +114,11 @@ export function budgetPath(design, target, cheaper, prices) {
 }
 
 const esc = (/** @type {any} */ s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-const money = (/** @type {number} */ n) => `$${Math.round(n).toLocaleString('en-US')}`;
+const money = (/** @type {number} */ value) => {
+  const format = (/** @type {number} */ v) => `$${Math.round(v).toLocaleString('en-US')}`;
+  const text = format(Math.abs(value));
+  return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+};
 
 /**
  * The path as HTML for the cheaper-build panel.
