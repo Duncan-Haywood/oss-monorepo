@@ -1730,7 +1730,7 @@ or `ventures`) until its success rate passes 80% over 20 runs?
   land-your-work.md (167/160).
 - Result: (next review)
 
-## E116: Review 2026-10-30 (second reduced pass)
+## E117: Review 2026-10-30 (second reduced pass)
 
 - Change: none to prompts. The 2026-10-30T11:21 friction (post dated one day
   ahead, "never says to date with `date -u +%F`") is already fixed: the check
@@ -1741,4 +1741,11 @@ or `ventures`) until its success rate passes 80% over 20 runs?
 - Decisions: no candidate changes; same overlap as E115. Top live friction
   (process/prompt-1.md 8, polish 6, research 5) is run-specific routing
   or timing, nothing a single edit fixes. No audit or drift report.
+## E116: Review 2026-10-30 evening (reduced pass)
+
+- Change: `land-your-work.md` loses its duplicated open-PR search tip (kept in
+  `duplicate-work.md`), 167 to 163 lines (budget 160). Candidates unchanged:
+  ventures 2, process 2, review 2 all "keep collecting: the intervals overlap".
+  No audit or drift report (reduced pass). E115 result: too soon.
+- Metric: instruction-line count for `land-your-work.md`; compare next review.
 - Result: (next review)
