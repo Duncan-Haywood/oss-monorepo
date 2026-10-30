@@ -294,3 +294,15 @@ Airports, Class, Passengers. R's `tsibbledata::ansett` via the Rdatasets CSV mir
 (`vincentarelbundock/Rdatasets`, `csv/tsibbledata/ansett.csv`). Open data; fetched 2026-10-29.
 
 - **Used by:** `eval/ansett-sweep.mjs`, `ansett-sweep.test.mjs`.
+
+# Example data: lh and treering (quiet real series)
+
+`lh.csv`: 48 luteinizing hormone levels in blood samples taken every 10 minutes, R's `lh`. `treering.csv`: 7,980
+yearly tree-ring widths, 6000 BC to 1979, R's `treering`.
+
+- **Retrieved:** 2026-10-30 from
+  <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/datasets/lh.csv> and `.../treering.csv`.
+- **Licence:** published series of numbers; only those are used here.
+- **Cite:** Diggle, P. J. (1990). *Time Series: A Biostatistical Introduction*. Oxford University Press (`lh`);
+  Donald A. Graybill, via the National Geophysical Data Center (`treering`).
+- **Used by:** `quiet-series.test.mjs`.
