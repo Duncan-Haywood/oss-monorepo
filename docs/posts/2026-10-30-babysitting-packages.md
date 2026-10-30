@@ -1,5 +1,6 @@
 ---
 title: "Selling babysitting ahead of time: packages, gift certificates and a parents' night out"
+seo_title: "Babysitting packages, gift certificates and parents' night out"
 date: 2026-10-30
 description: "The Babysitting Business Kit now sells prepaid sit bundles and gift certificates, and plans group nights with a ratio check, without counting income twice."
 tags: [babysitting-business-kit]

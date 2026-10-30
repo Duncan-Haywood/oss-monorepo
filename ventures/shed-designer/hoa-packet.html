@@ -22,8 +22,8 @@
     .tools { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; }
     .btn { background: #24392b; color: #f8f5eb; border: 0; padding: 10px 18px; border-radius: 999px; font-weight: 700; cursor: pointer; text-decoration: none; font-size: 1rem; }
     .btn.ghost { background: transparent; color: #24392b; border: 2px solid #24392b; }
-    #samples a { display: inline-block; padding: 3px 10px; margin: 2px; border: 1px solid #b9b19f; border-radius: 999px; color: #24392b; text-decoration: none; background: #fffdf8; }
-    #samples a[aria-current] { background: #24392b; color: #fff; }
+    #samples a, #gallery-samples a { display: inline-block; padding: 3px 10px; margin: 2px; border: 1px solid #b9b19f; border-radius: 999px; color: #24392b; text-decoration: none; background: #fffdf8; }
+    #samples a[aria-current], #gallery-samples a[aria-current] { background: #24392b; color: #fff; }
     #note { color: #8a3b12; }
     #packet { max-width: 1040px; margin: auto; padding: 0 16px; }
     .hoa-page { background: #fff; border: 1px solid #d8d1c2; margin: 18px 0; padding: 22px 26px; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
@@ -67,10 +67,12 @@
     <div class="tools">
       <button type="button" class="btn" id="print">Print or save as PDF</button>
       <label><input type="checkbox" id="with3d" checked> Include the 3D view</label>
+      <label>seen from <select id="corner"><option value="auto">the corner with the door</option><option value="front-right">front and right side</option><option value="front-left">front and left side</option><option value="back-right">back and right side</option><option value="back-left">back and left side</option></select></label>
       <a class="btn ghost" id="edit" href="./">Open this design in Shed Designer</a>
     </div>
     <p id="note" role="status"></p>
     <p>Sample packets for the starting designs: <span id="samples"></span></p>
+    <p>And for the ready designs in the gallery: <span id="gallery-samples"></span></p>
     <p class="muted">For the site plan, type your lot under "Site plan" in the designer, then use its "HOA packet" button. This packet shows what the design says; it is not engineered or code-checked, and it is not an approval. HOAs and towns set their own submission rules, so check what yours asks for.</p>
   </div>
   <main id="packet" aria-live="polite"></main>

@@ -1,5 +1,6 @@
 ---
 title: "A metre of snow is not a load: depth times density, and the slope you can't see"
+seo_title: "A metre of snow is not a load: depth, density and hidden slope"
 date: 2026-10-30
 tags: [hearth-and-horizon, fiction, snow-load]
 description: "A new Hearth & Horizon story turns on one sum: snow depth times density, checked on both slopes of a church roof."

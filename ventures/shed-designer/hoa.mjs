@@ -39,7 +39,7 @@ export function sidingLook(type) {
   if (lap) return { direction: 'horizontal', pattern: 'lap', spacing: lap.exposure, label: `${lap.short} siding (horizontal, ${fmtIn(lap.exposure)} exposure)` };
   if (t === 'fiber cement' || /lap|hardie|plank|clapboard/.test(t)) return { direction: 'horizontal', pattern: 'lap', spacing: 7, label: `${type} lap siding (horizontal, 7" exposure)` };
   if (t === 't1-11') return { direction: 'vertical', pattern: 'grooves', spacing: 8, label: 'T1-11 panel siding (vertical grooves 8" apart)' };
-  if (t === 'board and batten') return { direction: 'vertical', pattern: 'battens', spacing: 12, label: 'board and batten (vertical battens about 12" apart)' };
+  if (t === 'board and batten') return { direction: 'vertical', pattern: 'battens', spacing: 5.5, label: 'board and batten (vertical battens about 5-1/2" apart)' };
   return { direction: 'vertical', pattern: 'panel', spacing: 48, label: `${type} panel siding (smooth, 4 ft panel joints)` };
 }
 
@@ -264,6 +264,8 @@ export function elevationSvg(shed, name) {
           const w = 9 + 6 * rand(i, j + 2);
           const xa = Math.max(-rakeOut, x); const xb = Math.min(F + rakeOut, x + w);
           const f = 1 + blend * (rand(j, i + 0.5) * 2 - 1);
+          // A course starts up to a tab left of the rake, so its first tab can fall wholly outside.
+          if (xb - xa < 0.01) { x += w; continue; }
           tabs.push(`<rect x="${xa.toFixed(2)}" y="${Y(zt2)}" width="${(xb - xa).toFixed(2)}" height="${(zt2 - z).toFixed(2)}" fill="${hex(shade(base, f))}" stroke="${c}" stroke-width="0.15"/>`);
           x += w;
         }
@@ -413,19 +415,48 @@ function hexToRgb(h) {
 
 /**
  * The site plan sheet from the plan set, when you have typed a lot; null
- * otherwise (and on a build of the plan set that has no site plan).
+ * otherwise (and on a build of the plan set that has no site plan). Drawn
+ * without the plan set's title block: the packet page has its own header,
+ * footer and disclaimer.
  * @param {Shed} shed
  */
 export function siteSheetSvg(shed) {
   const site = buildSheets(shed).find((s) => s.id === 'site');
-  return site ? sheetSvg(site, { name: shed.design.name }) : null;
+  return site ? sheetSvg(site, { name: shed.design.name, bare: true, height: 700 }) : null;
+}
+
+/**
+ * The corners the packet's 3D view can be seen from: the viewer's orbit angle
+ * (front is -pi/2, as in renders.mjs) and the two walls each shows.
+ */
+export const CORNERS = {
+  'front-right': { label: 'front and right side', theta: -0.95, walls: ['front', 'right'] },
+  'front-left': { label: 'front and left side', theta: -Math.PI + 0.95, walls: ['front', 'left'] },
+  'back-left': { label: 'back and left side', theta: Math.PI - 0.95, walls: ['back', 'left'] },
+  'back-right': { label: 'back and right side', theta: 0.95, walls: ['back', 'right'] },
+};
+
+/**
+ * The corner to show: the one asked for, or ('auto') the one that shows the
+ * door, with the most windows as the tie-break, front-right first.
+ * @param {any} design
+ * @param {string} [choice]
+ * @returns {keyof typeof CORNERS}
+ */
+export function cornerFor(design, choice = 'auto') {
+  if (choice in CORNERS) return /** @type {keyof typeof CORNERS} */ (choice);
+  const ops = design.openings || [];
+  const score = (/** @type {string[]} */ walls) => ops.reduce((t, o) => t + (walls.includes(o.wall) ? (o.kind === 'door' ? 100 : 1) : 0), 0);
+  let best = /** @type {keyof typeof CORNERS} */ ('front-right');
+  for (const k of /** @type {(keyof typeof CORNERS)[]} */ (Object.keys(CORNERS))) if (score(CORNERS[k].walls) > score(CORNERS[best].walls)) best = k;
+  return best;
 }
 
 /**
  * The whole packet as HTML pages, ready to print. `perspective` is a PNG data
  * URL of the 3D view, or null to leave it out.
  * @param {Shed} shed
- * @param {{ perspective?: string|null, date?: string }} [opts]
+ * @param {{ perspective?: string|null, date?: string, corner?: string }} [opts]
  */
 export function packetHtml(shed, opts = {}) {
   const d = shed.design;
@@ -437,14 +468,15 @@ export function packetHtml(shed, opts = {}) {
   const fig = (v) => `<figure class="hoa-fig">${elevationSvg(shed, v)}<figcaption>${esc(v[0].toUpperCase() + v.slice(1))} elevation, ${v === 'front' || v === 'back' ? 'eave side' : 'gable end'}</figcaption></figure>`;
   const summary = `<table class="hoa-summary">${rows.map(([a, b]) => `<tr><th>${esc(a)}</th><td>${esc(b)}</td></tr>`).join('')}</table>`;
   const colours = `<p class="hoa-colours">${d.siding ? swatch(fin.hex, `Siding: ${fin.name}`) : ''}${swatch(roofHex(d), `Roof: ${roofName(d)}`)}${swatch(trimHex(d), `Trim: ${trimName(d)}`)}${d.doorColor && d.doorColor !== 'stained' ? swatch(hex(paletteOf(d).door), `Door: ${doorName(d)}`) : ''}</p>`;
-  const persp = opts.perspective ? `<figure class="hoa-fig hoa-3d"><img src="${opts.perspective}" alt="3D view of the finished shed"><figcaption>3D view of the finished shed</figcaption></figure>` : '';
+  const seen = opts.corner && CORNERS[opts.corner] ? `, seen from the ${CORNERS[opts.corner].label}` : '';
+  const persp = opts.perspective ? `<figure class="hoa-fig hoa-3d"><img src="${esc(opts.perspective)}" alt="3D view of the finished shed${esc(seen)}"><figcaption>3D view of the finished shed${esc(seen)}</figcaption></figure>` : '';
   return [
     page('Summary', `<h1>${esc(d.name)}: exterior design for HOA review</h1><div class="hoa-cover-grid"><div>${summary}${colours}</div>${persp}</div>`, 'hoa-cover'),
     page('Front and back elevations', fig('front') + fig('back')),
     page('Left and right elevations', fig('left') + fig('right')),
     page('Roof and footprint plan', `<figure class="hoa-fig hoa-planfig">${planSvg(shed)}<figcaption>Seen from above, front wall at the bottom: the roof outline with its overhangs, the ridge, the walls (dashed) and where each door and window sits.</figcaption></figure>`),
     page('Site plan', site
-      ? `<figure class="hoa-fig hoa-site">${site}<figcaption>Where the shed goes, with its distance to each lot line and the house, as typed. Not a survey.</figcaption></figure>`
+      ? `<figure class="hoa-fig hoa-site">${site}<figcaption>Where the shed goes, with its distance to each lot line and the house, as typed. Not a survey.${esc(/ Add [^.]* before you submit it\./.exec(buildSheets(shed).find((x) => x.id === 'site')?.note || '')?.[0] || '')}</figcaption></figure>`
       : '<div class="hoa-nosite"><p><strong>No site plan yet.</strong> Type your lot, where the shed sits on it and your house under "Site plan" in Shed Designer, and this page shows the shed on the lot with its distance to each lot line and the house.</p><p>Until then, sketch it here: lot lines, the house, the shed, and the distance from the shed to each lot line.</p></div>', 'hoa-sitepage'),
   ].join('\n');
 }

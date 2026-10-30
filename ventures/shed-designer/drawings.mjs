@@ -823,14 +823,27 @@ export function buildSheets(shed, marks = new Map()) {
   const site = siteLayout(d);
   if (site) {
     const items = /** @type {Item[]} */ ([]);
-    const { lot, shed: sh, house, clear, overhang: o } = site;
+    const { lot, shed: sh, house, clear, overhang: o, eaves, facing, easement: ease } = site;
     items.push(rect(0, 0, lot.w, lot.d, 'outline'));
     items.push(text([lot.w / 2, -lot.d * 0.04 - 6], 'STREET (front lot line)', 10, 'middle', 'muted'));
     items.push(text([lot.w / 2, lot.d + lot.d * 0.02], 'REAR LOT LINE', 9, 'middle', 'muted'));
-    if (o > 0) items.push(rect(sh.x0, sh.y0 - o, sh.x1, sh.y1 + o, 'hidden'));
+    // An easement you typed: a dashed strip along its lot line, with your note.
+    if (ease) {
+      const e = ease.width;
+      const band = { front: [0, 0, lot.w, e], rear: [0, lot.d - e, lot.w, lot.d], left: [0, 0, e, lot.d], right: [lot.w - e, 0, lot.w, lot.d] }[ease.side];
+      items.push(rect(band[0], band[1], band[2], band[3], 'gravel'));
+      const across = ease.side === 'left' || ease.side === 'right';
+      items.push({ ...text([(band[0] + band[2]) / 2 + (across ? 3 : 0), (band[1] + band[3]) / 2 - (across ? 0 : 3)], `${fmtFtIn(e)} EASEMENT${ease.note ? `: ${ease.note}` : ' (as typed)'}`, 8, 'middle', 'muted'), ...(across ? { rot: 90 } : {}) });
+    }
+    const ex = eaves.includes('left') ? o : 0;
+    const ey = eaves.includes('front') ? o : 0;
+    if (o > 0) items.push(rect(sh.x0 - ex, sh.y0 - ey, sh.x1 + ex, sh.y1 + ey, 'hidden'));
     items.push(rect(sh.x0, sh.y0, sh.x1, sh.y1, 'member'));
-    items.push(text([(sh.x0 + sh.x1) / 2, sh.y0 - o - lot.d * 0.02], `SHED ${fmtFtIn(L)} x ${fmtFtIn(W)}`, 8));
-    items.push(text([(sh.x0 + sh.x1) / 2, sh.y0 - o - lot.d * 0.035], 'door wall to the street', 7, 'middle', 'muted'));
+    // The front (door) wall, drawn heavy so the plan shows which way the shed faces.
+    const front = { street: [[sh.x0, sh.y0], [sh.x1, sh.y0]], rear: [[sh.x0, sh.y1], [sh.x1, sh.y1]], left: [[sh.x0, sh.y0], [sh.x0, sh.y1]], right: [[sh.x1, sh.y0], [sh.x1, sh.y1]] }[facing];
+    items.push(line(/** @type {P} */ (front[0]), /** @type {P} */ (front[1]), 'roofline'));
+    items.push(text([(sh.x0 + sh.x1) / 2, sh.y0 - ey - lot.d * 0.02], `SHED ${fmtFtIn(L)} x ${fmtFtIn(W)}`, 8));
+    items.push(text([(sh.x0 + sh.x1) / 2, sh.y0 - ey - lot.d * 0.035], facing === 'street' ? 'door wall to the street' : `door wall to the ${facing} lot line`, 7, 'middle', 'muted'));
     if (house) {
       items.push(rect(house.x0, house.y0, house.x1, house.y1, 'hidden'));
       items.push(text([(house.x0 + house.x1) / 2, (house.y0 + house.y1) / 2 - 4], 'HOUSE (as typed)', 9));
@@ -843,13 +856,24 @@ export function buildSheets(shed, marks = new Map()) {
     if (clear.right > 0) items.push(dim([sh.x1, midY], [lot.w, midY], 12, fmtFtIn(clear.right)));
     if (clear.rear > 0) items.push(dim([sideX, sh.y1], [sideX, lot.d], sideOff, fmtFtIn(clear.rear)));
     if (clear.front > 0) items.push(dim([sideX, 0], [sideX, sh.y0], sideOff, fmtFtIn(clear.front)));
-    const eave = (v) => (o > 0 ? ` (${fmtFtIn(v)} to the eave)` : '');
-    items.push(text([0, -lot.d * 0.12], `Shed to lot lines: left ${fmtFtIn(clear.left)}, right ${fmtFtIn(clear.right)}, street ${fmtFtIn(clear.front)}${eave(clear.frontEave)}, rear ${fmtFtIn(clear.rear)}${eave(clear.rearEave)}${house && site.houseGap !== null ? `; to the house ${fmtFtIn(site.houseGap)}` : ''}.`, 10, 'start'));
+    const eave = (k) => (o > 0 && eaves.includes(k) ? ` (${fmtFtIn(clear[`${k}Eave`])} to the eave)` : '');
+    items.push(text([0, -lot.d * 0.12], `Shed to lot lines: left ${fmtFtIn(clear.left)}${eave('left')}, right ${fmtFtIn(clear.right)}${eave('right')}, street ${fmtFtIn(clear.front)}${eave('front')}, rear ${fmtFtIn(clear.rear)}${eave('rear')}${house && site.houseGap !== null ? `; to the house ${fmtFtIn(site.houseGap)}` : ''}.`, 10, 'start'));
     items.push(dim([0, -lot.d * 0.04], [lot.w, -lot.d * 0.04], -10, `${fmtFtIn(lot.w)} lot width`));
     items.push(dim([lot.w, 0], [lot.w, lot.d], -24, `${fmtFtIn(lot.d)} lot depth`));
+    // North arrow, beyond the lot's rear right corner, turned as you set it.
+    if (site.north !== null) {
+      const r = Math.max(lot.w, lot.d) * 0.06;
+      const c = /** @type {P} */ ([lot.w + r * 2.2, lot.d - r]);
+      const t = (site.north * Math.PI) / 180;
+      const at = (along, side) => /** @type {P} */ ([c[0] + Math.sin(t) * along + Math.cos(t) * side, c[1] + Math.cos(t) * along - Math.sin(t) * side]);
+      items.push({ t: 'poly', pts: [at(r, 0), at(-r * 0.6, r * 0.45), at(-r * 0.25, 0), at(-r * 0.6, -r * 0.45)], closed: true, cls: 'outline' });
+      items.push({ t: 'poly', pts: [at(r, 0), at(-r * 0.25, 0), at(-r * 0.6, -r * 0.45)], closed: true, cls: 'door' });
+      items.push(text(at(r * 1.45, 0), 'N', 12, 'middle', 'label'));
+    }
+    const missing = [site.north === null && 'a north arrow (set it under Site plan)', 'the street name', !ease && 'any easements'].filter(Boolean);
     sheets.unshift({
       id: 'site', title: 'Site plan',
-      note: `Lot, shed and house as you typed them; not a survey. Clearances to the shed's walls, and to its eave front and back (${fmtIn(o)} overhang; the gable ends have none).${site.setback > 0 ? ` Setback you typed: ${fmtFtIn(site.setback)}.` : ''} Add a north arrow, the street name and any easements before you submit it.`,
+      note: `Lot, shed and house as you typed them; not a survey. Clearances to the shed's walls, and to its eaves (${fmtIn(o)} overhang on the ${eaves.join(' and ')} sides; the gable ends have none).${site.setback > 0 ? ` Setback you typed: ${fmtFtIn(site.setback)}.` : ''} Add ${missing.join(', ').replace(/, ([^,]*)$/, ' and $1')} before you submit it.`,
       items,
     });
   }
@@ -1035,13 +1059,15 @@ function wrap(s, n) {
 /**
  * Render one sheet as a standalone SVG, scaled to fit a landscape page with a title block.
  * @param {Sheet} sheet
- * @param {{ name?: string, number?: number, of?: number, width?: number, height?: number }} [meta]
+ * @param {{ name?: string, number?: number, of?: number, width?: number, height?: number, bare?: boolean }} [meta]
  */
 export function sheetSvg(sheet, meta = {}) {
   const PW = meta.width || 1100;
   const PH = meta.height || 780;
-  const margin = 70;
-  const tbH = 88;
+  // `bare`: the drawing alone, no title block (a page that carries its own, like the HOA packet).
+  const bare = Boolean(meta.bare);
+  const margin = bare ? 40 : 70;
+  const tbH = bare ? 0 : 88;
   const b = bounds(sheet.items);
   // Dimension offsets, ticks and lettering are drawn in screen pixels beside
   // the geometry, so the fit has to leave room for them: find the largest
@@ -1114,6 +1140,7 @@ export function sheetSvg(sheet, meta = {}) {
     }
   }
   const tbY = PH - tbH - 16;
+  if (bare) return `<svg xmlns="http://www.w3.org/2000/svg" class="sds" viewBox="0 0 ${PW} ${PH}" width="${PW}" height="${PH}" role="img" aria-label="${esc(sheet.title)}"><style>${SVG_STYLE}</style><rect width="${PW}" height="${PH}" fill="#fff"/>${parts.join('')}</svg>`;
   const noteLines = wrap(sheet.note || '', 112).slice(0, 4);
   const tb = [
     `<rect class="tb" x="16" y="${tbY}" width="${PW - 32}" height="${tbH}"/>`,
