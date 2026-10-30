@@ -88,6 +88,7 @@
   <section class="card" aria-labelledby="res-h" id="results" hidden>
     <h2 id="res-h">2. What changed</h2>
     <p class="summary" id="summary"></p>
+    <div id="warnings" aria-live="polite"></div>
     <div class="legend"><span>● series</span><span style="color:#c0392b">— segment mean (PELT)</span><span style="color:#1f5f86">▮ change probability (Bayesian)</span></div>
     <div id="chart" role="img" aria-label="Chart of the series with segment means and change probabilities"></div>
     <h3>Changes (PELT)</h3>
@@ -192,6 +193,7 @@
       } catch (e) { $("#results").hidden = true; $("#error").textContent = e.message; return; }
       const r = last;
       $("#summary").textContent = r.summary + (r.bursts && r.bursts.length ? ` Spikes cut back before fitting: ${r.bursts.slice(0, 10).map((b) => `${b.label} (${b.value} kept as ${b.keptAs})`).join(", ")}${r.bursts.length > 10 ? `, and ${r.bursts.length - 10} more` : ""}.` : "");
+      $("#warnings").innerHTML = ["rangeWarning", "driftWarning", "cycleWarning"].filter((k) => r[k]).map((k) => `<p class="note" role="note"><strong>Read with care:</strong> ${esc(r[k])}</p>`).join("");
       $("#chart").innerHTML = chart(r);
       $("#changes").innerHTML = r.pelt.changepoints.length
         ? `<tr><th>New segment from</th><th class="n">Mean before</th><th class="n">Mean after</th><th class="n">Shift (noise sd)</th><th class="n">SD before → after</th><th class="n">Bayesian prob. (±3 points)</th></tr>` +

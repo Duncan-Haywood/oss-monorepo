@@ -126,6 +126,7 @@
     <div id="history-box" hidden><label for="next-history">Next season's venue history (paste it into the box above next season)</label><textarea id="next-history" class="mono" rows="3" readonly></textarea></div>
     <button type="button" id="dl-csv">Download CSV</button>
     <button type="button" id="dl-grid">Download season grid CSV</button>
+    <button type="button" id="dl-sheets">Download printable score sheets</button>
     <button type="button" class="secondary" id="dl-ics">Download calendar (.ics)</button>
     <button type="button" class="secondary" id="dl-team-msgs">Download a message per team (.txt)</button>
     <button type="button" class="secondary" id="dl-off-msgs" hidden>Download a message per official (.txt)</button>
@@ -161,7 +162,7 @@
   </footer>
 
   <script type="module">
-    import { parseDivisionOfficials, assignDivisionOfficials, validateDivisionOfficials, suggestFairnessWeight, encodeDivisionFields, decodeDivisionFields, readDivisionsSpec, buildDivisions, applyDivisionRainouts, parseDivisionBlackouts, applyDivisionBlackouts, rainoutOptions, validateDivisions, carryVenueHistory, divisionsCsv, divisionsSeasonGridCsv, divisionsText, divisionsIcs, divisionsTeamMessages, divisionsOfficialMessages } from "./divisions.mjs";
+    import { parseDivisionOfficials, assignDivisionOfficials, validateDivisionOfficials, suggestFairnessWeight, encodeDivisionFields, decodeDivisionFields, readDivisionsSpec, buildDivisions, applyDivisionRainouts, parseDivisionBlackouts, applyDivisionBlackouts, rainoutOptions, validateDivisions, carryVenueHistory, divisionsCsv, divisionsSeasonGridCsv, divisionsScoreSheetsHtml, divisionsText, divisionsIcs, divisionsTeamMessages, divisionsOfficialMessages } from "./divisions.mjs";
     import { dayIso } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
     const $ = (s) => document.querySelector(s);
@@ -249,6 +250,7 @@
     $("#dl-ics").addEventListener("click", () => { if (!last) return; download("division-schedule.ics", divisionsIcs(last), "text/calendar"); record("divisions_ics_downloaded"); });
     $("#dl-team-msgs").addEventListener("click", () => { if (!last) return; download("team-messages.txt", divisionsTeamMessages(last).map((m) => m.text).join("\n\n----\n\n"), "text/plain"); record("divisions_text_shared"); });
     $("#dl-off-msgs").addEventListener("click", () => { if (!last) return; download("official-messages.txt", divisionsOfficialMessages(last).map((m) => m.text).join("\n\n----\n\n"), "text/plain"); record("divisions_text_shared"); });
+    $("#dl-sheets").addEventListener("click", () => { if (!last) return; download("division-score-sheets.html", divisionsScoreSheetsHtml(last), "text/html"); record("divisions_score_sheets_downloaded"); });
     $("#dl-grid").addEventListener("click", () => { if (!last) return; download("division-season-grid.csv", divisionsSeasonGridCsv(last), "text/csv"); record("divisions_grid_downloaded"); });
     $("#copy-text").addEventListener("click", async () => { if (!last) return; try { await navigator.clipboard.writeText(divisionsText(last)); $("#form-status").textContent = "Copied."; } catch { $("#form-status").textContent = "Copy blocked by the browser; use Download CSV."; } record("divisions_text_copied"); });
     $("#share-link").addEventListener("click", async () => {

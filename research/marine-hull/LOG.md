@@ -2,6 +2,12 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-30 · Milestone 7b: draft the introduction, model and results table (no experiment run)
+- Why: the paper file was a 47-line skeleton after about thirty experiments; the programme's bottleneck is a submittable text, not a seventh persistence variant. Drafted sections 2.1 to 2.3 of `paper/DRAFT.md` from logged numbers only, with a rung-by-rung table.
+- Found while drafting: H1 was never tested as written (a 10% range spread across the hull box) and H5 was never counted as a rank swap under the battery sweep; both are now listed in the draft as open, and are cheap next steps from existing code. H4's logged outcome (crossover refuted, hotel-load edge) is stated as such.
+- Limits: prose only; citations still unopened beyond the PROPOSAL.md status; no new numbers.
+- Next: run H1 and H5 as explicit tests; milestone 3 curve when a data host is reachable.
+
 ## 2026-10-30 · Milestone 3b: a published catamaran bare-hull tank curve against the programme's displacement resistance model (planned before running)
 - Why: milestone 3 has had one tank point (Wigley, 3a). This session zenodo.org also holds CC BY 4.0 data from a towing-tank study of a catamaran (record 18459868; five bare-hull speeds, Fn 0.33 to 0.79, water 16.8 C, with trim). It is a curve, not a point, but the hull is semi-planing, so it tests where the programme's displacement model (ITTC 1957 times (1+k), plus `wave_resistance_fraction`) stops applying. Hull geometry is not in the files: L = 2.811 m follows from Fn = V/sqrt(gL), and the wetted area S follows from CT = RT/(0.5 rho V^2 S) (both derived, stated as such). Water assumed fresh (rho 998.7, nu 1.09e-6 interpolated from ITTC 7.5-02-01-03 at 16.8 C).
 - Plan (`experiments/run_catamaran_tank.py`, stdlib): implied S per speed; CF at each Re; the tank residual CR = CT - (1+k) CF for k in {0, 0.1, 0.25}; model CT with the placeholder wave term (hump 0.4, k = 0.25) and its error per speed; the best single `wave_scale` fitted over all five speeds and over the three lowest, with the worst error each leaves.
