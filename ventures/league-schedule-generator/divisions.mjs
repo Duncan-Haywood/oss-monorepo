@@ -753,6 +753,33 @@ export function divisionsCsv(schedule) {
 }
 
 /**
+ * Season grid for a multi-division schedule: one row per team (division first, so two teams that share a
+ * name in different divisions stay apart), one column per playing night. A cell is "v Opponent 19:00 Court"
+ * at home or "@ Opponent 19:00 Court" away, blank when the team does not play that night; two games on one
+ * night are joined with " / ".
+ */
+export function divisionsSeasonGrid(schedule) {
+  const header = ["Division", "Team", ...schedule.nights.map((n) => dayIso(n.day))];
+  const rows = [];
+  for (const d of schedule.divisions) {
+    for (const team of d.teams) {
+      const cells = schedule.nights.map((night) => night.matches
+        .filter((m) => m.division === d.name && (m.homeName === team || m.awayName === team))
+        .map((m) => `${m.homeName === team ? "v " + m.awayName : "@ " + m.homeName}${m.time ? " " + m.time : ""} ${m.court}`)
+        .join(" / "));
+      rows.push([d.name, team, ...cells]);
+    }
+  }
+  return { header, rows };
+}
+
+export function divisionsSeasonGridCsv(schedule) {
+  const q = (s) => (/[",\n]/.test(String(s)) ? `"${String(s).replace(/"/g, '""')}"` : String(s));
+  const { header, rows } = divisionsSeasonGrid(schedule);
+  return [header, ...rows].map((r) => r.map(q).join(",")).join("\r\n") + "\r\n";
+}
+
+/**
  * An iCalendar file for the whole multi-division schedule, one division (`division`), or one team
  * (`team`, with `division` to tell apart teams that share a name). Times are floating local times;
  * `stamp` (YYYYMMDDTHHMMSSZ) is injectable for reproducible output; `minutes` is the game length.
@@ -874,7 +901,7 @@ export function rainoutOptions(f) {
   return { balance: on(f.balance), flip: on(f.flip), relocate: on(f.relocate), swapNights: on(f.swapNights) };
 }
 
-// node divisions.mjs spec.json  ->  text read-out (add --csv for the CSV, --history for next season's venueHistory, or --suggest-weight to pick fairnessWeight). spec.json holds the form fields.
+// node divisions.mjs spec.json  ->  text read-out (add --csv for the CSV, --grid for the season grid CSV, --history for next season's venueHistory, or --suggest-weight to pick fairnessWeight). spec.json holds the form fields.
 if (typeof process !== "undefined" && process.argv && import.meta.url === `file://${process.argv[1]}`) {
   const { readFileSync } = await import("node:fs");
   const file = process.argv[2];
@@ -907,7 +934,7 @@ if (typeof process !== "undefined" && process.argv && import.meta.url === `file:
     for (const u of a.unfilled) console.error(`No official: ${dayIso(u.day)} ${u.time || ""} ${u.division} ${u.home} v ${u.away} (${u.reason})`);
   }
   if (process.argv.includes("--history")) { process.stdout.write(JSON.stringify(carryVenueHistory(s), null, 1) + "\n"); process.exit(0); }
-  process.stdout.write(process.argv.includes("--csv") ? divisionsCsv(s) : divisionsText(s));
+  process.stdout.write(process.argv.includes("--grid") ? divisionsSeasonGridCsv(s) : process.argv.includes("--csv") ? divisionsCsv(s) : divisionsText(s));
 }
 
 // ---------------------------------------------------------------- share link
