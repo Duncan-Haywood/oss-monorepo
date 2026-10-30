@@ -338,3 +338,126 @@ export function sampleText() {
   ["Sat", "Sun"].forEach((d, i) => weekend.forEach(([h, v]) => lines.push(`${d},${h},${Math.round(v * (i === 1 ? 0.85 : 1))}`)));
   return lines.join("\n");
 }
+
+// ---- From a timestamped history (a POS or booking export) to day, hour, demand rows ----------------------------------
+// Square, Toast, Shopify POS, Clover and booking tools all export one row per order with a date and time. This turns
+// that into the average (or busy-day) demand for each weekday and hour, in the text `parseDemand` reads. Wall-clock time
+// as written is used; a trailing Z or offset is dropped, so export in the shop's own time zone.
+
+function parseStamp(raw) {
+  const s = String(raw).trim().replace(/\s*(?:Z|[+-]\d{2}:?\d{2}|UTC|[A-Z]{3,4})$/, "");
+  let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(?:[T\s]+(\d{1,2}):(\d{2})(?::\d{2}(?:\.\d+)?)?\s*(am|pm)?)?$/i);
+  let y, mo, d, h = 0, ap;
+  if (m) { y = +m[1]; mo = +m[2]; d = +m[3]; h = m[4] === undefined ? null : +m[4]; ap = m[6]; }
+  else {
+    m = s.match(/^(\d{1,2})[/.-](\d{1,2})[/.-](\d{2}|\d{4})(?:[T\s]+(\d{1,2}):(\d{2})(?::\d{2})?\s*(am|pm)?)?$/i);
+    if (!m) return null;
+    let a = +m[1], b = +m[2];
+    if (a > 12) [a, b] = [b, a]; // 25/10/2026 can only be day first; otherwise month first
+    mo = a; d = b; y = +m[3] < 100 ? 2000 + +m[3] : +m[3];
+    h = m[4] === undefined ? null : +m[4]; ap = m[6];
+  }
+  if (h === null) return null; // a date with no time of day cannot say which hour
+  if (ap) { if (h < 1 || h > 12) return null; h = (h % 12) + (ap.toLowerCase() === "pm" ? 12 : 0); }
+  if (h > 23 || mo < 1 || mo > 12 || d < 1 || d > 31) return null;
+  const t = Date.UTC(y, mo - 1, d);
+  const dt = new Date(t);
+  if (dt.getUTCMonth() !== mo - 1 || dt.getUTCDate() !== d) return null;
+  return { date: `${y}-${String(mo).padStart(2, "0")}-${String(d).padStart(2, "0")}`, dow: (dt.getUTCDay() + 6) % 7, hour: h };
+}
+
+function splitCsvLine(l) {
+  const out = []; let cur = "", q = false;
+  for (let i = 0; i < l.length; i++) {
+    const c = l[i];
+    if (q) { if (c === '"' && l[i + 1] === '"') { cur += '"'; i++; } else if (c === '"') q = false; else cur += c; }
+    else if (c === '"') q = true;
+    else if (c === "," || c === "\t" || c === ";") { out.push(cur.trim()); cur = ""; }
+    else cur += c;
+  }
+  out.push(cur.trim());
+  return out;
+}
+
+// opts: { stat: "mean" | "p80" (busy-day level), valueColumn: header name or null, minShare: 0.25 }
+// Rows count as one order each unless a sales/total/amount column is found (or named), then that column is summed.
+export function demandFromHistory(text, opts = {}) {
+  const { stat = "mean", minShare = 0.25 } = opts;
+  const warnings = [];
+  const lines = String(text || "").split(/\r?\n/).filter((l) => l.trim());
+  if (lines.length < 2) return { error: "Paste or upload an export with a header line and one row per order, with the date and time of each." };
+  const head = splitCsvLine(lines[0]);
+  const rows = lines.slice(1).map(splitCsvLine);
+  const hasTime = (j) => rows.slice(0, 50).filter((r) => r[j] !== undefined && parseStamp(r[j])).length;
+  let tcol = head.findIndex((h, j) => /date|time|created|opened|paid|ordered|start/i.test(h) && hasTime(j) > 0);
+  if (tcol < 0) tcol = head.findIndex((_, j) => hasTime(j) > 0);
+  if (tcol < 0) return { error: "No column looks like a date and time. Each row needs both, for example 2026-10-05 12:34 or 10/5/2026 12:34 PM." };
+  let vcol = -1;
+  if (opts.valueColumn) vcol = head.findIndex((h) => h.toLowerCase() === String(opts.valueColumn).toLowerCase());
+  else vcol = head.findIndex((h, j) => j !== tcol && /^(net |gross )?(sales|total|amount|revenue|subtotal)\b|net sales|gross sales|grand total/i.test(h));
+  const unit = vcol >= 0 ? "sales" : "orders";
+  const perHour = new Map(); // date -> hour -> value
+  const dates = new Map(); // date -> weekday
+  let bad = 0, used = 0;
+  for (const r of rows) {
+    const t = r[tcol] === undefined ? null : parseStamp(r[tcol]);
+    let v = 1;
+    if (vcol >= 0) { v = Number(String(r[vcol] ?? "").replace(/[$,£€\s]/g, "").replace(/^\((.*)\)$/, "-$1")); if (!Number.isFinite(v)) { bad++; continue; } if (v < 0) continue; }
+    if (!t) { bad++; continue; }
+    used++;
+    dates.set(t.date, t.dow);
+    if (!perHour.has(t.date)) perHour.set(t.date, new Map());
+    const h = perHour.get(t.date);
+    h.set(t.hour, (h.get(t.hour) || 0) + v);
+  }
+  if (bad) warnings.push(`${bad} row${bad === 1 ? "" : "s"} skipped: no readable date and time${vcol >= 0 ? " or amount" : ""}.`);
+  if (!used) return { error: "No row had a readable date and time." };
+  const byDow = DAY_NAMES.map(() => []);
+  for (const [date, dow] of dates) byDow[dow].push(date);
+  const out = ["day,hour," + unit];
+  const days = [];
+  for (let dow = 0; dow < 7; dow++) {
+    const ds = byDow[dow];
+    if (!ds.length) continue;
+    const perH = new Map();
+    for (let h = 0; h < 24; h++) {
+      const vals = ds.map((d) => perHour.get(d).get(h) || 0);
+      const seen = vals.filter((x) => x > 0).length;
+      if (seen / ds.length < minShare || seen === 0) continue;
+      let val;
+      if (stat === "p80") { const sorted = vals.slice().sort((a, b) => a - b); val = sorted[Math.min(sorted.length - 1, Math.ceil(0.8 * sorted.length) - 1)]; }
+      else val = vals.reduce((a, b) => a + b, 0) / vals.length;
+      perH.set(h, val);
+    }
+    if (!perH.size) continue;
+    const lo = Math.min(...perH.keys()), hi = Math.max(...perH.keys());
+    for (let h = lo; h <= hi; h++) {
+      // an hour inside the open span with no demand stays open at zero
+      out.push(`${DAY_NAMES[dow]},${h},${Math.round((perH.get(h) ?? 0) * 10) / 10}`);
+    }
+    days.push({ day: DAY_NAMES[dow], dates: ds.length, firstHour: lo, lastHour: hi });
+  }
+  const allDates = [...dates.keys()].sort();
+  const weeks = allDates.length / 7;
+  if (days.some((d) => d.dates < 3)) warnings.push("Some weekdays rest on fewer than 3 dates, so their averages are rough; a month or more of history is steadier.");
+  if (stat === "mean") warnings.push("The average hides busy days; switch to the busy-day level (80th percentile) to staff for a day busier than usual.");
+  return { csv: out.join("\n"), unit, stat, orders: used, from: allDates[0], to: allDates[allDates.length - 1], dateCount: allDates.length, weeks, days, warnings };
+}
+
+export function sampleHistory() {
+  // 4 invented weeks of a café: a morning rush, a lunch peak, a quiet afternoon; Saturday busier.
+  const lines = ["Order time,Net Sales,Item count"];
+  let s = 7;
+  const rnd = () => ((s = (Math.imul(s, 1664525) + 1013904223) >>> 0) / 4294967296);
+  const profile = [0, 0, 0, 0, 0, 0, 0, 14, 22, 12, 8, 14, 24, 14, 6, 5, 7, 9, 3];
+  for (let d = 0; d < 28; d++) {
+    const date = new Date(Date.UTC(2026, 8, 7 + d));
+    const dow = (date.getUTCDay() + 6) % 7;
+    const mult = dow === 5 ? 1.4 : dow === 6 ? 1.1 : 1;
+    for (let h = 7; h <= 18; h++) {
+      const n = Math.round(profile[h] * mult * (0.8 + 0.4 * rnd()));
+      for (let k = 0; k < n; k++) lines.push(`${date.toISOString().slice(0, 10)} ${String(h).padStart(2, "0")}:${String(Math.floor(rnd() * 60)).padStart(2, "0")},${(6 + rnd() * 12).toFixed(2)},${1 + Math.floor(rnd() * 3)}`);
+    }
+  }
+  return lines.join("\n");
+}
