@@ -752,12 +752,28 @@ export function sourceLabel(s) {
 }
 
 /** CSV of the shopping list. */
+/**
+ * Where the money goes: each section of the shopping list (lumber, sheet goods,
+ * siding, roofing, hardware...) with its total and share, in list order.
+ * @param {{ section: string, total: number }[]} shopping
+ */
+export function sectionTotals(shopping) {
+  /** @type {Map<string, number>} */
+  const by = new Map();
+  for (const r of shopping) by.set(r.section, (by.get(r.section) || 0) + r.total);
+  const all = [...by.values()].reduce((t, x) => t + x, 0) || 1;
+  return [...by].map(([section, total]) => ({ section, total: Math.round(total * 100) / 100, share: total / all }));
+}
+
 export function shoppingCsv(est) {
   const rows = [['section', 'item', 'qty', 'unit', 'unit price', 'total', 'price source', 'listing']];
-  for (const r of est.shopping) {
+  const sub = new Map(sectionTotals(est.shopping).map((x) => [x.section, x.total]));
+  est.shopping.forEach((r, i) => {
     const s = r.source || {};
     rows.push([r.section, r.name, String(r.qty), r.unit, r.price.toFixed(2), r.total.toFixed(2), sourceLabel(s), s.url || '']);
-  }
+    // A subtotal row closes each section.
+    if (est.shopping[i + 1]?.section !== r.section) rows.push([r.section, `Subtotal, ${r.section.toLowerCase()}`, '', '', '', /** @type {number} */ (sub.get(r.section)).toFixed(2), '', '']);
+  });
   rows.push(['', 'Total', '', '', '', est.total.toFixed(2), '', '']);
   for (const u of est.unpriced) rows.push(['Not in the total', u, '1', 'each', '', '', 'no unit picked', '']);
   return rows.map((r) => r.map((c) => (/[",\n]/.test(c) ? `"${c.replace(/"/g, '""')}"` : c)).join(',')).join('\n') + '\n';
