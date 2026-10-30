@@ -22,6 +22,7 @@ export const GALLERY_DESIGNS = [
    "tieSize": "2x4",
    "roofType": "ridgeBoard",
    "style": "gable",
+   "frontPitch": 10,
    "gambrelLower": 20,
    "gambrelKnee": 0,
    "loft": "none",
@@ -98,13 +99,18 @@ export const GALLERY_DESIGNS = [
      "height": 78,
      "product": "site-built"
     }
-   ]
+   ],
+   "siteFacing": "street",
+   "northDeg": null,
+   "easementSide": "none",
+   "easementFt": 0,
+   "easementNote": ""
   }
  },
  {
   "id": "value",
   "title": "Most room per dollar, 8x12",
-  "reason": "The most room inside for the money of the 733 designs the search kept, by the search's measure of volume.",
+  "reason": "The most room inside for the money of the 733 designs the search kept, counting only space you can load.",
   "design": {
    "name": "Most room per dollar, 8x12",
    "length": 144,
@@ -122,6 +128,7 @@ export const GALLERY_DESIGNS = [
    "tieSize": "2x4",
    "roofType": "ridgeBoard",
    "style": "leanTo",
+   "frontPitch": 10,
    "gambrelLower": 20,
    "gambrelKnee": 0,
    "loft": "none",
@@ -198,7 +205,12 @@ export const GALLERY_DESIGNS = [
      "height": 78,
      "product": "site-built"
     }
-   ]
+   ],
+   "siteFacing": "street",
+   "northDeg": null,
+   "easementSide": "none",
+   "easementFt": 0,
+   "easementNote": ""
   }
  },
  {
@@ -222,6 +234,7 @@ export const GALLERY_DESIGNS = [
    "tieSize": "2x4",
    "roofType": "ridgeBoard",
    "style": "leanTo",
+   "frontPitch": 10,
    "gambrelLower": 20,
    "gambrelKnee": 0,
    "loft": "none",
@@ -298,13 +311,18 @@ export const GALLERY_DESIGNS = [
      "height": 78,
      "product": "site-built"
     }
-   ]
+   ],
+   "siteFacing": "street",
+   "northDeg": null,
+   "easementSide": "none",
+   "easementFt": 0,
+   "easementNote": ""
   }
  },
  {
   "id": "storage",
   "title": "Most storage 10x10",
-  "reason": "The most room inside of the 733 designs the search kept in a size no card before it in the strip shows, by the search's measure of volume, open to the roof.",
+  "reason": "The most room inside of the 733 designs the search kept in a size no card before it in the strip shows, counting only space you can load (the room, and roof space open to it or over a deck); this one is open to the roof.",
   "design": {
    "name": "Most storage 10x10",
    "length": 120,
@@ -322,6 +340,7 @@ export const GALLERY_DESIGNS = [
    "tieSize": "2x4",
    "roofType": "ridgeBoard",
    "style": "leanTo",
+   "frontPitch": 10,
    "gambrelLower": 20,
    "gambrelKnee": 0,
    "loft": "none",
@@ -398,7 +417,12 @@ export const GALLERY_DESIGNS = [
      "height": 78,
      "product": "site-built"
     }
-   ]
+   ],
+   "siteFacing": "street",
+   "northDeg": null,
+   "easementSide": "none",
+   "easementFt": 0,
+   "easementNote": ""
   }
  },
  {
@@ -422,6 +446,7 @@ export const GALLERY_DESIGNS = [
    "tieSize": "2x4",
    "roofType": "ridgeBoard",
    "style": "leanTo",
+   "frontPitch": 10,
    "gambrelLower": 20,
    "gambrelKnee": 0,
    "loft": "none",
@@ -518,7 +543,12 @@ export const GALLERY_DESIGNS = [
      "sill": 54.75,
      "product": "swm-1823"
     }
-   ]
+   ],
+   "siteFacing": "street",
+   "northDeg": null,
+   "easementSide": "none",
+   "easementFt": 0,
+   "easementNote": ""
   }
  },
  {
@@ -542,6 +572,7 @@ export const GALLERY_DESIGNS = [
    "tieSize": "2x4",
    "roofType": "ridgeBoard",
    "style": "leanTo",
+   "frontPitch": 10,
    "gambrelLower": 20,
    "gambrelKnee": 0,
    "loft": "none",
@@ -618,7 +649,12 @@ export const GALLERY_DESIGNS = [
      "height": 82,
      "product": "masonite-3280-flush"
     }
-   ]
+   ],
+   "siteFacing": "street",
+   "northDeg": null,
+   "easementSide": "none",
+   "easementFt": 0,
+   "easementNote": ""
   }
  },
  {
@@ -642,6 +678,7 @@ export const GALLERY_DESIGNS = [
    "tieSize": "2x4",
    "roofType": "ridgeBoard",
    "style": "gable",
+   "frontPitch": 10,
    "gambrelLower": 20,
    "gambrelKnee": 0,
    "loft": "none",
@@ -718,7 +755,12 @@ export const GALLERY_DESIGNS = [
      "height": 78,
      "product": "site-built"
     }
-   ]
+   ],
+   "siteFacing": "street",
+   "northDeg": null,
+   "easementSide": "none",
+   "easementFt": 0,
+   "easementNote": ""
   }
  },
  {
@@ -742,6 +784,7 @@ export const GALLERY_DESIGNS = [
    "tieSize": "2x4",
    "roofType": "ridgeBoard",
    "style": "gambrel",
+   "frontPitch": 10,
    "gambrelLower": 20,
    "gambrelKnee": 0,
    "loft": "full",
@@ -818,7 +861,12 @@ export const GALLERY_DESIGNS = [
      "height": 78,
      "product": "site-built"
     }
-   ]
+   ],
+   "siteFacing": "street",
+   "northDeg": null,
+   "easementSide": "none",
+   "easementFt": 0,
+   "easementNote": ""
   }
  },
  {
@@ -842,6 +890,7 @@ export const GALLERY_DESIGNS = [
    "tieSize": "2x4",
    "roofType": "ridgeBoard",
    "style": "leanTo",
+   "frontPitch": 10,
    "gambrelLower": 20,
    "gambrelKnee": 0,
    "loft": "none",
@@ -918,7 +967,12 @@ export const GALLERY_DESIGNS = [
      "height": 78,
      "product": "site-built"
     }
-   ]
+   ],
+   "siteFacing": "street",
+   "northDeg": null,
+   "easementSide": "none",
+   "easementFt": 0,
+   "easementNote": ""
   }
  },
  {
@@ -942,6 +996,7 @@ export const GALLERY_DESIGNS = [
    "tieSize": "2x4",
    "roofType": "ridgeBoard",
    "style": "leanTo",
+   "frontPitch": 10,
    "gambrelLower": 20,
    "gambrelKnee": 0,
    "loft": "none",
@@ -1018,7 +1073,12 @@ export const GALLERY_DESIGNS = [
      "height": 78,
      "product": "site-built"
     }
-   ]
+   ],
+   "siteFacing": "street",
+   "northDeg": null,
+   "easementSide": "none",
+   "easementFt": 0,
+   "easementNote": ""
   }
  },
  {
@@ -1042,6 +1102,7 @@ export const GALLERY_DESIGNS = [
    "tieSize": "2x4",
    "roofType": "ridgeBoard",
    "style": "leanTo",
+   "frontPitch": 10,
    "gambrelLower": 20,
    "gambrelKnee": 0,
    "loft": "none",
@@ -1118,7 +1179,12 @@ export const GALLERY_DESIGNS = [
      "height": 71.25,
      "product": "sr-48x72"
     }
-   ]
+   ],
+   "siteFacing": "street",
+   "northDeg": null,
+   "easementSide": "none",
+   "easementFt": 0,
+   "easementNote": ""
   }
  }
 ];

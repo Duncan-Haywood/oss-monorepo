@@ -9,15 +9,15 @@ The [shed designer](https://monorepo-projects-site.duncan-andrew-haywood.workers
 
 Until today, "the space under the roof" meant the whole triangle, even on a gable framed with rafter ties. Rafter ties are 2x4s 16" or 24" apart, and they hold the walls together. They are not a floor, and you cannot set a box on them without decking them first. The tool's own note said so ("deck the ties before loading it"). The search counted the space anyway.
 
-**The new rule.** Roof space counts toward storage only where you can use it:
+**The new rule.** Today the tool gained a second measure, *usable* storage (added by the gambrel work, `usableCuFt`), and the gallery now searches and ranks on it. Roof space counts only where you can use it:
 
 - **Open to the roof:** all of it. That covers a ridge beam, which needs no ties, and a lean-to's single slope.
 - **Over a deck:** the space between the deck and the rafters, measured over the deck's own footprint. A truss attic with "attic storage" ticked has a deck; it is decked on the chords and sized for 20 psf. So does a gambrel's half or full loft.
 - **Over bare ties or chords:** none.
 
-The search also gained two settings to buy decked storage with: attic storage on trusses, and a gambrel's loft. Each is tried only where it means something.
+The search can buy decked storage two ways: attic storage on trusses (new in this change), and a gambrel's loft. Each is tried only where it means something.
 
-**What moved.** On the default 8x12 switched from its ridge beam to a ridge board, the roof triangle is 52 cu ft. That used to count; now it doesn't, so the shed holds 596 cu ft rather than 649. A 12" attic deck on trusses at the default's low pitch adds back only 12 cu ft. At steeper pitches the deck adds more, but it costs plywood and heavier chords.
+**What moved.** On the default 8x12 switched from its ridge beam to a ridge board, the roof triangle is 52 cu ft. It counts toward the shed's volume but not toward its usable storage, which is 596 cu ft rather than 649. A 12" attic deck on trusses at the default's low pitch adds back only 12 cu ft. At steeper pitches the deck adds more, but it costs plywood and heavier chords.
 
 Then we regenerated the gallery. **8 of its 11 picks are now lean-tos.**
 
