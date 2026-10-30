@@ -19,6 +19,7 @@
     .box { background: #fff; border: 1px solid #e8ded8; border-radius: 12px; padding: 14px 18px; } footer { font-size: .86rem; color: #5f5669; margin-top: 40px; }
     .cta { display: inline-block; background: #9b3f68; color: #fff; padding: 11px 16px; border-radius: 8px; font-weight: 700; text-decoration: none; }
   </style>
+  <script>/* offline + install; reading navigator.serviceWorker throws in sandboxed frames, so guard it */ try { if ("serviceWorker" in navigator && location.protocol !== "file:") addEventListener("load", () => { try { navigator.serviceWorker.register("sw.js").catch(() => {}); } catch { /* no service worker here */ } }); } catch { /* no service worker here */ }</script>
 </head>
 <body>
   <p><a href="./index.html">← Babysitting Business Kit</a></p>
