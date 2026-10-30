@@ -442,7 +442,7 @@ test('the ready-design gallery: ten priced cards with 3D thumbnails, arrows and 
   await page.waitForFunction(() => document.querySelector('#gallery-pos')?.textContent === '2 of 10');
   // Customise the second card: it opens as a new tab with the card's price.
   const card = cards.nth(1);
-  const title = (await card.locator('h3').innerText()).replace(/\s+(lowest price|most room.*|biggest floor)$/, '');
+  const title = (await card.locator('h3').innerText()).replace(/\s+(lowest price|most room|biggest floor).*$/, '');
   const tabs = await page.locator('#design-tabs [role=tab]').count();
   await card.locator('[data-pick]').click();
   await page.waitForFunction((n) => document.querySelectorAll('#design-tabs [role=tab]').length === n + 1, tabs);

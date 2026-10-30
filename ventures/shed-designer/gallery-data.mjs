@@ -62,6 +62,7 @@ export const GALLERY_DESIGNS = [
    "roofCover": "shingles",
    "rafterSeat": "birdsmouth",
    "maxFootprint": 100,
+   "locked": [],
    "kerf": 0.125,
    "lengths": [
     8,
@@ -154,6 +155,7 @@ export const GALLERY_DESIGNS = [
    "roofCover": "shingles",
    "rafterSeat": "birdsmouth",
    "maxFootprint": 100,
+   "locked": [],
    "kerf": 0.125,
    "lengths": [
     8,
@@ -255,6 +257,7 @@ export const GALLERY_DESIGNS = [
    "roofCover": "shingles",
    "rafterSeat": "connector",
    "maxFootprint": 100,
+   "locked": [],
    "kerf": 0.125,
    "lengths": [
     8,
@@ -346,6 +349,7 @@ export const GALLERY_DESIGNS = [
    "roofCover": "shingles",
    "rafterSeat": "connector",
    "maxFootprint": 100,
+   "locked": [],
    "kerf": 0.125,
    "lengths": [
     8,
@@ -448,6 +452,7 @@ export const GALLERY_DESIGNS = [
    "roofCover": "shingles",
    "rafterSeat": "birdsmouth",
    "maxFootprint": 100,
+   "locked": [],
    "kerf": 0.125,
    "lengths": [
     8,
@@ -549,6 +554,7 @@ export const GALLERY_DESIGNS = [
    "roofCover": "shingles",
    "rafterSeat": "birdsmouth",
    "maxFootprint": 100,
+   "locked": [],
    "kerf": 0.125,
    "lengths": [
     8,
@@ -641,6 +647,7 @@ export const GALLERY_DESIGNS = [
    "roofCover": "shingles",
    "rafterSeat": "connector",
    "maxFootprint": 100,
+   "locked": [],
    "kerf": 0.125,
    "lengths": [
     8,
@@ -741,6 +748,7 @@ export const GALLERY_DESIGNS = [
    "roofCover": "shingles",
    "rafterSeat": "birdsmouth",
    "maxFootprint": 100,
+   "locked": [],
    "kerf": 0.125,
    "lengths": [
     8,
@@ -832,6 +840,7 @@ export const GALLERY_DESIGNS = [
    "roofCover": "shingles",
    "rafterSeat": "birdsmouth",
    "maxFootprint": 100,
+   "locked": [],
    "kerf": 0.125,
    "lengths": [
     8,
@@ -924,6 +933,7 @@ export const GALLERY_DESIGNS = [
    "roofCover": "shingles",
    "rafterSeat": "birdsmouth",
    "maxFootprint": 100,
+   "locked": [],
    "kerf": 0.125,
    "lengths": [
     8,

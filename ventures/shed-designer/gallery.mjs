@@ -55,14 +55,15 @@ const ids = (list) => list.map((o, i) => ({ id: `o${i + 1}`, ...o }));
 /**
  * The gallery. `goal` is the search's goal (`GOALS` in simplify.mjs; cheapest
  * materials unless named). `keep` names the design keys the search must leave alone: the
- * thing the card is on the list for. `rank` says which figure the card's claim
- * rests on, checked by the test against every other card.
+ * thing the card is on the list for. `rank` names the figure the card hopes to
+ * lead the gallery on; the card shows it as a pill only while it really does
+ * (`first` in `describeGallery`), so a price change cannot make it untrue.
  * @type {{ id: string, title: string, why: string, keep: string[], goal?: 'cheapest'|'balanced', rank?: 'price'|'volume'|'perDollar'|'floor', seed: () => any }[]}
  */
 export const GALLERY = [
   {
     id: 'cheapest', title: 'Cheapest 8x12', rank: 'perDollar',
-    why: 'The search was free to change every finish, roof and siding included: the most room per dollar in the gallery.',
+    why: 'The search was free to change every finish, roof and siding included, so this is what 96 sq ft costs at its plainest.',
     keep: ['length', 'width', 'wallHeight', 'openings'],
     seed: () => base({ name: 'Cheapest 8x12', length: 144, width: 96, openings: ids([door('front', 53), win('back', 65)]) }),
   },
@@ -74,7 +75,7 @@ export const GALLERY = [
   },
   {
     id: 'storage', title: 'Most storage 10x10', rank: 'volume',
-    why: 'The full 100 sq ft under an open ridge-beam roof at 9/12: a loft-sized space over the 8 ft walls, the most room under a roof in the gallery.',
+    why: 'The full 100 sq ft under an open ridge-beam roof at 9/12: a loft-sized space over the 8 ft walls, with no ties in the way.',
     keep: ['length', 'width', 'wallHeight', 'pitch', 'roofType', 'openings', 'sidingType', 'sidingColor', 'roofCover'],
     seed: () => base({ ...LAP, name: '10x10 storage shed, open roof', length: 120, width: 120, pitch: 9, roofType: 'ridgeBeam', openings: ids([door('front', 40.75), win('back', 53)]) }),
   },
@@ -104,7 +105,7 @@ export const GALLERY = [
   },
   {
     id: 'garden', title: 'Small 8x8 garden shed', rank: 'price',
-    why: 'The smallest and the lowest price in the gallery, for tools and bags of soil: a door on the gable end and a window over a potting bench.',
+    why: 'The smallest here, for tools and bags of soil: a door on the gable end and a window over a potting bench.',
     keep: ['length', 'width', 'wallHeight', 'openings', 'sidingType', 'sidingColor', 'roofType', 'roofCover'],
     seed: () => base({ ...LAP, name: '8x8 garden shed', roofType: 'ridgeBoard', length: 96, width: 96, sidingColor: 'green', openings: ids([door('left', 29), win('front', 41)]) }),
   },
@@ -177,7 +178,7 @@ export function generateGallery(prices) {
  */
 export function describeGallery(stored, prices, price = (shed) => estimate(shed, prices)) {
   const byId = new Map(GALLERY.map((g) => [g.id, g]));
-  return stored.filter((s) => byId.has(s.id)).map((s) => {
+  const cards = stored.filter((s) => byId.has(s.id)).map((s) => {
     const g = /** @type {(typeof GALLERY)[number]} */ (byId.get(s.id));
     const shed = buildShed(normalize(s.design));
     const est = price(shed);
@@ -193,6 +194,20 @@ export function describeGallery(stored, prices, price = (shed) => estimate(shed,
       size: `${ft(shed.design.width)}x${ft(shed.design.length)} ft`,
       summary: `${shed.design.pitch}/12 roof, peak ${fmtFtIn(shed.dims.peak)}, ${shed.design.sidingType} siding, ${shed.design.roofCover}`,
       peak: shed.dims.peak,
+      first: false,
     };
   });
+  for (const c of cards) {
+    const f = c.rank && RANKS[c.rank];
+    c.first = Boolean(f) && cards.every((o) => f(c) >= f(o) - 1e-9);
+  }
+  return cards;
 }
+
+/** What each `rank` compares, bigger being better. */
+export const RANKS = {
+  price: (/** @type {any} */ c) => -c.total,
+  volume: (/** @type {any} */ c) => c.volume,
+  perDollar: (/** @type {any} */ c) => c.perDollar,
+  floor: (/** @type {any} */ c) => c.floor,
+};

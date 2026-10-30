@@ -30,7 +30,7 @@ export function mountGallery({ root, priceOf, onPick, createViewer }) {
     track.innerHTML = cards.map((c, i) => `
       <article class="card gallery-card" data-gallery="${esc(c.id)}" aria-roledescription="slide" aria-label="${i + 1} of ${cards.length}: ${esc(c.title)}">
         ${thumbs.has(c.id) ? `<img src="${thumbs.get(c.id)}" alt="3D view of the ${esc(c.title)}" width="360" height="240">` : '<div class="thumb-wait">rendering...</div>'}
-        <h3 class="h4">${esc(c.title)}${c.rank ? ` <span class="pill">${RANK[c.rank]}</span>` : ''}</h3>
+        <h3 class="h4">${esc(c.title)}${c.first ? ` <span class="pill">${RANK[c.rank]} here</span>` : ''}</h3>
         <p class="gallery-price"><strong>${whole(c.total)}</strong> <span class="muted">materials before tax</span></p>
         <dl>
           <div><dt>Size</dt><dd>${esc(c.size)} (${c.footprint.toFixed(0)} sq ft)</dd></div>

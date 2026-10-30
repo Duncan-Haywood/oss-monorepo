@@ -17,7 +17,7 @@ Each card starts with a footprint, a door, some windows and the thing it is on t
 
 - the pitch and the overhang;
 - the rafter size and spacing;
-- the stud spacing;
+- the stud spacing and the floor joist size;
 - the rafter seat (birdsmouth notch or connector);
 - ridge board or ridge beam;
 - the subfloor and the foundation.
@@ -41,18 +41,18 @@ The first run had only the checks the tool already used: pass every load check, 
 
 Across the ten designs, the same few changes kept winning:
 
-- **An OSB subfloor instead of plywood.** Chosen in all ten.
+- **An OSB subfloor instead of plywood, on 2x4 floor joists.** Chosen in all ten. Skids at 4 ft centres leave the joists a short span, and 2x4s pass the floor check there at 32% of capacity or less.
 - **Studs at 24" on centre.** Chosen in every design with lap siding over sheathing. The one card with 3/8" LP SmartSide panels keeps 16", the spacing those panels are rated for.
 - **A 4" overhang instead of 12".** Chosen wherever the card did not keep the overhang. Only the "best looking" card keeps a foot of overhang, because that is part of its look.
 - **Birdsmouth seats instead of rafter connectors.** Chosen in seven of the ten. The other three kept connectors, under the 90% cap and the warning rule.
 
 ## None of them reaches $2,000
 
-The owner's budget is about $2,000 in materials. The cheapest design in the gallery is the 8x8 at **$2,600.50**. The cheapest 8x12 (96 sq ft) is **$2,727.65** before tax, and only after the search swapped in LP SmartSide panels and a ridge board with ties. This is where that $2,727.65 goes:
+The owner's budget is about $2,000 in materials. The cheapest design in the gallery is the 8x8 at **$2,519.80**. The cheapest 8x12 (96 sq ft) is **$2,684.11** before tax, and only after the search swapped in LP SmartSide panels and a ridge board with ties. This is where that $2,684.11 goes:
 
 | Section | Cost |
 | --- | --- |
-| Lumber | $688 |
+| Lumber | $646 |
 | Siding | $510 |
 | Roofing | $457 |
 | Fasteners and sealants | $317 |
@@ -65,7 +65,7 @@ The owner's budget is about $2,000 in materials. The cheapest design in the gall
 | Door hardware | $39 |
 | Site prep | $37 |
 
-The surprise is fasteners and sealants: $317, more than the sheet goods. The 8x8 pays $313 for them, nearly as much as a shed half again its size, because nails, screws and caulk are bought by the box. Getting near $2,000 will take changes this search cannot make yet: buying fasteners by the pound, and lap siding that does not need OSB behind it. Lane 1 of this round is working on design-level search, and the gallery will take its designs when they land.
+The surprise is fasteners and sealants: $317, more than the sheet goods. The 8x8 pays $286 for them, 90% of what a shed half again its size pays, because nails, screws and caulk are bought by the box. Getting near $2,000 will take changes this search cannot make yet: buying fasteners by the pound, and lap siding that does not need OSB behind it. Lane 1 of this round is working on design-level search, and the gallery will take its designs when they land.
 
 ## Storage figures
 
@@ -76,6 +76,6 @@ Each card shows these figures, all measured inside the studs:
 - the length of wall with no door or window, for shelves;
 - the widest door.
 
-The "most storage" card is a 10x10 with an open ridge-beam roof at 9/12. It has 866 cu ft under the roof, against 743 for an 8x12 at 5/12, for $3,516.
+The "most storage" card is a 10x10 with an open ridge-beam roof at 9/12. It has 866 cu ft under the roof, against 743 for an 8x12 at 5/12, for $3,461.73.
 
 The figures are screening numbers from the tool's own checks, not an engineer's review. Your town decides what needs a permit.
