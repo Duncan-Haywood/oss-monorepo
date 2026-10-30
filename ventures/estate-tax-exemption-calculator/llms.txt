@@ -1,0 +1,14 @@
+# Project your 2026 federal estate tax under the permanent $15M exclusion.
+
+> Free calculator for the 2026 OBBBA federal estate, gift, and GST tax exclusion -- $15,000,000 per person, up to $30,000,000 married with portability. Projects taxable estate and the flat 40% federal tax. Entirely client-side, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/estate-tax-exemption-calculator/)
+- [This calculator vs. working out the 2026 estate tax exclusion by hand](https://duncan-haywood.github.io/oss-monorepo/estate-tax-exemption-calculator/vs-doing-the-math-by-hand.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/estate-tax-exemption-calculator): MIT licensed.

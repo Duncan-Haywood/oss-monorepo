@@ -1,0 +1,13 @@
+# How much federal R&D credit could your team claim?
+
+> Free R&D tax credit calculator for startups and small companies. Paste staff wages and time on research, compare the regular and simplified credit, see the Section 280C cost and the payroll-tax offset. Illustrative; nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/rd-tax-credit-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/rd-tax-credit-calculator): MIT licensed.

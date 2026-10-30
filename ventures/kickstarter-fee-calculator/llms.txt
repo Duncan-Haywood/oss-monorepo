@@ -1,0 +1,15 @@
+# More, smaller pledges keep less of the same total raised.
+
+> Free Kickstarter fee calculator. 5% platform fee plus per-pledge processing (3% + $0.20 standard, 5% + $0.05 under $10) -- see why more, smaller pledges keep less of the same total raised. Nothing leaves your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/kickstarter-fee-calculator/)
+- [How much does Kickstarter take?](https://duncan-haywood.github.io/oss-monorepo/kickstarter-fee-calculator/how-much-does-kickstarter-take.html)
+- [This calculator vs. the flat “8-10%” rule of thumb](https://duncan-haywood.github.io/oss-monorepo/kickstarter-fee-calculator/vs-the-flat-8-10-percent-rule-of-thumb.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/kickstarter-fee-calculator): MIT licensed.

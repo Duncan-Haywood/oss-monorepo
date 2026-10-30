@@ -1,0 +1,13 @@
+# Is Dependabot actually watching all of your repo?
+
+> Paste your dependabot.yml and your repo's file list. Finds ecosystems Dependabot never updates, invalid intervals, duplicate entries, missing groups and cooldown, and writes a starter config. Free, runs in your browser, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/dependabot-config-check/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/dependabot-config-check): MIT licensed.

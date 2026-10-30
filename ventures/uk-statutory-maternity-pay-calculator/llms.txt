@@ -1,0 +1,13 @@
+# How much Statutory Maternity Pay does your employee get?
+
+> Free UK SMP calculator for 2026/27: enter the due date, average weekly earnings and employment start to check eligibility, the qualifying week, the 39-week pay schedule and Statutory Paternity Pay. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/uk-statutory-maternity-pay-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/uk-statutory-maternity-pay-calculator): MIT licensed.

@@ -1,0 +1,13 @@
+# What do LPs and the sponsor each take home from a real estate syndication?
+
+> Free real estate syndication waterfall calculator: preferred return, IRR hurdles and sponsor promote tiers, with LP and GP IRR, equity multiples and a year-by-year split. Entirely client-side, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/syndication-waterfall-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/syndication-waterfall-calculator): MIT licensed.

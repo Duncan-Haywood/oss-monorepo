@@ -1,0 +1,16 @@
+# Build a valid llms.txt for your site
+
+> Paste your site's page list, a sitemap.xml, or a Markdown docs tree and get a valid llms.txt file — the emerging llmstxt.org convention that gives AI assistants a structured map of your site. Free, runs entirely in your browser, nothing is uploaded. Validate an existing llms.txt too.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/llms-txt-generator/)
+- [This generator vs. a hosted docs platform's built-in llms.txt feature](https://duncan-haywood.github.io/oss-monorepo/llms-txt-generator/vs-a-hosted-docs-platform.html)
+- [This generator vs. writing llms.txt by hand](https://duncan-haywood.github.io/oss-monorepo/llms-txt-generator/vs-writing-llms-txt-by-hand.html)
+- [What is llms.txt, and do you need one?](https://duncan-haywood.github.io/oss-monorepo/llms-txt-generator/what-is-llms-txt.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/llms-txt-generator): MIT licensed.

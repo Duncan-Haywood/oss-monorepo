@@ -1,0 +1,13 @@
+# What did your Android apps really net after Google's cut?
+
+> Free analyzer for Android developers: drop in your Google Play Console Earnings report and see net earnings by app, product type, country and month, the effective Google fee and refund rate. Runs in your browser, the file is never uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/google-play-earnings-report-analyzer/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/google-play-earnings-report-analyzer): MIT licensed.

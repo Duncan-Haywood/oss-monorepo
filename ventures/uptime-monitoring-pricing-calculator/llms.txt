@@ -1,0 +1,14 @@
+# What will uptime monitoring cost for your monitors and check interval, and who is cheapest?
+
+> Type your monitor count, check interval and growth, get every uptime-monitoring plan priced side by side and the monitor count where the cheapest one changes. No account, no upload.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/uptime-monitoring-pricing-calculator/)
+- [How to choose an uptime monitoring plan](https://duncan-haywood.github.io/oss-monorepo/uptime-monitoring-pricing-calculator/how-to-choose-an-uptime-monitoring-plan.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/uptime-monitoring-pricing-calculator): MIT licensed.

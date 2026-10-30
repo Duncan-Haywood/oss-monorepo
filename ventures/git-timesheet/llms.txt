@@ -1,0 +1,14 @@
+# Turn your git history into a timesheet your client can read
+
+> Paste your git log and get estimated hours per day, a client-ready work summary in Markdown or CSV, and an invoice figure at your hourly rate. Free, private, runs in your browser; CLI included.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/git-timesheet/)
+- [How to estimate hours worked from git commits](https://duncan-haywood.github.io/oss-monorepo/git-timesheet/how-to-estimate-hours-from-git-commits.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/git-timesheet): MIT licensed.

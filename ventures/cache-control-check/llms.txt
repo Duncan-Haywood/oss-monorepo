@@ -1,0 +1,16 @@
+# Cache-Control Checker
+
+> Free tool: run a CLI that sends one real request to your site, then paste the JSON here for a plain-English report on Vary: * (uncacheable forever), Cache-Control: public alongside a Set-Cookie header (a shared cache can leak one visitor's cookie to another), and lower-severity caching directive conflicts.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/cache-control-check/)
+- [This checker vs. checking headers by eye in DevTools](https://duncan-haywood.github.io/oss-monorepo/cache-control-check/vs-checking-headers-by-eye-in-devtools.html)
+- [This checker vs. reading headers with curl -I](https://duncan-haywood.github.io/oss-monorepo/cache-control-check/vs-curl.html)
+- [Why isn't my CDN caching this?](https://duncan-haywood.github.io/oss-monorepo/cache-control-check/why-isnt-my-cdn-caching-this.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/cache-control-check): MIT licensed.

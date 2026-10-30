@@ -1,0 +1,16 @@
+# Price the plan, not just the service call.
+
+> Free HVAC maintenance contract pricing calculator. Price preventive visits, callbacks, parts reserve, overhead, and target margin without underbidding the agreement.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/hvac-maintenance-contract-calculator/)
+- [How much to charge for an HVAC maintenance contract](https://duncan-haywood.github.io/oss-monorepo/hvac-maintenance-contract-calculator/how-much-to-charge-for-an-hvac-maintenance-contract.html)
+- [This calculator vs. a flat monthly fee](https://duncan-haywood.github.io/oss-monorepo/hvac-maintenance-contract-calculator/vs-a-flat-monthly-fee.html)
+- [This calculator vs. ServiceTitan](https://duncan-haywood.github.io/oss-monorepo/hvac-maintenance-contract-calculator/vs-servicetitan.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/hvac-maintenance-contract-calculator): MIT licensed.

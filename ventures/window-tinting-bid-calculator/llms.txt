@@ -1,0 +1,15 @@
+# Price the job by what actually drives the cost.
+
+> Free bid calculator for independent auto window tinting installers: price a vehicle film job by which windows are being tinted, film tier, waste factor, and old-tint removal — then see the gap against a flat per-vehicle price for the same job.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/window-tinting-bid-calculator/)
+- [How much to charge for window tinting](https://duncan-haywood.github.io/oss-monorepo/window-tinting-bid-calculator/how-much-to-charge-for-window-tinting.html)
+- [This calculator vs. a flat per-vehicle price](https://duncan-haywood.github.io/oss-monorepo/window-tinting-bid-calculator/vs-a-flat-per-vehicle-size-price.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/window-tinting-bid-calculator): MIT licensed.

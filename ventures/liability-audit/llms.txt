@@ -1,0 +1,14 @@
+# What in your app could cost you a fine, a chargeback or a surprise bill?
+
+> A free, local scan for consent, auto-renewal, disclosure, licence, leaked-key and runaway-spend problems, with the law or rule behind each finding. Observations, not legal advice.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/liability-audit/)
+- [What a small app can be liable for, and how to check](https://duncan-haywood.github.io/oss-monorepo/liability-audit/what-a-small-app-can-be-liable-for-and-how-to-check.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/liability-audit): MIT licensed.

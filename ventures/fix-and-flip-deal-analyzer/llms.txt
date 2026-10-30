@@ -1,0 +1,13 @@
+# What can you pay for this flip?
+
+> Free fix and flip calculator for house flippers. Enter ARV, purchase price, rehab and hard-money terms to get profit, cash needed, return on cash, the maximum allowable offer, the break-even sale price and how profit changes with price and time on the market. Runs in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/fix-and-flip-deal-analyzer/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/fix-and-flip-deal-analyzer): MIT licensed.

@@ -1,0 +1,22 @@
+# Know what a Faire order leaves after the first-order fee.
+
+> Free Faire wholesale fee calculator for brands: net payout after 15% commission, the $10 new-customer fee, and payout-speed processing.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/faire-wholesale-calculator/)
+- [The 15% is not the whole decision. The first-order fee and Direct are.](https://duncan-haywood.github.io/oss-monorepo/faire-wholesale-calculator/faire-direct-vs-marketplace.html)
+- [Know the margin after a Faire opening order lands.](https://duncan-haywood.github.io/oss-monorepo/faire-wholesale-calculator/retailer.html)
+- [Should I list during Faire Open House?](https://duncan-haywood.github.io/oss-monorepo/faire-wholesale-calculator/should-i-list-during-faire-open-house.html)
+- [Should I offer Faire Pay Now?](https://duncan-haywood.github.io/oss-monorepo/faire-wholesale-calculator/should-i-offer-faire-pay-now.html)
+- [Should I pay for Faire next-day payout?](https://duncan-haywood.github.io/oss-monorepo/faire-wholesale-calculator/should-i-pay-for-faire-next-day-payout.html)
+- [Should I run Faire Promoted Listings?](https://duncan-haywood.github.io/oss-monorepo/faire-wholesale-calculator/should-i-run-faire-promoted-listings.html)
+- [Should I take this Faire return?](https://duncan-haywood.github.io/oss-monorepo/faire-wholesale-calculator/should-i-take-this-faire-return.html)
+- [Two different marketplaces. This tool prices Faire orders specifically.](https://duncan-haywood.github.io/oss-monorepo/faire-wholesale-calculator/vs-ankorstore.html)
+- [One fee formula is easy. Amortizing it across a relationship is the part that gets skipped.](https://duncan-haywood.github.io/oss-monorepo/faire-wholesale-calculator/vs-building-your-own-spreadsheet.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/faire-wholesale-calculator): MIT licensed.

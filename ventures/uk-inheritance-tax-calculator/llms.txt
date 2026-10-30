@@ -1,0 +1,13 @@
+# How much Inheritance Tax will this estate pay?
+
+> Free UK Inheritance Tax calculator for deaths from April 2025: £325,000 nil-rate band, £175,000 residence nil-rate band with the £2 million taper, transferred spouse allowances, charity gifts and the 36% rate. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/uk-inheritance-tax-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/uk-inheritance-tax-calculator): MIT licensed.

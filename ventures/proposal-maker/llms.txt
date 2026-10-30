@@ -1,0 +1,13 @@
+# Send a priced, scoped proposal in 15 minutes, not an afternoon in Word.
+
+> Free proposal generator for freelancers, consultants and small agencies: scope with included and excluded lists, phases with dates, fixed, good-better-best, hourly-with-cap or retainer pricing, deposit and milestones, change-order wording, acceptance block, print to PDF. No account, no watermark, works offline.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/proposal-maker/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/proposal-maker): MIT licensed.

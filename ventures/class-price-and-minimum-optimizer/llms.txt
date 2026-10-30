@@ -1,0 +1,13 @@
+# What should I charge per seat when a class only runs if enough people sign up?
+
+> Free class price optimizer for tutoring centers, music schools, studios and workshops: enter past prices and sign-ups, set capacity, minimum to run and costs, and get the per-seat price with the highest expected profit. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/class-price-and-minimum-optimizer/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/class-price-and-minimum-optimizer): MIT licensed.

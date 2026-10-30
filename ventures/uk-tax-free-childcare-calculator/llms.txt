@@ -1,0 +1,13 @@
+# How much will childcare really cost me after the free hours and the 20% top-up?
+
+> Free UK Tax-Free Childcare and 30 hours calculator for England: do you qualify, the value of free hours, the 20% top-up, what you pay a month and the Universal Credit alternative. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/uk-tax-free-childcare-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/uk-tax-free-childcare-calculator): MIT licensed.

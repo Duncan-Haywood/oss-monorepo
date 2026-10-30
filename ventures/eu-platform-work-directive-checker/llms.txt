@@ -1,0 +1,13 @@
+# Is the platform covered, and are its workers presumed employees?
+
+> Free EU Platform Work Directive (2024/2831) checker for gig and app platforms and platform workers: is the platform in scope, how strong is the employment presumption, which algorithmic-management rules apply, and how long until 2 December 2026. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/eu-platform-work-directive-checker/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/eu-platform-work-directive-checker): MIT licensed.

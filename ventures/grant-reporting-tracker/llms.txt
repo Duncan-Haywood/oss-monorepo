@@ -1,0 +1,16 @@
+# Know which grant report needs attention next.
+
+> Track nonprofit grant reporting deadlines, restricted balances, and award review status in a private browser-based tracker. No account or upload required.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/grant-reporting-tracker/)
+- [This tracker vs. GrantHub](https://duncan-haywood.github.io/oss-monorepo/grant-reporting-tracker/vs-granthub.html)
+- [This tracker vs. tracking grants in a spreadsheet](https://duncan-haywood.github.io/oss-monorepo/grant-reporting-tracker/vs-tracking-grants-in-a-spreadsheet.html)
+- [When is my grant report actually due?](https://duncan-haywood.github.io/oss-monorepo/grant-reporting-tracker/when-is-my-grant-report-due.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/grant-reporting-tracker): MIT licensed.

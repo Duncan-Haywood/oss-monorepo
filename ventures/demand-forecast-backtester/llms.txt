@@ -1,0 +1,13 @@
+# Which forecast can you trust, and how much stock does it need?
+
+> Free demand forecasting for small sellers. Upload a sales CSV to get a back-tested forecast per SKU, safety stock and reorder points at your service level, ABC-XYZ classes, and an honest check of whether the forecast beats repeating last month. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/demand-forecast-backtester/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/demand-forecast-backtester): MIT licensed.

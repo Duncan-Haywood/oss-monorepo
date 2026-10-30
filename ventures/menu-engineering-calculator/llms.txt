@@ -1,0 +1,17 @@
+# Which plates on your menu are actually carrying the place?
+
+> Free menu engineering calculator for independent restaurants: enter each dish's plate food cost, menu price and units sold to classify it as a star, plowhorse, puzzle or dog, see contribution margin against the menu average, and size what a price move on the high-volume low-margin plates is worth a year.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/menu-engineering-calculator/)
+- [How menu engineering works](https://duncan-haywood.github.io/oss-monorepo/menu-engineering-calculator/how-menu-engineering-works.html)
+- [This calculator vs. averaging margins in a spreadsheet](https://duncan-haywood.github.io/oss-monorepo/menu-engineering-calculator/vs-averaging-margins-in-a-spreadsheet.html)
+- [This calculator vs. MarginEdge](https://duncan-haywood.github.io/oss-monorepo/menu-engineering-calculator/vs-marginedge.html)
+- [This calculator vs. ranking by food cost percentage](https://duncan-haywood.github.io/oss-monorepo/menu-engineering-calculator/vs-ranking-by-food-cost-percent.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/menu-engineering-calculator): MIT licensed.

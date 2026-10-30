@@ -1,0 +1,15 @@
+# Will your Kubernetes rollout drop live requests?
+
+> Paste a Kubernetes Deployment YAML and find every reason a rolling update can drop live requests: no readinessProbe, no preStop hook, a grace period shorter than the drain, maxUnavailable covering every replica, a PodDisruptionBudget that blocks a node drain. Free, runs in your browser, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/k8s-rollout-safety-check/)
+- [kube-score vs a rollout safety check](https://duncan-haywood.github.io/oss-monorepo/k8s-rollout-safety-check/vs-kube-score.html)
+- [Why your Kubernetes rollout drops requests](https://duncan-haywood.github.io/oss-monorepo/k8s-rollout-safety-check/why-your-kubernetes-rollout-drops-requests.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/k8s-rollout-safety-check): MIT licensed.

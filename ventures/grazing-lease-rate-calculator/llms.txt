@@ -1,0 +1,13 @@
+# What does this pasture carry, and what rent works for both sides?
+
+> Free grazing lease calculator for ranchers and landowners: AUMs and head your pasture carries, rent per AUM, per head and per acre, the hay-feeding break-even, and the rent range where both sides win. Runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/grazing-lease-rate-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/grazing-lease-rate-calculator): MIT licensed.

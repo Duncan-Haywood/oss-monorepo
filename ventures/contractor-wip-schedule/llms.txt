@@ -1,0 +1,13 @@
+# Is the profit on your open jobs real?
+
+> Free work-in-progress schedule for contractors. Paste your open jobs with contract, estimated cost, cost to date and billings to see percent complete, over- and underbilling, expected losses, cash still to come, a cost-growth stress test and backlog against working capital. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/contractor-wip-schedule/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/contractor-wip-schedule): MIT licensed.

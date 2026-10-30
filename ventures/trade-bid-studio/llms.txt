@@ -1,0 +1,14 @@
+# Trade Bid Studio
+
+> Free bid calculator for any trade: turn labor hours, materials, subs, overhead and a target margin into a price, your walk-away number, and what a competitor's lower quote actually leaves you. Plus 121 trade-specific bid calculators.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/trade-bid-studio/)
+- [Markup vs margin: why 25% markup is only 20% margin](https://duncan-haywood.github.io/oss-monorepo/trade-bid-studio/markup-vs-margin.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/trade-bid-studio): MIT licensed.

@@ -1,0 +1,14 @@
+# Ten turnovers, two crews: which cleans should you take today?
+
+> Paste the day's vacation-rental turnovers and get the most profitable set of cleans, which of your one to three crews does each and in what order, with checkout and check-in windows, drive cost and the fee every turnover it declines would need. Free, runs in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/str-turnover-crew-planner/)
+- [Is a second cleaning crew worth it? Checkout windows and drive-time math](https://duncan-haywood.github.io/oss-monorepo/str-turnover-crew-planner/is-a-second-cleaning-crew-worth-it.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/str-turnover-crew-planner): MIT licensed.

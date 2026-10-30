@@ -1,0 +1,13 @@
+# What occupancy does your dog boarding and daycare business need to break even, and how much cash does the ramp-up eat?
+
+> Free dog boarding and daycare profit calculator: runs, daycare spots, prices, occupancy and attendant ratio become monthly profit, staffing steps, break-even occupancy, the cash reserve for ramp-up, loan coverage and payback. Private, runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/pet-boarding-daycare-profit-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/pet-boarding-daycare-profit-calculator): MIT licensed.

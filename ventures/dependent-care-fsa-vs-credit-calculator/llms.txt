@@ -1,0 +1,13 @@
+# Dependent care FSA or child care credit: which saves you more?
+
+> Free dependent care FSA vs child and dependent care credit calculator. Enter your income, tax rates and care costs to see which saves more and the best split between the two, using the 2026 $7,500 FSA limit. Runs in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/dependent-care-fsa-vs-credit-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/dependent-care-fsa-vs-credit-calculator): MIT licensed.

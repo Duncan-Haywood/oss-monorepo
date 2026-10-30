@@ -1,0 +1,16 @@
+# What should you charge for a newsletter sponsorship?
+
+> Free newsletter sponsorship rate calculator. Enter your list size, open rate, and niche to get a price range for a dedicated send, primary placement, secondary placement, and classified ad — based on commonly cited newsletter-ad-market CPM benchmarks. No sign-up, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/newsletter-sponsorship-rate-calculator/)
+- [Where do newsletter sponsorship rate benchmarks come from?](https://duncan-haywood.github.io/oss-monorepo/newsletter-sponsorship-rate-calculator/newsletter-sponsorship-rate-benchmarks.html)
+- [This calculator vs. guessing a flat rate](https://duncan-haywood.github.io/oss-monorepo/newsletter-sponsorship-rate-calculator/vs-guessing-a-flat-rate.html)
+- [This calculator vs. Paved](https://duncan-haywood.github.io/oss-monorepo/newsletter-sponsorship-rate-calculator/vs-paved.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/newsletter-sponsorship-rate-calculator): MIT licensed.

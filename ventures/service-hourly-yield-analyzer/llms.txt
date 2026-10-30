@@ -1,0 +1,13 @@
+# Which of your services actually earns money for the hour it takes?
+
+> Free tool for salons, barbers, spas, trainers, tutors and detailers: drop in your booking or sales export and see revenue per booked hour by service, stylist, weekday and hour, which services earn the least for the time they take, and what a price change or a fuller week could be worth.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/service-hourly-yield-analyzer/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/service-hourly-yield-analyzer): MIT licensed.

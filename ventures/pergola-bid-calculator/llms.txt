@@ -1,0 +1,16 @@
+# Bid the posts, the shade, and the height.
+
+> Price a residential pergola or patio cover from the posts a square-foot special cannot see, the shade layer, the height, and the attached ledger — plus walk-away price and proposed-price margin check.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/pergola-bid-calculator/)
+- [How much to charge to build a pergola](https://duncan-haywood.github.io/oss-monorepo/pergola-bid-calculator/how-much-to-charge-to-build-a-pergola.html)
+- [This calculator vs. a flat $45-a-square-foot special](https://duncan-haywood.github.io/oss-monorepo/pergola-bid-calculator/vs-a-flat-45-per-square-foot-special.html)
+- [This calculator vs. Buildxact](https://duncan-haywood.github.io/oss-monorepo/pergola-bid-calculator/vs-buildxact.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/pergola-bid-calculator): MIT licensed.

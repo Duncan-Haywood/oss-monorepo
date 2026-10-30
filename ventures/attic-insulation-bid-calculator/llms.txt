@@ -1,0 +1,16 @@
+# Bid the bags, not the attic.
+
+> Price a blown-in attic insulation job from floor areas, existing versus target R-value, bag yield, air-sealing penetrations, and baffles — not a flat price per square foot. See bag count, walk-away price, and the margin a $1.50-a-foot special actually leaves.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/attic-insulation-bid-calculator/)
+- [How much should I charge for blown-in attic insulation?](https://duncan-haywood.github.io/oss-monorepo/attic-insulation-bid-calculator/how-much-to-charge.html)
+- [This calculator vs. a flat price-per-square-foot special](https://duncan-haywood.github.io/oss-monorepo/attic-insulation-bid-calculator/vs-a-flat-price-per-square-foot.html)
+- [This calculator vs. FieldCamp](https://duncan-haywood.github.io/oss-monorepo/attic-insulation-bid-calculator/vs-fieldcamp.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/attic-insulation-bid-calculator): MIT licensed.

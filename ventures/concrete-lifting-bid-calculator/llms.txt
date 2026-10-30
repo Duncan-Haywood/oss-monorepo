@@ -1,0 +1,16 @@
+# Bid the void, the method, and the access.
+
+> Price a mudjacking or polyjacking job from slab area, void depth, method, access path, extra holes, and joint seal — not a published $4.50-per-square-foot special. See the walk-away number before you match a cheaper quote.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/concrete-lifting-bid-calculator/)
+- [How much to charge for concrete lifting](https://duncan-haywood.github.io/oss-monorepo/concrete-lifting-bid-calculator/how-much-to-charge-for-concrete-lifting.html)
+- [This calculator vs. a flat “$X/sq ft” or “$X/hole” special](https://duncan-haywood.github.io/oss-monorepo/concrete-lifting-bid-calculator/vs-a-flat-rate-special.html)
+- [This calculator vs. QuoteIQ](https://duncan-haywood.github.io/oss-monorepo/concrete-lifting-bid-calculator/vs-quoteiq.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/concrete-lifting-bid-calculator): MIT licensed.

@@ -1,0 +1,13 @@
+# Does the new EU product liability regime reach your software or product?
+
+> Free EU Product Liability Directive checker: is your software, AI system or product in scope from 9 December 2026, who is liable in the supply chain, what damage is claimable and what to prepare. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/eu-product-liability-directive-checker/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/eu-product-liability-directive-checker): MIT licensed.

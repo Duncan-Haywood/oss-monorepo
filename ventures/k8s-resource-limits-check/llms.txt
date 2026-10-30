@@ -1,0 +1,16 @@
+# Will this container take down its whole node?
+
+> Paste Kubernetes manifests to find containers missing memory limits, CPU requests or ephemeral-storage limits that let one pod starve a node. Runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/k8s-resource-limits-check/)
+- [This checker vs. Polaris](https://duncan-haywood.github.io/oss-monorepo/k8s-resource-limits-check/vs-polaris.html)
+- [This checker vs. reading the manifest by eye](https://duncan-haywood.github.io/oss-monorepo/k8s-resource-limits-check/vs-reading-the-manifest-by-eye.html)
+- [Why a missing resource limit can take down an entire node](https://duncan-haywood.github.io/oss-monorepo/k8s-resource-limits-check/why-a-missing-resource-limit-takes-down-a-node.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/k8s-resource-limits-check): MIT licensed.

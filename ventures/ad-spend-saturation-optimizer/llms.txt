@@ -1,0 +1,14 @@
+# Where does the next ad dollar still pay?
+
+> Free ad budget optimizer for multi-channel advertisers. Upload weekly spend and revenue per channel to see each channel's diminishing-returns curve, the marginal return on the next dollar, the best split of the same budget, and a back-test of the fit. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/ad-spend-saturation-optimizer/)
+- [Marginal ROAS vs average ROAS: why a 1.95 ROAS channel can lose money](https://duncan-haywood.github.io/oss-monorepo/ad-spend-saturation-optimizer/marginal-roas-vs-average-roas.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/ad-spend-saturation-optimizer): MIT licensed.

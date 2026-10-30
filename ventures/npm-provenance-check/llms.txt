@@ -1,0 +1,16 @@
+# Which of your dependencies lack a provenance attestation?
+
+> Paste a package-lock.json or package list to see which npm dependencies have provenance attestations and which still rely on classic publish tokens.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/npm-provenance-check/)
+- [npm Provenance Check vs. checking each package on npmjs.com by hand](https://duncan-haywood.github.io/oss-monorepo/npm-provenance-check/vs-checking-each-package-on-npmjs-by-hand.html)
+- [This checker vs. Socket](https://duncan-haywood.github.io/oss-monorepo/npm-provenance-check/vs-socket.html)
+- [Why not just npm audit signatures?](https://duncan-haywood.github.io/oss-monorepo/npm-provenance-check/why-not-just-npm-audit-signatures.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/npm-provenance-check): MIT licensed.

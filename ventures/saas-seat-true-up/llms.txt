@@ -1,0 +1,17 @@
+# Stop renewing seats nobody uses.
+
+> Calculate unused SaaS seats and avoidable renewal spend privately in your browser. No account or upload required.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/saas-seat-true-up/)
+- [How many unused SaaS seats am I paying for?](https://duncan-haywood.github.io/oss-monorepo/saas-seat-true-up/how-many-unused-saas-seats-am-i-paying-for.html)
+- [This calculator vs. a spreadsheet](https://duncan-haywood.github.io/oss-monorepo/saas-seat-true-up/vs-a-spreadsheet.html)
+- [This calculator vs. Vendr](https://duncan-haywood.github.io/oss-monorepo/saas-seat-true-up/vs-vendr.html)
+- [This calculator vs. Zylo](https://duncan-haywood.github.io/oss-monorepo/saas-seat-true-up/vs-zylo.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/saas-seat-true-up): MIT licensed.

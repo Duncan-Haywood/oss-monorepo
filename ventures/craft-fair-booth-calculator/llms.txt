@@ -1,0 +1,16 @@
+# A $1,500 day at a $250 booth is not $1,250.
+
+> Free calculator for makers: find what one craft fair, farmers market, or art festival booth has to sell to break even after booth fee, jury fee, mileage, materials, and card fees — plus your real hourly rate for the weekend and the most a booth could cost and still be worth it.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/craft-fair-booth-calculator/)
+- [How much do you need to sell at a craft fair to break even?](https://duncan-haywood.github.io/oss-monorepo/craft-fair-booth-calculator/how-much-do-you-need-to-sell-at-a-craft-fair.html)
+- [Craft fair booth calculator vs a spreadsheet or gut math](https://duncan-haywood.github.io/oss-monorepo/craft-fair-booth-calculator/vs-a-spreadsheet.html)
+- [Craft fair booth calculator vs Craftybase](https://duncan-haywood.github.io/oss-monorepo/craft-fair-booth-calculator/vs-craftybase.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/craft-fair-booth-calculator): MIT licensed.

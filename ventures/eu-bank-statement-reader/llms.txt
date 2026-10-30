@@ -1,0 +1,13 @@
+# Open a camt.053 or MT940 bank statement and check it adds up
+
+> Free camt.053 and MT940 bank statement reader: see balances and entries as a table, check that opening balance plus entries equals the closing balance, catch duplicates and gaps, and download a CSV. Runs in your browser; the file is never uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/eu-bank-statement-reader/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/eu-bank-statement-reader): MIT licensed.

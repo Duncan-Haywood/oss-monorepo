@@ -1,0 +1,13 @@
+# Which years should I bunch my charitable giving?
+
+> Free charity bunching calculator: enter what you give each year and your deductions, and get the exact years to fund a donor-advised fund for the biggest tax saving, compared with giving directly and every-k-years cycles. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/charity-bunching-planner/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/charity-bunching-planner): MIT licensed.

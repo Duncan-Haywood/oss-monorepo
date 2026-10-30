@@ -1,0 +1,13 @@
+# What a print-on-demand sale actually leaves you.
+
+> Free print-on-demand profit calculator: profit per sale after Etsy, Shopify or eBay fees, supplier cost, shipping, refunds and ads; the price for your target margin; break-even ad spend and ROAS. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/print-on-demand-profit-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/print-on-demand-profit-calculator): MIT licensed.

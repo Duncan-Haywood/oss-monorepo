@@ -1,0 +1,14 @@
+# What do you really make on a dozen eggs?
+
+> Free calculator for backyard egg sellers: what a dozen eggs costs you, how many hours it takes, your profit per dozen and per hour, the price per dozen you need to earn a wage, and what feed cost and winter lay rate do to it. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/backyard-egg-profit-calculator/)
+- [How much to charge for a dozen eggs: feed, hours and winter lay rate](https://duncan-haywood.github.io/oss-monorepo/backyard-egg-profit-calculator/how-much-to-charge-for-a-dozen-eggs.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/backyard-egg-profit-calculator): MIT licensed.

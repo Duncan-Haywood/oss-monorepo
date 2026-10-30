@@ -1,0 +1,16 @@
+# Is your GitHub Actions workflow open to a pwn request or script injection?
+
+> Paste your GitHub Actions workflow YAML and find pull_request_target/workflow_run 'pwn request' checkouts and shell script-injection from untrusted ${{ github.event }} expressions. Free, runs in your browser, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/actions-injection-check/)
+- [Actions Injection Check vs. reading a workflow by hand](https://duncan-haywood.github.io/oss-monorepo/actions-injection-check/vs-checking-a-workflow-by-hand.html)
+- [Actions Injection Check vs. zizmor](https://duncan-haywood.github.io/oss-monorepo/actions-injection-check/vs-zizmor.html)
+- [What is a "pwn request" in GitHub Actions?](https://duncan-haywood.github.io/oss-monorepo/actions-injection-check/what-is-a-pwn-request-in-github-actions.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/actions-injection-check): MIT licensed.

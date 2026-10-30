@@ -1,0 +1,13 @@
+# Read the lien waiver before you give up your lien.
+
+> Free lien waiver checker for contractors and suppliers: paste the waiver you were sent and see what to fix before you sign, such as an unconditional waiver before the check clears, a release of all claims or future work, a wrong amount or through-date, or retainage not excepted. Private, runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/lien-waiver-checker/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/lien-waiver-checker): MIT licensed.

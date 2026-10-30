@@ -1,0 +1,13 @@
+# SEP-IRA or Solo 401(k): how much more can you save in 2026?
+
+> Free 2026 calculator comparing a SEP-IRA and a Solo 401(k) for a sole proprietor or single-member LLC: how much each lets you contribute, the dollar gap, the tax it is worth at your marginal rate, and the profit at which each plan maxes out. Entirely client-side, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/sep-ira-vs-solo-401k-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/sep-ira-vs-solo-401k-calculator): MIT licensed.

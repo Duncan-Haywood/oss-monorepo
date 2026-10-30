@@ -1,0 +1,13 @@
+# Why won't this GPX file upload?
+
+> Free GPX checker: finds why Strava, Garmin Connect or Komoot rejects a track file, with line numbers: missing creator, version and namespace, GPS jumps, points at 0,0, timestamps out of order, no times, bad elevations. Downloads a repaired copy. Runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/gpx-track-check/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/gpx-track-check): MIT licensed.

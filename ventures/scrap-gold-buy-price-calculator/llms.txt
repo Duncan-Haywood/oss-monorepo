@@ -1,0 +1,13 @@
+# What can you pay for this scrap gold and still profit?
+
+> Free scrap gold buying calculator for pawn shops and estate buyers: type the karat and weight of each piece and your refiner's terms to see the highest offer that still pays after assay loss, fees, shipping and a gold price drop. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/scrap-gold-buy-price-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/scrap-gold-buy-price-calculator): MIT licensed.

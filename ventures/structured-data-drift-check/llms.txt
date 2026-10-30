@@ -1,0 +1,16 @@
+# Does your page's JSON-LD actually say what the page says?
+
+> Paste a page's HTML and see whether its JSON-LD (FAQPage, HowTo, Article, Product, LocalBusiness/Organization, Review) actually says, word for word, what the page's own visible text says. Google requires FAQPage and HowTo content to be visible. Free, runs entirely in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/structured-data-drift-check/)
+- [Structured Data Drift Check vs. checking it by eye](https://duncan-haywood.github.io/oss-monorepo/structured-data-drift-check/vs-checking-it-by-eye.html)
+- [Structured Data Drift Check vs. Google's Rich Results Test](https://duncan-haywood.github.io/oss-monorepo/structured-data-drift-check/vs-google-rich-results-test.html)
+- [Why Google requires structured data to match visible text](https://duncan-haywood.github.io/oss-monorepo/structured-data-drift-check/why-google-requires-structured-data-to-match-visible-text.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/structured-data-drift-check): MIT licensed.

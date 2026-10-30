@@ -1,0 +1,13 @@
+# Can you sell this consumer product in the EU under the GPSR?
+
+> Free EU General Product Safety Regulation (GPSR) checker for online sellers: is your product in scope, is an EU responsible person behind it, and which basic duties are still open. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/gpsr-product-safety-checker/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/gpsr-product-safety-checker): MIT licensed.

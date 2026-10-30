@@ -1,0 +1,13 @@
+# What should you reorder this week, and what is just cash on a shelf?
+
+> Free reorder planner for Shopify and other small online stores: load an orders export and a stock export and see each SKU's reorder point, how many to order, revenue at risk from stock-outs and cash tied up in overstock. Runs in your browser, files are never uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/shopify-inventory-reorder-planner/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/shopify-inventory-reorder-planner): MIT licensed.

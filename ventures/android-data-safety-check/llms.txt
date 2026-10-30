@@ -1,0 +1,16 @@
+# Android Data Safety Checker
+
+> Free, browser-local checker: scans your AndroidManifest.xml permissions and Gradle dependencies for known analytics/ads/crash SDKs, and compares them against the Data safety categories you say you've already declared in Play Console -- so a missed declaration doesn't cost you a policy warning or listing removal.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/android-data-safety-check/)
+- [Why Google Play flags your Data safety declaration](https://duncan-haywood.github.io/oss-monorepo/android-data-safety-check/missing-data-safety-declaration.html)
+- [Play Store Target API Level Checker](https://duncan-haywood.github.io/oss-monorepo/android-data-safety-check/target-api-level.html)
+- [This checker vs. guessing from Google's docs or waiting for a Play Console policy warning](https://duncan-haywood.github.io/oss-monorepo/android-data-safety-check/vs-manually-reviewing-play-console-warnings.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/android-data-safety-check): MIT licensed.

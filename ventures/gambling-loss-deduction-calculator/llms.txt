@@ -1,0 +1,14 @@
+# How much of your winnings actually stays taxable now?
+
+> Free calculator for the OBBBA gambling loss deduction limit: your allowable Schedule A deduction is the lesser of your actual losses or 90% of your winnings, starting with 2026 tax returns. See exactly how much of your winnings becomes taxable "phantom income" even if you broke even or lost overall.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/gambling-loss-deduction-calculator/)
+- [This calculator vs. working out the 90% gambling loss cap by hand](https://duncan-haywood.github.io/oss-monorepo/gambling-loss-deduction-calculator/vs-doing-the-math-by-hand.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/gambling-loss-deduction-calculator): MIT licensed.

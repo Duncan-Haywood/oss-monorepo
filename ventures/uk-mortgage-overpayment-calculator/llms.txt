@@ -1,0 +1,13 @@
+# How much will overpaying my mortgage save me?
+
+> Free UK mortgage overpayment calculator: interest saved, years cut off the term, overpaying vs saving, the 10% early repayment charge allowance, and the overpayment needed to be mortgage-free by a target date. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/uk-mortgage-overpayment-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/uk-mortgage-overpayment-calculator): MIT licensed.

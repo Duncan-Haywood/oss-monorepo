@@ -1,0 +1,14 @@
+# Ten late-season clients, one preparer: which should you accept?
+
+> Paste the late-season client engagements you have been offered and get the set that earns the most before the filing and extension deadlines, the order to work them, and the fee each declined client would need. Free, runs in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/tax-season-client-picker/)
+- [How to choose which tax clients to accept late in the season: capacity and deadline math](https://duncan-haywood.github.io/oss-monorepo/tax-season-client-picker/how-to-choose-which-tax-clients-to-accept-late-season.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/tax-season-client-picker): MIT licensed.

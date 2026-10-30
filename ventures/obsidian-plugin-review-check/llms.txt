@@ -1,0 +1,16 @@
+# Obsidian Plugin Review Checker
+
+> Free, browser-local checker for Obsidian plugin developers: cross-checks manifest.json against versions.json, flags leftover sample-plugin template placeholder values, and scans source for innerHTML/outerHTML/insertAdjacentHTML -- the patterns behind common Obsidian community plugin review delays. Nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/obsidian-plugin-review-check/)
+- [Fixing a missing versions.json entry](https://duncan-haywood.github.io/oss-monorepo/obsidian-plugin-review-check/versions-json-missing-entry.html)
+- [Obsidian Plugin Review Checker vs. eslint-plugin-obsidianmd](https://duncan-haywood.github.io/oss-monorepo/obsidian-plugin-review-check/vs-eslint-plugin-obsidianmd.html)
+- [This checker vs. guessing from Obsidian's guidelines or waiting for a reviewer to comment](https://duncan-haywood.github.io/oss-monorepo/obsidian-plugin-review-check/vs-guessing-or-waiting-for-review.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/obsidian-plugin-review-check): MIT licensed.

@@ -1,0 +1,16 @@
+# How much of your card bill is the processor, and how much is the network?
+
+> Read five numbers off your merchant statement and see how much of your card processing bill is network interchange you cannot negotiate and how much is processor markup you can. Free, private, runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/card-processing-fee-audit/)
+- [This tool vs. comparing effective rates](https://duncan-haywood.github.io/oss-monorepo/card-processing-fee-audit/vs-comparing-effective-rates.html)
+- [This tool vs. Helcim's Rate Calculator](https://duncan-haywood.github.io/oss-monorepo/card-processing-fee-audit/vs-helcim-rate-calculator.html)
+- [What is a good effective rate for card processing?](https://duncan-haywood.github.io/oss-monorepo/card-processing-fee-audit/what-is-a-good-effective-rate-for-card-processing.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/card-processing-fee-audit): MIT licensed.

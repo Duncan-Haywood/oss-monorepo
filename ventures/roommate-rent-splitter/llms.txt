@@ -1,0 +1,14 @@
+# Split rent fairly when the rooms are not equal
+
+> Free roommate rent calculator for rooms that are not equal. Everyone says what each room is worth to them; the tool assigns rooms and sets rents that add up to the total so that no one would swap. Private, in your browser, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/roommate-rent-splitter/)
+- [How to split rent with unequal rooms, with a worked example](https://duncan-haywood.github.io/oss-monorepo/roommate-rent-splitter/how-to-split-rent-with-unequal-rooms.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/roommate-rent-splitter): MIT licensed.

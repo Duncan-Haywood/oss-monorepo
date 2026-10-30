@@ -1,0 +1,18 @@
+# Which marketplace nets the most on this item?
+
+> Free side-by-side comparison of eBay, Etsy, Amazon, Walmart, TikTok Shop, Mercari, Depop, Poshmark, Facebook Marketplace, and your own Shopify store on one item. Enter the price and your landed cost once and see net profit on every channel. Runs entirely in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/marketplace-fee-compare/)
+- [Best marketplace for every item in your catalogue](https://duncan-haywood.github.io/oss-monorepo/marketplace-fee-compare/bulk.html)
+- [Should I move off marketplaces to my own store?](https://duncan-haywood.github.io/oss-monorepo/marketplace-fee-compare/should-i-move-off-marketplaces-to-my-own-store.html)
+- [This tool vs. checking each marketplace's fee calculator separately](https://duncan-haywood.github.io/oss-monorepo/marketplace-fee-compare/vs-checking-each-marketplace-separately.html)
+- [This tool vs. Sellerboard](https://duncan-haywood.github.io/oss-monorepo/marketplace-fee-compare/vs-sellerboard.html)
+- [Which marketplace has the lowest fees?](https://duncan-haywood.github.io/oss-monorepo/marketplace-fee-compare/which-marketplace-has-the-lowest-fees.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/marketplace-fee-compare): MIT licensed.

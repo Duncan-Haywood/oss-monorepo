@@ -1,0 +1,15 @@
+# Your package protects revenue. Does it protect your hourly pay?
+
+> Free calculator for independent tutors and coaches: compares a discounted prepaid session package against pay-per-session pricing on effective hourly pay, not just revenue — the package discount can quietly cost more per hour than it saves once missed sessions are made up. Entirely client-side, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/tutor-package-pricing-calculator/)
+- [How much can you discount a tutoring package before it costs you money?](https://duncan-haywood.github.io/oss-monorepo/tutor-package-pricing-calculator/how-much-can-you-discount-a-tutoring-package.html)
+- [This calculator vs. a spreadsheet](https://duncan-haywood.github.io/oss-monorepo/tutor-package-pricing-calculator/vs-a-spreadsheet.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/tutor-package-pricing-calculator): MIT licensed.

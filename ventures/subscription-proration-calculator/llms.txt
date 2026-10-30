@@ -1,0 +1,13 @@
+# What does a customer owe after a mid-cycle upgrade, downgrade or cancellation?
+
+> Free proration calculator for SaaS and subscription businesses: enter the billing period, what was billed and the mid-cycle changes, and see each day-count segment, the credit or charge due, tax, the next renewal and what the balance would be on other change dates. Private, runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/subscription-proration-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/subscription-proration-calculator): MIT licensed.

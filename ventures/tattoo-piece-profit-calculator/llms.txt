@@ -1,0 +1,13 @@
+# What do you really keep per hour on a tattoo?
+
+> Tattoo piece profit calculator. Enter the hourly take-home you want, your shop commission or booth rent, setup time, supplies and free touch-ups to see the lowest price for each piece, what you really keep per hour including drawing time, and your shop minimum. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/tattoo-piece-profit-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/tattoo-piece-profit-calculator): MIT licensed.

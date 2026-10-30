@@ -1,0 +1,13 @@
+# How much should you commit to?
+
+> Free AWS Savings Plan and Reserved Instance calculator. Paste your hourly or daily usage and each option's discount to find the commitment that saves the most, its break-even utilization, upfront payback and what happens if usage falls. Nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/aws-commitment-breakeven-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/aws-commitment-breakeven-calculator): MIT licensed.

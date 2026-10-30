@@ -1,0 +1,13 @@
+# Know who cleans what, which turnovers will fail, and how many cleaners you need.
+
+> Free Airbnb and VRBO turnover cleaning scheduler: paste your iCal calendars and get a cleaner schedule, same-day turnover warnings, double-booking checks and the number of cleaners you need. Private, runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/str-turnover-scheduler/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/str-turnover-scheduler): MIT licensed.

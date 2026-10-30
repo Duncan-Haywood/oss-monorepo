@@ -1,0 +1,13 @@
+# Which student loan repayment plan costs you the least?
+
+> Free student loan calculator: compare the new Repayment Assistance Plan (RAP), Income-Based Repayment (IBR) and the tiered Standard plan. Monthly payment, total paid, amount forgiven, tax on forgiveness and a PSLF mode. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/student-loan-rap-ibr-standard-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/student-loan-rap-ibr-standard-calculator): MIT licensed.

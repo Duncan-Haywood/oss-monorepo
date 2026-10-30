@@ -1,0 +1,14 @@
+# Paste the incident log. Get the postmortem draft.
+
+> Paste an incident log and get time to detect, acknowledge, mitigate and resolve plus a blameless postmortem draft in Markdown. Free incident timeline generator and MTTR calculator, runs in your browser, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/incident-postmortem-timeline/)
+- [How to write a blameless postmortem from a timeline](https://duncan-haywood.github.io/oss-monorepo/incident-postmortem-timeline/how-to-write-a-blameless-postmortem.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/incident-postmortem-timeline): MIT licensed.

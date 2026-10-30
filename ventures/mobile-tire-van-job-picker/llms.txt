@@ -1,0 +1,14 @@
+# One van, ten requests: which jobs should it run today?
+
+> Paste the day's requested mobile tire and roadside jobs and get the most profitable set and order for one van, with time windows, drive cost and a price for every job it turns down. Free, runs in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/mobile-tire-van-job-picker/)
+- [Which mobile tire jobs should a van take? Window and drive-time math](https://duncan-haywood.github.io/oss-monorepo/mobile-tire-van-job-picker/which-mobile-tire-jobs-should-a-van-take.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/mobile-tire-van-job-picker): MIT licensed.

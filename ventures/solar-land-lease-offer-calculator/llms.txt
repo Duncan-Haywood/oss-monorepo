@@ -1,0 +1,13 @@
+# A developer offered to lease your land for solar. Is the offer worth it?
+
+> Free solar lease calculator for landowners: present value of an option-plus-term solar lease against what your land earns now, the break-even rent and escalator, and rent as a share of project revenue. Runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/solar-land-lease-offer-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/solar-land-lease-offer-calculator): MIT licensed.

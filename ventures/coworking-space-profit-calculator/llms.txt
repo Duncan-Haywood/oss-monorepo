@@ -1,0 +1,13 @@
+# Will your coworking or flex-office space break even, and how much cash does the ramp-up eat?
+
+> Free coworking space profit calculator: floor area, offices, desks, memberships, rent and staff become monthly profit, break-even occupancy, the cash reserve for ramp-up, loan coverage and payback. Private, runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/coworking-space-profit-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/coworking-space-profit-calculator): MIT licensed.

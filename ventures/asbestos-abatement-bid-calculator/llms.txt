@@ -1,0 +1,15 @@
+# Price the job by what actually drives the cost.
+
+> Free bid calculator for licensed asbestos abatement contractors: price a removal job by OSHA/EPA containment class (I/II/III), square footage, crew and supervisor rates, air monitoring, and waste disposal — and see the gap against a flat rate per square foot.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/asbestos-abatement-bid-calculator/)
+- [How much does asbestos abatement cost?](https://duncan-haywood.github.io/oss-monorepo/asbestos-abatement-bid-calculator/how-much-does-asbestos-abatement-cost.html)
+- [This calculator vs. a flat rate per square foot](https://duncan-haywood.github.io/oss-monorepo/asbestos-abatement-bid-calculator/vs-a-flat-rate-per-square-foot.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/asbestos-abatement-bid-calculator): MIT licensed.

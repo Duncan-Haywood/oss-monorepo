@@ -1,0 +1,17 @@
+# Security camera bid calculator
+
+> Price an IP security camera install from the drops, the cable, and the labour — and check the three things a camera bid gets wrong: days of recording the drives actually hold, PoE load against the switch budget, and runs past the 328 ft Ethernet limit.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/security-camera-bid-calculator/)
+- [How much should I charge to install security cameras?](https://duncan-haywood.github.io/oss-monorepo/security-camera-bid-calculator/how-much-to-charge.html)
+- [This calculator vs. a flat per-camera price](https://duncan-haywood.github.io/oss-monorepo/security-camera-bid-calculator/vs-a-flat-per-camera-price.html)
+- [This calculator vs. D-Tools](https://duncan-haywood.github.io/oss-monorepo/security-camera-bid-calculator/vs-d-tools.html)
+- [This calculator vs. Housecall Pro](https://duncan-haywood.github.io/oss-monorepo/security-camera-bid-calculator/vs-housecall-pro.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/security-camera-bid-calculator): MIT licensed.

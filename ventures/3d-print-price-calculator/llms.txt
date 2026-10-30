@@ -1,0 +1,16 @@
+# "3x the filament cost" isn't a price. It's a guess.
+
+> Free calculator for makers selling 3D-printed parts: price one print from filament, electricity, printer depreciation, failed-print rate, and post-processing labor, then check whether your marketplace fee and target margin actually clear at the price you're charging.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/3d-print-price-calculator/)
+- [How much does a failed print actually cost you?](https://duncan-haywood.github.io/oss-monorepo/3d-print-price-calculator/how-much-does-a-failed-print-cost-you.html)
+- [This calculator vs. your slicer's cost estimate](https://duncan-haywood.github.io/oss-monorepo/3d-print-price-calculator/vs-slicer-cost-estimate.html)
+- [This calculator vs. the 3x filament rule](https://duncan-haywood.github.io/oss-monorepo/3d-print-price-calculator/vs-the-3x-filament-rule.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/3d-print-price-calculator): MIT licensed.

@@ -1,0 +1,16 @@
+# Build a chargeback evidence packet.
+
+> Build a structured chargeback response packet from your order, delivery, and customer-contact evidence. Free, private, and browser-local.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/chargeback-evidence-packet/)
+- [How to respond to a chargeback](https://duncan-haywood.github.io/oss-monorepo/chargeback-evidence-packet/how-to-respond-to-a-chargeback.html)
+- [This tool vs. a generic chargeback checklist](https://duncan-haywood.github.io/oss-monorepo/chargeback-evidence-packet/vs-a-generic-dispute-checklist.html)
+- [This tool vs. Chargeflow](https://duncan-haywood.github.io/oss-monorepo/chargeback-evidence-packet/vs-chargeflow.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/chargeback-evidence-packet): MIT licensed.

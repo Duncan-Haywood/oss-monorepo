@@ -1,0 +1,13 @@
+# An NPS survey that tells you why the score is what it is.
+
+> Run surveys and Net Promoter Score on a server you own: NPS with a 95% range, the words detractors use, results by source, CSV export and an alert on every detractor. Open source, MIT, no per-response fee. Try the NPS calculator in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/survey-keeper/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/survey-keeper): MIT licensed.

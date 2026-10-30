@@ -1,0 +1,14 @@
+# Is your overtime paid on the right rate?
+
+> Free FLSA regular rate of pay and overtime audit for restaurants, retailers, staffing agencies and bookkeepers. Paste payroll rows, see the regular rate with bonuses and shift differentials, the half-time premium owed, back pay and lookback exposure. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/flsa-regular-rate-overtime-audit/)
+- [How the FLSA regular rate works, with a worked example](https://duncan-haywood.github.io/oss-monorepo/flsa-regular-rate-overtime-audit/flsa-regular-rate-overtime-explained.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/flsa-regular-rate-overtime-audit): MIT licensed.

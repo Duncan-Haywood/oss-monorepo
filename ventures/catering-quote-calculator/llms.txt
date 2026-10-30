@@ -1,0 +1,14 @@
+# What should this catering job cost per guest — and how few guests can you take?
+
+> Paste a catering cost sheet and get the per-guest price that hits your margin, food and labor percentages, the deposit, a guest-count tier table and the break-even guest count. Free, runs in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/catering-quote-calculator/)
+- [How to price catering per person, and what a minimum guest count is for](https://duncan-haywood.github.io/oss-monorepo/catering-quote-calculator/catering-pricing-guide.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/catering-quote-calculator): MIT licensed.

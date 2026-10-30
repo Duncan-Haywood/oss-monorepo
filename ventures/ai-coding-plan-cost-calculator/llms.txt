@@ -1,0 +1,16 @@
+# Is your AI coding plan cheaper than the API — or is the API cheaper than your plan?
+
+> Is your Claude Max, Cursor, GitHub Copilot, or ChatGPT Plus plan actually cheaper than paying per token through the API? Enter your own usage and rates and see the monthly cost both ways, plus the break-even point. Free, runs entirely in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/ai-coding-plan-cost-calculator/)
+- [How AI coding plan pricing actually works](https://duncan-haywood.github.io/oss-monorepo/ai-coding-plan-cost-calculator/how-ai-coding-plan-pricing-works.html)
+- [This calculator vs. checking pricing pages yourself](https://duncan-haywood.github.io/oss-monorepo/ai-coding-plan-cost-calculator/vs-checking-pricing-pages-yourself.html)
+- [This calculator vs. doing the math yourself](https://duncan-haywood.github.io/oss-monorepo/ai-coding-plan-cost-calculator/vs-doing-the-math-yourself.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/ai-coding-plan-cost-calculator): MIT licensed.

@@ -1,0 +1,15 @@
+# Know what can be cleaned up before you delete it.
+
+> Paste a branch snapshot and see which stale Git branches are delete candidates and which still hold unique work. Runs in your browser; nothing is uploaded and nothing is deleted.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/repository-branch-hygiene/)
+- [Is it safe to delete this Git branch?](https://duncan-haywood.github.io/oss-monorepo/repository-branch-hygiene/is-it-safe-to-delete-this-branch.html)
+- [This tool vs. the GitHub Branches page](https://duncan-haywood.github.io/oss-monorepo/repository-branch-hygiene/vs-github-branches.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/repository-branch-hygiene): MIT licensed.

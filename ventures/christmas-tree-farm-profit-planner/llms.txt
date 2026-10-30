@@ -1,0 +1,13 @@
+# Can you wait eight years for the first sale?
+
+> Free Christmas tree farm profit calculator. Plant blocks each year, wait 7-10 years, and see cash flow, payback, NPV and the price per tree you need to break even. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/christmas-tree-farm-profit-planner/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/christmas-tree-farm-profit-planner): MIT licensed.

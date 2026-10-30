@@ -1,0 +1,13 @@
+# What must a mosquito spray visit and season program cost?
+
+> Free mosquito control pricing calculator for barrier spray operators: type your product, labour, drive time and re-treat rate to see the minimum price per visit and per prepaid season, customer lifetime value and customers needed to break even. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/mosquito-control-program-pricing-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/mosquito-control-program-pricing-calculator): MIT licensed.

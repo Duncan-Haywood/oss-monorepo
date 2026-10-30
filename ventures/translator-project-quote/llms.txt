@@ -1,0 +1,16 @@
+# Quote the project, not just the word count.
+
+> Free private translator quote calculator. Price new words, fuzzy matches, QA, DTP, rush work, and a minimum project fee in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/translator-project-quote/)
+- [How to quote a translation project, not just a word count](https://duncan-haywood.github.io/oss-monorepo/translator-project-quote/how-to-quote-a-translation-project.html)
+- [This calculator vs. a flat per-word rate](https://duncan-haywood.github.io/oss-monorepo/translator-project-quote/vs-a-flat-per-word-rate.html)
+- [This calculator vs. Smartcat](https://duncan-haywood.github.io/oss-monorepo/translator-project-quote/vs-smartcat.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/translator-project-quote): MIT licensed.

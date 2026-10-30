@@ -1,0 +1,13 @@
+# What does one class and one room hour earn, and should you teach, hire or rent a room?
+
+> Free yoga, pilates and barre studio calculator: enter classes, reservations, the drop-in, pack and membership mix, late cancels, teacher pay and rent, and see profit per class and per room hour, break-even attendance and whether to teach yourself, hire teachers or rent a room by the hour. Runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/yoga-pilates-studio-class-profit-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/yoga-pilates-studio-class-profit-calculator): MIT licensed.

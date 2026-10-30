@@ -1,0 +1,15 @@
+# Split the kitchen bill by who actually uses it.
+
+> Free calculator for commissary/shared-kitchen operators: split pooled monthly costs (rent, utilities, trash, cleaning, pest control, insurance) fairly among multiple food-truck tenants by hours booked and storage used, instead of splitting evenly, and get an itemized bill for each tenant.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/commissary-kitchen-cost-split-calculator/)
+- [How to split shared kitchen costs fairly](https://duncan-haywood.github.io/oss-monorepo/commissary-kitchen-cost-split-calculator/how-to-split-shared-kitchen-costs-fairly.html)
+- [This calculator vs. splitting the kitchen bill evenly](https://duncan-haywood.github.io/oss-monorepo/commissary-kitchen-cost-split-calculator/vs-splitting-evenly.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/commissary-kitchen-cost-split-calculator): MIT licensed.

@@ -1,0 +1,17 @@
+# Price the drive, not just the detail.
+
+> Free mobile detailing price calculator: include travel, labor, supplies, overhead, and card fees to find your break-even and target-margin quote.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/mobile-detailing-bid-calculator/)
+- [How much should I charge for mobile detailing?](https://duncan-haywood.github.io/oss-monorepo/mobile-detailing-bid-calculator/how-much-to-charge.html)
+- [This calculator vs. a flat per-vehicle price card](https://duncan-haywood.github.io/oss-monorepo/mobile-detailing-bid-calculator/vs-a-flat-per-vehicle-price.html)
+- [This calculator vs. Mobile Tech RX](https://duncan-haywood.github.io/oss-monorepo/mobile-detailing-bid-calculator/vs-mobiletechrx.html)
+- [This calculator vs. Urable](https://duncan-haywood.github.io/oss-monorepo/mobile-detailing-bid-calculator/vs-urable.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/mobile-detailing-bid-calculator): MIT licensed.

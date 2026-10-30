@@ -1,0 +1,13 @@
+# Should I take the pension lump sum or the monthly check?
+
+> Free pension lump sum vs monthly pension calculator: the pension's value at your expected return and lifespan, the return the lump sum must earn to match it, break-even age, survivor benefit and what the lump sum could pay each month. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/pension-lump-sum-vs-annuity-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/pension-lump-sum-vs-annuity-calculator): MIT licensed.

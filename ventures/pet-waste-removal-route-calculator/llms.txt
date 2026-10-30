@@ -1,0 +1,13 @@
+# What does your pet waste route really pay per hour? Profit, break-even clients and the price you need
+
+> Free profit calculator for pet waste removal and dog poop scooping routes: clients, price per visit, time on site, drive time, supplies and fixed costs become monthly profit, hourly pay, break-even clients and the price you need. Private, runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/pet-waste-removal-route-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/pet-waste-removal-route-calculator): MIT licensed.

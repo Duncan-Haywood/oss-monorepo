@@ -1,0 +1,13 @@
+# Which pieces make your upholstery shop money, and how many does the season have to sell?
+
+> Free upholstery shop calculator: enter your chair seat, armchair and sofa prices, bench hours, fabric and foam cost, upholsterer pay and rent, and see profit per job and per bench hour, break-even volume and the season result. Runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/upholstery-shop-job-profit-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/upholstery-shop-job-profit-calculator): MIT licensed.

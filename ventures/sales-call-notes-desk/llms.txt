@@ -1,0 +1,14 @@
+# Turn call notes into CRM fields and a follow-up in a minute
+
+> Free sales call notes to CRM tool. Paste your notes or transcript and get the CRM fields, what BANT and MEDDIC still miss, dated next steps and a checked follow-up email. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/sales-call-notes-desk/)
+- [How to write a sales follow-up email after a call](https://duncan-haywood.github.io/oss-monorepo/sales-call-notes-desk/how-to-write-a-sales-follow-up-email.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/sales-call-notes-desk): MIT licensed.

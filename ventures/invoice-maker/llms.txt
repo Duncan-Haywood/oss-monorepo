@@ -1,0 +1,13 @@
+# Send a professional invoice in two minutes, then see who still owes you.
+
+> Free invoice generator: itemised lines, tax, discount, deposits, due dates and late-fee terms, print to PDF, overdue tracking and receivables aging. No account, no watermark, works offline, data stays on your device.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/invoice-maker/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/invoice-maker): MIT licensed.

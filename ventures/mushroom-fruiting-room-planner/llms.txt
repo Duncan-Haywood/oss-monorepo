@@ -1,0 +1,13 @@
+# What a block earns, how many flushes to run, how many blocks the room can carry, and the cash you need first.
+
+> Free planner for small mushroom farms: profit per block and per fruiting-room slot-week, how many flushes to run, how many blocks the room can carry, the cash you need before the first sale, and the contamination rate and price that break even. Private, runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/mushroom-fruiting-room-planner/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/mushroom-fruiting-room-planner): MIT licensed.

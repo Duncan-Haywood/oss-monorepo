@@ -1,0 +1,17 @@
+# Price the rights, not just the shoot.
+
+> Price commercial photography usage rights by channel, term, territory, and exclusivity. Free local-first quote worksheet for photographers.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/commercial-photo-license-calculator/)
+- [How much more does a national or worldwide license cost than local?](https://duncan-haywood.github.io/oss-monorepo/commercial-photo-license-calculator/how-much-more-does-a-national-or-worldwide-license-cost.html)
+- [The client wants more. Charge the difference.](https://duncan-haywood.github.io/oss-monorepo/commercial-photo-license-calculator/license-extension-fee.html)
+- [This calculator vs. a flat usage fee](https://duncan-haywood.github.io/oss-monorepo/commercial-photo-license-calculator/vs-a-flat-usage-fee.html)
+- [This calculator vs. fotoQuote Pro](https://duncan-haywood.github.io/oss-monorepo/commercial-photo-license-calculator/vs-fotoquote.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/commercial-photo-license-calculator): MIT licensed.

@@ -1,0 +1,14 @@
+# Is your Lambda memory setting costing you money?
+
+> Paste AWS Lambda CloudWatch REPORT lines and see peak memory against what you configured, duration percentiles, cold-start share, and the memory size that minimises cost without a latency regression. Free, runs in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/lambda-memory-rightsizer/)
+- [How to choose an AWS Lambda memory size to cut cost](https://duncan-haywood.github.io/oss-monorepo/lambda-memory-rightsizer/how-to-choose-aws-lambda-memory-size-to-cut-cost.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/lambda-memory-rightsizer): MIT licensed.

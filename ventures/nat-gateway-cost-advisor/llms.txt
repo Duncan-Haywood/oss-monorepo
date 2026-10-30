@@ -1,0 +1,14 @@
+# Is your NAT gateway bill avoidable?
+
+> Paste your NAT gateway traffic per destination and get the monthly NAT cost, which AWS services should use a free S3/DynamoDB gateway endpoint or an interface endpoint, the net saving after endpoint fees, and the create-vpc-endpoint commands. Free, runs in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/nat-gateway-cost-advisor/)
+- [NAT gateway vs VPC endpoint: what it costs and when to switch](https://duncan-haywood.github.io/oss-monorepo/nat-gateway-cost-advisor/nat-gateway-vs-vpc-endpoint-cost.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/nat-gateway-cost-advisor): MIT licensed.

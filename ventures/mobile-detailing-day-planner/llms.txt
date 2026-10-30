@@ -1,0 +1,13 @@
+# Which detailing jobs should you take today?
+
+> Free day planner for mobile car detailers. List the jobs with price, time on site, drive and supplies; it picks the most profitable set that fits your hours, shows take-home per hour and names jobs that need a higher price. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/mobile-detailing-day-planner/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/mobile-detailing-day-planner): MIT licensed.

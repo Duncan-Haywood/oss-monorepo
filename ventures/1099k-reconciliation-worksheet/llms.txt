@@ -1,0 +1,15 @@
+# Why is your 1099-K higher than what you actually made?
+
+> Free browser worksheet that reconciles one or more Form 1099-K Box 1a totals (Etsy, eBay, Poshmark, Mercari, Depop, Whatnot, StockX) down to an estimated net profit by backing out refunds, marketplace-remitted sales tax, fees, cost of goods, and shipping. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/1099k-reconciliation-worksheet/)
+- [This worksheet vs. reconciling 1099-Ks yourself in a spreadsheet](https://duncan-haywood.github.io/oss-monorepo/1099k-reconciliation-worksheet/vs-spreadsheet-comparison.html)
+- [Why is your 1099-K higher than what you actually made?](https://duncan-haywood.github.io/oss-monorepo/1099k-reconciliation-worksheet/why-is-my-1099-k-higher-than-what-i-actually-made.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/1099k-reconciliation-worksheet): MIT licensed.

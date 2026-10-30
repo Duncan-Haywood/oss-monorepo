@@ -1,0 +1,13 @@
+# Is your nightly price leaving money on the table?
+
+> Free nightly rate calculator for Airbnb and VRBO hosts. Paste your listed nightly prices and whether each night booked to see how your booking chance falls as price rises, and the price with the highest expected profit per listed night after fees and turnover cost. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/str-nightly-rate-optimizer/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/str-nightly-rate-optimizer): MIT licensed.

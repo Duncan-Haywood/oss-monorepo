@@ -1,0 +1,13 @@
+# Will my IRIS 1099 bulk upload be accepted?
+
+> Free IRIS 1099-NEC and 1099-MISC CSV checker: finds bad TINs, invalid SSNs, state and ZIP errors, money formats, below-threshold amounts and duplicate recipients with line numbers, and applies safe fixes. Runs in your browser; the file is never uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/irs-iris-1099-csv-check/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/irs-iris-1099-csv-check): MIT licensed.

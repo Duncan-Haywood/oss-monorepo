@@ -1,0 +1,13 @@
+# Who needs a 1099-NEC, and is the data good enough to file?
+
+> Free 1099-NEC pre-flight check: paste your vendor payments CSV and see who crosses the $600 or $2,000 threshold, missing or invalid TINs, blank addresses, bad state codes, duplicate vendors and card payments to leave out. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/1099-vendor-csv-checker/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/1099-vendor-csv-checker): MIT licensed.

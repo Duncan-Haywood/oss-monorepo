@@ -1,0 +1,16 @@
+# A good per-claim rate can still be a bad trip.
+
+> Free calculator for independent catastrophe (CAT) claims adjusters: find real net profit for a storm deployment after estimating-software, lodging, per diem, vehicle, and unpaid travel-day cost, then compare IA firms' fee schedules by what they actually pay per hour.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/cat-adjuster-fee-calculator/)
+- [Is this CAT adjuster fee schedule worth it?](https://duncan-haywood.github.io/oss-monorepo/cat-adjuster-fee-calculator/is-this-cat-adjuster-fee-schedule-worth-it.html)
+- [This calculator vs. comparing fee schedules by spreadsheet or mental math](https://duncan-haywood.github.io/oss-monorepo/cat-adjuster-fee-calculator/vs-spreadsheet-comparison.html)
+- [This calculator vs. judging an offer by its headline per-claim rate](https://duncan-haywood.github.io/oss-monorepo/cat-adjuster-fee-calculator/vs-the-headline-per-claim-rate.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/cat-adjuster-fee-calculator): MIT licensed.

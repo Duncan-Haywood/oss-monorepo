@@ -1,0 +1,19 @@
+# Bid the run, the corners, and the extras.
+
+> Price a residential crown-molding install from linear feet, corners, paint-grade versus stain-grade, simple cove versus colonial versus built-up, ceiling and height, and extras — plus the walk-away price an $8/ft special cannot see.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/crown-molding-bid-calculator/)
+- [How much to charge to install crown molding](https://duncan-haywood.github.io/oss-monorepo/crown-molding-bid-calculator/how-much-to-charge-to-install-crown-molding.html)
+- [Should I charge $8 a foot for crown molding?](https://duncan-haywood.github.io/oss-monorepo/crown-molding-bid-calculator/should-i-charge-8-a-foot-for-crown-molding.html)
+- [Should I match a cheaper quote on a stain-grade job?](https://duncan-haywood.github.io/oss-monorepo/crown-molding-bid-calculator/should-i-match-a-cheaper-quote-on-a-stain-grade-job.html)
+- [This calculator vs. a flat "$8 a foot" crown molding special](https://duncan-haywood.github.io/oss-monorepo/crown-molding-bid-calculator/vs-a-flat-rate-crown-molding-special.html)
+- [This calculator vs. Homewyse](https://duncan-haywood.github.io/oss-monorepo/crown-molding-bid-calculator/vs-homewyse.html)
+- [This calculator vs. Jobber](https://duncan-haywood.github.io/oss-monorepo/crown-molding-bid-calculator/vs-jobber.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/crown-molding-bid-calculator): MIT licensed.

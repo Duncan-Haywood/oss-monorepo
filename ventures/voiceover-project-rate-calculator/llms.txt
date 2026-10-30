@@ -1,0 +1,16 @@
+# What should you charge for a voice-over project?
+
+> Free voice-over rate calculator for freelance VO artists. Price a commercial, e-learning, IVR, or explainer script per word or per finished minute, scaled by usage/licensing term (internal, web, broadcast, buyout) — or price an audiobook per finished hour from manuscript word count. No sign-up, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/voiceover-project-rate-calculator/)
+- [How much should I charge for a voice-over project?](https://duncan-haywood.github.io/oss-monorepo/voiceover-project-rate-calculator/how-much-should-i-charge-for-a-voice-over-project.html)
+- [This calculator vs. quoting one flat rate regardless of usage](https://duncan-haywood.github.io/oss-monorepo/voiceover-project-rate-calculator/vs-a-flat-rate-regardless-of-usage.html)
+- [This calculator vs. Voices.com](https://duncan-haywood.github.io/oss-monorepo/voiceover-project-rate-calculator/vs-voices-com.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/voiceover-project-rate-calculator): MIT licensed.

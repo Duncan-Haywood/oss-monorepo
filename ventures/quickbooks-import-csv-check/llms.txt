@@ -1,0 +1,13 @@
+# Why did my QuickBooks import skip rows?
+
+> Free QuickBooks Online import CSV checker for customers, vendors and products and services: finds blank and duplicate names, colons, bad opening balances and dates, emails, ZIP and tax ID damage, with line numbers, applies safe fixes and splits files over the row limit. Runs in your browser; the file is never uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/quickbooks-import-csv-check/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/quickbooks-import-csv-check): MIT licensed.

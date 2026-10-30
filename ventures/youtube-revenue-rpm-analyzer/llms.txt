@@ -1,0 +1,13 @@
+# Which of your videos actually pay?
+
+> Free analyzer for YouTube creators: drop in your Studio analytics CSV and see RPM by video, country or day, where your revenue concentrates, which videos pay under half your median, and which pay well but get little traffic. Runs in your browser, the file is never uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/youtube-revenue-rpm-analyzer/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/youtube-revenue-rpm-analyzer): MIT licensed.

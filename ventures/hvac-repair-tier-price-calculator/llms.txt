@@ -1,0 +1,15 @@
+# What should Good, Better and Best repair options cost on this HVAC call?
+
+> True cost per hour, a diagnostic fee, three repair prices with tiered parts markup and what an average call earns at your mix. Your numbers, not advice. No account, no upload.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/hvac-repair-tier-price-calculator/)
+- [How to price Good, Better and Best HVAC repairs: true hourly cost, tiered markup and the mix of choices](https://duncan-haywood.github.io/oss-monorepo/hvac-repair-tier-price-calculator/how-to-price-hvac-good-better-best-repairs.html)
+- [Good, Better, Best vs. quoting one HVAC repair price](https://duncan-haywood.github.io/oss-monorepo/hvac-repair-tier-price-calculator/vs-quoting-one-repair-price.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/hvac-repair-tier-price-calculator): MIT licensed.

@@ -1,0 +1,14 @@
+# Build this week's staff schedule in a minute
+
+> Free weekly staff schedule maker. List your people, roles, hour limits and days off plus the shifts to cover, and get a fair schedule that respects rest between shifts, with open shifts explained, a labor cost estimate and CSV and text exports. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/weekly-staff-schedule-maker/)
+- [How to make a fair staff schedule, step by step](https://duncan-haywood.github.io/oss-monorepo/weekly-staff-schedule-maker/how-to-make-a-staff-schedule.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/weekly-staff-schedule-maker): MIT licensed.

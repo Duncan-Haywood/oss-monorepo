@@ -1,0 +1,15 @@
+# Grailed's commission is not a flat 9% any more.
+
+> Free Grailed seller fee calculator for the tiered commission (6% under $120 with a $1.99 minimum, 9% from $120) plus 3.49% + $0.49 payment processing. See your payout, profit, the price for a target profit, and the $120 step where the whole sale jumps to 9%. Nothing leaves your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/grailed-fee-calculator/)
+- [The Grailed $120 commission cliff, worked through](https://duncan-haywood.github.io/oss-monorepo/grailed-fee-calculator/grailed-120-dollar-commission-cliff.html)
+- [Grailed Fee Calculator vs. tracking Grailed sales in a spreadsheet](https://duncan-haywood.github.io/oss-monorepo/grailed-fee-calculator/vs-tracking-grailed-sales-in-a-spreadsheet.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/grailed-fee-calculator): MIT licensed.

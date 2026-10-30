@@ -1,0 +1,17 @@
+# Did your Terraform plan just print a secret in plaintext?
+
+> Check a Terraform structured plan for secret-shaped values the sensitive flag missed -- deterministic, no account, no upload, with a matching CLI you can run as a CI gate before every apply.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/terraform-plan-secret-exposure-check/)
+- [This checker vs. Checkov](https://duncan-haywood.github.io/oss-monorepo/terraform-plan-secret-exposure-check/vs-checkov.html)
+- [This checker vs. Gitleaks](https://duncan-haywood.github.io/oss-monorepo/terraform-plan-secret-exposure-check/vs-gitleaks.html)
+- [This checker vs. reading the plan JSON by eye](https://duncan-haywood.github.io/oss-monorepo/terraform-plan-secret-exposure-check/vs-manually-reading-the-plan-json.html)
+- [Why a Terraform plan can print a secret even though the schema has a sensitive flag](https://duncan-haywood.github.io/oss-monorepo/terraform-plan-secret-exposure-check/why-terraform-plan-json-leaks-secrets.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/terraform-plan-secret-exposure-check): MIT licensed.

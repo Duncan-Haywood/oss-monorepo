@@ -1,0 +1,16 @@
+# Bid the corners, the drops, and the stories.
+
+> Price a new gutter hang from inside and outside miters, extra downspouts past the included first two, extra downspout footage, second-story hours, fascia repair, and tear-off — not a published $4.50-a-foot special. See the walk-away number before you match a cheaper quote.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/gutter-install-bid-calculator/)
+- [How much to charge to install gutters](https://duncan-haywood.github.io/oss-monorepo/gutter-install-bid-calculator/how-much-to-charge-to-install-gutters.html)
+- [This calculator vs. a flat $4.50-a-foot special](https://duncan-haywood.github.io/oss-monorepo/gutter-install-bid-calculator/vs-a-flat-per-foot-special.html)
+- [This calculator vs. JobNimbus](https://duncan-haywood.github.io/oss-monorepo/gutter-install-bid-calculator/vs-jobnimbus.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/gutter-install-bid-calculator): MIT licensed.

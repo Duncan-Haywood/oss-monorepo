@@ -1,0 +1,13 @@
+# What does a wedding really pay per hour you work?
+
+> Wedding and event photographer profit calculator. Enter packages, coverage hours, editing time and job costs to see profit per hour actually worked, the price that hits your target, and your own clients versus a lead marketplace versus shooting for a studio.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/wedding-photographer-profit-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/wedding-photographer-profit-calculator): MIT licensed.

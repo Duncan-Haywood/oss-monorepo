@@ -1,0 +1,13 @@
+# How much Capital Gains Tax will I owe?
+
+> Free UK Capital Gains Tax calculator for 2025/26 and 2026/27: enter the sale, costs, losses and your income to see the tax at 18% and 24%, the annual exempt amount and how to report it. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/uk-capital-gains-tax-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/uk-capital-gains-tax-calculator): MIT licensed.

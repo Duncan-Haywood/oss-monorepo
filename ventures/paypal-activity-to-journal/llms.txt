@@ -1,0 +1,13 @@
+# Turn a PayPal activity report into a Xero or QuickBooks journal
+
+> Free PayPal activity report to journal converter: proves the Balance column is continuous, splits sales, fees, refunds, disputes and bank transfers by month, and downloads a balanced journal for Xero, QuickBooks Online or QuickBooks Desktop. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/paypal-activity-to-journal/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/paypal-activity-to-journal): MIT licensed.

@@ -1,0 +1,13 @@
+# Turn an Amazon settlement report into a Xero or QuickBooks journal
+
+> Free Amazon settlement report to journal converter: proves the rows add up to the deposit, splits sales, fees, refunds and tax by month, and downloads a balanced journal for Xero, QuickBooks Online or QuickBooks Desktop. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/amazon-settlement-to-journal/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/amazon-settlement-to-journal): MIT licensed.

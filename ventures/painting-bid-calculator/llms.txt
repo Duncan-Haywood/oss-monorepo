@@ -1,0 +1,16 @@
+# Bid the surfaces, not the floor plan.
+
+> Price an interior painting job from production rates: walls, ceilings, trim, and doors — plus paint, payroll burden, overhead, and the walk-away number. See why a $2 per square foot floor bid loses money.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/painting-bid-calculator/)
+- [Why a $2 per square foot interior painting bid loses money](https://duncan-haywood.github.io/oss-monorepo/painting-bid-calculator/interior-painting-price-per-square-foot.html)
+- [This calculator vs. a flat $2 a square foot bid](https://duncan-haywood.github.io/oss-monorepo/painting-bid-calculator/vs-a-flat-2-per-square-foot-bid.html)
+- [This calculator vs. PaintScout](https://duncan-haywood.github.io/oss-monorepo/painting-bid-calculator/vs-paintscout.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/painting-bid-calculator): MIT licensed.

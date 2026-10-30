@@ -1,0 +1,13 @@
+# How long until buying beats renting, and what rent makes them equal?
+
+> Free rent vs buy calculator: month-by-month comparison with the down payment invested, closing and selling costs, PMI and the itemized-deduction test. Shows the break-even year and the rent that makes them equal. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/rent-vs-buy-breakeven-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/rent-vs-buy-breakeven-calculator): MIT licensed.

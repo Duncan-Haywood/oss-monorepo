@@ -1,0 +1,16 @@
+# Bid the pallets, the dirt, and the extra work.
+
+> Price a sod install from fescue, bermuda, or zoysia: lawn size, whole pallets, soil prep, delivery, slope, and watering — plus the walk-away price a $0.55-a-foot special cannot see.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/sod-install-bid-calculator/)
+- [How much to charge to install sod](https://duncan-haywood.github.io/oss-monorepo/sod-install-bid-calculator/how-much-to-charge-to-install-sod.html)
+- [This calculator vs. a flat per-square-foot special](https://duncan-haywood.github.io/oss-monorepo/sod-install-bid-calculator/vs-a-flat-per-square-foot-special.html)
+- [This calculator vs. Aspire](https://duncan-haywood.github.io/oss-monorepo/sod-install-bid-calculator/vs-aspire.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/sod-install-bid-calculator): MIT licensed.

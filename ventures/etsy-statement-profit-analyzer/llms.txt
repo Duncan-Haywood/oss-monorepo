@@ -1,0 +1,13 @@
+# Which of your Etsy listings actually make money?
+
+> Free Etsy profit analyzer: drop in your Payment Account statement and Sold Order Items CSV and get a fee waterfall, profit per listing, Offsite Ads and refund findings. Runs in your browser, the files are never uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/etsy-statement-profit-analyzer/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/etsy-statement-profit-analyzer): MIT licensed.

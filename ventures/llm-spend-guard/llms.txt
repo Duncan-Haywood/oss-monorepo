@@ -1,0 +1,14 @@
+# Would a spend cap have stopped your runaway LLM bill?
+
+> Stop a runaway OpenAI or Anthropic bill before it happens: hard per-user, per-feature and per-run dollar caps, an output-token ceiling, and circuit breakers that trip on agent loops. Free, open source, self-hosted proxy or a zero-dependency library.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/llm-spend-guard/)
+- [How to set a hard spend limit on OpenAI and Anthropic API calls](https://duncan-haywood.github.io/oss-monorepo/llm-spend-guard/how-to-set-a-hard-spend-limit-on-openai-and-anthropic-api-calls.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/llm-spend-guard): MIT licensed.
