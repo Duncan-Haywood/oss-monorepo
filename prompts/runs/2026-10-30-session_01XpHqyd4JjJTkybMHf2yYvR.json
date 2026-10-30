@@ -1,0 +1,50 @@
+{
+  "date": "2026-10-30",
+  "session": "https://claude.ai/code/session_01XpHqyd4JjJTkybMHf2yYvR",
+  "track": "ventures",
+  "prompt_version": 0,
+  "input": "okay I think wwe are moving from ghp to cloudflare. what do you need from me?",
+  "follow_up_inputs": [
+    "should I expand the token permissions?",
+    "yes go ahead on workers.dev also there's a domain on cloudflare now",
+    "what do you need from me to finish this?",
+    "there is a url?"
+  ],
+  "model": null,
+  "task": "Move the public site from GitHub Pages to Cloudflare on workers.dev",
+  "projects": [
+    "platform/pages",
+    "platform/edge"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/11585",
+  "outcome": "success",
+  "errors": [
+    "Planned a single static-assets Worker; a measured build (18,646 files plus 1,454 from the dev analyses and deploy guide) is over the free plan's 20,000-file limit, so the site is split across two Workers."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/hosting/README.md",
+      "issue": "Said Cloudflare is not a portfolio default and new hosts need an owner account; the owner already had one and has now moved the site. Rewritten."
+    },
+    {
+      "file": "platform/pages/build.mjs",
+      "issue": "A strict local build fails on another session's merged post (description over 160 chars); PAGES_SKIP_BAD_POSTS=1, as CI deploys use, is needed to build main locally."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "(this session's earlier reply to the owner)",
+      "why": "Said GitHub Pages would mirror the full site for two weeks; shipped redirect pages instead. A mirror needs a second full build for the subpath origin, and canonical + zero-second refresh moves search ranking to the new origin, which a duplicate mirror would not."
+    },
+    {
+      "file": ".github/workflows/portfolio-pages.yml",
+      "why": "Could not run actionlint (the downloaded binary was refused); relied on validate_workflows.py, dogfood_workflows.py, the publish-surface snapshot and CI."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-30-moving-a-20000-file-site-to-cloudflares-free-plan.md",
+    "platform/pages/cloudflare/README.md"
+  ],
+  "notes": "Verified locally: full build for the workers.dev origin passes check.mjs (1,318 products, 5,349 pages, no dead links, robots/sitemaps name the new origin); split.mjs gives 14,818 + 5,283 files; wrangler 4.145.0 deploy --dry-run accepts both configs; the shard Worker alone serves /research/, /writing/, /research/marine-hull/ with 200; the router test covers path routing. wrangler dev with both configs returns 500 for shard pages because it reads the shard's files from the first Worker's directory (a page placed there was served): local-only. Tests: redirect-stubs 2, split 3, edge worker 6, publish_surface/validate/pin 145 passed. Not verifiable from here: the real Cloudflare deploy (needs the repo secrets); the first main run of portfolio-pages.yml is the proof."
+}

@@ -1,0 +1,24 @@
+# The public site (owner, 2026-10-29: moving from GitHub Pages to Cloudflare),
+# served as static files on the free plan. Deployed by
+# .github/workflows/portfolio-pages.yml after split.mjs has moved the
+# directories in router.mjs's SHARD_DIRS into the shard Worker (shard/), which
+# keeps each Worker under the free plan's 20,000-file limit.
+name = "monorepo-projects-site"
+main = "router.mjs"
+compatibility_date = "2025-09-01"
+workers_dev = true
+
+[assets]
+directory = "../dist"
+binding = "ASSETS"
+# /slug/ serves slug/index.html and /slug redirects to /slug/, as GitHub Pages did.
+html_handling = "auto-trailing-slash"
+# Unknown paths get the site's 404.html with a 404 status.
+not_found_handling = "404-page"
+# Only these paths run router.mjs; everything else is served from assets
+# without invoking any code.
+run_worker_first = ["/research", "/research/*", "/writing", "/writing/*", "/dev", "/dev/*"]
+
+[[services]]
+binding = "SHARD"
+service = "monorepo-projects-site-shard"

@@ -78,3 +78,26 @@ test("text report names the order and the hardware", () => {
   assert.match(t, /Lumber order/);
   assert.match(t, /post base/);
 });
+
+test("guard: 36 in deck gets posts, balusters under the 4 in gap and PT 2x4 rails in the order", () => {
+  const l = layoutDeck(sampleDeck()); // 192 x 144, 36 in high, ledger on the house
+  assert.ok(l.guard);
+  assert.deepEqual(l.guard.sides, ["outer", "left", "right"]);
+  // outer 192 -> 3 bays (72 max), sides 144 -> 2 bays each; posts 4 + 3 + 3 minus 2 shared corners
+  assert.equal(l.guard.posts.count, 4 + 3 + 3 - 2);
+  assert.equal(l.guard.guardRails.count, 6);
+  assert.equal(l.guard.balusters.length, 36 - 3 - 4);
+  assert.ok(l.guard.balusters.maxGap <= 4 + 1e-9);
+  assert.ok(l.orders.some((o) => o.size === "2x4 PT"));
+});
+
+test("guard: low decks skip it, freestanding adds the inner edge, false turns it off, high decks warn", () => {
+  assert.equal(layoutDeck({ ...sampleDeck(), height: 24 }).guard, null);
+  const f = layoutDeck({ ...sampleDeck(), freestanding: true });
+  assert.deepEqual(f.guard.sides, ["outer", "left", "right", "inner"]);
+  assert.equal(f.guard.posts.count, 4 + 3 + 3 + 4 - 4);
+  const off = layoutDeck({ ...sampleDeck(), guard: false });
+  assert.equal(off.guard, null);
+  assert.ok(off.warnings.some((w) => /guard/.test(w)));
+  assert.ok(deckText(layoutDeck(sampleDeck())).some((t) => /Guard \(outer, left, right\)/.test(t)));
+});

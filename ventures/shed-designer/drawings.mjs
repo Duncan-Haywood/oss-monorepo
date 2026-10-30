@@ -10,6 +10,7 @@ import { WALLS, wallLabel, siteLayout } from './model.mjs';
 import { heelJoint } from './checks.mjs';
 import { trussChecks } from './truss.mjs';
 import { LAP_PRODUCTS } from './lap.mjs';
+import { gambrelSectionItems, gambrelSectionNote, gambrelRoofPlan, gambrelTrussDetail, gambrelElevationRoof, gambrelRoofWords } from './gambrel-sheets.mjs';
 
 /** @typedef {[number, number]} P */
 /**
@@ -63,6 +64,8 @@ export function buildSheets(shed, marks = new Map()) {
   // A truss's top chord sits on its bottom chord, a chord's depth above the plate.
   const lift = k.chordDepth || 0;
   const truss = !k.lean && d.roofType === 'truss';
+  // A gambrel draws its roof from gambrel-sheets.mjs.
+  const gam = d.style === 'gambrel';
   // Half the thickness of what the rafters stop against at the ridge: a two-ply beam, a board, or nothing (truss chords meet).
   const ridgeHalf = d.roofType === 'ridgeBeam' ? 1.5 : truss ? 0 : 0.75;
   const trussNails = truss ? trussChecks(d).nails : null;
@@ -160,7 +163,17 @@ export function buildSheets(shed, marks = new Map()) {
       else if (mk) items.push(text([(x0 + x1) / 2, (l.z0 + l.z1) / 2 - 1], mk, 6, 'middle', 'mark'));
     }
     const H = wall.height ?? d.wallHeight;
-    if (!eave && k.lean) {
+    if (!eave && gam) {
+      // Roof line over a gambrel gable: the chords' underside (the model's section) and their outer line.
+      const g = k.gambrel;
+      const under = /** @type {P[]} */ (k.section.filter((p, i) => i > 0 && i < k.section.length - 1).map(([y, z]) => [y, z - k.floorTop]));
+      items.push({ t: 'poly', pts: under, cls: 'roofline' });
+      items.push({ t: 'poly', pts: [[0, H], [g.yk, g.zk - k.floorTop], [W / 2, k.ridgeTop - k.floorTop], [W - g.yk, g.zk - k.floorTop], [W, H]], cls: 'roofline' });
+      items.push(dim([W, 0], [W, k.ridgeTop - k.floorTop], -40, `${fmtFtIn(k.ridgeTop - k.floorTop)} to peak`));
+    } else if (gam) {
+      // The lower chords rise from the plate to the knee, seen end on.
+      items.push({ t: 'poly', pts: [[0, H], [face, H], [face, k.gambrel.zk - k.floorTop], [0, k.gambrel.zk - k.floorTop]], cls: 'roofline' });
+    } else if (!eave && k.lean) {
       // Roof line over a lean-to's end wall: the end rafter's underside and top, one straight slope
       // from the front tail (high) to the back tail.
       const zb = (y) => H + (W - y - seat) * (d.pitch / 12);
@@ -228,7 +241,8 @@ export function buildSheets(shed, marks = new Map()) {
   }
 
   // 7. Roof framing plan.
-  {
+  if (gam) sheets.push(gambrelRoofPlan(shed, markText));
+  else {
     const items = /** @type {Item[]} */ ([]);
     const o = d.overhang;
     items.push(rect(0, -o, L, W + o, 'outline'));
@@ -300,6 +314,7 @@ export function buildSheets(shed, marks = new Map()) {
       items.push(rect(y0, top - 3, y0 + k.stud, top, 'plate'));
     }
     const pair = shed.members.filter((m) => m.kind === 'rafter').slice(k.lean ? 1 : 2, k.lean ? 2 : 4);
+    if (gam) items.push(...gambrelSectionItems(shed));
     for (const m of pair) items.push({ t: 'poly', pts: m.geom.profile.map((p) => /** @type {P} */ ([p[0], p[1]])), closed: true, cls: 'member' });
     const tie = shed.members.find((m) => m.kind === 'rafter tie');
     if (tie) items.push({ t: 'poly', pts: tie.geom.profile.map((p) => /** @type {P} */ ([p[0], p[1]])), closed: true, cls: 'member' });
@@ -314,7 +329,7 @@ export function buildSheets(shed, marks = new Map()) {
     for (const g of shed.panels.filter((x) => x.kind === 'truss gusset' && Math.abs(x.geom.origin[0] - (chordX + 1.5)) < 0.01)) {
       items.push({ t: 'poly', pts: g.geom.profile.map((p) => /** @type {P} */ ([p[0], p[1]])), closed: true, cls: 'hidden' });
     }
-    if (truss || k.lean) {
+    if (truss || k.lean || gam) {
       // no ridge member (a lean-to's rafter runs wall to wall)
     } else if (d.roofType === 'ridgeBeam') {
       items.push(rect(W / 2 - 1.5, k.ridgeTop - k.ridgeD, W / 2, k.ridgeTop, 'header'));
@@ -333,9 +348,12 @@ export function buildSheets(shed, marks = new Map()) {
     const ax = W * 0.18;
     const az = rt(ax) + 10;
     // The pitch triangle rises the way the roof does.
-    items.push({ t: 'poly', pts: [[ax, az], [ax + run, az], k.lean ? [ax, az + d.pitch] : [ax + run, az + d.pitch]], closed: true, cls: 'thin' });
-    items.push(text([ax + run / 2, az + 1.5], '12', 9));
-    items.push(text([ax + run + 3, az + d.pitch / 2 - 3], String(d.pitch), 9, 'start'));
+    // A gambrel's section marks each of its slopes itself (gambrel-sheets.mjs).
+    if (!gam) {
+      items.push({ t: 'poly', pts: [[ax, az], [ax + run, az], k.lean ? [ax, az + d.pitch] : [ax + run, az + d.pitch]], closed: true, cls: 'thin' });
+      items.push(text([ax + run / 2, az + 1.5], '12', 9));
+      items.push(text([ax + run + 3, az + d.pitch / 2 - 3], String(d.pitch), 9, 'start'));
+    }
     items.push(dim([0, k.floorTop], [0, plateAt(true)], 34, `${fmtFtIn(plateAt(true) - k.floorTop)} ${k.lean ? 'front ' : ''}wall`));
     if (k.lean) items.push(dim([W, k.floorTop], [W, k.plateTop], 16, `${fmtFtIn(d.wallHeight)} back wall`));
     const sidingLabel = d.siding ? (d.sidingType === 'T1-11' || d.sidingType === 'LP SmartSide' || d.sidingType === 'LP SmartSide 7/16' ? `${d.sidingType} panels` : `${LAP_PRODUCTS[d.sidingType]?.short || d.sidingType} over OSB${LAP_PRODUCTS[d.sidingType] ? ` and wrap, ${fmtIn(shed.lapExposure ?? LAP_PRODUCTS[d.sidingType].exposure)} exposure` : ''}`) : '';
@@ -353,7 +371,7 @@ export function buildSheets(shed, marks = new Map()) {
       const Yv = (y) => (back ? W - y : y);
       // A gable's slope runs eave to ridge on each side; a lean-to's one slope tail to tail, drawn once.
       const far = k.lean ? W + o : W / 2;
-      if (!k.lean || !back) {
+      if (!gam && (!k.lean || !back)) {
         items.push({ t: 'poly', pts: [[Yv(-o), rt(Yv(-o))], [Yv(far), rt(Yv(far))], [Yv(far), rt(Yv(far)) + sh], [Yv(-o), rt(Yv(-o)) + sh]], closed: true, cls: 'sheet' });
         items.push({ t: 'poly', pts: [[Yv(-o), rt(Yv(-o)) + sh + 0.4], [Yv(far), rt(Yv(far)) + sh + 0.4]], cls: 'roofline' });
       }
@@ -369,8 +387,8 @@ export function buildSheets(shed, marks = new Map()) {
     if (block) items.push({ t: 'poly', pts: block.geom.profile.map((p) => /** @type {P} */ ([p[0], p[1]])), closed: true, cls: 'member' });
     if (shed.interior) for (const y0 of [k.stud, W - k.stud - 0.25]) items.push(rect(y0, k.floorTop, y0 + 0.25, plateAt(y0 === k.stud) - 3, 'sheet'));
     const lbl = (y, z, s2, anchor = 'start') => items.push(text([y, z], s2, 8, anchor, 'label'));
-    lbl(W * 0.62, rt(W * 0.62) + 4, `7/16" OSB, underlayment, ${d.roofCover === 'metal' ? 'metal panels' : 'shingles'}`);
-    lbl(W * 0.62, rt(W * 0.62) - 8, truss ? `${d.rafterSize} top chords, ${d.tieSize} bottom chord${kingPost ? ' and king post' : ''}; trusses at ${d.rafterSpacing}" o.c.` : `${d.rafterSize} rafters at ${d.rafterSpacing}" o.c.`);
+    if (!gam) lbl(W * 0.62, rt(W * 0.62) + 4, `7/16" OSB, underlayment, ${d.roofCover === 'metal' ? 'metal panels' : 'shingles'}`);
+    if (!gam) lbl(W * 0.62, rt(W * 0.62) - 8, truss ? `${d.rafterSize} top chords, ${d.tieSize} bottom chord${kingPost ? ' and king post' : ''}; trusses at ${d.rafterSpacing}" o.c.` : `${d.rafterSize} rafters at ${d.rafterSpacing}" o.c.`);
     if (o > 0) lbl(W + o + 3, rt(W + o) - 4, '2x6 sub-fascia + 1x6 fascia; vented soffit under the tails', 'start');
     if (block) lbl(k.stud + 2, plateAt(true) + 6, truss ? 'block between truss heels' : 'eave block between rafters', 'start');
     if (d.siding) lbl(W + 3, k.floorTop + 40, sidingLabel, 'start');
@@ -379,7 +397,7 @@ export function buildSheets(shed, marks = new Map()) {
     items.push(text([W / 2, k.floorTop + 30], 'SECTION', 12, 'middle', 'muted'));
     sheets.push({
       id: 'section', title: 'Building section',
-      note: `${d.pitch}/12 ${k.lean ? 'single-slope (lean-to)' : 'gable'} roof. Heights from the top of the gravel: floor ${fmtFtIn(k.floorTop)}, top plate ${k.lean ? `${fmtFtIn(k.highPlateTop)} at the front, ${fmtFtIn(k.plateTop)} at the back, high edge` : `${fmtFtIn(k.plateTop)}, peak`} about ${fmtFtIn(k.peak)}. ${truss ? `Trusses bear on the plates; the top chords sit on the ${d.tieSize} bottom chord, joined by OSB gussets (dashed).` : k.connector ? 'Rafters sit on variable-pitch connectors at the plate, with no birdsmouth.' : `Birdsmouth heel ${fmtIn(k.heel)} with a ${fmtIn(k.stud)} seat.`}`,
+      note: gam ? gambrelSectionNote(shed) : `${d.pitch}/12 ${k.lean ? 'single-slope (lean-to)' : 'gable'} roof. Heights from the top of the gravel: floor ${fmtFtIn(k.floorTop)}, top plate ${k.lean ? `${fmtFtIn(k.highPlateTop)} at the front, ${fmtFtIn(k.plateTop)} at the back, high edge` : `${fmtFtIn(k.plateTop)}, peak`} about ${fmtFtIn(k.peak)}. ${truss ? `Trusses bear on the plates; the top chords sit on the ${d.tieSize} bottom chord, joined by OSB gussets (dashed).` : k.connector ? 'Rafters sit on variable-pitch connectors at the plate, with no birdsmouth.' : `Birdsmouth heel ${fmtIn(k.heel)} with a ${fmtIn(k.stud)} seat.`}`,
       items,
     });
   }
@@ -410,8 +428,10 @@ export function buildSheets(shed, marks = new Map()) {
         items.push({ t: 'poly', pts, closed: true, cls: 'sheet' });
       }
       // Roof seen from this side. A lean-to's front eave is its high edge.
-      const ez = k.lean && name === 'front' ? zt(W + o) : zt(-o);
-      if (eave) {
+      const ez = gam ? k.plateTop : k.lean && name === 'front' ? zt(W + o) : zt(-o);
+      if (gam) {
+        items.push(...gambrelElevationRoof(shed, eave, F, X, (a) => hxOf(name, a)));
+      } else if (eave) {
         items.push(rect(X(0), ez - 6, X(F), ez, 'plate'));
         items.push({ t: 'poly', pts: [[X(0), ez], [X(F), ez], [X(F), k.peak], [X(0), k.peak]], closed: true, cls: 'roof' });
       } else if (k.lean) {
@@ -439,6 +459,7 @@ export function buildSheets(shed, marks = new Map()) {
       }
       items.push(dim([X(0), 0], [X(F), 0], -28, fmtFtIn(F)));
       items.push(dim([X(F), 0], [X(F), eave ? ez : k.peak], -26, eave ? `${fmtFtIn(ez)} to ${k.lean && name === 'front' ? 'the high eave' : 'eave'}` : `${fmtFtIn(k.peak)} to ${k.lean ? 'the high edge' : 'peak'}`));
+      if (gam && eave) items.push(dim([X(0), 0], [X(0), k.peak], 26, `${fmtFtIn(k.peak)} to peak`));
       items.push(text([X(F / 2), -48], `${name.toUpperCase()} (${k.lean ? (name === 'front' ? 'TALL SIDE' : name === 'back' ? 'LOW SIDE' : 'END WALL') : eave ? 'EAVE SIDE' : 'GABLE END'})`, 10, 'middle', 'muted'));
     };
     for (const pair of [['front', 'back'], ['left', 'right']]) {
@@ -526,7 +547,10 @@ export function buildSheets(shed, marks = new Map()) {
       ['Bottom plate to floor', '2-16d at 16" o.c. into rim or joist'],
       ['Rim to joist end', '3-16d'],
       ['Joist to skid', '2-16d toenail, or a framing tie'],
-      ...(truss ? [
+      ...(gam ? [
+        ['Gambrel truss to plate', 'rafter-to-plate tie each lower chord, maker\'s nails'],
+        ['Gambrel gussets', `8d common, 3" apart in rows 2" apart, staggered both faces: ${k.gambrel?.nailsPerKnee} a knee, ${k.gambrel?.nailsPerPeak} at the peak`],
+      ] : truss ? [
         ['Truss to plate', 'rafter-to-plate tie each heel, maker\'s nails'],
         ['Truss gussets', `1-1/2" connector nails, both faces: ${trussNails ? `${trussNails.heelBottom} into the bottom chord and ${trussNails.heelTop} into the top chord at each heel, ${trussNails.peak} into each top chord at the peak${kingPost ? `, ${trussNails.foot} each into king post and chord at its foot` : ''}` : ''}`],
       ] : k.lean ? [
@@ -535,7 +559,7 @@ export function buildSheets(shed, marks = new Map()) {
         ['Rafter to plate', 'rafter-to-plate tie each rafter, maker\'s nails'],
         [d.roofType === 'ridgeBeam' ? 'Rafter to ridge beam' : 'Rafter to ridge board', d.roofType === 'ridgeBeam' ? 'face-mount hanger, maker\'s nails' : '3-16d end or toenail'],
       ]),
-      ...(heelJoint(shed) ? [['Rafter tie to rafter, each end', `${heelJoint(shed)?.nails}-16d common, face nailed`]] : []),
+      ...(heelJoint(shed) ? [[gam ? 'Tie to lower chord, each end' : 'Rafter tie to rafter, each end', `${heelJoint(shed)?.nails}-16d common, face nailed`]] : []),
       ['Subfloor', '1-5/8" screws 6" edges, 12" field, with adhesive'],
       ['Wall and roof sheathing', '8d at 6" edges, 12" field'],
       LAP_PRODUCTS[d.sidingType] ? ['Lap siding', '8d HDG siding nail, blind, each stud each course'] : ['Siding panels', '8d galvanized 6" edges, 12" field'],
@@ -551,7 +575,9 @@ export function buildSheets(shed, marks = new Map()) {
 
   // 9. Rafter detail: the pattern rafter, drawn as it sits, with every cut.
   // A lean-to's rafter runs from the high front tail down to the back tail, seated on both walls.
-  if (k.lean) {
+  // A gambrel gets a truss detail instead (gambrel-sheets.mjs).
+  if (gam) sheets.push(gambrelTrussDetail(shed));
+  else if (k.lean) {
     const items = /** @type {Item[]} */ ([]);
     const tt = d.pitch / 12;
     const cosA = Math.cos(Math.atan(tt));
@@ -776,7 +802,7 @@ export function buildSheets(shed, marks = new Map()) {
     const lines = [];
     const row = (s2, size = 10, cls = 'label') => lines.push({ s2, size, cls });
     row(d.name, 18);
-    row(`${fmtFtIn(L)} x ${fmtFtIn(W)} ${k.lean ? 'lean-to' : 'gable'} shed, ${((L * W) / 144).toFixed(0)} sq ft floor area, ${d.pitch}/12 roof, ${k.lean ? 'high edge' : 'peak'} about ${fmtFtIn(k.peak)} above the gravel`, 11);
+    row(`${fmtFtIn(L)} x ${fmtFtIn(W)} ${k.lean ? 'lean-to' : gam ? 'gambrel (barn)' : 'gable'} shed, ${((L * W) / 144).toFixed(0)} sq ft floor area, ${d.pitch}/12 roof, ${k.lean ? 'high edge' : 'peak'} about ${fmtFtIn(k.peak)} above the gravel`, 11);
     row('');
     row('PROJECT (fill in by hand)', 9, 'muted');
     row('Owner: ______________________________   Site address: ________________________________________   Parcel no.: ______________');
@@ -790,7 +816,8 @@ export function buildSheets(shed, marks = new Map()) {
       ? `Walls: ${d.studSize} at ${d.studSpacing}" o.c., back and ends ${fmtFtIn(d.wallHeight)} and front ${fmtFtIn(k.highWall)} floor to top of plates (studs ${fmtIn(k.studLen)} and ${fmtIn(k.highWall - 4.5)}), double top plate.`
       : `Walls: ${d.studSize} at ${d.studSpacing}" o.c., ${fmtFtIn(d.wallHeight)} floor to top of plates (studs ${fmtIn(k.studLen)}), double top plate interlocked at corners.`);
     row(`Floor: ${d.joistSize} joists at ${d.joistSpacing}" o.c. on ${k.skidCount} PT ${d.skidSize} skids, ${k.block ? `on ${k.block.plural} on ${k.noPad ? 'tamped firm soil' : k.underBlocks ? 'a bed of paver base each' : 'a compacted gravel pad'}` : 'on a compacted gravel pad'}; ${d.floorPanel === 'OSB' ? '23/32" T&G OSB' : '3/4" T&G plywood'}.`);
-    row(truss ? `Roof: site-built ${trussKind} at ${d.rafterSpacing}" o.c., ${d.rafterSize} top chords, ${d.tieSize} bottom chord${kingPost ? ' and king post' : ''}, 7/16" OSB gussets both faces; ${fmtIn(d.overhang)} overhang; ${d.roofCover === 'metal' ? 'corrugated metal' : 'shingles'} on 7/16" OSB.` : `Roof: ${d.rafterSize} rafters at ${d.rafterSpacing}" o.c., ${k.lean ? 'one slope bearing on the front and back walls, no ridge or ties' : d.roofType === 'ridgeBeam' ? `two-ply ${k.ridgeSize} ridge beam on posts, no ties` : `${k.ridgeSize} ridge board with ${d.tieSize} rafter ties`}, ${fmtIn(d.overhang)} overhang; ${d.roofCover === 'metal' ? 'corrugated metal' : 'shingles'} on 7/16" OSB.`);
+    if (gam) row(`Roof: ${gambrelRoofWords(shed)}; ${d.roofCover === 'metal' ? 'corrugated metal' : 'shingles'} on 7/16" OSB.`);
+    else row(truss ? `Roof: site-built ${trussKind} at ${d.rafterSpacing}" o.c., ${d.rafterSize} top chords, ${d.tieSize} bottom chord${kingPost ? ' and king post' : ''}, 7/16" OSB gussets both faces; ${fmtIn(d.overhang)} overhang; ${d.roofCover === 'metal' ? 'corrugated metal' : 'shingles'} on 7/16" OSB.` : `Roof: ${d.rafterSize} rafters at ${d.rafterSpacing}" o.c., ${k.lean ? 'one slope bearing on the front and back walls, no ridge or ties' : d.roofType === 'ridgeBeam' ? `two-ply ${k.ridgeSize} ridge beam on posts, no ties` : `${k.ridgeSize} ridge board with ${d.tieSize} rafter ties`}, ${fmtIn(d.overhang)} overhang; ${d.roofCover === 'metal' ? 'corrugated metal' : 'shingles'} on 7/16" OSB.`);
     row(`Siding: ${d.siding ? (LAP_PRODUCTS[d.sidingType] ? `${LAP_PRODUCTS[d.sidingType].label}, over 7/16" OSB and house wrap` : d.sidingType) : 'none'}. Inside: ${d.interior === 'none' ? 'bare framing' : d.interior}${d.insulation ? ', R-13 insulation' : ''}.`);
     row(`Loads used for the strength checks: ${d.snowLoad} psf roof snow, ${d.windLoad} psf wind on the walls, 15 psf roof dead, 40 psf floor live.`);
     row('');

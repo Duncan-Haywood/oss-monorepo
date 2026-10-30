@@ -41,9 +41,12 @@ export const COVERINGS = ['sheathing', 'siding', 'roofing', 'trim', 'interior', 
 
 /**
  * Size budget for everything in `renders/`. Each file is checked against its
- * own limit, and the folder against the total, by `renders.test.mjs`.
+ * own limit, and the folder against the total, by `renders.test.mjs`. A
+ * starting design's six pictures come to about 60 KB; the total was raised
+ * from 900 KB to 1,100 KB when the lean-to and the gambrel barn joined the
+ * presets, which leaves room for about three more.
  */
-export const BUDGET = { total: 900 * 1024, hero: 70 * 1024, other: 40 * 1024 };
+export const BUDGET = { total: 1100 * 1024, hero: 70 * 1024, other: 40 * 1024 };
 
 /** A file-name-safe slug for a preset key: '8x12 classic' -> '8x12-classic'. */
 export const slugOf = (key) => String(key).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');

@@ -2,6 +2,56 @@
  "note": "Written by make-renders.mjs; do not edit by hand.",
  "renderVersion": 1,
  "designs": {
+  "10x10-barn": {
+   "key": "10x10 barn",
+   "name": "10x10 gambrel barn with loft",
+   "hash": "674f66508a410b81",
+   "designKey": "b4714e8f",
+   "files": {
+    "hero": {
+     "file": "10x10-barn-hero.webp",
+     "w": 960,
+     "h": 640,
+     "bytes": 17846,
+     "alt": "3D render of the 10x10 gambrel barn with loft, 10 by 10 ft, seen from the front corner: white siding, charcoal shingles, 6/12 roof, 13' 8-1/8\" to the peak, showing two 14\" windows on the front (eave side)."
+    },
+    "card": {
+     "file": "10x10-barn-card.webp",
+     "w": 480,
+     "h": 320,
+     "bytes": 6778,
+     "alt": "3D render of the 10x10 gambrel barn with loft, 10 by 10 ft, seen from the front corner: white siding, charcoal shingles, 6/12 roof, 13' 8-1/8\" to the peak, showing two 14\" windows on the front (eave side)."
+    },
+    "front": {
+     "file": "10x10-barn-front.webp",
+     "w": 480,
+     "h": 320,
+     "bytes": 4896,
+     "alt": "3D render of the 10x10 gambrel barn with loft, 10 by 10 ft, seen from the front: white siding, charcoal shingles, 6/12 roof, 13' 8-1/8\" to the peak, showing two 14\" windows."
+    },
+    "side": {
+     "file": "10x10-barn-side.webp",
+     "w": 480,
+     "h": 320,
+     "bytes": 3442,
+     "alt": "3D render of the 10x10 gambrel barn with loft, 10 by 10 ft, seen from the gable end: white siding, charcoal shingles, 6/12 roof, 13' 8-1/8\" to the peak."
+    },
+    "back": {
+     "file": "10x10-barn-back.webp",
+     "w": 480,
+     "h": 320,
+     "bytes": 4086,
+     "alt": "3D render of the 10x10 gambrel barn with loft, 10 by 10 ft, seen from the back: white siding, charcoal shingles, 6/12 roof, 13' 8-1/8\" to the peak."
+    },
+    "framing": {
+     "file": "10x10-barn-framing.webp",
+     "w": 640,
+     "h": 427,
+     "bytes": 23394,
+     "alt": "Framing of the 10x10 gambrel barn with loft (10 by 10 ft) with the siding, sheathing and roofing removed: studs at 16\" on centre, rafters at 24\" and a 2x6 ridge board with rafter ties."
+    }
+   }
+  },
   "10x12": {
    "key": "10x12",
    "name": "10x12 gable shed",
@@ -385,14 +435,14 @@
   "gallery-house": {
    "key": "10x10 to match the house",
    "name": "10x10 to match the house",
-   "hash": "45d4b16377eca946",
+   "hash": "21132273532f6f22",
    "designKey": "9cb31c6b",
    "files": {
     "card": {
      "file": "gallery-house-card.webp",
      "w": 480,
      "h": 320,
-     "bytes": 6234,
+     "bytes": 6118,
      "alt": "3D render of the 10x10 to match the house, 10 by 10 ft, seen from the front corner: white fiber cement siding, charcoal shingles, 6/12 roof, 11' 11-5/16\" to the peak, showing a 39\" door on the right (gable end)."
     }
    }
@@ -400,14 +450,14 @@
   "gallery-house-cheapest": {
    "key": "Cheapest lap-sided 7x12",
    "name": "Cheapest lap-sided 7x12",
-   "hash": "14ef3558534ddbea",
+   "hash": "2c98a48ba24266d5",
    "designKey": "c1cc9cad",
    "files": {
     "card": {
      "file": "gallery-house-cheapest-card.webp",
      "w": 480,
      "h": 320,
-     "bytes": 6508,
+     "bytes": 6192,
      "alt": "3D render of the Cheapest lap-sided 7x12, 12 by 7 ft, seen from the front corner: cream fiber cement siding, charcoal shingles, 6/12 roof, 11' 6-11/16\" to the peak, showing a 39\" door on the right (gable end)."
     }
    }
@@ -415,14 +465,14 @@
   "gallery-long": {
    "key": "Long 7x14",
    "name": "Long 7x14",
-   "hash": "56368fc4eac22dd8",
+   "hash": "bdacdfae80d86cf6",
    "designKey": "25acba58",
    "files": {
     "card": {
      "file": "gallery-long-card.webp",
      "w": 480,
      "h": 320,
-     "bytes": 6476,
+     "bytes": 6264,
      "alt": "3D render of the Long 7x14, 14 by 7 ft, seen from the front corner: sage fiber cement siding, charcoal shingles, 6/12 roof, 12' 8-3/8\" to the peak, showing a 39\" door on the right (gable end)."
     }
    }
@@ -430,14 +480,14 @@
   "gallery-looks": {
    "key": "Best looking 9x10",
    "name": "Best looking 9x10",
-   "hash": "1c2e413ecf2a7672",
+   "hash": "0cf6eb7a2cc0e6f8",
    "designKey": "64421615",
    "files": {
     "card": {
      "file": "gallery-looks-card.webp",
      "w": 480,
      "h": 320,
-     "bytes": 5956,
+     "bytes": 5760,
      "alt": "3D render of the Best looking 9x10, 9 by 10 ft, seen from the front corner: greige fiber cement siding, charcoal shingles, 4/12 lean-to roof, 11' 4-3/8\" to the high edge, showing a 39\" door on the front (tall side) and two 18\" windows on the front (tall side)."
     }
    }
@@ -445,14 +495,14 @@
   "gallery-mower": {
    "key": "Mower shed 10x10",
    "name": "Mower shed 10x10",
-   "hash": "d6503786690fa6e4",
+   "hash": "ee349d9dd732bd66",
    "designKey": "58b28736",
    "files": {
     "card": {
      "file": "gallery-mower-card.webp",
      "w": 480,
      "h": 320,
-     "bytes": 6006,
+     "bytes": 5652,
      "alt": "3D render of the Mower shed 10x10, 10 by 10 ft, seen from the front corner: forest green fiber cement siding, charcoal shingles, 4/12 lean-to roof, 11' 8-3/8\" to the high edge, showing a 48\" door on the right (end wall)."
     }
    }
@@ -460,14 +510,14 @@
   "gallery-square": {
    "key": "10x10 square",
    "name": "10x10 square",
-   "hash": "b25e8fe2f60a2fae",
+   "hash": "a49aab475e60f427",
    "designKey": "e17d67f2",
    "files": {
     "card": {
      "file": "gallery-square-card.webp",
      "w": 480,
      "h": 320,
-     "bytes": 5470,
+     "bytes": 5382,
      "alt": "3D render of the 10x10 square, 10 by 10 ft, seen from the front corner: khaki fiber cement siding, charcoal shingles, 4/12 lean-to roof, 12' 4-3/8\" to the high edge, showing a 39\" door on the right (end wall)."
     }
    }

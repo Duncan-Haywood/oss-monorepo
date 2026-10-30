@@ -345,6 +345,7 @@
       <option value="12x16">12x16, double door on the gable</option>
       <option value="8x8 lean">8x8 garden shed</option>
       <option value="8x12 lean-to">8x12 lean-to, one slope, 6 ft back wall</option>
+      <option value="10x10 barn">10x10 gambrel barn with a loft</option>
     </select>
     <button type="button" class="btn" id="undo" title="Undo (Ctrl+Z). Each design has its own undo; switching designs starts it fresh.">Undo</button>
     <button type="button" class="btn" id="redo" title="Redo (Ctrl+Shift+Z or Ctrl+Y)">Redo</button>
@@ -409,13 +410,17 @@
       <legend>Size and roof</legend>
       <div class="fields">
         <label>Design name<input id="name" type="text" maxlength="80"></label>
-        <label>Shape<select id="style"><option value="gable">Gable: two slopes and a ridge</option><option value="leanTo">Lean-to: one slope, tall front wall, low back wall</option></select></label>
+        <label>Shape<select id="style"><option value="gable">Gable: two slopes and a ridge</option><option value="leanTo">Lean-to: one slope, tall front wall, low back wall</option><option value="gambrel">Gambrel (barn): two slopes a side, most room under the roof</option></select></label>
         <label>Length along the ridge (ft)<input id="lengthFt" type="number" min="4" max="40" step="0.5"></label>
         <label>Width across the gable (ft)<input id="widthFt" type="number" min="4" max="20" step="0.5"></label>
         <label class="check"><input id="autoWall" type="checkbox"> Walls as low as the tallest door or window allows</label>
         <label>Wall height, floor to top plate (in; on a lean-to, the low back wall)<input id="wallHeight" type="number" min="60" max="144" step="0.5"></label>
         <label class="check"><input id="autoPitch" type="checkbox"> Roof pitch from the height limit</label>
-        <label>Roof pitch (rise per 12)<input id="pitch" type="number" min="2" max="14" step="1"></label>
+        <label>Roof pitch (rise per 12; on a gambrel, the upper slope)<input id="pitch" type="number" min="2" max="14" step="1"></label>
+        <label data-gambrel>Gambrel lower slope (rise per 12)<input id="gambrelLower" type="number" min="16" max="30" step="1"></label>
+        <label data-gambrel>Gambrel knee, in from the wall (in; 0 for a quarter of the width)<input id="gambrelKnee" type="number" min="0" max="120" step="1"></label>
+        <label data-gambrel>Loft on the gambrel's ties<select id="loft"><option value="none">None (ties only)</option><option value="half">Over half the length</option><option value="full">Over the whole length</option></select></label>
+        <label data-gambrel>Loft joists<select id="loftJoist"><option>2x6</option><option>2x8</option><option>2x10</option></select></label>
         <label class="check"><input id="autoOverhang" type="checkbox"> Overhang that wastes the least lumber</label>
         <label>Eave overhang (in)<input id="overhang" type="number" min="0" max="36" step="1"></label>
         <label>Roof snow load (psf)<input id="snowLoad" type="number" min="0" max="150" step="5"></label>
