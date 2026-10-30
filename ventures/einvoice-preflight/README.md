@@ -21,6 +21,11 @@ found whatever order the generator wrote its dictionary in (`/Filter` or `/Lengt
 before `/Type`) and with an indirect `/Length 5 0 R`; before 2026-10-22 those
 PDFs were refused as having no invoice XML (found by building such files; tested
 on hand-made PDFs, not yet on a real Mustang, Ghostscript or Acrobat export).
+Opened in poppler (2026-10-30): the shipped example PDFs had an empty page tree
+(`pdfinfo`: "Invalid page count 0"), so no viewer could show them. They now carry
+one page, and a test (skipped where poppler is absent) repairs the credit note
+with defects, checks `pdfinfo` reads one page with no syntax error and that
+`pdfdetach` returns exactly the corrected XML. veraPDF and Acrobat are still unrun.
 
 **XRechnung profile (Germany).** Tick "Also apply the German XRechnung rules"
 on the page, or call the API with `POST /v1/validate?profile=xrechnung`, to add
