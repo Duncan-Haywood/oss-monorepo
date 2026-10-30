@@ -12,6 +12,7 @@ import { PRESETS, buildShed, normalize } from './model.mjs';
 import { createViewer } from './render3d.mjs';
 import { designFacts, compareRows, tradeOff } from './designfacts.mjs';
 import { fmtFtIn, fmtIn } from './lumber.mjs';
+import { pictureFor } from './renders.mjs';
 
 /** @typedef {{ id: string, title?: string, design: any, reason?: string }} Entry */
 
@@ -62,6 +63,17 @@ export function mountPicker(opts) {
   let viewer = /** @type {any} */ (undefined);
   let opener = /** @type {HTMLElement | null} */ (null);
   let priceTimer = /** @type {any} */ (0);
+  // Pictures drawn ahead of time (make-renders.mjs). A design that matches one
+  // shows it at once; anything else, or no manifest, is drawn live as before.
+  let drawn = /** @type {any} */ (null);
+  if (typeof fetch === 'function') {
+    fetch(new URL('./renders/manifest.json', import.meta.url))
+      .then((r) => (r.ok ? r.json() : null))
+      .then((m) => { if (m) { drawn = m; renderStrip(); } })
+      .catch(() => {});
+  }
+  /** The pre-drawn front-corner picture of an entry (the small card size for the strip), or null. */
+  const predrawn = (id, view = 'hero') => (drawn ? pictureFor(drawn, entry(id)?.design, view, new URL('./', import.meta.url).href) : null);
 
   const entry = (id) => entries.find((e) => e.id === id);
   const factsOf = (id) => {
@@ -77,6 +89,8 @@ export function mountPicker(opts) {
   const shotKey = (id, view = VIEWS[0]) => `${id}|${view.key}|${JSON.stringify(entry(id)?.design)}`;
   /** A render of a design from one angle, or '' when there is no WebGL. */
   function shot(id, view = VIEWS[0]) {
+    const pre = view === VIEWS[0] ? predrawn(id) : null;
+    if (pre) return pre.src;
     const key = shotKey(id, view);
     if (shots.has(key)) return shots.get(key);
     if (viewer === undefined) {
@@ -106,7 +120,7 @@ export function mountPicker(opts) {
       const on = chosen.includes(e.id);
       return `<li class="pick">
         <button type="button" class="pick-open" data-detail="${esc(e.id)}" aria-label="Details of the ${esc(titleOf(e.id))}">
-          <span class="pick-img" data-shot="${esc(e.id)}">${shots.has(shotKey(e.id)) ? `<img src="${shots.get(shotKey(e.id))}" alt="" width="600" height="400">` : '<span class="thumb-wait">rendering...</span>'}</span>
+          <span class="pick-img" data-shot="${esc(e.id)}">${predrawn(e.id, 'card') || shots.has(shotKey(e.id)) ? `<img src="${predrawn(e.id, 'card')?.src || shot(e.id)}" alt="" width="600" height="400">` : '<span class="thumb-wait">rendering...</span>'}</span>
           <strong>${esc(titleOf(e.id))}</strong>
           <span class="pick-line">${money(f.total)} &middot; ${Math.round(f.footprintSqFt)} sq ft &middot; peak ${fmtFtIn(f.peak)}</span>
           <span class="pick-why">${esc(tradeOff(f, all))}</span>

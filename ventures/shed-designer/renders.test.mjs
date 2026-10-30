@@ -73,8 +73,8 @@ test('renders/ holds nothing the manifest does not name', () => {
 
 test('alt text says what each view shows', () => {
   const d = renderTargets().find((t) => t.slug === '8x12').design;
-  assert.match(altFor(d, 'front'), /seen front: .*door/);
-  assert.match(altFor(d, 'back'), /seen back: .*window/);
+  assert.match(altFor(d, 'front'), /seen from the front: .*door/);
+  assert.match(altFor(d, 'back'), /seen from the back: .*two 14" windows/);
   assert.doesNotMatch(altFor(d, 'side'), /window|door/);
   assert.match(altFor(d, 'framing'), /^Framing of .*studs at 16" on centre/);
   assert.match(altFor(d, 'hero'), /8 by 12 ft/);
@@ -111,4 +111,31 @@ test('pages that show a picture use its current file and alt text', () => {
     }
   }
   assert.ok(seen >= 2 + sizeTargets().length, 'the marketing page shows the 8x12 classic and each size page its own design');
+});
+
+// The picker's strip shows the drawn pictures instead of drawing each design live.
+test('the starting-design strip shows the pre-drawn pictures', { skip: hasPw ? false : 'Playwright not found (set PLAYWRIGHT to its index.js)', timeout: 120000 }, async () => {
+  const { createServer } = await import('node:http');
+  const { createRequire } = await import('node:module');
+  const root = new URL('.', import.meta.url).pathname;
+  const types = { '.html': 'text/html', '.mjs': 'text/javascript', '.json': 'application/json', '.webp': 'image/webp', '.txt': 'text/plain' };
+  const server = createServer((req, res) => {
+    const path = decodeURIComponent(new URL(req.url, 'http://x').pathname).replace(/^\/+/, '') || 'index.html';
+    const file = join(root, path);
+    if (!file.startsWith(root) || !existsSync(file) || !statSync(file).isFile()) { res.writeHead(404); res.end(); return; }
+    res.writeHead(200, { 'content-type': types[path.slice(path.lastIndexOf('.'))] || 'application/octet-stream' });
+    res.end(readFileSync(file));
+  });
+  await new Promise((r) => server.listen(0, '127.0.0.1', r));
+  const pwPath = [process.env.PLAYWRIGHT, '/opt/node-tools/node_modules/playwright/index.js'].find((p) => p && existsSync(p));
+  const pw = createRequire(import.meta.url)(pwPath);
+  const browser = await pw.chromium.launch({ args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
+  try {
+    const page = await browser.newPage();
+    await page.goto(`http://127.0.0.1:${server.address().port}/`);
+    await page.waitForFunction(() => document.querySelectorAll('.pick-img img[src*="renders/"]').length >= 6, null, { timeout: 30000 });
+    const srcs = await page.$$eval('.pick-img img', (els) => els.map((e) => e.getAttribute('src')));
+    const m = readManifest();
+    for (const t of renderTargets()) assert.ok(srcs.some((s) => s.endsWith(`renders/${m.designs[t.slug].files.card.file}`)), `${t.slug} card uses its drawn picture`);
+  } finally { await browser.close(); server.close(); }
 });
