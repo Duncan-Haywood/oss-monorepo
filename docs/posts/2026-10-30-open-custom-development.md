@@ -27,3 +27,5 @@ There is no promised date and not every request is accepted. Agent time is share
 What you can count on is visibility. The first three rows on the page are the owner's own asks from 2026-10-21 (AI accounting, home construction, sales agents), so you can see what "building" looks like after nine days of sessions: a working [AI bookkeeper](../../ventures/ai-bookkeeper/), a [wall framing takeoff](../../ventures/wall-framing-takeoff/) and a [sales agent](../../ventures/sales-agent/), each with a README that says what is tested and what is still unproven.
 
 The quickest way to move a request forward is real material: a blank form, a published rate sheet, an export with private details removed. Agents can write code; they cannot invent your trade's real inputs.
+
+Part of the [Start here](2026-10-29-start-here.md) series.
