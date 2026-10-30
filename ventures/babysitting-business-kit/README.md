@@ -28,6 +28,7 @@ Not affiliated with any of the products named above; they are named only to say 
 - **Families:** kids with birth dates and allergies (allergies show as a red pill everywhere), emergency contact, house notes.
 - **Schedule:** a live quote from the rate card (hourly, extra child, minimum hours, late-night extra, holiday multiplier, last-minute fee, late-cancellation fee), weekly repeats, double-booking and travel-gap warnings, and an `.ics` calendar file.
 - **Money & taxes:** payments by family and method, expenses by Schedule C category, mileage at the IRS rate, net profit, self-employment tax (15.3% on 92.35%, Social Security capped at the wage base), a set-aside at the sitter's own brackets, the four quarterly due dates with a suggested payment each, unpaid sits, and flags: the $400 filing line, the household-employee threshold ($3,000 from one family in 2026, Publication 926), payment-app income and the 1099-K, missing mileage, and the EIN tip. A **year-end statement per family** gives parents what they need for Form 2441 or a dependent-care FSA.
+- **Federal estimate, safe harbor and Schedule C** (`taxes.mjs`): beside the set-aside, a real federal estimate for a single, head-of-household or married-joint filer (2026 brackets and standard deduction, SE tax, the half-SE deduction, the 20% QBI deduction under the threshold, optional W-2 wages and withholding, the year so far projected to a full year); the safe-harbor plan (the smaller of 90% of this year and 100% of last year, 110% above $150,000 AGI) with what is needed by each due date, what has been paid and what to pay next; estimated payments recorded; a Schedule C worksheet (income to line 1, mileage to line 9, each category to its line) as a CSV for a preparer; and a printable year summary.
 - **References & testimonials:** request drafts, a five-day follow-up, separate yes/no consent for "may new families call you" and "may your words go on my website". Only quotes marked yes reach the website, as first name and last initial.
 - **Website:** a one-file site built from the profile: story, certifications, rates, policies, the optional faith section, consented testimonials, `ChildCare` JSON-LD and an inquiry form (email by default, or the sitter's server). Download it and host it free anywhere.
 - **Content:** twelve weeks of seasonal post ideas rotated across Facebook, Nextdoor, Instagram, a church or school bulletin and the website, plus rebooking, referral and testimonial messages per family. Drafts leave room for a real moment in the sitter's words, never an invented one.
@@ -65,12 +66,12 @@ Honest limits: one sitter per server; no payments or card capture (families pay 
 
 ## Taxes: what the numbers are
 
-US federal rules for 2026, with constants from sibling ventures that checked them: SS wage base $184,500 (ai-bookkeeper/payroll.mjs, ssa.gov), household-employee threshold $3,000 (nanny-tax-calculator), 1099-K $20,000 and 200 payments (1099-k-threshold-checker), mileage 72.5¢ and a reported 76¢ from 2026-07-01 (ai-bookkeeper/deductions.mjs, which notes irs.gov was not reachable to confirm the raise). The set-aside ignores the standard deduction and credits, so it errs high; it is an amount to save, not a return.
+US federal rules for 2026, with constants from sibling ventures that checked them: SS wage base $184,500 (ai-bookkeeper/payroll.mjs, ssa.gov), household-employee threshold $3,000 (nanny-tax-calculator), 1099-K $20,000 and 200 payments (1099-k-threshold-checker), mileage 72.5¢ and a reported 76¢ from 2026-07-01 (ai-bookkeeper/deductions.mjs, which notes irs.gov was not reachable to confirm the raise). The set-aside ignores the standard deduction and credits, so it errs high; it is an amount to save, not a return. The federal estimate in `taxes.mjs` copies the 2026 and 2025 brackets, standard deductions and QBI thresholds from ai-bookkeeper/estimatedtax.mjs (checked there against Rev. Proc. 2025-32 and 2024-40 on 2026-10-23) and leaves out credits and itemised deductions; the safe harbor follows IRC 6654(d), (e)(1) and (g). Married filing separately is not modelled.
 
 ## Run and test
 
 - **Page:** open `index.html` from a local server (`npx serve .`, or the server above). Data lives in this browser's localStorage under `babysitting-business-kit-desk`.
-- **Tests:** `node --test ventures/babysitting-business-kit/*.test.mjs` (engine, server, page, deploy, usage).
+- **Tests:** `node --test ventures/babysitting-business-kit/*.test.mjs` (engine, taxes, server, page, deploy, usage).
 
 ## Privacy
 
