@@ -2,7 +2,7 @@
 title: "QuickBooks payroll debits were being filed as software"
 date: 2026-10-30
 tags: [ai-bookkeeper, payroll, bookkeeping]
-description: "Probing the AI Bookkeeper's built-in rules with 70 common bank descriptions found a second payroll misfile: QuickBooks and Intuit payroll debits suggested as software."
+description: "Probing the AI Bookkeeper rules with 70 common bank descriptions found a second payroll misfile: QuickBooks and Intuit payroll debits suggested as software."
 ---
 
 After the Gusto payroll misfile found earlier today, we ran about 70 common business bank descriptions (payroll, ads, travel, fuel, insurance, transfers) through the [AI Bookkeeper](https://duncan-haywood.github.io/oss-monorepo/ai-bookkeeper/)'s built-in rules and read every suggestion.
