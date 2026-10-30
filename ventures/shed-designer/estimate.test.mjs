@@ -94,3 +94,39 @@ test('narrow sheet rows are ripped from shared sheets, and the count never beats
     assert.ok(est.roofSheets >= Math.ceil(area('roof sheathing') - 1e-9), shed.design.name);
   }
 });
+
+test('boards stay within the haul limit unless a piece needs a longer one, which says so', async () => {
+  const { normalize } = await import('./model.mjs');
+  const { cutWithinHaul } = await import('./estimate.mjs');
+  const { connectionChecks } = await import('./connections.mjs');
+  // Owner, 2026-10-30: "I can't load up a 16 foot board in the back of my truck."
+  assert.equal(defaultDesign().maxHaulFt, 12);
+  for (const make of Object.values(PRESETS)) {
+    const s = buildShed(make());
+    const est = estimate(s);
+    for (const l of est.lumber) for (const b of l.result.boards) {
+      if (b.stock > 144) assert.match(b.why, /needs it$/, `${s.design.name} ${l.material} ${b.stock / 12}'`);
+      if (b.stock > 144) assert.ok(b.cuts.some((c) => c.len > 144), 'a long board holds a piece longer than 12 ft');
+    }
+    // Splices at the limit still pass every connection check (plates on studs, caps 24" from top joints).
+    assert.ok(connectionChecks(s).ok, s.design.name);
+  }
+  // The 12x16's 16 ft plates, rims, skids, ridge board and sub-fascia are spliced at 12 ft: no 14 or 16 ft board at all.
+  const big = estimate(buildShed(PRESETS['12x16']()));
+  assert.ok(big.lumber.every((l) => l.result.boards.every((b) => b.stock <= 144)));
+  // With no limit the same shed buys 16 ft boards again.
+  const free = estimate(buildShed(normalize({ ...PRESETS['12x16'](), maxHaulFt: 0 })));
+  assert.ok(free.lumber.some((l) => l.result.boards.some((b) => b.stock === 192)));
+  // An 8 ft limit on the default: the one-piece 12 ft ridge beam is the only thing that needs a longer board.
+  const tight = estimate(buildShed(normalize({ ...defaultDesign(), maxHaulFt: 8 })));
+  const long = tight.lumber.flatMap((l) => l.result.boards.filter((b) => b.stock > 96).map((b) => b.why));
+  assert.ok(long.length > 0 && long.every((w) => /ridge beam 144" needs it/.test(w)), long.join('; '));
+  // The helper on its own: a 150" piece takes a 14 ft board, the short pieces stay on 8 ft ones.
+  const stocks = [96, 144, 168, 192].map((length) => ({ length, price: length / 12 }));
+  const r = cutWithinHaul([{ len: 150, kind: 'rim joist', mark: 'B' }, { len: 40 }, { len: 40 }], stocks, 0.125, 8);
+  assert.deepEqual(r.boards.map((b) => b.stock).sort((a, b) => a - b), [96, 168]);
+  assert.equal(r.boards.find((b) => b.stock === 168).why, 'B rim joist 150" needs it');
+  // Junk in a link keeps the default.
+  assert.equal(normalize({ ...defaultDesign(), maxHaulFt: 13 }).maxHaulFt, 12);
+  assert.equal(normalize({ ...defaultDesign(), maxHaulFt: '0' }).maxHaulFt, 0);
+});

@@ -87,7 +87,7 @@ test('a door wall is framed with the bottom plate already in pieces, as the cut 
 });
 
 test('the rafter step gives the wall line and tail on the board, and names the right hanger', () => {
-  const { s, md } = mdOf(defaultDesign()); // 8 ft wide, 4/12, ridge beam, connector seats, 6" overhang
+  const { s, md } = mdOf({ ...defaultDesign(), autoOverhang: false, overhang: 6 }); // 8 ft wide, 4/12, ridge beam, connector seats, 6" overhang
   assert.equal(s.dims.connector, true);
   // run to the outside of the wall: 48 - 1-1/2 (half the beam) = 46-1/2; along the slope 46.5 / cos(18.43 deg) = 49.01
   assert.match(md, /measure 49" along the bottom edge \(a level run of 46-1\/2"\)/);

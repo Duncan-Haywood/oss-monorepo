@@ -94,6 +94,10 @@ export function defaultDesign() {
     roofCover: 'shingles',
     rafterSeat: 'connector',
     maxFootprint: 100,
+    // The longest board you can carry home (ft, 0 for no limit). Longer stock is
+    // bought only for a piece that cannot be spliced; a pickup's 8 ft bed with
+    // the tailgate down carries 12 ft.
+    maxHaulFt: 12,
     kerf: 0.125,
     lengths: [...DEFAULT_LENGTHS_FT],
     openings: /** @type {Opening[]} */ ([
@@ -213,6 +217,7 @@ export function normalize(input) {
     roofCover: pick(o.roofCover, ['shingles', 'metal'], d.roofCover),
     rafterSeat: pick(o.rafterSeat, ['birdsmouth', 'connector'], d.rafterSeat),
     maxFootprint: Math.min(1000, Math.max(0, num(o.maxFootprint, d.maxFootprint))),
+    maxHaulFt: o.maxHaulFt !== '' && o.maxHaulFt !== null && [0, 8, 10, 12, 14, 16, 18, 20].includes(Number(o.maxHaulFt)) ? Number(o.maxHaulFt) : d.maxHaulFt,
     ventWidth: Math.min(36, Math.max(6, num(o.ventWidth, d.ventWidth))),
     ventHeight: Math.min(36, Math.max(6, num(o.ventHeight, d.ventHeight))),
     kerf: Math.min(0.25, Math.max(0, num(o.kerf, d.kerf))),
@@ -444,6 +449,11 @@ function buildFramed(d) {
   const L = d.length;
   const W = d.width;
   const maxStock = Math.max(...d.lengths) * 12;
+  // Members that can be spliced (skids, rims, plates, a ridge board, the
+  // sub-fascia) break at the longest board you can haul, so they never need a
+  // long one; a ridge beam, joists, studs and rafters still take what they need.
+  const shortest = Math.min(...d.lengths) * 12;
+  const spliceAt = d.maxHaulFt > 0 ? Math.min(maxStock, Math.max(shortest, ...d.lengths.filter((ft) => ft <= d.maxHaulFt).map((ft) => ft * 12))) : maxStock;
   const X = /** @type {Vec} */ ([1, 0, 0]);
   const Y = /** @type {Vec} */ ([0, 1, 0]);
   const Z = /** @type {Vec} */ ([0, 0, 1]);
@@ -465,9 +475,9 @@ function buildFramed(d) {
   if (d.roofType === 'ridgeBeam' && skidCount % 2 === 0) skidCount += 1;
   const skidYs = [];
   for (let i = 0; i < skidCount; i++) skidYs.push(skid.thick / 2 + (i * (W - skid.thick)) / (skidCount - 1));
-  const skidSplit = splitRun(0, L, maxStock, [], [], 0);
+  const skidSplit = splitRun(0, L, spliceAt, [], [], 0);
   if (skidSplit.runs.length > 1) {
-    notes.push(`Skids are longer than the longest board you allowed (${maxStock / 12} ft), so each is spliced; stagger the joints between skids${block ? ' and land each joint on a block' : ''}.`);
+    notes.push(`Skids are longer than the longest board you allowed or can haul (${spliceAt / 12} ft), so each is spliced; stagger the joints between skids${block ? ' and land each joint on a block' : ''}.`);
   }
   // Even pieces read better than one long and one stub.
   const skidPieces = skidSplit.runs.length;
@@ -534,7 +544,7 @@ function buildFramed(d) {
   const jz = skidTop;
   const floorTop = jz + joist.depth + 0.75;
   const joistCenters = [0.75, ...layoutCenters(d.joistSpacing, 0.75 + 1.5, L - 0.75 - 1.5), L - 0.75];
-  const rimSplit = splitRun(0, L, maxStock, joistCenters);
+  const rimSplit = splitRun(0, L, spliceAt, joistCenters);
   for (const y0 of [0, W - 1.5]) {
     for (const [s0, s1] of rimSplit.runs) {
       push({
@@ -717,35 +727,47 @@ function buildFramed(d) {
     let cur = 0;
     for (const [g0, g1] of doorGaps) { if (g0 > cur) bottomRuns.push([cur, g0]); cur = g1; }
     if (cur < len) bottomRuns.push([cur, len]);
-    for (const [r0, r1] of bottomRuns) {
-      for (const [s0, s1] of splitRun(r0, r1, maxStock, breakCenters).runs) addM('bottom plate', d.studSize, s0, s1, 0, 1.5);
-    }
     // The cap plate interlocks the corners: on the eave walls it stops one wall
     // depth short of each end, and the gable walls' cap runs that much long to
     // lap over the eave walls' top plate.
     const [c0, c1] = spec.eave ? [D, len - D] : [-D, len + D];
-    let top = splitRun(0, len, maxStock, breakCenters);
-    let topJoints = top.runs.slice(1).map((r) => r[0]);
-    let cap = splitRun(c0, c1, maxStock, breakCenters, topJoints, 48);
-    // The greedy split takes the longest top-plate piece first, which can leave
-    // the cap no joint 4 ft clear of it (a window can remove the stud the cap
-    // joint needs). Then choose both plates' joints together.
-    // 4 ft is the aim; the IRC's minimum (R602.3.2) is 24", the fallback.
     const clearOf = (tj, gap) => (b) => tj.every((t) => Math.abs(t - b) >= gap - 1e-9);
     const capJoints = (r) => r.runs.slice(1).map((x) => x[0]);
-    if (topJoints.length && !capJoints(cap).every(clearOf(topJoints, 48))) {
-      search: for (const gap of [48, PLATE_OFFSET_MIN]) {
-        for (const tj of jointSets(0, len, maxStock, breakCenters, () => true, 400)) {
-          const cj = jointSets(c0, c1, maxStock, breakCenters, clearOf(tj, gap), 400).next().value;
-          if (!cj) continue;
-          const runs = (a, b, js) => /** @type {[number, number][]} */ ([a, ...js].map((x, i) => [x, [...js, b][i]]));
-          top = { runs: runs(0, len, tj), forced: false };
-          topJoints = tj;
-          cap = { runs: runs(c0, c1, cj), forced: false };
-          break search;
+    /** Bottom, top and cap plate runs within boards of maxLen, and whether every joint is on a stud with caps 24" clear. @param {number} maxLen */
+    const platesWithin = (maxLen) => {
+      const bottom = bottomRuns.map(([r0, r1]) => splitRun(r0, r1, maxLen, breakCenters));
+      let top = splitRun(0, len, maxLen, breakCenters);
+      let topJoints = top.runs.slice(1).map((r) => r[0]);
+      let cap = splitRun(c0, c1, maxLen, breakCenters, topJoints, 48);
+      // The greedy split takes the longest top-plate piece first, which can leave
+      // the cap no joint 4 ft clear of it (a window can remove the stud the cap
+      // joint needs). Then choose both plates' joints together.
+      // 4 ft is the aim; the IRC's minimum (R602.3.2) is 24", the fallback.
+      if (topJoints.length && !capJoints(cap).every(clearOf(topJoints, 48))) {
+        search: for (const gap of [48, PLATE_OFFSET_MIN]) {
+          for (const tj of jointSets(0, len, maxLen, breakCenters, () => true, 400)) {
+            const cj = jointSets(c0, c1, maxLen, breakCenters, clearOf(tj, gap), 400).next().value;
+            if (!cj) continue;
+            const runs = (a, b, js) => /** @type {[number, number][]} */ ([a, ...js].map((x, i) => [x, [...js, b][i]]));
+            top = { runs: runs(0, len, tj), forced: false };
+            topJoints = tj;
+            cap = { runs: runs(c0, c1, cj), forced: false };
+            break search;
+          }
         }
       }
+      const ok = ![...bottom, top, cap].some((r) => r.forced) && capJoints(cap).every(clearOf(topJoints, PLATE_OFFSET_MIN));
+      return { bottom, top, cap, ok };
+    };
+    // Splice at the longest board you can haul; where the openings leave no
+    // good joint at that length, take the next longer board you allowed.
+    let plates = platesWithin(spliceAt);
+    for (const ft of d.lengths.filter((x) => x * 12 > spliceAt).sort((x, y) => x - y)) {
+      if (plates.ok) break;
+      plates = platesWithin(ft * 12);
     }
+    const { top, cap } = plates;
+    for (const r of plates.bottom) for (const [s0, s1] of r.runs) addM('bottom plate', d.studSize, s0, s1, 0, 1.5);
     for (const [s0, s1] of top.runs) addM('top plate', d.studSize, s0, s1, H - 3, H - 1.5);
     for (const [s0, s1] of cap.runs) addM('cap plate', d.studSize, s0, s1, H - 1.5, H, spec.eave ? `stops ${D}" short of each end; the end walls' cap laps over it` : `runs ${D}" past each end to lap over the long walls`);
     if (top.runs.length > 1) notes.push(`${WALL_LABEL[name]}: plates are longer than your longest board, so they splice over studs; the cap plate's joints are kept 4 ft from the top plate's where the layout allows, and never under the code's 24".`);
@@ -918,7 +940,7 @@ function buildFramed(d) {
     if (L > maxStock) warnings.push(`The ridge beam should be one piece ${Math.ceil(L / 12)} ft long; add that length to your board list.`);
     notes.push(`Ridge-beam roof: the beam carries the rafters (fix them with hangers), so there are no rafter ties and the inside is open to the roof. The beam size is your choice, not a span-table result; check it for a ${fmtSpan(L)} span and your snow load.`);
   } else {
-    const ridgeSplit = splitRun(0, L, maxStock, rafterCenters);
+    const ridgeSplit = splitRun(0, L, spliceAt, rafterCenters);
     for (const [s0, s1] of ridgeSplit.runs) {
       push({
         id: nextId('RB'), group: 'roof', kind: 'ridge board', material: ridgeSize, length: ceil16(s1 - s0),
@@ -1134,7 +1156,7 @@ function buildFramed(d) {
   if (o > 0) {
     const fz = zt(-o);
     const sf = actual('2x6');
-    const fsplit = splitRun(0, L, maxStock, rafterCenters);
+    const fsplit = splitRun(0, L, spliceAt, rafterCenters);
     for (const back of [false, true]) {
       const y0 = back ? W + o : -o - 1.5;
       for (const [s0, s1] of fsplit.runs) {
