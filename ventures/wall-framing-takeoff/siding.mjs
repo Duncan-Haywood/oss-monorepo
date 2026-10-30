@@ -14,14 +14,16 @@
 // courses above the eave line are as long as the triangle is wide at the
 // course's lower edge (boards are cut to the slope), the wrap is the exact
 // triangle area, and openings are only clipped to the eave line.
-// Not counted: soffit and fascia, window and door trim
-// boards, flashing, nails, caulk, paint, and the starter strip's rip.
+// Window and door trim boards (2026-10-30, `openingTrim: true`): per exterior opening a head and two jambs,
+// plus a sill board on windows, cut from `trimWidth` stock (default 3.5 in, a 1x4) and packed with the corner
+// boards' first-fit rule; off by default so earlier totals do not move. Siding runs are not shortened by the trim.
+// Not counted: soffit and fascia, flashing, nails, caulk, paint, and the starter strip's rip.
 // Wall height defaults to the plan's stud length plus the plates, as the
 // drywall hang height does.
 import { THICK } from "./engine.mjs";
 import { packPieces } from "./trim.mjs";
 
-/** @typedef {{ exposure?: number, stock?: number, waste?: number, wrapRollSqFt?: number, wrapLap?: number, corners?: number, cornerStock?: number, height?: number, boardPrice?: number, wrapPrice?: number, cornerPrice?: number }} Siding */
+/** @typedef {{ exposure?: number, stock?: number, waste?: number, wrapRollSqFt?: number, wrapLap?: number, corners?: number, cornerStock?: number, height?: number, boardPrice?: number, wrapPrice?: number, cornerPrice?: number, openingTrim?: boolean, trimWidth?: number, trimStock?: number, trimPrice?: number }} Siding */
 
 /** @param {Siding} d */
 export function validateSiding(d) {
@@ -33,6 +35,8 @@ export function validateSiding(d) {
   if (d.wrapLap != null && !(d.wrapLap >= 0 && d.wrapLap <= 0.3)) e.push("House wrap lap allowance must be between 0 and 0.3.");
   if (d.wrapRollSqFt != null && !(d.wrapRollSqFt >= 100 && d.wrapRollSqFt <= 3000)) e.push("House wrap roll coverage must be between 100 and 3000 sq ft.");
   if (d.corners != null && !(Number.isInteger(d.corners) && d.corners >= 0 && d.corners <= 40)) e.push("Outside corners must be a whole number from 0 to 40.");
+  if (d.trimWidth != null && !(d.trimWidth > 0 && d.trimWidth <= 8)) e.push("Trim board width must be between 0 and 8 inches.");
+  if (d.trimStock != null && !(d.trimStock >= 48 && d.trimStock <= 240)) e.push("Trim board length must be between 48 and 240 inches.");
   if (d.height != null && !(d.height >= 72 && d.height <= 192)) e.push("Siding height must be between 6 and 16 ft.");
   return e;
 }
@@ -58,6 +62,9 @@ export function layoutSiding(d, plan) {
   const corners = d.corners ?? 4, cornerStock = d.cornerStock ?? 120;
   const height = d.height ?? Math.round((plan.studLength + 3 * THICK) / 12) * 12;
   /** @type {number[]} */ const runs = [];
+  const tw = d.trimWidth ?? 3.5, trimStock = d.trimStock ?? 96;
+  /** @type {number[]} */ const trimPieces = [];
+  let trimDoors = 0, trimWindows = 0;
   let areaIn = 0, openIn = 0, wallsDone = 0, courses = 0;
   for (const w of plan.walls) {
     if (w.sheathed === false) continue;
@@ -66,6 +73,10 @@ export function layoutSiding(d, plan) {
       const top = o.headerHeight ?? plan.defaultHeaderHeight;
       return { x0: Math.max(0, o.offset), x1: Math.min(w.length, o.offset + o.width), y0: Math.max(0, top - o.height), y1: Math.min(height, top) };
     });
+    if (d.openingTrim) for (const o of w.openings || []) {
+      if (o.kind === "door") { trimDoors++; trimPieces.push(o.width + 2 * tw, o.height, o.height); }
+      else { trimWindows++; trimPieces.push(o.width + 2 * tw, o.width + 2 * tw, o.height, o.height); }
+    }
     const g = gableOf(w, height);
     areaIn += w.length * height + (g ? 0.5 * w.length * g.rise : 0);
     for (const o of ops) openIn += Math.max(0, o.x1 - o.x0) * Math.max(0, o.y1 - o.y0);
@@ -93,11 +104,14 @@ export function layoutSiding(d, plan) {
   const wrapRolls = Math.ceil(wrapSqFt / wrapRoll - 1e-9);
   const cp = packPieces(Array.from({ length: 2 * corners }, () => height), cornerStock);
   const cornerBoards = corners > 0 ? Math.ceil(cp.boards * (1 + waste) - 1e-9) : 0;
+  const tp = d.openingTrim ? packPieces(trimPieces, trimStock) : null;
+  const trimBoards = tp ? Math.ceil(tp.boards * (1 + waste) - 1e-9) : 0;
   const money = (/** @type {number | undefined} */ p, /** @type {number} */ q) => (p != null ? q * p : 0);
   return {
     ok: true, errors: [], waste, exposure, stock, height, courses, walls: wallsDone,
     netSqFt, openingSqFt: openIn / 144, runFeet: b.usedIn / 12, boards, wrapSqFt, wrapRollSqFt: wrapRoll, wrapRolls, corners, cornerBoards, cornerStock,
-    cost: d.boardPrice != null || d.wrapPrice != null || d.cornerPrice != null ? money(d.boardPrice, boards) + money(d.wrapPrice, wrapRolls) + money(d.cornerPrice, cornerBoards) : null,
+    trim: tp ? { doors: trimDoors, windows: trimWindows, width: tw, stock: trimStock, feet: tp.usedIn / 12, boards: trimBoards, price: d.trimPrice ?? null } : null,
+    cost: d.boardPrice != null || d.wrapPrice != null || d.cornerPrice != null || (tp && d.trimPrice != null) ? money(d.boardPrice, boards) + money(d.wrapPrice, wrapRolls) + money(d.cornerPrice, cornerBoards) + money(d.trimPrice, trimBoards) : null,
     boardPrice: d.boardPrice ?? null, wrapPrice: d.wrapPrice ?? null, cornerPrice: d.cornerPrice ?? null,
   };
 }
@@ -108,6 +122,7 @@ export function sidingText(s) {
   l.push(`  Siding: ${s.walls} exterior wall(s), ${s.height / 12} ft high, ${s.courses} courses at ${s.exposure} in exposure; ${s.runFeet.toFixed(0)} ft of runs cut round openings and packed into ${s.stock / 12} ft boards -> ${s.boards} boards (${(100 * s.waste).toFixed(0)}% waste added)${s.boardPrice != null ? `, ${(s.boards * s.boardPrice).toFixed(2)} at ${s.boardPrice} each` : ""}`);
   l.push(`  House wrap: ${s.netSqFt.toFixed(0)} sq ft of wall net of ${s.openingSqFt.toFixed(0)} sq ft of openings, ${s.wrapSqFt.toFixed(0)} with laps -> ${s.wrapRolls} roll(s) of ${s.wrapRollSqFt} sq ft${s.wrapPrice != null ? `, ${(s.wrapRolls * s.wrapPrice).toFixed(2)} at ${s.wrapPrice} each` : ""}`);
   l.push(`  Corner boards: ${s.corners} outside corners x 2 = ${s.cornerBoards} boards of ${s.cornerStock / 12} ft${s.cornerPrice != null ? `, ${(s.cornerBoards * s.cornerPrice).toFixed(2)} at ${s.cornerPrice} each` : ""}`);
-  l.push("  Soffit and fascia, window and door trim, flashing, nails, caulk and paint are not counted; exposure, stock lengths, coverage and prices are figures you type.");
+  if (s.trim) l.push(`  Opening trim: ${s.trim.doors} door(s) x (head + 2 jambs), ${s.trim.windows} window(s) x (head + sill + 2 jambs), ${s.trim.width} in boards, ${s.trim.feet.toFixed(0)} ft packed into ${s.trim.stock / 12} ft boards -> ${s.trim.boards} boards (waste added)${s.trim.price != null ? `, ${(s.trim.boards * s.trim.price).toFixed(2)} at ${s.trim.price} each` : ""}`);
+  l.push(`  Soffit and fascia, ${s.trim ? "" : "window and door trim, "}flashing, nails, caulk and paint are not counted; exposure, stock lengths, coverage and prices are figures you type.`);
   return l;
 }
