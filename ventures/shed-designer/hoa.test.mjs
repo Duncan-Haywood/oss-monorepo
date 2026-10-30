@@ -141,7 +141,8 @@ for (const [key, make] of Object.entries(PRESETS)) {
     assert.ok(t.includes(`${fmtFtIn(d.width)} walls`));
     assert.ok(t.includes(`${fmtFtIn(d.width + 2 * d.overhang)} roof`));
     assert.ok(t.some((s) => s.endsWith(' roof') && s.startsWith('about ')));
-    assert.ok(t.includes('FRONT') && t.includes('RIDGE'));
+    // A lean-to has no ridge: its plan says which way the one slope falls.
+    assert.ok(t.includes('FRONT') && (d.style === 'leanTo' ? !t.includes('RIDGE') : t.includes('RIDGE')));
     if (d.overhang > 0) assert.ok(t.includes(fmtIn(d.overhang)));
     for (const kind of ['door', 'window']) {
       const n = shed.framedOpenings.filter((o) => o.kind === kind).length;

@@ -340,7 +340,7 @@ export function elevationSvg(shed, name) {
   // Pitch: a little triangle on the roof (gable ends) or a note above it (eave sides).
   if (salt) {
     // A saltbox: both slopes, named, on every side.
-    dims.push(`<g class="dim pitch"><text x="${(F / 2).toFixed(2)}" y="${(Y(k.peak) - fs * 0.6).toFixed(2)}" text-anchor="middle" font-size="${fs}">saltbox: ${salt.front.pitch}/12 front slope, ${salt.back.pitch}/12 back slope; ridge ${fmtFtIn(k.peak)} up</text></g>`);
+    dims.push(`<g class="dim pitch"><text x="${(F / 2).toFixed(2)}" y="${(Y(k.peak) - fs * 0.6).toFixed(2)}" text-anchor="middle" font-size="${fs}">${salt.back.pitch}/12 roof pitch at the back, ${salt.front.pitch}/12 at the front (saltbox); ridge ${fmtFtIn(k.peak)} up</text></g>`);
   } else if (gam) {
     dims.push(`<g class="dim pitch"><text x="${(F / 2).toFixed(2)}" y="${(Y(k.peak) - fs * 0.6).toFixed(2)}" text-anchor="middle" font-size="${fs}">${d.pitch}/12 roof pitch above the bend, ${d.gambrelLower}/12 below it (gambrel); peak ${fmtFtIn(k.peak)} up</text></g>`);
   } else if (!eave) {

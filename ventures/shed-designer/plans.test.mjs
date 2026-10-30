@@ -110,8 +110,11 @@ test('the rafter detail dimensions the board from long point to long point', () 
   for (const { name, shed, sheets } of sets) {
     const sheet = sheets.find((s) => s.id === 'rafter');
     if (shed.design.style === 'gambrel') { assert.ok(!sheet && sheets.some((s) => s.id === 'truss'), name); continue; }
-    const d = sheet.items.find((it) => it.t === 'dim' && /cut length/.test(it.text || ''));
-    assert.ok(Math.abs(Math.hypot(d.b[0] - d.a[0], d.b[1] - d.a[1]) - shed.dims.rafterCut) < 1 / 16, name);
+    // A saltbox has a sheet for each slope's rafter.
+    for (const [id, cut] of shed.dims.saltbox ? [['rafter', shed.dims.slopes.front.rafterCut], ['rafter-back', shed.dims.slopes.back.rafterCut]] : [['rafter', shed.dims.rafterCut]]) {
+      const d = sheets.find((s) => s.id === id).items.find((it) => it.t === 'dim' && /cut length/.test(it.text || ''));
+      assert.ok(Math.abs(Math.hypot(d.b[0] - d.a[0], d.b[1] - d.a[1]) - cut) < 1 / 16, `${name} ${id}`);
+    }
   }
 });
 
