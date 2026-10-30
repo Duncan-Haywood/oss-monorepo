@@ -23,6 +23,17 @@ in payroll, and get a shift list you can copy into your schedule**, which used t
 - Compared with: the best plan using only one fixed shift length (your template), and everyone at the peak all day.
 - Sensitivity: the cost of each minimum shift length, and of demand 10-30% higher or 10% lower.
 
+## From a POS or booking export (2026-10-30)
+
+`demandFromHistory(text, { stat, minShare })` reads a CSV with one row per order or sale and its date and time (ISO,
+US `10/5/2026 1:30 PM`, or day-first when the first number is over 12), and returns `day,hour,value` rows for the
+optimizer. The value is the sum of a sales/total/amount column when one exists, else the number of rows, averaged over
+the dates seen for that weekday (`stat: "mean"`) or taken at the 80th percentile (`"p80"`, a busy day). An hour seen on
+under 25% of a weekday's dates (`minShare`) is treated as closed, so one 3 am order does not open the shop; quiet hours
+inside the open span stay open at zero. Wall-clock time as written is used (a trailing Z or offset is dropped). Tested on
+hand-computed averages, the stamp formats and an end-to-end run through `optimize`; never run on a real POS export, so
+column names from Square, Toast and others are guesses from their usual headers (wanted: a real export).
+
 ## Limits
 
 Not modelled: who works which shift, availability, overtime and weekly hour caps, breaks, skills, predictive-scheduling or

@@ -2,6 +2,21 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-30 · Milestone 6h (H6 scale-up): does the 6f rule keep its form at a wider model, with its constants refitted? (planned before running)
+
+- Why: 6g's "Next" and Milestone 6. Every H6 result so far is one 413k-parameter GPT; the rule's form was designed on it.
+- Setup (`experiments/gpt_scale/scale.py`): same corpus, 3,840-step budget, M = 4, inner lr 2e-3, plain outer step; only width changes (dim 128 -> 192, 6 heads, 2 layers; parameter count printed by the run). Seven cells, rand-k keep p in {1, 1/16} x H in {4, 16, 64} plus p = 1/4 at H = 16, seeds 0 and 1 (14 runs, no tuning for the new size).
+- **H6h-i:** refitting the three constants on the size-2 cells, leave-one-cell-out MAPE is under 1% (as at size 1, 0.91% in 6f). **H6h-ii:** the fitted H exponent b at size 2 is within 0.5 of size 1's. **H6h-iii:** the size-2 compression excess is a single scalar multiple of size 1's (through-origin fit) with every residual under 0.02 nats; borrowing size 1's excess unchanged is worse. Priors: i 60%, ii 50%, iii 55%.
+- Limits to state: two seeds, seven cells, one extra size (not the four of Milestone 6), same corpus, no inner-lr retuning at the new width.
+
+### Outcome of 6h (`experiments/gpt_scale/scale.jsonl`, `scale_results.txt`; 914,880 parameters, 14 runs, about 17 min each)
+- **H6h-i refuted.** Leave-one-cell-out MAPE of the refitted rule is 2.54% at size 2 against 0.71% on the same seven size-1 cells. The misses are concentrated in the extreme cell: held out, (H = 64, keep 1/16) is over-predicted by 0.174 nats (the other six cells miss by under 0.04), because it is the only cell that fixes the H exponent when left out. Two seeds and seven cells leave the fit weakly identified; this says the three-constant rule needs more than seven cells at a new size, not that its form is wrong.
+- **H6h-ii supported.** b = 0.55 at size 2 against 0.35 at size 1 (difference 0.20, under the 0.5 bound; both from a 0.05 grid on seven cells).
+- **H6h-iii supported, with four compressed cells.** Size-2 compression excess = 0.497 x size-1 excess; residuals -0.012, +0.013, -0.003, -0.005 nats, all under 0.02. Borrowing size 1's excess unchanged misses by 0.012 to 0.055 nats, so the excess about halves at 2.2x the parameters (keep 1/16, H = 16: +0.083 to +0.054).
+- Reading, not tested: the shape in (H, omega) carried over and only a scale changed. One constant fitted on four cells and two seeds each, so the 0.497 has no interval; the uncompressed curve also differs between sizes (H = 64 is worse than H = 16 by 0.034 at size 2, 0.019 at size 1).
+- Limits: two seeds; one extra size, not four; 4 compressed cells for the scale factor; same corpus and budget (the wider model is further from converged); inner lr not retuned.
+- Next: a third size (dim 256) to test whether the scale factor continues to fall smoothly, and more seeds on the H = 64 cell.
+
 ## 2026-10-30 · Milestone 6g (H6): does the 6f rule, fitted on rand-k only, predict plain top-k cells it never saw? (analysis of existing cells; script written after the top-k cells of 6e were already known, so the predictions below are not blind)
 
 - Why: 6f's "Next". Top-k is biased, so omega = 1/p - 1 has no theory behind it for it; the test is whether the nominal-keep omega still works with no new constant.
