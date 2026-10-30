@@ -6,9 +6,11 @@
 // It answers "what is the best shed I can get under 100 sq ft for the least
 // money" without starting from one design: it tries sizes that fit the
 // footprint limit (8x12, 10x10, 7x14, 9x11 ...), the ridge running either way,
-// several door and window layouts, ridge beam or ridge board, pitch, overhang,
-// wall height, stud and rafter spacing, rafter and joist size and the
-// foundation. Keys you fix (roof covering, siding, colours) are never changed.
+// several door and window layouts and which door and window, ridge beam or
+// ridge board, pitch, overhang, wall height, stud and rafter spacing, rafter
+// and joist size, the foundation, the floor panel, the siding and the roof
+// covering. Keys you fix (say the shingles and siding that match your house)
+// are never changed.
 //
 // Every design kept passes every structural check (checks.mjs) and every
 // load-path and connection check (connections.mjs). Cost is the estimate's
@@ -25,13 +27,14 @@
 //   picks(front)               -> named picks: cheapest, most storage, best looks, balanced
 //   sizesUnder(maxSqFt, opts)  -> [{ length, width }] in inches
 //   layoutOpenings(layout, size, roofType) -> the openings a layout puts on a size
-//   LAYOUTS, OBJECTIVES, DEFAULT_CONSTRAINTS
+//   LAYOUTS, DOORS, WINDOWS, OBJECTIVES, DEFAULT_CONSTRAINTS
 // Fields are only ever added to these results, never renamed or removed.
 
 import { buildShed, normalize, defaultDesign } from './model.mjs';
 import { estimate } from './estimate.mjs';
 import { structuralChecks } from './checks.mjs';
 import { connectionChecks } from './connections.mjs';
+import { LEVER_KNOBS, searchKeep } from './levers.mjs';
 
 /**
  * @typedef {{ floorSqFt: number, clearHeightIn: number, wallVolumeCuFt: number, overheadCuFt: number,
@@ -92,35 +95,43 @@ export function sizesUnder(maxSqFt, c = {}) {
   return out.sort((a, b) => b.length * b.width - a.length * a.width || Math.abs(a.length - a.width) - Math.abs(b.length - b.width));
 }
 
-const DOOR = { kind: 'door', width: 38.5, height: 78, product: 'site-built' };
-// 18 x 23 vertical slider; its head lines up with the 78" door head.
-const WIN = { kind: 'window', width: 18.25, height: 23.25, sill: 78 - 23.25, product: 'swm-1823' };
-
 /**
- * Door and window layouts, as functions of the size. Offsets centre each
- * opening (or pair) on its wall, so the layout is the same on every size.
- * "Eave" walls run the ridge direction (front, back); "gable" walls are the ends.
+ * Doors the search can fit, by id: the site-built door (siding on a 2x4 Z
+ * frame), a 32" prehung steel door and 48" double shed doors. Rough openings
+ * are the makers' (products.mjs).
  */
+export const DOORS = {
+  'site-built': { kind: 'door', width: 38.5, height: 78, product: 'site-built' },
+  'masonite-3280-flush': { kind: 'door', width: 34.25, height: 82, product: 'masonite-3280-flush' },
+  'sr-48x72': { kind: 'door', width: 48, height: 71.25, product: 'sr-48x72' },
+};
+/** Windows the search can fit, by id: shed sliders. Each is set so its head lines up with the door head. */
+export const WINDOWS = {
+  'swm-1823': { kind: 'window', width: 18.25, height: 23.25, product: 'swm-1823' },
+  'swm-1421': { kind: 'window', width: 14.25, height: 21.25, product: 'swm-1421' },
+  'swm-h2427': { kind: 'window', width: 24.25, height: 27.25, product: 'swm-h2427' },
+};
+
 export const LAYOUTS = {
-  'eave door, two windows opposite': (/** @type {number} */ L) => [
+  'eave door, two windows opposite': (/** @type {number} */ L, /** @type {number} */ W, /** @type {any} */ DOOR, /** @type {any} */ WIN) => [
     { ...DOOR, wall: 'front', offset: (L - DOOR.width) / 2 },
     ...(L >= 96 ? [{ ...WIN, wall: 'back', offset: L / 4 - WIN.width / 2 }, { ...WIN, wall: 'back', offset: (3 * L) / 4 - WIN.width / 2 }] : [{ ...WIN, wall: 'back', offset: (L - WIN.width) / 2 }]),
   ],
-  'eave door between two windows': (/** @type {number} */ L) => (L >= 120 ? [
+  'eave door between two windows': (/** @type {number} */ L, /** @type {number} */ W, /** @type {any} */ DOOR, /** @type {any} */ WIN) => (L >= 120 ? [
     { ...DOOR, wall: 'front', offset: (L - DOOR.width) / 2 },
     { ...WIN, wall: 'front', offset: (L - DOOR.width) / 4 - WIN.width / 2 },
     { ...WIN, wall: 'front', offset: L - (L - DOOR.width) / 4 - WIN.width / 2 },
   ] : null),
-  'gable door, a window each side': (/** @type {number} */ L, /** @type {number} */ W) => [
+  'gable door, a window each side': (/** @type {number} */ L, /** @type {number} */ W, /** @type {any} */ DOOR, /** @type {any} */ WIN) => [
     { ...DOOR, wall: 'right', offset: (W - DOOR.width) / 2 },
     { ...WIN, wall: 'front', offset: (L - WIN.width) / 2 },
     { ...WIN, wall: 'back', offset: (L - WIN.width) / 2 },
   ],
-  'gable door, window in the far gable': (/** @type {number} */ L, /** @type {number} */ W) => [
+  'gable door, window in the far gable': (/** @type {number} */ L, /** @type {number} */ W, /** @type {any} */ DOOR, /** @type {any} */ WIN) => [
     { ...DOOR, wall: 'right', offset: (W - DOOR.width) / 2 },
     { ...WIN, wall: 'left', offset: (W - WIN.width) / 2 },
   ],
-  'gable door, no windows': (/** @type {number} */ L, /** @type {number} */ W) => [
+  'gable door, no windows': (/** @type {number} */ L, /** @type {number} */ W, /** @type {any} */ DOOR, /** @type {any} */ WIN) => [
     { ...DOOR, wall: 'right', offset: (W - DOOR.width) / 2 },
   ],
 };
@@ -134,9 +145,12 @@ const KNOBS = {
   studSpacing: [16, 24],
   rafterSpacing: [16, 24],
   rafterSize: ['2x4', '2x6'],
-  joistSize: ['2x4', '2x6'],
-  foundation: ['blocks', 'deck blocks'],
-  floorPanel: ['plywood', 'OSB'],
+  // Foundation and floor options and their limits live in levers.mjs.
+  ...LEVER_KNOBS,
+  sidingType: ['T1-11', 'LP SmartSide', 'LP SmartSide 7/16', 'fiber cement', 'vinyl', 'board and batten'],
+  roofCover: ['shingles', 'metal'],
+  door: Object.keys(DOORS),
+  window: Object.keys(WINDOWS),
 };
 
 /**
@@ -322,9 +336,12 @@ const ft = (/** @type {number} */ x) => String(Math.round((x / 12) * 10) / 10);
  * then needs a gable wall of 8 ft 6 in, and on a narrower one it is left out
  * and the design is rejected.
  * @param {string} layout @param {{ length: number, width: number }} size @param {string} [roofType]
+ * @param {string} [door] a DOORS id @param {string} [window] a WINDOWS id
  */
-export function layoutOpenings(layout, size, roofType) {
-  const ops = LAYOUTS[layout]?.(size.length, size.width);
+export function layoutOpenings(layout, size, roofType, door = 'site-built', window = 'swm-1823') {
+  const D = DOORS[door] ?? DOORS['site-built'];
+  const w = WINDOWS[window] ?? WINDOWS['swm-1823'];
+  const ops = LAYOUTS[layout]?.(size.length, size.width, D, { ...w, sill: Math.max(30, D.height - w.height) });
   if (!ops) return null;
   const W = size.width;
   return ops.map((o, i) => {
@@ -339,9 +356,9 @@ export function layoutOpenings(layout, size, roofType) {
  * @param {any} base @param {{ length: number, width: number }} size @param {string} layout @param {Record<string, any>} knobs
  */
 function designAt(base, size, layout, knobs) {
-  const ops = layoutOpenings(layout, size, knobs.roofType);
+  const ops = layoutOpenings(layout, size, knobs.roofType, knobs.door, knobs.window);
   if (!ops) return null;
-  const { wall, ...rest } = knobs;
+  const { wall, door, window, ...rest } = knobs;
   return normalize({
     ...base, ...rest,
     name: `${ft(Math.min(size.width, size.length))}x${ft(Math.max(size.width, size.length))}${size.width === size.length ? '' : `, ridge along the ${ft(size.length)} ft side`}, ${knobs.roofType === 'ridgeBeam' ? 'ridge beam' : 'ridge board'}, ${layout}`,
@@ -369,11 +386,15 @@ export function* searchSteps(opts = {}) {
   const c = { ...DEFAULT_CONSTRAINTS, ...(opts.constraints ?? {}) };
   const base = normalize(opts.base ?? defaultDesign());
   const objectives = opts.objectives ?? ['cost', 'storage', 'looks'];
-  const fixed = new Set(opts.fixed ?? []);
-  const budget = opts.budget ?? 800;
+  // Your fixed keys, and the choices the design locks (levers.mjs: siding, roofing, foundation, floor, doors, windows).
+  const fixed = new Set([...(opts.fixed ?? []), ...searchKeep(base).map((k) => (k === 'doors' ? 'door' : k === 'windows' ? 'window' : k))]);
+  const budget = opts.budget ?? 2000;
   /** @type {Record<string, any[]>} */
   const knobs = {};
-  for (const [k, vals] of Object.entries({ ...KNOBS, ...(opts.knobs ?? {}) })) knobs[k] = fixed.has(k) ? [k === 'wall' ? base.wallHeight : base[k]] : vals;
+  // A fixed door or window is the base design's, when it is one the search knows.
+  const baseProduct = (kind, list) => { const p = base.openings.find((o) => o.kind === kind)?.product; return p && p in list ? p : Object.keys(list)[0]; };
+  const fixedValue = (k) => (k === 'wall' ? base.wallHeight : k === 'door' ? baseProduct('door', DOORS) : k === 'window' ? baseProduct('window', WINDOWS) : base[k]);
+  for (const [k, vals] of Object.entries({ ...KNOBS, ...(opts.knobs ?? {}) })) knobs[k] = fixed.has(k) ? [fixedValue(k)] : vals;
   const sizes = opts.sizes ?? sizesUnder(c.maxFootprint > 0 ? c.maxFootprint : 100, c);
   const layouts = (opts.layouts ?? Object.keys(LAYOUTS)).filter((l) => !fixed.has('openings') && l in LAYOUTS);
   /** @type {Map<string, Scored>} */
@@ -393,7 +414,8 @@ export function* searchSteps(opts = {}) {
     if (rec.feasible) all.push(rec); else rejected++;
     return rec;
   };
-  const lean = Object.fromEntries(Object.entries(knobs).map(([k, v]) => [k, k === 'pitch' && v.includes(6) ? 6 : k === 'overhang' && v.includes(12) ? 12 : v[0]]));
+  // The seed: 6/12, a foot of overhang, your foundation and floor where the search offers them, else the first option.
+  const lean = Object.fromEntries(Object.entries(knobs).map(([k, v]) => [k, k === 'pitch' && v.includes(6) ? 6 : k === 'overhang' && v.includes(12) ? 12 : k in LEVER_KNOBS && v.includes(base[k]) ? base[k] : v[0]]));
   const front = () => paretoFront(all, objectives);
   const progress = () => ({ evaluated: seen.size, budget, feasible: all.length, rejected });
   // Phase 1: one lean design per size and layout; a structural failure there gets the stouter choices once.
