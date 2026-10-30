@@ -1300,3 +1300,20 @@ which does not depend on the differenced rho estimate. `eval/residual-rho.mjs` c
 `treering` (0.22) sits below real-structure series (`us-inflation` 0.64, `puerto-rico-daily-deaths` 0.40) and above the
 index returns, so no threshold on residual rho flags it without also flagging series where steps are right. No code
 changed. A rho-free cycle detector stays open; a spectral peak test on the residuals is the next thing to try.
+
+## Is a spectral peak test on the residuals a rho-free cycle detector? No (2026-10-30, last)
+
+The open item after the residual-rho result was a periodogram test on the residuals of the default fit. `eval/residual-spectrum.mjs`
+computes Fisher's g (largest periodogram ordinate over the sum) and its exact p for all 34 numeric series in `data/`
+(`eval/residual-spectrum.out.txt`). It does not separate the cases:
+
+- It finds the real cycles it should: lynx at period 9.5 (p 2e-16), sunspots at 11.1 (p 2e-16), monthly deaths and Nottingham
+  temperatures at 12.
+- It misses `lh` (p 0.12, 5 false steps), the case a cycle hint would help.
+- It flags `treering` (p 4e-5), but at a period of 1,596 of 7,980 points with g 0.005, which is the lowest frequencies, not a cycle.
+- Most trending or stepped series (Nile, Lake Huron, US inflation, UK gas, airmiles) peak at the lowest frequency, the period
+  equal to the series length. That is leftover drift or a true regime, and the same statistic cannot tell it from a slow cycle.
+- Index returns are clean (p 0.4 to 1.0), but `fx-daily-returns` gives p 0.015.
+
+So no code changed. A usable version would need to exclude the lowest few frequencies and test the rest, which then drops
+treering too. Open: a documented series with many real steps to calibrate any hint against.
