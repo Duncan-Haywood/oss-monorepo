@@ -155,9 +155,7 @@ const FRONT_WALL_LAYOUTS = ['eave door, no windows', 'eave door and a window bes
 
 /** The knobs the search turns, each with its values. Keys in opts.fixed are left as the base has them. */
 const KNOBS = {
-  // A lean-to has no ridge, so roofType does nothing to one.
-  style: ['gable', 'leanTo'],
-  roofType: ['ridgeBoard', 'ridgeBeam'],
+  roofType: ['ridgeBoard', 'ridgeBeam', 'truss'],
   pitch: [4, 5, 6, 7, 8, 9],
   overhang: [6, 9, 12],
   wall: ['auto', 92, 97.125],
@@ -166,10 +164,12 @@ const KNOBS = {
   rafterSize: ['2x4', '2x6'],
   // Foundation and floor options and their limits live in levers.mjs.
   ...LEVER_KNOBS,
-  sidingType: ['T1-11', 'LP SmartSide', 'LP SmartSide 7/16', 'fiber cement', 'vinyl', 'board and batten'],
+  sidingType: ['T1-11', 'LP SmartSide', 'LP SmartSide 7/16', 'fiber cement', 'LP SmartSide lap', 'vinyl', 'board and batten'],
   roofCover: ['shingles', 'metal'],
   door: Object.keys(DOORS),
   window: Object.keys(WINDOWS),
+  // Gable or lean-to, tried last from each design (a lean-to has no ridge, so roofType does nothing to one).
+  style: ['gable', 'leanTo'],
 };
 
 /**
@@ -206,7 +206,9 @@ export function storageOf(shed) {
   let shelf = 2 * Lin + 2 * Win;
   for (const op of d.openings) shelf -= Math.min(op.width + 6, op.wall === 'front' || op.wall === 'back' ? Lin : Win);
   const notes = [];
-  if (!open) notes.push('The space over the rafter ties counts as loft storage; deck the ties before loading it, and keep it to light things.');
+  if (!open) notes.push(d.roofType === 'truss'
+    ? (d.atticStorage ? 'The space over the truss bottom chords counts as loft storage: the chords are sized for 20 psf; deck them before loading it.' : 'The space over the truss bottom chords counts as loft storage; the chords are sized for a 10 psf attic, so tick attic storage before loading it.')
+    : 'The space over the rafter ties counts as loft storage; deck the ties before loading it, and keep it to light things.');
   return {
     floorSqFt: r1(floorSqFt), clearHeightIn: r1(clearHeightIn), wallVolumeCuFt: r1(wallVolumeCuFt), overheadCuFt: r1(overheadCuFt),
     volumeCuFt: r1(wallVolumeCuFt + overheadCuFt), shelfFt: r1(Math.max(0, shelf) / 12), overheadOpen: open, notes,
@@ -412,8 +414,10 @@ function designAt(base, size, layout, knobs, minWall = DEFAULT_CONSTRAINTS.minWa
  *
  * Phase 1 seeds one design per size, ridge direction and layout at a lean
  * setting. Phase 2 is a Pareto local search: from each design on the current
- * front it tries every one-knob change, adds what it finds, and repeats from
- * the new front until the budget is spent or the front stops changing.
+ * front it tries every one-knob change, every other layout and every other size, adds what it finds, and repeats from
+ * the new front until the budget is spent or the front stops changing. It
+ * expands one design at a time, the best unexpanded one on each objective in
+ * turn, so each end of the front is followed out early.
  *
  * @param {{ base?: any, prices?: import('./estimate.mjs').Prices, constraints?: Partial<typeof DEFAULT_CONSTRAINTS>,
  *   objectives?: string[], fixed?: string[], budget?: number, sizes?: { length: number, width: number }[], layouts?: string[],
@@ -473,28 +477,41 @@ export function* searchSteps(opts = {}) {
       yield progress();
     }
   }
-  // Phase 2: Pareto local search, one knob at a time from each front design.
+  // Phase 2: Pareto local search, one knob at a time, one design at a time:
+  // each step expands the unexpanded front design that is best on one
+  // objective, taking the objectives in turn, so a cheaper (or roomier, or
+  // better-looking) design found is itself expanded soon after.
   // While nothing passes yet, it searches out from the designs that failed on the fewest counts.
   // Each style other than the gable also searches out from its own front, so a lean-to is refined
   // until it can stand against the best gables rather than dropped while it is still a rough seed.
   const expanded = new Set();
-  const styleFronts = () => styles.filter((st) => st !== 'gable').flatMap((st) => paretoFront(all.filter((x) => x.design.style === st), objectives));
-  for (let round = 0; seen.size < budget; round++) {
-    const from = all.length ? [...front(), ...styleFronts()] : [...seen.values()].sort((a, b) => a.why.length - b.why.length || a.cost - b.cost).slice(0, 8);
-    const todo = from.filter((s) => !expanded.has(JSON.stringify({ ...s.design, name: '' })));
+  const keyOf = (s) => JSON.stringify({ ...s.design, name: '' });
+  const styleFronts = styles.filter((st) => st !== 'gable');
+  let step = 0;
+  while (seen.size < budget) {
+    // Turns go round the whole front and each other style's own front.
+    const pools = [front(), ...styleFronts.map((st) => paretoFront(all.filter((x) => x.design.style === st), objectives))];
+    const pool = all.length ? pools[step % pools.length] : [];
+    const fresh = (list) => list.filter((x) => !expanded.has(keyOf(x)));
+    const from = all.length ? (fresh(pool).length ? pool : pools.flat()) : [...seen.values()].sort((a, b) => a.why.length - b.why.length || a.cost - b.cost).slice(0, 8);
+    const todo = fresh(from);
     if (!todo.length) break;
-    for (const s of todo) {
-      expanded.add(JSON.stringify({ ...s.design, name: '' }));
-      for (const [k, vals] of Object.entries(knobs)) {
-        for (const v of vals) {
-          if (seen.size >= budget) break;
-          if (s.knobs[k] === v) continue;
-          tryOne(s.size, s.layout, { ...s.knobs, [k]: v });
-          yield progress();
-        }
+    // Take turns between the objectives: the unexpanded design best on this turn's objective.
+    const f = OBJECTIVES[objectives[Math.floor(step / (styleFronts.length + 1)) % objectives.length]];
+    step++;
+    const s = todo.reduce((m, x) => (f.sense * f.of(x) > f.sense * f.of(m) ? x : m));
+    expanded.add(keyOf(s));
+    for (const [k, vals] of Object.entries(knobs)) {
+      for (const v of vals) {
+        if (seen.size >= budget) break;
+        if (s.knobs[k] === v) continue;
+        tryOne(s.size, s.layout, { ...s.knobs, [k]: v });
+        yield progress();
       }
-      if (seen.size >= budget) break;
     }
+    // The same design in another layout, and on another size.
+    for (const layout of layouts) { if (seen.size >= budget) break; if (layout !== s.layout) { tryOne(s.size, layout, s.knobs); yield progress(); } }
+    for (const size of sizes) { if (seen.size >= budget) break; if (size !== s.size) { tryOne(size, s.layout, s.knobs); yield progress(); } }
   }
   return { front: front(), all, evaluated: seen.size, rejected, constraints: c, objectives };
 }

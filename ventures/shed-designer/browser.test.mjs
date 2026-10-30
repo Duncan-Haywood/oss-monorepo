@@ -342,6 +342,20 @@ test('the store table, other tabs and design cards catch up just after an edit',
   assert.ok(await page.isVisible('#panel-cuts'));
 });
 
+test('choosing site-built trusses re-frames the roof: truss checks, truss sheet, truss build steps', { skip }, async (t) => {
+  const { page } = await open(t);
+  const before = await page.textContent('#total');
+  await page.selectOption('#roofType', 'truss');
+  await page.waitForFunction((b) => document.querySelector('#total')?.textContent !== b, before, { timeout: 5000 });
+  await page.click('[data-panel="panel-structure"]');
+  await page.waitForFunction(() => document.querySelector('#panel-structure')?.textContent.includes('Truss bottom chords'), null, { timeout: 5000 });
+  assert.doesNotMatch(await page.textContent('#panel-structure'), /Ridge beam/);
+  await page.click('[data-panel="panel-plans"]');
+  await page.waitForFunction(() => document.querySelector('#panel-plans')?.textContent.includes('Truss detail'), null, { timeout: 5000 });
+  await page.click('[data-panel="panel-build"]');
+  await page.waitForFunction(() => document.querySelector('#panel-build')?.textContent.includes('Build the trusses'), null, { timeout: 5000 });
+});
+
 test('a share link opens as a new design, and a broken one says so', { skip }, async (t) => {
   const { page } = await open(t);
   const d = await page.evaluate(() => ({ name: 'Link test', length: 120, width: 96 }));
@@ -494,4 +508,13 @@ test('the lean-to preset draws one slope in the editor, and the shape box switch
   await settle(page);
   assert.match(await page.$eval('#plan', (e) => e.textContent), /ridge/);
   assert.notEqual(await page.$eval('#total', (e) => e.textContent), total, 'the gable is priced again');
+});
+
+test('Save picture downloads the 3D view as a PNG', { skip }, async (t) => {
+  const { page } = await open(t);
+  const [dl] = await Promise.all([page.waitForEvent('download'), page.click('#save-picture')]);
+  assert.match(dl.suggestedFilename(), /-3d\.png$/);
+  const path = await dl.path();
+  const head = readFileSync(/** @type {string} */ (path)).subarray(0, 8);
+  assert.deepEqual([...head], [137, 80, 78, 71, 13, 10, 26, 10], 'a PNG file');
 });

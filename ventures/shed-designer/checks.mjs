@@ -12,6 +12,7 @@
 
 import { check, worst, studCheck, headerCheck, roofCase, FLOOR, SPF2, T, DEPTH } from './structure.mjs';
 import { fmtIn } from './lumber.mjs';
+import { trussChecks, trussForces } from './truss.mjs';
 import { subfloorCheck } from './levers.mjs';
 
 const CF_C = { '2x4': 1.15, '2x6': 1.1 };
@@ -55,12 +56,12 @@ export function nailZ(D, ls, lm, G = 0.42, Fyb = 90000) {
  * pair's outward thrust, H = wL^2 / 8h for the pair's load w (lb/ft on plan)
  * over the span L with the ridge h above the tie. It is face-nailed to each
  * rafter with 16d commons (0.162" x 3-1/2", SPF, CD 1.15 for snow); at least
- * three. Null for a ridge beam, which has no ties.
+ * three. Null for a ridge beam, which has no ties, and for trusses (truss.mjs).
  * @param {import('./model.mjs').Shed} shed
  */
 export function heelJoint(shed) {
   const d = shed.design;
-  if (d.roofType === 'ridgeBeam' || d.style === 'leanTo') return null;
+  if (d.roofType !== 'ridgeBoard' || d.style === 'leanTo') return null;
   const cos = 1 / Math.sqrt(1 + (d.pitch / 12) ** 2);
   const w = (15 / cos + d.snowLoad) * (d.rafterSpacing / 12);
   const L = d.width / 12;
@@ -97,7 +98,8 @@ export function structuralChecks(shed) {
   // Rafters: from the inside of the wall plate to the ridge (on a lean-to, from wall to wall).
   const lean = d.style === 'leanTo';
   const beam = !lean && d.roofType === 'ridgeBeam';
-  const rafterRunIn = lean ? d.width - 2 * k.stud : d.width / 2 - (beam ? 1.5 : 0.75) - k.stud;
+  const truss = !lean && d.roofType === 'truss';
+  const rafterRunIn = lean ? d.width - 2 * k.stud : d.width / 2 - (beam ? 1.5 : truss ? 0 : 0.75) - k.stud;
   {
     const [gov, r] = worst(check({ size: d.rafterSize, spacingIn: d.rafterSpacing, pitch: d.pitch, bearingIn: k.stud }, rafterRunIn / 12, roof));
     add('Rafters', `${d.rafterSize} at ${d.rafterSpacing}"`, `${fmtIn(rafterRunIn)} horizontal ${lean ? 'span between the walls' : 'run'} at ${d.pitch}/12, ${snow} psf snow + 15 dead`, r, gov);
@@ -109,7 +111,8 @@ export function structuralChecks(shed) {
   // carries the whole half roof, ridge to eave tip.
   // A lean-to's rafter is a simple span, so each wall takes half of it plus its own overhang.
   const tribFt = (beam ? rafterRunIn / 2 + k.stud + d.overhang : d.width / 2 + d.overhang) / 12;
-  const deadPlf = (15 / cos) * tribFt;
+  // Under trusses each eave wall also carries half the attic (bottom chord) load.
+  const deadPlf = (15 / cos) * tribFt + (truss ? (trussForces(d).wc * d.width) / 2 / 12 / (d.rafterSpacing / 12) : 0);
   const snowPlf = snow * tribFt;
   if (beam) {
     const spanIn = d.length - 2 * k.stud;
@@ -122,6 +125,8 @@ export function structuralChecks(shed) {
       Math.max(postCheck(2, d.studSize, postH, P), postCheck(2, d.studSize, k.studLen, P)), 'compression');
   } else if (lean) {
     // No ridge and no ties: the rafters bear on two walls and push neither outward.
+  } else if (truss) {
+    rows.push(...trussChecks(d).rows);
   } else {
     add('Ridge board', d.ridgeSize || k.ridgeSize, 'not a beam: rafter ties at the plate carry the rafters\' outward thrust', 0, 'none');
     const heel = /** @type {NonNullable<ReturnType<typeof heelJoint>>} */ (heelJoint(shed));
@@ -141,12 +146,11 @@ export function structuralChecks(shed) {
   }
   // Eave-wall studs: roof gravity plus wind on the face. A lean-to's tall front wall has the longest studs.
   {
+    // A lean-to's tall front wall has the longest studs.
     const len = lean ? k.highWall - 4.5 : k.studLen;
-    // A lean-to's front wall can be tall enough for the studs to buckle under the roof alone
-    // (studCheck says Infinity); report that as a plain failure.
-    const r0 = studCheck(d.studSize, d.studSpacing, len, [deadPlf, snowPlf], wind);
-    const r = Number.isFinite(r0) ? r0 : 99;
-    add('Wall studs', `${d.studSize} at ${d.studSpacing}"`, `${fmtIn(len)} tall${lean ? ' (the tall front wall)' : ''}, roof load plus ${wind} psf wind on the wall`, r, Number.isFinite(r0) ? 'combined bending and compression' : 'column buckling: the studs are too long and slender for the load');
+    const r = studCheck(d.studSize, d.studSpacing, len, [deadPlf, snowPlf], wind);
+    // studCheck answers Infinity when the load reaches the stud's buckling load; show that as over capacity.
+    add('Wall studs', `${d.studSize} at ${d.studSpacing}"`, `${fmtIn(len)} tall${lean ? ' (the tall front wall)' : ''}, roof load plus ${wind} psf wind on the wall${Number.isFinite(r) ? '' : '; the load reaches the stud\'s buckling load'}`, Number.isFinite(r) ? r : 9.99, 'combined bending and compression');
   }
   return {
     rows,

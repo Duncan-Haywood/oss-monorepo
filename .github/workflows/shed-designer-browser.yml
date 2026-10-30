@@ -61,4 +61,4 @@ jobs:
         env:
           PLAYWRIGHT: ${{ runner.temp }}/pw/node_modules/playwright/index.js
           AXE: ${{ runner.temp }}/pw/node_modules/axe-core/axe.min.js
-        run: node --test browser.test.mjs
+        run: node --test browser.test.mjs picker.browser.test.mjs renders.test.mjs

@@ -1,8 +1,10 @@
 # Research algorithms as free tools
 
 Graduate- and research-level algorithms from published papers, implemented
-as tools that run on the user's own data in the browser, from the command
-line and from an AI agent, with the paper credited on every surface.
+as tools that run on the user's own data, in the browser, from the command
+line or from an AI agent, with the paper credited on every surface. Where a
+tool runs is the agent's call for the method (owner, 2026-10-30; `goals.md`,
+"Direction: every platform"): the browser is a good default, not a rule.
 
 Why (owner, 2026-10-20): "i want to move more into in browser ml run tools
 that are actually useful [...] let's either give people access to advanced
@@ -23,9 +25,12 @@ as tools".
   and when?" beats "a demo of algorithm X". Each tool takes a pasted or
   uploaded CSV, ships a real public dataset as its example, and answers in
   words as well as numbers.
-- **Free to run.** Pure JavaScript (or WebAssembly) in the tab; no server,
-  no upload, no per-call cost. Small ML models are fine when their weights
-  are openly licensed and served as static files.
+- **Free to run, for us.** No per-call cost on the owner's accounts. Pure
+  JavaScript or WebAssembly in the tab is the easy path and gets the Pages
+  site, the extension and the app packagers for free. When a method is
+  better as a Python package, a CLI, a GPU job or a service the user runs,
+  ship it that way. Small ML models are fine when their weights are openly
+  licensed.
 
 ## Licences and credit
 
@@ -47,9 +52,9 @@ as tools".
 
 | File | What it holds |
 | --- | --- |
-| `engine.mjs` | Pure functions, no DOM, no network, seeded randomness only. Exports `PAPERS` (`[{ authors, title, venue, year, url, doi?, implemented, deviations }]`), `DEFAULTS`, and a top-level `analyze(input)` that returns a JSON-serialisable result with a plain-language `summary`. |
+| `engine.mjs` (or the engine in the language that fits) | Pure functions, no DOM, no hidden network calls, seeded randomness only. Exports `PAPERS` (`[{ authors, title, venue, year, url, doi?, implemented, deviations }]`), `DEFAULTS`, and a top-level `analyze(input)` that returns a JSON-serialisable result with a plain-language `summary`. |
 | `cli.mjs` | Zero-dependency CLI: CSV file or stdin in, human text or `--json` out, `--help` with the citation. This makes the tool eligible for the npm, Homebrew, container and MCP packagers in `platform/distribution/`. |
-| `index.html` | CSV paste/upload, "Load example" with the real dataset, an inline-SVG chart, the result in words, "Method and citation" with BibTeX, limits, FAQ JSON-LD, disclaimer, usage counters (`usage.mjs`). Nothing is uploaded. |
+| `index.html` | CSV paste/upload, "Load example" with the real dataset, an inline-SVG chart, the result in words, "Method and citation" with BibTeX, limits, FAQ JSON-LD, disclaimer, usage counters (`usage.mjs`). If it runs in the page, nothing is uploaded; if the tool is not a browser tool, this is its home/marketing page with install and usage instead. |
 | `data/` | The example dataset and `SOURCE.md` (source URL, licence, retrieval date). |
 | `README.md`, `VENTURE.yaml`, `LICENSE` | As for any venture; the README opens with what the tool answers, in a searcher's words, links the live page, and has a "Verification" section. |
 | `*.test.mjs` | Tests against a **published or independently computed reference** (the paper's own example, a textbook result, or another implementation's output with its provenance), plus property tests (invariances, edge cases), plus `page.test.mjs`. |
