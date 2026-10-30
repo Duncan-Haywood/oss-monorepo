@@ -1,0 +1,13 @@
+# Did your workers' comp audit overcharge you?
+
+> Free tool for small employers: enter your workers' comp premium audit worksheet and your own records, see which lines are worth disputing (overtime, uninsured subcontractors, officer payroll, class) in dollars, and copy a dispute note.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/workers-comp-audit-dispute-checker/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/workers-comp-audit-dispute-checker): MIT licensed.

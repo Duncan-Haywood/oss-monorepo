@@ -1,0 +1,13 @@
+# How much of a new 401(k) or SIMPLE IRA will the IRS pay for?
+
+> Free calculator for the SECURE 2.0 small-employer retirement plan startup credit: setup costs, employer contribution and auto-enrollment credits over five years, with the net after-tax benefit. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/retirement-plan-startup-credit-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/retirement-plan-startup-credit-calculator): MIT licensed.

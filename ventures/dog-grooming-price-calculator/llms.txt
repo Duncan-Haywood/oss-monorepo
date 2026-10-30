@@ -1,0 +1,14 @@
+# Which dog classes pay your hourly rate, and which ones underpay?
+
+> Price each breed class from its real minutes, drive time, supplies and no-shows, then audit past appointments to see which classes underpay. Your numbers, not market rates. No account, no upload.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/dog-grooming-price-calculator/)
+- [How to price dog grooming by breed and time](https://duncan-haywood.github.io/oss-monorepo/dog-grooming-price-calculator/how-to-price-dog-grooming-by-breed-and-time.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/dog-grooming-price-calculator): MIT licensed.

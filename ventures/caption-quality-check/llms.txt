@@ -1,0 +1,15 @@
+# Do your captions read too fast, too crowded, or off-sync?
+
+> Free tool: paste an SRT or WebVTT caption file and check it against commonly-used caption style-guide thresholds -- reading speed (characters per second), line length, lines per cue, minimum/maximum duration, overlapping cues, and too-short gaps between cues.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/caption-quality-check/)
+- [This checker vs. a paid captioning vendor's QC pass](https://duncan-haywood.github.io/oss-monorepo/caption-quality-check/vs-professional-caption-qc-review.html)
+- [Why caption quality is a different question from caption presence](https://duncan-haywood.github.io/oss-monorepo/caption-quality-check/why-caption-quality-matters.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/caption-quality-check): MIT licensed.

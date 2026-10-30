@@ -1,0 +1,15 @@
+# What should this deposition invoice actually total?
+
+> Free deposition transcript pricing calculator for freelance court reporters: turn page count, turnaround, travel, copies, and exhibits into an invoice total and an effective hourly rate, and check whether an agency's flat offer is worth the day. Entirely client-side, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/court-reporter-transcript-calculator/)
+- [This calculator vs. a spreadsheet or a guess under a deadline](https://duncan-haywood.github.io/oss-monorepo/court-reporter-transcript-calculator/vs-spreadsheet-or-guessing.html)
+- [What is a good per-page rate for a court reporter?](https://duncan-haywood.github.io/oss-monorepo/court-reporter-transcript-calculator/what-is-a-good-per-page-rate-for-a-court-reporter.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/court-reporter-transcript-calculator): MIT licensed.

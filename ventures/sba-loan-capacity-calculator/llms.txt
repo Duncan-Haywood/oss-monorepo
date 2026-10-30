@@ -1,0 +1,13 @@
+# How big a loan can your cash flow carry?
+
+> Free SBA loan capacity calculator. Enter cash flow, existing debt, rate, term and fees; see the largest loan a 1.25x DSCR supports, your coverage on the loan you want, and what a soft year does. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/sba-loan-capacity-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/sba-loan-capacity-calculator): MIT licensed.

@@ -1,0 +1,16 @@
+# What will this workflow cost you a month?
+
+> Paste a GitHub Actions workflow and see projected monthly billable minutes and cost, with the macOS 10x multiplier and cron costs flagged. Runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/actions-minutes-estimator/)
+- [How GitHub Actions minutes are billed](https://duncan-haywood.github.io/oss-monorepo/actions-minutes-estimator/how-github-actions-minutes-are-billed.html)
+- [This tool vs. reading your GitHub billing page](https://duncan-haywood.github.io/oss-monorepo/actions-minutes-estimator/vs-billing-page.html)
+- [This tool vs. doing the math yourself](https://duncan-haywood.github.io/oss-monorepo/actions-minutes-estimator/vs-doing-the-math-yourself.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/actions-minutes-estimator): MIT licensed.

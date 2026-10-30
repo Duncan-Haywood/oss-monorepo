@@ -1,0 +1,14 @@
+# What does HMRC say you sold?
+
+> Free UK crypto capital gains calculator. Paste your buys, sales, swaps and staking income as a CSV and it applies HMRC's same-day, 30-day and Section 104 pooling rules, works out each tax year's gain, exempt amount and estimated CGT, and exports the working. Nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/uk-crypto-cgt-calculator/)
+- [Section 104 pooling for crypto: a worked UK example](https://duncan-haywood.github.io/oss-monorepo/uk-crypto-cgt-calculator/section-104-pooling-crypto-worked-example.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/uk-crypto-cgt-calculator): MIT licensed.

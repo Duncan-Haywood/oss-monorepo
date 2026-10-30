@@ -1,0 +1,16 @@
+# What does one ready-to-use gallon really cost?
+
+> Calculate commercial cleaning chemical cost per ready-to-use gallon, bucket, and job from concentrate dilution and supplier price.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/cleaning-dilution-calculator/)
+- [How much does one diluted gallon really cost?](https://duncan-haywood.github.io/oss-monorepo/cleaning-dilution-calculator/how-much-does-diluted-cleaning-solution-cost.html)
+- [This calculator vs. Janitorial Manager](https://duncan-haywood.github.io/oss-monorepo/cleaning-dilution-calculator/vs-janitorial-manager.html)
+- [This calculator vs. pricing off the label price](https://duncan-haywood.github.io/oss-monorepo/cleaning-dilution-calculator/vs-pricing-off-the-label-price.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/cleaning-dilution-calculator): MIT licensed.

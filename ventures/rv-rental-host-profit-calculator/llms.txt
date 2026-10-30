@@ -1,0 +1,13 @@
+# Is renting out your RV worth it? Break-even nights, cash result and the rate you need
+
+> Free profit calculator for people who rent out an RV, camper or trailer: nightly rate, nights booked, platform fee, cleaning, wear, loan, insurance, storage and depreciation become a cash result, break-even nights and the rate you need. Private, runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/rv-rental-host-profit-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/rv-rental-host-profit-calculator): MIT licensed.

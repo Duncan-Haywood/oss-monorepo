@@ -1,0 +1,14 @@
+# What does that franchise earnings claim mean for you?
+
+> Free franchise Item 19 reality check. Enter the earnings tiers from a franchise disclosure document and see owner earnings after royalty and ad fund, payback, the average versus the median, and how many units fall below your salary target. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/franchise-item-19-reality-check/)
+- [How to read a franchise Item 19 earnings claim](https://duncan-haywood.github.io/oss-monorepo/franchise-item-19-reality-check/how-to-read-franchise-item-19-earnings-claims.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/franchise-item-19-reality-check): MIT licensed.

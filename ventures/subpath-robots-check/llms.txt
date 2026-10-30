@@ -1,0 +1,15 @@
+# Is your sitemap ever actually read?
+
+> A site published at a URL subpath — user.github.io/repo/, gitlab.io/project/, a CDN subdirectory — cannot govern its own robots.txt, so its sitemap is never auto-discovered and its pages are never enumerated. Paste your site URL to find out. Free, runs in your browser, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/subpath-robots-check/)
+- [This checker vs. opening robots.txt and looking](https://duncan-haywood.github.io/oss-monorepo/subpath-robots-check/vs-checking-robots-txt-by-eye.html)
+- [Why a subpath site cannot govern its robots.txt](https://duncan-haywood.github.io/oss-monorepo/subpath-robots-check/why-a-subpath-site-cannot-govern-its-robots-txt.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/subpath-robots-check): MIT licensed.

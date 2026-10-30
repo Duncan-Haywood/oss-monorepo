@@ -1,0 +1,16 @@
+# What did that DNS change actually do?
+
+> Capture what public resolvers answer for a customer domain, capture again after the change, and get a source-linked report of what changed, what did not, and what could not be observed. Free, runs entirely in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/dns-configuration-evidence/)
+- [How long does DNS propagation take?](https://duncan-haywood.github.io/oss-monorepo/dns-configuration-evidence/how-long-does-dns-propagation-take.html)
+- [This tool vs. running dig by hand](https://duncan-haywood.github.io/oss-monorepo/dns-configuration-evidence/vs-checking-dns-by-hand.html)
+- [This tool vs. whatsmydns.net](https://duncan-haywood.github.io/oss-monorepo/dns-configuration-evidence/vs-whatsmydns.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/dns-configuration-evidence): MIT licensed.

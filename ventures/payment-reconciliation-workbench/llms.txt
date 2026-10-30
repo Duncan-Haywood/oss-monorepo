@@ -1,0 +1,16 @@
+# Reconcile processor payouts before they disappear into the bank feed.
+
+> Free private CSV tool for small businesses to match Stripe, Square, or PayPal payouts to bank deposits and find reconciliation gaps without QuickBooks.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/payment-reconciliation-workbench/)
+- [This workbench vs. reconciling in a spreadsheet](https://duncan-haywood.github.io/oss-monorepo/payment-reconciliation-workbench/vs-reconciling-in-a-spreadsheet.html)
+- [This workbench vs. Synder](https://duncan-haywood.github.io/oss-monorepo/payment-reconciliation-workbench/vs-synder.html)
+- [Why does one payout show up as two (or more) bank deposits?](https://duncan-haywood.github.io/oss-monorepo/payment-reconciliation-workbench/why-does-one-payout-show-up-as-two-bank-deposits.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/payment-reconciliation-workbench): MIT licensed.

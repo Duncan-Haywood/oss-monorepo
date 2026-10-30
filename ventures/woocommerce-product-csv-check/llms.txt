@@ -1,0 +1,13 @@
+# Why did my WooCommerce product import fail?
+
+> Free WooCommerce product CSV checker: finds variations with no parent, duplicate SKUs, bad prices and sale dates, wrong GTIN check digits, broken image URLs, Excel-damaged SKUs and semicolon files, with line numbers, and applies safe fixes. Runs in your browser; the file is never uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/woocommerce-product-csv-check/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/woocommerce-product-csv-check): MIT licensed.

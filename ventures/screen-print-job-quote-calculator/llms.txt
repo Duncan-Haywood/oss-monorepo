@@ -1,0 +1,13 @@
+# What should this screen printing job cost?
+
+> Free screen printing quote calculator: price per piece from blanks, screens, ink and press time, a price-break ladder, and the smallest order that pays at your current price. Runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/screen-print-job-quote-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/screen-print-job-quote-calculator): MIT licensed.

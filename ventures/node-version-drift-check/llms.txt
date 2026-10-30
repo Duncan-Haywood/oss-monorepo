@@ -1,0 +1,15 @@
+# Do your package.json, .nvmrc, Dockerfile and CI agree on which Node.js to run?
+
+> Paste package.json, .nvmrc, .tool-versions, a Dockerfile and a GitHub Actions workflow and see whether your Node.js versions drifted: a pin that breaks engines.node, majors that disagree across files, end-of-life Node.js, or an unbounded engines range. Free, deterministic, runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/node-version-drift-check/)
+- [This checker vs. eyeballing the files and npm's engine-strict](https://duncan-haywood.github.io/oss-monorepo/node-version-drift-check/vs-eyeballing-and-npm-engine-strict.html)
+- [Why Node.js versions drift between package.json, .nvmrc, Docker and CI](https://duncan-haywood.github.io/oss-monorepo/node-version-drift-check/why-node-version-drift-happens.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/node-version-drift-check): MIT licensed.

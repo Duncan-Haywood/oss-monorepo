@@ -1,0 +1,16 @@
+# Bid the run, the copper, and the iron.
+
+> Price a water-softener install from extra pipe past the included run, copper versus PEX, an iron filter or under-sink RO, the brine drain, haul-away of the old unit, and a brine receptacle — not a published $799 installed special. See the walk-away number before you match a cheaper quote.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/water-softener-bid-calculator/)
+- [How much to charge to install a water softener](https://duncan-haywood.github.io/oss-monorepo/water-softener-bid-calculator/how-much-to-charge-to-install-a-water-softener.html)
+- [This calculator vs. a flat-rate water-softener special](https://duncan-haywood.github.io/oss-monorepo/water-softener-bid-calculator/vs-a-flat-rate-water-softener-special.html)
+- [This calculator vs. Jobber](https://duncan-haywood.github.io/oss-monorepo/water-softener-bid-calculator/vs-jobber.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/water-softener-bid-calculator): MIT licensed.

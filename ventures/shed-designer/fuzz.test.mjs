@@ -116,7 +116,7 @@ test('an inner rafter near a gable end moves in clear of the gable wall and its 
 test('a stud past its buckling load fails its check and says so, with no "Infinity%" anywhere', () => {
   // Seed 18712 found three: 12 ft walls of 2x4 at 24" under heavy snow, where the
   // stud's axial stress passes its Euler buckling stress (studCheck answers Infinity).
-  const s = buildShed({ ...PRESETS['8x12 classic'](), width: 186, wallHeight: 144, studSpacing: 24, snowLoad: 80, windLoad: 30 });
+  const s = buildShed({ ...PRESETS['8x12 classic'](), width: 186, wallHeight: 144, studSpacing: 24, autoStuds: false, snowLoad: 80, windLoad: 30 });
   const row = structuralChecks(s).rows.find((r) => r.member === 'Wall studs');
   assert.ok(Number.isFinite(row.ratio) && row.ratio > 1);
   assert.equal(row.ok, false);

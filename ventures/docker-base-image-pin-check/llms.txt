@@ -1,0 +1,16 @@
+# Are your Dockerfile base images pinned to a digest?
+
+> Paste your Dockerfile and find every FROM line referencing a base image by a mutable tag like node:18 instead of a pinned content digest (@sha256:...). Free, runs in your browser, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/docker-base-image-pin-check/)
+- [How to pin a Docker base image to a digest](https://duncan-haywood.github.io/oss-monorepo/docker-base-image-pin-check/how-to-pin-a-docker-base-image-to-a-digest.html)
+- [Docker Base Image Pin Check vs. Hadolint](https://duncan-haywood.github.io/oss-monorepo/docker-base-image-pin-check/vs-hadolint.html)
+- [Docker Base Image Pin Check vs. reading a Dockerfile by hand](https://duncan-haywood.github.io/oss-monorepo/docker-base-image-pin-check/vs-reading-a-dockerfile-by-hand.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/docker-base-image-pin-check): MIT licensed.

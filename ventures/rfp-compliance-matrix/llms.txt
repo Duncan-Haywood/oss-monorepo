@@ -1,0 +1,14 @@
+# Turn an RFP into a compliance matrix
+
+> Paste an RFP, RFQ or tender. Get a compliance matrix of every shall/must/required obligation with section numbers, categories and owner/status columns, plus the page limits, due dates and forms. CSV download. Private, in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/rfp-compliance-matrix/)
+- [How to build an RFP compliance matrix](https://duncan-haywood.github.io/oss-monorepo/rfp-compliance-matrix/how-to-build-an-rfp-compliance-matrix.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/rfp-compliance-matrix): MIT licensed.

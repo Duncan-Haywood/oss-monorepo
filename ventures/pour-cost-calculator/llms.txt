@@ -1,0 +1,17 @@
+# What does this drink actually cost you to pour?
+
+> Free pour cost calculator for bars and restaurants: price a cocktail from your own bottle costs and pour sizes, see the liquor cost percentage against your target, and find out what over-pouring is really costing you a year. Nothing leaves your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/pour-cost-calculator/)
+- [How to calculate pour cost](https://duncan-haywood.github.io/oss-monorepo/pour-cost-calculator/how-to-calculate-pour-cost.html)
+- [This calculator vs. a spreadsheet](https://duncan-haywood.github.io/oss-monorepo/pour-cost-calculator/vs-a-spreadsheet.html)
+- [This calculator vs. BinWise](https://duncan-haywood.github.io/oss-monorepo/pour-cost-calculator/vs-binwise.html)
+- [This calculator vs. WISK](https://duncan-haywood.github.io/oss-monorepo/pour-cost-calculator/vs-wisk.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/pour-cost-calculator): MIT licensed.

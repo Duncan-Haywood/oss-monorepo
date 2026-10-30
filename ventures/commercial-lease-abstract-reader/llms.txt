@@ -1,0 +1,13 @@
+# Turn a 60-page lease into a one-page abstract and a deadline calendar.
+
+> Free commercial lease abstract tool: paste a lease and get the key terms, a calendar of renewal-notice and rent-step dates (downloadable .ics), the year-by-year rent schedule and the clauses to negotiate, such as personal guaranty, NNN pass-throughs, holdover rent and relocation. Private, runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/commercial-lease-abstract-reader/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/commercial-lease-abstract-reader): MIT licensed.

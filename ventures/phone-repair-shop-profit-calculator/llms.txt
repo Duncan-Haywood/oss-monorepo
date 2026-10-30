@@ -1,0 +1,13 @@
+# Which jobs make your phone repair shop money, and how many does the season have to sell?
+
+> Free phone repair shop calculator: enter screen, port and micro-soldering prices, bench minutes, supplies, technician pay and rent, and see profit per job and per bench hour, break-even volume and the season result. Runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/phone-repair-shop-profit-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/phone-repair-shop-profit-calculator): MIT licensed.

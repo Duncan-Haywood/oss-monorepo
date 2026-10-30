@@ -1,0 +1,15 @@
+# S3 Bucket Exposure Checker
+
+> Free tool: paste an S3 bucket name and it sends two real, unsigned GET requests -- one asking the bucket to list its own contents, one asking to read its ACL -- to name whether anonymous listing is enabled and whether the ACL grants read or write access to AllUsers or AuthenticatedUsers.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/s3-bucket-exposure-check/)
+- [S3 Bucket Exposure Checker vs. checking by hand](https://duncan-haywood.github.io/oss-monorepo/s3-bucket-exposure-check/vs-checking-by-hand.html)
+- [Why S3 buckets end up publicly exposed](https://duncan-haywood.github.io/oss-monorepo/s3-bucket-exposure-check/why-s3-buckets-end-up-public.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/s3-bucket-exposure-check): MIT licensed.

@@ -1,0 +1,13 @@
+# How many pieces a month does your dry cleaner need to break even, and what price rise would fix a loss?
+
+> Free dry cleaner profit calculator: pieces, price, supplies, claims, card fees, labor and rent become monthly profit, break-even pieces, the price increase that covers your costs and debt coverage. Private, runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/dry-cleaner-profit-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/dry-cleaner-profit-calculator): MIT licensed.

@@ -1,0 +1,13 @@
+# What should your Starter, Pro and Team plans cost?
+
+> Free SaaS pricing tool: paste what surveyed customers would pay for each plan and get the Good-Better-Best prices that earn the most profit, who lands on each plan, and what you gain over your current prices. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/saas-tier-price-optimizer/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/saas-tier-price-optimizer): MIT licensed.

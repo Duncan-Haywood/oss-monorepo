@@ -1,0 +1,15 @@
+# 1-year or 2-year? Compare the Section 174A R&E catch-up election.
+
+> Free calculator for the Section 174A domestic R&E catch-up deduction (OBBBA, Rev.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/section-174a-catchup-calculator/)
+- [Should I take the Section 174A catch-up in one year or two?](https://duncan-haywood.github.io/oss-monorepo/section-174a-catchup-calculator/should-i-take-the-174a-catchup-in-one-year-or-two.html)
+- [This calculator vs. working out the Section 174A catch-up by hand](https://duncan-haywood.github.io/oss-monorepo/section-174a-catchup-calculator/vs-doing-the-math-by-hand.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/section-174a-catchup-calculator): MIT licensed.

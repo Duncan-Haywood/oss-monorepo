@@ -1,0 +1,16 @@
+# Will this manifest survive your next Kubernetes upgrade?
+
+> Paste Kubernetes manifests and find every apiVersion and kind a Kubernetes release has removed, before an upgrade rejects them. Runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/k8s-deprecated-api-check/)
+- [This checker vs. checking the migration guide by hand](https://duncan-haywood.github.io/oss-monorepo/k8s-deprecated-api-check/vs-checking-the-migration-guide-by-hand.html)
+- [This checker vs. Pluto](https://duncan-haywood.github.io/oss-monorepo/k8s-deprecated-api-check/vs-pluto.html)
+- [Why a manifest that applied yesterday fails after a Kubernetes upgrade](https://duncan-haywood.github.io/oss-monorepo/k8s-deprecated-api-check/why-a-manifest-fails-a-kubernetes-upgrade.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/k8s-deprecated-api-check): MIT licensed.

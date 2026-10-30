@@ -1,0 +1,16 @@
+# Bid the tree, the access, and the wood.
+
+> Price a tree-removal stop the way the job actually costs: DBH-squared wood volume, access, targets, stump grinding, haul, travel, loaded crew cost, and the walk-away number. Free, in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/tree-service-bid-calculator/)
+- [How to bid tree removal without guessing the day rate](https://duncan-haywood.github.io/oss-monorepo/tree-service-bid-calculator/how-to-bid-tree-removal.html)
+- [This calculator vs. a flat per-inch rate](https://duncan-haywood.github.io/oss-monorepo/tree-service-bid-calculator/vs-a-flat-per-inch-rate.html)
+- [This calculator vs. SingleOps](https://duncan-haywood.github.io/oss-monorepo/tree-service-bid-calculator/vs-singleops.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/tree-service-bid-calculator): MIT licensed.

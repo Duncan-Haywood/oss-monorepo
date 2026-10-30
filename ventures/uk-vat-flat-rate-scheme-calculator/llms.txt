@@ -1,0 +1,13 @@
+# Flat Rate Scheme or standard VAT: which leaves you more?
+
+> Free UK VAT Flat Rate Scheme calculator: compare the flat rate for your trade, the 16.5% limited cost trader rate and the 1% first-year discount with standard VAT accounting and see which leaves you more. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/uk-vat-flat-rate-scheme-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/uk-vat-flat-rate-scheme-calculator): MIT licensed.

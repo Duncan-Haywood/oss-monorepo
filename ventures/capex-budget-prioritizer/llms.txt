@@ -1,0 +1,13 @@
+# I can't afford every upgrade. Which projects should I fund?
+
+> Free capital budgeting tool for small businesses: list the equipment, vehicle and software projects you want, enter your budget, and get the set with the highest total net present value, with options, must-dos and payback. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/capex-budget-prioritizer/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/capex-budget-prioritizer): MIT licensed.

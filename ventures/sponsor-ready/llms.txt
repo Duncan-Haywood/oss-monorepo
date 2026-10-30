@@ -1,0 +1,15 @@
+# Sponsor Ready
+
+> Free, no-signup checklist that scores a public GitHub repo against the signals that correlate with attracting GitHub Sponsors, and tells you exactly what to fix first.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/sponsor-ready/)
+- [The GitHub Sponsors readiness checklist: 10 signals, ranked by weight](https://duncan-haywood.github.io/oss-monorepo/sponsor-ready/github-sponsors-readiness-checklist.html)
+- [Sponsor Ready vs. GitHub's Community Standards](https://duncan-haywood.github.io/oss-monorepo/sponsor-ready/vs-github-community-standards.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/sponsor-ready): MIT licensed.

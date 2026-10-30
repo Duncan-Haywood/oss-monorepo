@@ -1,0 +1,16 @@
+# Bid the wells, the pit, and the discharge.
+
+> Price an interior French drain, exterior excavation, or crawl encapsulation from perimeter, wall height, window wells, crack repair, sump pit, backup pump, and freeze-protected discharge — not a published price per lineal foot. See the walk-away number before you match a cheaper drain-tile quote.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/basement-waterproofing-bid-calculator/)
+- [How much to charge for basement waterproofing](https://duncan-haywood.github.io/oss-monorepo/basement-waterproofing-bid-calculator/how-much-to-charge-for-basement-waterproofing.html)
+- [This calculator vs. a flat rate per lineal foot](https://duncan-haywood.github.io/oss-monorepo/basement-waterproofing-bid-calculator/vs-a-flat-rate-per-lineal-foot.html)
+- [This calculator vs. Oblyss](https://duncan-haywood.github.io/oss-monorepo/basement-waterproofing-bid-calculator/vs-oblyss.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/basement-waterproofing-bid-calculator): MIT licensed.

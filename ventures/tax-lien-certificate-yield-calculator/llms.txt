@@ -1,0 +1,13 @@
+# What does this tax lien certificate really return, and what if nobody redeems?
+
+> Free tax lien certificate calculator: enter your county's interest rule, fees, premium and subsequent taxes and see the return by redemption month, the annualized yield and the foreclosure break-even property value. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/tax-lien-certificate-yield-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/tax-lien-certificate-yield-calculator): MIT licensed.

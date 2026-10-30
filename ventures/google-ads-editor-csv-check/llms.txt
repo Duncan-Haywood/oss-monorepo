@@ -1,0 +1,13 @@
+# Why did Google Ads Editor skip rows in my bulk import?
+
+> Catch what breaks a Google Ads Editor bulk import, with the line number, before you import. Nothing leaves your device.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/google-ads-editor-csv-check/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/google-ads-editor-csv-check): MIT licensed.

@@ -1,0 +1,18 @@
+# Bid the run and the panel, not the charger.
+
+> Price a residential Level 2 EV charger install from the circuit, the run, the trench, and the panel work — not a flat hang fee. See labor hours, voltage drop, the walk-away price, and why a detached garage is a different job.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/ev-charger-bid-calculator/)
+- [How much should I charge to install an EV charger?](https://duncan-haywood.github.io/oss-monorepo/ev-charger-bid-calculator/how-much-to-charge.html)
+- [Should I hardwire the EV charger or install a NEMA 14-50 outlet?](https://duncan-haywood.github.io/oss-monorepo/ev-charger-bid-calculator/should-i-hardwire-or-use-a-nema-14-50.html)
+- [This calculator vs. a flat hang fee](https://duncan-haywood.github.io/oss-monorepo/ev-charger-bid-calculator/vs-a-flat-hang-fee.html)
+- [This calculator vs. ServiceTitan](https://duncan-haywood.github.io/oss-monorepo/ev-charger-bid-calculator/vs-servicetitan.html)
+- [This calculator vs. Workiz](https://duncan-haywood.github.io/oss-monorepo/ev-charger-bid-calculator/vs-workiz.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/ev-charger-bid-calculator): MIT licensed.

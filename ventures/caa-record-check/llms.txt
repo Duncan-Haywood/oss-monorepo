@@ -1,0 +1,15 @@
+# CAA Record Checker
+
+> Enter a hostname to see the CAA record set that governs certificate issuance per RFC 8659, and which CAs may issue. Only public DNS is read; nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/caa-record-check/)
+- [Why a CAA Record Blocks Certificate Issuance](https://duncan-haywood.github.io/oss-monorepo/caa-record-check/how-caa-blocks-certificate-issuance.html)
+- [CAA Record Checker vs. a Plain DNS Lookup](https://duncan-haywood.github.io/oss-monorepo/caa-record-check/vs-a-plain-dns-lookup.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/caa-record-check): MIT licensed.

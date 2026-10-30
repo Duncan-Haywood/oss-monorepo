@@ -1,0 +1,13 @@
+# Why won't my IIF file import into QuickBooks?
+
+> Free QuickBooks Desktop IIF checker: finds why an IIF import fails or posts wrong (missing ENDTRNS, transactions that do not balance, stray tabs, bad dates, Excel quotes, unknown accounts), with line numbers, and writes a repaired file. Runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/quickbooks-iif-file-check/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/quickbooks-iif-file-check): MIT licensed.

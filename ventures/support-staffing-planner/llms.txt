@@ -1,0 +1,14 @@
+# How many agents does your queue need, and what is the cheapest schedule?
+
+> Paste contacts per half hour and get the agents each interval needs (Erlang C, shrinkage, occupancy cap) and the cheapest shifts that cover them, plus what each service target costs. Free, runs in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/support-staffing-planner/)
+- [How many support agents do I need? Erlang C staffing explained](https://duncan-haywood.github.io/oss-monorepo/support-staffing-planner/how-many-support-agents-do-i-need.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/support-staffing-planner): MIT licensed.

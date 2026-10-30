@@ -1,0 +1,18 @@
+# Set an appointment deposit you can explain.
+
+> Free appointment deposit calculator for salons, trainers, tutors, photographers, and other service businesses. Set a deposit, see the balance due, check whether it pays for itself against your no-show rate, and draft your policy.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/appointment-deposit-calculator/)
+- [Deposit or no-show fee — which should I charge?](https://duncan-haywood.github.io/oss-monorepo/appointment-deposit-calculator/deposit-vs-no-show-fee.html)
+- [Deposit and touch-up pricing, in one place.](https://duncan-haywood.github.io/oss-monorepo/appointment-deposit-calculator/tattoo-deposit-and-touchup-calculator.html)
+- [This calculator vs. doing it by hand or in a spreadsheet](https://duncan-haywood.github.io/oss-monorepo/appointment-deposit-calculator/vs-doing-it-by-hand.html)
+- [This calculator vs. Square Appointments](https://duncan-haywood.github.io/oss-monorepo/appointment-deposit-calculator/vs-square-appointments.html)
+- [What percentage deposit should you charge? Here is the arithmetic at five common rates.](https://duncan-haywood.github.io/oss-monorepo/appointment-deposit-calculator/what-percentage-deposit-should-i-charge.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/appointment-deposit-calculator): MIT licensed.

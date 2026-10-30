@@ -1,0 +1,16 @@
+# Will your resume even reach a human? Run the copy-paste test.
+
+> Free ATS resume checker, no sign-up and nothing uploaded. Paste the text copied out of your resume and instantly see the formatting issues that break applicant-tracking-system parsing — then paste a job posting to see which of its keywords your resume covers and which it never mentions.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/ats-resume-checker/)
+- [ATS Resume Checker vs. eyeballing the copy-paste test yourself](https://duncan-haywood.github.io/oss-monorepo/ats-resume-checker/vs-checking-it-by-eye.html)
+- [ATS Resume Checker vs. Jobscan](https://duncan-haywood.github.io/oss-monorepo/ats-resume-checker/vs-jobscan.html)
+- [What is the ATS copy-paste test, and why does it work?](https://duncan-haywood.github.io/oss-monorepo/ats-resume-checker/what-is-the-ats-copy-paste-test.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/ats-resume-checker): MIT licensed.

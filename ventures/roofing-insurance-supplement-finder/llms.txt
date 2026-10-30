@@ -1,0 +1,13 @@
+# What did the adjuster's roof estimate leave out?
+
+> Free roofing insurance supplement calculator: compare your measurement report with the adjuster's estimate, price missing drip edge, starter, steep-slope, waste and permit lines, add O&P, and see what the claim pays now and after depreciation. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/roofing-insurance-supplement-finder/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/roofing-insurance-supplement-finder): MIT licensed.

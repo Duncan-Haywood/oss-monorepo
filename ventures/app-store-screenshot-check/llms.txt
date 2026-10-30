@@ -1,0 +1,15 @@
+# Catch the icon the store is about to reject — before you upload
+
+> Free tool: drop your App Store Connect or Google Play listing images in and check them before you upload — app icon transparency (the classic "can't contain an alpha channel" rejection), wrong pixel dimensions, a HEIC renamed to .png, and a screenshot set whose members disagree about their own size.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/app-store-screenshot-check/)
+- [Checking store assets by hand vs. automatically](https://duncan-haywood.github.io/oss-monorepo/app-store-screenshot-check/vs-manual-checking.html)
+- [Why store uploads get rejected for images](https://duncan-haywood.github.io/oss-monorepo/app-store-screenshot-check/why-store-uploads-get-rejected.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/app-store-screenshot-check): MIT licensed.

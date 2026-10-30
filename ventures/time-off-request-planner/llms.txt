@@ -1,0 +1,14 @@
+# Too many people want the same week off? Settle it in a minute.
+
+> Free vacation and PTO request planner for small teams. Paste your people with roles and the time-off requests you have, set the minimum on duty per role, and see which requests to approve, why each other one clashes and what dates would work. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/time-off-request-planner/)
+- [How to approve vacation requests fairly when everyone wants the same week](https://duncan-haywood.github.io/oss-monorepo/time-off-request-planner/how-to-approve-vacation-requests-fairly.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/time-off-request-planner): MIT licensed.

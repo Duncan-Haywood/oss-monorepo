@@ -1,0 +1,16 @@
+# Price the classroom, not just the seat.
+
+> Free daycare and childcare tuition calculator. Price a classroom from your own child:staff ratio, staffing cost, and overhead, and see what an empty seat actually costs you at every occupancy level.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/childcare-tuition-calculator/)
+- [How to price daycare tuition without underpricing an empty seat](https://duncan-haywood.github.io/oss-monorepo/childcare-tuition-calculator/how-to-price-daycare-tuition.html)
+- [This calculator vs. pricing tuition by hand or in a spreadsheet](https://duncan-haywood.github.io/oss-monorepo/childcare-tuition-calculator/vs-doing-it-by-hand.html)
+- [This calculator vs. Procare](https://duncan-haywood.github.io/oss-monorepo/childcare-tuition-calculator/vs-procare.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/childcare-tuition-calculator): MIT licensed.

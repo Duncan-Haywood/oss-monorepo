@@ -1,0 +1,13 @@
+# How many child visits a week does your indoor play centre need to break even, and how much cash does the ramp-up eat?
+
+> Free indoor play center profit calculator: weekday and weekend visits, memberships, birthday parties, cafe spend, staffing, rent and a loan become monthly profit, break-even visits a week, the price change that hits a target margin, the ramp-up cash reserve and payback. Private, runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/indoor-play-center-profit-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/indoor-play-center-profit-calculator): MIT licensed.

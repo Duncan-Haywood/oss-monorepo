@@ -1,0 +1,14 @@
+# What ROAS do your ads need to make money?
+
+> Free break-even ROAS and max CPA calculator for ecommerce and DTC stores. Enter price, cost of goods, shipping, fees, returns and discounts, add repeat-purchase LTV, and see the ROAS you need for 0%, 10% or 20% profit. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/breakeven-roas-calculator/)
+- [How to calculate break-even ROAS (and max CPA) for your store](https://duncan-haywood.github.io/oss-monorepo/breakeven-roas-calculator/how-to-calculate-break-even-roas.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/breakeven-roas-calculator): MIT licensed.

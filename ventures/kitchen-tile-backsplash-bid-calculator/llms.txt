@@ -1,0 +1,19 @@
+# Bid the wall, the pattern, and the extras.
+
+> Price a kitchen tile backsplash from wall square feet, subway versus herringbone versus mosaic versus large-format, tile-only versus new-prep versus demo-and-replace, owner-supplied versus you-supply, weekday versus occupied versus after-hours, and extras — plus the walk-away price a $35 / SF special cannot see.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/kitchen-tile-backsplash-bid-calculator/)
+- [Do leftover tile boxes cover the laundry wall?](https://duncan-haywood.github.io/oss-monorepo/kitchen-tile-backsplash-bid-calculator/do-leftover-tile-boxes-cover-the-next-wall.html)
+- [How much to charge for a kitchen tile backsplash](https://duncan-haywood.github.io/oss-monorepo/kitchen-tile-backsplash-bid-calculator/how-much-to-charge-for-a-kitchen-tile-backsplash.html)
+- [Should I install customer-supplied backsplash tile?](https://duncan-haywood.github.io/oss-monorepo/kitchen-tile-backsplash-bid-calculator/should-i-install-customer-supplied-backsplash-tile.html)
+- [Should I tile a backsplash after hours?](https://duncan-haywood.github.io/oss-monorepo/kitchen-tile-backsplash-bid-calculator/should-i-tile-a-backsplash-after-hours.html)
+- [This calculator vs. a flat rate per square foot](https://duncan-haywood.github.io/oss-monorepo/kitchen-tile-backsplash-bid-calculator/vs-a-flat-rate-per-square-foot.html)
+- [This calculator vs. Jobber](https://duncan-haywood.github.io/oss-monorepo/kitchen-tile-backsplash-bid-calculator/vs-jobber.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/kitchen-tile-backsplash-bid-calculator): MIT licensed.

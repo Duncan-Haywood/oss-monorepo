@@ -1,0 +1,14 @@
+# Non-itemizer or itemized? Compare your 2026 charitable deduction.
+
+> Free calculator comparing two 2026 OBBBA charitable-giving paths: the new $1,000/$2,000 above-the-line deduction for non-itemizers vs. itemizing cash gifts after the new 0.5%-of-AGI floor. Entirely client-side, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/charitable-deduction-calculator/)
+- [This calculator vs. working out the 2026 charitable deduction by hand](https://duncan-haywood.github.io/oss-monorepo/charitable-deduction-calculator/vs-doing-the-math-by-hand.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/charitable-deduction-calculator): MIT licensed.

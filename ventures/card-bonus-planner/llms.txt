@@ -1,0 +1,13 @@
+# Plan your card sign-up bonuses around your real spending
+
+> Plan credit card sign-up bonuses: track minimum-spend deadlines, see your 5/24 count and issuer velocity limits, compare net value after the annual fee, and get an application schedule that fits your monthly spending. Free, private, runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/card-bonus-planner/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/card-bonus-planner): MIT licensed.

@@ -1,0 +1,13 @@
+# What to charge a mobile mechanic visit: trip charge, price per job and what small stops really cost
+
+> Free pricing calculator for mobile mechanics: drive time, minutes per job, materials, fixed costs and the income you want become a trip charge plus a per-job rate, with a table by stop size. Private, runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/mobile-mechanic-visit-pricing-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/mobile-mechanic-visit-pricing-calculator): MIT licensed.

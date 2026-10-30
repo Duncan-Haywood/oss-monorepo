@@ -1,0 +1,14 @@
+# Which rental items pay for themselves? Payback, return and what to buy next
+
+> Free calculator for party and event rental companies. Enter what each item costs, what a rental earns, how often it goes out, handling, breakage and storage; it ranks your inventory by return, shows payback and the lowest price per item. Nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/event-rental-inventory-payback-calculator/)
+- [Which rental items pay for themselves?](https://duncan-haywood.github.io/oss-monorepo/event-rental-inventory-payback-calculator/which-rental-items-pay-for-themselves.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/event-rental-inventory-payback-calculator): MIT licensed.

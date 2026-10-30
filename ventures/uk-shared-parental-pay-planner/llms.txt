@@ -1,0 +1,13 @@
+# How should two parents split the 39 weeks of statutory pay?
+
+> Free UK Shared Parental Pay planner for 2026/27: enter both parents' earnings and employment dates, choose how many weeks of maternity pay the mother takes, and compare how splitting the shared weeks changes household pay. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/uk-shared-parental-pay-planner/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/uk-shared-parental-pay-planner): MIT licensed.

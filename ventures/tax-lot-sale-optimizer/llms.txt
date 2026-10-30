@@ -1,0 +1,13 @@
+# Which shares should I sell to pay the least tax?
+
+> Free tax lot optimizer: paste your purchase lots, enter the cash you need, and get the exact shares to sell from each lot for the lowest capital-gains tax, compared with FIFO, LIFO and highest-cost-first. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/tax-lot-sale-optimizer/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/tax-lot-sale-optimizer): MIT licensed.

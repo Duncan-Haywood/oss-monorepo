@@ -1,0 +1,13 @@
+# How much should you pad your next estimate?
+
+> Free estimate buffer calculator for freelancers, agencies and contractors. Paste your finished projects (estimate and actual) to see how your estimates really miss, the hours or price that covers 80% of outcomes on the next job, and the chance a fixed price loses money. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/project-estimate-calibrator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/project-estimate-calibrator): MIT licensed.

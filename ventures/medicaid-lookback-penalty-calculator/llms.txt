@@ -1,0 +1,13 @@
+# Gifts before nursing-home Medicaid: how long is the penalty, and what does it cost?
+
+> Free Medicaid look-back calculator: list gifts and transfers, see which fall in the 60-month window, the penalty period in months and days, the care cost it leaves you to cover, and the date each gift ages out. Private, runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/medicaid-lookback-penalty-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/medicaid-lookback-penalty-calculator): MIT licensed.

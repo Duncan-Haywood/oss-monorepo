@@ -1,0 +1,13 @@
+# Is the insurer's direct repair program worth signing for your body shop?
+
+> Free collision repair DRP calculator: your labor rates, the insurer's rate cut, parts discount and materials cap, repriced jobs and promised volume in; profit with and without the program, break-even repair orders and the lowest labor rate worth accepting out. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/collision-shop-drp-profit-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/collision-shop-drp-profit-calculator): MIT licensed.

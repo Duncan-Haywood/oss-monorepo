@@ -1,0 +1,13 @@
+# What do your employees' unused vacation balances cost you?
+
+> Free calculator for small employers: paste your roster and get the dollar liability of unused PTO today, projected forward with accrual caps, the payout rule for your state, and the cost of balances above a target. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/pto-accrual-liability-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/pto-accrual-liability-calculator): MIT licensed.

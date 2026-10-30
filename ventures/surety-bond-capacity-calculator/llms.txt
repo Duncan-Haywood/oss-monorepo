@@ -1,0 +1,13 @@
+# What will the bond cost, does the job fit my bonding capacity, and which bids should I submit?
+
+> Free bid bond and performance bond cost calculator for contractors: price the premium into your bid, check single-job and aggregate bonding capacity from working capital, see when a job fits, and choose which bids to submit. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/surety-bond-capacity-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/surety-bond-capacity-calculator): MIT licensed.

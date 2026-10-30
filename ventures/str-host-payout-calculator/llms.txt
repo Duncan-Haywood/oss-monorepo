@@ -1,0 +1,19 @@
+# What you keep after Airbnb’s 15.5%.
+
+> Free short-term rental host payout calculator: compare Airbnb’s 15.5% 2026 host-only fee with Vrbo (5% + 3%) and direct booking. See annual take-home, the nightly raise that restores your old 3% payout, and how much occupancy you can lose going direct and still break even.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/str-host-payout-calculator/)
+- [Airbnb’s 15.5% host-only fee, in numbers a payout statement already has.](https://duncan-haywood.github.io/oss-monorepo/str-host-payout-calculator/airbnb-host-fee-2026.html)
+- [Airbnb vs Vrbo host fees are not two percentages of the same stay.](https://duncan-haywood.github.io/oss-monorepo/str-host-payout-calculator/airbnb-vs-vrbo-host-fees.html)
+- [This calculator vs. Airbnb's own "Estimate your earnings" tool](https://duncan-haywood.github.io/oss-monorepo/str-host-payout-calculator/vs-airbnb-earnings-estimator.html)
+- [This calculator vs. subtracting a flat percentage](https://duncan-haywood.github.io/oss-monorepo/str-host-payout-calculator/vs-subtracting-a-flat-percentage.html)
+- [This calculator vs. tracking payouts in a spreadsheet](https://duncan-haywood.github.io/oss-monorepo/str-host-payout-calculator/vs-tracking-payouts-in-a-spreadsheet.html)
+- [This calculator vs. Vrbo's own earnings estimator](https://duncan-haywood.github.io/oss-monorepo/str-host-payout-calculator/vs-vrbo-payout-estimator.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/str-host-payout-calculator): MIT licensed.

@@ -1,0 +1,13 @@
+# Turn a Revolut currency statement into a Xero or QuickBooks journal with the FX gain or loss
+
+> Free Revolut Business to QuickBooks and Xero journal converter for multi-currency balances: values every row in your base currency at your rates, tracks average cost, books realised FX gain or loss separately, proves the running balance, and downloads a balanced month-split journal.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/revolut-business-statement-to-journal/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/revolut-business-statement-to-journal): MIT licensed.

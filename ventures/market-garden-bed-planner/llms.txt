@@ -1,0 +1,13 @@
+# Which crops should fill your beds?
+
+> Market garden bed planner for small vegetable and flower farms. Enter your crops, beds, season and labor and get the crop mix that earns the most, what one more bed-foot, labor hour or buyer is worth, and a simulated range. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/market-garden-bed-planner/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/market-garden-bed-planner): MIT licensed.

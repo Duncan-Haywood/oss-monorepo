@@ -1,0 +1,13 @@
+# Will SSA accept this W-2 file?
+
+> Free EFW2 checker for W-2 electronic wage files: finds records that are not 512 characters, invalid SSNs, RT totals that no longer match the wage lines, wrong RF counts and Social Security wage-base errors, and rebuilds the totals. Runs in your browser; the file is never uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/w2-efw2-file-validator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/w2-efw2-file-validator): MIT licensed.

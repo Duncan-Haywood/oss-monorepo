@@ -1,0 +1,20 @@
+# Your door rate is not the rate you collect.
+
+> Your posted door rate is not the rate you collect. Enter one month of customer-pay, warranty and internal hours and see your real effective labor rate, exactly where the rest of it went, and what the posted rate would have to be to hit your labor gross profit. Free, private, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/auto-repair-effective-labor-rate/)
+- [Should I keep taking warranty work?](https://duncan-haywood.github.io/oss-monorepo/auto-repair-effective-labor-rate/should-i-keep-taking-warranty-work.html)
+- [This calculator vs. AutoLeap's labor rate calculator](https://duncan-haywood.github.io/oss-monorepo/auto-repair-effective-labor-rate/vs-autoleap.html)
+- [This calculator vs. dividing labor sales by hours yourself](https://duncan-haywood.github.io/oss-monorepo/auto-repair-effective-labor-rate/vs-dividing-labor-sales-by-hours.html)
+- [This calculator vs. Shop-Ware's shop dashboard](https://duncan-haywood.github.io/oss-monorepo/auto-repair-effective-labor-rate/vs-shop-ware.html)
+- [This calculator vs. Shopmonkey's shop dashboard](https://duncan-haywood.github.io/oss-monorepo/auto-repair-effective-labor-rate/vs-shopmonkey.html)
+- [This calculator vs. Tekmetric's shop dashboard](https://duncan-haywood.github.io/oss-monorepo/auto-repair-effective-labor-rate/vs-tekmetric.html)
+- [What is my effective labor rate?](https://duncan-haywood.github.io/oss-monorepo/auto-repair-effective-labor-rate/what-is-my-effective-labor-rate.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/auto-repair-effective-labor-rate): MIT licensed.

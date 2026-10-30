@@ -1,0 +1,17 @@
+# Bid the method, the thickness, and the extra work.
+
+> Price an asphalt driveway from overlay, mill-and-overlay, or full-depth: square footage, thickness, street apron, failed base, and sawcut — not a published $3.50-a-square-foot special. See the mix tons and the walk-away number.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/asphalt-driveway-pave-bid-calculator/)
+- [How much to charge to pave a driveway](https://duncan-haywood.github.io/oss-monorepo/asphalt-driveway-pave-bid-calculator/how-much-to-charge-to-pave-a-driveway.html)
+- [Should I only charge material cost for paving fabric?](https://duncan-haywood.github.io/oss-monorepo/asphalt-driveway-pave-bid-calculator/should-i-only-charge-material-cost-for-paving-fabric.html)
+- [This calculator vs. a flat rate per square foot](https://duncan-haywood.github.io/oss-monorepo/asphalt-driveway-pave-bid-calculator/vs-a-flat-rate-per-square-foot.html)
+- [This calculator vs. JobNimbus](https://duncan-haywood.github.io/oss-monorepo/asphalt-driveway-pave-bid-calculator/vs-jobnimbus.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/asphalt-driveway-pave-bid-calculator): MIT licensed.

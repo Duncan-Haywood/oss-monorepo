@@ -22,7 +22,7 @@ export const STAIR_LIMITS = { maxRiser: 7.75, minTread: 10, riserVariance: 0.375
 export function maxTreadSpan(thickness) { return thickness < 1.25 ? 12 : thickness < 1.5 ? 16 : 24; }
 
 /** Guard and handrail limits (model residential code's usual ones, typed so the local book can change them): 36 in guard, handrail 34 to 38 in above the nose line, balusters with no clear gap a 4 in sphere passes, posts no more than 72 in apart, 4 in under the bottom rail. */
-export const RAIL_LIMITS = { guardHeight: 36, handrailMin: 34, handrailMax: 38, maxGap: 4, maxPostSpacing: 72, bottomGap: 4 };
+export const RAIL_LIMITS = { guardHeight: 36, handrailMin: 34, handrailMax: 38, maxGap: 4, maxPostSpacing: 72, bottomGap: 4, maxBottomOpening: 6 };
 
 /** @typedef {{ sides?: number, handrail?: boolean, handrailHeight?: number, bracketSpacing?: number, balusterWidth?: number, railBoard?: string, postWidth?: number, limits?: Partial<typeof RAIL_LIMITS> }} Rail */
 /** @typedef {{ id?: string, rail?: Rail, totalRise: number, tread?: number, stringer?: string, width?: number, stringerSpacing?: number, treadThickness?: number, treadBoard?: string, treadGap?: number, nosing?: number, floorThickness?: number, openingLength?: number, openRisers?: boolean, riserBoard?: string, treadSpanMax?: number, limits?: Partial<typeof STAIR_LIMITS> }} Stair */
@@ -115,6 +115,8 @@ export function layoutStair(input, plan) {
     stringer: { size: s.stringer, count: stringers, length: stringerLength, throat, spacing: treadSpan, depth, treadSpanMax },
     // Hardware (2026-10-30): one hanger or ledger-bolt connection at the top of every stringer, and one anchor at its foot (a typed count of what the framer buys, not an engineered connection).
     hardware: { topConnectors: stringers, footAnchors: stringers },
+    // Stock (2026-10-30): the shortest listed board that holds one stringer, for the framer's buy list (null with no plan).
+    stringerStock: plan ? { size: s.stringer, length: Math.min(...plan.stock.filter((x) => x.size === s.stringer && x.length >= stringerLength - 1e-9).map((x) => x.length)), count: stringers } : null,
     treadBoards, openRisers: !!s.openRisers, riserBoards: s.openRisers ? 0 : risers, riserStock: riserBoards, width: s.width,
     minOpening: Math.ceil(minOpening * 16) / 16, opening, rail, marks, sumRise, notes, limits: L, nosing: s.nosing,
   };
@@ -135,6 +137,7 @@ export function layoutRail(g, r, notes) {
   const sides = r.sides ?? 1, bw = r.balusterWidth ?? 1.5, post = r.postWidth ?? 3.5, board = r.railBoard ?? "2x4";
   const hh = r.handrailHeight ?? 36;
   if (hh < L.handrailMin || hh > L.handrailMax) notes.push(`Handrail height ${hh} in is outside ${L.handrailMin} to ${L.handrailMax} in above the nose line.`);
+  if (L.bottomGap > L.maxBottomOpening) notes.push(`A ${L.bottomGap} in space under the bottom rail passes a ${L.maxBottomOpening} in sphere; the usual stair guard limit is ${L.maxBottomOpening} in (code edition not checked).`);
   const angle = Math.atan2(g.riser, g.tread);
   const segments = Math.max(1, Math.ceil(g.pitch / L.maxPostSpacing - 1e-9));
   const posts = segments + 1;
@@ -200,6 +203,7 @@ export function stairText(l) {
   const out = [`${l.id}: ${formatLength(l.totalRise)} rise, ${l.risers} risers of ${formatInches(l.riser)}, ${l.treads} treads of ${formatInches(l.tread)} (${l.angle.toFixed(1)} deg, 2R+T ${l.comfort.toFixed(2)} in)`];
   out.push(`  Total run ${formatLength(l.run)}; the first riser is cut ${formatInches(l.firstRiserCut)} so the finished first step is ${formatInches(l.riser)} once the tread is on`);
   out.push(`  ${l.stringer.count} ${l.stringer.size} stringers ${formatLength(l.stringer.length)} long, ${formatInches(l.stringer.spacing)} apart, ${formatInches(l.stringer.throat)} left under the notches`);
+  if (l.stringerStock) out.push(`  Buy ${l.stringerStock.count} ${l.stringerStock.size} boards ${formatLength(l.stringerStock.length)} long for the stringers (${formatLength(l.stringerStock.length - l.stringer.length)} spare on each)`);
   out.push(`  Hardware: ${l.hardware.topConnectors} top connectors (one per stringer, hanger or bolted ledger) and ${l.hardware.footAnchors} foot anchors; sizes and fasteners are the engineer's or manufacturer's call`);
   out.push(`  ${l.treadBoards.count} ${l.treadBoards.size} tread boards ${formatLength(l.treadBoards.length)} (${l.treadBoards.perStep} per step covering ${formatInches(l.treadBoards.coverage)} for ${formatInches(l.treadBoards.need)} of tread and nosing)${l.openRisers ? ", open risers" : `, ${l.riserBoards} risers${l.riserStock ? ` of ${l.riserStock.count} ${l.riserStock.size} boards` : ""}`}`);
   out.push(`  Stairwell opening at least ${formatLength(l.minOpening)} long for ${formatInches(l.limits.headroom)} of headroom${l.opening ? `; yours ${formatLength(l.opening.length)} leaves ${formatInches(l.opening.headroom)}${l.opening.ok ? "" : " (too short)"}` : ""}`);

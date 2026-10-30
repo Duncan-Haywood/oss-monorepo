@@ -1,0 +1,14 @@
+# Will your Actions schedule run when you think it will?
+
+> Paste your GitHub Actions workflow YAML and find every schedule cron that is invalid, faster than GitHub's 5-minute minimum, or pinned to the top of the hour where scheduled runs get delayed. Free, runs in your browser, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/actions-schedule-check/)
+- [GitHub Actions schedule cron: why runs are late, and which minute to pick](https://duncan-haywood.github.io/oss-monorepo/actions-schedule-check/github-actions-schedule-cron-delays.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/actions-schedule-check): MIT licensed.

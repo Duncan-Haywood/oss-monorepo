@@ -1,0 +1,16 @@
+# Supabase RLS Exposure Checker
+
+> Free, in-browser tool: paste your Supabase project URL and anon key, and it sends a real read-only request to every table it can see, naming which ones return real rows to an unauthenticated request -- the CVE-2025-48757 missing-RLS exposure class. Nothing uploaded to us.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/supabase-rls-check/)
+- [This checker vs. checking RLS in the Supabase dashboard by hand](https://duncan-haywood.github.io/oss-monorepo/supabase-rls-check/vs-manually-checking-the-dashboard.html)
+- [This checker vs. VibeAppScanner](https://duncan-haywood.github.io/oss-monorepo/supabase-rls-check/vs-vibeappscanner.html)
+- [Why disabling RLS exposes your Supabase data](https://duncan-haywood.github.io/oss-monorepo/supabase-rls-check/why-does-disabling-rls-expose-my-supabase-data.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/supabase-rls-check): MIT licensed.

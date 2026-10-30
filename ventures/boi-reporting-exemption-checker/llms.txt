@@ -1,0 +1,15 @@
+# Do you still owe a beneficial ownership report?
+
+> Free checker for whether your company still owes a federal Corporate Transparency Act beneficial ownership report after FinCEN's August 2026 final rule permanently exempted every U.S.-formed entity. Applies to foreign-formed entities registered to do business in the U.S. Entirely client-side, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/boi-reporting-exemption-checker/)
+- [Do I still need to file a BOI report in 2026?](https://duncan-haywood.github.io/oss-monorepo/boi-reporting-exemption-checker/do-i-still-need-to-file-a-boi-report.html)
+- [This checker vs. reading FinCEN's guidance yourself](https://duncan-haywood.github.io/oss-monorepo/boi-reporting-exemption-checker/vs-reading-fincens-guidance-yourself.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/boi-reporting-exemption-checker): MIT licensed.

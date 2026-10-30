@@ -1,0 +1,15 @@
+# Claude Code Hooks Security Check
+
+> Paste a Claude Code hooks configuration and see which command strings match known-dangerous shapes: a remote download piped straight into a shell, a credential file read and sent over the network, an unguarded recursive delete, TLS verification disabled, and more. Free, runs entirely in your browser, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/claude-code-hooks-security-check/)
+- [Claude Code Hooks Security Check vs. reading the hooks config by eye](https://duncan-haywood.github.io/oss-monorepo/claude-code-hooks-security-check/vs-reading-the-hooks-config-by-eye.html)
+- [Why a clean scan isn't a safety guarantee](https://duncan-haywood.github.io/oss-monorepo/claude-code-hooks-security-check/why-a-clean-scan-isnt-a-safety-guarantee.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/claude-code-hooks-security-check): MIT licensed.

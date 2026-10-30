@@ -1,0 +1,13 @@
+# Will this rental clear the lender's DSCR?
+
+> Free rental property DSCR calculator for investors. Enter price, rent, loan terms and costs to see DSCR both ways, cash-on-cash, cap rate, break-even occupancy, the largest loan a target DSCR allows, and how a higher rate changes it. Runs in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/rental-dscr-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/rental-dscr-calculator): MIT licensed.

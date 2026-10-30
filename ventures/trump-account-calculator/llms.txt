@@ -1,0 +1,15 @@
+# What will a Trump Account be worth, and how much of it is actually yours?
+
+> Free calculator for the federal Trump Account child savings account (One Big Beautiful Bill Act, 26 U.S.C. 530A): projects the $1,000 federal seed deposit plus family and employer contributions to age 18 or later, and applies the IRA-style pro-rata withdrawal rule -- the mechanic every 529-plan comparison misses.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/trump-account-calculator/)
+- [How is a Trump Account taxed when you withdraw money?](https://duncan-haywood.github.io/oss-monorepo/trump-account-calculator/how-is-a-trump-account-taxed-when-you-withdraw.html)
+- [This calculator vs. working out a Trump Account by hand](https://duncan-haywood.github.io/oss-monorepo/trump-account-calculator/vs-doing-the-math-by-hand.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/trump-account-calculator): MIT licensed.

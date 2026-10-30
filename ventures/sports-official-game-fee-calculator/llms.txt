@@ -1,0 +1,13 @@
+# What does a game actually pay you per hour?
+
+> Free pay calculator for referees, umpires and game officials: what you keep per game and per hour after the assignor fee, driving and taxes, how many games you need for a take-home goal, and the lowest fee worth the drive. Runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/sports-official-game-fee-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/sports-official-game-fee-calculator): MIT licensed.

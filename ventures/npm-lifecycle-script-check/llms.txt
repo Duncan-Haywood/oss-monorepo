@@ -1,0 +1,16 @@
+# Did a dependency just start running code at install time?
+
+> Paste your package-lock.json and see every package that runs a preinstall, install, postinstall, or prepare script at install time -- and, with an older lockfile, exactly which ones started doing that since your last check. npm audit does not flag this. Free, runs entirely in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/npm-lifecycle-script-check/)
+- [This checker vs. diffing package-lock.json by hand](https://duncan-haywood.github.io/oss-monorepo/npm-lifecycle-script-check/vs-diffing-package-lock-by-hand.html)
+- [This checker vs. Socket](https://duncan-haywood.github.io/oss-monorepo/npm-lifecycle-script-check/vs-socket.html)
+- [Why npm audit doesn't catch a malicious install script](https://duncan-haywood.github.io/oss-monorepo/npm-lifecycle-script-check/why-npm-audit-does-not-catch-a-malicious-install-script.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/npm-lifecycle-script-check): MIT licensed.

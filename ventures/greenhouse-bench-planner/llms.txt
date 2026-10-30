@@ -1,0 +1,13 @@
+# Know when to sow, which weeks overflow the bench, and what more space would earn.
+
+> Free greenhouse and nursery planner: enter what you promised to sell and when, and get sow dates, bench and germination space by week, what will not fit and what extra space is worth. Private, runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/greenhouse-bench-planner/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/greenhouse-bench-planner): MIT licensed.

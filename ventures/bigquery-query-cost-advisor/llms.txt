@@ -1,0 +1,14 @@
+# Why is your BigQuery bill so high?
+
+> Paste your BigQuery query groups (runs per month, GB billed, slot-hours) and see on-demand vs Editions cost, the expensive queries to cap with maximum_bytes_billed, and repeat large scans. Free, runs in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/bigquery-query-cost-advisor/)
+- [BigQuery on-demand vs Editions: which is cheaper](https://duncan-haywood.github.io/oss-monorepo/bigquery-query-cost-advisor/bigquery-on-demand-vs-editions-cost.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/bigquery-query-cost-advisor): MIT licensed.

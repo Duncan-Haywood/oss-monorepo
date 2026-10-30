@@ -1,0 +1,13 @@
+# A 13-week cash forecast that assumes your customers pay late, and tells you the odds you run short
+
+> Free 13-week cash flow forecast that assumes invoices arrive late: paste your invoices and bills, and 2,000 simulated outcomes show the chance you run short, the cushion that would cover it and which invoice or bill to fix first. Private, runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/cash-flow-risk-forecaster/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/cash-flow-risk-forecaster): MIT licensed.

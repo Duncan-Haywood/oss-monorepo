@@ -1,0 +1,13 @@
+# Who should work on which project to earn the most margin?
+
+> Free staffing optimizer for agencies, consultancies and freelance teams: enter each person's cost, hours and skills and each project's bill rate and hours. Get the exact split of hours that earns the most margin, who is the bottleneck, and which work to turn away. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/project-staffing-margin-optimizer/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/project-staffing-margin-optimizer): MIT licensed.

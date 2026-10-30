@@ -1,0 +1,18 @@
+# Bid the rail, the chair, and the extras.
+
+> Price a stair lift from lift count, straight versus landing versus outdoor versus curved rail, perch versus standard versus power-swivel versus power-pack versus heavy-duty chair, wood versus concrete versus open-riser attach, and extras — plus the walk-away price a $3,995 installed special cannot see.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/stair-lift-bid-calculator/)
+- [How much to charge to install a stair lift](https://duncan-haywood.github.io/oss-monorepo/stair-lift-bid-calculator/how-much-to-charge-to-install-a-stair-lift.html)
+- [Should I expedite a stair lift for hospital discharge?](https://duncan-haywood.github.io/oss-monorepo/stair-lift-bid-calculator/should-i-expedite-a-stair-lift-for-hospital-discharge.html)
+- [Should I install a customer-supplied stair lift?](https://duncan-haywood.github.io/oss-monorepo/stair-lift-bid-calculator/should-i-install-a-customer-supplied-stair-lift.html)
+- [This calculator vs. a flat "$3,995 installed" stair lift special](https://duncan-haywood.github.io/oss-monorepo/stair-lift-bid-calculator/vs-a-flat-rate-stair-lift-special.html)
+- [This calculator vs. AutoVu Solutions](https://duncan-haywood.github.io/oss-monorepo/stair-lift-bid-calculator/vs-autovu.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/stair-lift-bid-calculator): MIT licensed.

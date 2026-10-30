@@ -1,0 +1,16 @@
+# Bid the opening, not the window.
+
+> Price a window replacement job from United Inches, story, and tear-out — not a flat price per window. See walk-away price, average per opening, and the margin a $550-a-window special actually leaves.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/window-replacement-bid-calculator/)
+- [How much should I charge to replace windows?](https://duncan-haywood.github.io/oss-monorepo/window-replacement-bid-calculator/how-much-to-charge.html)
+- [This calculator vs. a flat price per window](https://duncan-haywood.github.io/oss-monorepo/window-replacement-bid-calculator/vs-a-flat-price-per-window.html)
+- [This calculator vs. MarketSharp](https://duncan-haywood.github.io/oss-monorepo/window-replacement-bid-calculator/vs-marketsharp.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/window-replacement-bid-calculator): MIT licensed.

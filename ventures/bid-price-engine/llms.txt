@@ -1,0 +1,14 @@
+# Bid Price Engine
+
+> Free job bid calculator for contractors and service trades: labor with payroll burden, materials with waste, subs, contingency and overhead turned into a price at the profit margin you choose. Shows your walk-away price and how far labor can overrun. Private, no signup.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/bid-price-engine/)
+- [Markup vs margin for contractors](https://duncan-haywood.github.io/oss-monorepo/bid-price-engine/markup-vs-margin.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/bid-price-engine): MIT licensed.

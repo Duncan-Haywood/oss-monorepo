@@ -1,0 +1,14 @@
+# Did the new model or prompt break your outputs?
+
+> Paste your saved LLM outputs from before and after a model swap or prompt edit and see which cases broke: invalid JSON, lost keys, new refusals, truncation, lost numbers. Free, runs in your browser, no API key, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/llm-output-regression-diff/)
+- [How to regression-test prompts when switching LLM models](https://duncan-haywood.github.io/oss-monorepo/llm-output-regression-diff/how-to-regression-test-prompts-when-switching-llm-models.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/llm-output-regression-diff): MIT licensed.

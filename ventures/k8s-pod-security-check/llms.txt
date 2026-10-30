@@ -1,0 +1,14 @@
+# What are your Kubernetes manifests handing to the node?
+
+> Paste your Kubernetes YAML and find risky pod security settings: privileged: true, hostNetwork, hostPath docker.sock, SYS_ADMIN capabilities, running as root, missing securityContext, :latest images, literal secrets. Free, runs in your browser, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/k8s-pod-security-check/)
+- [Kubernetes pod security: privileged, hostPath, root and how to fix each](https://duncan-haywood.github.io/oss-monorepo/k8s-pod-security-check/what-is-kubernetes-pod-security.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/k8s-pod-security-check): MIT licensed.

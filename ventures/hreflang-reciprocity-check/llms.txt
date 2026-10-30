@@ -1,0 +1,16 @@
+# Do your hreflang alternates actually link back?
+
+> Free tool: paste a page's HTML (or try fetching its alternates) and check its hreflang tags for missing reciprocal links, invalid language/region codes (en-uk vs en-GB), a missing x-default, a missing self-reference, and conflicting hreflang values.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/hreflang-reciprocity-check/)
+- [hreflang Reciprocity Check vs. checking hreflang tags by hand](https://duncan-haywood.github.io/oss-monorepo/hreflang-reciprocity-check/vs-checking-hreflang-tags-by-hand.html)
+- [hreflang Reciprocity Check vs. Merkle's hreflang Tags Testing Tool](https://duncan-haywood.github.io/oss-monorepo/hreflang-reciprocity-check/vs-merkle-hreflang-tool.html)
+- [Why hreflang links must be reciprocal](https://duncan-haywood.github.io/oss-monorepo/hreflang-reciprocity-check/why-hreflang-must-be-reciprocal.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/hreflang-reciprocity-check): MIT licensed.

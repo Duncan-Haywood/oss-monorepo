@@ -1,0 +1,13 @@
+# Do you qualify as a real estate professional, and what is it worth?
+
+> Free calculator: do your hours pass the real estate professional 750-hour and more-than-half tests, are your rentals materially participated in, and what is turning a rental loss non-passive worth against the $25,000 allowance? Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/real-estate-professional-status-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/real-estate-professional-status-calculator): MIT licensed.

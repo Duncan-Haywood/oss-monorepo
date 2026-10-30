@@ -1,0 +1,13 @@
+# How much of my equipment spend can I deduct from profit?
+
+> Free UK capital allowances calculator: how much of your equipment spend you can deduct this year under the Annual Investment Allowance, full expensing and writing-down allowances, the best order to use the AIA, and the tax saved. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/uk-capital-allowances-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/uk-capital-allowances-calculator): MIT licensed.

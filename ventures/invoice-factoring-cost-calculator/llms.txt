@@ -1,0 +1,13 @@
+# What does that factoring offer really cost?
+
+> Free invoice factoring calculator: enter advance rate, fee per period and days to pay, and see the true cost, percent of invoice, annualised rate and rebate. Compare several factors side by side. Runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/invoice-factoring-cost-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/invoice-factoring-cost-calculator): MIT licensed.

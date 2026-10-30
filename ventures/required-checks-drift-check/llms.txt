@@ -1,0 +1,15 @@
+# Is a required status check stuck forever?
+
+> Paste your branch protection required status checks and your GitHub Actions workflow YAML to find every required check name no job can ever report again — the reason a pull request sits at 'Expected — Waiting for status to be reported' forever. Free, runs in your browser, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/required-checks-drift-check/)
+- [How a required status check goes stale, and how to fix it](https://duncan-haywood.github.io/oss-monorepo/required-checks-drift-check/how-required-status-checks-go-stale.html)
+- [This checker vs. reading every workflow file by hand](https://duncan-haywood.github.io/oss-monorepo/required-checks-drift-check/vs-reading-every-workflow-file-by-hand.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/required-checks-drift-check): MIT licensed.

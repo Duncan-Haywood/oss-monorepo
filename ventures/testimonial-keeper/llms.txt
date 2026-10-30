@@ -1,0 +1,13 @@
+# Ask your happy customers for a testimonial, and show the ones you approve
+
+> Collect customer testimonials with a link, approve the ones you want, and show them on your site with one script tag. Consent stored with every entry. Open source, MIT, one-click self-deploy, no monthly fee.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/testimonial-keeper/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/testimonial-keeper): MIT licensed.

@@ -1,0 +1,16 @@
+# Bid the attic, the coil, and the gas.
+
+> Price a furnace or heat-pump replacement from extra duct past the included run, attic versus basement, a matching coil, a gas upsize, haul-away of the old unit, and a thermostat — not a published $2,495 installed special. See the walk-away number before you match a cheaper quote.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/furnace-bid-calculator/)
+- [How much to charge to replace a furnace](https://duncan-haywood.github.io/oss-monorepo/furnace-bid-calculator/how-much-to-charge-to-replace-a-furnace.html)
+- [This calculator vs. a flat $2,495 furnace special](https://duncan-haywood.github.io/oss-monorepo/furnace-bid-calculator/vs-a-flat-2495-furnace-special.html)
+- [This calculator vs. ServiceTitan](https://duncan-haywood.github.io/oss-monorepo/furnace-bid-calculator/vs-servicetitan.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/furnace-bid-calculator): MIT licensed.

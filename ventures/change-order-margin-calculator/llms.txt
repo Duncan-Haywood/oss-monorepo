@@ -1,0 +1,17 @@
+# Price the change before it changes your margin.
+
+> Price a construction change order from loaded labor, materials, subs, schedule delay and overhead — and see what your contract's markup cap actually leaves you.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/change-order-margin-calculator/)
+- [How do I price a construction change order?](https://duncan-haywood.github.io/oss-monorepo/change-order-margin-calculator/how-to-price-a-change-order.html)
+- [This calculator vs. a rough lump sum](https://duncan-haywood.github.io/oss-monorepo/change-order-margin-calculator/vs-a-rough-lump-sum.html)
+- [This calculator vs. Buildertrend](https://duncan-haywood.github.io/oss-monorepo/change-order-margin-calculator/vs-buildertrend.html)
+- [This calculator vs. JobTread](https://duncan-haywood.github.io/oss-monorepo/change-order-margin-calculator/vs-jobtread.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/change-order-margin-calculator): MIT licensed.

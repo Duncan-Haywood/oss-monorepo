@@ -1,0 +1,13 @@
+# What locum rate beats your employed offer?
+
+> Free locum tenens vs employed calculator for physicians, NPs, PAs and CRNAs. Compare a 1099 locum contract with a W-2 offer: take-home after federal tax, self-employment tax, malpractice tail, benefits, unpaid gaps, and the break-even locum hourly rate. Runs in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/locum-tenens-vs-employed-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/locum-tenens-vs-employed-calculator): MIT licensed.

@@ -1,0 +1,13 @@
+# Got a severance offer? See if it is fair, what you net, and what to ask for.
+
+> Free severance package calculator: compare your offer to the usual weeks per year of service, see your net as a lump sum now, a lump sum in January or salary continuation, the COBRA gap, unemployment at risk, your runway and what to ask for. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/severance-package-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/severance-package-calculator): MIT licensed.

@@ -1,0 +1,13 @@
+# Turn a payment spreadsheet into a SEPA bulk payment file
+
+> Free CSV to SEPA converter: turn a spreadsheet of supplier or payroll payments into a pain.001 XML file for your bank's bulk upload. Checks every IBAN and amount first, writes exact control totals, and never uploads your list.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/csv-to-sepa-pain001/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/csv-to-sepa-pain001): MIT licensed.

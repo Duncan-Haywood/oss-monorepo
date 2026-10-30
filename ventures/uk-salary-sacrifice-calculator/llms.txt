@@ -1,0 +1,13 @@
+# What does my pension really cost me by salary sacrifice?
+
+> Free UK salary sacrifice pension calculator for 2026/27: the same contribution by salary sacrifice, net pay and relief at source side by side, with income tax, National Insurance, student loan, employer NI saving and the April 2029 NI cap. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/uk-salary-sacrifice-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/uk-salary-sacrifice-calculator): MIT licensed.

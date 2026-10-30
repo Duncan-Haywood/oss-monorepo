@@ -1,0 +1,15 @@
+# Will you get a 1099-K this year?
+
+> Check whether a marketplace, payment app, or platform is likely to send you a Form 1099-K, per platform and per tax year. Covers the federal threshold's four changes since 2022 ($20,000/200 transactions, $5,000 in 2024, back to $20,000/200 from 2025 on) plus the four states with their own stricter $600 rule.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/1099-k-threshold-checker/)
+- [This checker vs. looking up the 1099-K threshold yourself](https://duncan-haywood.github.io/oss-monorepo/1099-k-threshold-checker/vs-checking-the-threshold-yourself.html)
+- [Why did the 1099-K threshold keep changing?](https://duncan-haywood.github.io/oss-monorepo/1099-k-threshold-checker/why-did-the-1099-k-threshold-keep-changing.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/1099-k-threshold-checker): MIT licensed.

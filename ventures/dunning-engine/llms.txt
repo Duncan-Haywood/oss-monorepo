@@ -1,0 +1,15 @@
+# Stop losing subscribers to failed payments you could have recovered
+
+> Recover failed Stripe subscription payments with decline-code-aware retries and emails you control. Preview the recovery schedule for any decline code, then run the open-source server in your own account. Free, MIT, no per-recovery fee.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/dunning-engine/)
+- [Stripe decline codes: which to retry, which never to](https://duncan-haywood.github.io/oss-monorepo/dunning-engine/stripe-decline-codes.html)
+- [Dunning Engine vs paid Stripe recovery services](https://duncan-haywood.github.io/oss-monorepo/dunning-engine/vs-paid-recovery-services.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/dunning-engine): MIT licensed.

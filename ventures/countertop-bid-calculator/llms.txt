@@ -1,0 +1,16 @@
+# Bid the slabs, the cutouts, and the waterfalls.
+
+> Price a quartz or granite countertop job from slabs, sink and cooktop cutouts, edge profile, backsplash, and waterfalls — not a published price per finished square foot. See the walk-away number before you match a cheaper kitchen quote.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/countertop-bid-calculator/)
+- [How much to charge to install quartz countertops](https://duncan-haywood.github.io/oss-monorepo/countertop-bid-calculator/how-much-to-charge-to-install-quartz-countertops.html)
+- [This calculator vs. a flat price per finished square foot](https://duncan-haywood.github.io/oss-monorepo/countertop-bid-calculator/vs-a-flat-price-per-square-foot.html)
+- [This calculator vs. Moraware CounterGo](https://duncan-haywood.github.io/oss-monorepo/countertop-bid-calculator/vs-moraware.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/countertop-bid-calculator): MIT licensed.

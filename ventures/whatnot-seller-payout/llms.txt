@@ -1,0 +1,19 @@
+# The 8% is not what they take. The checkout total is.
+
+> Free Whatnot seller fee calculator. Commission on the hammer, processing on the checkout total (item + shipping + tax) plus $0.30, the $1,500 TCG cap, leftover after the label, and whether free shipping is cheaper. Nothing leaves your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/whatnot-seller-payout/)
+- [How much does Whatnot take on a pallet sale?](https://duncan-haywood.github.io/oss-monorepo/whatnot-seller-payout/how-much-does-whatnot-take-on-a-pallet.html)
+- [How much does Whatnot take per sale?](https://duncan-haywood.github.io/oss-monorepo/whatnot-seller-payout/how-much-does-whatnot-take.html)
+- [Should I offer free shipping on Whatnot?](https://duncan-haywood.github.io/oss-monorepo/whatnot-seller-payout/should-i-offer-free-shipping-on-whatnot.html)
+- [Whatnot Seller Payout Calculator vs. tracking payouts in a spreadsheet](https://duncan-haywood.github.io/oss-monorepo/whatnot-seller-payout/vs-tracking-payouts-in-a-spreadsheet.html)
+- [This calculator vs. Whatnot's own fee schedule and payout statement](https://duncan-haywood.github.io/oss-monorepo/whatnot-seller-payout/vs-whatnot-seller-dashboard.html)
+- [How much does Whatnot take on a $2,400 graded card?](https://duncan-haywood.github.io/oss-monorepo/whatnot-seller-payout/whatnot-fees-on-a-graded-card-over-1500.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/whatnot-seller-payout): MIT licensed.

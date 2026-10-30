@@ -1,0 +1,14 @@
+# Claude Code Settings Check
+
+> Paste a Claude Code settings.json to find hooks that never fire and permission rules that never match: bad matchers, typos, duplicates. Runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/claude-code-settings-check/)
+- [Claude Code Settings Check vs. reading the settings.json by eye](https://duncan-haywood.github.io/oss-monorepo/claude-code-settings-check/vs-reading-the-settings-json-by-eye.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/claude-code-settings-check): MIT licensed.

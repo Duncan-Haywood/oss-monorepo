@@ -1,0 +1,13 @@
+# Can you really make that appointment under the hours-of-service rules?
+
+> Free hours-of-service trip planner for owner-operators and dispatchers: enter your remaining drive, window and cycle clocks and your stops, and see the schedule with required breaks, 10-hour resets and the real arrival time. Runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/hos-trip-planner/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/hos-trip-planner): MIT licensed.

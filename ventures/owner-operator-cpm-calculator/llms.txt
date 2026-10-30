@@ -1,0 +1,18 @@
+# Price the week, not the loaded mile.
+
+> Free owner-operator CPM calculator: fuel, truck note, insurance, and deadhead miles in one week. See all-in cost per mile and the loaded rate that actually covers the empty ones.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/owner-operator-cpm-calculator/)
+- [How deadhead miles cut a loaded rate](https://duncan-haywood.github.io/oss-monorepo/owner-operator-cpm-calculator/deadhead-miles.html)
+- [Does detention pay cover the wait?](https://duncan-haywood.github.io/oss-monorepo/owner-operator-cpm-calculator/does-detention-pay-cover-the-wait.html)
+- [This calculator vs. ATBS](https://duncan-haywood.github.io/oss-monorepo/owner-operator-cpm-calculator/vs-atbs.html)
+- [This calculator vs. DAT RateView](https://duncan-haywood.github.io/oss-monorepo/owner-operator-cpm-calculator/vs-dat-rateview.html)
+- [This calculator vs. dividing your bills by your miles](https://duncan-haywood.github.io/oss-monorepo/owner-operator-cpm-calculator/vs-dividing-your-bills-by-your-miles.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/owner-operator-cpm-calculator): MIT licensed.

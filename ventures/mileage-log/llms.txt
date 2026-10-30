@@ -1,0 +1,14 @@
+# A mileage log that would hold up if you were asked for it.
+
+> Free mileage log for self-employed drivers and contractors: log trips or track with GPS, price them at the IRS standard rate by date (the 2026 rate changed July 1), check the log for audit gaps, export CSV. Works offline, data stays on your device.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/mileage-log/)
+- [Mileage Log privacy policy](https://duncan-haywood.github.io/oss-monorepo/mileage-log/privacy.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/mileage-log): MIT licensed.

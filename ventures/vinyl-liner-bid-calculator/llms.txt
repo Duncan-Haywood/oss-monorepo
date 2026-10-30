@@ -1,0 +1,16 @@
+# Bid the walls, the hopper, and the stairs.
+
+> Price a residential vinyl pool liner from the liner square feet a water-surface special cannot see, the hopper, the stairs, and the track — plus walk-away price and proposed-price margin check.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/vinyl-liner-bid-calculator/)
+- [How much to charge to replace a pool liner](https://duncan-haywood.github.io/oss-monorepo/vinyl-liner-bid-calculator/how-much-to-charge-to-replace-a-pool-liner.html)
+- [This calculator vs. a flat $2,999 special](https://duncan-haywood.github.io/oss-monorepo/vinyl-liner-bid-calculator/vs-a-flat-2999-special.html)
+- [This calculator vs. Jobber](https://duncan-haywood.github.io/oss-monorepo/vinyl-liner-bid-calculator/vs-jobber.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/vinyl-liner-bid-calculator): MIT licensed.

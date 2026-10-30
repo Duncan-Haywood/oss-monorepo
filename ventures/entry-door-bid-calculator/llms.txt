@@ -1,0 +1,16 @@
+# Bid the opening, the lights, and the rot.
+
+> Price an entry-door replacement from sidelights, transom, out-of-square openings, jamb rot, brickmold, storm door, and paint — not a published $1,200-installed steel special. See the walk-away number before you match a cheaper quote.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/entry-door-bid-calculator/)
+- [How much to charge to replace a front door](https://duncan-haywood.github.io/oss-monorepo/entry-door-bid-calculator/how-much-to-charge-to-replace-a-front-door.html)
+- [This calculator vs. a flat $1,200 special](https://duncan-haywood.github.io/oss-monorepo/entry-door-bid-calculator/vs-a-flat-1200-special.html)
+- [This calculator vs. Jobber](https://duncan-haywood.github.io/oss-monorepo/entry-door-bid-calculator/vs-jobber.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/entry-door-bid-calculator): MIT licensed.

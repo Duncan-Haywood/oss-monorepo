@@ -1,0 +1,14 @@
+# What does your sticker price really collect? Discount rate and net tuition
+
+> Free tuition discount calculator for independent schools. Enter sticker tuition and your financial aid groups; it shows the discount rate, net tuition per student, break-even enrollment and what a tuition increase really adds. Private, in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/private-school-tuition-discount-calculator/)
+- [Tuition discount rate: what the sticker price really collects](https://duncan-haywood.github.io/oss-monorepo/private-school-tuition-discount-calculator/tuition-discount-rate-explained.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/private-school-tuition-discount-calculator): MIT licensed.

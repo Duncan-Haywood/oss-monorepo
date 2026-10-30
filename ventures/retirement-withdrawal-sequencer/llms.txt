@@ -1,0 +1,14 @@
+# Which account should you spend first?
+
+> Free retirement withdrawal calculator. Enter your taxable, traditional and Roth balances, spending and Social Security; it compares withdrawal orders and bracket-filling Roth conversions year by year under 2026 tax rules and shows what each leaves you after tax. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/retirement-withdrawal-sequencer/)
+- [Which account to spend first in retirement](https://duncan-haywood.github.io/oss-monorepo/retirement-withdrawal-sequencer/withdrawal-order-in-retirement.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/retirement-withdrawal-sequencer): MIT licensed.

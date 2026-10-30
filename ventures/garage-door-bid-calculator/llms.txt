@@ -1,0 +1,17 @@
+# Bid the spring, the door, and the drive — not a lump sum.
+
+> Price a garage door replacement or broken-spring service from parts, shop labor, and travel — not a lump-sum guess. See when a $189 spring special loses money on the drive.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/garage-door-bid-calculator/)
+- [How much to charge for a broken garage door spring](https://duncan-haywood.github.io/oss-monorepo/garage-door-bid-calculator/how-much-to-charge-for-a-broken-spring.html)
+- [How much to charge to replace a garage door](https://duncan-haywood.github.io/oss-monorepo/garage-door-bid-calculator/how-much-to-charge-to-replace-a-garage-door.html)
+- [This calculator vs. a flat $189 broken-spring special](https://duncan-haywood.github.io/oss-monorepo/garage-door-bid-calculator/vs-a-flat-189-broken-spring-special.html)
+- [This calculator vs. Housecall Pro](https://duncan-haywood.github.io/oss-monorepo/garage-door-bid-calculator/vs-housecall-pro.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/garage-door-bid-calculator): MIT licensed.

@@ -1,0 +1,15 @@
+# Rental Ledger: Schedule E, depreciation and rent roll for small landlords
+
+> Free private rental property ledger: log rent and expenses per property, get Schedule E by property, 27.5-year depreciation, the $25,000 passive loss allowance, a monthly rent collection grid and the 1099-NEC list. No account, no bank link, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/rental-ledger/)
+- [How to depreciate a rental property](https://duncan-haywood.github.io/oss-monorepo/rental-ledger/how-to-depreciate-a-rental-property.html)
+- [Rental Ledger vs. a landlord spreadsheet](https://duncan-haywood.github.io/oss-monorepo/rental-ledger/vs-spreadsheet.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/rental-ledger): MIT licensed.

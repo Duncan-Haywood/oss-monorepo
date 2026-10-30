@@ -1,0 +1,14 @@
+# Which regexes in your code can hang your server?
+
+> A free static ReDoS scanner for JS, TS and Python with a CI-ready CLI and an optional timing probe. No account, no upload.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/regex-redos-check/)
+- [How regex denial of service works, and how to find it before an attacker does](https://duncan-haywood.github.io/oss-monorepo/regex-redos-check/how-regex-denial-of-service-works-and-how-to-find-it-before-an-attacker-does.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/regex-redos-check): MIT licensed.

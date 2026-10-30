@@ -1,0 +1,13 @@
+# Which of your clients actually pay you well per hour?
+
+> Free analyzer for freelancers, consultants and agencies: load a time export from Toggl, Clockify, Harvest or a spreadsheet and see each client's effective hourly rate against your target, unbilled time, flat-fee scope creep and which clients to reprice. Runs in your browser, the file is never uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/client-profitability-time-analyzer/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/client-profitability-time-analyzer): MIT licensed.

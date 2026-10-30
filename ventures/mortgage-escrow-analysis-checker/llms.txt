@@ -1,0 +1,13 @@
+# Is your new mortgage escrow payment right?
+
+> Free tool for homeowners: enter your tax and insurance bills and the numbers on your annual escrow statement, and see the payment they support, your shortage, the largest allowed cushion and a twelve-month schedule, with a draft request for the servicer's worksheet. Runs in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/mortgage-escrow-analysis-checker/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/mortgage-escrow-analysis-checker): MIT licensed.

@@ -1,0 +1,15 @@
+# What is your TRIR actually going to say on that prequalification form?
+
+> Free OSHA TRIR and DART rate calculator: turn your OSHA 300 log's recordable case count and total hours worked into the two rates GC prequalification forms and insurance renewals ask for, and see how many injury-free hours it takes to hit a target rate. Nothing leaves your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/osha-trir-dart-calculator/)
+- [How to calculate TRIR](https://duncan-haywood.github.io/oss-monorepo/osha-trir-dart-calculator/how-to-calculate-trir.html)
+- [This calculator vs. a spreadsheet](https://duncan-haywood.github.io/oss-monorepo/osha-trir-dart-calculator/vs-spreadsheet.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/osha-trir-dart-calculator): MIT licensed.

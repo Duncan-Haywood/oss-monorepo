@@ -1,0 +1,15 @@
+# The dashboard number isn't your payout. Take-home is.
+
+> Free calculator for Twitch streamers: find real monthly take-home from Tier 1/2/3 subs (50% default, or 60%/70% under the Plus Program) and Bits, see whether a mobile subscription really pays less (it doesn't), and check how many more subs close a monthly income gap.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/twitch-payout-calculator/)
+- [Does a mobile subscription pay me less?](https://duncan-haywood.github.io/oss-monorepo/twitch-payout-calculator/does-a-mobile-subscription-pay-me-less.html)
+- [This calculator vs. tracking Twitch payouts in a spreadsheet](https://duncan-haywood.github.io/oss-monorepo/twitch-payout-calculator/vs-tracking-payouts-in-a-spreadsheet.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/twitch-payout-calculator): MIT licensed.

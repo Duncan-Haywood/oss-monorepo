@@ -1,0 +1,13 @@
+# Which students should I book, and when, to earn the most from my teaching week?
+
+> Free lesson scheduler for private tutors, music teachers and coaches: enter each student's fee and the times they can come, and get the weekly timetable that earns the most, with gaps, room costs and must-keep students. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/tutor-weekly-schedule-optimizer/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/tutor-weekly-schedule-optimizer): MIT licensed.

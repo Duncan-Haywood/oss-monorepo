@@ -1,0 +1,14 @@
+# Which markets and festivals should you work?
+
+> Paste the markets, fairs and festivals you could work and get the exact set that earns the most net profit after booth fees, travel, crew hours and cost of goods, with the reason for every event skipped. Free, runs in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/market-event-picker/)
+- [Which markets and festivals are worth your time? The overlap math](https://duncan-haywood.github.io/oss-monorepo/market-event-picker/which-markets-and-festivals-to-work.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/market-event-picker): MIT licensed.

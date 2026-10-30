@@ -1,0 +1,14 @@
+# Are your Upwork Connects paying for themselves?
+
+> Free calculator for freelancers: what your Connects and proposal-writing time cost per hire, the win rate you need to break even, and the most Connects a proposal can spend before it loses money. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/upwork-connects-roi-calculator/)
+- [What are Upwork Connects worth, and how to tell if a proposal pays](https://duncan-haywood.github.io/oss-monorepo/upwork-connects-roi-calculator/what-are-upwork-connects-worth.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/upwork-connects-roi-calculator): MIT licensed.

@@ -1,0 +1,14 @@
+# How much can you put in your Solo 401(k) in 2026?
+
+> Free calculator for the 2026 Solo 401(k) contribution limit for a sole proprietor or single-member LLC — employee elective deferral (up to $24,500, or $32,500/$35,750 with catch-up), employer profit-sharing contribution (20% of net self-employment earnings), and the combined $72,000/$80,000/$83,250 overall limit.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/solo-401k-contribution-calculator/)
+- [This calculator vs. working IRS Publication 560 by hand](https://duncan-haywood.github.io/oss-monorepo/solo-401k-contribution-calculator/vs-irs-publication-560-by-hand.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/solo-401k-contribution-calculator): MIT licensed.

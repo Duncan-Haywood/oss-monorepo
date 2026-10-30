@@ -1,0 +1,13 @@
+# Which classes on your timetable are losing you money?
+
+> Free class timetable optimizer for fitness, yoga, pilates and dance studios. Paste your attendance log to see which slots lose money, your break-even class size, and which classes are full enough to double. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/studio-class-slot-optimizer/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/studio-class-slot-optimizer): MIT licensed.
