@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%235f1b7e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3ES%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Coffee Shop Staff Schedule: Rush, Midday And Weekend Coverage</title>
+  <meta name="description" content="How to schedule a small coffee shop team across the morning rush, midday, evening and weekend brunch, with a worked six-person week from real builder output: 24 of 26 slots covered, then 26 once back-to-back blocks are allowed. Free, private.">
+  <meta property="og:title" content="Coffee Shop Staff Schedule: Rush, Midday, Weekend">
+  <meta property="og:description" content="A worked six-person coffee shop week with real builder output.">
+  <link rel="canonical" href="./coffee-shop-staff-schedule.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why are Monday and Tuesday evenings the ones left open?", "acceptedAnswer": {"@type": "Answer", "text": "Only Maya and Noah can work weekday evenings, and both are already needed for the morning rush and midday. The builder counts the end of one block to the start of the next as rest, so a person who finishes at 4 pm cannot start the 4 to 8 block straight after under any rest rule above 0. Allowing back-to-back blocks, or adding someone with weekday evening availability, closes the gap."}}, {"@type": "Question", "name": "Does it know about opening and closing procedures?", "acceptedAnswer": {"@type": "Answer", "text": "No. It sees blocks, head counts, wages, availability and limits. If the opener needs to be a key holder, enter the key holders as the only people available for that block, or schedule the opening shift by hand and build the rest around it."}}, {"@type": "Question", "name": "Can I give it different head counts for rush and quiet hours?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Each line is a day range, a start and end hour, how many people are needed and a label, so a two-person rush block and a one-person midday block are separate lines."}}]}</script>
+
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2330; background: #f2f4f7; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.05; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #1f5f86; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d9dfe6; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 14px; border-radius: 8px; background: #1f5f86; color: #ffffff; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4c5a68; }
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; Shift roster builder</a></p>
+  <h1>Coffee shop staff schedule: the rush, the midday lull and the weekend</h1>
+  <p>A small coffee shop needs two people on the morning rush, one the rest of the weekday and two for weekend brunch. Staff are part-time with narrow availability, so the schedule is a coverage problem. The useful question is which blocks you cannot staff with the team you have, and why, before the week is posted.</p>
+  <p><a class="cta" href="./">Open the free roster builder</a></p>
+  <h2>A worked example</h2>
+  <p>An invented shop has six people (wages $18, $16, $15, $15, $17 and $15 an hour). Weekdays have three blocks: 6 to 11 with two people, 11 to 4 with one, 4 to 8 with one. Weekends have 7 to 3 with two and 3 to 7 with one. That is 26 person-shifts. Maya can work any day, Noah Monday to Friday, Priya Wednesday to Sunday, Quinn weekends, Rosa weekday mornings and Sam Friday to Sunday from 8 am. This is the CLI's real output with the default 10-hour rest rule:</p>
+  <table>
+    <tr><th>Person</th><th>Shifts</th></tr>
+    <tr><td>Maya</td><td>Six blocks across Monday to Saturday</td></tr>
+    <tr><td>Noah</td><td>Five blocks, Monday to Friday</td></tr>
+    <tr><td>Priya</td><td>Three weekday and one Sunday block</td></tr>
+    <tr><td>Quinn</td><td>Saturday and Sunday brunch</td></tr>
+    <tr><td>Rosa</td><td>Morning rush, Monday to Thursday</td></tr>
+    <tr><td>Sam</td><td>Friday evening and both weekend closes</td></tr>
+  </table>
+  <p>24 of 26 person-shifts are covered for $2,066 with no overtime. The two left open are the Monday and Tuesday evenings. The builder says why: two people are free then, but taking the evening would break the rest rule. Only Maya and Noah can work weekday evenings and both are already holding the day blocks, so a 4 pm start straight after a 4 pm finish counts as no rest.</p>
+  <p>Setting rest to 0 hours, which is what working a long day really means, covers all 26 for $2,182. Hours do not run out; the extra $116 pays for the two evening blocks. Whether that is acceptable is a decision for the owner, and a clear alternative is to find one person with weekday evening availability. Lowering the rest rule to 6, 8 or 9 hours changes nothing here, because the gap between back-to-back blocks is zero.</p>
+  <p>Hand-building usually hides the Monday evening gap until the week starts. Listing the open blocks with reasons first turns it into a decision.</p>
+  <p><a class="cta" href="./">Try it with your own team</a></p>
+  <h2>Questions</h2>
+  <h3>Why are Monday and Tuesday evenings the ones left open?</h3>
+  <p>Only Maya and Noah can work weekday evenings, and both are already needed for the morning rush and midday. The builder counts the end of one block to the start of the next as rest, so a person who finishes at 4 pm cannot start the 4 to 8 block straight after under any rest rule above 0. Allowing back-to-back blocks, or adding someone with weekday evening availability, closes the gap.</p>
+  <h3>Does it know about opening and closing procedures?</h3>
+  <p>No. It sees blocks, head counts, wages, availability and limits. If the opener needs to be a key holder, enter the key holders as the only people available for that block, or schedule the opening shift by hand and build the rest around it.</p>
+  <h3>Can I give it different head counts for rush and quiet hours?</h3>
+  <p>Yes. Each line is a day range, a start and end hour, how many people are needed and a label, so a two-person rush block and a one-person midday block are separate lines.</p>
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not legal, tax or financial advice. It does not model break rules, scheduling-notice laws or minor-labor rules. The example is invented.</p>
+    <p>Everything the roster builder does runs in your browser; your staff list is never uploaded. Free and open source: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional. Related: <a href="how-to-make-an-employee-schedule.html">how to make an employee schedule</a>, <a href="how-to-avoid-clopening.html">what a rest gap costs</a>.</p>
+  </footer>
+</body>
+</html>
