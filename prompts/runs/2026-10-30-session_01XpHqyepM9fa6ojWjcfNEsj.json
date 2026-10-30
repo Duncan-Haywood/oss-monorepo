@@ -32,15 +32,21 @@
   "doc_friction": [],
   "deviations": [
     {
-      "file": "CLAUDE.md",
-      "why": "Adds unattended paid automation; the owner requested it directly in this session, recorded in the workflow header, with SECURITY_AUTOFIX=off as kill switch.",
-      "did": "capped at 3 runs/hour, only when unclaimed alerts exist",
-      "result": "pending first run"
+      "file": "prompt.md",
+      "why": "Security alerts preempt the weighted routing draw, per the owner's request in this session.",
+      "did": "added step 0",
+      "result": "pending first alert"
+    },
+    {
+      "file": "prompt.md",
+      "why": "Step 0 takes prompt.md ~6 lines past its soft 100-line budget; it is the only always-read place scheduled sessions would see the queue."
     }
   ],
-  "writeups": [],
+  "writeups": [
+    "docs/posts/2026-10-30-agents-fix-code-scanning-alerts.md"
+  ],
   "goal": null,
-  "notes": "Owner asked for agents to fix GitHub security scan results. Added security-alert-fix.yml + platform/ci/security_alerts.py (5 unit tests pass); validate_workflows and the repo's actions-* checkers clean on the new file. Could not read live alerts from the container (API 403 without auth), so the first real run is the end-to-end test.",
+  "notes": "Owner asked for agents to fix GitHub security scan results. First version ran claude-code-action on ANTHROPIC_API_KEY; owner rejected API-key billing and asked for work distribution to the scheduled agents instead. Final: security-alert-queue.yml mirrors open code-scanning alerts into security-alert issues (GITHUB_TOKEN only), prompt.md step 0 sends scheduled sessions to them first. 6 unit tests pass; validate_workflows and the repo's actions-* checkers clean. Live alerts unreadable from the container (403), so the first scheduled run is the end-to-end test.",
   "corrections": [],
   "redteam": null
 }

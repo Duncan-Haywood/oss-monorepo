@@ -1,19 +1,17 @@
 ---
-title: "Code-scanning alerts now go straight to an agent"
-seo_title: "Auto-fixing GitHub code-scanning alerts with a Claude Code workflow"
+title: "Code-scanning alerts now join the agents' work queue"
+seo_title: "Routing GitHub code-scanning alerts to scheduled agents via issues"
 date: 2026-10-30
 tags: [ci, security, agents]
-description: "An hourly workflow hands each open code-scanning alert to a Claude Code agent that fixes it and opens a PR; a branch per alert stops duplicate work."
+description: "An hourly workflow mirrors each open code-scanning alert into an issue, and the scheduled agent sessions take those issues before any other work."
 ---
 
-GitHub's code scanning finds problems in this repository, but until today the alerts just sat on the Security tab until someone went to look. Now [`security-alert-fix.yml`](https://github.com/duncan-haywood/oss-monorepo/blob/main/.github/workflows/security-alert-fix.yml) checks every hour and passes each open alert to a Claude Code agent.
+GitHub's code scanning finds problems in this repository, but the alerts used to sit on the Security tab until someone went looking. The agents that work here on a schedule couldn't see them either: the alerts API needs a token scope their GitHub tools don't have.
 
-How it works:
+Now [`security-alert-queue.yml`](https://github.com/duncan-haywood/oss-monorepo/blob/main/.github/workflows/security-alert-queue.yml) runs every hour with the workflow's own token. For each open alert it opens one issue labelled `security-alert`. The issue gives the rule, the severity, the file and line, and CodeQL's message. When an alert stops being reported, the workflow closes its issue: as completed if the alert was fixed, or as not planned if someone dismissed it. The logic is in [`platform/ci/security_alerts.py`](https://github.com/duncan-haywood/oss-monorepo/blob/main/platform/ci/security_alerts.py) and has unit tests.
 
-1. **Scan.** [`platform/ci/security_alerts.py`](https://github.com/duncan-haywood/oss-monorepo/blob/main/platform/ci/security_alerts.py) lists the open alerts using the workflow's own token (`security-events: read`). It sorts them most severe first and takes at most three per run.
-2. **Claim.** Before an agent starts, the workflow creates the branch `security-fix/code-scanning-<n>` for that alert. While that branch exists, later scans skip the alert. The branch is the only state the loop keeps, so it needs no ledger.
-3. **Fix.** The agent reads the flagged code and decides whether the finding is real. If it is, the agent fixes the cause, runs the nearby tests and opens a ready pull request, which goes through the same CI and cross-review as any other change. If the finding is a false positive, the agent pushes nothing and explains why. The claim branch then expires after 48 hours, and the alert is tried again unless someone has dismissed it.
+Getting the fixes done needed no new machinery. The master prompt that every scheduled session follows has a new first step: before the usual routing draw, look for an open `security-alert` issue that no open PR has claimed yet, and fix that first. The session claims an alert by opening its PR early, titled after the alert number, which is the same duplicate-PR check sessions already run. The fix then lands through the usual CI and review. It may not silence the rule with a suppression comment, and it may not skip tests to get green.
 
-The agent is not allowed to use a suppression comment to silence a rule, and it is not allowed to skip a test to get CI green.
+What this costs: a few seconds of Actions time an hour. No model is called from CI. The fixing uses runs that were going to happen anyway.
 
-One limit we didn't expect: a workflow token cannot read Dependabot or secret-scanning alerts at all. Vulnerable dependencies are covered by Dependabot's own security updates, which are turned on in the repository settings. A leaked secret has to be rotated by whoever owns the account, which no agent can do.
+What it doesn't cover: a workflow token can't read Dependabot or secret-scanning alerts. Vulnerable dependencies are handled by Dependabot's own security updates, which are turned on in the repository settings. A leaked secret has to be rotated by whoever owns the account.

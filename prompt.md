@@ -9,6 +9,13 @@ routes each run to a sub-prompt, measures how runs go, and uses the
 measurements to improve the sub-prompts and the documentation.
 [`prompts/README.md`](prompts/README.md) explains the whole loop.
 
+## 0. Security alerts first
+
+Unless the starting message names a task, first take an open `label:security-alert`
+issue (`search_issues`; highest severity, then oldest) that no open PR names
+(`"code-scanning alert #<n>" in:title`); its body says how to claim and fix it.
+`security-alert-queue.yml` files them hourly (owner, 2026-10-30).
+
 ## 1. Route
 
 If the message that started the session names a specific task, pass its track:

@@ -4,7 +4,7 @@ import unittest
 
 sys.path.insert(0, os.path.dirname(__file__))
 
-from security_alerts import branch_for, pick, summarise  # noqa: E402
+from security_alerts import issue_body, plan, summarise  # noqa: E402
 
 
 def alert(number, level=None, severity="warning", state="open", path="a.py"):
@@ -19,30 +19,40 @@ def alert(number, level=None, severity="warning", state="open", path="a.py"):
     }
 
 
-class PickTest(unittest.TestCase):
-    def test_most_severe_first_then_oldest(self):
+def issue(number, alert_number):
+    return {"number": number, "body": issue_body(summarise(alert(alert_number)))}
+
+
+class PlanTest(unittest.TestCase):
+    def test_opens_most_severe_first_then_oldest(self):
         alerts = [alert(5, "medium"), alert(9, "critical"), alert(2, "medium"), alert(3, None, "note")]
-        picked, _ = pick(alerts, set(), 10)
-        self.assertEqual([s["number"] for s in picked], [9, 2, 5, 3])
+        to_open, to_close = plan(alerts, [])
+        self.assertEqual([s["number"] for s in to_open], [9, 2, 5, 3])
+        self.assertEqual(to_close, [])
 
-    def test_skips_alert_whose_branch_exists(self):
-        picked, skipped = pick([alert(1, "high"), alert(2, "high")], {branch_for(1)}, 10)
-        self.assertEqual([s["number"] for s in picked], [2])
-        self.assertIn("fix in flight", skipped[0])
+    def test_alert_with_an_issue_is_not_reopened(self):
+        to_open, to_close = plan([alert(1, "high"), alert(2, "high")], [issue(100, 1)])
+        self.assertEqual([s["number"] for s in to_open], [2])
+        self.assertEqual(to_close, [])
 
-    def test_cap_reports_the_rest(self):
-        picked, skipped = pick([alert(n, "high") for n in range(1, 6)], set(), 2)
-        self.assertEqual([s["number"] for s in picked], [1, 2])
-        self.assertEqual(len(skipped), 3)
+    def test_closes_issue_when_alert_fixed_or_dismissed(self):
+        alerts = [alert(1, "high", state="fixed"), alert(2, "high", state="dismissed")]
+        _, to_close = plan(alerts, [issue(100, 1), issue(101, 2)])
+        self.assertEqual([(i["number"], r) for i, r in to_close],
+                         [(100, "completed"), (101, "not_planned")])
 
-    def test_ignores_closed_alerts(self):
-        picked, _ = pick([alert(1, "high", state="dismissed"), alert(2, "high", state="fixed")], set(), 5)
-        self.assertEqual(picked, [])
+    def test_closes_issue_whose_alert_vanished(self):
+        _, to_close = plan([], [issue(100, 7)])
+        self.assertEqual([(i["number"], r) for i, r in to_close], [(100, "completed")])
+
+    def test_ignores_issues_without_marker(self):
+        to_open, to_close = plan([alert(1, "high")], [{"number": 5, "body": "unrelated"}])
+        self.assertEqual(len(to_open), 1)
+        self.assertEqual(to_close, [])
 
     def test_summary_flattens_and_normalises(self):
         s = summarise(alert(4, "HIGH"))
         self.assertEqual(s["severity"], "high")
-        self.assertEqual(s["branch"], "security-fix/code-scanning-4")
         self.assertEqual((s["path"], s["line"]), ("a.py", 7))
         self.assertEqual(s["message"], "spread over lines")
 

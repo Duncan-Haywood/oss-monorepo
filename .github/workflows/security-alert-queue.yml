@@ -1,0 +1,45 @@
+name: Security alert queue
+
+# Turns each open code-scanning alert into a `security-alert` issue, and
+# closes the issue once the alert is fixed or dismissed. The fixing is done by
+# the normally scheduled agent sessions: prompt.md ("0. Security alerts
+# first") sends a session to an open one before its usual routing draw.
+# Scheduled sessions cannot read the alerts API themselves, which is why this
+# mirror exists. Requested by the owner on 2026-10-30 as "a work distribution
+# thing from the normally scheduled agents"; no model is called and no paid
+# key is used here. Logic and tests: platform/ci/security_alerts.py.
+
+on:
+  schedule:
+    - cron: "41 * * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: List what would be opened and closed without changing issues
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: security-alert-queue
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      security-events: read # list code-scanning alerts
+      issues: write # open and close the queue issues
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Sync alerts to issues
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DRY_RUN: ${{ inputs.dry_run && '--dry-run' || '' }}
+        run: python3 platform/ci/security_alerts.py $DRY_RUN
