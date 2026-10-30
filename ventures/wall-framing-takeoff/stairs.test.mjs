@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { takeoff, samplePlan, formatLength } from "./engine.mjs";
-import { layoutStair, stairCuts, stairText, sampleStair, validateStair, layoutStairWithLanding, landingCuts, landingText } from "./stairs.mjs";
+import { layoutStair, stairCuts, stairText, sampleStair, validateStair, layoutStairWithLanding, landingCuts, landingText, checkPostSlenderness } from "./stairs.mjs";
 import { checkWinders, winderText, layoutLandingGuard } from "./stairs.mjs";
 
 const plan = () => ({ ...samplePlan(), walls: [] });
@@ -363,4 +363,16 @@ test("rail: a bottom space over 6 in earns a sphere note, the default 4 in does 
   assert.ok(!ok.notes.some((n) => /sphere/.test(n)));
   const bad = layoutStair({ totalRise: 108, tread: 10, rail: { sides: 1, limits: { bottomGap: 7 } } }, plan());
   assert.ok(bad.notes.some((n) => /7 in space.*6 in sphere/.test(n)));
+});
+
+test("landing post slenderness: 4x4 reaches 50 x 3.5 = 175 in, 6x6 275 in; a taller post warns", () => {
+  const ok = checkPostSlenderness(70);
+  assert.ok(ok.ok && ok.maxHeight === 175 && Math.abs(ok.slenderness - 20) < 1e-9);
+  const tall = checkPostSlenderness(180);
+  assert.ok(!tall.ok); assert.match(tall.warnings[0], /6x6/);
+  assert.ok(checkPostSlenderness(180, "6x6").ok);
+  assert.equal(checkPostSlenderness(70, "5x5").ok, false);
+  const r = layoutStairWithLanding({ totalRise: 160, tread: 10, landing: {} }, plan());
+  assert.ok(r.landing.postSlenderness.ok);
+  assert.match(landingText(r).join("\n"), /Landing post slenderness \(4x4\)/);
 });

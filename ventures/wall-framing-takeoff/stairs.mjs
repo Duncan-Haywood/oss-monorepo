@@ -251,6 +251,7 @@ export function layoutStairWithLanding(input, plan) {
     deck: { size: deckSize, count: deckBoards, length: width, area: (width * depth) / 144 },
     footprint: lower.run + depth + upper.run,
     posts: layoutLandingPosts(width, depth, rise1 - DEPTH[joistSize] - 1.5, lc.postSpacing ?? 96),
+    postSlenderness: checkPostSlenderness(rise1 - DEPTH[joistSize] - 1.5, lc.postSize),
     footings: lc.soilBearing != null ? sizeLandingFootings(width, depth, lc.postSpacing ?? 96, { soilBearing: lc.soilBearing, liveLoad: lc.liveLoad, deadLoad: lc.deadLoad, postCapacity: lc.postCapacity }) : null,
     guard: lc.openEdges?.length ? layoutLandingGuard(lc.openEdges.map((e) => (e === "end" ? width : depth)), input.rail || {}, Math.min(4, lc.openEdges.filter((e) => e === "end").length * lc.openEdges.filter((e) => e !== "end").length)) : null,
     notes: ["Landing posts are counted, not sized, and footings are not sized: the platform carries a stair load plus the flights' ends, so check post size, footings and the typed `postSpacing` (96 in unless set) against your code and the actual spans."],
@@ -268,6 +269,22 @@ export function layoutLandingPosts(width, depth, height, spacing = 96) {
   const along = bays(width), across = bays(depth);
   const count = 2 * (along + across);
   return { count, height: Math.max(0, height), alongBays: along, acrossBays: across, spacing };
+}
+
+const POST_FACE = { "4x4": 3.5, "6x6": 5.5 };
+export const POST_SLENDERNESS_LIMIT = 50; // unbraced length over least face for a solid sawn column (NDS 3.7.1.4)
+
+/**
+ * Slenderness of a landing post: unbraced height over its least face against the limit of 50 (a 4x4 reaches 175 in,
+ * a 6x6 275 in). `postSize` is 4x4 (default) or 6x6. Taken as pinned at both ends and unbraced; bracing, notches and
+ * stringer bolts are not modelled, and no buckling stress is computed.
+ */
+export function checkPostSlenderness(height, postSize = "4x4") {
+  const face = POST_FACE[postSize];
+  if (!face) return { ok: false, postSize, warnings: [`Unknown landing post size ${postSize}; use 4x4 or 6x6.`] };
+  const slenderness = height / face, maxHeight = POST_SLENDERNESS_LIMIT * face;
+  const warnings = slenderness > POST_SLENDERNESS_LIMIT ? [`A ${postSize} post ${formatInches(height)} long is ${slenderness.toFixed(1)} times its face, over the limit of ${POST_SLENDERNESS_LIMIT}; use a 6x6 or brace it (a ${postSize} reaches ${formatInches(maxHeight)}).`] : [];
+  return { ok: warnings.length === 0, postSize, face, height, slenderness, limit: POST_SLENDERNESS_LIMIT, maxHeight, warnings };
 }
 
 /**
@@ -310,6 +327,8 @@ export function landingText(r) {
     ...r.flights.flatMap(stairText),
     `  Landing: ${g.joists.count} ${g.joists.size} joists ${formatLength(g.joists.length)} (${formatInches(g.joists.spacing)} apart), 2 rims ${formatLength(g.rims.length)}, ${g.deck.count} ${g.deck.size} deck boards ${formatLength(g.deck.length)}; run on plan ${formatLength(g.footprint)} for a straight stair`,
     `  Landing posts: ${g.posts.count} (${g.posts.alongBays} x ${g.posts.acrossBays} bays around the edge, at most ${formatInches(g.posts.spacing)} apart), each ${formatInches(g.posts.height)} above its footing`,
+    ...(g.postSlenderness?.face ? [`  Landing post slenderness (${g.postSlenderness.postSize}): ${g.postSlenderness.height.toFixed(1)} in = ${g.postSlenderness.slenderness.toFixed(1)} x its face (limit ${g.postSlenderness.limit}; a ${g.postSlenderness.postSize} reaches ${formatInches(g.postSlenderness.maxHeight)})`] : []),
+    ...(g.postSlenderness?.warnings ?? []).map((w) => `  Warning: ${w}`),
     ...(g.footings?.ok ? [`  Landing footings: heaviest post ${Math.round(g.footings.load)} lb (${g.footings.tributary.toFixed(1)} sq ft at ${g.footings.liveLoad + g.footings.deadLoad} psf) on ${g.footings.soilBearing} psf soil needs ${g.footings.area.toFixed(0)} sq in: ${g.footings.round} in round or ${g.footings.square} in square, ${g.footings.count} footings`] : []),
     ...(g.footings?.ok && g.footings.postOk != null ? [`  Landing post check: heaviest post ${Math.round(g.footings.load)} lb against your ${g.footings.postCapacity} lb capacity: ${g.footings.postOk ? "holds" : "OVER, use a larger post or a closer spacing"}`] : []),
     ...(g.guard ? [`  Landing guard (${g.guard.edges.length} open edge${g.guard.edges.length === 1 ? "" : "s"}, ${formatInches(g.guard.guardHeight)} high): ${g.guard.posts.count} posts, ${g.guard.balusters.count} balusters ${formatInches(g.guard.balusters.length)} with at most ${formatInches(g.guard.balusters.maxGap)} clear (limit ${formatInches(RAIL_LIMITS.maxGap)}), ${g.guard.guardRails.count} ${g.guard.guardRails.size} rails`] : []),
