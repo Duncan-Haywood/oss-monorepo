@@ -2,6 +2,17 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-10-30 · Milestone 6m (H6 scale-up): which form in H describes the size-2 excess? (analysis of existing runs; no new training)
+
+- Why: 6l's "Next". Forms fixed in `refit.py` before the first run of it, but I did not log the plan first (deviation from the log-before-result rule; nothing was tuned afterwards). Data: the six paired excess cells at size 2 (H = 4, 16, 32, 64, 128 at keep 1/16; H = 16 at keep 1/4), each weighted by 1/se^2. Forms, all times omega = 1/keep - 1: power a (H/16)^b, saturating a H/(H + h0), plateau a, and a + c log2(H/16). Score: leave-one-cell-out error.
+- **H6m-i** (prior 60%): saturating beats power on leave-one-cell-out RMSE by at least 20%. **H6m-ii** (prior 50%): no form predicts the held-out H = 4 cell within 2 se.
+
+### Outcome of 6m (`experiments/gpt_scale/refit.py`, `refit_results_6m.txt`)
+- Leave-one-cell-out RMSE (nats): saturating 0.0141, power 0.0145, linlog 0.0150, plateau 0.0158. **H6m-i refuted**: saturating beats power by 3%. **H6m-ii held**: every form over-predicts H = 4 by +0.031 to +0.037 (3.8 to 4.5 se); H = 4 carries 2 seeds and is the edge cell, so the miss is mostly where the excess is near zero and any form with an H-independent plateau at small omega-scaling fails.
+- Reading: the four forms are not separable with these cells. Weighted SSE favours saturating (5.8, h0 about 6) over power (10.8, b = 0.15) and plateau (19.9), but the leave-one-out score does not, because the score is dominated by the H = 4 cell and H = 16 (the first plateau cell, under-predicted by 2.8 se in three forms). The power law's fitted exponent drops from the rule's 0.55 to 0.15 once the excess is fitted directly with paired errors. Keep-level dependence is one cell (1/4 at H = 16, excess +0.0056, se 0.0069, predictions 0.003 to 0.009): omega-linearity is untested.
+- Limits: six cells, 2 to 4 free parameters including the fixed grid; the standard errors treat cells as independent; one width and one corpus.
+- Next: the discriminating cells are H = 8 (the knee, between +0.008 and +0.045) and a second keep level (1/4 or 1/64) at H = 64; six seeds each is 12 to 24 runs of about 18 min.
+
 ## 2026-10-30 · Milestone 6l (H6 scale-up): is the size-2 excess rise at H = 128 real with six seeds? (planned before running)
 
 - Why: 6k's "Next". The excess is a plateau near +0.044 over H = 16 to 64 (six seeds each); H = 128 is +0.063 on three seeds (sd 0.003), the only evidence for a rise.
