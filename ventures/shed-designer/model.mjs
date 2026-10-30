@@ -18,8 +18,9 @@
 import { actual, ceil16, TWO_BY, DEFAULT_LENGTHS_FT, fmtFtIn as fmtFt, fmtIn } from './lumber.mjs';
 import { lumberCostOf } from './estimate.mjs';
 import { productById } from './products.mjs';
+import { headerCheck } from './structure.mjs';
 import { gambrelShape, gambrelParts, gambrelAnalysis, loftSpan, bandAbove, zOnPoly, GUSSET_T as GAMBREL_GUSSET_T, LOFT_LIVE } from './gambrel.mjs';
-import { needsKingPost } from './truss.mjs';
+import { needsKingPost, trussForces } from './truss.mjs';
 import { LAP_PRODUCTS, layoutFace, lapStocks, lapStagger, evenExposure, lapStudLimit } from './lap.mjs';
 import { bbox } from './integrity.mjs';
 import { pickFinish, SIDING_FINISHES, TRIM_FINISHES, DOOR_FINISHES, SHINGLE_FAMILIES } from './looks.mjs';
@@ -61,7 +62,7 @@ export function defaultDesign() {
     name: '8x12 ridge-beam shed',
     length: 144,
     width: 96,
-    wallHeight: 86.5,
+    wallHeight: 84.5,
     pitch: 5,
     overhang: 12,
     studSize: '2x4',
@@ -85,9 +86,11 @@ export function defaultDesign() {
     skidSpacing: 48,
     foundation: 'blocks',
     compaction: 'hand tamper',
+    // Gravel under each block: on bare clay or silt the starter's blocks would
+    // carry about 1,970 psf, over the IRC's 1,500 (see checks.mjs, skidOnBlocks).
+    pad: 'under blocks',
     // How deep a pier goes below grade, inches: your frost depth, or 12" to firm soil where the ground does not freeze.
     pierDepth: 24,
-    pad: 'none',
     spares: 5,
     laborRate: 50,
     // The US average combined state and local sales tax (Tax Foundation, mid-2026: 7.53%); set your own.
@@ -161,12 +164,14 @@ export const BLOCKS = {
   blocks: { name: 'solid concrete block, 4 x 8 x 16', plural: 'solid 4 x 8 x 16 concrete blocks', h: 4, along: 16, across: 8, item: 'concreteBlock' },
   'deck blocks': { name: 'concrete deck block (pier block)', plural: 'concrete deck blocks', h: 8, along: 11, across: 11, item: 'deckBlock' },
   CMU: { name: 'concrete masonry unit (CMU), 8 x 8 x 16, cores vertical', plural: '8 x 8 x 16 CMU blocks, cores vertical', h: 8, along: 16, across: 8, item: 'cmuBlock' },
-  // A pier poured in a 12" form tube (11-1/2" inside) from the bottom of its
+  // A pier poured in a 12" form tube (11-1/2" inside) on a 16" square, 6" thick
+  // footing pad poured at the bottom of its hole (6" is the IRC's least footing
+  // thickness, R403.1.1), from the bottom of its
   // hole (pierDepth below grade, set it to your frost depth) to 4" above
   // grade. Drawn and checked as the 10.2" square of the same area, so the
   // bearing and soil checks use the tube's true round area. It needs no
   // gravel: the hole goes down to firm soil.
-  piers: { name: 'concrete pier in a 12" form tube', plural: 'concrete piers in 12" form tubes', h: 4, along: 10.2, across: 10.2, item: 'concreteBag', pier: true, tubeIn: 11.5 },
+  piers: { name: 'concrete pier in a 12" form tube', plural: 'concrete piers in 12" form tubes', h: 4, along: 10.2, across: 10.2, item: 'concreteBag', pier: true, tubeIn: 11.5, footIn: 16, footThick: 6 },
 };
 
 const classic = () => ({ ...defaultDesign(), foundation: 'gravel', pad: 'full', wallHeight: 96, pitch: 6, skidSize: '4x6', roofType: 'ridgeBoard', sidingColor: 'natural', polkaDots: false, maxPeak: 0, ventHeight: 12, autoWall: false, autoPitch: false, autoOverhang: false, rafterSeat: 'birdsmouth', maxFootprint: 0, roofColor: 'charcoal', trimColor: 'white', glitter: false, interior: 'none' });
@@ -356,11 +361,56 @@ export function axisStart(design, op) {
   return wallFaceLength(design, op.wall) - op.offset - op.width;
 }
 
-/** Header depth by rough-opening width. A rule of thumb for a light shed, not a span table. */
+/** Header depth by rough-opening width: the old rule of thumb, kept for a design with no loads to size from. */
 export function defaultHeader(width) {
   if (width <= 48) return '2x6';
   if (width <= 72) return '2x8';
   if (width <= 96) return '2x10';
+  return '2x12';
+}
+
+/**
+ * The line load on a header in this wall, lb/ft (checks.mjs checks it with the
+ * same number). An eave wall carries its strip of roof: under a ridge beam the
+ * lower half of the rafter run plus the wall and overhang, under a ridge board
+ * the whole half roof (the pair and its tie are a truss), plus 10 lb/ft of
+ * wall. A gable wall carries 40 lb/ft of gable framing and the end rafter's
+ * strip, half a rafter spacing.
+ * @param {Partial<Design>} d @param {string} wall
+ */
+export function headerLoadPlf(d, wall) {
+  const cos = 1 / Math.sqrt(1 + ((d.pitch ?? 0) / 12) ** 2);
+  const roof = 15 / cos + (d.snowLoad ?? 0);
+  if (wall === 'front' || wall === 'back') {
+    if (d.style === 'gambrel') {
+      // The gambrel trusses' reactions, a loft's storage load counted as dead.
+      const g = gambrelAnalysis(/** @type {any} */ (d)).wall;
+      return g.dead + g.loft + g.snow + 10;
+    }
+    const D = actual(d.studSize || '2x4').depth;
+    const lean = d.style === 'leanTo';
+    const beam = !lean && d.roofType === 'ridgeBeam';
+    const truss = !lean && d.roofType === 'truss';
+    const run = (d.width ?? 0) / 2 - (beam ? 1.5 : truss ? 0 : 0.75) - D;
+    const tribFt = (beam ? run / 2 + D + (d.overhang ?? 0) : (d.width ?? 0) / 2 + (d.overhang ?? 0)) / 12;
+    // Under trusses the eave wall also carries half the attic (bottom chord) load.
+    const attic = truss ? (trussForces(/** @type {any} */ (d)).wc * (d.width ?? 0)) / 2 / 12 / ((d.rafterSpacing ?? 24) / 12) : 0;
+    return roof * tribFt + attic + 10;
+  }
+  return 40 + roof * ((d.rafterSpacing ?? 24) / 2) / 12;
+}
+
+/**
+ * The header over an opening: the one asked for, or the shallowest two-ply
+ * size that carries this wall's load (headerCheck: bending, shear, L/240 and
+ * bearing on one jack a side). IRC Table R602.7(1) starts at two 2x4s too.
+ * Sized to the load rather than to a house rule of thumb.
+ * @param {Partial<Design>} d @param {Opening} op
+ */
+export function headerFor(d, op) {
+  if (op.header) return op.header;
+  const w = headerLoadPlf(d, op.wall);
+  for (const size of ['2x4', '2x6', '2x8', '2x10', '2x12']) if (headerCheck(size, op.width, w, 2, 1, d.studSize || '2x4') <= 1) return size;
   return '2x12';
 }
 
@@ -505,7 +555,7 @@ export function minWallFor(d) {
   const rise = d.style === 'leanTo' ? (d.width - actual(d.studSize).depth) * (d.pitch / 12) : 0;
   for (const op of d.openings) {
     const bottom = op.kind === 'window' ? op.sill ?? 42 : 0;
-    need = Math.max(need, bottom + op.height + actual(op.header || defaultHeader(op.width)).depth + 3 - (op.wall === 'front' ? rise : 0));
+    need = Math.max(need, bottom + op.height + actual(headerFor(d, op)).depth + 3 - (op.wall === 'front' ? rise : 0));
   }
   return Math.ceil(need * 8) / 8;
 }
@@ -696,7 +746,11 @@ function buildFramed(d) {
   const pierCuFt = block?.pier ? (Math.PI * (block.tubeIn / 2) ** 2 * pierLen) / 1728 : 0;
   const pierCount = block?.pier ? skidCount * blockXs.length : 0;
   const pierTubes = pierCount ? Math.ceil(pierCount / Math.max(1, Math.floor(48 / pierLen))) : 0;
-  const pierBags = pierCount ? Math.ceil((pierCount * pierCuFt) / 0.6 - 1e-9) : 0;
+  // A bare 12" tube presses the starter's soil at about 2,450 psf, over the IRC's
+  // 1,500 for clay or silt; the footing pad spreads it over 1.78 sq ft.
+  const pierFootIn = block?.pier ? block.footIn : 0;
+  const pierFootCuFt = block?.pier ? (block.footIn ** 2 * block.footThick) / 1728 : 0;
+  const pierBags = pierCount ? Math.ceil((pierCount * (pierCuFt + pierFootCuFt)) / 0.6 - 1e-9) : 0;
 
   // ---------------- Floor ----------------
   const joist = actual(d.joistSize);
@@ -782,7 +836,7 @@ function buildFramed(d) {
     const addM = (kind, material, s0, s1, z0, z1, note) => {
       const m = push({
         id: nextId(`${P}`), group: `wall:${name}`, kind, material, note,
-        length: ceil16(kind.includes('plate') || kind === 'header' || kind === 'rough sill' ? s1 - s0 : z1 - z0),
+        length: ceil16(kind.includes('plate') || kind === 'header' || kind === 'rough sill' || kind.endsWith(' block') ? s1 - s0 : z1 - z0),
         geom: rectGeom(add(add(spec.base, spec.axis, s0), Z, z0), spec.axis, Z, spec.w, s1 - s0, z1 - z0, D),
         local: { s0, s1, z0, z1 },
       });
@@ -794,7 +848,7 @@ function buildFramed(d) {
     const ops = [];
     for (const op of d.openings.filter((o) => o.wall === name)) {
       const a = axisStart(d, op) - start;
-      const hdr = op.header || defaultHeader(op.width);
+      const hdr = headerFor(d, op);
       const hd = actual(hdr).depth;
       const bottom = op.kind === 'window' ? op.sill ?? 42 : 0;
       const headerTop = bottom + op.height + hd;
@@ -823,10 +877,28 @@ function buildFramed(d) {
         warnings.push(`${label} overlaps another opening's king studs; it is left out.`);
         continue;
       }
-      ops.push({ op, a, w: op.width, hdr, hd, bottom, headerTop });
+      ops.push({ op, a, w: op.width, hdr, hd, bottom, headerTop, bay: /** @type {[number, number] | null} */ (null) });
     }
     // Studs: ends, corner studs on eave walls, layout, then openings replace what they cover.
     const layout = layoutCenters(d.studSpacing, start, start + len).map((c) => c - start);
+    // A window that fits inside one stud bay cuts no stud, so it needs no king,
+    // jack or header (IRC R602.7 headers are for openings that interrupt
+    // studs): the two layout studs are its sides, with a flat block above and
+    // below. The plates span that bay as they span every other one; checks.mjs
+    // checks them with a rafter landing mid-bay. Not for a door, nor when a
+    // header was asked for, nor when the bay is more than 1-1/2" wider than the
+    // window (it would need a filler stud).
+    for (const p of ops) {
+      if (p.op.kind !== 'window' || p.op.header || p.bottom + p.op.height + 1.5 > H - 3 + 1e-9) continue;
+      for (let i = 0; i + 1 < layout.length; i++) {
+        const f0 = layout[i] + 0.75;
+        const f1 = layout[i + 1] - 0.75;
+        if (!(f0 <= p.a + 1e-9 && p.a + p.w <= f1 + 1e-9 && f1 - f0 - p.w < 1.5 - 1e-9 && f0 - 1.5 >= 0 && f1 + 1.5 <= len)) continue;
+        // Its side studs must stay: no other opening's kings over them.
+        if (ops.some((q) => q !== p && !q.bay && f0 - 1.5 < q.a + q.w + 3 && f1 + 1.5 > q.a - 3)) continue;
+        p.bay = [f0, f1];
+      }
+    }
     const verticals = [];
     verticals.push({ s: 0, kind: 'stud' });
     verticals.push({ s: len - 1.5, kind: 'stud' });
@@ -840,7 +912,7 @@ function buildFramed(d) {
       verticals.push({ s: W / 2 - start, kind: 'post stud' });
     }
     const occupied = (s0) => verticals.some((v) => s0 < v.s + 1.5 - 1e-9 && s0 + 1.5 > v.s + 1e-9);
-    const inOpening = (s0) => ops.some((p) => s0 < p.a + p.w + 3 - 1e-9 && s0 + 1.5 > p.a - 3 + 1e-9);
+    const inOpening = (s0) => ops.some((p) => !p.bay && s0 < p.a + p.w + 3 - 1e-9 && s0 + 1.5 > p.a - 3 + 1e-9);
     for (const c of layout) {
       const s0 = c - 0.75;
       if (s0 < 0 || s0 + 1.5 > len) continue;
@@ -855,6 +927,16 @@ function buildFramed(d) {
     // centres leave no plate split.
     const headerBreaks = [];
     for (const p of ops) {
+      const fixture = () => fixtures.push({
+        kind: p.op.kind, group: `wall:${name}`, from: spec.start + p.a, bottom: p.bottom,
+        geom: rectGeom(add(add(spec.base, spec.axis, p.a), Z, p.bottom), spec.axis, Z, neg(spec.w), p.w, p.op.height, d.siding ? 1.0 : 0.4),
+      });
+      if (p.bay) {
+        addM('sill block', d.studSize, p.bay[0], p.bay[1], p.bottom - 1.5, p.bottom, 'flat, between the studs');
+        addM('head block', d.studSize, p.bay[0], p.bay[1], p.bottom + p.op.height, p.bottom + p.op.height + 1.5, 'flat, between the studs');
+        fixture();
+        continue;
+      }
       const jack = p.bottom + p.op.height - 1.5;
       addM('king stud', d.studSize, p.a - 3, p.a - 1.5, 1.5, 1.5 + studLenW);
       addM('king stud', d.studSize, p.a + p.w + 1.5, p.a + p.w + 3, 1.5, 1.5 + studLenW);
@@ -896,10 +978,7 @@ function buildFramed(d) {
         const below = [...ends, ...inside.filter((s) => ends.every((e) => Math.abs(s - e) >= 1.5 - 1e-9))].sort((x, y) => x - y);
         if (p.bottom - 3 >= 1.5) for (const s of below) addM('bottom cripple', d.studSize, s, s + 1.5, 1.5, p.bottom - 1.5);
       }
-      fixtures.push({
-        kind: p.op.kind, group: `wall:${name}`, from: spec.start + p.a, bottom: p.bottom,
-        geom: rectGeom(add(add(spec.base, spec.axis, p.a), Z, p.bottom), spec.axis, Z, neg(spec.w), p.w, p.op.height, d.siding ? 1.0 : 0.4),
-      });
+      fixture();
     }
     // Plates: bottom plate is cut out at doors; top and cap plates break on studs, cap joints kept 4 ft from top joints.
     const doorGaps = ops.filter((p) => p.op.kind === 'door').map((p) => [p.a, p.a + p.w]).sort((a, b) => a[0] - b[0]);
@@ -1576,7 +1655,12 @@ function buildFramed(d) {
       let bulb = 0;
       for (const name of WALLS) {
         const f = faces[name];
+        const spec = wallSpecs[name];
+        const holes = walls[name].openings.map((p) => [spec.start + p.a, spec.start + p.a + p.w, p.bottom, p.bottom + p.op.height]);
         for (let x = f.from + 6; x < f.to - 6; x += 8) {
+          // Not in front of a door or window head (a low wall puts the lights at the head's height).
+          const z = wallH(name) - 8 - ((bulb + 1) % 2) * 1.5;
+          if (holes.some((h) => x + 1.6 > h[0] - 1e-9 && x < h[1] + 1e-9 && z + 1.6 > h[2] && z < h[3] + 1e-9)) continue;
           fixtures.push({ kind: `bulb-${bulb++ % 4}`, group: name === 'front' ? 'front lining' : 'decor', geom: rectGeom(add(add(add(f.origin, f.u, x), Z, wallH(name) - 8 - (bulb % 2) * 1.5), f.w, pt), f.u, Z, f.w, 1.6, 1.6, 1.6) });
         }
       }
@@ -1871,7 +1955,7 @@ function buildFramed(d) {
     length: L, width: W, wallHeight: H, pitch: d.pitch, overhang: o,
     skidTop, floorTop, plateTop, ridgeTop, peak: ridgeTop + (d.roofing ? 7 / 16 / cos + 0.35 / cos : 7 / 16 / cos),
     studLen, rafterCut: gamParts ? gamParts.lowerCut : rafterCut, slopeLen, plumbH, ridgeSize, ridgeD, stud: D, joistDepth: joist.depth, rafterDepth: rd,
-    skidCount, skidYs, joistCenters, rafterCenters, gravelCuYd, padSqFt: underBlocks || noPad ? 0 : ((L + 2 * pad) * (W + 2 * pad)) / 144, baseBags: Math.ceil(baseCuFt / 0.5), underBlocks, noPad, blockCount, block, pierLen, pierCuFt, pierTubes, pierBags, roofAreaSqFt, floorRows, roofRows,
+    skidCount, skidYs, joistCenters, rafterCenters, gravelCuYd, padSqFt: underBlocks || noPad ? 0 : ((L + 2 * pad) * (W + 2 * pad)) / 144, baseBags: Math.ceil(baseCuFt / 0.5), underBlocks, noPad, blockCount, block, pierLen, pierCuFt, pierFootIn, pierFootCuFt, pierTubes, pierBags, roofAreaSqFt, floorRows, roofRows,
     heel: connector || truss || gam ? 0 : D * t, maxStock, connector, truss, trusses, seatBase, chordDepth: truss ? chord.depth : 0,
     // The underside of the roof across the width, as [y, z] points (for storage space and the section).
     section: gam

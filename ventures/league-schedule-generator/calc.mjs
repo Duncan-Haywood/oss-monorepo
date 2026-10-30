@@ -1990,7 +1990,9 @@ export const RACE_EXACT_LIMIT = 12;
  * against the team being tested, so "clinched" and "eliminated" are never wrong; goal difference
  * can only help a team the table calls "alive" or "tied".
  * Returns one row per team: { index, name, points, left, maxPoints, bestRank, worstRank,
- * status: "clinched" | "eliminated" | "alive", magic }. `magic` is how many more points guarantee a
+ * status: "clinched" | "eliminated" | "alive", magic, clinchedUnlessTied }. `clinchedUnlessTied` is true for an
+ * alive team that is in a place in every outcome where it does not finish level on points at the
+ * cut, so only a lost tie-break (goal difference, head to head) can cost it. `magic` is how many more points guarantee a
  * place whatever the others do (null when out of reach or already clinched). `exact` says whether
  * every outcome was worked through or the safe bounds were used.
  */
@@ -2011,6 +2013,7 @@ export function playoffRace(teams, results, remaining, spots, { win = 3, draw = 
   const minPts = pts.map((p, i) => p + left[i] * low);
   const best = Array(n).fill(n);
   const worst = Array(n).fill(1);
+  const worstWon = Array(n).fill(1);
   const exact = remaining.length <= exactLimit;
   const rankAll = (p) => {
     for (let i = 0; i < n; i++) {
@@ -2019,6 +2022,7 @@ export function playoffRace(teams, results, remaining, spots, { win = 3, draw = 
       for (let j = 0; j < n; j++) { if (j === i) continue; if (p[j] > p[i]) above++; else if (p[j] === p[i]) level++; }
       if (above + 1 < best[i]) best[i] = above + 1;
       if (above + level + 1 > worst[i]) worst[i] = above + level + 1;
+      if (above + 1 > worstWon[i]) worstWon[i] = above + 1;
     }
   };
   if (exact) {
@@ -2041,6 +2045,9 @@ export function playoffRace(teams, results, remaining, spots, { win = 3, draw = 
       }
       best[i] = surelyAbove + 1;
       worst[i] = level + 1;
+      let over = 0;
+      for (let j = 0; j < n; j++) if (j !== i && maxPts[j] > minPts[i]) over++;
+      worstWon[i] = over + 1;
     }
   }
   const rows = teams.map((name, i) => {
@@ -2055,7 +2062,9 @@ export function playoffRace(teams, results, remaining, spots, { win = 3, draw = 
         if (rivals + 1 <= k) { magic = extra; break; }
       }
     }
-    return { index: i, name, points: pts[i], left: left[i], maxPoints: maxPts[i], bestRank: best[i], worstRank: worst[i], status, magic };
+    // alive, but in the place whatever happens unless it finishes level on points and loses the tie-break
+    const clinchedUnlessTied = status === "alive" && worstWon[i] <= k;
+    return { index: i, name, points: pts[i], left: left[i], maxPoints: maxPts[i], bestRank: best[i], worstRank: worst[i], status, magic, clinchedUnlessTied };
   });
   rows.sort((x, y) => y.points - x.points || x.index - y.index);
   rows.exact = exact;
@@ -2249,7 +2258,7 @@ export function raceText(rows, spots) {
   for (const r of rows) {
     if (r.status === "clinched") lines.push(`${r.name}: clinched a top-${spots} place.`);
     else if (r.status === "eliminated") lines.push(`${r.name}: out of the top ${spots} (best case ${r.maxPoints} pts).`);
-    else lines.push(`${r.name}: alive${r.magic != null ? `, ${r.magic} more point${r.magic === 1 ? "" : "s"} clinch it` : ""}${r.left ? ` (${r.left} to play)` : ""}.`);
+    else lines.push(`${r.name}: alive${r.magic != null ? `, ${r.magic} more point${r.magic === 1 ? "" : "s"} clinch it` : ""}${r.left ? ` (${r.left} to play)` : ""}${r.clinchedUnlessTied ? "; in a place unless level on points at the cut and behind on the tie-break" : ""}.`);
   }
   return lines.join("\n");
 }

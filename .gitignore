@@ -56,3 +56,8 @@ platform/deploy/dist/
 # einvoice-preflight: compiled official Schematron (build-schematron.mjs)
 ventures/einvoice-preflight/schematron/*.sef.json
 ventures/einvoice-preflight/browser/
+
+# shed-designer per-size pages: written at site-build time by make-size-pages.mjs
+# (platform/pages/build.mjs, GENERATED_PAGES), never committed.
+ventures/shed-designer/how-much-lumber-for-a-*-shed.html
+ventures/shed-designer/shed-lumber-list-by-size.html

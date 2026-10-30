@@ -14,7 +14,8 @@
 // Units: inches, pounds, psi; spans in feet at the interface. Every check is a
 // simple span under uniform load with the compression edge braced, dry service,
 // normal temperature. The base design values are SPF No. 2 as reprinted by NELMA
-// (house-spans README). Nothing here has been reviewed by an engineer.
+// (house-spans README); check() also takes Southern pine No. 2 and wet
+// service (designValues). Nothing here has been reviewed by an engineer.
 
 export const T = 1.5;
 export const DEPTH = { "2x4": 3.5, "2x6": 5.5, "2x8": 7.25, "2x10": 9.25, "2x12": 11.25 };
@@ -23,6 +24,31 @@ const CF_B = { "2x4": 1.5, "2x6": 1.3, "2x8": 1.2, "2x10": 1.1, "2x12": 1.0 };
 const CF_C = { "2x4": 1.15, "2x6": 1.1, "2x8": 1.05, "2x10": 1.0, "2x12": 1.0 };
 const CR = 1.15;
 export const SPF2 = { Fb: 875, Fv: 135, Fc_perp: 425, Fc: 1150, E: 1.4e6, Emin: 510e3 };
+// Southern pine No. 2, dry service: SPIB reference design values effective
+// June 1, 2013 (Southern Pine Use Guide 2013, Table 1). The size factor is
+// already in Fb and Fc, so these are per size; 4x4 and 4x6 are the 2"-4" thick
+// rows that include them (4" wide and 5"-6" wide).
+export const SYP2 = {
+  Fb: { "2x4": 1100, "4x4": 1100, "2x6": 1000, "4x6": 1000, "2x8": 925, "2x10": 800, "2x12": 750 },
+  Fc: { "2x4": 1450, "4x4": 1450, "2x6": 1400, "4x6": 1400, "2x8": 1350, "2x10": 1300, "2x12": 1250 },
+  Fv: 175, Fc_perp: 565, E: 1.4e6, Emin: 510e3,
+};
+
+/**
+ * Reference values of one size with its size factor in, for "SPF" or "SYP"
+ * No. 2, dry or wet service. Wet service (moisture over 19% for long periods,
+ * NDS Supplement Table 4A/4B, SPIB Use Guide Table A-2): Fb x 0.85 when
+ * Fb x CF > 1150 psi, Fv x 0.97, Fc_perp x 0.67, Fc x 0.8 when Fc x CF > 750
+ * psi, E and Emin x 0.9.
+ */
+export function designValues(size, species = "SPF", wet = false) {
+  const syp = species === "SYP";
+  const Fb = syp ? SYP2.Fb[size] : SPF2.Fb * CF_B[size];
+  const Fc = syp ? SYP2.Fc[size] : SPF2.Fc * CF_C[size];
+  const base = syp ? SYP2 : SPF2;
+  if (!wet) return { Fb, Fv: base.Fv, Fc_perp: base.Fc_perp, Fc, E: base.E, Emin: base.Emin };
+  return { Fb: Fb > 1150 ? Fb * 0.85 : Fb, Fv: base.Fv * 0.97, Fc_perp: base.Fc_perp * 0.67, Fc: Fc > 750 ? Fc * 0.8 : Fc, E: base.E * 0.9, Emin: base.Emin * 0.9 };
+}
 
 // Load cases as house-spans defines them (loads psf on plan).
 export function roofCase(snowPsf = 30) {
@@ -32,7 +58,8 @@ export const FLOOR = { name: "floor", dead: 10, live: 40, CD: 1.0, liveLimit: 36
 
 /** Demand/capacity ratios of one member at one clear span (1.0 = at capacity). */
 export function check(m, spanFt, c) {
-  const { size, plies = 1, spacingIn = 16, repetitive = true, bearingIn = 1.5, pitch = 0 } = m;
+  const { size, plies = 1, spacingIn = 16, repetitive = true, bearingIn = 1.5, pitch = 0, species = "SPF", wet = false } = m;
+  const v = designValues(size, species, wet);
   const L = spanFt * 12 + bearingIn;
   const cos = 1 / Math.sqrt(1 + (pitch / 12) ** 2);
   // a dead load stated on the slope is larger per unit of plan; live (snow) is on plan
@@ -43,18 +70,18 @@ export function check(m, spanFt, c) {
   const d = DEPTH[size];
   const S = (b * d * d) / 6, A = b * d, I = (b * d ** 3) / 12;
   const Cr = repetitive && plies === 1 && spacingIn <= 24 ? CR : 1;
-  const Fb = SPF2.Fb * c.CD * CF_B[size] * Cr;
-  const Fv = SPF2.Fv * c.CD;
+  const Fb = v.Fb * c.CD * Cr;
+  const Fv = v.Fv * c.CD;
   const M = (w * L * L) / 8;
   const V = w * (L / 2 - d) * cos;
   const R = (w * L) / 2;
-  const k = (5 * L ** 4) / (384 * SPF2.E * I * cos ** 2);
+  const k = (5 * L ** 4) / (384 * v.E * I * cos ** 2);
   return {
     bending: M / S / Fb,
     shear: (1.5 * V) / A / Fv,
     "deflection live": (k * wL) / (L / c.liveLimit),
     "deflection total": (k * w) / (L / c.totalLimit),
-    bearing: R / (b * bearingIn) / SPF2.Fc_perp,
+    bearing: R / (b * bearingIn) / v.Fc_perp,
   };
 }
 

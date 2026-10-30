@@ -133,7 +133,9 @@ test('for the same footprint, walls and money, a gambrel holds more than a gable
   // Same box below the plates: the difference is all in the roof.
   assert.ok(Math.abs(a.volume - a.roofVolume - (b.volume - b.roofVolume)) < 0.5);
   assert.ok(b.roofVolume > 1.8 * a.roofVolume, `${b.roofVolume} vs ${a.roofVolume}`);
-  assert.ok(Math.abs(estimate(barn).total - estimate(gable).total) < 0.02 * estimate(gable).total);
+  // No dearer than the gable (within 2%). With two-2x4 door headers the walls are
+  // 84-1/2", the gambrel's T1-11 fits shorter panels and it comes out cheaper.
+  assert.ok(estimate(barn).total < 1.02 * estimate(gable).total, `${estimate(barn).total} vs ${estimate(gable).total}`);
   // A loft adds a floor up there, some of it with room for boxes.
   const loft = clearSpace(buildShed({ ...base, style: 'gambrel', pitch: 6, width: 120, loft: 'full' }));
   assert.ok(loft.loftSqFt > 50 && loft.loftUsableSqFt > 0 && loft.loftUsableSqFt < loft.loftSqFt);

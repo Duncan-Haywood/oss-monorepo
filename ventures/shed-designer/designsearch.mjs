@@ -175,8 +175,9 @@ const KNOBS = {
   roofCover: ['shingles', 'metal'],
   door: Object.keys(DOORS),
   window: Object.keys(WINDOWS),
-  // Gable or lean-to, tried last from each design (a lean-to has no ridge, so roofType does nothing to one).
-  style: ['gable', 'leanTo'],
+  // Gable, lean-to or gambrel (barn), tried last from each design (a lean-to has no ridge and a
+  // gambrel its own trusses, so roofType does nothing to either).
+  style: ['gable', 'leanTo', 'gambrel'],
 };
 
 /**
@@ -225,7 +226,11 @@ export function looksOf(shed) {
   const terms = [];
   const add = (key, label, max, frac, why) => terms.push({ key, label, max, points: r1(max * Math.max(0, Math.min(1, frac))), why });
   const lean = d.style === 'leanTo';
-  if (lean) {
+  const barn = d.style === 'gambrel';
+  if (barn) {
+    add('pitch', 'Roof pitch', 20, d.pitch >= 4 && d.pitch <= 8 ? 1 : d.pitch === 3 || d.pitch === 9 ? 0.6 : 0.3,
+      `${d.gambrelLower}/12 below the bend and ${d.pitch}/12 above it; full marks for an upper slope from 4/12 to 8/12, the classic barn outline`);
+  } else if (lean) {
     add('pitch', 'Roof pitch', 20, d.pitch >= 3 && d.pitch <= 5 ? 1 : d.pitch === 6 || d.pitch === 2 ? 0.7 : d.pitch === 7 ? 0.4 : 0.15,
       `${d.pitch}/12 on one slope; full marks from 3/12 to 5/12, where a lean-to looks deliberate`);
   } else {
@@ -237,7 +242,9 @@ export function looksOf(shed) {
   add('roofShare', 'Roof to wall proportion', 15, band(share, 0.3, 0.45, 0.15), `the roof is ${Math.round(share * 100)}% of the ${lean ? 'end wall' : 'gable end'}'s height; full from 30% to 45%`);
   const aspect = Math.max(d.length, d.width) / Math.min(d.length, d.width);
   add('plan', 'Footprint proportion', 10, band(aspect, 1.2, 1.6, 0.5), `long side ${aspect.toFixed(2)} times the short; full from 1.2 to 1.6`);
-  add('overhang', 'Overhang', 15, band(d.overhang, 8, 12, 8), `${d.overhang}" at the eaves; full from 8" to 12"`);
+  // Half marks: a barn traditionally has none, but it is the one shape here that cannot have one.
+  if (barn) add('overhang', 'Overhang', 15, 0.5, 'none, as on a barn: its steep lower slope carries the water past the wall; half marks');
+  else add('overhang', 'Overhang', 15, band(d.overhang, 8, 12, 8), `${d.overhang}" at the eaves; full from 8" to 12"`);
   const wall = k.plateTop - k.floorTop + (lean ? k.rise / 2 : 0);
   add('walls', 'Sidewall height', 10, band(wall, 84, 98, 12), `${Math.round(wall)}" floor to plate${lean ? ' (the mean of the low and tall walls)' : ''}; full from 84" to 98"`);
   const walls = [...new Set(d.openings.map((o) => o.wall))];
@@ -371,14 +378,15 @@ function designAt(base, size, layout, knobs, minWall = DEFAULT_CONSTRAINTS.minWa
   const ops = layoutOpenings(layout, size, lean ? undefined : knobs.roofType, knobs.door, knobs.window);
   if (!ops) return null;
   const { wall, door, window, ...rest } = knobs;
-  // A lean-to has no ridge: its roofType is pinned, so flipping it is not a new design to evaluate.
-  if (lean) rest.roofType = 'ridgeBoard';
+  // A lean-to has no ridge and a gambrel frames its own trusses: their roofType is pinned, so flipping it is not a new design to evaluate.
+  const barn = knobs.style === 'gambrel';
+  if (lean || barn) rest.roofType = 'ridgeBoard';
   // On a lean-to the lowest wall that frames the openings is often a door's height under the
   // tall front wall's: 'auto' there is that, or the lowest back wall you allow if higher.
   const leanAuto = lean && wall === 'auto' ? Math.max(minWall, minWallFor(normalize({ ...base, ...rest, length: size.length, width: size.width, openings: ops }))) : 0;
   return normalize({
     ...base, ...rest,
-    name: `${ft(Math.min(size.width, size.length))}x${ft(Math.max(size.width, size.length))}${size.width === size.length ? '' : `, ${lean ? 'tall wall along' : 'ridge along'} the ${ft(size.length)} ft side`}, ${lean ? 'lean-to' : knobs.roofType === 'ridgeBeam' ? 'ridge beam' : 'ridge board'}, ${layout}`,
+    name: `${ft(Math.min(size.width, size.length))}x${ft(Math.max(size.width, size.length))}${size.width === size.length ? '' : `, ${lean ? 'tall wall along' : 'ridge along'} the ${ft(size.length)} ft side`}, ${lean ? 'lean-to' : barn ? 'gambrel barn' : knobs.roofType === 'ridgeBeam' ? 'ridge beam' : 'ridge board'}, ${layout}`,
     length: size.length, width: size.width,
     autoWall: wall === 'auto' && !lean, ...(leanAuto ? { wallHeight: leanAuto } : wall === 'auto' ? {} : { wallHeight: wall }),
     autoPitch: false, autoOverhang: false, maxPeak: 0, maxFootprint: 0,
@@ -414,6 +422,8 @@ export function* searchSteps(opts = {}) {
   const baseProduct = (kind, list) => { const p = base.openings.find((o) => o.kind === kind)?.product; return p && p in list ? p : Object.keys(list)[0]; };
   const fixedValue = (k) => (k === 'wall' ? base.wallHeight : k === 'door' ? baseProduct('door', DOORS) : k === 'window' ? baseProduct('window', WINDOWS) : base[k]);
   for (const [k, vals] of Object.entries({ ...KNOBS, ...(opts.knobs ?? {}) })) knobs[k] = fixed.has(k) ? [fixedValue(k)] : vals;
+  // A lean-to and a gambrel pin their roofType, so a roof structure you fixed rules them out.
+  if (fixed.has('roofType') && knobs.roofType[0] !== 'ridgeBoard') knobs.style = knobs.style.filter((st) => st === 'gable');
   const sizes = opts.sizes ?? sizesUnder(c.maxFootprint > 0 ? c.maxFootprint : 100, c);
   const layouts = (opts.layouts ?? Object.keys(LAYOUTS)).filter((l) => !fixed.has('openings') && l in LAYOUTS);
   /** @type {Map<string, Scored>} */

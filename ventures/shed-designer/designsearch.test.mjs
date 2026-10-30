@@ -17,16 +17,17 @@ test('sizes stay under the footprint limit, both ways round, and include the usu
 });
 
 test('storage is measured from the framing', () => {
-  const shed = buildShed(defaultDesign()); // 8x12, 2x4 walls, 86-1/2" walls, ridge beam
+  const shed = buildShed(defaultDesign()); // 8x12, 2x4 walls, 84-1/2" walls (a two-2x4 header over the 78" door), ridge beam
   const st = storageOf(shed);
   assert.equal(st.floorSqFt, Math.round(((144 - 7) * (96 - 7)) / 144 * 10) / 10);
-  assert.equal(st.clearHeightIn, 86.5 - 3);
+  assert.equal(st.clearHeightIn, 84.5 - 3);
   assert.ok(st.overheadOpen);
-  assert.equal(st.volumeCuFt, Math.round((st.wallVolumeCuFt + st.overheadCuFt) * 10) / 10);
+  // Each part is rounded to 0.1, so their sum can differ from the rounded total by 0.1.
+  assert.ok(Math.abs(st.volumeCuFt - (st.wallVolumeCuFt + st.overheadCuFt)) <= 0.1 + 1e-9);
   // The door's and two windows' rough widths come off the inside perimeter.
   assert.equal(st.shelfFt, Math.round(((2 * 137 + 2 * 89) - 38.5 - 2 * 14.25) / 12 * 10) / 10);
   // The box runs to the top of the plates; the same numbers the detail panel shows.
-  assert.equal(st.wallHeightIn, 86.5);
+  assert.equal(st.wallHeightIn, 84.5);
   assert.equal(st.volumeCuFt, Math.round(designFacts(defaultDesign()).storage.volumeCuFt * 10) / 10);
   const board = storageOf(buildShed({ ...defaultDesign(), roofType: 'ridgeBoard' }));
   assert.equal(board.overheadOpen, false);
@@ -94,11 +95,14 @@ test('a small search returns a front of priced designs that pass every check and
 });
 
 test('constraints bind: a tighter footprint, a peak limit and a utilisation cap', () => {
-  const r = searchDesigns({ budget: 40, constraints: { maxFootprint: 64, maxPeak: 120, maxUtilisation: 0.8 } });
+  // 132": at 120" the only design that met every limit was a 7x8 with its door
+  // in the 7 ft gable, which the racking check (2026-10-30) fails: the door
+  // leaves that wall no panel wide enough to brace it.
+  const r = searchDesigns({ budget: 40, constraints: { maxFootprint: 64, maxPeak: 132, maxUtilisation: 0.8 } });
   assert.ok(r.front.length > 0);
   for (const s of r.front) {
     assert.ok(s.footprintSqFt <= 64);
-    assert.ok(s.peak <= 120);
+    assert.ok(s.peak <= 132);
     assert.ok((s.worst?.ratio ?? 0) <= 0.8);
   }
   // Panel siding on studs wider apart than its rating is rejected.
