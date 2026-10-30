@@ -144,6 +144,19 @@
     .meter { display: inline-block; width: 70px; height: 8px; border-radius: 4px; background: #e7e1d4; vertical-align: middle; margin-right: 6px; overflow: hidden; }
     .meter span { display: block; height: 100%; background: #24392b; }
     .meter.hot span { background: #c0392b; }
+    .swatch { display: inline-block; width: 12px; height: 12px; border-radius: 2px; border: 1px solid #555; vertical-align: -1px; margin-right: 6px; }
+    .util-key { white-space: nowrap; margin-right: 8px; }
+    ol.util { list-style: none; padding: 0; }
+    ol.util > li { border-top: 1px solid var(--line); padding: 6px 0; }
+    ol.util summary { cursor: pointer; min-height: 32px; }
+    .util-pct { font-variant-numeric: tabular-nums; }
+    .util-in { display: grid; gap: 2px; margin: 8px 0; }
+    .util-in div { display: flex; gap: 8px; flex-wrap: wrap; }
+    .util-in dt { font-weight: 700; min-width: 9em; }
+    .util-in dd { margin: 0; }
+    .util-parts li { margin: 4px 0; }
+    .util-parts li.gov { font-weight: 400; }
+    #util-plans svg, #util-plans .sheet { max-width: 100%; height: auto; }
     ol.build > li { margin: 14px 0; }
     ol.build h3 { margin: 0 0 4px; }
     ol.build ol { margin: 6px 0; padding-left: 22px; line-height: 1.5; }
@@ -258,9 +271,15 @@
         <button type="button" class="btn" id="zoom-out" aria-label="Zoom out">−</button>
       </div>
       <div class="toolrow" id="layers" aria-label="Layers"></div>
+<<<<<<< HEAD
       <div class="toolrow"><label class="check"><input type="checkbox" id="show-dims" checked> Dimensions</label></div>
       <p class="hint">Click a board in the 3D view to see what it is, or "Show in 3D" on a line of the shopping list, cut sheet or parts list to see where its pieces go.</p>
       <div class="xref" id="xref" hidden aria-live="polite"></div>
+=======
+      <div class="toolrow"><label class="check"><input type="checkbox" id="show-dims" checked> Dimensions</label><label class="check"><input type="checkbox" id="heat-3d"> Colour by structural use</label></div>
+      <p class="hint" id="heat-legend" hidden></p>
+      <p class="hint" id="pick-info" aria-live="polite"></p>
+>>>>>>> origin/main
 
       <div class="panel summary" id="summary" aria-live="polite">
         <h2>Estimated cost</h2>
@@ -282,8 +301,6 @@
         <label>Design name<input id="name" type="text" maxlength="80"></label>
         <label>Length along the ridge (ft)<input id="lengthFt" type="number" min="4" max="40" step="0.5"></label>
         <label>Width across the gable (ft)<input id="widthFt" type="number" min="4" max="20" step="0.5"></label>
-        <label>Most height at the peak, above the gravel (ft, 0 for no limit)<input id="maxPeakFt" type="number" min="0" max="20" step="0.25"></label>
-        <label>Most floor area (sq ft, 0 for no limit; many towns need no permit under 100 or 120)<input id="maxFootprint" type="number" min="0" max="400" step="1"></label>
         <label class="check"><input id="autoWall" type="checkbox"> Walls as low as the tallest door or window allows</label>
         <label>Wall height, floor to top plate (in)<input id="wallHeight" type="number" min="60" max="144" step="0.5"></label>
         <label class="check"><input id="autoPitch" type="checkbox"> Roof pitch from the height limit</label>
@@ -292,6 +309,23 @@
         <label>Eave overhang (in)<input id="overhang" type="number" min="0" max="36" step="1"></label>
         <label>Roof snow load (psf)<input id="snowLoad" type="number" min="0" max="150" step="5"></label>
         <label>Wind pressure on the walls (psf)<input id="windLoad" type="number" min="0" max="80" step="5"></label>
+      </div>
+    </fieldset>
+    <fieldset>
+      <legend>Your limits and fixed choices</legend>
+      <p class="muted">The searches below ("Find a cheaper build", "Find a simpler build", the part options) never break these limits or change a choice you tick here.</p>
+      <div class="fields">
+        <label>Most floor area (sq ft, 0 for no limit; many towns need no permit under 100 or 120)<input id="maxFootprint" type="number" min="0" max="400" step="1"></label>
+        <label>Most height at the peak, above the gravel (ft, 0 for no limit)<input id="maxPeakFt" type="number" min="0" max="20" step="0.25"></label>
+      </div>
+      <p class="muted" id="lock-h">Keep as I chose:</p>
+      <div class="fields" role="group" aria-labelledby="lock-h">
+        <label class="check"><input type="checkbox" name="lock" value="siding"> My siding (type and colour)</label>
+        <label class="check"><input type="checkbox" name="lock" value="roofing"> My roofing (shingles or metal, colour)</label>
+        <label class="check"><input type="checkbox" name="lock" value="foundation"> My foundation</label>
+        <label class="check"><input type="checkbox" name="lock" value="floor"> My floor frame and subfloor</label>
+        <label class="check"><input type="checkbox" name="lock" value="doors"> My doors</label>
+        <label class="check"><input type="checkbox" name="lock" value="windows"> My windows</label>
       </div>
     </fieldset>
     <fieldset>
@@ -420,6 +454,12 @@
       <div class="table-wrap"><table id="connections"><thead><tr><th scope="col">Check</th><th scope="col">What was checked</th><th scope="col">Result</th></tr></thead><tbody></tbody></table></div>
       <h3>Strength under load</h3>
       <div class="table-wrap"><table id="structure"><thead><tr><th scope="col">Member</th><th scope="col">Size</th><th scope="col">What it carries</th><th scope="col" class="n">Use of capacity</th><th scope="col">Result</th></tr></thead><tbody></tbody></table></div>
+      <h3>Where the capacity goes</h3>
+      <p class="muted">Every checked member, most used first. Open one to see its check written out: the inputs, each formula and the numbers. A small shed framed like a house uses little of its lumber's strength; the list below says which members could be lighter and which are held where they are by something other than strength.</p>
+      <div class="toolrow"><label>Aim each member at or below <input type="number" id="util-target" min="30" max="100" step="5" value="70" style="width:5em"> % of capacity</label></div>
+      <div id="util-margin"></div>
+      <ol id="util-list" class="util"></ol>
+      <details id="util-sheets"><summary>Framing plans coloured by use</summary><div id="util-plans"></div></details>
     </div>
     <div class="result-panel print-target" id="panel-build" hidden>
       <p class="muted">Written from this design: every length, mark and angle below is this shed's. Methods are common practice for a small wood-framed shed; fastener spacings are typical values, and your local code and each product's instructions win.</p>
@@ -427,7 +467,7 @@
       <ol id="build-steps" class="build"></ol>
     </div>
     <div class="result-panel print-target" id="panel-plans" hidden>
-      <div class="toolrow"><button type="button" class="btn primary" id="print-plans">Print all plans</button><button type="button" class="btn" id="dxf-all">Download all as DXF</button></div>
+      <div class="toolrow"><button type="button" class="btn primary" id="print-plans">Print all plans</button><button type="button" class="btn" id="dxf-all">Download all as DXF</button><button type="button" class="btn" id="hoa-packet">HOA packet (PDF)</button></div>
       <div id="plans"></div>
     </div>
   </section>
@@ -438,9 +478,13 @@
     <div class="toolrow"><button type="button" class="btn primary" id="make-options">Make options</button></div>
     <div id="option-cards"></div>
     <h3 style="margin-top:16px">Bring the price down, same size</h3>
-    <p class="muted">Counts your time at the hourly rate you set (in the buying settings) as well as materials. Tries cheaper off-the-shelf parts and settings one at a time (stock doors and windows, siding, roofing, the foundation and its gravel, the subfloor, overhang, pitch and spacing), keeps your footprint and the ridge and rafter-seat choices you made, and keeps a change only if the shed still passes every check and the peak rises by no more than 6". It lists each saving so you can take some and leave others.</p>
+    <p class="muted">Counts your time at the hourly rate you set (in the buying settings) as well as materials. Tries cheaper off-the-shelf parts and settings one at a time (stock doors and windows, siding, roofing, the foundation and its gravel, the subfloor, overhang, pitch and spacing), keeps your footprint, the ridge and rafter-seat choices you made and anything you fixed under "Your limits and fixed choices", and keeps a change only if the shed still passes every check and the peak rises by no more than 6". It lists each saving so you can take some and leave others.</p>
     <div class="toolrow"><button type="button" class="btn primary" id="budget">Find a cheaper build</button></div>
     <div id="budget-out"></div>
+    <h3 style="margin-top:16px">What each foundation, floor, door and window choice costs</h3>
+    <p class="muted">Every alternative for the parts under and around the shed (blocks or a gravel pad, the floor joists and subfloor, a door built on site at 36" to 72" or a stock door, the windows or none), each framed, priced and checked against the design you are editing. Shows what it saves or adds in materials and your time, whether the peak moves, and what it means on site. "Use this" changes your design; Undo takes it back.</p>
+    <div class="toolrow"><button type="button" class="btn primary" id="levers">Price the options</button></div>
+    <div id="levers-out"></div>
     <h3 style="margin-top:16px">Simplify the build</h3>
     <p class="muted">Searches small changes (roof pitch, overhang, rafter and stud spacing, connectors or notches, ridge type) for the cheapest build, the one with the fewest saw cuts, and a balance of the two. It counts every saw cut and every angled cut and notch, and keeps only designs that pass every check.</p>
     <div class="toolrow"><button type="button" class="btn primary" id="simplify">Find a simpler build</button><label class="check"><input type="checkbox" id="simplify-resize"> Let it change the length or width by a foot (within your floor-area limit)</label></div>

@@ -9,7 +9,9 @@ import { createViewer, LAYERS } from './render3d.mjs';
 import { drawPlan, drawEnd } from './editor.mjs';
 import { fmtIn, fmtFtIn, actual, STANDARD_LENGTHS_FT, EXAMPLE_ITEMS } from './lumber.mjs';
 import { recordUsage, clearUsage } from './usage.mjs';
+import { encodeDesign } from './hoa.mjs';
 import { structuralChecks } from './checks.mjs';
+import { initUtilisation, renderUtilisation, heatOption } from './utilisation-ui.mjs';
 import { connectionChecks } from './connections.mjs';
 import { generateCandidates, designDiff, openingCosts } from './candidates.mjs';
 import { buildInstructions, instructionsMarkdown } from './instructions.mjs';
@@ -17,6 +19,7 @@ import { quoteRequest, mailtoLink, STORES } from './quote.mjs';
 import { PRODUCTS } from './products.mjs';
 import { storeComparison, swapsFor, storeTotals, storeList, pricesFor } from './catalog.mjs';
 import { simplify, cutMetrics, budget, laborHours } from './simplify.mjs';
+import { leverOptions, leverTableHtml } from './costlevers.mjs';
 
 const $ = (sel) => /** @type {any} */ (document.querySelector(sel));
 const $$ = (sel) => /** @type {any[]} */ ([...document.querySelectorAll(sel)]);
@@ -153,6 +156,7 @@ function fillForm(d) {
   set('maxPeakFt', +(d.maxPeak / 12).toFixed(2));
   for (const f of FIELDS.slice(3)) set(f, d[f]);
   for (const cb of $$('input[name="stock"]')) cb.checked = d.lengths.includes(Number(cb.value));
+  for (const cb of $$('input[name="lock"]')) cb.checked = (d.locked || []).includes(cb.value);
 }
 
 function readForm() {
@@ -168,6 +172,7 @@ function readForm() {
   for (const f of ['studSize', 'joistSize', 'rafterSize', 'tieSize', 'skidSize', 'foundation', 'roofType', 'beamSize', 'sidingColor', 'roofColor', 'trimColor', 'interior', 'sidingType', 'roofCover', 'wallTrim', 'rafterSeat', 'compaction', 'pad', 'floorPanel', 'delivery']) d[f] = v(f).value;
   for (const f of ['floorTreated', 'siding', 'roofing', 'gableVents', 'polkaDots', 'autoWall', 'autoPitch', 'autoOverhang', 'glitter', 'insulation', 'customRange']) d[f] = v(f).checked;
   d.lengths = $$('input[name="stock"]:checked').map((c) => Number(c.value));
+  d.locked = $$('input[name="lock"]:checked').map((c) => c.value);
   return d;
 }
 
@@ -561,9 +566,10 @@ function renderNow() {
   // The end view shows what is built: with the automatic boxes ticked, the
   // pitch, wall height and overhang come from buildShed, not from the form.
   drawEnd($('#endview'), shed.design, shed.dims, hooks);
-  viewer?.show(shed);
-  renderSummary(shed, est);
   const sc = renderStructure(shed);
+  viewer?.show(shed, heatOption(shed, sc));
+  renderUtilisation(shed, sc);
+  renderSummary(shed, est);
   const worst = sc.rows.reduce((m, x) => Math.max(m, x.ratio), 0);
   const cc = connectionChecks(shed);
   $('#summary-lines').insertAdjacentHTML('beforeend', `<div><dt>Structure</dt><dd>${sc.ok ? `all ${sc.rows.length} load checks pass` : `${sc.rows.filter((x) => !x.ok).length} over capacity`} (highest ${Math.round(worst * 100)}%); ${cc.ok ? `all ${cc.rows.length} connection checks pass` : `${cc.rows.filter((x) => !x.ok).length} connection checks fail`}</dd></div>`);
@@ -611,6 +617,7 @@ const slug = () => design().name.toLowerCase().replace(/[^a-z0-9]+/g, '-').repla
 // ---------- wiring ----------
 const viewer = createViewer($('#view3d'));
 if (!viewer) $('#view3d-fallback').hidden = false;
+initUtilisation({ viewer, count, storage });
 
 function wire() {
   const form = $('#settings');
@@ -833,6 +840,25 @@ function wire() {
       $('#budget').disabled = false;
     }, 30);
   });
+  $('#levers').addEventListener('click', () => {
+    $('#levers').disabled = true;
+    $('#levers-out').innerHTML = '<p class="muted">Framing, pricing and checking each option...</p>';
+    setTimeout(() => {
+      const r = leverOptions(design(), state.prices);
+      count('options-priced');
+      $('#levers-out').innerHTML = leverTableHtml(r);
+      $('#levers-out').onclick = (ev) => {
+        const b = ev.target.closest('button[data-lever]');
+        if (!b) return;
+        const [gi, i] = b.dataset.lever.split(':').map(Number);
+        const row = r.groups[gi]?.rows[i];
+        if (!row) return;
+        commit({ ...design(), ...row.change }, `option: ${row.label}`);
+        $('#levers-out').innerHTML = '<p class="muted">Applied. Price the options again to compare from your new design.</p>';
+      };
+      $('#levers').disabled = false;
+    }, 30);
+  });
   $('#simplify').addEventListener('click', () => {
     $('#simplify').disabled = true;
     $('#simplify-out').innerHTML = '<p class="muted">Building and checking variations...</p>';
@@ -959,6 +985,8 @@ function wire() {
   };
   $('#print-plans').addEventListener('click', () => printWhat('plans'));
   $('#print-all').addEventListener('click', () => printWhat('all'));
+  // The HOA packet is its own page, carrying the design in its link as "Copy link" does.
+  $('#hoa-packet').addEventListener('click', () => { window.open(`hoa-packet.html#d=${encodeDesign(design())}`, '_blank', 'noopener'); });
   for (const id of ['#quote-store', '#quote-name', '#quote-phone', '#quote-zip', '#quote-date']) $(id).addEventListener('input', () => quoteCtx && renderQuote(quoteCtx.shed, quoteCtx.est));
   $('#quote-store').addEventListener('change', () => quoteCtx && renderQuote(quoteCtx.shed, quoteCtx.est));
   $('#buy-at').value = state.buyAt;

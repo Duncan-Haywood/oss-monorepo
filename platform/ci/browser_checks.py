@@ -412,7 +412,7 @@ def chrome_candidates(env) -> list[str]:
     ]
 
 
-def chrome_launches(env, path: str) -> bool:
+def chrome_launches(env, path: str | None) -> bool:
     """Whether Playwright can actually start this binary and open a page.
 
     A file that exists and is executable is not evidence that it runs. The
@@ -424,13 +424,14 @@ def chrome_launches(env, path: str) -> bool:
     probe = (
         "const p = await import(process.argv[1]);"
         "const chromium = p.chromium ?? p.default?.chromium;"
-        "const b = await chromium.launch({ executablePath: process.argv[2] });"
+        "const exe = process.argv[2];"
+        "const b = await chromium.launch(exe ? { executablePath: exe } : {});"
         "await (await b.newPage()).setContent('<p>probe</p>');"
         "await b.close();"
     )
     try:
         proc = subprocess.run(
-            ["node", "--input-type=module", "-e", probe, spec, path],
+            ["node", "--input-type=module", "-e", probe, spec, path or ""],
             cwd=REPO_ROOT, env=env, timeout=120,
             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
         )
@@ -678,6 +679,22 @@ def main(argv=None) -> int:
         print("Note: a Chromium is present but would not launch, so the checks will use\n"
               "Playwright's own resolution instead. If they now fail to start at all,\n"
               "that is the browser and not these pages — set CHROME_PATH to override.")
+
+    # One launch before the build, with whatever the checks will use. Until
+    # 2026-10-30 a browser that would not start (the nightly of 2026-10-21 to
+    # 10-29: Playwright 1.56 could not install Chromium on Ubuntu 26.04 and
+    # the install step is `continue-on-error`) reached all eight checks, each
+    # died with the same "Executable doesn't exist" trace, and the run said
+    # "8 of 8 checks failed" -- a site defect reading for a missing browser.
+    # Nothing can be verified without one, which is exit 2 by this file's
+    # own contract.
+    if not chrome_launches(env, env.get("CHROME_PATH") or env.get("CHROMIUM_PATH")):
+        print("Chromium would not start here, so the browser checks cannot run.\n"
+              "This is a skip, not a failure — nothing was verified.\n"
+              "  npx playwright install chromium   (with the same Playwright the checks use)\n"
+              "  CHROME_PATH=/path/to/chrome       to name a browser that does start",
+              file=sys.stderr)
+        return 2
 
     # Only when `contrast` is actually being run: this is the one search that
     # shells out to npm, and no other check reads AXE.

@@ -9,6 +9,7 @@ import { EXAMPLE_ITEMS } from './lumber.mjs';
 import { OFFERS, storeComparison, swapsFor, storeTotals, storeList, pricesFor } from './catalog.mjs';
 import { simplify, cutMetrics, sidingSpan, budget, laborHours } from './simplify.mjs';
 import { connectionChecks } from './connections.mjs';
+import { structuralChecks } from './checks.mjs';
 import { integrity } from './integrity.mjs';
 import { buildSheets } from './drawings.mjs';
 import { buildInstructions } from './instructions.mjs';
@@ -294,4 +295,14 @@ test('one store only: its own prices and item numbers, re-optimized, the gaps ma
   // Lowe's own lumber prices change what the optimizer buys there.
   const lw = estimate(shed, pricesFor('lowes', examplePrices()));
   assert.notEqual(lw.lumberCost, estimate(shed).lumberCost);
+});
+
+test('the budget search may move floor joists to 24" and resize them, and every result still passes', () => {
+  const d = defaultDesign();
+  const r = budget(d);
+  const labels = r.best.steps.map((s) => s.label).join('|');
+  assert.match(labels, /floor joists/);
+  const sc = structuralChecks(buildShed(r.best.design));
+  assert.ok(sc.ok);
+  assert.ok(sc.rows.find((x) => x.member === 'Subfloor').ratio <= 1);
 });
