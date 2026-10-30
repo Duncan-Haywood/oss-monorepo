@@ -4,7 +4,7 @@
 // desk, keys and leads are always fetched live and never stored here.
 //
 // The shell is the files below plus every module index.html imports, found at
-// install time by following `import ... from "./x.mjs"`, so a new module needs
+// install time by following each module import in index.html, so a new module needs
 // no edit here. sw.test.mjs runs this file against the real directory.
 const CACHE = "babysitting-business-kit-v1";
 const SHELL = [
