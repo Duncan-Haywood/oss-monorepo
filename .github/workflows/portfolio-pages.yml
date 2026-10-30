@@ -111,7 +111,16 @@ jobs:
   # (2026-10-20: one green run in thirty on main). The deploy waits only for
   # the build and check.mjs on the built artifact; a red test job still fails
   # the run and the PR, which is where these suites gate.
+  #
+  # Not on a push to `main` (2026-10-30). The PR that changed a site input
+  # already ran this suite, and a merge lands every few minutes on a busy day,
+  # so the push run repeated the heaviest step in the repository (about a
+  # quarter of measured job-minutes) for no new signal. The three-hourly
+  # schedule still runs it against `main`, which catches the merge-skew case
+  # (two green PRs that break each other) within three hours.
+  # docs/reports/2026-10-30-actions-usage.md has the numbers.
   test:
+    if: github.event_name != 'push'
     runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     permissions:
       contents: read

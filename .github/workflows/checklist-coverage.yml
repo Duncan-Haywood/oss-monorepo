@@ -65,6 +65,12 @@ on:
 permissions:
   contents: read
 
+# A newer push to the same pull request cancels the superseded run; `main`
+# keeps every run (platform/ci/validate_workflows.py, invariant 9).
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   coverage:
     runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
