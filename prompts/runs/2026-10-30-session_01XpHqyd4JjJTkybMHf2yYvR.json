@@ -1,7 +1,7 @@
 {
   "date": "2026-10-30",
   "session": "https://claude.ai/code/session_01XpHqyd4JjJTkybMHf2yYvR",
-  "track": "platform",
+  "track": "ventures",
   "prompt_version": 0,
   "input": "okay I think wwe are moving from ghp to cloudflare. what do you need from me?",
   "follow_up_inputs": [
@@ -12,7 +12,10 @@
   ],
   "model": null,
   "task": "Move the public site from GitHub Pages to Cloudflare on workers.dev",
-  "projects": ["platform/pages", "platform/edge"],
+  "projects": [
+    "platform/pages",
+    "platform/edge"
+  ],
   "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/11585",
   "outcome": "success",
   "errors": [
@@ -30,8 +33,14 @@
     }
   ],
   "deviations": [
-    "Told the owner GitHub Pages would mirror the full site for two weeks; shipped redirect pages instead. A mirror needs a second full build for the subpath origin, and canonical + zero-second refresh moves search ranking to the new origin, which a duplicate mirror would not.",
-    "Could not run actionlint (the downloaded binary was refused); relied on validate_workflows.py, dogfood_workflows.py, the publish-surface snapshot and CI."
+    {
+      "file": "(this session's earlier reply to the owner)",
+      "why": "Said GitHub Pages would mirror the full site for two weeks; shipped redirect pages instead. A mirror needs a second full build for the subpath origin, and canonical + zero-second refresh moves search ranking to the new origin, which a duplicate mirror would not."
+    },
+    {
+      "file": ".github/workflows/portfolio-pages.yml",
+      "why": "Could not run actionlint (the downloaded binary was refused); relied on validate_workflows.py, dogfood_workflows.py, the publish-surface snapshot and CI."
+    }
   ],
   "writeups": [
     "docs/posts/2026-10-30-moving-a-20000-file-site-to-cloudflares-free-plan.md",
