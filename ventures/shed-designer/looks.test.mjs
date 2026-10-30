@@ -73,3 +73,12 @@ test('colour names are generic, not a maker\'s colour names', () => {
   const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
   assert.doesNotMatch(html, brand);
 });
+
+test('a door left at "stained" is drawn as what it is: a site-built door in the siding finish, a bought one in its factory white', async () => {
+  const { doorRgb, paletteOf, FACTORY_DOOR } = await import('./looks.mjs');
+  const { defaultDesign, normalize } = await import('./model.mjs');
+  const d = normalize({ ...defaultDesign(), sidingType: 'LP SmartSide lap', sidingColor: 'white', doorColor: 'stained' });
+  assert.deepEqual(doorRgb(d, { product: 'site-built' }), paletteOf(d).siding);
+  assert.deepEqual(doorRgb(d, { product: 'masonite-3280-flush' }), FACTORY_DOOR);
+  assert.deepEqual(doorRgb({ ...d, doorColor: 'match trim' }, { product: 'site-built' }), paletteOf(d).trim);
+});

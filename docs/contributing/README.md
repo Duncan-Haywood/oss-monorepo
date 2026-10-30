@@ -10,6 +10,7 @@ The pages here go one level deeper.
 | [`fix-a-tool.md`](fix-a-tool.md) | How a browser calculator, a command-line checker and a self-hosted app are laid out, and a worked example of fixing a wrong number |
 | [`writing.md`](writing.md) | Blog posts, agent posts, READMEs, `llms.txt` files and other docs: where each goes, its front matter and shape, and the checks it must pass |
 | [`research.md`](research.md) | How a research project is laid out, reproducing a result, and what a useful correction or extension looks like |
+| [`start-here.md`](start-here.md) | The "Start here" blog series: which guide to send each kind of reader to, and how to write a new one |
 | [`steering-agents.md`](steering-agents.md) | The maintainer's process for directing agent sessions: scheduling, phrasing a request, reading results, turning remarks into directions, and copying it to another repository |
 
 ## How this repository is different
@@ -42,16 +43,18 @@ that.
 | `docs/posts/` | Articles for readers, built from the same work | Read them like a blog, or write one: [`writing.md`](writing.md) |
 | `docs/history/` | Records of process decisions | No |
 | "Run record", "track", "flagship", "deviation" in PRs | Bookkeeping for agent sessions | No |
-| `gitops/`, `bootstrap/`, `infra/` | A retired self-hosted cluster; the live site is served by Cloudflare | No; do not try to deploy it |
+| `gitops/`, `bootstrap/`, `infra/` | A retired self-hosted cluster; the live site is on Cloudflare | No; do not try to deploy it |
 | `PRODUCT_PLAYBOOK.md` | How a tool should be built: disclaimer text, privacy, what "done" means | Section 5 ("Every product ships these five things") is worth reading before you add a page |
 
 ## Where the live site comes from
 
 Every merge to `main` that touches a site input rebuilds the catalogue with
 `platform/pages/build.mjs` and deploys it to Cloudflare at
-<https://monorepo-projects-site.duncan-andrew-haywood.workers.dev/>
-(`.github/workflows/portfolio-pages.yml`); the old GitHub Pages address
-redirects there. There is no separate release step:
+https://monorepo-projects-site.duncan-andrew-haywood.workers.dev/
+(`.github/workflows/portfolio-pages.yml`, also every three hours). The old
+GitHub Pages address, `https://duncan-haywood.github.io/oss-monorepo/`, now
+serves redirect pages to the same path there
+([`portfolio/hosting/README.md`](../../portfolio/hosting/README.md)). There is no separate release step:
 once your change is merged, it is live within the next deploy. How to build the
 site on your own machine is in [`setup.md`](setup.md).
 

@@ -4,7 +4,7 @@
 // count studs. No library; drag to orbit, right- or Shift-drag (two fingers on a phone) to pan, wheel, pinch or buttons to zoom,
 // arrow keys and +/- when the canvas has focus.
 
-import { paletteOf, PAINTS, SHINGLE_FAMILIES, TRIM_FINISHES } from './looks.mjs';
+import { paletteOf, doorRgb, PAINTS, SHINGLE_FAMILIES, TRIM_FINISHES } from './looks.mjs';
 
 /** @typedef {import('./model.mjs').Geom} Geom */
 /** @typedef {{ geom: Geom, color: [number, number, number], layer: string, flags?: number, id?: string }} Solid */
@@ -209,7 +209,7 @@ export function solidsOf(shed, heat) {
       : (f.kind === 'door' || f.kind === 'window' || f.kind === 'vent') ? 'siding'
         : (['trim', 'interior', 'decor', 'front lining'].includes(f.group) ? f.group : 'foundation');
     const lining = { OSB: [0.8, 0.66, 0.44], plywood: [0.93, 0.92, 0.88], drywall: [0.95, 0.95, 0.94], beadboard: [0.96, 0.95, 0.9], pegboard: [0.72, 0.58, 0.42] }[d.interior] || COLORS.lining;
-    const color = f.kind === 'shingles' ? roof : (f.kind === 'fascia' || f.kind === 'soffit' || f.kind === 'casing') ? trim : f.kind === 'door' ? pal.door : f.kind === 'connector' ? [0.62, 0.64, 0.66] : f.kind === 'lining' ? lining : /** @type {any} */ (COLORS)[f.kind] || COLORS.block;
+    const color = f.kind === 'shingles' ? roof : (f.kind === 'fascia' || f.kind === 'soffit' || f.kind === 'casing') ? trim : f.kind === 'door' ? doorRgb(d, d.openings.find((o) => o.id === f.op)) : f.kind === 'connector' ? [0.62, 0.64, 0.66] : f.kind === 'lining' ? lining : /** @type {any} */ (COLORS)[f.kind] || COLORS.block;
     const cover = d.roofCover === 'metal' ? FINISH.metal : FINISH.shingle + pal.roofBlend;
     out.push({ id: f.id, geom: f.geom, color: /** @type {any} */ (color), layer, flags: f.kind === 'shingles' ? glitter + cover : f.kind === 'window' ? FINISH.glass : 0 });
   }
@@ -237,13 +237,14 @@ export function dimensionsOf(shed, fmt = (x) => `${x}`) {
   seg([0, -o, 0], [L, -o, 0], [[0, 0, 0], [0, -o - 4, 0], [L, 0, 0], [L, -o - 4, 0]], `${fmt(L)} long`);
   seg([L + o, 0, 0], [L + o, W, 0], [[L, 0, 0], [L + o + 4, 0, 0], [L, W, 0], [L + o + 4, W, 0]], `${fmt(W)} wide`);
   // A lean-to's high point is its front edge, over the tall front wall.
-  const py = k.lean ? -k.overhang : W / 2;
+  const py = k.lean ? -k.overhang : k.ridgeY ?? W / 2;
   seg([L + o, py, 0], [L + o, py, k.peak], [[L, py, k.peak], [L + o + 4, py, k.peak]], `${fmt(k.peak)} ground to ${k.lean ? 'high edge' : 'peak'}`);
   seg([-o, 0, 0], [-o, 0, k.lean ? k.highPlateTop : k.plateTop], [[0, 0, k.lean ? k.highPlateTop : k.plateTop], [-o - 4, 0, k.lean ? k.highPlateTop : k.plateTop]], `${fmt(k.lean ? k.highPlateTop : k.plateTop)} ground to ${k.lean ? 'front ' : ''}wall top`);
   if (k.lean) seg([-o, W, k.floorTop], [-o, W, k.plateTop], [[0, W, k.plateTop], [-o - 4, W, k.plateTop]], `${fmt(k.plateTop)} ground to back wall top`);
   seg([-o, W, 0], [-o, W, k.floorTop], [[0, W, k.floorTop], [-o - 4, W, k.floorTop]], `${fmt(k.floorTop)} ground to floor`);
   // Overhang and roof slope on the left gable.
-  const eaveZ = k.plateTop + (k.connector ? 0 : -k.stud * (d.pitch / 12)) + k.plumbH;
+  // At the front eave: a saltbox's is the steep slope's.
+  const eaveZ = k.saltbox && k.slopes ? k.plateTop + (k.connector ? 0 : -k.stud * (k.slopes.front.pitch / 12)) + k.rafterDepth / k.slopes.front.cos : k.plateTop + (k.connector ? 0 : -k.stud * (d.pitch / 12)) + k.plumbH;
   // On a lean-to the overhang is shown at the low back eave.
   if (k.overhang > 0 && k.lean) seg([-6, W, eaveZ + 6], [-6, W + k.overhang, eaveZ + 6], [[-6, W, k.plateTop], [-6, W, eaveZ + 8]], `${fmt(k.overhang)} overhang`);
   else if (k.overhang > 0) seg([-6, -k.overhang, eaveZ + 6], [-6, 0, eaveZ + 6], [[-6, 0, k.plateTop], [-6, 0, eaveZ + 8]], `${fmt(k.overhang)} overhang`);
@@ -251,6 +252,9 @@ export function dimensionsOf(shed, fmt = (x) => `${x}`) {
     // One slope, from the low back tail up to the high front one.
     const lowZ = eaveZ - k.overhang * (d.pitch / 12);
     seg([-12, W + k.overhang, lowZ + 14], [-12, -k.overhang, k.peak + 8], [], `${d.pitch}/12 roof, ${fmt(k.slopeLen)} tail to tail`);
+  } else if (k.saltbox && k.slopes) {
+    // A saltbox's steep front: from its eave up to the off-centre ridge.
+    seg([-12, -k.overhang, eaveZ + 14], [-12, k.ridgeY, k.peak + 8], [], `${k.slopes.front.pitch}/12 front, ${fmt(k.slopes.front.len)} eave to ridge; ${d.pitch}/12 back, ${fmt(k.slopes.back.len)}`);
   } else seg([-12, -k.overhang, eaveZ + 14], [-12, W / 2, k.peak + 8], [], `${d.pitch}/12 roof, ${fmt(k.slopeLen)} eave to ridge`);
   // Every door and window: its rough size, its distance from the corner, and a window's sill height.
   for (const f of shed.fixtures.filter((x) => x.kind === 'door' || x.kind === 'window')) {

@@ -23,6 +23,9 @@ pass. How a fork pull request lands is in
 If you are unsure, write a post, or open an issue describing what you want
 to write about and where you got the facts.
 
+An onboarding guide for newcomers (the `start-here` posts) has its own map and
+template: [`start-here.md`](start-here.md).
+
 ## Blog posts
 
 ### The file

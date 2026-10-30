@@ -89,6 +89,7 @@ alike.
 
 | You want to | Read |
 |---|---|
+| Find the guide written for your trade, field or role | [`docs/contributing/start-here.md`](docs/contributing/start-here.md) |
 | Get the code and run something in five minutes | [`docs/contributing/setup.md`](docs/contributing/setup.md) |
 | Fix or improve a calculator, checker or app | [`docs/contributing/fix-a-tool.md`](docs/contributing/fix-a-tool.md) |
 | Write a blog post, a README, an `llms.txt` or other docs | [`docs/contributing/writing.md`](docs/contributing/writing.md) |
