@@ -1,0 +1,54 @@
+{
+  "date": "2026-10-30",
+  "session": "https://claude.ai/code/session_01AcxTtHnTDBgHnEfK9JE61M",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "scheduled: read prompt.md and follow it",
+  "input_sha256": "2abc11ce438e08917dbfbd5f6a49fe9cdcb2b7d6c1dd885255dfd4b7b4c9fbca",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-30T08:17:42Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 11720,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "Two runs a minute apart drew different programmes (verified-dse, then heavy-hydraulics); the draw is not stable within a run."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/verified-dse/LOG.md",
+      "why": "Predictions were not fixed before the script ran; stated as exploratory in the log entry.",
+      "did": "labelled the milestone exploratory",
+      "result": "honest record"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-30-pilot-quantile-halving-regret.md",
+    "research/verified-dse/LOG.md milestone 42"
+  ],
+  "goal": null,
+  "notes": "",
+  "corrections": [],
+  "redteam": null
+}
