@@ -55,6 +55,24 @@ def tracked_files() -> list[Path]:
     return [REPO_ROOT / name for name in listing.split("\0") if name]
 
 
+# Formats whose files always carry a NUL byte in their first 8 KB, so git
+# treats them as binary and never writes conflict markers into them: it keeps
+# one side and reports a binary conflict instead. The CI job leaves these out
+# of its sparse checkout (P048: the MP3s alone are half the tree's bytes), and
+# only these may be missing from the working tree. Any other tracked file that
+# is absent fails the check, so a narrower checkout cannot pass by scanning
+# less.
+BINARY_SUFFIXES = frozenset({".mp3", ".png", ".zip", ".webp", ".woff2", ".ttf", ".ico", ".gif"})
+
+
+def absent_text_files(paths: list[Path]) -> list[Path]:
+    """Tracked files missing from the working tree that could hold a marker."""
+    return [
+        p for p in paths
+        if p.suffix.lower() not in BINARY_SUFFIXES and not p.exists() and not p.is_symlink()
+    ]
+
+
 def markers_in(path: Path) -> list[tuple[int, str]]:
     try:
         text = path.read_text(encoding="utf-8")
@@ -82,9 +100,20 @@ def markers_in(path: Path) -> list[tuple[int, str]]:
 
 def main() -> int:
     this_file = Path(__file__).resolve()
+    tracked = tracked_files()
+    missing = absent_text_files(tracked)
+    if missing:
+        print(f"{len(missing)} tracked file(s) that could hold a marker are not in the working tree:\n")
+        for path in missing[:20]:
+            print(f"  {path.relative_to(REPO_ROOT)}")
+        print(
+            "\nOnly BINARY_SUFFIXES may be left out of a sparse checkout. Widen the"
+            "\ncheckout, or this check would pass by reading less than it reports."
+        )
+        return 1
     findings: list[tuple[Path, int, str]] = []
 
-    for path in tracked_files():
+    for path in tracked:
         if path.resolve() == this_file:
             continue
         for number, line in markers_in(path):

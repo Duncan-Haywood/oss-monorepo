@@ -1,0 +1,27 @@
+{
+  "id": "P049",
+  "title": "perf: every PR push starts ~15 jobs, each with its own checkout, mostly for guards a diff cannot fail",
+  "status": "open",
+  "owner": "agent",
+  "effect": 3,
+  "cost": 2,
+  "problem": "A PR head triggers a median of 10 workflows and 15 jobs. Many are cheap guards with overlapping triggers, each paying runner start-up and a checkout, and some run on diffs that cannot affect them. Jobs that should run on a change sometimes do not: PR #10185 merged a post whose description broke every Pages build on main, which suggests the trigger map is wide where it is cheap to be narrow and narrow where it matters.",
+  "evidence": [
+    "ci_profile.py saved payload, 2026-10-24 (45 PR heads, 600 runs): jobs per PR head median 15 (mean 14.6), workflows per head median 10",
+    "45 jobs in the same window ran with every work step skipped (12.3 job-minutes), e.g. Duplicate symbols 7, Prompts validate 6, Portfolio Pages site build 7",
+    "main red 2026-10-24 after PR #10185 (docs/posts description 238 chars > 160): writing.mjs loadPosts throws, failing build.mjs and every buildSite test"
+  ],
+  "change": "Fold the cheap guards that share a trigger into one 'guards' workflow with one checkout and one step per guard (keep each guard's script and failure message; check branch protection's required names first). Give each remaining workflow a paths filter that matches what its script reads, and add the validator that every docs/posts or Pages-input change runs writing.test.mjs. Measure jobs per PR head before and after.",
+  "touches": [
+    ".github/workflows/",
+    "platform/ci/validate_workflows.py",
+    "platform/ci/ci_profile.py"
+  ],
+  "metric": "jobs per PR head (median) and job-minutes per merged PR",
+  "baseline": "median 15 jobs / 10 workflows per PR head, 2026-10-24",
+  "opened": "2026-10-24",
+  "source": "prompts/runs/2026-10-24-session_01Gcz8nVnXVeNTiqb8JKabK1.json",
+  "pr": null,
+  "result": null,
+  "history": []
+}
