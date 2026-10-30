@@ -1683,3 +1683,15 @@ or `ventures`) until its success rate passes 80% over 20 runs?
 - Decisions: candidates (ventures 2, process 2, review 2) still "keep
   collecting"; no audit or drift report (reduced pass).
 - Result: (next review)
+
+## E113: review 2026-10-30 (reduced pass, fortieth run)
+
+- Change: `research/CLAUDE.md` torch note says download.pytorch.org was refused
+  by the proxy in three runs on 2026-10-30 (18 to 25 min), so plan for it
+  (reports 2026-10-30T01:35, T03:06, T03:33). Re-ran `derive.py fetch && build`
+  (3932 rows).
+- Metric: friction reports naming `research/CLAUDE.md` about `pyenv.py` torch
+  time; compare the next 40 runs.
+- Decisions: candidates (ventures 2, process 2, review 2) still "keep
+  collecting: the intervals overlap"; no audit or drift report (reduced pass).
+- Result: (next review)
