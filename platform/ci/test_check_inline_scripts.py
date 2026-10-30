@@ -33,6 +33,13 @@ class InlineScripts(unittest.TestCase):
     def test_good_script_passes(self):
         self.assertEqual(self.run_on("<script>const a = () => 1;</script>")[0], 0)
 
+    def test_batch_screen_keeps_node_check_verdicts(self):
+        # a top-level return passes `node --check` (CommonJS wrapper) but not vm.Script
+        self.assertEqual(self.run_on("<script>return 1;</script>")[0], 0)
+        self.assertEqual(self.run_on('<script type="module">import x from "y"; export const a = 1;</script>')[0], 0)
+        code, out = self.run_on('<script>var a=1;</script>\n<script type="module">export const = 1;</script>')
+        self.assertEqual((code, "index.html:2:" in out), (1, True))
+
     def test_syntax_error_fails_with_line(self):
         code, out = self.run_on("<p>x</p>\n<script>function (</script>")
         self.assertEqual(code, 1)
