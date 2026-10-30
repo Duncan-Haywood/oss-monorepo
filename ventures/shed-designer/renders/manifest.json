@@ -47,41 +47,41 @@
   "12x16": {
    "key": "12x16",
    "name": "12x16 gable shed",
-   "hash": "d729b663dced56dc",
+   "hash": "0b784faa3a8e612b",
    "files": {
     "hero": {
      "file": "12x16-hero.webp",
      "w": 960,
      "h": 640,
-     "bytes": 25350,
+     "bytes": 25390,
      "alt": "3D render of the 12x16 gable shed, 12 by 16 ft, seen from the front corner: stained T1-11 panel siding, charcoal shingles, 5/12 roof, 11' 10-13/16\" to the peak, showing a 36\" window on the front (eave side) and a 36\" window on the front (eave side)."
     },
     "front": {
      "file": "12x16-front.webp",
      "w": 480,
      "h": 320,
-     "bytes": 5670,
+     "bytes": 5644,
      "alt": "3D render of the 12x16 gable shed, 12 by 16 ft, seen front: stained T1-11 panel siding, charcoal shingles, 5/12 roof, 11' 10-13/16\" to the peak, showing a 36\" window and a 36\" window."
     },
     "side": {
      "file": "12x16-side.webp",
      "w": 480,
      "h": 320,
-     "bytes": 5846,
+     "bytes": 5868,
      "alt": "3D render of the 12x16 gable shed, 12 by 16 ft, seen gable end: stained T1-11 panel siding, charcoal shingles, 5/12 roof, 11' 10-13/16\" to the peak."
     },
     "back": {
      "file": "12x16-back.webp",
      "w": 480,
      "h": 320,
-     "bytes": 5208,
+     "bytes": 5206,
      "alt": "3D render of the 12x16 gable shed, 12 by 16 ft, seen back: stained T1-11 panel siding, charcoal shingles, 5/12 roof, 11' 10-13/16\" to the peak."
     },
     "framing": {
      "file": "12x16-framing.webp",
      "w": 640,
      "h": 427,
-     "bytes": 21466,
+     "bytes": 21506,
      "alt": "Framing of the 12x16 gable shed (12 by 16 ft) with the siding, sheathing and roofing removed: studs at 16\" on centre, rafters at 24\" and a 2x8 ridge board with rafter ties."
     }
    }
@@ -131,41 +131,41 @@
   "8x12": {
    "key": "8x12",
    "name": "8x12 ridge-beam shed",
-   "hash": "48b7b91d79f524a0",
+   "hash": "0cb90a5d0289760d",
    "files": {
     "hero": {
      "file": "8x12-hero.webp",
      "w": 960,
      "h": 640,
-     "bytes": 23056,
+     "bytes": 23030,
      "alt": "3D render of the 8x12 ridge-beam shed, 8 by 12 ft, seen from the front corner: stained T1-11 panel siding, charcoal shingles, 4/12 roof, 10' 2-3/8\" to the peak, showing a 39\" door on the front (eave side)."
     },
     "front": {
      "file": "8x12-front.webp",
      "w": 480,
      "h": 320,
-     "bytes": 5650,
+     "bytes": 5350,
      "alt": "3D render of the 8x12 ridge-beam shed, 8 by 12 ft, seen front: stained T1-11 panel siding, charcoal shingles, 4/12 roof, 10' 2-3/8\" to the peak, showing a 39\" door."
     },
     "side": {
      "file": "8x12-side.webp",
      "w": 480,
      "h": 320,
-     "bytes": 6018,
+     "bytes": 5918,
      "alt": "3D render of the 8x12 ridge-beam shed, 8 by 12 ft, seen gable end: stained T1-11 panel siding, charcoal shingles, 4/12 roof, 10' 2-3/8\" to the peak."
     },
     "back": {
      "file": "8x12-back.webp",
      "w": 480,
      "h": 320,
-     "bytes": 5810,
+     "bytes": 5722,
      "alt": "3D render of the 8x12 ridge-beam shed, 8 by 12 ft, seen back: stained T1-11 panel siding, charcoal shingles, 4/12 roof, 10' 2-3/8\" to the peak, showing a 14\" window and a 14\" window."
     },
     "framing": {
      "file": "8x12-framing.webp",
      "w": 640,
      "h": 427,
-     "bytes": 19638,
+     "bytes": 19256,
      "alt": "Framing of the 8x12 ridge-beam shed (8 by 12 ft) with the siding, sheathing and roofing removed: studs at 16\" on centre, rafters at 24\" and a two-ply 2x10 ridge beam on posts."
     }
    }
