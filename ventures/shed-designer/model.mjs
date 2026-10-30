@@ -834,7 +834,7 @@ function buildFramed(d) {
   for (let i = 0; i < skidCount; i++) skidYs.push(skid.thick / 2 + (i * (W - skid.thick)) / (skidCount - 1));
   // A saltbox's ridge-beam posts stand off centre: give them a skid of their own unless one is already under them.
   // The nearest inner skid moves under them if it is within half a spacing; otherwise one more skid goes in.
-  if (salt && d.roofType === 'ridgeBeam' && !skidYs.some((y) => Math.abs(y - yR) <= skid.thick / 2 - 1.5 + 1e-9)) {
+  if (salt && !floorless && d.roofType === 'ridgeBeam' && !skidYs.some((y) => Math.abs(y - yR) <= skid.thick / 2 - 1.5 + 1e-9)) {
     const inner = skidYs.map((y, i) => ({ y, i })).filter((x) => x.i > 0 && x.i < skidYs.length - 1).sort((p, q) => Math.abs(p.y - yR) - Math.abs(q.y - yR))[0];
     if (inner && Math.abs(inner.y - yR) <= d.skidSpacing / 2) skidYs[inner.i] = yR;
     else { skidYs.push(yR); skidCount += 1; }
