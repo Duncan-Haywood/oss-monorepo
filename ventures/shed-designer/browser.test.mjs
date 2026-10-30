@@ -110,6 +110,33 @@ test('every handle works from the keyboard and keeps focus after the redraw', { 
   assert.equal(Number(await val(page, 'overhang')), oh + 1);
 });
 
+test('a steep peak drag grows the end view as it goes, keeping the peak in sight', { skip }, async (t) => {
+  const { page } = await open(t);
+  const peak = page.locator('#endview [data-key="end-peak"]');
+  await page.locator('#endview').scrollIntoViewIfNeeded();
+  const start = await peak.boundingBox();
+  const x = start.x + start.width / 2; let y = start.y + start.height / 2;
+  await page.mouse.move(x, y);
+  await page.mouse.down();
+  const heights = [];
+  for (let i = 0; i < 12; i++) {
+    y -= 25;
+    await page.mouse.move(x, y);
+    await settle(page);
+    const [box, dot, vb] = await page.evaluate(() => {
+      const svg = document.querySelector('#endview');
+      const h = svg.querySelector('[data-key="end-peak"]').getBoundingClientRect();
+      const b = svg.getBoundingClientRect();
+      return [[b.top, b.bottom], [h.top + h.height / 2], svg.getAttribute('viewBox')];
+    });
+    heights.push(Number(vb.split(' ')[3]));
+    assert.ok(dot[0] >= box[0] && dot[0] <= box[1], `step ${i}: the peak (${dot[0]}) stays inside the view (${box})`);
+  }
+  await page.mouse.up();
+  assert.ok(heights.at(-1) > heights[0], `the view grew during the drag: ${heights.join(', ')}`);
+  await page.waitForFunction(() => document.querySelector('#pitch').value === '14');
+});
+
 test('the end view draws the roof that is built, not the number under an automatic box', { skip }, async (t) => {
   const { page } = await open(t);
   await page.check('#autoPitch'); await page.check('#autoOverhang');
@@ -238,6 +265,21 @@ test('the 3D view takes the keyboard', { skip }, async (t) => {
   await page.keyboard.press('+');
   await settle(page);
   assert.notDeepEqual(await canvas.screenshot(), before);
+});
+
+test('orbiting the 3D view measures each dimension label once, not every frame', { skip }, async (t) => {
+  const { page } = await open(t);
+  await page.evaluate(() => {
+    const w = /** @type {any} */ (window); w.reads = 0;
+    const d = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'offsetWidth');
+    Object.defineProperty(HTMLElement.prototype, 'offsetWidth', { configurable: true, get() { if (this.parentElement?.classList.contains('dim-overlay')) w.reads++; return d.get.call(this); } });
+  });
+  const canvas = page.locator('#view3d');
+  await canvas.focus();
+  for (let i = 0; i < 8; i++) { await page.keyboard.press('ArrowLeft'); await settle(page); }
+  const [reads, labels] = await page.evaluate(() => [/** @type {any} */ (window).reads, document.querySelectorAll('.dim-overlay span').length]);
+  assert.ok(labels > 0, 'there are labels');
+  assert.ok(reads <= labels, `${reads} width reads for ${labels} labels over 8 frames`);
 });
 
 test('the store table, other tabs and design cards catch up just after an edit', { skip }, async (t) => {
