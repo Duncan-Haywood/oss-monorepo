@@ -250,3 +250,15 @@ test('clerestory windows: a row of transoms high in a lean-to\'s tall wall, all 
   const g = evaluateDesign({ ...defaultDesign(), openings: ops, autoWall: true });
   assert.ok(!g.feasible);
 });
+
+test('the saltbox in the search: a front twice the back, no trusses, checked and priced like the rest', () => {
+  const r = searchDesigns({ budget: 50, sizes: [{ length: 144, width: 96 }], layouts: ['eave door, two windows opposite', 'gable door, a window each side'], knobs: { style: ['saltbox'] } });
+  assert.ok(r.all.length > 5);
+  for (const s of r.all) {
+    assert.equal(s.design.style, 'saltbox');
+    assert.equal(s.design.frontPitch, Math.min(18, 2 * s.design.pitch));
+    assert.notEqual(s.design.roofType, 'truss');
+    assert.match(s.label, /saltbox/);
+    assert.ok(s.looks.terms.find((t) => t.key === 'pitch').why.includes('saltbox'));
+  }
+});

@@ -1,5 +1,5 @@
 /**
- * GHCR container images: each venture CLI that npm.mjs can package also becomes
+ * GHCR container images: each npm-allow-listed venture CLI (allowlist.json) also becomes
  * `ghcr.io/<owner>/<slug>:<version>`, so `docker run --rm -v "$PWD:/work" ghcr.io/<owner>/<slug> <args>`
  * works with no Node install. Off by default. See portfolio/distribution/README.md.
  *
@@ -21,6 +21,7 @@ import { fileURLToPath } from 'node:url';
 import { plan, buildPackage, writePackage, VERSION } from './npm.mjs';
 import { toolUrl } from './bluesky.mjs';
 import { tagUrl } from './attribution.mjs';
+import { allowed, loadAllowlist, loadVersions } from './versions.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(HERE, '..', '..');
@@ -72,10 +73,13 @@ async function dockerBuildPush(ref, dir) {
   await exec('docker', ['push', ref], { maxBuffer: 1 << 26 });
 }
 
-export async function run({ env = process.env, log = console.log, root = REPO_ROOT, exists = dockerExists, buildPush = dockerBuildPush, owner = env.GITHUB_REPOSITORY_OWNER || 'duncan-haywood' } = {}) {
+export async function run({ env = process.env, log = console.log, root = REPO_ROOT, exists = dockerExists, buildPush = dockerBuildPush, owner = env.GITHUB_REPOSITORY_OWNER || 'duncan-haywood', allow, versions } = {}) {
   const live = env.DISTRIBUTE_GHCR === 'true';
-  const { ok, skipped } = await plan({ root });
-  log(`${ok.length} of ${ok.length + skipped.length} venture CLIs qualify (${skipped.length} skipped)`);
+  allow ??= await loadAllowlist(root);
+  versions ??= await loadVersions(root);
+  const slugs = [...allowed(allow, 'npm')].sort();
+  const { ok, skipped } = await plan({ root, slugs, versions });
+  log(`${ok.length} of ${slugs.length} npm-allow-listed CLIs qualify (${skipped.length} skipped)`);
   const todo = [];
   for (const p of ok) {
     if (todo.length >= MAX_PER_RUN) break;

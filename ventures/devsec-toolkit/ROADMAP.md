@@ -123,6 +123,11 @@ dry run, and the owner enables it once.
       marketplace `action.yml`, so users write `uses: …/devsec-toolkit@<sha>`
       instead of copying a template. Publishing under the portfolio's name is
       an owner step; building the artifact is not.
+- [x] Versioned releases (2026-10-30): `platform/distribution/tool-releases.mjs`
+      tags `devsec-toolkit-v<version>` and attaches the `bundle` output as a
+      reproducible tarball with its SHA-256. Off until the owner sets
+      `DISTRIBUTE_TOOL_RELEASES=true`; the version follows a hash of the
+      bundle (`portfolio/distribution/versions.json`).
 - [ ] PyPI package (`pipx run devsec-toolkit`) via the existing
       `pypi-packages` distribution channel.
 - [ ] pre-commit hook definition (`.pre-commit-hooks.yaml`).

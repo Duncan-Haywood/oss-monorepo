@@ -68,14 +68,26 @@ channels:
       - GitHub Terms of Service and Acceptable Use (releases on our own repository are a first-party feature; no third party is contacted)
     owner_ask: set DISTRIBUTE_RELEASES=true. Note it creates a tag on the default branch each week.
     dry_run: node platform/distribution/releases.mjs
+  - id: tool-releases
+    rung: artifact
+    built: 2026-10-30
+    code: platform/distribution/tool-releases.mjs
+    workflow: .github/workflows/distribute-tool-releases.yml
+    enabled_by: repository variable DISTRIBUTE_TOOL_RELEASES=true (uses the workflow's own GITHUB_TOKEN; no external account or secret). Tags only main
+    what_it_posts: "one git tag `<slug>-v<version>` and one GitHub release per allow-listed tool version (31 tools on 2026-10-30), so users can pin `uses: .../actions/<slug>@<slug>-v0.1.0` and pre-commit `rev:` instead of @main. Notes list the pin lines that exist for that tool (action, pre-commit, and npm/PyPI only when those channels are on), the content hash and a link to the source at the tag. devsec-toolkit's release attaches its `bundle` output as a reproducible devsec-toolkit-<version>.tar.gz (about 130 KB) with its SHA-256. At most 5 releases per run; runs on each change to versions.json and weekly"
+    dedupe: stateless; a release that already has its tag is left alone. A run refuses to tag when versions.json is stale, so a tag always points at a commit whose shipped files match the recorded hash
+    terms_to_confirm_by_owner_when_enabling:
+      - GitHub Terms of Service and Acceptable Use (releases on our own repository are a first-party feature; no third party is contacted)
+    owner_ask: set DISTRIBUTE_TOOL_RELEASES=true. The first runs create 31 tags over about seven runs (five per run); release notifications go to anyone watching the repository's releases
+    dry_run: node platform/distribution/tool-releases.mjs
   - id: npm-cli-packages
     rung: artifact
     built: 2026-10-15
     code: platform/distribution/npm.mjs
     workflow: .github/workflows/distribute-npm.yml
     enabled_by: repository variable DISTRIBUTE_NPM=true plus secret NPM_TOKEN (an npm automation token); optional variable NPM_SCOPE (e.g. @yourname) to publish under a scope
-    what_it_posts: one npm package per zero-dependency venture CLI (cli.mjs plus the sibling files it imports, an MIT LICENSE, the venture README with a free/open-source/not-advice footer), at most 5 new packages per run, version 0.1.0; a bin wrapper makes `npx <name>` work because npm's bin symlink defeats the CLIs' direct-invocation guard
-    dedupe: stateless; a package name that already exists on the registry is skipped, so nothing is ever republished or overwritten
+    what_it_posts: one npm package per zero-dependency venture CLI on the npm allow-list (portfolio/distribution/allowlist.json, 7 tools on 2026-10-30) (cli.mjs plus the sibling files it imports, an MIT LICENSE, the venture README with a free/open-source/not-advice footer), at most 5 per run, at the version versions.json gives it; a bin wrapper makes `npx <name>` work because npm's bin symlink defeats the CLIs' direct-invocation guard
+    dedupe: stateless; a version the registry already has is skipped, and a name owned by another project (its repository URL is not this repo) is skipped with a note, so nothing is ever overwritten. On 2026-10-30 llm-spend-guard and llms-txt-generator were already taken on npm; they publish only under NPM_SCOPE
     terms_to_confirm_by_owner_when_enabling:
       - npm Terms of Use and Open-Source Terms (publishing under your own account; free public packages)
       - npm's policy on name squatting and spam: the run is capped and each package is a working tool, but check the cap suits you
@@ -104,8 +116,8 @@ channels:
     code: platform/distribution/pypi.mjs
     workflow: .github/workflows/distribute-pypi.yml
     enabled_by: repository variable DISTRIBUTE_PYPI=true plus secret PYPI_TOKEN (a PyPI API token, passed to twine as the password with username __token__)
-    what_it_posts: one PyPI project per stdlib-only Python venture CLI (ventures/<slug>/check.py with a main(), an MIT LICENSE, a VENTURE.yaml description), at most 5 new per run, installable with `pipx run <slug>`. The tool source is shipped unchanged; the README gains a free/open-source/not-advice footer linking the tool page. Tools importing anything outside a stdlib allowlist, or any network or process module, are skipped.
-    dedupe: stateless; a project name that already exists on PyPI is skipped, so nothing is republished or overwritten
+    what_it_posts: one PyPI project per stdlib-only Python venture CLI on the pypi allow-list (portfolio/distribution/allowlist.json, 3 tools on 2026-10-30) (ventures/<slug>/check.py with a main(), an MIT LICENSE, a VENTURE.yaml description), at most 5 per run, at the version versions.json gives it, installable with `pipx run <slug>`. The tool source is shipped unchanged; the README gains a free/open-source/not-advice footer linking the tool page. Tools importing anything outside a stdlib allowlist, or any network or process module, are skipped.
+    dedupe: stateless; a version PyPI already has is skipped, and a name owned by another project is skipped, so nothing is republished or overwritten
     terms_to_confirm_by_owner_when_enabling:
       - PyPI Terms of Use and Acceptable Use Policy (free public projects under your own account)
       - PyPI's policy on name squatting and spam: each project is a working tool and the run is capped, but check the cap suits you
@@ -119,8 +131,8 @@ channels:
     code: platform/distribution/pypi-packages.mjs
     workflow: .github/workflows/distribute-pypi-packages.yml
     enabled_by: same as pypi-python-clis (variable DISTRIBUTE_PYPI=true plus secret PYPI_TOKEN)
-    what_it_posts: "one PyPI project per Python venture that already ships a pyproject.toml, a src/ tree, a LICENSE and a README and has no runtime dependencies (5 today: backup-verification-evidence, cra-evidence-desk, einvoice-preflight, public-record-watch, vendor-change-watch), at most 3 new projects per run; built from a clean copy so no site files ship; all five built and passed twine check on 2026-10-16. Complements pypi-python-clis, which wraps single-file check.py tools."
-    dedupe: stateless; a project name already on PyPI is skipped
+    what_it_posts: "one PyPI project per allow-listed Python venture (none on 2026-10-30) that already ships a pyproject.toml, a src/ tree, a LICENSE and a README and has no runtime dependencies (8 qualify, including backup-verification-evidence, cra-evidence-desk, einvoice-preflight, public-record-watch, vendor-change-watch), at most 3 per run, at the version versions.json gives it (it replaces the pyproject version in the build copy); built from a clean copy so no site files ship; all five built and passed twine check on 2026-10-16. Complements pypi-python-clis, which wraps single-file check.py tools."
+    dedupe: stateless; a version already on PyPI is skipped, and a name owned by another project is skipped
     terms_to_confirm_by_owner_when_enabling:
       - same PyPI terms and name-squatting policy as pypi-python-clis; the combined weekly cap is 5 + 3 new projects
     owner_ask: none beyond pypi-python-clis

@@ -134,7 +134,7 @@ flagships:
       two-lag (AR(2)) likelihood inside PELT (the iterated-prewhitening fit
       failed on sunspots); a real documented step inside a cycle; a cycle
       check not tied to rho (treering, rho 0.16, gets no hint);
-      `cycleWarning` (Fisher's g) onto the page card; a documented real run
+      a documented real run
       of 5+ steps to test the block-variance warning, which does not yet
       separate drift from steps. (1) range95: a closure series quiet outside
       the closure (none of 30 Ansett route/class series is). (2) The steep-
@@ -245,7 +245,7 @@ flagships:
       suggestFairnessWeight (CLI --suggest-weight and a page button), play-
       off race and odds; thousands of random leagues through the validator
       with 0 invalid, and the page checkboxes clicked in Chromium
-      (eval/browser-click.mjs). Travel-table warnings (missing pair, triangle typo) landed 2026-10-30, on the CLI and the multi-division page (a notice above the schedule). Season grid CSV for multi-division leagues landed 2026-10-30 (CLI --grid and a page button, clicked in Chromium 2026-10-30: eval/browser-click.mjs). Team unavailable dates on the multi-division page landed 2026-10-30 (browser-clicked). Next: a real league's travel times and a real league's unavailable-date requests.
+      (eval/browser-click.mjs). Travel-table warnings (missing pair, triangle typo) landed 2026-10-30, on the CLI and the multi-division page (a notice above the schedule). Season grid CSV for multi-division leagues landed 2026-10-30 (CLI --grid and a page button, clicked in Chromium 2026-10-30: eval/browser-click.mjs). Team unavailable dates on the multi-division page landed 2026-10-30 (browser-clicked). Printable score sheets for multi-division leagues landed 2026-10-30 (page button). Next: a real league's travel times and a real league's unavailable-date requests.
   - venture: open-tennis-robots
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
