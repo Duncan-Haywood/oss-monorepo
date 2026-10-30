@@ -43,7 +43,7 @@
       "result": "post merged"
     }
   ],
-  "writeups": [],
+  "writeups": ["docs/posts/2026-10-30-what-files-llms-read-best.md"],
   "goal": null,
   "notes": "Checks: node platform/pages/writing.mjs built 1400 pages including writing/what-files-llms-read-best/; node --test platform/pages/writing.test.mjs 21 pass 0 fail. Token counts from tiktoken o200k_base/cl100k_base in a scratch venv.",
   "corrections": [],
