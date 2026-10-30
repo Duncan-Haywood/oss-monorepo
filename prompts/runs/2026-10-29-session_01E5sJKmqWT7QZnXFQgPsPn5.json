@@ -45,12 +45,16 @@
     {
       "file": "platform/ci/check_post_frontmatter.py",
       "issue": "Did not check seo_title length, so three posts over the 70-char budget reached main and broke writing.mjs (every site build). Added the check."
+    },
+    {
+      "file": "platform/pages/check.mjs",
+      "issue": "The llms.txt date rule (6c847325) assumed 'no file dated' means 'no git history'; a partial (3,000-commit) history dates only some products, so every main deploy failed from the day it landed (109 problems on main). Fixed in build.mjs/lastmod.mjs: shallow builds stamp 'on or before <history start>'."
     }
   ],
   "deviations": [],
   "writeups": [],
   "goal": null,
-  "notes": "Owner-directed run: a 16-post 'Start here' onboarding series (hub, a 'bring an idea' pitch: free AI development, MIT, run it for profit, honest limits; one post per flagship and per audience). New blog topic 'start' (tag start-here). $8,000/month compute is the owner's figure from the session message, not in any repo file. Checks run here: check_post_frontmatter.py exit 0; post_similarity.py --min 0.25 no start-here pair; check_md_links.py no dead links in 4948 files; node --test platform/pages/writing.test.mjs 21/21; test_check_post_frontmatter 17/17; writing.mjs build wrote 1173 pages with a 'Start here' chip of 16.",
+  "notes": "Owner-directed run: a 16-post 'Start here' onboarding series (hub, a 'bring an idea' pitch: free AI development, MIT, run it for profit, honest limits; one post per flagship and per audience). New blog topic 'start' (tag start-here). $8,000/month compute is the owner's figure from the session message, not in any repo file. Checks run here: check_post_frontmatter.py exit 0; post_similarity.py --min 0.25 no start-here pair; check_md_links.py no dead links in 4948 files; node --test platform/pages/writing.test.mjs 21/21; test_check_post_frontmatter 17/17; writing.mjs build wrote 1173 pages with a 'Start here' chip of 16. Also fixed main's broken deploy: 4 overlong seo_titles (one merged mid-run) and the llms.txt date rule on shallow history. Local proof: depth-60 clone, node build.mjs + node check.mjs went from 1,311 problems to 'looks publishable: 1320 products, 5567 pages, no dead links'; full platform/pages suite 1334/1334.",
   "corrections": [],
   "redteam": null
 }
