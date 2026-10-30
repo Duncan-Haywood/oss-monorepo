@@ -26,6 +26,6 @@ Lap siding costs more for two reasons. Panel siding is its own sheathing, while 
 - **32" prehung steel door:** $297.58 more than the door built on site from the siding.
 - **48" double shed doors:** $334.05 more than the site-built door.
 
-**What the search does with it.** With nothing fixed, the cheapest passing shed under 100 sq ft was $2,375.05, in LP SmartSide with a metal roof. With the siding fixed to fiber cement lap and the roof to shingles, the cheapest was $2,677.02. So matching the house costs about $300 at the bottom of the range. No design on either front used a prehung door: none gives more storage or a better looks score than the site-built one, so paying more for it never helps.
+**What the search does with it.** In a 4,000-design search with nothing fixed, the cheapest passing shed under 100 sq ft was $2,375.05, in LP SmartSide with a metal roof. With the siding fixed to fiber cement lap and the roof to shingles, the cheapest was $2,677.02. So matching the house costs about $300 at the bottom of the range. No design on either front used a prehung door: none gives more storage or a better looks score than the site-built one, so paying more for it never helps.
 
 All of this is materials only. Labour, tax and delivery are separate, and store prices move. The tool's structural checks are not engineering, and it is not code-checked.

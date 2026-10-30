@@ -142,3 +142,17 @@ test('doors, windows, siding and roofing are choices unless fixed', () => {
     assert.equal(s.design.openings.find((o) => o.kind === 'door')?.product, 'masonite-3280-flush');
   }
 });
+
+test('choices the design locks (levers.mjs) are never changed', () => {
+  const base = { ...defaultDesign(), sidingType: 'fiber cement', foundation: 'deck blocks', joistSpacing: 16, locked: ['siding', 'roofing', 'foundation', 'floor', 'doors'] };
+  const r = searchDesigns({ base, budget: 60, sizes: [{ length: 144, width: 96 }, { length: 120, width: 120 }] });
+  assert.ok(r.all.length > 0);
+  for (const s of r.all) {
+    assert.equal(s.design.sidingType, 'fiber cement');
+    assert.equal(s.design.roofCover, 'shingles');
+    assert.equal(s.design.foundation, 'deck blocks');
+    assert.equal(s.design.joistSpacing, 16);
+    assert.equal(s.design.joistSize, defaultDesign().joistSize);
+    assert.equal(s.design.openings.find((o) => o.kind === 'door')?.product, 'site-built');
+  }
+});

@@ -34,6 +34,7 @@ import { buildShed, normalize, defaultDesign } from './model.mjs';
 import { estimate } from './estimate.mjs';
 import { structuralChecks } from './checks.mjs';
 import { connectionChecks } from './connections.mjs';
+import { LEVER_KNOBS, searchKeep } from './levers.mjs';
 
 /**
  * @typedef {{ floorSqFt: number, clearHeightIn: number, wallVolumeCuFt: number, overheadCuFt: number,
@@ -144,9 +145,8 @@ const KNOBS = {
   studSpacing: [16, 24],
   rafterSpacing: [16, 24],
   rafterSize: ['2x4', '2x6'],
-  joistSize: ['2x4', '2x6'],
-  foundation: ['blocks', 'deck blocks'],
-  floorPanel: ['plywood', 'OSB'],
+  // Foundation and floor options and their limits live in levers.mjs.
+  ...LEVER_KNOBS,
   sidingType: ['T1-11', 'LP SmartSide', 'LP SmartSide 7/16', 'fiber cement', 'vinyl', 'board and batten'],
   roofCover: ['shingles', 'metal'],
   door: Object.keys(DOORS),
@@ -386,8 +386,9 @@ export function* searchSteps(opts = {}) {
   const c = { ...DEFAULT_CONSTRAINTS, ...(opts.constraints ?? {}) };
   const base = normalize(opts.base ?? defaultDesign());
   const objectives = opts.objectives ?? ['cost', 'storage', 'looks'];
-  const fixed = new Set(opts.fixed ?? []);
-  const budget = opts.budget ?? 800;
+  // Your fixed keys, and the choices the design locks (levers.mjs: siding, roofing, foundation, floor, doors, windows).
+  const fixed = new Set([...(opts.fixed ?? []), ...searchKeep(base).map((k) => (k === 'doors' ? 'door' : k === 'windows' ? 'window' : k))]);
+  const budget = opts.budget ?? 2000;
   /** @type {Record<string, any[]>} */
   const knobs = {};
   // A fixed door or window is the base design's, when it is one the search knows.
@@ -413,7 +414,8 @@ export function* searchSteps(opts = {}) {
     if (rec.feasible) all.push(rec); else rejected++;
     return rec;
   };
-  const lean = Object.fromEntries(Object.entries(knobs).map(([k, v]) => [k, k === 'pitch' && v.includes(6) ? 6 : k === 'overhang' && v.includes(12) ? 12 : v[0]]));
+  // The seed: 6/12, a foot of overhang, your foundation and floor where the search offers them, else the first option.
+  const lean = Object.fromEntries(Object.entries(knobs).map(([k, v]) => [k, k === 'pitch' && v.includes(6) ? 6 : k === 'overhang' && v.includes(12) ? 12 : k in LEVER_KNOBS && v.includes(base[k]) ? base[k] : v[0]]));
   const front = () => paretoFront(all, objectives);
   const progress = () => ({ evaluated: seen.size, budget, feasible: all.length, rejected });
   // Phase 1: one lean design per size and layout; a structural failure there gets the stouter choices once.
