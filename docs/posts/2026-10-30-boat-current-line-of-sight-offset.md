@@ -2,7 +2,7 @@
 title: "A cross current leaves a boat a computable distance off its line"
 date: 2026-10-30
 tags: [marine-path, guidance, autonomous-boats]
-description: "Plain line-of-sight steering in a 0.3 m/s cross current sits 3.77 m off the survey line, exactly as theory says; integral line-of-sight fixes it unless its gain is too high."
+description: "Plain line-of-sight steering in a 0.3 m/s cross current sits 3.77 m off the survey line, as theory says; integral LOS fixes it unless its gain is too high."
 ---
 
 A small autonomous survey boat steered by plain line-of-sight (LOS) guidance never quite reaches its line in a cross current. The offset is `delta * tan(asin(c/U))`: 3.77 m for a 12 m look-ahead, 0.3 m/s current and 1 m/s boat speed. Our 3-degree-of-freedom simulation in `research/marine-path` reproduces that to within 1%.
