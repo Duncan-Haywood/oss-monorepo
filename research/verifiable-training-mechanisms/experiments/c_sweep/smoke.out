@@ -1,0 +1,76 @@
+/home/user/oss-monorepo/research/verifiable-training-mechanisms/experiments/c_sweep/run.py:58: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /__w/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:820.)
+  mt = [float(p.abs().max()) for p in params]
+/home/user/oss-monorepo/research/verifiable-training-mechanisms/experiments/c_sweep/run.py:58: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /__w/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:820.)
+  mt = [float(p.abs().max()) for p in params]
+/home/user/oss-monorepo/research/verifiable-training-mechanisms/experiments/c_sweep/run.py:58: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /__w/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:820.)
+  mt = [float(p.abs().max()) for p in params]
+/home/user/oss-monorepo/research/verifiable-training-mechanisms/experiments/c_sweep/run.py:58: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /__w/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:820.)
+  mt = [float(p.abs().max()) for p in params]
+/home/user/oss-monorepo/research/verifiable-training-mechanisms/experiments/c_sweep/run.py:58: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /__w/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:820.)
+  mt = [float(p.abs().max()) for p in params]
+/home/user/oss-monorepo/research/verifiable-training-mechanisms/experiments/c_sweep/run.py:58: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /__w/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:820.)
+  mt = [float(p.abs().max()) for p in params]
+/home/user/oss-monorepo/research/verifiable-training-mechanisms/experiments/c_sweep/run.py:58: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /__w/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:820.)
+  mt = [float(p.abs().max()) for p in params]
+/home/user/oss-monorepo/research/verifiable-training-mechanisms/experiments/c_sweep/run.py:58: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /__w/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:820.)
+  mt = [float(p.abs().max()) for p in params]
+C=1.10 honest steps flagged (per-step thresholds, leave-one-seed-out): 0.0333 of 2400
+C=1.10 ascent T=10  n=5 harmful  3 (0.60) median |dL| 0.0111  median scale 0.1134  attack steps flagged 0
+C=1.10 ascent T=50  n=5 harmful  4 (0.80) median |dL| 0.0329  median scale 0.0287  attack steps flagged 0
+C=1.10 ascent T=200 n=5 harmful  5 (1.00) median |dL| 0.1572  median scale 0.0048  attack steps flagged 0
+/home/user/oss-monorepo/research/verifiable-training-mechanisms/experiments/c_sweep/run.py:58: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /__w/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:820.)
+  mt = [float(p.abs().max()) for p in params]
+/home/user/oss-monorepo/research/verifiable-training-mechanisms/experiments/c_sweep/run.py:58: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /__w/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:820.)
+  mt = [float(p.abs().max()) for p in params]
+/home/user/oss-monorepo/research/verifiable-training-mechanisms/experiments/c_sweep/run.py:58: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /__w/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:820.)
+  mt = [float(p.abs().max()) for p in params]
+/home/user/oss-monorepo/research/verifiable-training-mechanisms/experiments/c_sweep/run.py:58: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /__w/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:820.)
+  mt = [float(p.abs().max()) for p in params]
+C=1.25 honest steps flagged (per-step thresholds, leave-one-seed-out): 0.0154 of 2400
+C=1.25 ascent T=10  n=5 harmful  3 (0.60) median |dL| 0.0118  median scale 0.1151  attack steps flagged 0
+C=1.25 ascent T=50  n=5 harmful  4 (0.80) median |dL| 0.0338  median scale 0.0290  attack steps flagged 0
+C=1.25 ascent T=200 n=5 harmful  5 (1.00) median |dL| 0.1621  median scale 0.0047  attack steps flagged 0
+/home/user/oss-monorepo/research/verifiable-training-mechanisms/experiments/c_sweep/run.py:58: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /__w/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:820.)
+  mt = [float(p.abs().max()) for p in params]
+/home/user/oss-monorepo/research/verifiable-training-mechanisms/experiments/c_sweep/run.py:58: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /__w/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:820.)
+  mt = [float(p.abs().max()) for p in params]
+/home/user/oss-monorepo/research/verifiable-training-mechanisms/experiments/c_sweep/run.py:58: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /__w/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:820.)
+  mt = [float(p.abs().max()) for p in params]
+/home/user/oss-monorepo/research/verifiable-training-mechanisms/experiments/c_sweep/run.py:58: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /__w/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:820.)
+  mt = [float(p.abs().max()) for p in params]
+C=1.50 honest steps flagged (per-step thresholds, leave-one-seed-out): 0.0046 of 2400
+C=1.50 ascent T=10  n=5 harmful  3 (0.60) median |dL| 0.0130  median scale 0.1214  attack steps flagged 0
+C=1.50 ascent T=50  n=5 harmful  4 (0.80) median |dL| 0.0412  median scale 0.0291  attack steps flagged 0
+C=1.50 ascent T=200 n=5 harmful  5 (1.00) median |dL| 0.2652  median scale 0.0046  attack steps flagged 0
+/home/user/oss-monorepo/research/verifiable-training-mechanisms/experiments/c_sweep/run.py:58: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /__w/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:820.)
+  mt = [float(p.abs().max()) for p in params]
+/home/user/oss-monorepo/research/verifiable-training-mechanisms/experiments/c_sweep/run.py:58: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /__w/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:820.)
+  mt = [float(p.abs().max()) for p in params]
+/home/user/oss-monorepo/research/verifiable-training-mechanisms/experiments/c_sweep/run.py:58: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /__w/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:820.)
+  mt = [float(p.abs().max()) for p in params]
+/home/user/oss-monorepo/research/verifiable-training-mechanisms/experiments/c_sweep/run.py:58: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /__w/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:820.)
+  mt = [float(p.abs().max()) for p in params]
+C=2.00 honest steps flagged (per-step thresholds, leave-one-seed-out): 0.0017 of 2400
+C=2.00 ascent T=10  n=5 harmful  3 (0.60) median |dL| 0.0153  median scale 0.1384  attack steps flagged 0
+C=2.00 ascent T=50  n=5 harmful  4 (0.80) median |dL| 0.0778  median scale 0.0283  attack steps flagged 0
+C=2.00 ascent T=200 n=5 harmful  5 (1.00) median |dL| 0.4122  median scale 0.0043  attack steps flagged 0
