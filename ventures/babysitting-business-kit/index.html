@@ -84,6 +84,7 @@
     <button type="button" role="tab" data-tab="schedule">Schedule</button>
     <button type="button" role="tab" data-tab="money">Money &amp; taxes</button>
     <button type="button" role="tab" data-tab="references">References</button>
+    <button type="button" role="tab" data-tab="agreements">Agreements</button>
     <button type="button" role="tab" data-tab="website">Website</button>
     <button type="button" role="tab" data-tab="content">Content</button>
     <button type="button" role="tab" data-tab="print">Print</button>
@@ -263,6 +264,11 @@
       <p><button type="button" id="packetBtn">Download the reference packet</button> <span class="note">Only people who agreed to be contacted, with your certifications. Open it and print.</span></p>
     </section>
 
+    <section data-panel="agreements" class="card" hidden>
+      <h2>Agreements with families</h2>
+      <div id="agreementsKit"></div>
+    </section>
+
     <section data-panel="website" class="card" hidden>
       <h2>Your website</h2>
       <p>A small site built only from what you write: home (your story, rates, the towns you serve, an optional faith section, the testimonials families agreed to share, an inquiry form), about (what a sit looks like, safety, certifications with dates), rates and policies, and questions families ask. A section with nothing filled in is left out. Your name, rates and story come from <strong>Settings</strong>; the rest is here. Download the files and drop them on Netlify, Cloudflare Pages or GitHub Pages (all have free plans), or run the optional server, which serves the site at <code>/site/</code> and turns each inquiry into a scored lead.</p>
@@ -418,6 +424,7 @@
     import * as R from "./references.mjs";
     import * as P from "./print.mjs";
     import { mountAutomations } from "./automations-ui.mjs";
+    import { mountAgreements } from "./agreements-ui.mjs";
     import { mountContent } from "./content-ui.mjs";
     import { enhanceTabs } from "./tabs.mjs";
 
@@ -434,6 +441,7 @@
     let desk = load();
     let knownLeadIds = [];
     let renderAutomations = () => {};
+    let renderAgreements = () => {};
 
     function load() {
       try { return E.normalizeDesk(JSON.parse(localStorage.getItem(STORE) || "null")); } catch { return E.emptyDesk(); }
@@ -656,6 +664,7 @@
       renderFamilyMsgs();
       renderPrint();
       renderAutomations();
+      renderAgreements();
       fillForm($("profileForm"), { ...desk.profile, certifications: desk.profile.certifications, holidays: desk.profile.holidays, followUpDays: desk.profile.followUpDays });
       $("profileForm").scrollIntoView = () => {};
     }
@@ -910,6 +919,7 @@
     $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
     if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
     renderAutomations = mountAutomations({ getDesk: () => desk, save, esc, record });
+    renderAgreements = mountAgreements($("agreementsKit"), { getDesk: () => desk, save, esc, record, serverUrl: () => $("syncUrl").value.trim(), openPage });
     $("contentStart").value = today();
     mountContent($("contentKit"), { getDesk: () => desk, save, record, today, buildSite: (d) => E.buildSite(d) });
     record("page_loaded");
