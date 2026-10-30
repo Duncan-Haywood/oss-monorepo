@@ -191,9 +191,32 @@
 
     <section data-panel="website" class="card" hidden>
       <h2>Your website</h2>
-      <p>One page with your story, rates, certifications, an optional faith section, the testimonials families agreed to share, and an inquiry form. Edit the words in <strong>Settings</strong>. Download it and host it free (GitHub Pages, Netlify, Cloudflare Pages), or run the optional server, which serves it at <code>/site</code> and turns each inquiry into a scored lead.</p>
-      <p><button type="button" id="siteDownload">Download index.html</button><button type="button" class="secondary" id="siteRefresh">Refresh preview</button></p>
+      <p>A small site built only from what you write: home (your story, rates, the towns you serve, an optional faith section, the testimonials families agreed to share, an inquiry form), about (what a sit looks like, safety, certifications with dates), rates and policies, and questions families ask. A section with nothing filled in is left out. Your name, rates and story come from <strong>Settings</strong>; the rest is here. Download the files and drop them on Netlify, Cloudflare Pages or GitHub Pages (all have free plans), or run the optional server, which serves the site at <code>/site/</code> and turns each inquiry into a scored lead.</p>
+      <form id="siteForm">
+        <div class="grid">
+          <div><label for="w_theme">Look</label><select id="w_theme" name="theme"><option value="warm">Warm and classic</option><option value="bright">Bright and playful</option><option value="simple">Simple and minimal</option></select></div>
+          <div><label for="w_url">Your site's address (for search engines)</label><input id="w_url" name="url" placeholder="https://yourname.netlify.app"></div>
+        </div>
+        <label for="w_towns">Towns or neighborhoods you serve (comma separated)</label><input id="w_towns" name="towns" placeholder="Springfield, Riverside, Oak Hill">
+        <label for="w_steps">What a sit looks like (one step per line)</label><textarea id="w_steps" name="sitSteps" placeholder="Handover: allergies, bedtime, emergency numbers&#10;Play outside or a craft&#10;Dinner and bath&#10;Bedtime routine&#10;A short note for you when you get home"></textarea>
+        <label for="w_first">What to expect at the first sit</label><textarea id="w_first" name="firstSit"></textarea>
+        <label for="w_safety">How you keep kids safe</label><textarea id="w_safety" name="safety"></textarea>
+        <div class="grid">
+          <div><label for="w_cancel">Cancellation policy (blank = from your rates)</label><textarea id="w_cancel" name="cancellation"></textarea></div>
+          <div><label for="w_pay">How families can pay</label><textarea id="w_pay" name="payment" placeholder="Cash, Venmo or Zelle at the end of each sit."></textarea></div>
+          <div><label for="w_sick">Sick-child policy</label><textarea id="w_sick" name="sick"></textarea></div>
+        </div>
+        <label for="w_certs">Certifications with dates, one per line: name | earned | valid through (YYYY-MM). Blank = the list in Settings. Expired ones are hidden.</label><textarea id="w_certs" name="certs" placeholder="CPR and First Aid | 2026-03 | 2028-03"></textarea>
+        <label for="w_faq">More questions for the FAQ, one per line: question | answer</label><textarea id="w_faq" name="faq" placeholder="Do you drive kids? | Only with your car seats installed."></textarea>
+        <button type="submit">Save website</button>
+      </form>
+      <div id="siteGaps"></div>
+      <p><button type="button" id="siteZip">Download all files (.zip)</button><button type="button" class="secondary" id="siteDownload">Download index.html only</button></p>
+      <div class="grid"><div><label for="sitePage">Preview page</label><select id="sitePage"></select></div></div>
       <iframe id="sitePreview" title="Website preview" sandbox=""></iframe>
+      <h3>Get found locally</h3>
+      <p class="note">Plain steps people commonly take; none of them is promised to bring families. Tick them off as you go.</p>
+      <div id="localList"></div>
     </section>
 
     <section data-panel="content" class="card" hidden>
@@ -288,6 +311,7 @@
 
   <script type="module">
     import * as E from "./engine.mjs";
+    import * as S from "./site.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const STORE = "babysitting-business-kit-desk";
@@ -515,9 +539,48 @@
     }
     $("msgFamily").addEventListener("change", renderFamilyMsgs);
 
-    function renderSite() { $("sitePreview").srcdoc = E.buildSite(desk); }
-    $("siteRefresh").addEventListener("click", renderSite);
-    $("siteDownload").addEventListener("click", () => { download("index.html", E.buildSite(desk), "text/html"); record("site_downloaded"); });
+    // ---- website (site.mjs)
+    const siteFiles = () => S.buildSiteFiles(desk, { today: today() });
+    function renderSite() {
+      const site = desk.profile.site || {};
+      for (const el of $("siteForm").elements) if (el.name) el.value = site[el.name] ?? (el.name === "theme" ? "warm" : "");
+      const files = siteFiles();
+      const pages = Object.keys(files).filter((f) => f.endsWith(".html"));
+      const pick = pages.includes($("sitePage").value) ? $("sitePage").value : "index.html";
+      $("sitePage").innerHTML = pages.map((f) => `<option>${f}</option>`).join("");
+      $("sitePage").value = pick;
+      $("sitePreview").srcdoc = files[pick];
+      const gaps = S.siteGaps(desk, { today: today() });
+      $("siteGaps").innerHTML = gaps.length ? `<ul class="note">${gaps.map((g) => `<li>${esc(g)}</li>`).join("")}</ul>` : "";
+      const done = new Set(site.done || []);
+      $("localList").innerHTML = S.LOCAL_CHECKLIST.map((c) => `<div class="card" style="margin:8px 0"><label><input type="checkbox" data-local="${c.id}"${done.has(c.id) ? " checked" : ""}> ${esc(c.title)}</label><p class="note">${esc(c.steps)}</p></div>`).join("");
+    }
+    $("siteForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      desk.profile.site = { ...(desk.profile.site || {}), ...readForm(e.target) };
+      record("site_saved");
+      save();
+      renderSite();
+    });
+    $("sitePage").addEventListener("change", () => { $("sitePreview").srcdoc = siteFiles()[$("sitePage").value] || ""; });
+    $("localList").addEventListener("change", (e) => {
+      const id = e.target.dataset.local;
+      if (!id) return;
+      const site = { ...(desk.profile.site || {}) };
+      const done = new Set(site.done || []);
+      if (e.target.checked) done.add(id); else done.delete(id);
+      desk.profile.site = { ...site, done: [...done] };
+      save();
+    });
+    $("siteZip").addEventListener("click", () => {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([S.zipFiles(siteFiles(), new Date())], { type: "application/zip" }));
+      a.download = "my-babysitting-site.zip";
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      record("site_zip_downloaded");
+    });
+    $("siteDownload").addEventListener("click", () => { download("index.html", siteFiles()["index.html"], "text/html"); record("site_downloaded"); });
     $("icsBtn").addEventListener("click", () => { download("babysitting.ics", E.toICS(desk), "text/calendar"); record("ics_downloaded"); });
 
     // settings

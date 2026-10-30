@@ -29,7 +29,7 @@ Not affiliated with any of the products named above; they are named only to say 
 - **Schedule:** a live quote from the rate card (hourly, extra child, minimum hours, late-night extra, holiday multiplier, last-minute fee, late-cancellation fee), weekly repeats, double-booking and travel-gap warnings, and an `.ics` calendar file.
 - **Money & taxes:** payments by family and method, expenses by Schedule C category, mileage at the IRS rate, net profit, self-employment tax (15.3% on 92.35%, Social Security capped at the wage base), a set-aside at the sitter's own brackets, the four quarterly due dates with a suggested payment each, unpaid sits, and flags: the $400 filing line, the household-employee threshold ($3,000 from one family in 2026, Publication 926), payment-app income and the 1099-K, missing mileage, and the EIN tip. A **year-end statement per family** gives parents what they need for Form 2441 or a dependent-care FSA.
 - **References & testimonials:** request drafts, a five-day follow-up, separate yes/no consent for "may new families call you" and "may your words go on my website". Only quotes marked yes reach the website, as first name and last initial.
-- **Website:** a one-file site built from the profile: story, certifications, rates, policies, the optional faith section, consented testimonials, `ChildCare` JSON-LD and an inquiry form (email by default, or the sitter's server). Download it and host it free anywhere.
+- **Website** (`site.mjs`): a small site built only from the sitter's own words, in three themes (warm, bright, simple; every text colour tested at WCAG AA 4.5:1), mobile first. Home (story, rates, towns served, optional faith section, consented testimonials, inquiry form), about (what a sit looks like, first sit, safety, certifications with dates; expired ones are hidden), rates and policies (cancellation, payment, sick child) and an FAQ answered from those fields. Empty fields hide their section. Local SEO: title and description from town + "babysitter", `ChildCare` JSON-LD with `areaServed`, Open Graph, `FAQPage` data, canonical links, `robots.txt` and `sitemap.xml` for the sitter's own address. "Download all files (.zip)" (a store-only zip written in-house) drops onto Netlify, Cloudflare Pages or GitHub Pages. A "get found locally" checklist (Google Business Profile, Nextdoor, Facebook page, church and school directories) gives plain steps and promises nothing.
 - **Content:** twelve weeks of seasonal post ideas rotated across Facebook, Nextdoor, Instagram, a church or school bulletin and the website, plus rebooking, referral and testimonial messages per family. Drafts leave room for a real moment in the sitter's words, never an invented one.
 - **Backup and sync:** a JSON backup file; or sync with the sitter's own server.
 
@@ -44,7 +44,7 @@ ADMIN_KEY=$(openssl rand -hex 16) CAL_TOKEN=$(openssl rand -hex 12) STATE=desk.j
 | Path | What |
 |---|---|
 | `/` | the app; Settings, "Sync" stores the desk on the server |
-| `/site` | the sitter's website, with the form posting to `/inquiry` |
+| `/site/` | the sitter's website (`index.html`, `about.html`, `policies.html`, `faq.html`, `robots.txt`, `sitemap.xml`), with the form posting to `/inquiry` |
 | `POST /inquiry` | form or JSON; honeypot field, 10 per IP per hour, 64 KB cap |
 | `/calendar.ics?t=CAL_TOKEN` | a feed a phone calendar can subscribe to |
 | `GET/PUT /api/desk`, `GET /api/today` | `Authorization: Bearer ADMIN_KEY` |
@@ -61,7 +61,7 @@ Everything outside the box is **off until you set it, on your own accounts**:
 
 **Deploy:** `render.yaml` (Render, starter plan with a 1 GB disk; it generates `ADMIN_KEY` and `CAL_TOKEN`) or the `Dockerfile` anywhere. Nothing runs on the author's accounts.
 
-Honest limits: one sitter per server; no payments or card capture (families pay the way they already do); no SMS yet; the website is one page; follow-ups are email only.
+Honest limits: one sitter per server; no payments or card capture (families pay the way they already do); no SMS yet; follow-ups are email only.
 
 ## Taxes: what the numbers are
 

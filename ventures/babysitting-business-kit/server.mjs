@@ -5,7 +5,7 @@
 //
 // What it adds to the browser app:
 //   GET  /                 the app; "Sync" in the app stores the desk here (admin key)
-//   GET  /site             your marketing website, built from your profile and consented quotes
+//   GET  /site/...         your marketing website (index, about, policies, faq, robots.txt, sitemap.xml)
 //   POST /inquiry          the website's form: becomes a scored lead; optional auto-reply and alert
 //   GET  /calendar.ics?t=  your sits as a feed your phone's calendar can subscribe to
 //   GET|PUT /api/desk      the desk as JSON (Authorization: Bearer ADMIN_KEY)
@@ -22,12 +22,13 @@
 import http from "node:http";
 import { readFileSync, writeFileSync, renameSync, existsSync } from "node:fs";
 import { timingSafeEqual } from "node:crypto";
-import { normalizeDesk, emptyDesk, buildSite, leadFromForm, scoreLead, leadReply, followUpMessage, todayQueue, toICS, newId } from "./engine.mjs";
+import { buildSiteFiles } from "./site.mjs";
+import { normalizeDesk, emptyDesk, leadFromForm, scoreLead, leadReply, followUpMessage, todayQueue, toICS, newId } from "./engine.mjs";
 
 const MAX_BODY = 64 * 1024;
 const MAX_DESK = 8 * 1024 * 1024;
 const MAX_LEADS = 2000;
-const FILES = { "/": "index.html", "/index.html": "index.html", "/engine.mjs": "engine.mjs", "/usage.mjs": "usage.mjs" };
+const FILES = { "/": "index.html", "/index.html": "index.html", "/engine.mjs": "engine.mjs", "/usage.mjs": "usage.mjs", "/site.mjs": "site.mjs" };
 const TYPES = { html: "text/html; charset=utf-8", mjs: "text/javascript; charset=utf-8" };
 
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -85,7 +86,15 @@ export function handler(state, save, env = process.env, now = Date.now, fetchImp
       const f = FILES[url.pathname];
       return send(200, readFileSync(new URL(f, dir)), TYPES[f.split(".").pop()]);
     }
-    if (req.method === "GET" && url.pathname === "/site") return send(200, buildSite(state.desk, { formAction: "/inquiry" }));
+    if (req.method === "GET" && url.pathname === "/site") return send(301, "", "text/plain", { location: "/site/" });
+    if (req.method === "GET" && url.pathname.startsWith("/site/")) {
+      const files = buildSiteFiles(state.desk, { formAction: "/inquiry", today });
+      const name = url.pathname.slice(6) || "index.html";
+      const f = Object.hasOwn(files, name) ? files[name] : undefined;
+      if (f === undefined) return send(404, page("Not found", `<p><a href="/site/">Home</a></p>`));
+      const ext = url.pathname.split(".").pop();
+      return send(200, f, ext === "txt" ? "text/plain; charset=utf-8" : ext === "xml" ? "application/xml; charset=utf-8" : TYPES.html);
+    }
     if (req.method === "POST" && url.pathname === "/inquiry") {
       const ip = String(req.headers["x-forwarded-for"] || req.socket?.remoteAddress || "").split(",")[0].trim();
       const hour = Math.floor(now() / 36e5);
@@ -97,9 +106,9 @@ export function handler(state, save, env = process.env, now = Date.now, fetchImp
       if (raw === null) return send(413, page("Too long", "<p>That message was too long.</p>"));
       let fields;
       try { fields = /json/.test(req.headers["content-type"] || "") ? JSON.parse(raw) : Object.fromEntries(new URLSearchParams(raw)); } catch { fields = {}; }
-      const thanks = page("Thank you!", `<p>Your message was sent. ${esc(state.desk.profile.name)} will get back to you soon.</p><p><a href="/site">Back</a></p>`);
+      const thanks = page("Thank you!", `<p>Your message was sent. ${esc(state.desk.profile.name)} will get back to you soon.</p><p><a href="/site/">Back</a></p>`);
       if (fields.website) return send(200, thanks); // the honeypot: bots fill it, people never see it
-      if (!String(fields.name || "").trim() || !String(fields.contact || "").trim()) return send(400, page("Almost", `<p>Please include your name and a phone number or email.</p><p><a href="/site">Back</a></p>`));
+      if (!String(fields.name || "").trim() || !String(fields.contact || "").trim()) return send(400, page("Almost", `<p>Please include your name and a phone number or email.</p><p><a href="/site/">Back</a></p>`));
       const lead = leadFromForm(fields, today, newId("lead"));
       const sc = scoreLead(lead, state.desk.profile);
       state.desk.leads.push(lead);
