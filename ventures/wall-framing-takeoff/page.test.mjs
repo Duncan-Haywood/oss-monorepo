@@ -231,7 +231,10 @@ test("the trim controls are read into plan.trim, restored from a saved plan and 
 
 test("the siding controls are read into plan.siding, restored from a saved plan and feed the budget", () => {
   const html = page("index.html");
-  for (const id of ["sdOn", "sdExposure", "sdStock", "sdWaste", "sdWrapRoll", "sdCorners", "sdBoardPrice", "sdWrapPrice", "sdCornerPrice", "sidingOut"]) assert.match(html, new RegExp(`id="${id}"`));
+  for (const id of ["sdOn", "sdExposure", "sdStock", "sdWaste", "sdWrapRoll", "sdCorners", "sdBoardPrice", "sdWrapPrice", "sdCornerPrice", "sdStyle", "sdBoardWidth", "sdBattens", "sdBattenStock", "sdBattenPrice", "sdOpeningTrim", "sdTrimWidth", "sdTrimStock", "sdTrimPrice", "sidingOut"]) assert.match(html, new RegExp(`id="${id}"`));
+  assert.match(html, /sd\.style = \$\("#sdStyle"\)\.value/);
+  assert.match(html, /sd\.battens = true/);
+  assert.match(html, /sd\.openingTrim = true/);
   assert.match(html, /plan\.siding = sd/);
   assert.match(html, /layoutSiding\(plan\.siding, plan\)/);
   assert.match(html, /siding: last\.siding/);
