@@ -1,5 +1,6 @@
 ---
 title: "Publishing to 18 platforms from one tool: what their APIs allow in 2026"
+seo_title: "Publishing to 18 platforms from one tool"
 date: 2026-10-20
 description: "We built one publisher for 18 platforms. Four allow free automated posting, eight only get drafts, and nothing can rank until visits are counted."
 tags: [distribution, social-media, automation, open-source, ai-agents]

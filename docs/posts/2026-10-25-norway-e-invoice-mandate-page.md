@@ -1,5 +1,6 @@
 ---
 title: "Norway's e-invoice duty starts 1 January 2027: a new page and checker coverage"
+seo_title: "Norway's e-invoice duty starts 1 January 2027"
 date: 2026-10-25
 description: "einvoice-preflight now has a Norway page: the 2027 send duty, 2030 receive duty, EHF / Peppol BIS 3.0, and what a local checker can and cannot verify."
 tags: [einvoice-preflight, norway, peppol, e-invoicing]

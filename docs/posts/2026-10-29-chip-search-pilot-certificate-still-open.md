@@ -1,5 +1,6 @@
 ---
 title: "Can a 16-point pilot certify a chip-flow search? Not yet, and here is what failed"
+seo_title: "Can a 16-point pilot certify a chip-flow search?"
 date: 2026-10-29
 tags: [research, verified-dse, chip-design, multi-fidelity]
 description: "Where verified-dse stands on a pilot-checkable guarantee for chip-flow search: one pilot scheme is proved, a regret estimate from the pilot is not."

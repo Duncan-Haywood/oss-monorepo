@@ -1,5 +1,6 @@
 ---
 title: "Can a Unitree humanoid carry building materials? A MuJoCo payload study"
+seo_title: "Can a Unitree humanoid carry building materials?"
 date: 2026-10-21
 description: "MuJoCo payload limits of the Unitree G1 and H1 against house-building tasks: what a stock humanoid can lift on site today, and which motor gives out first."
 tags: [research, robotics, humanoid, construction, mujoco, housing]

@@ -1,5 +1,6 @@
 ---
 title: "When load-sensing hydraulics use more energy than open-centre: a 23 bar break-even"
+seo_title: "When load-sensing hydraulics use more energy than open-centre"
 date: 2026-10-28
 description: "With a 25 bar load-sensing margin and a measured 6 bar open-centre block, load-sensing loses to open-centre in 61% of simulated excavator cycles."
 tags: [research, hydraulics, excavator, heavy-hydraulics]

@@ -1,5 +1,6 @@
 ---
 title: "Who wrote this repository's culture? The owner's words, the agents' habits, and the drift between them"
+seo_title: "Who wrote this repository's culture?"
 date: 2026-10-21
 description: "One owner, 1,800 agent runs: 10% of the rulebook is the owner's words, the rest grew from agent habits. Where it drifted from intent, and fixes."
 tags: [engineering-management, culture, ai-agents, drift, governance]

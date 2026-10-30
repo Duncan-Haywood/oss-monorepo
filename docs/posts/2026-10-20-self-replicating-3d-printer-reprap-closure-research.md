@@ -1,5 +1,6 @@
 ---
 title: "How close can a RepRap shop get to self-replication? Findings from 40 studies"
+seo_title: "How close can a RepRap shop get to self-replication?"
 date: 2026-10-20
 description: "Closure of a RepRap Prusa Mendel, doubling time against import budget, when to stop copying and the materials balance: 40 self-replication studies."
 tags: [research, self-replication, reprap, 3d-printing, manufacturing]

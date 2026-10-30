@@ -1,5 +1,6 @@
 ---
 title: "Fewer false alarms on volatile data: a bootstrap penalty for changepoint-detector"
+seo_title: "Fewer false alarms on volatile data"
 date: 2026-10-27
 description: "changepoint-detector's --bootstrap sets the meanvar penalty from block-resampled residuals, cutting false alarms on GARCH-style noise from 51% to 16%."
 tags: [changepoint-detector, statistics, changepoint, simulation]

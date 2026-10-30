@@ -1,5 +1,6 @@
 ---
 title: "An SDR's morning in a script: what is due today, minus everyone who said stop"
+seo_title: "An SDR's morning in a script"
 date: 2026-10-24
 description: "The open-source Sales Agent now builds a daily call and email queue from a cadence plan, dropping anyone unsubscribed, bounced or suppressed, with reasons."
 tags: [sales, outreach, open-source, compliance]
