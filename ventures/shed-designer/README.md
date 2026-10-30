@@ -147,18 +147,19 @@ The size pages get a hero each. `renders/manifest.json` gives each picture's fil
 - The marketing page shows the 8x12 classic.
 - Each size page shows its design.
 
-**They can't drift.** Each design's scene hash covers:
+**They can't drift on the site.** Each design's scene hash covers:
 - the triangles and colours the viewer uploads;
 - the shaders and the draw loop;
 - the view list and `RENDER_VERSION`.
 
-`renders.test.mjs` fails when:
-- a hash or fingerprint no longer matches;
+A price, a name or a change elsewhere in the tool does not change it.
+
+The Pages build (`portfolio-pages.yml`, "Redraw stale Shed Designer pictures") redraws any stale design before it builds. It then runs `renders.test.mjs` with `RENDERS_STRICT=1`, where a stale picture fails the publish. Everywhere else, including pull requests, a stale picture is only reported (a test diagnostic), so the twenty-odd lanes changing these designs are not blocked. The picker draws a changed preset live.
+
+`renders.test.mjs` always fails when:
 - a file is missing, stray or over budget;
 - a page's alt text differs from the manifest;
-- the strip stops using the pictures.
-
-A price, a name or a change elsewhere in the tool does not mark them stale.
+- the strip stops using the pictures of up-to-date designs.
 
 **Redraw** with `node make-renders.mjs`. It redraws only the stale designs; `--all` redraws every one, and `--check` tests without a browser. It finds Playwright through `PLAYWRIGHT` or the cloud session's `/opt/node-tools` copy, takes about 6 s a design, and rewrites the alt text of every `<img src="renders/...">` in the venture's pages. When a change does not alter the pixels (an edit to the orbit code, say), the WebP files come out byte-identical and only the manifest changes.
 
