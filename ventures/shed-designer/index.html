@@ -173,6 +173,7 @@
     .starts { margin: 6px 0 18px; }
     .starts-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; justify-content: space-between; }
     .starts-nav { display: flex; align-items: center; gap: 8px; }
+    .match-house { min-height: 44px; display: inline-flex; align-items: center; gap: 6px; }
     .starts-nav .btn { min-width: 44px; min-height: 44px; }
     .pick-list:focus-visible { outline: 2px solid var(--accent2); outline-offset: 2px; }
     .pick-list { list-style: none; padding: 0; margin: 10px 0 0; display: grid; grid-auto-flow: column; grid-auto-columns: minmax(220px, 260px); gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 6px; }
@@ -307,13 +308,14 @@
   <section id="starts" class="starts" aria-labelledby="starts-h">
     <div class="starts-head">
       <h2 id="starts-h">Start from a ready-made design</h2>
+      <label class="check match-house"><input type="checkbox" id="match-house"> Match a house: lap siding and asphalt shingles only</label>
       <div class="starts-nav">
         <button type="button" class="btn" id="starts-prev" aria-label="Previous design">&larr;</button>
         <span id="starts-pos" aria-live="polite"></span>
         <button type="button" class="btn" id="starts-next" aria-label="Next design">&rarr;</button>
       </div>
     </div>
-    <p class="hint">Ten sheds under 100 sq ft, each picked from 2,400 designs this tool's search built and checked: every member at 90% of its capacity or less, a peak of 13 ft or less, nothing the model warns about, and the best on the measure its card names. Prices are worked out now at the prices below. Flick through with the arrows or a swipe; open one to see it from every side, what it costs and how much it holds; add two or three to Compare. "Start from this design" opens a copy in the editor below, to change as you like.</p>
+    <p class="hint">Ten sheds under 100 sq ft (six in painted lap siding and asphalt shingles, to match a house), each picked from 2,400 designs this tool's search built and checked: every member at 90% of its capacity or less, a peak of 13 ft or less, nothing the model warns about, and the best on the measure its card names. Prices are worked out now at the prices below. Flick through with the arrows or a swipe; open one to see it from every side, what it costs and how much it holds; add two or three to Compare. "Start from this design" opens a copy in the editor below, to change as you like.</p>
     <ul class="pick-list" tabindex="0" aria-label="Ready-made designs: arrow keys move through them"></ul>
   </section>
   <div id="compare-tray" class="compare-tray" role="region" aria-label="Designs to compare" hidden></div>

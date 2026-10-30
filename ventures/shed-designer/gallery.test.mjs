@@ -72,3 +72,19 @@ test('the search run now gives a valid gallery whose reasons are true; drift fro
     t.diagnostic(`gallery-data.mjs is behind the search for: ${moved.join(', ') || 'the reasons'}; run node ventures/shed-designer/make-gallery.mjs`);
   }
 });
+
+test('"match a house" keeps exactly the cards in painted lap siding and asphalt shingles', async () => {
+  const { galleryEntries, matchesHouse } = await import('./gallery-ui.mjs');
+  const all = galleryEntries();
+  const house = galleryEntries({ houseOnly: true });
+  assert.equal(all.length, GALLERY_DESIGNS.length);
+  assert.ok(house.length >= 4 && house.length < all.length, `${house.length} of ${all.length}`);
+  for (const e of house) {
+    assert.ok(['fiber cement', 'LP SmartSide lap'].includes(e.design.sidingType), e.id);
+    assert.equal(e.design.roofCover, 'shingles', e.id);
+  }
+  // Every card from the lap-and-shingles search is in it.
+  for (const c of GALLERY.filter((x) => x.from === 'house')) assert.ok(house.some((e) => e.id === c.id), c.id);
+  assert.equal(matchesHouse({ siding: true, sidingType: 'LP SmartSide', roofing: true, roofCover: 'shingles' }), false);
+  assert.equal(matchesHouse({ siding: true, sidingType: 'fiber cement', roofing: true, roofCover: 'metal' }), false);
+});
