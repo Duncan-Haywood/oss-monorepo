@@ -22,7 +22,7 @@
  * Parse an ASCII DXF into straight segments (inches are applied by the caller)
  * and the $INSUNITS header value.
  * @param {string} text
- * @returns {{ segs: Seg[], polys: { id: number, layer: string, pts: Pt[] }[], insunits: number, inserts: number, arcs: number, binary: boolean, blocks: Record<string, any>, insertList: any[] }}
+ * @returns {{ segs: Seg[], polys: { id: number, layer: string, pts: Pt[] }[], insunits: number, inserts: number, arcs: number, binary: boolean, blocks: Record<string, any>, insertList: any[], arcList: any[] }}
  */
 export function parseDxf(text) {
   if (text.startsWith("AutoCAD Binary DXF")) return { segs: [], polys: [], insunits: 0, inserts: 0, arcs: 0, binary: true, blocks: {}, insertList: [], arcList: [] };
@@ -467,7 +467,7 @@ export function pairDoubleLines(segs, o) {
 
 /**
  * @param {string} text ASCII DXF
- * @param {{ units?: "in"|"ft"|"mm"|"cm"|"m", wallLayer?: RegExp, doorLayer?: RegExp, windowLayer?: RegExp,
+ * @param {{ units?: "in"|"ft"|"mm"|"cm"|"m", openingSize?: (mid: Pt) => any, wallLayer?: RegExp, doorLayer?: RegExp, windowLayer?: RegExp,
  *   snap?: number, mergeGap?: number, doubleLine?: boolean | "auto", doorHeight?: number, windowHeight?: number, header?: string,
  *   exteriorStud?: "2x4"|"2x6", interiorStud?: "2x4"|"2x6" }} [opt]
  * @returns {{ ok: boolean, errors: string[], notes: string[], plan?: any, stats?: any }}
@@ -732,6 +732,7 @@ function joinJambs(ops, arcs, walls) {
       .filter((e) => !used.has(e.k) && off(e.o.a) < snapTo && off(e.o.b) < snapTo && e.hi > -snapTo && e.lo < L + snapTo)
       .sort((p, q) => p.lo - q.lo);
     // pieces closer than 12 in are one jamb
+    /** @type {{ lo: number, hi: number, ks: number[], used?: boolean }[]} */
     const jambs = [];
     for (const e of here) {
       const last = jambs[jambs.length - 1];
