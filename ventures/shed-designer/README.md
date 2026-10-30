@@ -132,12 +132,38 @@ At the starting prices, with nothing longer than 12 ft, that design is 151 piece
 
 ## Pictures of the designs
 
-`renders/` holds pictures of every "New design" preset, drawn by the tool's own WebGL viewer (`render3d.mjs`) in headless Chromium: a hero view from the front corner (960 x 640), front, gable end and back (480 x 320 each) and a framing cutaway with the coverings off (640 x 427), as WebP. `renders/manifest.json` gives each picture's file, size and alt text, written from the built design (`altFor` in `renders.mjs`); pages read it through `renderFor`. The marketing page shows the 8x12 classic.
+`renders/` holds pictures of every "New design" preset and of each per-size lumber page's design. They are drawn by the tool's own WebGL viewer (`render3d.mjs`, in its presentation look) in headless Chromium and saved as WebP. Each preset gets six views:
 
-- **They can't drift.** Each design's scene hash covers the triangles and colours the viewer uploads, the shaders and draw loop, the view list and `RENDER_VERSION`. `renders.test.mjs` fails when a hash no longer matches, when a file is missing, stray or over budget, or when a page's alt text differs from the manifest. A price, a name or a change elsewhere in the tool does not mark them stale.
-- **Redraw:** `node make-renders.mjs` (only the stale designs; `--all` for every one; `--check` to test without a browser). It finds Playwright through `PLAYWRIGHT` or the cloud session's `/opt/node-tools` copy, takes about 6 s a design, and rewrites the alt text of every `<img src="renders/...">` in the venture's pages.
-- **Size budget:** 70 KB for a hero, 40 KB for any other view, 900 KB for the folder (`BUDGET` in `renders.mjs`). Each view is drawn at twice its size and scaled down, then encoded at the highest WebP quality from 0.8 down that fits. Six designs take about 350 KB. Only stale designs are redrawn, so the repository grows only when a picture really changes.
-- **Adding designs:** `renderTargets(extra)` takes a map of `{ key: () => design }`, so a gallery of optimised designs adds its own.
+- a hero from the front corner (960 x 640);
+- a card of the same view (480 x 320), for the starting-design strip;
+- front, gable end and back (480 x 320 each);
+- a framing cutaway with the coverings off and the board outlines on (640 x 427).
+
+The size pages get a hero each. `renders/manifest.json` gives each picture's file, size and alt text, written from the built design (`altFor` in `renders.mjs`), plus a fingerprint of the design (`designKey`).
+
+**Where they are used:**
+- The starting-design picker (`picker.mjs`) shows the drawn pictures of any preset that is unchanged: the card in the strip, and the hero, gable end, back and framing in the detail panel. A customised design is drawn live as before. `pictureFor` matches any drawn design by its fingerprint, for a gallery whose designs are not presets. With every card drawn ahead, the six cards are up in about 1.2 s, against 2.1 s drawn live (headless Chromium, software GL), and nothing blocks the page.
+- The marketing page shows the 8x12 classic.
+- Each size page shows its design.
+
+**They can't drift.** Each design's scene hash covers:
+- the triangles and colours the viewer uploads;
+- the shaders and the draw loop;
+- the view list and `RENDER_VERSION`.
+
+`renders.test.mjs` fails when:
+- a hash or fingerprint no longer matches;
+- a file is missing, stray or over budget;
+- a page's alt text differs from the manifest;
+- the strip stops using the pictures.
+
+A price, a name or a change elsewhere in the tool does not mark them stale.
+
+**Redraw** with `node make-renders.mjs`. It redraws only the stale designs; `--all` redraws every one, and `--check` tests without a browser. It finds Playwright through `PLAYWRIGHT` or the cloud session's `/opt/node-tools` copy, takes about 6 s a design, and rewrites the alt text of every `<img src="renders/...">` in the venture's pages. When a change does not alter the pixels (an edit to the orbit code, say), the WebP files come out byte-identical and only the manifest changes.
+
+**Size budget:** 70 KB for a hero, 40 KB for any other view, 900 KB for the folder (`BUDGET` in `renders.mjs`). Each view is drawn at twice its size and scaled down, then encoded at the highest WebP quality from 0.8 down that fits. The six presets and 18 size pages take about 760 KB. The framing view was left off the size pages because it would have taken the folder to 1,150 KB.
+
+**Adding designs:** `renderTargets(extra)` takes a map of `{ key: () => design }`, so a gallery of optimised designs can add its own.
 
 ## Run it
 
