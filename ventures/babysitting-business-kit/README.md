@@ -32,6 +32,8 @@ Not affiliated with any of the products named above; they are named only to say 
 - **Website:** a one-file site built from the profile: story, certifications, rates, policies, the optional faith section, consented testimonials, `ChildCare` JSON-LD and an inquiry form (email by default, or the sitter's server). Download it and host it free anywhere.
 - **Content:** twelve weeks of seasonal post ideas rotated across Facebook, Nextdoor, Instagram, a church or school bulletin and the website, plus rebooking, referral and testimonial messages per family. Drafts leave room for a real moment in the sitter's words, never an invented one.
 - **Backup and sync:** a JSON backup file; or sync with the sitter's own server.
+- **On a phone:** installable from the browser (Add to Home Screen): `manifest.webmanifest`, icons rendered from `icon.svg` by `make-icons.mjs`, and `sw.js`, which caches the app and every module `index.html` imports (it follows the imports itself, so new modules need no edit) and never caches `/api/*`, `/inquiry` or the calendar feed. On narrow screens the tab bar sits at the bottom and controls are at least 44 px tall. Tabs follow the WAI-ARIA pattern (`tabs.mjs`: arrow keys, Home, End, `aria-controls`), focus is always visible, and text colours meet WCAG AA contrast (checked in `a11y.test.mjs`).
+- **Guides for searchers:** [How to start a babysitting business](how-to-start-a-babysitting-business.html), [How much to charge for babysitting](how-much-to-charge-for-babysitting.html) (the rate-card logic, with worked examples the tests recompute with `quote()`; no invented national averages) and [Babysitting references](babysitting-references.html).
 
 ## The optional server (automated sales)
 
@@ -71,6 +73,7 @@ US federal rules for 2026, with constants from sibling ventures that checked the
 
 - **Page:** open `index.html` from a local server (`npx serve .`, or the server above). Data lives in this browser's localStorage under `babysitting-business-kit-desk`.
 - **Tests:** `node --test ventures/babysitting-business-kit/*.test.mjs` (engine, server, page, deploy, usage).
+- **Browser end-to-end:** `e2e.test.mjs` drives the app in Chromium at 390 px and 1280 px (load the example, add a lead, make it a family, book a sit, record a payment, check the tax panel, reload), checks keyboard tabs, 44 px targets, the guide pages and offline start-up. It skips itself when Playwright or its Chromium is missing, as on the CI venture runner, so run it locally after UI changes.
 
 ## Privacy
 
