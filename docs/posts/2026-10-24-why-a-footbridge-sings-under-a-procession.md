@@ -1,5 +1,6 @@
 ---
 title: "Why a footbridge can sing under a procession: the weight changes the note"
+seo_title: "Why a footbridge can sing under a procession"
 date: 2026-10-24
 description: "A footbridge's natural frequency drops when a crowd stands on it. A worked example from a new AI-written short story, with the numbers."
 tags: [fiction, engineering, hearth-and-horizon, ai-writing]

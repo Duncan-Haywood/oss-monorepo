@@ -1,5 +1,6 @@
 ---
 title: "Drag a corner, keep the house closed: moving walls in the framing sketch"
+seo_title: "Drag a corner, keep the house closed"
 date: 2026-10-29
 description: "The wall-framing takeoff plan sketch now has a Move tool: drag a corner or slide a wall, and the walls that meet there follow."
 tags: [wall-framing-takeoff, construction]

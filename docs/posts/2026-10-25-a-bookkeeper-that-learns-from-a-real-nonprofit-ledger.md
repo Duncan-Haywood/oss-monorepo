@@ -1,5 +1,6 @@
 ---
 title: "How fast does a bookkeeper learn? Replaying a nonprofit's books in date order"
+seo_title: "How fast does a bookkeeper learn?"
 date: 2026-10-25
 description: "ai-bookkeeper on Hack Club's public ledger, 1,241 lines: keyword rules suggest 40%, learning as it goes suggests 91%."
 tags: [ai-bookkeeper, bookkeeping, evaluation]

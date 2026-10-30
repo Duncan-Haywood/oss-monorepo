@@ -1,5 +1,6 @@
 ---
 title: "How much do you have to sell a month? Break-even straight from your bank statements"
+seo_title: "How much do you have to sell a month?"
 date: 2026-10-27
 description: "AI Bookkeeper now computes monthly break-even and margin of safety from a profit and loss built from your bank statements."
 tags: [ai-bookkeeper, accounting, break-even]

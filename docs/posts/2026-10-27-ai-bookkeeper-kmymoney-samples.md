@@ -1,5 +1,6 @@
 ---
 title: "Two more bank-file faults found in KMyMoney's sample files: empty descriptions and a day-first QIF read as nothing"
+seo_title: "Two more bank-file faults found in KMyMoney's sample files"
 date: 2026-10-27
 description: "Sweeping KMyMoney's sample CSV and QIF through ai-bookkeeper found a header it did not know and a QIF whose dates it could not read."
 tags: [ai-bookkeeper, bank-import, testing]

@@ -1,5 +1,6 @@
 ---
 title: "Ten real Excel bank-statement fixtures through ai-bookkeeper: no faults"
+seo_title: "Ten real Excel bank-statement fixtures through ai-bookkeeper"
 date: 2026-10-26
 description: "We ran OCA's 5 .xlsx and 5 .xls bank-statement test files through ai-bookkeeper's Excel readers. All ten read correctly, including text-marker apostrophes."
 tags: [ai-bookkeeper, bank-import, testing]

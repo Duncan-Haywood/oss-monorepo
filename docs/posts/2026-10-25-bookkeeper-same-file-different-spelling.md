@@ -1,5 +1,6 @@
 ---
 title: "Same bank file, different spelling: three more checks on a bookkeeping importer"
+seo_title: "Same bank file, different spelling"
 date: 2026-10-25
 description: "ai-bookkeeper's CSV reader gave identical rows when signs, date spelling and re-imports were varied across 53 bank fixtures; the checks now run on every change."
 tags: [ventures, ai-bookkeeper, testing, bookkeeping]
