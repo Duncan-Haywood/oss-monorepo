@@ -1,0 +1,76 @@
+{
+  "date": "2026-10-30",
+  "session": "https://claude.ai/code/session_01XpHqye8GsoB7Tz4n576sEf",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Round-3 lane 3 dispatch from the parent session: alternative roof structures for ventures/shed-designer (site-built trusses with gussets, rafters with ceiling joists, collar ties; NDS checks; compare cost, labour and storage; expose in UI and search).",
+  "input_sha256": "b9d6c63b66a16a353b71f3fa1cf9bb7c449bf3a39ec1956e09d3e07b701194f1",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-30T02:22:59Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "shed-designer round 3 lane 3: alternative roof structures (trusses, attic storage)",
+  "projects": [
+    "shed-designer"
+  ],
+  "pr": 11618,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 12,
+  "outcome": "success",
+  "errors": [
+    "First fuzz run with trusses broke 629 of 2000 designs (stale row name, chord over a cap splice, overhang-0 profile, buckling reported as Infinity); all fixed before the first push.",
+    "First draft of the blog post claimed trusses were cheapest on the default 8x12; a like-for-like recheck (birdsmouth seats) showed the ridge board cheapest everywhere, and the post was rewritten before push."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Names `node platform/ci/typecheck.mjs shed-designer` only via the dispatch brief ('if present'); it is not present, so there is no typecheck step for ventures written with // @ts-check."
+    },
+    {
+      "file": "ventures/shed-designer/browser.test.mjs",
+      "issue": "Looks for Playwright at /opt/node-tools/...; in cloud sessions it is at /opt/node22/lib/node_modules/playwright/index.js, so the browser tests silently skip unless PLAYWRIGHT is set."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "The run was dispatched by a parent session with a lane brief, not routed by promptctl route; recorded on the ventures track, version 1.",
+      "did": "followed the lane brief",
+      "result": "two PRs, both landed"
+    },
+    {
+      "file": "prompts/promptctl.py",
+      "why": "The record's model field was left empty: this session's rules forbid model identifiers in pushed artifacts.",
+      "did": "model: null",
+      "result": "record otherwise complete"
+    },
+    {
+      "file": "lane brief",
+      "why": "Collar ties and raised ceiling joists were not added: uplift is not modelled, so collar ties would be house habit the owner asked to drop; reasons in docs/reports/shed-designer-round3-lane3.md.",
+      "did": "documented instead",
+      "result": "open for a later run"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-30-trusses-for-a-small-shed.md",
+    "docs/posts/2026-10-30-attic-storage-in-a-small-shed.md",
+    "docs/reports/shed-designer-round3-lane3.md"
+  ],
+  "goal": null,
+  "notes": "PR #11589 (trusses) and PR #11618 (attic storage, report) merged with local verification while runners were starved: node --test 303 pass, the one failure (renders manifest) also red on origin/main; browser tests 33 pass; fuzz 2000 designs clean at seed 7 for #11589; seed 11 shows lap-siding stagger failures that also appear on clean main.",
+  "corrections": [],
+  "redteam": null
+}

@@ -59,7 +59,7 @@ function randomDesign(r) {
     const product = r() < 0.3 && prods.length ? pick(prods).id : (kind === 'door' && r() < 0.15 ? 'site-built' : undefined);
     d.openings.push({ id: `o${i + 1}`, kind, wall, offset: between(-12, face + 12), width: between(12, 96), height: between(12, 96), ...(kind === 'window' ? { sill: between(0, 72) } : {}), ...(product ? { product } : {}) });
   }
-  // Drawn last, so the designs before it in the sequence are the ones earlier seeds made.
+  // Attic storage applies to truss roofs; elsewhere it is ignored.
   d.atticStorage = r() < 0.3;
   return d;
 }
