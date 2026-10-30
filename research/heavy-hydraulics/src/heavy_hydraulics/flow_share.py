@@ -27,21 +27,22 @@ def bypass_area(q_pump, p_n):
     return q_pump / sqrt(p_n)
 
 
-def section_area(q_i, p_i, q_pump, a_b0):
-    """Area that passes q_i alone at load pressure p_i with the bypass closed down to a_b0 - A_i."""
+def section_area(q_i, p_i, q_pump, a_b0, k=1.0):
+    """Area that passes q_i alone at load pressure p_i with the bypass closed down to a_b0 - k A_i (k = 1: the bypass area shrinks one-for-one with the section
+    opening; k > 1 closes faster, k < 1 slower)."""
     def resid(ps):
         a = q_i / sqrt(ps - p_i)
-        return (a_b0 - a) * sqrt(ps) - (q_pump - q_i)
+        return (a_b0 - k * a) * sqrt(ps) - (q_pump - q_i)
     # resid falls from +inf-ish near p_i; root exists when q_i < q_pump
     ps = _bisect(resid, p_i + 1e-6, p_i + 400.0)
     return q_i / sqrt(ps - p_i)
 
 
-def shared_flows(demands, q_pump, p_n, p_relief=250.0):
+def shared_flows(demands, q_pump, p_n, p_relief=250.0, k=1.0):
     """demands: [(p_i, q_i)]. Returns flows each actuator gets with all sections open, L/min."""
     a_b0 = bypass_area(q_pump, p_n)
-    areas = [section_area(q, p, q_pump, a_b0) for p, q in demands]
-    a_b = max(a_b0 - sum(areas), 0.0)
+    areas = [section_area(q, p, q_pump, a_b0, k) for p, q in demands]
+    a_b = max(a_b0 - k * sum(areas), 0.0)
 
     def resid(ps):
         return sum(a * sqrt(max(ps - p, 0.0)) for a, (p, _) in zip(areas, demands)) + a_b * sqrt(ps) - q_pump
@@ -49,10 +50,10 @@ def shared_flows(demands, q_pump, p_n, p_relief=250.0):
     return [a * sqrt(max(ps - p, 0.0)) for a, (p, _) in zip(areas, demands)]
 
 
-def phase_slowdown(demands, q_pump, p_n):
+def phase_slowdown(demands, q_pump, p_n, k=1.0):
     """Factor by which the phase lasts longer: the slowest actuator sets it, capped at the number of
     actuators (the bound where they move one after the other, which also covers a stalled one)."""
     if len(demands) < 2:
         return 1.0
-    got = shared_flows(demands, q_pump, p_n)
+    got = shared_flows(demands, q_pump, p_n, k=k)
     return min(float(len(demands)), max(1.0, max(q / max(g, 1e-9) for (_, q), g in zip(demands, got))))
