@@ -11,7 +11,7 @@
     "45 jobs in the same window ran with every work step skipped (12.3 job-minutes), e.g. Duplicate symbols 7, Prompts validate 6, Portfolio Pages site build 7",
     "main red 2026-10-24 after PR #10185 (docs/posts description 238 chars > 160): writing.mjs loadPosts throws, failing build.mjs and every buildSite test"
   ],
-  "change": "Fold the cheap guards that share a trigger into one 'guards' workflow with one checkout and one step per guard (keep each guard's script and failure message; check branch protection's required names first). Give each remaining workflow a paths filter that matches what its script reads, and add the validator that every docs/posts or Pages-input change runs writing.test.mjs. Measure jobs per PR head before and after.",
+  "change": "Premise partly stale (see history 2026-10-30): the lever is shared-path fan-out, filed as P060. Re-run ci_profile.py for a fresh jobs-per-head baseline, then fold only guards that still share a trigger.",
   "touches": [
     ".github/workflows/",
     "platform/ci/validate_workflows.py",
@@ -23,5 +23,11 @@
   "source": "prompts/runs/2026-10-24-session_01Gcz8nVnXVeNTiqb8JKabK1.json",
   "pr": null,
   "result": null,
-  "history": []
+  "history": [
+    {
+      "date": "2026-10-30",
+      "note": "Re-measured the trigger map (yaml scan of .github/workflows, 134 files): only 2 workflows (agent-cross-review, conflict-markers-ci; 6 jobs) have no pull_request paths filter, the docs/posts front-matter check already runs in Portfolio Pages (step 'Check blog post front matter'), and the actions-*-check-ci family is scoped to its own venture dir. So the 15 jobs per head come from shared-path fan-out, not unscoped guards; split into P060. Remaining here: re-run ci_profile.py for a fresh baseline.",
+      "pr": "this"
+    }
+  ]
 }
