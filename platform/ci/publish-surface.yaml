@@ -399,6 +399,9 @@ workflows:
 - workflow: shed-designer-browser.yml
   classification: none
   publishes: []
+- workflow: shed-designer-fuzz.yml
+  classification: none
+  publishes: []
 - workflow: shopify-permission-drift-ci.yml
   classification: none
   publishes: []
