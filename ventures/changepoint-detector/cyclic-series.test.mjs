@@ -1,5 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { analyze } from './engine.mjs';
 import { readFileSync } from 'node:fs';
 import { count, SETUPS } from './eval/cyclic-series.mjs';
 
@@ -19,3 +20,11 @@ for (const [f, w] of Object.entries(want)) {
     assert.deepEqual(Object.values(SETUPS).map((o) => count(d, o)), w.counts);
   });
 }
+
+test('a cycle with many steps gets the false-alarm hint with the range warning', () => {
+  const d = load('lynx');
+  const w = analyze(d).rangeWarning;
+  assert.match(w, /use --ar1/);
+  assert.match(w, /With 23 steps at this rho, many may be false alarms/);
+  assert.doesNotMatch(analyze({ ...d, ar1: true }).rangeWarning ?? '', /false alarms/);
+});

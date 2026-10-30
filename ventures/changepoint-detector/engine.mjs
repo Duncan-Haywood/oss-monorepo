@@ -1777,7 +1777,7 @@ export function analyze(input = {}) {
   let rangeWarning = null;
   if (ranges && model === 'mean' && !o.ar1 && values.length >= 20) {
     const r0 = ar1Rho(values);
-    if (r0 >= 0.3) rangeWarning = `The series looks autocorrelated (rho about ${round(r0, 2)}), so these ranges are too narrow: use --ar1 (page: allow for autocorrelation).`;
+    if (r0 >= 0.3) rangeWarning = `The series looks autocorrelated (rho about ${round(r0, 2)}), so these ranges are too narrow: use --ar1 (page: allow for autocorrelation).${p.changepoints.length >= 5 ? ` With ${p.changepoints.length} steps at this rho, many may be false alarms: on real cycles with no documented step the default found 23 (lynx) and 46 (sunspots), --ar1 found none and --ar1 joint kept a 2 sd step (README, cyclic series).` : ''}`;
   }
   // the same for counts that vary more than Poisson: the plain Poisson range held the date in 6% to 42% of overdispersed series (README)
   if (ranges && !rangeWarning && model === 'poisson' && !phi && !(isFinite(nbSize) && nbSize > 0) && values.length >= 90) {
