@@ -79,7 +79,11 @@ export function valueComparison(shed, est, n = 4) {
   return { yours, kits, leftOut };
 }
 
-const money = (x) => `$${Math.round(x).toLocaleString('en-US')}`;
+const money = (x) => {
+  const format = (x) => `$${Math.round(x).toLocaleString('en-US')}`;
+  const text = format(Math.abs(x));
+  return x < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+};
 const escAttr = (s) => String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
 
 /** The comparison as a short HTML block for the summary panel. */
@@ -88,4 +92,32 @@ export function valueHtml(cmp) {
   const rows = cmp.kits.map((k) => `<li><a href="${escAttr(k.url)}" target="_blank" rel="noopener nofollow">${escAttr(k.name)}</a> (${k.store}${k.installed ? ', installed' : ', kit'}): ${money(k.price)} for ${k.sqFt} sq ft, ${k.sqFtPerK.toFixed(0)} sq ft per $1,000${k.installed ? '' : `; ${k.sqFtPerKWithRoof.toFixed(0)} with the roofing and paint it leaves out`}${k.sidewallIn ? `; ${Math.floor(k.sidewallIn / 12)}' ${k.sidewallIn % 12}" sidewall, ${Math.round(k.boxCuFtPerK)} cu ft of floor times wall height per $1,000` : ''}.</li>`).join('');
   return `<div class="wide"><dt>Storage per dollar</dt><dd>${y.sqFtPerK.toFixed(0)} sq ft and ${y.cuFtPerK.toFixed(0)} cu ft of storage per $1,000 of materials (${y.cuFt.toFixed(0)} cu ft inside: floor times clear wall height, plus half the roof space). Like for like with the kits below: ${Math.round(y.boxCuFtPerK)} cu ft of floor times wall height per $1,000.</dd></div>`
     + `<div class="wide"><dt>Kits this size</dt><dd><ul>${rows}</ul><span class="muted">Store prices from a search engine's copy of each listing, seen ${SEEN}; check the link. Kits rarely include shingles, paint or a foundation (yours includes its blocks), and their walls are often lower. Your figure is materials only, no labour or tax.</span></dd></div>`;
+}
+
+/** The n kits nearest a floor area, nearest first, then cheapest. */
+export function nearestKits(sqFt, n = 3) {
+  return [...KITS].sort((a, b) => Math.abs(a.lengthFt * a.widthFt - sqFt) - Math.abs(b.lengthFt * b.widthFt - sqFt) || a.price - b.price).slice(0, n);
+}
+
+/**
+ * One line for the picker's detail panel, in its per-$100 units: this design's
+ * floor and floor-times-wall-height per $100 beside the nearest store kits'.
+ * Kit prices leave out what the kit leaves out (shingles, usually paint, often
+ * the floor), which the line says.
+ * Pass `leftOut`, the design's own roofing and paint cost, to show each DIY
+ * kit with that added too, scaled by floor area (valueComparison's `leftOut`).
+ * @param {{ footprintSqFt: number, wallHeight: number, total: number }} f designFacts output
+ * @param {number} [n]
+ * @param {number} [leftOut]
+ */
+export function kitLineHtml(f, n = 3, leftOut = 0) {
+  const per100 = (x, price) => (x / price) * 100;
+  const box = (sqFt, wallIn) => (sqFt * wallIn) / 12;
+  const mine = `${per100(f.footprintSqFt, f.total).toFixed(1)} sq ft and ${Math.round(per100(box(f.footprintSqFt, f.wallHeight), f.total))} cu ft of floor times wall height`;
+  const kits = nearestKits(f.footprintSqFt, n).map((k) => {
+    const sq = k.lengthFt * k.widthFt;
+    const withRoof = k.installed || !leftOut ? 0 : k.price + leftOut * (sq / f.footprintSqFt);
+    return `<li><a href="${escAttr(k.url)}" target="_blank" rel="noopener nofollow">${escAttr(k.name)}</a> (${k.store}${k.installed ? ', installed' : ', kit'}, ${money(k.price)}): ${per100(sq, k.price).toFixed(1)} sq ft${withRoof ? `; with your roofing and paint added, ${per100(sq, withRoof).toFixed(1)} sq ft` : ''}${k.sidewallIn ? ` and ${Math.round(per100(box(sq, k.sidewallIn), withRoof || k.price))} cu ft with its ${Math.floor(k.sidewallIn / 12)}' ${k.sidewallIn % 12}" walls` : ''}${k.installed ? '' : `; leaves out shingles${k.floor ? '' : /floor not/.test(k.note || '') ? ' (floor not stated)' : ' and the floor'}`}</li>`;
+  }).join('');
+  return `<div><dt>Against store kits, per $100</dt><dd>This design, measured outside like the kits: ${mine}.<ul class="kits">${kits}</ul><span class="muted">Kit prices are search-result copies of each listing seen ${SEEN}; check the link. Labour is in neither.</span></dd></div>`;
 }

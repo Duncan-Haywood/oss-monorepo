@@ -26,6 +26,8 @@ All ratios are medians over 5,000 to 20,000 seeded model cycles.
 
 **3.1b The load-sensing margin reverses it again (milestone 2j).** The 25 bar margin is one thesis model of a midi excavator. Rexroth Canada's A10VO manual (Module 3A, s. 7.2) gives a factory standby setting of "usually 200 PSI" (13.8 bar), and reseller listings give a 14 bar LS differential for A10VO DFR units. With dp_ls 14 bar and the same sourced valve drop, the median LS/OC at load factor 0.346 is 0.893 (extra neutral drop 0) and 0.817 (extra 5 bar): load-sensing is ahead (`dpls_sourced_results.txt`). At 25 bar it is 1.115 and 1.021. The sign of the circuit gap therefore turns on a margin on which the two sources disagree by 11 bar; we found no excavator main-valve value and no standby flow.
 
+**3.1c The boundary, not a point (milestone 2l).** Sweeping the LS margin from 8 to 32 bar against three open-centre neutral pressures (valve-only 1.44 bar from 2i, plus an assumed 5 and 10 bar) at load factor 0.346, the median LS/OC ratio rises monotonically with the margin and crosses 1.0 at a margin of 19.3 bar (neutral 1.44 bar), 23.9 bar (6.44 bar) and 28.4 bar (11.44 bar): about 0.92 bar of margin per bar of neutral pressure (`ranking_map_results.txt`). A machine whose LS margin is below the line favours load-sensing; above it, open-centre. The 14 bar Rexroth value sits below all three lines and the 25 bar thesis value above the first two, which is why 2i and 2j disagreed.
+
 **3.1 The ranking depends on idle time and neutral pressure.**
 
 | Condition (LS shaft energy / open-centre) | Median | Share of cycles LS > OC | Source file |
@@ -38,6 +40,8 @@ All ratios are medians over 5,000 to 20,000 seeded model cycles.
 | LF 0.346, p_n 8 bar, 6 L/min standby | 1.035 | 61.1% | same |
 
 ![LS/OC median against load factor for four open-centre idle models](../experiments/ranking_vs_load_factor.svg)
+
+![LS/OC median against LS margin for three neutral pressures](../experiments/ranking_map.svg)
 
 *Figure 1 (`experiments/figure.py`, parsed from `idle_models_results.txt`; LS standby 0): the ranking moves with the open-centre neutral pressure; 8 bar is the only curve above 1, and only at load factor 0.5.*
 

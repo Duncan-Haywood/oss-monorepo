@@ -38,15 +38,46 @@
 
 ## Findings
 
-On the default 8x12, painted white, fiber cement lap is $207 more than T1-11 and engineered wood lap is $248 more. The planks are cheaper than the T1-11 panels ($467 against $515); the OSB ($128) and the wrap kit ($115) are the difference. On the default 8x12 there are no butt joints. 0 of 224 sizes and spacings fail a lap or sheathing check.
+On the default 8x12, painted white, with even courses, lap adds to the whole shed over T1-11:
+- fiber cement: $293;
+- engineered wood: $314.
+
+The planks alone are cheaper than the T1-11 panels ($499 against $515). The difference is the OSB ($128), its 8d nails ($54), and the wrap kit ($115). There are no butt joints on the default 8x12, and 0 of 224 sizes and spacings fail a lap or sheathing check.
+
+*Correction:* PR #11567 first reported +$207 and +$248. Those counted only the siding section of the list and missed the OSB nails; the true figures at that commit were +$261 and +$302.
 
 ## Open, for a person to check
 
 - **Stale prices.** Several came from cached copies months or years old: Hardie $12.48 with its bulk price, LP 16 ft. No Lowe's listing was found for Hardie HZ10, the LP 12 ft plank, house wrap or cap nails. In a freeze-thaw climate Hardie sells HZ5, at $17.98 (Home Depot) or $14.98 (Lowe's); the tool prices HZ10 and says so in the note.
 - **Trim.** LP asks for 5/4 (540 Series) trim so lap does not stand proud; the tool still uses 3/4" primed 1x4 and the build step says so. HardieTrim and LP 540 trim prices were found ($23.48 HardieTrim smooth 12 ft at Home Depot; LP 540 5/4x4x16 at $35.75 Home Depot and $24.98 Lowe's), but they are not wired in.
 
+## Follow-up PR: even courses
+
+`evenExposure()` in `lap.mjs` sets the exposure the way an installer's story pole does. It is never over the maker's figure, and it is even, so the top course on the long walls is a full plank meeting the plate. The default 8x12 now lays 14 courses at 6-1/2" instead of 13 at 7" plus a 1/2" bare strip under the eave. Cost: three more fiber cement planks. The build step says to mark each course from the bottom, so rounding does not add up.
+
+## Follow-up PR: stud spacing the siding allows
+
+At r3 lane 8's request (relayed by the parent), each lap product now carries `maxStuds` in `lap.mjs`, cited to its guide:
+- **James Hardie (HS11119 p.1):** 24" o.c. both over OSB and direct to studs.
+- **LP (LPZB0515 p.3):** 24" over 7/16" sheathing, 16" direct to studs for the 38 Series.
+
+`lapStudLimit(d)` reads that figure, `sidingSpan()` in `simplify.mjs` uses it, and the built shed exposes it as `shed.sidingStudLimit`. Lane 1's right-sizing can take studs to 24" o.c. whenever lap is chosen. T1-11 and the 3/8" LP panel stay at 16".
+
+Lap planks also honour lane 5's "longest board I can haul" limit (`maxHaulFt`, default 12 ft), so engineered wood uses only 12 ft planks by default. That puts it at +$324 over T1-11, against +$314 with 16 ft planks.
+
+This PR also fixes three typecheck diagnostics left on `main` by PR #11550.
+
+## Follow-up PR: fuzz seed 11
+
+Fuzz seed 11 at 2,000 designs found 2 fiber cement designs with a butt joint within 32" of the one below. A window notching the course above left that course only a stud or two with wood under the whole plank. The course below had already taken its joint greedily without looking up.
+
+`layoutFace` now does two things:
+- it lays out every course's runs and notches first;
+- it then chooses joints by a depth-first search, longest plank first, and takes the first plan that still leaves the course above a legal one.
+
+Both designs are pinned in `lap.test.mjs`. Seeds 11 (2,000 designs) and 1, 5 and 23 (1,500 each) now pass.
+
 ## Next steps
 
 1. **Lap direct to studs, braced another way.** Hardie allows studs up to 24" o.c.; LP's 3/8" lap allows 16". That saves the OSB ($128 on the 8x12) but needs let-in bracing or OSB only at the corners. It needs a racking check: see the r2 structure PR #11543 on racking.
 2. **A 5/4 trim option** for LP lap, priced.
-3. **Even out the courses.** Set the exposure a little under the maximum so the top course is not a thin rip (installers do this with a story pole). Today the last course is ripped to fit.

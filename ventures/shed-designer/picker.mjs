@@ -10,8 +10,11 @@
 
 import { PRESETS, buildShed, normalize } from './model.mjs';
 import { createViewer } from './render3d.mjs';
+import { pictureFor } from './renders.mjs';
 import { designFacts, compareRows, tradeOff } from './designfacts.mjs';
 import { fmtFtIn, fmtIn } from './lumber.mjs';
+import { kitLineHtml } from './value.mjs';
+import { estimate, examplePrices } from './estimate.mjs';
 
 /** @typedef {{ id: string, title?: string, design: any, reason?: string }} Entry */
 
@@ -31,7 +34,11 @@ export function presetEntries() {
 export const MAX_COMPARE = 3;
 
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-const money = (n) => `$${Math.round(n).toLocaleString('en-US')}`;
+const money = (n) => {
+  const format = (n) => `$${Math.round(n).toLocaleString('en-US')}`;
+  const text = format(Math.abs(n));
+  return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+};
 const n1 = (x) => (Math.round(x * 10) / 10).toString();
 const WALL = { front: 'front', back: 'back', left: 'left gable', right: 'right gable' };
 
@@ -42,10 +49,19 @@ const VIEWS = [
   { key: 'end', label: 'Gable end', theta: 0, phi: 0.12 },
 ];
 
+// Pictures drawn ahead of time by make-renders.mjs (renders/), used when a
+// design is one of them unchanged: sharper than a live snapshot and no wait.
+const STORED_VIEWS = [
+  { key: 'hero', label: 'Front corner' },
+  { key: 'side', label: 'Gable end' },
+  { key: 'back', label: 'Back' },
+  { key: 'framing', label: 'Framing' },
+];
+
 /**
  * @param {{
  *   root: HTMLElement, dialog: HTMLDialogElement, tray: HTMLElement,
- *   entries?: Entry[], prices?: () => any,
+ *   entries?: Entry[], prices?: () => any, priceOf?: (shed: any) => any,
  *   onStart: (design: any) => void, count?: (event: string) => void,
  * }} opts
  */
@@ -67,13 +83,32 @@ export function mountPicker(opts) {
   const factsOf = (id) => {
     if (!facts.has(id)) {
       const e = /** @type {Entry} */ (entry(id));
-      facts.set(id, designFacts(e.design, { id, reason: e.reason, prices: opts.prices?.() }));
+      facts.set(id, designFacts(e.design, { id, reason: e.reason, prices: opts.prices?.(), price: opts.priceOf }));
     }
     return /** @type {ReturnType<typeof designFacts>} */ (facts.get(id));
   };
   const allFacts = () => entries.map((e) => factsOf(e.id));
+  // The design's own roofing and paint, which store kits leave out (value.mjs).
+  const leftOutOf = (f) => {
+    const shed = buildShed(normalize(f.design));
+    const est = opts.priceOf ? opts.priceOf(shed) : estimate(shed, opts.prices?.() || examplePrices());
+    return est.shopping.filter((l) => l.section === 'Roofing' || l.section === 'Paint').reduce((t, l) => t + (l.total || 0), 0);
+  };
   const titleOf = (id) => entry(id)?.title || factsOf(id).name;
 
+  /** @type {any} */
+  let manifest = null;
+  /** The stored picture of a design from one view, when that exact design was drawn (a preset or a gallery card, unchanged). */
+  const stored = (id, view) => {
+    const e = entry(id);
+    return manifest && e ? pictureFor(manifest, e.design, view) : null;
+  };
+  const thumb = (id) => {
+    // The strip's cards are about 260 px wide: the 480 px card picture, not the hero.
+    const r = stored(id, 'card') || stored(id, 'hero');
+    if (r) return `<img src="${esc(r.src)}" alt="" width="${r.width}" height="${r.height}">`;
+    return shots.has(shotKey(id)) ? `<img src="${shots.get(shotKey(id))}" alt="" width="600" height="400">` : '';
+  };
   const shotKey = (id, view = VIEWS[0]) => `${id}|${view.key}|${JSON.stringify(entry(id)?.design)}`;
   /** A render of a design from one angle, or '' when there is no WebGL. */
   function shot(id, view = VIEWS[0]) {
@@ -81,7 +116,7 @@ export function mountPicker(opts) {
     if (shots.has(key)) return shots.get(key);
     if (viewer === undefined) {
       const c = document.createElement('canvas'); c.width = 600; c.height = 400;
-      viewer = createViewer(c);
+      viewer = createViewer(c, { presentation: true });
     }
     if (!viewer) return '';
     viewer.show(buildShed(normalize(/** @type {Entry} */ (entry(id)).design)), { refit: true });
@@ -106,9 +141,11 @@ export function mountPicker(opts) {
       const on = chosen.includes(e.id);
       return `<li class="pick">
         <button type="button" class="pick-open" data-detail="${esc(e.id)}" aria-label="Details of the ${esc(titleOf(e.id))}">
-          <span class="pick-img" data-shot="${esc(e.id)}">${shots.has(shotKey(e.id)) ? `<img src="${shots.get(shotKey(e.id))}" alt="" width="600" height="400">` : '<span class="thumb-wait">rendering...</span>'}</span>
+          <span class="pick-img" data-shot="${esc(e.id)}">${thumb(e.id) || '<span class="thumb-wait">rendering...</span>'}</span>
           <strong>${esc(titleOf(e.id))}</strong>
           <span class="pick-line">${money(f.total)} &middot; ${Math.round(f.footprintSqFt)} sq ft &middot; peak ${fmtFtIn(f.peak)}</span>
+          <span class="pick-line">${Math.round(f.storage.volumeCuFt)} cu ft inside &middot; ${Math.round(f.storage.shelfFt)} ft of clear wall</span>
+          <span class="pick-line pick-finish">Siding: ${esc(f.siding.split(',')[0])} &middot; ${esc(f.design.roofing ? (f.design.roofCover === 'metal' ? 'metal roof' : 'asphalt shingle roof') : 'no roofing')}</span>
           <span class="pick-why">${esc(tradeOff(f, all))}</span>
         </button>
         <button type="button" class="btn pick-cmp" data-compare="${esc(e.id)}" aria-pressed="${on}">${on ? 'In compare' : 'Compare'}</button>
@@ -179,7 +216,9 @@ export function mountPicker(opts) {
     const opening = (o) => `<li>${o.kind === 'door' ? 'Door' : 'Window'} on the ${WALL[o.wall] || o.wall} wall, ${esc(o.size)}: ${esc(o.what)}</li>`;
     const html = `
       <p class="why"><strong>Why it's here:</strong> ${esc(tradeOff(f, all))}</p>
-      <div class="shots">${VIEWS.map((v) => `<figure>${img(id, v)}<figcaption>${v.label}</figcaption></figure>`).join('')}</div>
+      <div class="shots">${stored(id, 'hero')
+        ? STORED_VIEWS.map((v) => { const r = /** @type {any} */ (stored(id, v.key)); return r ? `<figure><img src="${esc(r.src)}" alt="${esc(r.alt)}" width="${r.width}" height="${r.height}"><figcaption>${v.label}</figcaption></figure>` : ''; }).join('')
+        : VIEWS.map((v) => `<figure>${img(id, v)}<figcaption>${v.label}</figcaption></figure>`).join('')}</div>
       <div class="detail-grid">
         <section aria-labelledby="dd-cost"><h3 id="dd-cost">Price: ${money(f.total)}</h3>
           <p class="muted">Materials at the listed store prices, before tax (${money(f.grandTotal)} with tax and delivery as set).</p>
@@ -195,6 +234,7 @@ export function mountPicker(opts) {
             <div><dt>Shelf wall</dt><dd>${n1(f.storage.shelfFt)} ft with no door or window</dd></div>
             <div><dt>Headroom</dt><dd>${fmtFtIn(f.storage.headroom)} ${f.storage.open ? 'under the ridge beam, open to the roof' : 'under the rafter ties (more above them)'}</dd></div>
             <div><dt>Per $100</dt><dd>${n1(f.perDollar.sqFtPer100)} sq ft, ${Math.round(f.perDollar.cuFtPer100)} cu ft</dd></div>
+            ${kitLineHtml(f, 3, leftOutOf(f))}
           </dl>
         </section>
         <section aria-labelledby="dd-look"><h3 id="dd-look">Looks</h3>
@@ -239,7 +279,7 @@ export function mountPicker(opts) {
       if (r.group !== group) { group = r.group; body += `<h3 class="cmp-group">${esc(group)}</h3>`; }
       body += `<div class="cmp-row${r.differs ? ' differs' : ' same'}" role="group" aria-label="${esc(r.label)}"><div class="cmp-label">${esc(r.label)}${r.differs ? '' : ' <span class="muted">(same)</span>'}</div>${r.values.map((v, i) => `<div class="cmp-cell${r.best.includes(i) ? ' best' : ''}"><span class="sr-only">${esc(titleOf(chosen[i]))}: </span>${esc(v)}${r.best.includes(i) ? ' <span class="best-tag">best</span>' : ''}</div>`).join('')}</div>`;
     }
-    const head = chosen.map((id) => `<div class="cmp-head">${img(id)}<strong>${esc(titleOf(id))}</strong><span>${money(factsOf(id).total)}</span>
+    const head = chosen.map((id) => `<div class="cmp-head">${stored(id, 'hero') ? (() => { const r = /** @type {any} */ (stored(id, 'hero')); return `<img src="${esc(r.src)}" alt="${esc(r.alt)}" width="${r.width}" height="${r.height}">`; })() : img(id)}<strong>${esc(titleOf(id))}</strong><span>${money(factsOf(id).total)}</span>
       <button type="button" class="btn primary" data-start="${esc(id)}">Start from this</button>
       <button type="button" class="btn" data-detail="${esc(id)}">Details</button></div>`).join('');
     const html = `<label class="check"><input type="checkbox" data-only-diff> Only show differences</label>
@@ -281,6 +321,12 @@ export function mountPicker(opts) {
   dialog.addEventListener('click', (ev) => { if (ev.target === dialog) close(); });
 
   renderStrip();
+  // The stored pictures' list; without it (offline, an old copy) every picture is drawn live.
+  fetch(new URL('renders/manifest.json', import.meta.url)).then((r) => (r.ok ? r.json() : null)).then((m) => {
+    if (!m?.designs) return;
+    manifest = m;
+    renderStrip();
+  }).catch(() => {});
   renderTray();
 
   return {

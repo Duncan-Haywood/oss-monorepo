@@ -1,5 +1,6 @@
 # Copies the site's daily page-load counts and feedback-form messages from
 # platform/edge into portfolio/usage/site-visits.json and site-feedback.json,
+# and GitHub repo traffic into portfolio/usage/github-traffic.json,
 # so agents can read them like any other committed file (owner request,
 # 2026-10-20). Each step does nothing while its site.json has no url, so this
 # is inert until the Worker is deployed and its address committed.
@@ -39,13 +40,22 @@ jobs:
           url=$(node -p 'require("./platform/edge/site.json").url')
           if [ -z "$url" ]; then echo "platform/edge/site.json has no url; nothing to pull."; exit 0; fi
           EDGE_URL="$url" node platform/edge/pull-feedback.mjs
+      # GitHub keeps repo traffic for 14 days only. The workflow token cannot
+      # read it (it needs Administration: Read), so this step does nothing
+      # until the owner adds a TRAFFIC_TOKEN secret. TRAFFIC_REPOS (a repo
+      # variable, comma-separated) widens it beyond this repository.
+      - name: Pull GitHub repo traffic
+        env:
+          TRAFFIC_TOKEN: ${{ secrets.TRAFFIC_TOKEN }}
+          TRAFFIC_REPOS: ${{ vars.TRAFFIC_REPOS || github.repository }}
+        run: node platform/counter/pull-github-traffic.mjs
       - name: Commit
         env:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
         run: |
-          for f in portfolio/usage/site-visits.json portfolio/usage/site-feedback.json; do if [ -f "$f" ]; then git add "$f"; fi; done
+          for f in portfolio/usage/site-visits.json portfolio/usage/site-feedback.json portfolio/usage/github-traffic.json; do if [ -f "$f" ]; then git add "$f"; fi; done
           if git diff --cached --quiet; then echo "no change"; exit 0; fi
           git -c user.name="monorepo-projects bot" -c user.email="noreply@users.noreply.github.com" \
-            commit -m "usage: daily site page-load counts and feedback from platform/edge"
+            commit -m "usage: daily site page-load counts, feedback and GitHub repo traffic"
           git push "https://x-access-token:${GH_TOKEN}@github.com/${REPO}.git" HEAD:main

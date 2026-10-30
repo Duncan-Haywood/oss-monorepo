@@ -6,8 +6,10 @@
 // check against your local code and each product's instructions, which win.
 
 import { fmtIn, fmtFtIn } from './lumber.mjs';
-import { WALL_LABEL } from './model.mjs';
+import { wallLabel } from './model.mjs';
 import { heelJoint } from './checks.mjs';
+import { trussChecks } from './truss.mjs';
+import { gambrelBuildSteps } from './gambrel-sheets.mjs';
 import { lapSteps } from './lap.mjs';
 import { sidingUpperSheets } from './estimate.mjs';
 import { finishName, SIDING_FINISHES } from './looks.mjs';
@@ -33,7 +35,8 @@ export function buildInstructions(shed, est) {
   const qty = (pred) => shed.members.filter(pred).length;
   const t = d.pitch / 12;
   const angle = Math.atan(t);
-  const beam = d.roofType === 'ridgeBeam';
+  const lean = Boolean(k.lean);
+  const beam = !lean && d.roofType === 'ridgeBeam';
   /** @type {Section[]} */
   const out = [];
 
@@ -45,12 +48,23 @@ export function buildInstructions(shed, est) {
       'Call 811 (in the US) a few days before digging so buried lines are marked.',
       `Order from the Shopping list (${est.boards} boards, ${est.floorSheets} floor sheets, ${est.roofSheets} roof sheets and the rest). Print the Cut sheet and the Plans; every piece below is called by its letter mark from those lists.`,
       'Tools: tape, chalk line, speed square and framing square, 4 ft level, circular saw, handsaw (to finish notches and the corners of cut-outs), drill/driver, framing hammer or nailer, a string line, two step ladders, safety glasses, hearing protection and gloves.',
-      `Fasteners (typical, check your code): 16d galvanized commons for framing; 8d galvanized commons for the subfloor and roof sheathing; 8d galvanized siding nails; 8d galvanized finish nails for trim; 1-1/4" roofing nails; construction adhesive for the subfloor${(shed.doors || []).length ? '; #8 x 1-5/8" exterior screws for the door skin' : ''}; and the ${k.connector || beam ? 'connectors and hangers' : 'rafter ties'} on the list with the 10d connector nails their maker specifies.`,
+      `Fasteners (typical, check your code): 16d galvanized commons for framing; 8d galvanized commons for the subfloor and roof sheathing; 8d galvanized siding nails; 8d galvanized finish nails for trim; 1-1/4" roofing nails; construction adhesive for the subfloor${(shed.doors || []).length ? '; #8 x 1-5/8" exterior screws for the door skin' : ''}; ${k.truss ? 'and the rafter-to-plate ties on the list, with the 1-1/2" x 0.148" connector nails for them and for the truss gussets.' : `and the ${k.connector || beam ? 'connectors and hangers' : 'rafter ties'} on the list with the 10d connector nails their maker specifies.`}`,
     ],
   });
 
   const pad = { l: L + 24, w: W + 24 };
-  if (k.noPad) out.push({
+  if (k.block?.pier) out.push({
+    title: 'Concrete piers',
+    steps: [
+      `Mark the shed's outline with stakes and string, square it (diagonals ${fmtFtIn(Math.hypot(L, W))} each), and mark the centre of each of the ${k.blockCount} piers under the skid lines.`,
+      `Call 811 before you dig. At each mark, dig a hole about 14" across and ${fmtIn(d.pierDepth)} deep: below your frost line where the ground freezes (ask your building department for its frost depth and set "Pier depth" to it), and always down to firm, undisturbed soil. A post-hole digger or a rented auger does it; tamp the bottom.`,
+      `Cut the ${k.pierTubes} form tube${k.pierTubes > 1 ? 's' : ''} into ${k.blockCount} pieces ${fmtIn(k.pierLen)} long, set one in each hole standing ${k.block.h}" above grade, plumb it, and backfill round it, tamping as you go.`,
+      `Run a string line at the top of the tubes and cut or set every tube to the same height, so the skids sit level. Mix and pour the ${k.pierBags} bags of concrete (about ${(k.pierCuFt).toFixed(2)} cu ft a pier), rodding each pour to drive out air, and strike the tops flat and level.`,
+      'Let the concrete cure at least two days before the skids go on (the bag gives the times for your temperature). Peel the tube off above grade if you like.',
+    ],
+    check: ['Every pier top level with the others within 1/4" (string line or a long level on a straight board).', 'Each pier plumb and centred on its skid line.'],
+  });
+  else if (k.noPad) out.push({
     title: 'Ground under each block',
     steps: [
       `Mark the shed's outline with stakes and string, square it (diagonals ${fmtFtIn(Math.hypot(L, W))} each), and mark where each of the ${k.blockCount} blocks goes.`,
@@ -88,7 +102,9 @@ export function buildInstructions(shed, est) {
     steps: [
       `Lay ${k.skidCount} pressure-treated ${d.skidSize} skids (mark ${marks((m) => m.kind === 'skid')}, ${skids.length} pieces)${d.skidSize === '4x4' ? '' : ' on edge'}, running the ${fmtFtIn(L)} length of the shed.`,
       `Centre them at ${list(k.skidYs)} from the front edge of the shed (the first and last flush with the front and back edges).`,
-      k.block && k.noPad
+      k.block?.pier
+        ? `Lay the skids on the ${k.blockCount} piers, centred on each. Check each skid with a level along its length and across to the next; a pier top that came out low takes a pressure-treated or composite packer the full width of the skid, never loose shims.`
+        : k.block && k.noPad
         ? `Lay the skids on the ${k.blockCount} blocks you levelled, a block under each end and the rest no more than 4 ft apart. Check each skid with a level along its length and across to the next; correct a low block by packing soil or gravel under it, not with shims on top.`
         : k.block
         ? `Set ${k.blockCount} ${k.block.plural} on the ${k.noPad ? 'tamped ground' : k.underBlocks ? 'paver-base beds' : 'compacted gravel'} under the skids (${k.block.h}" tall), one at each end and the rest no more than 4 ft apart, then level the blocks by adding or scraping ${k.underBlocks ? 'paver base' : 'gravel'} under them (not with shims on top) until every skid is level and all skids are level with each other.`
@@ -144,25 +160,63 @@ export function buildInstructions(shed, est) {
     if (hasDoor) steps.push('The bottom plate stops at each side of the door: the cut sheet has it in pieces, with the door opening left out. Nail a scrap of 2x4 across the foot of each door opening, jack to jack on the inside face, so the opening keeps its width while the wall is lifted.');
     steps.push(
       'Nail the wall together flat on the deck: two 16d through the plates into each stud end; nail jacks to kings every 16" staggered; header to kings with four 16d each end.',
-      `Square the wall (equal diagonals of ${fmtFtIn(Math.hypot(w.len, d.wallHeight - 1.5))} plate to plate), tack a diagonal brace across it, then stand it up with a helper and set it on the line${eave ? ' flush with the edge of the floor' : ' between the eave walls'}.`,
+      `Square the wall (equal diagonals of ${fmtFtIn(Math.hypot(w.len, (w.height ?? d.wallHeight) - 1.5))} plate to plate), tack a diagonal brace across it, then stand it up with a helper and set it on the line${eave ? ' flush with the edge of the floor' : ' between the eave walls'}.`,
       'Nail the bottom plate through the subfloor into the rim or joists, two 16d every 16". Plumb the ends with a level and brace to stakes until the next wall is in.',
     );
     if (hasDoor) steps.push('Once the bottom plate is nailed down, take the scrap off the foot of the door opening.');
-    out.push({ title: `${WALL_LABEL[name]} wall`, steps, check: ['Wall plumb at both ends and straight along the top (string line).'] });
+    out.push({ title: `${wallLabel(d, name)} wall`, steps, check: ['Wall plumb at both ends and straight along the top (string line).'] });
   }
   out.push({
     title: 'Tie the walls together',
     steps: [
       'Nail each corner: end stud to the corner stud of the eave wall, 16d every 12".',
-      `Lap the cap plates to lock the corners. On the long walls the cap (mark ${marks((m) => (m.group === 'wall:front' || m.group === 'wall:back') && m.kind === 'cap plate')}) stops ${fmtIn(k.stud)} short of each end; on the end walls the cap (mark ${marks((m) => (m.group === 'wall:left' || m.group === 'wall:right') && m.kind === 'cap plate')}) runs ${fmtIn(k.stud)} past each end and sits over the long wall's top plate. ${Object.values(shed.walls).some((w) => w.members.filter((m) => m.kind === 'top plate').length > 1) ? 'Where a plate is spliced, the cut sheet already puts each cap joint at least 24" from a top-plate joint (4 ft where the studs allow): keep the pieces in their places. ' : ''}Nail cap to top plate with 16d every 16", and two 16d down through each lap into the plate below.`,
-      'Optional: a flat steel strap tie across each corner on top of the caps adds hold, but the lap is what ties the walls.',
-      `Check the box: diagonals across the top plates must match at ${fmtFtIn(Math.hypot(L, W))}. Rack the walls with the braces until they do.`,
-    ],
+      lean
+        ? `Lap the cap plates at the back corners: the back wall's cap (mark ${marks((m) => m.group === 'wall:back' && m.kind === 'cap plate')}) stops ${fmtIn(k.stud)} short of each end, and each end wall's cap (mark ${marks((m) => (m.group === 'wall:left' || m.group === 'wall:right') && m.kind === 'cap plate')}) runs ${fmtIn(k.stud)} past its back end over the back wall's top plate. At the front the end walls stop against the inside face of the tall front wall, whose cap (mark ${marks((m) => m.group === 'wall:front' && m.kind === 'cap plate')}) runs full length: nail each end wall's end stud to the front wall's corner stud, 16d every 12", and add a flat strap tie from the end wall's cap up onto the front wall's studs where your code asks for one (none is on the list). Nail cap to top plate with 16d every 16".`
+        : `Lap the cap plates to lock the corners. On the long walls the cap (mark ${marks((m) => (m.group === 'wall:front' || m.group === 'wall:back') && m.kind === 'cap plate')}) stops ${fmtIn(k.stud)} short of each end; on the end walls the cap (mark ${marks((m) => (m.group === 'wall:left' || m.group === 'wall:right') && m.kind === 'cap plate')}) runs ${fmtIn(k.stud)} past each end and sits over the long wall's top plate. ${Object.values(shed.walls).some((w) => w.members.filter((m) => m.kind === 'top plate').length > 1) ? 'Where a plate is spliced, the cut sheet already puts each cap joint at least 24" from a top-plate joint (4 ft where the studs allow): keep the pieces in their places. ' : ''}Nail cap to top plate with 16d every 16", and two 16d down through each lap into the plate below.`,
+      lean ? '' : 'Optional: a flat steel strap tie across each corner on top of the caps adds hold, but the lap is what ties the walls.',
+      `Check the box: diagonals across the ${lean ? 'floor at the foot of the walls' : 'top plates'} must match at ${fmtFtIn(Math.hypot(L, W))}. Rack the walls with the braces until they do.`,
+    ].filter(Boolean),
   });
 
   const rafter = shed.members.find((m) => m.kind === 'rafter');
   const wallRun = W / 2 - (beam ? 1.5 : 0.75);
   const run = wallRun - k.stud;
+  const gam = d.style === 'gambrel';
+  if (gam) out.push(...gambrelBuildSteps(shed, est, marks, qty, list));
+  else if (k.truss) {
+    const n = trussChecks(d).nails;
+    const G = k.trusses?.[0];
+    const inner = k.rafterCenters.length - 2;
+    const king = qty((m) => m.kind === 'king post') > 0;
+    out.push({
+      title: 'Build the trusses',
+      why: 'Build one truss on a flat surface, check it, then screw stop blocks round it as a jig so every truss comes out the same.',
+      steps: [
+        `Pitch ${d.pitch}/12: the roof rises ${d.pitch}" for every 12" across, an angle of ${deg(angle)}. On a speed square, pivot on the pivot point and read ${d.pitch} on the COMMON scale for every plumb line.`,
+        `Top chords (mark ${marks((m) => m.kind === 'rafter')}, ${qty((m) => m.kind === 'rafter')} of ${d.rafterSize}, ${fmtIn(k.rafterCut)} from a square end): a plumb cut at the peak end; ${d.overhang > 0 ? `a plumb cut at the tail, ${fmtIn(d.overhang / Math.cos(angle))} along the bottom edge past the wall line` : 'the tail ends at the wall line with a plumb cut'}. Square a line across ${fmtIn((W / 2) / Math.cos(angle))} along the bottom edge from the peak cut: that is the wall line, where the chord's underside meets the bottom chord's outer top corner. No birdsmouth: the chord sits on the bottom chord.`,
+        `Bottom chords (mark ${marks((m) => m.kind === 'bottom chord')}, ${d.tieSize}): ${fmtIn(W)}, square both ends, the wall's full width.`,
+        king ? `King posts (mark ${marks((m) => m.kind === 'king post')}, ${d.tieSize}): ${fmtIn(shed.members.find((m) => m.kind === 'king post')?.length ?? 0)}, the top cut to a point at ${d.pitch}/12 each way so it fits up under the peak.` : `No king post: at this span the ${d.tieSize} bottom chord carries the ceiling load wall to wall on its own (the Structure tab checks it).`,
+        `Gussets from 7/16" OSB (${est.shopping.find((r) => /truss gussets/.test(r.name))?.qty ?? 0} sheets on the list): at each heel, ${G ? fmtIn(G.heel) : ''} along the bottom chord, top edge cut to follow the top chord; at the peak, ${G ? fmtIn(2 * G.peak) : ''} wide following both top chords${king ? `; at the king post's foot, ${G ? fmtIn(2 * G.foot) : ''} wide` : ''}. Two of each per truss, one a face. The Truss detail sheet shows their shapes.`,
+        `Lay the first truss out flat on the floor deck: bottom chord straight, top chords meeting at the peak with their undersides on the bottom chord's top outside corners${king ? ', king post centred' : ''}. Check that the two heels are ${fmtIn(W)} apart and that the peak is centred.`,
+        `Glue and nail a gusset on the top face of each joint with 1-1/2" x 0.148" connector nails: at each heel ${n.heelBottom / 2} into the bottom chord and ${n.heelTop / 2} into the top chord; at the peak ${n.peak / 2} into each top chord${king ? `; at the king post's foot ${n.foot / 2} into the post and ${n.foot / 2} into the chord` : ''}. Stagger the nails and keep them back from the gusset edges. Turn the truss over and do the same on the other face (the counts above are per face; the Structure tab shows the working).`,
+        `Screw blocks to the deck round the first truss as a jig, and build the other ${Math.max(0, inner - 1)} in it.`,
+      ],
+      check: ['Every truss the same: stack them and sight down the peaks.', 'No gusset nail tip shows through the far side of a chord.'],
+    });
+    out.push({
+      title: 'Stand the trusses',
+      steps: [
+        `Mark truss centres on the long walls' cap plates: the end pairs flush with the gable ends, the trusses at ${list(k.rafterCenters.slice(1, -1))} from the left end.`,
+        `The gable ends have no truss: at each corner set a heel block (mark ${marks((m) => m.kind === 'heel block')}) on the long wall's plate, then cut the end pair of top chords like the rest and nail them to each other at the peak and onto the heel blocks; brace them plumb. The gable studs go in under them later, and the gable siding, nailed to the chords, studs and wall, ties them together.`,
+        `Lift each truss upside down between the walls, rotate it up, set its heels on the plates at its mark and toenail each heel with two 16d. Fix each heel to the plate with a rafter-to-plate tie (on the list).`,
+        `Brace them plumb and on their marks with a 1x4 or 2x4 nailed across the top chords near the peak until the roof is sheathed.`,
+        shed.panels.some((p) => p.kind === 'attic deck') ? `Attic storage: once the roof is sheathed, lay the deck (${est.shopping.find((r) => /attic storage deck/.test(r.name))?.qty ?? 0} sheets of ${d.floorPanel === 'OSB' ? 'OSB' : 'plywood'} on the list) across the inside trusses' bottom chords, ${fmtIn(shed.panels.find((p) => p.kind === 'attic deck')?.geom.profile[2][1] ?? 0)} strips${qty((m) => m.kind === 'king post') ? ' either side of the king posts' : ''}, every end joint on a chord; nail with 8d every 6" at the ends and 12" along each chord. Leave the two end bays open to reach it. The chords are checked for 20 psf of storage: boxes and seasonal things, not people or heavy tools.` : '',
+        `Fit the blocks between the truss heels on the plates (mark ${marks((m) => m.kind === 'eave blocking')}), outside faces flush with the wall.${d.overhang > 0 ? ' The space above each block is the vent path from the soffit into the roof: staple insect screen across it.' : ''}`,
+        d.overhang > 0 ? `Nail the 2x6 sub-fascia (mark ${marks((m) => m.kind === 'sub-fascia')}) across the top chord tails, top flush with the chord tops, two 16d per tail.` : '',
+      ].filter(Boolean),
+      check: ['Every top chord in one plane: sight along them or run a string.', `Diagonals across the trusses' bottom chords match.`],
+    });
+  } else if (!lean) {
   out.push({
     title: beam ? 'Ridge beam and posts' : 'Ridge board',
     steps: beam ? [
@@ -173,10 +227,33 @@ export function buildInstructions(shed, est) {
     ] : [
       `The ridge board (mark ${marks((m) => m.kind === 'ridge board')}, ${k.ridgeSize}) is not a beam: rafter ties hold the rafters. Mark rafter centres on it to match the top plates.`,
       `Prop it on temporary posts so its top is ${fmtFtIn(k.ridgeTop - k.floorTop)} above the floor, centred over the width.`,
+      'Leave the props in until every rafter pair and its tie is nailed, then take them out: the ties, not the props, keep the walls from spreading.',
     ],
   });
 
-  out.push({
+  // A lean-to rafter, laid out from its high tail: tail, front wall, the span, back wall, tail.
+  const cosA = Math.cos(angle);
+  const toFront = (d.overhang + (k.connector ? k.stud : 0)) / cosA;
+  if (lean) out.push({
+    title: 'Rafters',
+    why: 'Cut one rafter, test it at both ends and in the middle of the shed, then use it as the pattern for the rest.',
+    steps: [
+      `Pitch ${d.pitch}/12: the roof falls ${d.pitch}" for every 12" from the front wall to the back, an angle of ${deg(angle)}. On a speed square, pivot on the pivot point and read ${d.pitch} on the COMMON scale for every plumb and seat line.`,
+      `High tail: a plumb cut at ${d.pitch} on the common scale (${deg(angle)} off a square cut)${d.overhang > 0 ? `, ${fmtIn(d.overhang)} of overhang beyond the front wall` : ', flush with the front wall'}.`,
+      k.connector
+        ? `No birdsmouths. From the high tail's plumb line measure ${fmtIn(toFront)} along the bottom edge and square a line across: there the rafter's underside rests on the inside top edge of the front wall. From that line measure another ${fmtIn((d.width - k.stud) / cosA)} (a level run of ${fmtIn(d.width - k.stud)}): there it rests on the outside top edge of the back wall. Each rafter sits on a variable-pitch connector (Simpson VPA2 or equal) on each wall, the seat set to ${d.pitch}/12, nailed as Simpson's instructions show.`
+        : `Two birdsmouths. Front: from the high tail's plumb line measure ${fmtIn(toFront)} along the bottom edge to the front wall's outside face; the seat runs ${fmtIn(k.stud)} level from there, and its heel cut, ${fmtIn(k.heel)} deep, is at the inside face (it faces into the shed). Back: from that heel measure ${fmtIn((d.width - 2 * k.stud) / cosA)} along the bottom edge (a level run of ${fmtIn(d.width - 2 * k.stud)}, the clear span) to the back wall's inside face, where the second seat starts; it runs ${fmtIn(k.stud)} to a ${fmtIn(k.heel)} heel cut at the outside face. Never cut past the line; finish each corner with a handsaw.`,
+      d.overhang > 0 ? `Low tail: ${fmtIn(d.overhang)} beyond the back wall, ${fmtIn(d.overhang / cosA)} along the bottom edge past the ${k.connector ? 'back wall line' : 'back heel cut'}, ended with a plumb cut so the fascia hangs straight.` : `No overhang: the low end is cut plumb at the back wall's outside face.`,
+      `Cut length from a square end: ${fmtIn(k.rafterCut)} (mark ${marks((m) => m.kind === 'rafter')}, ${qty((m) => m.kind === 'rafter')} rafters, ${d.rafterSize}).`,
+      `Mark rafter centres on the cap plates of both long walls: the first and last flush with the end walls, the rest at ${list(k.rafterCenters.slice(1, -1))} from the left end.`,
+      `Lift each rafter onto both walls, high end at the front, and ${k.connector ? 'nail it to its connector on each wall' : 'fix it to each wall\'s plate with a rafter-to-plate tie (on the list)'}.`,
+      'There is no ridge and there are no rafter ties: each rafter bears on both walls and pushes neither one outward, so the inside is open to the roof.',
+      `Fit the blocks between rafters on top of both long walls (mark ${marks((m) => m.kind === 'eave blocking')}), top edges bevelled to ${d.pitch}/12.${d.overhang > 0 ? ' Both soffits are vented, so air comes in at the low back eave and out at the high front one: drill two 1-1/2" holes through each block and staple insect screen over them.' : ''}`,
+      d.overhang > 0 ? `Nail the 2x6 sub-fascia (mark ${marks((m) => m.kind === 'sub-fascia')}) across the rafter tails at both eaves, top flush with the rafter tops, two 16d per tail.` : '',
+    ].filter(Boolean),
+    check: ['Every rafter top in one plane: sight along them or run a string.', 'Pattern rafter fits at both ends of the shed and the middle before cutting the rest.'],
+  });
+  if (!lean) out.push({
     title: 'Rafters',
     why: 'Cut one rafter, test it at both ends and in the middle, then use it as the pattern for the rest.',
     steps: [
@@ -195,16 +272,23 @@ export function buildInstructions(shed, est) {
     ].filter(Boolean),
     check: ['Every rafter top in one plane: sight along them or run a string.', `Pattern rafter fits at both gable ends and the middle before cutting the rest.`],
   });
+  }
   void rafter;
 
   const vents = Object.values(shed.vents || {}).flat();
   const VENT_PART = { 'vent trimmer': 'a trimmer stud each side', 'vent header': 'a flat header', 'vent sill': 'a flat sill block', 'vent cripple': 'a cripple under the sill' };
   const ventParts = Object.entries(VENT_PART).filter(([kind]) => qty((m) => m.kind === kind))
     .map(([kind, what]) => `${kind === 'vent trimmer' && beam ? 'a trimmer stud on the outer side, the post being the inner one' : what} (mark ${marks((m) => m.kind === kind)})`).join(', ').replace(/, ([^,]*)$/, ' and $1');
-  out.push({
+  if (lean) out.push({
+    title: 'End walls above the plates',
+    steps: [
+      `Fill the triangle over each end wall with raked studs under the end rafter (mark ${marks((m) => m.kind === 'gable stud')}), each on a layout mark of the wall below, its top cut to ${d.pitch}/12 (${deg(angle)}). They run from short at the back to tall at the front. Measure each one in place and compare with the Plans sheet; the lengths on the cut sheet are to the long point.`,
+    ],
+  });
+  else out.push({
     title: 'Gable ends',
     steps: [
-      `Fill each gable with studs under the end rafter (mark ${marks((m) => m.kind === 'gable stud')}), each on a layout mark of the wall below, its top cut to ${d.pitch}/12 (${deg(angle)}). Measure each one in place and compare with the Plans sheet; the lengths on the cut sheet are to the long point.`,
+      `Fill each gable with studs under the end ${gam ? 'chords' : 'rafter'} (mark ${marks((m) => m.kind === 'gable stud')}), each on a layout mark of the wall below, its top cut to ${gam ? 'the roof line (the lower or upper slope, or both where a stud is under the knee)' : `${d.pitch}/12 (${deg(angle)})`}. Measure each one in place and compare with the Plans sheet; the lengths on the cut sheet are to the long point.`,
       vents.length ? `Frame ${vents.length / 2 > 1 ? 'the gable vents' : 'the gable vent'} in each gable: ${fmtIn(d.ventWidth)} x ${fmtIn(d.ventHeight)} rough openings with ${ventParts}.` : '',
     ].filter(Boolean),
   });
@@ -215,11 +299,14 @@ export function buildInstructions(shed, est) {
     title: 'Roof sheathing and dry-in',
     why: 'The fascia goes on before the drip edge, and the eave drip edge before the underlayment, so each layer laps over the one below it.',
     steps: [
-      `Sheathe with 7/16" OSB, long edges across the rafters (${est.roofSheets} sheets, ${k.roofRows} courses a side). Start at the eave with full sheets flush with the ${d.overhang > 0 ? 'face of the sub-fascia' : 'rafter tails'}, stagger the next course by half a sheet, and land every end joint on a rafter. Leave 1/8" between sheets. The course at the ridge is narrower than a sheet: rip its strips side by side, as many to a sheet as fit, and take them from what is left of a sheet after a short full-width piece before starting a new one (the sheet count assumes that).`,
+      `Sheathe with 7/16" OSB, long edges across the rafters (${est.roofSheets} sheets, ${k.roofRows} courses${lean ? '' : ' a side'}). Start at the ${lean ? 'low back eave' : 'eave'} with full sheets flush with the ${d.overhang > 0 ? 'face of the sub-fascia' : 'rafter tails'}, stagger the next course by half a sheet, and land every end joint on a rafter. Leave 1/8" between sheets. The course at the ${lean ? 'high front edge' : 'ridge'} is narrower than a sheet: rip its strips side by side, as many to a sheet as fit, and take them from what is left of a sheet after a short full-width piece before starting a new one (the sheet count assumes that).`,
+      gam ? 'On the gambrel each slope gets its own courses: start the lower slope at the eave and the upper slope at the knee, so the sheets meet along the knee line, nailed to both chords.' : '',
       'Nail with 8d every 6" on the edges and every 12" in the field.',
       d.overhang > 0 ? 'Fascia: nail the 1x6 fascia to the sub-fascia, its top edge tight under the sheathing, with two 8d galvanized finish nails at each rafter tail.' : '',
-      `Drip edge along the eaves, over the ${d.overhang > 0 ? 'fascia' : 'sheathing edge'} and under the underlayment.`,
-      'Roll the underlayment from the eave up, each course lapped over the one below by the maker\'s mark, over the ridge. The roof is now dry enough to wait for the siding; the rake drip edge and shingles come after it.',
+      `Drip edge along the ${lean ? 'low back eave and the high front edge' : 'eaves'}, over the ${d.overhang > 0 ? 'fascia' : 'sheathing edge'} and under the underlayment.`,
+      lean
+        ? `Roll the underlayment from the low eave up, each course lapped over the one below by the maker's mark, and the last one over the high edge onto its drip edge.${d.pitch < 4 ? ` At ${d.pitch}/12 the roof is under 4/12: shingle makers and the IRC (R905.1.1) ask for two layers of underlayment, each lapped half its width over the last; check your bundle and buy a second roll.` : ''} The roof is now dry enough to wait for the siding; the rake drip edge and shingles come after it.`
+        : 'Roll the underlayment from the eave up, each course lapped over the one below by the maker\'s mark, over the ridge. The roof is now dry enough to wait for the siding; the rake drip edge and shingles come after it.',
     ].filter(Boolean),
   });
 
@@ -244,10 +331,13 @@ export function buildInstructions(shed, est) {
     title: 'Rake trim and roofing',
     why: 'The rake boards go over the siding, and the rake drip edge over them, so they wait until the siding is on.',
     steps: [
-      'Rake: a 1x4 board up each gable edge over the siding, its top edge tight under the roof sheathing, nailed with 8d galvanized finish nails into the end rafter.',
-      'Drip edge along the rakes (gable edges), over the rake board and on top of the underlayment.',
-      'Shingles: a starter strip along the eave, then courses at the exposure printed on the bundle (often 5-5/8"), staggered as the wrapper shows, four to six nails per shingle as the maker specifies. Finish the ridge with cap shingles.',
-    ],
+      `Rake: a 1x4 board up each ${lean ? 'sloped end edge' : 'gable edge'} over the siding, its top edge tight under the roof sheathing, nailed with 8d galvanized finish nails into the end rafter.`,
+      `Drip edge along the rakes (${lean ? 'the two sloped ends' : 'gable edges'}), over the rake board and on top of the underlayment.`,
+      lean
+        ? 'Shingles: a starter strip along the low back eave, then courses at the exposure printed on the bundle (often 5-5/8"), staggered as the wrapper shows, four to six nails per shingle as the maker specifies. At the high edge, cut the last course to fit and finish with cap shingles folded over the edge onto the fascia, nailed on the fascia side.'
+        : 'Shingles: a starter strip along the eave, then courses at the exposure printed on the bundle (often 5-5/8"), staggered as the wrapper shows, four to six nails per shingle as the maker specifies. Finish the ridge with cap shingles.',
+      gam ? 'At the knee, run the lower slope\'s courses up to the bend and lap the upper slope\'s first course over them; follow the shingle maker\'s instructions for a change in slope.' : '',
+    ].filter(Boolean),
   });
 
   out.push({

@@ -37,6 +37,21 @@ Checks: `node --test` on all non-browser tests passed 150 of 150. `browser.test.
 - I tried an earth hatch below grade and dropped it: it ran into the overall dimension text.
 - Checks: non-browser tests passed 210 of 210, including a new elevation test in `hoa.test.mjs`. Browser tests passed 22, with axe skipped because no AXE path was set in that run.
 
+### PR 3: pictures in the presentation look, Save picture, and lighter orbiting
+- `createViewer(canvas, { presentation: true })`: no outlines, and a lower view with sky. It is used for the design card thumbnails, the option, cheaper-build and other result cards, and the HOA packet's 3D image (`hoa-page.mjs`).
+- **Save picture**: downloads the 3D view as it stands as a PNG (`<name>-3d.png`). It is counted as `pictures-saved` in the browser-local usage counters.
+- The outline pass is skipped while a pointer orbits or pinches, and redrawn when it lets go.
+- 40x20 on a phone-size page (412x915 at 2.6x, SwiftShader), 40 mouse drag moves, ms per move:
+
+| main before r3 lane 9 | after PR 1 | after PR 3 |
+|---|---|---|
+| 111 | 80 | 65 |
+
+- Keyboard orbit on the 40x20: 105 to 74 ms a step (default view), and 34 ms in presentation.
+
 ## Open, next steps
-- Hatching and texture on the elevation drawings (lap lines, shingle courses, T1-11 grooves) for the HOA sheets of r3 lane 5.
-- Colours on the elevation drawings, from `paletteOf`.
+- **Real cast shadows.** The lawn shadow is an analytic box offset from the footprint, not a shadow map. A shadow map would need a depth pass, about a second draw of the whole model. Add one only as a presentation-only option, and only if a user asks.
+- **Window glass** is a flat light blue. A vertical sky gradient in the siding variant (flag it like the others) would read as reflection, at almost no cost.
+- **Paint colours are screen approximations.** If someone asks for brand matching, cite the maker's published RGB or LRV per colour, with a source link. Do not guess brand names; `looks.test.mjs` guards a list of well-known brand names.
+- **The packet's 3D image** uses the presentation look but always the same corner. A choice of front-left or front-right corner would let an HOA see the door side.
+- **A real phone.** Every measurement here is headless SwiftShader. A reading on a real low-end Android would confirm the gains, which come from shader variants and skipping outlines while orbiting.

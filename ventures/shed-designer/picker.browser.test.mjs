@@ -68,9 +68,9 @@ test('a design card opens its detail, with renders, cost, storage, openings and 
   for (const want of ['Why it\'s here', 'Price: $', 'Footprint', 'Wall height', 'Peak', 'Floor inside', 'Volume inside', 'Shelf wall', 'Siding', 'Roof', 'Doors (', 'Rafters', 'Checks', 'Not engineered or code-checked', 'Start from this design']) {
     assert.ok(text.includes(want), `detail shows "${want}"`);
   }
-  assert.equal(await dlg.locator('.shots img').count(), 3, 'three renders: front, back, gable end');
   const srcs = await dlg.locator('.shots img').evaluateAll((is) => is.map((i) => i.getAttribute('src')));
-  assert.equal(new Set(srcs).size, 3, 'the three renders differ');
+  assert.ok(srcs.length >= 3, `at least three renders (${srcs.length})`);
+  assert.equal(new Set(srcs).size, srcs.length, 'the renders differ');
   assert.ok(await dlg.locator('.bars li').count() >= 3, 'a cost breakdown');
   // Focus moved into the dialog; Escape closes it and gives focus back.
   assert.equal(await page.evaluate(() => document.activeElement?.closest('dialog')?.id), 'pick-dialog');
@@ -82,23 +82,23 @@ test('a design card opens its detail, with renders, cost, storage, openings and 
 test('"Start from this design" opens a copy in the editor as a new design', { skip }, async (t) => {
   const { page } = await open(t);
   const tabs = await page.locator('#design-tabs [role="tab"]').count();
-  await page.locator('#starts .pick-open[data-detail="10x12"]').click();
+  await page.locator('#starts .pick-open[data-detail="square"]').click();
   await page.locator('#pick-dialog [data-start]').click();
   await page.locator('#pick-dialog').waitFor({ state: 'hidden' });
   assert.equal(await page.locator('#design-tabs [role="tab"]').count(), tabs + 1, 'one more design');
   assert.equal(await page.$eval('#widthFt', (e) => e.value), '10');
-  assert.equal(await page.$eval('#lengthFt', (e) => e.value), '12');
+  assert.equal(await page.$eval('#lengthFt', (e) => e.value), '10');
 });
 
 test('compare puts two or three side by side and marks the differences and the best', { skip }, async (t) => {
   const { page } = await open(t);
   assert.ok(await page.locator('#compare-tray').isHidden(), 'no tray until something is picked');
-  for (const id of ['8x12', '8x10', '10x12']) await page.locator(`#starts [data-compare="${id}"]`).click();
+  for (const id of ['cheapest', 'value', 'square']) await page.locator(`#starts [data-compare="${id}"]`).click();
   assert.equal(await page.locator('#starts [data-compare][aria-pressed="true"]').count(), 3);
   // A fourth replaces the first, so there are never more than three.
-  await page.locator('#starts [data-compare="8x8 lean"]').click();
+  await page.locator('#starts [data-compare="storage"]').click();
   assert.equal(await page.locator('#starts [data-compare][aria-pressed="true"]').count(), 3);
-  assert.equal(await page.locator('#starts [data-compare="8x12"]').getAttribute('aria-pressed'), 'false');
+  assert.equal(await page.locator('#starts [data-compare="cheapest"]').getAttribute('aria-pressed'), 'false');
   await page.locator('#compare-tray [data-compare-open]').click();
   const dlg = page.locator('#pick-dialog');
   await dlg.waitFor({ state: 'visible' });
@@ -109,7 +109,7 @@ test('compare puts two or three side by side and marks the differences and the b
   assert.ok(await dlg.locator('.cmp-row.differs').count() >= 5, 'differences highlighted');
   assert.ok(await dlg.locator('.cmp-cell.best .best-tag').count() >= 3, 'winners tagged in words, not colour alone');
   // Materials: the cheapest is tagged best.
-  const cost = await dlg.locator('.cmp-row[aria-label="Materials"] .cmp-cell').evaluateAll((cs) => cs.map((c) => ({ n: Number(c.textContent.replace(/[^0-9.]/g, '').replace(/\.$/, '')), best: c.classList.contains('best') })));
+  const cost = await dlg.locator('.cmp-row[aria-label="Materials"] .cmp-cell').evaluateAll((cs) => cs.map((c) => ({ n: Number((/\$([\d,.]+)/.exec(c.textContent || '') || ['', 'NaN'])[1].replace(/,/g, '').replace(/\.$/, '')), best: c.classList.contains('best') })));
   const min = Math.min(...cost.map((c) => c.n));
   assert.ok(cost.every((c) => c.best === (c.n <= min * 1.005)), `the cheapest is marked best: ${JSON.stringify(cost)}`);
   // Only the differences.
@@ -140,7 +140,7 @@ test('on a phone: the strip scrolls sideways inside itself, and detail and compa
   assert.ok(await dlg.evaluate((d) => d.scrollWidth <= d.clientWidth + 1), 'nothing in the detail runs off sideways');
   await dlg.locator('[data-compare]').click();
   await dlg.locator('[data-close]').click();
-  await page.locator('#starts [data-compare="10x12"]').click();
+  await page.locator('#starts [data-compare="square"]').click();
   await page.locator('#compare-tray [data-compare-open]').click();
   await dlg.waitFor({ state: 'visible' });
   assert.ok(await dlg.evaluate((d) => d.scrollWidth <= d.clientWidth + 1), 'the compare fits the phone width');
@@ -154,7 +154,7 @@ test('axe finds no violations on the strip, the detail and the compare', { skip:
   await page.addScriptTag({ content: readFileSync(/** @type {string} */ (AXE), 'utf8') });
   const run = () => page.evaluate(async () => (await /** @type {any} */ (window).axe.run(document, { resultTypes: ['violations'] })).violations
     .map((x) => `${x.id} (${x.nodes.length}): ${x.nodes.slice(0, 2).map((n) => n.target.join(' ')).join(', ')}`));
-  for (const id of ['8x12', '10x12']) await page.locator(`#starts [data-compare="${id}"]`).click();
+  for (const id of ['cheapest', 'square']) await page.locator(`#starts [data-compare="${id}"]`).click();
   assert.deepEqual(await run(), [], 'page with the strip and tray');
   await page.locator('#starts .pick-open').first().click();
   await page.locator('#pick-dialog').waitFor({ state: 'visible' });
@@ -179,4 +179,77 @@ test('typing a new lumber price re-prices the starting designs', { skip }, async
   const after = await page.locator('#starts .pick-line').first().innerText();
   const n = (x) => Number(x.match(/\$([\d,]+)/)[1].replace(/,/g, ''));
   assert.ok(n(after) > n(before), `the strip's price follows the typed price (${before} -> ${after})`);
+});
+
+test('the starting designs are priced the way the page prices: same store, same total', { skip }, async (t) => {
+  const { page } = await open(t);
+  const n = (x) => Math.round(Number(String(x).replace(/[^0-9.]/g, '')));
+  // Start from the "cheapest" starting design, so the page shows it; the page's
+  // big total includes tax and delivery, as the detail's "with tax" figure does.
+  await page.locator('#starts .pick-open[data-detail="cheapest"]').click();
+  await page.locator('#pick-dialog [data-start]').click();
+  await page.locator('#pick-dialog').waitFor({ state: 'hidden' });
+  await page.waitForFunction(() => /^Cheapest /.test(document.querySelector('#design-tabs [aria-selected="true"]')?.textContent || ''));
+  await page.waitForTimeout(300);
+  const detailWithTax = async () => {
+    await page.locator('#starts .pick-open[data-detail="cheapest"]').click();
+    const txt = await page.locator('#pick-dialog').innerText();
+    await page.locator('#pick-dialog [data-close]').click();
+    return n(/\((\$[\d,]+) with tax/.exec(txt)?.[1]);
+  };
+  assert.equal(await detailWithTax(), n(await page.locator('#total').innerText()), 'same total as the page');
+  for (const store of ['lowes', 'homedepot']) {
+    await page.selectOption('#buy-at', store);
+    await page.waitForTimeout(900); // the strip re-prices 500 ms after the change
+    assert.equal(await detailWithTax(), n(await page.locator('#total').innerText()), `same total at ${store}`);
+  }
+});
+
+test('a gallery card shows its drawn picture in the strip; its detail draws the other views live', { skip }, async (t) => {
+  const { page } = await open(t);
+  const N = (await import('./gallery-data.mjs')).GALLERY_DESIGNS.length;
+  await page.waitForFunction(() => document.querySelector('#starts [data-shot="cheapest"] img')?.getAttribute('src')?.startsWith('renders/gallery-cheapest-card'), null, { timeout: 10000 });
+  // Every drawn card picture loads.
+  assert.ok(await page.locator('#starts .pick-img img[src^="renders/"]').evaluateAll((is) => Promise.all(is.map((i) => i.decode().then(() => i.naturalWidth > 0)))).then((a) => a.length === N && a.every(Boolean)));
+  await page.locator('#starts .pick-open[data-detail="cheapest"]').click();
+  await page.waitForFunction(() => document.querySelectorAll('#pick-dialog .shots img').length >= 3, null, { timeout: 30000 });
+  const alts = await page.locator('#pick-dialog .shots img').evaluateAll((is) => is.map((i) => i.getAttribute('alt')));
+  assert.ok(alts.every((a) => a && a.length > 10), JSON.stringify(alts));
+});
+
+test('every gallery design, end to end: card, detail with its own reason, compare with another, then start from it', { skip }, async (t) => {
+  const { GALLERY_DESIGNS } = await import('./gallery-data.mjs');
+  const { page } = await open(t);
+  const cards = await page.locator('#starts .pick-open[data-detail]').evaluateAll((bs) => bs.map((b) => b.getAttribute('data-detail')));
+  assert.deepEqual(cards, GALLERY_DESIGNS.map((g) => g.id), 'the strip shows the gallery, in order');
+  const dlg = page.locator('#pick-dialog');
+  for (const g of GALLERY_DESIGNS) {
+    await page.locator(`#starts .pick-open[data-detail="${g.id}"]`).click();
+    await dlg.waitFor({ state: 'visible' });
+    assert.equal(await dlg.locator('.dlg-title').innerText(), g.title, `${g.id}: the detail is titled as the card`);
+    const text = await dlg.innerText();
+    assert.ok(text.includes(g.reason.slice(0, 50)), `${g.id}: the detail gives the gallery's own reason`);
+    const sqft = Number(/Footprint\s+[^\n]*?(\d+) sq ft/.exec(text)?.[1]);
+    assert.ok(sqft > 0 && sqft <= 100, `${g.id}: ${sqft} sq ft, within the 100 sq ft limit`);
+    assert.ok(!/over the size limit/.test(text), `${g.id}: not flagged over the limit`);
+    assert.match(text, /Checks\s+pass/, `${g.id}: passes the structure checks`);
+    await dlg.locator('[data-close]').click();
+    await dlg.waitFor({ state: 'hidden' });
+  }
+  // From one card's detail into the compare with a second, then start from the second.
+  const [a, b] = [GALLERY_DESIGNS[0], GALLERY_DESIGNS[GALLERY_DESIGNS.length - 1]];
+  await page.locator(`#starts .pick-open[data-detail="${a.id}"]`).click();
+  await dlg.locator(`[data-compare="${a.id}"]`).click();
+  await dlg.locator('[data-close]').click();
+  await page.locator(`#starts [data-compare="${b.id}"]`).click();
+  await page.locator('#compare-tray [data-compare-open]').click();
+  await dlg.waitFor({ state: 'visible' });
+  const heads = await dlg.locator('.cmp-head strong').allInnerTexts();
+  assert.deepEqual(heads, [a.title, b.title], 'the compare shows the two gallery designs');
+  const tabs = await page.locator('#design-tabs [role="tab"]').count();
+  await dlg.locator(`.cmp-head [data-start="${b.id}"]`).click();
+  await dlg.waitFor({ state: 'hidden' });
+  assert.equal(await page.locator('#design-tabs [role="tab"]').count(), tabs + 1, 'started as a new design');
+  assert.equal(await page.$eval('#lengthFt', (e) => Number(e.value) * 12), b.design.length);
+  assert.equal(await page.$eval('#widthFt', (e) => Number(e.value) * 12), b.design.width);
 });
