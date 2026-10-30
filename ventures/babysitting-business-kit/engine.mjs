@@ -66,6 +66,7 @@ export function normalizeDesk(d) {
   if (!d || typeof d !== "object") return out;
   out.profile = { ...out.profile, ...(d.profile || {}), rates: { ...out.profile.rates, ...((d.profile || {}).rates || {}) } };
   for (const k of ["leads", "families", "bookings", "expenses", "references"]) out[k] = Array.isArray(d[k]) ? d[k].filter((x) => x && typeof x === "object") : [];
+  if (Array.isArray(d.posts)) out.posts = d.posts.filter((x) => x && typeof x === "object"); // blog posts (content.mjs)
   return out;
 }
 

@@ -61,6 +61,7 @@
     <button type="button" role="tab" data-tab="references">References</button>
     <button type="button" role="tab" data-tab="website">Website</button>
     <button type="button" role="tab" data-tab="content">Content</button>
+    <button type="button" role="tab" data-tab="blog">Posts &amp; blog</button>
     <button type="button" role="tab" data-tab="settings">Settings</button>
   </nav>
 
@@ -206,6 +207,11 @@
       <div id="familyMsgs"></div>
     </section>
 
+    <section data-panel="blog" class="card" hidden>
+      <h2>Posts &amp; blog</h2>
+      <div id="contentKit"></div>
+    </section>
+
     <section data-panel="settings" class="card" hidden>
       <h2>Settings: you, your rates, your limits</h2>
       <form id="profileForm">
@@ -289,6 +295,7 @@
   <script type="module">
     import * as E from "./engine.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    import { mountContent } from "./content-ui.mjs";
 
     const STORE = "babysitting-business-kit-desk";
     const SYNC = "babysitting-business-kit-sync";
@@ -572,6 +579,7 @@
     $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
     if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
     $("contentStart").value = today();
+    mountContent($("contentKit"), { getDesk: () => desk, save, record, today, buildSite: (d) => E.buildSite(d) });
     record("page_loaded");
     render();
     show("today");

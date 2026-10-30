@@ -31,6 +31,7 @@ Not affiliated with any of the products named above; they are named only to say 
 - **References & testimonials:** request drafts, a five-day follow-up, separate yes/no consent for "may new families call you" and "may your words go on my website". Only quotes marked yes reach the website, as first name and last initial.
 - **Website:** a one-file site built from the profile: story, certifications, rates, policies, the optional faith section, consented testimonials, `ChildCare` JSON-LD and an inquiry form (email by default, or the sitter's server). Download it and host it free anywhere.
 - **Content:** twelve weeks of seasonal post ideas rotated across Facebook, Nextdoor, Instagram, a church or school bulletin and the website, plus rebooking, referral and testimonial messages per family. Drafts leave room for a real moment in the sitter's words, never an invented one.
+- **Posts & blog** (`content.mjs`): a bank of 76 topics for parents (safety, activities, routines, date nights, back-to-school, holidays; 10 faith topics that appear only when the sitter turns faith on), each with an outline, a local search phrase ("date night babysitter in {town}") and captions fitted to Facebook, Instagram, Nextdoor, a bulletin and a blog description. The sitter's own blog: posts are stored in the desk, and only ones the sitter approves are published, at `/site/blog` on the server and as `blog/*.html` in the website download (.zip). Approval is refused while a draft still holds `[add your real moment here]` or names a child from the desk without the parents' written yes. Optional AI drafting on the sitter's own key (Anthropic, OpenAI, any OpenAI-compatible endpoint, or Ollama / LM Studio on their own computer), through the repo's shared `byok.mjs`; only the sitter's public profile and the topic are sent, never family data.
 - **Backup and sync:** a JSON backup file; or sync with the sitter's own server.
 
 ## The optional server (automated sales)
@@ -47,7 +48,9 @@ ADMIN_KEY=$(openssl rand -hex 16) CAL_TOKEN=$(openssl rand -hex 12) STATE=desk.j
 | `/site` | the sitter's website, with the form posting to `/inquiry` |
 | `POST /inquiry` | form or JSON; honeypot field, 10 per IP per hour, 64 KB cap |
 | `/calendar.ics?t=CAL_TOKEN` | a feed a phone calendar can subscribe to |
+| `/site/blog`, `/site/blog/<slug>` | the blog posts you approved |
 | `GET/PUT /api/desk`, `GET /api/today` | `Authorization: Bearer ADMIN_KEY` |
+| `POST /api/draft` `{"topicId": "..."}` | an AI blog draft on your `LLM_*` key, saved as a draft (admin key) |
 
 Everything outside the box is **off until you set it, on your own accounts**:
 
@@ -58,6 +61,7 @@ Everything outside the box is **off until you set it, on your own accounts**:
 | `AUTO_REPLY=1` | email the reply draft to a family as soon as they inquire (email contacts only, never to a decline) |
 | `AUTO_FOLLOW_UP=1` | email due follow-ups with the morning digest |
 | `DIGEST_HOUR` (default 7), `TZ` | when the digest goes |
+| `LLM_PROVIDER` (`anthropic`, `openai`, `openai-compatible`, `ollama`), `LLM_API_KEY`, `LLM_MODEL`, `LLM_BASE_URL` | blog drafts from your own model account or a local model; with none set, drafts come from the topic template |
 
 **Deploy:** `render.yaml` (Render, starter plan with a 1 GB disk; it generates `ADMIN_KEY` and `CAL_TOKEN`) or the `Dockerfile` anywhere. Nothing runs on the author's accounts.
 
