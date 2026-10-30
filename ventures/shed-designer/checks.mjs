@@ -133,7 +133,8 @@ export function skidOnBlocks(shed) {
   // A 4" gravel bed under the block spreads the load 2" each side (a 2:1
   // spread, and the bed's own size when it is laid under each block alone).
   const spread = k.noPad ? 0 : 2;
-  const footSqFt = ((k.block.along + 2 * spread) * (k.block.across + 2 * spread)) / 144;
+  // A pier bears on the footing pad poured at the bottom of its hole.
+  const footSqFt = k.block.pier ? (k.pierFootIn ** 2) / 144 : ((k.block.along + 2 * spread) * (k.block.across + 2 * spread)) / 144;
   let worstSkid = null;
   ys.forEach((y, i) => {
     const lo = i === 0 ? 0 : (ys[i - 1] + y) / 2;
@@ -203,7 +204,7 @@ export function structuralChecks(shed) {
     const sk = skidOnBlocks(shed);
     if (sk) {
       add('Skids on blocks', `PT ${d.skidSize}, Southern pine No. 2, wet`, `${fmtIn(sk.L)} block to block, ${sk.outer ? 'outer skid with the eave wall and its roof' : 'inner skid'}; ${Math.round(sk.R)} lb on a block`, sk.ratio, sk.governs);
-      add('Blocks on the soil', `${k.block.along}" x ${k.block.across}" ${d.foundation === 'deck blocks' ? 'deck block' : 'block'}`, `${Math.round(sk.R + BLOCK_SELF_LB)} lb on ${sk.footSqFt.toFixed(2)} sq ft${sk.spread ? ' (spread 2" each side through the 4" gravel bed)' : ', straight on the soil'}; ${SOIL_PSF} psf, the IRC's value for clay or silt (R401.4.1)${sk.soil > 1 && !sk.spread ? (k.block.pier ? '. A wider footing at the bottom of each pier (or more piers) spreads the load over more ground' : '. A 4" bed of paver base under each block spreads the load over more ground') : ''}`, sk.soil, 'soil bearing');
+      add('Blocks on the soil', k.block.pier ? `${k.pierFootIn}" x ${k.pierFootIn}" pier footing` : `${k.block.along}" x ${k.block.across}" ${d.foundation === 'deck blocks' ? 'deck block' : 'block'}`, `${Math.round(sk.R + BLOCK_SELF_LB)} lb on ${sk.footSqFt.toFixed(2)} sq ft${k.block.pier ? ` (the ${k.pierFootIn}" square footing at the bottom of each pier)` : sk.spread ? ' (spread 2" each side through the 4" gravel bed)' : ', straight on the soil'}; ${SOIL_PSF} psf, the IRC's value for clay or silt (R401.4.1)${sk.soil > 1 && !sk.spread ? (k.block.pier ? '. A wider footing at the bottom of each pier (or more piers) spreads the load over more ground' : '. A 4" bed of paver base under each block spreads the load over more ground') : ''}`, sk.soil, 'soil bearing');
     }
   }
   // Rafters: from the inside of the wall plate to the ridge.

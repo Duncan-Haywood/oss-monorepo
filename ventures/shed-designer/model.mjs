@@ -146,12 +146,14 @@ export const BLOCKS = {
   blocks: { name: 'solid concrete block, 4 x 8 x 16', plural: 'solid 4 x 8 x 16 concrete blocks', h: 4, along: 16, across: 8, item: 'concreteBlock' },
   'deck blocks': { name: 'concrete deck block (pier block)', plural: 'concrete deck blocks', h: 8, along: 11, across: 11, item: 'deckBlock' },
   CMU: { name: 'concrete masonry unit (CMU), 8 x 8 x 16, cores vertical', plural: '8 x 8 x 16 CMU blocks, cores vertical', h: 8, along: 16, across: 8, item: 'cmuBlock' },
-  // A pier poured in a 12" form tube (11-1/2" inside) from the bottom of its
+  // A pier poured in a 12" form tube (11-1/2" inside) on a 16" square, 6" thick
+  // footing pad poured at the bottom of its hole (6" is the IRC's least footing
+  // thickness, R403.1.1), from the bottom of its
   // hole (pierDepth below grade, set it to your frost depth) to 4" above
   // grade. Drawn and checked as the 10.2" square of the same area, so the
   // bearing and soil checks use the tube's true round area. It needs no
   // gravel: the hole goes down to firm soil.
-  piers: { name: 'concrete pier in a 12" form tube', plural: 'concrete piers in 12" form tubes', h: 4, along: 10.2, across: 10.2, item: 'concreteBag', pier: true, tubeIn: 11.5 },
+  piers: { name: 'concrete pier in a 12" form tube', plural: 'concrete piers in 12" form tubes', h: 4, along: 10.2, across: 10.2, item: 'concreteBag', pier: true, tubeIn: 11.5, footIn: 16, footThick: 6 },
 };
 
 const classic = () => ({ ...defaultDesign(), foundation: 'gravel', pad: 'full', wallHeight: 96, pitch: 6, skidSize: '4x6', roofType: 'ridgeBoard', sidingColor: 'natural', polkaDots: false, maxPeak: 0, ventHeight: 12, autoWall: false, autoPitch: false, autoOverhang: false, rafterSeat: 'birdsmouth', maxFootprint: 0, roofColor: 'charcoal', trimColor: 'white', glitter: false, interior: 'none' });
@@ -643,7 +645,11 @@ function buildFramed(d) {
   const pierCuFt = block?.pier ? (Math.PI * (block.tubeIn / 2) ** 2 * pierLen) / 1728 : 0;
   const pierCount = block?.pier ? skidCount * blockXs.length : 0;
   const pierTubes = pierCount ? Math.ceil(pierCount / Math.max(1, Math.floor(48 / pierLen))) : 0;
-  const pierBags = pierCount ? Math.ceil((pierCount * pierCuFt) / 0.6 - 1e-9) : 0;
+  // A bare 12" tube presses the starter's soil at about 2,450 psf, over the IRC's
+  // 1,500 for clay or silt; the footing pad spreads it over 1.78 sq ft.
+  const pierFootIn = block?.pier ? block.footIn : 0;
+  const pierFootCuFt = block?.pier ? (block.footIn ** 2 * block.footThick) / 1728 : 0;
+  const pierBags = pierCount ? Math.ceil((pierCount * (pierCuFt + pierFootCuFt)) / 0.6 - 1e-9) : 0;
 
   // ---------------- Floor ----------------
   const joist = actual(d.joistSize);
@@ -1618,7 +1624,7 @@ function buildFramed(d) {
     length: L, width: W, wallHeight: H, pitch: d.pitch, overhang: o,
     skidTop, floorTop, plateTop, ridgeTop, peak: ridgeTop + (d.roofing ? 7 / 16 / cos + 0.35 / cos : 7 / 16 / cos),
     studLen, rafterCut, slopeLen, plumbH, ridgeSize, ridgeD, stud: D, joistDepth: joist.depth, rafterDepth: rd,
-    skidCount, skidYs, joistCenters, rafterCenters, gravelCuYd, padSqFt: underBlocks || noPad ? 0 : ((L + 2 * pad) * (W + 2 * pad)) / 144, baseBags: Math.ceil(baseCuFt / 0.5), underBlocks, noPad, blockCount, block, pierLen, pierCuFt, pierTubes, pierBags, roofAreaSqFt, floorRows, roofRows,
+    skidCount, skidYs, joistCenters, rafterCenters, gravelCuYd, padSqFt: underBlocks || noPad ? 0 : ((L + 2 * pad) * (W + 2 * pad)) / 144, baseBags: Math.ceil(baseCuFt / 0.5), underBlocks, noPad, blockCount, block, pierLen, pierCuFt, pierFootIn, pierFootCuFt, pierTubes, pierBags, roofAreaSqFt, floorRows, roofRows,
     heel: connector || truss ? 0 : D * t, maxStock, connector, truss, trusses, seatBase, chordDepth: truss ? chord.depth : 0,
   };
 
