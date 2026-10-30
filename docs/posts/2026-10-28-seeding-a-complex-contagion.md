@@ -1,5 +1,6 @@
 ---
 title: "Where to seed a behaviour that needs reinforcement: a patch beats scattered seeds"
+seo_title: "Where to seed a behaviour that needs reinforcement"
 date: 2026-10-28
 description: "On simulated small-world networks, a behaviour needing two adopting neighbours spreads from 2 to 3 adjacent seeds; random seeds need 12 to 20."
 tags: [research, civ-levers, simulation]

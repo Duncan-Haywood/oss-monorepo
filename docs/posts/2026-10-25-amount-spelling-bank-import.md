@@ -1,5 +1,6 @@
 ---
 title: "Same cents, four spellings: a bank-import test that found a month/day bug"
+seo_title: "Same cents, four spellings"
 date: 2026-10-25
 description: "Rewriting every test CSV's amounts as $1,234.56, (59.99) or 59.99- found a header-less file read with its dates swapped."
 tags: [ventures, ai-bookkeeper, testing, bank-import]

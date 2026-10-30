@@ -1,5 +1,6 @@
 ---
 title: "How much drywall tape does a room take? Counting seams instead of guessing"
+seo_title: "How much drywall tape does a room take?"
 date: 2026-10-24
 description: "The wall-framing takeoff now counts drywall tape from the actual seams of the sheet layout, and estimates joint compound from a rate you can change."
 tags: [construction, drywall, takeoff, open-source]

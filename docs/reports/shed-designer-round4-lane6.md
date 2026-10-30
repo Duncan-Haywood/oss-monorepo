@@ -13,6 +13,10 @@
 
 Posts: `2026-10-30-a-shed-link-that-shows-the-shed.md`, `2026-10-30-every-shed-sheet-drawn.md`, `2026-10-30-a-shed-site-plan-an-hoa-can-read.md`.
 
+## Follow-up: "the packet prints 6 pages for 5 sheets"
+
+Lane 7's report could not be reproduced. In headless Chromium, 15 designs (every preset, a gallery design, a lot with an easement, and 12 extra windows) at 390 and 1280 px, on Letter, A4 and the page's own size, with the 3D view on and off, all printed exactly 5 pages, both before and after #11865. Each PDF's page tree says `/Count 5`. Counting `/Type /Page` in the file gives 6, because it also matches the single `/Type /Pages` root, which is the likely source of the report. `hoa.browser.test.mjs` now prints four packets in 3 paper sizes with and without the 3D view, and checks `/Count` equals the number of packet pages.
+
 ## Deviations
 
 - **Site-plan defaults.** The new fields (`siteFacing`, `northDeg`, `easementSide`, `easementFt`, `easementNote`) default in `normalize`, not `defaultDesign()`. Adding them to `defaultDesign()` would change every preset's `designKey` and mark all stored renders stale. The `Design` typedef carries them as `Partial<SiteExtras>`.

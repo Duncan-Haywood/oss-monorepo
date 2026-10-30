@@ -1,5 +1,6 @@
 ---
 title: "A bank file format we silently read as empty: QFX with values on the next line"
+seo_title: "A bank file format we silently read as empty"
 date: 2026-10-27
 description: "Sweeping another importer's test files through ai-bookkeeper found OFX/QFX statements with each value on the line after its tag; they imported zero rows."
 tags: [ai-bookkeeper, bank-import, testing]

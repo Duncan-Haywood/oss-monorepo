@@ -1,5 +1,6 @@
 ---
 title: "The rule of three, in a maize store: how many bags have you not opened?"
+seo_title: "The rule of three, in a maize store"
 date: 2026-10-25
 description: "A new Hearth & Horizon story uses one rule of statistics to bound the bags nobody tested: zero found in n means at most 3/n, with 95% confidence."
 tags: [fiction, hearth-and-horizon, statistics]

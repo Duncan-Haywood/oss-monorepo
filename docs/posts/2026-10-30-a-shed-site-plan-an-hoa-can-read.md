@@ -1,5 +1,6 @@
 ---
 title: "A shed site plan an HOA can read: which way it faces, north, and the easement"
+seo_title: "A shed site plan an HOA can read"
 date: 2026-10-30
 tags: [shed-designer, hoa, site-plan]
 description: "The shed designer's site plan can now turn the shed, point north and draw an easement, and the HOA packet shows the corner with the door."

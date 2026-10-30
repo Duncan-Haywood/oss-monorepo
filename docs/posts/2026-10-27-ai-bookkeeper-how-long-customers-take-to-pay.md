@@ -1,5 +1,6 @@
 ---
 title: "How long do your customers take to pay? A two-number answer in the books"
+seo_title: "How long do your customers take to pay?"
 date: 2026-10-27
 description: "ai-bookkeeper's report now shows days sales outstanding and days payable, computed from the open receivable and payable."
 tags: [ai-bookkeeper, accounting, small-business]
