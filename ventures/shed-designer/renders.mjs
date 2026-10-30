@@ -49,11 +49,12 @@ export const slugOf = (key) => String(key).toLowerCase().replace(/[^a-z0-9]+/g, 
  * Every design that gets pictures: the "New design" presets. A gallery of
  * optimised designs can pass its own `{ key: () => design }` map as `extra`.
  * @param {Record<string, () => any>} [extra]
- * @returns {{ slug: string, key: string, design: any }[]}
+ * @param {string[]} [views] which of VIEWS to draw (all by default)
+ * @returns {{ slug: string, key: string, design: any, views: string[] }[]}
  */
-export function renderTargets(extra = {}) {
+export function renderTargets(extra = {}, views = Object.keys(VIEWS)) {
   const all = { ...PRESETS, ...extra };
-  return Object.entries(all).map(([key, make]) => ({ slug: slugOf(key), key, design: make() }));
+  return Object.entries(all).map(([key, make]) => ({ slug: slugOf(key), key, design: make(), views }));
 }
 
 const SIDING = { 'T1-11': 'T1-11 panel siding', 'LP SmartSide': 'LP SmartSide panel siding', 'LP SmartSide 76': 'LP SmartSide panel siding', 'board and batten': 'board and batten siding', vinyl: 'vinyl siding', 'fiber cement': 'fiber cement siding' };
