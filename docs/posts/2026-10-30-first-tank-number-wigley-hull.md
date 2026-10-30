@@ -1,9 +1,9 @@
 ---
 title: "First tank number for the survey-boat hull model: the form factor was too big"
-seo_title: "Michell wave resistance plus ITTC 1957 checked against a Wigley hull tank test"
+seo_title: "Hull resistance model checked against a Wigley tank test"
 date: 2026-10-30
 tags: [marine-hull, hull-resistance, validation, wigley]
-description: "The hull model for a small survey boat, checked against one published Wigley tank measurement, runs 20% high with its central form factor and within a few per cent with none."
+description: "A small survey-boat hull model checked against one published Wigley tank test: 20% high with its central form factor, within a few per cent with none."
 ---
 
 The `marine-hull` programme asks which hull carries a small survey boat furthest per kWh. For a week its resistance model had never met a tank measurement, because the data hosts refused the session. This run found one published point through a Zenodo paper: the Wigley hull of Ju (1983), as quoted by Wang et al. (2017), total-resistance coefficient 4.16e-3 at Froude number 0.267.
