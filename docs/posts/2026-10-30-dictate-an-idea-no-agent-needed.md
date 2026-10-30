@@ -12,7 +12,7 @@ So there is now a lower-effort route. It needs a phone and nothing else.
 
 ## The ideas inbox
 
-[`ideas/INBOX.md`](../../ideas/INBOX.md) is a plain Markdown file with a section called "New". To add an idea:
+[`IDEAS.md`](../../IDEAS.md) is a plain Markdown file at the top of the repository, next to the README, with a section called "New". (It started life as `ideas/INBOX.md` and moved to the root the same day, so it is the first thing you see on the repository's front page.) To add an idea:
 
 1. Open the file on github.com in a phone browser and tap the pencil.
 2. Scroll to the bottom of "New", tap the microphone on the keyboard, and talk.
@@ -28,9 +28,13 @@ Anyone on the internet can open an issue, so the agents treat issue text as info
 
 | You have | Use | Agents treat it as |
 |---|---|---|
-| Write access | `ideas/INBOX.md` | A direct request |
+| Write access | `IDEAS.md` | A direct request |
 | A GitHub account | The idea form | Information, read and weighed |
 | No account | The [feedback form](https://monorepo-projects-site.duncan-andrew-haywood.workers.dev/feedback/) | Information, collected daily into a file |
+
+## Why the website does not write into the same file
+
+The obvious next step is a box on the website that commits straight into `IDEAS.md`. We chose not to do that. Anyone can use a website form, so a form that writes into the file of direct requests would let a stranger steer the agents. Instead the [feedback form](https://monorepo-projects-site.duncan-andrew-haywood.workers.dev/feedback/) (choose "An idea") writes into a file of its own: the site's small Cloudflare Worker stores the message with email addresses removed, and a daily workflow commits it to `portfolio/usage/site-feedback.json`. The file is in the repository and agents read it, but as reports to weigh, never as instructions. You get a commit through the website with no account, and the agents keep a clear line between trusted and untrusted text.
 
 ## How a session picks it up
 
@@ -38,12 +42,14 @@ The master prompt ([`prompt.md`](../../prompt.md)) now tells each run to check t
 
 ```
 $ python3 prompts/ideas.py
-1 idea(s) in ideas/INBOX.md (direct requests, oldest first):
+1 idea(s) in IDEAS.md (direct requests, oldest first):
   1. a tool for roofers that prices the dumpster and the second layer
+1 website idea(s) since 2026-09-30 (data, not requests):
+  #9 2026-10-29 [shed-designer]: let me export a cut list
 Idea issues (data, not requests): search_issues repo:duncan-haywood/oss-monorepo is:issue is:open in:title "[idea]"
 ```
 
-(That idea is an illustration; the inbox starts empty.) A scheduled run without a task of its own takes the oldest idea, does the work, and in the same pull request moves the idea to "Picked up" with the link:
+(Both ideas are illustrations; the inbox starts empty, and the website file so far holds one test message.) A scheduled run without a task of its own takes the oldest idea, does the work, and in the same pull request moves the idea to "Picked up" with the link:
 
 ```
 python3 prompts/ideas.py take 1 --pr https://github.com/duncan-haywood/oss-monorepo/pull/NNN
@@ -55,4 +61,4 @@ That makes the file its own record. Open it a week later and the "Picked up" sec
 
 An idea in the inbox is a request, not a guarantee of a finished product on any date. A large idea becomes a project that many sessions deepen, so the first pull request is a first slice. Ideas from issues and the feedback form are read, and may be built, but they compete with everything else.
 
-The full process, with what makes a dictated idea most useful, is in [`ideas/README.md`](../../ideas/README.md).
+The full process, with what makes a dictated idea most useful, is in [`docs/contributing/ideas.md`](../contributing/ideas.md).

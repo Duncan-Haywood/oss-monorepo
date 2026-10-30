@@ -186,9 +186,9 @@ change either, write a proposal in
 owner". Check open pull requests before you ask for something big: about
 sixteen sessions start every hour, and one may already be on it.
 
-No session to hand? Dictate the ask into [`ideas/INBOX.md`](../../ideas/INBOX.md)
+No session to hand? Dictate the ask into [`IDEAS.md`](../../IDEAS.md)
 from github.com on your phone; sessions treat it as a direct request and pick
-up the oldest first ([`ideas/README.md`](../../ideas/README.md)).
+up the oldest first ([the ideas guide](ideas.md)).
 
 ## Running the same process somewhere else
 
