@@ -17,13 +17,14 @@
 // Window and door trim boards (2026-10-30, `openingTrim: true`): per exterior opening a head and two jambs,
 // plus a sill board on windows, cut from `trimWidth` stock (default 3.5 in, a 1x4) and packed with the corner
 // boards' first-fit rule; off by default so earlier totals do not move. Siding runs are not shortened by the trim.
+// Vertical siding (2026-10-30, `style: "vertical"`, `boardWidth` coverage per board, default 11.25 in): columns of full-height boards; an opening leaves a piece above and below it; battens, nailers and splices are not counted (a piece longer than the board length is refused).
 // Not counted: soffit and fascia, flashing, nails, caulk, paint, and the starter strip's rip.
 // Wall height defaults to the plan's stud length plus the plates, as the
 // drywall hang height does.
 import { THICK } from "./engine.mjs";
 import { packPieces } from "./trim.mjs";
 
-/** @typedef {{ exposure?: number, stock?: number, waste?: number, wrapRollSqFt?: number, wrapLap?: number, corners?: number, cornerStock?: number, height?: number, boardPrice?: number, wrapPrice?: number, cornerPrice?: number, openingTrim?: boolean, trimWidth?: number, trimStock?: number, trimPrice?: number }} Siding */
+/** @typedef {{ exposure?: number, stock?: number, waste?: number, wrapRollSqFt?: number, wrapLap?: number, corners?: number, cornerStock?: number, height?: number, boardPrice?: number, wrapPrice?: number, cornerPrice?: number, style?: "lap" | "vertical", boardWidth?: number, openingTrim?: boolean, trimWidth?: number, trimStock?: number, trimPrice?: number }} Siding */
 
 /** @param {Siding} d */
 export function validateSiding(d) {
@@ -35,6 +36,8 @@ export function validateSiding(d) {
   if (d.wrapLap != null && !(d.wrapLap >= 0 && d.wrapLap <= 0.3)) e.push("House wrap lap allowance must be between 0 and 0.3.");
   if (d.wrapRollSqFt != null && !(d.wrapRollSqFt >= 100 && d.wrapRollSqFt <= 3000)) e.push("House wrap roll coverage must be between 100 and 3000 sq ft.");
   if (d.corners != null && !(Number.isInteger(d.corners) && d.corners >= 0 && d.corners <= 40)) e.push("Outside corners must be a whole number from 0 to 40.");
+  if (d.style != null && d.style !== "lap" && d.style !== "vertical") e.push("Siding style must be \"lap\" or \"vertical\".");
+  if (d.boardWidth != null && !(d.boardWidth >= 3 && d.boardWidth <= 24)) e.push("Vertical board width must be between 3 and 24 inches.");
   if (d.trimWidth != null && !(d.trimWidth > 0 && d.trimWidth <= 8)) e.push("Trim board width must be between 0 and 8 inches.");
   if (d.trimStock != null && !(d.trimStock >= 48 && d.trimStock <= 240)) e.push("Trim board length must be between 48 and 240 inches.");
   if (d.height != null && !(d.height >= 72 && d.height <= 192)) e.push("Siding height must be between 6 and 16 ft.");
@@ -59,6 +62,7 @@ export function layoutSiding(d, plan) {
   if (errors.length) return { ok: false, errors };
   const waste = d.waste ?? 0.1, exposure = d.exposure ?? 7, stock = d.stock ?? 144;
   const wrapRoll = d.wrapRollSqFt ?? 1350, wrapLap = d.wrapLap ?? 0.1;
+  const vertical = d.style === "vertical", bw = d.boardWidth ?? 11.25;
   const corners = d.corners ?? 4, cornerStock = d.cornerStock ?? 120;
   const height = d.height ?? Math.round((plan.studLength + 3 * THICK) / 12) * 12;
   /** @type {number[]} */ const runs = [];
@@ -80,6 +84,21 @@ export function layoutSiding(d, plan) {
     const g = gableOf(w, height);
     areaIn += w.length * height + (g ? 0.5 * w.length * g.rise : 0);
     for (const o of ops) openIn += Math.max(0, o.x1 - o.x0) * Math.max(0, o.y1 - o.y0);
+    if (vertical) {
+      // boards stand side by side from the wall's start; an opening leaves a piece above and below it in each column it touches
+      const nCols = Math.ceil(w.length / bw - 1e-9);
+      courses += nCols;
+      for (let k = 0; k < nCols; k++) {
+        const x0 = k * bw, x1 = Math.min(w.length, x0 + bw);
+        let top = height;
+        if (g) { const px = w.gable.peak ?? w.length / 2; top += px < x0 ? g.s2 * (w.length - x0) : px > x1 ? g.s1 * x1 : g.rise; } // the taller edge of the column
+        const holes = ops.filter((o) => o.x0 < x1 - 1e-9 && o.x1 > x0 + 1e-9 && o.y1 > o.y0).sort((a, b) => a.y0 - b.y0);
+        let y = 0;
+        for (const o of holes) { if (o.y0 > y + 1e-9) runs.push(o.y0 - y); y = Math.max(y, o.y1); }
+        if (top > y + 1e-9) runs.push(top - y);
+      }
+      continue;
+    }
     const nCourses = Math.ceil((height + (g ? g.rise : 0)) / exposure - 1e-9);
     courses += nCourses;
     for (let k = 0; k < nCourses; k++) {
@@ -97,6 +116,7 @@ export function layoutSiding(d, plan) {
     }
   }
   if (!wallsDone) return { ok: false, errors: ["Siding needs at least one sheathed (exterior) wall."] };
+  if (vertical && runs.some((r) => r > stock + 1e-9)) return { ok: false, errors: [`Vertical boards do not splice: the longest piece is ${Math.max(...runs).toFixed(1)} in and the board length is ${stock} in. Type a longer \`stock\`.`] };
   const b = packPieces(runs, stock);
   const boards = Math.ceil(b.boards * (1 + waste) - 1e-9);
   const netSqFt = (areaIn - openIn) / 144;
@@ -108,7 +128,7 @@ export function layoutSiding(d, plan) {
   const trimBoards = tp ? Math.ceil(tp.boards * (1 + waste) - 1e-9) : 0;
   const money = (/** @type {number | undefined} */ p, /** @type {number} */ q) => (p != null ? q * p : 0);
   return {
-    ok: true, errors: [], waste, exposure, stock, height, courses, walls: wallsDone,
+    ok: true, errors: [], style: vertical ? "vertical" : "lap", boardWidth: vertical ? bw : null, waste, exposure, stock, height, courses, walls: wallsDone,
     netSqFt, openingSqFt: openIn / 144, runFeet: b.usedIn / 12, boards, wrapSqFt, wrapRollSqFt: wrapRoll, wrapRolls, corners, cornerBoards, cornerStock,
     trim: tp ? { doors: trimDoors, windows: trimWindows, width: tw, stock: trimStock, feet: tp.usedIn / 12, boards: trimBoards, price: d.trimPrice ?? null } : null,
     cost: d.boardPrice != null || d.wrapPrice != null || d.cornerPrice != null || (tp && d.trimPrice != null) ? money(d.boardPrice, boards) + money(d.wrapPrice, wrapRolls) + money(d.cornerPrice, cornerBoards) + money(d.trimPrice, trimBoards) : null,
@@ -119,7 +139,8 @@ export function layoutSiding(d, plan) {
 /** @param {any} s */
 export function sidingText(s) {
   const l = [];
-  l.push(`  Siding: ${s.walls} exterior wall(s), ${s.height / 12} ft high, ${s.courses} courses at ${s.exposure} in exposure; ${s.runFeet.toFixed(0)} ft of runs cut round openings and packed into ${s.stock / 12} ft boards -> ${s.boards} boards (${(100 * s.waste).toFixed(0)}% waste added)${s.boardPrice != null ? `, ${(s.boards * s.boardPrice).toFixed(2)} at ${s.boardPrice} each` : ""}`);
+  if (s.style === "vertical") l.push(`  Siding (vertical): ${s.walls} exterior wall(s), ${s.height / 12} ft high, ${s.courses} board columns at ${s.boardWidth} in coverage; ${s.runFeet.toFixed(0)} ft of boards (a column an opening cuts leaves a piece above and below, counted at full width) packed into ${s.stock / 12} ft boards -> ${s.boards} boards (${(100 * s.waste).toFixed(0)}% waste added)${s.boardPrice != null ? `, ${(s.boards * s.boardPrice).toFixed(2)} at ${s.boardPrice} each` : ""}`);
+  else l.push(`  Siding: ${s.walls} exterior wall(s), ${s.height / 12} ft high, ${s.courses} courses at ${s.exposure} in exposure; ${s.runFeet.toFixed(0)} ft of runs cut round openings and packed into ${s.stock / 12} ft boards -> ${s.boards} boards (${(100 * s.waste).toFixed(0)}% waste added)${s.boardPrice != null ? `, ${(s.boards * s.boardPrice).toFixed(2)} at ${s.boardPrice} each` : ""}`);
   l.push(`  House wrap: ${s.netSqFt.toFixed(0)} sq ft of wall net of ${s.openingSqFt.toFixed(0)} sq ft of openings, ${s.wrapSqFt.toFixed(0)} with laps -> ${s.wrapRolls} roll(s) of ${s.wrapRollSqFt} sq ft${s.wrapPrice != null ? `, ${(s.wrapRolls * s.wrapPrice).toFixed(2)} at ${s.wrapPrice} each` : ""}`);
   l.push(`  Corner boards: ${s.corners} outside corners x 2 = ${s.cornerBoards} boards of ${s.cornerStock / 12} ft${s.cornerPrice != null ? `, ${(s.cornerBoards * s.cornerPrice).toFixed(2)} at ${s.cornerPrice} each` : ""}`);
   if (s.trim) l.push(`  Opening trim: ${s.trim.doors} door(s) x (head + 2 jambs), ${s.trim.windows} window(s) x (head + sill + 2 jambs), ${s.trim.width} in boards, ${s.trim.feet.toFixed(0)} ft packed into ${s.trim.stock / 12} ft boards -> ${s.trim.boards} boards (waste added)${s.trim.price != null ? `, ${(s.trim.boards * s.trim.price).toFixed(2)} at ${s.trim.price} each` : ""}`);
