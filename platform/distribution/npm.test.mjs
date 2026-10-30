@@ -4,7 +4,15 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { importsOf, closure, descriptionOf, packageName, buildPackage, writePackage, discover, plan, run, MAX_PER_RUN } from './npm.mjs';
+import { importsOf, closure, descriptionOf, packageName, buildPackage, writePackage, discover, plan, run, isOurs, MAX_PER_RUN } from './npm.mjs';
+import { parseAllowlist } from './versions.mjs';
+
+/** An allow-list and a versions manifest naming `slugs` for npm at `version`. */
+const listed = (slugs, version = '0.1.0') => ({
+  allow: parseAllowlist({ tools: slugs.map((slug) => ({ slug, channels: ['npm'], why: 'test' })) }),
+  versions: Object.fromEntries(slugs.map((slug) => [slug, { version, hash: 'sha256-x' }])),
+});
+const OURS = { repository: { url: 'git+https://github.com/duncan-haywood/oss-monorepo.git' } };
 
 async function fixture(files) {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), 'npmtest-'));
@@ -104,33 +112,62 @@ test('every venture CLI on main either qualifies or says why not', async () => {
   assert.ok((await discover()).length >= ok.length);
 });
 
-test('run is a dry run unless enabled, and skips names already on the registry', async () => {
+test('run is a dry run unless enabled, and skips versions the registry already has', async () => {
   const root = await fixture({ ...venture('a-check'), ...venture('b-check') });
   const lines = [];
-  const fetchImpl = async (url) => ({ status: url.endsWith('/a-check') ? 200 : 404 });
-  const r = await run({ env: {}, fetchImpl, log: (l) => lines.push(l), root, publish: async () => assert.fail('must not publish') });
+  const fetchImpl = async (url) => (url.endsWith('/a-check')
+    ? { status: 200, json: async () => ({ ...OURS, versions: { '0.1.0': {} } }) }
+    : { status: 404 });
+  const r = await run({ env: {}, fetchImpl, log: (l) => lines.push(l), root, ...listed(['a-check', 'b-check']), publish: async () => assert.fail('must not publish') });
   assert.deepEqual(r, { published: 0, planned: 1 });
   assert.match(lines.join('\n'), /DRY RUN/);
   assert.match(lines.join('\n'), /b-check@0\.1\.0/);
   assert.doesNotMatch(lines.join('\n'), /a-check@/);
 });
 
+test('only allow-listed tools are considered, at their manifest version', async () => {
+  const root = await fixture({ ...venture('a-check'), ...venture('b-check') });
+  const asked = [];
+  const lines = [];
+  const r = await run({ env: {}, fetchImpl: async (url) => { asked.push(url); return { status: 404 }; }, log: (l) => lines.push(l), root, ...listed(['b-check'], '1.4.2') });
+  assert.equal(r.planned, 1);
+  assert.deepEqual(asked, ['https://registry.npmjs.org/b-check']);
+  assert.match(lines.join('\n'), /b-check@1\.4\.2/);
+});
+
+test('a changed version of our own package is published; a name someone else owns is skipped', async () => {
+  const root = await fixture({ ...venture('ours-check'), ...venture('taken-check') });
+  const fetchImpl = async (url) => ({
+    status: 200,
+    json: async () => (url.endsWith('/ours-check') ? { ...OURS, versions: { '0.1.0': {} } } : { repository: { url: 'git+https://github.com/someone/else.git' }, versions: {} }),
+  });
+  const seen = [];
+  const lines = [];
+  const r = await run({ env: { DISTRIBUTE_NPM: 'true', NODE_AUTH_TOKEN: 't' }, fetchImpl, log: (l) => lines.push(l), root, ...listed(['ours-check', 'taken-check'], '0.1.1'),
+    publish: async (dir) => { seen.push(JSON.parse(await fs.readFile(path.join(dir, 'package.json'), 'utf8'))); } });
+  assert.equal(r.published, 1);
+  assert.deepEqual(seen.map((m) => `${m.name}@${m.version}`), ['ours-check@0.1.1']);
+  assert.match(lines.join('\n'), /skip taken-check: the name belongs to another project/);
+  assert.equal(isOurs({}), false);
+});
+
 test('live run publishes at most MAX_PER_RUN new packages and needs a token', async () => {
   const files = {};
-  for (let i = 0; i < MAX_PER_RUN + 3; i += 1) Object.assign(files, venture(`tool-${String.fromCharCode(97 + i)}`));
+  const slugs = [];
+  for (let i = 0; i < MAX_PER_RUN + 3; i += 1) { slugs.push(`tool-${String.fromCharCode(97 + i)}`); Object.assign(files, venture(slugs.at(-1))); }
   const root = await fixture(files);
   const fetchImpl = async () => ({ status: 404 });
-  const noToken = await run({ env: { DISTRIBUTE_NPM: 'true' }, fetchImpl, log: () => {}, root, publish: async () => assert.fail('no token') });
+  const noToken = await run({ env: { DISTRIBUTE_NPM: 'true' }, fetchImpl, log: () => {}, root, ...listed(slugs), publish: async () => assert.fail('no token') });
   assert.equal(noToken.published, 0);
   const seen = [];
-  const r = await run({ env: { DISTRIBUTE_NPM: 'true', NODE_AUTH_TOKEN: 't' }, fetchImpl, log: () => {}, root, publish: async (dir) => { seen.push(JSON.parse(await fs.readFile(path.join(dir, 'package.json'), 'utf8')).name); } });
+  const r = await run({ env: { DISTRIBUTE_NPM: 'true', NODE_AUTH_TOKEN: 't' }, fetchImpl, log: () => {}, root, ...listed(slugs), publish: async (dir) => { seen.push(JSON.parse(await fs.readFile(path.join(dir, 'package.json'), 'utf8')).name); } });
   assert.equal(r.published, MAX_PER_RUN);
   assert.equal(new Set(seen).size, MAX_PER_RUN);
 });
 
 test('a registry error aborts rather than guessing', async () => {
   const root = await fixture(venture('a-check'));
-  await assert.rejects(run({ env: {}, fetchImpl: async () => ({ status: 503 }), log: () => {}, root }), /HTTP 503/);
+  await assert.rejects(run({ env: {}, fetchImpl: async () => ({ status: 503 }), log: () => {}, root, ...listed(['a-check']) }), /HTTP 503/);
 });
 
 test('package.json keywords keep slug words of 3+ characters, drop shorter ones, and cap at four', async () => {

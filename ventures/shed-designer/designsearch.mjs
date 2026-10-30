@@ -152,7 +152,24 @@ export const LAYOUTS = {
     const at = doorEnd + Math.max(18, (L - doorEnd - WIN.width) / 2);
     return at + WIN.width <= L - 18 ? [{ ...DOOR, wall: 'front', offset: L / 3 - DOOR.width / 2 }, { ...WIN, wall: 'front', offset: at }] : null;
   },
+  // Clerestory: the door 12" from the left corner and a row of fixed 23 x 12 transoms along the rest of the
+  // wall, high, their sills 6" over the door head: 6" apart (room for two king studs), 8" clear of the door
+  // and 12" of the corner. On a lean-to that is the tall front wall, so they light the back of a shed
+  // standing against a fence and leave the wall below them for shelves.
+  'eave door and clerestory windows': (/** @type {number} */ L, /** @type {number} */ W, /** @type {any} */ DOOR) => {
+    const T = CLERESTORY;
+    const door = { ...DOOR, wall: 'front', offset: 12 };
+    const a = 12 + DOOR.width + 8;
+    const b = L - 12;
+    const n = Math.floor((b - a + 6) / (T.width + 6) + 1e-9);
+    if (n < 1) return null;
+    const used = n * T.width + (n - 1) * 6;
+    return [door, ...Array.from({ length: n }, (_, i) => ({ ...T, wall: 'front', offset: a + (b - a - used) / 2 + i * (T.width + 6), sill: DOOR.height + 6 }))];
+  },
 };
+
+/** The clerestory window: a fixed 23 x 12 transom (products.mjs), set long side level. */
+const CLERESTORY = { kind: 'window', width: 23.25, height: 12.25, product: 'swm-t2312' };
 
 /** Share of the budget kept for the polish phase. */
 const POLISH_SHARE = 0.35;
@@ -161,7 +178,7 @@ const LIGHT = { joistSize: '2x4', joistSpacing: 24, rafterSpacing: 24, studSpaci
 /** Knobs the polish tries: they mostly move cost, and leave the plan and openings alone. */
 const POLISH_KNOBS = ['joistSize', 'joistSpacing', 'rafterSpacing', 'studSpacing', 'rafterSize', 'overhang', 'wall', 'floorPanel', 'foundation', 'pad', 'blockSpacing', 'floor', 'roofCover', 'sidingType'];
 /** The layouts that put every opening in the front wall: seeded for a lean-to, not a gable. */
-const FRONT_WALL_LAYOUTS = ['eave door, no windows', 'eave door and a window beside it'];
+const FRONT_WALL_LAYOUTS = ['eave door, no windows', 'eave door and a window beside it', 'eave door and clerestory windows'];
 
 /** The knobs the search turns, each with its values. Keys in opts.fixed are left as the base has them. */
 const KNOBS = {

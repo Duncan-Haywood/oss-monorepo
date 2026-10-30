@@ -7,11 +7,12 @@
  *   node platform/distribution/npm.mjs --pack <slug> <outDir>   # write one package to disk (to inspect or `npm pack`)
  *   DISTRIBUTE_NPM=true NODE_AUTH_TOKEN=... [NPM_SCOPE=@you] node platform/distribution/npm.mjs
  *
- * Stateless de-duplication: a package whose name already exists on the registry
- * is left alone, and at most MAX_PER_RUN new packages go out per run, so
- * enabling the channel never floods the registry with the whole catalogue.
- * Only CLIs that import nothing but node: builtins and their own sibling files
- * qualify; anything with a dependency is skipped, not guessed at.
+ * Only tools on the npm allow-list (portfolio/distribution/allowlist.json) are
+ * published, at the version versions.json gives them (versions.mjs). Stateless
+ * de-duplication: a version the registry already has is left alone, and at
+ * most MAX_PER_RUN packages go out per run. Only CLIs that import nothing but
+ * node: builtins and their own sibling files qualify; anything with a
+ * dependency is skipped, not guessed at.
  *
  * Why a wrapper: ~90 of the CLIs only run when "invoked directly"
  * (`import.meta.url === file://${process.argv[1]}`). npm links a package's bin
@@ -27,6 +28,7 @@ import { promisify } from 'node:util';
 import { fileURLToPath } from 'node:url';
 import { toolUrl } from './bluesky.mjs';
 import { tagUrl } from './attribution.mjs';
+import { allowed, loadAllowlist, loadVersions } from './versions.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(HERE, '..', '..');
@@ -145,12 +147,13 @@ export async function writePackage(pkg, outDir) {
   await fs.chmod(path.join(outDir, 'bin.mjs'), 0o755);
 }
 
-/** Packages that qualify, with skip reasons for the rest. */
-export async function plan({ root = REPO_ROOT, scope = '', slugs } = {}) {
+/** Packages that qualify, with skip reasons for the rest. `versions` maps slug -> { version }. */
+export async function plan({ root = REPO_ROOT, scope = '', slugs, versions = {} } = {}) {
   const ok = [];
   const skipped = [];
   for (const slug of slugs ?? await discover(root)) {
-    const pkg = await buildPackage({ slug, dir: path.join(root, 'ventures', slug), scope });
+    const version = versions[slug]?.version ?? VERSION;
+    const pkg = await buildPackage({ slug, dir: path.join(root, 'ventures', slug), scope, version });
     if (pkg.skip) skipped.push({ slug, reason: pkg.skip });
     else ok.push({ slug, ...pkg });
   }
@@ -159,21 +162,32 @@ export async function plan({ root = REPO_ROOT, scope = '', slugs } = {}) {
 
 const exec = promisify(execFile);
 
-export async function run({ env = process.env, fetchImpl = fetch, log = console.log, publish, root = REPO_ROOT } = {}) {
+/** Whether a registry document is a package this repository published (its repository URL names this repo). */
+export const isOurs = (doc) => String(doc?.repository?.url ?? '').toLowerCase().includes('duncan-haywood/oss-monorepo');
+
+export async function run({ env = process.env, fetchImpl = fetch, log = console.log, publish, root = REPO_ROOT, allow, versions } = {}) {
   const scope = env.NPM_SCOPE || '';
   const live = env.DISTRIBUTE_NPM === 'true' && !!env.NODE_AUTH_TOKEN;
-  const { ok, skipped } = await plan({ root, scope });
-  log(`${ok.length} of ${ok.length + skipped.length} venture CLIs qualify (${skipped.length} skipped)`);
+  allow ??= await loadAllowlist(root);
+  versions ??= await loadVersions(root);
+  const slugs = [...allowed(allow, 'npm')].sort();
+  const { ok, skipped } = await plan({ root, scope, slugs, versions });
+  log(`${ok.length} of ${slugs.length} allow-listed CLIs qualify`);
+  for (const s of skipped) log(`  skip ${s.slug}: ${s.reason}`);
   const fresh = [];
   for (const p of ok) {
     if (fresh.length >= MAX_PER_RUN) break;
-    const res = await fetchImpl(`https://registry.npmjs.org/${p.name.replace('/', '%2F')}`, { headers: { accept: 'application/vnd.npm.install-v1+json' } });
-    if (res.status === 200) continue;
-    if (res.status !== 404) throw new Error(`npm registry: HTTP ${res.status} for ${p.name}`);
+    if (!versions[p.slug]) { log(`  skip ${p.slug}: no version in versions.json (run versions.mjs --write)`); continue; }
+    const res = await fetchImpl(`https://registry.npmjs.org/${p.name.replace('/', '%2F')}`);
+    if (res.status === 200) {
+      const doc = await res.json();
+      if (!isOurs(doc)) { log(`  skip ${p.name}: the name belongs to another project (set NPM_SCOPE to publish under a scope)`); continue; }
+      if (doc.versions?.[p.version]) continue;
+    } else if (res.status !== 404) throw new Error(`npm registry: HTTP ${res.status} for ${p.name}`);
     fresh.push(p);
   }
   if (!live) {
-    log(`DRY RUN (set DISTRIBUTE_NPM=true and NODE_AUTH_TOKEN to publish). Would publish up to ${MAX_PER_RUN} new packages:`);
+    log(`DRY RUN (set DISTRIBUTE_NPM=true and NODE_AUTH_TOKEN to publish). Would publish up to ${MAX_PER_RUN} new versions:`);
     for (const p of fresh) log(`  ${p.name}@${p.version}  ${Object.keys(p.files).length} files`);
     return { published: 0, planned: fresh.length };
   }
@@ -196,7 +210,8 @@ export async function run({ env = process.env, fetchImpl = fetch, log = console.
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const [flag, slug, outDir] = process.argv.slice(2);
   if (flag === '--pack') {
-    const pkg = await buildPackage({ slug, dir: path.join(REPO_ROOT, 'ventures', slug), scope: process.env.NPM_SCOPE || '' });
+    const version = (await loadVersions())[slug]?.version ?? VERSION;
+    const pkg = await buildPackage({ slug, dir: path.join(REPO_ROOT, 'ventures', slug), scope: process.env.NPM_SCOPE || '', version });
     if (pkg.skip) { console.error(`${slug}: ${pkg.skip}`); process.exit(1); }
     await writePackage(pkg, outDir);
     console.log(`wrote ${pkg.name}@${pkg.version} to ${outDir}`);

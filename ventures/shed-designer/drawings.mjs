@@ -806,6 +806,33 @@ export function buildSheets(shed, marks = new Map()) {
     });
   }
 
+  // The loft ladder, seen from the side: one rail as it leans, the rungs on it, and the loft joist it rests on.
+  {
+    const rails = shed.members.filter((m) => m.kind === 'ladder rail');
+    const rungs = shed.members.filter((m) => m.kind === 'ladder rung');
+    if (rails.length) {
+      const items = /** @type {Item[]} */ ([]);
+      const z = (p) => /** @type {P} */ ([p[0], p[1] - k.floorTop]);
+      items.push({ t: 'poly', pts: rails[0].geom.profile.map(z), closed: true, cls: 'member' });
+      for (const r of rungs) items.push(rect(r.geom.origin[0], r.geom.origin[2] - k.floorTop, r.geom.origin[0] + 3.5, r.geom.origin[2] - k.floorTop + 1.5, 'header'));
+      const xs = rails[0].geom.profile.map((p) => p[0]);
+      const zs = rails[0].geom.profile.map((p) => p[1] - k.floorTop);
+      const top = Math.max(...zs);
+      items.push(line([Math.min(...xs) - 12, 0], [Math.max(...xs) + 12, 0], 'outline'));
+      items.push(text([Math.min(...xs) - 14, 3], 'floor', 8, 'end', 'muted'));
+      items.push(text([(Math.min(...xs) + Math.max(...xs)) / 2, top + 6], 'loft floor and its edge joist', 8, 'middle', 'muted'));
+      items.push(dim([Math.max(...xs) + 4, 0], [Math.max(...xs) + 4, top], -14, `${fmtIn(top)} floor to loft floor`));
+      if (rungs.length > 1) items.push(dim([rungs[0].geom.origin[0] - 6, rungs[0].geom.origin[2] - k.floorTop], [rungs[0].geom.origin[0] - 6, rungs[1].geom.origin[2] - k.floorTop], 8, '12" rungs'));
+      items.push(text([rails[0].geom.profile[0][0] + 4, 30], markText(rails[0]), 8, 'start', 'mark'));
+      if (rungs.length) items.push(text([rungs[0].geom.origin[0] + 1.75, rungs[0].geom.origin[2] - k.floorTop + 3], markText(rungs[0]), 8, 'middle', 'mark'));
+      sheets.push({
+        id: 'ladder', title: 'Loft ladder',
+        note: `Seen from the side. Two 2x4 rails (${fmtIn(rails[0].length)}) 16" apart in the clear, leaning 1 in 4: a level cut at the floor, a plumb cut against the loft's edge joist, three 3" screws into it. ${rungs.length} 2x4 rungs flat between the rails, 12" apart (OSHA 1910.23 spaces rungs 10" to 14"), each held by two 3" screws through the rail into each end, glued. No handhold above the loft floor: keep a hand on the joist going over.`,
+        items,
+      });
+    }
+  }
+
   // Site-built door: the frame seen from inside, with the cut sizes.
   for (const dr of shed.doors || []) {
     const items = /** @type {Item[]} */ ([]);

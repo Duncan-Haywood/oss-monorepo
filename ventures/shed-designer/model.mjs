@@ -147,6 +147,9 @@ export function defaultDesign() {
     climate: 'mild',
     roofCover: 'shingles',
     rafterSeat: 'connector',
+    // Ground anchors at the four corners (checks.mjs, ANCHOR_KITS): a 48" kit for
+    // soil class 4a or firmer, a 30" kit for class 2, or none.
+    anchors: '48',
     maxFootprint: 100,
     // The longest board you can carry home (ft, 0 for no limit). Longer stock is
     // bought only for a piece that cannot be spliced; a pickup's 8 ft bed with
@@ -356,6 +359,7 @@ export function normalize(input) {
     sidingType: pick(o.sidingType, ['T1-11', 'LP SmartSide', 'LP SmartSide 7/16', 'board and batten', 'vinyl', 'fiber cement', 'LP SmartSide lap'], d.sidingType),
     roofCover: pick(o.roofCover, ['shingles', 'metal'], d.roofCover),
     rafterSeat: pick(o.rafterSeat, ['birdsmouth', 'connector'], d.rafterSeat),
+    anchors: pick(o.anchors, ['48', '30', 'none'], d.anchors),
     maxFootprint: Math.min(1000, Math.max(0, num(o.maxFootprint, d.maxFootprint))),
     maxHaulFt: /** @type {any} */ (o.maxHaulFt) !== '' && o.maxHaulFt !== null && [0, 8, 10, 12, 14, 16, 18, 20].includes(Number(o.maxHaulFt)) ? Number(o.maxHaulFt) : d.maxHaulFt,
     ...Object.fromEntries(['lotWidthFt', 'lotDepthFt', 'siteLeftFt', 'siteRearFt', 'houseWidthFt', 'houseDepthFt', 'houseLeftFt', 'houseFrontFt', 'setbackFt']
@@ -800,8 +804,12 @@ function buildAuto(d0, prices) {
   return s;
 }
 
-/** @param {Design} d */
-function buildFramed(d) {
+/**
+ * @param {Design} d
+ * @param {Record<string, number[]>} [lapNailers] extra full-height studs, by wall, at these
+ *   face positions (inches along the siding face): where a lap butt joint found no stud.
+ */
+function buildFramed(d, lapNailers) {
   /** @type {Member[]} */
   const members = [];
   /** @type {{ id: string, kind: string, item: string, geom: Geom, group: string, wall?: string, side?: string, pos?: number[], course?: number, face?: [number, number][], where?: string }[]} */
@@ -1158,7 +1166,13 @@ function buildFramed(d) {
       if (occupied(s0) || inOpening(s0)) continue;
       verticals.push({ s: s0, kind: 'stud' });
     }
-    for (const v of verticals) addM(v.kind, d.studSize, v.s, v.s + 1.5, 1.5, 1.5 + studLenW);
+    // A stud off the layout where lap siding needs one for a butt joint (two
+    // openings close together can leave no layout stud between their casings).
+    for (const c of lapNailers?.[name] || []) {
+      const s0 = c - start - 0.75;
+      if (s0 >= 0 && s0 + 1.5 <= len && !occupied(s0) && !inOpening(s0)) verticals.push({ s: s0, kind: 'stud', note: 'extra stud to back a lap siding butt joint' });
+    }
+    for (const v of verticals) addM(v.kind, d.studSize, v.s, v.s + 1.5, 1.5, 1.5 + studLenW, /** @type {any} */ (v).note);
     const breakCenters = verticals.map((v) => v.s + 0.75);
     // Where a plate may also break over a header: on a top cripple (or, with
     // the header tight to the plate, anywhere on it), with the header running
@@ -1773,6 +1787,85 @@ function buildFramed(d) {
       }
     }
     notes.push(`Loft: ${fmtIn(xb - xa)} of the length, ${fmtIn(W - 2 * yd)} wide between the lower chords, its floor ${fmtFt(deckZ - floorTop)} above the shed floor. It is sized for ${LOFT_LIVE} psf of stored things (IRC Table R301.5, attics with limited storage), not for people to stand in. Add a guard or a stop board along its open edge.`);
+    loftAccess(joists, xa, yd, deckZ);
+  }
+
+  /**
+   * The way up. A half loft is open over the other half of the shed, so a
+   * ladder leans on its edge joist. A full loft gets a hatch: the deck is left
+   * out over the bay nearest the left gable that is at least 22" clear between
+   * joists, 30" across the width, the least attic opening IRC R807.1 asks for,
+   * and the ladder leans on the hatch's far joist. The ladder is site-built:
+   * two 2x4 rails 16" apart in the clear, leaning 1 in 4, with 2x4 rungs 12"
+   * apart (OSHA 1910.23 spaces ladder rungs 10" to 14"), screwed to the joist
+   * at the top.
+   * @param {number[]} joists loft joist centres @param {number} xa where the deck starts @param {number} yd its edge in from each wall @param {number} deckZ its underside
+   */
+  function loftAccess(joists, xa, yd, deckZ) {
+    const deckTop = deckZ + 0.75;
+    // Centred across the width, or toward the back when a door in a gable end would open onto the ladder.
+    const gableDoor = d.openings.some((op) => op.kind === 'door' && (op.wall === 'left' || op.wall === 'right') && axisStart(d, op) < W / 2 + 24 && axisStart(d, op) + op.width > W / 2 - 24);
+    const yc = gableDoor ? Math.max(W / 2, W - yd - 15) : W / 2;
+    let face = xa - 0.75;
+    let lean = -1; // the ladder's foot is toward smaller x
+    if (d.loft === 'full') {
+      const bays = joists.slice(1).map((j, i) => ({ x0: joists[i] + 0.75, x1: j - 0.75 }));
+      const bay = bays.find((b) => b.x1 - b.x0 >= 22 - 1e-9) ?? bays.reduce((a, b) => (b.x1 - b.x0 > a.x1 - a.x0 ? b : a), bays[0]);
+      if (!bay) return;
+      if (bay.x1 - bay.x0 < 22 - 1e-9) warnings.push(`The loft hatch between joists is ${fmtIn(bay.x1 - bay.x0)} wide, under the 22" IRC R807.1 asks of an attic opening; with joists at ${d.rafterSpacing}" header off a wider opening, or set the trusses at 24".`);
+      const h0 = Math.max(yd, yc - 15);
+      const h1 = Math.min(W - yd, yc + 15);
+      // Cut the hatch out of every deck piece it overlaps, keeping the rest of each piece as up to four rectangles.
+      for (let i = panels.length - 1; i >= 0; i--) {
+        const p = panels[i];
+        if (p.kind !== 'loft deck') continue;
+        const [px, py, pz] = p.geom.origin;
+        const pw = p.geom.profile[2][0];
+        const ph = p.geom.profile[2][1];
+        if (px >= bay.x1 - 1e-9 || px + pw <= bay.x0 + 1e-9 || py >= h1 - 1e-9 || py + ph <= h0 + 1e-9) continue;
+        const keep = [];
+        if (bay.x0 > px + 1e-9) keep.push([px, py, bay.x0 - px, ph]);
+        if (px + pw > bay.x1 + 1e-9) keep.push([bay.x1, py, px + pw - bay.x1, ph]);
+        const cx0 = Math.max(px, bay.x0); const cx1 = Math.min(px + pw, bay.x1);
+        if (h0 > py + 1e-9) keep.push([cx0, py, cx1 - cx0, h0 - py]);
+        if (py + ph > h1 + 1e-9) keep.push([cx0, h1, cx1 - cx0, py + ph - h1]);
+        panels.splice(i, 1, ...keep.map(([x, y, w, h]) => ({ ...p, id: nextId('LD'), geom: rectGeom([x, y, pz], X, Y, Z, w, h, 0.75) })));
+      }
+      notes.push(`Loft hatch: ${fmtIn(bay.x1 - bay.x0)} x ${fmtIn(h1 - h0)} between the joists ${fmtIn(bay.x0)} to ${fmtIn(bay.x1)} from the left end, the ladder under it.`);
+      // Lean on the far joist with the foot toward the left gable, or on the near one if the foot would hit the wall.
+      face = bay.x1;
+      lean = -1;
+    }
+    // The foot has to land inside the walls: lean the other way off the hatch's other joist, or leave the ladder out.
+    const reach = (deckTop - floorTop) / 4 + 3.5 / (4 / Math.hypot(1, 4)) + 3;
+    if (lean < 0 && face - reach < D && d.loft === 'full') {
+      const other = joists.filter((j) => j + 0.75 < face - 1).pop();
+      if (other !== undefined && other + 0.75 + reach <= L - D) { face = other + 0.75; lean = 1; }
+    }
+    if ((lean < 0 && face - reach < D) || (lean > 0 && face + reach > L - D)) {
+      notes.push('Loft ladder: the shed is too short for a ladder leaning 1 in 4 to land inside the walls; use a stepladder to reach the loft.');
+      return;
+    }
+    const zc = deckZ - (deckZ - plateTop) / 2; // the rail's near edge meets the joist halfway up it
+    const sinA = 4 / Math.hypot(1, 4);
+    const wH = 3.5 / sinA; // the rail's width, level
+    const nearX = (z) => face + lean * ((zc - z) / 4);
+    const farX = (z) => nearX(z) + lean * wH;
+    const yl = [yc - 8 - 1.5, yc + 8];
+    /** @type {[number, number][]} */
+    const prof = [[farX(floorTop), floorTop], [nearX(floorTop), floorTop], [face, zc], [face, deckTop], [farX(deckTop), deckTop]];
+    if (lean > 0) prof.reverse();
+    const railLen = ceil16(Math.hypot(deckTop - floorTop, (deckTop - floorTop) / 4) + wH / 4);
+    for (const y of yl) {
+      push({ id: nextId('LL'), group: 'roof', kind: 'ladder rail', material: '2x4', length: railLen, note: 'leans 1 in 4: level cut at the floor, plumb cut against the loft joist, screwed to it', geom: { origin: [0, y, 0], u: X, v: Z, w: Y, profile: prof, thickness: 1.5 } });
+    }
+    let rungs = 0;
+    for (let z = floorTop + 12; z + 1.5 <= deckTop - 3; z += 12) {
+      const xm = (nearX(z + 0.75) + farX(z + 0.75)) / 2;
+      push({ id: nextId('LL'), group: 'roof', kind: 'ladder rung', material: '2x4', length: 16, note: 'flat between the rails, 12" apart; two 3" screws through each rail into its ends, glued', geom: rectGeom([xm - 1.75, yc - 8, z], Y, X, Z, 16, 3.5, 1.5) });
+      rungs++;
+    }
+    notes.push(`Loft ladder: two 2x4 rails 16" apart and ${rungs} 2x4 rungs 12" apart, leaning 1 in 4 against the ${d.loft === 'full' ? 'hatch' : "loft's edge"} joist and screwed to it. It reaches the loft floor; there is no handhold above it, so keep a hand on the joist going over.`);
   }
 
   // Gable studs between the gable wall's top plate and the end rafter. With a
@@ -2332,6 +2425,15 @@ function buildFramed(d) {
   // Every fixture gets an id too, so the 3D view can pick and highlight it.
   for (const f of fixtures) f.id ??= nextId('FX');
 
+  // A lap butt joint with no stud behind it: frame a stud where the layout asked for one, once.
+  const need = Object.fromEntries(lap.map((f) => [f.wall, f.nailers || []]).filter(([, v]) => v.length));
+  if (!lapNailers && Object.keys(need).length) {
+    const again = buildFramed(d, need);
+    if (again.lap.every((f) => f.joints.every((j) => j.backed))) {
+      again.notes.push(`Lap siding: ${Object.values(need).flat().length === 1 ? 'one stud is' : `${Object.values(need).flat().length} studs are`} added off the layout (${Object.entries(need).map(([w, v]) => `${w} wall at ${v.map((x) => fmtIn(x)).join(', ')}`).join('; ')}) so a butt joint between close openings lands on wood.`);
+      return again;
+    }
+  }
   return { design: d, members, panels, fixtures, walls, framedOpenings, warnings, notes, dims, vents: ventInfo, trim, wallTrim, doorParts, doors, interior, sidingArea, floorPieces, roofPieces, sidingFull, sidingUpper, sidingUpperShapes, lap, lapExposure, sidingStudLimit: lapStudLimit(d) };
 }
 
