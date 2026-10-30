@@ -4,7 +4,7 @@
 // mark inside the page and clear of the title block.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildShed, defaultDesign, PRESETS } from './model.mjs';
+import { buildShed, defaultDesign, PRESETS, STYLE_PRESETS } from './model.mjs';
 import { estimate } from './estimate.mjs';
 import { buildSheets, sheetSvg, sheetsDxf, spreadRow } from './drawings.mjs';
 
@@ -12,6 +12,8 @@ const designs = [['default', defaultDesign()], ...Object.entries(PRESETS).map(([
 // A birdsmouth and a connector seat, a ridge board and a beam, and a wide overhang.
 designs.push(['birdsmouth beam', { ...defaultDesign(), rafterSeat: 'birdsmouth', roofType: 'ridgeBeam' }]);
 designs.push(['connector board', { ...defaultDesign(), rafterSeat: 'connector', roofType: 'ridgeBoard', overhang: 12 }]);
+// The lean-to (a preset, on connectors) on birdsmouths too.
+for (const [name, make] of Object.entries(STYLE_PRESETS)) designs.push([`${name} birdsmouth`, { ...make(), rafterSeat: 'birdsmouth', overhang: 12, autoOverhang: false }]);
 // A wide site-built double door, which has its own sheet and parts.
 designs.push(['site-built door', { ...defaultDesign(), length: 168, openings: [{ id: 'o1', kind: 'door', wall: 'front', offset: 40, width: 60, height: 78, product: 'site-built' }] }]);
 
@@ -117,9 +119,13 @@ test('gable studs stop at the roof line drawn over them', () => {
     for (const side of ['left', 'right']) {
       const sheet = sheets.find((s) => s.id === `wall-${side}`);
       const roof = sheet.items.find((it) => it.t === 'poly' && it.cls === 'roofline');
-      const [[x0, z0], [x1, z1]] = roof.pts;
-      const mid = (x0 + roof.pts[roof.pts.length - 1][0]) / 2;
-      const underside = (x) => z0 + (Math.min(x, 2 * mid - x) - x0) * (z1 - z0) / (x1 - x0);
+      // The underside as drawn: straight lines between its points (eave, ridge faces, eave; or a lean-to's two tails).
+      const pts = [...roof.pts].sort((a, b) => a[0] - b[0]);
+      const underside = (x) => {
+        const i = Math.max(0, Math.min(pts.length - 2, pts.findIndex((p, j) => j + 1 < pts.length && x <= pts[j + 1][0] + 1e-9)));
+        const [[xa, za], [xb, zb]] = [pts[i], pts[i + 1]];
+        return xb === xa ? za : za + (x - xa) * (zb - za) / (xb - xa);
+      };
       const studs = sheet.items.filter((it) => it.t === 'poly' && it.closed && it.pts.length === 4 && it.pts[2][1] !== it.pts[3][1]);
       assert.ok(studs.length >= 2, `${name} ${side}: gable studs drawn`);
       for (const st of studs) for (const [x, z] of [st.pts[2], st.pts[3]]) assert.ok(Math.abs(z - underside(x)) < 0.02, `${name} ${side}: stud top ${z.toFixed(2)} vs roof ${underside(x).toFixed(2)} at ${x.toFixed(2)}`);
