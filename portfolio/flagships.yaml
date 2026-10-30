@@ -131,8 +131,9 @@ flagships:
     next: >-
       Landed history and every measurement live in the README and git; each
       item below has its numbers there. Open: (0) cycles and drift: an exact
-      two-lag (AR(2)) likelihood inside PELT (the iterated-prewhitening fit
-      failed on sunspots); a real documented step inside a cycle; a cycle
+      AR(2) likelihood inside PELT was built and measured 2026-10-30 (README:
+      no better than the AR(1) profile; a log or sqrt of the series matters
+      more); a real documented step inside a cycle; a cycle
       check not tied to rho (treering, rho 0.16, gets no hint);
       a documented real run
       of 5+ steps to test the block-variance warning, which does not yet

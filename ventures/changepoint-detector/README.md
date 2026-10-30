@@ -1375,3 +1375,27 @@ coefficients fall to about 0). Even seeded, the coefficients drift (sunspots AR(
 1 or 2 sd step inserted at six positions is found with 3 or fewer steps reported found 0 of 6 in every cell, so there is no power to
 protect either. Plain prewhitening is not the route; an AR(2) fit would need the exact two-lag likelihood inside PELT
 (as `ar1mean` does for one lag) with coefficients profiled on a grid. Not built. Real data only; no inserted-step claim beyond the table.
+
+## An exact AR(2) likelihood inside PELT: no better than AR(1) (2026-10-30, later still)
+
+Open item from the flagship list: the iterated-prewhitening fit failed on sunspots, so score segment means under an exact
+AR(2) likelihood instead. `ar2mean` (cost, known phi1 and phi2, stationary start, closed form per segment from prefix sums) and
+`ar2ProfileFit` (grid over phi1 0 to 1.8 and phi2 -0.9 to 0.2 in steps of 0.1, a PELT fit and innovation sd per pair, best
+`n log sd^2 + log(k0 k1) + penalty` wins) are in `engine.mjs`; `eval/ar2-profile.mjs` and `.out.txt` hold the run. Not wired into
+the CLI or the page, because it did not win:
+
+| series | AR(1) profile | AR(2) profile |
+|---|---|---|
+| lynx (no documented step) | 0 | 9 (phi 1.5, -0.9) |
+| sunspots, yearly | 1 | 3 |
+| lynx, log10 | 0 | 0 |
+| sunspots, sqrt | 1 | 1 |
+| 40 synthetic AR(2) nulls (1.4, -0.7), n 200 | 0.00 changes each | 0.38 changes each |
+| same with a 2 sd step at 100 (found within 5) | 39/40 | 40/40 |
+
+Reading: on raw skewed counts the AR(2) fit runs to the edge of the grid (phi2 -0.9, close to a unit root) and the extra freedom
+buys false alarms; once the series is transformed to near-Gaussian it matches AR(1) and costs about seven times the time
+(sunspots, 289 points: grid of 190 fits). Its one gain, 40/40 against 39/40 on a 2 sd step, is within noise of 40 runs. So for
+cycles the AR(1) profile (`--ar1`) stays the better default, and the transform matters more than the lag order. Open still:
+sunspots with a hand-set small phi2 range, and a real documented step inside a cycle.
+`ar2-profile.test.mjs` has two tests (a shift in AR(2) noise; log lynx gets none).
