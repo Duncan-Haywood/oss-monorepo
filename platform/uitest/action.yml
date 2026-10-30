@@ -96,7 +96,7 @@ inputs:
   playwright-version:
     description: 'Playwright version to install (into a scratch directory, not your project).'
     required: false
-    default: '1.56.1'
+    default: '1.63.0'
 
 outputs:
   result:

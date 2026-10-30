@@ -12,6 +12,7 @@
 
 import { check, worst, studCheck, headerCheck, roofCase, FLOOR, SPF2, T, DEPTH } from './structure.mjs';
 import { fmtIn } from './lumber.mjs';
+import { subfloorCheck } from './levers.mjs';
 
 const CF_C = { '2x4': 1.15, '2x6': 1.1 };
 
@@ -89,7 +90,9 @@ export function structuralChecks(shed) {
   const floorSpanIn = Math.max(...gaps) - skidThick;
   {
     const [gov, r] = worst(check({ size: d.joistSize, spacingIn: d.joistSpacing, bearingIn: skidThick }, floorSpanIn / 12, FLOOR));
-    add('Floor joists', `${d.joistSize} at ${d.joistSpacing}"`, `${fmtIn(floorSpanIn)} clear between skids, 40 psf live + 10 dead`, r, gov);
+    add('Floor joists', `${d.joistSize} at ${d.joistSpacing}"`, `${fmtIn(floorSpanIn)} clear between skids, 40 psf live + 10 dead (spread load; a mower's wheel is a point load, not checked)`, r, gov);
+    const sf = subfloorCheck(d);
+    add('Subfloor', sf.name, `joists ${d.joistSpacing}" apart; APA span rating ${sf.spanOC} oc (check the panel's stamp)`, sf.ratio, 'span rating');
   }
   // Rafters: from the inside of the wall plate to the ridge.
   const beam = d.roofType === 'ridgeBeam';
