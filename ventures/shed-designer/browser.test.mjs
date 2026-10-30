@@ -465,6 +465,27 @@ test('the ready-design gallery: ten cards with price, storage and reason; arrows
   assert.ok(cardPrice, 'the card shows a price');
 });
 
+test('each card says its siding and roof; "match a house" limits the strip to lap and shingles and is remembered', { skip }, async (t) => {
+  const { page } = await open(t);
+  const finishes = await page.locator('#starts .pick-finish').allInnerTexts();
+  assert.equal(finishes.length, 10);
+  assert.ok(finishes.every((x) => /^Siding: .+ · (metal|asphalt shingle) roof$/.test(x)), JSON.stringify(finishes));
+  assert.ok(finishes.some((x) => /metal roof/.test(x)), 'the free-finish cards include a metal roof');
+  await page.check('#match-house');
+  await page.waitForFunction(() => document.querySelectorAll('#starts .pick').length < 10);
+  const house = await page.locator('#starts .pick-finish').allInnerTexts();
+  assert.ok(house.length >= 4, `${house.length} cards`);
+  assert.ok(house.every((x) => /lap .*asphalt shingle roof$/.test(x)), JSON.stringify(house));
+  assert.equal(await page.textContent('#starts-pos'), `1 of ${house.length}`);
+  // Remembered on the next visit, and switching it off brings all ten back.
+  await page.reload();
+  await page.waitForFunction(() => document.querySelector('#total')?.textContent?.startsWith('$'));
+  assert.ok(await page.isChecked('#match-house'));
+  await page.waitForFunction((n) => document.querySelectorAll('#starts .pick').length === n, house.length);
+  await page.uncheck('#match-house');
+  await page.waitForFunction(() => document.querySelectorAll('#starts .pick').length === 10);
+});
+
 test('on a phone the gallery shows about one card at a time and swipes sideways', { skip }, async (t) => {
   const { page } = await open(t, pw.devices['Pixel 7']);
   const r = await page.evaluate(() => {
