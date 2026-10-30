@@ -147,11 +147,12 @@ function levelPack(pieces, by) {
  * rather than two high edges. Pieces and nested pairs are then packed along
  * 8 ft panels; the count is never more than packing each piece's height alone.
  * @param {Shed} shed
+ * @param {boolean} [nest] false: each piece's height alone, no nesting
  */
-export function sidingUpperSheets(shed) {
+export function sidingUpperSheets(shed, nest = true) {
   const shapes = shed.sidingUpperShapes;
   const plain = sheetCount(shed.sidingUpper || []);
-  if (!shapes || !shapes.length) return plain;
+  if (!nest || !shapes || !shapes.length) return plain;
   const up = (x) => Math.ceil(x - 1e-9);
   /** @type {number[]} */
   const units = [];
