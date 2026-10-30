@@ -193,8 +193,9 @@ export function solidsOf(shed, heat) {
   const texture = d.sidingType === 'board and batten' ? FINISH.batten : d.sidingType === 'vinyl' ? FINISH.lap : d.sidingType === 'T1-11' ? FINISH.grooves : 0;
   for (const p of shed.panels) {
     const sheathing = p.kind === 'roof sheathing' || p.kind === 'wall sheathing';
-    const layer = p.kind === 'floor sheet' ? 'floor' : sheathing ? 'sheathing' : 'siding';
-    const color = p.kind === 'floor sheet' ? COLORS.floor : sheathing ? COLORS.osb : siding;
+    const gusset = p.kind === 'truss gusset';
+    const layer = p.kind === 'floor sheet' ? 'floor' : sheathing ? 'sheathing' : gusset ? 'roof' : 'siding';
+    const color = p.kind === 'floor sheet' ? COLORS.floor : sheathing || gusset ? COLORS.osb : siding;
     out.push({ geom: p.geom, color: /** @type {any} */ (color), layer, flags: p.kind === 'siding' ? (d.polkaDots ? 1 : 0) + glitter + texture : p.kind === 'lap siding' ? (d.polkaDots ? 1 : 0) + glitter : 0 });
   }
   const roof = pal.roof;

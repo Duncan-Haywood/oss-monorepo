@@ -16,6 +16,7 @@
 
 import { buildShed, normalize, WALLS } from './model.mjs';
 import { estimate, examplePrices } from './estimate.mjs';
+import { costBreakdown } from './costs.mjs';
 import { structuralChecks } from './checks.mjs';
 import { productById } from './products.mjs';
 import { fmtFtIn, fmtIn } from './lumber.mjs';
@@ -27,6 +28,7 @@ const SIDING_NAME = {
   'board and batten': 'board and batten',
   vinyl: 'vinyl lap',
   'fiber cement': 'fiber cement lap',
+  'LP SmartSide lap': 'LP SmartSide engineered wood lap',
 };
 const COLOUR_NAME = { natural: 'stained', unfinished: 'unfinished' };
 
@@ -35,20 +37,20 @@ export const BREAKDOWN_TOP = 5;
 
 /**
  * @param {any} input a design (normalized here)
- * @param {{ prices?: any, reason?: string, id?: string }} [opts]
+ * @param {{ prices?: any, reason?: string, id?: string, price?: (shed: any) => any }} [opts]
+ *   `price` prices the built shed the way the page does (its store choice); it
+ *   must return the estimate's shape (`shopping`, `total`, `grandTotal`).
  */
 export function designFacts(input, opts = {}) {
   const shed = buildShed(normalize(input));
   const d = shed.design;
   const k = shed.dims;
-  const est = estimate(shed, opts.prices || examplePrices());
+  const est = opts.price ? opts.price(shed) : estimate(shed, opts.prices || examplePrices());
   const checks = structuralChecks(shed);
 
-  // Cost: the shopping list grouped by section, largest first.
-  /** @type {Map<string, number>} */
-  const bySection = new Map();
-  for (const r of est.shopping) bySection.set(r.section, (bySection.get(r.section) || 0) + r.total);
-  const groups = [...bySection].map(([name, total]) => ({ name, total: Math.round(total * 100) / 100 })).filter((g) => g.total > 0).sort((a, b) => b.total - a.total);
+  // Cost: by assembly (the part of the shed it builds), largest first, the same
+  // split as the editor's "Where the money goes" tab (costs.mjs).
+  const groups = costBreakdown(shed, est).assemblies.map((g) => ({ name: g.label, total: g.total })).filter((g) => g.total > 0);
   const breakdown = groups.slice(0, BREAKDOWN_TOP);
   const rest = groups.slice(BREAKDOWN_TOP).reduce((t, g) => t + g.total, 0);
   if (rest > 0) breakdown.push({ name: 'Everything else', total: Math.round(rest * 100) / 100 });
@@ -80,7 +82,7 @@ export function designFacts(input, opts = {}) {
   const worstRow = checks.rows.reduce((m, r) => (r.ratio > m.ratio ? r : m), checks.rows[0]);
   const siding = d.siding ? `${SIDING_NAME[d.sidingType] || d.sidingType}, ${COLOUR_NAME[d.sidingColor] || d.sidingColor}` : 'none (framing only)';
   const roof = d.roofing ? `${d.roofCover === 'metal' ? 'corrugated metal' : 'architectural shingles'}, ${d.roofColor}` : 'none (sheathing only)';
-  const roofFrame = d.roofType === 'ridgeBeam' ? `ridge beam on posts, open to the roof (2-ply ${d.beamSize})` : `ridge board with ${d.tieSize} rafter ties`;
+  const roofFrame = d.roofType === 'ridgeBeam' ? `ridge beam on posts, open to the roof (2-ply ${d.beamSize})` : d.roofType === 'truss' ? `site-built trusses, ${d.tieSize} bottom chords, OSB gussets` : `ridge board with ${d.tieSize} rafter ties`;
   const foundation = d.foundation === 'gravel' ? 'skids on a gravel pad' : `skids on ${d.foundation === 'blocks' ? 'solid concrete blocks' : d.foundation}`;
 
   return {

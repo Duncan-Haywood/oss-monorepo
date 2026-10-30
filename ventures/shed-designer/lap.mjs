@@ -16,7 +16,7 @@ import { fmtIn } from './lumber.mjs';
 /**
  * @typedef {{ label: string, short: string, width: number, exposure: number, thickness: number, length: number,
  *   staggerBays: (spacing: number) => number, minPiece: number, jointGap: number, jointFlashing: boolean, nail: string,
- *   clearance: number, starterWidth: number, source: string }} LapProduct
+ *   clearance: number, starterWidth: number, maxStuds: { overSheathing: number, directToStuds: number }, source: string }} LapProduct
  */
 
 /**
@@ -61,6 +61,8 @@ export const LAP_PRODUCTS = {
     nail: '8d (2-1/2") hot-dipped galvanized siding nails, blind-nailed 3/4" to 1" down from the top edge and 3/8" from each end, into every stud',
     clearance: 6,
     starterWidth: 1.25,
+    // HS11119 p.1: braced studs "spaced a maximum of 24 in o.c. or directly to minimum 7/16 in thick OSB".
+    maxStuds: { overSheathing: 24, directToStuds: 24 },
     source: 'James Hardie HardiePlank install instructions (HS11119)',
   },
   'LP SmartSide lap': {
@@ -77,6 +79,8 @@ export const LAP_PRODUCTS = {
     nail: '8d (2-1/2") hot-dipped galvanized siding nails, blind-nailed at least 3/4" down from the top edge and 3/8" from each end, into every stud',
     clearance: 6,
     starterWidth: 1.5,
+    // LPZB0515 p.3, "Stud Spacing Options": 38 Series lap direct to studs max. 16" o.c.; over min. 7/16" structural sheathing max. 24".
+    maxStuds: { overSheathing: 24, directToStuds: 16 },
     source: 'LP SmartSide primed lap siding application instructions (LPZB0515)',
   },
 };
@@ -87,15 +91,38 @@ export const LAP_STOCKS = {
   'LP SmartSide lap': [{ length: 144, key: 'lapLP12' }, { length: 192, key: 'lapLP16' }],
 };
 
-/** The plank lengths this design may buy: those in its board lengths, or all of them when none is ticked. @param {any} d */
+/** The plank lengths this design may buy: those within the haul limit and in its board lengths (or all within the limit when none is ticked). @param {any} d */
 export function lapStocks(d) {
   const all = LAP_STOCKS[d.sidingType] || [];
-  const ticked = all.filter((x) => d.lengths.includes(x.length / 12));
-  return ticked.length ? ticked : all;
+  // The longest board you can haul applies to planks too; every product comes in 12 ft.
+  const haul = d.maxHaulFt > 0 ? all.filter((x) => x.length <= d.maxHaulFt * 12) : all;
+  const can = haul.length ? haul : all;
+  const ticked = can.filter((x) => d.lengths.includes(x.length / 12));
+  return ticked.length ? ticked : can;
 }
 
 /** How far apart butt joints in neighbouring courses must be, in inches. @param {any} d */
 export const lapStagger = (d) => LAP_PRODUCTS[d.sidingType].staggerBays(d.studSpacing) * d.studSpacing;
+
+/**
+ * The exposure to lay at, as installers set it with a story pole: no more than
+ * the maker's, and even, so that the top course on the long walls is a full
+ * plank whose top edge meets the plate rather than a strip ripped to fit.
+ * The story pole is marked at each course's height from the bottom, rounded to 1/16".
+ * @param {LapProduct} spec @param {number} height bottom of the siding to the top of the plates
+ */
+export function evenExposure(spec, height) {
+  if (!(height > spec.width)) return spec.exposure;
+  const n = Math.ceil((height - spec.width) / spec.exposure - 1e-9) + 1;
+  return (height - spec.width) / (n - 1);
+}
+
+/**
+ * The widest stud spacing the lap product's install guide allows as this tool
+ * builds it (over 7/16" OSB), in inches; undefined for anything but lap.
+ * @param {any} d
+ */
+export const lapStudLimit = (d) => (d.siding && LAP_PRODUCTS[d.sidingType] ? LAP_PRODUCTS[d.sidingType].maxStuds.overSheathing : undefined);
 
 /** @param {string} type */
 export const isLap = (type) => Object.prototype.hasOwnProperty.call(LAP_PRODUCTS, type);
@@ -279,7 +306,7 @@ export function lapSteps(shed, est) {
     'Wrap the walls with house wrap from the bottom up, each course lapping the one below by 6" and each vertical seam by 6" to 12", fastened with the cap nails; tape the seams. Cut an I at each door and window, fold the sides and bottom in, and leave the head flap loose to go over the head flashing later.',
     trimmed ? `Corner boards and casings go on first here, over the wrap: lap courses butt into them${fc ? '' : ' (LP asks for 5/4 trim, its 540 Series, so the siding does not stand proud of the trim; 3/4" boards leave the butt edges about level with the trim face)'}. Leave a 1/8" to 3/16" gap where each course meets trim and caulk it.` : 'With no trim, each course runs to the corner; caulk the end grain at every corner and paint it well.',
     `Starter: rip ${lc.starterPlanks} plank${lc.starterPlanks > 1 ? 's' : ''} into ${fmtIn(spec.starterWidth)} strips (${lc.perPlank} to a plank) and nail them along the bottom of every wall, flush with the top of the skids (${fmtIn(lc.starterIn)} in all). It tips the first course out to the same angle as the rest.`,
-    `Courses: ${spec.short}, ${fmtIn(spec.exposure)} to the weather. Mark a story pole: course bottoms at ${eave ? marks(eave) : ''} and so on up from the bottom of the siding (top of the skids), ${eave?.courses.length ?? 0} courses on the long walls and ${gable?.courses.length ?? 0} up each gable to the peak. Snap a level line for every few courses so they stay level round the corners. The top course is ripped to fit under the eave blocking or the rake.`,
+    `Courses: ${spec.short}, ${fmtIn(shed.lapExposure ?? spec.exposure)} to the weather${(shed.lapExposure ?? spec.exposure) < spec.exposure - 1e-9 ? ` (the maker allows up to ${fmtIn(spec.exposure)}; this evens the courses out so the top one on the long walls is a full plank)` : ''}. Mark a story pole: course bottoms at ${eave ? marks(eave) : ''} and so on up (measure each from the bottom, not course to course, so rounding does not add up) from the bottom of the siding (top of the skids), ${eave?.courses.length ?? 0} courses on the long walls and ${gable?.courses.length ?? 0} up each gable to the peak. Snap a level line for every few courses so they stay level round the corners. The top course is ripped to fit under the eave blocking or the rake.`,
     `Nail: ${spec.nail}. The next course hides the nails. ${fc ? 'Fiber cement: cut it outdoors with a fiber cement blade or shears and keep the dust down (it is silica).' : 'Seal every cut end with primer or paint before it goes up.'}`,
     joints.length
       ? `Butt joints (${joints.length}): every one is centred on a stud, with each plank end at least 3/8" from its nail${spec.jointGap ? ` and a ${fmtIn(spec.jointGap)} gap between the ends` : ', the ends in moderate contact'}. Slip a 6" x 10" piece of the flashing coil behind each joint, lapping the course below by 1". They are at: ${joints.slice(0, 12).join('; ')}${joints.length > 12 ? '; and the rest as the Plans sheets show' : ''}.`

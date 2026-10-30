@@ -252,3 +252,31 @@ test("tread span between stringers is checked against the tread thickness", () =
   assert.ok(!ok.notes.some((n) => /between stringers/.test(n)));
   assert.ok(!layoutStair({ totalRise: 108 }, plan()).notes.some((n) => /between stringers/.test(n)));
 });
+
+test("open risers: the gap is the riser less the tread thickness, flagged over 4 in (hand: 108 in rise, 14 risers of 7-5/7 in, 1-1/2 in treads leave 6.21 in)", () => {
+  const open = layoutStair({ ...sampleStair(), openRisers: true });
+  const gap = 108 / 14 - 1.5;
+  assert.ok(open.notes.some((n) => /Open risers leave a 6-3\/16" gap/.test(n) && n.includes("4 in")), open.notes.join("|"));
+  assert.ok(gap > 6.2 && gap < 6.22);
+  // solid risers have no gap to check
+  assert.ok(!layoutStair(sampleStair()).notes.some((n) => /Open risers/.test(n)));
+  // a tread thick enough to close the gap (riser 7-5/7 less 3-11/16 in) passes, and the limit is typed
+  assert.ok(!layoutStair({ ...sampleStair(), openRisers: true, treadThickness: 3.75 }).notes.some((n) => /Open risers/.test(n)));
+  assert.ok(!layoutStair({ ...sampleStair(), openRisers: true, limits: { openRiserGap: 6.5 } }).notes.some((n) => /Open risers/.test(n)));
+});
+
+test("the nosing note is for solid risers only: open risers skip it", () => {
+  const solid = layoutStair({ ...sampleStair(), nosing: 2 });
+  const open = layoutStair({ ...sampleStair(), nosing: 2, openRisers: true });
+  assert.ok(solid.notes.some((n) => /Nosing 2 in/.test(n)));
+  assert.ok(!open.notes.some((n) => /Nosing/.test(n)));
+});
+
+test("landing posts: four corners on a 36 in landing, extras once a side passes the typed spacing", () => {
+  const a = layoutStairWithLanding({ totalRise: 160, landing: true }, plan());
+  assert.equal(a.landing.posts.count, 4);
+  assert.equal(a.landing.posts.height, 80 - 7.25 - 1.5); // 2x8 joist is 7-1/4 in
+  const b = layoutStairWithLanding({ totalRise: 160, width: 48, landing: { depth: 120, postSpacing: 60 } }, plan());
+  assert.deepEqual([b.landing.posts.alongBays, b.landing.posts.acrossBays, b.landing.posts.count], [1, 2, 6]);
+  assert.match(landingText(a).join("\n"), /Landing posts: 4/);
+});
