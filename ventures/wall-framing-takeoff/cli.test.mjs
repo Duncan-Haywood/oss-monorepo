@@ -258,3 +258,16 @@ test("--deck adds the deck report with its own lumber order", async () => {
   const bad = main(["p.json", "--deck"], () => JSON.stringify({ ...samplePlan(), deck: { ...sampleDeck(), height: 12 } }));
   assert.equal(bad.code, 1);
 });
+
+test("deck.stairs adds a stair whose total rise is the deck height", async () => {
+  const { sampleDeck } = await import("./deck.mjs");
+  const plan = { ...samplePlan(), deck: { ...sampleDeck(), height: 36, stairs: { width: 48 } } };
+  const r = main(["p.json", "--deck", "--json"], () => JSON.stringify(plan));
+  assert.equal(r.code, 0);
+  const j = JSON.parse(r.out);
+  assert.equal(j.stairs.length, 1);
+  assert.equal(j.stairs[0].id, "Deck stair");
+  assert.equal(j.stairs[0].risers, 5); // 36 / 7.75 = 4.65, so 5 equal risers of 7.2 in
+  assert.ok(Math.abs(j.stairs[0].riser - 7.2) < 1e-9);
+  assert.match(main(["p.json", "--deck"], () => JSON.stringify(plan)).out, /STAIRS/);
+});
