@@ -36,9 +36,23 @@ permissions:
   contents: read
   pull-requests: read
 
+# A newer push to the same pull request cancels the superseded run; `main`
+# keeps every run (platform/ci/validate_workflows.py, invariant 9).
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || inputs.pr_number }}
+  cancel-in-progress: true
+
 jobs:
   resolve-pr:
-    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.draft == false
+    # AGENT_REVIEW_ENABLED is the owner's switch (platform/ci/agent_review/
+    # README.md, step 2). Until it is `true` the reviewer Apps are unset and
+    # every job below skipped in a few seconds anyway, but only after taking a
+    # runner: 712 runs on 2026-10-30, each of which also woke
+    # agent-pr-auto-merge.yml. A false job-level `if:` skips before a runner is
+    # assigned (docs/reports/2026-10-30-ci-platform-evolution.md).
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (vars.AGENT_REVIEW_ENABLED == 'true' && github.event.pull_request.draft == false)
     runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     # A single shell step with no checkout or network call -- normally a few
     # seconds. See hetzner-gitops-ci.yml's timeout-minutes addition for why an

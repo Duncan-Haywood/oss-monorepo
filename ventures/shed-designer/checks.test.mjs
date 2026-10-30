@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { buildShed, defaultDesign, PRESETS } from './model.mjs';
-import { structuralChecks, postCheck, nailZ, heelJoint, skidOnBlocks, rafterUplift, racking, woodDensity, selfWeight, anchorage, anchorageText, BRACING } from './checks.mjs';
+import { structuralChecks, postCheck, nailZ, heelJoint, skidOnBlocks, rafterUplift, racking, woodDensity, selfWeight, anchorage, anchorageText, BRACING, groundAnchors } from './checks.mjs';
 import { buildInstructions } from './instructions.mjs';
 import { estimate } from './estimate.mjs';
 import { check, worst, roofCase, designValues } from './structure.mjs';
@@ -333,7 +333,7 @@ test('self-weight is the drawn volume at the NDS density', () => {
 // walls and the roof's rise, uplift over the roof plan (8 ft + two 12"
 // overhangs), about the leeward skid; the weight acts half the skid spread in.
 test('the anchorage check is the hand calculation, and an unanchored shed tips', () => {
-  const s = buildShed(PRESETS['8x12 classic']());
+  const s = buildShed({ ...PRESETS['8x12 classic'](), anchors: 'none' });
   const k = s.dims;
   const wall = k.plateTop / 12, rise = (k.ridgeTop - k.plateTop) / 12;
   const M = 20 * 12 * (wall * wall / 2 + rise * (wall + rise / 2));
@@ -349,12 +349,44 @@ test('the anchorage check is the hand calculation, and an unanchored shed tips',
   assert.ok(Math.abs(a.tipsAtPsf - 20 / a.ratio) < 1e-9);
   assert.match(anchorageText(s), /needs anchors: ground anchors or straps that hold about \d+ lb at each windward corner/);
   // At 5 psf the weight holds it; the build steps only ask for anchors when they are needed.
-  const calm = buildShed({ ...PRESETS['8x12 classic'](), windLoad: 5 });
+  const calm = buildShed({ ...PRESETS['8x12 classic'](), windLoad: 5, anchors: 'none' });
   assert.ok(anchorage(calm).ratio < 1);
   assert.match(anchorageText(calm), /holds it down with \d+% to spare/);
   const steps = (sh) => JSON.stringify(buildInstructions(sh, estimate(sh)));
   assert.match(steps(s), /Anchor it\./);
   assert.doesNotMatch(steps(calm), /Anchor it\./);
+  // With no anchors the Structure tab fails it, by the same ratio.
+  const none = structuralChecks(s).rows.find((x) => x.member === 'Anchorage (none)');
+  assert.ok(!none.ok && Math.abs(none.ratio - a.ratio) < 1e-9);
+});
+
+// Four rated ground anchors (Tie Down 59802: 3,150 lb working load, class 4a
+// soil). Each windward corner holds V = the hold-down above and H = half of
+// 0.6W on the whole face; the strap at 45 degrees, its plan line 45 degrees
+// off the wind, pulls max(V / cos 45, H / (sin 45 cos 45)).
+test('ground anchors: the strap pull is the hand calculation, and the shed passes with them', () => {
+  const s = buildShed(PRESETS['8x12 classic']());
+  assert.equal(s.design.anchors, '48');
+  const g = groundAnchors(s);
+  const c = Math.SQRT1_2;
+  let pull = 0;
+  for (const x of anchorage(s).dirs) pull = Math.max(pull, x.holdDown / c, (0.6 * x.F) / 2 / (c * c));
+  assert.ok(Math.abs(g.pull - pull) < 1e-9, `${g.pull} vs ${pull}`);
+  assert.equal(g.kit.working, 3150);
+  assert.ok(Math.abs(g.ratio - pull / 3150) < 1e-9);
+  // Sliding governs: 0.6 x 20 psf on the 12 ft face is more than the hold-down.
+  assert.equal(g.governs, 'sliding');
+  // The floor frame is tied to the skid with enough H2.5As (615 lb) for the hold-down.
+  assert.equal(g.ties, Math.ceil(Math.max(...anchorage(s).dirs.map((x) => x.holdDown)) / 615));
+  const row = structuralChecks(s).rows.find((x) => x.member === 'Ground anchors (overturning and sliding)');
+  assert.ok(row.ok && Math.abs(row.ratio - g.ratio) < 1e-9);
+  // The kit and the corner ties are on the shopping list; the build steps install them.
+  const est = estimate(s);
+  assert.equal(est.shopping.find((r) => r.source?.key === 'anchorKit48')?.qty, 1);
+  assert.equal(est.shopping.find((r) => /floor frame to the outer skid/.test(r.name))?.qty, 4 * g.ties);
+  assert.ok(buildInstructions(s, est).some((x) => x.title === 'Ground anchors'));
+  // At a high enough wind even the anchors give out.
+  assert.ok(!structuralChecks(buildShed({ ...PRESETS['8x12 classic'](), windLoad: 90 })).rows.find((x) => x.member === 'Ground anchors (overturning and sliding)').ok);
 });
 
 test('the subfloor is checked against its APA span rating: 23/32" T&G spans 24" joists, not wider', async () => {

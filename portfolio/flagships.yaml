@@ -134,7 +134,7 @@ flagships:
       two-lag (AR(2)) likelihood inside PELT (the iterated-prewhitening fit
       failed on sunspots); a real documented step inside a cycle; a cycle
       check not tied to rho (treering, rho 0.16, gets no hint);
-      `cycleWarning` (Fisher's g) onto the page card; a documented real run
+      a documented real run
       of 5+ steps to test the block-variance warning, which does not yet
       separate drift from steps. (1) range95: a closure series quiet outside
       the closure (none of 30 Ansett route/class series is). (2) The steep-
@@ -163,7 +163,7 @@ flagships:
       on a real Dutch file (UBL and CII both landed 2026-10-25, made-up examples); India's INV-01 check on a real IRP payload; mandate
       dates read from primary sources where pages cite guides (Israel page 2026-10-29 from vendor summaries, directive 01/2025 unread; Denmark, Czech, Estonia, Latvia, Slovenia vendor-only; Luxembourg bill 8815 text unread; iras.gov.sg,
       ato.gov.au, revenue.ie, CBIC); Latin American, Spain and Brazil pages from search excerpts (open: CFDI and NF-e XSD readers, NFS-e); refresh the Bulgaria page when its draft
-      passes or changes (consultation closed 2026-10-23, no outcome found 2026-10-26; penalties from 1 Jul 2028 and scope added from adviser reports). A run that lands a slice replaces its item here; keep
+      passes or changes (consultation closed 2026-10-23, no outcome found 2026-10-30; sources disagree on 2028 vs a 2026-2030 phase-in; penalties from 1 Jul 2028 and scope added from adviser reports). A run that lands a slice replaces its item here; keep
       this under 2,000 characters.
   - venture: shift-roster-builder
     why: >-
@@ -183,7 +183,7 @@ flagships:
       them. Landed 2026-10-26: coverRepair (exact
       large-neighbourhood repair, on with the exact check) reaches the optimum on
       10x28 week 7 and all four 12x30 weeks. Landed 2026-10-28: open-shift
-      tiebreak and `openShiftWeight` (weight 0: 15 h / 5 shifts; 100: 19 h / 3, sample cafe; page select and `--open-shift-hours` landed 2026-10-27). Measured 2026-10-28 (eval/relaxation-check.py): no LP relaxation closes 12x30 week 2 (cliques 68, cover cuts 68.4, Dantzig-Wolfe 72.33; floor 72, optimum 75), so the clique cut is dropped. Landed 2026-10-30: 14-day-notice page (what a late change costs by days out, from callout-churn-bench); `--import-shifts` / page box (published-schedule CSV to shift lines; invented layouts only, wanted: a real export). Landed 2026-10-30: daycare-staff-schedule page. Landed 2026-10-30: `planStreaks` (`--weeks` flags runs of 7+ days across a week boundary). Landed 2026-10-30: `streak: N` cell, written by carry-over and `--weeks`, so the days-in-a-row limit holds across Monday in the search. `placeRestBreaks` (paid rest breaks from the operator's own spacing and length, page boxes; not enforced by the search). Next: branch-and-price on the Dantzig-Wolfe LP; then a tighter pay bound once coverage is proven, then a
+      tiebreak and `openShiftWeight` (weight 0: 15 h / 5 shifts; 100: 19 h / 3, sample cafe; page select and `--open-shift-hours` landed 2026-10-27). Measured 2026-10-28 (eval/relaxation-check.py): no LP relaxation closes 12x30 week 2 (cliques 68, cover cuts 68.4, Dantzig-Wolfe 72.33; floor 72, optimum 75), so the clique cut is dropped. Landed 2026-10-30: 14-day-notice page (what a late change costs by days out, from callout-churn-bench); `--import-shifts` / page box (published-schedule CSV to shift lines; invented layouts only, wanted: a real export). Landed 2026-10-30: daycare-staff-schedule page. Landed 2026-10-30: coffee-shop-staff-schedule page (real CLI output, pinned test). Landed 2026-10-30: `planStreaks` (`--weeks` flags runs of 7+ days across a week boundary). Landed 2026-10-30: `streak: N` cell, written by carry-over and `--weeks`, so the days-in-a-row limit holds across Monday in the search. `placeRestBreaks` (paid rest breaks from the operator's own spacing and length, page boxes; not enforced by the search). Next: branch-and-price on the Dantzig-Wolfe LP; then a tighter pay bound once coverage is proven, then a
       joint multi-week solve. 
 
   - venture: photo-editing
@@ -245,7 +245,7 @@ flagships:
       suggestFairnessWeight (CLI --suggest-weight and a page button), play-
       off race and odds; thousands of random leagues through the validator
       with 0 invalid, and the page checkboxes clicked in Chromium
-      (eval/browser-click.mjs). Travel-table warnings (missing pair, triangle typo) landed 2026-10-30, on the CLI and the multi-division page (a notice above the schedule). Season grid CSV for multi-division leagues landed 2026-10-30 (CLI --grid and a page button, clicked in Chromium 2026-10-30: eval/browser-click.mjs). Team unavailable dates on the multi-division page landed 2026-10-30 (browser-clicked). Next: a real league's travel times and a real league's unavailable-date requests.
+      (eval/browser-click.mjs). Travel-table warnings (missing pair, triangle typo) landed 2026-10-30, on the CLI and the multi-division page (a notice above the schedule). Season grid CSV for multi-division leagues landed 2026-10-30 (CLI --grid and a page button, clicked in Chromium 2026-10-30: eval/browser-click.mjs). Team unavailable dates on the multi-division page landed 2026-10-30 (browser-clicked). Printable score sheets for multi-division leagues landed 2026-10-30 (page button). Next: a real league's travel times and a real league's unavailable-date requests.
   - venture: open-tennis-robots
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP

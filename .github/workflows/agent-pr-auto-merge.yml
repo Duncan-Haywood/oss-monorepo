@@ -23,6 +23,15 @@ on:
     workflows: [Agent cross-review]
     types: [completed]
 
+# Each cross-review completion starts a sweep over every open PR, and a busy
+# hour finishes dozens of them. One sweep at a time with one pending is enough:
+# GitHub drops the older pending run in a group, and the run that does start
+# reads every PR's current state. Not cancel-in-progress, so a merge already
+# under way finishes.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.event.check_suite.pull_requests[0].number || 'sweep' }}
+  cancel-in-progress: false
+
 # File-level floor is read-only; the one job that needs to write declares
 # that itself below, rather than the grant being an accident of which file
 # the job lives in.
@@ -31,9 +40,13 @@ permissions:
 
 jobs:
   auto-merge:
+    # Off until the owner sets AGENT_REVIEW_ENABLED (see agent-cross-review.yml):
+    # with no reviewer App there are no allowed approvers, so every run on
+    # 2026-10-30 ended "0 allowed approver(s)" and merged nothing.
     if: >-
-      github.event_name != 'pull_request_review' ||
-      github.event.review.state == 'APPROVED'
+      vars.AGENT_REVIEW_ENABLED == 'true' &&
+      (github.event_name != 'pull_request_review' ||
+      github.event.review.state == 'APPROVED')
     runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     permissions:
       contents: write

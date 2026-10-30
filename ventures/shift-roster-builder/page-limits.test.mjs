@@ -79,3 +79,19 @@ test("daycare page numbers come from the builder", async () => {
   const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
   for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
 });
+
+test("coffee shop page numbers come from the builder", async () => {
+  const { parseStaff, parseShifts, buildRoster } = await import("./calc.mjs");
+  const staff = parseStaff("Maya, 18, 40, 30, Mon-Sun 5-20\nNoah, 16, 32, 20, Mon-Fri 5-20\nPriya, 15, 28, 0, Wed-Sun 6-20\nQuinn, 15, 24, 0, Sat-Sun 6-20\nRosa, 17, 20, 0, Mon-Fri 5-14\nSam, 15, 16, 0, Fri-Sun 8-20").staff;
+  const slots = parseShifts("Mon-Fri, 6, 11, 2, Morning rush\nMon-Fri, 11, 16, 1, Midday\nMon-Fri, 16, 20, 1, Evening\nSat-Sun, 7, 15, 2, Weekend brunch\nSat-Sun, 15, 19, 1, Weekend close").slots;
+  const html = page("coffee-shop-staff-schedule.html");
+  assert.equal(buildRoster(staff, slots, {}).cost, 2066);
+  assert.ok(html.includes("24 of 26 person-shifts are covered for $2,066"));
+  assert.equal(buildRoster(staff, slots, { minRestHours: 0 }).cost, 2182);
+  assert.ok(html.includes("covers all 26 for $2,182"));
+  assert.match(page("sitemap.xml"), /coffee-shop-staff-schedule\.html/);
+  assert.match(page("index.html"), /coffee-shop-staff-schedule\.html/);
+  assert.ok(html.includes("No warranty"));
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
+});
