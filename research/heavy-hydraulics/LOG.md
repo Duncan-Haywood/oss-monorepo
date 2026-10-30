@@ -2,6 +2,18 @@
 
 Newest first.
 
+## 2026-10-30 · Milestone 2l: where is the sign boundary in (dp_ls, neutral drop)? (planned before running)
+- Why: 2i to 2k each moved one input and flipped the ranking. Network hosts for new sources (assets.danfoss.com, zenodo.org, rwth/polito repositories, arxiv.org) all refuse connections from this session, so no new source this run; what the paper can use instead is the boundary itself, so a reader with their own machine's two numbers can read the answer off.
+- Plan (`experiments/ranking_map.py`, reuses 2g `ratio`, load factor 0.346, LS standby 2 L/min assumed, 600 cycles per seed x 5 seeds): dp_ls 8 to 32 bar in steps of 2 against open-centre neutral pressure p_n = 1.44 (valve only, 2i), 6.44 (+5), 11.44 (+10) bar. Break-even dp_ls by linear interpolation of the median crossing 1.0, and a figure.
+- **Prediction (before running):** break-even dp_ls is about 20 bar at p_n 1.44 (2k), 25 to 27 at 6.44, 30 to 33 at 11.44, i.e. about 1.0 to 1.2 bar of dp_ls per bar of p_n (prior 75%). Refuted if the slope is under 0.8 or over 1.5, or if the median is non-monotone in dp_ls.
+
+### Outcome of 2l (`experiments/ranking_map.py`, about 10 s, seeded; `ranking_map_results.txt`, `ranking_map.svg`)
+- Median LS/OC is monotone in dp_ls in all three rows. Break-even dp_ls: **19.3** bar (p_n 1.44), **23.9** (6.44), **28.4** (11.44); slope 0.92 bar per bar.
+- Prediction scorecard: 19.3 vs "about 20": held. 23.9 vs "25 to 27": missed low. 28.4 vs "30 to 33": missed low. Slope 0.92 vs "1.0 to 1.2": missed low, though inside the 0.8 to 1.5 refutation window, so the structural reading (a one-for-one trade between the two margins, a little less because neutral flow is the whole pump flow only in idle time) stands; my numeric band was too high.
+- Reading: the two numbers a reader needs are the machine's LS margin and the neutral pressure drop of its open-centre alternative; load-sensing wins below the line `dp_ls* = 19.3 + 0.92 (p_n - 1.44)` bar at this load factor. The Rexroth 14 bar and thesis 25 bar values lie on opposite sides of it for any plausible p_n, so no further simulation resolves the sign; a measured margin does.
+- Limits: one load factor (0.346), standby flow 2 L/min assumed, the line is fitted to three points, work-phase margins use the same dp_ls (as in 2j).
+- Next: unchanged from 2k (a working LS margin from a main-valve datasheet; hosts must be allowed); a second load factor for the boundary.
+
 ## 2026-10-30 · Milestone 2k: a third LS margin (20 bar) puts the break-even between 14 and 25 bar (exploratory: no predictions written before running)
 - Why: 2j's "Next" was a working LS margin for an excavator main valve. Search found the Danfoss PVG 32 Technical Information (excerpt only): the pump LS control holds a set margin between P and LS, with a worked example of 20 bar. I could NOT open the document (assets.danfoss.com and hydraulicsonline.com do not resolve from this session; they would need allowing in the network settings), so 20 bar is a search-excerpt value, an example not a recommendation, and its page is unchecked. No standby flow found.
 - Run (`dpls_sourced.py` with 20 bar added; 2 s; same settings as 2j): dp_ls 20: LS/OC median 1.014 (extra 0) and 0.928 (extra 5); LS worse in 54.9% and 26.7% of cycles. Rows for 25, 14, 10 unchanged from 2j.

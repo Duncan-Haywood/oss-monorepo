@@ -193,8 +193,11 @@ export function solidsOf(shed, heat) {
   const texture = d.sidingType === 'board and batten' ? FINISH.batten : d.sidingType === 'vinyl' ? FINISH.lap : d.sidingType === 'T1-11' ? FINISH.grooves : 0;
   for (const p of shed.panels) {
     const sheathing = p.kind === 'roof sheathing' || p.kind === 'wall sheathing';
-    const layer = p.kind === 'floor sheet' ? 'floor' : sheathing ? 'sheathing' : 'siding';
-    const color = p.kind === 'floor sheet' ? COLORS.floor : sheathing ? COLORS.osb : siding;
+    // A gambrel's gussets are part of the roof frame like a truss's; its loft floor, like a truss attic's deck, is plywood like the floor.
+    const gusset = p.kind === 'truss gusset' || p.kind === 'gambrel gusset';
+    const deck = p.kind === 'attic deck' || p.kind === 'loft deck';
+    const layer = p.kind === 'floor sheet' ? 'floor' : sheathing ? 'sheathing' : gusset || deck ? 'roof' : 'siding';
+    const color = p.kind === 'floor sheet' || deck ? COLORS.floor : sheathing || gusset ? COLORS.osb : siding;
     out.push({ geom: p.geom, color: /** @type {any} */ (color), layer, flags: p.kind === 'siding' ? (d.polkaDots ? 1 : 0) + glitter + texture : p.kind === 'lap siding' ? (d.polkaDots ? 1 : 0) + glitter : 0 });
   }
   const roof = pal.roof;
@@ -231,13 +234,22 @@ export function dimensionsOf(shed, fmt = (x) => `${x}`) {
   const seg = (a, b, ext, label) => out.push({ a, b, ticks: ext, label, ...(facing ? { n: facing } : {}) });
   seg([0, -o, 0], [L, -o, 0], [[0, 0, 0], [0, -o - 4, 0], [L, 0, 0], [L, -o - 4, 0]], `${fmt(L)} long`);
   seg([L + o, 0, 0], [L + o, W, 0], [[L, 0, 0], [L + o + 4, 0, 0], [L, W, 0], [L + o + 4, W, 0]], `${fmt(W)} wide`);
-  seg([L + o, W / 2, 0], [L + o, W / 2, k.peak], [[L, W / 2, k.peak], [L + o + 4, W / 2, k.peak]], `${fmt(k.peak)} ground to peak`);
-  seg([-o, 0, 0], [-o, 0, k.plateTop], [[0, 0, k.plateTop], [-o - 4, 0, k.plateTop]], `${fmt(k.plateTop)} ground to wall top`);
+  // A lean-to's high point is its front edge, over the tall front wall.
+  const py = k.lean ? -k.overhang : W / 2;
+  seg([L + o, py, 0], [L + o, py, k.peak], [[L, py, k.peak], [L + o + 4, py, k.peak]], `${fmt(k.peak)} ground to ${k.lean ? 'high edge' : 'peak'}`);
+  seg([-o, 0, 0], [-o, 0, k.lean ? k.highPlateTop : k.plateTop], [[0, 0, k.lean ? k.highPlateTop : k.plateTop], [-o - 4, 0, k.lean ? k.highPlateTop : k.plateTop]], `${fmt(k.lean ? k.highPlateTop : k.plateTop)} ground to ${k.lean ? 'front ' : ''}wall top`);
+  if (k.lean) seg([-o, W, k.floorTop], [-o, W, k.plateTop], [[0, W, k.plateTop], [-o - 4, W, k.plateTop]], `${fmt(k.plateTop)} ground to back wall top`);
   seg([-o, W, 0], [-o, W, k.floorTop], [[0, W, k.floorTop], [-o - 4, W, k.floorTop]], `${fmt(k.floorTop)} ground to floor`);
   // Overhang and roof slope on the left gable.
   const eaveZ = k.plateTop + (k.connector ? 0 : -k.stud * (d.pitch / 12)) + k.plumbH;
-  if (k.overhang > 0) seg([-6, -k.overhang, eaveZ + 6], [-6, 0, eaveZ + 6], [[-6, 0, k.plateTop], [-6, 0, eaveZ + 8]], `${fmt(k.overhang)} overhang`);
-  seg([-12, -k.overhang, eaveZ + 14], [-12, W / 2, k.peak + 8], [], `${d.pitch}/12 roof, ${fmt(k.slopeLen)} eave to ridge`);
+  // On a lean-to the overhang is shown at the low back eave.
+  if (k.overhang > 0 && k.lean) seg([-6, W, eaveZ + 6], [-6, W + k.overhang, eaveZ + 6], [[-6, W, k.plateTop], [-6, W, eaveZ + 8]], `${fmt(k.overhang)} overhang`);
+  else if (k.overhang > 0) seg([-6, -k.overhang, eaveZ + 6], [-6, 0, eaveZ + 6], [[-6, 0, k.plateTop], [-6, 0, eaveZ + 8]], `${fmt(k.overhang)} overhang`);
+  if (k.lean) {
+    // One slope, from the low back tail up to the high front one.
+    const lowZ = eaveZ - k.overhang * (d.pitch / 12);
+    seg([-12, W + k.overhang, lowZ + 14], [-12, -k.overhang, k.peak + 8], [], `${d.pitch}/12 roof, ${fmt(k.slopeLen)} tail to tail`);
+  } else seg([-12, -k.overhang, eaveZ + 14], [-12, W / 2, k.peak + 8], [], `${d.pitch}/12 roof, ${fmt(k.slopeLen)} eave to ridge`);
   // Every door and window: its rough size, its distance from the corner, and a window's sill height.
   for (const f of shed.fixtures.filter((x) => x.kind === 'door' || x.kind === 'window')) {
     const g = f.geom;

@@ -1,5 +1,6 @@
 ---
 title: "We seeded 12 bugs in the child tax credit calculator; the tests caught 5"
+seo_title: "We seeded 12 bugs in the child tax credit calculator: 5 caught"
 date: 2026-10-29
 tags: [child-tax-credit-calculator, testing]
 description: "A red-team run on the free Child Tax Credit calculator: the suite caught 5 of 12 seeded faults; six new tests lifted that to every non-equivalent one."

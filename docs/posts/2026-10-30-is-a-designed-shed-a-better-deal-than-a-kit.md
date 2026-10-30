@@ -1,5 +1,6 @@
 ---
 title: "Is a shed you design yourself a better deal than a kit? About even, with taller walls"
+seo_title: "Is a self-designed shed a better deal than a kit?"
 date: 2026-10-30
 tags: [shed-designer, cost, storage, prefab]
 description: "Against 17 Home Depot and Lowe's shed listings, a designed 8x12 matches a kit on floor area per dollar and beats most on wall volume."

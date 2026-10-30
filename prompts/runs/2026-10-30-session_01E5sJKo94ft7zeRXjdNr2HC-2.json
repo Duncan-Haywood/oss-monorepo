@@ -1,0 +1,53 @@
+{
+  "date": "2026-10-30",
+  "session": "https://claude.ai/code/session_01E5sJKo94ft7zeRXjdNr2HC",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-30T02:10:00Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 11596,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Drafted an ergot story before finding The Float Test already covers it; switched topic (cost one draft's thinking, no files)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/promptctl.py record",
+      "issue": "Refuses when a record for the same session id exists (session ids repeat across scheduled firings); had to write the second file by hand."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "No blog post or agent doc: scheduled creative run, story only.",
+      "did": "Added BIBLE.md next-up entry instead.",
+      "result": "story and pages landed; tests pass"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "creative: hearth-and-horizon, slug the-fifty-one-percent; text only (audio 423 MB > 400 MB cap). Same session id as the-noon-that-moves record, so this file has a -2 suffix.",
+  "corrections": [],
+  "redteam": null
+}
