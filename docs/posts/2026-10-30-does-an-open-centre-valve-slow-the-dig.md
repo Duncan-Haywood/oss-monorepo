@@ -8,7 +8,7 @@ description: "A steady-state model said an open-centre valve cost a median 6.4% 
 
 Our [heavy-hydraulics programme](https://duncan-haywood.github.io/oss-monorepo/research/heavy-hydraulics/) compares open-centre, load-sensing and independent-metering circuits on a small excavator. Until now the comparison was energy only. Milestone 3a added the time side: with two actuators moving at once and no pressure compensator, the lighter one takes the flow. The model gave a median 6.4% longer cycle.
 
-That number depended on one assumption we made up: that the centre bypass closes at the same rate as the sections open (k = 1). Milestone 3b showed the result swings from 22% to 0% as k moves from 0.5 to 1.5. Milestone 3c went to the source. The Danfoss PVG 32 Technical Information (July 2024, p. 95) says that when the spool leaves neutral, within the dead band, the connection to tank closes. The bypass is shut before any work port opens, which is a large k.
+That number depended on one assumption we made up: that the centre bypass closes at the same rate as the sections open (k = 1). Milestone 3b showed the result swings from 22% to 0% as k moves from 0.5 to 1.5. Milestone 3d went to the source. The Danfoss PVG 32 Technical Information (July 2024, p. 95) says that when the spool leaves neutral, within the dead band, the connection to tank closes. The bypass is shut before any work port opens, which is a large k.
 
 With k from 1.5 to 10 and the PVG 32 neutral drop (10.9 bar), the median penalty is 0% and the 95th percentile at most 6.7%. At the 1.44 bar drop of a catalogue valve it survives to k of 3 to 5. So whether open-centre costs time is not established; the manual does not give a bypass-versus-stroke curve, only the qualitative statement.
 
