@@ -800,8 +800,12 @@ function buildAuto(d0, prices) {
   return s;
 }
 
-/** @param {Design} d */
-function buildFramed(d) {
+/**
+ * @param {Design} d
+ * @param {Record<string, number[]>} [lapNailers] extra full-height studs, by wall, at these
+ *   face positions (inches along the siding face): where a lap butt joint found no stud.
+ */
+function buildFramed(d, lapNailers) {
   /** @type {Member[]} */
   const members = [];
   /** @type {{ id: string, kind: string, item: string, geom: Geom, group: string, wall?: string, side?: string, pos?: number[], course?: number, face?: [number, number][], where?: string }[]} */
@@ -1158,7 +1162,13 @@ function buildFramed(d) {
       if (occupied(s0) || inOpening(s0)) continue;
       verticals.push({ s: s0, kind: 'stud' });
     }
-    for (const v of verticals) addM(v.kind, d.studSize, v.s, v.s + 1.5, 1.5, 1.5 + studLenW);
+    // A stud off the layout where lap siding needs one for a butt joint (two
+    // openings close together can leave no layout stud between their casings).
+    for (const c of lapNailers?.[name] || []) {
+      const s0 = c - start - 0.75;
+      if (s0 >= 0 && s0 + 1.5 <= len && !occupied(s0) && !inOpening(s0)) verticals.push({ s: s0, kind: 'stud', note: 'extra stud to back a lap siding butt joint' });
+    }
+    for (const v of verticals) addM(v.kind, d.studSize, v.s, v.s + 1.5, 1.5, 1.5 + studLenW, /** @type {any} */ (v).note);
     const breakCenters = verticals.map((v) => v.s + 0.75);
     // Where a plate may also break over a header: on a top cripple (or, with
     // the header tight to the plate, anywhere on it), with the header running
@@ -2411,6 +2421,15 @@ function buildFramed(d) {
   // Every fixture gets an id too, so the 3D view can pick and highlight it.
   for (const f of fixtures) f.id ??= nextId('FX');
 
+  // A lap butt joint with no stud behind it: frame a stud where the layout asked for one, once.
+  const need = Object.fromEntries(lap.map((f) => [f.wall, f.nailers || []]).filter(([, v]) => v.length));
+  if (!lapNailers && Object.keys(need).length) {
+    const again = buildFramed(d, need);
+    if (again.lap.every((f) => f.joints.every((j) => j.backed))) {
+      again.notes.push(`Lap siding: ${Object.values(need).flat().length === 1 ? 'one stud is' : `${Object.values(need).flat().length} studs are`} added off the layout (${Object.entries(need).map(([w, v]) => `${w} wall at ${v.map((x) => fmtIn(x)).join(', ')}`).join('; ')}) so a butt joint between close openings lands on wood.`);
+      return again;
+    }
+  }
   return { design: d, members, panels, fixtures, walls, framedOpenings, warnings, notes, dims, vents: ventInfo, trim, wallTrim, doorParts, doors, interior, sidingArea, floorPieces, roofPieces, sidingFull, sidingUpper, sidingUpperShapes, lap, lapExposure, sidingStudLimit: lapStudLimit(d) };
 }
 
