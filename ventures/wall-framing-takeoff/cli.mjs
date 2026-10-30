@@ -5,6 +5,7 @@
 import { readFileSync } from "node:fs";
 import { sheathe, defaultSheathing, sheathingText, nailerCuts } from "./sheathing.mjs";
 import { layoutFloor, floorCuts, floorText } from "./floor.mjs";
+import { layoutDeck, deckText } from "./deck.mjs";
 import { layoutFoundation, foundationText } from "./foundation.mjs";
 import { layoutDrywall, drywallText } from "./drywall.mjs";
 import { layoutInsulation, insulationText } from "./insulation.mjs";
@@ -52,6 +53,7 @@ Usage:
   node cli.mjs plan.json --panel-max=12ft --panel-sheets  one printable sheet per panel after each wall's sheet
   node cli.mjs plan.json --panel-max=12ft --sheathing-psf=1.5  also weigh the sheathing on each panel (lb per sq ft)
   node cli.mjs plan.json --floor     add the plan's floor (joists, rim, blocking, subfloor sheets); its lumber joins the order
+  node cli.mjs plan.json --deck      add the plan's deck (plan "deck": {width, depth, height, joist, spacing, beam, beamPlies, postSize, freestanding, overhang, spanTable}): joists, rims or ledger, beam and posts, footing concrete, decking rows with joints on joists, hardware; its own pressure-treated lumber order
   node cli.mjs plan.json --stairs    add the plan's stairs (plan "stairs": one object or a list of {totalRise, tread, stringer, width, treadBoard, floorThickness, openingLength}): equal risers under the code limit, notch geometry, stringers and treads, the stairwell opening the headroom needs; the lumber joins the order
   node cli.mjs plan.json --roof      add the plan's gable roof, or hip roof with shape "hip" (rafters, ridge, sheathing, shingle and felt quantities); its lumber joins the order
   node cli.mjs plan.json --fasteners   count nails by connection (plan fasteners: studEndNails, plateSpacing, edgeSpacing, nailsPerBox, price; add --sheathing for sheathing nails)
@@ -137,6 +139,13 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
     floor = layoutFloor(plan.floor, plan);
     if (!floor.ok) return { code: 1, out: `The floor has problems:\n${floor.errors.map((e) => `  - ${e}`).join("\n")}` };
   }
+  let deck = null;
+  if (flags.has("--deck") || plan.deck) {
+    if (!plan.deck) return { code: 2, out: "The plan has no `deck` object (width, depth, height; joist, spacing, beam, postSize optional)." };
+    for (const k of ["width", "depth", "height", "overhang"]) if (typeof plan.deck[k] === "string") plan.deck[k] = parseLength(plan.deck[k]);
+    deck = layoutDeck(plan.deck);
+    if (!deck.ok) return { code: 1, out: `The deck has problems:\n${deck.errors.map((e) => `  - ${e}`).join("\n")}` };
+  }
   /** @type {any[]} */
   const stairs = [];
   if (flags.has("--stairs") || plan.stairs) {
@@ -178,6 +187,7 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
   /** @type {any} */
   let r = takeoff(plan, shell());
   if (floor && r.ok) r.floor = floor;
+  if (deck && r.ok) r.deck = deck;
   if (stairs.length && r.ok) r.stairs = stairs;
   if (roof && r.ok) r.roof = roof;
   if (foundation && r.ok) r.foundation = foundation;
@@ -216,7 +226,7 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
   if (flags.has("--sheathing") || flags.has("--horizontal") || flags.has("--overhang") || rimLap > 0 || plan.sheathing) {
     const sheathing = sheathe({ ...plan, sheathing: { ...defaultSheathing(), ...(plan.sheathing || {}), ...(flags.has("--horizontal") ? { orientation: "horizontal" } : {}), ...(flags.has("--overhang") ? { overhang: true } : {}), ...(rimLap > 0 ? { rimLap } : {}) } }, r);
     const extra = nailerCuts(sheathing);
-    if (extra.length) { r = takeoff(plan, [...extra, ...shell()]); if (floor) r.floor = floor; if (stairs.length) r.stairs = stairs; if (roof) r.roof = roof; if (foundation) r.foundation = foundation; if (drywall) r.drywall = drywall; if (insulation) r.insulation = insulation; if (trimmed) r.trim = trimmed; if (sided) r.siding = sided; if (eaved) r.eaves = eaved; if (guttered) r.gutters = guttered; } // nailers join the cut list and the lumber order
+    if (extra.length) { r = takeoff(plan, [...extra, ...shell()]); if (floor) r.floor = floor; if (deck) r.deck = deck; if (stairs.length) r.stairs = stairs; if (roof) r.roof = roof; if (foundation) r.foundation = foundation; if (drywall) r.drywall = drywall; if (insulation) r.insulation = insulation; if (trimmed) r.trim = trimmed; if (sided) r.siding = sided; if (eaved) r.eaves = eaved; if (guttered) r.gutters = guttered; } // nailers join the cut list and the lumber order
     r.sheathing = sheathing;
   }
   if (r.ok && (flags.has("--fasteners") || plan.fasteners)) {
@@ -262,6 +272,7 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
   lines.push("  K = king, C = corner backing, T = tee backing; jacks sit inside the kings.");
   if (r.sheathing) lines.push("", `SHEATHING (panels run ${r.sheathing.orientation === "horizontal" ? "horizontally, course by course from the floor" : "vertically from the wall start"}; lengths left to right)`, ...sheathingText(r.sheathing));
   if (r.floor) lines.push("", "FLOOR", ...floorText(r.floor));
+  if (r.deck) lines.push("", "DECK", ...deckText(r.deck));
   if (r.stairs) lines.push("", "STAIRS", ...r.stairs.flatMap((x) => [...(x.flights ? landingText(x) : stairText(x)), ...(x.winders ? winderText(x.winders) : [])]));
   if (r.foundation) lines.push("", "FOUNDATION", ...foundationText(r.foundation));
   if (r.drywall) lines.push("", "DRYWALL", ...drywallText(r.drywall));
