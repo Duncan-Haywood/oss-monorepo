@@ -1,6 +1,6 @@
 # Draft: which hull carries a small survey boat furthest per kWh, and how much of the answer is the drag model?
 
-Status: **skeleton of milestone 7, not submittable.** Every number below is copied from
+Status: **milestone 7b: introduction, model and results-table drafted, not submittable.** Every number below is copied from
 [`../LOG.md`](../LOG.md) and the `experiments/results_*.txt` file named beside it. Nothing is new
 in this file. Target: OCEANS (IEEE/MTS), 6 to 10 pages. The hull constants are unvalidated against
 tank data (milestone 3 is open), and that gap decides what the paper can claim, as section 5 says.
@@ -23,12 +23,56 @@ is robust to the unsourced inputs, and the absolute range is not**:
   roughly +-10% (`results_solar_mc.txt`); the unsourced hull box adds another +-10%
   (`results_solar_hull_uncertainty.txt`). Site ordering held in 500 of 500 draws.
 
-## 2. Sections still to write
+## 2. Drafted sections (milestone 7b)
 
-1. Introduction and related work (PROPOSAL.md has the checked list).
-2. Model: ITTC 1957 friction, form factor, Michell thin-ship wave term (Wigley, torpedo), Savitsky,
-   lifting-line foil, quasi-steady glider, solar harvest with daily series.
-3. Experiments, one table per rung from section 1.
+Prose below is a draft of paper sections 1 to 3. Every figure is quoted from `../LOG.md`; no
+experiment was run for this text. Citations are the PROPOSAL.md list and still need the open-and-read
+pass its "Citation status" describes.
+
+### 2.1 Introduction (draft)
+
+Small autonomous survey craft of 100 to 500 kg are usually chosen for deck area and stability, not
+endurance. If the payload's fixed power draw dominates at survey speed, the hull matters little;
+if not, it matters a great deal. Published comparisons fix one resistance method and one vehicle
+(Manley 2008; Liu et al. 2016), and the regression methods in common use (Holtrop and Mennen 1982)
+were fitted to ships of tens of metres. We put the hull types on one energy basis, a 200 kg craft
+with a 25% battery mass fraction, and sweep every input we cannot source, so that the result is
+the region where the ranking holds rather than one number. Contributions, stated narrowly:
+(i) a common energy-per-kilometre comparison of seven body types with every unsourced input swept
+and every sourced one named; (ii) the finding that the ranking is stable where absolute range is
+not; (iii) a first contact with tank data, one Wigley point, showing the swept form-factor box is
+conservative for slender hulls; (iv) a seeded, one-command-per-table artefact.
+
+### 2.2 Model (draft)
+
+Displacement hulls: ITTC 1957 friction line times a form factor (1 + k), plus Michell thin-ship
+wave resistance for Wigley hulls, with Havelock two-hull interference for the catamaran. Planing:
+Savitsky (1964) prismatic surface, no mean-bottom-speed correction. Hydrofoil: Prandtl lifting
+line plus flat-plate struts, no ventilation. Glider: steady glide at best-glide incidence with
+pump work B tan(gamma) / (2 eta) per metre, independent of dive depth; the AUV is a same-mass,
+same-battery propeller body. Range is battery energy over (propulsive power / efficiency + hotel
+load) times speed, maximised over speed. Deck solar adds a daily-mean harvest with NASA POWER
+insolation at five sites. All coefficients that are not sourced are swept on a grid or drawn jointly
+(milestone 5m).
+
+### 2.3 Headline results (draft table, 200 kg, 25% battery, 30 W hotel unless stated)
+
+| Rung compared with the 4 m Wigley monohull | Cases | Wins over monohull | Source |
+|---|---|---|---|
+| Catamaran (Michell + Havelock) | 6,561 | 216 (3.3%); 0 of 729 equal-length | `results_michell.txt` |
+| SWATH | 4,374 | 0 | `results_swath.txt` |
+| Planing (Savitsky) | 48 | 0 | `results_planing.txt` |
+| Hydrofoil | 2,916 | 0 (foil/mono range ratio 0.064 to 0.248 where foilborne) | `results_foil.txt` |
+| Glider vs AUV, equal hotel, Slocum coefficients | 2,430 | glider 0 | `results_slocum.txt` |
+| Glider vs REMUS-100-class AUV, vendor hotel 104 to 175 W | 810 glider cases per AUV power row | glider longer in 100% of rows (total AUV power 125 to 188 W) | `results_remus.txt` |
+
+Monohull best range 560 to 1,188 km (median 836 km) at a median 1.05 m/s in the milestone-1 box.
+Hypotheses: H1 not tested as stated (the log reports a slow optimum, median 1.05 m/s at 30 W hotel, but no 10% range-spread test); H2 held; H3 untested; H4 "crossover
+in 0.4 to 0.9 m/s" refuted, with the glider's edge being a hotel-load edge (break-even AUV hotel
+multiple median 4.87); H5 not yet tested against the battery sweep as a rank-swap count.
+
+## 2.4 Still to write
+
 4. Sensitivity: input ranking hotel > eta_pv > derate > c_s > k_form > wave scale
    (`results_solar_sensitivity.txt`); best speed moves 0.0 to 0.2 m/s per input while km/day moves
    up to 50%.

@@ -147,6 +147,9 @@ export function defaultDesign() {
     climate: 'mild',
     roofCover: 'shingles',
     rafterSeat: 'connector',
+    // Ground anchors at the four corners (checks.mjs, ANCHOR_KITS): a 48" kit for
+    // soil class 4a or firmer, a 30" kit for class 2, or none.
+    anchors: '48',
     maxFootprint: 100,
     // The longest board you can carry home (ft, 0 for no limit). Longer stock is
     // bought only for a piece that cannot be spliced; a pickup's 8 ft bed with
@@ -356,6 +359,7 @@ export function normalize(input) {
     sidingType: pick(o.sidingType, ['T1-11', 'LP SmartSide', 'LP SmartSide 7/16', 'board and batten', 'vinyl', 'fiber cement', 'LP SmartSide lap'], d.sidingType),
     roofCover: pick(o.roofCover, ['shingles', 'metal'], d.roofCover),
     rafterSeat: pick(o.rafterSeat, ['birdsmouth', 'connector'], d.rafterSeat),
+    anchors: pick(o.anchors, ['48', '30', 'none'], d.anchors),
     maxFootprint: Math.min(1000, Math.max(0, num(o.maxFootprint, d.maxFootprint))),
     maxHaulFt: /** @type {any} */ (o.maxHaulFt) !== '' && o.maxHaulFt !== null && [0, 8, 10, 12, 14, 16, 18, 20].includes(Number(o.maxHaulFt)) ? Number(o.maxHaulFt) : d.maxHaulFt,
     ...Object.fromEntries(['lotWidthFt', 'lotDepthFt', 'siteLeftFt', 'siteRearFt', 'houseWidthFt', 'houseDepthFt', 'houseLeftFt', 'houseFrontFt', 'setbackFt']
@@ -1321,7 +1325,9 @@ function buildFramed(d, lapNailers) {
           const beside = (m) => m.local.z0 < r.z1 - 1e-9 && m.local.z1 > r.z0 + 1e-9;
           const nextRight = wm.filter((m) => beside(m) && m.local.s0 >= r.s0 + 1e-9).reduce((t, m) => Math.min(t, m.local.s0), len);
           const s1 = Math.min(r.s0 + 1.5, nextRight);
-          const s0 = s1 - r.s0 < 1.5 - 1e-9 && r.s0 === x - 0.75 ? Math.max(0, s1 - 1.5) : r.s0;
+          const s0a = s1 - r.s0 < 1.5 - 1e-9 && r.s0 === x - 0.75 ? Math.max(0, s1 - 1.5) : r.s0;
+          // ... and between a king and a post or stud on its left, ripped to that gap too.
+          const s0 = wm.filter((m) => beside(m) && m.local.s1 > s0a + 1e-9 && m.local.s1 < s1 - 1e-9 && m.local.s0 < s0a + 1e-9).reduce((t, m) => Math.max(t, m.local.s1), s0a);
           // It has to put wood under whichever panel edge was bare.
           const zm = (r.z0 + r.z1) / 2;
           const wooded = (xx) => Boolean(at(xx, zm)) || (s0 <= xx + 1e-9 && s1 >= xx - 1e-9);
@@ -1753,6 +1759,28 @@ function buildFramed(d, lapNailers) {
       joists.push(c + 1.5);
     });
     if (W > maxStock) warnings.push(`The truss ties need ${Math.ceil(W / 12)} ft boards; add that length to your stock list.`);
+    // Under wind uplift the ties are pushed, not pulled: a 2x4 laid flat along their tops at mid-span, gable
+    // wall to gable wall (or to the loft's edge), halves their unbraced length (gambrel.mjs, tieBrace).
+    if (gamFrame.tieBrace) {
+      const x0 = D;
+      // To the loft's edge joist (the one nearest where a half loft starts), or the far gable wall.
+      const x1 = loftX ? joists.reduce((b, j) => (Math.abs(j - loftX[0]) < Math.abs(b - loftX[0]) ? j : b), joists[0]) - 0.75 : L - D;
+      const cuts = [x0];
+      while (x1 - cuts[cuts.length - 1] > spliceAt + 1e-9) {
+        const at = joists.map((j) => j - 1.5).filter((c) => c > cuts[cuts.length - 1] + 1 && c <= cuts[cuts.length - 1] + spliceAt + 1e-9).pop();
+        if (at === undefined) break;
+        cuts.push(at);
+      }
+      cuts.push(x1);
+      for (let i = 0; i + 1 < cuts.length; i++) {
+        if (cuts[i + 1] - cuts[i] < 1) continue;
+        push({
+          id: nextId('CB'), group: 'roof', kind: 'chord brace', material: '2x4', length: ceil16(cuts[i + 1] - cuts[i]),
+          note: `flat across the ties at mid-span, two 10d into each; ends butt the ${loftX && i + 2 === cuts.length ? 'loft\'s edge joist' : 'gable-end framing'}, toenailed`,
+          geom: { origin: [cuts[i], W / 2 - 1.75, plateTop + td], u: X, v: Y, w: Z, profile: [[0, 0], [cuts[i + 1] - cuts[i], 0], [cuts[i + 1] - cuts[i], 3.5], [0, 3.5]], thickness: 1.5 },
+        });
+      }
+    }
     const kneeLow = gam.zk - gamFrame.gusset.knee * gam.sl - gam.rd * gam.cl;
     if (kneeLow < plateTop + td + 1) warnings.push('The knee gussets come down to the ties; raise the knee (a longer lower slope) or use a shallower tie.');
     if (!loftX) return;

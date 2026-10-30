@@ -1755,7 +1755,7 @@ export function scheduleText(schedule, bracket = null) {
   return lines.join("\n");
 }
 
-const htmlEsc = (v) => String(v ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+export const htmlEsc = (v) => String(v ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 
 /**
  * One self-contained web page for the league: schedule with a pick-your-team filter, standings and
