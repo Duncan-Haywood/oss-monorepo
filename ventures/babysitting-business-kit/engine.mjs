@@ -13,6 +13,8 @@
 //
 // Money is in dollars rounded to cents. Times are "HH:MM" 24-hour; dates "YYYY-MM-DD".
 
+import { buildSiteFiles } from "./site.mjs";
+
 export const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const r2 = (x) => Math.round((Number(x) || 0) * 100) / 100;
 const num = (x, d = 0) => (Number.isFinite(Number(x)) && x !== "" && x !== null ? Number(x) : d);
@@ -640,59 +642,10 @@ const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "
 
 // A one-file marketing site for the sitter. Testimonials appear only when the person
 // gave consent; the inquiry form posts to the sitter's own server (or opens email).
-export function buildSite(desk, { formAction } = {}) {
-  const p = desk.profile;
-  const r = p.rates;
-  const title = p.businessName || `${p.name} Babysitting`;
-  const quotes = publishableTestimonials(desk);
-  const action = formAction ?? p.formAction ?? "";
-  const ld = { "@context": "https://schema.org", "@type": "ChildCare", name: title, description: p.bio, areaServed: p.area, ...(p.phone ? { telephone: p.phone } : {}), ...(p.email ? { email: p.email } : {}), address: { "@type": "PostalAddress", addressLocality: p.city }, priceRange: `$${r.hourly}/hour` };
-  const formTag = action
-    ? `<form method="post" action="${esc(action)}">`
-    : `<form onsubmit="event.preventDefault();var f=new FormData(this),b=[];f.forEach(function(v,k){if(k!=='website')b.push(k+': '+v)});location.href='mailto:${esc(p.email)}?subject='+encodeURIComponent('Babysitting inquiry')+'&body='+encodeURIComponent(b.join('\\n'))">`;
-  return `<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>${esc(title)}: babysitter in ${esc(p.city)}</title>
-<meta name="description" content="${esc(`${p.name}, babysitter serving ${p.area}. ${p.certifications.join(", ")} certified. $${r.hourly}/hour.`)}">
-<meta property="og:title" content="${esc(title)}">
-<script type="application/ld+json">${JSON.stringify(ld).replace(/</g, "\\u003c")}</script>
-<style>
-:root{--ink:#2b2433;--soft:#6a6175;--accent:#b0507a;--bg:#fffaf6;--card:#fff;--line:#eadfd8}
-body{margin:0;font:17px/1.6 Georgia,serif;color:var(--ink);background:var(--bg)}
-main{max-width:760px;margin:auto;padding:24px 16px}
-header{text-align:center;padding:36px 0 12px}
-h1{font-size:2.2rem;margin:0}h2{color:var(--accent);margin-top:2em}
-.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin:14px 0}
-blockquote{margin:0 0 14px;font-style:italic}blockquote cite{display:block;font-style:normal;color:var(--soft);font-size:.9rem}
-label{display:block;margin-top:10px;font-weight:600}input,textarea{width:100%;box-sizing:border-box;padding:9px;border:1px solid #bbb;border-radius:8px;font:inherit}
-button{margin-top:14px;background:var(--accent);color:#fff;border:0;border-radius:8px;padding:12px 18px;font:inherit;font-weight:700;cursor:pointer}
-.hp{position:absolute;left:-9999px}footer{color:var(--soft);font-size:.85rem;text-align:center;padding:30px 0}
-</style>
-</head>
-<body><main>
-<header><h1>${esc(title)}</h1><p>Babysitting for families in ${esc(p.area)}</p></header>
-<section class="card"><p>${esc(p.bio)}</p>${p.certifications.length ? `<p><strong>Certified:</strong> ${esc(p.certifications.join(", "))}</p>` : ""}</section>
-${p.showFaith && p.faithStatement ? `<section><h2>My faith</h2><p>${esc(p.faithStatement)}</p>${p.faithActivities ? `<p>${esc(p.faithActivities)}</p>` : ""}</section>` : ""}
-<section><h2>Rates</h2><div class="card"><p>$${esc(r.hourly)}/hour for one child, plus $${esc(r.extraChild)}/hour for each additional child. ${esc(r.minimumHours)}-hour minimum.</p>
-<p>After ${esc(r.lateAfter)}: +$${esc(r.lateExtra)}/hour. Holidays: ${esc(r.holidayMultiplier)}× rate. Cancellations under ${esc(r.cancelHours)} hours: ${esc(r.cancelFeePct)}% of the booked sit.</p>
-<p>I care for children ${esc(fmtAge(p.youngestMonths))} and older, up to ${esc(p.maxKids)} at a time.</p></div></section>
-${quotes.length ? `<section><h2>What families say</h2><div class="card">${quotes.map((q) => `<blockquote>“${esc(q.quote)}”<cite>${esc(q.by)}${q.relation ? `, ${esc(q.relation)}` : ""}</cite></blockquote>`).join("")}</div></section>` : ""}
-<section><h2>Ask about a sit</h2><div class="card">${formTag}
-<label for="n">Your name</label><input id="n" name="name" required>
-<label for="c">Phone or email</label><input id="c" name="contact" required>
-<label for="k">Children's ages (e.g. 4, 18 months)</label><input id="k" name="kids">
-<label for="s">When do you need a sitter? (e.g. Fri 18-23, or weekdays 15-18)</label><input id="s" name="schedule">
-<label for="w">One-time or regular?</label><input id="w" name="wants">
-<label for="h">How did you hear about me?</label><input id="h" name="source">
-<label for="m">Anything else?</label><textarea id="m" name="notes" rows="3"></textarea>
-<label class="hp" for="hp">Leave this empty</label><input class="hp" id="hp" name="website" tabindex="-1" autocomplete="off">
-<button type="submit">Send</button></form></div></section>
-<footer>${esc(title)} · ${esc(p.city)}${p.phone ? ` · ${esc(p.phone)}` : ""}${p.email ? ` · ${esc(p.email)}` : ""}</footer>
-</main></body></html>
-`;
+// The website lives in site.mjs (themes, several pages, local SEO, zip download);
+// this keeps the one-page call working and returns the home page.
+export function buildSite(desk, opts = {}) {
+  return buildSiteFiles(desk, opts)["index.html"];
 }
 
 // Turn the website form (or a pasted message) into a lead.

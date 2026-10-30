@@ -30,6 +30,25 @@ test("the app, engine and generated site are served", async () => {
   } finally { await s.close(); }
 });
 
+test("the multi-page site is served under /site/ with its robots.txt and sitemap", async () => {
+  const desk = exampleDesk();
+  desk.profile.site = { url: "https://gracenotes.example", towns: "Springfield, Riverside", sick: "Fever means we reschedule, no fee." };
+  const s = await serve({ desk }, {});
+  try {
+    const r = await fetch(`${s.base}/site`, { redirect: "manual" });
+    assert.equal(r.status, 301);
+    assert.equal(r.headers.get("location"), "/site/");
+    for (const f of ["about.html", "policies.html", "faq.html"]) assert.equal((await fetch(`${s.base}/site/${f}`)).status, 200, f);
+    assert.match(await (await fetch(`${s.base}/site/policies.html`)).text(), /Fever means we reschedule/);
+    const robots = await fetch(`${s.base}/site/robots.txt`);
+    assert.equal(robots.headers.get("content-type"), "text/plain; charset=utf-8");
+    assert.match(await robots.text(), /Sitemap: https:\/\/gracenotes\.example\/sitemap\.xml/);
+    assert.equal((await fetch(`${s.base}/site/sitemap.xml`)).headers.get("content-type"), "application/xml; charset=utf-8");
+    for (const bad of ["constructor", "__proto__", "nope.html", "../server.mjs"]) assert.equal((await fetch(`${s.base}/site/${bad}`)).status, 404, bad);
+    assert.equal((await fetch(`${s.base}/site.mjs`)).status, 200, "the app's engine imports site.mjs");
+  } finally { await s.close(); }
+});
+
 test("an inquiry becomes a scored lead, auto-replies by email and alerts the sitter", async () => {
   const f = fakeFetch();
   const state = { desk: exampleDesk() };
