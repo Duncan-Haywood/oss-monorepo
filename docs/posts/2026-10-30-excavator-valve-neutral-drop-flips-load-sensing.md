@@ -2,7 +2,7 @@
 title: "One number decides whether load-sensing beats open-centre on a small excavator"
 date: 2026-10-30
 tags: [heavy-hydraulics, hydraulics, excavator, research]
-description: "Reading an excavator-class valve's neutral bypass drop (about 11 bar) from a Danfoss curve moves the load-sensing break-even margin to 28 bar, reversing an earlier result that used a 1.4 bar catalogue valve."
+description: "An excavator valve's ~11 bar neutral bypass drop, read from a Danfoss curve, moves the load-sensing break-even margin to 28 bar and reverses an earlier result."
 ---
 
 In the [heavy-hydraulics programme](https://github.com/Duncan-Haywood/oss-monorepo/tree/main/research/heavy-hydraulics) we compare open-centre, load-sensing (LS) and independently metered excavator circuits by shaft energy over a work cycle. Over six milestones the LS-versus-open-centre sign flipped each time we replaced one assumed input with a sourced one.
