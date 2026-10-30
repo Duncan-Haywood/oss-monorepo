@@ -40,6 +40,32 @@ export function parseDivisions(text) {
 }
 
 /**
+ * Soft checks on a travel table (not errors; the schedule still builds). A pair left out is priced as the longest listed,
+ * which silently overstates it, and a direct time longer than going via a third venue usually means a typo.
+ * Returns an array of messages.
+ */
+export function travelWarnings(travel, venues) {
+  const out = [];
+  const vs = [...new Set(venues || [])];
+  if (!travel || !Object.keys(travel).length) return out;
+  const key = (a, b) => [a, b].sort().join("|");
+  const longest = Math.max(...Object.values(travel));
+  for (let i = 0; i < vs.length; i++) for (let j = i + 1; j < vs.length; j++) {
+    if (travel[key(vs[i], vs[j])] === undefined) out.push(`No travel time for ${vs[i]} - ${vs[j]}: it is priced as ${longest} min, the longest you gave.`);
+  }
+  for (let i = 0; i < vs.length; i++) for (let j = i + 1; j < vs.length; j++) {
+    const direct = travel[key(vs[i], vs[j])];
+    if (direct === undefined) continue;
+    for (const k of vs) {
+      if (k === vs[i] || k === vs[j]) continue;
+      const a = travel[key(vs[i], k)], b = travel[key(k, vs[j])];
+      if (a !== undefined && b !== undefined && direct > a + b) { out.push(`${vs[i]} - ${vs[j]} is ${direct} min but ${vs[i]} - ${k} - ${vs[j]} is ${a + b}: check the ${direct}.`); break; }
+    }
+  }
+  return out;
+}
+
+/**
  * Travel times between venues, one per line: "Park - School: 25" (minutes, either direction).
  * Venues are the names after "@" in the courts box; a pair not listed is treated as the longest one given.
  */
@@ -827,6 +853,7 @@ export function readDivisionsSpec(f) {
   const names = courts.map((c) => { const m = c.match(/^(.*?)\s*@\s*(.+)$/); if (!m) return c; venues[m[1].trim()] = m[2].trim(); return m[1].trim(); });
   const tr = parseTravel(f.travel, [...new Set(names.map((c) => venues[c] || c))]);
   errors.push(...tr.errors);
+  const warnings = travelWarnings(tr.travel, [...new Set(names.map((c) => venues[c] || c))]);
   const cc = parseCourtClosures(f.courtClosures, names.length ? names : null);
   errors.push(...cc.errors);
   // venueFairness: "yes" evens venues out within the season; venueHistory: the JSON `carryVenueHistory` printed last season
@@ -838,7 +865,7 @@ export function readDivisionsSpec(f) {
   const venueFairness = f.venueFairness === true || /^(1|true|yes|on)$/i.test(String(f.venueFairness || ""));
   const fw = String(f.fairnessWeight ?? "").trim();
   if (fw !== "" && !(Number.isFinite(Number(fw)) && Number(fw) >= 0 && Number(fw) <= 100)) errors.push("The fairness weight is a number from 0 to 100 (default 3).");
-  return { errors, spec: { venueFairness, venueHistory, ...(fw !== "" && Number.isFinite(Number(fw)) ? { fairnessWeight: Number(fw) } : {}), divisions: d.divisions, courts: names, venues, times: t.times, start, weekdays: w.weekdays, skipDays: skip.days, courtClosures: cc.closures, links: l.groups, travel: tr.travel, seed: String(f.seed ?? "").trim() !== "" && Number.isFinite(Number(f.seed)) ? Math.trunc(Number(f.seed)) : 1, splitRounds: f.split === true || /^(1|true|yes|on)$/i.test(String(f.split || "")) } };
+  return { errors, warnings, spec: { venueFairness, venueHistory, ...(fw !== "" && Number.isFinite(Number(fw)) ? { fairnessWeight: Number(fw) } : {}), divisions: d.divisions, courts: names, venues, times: t.times, start, weekdays: w.weekdays, skipDays: skip.days, courtClosures: cc.closures, links: l.groups, travel: tr.travel, seed: String(f.seed ?? "").trim() !== "" && Number.isFinite(Number(f.seed)) ? Math.trunc(Number(f.seed)) : 1, splitRounds: f.split === true || /^(1|true|yes|on)$/i.test(String(f.split || "")) } };
 }
 
 /** Form fields -> the options `applyDivisionRainouts` takes (the page's four make-up checkboxes; the CLI's spec JSON uses the same keys). */
@@ -852,7 +879,8 @@ if (typeof process !== "undefined" && process.argv && import.meta.url === `file:
   const { readFileSync } = await import("node:fs");
   const file = process.argv[2];
   if (!file) { console.error("usage: node divisions.mjs spec.json [--csv]"); process.exit(2); }
-  const { spec, errors } = readDivisionsSpec(JSON.parse(readFileSync(file, "utf8")));
+  const { spec, errors, warnings } = readDivisionsSpec(JSON.parse(readFileSync(file, "utf8")));
+  for (const w of warnings) console.error(`Warning: ${w}`);
   if (errors.length) { console.error(errors.join("\n")); process.exit(1); }
   if (process.argv.includes("--suggest-weight")) {
     const r = suggestFairnessWeight(spec);
