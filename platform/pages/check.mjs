@@ -142,7 +142,11 @@ export const SHOWCASE_DIR = 'showcase';
 // the site, linked from the footer, not a tool.
 export const FEEDBACK_DIR = 'feedback';
 
-export const SITE_OWN_DIRS = new Set([CATEGORY_DIR, ABOUT_DIR, COMPARE_DIR, GUIDES_DIR, RESEARCH_DIR, ENGINEERING_DIR, WRITING_DIR, UPDATES_DIR, CHANGELOG_DIR, LAB_DIR, SHOWCASE_DIR, FEEDBACK_DIR, ASK_DIR, STORIES_DIR]);
+// Open custom development (`renderCustomDevelopmentPage` in build.mjs): the
+// request queue and how to add to it, linked from the footer, not a tool.
+export const CUSTOM_DEV_DIR = 'custom-development';
+
+export const SITE_OWN_DIRS = new Set([CATEGORY_DIR, ABOUT_DIR, COMPARE_DIR, GUIDES_DIR, RESEARCH_DIR, ENGINEERING_DIR, WRITING_DIR, UPDATES_DIR, CHANGELOG_DIR, LAB_DIR, SHOWCASE_DIR, FEEDBACK_DIR, CUSTOM_DEV_DIR, ASK_DIR, STORIES_DIR]);
 
 // Every user-facing surface here carries a liability disclaimer
 // (PRODUCT_PLAYBOOK.md §5b). This is the marker phrase they share. A product
