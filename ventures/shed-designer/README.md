@@ -124,7 +124,7 @@ At the starting prices that design is 151 pieces from 84 boards. The cut sheet's
 
 - **They can't drift.** Each design's scene hash covers the triangles and colours the viewer uploads, the shaders and draw loop, the view list and `RENDER_VERSION`. `renders.test.mjs` fails when a hash no longer matches, when a file is missing, stray or over budget, or when a page's alt text differs from the manifest. A price, a name or a change elsewhere in the tool does not mark them stale.
 - **Redraw:** `node make-renders.mjs` (only the stale designs; `--all` for every one; `--check` to test without a browser). It finds Playwright through `PLAYWRIGHT` or the cloud session's `/opt/node-tools` copy, takes about 6 s a design, and rewrites the alt text of every `<img src="renders/...">` in the venture's pages.
-- **Size budget:** 70 KB for a hero, 40 KB for any other view, 900 KB for the folder (`BUDGET` in `renders.mjs`). Each view is drawn at twice its size and scaled down, then encoded at the highest WebP quality from 0.8 down that fits. Six designs take about 240 KB. Only stale designs are redrawn, so the repository grows only when a picture really changes.
+- **Size budget:** 70 KB for a hero, 40 KB for any other view, 900 KB for the folder (`BUDGET` in `renders.mjs`). Each view is drawn at twice its size and scaled down, then encoded at the highest WebP quality from 0.8 down that fits. Six designs take about 350 KB. Only stale designs are redrawn, so the repository grows only when a picture really changes.
 - **Adding designs:** `renderTargets(extra)` takes a map of `{ key: () => design }`, so a gallery of optimised designs adds its own.
 
 ## Run it
