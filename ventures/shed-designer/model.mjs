@@ -1298,6 +1298,12 @@ function buildFramed(d) {
     const braceLen = Math.hypot(railLen, bay);
     const braceAngle = (Math.atan2(bay, railLen) * 180) / Math.PI;
     doors.push({ id: op.id, leaves, w, h, railLen, braceLen, braceAngle });
+    // A Z brace only holds a leaf square when it runs at a real slope: in a short,
+    // wide leaf the rails take most of the height and the brace lies nearly flat
+    // (a 12"-tall door gives about 1 degree); in a narrow one it stands nearly upright.
+    if (braceAngle < 25 || braceAngle > 65) {
+      warnings.push(`The site-built ${fmtIn(op.width)} x ${fmtIn(op.height)} door on the ${WALL_LABEL[op.wall].toLowerCase()} wall makes ${leaves > 1 ? 'leaves' : 'a leaf'} ${fmtIn(w)} wide and ${fmtIn(h)} tall, so its Z brace runs at ${braceAngle.toFixed(0)} deg and will not keep the door from sagging; it works best between about 30 and 60 deg. ${braceAngle < 25 ? 'Make the door taller or narrower' : 'Make the door wider'}, or choose a ready-made door.`);
+    }
     // Pieces that are the same in both leaves and in every rail position share one note, so they share a part mark.
     for (let i = 0; i < leaves; i++) {
       const tag = `door ${op.id}`;

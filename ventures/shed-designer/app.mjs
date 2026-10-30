@@ -544,7 +544,8 @@ function wire() {
       op[t.dataset.k] = t.type === 'number' ? Number(t.value) : t.value;
       if (t.dataset.k === 'wall') op.offset = Math.max(0, Math.min(op.offset, wallFaceLength(d, op.wall) - op.width));
       if (t.dataset.k === 'kind' && t.value === 'window' && op.sill === undefined) op.sill = 42;
-      if (t.dataset.k === 'kind' || t.dataset.k === 'width' || t.dataset.k === 'height') delete op.product;
+      // A new size no longer matches a catalogue unit, but a site-built door is built to any size.
+      if (t.dataset.k === 'kind' || ((t.dataset.k === 'width' || t.dataset.k === 'height') && op.product !== 'site-built')) delete op.product;
       if (t.dataset.k === 'product' && !t.value) delete op.product;
       commit(d, `changed opening ${i + 1}`, e.type === 'input' || t === typing ? t : null);
       if (e.type === 'change' && t.tagName === 'SELECT') { $('#openings tbody').innerHTML = ''; renderOpenings(design()); }

@@ -173,6 +173,17 @@ test('a cleared number box keeps the last value instead of meaning 0', { skip },
   assert.equal(await page.$eval('#undo', (b) => b.disabled), true, 'no undo step');
 });
 
+test('a site-built door too short for its Z brace says so', { skip }, async (t) => {
+  const { page } = await open(t);
+  const height = 'input[data-i="0"][data-k="height"]';
+  assert.equal(await page.$eval('select[data-i="0"][data-k="product"]', (e) => e.value), 'site-built');
+  await page.fill(height, '24');
+  await page.press(height, 'Tab');
+  await page.waitForFunction(() => document.querySelector('#warnings').textContent.includes('Z brace'));
+  assert.match(await page.textContent('#warnings'), /Z brace runs at \d+ deg/);
+  assert.equal(await page.$eval('select[data-i="0"][data-k="product"]', (e) => e.value), 'site-built', 'a new size keeps the site-built door');
+});
+
 test('on a phone: no sideways scroll, finger-size handles, touch drag and pinch', { skip }, async (t) => {
   const { ctx, page } = await open(t, pw.devices['Pixel 7']);
   const sw = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
