@@ -13,7 +13,7 @@
   "model": null,
   "task": "Move the public site from GitHub Pages to Cloudflare on workers.dev",
   "projects": ["platform/pages", "platform/edge"],
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/11585",
   "outcome": "success",
   "errors": [
     "Planned a single static-assets Worker; a measured build (18,646 files plus 1,454 from the dev analyses and deploy guide) is over the free plan's 20,000-file limit, so the site is split across two Workers."
