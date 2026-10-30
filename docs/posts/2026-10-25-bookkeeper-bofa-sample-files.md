@@ -1,5 +1,6 @@
 ---
 title: "Real Bank of America card text: 7 of 28 lines got an account suggestion"
+seo_title: "Real Bank of America card text"
 date: 2026-10-25
 description: "ai-bookkeeper's built-in merchant keywords on Actual Budget's real Bank of America sample files, and the two rules the misses justified."
 tags: [ventures, ai-bookkeeper, evaluation]

@@ -9,6 +9,11 @@
   <meta property="og:type" content="website">
   <meta property="og:title" content="Shed Designer: drag out a gable shed, get the plans and the cut list">
   <meta property="og:description" content="Framing plans, a 3D view, a producer cut sheet and a lumber order for an 8x12 (or any size) gable shed. Free, in your browser.">
+  <meta property="og:image" content="renders/og-8x12-share.jpg">
+  <meta property="og:image:type" content="image/jpeg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="3D render of an 8x12 gable shed drawn by Shed Designer, seen from the front corner">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -388,6 +393,7 @@
       <option value="8x8 lean">8x8 garden shed</option>
       <option value="8x12 lean-to">8x12 lean-to, one slope, 6 ft back wall</option>
       <option value="10x10 barn">10x10 gambrel barn with a loft</option>
+      <option value="8x12 saltbox">8x12 saltbox, steep front, long back slope</option>
     </select>
     <button type="button" class="btn" id="undo" title="Undo (Ctrl+Z). Each design has its own undo; switching designs starts it fresh.">Undo</button>
     <button type="button" class="btn" id="redo" title="Redo (Ctrl+Shift+Z or Ctrl+Y)">Redo</button>
@@ -454,13 +460,14 @@
       <legend>Size and roof</legend>
       <div class="fields">
         <label>Design name<input id="name" type="text" maxlength="80"></label>
-        <label>Shape<select id="style"><option value="gable">Gable: two slopes and a ridge</option><option value="leanTo">Lean-to: one slope, tall front wall, low back wall</option><option value="gambrel">Gambrel (barn): two slopes a side, most room under the roof</option></select></label>
+        <label>Shape<select id="style"><option value="gable">Gable: two slopes and a ridge</option><option value="leanTo">Lean-to: one slope, tall front wall, low back wall</option><option value="gambrel">Gambrel (barn): two slopes a side, most room under the roof</option><option value="saltbox">Saltbox: a short steep front, a long shallow back, the ridge off centre</option></select></label>
         <label>Length along the ridge (ft)<input id="lengthFt" type="number" min="4" max="40" step="0.5"></label>
         <label>Width across the gable (ft)<input id="widthFt" type="number" min="4" max="20" step="0.5"></label>
         <label class="check"><input id="autoWall" type="checkbox"> Walls as low as the tallest door or window allows</label>
         <label>Wall height, floor to top plate (in; on a lean-to, the low back wall)<input id="wallHeight" type="number" min="60" max="144" step="0.5"></label>
         <label class="check"><input id="autoPitch" type="checkbox"> Roof pitch from the height limit</label>
-        <label>Roof pitch (rise per 12; on a gambrel, the upper slope)<input id="pitch" type="number" min="2" max="14" step="1"></label>
+        <label>Roof pitch (rise per 12; on a gambrel, the upper slope; on a saltbox, the long back slope)<input id="pitch" type="number" min="2" max="14" step="1"></label>
+        <label data-saltbox>Saltbox front slope (rise per 12; from the back's to three times it)<input id="frontPitch" type="number" min="3" max="18" step="1"></label>
         <label data-gambrel>Gambrel lower slope (rise per 12)<input id="gambrelLower" type="number" min="16" max="30" step="1"></label>
         <label data-gambrel>Gambrel knee, in from the wall (in; 0 for a quarter of the width)<input id="gambrelKnee" type="number" min="0" max="120" step="1"></label>
         <label data-gambrel>Loft on the gambrel's ties<select id="loft"><option value="none">None (ties only)</option><option value="half">Over half the length</option><option value="full">Over the whole length</option></select></label>
@@ -554,6 +561,11 @@
         <label>House depth (ft)<input id="houseDepthFt" type="number" min="0" max="2000" step="0.5"></label>
         <label>House from the left lot line (ft)<input id="houseLeftFt" type="number" min="0" max="2000" step="0.5"></label>
         <label>House from the street lot line (ft)<input id="houseFrontFt" type="number" min="0" max="2000" step="0.5"></label>
+        <label>Door wall faces<select id="siteFacing"><option value="street">The street</option><option value="left">The left lot line</option><option value="right">The right lot line</option><option value="rear">The rear lot line</option></select></label>
+        <label>North on the site plan<select id="northDeg"><option value="">No north arrow</option><option value="0">Toward the rear lot line</option><option value="45">Rear and right</option><option value="90">Toward the right lot line</option><option value="135">Street and right</option><option value="180">Toward the street</option><option value="225">Street and left</option><option value="270">Toward the left lot line</option><option value="315">Rear and left</option></select></label>
+        <label>Easement along<select id="easementSide"><option value="none">No easement</option><option value="rear">The rear lot line</option><option value="left">The left lot line</option><option value="right">The right lot line</option><option value="street">The street</option></select></label>
+        <label>Easement width (ft)<input id="easementFt" type="number" min="0" max="200" step="0.5"></label>
+        <label>Easement note, as on your plat<input id="easementNote" type="text" maxlength="120" placeholder="e.g. 10 ft utility easement"></label>
       </div>
     </fieldset>
     <fieldset>

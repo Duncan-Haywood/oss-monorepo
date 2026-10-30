@@ -1,5 +1,6 @@
 ---
 title: "Same bank file, different line endings: our bookkeeper read five of them as empty"
+seo_title: "Same bank file, different line endings"
 date: 2026-10-25
 description: "AI Bookkeeper's importers on every sample file re-saved with other line endings, a BOM or blank lines: five files lost every row; one line fixed them."
 tags: [ai-bookkeeper, testing, bank-import]

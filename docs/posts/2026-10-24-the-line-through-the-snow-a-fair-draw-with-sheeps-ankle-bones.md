@@ -1,5 +1,6 @@
 ---
 title: "The Line Through the Snow: a short story about index insurance and a fair draw"
+seo_title: "The Line Through the Snow"
 date: 2026-10-24
 description: "New Hearth & Horizon story: a Mongolian district misses its insurance trigger by 0.3 points and draws an honest sample with sheep's ankle bones."
 tags: [fiction, hearth-and-horizon, statistics, insurance]

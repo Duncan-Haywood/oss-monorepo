@@ -79,17 +79,12 @@ branches, a red `main`): say how strong and why. A check that enforces a
 default should warn and explain rather than block, unless it guards a hard
 limit.
 
-**Measuring it.** `python3 prompts/rule_language.py` counts absolute wording per guidance file (`--lines FILE` lists candidates for rewording; a keyword heuristic, so read each line).
-
 ## Deviations: how judgment improves the defaults
 
 When you depart from an instruction, add a `deviations` entry (`file`, `instruction`, `did`, `why`, `result`).
 `promptctl.py measure` groups deviations by file. A deviation that recurs and
 works becomes the new default; one that goes badly gets the default a clearer
 reason.
-
-`doc_friction` is for instructions that were *wrong*; deviations are for ones
-*right in general but not here*. Use both.
 
 ## Writing an instruction
 
@@ -128,10 +123,3 @@ at a time and almost never removed, so they pile up. The counterweight:
 - **Review it regularly, and look outward.** Every review run cuts at least
   one rule or check that no longer earns its place, names one lesson from
   other organisations, and writes both up in `docs/reports/` or `docs/posts/`.
-
-## The improvement loop
-
-Friction and deviations feed `promptctl.py measure`; process and review runs
-turn them into [`process/backlog/`](process/backlog/README.md) items and better
-defaults (`promptctl.py backlog` ranks them). A closed item names its metric
-and baseline, and a fix that did not help gets reverted, not defended.

@@ -1,5 +1,6 @@
 ---
 title: "What is a biased simulator worth for evaluating a robot policy? A first paper draft"
+seo_title: "What is a biased simulator worth for evaluating a robot policy?"
 date: 2026-10-25
 description: "Seven milestones of the sim2real-inference programme in one draft: the simulator cuts variance for point estimates, but no certificate we built got tighter."
 tags: [research, robotics, sim2real, statistics]

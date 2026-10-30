@@ -40,7 +40,7 @@ import { LEVER_KNOBS, searchKeep } from './levers.mjs';
 
 /**
  * @typedef {{ floorSqFt: number, clearHeightIn: number, wallHeightIn: number, wallVolumeCuFt: number, overheadCuFt: number,
- *   volumeCuFt: number, shelfFt: number, headroom: number, overheadOpen: boolean, notes: string[] }} Storage
+ *   volumeCuFt: number, usableCuFt: number, shelfFt: number, headroom: number, overheadOpen: boolean, notes: string[] }} Storage
  * @typedef {{ key: string, label: string, points: number, max: number, why: string }} LooksTerm
  * @typedef {{ score: number, terms: LooksTerm[] }} Looks
  * @typedef {{ design: any, label: string, cost: number, storage: Storage, looks: Looks, ok: boolean,
@@ -59,6 +59,9 @@ export const OBJECTIVES = {
   looks: { pick: 'Best looks', label: 'Looks (heuristic score)', unit: '/100', sense: 1, of: (/** @type {Scored} */ s) => s.looks.score },
   floor: { pick: 'Most floor', label: 'Floor area inside', unit: 'sq ft', sense: 1, of: (/** @type {Scored} */ s) => s.storage.floorSqFt },
   shelf: { pick: 'Most clear wall', label: 'Wall free of openings', unit: 'ft', sense: 1, of: (/** @type {Scored} */ s) => s.storage.shelfFt },
+  // Storage you can load today: the room, the roof space when it is open to the room, and the space over a
+  // decked loft or attic; not the space over bare ties, which needs decking first (storage.mjs, usableCuFt).
+  usable: { pick: 'Most usable storage', label: 'Usable storage (open or decked)', unit: 'cu ft', sense: 1, of: (/** @type {Scored} */ s) => s.storage.usableCuFt },
 };
 
 /**
@@ -178,16 +181,24 @@ const KNOBS = {
   roofCover: ['shingles', 'metal'],
   door: Object.keys(DOORS),
   window: Object.keys(WINDOWS),
-  // A deck you can load over the roof framing: on a truss gable, attic storage
-  // (chords sized for 20 psf and decked); on a gambrel, its loft. Storage counts
-  // the space over a deck only (storage.mjs), so these are how the search buys
-  // roof storage on a tied roof. Each is pinned off where it means nothing.
+  // A deck you can load on a truss gable's bottom chords: attic storage (the
+  // chords sized for 20 psf and decked). Storage counts the space over a deck
+  // only (storage.mjs), so this and a gambrel's loft (below) are how the search
+  // buys roof storage on a tied roof. Pinned off on any other roof.
   atticStorage: [false, true],
-  loft: ['none', 'half', 'full'],
   // Gable, lean-to or gambrel (barn), tried last from each design (a lean-to has no ridge and a
   // gambrel its own trusses, so roofType does nothing to either).
   style: ['gable', 'leanTo', 'gambrel'],
+  // A gambrel's own shape: its lower slope (18/12 to 24/12, the usual barn range), how far in the
+  // bend sits (a fifth, a quarter or a third of the width), and a decked loft on its ties. They
+  // change nothing on another style, so designAt pins them there and no design is built twice.
+  gambrelLower: [20, 18, 22, 24],
+  gambrelKnee: ['quarter', 'fifth', 'third'],
+  loft: ['none', 'half', 'full'],
 };
+
+/** The knee knob in inches of run from the eave wall (0: the model's own quarter of the width). */
+const KNEE_FRACTION = { fifth: 1 / 5, quarter: 0, third: 1 / 3 };
 
 /**
  * Storage, by the one definition in storage.mjs (shared with the detail panel,
@@ -199,7 +210,7 @@ export function storageOf(shed) {
   const s = sharedStorage(shed);
   return {
     floorSqFt: r1(s.floorSqFt), clearHeightIn: r1(s.clearHeightIn), wallHeightIn: r1(s.wallHeightIn), wallVolumeCuFt: r1(s.wallVolumeCuFt), overheadCuFt: r1(s.overheadCuFt),
-    volumeCuFt: r1(s.volumeCuFt), shelfFt: r1(s.shelfFt), headroom: r1(s.headroom), overheadOpen: s.overheadOpen, notes: s.notes,
+    volumeCuFt: r1(s.volumeCuFt), usableCuFt: r1(s.usableCuFt), shelfFt: r1(s.shelfFt), headroom: r1(s.headroom), overheadOpen: s.overheadOpen, notes: s.notes,
   };
 }
 
@@ -391,7 +402,12 @@ function designAt(base, size, layout, knobs, minWall = DEFAULT_CONSTRAINTS.minWa
   const barn = knobs.style === 'gambrel';
   if (lean || barn) rest.roofType = 'ridgeBoard';
   if ('atticStorage' in rest && (lean || barn || rest.roofType !== 'truss')) rest.atticStorage = false;
-  if ('loft' in rest && !barn) rest.loft = 'none';
+  // The gambrel's own knobs: as the base has them on any other style (they would change nothing).
+  if (!barn) for (const k of ['gambrelLower', 'gambrelKnee', 'loft']) delete rest[k];
+  else if (typeof rest.gambrelKnee === 'string') {
+    const f = KNEE_FRACTION[rest.gambrelKnee] ?? 0;
+    rest.gambrelKnee = f ? Math.round(size.width * f * 2) / 2 : 0;
+  }
   // On a lean-to the lowest wall that frames the openings is often a door's height under the
   // tall front wall's: 'auto' there is that, or the lowest back wall you allow if higher.
   const leanAuto = lean && wall === 'auto' ? Math.max(minWall, minWallFor(normalize({ ...base, ...rest, length: size.length, width: size.width, openings: ops }))) : 0;

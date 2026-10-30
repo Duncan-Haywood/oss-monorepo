@@ -152,11 +152,11 @@ function preview(next) {
 }
 
 // ---------- form ----------
-const SITE_FIELDS = ['lotWidthFt', 'lotDepthFt', 'siteLeftFt', 'siteRearFt', 'setbackFt', 'houseWidthFt', 'houseDepthFt', 'houseLeftFt', 'houseFrontFt'];
+const SITE_FIELDS = ['lotWidthFt', 'lotDepthFt', 'siteLeftFt', 'siteRearFt', 'setbackFt', 'houseWidthFt', 'houseDepthFt', 'houseLeftFt', 'houseFrontFt', 'easementFt'];
 const FIELDS = ['name', 'lengthFt', 'widthFt', 'style', 'wallHeight', 'pitch', 'overhang', 'studSize', 'studSpacing', 'joistSize', 'joistSpacing',
   'rafterSize', 'rafterSpacing', 'tieSize', 'skidSize', 'skidSpacing', 'foundation', 'floorTreated', 'siding', 'roofing', 'gableVents', 'ventWidth', 'ventHeight', 'kerf',
   'roofType', 'beamSize', 'sidingColor', 'polkaDots', 'autoWall', 'autoStuds', 'autoPitch',
-  'autoOverhang', 'overhangBudget', 'snowLoad', 'windLoad', 'roofColor', 'trimColor', 'doorColor', 'glitter', 'interior', 'sidingType', 'roofCover', 'insulation', 'customRange', 'atticStorage', 'wallTrim', 'climate', 'rafterSeat', 'maxFootprint', 'pierDepth', 'blockSpacing', 'compaction', 'pad', 'floor', 'floorPanel', 'spares', 'taxRate', 'delivery', 'laborRate', 'maxHaulFt', 'gambrelLower', 'gambrelKnee', 'loft', 'loftJoist', ...SITE_FIELDS];
+  'autoOverhang', 'overhangBudget', 'snowLoad', 'windLoad', 'roofColor', 'trimColor', 'doorColor', 'glitter', 'interior', 'sidingType', 'roofCover', 'insulation', 'customRange', 'atticStorage', 'wallTrim', 'climate', 'rafterSeat', 'maxFootprint', 'pierDepth', 'blockSpacing', 'compaction', 'pad', 'floor', 'floorPanel', 'spares', 'taxRate', 'delivery', 'laborRate', 'maxHaulFt', 'gambrelLower', 'gambrelKnee', 'loft', 'loftJoist', 'frontPitch', 'siteFacing', 'northDeg', 'easementSide', 'easementNote', ...SITE_FIELDS];
 
 
 /** A colour select keeps one "Your colour" option for a hex code typed or picked. @param {HTMLSelectElement} sel @param {string} v */
@@ -179,11 +179,12 @@ function fillForm(d) {
   set('lengthFt', +(d.length / 12).toFixed(2));
   set('widthFt', +(d.width / 12).toFixed(2));
   set('maxPeakFt', +(d.maxPeak / 12).toFixed(2));
-  for (const f of FIELDS.slice(3)) set(f, d[f]);
+  for (const f of FIELDS.slice(3)) set(f, d[f] ?? '');
   for (const cb of $$('input[name="stock"]')) cb.checked = d.lengths.includes(Number(cb.value));
   for (const cb of $$('input[name="lock"]')) cb.checked = (d.locked || []).includes(cb.value);
   // The gambrel's own fields show only on a gambrel.
   for (const e of $$('[data-gambrel]')) /** @type {HTMLElement} */ (e).style.display = d.style === 'gambrel' ? '' : 'none';
+  for (const e of $$('[data-saltbox]')) /** @type {HTMLElement} */ (e).style.display = d.style === 'saltbox' ? '' : 'none';
 }
 
 function readForm() {
@@ -195,8 +196,8 @@ function readForm() {
   d.length = Math.round(num('lengthFt', d.length / 12) * 12);
   d.width = Math.round(num('widthFt', d.width / 12) * 12);
   d.maxPeak = Math.round(num('maxPeakFt', d.maxPeak / 12) * 12);
-  for (const f of ['wallHeight', 'pitch', 'overhang', 'studSpacing', 'joistSpacing', 'rafterSpacing', 'skidSpacing', 'ventWidth', 'ventHeight', 'kerf', 'snowLoad', 'windLoad', 'maxFootprint', 'pierDepth', 'blockSpacing', 'spares', 'taxRate', 'laborRate', 'maxHaulFt', 'gambrelLower', 'gambrelKnee', ...SITE_FIELDS, 'overhangBudget']) d[f] = num(f, d[f]);
-  for (const f of ['style', 'studSize', 'joistSize', 'rafterSize', 'tieSize', 'skidSize', 'foundation', 'roofType', 'beamSize', 'sidingColor', 'roofColor', 'trimColor', 'doorColor', 'interior', 'sidingType', 'roofCover', 'wallTrim', 'climate', 'rafterSeat', 'compaction', 'pad', 'floor', 'floorPanel', 'delivery', 'loft', 'loftJoist']) d[f] = v(f).value;
+  for (const f of ['wallHeight', 'pitch', 'overhang', 'studSpacing', 'joistSpacing', 'rafterSpacing', 'skidSpacing', 'ventWidth', 'ventHeight', 'kerf', 'snowLoad', 'windLoad', 'maxFootprint', 'pierDepth', 'blockSpacing', 'spares', 'taxRate', 'laborRate', 'maxHaulFt', 'gambrelLower', 'gambrelKnee', 'frontPitch', ...SITE_FIELDS, 'overhangBudget']) d[f] = num(f, d[f]);
+  for (const f of ['style', 'studSize', 'joistSize', 'rafterSize', 'tieSize', 'skidSize', 'foundation', 'roofType', 'beamSize', 'sidingColor', 'roofColor', 'trimColor', 'doorColor', 'interior', 'sidingType', 'roofCover', 'wallTrim', 'climate', 'rafterSeat', 'compaction', 'pad', 'floor', 'floorPanel', 'delivery', 'loft', 'loftJoist', 'siteFacing', 'northDeg', 'easementSide', 'easementNote']) d[f] = v(f).value;
   for (const f of ['floorTreated', 'siding', 'roofing', 'gableVents', 'polkaDots', 'autoWall', 'autoStuds', 'autoPitch', 'autoOverhang', 'glitter', 'insulation', 'customRange', 'atticStorage']) d[f] = v(f).checked;
   d.lengths = $$('input[name="stock"]:checked').map((c) => Number(c.value));
   d.locked = $$('input[name="lock"]:checked').map((c) => c.value);
@@ -1022,7 +1023,7 @@ function wire() {
           <button type="button" data-pick="${i}">Use this one</button></article>`;
       }).join('');
       html += '</div><h4>Every design found that nothing else beats on cost, cuts and angled cuts at once</h4><div class="table-wrap"><table><thead><tr><th scope="col" class="n">Total</th><th scope="col" class="n">Straight cuts</th><th scope="col" class="n">Angled</th><th scope="col" class="n">Notches</th><th scope="col">Roof</th><th scope="col">Size</th></tr></thead><tbody>';
-      html += r.front.map((f) => `<tr><td class="n">${money(f.total)}</td><td class="n">${f.cuts.straight}</td><td class="n">${f.cuts.angled}</td><td class="n">${f.cuts.notches}</td><td>${f.design.pitch}/12, ${fmtIn(f.design.overhang)} overhang, ${f.design.style === 'leanTo' ? 'lean-to' : ROOF_TYPES.find((r) => r.type === f.design.roofType)?.short ?? f.design.roofType}, ${f.design.rafterSeat === 'connector' ? 'connectors' : 'birdsmouth'}</td><td>${fmtFtIn(f.design.length)} x ${fmtFtIn(f.design.width)}</td></tr>`).join('');
+      html += r.front.map((f) => `<tr><td class="n">${money(f.total)}</td><td class="n">${f.cuts.straight}</td><td class="n">${f.cuts.angled}</td><td class="n">${f.cuts.notches}</td><td>${f.design.style === 'saltbox' ? `${f.design.frontPitch}/12 and ` : ''}${f.design.pitch}/12, ${fmtIn(f.design.overhang)} overhang, ${f.design.style === 'leanTo' ? 'lean-to' : f.design.style === 'saltbox' ? `saltbox, ${ROOF_TYPES.find((r) => r.type === f.design.roofType)?.short ?? f.design.roofType}` : ROOF_TYPES.find((r) => r.type === f.design.roofType)?.short ?? f.design.roofType}, ${f.design.rafterSeat === 'connector' ? 'connectors' : 'birdsmouth'}</td><td>${fmtFtIn(f.design.length)} x ${fmtFtIn(f.design.width)}</td></tr>`).join('');
       html += '</tbody></table></div>';
       $('#simplify-out').innerHTML = html;
       $('#simplify-out').onclick = (ev) => {

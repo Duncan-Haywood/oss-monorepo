@@ -18,7 +18,7 @@
 // Not engineered or code-checked.
 
 import { designValues } from './structure.mjs';
-import { eaveRoofPlf, SOIL_PSF, WALL_DEAD_PSF } from './checks.mjs';
+import { eaveRoofPlf, ridgeBeamLoad, SOIL_PSF, WALL_DEAD_PSF } from './checks.mjs';
 import { headerLoadPlf } from './model.mjs';
 
 /** Gravel under the timbers spreads the load this much each side, inches (4" bed at 2:1). */
@@ -53,7 +53,8 @@ export function floorlessChecks(shed) {
 
   // Point loads on the bottom plate, and the timber under it.
   const contact = Math.min(k.stud, t.thick);
-  const postLb = k.postPiers ? ((15 / cos + d.snowLoad) * (d.width / 2) / 12 * d.length) / 12 / 2 : 0;
+  // A saltbox's beam takes half of each slope's rafters at that slope's own dead load (checks.mjs).
+  const postLb = !k.postPiers ? 0 : d.style === 'saltbox' ? ridgeBeamLoad(shed).post : ((15 / cos + d.snowLoad) * (d.width / 2) / 12 * d.length) / 12 / 2;
   /** @type {{ what: string, P: number, areaSqIn: number }[]} */
   const points = [];
   if (postLb) points.push({ what: 'a ridge-beam post on its two post studs', P: postLb, areaSqIn: 3 * contact });

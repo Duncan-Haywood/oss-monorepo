@@ -137,3 +137,11 @@ test('blockSpacing sets how far apart blocks and piers go along a skid', () => {
   assert.equal(at(72).blockCount, at(72).skidCount * 3);
   assert.equal(at(72, 'piers').pierCount, at(72, 'piers').skidCount * 3, 'fewer piers');
 });
+
+test('a short plate piece by a door on a 2x6 wall still bears on its timber (r4 lane 2\'s case)', () => {
+  // A 4-1/2" piece is shorter than a 2x6 plate is deep: its run comes from its wall, not its box.
+  const s = buildShed(normalize({ ...PRESETS['8x12'](), floor: 'none', width: 72, pitch: 6, roofType: 'ridgeBoard', rafterSeat: 'birdsmouth', rafterSize: '2x6', studSize: '2x6', sidingType: 'LP SmartSide lap', overhang: 5, openings: [{ id: 'o1', kind: 'door', wall: 'right', offset: 18, width: 44, height: 25 }] }));
+  const short = s.members.find((m) => m.group === 'wall:right' && m.kind === 'bottom plate' && m.local && m.local.s1 - m.local.s0 < 5.5);
+  assert.ok(short, 'the case still has a plate piece shorter than the wall is deep');
+  assert.ok(connectionChecks(s).rows.find((r) => r.check === 'Bottom plates bear on the timbers')?.ok);
+});

@@ -1,5 +1,6 @@
 ---
 title: "Saints by Candlelight, episode 36: Naaman and the seven dips in the Jordan"
+seo_title: "Saints by Candlelight, episode 36"
 date: 2026-10-26
 description: "Episode 36 of Saints by Candlelight: Naaman, a servant girl and a muddy river, 2 Kings 5 told straight for bedtime, with the invented parts labelled."
 tags: [saints-by-candlelight, fiction, podcast, bedtime]

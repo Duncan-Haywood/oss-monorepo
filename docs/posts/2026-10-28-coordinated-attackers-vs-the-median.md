@@ -1,5 +1,6 @@
 ---
 title: "How many coordinated attackers can a median aggregator absorb? Seven of sixteen, at a price"
+seo_title: "How many coordinated attackers can a median aggregator absorb?"
 date: 2026-10-28
 description: "In simulated 16-worker low-communication training, a median aggregator keeps training with 4 to 7 colluding attackers, at +0.23 to +0.77 nats."
 tags: [research, lowcomm-training, robust-aggregation, diloco]

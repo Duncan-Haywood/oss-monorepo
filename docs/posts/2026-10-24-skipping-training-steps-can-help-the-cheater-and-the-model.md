@@ -1,5 +1,6 @@
 ---
 title: "When a worker skips training steps and nobody can tell: two more models"
+seo_title: "When a worker skips training steps and nobody can tell"
 date: 2026-10-24
 description: "A verifier tolerating numeric drift lets a trainer skip steps. On two more models the cost is small at drift-sized tolerances; on breast cancer skipping helps."
 tags: [research, machine-learning, verification, mechanism-design]

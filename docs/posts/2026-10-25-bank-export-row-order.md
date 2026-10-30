@@ -1,5 +1,6 @@
 ---
 title: "Does it matter if your bank exports newest-first? A check on ai-bookkeeper's statement reader"
+seo_title: "Does it matter if your bank exports newest-first?"
 date: 2026-10-25
 description: "Reversing the rows of every bank CSV fixture gave the same transactions, and the checks that could not run today."
 tags: [ai-bookkeeper, testing, accounting]

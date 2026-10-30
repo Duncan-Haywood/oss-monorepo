@@ -44,6 +44,12 @@ export const GALLERY_BUDGET = 1200;
  * 2x4s, so it is cheap for the room; the strip would show little else.
  */
 const OTHER_STYLES = ['gable', 'leanTo'];
+/**
+ * The gallery searches and ranks on usable storage (storage.mjs usableCuFt):
+ * the room, plus roof space only where it is open to the room or over a deck.
+ * Space over bare rafter ties is not a floor, so a card never wins on it.
+ */
+const OBJECTIVES_USED = ['cost', 'usable', 'looks'];
 const BARN_BUDGET = 400;
 
 /** Painted lap siding and shingles: the HardieBoard-house look. */
@@ -74,9 +80,9 @@ export const sizeOf = (d) => [d.width, d.length].sort((a, b) => a - b).map((x) =
 export function gallerySearches(prices) {
   const clean = (/** @type {any} */ r) => ({ ...r, kept: r.all.filter((/** @type {any} */ s) => s.feasible && buildShed(s.design).warnings.length === 0) });
   return {
-    free: clean(searchDesigns({ base: base(), prices, budget: GALLERY_BUDGET, constraints: CONSTRAINTS, knobs: { style: OTHER_STYLES } })),
-    house: clean(searchDesigns({ base: base(HOUSE), prices, budget: GALLERY_BUDGET, constraints: CONSTRAINTS, fixed: HOUSE_FIXED, knobs: { style: OTHER_STYLES } })),
-    barn: clean(searchDesigns({ base: base(HOUSE), prices, budget: BARN_BUDGET, constraints: CONSTRAINTS, fixed: HOUSE_FIXED, knobs: { style: ['gambrel'] } })),
+    free: clean(searchDesigns({ base: base(), prices, budget: GALLERY_BUDGET, constraints: CONSTRAINTS, objectives: OBJECTIVES_USED, knobs: { style: OTHER_STYLES } })),
+    house: clean(searchDesigns({ base: base(HOUSE), prices, budget: GALLERY_BUDGET, constraints: CONSTRAINTS, fixed: HOUSE_FIXED, objectives: OBJECTIVES_USED, knobs: { style: OTHER_STYLES } })),
+    barn: clean(searchDesigns({ base: base(HOUSE), prices, budget: BARN_BUDGET, constraints: CONSTRAINTS, fixed: HOUSE_FIXED, objectives: OBJECTIVES_USED, knobs: { style: ['gambrel'] } })),
   };
 }
 
@@ -85,10 +91,10 @@ const money = (/** @type {number} */ n) => {
   const text = format(Math.abs(n));
   return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
 };
-const perDollar = (/** @type {any} */ s) => s.storage.volumeCuFt / s.cost;
+const perDollar = (/** @type {any} */ s) => s.storage.usableCuFt / s.cost;
 const bestBy = (/** @type {any[]} */ list, /** @type {(s: any) => number} */ f) => [...list].sort((a, b) => f(b) - f(a) || a.cost - b.cost);
 const NEW = ' in a size no card before it in the strip shows';
-const balanced = (/** @type {any[]} */ front) => picks(front).find((x) => x.key === 'balanced')?.design;
+const balanced = (/** @type {any[]} */ front) => picks(front, OBJECTIVES_USED).find((x) => x.key === 'balanced')?.design;
 
 /**
  * The cards, in order. Each ranks one search's kept designs, best first, and
@@ -109,7 +115,7 @@ export const GALLERY = [
   {
     id: 'value', from: 'free', title: (s) => `Most room per dollar, ${sizeOf(s.design)}`, colour: 'sage',
     rank: (kept) => bestBy(kept, perDollar),
-    why: (s, kept, first) => `The most room inside for the money of the ${kept.length} designs the search kept${first ? '' : NEW}, by the search's measure of volume.`,
+    why: (s, kept, first) => `The most room inside for the money of the ${kept.length} designs the search kept${first ? '' : NEW}, counting only space you can load.`,
   },
   {
     id: 'balanced', from: 'free', title: (s) => `Balanced ${sizeOf(s.design)}`, colour: 'light gray',
@@ -118,8 +124,8 @@ export const GALLERY = [
   },
   {
     id: 'storage', from: 'free', title: (s) => `Most storage ${sizeOf(s.design)}`, colour: 'slate blue',
-    rank: (kept) => bestBy(kept, (s) => s.storage.volumeCuFt),
-    why: (s, kept, first) => `The most room inside of the ${kept.length} designs the search kept${first ? '' : NEW}, by the search's measure of volume${s.storage.overheadOpen ? ', open to the roof' : s.storage.overheadCuFt > 0 ? ', counting the space over its attic deck' : ''}.`,
+    rank: (kept) => bestBy(kept, (s) => s.storage.usableCuFt),
+    why: (s, kept, first) => `The most room inside of the ${kept.length} designs the search kept${first ? '' : NEW}, counting only space you can load (the room, and roof space open to it or over a deck)${s.storage.overheadOpen ? '; this one is open to the roof' : s.design.atticStorage || s.design.loft !== 'none' ? '; this one has a decked attic' : ''}.`,
   },
   {
     id: 'looks', from: 'house', title: (s) => `Best looking ${sizeOf(s.design)}`, colour: 'greige',
@@ -183,7 +189,7 @@ export function polishCard(s, prices) {
       for (const v of vals) {
         if (cur.design[k] === v) continue;
         const r = evaluateDesign(normalize({ ...cur.design, [k]: v }), prices, CONSTRAINTS);
-        if (!r.feasible || r.cost > cur.cost - 0.5 || r.storage.volumeCuFt < cur.storage.volumeCuFt - 1e-9 || r.looks.score < cur.looks.score - 1e-9) continue;
+        if (!r.feasible || r.cost > cur.cost - 0.5 || r.storage.usableCuFt < cur.storage.usableCuFt - 1e-9 || r.looks.score < cur.looks.score - 1e-9) continue;
         if (buildShed(r.design).warnings.length) continue;
         cur = { ...cur, ...r, design: r.design };
         improved = true;

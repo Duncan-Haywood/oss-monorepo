@@ -1,5 +1,6 @@
 ---
 title: "A backup-sitter network for babysitters, with the family's OK on record"
+seo_title: "A backup-sitter network for babysitters, with the family's OK"
 date: 2026-10-30
 tags: [babysitting-business-kit, consent]
 description: "Pass on work you can't take to sitters you trust: ranked backups, drafted messages, recorded consent, a sick-day list and a signed server-to-server handoff."

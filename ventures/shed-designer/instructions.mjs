@@ -14,6 +14,9 @@ import { lapSteps } from './lap.mjs';
 import { sidingUpperSheets } from './estimate.mjs';
 import { finishName, SIDING_FINISHES } from './looks.mjs';
 
+/** The panel siding's name in the Siding step. @param {string} type */
+export const sidingPanelName = (type) => (type === 'LP SmartSide' ? 'LP SmartSide 3/8" panels' : type === 'LP SmartSide 7/16' ? 'LP SmartSide 7/16" panels' : type === 'T1-11' ? 'T1-11 panels' : `${type} siding`);
+
 /** @typedef {{ title: string, why?: string, steps: string[], check?: string[] }} Section */
 
 const deg = (r) => `${(r * 180 / Math.PI).toFixed(1)} deg`;
@@ -35,6 +38,8 @@ export function buildInstructions(shed, est) {
   const qty = (pred) => shed.members.filter(pred).length;
   const t = d.pitch / 12;
   const angle = Math.atan(t);
+  // A saltbox: two slopes and an off-centre ridge (model.mjs dims.slopes).
+  const salt = Boolean(k.saltbox && k.slopes);
   const lean = Boolean(k.lean);
   const beam = !lean && d.roofType === 'ridgeBeam';
   /** @type {Section[]} */
@@ -216,6 +221,7 @@ export function buildInstructions(shed, est) {
         `The gable ends have no truss: at each corner set a heel block (mark ${marks((m) => m.kind === 'heel block')}) on the long wall's plate, then cut the end pair of top chords like the rest and nail them to each other at the peak and onto the heel blocks; brace them plumb. The gable studs go in under them later, and the gable siding, nailed to the chords, studs and wall, ties them together.`,
         `Lift each truss upside down between the walls, rotate it up, set its heels on the plates at its mark and toenail each heel with two 16d. Fix each heel to the plate with a rafter-to-plate tie (on the list).`,
         `Brace them plumb and on their marks with a 1x4 or 2x4 nailed across the top chords near the peak until the roof is sheathed.`,
+        qty((m) => m.kind === 'chord brace') ? `Chord brace (mark ${marks((m) => m.kind === 'chord brace')}, 2x4): lay it flat across the tops of the bottom chords at mid-span, from the gable framing at one end to the other, joints on a truss. Two 10d into every chord, and toenail each end into the gable studs with three 10d. At the ${d.windLoad} psf you set, the wind can lift the roof harder than it weighs, which turns the bottom chords from ties into struts; this brace halves the length that can buckle (the Structure tab's "Truss heels (uplift)" row). Leave it in for good.` : '',
         shed.panels.some((p) => p.kind === 'attic deck') ? `Attic storage: once the roof is sheathed, lay the deck (${est.shopping.find((r) => /attic storage deck/.test(r.name))?.qty ?? 0} sheets of ${d.floorPanel === 'OSB' ? 'OSB' : 'plywood'} on the list) across the inside trusses' bottom chords, ${fmtIn(shed.panels.find((p) => p.kind === 'attic deck')?.geom.profile[2][1] ?? 0)} strips${qty((m) => m.kind === 'king post') ? ' either side of the king posts' : ''}, every end joint on a chord; nail with 8d every 6" at the ends and 12" along each chord. Leave the two end bays open to reach it. The chords are checked for 20 psf of storage: boxes and seasonal things, not people or heavy tools.` : '',
         `Fit the blocks between the truss heels on the plates (mark ${marks((m) => m.kind === 'eave blocking')}), outside faces flush with the wall.${d.overhang > 0 ? ' The space above each block is the vent path from the soffit into the roof: staple insect screen across it.' : ''}`,
         d.overhang > 0 ? `Nail the 2x6 sub-fascia (mark ${marks((m) => m.kind === 'sub-fascia')}) across the top chord tails, top flush with the chord tops, two 16d per tail.` : '',
@@ -226,13 +232,13 @@ export function buildInstructions(shed, est) {
   out.push({
     title: beam ? 'Ridge beam and posts' : 'Ridge board',
     steps: beam ? [
-      `Build each gable post from two ${d.studSize} (mark ${marks((m) => m.kind === 'beam post')}, ${fmtIn(shed.members.find((m) => m.kind === 'beam post')?.length ?? 0)}), nailed face to face, and stand one centred on each gable wall's cap plate, directly over the two post studs in that wall.`,
+      `Build each gable post from two ${d.studSize} (mark ${marks((m) => m.kind === 'beam post')}, ${fmtIn(shed.members.find((m) => m.kind === 'beam post')?.length ?? 0)}), nailed face to face, and stand one ${salt ? `on each gable wall's cap plate with its centre ${fmtIn(k.ridgeY)} back from the front wall's outside face` : "centred on each gable wall's cap plate"}, directly over the two post studs in that wall.`,
       `Nail the two plies of the ridge beam together (mark ${marks((m) => m.kind === 'ridge beam')}, two ${d.beamSize} at ${fmtIn(L)}): 16d in two rows every 12", staggered.`,
       `Lift the beam onto the posts with a helper. Its top sits ${fmtFtIn(k.ridgeTop - k.floorTop)} above the floor; check it with a level and a tape from the floor at both ends. Toenail it to each post with four 16d, two from each side. A metal strap from beam to post adds hold where your code asks for one (none is on the list).`,
       'Brace the beam level and straight with temporary braces to the floor until rafters are on both sides.',
     ] : [
       `The ridge board (mark ${marks((m) => m.kind === 'ridge board')}, ${k.ridgeSize}) is not a beam: rafter ties hold the rafters. Mark rafter centres on it to match the top plates.`,
-      `Prop it on temporary posts so its top is ${fmtFtIn(k.ridgeTop - k.floorTop)} above the floor, centred over the width.`,
+      `Prop it on temporary posts so its top is ${fmtFtIn(k.ridgeTop - k.floorTop)} above the floor, ${salt ? `its centre ${fmtIn(k.ridgeY)} back from the front wall's outside face (the saltbox's ridge is off centre, toward the steep front). Its top is flush with the steep front rafters' tops; the long back rafters stand a little proud of it` : 'centred over the width'}.`,
       'Leave the props in until every rafter pair and its tie is nailed, then take them out: the ties, not the props, keep the walls from spreading.',
     ],
   });
@@ -259,21 +265,33 @@ export function buildInstructions(shed, est) {
     ].filter(Boolean),
     check: ['Every rafter top in one plane: sight along them or run a string.', 'Pattern rafter fits at both ends of the shed and the middle before cutting the rest.'],
   });
+  /** A rafter's own layout: pitch, ridge cut, seat, tail and cut length. A saltbox has two. */
+  const rafterLayout = (pitch, ang, wr, rn, heel, cut, isSide) => [
+    `Pitch ${pitch}/12: the roof rises ${pitch}" for every 12" across, an angle of ${deg(ang)}. On a speed square, pivot on the pivot point and read ${pitch} on the COMMON scale for every plumb and seat line.`,
+    `Ridge end: a plumb cut, marked with the square at ${pitch} on the common scale (${deg(ang)} off a square cut).`,
+    k.connector
+      ? `No birdsmouth: from the ridge plumb line measure ${fmtIn(wr / Math.cos(ang))} along the bottom edge (a level run of ${fmtIn(wr)}) and square a line across: that is the wall line, where the rafter's underside rests on the outside top edge of the wall. Each rafter sits there on a variable-pitch connector (Simpson VPA2 or equal) nailed to the cap plate; set the connector's seat to the ${pitch}/12 slope and nail as Simpson's instructions show.`
+      : `Birdsmouth over the wall: from the ridge plumb line measure ${fmtIn(rn / Math.cos(ang))} along the bottom edge (a level run of ${fmtIn(rn)} to the inside face of the wall, where the seat starts). Draw the seat cut ${fmtIn(k.stud)} long (the wall's depth) and the heel cut ${fmtIn(heel)} deep. Never cut past the line; finish the corner with a handsaw.`,
+    d.overhang > 0 ? `Tail: ${fmtIn(d.overhang)} of overhang beyond the wall, ${fmtIn(d.overhang / Math.cos(ang))} along the bottom edge past the ${k.connector ? 'wall line' : 'heel cut'}, ended with a plumb cut so the fascia hangs straight.` : `No overhang: the tail ends at the ${k.connector ? 'wall line, with a plumb cut' : 'heel cut'}.`,
+    `Cut length from a square end: ${fmtIn(cut)} (mark ${marks(isSide)}, ${qty(isSide)} rafters, ${d.rafterSize}).`,
+  ];
   if (!lean) out.push({
     title: 'Rafters',
     why: 'Cut one rafter, test it at both ends and in the middle, then use it as the pattern for the rest.',
     steps: [
-      `Pitch ${d.pitch}/12: the roof rises ${d.pitch}" for every 12" across, an angle of ${deg(angle)}. On a speed square, pivot on the pivot point and read ${d.pitch} on the COMMON scale for every plumb and seat line.`,
-      `Ridge end: a plumb cut, marked with the square at ${d.pitch} on the common scale (${deg(angle)} off a square cut).`,
-      k.connector
-        ? `No birdsmouth: from the ridge plumb line measure ${fmtIn(wallRun / Math.cos(angle))} along the bottom edge (a level run of ${fmtIn(wallRun)}) and square a line across: that is the wall line, where the rafter's underside rests on the outside top edge of the wall. Each rafter sits there on a variable-pitch connector (Simpson VPA2 or equal) nailed to the cap plate; set the connector's seat to the ${d.pitch}/12 slope and nail as Simpson's instructions show.`
-        : `Birdsmouth over the wall: from the ridge plumb line measure ${fmtIn(run / Math.cos(angle))} along the bottom edge (a level run of ${fmtIn(run)} to the inside face of the wall, where the seat starts). Draw the seat cut ${fmtIn(k.stud)} long (the wall's depth) and the heel cut ${fmtIn(k.heel)} deep. Never cut past the line; finish the corner with a handsaw.`,
-      d.overhang > 0 ? `Tail: ${fmtIn(d.overhang)} of overhang beyond the wall, ${fmtIn(d.overhang / Math.cos(angle))} along the bottom edge past the ${k.connector ? 'wall line' : 'heel cut'}, ended with a plumb cut so the fascia hangs straight.` : `No overhang: the tail ends at the ${k.connector ? 'wall line, with a plumb cut' : 'heel cut'}.`,
-      `Cut length from a square end: ${fmtIn(k.rafterCut)} (mark ${marks((m) => m.kind === 'rafter')}, ${qty((m) => m.kind === 'rafter')} rafters, ${d.rafterSize}).`,
+      ...(salt
+        ? ['front', 'back'].flatMap((side) => {
+          const sd = k.slopes[side];
+          const back = side === 'back';
+          const wr = (back ? W - k.ridgeY : k.ridgeY) - (beam ? 1.5 : 0.75);
+          const isSide = (m) => m.kind === 'rafter' && m.geom.profile.some((q) => q[0] > k.ridgeY + 0.1) === back;
+          return rafterLayout(sd.pitch, Math.atan(sd.pitch / 12), wr, wr - k.stud, sd.heel, sd.rafterCut, isSide).map((x, n) => (n ? x : `${back ? 'Back (long slope)' : 'Front (steep)'} rafters. ${x}`));
+        })
+        : rafterLayout(d.pitch, angle, wallRun, run, k.heel, k.rafterCut, (m) => m.kind === 'rafter')),
       `Mark rafter centres on the top plates and the ${beam ? 'beam' : 'ridge'}: the first and last flush with the gable ends, the rest at ${list(k.rafterCenters.slice(1, -1))} from the left end.`,
       `Set rafters in opposite pairs so the ${beam ? 'beam' : 'ridge'} stays straight. ${beam ? `Hang each one from the beam with a ${d.rafterSize} slope-adjustable rafter hanger (on the list), bent to the roof pitch before nailing` : 'Nail through the ridge board into each rafter (three 16d)'}${k.connector ? ', and nail it to its connector' : ', and fix each one to the wall plate with a rafter-to-plate tie (on the list)'}.`,
       beam ? 'There are no rafter ties: the beam carries the rafters, so the inside is open to the roof.' : `Nail a ${d.tieSize} rafter tie (mark ${marks((m) => m.kind === 'rafter tie')}) beside every pair but the gable ends, on top of the wall plates, ${heelJoint(shed)?.nails ?? 3} 16d commons into each rafter (the tie holds the rafters' outward push; the Structure tab shows the count's working).`,
-      `Fit the blocks between rafters on top of each eave wall (mark ${marks((m) => m.kind === 'eave blocking')}), top edges bevelled to ${d.pitch}/12.${d.overhang > 0 ? ' The soffit is vented, so the air has to get past them: drill two 1-1/2" holes through each block and staple insect screen over them.' : ''}`,
+      `Fit the blocks between rafters on top of each eave wall (mark ${marks((m) => m.kind === 'eave blocking')}), top edges bevelled to ${salt ? `${k.slopes.front.pitch}/12 on the front wall and ${d.pitch}/12 on the back` : `${d.pitch}/12`}.${d.overhang > 0 ? ' The soffit is vented, so the air has to get past them: drill two 1-1/2" holes through each block and staple insect screen over them.' : ''}`,
       d.overhang > 0 ? `Nail the 2x6 sub-fascia (mark ${marks((m) => m.kind === 'sub-fascia')}) across the rafter tails, top flush with the rafter tops, two 16d per tail.` : '',
     ].filter(Boolean),
     check: ['Every rafter top in one plane: sight along them or run a string.', `Pattern rafter fits at both gable ends and the middle before cutting the rest.`],
@@ -320,11 +338,24 @@ export function buildInstructions(shed, est) {
   const upperPanels = sidingUpperSheets(shed);
   const nested = d.siding && upperPanels < sidingUpperSheets(shed, false) ? upperPanels : 0;
   if (d.siding && shed.lap?.length && est.lapCuts) out.push({ title: 'Wall sheathing, wrap and lap siding', why: 'Trim before siding here: lap courses butt into the corner boards and casings, and each course laps the one below so water runs off.', steps: lapSteps(shed, est) });
+  else if (d.siding && (d.sidingType === 'board and batten' || d.sidingType === 'vinyl')) out.push({
+    title: 'Wall sheathing and siding',
+    steps: [
+      `Sheathe the walls with 7/16" OSB, 4x8 sheets standing up, every edge on a stud or plate. Keep the bottom edge level with the top of the skids so it laps the rim joist and floor. Nail 8d every 6" on the edges and every 12" on intermediate studs: this sheathing is what braces the walls.`,
+      `Cut the ${openings && vents.length ? 'door, window and gable vent openings' : openings ? 'door and window openings' : vents.length ? 'gable vent openings' : 'sheathing to the roof line'} from inside, along the framing, after the sheet is nailed.`,
+      d.sidingType === 'vinyl'
+        ? 'Vinyl: starter strip along the bottom of every wall, corner posts at the corners, J-channel round each opening and under the eaves and rakes, then the panels from the bottom up, each locked into the one below. Nail in the centre of the slots and leave the heads a little proud so the panels can move with the heat; follow the maker\'s sheet for spacing and gaps at the ends.'
+        : 'Board and batten: boards vertical, a small gap between them, nailed to the sheathing and through it to the plates and any blocking; then a batten over each gap, nailed through the gap so the boards can move. Hot-dipped galvanized or stainless siding nails.',
+      openings ? 'Leave the siding loose in the 8" above each door and window head for now, so the head flashing can slip up behind it in the trim step.' : '',
+    ].filter(Boolean),
+  });
   else out.push({
     title: 'Siding',
     steps: [
-      d.siding ? `T1-11 panels, grooves vertical, ${shed.sidingFull.length} panel positions around the shed (see the shopping list for 8, 9 and 10 ft lengths). Start at a corner, keep the bottom edge level with the top of the skids so it laps the rim joist and floor, and plumb the first panel with a level.` : 'Siding is off in this design.',
-      'Every vertical panel edge lands on a stud. Nail 8d galvanized every 6" on edges and every 12" on intermediate studs.',
+      d.siding ? `${sidingPanelName(d.sidingType)}, grooves vertical, ${shed.sidingFull.length} panel positions around the shed (see the shopping list for 8, 9 and 10 ft lengths). Start at a corner, keep the bottom edge level with the top of the skids so it laps the rim joist and floor, and plumb the first panel with a level.` : 'Siding is off in this design.',
+      d.sidingType.startsWith('LP SmartSide')
+        ? `Every vertical panel edge lands on a stud. Nail 8d hot-dipped galvanized box or common nails (the siding nails on the list) every 6" on every edge, and every ${d.sidingType === 'LP SmartSide 7/16' && d.studSpacing > 16 ? '6" on intermediate studs (on studs at 24", LP\'s ESR-1301)' : '12" on intermediate studs'}, none in the grooves. Double-nail each shiplap joint: one nail through the underlap and a second through the full thickness about 1" from the edge, both at 6". That nailing is what LP's racking value (APA PR-N124) assumes, and these panels are what brace the walls.`
+        : 'Every vertical panel edge lands on a stud. Nail 8d galvanized every 6" on edges and every 12" on intermediate studs.',
       shed.sidingUpper.length ? 'Where a gable needs a second panel above the first, put Z-flashing over the lower panel\'s top edge before the upper one.' : 'Each panel reaches from the bottom to the top in one piece.',
       nested ? `The ${shed.sidingUpper.length} upper gable pieces come from ${nested} panel${nested > 1 ? 's' : ''}: two pieces that slope the same way are cut head to toe along one panel, the second turned end for end so the two sloped cuts run side by side. Its shiplap edges then face the other way, so where it meets its neighbour, plane or rip the lap off both edges and butt the joint over the stud with a bead of caulk.` : '',
       openings ? 'Leave out the nails in the 8" of siding above each door and window head for now, so the head flashing can slip up behind it in the trim step.' : '',
@@ -380,7 +411,7 @@ export function buildInstructions(shed, est) {
     out.push({
       title: 'Paint',
       steps: [
-        `Prime bare wood and T1-11 with an exterior primer, then two coats of exterior paint (${finishName(d.sidingColor, SIDING_FINISHES)}).`,
+        `Prime bare wood${d.sidingType === 'T1-11' ? ' and the T1-11' : ''} with an exterior primer, then two coats of exterior paint (${finishName(d.sidingColor, SIDING_FINISHES)}).`,
         d.polkaDots ? 'Polka dots: make a 3" circle stencil. Snap chalk lines 9" apart up the wall and dab a dot every 9" along each line, shifting every other row by 4-1/2" so they stagger. Use the purple accent paint and a foam pouncer.' : '',
         d.glitter ? 'Glitter: stir a packet of paint glitter into each gallon of the final coat, or dust it onto the wet final coat, and keep stirring as you paint so it does not settle.' : '',
       ].filter(Boolean),

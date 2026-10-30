@@ -1,5 +1,6 @@
 ---
 title: "Lay out a stair in your browser: risers, stringers and the stairwell opening"
+seo_title: "Lay out a stair in your browser"
 date: 2026-10-28
 description: "A free browser card that turns a total rise into equal risers, stringers, tread boards and the stairwell opening length, and splits tall rises at a landing."
 tags: [wall-framing-takeoff, construction, stairs]
