@@ -1,5 +1,6 @@
 ---
 title: "Start here: E-invoice preflight, catch the rejection before the portal does"
+seo_title: "E-invoice preflight: catch the rejection before the portal"
 date: 2026-10-29
 tags: [start-here, einvoice-preflight, e-invoicing, bookkeeping]
 description: "Who the free e-invoice preflight is for, what it checks in XRechnung, Peppol, UBL, CII and Factur-X files, your first ten minutes, and its limits."

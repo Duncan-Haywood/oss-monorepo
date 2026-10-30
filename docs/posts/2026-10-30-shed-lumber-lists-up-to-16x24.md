@@ -1,5 +1,6 @@
 ---
 title: "Shed lumber lists up to 16x24: cost per square foot falls from $28 to $20"
+seo_title: "Shed lumber lists to 16x24: cost per sq ft falls $28 to $20"
 date: 2026-10-30
 tags: [shed-designer, lumber, cost]
 description: "Six more shed sizes framed stud by stud: a 12x14 takes 114 boards, a 16x24 takes 177. Materials per square foot fall as the shed grows."

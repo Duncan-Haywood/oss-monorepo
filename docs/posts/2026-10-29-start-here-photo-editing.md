@@ -1,5 +1,6 @@
 ---
 title: "Start here: ShootFlow, a safe card copy and overnight first pass for your shoots"
+seo_title: "ShootFlow: a safe card copy and overnight first pass"
 date: 2026-10-29
 tags: [start-here, photo-editing, shootflow, photography, video]
 description: "For photographers and videographers on Mac or Linux: what ShootFlow does with a shoot, your first card copy and pipeline run, and its early-stage limits."
