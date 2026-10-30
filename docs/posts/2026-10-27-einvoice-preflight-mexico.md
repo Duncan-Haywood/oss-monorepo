@@ -1,5 +1,6 @@
 ---
 title: "E-invoice Preflight adds Mexico: what a CFDI is and an RFC check-digit test"
+seo_title: "E-invoice Preflight adds Mexico"
 date: 2026-10-27
 description: "A new Mexico page explains the stamped-XML CFDI model and tests an RFC's check digit in the browser, with the check's measured blind spot."
 tags: [einvoice-preflight, e-invoicing, mexico]

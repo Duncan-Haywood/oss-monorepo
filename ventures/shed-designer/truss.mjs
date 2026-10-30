@@ -104,6 +104,30 @@ export function trussForces(d, o = {}) {
 }
 
 /**
+ * The net upward load on one truss under ASCE 7's ASD combination 0.6D + 0.6W,
+ * lb/ft on plan: 0.6W on its strip of roof less 0.6 of its roof dead load
+ * (15 psf on the slope) and ceiling dead load. Positive means the wind wins:
+ * the heels are pulled together and the bottom chord goes into compression.
+ * @param {import('./model.mjs').Design} d
+ */
+export function trussNetUplift(d) {
+  const f = trussForces(d, { snow: false });
+  const s = d.rafterSpacing / 12;
+  return 0.6 * d.windLoad * s - 0.6 * ((15 / f.cos) * s + f.attic.dead * s);
+}
+
+/**
+ * Whether the bottom chords need a brace at mid-span: when the wind reverses
+ * them (trussNetUplift) and no king post already halves their length. NDS
+ * 3.7.1.4 caps a compression member's le/d at 50, and a 2x4 chord braced only
+ * at the heels is past that from a 75" span.
+ * @param {import('./model.mjs').Design} d
+ */
+export function needsChordBrace(d) {
+  return trussNetUplift(d) > 0 && !needsKingPost(d) && d.width / T > 50;
+}
+
+/**
  * The bottom chord's worst ratio, tension plus bending (NDS 3.9.1), with snow
  * (CD 1.15) and under the attic load alone (CD 1.0), spanning heel to king
  * post, or heel to heel without one.

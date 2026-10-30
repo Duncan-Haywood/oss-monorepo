@@ -1,5 +1,6 @@
 ---
 title: "Is 'never cut on the cheap rung' the right chip-search policy? Five unseen designs say it is insurance"
+seo_title: "Is 'never cut on the cheap rung' the right chip-search policy?"
 date: 2026-10-27
 description: "Held-out replay of the verified-dse pilot gate on five unseen chip designs: the gate still does not pay, and gentle halving beats the safe policy."
 tags: [research, verified-dse, chip-design, negative-result]

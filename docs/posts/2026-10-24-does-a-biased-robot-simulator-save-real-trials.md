@@ -1,5 +1,6 @@
 ---
 title: "Does a biased robot simulator save real trials? 21 MuJoCo tests say: only if you pair the runs"
+seo_title: "Does a biased robot simulator save real trials? 21 MuJoCo tests say"
 date: 2026-10-24
 description: "Pairing twin and real runs on the same context multiplies the effective real sample by up to 3.2x. Unpaired twin runs add nothing; plug-in intervals undercover."
 tags: [research, sim-to-real, digital-twin, evaluation, mujoco]

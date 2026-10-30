@@ -1,5 +1,6 @@
 ---
 title: "E-invoice Preflight adds Japan: a T-number check and the October 2026 credit step-down"
+seo_title: "E-invoice Preflight adds Japan"
 date: 2026-10-26
 description: "A new Japan page checks a qualified-invoice registration number in the browser and shows the 80% to 50% transitional credit step on 1 October 2026."
 tags: [einvoice-preflight, e-invoicing, japan]

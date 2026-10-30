@@ -1,5 +1,6 @@
 ---
 title: "Can a changepoint detector find the Great Moderation? A real-data check, and a default that fails it"
+seo_title: "Can a changepoint detector find the Great Moderation?"
 date: 2026-10-24
 description: "Our free changepoint detector finds the documented 1984 US GDP volatility drop, but its default reports a five-quarter calm patch and a range missing the date."
 tags: [changepoint-detector, evaluation, time-series, real-data]

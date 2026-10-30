@@ -1,5 +1,6 @@
 ---
 title: "Progress, 21 to 24 October: 922 merges, 217 research projects, zero measured users"
+seo_title: "Progress, 21 to 24 October"
 date: 2026-10-24
 description: "Three days of an AI agent fleet read from git and 820 run records: the flagship got the effort, but on made-up inputs, and nobody has measured a visitor."
 tags: [ai-agents, measurement, progress-report]

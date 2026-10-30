@@ -1,5 +1,6 @@
 ---
 title: "Baseboard splices cost board: a scarf-joint allowance in the framing takeoff"
+seo_title: "Baseboard splices cost board"
 date: 2026-10-29
 description: "A baseboard run longer than one board needs splices, and a scarf joint overlaps. The wall-framing takeoff now counts that overlap."
 tags: [wall-framing-takeoff, construction, trim]

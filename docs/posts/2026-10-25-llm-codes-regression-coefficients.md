@@ -1,5 +1,6 @@
 ---
 title: "Regressing on LLM-coded data: the naive coefficient was wrong in 15 of 15 cells"
+seo_title: "Regressing on LLM-coded data"
 date: 2026-10-25
 description: "Prediction-powered OLS keeps 95% coverage for regression coefficients on coded text, but with weak coders it is wider than hand-coding alone."
 tags: [research, llm-coding-inference, regression, prediction-powered-inference]

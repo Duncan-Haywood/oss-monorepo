@@ -1,0 +1,51 @@
+{
+  "date": "2026-10-30",
+  "session": "https://claude.ai/code/session_01XpHqydoqN88Sbnkt6ij4Lz",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "what types of files does llms like to read the most do a blog post on it within programming languages? ie if it's writing docs or specs for other languages? as compared to people?",
+  "input_sha256": "9f72e128e868dd841d2c48e36e57197edf9b87482237b3eabe68d674070545e1",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-30T21:08:36Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 11881,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "docs/reports/assets/file-formats-for-llms/measure.py",
+      "issue": "The live site returns 403 to Python urllib's default User-Agent through the proxy; a curl UA works. Worth knowing for any script that fetches our own pages."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "route picked review/2; the owner asked directly for this blog post, so the run used explore/0 instead",
+      "did": "wrote the requested post with measured data",
+      "result": "post merged"
+    }
+  ],
+  "writeups": ["docs/posts/2026-10-30-what-files-llms-read-best.md"],
+  "goal": null,
+  "notes": "Checks: node platform/pages/writing.mjs built 1400 pages including writing/what-files-llms-read-best/; node --test platform/pages/writing.test.mjs 21 pass 0 fail. Token counts from tiktoken o200k_base/cl100k_base in a scratch venv.",
+  "corrections": [],
+  "redteam": null
+}
