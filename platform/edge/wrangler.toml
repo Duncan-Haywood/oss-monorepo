@@ -8,9 +8,9 @@ compatibility_date = "2025-09-01"
 
 [vars]
 # The origins whose pages may post feedback (scheme + host, no path),
-# comma-separated: the Cloudflare site first, then the GitHub Pages one it
-# replaced, which still serves redirect pages.
-ALLOWED_ORIGIN = "https://monorepo-projects-site.duncan-andrew-haywood.workers.dev,https://duncan-haywood.github.io"
+# comma-separated: the site's domain, its workers.dev address (still
+# serving), then the GitHub Pages one, which serves redirect pages.
+ALLOWED_ORIGIN = "https://marisstella.app,https://monorepo-projects-site.duncan-andrew-haywood.workers.dev,https://duncan-haywood.github.io"
 # At most this many feedback messages a day, site-wide, whatever the source.
 FEEDBACK_DAILY_CAP = "50"
 MAX_PER_SLUG_PER_DAY = "20000"
