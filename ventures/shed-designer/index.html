@@ -83,6 +83,9 @@
     .dim-overlay span { position: absolute; transform: translate(-50%, -50%); background: #ffffffd9; color: #1f4e8c; font: 600 12px ui-sans-serif, system-ui, sans-serif; padding: 1px 5px; border-radius: 4px; white-space: nowrap; }
     #view3d:focus-visible { outline: 3px solid #e0662f; outline-offset: 2px; }
     #view3d { width: 100%; aspect-ratio: 4 / 3; display: block; border-radius: 10px; border: 1px solid var(--line); background: #edf1f5; touch-action: none; cursor: grab; }
+    .swatchrow { display: flex; gap: 6px; align-items: center; }
+    .swatchrow select { flex: 1; min-width: 0; }
+    .swatchrow input[type=color] { inline-size: 2.6em; block-size: 2.2em; padding: 2px; flex: none; }
     .toolrow { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; align-items: center; }
     .check { display: inline-flex; align-items: center; gap: 6px; font-size: .88rem; font-weight: 600; }
     .summary { background: var(--accent2); color: #f8f5eb; border-color: var(--accent2); margin-top: 14px; }
@@ -253,6 +256,7 @@
       <canvas id="view3d" tabindex="0" role="img" aria-label="3D model of the framed shed. Drag to turn it, scroll or pinch to zoom; with the keyboard, the arrow keys turn it and + and - zoom."></canvas>
       <p id="view3d-fallback" hidden>This browser has no WebGL, so the 3D view is off. The plans, cut sheet and estimate below still work.</p>
       <div class="toolrow">
+        <button type="button" class="btn" id="presentation" aria-pressed="false">Presentation</button>
         <button type="button" class="btn" id="framing-only">Framing only</button>
         <button type="button" class="btn" id="finished">Finished</button>
         <button type="button" class="btn" id="view-front">Front</button>
@@ -264,7 +268,7 @@
         <button type="button" class="btn" id="zoom-out" aria-label="Zoom out">−</button>
       </div>
       <div class="toolrow" id="layers" aria-label="Layers"></div>
-      <div class="toolrow"><label class="check"><input type="checkbox" id="show-dims" checked> Dimensions</label><label class="check"><input type="checkbox" id="heat-3d"> Colour by structural use</label></div>
+      <div class="toolrow"><label class="check"><input type="checkbox" id="show-dims" checked> Dimensions</label><label class="check"><input type="checkbox" id="show-outlines" checked> Board outlines</label><label class="check"><input type="checkbox" id="show-scenery" checked> Lawn and sky</label><label class="check"><input type="checkbox" id="heat-3d"> Colour by structural use</label></div>
       <p class="hint" id="heat-legend" hidden></p>
       <p class="hint" id="pick-info" aria-live="polite"></p>
 
@@ -384,11 +388,12 @@
         <label>Siding type<select id="sidingType"><option value="T1-11">T1-11 plywood panels</option><option value="LP SmartSide">LP SmartSide 38 Series primed panels, 3/8"</option><option value="LP SmartSide 7/16">LP SmartSide 76 Series primed panels, 7/16"</option><option value="board and batten">Board and batten over OSB</option><option value="vinyl">Vinyl lap over OSB</option><option value="fiber cement">Fiber cement lap over OSB</option></select></label>
         <label>Wall trim<select id="wallTrim"><option value="1x4">1x4 corner boards and casings</option><option value="none">None</option></select></label>
         <label>Roof covering<select id="roofCover"><option value="shingles">Architectural shingles</option><option value="metal">Corrugated metal panels</option></select></label>
-        <label>Siding colour<select id="sidingColor"><option value="natural">Stained (solid colour)</option><option value="unfinished">Unfinished (no paint or stain)</option><option value="red">Barn red</option><option value="pink">Pink</option><option value="hot pink">Hot pink</option><option value="lavender">Lavender</option><option value="mint">Mint</option><option value="gray">Gray</option><option value="blue">Blue</option><option value="green">Green</option><option value="white">White</option></select></label>
+        <label>Siding colour<span class="swatchrow"><select id="sidingColor"></select><input type="color" id="sidingColor-custom" aria-label="Siding: pick any colour, or match a photo of your house"></span></label>
         <label class="check"><input id="polkaDots" type="checkbox"> Purple polka dots</label>
         <label class="check"><input id="glitter" type="checkbox"> Glitter finish</label>
-        <label>Roof colour<select id="roofColor"><option value="charcoal">Charcoal</option><option value="brown">Brown</option><option value="pink">Pink</option><option value="purple">Purple</option><option value="teal">Teal</option></select></label>
-        <label>Trim colour (fascia, soffit, rake)<select id="trimColor"><option value="white">White</option><option value="purple">Purple</option><option value="pink">Pink</option><option value="black">Black</option><option value="gold">Gold</option></select></label>
+        <label>Roof colour (shingle colour family)<select id="roofColor"></select></label>
+        <label>Trim colour (corner boards, casings, fascia, soffit, rake)<span class="swatchrow"><select id="trimColor"></select><input type="color" id="trimColor-custom" aria-label="Trim: pick any colour"></span></label>
+        <label>Door colour<span class="swatchrow"><select id="doorColor"></select><input type="color" id="doorColor-custom" aria-label="Door: pick any colour"></span></label>
         <label>Inside walls<select id="interior"><option value="none">Bare framing</option><option value="OSB">OSB</option><option value="plywood">Plywood, painted</option><option value="drywall">Drywall, taped and painted</option><option value="beadboard">Beadboard, painted</option><option value="pegboard">Pegboard (workshop)</option><option value="teen bedroom">Teen bedroom: pink walls, posters, lights</option></select></label>
         <label class="check"><input id="insulation" type="checkbox"> Insulate the walls (R-13 batts)</label>
         <label>Big poster picture (stays in your browser)<input id="posterFile" type="file" accept="image/*"></label>
