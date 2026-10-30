@@ -61,3 +61,18 @@ test("corrupt stored JSON is treated as empty rather than thrown", () => {
   record("quote_run");
   assert.equal(readUsage().quote_run, 1);
 });
+
+test("a localStorage global that throws on access is treated as no storage", () => {
+  const backing = fakeStorage();
+  let reads = 0;
+  delete globalThis.localStorage;
+  Object.defineProperty(globalThis, "localStorage", {
+    configurable: true,
+    get() {
+      if (reads++ === 0) throw new Error("SecurityError");
+      return backing;
+    },
+  });
+  record("quote_run");
+  assert.equal(backing.getItem("water-well-drilling-bid-calculator-usage"), null);
+});
