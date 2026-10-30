@@ -30,8 +30,12 @@
 // gusset plywood itself is checked too (gussetPanel): at the knee for the
 // moment, axial force and shear across the mitre, and at the peak for the
 // thrust and shear across the plumb cut, with APA's published capacities for
-// the panel. This is a screening check like the rest of the tool's, not an
-// engineer's design: wind, uplift and the frame's spread are not checked.
+// the panel. Wind is checked as uplift: ASCE 7's 0.6D + 0.6W with the single
+// wind pressure you set, over the whole roof on plan; where it reverses the
+// frame, the ties go into compression and get a mid-span brace. This is a
+// screening check like the rest of the tool's, not an engineer's design: ASCE
+// 7's zoned gambrel pressures, sideways racking of the trusses and the frame's
+// spread are not checked.
 //
 // Coordinates are the model's: y across the width from the front eave wall's
 // outside face, z up from the gravel. The roof is symmetric about y = W/2.
@@ -316,6 +320,11 @@ export function gambrelAnalysis(d) {
     { name: 'dead + snow', CD: 1.15, q: (y) => dead(y) + snow },
     { name: 'dead + snow on one side', CD: 1.15, q: (y) => dead(y) + (y < g.W / 2 ? snow : 0) },
     { name: 'dead only', CD: 0.9, q: dead },
+    // Wind: ASCE 7's allowable-stress combination 0.6D + 0.6W, the wind pressure you set taken as uplift on
+    // plan over the whole roof, as rafterUplift (checks.mjs) takes it at a gable's eave. Where it lifts more
+    // than the roof weighs the frame's forces reverse: the chords, gussets and nails take them the other way
+    // and the tie goes into compression. ASCE 7's own gambrel pressures vary by zone; this is the single figure.
+    ...(d.windLoad > 0 ? [{ name: 'wind uplift (0.6D + 0.6W)', CD: 1.6, wind: true, q: (/** @type {number} */ y) => 0.6 * dead(y) - 0.6 * d.windLoad * per }] : []),
   ];
   const Z8 = nailZ(NAIL.D, GUSSET_T, 1.5, 0.42, 100000);
   const Z16 = nailZ(0.162, 1.5, 2.0);
@@ -354,7 +363,7 @@ export function gambrelAnalysis(d) {
   const kneeExt = Math.max(0, Math.ceil((g.rd * (kneeSection / kneeDepth - 1)) * 4 - 1e-9) / 4);
   const peakPanel = worstOf((c) => gussetPanel(0, c.f.peak.H / 2, c.f.peak.V / 2, peakDepth, c.CD));
   const heelNails = Math.max(3, Math.ceil(H / (Z16 * 1.15) - 1e-9));
-  const seatR = worstOf((c) => ({ ratio: Math.max(c.f.VA, c.f.VB) / (T * Math.min(g.seat, actual(d.studSize).depth)) / SPF2.Fc_perp }));
+  const seatR = worstOf((c) => ({ ratio: c.wind ? 0 : Math.max(c.f.VA, c.f.VB) / (T * Math.min(g.seat, actual(d.studSize).depth)) / SPF2.Fc_perp }));
 
   // The tie: tension, plus the loft's load in bending when it is a loft joist.
   const span = d.width - actual(d.studSize).depth; // bearing centre to bearing centre
@@ -369,6 +378,20 @@ export function gambrelAnalysis(d) {
     return out;
   });
   const tieR = tieCases.reduce((b, c) => {
+    if (c.H < 0) {
+      // Net uplift pulls the heels together: the tie is a column about its 1-1/2" face (NDS 3.7.1; le/d at most
+      // 50, 3.7.1.4), braced by a full loft's floor, else by a 2x4 brace along the ties at mid-span (tieBrace).
+      const le = d.loft === 'full' ? s : span / 2;
+      const slender = le / T;
+      const FcStar = SPF2.Fc * c.CD * CF_C[tieSize];
+      const FcE = (0.822 * SPF2.Emin) / slender ** 2;
+      const a = FcE / FcStar;
+      const bb = (1 + a) / 1.6;
+      const Cp = bb - Math.sqrt(bb * bb - a / 0.8);
+      const fc = -c.H / A;
+      const ratio = slender > 50 ? Math.max(slender / 50, fc / (FcStar * Cp)) : fc / (FcStar * Cp);
+      return ratio > b.ratio ? { ratio, case: c.name } : b;
+    }
     const ft = c.H / A;
     const fb = (c.w * span * span) / 8 / S;
     const Ft = FT_SPF2 * c.CD * CF_B[tieSize];
@@ -397,7 +420,9 @@ export function gambrelAnalysis(d) {
     snow: (solved[0].f.VA - solved[2].f.VA) * perFt,
     loft: loft ? (LOFT_LIVE * d.width) / 2 / 12 : 0,
   };
-  return { rows, gusset: { knee, peak, kneeExt }, heelNails, thrust: H, tieSize, tieDepth: td, wall, nailZ: Z8, nailsPerKnee: 4 * nailGroup(g.rd, knee).n, nailsPerPeak: 4 * nailGroup(g.rd, peak).n };
+  // Ties that go into compression under wind need the mid-span brace where no loft floor braces them.
+  const tieBrace = solved.some((c) => c.f.H < 0) && d.loft !== 'full';
+  return { rows, tieBrace, gusset: { knee, peak, kneeExt }, heelNails, thrust: H, tieSize, tieDepth: td, wall, nailZ: Z8, nailsPerKnee: 4 * nailGroup(g.rd, knee).n, nailsPerPeak: 4 * nailGroup(g.rd, peak).n };
 }
 
 /** The outer roof line across the width: eave, knee, peak, knee, eave. @param {ReturnType<typeof gambrelShape>} g */
