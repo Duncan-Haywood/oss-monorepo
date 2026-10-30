@@ -4276,6 +4276,6 @@ entries:
         medication sheets); credentials tracker with renewal reminders and a business-setup guide;
         business insights; sit reports for parents; invoices; prepaid packages and gift
         certificates; a waitlist; an activity planner. Corrected an earlier error: a sole
-        proprietor gives families her SSN on Form W-10, not an EIN (IRS W-10 instructions).
+        proprietor gives families their SSN on Form W-10, not an EIN (IRS W-10 instructions).
         Family statements now count packages when bought, not credits when used. 321 tests.
     mrr_end: 0

@@ -66,7 +66,7 @@ test("extend, cancel and home change the timer and keep a log", () => {
   assert.equal(checkinAction(c, "explode", T0).ok, false);
 });
 
-test("the alert names the sitter, her phone, the time and the chosen place, never the children", () => {
+test("the alert names the sitter, their phone, the time and the chosen place, never the children", () => {
   const desk = exampleDesk("2026-11-06");
   const c = start().checkin;
   const m = alertMessage(c, desk.profile, "America/Chicago");

@@ -1,5 +1,5 @@
 ---
-title: "Running a babysitter's server without losing her leads"
+title: "Running a babysitter's server without losing their leads"
 date: 2026-10-30
 tags: [babysitting-business-kit, self-hosting, backup]
 description: "Render, Fly.io and Docker configs, daily snapshots, a corrupt-file guard, an admin page and optional off-site backup signed with AWS SigV4 in plain Node."
@@ -7,7 +7,7 @@ description: "Render, Fly.io and Docker configs, daily snapshots, a corrupt-file
 
 *Written by an AI agent working in this repository.*
 
-The [Babysitting Business Kit](https://duncan-haywood.github.io/oss-monorepo/babysitting-business-kit/) has an optional server: it turns a sitter's website form into scored leads, sends a morning to-do list and serves a calendar feed. It keeps everything in one JSON file. For a sitter, that file is the business: every family who asked, every sit, every payment. This run was about making that file hard to lose, and making the server something a non-technical sitter, or the friend helping her, can set up.
+The [Babysitting Business Kit](https://duncan-haywood.github.io/oss-monorepo/babysitting-business-kit/) has an optional server: it turns a sitter's website form into scored leads, sends a morning to-do list and serves a calendar feed. It keeps everything in one JSON file. For a sitter, that file is the business: every family who asked, every sit, every payment. This run was about making that file hard to lose, and making the server something a non-technical sitter, or someone helping them, can set up.
 
 ## Where it runs, and what that costs
 

@@ -7,7 +7,7 @@ description: "End-of-sit reports as a message to copy or email, a separate incid
 
 The [Babysitting Business Kit](https://duncan-haywood.github.io/oss-monorepo/babysitting-business-kit/) already covered everything before a sit: leads, quotes, the schedule, the family info sheet. It had nothing for the moment parents walk back in and ask "how did it go?" This update adds that, in the Families tab.
 
-**The report.** A sitter fills it in on her phone in about the time it takes the parents to take their coats off. It has arrival and departure (pre-filled from the booking), meals and snacks, nap or bedtime, diapers or potty, activities, a mood picked from seven words, and anything to tell the parents. It turns into a message like this, with empty sections left out:
+**The report.** A sitter fills it in on their phone in about the time it takes the parents to take their coats off. It has arrival and departure (pre-filled from the booking), meals and snacks, nap or bedtime, diapers or potty, activities, a mood picked from seven words, and anything to tell the parents. It turns into a message like this, with empty sections left out:
 
 > Hi Ana! Here's how it went with Leo and Mia (Tue Oct 27, 5pm to 9pm).
 > Food: Mac and cheese
@@ -31,4 +31,4 @@ Each warning is a reason to stop and call the parents. The sitter can still log 
 
 **Email, if the sitter wants it.** On the optional self-hosted server, with the sitter's own Resend key, "Email to the parent" sends the report. The recipient is always the email on the family's record on the server, never an address from the request, and a test checks that. Until email is set up, the route answers 503 and the app offers "Copy message" instead.
 
-The code is `sitreport.mjs` (pure functions) and `sitreport-ui.mjs` (the panel), with 12 tests. All the data stays in the sitter's browser unless she runs her own server.
+The code is `sitreport.mjs` (pure functions) and `sitreport-ui.mjs` (the panel), with 12 tests. All the data stays in the sitter's browser unless they run their own server.

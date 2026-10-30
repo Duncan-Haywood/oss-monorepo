@@ -1,10 +1,10 @@
 // Babysitting Business Kit: the sitter-family agreement. A template, not legal advice.
 //
-// The sitter fills in her policies once (Settings for rates; the Agreements tab for the
+// The sitter fills in their policies once (Settings for rates; the Agreements tab for the
 // rest). agreementText() turns them into a plain-text agreement for one family: rates and
 // minimums, late, holiday and cancellation fees, payment terms, the sick-child policy,
 // photos and social media, transportation and car seats, house rules, screen time,
-// emergency authorization and, only if she turns it on, a faith clause that says faith
+// emergency authorization and, only if the sitter turns it on, a faith clause that says faith
 // activities happen only when parents ask. A family's beliefs are never asked or scored.
 //
 // Versions. policyFingerprint() is a SHA-256 of the policy terms (not the family's name),

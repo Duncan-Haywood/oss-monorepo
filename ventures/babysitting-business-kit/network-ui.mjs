@@ -1,5 +1,5 @@
-// Babysitting Business Kit: the Network tab. Backup sitters she trusts, passing on work
-// she cannot take (with the family's recorded OK), the sub-for-me list for sick days,
+// Babysitting Business Kit: the Network tab. Backup sitters the sitter trusts, passing on work
+// the sitter cannot take (with the family's recorded OK), the sub-for-me list for sick days,
 // and referrals both ways. DOM code only; the logic is in network.mjs.
 import * as N from "./network.mjs";
 

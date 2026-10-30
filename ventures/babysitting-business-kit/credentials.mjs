@@ -17,8 +17,8 @@ const datePart = (s) => (isoDay(str(s)) || isoMonth(str(s)) ? str(s) : "");
 const dayMs = (d) => Date.parse(`${d}T12:00:00Z`);
 const between = (a, b) => Math.round((dayMs(b) - dayMs(a)) / 864e5);
 
-// What a babysitter is commonly asked for, or carries for her own protection. `site`:
-// shown on the website by default. `driving`: only matters when she drives children.
+// What a babysitter is commonly asked for, or carries for their own protection. `site`:
+// shown on the website by default. `driving`: only matters when the sitter drives children.
 export const KINDS = {
   cpr: { label: "CPR and First Aid", site: true },
   background: { label: "Background check", site: true },
