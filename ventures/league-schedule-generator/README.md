@@ -185,6 +185,7 @@ rounds left go first, so they finish together) and which match gets which court 
   summed over 8 seeds, the optimiser makes 322 venue changes against 432 for the naive order (-25%). Both give 0 linked clashes here,
   so the example does not show the clash handling beating the naive order; the one-slot test shows an unavoidable clash being listed.
 - **Page.** `multi-division-league-schedule.html` runs it in the browser (divisions, courts at venues, times, skip dates, closures, links; CSV, plain-text and print exports; the same disclaimer and local-only usage counts as the main page), linked from `index.html` and the sitemap.
+- **Travel table checks (2026-10-30).** `readDivisionsSpec` also returns `warnings` (CLI prints them as `Warning:`): a venue pair missing from the table (it is priced as the longest time given) and a direct time longer than going via a third venue (usually a typo). Hand arithmetic tests only (`divisions.test.mjs`); not on the page yet.
 - **Travel times.** A `travel` field (`Park - School: 25`, minutes, either direction) prices each venue change by its time
   instead of counting it as one; a pair not listed counts as the longest one given. The optimiser then avoids the long hops first,
   and `stats.travelMinutes` (and the text read-out) report the total. On three venues (Park-School 10, Park-Lake 60, School-Lake 55)

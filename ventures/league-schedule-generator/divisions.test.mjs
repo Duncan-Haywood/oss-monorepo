@@ -4,7 +4,7 @@ import { readFileSync, writeFileSync, mkdtempSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { parseDivisions, parseDivisionLinks, buildDivisions, applyDivisionRainouts, rainoutOptions, validateDivisions, linkConflicts, divisionsCsv, divisionsText, divisionsIcs, readDivisionsSpec, parseTravel, divisionStats, carryVenueHistory, venueImbalance, suggestFairnessWeight, encodeDivisionFields, decodeDivisionFields } from "./divisions.mjs";
+import { parseDivisions, parseDivisionLinks, buildDivisions, applyDivisionRainouts, rainoutOptions, validateDivisions, linkConflicts, divisionsCsv, divisionsText, divisionsIcs, readDivisionsSpec, parseTravel, divisionStats, carryVenueHistory, venueImbalance, suggestFairnessWeight, travelWarnings, encodeDivisionFields, decodeDivisionFields } from "./divisions.mjs";
 import { parseDate, dayIso } from "./calc.mjs";
 
 const example = JSON.parse(readFileSync(new URL("./example-divisions.json", import.meta.url), "utf8"));
@@ -625,4 +625,19 @@ test("team and official messages: every match appears once per side, byes add no
   assert.equal(om.reduce((n, m) => n + m.matches, 0), a.total);
   assert.ok(om.every((m) => m.text.startsWith(`Hi ${m.official},`)));
   assert.deepEqual(divisionsOfficialMessages(s), []);
+});
+
+test("travelWarnings flags a missing pair and a direct time longer than going via a third venue", () => {
+  const v = ["Park", "School", "Lake"];
+  const full = parseTravel("Park - School: 10\nSchool - Lake: 20\nPark - Lake: 25", v).travel;
+  assert.deepEqual(travelWarnings(full, v), []);
+  const missing = parseTravel("Park - School: 10\nSchool - Lake: 20", v).travel;
+  const w1 = travelWarnings(missing, v);
+  assert.equal(w1.length, 1);
+  assert.match(w1[0], /No travel time for Park - Lake.*20 min/);
+  const typo = parseTravel("Park - School: 10\nSchool - Lake: 20\nPark - Lake: 250", v).travel;
+  const w2 = travelWarnings(typo, v);
+  assert.equal(w2.length, 1);
+  assert.match(w2[0], /Park - Lake is 250 min but Park - School - Lake is 30/);
+  assert.deepEqual(travelWarnings({}, v), []);
 });
