@@ -243,6 +243,8 @@ function renderSummary(shed, est) {
   const buy = toBuy(est);
   $('#total').textContent = money(buy.total);
   $('#total-pill-n').textContent = money(buy.total);
+  // The gallery and the cards price materials before tax; say what this total adds, so the jump is not a surprise.
+  $('#total-pill-l').textContent = buy.tax && est.deliveryFee ? 'Total incl. tax + delivery' : buy.tax ? 'Total incl. tax' : est.deliveryFee ? 'Total incl. delivery' : 'Total';
   $('#summary-lines').innerHTML = [
     ['Materials', `${money(buy.sub)}${buy.less ? ` (${money(est.total)} less ${money(buy.less)} you have or left out)` : ''}${buy.tax ? ` + ${money(buy.tax)} tax (${d.taxRate}%)` : ' (no sales tax set)'}${d.delivery !== 'pickup' ? (est.deliveryFee ? ` + ${money(est.deliveryFee)} delivery` : ' + delivery (type your store\'s charge under Prices)') : ''}`],
     ['Where the money goes', sectionTotals(est.shopping).sort((a, b) => b.total - a.total).slice(0, 5).map((x) => `${esc(x.section)} ${money(x.total)} (${Math.round(x.share * 100)}%)`).join(', ')],
@@ -1153,6 +1155,8 @@ function wire() {
   $('#print-all').addEventListener('click', () => printWhat('all'));
   // The HOA packet is its own page, carrying the design in its link as "Copy link" does.
   $('#hoa-packet').addEventListener('click', () => { window.open(`hoa-packet.html#d=${encodeDesign(design())}`, '_blank', 'noopener'); });
+  // The packet is what an HOA asks for, so the section bar links it too, not only the Plans tab.
+  $('#jump-hoa').addEventListener('click', () => $('#hoa-packet').click());
   for (const id of ['#quote-store', '#quote-name', '#quote-phone', '#quote-zip', '#quote-date']) $(id).addEventListener('input', () => quoteCtx && renderQuote(quoteCtx.shed, quoteCtx.est));
   $('#quote-store').addEventListener('change', () => quoteCtx && renderQuote(quoteCtx.shed, quoteCtx.est));
   $('#buy-at').value = state.buyAt;
