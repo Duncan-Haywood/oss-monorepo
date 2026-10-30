@@ -1,6 +1,6 @@
 ---
 title: "A sixth gap probe for ai-bookkeeper: 47 of 79 right before, 4 confidently wrong"
-seo_title: "Bank line categorizer test: cafes, lawyers, landscapers, vets, SaaS founders"
+seo_title: "Bank line categorizer test: cafes, lawyers, vets, SaaS founders"
 date: 2026-10-30
 tags: [ai-bookkeeper, evaluation, bookkeeping]
 description: "79 made-up bank descriptions for five more kinds of small business went through the built-in rules before any change: 47 right, 4 wrong, 28 no suggestion."
