@@ -336,12 +336,20 @@ jobs:
           path: ${{ runner.temp }}/share-cards
           key: share-cards-${{ hashFiles('platform/pages/sharecard.mjs', 'platform/pages/fontraster.mjs', 'platform/pages/fonts/**') }}-${{ steps.cards.outputs.day }}
 
+      # One tarball, not the directory: upload-artifact refuses a file whose
+      # name has a colon or other NTFS-reserved character, and one stray
+      # venture file once stopped the whole deploy that way (2026-10-30).
+      # upload-pages-artifact tars for the same reason.
+      - name: Pack the site for Cloudflare
+        if: github.event_name != 'pull_request' && needs.gate.outputs.cloudflare == 'true'
+        run: tar -cf "$RUNNER_TEMP/site.tar" -C platform/pages/dist .
+
       - name: Upload the site for Cloudflare
         if: github.event_name != 'pull_request' && needs.gate.outputs.cloudflare == 'true'
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: site
-          path: platform/pages/dist
+          path: ${{ runner.temp }}/site.tar
           retention-days: 3
 
       # Once the site lives on Cloudflare, GitHub Pages serves a page per old
@@ -391,7 +399,12 @@ jobs:
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           name: site
-          path: platform/pages/dist
+          path: ${{ runner.temp }}/site-artifact
+
+      - name: Unpack the built site
+        run: |
+          mkdir -p platform/pages/dist
+          tar -xf "$RUNNER_TEMP/site-artifact/site.tar" -C platform/pages/dist
 
       - name: Install wrangler (pinned)
         run: npm install --global wrangler@4.145.0
