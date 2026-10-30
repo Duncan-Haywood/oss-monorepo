@@ -208,3 +208,13 @@ test('auto overhang: the longest from 6" to 18" within the allowance of the chea
   assert.equal(normalize({ ...defaultDesign(), overhangBudget: -5 }).overhangBudget, 0);
   assert.equal(normalize({ ...defaultDesign(), overhangBudget: 'x' }).overhangBudget, 25);
 });
+
+test('the auto overhang never buys its saving by leaving a door unframed', () => {
+  // A 72" site-built pair on the default 12 ft wall: some long overhangs leave
+  // the door unframed, which prices as cheaper, so the search skips them.
+  const d = defaultDesign();
+  const openings = d.openings.map((o) => (o.kind === 'door' ? { ...o, offset: 36, width: 72, product: 'site-built' } : o));
+  const s = buildShed(normalize({ ...d, openings }));
+  const framed = new Set(s.framedOpenings.map((p) => p.op?.id ?? p.id));
+  assert.ok(s.design.openings.every((o) => framed.has(o.id)), `overhang ${s.design.overhang}`);
+});

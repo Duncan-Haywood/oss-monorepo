@@ -614,11 +614,15 @@ function buildAuto(d0) {
     // sheathing, roofing, drip edge, trim) costs at most overhangBudget dollars
     // more than the cheapest overhang's, at the starting prices. A longer eave
     // keeps rain off the siding, so a little money buys it; 0 takes the cheapest.
-    const tries = [];
+    // An overhang that leaves a door or window unframed prices without it, so it
+    // looks cheap; those are skipped unless no overhang frames every opening.
+    const all = [];
     for (let oh = 6; oh <= 18; oh++) {
       const t = buildFramed(normalize({ ...s.design, autoWall: false, autoPitch: false, autoOverhang: false, overhang: oh }));
-      tries.push({ oh, t, cost: estimate(t).total });
+      const framed = new Set((t.framedOpenings || []).map((/** @type {any} */ p) => p.op?.id ?? p.id));
+      all.push({ oh, t, cost: estimate(t).total, frames: t.design.openings.every((o) => framed.has(o.id)) });
     }
+    const tries = all.some((x) => x.frames) ? all.filter((x) => x.frames) : all;
     const min = Math.min(...tries.map((x) => x.cost));
     const cheapest = /** @type {any} */ (tries.find((x) => x.cost <= min + 0.005));
     const best = /** @type {any} */ (tries.filter((x) => x.cost <= min + d0.overhangBudget + 0.005).pop());
