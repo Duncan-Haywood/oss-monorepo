@@ -10,10 +10,7 @@ import { drawPlan, drawEnd } from './editor.mjs';
 import { fmtIn, fmtFtIn, actual, STANDARD_LENGTHS_FT, EXAMPLE_ITEMS } from './lumber.mjs';
 import { recordUsage, clearUsage } from './usage.mjs';
 import { structuralChecks, anchorageText } from './checks.mjs';
-});
-
 import { encodeDesign } from './hoa.mjs';
-import { structuralChecks } from './checks.mjs';
 import { connectionChecks } from './connections.mjs';
 import { generateCandidates } from './candidates.mjs';
 import { buildInstructions, instructionsMarkdown } from './instructions.mjs';
