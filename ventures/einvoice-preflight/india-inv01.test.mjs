@@ -45,3 +45,13 @@ test("rounding within one rupee is accepted; bad JSON is reported", () => {
   assert.equal(checkInv01(d).ok, true);
   assert.equal(checkInv01("{").problems[0].message, "Not valid JSON.");
 });
+
+test("india-cli.mjs exits 0 on the clean example and 1 with findings", async () => {
+  const { spawnSync } = await import("node:child_process");
+  const run = (f, ...a) => spawnSync(process.execPath, [new URL("./india-cli.mjs", import.meta.url).pathname, new URL(`./examples/${f}`, import.meta.url).pathname, ...a], { encoding: "utf8" });
+  assert.equal(run("india-inv01.json").status, 0);
+  const bad = run("india-inv01-with-defects.json", "--json");
+  assert.equal(bad.status, 1);
+  assert.ok(JSON.parse(bad.stdout).problems.some((p) => p.path === "DocDtls.Dt"));
+  assert.equal(spawnSync(process.execPath, [new URL("./india-cli.mjs", import.meta.url).pathname], { encoding: "utf8" }).status, 2);
+});
