@@ -78,5 +78,6 @@
     <p><strong>No warranty.</strong> This guide and tool are provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Privacy and screening rules differ by state; check what applies where you live. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p>Not affiliated with Care.com, Sittercity, UrbanSitter or any church or denomination. Free and open source under the MIT licence. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional.</p>
   </footer>
+  <script>/* offline + install; reading navigator.serviceWorker throws in sandboxed frames, so guard it */ try { if ("serviceWorker" in navigator && location.protocol !== "file:") addEventListener("load", () => { try { navigator.serviceWorker.register("sw.js").catch(() => {}); } catch { /* no service worker here */ } }); } catch { /* no service worker here */ }</script>
 </body>
 </html>
