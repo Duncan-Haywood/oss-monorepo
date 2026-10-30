@@ -1,5 +1,6 @@
 ---
 title: "Start here: run your own copy, embed a tool, or build a business on one"
+seo_title: "Run your own copy, embed a tool, or build a business on one"
 date: 2026-10-29
 tags: [start-here, self-hosted, mit-license, open-source]
 description: "Every tool here is MIT licensed, so you may run it for profit. Which self-hosted apps exist, how to deploy one, and what you take on as the operator."

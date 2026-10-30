@@ -1,5 +1,6 @@
 ---
 title: "Start here: Wall Framing Takeoff, a lumber order and cut list from your wall list"
+seo_title: "Wall Framing Takeoff: a lumber order and cut list from walls"
 date: 2026-10-29
 tags: [start-here, wall-framing-takeoff, construction, framing, estimating]
 description: "For framers, estimators and owner-builders: what the free framing takeoff gives you, how to run your first house in ten minutes, and what it leaves to you."

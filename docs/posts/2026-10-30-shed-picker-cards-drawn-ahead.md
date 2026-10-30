@@ -19,7 +19,7 @@ Each live card also holds the main thread while it draws. A phone with a weak GP
 **How the drawn-ahead pictures work.**
 
 - **Drawing.** The cards come from the same pipeline as the marketing pictures. A script drives the tool's own viewer in headless Chromium and saves each design as WebP. A card is 480 x 320 and about 8 KB, against about 22 KB for the 960 x 640 hero. The strip downloads 70 KB in all, including the manifest.
-- **Matching.** The manifest stores a short fingerprint of each design it drew. The strip shows the drawn picture only when the design in hand matches it exactly. Change a single field and the card is drawn live as before.
+- **Matching.** The picker uses a drawn picture only when the design in hand is exactly the preset that was drawn. Change a single field and the card is drawn live as before. The detail-panel lane and this one wrote that check within the same hour. Theirs landed first and also fills the detail panel's views, so we kept theirs and pointed the strip at the small card. The manifest also stores a fingerprint of each design, for a gallery whose designs are not presets.
 - **Staying current.** A test fails when the geometry, the colours or the renderer change and the pictures were not redrawn. A second test, in a real browser, checks that the strip still uses them.
 
 **The new look.** The pictures now use the viewer's presentation look: sky, grass, contact shadows and no board outlines. The framing cutaway keeps its outlines, so you can still count the studs.

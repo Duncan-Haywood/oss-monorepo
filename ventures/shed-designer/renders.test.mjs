@@ -136,6 +136,6 @@ test('the starting-design strip shows the pre-drawn pictures', { skip: hasPw ? f
     await page.waitForFunction(() => document.querySelectorAll('.pick-img img[src*="renders/"]').length >= 6, null, { timeout: 30000 });
     const srcs = await page.$$eval('.pick-img img', (els) => els.map((e) => e.getAttribute('src')));
     const m = readManifest();
-    for (const t of renderTargets()) assert.ok(srcs.some((s) => s.endsWith(`renders/${m.designs[t.slug].files.card.file}`)), `${t.slug} card uses its drawn picture`);
+    for (const t of renderTargets()) assert.ok(srcs.some((s) => s.endsWith(`renders/${m.designs[t.slug].files.card.file}`)), `${t.slug} card uses its drawn card picture`);
   } finally { await browser.close(); server.close(); }
 });
