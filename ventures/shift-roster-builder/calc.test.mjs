@@ -1670,3 +1670,33 @@ test("planStreaks joins a Sunday shift to the next week's Monday and flags runs 
   assert.equal(planStreaks({ weeks: [w1, w2] }, { maxDays: 7 }).flag.length, 0);
   assert.deepEqual(planStreaks(null).rows, []);
 });
+
+import { carryOverStaff as _cos, rosterCsv as _rcsv } from "./calc.mjs";
+
+test("streak: carries the days-in-a-row limit across Monday, and carry-over writes and refreshes it", () => {
+  const staff = (t) => { const r = parseStaff(t); assert.deepEqual(r.errors, []); return r.staff; };
+  // Ann worked Thu to Sun (4 in a row); with a limit of 6 she may work Mon and Tue only.
+  const withStreak = buildRoster(staff("Ann,10,60,0,any,streak: 4"), slotsOf("Mon-Sat,9,13,1"), { maxConsecDays: 6 });
+  assert.equal(withStreak.unfilledSlots, 1, "one day off is enough: Mon-Tue (6 in a row), a gap, then Thu-Sat");
+  assert.match(withStreak.unfilled[0].text, /consecutive|days-in-a-row/i);
+  const without = buildRoster(staff("Ann,10,60,0,any"), slotsOf("Mon-Sat,9,13,1"), { maxConsecDays: 6 });
+  assert.equal(without.unfilledSlots, 0);
+  assert.equal(parseStaff("Ann,10,40,0,any,streak: x").errors.length, 1);
+  // Carry-over: Ann works Thu-Sun, Bo works Sat only, Cy skipped Sunday.
+  const csv = _rcsv(buildRoster(staff("Ann,10,60,0,any\nBo,10,60,0,any\nCy,10,60,0,any,streak: 3"), slotsOf("Thu-Sun,9,13,1"), { maxConsecDays: 7 }));
+  const carried = _cos("Ann,10,60,0,any\nBo,10,60,0,any\nCy,10,60,0,any,streak: 3", csv).text;
+  const lines = carried.split("\n");
+  const has = (n) => lines.find((l) => l.startsWith(n));
+  const sum = [...csv.matchAll(/^(\w+),/gm)].length;
+  assert.ok(sum > 0);
+  // Whoever worked Sunday gets streak: = their trailing run; whoever did not loses a stale one.
+  const names = ["Ann", "Bo", "Cy"];
+  for (const n of names) {
+    const worksSunday = new RegExp(`^Sun.*,${n}\\b`, "m").test(csv);
+    assert.equal(/streak:/.test(has(n)), worksSunday, n);
+  }
+  assert.ok(!/streak:/.test(has("Cy")) || /Sun.*,Cy/.test(csv));
+  // A person on all seven days adds their old streak: 7 + 3 = 10.
+  const full = _rcsv(buildRoster(staff("Dee,10,80,0,any,streak: 3"), slotsOf("Mon-Sun,9,13,1"), { maxConsecDays: 20 }));
+  assert.match(_cos("Dee,10,80,0,any,streak: 3", full).text, /streak: 10/);
+});
