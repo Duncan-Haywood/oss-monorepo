@@ -1,6 +1,8 @@
 ---
 title: "When is it safe to split an audit by the LLM's own label?"
 date: 2026-10-30
+description: "A pilot-based informedness screen with a prevalence guard decides when splitting a human audit by an LLM coder's label pays, tested on GoEmotions and NaijaSenti."
+tags: [research, llm-coding, survey-sampling]
 ---
 
 Hand-auditing LLM-coded text can be cheaper if you sample separately from items the LLM flagged and items it did not. Our programme `research/llm-coding-inference` tested a simple rule on real GoEmotions and NaijaSenti codes (Qwen2.5 coders, 500 draws per cell, coverage ±2 points).
