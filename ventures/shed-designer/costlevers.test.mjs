@@ -41,7 +41,9 @@ test('site-built doors come in every width, centred where the door was, and over
 
 test('foundation rows cover a gravel pad, each block on each kind of gravel and piers, with the site prep', () => {
   const rows = group('Foundation').rows;
-  assert.equal(rows.length, 1 + 3 * 3 + 1); // a pad; three blocks on three kinds of gravel; piers, which need none
+  // a pad; three blocks on three kinds of gravel; piers, which need none; the blocks 5, 6 and 8 ft apart
+  assert.equal(rows.length, 1 + 3 * 3 + 1 + 3);
+  assert.ok(rows.some((x) => /Blocks up to 6' 0" apart/.test(x.label) && x.failing.includes('Skids on blocks')), 'the skid check rules on wider blocks');
   for (const x of rows) assert.ok(x.note.length > 40, x.label);
   assert.ok(rows.some((x) => /full gravel pad/.test(x.label) && /cu yd/.test(x.note)));
 });
@@ -69,4 +71,16 @@ test('a fixed choice is shown as it is, with nothing else priced for it', () => 
   assert.equal(locked.groups.find((g) => g.title === 'Windows').rows.length, 1);
   assert.ok(locked.groups.find((g) => g.title === 'Floor').rows.length > 1, 'the rest still priced');
   assert.match(leverTableHtml(locked), /kept as you chose/);
+});
+
+test('the floor group offers no floor, and a floorless design offers the framed floor back', () => {
+  const g = (d, t) => leverOptions(d).groups.find((x) => x.title === t);
+  const none = g(defaultDesign(), 'Floor').rows.find((x) => /^No floor/.test(x.label));
+  assert.ok(none && none.ok && /gravel is the floor/.test(none.note));
+  const floorless = { ...defaultDesign(), floor: 'none' };
+  const rows = g(floorless, 'Floor').rows;
+  assert.equal(rows.length, 2);
+  assert.ok(rows[0].current && /^No floor/.test(rows[0].label));
+  assert.ok(Math.abs(rows[1].delta + none.delta) < 0.01, 'the framed floor back is the same change the other way');
+  assert.ok(g(floorless, 'Foundation').rows.filter((x) => !x.current).every((x) => /with a framed floor/.test(x.label)));
 });
