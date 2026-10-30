@@ -338,3 +338,14 @@ test("stair hardware: one top connector and one foot anchor per stringer (hand: 
   assert.equal(wide.hardware.topConnectors, Math.ceil((60 - 1.5) / 16) + 1);
   assert.match(stairText(l).join("\n"), /Hardware: \d+ top connectors/);
 });
+
+test("stringer stock: shortest listed board that holds one stringer (hand: 108 in rise, 10 in tread needs under 192 in)", () => {
+  const p = plan();
+  const l = layoutStair({ totalRise: 108, tread: 10 }, p);
+  const fits = p.stock.filter((x) => x.size === "2x12" && x.length >= l.stringer.length).map((x) => x.length);
+  assert.equal(l.stringerStock.length, Math.min(...fits));
+  assert.ok(l.stringerStock.length >= l.stringer.length);
+  assert.equal(l.stringerStock.count, l.stringer.count);
+  assert.match(stairText(l).join("\n"), /Buy \d+ 2x12 boards/);
+  assert.equal(layoutStair({ totalRise: 108, tread: 10 }, null).stringerStock, null);
+});
