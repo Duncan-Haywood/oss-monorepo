@@ -40,3 +40,44 @@ export function floorMoves(d, set) {
   for (const s of [16, 24]) if (s !== d.joistSpacing) set(`floor joists ${s}" o.c.`, { joistSpacing: s }, 'joistSpacing');
   for (const sz of ['2x4', '2x6', '2x8']) if (sz !== d.joistSize) set(`${sz} floor joists`, { joistSize: sz }, 'joistSize');
 }
+
+/**
+ * Choices you can fix so no search changes them: each names the design keys
+ * it holds. Doors and windows both live in `openings`; the searches here tell
+ * them apart by the move, and `fixedKeys` gives the coarse key list for
+ * searches that change openings wholesale.
+ */
+export const LOCKABLE = {
+  siding: { label: 'Siding', keys: ['siding', 'sidingType', 'sidingColor', 'polkaDots', 'glitter'] },
+  roofing: { label: 'Roofing', keys: ['roofing', 'roofCover', 'roofColor'] },
+  foundation: { label: 'Foundation', keys: ['foundation', 'pad', 'skidSize', 'skidSpacing', 'compaction'] },
+  floor: { label: 'Floor', keys: ['joistSize', 'joistSpacing', 'floorPanel'] },
+  doors: { label: 'Doors', keys: ['openings'] },
+  windows: { label: 'Windows', keys: ['openings'] },
+};
+
+/** @param {{ locked?: string[] }} d the design keys no search may change, for a search that changes openings as a whole */
+export function fixedKeys(d) {
+  return [...new Set((d.locked || []).flatMap((k) => /** @type {any} */ (LOCKABLE)[k]?.keys || []))];
+}
+
+/**
+ * The keys the budget and simplicity searches leave alone: the design keys of
+ * each fixed choice, with 'doors' and 'windows' standing for door and window moves.
+ * @param {{ locked?: string[] }} d
+ */
+export function searchKeep(d) {
+  return [...new Set((d.locked || []).flatMap((k) => (k === 'doors' || k === 'windows' ? [k] : /** @type {any} */ (LOCKABLE)[k]?.keys || [])))];
+}
+
+/**
+ * The values another search may try for the foundation and floor, for
+ * merging into its own knobs (keys as in the design).
+ */
+export const LEVER_KNOBS = {
+  foundation: ['gravel', 'blocks', 'deck blocks', 'CMU'],
+  pad: ['full', 'under blocks', 'none'],
+  joistSize: ['2x4', '2x6', '2x8'],
+  joistSpacing: [16, 24],
+  floorPanel: ['plywood', 'OSB'],
+};

@@ -59,3 +59,14 @@ test('a 12x16 also prices, and the table shows fails without a button', () => {
   assert.match(html, /bad &lt;b&gt;/);
   assert.match(html, /saves \$10\.00/);
 });
+
+test('a fixed choice is shown as it is, with nothing else priced for it', () => {
+  const locked = leverOptions({ ...defaultDesign(), locked: ['foundation', 'windows'] });
+  const f = locked.groups.find((g) => g.title === 'Foundation');
+  assert.ok(f.locked);
+  assert.equal(f.rows.length, 1);
+  assert.ok(f.rows[0].current);
+  assert.equal(locked.groups.find((g) => g.title === 'Windows').rows.length, 1);
+  assert.ok(locked.groups.find((g) => g.title === 'Floor').rows.length > 1, 'the rest still priced');
+  assert.match(leverTableHtml(locked), /kept as you chose/);
+});
