@@ -156,3 +156,16 @@ test('ALLOWED_ORIGIN can list several origins, and CORS echoes the one that post
   assert.equal(refused.status, 403);
   assert.equal(refused.headers.get('access-control-allow-origin'), ORIGIN);
 });
+
+test('/healthz answers only GET, unknown POST paths are 404, and a malformed feedback body is a 400', async () => {
+  const e = env();
+  const ok = await worker.fetch(req('/healthz', { method: 'GET' }), e);
+  assert.equal(ok.status, 200);
+  assert.equal(await ok.text(), 'ok\n');
+  assert.equal((await worker.fetch(req('/healthz', { method: 'POST' }), e)).status, 404);
+  const stray = await worker.fetch(req('/nope', { body: '{}', headers: { origin: ORIGIN } }), e);
+  assert.equal(stray.status, 404, 'a POST to an unknown path must not reach the feedback handler');
+  const bad = await worker.fetch(req('/feedback', { body: '{not json', headers: { origin: ORIGIN } }), e);
+  assert.equal(bad.status, 400);
+  assert.deepEqual(await bad.json(), { error: 'body' });
+});
