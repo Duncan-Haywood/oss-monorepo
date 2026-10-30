@@ -1,0 +1,13 @@
+# What are you actually paying for every month?
+
+> Free tool: drop in your bank or card statement CSV and see every subscription and recurring charge with its monthly and yearly cost, price increases, double charges, upcoming yearly renewals and overlapping services. Runs in your browser, the file is never uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/subscription-audit-from-statement/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/subscription-audit-from-statement): MIT licensed.

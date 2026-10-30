@@ -1,0 +1,15 @@
+# A tip pool has two federal rules, not one.
+
+> Check a mandatory tip pool against federal FLSA rules: managers and supervisors are never eligible, and back-of-house staff are eligible only if you take no tip credit. See the tip-credit back-wage exposure a non-compliant pool creates. Free, private, nothing leaves your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/tip-pool-compliance-calculator/)
+- [Can managers be in a tip pool?](https://duncan-haywood.github.io/oss-monorepo/tip-pool-compliance-calculator/can-managers-be-in-a-tip-pool.html)
+- [Tip pool compliance calculator vs. deciding it in a staff meeting](https://duncan-haywood.github.io/oss-monorepo/tip-pool-compliance-calculator/vs-guessing-from-a-staff-meeting.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/tip-pool-compliance-calculator): MIT licensed.

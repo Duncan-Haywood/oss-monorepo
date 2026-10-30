@@ -1,0 +1,14 @@
+# Are you UK resident this tax year, and how many more UK days can you spend?
+
+> Free UK Statutory Residence Test checker: enter your UK stays and ties to see which test decides, whether you are UK resident, and how many more days you can spend in the UK before that changes. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/uk-statutory-residence-test-checker/)
+- [UK Statutory Residence Test ties table: how many days with how many ties](https://duncan-haywood.github.io/oss-monorepo/uk-statutory-residence-test-checker/uk-statutory-residence-test-ties-table.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/uk-statutory-residence-test-checker): MIT licensed.

@@ -1,0 +1,14 @@
+# Which market is actually worth your day?
+
+> Free calculator for farmers market, craft fair and festival vendors: what each market really earns after booth fee, drive, product cost, waste and card fees, profit per hour against your target wage, break-even sales and which market to drop or reprice. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/farmers-market-booth-calculator/)
+- [Is a farmers market worth the booth fee?](https://duncan-haywood.github.io/oss-monorepo/farmers-market-booth-calculator/is-a-farmers-market-worth-the-booth-fee.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/farmers-market-booth-calculator): MIT licensed.

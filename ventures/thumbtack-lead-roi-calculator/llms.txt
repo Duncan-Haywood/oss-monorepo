@@ -1,0 +1,14 @@
+# Are your Thumbtack leads paying for themselves?
+
+> Free calculator for home-service pros: what Thumbtack-style paid leads and your quoting time cost per job won, the close rate you need to break even, and the most you can pay for one lead before it loses money. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/thumbtack-lead-roi-calculator/)
+- [Are Thumbtack leads worth it, and how to tell if a lead pays](https://duncan-haywood.github.io/oss-monorepo/thumbtack-lead-roi-calculator/are-thumbtack-leads-worth-it.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/thumbtack-lead-roi-calculator): MIT licensed.

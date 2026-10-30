@@ -1,0 +1,13 @@
+# What share of your home is your day care?
+
+> Time-space percentage calculator for family child care and home day care providers. Enter your rooms, hours and home expenses and see the business share of each, compared with the simplified method. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/family-child-care-time-space-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/family-child-care-time-space-calculator): MIT licensed.

@@ -1,0 +1,17 @@
+# Vector Database Cost Calculator
+
+> Estimate your embedding index's real storage footprint from vector count, dimension, and metadata, then compare monthly cost across up to three vector database providers using their own quoted rates. Free, private, no signup.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/vector-db-cost-calculator/)
+- [This calculator vs. doing the math yourself](https://duncan-haywood.github.io/oss-monorepo/vector-db-cost-calculator/vs-doing-the-math-yourself.html)
+- [This calculator vs. Pinecone's own pricing page](https://duncan-haywood.github.io/oss-monorepo/vector-db-cost-calculator/vs-pinecone.html)
+- [This calculator vs. Qdrant's own pricing page](https://duncan-haywood.github.io/oss-monorepo/vector-db-cost-calculator/vs-qdrant.html)
+- [What is vector index overhead?](https://duncan-haywood.github.io/oss-monorepo/vector-db-cost-calculator/what-is-vector-index-overhead.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/vector-db-cost-calculator): MIT licensed.

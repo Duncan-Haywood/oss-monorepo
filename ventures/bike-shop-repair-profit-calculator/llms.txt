@@ -1,0 +1,13 @@
+# Which jobs make your shop money, and how many does the busy season have to sell?
+
+> Free bike repair shop calculator: enter job prices, bench minutes, materials, technician pay, tools and rent, and see profit per job and per bench hour, break-even volume and the plan result. Runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/bike-shop-repair-profit-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/bike-shop-repair-profit-calculator): MIT licensed.

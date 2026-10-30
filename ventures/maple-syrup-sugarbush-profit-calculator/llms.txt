@@ -1,0 +1,13 @@
+# What does your sugarbush really earn, per tap and per hour?
+
+> Free maple syrup profit calculator: taps and sap to syrup by the rule of 86, then fuel, supplies, equipment, fees and labour, profit per tap and per hour, poor and good seasons, and whether reverse osmosis pays back. Private, runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/maple-syrup-sugarbush-profit-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/maple-syrup-sugarbush-profit-calculator): MIT licensed.

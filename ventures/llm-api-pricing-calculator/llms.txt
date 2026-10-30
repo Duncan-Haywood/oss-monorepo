@@ -1,0 +1,15 @@
+# LLM API Pricing Calculator
+
+> Compare the monthly dollar cost of calling different LLM APIs (Claude, GPT, Gemini, or a custom provider) for your own workload -- modelling fresh input, cached input, and output tokens separately, since cached tokens are billed far below fresh input and usually dominate agentic workloads. Free, private, no signup.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/llm-api-pricing-calculator/)
+- [This calculator vs. a blended per-token estimate](https://duncan-haywood.github.io/oss-monorepo/llm-api-pricing-calculator/vs-a-blended-per-token-rate.html)
+- [Why prompt caching changes the math](https://duncan-haywood.github.io/oss-monorepo/llm-api-pricing-calculator/why-prompt-caching-changes-the-math.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/llm-api-pricing-calculator): MIT licensed.

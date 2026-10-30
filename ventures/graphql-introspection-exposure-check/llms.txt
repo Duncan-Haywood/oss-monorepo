@@ -1,0 +1,15 @@
+# GraphQL Introspection Exposure Checker
+
+> Free tool: sends one real introspection query to a GraphQL endpoint URL you choose and reports whether introspection is enabled -- exposing every query, mutation, and type name, including ones no client links to.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/graphql-introspection-exposure-check/)
+- [GraphQL Introspection Exposure Checker vs. checking by hand](https://duncan-haywood.github.io/oss-monorepo/graphql-introspection-exposure-check/vs-checking-introspection-by-hand.html)
+- [Why disable GraphQL introspection in production](https://duncan-haywood.github.io/oss-monorepo/graphql-introspection-exposure-check/why-disable-graphql-introspection-in-production.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/graphql-introspection-exposure-check): MIT licensed.

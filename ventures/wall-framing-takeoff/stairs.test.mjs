@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { takeoff, samplePlan, formatLength } from "./engine.mjs";
-import { layoutStair, stairCuts, stairText, sampleStair, validateStair, layoutStairWithLanding, landingCuts, landingText } from "./stairs.mjs";
+import { layoutStair, stairCuts, stairText, sampleStair, validateStair, layoutStairWithLanding, landingCuts, landingText, checkPostSlenderness } from "./stairs.mjs";
 import { checkWinders, winderText, layoutLandingGuard } from "./stairs.mjs";
 
 const plan = () => ({ ...samplePlan(), walls: [] });
@@ -294,6 +294,14 @@ test("landing footings: sized only when soilBearing is typed, from hand-computed
   assert.match(landingText(b).join("\n"), /Landing footings: heaviest post 500 lb .* 8 in round or 7 in square, 6 footings/);
 });
 
+test("landing post check: heaviest post load against a typed capacity (hand: 500 lb edge post)", () => {
+  const f = (cap) => layoutStairWithLanding({ totalRise: 160, width: 48, landing: { depth: 120, postSpacing: 60, soilBearing: 1500, postCapacity: cap } }, plan());
+  assert.equal(f(600).landing.footings.postOk, true);
+  assert.equal(f(400).landing.footings.postOk, false);
+  assert.match(landingText(f(400)).join("\n"), /500 lb against your 400 lb capacity: OVER/);
+  assert.equal(f(undefined).landing.footings.postOk, null);
+});
+
 test("handrail brackets: ends plus enough between that none is past the typed spacing (hand: 108 in rise, 10 in tread)", () => {
   const l = layoutStair({ totalRise: 108, tread: 10, rail: { sides: 1 } }, plan());
   const len = l.rail.handrail.length;
@@ -303,4 +311,68 @@ test("handrail brackets: ends plus enough between that none is past the typed sp
   assert.equal(tight.rail.handrail.brackets, Math.ceil(len / 24) + 1);
   assert.equal(layoutStair({ totalRise: 108, tread: 10, rail: { sides: 1, handrail: false } }, plan()).rail.handrail, null);
   assert.match(stairText(l).join("\n"), new RegExp(`on ${l.rail.handrail.brackets} brackets`));
+});
+
+import { layoutWinders } from "./stairs.mjs";
+test("winder treads: three 30 degree treads at 12 in inner radius, hand geometry", () => {
+  const l = layoutWinders({ count: 3, innerRadius: 12 });
+  assert.equal(l.treads.length, 3);
+  // tread 1: radial edges at 0 and 30 degrees, radii 12 and 48
+  const [a, b, c, d] = l.treads[0].corners;
+  assert.deepEqual(a.map((v) => +v.toFixed(6)), [12, 0]);
+  assert.deepEqual(b.map((v) => +v.toFixed(6)), [48, 0]);
+  assert.deepEqual(c.map((v) => +v.toFixed(3)), [41.569, 24]);
+  assert.deepEqual(d.map((v) => +v.toFixed(3)), [10.392, 6]);
+  // shoelace area of the quadrilateral: 1/2 sin(30) (48^2 - 12^2) = 540
+  assert.ok(Math.abs(l.treads[0].area - 540) < 1e-9);
+  assert.ok(Math.abs(l.treads[0].blank.x - 37.608) < 1e-3 && Math.abs(l.treads[0].blank.y - 24) < 1e-9);
+  // chord at the narrow end: 2 x 12 x sin 15 = 6.212; at 24 in: 12.423
+  assert.ok(Math.abs(l.chordNarrow - 6.2117) < 1e-3 && Math.abs(l.chordWalk - 12.4233) < 1e-3);
+  assert.equal(l.chordPasses, true);
+});
+test("winder chord rule is stricter than the arc rule at the edge of passing", () => {
+  const arc = checkWinders({ count: 3 }); // zero pivot fails
+  assert.equal(layoutWinders({ count: 3 }).ok, false);
+  const edge = layoutWinders({ count: 3, innerRadius: arc.minInnerRadius });
+  assert.equal(edge.ok, true);
+  assert.equal(edge.chordPasses, false); // 6 in of arc is under 6 in of straight edge
+});
+
+test("stair hardware: one top connector and one foot anchor per stringer (hand: 36 in wide at 16 in spacing is 3 stringers)", () => {
+  const l = layoutStair({ totalRise: 108, tread: 10 }, plan());
+  assert.equal(l.hardware.topConnectors, l.stringer.count);
+  assert.equal(l.hardware.footAnchors, l.stringer.count);
+  const wide = layoutStair({ totalRise: 108, tread: 10, width: 60 }, plan());
+  assert.equal(wide.hardware.topConnectors, Math.ceil((60 - 1.5) / 16) + 1);
+  assert.match(stairText(l).join("\n"), /Hardware: \d+ top connectors/);
+});
+
+test("stringer stock: shortest listed board that holds one stringer (hand: 108 in rise, 10 in tread needs under 192 in)", () => {
+  const p = plan();
+  const l = layoutStair({ totalRise: 108, tread: 10 }, p);
+  const fits = p.stock.filter((x) => x.size === "2x12" && x.length >= l.stringer.length).map((x) => x.length);
+  assert.equal(l.stringerStock.length, Math.min(...fits));
+  assert.ok(l.stringerStock.length >= l.stringer.length);
+  assert.equal(l.stringerStock.count, l.stringer.count);
+  assert.match(stairText(l).join("\n"), /Buy \d+ 2x12 boards/);
+  assert.equal(layoutStair({ totalRise: 108, tread: 10 }, null).stringerStock, null);
+});
+
+test("rail: a bottom space over 6 in earns a sphere note, the default 4 in does not", () => {
+  const ok = layoutStair({ totalRise: 108, tread: 10, rail: { sides: 1 } }, plan());
+  assert.ok(!ok.notes.some((n) => /sphere/.test(n)));
+  const bad = layoutStair({ totalRise: 108, tread: 10, rail: { sides: 1, limits: { bottomGap: 7 } } }, plan());
+  assert.ok(bad.notes.some((n) => /7 in space.*6 in sphere/.test(n)));
+});
+
+test("landing post slenderness: 4x4 reaches 50 x 3.5 = 175 in, 6x6 275 in; a taller post warns", () => {
+  const ok = checkPostSlenderness(70);
+  assert.ok(ok.ok && ok.maxHeight === 175 && Math.abs(ok.slenderness - 20) < 1e-9);
+  const tall = checkPostSlenderness(180);
+  assert.ok(!tall.ok); assert.match(tall.warnings[0], /6x6/);
+  assert.ok(checkPostSlenderness(180, "6x6").ok);
+  assert.equal(checkPostSlenderness(70, "5x5").ok, false);
+  const r = layoutStairWithLanding({ totalRise: 160, tread: 10, landing: {} }, plan());
+  assert.ok(r.landing.postSlenderness.ok);
+  assert.match(landingText(r).join("\n"), /Landing post slenderness \(4x4\)/);
 });

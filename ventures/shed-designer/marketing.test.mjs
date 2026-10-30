@@ -48,6 +48,9 @@ function facts() {
     peak: fmtIn(low.dims.peak, { feet: true }),
     lowPeak: fmtIn(at3.dims.peak, { feet: true }),
     defaultRafter: len(low, 'rafter'),
+    overhangBudget: money(low.overhangChoice.budget),
+    overhangNext: fmtIn(low.overhangChoice.next.overhang),
+    overhangNextAdds: money(low.overhangChoice.next.adds),
     beam: `${Math.round(checks.rows.find((r) => /Ridge beam$/.test(r.member)).ratio * 100)}%`,
     snow: String(checks.loads.snow),
     classicStud: fmtIn(classic.dims.studLen),
@@ -108,8 +111,14 @@ test('the README quotes the tool\'s current numbers', () => {
   has(`the peak is ${fmtIn(low.dims.peak, { feet: true })} above the gravel`);
   const at3 = buildShed(normalize({ ...d, pitch: 3, maxPeak: 0, autoWall: false, autoPitch: false, autoOverhang: false }));
   has(`Even 3/12 would be ${fmtIn(at3.dims.peak, { feet: true })}.`);
-  has(`**Overhang:** ${fmtIn(d.overhang)}.`);
-  has(`the ${fmtIn(low.members.find((m) => m.kind === 'rafter').length)} rafters`);
+  const oc = low.overhangChoice;
+  has(`**Overhang:** ${fmtIn(d.overhang)}. The longest from 6" to 18" whose whole order (rafters, sheathing, roofing, trim) costs at most ${money(oc.budget)} more than the cheapest overhang's, ${fmtIn(oc.cheapest)}. ${oc.adds < 0.005 ? `It costs no more than ${fmtIn(oc.cheapest)}` : `It adds ${money(oc.adds)}`}; ${fmtIn(oc.next.overhang)} would add ${money(oc.next.adds)}`);
+  // "because it needs a fifth bundle of shingles"
+  const at = (oh) => estimate(buildShed(normalize({ ...d, autoWall: false, autoPitch: false, autoOverhang: false, overhang: oh })));
+  const bundles = (e) => e.shopping.find((r) => /shingles \(/.test(r.name)).qty;
+  assert.equal(bundles(at(oc.next.overhang)), 5);
+  assert.equal(bundles(at(d.overhang)), 4);
+  has(`The rafters are ${fmtIn(low.members.find((m) => m.kind === 'rafter').length)}.`);
   has(`that design is ${est.pieces} pieces from ${est.boards} boards`);
   has(`The cut sheet's boards cost ${money(est.cutSheetCost)} against a proven lower bound of ${money(est.lowerBound)}`);
   has(`the lumber is ${money(est.lumberCost)}, and the whole shed is ${money(est.total)} before sales tax`);

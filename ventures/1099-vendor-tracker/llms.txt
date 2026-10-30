@@ -1,0 +1,16 @@
+# Which vendors actually need a 1099-NEC this year?
+
+> Track which contractors need a 1099-NEC under the 2026 $2,000 reporting threshold (up from $600), check the corporation exemption, and see missing W-9s before the January 31 deadline. Runs in your browser, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/1099-vendor-tracker/)
+- [This tracker vs. Track1099](https://duncan-haywood.github.io/oss-monorepo/1099-vendor-tracker/vs-track1099.html)
+- [This tracker vs. tracking vendors in a spreadsheet](https://duncan-haywood.github.io/oss-monorepo/1099-vendor-tracker/vs-tracking-vendors-in-a-spreadsheet.html)
+- [When do I actually need to send a 1099?](https://duncan-haywood.github.io/oss-monorepo/1099-vendor-tracker/when-do-i-need-to-send-a-1099.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/1099-vendor-tracker): MIT licensed.

@@ -1,0 +1,13 @@
+# Which of your tax-exempt sales have no certificate behind them?
+
+> Free sales tax audit prep for wholesalers and distributors: paste your exempt sales and the certificates on file, and see which sales have no valid certificate, the tax at stake, and which customers to chase first. Runs in your browser; your sales data is never uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/exemption-certificate-audit-check/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/exemption-certificate-audit-check): MIT licensed.

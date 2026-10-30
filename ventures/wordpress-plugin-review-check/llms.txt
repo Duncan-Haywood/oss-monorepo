@@ -1,0 +1,16 @@
+# WordPress Plugin Review Checker
+
+> Free, browser-local checker for WordPress plugin developers: catches a readme.txt Stable tag that doesn't match your plugin's Version header, missing required readme/header fields, unescaped $_GET/$_POST output, and $_POST handling with no nonce check -- before wordpress.org Plugin Review does. Nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/wordpress-plugin-review-check/)
+- [Fixing a readme.txt "Stable tag" mismatch](https://duncan-haywood.github.io/oss-monorepo/wordpress-plugin-review-check/stable-tag-mismatch.html)
+- [This checker vs. manually checking against the guidelines yourself](https://duncan-haywood.github.io/oss-monorepo/wordpress-plugin-review-check/vs-manually-checking-against-the-guidelines.html)
+- [WordPress Plugin Review Checker vs. Plugin Check](https://duncan-haywood.github.io/oss-monorepo/wordpress-plugin-review-check/vs-plugin-check.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/wordpress-plugin-review-check): MIT licensed.

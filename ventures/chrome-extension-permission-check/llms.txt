@@ -1,0 +1,16 @@
+# Chrome Extension Permission Checker
+
+> Free, browser-local checker: scans your extension's JavaScript/TypeScript source for chrome.* API usage and compares it against manifest.json's declared permissions, so an unused or missing permission doesn't cost you a Chrome Web Store rejection ('Purple Potassium'). Nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/chrome-extension-permission-check/)
+- [Fixing "Purple Potassium" unused-permission rejections](https://duncan-haywood.github.io/oss-monorepo/chrome-extension-permission-check/purple-potassium-unused-permissions.html)
+- [Chrome Extension Permission Checker vs. checking the manifest by hand](https://duncan-haywood.github.io/oss-monorepo/chrome-extension-permission-check/vs-checking-the-manifest-by-hand.html)
+- [This checker vs. CRXcavator](https://duncan-haywood.github.io/oss-monorepo/chrome-extension-permission-check/vs-crxcavator.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/chrome-extension-permission-check): MIT licensed.

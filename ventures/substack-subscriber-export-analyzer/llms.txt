@@ -1,0 +1,13 @@
+# How many of your Substack readers pay, and how long do they stay?
+
+> Free analyzer for Substack writers: drop in your subscribers export CSV and see paid, free and former subscribers, free-to-paid conversion, paid retention, revenue by plan, annual renewals due and growth. Runs in your browser, the file is never uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/substack-subscriber-export-analyzer/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/substack-subscriber-export-analyzer): MIT licensed.

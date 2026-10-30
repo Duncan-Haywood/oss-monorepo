@@ -1,0 +1,13 @@
+# How much of the leftover 529 can you move into a Roth IRA, and when?
+
+> Free 529-to-Roth IRA rollover calculator: the 15-year rule, five-year contribution lock, $35,000 lifetime cap, annual limit and earned income, year by year. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/529-to-roth-rollover-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/529-to-roth-rollover-calculator): MIT licensed.

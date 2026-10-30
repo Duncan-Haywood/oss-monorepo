@@ -1,0 +1,15 @@
+# FIFO Pick Evidence
+
+> Free, no-signup, no-upload tool that reads a warehouse pick-log CSV in your browser and reports FIFO pick-order exceptions and missing or ill-formed timestamps before a customer audit. Runs entirely client-side.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/fifo-pick-evidence/)
+- [FIFO Pick Evidence vs. Extensiv 3PL Warehouse Manager](https://duncan-haywood.github.io/oss-monorepo/fifo-pick-evidence/vs-extensiv.html)
+- [What counts as a FIFO exception?](https://duncan-haywood.github.io/oss-monorepo/fifo-pick-evidence/what-counts-as-a-fifo-exception.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/fifo-pick-evidence): MIT licensed.

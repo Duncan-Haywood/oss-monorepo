@@ -1,0 +1,16 @@
+# Bid the systems, the vents, and the coil.
+
+> Price an air-duct cleaning job from extra systems, extra vents, extra stories, crawl access, and a coil clean — not a published $99 whole-house special. See the walk-away number before you match a cheaper ranch quote.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/duct-cleaning-bid-calculator/)
+- [How much to charge for duct cleaning](https://duncan-haywood.github.io/oss-monorepo/duct-cleaning-bid-calculator/how-much-to-charge-for-duct-cleaning.html)
+- [This calculator vs. a flat whole-house duct-cleaning special](https://duncan-haywood.github.io/oss-monorepo/duct-cleaning-bid-calculator/vs-a-flat-whole-house-special.html)
+- [This calculator vs. Jobber](https://duncan-haywood.github.io/oss-monorepo/duct-cleaning-bid-calculator/vs-jobber.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/duct-cleaning-bid-calculator): MIT licensed.

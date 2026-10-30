@@ -1,0 +1,13 @@
+# Turn a Gumroad sales export into a Xero or QuickBooks journal
+
+> Free Gumroad sales to journal converter: proves the sales add up to your payout, splits product sales, shipping, tax you collected, Gumroad fees and refunds by month, and downloads a balanced journal for Xero, QuickBooks Online or QuickBooks Desktop. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/gumroad-sales-to-journal/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/gumroad-sales-to-journal): MIT licensed.

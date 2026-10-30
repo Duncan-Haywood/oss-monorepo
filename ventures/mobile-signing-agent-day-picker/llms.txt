@@ -1,0 +1,14 @@
+# Ten offered signings, one notary: which should you take today?
+
+> Paste the day's offered loan signings and notary appointments and get the most profitable set and order for one mobile notary or signing agent, with appointment windows, drive cost and the fee every declined signing would need. Free, runs in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/mobile-signing-agent-day-picker/)
+- [Which signings should a mobile notary take in a day? Window and drive-time math](https://duncan-haywood.github.io/oss-monorepo/mobile-signing-agent-day-picker/which-signings-should-a-notary-take-in-a-day.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/mobile-signing-agent-day-picker): MIT licensed.

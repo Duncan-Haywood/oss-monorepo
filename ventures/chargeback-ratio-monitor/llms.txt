@@ -1,0 +1,13 @@
+# Is your dispute rate about to get you flagged?
+
+> Free chargeback ratio monitor: drop in your Stripe payments CSV and see your dispute rate by month, headroom to your warning lines, the trend, and what is driving disputes. Runs in your browser, the file is never uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/chargeback-ratio-monitor/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/chargeback-ratio-monitor): MIT licensed.

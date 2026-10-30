@@ -1,0 +1,14 @@
+# What does a tent rental job really make? True profit, margin and the lowest quote
+
+> Free calculator for tent and party rental companies: true profit, margin and the lowest quote that hits your target margin per job. Private, in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/tent-rental-job-profit-calculator/)
+- [How much does a tent rental job really make?](https://duncan-haywood.github.io/oss-monorepo/tent-rental-job-profit-calculator/how-much-does-a-tent-rental-job-really-make.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/tent-rental-job-profit-calculator): MIT licensed.

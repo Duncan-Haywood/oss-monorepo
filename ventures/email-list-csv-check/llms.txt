@@ -1,0 +1,13 @@
+# Is my email list safe to import?
+
+> Free email list CSV checker for Mailchimp, HubSpot, Klaviyo, Brevo and Constant Contact imports: finds invalid and duplicate emails, domain typos like gmial.com, role and disposable addresses, Excel damage and wrong column names, with line numbers, and downloads a safe-fixes copy plus a rejected-rows file.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/email-list-csv-check/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/email-list-csv-check): MIT licensed.

@@ -1,0 +1,13 @@
+# Would a retainer have paid more than hourly?
+
+> Retainer vs hourly calculator for freelancers, consultants and small agencies. Paste your time log to see your effective hourly rate under a monthly retainer, break-even hours, and the retainer that covers 80% of your months, from your own history. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/freelance-retainer-vs-hourly-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/freelance-retainer-vs-hourly-calculator): MIT licensed.

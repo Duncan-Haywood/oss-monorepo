@@ -1,0 +1,16 @@
+# Does your redirect chain loop, run too long, or dead-end?
+
+> Free tool: paste the hops a URL's redirects actually took (from your browser's Network tab, or a curl -sI trace) and check for a redirect loop, a chain longer than the recommended single hop, an HTTPS-to-HTTP downgrade, a permanent site move using a temporary status code, and a chain that dead-ends in a 404 or 500.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/redirect-chain-check/)
+- [This checker vs. checking a redirect chain by hand](https://duncan-haywood.github.io/oss-monorepo/redirect-chain-check/vs-checking-a-chain-by-hand.html)
+- [Redirect Chain Checker vs. httpstatus.io](https://duncan-haywood.github.io/oss-monorepo/redirect-chain-check/vs-httpstatus-io.html)
+- [Why redirect chains matter](https://duncan-haywood.github.io/oss-monorepo/redirect-chain-check/why-redirect-chains-matter.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/redirect-chain-check): MIT licensed.

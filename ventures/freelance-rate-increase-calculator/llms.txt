@@ -1,0 +1,13 @@
+# If you raise your rate and lose a client, do you come out ahead?
+
+> Freelance rate increase calculator. List your clients, hours and rates, say how likely each is to leave, and see how many clients you can lose after a raise and still earn the same, the hours it frees and which clients make it a bad bet. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/freelance-rate-increase-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/freelance-rate-increase-calculator): MIT licensed.

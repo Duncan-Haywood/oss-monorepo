@@ -1,0 +1,16 @@
+# What changed between two SBOMs?
+
+> Paste two CycloneDX or SPDX SBOM JSON files and see exactly which packages were added, removed, or changed version between two builds. Free, runs in your browser, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/sbom-diff-check/)
+- [SBOM Diff Check vs. cyclonedx-cli diff](https://duncan-haywood.github.io/oss-monorepo/sbom-diff-check/vs-cyclonedx-cli-diff.html)
+- [This tool vs. diffing the raw SBOM JSON files by hand](https://duncan-haywood.github.io/oss-monorepo/sbom-diff-check/vs-diffing-the-raw-json-files.html)
+- [Why did bumping one package show up as dozens of changes?](https://duncan-haywood.github.io/oss-monorepo/sbom-diff-check/why-did-one-version-bump-show-up-as-dozens-of-changes.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/sbom-diff-check): MIT licensed.

@@ -1,0 +1,16 @@
+# Bid the stop, not the lot size.
+
+> Price a lawn care route stop from production rates: turf, beds, edging, travel time, fuel, dump, and margin — plus price per visit, in-season monthly, honest annual, and the walk-away number.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/lawn-care-bid-calculator/)
+- [How to price lawn mowing without a per-acre guess](https://duncan-haywood.github.io/oss-monorepo/lawn-care-bid-calculator/how-to-price-lawn-mowing.html)
+- [This calculator vs. a flat rate per acre](https://duncan-haywood.github.io/oss-monorepo/lawn-care-bid-calculator/vs-a-flat-rate-per-acre.html)
+- [This calculator vs. LMN by Granum](https://duncan-haywood.github.io/oss-monorepo/lawn-care-bid-calculator/vs-lmn.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/lawn-care-bid-calculator): MIT licensed.

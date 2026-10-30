@@ -1,0 +1,14 @@
+# Audit one page's SEO and AI-readiness in ten seconds
+
+> Paste a page's HTML for a scored SEO and AI-readiness audit: title, description, headings, canonical, JSON-LD, alt text, each with its fix. Free, private.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/page-seo-audit/)
+- [On-page SEO checklist for a single page](https://duncan-haywood.github.io/oss-monorepo/page-seo-audit/seo-checklist-for-a-single-page.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/page-seo-audit): MIT licensed.

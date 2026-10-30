@@ -1,0 +1,13 @@
+# Publish product updates as a changelog page, a feed and a What's new bell
+
+> Publish product updates on a public changelog page with Atom and JSON feeds and an embeddable What's new bell with an unread badge. Scheduled posts, drafts, Slack webhook. Open source, MIT, one-click self-deploy, no monthly fee.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/changelog-keeper/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/changelog-keeper): MIT licensed.

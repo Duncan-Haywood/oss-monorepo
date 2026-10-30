@@ -1,0 +1,14 @@
+# What do you really make on a cord of firewood?
+
+> Free calculator for firewood sellers: what a cord costs you, how many hours it takes, your profit per cord and per hour, the price per cord and face cord you need to earn a wage, and what delivery distance does to it. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/firewood-profit-calculator/)
+- [How much to charge for a cord of firewood: cost, hours and delivery](https://duncan-haywood.github.io/oss-monorepo/firewood-profit-calculator/how-much-to-charge-for-a-cord-of-firewood.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/firewood-profit-calculator): MIT licensed.

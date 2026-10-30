@@ -1,0 +1,13 @@
+# How much can you take from an IRA before 59½ without the 10% penalty?
+
+> Free Rule 72(t) SEPP calculator. Enter your age, IRA balance and interest rate to see substantially equal periodic payments under the RMD method and fixed amortization, how long you are locked in, the balance you need for your income target, and the penalty exposure if you break the schedule.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/rule-72t-sepp-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/rule-72t-sepp-calculator): MIT licensed.

@@ -1,0 +1,13 @@
+# Will my EV charging site pay back?
+
+> Free EV charging station ROI calculator: enter ports, costs, price, utilization and demand charges to get payback, NPV, IRR and the break-even utilization for a Level 2 or DC fast site. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/ev-charging-site-roi-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/ev-charging-site-roi-calculator): MIT licensed.

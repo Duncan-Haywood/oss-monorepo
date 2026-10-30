@@ -1,0 +1,15 @@
+# Backup File Exposure Checker
+
+> Enter a site URL to test eight well-known backup filenames (backup.zip, db.sql and more) for a publicly served site or database backup. Nothing uploaded to us.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/backup-file-exposure-check/)
+- [Backup File Exposure Checker vs. checking by hand](https://duncan-haywood.github.io/oss-monorepo/backup-file-exposure-check/vs-checking-by-hand.html)
+- [Why backup files end up in web roots](https://duncan-haywood.github.io/oss-monorepo/backup-file-exposure-check/why-backup-files-end-up-in-web-roots.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/backup-file-exposure-check): MIT licensed.

@@ -1,0 +1,15 @@
+# Find the race that ships an older commit
+
+> Paste a GitHub Actions workflow and see every way it is allowed to apply an older revision over a newer one: no concurrency group, a group that changes every run, cancel-in-progress on a deploy, split groups on one environment, and a checkout of a moving branch. Free, runs entirely in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/deploy-concurrency-check/)
+- [How a deploy ships an older commit](https://duncan-haywood.github.io/oss-monorepo/deploy-concurrency-check/how-a-deploy-ships-an-older-commit.html)
+- [This tool vs. reading your workflows yourself](https://duncan-haywood.github.io/oss-monorepo/deploy-concurrency-check/vs-reading-your-workflows-yourself.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/deploy-concurrency-check): MIT licensed.

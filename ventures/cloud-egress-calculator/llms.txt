@@ -1,0 +1,20 @@
+# Cloud Egress Cost Calculator
+
+> Compare monthly S3-compatible storage, request, and data egress costs for a real workload. Free, private, and runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/cloud-egress-calculator/)
+- [Does a CDN still cut S3 egress?](https://duncan-haywood.github.io/oss-monorepo/cloud-egress-calculator/does-a-cdn-cut-s3-egress.html)
+- [Does a replica still beat a cross-region pull?](https://duncan-haywood.github.io/oss-monorepo/cloud-egress-calculator/does-a-replica-beat-cross-region-pull.html)
+- [Does infrequent access still beat standard after restore?](https://duncan-haywood.github.io/oss-monorepo/cloud-egress-calculator/does-infrequent-access-still-beat-standard.html)
+- [This calculator vs. estimating egress in a spreadsheet](https://duncan-haywood.github.io/oss-monorepo/cloud-egress-calculator/vs-a-spreadsheet.html)
+- [This calculator vs. the AWS Pricing Calculator](https://duncan-haywood.github.io/oss-monorepo/cloud-egress-calculator/vs-aws-pricing-calculator.html)
+- [This calculator vs. the Azure Pricing Calculator](https://duncan-haywood.github.io/oss-monorepo/cloud-egress-calculator/vs-azure-pricing-calculator.html)
+- [This calculator vs. the Google Cloud Pricing Calculator](https://duncan-haywood.github.io/oss-monorepo/cloud-egress-calculator/vs-google-cloud-pricing-calculator.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/cloud-egress-calculator): MIT licensed.

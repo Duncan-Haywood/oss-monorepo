@@ -1,0 +1,13 @@
+# See who is about to cancel before they do.
+
+> A free, open-source alternative to ChurnZero and Gainsight for small SaaS: learn from your own usage events which accounts are about to cancel, with an honest out-of-time accuracy check. Paste an export and try it in your browser first.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/churn-radar/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/churn-radar): MIT licensed.

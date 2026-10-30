@@ -22,7 +22,7 @@ export const STAIR_LIMITS = { maxRiser: 7.75, minTread: 10, riserVariance: 0.375
 export function maxTreadSpan(thickness) { return thickness < 1.25 ? 12 : thickness < 1.5 ? 16 : 24; }
 
 /** Guard and handrail limits (model residential code's usual ones, typed so the local book can change them): 36 in guard, handrail 34 to 38 in above the nose line, balusters with no clear gap a 4 in sphere passes, posts no more than 72 in apart, 4 in under the bottom rail. */
-export const RAIL_LIMITS = { guardHeight: 36, handrailMin: 34, handrailMax: 38, maxGap: 4, maxPostSpacing: 72, bottomGap: 4 };
+export const RAIL_LIMITS = { guardHeight: 36, handrailMin: 34, handrailMax: 38, maxGap: 4, maxPostSpacing: 72, bottomGap: 4, maxBottomOpening: 6 };
 
 /** @typedef {{ sides?: number, handrail?: boolean, handrailHeight?: number, bracketSpacing?: number, balusterWidth?: number, railBoard?: string, postWidth?: number, limits?: Partial<typeof RAIL_LIMITS> }} Rail */
 /** @typedef {{ id?: string, rail?: Rail, totalRise: number, tread?: number, stringer?: string, width?: number, stringerSpacing?: number, treadThickness?: number, treadBoard?: string, treadGap?: number, nosing?: number, floorThickness?: number, openingLength?: number, openRisers?: boolean, riserBoard?: string, treadSpanMax?: number, limits?: Partial<typeof STAIR_LIMITS> }} Stair */
@@ -113,6 +113,10 @@ export function layoutStair(input, plan) {
   return {
     ok: true, id: s.id, totalRise: s.totalRise, risers, treads, riser, tread, run, angle, pitch, firstRiserCut, comfort,
     stringer: { size: s.stringer, count: stringers, length: stringerLength, throat, spacing: treadSpan, depth, treadSpanMax },
+    // Hardware (2026-10-30): one hanger or ledger-bolt connection at the top of every stringer, and one anchor at its foot (a typed count of what the framer buys, not an engineered connection).
+    hardware: { topConnectors: stringers, footAnchors: stringers },
+    // Stock (2026-10-30): the shortest listed board that holds one stringer, for the framer's buy list (null with no plan).
+    stringerStock: plan ? { size: s.stringer, length: Math.min(...plan.stock.filter((x) => x.size === s.stringer && x.length >= stringerLength - 1e-9).map((x) => x.length)), count: stringers } : null,
     treadBoards, openRisers: !!s.openRisers, riserBoards: s.openRisers ? 0 : risers, riserStock: riserBoards, width: s.width,
     minOpening: Math.ceil(minOpening * 16) / 16, opening, rail, marks, sumRise, notes, limits: L, nosing: s.nosing,
   };
@@ -133,6 +137,7 @@ export function layoutRail(g, r, notes) {
   const sides = r.sides ?? 1, bw = r.balusterWidth ?? 1.5, post = r.postWidth ?? 3.5, board = r.railBoard ?? "2x4";
   const hh = r.handrailHeight ?? 36;
   if (hh < L.handrailMin || hh > L.handrailMax) notes.push(`Handrail height ${hh} in is outside ${L.handrailMin} to ${L.handrailMax} in above the nose line.`);
+  if (L.bottomGap > L.maxBottomOpening) notes.push(`A ${L.bottomGap} in space under the bottom rail passes a ${L.maxBottomOpening} in sphere; the usual stair guard limit is ${L.maxBottomOpening} in (code edition not checked).`);
   const angle = Math.atan2(g.riser, g.tread);
   const segments = Math.max(1, Math.ceil(g.pitch / L.maxPostSpacing - 1e-9));
   const posts = segments + 1;
@@ -198,6 +203,8 @@ export function stairText(l) {
   const out = [`${l.id}: ${formatLength(l.totalRise)} rise, ${l.risers} risers of ${formatInches(l.riser)}, ${l.treads} treads of ${formatInches(l.tread)} (${l.angle.toFixed(1)} deg, 2R+T ${l.comfort.toFixed(2)} in)`];
   out.push(`  Total run ${formatLength(l.run)}; the first riser is cut ${formatInches(l.firstRiserCut)} so the finished first step is ${formatInches(l.riser)} once the tread is on`);
   out.push(`  ${l.stringer.count} ${l.stringer.size} stringers ${formatLength(l.stringer.length)} long, ${formatInches(l.stringer.spacing)} apart, ${formatInches(l.stringer.throat)} left under the notches`);
+  if (l.stringerStock) out.push(`  Buy ${l.stringerStock.count} ${l.stringerStock.size} boards ${formatLength(l.stringerStock.length)} long for the stringers (${formatLength(l.stringerStock.length - l.stringer.length)} spare on each)`);
+  out.push(`  Hardware: ${l.hardware.topConnectors} top connectors (one per stringer, hanger or bolted ledger) and ${l.hardware.footAnchors} foot anchors; sizes and fasteners are the engineer's or manufacturer's call`);
   out.push(`  ${l.treadBoards.count} ${l.treadBoards.size} tread boards ${formatLength(l.treadBoards.length)} (${l.treadBoards.perStep} per step covering ${formatInches(l.treadBoards.coverage)} for ${formatInches(l.treadBoards.need)} of tread and nosing)${l.openRisers ? ", open risers" : `, ${l.riserBoards} risers${l.riserStock ? ` of ${l.riserStock.count} ${l.riserStock.size} boards` : ""}`}`);
   out.push(`  Stairwell opening at least ${formatLength(l.minOpening)} long for ${formatInches(l.limits.headroom)} of headroom${l.opening ? `; yours ${formatLength(l.opening.length)} leaves ${formatInches(l.opening.headroom)}${l.opening.ok ? "" : " (too short)"}` : ""}`);
   if (l.rail) {
@@ -244,7 +251,8 @@ export function layoutStairWithLanding(input, plan) {
     deck: { size: deckSize, count: deckBoards, length: width, area: (width * depth) / 144 },
     footprint: lower.run + depth + upper.run,
     posts: layoutLandingPosts(width, depth, rise1 - DEPTH[joistSize] - 1.5, lc.postSpacing ?? 96),
-    footings: lc.soilBearing != null ? sizeLandingFootings(width, depth, lc.postSpacing ?? 96, { soilBearing: lc.soilBearing, liveLoad: lc.liveLoad, deadLoad: lc.deadLoad }) : null,
+    postSlenderness: checkPostSlenderness(rise1 - DEPTH[joistSize] - 1.5, lc.postSize),
+    footings: lc.soilBearing != null ? sizeLandingFootings(width, depth, lc.postSpacing ?? 96, { soilBearing: lc.soilBearing, liveLoad: lc.liveLoad, deadLoad: lc.deadLoad, postCapacity: lc.postCapacity }) : null,
     guard: lc.openEdges?.length ? layoutLandingGuard(lc.openEdges.map((e) => (e === "end" ? width : depth)), input.rail || {}, Math.min(4, lc.openEdges.filter((e) => e === "end").length * lc.openEdges.filter((e) => e !== "end").length)) : null,
     notes: ["Landing posts are counted, not sized, and footings are not sized: the platform carries a stair load plus the flights' ends, so check post size, footings and the typed `postSpacing` (96 in unless set) against your code and the actual spans."],
   };
@@ -263,14 +271,31 @@ export function layoutLandingPosts(width, depth, height, spacing = 96) {
   return { count, height: Math.max(0, height), alongBays: along, acrossBays: across, spacing };
 }
 
+const POST_FACE = { "4x4": 3.5, "6x6": 5.5 };
+export const POST_SLENDERNESS_LIMIT = 50; // unbraced length over least face for a solid sawn column (NDS 3.7.1.4)
+
+/**
+ * Slenderness of a landing post: unbraced height over its least face against the limit of 50 (a 4x4 reaches 175 in,
+ * a 6x6 275 in). `postSize` is 4x4 (default) or 6x6. Taken as pinned at both ends and unbraced; bracing, notches and
+ * stringer bolts are not modelled, and no buckling stress is computed.
+ */
+export function checkPostSlenderness(height, postSize = "4x4") {
+  const face = POST_FACE[postSize];
+  if (!face) return { ok: false, postSize, warnings: [`Unknown landing post size ${postSize}; use 4x4 or 6x6.`] };
+  const slenderness = height / face, maxHeight = POST_SLENDERNESS_LIMIT * face;
+  const warnings = slenderness > POST_SLENDERNESS_LIMIT ? [`A ${postSize} post ${formatInches(height)} long is ${slenderness.toFixed(1)} times its face, over the limit of ${POST_SLENDERNESS_LIMIT}; use a 6x6 or brace it (a ${postSize} reaches ${formatInches(maxHeight)}).`] : [];
+  return { ok: warnings.length === 0, postSize, face, height, slenderness, limit: POST_SLENDERNESS_LIMIT, maxHeight, warnings };
+}
+
 /**
  * Footing size under the heaviest landing post, from typed figures only (`soilBearing` psf has no default: it is the
  * site's, from the soil report or the local book; `liveLoad` 40 and `deadLoad` 10 psf are the usual figures, typed over
  * if yours differ). The platform load is shared by the posts around its edge: a mid-edge post takes half a bay, a corner
  * post a quarter bay, so the heaviest is the edge post when any side has two bays or more. The flights' ends and
- * the guard are not added. Returns the load, the area it needs, and a round and a square footing rounded up to the inch.
+ * the guard are not added. `postCapacity` (lb, typed from your post table; no default) is compared with the heaviest
+ * post's load and `postOk` says whether it holds. Returns the load, the area it needs, and a round and a square footing rounded up to the inch.
  */
-export function sizeLandingFootings(width, depth, spacing, { soilBearing, liveLoad = 40, deadLoad = 10 } = {}) {
+export function sizeLandingFootings(width, depth, spacing, { soilBearing, liveLoad = 40, deadLoad = 10, postCapacity } = {}) {
   if (!(soilBearing > 0)) return { ok: false, errors: ["soilBearing must be a positive figure in psf."] };
   const bays = (len) => Math.max(1, Math.ceil(len / spacing - 1e-9));
   const along = bays(width), across = bays(depth);
@@ -280,7 +305,7 @@ export function sizeLandingFootings(width, depth, spacing, { soilBearing, liveLo
   const area = (load / soilBearing) * 144; // sq in
   const round = Math.max(1, Math.ceil(2 * Math.sqrt(area / Math.PI) - 1e-9));
   const square = Math.max(1, Math.ceil(Math.sqrt(area) - 1e-9));
-  return { ok: true, soilBearing, liveLoad, deadLoad, tributary: bay * share, load, area, round, square, count: 2 * (along + across) };
+  return { ok: true, soilBearing, liveLoad, deadLoad, tributary: bay * share, load, postCapacity: postCapacity ?? null, postOk: postCapacity > 0 ? load <= postCapacity : null, area, round, square, count: 2 * (along + across) };
 }
 
 export function landingCuts(r) {
@@ -302,7 +327,10 @@ export function landingText(r) {
     ...r.flights.flatMap(stairText),
     `  Landing: ${g.joists.count} ${g.joists.size} joists ${formatLength(g.joists.length)} (${formatInches(g.joists.spacing)} apart), 2 rims ${formatLength(g.rims.length)}, ${g.deck.count} ${g.deck.size} deck boards ${formatLength(g.deck.length)}; run on plan ${formatLength(g.footprint)} for a straight stair`,
     `  Landing posts: ${g.posts.count} (${g.posts.alongBays} x ${g.posts.acrossBays} bays around the edge, at most ${formatInches(g.posts.spacing)} apart), each ${formatInches(g.posts.height)} above its footing`,
+    ...(g.postSlenderness?.face ? [`  Landing post slenderness (${g.postSlenderness.postSize}): ${g.postSlenderness.height.toFixed(1)} in = ${g.postSlenderness.slenderness.toFixed(1)} x its face (limit ${g.postSlenderness.limit}; a ${g.postSlenderness.postSize} reaches ${formatInches(g.postSlenderness.maxHeight)})`] : []),
+    ...(g.postSlenderness?.warnings ?? []).map((w) => `  Warning: ${w}`),
     ...(g.footings?.ok ? [`  Landing footings: heaviest post ${Math.round(g.footings.load)} lb (${g.footings.tributary.toFixed(1)} sq ft at ${g.footings.liveLoad + g.footings.deadLoad} psf) on ${g.footings.soilBearing} psf soil needs ${g.footings.area.toFixed(0)} sq in: ${g.footings.round} in round or ${g.footings.square} in square, ${g.footings.count} footings`] : []),
+    ...(g.footings?.ok && g.footings.postOk != null ? [`  Landing post check: heaviest post ${Math.round(g.footings.load)} lb against your ${g.footings.postCapacity} lb capacity: ${g.footings.postOk ? "holds" : "OVER, use a larger post or a closer spacing"}`] : []),
     ...(g.guard ? [`  Landing guard (${g.guard.edges.length} open edge${g.guard.edges.length === 1 ? "" : "s"}, ${formatInches(g.guard.guardHeight)} high): ${g.guard.posts.count} posts, ${g.guard.balusters.count} balusters ${formatInches(g.guard.balusters.length)} with at most ${formatInches(g.guard.balusters.maxGap)} clear (limit ${formatInches(RAIL_LIMITS.maxGap)}), ${g.guard.guardRails.count} ${g.guard.guardRails.size} rails`] : []),
     ...g.notes.map((n) => `  Note: ${n}`),
   ];
@@ -344,5 +372,38 @@ export function winderText(c) {
   if (!c.ok && !c.problems) return c.errors.map((e) => `  - ${e}`);
   const out = [`  Winders: ${c.count} treads of ${c.anglePerTread.toFixed(1)} degrees round a ${formatInches(c.innerRadius)} inner radius: ${c.narrow.toFixed(2)} in at the narrow end, ${c.walk.toFixed(2)} in at ${c.limits.winderWalkline} in out, ${c.outer.toFixed(2)} in at the wide end`];
   out.push(c.ok ? "  Winders pass the 6 in and 10 in rules as typed." : `  Winders fail: ${c.problems.join("; ")}. The smallest inner radius that passes is ${c.minInnerRadius.toFixed(1)} in.`);
+  if (c.treads) {
+    out.push(`  Straight-edge depths: ${c.chordNarrow.toFixed(2)} in narrow, ${c.chordWalk.toFixed(2)} in at ${c.limits.winderWalkline} in out, ${c.chordWide.toFixed(2)} in wide${c.chordPasses ? "" : " (a straight edge fails where the arc passes: add radius)"}`);
+    for (const t of c.treads) out.push(`  Winder tread ${t.index}: ${t.area.toFixed(1)} sq in, cut from a ${formatInches(t.blank.x)} x ${formatInches(t.blank.y)} blank`);
+  }
   return out;
+}
+
+// Winder tread layout (2026-10-30): the wedge each tread is cut from. Tread k
+// lies between the radial lines at k*theta and (k+1)*theta, from the inner
+// radius to inner radius + width, with straight edges (corners at radius x
+// angle). Reported per tread: the four corners (inches, pivot at 0,0), the
+// shoelace area, the smallest rectangle of board it is cut from, and the
+// straight-edge ("chord") depth 2 x radius x sin(theta/2) at the narrow end,
+// 12 in out and the wide end. A chord is shorter than the arc `checkWinders`
+// measures, so `chordPasses` is the stricter answer for a straight edge.
+/** @param {{ count?: number, turn?: number, innerRadius?: number, width?: number, limits?: Partial<typeof WINDER_LIMITS> }} w */
+export function layoutWinders(w) {
+  const c = checkWinders(w);
+  if (!c.problems) return c;
+  const { count, anglePerTread, innerRadius: r, limits: L } = c, width = w.width ?? 36, R = r + width;
+  const theta = anglePerTread * Math.PI / 180;
+  const chord = (rad) => 2 * rad * Math.sin(theta / 2);
+  const pt = (rad, a) => [rad * Math.cos(a), rad * Math.sin(a)];
+  const treads = Array.from({ length: count }, (_, k) => {
+    const a0 = k * theta, a1 = (k + 1) * theta;
+    const corners = [pt(r, a0), pt(R, a0), pt(R, a1), pt(r, a1)];
+    let area = 0;
+    for (let i = 0; i < 4; i++) { const [x1, y1] = corners[i], [x2, y2] = corners[(i + 1) % 4]; area += x1 * y2 - x2 * y1; }
+    const xs = corners.map((p) => p[0]), ys = corners.map((p) => p[1]);
+    return { index: k + 1, corners, area: Math.abs(area) / 2, blank: { x: Math.max(...xs) - Math.min(...xs), y: Math.max(...ys) - Math.min(...ys) } };
+  });
+  const chordNarrow = chord(r), chordWalk = chord(r + L.winderWalkline), chordWide = chord(R);
+  const chordPasses = chordNarrow >= L.winderMinDepth - 1e-9 && chordWalk >= L.winderWalkDepth - 1e-9;
+  return { ...c, treads, chordNarrow, chordWalk, chordWide, chordPasses };
 }

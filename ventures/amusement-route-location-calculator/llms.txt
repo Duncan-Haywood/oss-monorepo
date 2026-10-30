@@ -1,0 +1,14 @@
+# Is each location on your arcade, pool table or claw machine route worth the drive?
+
+> Free calculator for coin-op route operators. Enter each location's weekly take, commission, visits and miles; it shows profit per route hour, the weekly take you need, and the highest commission you can pay and still earn your target. Private, in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/amusement-route-location-calculator/)
+- [How much commission to pay a location for arcade machines](https://duncan-haywood.github.io/oss-monorepo/amusement-route-location-calculator/how-much-commission-to-pay-a-location-for-arcade-machines.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/amusement-route-location-calculator): MIT licensed.

@@ -1,0 +1,13 @@
+# Will this pen of calves make money?
+
+> Free stocker and backgrounding calculator: margin per head, break-even sale price and purchase price, cost of gain against value of gain with a price slide, death loss and interest. Runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/stocker-cattle-margin-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/stocker-cattle-margin-calculator): MIT licensed.

@@ -1,0 +1,16 @@
+# Price the visit, then price the route.
+
+> Free calculator for independent dog walkers and pet sitters: price a walk, drop-in, or overnight from time, drive, mileage, extra pets, and overhead, then see your monthly route revenue and the gap to your income goal.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/dog-walking-route-pricing/)
+- [How much to charge for a dog walk](https://duncan-haywood.github.io/oss-monorepo/dog-walking-route-pricing/how-much-to-charge-for-a-dog-walk.html)
+- [This calculator vs. a flat per-walk rate](https://duncan-haywood.github.io/oss-monorepo/dog-walking-route-pricing/vs-a-flat-per-walk-rate.html)
+- [This calculator vs. Rover](https://duncan-haywood.github.io/oss-monorepo/dog-walking-route-pricing/vs-rover.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/dog-walking-route-pricing): MIT licensed.

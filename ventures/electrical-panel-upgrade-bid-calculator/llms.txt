@@ -1,0 +1,16 @@
+# Bid the feeder, the circuits, and the utility.
+
+> Price a 100A to 200A electrical panel or service upgrade from feeder feet, circuit landing, AFCI/GFCI, underground vs overhead, grounding, meter socket, and temporary power — not a published price per amp. See the walk-away number before you match a cheaper panel-swap quote.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/electrical-panel-upgrade-bid-calculator/)
+- [How much to charge to upgrade an electrical panel](https://duncan-haywood.github.io/oss-monorepo/electrical-panel-upgrade-bid-calculator/how-much-to-charge-to-upgrade-an-electrical-panel.html)
+- [This calculator vs. a flat panel-upgrade price](https://duncan-haywood.github.io/oss-monorepo/electrical-panel-upgrade-bid-calculator/vs-a-flat-panel-upgrade-price.html)
+- [This calculator vs. ServiceTitan](https://duncan-haywood.github.io/oss-monorepo/electrical-panel-upgrade-bid-calculator/vs-servicetitan.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/electrical-panel-upgrade-bid-calculator): MIT licensed.

@@ -1,0 +1,16 @@
+# See your cash low point before it surprises you.
+
+> Forecast when invoices and recurring bills could create a cash shortfall for your small business, including one-off payments like a quarterly tax bill or an insurance renewal, and see which payment to move.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/cash-runway-planner/)
+- [Cash Runway Planner vs. building your own cash-flow spreadsheet](https://duncan-haywood.github.io/oss-monorepo/cash-runway-planner/vs-a-spreadsheet.html)
+- [Cash Runway Planner vs. QuickBooks Online's Cash Flow Planner](https://duncan-haywood.github.io/oss-monorepo/cash-runway-planner/vs-quickbooks-cash-flow-planner.html)
+- [When will my business run out of cash?](https://duncan-haywood.github.io/oss-monorepo/cash-runway-planner/when-will-i-run-out-of-cash.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/cash-runway-planner): MIT licensed.

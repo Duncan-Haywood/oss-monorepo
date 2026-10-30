@@ -1,0 +1,16 @@
+# Will the project pay before your cash runs out?
+
+> Free subcontractor cash flow planner: see the funding gap from payment terms, retention and late payment — what bridging it costs, and which lever closes it.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/subcontractor-cashflow-planner/)
+- [How much cash do you need for net 30, 45, 60, or 90 payment terms?](https://duncan-haywood.github.io/oss-monorepo/subcontractor-cashflow-planner/how-much-cash-do-i-need-for-net-30-payment-terms.html)
+- [Subcontractor Cash Flow Planner vs. Billd Material Financing](https://duncan-haywood.github.io/oss-monorepo/subcontractor-cashflow-planner/vs-billd.html)
+- [Subcontractor Cash Flow Planner vs. treating materials as cash out on day one](https://duncan-haywood.github.io/oss-monorepo/subcontractor-cashflow-planner/vs-treating-materials-as-cash-out-on-day-one.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/subcontractor-cashflow-planner): MIT licensed.

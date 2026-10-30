@@ -1,0 +1,13 @@
+# Does a batch of pastured chickens pay you for your time?
+
+> Free pastured poultry profit calculator. Chicks, feed, processing, labour and price per pound in; profit per batch, per bird and per hour, break-even price per pound and mortality and feed sensitivity out. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/pastured-poultry-profit-planner/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/pastured-poultry-profit-planner): MIT licensed.

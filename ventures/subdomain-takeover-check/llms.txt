@@ -1,0 +1,15 @@
+# Subdomain Takeover Checker
+
+> Free tool: paste a hostname and it follows its real CNAME chain, then -- if the chain ends at a known takeover-prone provider (S3, Heroku, GitHub Pages, Azure, and 20 more) -- sends one live GET request and checks the response against that provider's own 'nothing is claimed at this name' page.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/subdomain-takeover-check/)
+- [Subdomain Takeover Checker vs. checking with dig by hand](https://duncan-haywood.github.io/oss-monorepo/subdomain-takeover-check/vs-checking-dig-by-hand.html)
+- [Why CNAMEs end up dangling](https://duncan-haywood.github.io/oss-monorepo/subdomain-takeover-check/why-cnames-end-up-dangling.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/subdomain-takeover-check): MIT licensed.

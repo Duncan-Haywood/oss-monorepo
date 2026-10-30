@@ -1,0 +1,13 @@
+# What does a wedding film really pay per hour?
+
+> Free calculator for wedding and event videographers: package price, shoot, edit and revision hours, second shooter, travel, gear and fees become your true hourly rate, profit per booking, the minimum package price for a target rate, and how edit hours erode it. Entirely client-side, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/wedding-videographer-profit-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/wedding-videographer-profit-calculator): MIT licensed.

@@ -1,0 +1,17 @@
+# Stop missing grant reports.
+
+> Free private grant deadline and reporting tracker for small nonprofits. Find overdue obligations, see award funds remaining, and compare hiring a grant writer against the cash a late report puts at risk.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/grant-deadline-tracker/)
+- [Should I hire a grant writer to file this report on time?](https://duncan-haywood.github.io/oss-monorepo/grant-deadline-tracker/should-i-hire-a-grant-writer-to-file-this-report.html)
+- [This tracker vs. Instrumentl](https://duncan-haywood.github.io/oss-monorepo/grant-deadline-tracker/vs-instrumentl.html)
+- [This tracker vs. tracking grant deadlines in a spreadsheet](https://duncan-haywood.github.io/oss-monorepo/grant-deadline-tracker/vs-tracking-deadlines-in-a-spreadsheet.html)
+- [When is my next grant report due?](https://duncan-haywood.github.io/oss-monorepo/grant-deadline-tracker/when-is-my-next-grant-report-due.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/grant-deadline-tracker): MIT licensed.

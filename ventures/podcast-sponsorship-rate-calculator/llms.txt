@@ -1,0 +1,16 @@
+# What should you charge for a podcast ad?
+
+> Free podcast sponsorship rate calculator. Enter your average downloads per episode, niche, and read type to get a price range for a pre-roll, mid-roll, and post-roll ad spot — based on commonly cited podcast-ad-market CPM benchmarks. No sign-up, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/podcast-sponsorship-rate-calculator/)
+- [This calculator vs. a flat industry-average CPM](https://duncan-haywood.github.io/oss-monorepo/podcast-sponsorship-rate-calculator/vs-a-flat-industry-average-cpm.html)
+- [This calculator vs. Podcorn](https://duncan-haywood.github.io/oss-monorepo/podcast-sponsorship-rate-calculator/vs-podcorn.html)
+- [Why podcast ad pricing uses downloads, not subscribers](https://duncan-haywood.github.io/oss-monorepo/podcast-sponsorship-rate-calculator/why-downloads-not-subscribers.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/podcast-sponsorship-rate-calculator): MIT licensed.

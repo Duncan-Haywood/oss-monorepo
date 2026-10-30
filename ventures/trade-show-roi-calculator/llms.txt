@@ -1,0 +1,14 @@
+# Is that trade show booth worth it, and which shows should you buy?
+
+> Paste the trade shows and conferences you could exhibit at and get cost per lead, expected deals, ROI and break-even leads for each, plus the exact set of shows that earns the most under your yearly budget. Free, runs in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/trade-show-roi-calculator/)
+- [Is a trade show booth worth it? Cost per lead and break-even math](https://duncan-haywood.github.io/oss-monorepo/trade-show-roi-calculator/is-a-trade-show-booth-worth-it.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/trade-show-roi-calculator): MIT licensed.

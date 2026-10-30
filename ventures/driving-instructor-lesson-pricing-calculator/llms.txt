@@ -1,0 +1,13 @@
+# What does a driving lesson really earn after the car?
+
+> Free calculator for independent driving instructors: profit per lesson, break-even price, the price that reaches your take-home target and the cost of a block discount, after fuel, car wear, fixed costs, gaps and cancellations. Entirely client-side, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/driving-instructor-lesson-pricing-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/driving-instructor-lesson-pricing-calculator): MIT licensed.

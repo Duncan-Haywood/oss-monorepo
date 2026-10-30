@@ -57,8 +57,12 @@ const ORIGIN = 'https://duncan-haywood.github.io';
 const env = (over = {}) => ({
   DB: fakeDb(), ALLOWED_ORIGIN: ORIGIN, FEEDBACK_DAILY_CAP: '2', ...over,
 });
-const req = (path, { method = 'POST', body, headers = {} } = {}) =>
-  new Request(`https://edge.example${path}`, { method, body, headers: { 'user-agent': 'Mozilla/5.0', ...headers } });
+const req = (path, { method = 'POST', body, headers = {}, cf } = {}) => {
+  const r = new Request(`https://edge.example${path}`, { method, body, headers: { 'user-agent': 'Mozilla/5.0', ...headers } });
+  // Cloudflare attaches `request.cf`; a plain Request has none.
+  if (cf) Object.defineProperty(r, 'cf', { value: cf });
+  return r;
+};
 
 test('a hit is counted per day and slug, and /counts returns it', async () => {
   const e = env();
@@ -69,7 +73,24 @@ test('a hit is counted per day and slug, and /counts returns it', async () => {
   const res = await worker.fetch(req('/counts', { method: 'GET' }), e);
   const { days } = await res.json();
   const [day] = Object.keys(days);
-  assert.deepEqual(days[day], { 'roof-bid': 3, 'ref:npm': 2, 'src:google': 2 }, 'a source outside the closed list is dropped');
+  assert.deepEqual(days[day], { 'roof-bid': 3, 'ref:npm': 2, 'src:google': 2, 'dev:desktop': 3 }, 'a source outside the closed list is dropped');
+});
+
+test('a load adds its country and device class; a crawler beacon adds to bot: keys, not the page', async () => {
+  const e = env();
+  const iphone = 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) Mobile/15E148';
+  const hit = (headers, cf, p = 'roof-bid') => worker.fetch(req('/hit', { body: JSON.stringify({ p }), headers, cf }), e);
+  await hit({ 'user-agent': iphone }, { country: 'GB' });
+  await hit({ 'user-agent': 'Mozilla/5.0 (Linux; Android 14; SM-X200)' }, { country: 'not a code' });
+  await hit({ 'user-agent': 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)' }, { country: 'US' });
+  await hit({ 'user-agent': 'Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; ChatGPT-User/1.0; +https://openai.com/bot)' }, {}, 'hub');
+  await hit({ 'user-agent': 'SomethingBot/1.0' }, {}, '../etc');
+  const { days } = await (await worker.fetch(req('/counts', { method: 'GET' }), e)).json();
+  const [day] = Object.keys(days);
+  assert.deepEqual(days[day], {
+    'roof-bid': 2, 'geo:GB': 1, 'dev:mobile': 1, 'dev:tablet': 1,
+    'bot:googlebot': 1, 'botpage:roof-bid': 1, 'bot:chatgpt-user': 1, 'botpage:hub': 1, 'bot:other': 1,
+  });
 });
 
 test('feedback validation, with emails removed', () => {

@@ -1,0 +1,13 @@
+# Listen & Learn Audio
+
+> Short graded stories read aloud in Spanish, French, German and Italian, each line followed by English. Press play and listen while you walk or commute. Free in your browser, plus an AI skill for Claude and ChatGPT voice mode that tells new stories and podcast-style episodes on any topic, at your level.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/listen-and-learn-audio/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/listen-and-learn-audio): MIT licensed.

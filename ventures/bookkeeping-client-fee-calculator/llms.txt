@@ -1,0 +1,14 @@
+# What should you charge this bookkeeping client each month, and which current clients are underpaying you?
+
+> Price a monthly bookkeeping retainer from transactions, accounts, payroll, AR/AP and sales-tax filings: the minimum fee for your target hourly, a recommended fee, a one-time cleanup quote, a walk-away price, and a roster that ranks existing clients by effective hourly. Free, runs in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/bookkeeping-client-fee-calculator/)
+- [How to price bookkeeping services as a monthly retainer](https://duncan-haywood.github.io/oss-monorepo/bookkeeping-client-fee-calculator/how-to-price-bookkeeping-services-monthly-retainer.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/bookkeeping-client-fee-calculator): MIT licensed.

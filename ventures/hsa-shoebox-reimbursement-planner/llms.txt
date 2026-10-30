@@ -1,0 +1,13 @@
+# How much are your unreimbursed HSA receipts worth?
+
+> Free HSA shoebox planner: list the medical receipts you paid out of pocket, then see how much tax you avoid by letting the HSA grow and reimbursing yourself later, versus reimbursing every year. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/hsa-shoebox-reimbursement-planner/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/hsa-shoebox-reimbursement-planner): MIT licensed.

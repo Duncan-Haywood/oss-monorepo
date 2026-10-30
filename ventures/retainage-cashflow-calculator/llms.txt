@@ -1,0 +1,16 @@
+# See what retainage is costing your business.
+
+> Free construction retainage calculator for contractors and subcontractors. See retainage withheld, unpaid cash, carrying cost, when retainage typically releases, and copy a factual payment follow-up draft.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/retainage-cashflow-calculator/)
+- [Should I take a partial retainage check now?](https://duncan-haywood.github.io/oss-monorepo/retainage-cashflow-calculator/should-i-take-partial-retainage-now.html)
+- [This calculator vs. a spreadsheet](https://duncan-haywood.github.io/oss-monorepo/retainage-cashflow-calculator/vs-a-spreadsheet.html)
+- [This calculator vs. Levelset](https://duncan-haywood.github.io/oss-monorepo/retainage-cashflow-calculator/vs-levelset.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/retainage-cashflow-calculator): MIT licensed.

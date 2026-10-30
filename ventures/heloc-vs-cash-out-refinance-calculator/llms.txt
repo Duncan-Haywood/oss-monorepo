@@ -1,0 +1,13 @@
+# HELOC or cash-out refinance: which costs less?
+
+> Free HELOC vs cash-out refinance calculator: total cost of each at the year you sell or refinance, the repricing cost on your existing mortgage, the HELOC rate at which they tie, and a rate shock table. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/heloc-vs-cash-out-refinance-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/heloc-vs-cash-out-refinance-calculator): MIT licensed.

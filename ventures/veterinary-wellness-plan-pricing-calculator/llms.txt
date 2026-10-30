@@ -1,0 +1,13 @@
+# What should our wellness plan cost, and what happens if members use more than we planned?
+
+> Free calculator for veterinary practices: price an in-house wellness plan. Monthly fee for your target margin, margin if members use more than planned, patient savings and yearly plan profit. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/veterinary-wellness-plan-pricing-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/veterinary-wellness-plan-pricing-calculator): MIT licensed.

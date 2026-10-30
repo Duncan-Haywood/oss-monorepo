@@ -1,0 +1,13 @@
+# Does your medical bill charge you twice for the same thing?
+
+> Free tool for patients: paste or drop your itemized medical bill and see possible duplicate charges, codes billed twice in a day, unbundled lab panels, two visit levels on one date and lines that do not add up, with a draft request to send the billing office. Runs in your browser, the bill is never uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/medical-bill-error-checker/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/medical-bill-error-checker): MIT licensed.

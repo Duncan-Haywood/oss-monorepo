@@ -1,0 +1,16 @@
+# Are your GitHub Actions pinned to a commit SHA?
+
+> Paste your GitHub Actions workflow YAML and find every third-party action referenced by a mutable tag like @v4 instead of a pinned 40-character commit SHA. Free, runs in your browser, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/pinned-actions-check/)
+- [How to pin a GitHub Action to a commit SHA](https://duncan-haywood.github.io/oss-monorepo/pinned-actions-check/how-to-pin-a-github-action-to-a-commit-sha.html)
+- [Pinned Actions Check vs. OpenSSF Scorecard](https://duncan-haywood.github.io/oss-monorepo/pinned-actions-check/vs-openssf-scorecard.html)
+- [Pinned Actions Check vs. reading the workflow YAML by hand](https://duncan-haywood.github.io/oss-monorepo/pinned-actions-check/vs-reading-the-workflow-yaml-by-hand.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/pinned-actions-check): MIT licensed.

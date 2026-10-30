@@ -1,0 +1,13 @@
+# What does a mobile blood draw really earn once you count the drive, and is solo, an agency or a job the better way to run the route?
+
+> Free mobile phlebotomy calculator: enter draws per week by type, fees, on-site and drive minutes, supplies, failed trips and fixed costs, and see profit per draw and per working hour, break-even draws per week, the fee for your target margin, what batching stops does, and solo versus agency contractor versus employed.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/mobile-phlebotomy-route-profit-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/mobile-phlebotomy-route-profit-calculator): MIT licensed.

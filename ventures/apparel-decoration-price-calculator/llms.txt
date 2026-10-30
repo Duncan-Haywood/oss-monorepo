@@ -1,0 +1,17 @@
+# What does a decorated shirt actually cost you?
+
+> Free screen printing, embroidery and DTF pricing calculator for custom apparel shops: work out your real cost per shirt from screens or digitising, press or stitch time, blanks and spoilage, then see the break-even price, the margin at what you quoted, and what the same job costs at 12, 24, 48, 72, 144 and 288 pieces.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/apparel-decoration-price-calculator/)
+- [Should I charge extra for printing on the back too?](https://duncan-haywood.github.io/oss-monorepo/apparel-decoration-price-calculator/should-i-charge-extra-for-a-second-print-location.html)
+- [This calculator vs. a flat $14-a-shirt price](https://duncan-haywood.github.io/oss-monorepo/apparel-decoration-price-calculator/vs-a-flat-price-per-shirt.html)
+- [Screen printing & embroidery price calculator vs. a spreadsheet](https://duncan-haywood.github.io/oss-monorepo/apparel-decoration-price-calculator/vs-a-spreadsheet.html)
+- [This calculator vs. Printavo](https://duncan-haywood.github.io/oss-monorepo/apparel-decoration-price-calculator/vs-printavo.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/apparel-decoration-price-calculator): MIT licensed.

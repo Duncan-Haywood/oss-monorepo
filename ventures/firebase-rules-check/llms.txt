@@ -1,0 +1,15 @@
+# Firebase Security Rules Exposure Checker
+
+> Enter a Firebase project ID to test, with read-only unauthenticated requests, which database or Firestore paths are publicly readable. Nothing uploaded to us.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/firebase-rules-check/)
+- [Firebase Rules Checker vs. requesting the URL by hand](https://duncan-haywood.github.io/oss-monorepo/firebase-rules-check/vs-requesting-the-url-by-hand.html)
+- [Why Firebase test mode exposes your data](https://duncan-haywood.github.io/oss-monorepo/firebase-rules-check/why-does-firebase-test-mode-expose-my-data.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/firebase-rules-check): MIT licensed.

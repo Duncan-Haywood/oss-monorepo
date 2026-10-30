@@ -1,0 +1,13 @@
+# Will this solar quote pay for itself?
+
+> Free solar panel payback calculator for homeowners. Enter system cost, incentives, production and your electricity rates to see payback year, 25-year net gain, NPV and IRR, and how a lower export credit changes it. Runs in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/solar-payback-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/solar-payback-calculator): MIT licensed.

@@ -1,0 +1,17 @@
+# Bid the feet, the stories, and the mesh.
+
+> Price a gutter guard install from extra stories, extra lineal feet, extra miters, extra downspouts, a clean-first pass, fascia repair, and steep-roof access — not a published $8/foot leaf-filter special. See the walk-away number before you match a cheaper screen quote.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/gutter-guard-bid-calculator/)
+- [How much to charge to install gutter guards](https://duncan-haywood.github.io/oss-monorepo/gutter-guard-bid-calculator/how-much-to-charge-to-install-gutter-guards.html)
+- [This calculator vs. a flat $8/ft leaf-filter special](https://duncan-haywood.github.io/oss-monorepo/gutter-guard-bid-calculator/vs-a-flat-8-per-foot-special.html)
+- [This calculator vs. Jobber](https://duncan-haywood.github.io/oss-monorepo/gutter-guard-bid-calculator/vs-jobber.html)
+- [This calculator vs. JobNimbus](https://duncan-haywood.github.io/oss-monorepo/gutter-guard-bid-calculator/vs-jobnimbus.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/gutter-guard-bid-calculator): MIT licensed.

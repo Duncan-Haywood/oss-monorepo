@@ -1,0 +1,13 @@
+# Which deals are really at risk, and what will actually close?
+
+> A free, open-source alternative to the forecasting add-ons of Pipedrive, HubSpot and Clari for small B2B teams: win chances learned from your own closed deals, a backtested forecast range and a ranked list of stale or slipping deals. Paste a deal export and try it in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/deal-keeper/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/deal-keeper): MIT licensed.

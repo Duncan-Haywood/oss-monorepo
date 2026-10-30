@@ -1,0 +1,13 @@
+# Why did my Klaviyo profile import skip rows or create odd profiles?
+
+> Free Klaviyo profile import CSV checker: finds invalid and duplicate emails, phone numbers that are not E.164, rows with no identifier, zips and phones Excel damaged, bad latitude, longitude and timezone values, mixed date formats and near-miss column names, with line numbers, and applies formatting-only safe fixes.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/klaviyo-profile-csv-check/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/klaviyo-profile-csv-check): MIT licensed.

@@ -1,0 +1,15 @@
+# Do you need consent to record this call?
+
+> Pick the caller's and recipient's US states and get an instant one-party vs. all-party call-recording consent determination, the exact statute cited, and a ready-to-read disclosure script for your call opening. Free, deterministic, runs entirely in your browser — not legal advice.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/call-recording-consent-check/)
+- [This checker vs. looking up each state's statute by hand](https://duncan-haywood.github.io/oss-monorepo/call-recording-consent-check/vs-checking-each-states-statute-by-hand.html)
+- [Why call recording consent laws differ by state](https://duncan-haywood.github.io/oss-monorepo/call-recording-consent-check/why-call-recording-consent-laws-differ-by-state.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/call-recording-consent-check): MIT licensed.

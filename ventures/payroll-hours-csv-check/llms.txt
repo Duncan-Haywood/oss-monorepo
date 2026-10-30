@@ -1,0 +1,13 @@
+# Why do my payroll hours import wrong or get rejected?
+
+> Free payroll hours CSV checker: finds 8:30 mixed with 8.5, text like 8h, Excel date serials, mixed date formats, duplicate person-days, hours over 24, Start/End times that disagree with the hours typed and unquoted commas in names, with line numbers, and applies formatting-only safe fixes.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/payroll-hours-csv-check/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/payroll-hours-csv-check): MIT licensed.

@@ -1,0 +1,14 @@
+# A minute-by-minute wedding day timeline, with the sunset worked out
+
+> Free wedding day timeline builder. Enter your date, city, ceremony time and guest count and get a minute-by-minute schedule: hair and makeup, first look, portraits, ceremony, cocktail hour, dinner, toasts and dancing, with sunset portraits placed at golden hour. Separate views for each vendor.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/wedding-day-timeline-builder/)
+- [How long wedding photos take, with a worked timeline](https://duncan-haywood.github.io/oss-monorepo/wedding-day-timeline-builder/wedding-photography-timeline.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/wedding-day-timeline-builder): MIT licensed.

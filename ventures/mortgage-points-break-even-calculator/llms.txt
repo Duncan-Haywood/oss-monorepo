@@ -1,0 +1,13 @@
+# Are mortgage points worth buying?
+
+> Free mortgage points calculator: break-even month, return on the points, how far ahead or behind you are when you sell or refinance, and the chance you finish ahead. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/mortgage-points-break-even-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/mortgage-points-break-even-calculator): MIT licensed.

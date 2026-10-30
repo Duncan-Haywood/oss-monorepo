@@ -1,0 +1,13 @@
+# Will your bank accept this SEPA payment file?
+
+> Free SEPA credit transfer file checker for pain.001 XML: finds invalid IBANs, wrong NbOfTxs and CtrlSum, bad execution dates, characters the bank will reject and malformed XML, and rebuilds the control sums. Runs in your browser; the file is never uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/sepa-payment-file-validator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/sepa-payment-file-validator): MIT licensed.

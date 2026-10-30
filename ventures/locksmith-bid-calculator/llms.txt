@@ -1,0 +1,18 @@
+# Quote the call before you're already at the door.
+
+> Free calculator for mobile locksmiths: price one service call — lockout, rekey, lock install, or fob programming — with the after-hours premium and minimum service charge built in, then check whether today's calls hit your income goal.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/locksmith-bid-calculator/)
+- [How much should a locksmith charge for a service call?](https://duncan-haywood.github.io/oss-monorepo/locksmith-bid-calculator/how-much-should-a-locksmith-charge-for-a-service-call.html)
+- [This calculator vs. a flat rate for every call](https://duncan-haywood.github.io/oss-monorepo/locksmith-bid-calculator/vs-a-flat-rate-for-every-call.html)
+- [This calculator vs. Housecall Pro](https://duncan-haywood.github.io/oss-monorepo/locksmith-bid-calculator/vs-housecall-pro.html)
+- [This calculator vs. Jobber](https://duncan-haywood.github.io/oss-monorepo/locksmith-bid-calculator/vs-jobber.html)
+- [This calculator vs. Workiz](https://duncan-haywood.github.io/oss-monorepo/locksmith-bid-calculator/vs-workiz.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/locksmith-bid-calculator): MIT licensed.

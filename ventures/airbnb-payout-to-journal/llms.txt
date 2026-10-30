@@ -1,0 +1,13 @@
+# Turn an Airbnb transaction history into a Xero or QuickBooks journal
+
+> Free Airbnb host earnings to journal converter: splits every reservation into rental income, cleaning fees, Airbnb host fees and cancellations, books pass-through occupancy tax as a liability, compares the rows to your payouts and downloads a balanced journal for Xero, QuickBooks Online or QuickBooks Desktop.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/airbnb-payout-to-journal/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/airbnb-payout-to-journal): MIT licensed.

@@ -1,0 +1,16 @@
+# CORS Misconfiguration Checker
+
+> Free tool: run a CLI that sends real requests with crafted Origin headers to your API, then paste the JSON here for a plain-English report on reflected-origin, null-origin, and unanchored allow-list CORS misconfigurations. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/cors-misconfig-check/)
+- [What a reflected-origin CORS misconfiguration lets an attacker do](https://duncan-haywood.github.io/oss-monorepo/cors-misconfig-check/reflected-origin-cors-vulnerability.html)
+- [This checker vs. Burp Suite](https://duncan-haywood.github.io/oss-monorepo/cors-misconfig-check/vs-burp-suite.html)
+- [This checker vs. checking CORS by hand with curl](https://duncan-haywood.github.io/oss-monorepo/cors-misconfig-check/vs-checking-cors-by-hand.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/cors-misconfig-check): MIT licensed.

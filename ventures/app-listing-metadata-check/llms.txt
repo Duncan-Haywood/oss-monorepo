@@ -1,0 +1,13 @@
+# Fix the listing text before the store does it for you
+
+> Free tool: paste your App Store or Google Play listing text and check it before you submit — character limits, wasted keyword-field characters, repeated words, promotional claims in the name, placeholder text and keyword stuffing. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/app-listing-metadata-check/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/app-listing-metadata-check): MIT licensed.

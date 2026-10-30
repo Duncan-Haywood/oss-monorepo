@@ -1,0 +1,13 @@
+# Which Digital Services Act duties apply to you?
+
+> Free EU Digital Services Act checker: enter your service type, size and EU users to get the exact list of DSA duties that apply (notice and action, complaints, marketplace trader checks, VLOP audits), with the Article for each and the small-enterprise exemption. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/eu-dsa-obligations-checker/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/eu-dsa-obligations-checker): MIT licensed.

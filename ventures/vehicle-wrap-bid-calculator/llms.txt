@@ -1,0 +1,16 @@
+# The roll decides your material cost, not the vehicle.
+
+> Free calculator for independent vehicle wrap and graphics shops: price a full or partial wrap from vehicle surface area, material waste factor, install complexity, and labor, then see exactly what a waste-blind quote loses on every job.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/vehicle-wrap-bid-calculator/)
+- [How much to charge for a vehicle wrap](https://duncan-haywood.github.io/oss-monorepo/vehicle-wrap-bid-calculator/how-much-to-charge-for-a-vehicle-wrap.html)
+- [This calculator vs. quoting from the vehicle's bare surface area](https://duncan-haywood.github.io/oss-monorepo/vehicle-wrap-bid-calculator/vs-quoting-from-bare-vehicle-surface-area.html)
+- [Vehicle Wrap Bid Calculator vs. ShopVOX](https://duncan-haywood.github.io/oss-monorepo/vehicle-wrap-bid-calculator/vs-shopvox.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/vehicle-wrap-bid-calculator): MIT licensed.

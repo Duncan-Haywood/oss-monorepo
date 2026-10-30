@@ -1,0 +1,14 @@
+# Will a trampoline park make money? Monthly profit, payback and break-even fill
+
+> Free calculator for trampoline parks and family entertainment centers. Enter jumper capacity, sessions, fill, ticket price, birthday parties, memberships, staff, rent and the build; it shows monthly profit, margin, payback, break-even fill and the lowest ticket for your target margin and payback.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/trampoline-park-profit-calculator/)
+- [How much does a trampoline park make?](https://duncan-haywood.github.io/oss-monorepo/trampoline-park-profit-calculator/how-much-does-a-trampoline-park-make.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/trampoline-park-profit-calculator): MIT licensed.

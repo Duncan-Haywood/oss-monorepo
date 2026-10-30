@@ -1,0 +1,14 @@
+# Per diem or receipts: which meal deduction is bigger for an owner-operator?
+
+> Free owner-operator per diem calculator: full and travel days away from home, the M&IE rate, the 80% DOT limit, per diem versus meal receipts, and the estimated self-employment and income tax saved. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/owner-operator-per-diem-calculator/)
+- [Can an owner-operator deduct per diem?](https://duncan-haywood.github.io/oss-monorepo/owner-operator-per-diem-calculator/can-an-owner-operator-deduct-per-diem.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/owner-operator-per-diem-calculator): MIT licensed.

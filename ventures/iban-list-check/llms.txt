@@ -1,0 +1,13 @@
+# Are the IBANs in your payment list actually valid?
+
+> Free bulk IBAN checker: validates a whole column of IBANs, finds wrong check digits (with the swapped-digit fix), wrong lengths, unknown countries, stray spaces, duplicates and blanks, and writes the list back cleaned. Runs in your browser; the file is never uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/iban-list-check/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/iban-list-check): MIT licensed.

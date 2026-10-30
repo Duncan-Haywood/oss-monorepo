@@ -1,0 +1,17 @@
+# Bid the units, the type, and the extras.
+
+> Price a skylight install from unit count, tubular versus fixed versus solar-venting, replace-existing versus new cut-in, asphalt versus tile/metal versus low-slope, and extras — plus the walk-away price an $800 / unit special cannot see.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/skylight-install-bid-calculator/)
+- [How much to charge to install a skylight](https://duncan-haywood.github.io/oss-monorepo/skylight-install-bid-calculator/how-much-to-charge-to-install-a-skylight.html)
+- [Should I install a customer-supplied skylight?](https://duncan-haywood.github.io/oss-monorepo/skylight-install-bid-calculator/should-i-install-a-customer-supplied-skylight.html)
+- [This calculator vs. a flat "$800 a skylight" special](https://duncan-haywood.github.io/oss-monorepo/skylight-install-bid-calculator/vs-a-flat-rate-per-skylight-special.html)
+- [This calculator vs. Jobber](https://duncan-haywood.github.io/oss-monorepo/skylight-install-bid-calculator/vs-jobber.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/skylight-install-bid-calculator): MIT licensed.

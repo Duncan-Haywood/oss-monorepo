@@ -1,0 +1,13 @@
+# Turn a collections spreadsheet into a SEPA direct debit file
+
+> Free CSV to SEPA direct debit converter: turn a spreadsheet of member or customer collections into a pain.008 XML file for your bank. Checks every IBAN, mandate and your creditor identifier first, groups FRST/RCUR/OOFF/FNAL batches, and never uploads your list.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/csv-to-sepa-pain008/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/csv-to-sepa-pain008): MIT licensed.

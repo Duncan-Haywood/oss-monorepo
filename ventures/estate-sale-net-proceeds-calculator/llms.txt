@@ -1,0 +1,15 @@
+# A lower headline rate is not always the better quote.
+
+> Free calculator for estate sale commission quotes. Enter a company's tiered commission rates, setup fee, card-processing fee, and haul-away fee against your estimated sale total to see the real net proceeds — and compare two companies' quotes side by side. Nothing leaves your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/estate-sale-net-proceeds-calculator/)
+- [This calculator vs. comparing headline commission rates](https://duncan-haywood.github.io/oss-monorepo/estate-sale-net-proceeds-calculator/vs-headline-commission-rate.html)
+- [Why estate sale fees bite harder on a smaller sale](https://duncan-haywood.github.io/oss-monorepo/estate-sale-net-proceeds-calculator/why-estate-sale-fees-bite-harder-on-a-smaller-sale.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/estate-sale-net-proceeds-calculator): MIT licensed.

@@ -1,0 +1,13 @@
+# What do you really earn per wedding? Real hourly pay, yearly net and the fee that hits your target
+
+> Free wedding officiant fee calculator: your fee, ceremonies a year, consultation, script writing, rehearsal, driving and yearly costs become real hourly pay, yearly net, break-even ceremonies and the fee that reaches your target. Private, runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/wedding-officiant-fee-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/wedding-officiant-fee-calculator): MIT licensed.

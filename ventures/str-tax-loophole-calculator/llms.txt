@@ -1,0 +1,13 @@
+# Can your short-term rental loss offset your other income in 2026?
+
+> Free calculator for short-term rental owners: does your Airbnb or VRBO escape rental-activity status (average stay of 7 days or less) and qualify as non-passive through material participation? Compare the $25,000 passive path and estimate first-year cost segregation depreciation with 100% bonus.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/str-tax-loophole-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/str-tax-loophole-calculator): MIT licensed.

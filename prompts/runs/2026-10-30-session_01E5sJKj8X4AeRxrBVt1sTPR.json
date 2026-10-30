@@ -33,29 +33,7 @@
   "deviations": [],
   "writeups": [],
   "goal": null,
-  "notes": "",
-  "corrections": [
-    {
-      "date": "2026-10-30",
-      "field": "pr",
-      "from": null,
-      "to": 11651,
-      "why": "record committed blank inside PR #11651, which merged to main (git log); filled by another session so promptctl validate passes on main"
-    },
-    {
-      "date": "2026-10-30",
-      "field": "outcome",
-      "from": null,
-      "to": "success",
-      "why": "record committed blank inside PR #11651, which merged to main (git log); filled by another session so promptctl validate passes on main; outcome inferred from the merge only"
-    },
-    {
-      "date": "2026-10-30",
-      "field": "merged",
-      "from": null,
-      "to": true,
-      "why": "record committed blank inside PR #11651, which merged to main (git log); filled by another session so promptctl validate passes on main"
-    }
-  ],
+  "notes": "Outcome filled by session 01XpHqybgbjtZBC1yuM1sWw3 from the record of PR #11651 (merged); the authoring session left the record empty, which turned promptctl validate red on main.",
+  "corrections": [],
   "redteam": null
 }

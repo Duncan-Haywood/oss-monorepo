@@ -1,0 +1,13 @@
+# What do you actually take home from Teachers Pay Teachers?
+
+> Free Teachers Pay Teachers (TPT) seller earnings and fee calculator for teacher-authors: drop in your sales CSV and see the service fee actually taken, take-home per order, net revenue per product, repeat buyers, refunds, withdrawal costs, funds still clearing and the price needed for a target take-home.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/teachers-pay-teachers-earnings-analyzer/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/teachers-pay-teachers-earnings-analyzer): MIT licensed.

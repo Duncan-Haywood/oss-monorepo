@@ -1,0 +1,16 @@
+# Vendor Change Evidence
+
+> Free, no-signup, no-upload tool that compares two dated vendor policy snapshots (privacy, terms, subprocessors, security) in your browser and reports what changed. Runs entirely client-side.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/vendor-change-evidence/)
+- [How do I track when a vendor changes its subprocessors or privacy policy?](https://duncan-haywood.github.io/oss-monorepo/vendor-change-evidence/how-do-i-track-vendor-policy-changes.html)
+- [This tool vs. eyeballing two page loads side by side](https://duncan-haywood.github.io/oss-monorepo/vendor-change-evidence/vs-eyeballing-two-page-loads-side-by-side.html)
+- [Vendor Change Evidence vs. UpGuard](https://duncan-haywood.github.io/oss-monorepo/vendor-change-evidence/vs-upguard.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/vendor-change-evidence): MIT licensed.

@@ -1,0 +1,13 @@
+# Standard mileage or actual expenses: which deduction is bigger in 2026?
+
+> Free 2026 business mileage deduction calculator for the self-employed: prices your miles at the IRS's split-year rates (72.5 cents through June 30, 76 cents from July 1) and compares standard mileage against actual vehicle expenses. Entirely client-side, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/mileage-deduction-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/mileage-deduction-calculator): MIT licensed.

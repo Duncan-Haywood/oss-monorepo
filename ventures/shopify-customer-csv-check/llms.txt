@@ -1,0 +1,13 @@
+# Why did my Shopify customer import fail or skip rows?
+
+> Catch what breaks a Shopify customer import, with the line number, before you import. Nothing leaves your device.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/shopify-customer-csv-check/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/shopify-customer-csv-check): MIT licensed.

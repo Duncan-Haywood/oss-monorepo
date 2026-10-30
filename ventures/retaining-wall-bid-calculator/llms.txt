@@ -1,0 +1,16 @@
+# Bid the height and the drain, not the linear foot.
+
+> Price a retaining wall from face area, drain-stone volume, geogrid layers, corners, and the engineer/permit step a per-linear-foot quote hides — then see price per foot, crew hours, and the walk-away number.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/retaining-wall-bid-calculator/)
+- [How much to charge for a retaining wall](https://duncan-haywood.github.io/oss-monorepo/retaining-wall-bid-calculator/how-much-to-charge-for-a-retaining-wall.html)
+- [This calculator vs. a flat $140-a-linear-foot rate](https://duncan-haywood.github.io/oss-monorepo/retaining-wall-bid-calculator/vs-a-flat-140-per-linear-foot-rate.html)
+- [This calculator vs. Aspire](https://duncan-haywood.github.io/oss-monorepo/retaining-wall-bid-calculator/vs-aspire.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/retaining-wall-bid-calculator): MIT licensed.

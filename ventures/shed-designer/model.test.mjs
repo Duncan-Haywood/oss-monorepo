@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { buildShed, defaultDesign, normalize, splitRun, PRESETS, minWallFor } from './model.mjs';
+import { estimate } from './estimate.mjs';
 
 const classic = () => PRESETS['8x12 classic']();
 
@@ -184,4 +185,60 @@ test('picking a catalogue product sets the rough opening to the maker\'s and lis
   // A door product on a window is ignored, not misapplied.
   const bad = buildShed({ ...d, openings: [{ ...d.openings[1], product: 'sr-36x76' }] });
   assert.equal(bad.design.openings[0].product, undefined);
+});
+
+test('studs go to 24" by default where the siding allows it and the studs pass, and stay where you put them', async () => {
+  const { autoStudSpacing, eaveWallLoads } = await import('./model.mjs');
+  const { studCheck } = await import('./structure.mjs');
+  const d = defaultDesign();
+  assert.equal(d.autoStuds, true);
+  // Panels rated for 16" stay at 16"; LP's 7/16" panel and lap over OSB go to 24".
+  for (const [sidingType, sp] of [['T1-11', 16], ['LP SmartSide', 16], ['LP SmartSide 7/16', 24], ['LP SmartSide lap', 24], ['vinyl', 24]]) {
+    assert.equal(normalize({ ...d, sidingType }).studSpacing, sp, sidingType);
+    assert.equal(normalize({ ...d, sidingType, autoStuds: false, studSpacing: 16 }).studSpacing, 16, `${sidingType}, spacing set by hand`);
+  }
+  // The default ridge-beam roof on the eave wall, by hand: 5/12 pitch, 15 psf dead on the slope
+  // = 15 x 13/12 = 16.25 psf on plan; run 48 - 1.5 - 3.5 = 43", half of it plus the stud and the
+  // 12" overhang = 21.5 + 3.5 + 12 = 37" = 3.083 ft; 16.25 x 3.083 = 50.1 lb/ft.
+  assert.ok(Math.abs(eaveWallLoads(d).dead - 50.1) < 0.05);
+  // Heavy snow on a tall wall fails the 24" stud check, so the walls stay at 16".
+  const heavy = { ...d, sidingType: 'LP SmartSide lap', snowLoad: 100, windLoad: 40, wallHeight: 120, autoWall: false, autoPitch: false, autoOverhang: false };
+  const e = eaveWallLoads({ ...heavy, studSpacing: 24 });
+  assert.ok(studCheck('2x4', 24, 120 - 4.5, [e.dead, e.snow], 40) > 1);
+  assert.equal(autoStudSpacing(normalize(heavy)), 16);
+  assert.equal(buildShed(heavy).design.studSpacing, 16);
+  // No siding, no sheathing: 16".
+  assert.equal(normalize({ ...d, sidingType: 'vinyl', siding: false }).studSpacing, 16);
+});
+
+test('auto overhang: the longest from 6" to 18" within the allowance of the cheapest whole order', () => {
+  const totals = (d) => {
+    const base = buildShed(d).design;
+    const out = new Map();
+    for (let oh = 6; oh <= 18; oh++) out.set(oh, estimate(buildShed(normalize({ ...base, autoWall: false, autoPitch: false, autoOverhang: false, overhang: oh }))).total);
+    return out;
+  };
+  const t = totals(defaultDesign());
+  const min = Math.min(...t.values());
+  for (const budget of [0, 25, 60, 500]) {
+    const s = buildShed({ ...defaultDesign(), overhangBudget: budget });
+    const within = [...t.entries()].filter(([, c]) => c <= min + budget + 0.005).map(([oh]) => oh);
+    assert.equal(s.design.overhang, Math.max(...within), `$${budget}`);
+    assert.equal(s.overhangChoice.budget, budget);
+    assert.ok(Math.abs(s.overhangChoice.adds - (t.get(s.design.overhang) - min)) < 0.005);
+    assert.match(s.notes[0], new RegExp(`overhang ${s.design.overhang}"`));
+  }
+  assert.equal(buildShed({ ...defaultDesign(), overhangBudget: 500 }).overhangChoice.next, null);
+  assert.equal(normalize({ ...defaultDesign(), overhangBudget: -5 }).overhangBudget, 0);
+  assert.equal(normalize({ ...defaultDesign(), overhangBudget: 'x' }).overhangBudget, 25);
+});
+
+test('the auto overhang never buys its saving by leaving a door unframed', () => {
+  // A 72" site-built pair on the default 12 ft wall: some long overhangs leave
+  // the door unframed, which prices as cheaper, so the search skips them.
+  const d = defaultDesign();
+  const openings = d.openings.map((o) => (o.kind === 'door' ? { ...o, offset: 36, width: 72, product: 'site-built' } : o));
+  const s = buildShed(normalize({ ...d, openings }));
+  const framed = new Set(s.framedOpenings.map((p) => p.op?.id ?? p.id));
+  assert.ok(s.design.openings.every((o) => framed.has(o.id)), `overhang ${s.design.overhang}`);
 });

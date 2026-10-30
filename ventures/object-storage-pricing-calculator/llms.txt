@@ -1,0 +1,14 @@
+# What will object storage cost for your GB stored and GB served, and who is cheapest?
+
+> Enter the GB you store and the GB you serve per month and see what Amazon S3, Cloudflare R2, Backblaze B2, Wasabi, DigitalOcean Spaces and Hetzner charge, the 12-month spend under your growth rate, and the egress level where the cheapest provider changes. Free, runs in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/object-storage-pricing-calculator/)
+- [How to choose object storage by egress](https://duncan-haywood.github.io/oss-monorepo/object-storage-pricing-calculator/how-to-choose-object-storage-by-egress.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/object-storage-pricing-calculator): MIT licensed.

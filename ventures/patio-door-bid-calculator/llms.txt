@@ -1,0 +1,16 @@
+# Bid the panels, the glass, and the opening.
+
+> Price a sliding glass or patio-door replacement from extra panels, impact glass, new-construction wrap, transom, sill pan, and balcony access — not a published $1,800-installed 6-foot vinyl special. See the walk-away number before you match a cheaper quote.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/patio-door-bid-calculator/)
+- [How much to charge to replace a sliding glass door](https://duncan-haywood.github.io/oss-monorepo/patio-door-bid-calculator/how-much-to-charge-to-replace-a-sliding-glass-door.html)
+- [This calculator vs. a flat "$1,800 installed" patio door special](https://duncan-haywood.github.io/oss-monorepo/patio-door-bid-calculator/vs-a-flat-installed-price.html)
+- [This calculator vs. Jobber](https://duncan-haywood.github.io/oss-monorepo/patio-door-bid-calculator/vs-jobber.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/patio-door-bid-calculator): MIT licensed.

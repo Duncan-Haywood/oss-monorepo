@@ -1,0 +1,13 @@
+# Which of your paid lead sources actually book jobs?
+
+> Free analyzer for plumbers, electricians, HVAC and other home-service pros: load your Thumbtack, Angi, Google Local Services, Yelp or ad leads and see cost per lead, close rate, cost per booked job and profit per source, and which paid sources lose money. Runs in your browser, the file is never uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/home-service-lead-roi-analyzer/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/home-service-lead-roi-analyzer): MIT licensed.

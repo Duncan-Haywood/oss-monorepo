@@ -1,0 +1,13 @@
+# What does one rental boat really earn in a short season, and should you rent it direct, list it or charter it?
+
+> Find out what a rental boat really earns after fuel, dock, insurance, a short season and weather cancellations, and whether a marketplace listing or a captained charter pays it better.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/boat-rental-fleet-profit-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/boat-rental-fleet-profit-calculator): MIT licensed.

@@ -1,0 +1,14 @@
+# App Store, Google Play or web checkout: what do you actually keep?
+
+> Enter your monthly app revenue and average in-app price and see what Apple (30% or 15%), Google Play and web checkout via Stripe or Paddle take, your net payout, 12-month totals, and the revenue where selling on the web beats the store cut. Free, runs in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/app-store-commission-calculator/)
+- [App Store vs web checkout for indie apps](https://duncan-haywood.github.io/oss-monorepo/app-store-commission-calculator/app-store-vs-web-checkout-for-indie-apps.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/app-store-commission-calculator): MIT licensed.

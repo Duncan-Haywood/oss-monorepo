@@ -1,0 +1,13 @@
+# Annual plans, spread across the months they cover
+
+> Turn Stripe invoices into a monthly revenue recognition schedule: billings, revenue recognised, deferred revenue and journal entries for your bookkeeper. Paste an invoice export to try it in the browser, then run the open-source read-only server in your own account. Free, MIT.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/rev-rec/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/rev-rec): MIT licensed.

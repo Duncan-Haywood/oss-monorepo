@@ -1,0 +1,13 @@
+# What does one home inspection really earn per hour, and would an associate add profit?
+
+> Free home inspector calculator: enter inspections per week, fees by size, add-ons, on-site, report and drive hours, mileage, fall-through, E&O and software, and see profit per inspection and per hour, the fee for your target margin, break-even inspections per month and whether to hire an associate.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/home-inspection-business-profit-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/home-inspection-business-profit-calculator): MIT licensed.

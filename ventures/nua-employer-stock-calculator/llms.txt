@@ -1,0 +1,13 @@
+# NUA or IRA rollover: which leaves you with more after tax?
+
+> Free NUA calculator: compare taking employer stock out of your 401(k) with net unrealized appreciation treatment against rolling everything to an IRA, with the 10% additional tax, holding period and a basis-share sensitivity table. Private, runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/nua-employer-stock-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/nua-employer-stock-calculator): MIT licensed.

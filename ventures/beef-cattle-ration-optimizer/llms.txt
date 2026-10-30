@@ -1,0 +1,14 @@
+# What is the cheapest ration that still meets your cattle's needs?
+
+> Free beef cattle ration optimizer. Enter your feeds with price per ton and nutrient content, choose cow, bull, stocker or finishing class, and get the least-cost ration per head per day, herd cost and a buying list. A least-cost feed formulation solver in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/beef-cattle-ration-optimizer/)
+- [How to formulate a low-cost cattle ration](https://duncan-haywood.github.io/oss-monorepo/beef-cattle-ration-optimizer/how-to-formulate-a-low-cost-cattle-ration.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/beef-cattle-ration-optimizer): MIT licensed.

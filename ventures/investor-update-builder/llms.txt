@@ -1,0 +1,14 @@
+# Write this month's investor update in five minutes
+
+> Free monthly investor update builder for startup founders. Enter MRR, customers and cash for a few months and get growth, burn, runway, burn multiple, a default-alive check and a ready-to-send update. Private, in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/investor-update-builder/)
+- [What is a burn multiple? Runway and default alive, with an example](https://duncan-haywood.github.io/oss-monorepo/investor-update-builder/what-is-a-burn-multiple.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/investor-update-builder): MIT licensed.

@@ -1,0 +1,16 @@
+# Will this migration take your database down?
+
+> Paste a PostgreSQL migration to find statements that lock the table: CREATE INDEX without CONCURRENTLY, SET NOT NULL, a missing lock_timeout. No database connection.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/sql-migration-lock-check/)
+- [SQL Migration Lock Check vs. reading the migration by hand](https://duncan-haywood.github.io/oss-monorepo/sql-migration-lock-check/vs-reading-the-migration-by-hand.html)
+- [SQL Migration Lock Check vs. squawk](https://duncan-haywood.github.io/oss-monorepo/sql-migration-lock-check/vs-squawk.html)
+- [Why your migration locked the table](https://duncan-haywood.github.io/oss-monorepo/sql-migration-lock-check/why-your-migration-locked-the-table.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/sql-migration-lock-check): MIT licensed.

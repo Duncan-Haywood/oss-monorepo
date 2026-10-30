@@ -20,6 +20,7 @@
     .msg { white-space: pre-wrap; background: #faf5f8; border-left: 3px solid #9b3f68; padding: 8px 12px; }
     .cta { display: inline-block; background: #9b3f68; color: #fff; padding: 11px 16px; border-radius: 8px; font-weight: 700; text-decoration: none; }
   </style>
+  <script>/* offline + install; reading navigator.serviceWorker throws in sandboxed frames, so guard it */ try { if ("serviceWorker" in navigator && location.protocol !== "file:") addEventListener("load", () => { try { navigator.serviceWorker.register("sw.js").catch(() => {}); } catch { /* no service worker here */ } }); } catch { /* no service worker here */ }</script>
 </head>
 <body>
   <p><a href="./index.html">← Babysitting Business Kit</a></p>

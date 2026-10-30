@@ -1,0 +1,16 @@
+# Is your security.txt still valid — or quietly expired?
+
+> Checks a security.txt against RFC 9116 — including the expiry date that quietly turns a valid file into a stale one, which is the state most published security.txt files are in.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/security-txt-check/)
+- [security.txt Checker vs. checking it by eye](https://duncan-haywood.github.io/oss-monorepo/security-txt-check/vs-checking-it-by-eye.html)
+- [This tool vs. securitytxt.org's generator and validator](https://duncan-haywood.github.io/oss-monorepo/security-txt-check/vs-securitytxt-org-generator.html)
+- [Why RFC 9116 made security.txt expire](https://duncan-haywood.github.io/oss-monorepo/security-txt-check/why-security-txt-expires.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/security-txt-check): MIT licensed.

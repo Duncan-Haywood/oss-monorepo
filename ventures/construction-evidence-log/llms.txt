@@ -1,0 +1,15 @@
+# Turn a site day into a record you can review.
+
+> Free private construction daily log and change order documentation tool for small contractors. Create a dated, reviewable evidence pack in your browser, saved locally so you can export a combined pack across the whole project.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/construction-evidence-log/)
+- [How do I document a change order on a job site?](https://duncan-haywood.github.io/oss-monorepo/construction-evidence-log/how-do-i-document-a-change-order.html)
+- [This evidence pack vs. Procore](https://duncan-haywood.github.io/oss-monorepo/construction-evidence-log/vs-procore.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/construction-evidence-log): MIT licensed.

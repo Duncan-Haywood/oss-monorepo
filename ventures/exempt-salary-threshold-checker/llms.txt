@@ -1,0 +1,14 @@
+# Does this salary clear the overtime-exemption threshold?
+
+> Free calculator for the 2026 FLSA white-collar overtime-exemption salary threshold — checks a weekly salary against the federal $684/week figure and the higher state threshold in California, Washington, New York, Maine, or Alaska, including New York's professional-exemption carve-out.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/exempt-salary-threshold-checker/)
+- [This checker vs. checking the FLSA salary threshold yourself](https://duncan-haywood.github.io/oss-monorepo/exempt-salary-threshold-checker/vs-checking-the-threshold-yourself.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/exempt-salary-threshold-checker): MIT licensed.

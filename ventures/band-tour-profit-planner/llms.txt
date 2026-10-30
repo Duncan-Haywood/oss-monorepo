@@ -1,0 +1,14 @@
+# Will this tour make money? Find out before you book the van
+
+> Free band tour profit planner. Enter your shows, venue deals (flat, door or versus), miles, rooms and merch and see profit per show and for the tour, break-even attendance, the guarantee to ask for and which dates to drop. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/band-tour-profit-planner/)
+- [How to budget a band tour, step by step](https://duncan-haywood.github.io/oss-monorepo/band-tour-profit-planner/how-to-budget-a-band-tour.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/band-tour-profit-planner): MIT licensed.

@@ -1,0 +1,14 @@
+# Why is your CloudWatch Logs bill so high?
+
+> Paste your CloudWatch log groups (stored GB, retention, GB ingested per month) and get what each costs, the retention policy to set, dead groups and Infrequent Access candidates. Free, runs in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/cloudwatch-logs-cost-advisor/)
+- [CloudWatch Logs cost: retention, ingestion and Infrequent Access](https://duncan-haywood.github.io/oss-monorepo/cloudwatch-logs-cost-advisor/cloudwatch-logs-retention-and-ingestion-cost.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/cloudwatch-logs-cost-advisor): MIT licensed.

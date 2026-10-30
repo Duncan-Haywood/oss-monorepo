@@ -1,0 +1,13 @@
+# A settlement offer is a gross number. How much would you actually keep?
+
+> Free injury settlement calculator: enter the gross amount, attorney fee, costs and medical liens and see what the client actually takes home, with Medicare's procurement-cost reduction and the effect of negotiating each lien. Private, runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/injury-settlement-net-proceeds-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/injury-settlement-net-proceeds-calculator): MIT licensed.

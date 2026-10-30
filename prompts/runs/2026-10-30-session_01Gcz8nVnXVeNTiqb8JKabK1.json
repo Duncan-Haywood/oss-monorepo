@@ -30,7 +30,9 @@
   "review_findings": null,
   "tests_added": 2,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "Merging PR #10195 took 9 CI cycles (02:17-05:05 UTC): each run failed on something main broke during the previous ~30-minute cycle (post descriptions, run records, shed-designer sitemap/money, apex mirror, runner switch, flagships.yaml, babysitting worker/favicons/table headers, verify-live shellcheck, shard count) or conflicted with main. Each was fixed or ported here."
+  ],
   "integrity_issues": [],
   "doc_friction": [],
   "deviations": [
@@ -41,6 +43,10 @@
     {
       "file": ".github/prompts/land-your-work.md",
       "why": "P048 part 1 rides PR #10195 (still unmerged, same branch) instead of a new PR: the runner pool had a 10-13 minute median queue, and one CI cycle costs the pool less than two"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "Merged #10195 on local verification instead of a green CI run. The four changed guard workflows passed on GitHub runners at 03:14-03:20 UTC (9-25s jobs); every later red was main's, and main was red again at merge time (two posts without front matter and a tag spelled two ways, from PR #11684 and others, identical on main). Local checks on the merged tree: check_conflict_markers, validate_workflows, test_check_conflict_markers, gitops test_ci_runner+test_shellcheck_coverage+test_manifests (110 passed), test_promptctl 68/69 (the 1 is main's posts), routing weights sum 1.0, checklist_coverage, check_duplicate_symbols, ink.mjs --strict."
     }
   ],
   "writeups": [],

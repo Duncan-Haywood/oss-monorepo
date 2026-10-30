@@ -1,0 +1,13 @@
+# Why was my Facebook or Instagram catalog upload rejected?
+
+> Free Meta catalog feed CSV checker for Commerce Manager: finds semicolon or UTF-16 files, missing required columns, duplicate ids, prices without a currency, bad sale prices, wrong availability values, empty or http links, WebP images, invalid barcodes and Excel damage, with line numbers and safe fixes.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/meta-catalog-csv-check/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/meta-catalog-csv-check): MIT licensed.

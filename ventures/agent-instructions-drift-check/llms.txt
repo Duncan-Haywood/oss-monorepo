@@ -1,0 +1,15 @@
+# Does your AI coding agent's instruction file still match your repo?
+
+> Paste AGENTS.md or CLAUDE.md and find referenced file paths that no longer exist, undefined npm scripts and shell footguns. Free, runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/agent-instructions-drift-check/)
+- [This checker vs. checking it by hand](https://duncan-haywood.github.io/oss-monorepo/agent-instructions-drift-check/vs-checking-it-by-hand.html)
+- [Why AGENTS.md and CLAUDE.md files rot](https://duncan-haywood.github.io/oss-monorepo/agent-instructions-drift-check/why-ai-agent-instruction-files-rot.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/agent-instructions-drift-check): MIT licensed.

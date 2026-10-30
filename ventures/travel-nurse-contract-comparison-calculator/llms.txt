@@ -1,0 +1,13 @@
+# Which travel nurse offer actually pays more?
+
+> Free calculator that compares travel nurse and locum contract offers by real take-home pay. Enter taxable rate, stipends, guaranteed hours, housing, travel and gaps between assignments for up to three offers. Runs in your browser, nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/travel-nurse-contract-comparison-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/travel-nurse-contract-comparison-calculator): MIT licensed.

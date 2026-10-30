@@ -1,0 +1,16 @@
+# Bid the stories, the run, and the roof cap.
+
+> Price a dryer vent cleaning from extra stories, extra feet of duct, extra dryers, a rooftop termination, camera inspection, crushed-flex replacement, and a nest — not a published $99 special. See the walk-away number before you match a cheaper wall-cap quote.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/dryer-vent-bid-calculator/)
+- [How much to charge for dryer vent cleaning](https://duncan-haywood.github.io/oss-monorepo/dryer-vent-bid-calculator/how-much-to-charge-for-dryer-vent-cleaning.html)
+- [This calculator vs. a flat $99 dryer vent special](https://duncan-haywood.github.io/oss-monorepo/dryer-vent-bid-calculator/vs-a-flat-99-dollar-special.html)
+- [This calculator vs. WePro](https://duncan-haywood.github.io/oss-monorepo/dryer-vent-bid-calculator/vs-wepro.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/dryer-vent-bid-calculator): MIT licensed.

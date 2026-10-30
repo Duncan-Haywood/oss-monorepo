@@ -1,0 +1,13 @@
+# What does a new patient cost you, and what are they worth?
+
+> Free chiropractor new patient ROI calculator: cost to acquire a patient, patient lifetime value by segment, payback in visits, and the most you can spend per lead. Works for physical therapy and wellness clinics. Runs in your browser, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/chiropractor-new-patient-roi-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/chiropractor-new-patient-roi-calculator): MIT licensed.

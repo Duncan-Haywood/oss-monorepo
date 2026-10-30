@@ -1,0 +1,16 @@
+# Price per acre is the answer, not the question.
+
+> Price a forestry mulching or land clearing job from acres per machine-hour instead of a flat per-acre guess: head width, advance speed, passes, terrain, fuel, carbide tooth wear, machine ownership and mobilization. Free, private, nothing leaves your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/forestry-mulching-bid-calculator/)
+- [How much should you charge for forestry mulching?](https://duncan-haywood.github.io/oss-monorepo/forestry-mulching-bid-calculator/how-much-to-charge-for-forestry-mulching.html)
+- [This calculator vs. a flat price per acre](https://duncan-haywood.github.io/oss-monorepo/forestry-mulching-bid-calculator/vs-a-flat-price-per-acre.html)
+- [This calculator vs. Aspire](https://duncan-haywood.github.io/oss-monorepo/forestry-mulching-bid-calculator/vs-aspire.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/forestry-mulching-bid-calculator): MIT licensed.

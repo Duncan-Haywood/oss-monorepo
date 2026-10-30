@@ -1,0 +1,13 @@
+# My director's loan account is overdrawn: how much tax, and by when?
+
+> Free UK director's loan calculator: the s455 tax on an overdrawn director's loan account, the date it is due, the benefit-in-kind on loans over £10,000, and whether a dividend, a bonus or repaying is the cheapest way to clear it. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/uk-directors-loan-s455-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/uk-directors-loan-s455-calculator): MIT licensed.

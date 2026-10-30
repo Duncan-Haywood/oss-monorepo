@@ -1,0 +1,13 @@
+# Paying a lot into a pension? Check your tapered annual allowance, carry forward and any tax charge.
+
+> Free UK pension annual allowance calculator: your tapered allowance for incomes over £260,000, carry forward from the last three years, how much you can still pay in, and the tax charge on any excess. Runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/uk-pension-annual-allowance-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/uk-pension-annual-allowance-calculator): MIT licensed.

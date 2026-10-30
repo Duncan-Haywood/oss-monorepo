@@ -1,0 +1,13 @@
+# What does your hay cost to make, and which bale type pays best?
+
+> Free hay pricing calculator for hay producers: compare small squares, large squares and round bales on net profit per ton and per acre, with break-even price per bale. Runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/hay-sale-price-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/hay-sale-price-calculator): MIT licensed.

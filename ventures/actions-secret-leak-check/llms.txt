@@ -1,0 +1,15 @@
+# Does your GitHub Actions workflow leak a secret its own masking can't catch?
+
+> Paste your GitHub Actions workflow YAML and find the two documented ways a secret slips past GitHub's own log masking: transforming it (base64/hex/substring) before printing, and exporting it to $GITHUB_ENV/$GITHUB_OUTPUT without ::add-mask::. Free, runs in your browser, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/actions-secret-leak-check/)
+- [This checker vs. reading the workflow by eye](https://duncan-haywood.github.io/oss-monorepo/actions-secret-leak-check/vs-reading-the-workflow-by-eye.html)
+- [Why GitHub Actions secret masking fails on a transformed value](https://duncan-haywood.github.io/oss-monorepo/actions-secret-leak-check/why-github-actions-secret-masking-fails.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/actions-secret-leak-check): MIT licensed.

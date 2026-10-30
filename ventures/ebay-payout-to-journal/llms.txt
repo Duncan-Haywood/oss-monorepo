@@ -1,0 +1,13 @@
+# Turn an eBay payout report into a Xero or QuickBooks journal
+
+> Free eBay payout to journal converter: proves the transactions add up to the payout, splits item sales, shipping income, sales tax, final value fees, Promoted Listings, store fees, shipping labels and refunds by month, and downloads a balanced journal for Xero, QuickBooks Online or QuickBooks Desktop.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/ebay-payout-to-journal/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/ebay-payout-to-journal): MIT licensed.

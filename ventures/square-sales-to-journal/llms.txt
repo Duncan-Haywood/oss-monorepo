@@ -1,0 +1,13 @@
+# Turn a Square export into a Xero or QuickBooks journal
+
+> Free Square transactions to journal converter: checks every payment, books gross sales, discounts, sales tax, tips, refunds and Square fees separately by month, totals each Deposit ID for your bank feed, and downloads a balanced journal for Xero, QuickBooks Online or QuickBooks Desktop.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/square-sales-to-journal/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/square-sales-to-journal): MIT licensed.

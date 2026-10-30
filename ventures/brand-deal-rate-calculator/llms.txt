@@ -1,0 +1,16 @@
+# What should you charge for a brand deal?
+
+> Free influencer brand deal rate calculator. Enter your follower count, engagement rate, and platform to get a price range for a feed post, Story, Reel/short video, and dedicated video — based on commonly cited creator-economy CPM benchmarks. No sign-up, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/brand-deal-rate-calculator/)
+- [Where do brand deal rate benchmarks come from?](https://duncan-haywood.github.io/oss-monorepo/brand-deal-rate-calculator/brand-deal-rate-benchmarks.html)
+- [This calculator vs. an influencer marketplace's rate estimator](https://duncan-haywood.github.io/oss-monorepo/brand-deal-rate-calculator/vs-marketplace-rate-estimator.html)
+- [This calculator vs. the "$10 per 1,000 followers" rule](https://duncan-haywood.github.io/oss-monorepo/brand-deal-rate-calculator/vs-the-10-dollars-per-1000-followers-rule.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/brand-deal-rate-calculator): MIT licensed.

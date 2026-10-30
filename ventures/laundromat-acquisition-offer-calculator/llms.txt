@@ -1,0 +1,14 @@
+# What should you offer for a laundromat?
+
+> Free laundromat valuation calculator. Enter revenue and costs, a manager and machine reserve, and your loan terms; it shows adjusted cash flow, the most to offer, debt coverage and cash-on-cash. Private, in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/laundromat-acquisition-offer-calculator/)
+- [How to value a laundromat before you make an offer: a worked example](https://duncan-haywood.github.io/oss-monorepo/laundromat-acquisition-offer-calculator/how-to-value-a-laundromat-before-you-make-an-offer.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/laundromat-acquisition-offer-calculator): MIT licensed.

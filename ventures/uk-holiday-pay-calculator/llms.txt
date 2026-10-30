@@ -1,0 +1,13 @@
+# Holiday: how many days do I get, and what are they worth?
+
+> Free UK holiday entitlement calculator: 5.6 weeks pro-rated for part-time, starters and leavers, plus the 12.07% method for irregular hours, and what unused days are worth. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/uk-holiday-pay-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/uk-holiday-pay-calculator): MIT licensed.

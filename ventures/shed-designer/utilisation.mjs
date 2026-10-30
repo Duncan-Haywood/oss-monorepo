@@ -391,7 +391,7 @@ function lighter(u, d) {
   if (/^Header over/.test(u.member)) return { probes: [], reason: 'minimum', why: 'Two 2x4s, the shallowest header the tool frames (each header is sized to its load). A window that fits between two studs needs none: slide it into a stud bay.' };
   if (u.member === 'Wall studs') {
     if (d.studSize !== '2x4') return { probes: [{ label: `2x4 studs at ${d.studSpacing}"`, change: { studSize: '2x4' } }] };
-    if (d.studSpacing < 24 && sidingSpan(d) >= 24) return { probes: [{ label: '2x4 studs at 24"', change: { studSpacing: 24 } }] };
+    if (d.studSpacing < 24 && sidingSpan(d) >= 24) return { probes: [{ label: '2x4 studs at 24"', change: { studSpacing: 24, autoStuds: false } }] };
     if (d.studSpacing < 24) return { probes: [], reason: 'code', why: `2x4 is the smallest stud; ${d.sidingType} panels are rated for studs at ${sidingSpan(d)}" (see the panel's stamp), so the spacing cannot open up without a different siding.` };
     return { probes: [], reason: 'minimum', why: '2x4 at 24" is the lightest wall the tool frames.' };
   }

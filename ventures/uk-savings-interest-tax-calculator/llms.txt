@@ -1,0 +1,13 @@
+# Do I owe tax on my savings interest?
+
+> Free UK savings interest tax calculator: how much tax you owe on bank and building society interest after the personal allowance, the 0% starting rate for savings and the Personal Savings Allowance, how much you can earn tax-free, and what a cash ISA would save. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/uk-savings-interest-tax-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/uk-savings-interest-tax-calculator): MIT licensed.

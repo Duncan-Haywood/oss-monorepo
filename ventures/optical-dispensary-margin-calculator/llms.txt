@@ -1,0 +1,13 @@
+# Which eyeglass sales actually make money?
+
+> Free calculator for optical shops and optometrists: what each eyeglass sale really earns after frame, lenses, remakes, vision plan and card fees and optician time. Margin by sale type, patient price for a target margin, plan vs cash, break-even sales. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/optical-dispensary-margin-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/optical-dispensary-margin-calculator): MIT licensed.

@@ -1,0 +1,16 @@
+# The scale ticket decides your margin, not the rental price.
+
+> Free calculator for independent roll-off dumpster rental operators: price a rental from the included weight allowance, tipping fee, labor, and mileage, then check whether your overage rate actually covers your own disposal cost before a heavy load erases the margin.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/dumpster-rental-margin-calculator/)
+- [Dumpster rental margin calculator vs a spreadsheet](https://duncan-haywood.github.io/oss-monorepo/dumpster-rental-margin-calculator/vs-a-spreadsheet.html)
+- [This calculator vs. Jobber](https://duncan-haywood.github.io/oss-monorepo/dumpster-rental-margin-calculator/vs-jobber.html)
+- [Why your overage fee might be losing you money](https://duncan-haywood.github.io/oss-monorepo/dumpster-rental-margin-calculator/why-your-overage-fee-might-be-losing-you-money.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/dumpster-rental-margin-calculator): MIT licensed.

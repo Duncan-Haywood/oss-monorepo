@@ -1,0 +1,13 @@
+# What does your open bond book owe if defendants miss court?
+
+> Free tool for bail bond agents: enter your open bonds, collateral and surety terms to see net premium, the loss if bonds are forfeited, whether cash covers the largest ones, and a court-date call list. Runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/bail-bond-agency-exposure-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/bail-bond-agency-exposure-calculator): MIT licensed.

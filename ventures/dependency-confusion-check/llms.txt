@@ -1,0 +1,16 @@
+# Could a public package be substituted for your internal one?
+
+> Paste your requirements.txt, pip.conf, package.json, and .npmrc and find the two configuration shapes behind every 2021 dependency-confusion incident: pip --extra-index-url, and an unscoped npm dependency name behind a private registry. Free, runs in your browser, nothing uploaded, no network calls.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/dependency-confusion-check/)
+- [This tool vs. checking pip/npm configs by hand](https://duncan-haywood.github.io/oss-monorepo/dependency-confusion-check/vs-checking-configs-by-hand.html)
+- [This checker vs. Socket](https://duncan-haywood.github.io/oss-monorepo/dependency-confusion-check/vs-socket.html)
+- [What is dependency confusion?](https://duncan-haywood.github.io/oss-monorepo/dependency-confusion-check/what-is-dependency-confusion.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/dependency-confusion-check): MIT licensed.

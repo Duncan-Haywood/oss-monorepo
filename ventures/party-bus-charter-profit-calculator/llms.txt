@@ -1,0 +1,14 @@
+# What does a party bus charter really make? True profit, margin and the lowest quote
+
+> Free calculator for party bus, limo and shuttle charter operators. Enter the charter price, hours and minimum, driver and deadhead time, miles, fuel, vehicle cost and yearly overhead; it shows true profit per charter, profit per vehicle hour and the lowest quote for your margin. Nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/party-bus-charter-profit-calculator/)
+- [How much does a party bus charter really make?](https://duncan-haywood.github.io/oss-monorepo/party-bus-charter-profit-calculator/how-much-does-a-party-bus-charter-really-make.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/party-bus-charter-profit-calculator): MIT licensed.

@@ -1,0 +1,18 @@
+# Price the dump ticket, not the truck.
+
+> Price a junk removal job from material weight and the landfill ticket: cubic yards, pounds per yard, dump fee per ton, special item fees, labor, travel, and the walk-away number.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/junk-removal-bid-calculator/)
+- [How to price a junk removal job without giving the dump ticket away.](https://duncan-haywood.github.io/oss-monorepo/junk-removal-bid-calculator/how-to-price-junk-removal.html)
+- [This calculator vs. a flat truck-fraction rate](https://duncan-haywood.github.io/oss-monorepo/junk-removal-bid-calculator/vs-a-flat-truck-fraction-rate.html)
+- [This calculator vs. Housecall Pro](https://duncan-haywood.github.io/oss-monorepo/junk-removal-bid-calculator/vs-housecall-pro.html)
+- [This calculator vs. Jobber](https://duncan-haywood.github.io/oss-monorepo/junk-removal-bid-calculator/vs-jobber.html)
+- [This calculator vs. Workiz](https://duncan-haywood.github.io/oss-monorepo/junk-removal-bid-calculator/vs-workiz.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/junk-removal-bid-calculator): MIT licensed.

@@ -1,0 +1,16 @@
+# Build a free creator media kit
+
+> Build a professional sponsorship media kit for your channel in minutes — bio, platform reach, audience breakdown, past brand partnerships, and your rate card. Free, no signup, runs entirely in your browser. Download a shareable HTML one-sheet or copy a plain-text version for email.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/influencer-media-kit-generator/)
+- [Media Kit Generator vs. assembling one by hand in a document editor](https://duncan-haywood.github.io/oss-monorepo/influencer-media-kit-generator/vs-assembling-one-by-hand.html)
+- [This generator vs. Kitly](https://duncan-haywood.github.io/oss-monorepo/influencer-media-kit-generator/vs-kitly.html)
+- [What is a creator media kit, and what belongs in it?](https://duncan-haywood.github.io/oss-monorepo/influencer-media-kit-generator/what-is-a-media-kit.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/influencer-media-kit-generator): MIT licensed.

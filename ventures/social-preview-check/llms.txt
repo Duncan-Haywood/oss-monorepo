@@ -1,0 +1,17 @@
+# Social Preview Checker
+
+> Free tool: run a CLI that sends real requests to your page and its og:image/twitter:image, then paste the JSON here for a plain-English report on missing tags, a relative og:image URL, an image too small for Facebook/LinkedIn or Twitter's large-image card, and the twitter:image -> og:image fallback chain.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/social-preview-check/)
+- [Fix a broken social link preview](https://duncan-haywood.github.io/oss-monorepo/social-preview-check/social-preview-fallback-rules.html)
+- [Social Preview Checker vs. checking your tags by eye](https://duncan-haywood.github.io/oss-monorepo/social-preview-check/vs-checking-tags-by-eye.html)
+- [Social Preview Checker vs. Facebook Sharing Debugger](https://duncan-haywood.github.io/oss-monorepo/social-preview-check/vs-facebook-sharing-debugger.html)
+- [Social Preview Checker vs. Screaming Frog SEO Spider](https://duncan-haywood.github.io/oss-monorepo/social-preview-check/vs-screamingfrog.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/social-preview-check): MIT licensed.

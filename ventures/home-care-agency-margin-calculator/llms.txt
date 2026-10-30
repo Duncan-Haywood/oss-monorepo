@@ -1,0 +1,13 @@
+# What does each payer really leave you per billed hour?
+
+> Margin calculator for non-medical home care agencies. See what each payer really leaves per billed hour after payroll tax, workers' comp, overtime, unpaid travel and slow payment, the bill rate that reaches your target margin, and what a wage raise costs. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/home-care-agency-margin-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/home-care-agency-margin-calculator): MIT licensed.

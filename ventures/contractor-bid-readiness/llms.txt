@@ -1,0 +1,16 @@
+# Know what is missing before you submit.
+
+> Check a contractor RFP or bid submission for missing documents, owners, and deadline risks. Free, private, and browser-local.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/contractor-bid-readiness/)
+- [Does a bid due today count as a day remaining?](https://duncan-haywood.github.io/oss-monorepo/contractor-bid-readiness/does-a-bid-due-today-count-as-a-day-remaining.html)
+- [This checklist vs. a sticky note](https://duncan-haywood.github.io/oss-monorepo/contractor-bid-readiness/vs-a-sticky-note-checklist.html)
+- [This checklist vs. JobTread](https://duncan-haywood.github.io/oss-monorepo/contractor-bid-readiness/vs-jobtread.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/contractor-bid-readiness): MIT licensed.

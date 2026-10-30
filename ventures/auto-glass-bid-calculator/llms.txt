@@ -1,0 +1,15 @@
+# Bid the glass, the calibration, and the trip.
+
+> Price a windshield or door-glass replacement from glass source, ADAS camera/sensor calibration, mobile trip fee, and cash vs. insurance billing — and get warned before you send a bid that forgot to price the calibration.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/auto-glass-bid-calculator/)
+- [How much to charge for ADAS calibration on a windshield replacement](https://duncan-haywood.github.io/oss-monorepo/auto-glass-bid-calculator/how-much-to-charge-for-adas-calibration.html)
+- [This calculator vs. a flat $249 windshield coupon](https://duncan-haywood.github.io/oss-monorepo/auto-glass-bid-calculator/vs-a-flat-249-windshield-coupon.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/auto-glass-bid-calculator): MIT licensed.

@@ -1,0 +1,13 @@
+# Will your migration redirect map break your search traffic?
+
+> Free 301 redirect map checker for site migrations: finds redirect loops, chains, conflicting duplicates, mass redirects to the homepage, spaces and fragments in URLs, targets missing from the new site and old URLs with no rule, then writes a flattened map for Shopify, Netlify, Apache or nginx.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/redirect-map-check/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/redirect-map-check): MIT licensed.

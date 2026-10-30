@@ -1,0 +1,13 @@
+# Have you passed the CAD 30,000 line, and when must you register for GST/HST?
+
+> Free Canada GST/HST small supplier checker: enter your last eight calendar quarters of sales to see whether you passed the CAD 30,000 line in one quarter or over four, the date you must start charging, and your registration deadline. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/ca-gst-hst-small-supplier-checker/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/ca-gst-hst-small-supplier-checker): MIT licensed.

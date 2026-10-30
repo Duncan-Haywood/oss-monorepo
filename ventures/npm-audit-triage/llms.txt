@@ -1,0 +1,14 @@
+# Which npm audit findings does your code actually use?
+
+> Paste npm audit --json and your source imports: see which vulnerable packages your code actually imports, which are only reached through a dependency, and which are test-only noise. Free npm audit triage, runs in your browser, nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/npm-audit-triage/)
+- [How to triage npm audit findings without ignoring real risk](https://duncan-haywood.github.io/oss-monorepo/npm-audit-triage/how-to-triage-npm-audit-findings.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/npm-audit-triage): MIT licensed.

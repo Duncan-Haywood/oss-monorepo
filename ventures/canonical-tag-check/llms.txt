@@ -1,0 +1,17 @@
+# Canonical Tag Checker
+
+> Free tool: fetch a URL for real and get a plain-English report on canonical-tag misconfigurations -- conflicting tags, a canonical pointing at a different domain, or a canonical that 404s or is itself marked noindex. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/canonical-tag-check/)
+- [Canonical Tag Checker vs. checking canonicals by view-source](https://duncan-haywood.github.io/oss-monorepo/canonical-tag-check/vs-checking-canonicals-by-view-source.html)
+- [Canonical Tag Checker vs. Screaming Frog SEO Spider](https://duncan-haywood.github.io/oss-monorepo/canonical-tag-check/vs-screaming-frog.html)
+- [Which canonical-tag finding to fix first](https://duncan-haywood.github.io/oss-monorepo/canonical-tag-check/which-canonical-finding-to-fix-first.html)
+- [Why two canonical tags on one page is worse than none](https://duncan-haywood.github.io/oss-monorepo/canonical-tag-check/why-two-canonical-tags-is-worse-than-none.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/canonical-tag-check): MIT licensed.

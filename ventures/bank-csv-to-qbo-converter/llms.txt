@@ -1,0 +1,13 @@
+# Convert a bank CSV to a QBO, OFX or QIF file
+
+> Free bank CSV to QBO, OFX and QIF converter for QuickBooks and Quicken: handles debit/credit columns, US and European dates and decimals, catches bad rows and duplicates, and runs in your browser; the file is never uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/bank-csv-to-qbo-converter/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/bank-csv-to-qbo-converter): MIT licensed.

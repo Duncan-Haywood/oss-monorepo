@@ -1,0 +1,13 @@
+# How many cups a day does your boba shop need?
+
+> Free pro forma for boba, bubble tea and specialty drink shops: profit per cup, break-even cups a day with the loan, the price for your target margin, delivery-app cost, and a 60-month ramp-up with the cash reserve you need. Runs in your browser.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://duncan-haywood.github.io/oss-monorepo/boba-tea-shop-profit-calculator/)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/boba-tea-shop-profit-calculator): MIT licensed.

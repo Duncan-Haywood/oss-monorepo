@@ -14,7 +14,7 @@ import { layoutSiding, sidingText } from "./siding.mjs";
 import { layoutEaves, eavesText } from "./eaves.mjs";
 import { layoutGutters, guttersText } from "./gutters.mjs";
 import { layoutFasteners, fastenerText } from "./fasteners.mjs";
-import { layoutStair, stairCuts, stairText, layoutStairWithLanding, landingCuts, landingText, checkWinders, winderText, STAIR_LIMITS } from "./stairs.mjs";
+import { layoutStair, stairCuts, stairText, layoutStairWithLanding, landingCuts, landingText, checkWinders, layoutWinders, winderText, STAIR_LIMITS } from "./stairs.mjs";
 import { layoutRoof, roofCuts, roofText } from "./roof.mjs";
 import { resolveHeaders, headerText } from "./headers.mjs";
 import { drawingSetHtml } from "./drawings.mjs";
@@ -59,7 +59,7 @@ Usage:
   node cli.mjs plan.json --fasteners   count nails by connection (plan fasteners: studEndNails, plateSpacing, edgeSpacing, nailsPerBox, price; add --sheathing for sheathing nails)
   node cli.mjs plan.json --gutters    add gutters, downspouts, hangers, caps and elbows along the roof's eaves (needs a roof; plan gutters: gutterStock, downspoutStock, eaveHeight, hangerSpacing, maxRunFeet, sqFtPerDownspout, strapSpacing, waste, and a price for each part)
   node cli.mjs plan.json --eaves       add soffit panels, fascia boards and J-channel under the roof overhangs (needs a roof; plan eaves: panelWidth, panelStock, fasciaStock, channelStock, waste, rakeSoffit, panelPrice, fasciaPrice, channelPrice)
-  node cli.mjs plan.json --siding      add exterior lap siding courses, house wrap and corner boards (plan siding: exposure, stock, waste, wrapRollSqFt, wrapLap, corners, cornerStock, height, boardPrice, wrapPrice, cornerPrice)
+  node cli.mjs plan.json --siding      add exterior lap siding courses, house wrap and corner boards (plan siding: exposure, stock, waste, wrapRollSqFt, wrapLap, corners, cornerStock, height, boardPrice, wrapPrice, cornerPrice, openingTrim, trimWidth, trimStock, trimPrice)
   node cli.mjs plan.json --trim        add baseboard and door and window casing boards (plan trim: scarf, shoe, shoeStock, shoePrice, baseSides, baseStock, casingStock, casingWidth, reveal, waste, basePrice, casingPrice)
   node cli.mjs plan.json --insulation  add wall-cavity insulation bags (measured from the framing placed; plan insulation: bagSqFt, rValue, waste, price)
   node cli.mjs plan.json --drywall     add interior drywall (inside faces, partitions both sides, optional ceilings; plan drywall: sheetLength, ceiling, price)
@@ -156,7 +156,7 @@ export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "u
       const withLanding = st.landing || st.totalRise > (st.limits?.maxRise ?? STAIR_LIMITS.maxRise);
       const l = withLanding ? layoutStairWithLanding({ id: `Stair ${i + 1}`, ...st }, plan) : layoutStair({ id: `Stair ${i + 1}`, ...st }, plan);
       if (!l.ok) return { code: 1, out: `The stairs have problems:\n${l.errors.map((e) => `  - ${e}`).join("\n")}` };
-      if (st.winders) { l.winders = checkWinders(typeof st.winders === "object" ? { width: st.width, ...st.winders } : { width: st.width }); if (!l.winders.ok && !l.winders.problems) return { code: 1, out: `The winders have problems:\n${winderText(l.winders).join("\n")}` }; }
+      if (st.winders) { l.winders = layoutWinders(typeof st.winders === "object" ? { width: st.width, ...st.winders } : { width: st.width }); if (!l.winders.ok && !l.winders.problems) return { code: 1, out: `The winders have problems:\n${winderText(l.winders).join("\n")}` }; }
       stairs.push(l);
     }
   }
