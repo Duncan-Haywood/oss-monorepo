@@ -294,6 +294,61 @@ export function elevationSvg(shed, name) {
     + `${parts.join('')}${dims.join('')}</svg>`;
 }
 
+/**
+ * The roof and footprint seen from above: the roof's outline with its
+ * overhangs, the ridge, the walls under it, and where each door and window
+ * sits, front wall at the bottom. Dimensioned in feet and inches.
+ * @param {Shed} shed
+ */
+export function planSvg(shed) {
+  const d = shed.design;
+  const L = d.length;
+  const W = d.width;
+  const o = d.overhang;
+  const r = 1.5; // sheathing and rake board past each gable wall
+  const fs = +(Math.max(L, W + 2 * o) / 40).toFixed(2);
+  const X = (x) => +x.toFixed(2);
+  const Y = (y) => +(W + o - y).toFixed(2); // front (y = 0) at the bottom
+  const parts = [];
+  const roofC = roofHex(d);
+  parts.push(`<rect x="${X(-r)}" y="${Y(W + o)}" width="${X(L + 2 * r)}" height="${X(W + 2 * o)}" fill="${roofC}" fill-opacity="0.25" stroke="#222" stroke-width="${(fs * 0.08).toFixed(2)}" data-kind="roof"/>`);
+  parts.push(`<line x1="${X(-r)}" y1="${Y(W / 2)}" x2="${X(L + r)}" y2="${Y(W / 2)}" stroke="#222" stroke-width="${(fs * 0.08).toFixed(2)}" data-kind="ridge"/>`);
+  parts.push(`<rect x="0" y="${Y(W)}" width="${L}" height="${W}" fill="none" stroke="#444" stroke-width="${(fs * 0.07).toFixed(2)}" stroke-dasharray="${fs * 0.5} ${fs * 0.3}" data-kind="walls"/>`);
+  const t = (x, y, text, size = fs, anchor = 'middle', extra = '') => parts.push(`<text x="${X(x)}" y="${Y(y)}" text-anchor="${anchor}" font-size="${size.toFixed(2)}"${extra}>${esc(text)}</text>`);
+  t(L / 2, W / 2 + fs * 0.4, 'RIDGE', fs * 0.8);
+  t(L / 2, W * 0.25, `slope down ${d.pitch}/12`, fs * 0.8);
+  t(L / 2, W * 0.75 + fs * 0.6, `slope down ${d.pitch}/12`, fs * 0.8);
+  t(L / 2, -o - fs * 3.6, 'FRONT', fs, 'middle', ' font-weight="700"');
+  // Each door and window, as a thick mark on its wall line with its width.
+  for (const f of shed.fixtures.filter((x) => x.kind === 'door' || x.kind === 'window')) {
+    const g = f.geom;
+    const w = g.profile[1][0];
+    const [x0, y0] = [g.origin[0], g.origin[1]];
+    const [x1, y1] = [x0 + g.u[0] * w, y0 + g.u[1] * w];
+    const col = f.kind === 'door' ? '#8a3b12' : '#2563a8';
+    parts.push(`<line x1="${X(x0)}" y1="${Y(y0)}" x2="${X(x1)}" y2="${Y(y1)}" stroke="${col}" stroke-width="${(fs * 0.45).toFixed(2)}" data-kind="${f.kind}"/>`);
+    const mx = (x0 + x1) / 2; const my = (y0 + y1) / 2;
+    const inX = mx <= 0.01 ? fs * 0.6 : mx >= L - 0.01 ? -fs * 0.6 : 0;
+    const inY = my <= 0.01 ? fs * 1.4 : my >= W - 0.01 ? -fs * 0.9 : 0;
+    t(mx + inX, my + inY, `${f.kind} ${fmtIn(w)}`, fs * 0.75, inX > 0 ? 'start' : inX < 0 ? 'end' : 'middle');
+  }
+  // Dimensions: walls and roof, both ways.
+  const ds = [];
+  const sw = (fs * 0.06).toFixed(2);
+  const tk = fs * 0.4;
+  const h = (a, b, y, text, cls) => ds.push(`<g class="dim ${cls}"><line x1="${X(a)}" y1="${Y(y)}" x2="${X(b)}" y2="${Y(y)}" stroke-width="${sw}"/><line x1="${X(a)}" y1="${Y(y) - tk}" x2="${X(a)}" y2="${Y(y) + tk}" stroke-width="${sw}"/><line x1="${X(b)}" y1="${Y(y) - tk}" x2="${X(b)}" y2="${Y(y) + tk}" stroke-width="${sw}"/><text x="${X((a + b) / 2)}" y="${(Y(y) - fs * 0.3).toFixed(2)}" text-anchor="middle" font-size="${fs}">${esc(text)}</text></g>`);
+  const v = (x, a, b, text, cls) => { const tx = X(x - fs * 0.4); const ty = Y((a + b) / 2); ds.push(`<g class="dim ${cls}"><line x1="${X(x)}" y1="${Y(a)}" x2="${X(x)}" y2="${Y(b)}" stroke-width="${sw}"/><line x1="${X(x) - tk}" y1="${Y(a)}" x2="${X(x) + tk}" y2="${Y(a)}" stroke-width="${sw}"/><line x1="${X(x) - tk}" y1="${Y(b)}" x2="${X(x) + tk}" y2="${Y(b)}" stroke-width="${sw}"/><text x="${tx}" y="${ty}" text-anchor="middle" font-size="${fs}" transform="rotate(-90 ${tx} ${ty})">${esc(text)}</text></g>`); };
+  h(0, L, -o - fs * 1.4, `${fmtFtIn(L)} walls`, 'walls-l');
+  h(-r, L + r, W + o + fs * 1.4, `about ${fmtFtIn(L + 2 * r)} roof`, 'roof-l');
+  v(L + r + fs * 2, 0, W, `${fmtFtIn(W)} walls`, 'walls-w');
+  v(L + r + fs * 4.4, -o, W + o, `${fmtFtIn(W + 2 * o)} roof`, 'roof-w');
+  if (o > 0) v(-r - fs * 1.2, W, W + o, `${fmtIn(o)}`, 'overhang');
+  const vb = { x: -r - fs * 3.5, y: Y(W + o + fs * 3.4), w: L + 2 * r + fs * 9.5, h: W + 2 * o + fs * 8.6 };
+  return `<svg xmlns="http://www.w3.org/2000/svg" class="hoa-elev hoa-plan" data-view="plan" viewBox="${vb.x.toFixed(1)} ${vb.y.toFixed(1)} ${vb.w.toFixed(1)} ${vb.h.toFixed(1)}" role="img" aria-label="Roof and footprint plan">`
+    + `<style>.hoa-plan .dim line{stroke:#1f4e8c}.hoa-plan .dim text{fill:#1f4e8c}.hoa-plan text{font-family:ui-sans-serif,system-ui,sans-serif}</style>`
+    + `<rect x="${vb.x.toFixed(1)}" y="${vb.y.toFixed(1)}" width="${vb.w.toFixed(1)}" height="${vb.h.toFixed(1)}" fill="#fff"/>${parts.join('')}${ds.join('')}</svg>`;
+}
+
 /** @param {string} h */
 function hexToRgb(h) {
   const m = /^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(h) || ['', 'cc', 'cc', 'cc'];
@@ -331,6 +386,7 @@ export function packetHtml(shed, opts = {}) {
     page('Summary', `<h1>${esc(d.name)}: exterior design for HOA review</h1><div class="hoa-cover-grid"><div>${summary}${colours}</div>${persp}</div>`, 'hoa-cover'),
     page('Front and back elevations', fig('front') + fig('back')),
     page('Left and right elevations', fig('left') + fig('right')),
+    page('Roof and footprint plan', `<figure class="hoa-fig hoa-planfig">${planSvg(shed)}<figcaption>Seen from above, front wall at the bottom: the roof outline with its overhangs, the ridge, the walls (dashed) and where each door and window sits.</figcaption></figure>`),
     page('Site plan', site
       ? `<figure class="hoa-fig hoa-site">${site}<figcaption>Where the shed goes, with its distance to each lot line and the house, as typed. Not a survey.</figcaption></figure>`
       : '<div class="hoa-nosite"><p><strong>No site plan yet.</strong> Type your lot, where the shed sits on it and your house under "Site plan" in Shed Designer, and this page shows the shed on the lot with its distance to each lot line and the house.</p><p>Until then, sketch it here: lot lines, the house, the shed, and the distance from the shed to each lot line.</p></div>', 'hoa-sitepage'),
