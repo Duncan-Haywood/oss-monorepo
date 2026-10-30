@@ -101,7 +101,7 @@ export function packetSummary(shed) {
       : `gable, ${d.pitch}/12 pitch (${(Math.atan(d.pitch / 12) * 180 / Math.PI).toFixed(1)} degrees), ridge running the ${fmtFtIn(d.length)} length`],
     ['Siding', d.siding ? `${look.label}${LAP_PRODUCTS[d.sidingType] ? ` (${d.sidingType})` : ''}, ${sidingFinish(d).name}${d.polkaDots ? ', with purple polka dots' : ''}` : 'none shown'],
     ['Roofing', d.roofing ? (d.roofCover === 'metal' ? `corrugated metal, ${roofName(d)}` : `asphalt shingles, ${roofName(d)} colour family`) : 'none shown'],
-    ['Trim', d.wallTrim === 'none' ? `fascia and rake boards, ${trimName(d)}; no corner boards or casings` : `1x4 corner boards and casings, fascia and rake boards, ${trimName(d)}`],
+    ['Trim', d.wallTrim === 'none' ? `fascia and rake boards, ${trimName(d)}; no corner boards or casings` : `${d.wallTrim} corner boards and casings, fascia and rake boards, ${trimName(d)}`],
     ['Door finish', doorName(d) + (d.doorColor === 'stained' ? '' : ' paint')],
     ['Doors', count('door').length ? list('door') : 'none'],
     ['Windows', count('window').length ? list('window') : 'none'],

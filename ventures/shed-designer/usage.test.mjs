@@ -13,3 +13,11 @@ test('counts locally, honours the opt-out and clears', () => {
   clearUsage(s);
   assert.equal(readUsage(s, 'builds'), 0);
 });
+
+test('opening a gallery design\'s details is its own count, apart from compares', () => {
+  const s = mem();
+  recordUsage(s, false, 'details');
+  recordUsage(s, false, 'compares');
+  assert.equal(readUsage(s, 'details'), 1);
+  assert.equal(readUsage(s, 'compares'), 1);
+});

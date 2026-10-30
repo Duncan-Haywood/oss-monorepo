@@ -10,6 +10,7 @@ import { WALLS, wallLabel, siteLayout } from './model.mjs';
 import { heelJoint } from './checks.mjs';
 import { trussChecks } from './truss.mjs';
 import { LAP_PRODUCTS } from './lap.mjs';
+import { cuttingSheet } from './cutting-sheets.mjs';
 import { gambrelSectionItems, gambrelSectionNote, gambrelRoofPlan, gambrelTrussDetail, gambrelElevationRoof, gambrelRoofWords } from './gambrel-sheets.mjs';
 
 /** @typedef {[number, number]} P */
@@ -503,6 +504,12 @@ export function buildSheets(shed, marks = new Map()) {
     });
   }
 
+  // Cutting layout: where each piece comes out of each sheet the list buys.
+  {
+    const cut = cuttingSheet(shed);
+    if (cut) sheets.push(cut);
+  }
+
   // Typical details and nailing schedule.
   {
     const items = /** @type {Item[]} */ ([]);
@@ -832,7 +839,7 @@ export function buildSheets(shed, marks = new Map()) {
     row('Owner: ______________________________   Site address: ________________________________________   Parcel no.: ______________');
     row('');
     row('MATERIALS AND COLOURS', 9, 'muted');
-    row(`Siding: ${d.siding ? `${d.sidingType}, ${d.sidingColor === 'natural' ? 'natural stain' : d.sidingColor === 'unfinished' ? 'unfinished' : `${d.sidingColor} paint`}${d.polkaDots ? ' with purple polka dots' : ''}` : 'none'}. Roof: ${d.roofCover === 'metal' ? 'corrugated metal' : 'asphalt shingles'}, ${d.roofColor}. Trim: ${d.wallTrim === 'none' ? 'none' : `1x4, ${d.trimColor}`}.`);
+    row(`Siding: ${d.siding ? `${d.sidingType}, ${d.sidingColor === 'natural' ? 'natural stain' : d.sidingColor === 'unfinished' ? 'unfinished' : `${d.sidingColor} paint`}${d.polkaDots ? ' with purple polka dots' : ''}` : 'none'}. Roof: ${d.roofCover === 'metal' ? 'corrugated metal' : 'asphalt shingles'}, ${d.roofColor}. Trim: ${d.wallTrim === 'none' ? 'none' : `${d.wallTrim}, ${d.trimColor}`}.`);
     row(`Overall height: ${k.lean ? 'high edge' : 'peak'} ${fmtFtIn(k.peak)} above the gravel; walls ${k.lean ? `${fmtFtIn(k.highWall)} at the front and ${fmtFtIn(d.wallHeight)} at the back` : fmtFtIn(d.wallHeight)} floor to top of plates; floor ${fmtFtIn(k.floorTop)} above the gravel.`);
     row('');
     row('DESIGN DATA', 9, 'muted');

@@ -1,0 +1,47 @@
+{
+  "date": "2026-10-30",
+  "session": "https://claude.ai/code/session_01XpHqydCmyimrEyDu2zptKU",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "what are the most common file types in the repo. for the main site is there something I can do to improve the full dev to deploy to hosting lifecycle different languages perhaps? different frameworks? (follow-ups: rust tsx astro etc; not happy with html/vanilla js)",
+  "input_sha256": "cedbe5c51895cd0ece81da3f8a5b2f735146ea6201864506419281c445c0cfab",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-10-30T20:41:49Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Report: repo file types; language/framework alternatives for the site's dev-to-deploy lifecycle",
+  "projects": [],
+  "pr": 11860,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Owner question was a report request; CLAUDE.md's land-and-merge default applied by shipping the report as docs/reports + a post."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/reports/2026-10-30-site-stack-alternatives.md",
+    "docs/posts/2026-10-30-should-a-1300-tool-static-site-move-to-astro.md"
+  ],
+  "goal": null,
+  "notes": "Local build 218 s cold, 19,899 files, 5,835 HTML. CI run 41118044966 timings. 500 main runs: 340 cancelled, 125 failed, 35 success; since ~11:10 UTC 10-30 failures are the test job only (deploys green). Docs-only PR; loadPosts verified.",
+  "corrections": [],
+  "redteam": null
+}

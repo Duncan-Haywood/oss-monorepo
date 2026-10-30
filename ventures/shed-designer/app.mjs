@@ -20,12 +20,13 @@ import { quoteRequest, mailtoLink, STORES } from './quote.mjs';
 import { PRODUCTS } from './products.mjs';
 import { storeComparison, swapsFor, storeTotals, storeList, pricesFor } from './catalog.mjs';
 import { simplify, cutMetrics, budget, laborHours } from './simplify.mjs';
-import { galleryEntries, mountMatchHouse, mountStripNav } from './gallery-ui.mjs';
+import { galleryEntries, mountMatchHouse, mountStripNav, matchesHouse } from './gallery-ui.mjs';
 import { showCosts, wireCosts, bridgeHtml, breakdownOf, deltaSentence } from './costview.mjs';
 import { costDelta, deltaPhrase } from './costs.mjs';
 import { valueComparison, valueHtml } from './value.mjs';
 import { finishOptions, isHex, paletteOf, rgbToHex, SIDING_FINISHES, TRIM_FINISHES, DOOR_FINISHES, SHINGLE_FAMILIES } from './looks.mjs';
 import { leverOptions, leverTableHtml } from './costlevers.mjs';
+import { idsForLine, describePiece } from './xref.mjs';
 
 const $ = (sel) => /** @type {any} */ (document.querySelector(sel));
 const $$ = (sel) => /** @type {any[]} */ ([...document.querySelectorAll(sel)]);
@@ -144,7 +145,7 @@ function preview(next) {
   requestAnimationFrame(() => {
     const d = normalize(previewQueued);
     previewQueued = null;
-    const shed = buildShed(d);
+    const shed = buildShed(d, state.prices);
     viewer?.show(shed);
     $('#live').textContent = `${fmtFtIn(d.length)} x ${fmtFtIn(d.width)}, ${fmtFtIn(d.wallHeight)} walls, ${d.pitch}/12 roof, ${d.overhang}" overhang`;
   });
@@ -155,7 +156,7 @@ const SITE_FIELDS = ['lotWidthFt', 'lotDepthFt', 'siteLeftFt', 'siteRearFt', 'se
 const FIELDS = ['name', 'lengthFt', 'widthFt', 'style', 'wallHeight', 'pitch', 'overhang', 'studSize', 'studSpacing', 'joistSize', 'joistSpacing',
   'rafterSize', 'rafterSpacing', 'tieSize', 'skidSize', 'skidSpacing', 'foundation', 'floorTreated', 'siding', 'roofing', 'gableVents', 'ventWidth', 'ventHeight', 'kerf',
   'roofType', 'beamSize', 'sidingColor', 'polkaDots', 'autoWall', 'autoStuds', 'autoPitch',
-  'autoOverhang', 'overhangBudget', 'snowLoad', 'windLoad', 'roofColor', 'trimColor', 'doorColor', 'glitter', 'interior', 'sidingType', 'roofCover', 'insulation', 'customRange', 'atticStorage', 'wallTrim', 'rafterSeat', 'maxFootprint', 'pierDepth', 'compaction', 'pad', 'floorPanel', 'spares', 'taxRate', 'delivery', 'laborRate', 'maxHaulFt', 'gambrelLower', 'gambrelKnee', 'loft', 'loftJoist', 'siteFacing', 'northDeg', 'easementSide', 'easementNote', ...SITE_FIELDS];
+  'autoOverhang', 'overhangBudget', 'snowLoad', 'windLoad', 'roofColor', 'trimColor', 'doorColor', 'glitter', 'interior', 'sidingType', 'roofCover', 'insulation', 'customRange', 'atticStorage', 'wallTrim', 'climate', 'rafterSeat', 'maxFootprint', 'pierDepth', 'compaction', 'pad', 'floorPanel', 'spares', 'taxRate', 'delivery', 'laborRate', 'maxHaulFt', 'gambrelLower', 'gambrelKnee', 'loft', 'loftJoist', 'siteFacing', 'northDeg', 'easementSide', 'easementNote', ...SITE_FIELDS];
 
 
 /** A colour select keeps one "Your colour" option for a hex code typed or picked. @param {HTMLSelectElement} sel @param {string} v */
@@ -195,7 +196,7 @@ function readForm() {
   d.width = Math.round(num('widthFt', d.width / 12) * 12);
   d.maxPeak = Math.round(num('maxPeakFt', d.maxPeak / 12) * 12);
   for (const f of ['wallHeight', 'pitch', 'overhang', 'studSpacing', 'joistSpacing', 'rafterSpacing', 'skidSpacing', 'ventWidth', 'ventHeight', 'kerf', 'snowLoad', 'windLoad', 'maxFootprint', 'pierDepth', 'spares', 'taxRate', 'laborRate', 'maxHaulFt', 'gambrelLower', 'gambrelKnee', ...SITE_FIELDS, 'overhangBudget']) d[f] = num(f, d[f]);
-  for (const f of ['style', 'studSize', 'joistSize', 'rafterSize', 'tieSize', 'skidSize', 'foundation', 'roofType', 'beamSize', 'sidingColor', 'roofColor', 'trimColor', 'doorColor', 'interior', 'sidingType', 'roofCover', 'wallTrim', 'rafterSeat', 'compaction', 'pad', 'floorPanel', 'delivery', 'loft', 'loftJoist', 'siteFacing', 'northDeg', 'easementSide', 'easementNote']) d[f] = v(f).value;
+  for (const f of ['style', 'studSize', 'joistSize', 'rafterSize', 'tieSize', 'skidSize', 'foundation', 'roofType', 'beamSize', 'sidingColor', 'roofColor', 'trimColor', 'doorColor', 'interior', 'sidingType', 'roofCover', 'wallTrim', 'climate', 'rafterSeat', 'compaction', 'pad', 'floorPanel', 'delivery', 'loft', 'loftJoist', 'siteFacing', 'northDeg', 'easementSide', 'easementNote']) d[f] = v(f).value;
   for (const f of ['floorTreated', 'siding', 'roofing', 'gableVents', 'polkaDots', 'autoWall', 'autoStuds', 'autoPitch', 'autoOverhang', 'glitter', 'insulation', 'customRange', 'atticStorage']) d[f] = v(f).checked;
   d.lengths = $$('input[name="stock"]:checked').map((c) => Number(c.value));
   d.locked = $$('input[name="lock"]:checked').map((c) => c.value);
@@ -230,7 +231,7 @@ function haulLine(shed, est) {
   const d = shed.design;
   const longest = Math.max(...est.lumber.flatMap((l) => l.result.boards.map((b) => b.stock))) / 12;
   if (!d.maxHaulFt) return `${longest} ft (no limit set)`;
-  const free = estimate(buildShed(normalize({ ...d, maxHaulFt: 0 })), state.prices);
+  const free = estimate(buildShed(normalize({ ...d, maxHaulFt: 0 }), state.prices), state.prices);
   const diff = est.total - free.total;
   const vs = Math.abs(diff) < 0.005 ? 'the same as with no limit' : `${money(Math.abs(diff))} ${diff > 0 ? 'more' : 'less'} than with no limit`;
   const over = longest > d.maxHaulFt ? `; ${longest} ft boards only where a piece needs one (see the cut sheet)` : '';
@@ -286,7 +287,11 @@ function renderShopping(est) {
     const left = skip.has(r.name);
     const lm = r.section === 'Lumber' ? /^(.+) x (\d+)'/.exec(r.name) : null;
     const use = lm && uses.get(`${lm[1]}:${lm[2]}`);
-    html += `<tr${got ? ' class="have"' : left ? ' class="skip"' : ''}><td>${esc(r.name)}${lm ? `<button type="button" class="link xref-btn" data-xref-lumber="${esc(`${lm[1]}:${lm[2]}`)}">Show in 3D</button>` : ''}${use ? `<div class="use">for ${esc(use)}</div>` : ''}</td><td class="n">${r.qty}</td><td>${r.unit}</td><td class="n">${money(r.price)}</td><td class="n">${money(r.total)}</td><td>${r.elsewhere ? `<span class="muted">not listed at ${esc(est.storeList.store)}: </span>` : ''}${sourceCell(r.source)}</td>`
+    // Sheet goods, siding, roofing, trim and hardware point at their own panels and fixtures.
+    const drawn = !lm && lastShed && idsForLine(lastShed, r).length;
+    const xbtn = lm ? `<button type="button" class="link xref-btn" data-xref-lumber="${esc(`${lm[1]}:${lm[2]}`)}">Show in 3D</button>`
+      : drawn ? `<button type="button" class="link xref-btn" data-xref-line="${i}">Show in 3D</button>` : '';
+    html += `<tr data-line="${i}"${got ? ' class="have"' : left ? ' class="skip"' : ''}><td>${esc(r.name)}${xbtn}${use ? `<div class="use">for ${esc(use)}</div>` : ''}</td><td class="n">${r.qty}</td><td>${r.unit}</td><td class="n">${money(r.price)}</td><td class="n">${money(r.total)}</td><td>${r.elsewhere ? `<span class="muted">not listed at ${esc(est.storeList.store)}: </span>` : ''}${sourceCell(r.source)}</td>`
       + `<td><input type="checkbox" data-have="${esc(r.name)}"${got ? ' checked' : ''} aria-label="I already have: ${esc(r.name)}"></td>`
       + `<td><input type="checkbox" data-skip="${esc(r.name)}"${left ? ' checked' : ''} aria-label="Leave out of the total: ${esc(r.name)}"></td></tr>`;
     if (est.shopping[i + 1]?.section !== r.section) {
@@ -395,7 +400,7 @@ function renderStores(est, d) {
   if (swaps.length) {
     html += '<h3 class="h4">Swaps worth a look</h3><ul class="swaps">';
     for (const sw of swaps) {
-      const alt = estimate(buildShed(normalize({ ...d, ...sw.change })), state.prices);
+      const alt = estimate(buildShed(normalize({ ...d, ...sw.change }), state.prices), state.prices);
       const diff = alt.total - est.total;
       html += `<li><strong>${esc(sw.title)}</strong>: ${diff < 0 ? `saves ${money(-diff)}` : `adds ${money(diff)}`}. ${esc(sw.why)} <span class="muted">${esc(sw.cost)}</span> <button type="button" class="btn" data-swap="${esc(sw.id)}">Try it and show me</button></li>`;
     }
@@ -504,6 +509,13 @@ function idsForMarks(marks) {
   const want = new Set(marks);
   return lastEst.parts.filter((p) => want.has(p.mark)).flatMap((p) => p.ids);
 }
+/** For each shopping line, the ids of the panels and fixtures drawn for it (once per estimate). */
+let lineSetsFor = null;
+let lineSetsCache = /** @type {Set<string>[]} */ ([]);
+function lineSets() {
+  if (lineSetsFor !== lastEst) { lineSetsFor = lastEst; lineSetsCache = lastEst.shopping.map((r) => new Set(idsForLine(lastShed, r))); }
+  return lineSetsCache;
+}
 /** Highlight pieces in 3D and the lists, and say what they are with links onward. */
 function showPieces(ids, title, { scroll = false } = {}) {
   const set = new Set(ids);
@@ -520,11 +532,19 @@ function showPieces(ids, title, { scroll = false } = {}) {
     for (const t of fig.querySelectorAll('text.mark')) if (marks.includes(t.textContent.trim())) { t.classList.add('xref-on'); hit = true; }
     if (hit) onSheets.push(fig.querySelector('figcaption')?.firstChild?.textContent?.replace(/^\d+\.\s*/, '').trim() || fig.id);
   }
+  // Panels and fixtures have no part mark: name them and the shopping lines they are bought as.
+  const loose = ids.filter((id) => !parts.some((p) => p.ids.includes(id)));
+  const lines = lineSets().flatMap((ls, i) => (loose.some((id) => ls.has(id)) ? [i] : []));
+  for (const tr of $$('#shopping tr[data-line]')) if (lines.includes(Number(tr.dataset.line))) tr.classList.add('xref-on');
+  const others = [...new Set(loose.map((id) => describePiece(lastShed, id)?.replace(/,.*$| [a-z]*\d+$/i, '')).filter(Boolean))];
   const step = stepFor(marks);
   const box = $('#xref');
   box.hidden = false;
-  box.innerHTML = `<h3>${esc(title)}</h3><p>${parts.map((p) => `${esc(p.kind)} (${p.mark}): ${p.qty} x ${fmtIn(p.length)} ${p.material}`).join('; ') || 'No framing pieces.'}</p>
+  const said = [...parts.map((p) => `${esc(p.kind)} (${p.mark}): ${p.qty} x ${fmtIn(p.length)} ${p.material}`), ...(others.length ? [esc(others.join(', '))] : [])];
+  box.innerHTML = `<h3>${esc(title)}</h3><p>${said.join('; ') || 'Nothing drawn for this line.'}</p>
+    ${lines.length ? `<p class="muted">Bought as: ${lines.map((i) => esc(lastEst.shopping[i].name)).join('; ')}</p>` : ''}
     <div class="toolrow">${step >= 0 ? `<button type="button" class="btn" data-xstep="${step}">Build step: ${esc(buildSections[step].title)}</button>` : ''}
+    ${lines.length ? '<button type="button" class="btn" data-xgo="panel-shopping">Shopping list</button>' : ''}
     ${onSheets.length ? `<button type="button" class="btn" data-xgo="panel-plans">Plans: ${esc(onSheets.slice(0, 3).join(', '))}${onSheets.length > 3 ? ` and ${onSheets.length - 3} more` : ''}</button>` : ''}
     <button type="button" class="btn" data-xgo="panel-cuts">Cut sheet</button><button type="button" class="btn" data-xgo="panel-parts">Parts list</button><button type="button" class="btn" data-xclear>Clear</button></div>`;
   if (scroll) $('#view3d').scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -544,7 +564,7 @@ function renderTabs() {
 
 function renderCompare() {
   const rows = state.designs.map((d, i) => {
-    const shed = buildShed(d);
+    const shed = buildShed(d, state.prices);
     const est = estimate(shed, state.prices);
     return { d, i, shed, est };
   });
@@ -605,7 +625,7 @@ function queueThumbs() {
     for (const d of state.designs) {
       const key = JSON.stringify(d);
       if (thumbs.has(key)) continue;
-      thumbViewer.show(buildShed(d), { refit: true });
+      thumbViewer.show(buildShed(d, state.prices), { refit: true });
       thumbs.set(key, thumbViewer.snapshot());
       changed = true;
     }
@@ -630,7 +650,7 @@ function render() {
 }
 function renderNow() {
   const d = design();
-  const shed = buildShed(d);
+  const shed = buildShed(d, state.prices);
   const est = storeEstimate(shed);
   lastEst = est;
   lastShed = shed;
@@ -898,7 +918,7 @@ function wire() {
     $('#option-cards').innerHTML = opts.map((o, i) => {
       const change = deltaPhrase(costDelta(here, breakdownOf(o.design, state.prices)));
       let img = '';
-      if (tv) { tv.show(buildShed(o.design), { refit: true }); img = `<img src="${tv.snapshot()}" alt="3D view of option ${i + 1}" width="480" height="320">`; }
+      if (tv) { tv.show(buildShed(o.design, state.prices), { refit: true }); img = `<img src="${tv.snapshot()}" alt="3D view of option ${i + 1}" width="480" height="320">`; }
       return `<article class="card"><div>${img}</div><h3 class="h4">${i === 0 ? '<span class="pill">best value</span> ' : ''}${esc(o.label)}</h3>
         <dl><div><dt>Total</dt><dd>${money(o.total)}</dd></div><div><dt>Lumber</dt><dd>${money(o.lumber)}, ${o.boards} boards</dd></div>
         <div><dt>Against your design</dt><dd>${o.delta > 0.005 ? `${money(o.delta)} more` : o.delta < -0.005 ? `${money(-o.delta)} less` : 'same price'}</dd></div>
@@ -934,7 +954,7 @@ function wire() {
         let img = '';
         const fromB = breakdownOf(design(), state.prices);
         const toB = breakdownOf(b.design, state.prices);
-        if (tv) { tv.show(buildShed(b.design), { refit: true }); img = `<img src="${tv.snapshot()}" alt="3D view of the cheaper build" width="480" height="320" style="max-width:100%;height:auto">`; }
+        if (tv) { tv.show(buildShed(b.design, state.prices), { refit: true }); img = `<img src="${tv.snapshot()}" alt="3D view of the cheaper build" width="480" height="320" style="max-width:100%;height:auto">`; }
         html += `<article class="card">${img}<h4>${money(b.total)} of materials, ${money(r.base.total - b.total)} less than your ${money(r.base.total)}; about ${Math.round(b.hours)} hours of work (yours: ${Math.round(r.base.hours)})</h4>
           <p>${esc(deltaSentence(fromB, toB, 'By assembly'))}</p>
           <ol>${b.steps.map((st) => `<li>${esc(st.label)}: saves ${money(st.saving)}${st.hours ? ` (${st.materials >= 0 ? `${money(st.materials)} of materials` : `${money(-st.materials)} more materials`}, ${Math.abs(st.hours)} h ${st.hours > 0 ? 'less' : 'more'} work)` : ''}</li>`).join('')}</ol>
@@ -992,7 +1012,7 @@ function wire() {
       let html = `<p class="muted">Tried ${r.evaluated} designs; each kept passes every load and connection check${design().maxFootprint ? `, stays within ${design().maxFootprint} sq ft` : ''} and is no more than 1" taller. Your design: ${money(r.base.total)}, ${cutsText(r.base.cuts)} cuts, ${(r.base.cuts.waste * 100).toFixed(1)}% offcut.</p><div class="cards">`;
       html += picks.map((w, i) => {
         let img = '';
-        if (tv) { tv.show(buildShed(w.design), { refit: true }); img = `<img src="${tv.snapshot()}" alt="3D view of the ${esc(w.goal.toLowerCase())} pick" width="480" height="320">`; }
+        if (tv) { tv.show(buildShed(w.design, state.prices), { refit: true }); img = `<img src="${tv.snapshot()}" alt="3D view of the ${esc(w.goal.toLowerCase())} pick" width="480" height="320">`; }
         return `<article class="card"><div>${img}</div><h4>${esc(w.goal)}</h4>
           <dl><div><dt>Changes</dt><dd>${w.changes.length ? esc(w.changes.join(', ')) : 'none: yours is already best for this goal'}</dd></div>
           <div><dt>Total</dt><dd>${money(w.total)} (${w.total <= r.base.total ? 'saves' : 'adds'} ${money(Math.abs(r.base.total - w.total))})</dd></div>
@@ -1026,6 +1046,9 @@ function wire() {
       const [mat, ft] = b.dataset.xrefLumber.split(':');
       const ids = lastEst.lumber.filter((l) => l.material === mat).flatMap((l) => l.result.boards.filter((x) => x.stock === Number(ft) * 12).flatMap((x) => x.cuts.map((c) => c.id)));
       showPieces(ids, `${mat} x ${ft}': where its pieces go`, { scroll: true });
+    } else if (b.dataset.xrefLine) {
+      const r = lastEst.shopping[Number(b.dataset.xrefLine)];
+      showPieces(idsForLine(lastShed, r), `${r.name}: where it goes`, { scroll: true });
     } else {
       const marks = b.dataset.xrefMarks.split(' ');
       showPieces(idsForMarks(marks), `Mark${marks.length > 1 ? 's' : ''} ${marks.join(', ')}`, { scroll: true });
@@ -1044,8 +1067,26 @@ function wire() {
   if (viewer) viewer.onPick = (id) => {
     if (!id || !lastEst) return;
     const part = lastEst.parts.find((p) => p.ids.includes(id));
-    if (part) showPieces(part.ids, `${part.kind[0].toUpperCase()}${part.kind.slice(1)}, mark ${part.mark}`);
+    if (part) { showPieces(part.ids, `${part.kind[0].toUpperCase()}${part.kind.slice(1)}, mark ${part.mark}`); return; }
+    // A panel or fixture: light every piece of its first shopping line, so a click on one siding course shows the whole run.
+    const lines = lineSets().flatMap((ls, i) => (ls.has(id) ? [i] : []));
+    const what = describePiece(lastShed, id);
+    if (what) showPieces(lines.length ? idsForLine(lastShed, lastEst.shopping[lines[0]]) : [id], what);
   };
+
+  // The section bar is sticky, so scrolling by hand can park a plan handle under
+  // it. While one is, the bar fades and lets the pointer through to the handle.
+  let barQueued = false;
+  const clearHandles = () => {
+    barQueued = false;
+    const bar = $('#jump');
+    const r = bar.getBoundingClientRect();
+    const covered = r.height > 0 && $$('.handle-hit').some((h) => { const b = h.getBoundingClientRect(); return b.bottom > r.top && b.top < r.bottom && b.right > r.left && b.left < r.right; });
+    bar.classList.toggle('over-handle', covered);
+  };
+  const queueBar = () => { if (!barQueued) { barQueued = true; requestAnimationFrame(clearHandles); } };
+  addEventListener('scroll', queueBar, { passive: true });
+  addEventListener('resize', queueBar);
 
   // The section bar at the top opens a results tab and scrolls to it.
   $('#jump').addEventListener('click', (e) => {
@@ -1178,6 +1219,12 @@ picker = mountPicker({
     $('#workspace').scrollIntoView({ behavior: 'smooth' });
   },
 });
+// Say how many ready designs there are, and how many match a house, from the list itself.
+{
+  const all = galleryEntries();
+  const lap = all.filter((e) => matchesHouse(e.design)).length;
+  $('#gallery-count').textContent = `${all.length} sheds under 100 sq ft (${lap} in painted lap siding and asphalt shingles, to match a house)`;
+}
 const stripNav = mountStripNav({ track: $('#starts .pick-list'), prev: $('#starts-prev'), next: $('#starts-next'), pos: $('#starts-pos') });
 if (picker) mountMatchHouse({ box: $('#match-house'), picker, nav: stripNav, storage });
 if (linkNote) $('#status').textContent = linkNote;
