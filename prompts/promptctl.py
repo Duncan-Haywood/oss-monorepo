@@ -1282,6 +1282,8 @@ def main(argv: list[str] | None = None) -> int:
             print(json.dumps(m, indent=2))
         else:
             print_measure_section(m, args.section)
+            # wait_for.py's default marker: lets a background run be polled (friction 2026-10-30)
+            print("DONE", flush=True)
         return 0
     if args.cmd == "backfill-pr":
         found = backfill_prs(ROOT, not args.dry_run)
