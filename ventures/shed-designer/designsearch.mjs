@@ -154,7 +154,7 @@ export const LAYOUTS = {
 /** Share of the budget kept for the polish phase. */
 const POLISH_SHARE = 0.35;
 /** The lighter value of each framing knob, tried on every front design first. */
-const LIGHT = { joistSize: '2x4', joistSpacing: 24, rafterSpacing: 24, studSpacing: 24, rafterSize: '2x4' };
+const LIGHT = { joistSize: '2x4', joistSpacing: 24, rafterSpacing: 24, studSpacing: 'auto', rafterSize: '2x4' };
 /** Knobs the polish tries: they mostly move cost, and leave the plan and openings alone. */
 const POLISH_KNOBS = ['joistSize', 'joistSpacing', 'rafterSpacing', 'studSpacing', 'rafterSize', 'overhang', 'wall', 'floorPanel', 'foundation', 'pad', 'roofCover', 'sidingType'];
 /** The layouts that put every opening in the front wall: seeded for a lean-to, not a gable. */
@@ -166,7 +166,10 @@ const KNOBS = {
   pitch: [4, 5, 6, 7, 8, 9],
   overhang: [6, 8, 9, 12],
   wall: ['auto', 88, 92, 97.125],
-  studSpacing: [16, 24],
+  // Only 'auto', the design's own default: 24" where the siding allows it and the studs pass, else 16"
+  // (model.mjs autoStudSpacing). A fixed 16" beside it is the same shed with more studs, and a
+  // fixed 24" passes only where auto already picks it; a spacing you fix is still searched as given.
+  studSpacing: ['auto'],
   rafterSpacing: [16, 24],
   rafterSize: ['2x4', '2x6'],
   // Foundation and floor options and their limits live in levers.mjs.
@@ -390,10 +393,19 @@ function designAt(base, size, layout, knobs, minWall = DEFAULT_CONSTRAINTS.minWa
     length: size.length, width: size.width,
     autoWall: wall === 'auto' && !lean, ...(leanAuto ? { wallHeight: leanAuto } : wall === 'auto' ? {} : { wallHeight: wall }),
     autoPitch: false, autoOverhang: false, maxPeak: 0, maxFootprint: 0,
-    // A spacing the search picks is framed as picked.
-    ...('studSpacing' in rest ? { autoStuds: false } : {}),
+    ...studKnob(rest),
     openings: ops,
   });
+}
+
+/**
+ * The stud-spacing knob as design fields: 'auto' keeps the design's own default,
+ * a number is framed as picked.
+ * @param {Record<string, any>} kn
+ */
+function studKnob(kn) {
+  if (!('studSpacing' in kn)) return {};
+  return kn.studSpacing === 'auto' ? { studSpacing: 16, autoStuds: true } : { autoStuds: false };
 }
 
 /**
@@ -422,7 +434,7 @@ export function* searchSteps(opts = {}) {
   const knobs = {};
   // A fixed door or window is the base design's, when it is one the search knows.
   const baseProduct = (kind, list) => { const p = base.openings.find((o) => o.kind === kind)?.product; return p && p in list ? p : Object.keys(list)[0]; };
-  const fixedValue = (k) => (k === 'wall' ? base.wallHeight : k === 'door' ? baseProduct('door', DOORS) : k === 'window' ? baseProduct('window', WINDOWS) : base[k]);
+  const fixedValue = (k) => (k === 'studSpacing' && base.autoStuds ? 'auto' : k === 'wall' ? base.wallHeight : k === 'door' ? baseProduct('door', DOORS) : k === 'window' ? baseProduct('window', WINDOWS) : base[k]);
   for (const [k, vals] of Object.entries({ ...KNOBS, ...(opts.knobs ?? {}) })) knobs[k] = fixed.has(k) ? [fixedValue(k)] : vals;
   // A lean-to and a gambrel pin their roofType, so a roof structure you fixed rules them out.
   if (fixed.has('roofType') && knobs.roofType[0] !== 'ridgeBoard') knobs.style = knobs.style.filter((st) => st === 'gable');
@@ -435,7 +447,7 @@ export function* searchSteps(opts = {}) {
   let rejected = 0;
   /** @param {{ length: number, width: number }} size @param {string} layout @param {Record<string, any>} kn */
   const tryOne = (size, layout, kn) => {
-    const d = layout ? designAt(base, size, layout, kn, c.minWall) : normalize({ ...base, ...kn, ...('studSpacing' in kn ? { autoStuds: false } : {}) });
+    const d = layout ? designAt(base, size, layout, kn, c.minWall) : normalize({ ...base, ...kn, ...studKnob(kn) });
     if (!d) return null;
     const key = JSON.stringify({ ...d, name: '' });
     if (seen.has(key)) return null;
@@ -463,7 +475,7 @@ export function* searchSteps(opts = {}) {
       if (seen.size >= budget) break;
       const seed = { ...lean, style, ...(style === 'leanTo' && knobs.pitch.includes(4) ? { pitch: 4 } : {}) };
       const r = tryOne(size, layout, seed);
-      if (r && !r.feasible && !r.ok) tryOne(size, layout, { ...seed, ...Object.fromEntries(Object.entries(knobs).filter(([k]) => /Size$/.test(k)).map(([k, v]) => [k, v[v.length - 1]])), studSpacing: knobs.studSpacing[0], rafterSpacing: knobs.rafterSpacing[0] });
+      if (r && !r.feasible && !r.ok) tryOne(size, layout, { ...seed, ...Object.fromEntries(Object.entries(knobs).filter(([k]) => /Size$/.test(k)).map(([k, v]) => [k, v[v.length - 1]])), rafterSpacing: knobs.rafterSpacing[0] });
       yield progress();
     }
   }
