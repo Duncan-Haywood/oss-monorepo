@@ -202,6 +202,8 @@
       <div><label for="dkBeam">Beam board (doubled by default)</label><select id="dkBeam"><option>2x10</option><option>2x8</option><option>2x12</option></select></div>
       <div><label for="dkPost">Post</label><select id="dkPost"><option>6x6</option><option>4x4</option></select></div>
       <div><label for="dkFree">Attachment</label><select id="dkFree"><option value="">Ledger on the house</option><option value="true">Freestanding</option></select></div>
+      <div><label for="dkGuard">Guard (railing)</label><select id="dkGuard"><option value="">Automatic (over 30 in above grade)</option><option value="always">Always lay out</option><option value="none">None</option></select></div>
+      <div><label for="dkGuardSides">Guarded edges</label><select id="dkGuardSides"><option value="">All open edges</option><option value="outer">Outer edge only</option><option value="outer,left,right">Outer, left and right</option></select></div>
     </div>
     <p><input type="checkbox" id="trOn" style="width:auto"> <label for="trOn" style="display:inline">Also count interior trim (baseboard between doors; casing legs, head and window sill; packed into stock boards; lengths and widths are the trim you buy)</label></p>
     <div class="grid" id="trFields" hidden>
@@ -655,6 +657,8 @@
         const dk = { id: "Deck", width: L($("#dkWidth").value, "deck width"), depth: L($("#dkDepth").value, "deck depth"), height: L($("#dkHeight").value, "deck height"), joist: $("#dkJoist").value, beam: $("#dkBeam").value, postSize: $("#dkPost").value };
         if ($("#dkSpacing").value.trim()) dk.spacing = Number($("#dkSpacing").value);
         if ($("#dkFree").value) dk.freestanding = true;
+        if ($("#dkGuard").value === "none") dk.guard = false;
+        else if ($("#dkGuard").value === "always" || $("#dkGuardSides").value) dk.guard = $("#dkGuardSides").value ? { sides: $("#dkGuardSides").value.split(",") } : {};
         plan.deck = dk;
       }
       if ($("#stOn").checked) {
@@ -875,7 +879,7 @@
     function renderDeck(dk) {
       $("#deckCard").hidden = !dk;
       if (!dk) return;
-      $("#deckOut").innerHTML = `<pre style="white-space:pre-wrap;overflow-x:auto">${esc(deckText(dk).join("\n"))}</pre><p class="note">Joist spans come from a span table you can replace in the plan file; the built-in one is a rule of thumb, not your jurisdiction's table. Footing size, post sizing, guards and frost depth are yours to check against local code. Hand-checked arithmetic only, not a built deck.</p>`;
+      $("#deckOut").innerHTML = `<pre style="white-space:pre-wrap;overflow-x:auto">${esc(deckText(dk).join("\n"))}</pre><p class="note">Joist spans come from a span table you can replace in the plan file; the built-in one is a rule of thumb, not your jurisdiction's table. Footing size, post sizing, guard post attachment and frost depth are yours to check against local code. Hand-checked arithmetic only, not a built deck.</p>`;
     }
     function renderStairs(st) {
       $("#stairsCard").hidden = !st;
@@ -1122,6 +1126,8 @@
       $("#dkWidth").value = dkp ? formatLength(dkp.width) : ""; $("#dkDepth").value = dkp ? formatLength(dkp.depth) : ""; $("#dkHeight").value = dkp ? formatLength(dkp.height) : "";
       $("#dkJoist").value = dkp?.joist || "2x8"; $("#dkSpacing").value = dkp?.spacing != null ? String(dkp.spacing) : ""; $("#dkBeam").value = dkp?.beam || "2x10";
       $("#dkPost").value = dkp?.postSize || "6x6"; $("#dkFree").value = dkp?.freestanding ? "true" : "";
+      $("#dkGuard").value = dkp?.guard === false ? "none" : dkp?.guard ? "always" : "";
+      { const gs = dkp?.guard && typeof dkp.guard === "object" && Array.isArray(dkp.guard.sides) ? dkp.guard.sides.join(",") : ""; $("#dkGuardSides").value = [...$("#dkGuardSides").options].some((o) => o.value === gs) ? gs : ""; }
       const stp = plan.stairs && !Array.isArray(plan.stairs) ? plan.stairs : null;
       $("#stOn").checked = Boolean(stp); $("#stFields").hidden = !stp;
       $("#stRise").value = stp ? formatLength(stp.totalRise) : ""; $("#stTread").value = stp?.tread != null ? String(stp.tread) : "";
